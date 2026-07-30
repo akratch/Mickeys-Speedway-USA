@@ -35,6 +35,16 @@ consciously dropped.
   `build.py` should take the prelude path from an environment variable or
   argument so a project can point it at its own `macro.inc` instead of
   maintaining a parallel one — worth an upstream PR.
+- **Changing a splat macro option leaves `hasm` output stale, and it fails
+  late.** Turning off `asm_nonmatching_label_macro` made splat regenerate
+  `include/macro.inc` without the `nonmatching` macro, but splat deliberately
+  never rewrites `hasm` files once they exist — so `asm/entrypoint.s` kept
+  using a macro that no longer existed. The build stayed green until the next
+  `gmake clean`, because the stale `.s` had already been assembled. Recovery
+  is `rm` the affected file (or `gmake distclean`) and re-extract. Suggest: a
+  cheap `gmake` sanity step that greps the generated `asm/**.s` for macros
+  `include/macro.inc` does not define, so this class of drift fails
+  immediately instead of at the next clean build.
 - **m2c has no pin and a broken transitive dependency.** `tools/m2c/m2c.py`
   fails to import under a fresh venv (no `pycparser`), and then fails again
   with `pycparser` 2.23+ (`pycparser.plyparser` was removed). Now pinned as
