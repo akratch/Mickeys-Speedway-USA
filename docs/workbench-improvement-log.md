@@ -376,6 +376,55 @@ of claim that should leave a trail.
   text. The whole file stays ROM-derived; the tool now says so instead of
   letting the operator infer that the fix applied retroactively.
 
+## 2026-07-31 — Phase 2 Task 1, round 4: "recursive default-deny" was neither, verified by execution
+
+The round-3 entry above described the ledger sweep as a recursive default-deny
+over the whole record. Driving `redact_record` directly — rather than reading
+it — found six ways through, each of which wrote the target ROM's instruction
+text into the output while the redactor reported success:
+
+- a **nested dict under an allow-listed site key**: `redact_site` selected
+  surviving keys with a shallow dict comprehension, so
+  `{"candidate": {"target": "lw\t$v0,0x10($sp)"}}` was emitted verbatim;
+- a payload in a **tuple** — `model` keeps tuples through
+  `dataclasses.asdict`, and the sweep entered `list` only;
+- a payload used as a **mapping key**, since only key *names* were inspected;
+- `Target`, `TARGET`, `_target` — the match was a case-sensitive `startswith`;
+- instruction text containing a `/`, which `_is_path_like` accepted as a
+  filesystem path; real `objdump` source-interleaved output qualifies;
+- 3000-deep nesting, which raised an uncaught `RecursionError` out of the
+  middle of a campaign.
+
+Fixed upstream in `n64-decomp-workbench` (`674b2a9`): the sweep now enters
+`dict`, `list`, `tuple`, `set` and `frozenset`, examines keys as well as
+values, requires keys to be shaped like field names, matches target-naming
+keys case- and prefix-insensitively, re-sweeps allow-listed values, and caps
+depth with a new `RedactionError` rather than unwinding. `_is_path_like` now
+requires a value containing no whitespace at all — instruction text always has
+a separator between mnemonic and operands, a path does not. Eleven regression
+tests; suite 646 → 657.
+
+**And the claim is restated where it was overstated.** `append_ledger`'s
+docstring said the ledger "cannot carry the ROM's instruction text at all". It
+cannot carry it under a target-named field, at any depth, in any container. It
+can still carry a target instruction stored under an innocuous key name, or as
+a bare element of a list, because nothing there reads string contents. That is
+now stated at the function, at `_sweep`, in the module docstring and in the
+upstream CHANGELOG. **For this repo the consequence is unchanged:** ledgers are
+untracked by the `workbench-path` whitelist regardless, which is the layer that
+actually holds.
+
+Two smaller corrections in the same commit:
+
+- The resume warning's docstring said it "scans the file" while its default
+  capped the read at 4096 lines, so an unredacted record on line 4097 of a long
+  campaign's ledger produced silence. It now streams every record, and an
+  explicit cap reports how far it actually got.
+- `force_spec`'s `target_register` was annotated only in a comment at the point
+  of use, despite being reported as recorded. It is now in the upstream
+  CHANGELOG as the third instance of the operator-named-export class, beside
+  `--html`.
+
 ## 2026-07-31 — Phase 2 Task 3: `find_known_objects.py` grows the column the threshold was already written against
 
 `docs/modules.md` §1.2 has always required a tier-A match to be **unique across
