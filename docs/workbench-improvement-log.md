@@ -375,3 +375,49 @@ of claim that should leave a trail.
   records into a file whose existing records still carry the ROM's instruction
   text. The whole file stays ROM-derived; the tool now says so instead of
   letting the operator infer that the fix applied retroactively.
+
+## 2026-07-31 — Phase 2 Task 3: `find_known_objects.py` grows the column the threshold was already written against
+
+`docs/modules.md` §1.2 has always required a tier-A match to be **unique across
+the whole 32MB image**, and has always noted, in the same paragraph, that the
+tool could not check it: "`occ` in `tools/find_known_objects.py` is still
+window-scoped." That is a threshold with a hole in it, and Task B recorded that
+the hole had already cost one wrong claim.
+
+`--rom-occ` closes it. The implementation is cheap because it reuses the
+anchored search the tool already does: a `romocc` count is computed only for
+rows that already survived the window filter, and only by re-running the same
+masked comparison over `0 .. len(rom)`. Across the eight runs this task made
+(four titles × libultra/game, ~2,700 reference objects), the extra pass cost
+under a second per run.
+
+Three notes for whoever touches it next.
+
+- **It refuses to answer rather than guessing.** A whole-image search needs a
+  run of at least two consecutive unmasked words to anchor `bytes.find` on;
+  without one, the fallback is an eight-million-offset Python sweep per symbol,
+  which is not affordable. Those rows print `romocc=?`. That matters more than
+  it sounds: the symbols with no two-word anchor are precisely the tiny
+  `return x->field` accessors whose uniqueness claim would be doing the most
+  work, so printing `1` there would be worse than printing nothing.
+- **It earned its keep immediately.** Every name adopted in this task carries a
+  measured `romocc`, and the column is what disqualified the 0x58E40 candidate
+  (ten candidate names, `romocc=?`) without any further argument.
+- **What it still does not do:** `occ`/`romocc` count occurrences of *these
+  bytes*, not of *this function*. A routine that appears twice because the game
+  genuinely links two copies is indistinguishable from one that matches twice
+  by coincidence. The epiread/epiwrite pair in this task (`romocc=2` at both
+  0x730A0 and 0x730F0) had to be separated by reading Mickey's own `jal`
+  targets. A future improvement worth its cost: an option to resolve masked
+  `R_MIPS_26` targets against already-adopted names, which would have decided
+  that pair mechanically.
+
+**Friction found and not fixed**, recorded so the next pass does not rediscover
+it: the tool takes one directory and globs `**/*.o` under it, so restricting a
+run to "libultra only" or "excluding asset blobs" means building a filtered
+tree of symlinks outside the repo first. Two of the four reference builds also
+contain objects with an empty `.text` (a macOS toolchain bug documented in the
+farm report), which the tool silently skips — correct behaviour, but it means
+"scanned N objects" in its footer overstates what was actually compared. A
+`--exclude` glob and an explicit empty-`.text` count in the footer would both
+pay for themselves.
