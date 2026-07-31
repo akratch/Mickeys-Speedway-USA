@@ -31,10 +31,17 @@ disassembly: not fine. The detectors draw that line at 40 mnemonic tokens and
 
 ### Before every commit
 
+Run these, in order — `gmake verify && gmake cleanroom && gmake check-docs`:
+
 ```sh
-gmake cleanroom     # or: gmake cleanroom CLEANROOM_ARGS=--staged
 gmake verify        # must print the expected SHA1
+gmake cleanroom     # or: gmake cleanroom CLEANROOM_ARGS=--staged
+gmake check-docs    # derived numbers in the docs still match the tree
 ```
+
+If matching progress changed (a function moved from asm to C, a name was
+adopted), also run `gmake scoreboard` and commit the README diff it produces;
+`gmake check-scoreboard` fails otherwise.
 
 The gates run automatically once `gmake setup` (or `gmake hooks`) has pointed
 git at `.githooks/`:
@@ -42,16 +49,40 @@ git at `.githooks/`:
 - **pre-commit** scans the index — what the commit would record.
 - **pre-push** scans every commit tree actually leaving the machine, so a
   commit made before the hooks existed, or in another clone, still cannot ship.
-- **CI** re-runs both on push and PR.
+- **CI** re-runs both on push and PR, plus the non-ELF-derived subset of
+  `check-scoreboard` (`scoreboard.yml`) — see the table below for why it can't
+  run the whole thing.
+
+Everything else below is manual — nothing but the clean-room sweep is wired
+into a hook or CI:
+
+| Command | What it checks | Needs a build |
+|---|---|---|
+| `gmake verify` | ROM rebuilds byte-identically | yes |
+| `gmake cleanroom` | no ROM-derived content (hook + CI enforced) | no |
+| `gmake check-docs` | derived numbers in the docs match the tree | no |
+| `gmake check-scoreboard` | README's Progress block matches the tree *right now* — needs the ELF, so CI can only run `--check-partial` (no baserom to build one from); see `docs/CONTRIBUTING.md#checks` | yes |
+| `gmake audit-decoders` | the clean-room detectors aren't inventing words — run after touching `tools/cleanroom_detectors.py` | no |
+| `gmake progress` | prints matched functions/bytes/symbols | yes |
+| `gmake scoreboard` | regenerates README's Progress block from the tree | yes |
 
 **What these do and do not deliver.** The hooks are client-side. They are
 opt-in per clone (`core.hooksPath`), and anyone can step over them with
 `--no-verify`. CI catches what reaches the remote, but by then the objects are
 published and the remedy is a history rewrite. So this is defence in depth
-against mistakes, not a barrier against a determined bypass. The first
-genuinely non-bypassable layer would be server-side — a GitHub push ruleset or
-a required status check on a protected branch — and this repository does not
-have one configured yet.
+against mistakes, not a barrier against a determined bypass.
+
+There is one server-side layer now: a GitHub ruleset, `protect-master`
+(id `20111399`, active on `master`), blocks force-push and branch deletion —
+genuinely non-bypassable, no `--no-verify` for it. It does not restrict
+*content*, though: GitHub refused a push ruleset that would have blocked by
+file path/extension/size, because push rules require an org-owned repo and
+this is a personal fork. A required status check on `master` is still the only
+way to block bad content before it lands (it would mean pull requests instead
+of direct pushes to `master`), and that workflow change hasn't been made.
+Blocking force-push also has a cost worth remembering: purging `master`'s
+history again — as already happened once — means disabling `protect-master`
+first.
 
 **What the gates are and are not.** They catch *mistakes* — an asm dump, a
 hexdump, a ledger, a base64 blob, a leak spread across files — measured against
@@ -61,8 +92,9 @@ is undecidable, a file under ~96 machine words slips under every threshold, and
 `--no-verify` skips the lot. `docs/CLEANROOM.md` lists the measured limits. The
 load-bearing guarantees are structural — the `.decomp-workbench` path whitelist
 and manifest schema check, the ROM path and binary rules, the tool-level ledger
-redaction, this policy, and (not yet configured) a server-side push ruleset. A
-green gate is not permission to skip reading your own diff.
+redaction, this policy, and `protect-master` (force-push/deletion only — see
+above for why it can't restrict content). A green gate is not permission to
+skip reading your own diff.
 
 **Never pass `--no-verify`.** Never lower a threshold to make a file pass. If a
 file is genuinely a false positive, restructure it, or add it to the allowlist
