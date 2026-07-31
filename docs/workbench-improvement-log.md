@@ -125,3 +125,48 @@ consciously dropped.
   kind that stops being followed. Suggest: `--min-unmasked-words N` (and
   perhaps `--max-masked-fraction`) so the mitigation is enforced by the tool
   and the threshold used is visible in the command line that produced a table.
+
+## 2026-07-31 — Task C (first matched GAME functions, decomp-workbench in the loop)
+
+Workbench installed from `~/Desktop/dev/n64-decomp-workbench` (not the DKR
+checkout's copy), `pip install -e`, version 0.3.1 / commit `d6bedd4`.
+
+- **There is no documented way to build the *target* object in a splat
+  project, and the obvious one stops working the moment you succeed.**
+  `compare` wants `target.o candidate.o`, and the README's framing ("compare
+  your normal full-TU build against the expected object") assumes the expected
+  object already exists. In a splat project it does not: the nearest thing is
+  `asm/nonmatchings/<tu>/<sym>.s`, which has to be assembled by hand — and
+  splat *deletes* that file as soon as the C implements the function, so the
+  target object can only be built while the function is still unmatched.
+  Confirmed here: after `ResolveRelocAddress` matched, `gmake extract` removed
+  `asm/nonmatchings/main/runlink/func_800317F0.s` and wrote no replacement.
+  Suggest: ship a `decomp-workbench object from-rom --rom X.z64 --vram A
+  --size N` (or a splat-aware `--project` flag) so the target side is a
+  first-class input rather than something every project reinvents. This
+  project's reinvention is `tools/wb_compare.sh`.
+- **`compare-dumps` rejects an empty dump with a message about *format*, not
+  about *emptiness*.** Feeding it two files that objdump had produced no
+  instructions into gave "no GNU-style objdump instruction lines ... expected
+  lines like `1c: 8f998010 lw t9,-32752(gp)`", which reads as "your objdump
+  output is the wrong flavour". The actual cause was that `objdump -b binary
+  --adjust-vma=V --start-address=S` reads `S` in the *adjusted* space, so
+  passing ROM offsets alongside a VRAM adjustment selects an empty range.
+  Suggest: distinguish the two cases — if the file has a `file format` header
+  and zero disassembly lines, say "dump contains no instructions (empty address
+  range?)" and name the file. The current message sent ~15 minutes to the wrong
+  hypothesis.
+- **`--rom`-style fully-relocated comparison has no verdict of its own.**
+  Comparing baserom bytes against built-ROM bytes can only ever return
+  `instruction-words-identical` or a real difference, because both sides are
+  linked — relocation reasoning is structurally unavailable. The tool happily
+  reports `instruction-words-identical`, which is true but flatters the
+  evidence: it is a *link* oracle, not a *codegen* oracle, and someone reading
+  the verdict later cannot tell which they got. Suggest: a `--relocations
+  none|expected` note in the summary line, or refuse `--fail-on-mismatch`
+  without relocation records unless `--cross-rom`-style opt-in is passed.
+- **The metric line does not say which side is which.** `sha1=121f13dcbd30
+  build/wb/X.candidate.objdump` names one file at the end of a line whose other
+  numbers are all comparisons; on a first read it is genuinely unclear whether
+  `insns=98` is the target's or the candidate's. Suggest: print both paths on a
+  header line above the metrics.
