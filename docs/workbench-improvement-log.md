@@ -284,3 +284,52 @@ carrying more evidential weight than anything else in the tree.
   again elsewhere in this project, treat `*ABS*`+size-0 as "not a function
   with a body" on sight — it is a reliable, cheap signature for this class of
   placeholder.
+
+## 2026-07-31 — Phase 2 Task 1 (clean-room gates) — CLOSED UPSTREAM
+
+- **The campaign ledger's schema asked for the ROM's instruction text, so
+  writing a correct ledger and leaking the game's code were the same act.**
+  This is the Phase 1 incident, stated as the tool finding it always was.
+  Every diff-site record carried `"target"` — the target object's disassembly,
+  e.g. `addiu\tsp,sp,-64` — beside `"target_word"`, the 32-bit instruction.
+  Two `ledger.jsonl` files reached the remote that way with 126 sites apiece,
+  between them enough to reconstruct 129 of `ProcessRelocationEntry`'s 146
+  instructions. It was caught at final review and cost a history rewrite.
+  Nothing about the operator's care would have prevented it: the schema was
+  the hazard.
+
+  **Fixed upstream** in `n64-decomp-workbench` (commit `75a3ee5`, "Stop
+  ledgers from carrying the target ROM's instruction text"). The fix is at
+  the serialisation boundary — `append_ledger`, the only place a comparison
+  becomes a file — and not at the comparison, because the two want opposite
+  things: showing the full target/candidate diff on the operator's own
+  machine is the entire point of the tool, and putting that same text in a
+  file is the hazard. So the terminal diff, the HTML report and every
+  diagnosis path are unchanged, while what lands on disk keeps only per-site
+  bookkeeping: a 16-bit salted `target_digest` (lossy by construction, ~2^16
+  preimages per digest, so the property holds even if the salt is known), a
+  `target_opcode_masked` word with all operand fields zeroed for at most the
+  first three sites of each list, and `target_register_count` instead of the
+  target's register names. `tests/test_ledger_redaction.py` is the regression
+  test; its whitelist of permitted target-side fields is what will fail if a
+  future change reintroduces an invertible one.
+
+- **The redaction does not make a ledger safe to track, and is not meant to.**
+  Replaying both purged ledgers through the new redactor removes every target
+  word and every line of target assembly — and the result *still* trips this
+  repo's `instruction-dump` and `machine-word-dump` detectors, because the
+  *candidate* side is instruction text too. That is the honest outcome and the
+  reason the layers are separate: the workbench fix removes what is
+  ROM-derived, and `.gitignore` plus the clean-room gates keep the file
+  untracked regardless. A ledger is a working artifact, not a deliverable.
+
+- **A second, older copy of the workbench is vendored into the DKR checkout**
+  (`~/Desktop/dev/Diddy-Kong-Racing/tools/decomp-workbench`, version 0.2.0,
+  57 files tracked inside that project's own repo). It has the same
+  `append_ledger` and the same `"target": expected.assembly` in its
+  `compare.py`, so it carries the same flaw. It was deliberately **not**
+  patched: it is a stale snapshot of an earlier release, and a parallel
+  backport into an unrelated project's history would diverge from the
+  upstream fix rather than inherit it. Suggest: re-vendor it from
+  `n64-decomp-workbench` at the next opportunity, and until then treat any
+  ledger it writes as ROM-derived.
