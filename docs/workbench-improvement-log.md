@@ -207,3 +207,39 @@ checkout's copy), `pip install -e`, version 0.3.1 / commit `d6bedd4`.
   so in the verdict, because that is a compiler-identity finding and not an
   allocator one. This connects to the existing `toolchain-calibration`
   document, which is the natural home for a capability probe.
+
+## 2026-07-31 — Task D (ontology seed)
+
+Not workbench findings this time: all four are about
+`tools/find_known_objects.py`, which is this project's own tool and is now
+carrying more evidential weight than anything else in the tree.
+
+- **`--romocc` should be a column, not a second invocation.** Task B logged
+  that `occ` is window-scoped and reads as ROM-scoped; this task had to work
+  around it by running every scan twice — once over the window of interest and
+  once over `0x1000..0x2000000` — and joining the two outputs in a throwaway
+  script, for all four scans. That join is the thing every future naming pass
+  will need, and it is exactly the sort of step that gets skipped once. Suggest
+  computing occurrences ROM-wide always and printing both (`occ` in-window,
+  `romocc` total), as already suggested in the Task B block. Reiterated here
+  because it cost real time a second time.
+- **The tool should refuse to report a match it cannot distinguish.** Its worst
+  output is a row where several *different* reference symbols match the same
+  address, because it looks exactly like a strong identification until you
+  notice three names on consecutive lines. This task hit it eleven times
+  (ROM `0x17F8`, `0x1B74`, `0x27A0`, `0x27C4`, `0x545C`, `0x8D18`, `0x1BE90`,
+  `0x29B98`, `0x29BA8`, `0x29C90`, `0x2CB44`). Suggest a `candidates` column
+  giving the number of distinct reference symbols matching those bytes, and a
+  `--unambiguous` flag that drops rows where it is greater than 1.
+- **`--min-unmasked-words` still does not exist and is still the right fix.**
+  Task B logged it; this task had to enforce the threshold (6 unmasked words)
+  by hand in a script, and the threshold is now written into
+  `docs/modules.md` §1.2 as project policy. A policy enforced by prose rather
+  than by the tool that produces the evidence is a policy that will drift.
+- **Nothing warns when a "unique" match is semantically vacuous.** `return 0`
+  and `return x->field_2c` matched ROM-wide uniquely and would have been
+  adopted by any rule based on uniqueness alone; they were rejected only
+  because a human read the four instructions. Suggest an entropy-style guard —
+  flag any match whose unmasked words are drawn from a very small set of common
+  encodings (`jr ra`, `move`, a single `lw`/`addiu`) regardless of how unique it
+  is. Cheap, and it defends the one failure mode uniqueness cannot.
