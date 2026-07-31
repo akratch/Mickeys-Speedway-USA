@@ -45,9 +45,9 @@ tool, and the `decomp-workbench` items are for that tool's maintainer
   already-known addresses so re-runs show only what is new. The transcription
   step is manual today.
 - **Print all candidates on one row.** Two libultra objects can be
-  byte-identical to each other — `piacs.c`/`siacs.c`,
+  byte-identical to each other (`piacs.c`/`siacs.c`,
   `vigetcurrframebuf.c`/`vigetnextframebuf.c`, `__ll_rem`/`__ull_rem` inside
-  `ll.c` — differing only in the relocated globals the tool masks.
+  `ll.c`), differing only in the relocated globals the tool masks.
   Disambiguation comes from the call graph. One row per blob with every
   candidate name on it makes the ambiguity visible instead of looking like two
   findings.
@@ -74,13 +74,13 @@ tool, and the `decomp-workbench` items are for that tool's maintainer
 - **The build should assert that every `.s` splat wrote is either assembled or
   deliberately excluded.** `ASM_DIRS` was once a hardcoded two-entry list, so
   naming a subsegment `libultra/foo` made splat write `asm/libultra/foo.s`
-  which the build silently ignored — no error, just a link missing an object,
+  which the build silently ignored: no error, just a link missing an object,
   caught only by the SHA1 check. It is now discovered with `find`, excluding
   `asm/nonmatchings` (those are `#include`d into C objects by asm-processor).
 - **Standing rule: a subsegment may only be `hasm` if its output is tracked in
   git.** `hasm` buys "splat won't clobber my hand edits", but `asm/` is
   generated, gitignored and wiped by `gmake distclean`, so hand edits there are
-  unrecoverable anyway — while splat's refusal to rewrite an `hasm` file let a
+  unrecoverable anyway, while splat's refusal to rewrite an `hasm` file let a
   `macro.inc` change leave `asm/entrypoint.s` stale until the next clean build.
   If `asm/` ever gains a genuinely hand-maintained file, move it out of the
   generated tree first.
@@ -100,7 +100,7 @@ tool, and the `decomp-workbench` items are for that tool's maintainer
   obvious one stops working the moment you succeed.** `compare` wants
   `target.o candidate.o`, and its README assumes the expected object already
   exists. In a splat project it does not: the nearest thing is
-  `asm/nonmatchings/<tu>/<sym>.s`, which has to be assembled by hand — and
+  `asm/nonmatchings/<tu>/<sym>.s`, which has to be assembled by hand, and
   splat *deletes* that file as soon as the C implements the function. This
   project's workaround is `tools/wb_compare.sh`. A `decomp-workbench object
   from-rom --rom X.z64 --vram A --size N` (or a splat-aware `--project` flag)
@@ -130,8 +130,8 @@ tool, and the `decomp-workbench` items are for that tool's maintainer
   numbers are comparisons; it is genuinely unclear whether `insns=98` is the
   target's or the candidate's. Print both paths on a header line.
 - **`campaign` wants `--diagnose-best`.** The ranking is the right shape and
-  `object basins: N across M variants` is the number that matters — it says how
-  many of the variants were wasted effort — but the residual for the winner
+  `object basins: N across M variants` is the number that matters (it says how
+  many of the variants were wasted effort), but the residual for the winner
   needs another `diagnose-dumps` against a path you reconstruct by hand. Print
   the winning object's path on the summary line. `object basins` also deserves
   to be documented as the headline metric in `docs/campaigns.md`.
@@ -140,8 +140,8 @@ tool, and the `decomp-workbench` items are for that tool's maintainer
   FP registers and this project's IDO 5.3 never emits one at any of the nine
   ISA/`-O` combinations tried (`docs/modules.md` §6.2). `diagnose` correctly
   reported `fp=46` and pointed at the allocator playbooks, all of which are the
-  wrong advice. A toolchain-capability probe — if the target uses odd single FP
-  registers and the candidate's compiler has never emitted one, say so — is a
+  wrong advice. A toolchain-capability probe (if the target uses odd single FP
+  registers and the candidate's compiler has never emitted one, say so) is a
   compiler-identity finding, not an allocator one, and belongs with the
   existing `toolchain-calibration` document.
 
@@ -157,7 +157,7 @@ Fixed upstream in `n64-decomp-workbench` (`75a3ee5`, then `674b2a9`): the
 ledger writer sweeps `dict`, `list`, `tuple`, `set` and `frozenset`, examines
 keys as well as values, matches target-naming keys case- and
 prefix-insensitively, re-sweeps allow-listed values, and caps depth. What lands
-on disk keeps only per-site bookkeeping — a 16-bit salted `target_digest`, a
+on disk keeps only per-site bookkeeping: a 16-bit salted `target_digest`, a
 `target_opcode_masked` word for at most the first three sites of a list, and
 `target_register_count`. Terminal diffs, HTML reports and diagnosis paths are
 unchanged, because showing the full diff on the operator's own machine is the
@@ -187,7 +187,7 @@ Four residual limits, all of which matter to this repository:
 - **A second, older copy of the workbench is vendored into the DKR checkout**
   (`~/Desktop/dev/Diddy-Kong-Racing/tools/decomp-workbench`, version 0.2.0),
   with the same `append_ledger` and the same `"target": expected.assembly`, so
-  it carries the original flaw. It was deliberately not patched — a backport
+  it carries the original flaw. It was deliberately not patched; a backport
   into an unrelated project's history would diverge from the upstream fix
   rather than inherit it. Re-vendor it at the next opportunity; until then
   treat any ledger it writes as ROM-derived.

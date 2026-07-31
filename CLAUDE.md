@@ -16,15 +16,15 @@ disassembly inside them, and undoing it took a history rewrite.
 |---|---|
 | `asm/`, `assets/`, `expected/`, `baseroms/` | splat output and ROM images |
 | `*.z64` `*.n64` `*.v64` `*.bin` | ROM images and extracted binaries |
-| `.decomp-workbench/**` | except `campaigns/*/manifest.json` — paths and hashes only |
+| `.decomp-workbench/**` | except `campaigns/*/manifest.json`: paths and hashes only |
 | instruction text | mnemonics + operands, in any file, in any format |
 | hexdumps, byte arrays, base64 of ROM bytes | same content, different clothes |
-| `tools/ido/`, `tools/binutils/` | proprietary toolchain binaries — gitignored; if one is ever staged the `binary-blob`/`oversize` rules catch it, not a path rule |
+| `tools/ido/`, `tools/binutils/` | proprietary toolchain binaries, gitignored. If one is ever staged the `binary-blob`/`oversize` rules catch it, not a path rule |
 
 Quoting a couple of instructions in a comment to explain why a function is
 named what it is: fine, and `docs/modules.md` does it. Pasting a function's
 disassembly: not fine. The detectors draw that line at 40 mnemonic tokens and
-1.0 per KiB — the heaviest legitimate file in this tree carries 17
+1.0 per KiB. The heaviest legitimate file in this tree carries 17
 (`symbol_addrs.us.txt`; `include/game/runlink.h` is next at 16), 2.35× under.
 
 ## Before every commit
@@ -42,13 +42,13 @@ adopted), also run `gmake scoreboard` and commit the README diff it produces;
 The clean-room sweep runs automatically once `gmake setup` (or `gmake hooks`)
 has pointed git at `.githooks/`:
 
-- **pre-commit** scans the index — what the commit would record.
+- **pre-commit** scans the index, what the commit would record.
 - **pre-push** scans every commit tree leaving the machine, so a commit made
   before the hooks existed, or in another clone, still cannot ship.
 - **CI** re-runs both on push and PR, plus `check-scoreboard --check-partial`
   (`scoreboard.yml`).
 
-Everything else is manual — nothing but the clean-room sweep is wired into a
+Everything else is manual; nothing but the clean-room sweep is wired into a
 hook or CI:
 
 | Command | What it checks | Needs a build |
@@ -56,13 +56,13 @@ hook or CI:
 | `gmake verify` | ROM rebuilds byte-identically | yes |
 | `gmake cleanroom` | no ROM-derived content (hook + CI enforced) | no |
 | `gmake check-docs` | derived numbers in the docs match the tree | no |
-| `gmake check-scoreboard` | README's Progress block matches the tree right now — needs the ELF, so CI can only run `--check-partial`; see `docs/CONTRIBUTING.md#checks` | yes |
-| `gmake audit-decoders` | the clean-room detectors aren't inventing words — run after touching `tools/cleanroom_detectors.py` | no |
-| `gmake check-fixtures` | the detectors still *catch* real ROM in every encoding and wrap width — the direction `audit-decoders` cannot see. Fixtures are generated from the baserom at run time and never written to disk, so this cannot run in CI | no (needs a baserom) |
+| `gmake check-scoreboard` | README's Progress block matches the tree right now. Needs the ELF, so CI can only run `--check-partial`; see `docs/CONTRIBUTING.md#checks` | yes |
+| `gmake audit-decoders` | the clean-room detectors aren't inventing words. Run after touching `tools/cleanroom_detectors.py` | no |
+| `gmake check-fixtures` | the detectors still *catch* real ROM in every encoding and wrap width, the direction `audit-decoders` cannot see. Fixtures are generated from the baserom at run time and never written to disk, so this cannot run in CI | no (needs a baserom) |
 | `gmake progress` | prints matched functions/bytes/symbols | yes |
 | `gmake scoreboard` | regenerates README's Progress block from the tree | yes |
 | `gmake clean` | removes `build/` | no |
-| `gmake distclean` | `clean` plus extracted state (`asm/`, `assets/`, linker script, auto-generated `undefined_*`) — recovering needs `gmake extract` and a baserom | no |
+| `gmake distclean` | `clean` plus extracted state (`asm/`, `assets/`, linker script, auto-generated `undefined_*`); recovering needs `gmake extract` and a baserom | no |
 
 ## What the gates cover
 
@@ -73,15 +73,15 @@ mistakes, not a barrier against a determined bypass.
 
 One server-side layer exists: the GitHub ruleset `protect-master`
 (id `20111399`, active on `master`) blocks force-push and branch deletion. It
-does not restrict *content* — GitHub refused a push ruleset scoped by file
+does not restrict *content*: GitHub refused a push ruleset scoped by file
 path/extension/size because push rules require an org-owned repo and this is a
 personal fork. A required status check on `master` is still the only way to
 block bad content before it lands, and would mean pull requests instead of
 direct pushes; that change has not been made. Blocking force-push also means a
 future history purge of `master` requires disabling `protect-master` first.
 
-The content rules catch mistakes — an asm dump, a hexdump, a ledger, a base64
-blob, a leak spread across files — measured against this repository's whole
+The content rules catch mistakes (an asm dump, a hexdump, a ledger, a base64
+blob, a leak spread across files), measured against this repository's whole
 history on one side and real ROM fixtures on the other. They are not
 adversary-proof: detecting arbitrarily-encoded data is undecidable, a padded
 file carrying up to 191 machine words (~764 bytes of ROM; the per-file limit is
@@ -95,7 +95,7 @@ and `protect-master`.
 file is genuinely a false positive, restructure it, or add it to
 `CONTENT_EXEMPTIONS` in `tools/cleanroom_detectors.py` with a written reason.
 If something ROM-derived is already committed, it has to be rewritten out of
-history (`git rebase -i`, `git filter-repo`) — a follow-up commit that deletes
+history (`git rebase -i`, `git filter-repo`); a follow-up commit that deletes
 the file still ships the bytes.
 
 ## Permitted sources, and disclosing them
@@ -105,7 +105,7 @@ elsewhere. In short: the five named published retail-derived decomps (Diddy
 Kong Racing, Jet Force Gemini, Perfect Dark, Banjo-Kazooie, Conker's Bad Fur
 Day) may supply names and adapted function bodies **with a `PROVENANCE` note at
 the point of use**. Anything leaked is forbidden outright. Reference repos,
-their baseroms and their build outputs live in `~/Desktop/dev/decomp-refs/` —
+their baseroms and their build outputs live in `~/Desktop/dev/decomp-refs/`,
 outside this repo, never committed.
 
 ## Evidence discipline
@@ -120,8 +120,8 @@ adoption threshold.
 
 ## Derived numbers are recomputed, never remembered
 
-Every count in the docs — function totals, matched bytes, segment sizes, the
-percentages in `README.md` — is derived from the build and the tree. Recompute
+Every count in the docs (function totals, matched bytes, segment sizes, the
+percentages in `README.md`) is derived from the build and the tree. Recompute
 from the underlying lists; do not carry a number forward from an earlier
 message or an earlier version of the file. `gmake check-docs` re-derives what
 is mechanically checkable and fails on drift; `tools/progress.py --verbose`
@@ -137,5 +137,5 @@ gmake progress  # matched functions/bytes/symbols
 gmake check-docs
 ```
 
-`gmake`, not `make` — macOS's built-in make is too old. Bring your own legally
+`gmake`, not `make`: macOS's built-in make is too old. Bring your own legally
 dumped ROM at `baseroms/mickey.us.z64`.
