@@ -56,7 +56,8 @@ consciously dropped.
   smoke-test each tool it installs (`m2c.py --help`, `diff.py --help`,
   `build.py` with a trivial file) and fail loudly, rather than leaving the
   breakage to be discovered mid-task.
-- **No workbench/`compare.py`-style tooling was needed for this task.** The TU
+- **No workbench/`compare.py`-style tooling was needed for this task — DONE in
+  Task B, kept for the reasoning.** The TU
   was located by a throwaway script that extracted `.text` from the DKR
   decomp's built libultra objects and searched the ROM for those bytes; it
   found 30-odd byte-identical libultra functions in about a minute. Suggest:
@@ -65,3 +66,39 @@ consciously dropped.
   whole libultra corridor, and right now it lives only in a scratchpad. First
   use of a real matching workbench is still expected in Task C, on a function
   that does not match on the first try.
+
+## 2026-07-31 — Task B (libultra sweep)
+
+- **`tools/find_known_objects.py` now exists** (the "promote the throwaway
+  script" entry above). Two things made it worth writing properly rather than
+  pasting the scratchpad version: it is *relocation-aware* (mask the words a
+  relocation record says the linker patches, compare the rest verbatim), which
+  took the corridor from 30 reloc-free functions to 99 named ones; and
+  `--sections` reports whole-object `.text` matches, which is what actually
+  pins translation-unit boundaries. Suggest next: teach it to emit
+  `symbol_addrs` lines directly (`--emit-symbols`) so the transcription step
+  disappears, and to take a list of already-known addresses so re-runs show
+  only what is new.
+- **Two libultra objects can be byte-identical to each other.** `piacs.c` and
+  `siacs.c` compile to the same instructions; only the relocated globals
+  differ, which is exactly what the tool masks. So do
+  `vigetcurrframebuf.c`/`vigetnextframebuf.c`, and `__ll_rem`/`__ull_rem`
+  inside `ll.c`. The tool cannot tell them apart and should not pretend to —
+  disambiguation came from the call graph (who `jal`s which one) and from
+  which global a neighbouring writer touches. Suggest: when a blob matches
+  more than one reference symbol, print all of them on one row rather than one
+  row each, so the ambiguity is visible instead of looking like two findings.
+- **asm-differ still can't bound a function in ROM mode.** Unchanged from Task
+  A and hit again here constantly while checking individual libultra
+  functions; the `gmake expected` idea remains the fix and remains undone.
+  Working around it by grepping the dump for the `|` mismatch column
+  (`./diff.sh --format=plain <sym> | grep -c '|'`) is reliable but is folklore
+  that should be a flag.
+- **`ASM_DIRS` was a hardcoded two-entry list.** Naming a subsegment
+  `libultra/foo` makes splat write `asm/libultra/foo.s`, which the build then
+  silently ignored — no error, just a link that is missing an object, caught
+  only by the SHA1 check. Now discovered with `find`, excluding
+  `asm/nonmatchings` (those are `#include`d into C objects by asm-processor,
+  and assembling them separately would double every symbol). Suggest: the
+  build should assert that every `.s` splat wrote is either assembled or
+  deliberately excluded, instead of relying on the ROM hash to notice.
