@@ -333,3 +333,45 @@ carrying more evidential weight than anything else in the tree.
   upstream fix rather than inherit it. Suggest: re-vendor it from
   `n64-decomp-workbench` at the next opportunity, and until then treat any
   ledger it writes as ROM-derived.
+
+## 2026-07-31 — Phase 2 Task 1, review round: corrections to the entry above
+
+An adversarial review of the gates went through the workbench fix too. Three
+things recorded above were wrong or overstated, and are corrected here rather
+than edited away, because the claim that a hazard is closed is exactly the kind
+of claim that should leave a trail.
+
+- **"`append_ledger` is the only place a comparison becomes a file" was false.**
+  `--html` on `view` and `diagnose` renders the target's assembly rows into an
+  HTML report (`html_report.py`), which is the same class of hazard. It is
+  genuinely better placed than the ledger was — it happens only when the
+  operator asks for it, at a path the operator names, rather than automatically
+  into the project tree on every campaign run — but "better placed" is not
+  "redacted". Recorded upstream as a known second instance. **For this repo the
+  practical consequence is unchanged:** an HTML report is not gitignored by name,
+  so it is the content detectors that would have to catch it. A `--html` report
+  of a real diagnosis carries target assembly rows and trips `instruction-dump`;
+  do not park one in the tree.
+
+- **"The security property does not depend on the salt staying secret" was
+  wrong.** It assumed a uniform prior over instruction words. The ledger keeps
+  `candidate` and `candidate_word` in full, which narrows the target at a diff
+  site to a small set of plausible variants, and against a small set a
+  known-salt 16-bit digest is an exact-match confirmation oracle. The salt is
+  load-bearing. The narrow digest is still worth having, for the different
+  attacker — a site the candidate does not constrain — but the two defend
+  against different priors and both are needed. Treat `<ledger>.salt` as
+  sensitive; this repo's `workbench-path` whitelist already refuses to track it.
+
+- **The regression test's whitelist could not catch what it advertised.** Site
+  records in the fixtures are hand-written, so a *new* target-side field emitted
+  by `compare` would never appear in them. Fixed upstream by inverting the
+  filter to an allow-list: unknown keys are dropped by default and only their
+  names recorded. That is now a structural guarantee rather than a test's
+  vigilance.
+
+- **New upstream: resuming a pre-redaction ledger now warns.** Ledgers are
+  append-only, so a campaign resumed against an old ledger writes redacted
+  records into a file whose existing records still carry the ROM's instruction
+  text. The whole file stays ROM-derived; the tool now says so instead of
+  letting the operator infer that the fix applied retroactively.

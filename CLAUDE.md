@@ -22,7 +22,7 @@ gates exist to make impossible.
 | `.decomp-workbench/**` | except `campaigns/*/manifest.json` — paths and hashes only |
 | instruction text | mnemonics + operands, in any file, in any format |
 | hexdumps, byte arrays, base64 of ROM bytes | same content, different clothes |
-| `tools/ido/`, `tools/binutils/` | proprietary toolchain binaries |
+| `tools/ido/`, `tools/binutils/` | proprietary toolchain binaries — gitignored; if one is ever staged the `binary-blob`/`oversize` rules catch it, not a path rule |
 
 Quoting *a* couple of instructions in a comment to explain why a function is
 named what it is: fine, and `docs/modules.md` does it. Pasting a function's
@@ -43,6 +43,15 @@ git at `.githooks/`:
 - **pre-push** scans every commit tree actually leaving the machine, so a
   commit made before the hooks existed, or in another clone, still cannot ship.
 - **CI** re-runs both on push and PR.
+
+**What these do and do not deliver.** The hooks are client-side. They are
+opt-in per clone (`core.hooksPath`), and anyone can step over them with
+`--no-verify`. CI catches what reaches the remote, but by then the objects are
+published and the remedy is a history rewrite. So this is defence in depth
+against mistakes, not a barrier against a determined bypass. The first
+genuinely non-bypassable layer would be server-side — a GitHub push ruleset or
+a required status check on a protected branch — and this repository does not
+have one configured yet.
 
 **Never pass `--no-verify`.** Never lower a threshold to make a file pass. If a
 file is genuinely a false positive, restructure it, or add it to the allowlist
