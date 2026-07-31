@@ -27,7 +27,8 @@ gates exist to make impossible.
 Quoting *a* couple of instructions in a comment to explain why a function is
 named what it is: fine, and `docs/modules.md` does it. Pasting a function's
 disassembly: not fine. The detectors draw that line at 40 mnemonic tokens and
-1.0 per KiB — the widest-margin legitimate file in this tree carries 16.
+1.0 per KiB — the heaviest legitimate file in this tree carries 17
+(`symbol_addrs.us.txt`; `include/game/runlink.h` is next at 16), 2.35× under.
 
 ### Before every commit
 
@@ -63,8 +64,11 @@ into a hook or CI:
 | `gmake check-docs` | derived numbers in the docs match the tree | no |
 | `gmake check-scoreboard` | README's Progress block matches the tree *right now* — needs the ELF, so CI can only run `--check-partial` (no baserom to build one from); see `docs/CONTRIBUTING.md#checks` | yes |
 | `gmake audit-decoders` | the clean-room detectors aren't inventing words — run after touching `tools/cleanroom_detectors.py` | no |
+| `gmake check-fixtures` | the detectors still *catch* real ROM in every encoding and wrap width — the direction `audit-decoders` cannot see. Fixtures are generated from the baserom at run time and never written to disk, so this needs a baserom and cannot run in CI | no (needs a baserom) |
 | `gmake progress` | prints matched functions/bytes/symbols | yes |
 | `gmake scoreboard` | regenerates README's Progress block from the tree | yes |
+| `gmake clean` | removes `build/`; this is the one you want | no |
+| `gmake distclean` | `clean` plus extracted state (`asm/`, `assets/`, linker script, auto-generated `undefined_*`) — recovering needs `gmake extract` and a baserom | no |
 
 **What these do and do not deliver.** The hooks are client-side. They are
 opt-in per clone (`core.hooksPath`), and anyone can step over them with
@@ -88,7 +92,8 @@ first.
 hexdump, a ledger, a base64 blob, a leak spread across files — measured against
 this repository's whole history on one side and real ROM fixtures on the other.
 They are **not** an adversary-proof boundary: detecting arbitrarily-encoded data
-is undecidable, a file under ~96 machine words slips under every threshold, and
+is undecidable, a padded file carrying up to 191 machine words (~764 bytes of
+ROM — the per-file limit is 192) slips under every threshold, and
 `--no-verify` skips the lot. `docs/CLEANROOM.md` lists the measured limits. The
 load-bearing guarantees are structural — the `.decomp-workbench` path whitelist
 and manifest schema check, the ROM path and binary rules, the tool-level ledger
