@@ -170,3 +170,40 @@ checkout's copy), `pip install -e`, version 0.3.1 / commit `d6bedd4`.
   numbers are all comparisons; on a first read it is genuinely unclear whether
   `insns=98` is the target's or the candidate's. Suggest: print both paths on a
   header line above the metrics.
+
+### Later in Task C — campaigns, and one limit worth naming
+
+- **`--rom`-style comparison uses one address for both sides, so an oversized
+  earlier function silently misaligns a later one.** After `SetLinkSlot` came
+  out two instructions short, the very next function's comparison dumped the
+  *target* starting eight bytes before its real prologue and reported a
+  structural difference that did not exist — the first two rows of the diff
+  were the tail of the previous function. Nothing in the output said the two
+  sides were being read at different logical positions. Suggest: when a
+  target-side symbol table is available, resolve the target address
+  independently of the candidate's, and warn loudly when the two differ. Cheap
+  and it turns a misleading answer into a correct one.
+- **`campaign` is excellent and its ranking is the right shape, but a `--diff
+  best` would close the loop.** The eight-variant ProcessRelocationEntry run
+  ranked cleanly and reported "object basins: 5 across 8 successful variants",
+  which is exactly the number that matters — three of the variants were
+  byte-identical objects, i.e. spellings the front end canonicalizes away, and
+  knowing that instantly is worth more than the ordering. What it does not do
+  is show the residual for the winner: the next command is always another
+  `diagnose-dumps` against a path you have to reconstruct. Suggest: print the
+  winning object's path on the summary line, or take `--diagnose-best`.
+- **`object basins: N across M variants` deserves to be documented as the
+  headline metric.** It is the one number that says "you have M-N variants of
+  wasted effort here", and it is currently the last line before the ledger
+  paths. It answered a real question twice in this task and is not in
+  docs/campaigns.md's description of the output.
+- **Nothing in the tool models "the compiler is wrong".** Both float functions
+  in main/matrix.c are unmatched for a reason no lever can fix: the ROM uses
+  odd single-precision FP registers and this project's IDO 5.3 never emits one
+  at any of the nine ISA/-O combinations tried. `diagnose` correctly reported
+  `fp=46` and pointed at the allocator playbooks, all of which are the wrong
+  advice here. Suggest: a toolchain-capability check — if the target uses odd
+  single FP registers and the candidate's compiler has never emitted one, say
+  so in the verdict, because that is a compiler-identity finding and not an
+  allocator one. This connects to the existing `toolchain-calibration`
+  document, which is the natural home for a capability probe.
