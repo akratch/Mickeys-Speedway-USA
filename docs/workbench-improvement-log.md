@@ -243,3 +243,44 @@ carrying more evidential weight than anything else in the tree.
   flag any match whose unmasked words are drawn from a very small set of common
   encodings (`jr ra`, `move`, a single `lw`/`addiu`) regardless of how unique it
   is. Cheap, and it defends the one failure mode uniqueness cannot.
+
+## 2026-07-31 — Task E (progress metric)
+
+- **The stub's `tools/progress.py` was silently wrong two ways at once, and
+  neither was the crash.** It imported `colour` unconditionally (not in
+  `requirements.txt`, so `python3 tools/progress.py` failed before printing
+  anything) — but fixing the import would have shipped a worse bug: it scored
+  "matched" by checking whether a `.s` file *named after the function* exists
+  anywhere under `asm/`. That assumption broke on this project's actual
+  layout. `asm/main/gzip_asm.s` and every one of the 68 `asm/libultra/*.s`
+  files are still whole-TU dumps holding several functions each (e.g.
+  `gzip_asm.s` has five `gzip_inflate_*` glabels, none of them named
+  `gzip_asm`), so a function with no same-named `.s` file was silently counted
+  as "matched" even when it was still 100% hand-disassembled — the old tool
+  would have reported all five `gzip_inflate_*` functions as decompiled C, and
+  the 107 not-yet-organized `asm/<ADDR>.s` files would have made this worse,
+  not better, as the project grows. Fixed by searching for the function's
+  *name* as a `glabel`/`alabel` anywhere in the whole `asm/` tree instead of
+  matching by filename. Suggest: any future "is X still assembly" check in
+  this project's tooling should default to a name search over the tree, never
+  a filename convention — the moment a segment stops being one function per
+  file (which is most of `asm/` right now), filename matching goes wrong
+  without erroring.
+- **The ELF's own symbol table contains size-0 `*ABS*` "functions" that are
+  not separate functions.** `undefined_funcs_auto.us.txt` /
+  `undefined_syms_auto.us.txt` auto-generate `name = 0xADDR;` linker-script
+  stand-ins for any name referenced from one file but not (yet) defined in
+  it; when the reference and the `glabel`/`alabel` defining it both end up in
+  the same not-yet-organized `asm/<ADDR>.s` file, the *definition* still
+  resolves as a real function, but a second, spurious `*ABS*` size-0 symbol
+  for the same name shows up in `objdump -x`'s output too. Checked one by
+  hand: `func_80059278` is an `alabel` for a shared branch-target *inside*
+  the single large hand-written function `func_800591B0` in `asm/59DB0.s`,
+  not a function of its own. 57 such placeholders exist right now; counting
+  them would inflate the "total functions" denominator by names that are not
+  distinct functions. `tools/progress.py` excludes any `*ABS*`/size-0 symbol
+  from the denominator and reports the exclusion count in `--verbose` output
+  so it stays visible. Suggest: if `objdump`'s output ever needs parsing
+  again elsewhere in this project, treat `*ABS*`+size-0 as "not a function
+  with a body" on sight — it is a reliable, cheap signature for this class of
+  placeholder.
