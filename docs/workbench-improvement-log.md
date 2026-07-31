@@ -73,7 +73,7 @@ consciously dropped.
   script" entry above). Two things made it worth writing properly rather than
   pasting the scratchpad version: it is *relocation-aware* (mask the words a
   relocation record says the linker patches, compare the rest verbatim), which
-  took the corridor from 30 reloc-free functions to 99 named ones; and
+  took the corridor from 30 reloc-free functions to 107 named ones; and
   `--sections` reports whole-object `.text` matches, which is what actually
   pins translation-unit boundaries. Suggest next: teach it to emit
   `symbol_addrs` lines directly (`--emit-symbols`) so the transcription step
@@ -102,3 +102,26 @@ consciously dropped.
   and assembling them separately would double every symbol). Suggest: the
   build should assert that every `.s` splat wrote is either assembled or
   deliberately excluded, instead of relying on the ROM hash to notice.
+
+## 2026-07-31 — Task B review round 1
+
+- **`occ` is window-scoped, and it reads like it is ROM-scoped.** The finder
+  reports how many times a blob matched *inside `--start`/`--end`*, so
+  `__osDisableInt` prints `occ=1` when scanned over `0x1000..0x6F420` and
+  `occ=2` when scanned over the whole static segment — the second copy at
+  `0x72810` is simply outside the first window. Every "unique match" claim made
+  from a windowed run is therefore weaker than it looks, and this bit the Task
+  B report in exactly that way (two piacs symbols asserted as uniquely matched
+  when each occurs twice ROM-wide). Suggest: always compute occurrences over
+  the whole ROM and print two columns — `occ` (in window) and `romocc` (total)
+  — so a windowed scan can never be mistaken for a uniqueness proof. Cheap: the
+  masked comparison already runs over arbitrary ranges.
+- **Nothing stops a thin match from being reported as a finding.** The tool
+  prints the masked-word count and leaves judging to the reader, which is the
+  right default but is not a guard: a 0x10-byte function with 2 of its 4 words
+  masked is two instructions of evidence and still lands in the table next to a
+  0xAC0-byte whole-object match. The Task B report's stated mitigation ("prefer
+  whole-.text matches, watch the masked count") is a human procedure, i.e. the
+  kind that stops being followed. Suggest: `--min-unmasked-words N` (and
+  perhaps `--max-masked-fraction`) so the mitigation is enforced by the tool
+  and the threshold used is visible in the command line that produced a table.
