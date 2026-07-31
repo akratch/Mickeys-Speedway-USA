@@ -143,7 +143,10 @@ tool, and the `decomp-workbench` items are for that tool's maintainer
   wrong advice. A toolchain-capability probe (if the target uses odd single FP
   registers and the candidate's compiler has never emitted one, say so) is a
   compiler-identity finding, not an allocator one, and belongs with the
-  existing `toolchain-calibration` document.
+  existing `toolchain-calibration` document. (Since settled: IDO 5.3 *can*
+  emit odd single registers under `-Wc,-mips3 -Wc,-fp32regs`, and no IDO can
+  emit the ROM's set. §6.2 carries the mechanism. The probe idea stands; its
+  answer for this target is "no compiler", not "a different compiler".)
 
 ### Ledgers, and what the upstream redaction does not cover
 
