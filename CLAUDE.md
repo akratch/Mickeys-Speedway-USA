@@ -53,6 +53,17 @@ genuinely non-bypassable layer would be server-side — a GitHub push ruleset or
 a required status check on a protected branch — and this repository does not
 have one configured yet.
 
+**What the gates are and are not.** They catch *mistakes* — an asm dump, a
+hexdump, a ledger, a base64 blob, a leak spread across files — measured against
+this repository's whole history on one side and real ROM fixtures on the other.
+They are **not** an adversary-proof boundary: detecting arbitrarily-encoded data
+is undecidable, a file under ~96 machine words slips under every threshold, and
+`--no-verify` skips the lot. `docs/CLEANROOM.md` lists the measured limits. The
+load-bearing guarantees are structural — the `.decomp-workbench` path whitelist
+and manifest schema check, the ROM path and binary rules, the tool-level ledger
+redaction, this policy, and (not yet configured) a server-side push ruleset. A
+green gate is not permission to skip reading your own diff.
+
 **Never pass `--no-verify`.** Never lower a threshold to make a file pass. If a
 file is genuinely a false positive, restructure it, or add it to the allowlist
 in `tools/cleanroom_detectors.py` with a written reason that survives review.
