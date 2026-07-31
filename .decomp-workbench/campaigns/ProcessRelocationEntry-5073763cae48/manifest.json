@@ -3,7 +3,7 @@
   "cache_directory": "/Users/adamkratch/Desktop/dev/mickey/.decomp-workbench/cache",
   "created_at_unix": 1785459604.0395699,
   "execution": {
-    "jobs": 8,
+    "jobs": 7,
     "stop_on_exact": true,
     "timeout_seconds": 120.0
   },
@@ -35,8 +35,8 @@
   "last_run": {
     "exact": false,
     "interrupted": false,
-    "prepared": 8,
-    "results": 8
+    "prepared": 7,
+    "results": 7
   },
   "ledger": "/Users/adamkratch/Desktop/dev/mickey/.decomp-workbench/campaigns/ProcessRelocationEntry-5073763cae48/ledger.jsonl",
   "schema": "decomp-workbench-campaign-manifest-v1",
@@ -80,9 +80,44 @@
       "cache_key": "77aee8cea191577de5630934e0c22e7f58831b7608539374c6e9444031179ef8",
       "path": "/Users/adamkratch/Desktop/dev/mickey/build/wb/cand/v8_deadweb.c",
       "sha256": "ba98e2956f16746533809232da75c5d8e1a9304b45b2b56ce0d4250c4bf639c2"
+    },
+    {
+      "cache_key": "456c3dba35d86f81b11f1ecc7ffd15a9abd207fa85a00d8298ce969bcb7ae613",
+      "path": "/Users/adamkratch/Desktop/dev/mickey/build/wb/cand3/x1_baseline.c",
+      "sha256": "d2c1f2b1675fdc0903a1bd5e98b099f0c5c27673ca07ed974a052c52686a7d1f"
+    },
+    {
+      "cache_key": "c63e34fb004c312466ca9291ec002743fd44af09ae8aa2e0713c64e628e45a4c",
+      "path": "/Users/adamkratch/Desktop/dev/mickey/build/wb/cand3/x2_lever14_hoistarg.c",
+      "sha256": "ad26057ebc5bec0ca1eac8aea68fcbcea3d83539d5caf3a00d6e347765e8d001"
+    },
+    {
+      "cache_key": "2496411693cd399821f56948c1b086d5850a8553b114fe394b29bd62dd12df2e",
+      "path": "/Users/adamkratch/Desktop/dev/mickey/build/wb/cand3/x3_lever14_reuse.c",
+      "sha256": "70d77f903b337aa837c4724041851d6b33e8357e12f75d03a05d5efaf955acb1"
+    },
+    {
+      "cache_key": "6626183e19a341ee7e0d824691d0c5213373f0d41b645e60a1fffdab5e60d1e0",
+      "path": "/Users/adamkratch/Desktop/dev/mickey/build/wb/cand3/x4_lever15_phantom.c",
+      "sha256": "e78316e82c5884d6e6093103df0acead29caea70e58a09b226c44717a1fa5abf"
+    },
+    {
+      "cache_key": "637c271db617eb4924e6f0e7bc713a8dcbee4aebdc71cd5cf8f00dddb8d5cb6b",
+      "path": "/Users/adamkratch/Desktop/dev/mickey/build/wb/cand3/x5_lever16_mask.c",
+      "sha256": "35c2aa9f297b26dd588be3490903e07e046b3a0215170134ace499af330c9044"
+    },
+    {
+      "cache_key": "3af2889fe1023d487e5e7ab68a9148d94c02ee9d91ec2aeaa45baddb92fc5d1c",
+      "path": "/Users/adamkratch/Desktop/dev/mickey/build/wb/cand3/x6_nested_ifs.c",
+      "sha256": "745afb576ca8c22e148ad5f0920363893732c85323941fd3efed0f906aa464d6"
+    },
+    {
+      "cache_key": "dfcc676a342601139b668f8f59da59d3ec6f89321b1dfa5551ca21f37de3c53b",
+      "path": "/Users/adamkratch/Desktop/dev/mickey/build/wb/cand3/x7_nested_plus_hoist.c",
+      "sha256": "28142e2b156c2ef5b2863f1d68c07d02dbb6aaa7aeb0f7b504d2f9ce72d2770c"
     }
   ],
   "state_directory": "/Users/adamkratch/Desktop/dev/mickey/.decomp-workbench/campaigns/ProcessRelocationEntry-5073763cae48",
   "status": "complete",
-  "updated_at_unix": 1785459604.981239
+  "updated_at_unix": 1785461025.0776918
 }
