@@ -1,0 +1,26 @@
+# Diagnostic compatibility profile only. The supported Mickey workflow uses a
+# bounded solver with inline evidence and no model-visible shell.
+# Copy this file to ~/.codex/decomp.config.toml and copy the adjacent catalog to
+# ~/.codex/n64dllm-model-catalog.json. Never use this profile with `--yolo`.
+model_provider = "n64dllm"
+model = "n64dllm-v1"
+model_context_window = 49152
+model_catalog_json = "~/.codex/n64dllm-model-catalog.json"
+include_apps_instructions = false
+include_collaboration_mode_instructions = false
+
+[features]
+apps = false
+browser_use = false
+computer_use = false
+goals = false
+image_generation = false
+multi_agent = false
+plugins = false
+remote_plugin = false
+skill_search = false
+
+[model_providers.n64dllm]
+name = "n64dllm local"
+base_url = "http://127.0.0.1:8081/v1"
+wire_api = "responses"
