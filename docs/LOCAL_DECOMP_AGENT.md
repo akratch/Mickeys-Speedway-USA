@@ -1,5 +1,13 @@
 # Local decomp model as a bounded candidate specialist
 
+**Historical.** The `n64dllm-v1` lane described here was evaluated and
+retired on 2026-08-23: 5 targets, 18 samples, 0 improvements over the manual
+matching basin, every lane graded "Harmful." See
+`docs/adr/0009-model-routing-and-agent-operation.md` for the decision and
+`docs/acceleration-survey.md` §8 for the measurement. This document is kept
+as a record of the contract that was tried, not as an active operating
+procedure; do not route matching work to a local model.
+
 This is Mickey's operating contract for `n64dllm-v1` and the paired private
 `akratch/decomp-agent` checkout. Record the exact harness commit in every run
 ledger. Mickey's build, diff, clean-room, provenance, and canonical-integration
