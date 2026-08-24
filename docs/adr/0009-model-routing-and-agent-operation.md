@@ -13,7 +13,7 @@ stopped on 2026-08-23. This agrees with published data cited in the same
 section: a LoRA on LLM4Decompile-9B over 23.4k byte-exact N64 scratches
 reached 10/53 exact, while the Macabeus benchmark (a frontier model, 12
 attempts, compiler feedback in the loop) reached 74% overall on Animal
-Forest — 90/70/50% on easy/medium/hard. A comparable sibling project
+Forest, 90/70/50% on easy/medium/hard. A comparable sibling project
 (Snowboard Kids 2) finished its last ten functions with a frontier coding
 model at its highest reasoning setting, not a local specialist.
 
@@ -24,8 +24,8 @@ sibling function in context as the worked example.
 
 Separately, the old `AGENTS.md` built its entire orchestration model around
 a fixed "four-slot runtime" and forbade agents from committing at all
-(§7), which left the whole of August's work — 704 untracked paths, 23
-modified tracked files — living only in a working directory with no hooks
+(§7), which left the whole of August's work (704 untracked paths, 23
+modified tracked files) living only in a working directory with no hooks
 ever having run on any of it (see ADR 0010).
 
 ## Decision
@@ -36,8 +36,8 @@ ever having run on any of it (see ADR 0010).
 - Matching work is routed to frontier models with compiler feedback in the
   loop (compile, compare, iterate), not to a local specialist.
 - A **hard cap of ~10 attempts per function**: after roughly ten iterations
-  without an exact match, stop and record a plateau — the best candidate,
-  its score, first mismatch, and a concrete note on what's blocking it —
+  without an exact match, stop and record a plateau: the best candidate,
+  its score, first mismatch, and a concrete note on what's blocking it,
   rather than continuing to grind.
 - **Similarity-first scheduling**: before starting a function, put its
   closest already-matched sibling (by the near-match oracle, ADR 0007) in

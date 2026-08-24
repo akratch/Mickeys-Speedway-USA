@@ -109,7 +109,7 @@ modules still requiring closure.
 Goal: short, legally bounded, strongly compiler-feasible functions, ahead of
 returning to the large closure blockers.
 
-Results: 508 exact non-padding bytes across nine overlays — state
+Results: 508 exact non-padding bytes across nine overlays: state
 initializers, byte copies, scalar predicates, resource-release wrappers,
 mode-call wrappers, and a byte-string length loop. Overlay C rose to 14,024
 bytes; whole resolved code to 56,676 bytes. One nested-release candidate was
@@ -133,7 +133,7 @@ bit-query) stayed non-exact and were dropped. DKR checks were donor-negative.
 Goal: close out overlay 68's lifecycle API surface (allocators, release
 wrappers, timer/entry helpers).
 
-Results: 524 exact non-padding bytes, all in overlay 68 — two entry
+Results: 524 exact non-padding bytes, all in overlay 68: two entry
 allocators, three release wrappers, a nested-flag clear, an entry-finish
 helper, and a timer-start helper, all linking word-for-word. Overlay C
 reached 14,984 bytes; whole resolved code 57,636 / 949,944 (6.07%). The
@@ -147,8 +147,8 @@ remained 2/6, carried into Epoch 10.
 ## Epoch 10 — double-digit breakthrough campaign (complete)
 
 Goal: starting from 57,636 / 949,944 whole-program resolved bytes (6.07%),
-reach 10.00% whole-program resolved — at least 94,995 resolved bytes, or
-37,359 new exact non-padding overlay bytes — while also closing four more
+reach 10.00% whole-program resolved (at least 94,995 resolved bytes, or
+37,359 new exact non-padding overlay bytes) while also closing four more
 Epoch 5 cohort modules (overlays 74, 85, 97, 77 primary; 23, 24, 82
 fallback), keeping the ROM byte-identical, and refreshing the donor ledger
 before each new semantic cluster.
@@ -168,8 +168,8 @@ byte-identical.
 ## Epoch 11 — fifteen-percent offensive (complete 2026-08-22)
 
 Goal: starting from Epoch 10's verified 94,996-byte exit, reach 142,492 /
-949,944 whole-program resolved bytes — the first integer-byte total at
-15.00% — requiring at least 47,496 new exact bytes and bringing overlay C to
+949,944 whole-program resolved bytes, the first integer-byte total at
+15.00%, requiring at least 47,496 new exact bytes and bringing overlay C to
 at least 99,840 / 469,264 (21.28%). Six hard exits governed the campaign:
 the byte target; closing at least eight more overlay modules; preserving
 the exact ROM SHA1; refreshed DKR v77/v80 and JFG donor scans before each
@@ -189,8 +189,8 @@ integrity/documentation pass.
 ## Epoch 12 — twenty-percent full-thrusters campaign (complete)
 
 Goal: starting from Epoch 11's verified 144,292 / 950,332 resolved bytes
-(15.18%), reach the first integer-byte total at or above 20.00% —
-190,067 resolved bytes — requiring at least 45,775 new exact non-padding
+(15.18%), reach the first integer-byte total at or above 20.00%,
+190,067 resolved bytes, requiring at least 45,775 new exact non-padding
 overlay bytes and bringing overlay C to at least 147,027 / 469,264 (31.33%).
 Six hard exits mirrored Epoch 11's: the byte target, closing at least eight
 more overlays, preserving the exact ROM SHA1, keeping every generated
@@ -201,7 +201,7 @@ a final clean-room and full-ROM data-comparison pass.
 The measured unresolved non-padding surface at campaign start was 364,940
 bytes across 67 overlays. Five primary volume modules (overlays 101, 1, 58,
 57, 8) exposed 127,960 bytes; an independent fifteen-module closure cohort
-exposed a further 21,464 bytes — together over three times the hard byte
+exposed a further 21,464 bytes, together over three times the hard byte
 gate. Work was organized into a closure-card wave run concurrently with
 targeted volume tranches per module.
 

@@ -3,7 +3,7 @@
 This repository is an active matching-decomp campaign. Decisions governing
 how it's worked are recorded in `docs/adr/` (start at `docs/adr/README.md`);
 this file is the operating summary. Where this file and an ADR disagree, the
-ADR is authoritative — file a new ADR to change policy, don't just edit this
+ADR is authoritative: file a new ADR to change policy, don't just edit this
 file out from under it.
 
 Read `docs/CONTRIBUTING.md` and `docs/CLEANROOM.md` before changing
@@ -14,24 +14,25 @@ route matching work to it.
 
 ## The lane model
 
-As many workers as there is independent work — there is no fixed slot count
+As many workers as there is independent work; there is no fixed slot count
 to saturate. Each worker operates in its own isolated worktree, created with
 `tools/new_lane.sh <name>`, on branch `lane/<name>`. Lanes give every worker
 its own `build/` and `asm/`, so workers never contend for the same objects
 and never need a job ceiling to avoid stepping on each other
 (`docs/adr/0004-build-parallelism.md`).
 
-- Build with `gmake -j$(nproc)` (or the machine's real core count) inside
+- Build with `gmake -j$(sysctl -n hw.ncpu)` (or the machine's real core count) inside
   your lane. There is no campaign-mandated compiler-job ceiling.
 - Never touch another lane's worktree, branch, or in-flight files. If you
   need something another lane owns, ask for a handoff rather than editing
   it directly.
 - The primary/coordinating agent's job is to keep the ready queue populated
   and assign disjoint targets to free lanes, not to police a slot count.
+- Full two-phase `gmake verify` run against a SHARED worktree (not a lane) goes through `tools/with_verify_lock.sh`, now in `campaign/unchain`. A lane's own `gmake verify` needs no lock: each lane already has its own `build/`.
 
 ## Commit discipline
 
-Commit on your own lane branch as work lands — small, function-sized
+Commit on your own lane branch as work lands: small, function-sized
 commits, not an end-of-session dump (`docs/adr/0010-commit-discipline.md`).
 A commit is one exact function plus its symbol-table line and atlas row, or
 an equivalent coherent unit.
@@ -43,7 +44,7 @@ an equivalent coherent unit.
   status. See `CLAUDE.md`'s "Before every commit" section for the full list.
 - Lane branches integrate through the existing campaign/unchain flow.
   Nothing should exist only in a working directory between integration
-  points — that is how a month of work once went unswept by the clean-room
+  points, which is how a month of work once went unswept by the clean-room
   gates and nearly got lost to a bad `checkout`.
 
 ## Validation is part of the job
@@ -61,7 +62,7 @@ an equivalent coherent unit.
 - Matched means: `tools/ido/cc`'s untouched output for the C in the tree,
   linked at the real offset, is byte-identical to the ROM
   (`docs/adr/0001-matching-standard.md`). No instruction word may be edited
-  after compilation to reach a match — see
+  after compilation to reach a match. See
   `docs/adr/0002-no-post-compile-instruction-editing.md` for exactly what
   post-compile step is and isn't permitted. A function only reachable via a
   prohibited step is written as `#ifdef NON_MATCHING` C over
@@ -69,6 +70,12 @@ an equivalent coherent unit.
 - Require exact owned bytes and exact relocation count/type/offset/identity.
   Exact size, a high objdiff score, or semantic agreement alone is
   non-exact.
+- Separate executable bytes from target padding, compiler section alignment,
+  and already-matched islands and data. Only unmatched executable bytes ever
+  become new credit; source-only surface and padding never do.
+- Synthetic-address and zero-valued proxy links are diagnostic only. Every
+  promotion extracts the owned range from the linked output and byte-compares
+  it against the same offsets in the baserom.
 - Preserve every meaningful attempt: source, object, score, first mismatch,
   and rationale. Don't overwrite the best artifact without retaining it.
 
@@ -84,7 +91,7 @@ an equivalent coherent unit.
   files. `CLAUDE.md`'s "Nothing ROM-derived is ever tracked in git" section
   is the full rule; the pre-commit hook enforces it.
 - Identify overlay functions by `(overlay, section, offset)` and exact
-  ROM/text ownership — a shared synthetic VMA is not a unique identity
+  ROM/text ownership; a shared synthetic VMA is not a unique identity
   across overlays.
 - dp64 and `sfadebug` names/code/comments remain prohibited until the
   project owner rewrites `docs/CLEANROOM.md` (`docs/adr/0008-provenance.md`).
@@ -103,7 +110,11 @@ an equivalent coherent unit.
    CFG/branch-likely, expression association, register allocation, loop
    spelling, instruction-set/flag mode, or relocation binding. Try the flag
    lattice before hand permutation; run the permuter only as a bounded batch
-   job, never inside your own reasoning loop.
+   job, never inside your own reasoning loop. Global toolchain flags, shared
+   headers, symbol policy, yaml layout, and data placement are not changed
+   merely to improve one candidate; a flag change that survives the sweep
+   becomes canonical only with target evidence and an impact review across
+   every consumer of that flag group.
 5. Iterate with coherent hypotheses, preserving semantics, widths,
    signedness, and call order. Don't improve a score by inventing guards,
    merging unproved identities, or patching object bytes.
@@ -120,7 +131,7 @@ an equivalent coherent unit.
 
 - Every claim in `docs/modules.md`/`symbol_addrs.us.txt` states its
   evidence tier (A byte-identity, B call graph, C string correspondence, D
-  structural inference — `docs/modules.md` §1). A claim with no stated
+  structural inference, `docs/modules.md` §1). A claim with no stated
   method is a bug in the document.
 - Derived numbers (counts, percentages, sizes) are recomputed from the
   tree, never carried forward from an earlier message or file version.
