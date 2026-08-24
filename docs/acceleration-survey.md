@@ -1,5 +1,97 @@
 # Acceleration survey: where the big strides are
 
+## Status, 2026-08-24 evening
+
+This survey's ten findings drove same-day action; this note records what
+was actioned and what is still open, so the findings below read as history,
+not as an open task list. Every number here is quoted from `README.md`'s
+generated Progress block (`gmake scoreboard`/`gmake check-scoreboard`) or
+counted directly from the tree in this lane, not carried forward — see the
+file-level note below on why this file itself stays a snapshot.
+
+**Actioned:**
+
+- **Finding 1** (instruction-editing inflated the matched count) became
+  [ADR 0001](adr/0001-matching-standard.md) (matching standard, the
+  objdiff/DKR byte-identity definition) and
+  [ADR 0002](adr/0002-no-post-compile-instruction-editing.md) (no
+  post-compile instruction editing). `tools/postprocess_audit.py`
+  classifies every object's `POSTPROCESS` step; `config/postprocess-audit.us.json`
+  now reads zero `altered` objects across all 687 audited objects
+  (`summary.by_class: {"metadata": 687}`) — the conversion reached every
+  object, not just the ones this lane's prose describes. The 274 affected
+  functions moved to `#ifdef NON_MATCHING` over `#pragma GLOBAL_ASM`, per
+  ADR 0002's Consequences.
+- **Finding 3/4/6** (no near-match oracle, permuter uninstalled, JFG
+  structural matching unused) became [ADR 0007](adr/0007-matching-tools.md).
+  decomp-permuter is installed and batch-only (`tools/permute.sh`), objdiff-cli
+  is the per-object oracle, and `tools/skeleton_scan.py`
+  ([`docs/skeleton-scan.md`](skeleton-scan.md)),
+  `tools/flag_sweep.py` ([`docs/flag-sweep.md`](flag-sweep.md)), and
+  `tools/overlay_graph_match.py` ([`docs/overlay-graph.md`](overlay-graph.md))
+  are installed and documented.
+- **Finding 5** (the two-job compile ceiling) became
+  [ADR 0004](adr/0004-build-parallelism.md): the ceiling is removed, and
+  contention is handled structurally by per-worker lane worktrees
+  (`tools/new_lane.sh`, `tools/merge_lane.sh`, `tools/codex_lane.sh`) rather
+  than by a job-count policy.
+- **Finding 7** (three weeks uncommitted) is closed by the lane workflow
+  itself: every worker now commits on its own `lane/<name>` branch, in
+  small commits, with hooks on ([ADR 0010](adr/0010-commit-discipline.md)).
+- **Finding 9** (per-function-file overlay layout) became
+  [ADR 0006](adr/0006-overlay-source-layout.md): one translation unit per
+  overlay, consolidated overlay-by-overlay once it passes ~5 matched
+  functions, starting with overlays 50, 52, 54, and 101. This is
+  **in progress**, not complete — see "What remains" below.
+- **§13.3's `n_audio` ruling** (adopt PD/BK/JFG bodies, [ADR 0008](adr/0008-provenance.md))
+  is largely executed: **30 of 45** `n_audio` translation units under
+  `src/libultra/` now have C bodies with no `GLOBAL_ASM` remaining
+  (counted directly from `src/libultra/n_*.c`, `sl.c`, `slHeap.c`, and the
+  `LIBULTRA_NAUDIO_BARE_TUS` flag-group list in `Makefile`, which by its own
+  comment only gains an entry once that TU's compiled bytes are checked
+  against the ROM). 15 TUs remain.
+- **Finding 10** (stale toolchain) — objdiff-cli and mapfile_parser are
+  installed and covered by `tools/check_tools.sh`; the splat/spimdisasm
+  version bump is not part of this pass.
+
+**The honest scoreboard, right now** (`README.md`'s generated block; do not
+copy these numbers forward into a later document — recompute):
+
+```
+functions      312 / 1457    21.41%   matched to C, byte-identical
+whole resolved 163164 / 947972  17.21%   resident C + verified asm + overlay C
+```
+
+```
+decompiled              146060 / 947972  (15.41%)
+handwritten asm          17104 / 947972  ( 1.80%)
+GLOBAL_ASM remaining    584412 / 947972  (61.65%)
+NON_MATCHING            200396 / 947972  (21.14%)
+NON_EQUIVALENT               0 / 947972  ( 0.00%)
+```
+
+This is a smaller "decompiled" figure than the pre-ADR headline number, on
+purpose (ADR 0001's Consequences said as much before the fact): it no longer
+credits an object an instruction-editing step touched. The `NON_MATCHING`
+line is the real, honest size of the queue those functions now sit in.
+
+**What remains:**
+
+- The **NON_MATCHING queue**: 200,396 bytes across the functions ADR
+  0001/0002 demoted, now the decomp-permuter's first batch per ADR 0007 —
+  a bounded batch job per function, never inside an agent's own reasoning
+  loop, or closed by source restructuring the way DKR's own endgame case
+  studies were (ADR 0002's Consequences).
+- **Overlay consolidation** (ADR 0006) is still per-function-file outside
+  the four overlays named as the first cohort; the JFG/dp64-style
+  `elf2dll`-equivalent consolidation step for those four has not yet
+  landed in this lane.
+- **Plateaus**: `README.md`'s per-area breakdown still shows "game code, not
+  yet split" at 5.1% (0 matched of 590 functions) — the bulk of the game's
+  own logic, as opposed to the libultra corridor (96.2%) and TU-identified
+  game code (45.2%), is still unclaimed text with no owning translation
+  unit at all.
+
 Written 2026-08-24 from a review of the working tree, the reference farm,
 and the current external tooling. Every number below was measured during the
 review (the commands are named where they matter); none is carried forward

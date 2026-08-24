@@ -214,3 +214,30 @@ output; `docs/adr/0001-matching-standard.md` and
 `docs/adr/0002-no-post-compile-instruction-editing.md` correct the standard
 going forward, and the honest current total is what `gmake scoreboard`
 reports today, not the figures recorded here at campaign close.
+
+## Epoch 13 (2026-08-24): unchained
+
+The owner reviewed `docs/acceleration-survey.md` in full and, the same day,
+wrote ten ADRs (`docs/adr/0001` through `0010`) settling every open policy
+question the survey raised: what counts as matched, that no instruction word
+is ever edited after compilation to reach one, build parallelism, work
+prioritisation, one-TU-per-overlay source layout, the permitted matching
+tools, provenance from the five named reference decomps, model routing and
+agent operation, and commit discipline. `docs/adr/README.md` and `AGENTS.md`
+now govern the campaign instead of ad hoc practice discovered mid-session.
+
+The immediate mechanical consequence was the ADR 0001/0002 rescoring: every
+object `tools/postprocess_audit.py` finds an instruction-altering
+`POSTPROCESS` step on moved from matched to `NON_MATCHING`, and
+`config/postprocess-audit.us.json` now records zero such objects remaining
+(`{"metadata": 687}`) — the conversion is complete, not partial. Work
+continues on `campaign/unchain` in per-worker lanes (`tools/new_lane.sh`/`merge_lane.sh`), the
+compile-job ceiling is gone, decomp-permuter and objdiff-cli are installed
+tools rather than survey findings, and the `n_audio` library adoption from
+PD/BK/JFG bodies (ADR 0008) is most of the way done. `docs/modules.md`
+section 5 split out to `docs/overlays.md` the same day, for the same reason
+the survey flagged the file's size. `docs/acceleration-survey.md`'s
+"Status, 2026-08-24 evening" section carries the current numbers and the
+remaining queue: the NON_MATCHING backlog now belongs to the permuter and to
+hand restructuring, and overlay consolidation (ADR 0006) has a named first
+cohort but has not yet landed.
