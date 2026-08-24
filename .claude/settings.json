@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git show:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git worktree list:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(find:*)",
+      "Bash(sed -n:*)",
+      "Bash(python3 -c:*)",
+      "Bash(.venv/bin/python:*)",
+      "Bash(tools/binutils/mips64-elf-objdump:*)",
+      "Bash(tools/binutils/mips64-elf-nm:*)",
+      "Bash(tools/binutils/mips64-elf-readelf:*)",
+      "Bash(gmake -n:*)",
+      "Bash(gmake progress)",
+      "Bash(gmake check-docs)",
+      "Bash(gmake cleanroom)",
+      "Bash(gmake cleanroom CLEANROOM_ARGS=*)",
+      "Bash(gmake verify)",
+      "Bash(gmake -j*)",
+      "Bash(./diff.sh:*)",
+      "Bash(tools/wb_compare.sh:*)",
+      "Bash(tools/objdiff_report.sh:*)",
+      "Bash(tools/permute.sh:*)",
+      "Bash(sha1sum:*)",
+      "Bash(shasum:*)",
+      "Bash(xxd:*)",
+      "Bash(od:*)"
+    ]
+  }
+}
