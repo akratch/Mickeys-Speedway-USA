@@ -57,7 +57,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8004AF68` | `src/main/fx.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_800336A8` | `src/main/gameVi.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_800339B4` | `src/main/gameVi.c` | static-placement | framebuffer base symbol | Place the framebuffer anchor where gameVi can retain target relocations. |
-| `func_80034094` | `src/main/gameVi.c` | shared-rodata | jtbl_8008249C | Move the twelve-entry switch table and labels into gameVi. |
+| `func_80034094` | `src/main/gameVi.c` | shared-rodata/blocked | jtbl_8008249C, D_80082490..D_80082498 | A table-only carve shifts four bytes; the full island needs named-float ownership. |
 | `func_8005BA40` | `src/main/gsSnd.c` | shared-rodata | gsSnd event switch tables | Move the measured gsSnd rodata range into the gsSnd TU. |
 | `joyInit` | `src/main/joy.c` | bss-aggregate | D_800CF3B4..D_800CF3B7 | Own the adjacent controller-state BSS in joy. |
 | `joyRead` | `src/main/joy.c` | bss-aggregate | D_800CF370..D_800CF3BC | Own the controller arrays and counters as one joy BSS layout. |
