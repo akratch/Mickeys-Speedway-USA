@@ -108,8 +108,19 @@ an equivalent coherent unit.
    first mismatch, frame/register shape, and relocations.
 4. Classify the mismatch before editing: boundary/alignment, ABI/type,
    CFG/branch-likely, expression association, register allocation, loop
-   spelling, instruction-set/flag mode, or relocation binding. Try the flag
-   lattice before hand permutation; run the permuter only as a bounded batch
+   spelling, instruction-set/flag mode, or relocation binding. Let the
+   decomp workbench do the classifying on anything close: `tools/wb_compare.sh
+   <symbol>` builds `build/wb/<symbol>.target.o` and compares it against the
+   full-TU candidate object, and `.venv/bin/decomp-workbench diagnose
+   build/wb/<symbol>.target.o build/src/<tu>.c.o --function <symbol>
+   --objdump tools/binutils/mips64-elf-objdump` names the mechanism and, in
+   its `next:` footer, the field-guide lever to apply in the C
+   (`decomp-workbench guide` lists them; `campaign --stop-on-exact` compiles
+   and ranks several source variants at once; the tool's own docs are in
+   `~/Desktop/dev/n64-decomp-workbench/docs/`). Its ledgers and caches under
+   `.decomp-workbench/` and `build/wb/` are ROM-derived and never committed;
+   a plateau note quotes the verdict and the lever, never the aligned rows.
+   Try the flag lattice before hand permutation; run the permuter only as a bounded batch
    job, never inside your own reasoning loop. Global toolchain flags, shared
    headers, symbol policy, yaml layout, and data placement are not changed
    merely to improve one candidate; a flag change that survives the sweep
