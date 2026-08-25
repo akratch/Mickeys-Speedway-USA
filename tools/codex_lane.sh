@@ -17,8 +17,16 @@ args=(exec --dangerously-bypass-approvals-and-sandbox -C "$lane" -o "$lane/.code
 [ -n "$model" ] && args+=(-m "$model")
 (
   cd "$lane"
-  nohup sh -c 'codex "$@" - < "$0"; echo "$?" > .codex-status' "$prompt" "${args[@]}" \
-    > "$lane/.codex-run.log" 2>&1 &
-  echo $! > "$lane/.codex-pid"
+  # Detach into a new session so the lane survives whatever launched it
+  # (an interactive tool call's process group is killed when that tool exits).
+  python3 - "$prompt" "$lane" "${args[@]}" <<'PY' > "$lane/.codex-pid"
+import os, subprocess, sys
+prompt, lane, *args = sys.argv[1:]
+cmd = 'codex "$@" - < "$0"; echo "$?" > .codex-status'
+p = subprocess.Popen(['sh', '-c', cmd, prompt, *args], cwd=lane, start_new_session=True,
+                     stdin=subprocess.DEVNULL, stdout=open(os.path.join(lane, '.codex-run.log'), 'w'),
+                     stderr=subprocess.STDOUT)
+print(p.pid)
+PY
 )
 echo "$lane"
