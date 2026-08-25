@@ -83,7 +83,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_800389CC` | `src/main/menu.c` | shared-rodata | jtbl_80082748 | Move the nineteen-mode switch table and labels into menu. |
 | `func_80038BC4` | `src/main/menu.c` | shared-rodata | jtbl_80082794 | Move the nineteen-mode switch table and labels into menu. |
 | `func_80038E1C` | `src/main/menu.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8003968C` | `src/main/menu.c` | bss-aggregate | D_800D3198 repeat state | Own the controller-repeat arrays as one menu BSS object. |
+| `func_8003968C` | `src/main/menu.c` | bss-aggregate/blocked | D_800D3198 repeat state | A menu BSS carve pools the stores and changes an exact consumer. |
 | `func_80039E34` | `src/main/menu.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003A2C8` | `src/main/menu.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003A520` | `src/main/menu.c` | none | — | No ownership change; continue source/codegen work. |
@@ -428,4 +428,3 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_101_F000BA34_18E7254` | `src/overlays/o101/overlay101TailBA34.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F000C144_18E7964` | `src/overlays/o101/overlay101TailC144.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F000C6E8_18E7F08` | `src/overlays/o101/overlay101TailC6E8.c` | none | — | No ownership change; continue source/codegen work. |
-
