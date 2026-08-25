@@ -3,7 +3,9 @@
 This is a names-only audit of every function body guarded by `NON_MATCHING` in `src/`, reconciled with the plateau notes in `docs/resident.md` and `docs/overlays.md`. Declaration-only guards are excluded. `none` means the recorded blocker is code shape, frame, scheduling, register allocation, ABI typing, or unresolved reconstruction rather than section/TU ownership.
 
 - Guarded functions audited: 418
-- Structural blockers: 39
+- Structural blockers found: 39
+- Structural blockers resolved: 1
+- Structural blockers remaining: 38
 - No structural blocker: 379
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
@@ -59,7 +61,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8005BA40` | `src/main/gsSnd.c` | shared-rodata | gsSnd event switch tables | Move the measured gsSnd rodata range into the gsSnd TU. |
 | `joyInit` | `src/main/joy.c` | bss-aggregate | D_800CF3B4..D_800CF3B7 | Own the adjacent controller-state BSS in joy. |
 | `joyRead` | `src/main/joy.c` | bss-aggregate | D_800CF370..D_800CF3BC | Own the controller arrays and counters as one joy BSS layout. |
-| `joyResetMap` | `src/main/joy.c` | bss-aggregate | D_800CF3B0 | Define the controller map in joy at its measured BSS position. |
+| `joyResetMap` | `src/main/joy.c` | resolved-plateau | D_800CF3B0 | Controller map is TU-owned; expression-tree mismatch remains. |
 | `levelGetCounts` | `src/main/level.c` | bss-aggregate | D_800CF3E0, D_800CF420 | Restore the level-count table under its original BSS base. |
 | `levelInit` | `src/main/level.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80019934` | `src/main/lights.c` | shared-rodata | jtbl_800817B4 | Move the measured switch table and labels into the lights TU. |
@@ -426,5 +428,4 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_101_F000BA34_18E7254` | `src/overlays/o101/overlay101TailBA34.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F000C144_18E7964` | `src/overlays/o101/overlay101TailC144.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F000C6E8_18E7F08` | `src/overlays/o101/overlay101TailC6E8.c` | none | — | No ownership change; continue source/codegen work. |
-
 
