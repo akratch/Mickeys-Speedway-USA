@@ -232,3 +232,6 @@ the `ido-static-recomp` generated `ugen.c`/`uopt.c` for our pinned IDO 5.3, then
 `instrument-ugen` / `instrument-uopt-globalcolor` to emit textual traces +
 `CDX_FORCE` to prove and then source-route each decision. Without it, these ~6
 functions are permanent NON_MATCHING.
+
+## Tier 2 SET UP (2026-08-26) — operational
+ido-static-recomp cloned @9c242adc; generated build/5.3/uopt.c SHA matches the pin b0058f15; instrument-uopt (globalcolor+alias) + instrument-ugen applied and rebuilt; instrumented toolchain drop-in at ~/Desktop/dev/ido-instrumented (Mickey phases + instrumented uopt/ugen), fidelity proven (.text identical with traces off). Traces on emit 1312 [CDX] coloring records + ~1M DKWB ugen events. CDX_FORCE proves causal webs. A dedicated Fable agent now works Population A with this; luna works Population B.
