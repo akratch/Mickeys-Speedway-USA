@@ -4,8 +4,8 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 
 - Guarded functions audited: 418
 - Structural blockers found: 39
-- Structural blockers resolved: 2
-- Structural blockers remaining: 37
+- Structural blockers resolved: 3
+- Structural blockers remaining: 36
 - No structural blocker: 379
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
@@ -338,7 +338,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_058_F0004F28_18B4110` | `src/overlays/o058/overlay58DrawPointQuad.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_058_F0004C04_18B3DEC` | `src/overlays/o058/overlay58DrawSegmentStrip.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_058_F0005554_18B473C` | `src/overlays/o058/overlay58FinalizePackedStatus.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_059_F000036C_18B8ABC` | `src/overlays/o059/overlay59Advance.c` | shared-rodata | overlay 59 state switch table | Move the compiler switch table into the overlay 59 data owner. |
+| `func_overlay_059_F000036C_18B8ABC` | `src/overlays/o059/overlay59Advance.c` | resolved-plateau | overlay 59 state switch table | Retained +0x76C table owns the compiler references; prologue schedule remains. |
 | `func_overlay_059_F0000070_18B87C0` | `src/overlays/o059/overlay59PrepareEntry.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_060_F0002F54_18BCD2C` | `src/overlays/o060/func_overlay_060_F0002F54_18BCD2C.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_060_F0000000_18B9DD8` | `src/overlays/o060/overlay60Initialize.c` | none | — | No ownership change; continue source/codegen work. |
