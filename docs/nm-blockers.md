@@ -4,8 +4,8 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 
 - Guarded functions audited: 418
 - Structural blockers found: 39
-- Structural blockers resolved: 1
-- Structural blockers remaining: 38
+- Structural blockers resolved: 3
+- Structural blockers remaining: 36
 - No structural blocker: 379
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
@@ -406,11 +406,11 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_101_F0002510_18DDD30` | `src/overlays/o101/func_overlay_101_F0002510_18DDD30.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F0003A58_18DF278` | `src/overlays/o101/func_overlay_101_F0003A58_18DF278.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F000512C_18E094C` | `src/overlays/o101/func_overlay_101_F000512C_18E094C.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_101_F000571C_18E0F3C` | `src/overlays/o101/func_overlay_101_F000571C_18E0F3C.c` | tu-boundary | overlay 101 local data | Consolidate the builder with its overlay-local data owner. |
+| `func_overlay_101_F000571C_18E0F3C` | `src/overlays/o101/func_overlay_101_F000571C_18E0F3C.c` | resolved-plateau | overlay 101 builder BSS | Shared BSS owner is in F571C; C-body structure mismatch remains. |
 | `func_overlay_101_F0005E08_18E1628` | `src/overlays/o101/func_overlay_101_F0005E08_18E1628.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F00063F8_18E1C18` | `src/overlays/o101/func_overlay_101_F00063F8_18E1C18.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F00069E8_18E2208` | `src/overlays/o101/func_overlay_101_F00069E8_18E2208.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_101_F00078F4_18E3114` | `src/overlays/o101/func_overlay_101_F00078F4_18E3114.c` | tu-boundary | overlay 101 local data | Consolidate the builder with its overlay-local data owner. |
+| `func_overlay_101_F00078F4_18E3114` | `src/overlays/o101/func_overlay_101_F00078F4_18E3114.c` | resolved-plateau | overlay 101 builder BSS | Uses F571C's shared BSS owner; C-body structure mismatch remains. |
 | `func_overlay_101_F0008128_18E3948` | `src/overlays/o101/func_overlay_101_F0008128_18E3948.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F000895C_18E417C` | `src/overlays/o101/func_overlay_101_F000895C_18E417C.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F0009190_18E49B0` | `src/overlays/o101/func_overlay_101_F0009190_18E49B0.c` | none | — | No ownership change; continue source/codegen work. |
