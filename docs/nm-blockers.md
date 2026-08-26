@@ -4,8 +4,8 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 
 - Guarded functions audited: 418
 - Structural blockers found: 39
-- Structural blockers resolved: 1
-- Structural blockers remaining: 38
+- Structural blockers resolved: 2
+- Structural blockers remaining: 37
 - No structural blocker: 379
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
@@ -329,7 +329,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_057_F0004064_18A7C5C` | `src/overlays/o057/overlay57HandleModeInput.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_057_F0002C28_18A6820` | `src/overlays/o057/overlay57SmoothAndCheckDistance.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_057_F0003A4C_18A7644` | `src/overlays/o057/overlay57UpdateModeState.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_057_F0004C18_18A8810` | `src/overlays/o057/overlay57UpdateModeTrigger.c` | tu-boundary | overlay 57 local bases | Consolidate the updater with its local data bases. |
+| `func_overlay_057_F0004C18_18A8810` | `src/overlays/o057/overlay57UpdateModeTrigger.c` | resolved-plateau | overlay 57 local bases | BSS block is TU-owned; updater frame/setup schedule remains. |
 | `func_overlay_057_F00035E0_18A71D8` | `src/overlays/o057/overlay57UpdateSelection.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_058_F0000000_18AF1E8` | `src/overlays/o058/func_overlay_058_F0000000_18AF1E8.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_058_F00005FC_18AF7E4` | `src/overlays/o058/func_overlay_058_F00005FC_18AF7E4.c` | none | — | No ownership change; continue source/codegen work. |
