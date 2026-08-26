@@ -127,3 +127,46 @@ CLEANROOM provenance policy).
 - **Recommendation:** execute Phase 0 + Phase 1 first (low risk, low cost, immediate
   signal). Gate Phase 2 on Phase 0's go/no-go and Phase 1's results. Run Population B
   as an independent structural-decomp track when machine and model budget allow.
+
+## Phase 0 results (2026-08-26) — validated
+
+- `decomp-workbench capture make tools/ido <dest> --link` wraps ugen/as0/as1; a
+  build with `CC=<dest>/toolchain/cc` routes the phases through the wrappers and
+  leaves `captures/<ts>-ugen` and `captures/<ts>-as1` run directories.
+- **Fidelity proven:** a capture build of `src/main/anim.c` is byte-identical to
+  the stock build in `.text`, `.data`, and `.rodata`; only `.mdebug` differs
+  (embedded compile paths, which never reach the linked ROM). The capture is
+  codegen-faithful → Tier 1 is trustworthy.
+- Target objects already exist under `build/wb/<fn>.target.o` (via
+  `tools/wb_compare.sh <fn>`), e.g. `func_800508D4`, `func_80055970`,
+  `func_8004D40C`.
+
+### Two wrinkles the next operator must know
+1. **`wb_compare.sh <fn>` (non-rom) is meaningless on a still-wrapped function.**
+   In a normal build the object holds the `#else GLOBAL_ASM` *assembly* (the
+   target's own `.s`), so the compare is the target against itself → a false
+   `words=0`. To analyze the *candidate*, the `#ifdef NON_MATCHING` C body must
+   be the compiled definition.
+2. **`gmake <obj> NON_MATCHING=1` changes the object path** ("No rule to make
+   target …"). Do **not** try to capture via `NON_MATCHING=1` on a single object.
+
+### Phase 1 per-function loop (the working recipe)
+In the `mickey-lane-opus-hard` worktree, per target function:
+1. Temporarily **unwrap** the function: delete its `#ifdef NON_MATCHING` /
+   `#else` / `#pragma GLOBAL_ASM(...)` / `#endif` lines so the C body is the sole
+   definition. (Revert with `git checkout -- <file>` when done.)
+2. `rm build/src/<tu>.c.o; gmake build/src/<tu>.c.o CC=<cap>/toolchain/cc` →
+   builds the candidate through the wrapped phases, capturing its ugen/as1 streams.
+3. Read the streams: `decomp-workbench trace-summary <cap>/captures/<ts>-ugen/…`,
+   `trace-fifo … --registers t0,…,t9 --fail-on-violation` (register free list),
+   and for `schedule-mismatch`, `probe-lines` (compile wrapper = the same
+   capture cc; target = `build/wb/<fn>.target.o`).
+4. The trace explains the candidate's allocation; compare against the target's
+   register/stack usage (`build/wb/<fn>.target.objdump`) to find the source
+   change that flips it. Apply, rebuild, re-diff.
+5. Exact → re-wrap-remove permanently, `gmake verify` + `wb_compare.sh --rom`,
+   commit on `lane/opus-hard`, integrate via the runner.
+
+**Status:** foundation validated and Phase 1 recipe established; the actual
+per-function allocator investigation (multi-stage, per the cef4c precedent) is
+the labor that remains.
