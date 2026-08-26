@@ -4,8 +4,8 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 
 - Guarded functions audited: 418
 - Structural blockers found: 39
-- Structural blockers resolved: 2
-- Structural blockers remaining: 37
+- Structural blockers resolved: 5
+- Structural blockers remaining: 34
 - No structural blocker: 379
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
@@ -242,7 +242,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_021_F000010C_1877D94` | `src/overlays/o021/overlay21ApplyPriorities.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_022_F00002B0_18783B8` | `src/overlays/o022/func_overlay_022_F00002B0_18783B8.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_022_F0000000_1878108` | `src/overlays/o022/overlay22InitializeObject.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_022_F0000D30_1878E38` | `src/overlays/o022/overlay22RemoveObject.c` | tu-boundary | overlay 22 local globals | Consolidate the function with its same-overlay data owner. |
+| `func_overlay_022_F0000D30_1878E38` | `src/overlays/o022/overlay22RemoveObject.c` | resolved-plateau | overlay 22 local globals | Initialized block is TU-owned; pool-position structure remains. |
 | `func_overlay_022_F0000A7C_1878B84` | `src/overlays/o022/overlay22ResolvePlane.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_025_F0000000_1879C88` | `src/overlays/o025/overlay_025.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_025_F000017C_1879E04` | `src/overlays/o025/overlay_025.c` | none | — | No ownership change; continue source/codegen work. |
@@ -303,14 +303,14 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_043_F0001264_188B234` | `src/overlays/o043/overlay43SubmitChildren.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_044_F0000580_188BDE0` | `src/overlays/o044/func_overlay_044_F0000580_188BDE0.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_044_F0000294_188BAF4` | `src/overlays/o044/overlay44UpdateFrameCache.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_045_F0000764_188CBBC` | `src/overlays/o045/func_overlay_045_F0000764_188CBBC.c` | tu-boundary | overlay 45 constants/locals | Consolidate the function with its constants and local references. |
+| `func_overlay_045_F0000764_188CBBC` | `src/overlays/o045/func_overlay_045_F0000764_188CBBC.c` | resolved-plateau | overlay 45 constants/locals | Initialized block is TU-owned; frame/local references remain. |
 | `func_overlay_045_F0001158_188D5B0` | `src/overlays/o045/func_overlay_045_F0001158_188D5B0.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_046_F0000874_188EC6C` | `src/overlays/o046/func_overlay_046_F0000874_188EC6C.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_046_F0001228_188F620` | `src/overlays/o046/func_overlay_046_F0001228_188F620.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_046_F0000120_188E518` | `src/overlays/o046/overlay46UpdateSequence.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_047_F0000000_1890E18` | `src/overlays/o047/func_overlay_047_F0000000_1890E18.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_047_F0000B30_1891948` | `src/overlays/o047/func_overlay_047_F0000B30_1891948.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_047_F00009D0_18917E8` | `src/overlays/o047/overlay47ReleaseResources.c` | data-aggregate | overlay 47 entry/resource block | Own the resource arrays as one overlay 47 initialized-data block. |
+| `func_overlay_047_F00009D0_18917E8` | `src/overlays/o047/overlay47ReleaseResources.c` | resolved-plateau | overlay 47 entry/resource block | Resource block is TU-owned; local address binding remains. |
 | `func_overlay_048_F0000060_1895468` | `src/overlays/o048/overlay48InitializeState.c` | resolved-plateau | overlay 48 seed/state block | BSS block is TU-owned; initializer structure remains. |
 | `func_overlay_048_F0000144_189554C` | `src/overlays/o048/overlay48UpdateState.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_049_F0000000_1896410` | `src/overlays/o049/overlay_049.c` | none | — | No ownership change; continue source/codegen work. |
