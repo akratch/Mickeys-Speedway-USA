@@ -42,7 +42,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `diRcpMoveWd` | `src/main/diRcp.c` | shared-rodata (excluded) | jtbl_80083950 | Owned by the active diRcp lane; do not touch here. |
 | `func_80044C94` | `src/main/diRcpTrace.c` | none | — | No ownership change; continue source/codegen work. |
 | `vsprintf` | `src/main/diprint.c` | resolved | formatter tables | Diprint owns the formatter data/tables; linked C is exact. |
-| `diPrintfAll` | `src/main/diprint.c` | resolved-plateau | D_800D4A60, D_800D4A62 | Diprint owns the measured BSS block; strict `D_800D4A60+2` identity remains. |
+| `diPrintfAll` | `src/main/diprint.c` | resolved | diprint BSS | Diprint owns the measured BSS block; linked C and relocations are exact. |
 | `debug_text_width` | `src/main/diprint.c` | none | — | No ownership change; continue source/codegen work. |
 | `debug_text_parse` | `src/main/diprint.c` | resolved-plateau | D_800D4A60, jtbl_80082CD8 | Diprint owns BSS/rodata; linked C is exact, with compiler-local aliases remaining. |
 | `func_8004B1DC` | `src/main/font.c` | none | — | No ownership change; continue source/codegen work. |
