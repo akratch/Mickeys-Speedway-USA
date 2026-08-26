@@ -15,6 +15,8 @@ lane=$(tools/new_lane.sh "$name" "$@")
 model=${CODEX_MODEL:-}
 args=(exec --dangerously-bypass-approvals-and-sandbox -C "$lane" -o "$lane/.codex-last.md")
 [ -n "$model" ] && args+=(-m "$model")
+effort=${CODEX_EFFORT:-}
+[ -n "$effort" ] && args+=(-c "model_reasoning_effort=\"$effort\"")
 (
   cd "$lane"
   # Detach into a new session so the lane survives whatever launched it
