@@ -128,7 +128,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `__scHandleRetrace` | `src/main/sched.c` | none | — | No ownership change; continue source/codegen work. |
 | `__scYield` | `src/main/sched.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `__scSchedule` | `src/main/sched.c` | shared-rodata (excluded) | jtbl_800823F4 | Owned by the active sched lane; do not touch here. |
-| `shadowInitBuffers` | `src/main/shadows.c` | data-aggregate | D_80079434, D_80079440 | Give shadows the original contiguous initialized-data owner. |
+| `shadowInitBuffers` | `src/main/shadows.c` | resolved | D_80079410–D_8007945C | Shadows owns the contiguous `.data` block; linked C is exact. |
 | `func_80058250` | `src/main/vehicle_sounds.c` | bss-aggregate (excluded) | vehicle sound slots | Owned by the active vehicle_sounds lane; do not touch here. |
 | `func_8005830C` | `src/main/vehicle_sounds.c` | none | — | No ownership change; continue source/codegen work. |
 | `doWeather` | `src/main/weather.c` | none | — | No ownership change; continue source/codegen work. |
