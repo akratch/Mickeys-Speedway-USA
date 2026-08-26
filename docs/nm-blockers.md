@@ -4,8 +4,8 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 
 - Guarded functions audited: 418
 - Structural blockers found: 39
-- Structural blockers resolved: 1
-- Structural blockers remaining: 38
+- Structural blockers resolved: 2
+- Structural blockers remaining: 37
 - No structural blocker: 379
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
@@ -311,7 +311,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_047_F0000000_1890E18` | `src/overlays/o047/func_overlay_047_F0000000_1890E18.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_047_F0000B30_1891948` | `src/overlays/o047/func_overlay_047_F0000B30_1891948.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_047_F00009D0_18917E8` | `src/overlays/o047/overlay47ReleaseResources.c` | data-aggregate | overlay 47 entry/resource block | Own the resource arrays as one overlay 47 initialized-data block. |
-| `func_overlay_048_F0000060_1895468` | `src/overlays/o048/overlay48InitializeState.c` | bss-aggregate | overlay 48 seed/state block | Own the seed and indexed tail under the original BSS base. |
+| `func_overlay_048_F0000060_1895468` | `src/overlays/o048/overlay48InitializeState.c` | resolved-plateau | overlay 48 seed/state block | BSS block is TU-owned; initializer structure remains. |
 | `func_overlay_048_F0000144_189554C` | `src/overlays/o048/overlay48UpdateState.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_049_F0000000_1896410` | `src/overlays/o049/overlay_049.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_050_F0000334_1896CA4` | `src/overlays/o050/func_overlay_050_F0000334_1896CA4.c` | none | — | No ownership change; continue source/codegen work. |
