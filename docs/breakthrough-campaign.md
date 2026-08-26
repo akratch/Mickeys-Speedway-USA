@@ -170,3 +170,35 @@ In the `mickey-lane-opus-hard` worktree, per target function:
 **Status:** foundation validated and Phase 1 recipe established; the actual
 per-function allocator investigation (multi-stage, per the cef4c precedent) is
 the labor that remains.
+
+## Phase 1 first results (2026-08-26)
+
+**`func_800508D4` — precisely diagnosed via the capture+diagnose loop.**
+`verdict=schedule-mismatch words=4 signature=prefix-exact@15`, register lanes
+**identical 28/28** — a *pure schedule* difference: the candidate materialises
+`unsignedScale = D_80083FA8` (the only global-load among four float scales) at
+instruction 15; the target places it at instruction 19 (four later). Reordering
+the declaration to last did **not** move it (same object hash) — confirming the
+doc's point that this class is not respellable and needs the line-assignment /
+trace route (`playbook=g0-schedule-probe`). Build flags for the TU:
+`-O2 -mips2 -Wo,-loopunroll,0`.
+
+**Bug found: the permuter was compiling at the wrong ISA.**
+`tools/permute.sh` imports via decomp-permuter's `import.py`, which inferred a
+default `-O2 -mips1 -32` and dropped the per-file `-Wo,-loopunroll,0`. The real
+build is `-mips2`. IDO emits materially different code at `-mips1` vs `-mips2`,
+so **every prior permuter run (including the "0 hits" farm and the
+`func_80055970` experiment) searched the wrong instruction space and its results
+are invalid.** Fix: after `import.py` builds the scratch, rewrite
+`scratch/compile.sh` with the real per-file flags (extract from
+`gmake -n build/src/<tu>.c.o`). A corrected-flags re-run is under way; if it
+converges, the cheap permuter lever is revived for the whole near-exact set and
+Tier 1/2 tracing is only needed for what it still can't reach.
+
+**Next actions (priority order):**
+1. Land the `permute.sh` per-file-flag fix (high ROI, cheap) and re-baseline the
+   near-exact set with a valid permuter.
+2. Stand up `probe-lines` on an isolated single-function compile (the permuter
+   scratch's `compile.sh`, flag-corrected) for the schedule class.
+3. Tier 2 prerequisite (ido-static-recomp generated `uopt.c`) only for residuals
+   neither the permuter nor Tier 1 reaches.
