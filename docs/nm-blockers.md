@@ -4,8 +4,8 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 
 - Guarded functions audited: 418
 - Structural blockers found: 39
-- Structural blockers resolved: 3
-- Structural blockers remaining: 36
+- Structural blockers resolved: 4
+- Structural blockers remaining: 35
 - No structural blocker: 379
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
@@ -395,7 +395,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_097_F0000508_18D83A0` | `src/overlays/o097/overlay97InitScale.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_098_F0000000_18D89C0` | `src/overlays/o098/overlay98CollectUniqueY.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_098_F0000234_18D8BF4` | `src/overlays/o098/overlay98RenderReflections.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_099_F00002A0_18D9850` | `src/overlays/o099/overlay99ApplySegment.c` | shared-rodata | overlay 99 private table | Move the private table into the retained overlay 99 data owner. |
+| `func_overlay_099_F00002A0_18D9850` | `src/overlays/o099/overlay99ApplySegment.c` | resolved-plateau | overlay 99 private table | Retained +0xB0 table owns the compiler references; representation/prologue schedule remains. |
 | `func_overlay_099_F0000638_18D9BE8` | `src/overlays/o099/overlay99BuildHeightGrid.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_099_F0000064_18D9614` | `src/overlays/o099/overlay99InitializeEntries.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_099_F0000BA4_18DA154` | `src/overlays/o099/overlay99RenderSegments.c` | none | — | No ownership change; continue source/codegen work. |
