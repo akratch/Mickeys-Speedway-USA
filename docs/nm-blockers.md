@@ -114,7 +114,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_800320F0` | `src/main/runlink.c` | none | — | No ownership change; continue source/codegen work. |
 | `runlinkFreeCode` | `src/main/runlink.c` | none | — | No ownership change; continue source/codegen work. |
 | `runlinkInit` | `src/main/runlink.c` | none | — | No ownership change; continue source/codegen work. |
-| `runlinkResumeCode` | `src/main/runlink.c` | none | — | No ownership change; continue source/codegen work. |
+| `runlinkResumeCode` | `src/main/runlink.c` | resolved | pending-load carrier | Exact C body, frame, relocations, and linked ROM range. |
 | `runlinkGetAddressInfo` | `src/main/runlink.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002C69C` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002C70C` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
