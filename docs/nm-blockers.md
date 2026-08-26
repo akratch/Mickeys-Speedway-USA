@@ -4,8 +4,8 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 
 - Guarded functions audited: 418
 - Structural blockers found: 39
-- Structural blockers resolved: 1
-- Structural blockers remaining: 38
+- Structural blockers resolved: 2
+- Structural blockers remaining: 37
 - No structural blocker: 379
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
@@ -29,7 +29,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_80022FD4` | `src/main/camera.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80023598` | `src/main/camera.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80024834` | `src/main/camera.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_80024978` | `src/main/camera.c` | data-aggregate | D_80079F48, D_80079F4C | Move the scale/matrix table definition into camera as one owner. |
+| `func_80024978` | `src/main/camera.c` | resolved-plateau | D_80079F48, D_80079F4C | Camera owns the scale pair; code-shape mismatch remains. |
 | `func_8001C114` | `src/main/charControl.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8001D2A0` | `src/main/charControl.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8001D880` | `src/main/charControl.c` | none | — | No ownership change; continue source/codegen work. |
