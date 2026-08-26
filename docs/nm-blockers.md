@@ -4,8 +4,8 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 
 - Guarded functions audited: 418
 - Structural blockers found: 39
-- Structural blockers resolved: 1
-- Structural blockers remaining: 38
+- Structural blockers resolved: 2
+- Structural blockers remaining: 37
 - No structural blocker: 379
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
@@ -62,7 +62,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `joyInit` | `src/main/joy.c` | bss-aggregate | D_800CF3B4..D_800CF3B7 | Own the adjacent controller-state BSS in joy. |
 | `joyRead` | `src/main/joy.c` | bss-aggregate | D_800CF370..D_800CF3BC | Own the controller arrays and counters as one joy BSS layout. |
 | `joyResetMap` | `src/main/joy.c` | resolved-plateau | D_800CF3B0 | Controller map is TU-owned; expression-tree mismatch remains. |
-| `levelGetCounts` | `src/main/level.c` | bss-aggregate | D_800CF3E0, D_800CF420 | Restore the level-count table under its original BSS base. |
+| `levelGetCounts` | `src/main/level.c` | resolved-plateau | D_800CF3E0, D_800CF420 | Level BSS ranges are TU-owned; three register words and one end-label relocation remain. |
 | `levelInit` | `src/main/level.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80019934` | `src/main/lights.c` | shared-rodata | jtbl_800817B4 | Move the measured switch table and labels into the lights TU. |
 | `func_80019DE8` | `src/main/lights.c` | none | — | No ownership change; continue source/codegen work. |
