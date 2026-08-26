@@ -1,0 +1,129 @@
+# Breakthrough campaign: compiler-trace-guided matching of the wall functions
+
+Scoped 2026-08-26, at 984/1464 functions (67.21%). This document is the plan for
+getting past the plateau where near-miss source guessing stops yielding. It uses
+the decomp workbench's compiler-instrumentation / trace subsystem
+(`~/Desktop/dev/n64-decomp-workbench`, README + `docs/`), which no lane has used
+yet. No ROM-derived content is tracked here.
+
+## 1. The wall, precisely — it is two different populations
+
+The 208 remaining `#ifdef NON_MATCHING` functions are **not one problem**. By the
+workbench/objdiff ranking (`config/nonmatching-ranking.us.json`):
+
+| Population | Count | What it is | The right tool |
+|---|---:|---|---|
+| **A — allocator-walled** | ~6 (of 16 that are ≤10 words) | Instruction multiset, frame, and schedule already exact; residual is IDO's register/stack-slot assignment (e.g. a temp spills to `sp+0x40` vs target `sp+0x48`; a `t3↔a3` web). Opus + luna-max both confirmed these are **not steerable by guessing at C**. | **This campaign** (traces) |
+| **B — structurally incomplete** | ~192 (122 `size-mismatch`, 152 at 40w+) | The candidate C is the wrong size/shape — it was never fully reverse-engineered. Not an allocator problem at all. | Ordinary structural decomp (separate track, §5) |
+
+The near-miss fleet has been grinding Population A and yielding ~0 because guessing
+cannot move an allocator decision. Population B has barely been touched because the
+closest-first ranking never surfaced it. **The workbench trace subsystem is the
+answer for A; B needs decomp effort, not tracing.**
+
+## 2. The technique (proven, not speculative)
+
+The workbench's own final-function campaigns (Hartley, Titania, Aquas, and
+`cef4c`/`lbParticleUpdateStruct` — 1,868 instructions, 99.91% → `words=0`) reached
+exact matches on register-allocation walls identical to ours. The loop
+(`docs/final-function-campaigns.md`):
+
+1. Project build is the final oracle (we have this: `gmake verify`).
+2. Object comparison classifies the residual **before** any C change (`diagnose`).
+3. Hold instruction shape steady while investigating allocation-only residuals.
+4. **Use compiler traces and force probes to prove which pass and which decision
+   owns the residual**, then return to a source-level explanation.
+5. Keep every source/object pair and its metrics; a scalar score is not a diagnosis.
+
+The insight that breaks the "uncontrollable from C" verdict: when the residual is
+one allocator decision, you stop guessing and instead ask *which pass owns this
+word* — answerable at the pass boundaries (ugen → as0 → as1), not in C. Once the
+owning decision is isolated and force-proven causal, `trace-origin-probe` + the
+field guide name the specific source edit that reproduces it.
+
+## 3. What we have vs. what we need (tiered prerequisites)
+
+- **Have:** `tools/ido/cc` is an `ido-static-recomp` build (contains `libc_impl.c`,
+  `recomp.cpp`) with the full phase set (`cfe copt uopt ugen as0 as1`); the build
+  oracle; the workbench installed (`.venv/bin/decomp-workbench`); each target's
+  `asm/nonmatchings/**/<fn>.s`.
+- **Tier 1 — available now, no new prerequisite.** `capture make` wraps our
+  existing binaries so a normal build retains every pass boundary on disk. Enables
+  `probe-lines`, `trace-fifo`, `replay-as1`, and Ucode stream-surgery + replay.
+  Covers: `schedule-mismatch`, register FIFO free-list reconstruction, and
+  pass-ownership isolation.
+- **Tier 2 — bounded prerequisite.** The deep `uopt` register-coloring profiles
+  (`instrument-uopt-globalcolor`, `instrument-uopt-alias`, `CDX_FORCE`,
+  `trace-webs`, `trace-origin-probe`) patch the *generated* `uopt.c`/`ugen.c` from
+  `ido-static-recomp` (github.com/decompals/ido-static-recomp) for our pinned IDO
+  5.3 revision — which we do **not** currently have on disk (only the binaries).
+  `ido-support.md` confirms IDO 5.3 deep profiles are supported "pinned revision
+  only". Prereq = check out ido-static-recomp, regenerate the 5.3 `uopt.c`/`ugen.c`,
+  and match the profile's expected source hash (or use the generic `instrument-ugen`
+  anchors, "conditional" for 5.3).
+
+## 4. Execution phases
+
+### Phase 0 — prerequisite validation (cheap, ~1 session)
+- `decomp-workbench capture make tools/ido .decomp-workbench/capture`, point one TU's
+  compiler root at it, build **one** file, confirm captures land and bytes are
+  unchanged (fidelity test). This unlocks all of Tier 1.
+- `decomp-workbench fingerprint-toolchain` on our binaries → record the exact
+  lineage; determine the ido-static-recomp revision for Tier 2.
+- Attempt the ido-static-recomp generated-source regen in a throwaway dir
+  (`~/Desktop/dev/ido-static-recomp`, **not** tracked); validate against the pinned
+  profile hash. Go/no-go for Tier 2.
+
+### Phase 1 — Tier 1 on Population A (immediate, low machine cost)
+Per target function (the ~6 allocator/schedule near-exact ones — start with
+`func_800508D4` schedule-only, then `func_80055970` `func_8004D40C` `func_80038750`
+`func_8003A520`):
+1. `tools/wb_compare.sh <fn>` + `decomp-workbench diagnose …` → confirm the class.
+2. `schedule-mismatch` → `decomp-workbench probe-lines` (one variant, free): does
+   physical line assignment drive the schedule? If yes the fix is a preprocessing
+   change, not a respelling — an entire mechanism ruled in/out for free.
+3. Register/FIFO residual → capture the ugen stream, `decomp-workbench trace-fifo …
+   --registers t0,…,t9 --fail-on-violation` to reconstruct the free list and find
+   the source order that yields the target allocation.
+4. If a single word remains and no C family moves it → Ucode stream-surgery +
+   `replay-as1` to prove downstream sufficiency (which pass owns the word), then
+   hunt the source spelling with a *known destination*.
+5. Exact → drop the wrapper, `gmake verify` + `wb_compare.sh --rom`, commit.
+
+### Phase 2 — Tier 2 register-coloring (gated on Phase 0 go)
+For the register-web residuals that Tier 1 can't reach:
+1. `instrument-uopt-globalcolor <generated uopt.c> uopt.traced.c`; build the traced cc.
+2. `CDX_LOG=1 CDX_DETAIL_WEB=<n>` to read the coloring decision; `CDX_FORCE=p1:w<n>=c<reg>`
+   to test "if this web took the target register, is the object exact?" — isolates cause.
+3. `trace-webs` / `trace-origin-probe` to classify how one controlled source edit
+   moves the web, converting the forced proof into a legal source route.
+4. Verify + commit as in Phase 1.
+
+### Phase 3 — generalize
+Write the measured allocator/scheduler laws we discover into a reusable playbook
+(mirroring the workbench field guide) so later lanes apply them without re-deriving,
+and re-run over Population A as more functions enter it.
+
+## 5. Population B — the separate, larger track (not this campaign)
+The ~192 structurally-incomplete functions need genuine reverse-engineering (correct
+types, control flow, call structure), guided by `diagnose` but driven by decomp
+effort — the luna/Opus model ladder doing *structural* work, not near-miss nudging.
+This is the bulk of the remaining 33% and the real path to 100%, but it is a
+different, longer campaign; keep it off the trace track. The workbench's role there
+is `diagnose` (classify structure-mismatch), `campaign target.o candidates/*.c`
+(rank many structural variants with caching/ledger), and `public-match-check`
+(does a verified public solution exist — signal only; adoption still bound by the
+CLEANROOM provenance policy).
+
+## 6. Machine-safety & ROI
+- The trace campaign is **serial and deep** (one function at a time: capture,
+  analyze, probe), far gentler on the machine than the parallel fleet — the heavy
+  work is analysis, not concurrent `-j` builds. It fits the resource-safe limits
+  already in force (`-j4`, load-gated).
+- ROI: Tier 1 is cheap and immediate and should unlock the schedule/FIFO functions;
+  Tier 2 has a real one-time setup cost (regen generated source) for the
+  register-coloring functions. Both are proven to reach `words=0`. The by-product —
+  a measured IDO 5.3 allocator playbook — pays forward across the backlog.
+- **Recommendation:** execute Phase 0 + Phase 1 first (low risk, low cost, immediate
+  signal). Gate Phase 2 on Phase 0's go/no-go and Phase 1's results. Run Population B
+  as an independent structural-decomp track when machine and model budget allow.
