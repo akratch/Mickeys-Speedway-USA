@@ -4,8 +4,8 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 
 - Guarded functions audited: 418
 - Structural blockers found: 39
-- Structural blockers resolved: 2
-- Structural blockers remaining: 37
+- Structural blockers resolved: 5
+- Structural blockers remaining: 34
 - No structural blocker: 379
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
@@ -41,10 +41,10 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `diRcpPrintDL` | `src/main/diRcp.c` | shared-rodata (excluded) | diRcp switch tables | Owned by the active diRcp lane; do not touch here. |
 | `diRcpMoveWd` | `src/main/diRcp.c` | shared-rodata (excluded) | jtbl_80083950 | Owned by the active diRcp lane; do not touch here. |
 | `func_80044C94` | `src/main/diRcpTrace.c` | none | — | No ownership change; continue source/codegen work. |
-| `vsprintf` | `src/main/diprint.c` | asm-data | formatter tables | Move the formatter tables/data from the asm split into diprint. |
-| `diPrintfAll` | `src/main/diprint.c` | bss-aggregate | D_800D4A60, D_800D4A62 | Own the adjacent text coordinates as one diprint BSS object. |
+| `vsprintf` | `src/main/diprint.c` | resolved | formatter tables | Diprint owns the formatter data/tables; linked C is exact. |
+| `diPrintfAll` | `src/main/diprint.c` | resolved-plateau | D_800D4A60, D_800D4A62 | Diprint owns the measured BSS block; strict `D_800D4A60+2` identity remains. |
 | `debug_text_width` | `src/main/diprint.c` | none | — | No ownership change; continue source/codegen work. |
-| `debug_text_parse` | `src/main/diprint.c` | mixed: bss+rodata | D_800D4A60, jtbl_80082CD8 | Move both the coordinate aggregate and switch table into diprint. |
+| `debug_text_parse` | `src/main/diprint.c` | resolved-plateau | D_800D4A60, jtbl_80082CD8 | Diprint owns BSS/rodata; linked C is exact, with compiler-local aliases remaining. |
 | `func_8004B1DC` | `src/main/font.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8004BA8C` | `src/main/font.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8004BCC4` | `src/main/font.c` | bss-aggregate | D_800D60E8, D_800D64E8 | Restore the font/dialogue BSS bases and addends in one owner. |
