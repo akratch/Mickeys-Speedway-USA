@@ -202,3 +202,33 @@ Tier 1/2 tracing is only needed for what it still can't reach.
    scratch's `compile.sh`, flag-corrected) for the schedule class.
 3. Tier 2 prerequisite (ido-static-recomp generated `uopt.c`) only for residuals
    neither the permuter nor Tier 1 reaches.
+
+## Phase 1 execution results (2026-08-26) — DECISIVE: these need Tier 2
+
+A luna/max trace lane worked all five Population-A functions through the Tier 1
+loop (`capture make` streams + `replay-ugen`/as1 stream surgery). Outcome: **0
+matches, but a proof for each that the residual is ugen-owned and unreachable
+from C, and a hard limit on Tier 1.**
+
+| Function | Class | Proven pass owner (via stream surgery + replay) |
+|---|---|---|
+| `func_800508D4` | schedule (4w) | moving the one global-scale Binasm record after the two immediate-scale records makes stock `as1` exact → **ugen record scheduling**. probe-lines negative (thr 400, 60), acpp negative. |
+| `func_80055970` | operand/stack (4w) | changing the four stack operands `sp+0x40`→`sp+0x48` in Binasm makes `as1` exact → **ugen stack-home selection**. All type/qual/lifetime/order/pad probes inert. |
+| `func_8004D40C` | register web (5w) | target as0 has an explicit `or t2,a3,zero` after the row-24 branch that the candidate ugen never emits → **ugen copy/register-web + branch scheduling**. |
+| `func_80038750` | uopt pool (5w) | base/value `a1`/`a0` crossing; pool diverges at slot 18 → **uopt pool-position** (plus a separate `jtbl_80082734` rodata-ownership blocker). |
+| `func_8003A520` | ugen FIFO (3w) | temp lane diverges at slot 0; target regs are ring-only → **ugen web-existence/FIFO** decision. |
+
+**The Tier-1 limit, confirmed empirically:** `capture make` retains *raw binary*
+Ucode/Binasm streams. `trace-summary`/`trace-fifo`/`trace-webs` reject them
+(UTF-8 decode errors) — those parsers need the **textual** `CODEX-*`/`DKWB-*`
+traces that only the **instrumented** ugen/uopt (Tier 2) emits. So Tier 1 can
+*prove which pass owns a residual* (via replay/surgery) but cannot *find the
+source lever*. **Every remaining Population-A function is ugen/uopt-pass-owned
+and requires Tier 2 instrumentation.** Binasm surgery is disposable proof only —
+never a match.
+
+**This makes Tier 2 the required path, not an option.** Prerequisite (unchanged):
+the `ido-static-recomp` generated `ugen.c`/`uopt.c` for our pinned IDO 5.3, then
+`instrument-ugen` / `instrument-uopt-globalcolor` to emit textual traces +
+`CDX_FORCE` to prove and then source-route each decision. Without it, these ~6
+functions are permanent NON_MATCHING.
