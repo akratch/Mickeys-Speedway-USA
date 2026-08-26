@@ -329,7 +329,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_057_F0004064_18A7C5C` | `src/overlays/o057/overlay57HandleModeInput.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_057_F0002C28_18A6820` | `src/overlays/o057/overlay57SmoothAndCheckDistance.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_057_F0003A4C_18A7644` | `src/overlays/o057/overlay57UpdateModeState.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_057_F0004C18_18A8810` | `src/overlays/o057/overlay57UpdateModeTrigger.c` | tu-boundary | overlay 57 local bases | Consolidate the updater with its local data bases. |
+| `func_overlay_057_F0004C18_18A8810` | `src/overlays/o057/overlay57UpdateModeTrigger.c` | resolved-plateau | overlay 57 local bases | BSS block is TU-owned; updater frame/setup schedule remains. |
 | `func_overlay_057_F00035E0_18A71D8` | `src/overlays/o057/overlay57UpdateSelection.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_058_F0000000_18AF1E8` | `src/overlays/o058/func_overlay_058_F0000000_18AF1E8.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_058_F00005FC_18AF7E4` | `src/overlays/o058/func_overlay_058_F00005FC_18AF7E4.c` | none | — | No ownership change; continue source/codegen work. |
@@ -338,7 +338,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_058_F0004F28_18B4110` | `src/overlays/o058/overlay58DrawPointQuad.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_058_F0004C04_18B3DEC` | `src/overlays/o058/overlay58DrawSegmentStrip.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_058_F0005554_18B473C` | `src/overlays/o058/overlay58FinalizePackedStatus.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_059_F000036C_18B8ABC` | `src/overlays/o059/overlay59Advance.c` | shared-rodata | overlay 59 state switch table | Move the compiler switch table into the overlay 59 data owner. |
+| `func_overlay_059_F000036C_18B8ABC` | `src/overlays/o059/overlay59Advance.c` | resolved-plateau | overlay 59 state switch table | Retained +0x76C table owns the compiler references; prologue schedule remains. |
 | `func_overlay_059_F0000070_18B87C0` | `src/overlays/o059/overlay59PrepareEntry.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_060_F0002F54_18BCD2C` | `src/overlays/o060/func_overlay_060_F0002F54_18BCD2C.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_060_F0000000_18B9DD8` | `src/overlays/o060/overlay60Initialize.c` | none | — | No ownership change; continue source/codegen work. |
@@ -369,7 +369,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_073_F0000000_18CAAC0` | `src/overlays/o073/overlay73Initialize.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_074_F00000B8_18CBD58` | `src/overlays/o074/overlay74Update.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_075_F0000214_18CC17C` | `src/overlays/o075/overlay75UpdateMovingObject.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_079_F0000134_18CD0D4` | `src/overlays/o079/func_overlay_079_F0000134_18CD0D4.c` | data-aggregate | overlay 79 shared data base | Put the state data under one overlay-local initialized base. |
+| `func_overlay_079_F0000134_18CD0D4` | `src/overlays/o079/func_overlay_079_F0000134_18CD0D4.c` | resolved-plateau | overlay 79 shared data base | TU-owned +0x0..+0x60 aggregate is exact; code generation remains. |
 | `func_overlay_079_F0000FA0_18CDF40` | `src/overlays/o079/func_overlay_079_F0000FA0_18CDF40.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_079_F0001290_18CE230` | `src/overlays/o079/func_overlay_079_F0001290_18CE230.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_080_F0000000_18CE8C8` | `src/overlays/o080/overlay80InitializeContact.c` | none | — | No ownership change; continue source/codegen work. |
@@ -395,7 +395,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_097_F0000508_18D83A0` | `src/overlays/o097/overlay97InitScale.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_098_F0000000_18D89C0` | `src/overlays/o098/overlay98CollectUniqueY.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_098_F0000234_18D8BF4` | `src/overlays/o098/overlay98RenderReflections.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_099_F00002A0_18D9850` | `src/overlays/o099/overlay99ApplySegment.c` | shared-rodata | overlay 99 private table | Move the private table into the retained overlay 99 data owner. |
+| `func_overlay_099_F00002A0_18D9850` | `src/overlays/o099/overlay99ApplySegment.c` | resolved-plateau | overlay 99 private table | Retained +0xB0 table owns the compiler references; representation/prologue schedule remains. |
 | `func_overlay_099_F0000638_18D9BE8` | `src/overlays/o099/overlay99BuildHeightGrid.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_099_F0000064_18D9614` | `src/overlays/o099/overlay99InitializeEntries.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_099_F0000BA4_18DA154` | `src/overlays/o099/overlay99RenderSegments.c` | none | — | No ownership change; continue source/codegen work. |
