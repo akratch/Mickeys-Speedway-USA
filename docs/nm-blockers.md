@@ -4,8 +4,8 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 
 - Guarded functions audited: 418
 - Structural blockers found: 39
-- Structural blockers resolved: 4
-- Structural blockers remaining: 35
+- Structural blockers resolved: 5
+- Structural blockers remaining: 34
 - No structural blocker: 379
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
@@ -369,7 +369,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_073_F0000000_18CAAC0` | `src/overlays/o073/overlay73Initialize.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_074_F00000B8_18CBD58` | `src/overlays/o074/overlay74Update.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_075_F0000214_18CC17C` | `src/overlays/o075/overlay75UpdateMovingObject.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_079_F0000134_18CD0D4` | `src/overlays/o079/func_overlay_079_F0000134_18CD0D4.c` | data-aggregate | overlay 79 shared data base | Put the state data under one overlay-local initialized base. |
+| `func_overlay_079_F0000134_18CD0D4` | `src/overlays/o079/func_overlay_079_F0000134_18CD0D4.c` | resolved-plateau | overlay 79 shared data base | TU-owned +0x0..+0x60 aggregate is exact; code generation remains. |
 | `func_overlay_079_F0000FA0_18CDF40` | `src/overlays/o079/func_overlay_079_F0000FA0_18CDF40.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_079_F0001290_18CE230` | `src/overlays/o079/func_overlay_079_F0001290_18CE230.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_080_F0000000_18CE8C8` | `src/overlays/o080/overlay80InitializeContact.c` | none | — | No ownership change; continue source/codegen work. |
