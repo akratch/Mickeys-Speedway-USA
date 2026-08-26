@@ -38,16 +38,16 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_80045BBC` | `src/main/diCpu.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80045D34` | `src/main/diCpu.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80046AA8` | `src/main/diCpu.c` | none | — | No ownership change; continue source/codegen work. |
-| `diRcpPrintDL` | `src/main/diRcp.c` | shared-rodata (excluded) | diRcp switch tables | Owned by the active diRcp lane; do not touch here. |
-| `diRcpMoveWd` | `src/main/diRcp.c` | shared-rodata (excluded) | jtbl_80083950 | Owned by the active diRcp lane; do not touch here. |
+| `diRcpPrintDL` | `src/main/diRcp.c` | matched | — | Promoted to exact C; no ownership work remains. |
+| `diRcpMoveWd` | `src/main/diRcp.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80044C94` | `src/main/diRcpTrace.c` | none | — | No ownership change; continue source/codegen work. |
-| `vsprintf` | `src/main/diprint.c` | resolved | formatter tables | Diprint owns the formatter data/tables; linked C is exact. |
+| `vsprintf` | `src/main/diprint.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `diPrintfAll` | `src/main/diprint.c` | resolved-plateau | D_800D4A60, D_800D4A62 | Diprint owns the measured BSS block; strict `D_800D4A60+2` identity remains. |
 | `debug_text_width` | `src/main/diprint.c` | none | — | No ownership change; continue source/codegen work. |
-| `debug_text_parse` | `src/main/diprint.c` | resolved-plateau | D_800D4A60, jtbl_80082CD8 | Diprint owns BSS/rodata; linked C is exact, with compiler-local aliases remaining. |
+| `debug_text_parse` | `src/main/diprint.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_8004B1DC` | `src/main/font.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8004BA8C` | `src/main/font.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8004BCC4` | `src/main/font.c` | bss-aggregate | D_800D60E8, D_800D64E8 | Restore the font/dialogue BSS bases and addends in one owner. |
+| `func_8004BCC4` | `src/main/font.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_8004C690` | `src/main/font.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8004D40C` | `src/main/font.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_800475E8` | `src/main/fx.c` | none | — | No ownership change; continue source/codegen work. |
@@ -56,15 +56,15 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8004ACC4` | `src/main/fx.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8004AF68` | `src/main/fx.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_800336A8` | `src/main/gameVi.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_800339B4` | `src/main/gameVi.c` | static-placement | framebuffer base symbol | Place the framebuffer anchor where gameVi can retain target relocations. |
-| `func_80034094` | `src/main/gameVi.c` | shared-rodata/blocked | jtbl_8008249C, D_80082490..D_80082498 | A table-only carve shifts four bytes; the full island needs named-float ownership. |
-| `func_8005BA40` | `src/main/gsSnd.c` | shared-rodata | gsSnd event switch tables | Move the measured gsSnd rodata range into the gsSnd TU. |
+| `func_800339B4` | `src/main/gameVi.c` | matched | — | Promoted to exact C; no ownership work remains. |
+| `func_80034094` | `src/main/gameVi.c` | matched | — | Promoted to exact C; no ownership work remains. |
+| `func_8005BA40` | `src/main/gsSnd.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `joyInit` | `src/main/joy.c` | bss-aggregate | D_800CF3B4..D_800CF3B7 | Own the adjacent controller-state BSS in joy. |
 | `joyRead` | `src/main/joy.c` | bss-aggregate | D_800CF370..D_800CF3BC | Own the controller arrays and counters as one joy BSS layout. |
-| `joyResetMap` | `src/main/joy.c` | resolved-plateau | D_800CF3B0 | Controller map is TU-owned; expression-tree mismatch remains. |
+| `joyResetMap` | `src/main/joy.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `levelGetCounts` | `src/main/level.c` | bss-aggregate | D_800CF3E0, D_800CF420 | Restore the level-count table under its original BSS base. |
 | `levelInit` | `src/main/level.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_80019934` | `src/main/lights.c` | shared-rodata | jtbl_800817B4 | Move the measured switch table and labels into the lights TU. |
+| `func_80019934` | `src/main/lights.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80019DE8` | `src/main/lights.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8001A154` | `src/main/lights.c` | none | — | No ownership change; continue source/codegen work. |
 | `mainThread` | `src/main/main.c` | static-placement | RAM-end anchor | Place the RAM-end anchor in main without losing its relocation identity. |
@@ -80,8 +80,8 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8002BB40` | `src/main/memory.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80038750` | `src/main/menu.c` | shared-rodata | jtbl_80082734 | Move the language switch table and labels into menu. |
 | `func_80038878` | `src/main/menu.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_800389CC` | `src/main/menu.c` | shared-rodata | jtbl_80082748 | Move the nineteen-mode switch table and labels into menu. |
-| `func_80038BC4` | `src/main/menu.c` | shared-rodata | jtbl_80082794 | Move the nineteen-mode switch table and labels into menu. |
+| `func_800389CC` | `src/main/menu.c` | matched | — | Promoted to exact C; no ownership work remains. |
+| `func_80038BC4` | `src/main/menu.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80038E1C` | `src/main/menu.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003968C` | `src/main/menu.c` | bss-aggregate/blocked | D_800D3198 repeat state | A menu BSS carve pools the stores and changes an exact consumer. |
 | `func_80039E34` | `src/main/menu.c` | none | — | No ownership change; continue source/codegen work. |
@@ -103,7 +103,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8003F154` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003F5F8` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8004054C` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_80040740` | `src/main/particles.c` | shared-rodata | particle-type switch table | Move the switch table and local labels into particles. |
+| `func_80040740` | `src/main/particles.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80040B88` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80041530` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80041CE4` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
@@ -122,11 +122,11 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8002CB18` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002CF6C` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
 | `packInit` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
-| `osScGetTaskType` | `src/main/sched.c` | shared-rodata (excluded) | jtbl_800823D8 | Owned by the active sched lane; do not touch here. |
+| `osScGetTaskType` | `src/main/sched.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80030610` | `src/main/sched.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80030910` | `src/main/sched.c` | none | — | No ownership change; continue source/codegen work. |
 | `__scHandleRetrace` | `src/main/sched.c` | none | — | No ownership change; continue source/codegen work. |
-| `__scYield` | `src/main/sched.c` | bss-aggregate (excluded) | scheduler timestamp words | Owned by the active sched lane; do not touch here. |
+| `__scYield` | `src/main/sched.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `__scSchedule` | `src/main/sched.c` | shared-rodata (excluded) | jtbl_800823F4 | Owned by the active sched lane; do not touch here. |
 | `shadowInitBuffers` | `src/main/shadows.c` | data-aggregate | D_80079434, D_80079440 | Give shadows the original contiguous initialized-data owner. |
 | `func_80058250` | `src/main/vehicle_sounds.c` | bss-aggregate (excluded) | vehicle sound slots | Owned by the active vehicle_sounds lane; do not touch here. |
