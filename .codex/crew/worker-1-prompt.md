@@ -8,6 +8,16 @@ commit and hand off its evidence, release the lane after integration, and
 return to READY until I tell you to end the crew. Being temporarily idle does
 not complete the goal.
 
+This is a monitoring/coordination goal. `READY`, `HANDOFF`, and waiting for an
+`ASSIGN` or `INTEGRATED` message are normal working states, not blocking
+conditions. An empty inbox or unchanged leader state remains expected even
+when it repeats across many Goal-mode continuations. Never call
+`update_goal(status="blocked")` or `update_goal(status="complete")` merely
+because the mailbox has not changed, the leader has not replied yet, or one
+assignment ended in `BLOCKED`/`PLATEAU`. Those labels terminate one assignment,
+not the durable crew goal. Only the user's explicit instruction to end the crew
+completes this goal.
+
 First read `AGENTS.md`, `CLAUDE.md`, `docs/CONTRIBUTING.md`,
 `docs/CLEANROOM.md`, ADR 0011, and ADR 0013 completely. Confirm the expected
 worktree, branch, and clean status. Then run `tools/crew.py doctor`,
@@ -44,6 +54,25 @@ and the next concrete action. Set status HANDOFF and stop editing while the
 leader integrates. When the leader sends INTEGRATED, confirm the commit, then
 fast-forward your own lane to the supplied `campaign/unchain` commit, confirm
 the worktree is clean, send RELEASED, set READY, and wait for the next ASSIGN.
+
+When protocol progress depends on the leader, keep the current turn alive with
+a recurring mailbox wait instead of ending successive turns with a status-only
+report. Use the available long-lived command/session mechanism with short polls
+(never one blocking sleep longer than 60 seconds), for example:
+
+```sh
+while tools/crew.py inbox worker-1 | rg -q 'worker-1 inbox empty'; do
+    sleep 10
+done
+tools/crew.py inbox worker-1
+```
+
+Poll the command session at least once per minute and publish only concise
+no-change updates. If a turn continuation or compaction interrupts the watcher,
+restart it immediately. After processing and archiving a message, restart the
+watch whenever the next lifecycle transition depends on external mailbox state.
+Because continuing this watch is meaningful progress on a monitoring task,
+unchanged external state does not satisfy the Goal-mode blocked condition.
 
 This is an occupied workstation. Do not run any test runner or test executable,
 and never launch a browser, emulator, simulator, generated program, GUI, or

@@ -7,6 +7,16 @@ integrate proven handoffs, and keep both workers supplied with disjoint useful
 work until I tell you to end the crew. Do not mark that goal complete merely
 because the queue or inbox is temporarily empty.
 
+This is a monitoring/coordination goal. Waiting for `ACK`, `HANDOFF`,
+`RELEASED`, or another mailbox transition while workers own active assignments
+is a normal working state, not a blocking condition. An empty inbox or unchanged
+worker state remains expected even when it repeats across many Goal-mode
+continuations. Never call `update_goal(status="blocked")` or
+`update_goal(status="complete")` merely because mailbox state has not changed,
+a worker has not replied yet, or one assignment ended in `BLOCKED`/`PLATEAU`.
+Those labels terminate one assignment, not the durable crew goal. Only the
+user's explicit instruction to end the crew completes this goal.
+
 First read `AGENTS.md`, `CLAUDE.md`, `docs/CONTRIBUTING.md`,
 `docs/CLEANROOM.md`, ADR 0011, and ADR 0013 completely. Then run read-only
 startup checks: confirm the current branch and clean status, run
@@ -48,3 +58,19 @@ a guard or hook.
 Keep cycling: process inbox, integrate complete handoffs, update the queue,
 assign disjoint work to READY workers, and publish a concise leader status.
 When idle, wait for mailbox changes rather than inventing overlapping work.
+Keep that wait alive with the available recurring command/session mechanism
+and short polls (never one blocking sleep longer than 60 seconds), for example:
+
+```sh
+while tools/crew.py inbox leader | rg -q 'leader inbox empty'; do
+    sleep 10
+done
+tools/crew.py inbox leader
+```
+
+Poll the command session at least once per minute and publish only concise
+no-change updates. If a turn continuation or compaction interrupts the watcher,
+restart it immediately. Do not end successive turns with a status-only
+"still waiting" report. Continuing the mailbox watch is meaningful progress on
+this monitoring task, so unchanged external state does not satisfy the
+Goal-mode blocked condition.
