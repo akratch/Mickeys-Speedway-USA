@@ -43,7 +43,7 @@ Updated as the permuter campaign and analysis proceed.
 | `func_80020D8C` | models | **P** | +2 ring phase shift | queued |
 | `func_8001A154` | lights | **P** (was mis-called **W**) | permuter cracked it: drop the redundant `& 0xFFFFU` blue mask (phantom ring pop) + fold `flare.scaledSize`. The 'no source lever' verdict was a FALSE FLOOR. | ✅ matched (permuter) |
 | `mainUpdateZBCheck` | main | **P** (was **I** via -mips1 flag bug) | permuter cracked it once flags fixed: compare `(u16*)row+columns` directly, no cached pixel. | ✅ matched (permuter) |
-| `func_80047CD8` | fx | **I** | does not compile under `-DNON_MATCHING` in-TU (noted by trace agent) | needs candidate fix |
+| `func_80047CD8` | fx | **I** | configured `-DNON_MATCHING` build is blocked before the target by adjacent `func_800475E8` block-local C99 declarations; diagnostic copy reaches 226/234 exact rows with 8 register words from `+0x298`, pool slot 28, and no move/copy site | target plateau recorded; adjacent TU fix required |
 | `func_8005A948` | models_5B300 | **I / P?** | import returned no improvement instantly — check base compiles | needs recheck |
 | `func_8002C69C` | saves | **P?** | 18w register-only; import status TBD | grinding |
 | `func_80041CE4` | particles | **P?** | 27w register-only | queued |
