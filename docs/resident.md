@@ -2736,12 +2736,13 @@ model-matrix routine as assembly, so no donor body was adapted.
 The `func_8005A948` flag lattice additionally establishes
 `-Wo,-loopunroll,0` for `main/models`: without it IDO unrolls the cache scan
 to 166 instructions, while the disabled-unroll candidate has the target's 94
-instructions, frame, opcodes, CFG and relocation identities. That candidate
-plateaus at 31 differing words (28 register operands and three accesses to a
-spill at `0x34(sp)` rather than `0x30(sp)`), first diverging at function offset
-`+0x40` when the cache-index shift is allocated to `t7` instead of `t8`. Seven
-coherent source/flag attempts did not move that allocator split, so its best C
-is retained under `NON_MATCHING` and the target assembly remains canonical.
+instructions, frame, opcodes, CFG and relocation identities. The p7 corrected
+MIPS II permuter import identified a coherent cache-index reuse for the ROM
+table offset; in the real TU it reduces the allocation-only residual from 15
+to 11 register words, still first diverging at function offset `+0x40` when
+the cache-index shift is allocated to `t7` instead of `t8`. The remaining
+ring-only substitutions need allocator-trace evidence, so the best C is
+retained under `NON_MATCHING` and the target assembly remains canonical.
 
 `func_8005A7A0` plateaus at 105 instructions against 106, with a `0x58`
 frame against `0x38` and 73 differing positional words from the prologue;
