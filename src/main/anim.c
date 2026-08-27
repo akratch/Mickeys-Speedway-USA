@@ -1356,10 +1356,8 @@ void func_80055E50(HitCopyState *first, HitCopyState *second, f32 unused) {
     TrapDanglingJump(second, 0xA);
 }
 
-/* Type pass: the shared collision overlays are neutral. Workbench: operand-mismatch, exact 91-instruction/-72 frame; 3 words, first +0xA0.
- * Levers tried: flag lattice, scalar/aggregate/array carriers, stack-slot probes.
- * Remains: volatile secondZ uses sp+0x18; target uses sp+0x1C with no other shape change. */
-#ifdef NON_MATCHING
+/* IDO's local allocation follows declaration order here; retain secondZ before
+ * secondY so the volatile value keeps its exact stack home. */
 void func_80055F64(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCopySource *firstSource;
     HitCopySource *secondSource;
@@ -1371,8 +1369,8 @@ void func_80055F64(HitCopyState *first, HitCopyState *second, f32 unused) {
     f32 distance;
     f32 firstX;
     f32 secondX;
-    f32 secondY;
     volatile f32 secondZ;
+    f32 secondY;
 
     firstSource = first->source;
     firstX = firstSource->current.x;
@@ -1414,9 +1412,6 @@ void func_80055F64(HitCopyState *first, HitCopyState *second, f32 unused) {
     TrapDanglingJump(first, 0x12, second);
     TrapDanglingJump(second, 6);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055F64.s")
-#endif
 void func_800560D0(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCopyTarget *firstTarget;
     HitCopyTarget *secondTarget;

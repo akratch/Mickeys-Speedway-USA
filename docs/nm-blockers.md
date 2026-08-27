@@ -2,11 +2,11 @@
 
 This is a names-only audit of every function body guarded by `NON_MATCHING` in `src/`, reconciled with the plateau notes in `docs/resident.md` and `docs/overlays.md`. Declaration-only guards are excluded. `none` means the recorded blocker is code shape, frame, scheduling, register allocation, ABI typing, or unresolved reconstruction rather than section/TU ownership.
 
-- Guarded functions audited: 418
+- Guarded functions audited: 417
 - Structural blockers found: 39
 - Structural blockers resolved: 2
 - Structural blockers remaining: 37
-- No structural blocker: 379
+- No structural blocker: 378
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
 |---|---|---|---|---|
@@ -20,7 +20,6 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_80053550` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80055970` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80055B24` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_80055F64` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80056DD8` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8005716C` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_800573C8` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
