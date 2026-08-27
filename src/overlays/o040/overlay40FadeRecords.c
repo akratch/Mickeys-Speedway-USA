@@ -43,9 +43,13 @@ extern s16 gOverlay40BlendTarget;
 extern s16 gOverlay40BlendDuration;
 extern s16 gOverlay40BlendOutput;
 
-/* Plateau: canonical output is exact-size at 101 words; three register
- * operands remain at +0xC/+0x10/+0x24 after loop, first-use, width, and permuter
- * sweeps: the blend base loads v0 then copies v1; retail loads v1 then v0. */
+/* Plateau: canonical output is exact-size at 101 words (-8 frame); three
+ * register operands remain at +0xC/+0x10/+0x24 after loop, first-use, width,
+ * flag-lattice, and focused allocator probes: the blend base loads v0 then
+ * copies v1; retail loads v1 then v0. Workbench classifies this as an
+ * allocation-mismatch with one v0<->v1 pool bijection and an identical temp
+ * ring; next lever is the forced-color-oracle (guide lever 19), which needs
+ * an instrumented IDO not present in this lane. */
 #ifdef NON_MATCHING
 void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
                           s32 amount) {
