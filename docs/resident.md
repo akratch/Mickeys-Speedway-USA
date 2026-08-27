@@ -50,7 +50,7 @@ the segment, carrying 194 function names.
 | `0x467BC`–`0x47A60` | `0x80045BBC` | `diCpuReportWatchpoint`, plus the memory/module debug pages and the register-dump crash reporter | C | **The debug monitor**, also left in |
 | `0x47A60`–`0x47A70` | `0x80046E60` | `main/get_stack_pointer` | A | Measured file boundary |
 | `0x4BC40`–`0x4E1E0` | `0x8004B040` | `main/font` | A/D | JFG's `font.c`: six exact function anchors plus source-order and adjacent-function evidence establish the provisional C split; §3.4 |
-| `0x4E378` | `0x8004D778` | `byteswap32` | A | |
+| `0x4E378` | `0x8004D778` | `byteswap32` | A | Compiler/link-exact C adapted from DKR `src/gzip.c` |
 | `0x4EA60`–`0x4F4D4` | `0x8004DE60` | `main/gzip_asm` | A | **Measured file boundary**: DKR's whole 0xA74 inflate core, in one piece |
 | `0x4FC30`–`0x505E0` | `0x8004F030` | `libultra/exceptasm` | A | **Measured file boundary**, 9 routines including `__osException` and `__osDispatchThread`; §4.2. `0x4FC20` before it is the **rejected** `io/leointerrupt` match, and `0x505E0`–`0x506D0` after it is a separate unknown |
 | `0x50820`–`0x50C00` | `0x8004FC20` | `main/refractOutputAssembler` | A | Measured file boundary (JFG) |
@@ -253,7 +253,7 @@ overlay callers/callees outside the range were observed.
 | `0x4E1C0` | `0x20` | `func_8004D5C0` | `fontYSpacing` | D, matched C | leaf |
 | `0x4E1E0` | `0x170` | `func_8004D5E0` | `osCreatePiManager` | D | SDK calls; ext callers |
 | `0x4E350` | `0x28` | `func_8004D750` | `rzipInit` | D | allocator call; ext caller |
-| `0x4E378` | `0x30` | `byteswap32` | JFG `rzipUncompressSize` | A name collision | leaf; ext callers |
+| `0x4E378` | `0x30` | `byteswap32` | DKR `byteswap32`; JFG `rzipUncompressSize` | A, matched C | leaf; ext callers |
 | `0x4E3A8` | `0x38` | `func_8004D7A8` | `rzipUncompressSizeROM` | B | calls `byteswap32`, ext |
 | `0x4E3E0` | `0x60` | `func_8004D7E0` | `rzipUncompress` | B | calls `gzip_inflate_block`; ext callers |
 | `0x4E440` | `0x620` | `func_8004D840` | `huft_build` | B | calls `_bzero`; called by `main/gzip_asm` |

@@ -686,7 +686,7 @@ debug_text_newline = 0x80044B34; // type:func size:0x28 ROM 0x45734 tier-A IDO C
 // DKR's `hasm/gzip_asm.s.o` matched in ONE PIECE at ROM 0x4EA60 (98 of 669
 // words masked, unique), so this is a measured FILE boundary as well as five
 // function names, and the yaml names the subsegment.
-byteswap32 = 0x8004D778; // type:func size:0x30   ROM 0x4e378  gzip.c.o  masked=0/12
+byteswap32 = 0x8004D778; // type:func size:0x30 ROM 0x4e378 tier-A IDO C exact, DKR src/gzip.c donor, masked=0/12
 gzip_inflate_block = 0x8004DE60; // type:func size:0x104   ROM 0x4ea60  hasm/gzip_asm.s.o  masked=19/65
 gzip_inflate_dynamic = 0x8004DF64; // type:func size:0x418   ROM 0x4eb64  hasm/gzip_asm.s.o  masked=32/262
 gzip_inflate_fixed = 0x8004E37C; // type:func size:0x158   ROM 0x4ef7c  hasm/gzip_asm.s.o  masked=11/86
