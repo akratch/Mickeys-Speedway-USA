@@ -242,7 +242,7 @@ osDestroyThread = 0x80072350; // type:func size:0xF8
 // bytes here are identical, so docs/modules.md 1.2's "exactly one candidate
 // name" clause fails. The name below is retained because it was already here,
 // not because the bytes chose it.
-rmonPrintf = 0x800725F4; // type:func size:0x40
+rmonPrintf = 0x800725F4; // type:func size:0x40 tier-A IDO C exact, DKR src/libc/rmonPrintf.c donor, whole-TU text exact
 // libultra/settimer  ROM 0x73240  (src/os/settimer.c.o)
 osSetTimer = 0x80072640; // type:func size:0xD4
 // libultra/bcmp  ROM 0x73320  (src/libc/bcmp.s.o)
@@ -289,7 +289,7 @@ __osSetTimerIntr = 0x80073294; // type:func size:0x74
 __osInsertTimer = 0x80073308; // type:func size:0x188
 // io/conteepwrite.c: only __osEepStatus is byte-identical, the rest of the
 // TU is not, so the file boundary is not claimed and no other name is taken.
-__osEepStatus = 0x80073A80; // type:func size:0x224
+__osEepStatus = 0x80073A80; // type:func size:0x224 tier-A IDO C exact, DKR src/io/conteepwrite.c donor, exact function-tail carve
 // libultra/vigetcurrcontext  ROM 0x748b0  (src/io/vigetcurrcontext.c.o)
 __osViGetCurrentContext = 0x80073CB0; // type:func size:0xC
 // libultra/viswapcontext  ROM 0x748c0  (src/io/viswapcontext.c.o)
@@ -309,7 +309,7 @@ __osResetGlobalIntMask = 0x80074160; // type:func size:0x58
 // libultra/yieldthread  ROM 0x750d0  (src/os/yieldthread.c.o)
 osYieldThread = 0x800744D0; // type:func size:0x4C
 // libultra/xprintf  ROM 0x75120  (src/libc/xprintf.c.o)
-_Printf = 0x80074B90; // type:func size:0x644
+_Printf = 0x80074B90; // type:func size:0x644 tier-A IDO C exact, DKR src/libc/xprintf.c donor, whole text/data/rodata object exact
 // libultra/si  ROM 0x75de0  (src/io/si.c.o)
 __osSiDeviceBusy = 0x800751E0; // type:func size:0x2C
 // libultra/setcompare  ROM 0x75e10  (src/os/setcompare.s.o)
@@ -317,7 +317,7 @@ __osSetCompare = 0x80075210; // type:func size:0xC
 // libultra/xlitob  ROM 0x75e20  (src/libc/xlitob.c.o)
 _Litob = 0x80075220; // type:func size:0x298
 // libultra/xldtob  ROM 0x760c0  (src/libc/xldtob.c.o)
-_Ldtob = 0x80075A30; // type:func size:0x54C
+_Ldtob = 0x80075A30; // type:func size:0x54C tier-A IDO C exact, DKR src/libc/xldtob.c donor, whole text/rodata object exact
 // libultra/ldiv  ROM 0x76b80  (src/libc/ldiv.c.o)
 lldiv = 0x80075F80; // type:func size:0x100
 ldiv = 0x80076080; // type:func size:0x84
@@ -374,8 +374,8 @@ entrypoint = 0x80000400; // type:func size:0x50   ROM 0x01000  hasm/entrypoint.s
 
 // main.c -- and 0x800211A0 is exactly the address the entrypoint jumps to
 // (`lui t2,0x8002 / addiu t2,t2,0x11a0 / jr t2`), so position and bytes agree.
-mainproc = 0x800211A0; // type:func size:0x58   ROM 0x21da0  main.c.o  masked=11/22
-thread1_main = 0x800211F8; // type:func size:0x98   ROM 0x21df8  main.c.o  masked=14/38
+mainproc = 0x800211A0; // type:func size:0x58 ROM 0x21da0 tier-A IDO C exact, DKR src/main.c donor, masked=11/22
+thread1_main = 0x800211F8; // type:func size:0x98 ROM 0x21df8 tier-A IDO C exact, DKR src/main.c donor, masked=14/38
 
 // math_util.s -- 13 routines matched, 11 named in this block; most have ZERO
 // masked words, and this is the strongest evidence in the block. (Of the other
@@ -573,7 +573,7 @@ bgdraw_fillcolour = 0x8002EB94; // type:func size:0x40 ROM 0x2f794 tier-A rcp_dk
 // set_rsp_segment.c -- WHOLE .text matched (0x40 bytes, 0 masked, unique), so
 // this one is a measured FILE boundary and gets a named subsegment in the yaml.
 // It ends at exactly 0x323E0, where the runtime linker begins.
-rsp_segment = 0x800317A0; // type:func size:0x38   ROM 0x323a0  set_rsp_segment.c.o  masked=0/14
+rsp_segment = 0x800317A0; // type:func size:0x38 ROM 0x323a0 tier-A IDO C exact, DKR src/set_rsp_segment.c donor, whole-TU masked=0/14
 
 // weather.c -- DKR's name for DKR's module. What is proven is that the code is
 // the same 21 words; what it clips for Mickey is not established here.
@@ -686,7 +686,7 @@ debug_text_newline = 0x80044B34; // type:func size:0x28 ROM 0x45734 tier-A IDO C
 // DKR's `hasm/gzip_asm.s.o` matched in ONE PIECE at ROM 0x4EA60 (98 of 669
 // words masked, unique), so this is a measured FILE boundary as well as five
 // function names, and the yaml names the subsegment.
-byteswap32 = 0x8004D778; // type:func size:0x30   ROM 0x4e378  gzip.c.o  masked=0/12
+byteswap32 = 0x8004D778; // type:func size:0x30 ROM 0x4e378 tier-A IDO C exact, DKR src/gzip.c donor, masked=0/12
 gzip_inflate_block = 0x8004DE60; // type:func size:0x104   ROM 0x4ea60  hasm/gzip_asm.s.o  masked=19/65
 gzip_inflate_dynamic = 0x8004DF64; // type:func size:0x418   ROM 0x4eb64  hasm/gzip_asm.s.o  masked=32/262
 gzip_inflate_fixed = 0x8004E37C; // type:func size:0x158   ROM 0x4ef7c  hasm/gzip_asm.s.o  masked=11/86

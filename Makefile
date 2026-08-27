@@ -457,6 +457,31 @@ $(BUILD_DIR)/%.c.o: %.c $(H_FILES) $(TOOLS_DIR)/normalize_elf_instructions.py $(
 		-c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
 	$(POSTPROCESS)
 
+# The DKR-exact rmonprintf source has no GLOBAL_ASM. Sending it through
+# asm-processor changes IDO's line metadata and produces a seven-word schedule
+# residual; direct IDO compilation reproduces the whole source object.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/rmonprintf.c.o: $(SRC_DIR)/libultra/rmonprintf.c $(H_FILES) $(SPLAT_STAMP) | $(ALL_DIRS)
+	$(CC) -c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
+	$(POSTPROCESS)
+
+# __osEepStatus is the exact tail of DKR's SDK conteepwrite source. Like the
+# direct rmonprintf object above, it has no GLOBAL_ASM and retains the donor's
+# direct-IDO line schedule.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eepstatus.c.o: $(SRC_DIR)/libultra/eepstatus.c $(H_FILES) $(SPLAT_STAMP) | $(ALL_DIRS)
+	$(CC) -c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
+	$(POSTPROCESS)
+
+# DKR's whole xprintf object is exact, including its anonymous static helper,
+# data and rodata. Compile the pragma-free donor directly at its SDK preset.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/xprintf.c.o: $(SRC_DIR)/libultra/xprintf.c $(H_FILES) $(SPLAT_STAMP) | $(ALL_DIRS)
+	$(CC) -c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
+	$(POSTPROCESS)
+
+# Same whole-object result for DKR's xldtob conversion source and constants.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/xldtob.c.o: $(SRC_DIR)/libultra/xldtob.c $(H_FILES) $(SPLAT_STAMP) | $(ALL_DIRS)
+	$(CC) -c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
+	$(POSTPROCESS)
+
 # ---------------------------------------------------------------------------
 # Per-file compiler flags
 #
@@ -696,6 +721,23 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/ldiv.c.o: CFLAGS += -Xphase,cfe,-O3 \
 # findings above stay untouched and so the claim stays exactly as wide as the
 # evidence. Widen it when the next game module is measured, not before.
 $(BUILD_DIR)/$(SRC_DIR)/main/%.c.o: MIPSISET := -mips2 -32
+# DKR's libultra libc build supplies the exact rmonprintf object and uses
+# mips2 for this source family; mips1 changes its late instruction schedule.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/rmonprintf.c.o: MIPSISET := -mips2 -32
+$(BUILD_DIR)/$(SRC_DIR)/libultra/rmonprintf.c.o: CFLAGS := -G 0 -non_shared -verbose \
+	-Xcpluscomm -nostdinc -Wab,-r4300_mul $(DEFINES) $(INCLUDE_CFLAGS) -w
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eepstatus.c.o: OPT_FLAGS := -O1
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eepstatus.c.o: MIPSISET := -mips2 -32
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eepstatus.c.o: CFLAGS := -G 0 -non_shared -verbose \
+	-Xcpluscomm -nostdinc -Wab,-r4300_mul $(DEFINES) $(INCLUDE_CFLAGS) -w
+$(BUILD_DIR)/$(SRC_DIR)/libultra/xprintf.c.o: OPT_FLAGS := -O3
+$(BUILD_DIR)/$(SRC_DIR)/libultra/xprintf.c.o: MIPSISET := -mips2 -32
+$(BUILD_DIR)/$(SRC_DIR)/libultra/xprintf.c.o: CFLAGS := -G 0 -non_shared -verbose \
+	-Xcpluscomm -nostdinc -Wab,-r4300_mul $(DEFINES) $(INCLUDE_CFLAGS) -w
+$(BUILD_DIR)/$(SRC_DIR)/libultra/xldtob.c.o: OPT_FLAGS := -O3
+$(BUILD_DIR)/$(SRC_DIR)/libultra/xldtob.c.o: MIPSISET := -mips2 -32
+$(BUILD_DIR)/$(SRC_DIR)/libultra/xldtob.c.o: CFLAGS := -G 0 -non_shared -verbose \
+	-Xcpluscomm -nostdinc -Wab,-r4300_mul $(DEFINES) $(INCLUDE_CFLAGS) -w
 # The reconstructed resident main loop reproduces its target frame with uopt capped.
 $(BUILD_DIR)/$(SRC_DIR)/main/main.c.o: CFLAGS += -Wo,-Olimit,100
 ifeq ($(NON_MATCHING),1)
