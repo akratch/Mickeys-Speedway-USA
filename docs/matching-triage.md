@@ -25,6 +25,16 @@ note; they are point-in-time, not tracked numbers. Recompute before acting.
 
 Updated as the permuter campaign and analysis proceed.
 
+> **2026-08-27 root-cause correction.** The first sweep classed 8/12 targets as
+> **I (import-blocked)** on a `Syntax error in base.c`. That was **not** the
+> candidates — it was a bug in `tools/permute.sh`: its `-mips2` flag correction
+> ran `gmake -n <obj>`, which prints nothing when the object is already built,
+> so the scratch silently stayed at the importer's default `-mips1` and the
+> search explored the wrong instruction space. Fixed (touch the source first;
+> warn instead of failing silently). Those functions are really **P-class** and
+> are being re-searched at the correct ISA. Lesson: a permuter that "finds
+> nothing instantly" is almost always a setup/flag fault, not a hard function.
+
 | Function | TU | Class | Evidence / note | Status |
 |---|---|---|---|---|
 | `func_8002C94C` | saves | **P** | globalcolor s5/s6 inversion; permuter base 40 → **0** | ✅ matched (permuter) |
