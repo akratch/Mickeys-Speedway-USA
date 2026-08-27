@@ -27,7 +27,6 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_800033B0` | `src/main/audio_manager_36D0.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80022FD4` | `src/main/camera.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80023598` | `src/main/camera.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_80024834` | `src/main/camera.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80024978` | `src/main/camera.c` | resolved-plateau | D_80079F48, D_80079F4C | Camera owns the scale pair; code-shape mismatch remains. |
 | `func_8001C114` | `src/main/charControl.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8001D2A0` | `src/main/charControl.c` | none | — | No ownership change; continue source/codegen work. |
