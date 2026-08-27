@@ -287,7 +287,7 @@ from synthetic ELF symbols:
 | 78 | `0x000`–`0x0A8` | 168 | complete two-function leaf; eight padding bytes excluded |
 | 93 | `0x000`–`0x01C` | 28 | initializer only; update remains assembly |
 | 102–105 | function text | 472 | four one-function leaves; eight combined padding bytes excluded; exact donor scans negative |
-| 106 | `0x000`–`0x008` | 8 | no-relocation constant-return leaf; eight padding bytes excluded |
+| 106 | `0x000`–`0x008` | 8 | tier-A `osRamTest3_6105`; complete text matches JFG o144, with eight padding bytes excluded |
 | 107 | `0x000`–`0x028` | 40 | exact named JFG `osRamTest4_6105` donor; eight padding bytes excluded |
 | **total** | | **2,000** | matched C only; no generated-assembly or padding credit |
 
