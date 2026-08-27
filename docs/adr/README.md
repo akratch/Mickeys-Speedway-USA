@@ -54,3 +54,5 @@ the ordinary way (a commit, a campaign entry), not by leaving the ADR
 | [0008](0008-provenance.md) | Provenance |
 | [0009](0009-model-routing-and-agent-operation.md) | Model routing and agent operation |
 | [0010](0010-commit-discipline.md) | Commit discipline |
+| [0011](0011-cross-lane-knowledge-and-task-budgets.md) | Cross-lane knowledge and task budgets |
+| [0012](0012-known-sources-and-reusable-knowledge.md) | Known sources and reusable compiler knowledge |
