@@ -23,11 +23,19 @@ and never need a job ceiling to avoid stepping on each other
 
 - Build with `gmake -j$(sysctl -n hw.ncpu)` (or the machine's real core count) inside
   your lane. There is no campaign-mandated compiler-job ceiling.
-- Never touch another lane's worktree, branch, or in-flight files. If you
-  need something another lane owns, ask for a handoff rather than editing
-  it directly.
+- Never read or touch another lane's worktree, index, process state, or
+  in-flight files. If you need something another lane owns, ask for a handoff
+  rather than editing it directly. The coordinator and read-only tools may
+  inspect committed `refs/heads/lane/*` objects through Git's object database
+  for duplicate detection and sibling discovery (ADR 0011); a commit-message
+  match claim is scheduling information, never match proof.
 - The primary/coordinating agent's job is to keep the ready queue populated
-  and assign disjoint targets to free lanes, not to police a slot count.
+  and assign disjoint targets to free lanes, not to police a slot count. Run
+  `tools/lane_status.py --symbol <name>` before assigning a target.
+- Every non-interactive lane has an explicit soft deadline and short hard-stop
+  grace period. Reserve the end for an exact commit or plateau handoff; do not
+  start a bounded tool call that cannot fit in the remaining budget. The
+  budget follows work class and may grow as the queue hardens (ADR 0011).
 - Full two-phase `gmake verify` run against a SHARED worktree (not a lane) goes through `tools/with_verify_lock.sh`, now in `campaign/unchain`. A lane's own `gmake verify` needs no lock: each lane already has its own `build/`.
 
 ## Commit discipline
@@ -103,7 +111,10 @@ an equivalent coherent unit.
 2. Check the near-match oracle (coddog / `skeleton_scan.py`,
    `docs/adr/0007-matching-tools.md`) for the closest donor or already-matched
    sibling and put it in context before writing a candidate. `mips_to_c.sh`
-   is a draft aid, never authority.
+   is a draft aid, never authority. If the evidence points to SDK or standard
+   library code, start from the permitted official source and exhaust plausible
+   versions, flag groups, conditional paths, and TU boundaries before writing
+   a custom body (ADR 0012).
 3. Compile the unmodified baseline immediately. Record size, exact words,
    first mismatch, frame/register shape, and relocations.
 4. Classify the mismatch before editing: boundary/alignment, ABI/type,
@@ -137,6 +148,12 @@ an equivalent coherent unit.
    relocation table, linked overlay, and full ROM.
 8. Run donor/provenance, atlas/YAML, derived-number, progress, and
    clean-room gates before banking bytes or claiming a closure.
+
+When an exact result or controlled toolchain experiment proves reusable IDO
+behavior, add a generic symptom/mechanism/lever/limits entry to
+`docs/ido-learnings.md` in a coherent documentation commit. Per-function
+addresses, scores, register assignments, and attempt histories stay in the
+resident/overlay/triage ledgers (ADR 0012).
 
 ## Evidence and reporting
 

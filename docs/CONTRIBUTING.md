@@ -35,6 +35,31 @@ contend for the same objects. Commit on your own lane branch, in small
 `--no-verify`. See [`docs/adr/0004-build-parallelism.md`](adr/0004-build-parallelism.md)
 and [`docs/adr/0010-commit-discipline.md`](adr/0010-commit-discipline.md).
 
+Lane isolation covers working state, not committed knowledge. A coordinator or
+read-only tool may inspect committed `refs/heads/lane/*` objects through Git's
+object database to avoid duplicate assignments and find newly matched siblings;
+it never reads a sibling worktree, index, process, or uncommitted file. Run
+`tools/lane_status.py --pending-only` for the fleet view or
+`tools/lane_status.py --symbol <name>` before assignment. Its rows are
+commit-message claims, not match evidence; integration repeats every normal
+proof. See [ADR 0011](adr/0011-cross-lane-knowledge-and-task-budgets.md).
+
+Non-interactive workers also receive an explicit task budget. The launcher
+passes a soft deadline to the agent and tools, reserves five minutes for a
+handoff, and then interrupts the exact process it launched. Expiry preserves a
+best candidate/plateau; it never resets a lane or discards work.
+
+## Known sources and reusable compiler knowledge
+
+When evidence identifies likely SDK or standard-library code, begin with the
+permitted official source and exhaust plausible versions, compiler flags,
+conditional paths, and TU/object boundaries before writing custom C. Mickey's
+bytes remain authority and `PROVENANCE` remains mandatory. Reusable IDO behavior
+proved by a Mickey-exact result or controlled local experiment belongs in
+[`ido-learnings.md`](ido-learnings.md); function-specific attempts stay in the
+resident, overlay, and triage ledgers. See
+[ADR 0012](adr/0012-known-sources-and-reusable-knowledge.md).
+
 ## The clean-room rule
 
 Nothing ROM-derived is ever tracked in git: no disassembly, no instruction
@@ -234,12 +259,21 @@ functions this lane's prose describes.
   `verify`/`check-docs`/`overlay-atlas`/`check-scoreboard` on the merged
   result. It exits non-zero and leaves the merge in progress if anything else
   conflicts or a gate fails, rather than guessing a resolution.
-- **`tools/codex_lane.sh <name> <prompt-file> [--no-extract]`** creates a lane
-  with `new_lane.sh` and launches a detached, non-interactive `codex exec`
-  worker inside it; the worker commits on `lane/<name>` like any other
-  worker. Progress, final message and exit status land in
-  `<lane>/.codex-run.log`, `<lane>/.codex-last.md`, `<lane>/.codex-status`
-  (all gitignored).
+- **`tools/codex_lane.sh <name> <prompt-file> [--minutes N] [--no-extract]`**
+  creates a lane with `new_lane.sh` and launches a detached, non-interactive
+  `codex exec` worker inside it; the worker commits on `lane/<name>` like any
+  other worker. The default soft budget is 180 minutes (overridable by
+  `CODEX_MINUTES` or `--minutes`), followed by a five-minute hard-stop grace
+  period. `MICKEY_TASK_BUDGET_SECONDS`, `MICKEY_TASK_DEADLINE_UNIX`, and
+  `MICKEY_TASK_HARD_DEADLINE_UNIX` are available to the worker and its tools.
+  Progress, effective prompt, final message and exit status land in
+  `<lane>/.codex-run.log`, `<lane>/.codex-effective-prompt.md`,
+  `<lane>/.codex-last.md`, and `<lane>/.codex-status` (all gitignored).
+- **`tools/lane_status.py [--base REF] [--pending-only] [--symbol NAME]`**
+  reports unintegrated commits and `Match <symbol>` claims from committed lane
+  refs only. `pending` means the base still has that symbol's `GLOBAL_ASM` while
+  the claiming lane does not; it is a coordination hint, never a replacement
+  for integration validation.
 
 ### Integration housekeeping: `fix_stale_externs.py`, `refresh_atlas_digest.py`
 

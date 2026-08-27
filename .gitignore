@@ -2,7 +2,7 @@
 *.z64
 *.n64
 *.v64
-baseroms/
+baseroms
 asm/
 assets/
 bin/
@@ -14,8 +14,8 @@ build/
 build_*/
 
 # Proprietary toolchain binaries (fetched/copied locally, never committed)
-tools/ido/
-tools/binutils/
+tools/ido
+tools/binutils
 
 # objdiff-cli binary (tools/setup_objdiff.sh); objdiff.json is generated too
 # but committed (paths/names only, no ROM content -- the project's objdiff
@@ -24,7 +24,7 @@ tools/binutils/
 # basenames reads as high-entropy text to the cleanroom base64-volume
 # heuristic, a real false positive on this file shape -- see docs/tools.md
 # and docs/CLEANROOM.md. tools/objdiff_report.sh regenerates it every run.
-tools/objdiff/
+tools/objdiff
 /tools/objdiff_exclude.txt
 
 # Local symlink to a decomp-permuter checkout (path is this machine's, e.g.
@@ -46,7 +46,7 @@ ctx.c.m2c
 *.u
 
 # Environment
-.venv/
+.venv
 __pycache__/
 .DS_Store
 
