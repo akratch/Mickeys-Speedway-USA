@@ -55,6 +55,9 @@ lane remains frozen at the exact handoff commit.
 - Review latency no longer idles a matching worker or moves the branch being
   reviewed. `merge_lane.sh` continues to integrate the stable permanent lane.
 - `tools/crew.py` gains `PIPELINE` messages and the `PIPELINED` actor state.
+- `tools/new_lane.sh` resolves the shared primary checkout from Git's common
+  directory, so a worker can create a clean pipeline child from its linked
+  worktree without falling back to invalid submodule symlinks.
 - The leader queue may contain one frozen handoff row and one pipelined row for
   the same worker. This narrow exception supersedes ADR 0013's one-assignment
   wording; all other ownership and release rules remain in force.

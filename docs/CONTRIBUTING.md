@@ -322,7 +322,10 @@ interrupted report without recompiling recorded identities, and repeated
   (default `campaign/unchain`), symlinking the untracked toolchain, baserom,
   venv and vendored tool checkouts in rather than copying them, and (unless
   `--no-extract`) runs the splat extract so the lane can build immediately.
-  Each lane gets its own `build/`/`asm/`.
+  Each lane gets its own `build/`/`asm/`. It resolves the primary checkout
+  through Git's common directory even when invoked from another lane, and
+  fails instead of installing a dirty symlink when a tracked submodule cannot
+  be initialized from the shared local module store.
 - **`tools/merge_lane.sh <name>`** integrates one lane back into the current
   branch: it rebuilds the lane from clean and requires `verify`/`check-docs`
   to pass there first, runs the clean-room range scan over the lane's

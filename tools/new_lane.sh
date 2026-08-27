@@ -14,7 +14,16 @@ extract=1; base=campaign/unchain
 for a in "$@"; do
   case "$a" in --no-extract) extract=0 ;; *) base=$a ;; esac
 done
-root=$(git rev-parse --show-toplevel)
+# Always anchor lane creation in the primary checkout. When this helper is
+# invoked from an existing linked worktree, --show-toplevel names that lane and
+# its .git is a file, so "$root/.git/modules" cannot be the shared submodule
+# store. The common directory is stable from every worktree.
+common=$(git rev-parse --path-format=absolute --git-common-dir)
+if [ "$(basename "$common")" != .git ]; then
+  echo "expected a non-bare repository with a .git common directory: $common" >&2
+  exit 2
+fi
+root=$(dirname "$common")
 dest=$(dirname "$root")/mickey-lane-$name
 if [ -e "$dest" ]; then echo "lane exists: $dest" >&2; exit 2; fi
 git -C "$root" worktree add -q -b "lane/$name" "$dest" "$base"
@@ -25,9 +34,12 @@ done
 # so the lane's git status stays clean. A symlink here makes git complain
 # that it "expected submodule path not to be a symbolic link".
 for p in tools/asm-processor tools/asm-differ tools/m2c; do
-  git -C "$dest" -c protocol.file.allow=always -c "submodule.$p.url=$root/.git/modules/$p" \
-    submodule update --init --quiet "$p" 2>/dev/null \
-    || { rm -rf "$dest/$p"; ln -s "$root/$p" "$dest/$p"; }
+  if ! git -C "$dest" -c protocol.file.allow=always \
+      -c "submodule.$p.url=$common/modules/$p" \
+      submodule update --init --quiet "$p"; then
+    echo "submodule init failed for $p; refusing a dirty symlink fallback" >&2
+    exit 1
+  fi
 done
 # The permuter checkout is outside the repository; tools/permute.sh expects
 # tools/permuter to point at it (git-ignored, machine-specific).

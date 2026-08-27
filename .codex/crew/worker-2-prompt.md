@@ -40,7 +40,9 @@ and path against the handoff and the other worker, then ACK it. Create that
 worker-owned child worktree from the exact named base, set status `PIPELINED`,
 and perform the follow-on task only there. Never move, edit, build, or clean the
 permanent lane while its handoff is under review, and never accept a second
-pipeline packet.
+pipeline packet. While the permanent lane is behind the protocol commit, run
+mailbox/status commands through the pipeline child's `tools/crew.py`, not the
+frozen lane's older copy.
 
 Execute the repository matching workflow exactly. Make coherent attempts,
 preserve all required evidence, respect the attempt/time cap, and commit small
