@@ -75,20 +75,23 @@ assign disjoint work to READY workers, and publish a concise leader status.
 An accepted handoff without a pipelined follow-on is actionable, not idle:
 dispatch the next researched task before starting lengthy integration gates.
 When every worker already has writable work or a pipeline packet, wait for
-mailbox changes rather than inventing overlapping ownership.
-Keep that wait alive with the available recurring command/session mechanism
-and short polls (never one blocking sleep longer than 60 seconds), for example:
+mailbox changes rather than inventing overlapping ownership. Use only bounded
+poll commands that exit within 30 seconds so the model regains control and can
+process a handoff immediately. Never leave a `while true` loop, detached
+watcher, or unbounded command session running. For example:
 
 ```sh
-while tools/crew.py inbox leader | rg -q 'leader inbox empty'; do
+for _ in 1 2 3; do
+    if ! tools/crew.py inbox leader | rg -q 'leader inbox empty'; then
+        tools/crew.py inbox leader
+        break
+    fi
     sleep 10
 done
-tools/crew.py inbox leader
 ```
 
-Poll the command session at least once per minute and publish only concise
-no-change updates. If a turn continuation or compaction interrupts the watcher,
-restart it immediately. Do not end successive turns with a status-only
-"still waiting" report. Continuing the mailbox watch is meaningful progress on
-this monitoring task, so unchanged external state does not satisfy the
-Goal-mode blocked condition.
+After each bounded poll returns, process messages, refresh status/queue, and
+perform available review or next-target research before polling again. Do not
+end successive turns with a status-only "still waiting" report. Continuing this
+cycle is meaningful progress on the monitoring task, so unchanged external
+state does not satisfy the Goal-mode blocked condition.

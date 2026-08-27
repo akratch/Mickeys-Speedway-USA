@@ -81,23 +81,27 @@ handoff is integrated, freeze its committed result and do read-only next-target
 research plus mailbox monitoring until transfer is safe.
 
 When protocol progress depends on the leader, keep the current turn alive with
-a recurring mailbox wait instead of ending successive turns with a status-only
-report. Use the available long-lived command/session mechanism with short polls
-(never one blocking sleep longer than 60 seconds), for example:
+bounded mailbox polls instead of ending successive turns with a status-only
+report. Every polling command must exit within 30 seconds so the model regains
+control, consumes pending work, refreshes status, and starts the next useful
+action. Never leave a `while true` loop, detached watcher, or unbounded command
+session running. For example:
 
 ```sh
-while tools/crew.py inbox worker-2 | rg -q 'worker-2 inbox empty'; do
+for _ in 1 2 3; do
+    if ! tools/crew.py inbox worker-2 | rg -q 'worker-2 inbox empty'; then
+        tools/crew.py inbox worker-2
+        break
+    fi
     sleep 10
 done
-tools/crew.py inbox worker-2
 ```
 
-Poll the command session at least once per minute and publish only concise
-no-change updates. If a turn continuation or compaction interrupts the watcher,
-restart it immediately. After processing and archiving a message, restart the
-watch whenever the next lifecycle transition depends on external mailbox state.
-Because continuing this watch is meaningful progress on a monitoring task,
-unchanged external state does not satisfy the Goal-mode blocked condition.
+After each bounded poll returns, process and archive any message immediately;
+otherwise refresh status, do available read-only queue/evidence work, and start
+another bounded poll only if no writable task or protocol action exists. Because
+continuing this cycle is meaningful progress on a monitoring task, unchanged
+external state does not satisfy the Goal-mode blocked condition.
 
 This is an occupied workstation. Do not run any test runner or test executable,
 and never launch a browser, emulator, simulator, generated program, GUI, or
