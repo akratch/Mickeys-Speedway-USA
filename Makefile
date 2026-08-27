@@ -738,6 +738,16 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/xldtob.c.o: OPT_FLAGS := -O3
 $(BUILD_DIR)/$(SRC_DIR)/libultra/xldtob.c.o: MIPSISET := -mips2 -32
 $(BUILD_DIR)/$(SRC_DIR)/libultra/xldtob.c.o: CFLAGS := -G 0 -non_shared -verbose \
 	-Xcpluscomm -nostdinc -Wab,-r4300_mul $(DEFINES) $(INCLUDE_CFLAGS) -w
+
+# Mickey's three maths objects are byte-identical to JFG's matching objects,
+# whose per-directory rule uses bare `-g` (no optimisation flag). The -O2
+# game default changes atan2f from 0x1F4 to 0x134 bytes, so keep this override
+# limited to the three measured TUs.
+MAIN_MATH_BARE_TUS := math_atan math_acosf math_arc
+$(foreach f,$(MAIN_MATH_BARE_TUS),$(eval \
+	$(BUILD_DIR)/$(SRC_DIR)/main/$(f).c.o: OPT_FLAGS := -g))
+$(foreach f,$(MAIN_MATH_BARE_TUS),$(eval \
+	$(BUILD_DIR)/$(SRC_DIR)/main/$(f).c.o: CFLAGS += -Wab,-r4300_mul))
 # The reconstructed resident main loop reproduces its target frame with uopt capped.
 $(BUILD_DIR)/$(SRC_DIR)/main/main.c.o: CFLAGS += -Wo,-Olimit,100
 ifeq ($(NON_MATCHING),1)

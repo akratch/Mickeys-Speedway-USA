@@ -1613,7 +1613,7 @@ n_alCSPSendMidi = 0x800685A0; // type:func size:0x80
 //   same bytes in: jfg,perfect_dark
 n_alSynSetPriority = 0x80068620; // type:func size:0x14
 // main/math_atan  ROM 0x69240  (jfg/game: src/math/math_atan.c.o)  whole .text 0x200, masked=17, romocc=1
-atan2f = 0x80068640; // type:func size:0x1F4
+atan2f = 0x80068640; // type:func size:0x1F4 tier-A exact C, JFG source body
 // libultra/n_auxbus  ROM 0x69440  (jfg/libultra: src/libultra/n_auxbus.c.o)  whole .text 0x4f0, masked=7, romocc=1
 //   same bytes in: jfg,perfect_dark
 n_alAuxBusPull = 0x80068840; // type:func size:0x4F0
