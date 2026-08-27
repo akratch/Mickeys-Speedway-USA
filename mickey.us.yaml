@@ -245,6 +245,8 @@ segments:
       # that starts JFG's following textures.c TU at 0x34E60.
       - [0x34180, c, main/gameVi]
       - [0x34E60, asm]
+      - [0x35008, c, main/texEnableModes]
+      - [0x35024, asm]
       - [0x37650, c, main/initColourCycle]
       - [0x37680, asm]
       - [0x37D50, asm]
