@@ -364,7 +364,7 @@ segments:
       - [0x6A7F0, c, libultra/n_alLPFilter]
       - [0x6AC10, c, main/math_acosf]
       - [0x6ACF0, c, libultra/n_resample]
-      - [0x6AF90, asm, main/math_arc]
+      - [0x6AF90, c, main/math_arc]
       - [0x6B1A0, asm]
       - [0x6B3D0, asm, libultra/gbpakcheckconnector]
       - [0x6B860, asm]

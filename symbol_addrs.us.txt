@@ -1761,9 +1761,9 @@ gsSndpSetGlobalVolume = 0x8005DA20; // type:func size:0x28
 gsSndpGetGlobalVolume = 0x8005DA48; // type:func size:0x1C
 gsSndpLimitVoices = 0x8005DA64; // type:func size:0x48
 // main/math_arc  ROM 0x6af90  (jfg/game: src/math/math_arc.c.o)  whole .text 0x210, masked=8, romocc=1
-tableval = 0x8006A390; // type:func size:0x100
-acoss = 0x8006A490; // type:func size:0x78
-asins = 0x8006A508; // type:func size:0x8C
+tableval = 0x8006A390; // type:func size:0x100 tier-A exact C, JFG source body
+acoss = 0x8006A490; // type:func size:0x78 tier-A exact C, JFG source body
+asins = 0x8006A508; // type:func size:0x8C tier-A exact C, JFG source body
 
 // ---------------------------------------------------------------------------
 // 6. WHERE TWO REFERENCE BUILDS DISAGREE ABOUT THE SAME BYTES
