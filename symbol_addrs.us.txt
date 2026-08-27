@@ -1730,6 +1730,8 @@ corrupted = 0x8006E644; // type:func size:0x19C
 // non-matching raw assembly there too -- what matched is the extracted bytes,
 // which is all this tier ever compares.
 // ---------------------------------------------------------------------------
+// Individual JFG game function, ROM 0x30BC, 4/9 words relocated, romocc=1.
+amAudioMgrSetScheduleMode = 0x800024BC; // type:func size:0x24 tier-A exact C, JFG src/audiomgr.c body
 // main/lights2  ROM 0x1ae60  (jfg/game: asm/hasm/lights2.s.o)  whole .text 0xff0, masked=12, romocc=1
 lightSingleLight = 0x8001A260; // type:func size:0x1E4
 lightTwoLights = 0x8001A444; // type:func size:0x2D4

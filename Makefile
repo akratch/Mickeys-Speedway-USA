@@ -743,6 +743,10 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/xldtob.c.o: MIPSISET := -mips2 -32
 $(BUILD_DIR)/$(SRC_DIR)/libultra/xldtob.c.o: CFLAGS := -G 0 -non_shared -verbose \
 	-Xcpluscomm -nostdinc -Wab,-r4300_mul $(DEFINES) $(INCLUDE_CFLAGS) -w
 
+# This nine-instruction accessor ends at the measured 0x24-byte boundary;
+# discard only IDO's three trailing section-alignment words.
+$(BUILD_DIR)/$(SRC_DIR)/main/amAudioMgrSetScheduleMode.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x24
 # Mickey's three maths objects are byte-identical to JFG's matching objects,
 # whose per-directory rule uses bare `-g` (no optimisation flag). The -O2
 # game default changes atan2f from 0x1F4 to 0x134 bytes, so keep this override

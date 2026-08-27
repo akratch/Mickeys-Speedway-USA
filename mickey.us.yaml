@@ -146,6 +146,8 @@ segments:
     subsegments:
       - [0x1050, c, main/audio_manager_1050]
       - [0x2340, asm]
+      - [0x30BC, c, main/amAudioMgrSetScheduleMode]
+      - [0x30E0, asm]
       - [0x3100, c, main/audio_manager_36D0]
       - [0x45F0, c, main/audio_manager_4C50]
       - [0x4F40, asm]
