@@ -15,6 +15,10 @@ derived from the 107 shipped overlay headers. `verified_asm.us.txt` is an
 explicit evidence ledger because a generated `.s` filename alone cannot prove
 that code was originally hand-written.
 
+The bounded post-research checks which separate the raw m2c, known-source,
+same-ROM similarity, model-routing, and expert-escalation queues are recorded
+in [the 2026-08-27 campaign check ledger](campaign-check-ledger-2026-08-27.md).
+
 **Note on scope and standard.** Byte and percentage figures below predate
 `docs/adr/0001-matching-standard.md` and `docs/adr/0002-no-post-compile-instruction-editing.md`.
 Some Epoch 10-12 gains were later found to include objects reached through
