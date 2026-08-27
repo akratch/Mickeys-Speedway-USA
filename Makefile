@@ -684,6 +684,10 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/sinf.c.o: MIPSISET := -mips2 -32
 $(BUILD_DIR)/$(SRC_DIR)/libultra/sinf.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/libultra/vimgr.c.o: MIPSISET := -mips2 -32
 $(BUILD_DIR)/$(SRC_DIR)/libultra/vimgr.c.o: OPT_FLAGS := -O2
+# osFlashClearStatus ends at the measured 0x4C-byte split boundary; IDO adds
+# one zero instruction solely to align its standalone .text section to 0x10.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/osFlashClearStatus.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C
 $(BUILD_DIR)/$(SRC_DIR)/libultra/aisetnextbuf.c.o: CFLAGS += -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/sptask.c.o: CFLAGS += -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/vi.c.o: CFLAGS += -DRAREDIFFS
