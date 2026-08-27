@@ -122,12 +122,11 @@ segments:
     start: 0x1000
     vram: 0x80000400
     subsegments:
-      # `asm`, not `hasm`: nothing here is hand-written. `hasm` exists so splat
-      # will leave a human-maintained file alone, but asm/ is generated,
-      # gitignored, and wiped by `gmake distclean`, so any hand edit would be
-      # unrecoverable regardless -- while splat's refusal to rewrite the file
-      # meant a macro.inc change could silently leave it stale until the next
-      # clean build. With `asm`, splat owns it and every re-split refreshes it.
+      # `asm`, not `hasm`: verified_asm.us.txt records that the original is
+      # hand-written (DKR's whole tracked hasm/entrypoint.s.o is Tier-A exact),
+      # while `asm` keeps this generated file owned by splat. `hasm` would make
+      # splat leave a human-maintained file alone, but asm/ is gitignored and
+      # wiped by `gmake distclean`; with `asm`, every re-split refreshes it.
       - [0x1000, asm, entrypoint]
 
   # Resident static segment. The subsegment split points below were
