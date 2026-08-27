@@ -12,6 +12,50 @@ canonical source. `docs/LOCAL_DECOMP_AGENT.md` is historical: the local
 targets; see `docs/adr/0009-model-routing-and-agent-operation.md`). Don't
 route matching work to it.
 
+## Private and public repositories
+
+This checkout is the private working repository. Its `origin` is
+`akratch/Mickeys-Speedway-USA`; `campaign/unchain` is the integration branch.
+The public release is a separate rewritten mirror at `../mickey-public`, with
+remote `public` pointing to
+`https://github.com/akratch/mickeys-speedway-usa-decomp`. The histories have
+different commit IDs and the documentation is intentionally different. The
+public mirror is not a lane or a second remote for private branches.
+
+- Do all matching, experiments, and integration in private lanes. Never push a
+  lane, private branch, private tag, or the private `origin` to the public
+  repository. Never force-push the private `origin`.
+- Keep private operating material private: `.codex/`, `AGENTS.md`,
+  `CLAUDE.md`, local-agent and campaign documents, orchestration scripts,
+  workbench state, scratch output, absolute workstation paths, ROM-derived
+  files, baseroms, extracted assets, and compiler binaries do not enter the
+  public mirror. The standard decomp permuter is public project tooling, not
+  private operating material.
+- A matching change is eligible for public release only after its
+  function-sized commit has landed on `campaign/unchain` and the private
+  canonical tree passes `gmake verify`, `gmake cleanroom`, `gmake check-docs`,
+  and `gmake check-scoreboard`. Do not publish candidates, plateaus, or
+  unintegrated lane state.
+- Mirror only the reviewed public-safe paths from each eligible private
+  change. Do not merge, rebase, or copy the whole private tree over the public
+  mirror. Recreate the public commit with a plain message and no automated
+  co-author or generator trailer, then regenerate the public README scoreboard
+  from the public tree.
+- Before a public push, repeat the four gates in `../mickey-public`, scan its
+  tracked text and outgoing commit messages for private workflow references,
+  scan for secrets, confirm `git remote -v`, and push only `master` to the
+  remote named `public`. A public documentation or general-tooling change may
+  ship without matching progress, but it must pass the same applicable gates
+  and remain useful to an ordinary decomp contributor.
+- Treat public pull requests as input, not as a second canonical branch.
+  Review and reproduce an accepted contribution in a private lane, integrate
+  it into `campaign/unchain`, prove the private canonical result, and then
+  mirror that proven result back to public.
+
+The public README and `docs/CONTRIBUTING.md` are the public operating guide.
+Do not re-add these private instruction files to make the public tree explain
+the split; the private side owns the split procedure.
+
 ## The lane model
 
 As many workers as there is independent work; there is no fixed slot count
