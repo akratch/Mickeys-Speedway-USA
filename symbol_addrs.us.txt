@@ -242,7 +242,7 @@ osDestroyThread = 0x80072350; // type:func size:0xF8
 // bytes here are identical, so docs/modules.md 1.2's "exactly one candidate
 // name" clause fails. The name below is retained because it was already here,
 // not because the bytes chose it.
-rmonPrintf = 0x800725F4; // type:func size:0x40
+rmonPrintf = 0x800725F4; // type:func size:0x40 tier-A IDO C exact, DKR src/libc/rmonPrintf.c donor, whole-TU text exact
 // libultra/settimer  ROM 0x73240  (src/os/settimer.c.o)
 osSetTimer = 0x80072640; // type:func size:0xD4
 // libultra/bcmp  ROM 0x73320  (src/libc/bcmp.s.o)

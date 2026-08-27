@@ -499,7 +499,7 @@ segments:
       - [0x730A0, c, libultra/epiwrite]
       - [0x730F0, c, libultra/epiread]
       - [0x73140, c, libultra/epidma]
-      - [0x731E0, asm, libultra/rmonprintf]
+      - [0x731E0, c, libultra/rmonprintf]
       - [0x73240, c, libultra/settimer]
       - [0x73320, asm, libultra/bcmp]
       - [0x73440, c, libultra/siacs]
