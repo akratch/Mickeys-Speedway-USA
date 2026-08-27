@@ -79,7 +79,7 @@ shape was understood — another false-floor cluster. Newly routed:
 | `func_8004B1DC` | font | **P** | Frame-exact (0x80). The display-list `dList++` idiom batches base+displacement stores; target materialises a fresh pointer per command. m2c's distinct-next-pointer form defeats the batching but spills to a 9th saved reg — net-neutral, so keep the frame-exact base and **permute the rolling-pointer register allocation**. Micro-facts recorded in-source: window-0 y2 is standalone `D_800D64F2`; font ptr is `window->font`. |
 | `func_80046AA8` | diCpu | **P** | −3 insns loop-guard, but residual dominated by v0/v1/a0 register swaps in the packed-glyph blit. |
 | `func_8002B7AC` | memory | **P** | BSS-base-in-s0 register plateau. |
-| `func_80012574` | track | **P** | f14/f18 projection-web register permutation; frame exact. |
+| `func_80012574` | track | **P!** (was a false **P**-matched) | f14/f18 projection-web permutation; frame exact. **The earlier "permuter → 0" was a false ceiling** (see §"Permuter scratch fidelity" below): decomp-permuter scores with `stack_differences=False`, so a candidate whose only residual is a spill/local at the wrong `sp` offset scored 0 without ever being byte-exact. With honest scoring (`--stack-diffs`, now forced in `tools/permute.sh`) the base is 61 and a 15-min run plateaus at **16** — the residual is stack-home offsets riding on the f14/f18 interference wall (workbench backlog #2). Needs more permuter budget or an F-route save-order lever; do **not** bank a permuter 0 for this without a `gmake verify`. |
 | `func_8000D018` | track | **B — merged-TU blocker** | ✅ matched. Fixed surgically: a typed `#pragma weak trackCamPosTrap = TrapDanglingJump` alias + `objcopy --redefine-sym trackCamPosTrap=TrapDanglingJump` in the track.c.o rule, so the camera-position call passes (f32,f32,f32) single-precision without touching the shared TrapDanglingJump placeholder or its other call sites. |
 
 ### New wall class: **B — merged-TU symbol/placeholder blocker**
@@ -106,3 +106,52 @@ single-precision (no `cvt.d.s`/`sdc1`), while every other TrapDanglingJump call
 site and the shared placeholder itself are untouched. ROM stays byte-identical.
 The broader web cleanup (naming the real distinct callees) remains optional
 future health work, not a matching blocker.
+
+## Permuter scratch fidelity (2026-08-27, tooling)
+
+A permuter score of 0 is only trustworthy if the scratch object it searches is
+**bit-identical to the real per-TU object** *and* the scorer counts every byte a
+`gmake verify` counts. Two false-ceiling causes were found and fixed in
+`tools/permute.sh`; a third is documented but not yet fixed. Rule of thumb:
+**a permuter 0 that has not passed `gmake verify` is a hypothesis, not a match.**
+
+1. **Post-compile `objcopy` not replicated (fixed).** Some TUs apply an
+   `objcopy --redefine-sym A=B` after `cc` via the Makefile's per-file
+   `POSTPROCESS` (e.g. `src/main/track.c`: `trackCamPosTrap=TrapDanglingJump`).
+   The importer's scratch ran `cc` only. `permute.sh` now recovers that step
+   from the same `gmake -n <obj>` dry-run it already uses for flags and appends
+   it to the scratch `compile.sh` after `cc`, retargeted to `$OUTPUT`.
+   Digest-guarded ELF surgery (`add_elf_relocations.py`, `trim_elf_section.py`)
+   is deliberately *not* replicated — it is tied to the matched bytes and would
+   abort on a permuted object — such TUs get a warning instead.
+
+2. **Scorer normalizes stack offsets (fixed — this was the actual `func_80012574`
+   ceiling).** decomp-permuter's scorer defaults to `stack_differences=False`
+   (`src/scorer.py`/`src/objdump.py`), which strips every `sp`-relative offset
+   before diffing. A candidate whose only residual is a spill/local at the wrong
+   `sp` offset (`sw v1,0x18(sp)` vs `0x1C(sp)`) then scores **0** while its bytes
+   still differ and `gmake verify` fails. Proven on `func_80012574`: its
+   "winning" candidate was 4 stack-home words off the ROM yet scored 0.
+   `permute.sh` now always passes `--stack-diffs`; with it the base is 61 and a
+   15-min run plateaus at 16 (honest), instead of a false 0. *This is the fix
+   that actually mattered for `func_80012574` — the objcopy replication does not
+   touch that function's bytes, since it never references `trackCamPosTrap`.*
+
+3. **Injected gfx-macro expansion (documented, NOT fixed).** The importer keeps
+   the TU's `g[DS]P*`/`_SHIFTL`/`gDma*` macros as `#pragma _permuter latedefine`
+   entries (`tools/permuter_settings.toml` `[preserve_macros]`) and restores them
+   at candidate-compile time (`ast_util.py process_pragmas`). The definitions come
+   from the TU's real headers via `cpp -dD -fdirectives-only`, so the *bodies* are
+   correct — but for a display-list function like particles.c `func_80041CE4`
+   the pruned/round-tripped scratch still reproduces a different frame (-136 vs
+   -128) than the full TU. The remaining suspects are (a) a preserved macro that
+   expands to a sub-macro *not* in the preserve set, so import-time vs
+   search-time expansion order diverges, and (b) pycparser's AST round-trip of
+   the macro-call arguments. **What must change:** compile the particles import
+   both ways, byte-diff `func_80041CE4` between the scratch object and
+   `build/src/main/particles.c.o`, and either widen `[preserve_macros]` to cover
+   every gfx sub-macro the function touches or make the scratch include the real
+   header directly (suppress the conflicting latedefine). Until then, treat any
+   gfx-heavy permuter 0 as unverified. (particles.c also carries a
+   `trim_elf_section .rodata 0x28` POSTPROCESS, which is correctly *skipped* by
+   fix #1 with a warning — its scratch is not bit-identical for that reason too.)
