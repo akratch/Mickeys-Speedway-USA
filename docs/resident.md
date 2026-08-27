@@ -2286,11 +2286,11 @@ functions: the 8-byte `func_80046504` (`diCpuTraceGetFault` in JFG) and the
 60-tick counter bodies are identical under the resident `-O2 -mips2 -32`
 rule; the getter has no relocations and the tick routine retains both exact
 HI16/LO16 data pairs. Five JFG `diRcp` return-eight leaves are also exact at
-the resident defaults with no relocations: 16-byte `diRcpReserved0`, 20-byte
+the resident defaults with no relocations: 16-byte `diRcpTexDma`, 20-byte
 `diRcpStrNameMacro`, 12-byte `diRcpPrimColor`, 20-byte `diRcpColor`, and
 12-byte `diRcpDmaOffsets`. Six 52-byte JFG unpack-and-return bodies,
-`diRcpVertex`, `diRcpReserved1`, `diRcpMatrix`, `diRcpReserved2`,
-`diRcpMoveMem`, and `diRcpDisplayList`, are exact at the same defaults,
+`diRcpVertex`, `diRcpPolygon`, `diRcpMatrix`, `diRcpDPBlock`,
+`diRcpViewport`, and `diRcpDisplayList`, are exact at the same defaults,
 including their helper-call relocations and source-specific stack frames. The
 52-byte `diRcpStrName` formatter is exact as well, including its format-string
 and `sprintf` relocations. The 44-byte `func_80044B9C` (`diRcpTraceReset`) is
@@ -2309,16 +2309,17 @@ The 100-byte `stop_all_threads_except_main` is exact on Mickey's active-thread
 walk: it filters priorities 1 through 127, passes the thread itself to
 `osStopThread`, and retains the exact call relocation and 32-byte frame under
 the resident defaults.
-The 60-byte `func_800453C4` display-list unpacker is exact too: its four typed
+The 60-byte `Decode_gDma1p` display-list unpacker is exact too: its four typed
 word extractions reproduce all 15 target instructions at the resident defaults
 and have no relocation surface.
-Its adjacent 60-byte `func_80045400` unpacker is likewise exact: the alternate
+Its adjacent 60-byte `Decode_gMoveWd` unpacker is likewise exact: the alternate
 24/16/8-bit field split retains all 15 target instructions and has no
 relocations under the same flags.
 | Function | Exact result |
 |---|---|
 | `diRcpPrintDL` | 1,540 bytes under `-O2 -mips2 -32`; JFG `src/diRcp.c` body, all 385 instruction words exact, with three compiler-owned switch tables in `main/diRcp` `.rodata`. |
 | `diRcpMoveWd` | 156 bytes under `-O2 -mips2 -32`; JFG `src/diRcp.c` body, all 39 instruction words exact, with its compiler-owned switch table in `main/diRcp` `.rodata`. |
+| `diRcpOtherMode` | 520 bytes under `-O2 -mips2 -32`; Ryan Myers' JFG commit `db755880d` body, all 130 instruction words exact, including the `sprintf` relocation and 128-byte frame. |
 
 The 268-byte `diRcpGeometryMode` helper is exact at the resident defaults.
 JFG's object-like `stubbed_printf` macro preserves the target's empty geometry-
@@ -2327,6 +2328,11 @@ instructions plus the `sprintf` call and format-symbol relocations. The two
 following target words are end-of-TU alignment padding outside the function;
 IDO supplies them through normal section alignment, and the linked range is
 byte-identical without post-compile editing.
+The same JFG update moves the diagnostic strings into natural source
+expressions. IDO emits Mickey's 2,876-byte string block at ROM
+`0x83940`–`0x8447C` byte-identically, followed by the four exact switch tables.
+The four bytes after the complete `0xC3C` object-owned `.rodata` range are
+linker padding and remain outside the input section.
 The 84-byte `diCpuTraceInit` is exact at the resident defaults. Keeping JFG's
 distinct thread-control-block and stack-top declarations reproduces the target
 evaluation schedule; Mickey resolves both operands to the same address, so the
