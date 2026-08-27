@@ -1203,10 +1203,10 @@ void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
     secondTarget->unk1C = deltaZ / distance;
     TrapDanglingJump(second, 0xE);
 }
+
 #ifdef NON_MATCHING
-/* Workbench p6: mixed schedule/register; 8/121 words remain, first +0x20; frame, calls, and FP lanes exact.
- * Tried statement-line grouping and 0x258 timer register/direct-literal forms after the inherited lifetime/flag sweep; no improvement.
- * Remains: initial pointer-load schedule and target v0 versus candidate v1 timer web. */
+/* Bounded workbench closeout retained the source as NON_MATCHING; see the
+ * function's plateau entry in docs/resident.md for its measured mechanism. */
 void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCollisionNormalLink *secondTarget;
     HitCopySource *secondSource;
