@@ -540,7 +540,7 @@ segments:
       - [0x74F20, c, libultra/epirawread]
       - [0x75080, c, libultra/setglobalintmask]
       - [0x750D0, c, libultra/yieldthread]
-      - [0x75120, asm, libultra/xprintf]
+      - [0x75120, c, libultra/xprintf]
       - [0x75DE0, c, libultra/si]
       - [0x75E10, asm, libultra/setcompare]
       - [0x75E20, c, libultra/xlitob]
@@ -588,7 +588,7 @@ segments:
       - [0x81480, .data, libultra/siacs]
       - [0x81490, .data, libultra/vi]
       - [0x81500, .data, libultra/timerintr]
-      - [0x81510, data, libultra/xprintf]
+      - [0x81510, .data, libultra/xprintf]
       - [0x81560, .data, libultra/xlitob]
       # The conservative rodata tail remains mostly anonymous. Selected SDK
       # slices below are attached TU by TU only where reference-object size,
@@ -701,7 +701,7 @@ segments:
       - [0x854F0, rodata]
       - [0x85570, .rodata, libultra/devmgr]
       - [0x85590, rodata]
-      - [0x855A0, rodata, libultra/xprintf]
+      - [0x855A0, .rodata, libultra/xprintf]
       - [0x856A0, rodata, libultra/xldtob]
       - [0x85700, rodata]
       # BSS is zero-filled by the entrypoint; no ROM bytes back it.

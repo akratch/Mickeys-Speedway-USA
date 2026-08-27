@@ -471,6 +471,12 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/eepstatus.c.o: $(SRC_DIR)/libultra/eepstatus.c 
 	$(CC) -c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
 	$(POSTPROCESS)
 
+# DKR's whole xprintf object is exact, including its anonymous static helper,
+# data and rodata. Compile the pragma-free donor directly at its SDK preset.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/xprintf.c.o: $(SRC_DIR)/libultra/xprintf.c $(H_FILES) $(SPLAT_STAMP) | $(ALL_DIRS)
+	$(CC) -c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
+	$(POSTPROCESS)
+
 # ---------------------------------------------------------------------------
 # Per-file compiler flags
 #
@@ -718,6 +724,10 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/rmonprintf.c.o: CFLAGS := -G 0 -non_shared -ver
 $(BUILD_DIR)/$(SRC_DIR)/libultra/eepstatus.c.o: OPT_FLAGS := -O1
 $(BUILD_DIR)/$(SRC_DIR)/libultra/eepstatus.c.o: MIPSISET := -mips2 -32
 $(BUILD_DIR)/$(SRC_DIR)/libultra/eepstatus.c.o: CFLAGS := -G 0 -non_shared -verbose \
+	-Xcpluscomm -nostdinc -Wab,-r4300_mul $(DEFINES) $(INCLUDE_CFLAGS) -w
+$(BUILD_DIR)/$(SRC_DIR)/libultra/xprintf.c.o: OPT_FLAGS := -O3
+$(BUILD_DIR)/$(SRC_DIR)/libultra/xprintf.c.o: MIPSISET := -mips2 -32
+$(BUILD_DIR)/$(SRC_DIR)/libultra/xprintf.c.o: CFLAGS := -G 0 -non_shared -verbose \
 	-Xcpluscomm -nostdinc -Wab,-r4300_mul $(DEFINES) $(INCLUDE_CFLAGS) -w
 # The reconstructed resident main loop reproduces its target frame with uopt capped.
 $(BUILD_DIR)/$(SRC_DIR)/main/main.c.o: CFLAGS += -Wo,-Olimit,100

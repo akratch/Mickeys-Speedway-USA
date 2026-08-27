@@ -309,7 +309,7 @@ __osResetGlobalIntMask = 0x80074160; // type:func size:0x58
 // libultra/yieldthread  ROM 0x750d0  (src/os/yieldthread.c.o)
 osYieldThread = 0x800744D0; // type:func size:0x4C
 // libultra/xprintf  ROM 0x75120  (src/libc/xprintf.c.o)
-_Printf = 0x80074B90; // type:func size:0x644
+_Printf = 0x80074B90; // type:func size:0x644 tier-A IDO C exact, DKR src/libc/xprintf.c donor, whole text/data/rodata object exact
 // libultra/si  ROM 0x75de0  (src/io/si.c.o)
 __osSiDeviceBusy = 0x800751E0; // type:func size:0x2C
 // libultra/setcompare  ROM 0x75e10  (src/os/setcompare.s.o)
