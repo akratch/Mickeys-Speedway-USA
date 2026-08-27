@@ -1681,8 +1681,8 @@ one opcode); the remaining blocker is constant/next-bit register coloring.
 The 124-byte `func_8002C70C` is exact under canonical `-Wo,-loopunroll,0 -O2 -mips2 -32`; its 31 words and relocation-free linked range match.
 
 `func_8002CF6C` remains Mickey-derived `NON_MATCHING`: all 88 instructions, the 72-byte frame, and relocations agree; workbench reports `register-ring-only`, 9 sites from `+0xCC`.
-Hoisted-argument, folded-mask, and addressable-scalar levers leave `savedFlag` target FIFO-temp versus candidate colored-web; the 30-minute permuter produced only invented no-op identities.
-The assembly fallback remains canonical.
+The p7 pipeline retry scoped a `savedFlag` reload to after the checksum call, matching the target's lifetime boundary, but it was codegen-inert: the candidate still uses a colored web where the target uses the FIFO temp ring.
+Hoisted-argument, folded-mask, and addressable-scalar levers remain exhausted; the 30-minute permuter produced only invented no-op identities. The remaining trace route requires an instrumented compiler source not configured in this lane, so the assembly fallback remains canonical.
 
 The save-window serializer `func_8002C94C` is now **matched** (tier-A byte-identity).
 The residual was a pure `schedule-mismatch` (exact 115-word shape, `0x70` frame, relocations already agreeing); the decomp-permuter closed it, finding an `if (1) { ... }` grouping around the entry initialization that resolves the callee-saved slot/counter scheduling tie-break. The C in `src/main/saves.c` now compiles byte-identical to the ROM; no assembly fallback remains.
