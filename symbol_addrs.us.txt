@@ -1626,7 +1626,7 @@ n_alLoadParam = 0x8006974C; // type:func size:0x2E8
 n_alLPFilterPull = 0x80069BF0; // type:func size:0x2F8
 n_alLPFilterParam = 0x80069EE8; // type:func size:0x124
 // main/math_acosf  ROM 0x6ac10  (jfg/game: src/math/math_acosf.c.o)  whole .text 0xe0, masked=7, romocc=1
-acosf = 0x8006A010; // type:func size:0xDC
+acosf = 0x8006A010; // type:func size:0xDC tier-A exact C, JFG source body
 // libultra/n_resample  ROM 0x6acf0  (jfg/libultra: src/libultra/n_resample.c.o)  whole .text 0x2a0, masked=8, romocc=1
 n_alResamplePull = 0x8006A0F0; // type:func size:0x244
 n_alResampleParam = 0x8006A334; // type:func size:0x5C
