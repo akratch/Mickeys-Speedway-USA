@@ -573,7 +573,7 @@ bgdraw_fillcolour = 0x8002EB94; // type:func size:0x40 ROM 0x2f794 tier-A rcp_dk
 // set_rsp_segment.c -- WHOLE .text matched (0x40 bytes, 0 masked, unique), so
 // this one is a measured FILE boundary and gets a named subsegment in the yaml.
 // It ends at exactly 0x323E0, where the runtime linker begins.
-rsp_segment = 0x800317A0; // type:func size:0x38   ROM 0x323a0  set_rsp_segment.c.o  masked=0/14
+rsp_segment = 0x800317A0; // type:func size:0x38 ROM 0x323a0 tier-A IDO C exact, DKR src/set_rsp_segment.c donor, whole-TU masked=0/14
 
 // weather.c -- DKR's name for DKR's module. What is proven is that the code is
 // the same 21 words; what it clips for Mickey is not established here.

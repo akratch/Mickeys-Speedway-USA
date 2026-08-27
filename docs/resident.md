@@ -36,7 +36,7 @@ the segment, carrying 194 function names.
 | `0x2F400`–`0x30CD0` | `0x8002E800` | `main/rcpFast3d` | A/B | Fast3D/RCP task and clear helpers (§3.15) |
 | `0x30CD0`–`0x323A0` | `0x800300D0` | `main/sched` | A/B/C | The 21-function game scheduler (§3.15) |
 | `0x316E8` | `0x80030AE8` | `"SP CRASHED"`, `"Version %s"` | — | The frame loop / RCP watchdog |
-| `0x323A0`–`0x323E0` | `0x800317A0` | `main/rsp_segment` | A | Measured file boundary (whole `.text`) |
+| `0x323A0`–`0x323E0` | `0x800317A0` | `main/rsp_segment` | A | Measured file boundary and compiler/link-exact DKR-adapted C (whole `.text`) |
 | `0x323E0`–`0x33FA0` | `0x800317E0` | `main/runlink` | A/B/C | **The runtime overlay linker** (§5) |
 | `0x33FA0`–`0x34180` | `0x800333A0` | `main/trapDanglingJump` | A | The overlay call trampoline. **Measured file boundary**: JFG's whole 0x1E0 `hasm/ido/trapDanglingJump.s`. Was named at tier B from Mickey's call graph alone; the bytes agree |
 | `0x34180`–`0x34E60` | `0x80033580` | `main/gameVi` | B + A landmarks | **Video and framebuffer management** (§3.8). The complete 23-function order and call/global surface establish the TU boundary; four functions inside are independently tier-A JFG skeleton hits |
