@@ -50,6 +50,12 @@ function-sized units on `lane/crew-worker-1` with hooks enabled. Never use
 `--no-verify`. Durable general lessons go in the policy-approved tracked
 knowledge files; ROM-derived workbench state stays ignored and uncommitted.
 
+Assignment deadlines ending in `Z` are UTC instants. Before declaring a
+deadline or hard-stop window elapsed, run `date -u +%Y-%m-%dT%H:%M:%SZ` and
+compare in UTC; a local calendar-date rollover is not evidence that the UTC
+deadline passed. Include that UTC output in any deadline BLOCKED report. An
+expired assignment still does not block or complete the durable crew goal.
+
 You may spawn subagents. They are read-only by default and may inspect only
 your lane plus committed Git refs. A write-capable subagent needs a disjoint
 child task and its own child worktree created from your branch. It returns a
