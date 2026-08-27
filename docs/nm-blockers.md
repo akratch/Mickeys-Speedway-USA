@@ -39,7 +39,6 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_80046AA8` | `src/main/diCpu.c` | none | — | No ownership change; continue source/codegen work. |
 | `diRcpPrintDL` | `src/main/diRcp.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `diRcpMoveWd` | `src/main/diRcp.c` | matched | — | Promoted to exact C; no ownership work remains. |
-| `func_80044C94` | `src/main/diRcpTrace.c` | none | — | No ownership change; continue source/codegen work. |
 | `vsprintf` | `src/main/diprint.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `diPrintfAll` | `src/main/diprint.c` | resolved-plateau | D_800D4A60, D_800D4A62 | Diprint owns the measured BSS block; strict `D_800D4A60+2` identity remains. |
 | `debug_text_width` | `src/main/diprint.c` | none | — | No ownership change; continue source/codegen work. |

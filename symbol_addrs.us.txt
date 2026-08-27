@@ -1015,7 +1015,7 @@ D_800D4A82 = 0x800D4A82; // type:u16 size:0x2 tier-A compiler-owned diprint BSS 
 diRcpTraceInit = 0x80044B60;    // type:func size:0x3C tier A (exact C, JFG diRcpTraceInit)
 func_80044B9C = 0x80044B9C;     // type:func size:0x2C tier A (exact C, JFG diRcpTraceReset)
 func_80044BC8 = 0x80044BC8;     // type:func size:0xCC tier-A (exact C, JFG diRcpTrace)
-func_80044C94 = 0x80044C94;     // type:func size:0x12C tier-B ROM 0x45894 NON_MATCHING plateau, 75/75 words, 35 positional differences, first +0xC
+func_80044C94 = 0x80044C94;     // type:func size:0x12C tier A exact C (JFG diRcpTraceGetInfo), ROM 0x45894
 
 // diRcp.c -- the display-list disassembler. `diRcpPrintDL` is the only
 // function referencing the whole G_* opcode name table and "UNKNOWN COMMAND";
