@@ -718,28 +718,12 @@ Where the boundary comes from:
   data. The strings above it are read by nothing resident at all -- the same
   pattern as the model/sprite strings in §7 -- so a reference-derived bound
   cannot see them.
-- **rodata order follows text order exactly.** The 19 jump tables still emitted
-- **rodata order follows text order exactly.** The 19 jump tables still emitted
-- **rodata order follows text order exactly.** The 19 jump tables still emitted
-- **rodata order follows text order exactly.** The 19 jump tables still emitted
-  in `asm/` are monotonic in both columns, with **zero inversions**. So
-  `.rodata` can be carved TU by TU in text order, which is what makes the
-  per-TU split tractable. Five more tables now belong to matched `n_csplayer`
-  C, and one belongs to matched `n_reverb` C.
-- **rodata order follows text order exactly.** The pre-carve inventory covered
-  35 functions and forty-four tables. With `devmgr` now source-built, the 43
-  jump tables still emitted in `asm/` belong to 34 functions and remain
-  monotonic in both columns, with **zero inversions**. So `.rodata` can be
-  carved TU by TU in text order.
-- **rodata order follows text order exactly.** 35 functions, 19 jump tables,
-- **rodata order follows text order exactly.** 20 functions, 19 jump tables,
-- **rodata order follows text order exactly.** 20 functions, 19 jump tables,
-- **rodata order follows text order exactly.** 35 functions, 19 jump tables,
-- **rodata order follows text order exactly.** 20 functions, 19 jump tables,
-  monotonic in both columns, **zero inversions**. So `.rodata` can be carved TU
-  by TU in text order, which is what makes the per-TU split tractable.
-  per-TU split tractable. Thirteen more tables now belong to matched C,
-  including five in `n_csplayer`, one in `n_reverb`, and one in `main/font`.
+- **rodata order follows text order exactly.** The pre-carve inventory held
+  forty-four jump tables. The 18 tables still emitted in `asm/`, from
+  `jtbl_80080D2C` through `jtbl_800841F4`, remain monotonic in text and rodata
+  order with **zero inversions**. The other 26 are now owned by C, including
+  five in `n_csplayer`, one in `n_reverb`, one in `main/font`, and the table
+  promoted with `xprintf`. This leaves the per-TU carve strategy intact.
 
 Two toolchain facts govern the per-TU split:
 
