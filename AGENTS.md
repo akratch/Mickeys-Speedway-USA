@@ -82,6 +82,30 @@ and never need a job ceiling to avoid stepping on each other
   budget follows work class and may grow as the queue hardens (ADR 0011).
 - Full two-phase `gmake verify` run against a SHARED worktree (not a lane) goes through `tools/with_verify_lock.sh`, now in `campaign/unchain`. A lane's own `gmake verify` needs no lock: each lane already has its own `build/`.
 
+### Three-session interactive crew
+
+For a persistent interactive crew, use one leader in `campaign/unchain` and
+the two permanent slots `worker-1` / `lane/crew-worker-1` and `worker-2` /
+`lane/crew-worker-2` (ADR 0013). Initialize or inspect their shared mailbox
+with `tools/crew.py`; its state lives under Git's common directory and is never
+tracked.
+
+- The leader alone owns the ready queue, assignments, and integration branch.
+  Each actor alone replaces its own status file; inbox messages are immutable.
+- Every assignment states exact symbol/path ownership, base commit, evidence,
+  deadline, and stop condition. Follow `READY -> ASSIGNED -> ACKED -> WORKING
+  -> HANDOFF -> INTEGRATED -> RELEASED -> READY`; report `BLOCKED` or `PLATEAU`
+  explicitly.
+- A worker stays on its permanent lane, commits and hands off, then fast-forwards
+  the lane after integration. The coordinator never touches its worktree.
+- Subagents are read-only unless given a disjoint child worktree. The parent
+  worker owns child integration and removes only its own clean, released child
+  worktrees. A worker and all its subagents share one compile-heavy-process
+  allowance.
+- Goal mode provides persistence inside each session; the mailbox is the
+  cross-session control plane. An idle worker remains `READY` and keeps its
+  crew goal active until the user ends the crew.
+
 ## Commit discipline
 
 Commit on your own lane branch as work lands: small, function-sized
