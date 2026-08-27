@@ -743,6 +743,13 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/xldtob.c.o: MIPSISET := -mips2 -32
 $(BUILD_DIR)/$(SRC_DIR)/libultra/xldtob.c.o: CFLAGS := -G 0 -non_shared -verbose \
 	-Xcpluscomm -nostdinc -Wab,-r4300_mul $(DEFINES) $(INCLUDE_CFLAGS) -w
 
+# IDO's `-dollar` extension is required for the named stack-register source;
+# invoke the compiler directly because asm-processor does not expose it.
+$(BUILD_DIR)/$(SRC_DIR)/main/get_stack_pointer.c.o: OPT_FLAGS := -dollar
+$(BUILD_DIR)/$(SRC_DIR)/main/get_stack_pointer.c.o: MIPSISET := -mips1 -32
+$(BUILD_DIR)/$(SRC_DIR)/main/get_stack_pointer.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/main/get_stack_pointer.c.o: $(SRC_DIR)/main/get_stack_pointer.c $(H_FILES) | $(ALL_DIRS)
+	$(TOOLS_DIR)/ido/cc -c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
 # This nine-instruction accessor ends at the measured 0x24-byte boundary;
 # discard only IDO's three trailing section-alignment words.
 $(BUILD_DIR)/$(SRC_DIR)/main/amAudioMgrSetScheduleMode.c.o: POSTPROCESS = \

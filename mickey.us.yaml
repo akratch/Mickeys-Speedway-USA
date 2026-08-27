@@ -280,7 +280,7 @@ segments:
       # Measured boundary: the whole 0x10 .text of DKR's built
       # `src/get_stack_pointer.c.o` matches here with zero masked words, and
       # splat's own split points already agreed on both ends.
-      - [0x47A60, asm, main/get_stack_pointer]
+      - [0x47A60, c, main/get_stack_pointer]
       # JFG fx.c lineage: Mickey starts at fxFreeCone (the earlier JFG level-
       # effect routines are absent), carries the cone/wake/effect call graph,
       # and ends where the following font.c block begins.
