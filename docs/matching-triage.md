@@ -80,7 +80,7 @@ shape was understood — another false-floor cluster. Newly routed:
 | `func_80046AA8` | diCpu | **P** | −3 insns loop-guard, but residual dominated by v0/v1/a0 register swaps in the packed-glyph blit. |
 | `func_8002B7AC` | memory | **P** | BSS-base-in-s0 register plateau. |
 | `func_80012574` | track | **P** | f14/f18 projection-web register permutation; frame exact. |
-| `func_8000D018` | track | **B — merged-TU blocker** | NOT permuter, NOT hand-lever. See below. |
+| `func_8000D018` | track | **B — merged-TU blocker** | ✅ matched. Fixed surgically: a typed `#pragma weak trackCamPosTrap = TrapDanglingJump` alias + `objcopy --redefine-sym trackCamPosTrap=TrapDanglingJump` in the track.c.o rule, so the camera-position call passes (f32,f32,f32) single-precision without touching the shared TrapDanglingJump placeholder or its other call sites. |
 
 ### New wall class: **B — merged-TU symbol/placeholder blocker**
 `func_8000D018` double-promotes `f32` call args to double because
@@ -94,3 +94,15 @@ the real distinct function(s) hiding behind the `TrapDanglingJump` placeholder,
 give each its real name + prototype, and repoint the call sites. This is a
 structural-debt cleanup that unblocks func_8000D018 (and likely other
 double-promotion residuals) — a good Fable/Opus task, tracked here.
+
+**Update (2026-08-27): func_8000D018 resolved without the full web cleanup.**
+The surgical per-call-site fix already used elsewhere (anim.c `animResetTrap`,
+weather.c `rainInitTrap`) applies: declare a typed weak alias
+(`#pragma weak trackCamPosTrap = TrapDanglingJump`, `extern void *trackCamPosTrap(f32, f32, f32)`),
+call it at the one dangling site, and canonicalize its undefined symbol back to
+TrapDanglingJump with `objcopy --redefine-sym` in the track.c.o build rule. The
+alias gets the correct prototype in isolation, so IDO passes the three f32 args
+single-precision (no `cvt.d.s`/`sdc1`), while every other TrapDanglingJump call
+site and the shared placeholder itself are untouched. ROM stays byte-identical.
+The broader web cleanup (naming the real distinct callees) remains optional
+future health work, not a matching blocker.
