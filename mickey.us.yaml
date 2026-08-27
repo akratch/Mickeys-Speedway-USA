@@ -184,7 +184,10 @@ segments:
       # whole-object byte match, so docs/modules.md 3.4 keeps the distinction
       # between the working split and a measured original-file boundary.
       - [0x20020, c, main/models]
-      - [0x21DA0, asm]
+      # Boot/thread source unit. DKR's src/main.c supplies byte-exact bodies
+      # for mainproc and thread1_main; Mickey's stack-check variant remains
+      # assembly and the next measured source boundary is camera at 0x21EE0.
+      - [0x21DA0, c, main/boot]
       # Resident camera state, viewport/projection setup, sprite/model matrices,
       # projection helpers and screen shake. JFG's src/camera.c supplies the
       # ordered role map: camInit is the nearest skeleton at the first function,
