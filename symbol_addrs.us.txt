@@ -2413,7 +2413,7 @@ jtbl_8008249C = 0x8008249C; // type:jtbl size:0x30 tier-A compiler-owned gameVi 
 fb_swap = 0x80034150; // type:func size:0xE0 ROM 0x34D50 canonical C, linked byte-identical
 fb_memcpy = 0x80034230; // type:func size:0x30   ROM 0x34e30  src/gameVi.c.o  masked=0/12, canonical C is linked byte-identical
 // jfg:src/textures.c.o
-initColourCycle = 0x80036A50; // type:func size:0x30   ROM 0x37650  src/textures.c.o  masked=2/12
+initColourCycle = 0x80036A50; // type:func size:0x30 tier-A exact C, JFG src/textures.c body
 // donor-jfg-src/menu.c.o
 func_80038750 = 0x80038750; // type:func size:0x128 tier-A ROM 0x39350 IDO C exact, JFG src/menu.c structural oracle, allocator-trace-guided, owns jtbl at 0x83334
 func_80038878 = 0x80038878; // type:func size:0x154 tier-D ROM 0x39478 NON_MATCHING plateau 66/85 words differ, first +0x14

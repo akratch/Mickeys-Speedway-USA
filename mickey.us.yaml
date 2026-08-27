@@ -243,6 +243,8 @@ segments:
       # that starts JFG's following textures.c TU at 0x34E60.
       - [0x34180, c, main/gameVi]
       - [0x34E60, asm]
+      - [0x37650, c, main/initColourCycle]
+      - [0x37680, asm]
       - [0x37D50, asm]
       # JFG's menu.c / Mickey's resident front-end menu code. The start is
       # setLanguage followed by initFront; the end is the function after
