@@ -109,6 +109,17 @@ another bounded poll only if no writable task or protocol action exists. Because
 continuing this cycle is meaningful progress on a monitoring task, unchanged
 external state does not satisfy the Goal-mode blocked condition.
 
+Apply the same liveness rule after every compiler, campaign, gate, commit, or
+other bounded tool command returns. Before yielding control, release or refresh
+the compile permit, replace your status with the command result, consume every
+pending mailbox item, and start the next writable or protocol action. Never end
+a turn while status still says `compile-permit: held` after the process ended,
+and never treat completed gates as a stopping point before commit, transfer,
+HANDOFF, PIPELINE, INTEGRATED, or RELEASE work is complete. A final/status-only
+response is permitted only after the current action is genuinely quiescent and
+a bounded mailbox-monitoring continuation is established under the active crew
+goal.
+
 This is an occupied workstation. Do not run any test runner or test executable,
 and never launch a browser, emulator, simulator, generated program, GUI, or
 device workflow. Permitted compilation/byte-comparison work must be low
