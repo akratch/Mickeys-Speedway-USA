@@ -210,9 +210,10 @@ there continues as 3.x.
 
 ### 4.1 The corridor: ROM `0x6F420`–`0x76D10`
 
-VRAM `0x8006E820`–`0x80076110`, `0x78F0` bytes. **95 named subsegments, every
-one of them a measured whole-`.text` file boundary, and 123 named functions**,
-all tier A. The yaml carries the boundary argument at both ends and
+VRAM `0x8006E820`–`0x80076110`, `0x78F0` bytes. **96 named subsegments,
+including 95 measured whole-`.text` file boundaries plus one exact
+function-tail carve, and 123 named functions**, all tier A. The yaml carries
+the boundary argument at both ends and
 `symbol_addrs.us.txt` carries the per-function names.
 
 **Where the drift went.** The first sweep, against DKR's built libultra alone,
@@ -223,13 +224,13 @@ candidates. Those runs are not drifted copies of DKR's libultra; they are a
 *different build*. Run the finder over Jet Force Gemini's libultra and **eight
 of the ten runs fall**, in fifteen whole-`.text` matches.
 
-The remaining unnamed code is `0xB50`, **9.4% of the corridor**, in two
+The remaining unnamed code is `0x920`, **7.5% of the corridor**, in two
 contiguous runs:
 
 | ROM | Size | Note |
 |---|---|---|
 | `0x70AF0`–`0x70E20` | `0x330` | Between `dpsetstat` and `pfsdeletefile` |
-| `0x74090`–`0x748B0` | `0x820` | Between `timerintr` and `vigetcurrcontext` |
+| `0x74090`–`0x74680` | `0x5F0` | Between `timerintr` and the exact `__osEepStatus` tail |
 
 Neither matches any object in any of the five reference builds, whole or
 per-function: five negatives, two of them from byte-perfect builds.
@@ -237,16 +238,19 @@ per-function: five negatives, two of them from byte-perfect builds.
 **Read these two runs rather than mining them further.** "Unnamed code inside
 the corridor is libultra-shaped" was a fair assumption at 78% identified
 against a single build; at 90.6% against five it is carrying more weight than
-it has earned, and the plainest reading of `0xB50` that five libultra builds do
+it has earned, and the plainest reading of `0x920` that five libultra builds do
 not contain is that some of it **is not libultra**. Two more reference builds
 would be a sixth and seventh negative; a disassembly would be an answer.
-Disassemble `0x70AF0`–`0x70E20` and `0x74090`–`0x748B0` before running the
+Disassemble `0x70AF0`–`0x70E20` and `0x74090`–`0x74680` before running the
 finder over anything else.
 
 `__osPiGetAccess` ("the same 17 instructions as DKR's, scheduled differently")
 is named from JFG's whole `io/piacs.c` TU at `0x80071B80`. `libultra/piacs`
 was the one corridor subsegment named without a measured boundary; JFG measures
-it, which is why this section says 95 of 95.
+it, which is why the original 95 whole-TU subsegments all carry measured
+boundaries. The 96th named subsegment is explicitly narrower:
+`__osEepStatus` is byte-exact to DKR's `io/conteepwrite.c`, while the preceding
+functions in that donor TU are not, so no larger file-boundary claim is made.
 
 ### 4.2 libultra outside the corridor
 
@@ -277,8 +281,8 @@ decompiling it.
 "the function ending at `0x6F3DC` is game-shaped (saves s5/s6)". That function
 is `corrupted`, the last routine of libultra's own `io/pfschecker.c`: the
 observation was accurate, the inference from it was not. libultra is contiguous
-from `0x6B3D0` to `0x76D10` apart from `0x1120` of unnamed code, of which
-`0xB50` is the corridor drift above, `0x590` is between the Transfer Pak
+from `0x6B3D0` to `0x76D10` apart from `0xEF0` of unnamed code, of which
+`0x920` is the corridor drift above, `0x590` is between the Transfer Pak
 routines, and `0x40` is the hole at `0x6F3E0`–`0x6F420`.
 
 ### 4.3 What was rejected, and why
@@ -776,16 +780,17 @@ Two toolchain facts govern the per-TU split:
   only their text. In particular `0x1FC9C` is *not* a model/sprite anchor:
   `func_8001F09C` is a float routine that steps a value at `+0x50` toward a
   bound at `+0x54` and clamps it, with no connection to either string.
-- **9.4% of the libultra corridor** (§4.1): `0x70AF0`–`0x70E20` and
-  `0x74090`–`0x748B0`, `0xB50` between them, matching nothing in any of the
+- **7.5% of the libultra corridor** (§4.1): `0x70AF0`–`0x70E20` and
+  `0x74090`–`0x74680`, `0x920` between them, matching nothing in any of the
   five reference builds. **It may not be libultra at all**: the label is
   inherited from a map made when the corridor was 78% identified against one
   build, and five builds' worth of silence is now the more informative fact.
   Disassemble it rather than mine it further; §4.1.
-- **What is still `asm` that need not be.** 174 subsegments are named; 172 of
+- **What is still `asm` that need not be.** 175 subsegments are named; 172 of
   them have a measured whole-`.text` boundary (the exceptions are `main/matrix`
-  and `main/runlink`, which are decompiled rather than matched-as-a-unit).
-  **92** are now `c`: 81 fully C and the other 11 carrying only
+  and `main/runlink`, which are decompiled rather than matched-as-a-unit, and
+  the exact `__osEepStatus` function-tail carve described above).
+  **93** are now `c`: 82 fully C and the other 11 carrying only
   `#pragma GLOBAL_ASM`. A scaffolded subsegment is worth having on its own:
   it proves the file boundary against the link before any C is written, and it
   turns every function in the unit into a separate work item. The remaining

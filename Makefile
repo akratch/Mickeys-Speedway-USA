@@ -464,6 +464,13 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/rmonprintf.c.o: $(SRC_DIR)/libultra/rmonprintf.
 	$(CC) -c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
 	$(POSTPROCESS)
 
+# __osEepStatus is the exact tail of DKR's SDK conteepwrite source. Like the
+# direct rmonprintf object above, it has no GLOBAL_ASM and retains the donor's
+# direct-IDO line schedule.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eepstatus.c.o: $(SRC_DIR)/libultra/eepstatus.c $(H_FILES) $(SPLAT_STAMP) | $(ALL_DIRS)
+	$(CC) -c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
+	$(POSTPROCESS)
+
 # ---------------------------------------------------------------------------
 # Per-file compiler flags
 #
@@ -707,6 +714,10 @@ $(BUILD_DIR)/$(SRC_DIR)/main/%.c.o: MIPSISET := -mips2 -32
 # mips2 for this source family; mips1 changes its late instruction schedule.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/rmonprintf.c.o: MIPSISET := -mips2 -32
 $(BUILD_DIR)/$(SRC_DIR)/libultra/rmonprintf.c.o: CFLAGS := -G 0 -non_shared -verbose \
+	-Xcpluscomm -nostdinc -Wab,-r4300_mul $(DEFINES) $(INCLUDE_CFLAGS) -w
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eepstatus.c.o: OPT_FLAGS := -O1
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eepstatus.c.o: MIPSISET := -mips2 -32
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eepstatus.c.o: CFLAGS := -G 0 -non_shared -verbose \
 	-Xcpluscomm -nostdinc -Wab,-r4300_mul $(DEFINES) $(INCLUDE_CFLAGS) -w
 # The reconstructed resident main loop reproduces its target frame with uopt capped.
 $(BUILD_DIR)/$(SRC_DIR)/main/main.c.o: CFLAGS += -Wo,-Olimit,100

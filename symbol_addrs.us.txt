@@ -289,7 +289,7 @@ __osSetTimerIntr = 0x80073294; // type:func size:0x74
 __osInsertTimer = 0x80073308; // type:func size:0x188
 // io/conteepwrite.c: only __osEepStatus is byte-identical, the rest of the
 // TU is not, so the file boundary is not claimed and no other name is taken.
-__osEepStatus = 0x80073A80; // type:func size:0x224
+__osEepStatus = 0x80073A80; // type:func size:0x224 tier-A IDO C exact, DKR src/io/conteepwrite.c donor, exact function-tail carve
 // libultra/vigetcurrcontext  ROM 0x748b0  (src/io/vigetcurrcontext.c.o)
 __osViGetCurrentContext = 0x80073CB0; // type:func size:0xC
 // libultra/viswapcontext  ROM 0x748c0  (src/io/viswapcontext.c.o)

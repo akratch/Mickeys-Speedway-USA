@@ -522,7 +522,9 @@ segments:
       - [0x73C90, c, libultra/timerintr]
       - [0x74090, asm]
       - [0x743A0, asm]
-      - [0x74680, asm]
+      # Exact __osEepStatus tail carved from the larger SDK conteepwrite TU;
+      # the preceding non-identical functions do not gain a boundary claim.
+      - [0x74680, c, libultra/eepstatus]
       - [0x748B0, c, libultra/vigetcurrcontext]
       - [0x748C0, c, libultra/viswapcontext]
       # Deliberately kept as pure `#pragma GLOBAL_ASM` so the asm-processor
