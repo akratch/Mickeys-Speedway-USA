@@ -242,6 +242,31 @@ object carrying a `POSTPROCESS` override, its class, tool list, and
 that the ADR 0002 conversion reached every object in the tree, not just the
 functions this lane's prose describes.
 
+### Report-only m2c sweep: `tools/m2c_sweep.py`
+
+`tools/m2c_sweep.py` inventories every `GLOBAL_ASM` pragma but attempts only
+bare pragmas: fallbacks already paired with `NON_MATCHING` or
+`NON_EQUIVALENT` C are reported separately rather than treated as functions
+with no candidate. For each eligible function it gives m2c a preprocessed copy
+of the owning TU, substitutes the draft into a scratch copy of that complete
+TU, asks Make for the real object's effective compiler flags, and runs one
+low-priority IDO compile at a time. Extracted jump tables are discovered and
+passed to m2c as additional inputs when needed.
+
+```sh
+nice -n 15 .venv/bin/python tools/m2c_sweep.py --inventory-only --fresh
+nice -n 15 .venv/bin/python tools/m2c_sweep.py --fresh
+```
+
+All candidates, objects, logs, and reports stay under the ignored
+`build/m2c_sweep/` directory. The tool never edits canonical source or
+promotes a result. Its strongest verdicts are `scratch_text_exact` and
+`scratch_relocation_exact`; even a scratch relocation-exact candidate still
+needs the canonical full-TU, configured post-process, linked owned-range, and
+ROM proofs required by ADR 0001 before promotion. `--resume` continues an
+interrupted report without recompiling recorded identities, and repeated
+`--symbol` arguments provide a bounded targeted run.
+
 ### Lane helpers: `new_lane.sh`, `merge_lane.sh`, `codex_lane.sh`
 
 - **`tools/new_lane.sh <name> [--no-extract] [base-branch]`** creates
