@@ -41,8 +41,8 @@ Updated as the permuter campaign and analysis proceed.
 | `func_8003A2C8` | menu | **P!** | v0/v1 mode/modeBits inversion; permuter 35 → 25, capped | grinding |
 | `func_8002CF6C` | saves | **P** | same-length ring permutation | grinding |
 | `func_80020D8C` | models | **P** | +2 ring phase shift | queued |
-| `func_8001A154` | lights | **W** | g0 list-scheduler slot-fill: `li -1` fills an `mtc1` latency bubble; proven no C lever (~10 real-path variants). Permuter is the only remaining shot. | queued (permuter last-resort) |
-| `mainUpdateZBCheck` | main | **I** | `Syntax error in base.c` on import; permuter cannot search it as-is | needs candidate fix |
+| `func_8001A154` | lights | **P** (was mis-called **W**) | permuter cracked it: drop the redundant `& 0xFFFFU` blue mask (phantom ring pop) + fold `flare.scaledSize`. The 'no source lever' verdict was a FALSE FLOOR. | ✅ matched (permuter) |
+| `mainUpdateZBCheck` | main | **P** (was **I** via -mips1 flag bug) | permuter cracked it once flags fixed: compare `(u16*)row+columns` directly, no cached pixel. | ✅ matched (permuter) |
 | `func_80047CD8` | fx | **I** | does not compile under `-DNON_MATCHING` in-TU (noted by trace agent) | needs candidate fix |
 | `func_8005A948` | models_5B300 | **I / P?** | import returned no improvement instantly — check base compiles | needs recheck |
 | `func_8002C69C` | saves | **P?** | 18w register-only; import status TBD | grinding |
