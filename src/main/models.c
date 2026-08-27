@@ -950,9 +950,14 @@ typedef struct ModelFrameInstance {
 } ModelFrameInstance;
 
 /* Mickey-only reconstruction; JFG's modSetTextureFrame remains assembly. */
-/* Plateau (near-miss p6): workbench register-ring-only, 13 register words at 48 instructions/frame -0x8; first +0x38.
- * Levers: intermediate-read and normalized-condition probes plus the bounded permutation found no source-stable closure.
- * Remains: class-crossing ugen temp web; assembly fallback stays canonical. */
+/* Plateau (2026-08-27, CREW-MODELS-20D8C-READY-17): workbench
+ * register-ring-only, 13 register words at 48 instructions/frame -0x8; first
+ * +0x38. The prior intermediate-read, normalized-condition, and bounded
+ * permutation probes were followed by ten focused ABI, scope, declaration,
+ * loop-condition, load-order, liveness, and register-hint variants; none
+ * closed the temp-FIFO web. The four-argument definition widened the frame,
+ * while count-ownership and no-copy forms unrolled the loop. Remains:
+ * class-crossing ugen temp web; assembly fallback stays canonical. */
 void func_80020D8C(ModelFrameInstance *instance, s32 textureIndex, s32 frame) {
     ObjectModel *model;
     ModelFrameEntry *entry;
