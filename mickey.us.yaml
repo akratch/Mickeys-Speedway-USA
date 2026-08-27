@@ -544,7 +544,7 @@ segments:
       - [0x75DE0, c, libultra/si]
       - [0x75E10, asm, libultra/setcompare]
       - [0x75E20, c, libultra/xlitob]
-      - [0x760C0, asm, libultra/xldtob]
+      - [0x760C0, c, libultra/xldtob]
       - [0x76B80, c, libultra/ldiv]
       # Not `hasm`: this disassembles into a call to func_840010E0, i.e. it is
       # not plain resident text. Kept as raw bin until it is identified.
@@ -702,7 +702,7 @@ segments:
       - [0x85570, .rodata, libultra/devmgr]
       - [0x85590, rodata]
       - [0x855A0, .rodata, libultra/xprintf]
-      - [0x856A0, rodata, libultra/xldtob]
+      - [0x856A0, .rodata, libultra/xldtob]
       - [0x85700, rodata]
       # BSS is zero-filled by the entrypoint; no ROM bytes back it.
       - { start: 0x86640, type: bss, vram: 0x80085A40 }

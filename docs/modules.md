@@ -790,11 +790,11 @@ Two toolchain facts govern the per-TU split:
   them have a measured whole-`.text` boundary (the exceptions are `main/matrix`
   and `main/runlink`, which are decompiled rather than matched-as-a-unit, and
   the exact `__osEepStatus` function-tail carve described above).
-  **94** are now `c`: 83 fully C and the other 11 carrying only
+  **95** are now `c`: 84 fully C and the other 11 carrying only
   `#pragma GLOBAL_ASM`. A scaffolded subsegment is worth having on its own:
   it proves the file boundary against the link before any C is written, and it
   turns every function in the unit into a separate work item. The remaining
-  81 named subsegments include verified original assembly as well as compiler
+  80 named subsegments include verified original assembly as well as compiler
   output; `verified_asm.us.txt` is the explicit evidence ledger that keeps
   those two completion states separate.
 - **`libultra/contramread` and `libultra/contramwrite` are blocked on one

@@ -317,7 +317,7 @@ __osSetCompare = 0x80075210; // type:func size:0xC
 // libultra/xlitob  ROM 0x75e20  (src/libc/xlitob.c.o)
 _Litob = 0x80075220; // type:func size:0x298
 // libultra/xldtob  ROM 0x760c0  (src/libc/xldtob.c.o)
-_Ldtob = 0x80075A30; // type:func size:0x54C
+_Ldtob = 0x80075A30; // type:func size:0x54C tier-A IDO C exact, DKR src/libc/xldtob.c donor, whole text/rodata object exact
 // libultra/ldiv  ROM 0x76b80  (src/libc/ldiv.c.o)
 lldiv = 0x80075F80; // type:func size:0x100
 ldiv = 0x80076080; // type:func size:0x84
