@@ -11,34 +11,34 @@ from the original stub but have not been modernized or verified.
 <!-- SCOREBOARD_BEGIN -->
 ### Progress
 
-[![functions](https://img.shields.io/badge/functions_matched-1001_of_1464_(68.37%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-348376_of_947796_(36.76%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1272_adopted-blue)](#progress)
+[![functions](https://img.shields.io/badge/functions_matched-1000_of_1463_(68.35%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-348480_of_947408_(36.78%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1272_adopted-blue)](#progress)
 
 ```
-functions     1001 / 1464    68.37%   matched to C, byte-identical
-.text bytes 222188 / 478532  46.43%   matched C in the resident segment
-verified asm  16612 / 478532   3.47%   original hand-written assembly (82 functions)
+functions     1000 / 1463    68.35%   matched to C, byte-identical
+.text bytes 221800 / 478144  46.39%   matched C in the resident segment
+verified asm  17104 / 478144   3.58%   original hand-written assembly (83 functions)
 overlay C   109576 / 469264  23.35%   matched C keyed by overlay and offset
-whole resolved 348376 / 947796  36.76%   resident C + verified asm + overlay C
-named         1128 / 1464    77.05%   functions carrying an adopted name
+whole resolved 348480 / 947408  36.78%   resident C + verified asm + overlay C
+named         1127 / 1463    77.03%   functions carrying an adopted name
 symbols       1272                    adopted in symbol_addrs.us.txt
 ```
 
 DKR-style report (docs/acceleration-survey.md sec.13.1: NON_MATCHING and NON_EQUIVALENT count as unmatched, exactly like extracted assembly):
 
 ```
-decompiled              331764 / 947796  (35.00%)
-handwritten asm          16612 / 947796  ( 1.75%)
-GLOBAL_ASM remaining    285132 / 947796  (30.08%)
-NON_MATCHING            314288 / 947796  (33.16%)
-NON_EQUIVALENT               0 / 947796  ( 0.00%)
+decompiled              331376 / 947408  (34.98%)
+handwritten asm          17104 / 947408  ( 1.81%)
+GLOBAL_ASM remaining    284640 / 947408  (30.04%)
+NON_MATCHING            314288 / 947408  (33.17%)
+NON_EQUIVALENT               0 / 947408  ( 0.00%)
 ```
 
 | Area | Functions | Matched to C | Named, still asm | Unnamed | Identified |
 | :--- | ---: | ---: | ---: | ---: | :--- |
 | libultra corridor | 289 | 252 | 34 | 3 | `█████████████████▓▓▓` 99.0% |
-| game code, TU identified | 991 | 749 | 84 | 158 | `███████████████▓▓░░░` 84.1% |
+| game code, TU identified | 990 | 748 | 84 | 158 | `███████████████▓▓░░░` 84.0% |
 | game code, not yet split | 184 | 0 | 9 | 175 | `▓░░░░░░░░░░░░░░░░░░░` 4.9% |
-| **total** | 1464 | 1001 | 127 | 336 | `██████████████▓░░░░░` 77.0% |
+| **total** | 1463 | 1000 | 127 | 336 | `██████████████▓░░░░░` 77.0% |
 
 `█` matched to C · `▓` named but still assembly · `░` neither. Naming runs ahead of matching: a function is decompiled against an already-identified translation unit.
 

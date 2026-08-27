@@ -37,7 +37,9 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, ".."))
 
 LABEL_RE = re.compile(r"^\s*(?:glabel|alabel)\s+([A-Za-z_][A-Za-z0-9_]*)")
-SYMBOL_ADDR_RE = re.compile(r"^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*0x[0-9A-Fa-f]+\s*;")
+SYMBOL_ADDR_RE = re.compile(
+    r"^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(0x[0-9A-Fa-f]+)\s*;"
+)
 PRAGMA_RE = re.compile(r"^\s*#pragma\s+GLOBAL_ASM\s*\(", re.MULTILINE)
 
 
@@ -48,8 +50,8 @@ def find_objdump(tools_dir):
     return "objdump"  # fall back to the host's; works for MIPS ELF on macOS/Linux
 
 
-def get_elf_functions(elf_path, objdump):
-    """Returns (all_funcs, func_addrs, abs_placeholder_names).
+def get_elf_functions(elf_path, objdump, adopted_addrs):
+    """Returns (all_funcs, func_addrs, placeholders, overlay_aliases).
 
     all_funcs: {name: size} for every resident STT_FUNC symbol that has real
     code, i.e. lives in an actual non-overlay section with nonzero size.
@@ -74,6 +76,13 @@ def get_elf_functions(elf_path, objdump):
     not separate functions). They are excluded from the denominator for that
     reason, and reported separately so the exclusion is visible rather than
     silent.
+
+    The overlay relocation model can also replace a real resident function's
+    linked symbol with a nonzero ``*ABS*`` addend, as overlay 15 does for
+    ``rainFastDraw``.  Keep such a function only when symbol_addrs supplies
+    its canonical resident address.  A nonzero ``*ABS*`` function without a
+    resident address is an overlay relocation alias, not resident text; the
+    returned overlay_alias_names make that exclusion visible in --verbose.
     """
     try:
         result = subprocess.run(
@@ -90,6 +99,7 @@ def get_elf_functions(elf_path, objdump):
     all_funcs = {}
     func_addrs = {}
     abs_placeholders = set()
+    overlay_aliases = set()
     for line in result.stdout.decode().splitlines():
         # objdump -x symbol-table lines look like:
         #   "<addr> <flags> <section>\t<size> <name>"
@@ -113,6 +123,13 @@ def get_elf_functions(elf_path, objdump):
         if section == "*ABS*" and size == 0:
             abs_placeholders.add(name)
             continue
+        if section == "*ABS*":
+            if name not in adopted_addrs:
+                overlay_aliases.add(name)
+                continue
+            all_funcs[name] = size
+            func_addrs[name] = adopted_addrs[name]
+            continue
         if section.startswith(".overlay_"):
             continue
         all_funcs[name] = size
@@ -121,7 +138,7 @@ def get_elf_functions(elf_path, objdump):
         except ValueError:
             pass
 
-    return all_funcs, func_addrs, abs_placeholders
+    return all_funcs, func_addrs, abs_placeholders, overlay_aliases
 
 
 def get_asm_labelled_names(asm_dir):
@@ -162,6 +179,19 @@ def count_named_symbols(symbol_addrs_path):
             if SYMBOL_ADDR_RE.match(line):
                 count += 1
     return count
+
+
+def get_adopted_symbol_addresses(symbol_addrs_path):
+    """Return the canonical addresses recorded by symbol_addrs.*.txt."""
+    addresses = {}
+    if not os.path.isfile(symbol_addrs_path):
+        return addresses
+    with open(symbol_addrs_path, "r", errors="replace") as fh:
+        for line in fh:
+            match = SYMBOL_ADDR_RE.match(line)
+            if match:
+                addresses[match.group(1)] = int(match.group(2), 16)
+    return addresses
 
 
 def get_verified_asm_subsegments(path):
@@ -715,7 +745,10 @@ def main(args):
     tools_dir = os.path.join(ROOT_DIR, "tools")
     objdump = find_objdump(tools_dir)
 
-    all_funcs, func_addrs, abs_placeholders = get_elf_functions(elf_path, objdump)
+    adopted_addrs = get_adopted_symbol_addresses(symbol_addrs_path)
+    all_funcs, func_addrs, abs_placeholders, overlay_aliases = get_elf_functions(
+        elf_path, objdump, adopted_addrs
+    )
     if not all_funcs:
         print(f"Error: no function symbols found in {elf_path}", file=sys.stderr)
         sys.exit(1)
@@ -909,6 +942,11 @@ def main(args):
             f"undefined_funcs_auto/undefined_syms_auto stand-ins for "
             f"shared-tail branch-target labels inside larger hand-written "
             f"functions, not distinct functions of their own)"
+        )
+        print(
+            f"#     ({len(overlay_aliases)} nonzero *ABS* overlay relocation aliases "
+            f"excluded; a same-named symbol_addrs entry instead restores the "
+            f"resident address when an overlay addend masks it)"
         )
         print(
             f"#   matched = total functions minus every name that still "
