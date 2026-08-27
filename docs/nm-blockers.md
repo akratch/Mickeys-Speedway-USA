@@ -118,7 +118,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `runlinkGetAddressInfo` | `src/main/runlink.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002C69C` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002C70C` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8002C94C` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_8002C94C` | `src/main/saves.c` | none | — | Matched (permuter): `if (1)` grouping resolves the schedule tie-break. |
 | `func_8002CB18` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002CF6C` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
 | `packInit` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
