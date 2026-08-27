@@ -68,3 +68,29 @@ SDK/libultra donors (`__osSpSetPc`, `__osContRamRead/Write`, `__osBlockSum`,
 3. Permuter improves then plateaus → **P!** then **F** if a trace shows a real lever.
 4. Wrong shape / missing code → **S**.
 5. Proven no-lever scheduler slot-fill → **W** (permuter last resort; else record the wall).
+
+## Structural survey findings (2026-08-27, Opus S-class agent)
+
+Most "structural" resident functions turned out to be **P (permuter)** once the
+shape was understood — another false-floor cluster. Newly routed:
+
+| Function | TU | Class | Note |
+|---|---|---|---|
+| `func_8004B1DC` | font | **P** | Frame-exact (0x80). The display-list `dList++` idiom batches base+displacement stores; target materialises a fresh pointer per command. m2c's distinct-next-pointer form defeats the batching but spills to a 9th saved reg — net-neutral, so keep the frame-exact base and **permute the rolling-pointer register allocation**. Micro-facts recorded in-source: window-0 y2 is standalone `D_800D64F2`; font ptr is `window->font`. |
+| `func_80046AA8` | diCpu | **P** | −3 insns loop-guard, but residual dominated by v0/v1/a0 register swaps in the packed-glyph blit. |
+| `func_8002B7AC` | memory | **P** | BSS-base-in-s0 register plateau. |
+| `func_80012574` | track | **P** | f14/f18 projection-web register permutation; frame exact. |
+| `func_8000D018` | track | **B — merged-TU blocker** | NOT permuter, NOT hand-lever. See below. |
+
+### New wall class: **B — merged-TU symbol/placeholder blocker**
+`func_8000D018` double-promotes `f32` call args to double because
+`TrapDanglingJump` (real function at **0x800333A0**, size 0x1E0) is declared as an
+unprototyped placeholder `s32 TrapDanglingJump()` and that ONE placeholder symbol
+is reused across incompatible call sites (0/1/2/3 args, ints/pointers/floats) in
+already-matched plain-C functions. IDO rejects any incompatible declaration
+TU-wide, so a correct `(f32,f32,f32)` prototype cannot be added in isolation.
+**Fix (project-level, also improves codebase health):** disassemble and identify
+the real distinct function(s) hiding behind the `TrapDanglingJump` placeholder,
+give each its real name + prototype, and repoint the call sites. This is a
+structural-debt cleanup that unblocks func_8000D018 (and likely other
+double-promotion residuals) — a good Fable/Opus task, tracked here.
