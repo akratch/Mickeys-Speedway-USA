@@ -1145,8 +1145,8 @@ point-of-use `PROVENANCE` note, and the default flags, object words, and linked
 ROM range are exact without post-processing.
 
 `func_8003A2C8`: the retained workbench allocation plateau is **5/32 differing words**, first `+0xC`.
-Fresh raw-byte m2c/JFG-shaped bodies kept the 32-word size but regressed to 26–27 differences and were rejected.
-All 119 flag combinations leave the default O2/mips2 result tied for best; assembly remains authoritative.
+Fresh pool-position/shape-preserving probes and a four-variant campaign basin census left the default object best (3 object basins); the target v1/v0 pool order versus candidate v0/v1 order and one ring-only t6 web remain.
+All 119 flag combinations leave the default O2/mips2 result tied for best; no instrumented IDO is configured in the lane, so assembly remains authoritative.
 
 The tier-A-named `frontGetLevelScreenMode` adds **0x68 bytes / 26 words** at
 ROM `0x3AF68`. Its JFG source body is still `GLOBAL_ASM`, so the C body was
