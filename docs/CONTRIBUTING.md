@@ -49,6 +49,41 @@ passes a soft deadline to the agent and tools, reserves five minutes for a
 handoff, and then interrupts the exact process it launched. Expiry preserves a
 best candidate/plateau; it never resets a lane or discards work.
 
+### Three-session interactive crew
+
+ADR 0013 defines a small persistent topology for several interactive Codex
+sessions: one leader on `campaign/unchain`, plus `worker-1` and `worker-2` in
+permanent isolated lanes. It adds coordination without weakening lane
+ownership.
+
+```sh
+tools/crew.py init --worker worker-1=crew-worker-1 \
+  --worker worker-2=crew-worker-2
+tools/crew.py doctor
+tools/crew.py status
+tools/crew.py inbox worker-1
+```
+
+The runtime directory is `$(git rev-parse --git-common-dir)/codex-crew/`, so
+all worktrees see it and none of it can be staged. `queue.md` has one writer
+(the leader), each role owns one status file, and messages are immutable files
+written atomically. Use `tools/crew.py send` for new messages and
+`tools/crew.py ack` to acknowledge and archive one. The committed tree remains
+the durable record; mailbox text is only scheduling and handoff metadata.
+
+Workers reuse their permanent branch. Once the leader reports an integration
+commit, the worker fast-forwards its lane to that commit, confirms a clean
+worktree, reports release, and returns to `READY`. A write-capable subagent must
+instead receive a separate, disjoint child worktree; its parent worker owns the
+commit handoff and removes only that clean child worktree after integration.
+No actor reads, edits, builds, resets, or cleans another actor's worktree.
+
+The paste-ready role prompts live in `.codex/crew/`. They also carry the
+occupied-workstation limits: never launch tests, generated programs, browsers,
+emulators, simulators, or GUI workflows; any permitted compilation is low
+priority and limited to two jobs, with only one compile-heavy process per
+worker slot.
+
 ## Known sources and reusable compiler knowledge
 
 When evidence identifies likely SDK or standard-library code, begin with the
@@ -283,7 +318,10 @@ interrupted report without recompiling recorded identities, and repeated
   scoreboard block and the overlay atlas — then re-runs
   `verify`/`check-docs`/`overlay-atlas`/`check-scoreboard` on the merged
   result. It exits non-zero and leaves the merge in progress if anything else
-  conflicts or a gate fails, rather than guessing a resolution.
+  conflicts or a gate fails, rather than guessing a resolution. Set
+  `MICKEY_BUILD_JOBS` and `MICKEY_BUILD_NICE` when local workstation policy
+  requires a lower compiler concurrency or priority; the three-session crew
+  uses two jobs and niceness 15.
 - **`tools/codex_lane.sh <name> <prompt-file> [--minutes N] [--no-extract]`**
   creates a lane with `new_lane.sh` and launches a detached, non-interactive
   `codex exec` worker inside it; the worker commits on `lane/<name>` like any
