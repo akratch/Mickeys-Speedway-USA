@@ -95,16 +95,23 @@ tracked.
 - Every assignment states exact symbol/path ownership, base commit, evidence,
   deadline, and stop condition. Follow `READY -> ASSIGNED -> ACKED -> WORKING
   -> HANDOFF -> INTEGRATED -> RELEASED -> READY`; report `BLOCKED` or `PLATEAU`
-  explicitly.
-- A worker stays on its permanent lane, commits and hands off, then fast-forwards
-  the lane after integration. The coordinator never touches its worktree.
+  explicitly. During review, ADR 0014 permits one additional `PIPELINE` packet
+  and the `PIPELINED` state so the worker can continue disjoint work.
+- A handed-off permanent lane stays frozen until integration. The worker may
+  continue one leader-assigned follow-on task in its own isolated pipeline
+  worktree, using the same compile permit; it transfers committed work onto the
+  permanent lane only after that lane fast-forwards to the integration commit.
+  The coordinator never touches either worker-owned worktree.
 - Subagents are read-only unless given a disjoint child worktree. The parent
   worker owns child integration and removes only its own clean, released child
   worktrees. A worker and all its subagents share one compile-heavy-process
   allowance.
 - Goal mode provides persistence inside each session; the mailbox is the
   cross-session control plane. An idle worker remains `READY` and keeps its
-  crew goal active until the user ends the crew.
+  crew goal active until the user ends the crew. Empty-mailbox and integration
+  waits are expected monitoring states, never a durable-goal blocker; while a
+  handoff is reviewed, the leader supplies the ADR 0014 pipeline task rather
+  than leaving the worker without writable matching work.
 
 ## Commit discipline
 

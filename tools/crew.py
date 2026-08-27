@@ -3,7 +3,7 @@
 
 Runtime state lives under the repository's Git common directory, so every
 worktree sees the same mailbox while no coordination message can be committed.
-See ADR 0013 for the ownership and lifecycle rules.
+See ADRs 0013 and 0014 for the ownership and lifecycle rules.
 """
 
 from __future__ import annotations
@@ -28,6 +28,7 @@ STATES = (
     "ACKED",
     "WORKING",
     "HANDOFF",
+    "PIPELINED",
     "INTEGRATED",
     "RELEASED",
     "PLATEAU",
@@ -41,6 +42,7 @@ MESSAGE_TYPES = (
     "QUESTION",
     "ANSWER",
     "HANDOFF",
+    "PIPELINE",
     "INTEGRATED",
     "RELEASE",
     "RELEASED",
@@ -221,7 +223,7 @@ def command_init(args: argparse.Namespace, root: Path) -> None:
         atomic_write(
             queue_path,
             "# Crew queue\n\n"
-            "Leader-owned. Assign one disjoint top-level task to each worker.\n\n"
+            "Leader-owned. Assign disjoint work; one isolated pipeline task may follow a handoff.\n\n"
             "| Priority | Task | Owner | State | Ownership | Base | Notes |\n"
             "|---:|---|---|---|---|---|---|\n"
         )

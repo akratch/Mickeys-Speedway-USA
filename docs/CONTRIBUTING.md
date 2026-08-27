@@ -73,10 +73,23 @@ the durable record; mailbox text is only scheduling and handoff metadata.
 
 Workers reuse their permanent branch. Once the leader reports an integration
 commit, the worker fast-forwards its lane to that commit, confirms a clean
-worktree, reports release, and returns to `READY`. A write-capable subagent must
-instead receive a separate, disjoint child worktree; its parent worker owns the
-commit handoff and removes only that clean child worktree after integration.
-No actor reads, edits, builds, resets, or cleans another actor's worktree.
+worktree, reports release, and returns to `READY` unless an ADR 0014 pipeline
+task remains active. A write-capable subagent must instead receive a separate,
+disjoint child worktree; its parent worker owns the commit handoff and removes
+only that clean child worktree after integration. No actor reads, edits, builds,
+resets, or cleans another actor's worktree.
+
+ADR 0014 pipelines review time without moving a handed-off branch. As soon as a
+complete `HANDOFF` is accepted, the leader may send that worker one `PIPELINE`
+follow-on packet naming a disjoint task and exact temporary lane. The worker
+keeps its permanent lane frozen and works in its own child worktree using the
+same compile permit. After the old handoff is integrated, it fast-forwards and
+releases the permanent lane, then transfers the child's committed result onto
+that current lane and repeats the ordinary proofs before the next handoff. One
+frozen handoff plus one pipeline task is the only two-packet state; unexpected
+transfer conflicts are reported, not guessed through. This keeps matching work
+active during review without allowing `merge_lane.sh` to chase a moving lane
+tip.
 
 The paste-ready role prompts live in `.codex/crew/`. They also carry the
 occupied-workstation limits: never launch tests, generated programs, browsers,

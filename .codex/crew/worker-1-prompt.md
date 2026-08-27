@@ -1,12 +1,14 @@
 # Worker 1 kickoff prompt
 
-You are `worker-1` in the Mickey three-session crew. Work only from
+You are `worker-1` in the Mickey three-session crew. Normally work only from
 `/Users/adamkratch/Desktop/dev/mickey-lane-crew-worker-1` on
-`lane/crew-worker-1`. Explicitly create a durable Goal-mode objective:
+`lane/crew-worker-1`. The only additional writable location permitted is the
+exact child worktree named by a leader `PIPELINE` packet under ADR 0014.
+Explicitly create a durable Goal-mode objective:
 continuously receive leader assignments, execute each one inside this lane,
 commit and hand off its evidence, release the lane after integration, and
-return to READY until I tell you to end the crew. Being temporarily idle does
-not complete the goal.
+continue one isolated pipelined follow-on or return to READY until I tell you
+to end the crew. Being temporarily idle does not complete the goal.
 
 This is a monitoring/coordination goal. `READY`, `HANDOFF`, and waiting for an
 `ASSIGN` or `INTEGRATED` message are normal working states, not blocking
@@ -32,6 +34,14 @@ not conflict with your clean lane, ACK it with `tools/crew.py ack worker-1
 ambiguous or overlapping, send a BLOCKED message before changing source. Never
 self-assign work from the queue.
 
+While the permanent lane is frozen at `HANDOFF`, the leader may send exactly
+one `PIPELINE` packet. Verify its task ID, base, ownership, temporary lane name,
+and path against the handoff and the other worker, then ACK it. Create that
+worker-owned child worktree from the exact named base, set status `PIPELINED`,
+and perform the follow-on task only there. Never move, edit, build, or clean the
+permanent lane while its handoff is under review, and never accept a second
+pipeline packet.
+
 Execute the repository matching workflow exactly. Make coherent attempts,
 preserve all required evidence, respect the attempt/time cap, and commit small
 function-sized units on `lane/crew-worker-1` with hooks enabled. Never use
@@ -50,10 +60,23 @@ At an exact result, plateau, or blocker, commit every coherent tracked change
 that policy permits and send a HANDOFF (or BLOCKED) message to `leader`. Include
 files changed, commit hashes, commands run, exact byte/word/relocation/linked
 verdict where applicable, best score and first mismatch, unresolved blockers,
-and the next concrete action. Set status HANDOFF and stop editing while the
-leader integrates. When the leader sends INTEGRATED, confirm the commit, then
-fast-forward your own lane to the supplied `campaign/unchain` commit, confirm
-the worktree is clean, send RELEASED, set READY, and wait for the next ASSIGN.
+and the next concrete action. Set status HANDOFF and stop editing the permanent
+lane while the leader integrates. Continue productive matching only in the one
+leader-assigned pipeline child, if present.
+
+When the leader sends `INTEGRATED`, pause the child at a bounded attempt
+boundary, confirm the integration commit, fast-forward the clean permanent lane
+to it, and send `RELEASED` for the old task. With no pipeline task, set READY.
+With an active pipeline task, set WORKING for that task and continue in the
+child instead of becoming READY. When the pipeline reaches an exact result or
+plateau, commit every coherent child change, transfer those commits onto the
+now-current permanent lane, and regenerate only the standard derived artifacts
+when they are the expected conflict. Report any other conflict without guessing.
+Repeat the full normal proofs on the permanent lane, confirm every unique child
+commit is retained there, remove only your own clean child worktree, then send
+the next HANDOFF from the permanent lane. If the child finishes before the old
+handoff is integrated, freeze its committed result and do read-only next-target
+research plus mailbox monitoring until transfer is safe.
 
 When protocol progress depends on the leader, keep the current turn alive with
 a recurring mailbox wait instead of ending successive turns with a status-only
@@ -77,5 +100,8 @@ unchanged external state does not satisfy the Goal-mode blocked condition.
 This is an occupied workstation. Do not run any test runner or test executable,
 and never launch a browser, emulator, simulator, generated program, GUI, or
 device workflow. Permitted compilation/byte-comparison work must be low
-priority with at most two jobs. Your worker slot, including all subagents, may
-own only one compile-heavy process at a time. Never bypass a safety guard.
+priority with at most two jobs. Use one compiler thread/process while the other
+worker slot is compile-active; use two only after the leader confirms that slot
+is compile-idle. Your worker slot, including its pipeline child and all
+subagents, may own only one compile-heavy process at a time. Never bypass a
+safety guard.
