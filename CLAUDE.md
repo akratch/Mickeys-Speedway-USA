@@ -3,6 +3,34 @@
 Mickey's Speedway USA, clean-room matching decompilation. The US ROM rebuilds
 byte-identically; every commit must keep it that way.
 
+## Private/public release posture
+
+This is the private canonical repository. Work lands through private lanes on
+`campaign/unchain` and is pushed only to the private `origin`. The public
+release is the rewritten mirror at `../mickey-public`, published at
+`https://github.com/akratch/mickeys-speedway-usa-decomp` from its `master`
+branch through its remote named `public`. Their commit IDs and documentation
+are intentionally different.
+
+Commit decomp work privately in function-sized units. A change may be mirrored
+publicly only after it is integrated into `campaign/unchain` and the canonical
+private tree passes `gmake verify`, `gmake cleanroom`, `gmake check-docs`, and
+`gmake check-scoreboard`. Copy only the reviewed public-safe paths; never merge
+the private branch or copy the whole private tree into the public mirror.
+Create a separate plain public commit with no automated co-author or generator
+trailer, regenerate the public scoreboard, repeat the applicable gates in the
+public mirror, scan outgoing text/history for private workflow material and
+secrets, confirm `git remote -v`, and push only public `master` to `public`.
+
+Never publish private branches or tags, `.codex/`, `AGENTS.md`, `CLAUDE.md`,
+local-agent/campaign/orchestration files, workbench or scratch state, absolute
+workstation paths, baseroms, extracted assets, ROM-derived data, or compiler
+binaries. The standard decomp permuter remains eligible public tooling. Do not
+publish experimental candidates, plateaus, or lane-only work. Reproduce an
+accepted public contribution in a private lane and integrate it privately
+before mirroring the proven result back to public. Never force-push the private
+`origin` and never add it as a remote in the public mirror.
+
 ## Nothing ROM-derived is ever tracked in git
 
 Not asm, not instruction text, not hexdumps, not extracted assets, not
