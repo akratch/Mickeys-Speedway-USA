@@ -751,6 +751,10 @@ $(BUILD_DIR)/$(SRC_DIR)/main/amAudioMgrSetScheduleMode.c.o: POSTPROCESS = \
 # trailing section-alignment word.
 $(BUILD_DIR)/$(SRC_DIR)/main/texEnableModes.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C
+# texLoadTextureAddr ends at the measured 0x28-byte boundary; discard only
+# IDO's two trailing section-alignment words.
+$(BUILD_DIR)/$(SRC_DIR)/main/texLoadTextureAddr.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x28
 # Mickey's three maths objects are byte-identical to JFG's matching objects,
 # whose per-directory rule uses bare `-g` (no optimisation flag). The -O2
 # game default changes atan2f from 0x1F4 to 0x134 bytes, so keep this override

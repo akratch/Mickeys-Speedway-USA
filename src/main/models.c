@@ -47,7 +47,7 @@ s32 *piRomLoad(s32 assetId);
 void *func_80034448(s16 textureId);
 void func_800347A0(void *texture);
 s32 func_8003484C(void *texture);
-void func_800348A0(s32 id, s32 value);
+void texLoadTextureAddr(s32 id, s32 value);
 void func_80034424(s32 enabled);
 void func_80034920(Gfx **displayList);
 void func_800349A4(Gfx **displayList, void *texture, s32 flags, s16 parameter);
@@ -1069,7 +1069,7 @@ void modResumeModelTextures(void) {
         if (D_80079C08 > 0) {
             do {
                 if (entry->value != 0) {
-                    func_800348A0(entry->id, entry->value);
+                    texLoadTextureAddr(entry->id, entry->value);
                 }
                 i++;
                 entry++;

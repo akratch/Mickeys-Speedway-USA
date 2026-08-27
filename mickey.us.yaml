@@ -247,6 +247,8 @@ segments:
       - [0x34E60, asm]
       - [0x35008, c, main/texEnableModes]
       - [0x35024, asm]
+      - [0x354A0, c, main/texLoadTextureAddr]
+      - [0x354C8, asm]
       - [0x37650, c, main/initColourCycle]
       - [0x37680, asm]
       - [0x37D50, asm]

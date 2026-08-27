@@ -1734,6 +1734,8 @@ corrupted = 0x8006E644; // type:func size:0x19C
 amAudioMgrSetScheduleMode = 0x800024BC; // type:func size:0x24 tier-A exact C, JFG src/audiomgr.c body
 // Individual JFG game function, ROM 0x35008, 2/7 words relocated, romocc=1.
 texEnableModes = 0x80034408; // type:func size:0x1C tier-A exact C, JFG src/textures.c body
+// Individual JFG game function, ROM 0x354A0, 5/10 words relocated, romocc=1.
+texLoadTextureAddr = 0x800348A0; // type:func size:0x28 tier-A exact C, JFG src/textures.c body
 // main/lights2  ROM 0x1ae60  (jfg/game: asm/hasm/lights2.s.o)  whole .text 0xff0, masked=12, romocc=1
 lightSingleLight = 0x8001A260; // type:func size:0x1E4
 lightTwoLights = 0x8001A444; // type:func size:0x2D4
