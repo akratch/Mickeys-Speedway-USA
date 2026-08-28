@@ -396,7 +396,229 @@ void func_80048980(WakeRipple *ripple) {
         wakeFree(ripple->wake);
     }
 }
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch, 386 differing words; first mismatch is at +0x0. */
+/* Target is 398 instructions/frame -144; candidate is 380 instructions/frame -176. */
+/* Remaining gap is structural: wake display-list/polygon state and local frame shape differ; not permuter-ready. */
+void wakeUpdate(void *arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, s32 arg5) {
+    Wake *wake = (Wake *) arg0;
+    u8 *wakeBytes = (u8 *) wake;
+    u8 *samples = *(u8 **) (wakeBytes + 0x14);
+    s32 temp_lo;
+    s32 var_v0;
+    s32 value;
+    s32 polygonOffset;
+    s32 vertexCount;
+    s32 stripWords;
+    s32 mark;
+    s8 stripIndex;
+    s16 outputCount;
+    s16 outputOffset;
+    u8 index;
+    u8 nextIndex;
+    u8 currentState;
+    u8 *sample;
+    u8 *vertices;
+    u8 *secondaryVertices;
+    u8 *display;
+    u8 *polygon;
+    f32 sine;
+    f32 cosine;
+    f32 distance;
+
+    index = wake->value39;
+    var_v0 = wake->value3B - 1;
+    if (wake->value3B != 0) {
+        do {
+            temp_lo = index * 0x14;
+            nextIndex = index + 1;
+            if (nextIndex >= wake->segmentCount) {
+                nextIndex = 0;
+            }
+            if (arg5 >= (s32) *(s16 *) (samples + temp_lo)) {
+                wake->value39 = nextIndex;
+                wake->value3B--;
+            } else {
+                var_v0 = 0;
+            }
+            index = nextIndex;
+            var_v0--;
+        } while (var_v0 != 0);
+        index = wake->value39;
+    }
+    sample = samples + (index * 0x14);
+    sample[1] |= 0x80;
+    mark = 0;
+    if (wake->flags & 2) {
+        if (wake->value8 == 0) {
+            mark = 1;
+        }
+        if (wake->value8 < 0xBF) {
+            wake->value8 += 0x40;
+        } else {
+            wake->value8 = 0xFF;
+        }
+        value = wake->value3C + (arg5 * 0x10);
+        wake->value3C = value;
+        if (value >= 0x100) {
+            wake->value3C = 0xFF;
+        }
+    } else {
+        if (wake->value8 >= 0x41) {
+            wake->value8 -= 0x40;
+        } else {
+            wake->value8 = 0;
+        }
+        value = wake->value3C - (arg5 * 0x10);
+        wake->value3C = value;
+        if (value < 0) {
+            wake->value3C = 0;
+        }
+    }
+    if ((wake->value8 != 0) && (wake->value3B < wake->segmentCount)) {
+        sample = samples + (wake->value3A * 0x14);
+        sample[0] = wake->textureIndex;
+        value = wake->value8 >> 1;
+        sample[1] = value;
+        if (mark != 0) {
+            sample[1] = value | 0x80;
+        }
+        *(s16 *) (sample + 2) = arg4;
+        *(f32 *) (sample + 8) = arg1;
+        *(f32 *) (sample + 0xC) = arg3;
+        *(s16 *) (sample + 4) = (s16) ((*(s16 *)
+            ((u8 *) wake->linked + 8) - 1) << 8);
+        *(s16 *) (sample + 6) = (s16) arg2;
+        *(f32 *) (sample + 0x10) = (f32) wake->value4;
+        wake->value3A++;
+        if (wake->value3A >= wake->segmentCount) {
+            wake->value3A = 0;
+        }
+        wake->value3B++;
+    }
+    wake->state = 1 - wake->state;
+    wake->value38 = 0;
+    if (wake->value3B != 0) {
+        currentState = wake->state;
+        vertices = *(u8 **) (wakeBytes + 0x18 + (currentState * 4));
+        secondaryVertices = *(u8 **) (wakeBytes + 0x20 + (currentState * 4));
+        polygon = *(u8 **) (wakeBytes + 0x28 + (currentState * 4));
+        outputCount = 0;
+        outputOffset = 0;
+        polygonOffset = (*(s16 *) ((u8 *) wake->linked + 6) - 1) << 5;
+        stripWords = 0;
+        stripIndex = 0;
+        if (wake->value39 != wake->value3A) {
+            index = wake->value39;
+            do {
+                temp_lo = index * 5;
+                nextIndex = index + 1;
+                sample = samples + (temp_lo * 4);
+                if (nextIndex >= wake->segmentCount) {
+                    nextIndex = 0;
+                }
+                if (sample[1] & 0x80) {
+                    display = *(u8 **) (wakeBytes + 0x10) +
+                              (wake->value38 * 0x10);
+                    stripIndex = 0;
+                    outputOffset = 1;
+                    if (outputOffset != 0) {
+                        *(s16 *) (display + 0xC) = outputCount;
+                        *(s16 *) (display + 0xE) = vertexCount;
+                        wake->value38++;
+                    }
+                    outputCount = 0;
+                    *(u32 *) (display + 0x0) = (u32) vertices;
+                    *(u32 *) (display + 0x4) = (u32) secondaryVertices;
+                    *(u32 *) (display + 0x8) = (u32) polygon;
+                    stripWords = 0;
+                }
+                sample[0] -= arg5;
+                *(f32 *) (sample + 0x10) += wake->valueC * (f32) arg5;
+                *(s16 *) (sample + 4) -= wake->value8 * arg5;
+                sine = func_8002A8C0(*(s16 *) (sample + 2)) *
+                       *(f32 *) (sample + 0x10);
+                cosine = func_8002A8BC(*(s16 *) (sample + 2)) *
+                         *(f32 *) (sample + 0x10);
+                value = ((sample[1] & 0x7F) * wake->value3C) >> 7;
+                vertices += 0xA;
+                *(s16 *) (vertices - 0xA) =
+                    (s16) (*(f32 *) (sample + 8) - cosine);
+                *(s16 *) (vertices - 8) = *(s16 *) (sample + 6);
+                *(s8 *) (vertices - 1) = value;
+                *(s16 *) (vertices - 6) =
+                    (s16) (*(f32 *) (sample + 0xC) + sine);
+                if (secondaryVertices == NULL) {
+                    *(s16 *) (vertices + 0) =
+                        (s16) (*(f32 *) (sample + 8) + cosine);
+                    *(s16 *) (vertices + 4) =
+                        (s16) (*(f32 *) (sample + 0xC) - sine);
+                } else {
+                    secondaryVertices += 0x14;
+                    *(s16 *) (vertices + 0) = (s16) *(f32 *) (sample + 8);
+                    *(s16 *) (vertices + 4) =
+                        (s16) *(f32 *) (sample + 0xC);
+                    *(s16 *) (secondaryVertices - 0x14) =
+                        (s16) (*(f32 *) (sample + 8) + cosine);
+                    *(s16 *) (secondaryVertices - 0x12) =
+                        *(s16 *) (sample + 6);
+                    *(s8 *) (secondaryVertices - 0xB) = value;
+                    *(s16 *) (secondaryVertices - 0x10) =
+                        (s16) (*(f32 *) (sample + 0xC) - sine);
+                    *(s16 *) (secondaryVertices - 0xA) =
+                        *(s16 *) (vertices + 0);
+                    *(s16 *) (secondaryVertices - 8) =
+                        *(s16 *) (sample + 6);
+                    *(s8 *) (secondaryVertices - 1) = value;
+                    *(s16 *) (secondaryVertices - 6) =
+                        *(s16 *) (vertices + 4);
+                }
+                *(s8 *) (vertices - 1) = value;
+                outputCount += 2;
+                vertexCount = (*(s16 *) (sample + 4)) >> 3;
+                if (stripIndex != 0) {
+                    polygon[3] = stripIndex;
+                    *(s16 *) (polygon + 0xC) = 0;
+                    *(s16 *) (polygon + 0xE) = vertexCount;
+                    *(s16 *) (polygon + 0x18) = 0;
+                    *(s16 *) (polygon + 0x1A) = vertexCount;
+                    polygon[0x13] = stripIndex + 1;
+                    *(s16 *) (polygon + 0x1C) = polygonOffset;
+                    *(s16 *) (polygon + 0x1E) = vertexCount;
+                    polygon += 0x20;
+                    stripWords += 2;
+                    if ((stripIndex + 2) >= 0x11) {
+                        stripIndex = 0;
+                    }
+                }
+                stripIndex++;
+                polygon[1] = stripIndex - 1;
+                *(s16 *) (polygon + 4) = 0;
+                *(s16 *) (polygon + 6) = vertexCount;
+                polygon[2] = stripIndex;
+                *(s16 *) (polygon + 8) = polygonOffset;
+                *(s16 *) (polygon + 0xA) = vertexCount;
+                polygon[0x11] = stripIndex;
+                *(s16 *) (polygon + 0x14) = polygonOffset;
+                *(s16 *) (polygon + 0x16) = vertexCount;
+                stripIndex += 2;
+                index = nextIndex;
+            } while (index != wake->value3A);
+        }
+        display = *(u8 **) (wakeBytes + 0x10) + (wake->value38 * 0x10);
+        *(s16 *) (display + 0xC) = outputCount;
+        *(s16 *) (display + 0xE) = vertexCount;
+        wake->value38++;
+        distance = (f32) wake->value36 * (f32) arg5;
+        wake->value34 = (s16) (wake->value34 + distance);
+        while (wake->value34 >= *(s16 *) ((u8 *) wake->linked + 0x10)) {
+            wake->value34 -= *(s16 *) ((u8 *) wake->linked + 0x10);
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeUpdate.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049000.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeDraw.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049518.s")
