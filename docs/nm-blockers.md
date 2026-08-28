@@ -388,7 +388,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_092_F0000068_18D5F88` | `src/overlays/o092/overlay92FindNearestCourse.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_094_F0000110_18D6CB0` | `src/overlays/o094/overlay94UpdateController.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_096_F0000070_18D76A8` | `src/overlays/o096/overlay96Unregister.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_097_F0000508_18D83A0` | `src/overlays/o097/overlay97InitScale.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_097_F0000508_18D83A0` | `src/overlays/o097/overlay97InitScale.c` | none | — | Direct candidate and canonical promotion are one address-carrier word away at +0xD0; the former object-exact note was a fallback self-comparison. |
 | `func_overlay_098_F0000000_18D89C0` | `src/overlays/o098/overlay98CollectUniqueY.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_098_F0000234_18D8BF4` | `src/overlays/o098/overlay98RenderReflections.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_099_F00002A0_18D9850` | `src/overlays/o099/overlay99ApplySegment.c` | resolved-plateau | overlay 99 private table | Retained +0xB0 table owns the compiler references; representation/prologue schedule remains. |

@@ -76,19 +76,17 @@ typedef struct Overlay97ScaleEntry {
  * Mickey's model-bound scan tail. The local header-sized pointer step is
  * intentional: it preserves the original traversal base through the scan.
  *
- * Plateau reproof (2026-08-28): -O2/-mips2 with -Wab,-r4300_mul emits a
- * frameless 0x240-byte body with no relocations and differs in 1 of 144 words,
- * first at +0xD0. The target derives the values cursor from the bounds base;
- * IDO derives the equivalent address directly from the model base. Adjacent
- * header, byte-member, and bounds-derived narrow-volatile forms collapsed to
- * a 143-instruction body with 69 positional differences. Narrowing only the
- * model lifetime reproduced the one-word baseline. Earlier flag, typed-base,
- * broad-volatile, single-array, and bounded-permuter sweeps found no exact
- * source form; the required multiply-hazard flag and best candidate remain.
+ * Promotion reproof (2026-08-29): a direct comparison of the NON_MATCHING C
+ * object against an independently assembled target is one word away at +0xD0;
+ * the ordinary linked C promotion has the same residual. Retail derives the
+ * values cursor as a3+2, while C emits the equivalent a1+0x3E address. Both
+ * forms are frameless, 0x240 bytes / 144 instructions, and have no relocations.
+ * The earlier object-exact note compared the fallback assembly to itself and
+ * was invalid. Broader volatile and typed-base spellings perturb the body, so
+ * the assembly fallback remains canonical. Adjacent header, byte-member, and
+ * bounds-derived narrow-volatile variants collapse to 143 instructions with
+ * 69 positional differences; prior flag and bounded-permuter sweeps also miss.
  */
-/* Object-level reproof: instruction-words-identical, 0 differing words, first
- * mismatch none; the 144-instruction frameless shape is exact and promotion
- * remains deferred to the overlay relocation lane, so retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void overlay97InitScale(Overlay97ScaleObject *object, void *entryArg) {
     f32 radius;
