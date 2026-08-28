@@ -3947,3 +3947,12 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 .PHONY: default all setup hooks extract prune-asm verify cleanroom audit-decoders overlay-tables overlay-atlas overlay-atlas-write overlay-donors overlay-donors-write overlay-donors-scan-check check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail
+
+# Every candidate-bearing TU must still compile with -DNON_MATCHING, or its
+# candidates silently drop out of the permuter sweep (fx.c, overlay 1 and
+# overlay 8 were locked out this way for days). Compile-only: the
+# build_non_matching tree skips the matching-only ELF normalizations.
+check-nonmatching-builds:
+	@fail=0; for f in $$(grep -l '#ifdef NON_MATCHING' -r src --include='*.c'); do \
+	  if ! $(MAKE) -s NON_MATCHING=1 build_non_matching/$$f.o >/dev/null 2>&1; then echo "FAIL $$f"; fail=1; fi; \
+	done; [ $$fail -eq 0 ] && echo "check-nonmatching-builds: OK ($$(grep -l '#ifdef NON_MATCHING' -r src --include='*.c' | wc -l | tr -d ' ') TUs)" || exit 1

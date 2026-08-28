@@ -85,6 +85,7 @@ hook or CI:
 | `gmake cleanroom` | no ROM-derived content (hook + CI enforced) | no |
 | `gmake check-docs` | derived numbers in the docs match the tree | no |
 | `gmake check-scoreboard` | README's Progress block matches the tree right now. Needs the ELF, so CI can only run `--check-partial`; see `docs/CONTRIBUTING.md#checks` | yes |
+| `gmake check-nonmatching-builds` | every candidate-bearing TU still compiles with `-DNON_MATCHING`; a TU that does not silently drops its candidates out of the permuter sweep. Run after editing any `#ifdef NON_MATCHING` block | yes (compile-only) |
 | `gmake audit-decoders` | the clean-room detectors aren't inventing words. Run after touching `tools/cleanroom_detectors.py` | no |
 | `gmake check-fixtures` | the detectors still *catch* real ROM in every encoding and wrap width, the direction `audit-decoders` cannot see. Fixtures are generated from the baserom at run time and never written to disk, so this cannot run in CI | no (needs a baserom) |
 | `gmake progress` | prints matched functions/bytes/symbols | yes |
