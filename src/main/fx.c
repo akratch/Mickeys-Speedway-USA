@@ -267,7 +267,80 @@ void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80047CD8.s")
 #endif
+/* Workbench: structure-mismatch, 87 differing words, first mismatch +0x0. */
+/* Candidate shape: 82 instructions/frame -0x40 vs target 89/-0x48; not permuter-ready. */
+/* Remaining structural gap: IDO's count/pointer loop and stack-home shape. */
+#ifdef NON_MATCHING
+typedef struct FxTransformInput {
+    f32 x;
+    f32 y;
+    f32 z;
+} FxTransformInput;
+
+typedef struct FxTransformOutput {
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 red;
+    u8 green;
+    u8 blue;
+    s8 alpha;
+} FxTransformOutput;
+
+void func_80048080(s32 count, s16 x, s16 y, s16 z, s16 angle0, s16 angle1,
+                   FxTransformInput *input, FxTransformOutput *output,
+                   s32 alpha) {
+    f32 cos1;
+    f32 sin1;
+    f32 cos0;
+    f32 sin0;
+    f32 inputX;
+    f32 inputY;
+    f32 inputZ;
+    f32 cross;
+    register s32 var_s0;
+    f32 *var_v1;
+    u8 *var_v0;
+
+    cos1 = func_8002A8C0(angle1);
+    sin1 = func_8002A8BC(angle1);
+    cos0 = func_8002A8C0(angle0);
+    sin0 = func_8002A8BC(angle0);
+    var_s0 = count - 1;
+    if (count == 0) {
+        goto done;
+    }
+    var_v1 = input;
+    var_v0 = output;
+loop:
+    inputZ = var_v1[2];
+    inputY = var_v1[1];
+    inputX = var_v1[0];
+    var_v1 += 3;
+    var_v0[6] = 0xFF;
+    var_v0[7] = 0xFF;
+    var_v0[8] = 0xFF;
+    var_v0[9] = alpha;
+    var_v0 += 10;
+    cross = (inputZ * sin1) + (inputY * cos1);
+    ((s16 *)var_v0)[-5] =
+        (s16)((s32)((inputX * sin0) + (cross * cos0)) + x);
+    ((s16 *)var_v0)[-4] =
+        (s16)((s32)((inputY * sin1) - (inputZ * cos1)) + y);
+    ((s16 *)var_v0)[-3] =
+        (s16)((s32)((cross * sin0) - (inputX * cos0)) + z);
+    var_s0--;
+    if (var_s0 != 0) {
+        goto loop;
+    }
+    input = var_v1;
+    output = var_v0;
+done:
+    ;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048080.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeAllocate.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048760.s")
 void wakeFree(Wake *wake) {
