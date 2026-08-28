@@ -486,7 +486,119 @@ void func_80049000(FxWakeUpdateOwner *owner, s32 delta) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049000.s")
 #endif
+/* Workbench verdict: structure-mismatch, 177 differing words, first mismatch +0x0. */
+/* Candidate: 163/177 instructions with a -0x38 frame versus target -0x88; command-loop structural gap remains, so it is not shape-exact. */
+/* Shape status: display-list commands and chunk emission are reconstructed; target's live-variable/stack shape is unresolved. */
+/* PROVENANCE: JFG's wakeDraw role supplies the display-list idiom; this body is reconstructed from Mickey's target offsets and FxGfx type. */
+#ifdef NON_MATCHING
+void wakeDraw(Wake *wake, FxGfx **dlist) {
+    s32 alpha;
+    s32 outerOffset;
+    s32 outerIndex;
+    s16 remaining;
+    s16 chunk;
+    s32 x;
+    s32 y;
+    s32 z;
+    s32 chunkWidth;
+    s32 texelWidth;
+    s32 command0;
+    FxGfx *cmd;
+    FxWakeSegment *segment;
+
+    if ((s32) wake->value38 > 0) {
+        func_800349A4(dlist, (s32) wake->linked, 0x1F,
+                      (s32) wake->value34 << 8);
+        if ((((FxGfx *) wake->linked)->w1 & 0x40) != 0) {
+            alpha = wake->value34 & 0xFF;
+        } else {
+            alpha = 0xFF;
+        }
+        cmd = *dlist;
+        *dlist = cmd + 1;
+        cmd->w0 = 0xFB000000;
+        alpha &= 0xFF;
+        cmd->w1 = (alpha << 24) | (alpha << 16) | (alpha << 8) | alpha;
+        cmd = *dlist;
+        *dlist = cmd + 1;
+        cmd->w1 = -1;
+        cmd->w0 = 0xFA000000;
+        outerIndex = 0;
+        outerOffset = 0;
+        if ((s32) wake->value38 > 0) {
+            do {
+                segment = (FxWakeSegment *) ((u8 *) wake->vertices + outerOffset);
+                remaining = segment->length;
+                x = segment->x;
+                y = segment->y;
+                z = segment->z;
+                if (remaining != 0) {
+                    do {
+                        s32 shiftedX;
+                        s32 shiftedY;
+                        s32 shiftedZ;
+
+                        shiftedX = x + 0x80000000;
+                        if (remaining >= 0x11) {
+                            remaining -= 0x10;
+                            chunk = 0x10;
+                        } else {
+                            chunk = remaining;
+                            remaining = 0;
+                        }
+                        chunkWidth = (chunk + 2) * 8;
+                        texelWidth = ((chunk + 2) * 0xA) + 8;
+                        cmd = *dlist;
+                        *dlist = cmd + 1;
+                        command0 = (((chunkWidth | (shiftedX & 6)) & 0xFF) << 16) |
+                                   0x04000000 | (texelWidth & 0xFFFF);
+                        cmd->w0 = command0;
+                        cmd->w1 = shiftedX;
+                        cmd = *dlist;
+                        *dlist = cmd + 1;
+                        chunkWidth = chunk * 0x10;
+                        cmd->w0 = (((((chunk - 1) * 0x10) | 1) & 0xFF) << 16) |
+                                   0x05000000 | (chunkWidth & 0xFFFF);
+                        shiftedZ = z + 0x80000000;
+                        cmd->w1 = shiftedZ;
+                        x += chunk * 0xA;
+                        if (y != 0) {
+                            cmd = *dlist;
+                            shiftedY = y + 0x80000000;
+                            *dlist = cmd + 1;
+                            cmd->w0 = (((chunkWidth | (shiftedY & 6)) & 0xFF) << 16) |
+                                       0x04000000 | (texelWidth & 0xFFFF);
+                            cmd->w1 = shiftedY;
+                            cmd = *dlist;
+                            y += chunk * 0xA;
+                            *dlist = cmd + 1;
+                            cmd->w1 = shiftedZ;
+                            cmd->w0 = (((((chunk - 1) * 0x10) | 1) & 0xFF) << 16) |
+                                       0x05000000 | (chunkWidth & 0xFFFF);
+                        }
+                        z += chunkWidth;
+                    } while (remaining != 0);
+                    outerIndex = wake->value38;
+                }
+                outerIndex++;
+                outerOffset += 0x10;
+            } while (outerIndex < (s32) wake->value38);
+        }
+        if (alpha != 0xFF) {
+            cmd = *dlist;
+            *dlist = cmd + 1;
+            cmd->w1 = 0;
+            cmd->w0 = 0xE7000000;
+            cmd = *dlist;
+            *dlist = cmd + 1;
+            cmd->w1 = -1;
+            cmd->w0 = 0xFB000000;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeDraw.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049518.s")
 void fxInit(void) {
     FxRecord *record;
