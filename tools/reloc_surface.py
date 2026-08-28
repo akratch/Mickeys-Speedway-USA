@@ -72,6 +72,16 @@ TYPE_NAMES = {R_MIPS_32: "R_MIPS_32", R_MIPS_26: "R_MIPS_26",
 # synthetic VMA and the ROM address, so a module offset needs no extra table.
 GEN_NAME_RE = re.compile(r"^func_overlay_(\d{3})_F([0-9A-F]{7})_[0-9A-F]+$")
 
+# func_80029FE4, D_80003634 -- splat's auto-name for a *resident* address.  An
+# overlay that calls one of these spells the call with the resident function's
+# own global name, which is the one name the relocation surface must not
+# assign: the name is shared with the resident segment, so a value line for it
+# would move the symbol for every resident caller too (§5.6).  The alias below
+# is the per-module placeholder that carries the addend instead.
+RESIDENT_NAME_RE = re.compile(r"^(?:func|D)_8[0-9A-F]{7}$")
+RESIDENT_ALIAS_FMT = "%s_o%03dReloc"
+RESIDENT_ALIAS_RE = re.compile(r"^(?:func|D)_8[0-9A-F]{7}_o\d{3}Reloc$")
+
 
 # --------------------------------------------------------------------- ELF
 
@@ -421,7 +431,171 @@ def object_aliases(obj_path, overlay, atlas_rows, rom_start):
     return out
 
 
-def generate(rom, atlas, objects=None, quiet=False):
+def resident_defined_names():
+    """Every symbol the *resident* side of the link defines.
+
+    An overlay's call to a resident target does not have to be spelled with a
+    splat auto-name.  `overlay5InitializeAudio` calls `alHeapDBAlloc`,
+    `osCreateMesgQueue` and `n_alCSPSetMessageQ` -- ordinary libultra globals --
+    and a value line for one of those breaks the resident link exactly as
+    `func_80034448` does.  What the two shapes have in common is not the name,
+    it is that the resident side owns it, so that is what this measures: the
+    global symbols defined by every non-overlay object the linker script names,
+    plus the names the auto-generated symbol scripts assign.
+
+    Deliberately excludes the overlay objects.  A call to another *module's*
+    function is a different case, already handled by the generated-identity
+    alias block (S5.3), and must keep its own name.
+    """
+    ld = (REPO / f"mickey.{VERSION}.ld").read_text()
+    out = set()
+    for m in re.finditer(r"(build/(?!src/overlays/)\S+?\.o)\(", ld):
+        path = REPO / m.group(1)
+        if not path.is_file():
+            continue
+        try:
+            elf = Elf(path)
+        except SystemExit:
+            continue
+        for name, _v, _s, info, shndx in elf.symbols():
+            if name and shndx != SHN_UNDEF and (info >> 4) != 0:
+                out.add(name)
+    for fname in (f"undefined_funcs_auto.{VERSION}.txt",
+                  f"undefined_syms_auto.{VERSION}.txt",
+                  f"libultra_undefined_syms.{VERSION}.txt"):
+        path = REPO / fname
+        if path.is_file():
+            for line in path.read_text().splitlines():
+                m = re.match(r"^\s*([A-Za-z_]\w*)\s*=", line)
+                if m:
+                    out.add(m.group(1))
+    return out
+
+
+def resident_call_aliases(obj_path, overlay, atlas_rows, records,
+                          resident_names=frozenset()):
+    """(renames, refusals) for this object's calls to *resident* functions.
+
+    An overlay module ships unrelocated, and §5.2's census says a `SYMBOL`
+    `R_MIPS_26` record stores immediate zero whether its target is another
+    module or the resident segment: the shipped word is `jal 0` and the runtime
+    patches it.  So a resident call needs exactly the same addend every other
+    cross-module call needs, `0xF0000000`, and nothing about it is special --
+    except its *name*.
+
+    Adopted C spells the call with splat's resident auto-name (`func_80029FE4`),
+    and that name is global.  Assigning it in `overlay_undefined_syms.us.txt`
+    does not give the overlay an addend, it moves the resident function for
+    every resident caller as well: `func_80034448` is called from `models.c`,
+    `level.c`, `menu.c` and four asm objects, and a value line for it turns all
+    of them into `relocation truncated to fit: R_MIPS_26`.  That is the whole of
+    the `resident-symbol-missing` and `relocation-truncated` classes.
+
+    The fix is the one the hand-written POSTPROCESS rules already use (overlay
+    49 rebinds `func_800254FC` to `overlay65UpdateReloc`): give the *site* a
+    per-module placeholder name and value that.  This derives the same rebind
+    mechanically -- one alias per (resident name, module) -- so the resident
+    name keeps its real address and the overlay keeps its stored addend.
+
+    Only `R_MIPS_26` sites are aliased.  A resident *data* reference stores the
+    real resident address in its HI16/LO16 pair, so valuing it under its own
+    name is already correct and already what the surface does (`D_80000040 =
+    0x80000040`); renaming those would churn the file for no change in bytes.
+    """
+    elf = Elf(obj_path)
+    syms = elf.symbols()
+    base, _extent = tu_base(obj_path, overlay, atlas_rows)
+    table = {}
+    for r in records:
+        table.setdefault(r["target_offset"], []).append(r)
+
+    by_symbol = collections.defaultdict(list)
+    for _sec, off, rtype, symidx in elf.relocations():
+        if symidx >= len(syms):
+            continue
+        name, _v, _s, _i, shndx = syms[symidx]
+        if shndx != SHN_UNDEF:
+            continue
+        if not (RESIDENT_NAME_RE.match(name) or name in resident_names):
+            continue
+        by_symbol[name].append((off, rtype))
+
+    renames, refusals, notes = {}, [], []
+    for name in sorted(by_symbol):
+        sites = by_symbol[name]
+        calls = [(off, t) for off, t in sites if t == R_MIPS_26]
+        if not calls:
+            continue
+        other = [(off, t) for off, t in sites if t != R_MIPS_26]
+        if other:
+            refusals.append((name, "resident symbol reached by both a call and "
+                                   "a data reference; one placeholder cannot "
+                                   "carry both addends"))
+            continue
+        if base is None:
+            refusals.append((name, "resident call in an object with no "
+                                   "text_ownership row: no module offset"))
+            continue
+        # Corroboration is a *note* here, not a refusal.  `synthesize()`
+        # already applies the module table's own filter when it picks the
+        # addend, and under the alias a value read from an uncorroborated site
+        # can only produce a differing word inside the promoted function --
+        # which is the measurement the trial exists to take.  Refusing instead
+        # costs the candidate its linked-ROM oracle for no gain:
+        # `overlay34SortAndDraw` goes from 168 in-range words back to a bare
+        # build failure.  Only the ambiguous cases above are refused.
+        if not any([r for r in table.get(base + off, [])
+                    if r["mode"] == R_MIPS_26] for off, _t in calls):
+            notes.append((name,
+                          "no resident call site (module offset %s) is named "
+                          "by the module relocation table; the addend is read "
+                          "from an uncorroborated site and the differing words "
+                          "are reported in range"
+                          % ", ".join("%#x" % (base + o) for o, _t in calls)))
+        renames[name] = RESIDENT_ALIAS_FMT % (name, overlay)
+    return renames, refusals, notes
+
+
+def rebind_resident_calls(objects, rom, rows, mods, rom_table,
+                          objcopy=None, records_cache=None,
+                          refused_names=None):
+    """Rename every resident-call placeholder in place; return the refusals.
+
+    Idempotent: the alias no longer matches `RESIDENT_NAME_RE`, so a second
+    pass finds nothing to rename and `generate()` values the alias from the
+    same corroborated site.  `generate --check` therefore reproduces the same
+    block whether or not the objects have already been rebound.
+    """
+    objcopy = objcopy or (REPO / "tools" / "binutils" / "mips64-elf-objcopy")
+    refusals, notes = [], []
+    refused_names = set() if refused_names is None else refused_names
+    resident_names = resident_defined_names()
+    for ov, obj in objects:
+        recs = (records_cache or {}).get(ov)
+        if recs is None:
+            recs = ot.read_module_relocations(rom, mods[ov - 1], rom_table)
+            if records_cache is not None:
+                records_cache[ov] = recs
+        try:
+            renames, refused, noted = resident_call_aliases(
+                obj, ov, rows.get(ov, []), recs, resident_names)
+        except SystemExit:
+            continue
+        refusals += [(obj.name, n, why) for n, why in refused]
+        notes += [(obj.name, n, why) for n, why in noted]
+        refused_names.update(n for n, _why in refused)
+        if not renames:
+            continue
+        import subprocess
+        cmd = [str(objcopy)]
+        for old in sorted(renames):
+            cmd += ["--redefine-sym", "%s=%s" % (old, renames[old])]
+        cmd.append(str(obj))
+        subprocess.run(cmd, check=True)
+    return refusals, notes
+
+
+def generate(rom, atlas, objects=None, quiet=False, rebind_resident=True):
     """Return the whole linker-script block as text, plus a diagnostics dict."""
     rows = {m["overlay"]: m["text_ownership"] for m in atlas["modules"]}
     rom_starts = {m["overlay"]: int(m["rom"]["start"], 16) for m in atlas["modules"]}
@@ -437,13 +611,36 @@ def generate(rom, atlas, objects=None, quiet=False):
     alias_pairs = {}     # identity -> (name, object)
     alias_order = []
     local = {}
+    records = {}
+    # A resident call has to stop spelling itself with the resident function's
+    # global name *before* anything is valued; see `rebind_resident_calls`.
+    # In the matching tree this renames nothing (no overlay object carries an
+    # R_MIPS_26 against a resident auto-name), so the generated block is
+    # unchanged; it fires only for a promoted candidate.
+    refused_resident = set()
+    resident_notes = []
+    if rebind_resident:
+        refused, resident_notes = rebind_resident_calls(
+            objects, rom, rows, mods, rom_table, records_cache=records,
+            refused_names=refused_resident)
+        conflicts += refused
     for ov, obj in objects:
         if ov not in local:
             local[ov] = module_text_defs(objects, ov, rows.get(ov, []))
-        recs = ot.read_module_relocations(rom, mods[ov - 1], rom_table)
+        if ov not in records:
+            records[ov] = ot.read_module_relocations(rom, mods[ov - 1], rom_table)
+        recs = records[ov]
         _sites, vals, unresolved = synthesize(obj, ov, rom, rows.get(ov, []),
                                               recs, local[ov])
         conflicts += [(obj.name, n, why) for n, why in unresolved]
+        # A refused resident call must not fall back to a value line under its
+        # *global* name.  `synthesize()` still reads an addend for it from the
+        # corroborated sites, but assigning `func_8002A8C0` in the linker
+        # script moves the resident function for `shadows.c`, `camera.c` and
+        # every other resident caller -- 30-odd `relocation truncated to fit`
+        # errors, from a line meant to help one overlay.  Refused means
+        # refused: no value, and the reason is already reported.
+        vals = {k: v for k, v in vals.items() if k not in refused_resident}
         mine = []
         for name in sorted(vals):
             if name in values:
@@ -503,7 +700,7 @@ def generate(rom, atlas, objects=None, quiet=False):
 
     diag = {"values": len(values), "aliases": len(alias_pairs),
             "objects": len(objects), "conflicts": conflicts,
-            "shadowed": sorted(shadowed)}
+            "resident_notes": resident_notes, "shadowed": sorted(shadowed)}
     return text, diag
 
 
@@ -526,7 +723,7 @@ def cmd_generate(argv):
     import json
     rom = args.rom.read_bytes()
     atlas = json.loads((REPO / "config" / "overlays.us.json").read_text())
-    text, diag = generate(rom, atlas)
+    text, diag = generate(rom, atlas, rebind_resident=not args.compare)
 
     if args.compare:
         old = args.out.read_text().splitlines()
@@ -578,6 +775,11 @@ def cmd_generate(argv):
         sys.stdout.write(text)
     for obj, name, why in diag["conflicts"]:
         print("/* UNRESOLVED %s %s: %s */" % (obj, name, why), file=sys.stderr)
+    # A note is not a refusal: the symbol *is* valued and the link resolves it.
+    # Printed under its own marker so a caller matching UNRESOLVED does not
+    # class a measurable candidate as a failure.
+    for obj, name, why in diag.get("resident_notes", []):
+        print("/* NOTE %s %s: %s */" % (obj, name, why), file=sys.stderr)
     return 0
 
 
