@@ -122,6 +122,7 @@ FIXED_DATA_RODATA_OWNERSHIP = {
         (0x174, 0x190, "func_overlay_014_F0001830_1871108", ".rodata"),
     ],
     25: [(0x20, 0x40, "overlay_025", ".rodata")],
+    41: [(0x0, 0x3C, "overlay41SampleCurve", ".rodata")],
 }
 
 # When a C owner's initialized input follows its text, IDO's measured .text

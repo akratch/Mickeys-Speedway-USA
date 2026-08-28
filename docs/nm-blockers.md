@@ -288,7 +288,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_041_F0000000_1887338` | `src/overlays/o041/overlay41AdvanceStepRecords.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_041_F000195C_1888C94` | `src/overlays/o041/overlay41EnqueueTransition.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_041_F0001464_188879C` | `src/overlays/o041/overlay41ProcessEntry.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_041_F00002AC_18875E4` | `src/overlays/o041/overlay41SampleCurve.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_041_F00002AC_18875E4` | `src/overlays/o041/overlay41SampleCurve.c` | resolved-plateau | overlay 41 curve constants | TU-owned +0x0..+0x3C .rodata clears module growth; code generation remains. |
 | `func_overlay_041_F0000124_188745C` | `src/overlays/o041/overlay41UpdateColorRecords.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_041_F0000854_1887B8C` | `src/overlays/o041/overlay41UpdateCurveObject.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_041_F0001298_18885D0` | `src/overlays/o041/overlay41UpdateProgress.c` | none | — | No ownership change; continue source/codegen work. |

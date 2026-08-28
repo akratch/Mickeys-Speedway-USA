@@ -22,6 +22,9 @@ typedef struct Overlay41CurveNode {
 /* Plateau (near-miss p6): workbench mixed(structural:4, commutative:2, register:10),
  * 17 words at 340 instructions; first +0x49C in the late cubic FP block.
  * Lever: structure-bucket/context audit left the prior operand-order/flag levers closed; FP temp allocation remains. */
+/* Ownership trial (2026-08-28): fixed the TU's +0x0..+0x3C .rodata range;
+ * linked promotion is text-differs with 340 in-range words, first at +0x0.
+ * Module growth is cleared; the remaining gap is codegen/register allocation. */
 #ifdef NON_MATCHING
 void func_overlay_041_F00002AC_18875E4(Overlay41CurveNode *node, f32 t,
                                         f32 *valueOut, f32 *tangentOut,
