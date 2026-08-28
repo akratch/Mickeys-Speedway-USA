@@ -94,3 +94,12 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
   bespoke POSTPROCESS rule hand-derived from the target relocation table.
   A generic relocation-surface synthesizer (from the atlas census) is the
   lever for the whole 299 KB pool; a feasibility spike is running.
+- **The overlay relocation surface is a pure function of the baserom and
+  the atlas.** Modules ship unrelocated, so each placeholder symbol's value
+  is the stored addend at its sites (`R_MIPS_26`: `0xF0000000 | imm26<<2`;
+  `HI16/LO16`: `(hi<<16)+sext(lo)`; `R_MIPS_32`: the word) minus the
+  object's own addend. `tools/reloc_surface.py --audit` reproduced
+  1,773/1,773 hand-derived values and 979/982 link-defined ones; 14 of 19
+  blocked candidates linked with zero collateral. Changed: the surface is
+  generated, not hand-written per function (implementation in progress);
+  the bespoke POSTPROCESS ritual stops being the gate on 299 KB.
