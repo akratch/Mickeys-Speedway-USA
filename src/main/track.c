@@ -2723,7 +2723,109 @@ s32 func_80010654(TrackRayPoint *start, TrackRayPoint *end,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010654.s")
 #endif
+/*
+ * PROVENANCE: Mickey's m2c control-flow draft and resident collision
+ * records reconstruct this wrapper; no external function body is adapted.
+ */
+#ifdef NON_MATCHING
+typedef struct TrackRayHit {
+    f32 normalX;
+    f32 normalY;
+    f32 normalZ;
+    f32 distance;
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 ratio;
+    s32 faceData;
+    u8 material;
+} TrackRayHit;
+
+typedef struct TrackRayScratch {
+    TrackRayPoint direction;
+    u8 result[0x1C];
+    f32 length;
+} TrackRayScratch;
+
+extern s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
+                         TrackRayPoint *offset, f32 scale, f32 planeOffset,
+                         f32 threshold, TrackRayHit *hit);
+extern s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3);
+
+/* Workbench verdict: pending first compile; target is 147 instructions with a -0xB8 frame. */
+/* Candidate shape is being calibrated against the target object; no match claim is made here. */
+/* The callback record is kept at its measured 0x20-byte local size. */
+s32 func_80010900(TrackVec3f *arg0, TrackVec3f *arg1, f32 arg2, s32 arg3,
+                  void (*arg4)(void *, void *, f32 *, f32, void *, s32)) {
+    TrackRayScratch scratch;
+    s32 sp6C;
+    s32 sp68;
+    f32 temp_f0;
+    f32 temp_f18;
+    f32 temp_f20;
+    f32 temp_f8;
+    s32 var_s2;
+    s32 var_s4;
+    s32 var_s7;
+    s32 var_v0;
+    sp6C = 0;
+    sp68 = 0;
+    var_s7 = 0;
+    do {
+        var_s2 = 0;
+        var_s4 = 0;
+        scratch.direction.x = arg1->f[0] - arg0->f[0];
+        temp_f18 = arg1->f[1] - arg0->f[1];
+        scratch.direction.y = temp_f18;
+        temp_f8 = arg1->f[2] - arg0->f[2];
+        scratch.direction.z = temp_f8;
+        temp_f20 = (temp_f8 * temp_f8) +
+                   ((scratch.direction.x * scratch.direction.x) +
+                    (temp_f18 * temp_f18));
+        if (temp_f20 > 0.0f) {
+            temp_f0 = sqrtf(temp_f20);
+            scratch.length = temp_f0;
+            scratch.direction.x /= scratch.length;
+            scratch.direction.y /= scratch.length;
+            scratch.direction.z /= scratch.length;
+            if (D_800C9D28 != 0) {
+                var_v0 = func_80011980(arg0, arg1, &scratch.direction,
+                                       scratch.length, arg2, 0.0f,
+                                       (TrackRayHit *) scratch.result);
+            } else {
+                var_v0 = func_80011980(arg0, arg1, &scratch.direction,
+                                       scratch.length, arg2, arg2,
+                                       (TrackRayHit *) scratch.result);
+            }
+            if (D_800C9D28 != 0) {
+                var_s4 = func_80011CDC((u8 *) arg0,
+                                       (u8 *) &scratch.direction, arg2,
+                                       scratch.result);
+            }
+            if ((var_v0 | var_s4) != 0) {
+                sp68 = 1;
+                arg4(arg0, arg1, (f32 *) &scratch.direction, scratch.length,
+                     scratch.result, arg3);
+                var_s2 = 1;
+            }
+            if (var_s2 != 0) {
+                var_s7 += 1;
+                if (var_s7 >= 6) {
+                    sp68 = 0;
+                    sp6C |= 0x40000000;
+                    var_s2 = 0;
+                    arg1->f[0] = arg0->f[0];
+                    arg1->f[1] = arg0->f[1];
+                    arg1->f[2] = arg0->f[2];
+                }
+            }
+        }
+    } while (var_s2 != 0);
+    return sp68 | sp6C;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010900.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010B4C.s")
 #ifdef NON_MATCHING
 /*
@@ -2903,19 +3005,6 @@ typedef struct TrackRayNodeExtended {
     u8 pad10[0x0C];
     TrackRayFace *planes;
 } TrackRayNodeExtended;
-
-typedef struct TrackRayHit {
-    f32 normalX;
-    f32 normalY;
-    f32 normalZ;
-    f32 distance;
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 ratio;
-    s32 faceData;
-    u8 material;
-} TrackRayHit;
 
 /* Workbench verdict: structure-mismatch, 208 differing words, first mismatch +0x0. */
 /* Candidate: 214/215 instructions with a -0xD8 frame versus target -0xC8; one instruction/frame residual and FP schedule remain. */
