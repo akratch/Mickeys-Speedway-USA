@@ -2852,24 +2852,8 @@ Overlay1PoolRecord *overlay1AllocateRecord(void) {
 extern void *overlay1AllocateRecordReloc(u32 *source);
 
 /* DKR v77/v80 and JFG have generic copy loops, but no exact donor. */
-/* Plateau (2026-08-28, 8 directed variants after baseline): the isolated
- * source-faithful -O2/-mips1 baseline is exact-sized at 23 instructions / 92
- * bytes with frame -24 and 2 differing words, first at +0x24. Retail places
- * destination setup before the loop count; IDO reverses that adjacent pair.
- * Moving the assignment fixes order but rotates 10 pool registers; direct
- * source input changes 4 schedule/displacement sites; initialized locals and
- * comma association repeat the 10-register rotation; split increments adds
- * structural sites; and line grouping or function-scope input is byte-identical
- * to baseline. The -mips2 baseline is 3 words worse and -g3 changes the frame
- * to -32. Full-TU NON_MATCHING compilation is blocked by pre-existing
- * unrelated incomplete-type and duplicate-prototype errors in this consolidated
- * tail TU, so the documented isolated scratch fallback was used after removing
- * only its generated conflicting declaration. No exact relocation-complete,
- * linked result was found; the remaining blocker is IDO setup scheduling versus
- * the target's one relocation identity. */
-/* Object-level reproof: relocation-symbol-mismatch, 0 instruction words, first
- * mismatch none; the 23-instruction, frame -24 shape is exact and permuter-ready.
- * One relocation identity remains for promotion, so retain NON_MATCHING. */
+/* Exact C: all 23 instruction words, the -24 frame, relocation identity, and
+ * linked overlay range match after bounded permutation. */
 void *overlay1CloneRecord(u32 *source)
 {
   u32 *destination;

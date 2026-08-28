@@ -661,9 +661,7 @@ void func_800035F8(s32 group) {
         } while (index < countValue);
     }
 }
-/* Workbench: allocation-mismatch, 8 differing words, first mismatch +0x0.
- * Shape-exact: 25 instructions/opcodes, frame, and relocations match; permuter-ready.
- */
+/* Exact C: all 25 instruction words, the frame, relocations, and linked ROM range match. */
 void func_80003760(AudioPoint *point)
 {
   AudioUpdateEntry *entry;

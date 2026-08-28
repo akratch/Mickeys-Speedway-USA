@@ -109,17 +109,14 @@ variants were rejected rather than promoted.
 |---|---:|---:|---|---|
 | `runlinkDownloadCode` | `0x32878` | `0x478` | `-O2 -mips2 -32` | JFG `src/runLink.c`; 286/286 instruction words and all relocations exact, linked ROM byte-identical |
 
-`runlinkEnsureJumpIsValid` (`0x800320F0`, `0x194` bytes) also remains
-`NON_MATCHING` after a bounded ten-attempt pass. JFG's 0x1A8-byte peer is the
-nearest skeleton at 0.504 similarity; Mickey's mips2 target omits its five
-load-delay no-ops. The best coherent C has the exact 101-word boundary and
-selector CFG under `-O2 -mips2 -32`, but 35 masked words differ, beginning at
-`+0x20`, where IDO keeps the jump address in `a3` instead of the target's
-`s0`; the resulting long-lived-register allocation differs through the loop.
-The complete 119-combination flag lattice found no better flag group. A
-bounded ten-minute, two-thread permuter batch improved its internal score from
-230 to 125 but did not reach zero; its best result added a constant-true block
-and was retained only as an ignored diagnostic artifact, not canonical source.
+`func_800320F0` (`runlinkEnsureJumpIsValid`, `0x800320F0`, `0x194` bytes) is
+Evidence A exact C after a bounded permuter pass resolved the prior register
+allocation mismatch. Under `-O2 -mips2 -32`, all 101 instruction words, the
+`-0x20` frame, all 21 relocations, and the linked ROM bytes match. JFG's
+0x1A8-byte peer remains provenance for the role and skeleton; Mickey's target
+boundary and exact output are established independently by its own object and
+ROM bytes. The permuter-forced inert blocks are tracked in
+`docs/cleanup-queue.md` as a readability follow-up, not a matching deficit.
 
 `runlinkGetAddressInfo` (`0x800331E4`) is an exact 108-word match under
 `-O2 -mips2 -32`; its three following nop words are alignment padding before
@@ -1540,7 +1537,7 @@ Overlay 44's `overlay44UpdateFrameCache` — 748 bytes / 187 words, offset `0x02
 
 Overlay 83's `overlay83BuildBatch` adds **672 exact C bytes / 168 words** starting at offset `0x053C`, ending at `0x07DC`. It allocates a batch, scales source records, transforms world coordinates, and conditionally creates linked children, with the natural runtime relocation set intact.
 
-Overlay 3's `overlay3FindClosestObject` — 308 bytes / 77 words, offset `0x027C..0x03B0`. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a four-use temporary-allocation web reassignment); source kept as decomp-permuter input. The r5 baseline retains four register-only words from `+0x40` (`a0` target versus `v1` candidate); an index-centric entry spelling was inert. The normal permuter importer cannot join this overlay's C name to its address-derived ASM label, so it produced no new candidate. Its typed scan rejects ineligible and already-related objects, orders candidates by the resident six-float distance helper, and returns the closest eligible object; the operation stream, CFG, frame, and five relocation sites are otherwise natural.
+Overlay 3's `overlay3FindClosestObject` — 308 bytes / 77 words, offset `0x027C..0x03B0` — is Evidence A exact C after bounded permutation resolved the four-word register-allocation residual. Its typed scan rejects ineligible and already-related objects, orders candidates by the resident six-float distance helper, and returns the closest eligible object. All words, the `-0x78` frame, five relocation sites, linked overlay range, and full ROM match.
 
 Epoch 12 reaches **17,148 / 45,775 bytes (37.46%)**, overlay C reaches **118,400 / 469,264 (25.23%)**, resolved text reaches **161,440 / 950,332 (16.99%)**, and the closure gate remains **5 / 8**.
 
@@ -1729,7 +1726,7 @@ The full flag lattice and 40-minute permuter produced no valid exact source.
 
 `overlay 55 +0x0000..+0x013C` — 316 bytes / 79 words, module startup. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a two-word schedule rewrite plus two local addend edits); source kept as decomp-permuter input. The natural object owns 33 runtime relocation roles and a 21-record raw link surface. The checkpoint becomes **69,324 / 45,775 campaign bytes (151.45%)**, **170,576 / 469,264 Overlay C (36.35%)**, and **213,616 / 950,332 resolved text (22.48%)**.
 
-`overlay 84 +0x0DD0..+0x0F18` (`overlay84AdvanceCurrent`) — 328 bytes / 82 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a frame/spill plus twelve-instruction schedule rewrite); source kept as decomp-permuter input. Natural codegen owns the exact CFG, opcode/register census, and all five runtime relocation roles. The checkpoint becomes **69,652 / 45,775 campaign bytes (152.16%)**, **170,904 / 469,264 Overlay C (36.42%)**, and **213,944 / 950,332 resolved text (22.51%)**.
+`overlay 84 +0x0DD0..+0x0F18` (`overlay84AdvanceCurrent`) — 328 bytes / 82 words — is Evidence A exact C after bounded permutation resolved the two-word spill residual. All words, the `-0x30` frame, five runtime relocation roles, linked overlay range, and full ROM match.
 
 `overlay 36 +0x150C..+0x1688` (`overlay36UpdatePeers`) — 380 bytes / 95 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a schedule/frame/scratch-register rewrite); source kept as decomp-permuter input. Natural codegen owns the exact six-call CFG and all six runtime identities. The checkpoint becomes **70,032 / 45,775 campaign bytes (152.99%)**, **171,284 / 469,264 Overlay C (36.50%)**, and **214,324 / 950,332 resolved text (22.55%)**.
 

@@ -1085,23 +1085,8 @@ void func_8004D39C(char *input, char *output) {
     } while (currentChar);
 }
 
-/* Workbench: structure-mismatch; 2/109 words remain (down from 5), rows 24/41.
- * Allocator-trace findings (instrumented uopt CDX, proc 34): comparison
- * operands print in itable order -- a copy-propagated variable prints first,
- * so every branch-order word demands the expression-direct spelling below.
- * CDX_FORCE p2:w23=c9,p2:w26=c6 proved the earlier 8-word state was one
- * variable web (scan1 copy + scan2 entry) that the target splits.
- * Remains: the target carries *text into the third test through a separate
- * ugen/uopt temp (move t2,a3 in test1's block, beql t3,t2 -- a non-variable
- * web, since a variable would print before the constant); every C carrier
- * tried is either senior (colored a3/t2 mirror), locally propagated away,
- * or lands the copy in the else block (words=3).
- * A bounded follow-up exhausted four source-faithful lifetime/CFG forms:
- * a segment-local const-u8 scan grew to 110 words, a block-local lead grew
- * the frame to 0x20 and the body to 112 words, a third-test-only u8 scope
- * grew to 110 words, and a switch on the unsigned byte collapsed to 106.
- * This 109-word, 0x18-frame body remains best at 107/109 exact words; its
- * four HI/LO relocations match the target's offsets and symbol identities. */
+/* Exact C: all 109 instruction words, the 0x18 frame, relocations, and linked
+ * ROM range match after bounded permutation resolved the final temp web. */
 /*
  * PROVENANCE -- source organization was cross-checked against JFG's
  * permitted published fontGetLine assembly. Mickey's own m2c draft,

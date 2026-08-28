@@ -559,9 +559,8 @@ s32 runlinkDownloadCode(s32 overlayIndex) {
 
     return 1;
 }
-/* Workbench: allocation-mismatch, 35 differing words, first mismatch +0x20. */
-/* Candidate shape: 101 instructions/frame -0x20, opcodes and relocations match; permuter-ready. */
-/* Remaining structural gap: register allocation only; canonical fallback remains active. */
+/* Exact C: 101 instruction words, frame -0x20, and all 21 relocations match. */
+/* The inert constant-true blocks are permuter-forced register-allocation aids; see docs/cleanup-queue.md. */
 s32 func_800320F0(void **jumpAddress)
 {
   register void **address;

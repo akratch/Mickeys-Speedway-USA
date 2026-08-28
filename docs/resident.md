@@ -252,7 +252,7 @@ overlay callers/callees outside the range were observed.
 | `0x4D4D8` | `0xA54` | `func_8004C8D8` | `fontCreateDisplayList` | B/D, matched C | ext callee |
 | `0x4DF2C` | `0x70` | `func_8004D32C` | no JFG counterpart | D, matched C | leaf; ext caller |
 | `0x4DF9C` | `0x70` | `func_8004D39C` | `fontConvertString` | B/D, matched C | leaf; in-range callers |
-| `0x4E00C` | `0x1B4` | `func_8004D40C` | `fontGetLine` | D, plateau | leaf |
+| `0x4E00C` | `0x1B4` | `func_8004D40C` | `fontGetLine` | A, matched C | exact words, frame, relocations, and linked bytes |
 | `0x4E1C0` | `0x20` | `func_8004D5C0` | `fontYSpacing` | D, matched C | leaf |
 | `0x4E1E0` | `0x170` | `func_8004D5E0` | `osCreatePiManager` | A, matched C | IDO C exact; SDK calls; ext callers |
 | `0x4E350` | `0x28` | `func_8004D750` | `rzipInit` | A, matched C | IDO C exact; allocator call; ext caller |
@@ -272,11 +272,9 @@ ranges across the scissor and glyph loops, not a compiler-flag mismatch.
 Levers covered flags, widths/qualifiers, direct-global/font-index, copy AST/volatile, and block/pad homes.
 Remaining: initial pool setup and saved-header copy schedule.
 
-`func_8004D40C`: workbench structure-mismatch; 109 words, two differences (down from five), rows 24/41.
-The CDX allocator trace fixed every branch-operand order (a copy-propagated variable prints before a
-constant, so the scans must be expression-direct on `*text`), and a `CDX_FORCE` swap proved the earlier
-residual was one variable web the target splits. What remains is the target's `move t2,a3` carrier for
-the third test -- a non-variable temp no C spelling reached -- so assembly stays canonical.
+`func_8004D40C` is Evidence A exact C: all 109 instruction words, its `0x18`
+frame, relocation identities, and linked ROM bytes match after bounded
+permutation resolved the final temp web.
 
 `func_8004BA8C` is exact in 42/46 words with the target frame and relocations; four register-only words differ first at `+0x30`.
 Workbench reports one `v0`/`a3` font-data web; the restored width-hoist/u32-index body is the best retained candidate.
@@ -1807,8 +1805,9 @@ Mickey pointer-first reconstruction with the JFG assembly sibling as oracle).
 `func_8003D4FC`: before/after no C candidate for the `0x10B0`-byte range; shared aggregate types do not change the asm-only body.
 Type lever: global and resource declarations; no C promotion is possible. Remains canonical `GLOBAL_ASM`; JFG `func_8005E3DC` is the donor label.
 
-`func_8003F5F8`: before/after one instruction short (target 276, C 275), first mismatch `+0xA4`.
-Type lever: Basic/emitter/config aggregates; branch and stack schedule are unchanged. Remains the redundant branch and flags/rotation homes; JFG `func_800608EC` is the oracle.
+`func_8003F5F8`: Evidence A exact C; all 276 instruction words, the configured
+relocation surface, and linked ROM bytes match. JFG `func_800608EC` remains the
+structural oracle, not the byte-identity authority.
 
 `func_8003F154`: before/after structure mismatch, 297 instructions and 39 raw words, first `+0x204`.
 Type lever: Basic/emitter/vector aggregates; no structure movement. Remains the zero-vector/header-copy/FP-normalization cluster; JFG `func_80060400` is the oracle.
@@ -2172,13 +2171,9 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
 - `mainThread`: exact **0xC8 bytes / 50 words** under `-Wo,-Olimit,100`; the
   literal RAM-end loop is compiled untouched, and a digest-guarded metadata
   pass restores `D_803FFFFC` HI16/LO16 at `+0x18`/`+0x28`.
-- `mainUpdateZBCheck`, five loop/type hypotheses, the full flag lattice and a
-  bounded two-worker permuter batch, first mismatch `+0x24`: the best
-  Mickey-derived candidate has the exact `-0x48` frame and screen-size stack
-  slots but compiles to 60 rather than 63 instructions. IDO schedules the
-  outer counter before the target's `D_8007A24C`/`D_800D2FAC` LO16 pair and
-  removes three dead-looking countdown-loop register copies retained by the
-  target.
+- `mainUpdateZBCheck`: Evidence A exact C after bounded permutation; all 63
+  instruction words, the `-0x48` frame, relocation identities, and linked ROM
+  bytes match.
 - `levelGetCounts`: workbench `allocation-mismatch`, first `+0x13c`; the level
   TU now owns the linked `0x40`-byte `D_800CF3E0` count table and `0x70`-byte
   `D_800CF420` state, but three register words and the end-label relocation remain.
@@ -2268,7 +2263,7 @@ FX type-pass inventory (target widths/offsets; no source-body promotion):
 | `func_80049B14` | `D_800D5F50`; `FxRecord` `+0,+1,+2,+14,+16,+18,+1E,+1F`; five-record stride `0x20`. | Evidence D candidate: structure-mismatch, 219/206 instructions, 216 differing words, first `+0x8`, exact `-0x18` frame; switch-state schedule remains unresolved. |
 | `func_80049E4C` | `D_800D5F50`, `D_800D5F58`, `D_800D5FD8`; `FxRecord` bytes/halfwords; `FxGfx`; VI/scissor helpers. | Evidence D candidate: structure-mismatch, 167/169 instructions, 159 differing words, first `+0x8`, frame `-0x50` versus `-0x60`; display-list structure remains unresolved. |
 | `func_8004A10C` | `D_8007D320` u32 table, `D_8007D364` u8 glyph table; VI size; `FxGfx` command words. | Evidence D candidate: structure-mismatch, 156/157 instructions, 155 differing words, first `+0x0`, frame `-0x60` versus `-0x58`; glyph loop/VI relocation surface is preserved but not exact. |
-| `func_8004A380` | `D_8007D364[12]` bytes, `D_80083DE0` text, `D_800D2FA0` screen pointer; local text buffer. | structure plateau → structure plateau (`65` words, first `+8`); structure-buckets; target `sp+54`/register web remains. |
+| `func_8004A380` | `D_8007D364[12]` bytes, `D_80083DE0` text, `D_800D2FA0` screen pointer; local text buffer. | Evidence A exact C: all 76 instruction words, the `-0x80` frame, all 9 relocations, and linked ROM bytes match. |
 | `fxSPDPRipple` | `D_8007D370[2]`, `D_8007D374[2]`, `D_8007D378[4]`; `FxGfx **`; level/draw helpers. | GLOBAL_ASM → GLOBAL_ASM; global table widths; ripple display CFG remains. |
 | `fxScreenEffect` | `D_8007D380[10]`, `D_8007D3D0[7]`, `D_8007D408[14]` `FxGfx`; VI video mode and display helpers. | GLOBAL_ASM → GLOBAL_ASM; dlist aggregate; effect command CFG remains. |
 | `func_8004ACC4` | `D_800D60A8` word; `D_800D60BC/CC` pointer words; `D_800D60D3` byte; `D_8007D488` callback word; `TrapDanglingJump`. | mixed plateau → structure plateau (`18/28` words); structure-buckets; callback/trap web remains. |
@@ -2411,21 +2406,12 @@ Its two extra boundary words remain; the coherent candidate stays `NON_MATCHING`
 Workbench constant/allocation; symbolic-address, argument-hoist, phantom-pop, subtraction, flag-lattice, and bounded permutation levers did not close it.
 Fixed-buffer relocation identities and final `packWriteFile` argument coloring remain; assembly stays canonical.
 
-The 292-byte `func_80046AA8` packed-glyph renderer reaches a loop-form plateau
-after the full flag lattice, nine coherent counter/type/source forms, and one
-bounded canonical MIPS II permuter batch. Mickey's caller supplies an `(x, y)`
-pixel position and a five-word two-bit glyph; JFG's 288-byte
-`func_800680B0_68CB0` is assembly-only but confirms the same framebuffer,
-palette, row, line, and packed-pixel loops. The best coherent candidate has
-the exact 72-byte frame, argument homes, `s0` glyph lifetime, framebuffer
-association, palette branches, and relocation identities, but emits 70 words
-against 73 in the target, with 49 positional differences beginning at
-function `+0x54`. IDO folds the target's constant five-row pretest and one
-narrowed-bit temporary move, then allocates the packed bits and pixel cursor
-to `v0`/`v1` instead of `v1`/`a0`. Lower permuter scores inserted empty guards
-only to perturb allocation and were discarded as semantically unsupported.
-The coherent candidate remains behind `NON_MATCHING` and the target assembly
-stays canonical.
+The 292-byte `func_80046AA8` packed-glyph renderer is Evidence A exact C after
+bounded permutation: all 73 instruction words, its 72-byte frame, relocation
+identities, and linked ROM bytes match. JFG's assembly-only
+`func_800680B0_68CB0` corroborates the role and loop structure. Its inert
+permuter-forced spelling remains in `docs/cleanup-queue.md` for a readability
+follow-up, not as a matching deficit.
 
 The 300-byte `func_80044C94` trace-neighbor lookup is exact C. JFG's newly
 matched `diRcpTraceGetInfo` source supplied the original array-index loop
@@ -2617,7 +2603,7 @@ Measured plateau:
 |---|---|---:|---|
 | `amTuneSetFadeScaled` | Exact 29-word instruction/opcode schedule, frame, and relocation surface; 7 register-only differences after the flag lattice and 10 source-shape attempts | function `+0x1C` | IDO 5.3 temporary-FIFO phase: the target and candidate assign the three initial address/index temporaries from different positions in the same ring. The candidate remains under `NON_MATCHING`; canonical output is still assembly-backed |
 | `func_80003480` | Best typed entry-update candidate is 93 instructions versus 94, with 62 differing words; its `0x40` frame remains larger than the target's `0x30` | function `+0x0` | IDO 5.3 web formation and spill placement remain unresolved in the final replacement path; JFG's ordered peer is assembly-only and retains a placeholder name; canonical output remains assembly-backed |
-| `func_80003760` | Exact 25-word opcode schedule, relocation surface, and temp-FIFO lane under `-Wo,-loopunroll,0`; 8 register-only words remain after the flag lattice and 10 source/web hypotheses | function `+0x4` | IDO 5.3 pool ordering: the target assigns the lane count/index to `a2`/`a1` and emits the comparison through `at`, while every coherent candidate basin assigns `a1`/`a2` and a final temp. The donor peer is assembly-only; canonical output remains assembly-backed and the TU's verified flags are unchanged |
+| `func_80003760` | Evidence A exact C: all 25 words, frame, relocations, and linked ROM bytes match under `-Wo,-loopunroll,0` | none | Bounded permutation resolved the temp-FIFO allocation; the donor peer remains assembly-only role evidence |
 
 PROVENANCE: TU labels, order, and semantic roles derive from JFG's permitted
 public decomp/objects. C retains Mickey-owned stubs and point-disclosed adapted

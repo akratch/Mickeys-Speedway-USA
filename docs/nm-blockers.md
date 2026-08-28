@@ -17,7 +17,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_80050E9C` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_800511C4` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80051364` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_80053550` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_80053550` | `src/main/anim.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80055970` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80055B24` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80056DD8` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
@@ -35,7 +35,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `diCpuThread` | `src/main/diCpu.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80045BBC` | `src/main/diCpu.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80045D34` | `src/main/diCpu.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_80046AA8` | `src/main/diCpu.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_80046AA8` | `src/main/diCpu.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `diRcpPrintDL` | `src/main/diRcp.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `diRcpMoveWd` | `src/main/diRcp.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `vsprintf` | `src/main/diprint.c` | matched | — | Promoted to exact C; no ownership work remains. |
@@ -46,10 +46,10 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8004BA8C` | `src/main/font.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8004BCC4` | `src/main/font.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_8004C690` | `src/main/font.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8004D40C` | `src/main/font.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_8004D40C` | `src/main/font.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_800475E8` | `src/main/fx.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80047CD8` | `src/main/fx.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8004A380` | `src/main/fx.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_8004A380` | `src/main/fx.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_8004ACC4` | `src/main/fx.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8004AF68` | `src/main/fx.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_800336A8` | `src/main/gameVi.c` | none | — | No ownership change; continue source/codegen work. |
@@ -63,10 +63,10 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `levelInit` | `src/main/level.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80019934` | `src/main/lights.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80019DE8` | `src/main/lights.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8001A154` | `src/main/lights.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_8001A154` | `src/main/lights.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `mainThread` | `src/main/main.c` | static-placement | RAM-end anchor | Place the RAM-end anchor in main without losing its relocation identity. |
 | `func_80026FB4` | `src/main/main.c` | none | — | No ownership change; continue source/codegen work. |
-| `mainUpdateZBCheck` | `src/main/main.c` | none | — | No ownership change; continue source/codegen work. |
+| `mainUpdateZBCheck` | `src/main/main.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80028564` | `src/main/main.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80028FCC` | `src/main/main.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80029274` | `src/main/main.c` | none | — | No ownership change; continue source/codegen work. |
@@ -98,7 +98,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8003EC8C` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `partUpdateTriggers` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003F154` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8003F5F8` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_8003F5F8` | `src/main/particles.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_8004054C` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80040740` | `src/main/particles.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80040B88` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
@@ -108,7 +108,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `rcpClearZBuffer` | `src/main/rcpFast3d.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80031A30` | `src/main/runlink.c` | none | — | No ownership change; continue source/codegen work. |
 | `runlinkDownloadCode` | `src/main/runlink.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_800320F0` | `src/main/runlink.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_800320F0` | `src/main/runlink.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `runlinkFreeCode` | `src/main/runlink.c` | none | — | No ownership change; continue source/codegen work. |
 | `runlinkInit` | `src/main/runlink.c` | none | — | No ownership change; continue source/codegen work. |
 | `runlinkResumeCode` | `src/main/runlink.c` | resolved | pending-load carrier | Exact C body, frame, relocations, and linked ROM range. |
@@ -162,7 +162,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_001_F0007580_1853960` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F0007730_1853B10` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F00078DC_1853CBC` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_001_F0007B64_1853F44` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_001_F0007B64_1853F44` | `src/overlays/o001/overlay_001_tail.c` | matched | — | Promoted as `overlay1CloneRecord`; no ownership work remains. |
 | `func_overlay_002_F0000C90_1857A88` | `src/overlays/o002/func_overlay_002_F0000C90_1857A88.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_002_F0001364_185815C` | `src/overlays/o002/func_overlay_002_F0001364_185815C.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_002_F0001A94_185888C` | `src/overlays/o002/func_overlay_002_F0001A94_185888C.c` | none | — | No ownership change; continue source/codegen work. |
@@ -171,7 +171,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_002_F00002C4_18570BC` | `src/overlays/o002/overlay2ClassifyBoundary.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_002_F00016A0_1858498` | `src/overlays/o002/overlay2QueryNode.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_002_F0000B70_1857968` | `src/overlays/o002/overlay2SplitRegion.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_003_F000027C_1859FAC` | `src/overlays/o003/overlay3FindClosestObject.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_003_F000027C_1859FAC` | `src/overlays/o003/overlay3FindClosestObject.c` | matched | — | Promoted as `overlay3FindClosestObject`; no ownership work remains. |
 | `func_overlay_003_F00000B8_1859DE8` | `src/overlays/o003/overlay3RunCachedModeAction.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_003_F00003B0_185A0E0` | `src/overlays/o003/overlay3SelectScoredObject.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_004_F0000138_185A7B0` | `src/overlays/o004/overlay_004.c` | none | — | No ownership change; continue source/codegen work. |
@@ -258,7 +258,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_029_F0000EE0_187E190` | `src/overlays/o029/overlay29ProjectPoint.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_030_F00002B4_187F1AC` | `src/overlays/o030/overlay30TransposePixels.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_031_F0000000_187F520` | `src/overlays/o031/overlay31BuildLookupTables.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_031_F0000A84_187FFA4` | `src/overlays/o031/overlay31CreateConfig.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_031_F0000A84_187FFA4` | `src/overlays/o031/overlay31CreateConfig.c` | matched | — | Promoted as `overlay31CreateConfig`; no ownership work remains. |
 | `func_overlay_031_F0000E7C_188039C` | `src/overlays/o031/overlay31CreatePool.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_031_F00006B0_187FBD0` | `src/overlays/o031/overlay31InitializeBuffers.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_031_F00002E8_187F808` | `src/overlays/o031/overlay31InitializeParticleAssets.c` | none | — | No ownership change; continue source/codegen work. |
@@ -280,7 +280,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_038_F0000000_1885D10` | `src/overlays/o038/func_overlay_038_F0000000_1885D10.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_038_F000047C_188618C` | `src/overlays/o038/func_overlay_038_F000047C_188618C.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_038_F0000154_1885E64` | `src/overlays/o038/overlay38UpdateParticles.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_040_F0000000_18868B0` | `src/overlays/o040/overlay40AddEntry.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_040_F0000000_18868B0` | `src/overlays/o040/overlay40AddEntry.c` | matched | — | Promoted as `overlay40AddEntry`; no ownership work remains. |
 | `func_overlay_040_F00001A0_1886A50` | `src/overlays/o040/overlay40BuildFrame.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_040_F0000690_1886F40` | `src/overlays/o040/overlay40FadeRecords.c` | none | — | No ownership change; three-word v0/v1 allocator plateau remains. |
 | `func_overlay_040_F00000E8_1886998` | `src/overlays/o040/overlay40UpdateEntries.c` | none | — | No ownership change; continue source/codegen work. |
@@ -309,7 +309,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_047_F0000B30_1891948` | `src/overlays/o047/func_overlay_047_F0000B30_1891948.c` | resolved-plateau | overlay 47 switch table | Candidate pool rebinds to retained +0x56C..+0x584 data; 2159-word codegen plateau remains. |
 | `func_overlay_047_F00009D0_18917E8` | `src/overlays/o047/overlay47ReleaseResources.c` | resolved-plateau | overlay 47 entry/resource block | Resource block is TU-owned; local address binding remains. |
 | `func_overlay_048_F0000060_1895468` | `src/overlays/o048/overlay48InitializeState.c` | resolved-plateau | overlay 48 seed/state block | BSS block is TU-owned; initializer structure remains. |
-| `func_overlay_048_F0000144_189554C` | `src/overlays/o048/overlay48UpdateState.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_048_F0000144_189554C` | `src/overlays/o048/overlay48UpdateState.c` | matched | — | Promoted as `overlay48UpdateState`; no ownership work remains. |
 | `func_overlay_049_F0000000_1896410` | `src/overlays/o049/overlay_049.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_050_F0000334_1896CA4` | `src/overlays/o050/func_overlay_050_F0000334_1896CA4.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_050_F0000000_1896970` | `src/overlays/o050/overlay50Initialize.c` | none | — | No ownership change; continue source/codegen work. |
@@ -342,7 +342,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_060_F0003488_18BD260` | `src/overlays/o060/overlay60ReassignChoiceSlots.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_061_F0001648_18C0A10` | `src/overlays/o061/func_overlay_061_F0001648_18C0A10.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_061_F00001DC_18BF5A4` | `src/overlays/o061/overlay61AddEntry.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_061_F00007C4_18BFB8C` | `src/overlays/o061/overlay61DrawList.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_061_F00007C4_18BFB8C` | `src/overlays/o061/overlay61DrawList.c` | matched | — | Promoted as `overlay61DrawList`; no ownership work remains. |
 | `func_overlay_061_F00017B8_18C0B80` | `src/overlays/o061/overlay61WriteCharacter.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_062_F00000D4_18C22F4` | `src/overlays/o062/overlay62Update.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_063_F0000000_18C2B88` | `src/overlays/o063/overlay63Initialize.c` | none | — | No ownership change; continue source/codegen work. |
@@ -369,13 +369,13 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_079_F0000134_18CD0D4` | `src/overlays/o079/func_overlay_079_F0000134_18CD0D4.c` | resolved-plateau | overlay 79 shared data base | TU-owned +0x0..+0x60 aggregate is exact; code generation remains. |
 | `func_overlay_079_F0000FA0_18CDF40` | `src/overlays/o079/func_overlay_079_F0000FA0_18CDF40.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_079_F0001290_18CE230` | `src/overlays/o079/func_overlay_079_F0001290_18CE230.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_080_F0000000_18CE8C8` | `src/overlays/o080/overlay80InitializeContact.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_080_F0000000_18CE8C8` | `src/overlays/o080/overlay80InitializeContact.c` | matched | — | Promoted as `overlay80InitializeContact`; no ownership work remains. |
 | `func_overlay_080_F000011C_18CE9E4` | `src/overlays/o080/overlay80UpdateContact.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_083_F000053C_18CFCFC` | `src/overlays/o083/overlay83BuildBatch.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_083_F0000850_18D0010` | `src/overlays/o083/overlay83DrawStrip.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_084_F0000314_18D07F4` | `src/overlays/o084/func_overlay_084_F0000314_18D07F4.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_084_F0001060_18D1540` | `src/overlays/o084/overlay84ActivateCurrent.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_084_F0000DD0_18D12B0` | `src/overlays/o084/overlay84AdvanceCurrent.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_084_F0000DD0_18D12B0` | `src/overlays/o084/overlay84AdvanceCurrent.c` | matched | — | Promoted as `overlay84AdvanceCurrent`; no ownership work remains. |
 | `func_overlay_084_F0000048_18D0528` | `src/overlays/o084/overlay84InitializeAndUpdate.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_084_F0000C9C_18D117C` | `src/overlays/o084/overlay84LoadCurrent.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_overlay_086_F0000474_18D22AC` | `src/overlays/o086/func_overlay_086_F0000474_18D22AC.c` | resolved-plateau | overlay 86 literal pool | TU-owned +0x80..+0xA0 .rodata clears module growth; code generation remains. |
@@ -415,7 +415,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_101_F0009D04_18E5524` | `src/overlays/o101/overlay101BuildPresentationB.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F000A044_18E5864` | `src/overlays/o101/overlay101BuildPresentationC.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F000A384_18E5BA4` | `src/overlays/o101/overlay101BuildPresentationD.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_101_F000332C_18DEB4C` | `src/overlays/o101/overlay101DrawClock.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_101_F000332C_18DEB4C` | `src/overlays/o101/overlay101DrawClock.c` | matched | — | Promoted as `overlay101DrawClock`; no ownership work remains. |
 | `func_overlay_101_F0002EFC_18DE71C` | `src/overlays/o101/overlay101DrawPanel.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F00029A4_18DE1C4` | `src/overlays/o101/overlay101DrawTransformed.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F000A6BC_18E5EDC` | `src/overlays/o101/overlay101TailA6BC.c` | none | — | No ownership change; continue source/codegen work. |

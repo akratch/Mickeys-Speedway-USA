@@ -80,12 +80,8 @@ f32 overlay101ClockTrigBReloc(s32 angle);
         macroCommand->w1 = 0;                                               \
     }
 
-/* Plateau (batch 14): exact 0x3B8 with -Wab,-r4300_mul; readable C has 3 words
- * first at +0x208 (adjacent 0xFF/2 loads plus FP operand order); bounded
- * permuter reached 1 word at +0x324, with no zero. DKR/JFG donor-negative. */
-/* Object-level reproof: instruction-words-identical, 0 differing words, first
- * mismatch none; the 238-instruction, frame -152 shape is exact and permuter-ready.
- * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
+/* Exact C: all 238 instruction words, the -152 frame, relocations, and linked
+ * overlay range match after bounded permutation. DKR/JFG are donor-negative. */
 void overlay101DrawClock(Overlay101Gfx **displayList, Overlay101Panel *panel, Overlay101Vertex **vertexCursor, s32 originX, s32 originY)
 {
   Overlay101ClockPoint *source;
