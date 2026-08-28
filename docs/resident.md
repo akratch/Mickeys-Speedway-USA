@@ -1274,7 +1274,7 @@ address-placeholder helper names are not imported.
 | `0x17D40` | `0x520` | `func_80017140` | unresolved |
 | `0x18260` | `0x56C` | `func_80017660` | unresolved |
 | `0x187CC` | `0x4E8` | `func_80017BCC` | unresolved |
-| `0x18CB4` | `0x33C` | `func_800180B4` | unresolved |
+| `0x18CB4` | `0x33C` | `func_800180B4` | Evidence D candidate: structure-mismatch, 204/206 instructions, 179 differing words, first `+0x0`, exact `-0x90` frame, and 12 relocation-symbol sites differ; sector/block and triangle visibility structure is reconstructed but not exact |
 
 There are no string references in either TU. The only resident-tail anchors
 are `D_800817A0` and `D_800817A4`, both floating-point constants. Of the four
