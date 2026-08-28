@@ -248,3 +248,17 @@ the survey flagged the file's size. `docs/acceleration-survey.md`'s
 remaining queue: the NON_MATCHING backlog now belongs to the permuter and to
 hand restructuring, and overlay consolidation (ADR 0006) has a named first
 cohort but has not yet landed.
+
+## Epoch 14 (2026-08-28): search, don't stare
+
+Per-function agent grinding flattened (08-26 to 08-28: ~50 matches, then a
+night of sixty plateau notes and none), while every productive event in the
+same window was a tooling fix that let the permuter crack functions hand
+analysis had called walled. The epoch therefore routes work by tool:
+`tools/permute_sweep.sh` runs a fidelity-proven permuter over the entire
+NON_MATCHING queue (never sound-searched before: the 2026-08-25 farm predates
+the flag/objcopy/stack-diff fixes), Codex lanes produce frame-exact shapes
+for the bare pool as permuter input, and expensive models touch only the
+sweep's measured permuter-stuck list. `docs/epoch14-plan.md` carries the
+pools, phases, standing rules and exit criteria; lessons feed the workbench
+backlog with a spike per phase boundary.
