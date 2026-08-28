@@ -1811,6 +1811,8 @@ The full flag lattice and 40-minute permuter produced no valid exact source.
 
 `overlay 11 +0x22E8..+0x2714` — 1,068 bytes / 267 words, eliminating the former `+0x1E4C..+0x2714` middle deficit. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a complete carrier-schedule rewrite plus a link-only addend rebind); source kept as decomp-permuter input. The pre-link object's split text surface was 39 records. The checkpoint becomes **98,792 / 45,775 campaign bytes (215.82%)**, **200,044 / 469,264 Overlay C (42.63%)**, and **243,084 / 950,332 resolved text (25.58%)**.
 
+`overlay 14 +0x0498..+0x0578` (`overlay14ResetMode`) — 224 bytes / 56 words. NON_MATCHING: bounded 2026-08-28 Mickey-only closeout retained the typed command-loop source after five source-faithful probes. The best candidate preserves the exact boundary, 56-instruction shape, and 0x30 frame; workbench alignment reports 45/56 matching rows, with seven differing words, four opcode mismatches, and two prologue alignment gaps. The first divergence is the `s3` save/setup schedule at `+0x14`; the remaining block is the four target raw-offset stores at `+0xF8`, `+0xD8`, `+0xDC`, and `+0xE0`, which do not have candidate relocation records. The target has 10 relocations versus the candidate's 18, despite rebinding both call sites and the four setup data references to the target identities. `coddog` was unavailable and `skeleton_scan` could not bound the target because the symbol-size entry is absent; no trace oracle was available. No C credit is claimed.
+
 | Overlay | C-owned non-text | Translation unit | Proof |
 |---:|---|---|---|
 | 15 | data/rodata `+0x0..+0x50`; BSS `+0x0..+0xA0` | `overlay_015.c` | configured object and linked ROM exact |
@@ -1819,3 +1821,5 @@ The full flag lattice and 40-minute permuter produced no valid exact source.
 | Overlay | Range | Function | Bytes | Exactness | Donor |
 |---:|---|---|---:|---|---|
 | 35 | `+0x000..+0x1E0` | `func_overlay_035_F0000000_1881CE0` | 480 | canonical object and linked ROM exact | Mickey-only |
+
+`overlay 20 +0x07C4..+0x09DC` (`overlay20BuildTileCommands`) — 536 bytes / 134 words. NON_MATCHING: bounded 2026-08-28 closeout retained the capacity-preserving 13-element source after direct macro-pointer, doubled-width, and inner-index probes. The best candidate matches 130/134 aligned instructions with the exact register and schedule profiles and one exact helper relocation; the four residual words are stack-frame constants (`0x90` target versus `0xA8` candidate), first at `+0x0`. A seven-element diagnostic recovered the retail frame but is not retained without independent capacity proof. No C credit is claimed.
