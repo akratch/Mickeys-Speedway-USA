@@ -43,6 +43,8 @@ extern s16 D_800CB474;
 extern s16 D_800CB476;
 extern ControlCollisionState D_800CB2C0;
 extern ControlCameraState *D_800CB300;
+extern u8 D_8007BF10;
+extern f32 D_80081840;
 
 void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
 void func_8001EFFC(ControlTransform *transform, ControlPlayer *player, f32 *output);
@@ -60,6 +62,16 @@ s32 func_8000FAE0(f32 x, f32 y, f32 z);
 void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode);
 s32 TrapDanglingJump();
 void func_8001BBB4(ControlActor *actor, ControlPlayer *player, f32 arg2);
+void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z);
+void *func_80053420(s32 index, void *target);
+void func_80024ED8();
+s32 func_8003A550(void);
+s32 func_8000FBD8(s32 segmentIndex, f32 x, f32 y, f32 z);
+void func_800475E8(void *cone, s16 angle);
+void func_800479D4(void *cone, s16 angle, f32 x, f32 y, s32 length);
+void partUpdateTriggers(void *object, s32 updateRate);
+void changeLightIntensity(void *light, u8 intensity);
+s32 func_8002A204(s16 angle);
 void camSetNo(s8 playerIndex, s32 cameraIndex, ControlCameraState **cameraState);
 ControlCameraState *camGetListPtr(void);
 ControlTrackState *trackGetTrack(void);
@@ -83,7 +95,76 @@ void rumbleStart(s32 playerIndex, s32 strength, f32 duration);
 f32 func_8001BB90(s32 cameraIndex) {
     return D_800CB380[cameraIndex].blend;
 }
+/* Workbench verdict: structure-mismatch, 38 differing words, first mismatch +0x0. */
+/* Candidate: 150/150 instructions with exact relocation identities; frame is -0x30 versus target -0x38, so it is not shape-exact. */
+/* Shape status: instruction count and call/branch surface are exact; stack-frame constants and allocator residuals remain. */
+/* PROVENANCE: JFG's corresponding character-control routine supplied the control-flow role;
+ * all field offsets, calls, and the body below are reconstructed from Mickey. */
+#ifdef NON_MATCHING
+void func_8001BBB4(ControlActor *actor, ControlPlayer *player, f32 arg2) {
+    ControlTrackState *track;
+    ControlLevelState *level;
+    void *cameraSource;
+    s32 surfaceIndex;
+    s32 surfaceValid;
+    s32 i;
+    s32 mask;
+    s16 angle;
+    u8 *surface;
+    if (player->playerIndex < mainGetNumberOfCameras()) {
+        func_8001C114(player->playerIndex, actor->x, actor->y, actor->z);
+        cameraSource = func_80053420(0, D_800CB300);
+        if (cameraSource == NULL) {
+            if ((player->flags1A8 & 1) && (func_8003A550() == 0)) {
+                TrapDanglingJump(actor, player, D_800CB300, (s32) arg2);
+            } else if (player->controlKeys & 4) {
+                func_80024ED8(actor, player, D_800CB300);
+            } else if (D_8007BF10 != 0) {
+                TrapDanglingJump(D_800CB300, actor, *(s32 *) &arg2);
+            } else {
+                TrapDanglingJump(D_800CB300, actor, *(s32 *) &arg2);
+            }
+        }
+        track = trackGetTrack();
+        if (track != NULL) {
+            if (D_800CB300->y < ((f32) track->unk24 - 100.0f)) {
+                D_800CB300->y += (((f32) track->unk24 - 100.0f) - D_800CB300->y) * D_80081840;
+            }
+        }
+        level = levelGetLevel();
+        surfaceIndex = func_8000FAE0(D_800CB300->x, D_800CB300->y, D_800CB300->z);
+        if (surfaceIndex != -1) {
+            surfaceValid = 1;
+            i = 7;
+            surface = (u8 *) level + 0xE;
+            do {
+                angle = *(s16 *) (surface + 0x112);
+                surface -= 2;
+                if (surfaceIndex == angle) {
+                    surfaceValid = func_8000FBD8(surfaceIndex, D_800CB300->x,
+                                                 D_800CB300->y, D_800CB300->z);
+                    break;
+                } else {
+                    i--;
+                    if (i == 0) {
+                        break;
+                    }
+                }
+            } while (1);
+            if (surfaceValid != 0) {
+                D_800CB300->unk3E = (s16) surfaceIndex;
+            }
+        }
+        if (*(void **)((u8 *) actor + 0x50) != NULL && level->unk0E3 == 0) {
+            *(f32 *) ((u8 *) *(void **)((u8 *) actor + 0x50) + 0x10) = D_800CB300->x - actor->x;
+            *(f32 *) ((u8 *) *(void **)((u8 *) actor + 0x50) + 0x14) = D_800CB300->y - actor->y;
+            *(f32 *) ((u8 *) *(void **)((u8 *) actor + 0x50) + 0x18) = D_800CB300->z - actor->z;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BBB4.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001BE0C.s")
 void func_8001C054(CameraTrackedObject *value) {
     if (D_80079BCC < 24) {

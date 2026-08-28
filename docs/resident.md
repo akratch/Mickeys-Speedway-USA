@@ -2487,7 +2487,7 @@ call graph isolates one namesake.
 | Mickey VRAM | Size | JFG comparison lead | Evidence / current disposition |
 |---|---:|---|---|
 | `0x8001BB90` | `0x24` | `cameraGetBlend` | D + matched C: exact 0x2C-stride float getter under O2/mips2; JFG comparison remains structural, so retain `func_` |
-| `0x8001BBB4` | `0x258` | `func_8002B378` | Type pass: before=GLOBAL_ASM; after=GLOBAL_ASM (no C candidate).<br>Access: `ControlActor` f32 `0xC/0x10/0x14/0x50`; `ControlPlayer` s8 `0`, u16 `0x1A8`, s32 `0x41C`; `ControlCameraState` f32 `0xC/0x10/0x14`, s16 `0x3E`; globals `D_8007BF10/D_80081840/D_800CB300`.<br>Lever/remains: reconciled camera/player, track, and level aggregates; body remains assembly. |
+| `0x8001BBB4` | `0x258` | `func_8002B378` | Evidence D candidate: 150/150 instructions, 38 differing words, first `+0x0`, exact relocation identities, frame `-0x30` versus `-0x38`; camera/track/level control flow is reconstructed but not shape-exact |
 | `0x8001BE0C` | `0x248` | `func_8002EDA0` | Type pass: before=GLOBAL_ASM; after=GLOBAL_ASM (no C candidate).<br>Access: `ControlActor` f32 `0x10/0x14`; `ControlPlayer` s8 `0`, u8 `0x16F`; `ControlCameraState` s16 `0/2/4`, f32 `0x10/0x18/0x1C/0x20/0x24/0x28/0x40`, u8 `0x3D/0x44-0x49`; `CameraOverrideSlot` ptr `0/4`, f32 `0x8-0x28`; globals `D_800CB300/D_800CB368`.<br>Lever/remains: typed the 0x54-byte camera and 0x2C-byte override records; body remains assembly. |
 | `0x8001C054` | `0x34` | `cameraAddOverrideObject` | D + matched C: exact 24-entry append under O2/mips2; JFG comparison remains structural, so retain `func_` |
 | `0x8001C088` | `0x8C` | `cameraDeleteOverrideObject` | D + matched C: exact 24-entry search-and-delete under O2/mips2; JFG comparison remains structural, so retain `func_` |
