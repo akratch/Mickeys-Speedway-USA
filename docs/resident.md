@@ -334,7 +334,7 @@ contains none and is split to C with assembly fallbacks. The complete census:
 | `0x80018E10` | `0x20` | `changeLightColourCycle` | Tier A: 7 unmasked of 8 words, ROM-wide unique; adapted C is linked byte-identically and adopted |
 | `0x80018E30` | `0x4C` | `changeLightIntensity` | Tier A: adapted JFG body is compiler-exact under canonical flags and linked byte-identically |
 | `0x80018E7C` | `0x8C` | `lightUpdateLights` | tier-B comparison: loop calls the following per-light updater |
-| `0x80018F08` | `0x334` | JFG placeholder `func_80021444` | placeholder prohibited; remains `func_80018F08` |
+| `0x80018F08` | `0x334` | JFG placeholder `func_80021444` | Evidence D: Mickey reconstruction is compiled as a candidate: 199/205 instructions, 166 differing words, first `+0x0`, frame `-0x60` versus `-0x48`, and 14 relocation-symbol sites differ; not shape-exact. |
 | `0x8001923C` | `0x104` | `killLight` | tier-B comparison from free/update call graph and TU order |
 | `0x80019340` | `0x18` | `lightGetLights` | Tier A: adapted JFG body and both global relocations are linked byte-identically |
 | `0x80019358` | `0x13C` | `lightGetStrongestEffect` | tier-B comparison: square-root distance calculation and TU order |
@@ -2021,7 +2021,7 @@ PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 | `0x80018E10` | `0x20` | `changeLightColourCycle` | Tier A: 7/8 unmasked words, ROM-unique; linked C is byte-exact and adopted |
 | `0x80018E30` | `0x4C` | `changeLightIntensity` | Tier A: JFG-adapted C is compiler/link exact |
 | `0x80018E7C` | `0x8C` | `lightUpdateLights` | Tier A: JFG-adapted C is compiler/link exact |
-| `0x80018F08` | `0x334` | JFG placeholder `func_80021444` | placeholder prohibited; remains `func_80018F08` |
+| `0x80018F08` | `0x334` | JFG placeholder `func_80021444` | Evidence D candidate: 199/205 instructions, 166 differing words, first `+0x0`, frame `-0x60` versus `-0x48`, and 14 relocation-symbol sites differ; not shape-exact |
 | `0x8001923C` | `0x104` | `killLight` | Tier A: Mickey/DKR-adapted C is compiler/link exact |
 | `0x80019340` | `0x18` | `lightGetLights` | Tier A: JFG C and both global relocations are link exact |
 | `0x80019358` | `0x13C` | `lightGetStrongestEffect` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
