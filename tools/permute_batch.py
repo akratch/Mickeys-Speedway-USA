@@ -1090,6 +1090,12 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
                 wait_for_headroom(load_threshold, f"before extending {item.func}")
                 run_permuter(scratch, out_dir, extend_minutes, permuter_threads, extra_args, "permuter-extend.log")
                 best_dir, best_score = _best(scratch)
+        # A base score of zero means the candidate already scores exact in the
+        # scratch (only ownership/relocation can still fail verify): promote
+        # it as-is instead of reporting "no improvement".
+        if base_score == 0 and best_dir is None:
+            best_dir, best_score = scratch, 0
+            (scratch / "source.c").write_text((scratch / "base.c").read_text())
         result.best_score = best_score
         if best_score == 0 and best_dir is not None:
             result.zero_found = True
