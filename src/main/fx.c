@@ -1959,23 +1959,18 @@ void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A10C.s")
 #endif
-/* Plateau: workbench mixed constant/structure/register, stock -O2 is 74/76
- * instructions and 65 words from +0x8; buffer size and declaration order did not move the sp+0x50 text home.
- * Remaining: target's sp+0x54 cursor base and zero-index/glyph register web; prior flag and bounded-permuter passes found no exact. */
-#ifdef NON_MATCHING
 /* PROVENANCE: role adapted from JFG src/fx.c::func_8006DF90; both bodies are
  * assembly-only, so this reconstruction is Mickey-derived. */
+/* Workbench: instruction-words-identical, 0 differing words; 76 instructions/frame -0x80. */
 void func_8004A380(s32 x, s32 y, s32 value, s32 minimumWidth, s32 arg4) {
     s32 length;
     s32 index;
-    char *cursor;
     u8 glyph;
     u8 character;
     char text[32];
 
     length = 0;
     index = 0;
-    cursor = text + index;
     sprintf(text, D_80083DE0, value);
     if (text[length] != '\0') {
         do {
@@ -1988,7 +1983,7 @@ void func_8004A380(s32 x, s32 y, s32 value, s32 minimumWidth, s32 arg4) {
             if (length < minimumWidth) {
                 length++;
             } else {
-                character = *cursor++;
+                character = text[index++];
                 if (character == '-') {
                     glyph = D_8007D364[10];
                 } else if (character >= '0' && character < ':') {
@@ -1997,12 +1992,9 @@ void func_8004A380(s32 x, s32 y, s32 value, s32 minimumWidth, s32 arg4) {
             }
             func_8004A10C(D_800D2FA0, glyph, x, y, arg4);
             x += 10;
-        } while (*cursor != '\0');
+        } while (text[index] != '\0');
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A380.s")
-#endif
 /* Mickey-derived body; JFG's corresponding fx.c function is assembly-only. */
 void func_8004A4B0(s32 value0, s32 value2, s32 value4, s32 value6,
                    s32 value7) {
