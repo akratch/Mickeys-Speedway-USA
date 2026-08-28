@@ -1601,14 +1601,14 @@ configured object ranges and the final linked ROM are byte-exact.
 | `rcpFast3d` | `0x2F400` | 0x2A0 | `-O2 -mips2 -32` | Mickey/JFG task construction; 168/168 instruction words and all relocations exact after metadata-only weak-alias rebinding, linked ROM exact |
 
 `rcpClearZBuffer` retains a `NON_MATCHING` DKR-shaped command-stream body after
-the 119-combination flag lattice and nine source-shape hypotheses. The best
-no-frame candidate has 96 instructions versus the target's 107 and first
-diverges at function `+0x10`, where the shortened body changes the first guard's
-branch span. IDO folds the candidate's derived command pointers into fixed
-base-relative stores; formulations that preserve the target's successive
-cursor advances instead introduce a 24- or 32-byte spill frame absent from the
-target. The assembly fallback remains canonical pending a source spelling that
-homes the three register arguments without spilling the cursor.
+the 119-combination flag lattice, nine source-shape hypotheses, and six bounded
+source-faithful aligned-coordinate declaration, mask, and lifetime probes. The
+best no-frame full-TU candidate has the target's 107 instructions and exact
+relocations, with only four register-allocation words differing; the first
+divergence is function `+0x74`, where the two aligned-coordinate masks use the
+preceding temporary-ring slots. No instrumented globalcolor/UGEN trace is
+available in this lane, so the remaining allocation choice is unresolved. The
+assembly fallback remains canonical.
 
 `func_8002EBE0` retains a Mickey-derived `NON_MATCHING` eight-band gradient
 renderer after the 119-combination flag lattice and ten source-shape
