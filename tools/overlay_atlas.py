@@ -114,6 +114,7 @@ DATA_RODATA_OWNERSHIP = {
 # required for IDO's literal-pool and jump-table placement.
 FIXED_DATA_RODATA_OWNERSHIP = {
     1: [(0x274, 0x294, "overlay_001_tail", ".rodata")],
+    7: [(0x934, 0x950, "overlay_007_tail", ".rodata")],
 }
 
 # When a C owner's initialized input follows its text, IDO's measured .text

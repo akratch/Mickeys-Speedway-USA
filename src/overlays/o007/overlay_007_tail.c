@@ -24,6 +24,9 @@ typedef struct Overlay7SelectionRow {
  * scoped value carriers regress to 112/131; a pointer carrier canonicalizes
  * to this retained 129/131 candidate.
  */
+/* Ownership trial (2026-08-28): fixed the TU's +0x934..+0x950 .rodata range;
+ * linked promotion is text-differs with 455 in-range words, first at +0x0.
+ * Module growth is cleared; the remaining gap is codegen/register allocation. */
 #ifdef NON_MATCHING
 void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) {
     Overlay7ModeState *firstState;

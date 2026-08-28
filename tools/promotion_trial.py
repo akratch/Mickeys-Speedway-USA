@@ -331,6 +331,7 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
         return t
     surface = LINK_SYMS.read_text()
     yaml_original = YAML.read_text() if item.overlay is not None else None
+    yaml_trial_changed = False
     surface_log = ""
     link_log = None
     try:
@@ -347,6 +348,7 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
                 t.cause = "ownership-yaml"
                 t.error = (trial_yaml.stdout + trial_yaml.stderr)[-1500:]
                 return t
+            yaml_trial_changed = YAML.read_text() != yaml_original
         ok, log = build(jobs)
         if item.overlay is not None:
             # Compile is done either way; regenerate the surface against the
@@ -394,6 +396,18 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
         item.c_file.write_text(original)
         if yaml_original is not None and YAML.read_text() != yaml_original:
             YAML.write_text(yaml_original)
+            if yaml_trial_changed:
+                # A temporary ownership projection changes splat's ignored
+                # asset slices as well as the YAML.  Re-split the restored
+                # canonical YAML before the next trial; mtime resolution is
+                # too coarse to rely on the normal stamp prerequisite here.
+                subprocess.run(
+                    ["gmake", "extract"],
+                    cwd=ROOT,
+                    capture_output=True,
+                    text=True,
+                    timeout=900,
+                )
         if LINK_SYMS.read_text() != surface:
             LINK_SYMS.write_text(surface)
         t.seconds = time.monotonic() - start
