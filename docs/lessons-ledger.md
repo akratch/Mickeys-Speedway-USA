@@ -158,7 +158,32 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
   target assembles with no relocations at all (`jal <self>`, `lui/addiu …,0`),
   the candidate carries symbols, and decomp-permuter ignores symbol-name
   differences only when both sides carry one. `overlay18Load`: score 700,
-  two real words. Changed (in progress): the scratch target is annotated
-  with symbolic relocations at the sites the module relocation table names,
-  so the permuter becomes a valid overlay oracle; promotion still goes
+  two real words. Changed: `tools/reloc_surface.py`'s `permuter_annotation()`
+  rewrites the scratch target at exactly the sites the module's own
+  `reloc1`/`reloc2` tables name, and renames the candidate's placeholders to
+  the same ROM-derived identities, so both sides render identically there.
+  `overlay18Load` 700 -> 400 (62 differing rows -> 2, its two real words);
+  `overlay7DispatchSelection` 75 -> 10; `overlay40FadeRecords` 75 -> 25;
+  `overlay84AdvanceCurrent` 41 -> 16. `tools/permute_batch.py --overlays-only`
+  replaces `--resident-only` as the routing flag; promotion still goes
   through the linked build.
+- **A "the score improved" claim is not the check that matters; "an exact
+  candidate scores 0" is.** The first annotation scheme named a `SYMBOL`
+  HI16/LO16 site by the record's `overlayRomTable` entry, which is *not* the
+  value stored at the site, so one symbol read through a `SYMBOL` record and
+  written through a `LOCAL` one got two names and neither side matched. Every
+  before/after number still improved; only re-wrapping an already-matched
+  overlay function (`overlay62Initialize`, exact C) as a `NON_MATCHING`
+  candidate exposed it -- 150, not 0. Changed: a HI16/LO16 pair is named by
+  the link *value* `synthesize()` derives at the site, a symbol whose sites
+  disagree is left unannotated rather than half-annotated, and the
+  matched-function round trip (score must be 0) is the acceptance test for
+  any future change to the annotator.
+- **`objcopy` refuses two `--redefine-sym` arguments sharing a target name,
+  and a shell script without a trailing newline swallows the next command.**
+  Both failed silently: the renames simply did not happen and the score stayed
+  high with no error anywhere. Changed: colliding renames go in successive
+  `objcopy` invocations, and the scratch's `compile.sh` is newline-terminated
+  before anything is appended (`replicate_objcopy` only terminates its last
+  line when it wrote one, so a TU with an unreplicable POSTPROCESS ends
+  mid-line).
