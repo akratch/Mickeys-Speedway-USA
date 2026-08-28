@@ -1282,12 +1282,11 @@ supplied the exact `0x58` frame, CFG, loops, branch-likely forms, every
 integer/FP register web, and all calls and memory effects. This had made all
 overlay 59 text exact C, credited as closure ten.
 
-Overlay 68's secondary-entry promoter — 308 bytes / 77 words. NON_MATCHING:
-retired 2026-08-24 per ADR 0002 (was made to match via a fail-loud private
-frame, call-survival, primary-pointer, and null-exit ledger selecting
-retail's equivalent allocation and branch-likely form); source kept as
-decomp-permuter input. Natural source otherwise supplied the exact boundary,
-call order, copy loop, memory effects, and nine runtime relocation sites.
+Overlay 68's `+0x51C..+0x650` secondary-entry promoter adds **308 exact C
+bytes / 77 words**. A bounded decomp-permuter pass escaped the former private
+frame and stack-home plateau. Untouched IDO output supplies the exact `0x30`
+frame, call-survival and null-exit forms, copy loop, memory effects, and all
+nine relocation sites; the complete linked US ROM is byte-identical.
 
 Overlay 68's following interpolation body — 656 bytes / 164 words.
 NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via

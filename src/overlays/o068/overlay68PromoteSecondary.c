@@ -27,25 +27,10 @@ extern void *gOverlay68Tertiary;
 extern void overlay68ClearNestedFlagPromoteReloc(void *entryOrHandle);
 extern void overlay68FinishEntryPromoteReloc(void);
 
-/*
- * Overlay 68 text +0x51C..+0x650. The natural object supplies the exact body,
- * opcodes, calls, data identities, copy loop, and effects. A complete decoded
- * ledger selects retail's private frame, owner precolor, and likely exit.
- * Plateau (2026-08-25): best -O2/-mips2 candidate differs in 6 of 77 words,
- * first at +0x8. The remaining differences are the 0x30-byte private frame
- * and secondary-entry home at +0x20 versus IDO's 0x20-byte frame/+0x18 home;
- * the flag lattice and bounded permuter found no source-level stack-home form.
- * Fresh lane revisit (2026-08-25): the full lattice again bottoms out at
- * 6/77 words with the first mismatch at +0x8. A volatile pad optimized away;
- * preserving a 16-byte address-taken stack object instead produced a 0x48
- * frame and moved both homes above it, so the faithful 0x20-frame body stays.
- * Tier-2 trace revisit (2026-08-28): proc 0 retained eight natural allocator
- * webs, but trace-stack-homes reported no producer-emitted virtual/final-home
- * fields. Static slot census confirms target secondary sp+0x20/frame 0x30
- * versus candidate sp+0x18/frame 0x20. Eight declaration/lifetime variants
- * exhausted the grounded family; the best frame-accurate body was 64/77
- * words with primary sp+0x1C but secondary sp+0x2C, so the natural body stays.
- */
+/* Matched 2026-08-29 by a bounded decomp-permuter pass after the prior hand,
+ * flag, and allocator-trace probes plateaued on the frame and stack homes.
+ * Untouched IDO output preserves the 77-word body, 0x30 frame, and nine
+ * relocation sites; the complete linked US ROM is byte-identical. */
 void overlay68PromoteSecondary(void)
 {
   Overlay68Entry *primary;

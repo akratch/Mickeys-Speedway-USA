@@ -355,7 +355,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_066_F0000040_18C64A8` | `src/overlays/o066/overlay66SmoothAndDraw.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_068_F000146C_18C85CC` | `src/overlays/o068/overlay68CheckKind.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_068_F0000EFC_18C805C` | `src/overlays/o068/overlay68DrawSortedEntries.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_068_F000051C_18C767C` | `src/overlays/o068/overlay68PromoteSecondary.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_068_F000051C_18C767C` | `src/overlays/o068/overlay68PromoteSecondary.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_overlay_068_F0001250_18C83B0` | `src/overlays/o068/overlay68RebuildSecondaryEntry.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_068_F000096C_18C7ACC` | `src/overlays/o068/overlay68UpdateAnimation.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_070_F00000D8_18C92A0` | `src/overlays/o070/func_overlay_070_F00000D8_18C92A0.c` | none | — | No ownership change; continue source/codegen work. |
