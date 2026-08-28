@@ -124,6 +124,13 @@ extern CharControlParticleList D_800799AC[];
 extern u8 D_8007BEF8;
 extern u8 D_8007BEFC;
 extern u8 D_8007BF04;
+extern f32 D_80081864;
+extern f32 D_80081868;
+extern f32 D_8008186C;
+extern f32 D_80081870;
+extern f32 D_80081874;
+extern f32 D_80081878;
+extern f32 D_800CB2D8;
 
 typedef struct ControlCollisionNormal {
     f32 x;
@@ -179,6 +186,15 @@ void func_8005AD64(void *instance, s32 frame, s32 arg2, f32 value);
 void *func_80046EC4(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
                     f32 arg5, f32 arg6, f32 arg7, s32 arg8, s32 arg9,
                     s32 argA);
+f32 Powerf(f32 value, s32 exponent);
+void trackMakePolylist(s32 count, ControlVector3 *start,
+                       ControlVector3 *end, f32 *radius, s32 arg4, s32 arg5);
+s32 func_80010654(ControlVector3 *start, ControlVector3 *end,
+                  ControlVector3 *result, f32 *maximum);
+s32 func_80010900(ControlVector3 *start, ControlVector3 *end, f32 radius,
+                  s32 actor, void *callback);
+void func_8001EC44(s32 arg0, ControlVector3 *arg1, ControlVector3 *arg2,
+                   f32 arg3, ControlCollisionPlane *arg4);
 u8 levelGetType(void);
 u8 *func_80028F54(void);
 u32 joyGetButtons(s32 playerIndex);
@@ -1120,8 +1136,241 @@ void func_8001DCD0(s16 rotation, ControlVector3 *vector, s16 *pitch, s16 *yaw) {
     *pitch = Arctanf(-pitchX, y);
     *yaw = Arctanf(transformedX, y);
 }
+s16 dAngle(s16 arg0, s16 arg1, f32 arg2);
+void func_8001DCD0(s16 rotation, ControlVector3 *vector, s16 *pitch, s16 *yaw);
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001DD70.s")
+/* PROVENANCE: JFG's public charControl.c identifies the corresponding
+ * controlSquashCheckPrior routine, but publishes assembly only; this body is
+ * reconstructed from Mickey's fields, calls, branch conditions, and stores. */
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch, 413 differing words, first mismatch +0x0. */
+/* Candidate shape: 398 instructions/frame -0xF8 versus target 416/-0xD0; relocation roles are present but positionally different. */
+/* Remaining structural gap: state-clear loop and local/call stack homes; not shape-exact. */
+s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
+    s16 sp40;
+    s16 sp3E;
+    s16 sp3C;
+    s16 sp3A;
+    s16 sp38;
+    s32 sp44;
+    f32 spC4;
+    f32 spC0;
+    f32 spBC;
+    f32 spB0;
+    f32 spAC;
+    f32 spA8;
+    f32 spA4;
+    f32 spA0;
+    f32 sp9C;
+    f32 sp98;
+    f32 sp94;
+    f32 sp90;
+    f32 sp8C;
+    f32 sp80;
+    f32 sp88;
+    f32 sp84;
+    f32 sp7C;
+    f32 sp78;
+    f32 sp74;
+    f32 sp70;
+    f32 sp6C;
+    f32 sp68;
+    f32 sp64;
+    f32 sp58;
+    f32 sp54;
+    f32 sp50;
+    s32 sp2C;
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f0_3;
+    f32 temp_f12;
+    f32 temp_f14;
+    f32 temp_f16;
+    f32 temp_f16_2;
+    f32 temp_f18;
+    f32 temp_f2;
+    f32 var_f14;
+    f32 var_f8;
+    s16 temp_v0_3;
+    s16 temp_v0_4;
+    u8 temp_v0_2;
+    s32 *var_v1;
+    s32 var_a2;
+    u32 temp_v0;
+    u32 temp_t0;
+    u32 temp_t3;
+    var_v1 = (s32 *) &D_800CB2C0;
+    var_a2 = 0xF;
+    do {
+        *var_v1 = 0;
+        var_v1++;
+        var_a2--;
+    } while (var_a2 != 0);
+    pointListRPY(player->unk2BC, (s16 *) actor, player->unk2C0, &spB0);
+    spBC = spB0 + actor->x;
+    spC0 = ((f32 *) &spB0)[1] + actor->y;
+    spC4 = ((f32 *) &spB0)[2] + actor->z;
+    sp70 = player->unk2B8->w;
+    sp2C = (s32) &player->unk2F0;
+    trackMakePolylist(1, (ControlVector3 *) sp2C,
+                      (ControlVector3 *) &spBC, &sp70,
+                      player->unk33C, 1);
+    temp_v0 = (u32) func_80010900(
+        (ControlVector3 *) sp2C, (ControlVector3 *) &spBC, sp70,
+        (s32) actor, (void *) func_8001EC44);
+    temp_t0 = temp_v0 >> 0x1E;
+    temp_t3 = temp_v0 & 1;
+    actor->x = spBC - spB0;
+    actor->y = spC0 - ((f32 *) &spB0)[1];
+    actor->z = spC4 - ((f32 *) &spB0)[2];
+    sp44 = 0;
+    if (temp_t0 != 0) {
+        actor->x = player->unk38;
+        actor->y = player->unk3C;
+        actor->z = player->unk40;
+        sp44 = 2;
+    } else {
+        player->unk349 = 0;
+        player->unk34A = 0;
+        player->unk34B = 0;
+        player->unk18E = 0;
+        player->unk334 = 0;
+        player->unk344 = 0;
+        if (temp_t3 != 0) {
+            if (D_800CB2FD & 0x12) {
+                player->unk349 = 1;
+                if ((D_800CB2FD & 0x10) &&
+                    (D_800CB2C0.hitObject != 0)) {
+                    player->unk334 = D_800CB2C0.hitObject;
+                }
+            }
+            if (D_800CB2FD & 0x48) {
+                player->unk34B = (u8) (player->unk34B | 1);
+            }
+            if (D_800CB2FD & 0x24) {
+                sp74 = 0.0f;
+                sp78 = 0.0f;
+                sp7C = -1.0f;
+                sp3E = 0;
+                sp40 = 0;
+                sp3C = actor->rotationX;
+                mathOneFloatRPY((ControlTransform *) &sp3C, &sp74);
+                temp_f0 = sqrtf((D_800CB2D8 * D_800CB2D8) +
+                                (D_800CB2D0.x * D_800CB2D0.x));
+                temp_f16 = D_800CB2D0.x / temp_f0;
+                sp64 = temp_f0;
+                temp_f18 = D_800CB2D8 / temp_f0;
+                player->unk90 = (temp_f18 * sp74) -
+                                (sp7C * temp_f16);
+                var_f14 = (sp7C * temp_f18) +
+                          (sp74 * temp_f16);
+                player->unk8C = var_f14;
+                if (var_f14 < 0.0f) {
+                    var_f14 = -var_f14;
+                }
+                temp_f0_2 = actor->velocityX;
+                temp_f2 = actor->velocityZ;
+                sp68 = temp_f18;
+                sp6C = temp_f16;
+                sp50 = var_f14;
+                temp_f0_3 = sqrtf((temp_f0_2 * temp_f0_2) +
+                                  (temp_f2 * temp_f2));
+                if (temp_f0_3 > 0.0f) {
+                    sp58 = temp_f0_2 / temp_f0_3;
+                    sp54 = temp_f2 / temp_f0_3;
+                }
+                temp_v0_2 = player->unk198;
+                temp_f16_2 = (sp6C * sp58) + (sp68 * sp54);
+                if ((temp_v0_2 == 0) && (temp_f0_3 > 8.0f) &&
+                    ((temp_f16_2 < D_80081864) ||
+                     (D_80081868 < temp_f16_2))) {
+                    temp_f12 = 2.0f * -temp_f16_2;
+                    player->unk78 = 0.0f;
+                    player->unk74 = (temp_f12 * sp6C) + sp58;
+                    player->unk7C = (temp_f12 * sp68) + sp54;
+                    temp_f14 = ((D_8008186C * sp50) + 0.5f) *
+                               temp_f0_3;
+                    player->unk80 = temp_f14;
+                    player->unk84 = temp_f14;
+                    player->unk181 = 1;
+                    player->unk4 = (f32) (player->unk4 * 0.5f);
+                    player->unk88 = D_80081870;
+                    player->unk8 = (f32) (player->unk8 * 0.5f);
+                } else {
+                    var_f8 = (f32) temp_v0_2;
+                    if (var_f8 < 240.0f) {
+                        player->unk198 = (u8) (temp_v0_2 +
+                                                (s32) updateRate);
+                    } else {
+                        player->unk198 = 0;
+                        player->unk166 = 1;
+                    }
+                    sp44 = 1;
+                }
+                player->unk34A = (u8) (player->unk34A | 1);
+            }
+        }
+        player->unk320 = D_800CB2FC;
+        player->unk324 = D_800CB2F8;
+        player->unk344 = (s32) (player->unk344 | D_800CB2F8);
+    }
+    spA4 = 0.0f;
+    spA8 = 0.0f;
+    spAC = 0.0f;
+    if (player->unk16C != 1) {
+        sp98 = 0.0f;
+        sp9C = -50.0f;
+        spA0 = 0.0f;
+        mathOneFloatRPY((ControlTransform *) actor, &sp98);
+        sp8C = sp98 + spBC;
+        sp90 = sp9C + spC0;
+        sp64 = 1.0f;
+        sp94 = spA0 + spC4;
+        if (func_80010654((ControlVector3 *) &spBC,
+                          (ControlVector3 *) &sp8C,
+                          (ControlVector3 *) &sp80, &sp64) != 0) {
+            spA4 += sp80;
+            spA8 += sp84;
+            spAC += sp88;
+        }
+    }
+    if (player->unk173 == 0) {
+        sp2C = (s32) updateRate;
+        func_8001DCD0(actor->rotationX, (ControlVector3 *) &spA4,
+                      &sp3A, &sp38);
+        actor->rotationZ = dAngle(
+            actor->rotationZ, sp3A,
+            1.0f - Powerf(D_80081874, sp2C));
+        actor->rotationY = dAngle(
+            actor->rotationY, sp38,
+            1.0f - Powerf(D_80081878, sp2C));
+    }
+    temp_v0_3 = actor->rotationZ;
+    if (temp_v0_3 >= 0x3001) {
+        actor->rotationZ = 0x3000;
+    } else if (temp_v0_3 < -0x3000) {
+        actor->rotationZ = -0x3000;
+    }
+    temp_v0_4 = actor->rotationY;
+    if (temp_v0_4 >= 0x3001) {
+        actor->rotationY = 0x3000;
+    } else if (temp_v0_4 < -0x3000) {
+        actor->rotationY = -0x3000;
+    }
+    if (player->unk349 != 0) {
+        actor->velocityY = (actor->y - player->unk3C) / updateRate;
+    }
+    if (player->unk34A == 0) {
+        player->unk198 = 0;
+    }
+    player->unk2F0 = spBC;
+    player->unk2F4 = spC0;
+    player->unk2F8 = spC4;
+    return sp44;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001E5C4.s")
+#endif
 /* PROVENANCE -- JFG's public charControl.c identifies the corresponding
  * controlSquashCheckPrior routine, but publishes assembly only; this body is
  * reconstructed from Mickey's fields, calls, branch conditions, and stores. */
