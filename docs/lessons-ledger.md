@@ -272,3 +272,9 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
   before anything is appended (`replicate_objcopy` only terminates its last
   line when it wrote one, so a TU with an unreplicable POSTPROCESS ends
   mid-line).
+- **A candidate that already scores zero was reported "no improvement".**
+  `__scSchedule` (sched, 488 B) scored base 0 — its words are exact and only
+  the jump table's ownership (`jtbl_800823F4`, wrong TU) blocks verify — and
+  the runner skipped promotion because no output dir existed. Changed:
+  base 0 promotes the base source directly; the ownership carve for sched
+  rodata is queued as its own lane.
