@@ -232,12 +232,21 @@ def undefined_sites(c_file: Path, symbol: str) -> set[str]:
     return out
 
 
-def classify_failure(log: str, item, surface_log: str) -> tuple[str, str]:
+def classify_failure(log: str, item, surface_log: str,
+                     link_log: Optional[str] = None) -> tuple[str, str]:
     """(class, cause) for a build that did not produce a ROM.
 
     The four classes the relocation surface cannot close are named explicitly,
     because each needs different work and lumping them as `build-error` is what
     made the previous run's 169 failures unreadable.
+
+    `log` is both passes concatenated, because a POSTPROCESS marker is printed
+    by the *compile* pass. `link_log` is the pass that ran after the surface was
+    regenerated, and every link diagnostic must be read from it alone: the first
+    pass links against the stale surface and its "undefined reference" lines
+    survive into `log`, so scanning `log` reports symbols the second link
+    resolved perfectly well. That misread is what kept six candidates in
+    `resident-symbol-missing` after the surface had already valued them.
     """
     markers = MARKER_RE.findall(log)
     for kind, message in markers:
@@ -246,11 +255,21 @@ def classify_failure(log: str, item, surface_log: str) -> tuple[str, str]:
     if markers:
         return "text-size-differs", markers[0][0]
 
-    undef = UNDEF_RE.findall(log)
+    link = log if link_log is None else link_log
+    undef = UNDEF_RE.findall(link)
     if undef:
         # Not a relocation-surface problem at all: a resident symbol the tree
         # does not define yet. Its own address is what the reference wants;
         # there is no addend to synthesize.
+        # The surface refuses a resident call it cannot read an addend for,
+        # and says why. That refusal is the honest class, so it is tested
+        # before the bare "the name is a resident auto-name" fallback below.
+        refused = {m for m in undef
+                   if re.search(r"\b%s\b: resident " % re.escape(m),
+                                surface_log)}
+        if refused:
+            return "build-error", "resident-call-unreadable (%s)" % \
+                ", ".join(sorted(refused)[:3])
         resident = [m for m in undef if RESIDENT_RE.match(m)]
         if resident:
             return "build-error", "resident-symbol-missing (%s)" % \
@@ -284,7 +303,7 @@ def classify_failure(log: str, item, surface_log: str) -> tuple[str, str]:
         return "build-error", "unresolved-placeholder (%s)" % \
             ", ".join(sorted(set(undef))[:3])
 
-    trunc = TRUNC_RE.findall(log)
+    trunc = TRUNC_RE.findall(link)
     if trunc:
         return "build-error", "relocation-truncated (%s)" % \
             ", ".join(sorted(set(trunc))[:3])
@@ -310,6 +329,7 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
         return t
     surface = LINK_SYMS.read_text()
     surface_log = ""
+    link_log = None
     try:
         ok, log = build(jobs)
         if item.overlay is not None:
@@ -318,9 +338,11 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
             # linked is unaffected when the surface does not change.
             _sok, surface_log = synthesize_surface()
             ok, log2 = build(jobs)
+            link_log = log2
             log = log + log2
         if not ok:
-            t.klass, t.cause = classify_failure(log, item, surface_log)
+            t.klass, t.cause = classify_failure(log, item, surface_log,
+                                                link_log)
             t.error = log[-1500:]
         else:
             diffs = rom_diff_offsets()

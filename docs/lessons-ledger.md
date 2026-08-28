@@ -7,6 +7,53 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
 
 ## 2026-08-28
 
+- **A relocation surface must not assign a name the resident segment owns.**
+  Fifteen overlay candidates reported `resident-symbol-missing` and four
+  `relocation-truncated (R_MIPS_26)`. One cause: adopted C spells an
+  overlay-to-resident call with the resident's own global name
+  (`func_80029FE4`, or an ordinary libultra global like `alHeapDBAlloc`), and a
+  value line for that name does not give the overlay an addend -- it moves the
+  resident function for every resident caller. `func_80034448 = 0xf0000000`
+  turns `models.c`, `level.c`, `menu.c` and four asm objects into truncated
+  relocations. The addend itself was never in doubt: measured at the sites,
+  overlay 49's resident calls are `SYMBOL` `R_MIPS_26` records storing
+  immediate zero, exactly like a cross-module call, so the value is
+  `0xF0000000`. The trampoline word `0C00CCE8` belongs to `mainRelocTable` --
+  the resident segment's calls *into* overlays -- and does not appear at these
+  sites. Changed: `reloc_surface.py generate` derives the rebind the Makefile
+  already does by hand (overlay 49: `func_800254FC` -> `overlay65UpdateReloc`),
+  renaming every undefined `R_MIPS_26` against a resident-owned name to
+  `<name>_o<NNN>Reloc` and valuing the alias; a refused name gets no value line
+  under its global name either. It is a no-op on the matching tree (no overlay
+  object carries such a relocation), so `--audit` stays 2446/2446 and
+  `check-overlay-syms` reports no drift. `resident-symbol-missing` and
+  `relocation-truncated` are now zero across the 56 candidates that name a
+  resident target; nine of the fifteen carry an in-range word count, four are
+  honestly `schedule-divergence-at-site`, two are `rom-size`.
+- **"Resident auto-name" was the wrong discriminator; "the resident side
+  defines it" is the right one.** The first cut keyed off the `func_8XXXXXXX`
+  shape and fixed overlay 34, then broke `overlay5InitializeAudio` on
+  `alHeapDBAlloc` / `osCreateMesgQueue` / `n_alCSPSetMessageQ`. Changed:
+  `resident_defined_names()` collects the 4,886 globals defined by every
+  non-overlay object the linker script names plus the auto-generated symbol
+  scripts -- available before the link, which is when the surface has to decide.
+- **Refusing costs measurements that an alias makes safe to take.** The strict
+  reading ("no corroborated site, no value") returned `overlay34SortAndDraw`
+  from 168 in-range words to a bare build failure. Under a per-module alias an
+  addend read from an uncorroborated site can only produce a differing word
+  *inside* the promoted function, which is the measurement the trial exists to
+  take. Changed: uncorroborated resident calls emit a `/* NOTE */` naming the
+  offsets instead of a refusal; only the genuinely ambiguous cases (a symbol
+  reached by both a call and a data reference; no `text_ownership` row) refuse.
+- **Concatenating two build logs makes the first build's failures outlive
+  them.** `promotion_trial.py` builds, regenerates the surface, and builds
+  again -- the first pass links against the *stale* surface by design -- then
+  classified from `log1 + log2`. Six candidates stayed in
+  `resident-symbol-missing` after the surface had valued them, because
+  `UNDEF_RE` was reading the first link's errors. Changed: markers still come
+  from both passes (a POSTPROCESS marker is printed by the compile), every link
+  diagnostic from the second pass alone.
+
 - **The overlay scaffolding was hand-maintained because nobody had checked
   whether it had to be.** `overlay_undefined_syms.us.txt` -- 2,928 lines, one
   hand-derived line per adopted overlay symbol -- is entirely derivable: a
@@ -173,7 +220,9 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
   looked like a stale-name cleanup; it produced `relocation-truncated
   (R_MIPS_26)` (a direct `jal` from the module's 0xF… VMA cannot reach
   0x8…) and, where matched code shared the name, changed bytes. Overlay code
-  reaches resident targets through the trampoline plus the module relocation
-  table; the placeholder's value must come from the stored site bytes, like
-  every other placeholder. Reverted (4c81938c); the generator is being
-  extended to value resident targets.
+  reaches resident targets through the module relocation table; the
+  placeholder's value must come from the stored site bytes, like every other
+  placeholder. Reverted (4c81938c); the generator now derives a per-module
+  alias and values it -- see the 2026-08-28 entry, which also corrects the
+  trampoline half of this note: the module's own table stores `jal 0`, and
+  `0C00CCE8` belongs to the resident `mainRelocTable`.
