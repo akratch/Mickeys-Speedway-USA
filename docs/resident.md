@@ -1265,7 +1265,7 @@ address-placeholder helper names are not imported.
 | `0x165DC` | `0x11C` | `getXZCompareMask` | B; extractor-marked handwritten, stays `asm` |
 | `0x166F8` | `0x98` | `getYCompareMask` | B; extractor-marked handwritten, stays `asm` |
 | `0x16790` | `0x300` | `trackLightAsm` | B; uses odd single-precision FP registers, stays `asm` |
-| `0x16A90` | `0x12C` | `shadowInitBuffers` | A; exact C, 75 words/relocations; shadows owns `.data` `D_80079410`–`D_8007945C` |
+| `0x16A90` | `0x12C` | `shadowInitBuffers` | B name; `NON_MATCHING` relocation-identity plateau: all 75 linked words and shadows' `0x50`-byte `.data` input are exact, but the sentinel pair binds `D_80079434 + 0xC` where target metadata names `D_80079440` |
 | `0x16BBC` | `0x78` | `shadowFreeBuffers` | B name; JFG-adapted exact C, 30 words, 15 relocs under O2/mips2 |
 | `0x16C34` | `0x18` | `shadowChangeBuffer` | B name; exact C, 6 words, 2 relocs |
 | `0x16C4C` | `0x4C` | `shadowGetBuffers` | B name; exact C, 19 words, 8 relocs |
