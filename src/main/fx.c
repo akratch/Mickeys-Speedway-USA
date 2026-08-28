@@ -69,6 +69,7 @@ extern void func_80048080(s32 count, s16 arg1, s16 arg2, s16 arg3,
                           void *vertices, s32 alpha);
 extern void viGetCurrentSize(s32 *width, s32 *height);
 extern s16 Arctanf(f32 x, f32 y);
+extern s32 viGetVideoMode(void);
 extern void wakeUpdate(s32 update, f32 x, f32 height, f32 z, s32 angle,
                        s32 delta);
 extern f32 D_80083DE4;
@@ -2264,7 +2265,98 @@ void func_8004A9CC(FxGfx **dList) {
     }
     D_8007D478 = 0;
 }
+/* Workbench: structure-mismatch, 144 differing words, first mismatch +0x0. */
+/* Structural gap: target 147 instructions/frame -0x30 versus candidate 137/-0x30; target retains ten command/argument instructions. */
+/* Not shape-exact or permuter-ready; video-mode selection, texture setup, loop, and final state commands are represented. */
+#ifdef NON_MATCHING
+void fxScreenEffect(FxGfx **dList, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
+                    s32 arg5, s32 arg6, s32 arg7, s32 arg8) {
+    FxGfx *var_t1;
+    s32 *var_s5;
+    s32 temp_t2;
+    s32 temp_t6;
+    s32 temp_t7;
+    s32 temp_t9;
+    s32 temp_v0;
+    s32 var_a2;
+    FxGfx *temp_t7_2;
+    FxGfx *temp_v0_2;
+    FxGfx *temp_v0_3;
+    FxGfx *temp_v0_4;
+    FxGfx *temp_v0_5;
+    FxGfx *temp_v0_6;
+    FxGfx *temp_v0_7;
+    FxGfx *temp_v0_8;
+    void **arg0;
+
+    arg0 = (void **)dList;
+    temp_v0 = viGetVideoMode();
+    if (temp_v0 != 2) {
+        if (temp_v0 != 3) {
+            var_s5 = (s32 *)D_8007D3D0;
+        } else {
+            goto block_5;
+        }
+    } else {
+block_5:
+        var_s5 = (s32 *)D_8007D408;
+    }
+    temp_v0_2 = (FxGfx *)*arg0;
+    *arg0 = (void *)(temp_v0_2 + 1);
+    temp_v0_2->w0 = 0x06000000;
+    temp_v0_2->w1 = (u32)D_8007D380;
+    temp_v0_3 = (FxGfx *)*arg0;
+    *arg0 = (void *)(temp_v0_3 + 1);
+    temp_v0_3->w0 = 0xFA000000;
+    var_t1 = (FxGfx *)((arg2 * arg5 * 2) + arg1);
+    temp_v0_3->w1 = arg8;
+    temp_t7 = arg5 * 4;
+    temp_t9 = arg7 * 4;
+    temp_t6 = arg4 * 4;
+    var_a2 = temp_t7;
+    if (temp_t7 < temp_t9) {
+        do {
+            temp_t2 = var_a2;
+            var_a2 += 0x10;
+            ((FxGfx *)*arg0)->w0 = (u32)*var_s5;
+            ((FxGfx *)*arg0)->w1 = (u32)var_t1;
+            var_t1 = (FxGfx *)((s32)var_t1 + (arg2 * 8));
+            temp_t7_2 = (FxGfx *)*arg0 + 1;
+            *arg0 = temp_t7_2;
+            *arg0 = temp_t7_2 + 1;
+            temp_t7_2->w1 = (u32)((s32)var_s5 + 0x80000008);
+            temp_t7_2->w0 = 0x07060030;
+            if (temp_t9 < var_a2) {
+                var_a2 = temp_t9;
+            }
+            temp_v0_4 = (FxGfx *)*arg0;
+            *arg0 = temp_v0_4 + 1;
+            temp_v0_4->w0 = ((((arg6 * 4) & 0xFFF) << 12) |
+                              0xE4000000 | (var_a2 & 0xFFF));
+            temp_v0_4->w1 = ((temp_t6 & 0xFFF) << 12) | (temp_t2 & 0xFFF);
+            temp_v0_5 = (FxGfx *)*arg0;
+            *arg0 = temp_v0_5 + 1;
+            temp_v0_5->w1 = (arg4 << 5) << 16;
+            temp_v0_5->w0 = 0xB3000000;
+            temp_v0_6 = (FxGfx *)*arg0;
+            *arg0 = temp_v0_6 + 1;
+            temp_v0_6->w1 = 0x04000400;
+            temp_v0_6->w0 = 0xB2000000;
+        } while (var_a2 < temp_t9);
+    }
+    func_80034920(arg0, temp_t6, var_a2, arg0);
+    temp_v0_7 = (FxGfx *)*arg0;
+    *arg0 = temp_v0_7 + 1;
+    temp_v0_7->w1 = -1;
+    temp_v0_7->w0 = 0xFA000000;
+    temp_v0_8 = (FxGfx *)*arg0;
+    *arg0 = temp_v0_8 + 1;
+    temp_v0_8->w1 = -1;
+    temp_v0_8->w0 = 0xFB000000;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxScreenEffect.s")
+#endif
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: the descending loop skeleton is adapted from Jet Force
