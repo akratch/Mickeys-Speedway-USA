@@ -1822,3 +1822,11 @@ The full flag lattice and 40-minute permuter produced no valid exact source.
 
 `overlay 20 +0x07C4..+0x09DC` (`overlay20BuildTileCommands`) — 536 bytes / 134 words. NON_MATCHING: bounded 2026-08-28 closeout retained the capacity-preserving 13-element source after direct macro-pointer, doubled-width, and inner-index probes. The best candidate matches 130/134 aligned instructions with the exact register and schedule profiles and one exact helper relocation; the four residual words are stack-frame constants (`0x90` target versus `0xA8` candidate), first at `+0x0`. A seven-element diagnostic recovered the retail frame but is not retained without independent capacity proof. No C credit is claimed.
 `overlay 34 +0x02C8..+0x0378` (`overlay34RemoveRecord`) — 176 bytes / 44 words. NON_MATCHING: bounded 2026-08-28 closeout retained the size-exact source after indexed-compaction, pointer-cursor, separated-count, and scoped-call probes. The best candidate matches 32/44 words with the first schedule/register residual at `+0x14`; it preserves one helper relocation and two repeated active-count HI16/LO16 pairs, while the target encodes its pointer load without relocation. Removing those source pointer relocations is prohibited, so no C credit is claimed.
+
+`overlay 14 +0x09F4..+0x0ACC` (`func_overlay_014_F00009F4_18702CC`) —
+216 bytes / 54 words. NON_MATCHING: the 2026-08-29 workbench reproof retains
+the exact-sized, exact-`0x28`-frame source after a bounded single-thread
+decomp-permuter pass ran 361 seconds without improving its ten register-only
+words. The first allocator divergence is pool slot 11 at `+0x74`; all six
+target relocations are exact, while the C object also emits state-anchor
+HI16/LO16 records at `+0x0/+0x4` that the target lacks. No C credit is claimed.

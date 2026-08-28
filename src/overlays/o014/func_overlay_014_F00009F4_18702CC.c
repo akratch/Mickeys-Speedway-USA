@@ -20,10 +20,13 @@ extern s32 D_B4;
 extern void *func_overlay_014_F0000000_186F8D8();
 
 #ifdef NON_MATCHING
-/* Workbench: allocation-mismatch, exact 54/-40 shape.
- * Lever: target identities and count-reloading traversal removed the schedule residual.
- * Remains: one pool-position allocation web and the structured state-anchor relocations;
- * assembly fallback stays canonical. */
+/* Workbench 2026-08-29: allocation-mismatch with an exact 54-instruction,
+ * 0xD8-byte body and 0x28 frame. The first allocator divergence is pool slot
+ * 11 at +0x74; ten register-only words remain. All six target relocations are
+ * exact, while the C object also carries gOverlay14State HI16/LO16 records at
+ * +0x0/+0x4 that the target does not. A bounded one-thread permuter pass ran
+ * for 361 seconds and stayed at the ten-word floor with no zero candidate.
+ * Assembly fallback stays canonical. */
 Overlay14Asset *func_overlay_014_F00009F4_18702CC(s32 index, s32 context) {
     s32 pad;
     s32 start;
