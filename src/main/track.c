@@ -439,6 +439,9 @@ void func_800133FC(TrackVertex *v0, TrackVertex *v1, TrackVertex *v2,
                    f32 *a, f32 *b, f32 *c, f32 *d);
 s32 mathXZInTri(s32 x, s32 z, TrackVertex *v0, TrackVertex *v1,
                 TrackVertex *v2);
+s32 func_80012574(TrackVec3f *origin, TrackVec3f *direction,
+                  TrackVec3f *center, f32 radius, f32 *minimum,
+                  f32 *maximum);
 void func_8000D768(TrackLight *light, s32 red, s32 green, s32 blue,
                    s32 intensity);
 void *func_8002B280(s32 size, s32 tag);
