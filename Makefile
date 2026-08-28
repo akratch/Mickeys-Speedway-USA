@@ -99,6 +99,21 @@ CFLAGS  := -non_shared -G 0 -Xcpluscomm -fullwarn -woff 649,838 -nostdinc \
            $(DEFINES) $(INCLUDE_CFLAGS)
 POSTPROCESS := @:
 
+# Every per-file POSTPROCESS below is a post-compile ELF normalization -- a
+# section trim, a relocation rebind or filter, an added relocation guarded by a
+# .text prefix hash. All of them encode the *matching* object's exact layout,
+# so none of them can succeed against an object compiled with -DNON_MATCHING:
+# the text is a different size and the relocations sit at different offsets.
+# The escape hatch is compile-only by design (see NON_MATCHING above), so the
+# normalizations are simply skipped in the build_non_matching tree. Recursive
+# assignment on purpose: it has to expand in each target's context so the
+# target-specific POSTPROCESS override is the one that runs.
+ifeq ($(NON_MATCHING),0)
+RUN_POSTPROCESS = $(POSTPROCESS)
+else
+RUN_POSTPROCESS = @:
+endif
+
 # asm-processor (simonlindholm) is what makes `#pragma GLOBAL_ASM("...")` work
 # with IDO: it strips the pragmas out, compiles the remaining real C, assembles
 # the referenced .s files with $(AS), and splices the result back into the
@@ -455,32 +470,32 @@ $(BUILD_DIR)/%.bin.o: %.bin | $(ALL_DIRS) $(SPLAT_STAMP)
 $(BUILD_DIR)/%.c.o: %.c $(H_FILES) $(TOOLS_DIR)/normalize_elf_instructions.py $(SPLAT_STAMP) | $(ALL_DIRS)
 	$(ASM_PROCESSOR) $(CC) -- $(AS) $(ASM_PROC_ASFLAGS) -- \
 		-c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
-	$(POSTPROCESS)
+	$(RUN_POSTPROCESS)
 
 # The DKR-exact rmonprintf source has no GLOBAL_ASM. Sending it through
 # asm-processor changes IDO's line metadata and produces a seven-word schedule
 # residual; direct IDO compilation reproduces the whole source object.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/rmonprintf.c.o: $(SRC_DIR)/libultra/rmonprintf.c $(H_FILES) $(SPLAT_STAMP) | $(ALL_DIRS)
 	$(CC) -c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
-	$(POSTPROCESS)
+	$(RUN_POSTPROCESS)
 
 # __osEepStatus is the exact tail of DKR's SDK conteepwrite source. Like the
 # direct rmonprintf object above, it has no GLOBAL_ASM and retains the donor's
 # direct-IDO line schedule.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/eepstatus.c.o: $(SRC_DIR)/libultra/eepstatus.c $(H_FILES) $(SPLAT_STAMP) | $(ALL_DIRS)
 	$(CC) -c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
-	$(POSTPROCESS)
+	$(RUN_POSTPROCESS)
 
 # DKR's whole xprintf object is exact, including its anonymous static helper,
 # data and rodata. Compile the pragma-free donor directly at its SDK preset.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/xprintf.c.o: $(SRC_DIR)/libultra/xprintf.c $(H_FILES) $(SPLAT_STAMP) | $(ALL_DIRS)
 	$(CC) -c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
-	$(POSTPROCESS)
+	$(RUN_POSTPROCESS)
 
 # Same whole-object result for DKR's xldtob conversion source and constants.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/xldtob.c.o: $(SRC_DIR)/libultra/xldtob.c $(H_FILES) $(SPLAT_STAMP) | $(ALL_DIRS)
 	$(CC) -c $(CFLAGS) $(OPT_FLAGS) $(MIPSISET) -o $@ $<
-	$(POSTPROCESS)
+	$(RUN_POSTPROCESS)
 
 # ---------------------------------------------------------------------------
 # Per-file compiler flags
@@ -945,7 +960,7 @@ OVERLAY5_O3_OBJECTS := $(addprefix $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/, \
 $(OVERLAY5_O3_OBJECTS): $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/%.c.o: \
                         $(SRC_DIR)/overlays/o005/%.c $(H_FILES) | $(ALL_DIRS) $(SPLAT_STAMP)
 	$(CC) -c $(CFLAGS) -O3 -mips2 -32 -o $@ $<
-	$(POSTPROCESS)
+	$(RUN_POSTPROCESS)
 
 # IDO aligns standalone .text sections to 16 bytes, while these reviewed
 # overlay functions continue at four-byte boundaries inside a larger module.
