@@ -1314,7 +1314,7 @@ body is copied by this split; Mickey's own bytes remain authoritative.
 | `0x1BF14` | `0x4C` | `spranimControl` | D name; JFG-adapted exact C, 19 words, 1 call reloc under O2/mips2 |
 | `0x1BF60` | `0x48` | `sprasjiInit` | D name; exact C, 18 words, 0 relocs under O2/mips2 |
 | `0x1BFA8` | `0x78` | `spranimOnceControl` | D name; JFG-adapted exact C, 30 words, 2 call relocs under O2/mips2 |
-| `0x1C020` | `0x304` | `effectboxControl` | D |
+| `0x1C020` | `0x304` | `effectboxControl` | Evidence D candidate: structure-mismatch, 193/193 instructions, 65 differing words, first `+0x0`, frame `-0x98` versus `-0x80`, exact relocation identities, four opcode residuals |
 | `0x1C324` | `0x74` | `texscrollControl` | B name; JFG-adapted exact C, 29 words, 1 call reloc under O2/mips2 |
 | `0x1C398` | `0x2BC` | `func_8001B798` | Evidence D candidate: structure-mismatch, 171/175 instructions, 131 differing words, first `+0x0`, frame `-0xD0` versus `-0xE0`, and 11 relocation-symbol sites differ |
 | `0x1C654` | `0x90` | `rangetriggerControl` | B; `NON_MATCHING` plateau after flag sweep and 10 stack-layout hypotheses: 34/36 words exact with both call relocs exact, first mismatch `+0x50`; IDO homes the entry pointer at `sp+0x44` instead of target `sp+0x40` |

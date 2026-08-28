@@ -200,7 +200,74 @@ void spranimOnceControl(SpranimOnceState *state, s32 updateRate) {
         func_80006EA0(state);
     }
 }
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch, 65 differing words, first mismatch +0x0. */
+/* Candidate: 193/193 instructions with exact relocation identities; frame is -0x98 versus target -0x80 and four opcode residuals remain. */
+/* Shape status: instruction count and hit-list control flow are exact, but the candidate is not shape-exact. */
+/* PROVENANCE: JFG's public effectboxControl assembly establishes the trigger/hit-list idiom; all Mickey offsets and calls below are reconstructed locally. */
+typedef struct SpranimEffectBox {
+    u8 pad0[0xC];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[0x4C];
+    void *state64;
+} SpranimEffectBox;
+
+typedef struct SpranimEffectState {
+    f32 normalX;
+    f32 normalY;
+    f32 normalZ;
+    f32 distance;
+    s32 radius;
+    s16 planeIndex;
+    s16 active;
+} SpranimEffectState;
+
+extern u8 D_800794B0[];
+extern s32 func_8002905C(u8 type, void *state);
+
+void effectboxControl(SpranimEffectBox *arg0, s32 arg1) {
+    SpranimEffectState *state;
+    void *hits[16];
+    s32 hitCount;
+    s32 processed;
+
+    state = arg0->state64;
+    if ((state->planeIndex >= 0) && (state->planeIndex <= 0)) {
+        u8 *entry;
+
+        entry = &D_800794B0[state->planeIndex * 4];
+        if (entry[0] != 0xFF && func_8002905C(entry[0], state) != entry[1]) {
+            return;
+        }
+        if (entry[2] != 0xFF && func_8002905C(entry[2], state) != entry[3]) {
+            return;
+        }
+    }
+
+    {
+        hitCount = func_8005776C(arg0->x, arg0->y, arg0->z, (f32) state->radius, 0, hits);
+        if (hitCount != 0) {
+            processed = 0;
+            if (hitCount > 0) {
+                do {
+                    SpranimB798Target *hit = ((SpranimB798Target **) hits)[processed];
+
+                    if ((state->active == 0) ||
+                        ((state->normalX * hit->x) + (state->normalY * hit->y) +
+                         (state->normalZ * hit->z) + state->distance < 0.0f)) {
+                        *(void **)((u8 *) hit->state64 + 0xC8) = arg0;
+                    }
+                    processed++;
+                } while (processed < hitCount);
+            }
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/effectboxControl.s")
+#endif
 /* PROVENANCE -- adapted from JFG's public asm/nonmatchings/spranim/texscrollControl.s, with Mickey's object offset. */
 void texscrollControl(TexscrollState *state, s32 updateRate) {
     s32 x;
