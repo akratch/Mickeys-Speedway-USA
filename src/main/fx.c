@@ -2247,9 +2247,9 @@ s32 func_8004AD34(void) {
     }
     D_800D60A8 = 0;
 }
-/* Workbench: structure-mismatch, 30 differing words, first mismatch +0x0. */
-/* Candidate shape: 96 instructions/relocations match; frame -0x48 vs target -0x40, not shape-exact. */
-/* Remaining structural gap: the allocator/clear-loop web and the 8-byte frame home. */
+/* Workbench verdict: structure-mismatch, 19 differing words, first mismatch +0x60. */
+/* Candidate shape: 96 instructions/frame -0x40; three store/branch structural words remain, not shape-exact. */
+/* Remaining gap: second-allocation store scheduling and stack homes; five register residuals remain. */
 #ifdef NON_MATCHING
 extern void *func_8002B280(s32 size, s32 tag);
 
@@ -2268,7 +2268,7 @@ void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
         D_800D60B0[index] = first;
         second = func_8002B280(texture->width * texture->height, 0x87);
         D_800D60C0[index] = second;
-        if (D_800D60B0[index] == 0 || second == 0) {
+        if (D_800D60B0[index] == 0 || D_800D60C0[index] == 0) {
             D_800D60B0[index] = 0;
             D_800D60C0[index] = 0;
             return;
