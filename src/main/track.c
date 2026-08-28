@@ -4074,7 +4074,271 @@ void func_80012658(s32 flags) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80012658.s")
 #endif
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: Mickey's m2c collision trace and the resident vector/track
+ * declarations reconstruct this query; no external function body is adapted.
+ * Raw offsets retain the compact segment and polygon records.
+ */
+/* Workbench verdict: structure-mismatch, 545 differing words, first mismatch +0x0. */
+/* Candidate is 517/548 instructions with frame -0x2A8 versus target -0x288; it is not shape-exact. */
+/* Remaining gap: 31 missing instructions, 32 excess frame bytes, and unresolved polygon/relocation scheduling. */
+extern s32 func_800131AC(TrackVec3f *origin, TrackVec3f *direction,
+                         TrackVec3f *minimum, TrackVec3f *maximum,
+                         f32 *nearClip, f32 *farClip);
+extern u8 getYCompareMask(void *bounds, s32 y0, s32 y1);
+
+#define E129_U8(base, offset) (*(u8 *) ((u8 *) (base) + (offset)))
+#define E129_S16(base, offset) (*(s16 *) ((u8 *) (base) + (offset)))
+#define E129_U16(base, offset) (*(u16 *) ((u8 *) (base) + (offset)))
+#define E129_S32(base, offset) (*(s32 *) ((u8 *) (base) + (offset)))
+#define E129_F32(base, offset) (*(f32 *) ((u8 *) (base) + (offset)))
+#define E129_PTR(base, offset) (*(void **) ((u8 *) (base) + (offset)))
+
+s32 func_8001291C(f32 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
+    void *segments[20];
+    f32 entryTimes[20];
+    s32 xzMasks[20];
+    u8 yMasks[20];
+    TrackVec3f direction;
+    TrackVec3f minimum;
+    TrackVec3f maximum;
+    TrackBoundingBox *bounds;
+    TrackData *track;
+    void *segment;
+    void *batch;
+    void *batchRecord;
+    void *surfaceBase;
+    void *plane;
+    void *bestPlane;
+    u16 *polygon;
+    f32 nearClip;
+    f32 farClip;
+    f32 bestDistance;
+    f32 side0;
+    f32 side1;
+    f32 fraction;
+    f32 pointX;
+    f32 pointY;
+    f32 pointZ;
+    f32 normalX;
+    f32 normalY;
+    f32 normalZ;
+    f32 planeDistance;
+    f32 edgeValue;
+    s32 segmentCount;
+    s32 segmentIndex;
+    s32 hitCount;
+    s32 insertIndex;
+    s32 batchCount;
+    s32 batchIndex;
+    s32 triangleIndex;
+    s32 firstTriangle;
+    s32 lastTriangle;
+    s32 edgeIndex;
+    s32 inside;
+    s32 hit;
+    s32 bestFlags;
+    s32 bestTexture;
+    s32 x0;
+    s32 y0;
+    s32 z0;
+    s32 x1;
+    s32 y1;
+    s32 z1;
+    s32 edgeNumber;
+    u16 edge;
+    u16 edgeSign;
+    u8 *segmentBytes;
+    u8 *surfaceBytes;
+
+    track = D_800792E8;
+    direction.f[0] = arg1[0] - arg0[0];
+    direction.f[1] = arg1[1] - arg0[1];
+    direction.f[2] = arg1[2] - arg0[2];
+    hitCount = 0;
+    segmentCount = E129_S16(track, 0x1A);
+    if ((direction.f[0] != 0.0f) || (direction.f[1] != 0.0f) ||
+        (direction.f[2] != 0.0f)) {
+        for (segmentIndex = 0; segmentIndex < segmentCount; segmentIndex++) {
+            bounds = track->segmentBounds + segmentIndex;
+            minimum.f[0] = (f32) bounds->x1;
+            minimum.f[1] = (f32) bounds->y1;
+            minimum.f[2] = (f32) bounds->z1;
+            maximum.f[0] = (f32) bounds->x2;
+            maximum.f[1] = (f32) bounds->y2;
+            maximum.f[2] = (f32) bounds->z2;
+            if ((func_800131AC((TrackVec3f *) arg0, &direction,
+                               &minimum, &maximum, &nearClip, &farClip) != 0) &&
+                (((nearClip <= 0.0f) && (farClip >= 0.0f)) ||
+                 ((nearClip >= 0.0f) && (nearClip <= 1.0f)))) {
+                if (nearClip < 0.0f) {
+                    nearClip = 0.0f;
+                }
+                if (farClip > 1.0f) {
+                    farClip = 1.0f;
+                }
+                x0 = (s32) ((direction.f[0] * nearClip) + arg0[0]);
+                y0 = (s32) ((direction.f[1] * nearClip) + arg0[1]);
+                z0 = (s32) ((direction.f[2] * nearClip) + arg0[2]);
+                x1 = (s32) ((direction.f[0] * farClip) + arg0[0]);
+                y1 = (s32) ((direction.f[1] * farClip) + arg0[1]);
+                z1 = (s32) ((direction.f[2] * farClip) + arg0[2]);
+                if (x1 < x0) {
+                    s32 temporary = x1;
+                    x1 = x0;
+                    x0 = temporary;
+                }
+                if (y1 < y0) {
+                    s32 temporary = y1;
+                    y1 = y0;
+                    y0 = temporary;
+                }
+                if (z1 < z0) {
+                    s32 temporary = z1;
+                    z1 = z0;
+                    z0 = temporary;
+                }
+                if (hitCount < 20) {
+                    insertIndex = hitCount;
+                    while ((insertIndex > 0) &&
+                           (nearClip < entryTimes[insertIndex - 1])) {
+                        entryTimes[insertIndex] = entryTimes[insertIndex - 1];
+                        segments[insertIndex] = segments[insertIndex - 1];
+                        xzMasks[insertIndex] = xzMasks[insertIndex - 1];
+                        yMasks[insertIndex] = yMasks[insertIndex - 1];
+                        insertIndex--;
+                    }
+                    entryTimes[insertIndex] = nearClip;
+                    segments[insertIndex] =
+                        (u8 *) track->segments + (segmentIndex * 0x40);
+                    xzMasks[insertIndex] = getXZCompareMask(
+                        bounds, x0, z0, x1, z1);
+                    yMasks[insertIndex] = getYCompareMask(bounds, y0, y1);
+                    hitCount++;
+                }
+            }
+        }
+    }
+    hit = 0;
+    bestDistance = 1.0f;
+    pointX = arg1[0];
+    pointY = arg1[1];
+    pointZ = arg1[2];
+    arg3 |= 0x1080;
+    bestPlane = NULL;
+    bestFlags = 0;
+    bestTexture = 0;
+    for (segmentIndex = 0; segmentIndex < hitCount; segmentIndex++) {
+        segmentBytes = (u8 *) segments[segmentIndex];
+        segment = segments[segmentIndex];
+        surfaceBase = E129_PTR(segment, 0x1C);
+        batch = E129_PTR(segment, 0x0C);
+        batchCount = E129_S16(segment, 0x24);
+        for (batchIndex = 0; batchIndex < batchCount; batchIndex++) {
+            batchRecord = (u8 *) batch + (batchIndex * 0x10);
+            firstTriangle = E129_S16(batchRecord, 8);
+            lastTriangle = E129_S16(batchRecord, 0x18);
+            bestFlags = E129_S32(batchRecord, 0x0C);
+            if ((bestFlags & arg3) ||
+                ((arg4 != 0) && ((bestFlags & arg4) == 0))) {
+                firstTriangle = lastTriangle;
+            }
+            for (triangleIndex = firstTriangle;
+                 triangleIndex < lastTriangle; triangleIndex++) {
+                s32 visibility = E129_S32(
+                    E129_PTR(segment, 0x10), triangleIndex * 4);
+                visibility &= xzMasks[segmentIndex];
+                if (((visibility & 0xFFFF) != 0) &&
+                    ((visibility & 0xFFFF0000) != 0) &&
+                    ((E129_U8(E129_PTR(segment, 0x14), triangleIndex) &
+                      yMasks[segmentIndex]) != 0)) {
+                    polygon = (u16 *) ((u8 *) E129_PTR(segment, 0x18) +
+                                      (triangleIndex * 8));
+                    plane = (u8 *) surfaceBase + (E129_U16(polygon, 0) * 0x10);
+                    normalX = E129_F32(plane, 0);
+                    normalY = E129_F32(plane, 4);
+                    normalZ = E129_F32(plane, 8);
+                    planeDistance = E129_F32(plane, 0xC);
+                    side1 = (((arg1[0] * normalX) +
+                              ((arg1[1] * normalY) + (arg1[2] * normalZ))) +
+                             planeDistance);
+                    if (side1 < 0.0f) {
+                        side0 = (((arg0[0] * normalX) +
+                                  ((arg0[1] * normalY) +
+                                   (arg0[2] * normalZ))) + planeDistance);
+                        if (side0 >= 0.0f) {
+                            fraction = side0 / (side0 - side1);
+                            pointX = (direction.f[0] * fraction) + arg0[0];
+                            pointY = (direction.f[1] * fraction) + arg0[1];
+                            pointZ = (direction.f[2] * fraction) + arg0[2];
+                            inside = 1;
+                            for (edgeIndex = 0; edgeIndex < 3; edgeIndex++) {
+                                edge = E129_U16(polygon, (edgeIndex + 1) * 2);
+                                edgeSign = edge & 0x8000;
+                                edgeNumber = edge ^ edgeSign;
+                                surfaceBytes = (u8 *) surfaceBase +
+                                               (edgeNumber * 0x10);
+                                edgeValue =
+                                    (E129_F32(surfaceBytes, 0) * pointX) +
+                                    (E129_F32(surfaceBytes, 4) * pointY) +
+                                    (E129_F32(surfaceBytes, 8) * pointZ) +
+                                    E129_F32(surfaceBytes, 0xC);
+                                if (edgeSign != 0) {
+                                    edgeValue = -edgeValue;
+                                }
+                                if (edgeValue > 0.0f) {
+                                    inside = 0;
+                                }
+                            }
+                            if ((inside != 0) && (fraction < bestDistance)) {
+                                bestDistance = fraction;
+                                bestPlane = plane;
+                                bestFlags = E129_S32(batchRecord, 0x0C);
+                                bestTexture = E129_U8(
+                                    track->textures,
+                                    (E129_U8(batchRecord, 0) * 8) + 7);
+                                hit = 1;
+                            }
+                        }
+                    }
+                }
+            }
+            batch = (u8 *) batch + 0x10;
+        }
+    }
+    if (hit != 0) {
+        E129_S32(arg2, 0) = 0;
+        E129_F32(arg2, 4) = pointX;
+        E129_F32(arg2, 8) = pointY;
+        E129_F32(arg2, 0xC) = pointZ;
+        E129_F32(arg2, 0x10) = E129_F32(bestPlane, 0);
+        E129_F32(arg2, 0x14) = E129_F32(bestPlane, 4);
+        E129_F32(arg2, 0x18) = E129_F32(bestPlane, 8);
+        E129_F32(arg2, 0x1C) = E129_F32(bestPlane, 0xC);
+        E129_F32(arg2, 0x20) = sqrtf(
+            (direction.f[2] * direction.f[2]) +
+            ((direction.f[0] * direction.f[0]) +
+             (direction.f[1] * direction.f[1]))) * bestDistance;
+        E129_S32(arg2, 0x24) = bestFlags;
+        E129_S32(arg2, 0x28) = bestTexture;
+    } else {
+        E129_F32(arg2, 0x20) = sqrtf(
+            (direction.f[2] * direction.f[2]) +
+            ((direction.f[0] * direction.f[0]) +
+             (direction.f[1] * direction.f[1])));
+    }
+    return hit;
+}
+#undef E129_U8
+#undef E129_S16
+#undef E129_U16
+#undef E129_S32
+#undef E129_F32
+#undef E129_PTR
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001291C.s")
+#endif
 /*
  * PROVENANCE: Jet Force Gemini's public assembly-only `trackClip3D` in
  * `src/track.c` supplies the six-plane clipping structure and paired helper
