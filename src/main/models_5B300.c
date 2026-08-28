@@ -94,6 +94,114 @@ typedef struct ModelAnimationInstance {
     ModelAnimationState **states;
 } ModelAnimationInstance;
 
+typedef struct ModelRenderSlot {
+    u8 pad0[0xC];
+    Matrix *matrices;
+    u8 pad10[4];
+    s32 count;
+} ModelRenderSlot;
+
+typedef struct ModelRenderInstance {
+    u8 pad0[4];
+    s32 count;
+    u8 pad8[2];
+    s16 activeSlot;
+    u8 padC[0x10];
+    s32 animated;
+    u8 pad20[8];
+    f32 scale;
+    f32 offset;
+    u8 pad30[0xF];
+    u8 mode;
+    f32 *vertices[3];
+} ModelRenderInstance;
+
+typedef struct ModelRenderPointA {
+    u16 vertex;
+    u16 node;
+} ModelRenderPointA;
+
+typedef struct ModelRenderPointB {
+    u16 vertex;
+    s8 node;
+    u8 pad3[9];
+} ModelRenderPointB;
+
+typedef struct ModelRenderContext {
+    u8 pad0[0x1C];
+    u8 *vertexData;
+    u8 pad20[0xD];
+    u8 count0;
+    u8 count1;
+    u8 count2;
+    ModelRenderPointA *points0;
+    ModelRenderPointB *points1;
+    ModelRenderPointB *points2;
+    u8 pad3C[0x13];
+    s8 matrixCount;
+    u8 pad50[4];
+    ModelMatrixNode *nodes;
+} ModelRenderContext;
+
+typedef struct ModelRenderAsset {
+    s8 cameraIndex;
+    u8 pad1[0x4F];
+    f32 scale;
+    u8 pad54[0x3E8];
+    s16 angle;
+} ModelRenderAsset;
+
+typedef struct ModelRenderModel {
+    u8 pad0[6];
+    s16 flags;
+    f32 transformScale;
+    u8 padC[0x1C];
+    f32 scale;
+    u8 pad2C[0x18];
+    s16 type;
+    u8 pad46[0x1E];
+    ModelRenderAsset *asset;
+} ModelRenderModel;
+
+typedef struct ModelRenderCamera {
+    u8 pad0[0xC];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[0x3C];
+} ModelRenderCamera;
+
+typedef struct ModelRenderNodeData {
+    u8 pad0[0x94];
+    f32 x;
+    f32 y;
+    f32 z;
+} ModelRenderNodeData;
+
+typedef struct ModelRenderMatrixNode {
+    u8 pad0[0x30];
+    f32 x;
+    f32 y;
+    f32 z;
+} ModelRenderMatrixNode;
+
+typedef struct ModelRenderVertex {
+    s16 x;
+    s16 y;
+    s16 z;
+} ModelRenderVertex;
+
+typedef struct ModelRenderTransform {
+    s16 rotation0;
+    s16 rotation1;
+    s16 rotation2;
+    u8 pad6[2];
+    f32 scale;
+    f32 x;
+    f32 y;
+    f32 z;
+} ModelRenderTransform;
+
 extern s32 D_800D7CF0;
 extern s32 D_800D7CF4;
 extern s32 D_800D7CF8;
@@ -107,6 +215,23 @@ u8 *func_8002B314(s32 size, s32 tag);
 void func_80058FF0(ConvListEntry *entries, s32 count);
 void func_8002A82C(void *mtx);
 void mtxf_mul(void *lhs, void *rhs, void *dest);
+void func_8002AA50(void *transform, void *matrix);
+void func_80029AB8(void *matrix, f32 scale);
+void mtxf_transform_point(Matrix matrix, f32 x, f32 y, f32 z,
+                          f32 *outX, f32 *outY, f32 *outZ);
+ModelRenderCamera *camGetListPtr(void);
+s32 camGetMode(void);
+s32 func_800290A0(void);
+s32 Arctanf(f32 y, f32 x);
+f32 func_8002A8BC(s16 angle);
+f32 func_8002A8C0(s16 angle);
+void func_8002B040(void *matrix, s32 x, s32 y, s32 z,
+                   f32 *outX, f32 *outY, f32 *outZ);
+void func_800591B0(Matrix *matrices, Matrix root,
+                    ModelRenderInstance *instance, ModelMatrixNode *nodes,
+                    void *asset);
+void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node,
+                   s32 count);
 void mmFree(void *ptr);
 u8 *func_8005A948(s16 animationId);
 void func_8005AAC0(u8 *animation);
@@ -450,12 +575,216 @@ void func_8005AD64(ModelAnimationInstance *instance, s32 frame, s32 arg2,
  * words and would also perturb this TU's already-exact functions.
  */
 /*
- * Plateau: this 0x730-byte matrix/attachment builder remains blocked on
- * unknown model-node and attachment layouts. The permitted JFG peer is also
- * assembly, and the Mickey m2c draft cannot establish the field semantics
- * needed for a clean-room C reconstruction.
+ * PROVENANCE: field roles were cross-checked against Jet Force Gemini's
+ * permitted public decomp at pinned commit c82affff, specifically
+ * include/structs.h (ObjectModel/ModelInstance), src/models.h, and
+ * src/camera.h. JFG's peer body remains assembly; Mickey's offsets, node
+ * selection, control flow, and call sequence are reconstructed from Mickey.
  */
+/* Workbench: structure-mismatch, 377 differing words, first mismatch +0x0. */
+/* Structural gap: target 460 instructions/frame -0xF8 versus candidate 463/-0x110; camera-angle stack layout remains unresolved. */
+/* Next: constant-audit the earliest immediate, then repair structure before register allocation (workbench mixed-residual routing). */
+/* Not shape-exact or permuter-ready; model matrix and attachment-point control flow are represented. */
+#ifdef NON_MATCHING
+void func_8005AF14(ModelRenderInstance *instance, ModelRenderContext *context,
+                   ModelRenderModel *model) {
+    s32 matrixList;
+    ModelRenderSlot *slot;
+    Matrix *activeMatrices;
+    ModelRenderAsset *asset;
+    ModelRenderCamera *camera;
+    ModelRenderNodeData *nodeData;
+    ModelRenderMatrixNode *matrixNode;
+    ModelRenderPointA *pointA;
+    ModelRenderPointB *pointB;
+    ModelRenderVertex *vertex;
+    void *assetPart;
+    u8 *matrixBase;
+    f32 *output;
+    f32 scale;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 sine;
+    f32 cosine;
+    s16 yaw;
+    s16 pitch;
+    s16 angle;
+    s16 rawAngle;
+    s16 clampedAngle;
+    s16 scaledAngle;
+    s32 index;
+    s32 pointOffset;
+    s32 temp;
+
+    {
+        Matrix matrix;
+
+        scale = 1.0f;
+        if (model->type == 1) {
+            asset = model->asset;
+            func_8002AA50((u8 *) asset + 0x43C, matrix);
+            if (asset->scale != 1.0f) {
+                scale = asset->scale;
+                func_80029AB8(matrix, asset->scale);
+            }
+        } else {
+            func_8002AA50(model, matrix);
+        }
+
+        instance->activeSlot ^= 1;
+    slot = (ModelRenderSlot *) ((u8 *) instance + (instance->activeSlot * 4));
+    matrixList = (s32) slot->matrices;
+    instance->count = slot->count;
+    if (instance->animated == 0) {
+        func_8005B644((Matrix *) matrixList, matrix, context->nodes, context->matrixCount);
+    } else {
+        instance->offset = model->scale * instance->scale;
+        switch (model->type) {
+        case 1:
+            assetPart = (u8 *) model->asset + 0x1B8;
+            break;
+        case 0x36:
+            assetPart = (u8 *) model->asset + 0x3E;
+            break;
+        case 0x37:
+            assetPart = (u8 *) model->asset + 0x28;
+            break;
+        case 0x54:
+            assetPart = (u8 *) model->asset + 0x1C;
+            break;
+        case 0x56:
+            assetPart = (u8 *) model->asset + 0x10;
+            break;
+        default:
+            assetPart = NULL;
+            break;
+        }
+        func_800591B0((Matrix *) matrixList, matrix, instance, context->nodes, assetPart);
+        instance->mode = 2;
+        }
+    }
+
+    if ((model->flags & 0x1000) != 0) {
+        ModelRenderTransform transform;
+
+        camera = camGetListPtr();
+        if ((model->type == 1) && (asset->cameraIndex >= 0)) {
+            temp = asset->cameraIndex;
+            if (camGetMode() >= temp) {
+                camera += temp;
+            }
+        }
+        slot = (ModelRenderSlot *) ((u8 *) instance + (instance->activeSlot * 4));
+        activeMatrices = slot->matrices;
+        matrixBase = (u8 *) activeMatrices;
+        matrixNode = (ModelRenderMatrixNode *) (matrixBase + 0x240);
+        deltaX = camera->x - matrixNode->x;
+        deltaY = camera->y - matrixNode->y;
+        deltaZ = camera->z - matrixNode->z;
+        yaw = Arctanf(deltaX, deltaZ);
+        if (deltaY < 0.0f) {
+            deltaY *= deltaY;
+        } else {
+            deltaY = -(deltaY * deltaY);
+        }
+        pitch = Arctanf(deltaY, (deltaX * deltaX) + (deltaZ * deltaZ));
+        func_8002B040(matrixBase + 0x200, 0, 0, 0x3F800000,
+                      &deltaX, &deltaY, &deltaZ);
+        angle = -yaw;
+        sine = func_8002A8C0(angle);
+        cosine = func_8002A8BC(angle);
+        rawAngle = Arctanf(-((deltaX * cosine) + (deltaZ * sine)),
+                           (deltaZ * cosine) - (deltaX * sine));
+        clampedAngle = rawAngle;
+        if (rawAngle >= 0x4001) {
+            clampedAngle = 0x4000 - (rawAngle - 0x4000);
+        } else if (rawAngle < -0x4000) {
+            clampedAngle = -0x4000 - (rawAngle + 0x4000);
+        }
+        scaledAngle = (s16) ((s32) (((f32) clampedAngle / 16384.0f) * 8192.0f));
+        func_8002B040(matrixBase + 0x200, 0, 0x3F800000, 0,
+                      &deltaX, &deltaY, &deltaZ);
+        sine = func_8002A8C0(angle);
+        transform.rotation0 = yaw;
+        transform.rotation1 = pitch;
+        transform.rotation2 = scaledAngle +
+                               Arctanf(-((deltaX * func_8002A8BC(angle)) +
+                                          (deltaZ * sine)), deltaY);
+        transform.scale = model->transformScale;
+        nodeData = (ModelRenderNodeData *) context->nodes;
+        mtxf_transform_point((Matrix *) (matrixBase + 0x200), nodeData->x,
+                             nodeData->y, nodeData->z, &transform.x,
+                             &transform.y, &transform.z);
+        func_8002AA50(&transform, matrixNode);
+        func_80029AB8(matrixNode, scale);
+    }
+
+    if ((model->type == 1) && (func_800290A0() == 0)) {
+        slot = (ModelRenderSlot *) ((u8 *) instance + (instance->activeSlot * 4));
+        func_8002B040((u8 *) slot->matrices, 0, 0, 0x3F800000,
+                      &deltaX, &deltaY, &deltaZ);
+        asset->angle = Arctanf(deltaX, deltaZ);
+    }
+
+    output = instance->vertices[0];
+    index = 0;
+    pointOffset = 0;
+    if ((s32) context->count0 > 0) {
+        do {
+            pointA = (ModelRenderPointA *) ((u8 *) context->points0 + pointOffset);
+            vertex = (ModelRenderVertex *) (context->vertexData + (pointA->vertex * 0xA));
+            slot = (ModelRenderSlot *) ((u8 *) instance + (instance->activeSlot * 4));
+            activeMatrices = slot->matrices;
+            mtxf_transform_point((Matrix *) ((u8 *) activeMatrices + (pointA->node << 6)),
+                                 (f32) vertex->x, (f32) vertex->y, (f32) vertex->z,
+                                 output, output + 1, output + 2);
+            index++;
+            pointOffset += 4;
+            output += 3;
+        } while (index < (s32) context->count0);
+    }
+
+    output = instance->vertices[1];
+    index = 0;
+    pointOffset = 0;
+    if ((s32) context->count1 > 0) {
+        do {
+            pointB = (ModelRenderPointB *) ((u8 *) context->points1 + pointOffset);
+            vertex = (ModelRenderVertex *) (context->vertexData + (pointB->vertex * 0xA));
+            slot = (ModelRenderSlot *) ((u8 *) instance + (instance->activeSlot * 4));
+            activeMatrices = slot->matrices;
+            mtxf_transform_point((Matrix *) ((u8 *) activeMatrices + ((s32) pointB->node << 6)),
+                                 (f32) vertex->x, (f32) vertex->y, (f32) vertex->z,
+                                 output, output + 1, output + 2);
+            index++;
+            pointOffset += 0xC;
+            output += 3;
+        } while (index < (s32) context->count1);
+    }
+
+    output = instance->vertices[2];
+    index = 0;
+    pointOffset = 0;
+    if ((s32) context->count2 > 0) {
+        do {
+            pointB = (ModelRenderPointB *) ((u8 *) context->points2 + pointOffset);
+            vertex = (ModelRenderVertex *) (context->vertexData + (pointB->vertex * 0xA));
+            slot = (ModelRenderSlot *) ((u8 *) instance + (instance->activeSlot * 4));
+            activeMatrices = slot->matrices;
+            mtxf_transform_point((Matrix *) ((u8 *) activeMatrices + ((s32) pointB->node << 6)),
+                                 (f32) vertex->x, (f32) vertex->y, (f32) vertex->z,
+                                 output, output + 1, output + 2);
+            index++;
+            pointOffset += 0xC;
+            output += 3;
+        } while (index < (s32) context->count2);
+    }
+    camConvertMatrixList((Matrix *) matrixList, context->matrixCount);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005AF14.s")
+#endif
 
 /* Mickey-derived parented matrix-list builder; JFG retains its peer as asm. */
 void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 count) {

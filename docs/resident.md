@@ -2747,9 +2747,15 @@ target's 46 instructions with 14 differing words, first at `+0x40`; its cache
 temporaries rotate by one register and its selected-index spill lands at
 `0x1C(sp)` instead of `0x18(sp)`. The flag lattice and bounded permutation do
 not repair that FIFO. `func_8005ABA8` emits 110 against 111 and first diverges
-at `+0x38` before an FP-allocation cascade. `func_8005AF14` remains a structural
-plateau because neither Mickey's current types nor JFG's assembly-only peer
-establish its model-node and attachment layouts.
+at `+0x38` before an FP-allocation cascade. `func_8005AF14` now has a
+Mickey-derived matrix/attachment-point candidate; its source comment discloses
+the pinned JFG declaration files used only to cross-check field roles, while
+JFG's peer body remains assembly. The target is 460 instructions with a
+`-0xF8` frame versus the candidate's 463 and `-0x110`; the workbench reports
+`structure-mismatch`, 377 differing words from `+0x0`. Assembly remains
+canonical. Its `next:` routing is `constant-audit` on the earliest immediate,
+then structural repair and only then register work; the frame/local shape and
+camera-angle block are the candidate-specific structural focus.
 
 In `main/vehicle_sounds`, the Mickey-derived handle cleanup loop
 `func_800582A8` (`0x64` bytes) is exact under `-O2 -mips2 -32`; its linked
