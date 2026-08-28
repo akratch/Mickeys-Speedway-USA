@@ -168,3 +168,12 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
   to the candidate's types instead left `gmake verify` green. Changed: when a
   candidate and a top-level prototype disagree, first try changing the
   prototype and verifying; adapt the body only if verify fails.
+- **Overlay candidates must keep resident-target placeholders.** Renaming
+  `func_80029FE4`-style names in candidates to the real resident symbols
+  looked like a stale-name cleanup; it produced `relocation-truncated
+  (R_MIPS_26)` (a direct `jal` from the module's 0xF… VMA cannot reach
+  0x8…) and, where matched code shared the name, changed bytes. Overlay code
+  reaches resident targets through the trampoline plus the module relocation
+  table; the placeholder's value must come from the stored site bytes, like
+  every other placeholder. Reverted (4c81938c); the generator is being
+  extended to value resident targets.
