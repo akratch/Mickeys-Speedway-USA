@@ -25,7 +25,7 @@
   "matched_overlay_c_bytes": 113908,
   "nonmatching_overlay_c_bytes": 309956,
   "data_rodata_bytes": 61312,
-  "owned_data_rodata_bytes": 1904,
+  "owned_data_rodata_bytes": 2148,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
   "resident_relocations": 375,
@@ -1331,6 +1331,16 @@
      "source": "overlays/o001/overlay_001_end",
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
     }
+   ],
+   "data_rodata_ownership": [
+    {
+     "offset": "0x274",
+     "end_offset": "0x294",
+     "size": "0x20",
+     "type": "c",
+     "section": ".rodata",
+     "source": "overlays/o001/overlay_001_tail"
+    }
    ]
   },
   {
@@ -2464,6 +2474,16 @@
      "source": "overlays/o007/overlay_007_tail",
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
     }
+   ],
+   "data_rodata_ownership": [
+    {
+     "offset": "0x934",
+     "end_offset": "0x950",
+     "size": "0x1C",
+     "type": "c",
+     "section": ".rodata",
+     "source": "overlays/o007/overlay_007_tail"
+    }
    ]
   },
   {
@@ -2879,6 +2899,16 @@
      "source": "overlays/o008/overlay_008",
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
     }
+   ],
+   "data_rodata_ownership": [
+    {
+     "offset": "0x27C",
+     "end_offset": "0x2AC",
+     "size": "0x30",
+     "type": "c",
+     "section": ".rodata",
+     "source": "overlays/o008/overlay_008"
+    }
    ]
   },
   {
@@ -2989,6 +3019,16 @@
      "label": "overlay9Ignore",
      "source": "overlays/o009/overlay_009",
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    }
+   ],
+   "data_rodata_ownership": [
+    {
+     "offset": "0x390",
+     "end_offset": "0x3E0",
+     "size": "0x50",
+     "type": "c",
+     "section": ".rodata",
+     "source": "overlays/o009/overlay_009"
     }
    ]
   },
@@ -4156,7 +4196,25 @@
     "pilot_role": null,
     "exact_donor_match": null,
     "priority_rank": 93
-   }
+   },
+   "data_rodata_ownership": [
+    {
+     "offset": "0x158",
+     "end_offset": "0x174",
+     "size": "0x1C",
+     "type": "c",
+     "section": ".rodata",
+     "source": "overlays/o014/overlay14LoadRelocatedValue"
+    },
+    {
+     "offset": "0x174",
+     "end_offset": "0x190",
+     "size": "0x1C",
+     "type": "c",
+     "section": ".rodata",
+     "source": "overlays/o014/func_overlay_014_F0001830_1871108"
+    }
+   ]
   },
   {
    "overlay": 15,

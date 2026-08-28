@@ -53,6 +53,9 @@ ROM = ROOT / "build" / "mickey.us.z64"
 OUT_JSON = ROOT / "build" / "promotion-trial.json"
 OUT_TXT = ROOT / "build" / "promotion-trial.txt"
 LINK_SYMS = ROOT / "overlay_undefined_syms.us.txt"
+ATLAS_TOOL = ROOT / "tools" / "overlay_atlas.py"
+MANIFEST = ROOT / "config" / "overlays.us.json"
+YAML = ROOT / "mickey.us.yaml"
 
 # A relocation the link cannot resolve is reported by ld as one of these.
 UNDEF_RE = re.compile(r"undefined reference to [`'\"]([A-Za-z_][A-Za-z0-9_]*)")
@@ -328,9 +331,28 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
         t.klass, t.error = "unknown", "could not locate the NON_MATCHING block"
         return t
     surface = LINK_SYMS.read_text()
+    manifest_original = MANIFEST.read_text() if item.overlay is not None else None
+    yaml_original = YAML.read_text() if item.overlay is not None else None
+    manifest_trial_changed = False
+    yaml_trial_changed = False
     surface_log = ""
     link_log = None
     try:
+        if item.overlay is not None:
+            trial_yaml = subprocess.run(
+                [sys.executable, str(ATLAS_TOOL), "--trial-projection"],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                timeout=900,
+            )
+            if trial_yaml.returncode != 0:
+                t.klass = "build-error"
+                t.cause = "ownership-yaml"
+                t.error = (trial_yaml.stdout + trial_yaml.stderr)[-1500:]
+                return t
+            manifest_trial_changed = MANIFEST.read_text() != manifest_original
+            yaml_trial_changed = YAML.read_text() != yaml_original
         ok, log = build(jobs)
         if item.overlay is not None:
             # Compile is done either way; regenerate the surface against the
@@ -376,6 +398,29 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
                     t.klass, t.cause = "text-size-differs", marker[0][0]
     finally:
         item.c_file.write_text(original)
+        projection_changed = False
+        if manifest_original is not None and MANIFEST.read_text() != manifest_original:
+            MANIFEST.write_text(manifest_original)
+            projection_changed = True
+        if yaml_original is not None and YAML.read_text() != yaml_original:
+            YAML.write_text(yaml_original)
+            projection_changed = True
+        if projection_changed:
+            if yaml_trial_changed:
+                # A temporary ownership projection changes splat's ignored
+                # asset slices as well as the YAML.  Re-split the restored
+                # canonical YAML before the next trial; mtime resolution is
+                # too coarse to rely on the normal stamp prerequisite here.
+                clean_env = dict(os.environ)
+                clean_env.pop("PROMOTION_TRIAL", None)
+                subprocess.run(
+                    ["gmake", "extract"],
+                    cwd=ROOT,
+                    capture_output=True,
+                    text=True,
+                    timeout=900,
+                    env=clean_env,
+                )
         if LINK_SYMS.read_text() != surface:
             LINK_SYMS.write_text(surface)
         t.seconds = time.monotonic() - start

@@ -7,6 +7,9 @@ extern void overlay14LoadReloc(s32 source, void *destination, s32 start, s32 siz
 /* Workbench: allocation-mismatch, 53 raw differing words, first mismatch +0x04.
  * Exact 94-instruction jump-table CFG; target frame is -0x28 versus candidate -0x30.
  * Shape-exact/permuter-ready aside from frame/register scheduling; no CFG gap remains. */
+/* Ownership trial (2026-08-28): fixed the TU's +0x158..+0x174 .rodata range;
+ * linked promotion is text-differs with 94 in-range words, first at +0x0.
+ * Module growth is cleared; the remaining gap is codegen/register allocation. */
 #ifdef NON_MATCHING
 void *overlay14LoadRelocatedValue(s32 index, s32 source) {
     u8 *buffer;

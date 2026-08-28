@@ -1577,6 +1577,9 @@ void overlay8UpdateMotionOutput(Overlay8MotionAnchor *anchor,
 /* Workbench p7: allocation-mismatch; 270/270 instructions, 43 masked words (57 diff sites), first +0x178, exact -0x90 frame.
  * Levers: context/view, constant audit, register and array forms, and a pool dead-read probe; prior frame-home, normal-layout, local-exchange, and relocation probes stayed negative.
  * Remains: FP pool diverges at slot 2 (f2 versus f16), FP temp at slot 14, and relocation identities; GLOBAL_ASM stays canonical. */
+/* Ownership trial (2026-08-28): fixed the TU's +0x27C..+0x2AC .rodata range;
+ * linked promotion is text-differs after removing the TU growth; codegen remains.
+ * The candidate's literal pool is retained as the remaining structural gap. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
                                        O8P4CF0State *state,

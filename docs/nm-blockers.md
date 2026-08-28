@@ -149,7 +149,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_001_F0003FD8_18503B8` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F000438C_185076C` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F0005BF4_1851FD4` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_001_F0005ED4_18522B4` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_001_F0005ED4_18522B4` | `src/overlays/o001/overlay_001_tail.c` | resolved-plateau | overlay 1 dispatch table | TU-owned +0x274..+0x294 initialized range clears module growth; code generation remains. |
 | `func_overlay_001_F00061F0_18525D0` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F0006270_1852650` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F00064F8_18528D8` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
@@ -178,7 +178,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_005_F000031C_185B744` | `src/overlays/o005/overlay_005.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_007_F0000324_185C1AC` | `src/overlays/o007/func_overlay_007_F0000324_185C1AC.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_007_F00000A8_185BF30` | `src/overlays/o007/overlay_007.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_007_F0000894_185C71C` | `src/overlays/o007/overlay_007_tail.c` | asm-data | overlay 7 mode switch table | Move the initialized switch table into the consolidated overlay 7 TU. |
+| `func_overlay_007_F0000894_185C71C` | `src/overlays/o007/overlay_007_tail.c` | resolved-plateau | overlay 7 mode switch table | TU-owned +0x934..+0x950 initialized range clears module growth; code generation remains. |
 | `func_overlay_007_F0000AA0_185C928` | `src/overlays/o007/overlay_007_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_007_F0000CCC_185CB54` | `src/overlays/o007/overlay_007_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_007_F0000DBC_185CC44` | `src/overlays/o007/overlay_007_tail.c` | none | — | No ownership change; continue source/codegen work. |
@@ -190,10 +190,10 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_008_F0003368_18610C0` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_008_F00034A0_18611F8` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_008_F00042A8_1862000` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_008_F0004CF0_1862A48` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_008_F0004CF0_1862A48` | `src/overlays/o008/overlay_008.c` | resolved-plateau | overlay 8 literal pool | TU-owned +0x27C..+0x2AC .rodata clears module growth; code generation remains. |
 | `func_overlay_009_F0000000_1866678` | `src/overlays/o009/overlay_009.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_009_F0000540_1866BB8` | `src/overlays/o009/overlay_009.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_009_F0000CE4_186735C` | `src/overlays/o009/overlay_009.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_009_F0000CE4_186735C` | `src/overlays/o009/overlay_009.c` | resolved-plateau | overlay 9 float pool | TU-owned +0x390..+0x3E0 .rodata clears module growth; code generation remains. |
 | `func_overlay_009_F00010B4_186772C` | `src/overlays/o009/overlay_009.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_010_F0000000_1868450` | `src/overlays/o010/overlay10Initialize.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_011_F0000150_1868998` | `src/overlays/o011/func_overlay_011_F0000150_1868998.c` | none | — | No ownership change; continue source/codegen work. |
@@ -209,9 +209,9 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_014_F000013C_186FA14` | `src/overlays/o014/func_overlay_014_F000013C_186FA14.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_014_F00009F4_18702CC` | `src/overlays/o014/func_overlay_014_F00009F4_18702CC.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_014_F0001540_1870E18` | `src/overlays/o014/func_overlay_014_F0001540_1870E18.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_014_F0001830_1871108` | `src/overlays/o014/func_overlay_014_F0001830_1871108.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_014_F0001830_1871108` | `src/overlays/o014/func_overlay_014_F0001830_1871108.c` | resolved-plateau | overlay 14 switch table | TU-owned +0x174..+0x190 .rodata clears module growth; code generation remains. |
 | `func_overlay_014_F00006FC_186FFD4` | `src/overlays/o014/overlay14CreateValue.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_014_F000087C_1870154` | `src/overlays/o014/overlay14LoadRelocatedValue.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_014_F000087C_1870154` | `src/overlays/o014/overlay14LoadRelocatedValue.c` | resolved-plateau | overlay 14 switch table | TU-owned +0x158..+0x174 .rodata clears module growth; code generation remains. |
 | `func_overlay_014_F0000B5C_1870434` | `src/overlays/o014/overlay14PrepareInputState.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_014_F0000498_186FD70` | `src/overlays/o014/overlay14ResetMode.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_015_F000004C_18723E4` | `src/overlays/o015/overlay_015.c` | none | — | No ownership change; continue source/codegen work. |
