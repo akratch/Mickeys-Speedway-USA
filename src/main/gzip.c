@@ -8,8 +8,14 @@
 
 #include "PR/ultratypes.h"
 
+extern s32 D_8007D630;
+extern void *func_8002B280(s32 size, s32 tag);
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gzip/func_8004D5E0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gzip/func_8004D750.s")
+
+void func_8004D750(void) {
+    D_8007D630 = (s32) func_8002B280(0x2800, 0x8F);
+}
 
 /*
  * PROVENANCE: adapted from Diddy Kong Racing's published src/gzip.c.
