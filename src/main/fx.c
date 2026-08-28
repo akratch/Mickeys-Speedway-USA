@@ -86,9 +86,9 @@ void func_80046E70(FxCone *cone) {
     }
     mmFree(cone);
 }
-/* Workbench: structure-mismatch; 70 words differ, first mismatch +0x0. */
-/* Candidate is not shape-exact: 112/110 instructions; frame -72/-72 bytes. */
-/* Remaining gap is stack-slot/field ordering and register allocation. */
+/* Workbench: structure-mismatch, 61 differing words, first mismatch +0x2c. */
+/* Candidate shape: 111/110 instructions, frame -0x48/-0x48; one address-base instruction remains. */
+/* Remaining gap: target preserves the stored cone-end base for address construction; registers remain. */
 #ifdef NON_MATCHING
 extern void *func_8002B280(s32 size, s32 tag);
 extern void *func_80034448(s32 resourceId);
@@ -106,7 +106,6 @@ void *func_80046EC4(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
     s32 sp38;
     s32 temp_a0;
     FxCone *cone;
-    u8 *temp_v0_2;
     u8 *temp_v1;
 
     sp38 = arg8 & 0x80;
@@ -130,12 +129,13 @@ void *func_80046EC4(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
         } else {
             cone->alternateTexture.value = 0;
         }
-        temp_v0_2 = (u8 *) cone + 0x38;
-        cone->vertices = temp_v0_2;
+        cone->vertices = (u8 *) ((s32) cone + 0x38);
         temp_a0 = arg8 + 1;
-        temp_v1 = temp_v0_2 + sp44;
-        cone->addresses[0] = temp_v1;
-        cone->addresses[1] = temp_v1 + sp40;
+        temp_v1 = cone->vertices;
+        temp_v1 += sp44;
+        cone->addresses[0] = (u8 *) temp_v1;
+        temp_v1 += sp40;
+        cone->addresses[1] = (u8 *) temp_v1;
         cone->mode = temp_a0;
         cone->segmentCount = arg8;
         cone->addressIndex = 0;
@@ -143,8 +143,8 @@ void *func_80046EC4(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
         cone->value22 = arg4;
         cone->value20 = arg3;
         cone->value24 = (s16) (s32) arg7;
-        cone->value1C = arg6;
         cone->value18 = arg5;
+        cone->value1C = arg6;
         cone->value2A = arg2;
         cone->value28 = arg1;
         cone->value26 = arg0;
