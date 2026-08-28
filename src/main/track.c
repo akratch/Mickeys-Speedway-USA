@@ -2191,7 +2191,109 @@ s32 func_80010654(TrackRayPoint *start, TrackRayPoint *end,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800115E4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80011980.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80011CDC.s")
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: Mickey's m2c FP dataflow and the resident vector layout
+ * reconstruct this plane-intersection query; no external function body is adapted.
+ */
+/* Workbench verdict: structure-mismatch, 208 differing words, first mismatch +0x0. */
+/* Candidate: 175/208 instructions with a -0xA0 frame versus target -0x60; FP temporary lifetime and cross-product schedule remain unresolved. */
+/* Shape status: interval calculation and square-root paths are reconstructed, but the candidate is not shape-exact. */
+s32 func_80012234(TrackVec3f *point, TrackVec3f *direction,
+                  TrackVec3f *origin, TrackVec3f *planeDirection,
+                  f32 radius, f32 *minimum, f32 *maximum) {
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    f32 normalX;
+    f32 normalY;
+    f32 normalZ;
+    f32 normalLengthSquared;
+    f32 normalLength;
+    f32 dot;
+    f32 absoluteDot;
+    f32 crossX;
+    f32 crossY;
+    f32 crossZ;
+    f32 secondLengthSquared;
+    f32 secondLength;
+    f32 unitX;
+    f32 unitY;
+    f32 unitZ;
+    f32 planeOffset;
+    f32 directionDot;
+    f32 interval;
+    s32 result;
+
+    deltaX = point->f[0] - origin->f[0];
+    deltaY = point->f[1] - origin->f[1];
+    deltaZ = point->f[2] - origin->f[2];
+    normalX = (direction->f[1] * planeDirection->f[2]) -
+              (planeDirection->f[1] * direction->f[2]);
+    normalY = (direction->f[2] * planeDirection->f[0]) -
+              (planeDirection->f[2] * direction->f[0]);
+    normalZ = (direction->f[0] * planeDirection->f[1]) -
+              (planeDirection->f[0] * direction->f[1]);
+    normalLengthSquared = (normalZ * normalZ) +
+                          ((normalX * normalX) + (normalY * normalY));
+    if (normalLengthSquared == 0.0f) {
+        return 0;
+    }
+    normalLength = sqrtf(normalLengthSquared);
+    unitZ = normalZ / normalLength;
+    unitX = normalX / normalLength;
+    unitY = normalY / normalLength;
+    normalZ = unitZ;
+    normalX = unitX;
+    normalY = unitY;
+    dot = (unitZ * deltaZ) + ((deltaX * unitX) + (deltaY * unitY));
+    absoluteDot = dot;
+    if (absoluteDot < 0.0f) {
+        absoluteDot = -dot;
+    }
+    result = 0;
+    if (absoluteDot <= radius) {
+        result = 1;
+    }
+    if (result != 0) {
+        crossX = (deltaY * planeDirection->f[2]) -
+                 (planeDirection->f[1] * deltaZ);
+        crossY = (deltaZ * planeDirection->f[0]) -
+                 (planeDirection->f[2] * deltaX);
+        crossZ = (deltaX * planeDirection->f[1]) -
+                 (planeDirection->f[0] * deltaY);
+        planeOffset = -((normalZ * crossZ) +
+                        ((crossX * normalX) + (crossY * normalY))) /
+                      normalLength;
+        crossX = (normalY * planeDirection->f[2]) -
+                 (planeDirection->f[1] * normalZ);
+        crossY = (normalZ * planeDirection->f[0]) -
+                 (planeDirection->f[2] * normalX);
+        crossZ = (normalX * planeDirection->f[1]) -
+                 (planeDirection->f[0] * normalY);
+        secondLengthSquared = (crossZ * crossZ) +
+                              ((crossX * crossX) + (crossY * crossY));
+        secondLength = sqrtf(secondLengthSquared);
+        unitX = crossX / secondLength;
+        unitY = crossY / secondLength;
+        unitZ = crossZ / secondLength;
+        directionDot = (unitZ * direction->f[2]) +
+                       ((direction->f[0] * unitX) +
+                        (direction->f[1] * unitY));
+        interval = sqrtf((radius * radius) -
+                         (absoluteDot * absoluteDot)) /
+                   directionDot;
+        if (interval < 0.0f) {
+            interval = -interval;
+        }
+        *minimum = planeOffset - interval;
+        *maximum = planeOffset + interval;
+    }
+    return result;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80012234.s")
+#endif
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: Jet Force Gemini's public `src/track.c` retains
