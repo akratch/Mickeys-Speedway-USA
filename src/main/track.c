@@ -1828,7 +1828,122 @@ s32 func_800103D4(void *object) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800103D4.s")
 #endif
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: Mickey's m2c draft and the resident collision-node and plane
+ * offsets reconstruct this intersection query; no external body is adapted.
+ */
+typedef struct TrackRayPoint {
+    f32 x;
+    f32 y;
+    f32 z;
+} TrackRayPoint;
+
+typedef struct TrackRayNode {
+    u8 pad00[0x1C];
+    TrackPlane *planes;
+} TrackRayNode;
+
+/* Workbench verdict: structure-mismatch, 172 differing words, first mismatch +0x0. */
+/* Candidate: 174/171 instructions with a -0x80 frame versus target -0x98; three instruction/FP-home residuals remain. */
+/* Shape status: vector math, three plane tests, and encoded-node traversal are preserved, but it is not shape-exact. */
+s32 func_80010654(TrackRayPoint *start, TrackRayPoint *end,
+                  TrackPlane *result, f32 *maximum) {
+    TrackRayNode *node;
+    TrackRayNode *entry;
+    TrackPlane *plane;
+    TrackRayPoint difference;
+    f32 planeX;
+    f32 planeZ;
+    f32 planeDistance;
+    f32 startValue;
+    f32 endValue;
+    f32 intersection;
+    f32 pointX;
+    f32 pointY;
+    f32 pointZ;
+    f32 normalValue;
+    s32 encoded;
+    s32 iteration;
+    s32 entryOffset;
+    s32 edgeOffset;
+    s32 valid;
+    s32 resultValue;
+    s32 sign;
+    u16 edge;
+
+    difference.x = end->x - start->x;
+    difference.y = end->y - start->y;
+    difference.z = end->z - start->z;
+    resultValue = 0;
+    iteration = 0;
+    entryOffset = 0;
+    if (D_800C9D3C > 0) {
+        do {
+            iteration++;
+            encoded = *(s32 *) ((u8 *) D_800C9D2C + entryOffset);
+            if (encoded > 0) {
+                node = (TrackRayNode *) (encoded | (s32) 0x80000000);
+            } else {
+                entry = (TrackRayNode *) encoded;
+                plane = (TrackPlane *) ((u8 *) node->planes +
+                                        (*(u16 *) entry * 0x10));
+                if (D_80081774 <= plane->distance) {
+                    planeX = plane->x;
+                    planeZ = plane->z;
+                    planeDistance = plane->distance;
+                    endValue = ((plane->x * end->x) +
+                                (plane->distance * end->y)) +
+                               (end->z * plane->z) + plane->distance;
+                    if (endValue < 0.0f) {
+                        startValue = ((plane->x * start->x) +
+                                      (plane->distance * start->y)) +
+                                     (start->z * plane->z) + plane->distance;
+                        if (startValue >= 0.0f) {
+                            intersection = startValue / (startValue - endValue);
+                            if (intersection <= *maximum) {
+                                pointX = start->x + (difference.x * intersection);
+                                pointY = start->y + (difference.y * intersection);
+                                pointZ = start->z + (difference.z * intersection);
+                                valid = 1;
+                                edgeOffset = 0;
+                                do {
+                                    edgeOffset += 2;
+                                    edge = *(u16 *) ((u8 *) entry + edgeOffset);
+                                    sign = edge & 0x8000;
+                                    plane = (TrackPlane *) ((u8 *) node->planes +
+                                                           ((edge ^ sign) * 0x10));
+                                    normalValue = ((plane->x * pointX) +
+                                                   (plane->y * pointY) +
+                                                   (plane->z * pointZ)) +
+                                                  plane->distance;
+                                    if (sign != 0) {
+                                        normalValue = -normalValue;
+                                    }
+                                    if (normalValue > 0.0f) {
+                                        valid = 0;
+                                    }
+                                } while ((edgeOffset < 6) && (valid != 0));
+                                if (valid != 0) {
+                                    *maximum = intersection;
+                                    result->distance = planeDistance;
+                                    result->x = planeX;
+                                    result->z = planeZ;
+                                    resultValue = 1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            entryOffset += 4;
+        } while (iteration < D_800C9D3C);
+    }
+    return resultValue;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010654.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010900.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010B4C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800115E4.s")
