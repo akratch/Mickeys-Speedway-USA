@@ -16,10 +16,13 @@ typedef struct Overlay7SelectionRow {
 /* Overlay 7, ADR 0006 consolidation: C after the middle assembly island. */
 
 /*
- * Plateau: exact size with two differing words, first at +0x44. A redundant
- * low-ten-bit mask fixes the downstream temp-FIFO rotation, but IDO loads the
- * flag value into t4 rather than the target's reused t3; the O2 flag lattice
- * is otherwise identical.
+ * Plateau (trace-retested 2026-08-28): exact 131-word size with two differing
+ * words, first at +0x44. UGEN allocates t3 for the global address, frees it,
+ * then takes t4 for the value and t5 for the masked shift. The stock as1 trace
+ * receives that allocation unchanged, and uopt records no copy decision, so a
+ * zero-code copy-fact barrier has no applicable site. Function- and block-
+ * scoped value carriers regress to 112/131; a pointer carrier canonicalizes
+ * to this retained 129/131 candidate.
  */
 #ifdef NON_MATCHING
 void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) {
