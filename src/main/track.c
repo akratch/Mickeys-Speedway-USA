@@ -361,6 +361,21 @@ extern s32 D_800792F8;
 extern s32 D_80079350;
 extern s32 D_80079354;
 extern f32 D_80081690;
+extern f32 D_80081770;
+extern f32 D_80081774;
+extern f32 D_80081790;
+extern f32 D_80081778;
+extern f32 D_8008177C;
+extern f32 D_80081780;
+extern f32 D_80081784;
+extern f32 D_80081788;
+extern f32 D_8008178C;
+extern s8 D_80079260;
+extern s8 D_80079264;
+extern s8 D_80079268;
+extern s32 D_8007A124;
+extern s32 D_800C9544;
+extern s32 D_800C95B0[];
 extern s32 D_800C95B4[];
 extern s16 D_800D6C4C;
 extern s16 D_800D6C54;
@@ -371,9 +386,12 @@ extern void *D_80079310;
 extern void *D_800C9548;
 extern void *D_800C95A8;
 extern void *D_800C9D20;
-extern void *D_800C9D2C;
-extern void *D_800C9D30;
-extern void *D_800C9D34;
+extern s32 *D_800C9D2C;
+extern s32 D_800C9D3C;
+extern s16 *D_800C9D30;
+extern s16 *D_800C9D34;
+extern s32 D_800C9D24;
+extern s32 D_800C9D28;
 extern void *D_8007926C;
 extern s32 D_800C953C;
 extern TrackPlanePoints D_8007927C[3];
@@ -411,6 +429,16 @@ s32 func_80013324(f32 coefficient, f32 numerator,
 f32 func_8002A8C0(s32 angle);
 void func_8000F82C(s32 start, s32 count, s32 end);
 s32 func_80010178(u32 segmentIndex);
+s32 func_800103D4(void *object);
+u8 *func_80028F54(void);
+f32 camDistance(f32 x, f32 y, f32 z);
+u8 *levelGetLevel(void);
+void partDraw(Gfx **displayList, s32 arg1, s32 mode);
+void func_8000DFBC(u8 segment, s32 arg1, s32 arg2, s32 arg3);
+s32 func_8000DDE4(u8 segment, s32 arg1, s32 arg2, s32 arg3);
+void func_8000F57C(s32 *resultCount, u8 *resultSegments);
+void func_8000FA2C(s32 *result, s32 arg1);
+void shadowGetBuffers(u8 mode, s32 *a, s32 *b, s32 *c);
 void func_8000D768(TrackLight *light, s32 red, s32 green, s32 blue,
                    s32 intensity);
 void *func_8002B280(s32 size, s32 tag);
@@ -1629,7 +1657,177 @@ next_plane:
     } while (planeCount--);
     return TRUE;
 }
+/* Workbench verdict: structure-mismatch, 175 differing words, first mismatch +0x0. */
+/* Candidate: 177/160 instructions with a -0x58 frame versus target -0x38; switch and FP saved-register shape remain unresolved. */
+/* Shape status: visibility branches and plane loop are reconstructed, but the candidate is not shape-exact. */
+/* PROVENANCE: JFG's assembly-only object-alpha routine supplies the role and switch family;
+ * Mickey's jump tables, fields, globals, and arithmetic are authoritative here. */
+#ifdef NON_MATCHING
+s32 func_800103D4(void *object) {
+    u8 *gameMode;
+    u8 *player;
+    void *state;
+    void *bounds;
+    TrackPlane *plane;
+    f32 objectX;
+    f32 objectY;
+    f32 objectZ;
+    f32 radius;
+    f32 fadeDistance;
+    f32 fadeRange;
+    f32 fadeScale;
+    s16 kind;
+    s16 distanceLimit;
+    s32 visible;
+    s32 alphaValue;
+    u8 alpha;
+
+    visible = 1;
+    gameMode = func_80028F54();
+    kind = *(s16 *) ((u8 *) object + 0x44);
+    if (kind < 30) {
+        switch (kind) {
+        case 1:
+            state = *(void **) ((u8 *) object + 0x64);
+            *(u8 *) ((u8 *) object + 0x39) = *(u8 *) ((u8 *) state + 0xF);
+            break;
+        case 3:
+            state = *(void **) ((u8 *) object + 0x64);
+            *(u8 *) ((u8 *) object + 0x39) = (s32) *(f32 *) ((u8 *) state + 0x18);
+            break;
+        case 17:
+            break;
+        case 18:
+            state = *(void **) ((u8 *) object + 0x64);
+            *(u8 *) ((u8 *) object + 0x39) = *(u8 *) ((u8 *) state + 2);
+            break;
+        case 26:
+            state = *(void **) ((u8 *) object + 0x64);
+            *(u8 *) ((u8 *) object + 0x39) = *(u32 *) ((u8 *) state + 4);
+            break;
+        case 2:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+        case 11:
+        case 12:
+        case 13:
+        case 14:
+        case 15:
+        case 16:
+        case 19:
+        case 20:
+        case 21:
+        case 22:
+        case 23:
+        case 24:
+        case 25:
+        case 27:
+        case 28:
+        case 29:
+        default:
+            *(u8 *) ((u8 *) object + 0x39) = 0xFF;
+            break;
+        }
+    } else if ((kind >= 63) && (kind < 89)) {
+        switch (kind) {
+        case 63:
+            state = *(void **) ((u8 *) object + 0x64);
+            *(u8 *) ((u8 *) object + 0x39) = *gameMode == 5
+                ? *(u8 *) ((u8 *) state + 0x190)
+                : 0xFF;
+            player = (u8 *) state;
+            if ((*gameMode != 5) && ((*(u16 *) (player + 0x1A8) & 1) != 0) &&
+                (*(u8 *) (player + 0x170) != 0)) {
+                *(u8 *) ((u8 *) object + 0x39) = *(u8 *) ((u8 *) object + 0x39);
+            }
+            break;
+        case 84:
+        case 85:
+        case 86:
+            break;
+        case 64:
+        case 65:
+        case 66:
+        case 67:
+        case 68:
+        case 69:
+        case 70:
+        case 71:
+        case 72:
+        case 73:
+        case 74:
+        case 75:
+        case 76:
+        case 77:
+        case 78:
+        case 79:
+        case 80:
+        case 81:
+        case 82:
+        case 83:
+        case 87:
+        case 88:
+        default:
+            *(u8 *) ((u8 *) object + 0x39) = 0xFF;
+            break;
+        }
+    } else {
+        *(u8 *) ((u8 *) object + 0x39) = 0xFF;
+    }
+    alpha = *(u8 *) ((u8 *) object + 0x39);
+    if (alpha == 0) {
+        return 0;
+    }
+    bounds = *(void **) ((u8 *) object + 0x40);
+    if (bounds != NULL) {
+        distanceLimit = *(s16 *) ((u8 *) bounds + 0x16);
+        if (distanceLimit != 0) {
+            fadeDistance = camDistance(*(f32 *) ((u8 *) object + 0xC),
+                                       *(f32 *) ((u8 *) object + 0x10),
+                                       *(f32 *) ((u8 *) object + 0x14));
+            fadeRange = (f32) distanceLimit;
+            if (fadeRange < fadeDistance) {
+                visible = 0;
+            } else {
+                fadeScale = fadeRange * D_80081770;
+                fadeRange -= fadeDistance;
+                if (fadeRange < fadeScale) {
+                    visible = 0;
+                } else {
+                    alphaValue = (s32) ((f32) alpha * (fadeRange / fadeScale));
+                    alpha = alphaValue;
+                    *(u8 *) ((u8 *) object + 0x39) = alpha;
+                }
+            }
+        }
+    }
+    if (visible != 0) {
+        objectX = *(f32 *) ((u8 *) object + 0xC);
+        objectY = *(f32 *) ((u8 *) object + 0x10);
+        objectZ = *(f32 *) ((u8 *) object + 0x14);
+        radius = *(f32 *) ((u8 *) object + 0x34);
+        plane = D_800C9578;
+        while ((u8 *) plane < (u8 *) D_800C95A8) {
+            if ((((objectX * plane->x) + (objectY * plane->y)) +
+                 (objectZ * plane->z) + plane->distance + radius) < 0.0f) {
+                visible = 0;
+            }
+            plane++;
+            if (visible == 0) {
+                break;
+            }
+        }
+    }
+    return visible;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800103D4.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010654.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010900.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010B4C.s")
