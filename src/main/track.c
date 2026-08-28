@@ -48,6 +48,12 @@ typedef struct TrackFloatRecord {
     f32 unkC;
 } TrackFloatRecord;
 
+typedef struct TrackKeyRecord {
+    s16 key;
+    s16 sortValue;
+    u8 pad04[4];
+} TrackKeyRecord;
+
 typedef struct TrackPlanePoints {
     f32 x0;
     f32 y0;
@@ -1164,7 +1170,69 @@ void func_8000D978(s32 copySegmentData, s32 updateRate) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DB34.s")
+/* Workbench: allocation-mismatch; 24 words differ, first mismatch +0x24. */
+/* Candidate is shape-exact: 118 instructions, frame -40/-40 bytes, and both call relocations match. */
+/* Remaining gap is register allocation only; this candidate is permuter-ready. */
+#ifdef NON_MATCHING
+s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records,
+                  TrackKeyRecord **matches) {
+    s32 recordIndex;
+    s32 matchCount;
+    s32 passCount;
+    s32 compareCount;
+    s32 sorted;
+    TrackKeyRecord **match;
+    TrackKeyRecord *current;
+    TrackKeyRecord *next;
+    s32 currentValue;
+    s32 nextValue;
+
+    matchCount = 0;
+    for (recordIndex = 0; recordIndex < recordCount; recordIndex++) {
+        if (records[recordIndex].key == key) {
+            matches[matchCount++] = &records[recordIndex];
+        }
+    }
+    if ((matchCount > 0) && (runlinkIsModuleLoaded(21) != 0)) {
+        TrapDanglingJump(key, matchCount, matches);
+    }
+    if (matchCount >= 2) {
+        passCount = matchCount - 1;
+        if (matchCount != 0) {
+            do {
+                current = matches[0];
+                match = matches;
+                sorted = TRUE;
+                compareCount = passCount - 1;
+                currentValue = current->sortValue;
+                if (passCount != 0) {
+                    do {
+                        next = match[1];
+                        nextValue = next->sortValue;
+                        if (nextValue < currentValue) {
+                            match[0] = next;
+                            match++;
+                            sorted = FALSE;
+                        } else {
+                            match[0] = current;
+                            match++;
+                            current = next;
+                            currentValue = nextValue;
+                        }
+                    } while (compareCount--);
+                }
+                match[0] = current;
+                if (sorted) {
+                    passCount = 0;
+                }
+            } while (passCount--);
+        }
+    }
+    return matchCount;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DDE4.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DFBC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E5EC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E920.s")
