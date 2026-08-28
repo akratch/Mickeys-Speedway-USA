@@ -784,6 +784,13 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int) -> tuple[b
         return False, f"could not locate {item.func}'s NON_MATCHING block to replace"
 
     item.c_file.write_text(new_text)
+    if item.overlay is not None:
+        # A promoted overlay body may reference placeholder symbols whose
+        # values are generated from the objects (tools/reloc_surface.py);
+        # regenerate the block after compiling so the link can resolve them.
+        subprocess.run(["gmake", f"-j{jobs}", f"build/{item.rel_c_file}.o"], cwd=ROOT,
+                       capture_output=True, timeout=600)
+        subprocess.run(["gmake", "overlay-syms"], cwd=ROOT, capture_output=True, timeout=900)
 
     def revert(reason: str) -> tuple[bool, str]:
         item.c_file.write_text(original)
@@ -859,6 +866,7 @@ def commit_match(item: QueueItem) -> Optional[str]:
     with PROMOTE_LOCK:
         paths = [item.rel_c_file]
         if item.overlay is not None:
+            paths.append("overlay_undefined_syms.us.txt")
             # An overlay promotion changes the module's ownership rows; the
             # atlas (and its digest) must be regenerated or `gmake
             # overlay-atlas` fails and the overlay bytes are never credited.
