@@ -435,7 +435,58 @@ s32 func_8004989C(s32 index) {
     color |= color << 16;
     return color;
 }
+/* Workbench: structure-mismatch, 42 differing words, first mismatch +0x0. */
+/* Candidate shape: 100 instructions/frame -0x30/relocations match; opcode schedule is not shape-exact. */
+/* Remaining structural gap: camera-join and FxRecord flag/field scheduling. */
+#ifdef NON_MATCHING
+extern s32 camGetMode(void);
+extern void func_80021FB0(s32 mode, s32 camNo, s32 *x1, s32 *y1,
+                          u32 *x2, u32 *y2);
+
+void func_800498FC(s32 index, f32 value16, f32 value18, s32 red, s32 green,
+                   s32 blue, s32 flags) {
+    FxRecord *record;
+    u8 flag80;
+    u8 flag40;
+
+    if (index < 0 || index >= 5) {
+        return;
+    }
+    record = &D_800D5F58[index];
+    if ((record->flags & 2) != 0 ||
+        (record->state != 0 && (record->flags & 1) != 0)) {
+        return;
+    }
+    if (index == 4) {
+        func_80021FB0(0, 0, &record->value4, &record->value8,
+                      (u32 *)&record->valueC, (u32 *)&record->value10);
+    } else {
+        func_80021FB0(camGetMode(), index, &record->value4, &record->value8,
+                      (u32 *)&record->valueC, (u32 *)&record->value10);
+    }
+    record->flags = 0;
+    record->value14 = 0;
+    flag80 = flags & 0x80;
+    record->value16 = (s16)(value16 * 60.0f);
+    flag40 = flags & 0x40;
+    record->value18 = (s16)(value18 * 60.0f);
+    record->red = red;
+    record->green = green;
+    record->value1D = flags & 0xFF3F;
+    record->value1E = flag80;
+    record->value1F = flag40;
+    record->blue = blue;
+    if (flag80 != 0) {
+        record->state = flag40 != 0 ? 3 : 2;
+        record->status = 0xFF;
+    } else {
+        record->state = 1;
+        record->status = 0;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800498FC.s")
+#endif
 void func_80049A8C(s32 index) {
     s32 count = 0;
     FxRecord *record;
