@@ -28,14 +28,23 @@ u8 *D_80079434[3] = { 0 };
 u8 *D_80079440 = 0;
 u8 *D_80079444 = 0;
 u8 *D_80079448 = 0;
-u8 *D_8007944C = 0;
-u8 *D_80079450 = 0;
-u8 *D_80079454 = 0;
+s32 D_8007944C = 0;
+s32 D_80079450 = 0;
+s32 D_80079454 = 0;
 s32 D_80079458 = 0;
 u16 D_8007945C[2] = { 0, 0x4000 };
 extern s32 D_800CB278;
 extern s32 D_800CB27C;
 extern s32 D_800CB280;
+extern f32 func_8002A8BC(s16 angle);
+extern f32 func_8002A8C0(s16 angle);
+extern s32 D_800CAF58;
+extern u8 D_800CAF60[];
+extern u8 D_800C9D48[];
+extern u8 D_800C9F58[];
+extern f32 D_800CB260;
+extern f32 D_800CB270;
+extern f32 D_800CB274;
 extern s32 D_800CB284;
 extern s32 D_800CB288;
 extern void *func_8002B280(s32 size, s32 tag);
@@ -103,5 +112,210 @@ void shadowGetBuffers(s32 arg0, void **arg1, void **arg2, void **arg3) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80016890.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80017140.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80017660.s")
+/*
+ * PROVENANCE: adapted from the public Diddy Kong Racing/JFG shadow-buffer
+ * and projected-triangle organization; Mickey's target bytes, globals, and
+ * resident buffer layouts determine the field bindings below.
+ */
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch, 312 differing words; first mismatch is at +0x0. */
+/* Target is 314 instructions/frame -264; candidate is 326 instructions/frame -280. */
+/* Remaining gap is structural: prologue/constant setup and pointer/register scheduling; not permuter-ready. */
+s32 func_80017BCC(void *arg0, void *arg1, void *arg2) {
+    u32 projected[3];
+    u8 *var_a0;
+    u8 *var_a2;
+    u8 *var_a3;
+    u8 *var_s6;
+    u8 *var_t4;
+    u8 *var_v0;
+    u8 *var_v0_2;
+    u8 *temp_v0;
+    u8 *source;
+    volatile f32 spA8;
+    f32 temp_f0;
+    f32 temp_f12;
+    f32 temp_f12_2;
+    f32 temp_f2;
+    f32 temp_f2_2;
+    f32 temp_f2_3;
+    f32 var_f0;
+    f32 var_f0_2;
+    f32 var_f12;
+    f32 var_f14;
+    f32 var_f16;
+    f32 var_f18;
+    f32 var_f22;
+    f32 var_f24;
+    f32 var_f26;
+    f32 var_f28;
+    s32 var_fp;
+    s32 var_s4;
+    s32 var_s7;
+    s32 var_t2;
+    s32 var_t3;
+    s32 var_v1;
+    s32 var_v1_2;
+    s8 var_a0_2;
+    s8 var_a1_2;
+    s8 var_t5;
+    u8 var_a1;
+    u8 vertexCount;
+
+    if ((*(u8 *) ((u8 *) arg2 + 0x10) & 0x10) != 0) {
+        var_f16 = 1.0f;
+        var_f14 = 0.0f;
+    } else {
+        if (arg1 != NULL) {
+            spA8 = func_8002A8C0(*(s16 *) ((u8 *) arg1 + 0x0));
+            var_f0 = func_8002A8BC(*(s16 *) ((u8 *) arg1 + 0x0));
+            var_f14 = spA8;
+        } else {
+            spA8 = func_8002A8C0(*(s16 *) ((u8 *) arg0 + 0x14));
+            var_f0 = func_8002A8BC(*(s16 *) ((u8 *) arg0 + 0x14));
+            var_f14 = spA8;
+        }
+        var_f16 = var_f0;
+    }
+    temp_v0 = *(u8 **) ((u8 *) arg0 + 0x0);
+    var_f26 = *(f32 *) ((u8 *) arg0 + 0x34);
+    temp_f12 = *(f32 *) ((u8 *) arg0 + 0x24);
+    var_f28 = *(f32 *) ((u8 *) arg0 + 0x38);
+    var_f18 = 255.0f;
+    var_t5 = 0x19;
+    var_t4 = D_800CAF60;
+    var_s7 = 0;
+    var_f22 = (f32) (*(u16 *) (temp_v0 + 0x6) * 0x10) / var_f26;
+    var_f24 = (f32) (*(u16 *) (temp_v0 + 0x8) << 5) /
+              (var_f28 + *(f32 *) ((u8 *) arg0 + 0x3C));
+    if (temp_f12 > 0.0f) {
+        temp_f2 = *(f32 *) ((u8 *) arg0 + 0xC) -
+                  *(f32 *) ((u8 *) arg0 + 0x20);
+        if (temp_f12 < temp_f2) {
+            var_f18 = 255.0f *
+                      (1.0f - ((temp_f2 - temp_f12) /
+                               *(f32 *) ((u8 *) arg0 + 0x28)));
+            if (var_f18 < 0.0f) {
+                var_f18 = 0.0f;
+            }
+        }
+        if (temp_f2 > 0.0f) {
+            temp_f0 = (temp_f2 / 200.0f) + 1.0f;
+            var_f22 *= temp_f0;
+            var_f26 /= temp_f0;
+            var_f24 *= temp_f0;
+            var_f28 /= temp_f0;
+        }
+    }
+    var_s4 = (s32) (var_f18 * D_800CB260);
+    if (arg1 != NULL) {
+        var_s4 = (s32) (*(s16 *) ((u8 *) arg1 + 0x4) * var_s4) >> 8;
+    }
+    var_f18 = D_800CB270;
+    var_f0 = D_800CB274;
+    var_t2 = D_8007944C;
+    var_t3 = D_80079450;
+    var_a3 = D_80079444 + (var_t3 * 0x10);
+    var_fp = D_80079454;
+    var_a2 = D_80079440 + (var_t2 * 0xA);
+    var_s6 = D_80079448 + (var_fp * 8);
+    if (D_800CAF58 > 0) {
+loop_16:
+        var_a0 = var_t4;
+        if ((*(u8 *) (var_t4 + 0x0) + var_t5) >= 0x18) {
+            *(s16 *) (var_s6 + 0x6) = var_t2;
+            *(s16 *) (var_s6 + 0x4) = var_t3;
+            var_s6 += 8;
+            var_fp += 1;
+            var_t5 = 0;
+            *(u32 *) (var_s6 - 0x8) = *(u32 *) ((u8 *) arg0 + 0x0);
+        }
+        if (var_fp >= D_800CB280) {
+            return 0;
+        }
+        var_a1 = *(u8 *) (var_t4 + 0x1);
+        var_v1 = 0;
+        vertexCount = *(u8 *) (var_t4 + 0x0);
+        if ((s32) vertexCount > 0) {
+loop_21:
+            if (var_a1 & 1) {
+                var_v0 = D_800C9F58 + (*(u8 *) (var_a0 + 0x2) << 5);
+                var_f0_2 = *(f32 *) (var_v0 + 0x0);
+                var_f12 = *(f32 *) (var_v0 + 0x4);
+            } else {
+                var_v0 = D_800C9D48 + (*(u8 *) (var_a0 + 0x2) * 0x10);
+                var_f0_2 = *(f32 *) (var_v0 + 0x0);
+                var_f12 = *(f32 *) (var_v0 + 0x4);
+            }
+            temp_f2_2 = *(f32 *) (var_v0 + 0x8);
+            var_a1 = (u8) ((s32) var_a1 >> 1);
+            var_t2 += 1;
+            var_a2 += 0xA;
+            *(s16 *) (var_a2 - 0xA) = (s32) var_f0_2;
+            *(s8 *) (var_a2 - 0x4) = 0xFF;
+            *(s8 *) (var_a2 - 0x3) = 0xFF;
+            *(s8 *) (var_a2 - 0x2) = 0xFF;
+            *(s8 *) (var_a2 - 0x1) = (s8) var_s4;
+            *(s16 *) (var_a2 - 0x6) = (s32) temp_f2_2;
+            *(s16 *) (var_a2 - 0x8) =
+                (s32) (*(f32 *) ((u8 *) arg0 + 0x1C) + var_f12);
+            if (var_t2 >= D_800CB278) {
+                return 0;
+            }
+            temp_f12_2 = var_f0_2 - var_f18;
+            var_a0 += 1;
+            temp_f2_3 = temp_f2_2 - var_f0;
+            projected[var_v1] =
+                ((s32) (((temp_f2_3 * var_f16) +
+                         (temp_f12_2 * var_f14) + var_f28) * var_f24) &
+                 0xFFFF) |
+                ((s32) (var_f22 * (((temp_f12_2 * var_f16) -
+                                    (temp_f2_3 * var_f14)) + var_f26)) <<
+                 0x10);
+            var_v1 += 1;
+            if (var_v1 < (s32) *(u8 *) (var_t4 + 0x0)) {
+                goto loop_21;
+            }
+        }
+        var_v1_2 = 1;
+        if ((*(u8 *) (var_t4 + 0x0) - 1) >= 2) {
+            var_a0_2 = var_t5 + 1;
+            var_a1_2 = var_a0_2 + 1;
+            var_v0_2 = (u8 *) &projected[1];
+loop_29:
+            *(u8 *) (var_a3 + 0x0) = 0;
+            *(u8 *) (var_a3 + 0x1) = var_a0_2;
+            *(u8 *) (var_a3 + 0x2) = var_a1_2;
+            *(u8 *) (var_a3 + 0x3) = var_t5;
+            *(u32 *) (var_a3 + 0x4) = *(u32 *) (var_v0_2 + 0x0);
+            var_t3 += 1;
+            var_v1_2 += 1;
+            *(u32 *) (var_a3 + 0x8) = *(u32 *) (var_v0_2 + 0x4);
+            *(u32 *) (var_a3 + 0xC) = projected[0];
+            var_a3 += 0x10;
+            if (var_t3 >= D_800CB27C) {
+                return 0;
+            }
+            var_v0_2 += 4;
+            var_a0_2 += 1;
+            var_a1_2 += 1;
+            if (var_v1_2 < (*(u8 *) (var_t4 + 0x0) - 1)) {
+                goto loop_29;
+            }
+        }
+        var_s7 += 1;
+        var_t5 += *(u8 *) (var_t4 + 0x0);
+        var_t4 += 0xC;
+        if (var_s7 < D_800CAF58) {
+            goto loop_16;
+        }
+    }
+    D_8007944C = var_t2;
+    D_80079450 = var_t3;
+    D_80079454 = var_fp;
+    return 1;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80017BCC.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_800180B4.s")
