@@ -379,7 +379,6 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_084_F0000048_18D0528` | `src/overlays/o084/overlay84InitializeAndUpdate.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_084_F0000C9C_18D117C` | `src/overlays/o084/overlay84LoadCurrent.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_086_F0000474_18D22AC` | `src/overlays/o086/func_overlay_086_F0000474_18D22AC.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_086_F0000158_18D1F90` | `src/overlays/o086/overlay86BuildTransform.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_087_F0000128_18D3090` | `src/overlays/o087/func_overlay_087_F0000128_18D3090.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_088_F00001A4_18D3C2C` | `src/overlays/o088/overlay88DrawSortedGeometry.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_089_F0000270_18D44A0` | `src/overlays/o089/overlay89InitializeEffect.c` | none | — | No ownership change; continue source/codegen work. |
