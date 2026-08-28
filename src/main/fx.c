@@ -629,7 +629,52 @@ s32 func_8004AD34(void) {
     }
     D_800D60A8 = 0;
 }
+/* Workbench: structure-mismatch, 30 differing words, first mismatch +0x0. */
+/* Candidate shape: 96 instructions/relocations match; frame -0x48 vs target -0x40, not shape-exact. */
+/* Remaining structural gap: the allocator/clear-loop web and the 8-byte frame home. */
+#ifdef NON_MATCHING
+extern void *func_8002B280(s32 size, s32 tag);
+
+void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
+    s32 offset;
+    register s32 i;
+    u8 *first;
+    u8 *second;
+    FxTextureCallback callback;
+
+    index--;
+    offset = index * 4;
+    D_800D60A8 |= 1 << index;
+    D_800D6098[index] = (s32)texture;
+    if (D_800D60B0[index] == 0) {
+        first = func_8002B280(texture->width * texture->height, 0x87);
+        D_800D60B0[index] = first;
+        second = func_8002B280(texture->width * texture->height, 0x87);
+        D_800D60C0[index] = second;
+        if (D_800D60B0[index] == 0 || second == 0) {
+            D_800D60B0[index] = 0;
+            D_800D60C0[index] = 0;
+            return;
+        }
+        i = (texture->width * texture->height) - 1;
+        if ((texture->width * texture->height) != 0) {
+            do {
+                *first = 0;
+                first++;
+                *second = 0;
+                second++;
+            } while (i-- != 0);
+        }
+        func_800320F0((s32)&D_8007D47C[index]);
+        callback = D_8007D47C[index];
+        if (callback != 0) {
+            callback(index, D_800D6098[index], 1);
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ADE8.s")
+#endif
 /* Workbench: structure-mismatch, 54/52 words, 48 positional differences from +0x04.
  * Tried constant audit, context lint, pool-vs-temp inlining, and pointer-lifetime placement.
  * The D_800D60C0 base remains a saved web, adding s7 and two boundary words. */
