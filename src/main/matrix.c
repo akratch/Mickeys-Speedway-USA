@@ -360,6 +360,9 @@ void MatrixMultiplyVec4(MtxF m, f32 *src, f32 *dst) {
     dst[2] = x * m[2][0] + y * m[2][1] + z * m[2][2] + w * m[2][3];
     dst[3] = x * m[3][0] + y * m[3][1] + z * m[3][2] + w * m[3][3];
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002AF6C.s")
+#endif
 /*
  * Rotate a direction by the matrix's upper 3x3, the other way round from
  * MatrixMultiplyVec4: the input scales whole *rows* rather than being dotted
@@ -372,12 +375,19 @@ void MatrixMultiplyVec4(MtxF m, f32 *src, f32 *dst) {
  * floating-point argument register is used at all. The three destinations are
  * the stack arguments at 0x10/0x14/0x18(sp).
  */
-void MatrixRotateVec3(MtxF m, f32 x, f32 y, f32 z, f32 *dstX, f32 *dstY, f32 *dstZ) {
-    *dstX = x * m[0][0] + y * m[1][0] + z * m[2][0];
-    *dstY = x * m[0][1] + y * m[1][1] + z * m[2][1];
-    *dstZ = x * m[0][2] + y * m[1][2] + z * m[2][2];
+#ifdef NON_MATCHING
+/* Workbench: structure-mismatch, 34 differing words, first mismatch +0x0. */
+/* Structural gap: target 34 instructions versus candidate 35; one input spill shifts the FP schedule. */
+/* Not shape-exact or permuter-ready; caller ABI and row/column arithmetic are preserved. */
+void func_8002B040(void *arg0, f32 arg1, f32 arg2, f32 arg3,
+                   f32 *arg4, f32 *arg5, f32 *arg6) {
+    f32 *matrix;
+
+    matrix = (f32 *)arg0;
+    *arg4 = arg1 * matrix[0] + arg2 * matrix[4] + arg3 * matrix[8];
+    *arg5 = arg1 * matrix[1] + arg2 * matrix[5] + arg3 * matrix[9];
+    *arg6 = arg1 * matrix[2] + arg2 * matrix[6] + arg3 * matrix[10];
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002AF6C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002B040.s")
 #endif
