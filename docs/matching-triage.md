@@ -155,3 +155,16 @@ A permuter score of 0 is only trustworthy if the scratch object it searches is
    gfx-heavy permuter 0 as unverified. (particles.c also carries a
    `trim_elf_section .rodata 0x28` POSTPROCESS, which is correctly *skipped* by
    fix #1 with a warning — its scratch is not bit-identical for that reason too.)
+
+## Epoch 14 sweep findings (2026-08-28, running log)
+
+The fidelity-fixed batch runner (`docs/permute-batch.md` "Scratch fidelity")
+is sweeping the whole NON_MATCHING queue closest-first. Entries here are
+routing facts from that sweep; the sweep's `summary.json` is the measurement.
+
+| Function | TU | Class | Note | Status |
+|---|---|---|---|---|
+| `func_8004D40C` | font | **P** (was recorded as pass-owned "lifetime" plateau, 2 words) | permuter score 205 → 0 in 255 s once the scratch used the TU's real flags; another false floor in the "proven" column | ✅ matched (permuter) |
+| `overlay1CloneRecord` | o001 | **I** | import.py's scratch redeclares the function with a conflicting return type against the TU's own prototype (`Overlay1PathState *`); scratch never compiles, base score None | needs a prototype-aware import (workbench backlog #7 preflight would have flagged it) |
+| `overlay40FadeRecords` | o040 | **P!** | base 75, no improvement in 20 min | re-seed / longer cap before any hand pass |
+| `overlay18Load` | o018 | **P!** | 700 → 450 in 20 min, still descending | extension candidate |
