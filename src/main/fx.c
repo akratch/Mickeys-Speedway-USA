@@ -623,15 +623,9 @@ void func_800479D4(FxCone *cone, s16 height, f32 radius, f32 depth,
 }
 
 #ifdef NON_MATCHING
-/* Workbench diagnostic full-TU copy: allocation-mismatch, 226/234 rows exact,
- * exact 234/-104 shape, eight register words from +0x298, and zero relocation
- * differences. The temp lane is identical; the pool first diverges at slot 28
- * as v1->a0, a0->a1, and a2->v0. There is no move/copy site for a source
- * coalescing lever, and no instrumented IDO is available for the forced-color
- * oracle. The configured TU still fails before this function on the adjacent
- * func_800475E8 block-local C99 declarations; that function is outside this
- * target's ownership. Remains: one callee-saved pool-color cascade; assembly
- * fallback stays canonical. */
+/* Workbench: allocation-mismatch, 8 differing words, first mismatch +0x298. */
+/* Candidate shape: 234 instructions/frame -0x68; CFG and relocations exact, permuter-ready. */
+/* Remaining gap: one callee-saved pool-color cascade (v1->a0, a0->a1, a2->v0). */
 /* Mickey-derived draft; JFG's corresponding fxDrawCone body is assembly-only. */
 void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
     s32 hasTexture;
@@ -2203,13 +2197,12 @@ void func_8004A9CC(FxGfx **dList) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxScreenEffect.s")
 #ifdef NON_MATCHING
 /*
- * PROVENANCE: the descending four-slot loop skeleton is adapted from Jet
- * Force Gemini asm/nonmatchings/fx/func_8006FFF8.s. Mickey's own symbols and
- * instruction schedule establish the assignment order below.
+ * PROVENANCE: the descending loop skeleton is adapted from Jet Force
+ * Gemini's public fx.c context; Mickey's target establishes the expressions.
  */
-/* Plateau (near-miss p6): workbench mixed(structural:10, register:5), 14 words at 28 instructions; first +0x10.
- * Lever: structure-bucket/context audit found no new source-stable schedule beyond the closed typing/order probes.
- * Remains: callback/trap pool mapping and loop-counter schedule; assembly fallback stays canonical. */
+/* Workbench: structure-mismatch, 18 differing words, first mismatch +0x10. */
+/* Candidate shape: 28 instructions with no frame delta; not shape-exact. */
+/* Remaining gap: callback/trap and loop-counter register webs. */
 void func_8004ACC4(void) {
     FxTextureCallback *callback;
     void **value0;
@@ -2220,7 +2213,7 @@ void func_8004ACC4(void) {
 
     D_800D60A8 = 0;
     i = 3;
-    trap = (FxTextureCallback)TrapDanglingJump;
+    trap = (FxTextureCallback) TrapDanglingJump;
     value0 = &D_800D60BC;
     value1 = &D_800D60CC;
     available = &D_800D60D3;
@@ -2254,18 +2247,17 @@ s32 func_8004AD34(void) {
     }
     D_800D60A8 = 0;
 }
-/* Workbench: structure-mismatch, 30 differing words, first mismatch +0x0. */
-/* Candidate shape: 96 instructions/relocations match; frame -0x48 vs target -0x40, not shape-exact. */
-/* Remaining structural gap: the allocator/clear-loop web and the 8-byte frame home. */
+/* Workbench verdict: structure-mismatch, 19 differing words, first mismatch +0x60. */
+/* Candidate shape: 96 instructions/frame -0x40; three store/branch structural words remain, not shape-exact. */
+/* Remaining gap: second-allocation store scheduling and stack homes; five register residuals remain. */
 #ifdef NON_MATCHING
 extern void *func_8002B280(s32 size, s32 tag);
 
 void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
     s32 offset;
-    register s32 i;
-    u8 *first;
-    u8 *second;
-    FxTextureCallback callback;
+    s32 i;
+    s8 *first;
+    s8 *second;
 
     index--;
     offset = index * 4;
@@ -2276,24 +2268,21 @@ void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
         D_800D60B0[index] = first;
         second = func_8002B280(texture->width * texture->height, 0x87);
         D_800D60C0[index] = second;
-        if (D_800D60B0[index] == 0 || second == 0) {
+        if (D_800D60B0[index] == 0 || D_800D60C0[index] == 0) {
             D_800D60B0[index] = 0;
             D_800D60C0[index] = 0;
             return;
         }
-        i = (texture->width * texture->height) - 1;
-        if ((texture->width * texture->height) != 0) {
-            do {
-                *first = 0;
-                first++;
-                *second = 0;
-                second++;
-            } while (i-- != 0);
+        i = texture->width * texture->height;
+        while (i--) {
+            *first = 0;
+            first++;
+            *second = 0;
+            second++;
         }
         func_800320F0((s32)&D_8007D47C[index]);
-        callback = D_8007D47C[index];
-        if (callback != 0) {
-            callback(index, D_800D6098[index], 1);
+        if (D_8007D47C[index] != 0) {
+            D_8007D47C[index](index, D_800D6098[index], 1);
         }
     }
 }
