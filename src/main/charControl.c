@@ -29,6 +29,12 @@ extern u16 D_80079A20[][4];
 extern ControlGravityVector D_800799EC;
 extern ControlGravityVector D_800799FC;
 extern u16 D_8007BF1C;
+extern f32 D_8008187C;
+extern f32 D_80081880;
+extern f32 D_80081884;
+extern f32 D_80081888;
+extern f32 D_8008188C;
+extern f32 D_80081890;
 extern f32 D_80081894;
 extern f32 D_80081898;
 extern s32 D_80079BCC;
@@ -44,11 +50,24 @@ extern s16 D_800CB476;
 extern ControlCollisionState D_800CB2C0;
 extern ControlCameraState *D_800CB300;
 
+typedef struct ControlCollisionNormal {
+    f32 x;
+    f32 y;
+    f32 z;
+} ControlCollisionNormal;
+extern ControlCollisionNormal D_800CB2C4;
+extern ControlCollisionNormal D_800CB2D0;
+extern ControlCollisionNormal D_800CB2DC;
+extern s32 D_800CB2F8;
+extern u8 D_800CB2FC;
+extern u8 D_800CB2FD;
+
 void pointListRPY(s32 count, s16 *rotation, f32 *input, f32 *output);
 void func_8001EFFC(ControlTransform *transform, ControlPlayer *player, f32 *output);
 f32 func_8002A8BC(s32 angle);
 f32 func_8002A8C0(s32 angle);
 s16 Arctanf(f32 x, f32 y);
+f32 sqrtf(f32 value);
 void mathOneFloatRPY(ControlTransform *transform, f32 *output);
 s32 mathRnd(s32 minimum, s32 maximum);
 ControlSpawned *func_8000590C(ControlSpawnPacket *packet, s32 mode);
@@ -501,7 +520,132 @@ void func_8001DCD0(s16 rotation, ControlVector3 *vector, s16 *pitch, s16 *yaw) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001DD70.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001E5C4.s")
+/* PROVENANCE -- JFG's public charControl.c identifies the corresponding
+ * controlSquashCheckPrior routine, but publishes assembly only; this body is
+ * reconstructed from Mickey's fields, calls, branch conditions, and stores. */
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch; 236 differing words, first mismatch +0x0. */
+/* Target 238 instructions/frame -160; candidate 240 instructions/frame -208. */
+/* Remaining gap is FP spill/branch scheduling and a 48-byte frame excess; not shape-exact. */
+void func_8001EC44(s32 arg0, ControlVector3 *arg1, ControlVector3 *arg2,
+                   f32 arg3, ControlCollisionPlane *arg4) {
+    f32 sp94;
+    f32 sp8C;
+    f32 sp70;
+    f32 sp6C;
+    f32 sp5C;
+    f32 sp58;
+    f32 sp54;
+    f32 sp50;
+    f32 sp4C;
+    f32 normalX;
+    f32 normalY;
+    f32 normalZ;
+    f32 planeDistance;
+    f32 pointX;
+    f32 pointY;
+    f32 pointZ;
+    f32 crossX;
+    f32 crossY;
+    f32 crossZ;
+    f32 value;
+    f32 distance;
+    f32 delta;
+    f32 vectorZ;
+    f32 vectorX;
+    f32 crossBase;
+    f32 crossMiddle;
+    f32 crossOther;
+
+    planeDistance = arg4->distance;
+    normalX = arg4->x;
+    normalY = arg4->y;
+    normalZ = arg4->z;
+    sp70 = planeDistance;
+    pointZ = arg1->z;
+    sp58 = pointZ * normalZ;
+    pointX = arg1->x;
+    sp50 = normalX * pointX;
+    pointY = arg1->y;
+    value = sp58 + (sp50 + (normalY * pointY)) + planeDistance;
+    if ((D_8008187C <= normalY) || (arg4->flags & 0x10000000)) {
+        vectorZ = arg2->z;
+        vectorX = arg2->x;
+        crossBase = vectorZ * normalY;
+        crossMiddle = (normalZ * vectorX) -
+                      (vectorZ * normalX);
+        crossOther = -(vectorX * normalY);
+
+        crossX = (crossMiddle * normalZ) -
+                 (crossOther * normalY);
+        crossY = (crossOther * normalX) -
+                 (crossBase * normalZ);
+        crossZ = (crossBase * normalY) -
+                 (crossMiddle * normalX);
+        sp54 = crossY;
+        sp4C = crossZ;
+        distance = (crossX * crossX) + (crossY * crossY) +
+                   (crossZ * crossZ);
+        if (D_80081880 < distance) {
+            sp5C = crossX;
+            distance = sqrtf(distance);
+            delta = arg3 - arg4->unk1C;
+            arg1->x = arg4->unk10 + (delta * (crossX / distance));
+            arg1->y = arg4->unk14 + (delta * (crossY / distance));
+            arg1->z = arg4->unk18 + (delta * (crossZ / distance));
+        } else {
+            arg1->y = (-(sp58 + sp50 + sp70) / normalY) + D_80081884;
+        }
+        D_800CB2C4.x = normalX;
+        D_800CB2C4.y = normalY;
+        D_800CB2C4.z = normalZ;
+        D_800CB2FD |= 2;
+    } else if (normalY <= D_80081888) {
+        delta = D_8008188C - value;
+        arg1->x = pointX + (delta * normalX);
+        arg1->y = pointY + (delta * normalY);
+        arg1->z = pointZ + (delta * normalZ);
+        D_800CB2DC.x = normalX;
+        D_800CB2DC.y = normalY;
+        D_800CB2DC.z = normalZ;
+        D_800CB2FD |= 8;
+    } else {
+        sp54 = pointX;
+        delta = D_80081890 - value;
+        sp4C = pointY;
+        sp8C = delta;
+        crossX = sp54 + (delta * normalX);
+        crossY = sp4C + (delta * normalY);
+        crossZ = pointZ + (delta * normalZ);
+        normalX = sp54 - crossX;
+        normalZ = pointZ - crossZ;
+        sp94 = sp4C - crossY;
+        value = func_8002A8BC(Arctanf(sp94,
+                                      sqrtf((normalX * normalX) +
+                                            (normalZ * normalZ))));
+        if (value != 0.0f) {
+            delta = sp8C / value;
+            sp6C = delta;
+            distance = sqrtf((normalY * normalY) +
+                             (arg4->z * arg4->z));
+            arg1->x += delta * (normalY / distance);
+            arg1->z += delta * (arg4->z / distance);
+        } else {
+            arg1->x = crossX;
+            arg1->y = crossY;
+            arg1->z = crossZ;
+        }
+        D_800CB2D0.x = normalY;
+        D_800CB2D0.y = arg4->y;
+        D_800CB2D0.z = arg4->z;
+        D_800CB2FD |= 4;
+    }
+    D_800CB2F8 = arg4->flags;
+    D_800CB2FC = arg4->kind;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001EC44.s")
+#endif
 void func_8001EFFC(ControlTransform *transform, ControlPlayer *player, f32 *output) {
     f32 *current;
     s32 index;
