@@ -1191,7 +1191,136 @@ void func_8000D978(s32 copySegmentData, s32 updateRate) {
         }
     }
 }
+/*
+ * PROVENANCE: Mickey's m2c control-flow draft and the resident object and
+ * bounding-box offsets supply this route-list reconstruction. No external
+ * function body is copied here; the public JFG routine is context only.
+ */
+typedef struct TrackRouteObject {
+    u8 pad00[0x0C];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[0x16];
+    s16 segmentIndex;
+    u8 pad30[4];
+    f32 radius;
+} TrackRouteObject;
+
+typedef struct TrackRouteResult {
+    s16 segmentIndex;
+    s16 flags;
+    TrackRouteObject *object;
+} TrackRouteResult;
+
+extern s32 func_8000A244(s32 *resultCount);
+extern s32 func_8000A39C(s32 first, s32 last);
+extern TrackRouteObject *func_800056F0(s32 index);
+
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch, 267 differing words, first mismatch +0x0. */
+/* Candidate: 267/172 instructions with a -0x188 frame versus target -0x190; input-loop unrolling and local/register shape remain. */
+/* Shape status: route traversal and bounds filtering are reconstructed, but the candidate is not shape-exact. */
+s32 func_8000DB34(s32 count, u8 *indices, TrackRouteResult *results) {
+    u8 map[256];
+    s32 heapCount;
+    s32 mapIndex;
+    s32 resultCount;
+    s32 lastIndex;
+    s32 segmentIndex;
+    s32 objectRadius;
+    s32 minX;
+    s32 minY;
+    s32 minZ;
+    s32 maxDistance;
+    s16 candidateSegment;
+    u8 inputIndex;
+    u8 candidateIndex;
+    volatile u8 *input;
+    TrackRouteObject *object;
+    TrackBoundingBox *bounds;
+
+    {
+        u8 *mapPointer = map;
+        u8 *mapEnd = map + 256;
+
+        do {
+            *mapPointer++ = 0xFF;
+        } while (mapPointer < mapEnd);
+    }
+    mapIndex = 0;
+    if (count > 0) {
+        s32 remainder = count & 3;
+
+        if (remainder != 0) {
+            input = indices;
+            do {
+                inputIndex = *input++;
+                map[inputIndex] = mapIndex++;
+            } while (remainder != mapIndex);
+            if (mapIndex == count) {
+                goto build_routes;
+            }
+        }
+        input = indices + mapIndex;
+        do {
+            map[input[0]] = mapIndex;
+            map[input[1]] = mapIndex + 1;
+            map[input[2]] = mapIndex + 2;
+            map[input[3]] = mapIndex + 3;
+            input += 4;
+            mapIndex += 4;
+        } while (mapIndex != count);
+    }
+
+build_routes:
+    heapCount = func_8000A244(&lastIndex);
+    func_8000A39C(heapCount, lastIndex - 1);
+    resultCount = 0;
+    if (heapCount < lastIndex) {
+        lastIndex--;
+        do {
+            object = func_800056F0(lastIndex);
+            if ((object->segmentIndex != -1) &&
+                (map[object->segmentIndex] != 0xFF) &&
+                (func_800103D4(object) != 0)) {
+                objectRadius = (s32) object->radius;
+                candidateSegment = object->segmentIndex;
+                minX = (s32) object->x - objectRadius;
+                minY = (s32) object->y - objectRadius;
+                minZ = (s32) object->z - objectRadius;
+                maxDistance = objectRadius * 2;
+                candidateIndex = map[object->segmentIndex];
+                if (candidateIndex != 0) {
+                    input = indices + candidateIndex - 1;
+                    do {
+                        inputIndex = *input--;
+                        bounds = &D_800792E8->segmentBounds[inputIndex];
+                        if ((minX < bounds->x2) &&
+                            (minY < bounds->y2) &&
+                            (minZ < bounds->z2) &&
+                            (bounds->x1 < (minX + maxDistance)) &&
+                            (bounds->y1 < (minY + maxDistance)) &&
+                            (bounds->z1 < (minZ + maxDistance))) {
+                            candidateSegment = inputIndex;
+                        }
+                        candidateIndex--;
+                    } while (candidateIndex != 0);
+                }
+                results->segmentIndex = candidateSegment;
+                results->flags = 0xFF;
+                results->object = object;
+                results++;
+                resultCount++;
+            }
+            lastIndex--;
+        } while (heapCount < lastIndex);
+    }
+    return resultCount;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DB34.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DDE4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DFBC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E5EC.s")
