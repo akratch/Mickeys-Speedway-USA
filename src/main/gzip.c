@@ -7,8 +7,10 @@
  */
 
 #include "PR/ultratypes.h"
+#include "game/pi.h"
 
 extern s32 D_8007D630;
+extern u8 D_800D6A90[];
 extern void *func_8002B280(s32 size, s32 tag);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gzip/func_8004D5E0.s")
@@ -31,6 +33,9 @@ s32 byteswap32(u8 *arg0) {
     return value;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/gzip/func_8004D7A8.s")
+s32 func_8004D7A8(s32 assetIndex, s32 assetOffset) {
+    piRomLoadSection(assetIndex, (u32) D_800D6A90, assetOffset, 8);
+    return byteswap32(D_800D6A90);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gzip/func_8004D7E0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/gzip/func_8004D840.s")
