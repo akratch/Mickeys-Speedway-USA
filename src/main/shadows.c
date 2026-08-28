@@ -36,6 +36,9 @@ u16 D_8007945C[2] = { 0, 0x4000 };
 extern s32 D_800CB278;
 extern s32 D_800CB27C;
 extern s32 D_800CB280;
+extern s32 D_800CB268;
+extern s32 D_800CB26C;
+extern s32 D_800C9D40;
 extern f32 func_8002A8BC(s16 angle);
 extern f32 func_8002A8C0(s16 angle);
 extern s32 D_800CAF58;
@@ -49,6 +52,10 @@ extern s32 D_800CB284;
 extern s32 D_800CB288;
 extern void *func_8002B280(s32 size, s32 tag);
 extern void mmFree(void *ptr);
+extern s8 func_80017660(void *arg0, s32 arg1, void *arg2, s32 arg3, s32 arg4);
+extern void func_80018544(void *arg0, void *arg1);
+extern s32 shadowBoxPolyOverlap(f32 arg0, f32 arg1, s32 arg2, s16 arg3,
+                                s32 arg4, s32 arg5, s32 arg6, void *arg7);
 
 /* PROVENANCE: adapted from JFG's public asm/nonmatchings/shadows/shadowInitBuffers.s; Mickey globals are authoritative.
  * The C body emits all 75 linked instruction words and the owning 0x50-byte
@@ -110,7 +117,203 @@ void shadowGetBuffers(s32 arg0, void **arg1, void **arg2, void **arg3) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/shadowGenerate.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80016890.s")
+/*
+ * PROVENANCE: organized from the public JFG shadow polygon pipeline and
+ * Mickey's own m2c control flow; all field offsets and buffer limits remain
+ * Mickey-only evidence.
+ */
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch, 337 differing words; first mismatch is at +0x0. */
+/* Target is 328 instructions/frame -320; candidate is 344 instructions/frame -280. */
+/* Remaining gap is structural: pointer/stack scheduling and frame shape; not permuter-ready. */
+void func_80017140(void *arg0, s32 arg1, void *arg2, s32 arg3) {
+    u8 polygon[0x30];
+    u8 *var_a3;
+    u8 *temp_a3;
+    u8 *temp_t1;
+    u8 *temp_t2;
+    u8 *temp_v0;
+    u8 *var_v0;
+    u8 *var_v1_2;
+    u8 *var_v1_3;
+    u8 *var_v1_4;
+    u8 *trackBase;
+    u8 *vertexBase;
+    f32 pointHeight;
+    s16 temp_a1;
+    s16 temp_v0_3;
+    s16 temp_v1;
+    s16 var_a0_3;
+    s16 var_a1;
+    s16 var_a1_2;
+    s16 var_a2;
+    s16 var_ra;
+    s16 var_t0;
+    s32 temp_s1;
+    s32 temp_t9;
+    s32 var_a0;
+    s32 var_a0_2;
+    s32 var_a2_2;
+    s32 var_lo;
+    s32 var_t0_2;
+    s32 var_t1;
+    s32 var_v1;
+    s8 temp_v0_4;
+    u32 temp_a0;
+    u32 temp_v0_2;
+    u32 *maskBase;
+
+    var_t0 = *(s16 *) ((u8 *) arg2 + 0x24);
+    var_t1 = 0;
+    if (var_t0 > 0) {
+        s32 sp7C = 0;
+        do {
+            temp_v0 = *(u8 **) ((u8 *) arg2 + 0xC) + sp7C;
+            temp_a0 = *(u32 *) (temp_v0 + 0xC);
+            trackBase = *(u8 **) ((u8 *) arg2 + 0x0);
+            maskBase = *(u32 **) ((u8 *) arg2 + 0x10);
+            vertexBase = *(u8 **) ((u8 *) arg2 + 0x1C);
+            if (!(temp_a0 & 0x08013880)) {
+                var_ra = *(s16 *) (temp_v0 + 0x8);
+                temp_a1 = *(s16 *) (temp_v0 + 0x18);
+                temp_s1 = (s32) (trackBase + (*(s16 *) (temp_v0 + 0x6) * 0xA));
+                if (var_ra < temp_a1) {
+                    var_v1 = var_ra * 8;
+                    var_a0 = var_ra * 4;
+                    do {
+                        temp_t9 = *(u32 *) (*(u8 **) ((u8 *) arg2 + 0x18) + var_v1) * 4;
+                        temp_v0_2 = (*(u32 *) (maskBase + var_a0)) & arg3;
+                        if ((temp_v0_2 & 0xFFFF) &&
+                            ((temp_v0_2 >> 0x10) != 0) &&
+                            (*(f32 *) (vertexBase + (temp_t9 * 4) + 0x4) > 0.5f)) {
+                            var_a0_2 = 1;
+                            temp_a3 = *(u8 **) ((u8 *) arg2 + 0x4) + (var_ra * 0x10);
+                            var_v1_2 = temp_a3 + 1;
+                            var_a1 = *(s8 *) (temp_s1 + (*(u8 *) (temp_a3 + 1) * 0xA) + 0x2);
+                            var_a2 = var_a1;
+                            do {
+                                var_a0_2 += 1;
+                                temp_v0_3 = *(s8 *)
+                                    (temp_s1 + (*(u8 *) (var_v1_2 + 1) * 0xA) + 0x2);
+                                if (temp_v0_3 < var_a1) {
+                                    var_a1 = temp_v0_3;
+                                } else if (var_a2 < temp_v0_3) {
+                                    var_a2 = temp_v0_3;
+                                }
+                                var_v1_2 += 1;
+                            } while (var_a0_2 < 3);
+                            if (*(s16 *) ((u8 *) arg0 + 0x18) >= var_a1) {
+                                var_v1_3 = temp_a3;
+                                if (var_a2 >= *(s16 *) ((u8 *) arg0 + 0x16)) {
+                                    var_v0 = polygon + 0x10;
+                                    var_lo = *(u8 *) (var_v1_3 + 1) * 0xA;
+                                    while (var_v0 != polygon + 0x30) {
+                                        var_v0 += 0x10;
+                                        var_v1_3 += 1;
+                                        *(f32 *) (var_v0 - 0x20) =
+                                            (f32) *(s16 *) (temp_s1 + var_lo);
+                                        *(s32 *) (var_v0 - 0x12) = -1;
+                                        *(f32 *) (var_v0 - 0x18) =
+                                            (f32) *(s16 *)
+                                                (temp_s1 + (*(u8 *) (var_v1_3 + 0x0) * 0xA) + 0x4);
+                                        var_lo = *(u8 *) (var_v1_3 + 1) * 0xA;
+                                    }
+                                    *(f32 *) (var_v0 - 0x10) =
+                                        (f32) *(s16 *) (temp_s1 + var_lo);
+                                    *(s32 *) (var_v0 - 0x2) = -1;
+                                    *(f32 *) (var_v0 - 0x8) =
+                                        (f32) *(s16 *)
+                                            (temp_s1 + (*(u8 *) (var_v1_3 + 1) * 0xA) + 0x4);
+                                    if (shadowBoxPolyOverlap(
+                                            *(f32 *) ((u8 *) arg0 + 0x40),
+                                            *(f32 *) ((u8 *) arg0 + 0x44),
+                                            var_a0_2, var_a1,
+                                            *(s32 *) ((u8 *) arg0 + 0x48),
+                                            *(s32 *) ((u8 *) arg0 + 0x4C), 3,
+                                            polygon) != 0) {
+                                        *(u8 **) ((u8 *) arg0 + 0x4) =
+                                            vertexBase + (temp_t9 * 4);
+                                        if (*(f32 *) ((u8 *) arg0 + 0x24) > 0.0f) {
+                                            func_80018544(arg0, polygon);
+                                        }
+                                        temp_v0_4 = func_80017660(arg0, 3, polygon, 4, arg1);
+                                        if (temp_v0_4 >= 3) {
+                                            temp_t2 = D_800CAF60 + (D_800CAF58 * 0xC);
+                                            *(u8 *) (temp_t2 + 1) = 0;
+                                            var_t0_2 = 0;
+                                            if (temp_v0_4 > 0) {
+                                                var_a3 = polygon;
+                                                do {
+                                                    temp_v1 = *(s16 *) (var_a3 + 0xE);
+                                                    var_a1_2 = -1;
+                                                    var_a0_3 = 0;
+                                                    if (temp_v1 < 0) {
+                                                        var_a2_2 = D_800C9D40;
+                                                        temp_t1 = temp_t2 + var_t0_2;
+                                                        if (var_a2_2 > 0) {
+                                                            var_v1_4 = D_800C9D48;
+loop_27:
+                                                            if ((*(f32 *) (var_v1_4 + 0x0) ==
+                                                                 *(f32 *) (var_a3 + 0x0)) &&
+                                                                (*(f32 *) (var_v1_4 + 0x8) ==
+                                                                 *(f32 *) (var_a3 + 0x8))) {
+                                                                var_a1_2 = var_a0_3;
+                                                            }
+                                                            var_a0_3 += 1;
+                                                            var_v1_4 += 0x10;
+                                                            if ((var_a0_3 < var_a2_2) &&
+                                                                (var_a1_2 == -1)) {
+                                                                goto loop_27;
+                                                            }
+                                                        }
+                                                        if (var_a1_2 == -1) {
+                                                            if (var_a2_2 >= 0x20) {
+                                                                D_800C9D40 = 0x1F;
+                                                                var_a2_2 = 0x1F;
+                                                            }
+                                                            var_v1_4 = D_800C9D48 + (var_a2_2 * 0x10);
+                                                            *(f32 *) (var_v1_4 + 0x0) = *(f32 *) (var_a3 + 0x0);
+                                                            *(f32 *) (var_v1_4 + 0x8) = *(f32 *) (var_a3 + 0x8);
+                                                            D_800C9D40 = var_a2_2 + 1;
+                                                            *(s8 *) (temp_t1 + 0x2) = var_a2_2;
+                                                            *(s32 *) (var_v1_4 + 0xC) =
+                                                                *(s32 *) ((u8 *) arg0 + 0x4);
+                                                        } else {
+                                                            *(s8 *) (temp_t1 + 0x2) = var_a1_2;
+                                                        }
+                                                    } else {
+                                                        *(s8 *) (temp_t2 + var_t0_2 + 0x2) = temp_v1;
+                                                        *(u8 *) (temp_t2 + 1) |= (1 << var_t0_2);
+                                                    }
+                                                    var_t0_2 += 1;
+                                                    var_a3 += 0x10;
+                                                } while (var_t0_2 != temp_v0_4);
+                                            }
+                                            *(u8 *) (temp_t2 + 0x0) = temp_v0_4;
+                                            *(s16 *) (temp_t2 + 0xA) = *(s32 *) ((u8 *) temp_v0 + 0x94);
+                                            D_800CAF58 += 1;
+                                            D_800CB26C = 0;
+                                            D_800CB268 = *(s32 *) ((u8 *) temp_v0 + 0x94);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        var_ra += 1;
+                        var_v1 += 8;
+                        var_a0 += 4;
+                    } while (var_ra < temp_a1);
+                    var_t0 = *(s16 *) ((u8 *) arg2 + 0x24);
+                }
+            }
+            var_t1 += 1;
+            sp7C += 0x10;
+        } while (var_t1 < var_t0);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80017140.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80017660.s")
 /*
  * PROVENANCE: adapted from the public Diddy Kong Racing/JFG shadow-buffer
