@@ -2939,7 +2939,174 @@ void func_80013EC0(void) {
     }
     D_80079274 = 0;
 }
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: Mickey's m2c display-list draft and resident shadow-buffer and
+ * command offsets reconstruct this renderer; no external function body is adapted.
+ */
+typedef struct TrackShadowObject {
+    u8 pad00[0x39];
+    u8 alpha;
+    u8 pad3A[0x0A];
+    s16 kind;
+    u8 pad46[0x1E];
+    void *material;
+} TrackShadowObject;
+
+typedef struct TrackShadowInstance {
+    u8 pad00[0x0C];
+    u16 textureScale;
+    u8 pad0E[2];
+    u8 active;
+    u8 pad11[2];
+    u8 count;
+    s16 shadowIndex;
+    u8 pad16[2];
+    s16 endIndex;
+} TrackShadowInstance;
+
+typedef struct TrackShadowBuffer {
+    void *texture;
+    s16 u0;
+    s16 height;
+    u8 pad08[4];
+    s16 v0;
+    s16 length;
+} TrackShadowBuffer;
+
+typedef struct TrackShadowMaterial {
+    u8 pad00[0x18];
+    u8 red;
+    u8 green;
+    u8 blue;
+} TrackShadowMaterial;
+
+/* Workbench verdict: structure-mismatch, 195 differing words, first mismatch +0x0. */
+/* Candidate: 217/217 instructions with a -0x90 frame versus target -0xA8; command-field and frame structure remain unresolved. */
+/* Shape status: alpha branches, 8-byte shadow stepping, geometry commands, and FA/FB cleanup writes are preserved, but it is not shape-exact. */
+void func_800140CC(TrackShadowObject *object, TrackShadowInstance *instance) {
+    s32 vertexBuffer;
+    s32 indexBuffer;
+    s32 commandBuffer;
+    s32 loopIndex;
+    s32 shadowCount;
+    s32 alphaValue;
+    s32 commandMode;
+    s32 closeTexture;
+    s32 closeCombiner;
+    s32 textureSpan;
+    s32 indexSpan;
+    s32 vertexAddress;
+    s32 indexAddress;
+    s16 shadowIndex;
+    s16 endIndex;
+    TrackShadowInstance *current;
+    u8 *shadow;
+    TrackShadowMaterial *material;
+    Gfx *command;
+
+    if (object->alpha != 0) {
+        shadowGetBuffers(instance->active, &vertexBuffer, &indexBuffer,
+                         &commandBuffer);
+        loopIndex = 0;
+        current = instance;
+        if (current->count > 0) {
+            do {
+                shadowIndex = current->shadowIndex;
+                if (shadowIndex != -1) {
+                    shadow = (u8 *) (commandBuffer + (shadowIndex * 8));
+                    shadowCount = (s32) object->alpha *
+                                  *(u8 *) (vertexBuffer +
+                                  (*(s16 *) (shadow + 6) * 0x0A) + 9);
+                    shadowCount >>= 8;
+                    if (shadowCount > 0) {
+                        commandMode = 0x0E;
+                        if (object->kind == 0x3C) {
+                            command = D_800C9520;
+                            D_800C9520 = command + 1;
+                            command->words.w1 = (shadowCount & 0xFF) | ~0xFF;
+                            command->words.w0 = 0xFA000000;
+                            command = D_800C9520;
+                            D_800C9520 = command + 1;
+                            command->words.w0 = 0xFB000000;
+                            material = object->material;
+                            command->words.w1 = (material->red << 24) |
+                                                (material->green << 16) |
+                                                (material->blue << 8);
+                            closeTexture = 1;
+                            closeCombiner = 1;
+                        } else {
+                            closeCombiner = 0;
+                            if ((object->kind == 0x35) ||
+                                (object->kind == 0x58)) {
+                                command = D_800C9520;
+                                D_800C9520 = command + 1;
+                                command->words.w0 = 0xFA000000;
+                                command->words.w1 = (shadowCount & 0xFF) | ~0xFF;
+                                closeTexture = shadowCount != 0xFF;
+                            } else {
+                                command = D_800C9520;
+                                D_800C9520 = command + 1;
+                                command->words.w1 = shadowCount & 0xFF;
+                                command->words.w0 = 0xFA000000;
+                                closeTexture = 1;
+                            }
+                        }
+                        shadowIndex = current->shadowIndex;
+                        endIndex = current->endIndex;
+                        while (shadowIndex < endIndex) {
+                            func_800349A4(&D_800C9520, *(void **) shadow,
+                                          commandMode,
+                                          instance->textureScale << 8);
+                            command = D_800C9520;
+                            D_800C9520 = command + 1;
+                            textureSpan = *(s16 *) (shadow + 0xE) -
+                                          *(s16 *) (shadow + 6);
+                            vertexAddress = vertexBuffer +
+                                            (*(s16 *) (shadow + 6) * 10) +
+                                            (s32) 0x80000000;
+                            command->words.w0 = (((((textureSpan * 8) |
+                                                   (vertexAddress & 6)) & 0xFF) << 16) |
+                                                 0x04000000 |
+                                                 ((textureSpan * 10 + 8) & 0xFFFF));
+                            command->words.w1 = vertexAddress;
+                            command = D_800C9520;
+                            D_800C9520 = command + 1;
+                            indexSpan = *(s16 *) (shadow + 0xC) -
+                                        *(s16 *) (shadow + 4);
+                            indexAddress = (*(s16 *) (shadow + 4) * 16) +
+                                           indexBuffer + (s32) 0x80000000;
+                            command->words.w1 = indexAddress;
+                            command->words.w0 = ((((((indexSpan - 1) * 16) |
+                                                   1) & 0xFF) << 16) |
+                                                 0x05000000 |
+                                                 ((indexSpan * 16) & 0xFFFF));
+                            shadowIndex++;
+                            shadow += 8;
+                        }
+                        if (closeTexture != 0) {
+                            command = D_800C9520;
+                            D_800C9520 = command + 1;
+                            command->words.w1 = -1;
+                            command->words.w0 = 0xFA000000;
+                        }
+                        if (closeCombiner != 0) {
+                            command = D_800C9520;
+                            D_800C9520 = command + 1;
+                            command->words.w1 = -0x100;
+                            command->words.w0 = 0xFB000000;
+                        }
+                    }
+                }
+                current = (TrackShadowInstance *) ((u8 *) current + 2);
+                loopIndex++;
+            } while (loopIndex < instance->count);
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800140CC.s")
+#endif
 /*
  * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
  * `trackSetFog`. Mickey's function boundary and fog-data accesses are
