@@ -512,7 +512,270 @@ void func_8000BD50(s32 updateRate) {
         TrapDanglingJump(updateRate);
     }
 }
+/*
+ * PROVENANCE: Mickey's m2c control-flow draft and the resident display-list,
+ * camera, level, and weather declarations reconstruct this update routine;
+ * no external function body is adapted.
+ */
+#ifdef NON_MATCHING
+typedef struct TrackFrameTexture {
+    u8 pad00[0x10];
+    u16 unk10;
+    u16 unk12;
+} TrackFrameTexture;
+
+typedef struct TrackFrameLevel {
+    u8 pad00[0x52];
+    s8 unk52;
+    u8 pad53[0x30];
+    u8 unk83;
+    u8 pad84[0x1E];
+    s16 unkA2;
+    u8 padA4[0x10];
+    s8 unkB4;
+    s8 unkB5;
+    u8 padB6[2];
+    TrackTextureHeader *unkB8;
+    s16 unkBC;
+    s16 unkBE;
+    u8 padC0[0x11];
+    s8 unkD1;
+} TrackFrameLevel;
+
+extern u8 D_80081540[];
+extern u8 D_80081550[];
+extern s32 D_800C9534;
+extern s32 D_800C9538;
+extern s32 D_800C9568;
+extern u8 D_8007A128;
+extern s32 D_8007D6B0;
+extern s16 D_800D6C3E;
+extern void func_8000C400(s32);
+extern void func_8000C5F4(void);
+extern void func_8000CC78(void);
+extern void func_8000CED0(s32);
+extern void func_8000D018(s32, s32);
+extern void func_8000FF2C(void);
+extern void func_80014614(s32, s32);
+extern void func_800147A4(s32);
+extern s32 func_800290A0(void);
+extern s32 levelInitRegionFlags(void);
+extern void camDisableUserView();
+extern void camEnableUserView();
+extern void camSetNo();
+extern void doWeather();
+extern void func_800219D0();
+extern void func_80022D20();
+extern void func_80036CAC();
+extern void func_80044BC8();
+extern void func_800534EC();
+extern void levelUpdateColourCycling();
+extern void rainSetFog();
+extern void shadowChangeBuffer();
+extern void shadowGenerate();
+extern void weather_clip_planes();
+
+/* Workbench verdict: structure-mismatch, 342 differing words, first mismatch +0x0. */
+/* Candidate is 393/403 instructions with the target -0x38 frame; it is not shape-exact. */
+/* Remaining gap: ten missing instructions plus unresolved command/global scheduling. */
+void func_8000BDB4(Gfx **arg0, Mtx **arg1, TrackVertex **arg2,
+                   TrackTriangle **arg3, s32 arg4) {
+    TrackFrameTexture *texture;
+    TrackFrameLevel *level;
+    Gfx *command;
+    s32 temp_a0;
+    s32 temp_s2;
+    s32 var_a0;
+    s32 var_s4;
+    s32 var_v0;
+    s8 temp_v0;
+    u16 temp_v1;
+
+    temp_s2 = mainGetNumberOfCameras();
+    camSetNo(0);
+    if (TrapDanglingJump() != 0) {
+        TrapDanglingJump(arg0);
+        return;
+    }
+    D_800C9520 = *arg0;
+    D_800C9524 = *arg1;
+    D_800C9528 = *arg2;
+    D_800C952C = *arg3;
+    func_80044BC8(D_800C9520, (char *) D_80081540, 0x1CC);
+    D_800C9558 = 1;
+    D_800C9538 = 0;
+    if (func_800290A0() != 0) {
+        var_s4 = 0;
+    } else {
+        var_s4 = arg4;
+    }
+    if (D_800792F0 != NULL) {
+        texture = (TrackFrameTexture *) D_800792F0;
+        temp_v1 = texture->unk10;
+        var_v0 = D_800792F4 + (texture->unk12 * var_s4);
+        if (var_v0 >= (s32) temp_v1) {
+            do {
+                var_v0 -= temp_v1;
+            } while (var_v0 >= (s32) temp_v1);
+        }
+        D_800792F4 = var_v0;
+    }
+    shadowGenerate(1, arg4);
+    levelUpdateColourCycling(var_s4);
+    level = (TrackFrameLevel *) D_800792EC;
+    temp_a0 = *(s32 *) ((u8 *) level + 0xC0);
+    if (temp_a0 != -1) {
+        func_80036CAC(temp_a0, var_s4);
+    }
+    if (level->unk83 == 2) {
+        D_80079260 = 0;
+    } else {
+        D_80079260 = 1;
+    }
+    temp_v0 = level->unk83;
+    if ((temp_v0 == 1) || (temp_v0 == 2) || (level->unkD1 != 0)) {
+        D_800C9544 = 1;
+    }
+    if (level->unk52 == 3) {
+        level->unkBC = (level->unkBC + (level->unkB4 * var_s4)) &
+                       ((level->unkB8->width << 9) - 1);
+        *(s16 *) ((u8 *) level + 0xBE) =
+            (*(s16 *) ((u8 *) level + 0xBE) +
+             (*(s8 *) ((u8 *) level + 0xB5) * var_s4)) &
+            ((level->unkB8->height << 9) - 1);
+        func_800367E8(level->unkB8, (u32 *) &D_800C9568,
+                      &D_800C9560, var_s4);
+    }
+    func_80034920(&D_800C9520);
+    command = D_800C9520;
+    D_800C9520 = command + 1;
+    command->words.w1 = 0;
+    command->words.w0 = 0xBC000002;
+    if (levelInitRegionFlags() != 0) {
+        command = D_800C9520;
+        D_800C9520 = command + 1;
+        command->words.w1 = 0x2000;
+        command->words.w0 = 0xB6000000;
+        command = D_800C9520;
+        D_800C9520 = command + 1;
+        command->words.w1 = 0x1000;
+        command->words.w0 = 0xB7000000;
+    } else {
+        command = D_800C9520;
+        D_800C9520 = command + 1;
+        command->words.w1 = 0x1000;
+        command->words.w0 = 0xB6000000;
+        command = D_800C9520;
+        D_800C9520 = command + 1;
+        command->words.w1 = 0x2000;
+        command->words.w0 = 0xB7000000;
+    }
+    command = D_800C9520;
+    D_800C9520 = command + 1;
+    command->words.w1 = 0x64;
+    command->words.w0 = 0xF9000000;
+    command = D_800C9520;
+    D_800C9520 = command + 1;
+    command->words.w1 = -1;
+    command->words.w0 = 0xFA000000;
+    command = D_800C9520;
+    D_800C9520 = command + 1;
+    command->words.w1 = -0x100;
+    command->words.w0 = 0xFB000000;
+    rainSetFog();
+    func_80014614(temp_s2, var_s4);
+    if (*(s16 *) ((u8 *) D_800792E8 + 0x1E) > 0) {
+        func_8000C400(var_s4);
+    }
+    if (D_80079274 != 0) {
+        TrapDanglingJump((void **) (s32) var_s4);
+    }
+    if ((D_8007A128 != 0) && (temp_s2 == 1)) {
+        camEnableUserView(0, 1);
+        func_800219D0();
+    }
+    D_800C9534 = 0;
+    var_a0 = 0;
+    if (temp_s2 > 0) {
+        do {
+            func_800147A4(var_a0);
+            command = D_800C9520;
+            D_800C9520 = command + 1;
+            command->words.w1 = 0;
+            command->words.w0 = 0xE7000000;
+            camSetNo(D_800C9534);
+            func_800221E8(&D_800C9520, &D_800C9524);
+            func_8000FF2C();
+            if (temp_s2 < 3) {
+                if (level->unk52 == 3) {
+                    func_8000C5F4();
+                } else if (D_800C9550 != 0) {
+                    func_8000CED0(arg4);
+                }
+                if (D_80079278 > 0) {
+                    if (D_800C9534 == 0) {
+                        TrapDanglingJump((void **) (s32) var_s4);
+                    }
+                    TrapDanglingJump(&D_800C9520);
+                }
+            } else {
+                temp_v0 = level->unk52;
+                if ((temp_v0 != 4) && (temp_v0 != 5)) {
+                    func_8000CC78();
+                }
+            }
+            func_80044BC8(D_800C9520, (char *) D_80081550, 0x26A);
+            command = D_800C9520;
+            D_800C9520 = command + 1;
+            command->words.w1 = 0;
+            command->words.w0 = 0xE7000000;
+            func_8000D018(temp_s2, arg4);
+            weather_clip_planes(-1, -0x200);
+            if ((level->unkA2 > 0) && (temp_s2 < 2)) {
+                doWeather(&D_800C9520, &D_800C9524,
+                          (void *) &D_800C9528, (void *) &D_800C952C,
+                          var_s4);
+            }
+            var_a0 = D_800C9534 + 1;
+            D_800C9534 = var_a0;
+        } while (var_a0 < temp_s2);
+    }
+    if (D_8007D6B0 > 0) {
+        TrapDanglingJump(&D_800C9520);
+    }
+    func_800534EC((s32) &D_800C9520);
+    if (D_800D6C3E != 0) {
+        TrapDanglingJump(&D_800C9520);
+    }
+    if (levelInitRegionFlags() != 0) {
+        command = D_800C9520;
+        D_800C9520 = command + 1;
+        command->words.w1 = 0x1000;
+        command->words.w0 = 0xB6000000;
+        command = D_800C9520;
+        D_800C9520 = command + 1;
+        command->words.w1 = 0x2000;
+        command->words.w0 = 0xB7000000;
+    }
+    func_80022D20(&D_800C9520);
+    camDisableUserView(0, 1);
+    command = D_800C9520;
+    D_800C9520 = command + 1;
+    command->words.w1 = 0;
+    command->words.w0 = 0xE7000000;
+    command = D_800C9520;
+    D_800C9520 = command + 1;
+    command->words.w1 = 0;
+    command->words.w0 = 0xBC000002;
+    shadowChangeBuffer();
+    *arg0 = D_800C9520;
+    *arg1 = D_800C9524;
+    *arg2 = D_800C9528;
+    *arg3 = D_800C952C;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000BDB4.s")
+#endif
 /*
  * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
  * `func_800129AC_135AC`. Mickey proves the revised segment and texture layouts
