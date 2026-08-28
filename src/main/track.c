@@ -1480,9 +1480,9 @@ build_routes:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DB34.s")
 #endif
-/* Workbench: allocation-mismatch; 24 words differ, first mismatch +0x24. */
-/* Candidate is shape-exact: 118 instructions, frame -40/-40 bytes, and both call relocations match. */
-/* Remaining gap is register allocation only; this candidate is permuter-ready. */
+/* Workbench verdict: structure-mismatch, 116 differing words, first mismatch +0x0. */
+/* Candidate: target/candidate 118/121 instructions and -0x28/-0x28 frames; the top-level argument carriers are retained. */
+/* Shape status: the target's four-at-a-time scan and relocation bindings remain unresolved; this is not permuter-ready. */
 #ifdef NON_MATCHING
 s32 func_8000DDE4(u8 keyArg, s32 recordCount, s32 recordsArg, s32 matchesArg) {
     /* Parameter types follow the top-level prototype the matched callers use. */
@@ -2130,6 +2130,9 @@ void func_8000FA2C(s32 *result, s32 arg1) {
  * nearest-height selection structure. Mickey's bounds are inclusive and its
  * TrackData layout, function boundary, and bytes remain authoritative.
  */
+/* Workbench verdict: structure-mismatch, 43 differing words, first mismatch +0x1c. */
+/* Candidate: target/candidate 62/62 instructions with matching -0x10 frames; the residual begins in the x/z predicate. */
+/* Shape status: boundary-load and non-likely branch scheduling remain structural; this is not permuter-ready. */
 s32 func_8000FAE0(f32 x, f32 y, f32 z) {
     s16 segmentCount;
     s16 yLower;
