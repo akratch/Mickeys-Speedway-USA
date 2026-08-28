@@ -171,6 +171,12 @@ gOverlay3Entries = 0x00000028;
 /* overlay 3: overlay3ResetObjects.c.o */
 overlay3GetObjectsReloc = 0xf0000000;
 
+/* overlay 3: overlay3FindClosestObject.c.o */
+gOverlay3SearchMaxDistance = 0x00000000;
+overlay3ContainsValueReloc = 0xf0000000;
+overlay3DistanceSquaredReloc = 0xf0000000;
+overlay3GetObjectRangeReloc = 0xf0000000;
+
 /* overlay 3: overlay3SelectTarget.c.o */
 gOverlay3Objects = 0x00000000;
 overlay3TouchObjectReloc = 0xf0000000;

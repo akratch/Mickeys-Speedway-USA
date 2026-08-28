@@ -20,36 +20,57 @@ extern f32 gOverlay3SearchMaxDistance[];
 /* Object-level reproof: instruction-words-identical, 0 differing words, first
  * mismatch none; the 77-instruction, frame -120 shape is exact and permuter-ready.
  * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
-#ifdef NON_MATCHING
-Object *overlay3FindClosestObject(Object *anchor, void *unused) {
-    s32 pad;
-    s32 start; s32 end;
-    f32 distance; f32 bestDistance;
-    Object **objects; Object **cursor; Object *object; Object *best;
-    State *state; s32 index;
-    if (&pad);
-    objects = overlay3GetObjectRangeReloc(&start, &end);
-    bestDistance = gOverlay3SearchMaxDistance[3];
-    best = 0; index = start;
-    if (start < end) {
-        cursor = objects;
-        cursor += start;
-        do {
-            object = *cursor;
-            if (object->type == 0x86 || object->type == 0xEB) {
-                state = object->state;
-                if (overlay3ContainsValueReloc(anchor, object) == 0 && state->flags == 0) {
-                    distance = overlay3DistanceSquaredReloc(object->x, object->y, object->z,
-                                                              anchor->x, anchor->y, anchor->z);
-                    if (distance < bestDistance) { bestDistance = distance; best = object; }
-                }
-            }
-            index++; cursor++;
-        } while (index < end);
+Object *overlay3FindClosestObject(Object *anchor, void *unused)
+{
+  s32 pad;
+  s32 start;
+  s32 end;
+  f32 distance;
+  f32 bestDistance;
+  Object **objects;
+  Object **cursor;
+  Object *object;
+  Object *best;
+  State *state;
+  s32 index;
+  if (&pad)
+  {
+    ;
+  }
+  objects = overlay3GetObjectRangeReloc(&start, &end);
+  bestDistance = gOverlay3SearchMaxDistance[3];
+  best = 0;
+  index = start;
+  if (start < end)
+  {
+    cursor = objects;
+    cursor += start;
+    if (!cursor)
+    {
     }
-    return best;
+    do
+    {
+      object = *cursor;
+      if (1)
+      {
+        if ((object->type == 0x86) || (object->type == 0xEB))
+        {
+          state = object->state;
+          if ((overlay3ContainsValueReloc(anchor, object) == 0) && (state->flags == 0))
+          {
+            distance = overlay3DistanceSquaredReloc(object->x, object->y, object->z, anchor->x, anchor->y, anchor->z);
+            if (distance < bestDistance)
+            {
+              bestDistance = distance;
+              best = object;
+            }
+          }
+        }
+        index++;
+        cursor++;
+      }
+    }
+    while (index < end);
+  }
+  return best;
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o003/overlay3FindClosestObject/func_overlay_003_F000027C_1859FAC.s")
-#endif
