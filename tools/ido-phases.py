@@ -84,7 +84,7 @@ def drop_v(t):
     return [x for x in t if x != "-v"]
 
 
-VALUED = ("-G", "-o", "-t", "-temp")
+VALUED = ("-G", "-o", "-t", "-temp", "-loopunroll")
 
 
 def positionals(tokens):
