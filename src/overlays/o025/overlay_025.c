@@ -71,6 +71,9 @@ void overlay25InitializeEffect(Overlay25Object *object,
  * declarations and scoping those locals to either branch emitted the same
  * object, so neither accounts for the target's 0xA0 versus 0xC8 frame.
  */
+/* Ownership trial (2026-08-28): fixed the TU's +0x20..+0x40 .rodata range;
+ * linked promotion is text-differs with 386 in-range words, first at +0x0.
+ * Module growth is cleared; the remaining gap is codegen/register allocation. */
 #ifdef NON_MATCHING
 void overlay25UpdateEffect(Overlay25Object *object, s32 updateRate) {
     Overlay25EffectState *state = &object->state->effect;

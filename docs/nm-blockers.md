@@ -242,7 +242,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_022_F0000D30_1878E38` | `src/overlays/o022/overlay22RemoveObject.c` | resolved-plateau | overlay 22 local globals | Initialized block is TU-owned; pool-position structure remains. |
 | `func_overlay_022_F0000A7C_1878B84` | `src/overlays/o022/overlay22ResolvePlane.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_025_F0000000_1879C88` | `src/overlays/o025/overlay_025.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_025_F000017C_1879E04` | `src/overlays/o025/overlay_025.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_025_F000017C_1879E04` | `src/overlays/o025/overlay_025.c` | resolved-plateau | overlay 25 movement constants | TU-owned +0x20..+0x40 .rodata clears module growth; code generation remains. |
 | `func_overlay_026_F00001A0_187A598` | `src/overlays/o026/func_overlay_026_F00001A0_187A598.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_026_F0000B18_187AF10` | `src/overlays/o026/func_overlay_026_F0000B18_187AF10.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_026_F0001158_187B550` | `src/overlays/o026/overlay26DrawGroups.c` | none | — | No ownership change; continue source/codegen work. |
@@ -288,9 +288,9 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_041_F0000000_1887338` | `src/overlays/o041/overlay41AdvanceStepRecords.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_041_F000195C_1888C94` | `src/overlays/o041/overlay41EnqueueTransition.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_041_F0001464_188879C` | `src/overlays/o041/overlay41ProcessEntry.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_041_F00002AC_18875E4` | `src/overlays/o041/overlay41SampleCurve.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_041_F0000124_188745C` | `src/overlays/o041/overlay41UpdateColorRecords.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_041_F0000854_1887B8C` | `src/overlays/o041/overlay41UpdateCurveObject.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_041_F00002AC_18875E4` | `src/overlays/o041/overlay41SampleCurve.c` | resolved-plateau | overlay 41 curve constants | TU-owned +0x0..+0x3C .rodata clears module growth; code generation remains. |
+| `func_overlay_041_F0000124_188745C` | `src/overlays/o041/overlay41UpdateColorRecords.c` | resolved-plateau | overlay 41 data aggregate | Removed the TU's private 0x20-byte .data island; module growth is cleared and code generation remains. |
+| `func_overlay_041_F0000854_1887B8C` | `src/overlays/o041/overlay41UpdateCurveObject.c` | resolved-plateau | overlay 41 curve constants | TU-owned +0x3C..+0x54 .rodata clears module growth; code generation remains. |
 | `func_overlay_041_F0001298_18885D0` | `src/overlays/o041/overlay41UpdateProgress.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_043_F0000324_188A2F4` | `src/overlays/o043/func_overlay_043_F0000324_188A2F4.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_043_F0000BE4_188ABB4` | `src/overlays/o043/func_overlay_043_F0000BE4_188ABB4.c` | none | — | No ownership change; continue source/codegen work. |

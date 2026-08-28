@@ -90,6 +90,9 @@ extern f32 func_8002A878(f32, s32);
 /* Workbench p4: structure-mismatch; 222 positional/225 raw words differ,
  * 638/638 instructions, first +0x80, frame exact -224. Levers: absolute-
  * constant audit and frameAmount declaration; both regressed; remains FP homes. */
+/* Ownership trial (2026-08-28): fixed the TU's +0x3C..+0x54 .rodata range;
+ * linked promotion is text-differs with 638 in-range words, first at +0x0.
+ * Module growth is cleared; the remaining gap is codegen/register allocation. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
                                         s32 updateRate, s32 argument) {
