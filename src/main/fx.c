@@ -584,7 +584,132 @@ void func_8004A0F0(void) {
     D_800D6038[1] = 0;
     D_800D6040 = 0;
 }
+/* Workbench verdict: structure-mismatch, 155 differing words, first mismatch +0x0. */
+/* Candidate: 156/157 instructions with a -0x60 frame versus target -0x58; 29 structural words remain, so it is not shape-exact. */
+/* Shape status: nine-pixel glyph loop and VI/table relocation surface are preserved; stack/register gap remains. */
+/* PROVENANCE: JFG's corresponding routine is assembly-only; this body is reconstructed from Mickey's own m2c draft and headers. */
+#ifdef NON_MATCHING
+void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
+    s32 width;
+    s32 height;
+    u32 *pattern;
+    u16 *pixel;
+    s32 glyphValue;
+    s32 colorMask;
+    s32 shift;
+    s32 column;
+    s32 rowBits;
+    s32 bit;
+    s32 intensity;
+    s32 oldPixel;
+    s32 maskedPixel;
+    s32 value;
+
+    glyphValue = glyph;
+    viGetCurrentSize(&width, &height);
+    colorMask = 0x7C0;
+    shift = 6;
+    pattern = D_8007D320;
+    pixel = (u16 *) ((u8 *) screen + ((((y * width) + x) * 2)));
+    if (arg4 != 0) {
+        colorMask = 0xF800;
+        shift = 0xB;
+    }
+    do {
+        rowBits = *pattern;
+        column = 1;
+        intensity = 4;
+        bit = rowBits & 7;
+        rowBits >>= 3;
+        if (bit != 0) {
+            if (glyphValue & (1 << bit)) {
+                intensity = 0x10;
+            }
+            oldPixel = *pixel;
+            maskedPixel = oldPixel & colorMask;
+            value = maskedPixel + (intensity << shift);
+            if ((~colorMask & value) != 0) {
+                value = colorMask;
+            }
+            *pixel = (oldPixel ^ maskedPixel) | value;
+        }
+        pixel++;
+    loop_9:
+        bit = rowBits & 7;
+        rowBits >>= 3;
+        if (bit != 0) {
+            intensity = 4;
+            if (glyphValue & (1 << bit)) {
+                intensity = 0x10;
+            }
+            oldPixel = *pixel;
+            maskedPixel = oldPixel & colorMask;
+            value = maskedPixel + (intensity << shift);
+            if ((~colorMask & value) != 0) {
+                value = colorMask;
+            }
+            *pixel = (oldPixel ^ maskedPixel) | value;
+        }
+        bit = rowBits & 7;
+        rowBits >>= 3;
+        pixel++;
+        if (bit != 0) {
+            intensity = 4;
+            if (glyphValue & (1 << bit)) {
+                intensity = 0x10;
+            }
+            oldPixel = *pixel;
+            maskedPixel = oldPixel & colorMask;
+            value = maskedPixel + (intensity << shift);
+            if ((~colorMask & value) != 0) {
+                value = colorMask;
+            }
+            *pixel = (oldPixel ^ maskedPixel) | value;
+        }
+        bit = rowBits & 7;
+        rowBits >>= 3;
+        pixel++;
+        if (bit != 0) {
+            intensity = 4;
+            if (glyphValue & (1 << bit)) {
+                intensity = 0x10;
+            }
+            oldPixel = *pixel;
+            maskedPixel = oldPixel & colorMask;
+            value = maskedPixel + (intensity << shift);
+            if ((~colorMask & value) != 0) {
+                value = colorMask;
+            }
+            *pixel = (oldPixel ^ maskedPixel) | value;
+        }
+        bit = rowBits & 7;
+        rowBits >>= 3;
+        pixel++;
+        if (bit != 0) {
+            intensity = 4;
+            if (glyphValue & (1 << bit)) {
+                intensity = 0x10;
+            }
+            oldPixel = *pixel;
+            maskedPixel = oldPixel & colorMask;
+            value = maskedPixel + (intensity << shift);
+            if ((~colorMask & value) != 0) {
+                value = colorMask;
+            }
+            *pixel = (oldPixel ^ maskedPixel) | value;
+        }
+        column += 4;
+        pixel++;
+        if (column != 9) {
+            goto loop_9;
+        }
+        pattern++;
+        pixel += width - 9;
+    } while (pattern != (u32 *) D_8007D364);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A10C.s")
+#endif
 /* Plateau: workbench mixed constant/structure/register, stock -O2 is 74/76
  * instructions and 65 words from +0x8; buffer size and declaration order did not move the sp+0x50 text home.
  * Remaining: target's sp+0x54 cursor base and zero-index/glyph register web; prior flag and bounded-permuter passes found no exact. */

@@ -2275,7 +2275,7 @@ FX type-pass inventory (target widths/offsets; no source-body promotion):
 | `func_800498FC` | `FxRecord` `+0,+1,+2,+14,+16,+18,+1A..1F`; `D_800D5F58[5]`; camera helpers. | GLOBAL_ASM → GLOBAL_ASM; record widths; branch/FP shape remains. |
 | `func_80049B14` | `D_800D5F50`; `FxRecord` `+0,+1,+2,+14,+16,+18,+1E,+1F`; five-record stride `0x20`. | GLOBAL_ASM → GLOBAL_ASM; record aggregate; clear/update CFG remains. |
 | `func_80049E4C` | `D_800D5F50`, `D_800D5F58`, `D_800D5FD8`; `FxRecord` bytes/halfwords; `FxGfx`; VI/scissor helpers. | GLOBAL_ASM → GLOBAL_ASM; record/dlist aggregates; rendering CFG remains. |
-| `func_8004A10C` | `D_8007D320` u32 table, `D_8007D364` u8 glyph table; VI size; `FxGfx` command words. | GLOBAL_ASM → GLOBAL_ASM; table widths; glyph command CFG remains. |
+| `func_8004A10C` | `D_8007D320` u32 table, `D_8007D364` u8 glyph table; VI size; `FxGfx` command words. | Evidence D candidate: structure-mismatch, 156/157 instructions, 155 differing words, first `+0x0`, frame `-0x60` versus `-0x58`; glyph loop/VI relocation surface is preserved but not exact. |
 | `func_8004A380` | `D_8007D364[12]` bytes, `D_80083DE0` text, `D_800D2FA0` screen pointer; local text buffer. | structure plateau → structure plateau (`65` words, first `+8`); structure-buckets; target `sp+54`/register web remains. |
 | `fxSPDPRipple` | `D_8007D370[2]`, `D_8007D374[2]`, `D_8007D378[4]`; `FxGfx **`; level/draw helpers. | GLOBAL_ASM → GLOBAL_ASM; global table widths; ripple display CFG remains. |
 | `fxScreenEffect` | `D_8007D380[10]`, `D_8007D3D0[7]`, `D_8007D408[14]` `FxGfx`; VI video mode and display helpers. | GLOBAL_ASM → GLOBAL_ASM; dlist aggregate; effect command CFG remains. |
