@@ -595,7 +595,28 @@ void func_800035F8(s32 group) {
         } while (index < countValue);
     }
 }
+/* Workbench: allocation-mismatch, 8 differing words, first mismatch +0x0.
+ * Shape-exact: 25 instructions/opcodes, frame, and relocations match; permuter-ready.
+ */
+#ifdef NON_MATCHING
+void func_80003760(AudioPoint *point) {
+    AudioUpdateEntry *entry;
+    s32 index;
+    u8 group;
+
+    group = point->unk23;
+    entry = D_800C9238[group - 1];
+    for (index = 0; index < ((s32 *) &D_80078F00)[group]; index++) {
+        if (point == entry->point) {
+            entry->point = NULL;
+            return;
+        }
+        entry++;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audio_manager_36D0/func_80003760.s")
+#endif
 /*
  * PROVENANCE: name/order compared with JFG src/audio_manager_36D0.c
  * func_80003B74_4774; body and pool layout use Mickey-only evidence.
