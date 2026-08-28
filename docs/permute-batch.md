@@ -51,6 +51,35 @@ Every run (even a `--list`-free normal run) writes `build/permuter/summary.json`
 and `build/permuter/summary.txt` incrementally, one function at a time, so a
 killed batch still leaves a readable partial result.
 
+## Scratch fidelity (2026-08-28)
+
+A permuter score-0 is only a match if the scratch object it was scored
+against is bit-identical to the object the project build produces for that
+TU. Three fidelity faults were found in `tools/permute.sh` on 2026-08-27
+(`docs/matching-triage.md`) and are now applied by this runner too:
+
+| Fault | Effect before | Fix in `permute_batch.py` |
+|---|---|---|
+| importer default `-mips1`, static flag groups | searched the wrong ISA; per-file `-Wab,-r4300_mul` / `-Wo,-loopunroll,0` dropped | `build_recipe_for()` touches the source and reads the real cc line from `gmake -n <obj>` (falls back to the static group with a loud warning) |
+| no post-compile `objcopy --redefine-sym` | track.c results never transferred | the TU's objcopy chain is appended to the scratch `compile.sh`, retargeted at `$OUTPUT`; digest-guarded `.py` passes are skipped and listed in `build/permuter/<fn>/recipe.txt` |
+| scorer normalises stack offsets | false 0 on a spill at the wrong slot | `--stack-diffs` is always passed |
+
+The 2026-08-25 farm result in "Cost and match rate" below (0 hits in 38
+searches) predates all three fixes and is not evidence about the queue.
+
+Other runner behaviour added at the same time: `--order ranking` (default)
+runs the closest functions first by `config/nonmatching-ranking.us.json`
+`differing_words`; `--resume` skips functions already in
+`build/permuter/summary.json` and carries their rows forward;
+`--extend-minutes N` re-seeds from the best candidate and runs once more when
+a capped search was still descending (best result in the last third of the
+window); `--load-threshold L` (default 9) waits for headroom before every
+permuter launch and promotion build; `--commit` (with `--apply`) commits each
+verified promotion as `Match <fn> (permuter)`, staging only that C file. The
+permuter is niced. `tools/permute_sweep.sh` wraps all of it: resync a lane to
+`campaign/unchain`, extract, warm build, verify, sweep, extract again so the
+scoreboard counts the promotions.
+
 ## Queue discovery
 
 Two sources, unioned:
