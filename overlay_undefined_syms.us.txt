@@ -1967,6 +1967,9 @@ overlay84ConfigureResource = 0xf0000000;
 overlay84GetResource = 0xf0000000;
 overlay84ReleaseResource = 0xf0000000;
 
+/* overlay 84: overlay84LoadCurrent.c.o */
+overlay84PrepareResource = 0xf0000000;
+
 /* overlay 84: overlay84AdvanceCurrent.c.o */
 gOverlay84ObjectRead = 0x00000000;
 gOverlay84ObjectWrite = 0x00000000;

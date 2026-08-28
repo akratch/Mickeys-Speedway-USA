@@ -1244,12 +1244,11 @@ object matches SHA256
 Its two calls retain distinct runtime relocation identities at `+0x1C` and
 `+0x2C`; neighboring assembly resumes exactly at `+0xBD4`.
 
-Overlay 84's `+0xC9C..+0xDBC` current-resource loader — 288 bytes / 72
-words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
-decoded private allocator/spill ledger selecting the retail GPR webs and
-unused spill slot); source kept as decomp-permuter input. Natural source
-otherwise supplied the complete frame, CFG, opcode/call/FP schedule, memory
-effects, and five relocation sites.
+Overlay 84's `+0xC9C..+0xDBC` current-resource loader adds **288 exact C
+bytes / 72 words**. A bounded decomp-permuter pass escaped the former
+state-pointer spill-home plateau; untouched IDO output now supplies the exact
+frame, CFG, opcode/call/FP schedule, memory effects, and five relocation
+sites, and the linked overlay is byte-identical to the ROM.
 
 Overlay 59's `+0x070..+0x168` entry preparer — 248 bytes / 62 words.
 NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
