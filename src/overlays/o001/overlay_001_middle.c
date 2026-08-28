@@ -67,6 +67,12 @@ extern f32 overlay1WrapOffset(f32 first, f32 second);
 extern f32 gOverlay1PreviousAngleLimit;
 
 /* DKR v77/v80 and JFG contain no exact donor for this angle-selection scan. */
+/* Six bounded call-expression, statement-line, and lifetime variants retain
+ * a best baseline of 0xC8/50 words with frame 0x68: five raw words differ
+ * first at +0x38, where the linked local-data addend accounts for one and two
+ * schedule-order pairs account for four. The runtime table confirms all four
+ * relocation type/offset/roles. UGEN traced the pairs to the best/guard and
+ * loop-tail statement boundaries; the natural probes were code-neutral. */
 #ifdef NON_MATCHING
 Overlay1PreviousAngleObject *overlay1FindPreviousAngle(f32 angle) {
     s32 count;
