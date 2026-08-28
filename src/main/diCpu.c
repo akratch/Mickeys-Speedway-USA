@@ -190,6 +190,17 @@ void stop_all_threads_except_main(void) {
  * one fresh FIFO trace and try exactly one natural trace-supported form. Any
  * gain-gated batch must fit inside the 125 deterministic-build total; no extra
  * batch beyond that cap. */
+/* Trace follow-up (2026-08-28, CREW-DICPU-45BBC-READY-72): the full retail
+ * main relocation census is 375 records, with none in this resident range.
+ * UGEN's source-line trace places the final data argument allocation at line
+ * 148, emitted ordinal 60, as t4; the target lane requires t6. Globalcolor
+ * contributes only six phase-one pool decisions for this function, with no
+ * phase-two decision or alias event in the function segment. The generated
+ * D_80705014/18/1C linker symbols exist, but direct and address-cast lvalue
+ * forms changed the body to 59 instructions; a named pointer assignment,
+ * initializer, and integer-address local were baseline-identical. The five
+ * bounded forms therefore closed neither the temp-FIFO color nor the six
+ * target-only fixed-buffer relocation identities; assembly remains canonical. */
 void func_80045BBC(OSThread *thread) {
     s32 copySize;
     void *source;
