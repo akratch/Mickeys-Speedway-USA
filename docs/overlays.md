@@ -1821,3 +1821,5 @@ The full flag lattice and 40-minute permuter produced no valid exact source.
 | Overlay | Range | Function | Bytes | Exactness | Donor |
 |---:|---|---|---:|---|---|
 | 35 | `+0x000..+0x1E0` | `func_overlay_035_F0000000_1881CE0` | 480 | canonical object and linked ROM exact | Mickey-only |
+
+`overlay 20 +0x07C4..+0x09DC` (`overlay20BuildTileCommands`) — 536 bytes / 134 words. NON_MATCHING: bounded 2026-08-28 closeout retained the capacity-preserving 13-element source after direct macro-pointer, doubled-width, and inner-index probes. The best candidate matches 130/134 aligned instructions with the exact register and schedule profiles and one exact helper relocation; the four residual words are stack-frame constants (`0x90` target versus `0xA8` candidate), first at `+0x0`. A seven-element diagnostic recovered the retail frame but is not retained without independent capacity proof. No C credit is claimed.
