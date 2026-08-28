@@ -12,6 +12,9 @@
 
 #include "game/fx.h"
 
+extern void *func_8002B314(s32 size, s32 tag);
+extern void *func_80034448(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+
 void func_80046E70(FxCone *cone) {
     FxConeTextureInfo *texture;
     FxConeTextureInfo *alternateTexture;
@@ -268,7 +271,112 @@ void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80047CD8.s")
 #endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048080.s")
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch, 343 differing words; first mismatch is at +0x0. */
+/* Target is 351 instructions/frame -144; candidate is 288 instructions/frame -168. */
+/* Remaining gap is structural: allocator initialization/unrolled setup is abbreviated; not permuter-ready. */
+Wake *wakeAllocate(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4, f32 arg5) {
+    Wake *wake;
+    u8 *wakeBytes;
+    u8 *vertexArea;
+    u8 *sampleArea;
+    s32 frameCount;
+    s32 segmentCount;
+    s32 segmentBytes;
+    s32 vertexBytes;
+    s32 sampleBytes;
+    s32 textureBytes;
+    s32 groupCount;
+    s32 i;
+    s32 j;
+    s32 size;
+    s32 alpha;
+
+    frameCount = (s32) (arg1 * 60.0f);
+    segmentCount = (frameCount + 5) >> 1;
+    groupCount = segmentCount * 2;
+    alpha = arg0 == 0 ? 4 : 2;
+    segmentBytes = groupCount * 0xA;
+    vertexBytes = segmentCount * 0x14;
+    sampleBytes = segmentCount * 0x10;
+    textureBytes = groupCount * 0x10;
+    size = (segmentCount * 0x24) + (alpha * segmentBytes) +
+           (textureBytes * 2) + 0x40;
+    wake = func_8002B314(size, 0x87);
+    if (wake != NULL) {
+        wakeBytes = (u8 *) wake;
+        vertexArea = wakeBytes + 0x40;
+        sampleArea = vertexArea + (groupCount * 0x10);
+        *(u8 **) (wakeBytes + 0x10) = vertexArea + vertexBytes;
+        *(u8 **) (wakeBytes + 0x14) = sampleArea + sampleBytes;
+        for (i = 0; i < 2; i++) {
+            *(u8 **) (wakeBytes + 0x18 + (i * 4)) =
+                vertexArea + (i * vertexBytes);
+        }
+        for (i = 0; i < alpha; i++) {
+            *(u8 **) (wakeBytes + 0x8 + (i * 4)) =
+                sampleArea + (i * segmentBytes);
+        }
+        wake->vertices = vertexArea;
+        wake->samples = sampleArea;
+        wake->value4 = arg1;
+        wake->value8 = 0;
+        wake->valueC = arg2;
+        wake->flags = arg0 != 0;
+        wake->segmentCount = segmentCount;
+        wake->state = 0;
+        wake->textureIndex = (s8) frameCount;
+        wake->value34 = 0;
+        wake->value36 = 0;
+        wake->value38 = 0;
+        wake->value39 = 0;
+        wake->value3A = 0;
+        wake->value3B = 0;
+        wake->value3C = 0;
+        wake->linked = func_80034448(arg4, segmentCount, sampleArea, groupCount);
+        if (wake->linked == NULL) {
+            mmFree(wake);
+            return NULL;
+        }
+        for (i = 0; i < alpha; i++) {
+            u8 *samples = *(u8 **) (wakeBytes + 0x8 + (i * 4));
+            for (j = 0; j < groupCount; j++) {
+                u8 *sample = samples + (j * 0x14);
+                sample[0x6] = 0xFF;
+                sample[0x7] = 0xFF;
+                sample[0x8] = 0xFF;
+                sample[0x10] = 0xFF;
+                sample[0x11] = 0xFF;
+                sample[0x12] = 0xFF;
+                sample[0x1A] = 0xFF;
+                sample[0x1B] = 0xFF;
+                sample[0x1C] = 0xFF;
+                sample[0x24] = 0xFF;
+                sample[0x25] = 0xFF;
+                sample[0x26] = 0xFF;
+            }
+        }
+        for (i = 0; i < 2; i++) {
+            u8 *vertices = *(u8 **) (wakeBytes + 0x18 + (i * 4));
+            for (j = 0; j < groupCount; j++) {
+                *(u8 *) (vertices + (j * 0x10)) = 0x40;
+                *(u8 *) (vertices + (j * 0x10) + 0x10) = 0x40;
+                *(u8 *) (vertices + (j * 0x10) + 0x20) = 0x40;
+                *(u8 *) (vertices + (j * 0x10) + 0x30) = 0x40;
+            }
+        }
+        wake->value34 = 0;
+        wake->value38 = 0;
+        wake->value39 = 0;
+        wake->value3A = 0;
+        wake->value3B = 0;
+        wake->value36 = (s16) ((arg5 * 256.0f) / 60.0f);
+    }
+    return wake;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeAllocate.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048760.s")
 void wakeFree(Wake *wake) {
     void *linked = wake->linked;
