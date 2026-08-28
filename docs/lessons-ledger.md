@@ -103,3 +103,8 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
   blocked candidates linked with zero collateral. Changed: the surface is
   generated, not hand-written per function (implementation in progress);
   the bespoke POSTPROCESS ritual stops being the gate on 299 KB.
+- **Six Codex lanes plus two permuter passes crashed the workstation** (load
+  15–17 sustained; the earlier freeze threshold was ~20 but sustained ~15
+  with build bursts was enough). Changed: hard cap of four Codex lanes at a
+  time, one permuter pass, total load target ≤ 12; launch lanes one at a
+  time, 60 s apart, after `splat extract` of the previous one has finished.
