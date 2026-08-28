@@ -499,6 +499,7 @@ class RunResult:
     flags: Optional[str] = None  # real codegen flags the scratch compiled with
     replicated_objcopy: int = 0  # post-compile objcopy steps appended to compile.sh
     extended: bool = False  # score-trend extension run happened
+    stopped_flat: bool = False  # stopped early: no improvement by --flat-minutes
     commit_error: Optional[str] = None
 
 
@@ -616,7 +617,9 @@ def wait_for_headroom(threshold: float, label: str = "") -> None:
         waited += 15
 
 
-def run_permuter(scratch: Path, out_dir: Path, minutes: int, threads: int, extra_args: list[str], log_name: str = "permuter.log") -> tuple[Optional[int], float]:
+def run_permuter(scratch: Path, out_dir: Path, minutes: int, threads: int, extra_args: list[str],
+                 log_name: str = "permuter.log", flat_minutes: int = 0) -> tuple[Optional[int], float, bool]:
+    """Run one permuter search. Returns (base_score, elapsed_seconds, stopped_flat)."""
     log_path = out_dir / log_name
     # --stack-diffs is essential for a byte-identical rebuild: without it the
     # scorer normalizes sp-relative offsets and reports a false 0 for a spill
@@ -647,10 +650,30 @@ def run_permuter(scratch: Path, out_dir: Path, minutes: int, threads: int, extra
             stderr=subprocess.STDOUT,
             start_new_session=True,
         )
-        try:
-            returncode = proc.wait(timeout=minutes * 60)
-        except subprocess.TimeoutExpired:
-            returncode = 124
+        # Early stop when flat: a search that has produced no improvement at
+        # all after `flat_minutes` almost never does later (measured on the
+        # first sweep day: every 20-minute run that was flat at 6 minutes was
+        # still flat at 20). Improvements appear as output-* dirs, so poll
+        # for one; the extension heuristic covers the descending case.
+        deadline = time.monotonic() + minutes * 60
+        flat_deadline = time.monotonic() + flat_minutes * 60 if flat_minutes > 0 else None
+        returncode = None
+        while True:
+            try:
+                returncode = proc.wait(timeout=20)
+                break
+            except subprocess.TimeoutExpired:
+                pass
+            now = time.monotonic()
+            if now >= deadline:
+                returncode = 124
+                break
+            if flat_deadline is not None and now >= flat_deadline:
+                if not any(scratch.glob("output-*")):
+                    returncode = 125  # stopped flat
+                    break
+                flat_deadline = None
+        if returncode in (124, 125):
             try:
                 os.killpg(proc.pid, signal.SIGTERM)
                 proc.wait(timeout=15)
@@ -664,7 +687,7 @@ def run_permuter(scratch: Path, out_dir: Path, minutes: int, threads: int, extra
     text = log_path.read_text(errors="replace")
     m = re.search(r"base score = (\d+)", text)
     base_score = int(m.group(1)) if m else None
-    return base_score, elapsed
+    return base_score, elapsed, returncode == 125
 
 
 def best_output_dir(scratch: Path) -> Optional[Path]:
@@ -834,7 +857,7 @@ def commit_match(item: QueueItem) -> Optional[str]:
 
 def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: int, apply: bool,
             extra_args: list[str], load_threshold: float = 0.0, extend_minutes: int = 0,
-            commit: bool = False) -> RunResult:
+            commit: bool = False, flat_minutes: int = 0) -> RunResult:
     out_dir = BUILD_PERMUTER / item.func
     out_dir.mkdir(parents=True, exist_ok=True)
     result = RunResult(func=item.func, c_file=item.rel_c_file, overlay=item.overlay, ok=False)
@@ -849,8 +872,10 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
         scratch = run_import(item, out_dir, settings_path, target_asm)
         replicate_objcopy(scratch, recipe, item.c_file, out_dir)
         wait_for_headroom(load_threshold, f"before permuting {item.func}")
-        base_score, elapsed = run_permuter(scratch, out_dir, minutes, permuter_threads, extra_args)
+        base_score, elapsed, stopped_flat = run_permuter(
+            scratch, out_dir, minutes, permuter_threads, extra_args, flat_minutes=flat_minutes)
         result.base_score = base_score
+        result.stopped_flat = stopped_flat
         result.ok = True
 
         best_dir, best_score = _best(scratch)
@@ -928,6 +953,14 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="if a run hits its cap while its score was still descending (best result in "
         "the last third of the window), re-seed from the best candidate and run this many "
         "more minutes once (default: 0 = off)",
+    )
+    p.add_argument(
+        "--flat-minutes",
+        type=int,
+        default=6,
+        help="stop a search early when it has produced no improvement at all by this "
+        "many minutes (default: 6; 0 disables). Flat-at-six searches were flat-at-twenty "
+        "on every measured run",
     )
     p.add_argument(
         "--load-threshold",
@@ -1029,7 +1062,7 @@ def main(argv: list[str]) -> int:
     if jobs == 1:
         for it in queue:
             r = run_one(it, args.minutes, permuter_threads, args.build_jobs, args.apply, extra_args,
-                        args.load_threshold, args.extend_minutes, args.commit)
+                        args.load_threshold, args.extend_minutes, args.commit, args.flat_minutes)
             results.append(r)
             print_result(r)
             write_summary(results)
@@ -1038,7 +1071,7 @@ def main(argv: list[str]) -> int:
             futures = {
                 pool.submit(
                     run_one, it, args.minutes, permuter_threads, args.build_jobs, args.apply, extra_args,
-                    args.load_threshold, args.extend_minutes, args.commit,
+                    args.load_threshold, args.extend_minutes, args.commit, args.flat_minutes,
                 ): it
                 for it in queue
             }
