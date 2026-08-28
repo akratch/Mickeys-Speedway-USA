@@ -33,6 +33,9 @@ extern void overlay59Release(Overlay59Entry *entry);
 /* Workbench: structure-mismatch, 19 positional words remain, first +0x4;
  * the target and candidate both use the -0x58 frame and identical register
  * webs. Ownership: the candidate switch table is rebound to retained +0x76C; the prologue schedule remains NON_MATCHING. */
+/* Ownership trial (2026-08-28): fixed the TU's +0x76C..+0x78C .rodata range;
+ * linked promotion is text-differs with 262 in-range words, first at +0x0.
+ * Module growth is cleared; the remaining gap is prologue/codegen allocation. */
 #ifdef NON_MATCHING
 void overlay59Advance(s32 steps) {
     Overlay59Entry *entry;

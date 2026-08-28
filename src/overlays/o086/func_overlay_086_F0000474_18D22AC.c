@@ -38,6 +38,9 @@ M2C_UNK ext_o7_dbc(M2C_UNK);                       /* extern */
 /* Workbench mixed structure/schedule/register residual: 73 positional words in the exact 662-word/-0xA8 frame, first +0x70.
  * Split mode web worsened to 89 words/-0xB0; a register hint was codegen-neutral after the prior flag/statement/predicate levers.
  * Remains: coupled pool slot 6/temp slot 16 and 38 diagnostic relocation identities; asm stays canonical. */
+/* Ownership trial (2026-08-28): fixed the TU's +0x80..+0xA0 .rodata range;
+ * linked promotion is text-differs with 660 in-range words, first at +0x0.
+ * Module growth is cleared; the remaining gap is codegen/register allocation. */
 #ifdef NON_MATCHING
 void func_overlay_086_F0000474_18D22AC(void *arg0, s32 arg1) {
     s16 *var_a1;
