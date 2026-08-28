@@ -577,6 +577,133 @@ void func_80049A8C(s32 index) {
         record++;
     }
 }
+/* Workbench verdict: structure-mismatch, 216 differing words, first mismatch +0x8. */
+/* Candidate: 219/206 instructions with the target -0x18 frame; switch-state structural gap remains, so it is not shape-exact. */
+/* Shape status: four-record state machine and signed timing fields are reconstructed; branch/constant schedule remains. */
+/* PROVENANCE: Mickey's own FxRecord layout and m2c draft supply the state transitions; no external body is adapted here. */
+#ifdef NON_MATCHING
+s32 func_80049B14(s16 delta) {
+    FxRecord *record;
+    s32 bit;
+    s16 carry;
+    s16 duration;
+    s16 current;
+    s16 next;
+    u16 flags;
+    u8 mode;
+
+    D_800D5F50 = 0;
+    record = D_800D5F58;
+    bit = 4;
+    do {
+        if (record->state != 0) {
+            flags = record->flags;
+            carry = delta;
+            if ((flags & 4) != 0) {
+                record->flags = flags & ~4;
+            } else if (delta != 0) {
+                do {
+                    switch (record->state) {
+                    case 0:
+                        carry = 0;
+                        record->status = 0;
+                        break;
+                    case 1:
+                        duration = record->value16;
+                        record->value14 = (s16) (record->value14 + carry);
+                        current = record->value14;
+                        if (current >= duration) {
+                            if (record->value18 != 0) {
+                                next = current - duration;
+                                carry = next;
+                                record->state = 2;
+                                record->value14 = next;
+                                record->status = 0xFF;
+                            } else {
+                                carry = 0;
+                                if ((record->value1F != 0) &&
+                                    (record->value1E == 0)) {
+                                    next = current - duration;
+                                    carry = next;
+                                    record->state = 3;
+                                    record->value14 = next;
+                                    record->status = 0xFF;
+                                } else {
+                                    record->state = 0;
+                                    record->status = 0;
+                                }
+                            }
+                        } else {
+                            carry = 0;
+                            record->status =
+                                (u8) ((current * 0xFF) / duration);
+                        }
+                        break;
+                    case 2:
+                        duration = record->value18;
+                        if (duration < 0) {
+                            carry = 0;
+                        } else {
+                            record->value14 = (s16) (record->value14 + carry);
+                            current = record->value14;
+                            carry = 0;
+                            if (current >= duration) {
+                                mode = record->value1E;
+                                if (((mode != 0) && (record->value1F == 0)) ||
+                                    ((mode == 0) && (record->value1F != 0))) {
+                                    carry = current - duration;
+                                    record->state = 3;
+                                    record->value14 = carry;
+                                } else {
+                                    if (record->value1F != 0) {
+                                        carry = current - duration;
+                                        record->state = 1;
+                                        record->value14 = carry;
+                                    } else {
+                                        record->state = 0;
+                                        record->status = 0;
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case 3:
+                        duration = record->value16;
+                        record->value14 = (s16) (record->value14 + carry);
+                        current = record->value14;
+                        if (current >= duration) {
+                            carry = 0;
+                            if ((record->value1E != 0) &&
+                                (record->value1F != 0) &&
+                                (record->value18 != 0)) {
+                                next = current - duration;
+                                carry = next;
+                                record->state = 2;
+                                record->value14 = next;
+                                record->status = 0;
+                            } else {
+                                record->state = 0;
+                                record->status = 0;
+                            }
+                        } else {
+                            carry = 0;
+                            record->status =
+                                (u8) (((duration - current) * 0xFF) / duration);
+                        }
+                        break;
+                    }
+                } while (carry != 0);
+            }
+            if (record->state != 0) {
+                D_800D5F50 |= 0x10 >> bit;
+            }
+        }
+        record++;
+        bit--;
+    } while (bit != 0);
+    return D_800D5F50;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049B14.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049E4C.s")
 void func_8004A0F0(void) {
