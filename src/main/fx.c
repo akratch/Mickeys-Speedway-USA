@@ -705,7 +705,107 @@ s32 func_80049B14(s16 delta) {
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049B14.s")
+#endif
+/* Workbench verdict: structure-mismatch, 159 differing words, first mismatch +0x8. */
+/* Candidate: 167/169 instructions with a -0x50 frame versus target -0x60; display-list structural gap remains, so it is not shape-exact. */
+/* Shape status: VI setup, table selection, per-record commands, and scissor calls are reconstructed. */
+/* PROVENANCE: Mickey's own target command words, globals, and m2c CFG supply this reconstruction. */
+#ifdef NON_MATCHING
+void func_80049E4C(FxGfx **dlist, s32 arg1) {
+    s32 width;
+    s32 height;
+    s32 count;
+    s32 remaining;
+    s32 u;
+    s32 v;
+    s32 color;
+    f32 widthFloat;
+    f32 heightFloat;
+    FxGfx *cmd;
+    u8 *table;
+    u8 *entry;
+
+    if (D_800D5F50 != 0) {
+        viGetCurrentSize(&width, &height);
+        cmd = *dlist;
+        *dlist = cmd + 1;
+        cmd->w1 = 0;
+        cmd->w0 = 0xE7000000;
+        cmd = *dlist;
+        *dlist = cmd + 1;
+        cmd->w0 = 0xED000000;
+        widthFloat = (f32) width;
+        if (width < 0) {
+            widthFloat += 4294967296.0f;
+        }
+        heightFloat = (f32) height;
+        if (height < 0) {
+            heightFloat += 4294967296.0f;
+        }
+        u = (s32) (widthFloat * 4.0f) & 0xFFF;
+        v = (s32) (heightFloat * 4.0f) & 0xFFF;
+        cmd->w1 = (u << 12) | v;
+        cmd = *dlist;
+        *dlist = cmd + 1;
+        cmd->w0 = 0xB6000000;
+        cmd->w1 = 0x10001;
+        cmd = *dlist;
+        *dlist = cmd + 1;
+        cmd->w1 = 0xFFFDF6FB;
+        cmd->w0 = 0xFCFFFFFF;
+        if (arg1 == 0) {
+            table = (u8 *) D_800D5F58;
+            count = 4;
+        } else {
+            table = (u8 *) D_800D5FD8;
+            count = 1;
+        }
+        remaining = count - 1;
+        if (count != 0) {
+            do {
+                entry = table;
+                if (entry[1] != 0) {
+                    cmd = *dlist;
+                    *dlist = cmd + 1;
+                    if (entry[1] == 0xFF) {
+                        cmd->w1 = 0x0F0A4000;
+                    } else {
+                        cmd->w1 = 0x504340;
+                    }
+                    cmd->w0 = 0xEF002C0F;
+                    cmd = *dlist;
+                    *dlist = cmd + 1;
+                    cmd->w0 = 0xFA000000;
+                    color = (entry[0x1A] << 24) | (entry[0x1B] << 16) |
+                            (entry[0x1C] << 8) | entry[1];
+                    cmd->w1 = color;
+                    cmd = *dlist;
+                    *dlist = cmd + 1;
+                    cmd->w0 = ((*(s32 *) (entry + 0xC) & 0x3FF) << 14) |
+                              0xF6000000 |
+                              ((*(s32 *) (entry + 0x10) & 0x3FF) * 4);
+                    cmd->w1 = ((*(s32 *) (entry + 4) & 0x3FF) << 14) |
+                              ((*(s32 *) (entry + 8) & 0x3FF) * 4);
+                    cmd = *dlist;
+                    *dlist = cmd + 1;
+                    cmd->w1 = 0;
+                    cmd->w0 = 0xE7000000;
+                }
+                table += 0x20;
+                remaining--;
+            } while (remaining != 0);
+        }
+        func_80034920(dlist, table, dlist);
+        camSetScissor(dlist);
+        cmd = *dlist;
+        *dlist = cmd + 1;
+        cmd->w1 = -1;
+        cmd->w0 = 0xFA000000;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049E4C.s")
+#endif
 void func_8004A0F0(void) {
     D_800D6038[0] = 0;
     D_800D6038[1] = 0;
