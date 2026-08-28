@@ -396,6 +396,7 @@ extern TrackPlanePoints D_8007927C[3];
 extern TrackPlane D_800C9578[3];
 extern u8 D_800C9B90[];
 extern void *D_800C9CD0[];
+extern s32 D_800C9D24;
 
 void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
@@ -1775,7 +1776,162 @@ next_plane:
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010B4C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800115E4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80011980.s")
+#ifdef NON_MATCHING
+/* PROVENANCE: JFG's public track.c supplies the ray/edge collision role;
+ * this body uses Mickey's resident edge records and output layout. */
+/* Workbench verdict: structure-mismatch, 330 differing words; first mismatch is at +0x0. */
+/* Target is 342 instructions/frame -192; candidate is 331 instructions/frame -200. */
+/* Remaining gap is structural: edge/sphere fallback and hit metadata scheduling differ; not permuter-ready. */
+s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3) {
+    u8 *record;
+    u8 *metadata;
+    u8 *metadataEntry;
+    f32 t;
+    f32 tEnd;
+    f32 pointX;
+    f32 pointY;
+    f32 pointZ;
+    f32 normalX;
+    f32 normalY;
+    f32 normalZ;
+    f32 planeDistance;
+    s32 recordIndex;
+    s32 recordCount;
+    s32 hit;
+    s32 edgeHit;
+    s32 metadataIndex;
+
+    hit = 0;
+    recordCount = 0;
+    if (D_800C9D24 > 0) {
+        do {
+            edgeHit = 0;
+            record = (u8 *) D_800C9D20 + (recordCount * 0x2C);
+            if ((func_80012234(arg0, arg1, record, record + 0x18,
+                               arg2, &t, &tEnd) != 0) &&
+                (t >= 0.0f) && (t <= *(f32 *) (arg3 + 0x1C))) {
+                normalX = *(f32 *) (record + 0x18);
+                normalY = *(f32 *) (record + 0x1C);
+                normalZ = *(f32 *) (record + 0x20);
+                pointX = (*(f32 *) (arg1 + 0) * t) +
+                         *(f32 *) (arg0 + 0);
+                pointY = (*(f32 *) (arg1 + 4) * t) +
+                         *(f32 *) (arg0 + 4);
+                pointZ = (*(f32 *) (arg1 + 8) * t) +
+                         *(f32 *) (arg0 + 8);
+                planeDistance = (((pointX - *(f32 *) (record + 0)) * normalX) +
+                                  ((pointY - *(f32 *) (record + 4)) * normalY) +
+                                  ((pointZ - *(f32 *) (record + 8)) * normalZ)) /
+                                 ((normalZ * normalZ) +
+                                  ((normalX * normalX) + (normalY * normalY)));
+                if ((planeDistance >= 0.0f) && (planeDistance <= 1.0f)) {
+                    *(f32 *) (arg3 + 0x10) = pointX;
+                    *(f32 *) (arg3 + 0x14) = pointY;
+                    *(f32 *) (arg3 + 0x18) = pointZ;
+                    hit = 1;
+                    edgeHit = 1;
+                    *(f32 *) (arg3 + 0) =
+                        (pointX - ((normalX * planeDistance) +
+                                   *(f32 *) (record + 0))) / arg2;
+                    normalX = (pointZ - ((normalZ * planeDistance) +
+                                         *(f32 *) (record + 8))) / arg2;
+                    *(f32 *) (arg3 + 4) =
+                        (pointY - ((normalY * planeDistance) +
+                                   *(f32 *) (record + 4))) / arg2;
+                    *(f32 *) (arg3 + 8) = normalX;
+                    *(f32 *) (arg3 + 0xC) =
+                        -((normalX * pointZ) +
+                          ((pointX * *(f32 *) (arg3 + 0)) +
+                           (pointY * *(f32 *) (arg3 + 4))));
+                    metadata = *(u8 **) (record + 0x24);
+                    metadataIndex = *(s32 *) (record + 0x28);
+                    metadataEntry = *(u8 **) (metadata + 0xC) +
+                                    (metadataIndex * 0x10);
+                    *(s32 *) (arg3 + 0x20) = *(s32 *) (metadataEntry + 0xC);
+                    *(u8 *) (arg3 + 0x24) = *((u8 *) D_800792E8->textures +
+                                              (*(u8 *) metadataEntry * 8) + 7);
+                    *(f32 *) (arg3 + 0x1C) = t;
+                }
+            }
+            if (edgeHit == 0) {
+                if ((func_80012574((TrackVec3f *) arg0, (TrackVec3f *) arg1,
+                                   (TrackVec3f *) record,
+                                   arg2, &t, &tEnd) != 0) &&
+                    (t >= 0.0f) && (t <= *(f32 *) (arg3 + 0x1C))) {
+                    edgeHit = 1;
+                    hit = 1;
+                    pointX = (*(f32 *) (arg1 + 0) * t) +
+                             *(f32 *) (arg0 + 0);
+                    pointY = (*(f32 *) (arg1 + 4) * t) +
+                             *(f32 *) (arg0 + 4);
+                    pointZ = (*(f32 *) (arg1 + 8) * t) +
+                             *(f32 *) (arg0 + 8);
+                    *(f32 *) (arg3 + 0x10) = pointX;
+                    *(f32 *) (arg3 + 0x14) = pointY;
+                    *(f32 *) (arg3 + 0x18) = pointZ;
+                    *(f32 *) (arg3 + 0) =
+                        (pointX - *(f32 *) (record + 0)) / arg2;
+                    *(f32 *) (arg3 + 4) =
+                        (pointY - *(f32 *) (record + 4)) / arg2;
+                    *(f32 *) (arg3 + 8) =
+                        (pointZ - *(f32 *) (record + 8)) / arg2;
+                    *(f32 *) (arg3 + 0xC) =
+                        -((*(f32 *) (arg3 + 8) * pointZ) +
+                          ((pointX * *(f32 *) (arg3 + 0)) +
+                           (pointY * *(f32 *) (arg3 + 4))));
+                    metadata = *(u8 **) (record + 0x24);
+                    metadataIndex = *(s32 *) (record + 0x28);
+                    metadataEntry = *(u8 **) (metadata + 0xC) +
+                                    (metadataIndex * 0x10);
+                    *(s32 *) (arg3 + 0x20) = *(s32 *) (metadataEntry + 0xC);
+                    *(u8 *) (arg3 + 0x24) = *((u8 *) D_800792E8->textures +
+                                              (*(u8 *) metadataEntry * 8) + 7);
+                    *(f32 *) (arg3 + 0x1C) = t;
+                }
+            }
+            if (edgeHit == 0) {
+                if ((func_80012574((TrackVec3f *) arg0, (TrackVec3f *) arg1,
+                                   (TrackVec3f *) (record + 0xC), arg2,
+                                   &t, &tEnd) != 0) &&
+                    (t >= 0.0f) && (t <= *(f32 *) (arg3 + 0x1C))) {
+                    hit = 1;
+                    pointX = (*(f32 *) (arg1 + 0) * t) +
+                             *(f32 *) (arg0 + 0);
+                    pointY = (*(f32 *) (arg1 + 4) * t) +
+                             *(f32 *) (arg0 + 4);
+                    pointZ = (*(f32 *) (arg1 + 8) * t) +
+                             *(f32 *) (arg0 + 8);
+                    *(f32 *) (arg3 + 0x10) = pointX;
+                    *(f32 *) (arg3 + 0x14) = pointY;
+                    *(f32 *) (arg3 + 0x18) = pointZ;
+                    *(f32 *) (arg3 + 0) =
+                        (pointX - *(f32 *) (record + 0xC)) / arg2;
+                    *(f32 *) (arg3 + 4) =
+                        (pointY - *(f32 *) (record + 0x10)) / arg2;
+                    *(f32 *) (arg3 + 8) =
+                        (pointZ - *(f32 *) (record + 0x14)) / arg2;
+                    *(f32 *) (arg3 + 0xC) =
+                        -((*(f32 *) (arg3 + 8) * pointZ) +
+                          ((pointX * *(f32 *) (arg3 + 0)) +
+                           (pointY * *(f32 *) (arg3 + 4))));
+                    metadata = *(u8 **) (record + 0x24);
+                    metadataIndex = *(s32 *) (record + 0x28);
+                    metadataEntry = *(u8 **) (metadata + 0xC) +
+                                    (metadataIndex * 0x10);
+                    *(s32 *) (arg3 + 0x20) = *(s32 *) (metadataEntry + 0xC);
+                    *(u8 *) (arg3 + 0x24) = *((u8 *) D_800792E8->textures +
+                                              (*(u8 *) metadataEntry * 8) + 7);
+                    *(f32 *) (arg3 + 0x1C) = t;
+                }
+            }
+            recordCount++;
+        } while (recordCount < D_800C9D24);
+    }
+    return hit;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80011CDC.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80012234.s")
 #ifdef NON_MATCHING
 /*
