@@ -914,7 +914,19 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int) -> tuple[b
         return False, f"could not locate {item.func}'s NON_MATCHING block to replace"
 
     item.c_file.write_text(new_text)
+    # Both are tracked generated artifacts a promotion regenerates; a reverted
+    # promotion must leave neither rewritten, or the next function's run starts
+    # from a dirty tree it did not cause.
+    regenerated = [ATLAS_PATH, ROOT / "overlay_undefined_syms.us.txt"]
+    before = {p: p.read_text() for p in regenerated if p.is_file()}
     if item.overlay is not None:
+        # `gmake`'s own prerequisite chain runs `overlay_atlas.py --check`, and
+        # splicing a candidate flips that TU's mechanically-derived
+        # `nonmatching` flag -- so the atlas goes STALE and the build dies
+        # before it compiles anything. commit_match() already regenerates it
+        # after a promotion; a promotion cannot get that far without it.
+        subprocess.run(["gmake", "overlay-atlas-write"], cwd=ROOT,
+                       capture_output=True, timeout=900)
         # A promoted overlay body may reference placeholder symbols whose
         # values are generated from the objects (tools/reloc_surface.py);
         # regenerate the block after compiling so the link can resolve them.
@@ -924,6 +936,9 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int) -> tuple[b
 
     def revert(reason: str) -> tuple[bool, str]:
         item.c_file.write_text(original)
+        for path, text in before.items():
+            if path.is_file() and path.read_text() != text:
+                path.write_text(text)
         # Best-effort: rebuild the tree back to the pre-splice state so a
         # failed promotion doesn't leave build/ out of sync with the source
         # for whatever runs next (another function's promotion, or the

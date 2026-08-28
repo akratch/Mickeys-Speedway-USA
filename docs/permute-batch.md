@@ -254,6 +254,13 @@ values are synthesized from the objects), rebuilds, and accepts only on
 `gmake verify` -- byte-identical ROM -- followed by
 `tools/wb_compare.sh --rom`.
 
+The splice also regenerates `config/overlays.us.json`: a spliced candidate
+flips that TU's mechanically-derived `nonmatching` flag, and
+`overlay_atlas.py --check` is a prerequisite of `build/.splat-stamp` and so of
+everything, which means a stale atlas kills the promotion build before it
+compiles anything. A rejected candidate has both the atlas and
+`overlay_undefined_syms.us.txt` restored along with its `.c` file.
+
 A score-0 overlay candidate can still fail `verify`. The module's data is
 placed by the runtime, not by this link, so a promotion can move a word the
 scratch never modelled: a datum landing at a different module offset, an

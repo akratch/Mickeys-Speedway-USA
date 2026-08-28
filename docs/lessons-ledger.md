@@ -179,6 +179,17 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
   disagree is left unannotated rather than half-annotated, and the
   matched-function round trip (score must be 0) is the acceptance test for
   any future change to the annotator.
+- **A promoted overlay candidate failed the build before it compiled anything.**
+  Splicing a candidate flips that TU's mechanically-derived `nonmatching` flag,
+  so `config/overlays.us.json` goes STALE and `overlay_atlas.py --check` --
+  a prerequisite of `build/.splat-stamp`, and therefore of everything -- kills
+  the build. `commit_match()` regenerated the atlas *after* a successful
+  promotion, which a promotion could not reach. `overlay101DrawClock` scored 0
+  and was reported as a failed promotion for that reason alone; with the atlas
+  regenerated before the build it promotes, verifies and commits. Changed:
+  `_promote_locked()` regenerates the atlas after the splice, and restores both
+  it and `overlay_undefined_syms.us.txt` on a revert so a rejected candidate
+  leaves no dirty generated artifact behind.
 - **`objcopy` refuses two `--redefine-sym` arguments sharing a target name,
   and a shell script without a trailing newline swallows the next command.**
   Both failed silently: the renames simply did not happen and the score stayed
