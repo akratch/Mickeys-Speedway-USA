@@ -80,7 +80,7 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
     command = &state->command;
 
     if (gO94Value != 0 &&
-        (func_800254FC(state->selector) & 0x2000) != 0) {
+        (joyGetButtons(state->selector) & 0x2000) != 0) {
         state->active = 1;
     } else if (gO94Value == 0) {
         state->active = 0;
@@ -104,27 +104,27 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
             *command++ = 4;
             *command++ = (s16)state->accumulator;
 
-            weight = func_8002A878(gO94Const0, updateRate);
+            weight = Powerf(gO94Const0, updateRate);
             state->current =
                 ((1.0f - weight) * (0.0f - state->current)) + state->current;
-        } else if ((func_800254FC(state->selector) & 0x2000) != 0) {
-            target = (f32)func_8002565C(state->selector) / 60.0f;
+        } else if ((joyGetButtons(state->selector) & 0x2000) != 0) {
+            target = (f32)joyGetStickY(state->selector) / 60.0f;
             if (target > 1.0f) {
                 target = 1.0f;
             } else if (target < 0.0f) {
                 target = 0.0f;
             }
             target *= gO94Const4;
-            weight = func_8002A878(gO94Const8, updateRate);
+            weight = Powerf(gO94Const8, updateRate);
             state->current =
                 ((1.0f - weight) * (target - state->current)) + state->current;
         } else {
-            weight = func_8002A878(gO94ConstC, updateRate);
+            weight = Powerf(gO94ConstC, updateRate);
             state->current =
                 ((1.0f - weight) * (0.0f - state->current)) + state->current;
         }
     } else {
-        weight = func_8002A878(gO94Const10, updateRate);
+        weight = Powerf(gO94Const10, updateRate);
         state->current =
             ((1.0f - weight) * (gO94Const14 - state->current)) + state->current;
     }
@@ -143,7 +143,7 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
     func_8002B040(entity->records[entity->recordIndex]->queryState,
                   0.0f, 0.0f, -1.0f,
                   &out0, &out1, &out2);
-    angle = func_8002A910(out2, out0);
+    angle = Arctanf(out2, out0);
 
     if (state->active != 0 && state->velocity == 0) {
         s32 reverse;

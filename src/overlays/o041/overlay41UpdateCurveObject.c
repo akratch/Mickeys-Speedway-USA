@@ -126,7 +126,7 @@ void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
         func_overlay_041_F0001298_18885D0(input, object, argument);
         if ((input->flags & 4) || (gOverlay41Disabled < 0)) {
             func_overlay_041_F0001464_188879C(input, object, argument);
-            func_8003EDEC(object, updateRate);
+            partUpdateTriggers(object, updateRate);
             return;
         }
 
@@ -265,8 +265,8 @@ void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
                 func_overlay_041_F00002AC_18875E4(node, t, 0, &dx, 0);
                 func_overlay_041_F00002AC_18875E4(node, t, 0, &dy, 1);
                 func_overlay_041_F00002AC_18875E4(node, t, 0, &dz, 2);
-                targetX = func_8002A910(dx, dz) - 0x8000;
-                targetY = func_8002A910(dy,
+                targetX = Arctanf(dx, dz) - 0x8000;
+                targetY = Arctanf(dy,
                                         sqrtf((dx * dx) + (dy * dy) +
                                               (dz * dz)));
                 func_overlay_041_F00002AC_18875E4(node, t, &dz, 0, 5);
@@ -280,8 +280,8 @@ void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
                     dx = targetObject->x - object->x;
                     dy = targetObject->y - object->y;
                     dz = targetObject->z - object->z;
-                    targetX = func_8002A910(dx, dz) - 0x8000;
-                    targetY = func_8002A910(dy,
+                    targetX = Arctanf(dx, dz) - 0x8000;
+                    targetY = Arctanf(dy,
                                             sqrtf((dx * dx) + (dy * dy) +
                                                   (dz * dz)));
                     targetZ = 0;
@@ -298,7 +298,7 @@ void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
         }
 
         if (input->smoothing != 1.0f) {
-            blend = 1.0f - func_8002A878(1.0f - input->smoothing, updateRate);
+            blend = 1.0f - Powerf(1.0f - input->smoothing, updateRate);
             t = blend;
             object->angleX = func_overlay_041_F00007FC_1887B34(
                 t, object->angleX, targetX);
@@ -313,7 +313,7 @@ void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
         }
 
         func_overlay_041_F0001464_188879C(input, object, updateRate);
-        func_8003EDEC(object, updateRate);
+        partUpdateTriggers(object, updateRate);
     }
 }
 #else

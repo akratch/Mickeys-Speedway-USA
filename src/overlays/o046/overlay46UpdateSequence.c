@@ -102,7 +102,7 @@ void func_overlay_046_F0000120_188E518(s32 amount) {
                 gOverlay46Timer5C = 0;
                 func_overlay_099_F0000064_18D9614(2, D_60, 2.5f, -1.0f);
                 value = mathRnd(0x203, 0x204);
-                func_80000F94(value & 0xFFFF, 0);
+                amSndPlay(value & 0xFFFF, 0);
             }
         }
         break;
@@ -120,7 +120,7 @@ void func_overlay_046_F0000120_188E518(s32 amount) {
                 gOverlay46Timer5C = 0;
                 func_overlay_099_F0000064_18D9614(2, D_C0, 2.5f, -1.0f);
                 value = mathRnd(0x203, 0x204);
-                func_80000F94(value & 0xFFFF, 0);
+                amSndPlay(value & 0xFFFF, 0);
             }
         }
         break;
@@ -136,7 +136,7 @@ void func_overlay_046_F0000120_188E518(s32 amount) {
             if (gOverlay46Timer5C == 0) {
                 func_overlay_099_F0000064_18D9614(2, D_120, 2.5f, -1.0f);
                 value = mathRnd(0x203, 0x204);
-                func_80000F94(value & 0xFFFF, 0);
+                amSndPlay(value & 0xFFFF, 0);
                 gOverlay46Timer5C = 1;
             } else if (func_80037664() != 1) {
                 gOverlay46Value8 = 0;

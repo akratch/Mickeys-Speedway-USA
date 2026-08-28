@@ -2660,7 +2660,7 @@ void overlay1UpdateAimedTransient(void) {
                 factor = distance / (30.0f * D_4);
             } while (iteration--);
 
-            sourceAngle = func_8002A910(deltaX, deltaZ);
+            sourceAngle = Arctanf(deltaX, deltaZ);
             objectAngle = func_overlay_001_F00064F8_18528D8(
                 object->x, object->y, object->z,
                 predictedX, predictedY, predictedZ,

@@ -29,7 +29,7 @@ void overlay5InitializeAudio(void *context) {
     gOverlay5AudioOwner = gOverlay5SoundState;
     alHeapInit(gOverlay5HeapState, gOverlay5HeapMemory, 0x30D40);
 
-    resource = func_8002E148(0x31);
+    resource = piRomLoad(0x31);
     gOverlay5Span0Size = resource->end - resource->span1End;
     gOverlay5Span0 = func_8002B280(gOverlay5Span0Size, 0x82);
     func_8002E2E0(0x32, gOverlay5Span0,
@@ -119,8 +119,8 @@ void overlay5InitializeAudio(void *context) {
 
     func_80001BA0();
     func_80000450(0);
-    func_8002B768(resource);
-    func_800039F0();
+    mmFree(resource);
+    amVibratoInit();
     alSurround_OutputType(4);
     alSurround_ReverbSetup(0, 3);
     osCreateMesgQueue(gOverlay5MessageQueue, gOverlay5MessageBuffer, 1);
