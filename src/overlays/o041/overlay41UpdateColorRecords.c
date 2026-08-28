@@ -18,25 +18,13 @@ extern Overlay41ColorRecord gOverlay41ColorRecords[12];
 extern void overlay41SetColor(s32 handle, s32 red, s32 green, s32 blue);
 extern void overlay41SetAlpha(s32 handle, s32 alpha);
 
-extern u8 D_80000038[];
-extern u8 D_80000039[];
-extern u8 D_8000003A[];
-extern u8 D_8000003B[];
-extern void func_overlay_041_F0000000_1887338(void);
-
 /* Workbench: allocation-mismatch, exact 98/-48 shape, 15-word floor from +0x40.
  * Lever: constant/relocation audit after the direct-field spelling left the source schedule intact but not the color web.
  * Remains: 15 allocation, 5 constant, 2 schedule, and nine overlay-relocation residuals; assembly fallback stays canonical. */
 #ifdef NON_MATCHING
-/* Preserve runtime-only relocation identities in a removable private island. */
-static void *const overlay41RuntimeSymbols[] = {
-    D_80000038,
-    D_80000039,
-    D_8000003A,
-    D_8000003B,
-    func_overlay_041_F0000000_1887338,
-};
-
+/* Ownership trial (2026-08-28): removed the TU's private 0x20-byte .data island;
+ * linked promotion is text-differs with 98 in-range words, first at +0x0.
+ * Module growth is cleared; the remaining gap is codegen/register allocation. */
 void func_overlay_041_F0000124_188745C(s32 amount) {
     Overlay41ColorRecord *record;
     s32 i;
