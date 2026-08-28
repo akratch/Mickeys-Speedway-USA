@@ -51,6 +51,79 @@ extern ControlCollisionState D_800CB2C0;
 extern ControlCameraState *D_800CB300;
 extern u8 D_8007BF10;
 extern f32 D_80081840;
+extern f32 D_80081844;
+
+typedef struct CharControlEffectDefinition {
+    u8 kind;
+    u8 index;
+    s16 angle;
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 w;
+    u8 arg14;
+    u8 arg15;
+    u8 arg16;
+    u8 arg17;
+} CharControlEffectDefinition;
+
+typedef struct CharControlEffectList {
+    s32 count;
+    CharControlEffectDefinition *entries;
+} CharControlEffectList;
+
+typedef struct CharControlParticleDefinition {
+    u8 kind;
+    u8 index;
+    s8 angle;
+    s8 angleLow;
+    s16 arg4;
+    s16 arg6;
+    s16 arg8;
+    s16 argA;
+    s16 argC;
+    s16 argE;
+} CharControlParticleDefinition;
+
+typedef struct CharControlParticleList {
+    s32 count;
+    CharControlParticleDefinition *entries;
+} CharControlParticleList;
+
+typedef struct CharControlIndex {
+    u16 offset;
+    u16 value;
+} CharControlIndex;
+
+typedef struct CharControlCharacterData {
+    u8 pad00[0x1C];
+    s16 *positions;
+    u8 pad20[0x2D - 0x20];
+    u8 count;
+    u8 pad2E[2];
+    CharControlIndex *indexTable;
+} CharControlCharacterData;
+
+typedef struct CharControlParticleSlot {
+    u8 kind;
+    u8 active;
+    u8 index;
+    s8 model;
+    u8 unk4;
+    u8 pad05;
+    s16 unk6;
+    void *handle;
+} CharControlParticleSlot;
+
+extern CharControlEffectList D_8007980C[];
+extern CharControlParticleList D_8007987C[];
+extern CharControlParticleList D_800798DC[];
+extern CharControlParticleList D_8007992C[];
+extern CharControlParticleList D_8007996C[];
+extern CharControlParticleList D_800799AC[];
+extern u8 D_8007BEF8;
+extern u8 D_8007BEFC;
+extern u8 D_8007BF04;
 
 typedef struct ControlCollisionNormal {
     f32 x;
@@ -91,7 +164,7 @@ void func_800479D4(void *cone, s16 angle, f32 x, f32 y, s32 length);
 void partUpdateTriggers(void *object, s32 updateRate);
 void changeLightIntensity(void *light, u8 intensity);
 s32 func_8002A204(s16 angle);
-void camSetNo(s8 playerIndex, s32 cameraIndex, ControlCameraState **cameraState);
+void camSetNo(s32 cameraIndex);
 ControlCameraState *camGetPtr(void);
 s32 camGetMode(void);
 ControlCameraState *camGetListPtr(void);
@@ -102,6 +175,12 @@ s32 func_800299E8(s32 minimum, s32 maximum);
 ControlActor **func_8000572C(s32 *start, s32 *end);
 s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 mode, ControlActor **hitActor);
 void func_800282C8(void);
+void func_8005AD64(void *instance, s32 frame, s32 arg2, f32 value);
+void *func_80046EC4(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
+                    f32 arg5, f32 arg6, f32 arg7, s32 arg8, s32 arg9,
+                    s32 argA);
+u8 levelGetType(void);
+u8 *func_80028F54(void);
 u32 joyGetButtons(s32 playerIndex);
 u32 joyGetPressed(s32 playerIndex);
 u32 joyGetReleased(s32 playerIndex);
@@ -402,7 +481,248 @@ void controlPlayerReInit(ControlActor *actor, f32 x, f32 y, f32 z, s16 arg4, s16
     player->unk45C = saved45C;
     player->unk45D = saved45D;
 }
+/* Workbench verdict: structure-mismatch, 390 differing words, first mismatch +0x0. */
+/* Candidate shape: 401 instructions/frame -0xC8 versus target 403/-0xA8; relocations remain positionally different. */
+/* Remaining structural gap: callee-saved loop state/stack homes and fixed-count state initialization; not shape-exact. */
+/* PROVENANCE: JFG's corresponding character-control initialization role supplied the control-flow lead; fields and body are reconstructed from Mickey. */
+#ifdef NON_MATCHING
+void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode) {
+    ControlPlayer *player;
+    CharControlEffectList *effectList;
+    CharControlEffectDefinition *effect;
+    CharControlParticleList *particleList;
+    CharControlParticleDefinition *particle;
+    CharControlCharacterData *characterData;
+    CharControlParticleSlot *slot;
+    ControlSpawnPacket packet;
+    void *savedActor;
+    f32 *output;
+    s16 *position;
+    void **effectOwner;
+    void *stateCursor;
+    s32 effectIndex;
+    s32 effectCount;
+    s32 effectSlot;
+    s32 pointIndex;
+    s32 particleCount;
+    register s32 remaining;
+    register s32 particleSlotCount;
+    s32 packetIndex;
+    s8 playerIndex;
+
+    player = actor->player;
+    player->unk1B8 = 0x2000;
+    player->playerIndex = *((u8 *) state + 0x10);
+    player->unk10 = 0.0f;
+    player->unk1 = *((u8 *) state + 0x11);
+    actor->rotationX = state->arg4;
+    actor->rotationY = state->arg5;
+    actor->rotationZ = state->arg6;
+    player->unkF0 = actor->rotationX;
+    player->unkF2 = actor->rotationY;
+    player->unkFE = 0;
+    player->unkF4 = actor->rotationZ;
+    player->unkDC = (s16) (0x8000 - actor->rotationX);
+    func_8005AD64(actor, 0, -1, 0.0f);
+    player->unk50 = 1.0f;
+    player->unk54 = 1.0f;
+
+    output = &player->unk2C0[0];
+    if (D_8007BF10 != 0) {
+        player->unk2BC = 4;
+        player->unk2B8 = (ControlGravityVector *) &D_800799AC;
+    } else {
+        player->unk2BC = 4;
+        if (D_8007BF1C & 8) {
+            player->unk2B8 = (ControlGravityVector *) &D_8007996C;
+        } else {
+            player->unk2B8 = (ControlGravityVector *) &D_8007992C;
+        }
+    }
+    player->unk33C = 0;
+    player->unk340 = 0;
+    pointIndex = 0;
+    if (player->unk2BC > 0) {
+        effectSlot = 0;
+        do {
+            effectSlot++;
+            output += 3;
+            output[-3] = *((f32 *) ((u8 *) player->unk2B8 + pointIndex));
+            output[-2] = *((f32 *) ((u8 *) player->unk2B8 + pointIndex + 4));
+            output[-1] = *((f32 *) ((u8 *) player->unk2B8 + pointIndex + 8));
+            pointIndex += 0x10;
+        } while (effectSlot < player->unk2BC);
+    }
+    func_8001EFFC(actor, player, &player->unk2F0);
+
+    effectIndex = (s32) player->unk1;
+    if ((player->unk1 < 0) || (player->unk1 >= 10)) {
+        effectIndex = 0;
+    }
+    if (player->playerIndex < (D_8007BEF8 - D_8007BEFC)) {
+        effectList = &D_8007980C[effectIndex];
+        effect = effectList->entries;
+        if (effect != 0) {
+            effectCount = effectList->count;
+            effectSlot = 0;
+            effectOwner = (void **) player;
+            if (effectCount > 0) {
+                do {
+                    if (effectOwner[0x134 / 4] == 0) {
+                        effectOwner[0x134 / 4] =
+                            (void *) TrapDanglingJump(
+                                actor, effect->kind, effect->angle, effect->index,
+                                effect->x, effect->y, effect->z, effect->w,
+                                effect->arg14, effect->arg15, effect->arg16,
+                                effect->arg17);
+                    }
+                    effectSlot++;
+                    effectOwner++;
+                    effect++;
+                } while (effectSlot != effectCount);
+            }
+        }
+    }
+
+    characterData = (CharControlCharacterData *)
+        *(*(actor->unk68 + actor->unk3A));
+    particleCount = effectIndex * 8;
+    particleSlotCount = 0;
+    if (levelGetType() == 3) {
+        particleList = (CharControlParticleList *)
+            ((u8 *) D_8007987C + particleCount);
+    } else if (D_8007BF04 != 0) {
+        particleList = (CharControlParticleList *)
+            ((u8 *) D_800798DC + particleCount);
+    } else {
+        particleList = (CharControlParticleList *)
+            ((u8 *) D_8007987C + particleCount);
+    }
+    particleCount = particleList->count;
+    particle = particleList->entries;
+    slot = (CharControlParticleSlot *) player->particles;
+    remaining = particleCount - 1;
+    if (particleCount != 0) {
+        do {
+            if (slot->handle == 0) {
+                if (particle->index < characterData->count) {
+                    slot->kind = particle->kind;
+                    slot->index = particle->index;
+                    position = (s16 *) ((u8 *) characterData->positions +
+                        (characterData->indexTable[particle->index].offset * 10));
+                    slot->model = (s8)
+                        characterData->indexTable[particle->index].value;
+                    slot->handle = func_80046EC4(
+                        position[0], position[1], position[2],
+                        (s16) (particle->angle << 8),
+                        (s16) (particle->angleLow << 8),
+                        (f32) particle->arg4, (f32) particle->arg6,
+                        (f32) particle->arg8, particle->argA, particle->argC,
+                        particle->argE);
+                }
+            }
+            slot->active = 0;
+            slot->unk4 = 0;
+            slot->unk6 = 0;
+            particle++;
+            slot++;
+            particleSlotCount++;
+            remaining--;
+        } while (remaining != 0);
+    }
+    if (particleSlotCount < 4) {
+        do {
+            particleSlotCount++;
+            slot->handle = 0;
+            slot++;
+        } while (particleSlotCount < 4);
+    }
+
+    playerIndex = player->playerIndex;
+    player->unk38 = actor->x;
+    player->unk3C = actor->y;
+    player->unk40 = actor->z;
+    player->unk44 = actor->x;
+    player->unk48 = actor->y;
+    player->unk190 = 0xFF;
+    player->unk18D = 0;
+    player->unk338 = 0;
+    player->unk348 = 0;
+    player->unk456 = 0;
+    player->unk387 = 0xFF;
+    player->unk388 = 0;
+    player->unk183 = 0x80;
+    player->unk184 = 0;
+    player->unk185 = 0;
+    player->unk186 = 0;
+    player->unk187 = 0;
+    player->unk188 = 0.0f;
+    player->unk4C = actor->z;
+    if (playerIndex != -1) {
+        camSetNo(playerIndex);
+        func_8001BE0C(actor, player);
+    }
+    player->unk16C = 0;
+    player->unk2 = 0;
+    player->unk3 = 0;
+    player->unk16D = 0;
+    if (player->actions == 0) {
+        player->unk19A = 0xFF;
+        player->unk19B = 0;
+        player->unk19C = 0;
+        player->actions = 0;
+    }
+    player->unk1A4 = 0;
+    player->unk1A5 = 0;
+    player->unk1A6 = 0;
+    player->unk172 = 0;
+    player->unk173 = 0;
+    stateCursor = (u8 *) player;
+    player->unk174 = 1.0f;
+    player->unk178 = 2.0f;
+    player->unk17C = 1.0f;
+    particleSlotCount = 0;
+    do {
+        packetIndex = particleSlotCount * 8;
+        particleSlotCount++;
+        stateCursor = (u8 *) stateCursor + 1;
+        *((u8 *) stateCursor + 0x12B) = 0;
+        *((u8 *) stateCursor + 0x12F) = (u8) packetIndex;
+    } while (particleSlotCount < 4);
+    player->unk3EC = 0.0f;
+    player->unk3F0 = D_80081844;
+    player->unk43C = actor->rotationX;
+    player->unk43E = actor->rotationY;
+    player->unk440 = actor->rotationZ;
+    player->unk444 = actor->unk8;
+    player->unk448 = actor->x;
+    player->unk44C = actor->y;
+    player->unk3BA = 0xFF;
+    player->unk450 = actor->z;
+    if (levelGetType() == 3) {
+        packetIndex = 0;
+        if (mode != 0) {
+            savedActor = actor;
+            packet.kind = 0x124;
+            packet.x = 0;
+            packet.y = 0;
+            packet.z = 0;
+            do {
+                packet.unkA = packetIndex;
+                func_8000590C(&packet, 1);
+                packetIndex++;
+            } while (packetIndex != 3);
+        }
+    }
+    if ((D_8007BF1C & 2) && (*func_80028F54() != 1)) {
+        player->unk192 = 0xA;
+        return;
+    }
+    player->unk192 = 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001C4C0.s")
+#endif
 void func_8001CB0C(ControlTransform *transform, ControlPlayer *player) {
     player->unk2BC = 1;
     if (D_8007BF1C & 8) {
@@ -455,7 +775,7 @@ void func_8001D2A0(ControlActor *actor, s32 arg1) {
     }
     D_800CB300 = (ControlCameraState *)
         ((u8 *) D_800CB300 + (cameraIndex * sizeof(ControlCameraState)));
-    camSetNo(player->playerIndex, cameraIndex, &D_800CB300);
+    camSetNo(player->playerIndex);
     if ((player->unk190 != 0) || (player->unk3FA == 0)) {
         func_8001BBB4(actor, player, (f32) arg1);
     }
