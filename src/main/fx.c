@@ -2291,9 +2291,9 @@ void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ADE8.s")
 #endif
-/* Workbench: structure-mismatch, 54/52 words, 48 positional differences from +0x04.
- * Tried constant audit, context lint, pool-vs-temp inlining, and pointer-lifetime placement.
- * The D_800D60C0 base remains a saved web, adding s7 and two boundary words. */
+/* Workbench: structure-mismatch, 26 differing words, first mismatch +0x10. */
+/* Candidate shape: 52 instructions/frame -0x38; D_800D60C0 is per-iteration, not exact. */
+/* Remaining gap: saved-register order and loop-delay schedule; 18 structural words remain. */
 #ifdef NON_MATCHING
 /* Mickey-derived body; JFG's fxCpuTextureFlush is assembly-only. */
 void func_8004AF68(void) {
@@ -2311,7 +2311,7 @@ void func_8004AF68(void) {
     do {
         allocation = (void *)*value0;
         if (allocation != 0) {
-            value1 = (s32 *)(offset + (s32)D_800D60C0);
+            value1 = &D_800D60C0[i];
             mmFree(allocation);
             mmFree((void *)*value1);
             *value0 = 0;
