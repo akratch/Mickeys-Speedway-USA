@@ -52,7 +52,7 @@ gmake verify | tail -1
 log="build/permuter/sweep-$(date +%Y%m%d-%H%M).log"
 mkdir -p build/permuter
 echo "sweep log: $lane_dir/$log"
-.venv/bin/python tools/permute_batch.py \
+.venv/bin/python -u tools/permute_batch.py \
     --apply --commit --order ranking --resume \
     --jobs 2 --permuter-threads 4 --build-jobs 6 \
     --minutes 20 --extend-minutes 20 --load-threshold 9 \
