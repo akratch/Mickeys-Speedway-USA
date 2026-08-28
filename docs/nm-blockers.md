@@ -304,7 +304,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_045_F0001158_188D5B0` | `src/overlays/o045/func_overlay_045_F0001158_188D5B0.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_046_F0000874_188EC6C` | `src/overlays/o046/func_overlay_046_F0000874_188EC6C.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_046_F0001228_188F620` | `src/overlays/o046/func_overlay_046_F0001228_188F620.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_046_F0000120_188E518` | `src/overlays/o046/overlay46UpdateSequence.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_046_F0000120_188E518` | `src/overlays/o046/overlay46UpdateSequence.c` | resolved-plateau | overlay 46 switch table | TU-owned +0x364..+0x378 .rodata clears module growth; code generation remains. |
 | `func_overlay_047_F0000000_1890E18` | `src/overlays/o047/func_overlay_047_F0000000_1890E18.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_047_F0000B30_1891948` | `src/overlays/o047/func_overlay_047_F0000B30_1891948.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_047_F00009D0_18917E8` | `src/overlays/o047/overlay47ReleaseResources.c` | resolved-plateau | overlay 47 entry/resource block | Resource block is TU-owned; local address binding remains. |
