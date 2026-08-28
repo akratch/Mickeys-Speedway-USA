@@ -11,14 +11,14 @@ from the original stub but have not been modernized or verified.
 <!-- SCOREBOARD_BEGIN -->
 ## Progress
 
-[![functions](https://img.shields.io/badge/functions_matched-1032_of_1460_(70.68%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-354388_of_944356_(37.53%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1282_adopted-blue)](#progress)
+[![functions](https://img.shields.io/badge/functions_matched-1032_of_1460_(70.68%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-359412_of_944356_(38.06%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1282_adopted-blue)](#progress)
 
 ```
 functions     1032 / 1460    70.68%   matched to C, byte-identical
 .text bytes 229884 / 475092  48.39%   matched C in the resident segment
 verified asm  17184 / 475092   3.62%   original hand-written assembly (84 functions)
-overlay C   107320 / 469264  22.87%   matched C keyed by overlay and offset
-whole resolved 354388 / 944356  37.53%   resident C + verified asm + overlay C
+overlay C   112344 / 469264  23.94%   matched C keyed by overlay and offset
+whole resolved 359412 / 944356  38.06%   resident C + verified asm + overlay C
 named         1140 / 1460    78.08%   functions carrying an adopted name
 symbols       1282                    adopted in symbol_addrs.us.txt
 ```
@@ -26,10 +26,10 @@ symbols       1282                    adopted in symbol_addrs.us.txt
 Five-line report in the Diddy Kong Racing convention, where `NON_MATCHING` and `NON_EQUIVALENT` bodies count as unmatched, exactly like extracted assembly:
 
 ```
-decompiled              337204 / 944356  (35.71%)
+decompiled              342228 / 944356  (36.24%)
 handwritten asm          17184 / 944356  ( 1.82%)
 GLOBAL_ASM remaining    273424 / 944356  (28.95%)
-NON_MATCHING            316544 / 944356  (33.52%)
+NON_MATCHING            311520 / 944356  (32.99%)
 NON_EQUIVALENT               0 / 944356  ( 0.00%)
 ```
 
