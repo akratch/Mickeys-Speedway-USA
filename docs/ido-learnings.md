@@ -68,6 +68,15 @@ bytes and disassembly never belong here.
   the measured `-O2 -mips2` basin: use it only when zero is semantically
   required, and reject it if instruction count, relocations, or linked bytes
   move. Evidence: Overlay 1's exact value-cache manager in `docs/overlays.md`.
+- A source copy can decouple load order from FP coloring when two equal-cost
+  webs tie. Load the first value through the local that must receive the first
+  color, copy it to its lasting local, then overwrite the first local with the
+  second value; IDO can coalesce the copy away while preserving the opposite
+  load and color orders. This applies only when the copy and overwrite are
+  semantically exact and the stock object emits no move or spill; reject the
+  shape unless instruction count, relocations, linked bytes, and the full ROM
+  remain exact. Evidence: Overlay 8's exact scale-output body in
+  `docs/overlays.md`.
 
 ### Search fidelity and false floors
 

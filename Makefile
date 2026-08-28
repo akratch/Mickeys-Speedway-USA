@@ -1294,8 +1294,6 @@ $(O8_OBJ): POSTPROCESS = \
 		o8Call0894EmitReloc=func_overlay_008_F0002640_1860398 $@ && \
 	$(OBJCOPY) --redefine-sym \
 		o8Surface291CReloc=func_overlay_008_F0004CF0_1862A48 $@ && \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_008_F0003368_18610C0=overlay8ScaleOutputs $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5128 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
 		3dcccccdbdcccccdbf2b851f3f7333333d4ccccd000000000000000000000000 \

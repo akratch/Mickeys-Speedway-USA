@@ -2,11 +2,11 @@
 
 This is a names-only audit of every function body guarded by `NON_MATCHING` in `src/`, reconciled with the plateau notes in `docs/resident.md` and `docs/overlays.md`. Declaration-only guards are excluded. `none` means the recorded blocker is code shape, frame, scheduling, register allocation, ABI typing, or unresolved reconstruction rather than section/TU ownership.
 
-- Guarded functions audited: 416
+- Guarded functions audited: 415
 - Structural blockers found: 39
 - Structural blockers resolved: 3
 - Structural blockers remaining: 36
-- No structural blocker: 377
+- No structural blocker: 376
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
 |---|---|---|---|---|
@@ -187,7 +187,6 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_008_F0001000_185ED58` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_008_F0002640_1860398` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_008_F000291C_1860674` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_008_F0003368_18610C0` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_008_F00034A0_18611F8` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_008_F00042A8_1862000` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_008_F0004CF0_1862A48` | `src/overlays/o008/overlay_008.c` | resolved-plateau | overlay 8 literal pool | TU-owned +0x27C..+0x2AC .rodata clears module growth; code generation remains. |

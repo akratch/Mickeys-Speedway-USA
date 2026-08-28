@@ -869,13 +869,8 @@ void func_overlay_008_F0003278_1860FD0(void *unused0,
     }
 }
 
-/* Plateau: exact 0x138 size and 76/78 words; first mismatch +0x34 swaps
- * independent lower/upper threshold loads. The 119-flag lattice, ten source
- * shapes, and 2,401-second permuter pass retained the two-word plateau. */
-/* Object-level reproof: instruction-words-identical, 0 differing words, first
- * mismatch none; the 78-instruction, frame -8 shape is exact and permuter-ready.
- * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
-#ifdef NON_MATCHING
+/* Loading the lower threshold through upperThreshold before overwriting it
+ * preserves IDO's original copy-coalescing order ($f2, then $f0). */
 void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
                           Overlay8ScaleContext *context,
                           Overlay8ScaleOutput *output) {
@@ -892,8 +887,9 @@ void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
     i = 0;
 
     if (context->count > 0) {
+        upperThreshold = gOverlay8ScaleLowerReloc;
+        lowerThreshold = upperThreshold;
         upperThreshold = gOverlay8ScaleUpperReloc;
-        lowerThreshold = gOverlay8ScaleLowerReloc;
         do {
             output = (Overlay8ScaleOutput *)pair->selector;
             index = (u32)output & 0xFF;
@@ -924,9 +920,6 @@ void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
         } while (i < context->count);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0003368_18610C0.s")
-#endif
 
 /* NON_MATCHING p4 plateau: workbench structure-mismatch; exact-TU -Wo,-loopunroll,0 is 910 vs 898 instructions, 755 raw words different, frames -0xC8/-0x80, first +0x0.
  * Lever: word-sized selectedMode reduces alignment gaps; fourth-argument s32 and volatile probes regress, while prior query/lifetime/register levers remain closed.

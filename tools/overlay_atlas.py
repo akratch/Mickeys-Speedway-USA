@@ -1171,6 +1171,12 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x2EC0, 0x3018, "overlay8UpdateChild"),
         (0x3018, 0x3278, "overlay8UpdateChannels"),
         (0x3278, 0x3368, "overlay8ApplyColors"),
+        (
+            0x3368,
+            0x34A0,
+            "overlay8ScaleOutputs",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
         (0x49A4, 0x49B4, "overlay8SetBuffer"),
         (0x49B4, 0x49DC, "overlay8WriteCommand"),
         (0x49DC, 0x49E8, "overlay8SetValue"),
