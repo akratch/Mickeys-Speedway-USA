@@ -1046,7 +1046,10 @@ def main(argv: list[str]) -> int:
         if unranked:
             print(f"note: {unranked} queued function(s) have no ranking row; they run last")
     if args.resume and SUMMARY_JSON.is_file():
-        done = {r["func"] for r in json.loads(SUMMARY_JSON.read_text()).get("results", [])}
+        # A row that errored or never got a base score (import/compile fault)
+        # is not "done": the fault may have been fixed since.
+        done = {r["func"] for r in json.loads(SUMMARY_JSON.read_text()).get("results", [])
+                if not r.get("error") and r.get("base_score") is not None}
         before = len(queue)
         queue = [it for it in queue if it.func not in done]
         print(f"--resume: skipping {before - len(queue)} already-run function(s)")
