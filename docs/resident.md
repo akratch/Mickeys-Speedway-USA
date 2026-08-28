@@ -123,13 +123,16 @@ coincidence, not a same-source one. They are not adopted:
 and six JFG `func_`-placeholder hits.
 
 The remaining 71 were independently re-verified byte-for-byte (masked words
-under real relocation records, `romocc` computed): 68 clear the tier-A bar in
-full (docs/modules.md 1.2) and are adopted, one at `0x8002D824` fails on
-uniqueness (Banjo-Kazooie's `unallocUnusedBlock`, `romocc=4`) and two more
-fall short of the 6-unmasked-word floor or leave `romocc` unresolved
-(`texLoadTextureAddr` at 5 words; `viFrameRateReset`, `romocc=?`) -- all three
-left unnamed, consistent with 1.2's "not adoptable on uniqueness grounds" for
-an unresolved `romocc`. Four further hits (`matrix_RPY_XYZ`,
+under real relocation records, `romocc` computed): 68 cleared the tier-A bar
+in full (docs/modules.md 1.2) and were adopted. In that scan, one at
+`0x8002D824` failed on uniqueness (Banjo-Kazooie's `unallocUnusedBlock`,
+`romocc=4`) and two more fell short of the 6-unmasked-word floor or left
+`romocc` unresolved (`texLoadTextureAddr` at 5 words; `viFrameRateReset`,
+`romocc=?`). The 2026-08-27 final JFG source pass subsequently compiled
+`texLoadTextureAddr` from the donor C and proved its complete function and
+linked-ROM bytes exact; that source-level proof supersedes the earlier
+name-only threshold refusal. The other two remain unadopted. Four further hits
+(`matrix_RPY_XYZ`,
 `matrix_XYZ_YPR_SCL`, `matrix_XYZ_YPR`, `matrixTransposeVectorMultiply`, all
 inside `main/matrix`) clear the bar but are **not** written into
 `symbol_addrs.us.txt`: their C is parked non-matching, and 1.5 forbids naming

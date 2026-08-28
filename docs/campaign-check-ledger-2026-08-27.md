@@ -162,13 +162,12 @@ Do not expand this into a flag cross-product.
 
 ### O3 pipeline queue
 
-`xprintf` and `xldtob` have exact DKR/JFG sections and source-identical donor
-bodies. Mickey's IDO 5.3 `cc`, `uld`, `usplit`, `umerge`, and `ujoin` binaries
-also agree with DKR's, but `tools/ido-phases.py` models only
-`cfe -> uopt -> ugen -> as1`. The next experiment is therefore one toolchain
-lane which preserves the real O3 interprocedural phase sequence observed from
-`cc -v`, then compiles the donor source once at O3/MIPS II/R4300. Do not spend
-time on O0-O2 or IDO 7.1 first.
+`xprintf` and `xldtob` had exact DKR/JFG sections and source-identical donor
+bodies. This queue item is now resolved: direct IDO 5.3 at O3/MIPS II/R4300
+reproduces both complete objects, including initialized sections and
+relocations. The canonical recipes invoke `tools/ido/cc` directly because
+asm-processor's CLI has no O3 mode. No custom interprocedural wrapper or source
+permutation was needed.
 
 The JFG reference farm was observed at `c75c270d`, ahead of the documented
 pin `c82afff`. Relevant bodies appeared unchanged, but promotion evidence must
@@ -295,8 +294,8 @@ next experiment. Never include aligned instruction rows or ROM words.
    and record a compact plateau.
 4. In parallel with those bounded library checks, work the two strong Mickey
    audio-family siblings and the compact F-route expert queue.
-5. Build the IDO 5.3 O3 phase experiment once for `xprintf`/`xldtob`; do not
-   compensate for the absent phase with source churn.
+5. Resolved: direct IDO 5.3 O3 promoted `xprintf` and `xldtob` exactly; retain
+   those scoped recipes and do not reopen the flag search without new bytes.
 6. Use the bakeoff result to choose the next expert route, but rerun on a larger
    fixed cohort before changing ADR 0009.
 7. Recompute queue, atlas, provenance, and scoreboard numbers after every

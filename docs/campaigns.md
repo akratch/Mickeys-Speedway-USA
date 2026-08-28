@@ -52,6 +52,9 @@ byte-identical.
 `xprintf` and `xldtob` stayed assembly: their published `-O3` sources need an
 interprocedural optimization pass the toolchain doesn't have. `sl` stayed
 assembly because the available source doesn't reproduce Mickey's object.
+This records the Epoch 1 state: the 2026-08-27 JFG wring-out later established
+that direct IDO `-O3 -mips2` does reproduce both complete objects when the
+asm-processor front end is bypassed, and promoted them to exact C.
 
 ## Epoch 2 — overlay atlas and shared-code harvest (complete 2026-08-13)
 

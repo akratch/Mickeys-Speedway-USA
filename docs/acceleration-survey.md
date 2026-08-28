@@ -460,7 +460,7 @@ JFG/dp64-style `elf2dll` step (format facts, permitted), and compare with
 | coddog | absent | 2026-07 | cross-project function search |
 | mapfile_parser | absent | 2.13.2 | objdiff/decomp.dev report generation |
 | decomp-permuter | on disk, not installed | 2026-07 | §4 |
-| ido-static-recomp | submodule empty; prebuilt 5.3 only | v1.2: 5.3 and 7.1, native arm64 | PD compiles its naudio/mp3 TUs with **7.1 -g**; dp64 downloads both; a 7.1 basin is a legitimate per-TU flag group to test on the 274 normalized functions and the two `-O3` deferrals (`xprintf`, `xldtob`) |
+| ido-static-recomp | submodule empty; prebuilt 5.3 only | v1.2: 5.3 and 7.1, native arm64 | PD compiles its naudio/mp3 TUs with **7.1 -g**; dp64 downloads both; a 7.1 basin remains a legitimate per-TU flag group to test on the normalized functions. The former `xprintf`/`xldtob` O3 deferrals are resolved by scoped direct-IDO recipes |
 
 `gmake setup` should smoke-test each tool it installs (backlog item; both
 vendored Python tools have broken at start-up before).

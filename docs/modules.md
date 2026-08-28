@@ -463,13 +463,15 @@ compared against ROM `0x730A0`/`0x730F0`:
 | **`-O1 -g3 -mips2`** | `0x48` | **byte-identical** |
 | **`-O2 -g3 -mips2`** | `0x48` | **byte-identical** |
 
-The `cc` driver still dies in `uld` on an ordinary `-O3` invocation. The
-phase wrapper makes `ldiv` and `xlitob` reproducible because neither needs the
-interprocedural convention rewrite performed by `uld`: it asks the driver for
-an `-O2` four-stage pipeline, then promotes `cfe`, `uopt`, `ugen`, and `as1`
-individually to `-O3`. `xprintf` and `xldtob` do need `uld`'s rewrite and stay
-assembly; compiling their published C without it changes function boundaries
-and calling convention, not merely scheduling.
+The phase wrapper makes `ldiv` and `xlitob` reproducible by asking the driver
+for an `-O2` four-stage pipeline, then promoting `cfe`, `uopt`, `ugen`, and
+`as1` individually to `-O3`. The earlier ordinary-driver experiment stopped in
+`uld` and left `xprintf`/`xldtob` deferred. The 2026-08-27 final JFG pass closed
+that gap: invoking `tools/ido/cc` directly at `-O3 -mips2` supplies the required
+interprocedural path and reproduces both complete text sections, their
+data/rodata, and every relocation. Their Makefile recipes bypass
+asm-processor only because its CLI intentionally has no `-O3` mode; no object
+instruction is rewritten after compilation.
 
 Three consequences:
 
