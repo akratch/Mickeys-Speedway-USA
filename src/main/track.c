@@ -1453,8 +1453,11 @@ build_routes:
 /* Candidate is shape-exact: 118 instructions, frame -40/-40 bytes, and both call relocations match. */
 /* Remaining gap is register allocation only; this candidate is permuter-ready. */
 #ifdef NON_MATCHING
-s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records,
-                  TrackKeyRecord **matches) {
+s32 func_8000DDE4(u8 keyArg, s32 recordCount, s32 recordsArg, s32 matchesArg) {
+    /* Parameter types follow the top-level prototype the matched callers use. */
+    s32 key = keyArg;
+    TrackKeyRecord *records = (TrackKeyRecord *) recordsArg;
+    TrackKeyRecord **matches = (TrackKeyRecord **) matchesArg;
     s32 recordIndex;
     s32 matchCount;
     s32 passCount;

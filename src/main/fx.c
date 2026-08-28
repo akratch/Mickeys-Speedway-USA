@@ -702,9 +702,13 @@ typedef struct FxTransformOutput {
     s8 alpha;
 } FxTransformOutput;
 
-void func_80048080(s32 count, s16 x, s16 y, s16 z, s16 angle0, s16 angle1,
-                   FxTransformInput *input, FxTransformOutput *output,
-                   s32 alpha) {
+void func_80048080(s32 count, s16 x, s16 y, s16 z, s32 angle0Arg, s32 angle1Arg,
+                   FxConePoint *inputArg, void *outputArg, s32 alpha) {
+    /* Parameter types follow the top-level prototype the matched callers use. */
+    s16 angle0 = angle0Arg;
+    s16 angle1 = angle1Arg;
+    FxTransformInput *input = (FxTransformInput *) inputArg;
+    FxTransformOutput *output = (FxTransformOutput *) outputArg;
     f32 cos1;
     f32 sin1;
     f32 cos0;
