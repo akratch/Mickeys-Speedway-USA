@@ -518,26 +518,24 @@ void func_8003E7B8(ParticleObject *object, s32 index) {
     object->activeTriggerCount++;
 }
 #ifdef NON_MATCHING
-/* Workbench: allocation-mismatch, exact 140-instruction shape, target frame 0x38 versus candidate 0x30; 22 raw words from +0x8.
- * Lever: stack-frame recovery, local/pad, ABI-call, flag, and bounded permutation probes left the full-TU topology unchanged.
- * Remains: target stack-home layout, two pool substitutions, and one branch displacement; assembly fallback stays canonical. */
+/* Workbench: operand-mismatch, 9 differing words, size_delta 0; first mismatch +0x38 (branch displacement).
+ * Lever: model-entry type and scalar declaration order recover the target frame and register topology.
+ * Remains: 8 stack-home operands and one branch displacement; not shape-exact, assembly fallback stays canonical. */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8005FAE8.s; body reconstructed from Mickey evidence. */
 s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger) {
-    ParticlePointStreamEntry *entry;
+    ParticleModelEntry *entry;
     f32 *pointData;
     f32 *point;
-    s32 result;
-    s32 i;
-    ParticleModelEntry *modelEntries;
     s32 pointIndex;
+    s32 i;
+    s32 result;
     s32 frameCount;
 
     if (D_8007C898 == NULL) {
         return 0xFF;
     }
 
-    modelEntries = D_8007C898;
-    entry = (ParticlePointStreamEntry *)modelEntries;
+    entry = D_8007C898;
     result = 0xFF;
     i = 0;
     if (D_8007C890 > 0) {
@@ -551,9 +549,9 @@ s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, Pa
         } while (i < D_8007C890);
     }
 
-    entry = (ParticlePointStreamEntry *)D_8007C898;
-    i = 0;
+    entry = D_8007C898;
     if (D_8007C890 > 0) {
+        i = 0;
         do {
             if (entry->active == 0) {
                 result = i;
@@ -567,11 +565,11 @@ s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, Pa
 
     if (result != 0xFF) {
         entry->active = 2;
-        point = &entry->points[0][0];
+        point = &((ParticlePointStreamEntry *)entry)->points[0][0];
         pointIndex = 0;
-        entry->pointCount = (u32)descriptor->pointCount >> 4;
+        ((ParticlePointStreamEntry *)entry)->pointCount = (u32)descriptor->pointCount >> 4;
         pointData = D_8007CA90[(u32)descriptor->pointCount >> 4];
-        if (entry->pointCount > 0) {
+        if (((ParticlePointStreamEntry *)entry)->pointCount > 0) {
             do {
                 point[0] = pointData[0];
                 point[1] = pointData[1];
@@ -579,7 +577,7 @@ s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, Pa
                 pointIndex++;
                 pointData += 2;
                 point += 3;
-            } while (pointIndex < entry->pointCount);
+            } while (pointIndex < ((ParticlePointStreamEntry *)entry)->pointCount);
         }
         entry->animationState = descriptor->descriptorWord;
         entry->configFlags = config->flags;
