@@ -172,10 +172,132 @@ void func_800470B0(FxCone *cone, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800470B0.s")
 #endif
+
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch, 176 differing words, first mismatch +0x4. */
+/* Candidate: 183/185 instructions with the target -0x180 frame; 57 structural words remain, so it is not shape-exact. */
+/* Shape status: extended cone-point and three vertex-table loops are preserved; structural gap remains in the setup/call schedule. */
+void func_80047304(FxCone *cone, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
+                   s16 arg5, f32 arg6, f32 arg7, f32 arg8) {
+    u8 work[0x98];
+    u8 *point;
+    u8 *vertex;
+    FxCone *address;
+    FxCone *base;
+    f32 angle;
+    f32 scaleZ;
+    f32 scaleX;
+    f32 scaleY;
+    f32 sine;
+    f32 cosine;
+    f32 yScale;
+    s32 i;
+    s32 j;
+    s32 value;
+
+    angle = arg8;
+    *(f32 *) (work + 8) = -angle;
+    point = work + 0xC;
+    i = 0;
+    scaleZ = -(angle * D_80083DE4);
+    *(f32 *) work = 0.0f;
+    *(f32 *) (work + 4) = 0.0f;
+    do {
+        value = i << 0xD;
+        sine = func_8002A8C0(value);
+        cosine = func_8002A8BC(value);
+        i += 1;
+        point += 0xC;
+        *(f32 *) (point - 0xC) = arg6 * sine;
+        *(f32 *) (point - 4) = 0.0f;
+        *(f32 *) (point + 0x5C) = scaleZ;
+        yScale = arg7 * 4.0f * cosine;
+        *(f32 *) (point - 8) = arg7 * cosine;
+        scaleX = arg6 * 4.0f * sine;
+        *(f32 *) (point + 0x54) = 2.0f * scaleX;
+        *(f32 *) (point + 0x58) = 2.0f * yScale;
+    } while (i < 8);
+
+    base = cone;
+    address = cone;
+    j = 0;
+    point = work;
+    do {
+        func_80048080(0x11, arg1, arg2, arg3, (s32) arg4, (s32) arg5,
+                      (FxConePoint *) point, *(void **) ((u8 *) address + 8),
+                      0xFF);
+        j += 4;
+        address = (FxCone *) ((u8 *) address + 4);
+    } while (j < 8);
+
+    vertex = base->vertices;
+    i = 1;
+    do {
+        s32 index;
+        s32 next;
+
+        index = i & 7;
+        next = i + 8;
+        vertex[1] = (u8) i;
+        vertex[0x11] = (u8) i;
+        i += 1;
+        vertex[0] = 0;
+        vertex[2] = (u8) next;
+        vertex[3] = (u8) (index + 9);
+        vertex[0x10] = 0;
+        vertex[0x12] = (u8) (index + 9);
+        vertex[0x13] = (u8) (index + 1);
+        vertex += 0x20;
+    } while (i < 9);
+    i = 1;
+    do {
+        s32 index;
+        s32 next;
+
+        index = i & 7;
+        next = i + 8;
+        vertex[1] = (u8) i;
+        vertex[0x11] = (u8) i;
+        i += 1;
+        vertex[0] = 0;
+        vertex[2] = (u8) (index + 9);
+        vertex[3] = (u8) next;
+        vertex[0x10] = 0;
+        vertex[0x12] = (u8) (index + 1);
+        vertex[0x13] = (u8) (index + 9);
+        vertex += 0x20;
+    } while (i < 9);
+    i = 1;
+    do {
+        s32 index;
+        s32 next;
+
+        index = i + 1;
+        next = i + 2;
+        value = i + 3;
+        vertex[1] = (u8) i;
+        i += 4;
+        vertex[0x32] = (u8) ((value & 7) + 1);
+        vertex[0x22] = (u8) ((next & 7) + 1);
+        vertex[0x12] = (u8) ((index & 7) + 1);
+        vertex[0x31] = (u8) value;
+        vertex[0x21] = (u8) next;
+        vertex[0x11] = (u8) index;
+        vertex[0x10] = 0;
+        vertex[0x13] = 0;
+        vertex[0x20] = 0;
+        vertex[0x23] = 0;
+        vertex[0x30] = 0;
+        vertex[0x33] = 0;
+        vertex += 0x40;
+        vertex[-0x40] = 0;
+        vertex[-0x3E] = (u8) ((i - 4) + 1);
+        vertex[-0x3D] = 0;
+    } while (i != 9);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80047304.s")
-/* Workbench p5: mixed structure/register mismatch; 247/251 candidate/target instructions, 178 words from +0x0.
- * Lever: constant-audit and array declaration/loop spelling; loopunroll=0 won the flag sweep, while pointer and width/lifetime variants regressed.
- * Remains: candidate frame is 8 bytes larger and four instructions shorter, with a register/CFG cascade. */
+#endif
 #ifdef NON_MATCHING
 /* Mickey-derived draft; JFG's corresponding fxMakeConeTextureCoords body is
  * also assembly-only and supplies no adaptable C source. */
