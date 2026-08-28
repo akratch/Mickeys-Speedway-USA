@@ -85,6 +85,7 @@ import json
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import threading
@@ -627,17 +628,30 @@ def run_permuter(scratch: Path, out_dir: Path, minutes: int, threads: int, extra
     args += [*extra_args, str(scratch)]
     start = time.monotonic()
     with open(log_path, "w") as log_f:
+        # permuter.py -j N forks worker processes; killing only the parent on
+        # timeout reparents the idle workers to PID 1 (observed: three batches
+        # of orphans after one morning of sweeping). Run the search in its own
+        # session and kill the whole process group at the cap.
+        proc = subprocess.Popen(
+            args,
+            cwd=ROOT,
+            stdout=log_f,
+            stderr=subprocess.STDOUT,
+            start_new_session=True,
+        )
         try:
-            proc = subprocess.run(
-                args,
-                cwd=ROOT,
-                stdout=log_f,
-                stderr=subprocess.STDOUT,
-                timeout=minutes * 60,
-            )
-            returncode = proc.returncode
+            returncode = proc.wait(timeout=minutes * 60)
         except subprocess.TimeoutExpired:
             returncode = 124
+            try:
+                os.killpg(proc.pid, signal.SIGTERM)
+                proc.wait(timeout=15)
+            except (ProcessLookupError, subprocess.TimeoutExpired):
+                try:
+                    os.killpg(proc.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                proc.wait()
     elapsed = time.monotonic() - start
     text = log_path.read_text(errors="replace")
     m = re.search(r"base score = (\d+)", text)
