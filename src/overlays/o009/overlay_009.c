@@ -353,6 +353,9 @@ void func_overlay_009_F00009BC_1867034(s16 *angleOut, O9InputControl *control,
  * Lever: retained-float placement, scoped fractions, and block-local scale forms were rechecked.
  * Remains: the angle stack home and the local 0.65f constant-pool placement;
  * GLOBAL_ASM stays canonical. */
+/* Ownership trial (2026-08-28): fixed the TU's +0x390..+0x3E0 .rodata range;
+ * linked promotion is text-differs after removing the TU growth; codegen remains.
+ * The retail float pool is retained as this candidate's initialized ownership. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000CE4_186735C(O9IntegrateOutput *out, O9IntegrateControl *control,
                                        void *unused, f32 step) {

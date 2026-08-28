@@ -116,6 +116,7 @@ FIXED_DATA_RODATA_OWNERSHIP = {
     1: [(0x274, 0x294, "overlay_001_tail", ".rodata")],
     7: [(0x934, 0x950, "overlay_007_tail", ".rodata")],
     8: [(0x27C, 0x2AC, "overlay_008", ".rodata")],
+    9: [(0x390, 0x3E0, "overlay_009", ".rodata")],
 }
 
 # When a C owner's initialized input follows its text, IDO's measured .text

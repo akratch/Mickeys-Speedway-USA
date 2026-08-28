@@ -25,7 +25,7 @@
   "matched_overlay_c_bytes": 113624,
   "nonmatching_overlay_c_bytes": 310240,
   "data_rodata_bytes": 61312,
-  "owned_data_rodata_bytes": 2012,
+  "owned_data_rodata_bytes": 2092,
   "bss_bytes": 77680,
   "module_rom_bytes": 678912,
   "resident_relocations": 375,
@@ -3019,6 +3019,16 @@
      "label": "overlay9Ignore",
      "source": "overlays/o009/overlay_009",
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    }
+   ],
+   "data_rodata_ownership": [
+    {
+     "offset": "0x390",
+     "end_offset": "0x3E0",
+     "size": "0x50",
+     "type": "c",
+     "section": ".rodata",
+     "source": "overlays/o009/overlay_009"
     }
    ]
   },
