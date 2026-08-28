@@ -96,6 +96,9 @@ extern void overlay1InterpolatePath(f32 *x, f32 *z, s32 path, f32 offset);
 extern f32 overlay1SinAngle(s16 angle);
 extern f32 overlay1CosAngle(s16 angle);
 extern f32 overlay1SquareRoot(f32 value);
+/* Workbench: structure-mismatch, 37 raw differing words, first mismatch +0x1C.
+ * Exact 100-row frame/CFG and call structure; one z-scale scheduling hunk remains.
+ * Structural gap: target schedules z scaling after the x store; other residuals are FP allocation/relocations. */
 #ifdef NON_MATCHING
 void overlay1ResolveMotionPoint(O1PathOwner *owner, s32 path, f32 *outX,
                                 f32 *outY, f32 *outZ) {
