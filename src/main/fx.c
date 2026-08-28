@@ -2200,16 +2200,17 @@ void func_8004A9CC(FxGfx **dList) {
  * PROVENANCE: the descending loop skeleton is adapted from Jet Force
  * Gemini's public fx.c context; Mickey's target establishes the expressions.
  */
-/* Workbench: structure-mismatch, 18 differing words, first mismatch +0x10. */
-/* Candidate shape: 28 instructions with no frame delta; not shape-exact. */
-/* Remaining gap: callback/trap and loop-counter register webs. */
+/* Workbench: structure-mismatch, 16 differing words, first mismatch +0x10. */
+/* Candidate shape: 28 instructions with no frame delta; improved, not exact. */
+/* Remaining gap: callback/trap and loop-counter register webs plus schedule. */
 void func_8004ACC4(void) {
-    FxTextureCallback *callback;
     void **value0;
     void **value1;
     u8 *available;
-    s32 i;
     FxTextureCallback trap;
+    FxTextureCallback *callback;
+    s32 i;
+    s32 matches;
 
     D_800D60A8 = 0;
     i = 3;
@@ -2219,9 +2220,10 @@ void func_8004ACC4(void) {
     available = &D_800D60D3;
     callback = &D_8007D488;
     do {
+        matches = trap == *callback;
         *value0 = 0;
         *value1 = 0;
-        *available = trap == *callback;
+        *available = matches;
         value0--;
         value1--;
         available--;
