@@ -422,7 +422,70 @@ void func_80048980(WakeRipple *ripple) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeUpdate.s")
+/* Workbench verdict: structure-mismatch, 125 differing words, first mismatch +0x0. */
+/* Candidate: 150/149 instructions with a -0x30 frame versus target -0x38; 88 structural words remain, so it is not shape-exact. */
+/* Shape status: ripple fade/angle/vertex updates and both calls are present; frame and pointer-layout gap remains. */
+/* PROVENANCE: JFG names the corresponding routine wakeUpdateRipple; this Mickey body uses only Mickey target offsets and calls. */
+#ifdef NON_MATCHING
+void func_80049000(FxWakeUpdateOwner *owner, s32 delta) {
+    FxWakeRippleData *ripple;
+    u8 mode;
+    s16 angle;
+    s16 step;
+    s32 height;
+    u8 *vertex;
+
+    ripple = owner->ripple;
+    if (ripple != 0) {
+        if (ripple->active != 0) {
+            ripple->fade = (s16) (ripple->fade + 0x20);
+            if (ripple->fade >= 0x100) {
+                ripple->fade = 0xFF;
+            }
+        } else {
+            ripple->fade = (s16) (ripple->fade - 0x20);
+            if (ripple->fade < 0) {
+                ripple->fade = 0;
+            }
+        }
+        step = ripple->angleStep;
+        if (step != 0) {
+            if (ripple->update != 0) {
+                ripple->angle = (s16) (ripple->angle + (step * delta));
+                while (ripple->angle >= (s32) ((FxWakeTexture *) ripple->texture)->length) {
+                    ripple->angle = (s16) (ripple->angle - ((s32) ((FxWakeTexture *) ripple->texture)->length));
+                }
+            }
+        }
+        if (ripple->fade != 0) {
+            mode = 1 - ripple->mode;
+            ripple->mode = mode;
+            height = (s32) ripple->value80;
+            vertex = (u8 *) ripple + ((mode & 0xFF) * 0x28);
+            *(s16 *) (vertex + 0x22) = (s16) height;
+            vertex += 0x3E;
+            *(s16 *) (vertex - 0x1E) = (s16) (s32) (owner->valueC + ripple->value7C);
+            *(s16 *) (vertex - 0x1A) = (s16) (s32) (owner->value14 - ripple->value7C);
+            *(s16 *) (vertex - 0x12) = (s16) height;
+            *(s16 *) (vertex - 0x14) = (s16) (s32) (owner->valueC - ripple->value7C);
+            *(s16 *) (vertex - 0x10) = (s16) (s32) (owner->value14 - ripple->value7C);
+            *(s16 *) (vertex - 8) = (s16) height;
+            *(s16 *) (vertex - 0xA) = (s16) (s32) (owner->valueC + ripple->value7C);
+            *(s16 *) (vertex - 6) = (s16) (s32) (owner->value14 + ripple->value7C);
+            *(s16 *) (vertex + 2) = (s16) height;
+            *(s16 *) vertex = (s16) (s32) (owner->valueC - ripple->value7C);
+            *(s16 *) (vertex + 4) = (s16) (s32) (owner->value14 + ripple->value7C);
+        }
+        angle = Arctanf(owner->value1C, owner->value24);
+        if (ripple->update != 0) {
+            wakeUpdate((s32) ripple->update, owner->valueC, ripple->value80,
+                       owner->value14, angle, delta);
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049000.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeDraw.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049518.s")
 void fxInit(void) {
