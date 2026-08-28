@@ -581,6 +581,219 @@ def cmd_generate(argv):
     return 0
 
 
+# ------------------------------------------------- permuter target annotation
+#
+# decomp-permuter scores a candidate object against a *target object* it
+# assembles from splat's .s.  For an overlay function that comparison is
+# invalid, and the reason is the same one section 1 gives: the shipped image
+# stores addends, not addresses, so splat's .s assembles with no relocations
+# at all.  Every cross-module call reads back as `jal <whatever symbol sits at
+# module offset 0>` (the SYMBOL records all store immediate zero) and every
+# address materialization as a bare `lui`/`addiu` pair carrying the stored
+# addend.  The candidate object, compiled from C, carries an honest
+# `R_MIPS_26` / `%hi`+`%lo` reference to a placeholder extern instead.
+#
+# The scorer's own symbol-difference rule cannot bridge that: it ignores a
+# field mismatch only when the candidate's field looks like a symbol *and*
+# the target line carries a relocation (scorer.py `field_matches_any_symbol(nf)
+# and old_line.has_symbol`), and the target line carries none.  So a candidate
+# that differs from the shipped ROM by two words scored 700 -- one insertion
+# plus one deletion penalty for every relocation site in the function.
+#
+# The fix is not to relax the scorer but to give the target the relocations
+# the shipped module says are there.  The module's own reloc1/reloc2 tables
+# name every site and its type, and for a SYMBOL record they name the callee
+# (overlay + offset) outright; that is a *stable identity*, independent of any
+# name this tree happens to have chosen.  So:
+#
+#   * for each relocation the candidate's base object carries inside the
+#     function, map its object offset to a module offset and look the site up
+#     in the module's table.  A site the table does not name is not a
+#     relocation site in the shipped image and is left alone (section 2);
+#   * derive a canonical name for the *base symbol* from the record --
+#     `__ovsym_o<overlay>_<offset>` for a SYMBOL record, `__ovjmp_<offset>`
+#     for an intra-module JUMP, `__ovloc_<value>` for a LOCAL/DATA site whose
+#     value the ROM spells at the site -- subtracting whatever addend the
+#     object already carries, exactly as `synthesize()` does;
+#   * rewrite the target .s line to reference that name symbolically, and
+#     rename the candidate's placeholder to the same name with
+#     `objcopy --redefine-sym`.
+#
+# Both sides then render identically at every corroborated site, so the score
+# reflects only real codegen difference -- and a candidate that calls the
+# *wrong* placeholder still scores a penalty, because the canonical name comes
+# from the ROM's record, not from the candidate's own symbol table.
+#
+# Nothing here writes ROM-derived content anywhere: the rewritten .s lives in
+# the permuter's gitignored scratch, exactly like the label rename
+# permute_batch.py already performs.
+
+# splat's disassembly line: `/* <rom> <vma> <word> */  mnemonic operands`.
+ASM_LINE_RE = re.compile(
+    r"^(?P<pre>\s*/\* [0-9A-Fa-f]+ (?P<vma>[0-9A-Fa-f]{8}) [0-9A-Fa-f]{8} \*/\s*)"
+    r"(?P<mnem>\S+)(?P<sp>\s*)(?P<ops>.*?)\s*$")
+_MEM_OPERAND_RE = re.compile(r"^(?P<disp>.*)\((?P<reg>\$\w+)\)$")
+
+
+class AnnotationError(Exception):
+    """The target .s could not be annotated; the caller falls back."""
+
+
+def _function_text_symbol(elf, names):
+    """(offset, size) of the first of `names` defined in the object's .text."""
+    text_idx, _ = elf.section(".text")
+    if text_idx is None:
+        raise AnnotationError("object has no .text")
+    by_name = {}
+    for name, value, size, _info, shndx in elf.symbols():
+        if shndx == text_idx and name:
+            by_name.setdefault(name, (value, size))
+    for name in names:
+        if name in by_name:
+            return by_name[name]
+    raise AnnotationError("none of %s is defined in the object's .text"
+                          % ", ".join(names))
+
+
+def permuter_annotation(target_s_text, base_o: Path, func_names, overlay: int,
+                        rom: bytes, records=None):
+    """Annotate a permuter target .s with the module's own relocation sites.
+
+    Returns ``(annotated_text, renames, notes)``:
+
+      annotated_text  the .s with every corroborated site rewritten to a
+                      symbolic operand (unchanged if nothing corroborated);
+      renames         {candidate symbol: canonical name} to hand
+                      `objcopy --redefine-sym`;
+      notes           human-readable diagnostics (site/rename counts, and any
+                      symbol whose sites disagree about its identity).
+
+    Raises AnnotationError when the inputs cannot be mapped at all.
+    """
+    lines = target_s_text.split("\n")
+    line_of = {}
+    for i, raw in enumerate(lines):
+        m = ASM_LINE_RE.match(raw)
+        if m:
+            line_of[int(m.group("vma"), 16) - SYNTHETIC_VMA] = i
+    if not line_of:
+        raise AnnotationError("no addressed instruction lines in the target .s")
+    fn_start = min(line_of)
+
+    mods = ot.build_modules(ot.read_headers(rom))
+    if not 1 <= overlay <= len(mods):
+        raise AnnotationError(f"overlay {overlay} is out of range")
+    module = mods[overlay - 1]
+    if records is None:
+        records = ot.read_module_relocations(rom, module, ot.read_rom_table(rom))
+    table = {}
+    for r in records:
+        table.setdefault((r["target_offset"], r["mode"]), r)
+    text_start = module["rom_start"]
+
+    elf = Elf(base_o)
+    syms = elf.symbols()
+    obj_text = elf.section_bytes(".text")
+    fn_off, fn_size = _function_text_symbol(elf, func_names)
+
+    sites = []
+    for _sec, off, rtype, symidx in elf.relocations():
+        if not (fn_off <= off < fn_off + fn_size) or symidx >= len(syms):
+            continue
+        name = syms[symidx][0]
+        if not name:
+            continue
+        sites.append({"symbol": name, "obj_off": off, "type": rtype,
+                      "module_off": fn_start + (off - fn_off)})
+
+    # Pass 1: name each corroborated site.  A HI16/LO16 pair is named by the
+    # link *value* the ROM spells at it -- `synthesize()`'s own quantity, and
+    # the only identity that is well defined: two placeholders the surface
+    # values identically produce the same linked words, whatever the record's
+    # operation says the runtime will add to them afterwards.  An `R_MIPS_26`
+    # SYMBOL site stores immediate zero (docs/reloc-surface.md section 1), so
+    # its value carries no identity at all and the record's own ROM-table
+    # entry -- the callee's overlay and offset -- names it instead.
+    proposals, annotations = [], {}
+    for hi, lo in _pairs(sites):
+        anchor = hi or lo
+        members = [s for s in (hi, lo) if s is not None]
+        recs = [table.get((s["module_off"], s["type"])) for s in members]
+        if any(r is None for r in recs):
+            continue  # not a relocation site in the shipped image
+        rec = recs[0]
+        if hi is not None and lo is not None:
+            have = ((stored_field(obj_text, hi["obj_off"], R_MIPS_HI16) << 16)
+                    + sext16(stored_field(obj_text, lo["obj_off"], R_MIPS_LO16)))
+            full = ((stored_field(rom, text_start + hi["module_off"],
+                                  R_MIPS_HI16) << 16)
+                    + sext16(stored_field(rom, text_start + lo["module_off"],
+                                          R_MIPS_LO16)))
+            base = "__ovval_%08X" % ((full - have) & 0xFFFFFFFF)
+            where = [(hi["module_off"], "hi"), (lo["module_off"], "lo")]
+        elif anchor["type"] == R_MIPS_26:
+            # `jal sym` carries no addend the assembler can spell back, so a
+            # site whose object word is not a bare zero is left alone.
+            if stored_field(obj_text, anchor["obj_off"], R_MIPS_26):
+                continue
+            have = 0
+            if rec["op_name"] == "SYMBOL":
+                base = "__ovcall_o%d_%X" % (rec["target_overlay"],
+                                            rec["target_symbol_offset"])
+            elif rec["op_name"] == "JUMP":
+                base = "__ovjump_%06X" % (
+                    stored_field(rom, text_start + anchor["module_off"],
+                                 R_MIPS_26) << 2)
+            else:
+                continue
+            where = [(anchor["module_off"], "26")]
+        else:
+            continue  # a lone HI16/LO16 or an R_MIPS_32: nothing to pair with
+        proposals.append((anchor["symbol"], base, have, where))
+
+    # Pass 2: a symbol whose sites do not agree on one name has no canonical
+    # identity, so none of its sites is annotated.  Renaming it either way
+    # would make the target disagree with the candidate at the sites that
+    # wanted the other name -- worse than leaving it alone, and silently so.
+    proposed = collections.defaultdict(set)
+    for symbol, base, _have, _where in proposals:
+        proposed[symbol].add(base)
+    conflicts = ["%s: sites disagree (%s); left unannotated"
+                 % (symbol, ", ".join(sorted(names)))
+                 for symbol, names in sorted(proposed.items()) if len(names) > 1]
+    renames = {symbol: next(iter(names))
+               for symbol, names in proposed.items() if len(names) == 1}
+    for symbol, base, have, where in proposals:
+        if symbol not in renames:
+            continue
+        for module_off, kind in where:
+            annotations[module_off] = (kind, base, have)
+
+    for module_off, (kind, base, have) in annotations.items():
+        index = line_of.get(module_off)
+        if index is None:
+            continue
+        m = ASM_LINE_RE.match(lines[index])
+        spelled = base if not have else "%s+0x%X" % (base, have)
+        if kind == "26":
+            operands = spelled
+        else:
+            prefix = "%hi" if kind == "hi" else "%lo"
+            fields = [f.strip() for f in m.group("ops").split(",")]
+            mem = _MEM_OPERAND_RE.match(fields[-1])
+            if mem:
+                fields[-1] = "%s(%s)(%s)" % (prefix, spelled, mem.group("reg"))
+            else:
+                fields[-1] = "%s(%s)" % (prefix, spelled)
+            operands = ", ".join(fields)
+        lines[index] = m.group("pre") + m.group("mnem") + m.group("sp") + operands
+
+    notes = ["%d relocation sites annotated, %d placeholder symbols renamed"
+             % (len(annotations), len(renames))]
+    notes += conflicts
+    return "\n".join(lines), renames, notes
+
+
 # -------------------------------------------------------------------- audit
 
 def tracked_values(path=None):
