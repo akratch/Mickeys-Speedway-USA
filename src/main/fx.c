@@ -623,15 +623,9 @@ void func_800479D4(FxCone *cone, s16 height, f32 radius, f32 depth,
 }
 
 #ifdef NON_MATCHING
-/* Workbench diagnostic full-TU copy: allocation-mismatch, 226/234 rows exact,
- * exact 234/-104 shape, eight register words from +0x298, and zero relocation
- * differences. The temp lane is identical; the pool first diverges at slot 28
- * as v1->a0, a0->a1, and a2->v0. There is no move/copy site for a source
- * coalescing lever, and no instrumented IDO is available for the forced-color
- * oracle. The configured TU still fails before this function on the adjacent
- * func_800475E8 block-local C99 declarations; that function is outside this
- * target's ownership. Remains: one callee-saved pool-color cascade; assembly
- * fallback stays canonical. */
+/* Workbench: allocation-mismatch, 8 differing words, first mismatch +0x298. */
+/* Candidate shape: 234 instructions/frame -0x68; CFG and relocations exact, permuter-ready. */
+/* Remaining gap: one callee-saved pool-color cascade (v1->a0, a0->a1, a2->v0). */
 /* Mickey-derived draft; JFG's corresponding fxDrawCone body is assembly-only. */
 void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
     s32 hasTexture;
