@@ -135,7 +135,10 @@ typedef struct TrackSegment {
     void *vertexData;
     u8 pad08[0xC - 0x08];
     TrackBatch *batches;
-    u8 pad10[0x20 - 0x10];
+    u32 *visibilityMasks;
+    u8 pad14[0x18 - 0x14];
+    u16 *surfaceIndices;
+    TrackPlane *surfaces;
     s16 lightBatchCount;
     u8 pad22[0x24 - 0x22];
     s16 batchCount;
@@ -236,6 +239,11 @@ typedef struct TrackTriangle {
     s16 u2;
     s16 v2;
 } TrackTriangle;
+
+typedef struct TrackIntersection {
+    f32 height;
+    s32 flags;
+} TrackIntersection;
 
 typedef struct TrackFogChangerData {
     u8 pad00[0x0B];
@@ -422,6 +430,12 @@ void func_8000F82C(s32 start, s32 count, s32 end);
 s32 func_80010178(u32 segmentIndex);
 void func_800343F0(s32 mode, s32 segmentIndex);
 void texEnableModes(s32 mode);
+s32 getXZCompareMask(TrackBoundingBox *bounds, s32 x0, s32 z0, s32 x1,
+                     s32 z1);
+void func_800133FC(TrackVertex *v0, TrackVertex *v1, TrackVertex *v2,
+                   f32 *a, f32 *b, f32 *c, f32 *d);
+s32 mathXZInTri(s32 x, s32 z, TrackVertex *v0, TrackVertex *v1,
+                TrackVertex *v2);
 void func_8000D768(TrackLight *light, s32 red, s32 green, s32 blue,
                    s32 intensity);
 void *func_8002B280(s32 size, s32 tag);
@@ -1882,7 +1896,173 @@ s32 func_80013324(f32 coefficient, f32 numerator,
     return TRUE;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800133FC.s")
+/*
+ * PROVENANCE: Mickey-only reconstruction from the target's collision-query
+ * callers, resident track layouts, and the neighboring collision helpers;
+ * no published donor body is used here.
+ */
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch; 315 differing words, first mismatch +0x0. */
+/* Target 260 instructions/frame -312; candidate 330 instructions/frame -304. */
+/* Remaining gap is collision-query stack/control-flow scheduling and sort-loop expansion; not shape-exact. */
+u32 func_8001357C(f32 arg0, f32 arg1, f32 *arg2, s32 arg3, void *arg4) {
+    s16 segmentIndices[24];
+    s16 *segmentIndexPointer;
+    TrackSegment *segment;
+    TrackBatch *batch;
+    TrackTriangle *triangle;
+    TrackVertex *vertex0;
+    TrackVertex *vertex1;
+    TrackVertex *vertex2;
+    TrackVertex *vertex3;
+    TrackPlane *plane;
+    TrackIntersection *intersection;
+    s32 x;
+    s32 z;
+    s32 segmentCount;
+    s32 segmentNumber;
+    s32 batchCount;
+    s32 batchNumber;
+    s32 vertexIndex;
+    s32 compareMask;
+    u32 batchFlags;
+    u32 resultCount;
+    u32 visibility;
+    f32 height;
+    f32 planeX;
+    f32 planeY;
+    f32 planeZ;
+    f32 planeDistance;
+    s32 outer;
+    s32 inner;
+    volatile TrackIntersection *record;
+    f32 temporaryHeight;
+    s32 temporaryFlags;
+
+    x = (s32) arg0;
+    z = (s32) arg1;
+    segmentCount = func_8000FCA4(x, z, &segmentIndices[0]);
+    resultCount = 0;
+    if (arg2 != NULL) {
+        *arg2 = -32768.0f;
+    }
+    segmentNumber = 0;
+    if (segmentCount > 0) {
+        segmentIndexPointer = &segmentIndices[0];
+        do {
+            compareMask = getXZCompareMask(
+                &D_800792E8->segmentBounds[*segmentIndexPointer], x, z, x,
+                z);
+            segment = &D_800792E8->segments[*segmentIndexPointer];
+            segmentNumber++;
+            segmentIndexPointer++;
+            batchCount = segment->batchCount;
+            batch = segment->batches;
+            batchNumber = batchCount;
+            if (batchCount != 0) {
+                do {
+                    batchFlags = batch->flags;
+                    if (batchFlags & arg3) {
+                        vertexIndex = batch->v0;
+                        triangle = (TrackTriangle *)
+                            ((u8 *) segment->vertexData + (batch->v0 * 0x10));
+                        vertex0 = (TrackVertex *)
+                            ((u8 *) segment->lightData + (batch->u0 * 0xA));
+                        if (vertexIndex < batch[1].v0) {
+                            do {
+                                visibility = segment->visibilityMasks[vertexIndex];
+                                visibility &= compareMask;
+                                if ((visibility >> 16) != 0 &&
+                                    (visibility & 0xFFFF) != 0) {
+                                    vertex1 = (TrackVertex *)
+                                        ((u8 *) vertex0 +
+                                         (triangle->vertex0 * 0xA));
+                                    vertex2 = (TrackVertex *)
+                                        ((u8 *) vertex0 +
+                                         (triangle->vertex1 * 0xA));
+                                    vertex3 = (TrackVertex *)
+                                        ((u8 *) vertex0 +
+                                         (triangle->vertex2 * 0xA));
+                                    if (mathXZInTri(x, z, vertex1, vertex2,
+                                                    vertex3) != 0) {
+                                        height = (f32) vertex1->y;
+                                        if (vertex1->y != vertex2->y ||
+                                            vertex1->y != vertex3->y) {
+                                            if (batchFlags & 0x1080) {
+                                                func_800133FC(
+                                                    vertex1, vertex2, vertex3,
+                                                    &planeX, &planeY, &planeZ,
+                                                    &planeDistance);
+                                                plane = (TrackPlane *) &planeX;
+                                            } else {
+                                                plane = segment->surfaces +
+                                                    (segment->surfaceIndices[
+                                                         vertexIndex * 4] *
+                                                     1);
+                                            }
+                                            if (plane->y > 0.0f) {
+                                                height = -(((plane->x * arg0) +
+                                                             (plane->z * arg1) +
+                                                             plane->distance) /
+                                                            plane->y);
+                                            }
+                                        }
+                                        if (arg4 != NULL) {
+                                            if (resultCount >= 8U) {
+                                                resultCount = 7;
+                                            }
+                                            intersection =
+                                                (TrackIntersection *) arg4 +
+                                                resultCount;
+                                            intersection->height = height;
+                                            resultCount++;
+                                            intersection->flags = batchFlags;
+                                        } else {
+                                            *arg2 = height;
+                                            return batchFlags;
+                                        }
+                                    }
+                                }
+                                vertexIndex++;
+                                triangle++;
+                            } while (vertexIndex < batch[1].v0);
+                        }
+                    }
+                    batch++;
+                    batchNumber--;
+                } while (batchNumber != 0);
+            }
+        } while (segmentNumber != segmentCount);
+    }
+    if (resultCount >= 2U) {
+        outer = (s32) resultCount - 2;
+        if (outer != 0) {
+            do {
+                record = (TrackIntersection *) arg4;
+                inner = outer + 1;
+                if (inner != 0) {
+                    do {
+                        if (record->height < (record + 1)->height) {
+                            temporaryHeight = record->height;
+                            temporaryFlags = record->flags;
+                            record->height = (record + 1)->height;
+                            (record + 1)->height = temporaryHeight;
+                            record->flags = (record + 1)->flags;
+                            (record + 1)->flags = temporaryFlags;
+                        }
+                        record++;
+                        inner--;
+                    } while (inner != 0);
+                }
+                outer--;
+            } while (outer != 0);
+        }
+    }
+    return resultCount;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001357C.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001398C.s")
 /*
  * PROVENANCE: JFG supplies the name `trackGetTrack`; this trivial body is
