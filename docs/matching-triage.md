@@ -45,7 +45,7 @@ Updated as the permuter campaign and analysis proceed.
 | `mainUpdateZBCheck` | main | **P** (was **I** via -mips1 flag bug) | permuter cracked it once flags fixed: compare `(u16*)row+columns` directly, no cached pixel. | ✅ matched (permuter) |
 | `func_80047CD8` | fx | **I** | configured `-DNON_MATCHING` build is blocked before the target by adjacent `func_800475E8` block-local C99 declarations; diagnostic copy reaches 226/234 exact rows with 8 register words from `+0x298`, pool slot 28, and no move/copy site | target plateau recorded; adjacent TU fix required |
 | `func_8005A948` | models_5B300 | **I / P?** | import returned no improvement instantly — check base compiles | needs recheck |
-| `func_8002C69C` | saves | **P?** | 18w register-only; import status TBD | grinding |
+| `func_8002C69C` | saves | **P!** | coherent cursor re-cache reduced 18→11 register-only words at exact 28-word size; first `+0x10`, four allocator webs; corrected MIPS2/stack-aware reseed reached cost 55 but no zero | plateau; F-route web-existence lever next |
 | `func_80041CE4` | particles | **P?** | 27w register-only | queued |
 | `func_8002BB40` | memory | **P?** | 30w register-only | queued |
 | `runlinkEnsureJumpIsValid` | runlink | **P?/W** | 35w register-only; larger search space | queued (low odds) |

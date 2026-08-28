@@ -1654,22 +1654,15 @@ Removing the wrapper fails the full link because `jtbl_800823D8` references seve
 The remaining lever is coordinated rodata ownership; assembly stays canonical.
 
 The still-unnamed bit writer `func_8002C69C` retains a Mickey-derived
-`NON_MATCHING` body after the 119-combination flag lattice and seven
-source/type/loop shapes. Its best faithful candidate is 29 instructions versus
-the target's 28; the first mismatch is at function `+0x0` because the longer
-branch span is followed by an extra value-preserving move at `+0x4`. That move
-changes the loop's register allocation even though the control flow and bit
-stream operations agree. The lane's `tools/permute.sh` could not run because
-the vendored `tools/permuter/import.py` is absent. The assembly fallback
-remains canonical.
-
-A fresh structural retry removed the explicit bit-test temporary and tested
-the source value directly. That form regressed to 30 instructions versus 28,
-with 30 positional differences from `+0x0`; changing only the temporary's
-signedness stayed in the existing 29-instruction, first-`+0x0` basin. The
-canonical MIPS II permuter then led to a coherent value-bit/cursor-field
-lifetime rewrite: exact 28-word size, 18 differences from `+0x10` (17 register,
-one opcode); the remaining blocker is constant/next-bit register coloring.
+`NON_MATCHING` body. Its configured `NON_MATCHING=1` object has the exact
+28-word schedule and no structural, opcode, or relocation residual; 11
+register-only words remain from function `+0x10`. Reordering the cursor advance
+and re-cache preserves the bit stream while reducing the prior 18-word,
+five-web result to four allocator webs. A corrected `-O2 -mips2
+-Wo,-loopunroll,0`, stack-aware one-thread permuter reseed reached cost 55 but
+no zero in four minutes. Its lower-cost mutations cleared the wrong byte and
+were rejected. The next action is an F-route web-existence/temp-FIFO lever;
+the assembly fallback remains canonical.
 
 The 124-byte `func_8002C70C` is exact under canonical `-Wo,-loopunroll,0 -O2 -mips2 -32`; its 31 words and relocation-free linked range match.
 

@@ -451,9 +451,12 @@ SavesBitWriter *func_8002C60C(s32 size, s32 clear) {
     return writer;
 }
 #ifdef NON_MATCHING
-/* Plateau (near-miss p6): workbench allocation-mismatch, 18 register-only words at 28 instructions; first +0x10.
- * Lever: target-variable spelling/type probe regressed to 29 instructions; the canonical schedule was restored.
- * Remains: pool/temp ring allocation has no consistent permutation; assembly fallback stays canonical. */
+/* Plateau (2026-08-29): exact 28-word schedule with 11 register-only words,
+ * first +0x10. Reordering the cursor advance and re-cache reduced 18 words to
+ * 11 and five allocator webs to four. A stack-aware, one-thread MIPS2
+ * permuter reseed reached cost 55 but no zero; lower-cost mutations changed
+ * which byte was cleared. The pool/temp-ring allocation remains unresolved,
+ * so the assembly fallback stays canonical. */
 void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
     s32 isSet;
     u32 nextBit;
@@ -474,8 +477,8 @@ void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
             bit = nextBit;
             cursorField = &writer->cursor;
             if (mask == 0) {
-                nextCursor = writer->cursor + 1;
-                writer->cursor = nextCursor;
+                writer->cursor = writer->cursor + 1;
+                nextCursor = writer->cursor;
                 *nextCursor = 0;
                 mask = writer->mask = 0x80;
             }
