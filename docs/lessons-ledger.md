@@ -146,3 +146,11 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
   with build bursts was enough). Changed: hard cap of four Codex lanes at a
   time, one permuter pass, total load target ≤ 12; launch lanes one at a
   time, 60 s apart, after `splat extract` of the previous one has finished.
+- **An object-level "instruction words identical" verdict is not an overlay
+  oracle either.** A lane reported 15 overlay candidates at 0 words by
+  diffing objects with relocation-bearing words masked; the linked ROM still
+  showed the original 1–4 words, and the 1-word case was plain codegen
+  (`addiu a2,a3,2` vs `addiu a2,a1,0x3e`, no relocation). Changed:
+  `tools/promotion_trial.py` now records, per in-range word, the target word,
+  the built word and the relocation at that site; overlay lanes measure with
+  the trial only and commit "trial-exact" when it reports zero.
