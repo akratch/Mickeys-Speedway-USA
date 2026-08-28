@@ -114,13 +114,47 @@ typedef struct RangetriggerState {
     s32 activeTrigger;
 } RangetriggerState;
 
+typedef struct SpranimPlane {
+    f32 normalX;
+    f32 normalY;
+    f32 normalZ;
+    f32 distance;
+    f32 radius;
+    f32 maxY;
+    s16 mode;
+    s16 parameter;
+} SpranimPlane;
+
+typedef struct SpranimB798Object {
+    u8 pad0[0xC];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[0x4C];
+    void *state64;
+} SpranimB798Object;
+
+typedef struct SpranimB798Target {
+    u8 pad0[0xC];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[0x4C];
+    void *state64;
+} SpranimB798Target;
+
 extern u8 D_8007BF2C;
+extern u8 D_8007BF0C;
 extern void func_80006EA0(void *object);
 extern void func_80020D8C(void *arg0, s32 arg1, s32 arg2, void *arg3);
 extern void func_8000D16C(s16 textureIndex, s32 x, s32 y, s32 updateRate);
 extern void func_80036544(void *entry, s32 *mode, s32 animationId, void *state, s32 updateRate);
-extern s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 mode, void *hits);
+extern s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 useXZ, void *hits);
 extern void partUpdateTriggers(void *state, s32 updateRate);
+extern void **func_80005750(s32 *count);
+extern void animseqPlay();
+extern void animseqResetGroup();
+extern s32 TrapDanglingJump();
 
 /* PROVENANCE -- adapted from JFG's public asm/nonmatchings/spranim/spranimInit.s, with Mickey's offsets. */
 void spranimInit(SpranimInitState *state, SpranimInitEntry *entry) {
@@ -185,7 +219,87 @@ void texscrollControl(TexscrollState *state, s32 updateRate) {
     y >>= 2;
     func_8000D16C(entry->textureIndex, x, y, updateRate);
 }
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch, 131 differing words, first mismatch +0x0. */
+/* Candidate: 171/175 instructions with a -0xD0 frame versus target -0xE0; four instruction and stack-home residuals remain. */
+/* Shape status: signed plane tests, intersection arithmetic, and action dispatch are preserved, but the candidate is not shape-exact. */
+/* PROVENANCE: JFG's public character-plane control role supplies the idiom; Mickey's fields, globals, and action calls are authoritative below. */
+void func_8001B798(SpranimB798Object *arg0, s32 arg1) {
+    SpranimPlane *plane;
+    SpranimB798Target **objectPtr;
+    void *targetState;
+    s32 count;
+    s32 i;
+    f32 firstDistance;
+    f32 secondDistance;
+    f32 fraction;
+    f32 hitX;
+    f32 hitY;
+    f32 hitZ;
+    f32 deltaX;
+    f32 deltaZ;
+    f32 radius;
+
+    plane = arg0->state64;
+    objectPtr = (SpranimB798Target **) func_80005750(&count);
+    for (i = 0; i < count; i++, objectPtr++) {
+        SpranimB798Target *object = *objectPtr;
+
+        targetState = object->state64;
+        if ((*(u16 *)((u8 *) targetState + 0x1A8) & 1) &&
+            (*(s8 *) targetState != 0)) {
+            continue;
+        }
+        firstDistance = plane->distance +
+            ((plane->normalX * object->x) + (plane->normalY * object->y) +
+             (plane->normalZ * object->z));
+        if (firstDistance < 0.0f) {
+            secondDistance = plane->distance +
+                ((plane->normalX * *(f32 *)((u8 *) targetState + 0x38)) +
+             (plane->normalY * *(f32 *)((u8 *) targetState + 0x3C)) +
+             (plane->normalZ * *(f32 *)((u8 *) targetState + 0x40)));
+            if (secondDistance >= 0.0f) {
+                fraction = secondDistance / (secondDistance - firstDistance);
+                hitX = *(f32 *)((u8 *) targetState + 0x38) + fraction *
+                    (object->x - *(f32 *)((u8 *) targetState + 0x38));
+                hitY = *(f32 *)((u8 *) targetState + 0x3C) + fraction *
+                    (object->y - *(f32 *)((u8 *) targetState + 0x3C));
+                hitZ = *(f32 *)((u8 *) targetState + 0x40) + fraction *
+                    (object->z - *(f32 *)((u8 *) targetState + 0x40));
+                deltaX = hitX - arg0->x;
+                deltaZ = hitZ - arg0->z;
+                radius = plane->radius;
+                if (((deltaX * deltaX) + (deltaZ * deltaZ) <= radius) &&
+                    (arg0->y <= hitY) && (hitY <= plane->maxY)) {
+                    switch (plane->mode) {
+                    case 0:
+                        if (D_8007BF0C == 0) {
+                            if (*(s16 *)((u8 *) plane + 0x1A) == 0) {
+                                animseqResetGroup();
+                                animseqPlay();
+                            } else if (*(s16 *)((u8 *) plane + 0x1A) == 1) {
+                                animseqPlay();
+                            }
+                        }
+                        break;
+                    case 1:
+                        TrapDanglingJump(*(s16 *)((u8 *) plane + 0x1A));
+                        break;
+                    case 2:
+                        TrapDanglingJump();
+                        break;
+                    case 3:
+                        TrapDanglingJump();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/spranim/func_8001B798.s")
+#endif
 /* PROVENANCE -- adapted from JFG's public asm/nonmatchings/spranim/rangetriggerControl.s, with Mickey's offsets. */
 void rangetriggerControl(RangetriggerState *state, s32 updateRate) {
     RangetriggerState *owner;
