@@ -97,7 +97,8 @@ typedef struct TrackLightAllocation {
 } TrackLightAllocation;
 
 typedef struct TrackTextureHeader {
-    u8 pad00[6];
+    u8 pad00[4];
+    u16 flags;
     u16 width;
     u16 height;
     u8 pad0A[6];
@@ -127,16 +128,23 @@ typedef struct TrackTextureLoadLocals {
 
 typedef struct TrackBatch {
     u8 textureIndex;
-    u8 pad01[9];
+    u8 unk1;
+    u8 pad02[4];
+    s16 u0;
+    s16 v0;
     u16 frame;
     u32 flags;
 } TrackBatch;
 
 typedef struct TrackSegment {
     void *lightData;
-    u8 pad04[0xC - 0x04];
+    void *vertexData;
+    u8 pad08[0xC - 0x08];
     TrackBatch *batches;
-    u8 pad10[0x20 - 0x10];
+    u32 *visibilityMasks;
+    u8 pad14[0x18 - 0x14];
+    u16 *surfaceIndices;
+    TrackPlane *surfaces;
     s16 lightBatchCount;
     u8 pad22[0x24 - 0x22];
     s16 batchCount;
@@ -238,6 +246,11 @@ typedef struct TrackTriangle {
     s16 v2;
 } TrackTriangle;
 
+typedef struct TrackIntersection {
+    f32 height;
+    s32 flags;
+} TrackIntersection;
+
 typedef struct TrackFogChangerData {
     u8 pad00[0x0B];
     u8 red;
@@ -331,6 +344,9 @@ typedef struct TrackVec3f {
 extern TrackCamera *D_800C9530;
 extern TrackCachedPoint D_800C9B40;
 extern Gfx *D_800C9520;
+extern s32 D_8007C854;
+extern s32 D_8007C858;
+extern s32 D_800C9544;
 extern s32 D_80079314;
 extern u32 D_800C9B50[16];
 extern s32 D_800792FC;
@@ -402,6 +418,9 @@ extern void *D_8007926C;
 extern s32 D_800C953C;
 extern TrackPlanePoints D_8007927C[3];
 extern TrackPlane D_800C9578[3];
+extern u8 D_800C9B90[];
+extern void *D_800C9CD0[];
+extern s32 D_800C9D24;
 
 void func_8002AB78(TrackLocalTransform *transform, MtxF matrix);
 void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
@@ -410,6 +429,7 @@ ControlSpawned *func_8000590C(ControlSpawnPacket *packet, s32 mode);
 TrackFogPlayer **func_80005750(s32 *count);
 void func_800367E8(TrackTextureHeader *texture, u32 *flags, s32 *frame,
                    s32 updateRate);
+void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags);
 s32 runlinkIsModuleLoaded(s32 module);
 s32 TrapDanglingJump();
 void func_8000A62C(f32 x, f32 y, f32 z);
@@ -445,6 +465,17 @@ s32 func_8000DDE4(u8 segment, s32 arg1, s32 arg2, s32 arg3);
 void func_8000F57C(s32 *resultCount, u8 *resultSegments);
 void func_8000FA2C(s32 *result, s32 arg1);
 void shadowGetBuffers(u8 mode, s32 *a, s32 *b, s32 *c);
+void func_800343F0(s32 mode, s32 segmentIndex);
+void texEnableModes(s32 mode);
+s32 getXZCompareMask(TrackBoundingBox *bounds, s32 x0, s32 z0, s32 x1,
+                     s32 z1);
+void func_800133FC(TrackVertex *v0, TrackVertex *v1, TrackVertex *v2,
+                   f32 *a, f32 *b, f32 *c, f32 *d);
+s32 mathXZInTri(s32 x, s32 z, TrackVertex *v0, TrackVertex *v1,
+                TrackVertex *v2);
+s32 func_80012574(TrackVec3f *origin, TrackVec3f *direction,
+                  TrackVec3f *center, f32 radius, f32 *minimum,
+                  f32 *maximum);
 void func_8000D768(TrackLight *light, s32 red, s32 green, s32 blue,
                    s32 intensity);
 void *func_8002B280(s32 size, s32 tag);
@@ -1515,7 +1546,207 @@ s32 func_8000DDE4(u8 keyArg, s32 recordCount, s32 recordsArg, s32 matchesArg) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DDE4.s")
 #endif
+#ifdef NON_MATCHING
+/* PROVENANCE: JFG's public track.c supplies the resident track draw-loop
+ * organization; Mickey's segment and display-list accesses are authoritative. */
+/* Workbench verdict: structure-mismatch, 382 differing words; first mismatch is at +0x0. */
+/* Target is 396 instructions/frame -112; candidate is 355 instructions/frame -120. */
+/* Remaining gap is structural: batch/display-list and object-dispatch loops differ; not permuter-ready. */
+struct TrackShadowObject;
+struct TrackShadowInstance;
+extern void func_800140CC(struct TrackShadowObject *object,
+                          struct TrackShadowInstance *instance);
+
+void func_8000DFBC(u8 segmentArg, s32 arg1, s32 arg2, s32 arg3) {
+    /* Parameter types follow the top-level prototype the matched callers use. */
+    s32 arg0 = segmentArg;
+    TrackSegment *segment;
+    TrackBatch *batch;
+    TrackBatch *batchEnd;
+    Gfx *gfx;
+    u8 *texture;
+    u8 *object;
+    u8 *objectChild;
+    u8 *item;
+    u8 *vertex;
+    u8 *triangle;
+    s32 batchIndex;
+    s32 batchCount;
+    s32 itemIndex;
+    s32 alpha;
+    s32 mode;
+    s32 vertexCount;
+    s32 textureS;
+    s32 vertexAddress;
+    s32 textured;
+    s32 objectMode;
+    s32 value;
+    s16 objectType;
+
+    segment = &D_800792E8->segments[arg0];
+    batch = segment->batches;
+    batchCount = segment->batchCount;
+    batchIndex = 0;
+    itemIndex = 0;
+    gfx = D_800C9520;
+    if (batchCount <= 0 && arg2 <= 0) {
+        return;
+    }
+    do {
+        if ((batchIndex < batchCount) &&
+            ((itemIndex >= arg2) ||
+             (batchIndex < ((u8 **) (u32) arg3)[itemIndex][2]))) {
+            batchEnd = batch;
+            if ((arg1 & (1 << batchIndex)) &&
+                (batchIndex == batch->unk1)) {
+                if (D_8007C854 != 0) {
+                    gfx->words.w0 = 0xFA000000;
+                    value = D_8007C858 & 0xFF;
+                    gfx->words.w1 = (value << 24) | (value << 16) |
+                                     (value << 8) | 0xFF;
+                    gfx++;
+                    D_800C9520 = gfx;
+                    batchCount = segment->batchCount;
+                }
+                if ((batchIndex < batchCount) &&
+                    (batchIndex == batch->unk1)) {
+                    do {
+                        mode = batch->flags;
+                        if (!(mode & 0x800)) {
+                            alpha = 0;
+                            texture = NULL;
+                            if (batch->textureIndex != 0xFF) {
+                                alpha = 1;
+                                texture = (u8 *) D_800792E8->textures +
+                                          (batch->textureIndex * 8);
+                            }
+                            textureS = batch->frame << 8;
+                            vertex = (u8 *) segment->lightData +
+                                     (batch->u0 * 0xA);
+                            triangle = (u8 *) segment->vertexData +
+                                       (batch->v0 * 0x10);
+                            if ((texture != NULL) &&
+                                (*(u32 *) (texture + 4) & 0x40) &&
+                                ((mode & 0x30) != 0x20)) {
+                                gfx->words.w0 = 0xFB000000;
+                                value = (textureS >> 8) & 0xFF;
+                                gfx->words.w1 = (value << 24) |
+                                                 (value << 16) |
+                                                 (value << 8) | value;
+                                gfx++;
+                                D_800C9520 = gfx;
+                            } else {
+                                gfx->words.w0 = 0xFB000000;
+                                gfx->words.w1 = -0x100;
+                                gfx++;
+                                D_800C9520 = gfx;
+                            }
+                            if (!(mode & 0x180)) {
+                                mode |= D_800C9544;
+                            }
+                            objectMode = mode & 0x4000;
+                            if (objectMode != 0) {
+                                func_800343F0(2, batchIndex);
+                            }
+                            func_800349A4(&D_800C9520, texture,
+                                          mode | 2, textureS);
+                            if (objectMode != 0) {
+                                texEnableModes(2);
+                            }
+                            gfx = D_800C9520;
+                            vertexAddress = (s32) vertex + 0x80000000;
+                            vertexCount = batch->frame - batch->u0;
+                            gfx->words.w1 = vertexAddress;
+                            gfx->words.w0 = (((vertexCount * 0xA) + 8) & 0xFFFF) |
+                                             0x04000000 |
+                                             ((((vertexCount * 8) |
+                                                (vertexAddress & 6)) & 0xFF) << 16);
+                            gfx++;
+                            D_800C9520 = gfx;
+                            gfx->words.w1 = (s32) triangle + 0x80000000;
+                            vertexCount = batch[1].v0 - batch->v0;
+                            gfx->words.w0 = ((vertexCount * 0x10) & 0xFFFF) |
+                                             0x05000000 |
+                                             (((((vertexCount - 1) * 0x10) |
+                                                alpha) & 0xFF) << 16);
+                            gfx++;
+                            D_800C9520 = gfx;
+                            batch = (TrackBatch *) ((u8 *) batch + 0x10);
+                            batchIndex++;
+                            batchCount = segment->batchCount;
+                        } else {
+                            batch = (TrackBatch *) ((u8 *) batch + 0x10);
+                            batchIndex++;
+                        }
+                    } while ((batchIndex < batchCount) &&
+                             (batch->unk1 == batchEnd->unk1));
+                    batchCount = segment->batchCount;
+                }
+                if (D_8007C854 != 0) {
+                    gfx = D_800C9520;
+                    gfx->words.w1 = 0;
+                    gfx->words.w0 = 0xE7000000;
+                    gfx++;
+                    gfx->words.w1 = -1;
+                    gfx->words.w0 = 0xFA000000;
+                    gfx++;
+                    D_800C9520 = gfx;
+                }
+            } else if ((batchIndex < batchCount) &&
+                       (batch->unk1 == batchEnd->unk1)) {
+                do {
+                    batch = (TrackBatch *) ((u8 *) batch + 0x10);
+                    batchIndex++;
+                } while ((batchIndex < batchCount) &&
+                         (batch->unk1 == batchEnd->unk1));
+            }
+        } else {
+            item = ((u8 **) (u32) arg3)[itemIndex++];
+            object = *(u8 **) (item + 4);
+            objectChild = *(u8 **) (object + 0x4C);
+            if ((objectChild != NULL) && (*(u16 *) (object + 0x8E) == 0)) {
+                if (*(u32 *) (objectChild + 0x10) & 8) {
+                    u8 *child = *(u8 **) (objectChild + 0x1C);
+                    if (child != NULL) {
+                        func_800140CC((struct TrackShadowObject *) object,
+                                      (struct TrackShadowInstance *) child);
+                    }
+                }
+                func_800140CC((struct TrackShadowObject *) object,
+                              (struct TrackShadowInstance *) objectChild);
+            }
+            func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
+                          (TrackSkyObject *) object);
+            value = *(s32 *) (object + 0x54);
+            if (value != 0) {
+                func_80049518(value, &D_800C9520);
+            }
+            if (*(u16 *) (object + 6) & 0x200) {
+                objectType = *(s16 *) (object + 0x44);
+                switch (objectType) {
+                case 1:
+                    func_80009414(&D_800C9520, &D_800C9524,
+                                  &D_800C9528, object);
+                    break;
+                case 0x1D:
+                case 0x49:
+                case 0x3F:
+                    TrapDanglingJump(&D_800C9520, &D_800C9524,
+                                     &D_800C9528, object);
+                    break;
+                case 0x39:
+                case 0x3A:
+                    TrapDanglingJump(&D_800C9520, &D_800C9524, object);
+                    break;
+                }
+            }
+        }
+        batchCount = segment->batchCount;
+    } while (itemIndex < arg2);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DFBC.s")
+#endif
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: Mickey's m2c draft and resident track/particle call surfaces
@@ -1631,7 +1862,120 @@ void func_8000E5EC(s32 updateRate, s32 arg1) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E5EC.s")
 #endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E920.s")
+/* PROVENANCE -- JFG's public track.c supplies the surrounding display-list
+ * routine and texture vocabulary, while this Mickey body follows its own
+ * fields, call sites, and assembly-only command schedule. */
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch; 228 differing words, first mismatch +0x0. */
+/* Target 249 instructions/frame -112; candidate 247 instructions/frame -88. */
+/* Remaining gap is stack layout and command scheduling; 24-byte frame excess remains, so it is not shape-exact. */
+void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
+    TrackSegment *segment;
+    TrackBatch *batch;
+    TrackTextureHeader *texture;
+    s32 sp5C;
+    s32 sp58;
+    u32 vertexAddress;
+    u32 positionAddress;
+    s32 textureFrame;
+    s32 textureFlags;
+    s32 hasTexture;
+    s32 vertexCount;
+    s32 positionCount;
+    s32 color;
+    s32 batchCount;
+    s32 index;
+
+    if (D_8007C854 != 0) {
+        color = D_8007C858 & 0xFF;
+        gDPSetPrimColor(D_800C9520++, 0, 0, color, color, color, 0xFF);
+    }
+
+    segment = &D_800792E8->segments[arg0];
+    switch (arg2) {
+    case 4:
+        sp5C = 0xC904;
+        sp58 = 0xC800;
+        break;
+    case 0x4000:
+        func_800343F0(2, arg0);
+        sp5C = 0x4800;
+        sp58 = 0x800;
+        break;
+    case 0x8000:
+        sp5C = 0xC800;
+        sp58 = 0x4800;
+        break;
+    default:
+        sp5C = -1;
+        sp58 = 0xC904;
+        break;
+    }
+
+    batchCount = segment->batchCount;
+    batch = segment->batches;
+    index = batchCount;
+    if (batchCount != 0) {
+        do {
+            if ((1 << batch->unk1) & arg1) {
+                textureFlags = batch->flags;
+                if ((textureFlags & sp5C) && !(textureFlags & sp58)) {
+                    texture = NULL;
+                    hasTexture = 0;
+                    if (batch->textureIndex != 0xFF) {
+                        hasTexture = 1;
+                        texture = D_800792E8->textures[batch->textureIndex].texture;
+                    }
+                    textureFrame = batch->frame << 8;
+                    vertexAddress = (u32) segment->lightData +
+                                    (batch->u0 * 0xA);
+                    positionAddress = (u32) segment->vertexData +
+                                      (batch->v0 * 0x10);
+                    if ((texture != NULL) && (texture->flags & 0x40) &&
+                        ((textureFlags & 0x30) != 0x20)) {
+                        color = (textureFrame >> 8) & 0xFF;
+                        gDPSetEnvColor(D_800C9520++, color, color, color,
+                                       color);
+                    } else {
+                        gDPSetEnvColor(D_800C9520++, 0xFF, 0xFF, 0xFF, 0);
+                    }
+                    if (!(textureFlags & 0x180)) {
+                        textureFlags |= D_800C9544;
+                    }
+                    if ((textureFlags & 0x20000) && (texture != NULL)) {
+                        func_80014ECC(texture, textureFrame, textureFlags);
+                    } else {
+                        func_800349A4(&D_800C9520, texture,
+                                      textureFlags | 2, textureFrame);
+                    }
+                    vertexAddress += 0x80000000;
+                    vertexCount = batch[1].u0 - batch->u0;
+                    TRACK_SP_VERTEX(D_800C9520++, vertexAddress,
+                                    vertexCount, 0);
+                    positionCount = batch[1].v0 - batch->v0;
+                    positionAddress += 0x80000000;
+                    TRACK_SP_POLYGON(D_800C9520++, positionAddress,
+                                     positionCount, hasTexture);
+                    if (textureFlags & 0x20000) {
+                        func_80034920(&D_800C9520);
+                    }
+                }
+            }
+            batch++;
+            index--;
+        } while (index != 0);
+    }
+    if (arg2 == 0x4000) {
+        texEnableModes(2);
+    }
+    if (D_8007C854 != 0) {
+        gDPPipeSync(D_800C9520++);
+        gDPSetPrimColor(D_800C9520++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000F198.s")
+#endif
 /*
  * PROVENANCE: Jet Force Gemini's public assembly-only `trackGetBlockList` in
  * `src/track.c` supplies tier-D TU-position and role context. The body and
@@ -2688,7 +3032,168 @@ s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80011980.s")
 #endif
+#ifdef NON_MATCHING
+/* PROVENANCE: JFG's public track.c supplies the ray/edge collision role;
+ * this body uses Mickey's resident edge records and output layout. */
+/* Workbench verdict: structure-mismatch, 330 differing words; first mismatch is at +0x0. */
+/* Target is 342 instructions/frame -192; candidate is 331 instructions/frame -200. */
+/* Remaining gap is structural: edge/sphere fallback and hit metadata scheduling differ; not permuter-ready. */
+extern s32 func_80012234(TrackVec3f *point, TrackVec3f *direction,
+                         TrackVec3f *origin, TrackVec3f *planeDirection,
+                         f32 radius, f32 *minimum, f32 *maximum);
+
+s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3) {
+    u8 *record;
+    u8 *metadata;
+    u8 *metadataEntry;
+    f32 t;
+    f32 tEnd;
+    f32 pointX;
+    f32 pointY;
+    f32 pointZ;
+    f32 normalX;
+    f32 normalY;
+    f32 normalZ;
+    f32 planeDistance;
+    s32 recordIndex;
+    s32 recordCount;
+    s32 hit;
+    s32 edgeHit;
+    s32 metadataIndex;
+
+    hit = 0;
+    recordCount = 0;
+    if (D_800C9D24 > 0) {
+        do {
+            edgeHit = 0;
+            record = (u8 *) D_800C9D20 + (recordCount * 0x2C);
+            if ((func_80012234((TrackVec3f *) arg0, (TrackVec3f *) arg1,
+                               (TrackVec3f *) record,
+                               (TrackVec3f *) (record + 0x18),
+                               arg2, &t, &tEnd) != 0) &&
+                (t >= 0.0f) && (t <= *(f32 *) (arg3 + 0x1C))) {
+                normalX = *(f32 *) (record + 0x18);
+                normalY = *(f32 *) (record + 0x1C);
+                normalZ = *(f32 *) (record + 0x20);
+                pointX = (*(f32 *) (arg1 + 0) * t) +
+                         *(f32 *) (arg0 + 0);
+                pointY = (*(f32 *) (arg1 + 4) * t) +
+                         *(f32 *) (arg0 + 4);
+                pointZ = (*(f32 *) (arg1 + 8) * t) +
+                         *(f32 *) (arg0 + 8);
+                planeDistance = (((pointX - *(f32 *) (record + 0)) * normalX) +
+                                  ((pointY - *(f32 *) (record + 4)) * normalY) +
+                                  ((pointZ - *(f32 *) (record + 8)) * normalZ)) /
+                                 ((normalZ * normalZ) +
+                                  ((normalX * normalX) + (normalY * normalY)));
+                if ((planeDistance >= 0.0f) && (planeDistance <= 1.0f)) {
+                    *(f32 *) (arg3 + 0x10) = pointX;
+                    *(f32 *) (arg3 + 0x14) = pointY;
+                    *(f32 *) (arg3 + 0x18) = pointZ;
+                    hit = 1;
+                    edgeHit = 1;
+                    *(f32 *) (arg3 + 0) =
+                        (pointX - ((normalX * planeDistance) +
+                                   *(f32 *) (record + 0))) / arg2;
+                    normalX = (pointZ - ((normalZ * planeDistance) +
+                                         *(f32 *) (record + 8))) / arg2;
+                    *(f32 *) (arg3 + 4) =
+                        (pointY - ((normalY * planeDistance) +
+                                   *(f32 *) (record + 4))) / arg2;
+                    *(f32 *) (arg3 + 8) = normalX;
+                    *(f32 *) (arg3 + 0xC) =
+                        -((normalX * pointZ) +
+                          ((pointX * *(f32 *) (arg3 + 0)) +
+                           (pointY * *(f32 *) (arg3 + 4))));
+                    metadata = *(u8 **) (record + 0x24);
+                    metadataIndex = *(s32 *) (record + 0x28);
+                    metadataEntry = *(u8 **) (metadata + 0xC) +
+                                    (metadataIndex * 0x10);
+                    *(s32 *) (arg3 + 0x20) = *(s32 *) (metadataEntry + 0xC);
+                    *(u8 *) (arg3 + 0x24) = *((u8 *) D_800792E8->textures +
+                                              (*(u8 *) metadataEntry * 8) + 7);
+                    *(f32 *) (arg3 + 0x1C) = t;
+                }
+            }
+            if (edgeHit == 0) {
+                if ((func_80012574((TrackVec3f *) arg0, (TrackVec3f *) arg1,
+                                   (TrackVec3f *) record,
+                                   arg2, &t, &tEnd) != 0) &&
+                    (t >= 0.0f) && (t <= *(f32 *) (arg3 + 0x1C))) {
+                    edgeHit = 1;
+                    hit = 1;
+                    pointX = (*(f32 *) (arg1 + 0) * t) +
+                             *(f32 *) (arg0 + 0);
+                    pointY = (*(f32 *) (arg1 + 4) * t) +
+                             *(f32 *) (arg0 + 4);
+                    pointZ = (*(f32 *) (arg1 + 8) * t) +
+                             *(f32 *) (arg0 + 8);
+                    *(f32 *) (arg3 + 0x10) = pointX;
+                    *(f32 *) (arg3 + 0x14) = pointY;
+                    *(f32 *) (arg3 + 0x18) = pointZ;
+                    *(f32 *) (arg3 + 0) =
+                        (pointX - *(f32 *) (record + 0)) / arg2;
+                    *(f32 *) (arg3 + 4) =
+                        (pointY - *(f32 *) (record + 4)) / arg2;
+                    *(f32 *) (arg3 + 8) =
+                        (pointZ - *(f32 *) (record + 8)) / arg2;
+                    *(f32 *) (arg3 + 0xC) =
+                        -((*(f32 *) (arg3 + 8) * pointZ) +
+                          ((pointX * *(f32 *) (arg3 + 0)) +
+                           (pointY * *(f32 *) (arg3 + 4))));
+                    metadata = *(u8 **) (record + 0x24);
+                    metadataIndex = *(s32 *) (record + 0x28);
+                    metadataEntry = *(u8 **) (metadata + 0xC) +
+                                    (metadataIndex * 0x10);
+                    *(s32 *) (arg3 + 0x20) = *(s32 *) (metadataEntry + 0xC);
+                    *(u8 *) (arg3 + 0x24) = *((u8 *) D_800792E8->textures +
+                                              (*(u8 *) metadataEntry * 8) + 7);
+                    *(f32 *) (arg3 + 0x1C) = t;
+                }
+            }
+            if (edgeHit == 0) {
+                if ((func_80012574((TrackVec3f *) arg0, (TrackVec3f *) arg1,
+                                   (TrackVec3f *) (record + 0xC), arg2,
+                                   &t, &tEnd) != 0) &&
+                    (t >= 0.0f) && (t <= *(f32 *) (arg3 + 0x1C))) {
+                    hit = 1;
+                    pointX = (*(f32 *) (arg1 + 0) * t) +
+                             *(f32 *) (arg0 + 0);
+                    pointY = (*(f32 *) (arg1 + 4) * t) +
+                             *(f32 *) (arg0 + 4);
+                    pointZ = (*(f32 *) (arg1 + 8) * t) +
+                             *(f32 *) (arg0 + 8);
+                    *(f32 *) (arg3 + 0x10) = pointX;
+                    *(f32 *) (arg3 + 0x14) = pointY;
+                    *(f32 *) (arg3 + 0x18) = pointZ;
+                    *(f32 *) (arg3 + 0) =
+                        (pointX - *(f32 *) (record + 0xC)) / arg2;
+                    *(f32 *) (arg3 + 4) =
+                        (pointY - *(f32 *) (record + 0x10)) / arg2;
+                    *(f32 *) (arg3 + 8) =
+                        (pointZ - *(f32 *) (record + 0x14)) / arg2;
+                    *(f32 *) (arg3 + 0xC) =
+                        -((*(f32 *) (arg3 + 8) * pointZ) +
+                          ((pointX * *(f32 *) (arg3 + 0)) +
+                           (pointY * *(f32 *) (arg3 + 4))));
+                    metadata = *(u8 **) (record + 0x24);
+                    metadataIndex = *(s32 *) (record + 0x28);
+                    metadataEntry = *(u8 **) (metadata + 0xC) +
+                                    (metadataIndex * 0x10);
+                    *(s32 *) (arg3 + 0x20) = *(s32 *) (metadataEntry + 0xC);
+                    *(u8 *) (arg3 + 0x24) = *((u8 *) D_800792E8->textures +
+                                              (*(u8 *) metadataEntry * 8) + 7);
+                    *(f32 *) (arg3 + 0x1C) = t;
+                }
+            }
+            recordCount++;
+        } while (recordCount < D_800C9D24);
+    }
+    return hit;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80011CDC.s")
+#endif
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: Mickey's m2c FP dataflow and the resident vector layout
@@ -3113,8 +3618,356 @@ void func_800133FC(TrackVertex *arg0, TrackVertex *arg1,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800133FC.s")
 #endif
+/*
+ * PROVENANCE: Mickey-only reconstruction from the target's collision-query
+ * callers, resident track layouts, and the neighboring collision helpers;
+ * no published donor body is used here.
+ */
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch; 315 differing words, first mismatch +0x0. */
+/* Target 260 instructions/frame -312; candidate 330 instructions/frame -304. */
+/* Remaining gap is collision-query stack/control-flow scheduling and sort-loop expansion; not shape-exact. */
+u32 func_8001357C(f32 arg0, f32 arg1, f32 *arg2, s32 arg3, void *arg4) {
+    s16 segmentIndices[24];
+    s16 *segmentIndexPointer;
+    TrackSegment *segment;
+    TrackBatch *batch;
+    TrackTriangle *triangle;
+    TrackVertex *vertex0;
+    TrackVertex *vertex1;
+    TrackVertex *vertex2;
+    TrackVertex *vertex3;
+    TrackPlane *plane;
+    TrackIntersection *intersection;
+    s32 x;
+    s32 z;
+    s32 segmentCount;
+    s32 segmentNumber;
+    s32 batchCount;
+    s32 batchNumber;
+    s32 vertexIndex;
+    s32 compareMask;
+    u32 batchFlags;
+    u32 resultCount;
+    u32 visibility;
+    f32 height;
+    f32 planeX;
+    f32 planeY;
+    f32 planeZ;
+    f32 planeDistance;
+    s32 outer;
+    s32 inner;
+    volatile TrackIntersection *record;
+    f32 temporaryHeight;
+    s32 temporaryFlags;
+
+    x = (s32) arg0;
+    z = (s32) arg1;
+    segmentCount = func_8000FCA4(x, z, &segmentIndices[0]);
+    resultCount = 0;
+    if (arg2 != NULL) {
+        *arg2 = -32768.0f;
+    }
+    segmentNumber = 0;
+    if (segmentCount > 0) {
+        segmentIndexPointer = &segmentIndices[0];
+        do {
+            compareMask = getXZCompareMask(
+                &D_800792E8->segmentBounds[*segmentIndexPointer], x, z, x,
+                z);
+            segment = &D_800792E8->segments[*segmentIndexPointer];
+            segmentNumber++;
+            segmentIndexPointer++;
+            batchCount = segment->batchCount;
+            batch = segment->batches;
+            batchNumber = batchCount;
+            if (batchCount != 0) {
+                do {
+                    batchFlags = batch->flags;
+                    if (batchFlags & arg3) {
+                        vertexIndex = batch->v0;
+                        triangle = (TrackTriangle *)
+                            ((u8 *) segment->vertexData + (batch->v0 * 0x10));
+                        vertex0 = (TrackVertex *)
+                            ((u8 *) segment->lightData + (batch->u0 * 0xA));
+                        if (vertexIndex < batch[1].v0) {
+                            do {
+                                visibility = segment->visibilityMasks[vertexIndex];
+                                visibility &= compareMask;
+                                if ((visibility >> 16) != 0 &&
+                                    (visibility & 0xFFFF) != 0) {
+                                    vertex1 = (TrackVertex *)
+                                        ((u8 *) vertex0 +
+                                         (triangle->vertex0 * 0xA));
+                                    vertex2 = (TrackVertex *)
+                                        ((u8 *) vertex0 +
+                                         (triangle->vertex1 * 0xA));
+                                    vertex3 = (TrackVertex *)
+                                        ((u8 *) vertex0 +
+                                         (triangle->vertex2 * 0xA));
+                                    if (mathXZInTri(x, z, vertex1, vertex2,
+                                                    vertex3) != 0) {
+                                        height = (f32) vertex1->y;
+                                        if (vertex1->y != vertex2->y ||
+                                            vertex1->y != vertex3->y) {
+                                            if (batchFlags & 0x1080) {
+                                                func_800133FC(
+                                                    vertex1, vertex2, vertex3,
+                                                    &planeX, &planeY, &planeZ,
+                                                    &planeDistance);
+                                                plane = (TrackPlane *) &planeX;
+                                            } else {
+                                                plane = segment->surfaces +
+                                                    (segment->surfaceIndices[
+                                                         vertexIndex * 4] *
+                                                     1);
+                                            }
+                                            if (plane->y > 0.0f) {
+                                                height = -(((plane->x * arg0) +
+                                                             (plane->z * arg1) +
+                                                             plane->distance) /
+                                                            plane->y);
+                                            }
+                                        }
+                                        if (arg4 != NULL) {
+                                            if (resultCount >= 8U) {
+                                                resultCount = 7;
+                                            }
+                                            intersection =
+                                                (TrackIntersection *) arg4 +
+                                                resultCount;
+                                            intersection->height = height;
+                                            resultCount++;
+                                            intersection->flags = batchFlags;
+                                        } else {
+                                            *arg2 = height;
+                                            return batchFlags;
+                                        }
+                                    }
+                                }
+                                vertexIndex++;
+                                triangle++;
+                            } while (vertexIndex < batch[1].v0);
+                        }
+                    }
+                    batch++;
+                    batchNumber--;
+                } while (batchNumber != 0);
+            }
+        } while (segmentNumber != segmentCount);
+    }
+    if (resultCount >= 2U) {
+        outer = (s32) resultCount - 2;
+        if (outer != 0) {
+            do {
+                record = (TrackIntersection *) arg4;
+                inner = outer + 1;
+                if (inner != 0) {
+                    do {
+                        if (record->height < (record + 1)->height) {
+                            temporaryHeight = record->height;
+                            temporaryFlags = record->flags;
+                            record->height = (record + 1)->height;
+                            (record + 1)->height = temporaryHeight;
+                            record->flags = (record + 1)->flags;
+                            (record + 1)->flags = temporaryFlags;
+                        }
+                        record++;
+                        inner--;
+                    } while (inner != 0);
+                }
+                outer--;
+            } while (outer != 0);
+        }
+    }
+    return resultCount;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001357C.s")
+#endif
+#ifdef NON_MATCHING
+/* PROVENANCE: JFG's public track.c retains this collision collector as
+ * assembly; Mickey's segment, batch, plane and hit-list accesses are used. */
+/* Workbench verdict: structure-mismatch, 368 differing words; first mismatch is at +0x0. */
+/* Target is 330 instructions/frame -320; candidate is 372 instructions/frame -360. */
+/* Remaining gap is structural: collision record layout and loop/control-flow scheduling differ; not permuter-ready. */
+s32 func_8001398C(f32 arg0, f32 arg1, s32 arg2, void **arg3) {
+    s16 segmentIndices[32];
+    s32 segmentCount;
+    s32 segmentNumber;
+    s32 segmentIndex;
+    s32 batchNumber;
+    s32 batchCount;
+    s32 triangleIndex;
+    s32 compareMask;
+    s32 textureFlag;
+    s32 resultCount;
+    s32 orderIndex;
+    s32 orderCount;
+    s32 changed;
+    s32 value;
+    s32 i;
+    s32 j;
+    s16 firstTriangle;
+    s16 lastTriangle;
+    s16 textureOffset;
+    u8 *segmentBytes;
+    u8 *batchBytes;
+    u8 *triangleBytes;
+    u8 *surface;
+    u8 *hit;
+    void **order;
+    void **orderIt;
+    f32 height;
+    f32 planeX;
+    f32 planeY;
+    f32 planeZ;
+    f32 planeDistance;
+    f32 planeHeight;
+    TrackVertex *vertex0;
+    TrackVertex *vertex1;
+    TrackVertex *vertex2;
+
+    segmentCount = func_8000FCA4((s32) arg0, (s32) arg1,
+                                 segmentIndices);
+    *arg3 = NULL;
+    if ((segmentCount == 0) || (segmentCount >= 0x20)) {
+        return 0;
+    }
+    arg2 |= 0x1080;
+    resultCount = 0;
+    segmentNumber = 0;
+    orderCount = 0;
+    do {
+        segmentIndex = segmentIndices[segmentNumber];
+        segmentBytes = (u8 *) D_800792E8->segments + (segmentIndex * 0x40);
+        compareMask = getXZCompareMask(
+            &D_800792E8->segmentBounds[segmentIndex], (s32) arg0,
+            (s32) arg1, (s32) arg0, (s32) arg1);
+        batchCount = *(s16 *) (segmentBytes + 0x24);
+        batchBytes = *(u8 **) (segmentBytes + 0xC);
+        batchNumber = 0;
+        if (batchCount > 0) {
+            do {
+                u32 batchFlags = *(u32 *) (batchBytes + 0xC);
+                textureOffset = *(s16 *) (batchBytes + 6);
+                firstTriangle = *(s16 *) (batchBytes + 8);
+                lastTriangle = *(s16 *) (batchBytes + 0x18);
+                if (batchFlags & arg2) {
+                    firstTriangle = lastTriangle;
+                }
+                triangleIndex = firstTriangle;
+                textureFlag = (batchFlags & 0x10000) != 0;
+                if (textureFlag == 0) {
+                    textureFlag = *((u8 *) D_800792E8->textures +
+                                    (*(u8 *) batchBytes * 8) + 7);
+                }
+                if (firstTriangle < lastTriangle) {
+                    do {
+                        u32 visibility = *(u32 *)
+                            (segmentBytes + 0x10 + (triangleIndex * 4));
+                        visibility &= compareMask;
+                        if ((visibility >> 16) != 0 &&
+                            (visibility & 0xFFFF) != 0) {
+                            triangleBytes = *(u8 **) (segmentBytes + 4) +
+                                            (triangleIndex * 0x10);
+                            vertex0 = (TrackVertex *)
+                                (*(u8 **) (segmentBytes + 0) +
+                                 (*(u8 *) (triangleBytes + 1) +
+                                  textureOffset) * 0xA);
+                            vertex1 = (TrackVertex *)
+                                (*(u8 **) (segmentBytes + 0) +
+                                 (*(u8 *) (triangleBytes + 2) +
+                                  textureOffset) * 0xA);
+                            vertex2 = (TrackVertex *)
+                                (*(u8 **) (segmentBytes + 0) +
+                                 (*(u8 *) (triangleBytes + 3) +
+                                  textureOffset) * 0xA);
+                            if (mathXZInTri((s32) arg0, (s32) arg1,
+                                            vertex0, vertex1, vertex2) != 0) {
+                                height = (f32) vertex0->y;
+                                if ((vertex0->y != vertex1->y) ||
+                                    (vertex0->y != vertex2->y)) {
+                                    if (batchFlags & 0x1080) {
+                                        func_800133FC(vertex0, vertex1, vertex2,
+                                                      &planeX, &planeY,
+                                                      &planeZ, &planeDistance);
+                                        surface = (u8 *) &planeX;
+                                    } else {
+                                        value = *(u16 *)
+                                            (segmentBytes + 0x18 +
+                                             (triangleIndex * 8));
+                                        surface = *(u8 **) (segmentBytes + 0x1C) +
+                                                  (value * 0x10);
+                                    }
+                                    planeHeight = *(f32 *) (surface + 4);
+                                    if (planeHeight > 0.0f) {
+                                        height = -((( *(f32 *) (surface + 0) * arg0) +
+                                                     (*(f32 *) (surface + 8) * arg1) +
+                                                     *(f32 *) (surface + 0xC)) /
+                                                    planeHeight);
+                                    }
+                                }
+                                if (arg3 != NULL) {
+                                    if (resultCount >= 0x14) {
+                                        resultCount = 0x13;
+                                    }
+                                    hit = D_800C9B90 + (resultCount * 0x10);
+                                    *(f32 *) (hit + 0) = height;
+                                    *(void **) (hit + 4) = surface;
+                                    *(s32 *) (hit + 8) = batchFlags;
+                                    *(s32 *) (hit + 0xC) = textureFlag;
+                                    resultCount++;
+                                } else {
+                                    return batchFlags;
+                                }
+                            }
+                        }
+                        triangleIndex++;
+                    } while (triangleIndex < lastTriangle);
+                }
+                batchNumber++;
+                batchBytes += 0x10;
+            } while (batchNumber < batchCount);
+        }
+        segmentNumber++;
+    } while (segmentNumber < segmentCount);
+    if (resultCount > 0) {
+        orderIndex = 0;
+        order = D_800C9CD0;
+        do {
+            order[orderIndex] = D_800C9B90 + (orderIndex * 0x10);
+            orderIndex++;
+        } while (orderIndex != resultCount);
+    }
+    orderCount = resultCount - 1;
+    do {
+        changed = 1;
+        if (orderCount > 0) {
+            orderIndex = 0;
+            orderIt = D_800C9CD0;
+            i = 0;
+            do {
+                void *left = orderIt[0];
+                void *right = orderIt[1];
+                if (*(f32 *) left < *(f32 *) right) {
+                    orderIt[0] = right;
+                    orderIt[1] = left;
+                    changed = 0;
+                }
+                orderIndex++;
+                orderIt++;
+                i++;
+            } while (i != orderCount);
+        }
+        orderCount--;
+    } while (changed == 0);
+    *arg3 = D_800C9CD0;
+    return resultCount;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001398C.s")
+#endif
 /*
  * PROVENANCE: JFG supplies the name `trackGetTrack`; this trivial body is
  * reconstructed from Mickey.
