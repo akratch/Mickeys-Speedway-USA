@@ -2135,7 +2135,133 @@ s32 func_80012574(TrackVec3f *origin, TrackVec3f *direction,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80012574.s")
 #endif
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: Mickey's m2c draft, collision-node offsets, and output-record
+ * writes reconstruct this routine; no external function body is adapted.
+ */
+typedef struct TrackClipNode {
+    void *origin;
+    void *faces;
+    u8 pad08[4];
+    void *indices;
+} TrackClipNode;
+
+typedef struct TrackClipFace {
+    u8 flags;
+    u8 vertex;
+    u8 pad02[0x0E];
+} TrackClipFace;
+
+typedef struct TrackClipVertex {
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 pad06[4];
+} TrackClipVertex;
+
+typedef struct TrackClipOutput {
+    f32 x0;
+    f32 y0;
+    f32 z0;
+    f32 x1;
+    f32 y1;
+    f32 z1;
+    f32 dx;
+    f32 dy;
+    f32 dz;
+    TrackClipNode *node;
+    s16 segment;
+} TrackClipOutput;
+
+/* Workbench verdict: structure-mismatch, 157 differing words, first mismatch +0x0. */
+/* Candidate: 174/177 instructions with a -0x38 frame versus target -0x40; three instruction/frame-padding residuals remain. */
+/* Shape status: encoded-node traversal, three-corner bit scan, and 0x2C output stride are preserved, but it is not shape-exact. */
+void func_80012658(s32 flags) {
+    TrackClipNode *node;
+    TrackClipNode *entry;
+    TrackClipFace *face;
+    TrackClipVertex *vertex;
+    TrackClipOutput *output;
+    s32 encoded;
+    s32 nodeIndex;
+    s32 faceOffset;
+    s32 vertexOffset;
+    s32 corner;
+    s32 nextCorner;
+    s32 mask;
+    s32 outputIndex;
+    s16 faceIndex;
+    s16 vertexIndex;
+    s16 segmentIndex;
+
+    D_800C9D24 = 0;
+    if ((flags & 1) == 0) {
+        D_800C9D28 = 0;
+        return;
+    }
+    D_800C9D28 = 1;
+    nodeIndex = 0;
+    if (D_800C9D3C > 0) {
+        do {
+            faceOffset = nodeIndex * 2;
+            encoded = D_800C9D2C[nodeIndex];
+            if (encoded > 0) {
+                node = (TrackClipNode *) (encoded | (s32) 0x80000000);
+            } else {
+                segmentIndex = D_800C9D34[nodeIndex];
+                faceIndex = D_800C9D30[nodeIndex];
+                face = (TrackClipFace *) ((u8 *) node->faces +
+                                          (segmentIndex * 0x10));
+                vertex = (TrackClipVertex *) ((u8 *) node->origin +
+                                              (*(s16 *) ((u8 *) node->indices +
+                                                         (faceIndex * 0x10) +
+                                                         6) * 0x0A));
+                corner = 0;
+                do {
+                    if (face->flags & (1 << corner)) {
+                        nextCorner = corner + 1;
+                        if (nextCorner >= 3) {
+                            nextCorner = 0;
+                        }
+                        output = (TrackClipOutput *) ((u8 *) D_800C9D20 +
+                                                      (D_800C9D24 * 0x2C));
+                        vertexIndex = (s16) (((u8 *) face)[corner + 1]);
+                        {
+                            TrackClipVertex *first = (TrackClipVertex *)
+                                ((u8 *) vertex + (vertexIndex * 0x0A));
+                            TrackClipVertex *second = (TrackClipVertex *)
+                                ((u8 *) vertex +
+                                 (((u8 *) face)[nextCorner + 1] * 0x0A));
+                            output->x0 = (f32) first->x;
+                            output->y0 = (f32) first->y;
+                            output->z0 = (f32) first->z;
+                            output->x1 = (f32) second->x;
+                            output->y1 = (f32) second->y;
+                            output->z1 = (f32) second->z;
+                            output->dx = output->x1 - output->x0;
+                            output->node = node;
+                            output->dy = output->y1 - output->y0;
+                            output->dz = output->z1 - output->z0;
+                            output->segment = D_800C9D30[nodeIndex];
+                        }
+                        outputIndex = D_800C9D24 + 1;
+                        D_800C9D24 = outputIndex;
+                        if (outputIndex >= *(s16 *) ((u8 *) D_800792EC + 0xF0)) {
+                            corner = 3;
+                            nodeIndex = D_800C9D3C;
+                        }
+                    }
+                    corner++;
+                } while (corner < 3);
+            }
+            nodeIndex++;
+        } while (nodeIndex < D_800C9D3C);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80012658.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8001291C.s")
 /*
  * PROVENANCE: Jet Force Gemini's public assembly-only `trackClip3D` in
