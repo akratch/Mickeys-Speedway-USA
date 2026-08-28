@@ -291,7 +291,81 @@ void camConvertMatrixList(Matrix *mtx, s32 count) {
 }
 
 /* Keep the original TU order: func_8005ABA8 precedes func_8005AD64. */
+/* Workbench: structure-mismatch, 97 differing words, first mismatch +0x38. */
+/* Candidate shape: 110 instructions/no frame vs target 111/no frame; not permuter-ready. */
+/* Remaining structural gap: preserve the validated frame pointer in a2 before the split. */
+/* PROVENANCE: Mickey-only reconstruction from func_8005ABA8.s and the
+ * existing models TU layouts; no external function body is copied. */
+#ifdef NON_MATCHING
+s32 func_8005ABA8(ModelAnimationInstance *instance, f32 arg1, f32 arg2) {
+    s32 var_v1;
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f2;
+    f32 temp_f2_2;
+    void *temp_a1;
+    ModelAnimationState *temp_v0;
+
+    temp_v0 = instance->states[(s32)instance->animationIndex];
+    var_v1 = 0;
+    temp_a1 = temp_v0->frame;
+    if (temp_a1 == NULL) {
+        return 0;
+    }
+    if (temp_v0->transition != 0) {
+        if (temp_v0->hasNext != 0) {
+            temp_f2 = temp_v0->blendEnd;
+            temp_f0 = temp_v0->blendValue + arg2;
+            temp_v0->blendValue = 0.0f;
+            temp_v0->blendEnd = temp_f2 - temp_f0;
+            temp_v0->blendStart = temp_f0 / temp_f2;
+        } else {
+            temp_v0->blendValue = temp_v0->blendValue + arg2;
+        }
+        temp_f2_2 = temp_v0->blendEnd;
+        if ((temp_f2_2 <= 0.0f) || (temp_f2_2 <= temp_v0->blendValue)) {
+            temp_v0->transition = 0;
+            temp_v0->blendStart = 0.0f;
+            temp_v0->blendValue = 0.0f;
+            instance->frameValue = (f32)temp_v0->frameIndex /
+                                   temp_v0->frameValue;
+        }
+    } else {
+        instance->frameValue += arg1 * arg2;
+        temp_f0_2 = instance->frameValue;
+        if (temp_f0_2 >= 1.0f) {
+            if (((ModelAnimationFrame *)temp_a1)->loop != 0) {
+                if (temp_f0_2 >= 1.0f) {
+                    do {
+                        instance->frameValue -= 1.0f;
+                    } while (instance->frameValue >= 1.0f);
+                    var_v1 = 1;
+                } else {
+                    goto animation_done;
+                }
+            } else {
+                instance->frameValue = 1.0f;
+animation_done:
+                var_v1 = 1;
+            }
+        } else if (temp_f0_2 < 0.0f) {
+            var_v1 = 1;
+            if (((ModelAnimationFrame *)temp_a1)->loop != 0) {
+                if (temp_f0_2 < 0.0f) {
+                    do {
+                        instance->frameValue += 1.0f;
+                    } while (instance->frameValue < 0.0f);
+                }
+            } else {
+                instance->frameValue = 0.0f;
+            }
+        }
+    }
+    return var_v1;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005ABA8.s")
+#endif
 /* Workbench: structure-mismatch, 74 differing words, first mismatch +0x0. */
 /* Candidate shape: 111 instructions/no frame vs target 108/no frame; not permuter-ready. */
 /* Remaining structural gap: argument reloads and unsigned-count conversion add 3 instructions. */
