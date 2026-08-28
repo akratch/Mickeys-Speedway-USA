@@ -106,6 +106,16 @@ DATA_RODATA_OWNERSHIP = {
     79: [(0x0, 0x60, "func_overlay_079_F0000134_18CD0D4")],
 }
 
+# Reviewed initialized subranges emitted by a C owner's non-.data section.
+# Offsets are relative to the module's combined initialized data range.  Unlike
+# DATA_RODATA_OWNERSHIP, these ranges may be interior to the raw range; the
+# YAML projection therefore emits the raw fragments on either side and a
+# typed subsegment for the owning TU.  The four-byte subalignment below is
+# required for IDO's literal-pool and jump-table placement.
+FIXED_DATA_RODATA_OWNERSHIP = {
+    1: [(0x274, 0x294, "overlay_001_tail", ".rodata")],
+}
+
 # When a C owner's initialized input follows its text, IDO's measured .text
 # alignment can emit the intervening zero padding without a separate asm row.
 # Keep the row in the atlas so padding is never counted as executable C credit.
@@ -1206,7 +1216,7 @@ def range_row(start, end):
 
 
 def data_rodata_ownership_rows(overlay, data_size, text_ownership):
-    """Reviewed leading initialized ranges emitted by existing C objects."""
+    """Reviewed initialized ranges emitted by existing C objects."""
     rows = []
     previous_end = 0
     previous_text_index = -1
@@ -1242,6 +1252,35 @@ def data_rodata_ownership_rows(overlay, data_size, text_ownership):
         )
         previous_end = end
         previous_text_index = text_index
+    for start, end, source_name, section in FIXED_DATA_RODATA_OWNERSHIP.get(
+        overlay, []
+    ):
+        if (
+            start < 0
+            or start >= end
+            or end > data_size
+            or start % 4
+            or end % 4
+            or section not in (".data", ".rodata")
+        ):
+            raise ValueError(
+                f"invalid overlay {overlay} fixed data/rodata ownership range"
+            )
+        if source_name not in text_sources:
+            raise ValueError(
+                f"overlay {overlay} fixed data/rodata owner {source_name} "
+                "does not own a C text row"
+            )
+        rows.append(
+            {
+                "offset": hx(start),
+                "end_offset": hx(end),
+                "size": hx(end - start),
+                "type": "c",
+                "section": section,
+                "source": f"overlays/o{overlay:03d}/{source_name}",
+            }
+        )
     return rows
 
 
@@ -1619,7 +1658,7 @@ def render_manifest(atlas):
     return json.dumps(atlas, indent=1) + "\n"
 
 
-def render_yaml_block(atlas):
+def render_yaml_block(atlas, trial_ownership=False):
     lines = [YAML_BEGIN]
     lines += [
         "  #",
@@ -1649,7 +1688,7 @@ def render_yaml_block(atlas):
             f"    vram: {hx(SYNTHETIC_VMA)}",
             f"    bss_size: {row['bss_size']}",
             "    align: 0x8",
-            "    subalign: 0x1",
+            f"    subalign: {'0x4' if trial_ownership and ov in FIXED_DATA_RODATA_OWNERSHIP else '0x1'}",
             f"    dir: overlays/o{ov:03d}",
             f"    exclusive_ram_id: {OVERLAY_RAM_CLASS}",
             "    symbol_name_format: $SEG_$VRAM_$ROM",
@@ -1684,11 +1723,40 @@ def render_yaml_block(atlas):
                 f"{part['type']}, {source_name}]"
             )
         data_row = row["sections"]["data_rodata"]
-        owned_end = (
-            int(owned_data[-1]["end_offset"], 16) if owned_data else 0
-        )
         data_size = int(data_row["size"], 16)
-        if owned_end < data_size:
+        fixed_data = [part for part in owned_data if "section" in part]
+        if not trial_ownership:
+            fixed_data = []
+        leading_data = [part for part in owned_data if "section" not in part]
+        owned_end = (
+            int(leading_data[-1]["end_offset"], 16) if leading_data else 0
+        )
+        if fixed_data:
+            cursor = owned_end
+            for part in sorted(fixed_data, key=lambda item: int(item["offset"], 16)):
+                fixed_start = int(part["offset"], 16)
+                fixed_end = int(part["end_offset"], 16)
+                if fixed_start < cursor:
+                    raise ValueError(
+                        f"overlay {ov} fixed data/rodata ownership overlaps "
+                        "a leading C-owned range or another fixed range"
+                    )
+                if cursor < fixed_start:
+                    lines.append(
+                        f"      - [{hx(int(data_row['start'], 16) + cursor)}, "
+                        f"bin, {name}_data_rodata]"
+                    )
+                lines.append(
+                    f"      - [{hx(int(data_row['start'], 16) + fixed_start)}, "
+                    f"{part['section']}, {part['source'].rsplit('/', 1)[1]}]"
+                )
+                cursor = fixed_end
+            if cursor < data_size:
+                lines.append(
+                    f"      - [{hx(int(data_row['start'], 16) + cursor)}, "
+                    f"bin, {name}_data_rodata]"
+                )
+        elif owned_end < data_size:
             lines.append(
                 f"      - [{hx(int(data_row['start'], 16) + owned_end)}, "
                 f"bin, {name}_data_rodata]"
@@ -1785,6 +1853,11 @@ def main():
     action = parser.add_mutually_exclusive_group()
     action.add_argument("--write", action="store_true")
     action.add_argument("--check", action="store_true")
+    action.add_argument(
+        "--trial-yaml",
+        action="store_true",
+        help="write only the temporary fixed-data projection used by promotion trials",
+    )
     action.add_argument("--overlay", type=int)
     action.add_argument("--relocations", type=int, metavar="OVERLAY")
     args = parser.parse_args()
@@ -1793,7 +1866,19 @@ def main():
     atlas, records_by_overlay = build_atlas(rom)
     manifest = render_manifest(atlas)
     yaml_text = args.yaml.read_text()
-    generated_yaml = splice_yaml(yaml_text, render_yaml_block(atlas))
+    trial_ownership = args.trial_yaml or (
+        os.environ.get("PROMOTION_TRIAL", "") not in ("", "0")
+    )
+    generated_yaml = splice_yaml(
+        yaml_text, render_yaml_block(atlas, trial_ownership=trial_ownership)
+    )
+
+    if args.trial_yaml:
+        if write_if_changed(args.yaml, generated_yaml):
+            print(f"updated temporary {args.yaml.relative_to(REPO)}")
+        else:
+            print("temporary ownership projection current")
+        return
 
     if args.write:
         changed = []

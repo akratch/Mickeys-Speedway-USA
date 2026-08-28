@@ -1731,6 +1731,9 @@ extern f32 overlay1WrapOffset(f32 first, f32 second);
  * entirely allocator choices across switch cases.  Nine declaration-order,
  * register-storage, and world-symbol spelling attempts did not improve the
  * best schedule; the unavailable local permuter is the next useful search. */
+/* Ownership trial (2026-08-28): fixed the TU's +0x274..+0x294 .rodata range;
+ * linked promotion is text-differs with 30 in-range words, first at +0x2C.
+ * Module growth is cleared; the remaining gap is codegen/register allocation. */
 #ifdef NON_MATCHING
 s32 overlay1DispatchMode(void) {
     Overlay1ModeState *world;
