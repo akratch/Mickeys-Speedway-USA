@@ -344,7 +344,176 @@ void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
 #endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048080.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeAllocate.s")
+/* Workbench: structure-mismatch; 58 words differ, first mismatch +0x08. */
+/* Candidate is not opcode-shape exact: 121/121 instructions, frame -72/-72 bytes, exact call relocations; 8 init-schedule words remain, 50 are register-only. */
+/* PROVENANCE: Mickey field layouts/control flow reconstructed from target accesses; JFG wakeSetupRipple is assembly-only and supplies only TU/name context. */
+#ifdef NON_MATCHING
+typedef struct FxRippleSource {
+    u8 pad00[0x73];
+    s8 wakeType;
+    u8 pad74[4];
+    f32 textureScale;
+    s16 textureId;
+    s16 wakeValue7E;
+    s32 wakeValue80;
+    s32 wakeValue84;
+    f32 wakeValue88;
+    s16 wakeValue8C;
+    s16 wakeValue8E;
+} FxRippleSource;
+
+typedef struct FxRippleSetup {
+    u8 pad00[0xC];
+    f32 valueC;
+    u8 pad10[4];
+    f32 value14;
+    u8 pad18[0x28];
+    FxRippleSource *source;
+    u8 pad44[0x10];
+    u8 *output;
+} FxRippleSetup;
+
+typedef struct FxRippleFrame {
+    u8 value0;
+    u8 value1;
+    u8 value2;
+    u8 value3;
+    s16 value4;
+    s16 value6;
+    s16 value8;
+    s16 valueA;
+    s16 valueC;
+    s16 valueE;
+    u8 value10;
+    u8 value11;
+    u8 value12;
+    u8 value13;
+    s16 value14;
+    s16 value16;
+    s16 value18;
+    s16 value1A;
+    s16 value1C;
+    s16 value1E;
+    u8 pad20[8];
+} FxRippleFrame;
+
+typedef struct FxRippleOutput {
+    FxRippleFrame frames[2];
+    u8 pad50[0x20];
+    FxConeTextureInfo *texture;
+    u8 value74;
+    u8 value75;
+    s16 value76;
+    s16 value78;
+    s16 value7A;
+    f32 value7C;
+    f32 value80;
+    Wake *wake;
+} FxRippleOutput;
+
+extern void func_8001357C(f32 valueC, f32 value14, void *output,
+                          s32 value, s32 zero);
+extern Wake *wakeAllocate(s8 wakeType, f32 wakeValue88, s32 wakeValue80,
+                          s32 wakeValue84, s16 wakeValue8C,
+                          f32 wakeValue8E);
+
+s32 func_80048760(void *arg0, s32 arg1) {
+    u8 pad[16];
+    s32 size;
+    s32 var_a0;
+    FxRippleOutput *var_s0;
+    FxRippleSource *temp_t0;
+    FxConeTextureInfo *temp_a2;
+    s16 temp_t7;
+    s16 temp_t8;
+    u8 *var_v0;
+    FxRippleFrame *frame;
+
+    size = arg1 & 7;
+    var_s0 = (FxRippleOutput *) arg1;
+    if (size != 0) {
+        size = 8 - size;
+        var_s0 = (FxRippleOutput *) (arg1 + size);
+    } else {
+        size = 0;
+    }
+    size += (s32) align4((u8 *) 0x88);
+    temp_t0 = ((FxRippleSetup *) arg0)->source;
+    ((FxRippleSetup *) arg0)->output = (u8 *) var_s0;
+    var_s0->texture = func_80034448(temp_t0->textureId);
+    if (var_s0->texture == 0) {
+        return 0;
+    }
+    temp_a2 = var_s0->texture;
+    temp_t7 = (temp_a2->width - 1) << 5;
+    temp_t8 = (temp_a2->height - 1) << 5;
+    frame = (FxRippleFrame *) var_s0;
+    frame->value0 = 0x40;
+    frame->value1 = 0;
+    frame->value4 = temp_t7;
+    frame->value6 = 0;
+    frame->value2 = 1;
+    frame->value8 = 0;
+    frame->valueA = 0;
+    frame->value3 = 2;
+    frame->valueC = temp_t7;
+    frame->valueE = temp_t8;
+    frame->value10 = 0x40;
+    frame->value11 = 1;
+    frame->value14 = 0;
+    frame->value16 = 0;
+    frame->value12 = 2;
+    frame->value18 = temp_t7;
+    frame->value1A = temp_t8;
+    frame->value13 = 3;
+    frame->value1C = 0;
+    frame->value1E = temp_t8;
+
+    var_a0 = 0;
+    var_v0 = (u8 *) var_s0;
+    do {
+        var_a0++;
+        var_v0 += 0x28;
+        var_v0[0x8] = 0xFF;
+        var_v0[0x9] = 0xFF;
+        var_v0[0xA] = 0xFF;
+        var_v0[0xB] = 0xFF;
+        var_v0[0x12] = 0xFF;
+        var_v0[0x13] = 0xFF;
+        var_v0[0x14] = 0xFF;
+        var_v0[0x15] = 0xFF;
+        var_v0[0x1C] = 0xFF;
+        var_v0[0x1D] = 0xFF;
+        var_v0[0x1E] = 0xFF;
+        var_v0[0x1F] = 0xFF;
+        var_v0[-2] = 0xFF;
+        var_v0[-1] = 0xFF;
+        var_v0[0] = 0xFF;
+        var_v0[1] = 0xFF;
+    } while (var_a0 != 2);
+
+    var_s0->value74 = 0;
+    var_s0->value75 = 0;
+    var_s0->value76 = 0;
+    var_s0->value78 = 0;
+    var_s0->value7A = temp_t0->wakeValue7E;
+    var_s0->value7C = temp_t0->textureScale;
+    func_8001357C(((FxRippleSetup *) arg0)->valueC,
+                  ((FxRippleSetup *) arg0)->value14,
+                  (u8 *) var_s0 + 0x80,
+                  0x10000, 0);
+    var_s0->wake = 0;
+    if (temp_t0->wakeType != -1) {
+        var_s0->wake = wakeAllocate(temp_t0->wakeType, temp_t0->wakeValue88,
+                                    temp_t0->wakeValue80, temp_t0->wakeValue84,
+                                    temp_t0->wakeValue8C,
+                                    (f32) temp_t0->wakeValue8E);
+    }
+    return size;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048760.s")
+#endif
 void wakeFree(Wake *wake) {
     void *linked = wake->linked;
 
