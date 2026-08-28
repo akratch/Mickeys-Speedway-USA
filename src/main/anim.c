@@ -585,10 +585,10 @@ void func_80050DF0(s32 levelId) {
 /*
  * PROVENANCE: adapted from JFG's animseqFreeGroup assembly. Mickey's data
  * boundaries, calls, scheduling, and final compiler output remain authoritative.
- * Type pass: shared aggregate boundaries plus raw cursor traversal improve the
- * candidate from structure-mismatch (46 words) to allocation-mismatch (14
- * words), with the exact 90-instruction shape; target end/base address order
- * and three register webs remain.
+ * Workbench p8 plateau: allocation mismatch. Scoped raw cursor/end pairs
+ * regressed, while typed traversal, endpoint lifetime, reset-loop scope, and
+ * delayed scroll-base forms were neutral. One bounded permuter pass produced
+ * no comparable base score or zero; GLOBAL_ASM remains canonical.
  */
 #ifdef NON_MATCHING
 void func_80050E9C(void) {
