@@ -461,7 +461,7 @@ f32 camDistance(f32 x, f32 y, f32 z);
 u8 *levelGetLevel(void);
 void partDraw(Gfx **displayList, s32 arg1, s32 mode);
 void func_8000DFBC(u8 segment, s32 arg1, s32 arg2, s32 arg3);
-s32 func_8000DDE4(u8 segment, s32 arg1, s32 arg2, s32 arg3);
+s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records, TrackKeyRecord **matches);
 void func_8000F57C(s32 *resultCount, u8 *resultSegments);
 void func_8000FA2C(s32 *result, s32 arg1);
 void shadowGetBuffers(u8 mode, s32 *a, s32 *b, s32 *c);
@@ -1480,15 +1480,12 @@ build_routes:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DB34.s")
 #endif
-/* Workbench verdict: structure-mismatch, 116 differing words, first mismatch +0x0. */
-/* Candidate: target/candidate 118/121 instructions and -0x28/-0x28 frames; the top-level argument carriers are retained. */
-/* Shape status: the target's four-at-a-time scan and relocation bindings remain unresolved; this is not permuter-ready. */
+/* Workbench: allocation-mismatch; 24 words differ, first mismatch +0x24. */
+/* Candidate is shape-exact: 118 instructions, frame -40/-40 bytes, and both call relocations match. */
+/* Remaining gap is register allocation only; this candidate is permuter-ready. */
 #ifdef NON_MATCHING
-s32 func_8000DDE4(u8 keyArg, s32 recordCount, s32 recordsArg, s32 matchesArg) {
-    /* Parameter types follow the top-level prototype the matched callers use. */
-    s32 key = keyArg;
-    TrackKeyRecord *records = (TrackKeyRecord *) recordsArg;
-    TrackKeyRecord **matches = (TrackKeyRecord **) matchesArg;
+s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records,
+                  TrackKeyRecord **matches) {
     s32 recordIndex;
     s32 matchCount;
     s32 passCount;

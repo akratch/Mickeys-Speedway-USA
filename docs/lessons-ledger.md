@@ -162,3 +162,9 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
   with symbolic relocations at the sites the module relocation table names,
   so the permuter becomes a valid overlay oracle; promotion still goes
   through the linked build.
+- **Adapting a candidate to a prototype with casts can destroy its shape.**
+  `func_8000DDE4` went from 24 words (permuter-ready) to 116 after
+  casts/locals were added to satisfy a `u8` prototype; changing the prototype
+  to the candidate's types instead left `gmake verify` green. Changed: when a
+  candidate and a top-level prototype disagree, first try changing the
+  prototype and verifying; adapt the body only if verify fails.
