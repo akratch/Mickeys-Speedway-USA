@@ -3015,9 +3015,9 @@ extern s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
                          f32 threshold, TrackRayHit *hit);
 extern s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3);
 
-/* Workbench verdict: pending first compile; target is 147 instructions with a -0xB8 frame. */
-/* Candidate shape is being calibrated against the target object; no match claim is made here. */
-/* The callback record is kept at its measured 0x20-byte local size. */
+/* Workbench verdict: structure-mismatch, 143 differing words, first mismatch +0x0. */
+/* Candidate is 145/147 instructions with the target -0xB8 frame; it is not shape-exact. */
+/* Remaining gap: structural FP/local-home scheduling; all five call sites are present. */
 s32 func_80010900(TrackVec3f *arg0, TrackVec3f *arg1, f32 arg2, s32 arg3,
                   void (*arg4)(void *, void *, f32 *, f32, void *, s32)) {
     TrackRayScratch scratch;
