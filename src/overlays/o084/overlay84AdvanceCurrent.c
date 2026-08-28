@@ -46,6 +46,9 @@ extern s32 overlay84Atan2(f32 x, f32 z);
  * spills the call-live node at sp+0x24 instead of retail's sp+0x1C. A bounded
  * two-worker permuter batch improved cost only by making the current wrap
  * assignment unconditional, so that semantically invalid form was rejected. */
+/* Object-level reproof: instruction-words-identical, 0 differing words, first
+ * mismatch none; the 82-instruction, frame -48 shape is exact and permuter-ready.
+ * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void overlay84AdvanceCurrent(s32 direction) {
     Overlay84Object *object;
