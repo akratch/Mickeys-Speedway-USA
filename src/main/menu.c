@@ -1177,9 +1177,9 @@ s32 frontGetScreenMode(void) {
 }
 #ifdef NON_MATCHING
 /* Workbench: allocation-mismatch, exact 32-instruction shape, five register words from +0xC.
- * Fresh pool-position probes and a four-variant basin census kept 5/32 best; the target's
- * v1/v0 pool order versus the candidate's v0/v1 order remains, with one ring-only t6 web.
- * No instrumented IDO is configured in this lane, so the assembly fallback stays canonical. */
+ * An instrumented five-web trace and forced-color oracle close the v1/v0 pool inversion;
+ * using modeBits for both field tests then reaches 31/32. The last comparison carrier is
+ * ring-only and unreachable by globalcolor, so the assembly fallback stays canonical. */
 /* PROVENANCE: mask, state guard, and order compared with JFG's public
  * src/menu.c::frontSetScreenMode; packed fields derived from Mickey. */
 void func_8003A2C8(s32 screenMode) {

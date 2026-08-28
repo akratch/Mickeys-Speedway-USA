@@ -38,7 +38,7 @@ Updated as the permuter campaign and analysis proceed.
 | Function | TU | Class | Evidence / note | Status |
 |---|---|---|---|---|
 | `func_8002C94C` | saves | **P** | globalcolor s5/s6 inversion; permuter base 40 → **0** | ✅ matched (permuter) |
-| `func_8003A2C8` | menu | **P!** | pool-position plateau: 5/32 at first +0xC; four-variant basin census collapsed to 3 objects, with v1/v0 inversion and one ring-only t6 web remaining | handoff |
+| `func_8003A2C8` | menu | **P!** | five-web trace: forced v1/v0 plus shared `modeBits` reaches 1/32; last memory-first comparison carrier is ring-only and not color-reachable | handoff |
 | `func_8002CF6C` | saves | **P** | same-length ring permutation | grinding |
 | `func_80020D8C` | models | **P** | +2 ring phase shift | queued |
 | `func_8001A154` | lights | **P** (was mis-called **W**) | permuter cracked it: drop the redundant `& 0xFFFFU` blue mask (phantom ring pop) + fold `flare.scaledSize`. The 'no source lever' verdict was a FALSE FLOOR. | ✅ matched (permuter) |
