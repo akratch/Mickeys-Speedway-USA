@@ -133,8 +133,11 @@ extern u64 rspbootTextEnd[];
 #ifdef NON_MATCHING
 extern u8 D_8007A4F8[];
 extern u8 D_8007A540[];
-extern s32 func_800348D4(RcpTextureInfo *texture, s32 frame);
-extern void func_80034910(void *arg0);
+extern u8 D_8007A588[];
+extern u8 D_8007A5C0[];
+extern u8 D_8007A600[];
+extern s32 func_800348D4(void *texture, s32 frame, ...);
+extern void func_80034910(void *, ...);
 #endif
 
 OSMesgQueue *osScGetInterruptQ(OSSched *scheduler);
@@ -665,4 +668,144 @@ void func_8002F618(RcpCommand **arg0, RcpTextureNode *arg1, s32 arg2,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002F618.s")
 #endif
+#ifdef NON_MATCHING
+/* PROVENANCE -- the scaled rectangle loop is adapted from Diddy Kong Racing's
+ * public src/rcp_dkr.c:texrect_draw_scaled. Mickey's target field offsets,
+ * helper calls, and command layout are retained as the controlling evidence. */
+/* Workbench verdict: structure-mismatch; 358 differing words, first mismatch +0x0.
+ * Target 359 instructions/frame -224; candidate 355 instructions/frame -200.
+ * Remaining gap is command-pointer schedule and 24-byte frame layout; not shape-exact. */
+void func_8002FB34(RcpCommand **arg0, RcpTextureNode *arg1, f32 arg2,
+                   f32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7) {
+    RcpTextureInfo *tex;
+    RcpCommand *cmd;
+    RcpCommand *rectCmd;
+    RcpCommand *scissorCmd;
+    RcpTextureNode *element;
+    s32 bFlipX;
+    s32 bFlipY;
+    s32 s;
+    s32 t;
+    s32 dsdx;
+    s32 dtdy;
+    s32 ulx;
+    s32 uly;
+    s32 lrx;
+    s32 lry;
+    s32 xPos4x;
+    s32 yPos4x;
+    s32 width;
+    s32 height;
+    s32 countMinusOne;
+    f32 xScale;
+    f32 yScale;
+    u8 *dmaDlist;
+
+    width = 0;
+    height = 0;
+    viGetCurrentSize(&width, &height);
+    height *= 4;
+    width *= 4;
+    if ((arg6 & 0xFF) == 0xFF) {
+        dmaDlist = D_8007A5C0 + ((arg7 & 0xFF) * 0x10);
+    } else {
+        dmaDlist = D_8007A600 + ((arg7 & 0xFF) * 0x10);
+    }
+
+    cmd = *arg0;
+    cmd->w0 = 0x06000000;
+    cmd->w1 = (u32)D_8007A588;
+    cmd++;
+    cmd->w0 = 0x07020010;
+    cmd->w1 = (u32)dmaDlist + 0x80000000U;
+    cmd++;
+    cmd->w0 = 0xFA000000;
+    cmd->w1 = (u32)arg6;
+    cmd++;
+
+    bFlipX = arg7 & 0x1000;
+    bFlipY = arg7 & 0x2000;
+    xScale = arg4 * 4.0f;
+    yScale = arg5 * 4.0f;
+    xPos4x = (s32)(arg2 * 4.0f);
+    yPos4x = (s32)(arg3 * 4.0f);
+
+    for (element = arg1; (tex = element->texture) != NULL; element++) {
+        if (!bFlipX) {
+            ulx = (s32)((f32)element->x * xScale) + xPos4x;
+        } else {
+            lrx = xPos4x - (s32)((f32)element->x * xScale);
+            ulx = lrx - (s32)(tex->width * xScale);
+        }
+        if (!bFlipY) {
+            uly = (s32)((f32)element->y * yScale) + yPos4x;
+        } else {
+            lry = yPos4x - (s32)((f32)element->y * yScale);
+            uly = lry - (s32)(tex->height * yScale);
+        }
+        if ((ulx < width) && (uly < height)) {
+            if (!bFlipX) {
+                lrx = (s32)(tex->width * xScale) + ulx;
+            }
+            if (!bFlipY) {
+                lry = (s32)(tex->height * yScale) + uly;
+            }
+            if ((lrx > 0) && (lry > 0) && (ulx < lrx) && (uly < lry)) {
+                dsdx = ((tex->width - 1) << 12) / (lrx - ulx);
+                if (bFlipX) {
+                    s = (tex->width - 1) << 5;
+                    dsdx = -dsdx;
+                } else {
+                    s = 0;
+                }
+                dtdy = ((tex->height - 1) << 12) / (lry - uly);
+                if (bFlipY) {
+                    t = (tex->height - 1) << 5;
+                    dtdy = -dtdy;
+                } else {
+                    t = 0;
+                }
+                if (ulx < 0) {
+                    s += (-ulx * dsdx) >> 7;
+                    ulx = 0;
+                }
+                if (uly < 0) {
+                    t += (-uly * dtdy) >> 7;
+                    uly = 0;
+                }
+                cmd->w0 = *tex->data;
+                cmd->w1 = func_800348D4(tex, element->packedOffset, NULL,
+                                        (void **)element) + 0x80000000U;
+                cmd++;
+                countMinusOne = tex->count - 1;
+                cmd->w0 = (((countMinusOne & 0xFF) << 16) |
+                           0x07000000 | ((countMinusOne * 8) & 0xFFFF));
+                cmd->w1 = (u32)(tex->data + 2) + 0x80000000U;
+                cmd++;
+                rectCmd = cmd;
+                rectCmd->w0 = ((lrx & 0xFFF) << 12) |
+                               0xE4000000 | (lry & 0xFFF);
+                rectCmd->w1 = ((ulx & 0xFFF) << 12) | (uly & 0xFFF);
+                cmd++;
+                scissorCmd = cmd;
+                scissorCmd->w0 = 0xB3000000;
+                scissorCmd->w1 = (s << 16) | (t & 0xFFFF);
+                cmd++;
+                cmd->w0 = 0xB2000000;
+                cmd->w1 = (dsdx << 16) | (dtdy & 0xFFFF);
+                cmd++;
+            }
+        }
+    }
+    cmd->w0 = 0xE7000000;
+    cmd->w1 = 0;
+    cmd++;
+    cmd->w0 = 0xFA000000;
+    cmd->w1 = -1;
+    cmd++;
+    *arg0 = cmd;
+    func_80034910((void *)(s32)countMinusOne, rectCmd, scissorCmd, element);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002FB34.s")
+#endif
