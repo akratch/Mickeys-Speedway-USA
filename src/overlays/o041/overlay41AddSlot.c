@@ -17,9 +17,10 @@ typedef struct Overlay41Slot {
 extern Overlay41Slot gOverlay41Slots[];
 extern f32 D_0[];
 
-/* Workbench: register-permutation; 6/55 words remain, first +0x10.
- * Lever: D_0[0x15] constant-anchor audit and bounded 30m permutation; its best winner was semantically invalid, and a1/v1 plus at/sp stayed crossed.
- * Remains: one downstream forced-color allocation outcome; canonical assembly stays. */
+/* Workbench (2026-08-28): register-permutation; 6/55 words remain, first +0x10.
+ * The remaining initializer made a 30-word structural regression; inner-scoped bytes is baseline-equivalent.
+ * Trace-only p2:w7=c4 fixes the a1/v1 exchange but leaves the at/sp pair (2 words); diagnostic only, never promotable.
+ * Remains: a source-unattributed globalcolor outcome; canonical assembly stays. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0001650_1888988(void *object, volatile s32 value1,
                                        s32 value3, s32 value5, s32 value7,
