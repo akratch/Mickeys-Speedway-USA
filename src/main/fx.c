@@ -26,7 +26,82 @@ void func_80046E70(FxCone *cone) {
     }
     mmFree(cone);
 }
+/* Workbench: structure-mismatch; 70 words differ, first mismatch +0x0. */
+/* Candidate is not shape-exact: 112/110 instructions; frame -72/-72 bytes. */
+/* Remaining gap is stack-slot/field ordering and register allocation. */
+#ifdef NON_MATCHING
+extern void *func_8002B280(s32 size, s32 tag);
+extern void *func_80034448(s32 resourceId);
+extern void func_800470B0(FxCone *, s16, s16, s16, s32, s32,
+                          f32, f32, f32);
+extern void func_80047304(FxCone *, s16, s16, s16, s32, s32,
+                          f32, f32, f32);
+extern void func_800475E8(FxCone *, s16);
+
+void *func_80046EC4(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
+                    f32 arg5, f32 arg6, f32 arg7, s32 arg8, s32 arg9,
+                    s32 argA) {
+    s32 sp44;
+    s32 sp40;
+    s32 sp38;
+    s32 temp_a0;
+    FxCone *cone;
+    u8 *temp_v0_2;
+    u8 *temp_v1;
+
+    sp38 = arg8 & 0x80;
+    arg8 = arg8 & 0x7F;
+    if (arg8 == 0) {
+        sp44 = 0x280;
+        sp40 = 0x154;
+    } else {
+        sp44 = arg8 * 0x10;
+        sp40 = (arg8 * 0xA) + 0xA;
+    }
+    cone = (FxCone *) func_8002B280(sp44 + (sp40 * 2) + 0x38, 0x87);
+    if (cone != NULL) {
+        if (arg9 >= 0) {
+            cone->texture.value = (s32) func_80034448(arg9);
+        } else {
+            cone->texture.value = 0;
+        }
+        if (argA >= 0) {
+            cone->alternateTexture.value = (s32) func_80034448(argA);
+        } else {
+            cone->alternateTexture.value = 0;
+        }
+        temp_v0_2 = (u8 *) cone + 0x38;
+        cone->vertices = temp_v0_2;
+        temp_a0 = arg8 + 1;
+        temp_v1 = temp_v0_2 + sp44;
+        cone->addresses[0] = temp_v1;
+        cone->addresses[1] = temp_v1 + sp40;
+        cone->mode = temp_a0;
+        cone->segmentCount = arg8;
+        cone->addressIndex = 0;
+        cone->flags = sp38;
+        cone->value22 = arg4;
+        cone->value20 = arg3;
+        cone->value24 = (s16) (s32) arg7;
+        cone->value1C = arg6;
+        cone->value18 = arg5;
+        cone->value2A = arg2;
+        cone->value28 = arg1;
+        cone->value26 = arg0;
+        if (temp_a0 == 1) {
+            func_80047304(cone, arg0, arg1, arg2, (s32) arg3,
+                          (s32) arg4, arg5, arg6, arg7);
+        } else {
+            func_800470B0(cone, arg0, arg1, arg2, (s32) arg3,
+                          (s32) arg4, arg5, arg6, arg7);
+        }
+        func_800475E8(cone, 0);
+    }
+    return cone;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80046EC4.s")
+#endif
 void func_8004707C(FxCone *cone, s32 value2C, s32 value2D, s32 value2E,
                    s32 value30, s32 value31, s32 value32) {
     if (cone != 0) {
