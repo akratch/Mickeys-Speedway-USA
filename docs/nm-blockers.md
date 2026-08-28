@@ -306,7 +306,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_046_F0001228_188F620` | `src/overlays/o046/func_overlay_046_F0001228_188F620.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_046_F0000120_188E518` | `src/overlays/o046/overlay46UpdateSequence.c` | resolved-plateau | overlay 46 switch table | TU-owned +0x364..+0x378 .rodata clears module growth; code generation remains. |
 | `func_overlay_047_F0000000_1890E18` | `src/overlays/o047/func_overlay_047_F0000000_1890E18.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_047_F0000B30_1891948` | `src/overlays/o047/func_overlay_047_F0000B30_1891948.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_047_F0000B30_1891948` | `src/overlays/o047/func_overlay_047_F0000B30_1891948.c` | resolved-plateau | overlay 47 switch table | Candidate pool rebinds to retained +0x56C..+0x584 data; 2159-word codegen plateau remains. |
 | `func_overlay_047_F00009D0_18917E8` | `src/overlays/o047/overlay47ReleaseResources.c` | resolved-plateau | overlay 47 entry/resource block | Resource block is TU-owned; local address binding remains. |
 | `func_overlay_048_F0000060_1895468` | `src/overlays/o048/overlay48InitializeState.c` | resolved-plateau | overlay 48 seed/state block | BSS block is TU-owned; initializer structure remains. |
 | `func_overlay_048_F0000144_189554C` | `src/overlays/o048/overlay48UpdateState.c` | none | — | No ownership change; continue source/codegen work. |

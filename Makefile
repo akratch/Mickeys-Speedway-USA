@@ -2296,6 +2296,17 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47SpawnObject.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o047/overlay47ReleaseResources.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x160
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/func_overlay_047_F0000B30_1891948.c.o: \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
+# The compiler's six-entry table is the same table retained in overlay 47's
+# initialized aggregate at runtime-local +0x56C. Rebind the text pair to that
+# owner and discard only the duplicate private section.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o047/func_overlay_047_F0000B30_1891948.c.o: POSTPROCESS = \
+	$(OBJCOPY) --add-symbol overlay47DispatchSwitchTable=0x56C,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0xF04:.rodata:overlay47DispatchSwitchTable \
+		0xF0C:.rodata:overlay47DispatchSwitchTable && \
+	$(OBJCOPY) --remove-section=.rodata $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o047/func_overlay_047_F0000000_1890E18.c.o: CFLAGS += \
 	-Wo,-loopunroll,0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o047/func_overlay_047_F0000000_1890E18.c.o: POSTPROCESS = \

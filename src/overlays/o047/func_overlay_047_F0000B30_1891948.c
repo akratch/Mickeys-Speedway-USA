@@ -8,6 +8,9 @@ typedef s32 M2C_UNK;
 /* NON_MATCHING p4 plateau: workbench structure-mismatch; exact-TU candidate 2845 vs 2168 instructions, 2833 raw words different, frames -0x320/-0x280, first +0x0.
  * Levers: exact flag/context parity, constant audit, and context lint; 1653 alignment gaps and 981 relocation-symbol differences leave a real size/shape mismatch.
  * Remains: collapsed external call/data relocations and unknown object types; GLOBAL_ASM remains canonical. */
+/* Ownership trial (2026-08-28): the six-entry pool is rebound to retained
+ * overlay data +0x56C..+0x584 and removed from this TU's initialized output.
+ * Linked promotion remains text-differs with 2159 in-range words, first +0x0; codegen is the gap. */
 #ifdef NON_MATCHING
 s16 overlay47ExternalReloc(); /* extern; the scaffold collapses several callees */
 M2C_UNK func_overlay_047_F0002D10_1893B28(void *);  /* extern */
