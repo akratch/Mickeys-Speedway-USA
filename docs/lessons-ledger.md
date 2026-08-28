@@ -226,3 +226,13 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
   alias and values it -- see the 2026-08-28 entry, which also corrects the
   trampoline half of this note: the module's own table stores `jal 0`, and
   `0C00CCE8` belongs to the resident `mainRelocTable`.
+- **Overlay promotion-trial classes after the generator (2026-08-28 19:40):**
+  209/279 candidates measurable (165 text-differs — 21 ≤4 words, 13 at 5–8,
+  32 at 9–16; 44 text-size-differs), 70 build errors: 54
+  `schedule-divergence-at-site` (real codegen at a relocation site) and 16
+  `rom-size`, which is the rodata-ownership class (the promoted TU emits its
+  own `.rodata` — jump table or float pool — where retail's module holds it
+  at a fixed offset; the yaml `.rodata` ownership carve is the lever, as on
+  the six resident functions in August). Route: ≤8-word → permuter with the
+  annotated target / hand levers; rom-size → ownership carve; divergence →
+  reshape.
