@@ -1486,9 +1486,9 @@ build_routes:
 #ifdef NON_MATCHING
 s32 func_8000DDE4(u8 keyArg, s32 recordCount, s32 recordsArg, s32 matchesArg) {
     /* Parameter types follow the top-level prototype the matched callers use. */
-    s32 key = keyArg;
-    TrackKeyRecord *records = (TrackKeyRecord *) recordsArg;
-    TrackKeyRecord **matches = (TrackKeyRecord **) matchesArg;
+    s32 key;
+    TrackKeyRecord **matches;
+    TrackKeyRecord *records;
     s32 recordIndex;
     s32 matchCount;
     s32 passCount;
@@ -1500,6 +1500,9 @@ s32 func_8000DDE4(u8 keyArg, s32 recordCount, s32 recordsArg, s32 matchesArg) {
     s32 currentValue;
     s32 nextValue;
 
+    key = keyArg;
+    matches = (TrackKeyRecord **) matchesArg;
+    records = (TrackKeyRecord *) recordsArg;
     matchCount = 0;
     for (recordIndex = 0; recordIndex < recordCount; recordIndex++) {
         if (records[recordIndex].key == key) {
@@ -2130,6 +2133,9 @@ void func_8000FA2C(s32 *result, s32 arg1) {
  * nearest-height selection structure. Mickey's bounds are inclusive and its
  * TrackData layout, function boundary, and bytes remain authoritative.
  */
+/* Workbench verdict: structure-mismatch, 43 differing words, first mismatch +0x1c. */
+/* Candidate is not shape-exact: target/candidate are 62/62 instructions with equal -0x10 frames. */
+/* Structural gap: the bounding-box predicate and temporary lifetime still diverge before the height comparison. */
 s32 func_8000FAE0(f32 x, f32 y, f32 z) {
     s16 segmentCount;
     s16 yLower;
@@ -3320,8 +3326,8 @@ s32 func_80012574(TrackVec3f *origin, TrackVec3f *direction,
     f32 temp_f0_2;
     f32 temp_f12;
     f32 temp_f14;
-    f32 temp_f16;
     f32 temp_f18;
+    f32 temp_f16;
     f32 temp_f2;
     f32 temp_f2_2;
     s32 var_v1;
