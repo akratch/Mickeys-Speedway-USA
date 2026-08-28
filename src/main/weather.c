@@ -97,6 +97,24 @@ typedef struct WeatherParticle {
     u8 index;
 } WeatherParticle;
 
+typedef struct RainSplash {
+    u8 pad0[6];
+    s16 state;
+    u8 pad8[4];
+    f32 x;
+    f32 height;
+    f32 z;
+    s16 alpha;
+    u8 pad1A[0xE];
+    f32 age;
+} RainSplash;
+
+typedef struct RainHeight {
+    f32 height;
+    u8 pad4[8];
+    s8 type;
+} RainHeight;
+
 typedef struct WeatherVertex {
     s16 x;
     s16 y;
@@ -152,7 +170,16 @@ extern Camera *D_800D40DC;
 extern Matrix *D_800D40E0;
 extern WeatherVertex *D_8007C3C4;
 extern s32 D_8007C3C8;
+extern RainSplash D_8007C3E4[16];
 extern s32 D_8007C6E8;
+extern f32 D_8007C6C8;
+extern f32 D_8007C6CC;
+extern f32 D_8007C6D0;
+extern f32 D_8007C6D4;
+extern f32 D_8007C6D8;
+extern f32 D_8007C6DC;
+extern f32 D_8007C6E0;
+extern f32 D_8007C6E4;
 extern s32 D_8007C6EC;
 extern s32 D_8007C6F0;
 extern s32 D_8007C6F4;
@@ -168,9 +195,14 @@ extern WeatherTexture *D_8007C718;
 extern s32 D_8007C71C;
 extern void *D_8007C720;
 extern void *D_800D40E4;
+extern f32 D_80082830;
 extern s32 osTvType;
 
 extern s32 func_800299E8(s32 min, s32 max);
+extern void *func_80005820(s32 arg0);
+extern s32 func_8001398C(f32 x, f32 z, s32 arg2, RainHeight ***arg3);
+extern void func_80023A08(Gfx **dList, Mtx **matrix, WeatherVertex **vertices,
+                           RainSplash *splash, void *texture, s32 arg5, s32 arg6);
 extern s32 mathRnd(s32 min, s32 max);
 extern void *func_8002B280(s32 size, s32 tag);
 extern Camera *camGetPtr(void);
@@ -707,7 +739,167 @@ void rain_update(s32 updateRate) {
     rain_render_splashes(updateRate);
     rain_lightning(updateRate);
 }
+/*
+ * PROVENANCE: the rain-splash control flow and display-list idioms were
+ * cross-checked against Jet Force Gemini's public weather.c donor; Mickey's
+ * globals, thresholds, fields, and call sequence are reconstructed here.
+ */
+/* Workbench: structure-mismatch, 386 differing words, first mismatch +0x0. */
+/* Structural gap: target 404 instructions/frame -0xB8 versus candidate 398/-0xB0; the incoming rate spill and six instruction tail are unresolved. */
+/* Not shape-exact or permuter-ready; rain-splash update and display-list control flow are represented. */
+#ifdef NON_MATCHING
+void rain_render_splashes(s32 updateRate) {
+    RainSplash *splash;
+    RainSplash *splash2;
+    void *player;
+    RainHeight **heightResult;
+    s32 density;
+    s32 delay;
+    s32 countdown;
+    s32 index;
+    s32 found;
+    s32 temp;
+    f32 radius;
+    f32 x;
+    f32 z;
+    f32 age;
+    Gfx *cmd;
+    s16 *vertex;
+
+    if ((D_8007C714 != NULL) && (D_8007C718 != NULL)) {
+        density = ((D_8007C6F8 >> 2) * D_8007C6EC) >> 14;
+        if (density >= 0x4001) {
+            player = func_80005820(0);
+            if (player != NULL) {
+                countdown = D_8007C710 - updateRate;
+                D_8007C710 = countdown;
+                if (countdown <= 0) {
+                    do {
+                        found = 0;
+                        splash = D_8007C3E4;
+                        index = 0x10;
+                        do {
+                            index--;
+                            if (splash->state == 0) {
+                                found = 1;
+                            } else {
+                                splash++;
+                            }
+                        } while ((index > 0) && (found == 0));
+                        if (found != 0) {
+                            temp = func_800299E8(0, 0xFFFF);
+                            radius = (f32) func_800299E8(0x26, 0xFF);
+                            x = (func_8002A8C0(temp) * radius) + *(f32 *)((u8 *)player + 0xC);
+                            z = (func_8002A8BC(temp) * radius) + *(f32 *)((u8 *)player + 0x14);
+                            if (func_8001398C(x, z, 0x800, &heightResult) != 0) {
+                                splash->x = x;
+                                splash->z = z;
+                                splash->state = 1;
+                                splash->age = 0.0f;
+                                splash->alpha = (s16) mathRnd(0x40, (density >> 10) + 0x60);
+                                splash->height = (*heightResult)->height;
+                                if ((*heightResult)->type == (s8) 1) {
+                                    splash->state++;
+                                }
+                            }
+                        }
+                        temp = D_8007C710 + 2;
+                        D_8007C710 = temp;
+                        if (temp >= 0) {
+                            temp = (temp - (density >> 10)) + 0x40;
+                            D_8007C710 = temp;
+                            if (temp < 0) {
+                                D_8007C710 = 0;
+                                temp = 0;
+                            }
+                        }
+                    } while (temp <= 0);
+                }
+            }
+        }
+        cmd = D_800D40CC;
+        D_800D40CC = cmd + 1;
+        cmd->w0 = 0xFB000000;
+        cmd->w1 = (u32) -0x100;
+        age = D_80082830;
+        index = 0;
+        splash2 = D_8007C3E4;
+        do {
+            if (splash2->state != 0) {
+                splash2->age += (f32) updateRate * age;
+                if (splash2->age < 4.0f) {
+                    if (splash2->state == 1) {
+                        cmd = D_800D40CC;
+                        D_800D40CC = cmd + 1;
+                        cmd->w0 = 0xFA000000;
+                        cmd->w1 = (u32) ((splash2->alpha & 0xFF) | ~0xFF);
+                        func_80023A08(&D_800D40CC, &D_800D40D0, &D_800D40D4,
+                                      splash2, D_8007C714, 0xE, 0);
+                    } else {
+                        func_800349A4(&D_800D40CC, D_8007C718, 0xE, 0);
+                        cmd = D_800D40CC;
+                        D_800D40CC = cmd + 1;
+                        cmd->w0 = 0xFA000000;
+                        cmd->w1 = 0xC0E0FFFF;
+                        cmd = D_800D40CC;
+                        D_800D40CC = cmd + 1;
+                        cmd->w0 = (((((s32) D_800D40D4 + 0x80000000) & 6) | 0x20) << 16) |
+                                   0x04000030;
+                        cmd->w1 = (u32) ((s32) D_800D40D4 + 0x80000000);
+                        cmd = D_800D40CC;
+                        D_800D40CC = cmd + 1;
+                        cmd->w0 = 0x05110020;
+                        cmd->w1 = (u32) (D_800D40D4 + 0x80000000);
+
+                        D_800D40D4->x = (s16) (D_8007C6C8 * splash2->age + splash2->x);
+                        D_800D40D4->y = (s16) splash2->height;
+                        D_800D40D4->z = (s16) (D_8007C6D8 * splash2->age + splash2->z);
+                        D_800D40D4->r = 0xFF;
+                        D_800D40D4->g = 0xFF;
+                        D_800D40D4->b = 0xFF;
+                        D_800D40D4->a = 0xFF;
+                        D_800D40D4++;
+                        D_800D40D4->x = (s16) (D_8007C6CC * splash2->age + splash2->x);
+                        D_800D40D4->y = (s16) splash2->height;
+                        D_800D40D4->z = (s16) (D_8007C6DC * splash2->age + splash2->z);
+                        D_800D40D4->r = 0xFF;
+                        D_800D40D4->g = 0xFF;
+                        D_800D40D4->b = 0xFF;
+                        D_800D40D4->a = 0xFF;
+                        D_800D40D4++;
+                        D_800D40D4->x = (s16) (D_8007C6D0 * splash2->age + splash2->x);
+                        D_800D40D4->y = (s16) splash2->height;
+                        D_800D40D4->z = (s16) (D_8007C6E0 * splash2->age + splash2->z);
+                        D_800D40D4->r = 0xFF;
+                        D_800D40D4->g = 0xFF;
+                        D_800D40D4->b = 0xFF;
+                        D_800D40D4->a = 0xFF;
+                        D_800D40D4++;
+                        D_800D40D4->x = (s16) (D_8007C6D4 * splash2->age + splash2->x);
+                        D_800D40D4->y = (s16) splash2->height;
+                        D_800D40D4->z = (s16) (D_8007C6E4 * splash2->age + splash2->z);
+                        D_800D40D4->r = 0xFF;
+                        D_800D40D4->g = 0xFF;
+                        D_800D40D4->b = 0xFF;
+                        D_800D40D4->a = 0xFF;
+                        D_800D40D4++;
+                    }
+                } else {
+                    splash2->state = 0;
+                }
+            }
+            index++;
+            splash2++;
+        } while (index != 0x10);
+        cmd = D_800D40CC;
+        D_800D40CC = cmd + 1;
+        cmd->w0 = 0xFA000000;
+        cmd->w1 = (u32) -1;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/rain_render_splashes.s")
+#endif
 /*
  * PROVENANCE -- body adapted from Diddy Kong Racing's and Jet Force Gemini's
  * public retail-derived src/weather.c::rain_lightning. Mickey's thresholds,
