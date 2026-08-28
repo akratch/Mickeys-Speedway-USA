@@ -3331,7 +3331,216 @@ s32 func_80010900(TrackVec3f *arg0, TrackVec3f *arg1, f32 arg2, s32 arg3,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010900.s")
 #endif
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: Mickey's m2c collision-response draft and the resident ray
+ * helper declarations reconstruct this player-intersection loop; no external
+ * function body is adapted. The record writes retain the assembly offsets.
+ */
+/* Workbench verdict: structure-mismatch, 677 differing words, first mismatch +0x0. */
+/* Candidate is 644/678 instructions with the target -0x148 frame; it is not shape-exact. */
+/* Remaining gap: 34 missing instructions and unresolved unrolled-copy/record-call scheduling. */
+struct TrackCollisionSurface;
+struct TrackCollisionRecord;
+extern void func_800115E4(
+    s32 mode, TrackVec3f *position, TrackVec3f *offset, f32 scale,
+    struct TrackCollisionSurface *surface,
+    struct TrackCollisionRecord *record);
+
+#define B4C_U8(base, offset) (*(u8 *) ((u8 *) (base) + (offset)))
+#define B4C_S32(base, offset) (*(s32 *) ((u8 *) (base) + (offset)))
+#define B4C_F32(base, offset) (*(f32 *) ((u8 *) (base) + (offset)))
+
+s32 func_80010B4C(s32 arg0, void *arg1, f32 *arg2, f32 *arg3,
+                  s32 arg4, void *arg5) {
+    f32 relative[16];
+    TrackRayPoint direction;
+    TrackRayHit intersection;
+    u8 *start;
+    u8 *end;
+    u8 *record;
+    f32 lengthSquared;
+    f32 length;
+    f32 offsetX;
+    f32 offsetY;
+    f32 offsetZ;
+    f32 minimumLength;
+    s32 minimumIndex;
+    s32 count;
+    s32 index;
+    s32 attempt;
+    s32 bit;
+    s32 collisionMask;
+    s32 resultMask;
+    s32 collision;
+    s32 queryResult;
+    s32 auxiliaryResult;
+
+    if (arg5 != NULL) {
+        offsetX = B4C_F32(arg5, 0);
+        offsetY = B4C_F32(arg5, 4);
+        offsetZ = B4C_F32(arg5, 8);
+        for (index = 0; index < arg0; index++) {
+            relative[index * 3] =
+                ((f32 *) arg2)[index * 3] - offsetX;
+            relative[(index * 3) + 1] =
+                ((f32 *) arg2)[(index * 3) + 1] - offsetY;
+            relative[(index * 3) + 2] =
+                ((f32 *) arg2)[(index * 3) + 2] - offsetZ;
+        }
+    }
+    count = 0;
+    if (arg0 > 0) {
+        for (index = 0; index < arg0; index++) {
+            record = (u8 *) ((u32) arg4 + (index * 0x40));
+            B4C_U8(record, 0) = 0;
+            B4C_U8(record, 0x3D) = 0;
+            B4C_F32(record, 4) = 0.0f;
+            B4C_F32(record, 8) = 0.0f;
+            B4C_F32(record, 0xC) = 0.0f;
+            B4C_F32(record, 0x10) = 0.0f;
+            B4C_F32(record, 0x14) = 0.0f;
+            B4C_F32(record, 0x18) = 0.0f;
+            B4C_F32(record, 0x1C) = 0.0f;
+            B4C_F32(record, 0x20) = 0.0f;
+            B4C_F32(record, 0x24) = 0.0f;
+            B4C_F32(record, 0x28) = 0.0f;
+            B4C_F32(record, 0x2C) = 0.0f;
+            B4C_F32(record, 0x30) = 0.0f;
+            B4C_F32(record, 0x34) = 32000.0f;
+            B4C_S32(record, 0x38) = 0;
+            B4C_U8(record, 0x3C) = 0;
+        }
+    }
+    resultMask = 0;
+    attempt = 0;
+    collisionMask = 0;
+    do {
+        collisionMask = 0;
+        bit = 1;
+        for (index = 0; index < arg0; index++) {
+            start = (u8 *) arg1 + (index * 0xC);
+            end = (u8 *) arg2 + (index * 0xC);
+            direction.x = B4C_F32(end, 0) - B4C_F32(start, 0);
+            direction.y = B4C_F32(end, 4) - B4C_F32(start, 4);
+            direction.z = B4C_F32(end, 8) - B4C_F32(start, 8);
+            lengthSquared = (direction.z * direction.z) +
+                            ((direction.x * direction.x) +
+                             (direction.y * direction.y));
+            collision = 0;
+            if (lengthSquared > 0.0f) {
+                length = sqrtf(lengthSquared);
+                direction.x /= length;
+                direction.y /= length;
+                direction.z /= length;
+                if (D_800C9D28 != 0) {
+                    queryResult = func_80011980(
+                        (TrackRayPoint *) start, (TrackRayPoint *) end,
+                        &direction, length, arg3[index], 0.0f,
+                        &intersection);
+                } else {
+                    queryResult = func_80011980(
+                        (TrackRayPoint *) start, (TrackRayPoint *) end,
+                        &direction, length, arg3[index], arg3[index],
+                        &intersection);
+                }
+                auxiliaryResult = 0;
+                if (D_800C9D28 != 0) {
+                    auxiliaryResult = func_80011CDC(
+                        start, (u8 *) &direction, arg3[index],
+                        (u8 *) &intersection);
+                }
+                if ((queryResult | auxiliaryResult) != 0) {
+                    record = (u8 *) ((u32) arg4 + (index * 0x40));
+                    func_800115E4(
+                        (s32) start, (TrackVec3f *) end, &direction, length,
+                        (struct TrackCollisionSurface *) &intersection,
+                        (struct TrackCollisionRecord *) record);
+                    B4C_F32(record, 0x34) = length;
+                    collision = 1;
+                    collisionMask |= bit;
+                }
+            }
+            if (collision != 0) {
+                count++;
+                if (count >= 0xB) {
+                    collisionMask = 0;
+                    collision = 0;
+                    resultMask |= 0x40000000;
+                    for (index = index; index < arg0; index++) {
+                        ((f32 *) arg2)[index * 3] =
+                            ((f32 *) arg1)[index * 3];
+                        ((f32 *) arg2)[(index * 3) + 1] =
+                            ((f32 *) arg1)[(index * 3) + 1];
+                        ((f32 *) arg2)[(index * 3) + 2] =
+                            ((f32 *) arg1)[(index * 3) + 2];
+                    }
+                    break;
+                }
+            }
+            bit <<= 1;
+        }
+        if (((collisionMask != 0) && (attempt >= 0xB)) ||
+            (resultMask != 0)) {
+            for (index = 0; index < arg0; index++) {
+                ((f32 *) arg2)[index * 3] =
+                    ((f32 *) arg1)[index * 3];
+                ((f32 *) arg2)[(index * 3) + 1] =
+                    ((f32 *) arg1)[(index * 3) + 1];
+                ((f32 *) arg2)[(index * 3) + 2] =
+                    ((f32 *) arg1)[(index * 3) + 2];
+            }
+            collisionMask = 0;
+            if (attempt >= 0xB) {
+                resultMask |= 0x80000000;
+            }
+        } else if (collisionMask != 0) {
+            minimumLength = 32000.0f;
+            minimumIndex = 0;
+            if (arg5 != NULL) {
+                bit = 1;
+                for (index = 0; index < arg0; index++) {
+                    if ((collisionMask & bit) != 0) {
+                        record = (u8 *) ((u32) arg4 + (index * 0x40));
+                        if (B4C_F32(record, 0x34) < minimumLength) {
+                            minimumIndex = index;
+                            minimumLength = B4C_F32(record, 0x34);
+                        }
+                    }
+                    bit <<= 1;
+                }
+                record = (u8 *) ((u32) arg4 + (minimumIndex * 0x40));
+                B4C_U8(record, 0x3D) |= 1;
+                offsetX = B4C_F32(arg2, minimumIndex * 0xC) -
+                          relative[minimumIndex * 3];
+                offsetY = B4C_F32(arg2, (minimumIndex * 0xC) + 4) -
+                          relative[(minimumIndex * 3) + 1];
+                offsetZ = B4C_F32(arg2, (minimumIndex * 0xC) + 8) -
+                          relative[(minimumIndex * 3) + 2];
+                B4C_F32(arg5, 0) = offsetX;
+                B4C_F32(arg5, 4) = offsetY;
+                B4C_F32(arg5, 8) = offsetZ;
+                for (index = 0; index < arg0; index++) {
+                    B4C_F32(arg2, index * 0xC) =
+                        relative[index * 3] + offsetX;
+                    B4C_F32(arg2, (index * 0xC) + 4) =
+                        relative[(index * 3) + 1] + offsetY;
+                    B4C_F32(arg2, (index * 0xC) + 8) =
+                        relative[(index * 3) + 2] + offsetZ;
+                }
+                resultMask |= collisionMask;
+            }
+        }
+        attempt++;
+    } while ((collisionMask != 0) && ((resultMask & 0xC0000000) == 0));
+    return resultMask;
+}
+#undef B4C_U8
+#undef B4C_S32
+#undef B4C_F32
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010B4C.s")
+#endif
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: Mickey's m2c collision-response draft and resident plane and
