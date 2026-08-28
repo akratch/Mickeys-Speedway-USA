@@ -20,6 +20,27 @@ typedef struct RcpCommand {
 } RcpCommand;
 
 #ifdef NON_MATCHING
+typedef struct RcpTextureInfo {
+    u8 pad00[6];
+    u16 width;
+    u16 height;
+    u8 pad0A[4];
+    u16 tileRows;
+    u8 pad10[4];
+    u32 *data;
+    u16 count;
+} RcpTextureInfo;
+
+typedef struct RcpTextureNode {
+    RcpTextureInfo *texture;
+    RcpTextureInfo *alternate;
+    u32 packedOffset;
+    s16 x;
+    s16 y;
+} RcpTextureNode;
+#endif
+
+#ifdef NON_MATCHING
 typedef struct RcpGradientColour {
     u8 red;
     u8 green;
@@ -108,6 +129,13 @@ extern u64 D_80077AD0[];
 extern u64 D_80085240[];
 extern u64 rspbootTextEnd[];
 #pragma weak rspbootTextEnd = D_80077AD0
+
+#ifdef NON_MATCHING
+extern u8 D_8007A4F8[];
+extern u8 D_8007A540[];
+extern s32 func_800348D4(RcpTextureInfo *texture, s32 frame);
+extern void func_80034910(void *arg0);
+#endif
 
 OSMesgQueue *osScGetInterruptQ(OSSched *scheduler);
 void osWritebackDCacheAll(void);
@@ -443,5 +471,198 @@ void rcpInit(OSSched *scheduler) {
     osCreateMesgQueue(&D_800D2CD0, D_800D2CE8, 8);
     osCreateMesgQueue(&D_800D2D08, D_800D2D20, 8);
 }
+#ifdef NON_MATCHING
+/* No external donor body was used; the command stream and field offsets are
+ * reconstructed from Mickey's target assembly and local RCP idioms. */
+/* Workbench verdict: structure-mismatch; 312 differing words, first mismatch +0x34.
+ * Target 327 instructions/frame -64; candidate 288 instructions/frame -64.
+ * Remaining gap is IDO's collapsed command-pointer/store schedule; not shape-exact. */
+void func_8002F618(RcpCommand **arg0, RcpTextureNode *arg1, s32 arg2,
+                   s32 arg3, u8 arg4, u8 arg5, u8 arg6, u8 arg7) {
+    RcpCommand *temp_s0;
+    RcpCommand *temp_s0_2;
+    RcpCommand *temp_s0_3;
+    RcpCommand *temp_s0_4;
+    RcpCommand *temp_s0_5;
+    RcpCommand *temp_s0_6;
+    RcpCommand *temp_s0_7;
+    RcpCommand *temp_s0_8;
+    RcpCommand *temp_s0_9;
+    RcpCommand *temp_s0_10;
+    RcpCommand *temp_s0_11;
+    RcpCommand *temp_s0_12;
+    RcpCommand *temp_s0_13;
+    RcpCommand *temp_s0_14;
+    RcpCommand *temp_s0_15;
+    RcpCommand *temp_s0_16;
+    RcpCommand *temp_s0_17;
+    RcpCommand *temp_s0_18;
+    RcpCommand *var_s0_2;
+    RcpCommand *temp_v1;
+    RcpCommand *var_s0;
+    RcpCommand *var_a0;
+    RcpTextureInfo *temp_v0;
+    RcpTextureInfo *var_s1;
+    RcpTextureNode *var_s2;
+    s32 temp_a0;
+    s32 temp_a1;
+    s32 temp_fp;
+    s32 temp_s7;
+    s32 temp_t0;
+    s32 var_a2;
+    s32 var_a2_2;
+    s32 var_s3;
+    s32 var_s4;
+    s32 var_s5;
+    s32 var_s6;
+
+    if (arg1->texture != NULL) {
+        temp_s0 = *arg0;
+        if (arg1->alternate != NULL) {
+            var_a0 = (RcpCommand *)D_8007A540;
+        } else {
+            var_a0 = (RcpCommand *)D_8007A4F8;
+        }
+        temp_s0_2 = temp_s0 + 1;
+        temp_s0->w0 = 0x06000000;
+        temp_s0->w1 = (u32)var_a0;
+        temp_s0_2->w0 = 0xFA000000;
+        var_s0 = temp_s0_2 + 1;
+        temp_s0_2->w1 = ((u32)arg4 << 24) | ((u32)arg5 << 16) |
+                        ((u32)arg6 << 8) | arg7;
+        var_s1 = arg1->texture;
+        var_s2 = arg1;
+        arg2 *= 4;
+        arg3 *= 4;
+        if (var_s1 != NULL) {
+            do {
+                var_s3 = (var_s2->x * 4) + arg2;
+                var_s4 = (var_s2->y * 4) + arg3;
+                temp_s7 = (var_s1->width * 4) + var_s3;
+                temp_fp = (var_s1->height * 4) + var_s4;
+                if (temp_s7 > 0) {
+                    var_s5 = 0;
+                    if (temp_fp > 0) {
+                        var_s6 = 0;
+                        if (var_s3 < 0) {
+                            var_s5 = -(var_s3 * 8);
+                            var_s3 = 0;
+                        }
+                        if (var_s4 < 0) {
+                            var_s6 = -(var_s4 * 8);
+                            var_s4 = 0;
+                        }
+                        temp_v0 = var_s2->alternate;
+                        if (temp_v0 != NULL) {
+                            var_s0->w0 = 0xFD100000;
+                            temp_s0_3 = var_s0 + 1;
+                            temp_s0_4 = temp_s0_3 + 1;
+                            temp_s0_5 = temp_s0_4 + 1;
+                            temp_s0_6 = temp_s0_5 + 1;
+                            var_a2 = 0x7FF;
+                            var_s0->w1 = (u32)((((s32)var_s2->packedOffset >> 16) *
+                                                var_s1->tileRows) +
+                                               (s32)var_s1 + 0x20);
+                            temp_s0_3->w1 = 0x07020080;
+                            temp_s0_3->w0 = 0xF5100000;
+                            temp_s0_4->w1 = 0;
+                            temp_s0_4->w0 = 0xE6000000;
+                            temp_s0_5->w0 = 0xF3000000;
+                            temp_s0_7 = temp_s0_6 + 1;
+                            temp_t0 = (var_s1->width * var_s1->height) - 1;
+                            if (temp_t0 < 0x7FF) {
+                                var_a2 = temp_t0;
+                            }
+                            temp_s0_5->w1 = ((var_a2 & 0xFFF) << 12) |
+                                             0x07000000;
+                            temp_s0_6->w1 = 0;
+                            temp_s0_6->w0 = 0xE7000000;
+                            temp_s0_7->w0 = (((((var_s1->width * 2) + 7) >> 3) &
+                                              0x1FF) << 9) | 0xF5100000;
+                            temp_s0_7->w1 = 0x20080;
+                            temp_s0_8 = temp_s0_7 + 1;
+                            temp_s0_8->w0 = 0xF2000000;
+                            temp_s0_9 = temp_s0_8 + 1;
+                            temp_s0_8->w1 = (((((var_s1->width - 1) * 4) &
+                                               0xFFF) << 12) |
+                                              (((var_s1->height - 1) * 4) &
+                                               0xFFF));
+                            temp_s0_9->w0 = 0xFD900000;
+                            temp_s0_10 = temp_s0_9 + 1;
+                            temp_s0_11 = temp_s0_10 + 1;
+                            temp_s0_12 = temp_s0_11 + 1;
+                            temp_s0_13 = temp_s0_12 + 1;
+                            var_a2_2 = 0x7FF;
+                            temp_s0_9->w1 = (u32)((((s32)var_s2->packedOffset >> 16) *
+                                                  temp_v0->tileRows) +
+                                                 (s32)temp_v0 + 0x20);
+                            temp_s0_10->w1 = 0x07020080;
+                            temp_s0_10->w0 = 0xF5900100;
+                            temp_s0_11->w1 = 0;
+                            temp_s0_11->w0 = 0xE6000000;
+                            temp_s0_12->w0 = 0xF3000000;
+                            temp_s0_14 = temp_s0_13 + 1;
+                            temp_s0_15 = temp_s0_14 + 1;
+                            temp_a1 = (((s32)(temp_v0->width * temp_v0->height) +
+                                        3) >> 2) - 1;
+                            if (temp_a1 < 0x7FF) {
+                                var_a2_2 = temp_a1;
+                            }
+                            temp_s0_12->w1 = ((var_a2_2 & 0xFFF) << 12) |
+                                             0x07000000;
+                            temp_s0_13->w1 = 0;
+                            temp_s0_13->w0 = 0xE7000000;
+                            temp_s0_14->w0 = ((((((s32)temp_v0->width >> 1) + 7) >>
+                                                3) & 0x1FF) << 9) |
+                                              0xF5800100;
+                            temp_s0_14->w1 = 0x01020080;
+                            temp_s0_15->w0 = 0xF2000000;
+                            temp_s0_15->w1 = (((((temp_v0->width - 1) * 4) &
+                                               0xFFF) << 12) |
+                                              0x01000000 |
+                                              (((temp_v0->height - 1) * 4) &
+                                               0xFFF));
+                            var_s0_2 = temp_s0_15 + 1;
+                        } else {
+                            var_s0->w0 = *var_s1->data;
+                            var_s0->w1 = (u32)(func_800348D4(
+                                var_s1, var_s2->packedOffset) + 0x80000000U);
+                            temp_s0_16 = var_s0 + 1;
+                            temp_a0 = var_s1->count - 1;
+                            temp_s0_16->w0 = (((temp_a0 & 0xFF) << 16) |
+                                               0x07000000 |
+                                               ((temp_a0 * 8) & 0xFFFF));
+                            temp_s0_16->w1 = (u32)var_s1->data + 0x80000008U;
+                            var_s0_2 = temp_s0_16 + 1;
+                        }
+                        var_s0_2->w0 = ((temp_s7 & 0xFFF) << 12) |
+                                        0xE4000000 | (temp_fp & 0xFFF);
+                        var_s0_2->w1 = ((var_s3 & 0xFFF) << 12) |
+                                        (var_s4 & 0xFFF);
+                        temp_s0_17 = var_s0_2 + 1;
+                        temp_s0_17->w0 = 0xB3000000;
+                        temp_s0_18 = temp_s0_17 + 1;
+                        var_a0 = temp_s0_18;
+                        temp_s0_17->w1 = (var_s5 << 16) | (var_s6 & 0xFFFF);
+                        var_a0->w0 = 0xB2000000;
+                        var_a0->w1 = 0x04000400;
+                        var_s0 = temp_s0_18 + 1;
+                    }
+                }
+                var_s1 = var_s2[1].texture;
+                var_s2++;
+            } while (var_s1 != NULL);
+        }
+        var_s0->w0 = 0xE7000000;
+        var_s0->w1 = 0;
+        temp_v1 = var_s0 + 1;
+        temp_v1->w1 = -1;
+        temp_v1->w0 = 0xFA000000;
+        *arg0 = temp_v1 + 1;
+        func_80034910(var_a0);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002F618.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002FB34.s")
