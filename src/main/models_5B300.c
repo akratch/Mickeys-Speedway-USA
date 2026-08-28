@@ -154,9 +154,9 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
         return TRUE;
     }
 
-    modelId = firstAnimation & 3;
+    alignment = firstAnimation & 3;
     loadSize = ((model->animationCount & ~3) + 4) << 1;
-    if (modelId != 0) {
+    if (alignment != 0) {
         loadSize += 8;
     }
     piRomLoadSection(0x29, (void *)D_800D7CFC, (firstAnimation & ~3) * 2, loadSize);
@@ -166,7 +166,7 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
     }
 
     loaded = 0;
-    inputOffset = modelId * 2;
+    inputOffset = alignment * 2;
     alignment = 0;
     do {
         *(u8 **)((u8 *)model->animations + alignment) =
