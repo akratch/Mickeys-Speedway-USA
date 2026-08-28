@@ -1127,10 +1127,13 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     p.add_argument(
         "--order",
-        choices=["ranking", "queue"],
+        choices=["ranking", "trial", "queue"],
         default="ranking",
         help="ranking: closest first by config/nonmatching-ranking.us.json differing_words "
-        "(unranked last, then by name); queue: discovery order (default: ranking)",
+        "(unranked last, then by name); trial: closest first by "
+        "build/promotion-trial.json's in-range word count, which is the linked-ROM "
+        "measurement and the right order for overlays (a candidate the trial could not "
+        "link runs last); queue: discovery order (default: ranking)",
     )
     p.add_argument(
         "--resume",
@@ -1208,7 +1211,24 @@ def main(argv: list[str]) -> int:
         queue = [it for it in queue if it.overlay is not None]
     if args.function is not None:
         queue = [it for it in queue if it.func == args.function]
-    if args.order == "ranking":
+    if args.order == "trial":
+        # The trial's in-range word count is the linked-ROM distance, which is
+        # what "closest" means for an overlay; the static ranking is derived
+        # from the object and does not see the link.
+        trial: dict[str, tuple[int, int]] = {}
+        if TRIAL_JSON.is_file():
+            for row in json.loads(TRIAL_JSON.read_text()).get("results", []):
+                words = row.get("in_range_words")
+                if isinstance(words, int) and not row.get("error"):
+                    trial[row["func"]] = (words, row.get("out_of_range_bytes") or 0)
+        else:
+            print(f"note: {TRIAL_JSON.relative_to(ROOT)} does not exist; "
+                  "--order trial degenerates to name order")
+        queue.sort(key=lambda it: (trial.get(it.func, (10**9, 0)), it.func))
+        unmeasured = sum(1 for it in queue if it.func not in trial)
+        if unmeasured:
+            print(f"note: {unmeasured} queued function(s) have no trial row; they run last")
+    elif args.order == "ranking":
         rank: dict[str, tuple[int, int]] = {}
         if RANKING_PATH.is_file():
             for row in json.loads(RANKING_PATH.read_text()).get("functions", []):
