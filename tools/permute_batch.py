@@ -840,7 +840,19 @@ def commit_match(item: QueueItem) -> Optional[str]:
     string, or None. Only the function's own C file is staged, so a batch
     never sweeps unrelated working-tree changes into a match commit."""
     with PROMOTE_LOCK:
-        add = subprocess.run(["git", "add", "--", item.rel_c_file], cwd=ROOT, capture_output=True, text=True)
+        paths = [item.rel_c_file]
+        if item.overlay is not None:
+            # An overlay promotion changes the module's ownership rows; the
+            # atlas (and its digest) must be regenerated or `gmake
+            # overlay-atlas` fails and the overlay bytes are never credited.
+            for cmd in (["gmake", "overlay-atlas-write"],
+                        [str(PYTHON), "tools/refresh_atlas_digest.py"]):
+                r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=600)
+                if r.returncode != 0:
+                    return f"{' '.join(cmd)} failed: " + (r.stdout + r.stderr)[-2000:]
+            paths += ["config/overlays.us.json", "config/overlay-donors.us.json", "mickey.us.yaml"]
+            paths = [p for p in paths if (ROOT / p).exists()]
+        add = subprocess.run(["git", "add", "--", *paths], cwd=ROOT, capture_output=True, text=True)
         if add.returncode != 0:
             return "git add failed: " + add.stderr[-2000:]
         msg = (
