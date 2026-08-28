@@ -2,11 +2,11 @@
 
 This is a names-only audit of every function body guarded by `NON_MATCHING` in `src/`, reconciled with the plateau notes in `docs/resident.md` and `docs/overlays.md`. Declaration-only guards are excluded. `none` means the recorded blocker is code shape, frame, scheduling, register allocation, ABI typing, or unresolved reconstruction rather than section/TU ownership.
 
-- Guarded functions audited: 417
+- Guarded functions audited: 416
 - Structural blockers found: 39
-- Structural blockers resolved: 2
-- Structural blockers remaining: 37
-- No structural blocker: 378
+- Structural blockers resolved: 3
+- Structural blockers remaining: 36
+- No structural blocker: 377
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
 |---|---|---|---|---|
@@ -124,7 +124,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_80030910` | `src/main/sched.c` | none | — | No ownership change; continue source/codegen work. |
 | `__scHandleRetrace` | `src/main/sched.c` | none | — | No ownership change; continue source/codegen work. |
 | `__scYield` | `src/main/sched.c` | matched | — | Promoted to exact C; no ownership work remains. |
-| `__scSchedule` | `src/main/sched.c` | shared-rodata (excluded) | jtbl_800823F4 | Owned by the active sched lane; do not touch here. |
+| `__scSchedule` | `src/main/sched.c` | matched | — | Promoted to exact C with the scheduler-owned switch table. |
 | `shadowInitBuffers` | `src/main/shadows.c` | relocation-identity | D_80079410–D_8007945C | Shadows owns the exact contiguous `.data` block and the linked address is exact, but the sentinel pair binds `D_80079434 + 0xC` instead of target metadata's `D_80079440`; no C credit under ADR 0001. |
 | `func_80058250` | `src/main/vehicle_sounds.c` | bss-aggregate (excluded) | vehicle sound slots | Owned by the active vehicle_sounds lane; do not touch here. |
 | `func_8005830C` | `src/main/vehicle_sounds.c` | none | — | No ownership change; continue source/codegen work. |

@@ -868,10 +868,10 @@ $(BUILD_DIR)/$(SRC_DIR)/main/joy.c.o: POSTPROCESS = \
 		--redefine-sym joyInitRelocB7=D_800CF3B7 $@
 # The resident formatter's integer multiply/divide schedule uses R4300 timing.
 $(BUILD_DIR)/$(SRC_DIR)/main/diprint.c.o: CFLAGS += -Wab,-r4300_mul
-# osScGetTaskType owns seven table words; IDO's trailing four zero bytes are
-# object-section alignment and the following scheduler table begins immediately.
+# The scheduler TU owns osScGetTaskType's table and __scSchedule's table;
+# IDO's trailing four zero bytes follow the combined 0x38-byte input section.
 $(BUILD_DIR)/$(SRC_DIR)/main/sched.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x1C
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x38
 # JFG's source-level string migration reproduces diRcp's complete diagnostic
 # string block followed by the 0x100-byte switch-table span. The following
 # four zero bytes are output-section padding.
