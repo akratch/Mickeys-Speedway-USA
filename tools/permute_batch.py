@@ -597,6 +597,23 @@ def run_import(item: QueueItem, out_dir: Path, settings_path: Path, target_asm: 
     return scratch
 
 
+def _improved_over_base(scratch: Path, log_path: Path) -> bool:
+    """True if some output-*/score.txt is strictly below the base score.
+    The permuter also writes equal-score outputs, which are not progress."""
+    text = log_path.read_text(errors="replace") if log_path.is_file() else ""
+    m = re.search(r"base score = (\d+)", text)
+    base = int(m.group(1)) if m else None
+    for d in scratch.glob("output-*"):
+        f = d / "score.txt"
+        try:
+            score = int(f.read_text().strip())
+        except (OSError, ValueError):
+            continue
+        if base is None or score < base:
+            return True
+    return False
+
+
 def wait_for_headroom(threshold: float, label: str = "") -> None:
     """Block until the 1-minute load average is under `threshold`. The
     machine froze under an unthrottled fleet (load ~20 on 14 cores); every
@@ -669,7 +686,7 @@ def run_permuter(scratch: Path, out_dir: Path, minutes: int, threads: int, extra
                 returncode = 124
                 break
             if flat_deadline is not None and now >= flat_deadline:
-                if not any(scratch.glob("output-*")):
+                if not _improved_over_base(scratch, out_dir / log_name):
                     returncode = 125  # stopped flat
                     break
                 flat_deadline = None
@@ -1103,7 +1120,14 @@ def print_result(r: RunResult) -> None:
     if r.error:
         print(f"[{r.func}] ERROR: {r.error}")
         return
-    status = "MATCHED" if r.promoted else ("zero-found" if r.zero_found else "no improvement" if r.best_score is None else "improved")
+    if r.promoted:
+        status = "MATCHED"
+    elif r.zero_found:
+        status = "zero-found"
+    elif r.best_score is None or (r.base_score is not None and r.best_score >= r.base_score):
+        status = "flat" if r.stopped_flat else "no improvement"
+    else:
+        status = f"improved{' (extended)' if r.extended else ''}"
     print(
         f"[{r.func}] base={r.base_score} best={r.best_score} "
         f"{status} ({r.seconds:.0f}s)"
