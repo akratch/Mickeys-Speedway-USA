@@ -2198,6 +2198,13 @@ D_1F4 = 0x000001f4;
 
 /* overlay 101: overlay101DrawClock.c.o */
 D_800002D8 = 0x800002d8;
+D_E98 = 0x00000e98;
+D_E9C = 0x00000e9c;
+overlay101ClockTrigAReloc = 0xf0000000;
+overlay101ClockTrigBReloc = 0xf0000000;
+overlay101DrawPanelReloc = 0xf0000000;
+overlay101PrepareClockMaterialReloc = 0xf0000000;
+overlay101SetClockScaleReloc = 0xf0000000;
 
 /* overlay 101: overlay101DrawChain.c.o */
 overlay101BeginChainReloc = 0xf0000000;
