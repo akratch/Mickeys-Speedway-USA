@@ -18,6 +18,11 @@ typedef struct Mtx Mtx;
 typedef struct Camera Camera;
 typedef struct Matrix Matrix;
 
+struct Gfx {
+    u32 w0;
+    u32 w1;
+};
+
 struct Camera {
     s16 rotationX;
     u8 pad2[10];
@@ -187,6 +192,8 @@ extern void trackSetFog(s32 fogIndex, s16 near, s16 far, s16 targetNear,
                         u8 red, u8 green, u8 blue, s8 state);
 extern void mmFree(void *ptr);
 extern void func_800347A0(WeatherTexture *texture);
+extern Mtx *camGetProjOrgMtx(void);
+extern void func_800349A4(Gfx **dList, void *texture, s32 flags, s32 arg3);
 
 void freeWeather(void);
 void snow_init(void);
@@ -500,7 +507,75 @@ void doWeather(Gfx **arg0, Mtx **arg1, WeatherVertex **arg2, WeatherTriangle **a
     *arg2 = D_800D40D4;
     *arg3 = D_800D40D8;
 }
+/* Workbench: structure-mismatch, 146 differing words, first mismatch +0x0. */
+/* Structural gap: target 142 instructions/frame -0x58 versus candidate 146/-0x58; the command loop has four extra instructions. */
+/* Not shape-exact or permuter-ready; snow display-list control flow and relocation calls remain represented. */
+#ifdef NON_MATCHING
+void snow_render(void) {
+    s32 sp54;
+    void *sp50;
+    s32 sp4C;
+    s32 sp48;
+    s32 temp_a1_2;
+    s32 temp_a3;
+    s32 temp_a3_2;
+    s32 temp_v0;
+    s32 var_t0;
+    s32 var_t1;
+    void *command;
+
+    if ((D_8007C398.source.type != 0) && (D_8007C3C8 >= 4)) {
+        sp54 = D_8007C3C8;
+        sp50 = D_800D40CC;
+        sp4C = (s32)D_8007C3C4;
+        sp48 = (s32)D_8007C3CC;
+        temp_v0 = (s32)camGetProjOrgMtx();
+        command = sp50;
+        sp50 = (u8 *)command + 8;
+        ((Gfx *)command)->w1 = temp_v0 + 0x80000000;
+        ((Gfx *)command)->w0 = 0x01000040;
+        command = sp50;
+        sp50 = (u8 *)command + 8;
+        ((Gfx *)command)->w1 = 0;
+        ((Gfx *)command)->w0 = 0xBC00000A;
+        func_800349A4((Gfx **)&sp50, (void *)D_8007C398.source.type, 2, 0);
+        var_t0 = sp54;
+        var_t1 = sp4C;
+        if (D_800D40C0 < var_t0) {
+            do {
+                command = sp50;
+                temp_a3 = var_t1 + 0x80000000;
+                sp50 = (u8 *)command + 8;
+                ((Gfx *)command)->w0 = (((((D_800D40C0 * 8) | (temp_a3 & 6)) & 0xFF) << 16) |
+                                0x04000000 | (((D_800D40C0 * 0xA) + 8) & 0xFFFF));
+                ((Gfx *)command)->w1 = temp_a3;
+                command = sp50;
+                sp50 = (u8 *)command + 8;
+                ((Gfx *)command)->w0 = ((((((D_800D40C4 - 1) * 0x10) | 1) & 0xFF) << 16) |
+                                0x05000000 | ((D_800D40C4 * 0x10) & 0xFFFF));
+                ((Gfx *)command)->w1 = sp48 + 0x80000000;
+                var_t0 -= D_800D40C0;
+                var_t1 += D_800D40C0 * 0xA;
+            } while (D_800D40C0 < var_t0);
+        }
+        command = sp50;
+        temp_a3_2 = var_t1 + 0x80000000;
+        sp50 = (u8 *)command + 8;
+        ((Gfx *)command)->w0 = (((((var_t0 * 8) | (temp_a3_2 & 6)) & 0xFF) << 16) |
+                          0x04000000 | (((var_t0 * 0xA) + 8) & 0xFFFF));
+        ((Gfx *)command)->w1 = temp_a3_2;
+        command = sp50;
+        temp_a1_2 = var_t0 >> 1;
+        sp50 = (u8 *)command + 8;
+        ((Gfx *)command)->w0 = ((((((temp_a1_2 - 1) * 0x10) | 1) & 0xFF) << 16) |
+                        0x05000000 | ((temp_a1_2 * 0x10) & 0xFFFF));
+        ((Gfx *)command)->w1 = sp48 + 0x80000000;
+        D_800D40CC = sp50;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather/snow_render.s")
+#endif
 /*
  * PROVENANCE -- body adapted from Jet Force Gemini's public retail-derived
  * src/weather.c::func_8005BC44_5C844 (DKR's rain_init). Mickey's rain setup
