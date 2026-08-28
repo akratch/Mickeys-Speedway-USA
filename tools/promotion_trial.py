@@ -35,6 +35,7 @@ from __future__ import annotations
 import argparse
 import dataclasses
 import json
+import os
 import re
 import subprocess
 import sys
@@ -44,12 +45,19 @@ from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import permute_batch as pb  # noqa: E402
+import reloc_surface as rs  # noqa: E402
 
 ROOT = pb.ROOT
 BASEROM = ROOT / "baseroms" / "mickey.us.z64"
 ROM = ROOT / "build" / "mickey.us.z64"
 OUT_JSON = ROOT / "build" / "promotion-trial.json"
 OUT_TXT = ROOT / "build" / "promotion-trial.txt"
+LINK_SYMS = ROOT / "overlay_undefined_syms.us.txt"
+
+# A relocation the link cannot resolve is reported by ld as one of these.
+UNDEF_RE = re.compile(r"undefined reference to [`'\"]([A-Za-z_][A-Za-z0-9_]*)")
+MARKER_RE = re.compile(r"PROMOTION-TRIAL: ([^:]+): (.*)")
+TRUNC_RE = re.compile(r"relocation truncated to fit: (\S+)")
 
 
 @dataclasses.dataclass
@@ -66,6 +74,7 @@ class Trial:
     first_out_of_range: Optional[int] = None
     seconds: float = 0.0
     error: Optional[str] = None
+    cause: Optional[str] = None
 
 
 def overlay_ranges() -> dict[str, tuple[int, int]]:
@@ -127,9 +136,101 @@ def splice(item: pb.QueueItem) -> Optional[str]:
     return original
 
 
-def build(jobs: int) -> tuple[bool, str]:
-    r = subprocess.run(["gmake", f"-j{jobs}"], cwd=ROOT, capture_output=True, text=True, timeout=1800)
-    return r.returncode == 0, (r.stdout + r.stderr)[-3000:]
+def build(jobs: int, full_log: bool = False) -> tuple[bool, str]:
+    """One `gmake` pass with the POSTPROCESS guards in report-and-skip mode.
+
+    PROMOTION_TRIAL turns every digest-guarded normalization into a marker line
+    plus a skipped pass (tools/postprocess_guard.py), so a candidate whose
+    codegen is the wrong size still reaches the link and still produces a ROM.
+    The ROM is not a valid build and is never verified; it exists to be diffed.
+    """
+    env = dict(os.environ, PROMOTION_TRIAL="1")
+    r = subprocess.run(["gmake", f"-j{jobs}"], cwd=ROOT, capture_output=True,
+                       text=True, timeout=1800, env=env)
+    log = r.stdout + r.stderr
+    return r.returncode == 0, log if full_log else log[-6000:]
+
+
+def synthesize_surface() -> tuple[bool, str]:
+    """Regenerate overlay_undefined_syms.us.txt from the objects on disk.
+
+    This is the whole point of the integration. A promoted candidate spells its
+    cross-module and section references with placeholder externs that have no
+    address in this build; the surface supplies each one's stored addend, read
+    from the baserom at the site the module's own relocation table names. It
+    has to run *after* the candidate compiles and *before* the link, which is
+    exactly the window a plain `gmake` does not offer -- so the trial builds,
+    regenerates, and builds again. The second pass relinks only.
+    """
+    r = subprocess.run([sys.executable, str(ROOT / "tools" / "reloc_surface.py"),
+                        "generate", "--write", "--quiet"],
+                       cwd=ROOT, capture_output=True, text=True, timeout=900)
+    return r.returncode == 0, r.stdout + r.stderr
+
+
+def undefined_sites(c_file: Path, symbol: str) -> set[str]:
+    """Section names of every relocation in `c_file`'s object naming `symbol`."""
+    rel = c_file.relative_to(ROOT)
+    obj = ROOT / "build" / rel.parent / (rel.name + ".o")
+    if not obj.is_file():
+        return set()
+    try:
+        elf = rs.Elf(obj)
+    except SystemExit:
+        return set()
+    syms = elf.symbols()
+    idx = {i for i, s in enumerate(syms) if s[0] == symbol}
+    out = set()
+    for sec, _off, _t, si in elf.relocations(target=r".*"):
+        if si in idx:
+            out.add(sec)
+    return out
+
+
+def classify_failure(log: str, item, surface_log: str) -> tuple[str, str]:
+    """(class, cause) for a build that did not produce a ROM.
+
+    The four classes the relocation surface cannot close are named explicitly,
+    because each needs different work and lumping them as `build-error` is what
+    made the previous run's 169 failures unreadable.
+    """
+    markers = MARKER_RE.findall(log)
+    for kind, message in markers:
+        if item.c_file.stem in message or item.func in message:
+            return "text-size-differs", kind
+    if markers:
+        return "text-size-differs", markers[0][0]
+
+    undef = UNDEF_RE.findall(log)
+    if undef:
+        # A symbol the synthesizer refused because the candidate's schedule
+        # disagrees at the placeholder's own sites: no consistent addend
+        # exists, so it reports the conflict rather than inventing one.
+        diverged = {m for m in undef
+                    if re.search(r"\b%s\b.*distinct values" % re.escape(m),
+                                 surface_log)}
+        if diverged:
+            return "build-error", "schedule-divergence-at-site (%s)" % \
+                ", ".join(sorted(diverged)[:3])
+        aliased = [m for m in undef if rs.GEN_NAME_RE.match(m)]
+        if aliased:
+            return "build-error", "alias-coupling (%s)" % \
+                ", ".join(sorted(aliased)[:3])
+        nontext = [m for m in undef
+                   if undefined_sites(item.c_file, m) - {".text"}]
+        if nontext:
+            return "build-error", "non-text-site (%s)" % \
+                ", ".join(sorted(nontext)[:3])
+        return "build-error", "unresolved-placeholder (%s)" % \
+            ", ".join(sorted(set(undef))[:3])
+
+    trunc = TRUNC_RE.findall(log)
+    if trunc:
+        return "build-error", "relocation-truncated (%s)" % \
+            ", ".join(sorted(set(trunc))[:3])
+    if re.search(r"\.c\.o\] Error|cfe: Error|\bError:", log):
+        return "build-error", "compile-error"
+    return "build-error", "other"
 
 
 def rom_diff_offsets() -> list[int]:
@@ -147,14 +248,24 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
     if original is None:
         t.klass, t.error = "unknown", "could not locate the NON_MATCHING block"
         return t
+    surface = LINK_SYMS.read_text()
+    surface_log = ""
     try:
         ok, log = build(jobs)
+        if item.overlay is not None:
+            # Compile is done either way; regenerate the surface against the
+            # objects that now exist and relink. A candidate that already
+            # linked is unaffected when the surface does not change.
+            _sok, surface_log = synthesize_surface()
+            ok, log2 = build(jobs)
+            log = log + log2
         if not ok:
-            t.klass, t.error = "build-error", log
+            t.klass, t.cause = classify_failure(log, item, surface_log)
+            t.error = log[-1500:]
         else:
             diffs = rom_diff_offsets()
             if diffs == [-1]:
-                t.klass, t.error = "build-error", "ROM size differs"
+                t.klass, t.error, t.cause = "build-error", "ROM size differs", "rom-size"
             elif not diffs:
                 t.klass = "exact"
             else:
@@ -165,8 +276,15 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
                 t.first_in_range = inside[0] if inside else None
                 t.first_out_of_range = outside[0] if outside else None
                 t.klass = "text-differs" if inside else "text-exact"
+                marker = MARKER_RE.findall(log)
+                if marker:
+                    # A skipped normalization means the linked bytes are not a
+                    # real build; the size report is the honest result.
+                    t.klass, t.cause = "text-size-differs", marker[0][0]
     finally:
         item.c_file.write_text(original)
+        if LINK_SYMS.read_text() != surface:
+            LINK_SYMS.write_text(surface)
         t.seconds = time.monotonic() - start
     return t
 
@@ -213,7 +331,7 @@ def main(argv: list[str]) -> int:
             rng = ov.get(stem)
         t = run_trial(item, rng, args.jobs)
         results.append(t)
-        print(f"[{i}/{len(queue)}] {t.func:34} {t.klass:12} in={t.in_range_words:<4} out={t.out_of_range_bytes:<5} ({t.seconds:.0f}s)", flush=True)
+        print(f"[{i}/{len(queue)}] {t.func:34} {t.klass:16} in={t.in_range_words:<4} out={t.out_of_range_bytes:<5} {t.cause or '':40} ({t.seconds:.0f}s)", flush=True)
         write(results)
     write(results)
     subprocess.run(["gmake", f"-j{args.jobs}"], cwd=ROOT, capture_output=True)
@@ -224,14 +342,20 @@ def write(results: list[Trial]) -> None:
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps({"generated_by": "tools/promotion_trial.py",
                                     "results": [dataclasses.asdict(r) for r in results]}, indent=2) + "\n")
-    lines = [f"{'function':34} {'class':12} {'in':>4} {'out':>6} {'ov':>4}"]
+    lines = [f"{'function':34} {'class':16} {'in':>4} {'out':>6} {'ov':>4}  cause"]
     for r in results:
-        lines.append(f"{r.func:34} {r.klass:12} {r.in_range_words:>4} {r.out_of_range_bytes:>6} {str(r.overlay):>4}")
+        lines.append(f"{r.func:34} {r.klass:16} {r.in_range_words:>4} {r.out_of_range_bytes:>6} {str(r.overlay):>4}  {r.cause or ''}")
     counts: dict[str, int] = {}
     for r in results:
         counts[r.klass] = counts.get(r.klass, 0) + 1
+    causes: dict[str, int] = {}
+    for r in results:
+        if r.cause:
+            key = re.sub(r" \(.*", "", r.cause)
+            causes[key] = causes.get(key, 0) + 1
     lines.append("")
     lines.append(" ".join(f"{k}={v}" for k, v in sorted(counts.items())))
+    lines.append(" ".join(f"{k}={v}" for k, v in sorted(causes.items())))
     OUT_TXT.write_text("\n".join(lines) + "\n")
 
 
