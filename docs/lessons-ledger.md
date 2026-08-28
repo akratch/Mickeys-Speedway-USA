@@ -75,3 +75,8 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
   inside the body; `merge_lane.sh`/`finish_merge.sh` run
   `check-nonmatching-builds` before committing a merge; lane prompts carry
   the rule.
+- **Two lanes editing the same TU always conflict at merge, even on disjoint
+  functions.** Neighbouring candidate blocks collide line-for-line and each
+  merge cost an agent pass to resolve. Changed: assign lanes by translation
+  unit, not by function list; when a TU must be shared, the second lane
+  waits for the first to integrate.
