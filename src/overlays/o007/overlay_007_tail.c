@@ -149,10 +149,13 @@ void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
 #endif
 
 /*
- * Plateau (2026-08-25 rerun): exact size with two differing words, first at
- * +0x4. The 119-case flag lattice, volatile/signed/array global types, local
- * flag and table-offset webs, and cast placement do not coalesce the initial
- * flag load with the later table offset; typed web reuse widens the diff.
+ * Plateau (retested 2026-08-28): exact 60-word size with two differing words,
+ * first at +0x4. The 119-case flag lattice, volatile/signed/array global
+ * types, local flag and table-offset webs, and cast placement do not coalesce
+ * the initial flag load with the later table offset; typed web reuse widens
+ * the diff. A fresh Tier-2 trace preserves the stock text but records no UGEN
+ * FIFO events, only five already-aligned global-color webs, so it cannot
+ * diagnose or promote a force for the remaining t6-to-t7 temp web.
  */
 #ifdef NON_MATCHING
 void overlay7DispatchSelection(Overlay7DispatchOwner *owner, s32 selection) {
