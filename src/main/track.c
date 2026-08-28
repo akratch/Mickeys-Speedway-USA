@@ -2341,7 +2341,160 @@ void func_800115E4(s32 mode, TrackVec3f *position, TrackVec3f *offset,
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800115E4.s")
+#endif
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: Mickey's m2c collision-query draft and resident node/plane
+ * offsets reconstruct this ray query; no external function body is adapted.
+ */
+typedef struct TrackRayFace {
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 distance;
+} TrackRayFace;
+
+typedef struct TrackRayMeta {
+    u8 material;
+    u8 pad01[0x0B];
+    s32 data;
+} TrackRayMeta;
+
+typedef struct TrackRayNodeExtended {
+    u8 pad00[0x0C];
+    TrackRayMeta *metadata;
+    u8 pad10[0x0C];
+    TrackRayFace *planes;
+} TrackRayNodeExtended;
+
+typedef struct TrackRayHit {
+    f32 normalX;
+    f32 normalY;
+    f32 normalZ;
+    f32 distance;
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 ratio;
+    s32 faceData;
+    u8 material;
+} TrackRayHit;
+
+/* Workbench verdict: structure-mismatch, 208 differing words, first mismatch +0x0. */
+/* Candidate: 214/215 instructions with a -0xD8 frame versus target -0xC8; one instruction/frame residual and FP schedule remain. */
+/* Shape status: encoded-node traversal, signed edge loop, interpolation, and hit stores are preserved, but it is not shape-exact. */
+s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
+                  TrackRayPoint *offset, f32 scale, f32 planeOffset,
+                  f32 threshold, TrackRayHit *hit) {
+    TrackRayNodeExtended *node;
+    TrackRayNodeExtended *entry;
+    TrackRayFace *face;
+    TrackRayFace *edgeFace;
+    f32 planeX;
+    f32 planeY;
+    f32 planeZ;
+    f32 planeValue;
+    f32 startValue;
+    f32 endValue;
+    f32 ratio;
+    f32 pointX;
+    f32 pointY;
+    f32 pointZ;
+    f32 edgeValue;
+    s32 encoded;
+    s32 entryOffset;
+    s32 segmentIndex;
+    s32 edgeOffset;
+    s32 valid;
+    s32 sign;
+    s32 edgeIndex;
+    u16 edge;
+
+    valid = 0;
+    segmentIndex = 0;
+    entryOffset = 0;
+    if (D_800C9D3C > 0) {
+        do {
+            encoded = *(s32 *) ((u8 *) D_800C9D2C + entryOffset);
+            if (encoded > 0) {
+                node = (TrackRayNodeExtended *) (encoded | (s32) 0x80000000);
+            } else {
+                entry = (TrackRayNodeExtended *) encoded;
+                face = (TrackRayFace *) ((u8 *) node->planes +
+                                         (*(u16 *) entry * 0x10));
+                planeX = face->x;
+                planeY = face->y;
+                planeZ = face->z;
+                planeValue = face->distance - planeOffset;
+                endValue = ((end->z * planeZ) +
+                            ((planeX * end->x) + (planeY * end->y))) +
+                           planeValue;
+                if (endValue < 0.0f) {
+                    startValue = ((start->z * planeZ) +
+                                  ((planeX * start->x) +
+                                   (planeY * start->y))) +
+                                 planeValue;
+                    if (startValue >= 0.0f) {
+                        ratio = (startValue / (startValue - endValue)) * scale;
+                        if (ratio <= hit->ratio) {
+                            pointX = ((offset->x * ratio) + start->x) -
+                                     (planeOffset * planeX);
+                            pointY = ((offset->y * ratio) + start->y) -
+                                     (planeOffset * planeY);
+                            pointZ = ((offset->z * ratio) + start->z) -
+                                     (planeOffset * planeZ);
+                            valid = 1;
+                            edgeOffset = 0;
+                            do {
+                                edgeOffset += 2;
+                                edge = *(u16 *) ((u8 *) entry + edgeOffset);
+                                sign = edge & 0x8000;
+                                edgeIndex = edge ^ sign;
+                                edgeFace = (TrackRayFace *)
+                                    ((u8 *) node->planes + (edgeIndex * 0x10));
+                                edgeValue = edgeFace->distance +
+                                             ((edgeFace->x * pointX) +
+                                              (edgeFace->y * pointY) +
+                                              (edgeFace->z * pointZ));
+                                if (sign != 0) {
+                                    edgeValue = -edgeValue;
+                                }
+                                if (threshold < edgeValue) {
+                                    valid = 0;
+                                }
+                            } while ((edgeOffset < 6) && (valid != 0));
+                            if (valid != 0) {
+                                hit->normalX = planeX;
+                                hit->normalY = planeY;
+                                hit->normalZ = planeZ;
+                                hit->distance = planeValue;
+                                hit->x = ((D_80081790 + planeOffset) * planeX) + pointX;
+                                hit->y = ((D_80081790 + planeOffset) * planeY) + pointY;
+                                hit->z = ((D_80081790 + planeOffset) * planeZ) + pointZ;
+                                {
+                                    TrackRayMeta *meta = (TrackRayMeta *)
+                                        ((u8 *) node->metadata +
+                                         (D_800C9D30[segmentIndex] * 0x10));
+                                    hit->faceData = meta->data;
+                                    hit->material = ((u8 *) D_800792E8->textures)[
+                                        (meta->material * 8) + 7];
+                                }
+                                hit->ratio = ratio;
+                                valid = 1;
+                            }
+                        }
+                    }
+                }
+            }
+            segmentIndex++;
+            entryOffset += 4;
+        } while (segmentIndex < D_800C9D3C);
+    }
+    return valid;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80011980.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80011CDC.s")
 #ifdef NON_MATCHING
 /*
