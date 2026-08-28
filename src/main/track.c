@@ -2130,6 +2130,9 @@ void func_8000FA2C(s32 *result, s32 arg1) {
  * nearest-height selection structure. Mickey's bounds are inclusive and its
  * TrackData layout, function boundary, and bytes remain authoritative.
  */
+/* Workbench verdict: structure-mismatch, 43 differing words, first mismatch +0x1c. */
+/* Candidate: target/candidate 62/62 instructions with matching -0x10 frames; the residual begins in the x/z predicate. */
+/* Shape status: boundary-load and non-likely branch scheduling remain structural; this is not permuter-ready. */
 s32 func_8000FAE0(f32 x, f32 y, f32 z) {
     s16 segmentCount;
     s16 yLower;
