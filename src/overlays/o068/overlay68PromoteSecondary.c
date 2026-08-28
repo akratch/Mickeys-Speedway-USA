@@ -46,51 +46,50 @@ extern void overlay68FinishEntryPromoteReloc(void);
  * exhausted the grounded family; the best frame-accurate body was 64/77
  * words with primary sp+0x1C but secondary sp+0x2C, so the natural body stays.
  */
-#ifdef NON_MATCHING
-void overlay68PromoteSecondary(void) {
-    Overlay68Entry *primary;
-    Overlay68Entry *secondary;
-    Overlay68Record *source;
-    Overlay68Record *destination;
-    s32 remaining;
-
-    secondary = gOverlay68SecondaryEntry;
-    if (secondary != NULL) {
-        primary = gOverlay68PrimaryEntry;
-        if (gOverlay68PrimaryEntry != NULL) {
-            overlay68ClearNestedFlagPromoteReloc(gOverlay68PrimaryEntry);
-            overlay68ClearNestedFlagPromoteReloc(gOverlay68Tertiary);
-            if (secondary->field5 != 0) {
-                overlay68FinishEntryPromoteReloc();
-            }
-
-            if (secondary->timer != 0 && secondary->object == NULL &&
-                (secondary->timer < primary->timer ||
-                 secondary->generation != primary->generation)) {
-                primary->kind = secondary->kind;
-                primary->generation = secondary->generation;
-                primary->timer = secondary->timer;
-                primary->recordCount = secondary->recordCount;
-
-                remaining = secondary->recordCount;
-                source = secondary->records;
-                destination = primary->records;
-                while (remaining--) {
-                    destination->red = source->red;
-                    destination->green = source->green;
-                    destination->blue = source->blue;
-                    destination->x = source->x;
-                    destination->y = source->y;
-                    destination->z = source->z;
-                    destination->alpha = source->alpha;
-                    source++;
-                    destination++;
-                }
-                secondary->timer = 0;
-            }
+void overlay68PromoteSecondary(void)
+{
+  Overlay68Entry *primary;
+  Overlay68Record *source;
+  Overlay68Record *destination;
+  Overlay68Entry *secondary;
+  Overlay68Entry *new_var;
+  s32 remaining;
+  secondary = gOverlay68SecondaryEntry;
+  if (secondary != ((void *) 0))
+  {
+    primary = (new_var = gOverlay68PrimaryEntry);
+    if (gOverlay68PrimaryEntry != ((void *) 0))
+    {
+      overlay68ClearNestedFlagPromoteReloc(gOverlay68PrimaryEntry);
+      overlay68ClearNestedFlagPromoteReloc(gOverlay68Tertiary);
+      if (secondary->field5 != 0)
+      {
+        overlay68FinishEntryPromoteReloc();
+      }
+      if (((secondary->timer != 0) && (secondary->object == ((void *) 0))) && ((secondary->timer < primary->timer) || (secondary->generation != primary->generation)))
+      {
+        primary->kind = secondary->kind;
+        primary->generation = secondary->generation;
+        primary->timer = secondary->timer;
+        primary->recordCount = secondary->recordCount;
+        remaining = secondary->recordCount;
+        source = secondary->records;
+        destination = primary->records;
+        while (remaining--)
+        {
+          destination->red = source->red;
+          destination->green = source->green;
+          destination->blue = source->blue;
+          destination->x = source->x;
+          destination->y = source->y;
+          destination->z = source->z;
+          destination->alpha = source->alpha;
+          source++;
+          destination++;
         }
+
+        secondary->timer = 0;
+      }
     }
+  }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o068/overlay68PromoteSecondary/func_overlay_068_F000051C_18C767C.s")
-#endif

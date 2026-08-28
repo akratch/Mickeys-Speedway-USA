@@ -1824,11 +1824,13 @@ overlay68TrailEventReloc = 0xf0000000;
 /* overlay 68: overlay68StartTimer.c.o */
 gOverlay68TimerEntry = 0x00000000;
 
+/* overlay 68: overlay68PromoteSecondary.c.o */
+gOverlay68Tertiary = 0x00000000;
+overlay68ClearNestedFlagPromoteReloc = 0xf0000000;
+overlay68FinishEntryPromoteReloc = 0xf0000000;
+
 /* overlay 68: overlay68InitializeObject.c.o */
 overlay68ConfigureReloc = 0xf0000000;
-
-/* overlay 68: overlay68ReleaseTertiary.c.o */
-gOverlay68Tertiary = 0x00000000;
 
 /* overlay 71: func_overlay_071_F0000000_18C9B20.c.o */
 gOverlay71Scale0 = 0x00000000;
