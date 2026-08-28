@@ -52,6 +52,9 @@ extern ControlCameraState *D_800CB300;
 extern u8 D_8007BF10;
 extern f32 D_80081840;
 extern f32 D_80081844;
+extern f32 D_80081848;
+extern f32 D_8008184C;
+extern f32 D_800CB304;
 
 typedef struct CharControlEffectDefinition {
     u8 kind;
@@ -115,6 +118,33 @@ typedef struct CharControlParticleSlot {
     void *handle;
 } CharControlParticleSlot;
 
+typedef struct CharControlLevelDescription {
+    u8 pad00[0x0A];
+    u8 characterLow;
+    u8 characterHigh;
+    s8 nextLevel;
+    u8 pad0D[0x16 - 0x0D];
+    s8 animGroup;
+    u8 pad17[0x1A - 0x17];
+    s8 camera;
+} CharControlLevelDescription;
+
+typedef struct CharControlLevelRequest {
+    u8 pad00[0x3C];
+    CharControlLevelDescription *description;
+} CharControlLevelRequest;
+
+typedef struct CharControlSpawnSetup {
+    s16 kind;
+    s16 arg02;
+    s16 arg04;
+    s16 arg06;
+    s16 arg08;
+    s8 arg0A;
+    s8 arg0B;
+    void *owner;
+} CharControlSpawnSetup;
+
 extern CharControlEffectList D_8007980C[];
 extern CharControlParticleList D_8007987C[];
 extern CharControlParticleList D_800798DC[];
@@ -160,6 +190,14 @@ void func_80006EA0(void *handle);
 s32 func_8000FAE0(f32 x, f32 y, f32 z);
 void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode);
 s32 TrapDanglingJump();
+void mainChangeLevel(s32 nextLevel, s32 nextCharacter, s32 nextAnimGroup,
+                     s32 nextCamera, s32 fadeOut, s32 flags);
+s32 mainGetNextCharacter(void);
+void mainSetAnimGroup(s32 group);
+u8 frontGetMode(void);
+void func_800214AC(void);
+void func_8001F09C(ControlPlayer *player, s32 updateRate);
+void func_800031C0(void *soundHandle, f32 x, f32 y, f32 z);
 void func_8001BBB4(ControlActor *actor, ControlPlayer *player, f32 arg2);
 void func_8001C114(s32 slotIndex, f32 x, f32 y, f32 z);
 void *func_80053420(s32 index, void *target);
@@ -753,7 +791,267 @@ void func_8001CB0C(ControlTransform *transform, ControlPlayer *player) {
     player->unk2C0[2] = player->unk2B8->z;
     func_8001EFFC(transform, player, &player->unk2C0[12]);
 }
+/* PROVENANCE: JFG's public charControl.c identifies the corresponding
+ * controlSquashCheckPost-adjacent character-control routine, but publishes
+ * assembly only; this body is reconstructed from Mickey's fields, calls,
+ * and branch conditions. */
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch, 367 differing words, first mismatch +0x0. */
+/* Candidate shape: 457 instructions/frame -0xB8 versus target 455/-0x80; 76 alignment gaps. */
+/* Remaining structural gap: 2 excess instructions and a 0x38-byte frame excess; not shape-exact. */
+void func_8001CB84(ControlActor *actor, s32 updateRate) {
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f14;
+    f32 temp_f2;
+    f32 temp_f2_2;
+    f32 var_f12;
+    s16 particleState;
+    s16 bounceState;
+    s16 temp_v0_5;
+    s16 temp_v0_6;
+    s16 temp_v0_8;
+    s16 temp_v0_9;
+    s8 temp_a0;
+    s8 temp_v0_2;
+    s8 temp_v0_7;
+    u8 highCharacter;
+    s32 character;
+    u8 temp_v0_12;
+    s32 temp_v1_3;
+    s32 temp_a0_2;
+    s32 temp_a0_3;
+    s32 temp_a0_4;
+    ControlPlayer *player;
+    ControlParticleEffect *effect;
+    ControlParticleState *state;
+
+    player = actor->player;
+    player->unk3 = player->unk2;
+    if (player->unkC8 != NULL) {
+        CharControlLevelDescription *sp70;
+        s32 sp44;
+        s32 sp3C;
+
+        sp70 = ((CharControlLevelRequest *) player->unkC8)->description;
+        highCharacter = sp70->characterHigh;
+        character = sp70->characterLow;
+        if (highCharacter != 0xFF) {
+            character |= highCharacter << 8;
+        }
+        sp44 = character;
+        sp3C = mainGetNextCharacter();
+        mainChangeLevel(sp44, sp3C,
+                        sp70->nextLevel, frontGetMode(),
+                        sp70->camera, 0);
+        temp_a0 = sp70->animGroup;
+        if (temp_a0 != -1) {
+            mainSetAnimGroup(temp_a0);
+        }
+        func_80006EA0(player->unkC8);
+        player->unkC8 = NULL;
+    }
+    if (player->unk1A6 != 0) {
+        if (player->unk1A5 == 0) {
+            player->unk1A5 = 1;
+            if (player->unk1A4 == 1) {
+                camSetNo(player->playerIndex, 0, &D_800CB300);
+                func_800214AC();
+            }
+        }
+        player->unk1A6 = (s16) (player->unk1A6 - updateRate);
+        if (player->unk1A6 <= 0) {
+            player->unk1A6 = 0;
+            if (player->unk1A4 == 1) {
+                camSetNo(player->playerIndex, 0, &D_800CB300);
+                func_800214AC();
+            }
+        }
+    }
+    temp_v0_2 = player->unk18D;
+    if (temp_v0_2 != 0) {
+        player->unk18D = (s8) (temp_v0_2 - updateRate);
+        if (player->unk18D <= 0) {
+            effect = player->unk338;
+            player->unk18D = 0;
+            player->unk54 = 1.0f;
+            if ((effect != NULL) && (effect->unk44 == 0x52)) {
+                state = effect->state;
+                *(u16 *) state &= 0xFFFD;
+                effect = player->unk338;
+                effect->unk20 = (f32) effect->state->unk18;
+                player->unk338 = NULL;
+            }
+        }
+    }
+    if (player->unk54 != player->unk50) {
+        func_8001F09C(player, updateRate);
+    }
+    actor->unk48->unk54 = 0.0f;
+    particleState = player->unk158;
+    if (particleState != 0) {
+        f32 sp7C;
+        f32 sp38;
+
+        if (particleState & 0x8000) {
+            temp_a0_2 = (s32) player->unkB4;
+            if (temp_a0_2 != 0) {
+                func_800031E8((void *) temp_a0_2);
+            }
+            func_80002FE0(0x21, actor->x, actor->y, actor->z, 4,
+                          (void **) &player->unkB4);
+            player->unk158 = (s16) (particleState & 0x7FFF);
+        }
+        temp_f2 = player->unk150;
+        temp_f0 = (f32) updateRate;
+        player->unk154 = player->unk154 +
+                         ((temp_f2 * temp_f0) -
+                          (0.5f * D_800CB304 * temp_f0 * temp_f0));
+        temp_f14 = player->unk154;
+        player->unk150 = temp_f2 - (D_800CB304 * temp_f0);
+        if (temp_f14 < 0.0f) {
+            player->unk154 = -temp_f14;
+            player->unk158 = (s16) (player->unk158 - 1);
+            player->unk150 = -player->unk150 * 0.5f;
+        }
+        bounceState = player->unk158;
+        if ((bounceState >= 2) ||
+            ((bounceState == 1) && (player->unk150 > 0.0f))) {
+            player->unk160 = (s16) (player->unk160 + player->unk15A * updateRate);
+            player->unk164 = (s16) (player->unk164 + player->unk15E * updateRate);
+            player->unk162 = (s16) (player->unk162 + player->unk15C * updateRate);
+        } else if (bounceState == 1) {
+            temp_f0_2 = Powerf(D_80081848, updateRate);
+            sp7C = temp_f0_2;
+            player->unk160 = dAngle(player->unk160, 0, temp_f0_2);
+            player->unk164 = dAngle(player->unk164, 0, sp7C);
+            player->unk162 = dAngle(player->unk162, 0, sp7C);
+        } else if (bounceState == 0) {
+            player->unk160 = 0;
+            player->unk164 = 0;
+            player->unk162 = 0;
+            player->unk154 = 0.0f;
+            player->unk150 = 0.0f;
+        }
+        sp38 = func_8002A8BC(player->unk162);
+        temp_f2_2 = func_8002A8BC(player->unk164) * sp38;
+        if (temp_f2_2 < 0.0f) {
+            var_f12 = 0.0f;
+        } else {
+            var_f12 = temp_f2_2 * temp_f2_2;
+        }
+        player->unk14C = 30.0f - (30.0f * var_f12);
+        actor->unk48->unk54 = player->unk154;
+        player->unk185 = 0;
+        player->unk188 = 0.0f;
+    }
+    if (D_8007BF10 != 0) {
+        if (player->unk191 == 0) {
+            TrapDanglingJump(actor, updateRate);
+        }
+        TrapDanglingJump(actor, updateRate);
+    } else if (player->flags1A8 & 1) {
+        TrapDanglingJump(actor, player, updateRate);
+        if (player->unk191 == 0) {
+            TrapDanglingJump(actor, updateRate);
+        }
+    } else {
+        if (player->unk191 == 0) {
+            temp_v0_7 = player->unk1;
+            if ((temp_v0_7 == 0) || (temp_v0_7 == 1) ||
+                (temp_v0_7 == 2) || (temp_v0_7 == 3)) {
+                TrapDanglingJump(actor, updateRate);
+            } else {
+                TrapDanglingJump(actor, updateRate);
+            }
+        }
+        TrapDanglingJump(actor, updateRate);
+    }
+    temp_v0_8 = player->unk168;
+    if ((temp_v0_8 != 0) && (player->unk3FA == 0)) {
+        player->unk168 = (s16) (temp_v0_8 - updateRate);
+        if (player->unk168 < 0) {
+            player->unk168 = 0;
+        }
+        if (player->unk168 & 8) {
+            player->unk190 = 0x40;
+        } else {
+            player->unk190 = 0xFF;
+        }
+    }
+    temp_v0_9 = player->unk16A;
+    if (temp_v0_9 != 0) {
+        player->unk16A = (s16) (temp_v0_9 - updateRate);
+        if (player->unk16A <= 0) {
+            player->unk16A = 0;
+        } else if (player->unkD0 == NULL) {
+            CharControlSpawnSetup packetD0;
+
+            packetD0.kind = 0xB8;
+            packetD0.arg04 = 0;
+            packetD0.arg06 = 0xE;
+            packetD0.arg08 = 7;
+            packetD0.arg0A = 0x14;
+            packetD0.arg0B = 0x14;
+            packetD0.owner = actor;
+            player->unkD0 = func_8000590C(
+                (ControlSpawnPacket *) &packetD0, 1);
+            if (player->unkD0 != NULL) {
+                ((ControlSpawned *) player->unkD0)->unk3C = 0;
+            }
+        }
+    }
+    if (!(player->flags1A8 & 1)) {
+        if ((player->unkD8 == NULL) &&
+            (TrapDanglingJump((void *) player->playerIndex) != 0)) {
+            CharControlSpawnSetup packetD8;
+
+            packetD8.kind = 0x14C;
+            packetD8.arg02 = 0x10;
+            packetD8.arg0B = 0;
+            packetD8.arg04 = 0;
+            packetD8.arg06 = 0xE;
+            packetD8.arg08 = 7;
+            packetD8.owner = actor;
+            player->unkD8 = func_8000590C(
+                (ControlSpawnPacket *) &packetD8, 1);
+            if (player->unkD8 != NULL) {
+                ((ControlSpawned *) player->unkD8)->unk3C = 0;
+            }
+        } else if ((player->unkD8 != NULL) &&
+                   (TrapDanglingJump((void *) player->playerIndex) == 0)) {
+            func_80006EA0(player->unkD8);
+        }
+    }
+    controlDisableJoypad(player, 0);
+    if (player->unk3FA != 0) {
+        temp_v0_12 = player->unk190;
+        if ((s32) temp_v0_12 > 0) {
+            temp_v1_3 = temp_v0_12 - (updateRate * 4);
+            if (temp_v1_3 <= 0) {
+                temp_a0_3 = (s32) player->unkAC;
+                if (temp_a0_3 != 0) {
+                    func_800031E8((void *) temp_a0_3);
+                    actor->unk80 = 0;
+                }
+                player->unk191 = 1;
+                player->unk190 = 0;
+                actor->x = player->unk44;
+                actor->y = player->unk48 + D_8008184C;
+                actor->z = player->unk4C;
+            } else {
+                player->unk190 = (u8) temp_v1_3;
+            }
+        }
+    }
+    temp_a0_4 = (s32) player->unkA4;
+    if (temp_a0_4 != 0) {
+        func_800031C0((void *) temp_a0_4, actor->x, actor->y, actor->z);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001CB84.s")
+#endif
 /*
  * Workbench: structure-mismatch, best 96/95 instructions, 3 masked words, first +0xE0.
  * Levers tried: commutative base add (best), volatile/old-style/comma/result forms, and flags/context.
