@@ -113,7 +113,78 @@ void func_8002AB78(MatrixTransform *trans, MtxF dest) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002AB78.s")
 #endif
+#ifdef NON_MATCHING
+/* Workbench: structure-mismatch, 118 differing words, first mismatch +0x0. */
+/* Candidate shape: 119 instructions/frame -0x80 vs target 99/-0x8; not permuter-ready. */
+/* Remaining structural gap: IDO FP-register spills and saved argument pointers add 20 instructions. */
+/* PROVENANCE: adapted from Jet Force Gemini's public
+ * asm/hasm/math_matrix.s matrix_XYZ_YPR_SCL; Mickey's field offsets and
+ * helper call targets remain authoritative here. */
+void func_8002AC84(MatrixTransform *trans, MtxF dest) {
+    register f32 cosX;
+    register f32 sinX;
+    register f32 cosY;
+    register f32 sinY;
+    register f32 cosZ;
+    register f32 sinZ;
+    register f32 scale;
+
+    cosX = func_8002A8C0(trans->rotation0);
+    sinX = func_8002A8BC(trans->rotation0);
+    cosY = func_8002A8C0(trans->rotation1);
+    sinY = func_8002A8BC(trans->rotation1);
+    cosZ = func_8002A8C0(trans->rotation2);
+    sinZ = func_8002A8BC(trans->rotation2);
+
+    scale = trans->scale;
+
+    dest[0][3] = 0.0f;
+    dest[1][3] = 0.0f;
+    dest[2][3] = 0.0f;
+    dest[3][3] = 1.0f;
+    {
+        register f32 col0_0;
+        register f32 col0_1;
+        register f32 col0_2;
+
+        col0_0 = (sinX * sinZ - ((cosX * cosY) * cosZ)) * scale;
+        col0_1 = ((-sinY) * cosZ) * scale;
+        col0_2 = (cosX * sinZ + ((sinX * cosY) * cosZ)) * scale;
+        dest[0][0] = col0_0;
+        dest[1][0] = col0_1;
+        dest[2][0] = col0_2;
+        dest[3][0] = (trans->x * col0_0) + (trans->y * col0_1) + (trans->z * col0_2);
+    }
+    {
+        register f32 col1_0;
+        register f32 col1_1;
+        register f32 col1_2;
+
+        col1_0 = (sinX * cosZ + ((cosX * cosY) * sinZ)) * scale;
+        col1_1 = (sinY * sinZ) * scale;
+        col1_2 = (cosX * cosZ - ((sinX * cosY) * sinZ)) * scale;
+        dest[0][1] = col1_0;
+        dest[1][1] = col1_1;
+        dest[2][1] = col1_2;
+        dest[3][1] = (trans->x * col1_0) + (trans->y * col1_1) + (trans->z * col1_2);
+    }
+    {
+        register f32 col2_0;
+        register f32 col2_1;
+        register f32 col2_2;
+
+        col2_0 = (cosX * -sinY) * scale;
+        col2_1 = cosY * scale;
+        col2_2 = (sinX * sinY) * scale;
+        dest[0][2] = col2_0;
+        dest[1][2] = col2_1;
+        dest[2][2] = col2_2;
+        dest[3][2] = (trans->x * col2_0) + (trans->y * col2_1) + (trans->z * col2_2);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002AC84.s")
+#endif
 #ifdef NON_MATCHING
 /* Workbench: structure-mismatch, 138 differing words, first mismatch +0x0.
  * Structural gap: 139 instructions/frame -0xa0 versus target 87/-0x8; 63 relocation sites also differ.
