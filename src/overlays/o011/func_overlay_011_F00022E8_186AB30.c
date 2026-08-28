@@ -72,19 +72,19 @@ void func_overlay_011_F00022E8_186AB30(s32 updateRate) {
     if (direction < -32) {
         if (D_1BC < 5) {
             D_1BC++;
-            amSndPlay(0x32C, 0);
+            func_80000F94(0x32C, 0);
             direction = D_0_reload_success[D_1C4];
         } else {
-            amSndPlay(0x32D, 0);
+            func_80000F94(0x32D, 0);
             direction = D_0_reload_failure[D_1C4];
         }
     }
     if (direction >= 33) {
         if (D_1BC >= 2) {
             D_1BC--;
-            amSndPlay(0x32C, 0);
+            func_80000F94(0x32C, 0);
         } else {
-            amSndPlay(0x32D, 0);
+            func_80000F94(0x32D, 0);
         }
     }
 
@@ -94,13 +94,13 @@ void func_overlay_011_F00022E8_186AB30(s32 updateRate) {
     }
 
     menuInput = (volatile s32 *)(D_menuBase + 0x1C4);
-    if ((joyGetPressed(D_1C4) & 0x8000) || *menuInput != 0) {
+    if ((func_8002554C(D_1C4) & 0x8000) || *menuInput != 0) {
         switch (D_1BC) {
         case 1:
             func_overlay_066_F0000000(0);
             func_800290AC(0);
             func_800291D8(0x1E);
-            amTuneSetFadeScaled(0.5f, 0x7F);
+            func_800006BC(0.5f, 0x7F);
             func_overlay_011_F0002BF4_186B43C();
             D_204 = 1;
             break;

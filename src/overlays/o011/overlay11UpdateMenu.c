@@ -88,19 +88,19 @@ void overlay11UpdateMenu(s32 updateRate) {
         if (((status->mode >= 2) && (D_1BC < 3)) ||
             ((status->mode == 1) && (D_1BC < 2))) {
             D_1BC++;
-            amSndPlay(0x32C, 0);
+            func_80000F94(0x32C, 0);
             direction = D_0[D_1C4];
         } else {
-            amSndPlay(0x32D, 0);
+            func_80000F94(0x32D, 0);
             direction = D_0[D_1C4];
         }
     }
     if (direction >= 33) {
         if (D_1BC >= 2) {
             D_1BC--;
-            amSndPlay(0x32C, 0);
+            func_80000F94(0x32C, 0);
         } else {
-            amSndPlay(0x32D, 0);
+            func_80000F94(0x32D, 0);
         }
     }
 
@@ -114,7 +114,7 @@ void overlay11UpdateMenu(s32 updateRate) {
     } while (index != 4);
 
     menuInput = (s32 *)(D_menuBase + 0x1C4);
-    if ((joyGetPressed(D_1C4) & 0x8000) || *menuInput != 0) {
+    if ((func_8002554C(D_1C4) & 0x8000) || *menuInput != 0) {
         finish = 0;
         selection = D_1BC;
         switch (selection) {
@@ -122,7 +122,7 @@ void overlay11UpdateMenu(s32 updateRate) {
             func_overlay_066_F0000000(0);
             func_800290AC(0);
             func_800291D8(0x1E);
-            amTuneSetFadeScaled(0.5f, 0x7F);
+            func_800006BC(0.5f, 0x7F);
             func_overlay_011_F0002BF4_186B43C();
             D_204 = 1;
             break;

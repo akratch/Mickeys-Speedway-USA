@@ -140,7 +140,7 @@ Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
                 candidate->y2 = input->y;
                 candidate->z2 = input->z;
                 candidate->depth = -input->depth;
-                mathOneFloatPY(input, candidate->direction);
+                func_80029FE4(input, candidate->direction);
                 candidate->active = 1;
                 candidate->value = input->value;
                 gOverlay34Pointers[gOverlay34ActiveCount] = candidate;

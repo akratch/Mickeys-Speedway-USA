@@ -108,7 +108,7 @@ void overlay37RenderEffect(Overlay37Command **commands, void *renderContext,
     f32 deltaZ;
 
     camera = overlay37CallProxy();
-    frame = camGetNo();
+    frame = func_80021964();
     state = object->state;
     if (state->target == NULL) {
         return;
@@ -157,7 +157,7 @@ void overlay37RenderEffect(Overlay37Command **commands, void *renderContext,
     transform.position.y += deltaY * 0.5f;
     transform.position.z += deltaZ * 0.5f;
 
-    camPushModelMtx(commands, renderContext, &transform, 1.0f, 0.0f);
+    func_800244EC(commands, renderContext, &transform, 1.0f, 0.0f);
     func_800349A4(commands, *object->resource, 0x10, 0);
 
     command = *commands;
@@ -187,7 +187,7 @@ void overlay37RenderEffect(Overlay37Command **commands, void *renderContext,
     command->w1 = 0xFFFFFFFF;
     command->w0 = 0xFA000000;
 
-    camPopModelMtx(commands, gOverlay37DisplayData);
+    func_8002460C(commands, gOverlay37DisplayData);
 }
 
 #else

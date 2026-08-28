@@ -92,7 +92,7 @@ void func_overlay_011_F0000150_1868998(O11Gfx **displayList, void **matrix,
             for (row = 0; row < 13; row++) {
                 for (column = 0; column < 17; column++) {
                     gO11GridPhases[row][column] =
-                        mathRnd(-0x8000, 0x7FFF);
+                        func_8002997C(-0x8000, 0x7FFF);
                 }
             }
         }
@@ -176,11 +176,11 @@ void func_overlay_011_F0000150_1868998(O11Gfx **displayList, void **matrix,
 
     if ((D_200 == 0) && (D_204 == 0)) {
         if ((D_1C0 == 0) && (D_1C4 == 0) &&
-            (joyGetPressed(D_1C4) & 0x5000)) {
+            (func_8002554C(D_1C4) & 0x5000)) {
             overlay66Select(0);
             func_800290AC(0);
             func_800291D8(0x1E);
-            amTuneSetFadeScaled(0.5f, 0x7F);
+            func_800006BC(0.5f, 0x7F);
             func_8003A754();
             D_204 = 1;
         } else {
