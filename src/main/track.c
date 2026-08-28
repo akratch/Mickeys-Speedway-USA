@@ -1193,7 +1193,198 @@ void func_8000D978(s32 copySegmentData, s32 updateRate) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DB34.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DDE4.s")
+#ifdef NON_MATCHING
+/* PROVENANCE: JFG's public track.c supplies the resident track draw-loop
+ * organization; Mickey's segment and display-list accesses are authoritative. */
+/* Workbench verdict: structure-mismatch, 382 differing words; first mismatch is at +0x0. */
+/* Target is 396 instructions/frame -112; candidate is 355 instructions/frame -120. */
+/* Remaining gap is structural: batch/display-list and object-dispatch loops differ; not permuter-ready. */
+void func_8000DFBC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    TrackSegment *segment;
+    TrackBatch *batch;
+    TrackBatch *batchEnd;
+    Gfx *gfx;
+    u8 *texture;
+    u8 *object;
+    u8 *objectChild;
+    u8 *item;
+    u8 *vertex;
+    u8 *triangle;
+    s32 batchIndex;
+    s32 batchCount;
+    s32 itemIndex;
+    s32 alpha;
+    s32 mode;
+    s32 vertexCount;
+    s32 textureS;
+    s32 vertexAddress;
+    s32 textured;
+    s32 objectMode;
+    s32 value;
+    s16 objectType;
+
+    segment = &D_800792E8->segments[arg0];
+    batch = segment->batches;
+    batchCount = segment->batchCount;
+    batchIndex = 0;
+    itemIndex = 0;
+    gfx = D_800C9520;
+    if (batchCount <= 0 && arg2 <= 0) {
+        return;
+    }
+    do {
+        if ((batchIndex < batchCount) &&
+            ((itemIndex >= arg2) ||
+             (batchIndex < ((u8 **) (u32) arg3)[itemIndex][2]))) {
+            batchEnd = batch;
+            if ((arg1 & (1 << batchIndex)) &&
+                (batchIndex == batch->unk1)) {
+                if (D_8007C854 != 0) {
+                    gfx->words.w0 = 0xFA000000;
+                    value = D_8007C858 & 0xFF;
+                    gfx->words.w1 = (value << 24) | (value << 16) |
+                                     (value << 8) | 0xFF;
+                    gfx++;
+                    D_800C9520 = gfx;
+                    batchCount = segment->batchCount;
+                }
+                if ((batchIndex < batchCount) &&
+                    (batchIndex == batch->unk1)) {
+                    do {
+                        mode = batch->flags;
+                        if (!(mode & 0x800)) {
+                            alpha = 0;
+                            texture = NULL;
+                            if (batch->textureIndex != 0xFF) {
+                                alpha = 1;
+                                texture = (u8 *) D_800792E8->textures +
+                                          (batch->textureIndex * 8);
+                            }
+                            textureS = batch->frame << 8;
+                            vertex = (u8 *) segment->lightData +
+                                     (batch->u0 * 0xA);
+                            triangle = (u8 *) segment->vertexData +
+                                       (batch->v0 * 0x10);
+                            if ((texture != NULL) &&
+                                (*(u32 *) (texture + 4) & 0x40) &&
+                                ((mode & 0x30) != 0x20)) {
+                                gfx->words.w0 = 0xFB000000;
+                                value = (textureS >> 8) & 0xFF;
+                                gfx->words.w1 = (value << 24) |
+                                                 (value << 16) |
+                                                 (value << 8) | value;
+                                gfx++;
+                                D_800C9520 = gfx;
+                            } else {
+                                gfx->words.w0 = 0xFB000000;
+                                gfx->words.w1 = -0x100;
+                                gfx++;
+                                D_800C9520 = gfx;
+                            }
+                            if (!(mode & 0x180)) {
+                                mode |= D_800C9544;
+                            }
+                            objectMode = mode & 0x4000;
+                            if (objectMode != 0) {
+                                func_800343F0(2, batchIndex);
+                            }
+                            func_800349A4(&D_800C9520, texture,
+                                          mode | 2, textureS);
+                            if (objectMode != 0) {
+                                texEnableModes(2);
+                            }
+                            gfx = D_800C9520;
+                            vertexAddress = (s32) vertex + 0x80000000;
+                            vertexCount = batch->frame - batch->u0;
+                            gfx->words.w1 = vertexAddress;
+                            gfx->words.w0 = (((vertexCount * 0xA) + 8) & 0xFFFF) |
+                                             0x04000000 |
+                                             ((((vertexCount * 8) |
+                                                (vertexAddress & 6)) & 0xFF) << 16);
+                            gfx++;
+                            D_800C9520 = gfx;
+                            gfx->words.w1 = (s32) triangle + 0x80000000;
+                            vertexCount = batch[1].v0 - batch->v0;
+                            gfx->words.w0 = ((vertexCount * 0x10) & 0xFFFF) |
+                                             0x05000000 |
+                                             (((((vertexCount - 1) * 0x10) |
+                                                alpha) & 0xFF) << 16);
+                            gfx++;
+                            D_800C9520 = gfx;
+                            batch = (TrackBatch *) ((u8 *) batch + 0x10);
+                            batchIndex++;
+                            batchCount = segment->batchCount;
+                        } else {
+                            batch = (TrackBatch *) ((u8 *) batch + 0x10);
+                            batchIndex++;
+                        }
+                    } while ((batchIndex < batchCount) &&
+                             (batch->unk1 == batchEnd->unk1));
+                    batchCount = segment->batchCount;
+                }
+                if (D_8007C854 != 0) {
+                    gfx = D_800C9520;
+                    gfx->words.w1 = 0;
+                    gfx->words.w0 = 0xE7000000;
+                    gfx++;
+                    gfx->words.w1 = -1;
+                    gfx->words.w0 = 0xFA000000;
+                    gfx++;
+                    D_800C9520 = gfx;
+                }
+            } else if ((batchIndex < batchCount) &&
+                       (batch->unk1 == batchEnd->unk1)) {
+                do {
+                    batch = (TrackBatch *) ((u8 *) batch + 0x10);
+                    batchIndex++;
+                } while ((batchIndex < batchCount) &&
+                         (batch->unk1 == batchEnd->unk1));
+            }
+        } else {
+            item = ((u8 **) (u32) arg3)[itemIndex++];
+            object = *(u8 **) (item + 4);
+            objectChild = *(u8 **) (object + 0x4C);
+            if ((objectChild != NULL) && (*(u16 *) (object + 0x8E) == 0)) {
+                if (*(u32 *) (objectChild + 0x10) & 8) {
+                    u8 *child = *(u8 **) (objectChild + 0x1C);
+                    if (child != NULL) {
+                        func_800140CC(object, child, child);
+                    }
+                }
+                func_800140CC(object, objectChild, objectChild);
+            }
+            func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
+                          (TrackSkyObject *) object);
+            value = *(s32 *) (object + 0x54);
+            if (value != 0) {
+                func_80049518(value, &D_800C9520);
+            }
+            if (*(u16 *) (object + 6) & 0x200) {
+                objectType = *(s16 *) (object + 0x44);
+                switch (objectType) {
+                case 1:
+                    func_80009414(&D_800C9520, &D_800C9524,
+                                  &D_800C9528, object);
+                    break;
+                case 0x1D:
+                case 0x49:
+                case 0x3F:
+                    TrapDanglingJump(&D_800C9520, &D_800C9524,
+                                     &D_800C9528, object);
+                    break;
+                case 0x39:
+                case 0x3A:
+                    TrapDanglingJump(&D_800C9520, &D_800C9524, object);
+                    break;
+                }
+            }
+        }
+        batchCount = segment->batchCount;
+    } while (itemIndex < arg2);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DFBC.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E5EC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E920.s")
 /* PROVENANCE -- JFG's public track.c supplies the surrounding display-list
