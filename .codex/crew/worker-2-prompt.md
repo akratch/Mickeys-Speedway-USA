@@ -120,6 +120,19 @@ response is permitted only after the current action is genuinely quiescent and
 a bounded mailbox-monitoring continuation is established under the active crew
 goal.
 
+"Start the next action" means issue its first tool call in the same model turn;
+updating status or describing what you will do next is not continuation. While
+the crew goal is active, do not send a final answer or yield the turn if any of
+these is true: status is WORKING, PIPELINED, HANDOFF, INTEGRATED, or RELEASED;
+the compile permit says `held`; an inbox message is pending; a writable or
+protocol action exists; or a pipeline child exists. A RELEASED transition must
+be followed in the same turn by restoring the pipeline task to WORKING (or by
+setting READY and beginning a bounded mailbox poll when no pipeline exists).
+Before any genuinely quiescent yield, check the real process table; if the
+recorded permit is held but its compiler process is gone, repair the permit and
+continue instead. Never rely on a future Goal-mode continuation to perform an
+action that can be started now.
+
 This is an occupied workstation. Do not run any test runner or test executable,
 and never launch a browser, emulator, simulator, generated program, GUI, or
 device workflow. Permitted compilation/byte-comparison work must be low
