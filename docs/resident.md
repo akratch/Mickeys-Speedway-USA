@@ -342,7 +342,7 @@ contains none and is split to C with assembly fallbacks. The complete census:
 | `0x8001953C` | `0x3F8` | JFG placeholder `func_80021B9C` | placeholder prohibited; remains `func_8001953C` |
 | `0x80019934` | `0xF0` | `lightDistanceCalc` | Tier A: JFG-adapted C and the five-entry compiler-owned switch table are linked byte-identically |
 | `0x80019A24` | `0x94` | `lightDirectionCalc` | unique nearest skeleton (0.432) and exact JFG size; comparison only |
-| `0x80019AB8` | `0x2E0` | `lightObject` | tier-B comparison: calls all three `lights2` pipelines |
+| `0x80019AB8` | `0x2E0` | `lightObject` | Evidence D: Mickey reconstruction is compiled as a candidate: 191/184 instructions, 178 differing words, first `+0x0`, frame `-0xD0` versus `-0xC8`, and 54 relocation-symbol sites differ; not shape-exact. |
 | `0x80019D98` | `0x50` | `lightDefaultObjectLight` | tier-B comparison: delegates to the following setter |
 | `0x80019DE8` | `0xFC` | `lightSetObjectLight` | tier-D boundary; `NON_MATCHING` plateau after the flag lattice, 10 source/type hypotheses, and a 10-minute permuter batch: exact `0x38` frame, 64 instructions versus 63, 46 positional words differ, first `+0x48` from byte-store/delta scheduling; JFG body is also assembly-only, so retain `func_` |
 | `0x80019EE4` | `0x98` | `lightSetupLightSources` | tier-B comparison: loop calls the adopted `addObjectLight` comparison |
@@ -2029,7 +2029,7 @@ PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 | `0x8001953C` | `0x3F8` | JFG placeholder `func_80021B9C` | placeholder prohibited; remains `func_8001953C` |
 | `0x80019934` | `0xF0` | `lightDistanceCalc` | Tier A: JFG-adapted C and the five-entry compiler-owned switch table are linked byte-identically |
 | `0x80019A24` | `0x94` | `lightDirectionCalc` | Tier A: JFG C is compiler/link exact |
-| `0x80019AB8` | `0x2E0` | `lightObject` | tier-B comparison: calls all three `lights2` pipelines |
+| `0x80019AB8` | `0x2E0` | `lightObject` | Evidence D: Mickey reconstruction is compiled as a candidate: 191/184 instructions, 178 differing words, first `+0x0`, frame `-0xD0` versus `-0xC8`, and 54 relocation-symbol sites differ; not shape-exact |
 | `0x80019D98` | `0x50` | `lightDefaultObjectLight` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x80019DE8` | `0xFC` | `lightSetObjectLight` | tier-D boundary; `NON_MATCHING` plateau after the flag lattice, 10 source/type hypotheses, and a 10-minute permuter batch: exact `0x38` frame, 64 instructions versus 63, 46 positional words differ, first `+0x48` from byte-store/delta scheduling; JFG body is also assembly-only, so retain `func_` |
 | `0x80019EE4` | `0x98` | `lightSetupLightSources` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
