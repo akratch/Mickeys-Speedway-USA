@@ -2121,7 +2121,249 @@ void func_8000E5EC(s32 updateRate, s32 arg1) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E5EC.s")
 #endif
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: Mickey's m2c control-flow draft and the resident track
+ * declarations reconstruct this display-list pipeline; no external function
+ * body is adapted. The raw offsets retain fields absent from the local types.
+ */
+/* Workbench verdict: structure-mismatch, 536 differing words, first mismatch +0x0. */
+/* Candidate is 554/542 instructions with the target -0xF8 frame; it is not shape-exact. */
+/* Remaining gap: twelve excess instructions and unresolved command/object relocation scheduling. */
+extern u8 D_80081560[];
+extern u8 D_80081570[];
+extern u8 D_80081580[];
+extern u8 D_80081590[];
+extern u8 D_800815A0[];
+extern u8 D_800815B0[];
+extern u8 D_800815C0[];
+extern u8 D_800815D0[];
+extern u8 D_800815E0[];
+extern u8 D_800815F0[];
+extern u8 D_80081600[];
+extern u8 D_80081610[];
+extern void func_8000F198(s32 segment, s32 record, s32 mode);
+
+#define E920_U8(base, offset) (*(u8 *) ((u8 *) (base) + (offset)))
+#define E920_S16(base, offset) (*(s16 *) ((u8 *) (base) + (offset)))
+#define E920_S32(base, offset) (*(s32 *) ((u8 *) (base) + (offset)))
+#define E920_PTR(base, offset) (*(void **) ((u8 *) (base) + (offset)))
+#define E920_RECORD(segment) \
+    (*(s32 *) ((u8 *) D_800C95B0 + ((segment) * 0x10) + 4))
+
+void func_8000E920(s32 arg0, s32 arg1) {
+    s32 segmentCount;
+    s32 segmentEnd;
+    s32 selectedCount;
+    s32 index;
+    s32 reverseIndex;
+    s16 modeCount;
+    s16 segment;
+    u8 segmentIds[0x70];
+    void **selectedObjects;
+    void *object;
+    void *surface;
+    void *childSurface;
+    u8 *level;
+    s32 record;
+
+    segmentCount = func_8000A244(&segmentEnd);
+    selectedObjects = (void **) D_800C9548;
+    level = levelGetLevel();
+    if (E920_S16(D_800792E8, 0x1A) >= 2) {
+        if (E920_U8(level, 0x106) == 0) {
+            func_8000FA2C(&arg0, (s32) &segmentIds[0]);
+        } else {
+            func_8000F57C(&arg0, &segmentIds[0]);
+        }
+    } else {
+        arg0 = 1;
+        segmentIds[0] = 0;
+    }
+    func_8000A39C(segmentCount, segmentEnd - 1);
+    func_80034920(&D_800C9520);
+    func_80044BC8(D_800C9520, D_80081560, 0x58D);
+    D_800C95B0[0] = -1;
+    modeCount = E920_S16(D_800792E8, 0x1A);
+    for (index = 1; index < modeCount; index++) {
+        D_800C95B4[index * 4] = 0;
+    }
+    if ((D_80079260 != 0) || (D_80079264 != 0)) {
+        for (reverseIndex = arg0 - 1; reverseIndex >= 0; reverseIndex--) {
+            segment = segmentIds[reverseIndex];
+            E920_RECORD(segment) = -1;
+            func_8000F198(segment, -1, 0x4000);
+        }
+        modeCount = E920_S16(D_800792E8, 0x1A);
+    }
+    if (modeCount < 2) {
+        E920_RECORD(1) = -1;
+    }
+    func_8000D978(0, arg1);
+    func_80044BC8(D_800C9520, D_80081570, 0x5A1);
+    if (D_80079260 != 0) {
+        for (index = 0; index < arg0; index++) {
+            segment = segmentIds[index];
+            func_8000F198(segment, E920_RECORD(segment), 0);
+        }
+    }
+    if (D_80079268 == 0) {
+        segmentCount = segmentEnd;
+    }
+    selectedCount = 0;
+    for (index = segmentCount; index < segmentEnd; index++) {
+        object = func_800056F0(index);
+        if ((object != NULL) &&
+            (E920_RECORD(E920_S16(object, 0x2E)) != 0) &&
+            (func_800103D4(object) != 0)) {
+            selectedObjects[selectedCount++] = object;
+        }
+    }
+    if (E920_U8(D_800792EC, 0xF6) != 0) {
+        TrapDanglingJump(selectedCount, selectedObjects);
+    }
+    func_80044BC8(D_800C9520, D_80081580, 0x5D7);
+    for (index = 0; index < selectedCount; index++) {
+        object = selectedObjects[index];
+        if ((E920_U8(object, 0x58) != 0) &&
+            ((E920_U8(object, 6) & 0xC) == 0) &&
+            (E920_U8(object, 0x39) == 0xFF)) {
+            func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
+                          (TrackSkyObject *) object);
+        }
+    }
+    func_80044BC8(D_800C9520, D_80081590, 0x5E3);
+    for (reverseIndex = selectedCount - 1; reverseIndex >= 0;
+         reverseIndex--) {
+        object = selectedObjects[reverseIndex];
+        surface = E920_PTR(object, 0x4C);
+        if ((surface != NULL) && (E920_S16(object, 0x8E) == 0)) {
+            if ((E920_S32(surface, 0x10) & 8) != 0) {
+                childSurface = E920_PTR(surface, 0x1C);
+                if (childSurface != NULL) {
+                    func_800140CC((struct TrackShadowObject *) object,
+                                  (struct TrackShadowInstance *) childSurface);
+                }
+            }
+            func_800140CC((struct TrackShadowObject *) object,
+                          (struct TrackShadowInstance *) surface);
+        }
+    }
+    func_80044BC8(D_800C9520, D_800815A0, 0x5F7);
+    for (index = 0; index < selectedCount; index++) {
+        object = selectedObjects[index];
+        if (((E920_U8(object, 6) & 0xC) == 0) &&
+            (E920_U8(object, 0x39) == 0xFF) &&
+            (E920_U8(object, 0x58) == 0)) {
+            func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
+                          (TrackSkyObject *) object);
+        }
+    }
+    func_80044BC8(D_800C9520, D_800815B0, 0x603);
+    for (reverseIndex = selectedCount - 1; reverseIndex >= 0;
+         reverseIndex--) {
+        object = selectedObjects[reverseIndex];
+        if ((E920_U8(object, 6) & 8) != 0) {
+            func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
+                          (TrackSkyObject *) object);
+        }
+    }
+    if (runlinkIsModuleLoaded(0xC) != 0) {
+        TrapDanglingJump((s32) &D_800C9520, &D_800C9524, &D_800C9528);
+    }
+    if (E920_U8(D_800792EC, 0xF6) != 0) {
+        func_80044BC8(D_800C9520, D_800815C0, 0x61A);
+        TrapDanglingJump((s32) &D_800C9520, &D_800C9524, &D_800C9528);
+        if (D_80079260 != 0) {
+            for (reverseIndex = arg0 - 1; reverseIndex >= 0;
+                 reverseIndex--) {
+                segment = segmentIds[reverseIndex];
+                func_8000F198(segment, E920_RECORD(segment), 0x8000);
+            }
+            for (reverseIndex = selectedCount - 1; reverseIndex >= 0;
+                 reverseIndex--) {
+                object = selectedObjects[reverseIndex];
+                surface = E920_PTR(object, 0x4C);
+                if ((surface != NULL) && (E920_S16(object, 0x8E) != 0)) {
+                    if ((E920_S32(surface, 0x10) & 8) != 0) {
+                        childSurface = E920_PTR(surface, 0x1C);
+                        if (childSurface != NULL) {
+                            func_800140CC(
+                                (struct TrackShadowObject *) object,
+                                (struct TrackShadowInstance *) childSurface);
+                        }
+                    }
+                    func_800140CC((struct TrackShadowObject *) object,
+                                  (struct TrackShadowInstance *) surface);
+                }
+            }
+        }
+    }
+    func_80044BC8(D_800C9520, D_800815D0, 0x634);
+    if (D_80079260 != 0) {
+        for (reverseIndex = arg0 - 1; reverseIndex >= 0; reverseIndex--) {
+            segment = segmentIds[reverseIndex];
+            func_8000F198(segment, E920_RECORD(segment), 4);
+        }
+    }
+    func_80044BC8(D_800C9520, D_800815E0, 0x63B);
+    for (reverseIndex = selectedCount - 1; reverseIndex >= 0;
+         reverseIndex--) {
+        object = selectedObjects[reverseIndex];
+        record = E920_S32(object, 0x54);
+        if (record != 0) {
+            func_80049518(record, &D_800C9520);
+        }
+    }
+    if (runlinkIsModuleLoaded(0xD) != 0) {
+        TrapDanglingJump((s32) &D_800C9520, &D_800C9524, &D_800C9528);
+    }
+    if (runlinkIsModuleLoaded(0x22) != 0) {
+        TrapDanglingJump((s32) &D_800C9520, &D_800C9528);
+    }
+    func_80044BC8(D_800C9520, D_800815F0, 0x64E);
+    for (reverseIndex = selectedCount - 1; reverseIndex >= 0;
+         reverseIndex--) {
+        object = selectedObjects[reverseIndex];
+        if (((E920_U8(object, 6) & 4) != 0) ||
+            ((s32) E920_U8(object, 0x39) < 0xFF)) {
+            func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
+                          (TrackSkyObject *) object);
+        }
+        if ((E920_U8(object, 6) & 0x200) != 0) {
+            switch (E920_S16(object, 0x44)) {
+            case 1:
+                func_80009414(&D_800C9520, &D_800C9524, &D_800C9528,
+                              (TrackSkyObject *) object);
+                break;
+            case 0x1D:
+            case 0x49:
+            case 0x3F:
+                TrapDanglingJump((s32) &D_800C9520, &D_800C9524,
+                                 &D_800C9528, object);
+                break;
+            case 0x39:
+            case 0x3A:
+                TrapDanglingJump((s32) &D_800C9520, &D_800C9524, object);
+                break;
+            }
+        }
+    }
+    func_80044BC8(D_800C9520, D_80081600, 0x678);
+    if ((D_8007A124 == 0) && (camGetMode() == 0)) {
+        partDraw(&D_800C9520, (s32) &D_800C9524, -1);
+    }
+    D_800C9544 = 0;
+    func_80044BC8(D_800C9520, D_80081610, 0x680);
+}
+#undef E920_U8
+#undef E920_S16
+#undef E920_S32
+#undef E920_PTR
+#undef E920_RECORD
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E920.s")
+#endif
 /* PROVENANCE -- JFG's public track.c supplies the surrounding display-list
  * routine and texture vocabulary, while this Mickey body follows its own
  * fields, call sites, and assembly-only command schedule. */
