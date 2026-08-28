@@ -75,6 +75,22 @@ extern s32 D_1D8CRead;
 extern void overlay1GetVariableRecords(O1VariableRecord **records, s32 *length,
                                        s32 enabled, O1RecordOwner *owner);
 
+/*
+ * Plateau (2026-08-28): the target and selective-context candidate are both
+ * 0xB0 bytes (44 words) with a 0x38 frame; eight instruction words differ,
+ * first at +0x1C. Five sites are the two call-output homes: target records and
+ * length use sp+0x34/sp+0x20, while the candidate uses sp+0x30/sp+0x28. The
+ * other three sites are one conditional-store branch/address schedule. Target
+ * and candidate each have five relocs at the same offsets and of the same
+ * types (one call and two data HI/LO pairs), but the candidate's friendly call
+ * and D_1D8CRead identities remain unresolved. Removing the unused volatile
+ * local shrank the frame and regressed to 13 words; a typed store pointer,
+ * byte cursor, block-local record size, and scoped call outputs retained the
+ * eight-word baseline. Direct D_1D8C access fixed the four data-reloc names but
+ * regressed to 16 words. The consolidated NON_MATCHING TU is independently
+ * blocked by unrelated candidate declarations, so no linked exact claim is
+ * possible from the selective diagnostic.
+ */
 #ifdef NON_MATCHING
 void overlay1AssignRecordIndex(s32 unused, O1RecordOwner *owner) {
     volatile s32 private;
