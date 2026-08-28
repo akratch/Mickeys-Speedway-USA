@@ -1904,6 +1904,11 @@ overlay79GetEntriesReloc = 0xf0000000;
 /* overlay 79: overlay79UpdateTimers.c.o */
 overlay79FinishReloc = 0xf0000000;
 
+/* overlay 80: overlay80InitializeContact.c.o */
+gOverlay80Scale0 = 0x00000000;
+overlay80QueryNearbyReloc = 0xf0000000;
+overlay80ResolveCandidateReloc = 0xf0000000;
+
 /* overlay 81: overlay_081.c.o */
 gOverlay81Mask = 0x00000000;
 gOverlay81Scale = 0x00000000;
