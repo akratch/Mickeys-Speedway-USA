@@ -332,11 +332,9 @@ s32 func_8003CE10(Gfx **dList, s32 renderContext, void **vertices, CircularParti
     gDPSetEnvColor((*dList)++, 0xFF, 0xFF, 0xFF, 0);
     return ((u8 *)*vertices - (u8 *)firstVertex) / 10;
 }
-/*
- * Workbench: allocation-mismatch, exact 153 instructions/frame -128/27 words, first +0x48.
- * Levers: temp-FIFO/pool-web scopes, direct fields, color-web removal, flags, and bounded permutation; no exact.
- * Remains: outer-count pool color and later command-word web rotations; asm stays canonical.
- */
+/* Workbench: allocation-mismatch, 70 differing words, size_delta 0; first mismatch +0x50.
+ * Shape-exact/permuter-ready: target and candidate are 168 instructions with the exact frame; residual is register allocation.
+ * Remaining allocation is for the permuter; assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: structure cross-checked against JFG's assembly-only
