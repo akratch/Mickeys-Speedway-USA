@@ -282,7 +282,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_038_F0000154_1885E64` | `src/overlays/o038/overlay38UpdateParticles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_040_F0000000_18868B0` | `src/overlays/o040/overlay40AddEntry.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_040_F00001A0_1886A50` | `src/overlays/o040/overlay40BuildFrame.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_040_F0000690_1886F40` | `src/overlays/o040/overlay40FadeRecords.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_040_F0000690_1886F40` | `src/overlays/o040/overlay40FadeRecords.c` | none | — | No ownership change; three-word v0/v1 allocator plateau remains. |
 | `func_overlay_040_F00000E8_1886998` | `src/overlays/o040/overlay40UpdateEntries.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_041_F0001650_1888988` | `src/overlays/o041/overlay41AddSlot.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_041_F0000000_1887338` | `src/overlays/o041/overlay41AdvanceStepRecords.c` | none | — | No ownership change; continue source/codegen work. |

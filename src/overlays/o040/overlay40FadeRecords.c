@@ -43,15 +43,15 @@ extern s16 gOverlay40BlendTarget;
 extern s16 gOverlay40BlendDuration;
 extern s16 gOverlay40BlendOutput;
 
-/* Plateau re-proved 2026-08-28: canonical output is exact-size at 101 words
- * with an 0x8 frame and only the v0/v1 operands at +0xC/+0x10/+0x24 wrong.
- * An instrumented guide-19 oracle moved 16 rows across 11 runs and worsened
- * the residual to 13 words; chained, comma-expression, and timer-separated
- * copy formation widened it to 16, 16, and 41 words. The opcode schedule and
- * temp ring stayed exact, so this three-word allocation basin remains best. */
-/* Object-level reproof: instruction-words-identical, 0 differing words, first
- * mismatch none; the 101-instruction, frame -8 shape is exact and permuter-ready.
- * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
+/* Plateau re-proved 2026-08-28 against the actual NON_MATCHING object: the
+ * 101-word body and 0x8 frame are exact, with only the v0/v1 operands at
+ * +0xC/+0x10/+0x24 differing. The former zero-word claim compared the linked
+ * GLOBAL_ASM fallback, not this candidate; a linked promotion trial also
+ * rejected the candidate. An instrumented guide-19 oracle moved 16 rows
+ * across 11 runs and worsened the residual to 13 words; chained,
+ * comma-expression, and timer-separated copy formation widened it to 16, 16,
+ * and 41 words. The opcode schedule and temp ring stayed exact, so this
+ * three-word uopt-globalcolor allocation basin remains best. */
 #ifdef NON_MATCHING
 void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
                           s32 amount) {
