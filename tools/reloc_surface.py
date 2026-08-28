@@ -305,7 +305,18 @@ def synthesize(obj_path: Path, overlay: int, rom: bytes, atlas_rows, records,
             target, have = sext16(anchor["stored"]), sext16(anchor["obj"])
         wanted[name].add((target - have) & 0xFFFFFFFF)
 
+    # A symbol every one of whose sites was dropped by the corroboration
+    # filter is not "fine": it means the module's table corroborates the symbol
+    # somewhere, but not at any site this object still spells the same way. No
+    # addend is readable, and saying nothing would leave the caller with an
+    # undefined reference and no reason for it.
+    seen = {s["symbol"] for s in sites}
+    filtered = sorted(seen - set(wanted) - unmapped)
+
     values, conflicts = {}, []
+    for name in filtered:
+        conflicts.append((name, "no corroborated site survived: the schedule "
+                                "diverges at every site the table names"))
     for name in sorted(wanted):
         if name in unmapped:
             conflicts.append((name, "unmapped site"))

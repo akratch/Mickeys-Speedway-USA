@@ -58,6 +58,8 @@ LINK_SYMS = ROOT / "overlay_undefined_syms.us.txt"
 UNDEF_RE = re.compile(r"undefined reference to [`'\"]([A-Za-z_][A-Za-z0-9_]*)")
 MARKER_RE = re.compile(r"PROMOTION-TRIAL: ([^:]+): (.*)")
 TRUNC_RE = re.compile(r"relocation truncated to fit: (\S+)")
+# A splat auto-name in the resident address space: func_8002997C, D_80003634.
+RESIDENT_RE = re.compile(r"^(func|D)_8[0-9A-F]{7}$")
 
 
 @dataclasses.dataclass
@@ -203,15 +205,30 @@ def classify_failure(log: str, item, surface_log: str) -> tuple[str, str]:
 
     undef = UNDEF_RE.findall(log)
     if undef:
+        # Not a relocation-surface problem at all: a resident symbol the tree
+        # does not define yet. Its own address is what the reference wants;
+        # there is no addend to synthesize.
+        resident = [m for m in undef if RESIDENT_RE.match(m)]
+        if resident:
+            return "build-error", "resident-symbol-missing (%s)" % \
+                ", ".join(sorted(set(resident))[:3])
         # A symbol the synthesizer refused because the candidate's schedule
-        # disagrees at the placeholder's own sites: no consistent addend
-        # exists, so it reports the conflict rather than inventing one.
+        # disagrees at the placeholder's own sites: either two sites demand
+        # different addends, or the module's table corroborates the symbol but
+        # not at any site this object still spells the same way. Either way no
+        # consistent addend exists and the tool reports rather than invents.
         diverged = {m for m in undef
-                    if re.search(r"\b%s\b.*distinct values" % re.escape(m),
-                                 surface_log)}
+                    if re.search(r"\b%s\b: (\d+ distinct values|no corroborated"
+                                 r" site)" % re.escape(m), surface_log)}
         if diverged:
             return "build-error", "schedule-divergence-at-site (%s)" % \
                 ", ".join(sorted(diverged)[:3])
+        unmapped = {m for m in undef
+                    if re.search(r"\b%s\b: unmapped site" % re.escape(m),
+                                 surface_log)}
+        if unmapped:
+            return "build-error", "unmapped-site (%s)" % \
+                ", ".join(sorted(unmapped)[:3])
         aliased = [m for m in undef if rs.GEN_NAME_RE.match(m)]
         if aliased:
             return "build-error", "alias-coupling (%s)" % \
@@ -265,7 +282,16 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
         else:
             diffs = rom_diff_offsets()
             if diffs == [-1]:
-                t.klass, t.error, t.cause = "build-error", "ROM size differs", "rom-size"
+                # A skipped normalization can leave a section long enough to
+                # move the image's own size; that is the size report, not a
+                # separate failure.
+                marker = MARKER_RE.findall(log)
+                if marker:
+                    t.klass, t.cause = "text-size-differs", marker[0][0]
+                    t.error = "ROM size differs"
+                else:
+                    t.klass, t.error, t.cause = ("build-error",
+                                                 "ROM size differs", "rom-size")
             elif not diffs:
                 t.klass = "exact"
             else:
