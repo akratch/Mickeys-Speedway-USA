@@ -13,6 +13,7 @@
 set -euo pipefail
 name=${1:?lane name}; prompt=${2:?prompt file}; shift 2
 minutes=${CODEX_MINUTES:-180}
+resume=0
 lane_args=()
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -20,6 +21,7 @@ while [ "$#" -gt 0 ]; do
       [ "$#" -ge 2 ] || { echo "--minutes needs a value" >&2; exit 2; }
       minutes=$2; shift 2 ;;
     --minutes=*) minutes=${1#*=}; shift ;;
+    --resume) resume=1; shift ;;
     *) lane_args+=("$1"); shift ;;
   esac
 done
@@ -33,7 +35,14 @@ prompt="$prompt_dir/$(basename "$prompt")"
 timeout_bin=$(command -v timeout || command -v gtimeout || true)
 [ -n "$timeout_bin" ] || { echo "GNU timeout/gtimeout is required" >&2; exit 2; }
 
-lane=$(tools/new_lane.sh "$name" "${lane_args[@]}")
+if [ "$resume" = 1 ] && [ -d "../mickey-lane-$name" ]; then
+  # --resume: relaunch a worker in an existing lane (after a crash or a
+  # restart); the lane keeps its branch, commits and build state.
+  lane=$(cd "../mickey-lane-$name" && pwd)
+  rm -f "$lane/.codex-status"
+else
+  lane=$(tools/new_lane.sh "$name" "${lane_args[@]}")
+fi
 model=${CODEX_MODEL:-}
 args=(exec --dangerously-bypass-approvals-and-sandbox -C "$lane" -o "$lane/.codex-last.md")
 [ -n "$model" ] && args+=(-m "$model")
