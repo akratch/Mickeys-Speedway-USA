@@ -1480,9 +1480,9 @@ build_routes:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DB34.s")
 #endif
-/* Workbench: allocation-mismatch; 24 words differ, first mismatch +0x24. */
-/* Candidate is shape-exact: 118 instructions, frame -40/-40 bytes, and both call relocations match. */
-/* Remaining gap is register allocation only; this candidate is permuter-ready. */
+/* Workbench verdict: structure-mismatch, 116 differing words, first mismatch +0x0. */
+/* Candidate: target/candidate 118/121 instructions and -0x28/-0x28 frames; the top-level argument carriers are retained. */
+/* Shape status: the target's four-at-a-time scan and relocation bindings remain unresolved; this is not permuter-ready. */
 #ifdef NON_MATCHING
 s32 func_8000DDE4(u8 keyArg, s32 recordCount, s32 recordsArg, s32 matchesArg) {
     /* Parameter types follow the top-level prototype the matched callers use. */
