@@ -361,11 +361,19 @@ def replicate_objcopy(scratch: Path, recipe: BuildRecipe, c_file: Path, out_dir:
     obj = f"build/{c_file.relative_to(ROOT).as_posix()}.o"
     csh = scratch / "compile.sh"
     lines = [f"flags: {' '.join(recipe.flags)} ({'gmake -n' if recipe.from_dry_run else 'static group'})"]
+    # Whole-token match only: a plain substring replace would also rewrite
+    # `build/x.c.o.syms`-style arguments into nonexistent paths, and a step
+    # that does not mention the object at all cannot be retargeted (it would
+    # reach the scratch still pointing at the real build tree).
+    mention = re.compile(r"(?<![\w./-])(?:\./)?" + re.escape(obj) + r"(?![\w.-])")
     if recipe.objcopy_steps and csh.is_file():
         with open(csh, "a") as f:
             f.write("\n")
             for step in recipe.objcopy_steps:
-                remapped = step.replace(obj, '"$OUTPUT"')
+                if not mention.search(step):
+                    lines.append(f"skipped (does not name the object): {step}")
+                    continue
+                remapped = mention.sub('"$OUTPUT"', step)
                 f.write(remapped + "\n")
                 lines.append(f"replicated: {remapped}")
     for s in recipe.skipped_postproc:
