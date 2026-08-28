@@ -364,7 +364,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_071_F0000870_18CA390` | `src/overlays/o071/func_overlay_071_F0000870_18CA390.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_073_F0000D70_18CB830` | `src/overlays/o073/overlay73Draw.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_073_F0000000_18CAAC0` | `src/overlays/o073/overlay73Initialize.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_074_F00000B8_18CBD58` | `src/overlays/o074/overlay74Update.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_074_F00000B8_18CBD58` | `src/overlays/o074/overlay74Update.c` | none | — | Exact-size 100-word candidate is six words away at a traced temp-FIFO/pool-position boundary; no ownership change. |
 | `func_overlay_075_F0000214_18CC17C` | `src/overlays/o075/overlay75UpdateMovingObject.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_079_F0000134_18CD0D4` | `src/overlays/o079/func_overlay_079_F0000134_18CD0D4.c` | resolved-plateau | overlay 79 shared data base | TU-owned +0x0..+0x60 aggregate is exact; code generation remains. |
 | `func_overlay_079_F0000FA0_18CDF40` | `src/overlays/o079/func_overlay_079_F0000FA0_18CDF40.c` | none | — | No ownership change; continue source/codegen work. |

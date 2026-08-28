@@ -37,13 +37,18 @@ void overlay74HitReloc(Overlay74UpdateObject *object);
 void overlay74SoundReloc(s32 soundId, s32 arg1);
 void overlay74RewardReloc(s32 count);
 
-/* NON_MATCHING plateau (retested 2026-08-25): the nearest skeleton score is
+/* NON_MATCHING plateau (retested 2026-08-28): the nearest skeleton score is
  * 0.056 and all 119 flag combinations miss. Ten structural variants reduced
  * the exact-size, 100-word candidate from 14 differing words to six while
  * preserving the 0x60 frame. The first mismatch remains +0xC: five words swap
  * the result aggregate's address/object register pair, and one later OR uses
  * the opposite commutative encoding. A bounded two-worker permuter batch found
- * no exact form. */
+ * no exact form. An instrumented IDO build reproduced the project compiler's
+ * text exactly. Removing the artificial aggregate-address use makes the first
+ * pair exact but rotates 32 later temporary words; local-carrier, ABI-return,
+ * and operand-order spellings do not retain that gain. Forced-color probes
+ * move 85+ words or change the instruction count, confirming this is a
+ * temp-FIFO/pool-position boundary rather than a safe one-web recoloring. */
 #ifdef NON_MATCHING
 void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
     Overlay74QueryResult result;

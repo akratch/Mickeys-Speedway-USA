@@ -2048,9 +2048,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o073/overlay73Draw.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o074/overlay74Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o074/overlay74Init.c.o: CFLAGS += -Wab,-r4300_mul
-# The natural C reproduces the complete routine and schedule, but IDO colors
-# two non-overlapping temporary webs oppositely. Every replacement below is a
-# register-only or commutative-operand encoding; fail if compiler output moves.
+# The NON_MATCHING C reproduces the complete routine and schedule but remains
+# six instruction words from retail at a temp-FIFO/pool-position boundary.
+# The only postprocess here restores the fallback assembly's friendly symbol.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o074/overlay74Update.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
 		--redefine-sym func_overlay_074_F00000B8_18CBD58=overlay74Update $@
