@@ -154,3 +154,11 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
   `tools/promotion_trial.py` now records, per in-range word, the target word,
   the built word and the relocation at that site; overlay lanes measure with
   the trial only and commit "trial-exact" when it reports zero.
+- **Why the permuter scored overlay functions in the hundreds.** The splat
+  target assembles with no relocations at all (`jal <self>`, `lui/addiu …,0`),
+  the candidate carries symbols, and decomp-permuter ignores symbol-name
+  differences only when both sides carry one. `overlay18Load`: score 700,
+  two real words. Changed (in progress): the scratch target is annotated
+  with symbolic relocations at the sites the module relocation table names,
+  so the permuter becomes a valid overlay oracle; promotion still goes
+  through the linked build.
