@@ -12,6 +12,65 @@
 
 #include "game/fx.h"
 
+typedef struct FxConePoint {
+    f32 x;
+    f32 y;
+    f32 z;
+} FxConePoint;
+
+typedef FxCone FxConeCoords;
+
+typedef struct FxWakeRippleData {
+    u8 pad0[0x70];
+    void *texture;
+    u8 mode;
+    u8 active;
+    s16 fade;
+    s16 angle;
+    s16 angleStep;
+    f32 value7C;
+    f32 value80;
+    void *update;
+} FxWakeRippleData;
+
+typedef struct FxWakeTexture {
+    u8 pad0[0x10];
+    u16 length;
+} FxWakeTexture;
+
+typedef struct FxWakeUpdateOwner {
+    u8 pad0[0x0C];
+    f32 valueC;
+    u8 pad10[4];
+    f32 value14;
+    u8 pad18[4];
+    f32 value1C;
+    u8 pad20[4];
+    f32 value24;
+    u8 pad28[0x2C];
+    FxWakeRippleData *ripple;
+} FxWakeUpdateOwner;
+
+typedef struct FxWakeSegment {
+    s32 x;
+    s32 y;
+    s32 z;
+    u8 padC[2];
+    s16 length;
+} FxWakeSegment;
+
+extern void func_80048080(s32 count, s16 arg1, s16 arg2, s16 arg3,
+                          s32 arg4, s32 arg5, FxConePoint *points,
+                          void *vertices, s32 alpha);
+extern void viGetCurrentSize(s32 *width, s32 *height);
+extern s16 Arctanf(f32 x, f32 y);
+extern void wakeUpdate(s32 update, f32 x, f32 height, f32 z, s32 angle,
+                       s32 delta);
+extern f32 D_80083DE4;
+extern void mathOneFloatPY(void *source, f32 *result, s16 angle);
+extern void camSetScissor(FxGfx **dlist);
+extern void func_80034920(FxGfx **dlist, void *table, FxGfx **arg2);
+
 void func_80046E70(FxCone *cone) {
     FxConeTextureInfo *texture;
     FxConeTextureInfo *alternateTexture;
@@ -38,7 +97,81 @@ void func_8004707C(FxCone *cone, s32 value2C, s32 value2D, s32 value2E,
         cone->envBlue = value32;
     }
 }
+/* Workbench verdict: structure-mismatch, 121 differing words, first mismatch +0x44. */
+/* Candidate: 150/149 instructions with the target -0x168 frame; relocation and CFG residuals remain, so it is not shape-exact. */
+/* Shape status: one-word length delta; the helper loop and signed angle path are preserved for the permuter-ready pass. */
+/* PROVENANCE: JFG's public src/fx.c establishes the corresponding cone routine and call roles; this body is reconstructed from Mickey's own m2c draft and typed layouts. */
+#ifdef NON_MATCHING
+void func_800470B0(FxCone *cone, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
+                   s16 arg5, f32 arg6, f32 arg7, f32 arg8) {
+    FxConePoint points[17];
+    FxConePoint *point;
+    u8 *address;
+    u8 *vertex;
+    s32 angleStep;
+    f32 var_f0;
+    f32 var_f24;
+    f32 temp_f6;
+    s32 i;
+    s32 j;
+
+    if (cone->flags != 0) {
+        angleStep = -0x10000 / (s32) cone->segmentCount;
+        var_f0 = 0.0f;
+        var_f24 = -arg8;
+    } else {
+        angleStep = 0x10000 / (s32) cone->segmentCount;
+        var_f24 = 0.0f;
+        var_f0 = -arg8;
+    }
+    points[0].x = 0.0f;
+    points[0].y = 0.0f;
+    points[0].z = var_f0;
+    point = points + 1;
+    i = 0;
+    j = cone->segmentCount - 1;
+    if (cone->segmentCount != 0) {
+        do {
+            point->x = (f32) (func_8002A8C0(i) * arg6);
+            temp_f6 = func_8002A8BC(i) * arg7;
+            point->z = var_f24;
+            point++;
+            i += angleStep;
+            point[-1].y = temp_f6;
+            j--;
+        } while (j != 0);
+    }
+    address = (u8 *) cone;
+    i = 0;
+    do {
+        func_80048080(cone->mode, arg1, arg2, arg3, (s32) arg4,
+                      (s32) arg5, points, *(void **)(address + 8), 0xFF);
+        i += 4;
+        address += 4;
+    } while (i < 8);
+    vertex = cone->vertices;
+    {
+        s8 index;
+        s8 next;
+
+        index = 1;
+        if ((s32) cone->segmentCount > 0) {
+            do {
+                next = index + 1;
+                vertex[0] = 0;
+                vertex[1] = index;
+                vertex[2] = next;
+                vertex[3] = 0;
+                index = next;
+                vertex += 0x10;
+            } while ((s32) cone->segmentCount >= next);
+        }
+    }
+    vertex[-0xE] = 1;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800470B0.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80047304.s")
 /* Workbench p5: mixed structure/register mismatch; 247/251 candidate/target instructions, 178 words from +0x0.
  * Lever: constant-audit and array declaration/loop spelling; loopunroll=0 won the flag sweep, while pointer and width/lifetime variants regressed.
