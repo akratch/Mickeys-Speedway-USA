@@ -67,3 +67,11 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
   (`func_8004D40C`, `overlay31CreateConfig`). Standing rule: no wall verdict
   before a sound sweep of that function; the workbench verdict text now
   routes allocation ties to the permuter.
+- **Candidates in one TU drift into conflicting declarations.** Two lanes
+  declared the same function with different parameter types (an earlier
+  caller candidate's extern vs a later definition), so the merged TU failed
+  the NON_MATCHING build; the matched callers' top-level prototype is the
+  ABI truth. Changed: candidates adapt to the existing prototype with casts
+  inside the body; `merge_lane.sh`/`finish_merge.sh` run
+  `check-nonmatching-builds` before committing a merge; lane prompts carry
+  the rule.
