@@ -2255,10 +2255,9 @@ extern void *func_8002B280(s32 size, s32 tag);
 
 void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
     s32 offset;
-    register s32 i;
-    u8 *first;
-    u8 *second;
-    FxTextureCallback callback;
+    s32 i;
+    s8 *first;
+    s8 *second;
 
     index--;
     offset = index * 4;
@@ -2274,19 +2273,16 @@ void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
             D_800D60C0[index] = 0;
             return;
         }
-        i = (texture->width * texture->height) - 1;
-        if ((texture->width * texture->height) != 0) {
-            do {
-                *first = 0;
-                first++;
-                *second = 0;
-                second++;
-            } while (i-- != 0);
+        i = texture->width * texture->height;
+        while (i--) {
+            *first = 0;
+            first++;
+            *second = 0;
+            second++;
         }
         func_800320F0((s32)&D_8007D47C[index]);
-        callback = D_8007D47C[index];
-        if (callback != 0) {
-            callback(index, D_800D6098[index], 1);
+        if (D_8007D47C[index] != 0) {
+            D_8007D47C[index](index, D_800D6098[index], 1);
         }
     }
 }
