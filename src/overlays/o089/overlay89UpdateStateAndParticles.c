@@ -72,6 +72,9 @@ extern void overlay89MaintainReloc(Overlay89Object *object,
  * bounded permuter batch improved score 2205 to 1115 only by adding an empty
  * self-conjunction block, rejected as scheduling scaffolding.
  */
+/* Ownership trial (2026-08-28): no initialized .data/.rodata is emitted by
+ * this TU; linked promotion remains text-differs with 136 in-range words,
+ * first +0x0. The 0x10 text overrun/frame and codegen gap remain. */
 #ifdef NON_MATCHING
 void overlay89UpdateStateAndParticles(Overlay89Object *object,
                                       volatile s32 updateRate) {

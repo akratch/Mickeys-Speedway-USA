@@ -382,7 +382,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_087_F0000128_18D3090` | `src/overlays/o087/func_overlay_087_F0000128_18D3090.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_088_F00001A4_18D3C2C` | `src/overlays/o088/overlay88DrawSortedGeometry.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_089_F0000270_18D44A0` | `src/overlays/o089/overlay89InitializeEffect.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_089_F00005A4_18D47D4` | `src/overlays/o089/overlay89UpdateStateAndParticles.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_089_F00005A4_18D47D4` | `src/overlays/o089/overlay89UpdateStateAndParticles.c` | resolved-plateau | overlay 89 initialized sections | No TU-owned data/rodata is emitted; trial remains text-differs with 136 words and a 0x10 text-size gap. |
 | `func_overlay_090_F00000FC_18D4BF4` | `src/overlays/o090/overlay_090.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_092_F0000308_18D6228` | `src/overlays/o092/func_overlay_092_F0000308_18D6228.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_092_F0000068_18D5F88` | `src/overlays/o092/overlay92FindNearestCourse.c` | none | — | No ownership change; continue source/codegen work. |
