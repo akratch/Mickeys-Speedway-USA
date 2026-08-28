@@ -242,7 +242,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_022_F0000D30_1878E38` | `src/overlays/o022/overlay22RemoveObject.c` | resolved-plateau | overlay 22 local globals | Initialized block is TU-owned; pool-position structure remains. |
 | `func_overlay_022_F0000A7C_1878B84` | `src/overlays/o022/overlay22ResolvePlane.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_025_F0000000_1879C88` | `src/overlays/o025/overlay_025.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_025_F000017C_1879E04` | `src/overlays/o025/overlay_025.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_025_F000017C_1879E04` | `src/overlays/o025/overlay_025.c` | resolved-plateau | overlay 25 movement constants | TU-owned +0x20..+0x40 .rodata clears module growth; code generation remains. |
 | `func_overlay_026_F00001A0_187A598` | `src/overlays/o026/func_overlay_026_F00001A0_187A598.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_026_F0000B18_187AF10` | `src/overlays/o026/func_overlay_026_F0000B18_187AF10.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_026_F0001158_187B550` | `src/overlays/o026/overlay26DrawGroups.c` | none | — | No ownership change; continue source/codegen work. |
