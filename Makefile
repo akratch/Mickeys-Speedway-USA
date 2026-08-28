@@ -2300,13 +2300,21 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o047/func_overlay_047_F0000B30_1891948.c.o: \
 	$(TOOLS_DIR)/rebind_elf_relocations.py
 # The compiler's six-entry table is the same table retained in overlay 47's
 # initialized aggregate at runtime-local +0x56C. Rebind the text pair to that
-# owner and discard only the duplicate private section.
+# owner and discard only the duplicate private section. The canonical
+# GLOBAL_ASM fallback has neither candidate relocation, so leave that object
+# untouched; promotion_trial.py splices the C body into the normal build and
+# exposes both asserted .rodata relocations before this normalization runs.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o047/func_overlay_047_F0000B30_1891948.c.o: POSTPROCESS = \
-	$(OBJCOPY) --add-symbol overlay47DispatchSwitchTable=0x56C,global $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0xF04:.rodata:overlay47DispatchSwitchTable \
-		0xF0C:.rodata:overlay47DispatchSwitchTable && \
-	$(OBJCOPY) --remove-section=.rodata $@
+	if $(OBJDUMP) -r $@ | awk \
+		'$$1 == "00000f04" && $$3 == ".rodata" { hi = 1 } \
+		 $$1 == "00000f0c" && $$3 == ".rodata" { lo = 1 } \
+		 END { exit !(hi && lo) }'; then \
+		$(OBJCOPY) --add-symbol overlay47DispatchSwitchTable=0x56C,global $@ && \
+		$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+			0xF04:.rodata:overlay47DispatchSwitchTable \
+			0xF0C:.rodata:overlay47DispatchSwitchTable && \
+		$(OBJCOPY) --remove-section=.rodata $@; \
+	fi
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o047/func_overlay_047_F0000000_1890E18.c.o: CFLAGS += \
 	-Wo,-loopunroll,0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o047/func_overlay_047_F0000000_1890E18.c.o: POSTPROCESS = \
