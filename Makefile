@@ -101,6 +101,16 @@ CFLAGS  := -non_shared -G 0 -Xcpluscomm -fullwarn -woff 649,838 -nostdinc \
            $(DEFINES) $(INCLUDE_CFLAGS)
 POSTPROCESS := @:
 
+# Report-and-skip for the digest-guarded POSTPROCESS passes, for
+# tools/promotion_trial.py only. Unset (the default) every guard aborts the
+# build as it always has; set, a guard prints a `PROMOTION-TRIAL: ...` marker
+# and skips its pass, so a candidate whose codegen is the wrong *size* yields
+# `text-size-differs (+N bytes)` and a linked ROM to diff instead of a bare
+# build failure. The resulting ROM is not a valid build and is never verified.
+# Exported so it reaches the tools; see tools/postprocess_guard.py.
+PROMOTION_TRIAL ?=
+export PROMOTION_TRIAL
+
 # Every per-file POSTPROCESS below is a post-compile ELF normalization -- a
 # section trim, a relocation rebind or filter, an added relocation guarded by a
 # .text prefix hash. All of them encode the *matching* object's exact layout,
