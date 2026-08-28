@@ -17,10 +17,14 @@ typedef struct Overlay41Slot {
 extern Overlay41Slot gOverlay41Slots[];
 extern f32 D_0[];
 
-/* Workbench (2026-08-28): register-permutation; 6/55 words remain, first +0x10.
- * The remaining initializer made a 30-word structural regression; inner-scoped bytes is baseline-equivalent.
- * Trace-only p2:w7=c4 fixes the a1/v1 exchange but leaves the at/sp pair (2 words); diagnostic only, never promotable.
- * Remains: a source-unattributed globalcolor outcome; canonical assembly stays. */
+/* Workbench (2026-08-28): register-permutation; frameless 0xDC/55-word
+ * baseline has six register-only differences, first +0x10, and four candidate
+ * relocs. A common color source regressed to 52 words; typed color and
+ * scan-local traversal forms were baseline-equivalent; an isolated s16 amount
+ * conversion regressed to ten words. The target object's zero-reloc surface is
+ * synthetic; the linked overlay resolves both local ABS-zero bindings.
+ * Prior flag/permuter/globalcolor work remains exhausted; canonical assembly
+ * stays. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0001650_1888988(void *object, volatile s32 value1,
                                        s32 value3, s32 value5, s32 value7,
