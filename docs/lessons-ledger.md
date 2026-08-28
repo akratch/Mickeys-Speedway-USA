@@ -80,3 +80,17 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
   merge cost an agent pass to resolve. Changed: assign lanes by translation
   unit, not by function list; when a TU must be shared, the second lane
   waits for the first to integrate.
+- **The permuter is the wrong oracle for overlay functions.** The splat
+  target spells every overlay call relocation with a placeholder symbol and
+  the real link resolves calls through the module's relocation table, so a
+  candidate with identical instruction words still scores hundreds (`overlay18Load`:
+  2 real words, permuter base 700). Changed: `tools/promotion_trial.py`
+  promotes each candidate in place and classes it by the LINKED ROM
+  (exact / text-exact / text-differs / build-error); the sweep runs
+  `--resident-only`; overlay routing uses the trial's numbers.
+- **Overlay promotions are gated by relocation scaffolding, not C.** Most
+  overlay candidates fail to link (undefined `*Reloc` placeholders, digest-
+  guarded ELF passes) because every matched overlay function carries a
+  bespoke POSTPROCESS rule hand-derived from the target relocation table.
+  A generic relocation-surface synthesizer (from the atlas census) is the
+  lever for the whole 299 KB pool; a feasibility spike is running.
