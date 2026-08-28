@@ -7,6 +7,44 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
 
 ## 2026-08-28
 
+- **The overlay scaffolding was hand-maintained because nobody had checked
+  whether it had to be.** `overlay_undefined_syms.us.txt` -- 2,928 lines, one
+  hand-derived line per adopted overlay symbol -- is entirely derivable: a
+  value line is the stored relocation addend read from the baserom at the site
+  the module's own table names, an alias line is the generated splat identity
+  for a module offset from `text_ownership`. Generated, it is 2,265 lines, the
+  ROM is byte-identical, and 8 duplicate names and 168 shadowed assignments
+  disappear. Changed: `gmake overlay-syms` writes it, `gmake
+  check-overlay-syms` gates it, `tools/promotion_trial.py` regenerates it
+  between compiling a candidate and linking it. Overlay candidates carrying a
+  measurable number went 110/279 -> 194/279.
+- **A guard that aborts the build hides the measurement it was about to
+  make.** Every POSTPROCESS normalization asserts the matching object's exact
+  layout, so a promoted candidate of the wrong size died at compile time and
+  53 of 279 candidates reported only "a guard fired". Changed:
+  `tools/postprocess_guard.py` + `PROMOTION_TRIAL=1` make the guards report and
+  skip, so the same candidates now report `text-size-differs (+N bytes)` -- 18
+  of the 44 are within +/-16 bytes. Never set in the normal build.
+- **"build-error" is not a class, it is a refusal to look.** Splitting the
+  overlay trial's failures by cause turned 169 undifferentiated errors into 85,
+  of which 49 are `schedule-divergence-at-site` (a codegen problem), 15 are
+  `resident-symbol-missing` (not an overlay problem at all) and 14 are
+  `rom-size`. Two of the spike's named failure classes -- alias coupling and
+  non-`.text` sites -- stopped occurring once the generator owned the whole
+  block. Changed: `promotion_trial.py` names every cause and `--resume` keys
+  results by function instead of appending a second verdict.
+- **A filter that silently drops everything looks like success.** The
+  synthesizer ignores relocation sites the module's table does not corroborate;
+  when *every* site for a symbol was dropped it emitted no value and no
+  complaint, and the caller saw only "undefined reference". Changed:
+  `synthesize()` reports a symbol whose sites were all filtered. The matching
+  tree reports zero, so the complaint only fires on real divergence.
+- **The Makefile is not the list of what the link consumes.** Filtering build
+  artifacts by whether the Makefile mentions the object's name dropped the 21
+  overlay objects that reach the link through a pattern rule, which made a
+  chunk of the tracked surface look unreproducible. `mickey.us.ld` names every
+  input object explicitly and is the authoritative list.
+
 - **A candidate inside a matched overlay TU un-credits the whole TU.** The
   atlas credits ownership per source file; two far-off "middle function"
   candidates cost 5,024 resolved bytes at merge. Changed: candidates go in a

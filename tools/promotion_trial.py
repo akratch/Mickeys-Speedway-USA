@@ -365,6 +365,12 @@ def main(argv: list[str]) -> int:
 
 
 def write(results: list[Trial]) -> None:
+    # One row per function, last write wins: a --resume run re-trials the
+    # errored rows and must replace them, not append a second verdict.
+    keyed = {}
+    for r in results:
+        keyed[r.func] = r
+    results = list(keyed.values())
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps({"generated_by": "tools/promotion_trial.py",
                                     "results": [dataclasses.asdict(r) for r in results]}, indent=2) + "\n")

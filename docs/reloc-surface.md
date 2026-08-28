@@ -1,6 +1,12 @@
 # Synthesizing the overlay relocation surface
 
-Feasibility spike, lane `lane/reloc-synth`. Prototype: `tools/reloc_surface.py`.
+Implemented. Tool: `tools/reloc_surface.py`. Generated artifact:
+`overlay_undefined_syms.us.txt`. Gates: `gmake overlay-syms` writes it,
+`gmake check-overlay-syms` fails on drift.
+
+Sections 1-4 are the model and the feasibility evidence (lane
+`lane/reloc-synth`); section 5 is what the full implementation turned out to
+need and what it measured (lane `lane/reloc-synth2`).
 
 **Question.** Every matched overlay function today carries a hand-derived
 `POSTPROCESS` rule and/or a hand-written line in `overlay_undefined_syms.us.txt`.
@@ -8,12 +14,14 @@ That bespoke work, not the C, is what gates the 279-candidate overlay pool. Can
 the relocation surface for a promoted candidate be derived *mechanically* from
 the candidate's object plus the shipped tables, with no per-function hand work?
 
-**Verdict: yes for the addend surface, which is the part that blocks the link.**
-The procedure reproduces 100% of the tracked surface the current build exercises
-and, applied to candidates that previously died at link, links 14 of 19 tried.
-It does not synthesize `.text` extents, section externalization, or the alias
-block; those remain separate mechanical problems, two of which are already
-solved data (see §5).
+**Verdict: yes.** `overlay_undefined_syms.us.txt` is now generated in full --
+every value line and every alias line -- from `config/overlays.us.json` and the
+compiled overlay objects, and the ROM stays byte-identical. 2,928
+hand-maintained lines became 1,596 values plus 669 aliases over 630 objects,
+with none of the hand file's 8 duplicate names and none of its 168 shadowed
+assignments. The measurable overlay candidate pool went from 110/279 to
+150/279, and a further 44 that used to be an opaque build failure now report an
+exact `.text` size delta.
 
 ## 1. The model
 
@@ -168,11 +176,14 @@ addend model.
    one function in a shared TU changes which symbols that TU defines and can
    strand such a line. A synthesizer that owns only the value lines cannot fix
    this; it has to own the alias block too, which is mechanical from
-   `text_ownership` (§5).
+   `text_ownership`. It does now: §5.3.
 3. **Relocation sites outside `.text`** (`overlay27UpdateCoordinates`). The
    prototype scans `.rel.text` only. A jump table or initialized pointer in
    `.data` carries the same kind of site and needs the same treatment against
-   the `data_rodata` range.
+   the `data_rodata` range. In the full run no candidate failed this way -- the
+   class the trial reports for `overlay27UpdateCoordinates` is now
+   `schedule-divergence-at-site` -- but the generator still scans `.rel.text`
+   only, so the limit stands.
 
 Two further limits are worth recording because they are invisible until they
 bite:
@@ -186,45 +197,179 @@ bite:
   the tool, so the audit is consistent - but a generated file would not have
   shadowed lines at all.
 
-## 5. What a full implementation needs
+## 5. The full implementation
 
-The spike proves the hard part. The rest is bookkeeping, and three of the four
-pieces are already derivable from data the tree has:
+The spike proved the addend model. Building the generator on top of it turned
+up three corrections to that model, all of them cases the spike's sample had
+not exercised.
 
-1. **Own the whole generated block.** Emit `overlay_undefined_syms.us.txt` (or a
-   generated sibling included by the link) from `tools/reloc_surface.py` over
-   every overlay object, rather than appending to a hand-maintained file. That
-   removes the alias-block coupling in §4.2, removes the duplicate assignments,
-   and makes the surface regenerate on every promotion instead of being
-   maintained per function.
-2. **Synthesize the alias lines.** `text_ownership` already maps
-   `(overlay, offset) -> source`, and the generated identity spells the offset,
-   so `func_overlay_NNN_F<off>_<rom> = <friendly>;` is a pure function of the
-   atlas plus the C's own symbol names. This is the same data the
-   `--redefine-sym func_...=<friendly>` half of every `POSTPROCESS` rule
-   encodes by hand.
-3. **Synthesize the `.text` extent.** `trim_elf_section.py $@ .text <size>`
-   appears in most rules and the size is literally the `text_ownership` row's
-   size. That alone would remove a large fraction of the remaining hand-written
-   Makefile text, and would turn the `cannot grow .text` class (31 candidates)
-   from a build error into a clear "the candidate's text is the wrong size"
-   report.
-4. **Extend to non-`.text` sites** (§4.3), and decide the section-externalization
-   question separately: `externalize_elf_section.py` takes the expected payload
-   as a hex literal in the Makefile, which is the one part of the current
-   machinery that is not derivable from addresses alone.
+### 5.1 The object list comes from the linker script
 
-A realistic estimate of the unblocking, from the 14/19 sample against the
-100-candidate undefined-reference class: **roughly 70-75 overlay candidates gain
-a linked-ROM oracle**, taking the measurable pool from 110/279 to about 185/279.
-Add item 3 and the 31 `cannot grow .text` candidates become diagnosable as well.
-None of this produces a match by itself. What it produces is the ability to
-measure, per candidate, in seconds, without a human deriving an ELF contract
-first - which is what the pool has been waiting on.
+The spike filtered build artifacts by whether the Makefile mentioned the
+object's name, to skip stale ones. That silently dropped the **21 overlay
+objects that reach the link through a pattern rule** and are never named
+literally -- overlay 34's, 35's, 94's, 104's and 105's among them, which is
+exactly why a handful of tracked values looked unreproducible. `mickey.us.ld`
+names every input object explicitly, so it is the authoritative list: 630
+objects, not 609. Replaying the historic hand-maintained file against the
+complete list scores **1,840/1,840 values agree, 0 disagree**, up from the
+spike's 1,773 on the incomplete one.
 
-## 6. Cleanroom note
+### 5.2 A value line is also needed for symbols this build *defines*
+
+The spike only valued **undefined** symbols. The hand-maintained file also
+assigned symbols the C defines -- `gOverlay77PositiveDivisor`,
+`gOverlay57Countdown`, `gOverlay79RaceFlags` -- and dropping those changed ten
+instruction words in overlay 77.
+
+The reason is the same one §1 gives. The module's data is placed by the
+*runtime*, not by this link, so a reference to it must carry the stored addend
+(its offset within the module's data region) rather than whatever address `ld`
+happens to give the definition. A linker-script assignment overrides the
+definition, which is what makes that expressible at all.
+
+The one reference that needs no assignment is an **intra-module call**: a JUMP
+record stores the target's module offset shifted right two, which is exactly
+what the assembler emits for that symbol at the synthetic VMA. So the rule is:
+
+> value every symbol a relocation names, except one defined in this module's
+> own `.text`.
+
+That is derivable without a link -- the module's own objects say which names
+they define in `.text` -- and it covers resident functions, other modules'
+functions, and this module's own data uniformly.
+
+### 5.3 An aliased identity must not also carry a value
+
+`func_overlay_045_F000000C_188C464` is both a cross-module call placeholder
+(wants the addend `0xF0000000`) and the generated identity of
+`overlay45CreateDescriptor` (wants the real address). The hand file carried
+both lines and `ld` silently took the last, which happened to be the alias.
+The generated block emits the alias only, so the file has **no duplicate
+names**: the 8 the hand file assigned twice, and the 168 values it shadowed
+with an alias, are simply not written.
+
+### 5.4 The `.text` extent, as a report instead of a failure
+
+`trim_elf_section.py $@ .text <size>` appears in 588 Makefile rules and the
+size is the `text_ownership` row's own extent. A promoted candidate whose
+codegen is a different size therefore trips the trim guard at *compile* time,
+and the build dies before the link -- which is why 53 of the 279 candidates
+used to report nothing but `cannot grow .text` or `refusing to trim nonzero
+bytes`.
+
+`tools/postprocess_guard.py` gives every digest-guarded POSTPROCESS pass a
+report-and-skip mode, enabled by `PROMOTION_TRIAL` in the environment
+(`gmake PROMOTION_TRIAL=1`, or `tools/promotion_trial.py`, which sets it for
+its own builds). The guard prints one marker line and skips its pass:
+
+    PROMOTION-TRIAL: text-size-differs (+24 bytes): ... refusing to trim
+    nonzero bytes from .text
+
+The resulting ROM is not a valid build -- a skipped normalization leaves the
+object un-normalized -- and is never verified; the trial classifies from the
+marker. **The normal build never sets the variable**, so `gmake` and
+`gmake verify` are untouched, and a usage error is never skipped, so a harness
+bug cannot hide behind a green build.
+
+### 5.5 Integration: the window between compile and link
+
+The surface can only be derived once the candidate's object exists and before
+the link resolves it -- a window a plain `gmake` does not offer.
+`tools/promotion_trial.py` therefore builds, regenerates
+`overlay_undefined_syms.us.txt` from the objects on disk, and builds again; the
+second pass relinks only. Both the source file and the surface are restored
+afterwards.
+
+## 6. What the trial measures now
+
+`tools/promotion_trial.py --overlays-only`, all 279 overlay candidates, lane
+`lane/reloc-synth2`:
+
+| class | before | after |
+|---|---:|---:|
+| `text-differs` -- links, N words differ in range | 110 | **150** |
+| `text-size-differs` -- links, with an exact size delta | 0 | **44** |
+| `build-error` | 169 | **85** |
+
+Nothing came out `exact` or `text-exact`; every candidate that links has real
+codegen work left, which is the point -- what changed is that 194 of 279 now
+carry a number instead of a build failure.
+
+The 150 that link, by in-range words:
+
+| words | 1-2 | 3-4 | 5-8 | 9-16 | 17-32 | 33-64 | 65+ |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| candidates | 7 | 11 | 13 | 30 | 22 | 27 | 40 |
+
+The 44 size reports, by delta: 24 are shorter than the module owns and 19
+longer (one guard reports a non-size digest); **18 are within ±16 bytes**, the
+range where a codegen nudge is plausible. The extremes (`-472`, `+456`) are
+candidates whose shape is wrong, not their scheduling.
+
+The 85 remaining build errors, by cause -- each needs different work, which is
+why they are named rather than pooled:
+
+| cause | count | what it means |
+|---|---:|---|
+| `schedule-divergence-at-site` | 49 | the candidate's instructions differ *at* a placeholder's own sites, so no consistent addend exists. §4.1; the synthesizer reports the conflict rather than inventing a value |
+| `resident-symbol-missing` | 15 | an undefined splat auto-name in the resident address space. Not a relocation-surface problem: the tree does not define that function yet |
+| `rom-size` | 14 | the image's own size moved and no guard marker explains it |
+| `relocation-truncated` | 4 | the reference does not fit its field at the synthesized value |
+| `unresolved-placeholder` | 3 | undefined with none of the above |
+
+`schedule-divergence-at-site` is now the dominant class, and it is the honest
+one: it says the candidate does not yet agree with the target *where the
+relocation table can see it*, which is a codegen problem, not a scaffolding
+problem. The spike's alias-coupling and non-`.text` failure classes are gone --
+`overlay1InterpolatePath` and `overlay1MeasureCurves` link now, because the
+generator owns the alias block (§5.3).
+
+### 6.1 The 31 candidates within 8 in-range words
+
+    1  overlay80InitializeContact          o80    4  overlay1FindNextAngle              o1
+    1  overlay97InitScale                  o97    4  overlay1FindPreviousAngle          o1
+    2  overlay18Load                       o18    4  overlay20BuildTileCommands         o20
+    2  overlay7DispatchSelection           o7     4  overlay3FindClosestObject          o3
+    2  overlay84AdvanceCurrent             o84    4  overlay43FilterImage               o43
+    2  overlay8ScaleOutputs                o8     4  overlay62Update                    o62
+    2  overlay99RenderSegments             o99    4  overlay84LoadCurrent               o84
+    3  overlay101DrawClock                 o101   6  func_overlay_022_F0000000_1878108  o22
+    3  overlay1CloneRecord                 o1     6  func_overlay_041_F0001650_1888988  o41
+    3  overlay40FadeRecords                o40    6  overlay68PromoteSecondary          o68
+    4  func_overlay_014_F0000000_186F8D8   o14    6  overlay74Update                    o74
+                                                  6  overlay7CommitSelection            o7
+    7  func_overlay_022_F0000A7C_1878B84   o22    8  func_overlay_009_F0000540_1866BB8  o9
+    7  func_overlay_038_F0000000_1885D10   o38    8  func_overlay_073_F0000000_18CAAC0  o73
+    7  overlay14ResetMode                  o14    8  overlay1AssignRecordIndex          o1
+                                                  8  overlay1ResolvePathPoint           o1
+                                                  8  overlay20UpdateObjectResource      o20
+
+Eleven of these were not measurable before this lane. They are the sweep's next
+targets: within eight words is the range where the permuter closes candidates.
+
+## 7. What is still hand-written
+
+- **Section externalization.** `externalize_elf_section.py` takes the expected
+  payload as a hex literal in the Makefile, which is the one part of the
+  machinery not derivable from addresses alone. Five rules use it.
+- **The `POSTPROCESS` trim sizes themselves.** They are the ownership row's
+  extent and could be emitted from the atlas rather than written out per file;
+  this lane made the *failure* derivable, not yet the rule.
+- **Relocation filters and instruction normalizations.** Genuinely per-function
+  reviewed assertions; nothing here suggests they are mechanical.
+- **A lone `R_MIPS_LO16`** still determines only the low half of its symbol's
+  value (§3.2). Byte-identical output, non-canonical symbol value.
+
+## 8. Cleanroom note
 
 `tools/reloc_surface.py` reads the baserom and `config/overlays.us.json` at run
 time and emits only symbol names and the addresses/values the link already
 requires. It writes no extracted data, embeds no ROM bytes, and prints no
 instruction text. This document quotes no ROM words.
+
+The generated `overlay_undefined_syms.us.txt` is tracked, and is the same class
+of content as the hand-maintained file it replaces: symbol names and the
+relocation addends the link requires, in the same two line forms. It is
+smaller than what it replaced (2,265 lines against 2,928) and carries no
+instruction text, so the clean-room detectors see strictly less than before.
