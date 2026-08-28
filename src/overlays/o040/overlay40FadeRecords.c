@@ -43,13 +43,12 @@ extern s16 gOverlay40BlendTarget;
 extern s16 gOverlay40BlendDuration;
 extern s16 gOverlay40BlendOutput;
 
-/* Plateau: canonical output is exact-size at 101 words (-8 frame); three
- * register operands remain at +0xC/+0x10/+0x24 after loop, first-use, width,
- * flag-lattice, and focused allocator probes: the blend base loads v0 then
- * copies v1; retail loads v1 then v0. Workbench classifies this as an
- * allocation-mismatch with one v0<->v1 pool bijection and an identical temp
- * ring; next lever is the forced-color-oracle (guide lever 19), which needs
- * an instrumented IDO not present in this lane. */
+/* Plateau re-proved 2026-08-28: canonical output is exact-size at 101 words
+ * with an 0x8 frame and only the v0/v1 operands at +0xC/+0x10/+0x24 wrong.
+ * An instrumented guide-19 oracle moved 16 rows across 11 runs and worsened
+ * the residual to 13 words; chained, comma-expression, and timer-separated
+ * copy formation widened it to 16, 16, and 41 words. The opcode schedule and
+ * temp ring stayed exact, so this three-word allocation basin remains best. */
 #ifdef NON_MATCHING
 void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
                           s32 amount) {
