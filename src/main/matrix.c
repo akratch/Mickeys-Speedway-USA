@@ -114,7 +114,75 @@ void func_8002AB78(MatrixTransform *trans, MtxF dest) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002AB78.s")
 #endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002AC84.s")
+#ifdef NON_MATCHING
+/* Workbench: structure-mismatch, 138 differing words, first mismatch +0x0.
+ * Structural gap: 139 instructions/frame -0xa0 versus target 87/-0x8; 63 relocation sites also differ.
+ * Not shape-exact or permuter-ready; the typed XYZ/YPR arithmetic remains a structural plateau. */
+/* PROVENANCE: adapted from Jet Force Gemini's public math_matrix implementation;
+ * Mickey's own field offsets and call targets remain authoritative here. */
+void func_8002AE10(MatrixTransform *trans, MtxF dest) {
+    f32 cosX;
+    f32 sinX;
+    f32 cosY;
+    f32 sinY;
+    f32 cosZ;
+    f32 sinZ;
+    f32 temp0;
+    f32 temp1;
+    f32 temp2;
+    f32 temp3;
+    f32 temp4;
+    f32 temp5;
+    f32 temp6;
+    f32 temp7;
+    f32 temp8;
+    f32 temp9;
+    f32 temp10;
+
+    cosX = func_8002A8C0(trans->rotation0);
+    sinX = func_8002A8BC(trans->rotation0);
+    cosY = func_8002A8C0(trans->rotation1);
+    sinY = func_8002A8BC(trans->rotation1);
+    cosZ = func_8002A8C0(trans->rotation2);
+    sinZ = func_8002A8BC(trans->rotation2);
+
+    temp0 = sinX * sinZ;
+    temp1 = sinX * cosZ;
+    temp2 = sinY * sinZ;
+    temp3 = cosX * sinZ;
+    temp4 = cosX * cosZ;
+    temp5 = sinX * sinY;
+    temp6 = cosX * cosY;
+    temp7 = sinX * cosY;
+    temp8 = -sinY;
+    temp9 = cosX * temp8;
+    temp10 = temp8 * cosZ;
+
+    temp0 -= temp6 * cosZ;
+    temp1 += temp6 * sinZ;
+    temp3 += temp7 * cosZ;
+    temp4 -= temp7 * sinZ;
+
+    dest[0][3] = 0.0f;
+    dest[1][3] = 0.0f;
+    dest[2][3] = 0.0f;
+    dest[0][0] = temp0;
+    dest[0][1] = temp1;
+    dest[0][2] = temp9;
+    dest[1][0] = temp10;
+    dest[1][1] = temp2;
+    dest[1][2] = cosY;
+    dest[2][0] = temp3;
+    dest[2][1] = temp4;
+    dest[2][2] = temp5;
+    dest[3][3] = 1.0f;
+    dest[3][0] = (trans->x * temp0) + (trans->y * temp10) + (trans->z * temp3);
+    dest[3][1] = (trans->x * temp1) + (trans->y * temp2) + (trans->z * temp4);
+    dest[3][2] = (trans->x * temp9) + (trans->y * cosY) + (trans->z * temp5);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002AE10.s")
+#endif
 /*
  * NONMATCHING-notes for this whole file: the toolchain cannot emit the ROM's
  * floating-point register allocation.
