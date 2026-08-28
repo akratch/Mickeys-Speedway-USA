@@ -137,9 +137,9 @@ void overlay1ResolveMotionPoint(O1PathOwner *owner, s32 path, f32 *outX,
 
 extern f32 overlay1EvaluateCurve(f32, f32, s32, s32, f32);
 extern f32 overlay1SquareRoot(f32);
-/* Plateau: exact 79-word size, frame 0x70, and five call-relocation sites,
- * but 27 masked words differ from +0xC. The flag lattice and 40-minute
- * permuter found no valid exact source; lower scores reordered calls/guards. */
+/* Workbench: schedule-mismatch, 27 differing words, first mismatch +0x0C.
+ * Exact 79-word frame/CFG and instruction multiset; calls and guards only reorder.
+ * Shape-exact and permuter-ready; no structural gap remains. */
 #ifdef NON_MATCHING
 f32 overlay1MeasureCurves(volatile f32 startX, volatile f32 startY,
                           volatile f32 endX, volatile f32 endY,
