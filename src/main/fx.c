@@ -2203,13 +2203,12 @@ void func_8004A9CC(FxGfx **dList) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxScreenEffect.s")
 #ifdef NON_MATCHING
 /*
- * PROVENANCE: the descending four-slot loop skeleton is adapted from Jet
- * Force Gemini asm/nonmatchings/fx/func_8006FFF8.s. Mickey's own symbols and
- * instruction schedule establish the assignment order below.
+ * PROVENANCE: the descending loop skeleton is adapted from Jet Force
+ * Gemini's public fx.c context; Mickey's target establishes the expressions.
  */
-/* Plateau (near-miss p6): workbench mixed(structural:10, register:5), 14 words at 28 instructions; first +0x10.
- * Lever: structure-bucket/context audit found no new source-stable schedule beyond the closed typing/order probes.
- * Remains: callback/trap pool mapping and loop-counter schedule; assembly fallback stays canonical. */
+/* Workbench: structure-mismatch, 18 differing words, first mismatch +0x10. */
+/* Candidate shape: 28 instructions with no frame delta; not shape-exact. */
+/* Remaining gap: callback/trap and loop-counter register webs. */
 void func_8004ACC4(void) {
     FxTextureCallback *callback;
     void **value0;
@@ -2220,7 +2219,7 @@ void func_8004ACC4(void) {
 
     D_800D60A8 = 0;
     i = 3;
-    trap = (FxTextureCallback)TrapDanglingJump;
+    trap = (FxTextureCallback) TrapDanglingJump;
     value0 = &D_800D60BC;
     value1 = &D_800D60CC;
     available = &D_800D60D3;
