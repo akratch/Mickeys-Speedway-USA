@@ -19,7 +19,7 @@
 # with tools/merge_lane.sh <lane-name> as usual.
 #
 # Machine safety: 2 concurrent searches x 4 permuter threads, promotions at
-# -j6, and every launch waits for load < 9 (14-core default). Raise only with
+# -j6, and every launch waits for load < 13 (a 4-thread search alone holds ~8; 14 cores). Raise only with
 # the workstation idle.
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -55,7 +55,7 @@ echo "sweep log: $lane_dir/$log"
 .venv/bin/python -u tools/permute_batch.py \
     --apply --commit --order ranking --resume \
     --jobs 2 --permuter-threads 4 --build-jobs 6 \
-    --minutes 20 --extend-minutes 20 --load-threshold 9 \
+    --minutes 20 --extend-minutes 20 --flat-minutes 6 --load-threshold 13 \
     "$@" 2>&1 | tee "$log"
 
 gmake extract >/dev/null
