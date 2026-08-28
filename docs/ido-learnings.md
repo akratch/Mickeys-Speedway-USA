@@ -60,6 +60,14 @@ bytes and disassembly never belong here.
   standalone callee looks exact. Treat symbol binding, visible prototypes, and
   TU ownership as part of the compiler input. Evidence: the merged-TU blocker
   class in `docs/matching-triage.md`.
+- An algebraically zero integer read can be a caller-saved coloring lever. On
+  a path that already returns zero, spelling the result as `value * 0` kept the
+  value's web live through IDO's allocation decision while still folding to a
+  zero return instruction; a two-web forced-color probe identified the cause,
+  and the same stock source then matched without a force. This is specific to
+  the measured `-O2 -mips2` basin: use it only when zero is semantically
+  required, and reject it if instruction count, relocations, or linked bytes
+  move. Evidence: Overlay 1's exact value-cache manager in `docs/overlays.md`.
 
 ### Search fidelity and false floors
 
