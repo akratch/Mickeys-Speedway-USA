@@ -2188,6 +2188,158 @@ s32 func_80010654(TrackRayPoint *start, TrackRayPoint *end,
 #endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010900.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010B4C.s")
+#ifdef NON_MATCHING
+/*
+ * PROVENANCE: Mickey's m2c collision-response draft and resident plane and
+ * record offsets reconstruct this routine; no external function body is adapted.
+ */
+typedef struct TrackCollisionSurface {
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 distance;
+    f32 positionX;
+    f32 positionY;
+    f32 positionZ;
+    f32 positionDistance;
+    u32 flags;
+    u8 material;
+} TrackCollisionSurface;
+
+typedef struct TrackCollisionRecord {
+    f32 pointX;
+    f32 pointY;
+    f32 pointZ;
+    f32 value0C;
+    f32 value10;
+    f32 value14;
+    f32 value18;
+    f32 value1C;
+    f32 value20;
+    f32 value24;
+    f32 value28;
+    f32 value2C;
+    f32 value30;
+    u8 pad34[4];
+    s32 value38;
+    u8 value3C;
+} TrackCollisionRecord;
+
+s16 Arctanf(f32 x, f32 y);
+
+/* Workbench verdict: structure-mismatch, 232 differing words, first mismatch +0x0. */
+/* Candidate: 236/231 instructions with a -0xA0 frame versus target -0x98; five-instruction FP schedule residual remains. */
+/* Shape status: three surface branches, normalization, and collision-record flag writes are preserved, but it is not shape-exact. */
+void func_800115E4(s32 mode, TrackVec3f *position, TrackVec3f *offset,
+                   f32 scale, TrackCollisionSurface *surface,
+                   TrackCollisionRecord *record) {
+    f32 surfaceDistance;
+    f32 surfaceX;
+    f32 surfaceY;
+    f32 surfaceZ;
+    f32 productX;
+    f32 productZ;
+    f32 planeValue;
+    f32 crossX;
+    f32 crossY;
+    f32 crossZ;
+    f32 crossLengthSquared;
+    f32 crossLength;
+    f32 distance;
+    f32 time;
+    f32 projectedX;
+    f32 projectedY;
+    f32 projectedZ;
+    f32 differenceX;
+    f32 differenceY;
+    f32 differenceZ;
+    f32 angle;
+    f32 horizontalLength;
+    s16 angleValue;
+
+    surfaceDistance = surface->distance;
+    surfaceX = surface->x;
+    surfaceY = surface->y;
+    surfaceZ = surface->z;
+    productZ = position->f[2] * surfaceZ;
+    productX = surfaceX * position->f[0];
+    planeValue = (productZ + (productX + (surfaceY * position->f[1]))) +
+                 surfaceDistance;
+    if ((D_80081778 <= surfaceY) || ((surface->flags << 3) < 0)) {
+        crossX = offset->f[2] * surfaceY;
+        crossY = (surfaceZ * offset->f[0]) -
+                 (offset->f[2] * surfaceX);
+        crossZ = -(offset->f[0] * surfaceY);
+        crossX = (crossY * surfaceZ) - (crossZ * surfaceY);
+        crossY = (crossZ * surfaceX) - (productZ * surfaceZ);
+        crossZ = (productZ * surfaceY) - (crossY * surfaceX);
+        crossLengthSquared = (crossX * crossX) +
+                             (crossY * crossY) +
+                             (crossZ * crossZ);
+        if (D_8008177C < crossLengthSquared) {
+            distance = sqrtf(crossLengthSquared);
+            time = scale - surface->positionDistance;
+            position->f[0] = surface->positionX +
+                             (time * (crossX / distance));
+            position->f[1] = surface->positionY +
+                             (time * (crossY / distance));
+            position->f[2] = surface->positionZ +
+                             (time * (crossZ / distance));
+        } else {
+            position->f[1] = -((productZ + productX + surfaceDistance) /
+                               surfaceY) + D_80081780;
+        }
+        record->pointY = surfaceX;
+        record->pointZ = surfaceY;
+        record->value0C = surfaceZ;
+        record->value3C |= 2;
+    } else if (surfaceY <= D_80081784) {
+        distance = D_80081788 - planeValue;
+        position->f[0] += distance * surfaceX;
+        position->f[1] += distance * surfaceY;
+        position->f[2] += distance * surfaceZ;
+        record->value1C = surfaceX;
+        record->value20 = surfaceY;
+        record->value24 = surfaceZ;
+        record->value3C |= 8;
+    } else {
+        projectedX = position->f[0];
+        projectedY = position->f[1];
+        projectedZ = position->f[2];
+        distance = D_8008178C - planeValue;
+        projectedX = projectedX + (distance * surfaceX);
+        projectedY = projectedY + (distance * surfaceY);
+        projectedZ = projectedZ + (distance * surfaceZ);
+        differenceX = position->f[0] - projectedX;
+        differenceY = position->f[1] - projectedY;
+        differenceZ = position->f[2] - projectedZ;
+        angle = sqrtf((differenceX * differenceX) +
+                      (differenceZ * differenceZ));
+        angleValue = Arctanf(differenceY, angle);
+        angle = func_8002A8BC(angleValue);
+        if (angle != 0.0f) {
+            time = distance / angle;
+            horizontalLength = sqrtf((surfaceX * surfaceX) +
+                                     (surfaceZ * surfaceZ));
+            position->f[0] += time * (surfaceX / horizontalLength);
+            position->f[2] += time * (surfaceZ / horizontalLength);
+        } else {
+            position->f[0] = projectedX;
+            position->f[1] = projectedY;
+            position->f[2] = projectedZ;
+        }
+        record->value10 = surfaceX;
+        record->value14 = surfaceY;
+        record->value18 = surfaceZ;
+        record->value3C |= 4;
+    }
+    record->value38 = surface->flags;
+    record->value24 = surface->material;
+    record->value28 = surfaceX;
+    record->value2C = surfaceY;
+    record->value30 = surfaceZ;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800115E4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80011980.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80011CDC.s")
