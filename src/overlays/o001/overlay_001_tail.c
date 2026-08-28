@@ -2864,6 +2864,9 @@ extern void *overlay1AllocateRecordReloc(u32 *source);
  * only its generated conflicting declaration. No exact relocation-complete,
  * linked result was found; the remaining blocker is IDO setup scheduling versus
  * the target's one relocation identity. */
+/* Object-level reproof: relocation-symbol-mismatch, 0 instruction words, first
+ * mismatch none; the 23-instruction, frame -24 shape is exact and permuter-ready.
+ * One relocation identity remains for promotion, so retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void *overlay1CloneRecord(u32 *source) {
     u32 *destination;
