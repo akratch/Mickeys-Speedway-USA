@@ -46,7 +46,7 @@ void func_8004707C(FxCone *cone, s32 value2C, s32 value2D, s32 value2E,
 #ifdef NON_MATCHING
 /* Mickey-derived draft; JFG's corresponding fxMakeConeTextureCoords body is
  * also assembly-only and supplies no adaptable C source. */
-void func_800475E8(FxConeCoords *cone, s16 angle) {
+void func_800475E8(FxCone *cone, s16 angle) {
     FxConeTextureInfo *textureInfo;
     FxConeVertex *vertex;
     s32 width;
@@ -64,7 +64,7 @@ void func_800475E8(FxConeCoords *cone, s16 angle) {
         if (textureInfo != 0) {
             width = textureInfo->width * 16;
             height = textureInfo->height * 16;
-            vertex = cone->vertices;
+            vertex = (FxConeVertex *) cone->vertices;
             if (cone->segmentCount == 0) {
                 f32 widthEdge = (f32)(width - 1);
                 f32 scale = D_80083DE8;
