@@ -15,8 +15,61 @@
 #include "PR/ultratypes.h"
 #include "game/math.h"
 
+typedef struct MatrixTransform {
+    s16 rotation0;
+    s16 rotation1;
+    s16 rotation2;
+    u8 pad06[6];
+    f32 x;
+    f32 y;
+    f32 z;
+} MatrixTransform;
+
+extern f32 func_8002A8BC(s32 angle);
+extern f32 func_8002A8C0(s32 angle);
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002AA50.s")
+#ifdef NON_MATCHING
+/* Workbench: structure-mismatch, 83 differing words, first mismatch +0x0.
+ * Structural gap: 84 instructions/frame -0x48 versus target 67/-0x8; 27 relocation sites also differ.
+ * Not shape-exact or permuter-ready; the six-call rotation body is retained for later structural work. */
+/* PROVENANCE: adapted from Jet Force Gemini's public math_matrix implementation;
+ * Mickey's own field offsets and call targets remain authoritative here. */
+void func_8002AB78(MatrixTransform *trans, MtxF dest) {
+    f32 cosX;
+    f32 sinX;
+    f32 cosY;
+    f32 sinY;
+    f32 cosZ;
+    f32 sinZ;
+
+    cosX = func_8002A8C0(trans->rotation0);
+    sinX = func_8002A8BC(trans->rotation0);
+    cosY = func_8002A8C0(trans->rotation1);
+    sinY = func_8002A8BC(trans->rotation1);
+    cosZ = func_8002A8C0(trans->rotation2);
+    sinZ = func_8002A8BC(trans->rotation2);
+
+    dest[0][3] = 0.0f;
+    dest[1][3] = 0.0f;
+    dest[2][3] = 0.0f;
+    dest[3][0] = trans->x;
+    dest[3][1] = trans->y;
+    dest[3][2] = trans->z;
+    dest[0][0] = ((cosZ * cosX) * cosY) + (sinZ * sinX);
+    dest[0][1] = cosZ * sinY;
+    dest[0][2] = ((cosZ * sinX) * cosY) - (cosX * sinZ);
+    dest[1][0] = ((cosX * sinZ) * cosY) - (cosZ * sinX);
+    dest[1][1] = sinZ * sinY;
+    dest[1][2] = ((sinZ * sinX) * cosY) + (cosZ * cosX);
+    dest[2][0] = cosX * sinY;
+    dest[2][1] = -cosY;
+    dest[2][2] = sinY * sinX;
+    dest[3][3] = 1.0f;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002AB78.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002AC84.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002AE10.s")
 /*
