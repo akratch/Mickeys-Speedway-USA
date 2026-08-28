@@ -1092,12 +1092,14 @@ fail-loud four-word `s2`/`s1` owner-web normalization); source kept as
 decomp-permuter input. Natural source was otherwise exact in size, frame, and
 opcode/CFG sequence, with both local call relocations exact.
 
-Overlay 62's newly matched decimal overlay range `+212..+1,388`, between the
-existing initializer and release routine — 1,176 bytes / 294 words.
-NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via four
-guarded words selecting the retail assignment of two complete overlapping GPR
-webs); source kept as decomp-permuter input. This had made overlay 62's full
-1,456 executable bytes C-owned, credited as the fifth Epoch 11 closure.
+Overlay 62's decimal overlay range `+212..+1,388`, between the existing
+initializer and release routine — 1,176 bytes / 294 words. NON_MATCHING: the
+configured C baseline preserves the target's 294-instruction shape and 0x88-byte
+frame but differs in four register/opcode words; its relocation surface has 71
+records versus the target's 29. Seven bounded source-faithful probes did not
+change that result, and no instrumented globalcolor/UGEN trace is available.
+The assembly fallback remains canonical pending a source spelling with the
+target allocation and relocation surface.
 
 Overlay 84's current-record activation body at decimal overlay offsets
 `+4,192..+4,596` — 404 bytes / 101 words. NON_MATCHING: retired 2026-08-24 per
