@@ -1205,8 +1205,12 @@ void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
 }
 
 #ifdef NON_MATCHING
-/* Bounded workbench closeout retained the source as NON_MATCHING; see the
- * function's plateau entry in docs/resident.md for its measured mechanism. */
+/* Bounded workbench closeout retained the source as NON_MATCHING; the best
+ * source-faithful follow-up reordered the initial pointer assignments and
+ * reached 118/121 instructions with the exact 0x50 frame, nine calls, and FP
+ * schedule. The remaining three words are one v0->v1 allocator web at the
+ * 0x258 stores; timer lifetime/width forms and the alias probe did not move it.
+ * See the function's plateau entry in docs/resident.md for the evidence. */
 void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCollisionNormalLink *secondTarget;
     HitCopySource *secondSource;
