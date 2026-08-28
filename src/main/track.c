@@ -91,7 +91,8 @@ typedef struct TrackLightAllocation {
 } TrackLightAllocation;
 
 typedef struct TrackTextureHeader {
-    u8 pad00[6];
+    u8 pad00[4];
+    u16 flags;
     u16 width;
     u16 height;
     u8 pad0A[6];
@@ -121,14 +122,18 @@ typedef struct TrackTextureLoadLocals {
 
 typedef struct TrackBatch {
     u8 textureIndex;
-    u8 pad01[9];
+    u8 unk1;
+    u8 pad02[4];
+    s16 u0;
+    s16 v0;
     u16 frame;
     u32 flags;
 } TrackBatch;
 
 typedef struct TrackSegment {
     void *lightData;
-    u8 pad04[0xC - 0x04];
+    void *vertexData;
+    u8 pad08[0xC - 0x08];
     TrackBatch *batches;
     u8 pad10[0x20 - 0x10];
     s16 lightBatchCount;
@@ -325,6 +330,9 @@ typedef struct TrackVec3f {
 extern TrackCamera *D_800C9530;
 extern TrackCachedPoint D_800C9B40;
 extern Gfx *D_800C9520;
+extern s32 D_8007C854;
+extern s32 D_8007C858;
+extern s32 D_800C9544;
 extern s32 D_80079314;
 extern u32 D_800C9B50[16];
 extern s32 D_800792FC;
@@ -386,6 +394,7 @@ ControlSpawned *func_8000590C(ControlSpawnPacket *packet, s32 mode);
 TrackFogPlayer **func_80005750(s32 *count);
 void func_800367E8(TrackTextureHeader *texture, u32 *flags, s32 *frame,
                    s32 updateRate);
+void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags);
 s32 runlinkIsModuleLoaded(s32 module);
 s32 TrapDanglingJump();
 void func_8000A62C(f32 x, f32 y, f32 z);
@@ -411,6 +420,8 @@ s32 func_80013324(f32 coefficient, f32 numerator,
 f32 func_8002A8C0(s32 angle);
 void func_8000F82C(s32 start, s32 count, s32 end);
 s32 func_80010178(u32 segmentIndex);
+void func_800343F0(s32 mode, s32 segmentIndex);
+void texEnableModes(s32 mode);
 void func_8000D768(TrackLight *light, s32 red, s32 green, s32 blue,
                    s32 intensity);
 void *func_8002B280(s32 size, s32 tag);
@@ -1168,7 +1179,120 @@ void func_8000D978(s32 copySegmentData, s32 updateRate) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DFBC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E5EC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000E920.s")
+/* PROVENANCE -- JFG's public track.c supplies the surrounding display-list
+ * routine and texture vocabulary, while this Mickey body follows its own
+ * fields, call sites, and assembly-only command schedule. */
+#ifdef NON_MATCHING
+/* Workbench verdict: structure-mismatch; 228 differing words, first mismatch +0x0. */
+/* Target 249 instructions/frame -112; candidate 247 instructions/frame -88. */
+/* Remaining gap is stack layout and command scheduling; 24-byte frame excess remains, so it is not shape-exact. */
+void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
+    TrackSegment *segment;
+    TrackBatch *batch;
+    TrackTextureHeader *texture;
+    s32 sp5C;
+    s32 sp58;
+    u32 vertexAddress;
+    u32 positionAddress;
+    s32 textureFrame;
+    s32 textureFlags;
+    s32 hasTexture;
+    s32 vertexCount;
+    s32 positionCount;
+    s32 color;
+    s32 batchCount;
+    s32 index;
+
+    if (D_8007C854 != 0) {
+        color = D_8007C858 & 0xFF;
+        gDPSetPrimColor(D_800C9520++, 0, 0, color, color, color, 0xFF);
+    }
+
+    segment = &D_800792E8->segments[arg0];
+    switch (arg2) {
+    case 4:
+        sp5C = 0xC904;
+        sp58 = 0xC800;
+        break;
+    case 0x4000:
+        func_800343F0(2, arg0);
+        sp5C = 0x4800;
+        sp58 = 0x800;
+        break;
+    case 0x8000:
+        sp5C = 0xC800;
+        sp58 = 0x4800;
+        break;
+    default:
+        sp5C = -1;
+        sp58 = 0xC904;
+        break;
+    }
+
+    batchCount = segment->batchCount;
+    batch = segment->batches;
+    index = batchCount;
+    if (batchCount != 0) {
+        do {
+            if ((1 << batch->unk1) & arg1) {
+                textureFlags = batch->flags;
+                if ((textureFlags & sp5C) && !(textureFlags & sp58)) {
+                    texture = NULL;
+                    hasTexture = 0;
+                    if (batch->textureIndex != 0xFF) {
+                        hasTexture = 1;
+                        texture = D_800792E8->textures[batch->textureIndex].texture;
+                    }
+                    textureFrame = batch->frame << 8;
+                    vertexAddress = (u32) segment->lightData +
+                                    (batch->u0 * 0xA);
+                    positionAddress = (u32) segment->vertexData +
+                                      (batch->v0 * 0x10);
+                    if ((texture != NULL) && (texture->flags & 0x40) &&
+                        ((textureFlags & 0x30) != 0x20)) {
+                        color = (textureFrame >> 8) & 0xFF;
+                        gDPSetEnvColor(D_800C9520++, color, color, color,
+                                       color);
+                    } else {
+                        gDPSetEnvColor(D_800C9520++, 0xFF, 0xFF, 0xFF, 0);
+                    }
+                    if (!(textureFlags & 0x180)) {
+                        textureFlags |= D_800C9544;
+                    }
+                    if ((textureFlags & 0x20000) && (texture != NULL)) {
+                        func_80014ECC(texture, textureFrame, textureFlags);
+                    } else {
+                        func_800349A4(&D_800C9520, texture,
+                                      textureFlags | 2, textureFrame);
+                    }
+                    vertexAddress += 0x80000000;
+                    vertexCount = batch[1].u0 - batch->u0;
+                    TRACK_SP_VERTEX(D_800C9520++, vertexAddress,
+                                    vertexCount, 0);
+                    positionCount = batch[1].v0 - batch->v0;
+                    positionAddress += 0x80000000;
+                    TRACK_SP_POLYGON(D_800C9520++, positionAddress,
+                                     positionCount, hasTexture);
+                    if (textureFlags & 0x20000) {
+                        func_80034920(&D_800C9520);
+                    }
+                }
+            }
+            batch++;
+            index--;
+        } while (index != 0);
+    }
+    if (arg2 == 0x4000) {
+        texEnableModes(2);
+    }
+    if (D_8007C854 != 0) {
+        gDPPipeSync(D_800C9520++);
+        gDPSetPrimColor(D_800C9520++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000F198.s")
+#endif
 /*
  * PROVENANCE: Jet Force Gemini's public assembly-only `trackGetBlockList` in
  * `src/track.c` supplies tier-D TU-position and role context. The body and
