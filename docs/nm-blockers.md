@@ -209,7 +209,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_014_F000013C_186FA14` | `src/overlays/o014/func_overlay_014_F000013C_186FA14.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_014_F00009F4_18702CC` | `src/overlays/o014/func_overlay_014_F00009F4_18702CC.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_014_F0001540_1870E18` | `src/overlays/o014/func_overlay_014_F0001540_1870E18.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_014_F0001830_1871108` | `src/overlays/o014/func_overlay_014_F0001830_1871108.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_014_F0001830_1871108` | `src/overlays/o014/func_overlay_014_F0001830_1871108.c` | resolved-plateau | overlay 14 switch table | TU-owned +0x174..+0x190 .rodata clears module growth; code generation remains. |
 | `func_overlay_014_F00006FC_186FFD4` | `src/overlays/o014/overlay14CreateValue.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_014_F000087C_1870154` | `src/overlays/o014/overlay14LoadRelocatedValue.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_014_F0000B5C_1870434` | `src/overlays/o014/overlay14PrepareInputState.c` | none | — | No ownership change; continue source/codegen work. |

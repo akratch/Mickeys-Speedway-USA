@@ -12,6 +12,9 @@ extern s32 func_overlay_014_F0000000_186F8D8();
 /* Workbench verdict=structure-mismatch; 5 masked/8 raw words differ in the exact 201-word frame, first real mismatch +0x1F4.
  * Levers tried: constant audit, stack order, flag lattice, and case-7 load-before-increment/postincrement spellings; the latter is one word short.
  * Remains: case-7 load/increment schedule plus overlay relocation identities; no further structural lever is evidenced. */
+/* Ownership trial (2026-08-28): fixed the TU's +0x174..+0x190 .rodata range;
+ * linked promotion is text-differs with 201 in-range words, first at +0x0.
+ * Module growth is cleared; the remaining gap is codegen/register allocation. */
 s32 func_overlay_014_F0001830_1871108(s32 context, u8 *stream, s32 skip) {
     s32 remaining;
     s32 y;
