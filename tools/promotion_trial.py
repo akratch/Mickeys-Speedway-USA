@@ -63,6 +63,24 @@ MARKER_RE = re.compile(r"PROMOTION-TRIAL: ([^:]+): (.*)")
 TRUNC_RE = re.compile(r"relocation truncated to fit: (\S+)")
 # A splat auto-name in the resident address space: func_8002997C, D_80003634.
 RESIDENT_RE = re.compile(r"^(func|D)_8[0-9A-F]{7}$")
+LOAD_LIMIT = 12.0
+
+
+def wait_for_load(label: str) -> None:
+    """Keep the occupied workstation below the campaign load ceiling."""
+    while True:
+        raw = subprocess.check_output(["sysctl", "-n", "vm.loadavg"],
+                                      text=True)
+        match = re.search(r"[-+]?\d+(?:\.\d+)?", raw)
+        if match is None:
+            raise RuntimeError(f"cannot parse vm.loadavg: {raw!r}")
+        load = float(match.group(0))
+        if load <= LOAD_LIMIT:
+            print(f"{label}: load {load:.2f}", flush=True)
+            return
+        print(f"{label}: load {load:.2f} > {LOAD_LIMIT:.0f}; waiting",
+              flush=True)
+        time.sleep(20)
 
 
 @dataclasses.dataclass
@@ -192,6 +210,7 @@ def build(jobs: int, full_log: bool = False) -> tuple[bool, str]:
     codegen is the wrong size still reaches the link and still produces a ROM.
     The ROM is not a valid build and is never verified; it exists to be diffed.
     """
+    wait_for_load("promotion build")
     env = dict(os.environ, PROMOTION_TRIAL="1")
     r = subprocess.run(["gmake", f"-j{jobs}"], cwd=ROOT, capture_output=True,
                        text=True, timeout=1800, env=env)
@@ -472,6 +491,7 @@ def main(argv: list[str]) -> int:
         print(f"[{i}/{len(queue)}] {t.func:34} {t.klass:16} in={t.in_range_words:<4} out={t.out_of_range_bytes:<5} {t.cause or '':40} ({t.seconds:.0f}s)", flush=True)
         write(results)
     write(results)
+    wait_for_load("promotion cleanup build")
     subprocess.run(["gmake", f"-j{args.jobs}"], cwd=ROOT, capture_output=True)
     return 0
 
