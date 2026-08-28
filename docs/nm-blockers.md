@@ -314,7 +314,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_050_F0000334_1896CA4` | `src/overlays/o050/func_overlay_050_F0000334_1896CA4.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_050_F0000000_1896970` | `src/overlays/o050/overlay50Initialize.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_052_F0000000_189A670` | `src/overlays/o052/overlay52Initialize.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_053_F0000240_189DBE8` | `src/overlays/o053/func_overlay_053_F0000240_189DBE8.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_053_F0000240_189DBE8` | `src/overlays/o053/func_overlay_053_F0000240_189DBE8.c` | resolved-plateau | overlay 53 initialized sections | No TU-owned data/rodata is emitted; trial remains text-differs with 634 words and a 0x140 text-size gap. |
 | `func_overlay_054_F0000000_189ECA0` | `src/overlays/o054/overlay54Initialize.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_055_F000031C_18A1E34` | `src/overlays/o055/func_overlay_055_F000031C_18A1E34.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_057_F0000000_18A3BF8` | `src/overlays/o057/func_overlay_057_F0000000_18A3BF8.c` | none | — | No ownership change; continue source/codegen work. |

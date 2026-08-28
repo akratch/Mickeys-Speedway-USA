@@ -24,6 +24,9 @@ extern f32 D_290;
  * No new safe lever: all 119 flags are exhausted; unresolved call/data relocation identities block structural iteration.
  * Remains: concrete callee/data types and relocation ownership.
  */
+/* Ownership trial (2026-08-28): no initialized .data/.rodata is emitted by
+ * this TU; linked promotion remains text-differs with 634 in-range words,
+ * first +0x0. Candidate text is +0x140 bytes over the 0x9F0 target span; no ownership lever remains. */
 #ifdef NON_MATCHING
 void func_overlay_053_F0000240_189DBE8(s32 arg0) {
     O53Unknown spD0;
