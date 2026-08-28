@@ -1131,6 +1131,12 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x69A0, 0x6A14, "overlay1InitMotion"),
         (0x6B28, 0x6B6C, "overlay1InitRange"),
         (0x6CE8, 0x6D4C, "overlay1SelectMaskedMode"),
+        (
+            0x73A0,
+            0x7580,
+            "overlay1UpdateValueCache",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
         (0x7FCC, 0x8008, "overlay1ModeChecks"),
         (0x8008, 0x8048, "overlay1DistanceFromCurrent"),
         (0x8048, 0x80BC, "overlay1DistanceFromSelected"),
