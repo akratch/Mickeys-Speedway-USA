@@ -946,6 +946,9 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
 def parse_args(argv: list[str]) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--overlay", type=int, help="restrict to one overlay number")
+    p.add_argument("--resident-only", action="store_true",
+                   help="skip overlay functions (their scratch cannot score zero across the "
+                   "relocation table; use tools/promotion_trial.py for them)")
     p.add_argument("--function", help="restrict to one function name")
     p.add_argument("--limit", type=int, help="cap the number of functions processed")
     p.add_argument("--minutes", type=int, default=20, help="per-function wall-clock cap (default: 20)")
@@ -1039,6 +1042,8 @@ def main(argv: list[str]) -> int:
     queue = discover_queue()
     if args.overlay is not None:
         queue = [it for it in queue if it.overlay == args.overlay]
+    if args.resident_only:
+        queue = [it for it in queue if it.overlay is None]
     if args.function is not None:
         queue = [it for it in queue if it.func == args.function]
     if args.order == "ranking":
