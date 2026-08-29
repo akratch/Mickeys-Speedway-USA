@@ -234,7 +234,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_020_F0001018_18775F0` | `src/overlays/o020/overlay20RemoveEntry.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_020_F0000A68_1877040` | `src/overlays/o020/overlay20UpdateGrid.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_020_F0000204_18767DC` | `src/overlays/o020/overlay20UpdateObjectResource.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_021_F000010C_1877D94` | `src/overlays/o021/overlay21ApplyPriorities.c` | matched | — | Promoted to exact C with a redundant comparison temporary; no ownership work remains. |
+| `func_overlay_021_F000010C_1877D94` | `src/overlays/o021/overlay21ApplyPriorities.c` | none | — | Exact candidate is pending fresh canonical object/relocation/link/ROM-range proof; assembly remains canonical. |
 | `func_overlay_022_F00002B0_18783B8` | `src/overlays/o022/func_overlay_022_F00002B0_18783B8.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_022_F0000000_1878108` | `src/overlays/o022/overlay22InitializeObject.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_022_F0000D30_1878E38` | `src/overlays/o022/overlay22RemoveObject.c` | resolved-plateau | overlay 22 local globals | Initialized block is TU-owned; pool-position structure remains. |
