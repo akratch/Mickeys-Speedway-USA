@@ -278,7 +278,7 @@ generated historical snapshot; regenerate it when compile capacity is free.
 | overlay40FadeRecords | o040 | 3 | 12 | 404 | 0 | register-only |
 | func_8003A2C8 | main | 5 | 12 | 128 | 0 | register-only |
 | overlay74Update | o074 | 6 | 12 | 400 | 0 | register-only |
-| overlay20UpdateObjectResource | o020 | 8 | 176 | 392 | 0 | register-only |
+| `overlay20UpdateObjectResource` (prior-layout V0) | o020 | 8 | 176 | 392 | 0 | register-only |
 | func_8002CF6C | main | 9 | 204 | 352 | 0 | register-only |
 | overlay19ClassifyEdge | o019 | 10 | 312 | 480 | 0 | register-only |
 | func_overlay_079_F0001290_18CE230 | o079 | 12 | 200 | 492 | 0 | register-only |

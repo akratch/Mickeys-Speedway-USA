@@ -265,7 +265,7 @@ close live rankings, and the new same-ROM leads:
 4. `overlay3FindClosestObject` — four-word register-only live ranking;
 5. `func_8003A2C8` — compact P! plateau and bakeoff target;
 6. `overlay40AddEntry` — four-word register-only live ranking;
-7. `overlay20UpdateObjectResource` — explicit two-pass plateau;
+7. `overlay20UpdateObjectResource` — historical two-pass claim; only V0 artifacts survive;
 8. `overlay74Update` — six-word register-only live ranking;
 9. `overlay2SplitRegion` — W-route scheduler expert or park;
 10. `func_80012574` — configured 7/57 FP-web/stack-home plateau; run the
@@ -277,8 +277,9 @@ close live rankings, and the new same-ROM leads:
 
 `overlay43SubmitChildren` was a four-word ranking at this ledger's baseline.
 It has since been matched and integrated, so it is no longer in the queue.
-`overlay20UpdateObjectResource` and `overlay2SplitRegion` have the cleanest
-explicit evidence of two independent plateaus.
+`overlay20UpdateObjectResource`'s two-pass conclusion survives only as
+historical prose; its retained artifacts prove V0, not route exhaustion.
+`overlay2SplitRegion` remains the cleaner retained plateau packet.
 
 Every expert packet should contain the exact function identity and ownership,
 configured flags/TU boundary, callers and ABI, current candidate and fallback,

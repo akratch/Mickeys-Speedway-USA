@@ -150,6 +150,10 @@ remaining in-range word counts range from 7 to 196 and are genuine codegen
 differences - which is the point. Those candidates now have a linked-ROM oracle
 and an exact in-range word count where before they had a link error.
 
+For `overlay20UpdateObjectResource`, that linked-C trial survives only as this
+historical report: no attributable trial object, ELF, map, ROM, or report is
+retained. Current linked equality therefore proves the assembly fallback only.
+
 For completeness, at the time of the spike the five candidates named in the brief
 (`overlay7DispatchSelection`, `overlay8ScaleOutputs`, `overlay18Load`,
 `overlay20BuildTileCommands`, `overlay1CloneRecord`) already link on the

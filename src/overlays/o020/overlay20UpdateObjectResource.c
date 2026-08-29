@@ -51,30 +51,14 @@ extern Overlay20LookupResult *overlay20LookupReloc(s16 index);
 extern void *overlay20ConfigureResourceReloc();
 extern f32 overlay20SqrtReloc(f32 value);
 
-/*
- * Plateau (2026-08-25, 10 source attempts plus a bounded permuter batch):
- * the best -O2 candidate has the exact 98-word size, differs in 8 words, and
- * agrees through +0xAC before first diverging at +0xB0.  A block-scoped s16
- * count recovers the fallback pointer, index scaling, address calculation,
- * and long-call argument web; IDO still colors that count and the entries
- * pointer one register apart from the target.  The full flag lattice found no
- * better group, and hoisting the count assignment loses both size and CFG.
- */
-/*
- * Trace-guided plateau (2026-08-28): untouched IDO output is 98 words with
- * a 0x70 frame and four calls; the raw code residual is eight register words.
- * Paired globalcolor traces isolate the count web that naturally takes v1.
- * Direct-count forms remove it but enter a 25-word UGEN temp-ring basin; a
- * forced split grows to 100 words and a 0x78 frame.  No natural block or
- * condition lifetime spelling closed that pool-to-temp transition. The eight
- * sites are +0xB0/+0xB4/+0xC0/+0xC8 and +0x108/+0x10C/+0x110/+0x114; all four
- * call-relocation offsets and runtime identities remain exact: trackGetTrack,
- * func_8000FEEC, local overlay20ConfigureResource, and sqrtf. Retained full-TU
- * and isolated candidate bytes are identical; no linked C proof survives.
- * The body is Mickey-only (pinned DKR v77/v80 and JFG scans are negative).
- * Re-prove unchanged V0 once, then park absent a new IDO pool-to-temp
- * allocation mechanism.
- */
+/* Retained prior-physical-layout configured full-TU and isolated C agree at
+ * 90/98 raw/normalized words, frame 0x70, first +0xB0. Four count/entries
+ * carrier sites remain at +0xB0/+0xB4/+0xC0/+0xC8; a separate value0F/start
+ * argument web remains at +0x108/+0x10C/+0x110/+0x114. All four runtime call
+ * identities and offsets are exact. Historical source/flag/trace/permuter and
+ * linked-C trial claims are unretained; linked equality proves fallback only.
+ * Pinned overlay-wide DKR v77/v80 and JFG scans found no exact compiled-symbol
+ * candidate. Reproduce current V0 before the bounded two-web campaign. */
 #ifdef NON_MATCHING
 void overlay20UpdateObjectResource(Overlay20Object *object,
                                    Overlay20Config *config) {
