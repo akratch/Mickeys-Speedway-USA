@@ -621,6 +621,15 @@ expose only the fallback's three generic records and depend on extracted
 assembly. A fresh C object must prove all nine tuples before the dirty
 scoreboard's 456-byte credit is accepted.
 
+Overlay 45 `+0x764` owns 24 runtime records: 13 external calls, one local call
+to `+0x1158`, two SYMBOL HI16/LO16 pairs for the resource head and resident
+scissor state, and three LOCAL pairs for retained constants. The historical p4
+body collapses six call roles, including two distinct matrix identities, onto
+one offset-zero carrier. Its apparent equality also rewrote the three constant
+LO16 instruction fields at `+0x160/+0x168/+0x174`, which ADR 0002 prohibits.
+Fresh C must preserve all 24 semantic identities and emit those addends
+naturally from the already-owned initialized data.
+
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 
