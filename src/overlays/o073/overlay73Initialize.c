@@ -61,10 +61,13 @@ extern f32 D_4;
 extern f32 D_8;
 
 /* DKR v77/v80 and JFG contain no exact donor for this initializer. */
-/* Workbench (2026-08-28): 400 B/100 words, exact 0x8 frame; 8 register words remain, first +0x40.
- * Candidate has 8 relocation roles; D_0/D_4/D_8 have six unresolved local binding sites, not masked match credit.
+/* Retained configured-isolated workbench evidence (2026-08-28): 400 B/100
+ * words, exact 0x8 frame; 8 register words remain, first +0x40. Runtime table
+ * 2 resolves all eight LOCAL records to module data base +0xF80 with exact
+ * D_0/D_4/D_8/D_80 addends; they are not masked match credit.
  * Index declaration, state initializer, and reset-block vertex/source scope are baseline-equivalent; split indices regress to 11.
- * Remains: target a3 versus candidate a2 pool coloring and the local constant surface; canonical assembly stays. */
+ * Remains: target a3 versus candidate a2 pool coloring. No linked C proof
+ * survives; canonical assembly stays. */
 #ifdef NON_MATCHING
 void func_overlay_073_F0000000_18CAAC0(Overlay73Object *object,
                                        Overlay73Header *header,
