@@ -32,6 +32,9 @@ PLATEAU_BLOCK_RE = re.compile(
     r".*?\*/",
     re.DOTALL,
 )
+PLATEAU_SUBJECT_RE = re.compile(
+    r"\b(?:plateaus?|park(?:ed|ing)?)\b", re.I
+)
 
 
 def git(*args: str, check: bool = True) -> str:
@@ -213,6 +216,32 @@ def target_history_commit(
     return record[0] if record else None
 
 
+def path_plateau_record(ref: str, path: str) -> tuple[str, str] | None:
+    """Return the latest plateau commit for a single-candidate source path."""
+    raw = git("log", "--format=%H%x00%s%x1e", ref, "--", path)
+    for record in raw.split("\x1e"):
+        record = record.strip("\n")
+        if not record:
+            continue
+        commit, subject = record.split("\0", 1)
+        if PLATEAU_SUBJECT_RE.search(subject):
+            return commit, subject
+    return None
+
+
+def latest_token_commit(ref: str, token: str, path: str) -> str | None:
+    """Find the latest edit to a ledger row containing one exact token."""
+    # Git's -G uses its own regex engine and does not support the Python
+    # lookarounds used by exact_symbol_pattern. C identifiers are sufficiently
+    # distinctive here; the current ledger text already passed the exact-token
+    # check before this history query.
+    pattern = re.escape(token)
+    value = git(
+        "log", "-1", "--format=%H", f"-G{pattern}", ref, "--", path
+    ).strip()
+    return value or None
+
+
 def latest_path_commit(ref: str, path: str, *, exclude: str | None = None) -> str | None:
     args = ["log", "-1", "--format=%H", ref]
     if exclude:
@@ -368,25 +397,45 @@ def assignment_status(base: str, symbol: str) -> Assignment:
     source_record = target_history_record(
         base, symbol, [path], require_plateau=False,
     )
-    committed_plateau = bool(
-        source_record and "plateau" in source_record[1].lower()
+    named_plateau_record = (
+        source_record
+        if source_record and PLATEAU_SUBJECT_RE.search(source_record[1])
+        else None
     )
-    if not has_plateau_handoff(text, symbol) and not committed_plateau:
+    # Historical standalone candidate files often predate the structured EOF
+    # handoff marker and use friendly names only in commit subjects. A plateau
+    # or park commit on a path containing exactly one NON_MATCHING guard is
+    # still unambiguous target evidence; treating it as fresh work caused the
+    # ready queue to reassign already exhausted o57/o79/o22 routes.
+    path_record = (
+        path_plateau_record(base, path)
+        if len(re.findall(r"#\s*ifdef\s+NON_MATCHING\b", text)) == 1
+        else None
+    )
+    if (
+        not has_plateau_handoff(text, symbol)
+        and named_plateau_record is None
+        and path_record is None
+    ):
         return Assignment(
             symbol, "base-only", path, None, None, [],
             "base retains the fallback and has no committed plateau handoff",
         )
 
-    source_commit = target_history_commit(
-        base, symbol, [path], require_plateau=True,
+    source_commit = (
+        named_plateau_record[0]
+        if named_plateau_record is not None
+        else path_record[0] if path_record is not None else None
     )
     triage_text = show_file(base, TRIAGE_PATH)
     ledger_has_symbol = bool(
         triage_text is not None and exact_symbol_pattern(symbol).search(triage_text)
     )
-    ledger_commit = target_history_commit(
-        base, symbol, [TRIAGE_PATH], require_plateau=False,
-    ) if ledger_has_symbol else None
+    ledger_commit = (
+        latest_token_commit(base, symbol, TRIAGE_PATH)
+        if ledger_has_symbol
+        else None
+    )
     if source_commit is None:
         return Assignment(
             symbol, "stale-ledger", path, None, ledger_commit, [],

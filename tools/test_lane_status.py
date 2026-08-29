@@ -140,6 +140,39 @@ class LaneStatusAssignmentTests(unittest.TestCase):
         self.assertEqual(assignment["source_commit"], plateau_commit)
         self.assertEqual(assignment["ledger_commit"], plateau_commit)
 
+    def test_single_guard_path_plateau_without_symbol_fails_closed(self) -> None:
+        (self.repo / SOURCE_PATH).write_text(
+            "/* Plateau: bounded allocator route. */\n" + candidate(),
+            encoding="utf-8",
+        )
+        source_commit = self.commit("Record overlay 043 Phase A plateaus")
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(assignment["state"], "stale-ledger")
+        self.assertEqual(assignment["source_commit"], source_commit)
+        self.assertIn("predates", assignment["reason"])
+
+    def test_single_guard_path_plateau_reconciles_by_ledger_row_edit(self) -> None:
+        (self.repo / SOURCE_PATH).write_text(
+            "/* Plateau: bounded allocator route. */\n" + candidate(),
+            encoding="utf-8",
+        )
+        source_commit = self.commit("Record overlay 043 Phase A plateaus")
+        (self.repo / "docs/matching-triage.md").write_text(
+            f"| `{SYMBOL}` | bounded plateau; route exhausted |\n",
+            encoding="utf-8",
+        )
+        ledger_commit = self.commit("Reconcile legacy overlay 043 evidence")
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(assignment["state"], "already-integrated/exhausted")
+        self.assertEqual(assignment["source_commit"], source_commit)
+        self.assertEqual(assignment["ledger_commit"], ledger_commit)
+
     def test_definition_without_fallback_is_already_integrated(self) -> None:
         (self.repo / SOURCE_PATH).write_text(
             f"void {SYMBOL}(void) {{\n}}\n", encoding="utf-8",
