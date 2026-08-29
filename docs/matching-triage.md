@@ -63,7 +63,7 @@ Updated as the permuter campaign and analysis proceed.
 | `func_80055B24` | anim | **P** | typed `void` callback alias removes the generic trap placeholder's phantom return web; metadata-only rebind restores the exact call identity | ✅ matched (ABI reconstruction) |
 | `func_8002C69C` | saves | **P!** | coherent cursor re-cache reduced 18→11 register-only words at exact 28-word size; first `+0x10`, four allocator webs; corrected MIPS2/stack-aware reseed reached cost 55 but no zero | plateau; F-route web-existence lever next |
 | `func_80041CE4` | particles | **P!** | recorded configured full-TU result is 27/153 register-only, but surviving isolated import omitted required `-Wab,-r4300_mul`; ten source-faithful probes and bounded search were flat | one configured reconciliation V0, then park if reproduced |
-| `func_8002BB40` | memory | **P?** | 30w register-only | queued |
+| `func_8002BB40` | memory | **F** | retained configured full-TU C is 72/72 words with all eight HI/LO relocations; stale standalone import falsely reports 30 register words | exact reproof/promotion queued |
 | `runlinkEnsureJumpIsValid` | runlink | **P?/W** | 35w register-only; larger search space | queued (low odds) |
 | `levelInit` | level | **W?** | 122w register-only; likely too large for the permuter search | queued (low odds) |
 

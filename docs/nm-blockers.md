@@ -74,7 +74,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8002B040` | `src/main/matrix.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002B524` | `src/main/memory.c` | none | — | Retained full-TU candidate is 102/116 words, frame `0x58`, with 14 raw/normalized late-path sites and 12 exact relocation tuples. Run V0, narrow slot-data cache, separate lower/upper guards, improving combination, then improving-only `sp+0x3C` call-live record probe; park after five flat builds. |
 | `func_8002B7AC` | `src/main/memory.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8002BB40` | `src/main/memory.c` | none | — | Exact 72-word candidate leaves 30 register words; reuse dead `slotIsTaken`/`poolIndex` arguments for count/index. |
+| `func_8002BB40` | `src/main/memory.c` | none | — | Retained configured full-TU C is instruction-identical for all 72 frameless words and has the target's eight HI/LO relocations; the 30-word report comes only from a stale standalone import. Fresh compile plus linked resident-range and ROM proof are required before removing the guard. |
 | `func_80038750` | `src/main/menu.c` | shared-rodata | jtbl_80082734 | Move the language switch table and labels into menu. |
 | `func_80038878` | `src/main/menu.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_800389CC` | `src/main/menu.c` | matched | — | Promoted to exact C; no ownership work remains. |

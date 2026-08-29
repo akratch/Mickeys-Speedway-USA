@@ -391,7 +391,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2C5D0` | `func_8002B9D0` | `mempool_slot_clear` | B: frees a slot and coalesces adjacent free records; linked C exact |
 | `0x2C720` | `mmGetSlotPtr` | `mmGetSlotPtr` | B: returns one pool's slot-array pointer; matched C exact |
 | `0x2C734` | `mmGetDelay` | `mmGetDelay` | B: returns the deferred-free delay; matched C exact |
-| `0x2C740` | `func_8002BB40` | `mempool_slot_assign` | B: assigns a slot and, where needed, creates and links its remainder; allocation plateau, exact size, 30/72 register-only words differ, first `+0x8C` |
+| `0x2C740` | `func_8002BB40` | `mempool_slot_assign` | B: assigns a slot and, where needed, creates and links its remainder; retained configured full-TU C is 72/72 words with all eight relocations, pending fresh linked/ROM reproof |
 | `0x2C860` | `align16` | `mmAlign16` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
 | `0x2C87C` | `align8` | — | A: existing exact 7-word `memory.c.o` match; no JFG counterpart |
 | `0x2C898` | `align4` | `mmAlign4` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
@@ -468,10 +468,15 @@ candidate `sp+0x38` versus target `sp+0x3C`. Cap the next campaign at V0,
 narrow slot-data cache, separate lower/upper guards, improving combination,
 and an improving-only call-live record probe; park after five flat builds.
 
-`func_8002BB40`: the retained isolated candidate is 72/72 words with 30
-register differences, first `+0x8C`; no full-TU C comparison or linked proof
-has been retained. Workbench reports allocation mismatch;
-`pool-position`/temp-FIFO trials did not close the allocator web split.
+`func_8002BB40`: the stale standalone import is 72 words with 30 register
+differences from `+0x8C`, but it drops the real translation-unit context. The
+retained configured `memory.c.o` instead reproduces all 72 frameless words and
+the target's eight HI16/LO16 relocations: pairs for `D_8007A270`,
+`D_800D21B0`, and two references to `D_800D1C60`. The source body is unchanged
+since that object; later edits touched comments and another guarded function.
+This is an exact candidate, not an allocator-search plateau, but it remains
+guarded until a fresh configured compile, linked resident range, and full-ROM
+comparison prove promotion.
 
 `func_8002B7AC`: 62/63 words, first `+0x4`; the target preserves the initial
 `D_800D21B0` base in `s0` while the candidate folds it through `t6`. Workbench
