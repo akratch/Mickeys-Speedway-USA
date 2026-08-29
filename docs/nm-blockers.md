@@ -40,7 +40,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `diRcpMoveWd` | `src/main/diRcp.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `vsprintf` | `src/main/diprint.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `diPrintfAll` | `src/main/diprint.c` | resolved-plateau | D_800D4A60, D_800D4A62 | Diprint owns the measured BSS block; strict `D_800D4A60+2` identity remains. |
-| `debug_text_width` | `src/main/diprint.c` | none | — | No ownership change; continue source/codegen work. |
+| `debug_text_width` | `src/main/diprint.c` | none | — | Size/frame/relocations exact at 66 words with seven current-byte/newline schedule residuals, first `+0x38`; source attempt cap exhausted. Reproof-only V0. |
 | `debug_text_parse` | `src/main/diprint.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_8004B1DC` | `src/main/font.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8004BA8C` | `src/main/font.c` | none | — | No ownership change; continue source/codegen work. |
