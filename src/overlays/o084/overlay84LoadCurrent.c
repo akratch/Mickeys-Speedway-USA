@@ -68,10 +68,16 @@ extern Overlay84Resource *overlay84GetResource(
 extern void overlay84PrepareResource(u8 resource);
 extern void overlay84ReleaseResource(u8 resource);
 
+/* Runtime relocation identities are animation-path operations:
+ * overlay84GetResource -> func_800508B4, overlay84PrepareResource ->
+ * func_8005055C, and overlay84ReleaseResource -> animseqStartPath. The getter
+ * consumes only the path index; this widened prototype deliberately preserves
+ * choice/object in a1/a2 for the exact allocator topology. */
 /* Matched 2026-08-28 by a bounded decomp-permuter pass after the prior hand
  * and flag probes plateaued on the state-pointer spill home. The untouched
  * IDO output preserves the 72-word body, 0x28 frame, and five relocation
- * sites, and the linked overlay is byte-identical to the ROM. */
+ * sites. Evidence re-reviewed 2026-08-29: the owned range, complete Overlay 84
+ * image, and preserved full ROM are byte-identical to retail. */
 void overlay84LoadCurrent(s32 kind)
 {
   Overlay84State *state;

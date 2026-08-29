@@ -376,7 +376,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_084_F0000314_18D07F4` | `src/overlays/o084/func_overlay_084_F0000314_18D07F4.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_084_F0000DD0_18D12B0` | `src/overlays/o084/overlay84AdvanceCurrent.c` | matched | — | Promoted as `overlay84AdvanceCurrent`; no ownership work remains. |
 | `func_overlay_084_F0000048_18D0528` | `src/overlays/o084/overlay84InitializeAndUpdate.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_084_F0000C9C_18D117C` | `src/overlays/o084/overlay84LoadCurrent.c` | matched | — | Promoted to exact C; no ownership work remains. |
+| `func_overlay_084_F0000C9C_18D117C` | `src/overlays/o084/overlay84LoadCurrent.c` | matched | — | Evidence-A exact: 72 words, frame `0x28`, five exact relocation sites, exact linked owned range and Overlay 84 module, and preserved full-ROM identity. Reproof unchanged V0 only. |
 | `func_overlay_086_F0000474_18D22AC` | `src/overlays/o086/func_overlay_086_F0000474_18D22AC.c` | resolved-plateau | overlay 86 literal pool | TU-owned +0x80..+0xA0 .rodata clears module growth; code generation remains. |
 | `func_overlay_087_F0000128_18D3090` | `src/overlays/o087/func_overlay_087_F0000128_18D3090.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_088_F00001A4_18D3C2C` | `src/overlays/o088/overlay88DrawSortedGeometry.c` | none | — | No ownership change; continue source/codegen work. |
