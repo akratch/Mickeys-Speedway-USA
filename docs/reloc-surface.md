@@ -1137,14 +1137,16 @@ ORT export at offset `0x41894`, overlay SYMBOL inbounds, and stored-pointer
 inbounds are all zero. `partDraw+0xEC` is the sole direct caller. Current
 linked equality proves fallback only.
 
-Resident `func_8003E8D8` owns ten exact static tuples in retained genuine C:
+Resident `func_8003E8D8` owns ten exact static tuples in bounded 139/140
+configured full-TU C:
 HI16/LO16 pairs to `D_8007C898` at `+0x00/+0x04`, `D_8007C890` at
 `+0x28/+0x2C`, `D_8007CA90` at `+0xC4/+0xF4`, and `D_80082A48` at
 `+0x1F8/+0x1FC`, plus R_MIPS_26 calls to `func_80034448` at `+0x174` and
 `mathRnd` at `+0x1C0`. Resident runtime records inside the function, an ORT
 export, overlay `SYMBOL` inbounds, and aligned stored-pointer inbounds are all
-zero. `func_8003E7B8+0xE4` is the sole direct caller. Current linked equality
-proves fallback only.
+zero. `func_8003E7B8+0xE4` is the sole direct caller. The exact tuple set and
+`0x230` boundary survive the declaration-home improvement; current linked
+equality proves fallback only.
 
 Resident `func_80019DE8` targets three static records: R_MIPS_26
 `mathOneFloatRPY` at `+0xBC` and a `D_800CB290` HI16/LO16 pair at

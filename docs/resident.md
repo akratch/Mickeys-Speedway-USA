@@ -2032,22 +2032,26 @@ pointer order, AST/lifetime probes, the flag lattice, and bounded permutation
 did not recover the folded initial address shift or pool/temporary web. The
 attempt cap is exhausted and assembly stays canonical.
 
-`func_8003E8D8` retains configured full-TU and isolated current-body C at
-131/140 raw and relocation-normalized words, first `+0x38`, with exact `0x230`
-size, `0x38` frame, and no padding. The isolated import omitted inert
-`-Wab,-r4300_mul`; a fresh HEAD full-TU V0 remains pending because unrelated
-parts of `particles.c` changed after the retained build.
-The differences are one zero-count branch target at `+0x38` and eight
-call-live stack homes: `entry` uses `sp+0x34` rather than target `sp+0x24`,
-while `result` uses `sp+0x20` rather than target `sp+0x34`, repeated around
-both calls. Exact linked function/TU/ROM evidence proves `GLOBAL_ASM` only.
+`func_8003E8D8` reaches a bounded configured full-TU plateau at 139/140 raw
+and relocation-normalized words, first `+0x38`, with exact `0x230` size,
+`0x38` frame, no padding, and all ten target relocation tuples. Declaration
+homes now place `entry` at `sp+0x24` and `result` at `sp+0x34` around both
+calls, eliminating the prior eight call-live differences; only the zero-count
+branch target at `+0x38` remains. Exact linked function/TU/ROM evidence proves
+`GLOBAL_ASM` only.
 The sole authenticated caller is `func_8003E7B8+0xE4`; there is no ORT export,
 resident runtime record, overlay `SYMBOL` inbound, or stored-pointer inbound.
 JFG's ordered peer is assembly-backed and 0x24C bytes, so it is structural
-evidence only. Reproduce HEAD V0, run 119 flags, capture one allocator trace,
-then test three natural declaration arrangements, at most one trace-selected
-lifetime form and one improving-only combination. Permit one 20-minute batch
-only after a policy-valid gain; cap the route at 124 deterministic builds.
+evidence only. The 119-configuration lattice produced seven ties at the
+131/140 V0 and otherwise regressed. One fidelity-clean allocator trace, three
+natural declaration forms, and one trace-selected CFG form completed the
+124-build cap; the declaration forms moved 9 differences to 20, 5, and 1,
+while the CFG form was byte-identical. The one gain-gated bounded permuter
+batch reported a false score-zero for an isolated 147-instruction, 0x24C-byte
+candidate with relocation drift, so it yielded no legal candidate. A future
+pass needs a source-faithful first-loop CFG spelling that retains the redundant
+pool-base reset; do not repeat flags, declaration homes, the explicit reset
+form, or this batch route.
 
 | Newly matched function | ROM / size | Match evidence |
 |---|---:|---|

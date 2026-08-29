@@ -516,24 +516,28 @@ void func_8003E7B8(ParticleObject *object, s32 index) {
     object->activeTriggerCount++;
 }
 #ifdef NON_MATCHING
-/* Retained configured full-TU and isolated current-body C are 131/140 raw and
- * relocation-normalized words, first +0x38, with exact 0x230 size, 0x38 frame,
- * and all ten target relocation tuples. The isolated import omitted inert
- * -Wab,-r4300_mul. The zero-count branch skips the target's redundant pool-base
- * reset; entry uses sp+0x34 versus target sp+0x24 and result uses sp+0x20 versus
- * target sp+0x34 around both calls. func_8003E7B8+0xE4 is the sole caller; no
- * runtime/export/overlay/pointer inbound exists. Linked identity proves fallback
- * only. Reprove HEAD V0, run 119 flags, trace once, and try three natural forms,
- * one improving-only combination, and an optional improving-only batch; hard
- * cap 124 deterministic builds plus one trace and one 20-minute batch. */
+/* Bounded configured full-TU C reaches 139/140 raw and relocation-normalized
+ * words, first +0x38, with exact 0x230 size, 0x38 frame, no padding, and all ten
+ * target relocation tuples. Target-ranked declarations place entry at sp+0x24
+ * and result at sp+0x34 around both calls, eliminating the prior eight call-live
+ * differences. The 119-configuration lattice, one fidelity-clean allocator
+ * trace, three natural declaration forms, and one trace-selected CFG form
+ * exhaust the 124-build route. The forms moved 9 -> 20, 5, then 1 difference;
+ * the CFG form was byte-identical. The gain-gated bounded permuter batch's
+ * score-zero was an invalid isolated import (147 versus 140 instructions,
+ * 0x24C versus 0x230, with relocation drift), so no batch candidate was adopted.
+ * Only the zero-count branch target at +0x38 remains. func_8003E7B8+0xE4 is the
+ * sole caller; no runtime/export/overlay/pointer inbound exists. Linked identity
+ * proves fallback only. A future pass needs a source-faithful first-loop CFG
+ * spelling that retains the redundant pool-base reset; do not repeat this route. */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8005FAE8.s; body reconstructed from Mickey evidence. */
 s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger) {
-    ParticleModelEntry *entry;
+    s32 result;
     f32 *pointData;
     f32 *point;
     s32 pointIndex;
+    ParticleModelEntry *entry;
     s32 i;
-    s32 result;
     s32 frameCount;
 
     if (D_8007C898 == NULL) {
