@@ -927,6 +927,19 @@ and overlay SYMBOL records have zero inbounds; direct callers are
 `lightDefaultObjectLight+0x38` and `func_8001A008+0x74/+0xC4`, with no stored
 pointer. Current linked equality proves fallback only.
 
+Resident `func_8002B524` owns 12 exact tuples in retained diagnostic C:
+HI16/LO16 pairs to `D_8007A278` at `+0x04/+0x08`, `D_8007A270` at
+`+0x1C/+0x3C`, `D_8007A27C` at `+0x4C/+0x50`, and `D_800D1C60` at
+`+0x90/+0x94`; R_MIPS_26 `runlinkGetAddressInfo` at `+0x74`; and
+`func_8002BB40` at `+0x134,+0x160,+0x180`. ORT 547 exports offset `0x2B0D4`.
+Resident direct callers are `runlinkSuspendCode+0xB4`,
+`runlinkResumeCode+0xD8`, and `func_80034448+0x12C/+0x1D0`; five overlay
+SYMBOL calls occur at Overlay 2 `+0x11A8`, Overlay 18 `+0x320/+0x334`,
+Overlay 19 `+0x1B4`, and Overlay 35 `+0x5C4`. ROM `0x7AE40` carries one
+R_MIPS_32 function pointer consumed by `RevealReturnAddresses`; no resident
+runtime-table record targets ORT 547. Current linked equality proves fallback
+only, and overlay proxy names await identity-explicit metadata regeneration.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to

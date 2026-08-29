@@ -208,16 +208,14 @@ void *func_8002B4C0(MemoryPoolSlot *slots, s32 size) {
 /* PROVENANCE: adapted from JFG src/memory.c:mmAllocAtAddr. Mickey's globals,
  * pool/slot layouts, absent diagnostic calls, and linked bytes are authoritative. */
 /*
- * Retained current-body evidence (reviewed 2026-08-29): the configured
- * NON_MATCHING full-TU object and isolated candidate are byte-identical at
- * 102/116 words, frame 0x58, first +0xE0, with all 12 target relocation
- * tuples exact. The fourteen raw and normalized differences are ten
- * slot-record/data-carrier sites, two lower-bound branch/delay-slot sites,
- * and the call-live record home at candidate sp+0x38 versus target sp+0x3C.
- * Ordinary object, linked owned range/TU, and ROM equality prove GLOBAL_ASM
- * only; no linked C trial survives. Reprove V0, then use the bounded
- * slot-data-cache, split-guard, improving-combination, and improving-only
- * call-live-record ladder.
+ * Retained pre-cleanup full-TU/isolated C is diagnostic 102/116 raw/normalized
+ * words, frame 0x58, first +0xE0, with all 12 tuples exact. Its volatile pad
+ * was an artificial stack-home aid and is restored to JFG's plain unused local;
+ * clean V0 is uncompiled. Linked equality is fallback-only. ORT 547 has four
+ * resident and five overlay calls plus one RevealReturnAddresses function
+ * pointer. Retain clean V0, 119 flags, two natural carrier/guard forms and an
+ * improving-only combination, then one trace-selected lifetime form. Hard cap:
+ * 123 stock builds plus one trace; no generic batch.
  */
 #ifdef NON_MATCHING
 void *func_8002B524(s32 size, u8 *address, u32 colourTag) {
@@ -227,7 +225,7 @@ void *func_8002B524(s32 size, u8 *address, u32 colourTag) {
     s32 moduleId;
     s32 moduleAddress;
     volatile s32 callerAddress = 0x666;
-    volatile s32 pad;
+    s32 pad;
 
     D_8007A270 = colourTag;
     if (D_8007A278 != -1) {

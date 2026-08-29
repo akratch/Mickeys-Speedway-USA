@@ -49,6 +49,7 @@
 
 #include "PR/ultratypes.h"
 #include "PR/os.h"
+#include "game/memory.h"
 #include "game/runlink.h"
 
 extern RomTableEntry *overlayRomTable;  /* the overlay ROM table */
@@ -70,7 +71,6 @@ extern void runlinkFreeCode(s32 overlayIndex);
 extern void runlinkUnloadOverlay(s32 overlayIndex);
 extern s32 func_80031A30(RelocationEntry *relocEntry, s32 otIndex);
 extern void *func_8002B280(s32 size, s32 tag);
-extern void *func_8002B524(s32 size, void *address, u32 tag);
 extern void mmFree(void *address);
 extern s32 mmGetDelay(void);
 extern void mmSetDelay(s32 delay);

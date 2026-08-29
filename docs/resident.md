@@ -395,7 +395,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2BF14` | `func_8002B314` | `mmAlloc2` | B: second wrapper with the same calls and result role; linked C exact |
 | `0x2BFA8` | `func_8002B3A8` | `mempool_slot_find` | B: common worker used by all three allocation wrappers and the fixed-address allocator; linked C exact |
 | `0x2C0C0` | `func_8002B4C0` | `mmAllocR` | B: selects a pool by its slot-array pointer, then calls the common worker; linked C exact |
-| `0x2C124` | `func_8002B524` | `mmAllocAtAddr` | B: fixed-address allocation with three static slot-assignment call sites but at most two executed per path; guarded current-body C is 102/116 words, first `+0xE0`, frame `0x58`, with all 12 relocations exact |
+| `0x2C124` | `func_8002B524` | `mmAllocAtAddr` | B: fixed-address allocator; retained pre-cleanup C is diagnostic 102/116 raw/normalized words, frame `0x58`, first `+0xE0`, with all 12 tuples exact. Artificial volatile pad is removed; clean V0 is uncompiled and linked equality is fallback-only. ORT 547 has nine calls plus one stored pointer. |
 | `0x2C2F4` | `mmSetDelay` | `mmSetDelay` | B: writes the deferred-free delay used by `mmFree`; matched C exact |
 | `0x2C300` | `func_8002B700` | `mmFlushFreeStack` | B: drains queued addresses through the address-free worker; linked C exact |
 | `0x2C368` | `mmFree` | `mmFree` | A: unique 17-word skeleton with four relocated words masked; linked C exact |
@@ -410,6 +410,31 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2C860` | `align16` | `mmAlign16` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
 | `0x2C87C` | `align8` | — | A: existing exact 7-word `memory.c.o` match; no JFG counterpart |
 | `0x2C898` | `align4` | `mmAlign4` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
+
+`func_8002B524` owns VRAM `0x8002B524..0x8002B6F4`, ROM
+`0x2C124..0x2C2F4`: 464 bytes/116 words, frame `0x58`, saves `s0` through
+`s3` and `ra`, and has no target padding. Retained pre-cleanup full-TU and
+isolated C agree at diagnostic 102/116 raw/normalized words, first `+0xE0`;
+ordinary object/TU/ROM equality is assembly fallback only. Its `volatile pad`
+was an artificial stack-home aid and is restored to JFG's plain unused local,
+leaving clean V0 uncompiled. The return-address sentinel remains authentic:
+`RevealReturnAddresses` rewrites it from the function patch table.
+
+All 12 target tuples were exact in diagnostic C: pairs to `D_8007A278` at
+`+0x04/+0x08`, `D_8007A270` at `+0x1C/+0x3C`, `D_8007A27C` at
+`+0x4C/+0x50`, and `D_800D1C60` at `+0x90/+0x94`; a
+`runlinkGetAddressInfo` call at `+0x74`; and `func_8002BB40` calls at
+`+0x134,+0x160,+0x180`. ORT 547 exports offset `0x2B0D4`. Resident calls are
+`runlinkSuspendCode+0xB4`, `runlinkResumeCode+0xD8`, and
+`func_80034448+0x12C/+0x1D0`; Overlay 2/18/19/35 provide five more calls, and
+ROM `0x7AE40` stores one function pointer used by `RevealReturnAddresses`.
+No resident runtime-table record targets the export.
+
+The clean body uses ordinary `-O2 -mips2 -32`; pinned JFG authenticates its
+role and plain local but is a larger MIPS-I structural donor, not exact C.
+Retain clean V0 and 119 flags, try scoped direct slot-data and split-guard forms
+plus an independently improving combination, then one trace-selected natural
+lifetime form. Hard cap 123 stock builds plus one trace; no generic batch.
 
 `func_8002B7AC` owns VRAM `0x8002B7AC..0x8002B8A8`, ROM
 `0x2C3AC..0x2C4A8`: 252 bytes/63 words, frame `0x30`, saves `s0` through

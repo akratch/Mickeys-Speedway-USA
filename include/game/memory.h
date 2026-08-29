@@ -50,6 +50,7 @@ void mmSetDelay(s32 state);
 s32 mmGetDelay(void);
 MemoryPoolSlot *mmGetSlotPtr(MemoryPoolIndex poolIndex);
 void mmFree(void *data);
+void *func_8002B524(s32 size, u8 *address, u32 colourTag);
 void func_8002B7AC(void);
 u8 *align16(u8 *address);
 u8 *align8(u8 *address);

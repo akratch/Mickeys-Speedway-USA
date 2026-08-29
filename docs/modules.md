@@ -798,12 +798,11 @@ Two toolchain facts govern the per-TU split:
 - **`0x6B860`–`0x6BDF0`** (`0x590`), between Perfect Dark's three Transfer Pak
   routines. Almost certainly more of the same driver; PD's build does not
   contain whatever it is.
-- **The object system.** The `"setting up"` / `"freeing"` / `"processing"` /
-  `"exploding"` phase names sit in a 5-entry pointer table at `0x8007A220`, whose first
-  entry is `"null"`, immediately followed by four function pointers
-  (`0x8002B280`, `0x8002B314`, `0x8002B768`, `0x8002B524`) which are exactly
-  the memory routines the linker calls. Something at `0x8007A214` is a
-  descriptor combining phase names with allocator entry points. The only
-  resident reader of the phase table is the crash reporter at `0x80046548`, so
-  the phases are what a fault is reported *during*. That is as far as the
-  evidence goes; no struct is asserted for it.
+- **The object system.** The `"null"` / `"setting up"` / `"freeing"` /
+  `"processing"` / `"exploding"` phase names occupy five pointers beginning at
+  `0x8007A220`. They are followed by a separate five-function patch table at
+  `0x8007A234`–`0x8007A244`, including `func_8002B280`, `func_8002B314`,
+  `mmFree`, and `func_8002B524`. `RevealReturnAddresses` consumes the function
+  table to patch return-address sentinels, while the crash reporter consumes the
+  phase names. Something at `0x8007A214` relates the two surfaces, but the
+  evidence does not justify a combined struct or stronger intent claim.

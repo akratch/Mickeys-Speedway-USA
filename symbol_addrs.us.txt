@@ -2356,6 +2356,7 @@ func_8002B280 = 0x8002B280; // type:func size:0x94   ROM 0x2be80  tier-B matched
 func_8002B314 = 0x8002B314; // type:func size:0x94   ROM 0x2bf14  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mmAlloc2
 func_8002B3A8 = 0x8002B3A8; // type:func size:0x118  ROM 0x2bfa8  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mempool_slot_find
 func_8002B4C0 = 0x8002B4C0; // type:func size:0x64   ROM 0x2c0c0  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mmAllocR
+func_8002B524 = 0x8002B524; // type:func size:0x1D0 ROM 0x2c124 tier-B JFG mmAllocAtAddr role, NON_MATCHING diagnostic 102/116 pre-cleanup C, frame 0x58, 12 exact tuples, ORT 547, 9 calls plus 1 stored pointer
 func_8002B700 = 0x8002B700; // type:func size:0x68   ROM 0x2c300  tier-B matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mmFlushFreeStack
 mmFree = 0x8002B768; // type:func size:0x44   ROM 0x2c368  tier-A matched C main/memory -O2 -mips2 -32 donor JFG-memory.c-mmFree masked=4/17
 func_8002B7AC = 0x8002B7AC; // type:func size:0xFC ROM 0x2c3ac tier-B JFG mmFreeTick structural role, NON_MATCHING 62/63 words and 1/63 positional, ORT 593, sole inbound func_80026FB4+0x5F8
