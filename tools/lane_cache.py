@@ -14,6 +14,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -42,6 +43,17 @@ ARTIFACTS = (
     "undefined_syms_auto.us.txt",
     "tools/n64crc",
 )
+BUILD_NEUTRAL_PREFIXES = ("docs/", "tests/", ".github/")
+BUILD_NEUTRAL_PATHS = {
+    "AGENTS.md",
+    "CLAUDE.md",
+    "tools/crew.py",
+    "tools/lane_cache.py",
+    "tools/lane_status.py",
+    "tools/public_release.py",
+    "tools/ready_queue.py",
+    "tools/system_health.py",
+}
 
 
 class CacheError(RuntimeError):
@@ -106,6 +118,64 @@ def _file_sha1(path: Path) -> str:
 
 def _cache_path(root: Path, commit: str) -> Path:
     return _common_dir(root) / CACHE_DIRNAME / commit
+
+
+def _build_neutral(path: str) -> bool:
+    return (
+        path in BUILD_NEUTRAL_PATHS
+        or path.startswith(BUILD_NEUTRAL_PREFIXES)
+        or (path.startswith("tools/test_") and path.endswith(".py"))
+    )
+
+
+def _compatible_changes(root: Path, cached: str, head: str) -> list[str] | None:
+    ancestor = _run(
+        ["git", "merge-base", "--is-ancestor", cached, head],
+        root,
+        check=False,
+    )
+    if ancestor.returncode != 0:
+        return None
+    paths = _run(
+        ["git", "diff", "--name-only", "--no-renames", cached, head, "--"],
+        root,
+    ).stdout.splitlines()
+    return paths if all(_build_neutral(path) for path in paths) else None
+
+
+def _resolve_cache(root: Path, head: str) -> tuple[Path, dict[str, object]]:
+    exact = _cache_path(root, head)
+    if exact.is_dir():
+        payload = _manifest(exact)
+        if payload.get("commit") != head:
+            raise CacheError("exact cache manifest does not match its directory")
+        return exact, payload
+
+    parent = exact.parent
+    candidates: list[tuple[int, Path, dict[str, object]]] = []
+    if parent.is_dir():
+        for path in parent.iterdir():
+            if not path.is_dir() or not re.fullmatch(r"[0-9a-f]{40}", path.name):
+                continue
+            payload = _manifest(path)
+            if payload.get("commit") != path.name:
+                raise CacheError(f"cache manifest commit disagrees with {path}")
+            changes = _compatible_changes(root, path.name, head)
+            if changes is None:
+                continue
+            distance = int(
+                _run(
+                    ["git", "rev-list", "--count", f"{path.name}..{head}"],
+                    root,
+                ).stdout.strip()
+            )
+            candidates.append((distance, path, payload))
+    if not candidates:
+        raise FileNotFoundError(
+            f"no exact or build-compatible verified lane cache for {head}"
+        )
+    _distance, path, payload = min(candidates, key=lambda row: (row[0], row[1].name))
+    return path, payload
 
 
 def _copy(source: Path, destination: Path) -> None:
@@ -190,12 +260,11 @@ def restore(root: Path) -> Path:
     root = _repo_root(root)
     _assert_clean(root)
     commit = _head(root)
-    cache = _cache_path(root, commit)
-    if not cache.is_dir():
-        raise FileNotFoundError(f"no verified lane cache for {commit}")
-    payload = _manifest(cache)
-    if payload.get("commit") != commit:
-        raise CacheError("cache commit does not match the lane HEAD")
+    cache, payload = _resolve_cache(root, commit)
+    cached_commit = str(payload.get("commit"))
+    changes = _compatible_changes(root, cached_commit, commit)
+    if changes is None:
+        raise CacheError("cache commit is not build-compatible with lane HEAD")
     if payload.get("rom_sha1") != _expected_sha1(root):
         raise CacheError("cache ROM identity does not match this tree")
     artifacts = payload.get("artifacts")
@@ -264,10 +333,7 @@ def main(argv: list[str] | None = None) -> int:
             path = restore(root)
             message = f"restored verified lane cache: {path}"
         else:
-            path = _cache_path(root, _head(root))
-            if not path.is_dir():
-                raise FileNotFoundError(f"no verified lane cache for {_head(root)}")
-            _manifest(path)
+            path, _payload = _resolve_cache(root, _head(root))
             message = str(path)
     except FileNotFoundError as exc:
         if not args.quiet:

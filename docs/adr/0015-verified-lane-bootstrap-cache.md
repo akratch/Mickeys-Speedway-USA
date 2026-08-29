@@ -24,9 +24,13 @@ lane without duplicating its physical blocks; later writes remain lane-local.
 - The cache contains only the allowlisted ignored split and verified build
   prerequisites. Its manifest records the schema, commit, ROM digest, proof
   command, and paths. It contains no source and is never tracked.
-- `tools/new_lane.sh` restores only a cache whose commit and ROM identity match
-  the new lane exactly. Restore refuses existing destinations, missing files,
-  unknown paths, tracked dirt, or a stale Make graph.
+- `tools/new_lane.sh` prefers an exact-commit cache. If none exists, it may
+  restore the nearest ancestor cache only when every intervening tracked path
+  is in the cache tool's explicit build-neutral allowlist (documentation,
+  tests, and named coordination/release helpers). Source, headers, Makefiles,
+  configuration, extraction tools, and compiler inputs are never inferred
+  compatible. Restore also refuses existing destinations, missing files,
+  unknown paths, tracked dirt, a ROM-identity mismatch, or a stale Make graph.
 - Restoration copy-on-write clones files on APFS and copies them normally on
   other filesystems. No directory is shared writable between lanes.
 - When no exact-commit cache exists, lane creation retains its ordinary splat
@@ -37,6 +41,9 @@ lane without duplicating its physical blocks; later writes remain lane-local.
 
 - A newly assigned lane can begin from the last verified integration build
   without repeating extraction or a full unchanged build.
+- Documentation and coordination-only commits no longer invalidate that warm
+  start. The allowlist is deliberately narrow; uncertain paths fall back to
+  ordinary extraction.
 - Every source edit still invalidates and rebuilds its normal Make targets;
   `verify` remains required for every promotion and integration.
 - The cache does not weaken clean-room rules or match evidence. It is ignored,

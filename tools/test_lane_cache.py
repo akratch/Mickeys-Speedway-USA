@@ -83,6 +83,26 @@ class LaneCacheTests(unittest.TestCase):
         with self.assertRaisesRegex(lc.CacheError, "unapproved"):
             lc.restore(self.root)
 
+    def test_build_neutral_descendant_reuses_verified_ancestor(self) -> None:
+        cache = self.make_cache()
+        (self.root / "docs").mkdir()
+        (self.root / "docs" / "note.md").write_text("coordination note\n")
+        self.git("add", "docs/note.md")
+        self.git("commit", "-q", "-m", "Document coordination")
+        self.assertEqual(lc.restore(self.root), cache)
+
+    def test_build_input_change_rejects_ancestor_cache(self) -> None:
+        self.make_cache()
+        (self.root / "Makefile").write_text(
+            "all:\n\t@:\nbuild/mickey.us.elf:\n\t@echo changed\n"
+        )
+        self.git("add", "Makefile")
+        self.git("commit", "-q", "-m", "Change build")
+        with self.assertRaisesRegex(
+            FileNotFoundError, "no exact or build-compatible"
+        ):
+            lc.restore(self.root)
+
 
 if __name__ == "__main__":
     unittest.main()
