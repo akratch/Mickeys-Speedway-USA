@@ -78,19 +78,22 @@ extern void overlay1GetVariableRecords(O1VariableRecord **records, s32 *length,
 /*
  * Plateau (2026-08-28): the target and selective-context candidate are both
  * 0xB0 bytes (44 words) with a 0x38 frame; eight instruction words differ,
- * first at +0x1C. Five sites are the two call-output homes: target records and
- * length use sp+0x34/sp+0x20, while the candidate uses sp+0x30/sp+0x28. The
- * other three sites are one conditional-store branch/address schedule. Target
- * and candidate each have five relocs at the same offsets and of the same
- * types (one call and two data HI/LO pairs), but the candidate's friendly call
- * and D_1D8CRead identities remain unresolved. Removing the unused volatile
+ * at +0x1C,+0x20,+0x30,+0x40,+0x6C,+0x70,+0x74,+0x7C. Five sites are the two
+ * call-output homes: target records and length use sp+0x34/sp+0x20, while the
+ * candidate uses sp+0x30/sp+0x28. The other three sites are one
+ * conditional-store branch/address schedule. The imported ELF objects each
+ * expose five static relocs, but the shipped runtime contract has seven: the
+ * GetRomlistInfo SYMBOL call plus three LOCAL HI/LO pairs for the same BSS
+ * word at module+0xA16C. The literal conditional store currently omits the
+ * middle static pair, so promotion requires an identity-correct symbolic BSS
+ * lvalue and all seven runtime tuples. Removing the unused volatile
  * local shrank the frame and regressed to 13 words; a typed store pointer,
  * byte cursor, block-local record size, and scoped call outputs retained the
  * eight-word baseline. Direct D_1D8C access fixed the four data-reloc names but
  * regressed to 16 words. Commit 9968f84e repaired the unrelated consolidated
- * TU declaration conflicts. The retained isolated settings omit this TU's
- * -Wab,-r4300_mul, so rebaseline full-TU first. Then keep all other locals
- * fixed and try records/private/length, records/length/private,
+ * TU declaration conflicts. Retained configured full-TU evidence reproduces
+ * the same eight-word state; fresh reproof is still required. Then keep all
+ * other locals fixed and try records/private/length, records/length/private,
  * private/length/records, length/private/records, and
  * length/records/private. Finish with records/record collapse and an explicit
  * skip edge; use at most two combinations only from improving constituents,

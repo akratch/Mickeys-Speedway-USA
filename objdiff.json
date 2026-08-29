@@ -7126,16 +7126,6 @@
       }
     },
     {
-      "name": "src/overlays/o001/overlay1AssignRecordIndex.c",
-      "target_path": "expected/build/src/overlays/o001/overlay1AssignRecordIndex.c.o",
-      "base_path": "build/src/overlays/o001/overlay1AssignRecordIndex.c.o",
-      "metadata": {
-        "progress_categories": [
-          "src-overlays-o001"
-        ]
-      }
-    },
-    {
       "name": "src/overlays/o001/overlay1BendPathPoint.c",
       "target_path": "expected/build/src/overlays/o001/overlay1BendPathPoint.c.o",
       "base_path": "build/src/overlays/o001/overlay1BendPathPoint.c.o",
