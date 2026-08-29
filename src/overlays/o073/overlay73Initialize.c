@@ -61,15 +61,19 @@ extern f32 D_4;
 extern f32 D_8;
 
 /* DKR v77/v80 and JFG contain no exact donor for this initializer. */
-/* Retained configured-isolated evidence is 90/100 raw words and 92/100 after
- * runtime-relocation normalization, with exact frame 0x8 and eight a2/a3
- * allocator sites from +0x40. Runtime table 2 resolves D_80 through LOCAL base
+/* Retained configured full-TU and isolated current-body C are byte-identical at
+ * 90/100 raw words and 92/100 after runtime-relocation normalization, with
+ * exact frame 0x8. One a2/a3 allocation web differs at
+ * +0x40/+0x50/+0x80/+0x84/+0x94/+0x9C/+0xA8/+0xB0. Runtime table 2 resolves
+ * D_80 through LOCAL base
  * +0xEB0/addend +0x80 (module +0xF30), while D_0/D_4/D_8 use LOCAL base
  * +0xF80 and addends 0/+4/+8. The 16 zero-immediate calls labelled with this
  * module-zero symbol in overlay_073.s are outgoing SYMBOL relocations, not
- * callers; resident relocation 90 at ROM 0xBA64 is the sole proven inbound
- * identity. Index/state/scope probes are flat and split indices regress. No
- * linked C proof survives; canonical assembly stays. */
+ * callers. ORT 1248 exports +0; resident relocation 90 at
+ * func_8000AA38+0x42C is the sole inbound. Historical flag/source-probe
+ * outcomes are unretained. Compile V0, retain 119 flags, trace once, try at
+ * most two trace-selected natural forms, then one bounded annotated batch.
+ * No linked C proof survives; canonical assembly stays. */
 #ifdef NON_MATCHING
 void func_overlay_073_F0000000_18CAAC0(Overlay73Object *object,
                                        Overlay73Header *header,

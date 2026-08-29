@@ -650,6 +650,14 @@ data `+0`, `+4`, and `+8` (`gOverlay34Records`, `gOverlay34Pointers`, and
 `gOverlay34Count`). Its standalone target object retains only four static
 records and bakes the final `+8` addend; runtime normalization is authoritative.
 
+Overlay 73 `+0x0` (`func_overlay_073_F0000000_18CAAC0`) owns eight LOCAL
+records: `+0x1C/+0x3C` resolves through base `+0xEB0`, addend `+0x80`, to
+module `+0xF30`; pairs at `+0x140/+0x144`, `+0x14C/+0x160`, and
+`+0x164/+0x170` resolve through base `+0xF80` with addends `0/+4/+8`.
+The fallback target statically retains only the first pair, so runtime tables
+authenticate the other six. ORT 1248 exports `+0`; resident relocation 90 at
+`func_8000AA38+0x42C` is the sole inbound.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to
