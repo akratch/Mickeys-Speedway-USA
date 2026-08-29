@@ -516,13 +516,15 @@ void func_8003E7B8(ParticleObject *object, s32 index) {
     object->activeTriggerCount++;
 }
 #ifdef NON_MATCHING
-/* Retained isolated IDO C is 131/140 words with exact 0x230 size, 0x38 frame,
- * and all ten target relocation tuples. Its import omitted this TU's
- * configured -Wab,-r4300_mul. The +0x38 zero-count branch skips the target's
+/* Retained prior-layout configured full-TU and isolated C are 131/140 words
+ * with exact 0x230 size, 0x38 frame, and all ten target relocation tuples;
+ * the isolated import omitted inert -Wab,-r4300_mul. Current-layout proof is
+ * pending. The +0x38 zero-count branch skips the target's
  * redundant pool-base reset; entry uses sp+0x34 versus target sp+0x24 and
  * result uses sp+0x20 versus target sp+0x34 around both calls. Linked
- * function/TU/ROM identity proves GLOBAL_ASM only. Reproduce configured V0,
- * then run the bounded declaration-order ladder. */
+ * function/TU/ROM identity proves GLOBAL_ASM only. Reproduce current V0 and
+ * retain the flag lattice, then test three declaration forms, one improving-
+ * only trace-selected form/combination, and an improving-only bounded batch. */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8005FAE8.s; body reconstructed from Mickey evidence. */
 s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger) {
     ParticleModelEntry *entry;
