@@ -399,7 +399,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2C2F4` | `mmSetDelay` | `mmSetDelay` | B: writes the deferred-free delay used by `mmFree`; matched C exact |
 | `0x2C300` | `func_8002B700` | `mmFlushFreeStack` | B: drains queued addresses through the address-free worker; linked C exact |
 | `0x2C368` | `mmFree` | `mmFree` | A: unique 17-word skeleton with four relocated words masked; linked C exact |
-| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; retained configured full-TU and isolated C agree at 62 words versus the 63-word target, frame `0x30`, with 62 raw/normalized positional differences from `+0x4`. All 12 type/identity records survive, but eleven are four bytes early and the first `D_800D20A8` LO16 is twelve bytes early. Linked equality proves `GLOBAL_ASM` only. |
+| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; historical same-body configured full-TU/isolated C was measured at 62 versus 63 words, frame `0x30`, with 62 raw/normalized positional differences from `+0x4`. No candidate object/report survives and current-HEAD C is uncompiled. Historical prose reports all 12 identities with no exact-offset tuple; linked equality proves `GLOBAL_ASM` only. |
 | `0x2C4A8` | `func_8002B8A8` | `mempool_free_addr` | B: finds an address's pool and clears its matching live slot; linked C exact |
 | `0x2C53C` | `func_8002B93C` | `mempool_free_queue` | B: appends an address and delay to the deferred-free arrays; linked C exact |
 | `0x2C578` | `func_8002B978` | `mempool_get_pool` | B: reverse-searches the pool table for the containing address range; linked C exact |
@@ -438,19 +438,20 @@ lifetime form. Hard cap 123 stock builds plus one trace; no generic batch.
 
 `func_8002B7AC` owns VRAM `0x8002B7AC..0x8002B8A8`, ROM
 `0x2C3AC..0x2C4A8`: 252 bytes/63 words, frame `0x30`, saves `s0` through
-`s5` and `ra`, and has no target padding. Retained configured full-TU and
-isolated current-body C are byte-identical but one instruction short at 62
-words: only 1/63 words agrees positionally, first `+0x04`, with eight isolated
-alignment bytes outside the function. Ordinary object, complete memory TU, and
-linked-ROM equality are assembly fallback only.
+`s5` and `ra`, and has no target padding. Historical same-body configured
+full-TU/isolated C was measured one instruction short at 62 words: only 1/63
+words agreed positionally, first `+0x04`. No candidate object/report survives,
+so current-HEAD C size, score, frame, and tuples are unknown. Ordinary object,
+complete memory TU, and linked-ROM equality are assembly fallback only.
 
-Candidate and target have the same 12 type/identity records, but no complete
-tuple has an exact offset. Target pairs are `D_800D21B0` at `+0x08/+0x0C`,
+The target owns 12 records. Pairs are `D_800D21B0` at `+0x08/+0x0C`,
 `D_800D21A8` at `+0x44/+0x48`, first `D_800D20A8` at `+0x50/+0x5C`, second
 `D_800D20A8` at `+0x60/+0x6C`, and `D_800D1CA8` at `+0x64/+0x68`; calls are
-`ReleaseUnusedLinkSlots` at `+0x3C` and `func_8002B8A8` at `+0x8C`. Eleven
-candidate records are four bytes early and the first `D_800D20A8` LO16 is
-twelve bytes early. ORT 593 exports resident offset `0x2B35C` but has no
+`ReleaseUnusedLinkSlots` at `+0x3C` and `func_8002B8A8` at `+0x8C`. Historical
+prose reports the same identities, with eleven records four bytes early and the
+first `D_800D20A8` LO16 twelve bytes early; conflicting old-source claims count
+ten or eleven aligned residual rows, and neither has an attributable report.
+ORT 593 exports resident offset `0x2B35C` but has no
 runtime-table or overlay inbound; `func_80026FB4+0x5F8` is the sole direct
 caller. The friendly `ReleaseUnusedLinkSlots` name remains tier-D/invented.
 
@@ -570,17 +571,17 @@ not C. Reproduce V0 and the historical 57/72 JFG index form, then test reuse of
 dead `slotIsTaken` as the slot-count carrier and `poolIndex` as the selected
 index only after strict improvement; cap the bounded ladder at six builds.
 
-`func_8002B7AC`: retained configured full-TU and isolated NON_MATCHING C are
-byte-identical for the unchanged current body. They emit 62 words versus the
-63-word target with the exact `0x30` frame. Raw and relocation-normalized
-positional comparison is 1/63 exact: 62 words differ including the missing
-target tail, first `+0x4`. Candidate and target have the same 12 relocation
-type/identity records, but zero exact-offset tuples. Eleven candidate records
-are four bytes early; the first `D_800D20A8` LO16 is at `+0x50` versus target
-`+0x5C`. The historical 11-aligned-row result survives only as prose. Ordinary
-object, linked function/TU, and ROM equality prove the assembly fallback only.
-Reprove V0, then try only the two early-base/later-cursor lifetime handoffs
-while preserving both `D_800D20A8` pairs.
+`func_8002B7AC`: historical same-body configured full-TU/isolated C was
+measured at 62 versus 63 words, frame `0x30`, and 1/63 raw/normalized
+positional words, first `+0x4`. No candidate object/report survives and current
+C metrics are unknown. Historical prose reports the same 12 identities with no
+exact-offset tuple: eleven records four bytes early and the first
+`D_800D20A8` LO16 at `+0x50` versus target `+0x5C`; old commits conflict on ten
+versus eleven aligned residual rows. Ordinary equality proves fallback only.
+Reprove configured V0; if it reproduces, run 119 configurations including V0,
+one allocator trace, JFG-faithful lexical layout, and scoped early-base/later-
+cursor lifetimes, combining only independent strict gains. Hard cap 122
+deterministic builds plus one trace; no generic batch absent a legal gain.
 
 The `models` block is now the deliberate exception to that earlier scheduling
 rule: it has been split as a **working decompilation TU**, not promoted to a

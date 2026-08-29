@@ -299,16 +299,19 @@ void mmFree(void *data) {
 void ReleaseUnusedLinkSlots(void);
 
 /*
- * Retained configured full-TU and isolated NON_MATCHING C are byte-identical
- * for the unchanged current body: 0xF8 / 62 words versus the 0xFC / 63-word
- * target, with the exact 0x30 frame. Raw and relocation-normalized positional
- * comparison is 1/63 exact, 62 differing words including the missing target
- * tail, first +0x4.
+ * Historical same-body configured full-TU and isolated NON_MATCHING C were
+ * measured at 0xF8 / 62 words versus the 0xFC / 63-word target, with frame
+ * 0x30. Raw and relocation-normalized positional comparison was 1/63 exact,
+ * 62 differing words including the missing target tail, first +0x4. No
+ * candidate object or comparison report survives, so the current-HEAD score,
+ * size, frame, and relocation tuples are unknown; the generated ranking row is
+ * stale until V0 is regenerated.
  *
- * Candidate and target have the same 12 relocation type/identity records, but
- * no tuple has an exact offset. Eleven candidate records are four bytes early;
- * the first D_800D20A8 LO16 is at +0x50 versus target +0x5C. The historical
- * 11-aligned-row claim has no surviving report or variant object.
+ * Historical prose reports the same 12 relocation type/identity records, but
+ * no exact-offset tuple: eleven records four bytes early and the first
+ * D_800D20A8 LO16 at +0x50 versus target +0x5C. Conflicting 10- and
+ * 11-aligned-row claims survive at old source commits, with no report or
+ * variant object authenticating either count.
  *
  * Historical flag, permutation, pointer, branch, cursor, and block-local-count
  * outcomes have no surviving artifacts and are scheduling evidence only.
@@ -316,8 +319,9 @@ void ReleaseUnusedLinkSlots(void);
  * JFG-faithful lexical layout and explicit early-D_800D21B0/later-D_800D20A8
  * lifetimes while preserving both D_800D20A8 pairs. Combine only independent
  * gains; cap 122 deterministic builds plus one trace and do not run a generic
- * batch absent a policy-clean natural gain. ORT 593 has one authenticated
- * inbound, func_80026FB4+0x5F8.
+ * batch absent a policy-clean natural gain. ORT 593 is an export; the sole
+ * authenticated direct inbound is func_80026FB4+0x5F8, with no runtime-table
+ * or overlay inbound.
  */
 #ifdef NON_MATCHING
 void func_8002B7AC(void) {

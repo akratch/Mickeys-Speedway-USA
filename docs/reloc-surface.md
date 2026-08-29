@@ -1009,9 +1009,10 @@ Resident `func_8002B7AC` targets 12 static records: HI16/LO16 pairs to
 `D_800D21B0` at `+0x08/+0x0C`, `D_800D21A8` at `+0x44/+0x48`,
 `D_800D20A8` at `+0x50/+0x5C` and `+0x60/+0x6C`, and `D_800D1CA8` at
 `+0x64/+0x68`, plus R_MIPS_26 calls to `ReleaseUnusedLinkSlots` at `+0x3C`
-and `func_8002B8A8` at `+0x8C`. Genuine C carries the same identities, but
-eleven sites are four bytes early and the first `D_800D20A8` LO16 is twelve
-bytes early because the function is one instruction short. ORT 593 exports
+and `func_8002B8A8` at `+0x8C`. Historical same-body C was reported to carry
+the same identities, with eleven sites four bytes early and the first
+`D_800D20A8` LO16 twelve bytes early, but no candidate object/report survives;
+current C tuples are pending configured V0. ORT 593 exports
 resident offset `0x2B35C`; resident runtime and overlay SYMBOL inbounds are
 zero, and `func_80026FB4+0x5F8` is the sole direct caller. Current linked
 equality proves fallback only.
