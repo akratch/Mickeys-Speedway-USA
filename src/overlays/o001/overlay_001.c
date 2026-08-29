@@ -246,18 +246,18 @@ typedef struct Overlay1SearchRecord {
     s32 key;
 } Overlay1SearchRecord;
 
-/* Runtime reloc1[1] proves this overlay proxy resolves to resident
- * func_8000572C; promotion must regenerate its zero-addend assignment. */
+/* Diagnostic proxy only. Runtime reloc1[1] resolves the call to resident
+ * func_8000572C; promotion needs that identity and a generated zero-addend
+ * overlay alias rather than treating this private name as authoritative. */
 extern Overlay1SearchRecord **overlay1SearchRangeReloc(s32 *start, s32 *end);
 
 /* The pinned DKR v77/v80 and JFG object scans contain no exact donor.
- * Retained isolated C is 22/39 words, frame 0x30, with 17 register-operand
- * sites from +0x1C. Its sole R_MIPS_26 record is at +0x14, but no configured
- * full-TU or linked C proof survives. The earlier apparent match used 17
- * prohibited post-compile operand-field rewrites. Six source-faithful
- * lifetime/traversal/key forms and one bounded report-only permutation did
- * not improve it. Reprove unchanged once, then park absent a new allocator
- * mechanism; GLOBAL_ASM remains canonical. */
+ * Retained prior-layout configured full-TU and isolated C agree at 22/39
+ * raw/normalized words, frame 0x30, first +0x1C, with 17 register-field sites.
+ * The earlier apparent match used 17 prohibited operand rewrites; it confirms
+ * the residual map, not a legal route. Historical source/flag/trace/permuter
+ * outcomes are unretained and linked equality proves fallback only. Reproduce
+ * current V0, repair the resident identity, then run the bounded campaign. */
 #ifdef NON_MATCHING
 Overlay1SearchRecord *overlay1FindType5ByKey(const s8 *key) {
     s32 start;
