@@ -420,7 +420,7 @@ resident target (splat auto-name or `D_8…`), which is a superset of the 15
 | `overlay5InitializeAudio` | `resident-symbol-missing` | `text-differs` 22 |
 | `func_overlay_011_F0001E4C_186A694` | `resident-symbol-missing` | `schedule-divergence-at-site` |
 | `func_overlay_011_F00022E8_186AB30` | `resident-symbol-missing` | `schedule-divergence-at-site` |
-| `overlay11UpdateMenu` | `resident-symbol-missing` | prior-layout C: 16 raw differences, 2 after runtime normalization |
+| `overlay11UpdateMenu` | `resident-symbol-missing` | pre-current-identity diagnostic C: 16 annotated raw differences, 2 after runtime normalization |
 | `func_overlay_026_F0000D24_187B11C` | `resident-symbol-missing` | `text-differs` 39 |
 | `func_overlay_027_F0000064_187BA3C` | `resident-symbol-missing` | `schedule-divergence-at-site` |
 | `func_overlay_029_F00005C4_187D874` | `resident-symbol-missing` | `schedule-divergence-at-site` |
@@ -430,6 +430,25 @@ resident target (splat auto-name or `D_8…`), which is a superset of the 15
 | `func_overlay_046_F0000120_188E518` | `resident-symbol-missing` | `rom-size` |
 | `func_overlay_071_F0000278_18C9D98` | `resident-symbol-missing` | `text-differs` 28 |
 | `overlay94UpdateController` | `resident-symbol-missing` | `text-differs` 13 |
+
+`overlay11UpdateMenu` owns Overlay 11 `+0x1398..+0x184C` with no padding and
+exactly 102 runtime records: table-1 134..193 are 60 SYMBOL records; table-2
+172..213 contain 36 LOCAL address records, five LOCAL JUMPs, and one same-
+overlay SYMBOL. Its 76 address records cover resident/BSS identities `D_0`,
+`D_cfgA/B/C`, `D_flags`, `D_count`, `D_table`, `D_paramA/B/C/D`, `D_modeFlag`
+and local `D_1B8/D_1BC/D_1C4/D_1CC/D_204/D_menuBase+0x1C4`; all candidate
+offsets/types agree. The 26 calls are `+0x08` to resident `func_80028F54`,
+`+0x84/+0xA8/+0xF0/+0x100` to `func_80000F94`, `+0x13C` to Overlay 45
+`+0x1BF4`, `+0x160` to `func_8002554C`, `+0x1B8` to Overlay 66 `+0`,
+`+0x1C0/+0x1C8/+0x1D8` to `func_800290AC/func_800291D8/func_800006BC`,
+`+0x1E0` to Overlay 11 SYMBOL `+0x2BF4`, LOCAL JUMPs
+`+0x208/+0x398` to `+0x1058`, `+0x220/+0x3B0` to `+0x1130`, and `+0x3E4`
+to `+0x2948`, plus `+0x25C/+0x41C` to `func_80005820`,
+`+0x328/+0x370/+0x46C/+0x490` to `func_80028374`, `+0x330/+0x474` to
+`func_80028528`, and `+0x3DC` to `func_8003A754`. The function is unexported;
+its sole inbound is table-2 LOCAL JUMP record 68 at module `+0x930` from
+`func_overlay_011_F0000150_1868998+0x7E0`. Linked equality proves fallback
+only; clean current source and restored zero carriers are uncompiled.
 
 Nine now carry an in-range word count and a linked-ROM oracle. Four are
 `schedule-divergence-at-site`, which is the honest answer and a codegen problem:

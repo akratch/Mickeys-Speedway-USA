@@ -2888,6 +2888,19 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateMenu.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
 		--redefine-sym func_overlay_011_F0001398_1869BE0=overlay11UpdateMenu \
 		--redefine-sym func_80028F54=overlay11GetStatusReloc $@ && \
+	$(OBJCOPY) \
+		--redefine-sym func_80000F94=func_overlay_011_F0000000_1868848 \
+		--redefine-sym func_overlay_045_F0001BF4_188E04C=func_overlay_011_F0000000_1868848 \
+		--redefine-sym func_8002554C=func_overlay_011_F0000000_1868848 \
+		--redefine-sym func_overlay_066_F0000000=func_overlay_011_F0000000_1868848 \
+		--redefine-sym func_800290AC=func_overlay_011_F0000000_1868848 \
+		--redefine-sym func_800291D8=func_overlay_011_F0000000_1868848 \
+		--redefine-sym func_800006BC=func_overlay_011_F0000000_1868848 \
+		--redefine-sym func_overlay_011_F0002BF4_186B43C=func_overlay_011_F0000000_1868848 \
+		--redefine-sym func_80005820=func_overlay_011_F0000000_1868848 \
+		--redefine-sym func_80028374=func_overlay_011_F0000000_1868848 \
+		--redefine-sym func_80028528=func_overlay_011_F0000000_1868848 \
+		--redefine-sym func_8003A754=func_overlay_011_F0000000_1868848 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4B4
 # Overlay-local data addends are encoded in retail, while its runtime calls
 # all use the extracted range's offset-zero carrier.

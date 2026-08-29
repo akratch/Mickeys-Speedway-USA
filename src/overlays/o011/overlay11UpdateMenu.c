@@ -57,27 +57,24 @@ extern void func_overlay_066_F0000000(void *arg0);
 
 /* Pinned DKR v77/v80 and JFG donor scans classify overlay 11 as none. */
 /*
- * Plateau (2026-08-28): retained prior-layout configured full-TU and isolated
- * C are 285/301 raw and 299/301 runtime-normalized words, size 1204 B, with a
- * 0x48-byte frame and all 102 relocation sites. The executable residual is the
- * reversed live index/handle spill pair at +0x138/+0x140. Current-layout C is
- * unproven. Runtime names the +0x8 call as resident func_80028F54; the source
- * and metadata rebind now preserve that identity instead of overlay 11 +0.
- * Reopen with current V0, the retained 119-recipe flag lattice, one allocator
- * trace, and at most two independently trace-selected declaration/lifetime
- * forms plus an improving-only combination. Permit one <=2000-candidate batch
- * only after a legal deterministic gain. The prohibited frame/spill rewrite
- * remains non-promotable; canonical assembly stays until an exact C link.
+ * Retained pre-current-identity/current-body configured full-TU and isolated C
+ * are 285/301 relocation-annotated raw (278/301 literal) and 299/301 runtime-
+ * normalized words, size 1204 B, frame 0x48, with all 102 sites. Only the live
+ * index/handle stores at +0x138/+0x140 remain. That score is diagnostic: three
+ * dead padding arrays existed only to inflate the natural 0x30 frame and are
+ * removed below. Clean current identity V0 is uncompiled. Runtime names +0x8
+ * as resident func_80028F54; source and metadata preserve all 13 SYMBOL call
+ * identities and zero carriers. Historical flags, trace, source probes, and
+ * search are unretained. Run 119 flags on clean V0, trace once, try at most two
+ * natural declaration/lifetime forms plus an improving-only combination; cap
+ * 122 stock builds plus trace and batch only after a legal strict gain.
  */
 #ifdef NON_MATCHING
 void overlay11UpdateMenu(s32 updateRate) {
     s32 index;
-    s32 indexPadding[4];
     O11Status *status;
     s32 finish;
-    s32 finishPadding[1];
     void **handle;
-    s32 handlePadding[1];
     s8 direction;
     s16 value;
     s32 selection;
