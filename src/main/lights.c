@@ -984,9 +984,10 @@ void func_80019AB8(LightPosition *position, LightObjectContext *object,
 void lightDefaultObjectLight(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s32 arg4) {
     func_80019DE8(&D_800CB298, arg0, arg1, arg2, arg3, arg4);
 }
-/* Workbench: mixed(structural:9, register:16), 64/63 instructions, 45 words, first +0x44.
- * Levers tried: workbench structure buckets, direct-difference local, flag lattice.
- * Remains: valueDelta/colourStep ordering starts a register/temp phase shift; one instruction remains. */
+/* Retained configured full-TU C: 64 versus 63 words, exact 0x38 frame,
+ * 19/63 positional matches, 44 shared-word differences plus one trailing nop,
+ * first +0x44.  The three relocation identities agree but are all four bytes
+ * late.  Only V0 is artifact-backed; reproduce before the bounded campaign. */
 #ifdef NON_MATCHING
 /* PROVENANCE: adapted from JFG's public asm/nonmatchings/lights/lightSetObjectLight.s, with Mickey's globals. */
 void func_80019DE8(ObjectLightState *state, s32 arg1, s32 arg2, s16 pitch, s16 yaw, s32 shift) {
