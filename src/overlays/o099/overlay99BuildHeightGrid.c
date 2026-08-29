@@ -26,6 +26,12 @@ extern s32 gOverlay99Arg4;
 extern s32 gOverlay99Arg5;
 extern void overlay99ApplySegment(Overlay99Segment *segment, f32 scale);
 
+/*
+ * Plateau p8: exact 114-word shape and frame, with three register-only words
+ * from +0x154.  Loading the grid after the second width/height product fixes
+ * the preceding seven-word reload web; the remaining lever is the short-lived
+ * clamp magnitude carrier (target t4, candidate v0).
+ */
 #ifdef NON_MATCHING
 void overlay99BuildHeightGrid(f32 scale, void *unused, s32 widthMinusOne,
                               s32 heightMinusOne, s32 arg4, s32 arg5) {
@@ -66,8 +72,8 @@ void overlay99BuildHeightGrid(f32 scale, void *unused, s32 widthMinusOne,
 
     widthPtr = &gOverlay99GridWidth;
     heightPtr = &gOverlay99GridHeight;
-    point = gOverlay99Grids[gOverlay99CurrentGrid];
     i = *heightPtr * *widthPtr;
+    point = gOverlay99Grids[gOverlay99CurrentGrid];
     while (i--) {
         value = point->height - 5;
         if (value < 0) {
