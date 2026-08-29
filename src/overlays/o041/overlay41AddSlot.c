@@ -17,16 +17,12 @@ typedef struct Overlay41Slot {
 extern Overlay41Slot gOverlay41Slots[];
 extern f32 D_0[];
 
-/* Workbench (2026-08-28): register-permutation; frameless 0xDC/55-word
- * baseline has six register-only differences at +0x10/+0x18/+0xA0/+0xA4/
- * +0xCC/+0xD0 and four candidate relocs. A common color source regressed to
- * 52 words; typed color and scan-local traversal forms were baseline-equivalent;
- * an isolated s16 amount conversion regressed to ten words. The target object's
- * zero-reloc surface is synthetic; the linked overlay resolves both local
- * ABS-zero bindings.
- * Prior flag/permuter/globalcolor work remains exhausted. Re-prove unchanged
- * V0 with the runtime-annotated target, then retain canonical assembly absent
- * a new register-pool mechanism. */
+/* Retained configured C is frameless and 49/55 words. Four count-web sites
+ * exchange a1/v1; the +0xA0/+0xA4 load order also leaves D_0's LOCAL LO16 at
+ * candidate +0xA4 instead of runtime +0xA0. gOverlay41Slots is SYMBOL-bound,
+ * while D_0 is LOCAL-bound. Only V0 is artifact-authenticated: reproduce it,
+ * retain the complete flag lattice, reverse only the multiplication operands,
+ * then try one trace-selected natural count-web form. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0001650_1888988(void *object, volatile s32 value1,
                                        s32 value3, s32 value5, s32 value7,
