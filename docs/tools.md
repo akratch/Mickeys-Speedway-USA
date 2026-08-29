@@ -265,6 +265,36 @@ section VMA/LMA pairs and writes its retained dumps only under ignored
 alternate build directory to compare a linked `NON_MATCHING=1` diagnostic ROM
 without replacing the verified build tree.
 
+## Overlay atlas release deltas
+
+`python3 tools/overlay_atlas.py --delta` makes an overlay scoreboard
+reconciliation reviewable without rebuilding or checking out the old tree.
+With one state it compares that base with the current worktree atlas; with two
+states it compares them directly:
+
+```sh
+python3 tools/overlay_atlas.py --delta HEAD^
+python3 tools/overlay_atlas.py --delta release-base release-candidate
+python3 tools/overlay_atlas.py --delta old-atlas.json ../candidate-checkout
+python3 tools/overlay_atlas.py --delta release-base release-candidate --format json
+```
+
+A state may be a Git tree-ish, an atlas JSON file, or a checkout containing
+`config/overlays.us.json`; an existing filesystem path takes precedence over a
+same-named ref. The report lists exact-C promotions and retractions, their
+individual byte ranges, gross byte totals, and the net exact-C change. JSON
+output is schema-versioned and keeps overlay numbers, offsets, extents, and
+sizes numeric for release automation.
+
+Identity is always `(overlay, text, offset)`, never a shared synthetic VMA or
+a source filename. The command refuses duplicate overlay rows, duplicate or
+overlapping exact-C identities, inconsistent row sizes or atlas totals, and a
+same-key extent that changed between states. This is deliberately fail-closed:
+fix or explain the atlas boundary instead of allowing a release report to
+guess whether one range was promoted, retracted, split, or renamed. The delta
+audits atlas state transitions; the ordinary exact-object, linked-ROM, and
+scoreboard gates remain the proof that a promotion is valid.
+
 ## Map: the rest of the toolbox
 
 The tools above (decomp-permuter, objdiff, mapfile_parser, check_tools.sh)
@@ -277,6 +307,7 @@ this file is a map, not a manual, for the rest.
 | `tools/skeleton_scan.py` | Masked-instruction-shape ("skeleton") matching against the reference farm: finds a donor whose bytes changed but whose structure didn't, which the exact-match `find_known_objects.py` cannot do (ADR 0007). Prints candidates only; never writes ROM bytes to a file. | [`docs/skeleton-scan.md`](skeleton-scan.md) |
 | `tools/flag_sweep.py` | Compiles one candidate under the full known compiler-flag lattice and ranks by objdiff score, before any hand permutation is attempted (ADR 0007). | [`docs/flag-sweep.md`](flag-sweep.md) |
 | `tools/overlay_graph_match.py` | Structural overlay-to-module matching against Jet Force Gemini by size, function count, and call graph, since byte identity mostly returns nothing against a differently-revised source tree. Writes `config/overlay-graph.us.json`. | [`docs/overlay-graph.md`](overlay-graph.md) |
+| `tools/overlay_atlas.py --delta` | Audits exact-C overlay promotions, retractions, and net byte changes between refs, manifests, or checkouts using fail-closed `(overlay, offset)` identities; `--format json` is machine-readable. | [Overlay atlas release deltas](#overlay-atlas-release-deltas) above |
 | `tools/permute.sh` | One bounded decomp-permuter run for one function: locates its C file and target `.s` (regenerating the target from the baserom via a temporary `GLOBAL_ASM` swap if the function already has a C body), imports both, and runs `permuter.py` under a wall-clock cap. Batch-only per ADR 0007 — never run inside an agent's own turn-by-turn reasoning loop. | this file, `## decomp-permuter` above |
 | `tools/new_lane.sh`, `tools/merge_lane.sh`, `tools/codex_lane.sh` | Create, integrate, and (for Codex) launch a deadline-aware worker in an isolated lane worktree. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Lane helpers` |
 | `tools/lane_status.py` | Read committed `lane/*` refs without opening sibling worktrees; reports advisory match claims and gives `--symbol` a fail-closed assignment verdict from exact source identity, descendant lane blobs, plateau handoffs, and target-specific triage history (ADR 0011). | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Lane helpers` |
