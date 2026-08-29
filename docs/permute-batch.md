@@ -37,6 +37,10 @@ tools/permute_batch.py --function overlay1GetEntry -- --best-only
 # overlay functions only, with the relocation-annotated target that makes
 # their score mean something (see "Overlay targets carry no relocations")
 tools/permute_batch.py --overlays-only --order ranking --minutes 15 --apply
+
+# omit explicitly exhausted plateaus from this run (one symbol per line;
+# blank lines and whole-line comments are allowed)
+tools/permute_batch.py --exclude-file parked-functions.txt --list
 ```
 
 `--jobs` is concurrent *functions*; each function's own `permuter.py`
@@ -115,6 +119,11 @@ identity and the pinned commit.
 `--overlay N` filters on the atlas's `overlay` number (source-scan-only
 items outside `src/overlays/` have no overlay number and are excluded by
 this filter); `--function NAME` and `--limit K` apply after that.
+
+`--exclude-file PATH` is repeatable and removes exact function names before
+ordering. It is deliberately opt-in: an exclusion is only operator scheduling,
+not evidence that a function matches or should remain parked forever. Missing
+files and malformed names are fatal instead of silently changing the run.
 
 ## The overlay naming quirk
 

@@ -506,6 +506,31 @@ def discover_queue() -> list[QueueItem]:
     return sorted(by_key.values(), key=lambda it: (it.rel_c_file, it.func))
 
 
+def read_excluded_functions(paths: list[Path]) -> set[str]:
+    """Read explicit scheduling exclusions, one function name per line.
+
+    Exclusions are operator routing, never match evidence.  Require every
+    requested file and every non-comment line to be valid so a typo cannot
+    silently change the queue.
+    """
+    excluded: set[str] = set()
+    for path in paths:
+        try:
+            lines = path.read_text().splitlines()
+        except OSError as exc:
+            raise ValueError(f"cannot read exclusion file {path}: {exc}") from exc
+        for line_number, raw in enumerate(lines, 1):
+            name = raw.strip()
+            if not name or name.startswith("#"):
+                continue
+            if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
+                raise ValueError(
+                    f"invalid function name in {path}:{line_number}: {name!r}"
+                )
+            excluded.add(name)
+    return excluded
+
+
 def exclude_resolved_on_ref(
     queue: list[QueueItem], ref: str
 ) -> tuple[list[QueueItem], list[QueueItem], Optional[str]]:
@@ -1264,6 +1289,15 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
                         "relocation sites (the pre-annotation behaviour, kept "
                         "as an escape hatch and for before/after measurement)")
     p.add_argument("--function", help="restrict to one function name")
+    p.add_argument(
+        "--exclude-file",
+        action="append",
+        default=[],
+        type=Path,
+        metavar="PATH",
+        help="skip function names listed one per line in PATH; repeatable. This is "
+        "operator scheduling only and never marks a function matched",
+    )
     p.add_argument("--limit", type=int, help="cap the number of functions processed")
     p.add_argument("--minutes", type=int, default=20, help="per-function wall-clock cap (default: 20)")
     p.add_argument("--jobs", type=int, default=1, help="concurrent functions (default: 1)")
@@ -1376,6 +1410,21 @@ def main(argv: list[str]) -> int:
         queue = [it for it in queue if it.overlay is not None]
     if args.function is not None:
         queue = [it for it in queue if it.func == args.function]
+    try:
+        excluded_names = read_excluded_functions(args.exclude_file)
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    excluded_items = [it for it in queue if it.func in excluded_names]
+    if excluded_items:
+        queue = [it for it in queue if it.func not in excluded_names]
+        print(
+            f"exclude-file: skipping {len(excluded_items)} "
+            "explicitly parked function(s)"
+        )
+        if args.list or args.function is not None:
+            for item in excluded_items:
+                print(f"  excluded: {item.func}  ({item.rel_c_file})")
     resolved_elsewhere: list[QueueItem] = []
     integration_oid = None
     if not args.no_integration_ref_filter:
