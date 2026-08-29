@@ -108,6 +108,7 @@ SUMMARY_TXT = BUILD_PERMUTER / "summary.txt"
 RANKING_PATH = ROOT / "config" / "nonmatching-ranking.us.json"
 BASEROM = ROOT / "baseroms" / f"mickey.us.z64"
 OBJCOPY = ROOT / "tools" / "binutils" / "mips64-elf-objcopy"
+DEFAULT_INTEGRATION_REF = "campaign/unchain"
 
 
 # Flags that shape codegen and therefore must match the real per-file build
@@ -138,6 +139,10 @@ FUNC_DEF_RE = re.compile(
 )
 GLOBAL_ASM_RE = re.compile(r'#pragma\s+GLOBAL_ASM\("(?P<path>[^"]+)"\)')
 GLABEL_RE = re.compile(r"^\s*(glabel|endlabel|jlabel|dlabel)\s+(\S+)", re.MULTILINE)
+LEXICAL_NOISE_RE = re.compile(
+    r"//[^\n]*|/\*.*?\*/|\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*'",
+    re.DOTALL,
+)
 
 # Flag groups this script knows about, keyed by a classifier over the
 # source path relative to src/. Mirrors tools/permuter_settings.toml's own
@@ -275,6 +280,37 @@ def block_function_name(source_text: str, block: NonMatchingBlock) -> Optional[s
             break
         name = macro.group("replacement")
     return name
+
+
+def unconditional_function_names(source_text: str) -> set[str]:
+    """Return definitions whose declaration starts outside preprocessor guards.
+
+    This is deliberately conservative scheduling evidence, not a C parser.
+    Comments and literals are position-preservingly masked so their contents
+    cannot look like definitions; every ``#if`` family raises guard depth.
+    """
+    def mask_noise(match: re.Match[str]) -> str:
+        return "".join("\n" if char == "\n" else " " for char in match.group(0))
+
+    text = LEXICAL_NOISE_RE.sub(mask_noise, source_text)
+    directives = list(PP_DIRECTIVE_RE.finditer(text))
+    names = set()
+    depth = 0
+    directive_index = 0
+    for function in FUNC_DEF_RE.finditer(text):
+        while (
+            directive_index < len(directives)
+            and directives[directive_index].start() < function.start()
+        ):
+            kind = directives[directive_index].group("kind")
+            if kind in ("if", "ifdef", "ifndef"):
+                depth += 1
+            elif kind == "endif" and depth:
+                depth -= 1
+            directive_index += 1
+        if depth == 0:
+            names.add(function.group("name"))
+    return names
 
 
 def _libultra_o2_g3_tus() -> set[str]:
@@ -468,6 +504,103 @@ def discover_queue() -> list[QueueItem]:
     for it in discover_queue_from_source_scan():
         by_key.setdefault((it.rel_c_file, it.func), it)
     return sorted(by_key.values(), key=lambda it: (it.rel_c_file, it.func))
+
+
+def exclude_resolved_on_ref(
+    queue: list[QueueItem], ref: str
+) -> tuple[list[QueueItem], list[QueueItem], Optional[str]]:
+    """Drop stale-lane queue entries already resolved on ``ref``.
+
+    Long-running lane worktrees intentionally keep their own source and build
+    state, but Git refs are shared.  Consult the integration ref's version of
+    the same source file so a lane created before a promotion cannot spend a
+    later batch rediscovering an already-canonical exact function.
+
+    If the ref or path is unavailable, retain the item: absence of scheduling
+    evidence must never discard matching work.
+    """
+    if not ref:
+        return queue, [], None
+    resolved_ref = subprocess.run(
+        ["git", "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}"],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    if resolved_ref.returncode != 0:
+        print(f"note: integration ref {ref!r} is unavailable; stale-lane filter disabled")
+        return queue, [], None
+    ref_oid = resolved_ref.stdout.strip()
+
+    fallback_scan = subprocess.run(
+        ["git", "grep", "-h", "-E", "GLOBAL_ASM", ref_oid, "--", "src"],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    if fallback_scan.returncode not in (0, 1):
+        print(
+            f"note: could not index fallbacks on {ref!r} ({ref_oid[:12]}); "
+            "stale-lane filter disabled"
+        )
+        return queue, [], ref_oid
+    fallbacks_on_ref = {
+        match.group("path")
+        for match in GLOBAL_ASM_RE.finditer(fallback_scan.stdout)
+    }
+
+    ref_state_by_file: dict[str, Optional[tuple[set[str], set[str]]]] = {}
+    kept = []
+    skipped = []
+    for item in queue:
+        rel = item.rel_c_file
+        if rel not in ref_state_by_file:
+            shown = subprocess.run(
+                ["git", "show", f"{ref_oid}:{rel}"],
+                cwd=ROOT,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                check=False,
+            )
+            if shown.returncode != 0:
+                ref_state_by_file[rel] = None
+            else:
+                text = shown.stdout
+                unresolved = {
+                    name
+                    for block in iter_nonmatching_blocks(text)
+                    if (name := block_function_name(text, block)) is not None
+                }
+                defined = unconditional_function_names(text)
+                ref_state_by_file[rel] = (unresolved, defined)
+        ref_state = ref_state_by_file[rel]
+        if ref_state is None:
+            kept.append(item)
+            continue
+        unresolved, defined = ref_state
+        if item.func not in defined or item.func in unresolved:
+            # A moved/new/macro-defined function is not evidence of a
+            # canonical resolution. Retain it and let normal proof decide.
+            kept.append(item)
+            continue
+
+        # The same friendly definition is unguarded at the old path. Before
+        # calling it resolved, ensure its stable assembly fallback did not
+        # move elsewhere or survive in an unrecognized guard form.
+        asm_target = find_asm_target(item)
+        if not asm_target:
+            kept.append(item)
+            continue
+        if asm_target not in fallbacks_on_ref:
+            skipped.append(item)
+        else:
+            kept.append(item)
+    return kept, skipped, ref_oid
 
 
 def find_asm_target(item: QueueItem) -> Optional[str]:
@@ -1186,6 +1319,17 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         "and each promotion build (default: 9.0; 0 disables)",
     )
     p.add_argument(
+        "--integration-ref",
+        default=DEFAULT_INTEGRATION_REF,
+        help="local ref used to skip stale lane candidates already resolved "
+        f"there (default: {DEFAULT_INTEGRATION_REF}; no fetch is performed)",
+    )
+    p.add_argument(
+        "--no-integration-ref-filter",
+        action="store_true",
+        help="disable the stale-lane integration-ref filter",
+    )
+    p.add_argument(
         "--commit",
         action="store_true",
         help="with --apply: git-commit each verified promotion (only the function's C file "
@@ -1232,6 +1376,22 @@ def main(argv: list[str]) -> int:
         queue = [it for it in queue if it.overlay is not None]
     if args.function is not None:
         queue = [it for it in queue if it.func == args.function]
+    resolved_elsewhere: list[QueueItem] = []
+    integration_oid = None
+    if not args.no_integration_ref_filter:
+        queue, resolved_elsewhere, integration_oid = exclude_resolved_on_ref(
+            queue, args.integration_ref
+        )
+    if resolved_elsewhere:
+        pinned = integration_oid[:12] if integration_oid else "unknown"
+        print(
+            f"integration-ref: skipping {len(resolved_elsewhere)} function(s) already "
+            f"resolved on {args.integration_ref} ({pinned})"
+        )
+        if args.list or args.function is not None:
+            for item in resolved_elsewhere:
+                print(f"  resolved: {item.func}  ({item.rel_c_file})")
+    resolved_keys = {(it.rel_c_file, it.func) for it in resolved_elsewhere}
     if args.order == "trial":
         # The trial's in-range word count is the linked-ROM distance, which is
         # what "closest" means for an overlay; the static ranking is derived
@@ -1281,16 +1441,32 @@ def main(argv: list[str]) -> int:
         print("--commit requires --apply", file=sys.stderr)
         return 2
 
-    if args.list or not queue:
+    if args.list:
         print(f"{len(queue)} queued function(s):")
         for it in queue:
             ov = f"o{it.overlay:03d}" if it.overlay is not None else "?"
             print(f"  [{ov}] {it.func}  ({it.rel_c_file})")
         if not queue:
             print("nothing to do.")
-            return 0
-        if args.list:
-            return 0
+        return 0
+    if not queue:
+        print("0 queued function(s):")
+        print("nothing to do.")
+        if (args.resume or args.deep) and prior and resolved_keys:
+            known = {f.name for f in dataclasses.fields(RunResult)}
+            retained = [
+                RunResult(**{k: v for k, v in row.items() if k in known})
+                for row in prior
+                if (row.get("c_file"), row.get("func")) not in resolved_keys
+            ]
+            if len(retained) != len(prior):
+                BUILD_PERMUTER.mkdir(parents=True, exist_ok=True)
+                write_summary(retained, final=True)
+                print(
+                    f"summary: removed {len(prior) - len(retained)} row(s) resolved "
+                    f"on {args.integration_ref}"
+                )
+        return 0
 
     jobs = max(1, args.jobs)
     permuter_threads = args.permuter_threads
@@ -1306,7 +1482,8 @@ def main(argv: list[str]) -> int:
         known = {f.name for f in dataclasses.fields(RunResult)}
         rerun = {it.func for it in queue}
         for row in prior:
-            if row.get("func") not in rerun:
+            key = (row.get("c_file"), row.get("func"))
+            if row.get("func") not in rerun and key not in resolved_keys:
                 results.append(RunResult(**{k: v for k, v in row.items() if k in known}))
 
     print(

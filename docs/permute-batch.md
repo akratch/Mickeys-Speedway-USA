@@ -101,6 +101,17 @@ Two sources, unioned:
    the atlas's `nonmatching` flag and aren't overlay code at all, so the
    atlas will never carry a row for them.
 
+Before ordering, the runner pins the local `campaign/unchain` ref to one commit
+and checks the selected source paths there (override with `--integration-ref`;
+disable with `--no-integration-ref-filter`). It does not fetch. A stale lane
+entry is skipped only when that commit defines the same function unguarded and
+its stable assembly fallback is absent everywhere under `src/`. Missing refs,
+paths, moved/renamed fallbacks, and definitions the conservative parser cannot
+identify remain queued. This prevents a long-running lane from rediscovering a
+match integrated after the lane was created without treating absence as proof
+of resolution. `--list` and explicit `--function` requests print each skipped
+identity and the pinned commit.
+
 `--overlay N` filters on the atlas's `overlay` number (source-scan-only
 items outside `src/overlays/` have no overlay number and are excluded by
 this filter); `--function NAME` and `--limit K` apply after that.
