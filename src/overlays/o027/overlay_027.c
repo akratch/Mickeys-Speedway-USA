@@ -428,6 +428,8 @@ s32 overlay27Activate(O27Object *object) {
     if (object != 0 && object->blocked == 0) {
         if (object->state->primaryState == 4) {
             (savedObject = object)->state->primaryState = 3;
+            /* Inert allocation aid retained by exact C; tracked in
+             * docs/cleanup-queue.md. */
             if (object->state == 0 && object->state == 0) {
             }
             return 1;

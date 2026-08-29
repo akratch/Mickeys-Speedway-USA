@@ -902,6 +902,8 @@ void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
         do {
             output = (Overlay8ScaleOutput *)pair->selector;
             index = (u32)output & 0xFF;
+            /* Inert allocation aid retained by exact C; tracked in
+             * docs/cleanup-queue.md. */
             if (!index) {}
             record = context->slots[index].record;
 

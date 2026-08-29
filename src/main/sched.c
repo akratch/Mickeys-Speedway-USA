@@ -702,6 +702,8 @@ void __scHandleRSP(OSSched *sc) {
             do {
             } while (0);
         }
+        /* Inert allocation aid retained by exact C; tracked in
+         * docs/cleanup-queue.md. */
         if ((task->flags & 7) != 3) {
         }
     } else {

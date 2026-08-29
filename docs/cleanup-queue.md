@@ -23,6 +23,16 @@ not a correctness gap.
 | `overlay3FindClosestObject` | overlay 3 closest-object search | empty `&pad`, `!cursor`, and `if (1)` blocks | The three inert blocks preserve the exact 77-word allocation/control-flow form. Seek natural declarations/scopes with the same frame and relocations. |
 | `func_overlay_057_F0000954_18A454C` | overlay 57 interface update | empty read of `O57_config0954.field08` | The inert read preserves the exact register web in the 435-word body. Seek a natural use/lifetime spelling with the same bytes and relocations. |
 | `overlay82Update` | overlay 82 update | empty `currentValues` read | The inert read preserves IDO's exact web priority in the 291-word body. Seek a natural declaration/lifetime spelling with the same bytes and relocations. |
+| `func_800557F8` | anim collision callback | two empty `if (1)` blocks | The inert blocks preserve the target `v0` allocation. Seek natural call/result lifetimes with the same bytes and relocations. |
+| `func_80055970` | anim collision callback | empty `if (1)` block | The inert block preserves the callback-result allocation. Seek a natural call/result lifetime with the same bytes and relocations. |
+| `func_80055B24` | anim collision callback | empty `if (1)` block | The inert block preserves the post-callback allocation. Seek a natural typed-call/result lifetime with the same bytes and relocations. |
+| `diRcpDmaOffsets` | diRcp debug decoder | empty `dList` read | The inert read preserves exact debug-call argument allocation. Seek a natural formatting expression with the same bytes and relocations. |
+| `diRcpMoveWd` | diRcp debug decoder | duplicated empty `command` read | The inert read preserves exact switch/formatting allocation. Seek a natural command lifetime with the same bytes and relocations. |
+| `partObjFreeTriggers` | particle trigger cleanup | empty `offset` read | The inert read preserves exact loop allocation. Seek a natural pointer/index spelling with the same bytes and relocations. |
+| `__scHandleRSP` | scheduler RSP handler | empty task-flags condition | The inert condition preserves exact scheduler allocation. Seek a natural state/branch spelling with the same bytes and relocations. |
+| `func_800148E0` | track fog changer | empty `if (1)` block | The inert block preserves exact fog-distance allocation. Seek a natural scope/association spelling with the same bytes and relocations. |
+| `overlay8ScaleOutputs` | overlay 8 scale outputs | empty `!index` condition | The inert condition preserves exact selector/index allocation. Seek a natural cast/lifetime spelling with the same bytes and relocations. |
+| `overlay27Activate` | overlay 27 state transition | duplicated empty state-null condition | The inert condition preserves exact saved-object allocation. Seek a natural assignment/lifetime spelling with the same bytes and relocations. |
 
 Add rows as ugly-but-verified matches land. When revisiting: reproduce the match
 with idiomatic C, `gmake verify`, then delete the row + the in-source comment.

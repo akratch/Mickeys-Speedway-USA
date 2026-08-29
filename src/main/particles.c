@@ -701,6 +701,8 @@ void partObjFreeTriggers(ParticleObject *object) {
                 func_8003EC8C(object, i);
             }
             offset += sizeof(ParticleTriggerSlot);
+            /* Inert allocation aid retained by exact C; tracked in
+             * docs/cleanup-queue.md. */
             if (offset) {}
         } while (++i != count);
     }

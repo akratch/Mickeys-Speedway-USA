@@ -5526,6 +5526,8 @@ void func_800148E0(TrackFogChanger *changer) {
             if (index != -1) {
                 x -= changer->x;
                 z -= changer->z;
+                /* Inert allocation aid retained by exact C; tracked in
+                 * docs/cleanup-queue.md. */
                 if (1) {
                 }
                 if (((x * x) + (z * z)) <

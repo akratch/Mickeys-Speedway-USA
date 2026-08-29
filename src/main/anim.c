@@ -1277,7 +1277,8 @@ void func_800557F8(HitCopyState *first, HitCopyState *second, f32 unused) {
     source = second->source;
     if ((firstVehicle->unk16A == 0) && (firstVehicle->unk168 == 0)) {
         TrapDanglingJump(first, firstVehicle);
-        /* Preserve IDO's target v0 allocation without emitting code. */
+        /* Inert aid preserving IDO's target v0 allocation; tracked in
+         * docs/cleanup-queue.md. */
         if (1) {
         }
         timer = 0x258;
@@ -1286,7 +1287,8 @@ void func_800557F8(HitCopyState *first, HitCopyState *second, f32 unused) {
         firstVehicle->unk15C = timer;
         firstVehicle->unk150 = 10.0f;
         TrapDanglingJump(secondTarget->state, first);
-        /* Preserve IDO's target v0 allocation without emitting code. */
+        /* Inert aid preserving IDO's target v0 allocation; tracked in
+         * docs/cleanup-queue.md. */
         if (1) {
         }
         ((HitCollisionVehicle *) secondTarget->state->target)->unk3B6++;
@@ -1337,6 +1339,8 @@ void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
     firstVehicle = (HitCollisionVehicle *) first->target;
     if (TrapDanglingJump(first, firstVehicle) != 0) {
         TrapDanglingJump(secondTarget->state, first, firstVehicle);
+        /* Inert allocation aid retained by exact C; tracked in
+         * docs/cleanup-queue.md. */
         if (1) {
         }
         ((HitCollisionVehicle *) secondTarget->state->target)->unk3B6++;
@@ -1402,6 +1406,8 @@ void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
         }
         firstVehicle->unk150 = 10.0f;
         TrapDanglingJump(secondTarget->state, first);
+        /* Inert allocation aid retained by exact C; tracked in
+         * docs/cleanup-queue.md. */
         if (1) {
         }
         ((HitCollisionVehicle *) secondTarget->state->target)->unk3B6++;

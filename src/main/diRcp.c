@@ -372,6 +372,8 @@ s32 diRcpColor(Gfx *dList, char *command, char *macro) {
 
 /* PROVENANCE: body adapted from JFG src/diRcp.c::diRcpDmaOffsets. */
 s32 diRcpDmaOffsets(Gfx *dList, char *command) {
+    /* Inert allocation aid retained by exact C; tracked in
+     * docs/cleanup-queue.md. */
     if (dList) {}
     stubbed_printf("%20s: gSPSetDMAOffsets(%08x, %08x)\n", command, dList, dList);
     return sizeof(Gfx);
@@ -410,7 +412,9 @@ s32 diRcpMoveWd(Gfx *dList) {
             sprintf(str, "UNKNOWN INDEX %d", index);
             break;
     }
-    if (command && command) {} // fakematch
+    /* Inert allocation aid retained by exact C; tracked in
+     * docs/cleanup-queue.md. */
+    if (command && command) {}
     stubbed_printf("%20s: %s offset = %d, data = 0x%08x\n", "G_MOVEWORD", dList, offset, data);
     return sizeof(Gfx);
 }
