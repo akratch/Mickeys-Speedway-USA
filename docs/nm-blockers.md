@@ -162,7 +162,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_001_F0007580_1853960` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F0007730_1853B10` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F00078DC_1853CBC` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_001_F0007B64_1853F44` | `src/overlays/o001/overlay_001_tail.c` | matched | — | Promoted as `overlay1CloneRecord`; no ownership work remains. |
+| `func_overlay_001_F0007B64_1853F44` | `src/overlays/o001/overlay_001_tail.c` | none | — | `overlay1FindBestRecord` remains a 12-word exact-size codegen target; no ownership change is indicated. |
 | `func_overlay_002_F0000C90_1857A88` | `src/overlays/o002/func_overlay_002_F0000C90_1857A88.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_002_F0001364_185815C` | `src/overlays/o002/func_overlay_002_F0001364_185815C.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_002_F0001A94_185888C` | `src/overlays/o002/func_overlay_002_F0001A94_185888C.c` | none | — | No ownership change; continue source/codegen work. |
@@ -388,9 +388,9 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_098_F0000000_18D89C0` | `src/overlays/o098/overlay98CollectUniqueY.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_098_F0000234_18D8BF4` | `src/overlays/o098/overlay98RenderReflections.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_099_F00002A0_18D9850` | `src/overlays/o099/overlay99ApplySegment.c` | resolved-plateau | overlay 99 private table | Retained +0xB0 table owns the compiler references; representation/prologue schedule remains. |
-| `func_overlay_099_F0000638_18D9BE8` | `src/overlays/o099/overlay99BuildHeightGrid.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_099_F0000638_18D9BE8` | `src/overlays/o099/overlay99BuildHeightGrid.c` | none | — | Exact 114-word p8 candidate leaves one three-use magnitude register web; try a dead-argument carrier. |
 | `func_overlay_099_F0000BA4_18DA154` | `src/overlays/o099/overlay99RenderSegments.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_099_F0000800_18D9DB0` | `src/overlays/o099/overlay99RenderSortedEntries.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_099_F0000800_18D9DB0` | `src/overlays/o099/overlay99RenderSortedEntries.c` | none | — | Exact 233-word candidate leaves 13 stack-home/store words; move sorted[] across register-colored declarations. |
 | `func_overlay_100_F0000580_18DB2A8` | `src/overlays/o100/overlay100DrawMotion.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_100_F0000000_18DAD28` | `src/overlays/o100/overlay100InitializeMotion.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_100_F000038C_18DB0B4` | `src/overlays/o100/overlay100UpdateMotion.c` | none | — | No ownership change; continue source/codegen work. |
