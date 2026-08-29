@@ -72,7 +72,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_80029274` | `src/main/main.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002AF6C` | `src/main/matrix.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002B040` | `src/main/matrix.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8002B524` | `src/main/memory.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_8002B524` | `src/main/memory.c` | none | — | Exact-size/`0x58`-frame candidate has 14 late-path differences and 12 exact relocation tuples; rebaseline full-TU, then split guards/cache slot data before any call-live record probe. |
 | `func_8002B7AC` | `src/main/memory.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002BB40` | `src/main/memory.c` | none | — | Exact 72-word candidate leaves 30 register words; reuse dead `slotIsTaken`/`poolIndex` arguments for count/index. |
 | `func_80038750` | `src/main/menu.c` | shared-rodata | jtbl_80082734 | Move the language switch table and labels into menu. |

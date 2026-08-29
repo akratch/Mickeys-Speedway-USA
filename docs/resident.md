@@ -460,9 +460,11 @@ reproduce Mickey's target and both call relocations.
 extended-RAM choice, main-pool construction, deferred-free delay, and queue
 reset reproduce all 30 words and the linked global/call relocations.
 
-`func_8002B524`: 116/116 words, 14 positional differences, first `+0xE0`,
-with an exact frame. Workbench reports mixed constant/structure/register;
-the `constant-audit` lever did not close the slot/data-pointer allocation.
+`func_8002B524`: retained configured full-TU evidence agrees with the isolated
+candidate at 116/116 words, a `0x58` frame, 14 positional differences from
+`+0xE0`, and all 12 relocation tuples. It is stale supporting evidence, not a
+fresh baseline, and no linked C proof exists. The mismatch is the late
+slot/data carrier, guard shape, and call-live record spill.
 
 `func_8002BB40`: the retained isolated candidate is 72/72 words with 30
 register differences, first `+0x8C`; no full-TU C comparison or linked proof
