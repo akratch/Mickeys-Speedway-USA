@@ -66,7 +66,11 @@ extern f32 overlay20SqrtReloc(f32 value);
  * Paired globalcolor traces isolate the count web that naturally takes v1.
  * Direct-count forms remove it but enter a 25-word UGEN temp-ring basin; a
  * forced split grows to 100 words and a 0x78 frame.  No natural block or
- * condition lifetime spelling closed that pool-to-temp transition.
+ * condition lifetime spelling closed that pool-to-temp transition. The eight
+ * sites are +0xB0/+0xB4/+0xC0/+0xC8 and +0x108/+0x10C/+0x110/+0x114; all four
+ * call-relocation offsets remain exact. The surviving object is isolated, not
+ * full-TU/linked promotion proof. Re-prove unchanged V0, then park absent a
+ * new IDO pool-to-temp allocation mechanism.
  */
 #ifdef NON_MATCHING
 void overlay20UpdateObjectResource(Overlay20Object *object,

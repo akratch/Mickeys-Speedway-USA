@@ -233,7 +233,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_020_F0001148_1877720` | `src/overlays/o020/func_overlay_020_F0001148_1877720.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_020_F0001018_18775F0` | `src/overlays/o020/overlay20RemoveEntry.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_020_F0000A68_1877040` | `src/overlays/o020/overlay20UpdateGrid.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_020_F0000204_18767DC` | `src/overlays/o020/overlay20UpdateObjectResource.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_020_F0000204_18767DC` | `src/overlays/o020/overlay20UpdateObjectResource.c` | none | — | Exact 98-word/`0x70`-frame candidate has eight count/entries-web register differences at `+0xB0/+0xB4/+0xC0/+0xC8/+0x108/+0x10C/+0x110/+0x114` and four exact call sites. Trace-guided source routes exhausted; reproof-only V0. |
 | `func_overlay_021_F000010C_1877D94` | `src/overlays/o021/overlay21ApplyPriorities.c` | none | — | Exact candidate is pending fresh canonical object/relocation/link/ROM-range proof; assembly remains canonical. |
 | `func_overlay_022_F00002B0_18783B8` | `src/overlays/o022/func_overlay_022_F00002B0_18783B8.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_022_F0000000_1878108` | `src/overlays/o022/overlay22InitializeObject.c` | none | — | No ownership change; continue source/codegen work. |
