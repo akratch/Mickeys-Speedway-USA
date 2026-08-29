@@ -328,16 +328,17 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A7A0.s")
 #endif
-/* Retained configured full-TU C compiles the earlier structured-store body at
- * 83/94 raw/normalized words, frame 0x38, first +0x40, with all 13 relocations
- * exact. The current raw-array p10 body's reported 91/94 result has no retained
- * object; historical flag/source/trace/search outcomes are likewise unretained.
- * Reproduce current V0, retain 119 flags, then use one allocator trace to
- * select at most one natural address-producer/lifetime spelling. */
+/* Retained isolated C for the earlier structured-store body is 83/94 words,
+ * frame 0x38, first +0x40, with all 13 relocations exact; its recipe omitted
+ * this TU's -Wo,-loopunroll,0. The current raw-array p10's reported 91/94 has
+ * no object and used a redundant boolean wrapper, now removed, so clean V0 is
+ * uncompiled. Retain 119 flags, trace once, and try at most one natural form;
+ * cap at 120 compiler invocations plus trace. */
 #ifdef NON_MATCHING
 u8 *func_8005A948(s16 animationId) {
     s32 i;
     s32 emptyIndex;
+    s32 tableOffset;
     s32 offset;
     s32 size;
     LoadedAnimation *animation;
@@ -348,7 +349,7 @@ u8 *func_8005A948(s16 animationId) {
         do {
             AnimationCacheEntry *entry = &((AnimationCacheEntry *)D_800D7CF4)[i];
 
-            if ((animationId == entry->id) != 0U) {
+            if (animationId == entry->id) {
                 u8 *existing = entry->animation;
 
                 existing[0]++;
@@ -369,10 +370,10 @@ u8 *func_8005A948(s16 animationId) {
         D_800D7D04++;
     }
 
-    i = (animationId & 1) * 4;
+    tableOffset = (animationId & 1) * 4;
     piRomLoadSection(0x2A, (u8 *)D_800D7CF8, (animationId & ~1) * 4, 0x10);
-    offset = *(s32 *)(D_800D7CF8 + i);
-    size = *(s32 *)(D_800D7CF8 + i + 4) - offset;
+    offset = *(s32 *)(D_800D7CF8 + tableOffset);
+    size = *(s32 *)(D_800D7CF8 + tableOffset + 4) - offset;
     animation = (LoadedAnimation *)func_8002B314(size, 0x80);
     if (animation == NULL) {
         return NULL;
