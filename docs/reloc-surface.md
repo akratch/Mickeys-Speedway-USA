@@ -809,6 +809,16 @@ carrier is not an authenticated initializer caller. The function ends at
 `+0xC8` without target padding; genuine C's eight trailing alignment bytes are
 outside ownership. Current linked equality proves fallback only.
 
+Overlay 34 `+0x2C8` (`overlay34RemoveRecord`) owns seven runtime records:
+LOCAL HI16/LO16 pairs for `gOverlay34ActiveCount` at `+0x0/+0x4` and
+`+0x74/+0x78`, a LOCAL pair for `gOverlay34Pointers` at `+0x10/+0x20`, and a
+SYMBOL call at `+0x6C` through the stored zero carrier to ORT 140
+(`func_800347A0`). The fallback object retains only five static records because
+the pointer pair is baked; runtime metadata is authoritative. The prior 32/44
+raw C used a false second argument and allocation aids, so it is diagnostic.
+Clean pointer-typed, one-argument source is staged but uncompiled. The owned
+`+0x2C8..+0x378` range has no padding, and linked equality proves fallback only.
+
 Overlay 73 `+0x0` (`func_overlay_073_F0000000_18CAAC0`) owns eight LOCAL
 records: `+0x1C/+0x3C` resolves through base `+0xEB0`, addend `+0x80`, to
 module `+0xF30`; pairs at `+0x140/+0x144`, `+0x14C/+0x160`, and
