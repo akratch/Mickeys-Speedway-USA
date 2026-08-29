@@ -144,7 +144,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_001_F000280C_184EBEC` | `src/overlays/o001/overlay_001_middle.c` | none | — | Five-word schedule/addend plateau; relocation-aware permuter exhausted, F-route statement-boundary lever next. |
 | `func_overlay_001_F0002AA4_184EE84` | `src/overlays/o001/overlay_001_middle.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F0003578_184F958` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_001_F00036A0_184FA80` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_001_F00036A0_184FA80` | `src/overlays/o001/overlay_001_tail.c` | none | — | `overlay1AssignRecordIndex` is exact-size/`0x38`-frame with eight isolated stack-home/schedule differences; rebaseline with full TU flags before the five-rung declaration ladder. |
 | `func_overlay_001_F0003750_184FB30` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F0003FD8_18503B8` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F000438C_185076C` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |

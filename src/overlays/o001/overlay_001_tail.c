@@ -88,11 +88,13 @@ extern void overlay1GetVariableRecords(O1VariableRecord **records, s32 *length,
  * byte cursor, block-local record size, and scoped call outputs retained the
  * eight-word baseline. Direct D_1D8C access fixed the four data-reloc names but
  * regressed to 16 words. Commit 9968f84e repaired the unrelated consolidated
- * TU declaration conflicts. The next bounded pass is one natural full-TU
- * baseline, five declaration-order rungs that walk the address-taken outputs
- * toward sp+0x34/sp+0x20, one records/record collapse, and one explicit skip
- * edge. Use at most two combinations only when an independent probe improves;
- * otherwise stop and record p10/no-go.
+ * TU declaration conflicts. The retained isolated settings omit this TU's
+ * -Wab,-r4300_mul, so rebaseline full-TU first. Then keep all other locals
+ * fixed and try records/private/length, records/length/private,
+ * private/length/records, length/private/records, and
+ * length/records/private. Finish with records/record collapse and an explicit
+ * skip edge; use at most two combinations only from improving constituents,
+ * otherwise record p10/no-go.
  */
 #ifdef NON_MATCHING
 void overlay1AssignRecordIndex(s32 unused, O1RecordOwner *owner) {
