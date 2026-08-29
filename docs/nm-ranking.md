@@ -206,6 +206,13 @@ tools/objdiff/objdiff-cli report generate -p . -o /tmp/nm_report.json -f json -d
 .venv/bin/python tools/nm_ranking.py --top 20 --markdown --no-table  # fleet-prompt excerpt
 ```
 
+A complete pass can run long enough for another lane to promote functions
+that were queued at startup. Immediately before publishing, the ranking tool
+re-scans the canonical source and drops resolved and unresolved rows whose
+`#ifdef NON_MATCHING` block no longer exists. The checked-in JSON is still a
+historical snapshot after the ranking process exits; consumers that need the
+current queue must intersect it with a fresh source scan.
+
 ## Distribution (this run)
 
 456 queued functions (`tools/permute_batch.py discover_queue()`, validated
