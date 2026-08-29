@@ -17,12 +17,14 @@ typedef struct Overlay41Slot {
 extern Overlay41Slot gOverlay41Slots[];
 extern f32 D_0[];
 
-/* Retained configured C is frameless and 49/55 words. Four count-web sites
- * exchange a1/v1; the +0xA0/+0xA4 load order also leaves D_0's LOCAL LO16 at
- * candidate +0xA4 instead of runtime +0xA0. gOverlay41Slots is SYMBOL-bound,
- * while D_0 is LOCAL-bound. Only V0 is artifact-authenticated: reproduce it,
- * retain the complete flag lattice, reverse only the multiplication operands,
- * then try one trace-selected natural count-web form. */
+/* Retained configured-recipe isolated C is frameless and 49/55 words; no
+ * current-source full-TU C object survives. The count web exchanges a1/v1 at
+ * +0x10/+0x18/+0xCC/+0xD0. Candidate +0xA0/+0xA4 load amount then local
+ * D_0[0x15], while target loads the local constant at +0xA0 then amount.
+ * gOverlay41Slots is resident D_800D6C58; D_0[0x15] is module +0x1E34.
+ * Historical flag/source/search/trace exhaustion is unretained. Compile V0,
+ * retain exactly 119 flags, reverse only the multiplication operands, then if
+ * needed trace once and try one natural count-web form; 121 stock builds max. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0001650_1888988(void *object, volatile s32 value1,
                                        s32 value3, s32 value5, s32 value7,

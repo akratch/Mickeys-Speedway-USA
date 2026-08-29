@@ -618,6 +618,14 @@ offsets/types, while the assembled fallback target retains only the call. The
 current guarded decrement-reorder replay has no surviving C object, so its
 three static identities and claimed 73/73 words still require fresh proof.
 
+Overlay 41 `+0x1650` (`func_overlay_041_F0001650_1888988`) owns four runtime
+records: SYMBOL HI16/LO16 at `+0x08/+0x0C` resolving to resident
+`D_800D6C58` (`gOverlay41Slots`), and LOCAL HI16/LO16 at `+0x98/+0xA0`
+resolving through initialized-data base `+0x1DE0` plus `+0x54` to module
+`+0x1E34` (`D_0[0x15]`). Candidate C places the LOCAL LO16 at `+0xA4`; target
+uses `+0xA0`. ORT 1461 exports the function; resident relocations 325 and 326
+call it twice from `func_800517E0`. Fallback equality does not prove C.
+
 Overlay 21 `+0x10C` (`overlay21ApplyPriorities`) owns nine runtime records: a
 SYMBOL call at `+0x1C` to resident `camGetPtr`; LOCAL pairs at `+0x24/+0x28`
 for object count and `+0x30/+0x40` for the object array; and count-reload pairs
