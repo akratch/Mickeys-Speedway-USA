@@ -1158,6 +1158,14 @@ void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020B10.s")
 #endif
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: func_80020D8C
+ * score: 31/48 words
+ * frame: 0x8
+ * relocations: 0
+ * first-mismatch: +0x38
+ * summary: ugen temp-FIFO phase; flags and four natural web-family forms exhausted without gain
+ */
 typedef struct ModelFrameEntry {
     s16 frame;
     s16 nextFrame;
@@ -1180,19 +1188,17 @@ typedef struct ModelFrameInstance {
 } ModelFrameInstance;
 
 /* Mickey-only reconstruction; JFG's modSetTextureFrame remains assembly. */
-/* Retained prior-layout full-TU and isolated C have identical 48-word bodies,
- * a 0x8 frame, and no relocations. They are 35/48 words at thirteen register-
- * only sites: texture-address FIFO +0x38/+0x40/+0x44/+0x4C, frame-count carrier
- * +0x50/+0x54, coupled frame/count web +0x5C/+0x64/+0x70/+0x74/+0xAC, and
- * multiply result +0xA0/+0xA4. That body used a redundant low-half mask on the
- * s16 frame store, so 35/48 is diagnostic; the mask is removed below and clean
- * current-layout V0 is uncompiled. ORT 374 authenticates eight overlay calls
- * across overlays 57, 60, and 82; resident func_8001BB10 passes an unused
- * fourth owner/context argument that this callee overwrites. Linked equality
- * proves fallback only. Historical flags, trace, source forms, and search are
- * unretained. Run 119 flags on clean V0, trace once, try one natural form per
- * web family and an improving-only combination; cap 122 stock builds plus
- * trace and do not batch without a strict natural gain. */
+/* Policy-clean configured full-TU C has the exact 48-word body, 0x8 frame,
+ * and zero relocations, with 31/48 words matching and first mismatch +0x38.
+ * All seventeen residuals are ugen temp-FIFO register assignments. All 119
+ * flag combinations were attempted; canonical -O2 -mips2 ties for best. A
+ * fidelity-clean ugen trace confirms the temporary allocation sequence.
+ * Natural texture-table, frame-count, single-loop-count, and staged-multiply
+ * forms regressed to 51, 51, 122, and 50 instructions, so no combination or
+ * batch was authorized. ORT 374 authenticates eight overlay calls across
+ * overlays 57, 60, and 82; resident func_8001BB10 passes an unused fourth
+ * owner/context argument that this callee overwrites. Linked equality proves
+ * fallback only; the guarded C remains a bounded plateau. */
 void func_80020D8C(ModelFrameInstance *instance, s32 textureIndex, s32 frame) {
     ObjectModel *model;
     ModelFrameEntry *entry;
