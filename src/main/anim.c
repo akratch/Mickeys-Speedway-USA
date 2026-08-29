@@ -585,10 +585,12 @@ void func_80050DF0(s32 levelId) {
 /*
  * PROVENANCE: adapted from JFG's animseqFreeGroup assembly. Mickey's data
  * boundaries, calls, scheduling, and final compiler output remain authoritative.
- * Workbench p8 plateau: allocation mismatch. Scoped raw cursor/end pairs
- * regressed, while typed traversal, endpoint lifetime, reset-loop scope, and
- * delayed scroll-base forms were neutral. One bounded permuter pass produced
- * no comparable base score or zero; GLOBAL_ASM remains canonical.
+ * Fresh bounded pass: statement-line grouping fixes all four end/base address
+ * schedules and all 41 relocation identities, leaving an exact-sized 84/90
+ * allocation plateau. The remaining path-loop comparison spends one temporary
+ * that shifts the two later reset temporaries; an algebraic increment probe
+ * removes that whole register ladder but adds one instruction. GLOBAL_ASM
+ * remains canonical.
  */
 #ifdef NON_MATCHING
 void func_80050E9C(void) {
@@ -615,29 +617,25 @@ void func_80050E9C(void) {
             pathIndex++;
         } while ((pathIndex < 0x100) != 0);
 
-        cursor = (u8 *) D_800D6B08;
-        do {
+        cursor = (u8 *) D_800D6B08; do {
             cursor += 4;
             *(void **) (cursor - 4) = NULL;
         } while ((u32) cursor < (u32) D_800D6B18);
 
-        cursor = (u8 *) D_800D6B58;
-        do {
+        cursor = (u8 *) D_800D6B58; do {
             cursor += 0x14;
             cursor[-0x14] = 0xFF;
             *(s32 *) (cursor - 0x10) = 0;
             *(s32 *) (cursor - 8) = 0;
         } while ((u32) cursor < (u32) D_800D6BF8);
 
-        cursor = D_800D6BF8;
-        do {
+        cursor = D_800D6BF8; do {
             cursor += 8;
             *(s8 *) (cursor - 8) = emptyIndex;
         } while ((u32) cursor < (u32) D_800D6C38);
 
         D_8007D6B0 = 0;
-        cursor = (u8 *) D_800D6C58;
-        do {
+        cursor = (u8 *) D_800D6C58; do {
             cursor += 0x40;
             *(s32 *) (cursor - 0x40) = 0;
             *(s32 *) (cursor - 0x30) = 0;
