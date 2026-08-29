@@ -1781,6 +1781,17 @@ at most three `s3`-lifetime probes. No C credit is claimed.
 | 35 | `+0x000..+0x1E0` | `func_overlay_035_F0000000_1881CE0` | 480 | canonical object and linked ROM exact | Mickey-only |
 
 `overlay 20 +0x07C4..+0x09DC` (`overlay20BuildTileCommands`) — **536 exact C bytes / 134 words**. Mickey's `0x90` frame and `sp+0x5C` array base prove the seven-entry chunk array; declaring it after the six preceding scalar/cursor locals reproduces both homes without padding or synthetic control flow. The configured object is instruction-word-identical, its sole helper call relocation is exact by type, offset, and identity, and the linked overlay and full ROM are byte-identical.
+
+`overlay 20 +0x0204..+0x038C` (`overlay20UpdateObjectResource`) remains
+`NON_MATCHING`: retained full-TU and isolated C agree at 90/98 words, frame
+`0x70`, with eight register-only sites at `+0xB0,+0xB4,+0xC0,+0xC8,+0x108,
++0x10C,+0x110,+0x114`. Runtime records prove calls to `trackGetTrack`,
+`func_8000FEEC`, local `overlay20ConfigureResource`, and `sqrtf`; the fallback
+object collapses those names to an assembly placeholder. A historical linked
+C trial differed only inside the owned function, but no linked candidate
+artifact survives. Current exact module/full-ROM evidence proves the assembly
+fallback only. Pinned DKR v77/v80 and JFG scans are negative.
+
 `overlay 34 +0x02C8..+0x0378` (`overlay34RemoveRecord`) — 176 bytes / 44 words. NON_MATCHING: bounded 2026-08-28 closeout retained the size-exact source after indexed-compaction, pointer-cursor, separated-count, and scoped-call probes. The best candidate matches 32/44 words with the first schedule/register residual at `+0x14`; it preserves one helper relocation and two repeated active-count HI16/LO16 pairs, while the target encodes its pointer load without relocation. Removing those source pointer relocations is prohibited, so no C credit is claimed.
 
 `overlay 14 +0x09F4..+0x0ACC` (`func_overlay_014_F00009F4_18702CC`) —

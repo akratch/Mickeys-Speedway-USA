@@ -68,9 +68,12 @@ extern f32 overlay20SqrtReloc(f32 value);
  * forced split grows to 100 words and a 0x78 frame.  No natural block or
  * condition lifetime spelling closed that pool-to-temp transition. The eight
  * sites are +0xB0/+0xB4/+0xC0/+0xC8 and +0x108/+0x10C/+0x110/+0x114; all four
- * call-relocation offsets remain exact. The surviving object is isolated, not
- * full-TU/linked promotion proof. Re-prove unchanged V0, then park absent a
- * new IDO pool-to-temp allocation mechanism.
+ * call-relocation offsets and runtime identities remain exact: trackGetTrack,
+ * func_8000FEEC, local overlay20ConfigureResource, and sqrtf. Retained full-TU
+ * and isolated candidate bytes are identical; no linked C proof survives.
+ * The body is Mickey-only (pinned DKR v77/v80 and JFG scans are negative).
+ * Re-prove unchanged V0 once, then park absent a new IDO pool-to-temp
+ * allocation mechanism.
  */
 #ifdef NON_MATCHING
 void overlay20UpdateObjectResource(Overlay20Object *object,
