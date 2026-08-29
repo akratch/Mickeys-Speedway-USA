@@ -12,9 +12,10 @@
  * resident SYMBOL calls to func_80034448 at +0x64/+0x94. The synthetic target
  * object collapses all four zero-field calls to one placeholder and cannot
  * prove their identities. No linked candidate-C proof survives.
- * Six natural lookup, handle, descriptor, and result-scope forms either
- * reproduced this baseline or regressed. Run one unchanged configured/linked
- * V0 after identity repair, then park absent a new allocation/call-delay lever.
+ * Historical natural-form, flag, trace, and permutation outcomes have no
+ * surviving attributable result set and do not prove exhaustion. Run one
+ * identity-correct V0, retain the flag lattice, trace the descriptor value web,
+ * then try a distinct value carrier before an improving-only scope/line probe.
  */
 
 typedef struct Overlay59Descriptor {

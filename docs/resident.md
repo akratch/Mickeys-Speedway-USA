@@ -1188,12 +1188,12 @@ which is inert for this loop-free body. No linked C candidate survives. Exact
 ordinary-object, linked-function, complete-menu-TU, and ROM evidence proves
 assembly fallback only.
 
-Pool-position and shape probes, a four-variant basin census, all 119 flag
-combinations, and two capped model-guided campaigns failed to improve the
-five-word result. Historical allocator-oracle prose reports a forced-color
-31/32 diagnostic, but neither that object nor its trace survives. Run one
-fresh configured V0 and preserve it; if reproduced, park until a new allocator
-mechanism can alter the remaining memory-first comparison carrier.
+Historical pool-position, shape, flag, and model-guided campaign outcomes lack
+attributable retained result sets and do not prove exhaustion. Allocator-oracle
+prose reports a forced-color 31/32 diagnostic, but neither that object nor its
+trace survives. Run one fresh configured V0, retain the complete flag lattice,
+recreate the forced-color result as diagnostic evidence, and try exactly one
+trace-selected source-faithful spelling.
 
 The tier-A-named `frontGetLevelScreenMode` adds **0x68 bytes / 26 words** at
 ROM `0x3AF68`. Its JFG source body is still `GLOBAL_ASM`, so the C body was
