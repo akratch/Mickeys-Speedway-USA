@@ -913,10 +913,15 @@ void diPrintfSetXY(u16 x, u16 y) {
 /* PROVENANCE: body adapted from DKR src/printf.c:debug_text_width. */
 #ifdef NON_MATCHING
 /* Retained prior-line-layout configured full-TU C is 59/66 words, frame
- * 0x138, first +0x38, with all five relocations exact. Target carries the
- * current byte in v1 and a classification copy in v0; candidate keeps it in
- * v0 and lowers the newline test as branch-likely. Historical source, flag,
- * trace, and search outcomes are unretained; reproduce current-layout V0. */
+ * 0x138, first +0x38, with all five relocations exact. No compiled selective
+ * object survives. One current-byte/classification web differs at
+ * +0x38/+0x44/+0x5C/+0x60/+0x64/+0xEC/+0xF4: target uses v1 plus a v0 copy,
+ * while C uses v0 and a two-word branch-likely newline lowering. ORT 862 is
+ * exported but exhaustive resident, overlay, direct-jal, pointer, and source
+ * scans found no caller. Historical source, flags, trace, and search are
+ * unretained. Run 119 flags on current V0, trace once, try separate-byte and
+ * trace-selected newline/tail forms plus an improving-only combination; cap
+ * 122 stock builds plus trace and batch only after a strict natural gain. */
 s32 debug_text_width(const char *format, ...) {
     s32 stringLength;
     s32 fontTexture;

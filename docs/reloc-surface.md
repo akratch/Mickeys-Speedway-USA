@@ -775,6 +775,13 @@ to `func_8002C8B4`, and `+0x144` to `mmFree`, plus a HI16/LO16 pair at
 sole authenticated caller, with no overlay SYMBOL, resident runtime-table, or
 absolute-pointer inbound. Current linked equality proves fallback only.
 
+Resident `debug_text_width` owns five exact records: R_MIPS_26 calls at `+0x18`
+and `+0x30` to `sprintfSetSpacingCodes`, `+0x28` to `vsprintf`, and a
+HI16/LO16 pair at `+0x4C/+0x50` to `D_8007CE98`. ORT 862 exports it, but all
+375 resident relocation entries, every shipped overlay SYMBOL record, direct
+JAL and literal-pointer scans, and source references are empty. Current linked
+equality proves fallback only.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to
