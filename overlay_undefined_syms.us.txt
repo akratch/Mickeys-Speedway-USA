@@ -224,7 +224,6 @@ D_8F4 = 0x000008f4;
 gOverlay7ValuesEnd = 0x000002aa;
 
 /* overlay 8: overlay_008.c.o */
-.rodata = 0x00000000;
 D_10 = 0x00000010;
 D_2110 = 0x00002110;
 D_2210 = 0x00002210;
@@ -232,16 +231,15 @@ D_2230 = 0x00002230;
 D_310 = 0x00000310;
 D_350 = 0x00000350;
 D_4E0 = 0x000004e0;
+D_520 = 0x00000520;
 D_C = 0x0000000c;
 gOverlay8ActivationGateTimerReloc = 0x00000000;
 gOverlay8Buffer = 0x00000000;
 gOverlay8IndexMode = 0x00000000;
-gOverlay8PhaseScales = 0x00000560;
 gOverlay8Primary = 0x00000000;
 gOverlay8ScaleLowerReloc = 0x000001d0;
 gOverlay8ScaleUpperReloc = 0x000001d4;
 gOverlay8Secondary = 0x00000000;
-gOverlay8SelectorScales = 0x00000520;
 gOverlay8UpdateDecayReloc = 0x000001b8;
 gOverlay8UpdateLowerReloc = 0x000001b0;
 gOverlay8UpdateUpperReloc = 0x000001b4;
@@ -249,19 +247,16 @@ gOverlay8Value = 0x00000004;
 overlay8ApproachMotionReloc = 0xf0000000;
 overlay8ConvertDirectionReloc = 0xf0000000;
 overlay8CreateResourceReloc = 0xf0000000;
-overlay8EmitChannel = 0xf0000000;
 overlay8FinalizeActivationReloc = 0xf0000000;
 overlay8FinishUpdateReloc = 0xf0000000;
 overlay8MeasureDirectionReloc = 0xf0000000;
 overlay8ReleaseResourceReloc = 0xf0000000;
-overlay8SampleChannel = 0xf0000000;
 
 /* overlay 9: overlay_009.c.o */
+.rodata = 0x00000000;
 D_2D0 = 0x000002d0;
 D_388 = 0x00000388;
 D_4C = 0x0000004c;
-o9P540MathDiffAngleReloc = 0xf0000000; /* runtime SYMBOL: mathDiffAngle */
-o9P540CosReloc = 0xf0000000; /* runtime SYMBOL: func_8002A8C0 */
 
 /* overlay 10: overlay10Initialize.c.o */
 D_140 = 0x00000140;
@@ -328,13 +323,6 @@ overlay11ReadInputReloc = 0xf0000000;
 /* overlay 11: overlay11UpdateMenu.c.o */
 D_1C4 = 0x000001c4;
 D_1CC = 0x000001cc;
-overlay11Func2BF4Reloc = 0xf0000000;
-overlay11Func800006BCReloc = 0xf0000000;
-overlay11Func80005820Reloc = 0xf0000000;
-overlay11Func80028374Reloc = 0xf0000000;
-overlay11Func80028528Reloc = 0xf0000000;
-overlay11Func800291D8Reloc = 0xf0000000;
-overlay11Func8003A754Reloc = 0xf0000000;
 
 /* overlay 11: overlay11UpdateFiveOptionMenu.c.o */
 D_0_reload_failure = 0x00000000;
@@ -436,11 +424,6 @@ D_F8 = 0x000000f8;
 /* overlay 14: overlay14ResetMode.c.o */
 D_E4 = 0x000000e4;
 D_FC = 0x000000fc;
-gOverlay14ValueD8 = 0x000000d8;
-gOverlay14ValueDC = 0x000000dc;
-gOverlay14ValueE0 = 0x000000e0;
-gOverlay14ValueF8 = 0x000000f8;
-overlay14ResetReleaseOwnerReloc = 0xf0000000; /* runtime SYMBOL: overlay14ReleaseOwner */
 
 /* overlay 14: overlay14MoveCommandCursor.c.o */
 gOverlay14CommandHeader = 0x000000fc;
@@ -930,9 +913,6 @@ D_8000003B = 0x0000003b;
 /* overlay 41: overlay41IsUnitScale.c.o */
 gOverlay41Objects = 0x00000000;
 
-/* overlay 41: overlay41SpawnItems.c.o */
-gOverlay41Roots = 0x00000000;
-
 /* overlay 41: overlay41TickTransitions.c.o */
 gOverlay41Transitions = 0x00000000;
 
@@ -1008,9 +988,6 @@ overlay45GetGlyph = 0xf0000000;
 overlay45MeasureStream = 0xf0000000;
 overlay45RandomRangeReloc = 0xf0000000;
 overlay45StringLengthReloc = 0xf0000000;
-
-/* overlay 45: func_overlay_045_F0000764_188CBBC.c.o */
-overlay45ScissorReloc = 0x00000000;
 
 /* overlay 46: overlay46InitializeState.c.o */
 gOverlay46Group54 = 0x00000054;
@@ -1618,11 +1595,6 @@ overlay58LoadResourceReloc = 0xf0000000;
 
 /* overlay 59: overlay59Release.c.o */
 overlay59ReleaseReloc = 0xf0000000;
-
-/* overlay 59: overlay59PrepareEntry.c.o */
-gOverlay59DescriptorTables = 0x000005a4;
-overlay59PrepareReleaseReloc = 0xf0000000; /* runtime JUMP: overlay59Release */
-overlay59PrepareAcquireReloc = 0xf0000000; /* runtime SYMBOL: func_80034448 */
 
 /* overlay 59: overlay59ResetEntries.c.o */
 gOverlay59Entries = 0x00000000;
@@ -2656,12 +2628,12 @@ func_overlay_007_F0000DBC_185CC44 = overlay7CommitSelection;
 /* overlay 8: overlay_008.c.o */
 func_overlay_008_F0000000_185DD58 = overlay8Ignore;
 func_overlay_008_F0000008_185DD60 = overlay8GetIndexed;
-func_overlay_008_F0003018_1860D70 = overlay8UpdateChannels;
 func_overlay_008_F0003368_18610C0 = overlay8ScaleOutputs;
 func_overlay_008_F00049A4_18626FC = overlay8SetBuffer;
 func_overlay_008_F00049B4_186270C = overlay8WriteCommand;
 func_overlay_008_F00049DC_1862734 = overlay8SetValue;
 func_overlay_008_F00049E8_1862740 = overlay8UpdateMotionOutput;
+func_overlay_008_F0003018_1860D70 = overlay8UpdateChannels;
 
 /* overlay 9: overlay_009.c.o */
 func_overlay_009_F00010A4_186771C = overlay9Ignore;
