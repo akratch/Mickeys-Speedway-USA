@@ -276,7 +276,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_036_F0000A60_1883F18` | `src/overlays/o036/overlay36ChooseWeightedState.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_036_F00001D0_1883688` | `src/overlays/o036/overlay36UpdateInteractiveEntity.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_037_F000019C_18857BC` | `src/overlays/o037/overlay37Render.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_038_F0000000_1885D10` | `src/overlays/o038/func_overlay_038_F0000000_1885D10.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_038_F0000000_1885D10` | `src/overlays/o038/func_overlay_038_F0000000_1885D10.c` | none | — | Exact 85-word/`0x60`-frame candidate has seven schedule words at `+0x48..+0x60`; six random-range and one direction-call relocation identities remain unresolved. Source routes exhausted; resolve identities, then reproof-only V0. |
 | `func_overlay_038_F000047C_188618C` | `src/overlays/o038/func_overlay_038_F000047C_188618C.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_038_F0000154_1885E64` | `src/overlays/o038/overlay38UpdateParticles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_040_F0000000_18868B0` | `src/overlays/o040/overlay40AddEntry.c` | matched | — | Promoted as `overlay40AddEntry`; no ownership work remains. |
