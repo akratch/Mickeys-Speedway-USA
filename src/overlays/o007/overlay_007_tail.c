@@ -15,31 +15,29 @@ typedef struct Overlay7SelectionRow {
 
 /* Overlay 7, ADR 0006 consolidation: C after the middle assembly island. */
 
-/*
- * Reproof lead (evidence reviewed 2026-08-29): stale local configured full-TU
- * and isolated objects from the historical masked spelling have the exact 131-
- * word size and 0x20 frame but survive only outside canonical Git and predate
- * the corrected mathRnd identities. They measured 128/131 raw and 129/131
- * after runtime-relocation normalization: one t4-versus-t3 value web
- * differs at +0x44/+0x64, while the raw +0xA4 difference is the owned switch
- * table's LO16 addend. That score used a redundant low-ten-bit mask, now
- * removed, so clean current-source V0 remains uncompiled and its score, frame,
- * size, and tuples are unknown. The stale objects preserve all 30 offsets/types
- * but incorrectly name both +0x124/+0x1BC calls as overlay7LookupReloc rather
- * than runtime-authenticated mathRnd; they cannot support promotion. ORT 1471
- * has six callers. An exact-range structural scan found no credible donor,
- * best similarity 0.101. Compile current V0 and re-prove all 23 text plus seven
- * switch-table records. If shape regresses, use one identity-correct masked
- * diagnostic control; otherwise retain 119 configurations including V0, trace
- * the value web once, and try at most two trace-selected natural scalar/scope
- * forms. Hard cap 121 deterministic builds plus one trace, 122 only for the
- * control; no combination or generic batch.
- */
-/* Ownership trial (2026-08-28): fixed the TU's +0x934..+0x950 .rodata range;
- * its historical 455-word linked failure measured the whole trial surface, not this
- * function's isolated plateau. Module growth is cleared; exact function/TU,
- * relocation, linked-range, and ROM proof remain outstanding. */
+/* Bounded reproof 2026-08-29: the identity-correct masked spelling is 128/131
+ * raw and 129/131 after runtime relocation normalization, with exact 0x20C
+ * size, 0x20 frame, and first substantive mismatch +0x44. The two residual
+ * sites at +0x44/+0x64 are one t4-versus-target-t3 flags carrier; the raw
+ * +0xA4 switch-table LO16 addend normalizes away. Runtime metadata proves all
+ * 23 text plus seven table offsets, types, and identities, including mathRnd
+ * at +0x124/+0x1BC. Clean unmasked V0 regressed to 121/131. All 119 flag rows
+ * were nonexact; a proc-0 trace found every uopt pool assignment exact and the
+ * temp FIFO diverging only at slot 4. Two natural scalar/scope forms regressed
+ * to 112/131 and shifted a relocation. ORT 1471 and all six callers are
+ * authenticated. The TU's +0x934..+0x950 rodata ownership clears module
+ * growth; the function owns +0x894..+0xAA0 with no padding. The fallback
+ * remains canonical; retry only after a new natural temp-FIFO phase/reuse
+ * spelling, not more flags, explicit carriers, or a generic batch. */
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: overlay7DispatchModes
+ * score: 129/131 words
+ * frame: 0x20
+ * relocations: 30
+ * first-mismatch: +0x44
+ * summary: One flags-carrier temp uses t4 instead of target t3 at two sites; 119 flags and two trace-selected scalar/scope forms are exhausted.
+ */
 void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) {
     Overlay7ModeState *firstState;
     Overlay7ModeState *secondState;
@@ -52,7 +50,7 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
                                         : gOverlay7PrimaryModes;
     record = &modes[firstState->index][secondState->index];
 
-    if ((s32)(gOverlay7DispatchFlagsReloc << 22) < 0) {
+    if ((s32)((gOverlay7DispatchFlagsReloc & 0x3FF) << 22) < 0) {
         secondState->timer = 100;
         secondState->height += 5.0f;
         switch (record->mode) {

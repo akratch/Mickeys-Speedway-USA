@@ -710,12 +710,16 @@ pair through ORT 1579 to resident BSS `D_800D3128`, two SYMBOL calls through
 ORT 171 to resident `mathRnd`, nine local calls to `overlay7CreateEntry`, and
 four local calls to `overlay7AppendEntry`. The seven `R_MIPS_32/LOCAL` data
 records at module `+0x18F4..+0x190C` target case labels inside
-`+0x894..+0xAA0`. ORT 1471 exports the function; five resident calls and
-Overlay 25 table-1 record 15 are its six inbounds. Historical masked,
-pre-identity diagnostic C was measured at 128/131 raw and 129/131 normalized;
-its stale objects preserve all offsets/types but misname both math calls.
-Current clean C score and 30 emitted identities await reproof, while linked
-equality is fallback-only.
+`+0x894..+0xAA0`. ORT 1471 exports the function; resident relocation records
+342, 345, 347, 351, and 355 plus Overlay 25 table-1 record 15 are its six
+inbounds. The identity-correct masked full-TU C emits all 30 offsets, types,
+and identities, including `mathRnd` at `+0x124/+0x1BC`; it is 128/131 raw and
+129/131 after runtime normalization, exact-sized with frame `0x20`, and first
+substantively differs at `+0x44`. The raw third site at `+0xA4` is the owned
+switch-table LO16 addend. The clean unmasked V0 regresses to 121/131; all 119
+flags are nonexact, and both trace-selected scalar/scope forms regress to
+112/131 while shifting a relocation. The fallback remains canonical and
+linked equality is fallback-only.
 
 Overlay 7 `+0xCCC` (`overlay7DispatchSelection`) owns 13 records: a SYMBOL
 HI16/LO16 pair at `+0x00/+0x04` through ORT 1579 to resident `D_800D3128`;
