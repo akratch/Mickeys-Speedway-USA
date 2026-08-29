@@ -517,6 +517,10 @@ trial. The surviving isolated object has five stack-home/store-order words but
 omits the TU's required `-Wab,-r4300_mul`; fresh configured V0 must reconcile
 the count and all 21 runtime relocation sites before either score is reused.
 
+`overlay8ScaleOutputs`'s two-word row is historical; the function was promoted
+in `07e04a0f`. Its two raw LO16 fields become exact under the four proved
+runtime LOCAL tuples, and it no longer belongs in the NON_MATCHING queue.
+
 `overlay1AssignRecordIndex`'s eight-word row is retained configured full-TU C,
 not linked C proof. Both isolated objects expose five static records, while the
 runtime contract has seven: three-argument `GetRomlistInfo` and three LOCAL

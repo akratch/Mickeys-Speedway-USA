@@ -1094,15 +1094,15 @@ existing anchor to avoid a duplicate 32-byte literal pool at overlay-local
 `+0x1BC`); source kept as decomp-permuter input. All 16 retail relocation
 identities were otherwise preserved through the exact linked image.
 
-Overlay 8's scale-output body beginning at `+0x3368` — 312 bytes / 78 words.
-The configured `-O2 -mips2 -32 -Wab,-r4300_mul` build is exact after loading
-the lower threshold through the upper local, copying it to the lower local,
-and then overwriting the upper local. IDO coalesces that source copy into the
-retail lower-then-upper load schedule while retaining the retail `$f2`/`$f0`
-web colors. Both HI16/LO16 pairs resolve to overlay-local `+0x1D0/+0x1D4`.
-Retained artifacts prove the linked function, complete C text, overlay text,
-and module; a fresh current-tree rebuild remains queued to renew full-ROM
-evidence after the later unrelated Overlay 8 postprocess correction.
+Overlay 8 `+0x3368..+0x34A0` (`overlay8ScaleOutputs`) owns 312 bytes / 78
+words with a `0x8` frame. Retained post-correction configured mixed-TU C is
+76/78 raw words because two LO16 fields are unresolved; applying its four
+exact runtime tuples gives 78/78. Table-2 LOCAL base `+0x73B0` plus stored
+addends `+0x1D0/+0x1D4` resolves to module-local `+0x7580/+0x7584`. Loading
+the lower threshold through the upper local preserves the retail `$f2`/`$f0`
+web. Retained linked function, mixed-TU text, overlay text, and complete module
+are exact. The surviving full-ROM artifact predates promotion, so a fresh
+compile→link→ROM chain remains required.
 
 The motion-output body at decimal overlay offsets `+18,920..+19,696` adds
 **776 bytes / 194 words**. The measured `-Wab,-r4300_mul` object naturally

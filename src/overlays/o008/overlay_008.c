@@ -875,8 +875,11 @@ void func_overlay_008_F0003278_1860FD0(void *unused0,
     }
 }
 
-/* Loading the lower threshold through upperThreshold before overwriting it
- * preserves IDO's original copy-coalescing order ($f2, then $f0). */
+/* Mickey-local reconstruction; pinned DKR v77/v80 and JFG scans found no
+ * donor. Loading the lower threshold through upperThreshold before
+ * overwriting it preserves IDO's copy-coalescing order ($f2, then $f0).
+ * Retained post-correction C is 78/78 after four runtime LOCAL tuples; a fresh
+ * compile/link/full-bin chain remains queued. */
 void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
                           Overlay8ScaleContext *context,
                           Overlay8ScaleOutput *output) {

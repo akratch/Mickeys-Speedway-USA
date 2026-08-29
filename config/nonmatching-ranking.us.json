@@ -2478,18 +2478,6 @@
       "category": "other"
     },
     {
-      "name": "overlay8ScaleOutputs",
-      "file": "src/overlays/o008/overlay_008.c",
-      "overlay": 8,
-      "tu": "overlays/o008",
-      "size_bytes": 312,
-      "objdiff_match_pct": null,
-      "differing_words": 2,
-      "first_mismatch_offset": 52,
-      "size_delta": 0,
-      "category": "reloc-mismatch"
-    },
-    {
       "name": "func_overlay_014_F0000000_186F8D8",
       "file": "src/overlays/o014/func_overlay_014_F0000000_186F8D8.c",
       "overlay": 14,
