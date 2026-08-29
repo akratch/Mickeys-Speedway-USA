@@ -728,6 +728,15 @@ JUMP records 889 and 895 at module `+0x7C0C/+0x7D20`. Promotion requires
 metadata-only rebinding for both C identities; current linked equality proves
 fallback only.
 
+Overlay 1 `+0x378` (`overlay1FindType5ByKey`) owns table-1 SYMBOL record 1 at
+function `+0x14`/module `+0x38C`, resolving through ORT 128 to resident
+`func_8000572C`. Source now calls that identity directly and metadata rebinds it
+to the Overlay 1 zero-addend placeholder. ORT 1485 exports `+0x378`; its sole
+inbound is table-2 SYMBOL record 548 at module `+0x4018`, from
+`overlay1TransitionState+0x40`. There are no resident, cross-overlay, or local
+JUMP inbounds. Retained pre-HEAD/current-body C is 22/39 with the outbound site
+at the exact offset/type; current linked equality proves fallback only.
+
 Resident `func_80020D8C` has no static relocations and is exported as ORT 374.
 Eight shipped SYMBOL calls target it: Overlay 57 table-1 record 258 at module
 `+0x3288` (`overlay57ApplyValue+0x50`), Overlay 60 record 337 at `+0x2268`

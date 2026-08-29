@@ -246,18 +246,20 @@ typedef struct Overlay1SearchRecord {
     s32 key;
 } Overlay1SearchRecord;
 
-/* Diagnostic proxy only. Runtime reloc1[1] resolves the call to resident
- * func_8000572C; promotion needs that identity and a generated zero-addend
- * overlay alias rather than treating this private name as authoritative. */
-extern Overlay1SearchRecord **overlay1SearchRangeReloc(s32 *start, s32 *end);
+extern Overlay1SearchRecord **func_8000572C(s32 *start, s32 *end);
 
-/* The pinned DKR v77/v80 and JFG object scans contain no exact donor.
- * Retained prior-layout configured full-TU and isolated C agree at 22/39
- * raw/normalized words, frame 0x30, first +0x1C, with 17 register-field sites.
- * The earlier apparent match used 17 prohibited operand rewrites; it confirms
- * the residual map, not a legal route. Historical source/flag/trace/permuter
- * outcomes are unretained and linked equality proves fallback only. Reproduce
- * current V0, repair the resident identity, then run the bounded campaign. */
+/* Pinned DKR v77/v80 and JFG scans found no exact-byte donor. Retained pre-HEAD,
+ * current-body configured full-TU and isolated C agree at 22/39 words, frame
+ * 0x30, first +0x1C. The 17 register sites split into loop/cursor FIFO
+ * +0x1C/+0x20/+0x28/+0x2C/+0x34/+0x40/+0x44/+0x50/+0x54/+0x5C/+0x6C/
+ * +0x74/+0x78/+0x7C and key FIFO +0x60/+0x64/+0x68. Runtime table-1 record 1
+ * binds +0x14 to resident func_8000572C; the metadata rebind preserves that
+ * identity. ORT 1485 exports this function and table-2 record 548 is its sole
+ * inbound. The historical apparent match rewrote all 17 instruction fields and
+ * is prohibited; historical flags, trace, forms, and search are unretained.
+ * Run current V0 and 119 flags, trace once, try split array/cursor and scoped
+ * record-key forms plus an improving-only combination; cap 123 stock builds
+ * plus trace and batch only after a strict natural gain. */
 #ifdef NON_MATCHING
 Overlay1SearchRecord *overlay1FindType5ByKey(const s8 *key) {
     s32 start;
@@ -266,7 +268,7 @@ Overlay1SearchRecord *overlay1FindType5ByKey(const s8 *key) {
     Overlay1SearchRecord *record;
     Overlay1SearchRecord **cursor;
 
-    cursor = overlay1SearchRangeReloc(&start, &end) + start;
+    cursor = func_8000572C(&start, &end) + start;
     if (start < end) {
         do {
             record = *cursor++;
