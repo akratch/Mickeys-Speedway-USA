@@ -1821,8 +1821,13 @@ Workbench identifies a pool-slot-5 `v0`/`v1` mismatch; asm remains canonical.
 `func_8004054C`: before/after structure mismatch, 124/125 instructions and 33 words, first `+0x4C`.
 Type lever: unsigned free-bit pointer and pool aggregate; no scan-shape movement. Remains the pool/temporary web and missing instruction; asm stays canonical.
 
-`func_8003E8D8`: before/after allocation mismatch, 140 instructions and 22 words; frame remains `0x30` vs target `0x38`.
-Type lever: point-stream/model distinction and vector aliases; opcode schedule stayed exact. Remains stack homes, two registers, and one branch target; asm stays canonical.
+`func_8003E8D8`: the current configured candidate is shape-exact at 140
+instructions with the target `0x38` frame and all ten relocation identities;
+nine operand words remain, first at `+0x38`. The call-live `entry` home is
+`sp+0x34` instead of target `sp+0x24`, `result` is at `sp+0x20` instead of
+`sp+0x34`, and the first zero-count branch skips one extra instruction. The
+next bounded lever is declaration/save ordering for that pair under the TU's
+required `-Wab,-r4300_mul`; asm stays canonical.
 
 | Newly matched function | ROM / size | Match evidence |
 |---|---:|---|
