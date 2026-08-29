@@ -981,6 +981,17 @@ retains none statically, making the runtime table the identity authority. ORT
 `func_8000D978+0x130` is its sole authenticated inbound/trap site; it is not an
 ordinary direct static call. Current linked equality proves fallback only.
 
+Overlay 74 `+0xB8` (`overlay74Update`) owns eight runtime-authenticated records:
+SYMBOL calls to resident `func_8005776C` at `+0x70`, `func_800291B4` at
+`+0x128`, `amSndPlay` at `+0x134`, and `func_8003A680` at `+0x178`, plus
+HI16/LO16 pairs to resident `D_800D3128` at `+0xE8/+0xEC` and
+`+0x13C/+0x140`. Retained diagnostic genuine C emits all eight; the fallback
+target collapses the call symbols and makes runtime metadata the identity
+authority. ORT 1285 exports the owned `+0xB8..+0x248` range, and resident
+runtime record 127 at `func_8000AEEC+0x34C` is its sole authenticated inbound.
+The following `+0x248..+0x250` padding is assembly-owned. Current linked
+equality proves fallback only.
+
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 
