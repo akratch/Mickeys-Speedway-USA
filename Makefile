@@ -23,6 +23,7 @@
 #   gmake scoreboard        regenerate README.md's progress block from the tree
 #   gmake check-scoreboard  fail if that block has gone stale
 #   gmake system-health     read-only campaign load/memory/process summary
+#   gmake check-tooling     focused safety/provenance/tooling regressions
 #   gmake release-gate      serial, niced release checks with compact output
 #   gmake clean      remove build/
 #   gmake distclean  also remove splat's generated output
@@ -295,6 +296,14 @@ cleanroom:
 
 system-health:
 	$(HOST_PYTHON) $(TOOLS_DIR)/system_health.py $(SYSTEM_HEALTH_ARGS)
+
+check-tooling:
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_reloc_surface.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_proof_provenance.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_permute_batch_deadline.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_finalize_plateau.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_crew_heartbeat.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_release_gate.py
 
 release-gate:
 	$(HOST_PYTHON) $(TOOLS_DIR)/release_gate.py $(RELEASE_GATE_ARGS)
@@ -3996,7 +4005,7 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 	fi
 	@ls -l $@
 
-.PHONY: default all setup hooks extract prune-asm verify cleanroom system-health release-gate audit-decoders overlay-tables overlay-atlas overlay-atlas-write overlay-syms check-overlay-syms overlay-donors overlay-donors-write overlay-donors-scan-check check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
+.PHONY: default all setup hooks extract prune-asm verify cleanroom system-health check-tooling release-gate audit-decoders overlay-tables overlay-atlas overlay-atlas-write overlay-syms check-overlay-syms overlay-donors overlay-donors-write overlay-donors-scan-check check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail
 

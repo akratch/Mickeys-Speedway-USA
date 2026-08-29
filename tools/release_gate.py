@@ -23,6 +23,7 @@ from system_health import collect_health, format_report
 
 GATES = (
     "verify",
+    "check-tooling",
     "cleanroom",
     "check-docs",
     "check-scoreboard",
@@ -81,6 +82,29 @@ def _scan_text(label: str, text: str) -> list[str]:
     return findings
 
 
+def _tracked_text_findings(repo: Path) -> list[str]:
+    """Scan every tracked text blob at HEAD, not only the outgoing delta.
+
+    A release is about the resulting public tree. Restricting this check to
+    changed paths would let an older private marker or secret survive forever
+    merely because the current release did not touch its file.
+    """
+    findings: list[str] = []
+    names = _git(repo, "ls-files", "-z").split("\0")
+    for name in (item for item in names if item):
+        blob = subprocess.run(
+            ["git", "show", f"HEAD:{name}"],
+            cwd=repo,
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        if blob.returncode != 0 or b"\0" in blob.stdout:
+            continue
+        findings.extend(_scan_text(name, blob.stdout.decode("utf-8", errors="replace")))
+    return findings
+
+
 def _public_preflight(repo: Path, branch: str | None, remote: str | None) -> str:
     if not branch or not remote:
         raise PreflightError(
@@ -111,30 +135,12 @@ def _public_preflight(repo: Path, branch: str | None, remote: str | None) -> str
         "outgoing commit messages",
         _git(repo, "log", "--format=%B", f"{short_base}..HEAD"),
     )
-    names = _git(
-        repo,
-        "diff",
-        "--name-only",
-        "--diff-filter=ACMR",
-        "-z",
-        f"{short_base}..HEAD",
-    ).split("\0")
-    for name in (item for item in names if item):
-        blob = subprocess.run(
-            ["git", "show", f"HEAD:{name}"],
-            cwd=repo,
-            check=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        if blob.returncode != 0 or b"\0" in blob.stdout:
-            continue
-        findings.extend(_scan_text(name, blob.stdout.decode("utf-8", errors="replace")))
+    findings.extend(_tracked_text_findings(repo))
     if findings:
         preview = "; ".join(findings[:5])
         if len(findings) > 5:
             preview += f"; and {len(findings) - 5} more"
-        raise PreflightError(f"public outgoing scan failed: {preview}")
+        raise PreflightError(f"public tracked/outgoing scan failed: {preview}")
     return f"branch={branch} remote={remote} base={short_base}"
 
 
