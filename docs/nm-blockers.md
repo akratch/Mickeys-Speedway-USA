@@ -74,7 +74,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8002B040` | `src/main/matrix.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002B524` | `src/main/memory.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002B7AC` | `src/main/memory.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8002BB40` | `src/main/memory.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_8002BB40` | `src/main/memory.c` | none | — | Exact 72-word candidate leaves 30 register words; reuse dead `slotIsTaken`/`poolIndex` arguments for count/index. |
 | `func_80038750` | `src/main/menu.c` | shared-rodata | jtbl_80082734 | Move the language switch table and labels into menu. |
 | `func_80038878` | `src/main/menu.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_800389CC` | `src/main/menu.c` | matched | — | Promoted to exact C; no ownership work remains. |
@@ -94,7 +94,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8005AAC0` | `src/main/models_5B300.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003CE10` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003D25C` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8003E8D8` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_8003E8D8` | `src/main/particles.c` | none | — | Exact 140-word configured candidate leaves nine stack-home/branch operands; reorder the call-live pair. |
 | `func_8003EC8C` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `partUpdateTriggers` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003F154` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
