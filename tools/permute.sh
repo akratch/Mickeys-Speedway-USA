@@ -102,6 +102,19 @@ echo "C file: $c_file"
 # --- Locate (or regenerate) the target .s -------------------------------
 asmfile=$(find asm/nonmatchings -type f -name "$func.s" 2>/dev/null | head -1 || true)
 
+# A friendly C candidate can retain an auto-named GLOBAL_ASM fallback
+# (for example overlay18Load versus func_overlay_018_F0000000_18745B8).  When
+# this translation unit names exactly one existing fallback path, it is the
+# unambiguous target even though its basename differs from the C function.
+if [ -z "$asmfile" ]; then
+    pragma_paths=$(sed -n 's/^[[:space:]]*#pragma GLOBAL_ASM("\([^"]*\)").*/\1/p' "$c_file")
+    pragma_count=$(printf '%s\n' "$pragma_paths" | sed '/^$/d' | wc -l | tr -d ' ')
+    if [ "$pragma_count" -eq 1 ] && [ -f "$pragma_paths" ]; then
+        asmfile=$pragma_paths
+        echo "Using sole GLOBAL_ASM fallback for friendly name: $asmfile"
+    fi
+fi
+
 restore_c=""
 cleanup() {
     if [ -n "$restore_c" ]; then
@@ -187,6 +200,16 @@ if [ -z "$imported" ] || [ ! -d "$imported" ]; then
 fi
 mv "$imported" "$OUT/scratch"
 echo "Scratch: $OUT/scratch"
+
+# import.py keys settings.toml from the target assembly's glabel.  If this
+# runner was invoked with a friendly C name backed by an auto-named fallback,
+# point the permuter at the definition that actually exists in base.c.  The
+# target object remains unchanged; this only selects the candidate function.
+import_func=$(sed -n 's/^func_name = "\([^"]*\)"/\1/p' "$OUT/scratch/settings.toml")
+if [ "$import_func" != "$func" ] && grep -qE "^[A-Za-z_][A-Za-z0-9_[:space:]\\*]*${func}[[:space:]]*\\(" "$OUT/scratch/base.c"; then
+    sed -i '' "s/^func_name = \"[^\"]*\"/func_name = \"$func\"/" "$OUT/scratch/settings.toml"
+    echo "Selected friendly candidate definition: $func (target glabel: $import_func)"
+fi
 
 # --- Correct the scratch compile flags to the project's real per-file flags ---
 # decomp-permuter's import.py infers a default (-mips1, no per-file overrides);
@@ -283,7 +306,7 @@ fi
 
 echo
 echo "=== $func: summary ==="
-base=$(grep -oE 'base score = [0-9]+' "$OUT/permuter.log" | head -1 | grep -oE '[0-9]+')
+base=$(grep -oE 'base score = [0-9]+' "$OUT/permuter.log" | head -1 | grep -oE '[0-9]+' || true)
 echo "base score: ${base:-unknown}"
 
 # Every improvement permuter.py finds gets written to
