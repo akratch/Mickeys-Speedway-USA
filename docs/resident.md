@@ -2704,7 +2704,7 @@ placeholder name or counting padding as function text.
 | `0x5B364` / `0x8005A764` | `0x0C` | `func_8005A764` | D: resets the pending-animation counter |
 | `0x5B370` / `0x8005A770` | `0x30` | `func_8005A770` | D: flushes the pending animation table, then resets its count; no per-symbol caller argument recorded |
 | `0x5B3A0` / `0x8005A7A0` | `0x1A8` | `func_8005A7A0` | B: loads a model's animation-ID table and allocates its animation pointer array; sole proven caller is `func_8001F520+0x42C`, passing the loaded model and model ID |
-| `0x5B548` / `0x8005A948` | `0x178` | `func_8005A948` | D: reference-counted single-animation loader; nearest non-exact JFG `models.c` skeleton |
+| `0x5B548` / `0x8005A948` | `0x178` | `func_8005A948` | B: reference-counted single-animation loader; sole proven caller is `func_8005A7A0+0x104`, passing an `lh` animation ID and consuming the returned pointer |
 | `0x5B6C0` / `0x8005AAC0` | `0xB8` | `func_8005AAC0` | D: releases one reference-counted animation; nearest non-exact JFG `models.c` skeleton |
 | `0x5B778` / `0x8005AB78` | `0x30` | `camConvertMatrixList` | A: exact JFG `camera.c` helper, used by the matrix builder below |
 | `0x5B7A8` / `0x8005ABA8` | `0x1BC` | `func_8005ABA8` | D: advances/clamps the current animation frame |
@@ -2781,20 +2781,24 @@ to establish relocation count/type/offset/identity. JFG retains both
 corresponding routines as assembly, so no donor body was adapted.
 
 The `func_8005A948` flag lattice additionally establishes
-`-Wo,-loopunroll,0` for `main/models`: without it IDO unrolls the cache scan
+`-Wo,-loopunroll,0` for `main/models_5B300`: without it IDO unrolls the cache scan
 to 166 instructions, while the disabled-unroll candidate has the target's 94
-instructions, frame, opcodes, CFG and relocation identities. Reusing the
-finished cache index for the ROM-table offset first reduced the residual from
-15 to 11 register words. Spelling the two final cache stores as the same raw
-interleaved arrays used by the exact adjacent free routine closes that entire
-late allocation hunk and leaves **3/94 register-only words**, first `+0x40`:
-the shared cache-index shift uses `t7` instead of target `t8`. Normalizing the
+instructions, frame, opcodes, CFG and 13 relocation identities. The surviving
+configured object proves the earlier 11-word state at
+`+0x40/+0x44/+0x80/+0x130/+0x148/+0x14c/+0x150/+0x154/+0x158/+0x15c/+0x160`.
+Spelling the two final cache stores as the same raw interleaved arrays used by
+the exact adjacent free routine closed the last eight sites at commit time and
+left historical p10 evidence at **3/94 register-only words**,
+`+0x40/+0x44/+0x80`: the shared cache-index shift uses `t7` instead of target
+`t8`. No configured or linked p10 artifact survives. Normalizing the
 preceding positive-count guard reaches the target FIFO phase but adds one real
 instruction, while redundant parameter masking changes the prologue. A final
 source-only FIFO pass found the named byte-offset form inert, equivalent shift
 masks two or three instructions longer, and a folded live guard schedule-only
 at the initial global load; none rotated the scan-index web. The p10 best C
-remains under `NON_MATCHING` and the target assembly remains canonical.
+remains under `NON_MATCHING` and the target assembly remains canonical. Reprove
+that source once, then run one instrumented ugen FIFO trace only if the three
+sites reproduce; all broader source, flag and permutation routes are exhausted.
 
 `func_8005A7A0` has retained configured full-TU evidence at 106 words, with
 ten raw/normalized sites at

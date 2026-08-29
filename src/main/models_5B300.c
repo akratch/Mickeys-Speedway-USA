@@ -211,7 +211,7 @@ extern s32 D_800D7D04;
 extern ConvListEntry D_800D78F0[];
 
 s32 func_8002B280(s32 size, s32 tag);
-u8 *func_8002B314(s32 size, s32 tag);
+void *func_8002B314(s32 size, u32 colourTag);
 void func_80058FF0(ConvListEntry *entries, s32 count);
 void func_8002A82C(void *mtx);
 void mtxf_mul(void *lhs, void *rhs, void *dest);
@@ -327,13 +327,15 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A7A0.s")
 #endif
-/* Plateau (near-miss p10): workbench register-ring-only, 3 register words at
- * 94 instructions/frame -0x38. Raw interleaved-array final stores, matching
- * the exact adjacent free routine's access shape, close the prior 8-word
- * final-index allocation hunk. Focused FIFO levers are exhausted: a named
- * byte offset is inert, equivalent shift masks emit real instructions, and a
- * folded live guard only reschedules the initial global load. The one-pop
- * scan-loop FIFO residual remains pass-owned. */
+/* Plateau (near-miss p10): the surviving configured full-TU object is the
+ * earlier 11-word state at +0x40/+0x44/+0x80/+0x130/+0x148/+0x14C/+0x150/
+ * +0x154/+0x158/+0x15C/+0x160, exact-sized at 94 words/frame 0x38 with 13
+ * exact relocation tuples. The later raw interleaved-array source removed
+ * the final eight sites at commit time, leaving historical p10 evidence at
+ * +0x40/+0x44/+0x80, but no configured or linked p10 artifact survives.
+ * Reprove unchanged p10 once; if those three t7/target-t8 FIFO sites reproduce,
+ * run one instrumented ugen causal trace and at most its indicated
+ * address-producer spelling, then park if flat. */
 #ifdef NON_MATCHING
 u8 *func_8005A948(s16 animationId) {
     s32 i;
