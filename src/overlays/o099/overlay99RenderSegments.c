@@ -1,20 +1,4 @@
-#include "PR/ultratypes.h"
-
-typedef struct Overlay99Gfx {
-    u32 w0;
-    u32 w1;
-} Overlay99Gfx;
-
-typedef struct Overlay99RenderObject {
-    s16 zero0;
-    s16 zero2;
-    s16 heading;
-    s16 flags;
-    u8 pad08[4];
-    f32 x;
-    f32 z;
-    f32 y;
-} Overlay99RenderObject;
+#include "overlays/overlay_099.h"
 
 typedef struct Overlay99Segment {
     f32 x0;
@@ -24,23 +8,20 @@ typedef struct Overlay99Segment {
     u8 pad10[0x1A];
     s8 headingOffset;
     u8 pad2B;
-    Overlay99RenderObject *object;
+    Overlay99RenderState *object;
 } Overlay99Segment;
 
 extern s32 gOverlay99SegmentCount;
 extern Overlay99Segment gOverlay99Segments[];
 extern void *gOverlay99Texture;
 extern int overlay99Begin(void **outA, s32 *outB);
-extern void overlay99Setup(Overlay99Gfx **displayList, void *a, s32 b,
+extern void overlay99Setup(Gfx **displayList, void *a, s32 b,
                            void *zero0, s32 zero1, void *a2, s32 b2);
-extern void overlay99End(Overlay99Gfx **displayList);
+extern void overlay99End(Gfx **displayList);
 extern s16 overlay99Angle(f32 x, f32 z);
 extern f32 overlay99Sqrt(f32 squared);
-extern void overlay99DrawObject(Overlay99Gfx **displayList, void *arg1,
-                                s32 arg2, Overlay99RenderObject *object);
-extern void func_overlay_099_F0000800_18D9DB0(
-    Overlay99Gfx **displayList, void *arg1, s32 arg2,
-    Overlay99RenderObject *object, f32 scale);
+extern void overlay99DrawObject(Gfx **displayList, Mtx **matrices,
+                                void *vertices, Overlay99RenderState *object);
 
 /* Bounded workbench closeout (2026-08-28): the configured candidate is
  * exact-sized at 142 words with the exact 0xa8 frame and all 15 runtime
@@ -52,7 +33,7 @@ extern void func_overlay_099_F0000800_18D9DB0(
  * masking relocation addends; its only residual is setup.b at sp+0xa0 rather
  * than retail's sp+0x98, first visible at +0x7c. */
 #ifdef NON_MATCHING
-void overlay99RenderSegments(Overlay99Gfx **displayList, void *arg1, s32 arg2,
+void overlay99RenderSegments(Gfx **displayList, Mtx **matrices, void *vertices,
                              f32 scale) {
     struct {
         void *a;
@@ -63,8 +44,8 @@ void overlay99RenderSegments(Overlay99Gfx **displayList, void *arg1, s32 arg2,
     f32 dz;
     f32 length;
     Overlay99Segment *segment;
-    Overlay99RenderObject *object;
-    Overlay99Gfx *command;
+    Overlay99RenderState *object;
+    Gfx *command;
     s32 initialized;
     s32 i;
 
@@ -80,8 +61,8 @@ void overlay99RenderSegments(Overlay99Gfx **displayList, void *arg1, s32 arg2,
                     initialized = 1;
                     command = *displayList;
                     *displayList = command + 1;
-                    command->w0 = 0xBC000806;
-                    command->w1 = (u32)gOverlay99Texture + 0x80000000;
+                    command->words.w0 = 0xBC000806;
+                    command->words.w1 = (u32)gOverlay99Texture + 0x80000000;
                     overlay99Setup(displayList, setup.a, setup.b, 0, 0,
                                    setup.a, setup.b);
                     overlay99End(displayList);
@@ -89,8 +70,8 @@ void overlay99RenderSegments(Overlay99Gfx **displayList, void *arg1, s32 arg2,
 
                 dx = segment->x1 - segment->x0;
                 dz = segment->z1 - segment->z0;
-                object->zero0 = 0;
-                object->zero2 = 0;
+                object->rotation0 = 0;
+                object->rotation1 = 0;
                 object->heading = overlay99Angle(-dx, dz);
                 dx *= scale;
                 dz *= scale;
@@ -103,10 +84,10 @@ void overlay99RenderSegments(Overlay99Gfx **displayList, void *arg1, s32 arg2,
                                              65536.0f * scale);
                 }
                 object->flags &= ~0x400;
-                overlay99DrawObject(displayList, arg1, arg2, object);
+                overlay99DrawObject(displayList, matrices, vertices, object);
                 object->flags |= 0x400;
-                func_overlay_099_F0000800_18D9DB0(displayList, arg1, arg2,
-                                                   object, length);
+                overlay99RenderSortedEntries(displayList, matrices, vertices,
+                                             object, length);
             }
             i++;
             segment++;

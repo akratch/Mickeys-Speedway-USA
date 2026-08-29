@@ -1,30 +1,7 @@
-#include "PR/ultratypes.h"
+#include "game/math.h"
+#include "overlays/overlay_099.h"
 
 /* Overlay 99 +0x800: sorted translucent-entry render pass. */
-
-typedef struct Overlay99Gfx {
-    u32 w0;
-    u32 w1;
-} Overlay99Gfx;
-
-typedef struct Overlay99Vec3 {
-    f32 x;
-    f32 y;
-    f32 z;
-} Overlay99Vec3;
-
-typedef struct Overlay99RenderEntry {
-    s32 id;
-    s8 tableIndex;
-    u8 pad05[3];
-    f32 scale;
-    u8 pad0C[8];
-} Overlay99RenderEntry;
-
-typedef struct Overlay99TableOwner {
-    u8 pad00[0x40];
-    Overlay99Vec3 *vectors;
-} Overlay99TableOwner;
 
 typedef struct Overlay99Transform {
     u8 pad00[0x0C];
@@ -33,81 +10,46 @@ typedef struct Overlay99Transform {
     f32 z;
 } Overlay99Transform;
 
-typedef struct Overlay99RenderState {
-    u8 pad00[0x39];
-    u8 mode39;
-    u8 pad3A[6];
-    f32 *unitScale;
-    u8 pad44[0x0C];
-    void *resource50;
-    u8 pad54[0x0C];
-    Overlay99RenderEntry *entries;
-    u8 pad64[4];
-    Overlay99TableOwner **tableOwner;
-    u8 pad6C[0x20];
-    u8 entryCount;
-} Overlay99RenderState;
-
-typedef struct Overlay99DrawRecord {
-    s16 zeroA8;
-    s16 intensity;
-    s16 padAC;
-    s16 three;
-    f32 scaled;
-    f32 one;
-    u32 outB8;
-    s16 outBC;
-    s16 padBE;
-    u32 outC0;
-    s32 color;
-    s32 id;
-    void *matrix;
-} Overlay99DrawRecord;
-
-extern f32 overlay99Measure(f32 x, f32 y, f32 z); /* runtime: camGetProjZ */
-extern Overlay99Transform *overlay99GetTransform(void); /* camGetPtr */
-extern void overlay99UpdateState(Overlay99RenderState *state); /* func_80022E80 */
-extern void overlay99BuildMatrix(Overlay99RenderState *state, void **matrix); /* func_8002AA50 */
-extern void overlay99BuildRecord(void **matrix, f32 x, f32 y, f32 z,
-                                 u32 *outB8, s16 *outBC, u32 *outC0); /* mtxf_transform_point */
-extern void overlay99DrawEntry(Overlay99Gfx **displayList, void *arg1,
-                               void *arg2, Overlay99RenderState *state,
-                               void *resource, Overlay99DrawRecord *record,
-                               s32 mode, s32 selector); /* func_80022FD4 */
-extern f32 D_8;
-extern f32 D_4;
+extern f32 camGetProjZ(f32 x, f32 y, f32 z);
+extern Overlay99Transform *camGetPtr(void);
+extern void func_80022E80(Overlay99RenderState *state);
+extern void func_8002AA50(Overlay99RenderState *state, MtxF matrix);
+extern void mtxf_transform_point(MtxF matrix, f32 x, f32 y, f32 z,
+                                 f32 *outX, f32 *outY, f32 *outZ);
+extern void func_80022FD4(Gfx **displayList, Mtx **matrices, void *vertices,
+                          Overlay99RenderState *state, f32 *opacity,
+                          Overlay99CameraSprite *sprite, s32 mode,
+                          s32 selector);
+extern f32 gOverlay99IntensityScale;
+extern f32 gOverlay99TransformZ;
 
 /*
- * Retained configured full-TU NON_MATCHING C predates the current field-store
- * order. It owns 233 words, has the exact 0x148 frame and ten runtime-backed
- * relocation sites, and is 216/233 raw or 218/233 after runtime relocation
- * normalization, first +0x64. Its fifteen normalized differences are eleven
- * sorted-array/call-home sites and four command-value/store sites. Git history
- * reports 220/233 normalized for the current store order, but no corresponding
- * object or linked C trial survives. Exact linked function/module/ROM evidence
- * proves GLOBAL_ASM only. Reproduce current configured V0, replace the six
- * diagnostic proxies with their runtime identities, then probe sorted[] homes.
+ * Retained pre-current-body configured C is diagnostic 216/233 raw and 218/233
+ * runtime-normalized, exact 0x3A4 size/0x148 frame, with all ten records. Four
+ * volatile gap arrays concealed the real local layout: a 0x24-byte camera
+ * sprite at sp+0xA8 followed by a separate 0x40-byte MtxF at sp+0xCC. They are
+ * replaced by authenticated types and resident identities, so clean V0 is
+ * uncompiled. Linked equality proves GLOBAL_ASM only. Retain 119 flags, trace
+ * once, try four natural local placements and one trace-selected lifetime,
+ * then an improving-only combination; cap at 125 stock builds plus trace.
  */
 #ifdef NON_MATCHING
-void overlay99RenderSortedEntries(Overlay99Gfx **displayList, void *arg1,
-                                  void *arg2, Overlay99RenderState *state,
+void overlay99RenderSortedEntries(Gfx **displayList, Mtx **matrices,
+                                  void *vertices, Overlay99RenderState *state,
                                   f32 intensityScale) {
-    volatile u8 framePad[0x0C];
     f32 savedX;
     f32 savedY;
     f32 savedZ;
-    volatile u8 gapSavedDistances[0x14];
     f32 distances[4];
-    volatile u8 gapDistancesRecord[0x3C];
-    Overlay99DrawRecord record;
-    volatile u8 gapRecordSorted[8];
+    Overlay99CameraSprite sprite;
+    MtxF matrix;
     Overlay99RenderEntry *sorted[4];
     f32 invScale;
     Overlay99RenderEntry *entry;
     Overlay99TableOwner *owner;
     Overlay99Transform *transform;
     Overlay99Vec3 *vec;
-    Overlay99Gfx *command;
+    Gfx *command;
     s32 count;
     s32 i;
     s32 j;
@@ -119,7 +61,7 @@ void overlay99RenderSortedEntries(Overlay99Gfx **displayList, void *arg1,
         i = 0;
         while ((i < state->entryCount) && (i != 4)) {
             vec = &owner->vectors[entry->tableIndex];
-            distances[count] = overlay99Measure(vec->x, vec->y, vec->z);
+            distances[count] = camGetProjZ(vec->x, vec->y, vec->z);
             sorted[count] = entry;
             entry++;
             i++;
@@ -144,44 +86,44 @@ void overlay99RenderSortedEntries(Overlay99Gfx **displayList, void *arg1,
         }
     }
 
-    transform = overlay99GetTransform();
+    transform = camGetPtr();
     savedX = transform->x;
     savedY = transform->y;
     savedZ = transform->z;
     transform->x = 0.0f;
     transform->y = 0.0f;
-    transform->z = D_4;
-    overlay99UpdateState(state);
+    transform->z = gOverlay99TransformZ;
+    func_80022E80(state);
     transform->x = savedX;
     transform->y = savedY;
     transform->z = savedZ;
 
     invScale = 1.0f / *state->unitScale;
-    overlay99BuildMatrix(state, &record.matrix);
-    record.intensity = (s16)(s32)(intensityScale * D_8);
-    record.zeroA8 = 0;
-    record.three = 3;
-    record.color = 0x3333;
-    record.one = 1.0f;
+    func_8002AA50(state, matrix);
+    sprite.frame = (s16)(s32)(intensityScale * gOverlay99IntensityScale);
+    sprite.angle = 0;
+    sprite.divisor = 3;
+    sprite.frameCount = 0x3333;
+    sprite.matrixScale = 1.0f;
 
     command = *displayList;
     *displayList = command + 1;
-    command->w1 = 0;
-    command->w0 = 0xE7000000;
+    command->words.w1 = 0;
+    command->words.w0 = 0xE7000000;
     command = *displayList;
     *displayList = command + 1;
-    command->w0 = 0xFB000000;
-    command->w1 = 0xFFFFFF00;
+    command->words.w0 = 0xFB000000;
+    command->words.w1 = 0xFFFFFF00;
 
     for (i = 0; i < count; i++) {
         entry = sorted[i];
         vec = &owner->vectors[entry->tableIndex];
-        record.scaled = entry->scale * invScale;
-        record.id = entry->id;
-        overlay99BuildRecord(&record.matrix, vec->x, vec->y, vec->z,
-                             &record.outB8, &record.outBC, &record.outC0);
-        overlay99DrawEntry(displayList, arg1, arg2, state, state->resource50,
-                           &record, 14, state->mode39);
+        sprite.transformScale = entry->scale * invScale;
+        sprite.spriteData = entry->spriteData;
+        mtxf_transform_point(matrix, vec->x, vec->y, vec->z,
+                             &sprite.x, &sprite.y, &sprite.z);
+        func_80022FD4(displayList, matrices, vertices, state, state->opacity,
+                      &sprite, 14, state->mode39);
     }
 }
 #else
