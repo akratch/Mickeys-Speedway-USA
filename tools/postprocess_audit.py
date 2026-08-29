@@ -20,7 +20,8 @@ For each such object it:
     because it rewrites relocated instruction immediates;
   * records which tool(s) the command invokes;
   * joins the object to its ownership range in config/overlays.us.json's
-    per-overlay ``text_ownership`` list (offset, size, matched-C-or-not),
+    per-overlay ``text_ownership`` list (offset, size, C ownership and
+    NON_MATCHING state),
     keyed by the object's path under src/ with the .c/.o stripped -- the
     same string overlay_atlas.py stores as ``source``.
 
@@ -122,7 +123,7 @@ def classify(command):
 
 
 def load_atlas_index(atlas_path):
-    """{('overlays/oNNN/name'): (overlay, offset, size, matched)} from the
+    """{('overlays/oNNN/name'): ownership metadata} from the
     committed overlay atlas, plus the atlas's own totals for cross-checking.
     """
     with open(atlas_path, encoding="utf-8") as fh:
@@ -136,6 +137,7 @@ def load_atlas_index(atlas_path):
                 "offset": int(part["offset"], 16),
                 "size": int(part["size"], 16),
                 "matched": part["matched"],
+                "nonmatching": part.get("nonmatching", False),
             }
     return index, atlas["totals"]
 
@@ -147,7 +149,7 @@ def object_to_src(target):
     return target[len("build/") :][: -len(".o")]
 
 
-def audit(root_dir=ROOT_DIR):
+def audit(root_dir=ROOT_DIR, atlas_path=ATLAS_PATH):
     dump = run_make_database()
     seen = {}
     for line in dump.splitlines():
@@ -161,7 +163,7 @@ def audit(root_dir=ROOT_DIR):
             continue
         seen[target] = command  # dedupe: -p repeats a rule per prerequisite
 
-    atlas_index, atlas_totals = load_atlas_index(ATLAS_PATH)
+    atlas_index, atlas_totals = load_atlas_index(atlas_path)
 
     rows = []
     for target in sorted(seen):
@@ -185,7 +187,13 @@ def audit(root_dir=ROOT_DIR):
                 "tools": tools,
                 "offset": atlas_hit["offset"] if atlas_hit else None,
                 "size": atlas_hit["size"] if atlas_hit else None,
-                "matched_c": atlas_hit["matched"] if atlas_hit else None,
+                "c_owned": atlas_hit["matched"] if atlas_hit else None,
+                "nonmatching": atlas_hit["nonmatching"] if atlas_hit else None,
+                "matched_c": (
+                    atlas_hit["matched"] and not atlas_hit["nonmatching"]
+                    if atlas_hit
+                    else None
+                ),
             }
         )
     return rows, atlas_totals
@@ -257,12 +265,17 @@ def main():
         "--check", action="store_true", help="fail if " + DEFAULT_OUT + " is stale"
     )
     ap.add_argument("--out", default=DEFAULT_OUT)
+    ap.add_argument(
+        "--atlas",
+        default=ATLAS_PATH,
+        help="overlay atlas to join (default: " + ATLAS_PATH + ")",
+    )
     args = ap.parse_args()
 
-    rows, atlas_totals = audit()
+    rows, atlas_totals = audit(atlas_path=args.atlas)
     summary = summarize(rows)
     doc = {
-        "schema_version": 2,
+        "schema_version": 3,
         "generated_by": "tools/postprocess_audit.py",
         "summary": summary,
         "objects": rows,

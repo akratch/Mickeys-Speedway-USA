@@ -15,7 +15,8 @@ spending it on the harder, larger targets. Selection criteria, checked
 against `config/postprocess-audit.us.json` before starting:
 
 - every function in the overlay already matched (`matched_c: true` for
-  every row)
+  every row; `c_owned: true` alone is insufficient because mixed and guarded
+  TUs remain source-owned C while their fallback bytes are uncredited)
 - no row in the overlay has `"class": "altered"` -- i.e. no
   `normalize_elf_instructions.py`, `normalize_o63_*.py`,
   `resize_elf_function.py`, or `extend_elf_function_to_text.py` in its

@@ -285,7 +285,10 @@ tools/postprocess_audit.py --check    # fail if that JSON is stale
 `config/postprocess-audit.us.json` is the committed result: one row per
 object carrying a `POSTPROCESS` override, its class, tool list, and
 (where known) its `(overlay, offset, size)` ownership joined from
-`config/overlays.us.json`. As of this pass its `summary.by_class` reads
+`config/overlays.us.json`. `c_owned` means the atlas assigns the range to C;
+`nonmatching` records a guarded fallback; `matched_c` is true only when the
+range is C-owned and not `NON_MATCHING`. As of this pass its
+`summary.by_class` reads
 `{"metadata": 619}` — zero `altered` objects — which is the mechanical proof
 that the ADR 0002 conversion reached every object in the tree, not just the
 functions this lane's prose describes.
