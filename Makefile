@@ -1,8 +1,11 @@
 # Mickey's Speedway USA (US) — clean-room decompilation build
 #
-# Phase 0: the ROM is rebuilt entirely from splat's disassembly + extracted
-# binaries. No C is compiled yet; the IDO variables below are kept wired up so
-# that later phases only have to add source files, not re-derive the toolchain.
+# This is one ordinary host build graph. Splat describes the ROM layout and
+# emits the linker script; matched functions compile from C, unmatched
+# functions enter those same C objects through GLOBAL_ASM, and retained data
+# enters as extracted binary inputs. A single final link places resident code
+# and every overlay back at their original ROM offsets. The game's runtime
+# overlay loader is source under src/main/runlink.c, not Make machinery.
 #
 #   gmake            build/mickey.us.z64
 #   gmake verify     build + SHA1 compare against the baserom hash
@@ -1026,6 +1029,14 @@ $(BUILD_DIR)/$(SRC_DIR)/main/audio_manager_4C50.c.o: CFLAGS += -Wab,-r4300_mul
 # compared instruction-for-instruction at this ISA level before joining this
 # rule; MIPS I inserts load-delay nops in several of them.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/%.c.o: MIPSISET := -mips2 -32
+
+# Build architecture note: this section does not implement Mickey's runtime
+# overlay loader. Runtime loading and relocation live in src/main/runlink.c and
+# are explained in docs/overlays.md sections 5.1-5.4. mickey.us.yaml and
+# config/overlays.$(VERSION).json are the layout authorities. The rules below
+# only record object-specific compiler flags, symbol/relocation metadata, and
+# section-boundary handling needed to reproduce the original ROM from
+# function-sized translation units.
 
 # The overlay 66 framebuffer renderer remains NON_MATCHING, but its complete
 # flag sweep is closest under the MIPS I codegen group (12 bytes short versus
