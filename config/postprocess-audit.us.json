@@ -2886,16 +2886,15 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o031/overlay31InitializeBuffers.c.o",
       "offset": 1712,
       "overlay": 31,
       "size": 980,
       "source": "src/overlays/o031/overlay31InitializeBuffers.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -8925,7 +8924,7 @@
     "by_class": {
       "metadata": 622
     },
-    "matched_c_bytes_with_postprocess": 102904,
+    "matched_c_bytes_with_postprocess": 103884,
     "objects_with_postprocess": 622
   }
 }

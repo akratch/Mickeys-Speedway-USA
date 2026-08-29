@@ -774,23 +774,19 @@ C object survives. Prior genuine C is 78/92 words with all 11 records; linked
 equality proves fallback only. Owned `+0x1648..+0x17B8` has no padding, one
 local inbound at `+0x120C`, and no export.
 
-Overlay 31 `+0x6B0` (`overlay31InitializeBuffers`) has a retained prior C
-object with 54 static records: 16 calls and 19 HI16/LO16 pairs, all at the
-target's opcode-compatible sites. The shipped tables authenticate 47 SYMBOL
-records and seven local JUMPs. Data pairs resolve to `gOverlay31MaxLine`,
-`gOverlay31MaxPoint`, both vertex buffers, triangle and rectangle sources,
-configs, point pool, line records, dummy assets/count, and effect records/count.
-Resident calls resolve to `reset_particles`, `func_8002B280`, `piRomLoad`,
-`func_800355A0`, `func_80034448`, `func_8001F520`, and `mmFree`; seven local
-calls cover the four config builders, pool, records, and reset helper. The
-unannotated fallback target preserves only the 16 calls, so this runtime decode
-is the identity authority. Lane `06c1a74d` claims exactness from moving
-`assetBuffer` after the three integer locals, but committed canonical source
-does not yet contain that guarded replay and no winning C object survives.
-ORT 1386 and resident record 240 authenticate sole inbound
-`func_80028564+0x5BC`; owned `+0x6B0..+0xA84` has no padding. Fresh proof must
-retain all 54 distinct roles—never filter the 38 data records or collapse the
-external call identities—before claimed 245/245 words can be promoted.
+Overlay 31 `+0x6B0` (`overlay31InitializeBuffers`) is exact C with 54 static
+records: 16 calls and 19 HI16/LO16 pairs. The shipped tables authenticate 47
+SYMBOL records and seven local JUMPs. Data pairs resolve to
+`gOverlay31MaxLine`, `gOverlay31MaxPoint`, both vertex buffers, triangle and
+rectangle sources, configs, point pool, line records, dummy assets/count, and
+effect records/count. Resident calls resolve to `reset_particles`,
+`func_8002B280`, `piRomLoad`, `func_800355A0`, `func_80034448`, `func_8001F520`,
+and `mmFree`; seven local calls cover the four config builders, pool, records,
+and reset helper. Moving `assetBuffer` after the three integer locals gives the
+exact 245 words and 0x48-byte frame while preserving every distinct role. ORT
+1386 and resident record 240 authenticate sole inbound `func_80028564+0x5BC`;
+owned `+0x6B0..+0xA84` has no padding. The linked overlay and full ROM are
+byte-identical without relocation filtering or identity-collapsing rebinds.
 
 Overlay 68 `+0x1250` (`overlay68RebuildSecondaryEntry`) owns 19 runtime
 records. Table 1 pairs 52/53, 60/61, and 63/64 at function
