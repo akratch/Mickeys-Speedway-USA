@@ -1745,7 +1745,9 @@ build_routes:
 #endif
 /* Workbench: allocation-mismatch; 24 words differ, first mismatch +0x24. */
 /* Candidate is shape-exact: 118 instructions, frame -40/-40 bytes, and both call relocations match. */
-/* Remaining gap is register allocation only; this candidate is permuter-ready. */
+/* Remaining gap is register allocation only. Next try cross-phase carrier
+ * reuse: merge recordIndex/passCount, then also reuse dead key as nextValue;
+ * widen to recordCount/compareCount and records/current only on improvement. */
 #ifdef NON_MATCHING
 s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records,
                   TrackKeyRecord **matches) {
