@@ -54,7 +54,12 @@ extern u8 gOverlay79FlagsReloc[];
 
 /* Workbench plateau (2026-08-28, 10 directed variants after baseline):
  * the best source-faithful candidate remains exactly 123 instructions / 492
- * bytes with a 0x48 frame, 12 differing words, and first mismatch at +0xC8.
+ * bytes with a 0x48 frame, 111/123 raw/runtime-normalized words, 12
+ * register-field differences, and first mismatch at +0xC8. The genuine C
+ * recipe is this overlay's ordinary -O2 -mips2 -32 with no per-function flag
+ * override. The owned +0x1290..+0x147C range has no target padding; IDO's four
+ * trailing alignment bytes are outside the function and production trims only
+ * those bytes.
  * Its isolated object has all 15 runtime-backed sites; the assembled target
  * has only 13 static records because the shipped table supplies the already-
  * zero flags pair. The committed rebind spec is diagnostic metadata and is
@@ -65,9 +70,12 @@ extern u8 gOverlay79FlagsReloc[];
  * 18-59 words; every lifetime-local form that changed code also grew the frame
  * to -80. The counter assignment spelling was byte-identical to baseline.
  * The remaining blocker is the target's v0/v1 linked-state pool coloring and
- * t2/t3 counter/flag temp FIFO. Pinned DKR v77/v80 and JFG scans are negative;
- * this is Mickey-only reconstruction. No exact, relocation-complete, linked
- * result was found within the bounded campaign. */
+ * t2/t3 counter/flag temp FIFO. ORT 1297 and resident relocation 139 establish
+ * func_8000AEEC+0x43C as the sole inbound; no cross-overlay inbound exists.
+ * Pinned DKR v77/v80 and JFG scans are negative; this is Mickey-only
+ * reconstruction. No exact, relocation-complete, linked result was found
+ * within the bounded campaign. Recompile unchanged V0 once, require this full
+ * evidence shape, then park absent a newly proved allocator mechanism. */
 #ifdef NON_MATCHING
 void func_overlay_079_F0001290_18CE230(Overlay79Object *object, s32 arg1) {
     Overlay79Node *node;

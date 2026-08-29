@@ -1024,6 +1024,19 @@ runtime record 127 at `func_8000AEEC+0x34C` is its sole authenticated inbound.
 The following `+0x248..+0x250` padding is assembly-owned. Current linked
 equality proves fallback only.
 
+Overlay 79 `+0x1290` (`func_overlay_079_F0001290_18CE230`) owns 15
+runtime-backed records: paired SYMBOL calls to the random, spawn, emit-at, and
+finish roles at `+0x7C/+0x138`, `+0x8C/+0x148`, `+0xB4/+0x1B8`, and
+`+0xCC/+0x1D0`; local call `overlay79FindNearby` at `+0xDC`; emit and trigger
+roles at `+0x17C/+0x194`; and LOCAL HI16/LO16 pairs for the counter at
+`+0x154/+0x158` and flags at `+0x184/+0x188`. The assembled target exposes 13
+static records because the runtime table patches the already-zero flags pair.
+Retained genuine C emits all 15, but is 111/123 raw/runtime-normalized words;
+linked equality proves fallback only. ORT 1297 and resident relocation 139 at
+`func_8000AEEC+0x43C` authenticate the sole inbound. No cross-overlay inbound
+or target padding exists; production trims only four non-owned section
+alignment bytes.
+
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 
