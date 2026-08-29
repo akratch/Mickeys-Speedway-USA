@@ -1,6 +1,6 @@
 {
-  "queue_size": 423,
-  "resolved": 423,
+  "queue_size": 421,
+  "resolved": 421,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
@@ -566,18 +566,6 @@
       "objdiff_match_pct": null,
       "differing_words": 9,
       "first_mismatch_offset": 88,
-      "size_delta": 0,
-      "category": "other"
-    },
-    {
-      "name": "overlay84ActivateCurrent",
-      "file": "src/overlays/o084/overlay84ActivateCurrent.c",
-      "overlay": 84,
-      "tu": "overlays/o084",
-      "size_bytes": 404,
-      "objdiff_match_pct": null,
-      "differing_words": 9,
-      "first_mismatch_offset": 8,
       "size_delta": 0,
       "category": "other"
     },
