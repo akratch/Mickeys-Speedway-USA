@@ -1284,27 +1284,25 @@ confirmed by the paired writes in the following setter. The adapted type has a
 point-of-use `PROVENANCE` note, and the default flags, object words, and linked
 ROM range are exact without post-processing.
 
-`func_8003A2C8` remains guarded and exact-sized. Retained pre-HEAD/current-body
-configured full-TU and isolated C are byte-identical at 27/32 words and
-frameless. Differences are at
-`+0xC/+0x10/+0x14/+0x18/+0x20`; both carry the target's six HI16/LO16 records
-at `+0x00/+0x04`, `+0x24/+0x28`, and `+0x3C/+0x40` for `D_8007C090` and
-`D_800D3128`. The five sites are one mode-value allocation web plus a
-commutative comparison-order site. The retained body used three inert
-arithmetic aids and is diagnostic under source policy; those aids are removed,
-but clean current-layout C is uncompiled. No linked C candidate survives. Exact
-ordinary-object, linked-function, complete-menu-TU, and ROM evidence proves
-assembly fallback only.
+`func_8003A2C8` remains guarded and exact-sized. Provenance-tied configured
+full-TU and generated isolated clean V0 are byte-identical at 24/32 raw and
+relocation-normalized words, first `+0x0`, with no frame or padding. Both carry
+the target's six HI16/LO16 records at `+0x00/+0x04`, `+0x24/+0x28`, and
+`+0x3C/+0x40` for `D_8007C090` and `D_800D3128`. All eight differences are
+register-only sites in the address, normalized-mode, and narrowed-byte carrier
+webs; no opcode or relocation mismatch remains.
 
-Historical pool-position, shape, flag, and model-guided campaign outcomes lack
-attributable retained result sets and do not prove exhaustion. Allocator-oracle
-prose reports a forced-color 31/32 diagnostic, but neither that object nor its
-trace survives. ORT 606 exports the function; authenticated callers are
-`func_80027EC0+0x80`, `overlay46ReleaseState+0x70`, and
-`func_overlay_060_F0000334_18BA10C+0x1238`. Run exactly 119 flags on clean V0,
-one allocator trace, independent split-web and reversed-comparison forms, and
-an improving-only combination. Cap 122 stock builds plus trace; permit one
-1,000-candidate/ten-minute batch only after a strict natural-form gain.
+Exactly 119 configurations were retained. Thirteen O2/MIPS-II rows tie clean
+V0 and every other viable family regresses. A codegen-faithful allocator trace
+reproduces the candidate text and confirms the carrier-coloring wall. The
+independent split-web form regressed to 31 instructions with relocation drift;
+reversing the comparison was flat. Because neither form gained, the improving-
+only combination and batch were not authorized. ORT 606 exports the function;
+authenticated callers remain `func_80027EC0+0x80`,
+`overlay46ReleaseState+0x70`, and
+`func_overlay_060_F0000334_18BA10C+0x1238`. Exact ordinary-object, linked-
+function, complete-menu-TU, and ROM evidence continues to prove assembly
+fallback only.
 
 The tier-A-named `frontGetLevelScreenMode` adds **0x68 bytes / 26 words** at
 ROM `0x3AF68`. Its JFG source body is still `GLOBAL_ASM`, so the C body was
@@ -1381,21 +1379,20 @@ data-relocation words, object words, and linked ROM range are exact without
 post-processing.
 
 `func_8003A2C8` remains guarded `NON_MATCHING` over ROM `0x3AEC8..0x3AF48`.
-Retained configured full-TU and isolated C compile its older policy-invalid
-spelling to 27/32 raw and relocation-normalized words, first `+0x0C`, with no
-frame or padding and all six relocations exact. The five sites exchange the
-normalized mode and narrowed-byte carriers. Three inert arithmetic aids are
-removed in the current policy-clean source, which is uncompiled; ordinary and
-linked exact output is assembly fallback only. ORT 606 and exactly three
-callers are authenticated: resident `func_80027EC0+0x80`, Overlay 46
-`overlay46ReleaseState+0x70`, and Overlay 60
+Provenance-tied configured full-TU and generated isolated policy-clean C agree
+at 24/32 raw and relocation-normalized words, first `+0x0`, with no frame or
+padding and all six relocations exact. Thirteen O2/MIPS-II configurations tie
+in the completed 119-row lattice; the rest regress. A codegen-faithful trace
+confirms address, normalized-mode, and narrowed-byte carrier coloring as the
+wall. Split-web regressed to 31 instructions with relocation drift, while the
+reversed comparison was flat; no improving-only combination or batch followed.
+Ordinary and linked exact output remains assembly fallback only. ORT 606 and
+exactly three callers are authenticated: resident `func_80027EC0+0x80`, Overlay
+46 `overlay46ReleaseState+0x70`, and Overlay 60
 `func_overlay_060_F0000334_18BA10C+0x1238`. There are no runtime records inside
 the function, extra direct calls, stored pointers, or other overlay inbounds.
 JFG's ordered `frontSetScreenMode` peer is assembly-backed accessor-family role
-evidence, not donor C. Run clean V0 and 119 flags, capture one allocator trace,
-try the split-carrier and reversed-comparison forms, and combine them only if
-both improve. Cap the route at 122 stock builds plus one trace and one optional
-1,000-candidate/10-minute batch after a strict natural gain.
+evidence, not donor C.
 
 The tier-D `func_8003A55C` adds **0x34 bytes / 13 words** at ROM `0x3B15C`.
 Its Mickey-derived body stops the active tune, stores the caller's byte, and

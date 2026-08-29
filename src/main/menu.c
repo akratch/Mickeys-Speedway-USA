@@ -1179,20 +1179,24 @@ s32 frontGetScreenMode(void) {
     return mode;
 }
 #ifdef NON_MATCHING
-/* Allocation reproof (evidence reviewed 2026-08-29): retained pre-cleanup
- * diagnostic full-TU and isolated C are byte-identical at 27/32 raw and
- * relocation-normalized words, first +0xC, frameless and without padding,
- * with six exact relocations and one mode-value web through +0x20. That body
- * used three inert arithmetic aids; they are removed below and clean V0 is
- * uncompiled, so every current metric is unknown. ORT 606 exports this
- * function; callers are
- * func_80027EC0+0x80, overlay46ReleaseState+0x70, and
- * func_overlay_060_F0000334_18BA10C+0x1238. Linked equality proves fallback
- * only. JFG's ordered peer is assembly-backed role evidence, not donor C.
- * Forced-color 31/32 and prior route outcomes are unretained prose. Run
- * 119 flags on clean V0, trace once, try independent split-web and reversed-
- * comparison forms plus an improving-only combination, and cap 122 stock
- * builds plus trace; batch only after a strict natural gain. */
+/* PLATEAU-HANDOFF
+ * symbol: func_8003A2C8
+ * score: 24/32 words
+ * frame: frameless
+ * relocations: 6
+ * first-mismatch: +0x0
+ * summary: eight register-only sites remain after 119 flags; split-web regressed and reversed comparison was flat
+ */
+/* Allocation plateau (measured 2026-08-29): provenance-tied configured full-TU
+ * and generated isolated C agree at 24/32 raw and relocation-normalized words,
+ * first +0x0, exact 0x80-byte frameless shape without padding, and six exact
+ * relocations. Thirteen O2/MIPS-II rows tie in the 119-configuration lattice;
+ * every other viable family regresses. A codegen-faithful allocator trace
+ * confirms address, normalized-mode, and narrowed-byte carrier coloring as the
+ * wall. The split-web form regressed to 31 instructions with relocation drift;
+ * reversed comparison was flat, so no combination or batch was authorized.
+ * ORT 606 and its three callers remain authenticated. Linked equality proves
+ * fallback only; JFG's ordered peer is role evidence, not donor C. */
 /* PROVENANCE: ordered accessor-family role compared with JFG's assembly-backed
  * src/menu.c::frontSetScreenMode; mask, guard, and packed fields are Mickey-derived. */
 void func_8003A2C8(s32 screenMode) {
