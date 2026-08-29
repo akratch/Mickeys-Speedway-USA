@@ -324,10 +324,6 @@ typedef struct TrackSkyObject {
     TrackSkyMaterial *material;
 } TrackSkyObject;
 
-typedef struct TrackVec3f {
-    f32 f[3];
-} TrackVec3f;
-
 #define TRACK_SP_VERTEX(packet, vertex, count, first)                      \
     gDma1p(packet, G_VTX, vertex,                                         \
            (((count) << 3) + ((count) << 1)) + 8,                         \
@@ -473,9 +469,6 @@ void func_800133FC(TrackVertex *v0, TrackVertex *v1, TrackVertex *v2,
                    f32 *a, f32 *b, f32 *c, f32 *d);
 s32 mathXZInTri(s32 x, s32 z, TrackVertex *v0, TrackVertex *v1,
                 TrackVertex *v2);
-s32 func_80012574(TrackVec3f *origin, TrackVec3f *direction,
-                  TrackVec3f *center, f32 radius, f32 *minimum,
-                  f32 *maximum);
 void func_8000D768(TrackLight *light, s32 red, s32 green, s32 blue,
                    s32 intensity);
 void *func_8002B280(s32 size, s32 tag);
@@ -4112,20 +4105,19 @@ s32 func_80012234(TrackVec3f *point, TrackVec3f *direction,
  * supply structural context only. Mickey's vector layout, arithmetic, and
  * output pointers are reconstructed from the resident call sites and bytes.
  */
-/* Configured full-TU plateau: allocation-mismatch, 50/57 words exact, first +0x50.
- * The 0x48 frame, opcode schedule, and sole R_MIPS_26 sqrtf relocation at
- * +0xA4 are exact in retained target/candidate objects. Five retail calls are
- * retained: two from func_80011CDC and three from func_800563B4. IDO exchanges
- * the projection and projection-square FP webs, then saves the wrong carrier
- * at sp+0x30 instead of target sp+0x38. Next use the existing saved local
- * after sqrtf, move temp_f14 two declaration slots earlier, and combine them;
- * probe one/three slots only if those strictly improve.
+/* Retained configured full-TU diagnostic C is 50/57 raw and relocation-
+ * normalized words, first +0x50, frame 0x48, with the exact sqrtf relocation
+ * at +0xA4. Five calls come from func_80011CDC and func_800563B4. IDO exchanges
+ * the projection/projection-square FP webs and spills at sp+0x30 rather than
+ * target sp+0x38. Dead sp1C/sp38 assignments only forced allocation and are
+ * removed below, so clean V0 is uncompiled and its frame/score are unknown.
+ * Run 119 flags, trace once, try at most two trace-selected natural forms and
+ * an improving-only combination; cap 122 builds plus trace and permit a
+ * 20-minute stack-aware batch only after a legal natural gain.
  */
 s32 func_80012574(TrackVec3f *origin, TrackVec3f *direction,
                   TrackVec3f *center, f32 radius, f32 *minimum,
                   f32 *maximum) {
-    f32 sp38;
-    s32 sp1C;
     f32 temp_f0;
     f32 temp_f0_2;
     f32 temp_f12;
@@ -4151,8 +4143,6 @@ s32 func_80012574(TrackVec3f *origin, TrackVec3f *direction,
         var_v1 = TRUE;
     }
     if (var_v1 != FALSE) {
-        sp1C = var_v1;
-        sp38 = temp_f14;
         temp_f0_2 = sqrtf(temp_f18 - temp_f16);
         temp_f2_2 = -temp_f14;
         *minimum = temp_f2_2 - temp_f0_2;

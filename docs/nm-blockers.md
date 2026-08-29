@@ -126,6 +126,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `__scYield` | `src/main/sched.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `__scSchedule` | `src/main/sched.c` | matched | — | Promoted to exact C with the scheduler-owned switch table. |
 | `shadowInitBuffers` | `src/main/shadows.c` | relocation-identity | D_80079410–D_8007945C | Shadows owns the exact contiguous `.data` block and the linked address is exact, but the sentinel pair binds `D_80079434 + 0xC` instead of target metadata's `D_80079440`; no C credit under ADR 0001. |
+| `func_80012574` | `src/main/track.c` | none | — | Retained genuine configured full-TU C is diagnostic 50/57 raw and normalized words, first `+0x50`, frame `0x48`, with the exact `sqrtf` tuple at `+0xA4`. Its dead `sp1C`/`sp38` assignments are removed, so clean V0's score/frame are unknown. ORT 308 and five direct calls are authenticated, with no runtime/overlay/pointer inbound; linked equality is fallback-only. Compile clean V0, run 119 flags, trace once, try at most two natural forms and an improving-only combination; cap 122 builds plus trace and a gain-gated 20-minute batch. |
 | `func_80058250` | `src/main/vehicle_sounds.c` | bss-aggregate (excluded) | vehicle sound slots | Owned by the active vehicle_sounds lane; do not touch here. |
 | `func_8005830C` | `src/main/vehicle_sounds.c` | none | — | No ownership change; continue source/codegen work. |
 | `doWeather` | `src/main/weather.c` | none | — | No ownership change; continue source/codegen work. |

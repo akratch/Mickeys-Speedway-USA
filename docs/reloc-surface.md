@@ -841,6 +841,14 @@ inbound is table-2 SYMBOL record 548 at module `+0x4018`, from
 JUMP inbounds. Retained pre-HEAD/current-body C is 22/39 with the outbound site
 at the exact offset/type; current linked equality proves fallback only.
 
+Resident `func_80012574` owns one exact R_MIPS_26 record to `sqrtf` at `+0xA4`
+in retained genuine configured C. ORT 308 exports it from entry ROM `0x1849C00`.
+Five direct calls exist at `func_80011CDC+0x288/+0x3CC` and
+`func_800563B4+0xF8/+0x4E8/+0x65C`. There are zero resident runtime records
+inside the function, zero resident or overlay records targeting ORT 308, and
+zero aligned absolute function pointers. Current linked equality proves
+fallback only.
+
 Resident `func_80020D8C` has no static relocations and is exported as ORT 374.
 Eight shipped SYMBOL calls target it: Overlay 57 table-1 record 258 at module
 `+0x3288` (`overlay57ApplyValue+0x50`), Overlay 60 record 337 at `+0x2268`
