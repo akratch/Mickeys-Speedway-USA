@@ -11,8 +11,8 @@
  * PROVENANCE: JFG's permitted src/models.c, models.h and camera.c were read
  * for names, layouts and comparison. The initial split adapted no body;
  * point-of-use notes identify the later JFG adaptations. Canonical
- * func_8005A948 flags include `-Wo,-loopunroll,0`, but its authenticated
- * retained isolated C omitted that override; current HEAD is uncompiled.
+ * func_8005A948 flags include `-Wo,-loopunroll,0`; its earlier ignored local
+ * isolated evidence omitted that override, and current HEAD is uncompiled.
  */
 
 #include "PR/ultratypes.h"
@@ -328,16 +328,24 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A7A0.s")
 #endif
-/* Retained isolated C for the earlier structured-store body is 83/94 raw and
- * relocation-normalized words, but 94/94 after register-field masking, frame
- * 0x38, first +0x40, with all 13 tuples exact. Its recipe omitted canonical
- * -Wo,-loopunroll,0. Historical raw-array p9/p10 reportedly reached 91/94 but
- * no object survives; it reused i and retained a redundant boolean wrapper.
- * Current source removes that wrapper and adds tableOffset, so its score is
- * unknown. Sole caller is func_8005A7A0+0x104; no export/runtime/overlay/pointer
- * inbound exists and linked equality is fallback-only. Run 119 flags including
- * V0, trace once, then at most one trace-selected natural form; cap 120 builds
- * plus trace, with no batch. */
+/* Reproof lead: ignored local isolated objects for the earlier structured-
+ * store body measure 83/94 raw/relocation-normalized words, frame 0x38, first
+ * +0x40, and all 13 tuples; register-field masking reaches diagnostic 94/94.
+ * That importer omitted canonical -Wo,-loopunroll,0 and no canonical Git
+ * artifact supplies configured proof. Historical raw-array p9/p10 reportedly
+ * reached 91/94, but only source/prose survives. Current source removes its
+ * redundant boolean wrapper and adds tableOffset; it has never been compiled,
+ * so current size, score, frame, and tuples are unknown. The owned
+ * 0x8005A948..0x8005AAC0 / ROM 0x5B548..0x5B6C0 range is 94 words/frame 0x38
+ * with no padding. Sole caller is func_8005A7A0+0x104; no export/runtime/
+ * overlay/pointer inbound exists and linked equality is fallback-only. A
+ * retained structural scan finds JFG assembly-only modLoadAnimEvents at 0.336
+ * (388 versus 376 bytes), with all other similarities <=0.068; no C donor.
+ * Compile current configured V0. On structural regression, use exactly one
+ * earlier structured-store or raw-array control. If sound, retain 119
+ * configurations including V0, one allocator trace, and at most one trace-
+ * selected natural carrier/lifetime form. Hard cap 120 deterministic builds
+ * plus one trace, 121 only for the conditional control; no generic batch. */
 #ifdef NON_MATCHING
 u8 *func_8005A948(s16 animationId) {
     s32 i;

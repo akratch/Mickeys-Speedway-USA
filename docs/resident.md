@@ -3050,21 +3050,24 @@ fresh current-source compile through full-ROM comparison remains queued as a
 contemporaneous reproof, not as missing target evidence. JFG retains both
 corresponding routines as assembly, so no donor body was adapted.
 
-`func_8005A948` retains genuine isolated C for the earlier structured-store
-body, but its recipe omitted canonical `-Wo,-loopunroll,0`; ordinary full-TU
-equality is fallback assembly. It has the target's 94-word size, frame `0x38`,
-and 13 relocation identities, matching 83/94 raw and relocation-normalized
-words and reaching 94/94 only after register-field masking. The 11 sites are
+`func_8005A948` has ignored local isolated objects for the earlier structured-
+store body, but their recipe omitted canonical `-Wo,-loopunroll,0`; they are
+not canonical configured proof and ordinary full-TU equality is fallback. That
+body has the target's 94-word size, frame `0x38`, and 13 tuples, matching 83/94
+raw/normalized words and reaching 94/94 only after diagnostic register-field
+masking. Its 11 sites are
 `+0x40/+0x44/+0x80/+0x130/+0x148/+0x14c/+0x150/+0x154/+0x158/+0x15c/+0x160`.
-Historical raw-array p9/p10's reported 91/94 is unretained; that source reused
-`i` and retained a redundant boolean wrapper. Current source removes the
-wrapper and adds `tableOffset`, so clean configured V0 and its score remain
-unknown. Historical flag, source, trace, and search outcomes are likewise
-unretained. There are zero runtime records or exports,
+Historical raw-array p9/p10's reported 91/94 is prose-only. Current source
+removes its redundant boolean wrapper and adds `tableOffset`; it is uncompiled,
+so current size/score/frame/tuples are unknown. A retained structural scan finds
+JFG assembly-only `modLoadAnimEvents` at 0.336 (388 versus 376 bytes), with all
+others at 0.068 or below; no C donor. There are zero runtime records or exports,
 `func_8005A7A0+0x104` is the sole caller, and no overlay or stored-pointer
-inbound exists. The function owns no target padding. Retain 119 flag recipes,
-trace once, and try at most one trace-selected natural form, capped at 120
-builds plus trace; do not batch. Assembly remains canonical.
+inbound exists. The function owns no target padding. Compile current V0; use at
+most one historical control on structural regression, then 119 configurations
+including V0, one trace, and at most one trace-selected natural form. Hard cap
+120 deterministic builds plus trace, 121 only for the control; do not batch.
+Assembly remains canonical.
 
 `func_8005A7A0` has retained configured full-TU evidence at 106 words, with
 ten raw sites and seven relocation-normalized positional sites. The raw sites are
