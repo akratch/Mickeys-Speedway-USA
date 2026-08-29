@@ -1180,6 +1180,15 @@ configured full-TU candidate emits exactly the same four offsets, types, and
 identities and no other record in its owned range. Current linked equality
 still proves fallback only.
 
+Resident `func_800498FC` owns five exact static records: a HI16/LO16 pair to
+`D_800D5F58` at `+0x2C/+0x30`, calls to `func_80021FB0` at `+0x88/+0xC4`,
+and a call to `camGetMode` at `+0x9C`. The retained exact-sized candidate
+reproduces every offset, type, and symbol identity. The resident runtime-table
+helper currently resolves only four candidate records and mis-bounds this
+resident range, so static target assembly plus linked symbol identities are
+the authority for this plateau. Five `main.c` calls and one `weather.c` call
+authenticate the ABI; linked equality proves fallback only.
+
 Resident `func_80041CE4` owns nine exact static records in retained genuine C:
 HI16/LO16 pairs to `D_8007C894` at `+0x04/+0x08`, `D_8007C88C` at
 `+0x48/+0x4C` and `+0x1E4/+0x1F0`, and `D_7C900` at `+0x9C/+0xA4`, plus an

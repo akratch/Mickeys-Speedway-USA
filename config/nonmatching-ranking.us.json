@@ -2388,10 +2388,10 @@
       "tu": "main",
       "size_bytes": 400,
       "objdiff_match_pct": null,
-      "differing_words": 33,
-      "first_mismatch_offset": 24,
-      "size_delta": -8,
-      "category": "size-mismatch"
+      "differing_words": 9,
+      "first_mismatch_offset": 208,
+      "size_delta": 0,
+      "category": "register-mismatch"
     },
     {
       "name": "func_8003968C",

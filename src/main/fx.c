@@ -1614,9 +1614,9 @@ s32 func_8004989C(s32 index) {
     color |= color << 16;
     return color;
 }
-/* Workbench: structure-mismatch, 33 differing words, first mismatch +0xD0. */
-/* Candidate shape: 98/100 instructions/frame -0x30; camera join and field stores are aligned. */
-/* Remaining gap: flag/state tail has four structural words; register residuals remain. */
+/* Workbench: allocation-mismatch, 9 differing words, first mismatch +0xD0. */
+/* Candidate shape: exact 100 instructions/frame -0x30 and five relocation tuples. */
+/* Remaining gap: one four-web integer allocation bijection; structure is exact. */
 #ifdef NON_MATCHING
 extern s32 camGetMode(void);
 extern void func_80021FB0(s32 mode, s32 camNo, s32 *x1, s32 *y1,
@@ -1651,8 +1651,8 @@ void func_800498FC(s32 index, f32 value16, f32 value18, s32 red, s32 green,
     record->value1D = flags & 0xFF3F;
     record->value1E = flags & 0x80;
     record->value1F = flags & 0x40;
-    if ((flags & 0x80) != 0) {
-        if ((flags & 0x40) != 0) {
+    if ((u8)(flags & 0x80) != 0) {
+        if ((record->value1F & 0xFF) != 0) {
             record->state = 3;
         } else {
             record->state = 2;
@@ -2506,4 +2506,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x298
  * summary: all 119 flag identities and both natural web-local forms were nonexact; a globalcolor allocation outcome remains
  * PLATEAU-HANDOFF:func_80047CD8:end
+ */
+
+/* PLATEAU-HANDOFF:func_800498FC:start
+ * symbol: func_800498FC
+ * score: 91/100 words
+ * frame: 0x30
+ * relocations: 5
+ * first-mismatch: +0xD0
+ * summary: exact structure and relocation surface; all flags and six natural forms leave one four-web integer allocation bijection
+ * PLATEAU-HANDOFF:func_800498FC:end
  */
