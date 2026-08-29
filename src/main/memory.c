@@ -151,10 +151,10 @@ void *func_8002B314(s32 size, u32 colourTag) {
     return func_8002B3A8(MEMORY_POOL_MAIN, size, colourTag);
 }
 
-/* PROVENANCE: adapted from JFG src/memory.c:mempool_slot_find. */
 s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
                    s32 slotIsTaken, s32 newSlotIsTaken, u32 colourTag);
 
+/* PROVENANCE: adapted from JFG src/memory.c:mempool_slot_find. */
 void *func_8002B3A8(MemoryPoolIndex poolIndex, s32 size, u32 colourTag) {
     s32 slotSize;
     MemoryPoolSlot *slot;

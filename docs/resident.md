@@ -464,9 +464,10 @@ reset reproduce all 30 words and the linked global/call relocations.
 with an exact frame. Workbench reports mixed constant/structure/register;
 the `constant-audit` lever did not close the slot/data-pointer allocation.
 
-`func_8002BB40`: 72/72 words, 30 register differences, first `+0x8C`.
-Workbench reports allocation mismatch; `pool-position`/temp-FIFO trials did
-not close the allocator web split.
+`func_8002BB40`: the retained isolated candidate is 72/72 words with 30
+register differences, first `+0x8C`; no full-TU C comparison or linked proof
+has been retained. Workbench reports allocation mismatch;
+`pool-position`/temp-FIFO trials did not close the allocator web split.
 
 `func_8002B7AC`: 62/63 words, first `+0x4`; the target preserves the initial
 `D_800D21B0` base in `s0` while the candidate folds it through `t6`. Workbench
