@@ -64,17 +64,31 @@ extern u8 gOverlay79FlagsReloc[];
  * combination or generic batch. Earlier source-faithful lifetime/access forms
  * likewise remained at 12 or regressed.
  *
+ * A follow-on trace-led pass spent 20 stock configured builds (two V0 proofs
+ * and 18 new representation, ABI, expression, scoped-constant, and declaration-
+ * order forms) plus one fidelity-clean instrumented ugen capture. The trace
+ * attributes the tail to a one-slot temp-FIFO phase: the candidate allocates
+ * t1/t2 for the flags update and t3 for the alternate emit, while the target
+ * requires t2/t3 and t4. The linked-state loads remain an independent v1/v0
+ * global-color outcome. Every new form was byte-flat at 12 differences or
+ * regressed to 14-42; the scoped emit-id local was exact-sized but regressed
+ * to 33. No JFG function supplies a body, ABI, or allocator mechanism here.
+ *
  * The owned +0x1290..+0x147C range has no target padding. IDO's four trailing
  * alignment bytes are outside the function and production trims only them.
- * The C object emits all 15 shipped runtime tuples; an identity-canonical
- * diagnostic comparison proves all 15 offsets, types, identities, and addends.
- * The assembled target has 13 static records because the runtime table adds
- * the already-zero flags pair. The committed filter/rebind metadata remains
+ * The C object emits all 15 shipped runtime tuples. Fresh ordinary preflight
+ * proves every offset/type but resolves only one candidate identity and fails
+ * closed on the other 14. A prior identity-canonical diagnostic comparison
+ * proves all 15 identities/addends; it is evidence, not promotion machinery.
+ * The assembled target has 13 static records because the runtime table adds the
+ * already-zero flags pair. The committed filter/rebind metadata remains
  * diagnostic and is not production POSTPROCESS, so linked C proof is absent.
  * ORT 1297 and resident relocation 139 establish func_8000AEEC+0x43C as the
  * sole inbound; no cross-overlay inbound exists. Pinned DKR v77/v80 and JFG
  * scans are negative. Preserve the fallback and resume only with a newly
- * proved v0/v1 pool-color or t2/t3 temp-FIFO source mechanism. */
+ * proved source form that consumes exactly one backend temp before the flags
+ * update without perturbing global color, or a natural v0/v1 coalescing form;
+ * do not repeat flags, these forms, or a generic batch. */
 #ifdef NON_MATCHING
 void func_overlay_079_F0001290_18CE230(Overlay79Object *object, s32 arg1) {
     Overlay79Node *node;
