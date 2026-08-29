@@ -1,5 +1,6 @@
 #include "PR/ultratypes.h"
 
+/* Runtime ORT 518 resolves this placeholder call to resident levelGetCounts. */
 extern void overlay18ResetReloc(void);
 extern void *overlay18CreateReloc(s32, s32);
 extern void overlay18UseReloc(void *);

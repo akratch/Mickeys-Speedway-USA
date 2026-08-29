@@ -174,21 +174,16 @@ extern void runlinkFlushModules(void);
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive.
- * Evidence review (2026-08-29): no configured full-TU C object currently
- * survives. The retained isolated import owns 259 words with a 0x58 frame
- * and 37 relocations. It is 251/259 raw and 252/259 after address
- * normalization, first raw +0x50; four additional zero-loop store-order
- * sites come from the isolated import, followed by the three-site
- * candidate-$v0/target-$a0 world-value web at +0x13C,+0x148,+0x154.
- *
- * Git history records an unretained configured full-TU V0 at 255/259 raw
- * and 256/259 after relocation-value normalization. Its target endpoint
- * pair at +0x44/+0x50 names D_800CF420 while candidate C names
+ * Evidence review (2026-08-29): retained configured full-TU C owns 259 words
+ * with frame 0x58 and 37 records, scoring 255/259 raw and 256/259 after
+ * address normalization. Its target endpoint pair at +0x44/+0x50 names
+ * D_800CF420 while candidate C names
  * D_800CF3E0+0x40. Those spellings resolve to the same address but are not
- * relocation-identical. Ordinary-object, linked-function/TU, and full-ROM
- * equality prove GLOBAL_ASM only. Historical source, flag, trace, and
- * bounded-permuter routes are recorded as exhausted; run one unchanged
- * configured full-TU/linked V0, then park if the three-site wall reproduces.
+ * relocation-identical; the other three sites are one v0/target-a0 web. The
+ * reformatted isolated import adds four store-order sites and is not the
+ * configured baseline. Linked equality proves GLOBAL_ASM only. Reproduce V0
+ * and retain the flag lattice, then test the endpoint identity and one trace-
+ * selected world-value spelling independently, combining only strict gains.
  */
 void levelGetCounts(void) {
     s32 i;

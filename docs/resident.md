@@ -2245,16 +2245,17 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
 - `mainUpdateZBCheck`: Evidence A exact C after bounded permutation; all 63
   instruction words, the `-0x48` frame, relocation identities, and linked ROM
   bytes match.
-- `levelGetCounts`: no configured full-TU C object currently survives. The
-  retained isolated import owns 259 words with frame `0x58` and 37 records;
-  it is 251/259 raw and 252/259 after address normalization, first `+0x50`.
-  Four isolated-import store-order sites precede the three-site
-  candidate-`$v0`/target-`$a0` web at `+0x13C,+0x148,+0x154`. Git history
-  records an unretained configured full-TU V0 at 255/259 raw and 256/259
-  relocation-normalized. Target `+0x44/+0x50` names `D_800CF420`; candidate
+- `levelGetCounts`: retained configured full-TU C owns 259 words with frame
+  `0x58` and 37 records, scoring 255/259 raw and 256/259 after address
+  normalization. The reformatted isolated import's 251/259 result adds four
+  store-order sites and is not the configured baseline. Target `+0x44/+0x50`
+  names `D_800CF420`; candidate
   C names address-equivalent but metadata-distinct `D_800CF3E0+0x40`.
   Ordinary-object, linked-function/TU, and full-ROM equality prove the
-  assembly fallback only. Run one unchanged configured/linked V0, then park.
+  assembly fallback only. Overlay 18 ORT 518 is the sole authenticated inbound
+  call. Reproduce V0 and retain the flag lattice; test the endpoint identity
+  and one trace-selected three-site world-value spelling independently,
+  combine only strict gains, and permit one improving-only annotated batch.
 - `levelInit`, ten structural, storage, type and register-lifetime hypotheses,
   the full 119-combination flag lattice and a bounded two-worker permuter
   batch, first mismatch `+0x238`: retained configured full-TU C reproduces 394
