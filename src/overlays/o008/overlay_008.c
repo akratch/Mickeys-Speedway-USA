@@ -775,6 +775,9 @@ void func_overlay_008_F0002EC0_1860C18(register Overlay8UpdateOwner *owner,
     overlay8FinishUpdateReloc(owner, updateRate);
 }
 
+/* The retired retained-rodata wrapper rewrote five LO16 instruction fields;
+ * ADR 0002 therefore requires the assembly fallback. */
+#ifdef NON_MATCHING
 void overlay8UpdateChannels(void *unused, Overlay8ChannelState *state,
                             f32 gate, void *sampleState) {
     f32 factor;
@@ -831,6 +834,9 @@ void overlay8UpdateChannels(void *unused, Overlay8ChannelState *state,
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0003018_1860D70.s")
+#endif
 
 void func_overlay_008_F0003278_1860FD0(void *unused0,
                                        Overlay8ColorState *state,

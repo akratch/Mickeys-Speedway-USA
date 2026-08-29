@@ -1295,10 +1295,9 @@ $(O8_OBJ): POSTPROCESS = \
 		o8Call0894EmitReloc=func_overlay_008_F0002640_1860398 $@ && \
 	$(OBJCOPY) --redefine-sym \
 		o8Surface291CReloc=func_overlay_008_F0004CF0_1862A48 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5128 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
-		3dcccccdbdcccccdbf2b851f3f7333333d4ccccd000000000000000000000000 \
-		0x1BC
+	$(OBJCOPY) --redefine-sym \
+		func_overlay_008_F0003018_1860D70=overlay8UpdateChannels $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5128
 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: \
@@ -1521,20 +1520,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41ProcessEntry.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1EC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41AddSlot.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDC
-# The compiler switch table and scalar constant already live in the retained
-# overlay data block; keep only their anchored references and canonical relocs.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41SpawnItems.c.o: \
-	config/normalizations/overlay41SpawnItems.rebind.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41SpawnItems.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		@config/normalizations/overlay41SpawnItems.rebind.spec && \
 	$(OBJCOPY) --redefine-sym \
-		overlay41RandomRange=func_overlay_041_F0000000_1887338 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x21C && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
-		0000008c00000094000000a0000000b4000000c8bc23d70a0000000000000000 \
-		0x58 && \
-	$(OBJCOPY) --remove-section .rel.rodata $@
+		func_overlay_041_F0001740_1888A78=overlay41SpawnItems $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x21C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41EnqueueTransition.c.o: CFLAGS += -woff 835
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41EnqueueTransition.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1A4
@@ -2227,23 +2216,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x764
 ifeq ($(NON_MATCHING),0)
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/func_overlay_045_F0000764_188CBBC.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym overlay45DisplayCallReloc=func_overlay_045_F0000000_188C458 $@ && \
-	$(OBJCOPY) \
-		--redefine-sym overlay45FontCallReloc=func_overlay_045_F0000000_188C458 $@ && \
-	$(OBJCOPY) \
-		--redefine-sym overlay45MatrixCallReloc=func_overlay_045_F0000000_188C458 $@ && \
-	$(OBJCOPY) \
-		--redefine-sym overlay45ColorCallReloc=func_overlay_045_F0000000_188C458 $@ && \
-	$(OBJCOPY) \
-		--redefine-sym overlay45RandomRangeReloc=func_overlay_045_F0000000_188C458 $@ && \
-	$(OBJCOPY) \
-		--redefine-sym overlay45FloatCallReloc=func_overlay_045_F0000000_188C458 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9F4 && \
-	$(OBJCOPY) --redefine-sym D_800D64E8=overlay45ScissorReloc $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
-		3d4ccccd3b449ba63d99999a00000000 0x24 && \
-	$(OBJCOPY) --remove-section .rel.rodata $@
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9F4
 endif
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/func_overlay_045_F0000764_188CBBC.c.o: CFLAGS += -Wab,-r4300_mul
 ifeq ($(NON_MATCHING),0)

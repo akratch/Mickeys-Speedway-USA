@@ -187,6 +187,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_008_F0001000_185ED58` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_008_F0002640_1860398` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_008_F000291C_1860674` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_008_F0003018_1860D70` | `src/overlays/o008/overlay_008.c` | none | — | Prior equality required five prohibited retained-rodata LO16 field edits; assembly fallback restored. |
 | `func_overlay_008_F00034A0_18611F8` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_008_F00042A8_1862000` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_008_F0004CF0_1862A48` | `src/overlays/o008/overlay_008.c` | resolved-plateau | overlay 8 literal pool | TU-owned +0x27C..+0x2AC .rodata clears module growth; code generation remains. |
@@ -283,6 +284,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_040_F0000690_1886F40` | `src/overlays/o040/overlay40FadeRecords.c` | none | — | No ownership change; three-word v0/v1 allocator plateau remains. |
 | `func_overlay_040_F00000E8_1886998` | `src/overlays/o040/overlay40UpdateEntries.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_041_F0001650_1888988` | `src/overlays/o041/overlay41AddSlot.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_041_F0001740_1888A78` | `src/overlays/o041/overlay41SpawnItems.c` | none | — | Prior equality required two prohibited retained-rodata LO16 field edits; assembly fallback restored. |
 | `func_overlay_041_F0000000_1887338` | `src/overlays/o041/overlay41AdvanceStepRecords.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_041_F000195C_1888C94` | `src/overlays/o041/overlay41EnqueueTransition.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_041_F0001464_188879C` | `src/overlays/o041/overlay41ProcessEntry.c` | none | — | No ownership change; continue source/codegen work. |
@@ -298,7 +300,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_043_F0001264_188B234` | `src/overlays/o043/overlay43SubmitChildren.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_044_F0000580_188BDE0` | `src/overlays/o044/func_overlay_044_F0000580_188BDE0.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_044_F0000294_188BAF4` | `src/overlays/o044/overlay44UpdateFrameCache.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_045_F0000764_188CBBC` | `src/overlays/o045/func_overlay_045_F0000764_188CBBC.c` | resolved-plateau | overlay 45 constants/locals | Initialized block is TU-owned; frame/local references remain. |
+| `func_overlay_045_F0000764_188CBBC` | `src/overlays/o045/func_overlay_045_F0000764_188CBBC.c` | resolved-plateau | overlay 45 constants/locals | The 0x80-byte initialized block remains TU-owned, but prior text equality required three prohibited retained-rodata LO16 field edits; assembly fallback restored. |
 | `func_overlay_045_F0001158_188D5B0` | `src/overlays/o045/func_overlay_045_F0001158_188D5B0.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_046_F0000874_188EC6C` | `src/overlays/o046/func_overlay_046_F0000874_188EC6C.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_046_F0001228_188F620` | `src/overlays/o046/func_overlay_046_F0001228_188F620.c` | none | — | No ownership change; continue source/codegen work. |

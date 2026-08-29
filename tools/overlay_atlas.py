@@ -1169,7 +1169,6 @@ MIXED_TU_EXACT_C_RANGES = {
         (0xE88, 0xF1C, "overlay8StartMotion"),
         (0xF1C, 0x1000, "overlay8Activate"),
         (0x2EC0, 0x3018, "overlay8UpdateChild"),
-        (0x3018, 0x3278, "overlay8UpdateChannels"),
         (0x3278, 0x3368, "overlay8ApplyColors"),
         (
             0x3368,

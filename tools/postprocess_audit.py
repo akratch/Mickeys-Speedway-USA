@@ -13,14 +13,11 @@ actually run, expanded.
 
 For each such object it:
 
-  * classifies the command as ``altered`` (touches instruction words:
-    normalize_elf_instructions.py, normalize_o63_*.py, resize_elf_function.py,
-    extend_elf_function_to_text.py, patch_elf_words.py), ``metadata``
-    (trim_elf_section.py, filter/rebind/add_elf_relocations.py, objcopy
-    --redefine-sym, externalize/set_elf_symbol_size/set_elf_flags.py,
-    order_o*.py, or anything else that isn't in the altered set), or ``none``
-    (no POSTPROCESS override -- not expected to appear here, since this
-    audit only visits objects Make reports an override for);
+  * classifies the command as ``altered`` (touches instruction words),
+    ``metadata`` (reviewed symbol/section/relocation metadata only), or
+    ``review-required``. Unknown helpers fail closed instead of silently
+    receiving metadata status. Anchored section externalization is altered
+    because it rewrites relocated instruction immediates;
   * records which tool(s) the command invokes;
   * joins the object to its ownership range in config/overlays.us.json's
     per-overlay ``text_ownership`` list (offset, size, matched-C-or-not),
@@ -53,6 +50,23 @@ ALTERED_TOOLS = {
 }
 # normalize_o63_* is a family (normalize_o63_foo.py, ...), matched by prefix.
 ALTERED_PREFIXES = ("normalize_o63_",)
+
+METADATA_TOOLS = {
+    "add_elf_relocations.py",
+    "filter_elf_relocations.py",
+    "overlay52CopyOffsetEntries.sort.py",
+    "rebind_elf_relocations.py",
+    "set_elf_flags.py",
+    "trim_elf_section.py",
+}
+
+EXTERNALIZE_RE = re.compile(
+    r"externalize_elf_section\.py\s+\S+\s+\S+\s+\S+(?:\s+(\S+))?"
+)
+DANGEROUS_OBJCOPY_RE = re.compile(
+    r"--(?:update|add)-section|--change-section|"
+    r"--set-section-flags(?:=|\s+)\.text|--remove-section(?:=|\s+)\.text"
+)
 
 TOOL_RE = re.compile(r"([A-Za-z0-9_./-]+\.py)")
 OBJCOPY_RE = re.compile(r"\bobjcopy\b", re.IGNORECASE)
@@ -90,7 +104,21 @@ def classify(command):
     is_altered = any(t in ALTERED_TOOLS for t in tools) or any(
         t.startswith(p) for t in tools for p in ALTERED_PREFIXES
     )
-    return ("altered" if is_altered else "metadata"), tools
+    externalize = EXTERNALIZE_RE.search(command)
+    if externalize and externalize.group(1) not in (None, "&&", ";"):
+        try:
+            is_altered = is_altered or int(externalize.group(1), 0) != 0
+        except ValueError:
+            return "review-required", tools
+    if OBJCOPY_RE.search(command) and DANGEROUS_OBJCOPY_RE.search(command):
+        is_altered = True
+    if is_altered:
+        return "altered", tools
+
+    reviewed = METADATA_TOOLS | {"externalize_elf_section.py", "objcopy"}
+    if any(tool not in reviewed for tool in tools):
+        return "review-required", tools
+    return "metadata", tools
 
 
 def load_atlas_index(atlas_path):
@@ -202,11 +230,12 @@ def render_table(rows, summary, atlas_totals):
         )
     lines.append("")
     lines.append(
-        "objects with POSTPROCESS: %d (altered=%d metadata=%d)"
+        "objects with POSTPROCESS: %d (altered=%d metadata=%d review-required=%d)"
         % (
             summary["objects_with_postprocess"],
             summary["by_class"].get("altered", 0),
             summary["by_class"].get("metadata", 0),
+            summary["by_class"].get("review-required", 0),
         )
     )
     lines.append(
@@ -233,7 +262,7 @@ def main():
     rows, atlas_totals = audit()
     summary = summarize(rows)
     doc = {
-        "schema_version": 1,
+        "schema_version": 2,
         "generated_by": "tools/postprocess_audit.py",
         "summary": summary,
         "objects": rows,
@@ -248,6 +277,9 @@ def main():
             current = fh.read()
         if current != payload:
             print(args.out + " is stale; run with --write", file=sys.stderr)
+            return 1
+        if summary["by_class"].get("review-required", 0):
+            print(args.out + " contains review-required helpers", file=sys.stderr)
             return 1
         print("OK: " + args.out + " matches the current tree")
         return 0

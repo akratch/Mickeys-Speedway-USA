@@ -50,7 +50,9 @@ extern void func_overlay_045_F0001158_188D5B0(
     Gfx **displayList, s32 arg1, s32 arg2,
     Overlay45ResourceDescriptor *descriptor);
 
-/* Mickey-local reconstruction; exact under IDO -O2 -mips2 -Wab,-r4300_mul. */
+/* Mickey-local reconstruction. Prior equality rewrote three retained-rodata
+ * LO16 instruction fields, so ADR 0002 requires the assembly fallback. */
+#ifdef NON_MATCHING
 void func_overlay_045_F0000764_188CBBC(
     Gfx **displayList, void *matrix, s32 arg2, s32 arg3,
     s32 mode, s32 updateRate) {
@@ -229,3 +231,6 @@ void func_overlay_045_F0000764_188CBBC(
         gSPEndDisplayList((*displayList)++);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o045/func_overlay_045_F0000764_188CBBC/func_overlay_045_F0000764_188CBBC.s")
+#endif
