@@ -1125,12 +1125,15 @@ ROM slices from file offset `0x18C85CC` share SHA256
 and the cumulative full ROM is exact.
 
 Overlay 1's type-five keyed search at decimal overlay offsets `+888..+1,044`
-— 156 bytes / 39 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was
-made to match via seventeen guarded words selecting one bijective
-temporary-register web); source kept as decomp-permuter input. Direct ROM
-slices at file offset `0x184C758` share SHA256
+is 156 bytes / 39 words and remains `NON_MATCHING`. Its earlier apparent match
+used seventeen prohibited post-compile operand-field rewrites. Retained
+isolated C differs at 17 register-operand words from `+0x1C`, with frame
+`0x30`; no configured full-TU or linked C proof survives. Runtime records prove
+the call at `+0x14` resolves to resident `func_8000572C` and the sole direct
+inbound call comes from `overlay1TransitionState`. Direct ROM slices at file
+offset `0x184C758` share SHA256
 `daeb9395211c01871e6c40bafdf49a8187ac111a96855d1ed62d05ca5e80271d`,
-and the cumulative full ROM is exact.
+but that and the exact retained full ROM prove only the assembly fallback.
 
 | Overlay | Range | Function | Bytes | Exactness | Donor |
 |---:|---|---|---:|---|---|

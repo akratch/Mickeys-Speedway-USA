@@ -48,8 +48,11 @@ void overlay74RewardReloc(s32 count);
  * address/object register pair, and the last OR uses the opposite commutative
  * encoding. A bounded two-worker permuter batch found no exact form. A recorded
  * instrumented IDO build reproduced the project compiler's text exactly; the
- * surviving configured candidate is an imported standalone object, and the
- * assembled target retains only four of the eight runtime relocations.
+ * surviving candidate is a configured-flag isolated import, not full-TU or
+ * linked C proof. Its eight offsets/types agree with the runtime records,
+ * including both gOverlay74Flags pairs resolved through reserved selector
+ * 0xFFF/addend 0x4D6E8 to D_800D3128; the assembled target retains only four
+ * static call relocations. Pinned DKR v77/v80 and JFG scans found no donor.
  * Removing the artificial aggregate-address use makes the first
  * pair exact but rotates 32 later temporary words; local-carrier, ABI-return,
  * and operand-order spellings do not retain that gain. Forced-color probes

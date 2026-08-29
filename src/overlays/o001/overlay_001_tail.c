@@ -541,6 +541,10 @@ typedef struct State {
 
 extern s32 G_o1_83e4;
 extern void ext_o7_ccc(Transform *, s32);
+/* Runtime reloc2[548] makes this the sole direct caller route to overlay 1
+ * +0x378 (overlay1FindType5ByKey). The local State-pointer argument and
+ * Spawned-pointer result are an inconsistent caller-side typed view;
+ * preserve them until a coordinated ABI reconstruction retains codegen. */
 extern Spawned *local_378(State *);
 extern void ext_o0_1bed0(Transform *, f32, f32, f32, s16, s16, s16);
 extern void ext_o0_1c6bc(Transform *, State *);

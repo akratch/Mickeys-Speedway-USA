@@ -246,13 +246,18 @@ typedef struct Overlay1SearchRecord {
     s32 key;
 } Overlay1SearchRecord;
 
+/* Runtime reloc1[1] proves this overlay proxy resolves to resident
+ * func_8000572C; promotion must regenerate its zero-addend assignment. */
 extern Overlay1SearchRecord **overlay1SearchRangeReloc(s32 *start, s32 *end);
 
 /* The pinned DKR v77/v80 and JFG object scans contain no exact donor.
- * Workbench p1 plateau: allocation mismatch. Six source-faithful lifetime,
- * traversal, and key-spelling forms were neutral or regressed; one bounded
- * report-only permuter pass had no comparable base or zero. GLOBAL_ASM remains
- * canonical. */
+ * Retained isolated C is 22/39 words, frame 0x30, with 17 register-operand
+ * sites from +0x1C. Its sole R_MIPS_26 record is at +0x14, but no configured
+ * full-TU or linked C proof survives. The earlier apparent match used 17
+ * prohibited post-compile operand-field rewrites. Six source-faithful
+ * lifetime/traversal/key forms and one bounded report-only permutation did
+ * not improve it. Reprove unchanged once, then park absent a new allocator
+ * mechanism; GLOBAL_ASM remains canonical. */
 #ifdef NON_MATCHING
 Overlay1SearchRecord *overlay1FindType5ByKey(const s8 *key) {
     s32 start;
