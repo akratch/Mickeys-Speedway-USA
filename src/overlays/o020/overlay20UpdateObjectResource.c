@@ -51,14 +51,17 @@ extern Overlay20LookupResult *overlay20LookupReloc(s16 index);
 extern void *overlay20ConfigureResourceReloc();
 extern f32 overlay20SqrtReloc(f32 value);
 
-/* Retained prior-physical-layout configured full-TU and isolated C agree at
- * 90/98 raw/normalized words, frame 0x70, first +0xB0. Four count/entries
- * carrier sites remain at +0xB0/+0xB4/+0xC0/+0xC8; a separate value0F/start
- * argument web remains at +0x108/+0x10C/+0x110/+0x114. All four runtime call
- * identities and offsets are exact. Historical source/flag/trace/permuter and
- * linked-C trial claims are unretained; linked equality proves fallback only.
+/* Retained pre-HEAD configured full-TU and isolated C agree at 90/98
+ * raw/normalized words, frame 0x70, first +0xB0. Source and physical boundaries
+ * are current-layout. Four count/entries carrier sites remain at
+ * +0xB0/+0xB4/+0xC0/+0xC8; +0x108/+0x10C/+0x110/+0x114 are a downstream
+ * value0F/start argument-temporary cluster, but causal independence is
+ * unproved. Runtime tables authenticate all four call identities and offsets;
+ * C names remain proxies. Historical source/flag/trace/permuter and linked-C
+ * trial claims are unretained; linked equality proves fallback only.
  * Pinned overlay-wide DKR v77/v80 and JFG scans found no exact compiled-symbol
- * candidate. Reproduce current V0 before the bounded two-web campaign. */
+ * candidate. Retain the 119 flags, trace once, then try one natural form for
+ * each cluster and combine only independent strict gains. */
 #ifdef NON_MATCHING
 void overlay20UpdateObjectResource(Overlay20Object *object,
                                    Overlay20Config *config) {
