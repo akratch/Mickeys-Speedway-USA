@@ -216,10 +216,13 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
   through the linked build.
 - **Adapting a candidate to a prototype with casts can destroy its shape.**
   `func_8000DDE4` went from 24 words (permuter-ready) to 116 after
-  casts/locals were added to satisfy a `u8` prototype; changing the prototype
-  to the candidate's types instead left `gmake verify` green. Changed: when a
-  candidate and a top-level prototype disagree, first try changing the
-  prototype and verifying; adapt the body only if verify fails.
+  casts/locals were added to satisfy a `u8` prototype. Restoring the
+  callee-derived types recovered the retained 24-word candidate, but a green
+  default `gmake verify` exercised the guarded assembly fallback for both this
+  function and its reconstructed caller; it did not validate the C ABI.
+  Changed: establish caller/callee ABI evidence before changing a prototype,
+  then prove the candidate in a configured `NON_MATCHING` object before using
+  the default linked build as collateral evidence.
 - **Overlay candidates must keep resident-target placeholders.** Renaming
   `func_80029FE4`-style names in candidates to the real resident symbols
   looked like a stale-name cleanup; it produced `relocation-truncated

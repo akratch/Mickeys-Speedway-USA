@@ -1743,11 +1743,14 @@ build_routes:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DB34.s")
 #endif
-/* Retained isolated workbench result: allocation-mismatch; 24 words differ,
- * first mismatch +0x24. It is shape-exact at 118 instructions with a 0x28
- * frame and both call relocations, but omitted this TU's -Wab,-r4300_mul and
- * is not a configured full-TU proof. Next merge recordIndex/passCount; only
- * on strict improvement reuse dead key as nextValue or widen carrier reuse. */
+/* Retained configured full-TU and isolated objects agree: 24 register-only
+ * words differ, first at +0x24, with the exact 118-word schedule, 0x28 frame,
+ * and the runlinkIsModuleLoaded/TrapDanglingJump relocations. A historical
+ * 15-word basin has no surviving source or object and is not reproducible
+ * evidence. TrackKeyRecord is layout-compatible with TrackRouteResult: key is
+ * segmentIndex, sortValue is flags, and pad04 holds object. Reprove V0, then
+ * merge recordIndex/passCount; only on strict improvement reuse key as
+ * nextValue or widen carrier reuse. */
 #ifdef NON_MATCHING
 s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records,
                   TrackKeyRecord **matches) {
