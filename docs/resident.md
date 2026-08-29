@@ -1852,27 +1852,24 @@ and no generic batch is justified. The assembly fallback remains canonical.
 The 124-byte `func_8002C70C` is exact under canonical `-Wo,-loopunroll,0 -O2 -mips2 -32`; its 31 words and relocation-free linked range match.
 
 `func_8002CF6C` owns ROM `0x2DB6C..0x2DCCC`, 88 words with no padding before
-`packOpen`. Retained pre-cleanup diagnostic full-TU and isolated C are
-byte-identical at 79/88 raw and relocation-normalized words, frame `0x48`, with
-nine register-only sites at `+0xCC,+0xD0,+0xD8,+0xDC,+0xE0,+0xE4,+0xEC,
-+0x104,+0x114` and all 11 relocation tuples exact. The isolated import omitted
-the TU-required `-Wo,-loopunroll,0`, but the retained full-TU result proves that
-flag does not alter this body. A post-checksum `savedFlag` reload was
-codegen-inert: the candidate still uses a colored `a3` web where the target
-uses FIFO temp `t1`, with current-byte and final-copy webs rotating behind it.
-Its synthetic padded local struct and volatile buffer make 79/88 diagnostic
-evidence. The subsequent scalar rewrite still kept false extra checksum-call
-arguments and a dead footer-pointer advance live through an old-style
-declaration; those aids are now removed, so genuinely clean V0 is uncompiled
-and its score is unknown. The 11 exact records are calls at `+0x0C/+0x18/+0x28/+0x54/+0x60/
-+0xC4/+0x120/+0x13C/+0x144` plus the `D_8007A304` pair at `+0x80/+0x90`.
-ORT 505 at ROM `0x1849F14` exports it; `joyRead+0x130` is the sole caller and no
-overlay/runtime-table or aligned-pointer inbound exists. Linked equality proves
-fallback only. Historical flags,
-trace, forms, and search are unretained. Run 119 flags on clean V0, trace once,
-and try at most two trace-supported natural declaration/lifetime forms, with a
-combination only if both improve; cap 122 stock builds plus trace and do not run
-generic permutation before a legal gain.
+`packOpen`. Policy-clean configured V0 emits 85 instructions, frame `0x30`, and
+10/88 positional words, first `+0x0`. It retains all 11 relocation identities,
+but the shorter structure shifts their offsets. The complete 119-configuration
+lattice is nonexact; the `-O2 -g3 -mips2` family reaches 86 instructions but
+does not restore target structure. A single allocator trace maps the function
+to procedure 26 and shows `globalFlags`/the allocated buffer colored to `s0/s1`,
+with the saved-byte and saved-flag webs in `a2/a3`. Moving those two scalars into
+their natural lexical scope restores frame `0x48` and improves the retained body
+to 11/88 positional words, first `+0x8`, while remaining 85 instructions. A
+narrow saved-header lifetime regresses to 83 instructions, so there is no
+improving combination and no generic batch is authorized. The target records
+remain calls at `+0x0C/+0x18/+0x28/+0x54/+0x60/+0xC4/+0x120/+0x13C/+0x144`
+plus the `D_8007A304` pair at `+0x80/+0x90`. ORT 505 at ROM `0x1849F14`
+exports it; `joyRead+0x130` is the sole caller and no overlay/runtime-table or
+aligned-pointer inbound exists. The assembly fallback remains canonical. Resume
+only when a natural source model explains the target's stack-homed buffer without
+synthetic padding, volatile allocation scaffolding, false arguments, or dead
+carriers.
 
 The save-window serializer `func_8002C94C` is now **matched** (tier-A byte-identity).
 The residual was a pure `schedule-mismatch` (exact 115-word shape, `0x70` frame, relocations already agreeing); the decomp-permuter closed it, finding an `if (1) { ... }` grouping around the entry initialization that resolves the callee-saved slot/counter scheduling tie-break. The C in `src/main/saves.c` now compiles byte-identical to the ROM; no assembly fallback remains.

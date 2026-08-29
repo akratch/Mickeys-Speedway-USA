@@ -802,25 +802,29 @@ void func_8002CF0C(void *globalFlags) {
     }
 }
 #ifdef NON_MATCHING
-/* Retained pre-cleanup diagnostic full-TU and isolated C agree at 79/88 raw
- * and relocation-normalized words, first +0xCC, frame 0x48, no padding, and
- * all 11 relocations. The nine residuals are one
- * post-checksum FIFO: savedFlag +0xCC/+0xD8/+0xDC, current byte
- * +0xD0/+0xE0/+0xE4/+0xEC, and final copy +0x104/+0x114. That producer used a
- * synthetic padded struct and volatile buffer solely to shape stack/allocation,
- * so 79/88 is diagnostic evidence. A later scalar rewrite still passed three
- * false arguments through an old-style checksum declaration and advanced a
- * dead footer carrier; those aids are removed below. Genuinely clean V0 is
- * uncompiled and its score is unknown. ORT 505 and sole caller
- * joyRead+0x130 are authenticated; linked equality proves fallback only.
- * Historical flags, trace, forms, and search are unretained. Run 119 flags on
- * clean V0, trace once, and try at most two mutually exclusive savedFlag
- * lifetime forms; cap 122 stock builds plus trace and batch only after a gain. */
+/* PLATEAU-HANDOFF
+ * symbol: func_8002CF6C
+ * score: 11/88 words
+ * frame: 0x48
+ * relocations: 11
+ * first-mismatch: +0x8
+ * summary: lexical saved-state scope restores the frame, but buffer coloring leaves an 85-word structural mismatch and shifted relocation offsets
+ */
+/* Policy-clean configured V0 is 85/88 instructions, 10/88 positional words,
+ * frame 0x30, first +0x0. All 11 relocation identities are present, but their
+ * offsets drift with the shorter body. The complete 119-configuration lattice
+ * is nonexact; -O2 -g3 reaches 86 instructions but not the target structure.
+ * One allocator trace maps the function to procedure 26: globalFlags/stateBuffer
+ * occupy s0/s1 while the saved-byte/flag webs occupy a2/a3. Moving those two
+ * saved scalars into their natural lexical scope restores frame 0x48 and gives
+ * the retained 85-instruction, 11/88-word result. A saved-header lifetime
+ * regresses to 83 instructions, so no combination or generic batch is allowed.
+ * ORT 505 and sole caller joyRead+0x130 remain authenticated. Assembly fallback
+ * is canonical; no padded state, false checksum arguments, dead carrier, or
+ * volatile allocation scaffold is retained. */
 void func_8002CF6C(u8 *globalFlags) {
     s32 stateMessageQueue;
     u8 *stateBuffer;
-    s32 savedByte;
-    u32 savedFlag;
     s32 messageQueue;
     u8 *allocatedBuffer;
     u8 *footerBuffer;
@@ -834,6 +838,9 @@ void func_8002CF6C(u8 *globalFlags) {
         allocatedBuffer = func_8002B280(0x200, 0x85);
         stateBuffer = allocatedBuffer;
         if (allocatedBuffer != NULL) {
+            s32 savedByte;
+            u32 savedFlag;
+
             dst = allocatedBuffer;
             count = 0x1FF;
             do {
