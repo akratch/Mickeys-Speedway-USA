@@ -503,6 +503,11 @@ generator owns the alias block (§5.3).
                                                   8  overlay1ResolvePathPoint           o1
                                                   8  overlay20UpdateObjectResource      o20
 
+`func_overlay_022_F0000000_1878108`'s six-word entry is that historical linked
+trial. The surviving isolated object has five stack-home/store-order words but
+omits the TU's required `-Wab,-r4300_mul`; fresh configured V0 must reconcile
+the count and all 21 runtime relocation sites before either score is reused.
+
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 
