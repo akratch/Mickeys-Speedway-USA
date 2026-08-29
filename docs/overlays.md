@@ -1754,7 +1754,17 @@ The full flag lattice and 40-minute permuter produced no valid exact source.
 
 `overlay 11 +0x22E8..+0x2714` — 1,068 bytes / 267 words, eliminating the former `+0x1E4C..+0x2714` middle deficit. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a complete carrier-schedule rewrite plus a link-only addend rebind); source kept as decomp-permuter input. The pre-link object's split text surface was 39 records.
 
-`overlay 14 +0x0498..+0x0578` (`overlay14ResetMode`) — 224 bytes / 56 words. NON_MATCHING: bounded 2026-08-28 Mickey-only closeout retained the typed command-loop source after five source-faithful probes. The best candidate preserves the exact boundary, 56-instruction shape, and 0x30 frame; workbench alignment reports 45/56 matching rows, with seven differing words, four opcode mismatches, and two prologue alignment gaps. The first divergence is the `s3` save/setup schedule at `+0x14`; the remaining block is the four target raw-offset stores at `+0xF8`, `+0xD8`, `+0xDC`, and `+0xE0`, which do not have candidate relocation records. The target has 10 relocations versus the candidate's 18, despite rebinding both call sites and the four setup data references to the target identities. `coddog` was unavailable and `skeleton_scan` could not bound the target because the symbol-size entry is absent; no trace oracle was available. No C credit is claimed.
+`overlay 14 +0x0498..+0x0578` (`overlay14ResetMode`) — 224 bytes / 56
+words. NON_MATCHING: retained configured evidence has the exact boundary and
+`0x30` frame, with 11 raw sites and seven after normalizing four output LO16
+addends. Those stores are instruction sites `+0x88/+0x90/+0x98/+0xA4` for
+local data `+0xF8/+0xD8/+0xDC/+0xE0`; they are not instruction offsets. The
+shipped runtime surface has 18 records. The extracted target object's ten
+records omit four loader-owned pairs and collapse the `+0x54` call, whose
+actual `SYMBOL` identity is `overlay14ReleaseOwner` at `+0x1B54`; the `+0xB0`
+call is a local `JUMP` to `overlay14MoveCommandCursor` at `+0x578`. The first
+callee identity is repaired; one configured V0 and full flag lattice precede
+at most three `s3`-lifetime probes. No C credit is claimed.
 
 | Overlay | C-owned non-text | Translation unit | Proof |
 |---:|---|---|---|

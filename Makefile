@@ -1442,7 +1442,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F0001540_1870E18.c.o: POS
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F00009F4_18702CC.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ResetMode.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_014_F0000498_186FD70=overlay14ResetMode $@ && \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_014_F0000498_186FD70=overlay14ResetMode \
+		--redefine-sym overlay14ResetReleaseOwnerReloc=func_overlay_014_F0000000_186F8D8 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xE0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F0000000_186F8D8.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x13C

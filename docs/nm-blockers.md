@@ -213,7 +213,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_014_F00006FC_186FFD4` | `src/overlays/o014/overlay14CreateValue.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_014_F000087C_1870154` | `src/overlays/o014/overlay14LoadRelocatedValue.c` | resolved-plateau | overlay 14 switch table | TU-owned +0x158..+0x174 .rodata clears module growth; code generation remains. |
 | `func_overlay_014_F0000B5C_1870434` | `src/overlays/o014/overlay14PrepareInputState.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_014_F0000498_186FD70` | `src/overlays/o014/overlay14ResetMode.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_014_F0000498_186FD70` | `src/overlays/o014/overlay14ResetMode.c` | none | — | Retained evidence is exact-sized at 56 words/frame `0x30`, with 11 raw/seven normalized prologue sites. The shipped surface has 18 runtime records; the false `+0x54` callee is repaired to `overlay14ReleaseOwner`. Run one configured V0 and flag lattice, then at most three `s3`-lifetime probes. |
 | `func_overlay_015_F000004C_18723E4` | `src/overlays/o015/overlay_015.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_015_F0000428_18727C0` | `src/overlays/o015/overlay_015.c` | bss-aggregate | overlay 15 star state/bounds | Own the star-state and bounds BSS as one overlay 15 object. |
 | `func_overlay_015_F0000500_1872898` | `src/overlays/o015/overlay_015.c` | none | — | No ownership change; continue source/codegen work. |

@@ -429,6 +429,11 @@ D_F8 = 0x000000f8;
 /* overlay 14: overlay14ResetMode.c.o */
 D_E4 = 0x000000e4;
 D_FC = 0x000000fc;
+gOverlay14ValueD8 = 0x000000d8;
+gOverlay14ValueDC = 0x000000dc;
+gOverlay14ValueE0 = 0x000000e0;
+gOverlay14ValueF8 = 0x000000f8;
+overlay14ResetReleaseOwnerReloc = 0xf0000000; /* runtime SYMBOL: overlay14ReleaseOwner */
 
 /* overlay 14: overlay14MoveCommandCursor.c.o */
 gOverlay14CommandHeader = 0x000000fc;

@@ -533,6 +533,13 @@ tuples agree: `D_218` LO16 and `D_1D88` HI16 exchange `+0x090/+0x094`, and
 resolves to existing local `D_220`; the former `D_220_Clear` name had no
 linker/runtime identity.
 
+Overlay 14 `+0x498`'s seven-word entry is normalized text evidence only. The
+shipped function owns 18 runtime records; the synthetic target object's ten
+omit four loader-owned data pairs and collapse the `+0x54` zero-field call.
+Runtime table 2 resolves that call as `SYMBOL` to `overlay14ReleaseOwner`
+(`+0x1B54`), while `+0xB0` is a local `JUMP` to
+`overlay14MoveCommandCursor` (`+0x578`).
+
 `overlay7CommitSelection`'s six-word historical trial also carried a false
 `+0xF4` callee identity: the runtime record is a local `JUMP` to Overlay 7
 `+0x000` (`overlay7ReleaseEntry`), not a symbol-table call to `+0xCCC`.
