@@ -725,6 +725,16 @@ JUMP records 889 and 895 at module `+0x7C0C/+0x7D20`. Promotion requires
 metadata-only rebinding for both C identities; current linked equality proves
 fallback only.
 
+Resident `func_80020D8C` has no static relocations and is exported as ORT 374.
+Eight shipped SYMBOL calls target it: Overlay 57 table-1 record 258 at module
+`+0x3288` (`overlay57ApplyValue+0x50`), Overlay 60 record 337 at `+0x2268`
+(`func_overlay_060_F0000334_18BA10C+0x1F34`), and Overlay 82 records 12..17
+at `+0x310/+0x320/+0x368/+0x38C/+0x3BC/+0x3DC` from
+`overlay82Update+0x2D0/+0x2E0/+0x328/+0x34C/+0x37C/+0x39C`. Resident
+`func_8001BB10+0x60` is the ninth call; it passes an additional owner/context
+argument in `a3` that the callee overwrites without reading. No other shipped
+overlay record targets ORT 374; linked equality currently proves fallback only.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to

@@ -570,19 +570,22 @@ target's exact 342-instruction size but 257 positional words differ from
 and stack-home allocation. The permuter's lower-scoring candidate reused the
 last texture parameter as a command-word temporary and would corrupt the next
 part's cache comparison, so it was rejected.
-`func_80020D8C` remains guarded `NON_MATCHING`. Retained configured full-TU
-and isolated C are byte-identical at 35/48 words, frame `0x8`, with no
-relocations and thirteen register-only sites at
-`+0x38,+0x40,+0x44,+0x4C,+0x50,+0x54,+0x5C,+0x64,+0x70,+0x74,+0xA0,+0xA4,
-+0xAC`. The texture-address lane begins at candidate `t5` versus target `t3`;
-later frame-value, multiply-result, and loop-count webs also differ. The sole
-resident caller, `func_8001BB10+0x60`, passes owner/context in `a3`, which the
-callee overwrites without consuming. Runtime table index 374 also authenticates
-one call from overlay 57, one from overlay 60, and six from `overlay82Update`,
-for nine sites across four callers. Exact linked function, TU, and ROM ranges
-prove assembly fallback only. Only V0 has attributable artifacts; reproduce it,
-retain the complete flag lattice, capture one allocator trace, then try one
-trace-selected natural web-birth, lifetime, or line-association form; cap four.
+`func_80020D8C` owns ROM `0x2198C..0x21A4C`, 48 words with no padding before
+`func_80020E4C`. Retained prior-layout full-TU and isolated C are byte-identical
+at 35/48 words, frame `0x8`, with no relocations. Thirteen sites split into a
+texture-address FIFO (`+0x38..+0x4C`), frame-count carrier (`+0x50/+0x54`),
+coupled frame/count web (`+0x5C/+0x64/+0x70/+0x74/+0xAC`), and multiply result
+(`+0xA0/+0xA4`). Its redundant low-half mask on an `s16` store was an allocation
+aid, so 35/48 is diagnostic; the mask is removed and clean current-layout V0 is
+uncompiled. ORT 374 authenticates resident `func_8001BB10+0x60`, Overlay 57
+`overlay57ApplyValue+0x50`, Overlay 60
+`func_overlay_060_F0000334_18BA10C+0x1F34`, and six sites in `overlay82Update`,
+for nine calls across four functions. The resident caller passes owner/context
+in `a3`, which the callee overwrites without consuming. Linked function, TU,
+and ROM equality proves fallback only. Historical flags, trace, source forms,
+and search are unretained. Run 119 flags on clean V0, trace once, try one natural
+form per web family and an improving-only combination; cap 122 stock builds
+plus trace and batch only after a strict natural gain.
 `func_80020E4C`: workbench structure mismatch, exact 113 instructions/frame -64; 25 words differ, first `+0xC`.
 Explicit byte-scaled indexing is best; pointer-cursor and declaration-order probes did not improve it.
 Exception-loop/pool-slot 1 and temp-slot 3 allocation remains; assembly stays canonical.

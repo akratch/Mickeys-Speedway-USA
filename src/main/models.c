@@ -1180,17 +1180,19 @@ typedef struct ModelFrameInstance {
 } ModelFrameInstance;
 
 /* Mickey-only reconstruction; JFG's modSetTextureFrame remains assembly. */
-/* Retained configured full-TU and isolated C have identical 48-word bodies,
- * a 0x8 frame, and no relocations. They are 35/48 words exact; thirteen
- * register-only sites differ at +0x38,+0x40,+0x44,+0x4C,+0x50,+0x54,+0x5C,
- * +0x64,+0x70,+0x74,+0xA0,+0xA4,+0xAC. The first texture-address temp lane
- * starts at t5 instead of target t3; later frame-value, multiply-result, and
- * loop-count webs also differ. One resident call and eight runtime overlay
- * records across overlays 57, 60, and 82 are authenticated; the resident call
- * passes owner/context in a3, which the callee overwrites without consuming.
- * Linked equality proves fallback only. Only V0 is artifact-authenticated:
- * reproduce it, retain the flag lattice, capture one allocator trace, then try
- * one trace-selected natural web-birth, lifetime, or line-association form. */
+/* Retained prior-layout full-TU and isolated C have identical 48-word bodies,
+ * a 0x8 frame, and no relocations. They are 35/48 words at thirteen register-
+ * only sites: texture-address FIFO +0x38/+0x40/+0x44/+0x4C, frame-count carrier
+ * +0x50/+0x54, coupled frame/count web +0x5C/+0x64/+0x70/+0x74/+0xAC, and
+ * multiply result +0xA0/+0xA4. That body used a redundant low-half mask on the
+ * s16 frame store, so 35/48 is diagnostic; the mask is removed below and clean
+ * current-layout V0 is uncompiled. ORT 374 authenticates eight overlay calls
+ * across overlays 57, 60, and 82; resident func_8001BB10 passes an unused
+ * fourth owner/context argument that this callee overwrites. Linked equality
+ * proves fallback only. Historical flags, trace, source forms, and search are
+ * unretained. Run 119 flags on clean V0, trace once, try one natural form per
+ * web family and an improving-only combination; cap 122 stock builds plus
+ * trace and do not batch without a strict natural gain. */
 void func_80020D8C(ModelFrameInstance *instance, s32 textureIndex, s32 frame) {
     ObjectModel *model;
     ModelFrameEntry *entry;
@@ -1213,7 +1215,7 @@ void func_80020D8C(ModelFrameInstance *instance, s32 textureIndex, s32 frame) {
             u16 frameScale;
 
             if (index == textureIndex && frame < texture->frameCount) {
-                entry->frame = frame & 0xFFFF;
+                entry->frame = frame;
             }
             frameScale = texture->frameScale;
             nextFrame = entry->nextFrame;

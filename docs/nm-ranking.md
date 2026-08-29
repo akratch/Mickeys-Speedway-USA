@@ -282,7 +282,7 @@ generated historical snapshot; regenerate it when compile capacity is free.
 | func_8002CF6C | main | 9 | 204 | 352 | 0 | register-only |
 | overlay19ClassifyEdge | o019 | 10 | 312 | 480 | 0 | register-only |
 | func_overlay_079_F0001290_18CE230 | o079 | 12 | 200 | 492 | 0 | register-only |
-| func_80020D8C | main | 13 | 56 | 192 | 0 | register-only |
+| `func_80020D8C` (prior-layout masked diagnostic) | main | 13 | 56 | 192 | 0 | register-only |
 | `overlay1FindType5ByKey` (prior-layout V0) | o001 | 17 | 28 | 156 | 0 | register-only |
 | func_overlay_041_F0000000_1887338 | o041 | 26 | 84 | 292 | 0 | register-only |
 
