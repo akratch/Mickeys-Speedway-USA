@@ -45,9 +45,11 @@ extern void o26DrawReloc(Gfx **, s32, Overlay26Group *, f32, f32);
 extern void o26FlushReloc(Gfx **);
 extern void o26FinishReloc(Gfx **);
 
-/* Workbench mixed structure/register residual: exact 134-word/-0x58 shape, 65 positional words, first +0x3C.
- * A negative-offset dead read restored the missing instruction and cut opcodes 61->9; constant reads and split pointer addition regressed.
- * Remains: pool slot 1/temp slot 3 rotation and 25 structural/51 register aligned sites; asm stays canonical. */
+/* Workbench diagnostic: the former exact 134-word/0x58-frame body used an
+ * invented empty read of the negative node offset to restore one instruction.
+ * Its 65 positional words and 9-opcode residual are therefore not a
+ * source-faithful plateau. The guard is removed; clean V0 is uncompiled and
+ * assembly remains canonical. */
 #ifdef NON_MATCHING
 void func_overlay_026_F0001158_187B550(Gfx **dl, s32 drawContext,
                                        Overlay26Context *context) {
@@ -98,7 +100,6 @@ void func_overlay_026_F0001158_187B550(Gfx **dl, s32 drawContext,
             }
 
             negativeNodeOffset = -nodeOffset;
-            if (negativeNodeOffset) {}
             nodeEntry = context->nodeTable + negativeNodeOffset;
             node = *(Overlay26Node **)(nodeEntry + 0x10);
             choice = (Overlay26ResourceChoice *)node->resource;

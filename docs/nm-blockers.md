@@ -243,7 +243,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_025_F000017C_1879E04` | `src/overlays/o025/overlay_025.c` | resolved-plateau | overlay 25 movement constants | TU-owned +0x20..+0x40 .rodata clears module growth; code generation remains. |
 | `func_overlay_026_F00001A0_187A598` | `src/overlays/o026/func_overlay_026_F00001A0_187A598.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_026_F0000B18_187AF10` | `src/overlays/o026/func_overlay_026_F0000B18_187AF10.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_026_F0001158_187B550` | `src/overlays/o026/overlay26DrawGroups.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_026_F0001158_187B550` | `src/overlays/o026/overlay26DrawGroups.c` | none | — | Removed an invented empty negative-offset read that manufactured the former exact-size 134-word/`0x58`-frame diagnostic and 65-word score. Clean V0 is uncompiled; reproduce it and authenticate boundaries/relocations before further structure work. |
 | `func_overlay_026_F0000D24_187B11C` | `src/overlays/o026/overlay26HandleEffects.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_027_F0000064_187BA3C` | `src/overlays/o027/overlay_027.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_027_F0000624_187BFFC` | `src/overlays/o027/overlay_027.c` | none | — | No ownership change; continue source/codegen work. |
