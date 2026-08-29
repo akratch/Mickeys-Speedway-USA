@@ -286,7 +286,15 @@ Run it three ways:
 tools/postprocess_audit.py            # table to stdout
 tools/postprocess_audit.py --write    # refresh config/postprocess-audit.us.json
 tools/postprocess_audit.py --check    # fail if that JSON is stale
+tools/postprocess_audit.py --check-redefines # reject duplicate objcopy targets
 ```
+
+`gmake check-docs` runs the redefine check automatically. When multiple input
+symbols are present, GNU `objcopy` rejects the shared destination; even when
+only one is emitted, an accidental many-to-one mapping can erase distinct
+runtime relocation identities that happen to share an encoded addend. The
+checker permits the mapping only when the source explicitly declares every
+input as a weak alias of that destination.
 
 `config/postprocess-audit.us.json` is the committed result: one row per
 object carrying a `POSTPROCESS` override, its class, tool list, and

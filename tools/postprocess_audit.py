@@ -35,6 +35,7 @@ import argparse
 import json
 import os
 import re
+import shlex
 import subprocess
 import sys
 
@@ -73,6 +74,98 @@ TOOL_RE = re.compile(r"([A-Za-z0-9_./-]+\.py)")
 OBJCOPY_RE = re.compile(r"\bobjcopy\b", re.IGNORECASE)
 
 TARGET_LINE_RE = re.compile(r"^(\S+): POSTPROCESS = (.*)$")
+
+
+def postprocess_commands(dump):
+    """Return the effective non-empty POSTPROCESS command for each object."""
+    seen = {}
+    for line in dump.splitlines():
+        m = TARGET_LINE_RE.match(line)
+        if not m:
+            continue
+        target, command = m.group(1), m.group(2)
+        if not target.startswith("build/") or not target.endswith(".o"):
+            continue
+        if command.strip() == "@:":
+            continue
+        seen[target] = command  # dedupe: -p repeats a rule per prerequisite
+    return seen
+
+
+def duplicate_redefine_targets(command):
+    """Find destination symbols repeated in one objcopy invocation.
+
+    GNU objcopy rejects two ``--redefine-sym`` options with the same target.
+    More importantly for overlays, distinct relocation identities must not be
+    collapsed merely because their encoded addends happen to agree.
+    """
+    lexer = shlex.shlex(command, posix=True, punctuation_chars=";&|")
+    lexer.whitespace_split = True
+    lexer.commenters = ""
+    segments = []
+    segment = []
+    for token in lexer:
+        if token in {"&&", "||", ";", "&", "|"}:
+            if segment:
+                segments.append(segment)
+                segment = []
+        else:
+            segment.append(token)
+    if segment:
+        segments.append(segment)
+
+    conflicts = []
+    for tokens in segments:
+        if not any(OBJCOPY_RE.search(token) for token in tokens):
+            continue
+        destinations = {}
+        index = 0
+        while index < len(tokens):
+            token = tokens[index]
+            spec = None
+            if token == "--redefine-sym" and index + 1 < len(tokens):
+                index += 1
+                spec = tokens[index]
+            elif token.startswith("--redefine-sym="):
+                spec = token[len("--redefine-sym=") :]
+            if spec and "=" in spec:
+                source, destination = spec.split("=", 1)
+                destinations.setdefault(destination, []).append(source)
+            index += 1
+        for destination, sources in destinations.items():
+            if len(sources) > 1:
+                conflicts.append((destination, sources))
+    return conflicts
+
+
+def source_weak_aliases(target, root_dir=ROOT_DIR):
+    src = object_to_src(target)
+    if src is None:
+        return set()
+    path = os.path.join(root_dir, src)
+    try:
+        with open(path, encoding="utf-8") as fh:
+            text = fh.read()
+    except OSError:
+        return set()
+    return set(
+        re.findall(
+            r"^\s*#pragma\s+weak\s+(\S+)\s*=\s*(\S+)\s*$",
+            text,
+            flags=re.MULTILINE,
+        )
+    )
+
+
+def redefine_conflicts(commands, root_dir=ROOT_DIR):
+    problems = []
+    for target, command in sorted(commands.items()):
+        weak_aliases = source_weak_aliases(target, root_dir=root_dir)
+        for destination, sources in duplicate_redefine_targets(command):
+            if all((source, destination) in weak_aliases for source in sources):
+                continue
+            problems.append((target, destination, sources))
+    return problems
 
 
 def run_make_database():
@@ -151,17 +244,7 @@ def object_to_src(target):
 
 def audit(root_dir=ROOT_DIR, atlas_path=ATLAS_PATH):
     dump = run_make_database()
-    seen = {}
-    for line in dump.splitlines():
-        m = TARGET_LINE_RE.match(line)
-        if not m:
-            continue
-        target, command = m.group(1), m.group(2)
-        if not target.startswith("build/") or not target.endswith(".o"):
-            continue
-        if command.strip() == "@:":
-            continue
-        seen[target] = command  # dedupe: -p repeats a rule per prerequisite
+    seen = postprocess_commands(dump)
 
     atlas_index, atlas_totals = load_atlas_index(atlas_path)
 
@@ -264,6 +347,11 @@ def main():
     ap.add_argument(
         "--check", action="store_true", help="fail if " + DEFAULT_OUT + " is stale"
     )
+    ap.add_argument(
+        "--check-redefines",
+        action="store_true",
+        help="fail on duplicate objcopy --redefine-sym destinations",
+    )
     ap.add_argument("--out", default=DEFAULT_OUT)
     ap.add_argument(
         "--atlas",
@@ -271,6 +359,19 @@ def main():
         help="overlay atlas to join (default: " + ATLAS_PATH + ")",
     )
     args = ap.parse_args()
+
+    if args.check_redefines:
+        problems = redefine_conflicts(postprocess_commands(run_make_database()))
+        if problems:
+            for target, destination, sources in problems:
+                print(
+                    "%s: objcopy destination %s has multiple sources: %s"
+                    % (target, destination, ", ".join(sources)),
+                    file=sys.stderr,
+                )
+            return 1
+        print("OK: objcopy --redefine-sym destinations are unique per invocation")
+        return 0
 
     rows, atlas_totals = audit(atlas_path=args.atlas)
     summary = summarize(rows)

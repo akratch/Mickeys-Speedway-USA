@@ -414,6 +414,7 @@ check-reference-builds:
 check-docs:
 	$(PYTHON) $(TOOLS_DIR)/check_derived_numbers.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/overlay_donor_scan.py --check
+	$(HOST_PYTHON) $(TOOLS_DIR)/postprocess_audit.py --check-redefines
 
 # Builds just far enough to have a linked ELF (no crc/z64 round-trip needed --
 # tools/progress.py only reads the ELF's symbol table plus the current asm/
@@ -2896,25 +2897,25 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateSelection.c.o: POSTPROCESS 
 		--redefine-sym func_8002554C=overlay11ReadInputReloc \
 		--redefine-sym func_overlay_045_F0001BF4_188E04C=overlay11SetValue $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C8
-# NON_MATCHING fallback assembly supplies the retail body; restore the
-# friendly source symbol and retain the exact text extent when needed.
+# NON_MATCHING fallback assembly supplies the retail body. Keep each SYMBOL
+# call on its own zero-addend proxy: the stored operands agree, but the runtime
+# relocation table authenticates thirteen different endpoints.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateMenu.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
 		--redefine-sym func_overlay_011_F0001398_1869BE0=overlay11UpdateMenu \
-		--redefine-sym func_80028F54=overlay11GetStatusReloc $@ && \
-	$(OBJCOPY) \
-		--redefine-sym func_80000F94=func_overlay_011_F0000000_1868848 \
-		--redefine-sym func_overlay_045_F0001BF4_188E04C=func_overlay_011_F0000000_1868848 \
-		--redefine-sym func_8002554C=func_overlay_011_F0000000_1868848 \
-		--redefine-sym func_overlay_066_F0000000=func_overlay_011_F0000000_1868848 \
-		--redefine-sym func_800290AC=func_overlay_011_F0000000_1868848 \
-		--redefine-sym func_800291D8=func_overlay_011_F0000000_1868848 \
-		--redefine-sym func_800006BC=func_overlay_011_F0000000_1868848 \
-		--redefine-sym func_overlay_011_F0002BF4_186B43C=func_overlay_011_F0000000_1868848 \
-		--redefine-sym func_80005820=func_overlay_011_F0000000_1868848 \
-		--redefine-sym func_80028374=func_overlay_011_F0000000_1868848 \
-		--redefine-sym func_80028528=func_overlay_011_F0000000_1868848 \
-		--redefine-sym func_8003A754=func_overlay_011_F0000000_1868848 $@ && \
+		--redefine-sym func_80028F54=overlay11GetStatusReloc \
+		--redefine-sym func_80000F94=overlay11PlaySoundReloc \
+		--redefine-sym func_overlay_045_F0001BF4_188E04C=overlay11SetValue \
+		--redefine-sym func_8002554C=overlay11ReadInputReloc \
+		--redefine-sym func_overlay_066_F0000000=overlay11Overlay66SelectReloc \
+		--redefine-sym func_800290AC=overlay11ResidentModeReloc \
+		--redefine-sym func_800291D8=overlay11Func800291D8Reloc \
+		--redefine-sym func_800006BC=overlay11Func800006BCReloc \
+		--redefine-sym func_overlay_011_F0002BF4_186B43C=overlay11Func2BF4Reloc \
+		--redefine-sym func_80005820=overlay11Func80005820Reloc \
+		--redefine-sym func_80028374=overlay11Func80028374Reloc \
+		--redefine-sym func_80028528=overlay11Func80028528Reloc \
+		--redefine-sym func_8003A754=overlay11Func8003A754Reloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4B4
 # Overlay-local data addends are encoded in retail, while its runtime calls
 # all use the extracted range's offset-zero carrier.
