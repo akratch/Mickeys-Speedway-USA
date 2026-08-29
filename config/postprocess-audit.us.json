@@ -2354,16 +2354,15 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o021/overlay21ApplyPriorities.c.o",
       "offset": 268,
       "overlay": 21,
       "size": 456,
       "source": "src/overlays/o021/overlay21ApplyPriorities.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -8926,7 +8925,7 @@
     "by_class": {
       "metadata": 622
     },
-    "matched_c_bytes_with_postprocess": 102448,
+    "matched_c_bytes_with_postprocess": 102904,
     "objects_with_postprocess": 622
   }
 }

@@ -828,15 +828,13 @@ call it twice from `func_800517E0`. Fallback equality does not prove C.
 Overlay 21 `+0x10C` (`overlay21ApplyPriorities`) owns nine runtime records: a
 SYMBOL call at `+0x1C` to resident `camGetPtr`; LOCAL pairs at `+0x24/+0x28`
 for object count and `+0x30/+0x40` for the object array; and count-reload pairs
-at `+0x114/+0x11C` and `+0x19C/+0x1A0`. The retained exact-looking objects
-expose only the fallback's three generic records and depend on extracted
-assembly. Last genuine C is 104/114 normalized words, while lane `3c33bf6d`'s
-claimed winner has no surviving object and an unknown score. Its static
-reference-call carrier must remain a distinct alias resolving at runtime to
-resident `camGetPtr`; synthetic zero values do not prove identity. ORT 1315 and
-resident runtime record 157 authenticate sole inbound `func_8000DDE4+0x128`.
-Owned `+0x10C..+0x2D4` excludes the separate 12-byte padding. Fresh C must
-prove all nine tuples before the dirty scoreboard's 456-byte credit is accepted.
+at `+0x114/+0x11C` and `+0x19C/+0x1A0`. Exact C emits all nine at those
+offsets, including a distinct `overlay21GetReferenceReloc` call carrier that
+resolves at runtime to resident `camGetPtr`. The 114-word body, `0x28` frame,
+owned `+0x10C..+0x2D4` range, linked module, and full ROM are exact. ORT 1315
+and resident runtime record 157 authenticate sole inbound
+`func_8000DDE4+0x128`; the following 12 bytes are separate padding and earn no
+C credit.
 
 Resident `func_8000DDE4` owns exactly two static R_MIPS_26 records:
 `runlinkIsModuleLoaded` at `+0x114` and the metadata trampoline
