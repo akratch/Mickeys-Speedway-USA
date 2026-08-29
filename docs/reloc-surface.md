@@ -669,6 +669,19 @@ HI16/LO16 pairs. Retained C has every offset/type but binds the endpoint pair
 the target identity and is uncompiled. ORT 518 has sole inbound Overlay 18
 table-1 record 56 at `overlay18Initialize+0x8`. Linked equality is fallback-only.
 
+Resident `levelInit` owns 110 exact static tuples in retained diagnostic C:
+70 R_MIPS_26 calls and 20 HI16/LO16 pairs. Eight resident runtime records occur
+inside its `0x810`-byte range: `+0x208` to ORT 1350 (Overlay 35 `+0`),
+`+0x3B8` to ORT 1351 (`overlay7InitPool`), `+0x3E0/+0x3F0` to ORT 1352
+(`overlay34InitStorage`), `+0x648` to ORT 1353
+(`overlay33InitializeBuffers`), `+0x660` to ORT 1354 (`overlay42Init`),
+`+0x678` to ORT 1355 (`overlay16InitializeBuffer`), and `+0x720` to ORT
+1356 (`overlay103CheckSignature`). Typed weak aliases expose those ABIs and a
+metadata-only object rename restores the shipped `TrapDanglingJump` identity.
+ORT 526 exports `levelInit`; `func_80028564+0x5F8` is its sole direct caller,
+with no resident runtime, overlay `SYMBOL`, or aligned-pointer inbound. Current
+linked equality proves fallback only.
+
 Resident `func_80028FCC` owns three `R_MIPS_26` records to `func_80028FB8` at
 `+0x14/+0x30/+0x4C`, all exact in retained 17/27 configured C. ORT 663 exports
 the function, but exhaustive resident relocation, overlay SYMBOL, direct-JAL,

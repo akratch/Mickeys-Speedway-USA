@@ -2438,17 +2438,23 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   not an exact donor. Linked equality proves fallback only. Retain 119 flags,
   trace once, try one carrier form and strict-gain combination, capped at 122
   builds plus trace before an improving-only annotated batch.
-- `levelInit`, ten structural, storage, type and register-lifetime hypotheses,
-  the full 119-combination flag lattice and a bounded two-worker permuter
-  batch, first mismatch `+0x238`: retained configured full-TU C reproduces 394
-  of 516 target words, the 2,064-byte boundary, `-0x80` frame, opcode schedule,
-  and all 110 relocation tuples (70 calls and 20 HI16/LO16 pairs), but 122
-  register operands differ. No linked C/ROM proof survives.
-  The first residual is a temp-FIFO allocation (`$t4` rather than `$t7`) in
-  the fog-load delay slot; the following resource-table address starts a pool
-  allocation divergence (`$a2` rather than `$a3`). The historical permuter
-  improved a MIPS I import from 12,975 to 12,580 only with a redundant
-  fog-width mask; canonical MIPS II added two instructions, so it was rejected.
+- `levelInit`, ROM `0x26A18..0x27228`, owns 516 words with no following padding.
+  Retained pre-cleanup configured full-TU and isolated C reproduce 394/516 raw
+  words, frame `0x80`, first `+0x238`, and all 110 static tuples (70 calls and
+  20 HI16/LO16 pairs). That producer's unused volatile two-word stack pad makes
+  the score diagnostic; the pad is removed and seven runtime trap identities
+  now use their authenticated ABIs, so clean V0's score/frame are unknown.
+  The first retained residual is in the level-header resource-list selector
+  carrier, not a fog-load delay slot. Historical 12,975-to-12,580 MIPS-I
+  permuter numbers are objective scores, not current word evidence.
+  ORT 526 has sole caller `func_80028564+0x5F8`, with no runtime/overlay/pointer
+  inbound. Eight runtime records inside the function resolve seven overlay
+  callees; metadata-only alias rebinding preserves the shipped trap identity.
+  Pinned JFG keeps the body in assembly; later public JFG C is structural and
+  lifetime evidence only. Compile pad-free V0 and typed-alias V1, then one
+  donor-supported `s16 tune` lifetime. If still nonexact, trace once and try at
+  most one trace-supported natural form; no generic lattice/permutation absent
+  a legal gain. No linked C/ROM proof survives.
   Proven level `.bss` ownership is `0x800CF3E0..0x800CF490`; the preceding
   configured `bss_gap_D800CF3C0..D800CF3E0` remains unresolved.
 - `func_80028FCC`: retained configured full-TU C is 17/27 words, exact

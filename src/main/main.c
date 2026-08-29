@@ -1,6 +1,7 @@
 #include "ultra64.h"
 #include "game/font.h"
 #include "game/gameVi.h"
+#include "game/level.h"
 #include "game/memory.h"
 #include "game/menu.h"
 #include "game/sched_internal.h"
@@ -272,7 +273,6 @@ extern s32 func_80037664(void);
 extern s32 levelGetTune(s32);
 extern s32 levelGetScreenMode(s32);
 extern u32 levelGetGfxIndex(s32);
-extern void levelInit(s32, s32, s32, s32);
 extern void levelFreeAll(void);
 extern void rumbleRumbles(s32);
 extern void rumbleUpdate(void);

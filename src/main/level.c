@@ -1,4 +1,5 @@
 #include "ultra64.h"
+#include "game/level.h"
 
 /*
  * Resident level lifecycle and metadata, ROM 0x263F0-0x27760.
@@ -136,7 +137,6 @@ extern void amTuneVoiceLimit(u8);
 extern void func_80000450(s32);
 extern void setupLights(s32, s32, s32);
 extern void func_8000A6DC(s32);
-extern s32 TrapDanglingJump();
 extern void func_80051004(s32);
 extern void *func_80034448(s32);
 extern void *func_800355A0(s32, s32);
@@ -153,6 +153,21 @@ extern void func_80036C60(void *);
 extern void rcpSetScreenColour(u8, u8, u8);
 extern void viFrameRateReset(void);
 extern void levelTunePlay(void);
+
+#pragma weak levelTrackInitTrap = TrapDanglingJump
+extern void levelTrackInitTrap(s32, s32, s32, s32, s32, s32);
+#pragma weak levelOverlay7InitPoolTrap = TrapDanglingJump
+extern void levelOverlay7InitPoolTrap(void);
+#pragma weak levelOverlay34InitStorageTrap = TrapDanglingJump
+extern void levelOverlay34InitStorageTrap(s32);
+#pragma weak levelOverlay33InitializeBuffersTrap = TrapDanglingJump
+extern void levelOverlay33InitializeBuffersTrap(void);
+#pragma weak levelOverlay42InitTrap = TrapDanglingJump
+extern void levelOverlay42InitTrap(void);
+#pragma weak levelOverlay16InitializeBufferTrap = TrapDanglingJump
+extern void levelOverlay16InitializeBufferTrap(u8 *);
+#pragma weak levelOverlay103CheckSignatureTrap = TrapDanglingJump
+extern s32 levelOverlay103CheckSignatureTrap(void);
 extern void camSetNo(s32);
 extern void func_80021504(f32, s32);
 extern void func_8003C770(s32, s32);
@@ -306,13 +321,18 @@ u32 levelGetGfxIndex(s32 arg0) {
 }
 
 #ifdef NON_MATCHING
-/* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
-/* Retained configured full-TU evidence: 394/516 words, frame -0x80, first
- * +0x238, with all 110 relocation tuples exact (70 R_MIPS_26 plus 20 HI/LO
- * pairs). No linked C/ROM proof survives. Ten source families, all 119 flags,
- * and bounded permutation are exhausted; the 12,975->12,580 score was a
- * historical MIPS-I import that regressed under canonical MIPS II. Reprove
- * unchanged V0 once, then park absent new declaration/allocator evidence. */
+/* PROVENANCE: pinned JFG c82afff keeps levelInit assembly-only; later public
+ * JFG 773e313/1a92d81 C provides structural and lifetime evidence only.
+ * Mickey's call graph, fields, boundaries, and bytes remain decisive. */
+/* Retained pre-cleanup configured full-TU/isolated C is diagnostic 394/516
+ * raw words, frame 0x80, first +0x238 in the resource-list selector carrier,
+ * with all 110 static tuples exact (70 R_MIPS_26 plus 20 HI/LO pairs) and no
+ * padding. Its unused volatile stackPad[2] is removed, and seven generic trap
+ * identities now use their authenticated ABIs; clean V0 is uncompiled and its
+ * score/frame are unknown. ORT 526 has sole caller func_80028564+0x5F8 and no
+ * runtime/overlay/pointer inbound. Compile pad-free V0, typed-alias V1, and a
+ * donor-supported separate s16 tune lifetime; trace once only if still
+ * nonexact, then try at most one trace-supported natural form. */
 void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
     s32 lvlStart;
     u32 lvlSize;
@@ -320,7 +340,6 @@ void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
     s32 j;
     s32 shouldPlay;
     s32 off;
-    volatile s32 stackPad[2];
     s32 freeSlot;
 
     rumbleKill(1);
@@ -376,9 +395,9 @@ void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
     func_8000A6DC(arg3);
 
     mainPreNMI();
-    TrapDanglingJump(D_800CF3C8->trackArg0, D_800CF3C8->trackArg1, arg1,
-                     D_800CF3C8->trackArg3, D_800CF3C8->trackArg4,
-                     D_800CF3C8->trackArg5);
+    levelTrackInitTrap(D_800CF3C8->trackArg0, D_800CF3C8->trackArg1, arg1,
+                       D_800CF3C8->trackArg3, D_800CF3C8->trackArg4,
+                       D_800CF3C8->trackArg5);
 
     mainPreNMI();
 
@@ -417,13 +436,13 @@ void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
         runlinkDownloadCode(0x1B);
         runlinkDownloadCode(0x18);
         runlinkDownloadCode(7);
-        TrapDanglingJump();
+        levelOverlay7InitPoolTrap();
         runlinkDownloadCode(0x25);
         runlinkDownloadCode(0x26);
         if (D_8007BF0C != 0) {
-            TrapDanglingJump(0x28);
+            levelOverlay34InitStorageTrap(0x28);
         } else {
-            TrapDanglingJump(0x50);
+            levelOverlay34InitStorageTrap(0x50);
         }
     }
 
@@ -479,13 +498,13 @@ void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
     mainPreNMI();
 
     if (D_800CF3C8->featureC6 != 0) {
-        TrapDanglingJump();
+        levelOverlay33InitializeBuffersTrap();
     }
     if (D_800CF3C8->screenMode != 0) {
-        TrapDanglingJump();
+        levelOverlay42InitTrap();
     }
     if (D_800CF3C8->featureFB != 0) {
-        TrapDanglingJump(D_800CF3C8);
+        levelOverlay16InitializeBufferTrap((u8 *)D_800CF3C8);
     }
     func_8003C770(0, D_800CF3C8->weatherScale * 0xF0);
     mainPreNMI();
@@ -505,7 +524,7 @@ void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
         }
     }
 
-    if (TrapDanglingJump() == 0) {
+    if (levelOverlay103CheckSignatureTrap() == 0) {
         D_800CF3C8->fogNear = 0x384;
         D_800CF3C8->fogFar = 0x398;
     }
