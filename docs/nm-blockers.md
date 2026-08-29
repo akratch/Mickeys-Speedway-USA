@@ -48,7 +48,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8004C690` | `src/main/font.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8004D40C` | `src/main/font.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_800475E8` | `src/main/fx.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_80047CD8` | `src/main/fx.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_80047CD8` | `src/main/fx.c` | resolved-plateau | — | Retained prior-line-layout configured full-TU C is 226/234 raw/normalized words, frame `0x68`, first `+0x298`, with exact `func_800349A4` calls at `+0x19C,+0x1F0,+0x244,+0x278` and no runtime records. Five residual sites are the `cone->mode` web and three the `segmentCount` web. Authenticated callers are `func_80009414+0x520` and Overlay 69/88 draw functions at `+0x530`; linked equality is fallback-only. Run current V0, retain 119 flags, trace once, try one form per web and an improving-only combination, then one bounded batch; cap 122 deterministic trials. |
 | `func_8004A380` | `src/main/fx.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_8004ACC4` | `src/main/fx.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8004AF68` | `src/main/fx.c` | none | — | No ownership change; continue source/codegen work. |
