@@ -181,7 +181,7 @@ void overlay25UpdateEffect(Overlay25Object *object, s32 updateRate) {
                             hitSomething = 1;
                             if (overlay25CanHitReloc(other, otherState)) {
                                 Overlay25EntityState *ownerState;
-                                overlay25ApplyHitReloc(state->owner, other);
+                                overlay7DispatchModesReloc(state->owner, other);
                                 ownerState = &state->owner->state->entity;
                                 ownerState->ownerHitCount++;
                                 otherState->selfHitCount++;

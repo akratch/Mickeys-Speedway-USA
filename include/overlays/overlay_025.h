@@ -140,8 +140,9 @@ extern s32 overlay25QueryObjectsReloc(f32 x, f32 y, s32 z, f32 radius,
                                       s32 mode, Overlay25Object **objects);
 extern s32 overlay25CanHitReloc(Overlay25Object *object,
                                 Overlay25EntityState *state);
-extern void overlay25ApplyHitReloc(Overlay25Object *owner,
-                                   Overlay25Object *object);
+/* Overlay 25 table-1 record 15 resolves through ORT 1471 to Overlay 7 +0x894. */
+extern void overlay7DispatchModesReloc(Overlay25Object *owner,
+                                       Overlay25Object *object);
 extern Overlay25Status *overlay25GetStatusReloc(void);
 extern void overlay25NotifyHitReloc(Overlay25Object *object);
 
