@@ -4110,15 +4110,21 @@ s32 func_80012234(TrackVec3f *point, TrackVec3f *direction,
  * supply structural context only. Mickey's vector layout, arithmetic, and
  * output pointers are reconstructed from the resident call sites and bytes.
  */
-/* Retained configured full-TU diagnostic C is 50/57 raw and relocation-
- * normalized words, first +0x50, frame 0x48, with the exact sqrtf relocation
- * at +0xA4. Five calls come from func_80011CDC and func_800563B4. IDO exchanges
- * the projection/projection-square FP webs and spills at sp+0x30 rather than
- * target sp+0x38. Dead sp1C/sp38 assignments only forced allocation and are
- * removed below, so clean V0 is uncompiled and its frame/score are unknown.
- * Run 119 flags, trace once, try at most two trace-selected natural forms and
- * an improving-only combination; cap 122 builds plus trace and permit a
- * 20-minute stack-aware batch only after a legal natural gain.
+/* Historical pre-cleanup configured full-TU C was measured at 50/57 raw and
+ * relocation-normalized words, first +0x50, frame 0x48, with sqrtf at +0xA4.
+ * No candidate object/hash survives. The body used dead sp1C/sp38 assignments
+ * that only forced allocation; they are removed below, so clean V0's score,
+ * size, frame, and relocation output are unknown. The stale isolated ranking
+ * also omitted track.c's required -Wab,-r4300_mul. Five direct calls come from
+ * func_80011CDC and func_800563B4; ORT 308 has no runtime/overlay/pointer
+ * inbound. The owned 0x80012574..0x80012658 / ROM 0x13174..0x13258 range is 57
+ * words with no padding. Compile clean configured V0; if shape regresses, run
+ * one historical control or invalidate the baseline. Retain 119 configurations
+ * including V0, trace once, try at most two trace-selected natural forms and an
+ * improving-only combination. Cap 122 deterministic builds plus one trace,
+ * with build 123 only for the regression control; permit one 20-minute/2,000-
+ * candidate stack-aware batch only after a legal natural gain. Empty guards,
+ * dead stack aids, forced registers, and stack-normalized scoring are rejected.
  */
 s32 func_80012574(TrackVec3f *origin, TrackVec3f *direction,
                   TrackVec3f *center, f32 radius, f32 *minimum,

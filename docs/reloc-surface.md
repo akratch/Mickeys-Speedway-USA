@@ -941,8 +941,11 @@ R_MIPS_26 calls come from matched `func_8002C94C` at
 authenticated. ORT 727 exports it, with zero resident-runtime or overlay
 `SYMBOL` users. Current linked equality proves fallback only.
 
-Resident `func_80012574` owns one exact R_MIPS_26 record to `sqrtf` at `+0xA4`
-in retained genuine configured C. ORT 308 exports it from entry ROM `0x1849C00`.
+Resident `func_80012574` targets one R_MIPS_26 record to `sqrtf` at `+0xA4`.
+Historical pre-cleanup configured C was reported to emit that exact tuple, but
+no candidate object/hash survives and current clean C output is pending. It owns
+VRAM `0x80012574..0x80012658`, ROM `0x13174..0x13258`, with no padding. ORT 308
+exports it from entry ROM `0x1849C00`.
 Five direct calls exist at `func_80011CDC+0x288/+0x3CC` and
 `func_800563B4+0xF8/+0x4E8/+0x65C`. There are zero resident runtime records
 inside the function, zero resident or overlay records targeting ORT 308, and
