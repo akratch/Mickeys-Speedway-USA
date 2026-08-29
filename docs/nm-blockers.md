@@ -89,7 +89,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_80020B10` | `src/main/models.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80020D8C` | `src/main/models.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80020E4C` | `src/main/models.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8005A7A0` | `src/main/models_5B300.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_8005A7A0` | `src/main/models_5B300.c` | none | — | Retained configured evidence is exact-sized at 106 words but has a `0x50` versus target `0x38` frame, ten frame/carrier/schedule sites, and the second loader relocation at `+0xC0` versus target `+0xBC`. Run one unchanged full-TU/linked V0, then park absent a new allocator mechanism. |
 | `func_8005A948` | `src/main/models_5B300.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8005AAC0` | `src/main/models_5B300.c` | reproof-required | — | Retained candidate bytes and linked function/TU/resident ranges are exact; independently regenerate the target object and prove the seven relocation identities before treating the evidence chain as complete. |
 | `func_8003CE10` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |

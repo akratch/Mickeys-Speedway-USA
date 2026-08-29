@@ -2703,7 +2703,7 @@ placeholder name or counting padding as function text.
 | `0x5B300` / `0x8005A700` | `0x64` | `func_8005A700` | D: allocates animation table/cache storage |
 | `0x5B364` / `0x8005A764` | `0x0C` | `func_8005A764` | D: resets the pending-animation counter |
 | `0x5B370` / `0x8005A770` | `0x30` | `func_8005A770` | D: flushes the pending animation table, then resets its count; no per-symbol caller argument recorded |
-| `0x5B3A0` / `0x8005A7A0` | `0x1A8` | `func_8005A7A0` | D: loads a model's animation-ID table and allocates its animation pointer array; no per-symbol caller argument recorded |
+| `0x5B3A0` / `0x8005A7A0` | `0x1A8` | `func_8005A7A0` | B: loads a model's animation-ID table and allocates its animation pointer array; sole proven caller is `func_8001F520+0x42C`, passing the loaded model and model ID |
 | `0x5B548` / `0x8005A948` | `0x178` | `func_8005A948` | D: reference-counted single-animation loader; nearest non-exact JFG `models.c` skeleton |
 | `0x5B6C0` / `0x8005AAC0` | `0xB8` | `func_8005AAC0` | D: releases one reference-counted animation; nearest non-exact JFG `models.c` skeleton |
 | `0x5B778` / `0x8005AB78` | `0x30` | `camConvertMatrixList` | A: exact JFG `camera.c` helper, used by the matrix builder below |
@@ -2796,12 +2796,17 @@ masks two or three instructions longer, and a folded live guard schedule-only
 at the initial global load; none rotated the scan-index web. The p10 best C
 remains under `NON_MATCHING` and the target assembly remains canonical.
 
-`func_8005A7A0` is now exact-sized at 106 words with ten positional
-differences from `+0x0`; its `0x50` candidate frame remains larger than the
-target's `0x38`, and the alignment carrier uses `v1`/`sp+0x30` instead of
-`s0`/`sp+0x34`. More than ten pointer/index, size-expression, coalescing,
-scope, and mask forms plus all 119 flag combinations exhausted the family;
-assembly remains canonical. `func_8005ABA8` emits 110 against 111 and first diverges
+`func_8005A7A0` has retained configured full-TU evidence at 106 words, with
+ten raw/normalized sites at
+`+0x000/+0x08c/+0x0a0/+0x0bc/+0x0c0/+0x0c4/+0x0c8/+0x0dc/+0x0f4/+0x1a4`.
+Its `0x50` candidate frame remains larger than the target's `0x38`, and the
+alignment carrier uses `v1`/`sp+0x30` instead of `s0`/`sp+0x34`. All ten
+relocation identities agree, but the second `piRomLoadSection` call moves from
+target `+0xbc` to candidate `+0xc0`. More than ten pointer/index,
+size-expression, coalescing, scope, and mask forms plus all 119 flag groups
+exhausted the family. Run one unchanged configured full-TU and real-address
+linked V0, then park if reproduced; no linked candidate-C proof survives.
+Assembly remains canonical. `func_8005ABA8` emits 110 against 111 and first diverges
 at `+0x38` before an FP-allocation cascade. `func_8005AF14` now has a
 Mickey-derived matrix/attachment-point candidate; its source comment discloses
 the pinned JFG declaration files used only to cross-check field roles, while
