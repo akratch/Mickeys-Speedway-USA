@@ -283,7 +283,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_040_F00001A0_1886A50` | `src/overlays/o040/overlay40BuildFrame.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_040_F0000690_1886F40` | `src/overlays/o040/overlay40FadeRecords.c` | none | — | Retained configured candidate is 3/101 register-only words from exact at `+0xC/+0x10/+0x24`, frame `0x8`; use the bounded value-origin/declaration ladder, not another blind sweep. |
 | `func_overlay_040_F00000E8_1886998` | `src/overlays/o040/overlay40UpdateEntries.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_041_F0001650_1888988` | `src/overlays/o041/overlay41AddSlot.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_041_F0001650_1888988` | `src/overlays/o041/overlay41AddSlot.c` | none | — | Frameless 55-word candidate has six register-only sites at `+0x10/+0x18/+0xA0/+0xA4/+0xCC/+0xD0` and four required relocations; flag/permuter/globalcolor routes exhausted. Reproof-only V0. |
 | `func_overlay_041_F0001740_1888A78` | `src/overlays/o041/overlay41SpawnItems.c` | none | — | Prior equality required two prohibited retained-rodata LO16 field edits; assembly fallback restored. |
 | `func_overlay_041_F0000000_1887338` | `src/overlays/o041/overlay41AdvanceStepRecords.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_041_F000195C_1888C94` | `src/overlays/o041/overlay41EnqueueTransition.c` | none | — | No ownership change; continue source/codegen work. |
