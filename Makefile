@@ -315,6 +315,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_preflight.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_allocator_trace_receipt.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_lane_status.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_ready_queue.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_wb_compare.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_nm_ranking.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_permute_batch_deadline.py
