@@ -93,8 +93,9 @@ extern void overlay1GetVariableRecords(O1VariableRecord **records, s32 *length,
  * byte cursor, block-local record size, and scoped call outputs retained the
  * eight-word baseline. Direct D_1D8C access fixed the four data-reloc names but
  * regressed to 16 words. Commit 9968f84e repaired the unrelated consolidated
- * TU declaration conflicts. Retained configured full-TU evidence reproduces
- * the same eight-word state; fresh reproof is still required. Only if V1
+ * TU declaration conflicts. The retained isolated C reproduces the same
+ * eight-word state but omitted -Wab,-r4300_mul; full-TU equality is fallback,
+ * so fresh configured reproof is required. Only if V1
  * preserves the 44-word/0x38-frame shape, keep all other locals fixed and try
  * records/private/length, records/length/private,
  * private/length/records, length/private/records, and
@@ -3210,9 +3211,10 @@ extern Overlay1BestRecord gOverlay1BestRecords[32];
 extern s32 gOverlay1SelectedType;
 
 /* Mickey-only reconstruction; DKR v77/v80 and JFG have no exact donor.
- * Retained configured full-TU and isolated C agree: exact 30-word frameless
- * shape, 18/30 words exact, and 12 runtime-normalized register differences
- * from +0x4, all in one a1/a3 carrier exchange. The candidate retains both
+ * Retained isolated C has the exact 30-word frameless shape, 18/30 words
+ * exact, and 12 runtime-normalized register differences from +0x4, all in one
+ * a1/a3 carrier exchange, but its recipe omitted -Wab,-r4300_mul and no
+ * configured full-TU C object survives. The candidate retains both
  * gOverlay1BestRecords and gOverlay1SelectedType HI16/LO16 pairs; the target
  * static object literalizes the latter, while the runtime table proves all
  * four records. Linked range/module/ROM identity proves assembly fallback

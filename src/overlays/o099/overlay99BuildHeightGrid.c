@@ -28,9 +28,10 @@ extern void overlay99ApplySegment(Overlay99Segment *segment, f32 scale);
 
 /*
  * Retained-evidence plateau (reviewed 2026-08-29): target is 114 words with
- * a 0x28 frame. The latest retained configured NON_MATCHING object predates
- * the grid-load reorder below and is 104/114 words after runtime-relocation
- * normalization, with ten register-only sites at +0x108,+0x10C,+0x110,
+ * a 0x28 frame. The retained genuine isolated object predates the grid-load
+ * reorder below and is 104/114 words after runtime-relocation normalization,
+ * but its recipe omitted the TU's explicit -Wo,-loopunroll,0. Its ten
+ * register-only sites are at +0x108,+0x10C,+0x110,
  * +0x114,+0x118,+0x120,+0x124,+0x154,+0x15C,+0x170. Its 29 static
  * relocations match all 29 shipped runtime sites and types. The reorder was
  * historically reported to remove the first seven sites, leaving the
