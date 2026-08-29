@@ -77,14 +77,18 @@ extern void overlay62DrawLabelReloc(Overlay62Gfx **commands, s32 *state,
 
 #ifdef NON_MATCHING
 /* PROVENANCE: Mickey-derived; pinned DKR v77/v80 and JFG scans found no donor.
- * Retained configured evidence is 294 words/frame 0x88 with five raw sites at
+ * Retained configured evidence is 289/294 raw and 290/294 runtime-normalized
+ * words, frame 0x88, with five raw sites at
  * +0x44/+0x50/+0x54/+0x64/+0x130. Runtime normalization removes the exact
  * LOCAL LO16 at +0x130, leaving four register-allocation sites. All 71 runtime
  * tuples (21 R26 and 25 HI/LO pairs; 43 SYMBOL/28 LOCAL) are exact; the
  * fallback target object's 29 ELF records are incomplete, and its ordinary
- * 0-word comparison proves assembly rather than candidate C. Reproduce V0,
- * run the missing flag lattice, then one 20-minute macro-faithful annotated
- * permuter batch; no linked/ROM-exact candidate proof survives. */
+ * 0-word comparison proves assembly rather than candidate C. The isolated
+ * 11-word ranking expanded OVERLAY62_EMIT across physical lines and is not the
+ * macro-faithful configured baseline. Reproduce V0, retain the missing flag
+ * lattice, take one residual-web trace, and try only its indicated source form
+ * before an improving-only macro-faithful annotated batch. No linked/ROM-exact
+ * candidate proof survives. */
 void overlay62Update(s32 updateRate) {
     s32 alpha;
     volatile s32 screenBase;
