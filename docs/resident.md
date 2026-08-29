@@ -1841,11 +1841,12 @@ that earlier spelling. ORT 727 has five direct calls in matched
 `func_8002C94C` and no runtime/overlay/pointer inbound; linked equality is
 fallback-only. The current cursor re-cache spelling's reported 17/28
 result, four-web diagnosis, flag lattice, source matrix, trace, and cost-55
-permuter run have no retained objects or summaries. Reproduce current V0,
-retain the 119-recipe flag lattice including V0, and use one allocator trace to
-select at most two natural forms, combining only if both improve. Cap 122
-deterministic builds and then record a plateau; no generic batch is needed.
-The assembly fallback remains canonical.
+permuter run are prose-only. Every metric for current C is therefore unknown.
+Treat this as reproof: compile configured V0 first, and use one old-body control
+only if V0 materially drifts. Then retain 119 configurations, one allocator
+trace, and at most two trace-supported natural forms, combining only independent
+gains. Cap 122 deterministic builds plus trace; a control replaces a later form
+and no generic batch is justified. The assembly fallback remains canonical.
 
 The 124-byte `func_8002C70C` is exact under canonical `-Wo,-loopunroll,0 -O2 -mips2 -32`; its 31 words and relocation-free linked range match.
 

@@ -450,11 +450,12 @@ SavesBitWriter *func_8002C60C(s32 size, s32 clear) {
  * isolated recipe omitted canonical -Wo,-loopunroll,0, but configured equality
  * proves it inert for that old spelling only. ORT 727 has five direct callers
  * in func_8002C94C and no runtime/overlay/pointer inbound; linked equality is
- * fallback-only. The
- * reported current-body 17/28 result and later flag/search outcomes are
- * historical and unretained, so current score is unknown. Run 119 flags
- * including V0, trace once, try at most two independent natural forms and a
- * combination only if both improve; cap 122 deterministic builds. */
+ * fallback-only. The reported current-body 17/28 result and later flag/search
+ * outcomes are prose-only, so every current-body metric is unknown. Reprove
+ * configured V0 first; use one old-body control only if V0 materially drifts,
+ * then run 119 flags, one trace, and at most two trace-supported natural forms,
+ * combining only independent gains. Cap 122 deterministic builds plus trace;
+ * the control replaces a later form and no generic batch is justified. */
 void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
     s32 isSet;
     u32 nextBit;
