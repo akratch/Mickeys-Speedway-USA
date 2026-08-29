@@ -27,7 +27,7 @@ extern s32 gOverlay99Arg5;
 extern void overlay99ApplySegment(Overlay99Segment *segment, f32 scale);
 
 /*
- * Retained-evidence plateau (reviewed 2026-08-29): target is 114 words with
+ * Retained-evidence diagnostic (reviewed 2026-08-29): target is 114 words with
  * a 0x28 frame. The retained genuine isolated object predates the grid-load
  * reorder below and is 104/114 words after runtime-relocation normalization,
  * but its recipe omitted the TU's explicit -Wo,-loopunroll,0. Its ten
@@ -36,8 +36,11 @@ extern void overlay99ApplySegment(Overlay99Segment *segment, f32 scale);
  * relocations match all 29 shipped runtime sites and types. The reorder was
  * historically reported to remove the first seven sites, leaving the
  * three-use negative-magnitude web, but no untouched current-source object
- * survives. Ordinary object/link/module/ROM equality proves GLOBAL_ASM only.
- * Reprove current V0, then attempt one dead-argument lifetime carrier. */
+ * survives. Both bodies also used an invented empty read of `unused` to alter
+ * its ABI lifetime; that guard is removed, so both scores are diagnostic only.
+ * Ordinary object/link/module/ROM equality proves GLOBAL_ASM. Compile clean
+ * V0, retain the 119-flag lattice, take one allocator trace, then try only its
+ * indicated natural magnitude-carrier form. */
 #ifdef NON_MATCHING
 void overlay99BuildHeightGrid(f32 scale, void *unused, s32 widthMinusOne,
                               s32 heightMinusOne, s32 arg4, s32 arg5) {
@@ -46,10 +49,6 @@ void overlay99BuildHeightGrid(f32 scale, void *unused, s32 widthMinusOne,
     s32 *heightPtr;
     s32 i;
     s32 value;
-
-    /* Preserve the physical mixed-ABI slot without emitting an a1 home. */
-    if (unused) {
-    }
 
     point = gOverlay99Grids[gOverlay99CurrentGrid];
     if (point == 0) {
