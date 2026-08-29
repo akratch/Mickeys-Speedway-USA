@@ -1,7 +1,7 @@
 # Ranked ready queue
 
 `tools/ready_queue.py` gives a coordinator a deterministic ranked prefix of
-targets that are safe to assign. It joins four independent checks:
+targets that are safe to assign. It joins five independent checks:
 
 1. `config/nonmatching-ranking.us.json` must pass the complete canonical
    validator in `tools/nm_ranking.py`.
@@ -12,9 +12,11 @@ targets that are safe to assign. It joins four independent checks:
    shared declarations, matched code, fallback identities, and this target's
    body remain covered. A relevant later edit makes the ranking evidence stale
    even when the symbol and path still exist.
-3. The exact `(file, symbol)` identity must still be present in the live
+3. The owning source path must be clean in the primary worktree and index, so
+   an uncommitted contributor edit cannot be assigned to another lane.
+4. The exact `(file, symbol)` identity must still be present in the live
    `NON_MATCHING` source queue discovered by `tools/permute_batch.py`.
-4. `tools/lane_status.py` must classify the symbol as `base-only`. This is the
+5. `tools/lane_status.py` must classify the symbol as `base-only`. This is the
    only assignable state under ADR 0011.
 
 The command is read-only. It reads source and committed Git objects; it does
@@ -55,7 +57,8 @@ ready/skipped rows, and summary counts.
 
 Rows with changed compiler contexts are visibly marked `reproof-*` and ranked
 behind equally promising current evidence; their stale score is never claimed
-as current. Rows classified `active`, `already-integrated/exhausted`, or `stale-ledger`
+as current. An owning path changed in the primary worktree or index is skipped
+as `dirty-worktree`. Rows classified `active`, `already-integrated/exhausted`, or `stale-ledger`
 are skipped and summarized separately. A ranking identity no longer present
 in the live queue is summarized as `not-live`; use the ranking prune or
 regeneration flow to remove it.

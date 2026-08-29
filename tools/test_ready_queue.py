@@ -102,6 +102,7 @@ class ReadyQueueTests(unittest.TestCase):
         self.assertEqual(
             report["summary"]["skipped"],
             {
+                "dirty-worktree": 0,
                 "active": 1,
                 "already-integrated/exhausted": 1,
                 "stale-ledger": 1,
@@ -191,6 +192,24 @@ class ReadyQueueTests(unittest.TestCase):
         self.assertTrue(report["ready"][0]["requires_reproof"])
         self.assertEqual(report["ready"][0]["proof_quality"], "reproof-allocator")
         self.assertIn("refresh configured baseline", report["ready"][0]["reason"])
+
+    def test_dirty_owning_path_is_not_classified_or_assigned(self) -> None:
+        rows = [row("src/main/a.c", "a", 1)]
+        called = False
+
+        def classify(_base: str, _symbol: str) -> lane_status.Assignment:
+            nonlocal called
+            called = True
+            return assignment("a", "src/main/a.c")
+
+        report = rq.build_report(
+            document(rows), [Item("src/main/a.c", "a")], base="base",
+            base_commit="abc", ranking_name="ranking.json", scan=1, top=1,
+            dirty_paths={"src/main/a.c"}, classify=classify,
+        )
+        self.assertFalse(called)
+        self.assertEqual(report["ready"], [])
+        self.assertEqual(report["summary"]["skipped"]["dirty-worktree"], 1)
 
     def test_freshness_ignores_comments_and_other_candidate_bodies(self) -> None:
         old = """extern int shared;

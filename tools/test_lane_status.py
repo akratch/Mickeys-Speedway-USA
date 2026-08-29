@@ -235,6 +235,10 @@ void unrelatedFunction(void) {
 
 
 class LaneRefQueryTests(unittest.TestCase):
+    def tearDown(self) -> None:
+        ls.show_file.cache_clear()
+        ls.blob_id.cache_clear()
+
     def test_lane_scan_filters_refs_already_merged_into_base(self) -> None:
         with mock.patch.object(ls, "git", return_value="") as git:
             self.assertEqual(

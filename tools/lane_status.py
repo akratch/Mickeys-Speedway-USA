@@ -9,6 +9,7 @@ object, relocation, linked-range, and ROM checks (ADR 0011).
 from __future__ import annotations
 
 import argparse
+from functools import lru_cache
 import json
 import re
 import subprocess
@@ -68,6 +69,7 @@ def has_text(ref: str, text: str) -> bool:
     return result.returncode == 0
 
 
+@lru_cache(maxsize=2048)
 def show_file(ref: str, path: str) -> str | None:
     result = subprocess.run(
         ["git", "show", f"{ref}:{path}"], text=True,
@@ -80,6 +82,7 @@ def show_file(ref: str, path: str) -> str | None:
     raise RuntimeError(f"git show failed for {ref}:{path}")
 
 
+@lru_cache(maxsize=2048)
 def blob_id(ref: str, path: str) -> str | None:
     result = subprocess.run(
         ["git", "rev-parse", "--verify", f"{ref}:{path}"], text=True,
@@ -125,6 +128,13 @@ def exact_symbol_pattern(symbol: str) -> re.Pattern[str]:
     return re.compile(
         SYMBOL_TOKEN_TEMPLATE.format(symbol=re.escape(symbol)), re.MULTILINE,
     )
+
+
+def exact_symbol_rows(text: str | None, symbol: str) -> list[str]:
+    if text is None:
+        return []
+    token = exact_symbol_pattern(symbol)
+    return [line for line in text.splitlines() if token.search(line)]
 
 
 def source_identity(ref: str, symbol: str) -> tuple[str | None, str | None]:
@@ -446,13 +456,22 @@ def assignment_status(base: str, symbol: str) -> Assignment:
     # or park commit on a path containing exactly one NON_MATCHING guard is
     # still unambiguous target evidence; treating it as fresh work caused the
     # ready queue to reassign already exhausted o57/o79/o22 routes.
+    guard_count = len(re.findall(r"#\s*ifdef\s+NON_MATCHING\b", text))
     path_record = (
         path_plateau_record(base, path)
-        if len(re.findall(r"#\s*ifdef\s+NON_MATCHING\b", text)) == 1
+        if guard_count == 1
         else None
     )
-    ledger_source_record = ledger_source_plateau_record(
-        base, symbol, path,
+    triage_text = show_file(base, TRIAGE_PATH)
+    ledger_rows = exact_symbol_rows(triage_text, symbol)
+    ledger_has_symbol = bool(ledger_rows)
+    ledger_marks_plateau = any(
+        PLATEAU_SUBJECT_RE.search(line) for line in ledger_rows
+    )
+    ledger_source_record = (
+        ledger_source_plateau_record(base, symbol, path)
+        if guard_count > 1 and ledger_marks_plateau
+        else None
     )
     if (
         not has_plateau_handoff(text, symbol)
@@ -473,10 +492,6 @@ def assignment_status(base: str, symbol: str) -> Assignment:
         else ledger_source_record[0]
         if ledger_source_record is not None
         else None
-    )
-    triage_text = show_file(base, TRIAGE_PATH)
-    ledger_has_symbol = bool(
-        triage_text is not None and exact_symbol_pattern(symbol).search(triage_text)
     )
     ledger_commit = (
         latest_token_commit(base, symbol, TRIAGE_PATH)

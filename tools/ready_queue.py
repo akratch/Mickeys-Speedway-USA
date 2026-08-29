@@ -43,6 +43,7 @@ DEFAULT_JOBS = 4
 SCHEMA_VERSION = 2
 ASSIGNABLE_STATE = "base-only"
 SKIPPED_STATES = (
+    "dirty-worktree",
     "active",
     "already-integrated/exhausted",
     "stale-ledger",
@@ -367,6 +368,16 @@ def ranking_freshness(
     return result
 
 
+def dirty_worktree_paths() -> set[str]:
+    """Return tracked paths changed in either the index or working tree."""
+    paths: set[str] = set()
+    for args in (("diff", "--name-only"), ("diff", "--cached", "--name-only")):
+        paths.update(
+            line for line in lane_status.git(*args).splitlines() if line
+        )
+    return paths
+
+
 def build_report(
     document: object,
     live_items: Iterable[object],
@@ -378,6 +389,7 @@ def build_report(
     top: int,
     jobs: int = 1,
     freshness: FreshnessMap | None = None,
+    dirty_paths: set[str] | None = None,
     classify: AssignmentClassifier = lane_status.assignment_status,
 ) -> dict[str, object]:
     """Join ranking, live source identities, and assignment verdicts."""
@@ -388,6 +400,7 @@ def build_report(
     assert isinstance(unresolved, list)
 
     live = live_identities(live_items)
+    dirty_paths = dirty_paths or set()
     live_keys = {(item.file, item.symbol) for item in live}
     live_paths_by_symbol: dict[str, set[str]] = {}
     for item in live:
@@ -412,7 +425,7 @@ def build_report(
                 assert isinstance(raw_row, dict)
                 key = (str(raw_row["file"]), str(raw_row["name"]))
                 evidence = freshness.get(key) if freshness is not None else None
-                if key in live_keys:
+                if key in live_keys and key[0] not in dirty_paths:
                     futures[rank] = executor.submit(classify, base, key[1])
 
         try:
@@ -443,6 +456,23 @@ def build_report(
                         "reason": (
                             "exact identity is absent from the live "
                             "NON_MATCHING queue"
+                        ),
+                        "active_lanes": [],
+                        "source_commit": None,
+                        "ledger_commit": None,
+                    })
+                    continue
+
+                if file_name in dirty_paths:
+                    skipped_counts["dirty-worktree"] += 1
+                    skipped.append({
+                        **_ranking_details(
+                            raw_row, rank, snapshot_rank, score, evidence,
+                        ),
+                        "state": "dirty-worktree",
+                        "reason": (
+                            "owning source path has uncommitted primary-"
+                            "worktree changes"
                         ),
                         "active_lanes": [],
                         "source_commit": None,
@@ -637,6 +667,7 @@ def main(argv: list[str] | None = None) -> int:
         document = json.loads(args.ranking.read_text(encoding="utf-8"))
         ranking_name = portable_path(args.ranking)
         freshness = ranking_freshness(args.base, ranking_name, document)
+        dirty_paths = dirty_worktree_paths()
         report = build_report(
             document,
             permute_batch.discover_queue(),
@@ -645,6 +676,7 @@ def main(argv: list[str] | None = None) -> int:
             ranking_name=ranking_name,
             scan=args.scan, top=args.top, jobs=args.jobs,
             freshness=freshness,
+            dirty_paths=dirty_paths,
         )
     except (
         OSError,
