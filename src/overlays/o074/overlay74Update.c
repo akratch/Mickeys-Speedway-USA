@@ -40,27 +40,21 @@ void overlay74HitReloc(Overlay74UpdateObject *object);
 void overlay74SoundReloc(s32 soundId, s32 arg1);
 void overlay74RewardReloc(s32 count);
 
-/* NON_MATCHING plateau (retested 2026-08-28): the nearest skeleton score is
- * 0.056 and all 119 flag combinations miss. Ten structural variants reduced
- * the exact-size, 100-word candidate from 14 differing words to six raw and
+/* NON_MATCHING plateau (re-reviewed 2026-08-29): retained configured full-TU
+ * and isolated C agree on the exact-size 100-word candidate at six raw and
  * six relocation-normalized words at +0xC,+0x68,+0x84,+0x8C,+0x90,+0x124,
  * while preserving the 0x60 frame. Five words swap the result aggregate's
  * address/object register pair, and the last OR uses the opposite commutative
- * encoding. A bounded two-worker permuter batch found no exact form.
- * Historical logs say an instrumented IDO build reproduced the isolated
- * candidate; the retained evidence is a configured-flag isolated 94/100-word
- * object, not configured full-TU or linked C proof. Its eight offsets/types
+ * encoding. Its eight offsets/types
  * agree with the runtime records,
  * including both gOverlay74Flags pairs resolved through reserved selector
  * 0xFFF/addend 0x4D6E8 to D_800D3128; the assembled target retains only four
  * static call relocations. Pinned DKR v77/v80 and JFG scans found no donor.
- * Removing the artificial aggregate-address use makes the first
- * pair exact but rotates 32 later temporary words; local-carrier, ABI-return,
- * and operand-order spellings do not retain that gain. Forced-color probes
- * move 85+ words or change the instruction count, confirming this is a
- * temp-FIFO/pool-position boundary rather than a safe one-web recoloring.
- * Reprove V0, then probe the resident s32 query return and void no-argument hit
- * ABIs; stop if both are flat, with a four-build hard cap. */
+ * Historical flag, structural, forced-color, and permuter scores have no
+ * surviving attributable variant objects and are scheduling context, not
+ * exhaustion proof. Reprove V0; independently probe the resident s32 query
+ * return, void no-argument hit ABI, and reversed outer OR operands; combine
+ * only strict gains within a five-build cap. Linked C proof does not survive. */
 #ifdef NON_MATCHING
 void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
     Overlay74QueryResult result;
