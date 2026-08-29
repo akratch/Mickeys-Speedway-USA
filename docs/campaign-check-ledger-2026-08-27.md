@@ -224,13 +224,12 @@ measures model-guided compiler feedback rather than search throughput.
 | Sol/xhigh | `func_8003A2C8` | 8 | 5 / 32 | 5 / 32 | about 3 min | plateau |
 | Sol/xhigh | `func_80012574` | 10 | 7 / 57 | 2 / 57 | about 5.5 min | diagnostic, rejected source |
 
-Both routes finished at 0 / 2 exact. `func_8003A2C8` remained size-exact and
-frameless with all six relocations exact; the residual is the same mode-web
-`v0`/`v1` inversion plus one ring-only site. Both routes independently
-exhausted declaration-order, assignment, comparison, and dead-read spelling
-probes. At the time its next action was a Tier-2 pool/UGEN trace; later
-allocator-oracle work completed that diagnosis without finding a source lever,
-so the current route is one unchanged configured V0 and then park.
+Both routes reported 0 / 2 exact. Their attempt counts, matrices, objects, and
+traces do not survive, so the table is historical prose rather than proof of
+route exhaustion. The retained prior-layout `func_8003A2C8` C object is
+size-exact and frameless with all six relocations exact; its five sites form the
+same mode-web `v0`/`v1` inversion. Reopen with current-layout V0, a retained
+119-flag lattice, one allocator trace, and only trace-selected natural forms.
 
 Fresh measurement corrected `func_80012574`'s older six-word note to seven
 raw differing words. The inherited route did not improve it. Sol/xhigh used

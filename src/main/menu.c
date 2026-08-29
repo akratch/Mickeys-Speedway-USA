@@ -1177,16 +1177,16 @@ s32 frontGetScreenMode(void) {
     return mode;
 }
 #ifdef NON_MATCHING
-/* Allocation plateau (evidence reviewed 2026-08-29): retained configured
- * full-TU C and retained isolated C are byte-identical across the owned
- * 32 words: 27/32 exact, frameless, with six exact relocations and differences
- * at +0xC/+0x10/+0x14/+0x18/+0x20. The full-TU object uses
- * -O2 -mips2 -32 -Wo,-loopunroll,0; the isolated import omitted no-unroll,
- * which is inert for this loop-free body. No linked C candidate survives;
- * ordinary object/ELF/ROM identity proves the assembly fallback only.
- * Historical prose reports a forced-color 31/32 diagnostic, but that object
- * does not survive. Recompile one unchanged configured V0, then park absent
- * a new allocator mechanism. */
+/* Allocation plateau (evidence reviewed 2026-08-29): retained prior-layout
+ * configured full-TU and isolated C are byte-identical: 27/32 exact, frameless,
+ * with six exact relocations and differences at +0xC/+0x10/+0x14/+0x18/+0x20.
+ * Configured C uses -O2 -mips2 -32 -Wo,-loopunroll,0; the isolated import
+ * omitted inert no-unroll. Current physical layout is uncompiled. ORT 606
+ * exports this function; callers are func_80027EC0+0x80, overlay46ReleaseState
+ * +0x70, and overlay 60 +0x156C. Linked equality proves fallback only.
+ * Forced-color 31/32 and prior route outcomes are unretained prose. Reopen with
+ * current V0, 119 flags, one allocator trace, at most two natural forms and an
+ * improving combination, then one improving-only bounded batch. */
 /* PROVENANCE: mask, state guard, and order compared with JFG's public
  * src/menu.c::frontSetScreenMode; packed fields derived from Mickey. */
 void func_8003A2C8(s32 screenMode) {
