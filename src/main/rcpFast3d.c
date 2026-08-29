@@ -368,16 +368,21 @@ void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002EBE0.s")
 #endif
 #ifdef NON_MATCHING
-/* Retained configured full-TU C from the immediately preceding D_800D2FAC
- * declaration state is 103/107 words, exact-sized and frameless, with one
- * two-result temporary FIFO at +0x74/+0x78/+0x7C/+0x80; both D_800D2FAC
- * relocations are exact. The isolated C is 96/107 and additionally differs at
- * +0x120/+0x124/+0x128/+0x180/+0x188/+0x190/+0x194. Fresh current-source V0
- * is required because the best object predates the s32-to-u16-pointer
- * declaration correction. Historical flag, source, trace, and permutation
- * outcomes lack attributable artifacts. Run and retain 119 flags, take one
- * UGEN FIFO trace, and try at most two trace-indicated forms; cap 121 stock
- * builds plus the trace and park if both forms are flat. */
+/* Historical same-body configured full-TU C under the preceding s32
+ * D_800D2FAC declaration was reported at 103/107 words, exact-sized and
+ * frameless, with one four-site temporary FIFO from +0x74 and both D_800D2FAC
+ * tuples exact. No candidate object/report/hash survives. The generated
+ * isolated scalar records 96/107, first +0x74, but its object is absent and it
+ * predates the u16-pointer declaration correction. Current C score, shape, and
+ * tuples are unknown. A retained structural scan found JFG's assembly-only
+ * rcpClearZBuffer first at 0.482 (472 versus Mickey's 428 bytes); no close C
+ * donor exists. Compile configured V0 and use exactly one prior-s32 control if
+ * 103/107, framelessness, or both tuples fail to reproduce; invalidate the
+ * historical baseline if the control also fails. Retain 119 configurations
+ * including V0, one UGEN FIFO trace, at most two trace-supported natural forms,
+ * and a combination only if both strictly improve. Hard cap 122 deterministic
+ * builds plus one trace, 123 only for the regression control; no generic batch
+ * or artificial allocation aids. */
 /* PROVENANCE: command sequence adapted from DKR's public src/rcp_dkr.c:bgdraw_render. */
 void rcpClearZBuffer(RcpCommand **arg0, u32 arg1, u32 arg2, s32 arg3,
                      s32 arg4, s32 arg5, s32 arg6) {
