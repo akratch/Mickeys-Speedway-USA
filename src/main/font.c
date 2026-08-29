@@ -435,13 +435,15 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
 /* PROVENANCE: JFG's permitted src/font.c::fontStringWidth assembly-backed
  * NON_EQUIVALENT draft and DKR's unbuilt Japanese get_text_width branch inform
  * structure only; neither is genuine donor C. Mickey remains authoritative.
- * Retained pre-current-layout isolated and full-TU C are a diagnostic 38/46
- * raw/normalized words, frame 0x30, with nine exact relocation tuples. The
- * former stackPad/empty condition were artificial frame-allocation aids and
- * have been removed; clean V0 is uncompiled. Retain 119 flags, capture one
- * allocator trace, try a replacing scoped glyphIndex and one trace-selected
- * fontData/spacing lifetime form, and combine only strict gains. Hard cap: 122
- * stock builds plus one trace; no generic batch without a legal natural gain. */
+ * Historical policy-defective isolated and full-TU C are a diagnostic 38/46
+ * raw/normalized words, frame 0x30, with nine exact relocation tuples. That
+ * body used artificial stackPad/empty-condition frame-allocation aids, now
+ * removed; every clean-current metric is unknown. Compile configured V0, using
+ * one historical control only on material structural drift. Then retain 119
+ * configurations, capture one allocator trace, try a block-scoped glyphIndex
+ * and one trace-selected fontData/spacing lifetime form, and combine only
+ * independent strict gains. Cap 122 deterministic builds plus trace, 123 only
+ * if the control is required; no generic batch. */
 s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
     FontSpacingData *fontData;
     u8 *spacing;

@@ -219,7 +219,7 @@ overlay callers/callees outside the range were observed.
 | `0x4BCF8` | `0x44` | `func_8004B0F8` | `fontPrintXY` | B/D, matched C | calls `0x4BD3C` |
 | `0x4BD3C` | `0xA0` | `func_8004B13C` | `fontPrintWindowXY` | B/D, matched C | calls `0x4BDDC` |
 | `0x4BDDC` | `0x8B0` | `func_8004B1DC` | JFG `func_80070518` | D, plateau | calls `0x4DF9C`, `0x4C68C`, `0x4D290`, ext |
-| `0x4C68C` | `0xB8` | `func_8004BA8C` | `fontStringWidth` | B/D, plateau | calls `0x4DF9C`; called twice by `0x4BDDC`, once by `0x4C8C4`, and by overlays 41 and 45 |
+| `0x4C68C` | `0xB8` | `func_8004BA8C` | `fontStringWidth` | B/D, reproof | calls `0x4DF9C`; called twice by `0x4BDDC`, once by `0x4C8C4`, and by overlays 41 and 45 |
 | `0x4C744` | `0x9C` | `func_8004BB44` | `fontWindowSize` | D, matched C | leaf; ext callers |
 | `0x4C7E0` | `0x1C` | `func_8004BBE0` | `fontWindowUseFont` | D, matched C | leaf; ext callers |
 | `0x4C7FC` | `0x40` | `fontWindowColour` | same | A, matched C | leaf; ext callers |
@@ -274,19 +274,23 @@ permutation resolved the final temp web.
 `func_8004BA8C` owns VRAM `0x8004BA8C..0x8004BB44`, ROM
 `0x4C68C..0x4C744`: 184 bytes/46 words, frame `0x30`, and no target padding.
 The isolated object's trailing eight alignment bytes are outside the function.
-Retained pre-current-layout configured isolated and full-TU C are byte-identical
-at 38/46 raw and relocation-normalized words, first `+0x30`; ordinary 46/46
-object and linked equality are assembly fallback only. The eight residual sites
-are the `fontData` carrier, `fontData`/`spacing` spill homes, and two equivalent
-operand orders.
+Historical policy-defective configured isolated and full-TU C are byte-identical
+at 38/46 raw and relocation-normalized words, first `+0x30`; that body used an
+artificial stack pad and empty condition. Clean current C is uncompiled, so its
+score, frame, extent, first mismatch, and emitted tuples are unknown. Ordinary
+46/46 object and linked equality are assembly fallback only. The historical
+eight residual sites are the `fontData` carrier, `fontData`/`spacing` spill
+homes, and two equivalent operand orders.
 
-All nine target tuples are exact in retained C: pairs to `D_800D60E4` at
+All nine target tuples were exact in the historical C: pairs to `D_800D60E4` at
 `+0x04/+0x08`, `D_800D6628` at `+0x14/+0x28`, and `D_800D6644` at
 `+0x34/+0x38` and `+0x48/+0x54`, plus the `func_8004D39C` call at `+0x40`.
 ORT 880 exports resident offset `0x4B63C`. Its five callers are
 `func_8004B1DC+0x1E4/+0x294`, `func_8004BCC4+0x12C`,
 `overlay41DrawItem+0x4C`, and `overlay45ConfigureLayout+0x9C`; there are no
-other direct, runtime-table, overlay-SYMBOL, or stored-pointer inbounds.
+other direct, runtime-table, overlay-SYMBOL, or stored-pointer inbounds. The
+existing Overlay 41 rename and Overlay 45 proxy preserve the runtime carriers;
+current candidate tuples still await configured V0.
 
 The retained 38/46 score is diagnostic: `stackPad` and its empty condition were
 artificial frame/allocation aids and are now removed, leaving clean V0

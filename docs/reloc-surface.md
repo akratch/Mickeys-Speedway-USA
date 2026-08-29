@@ -1012,7 +1012,8 @@ survives. Resident runtime records, ORT export rows at offset
 `func_80045CAC+0x64` is the sole direct caller. The owned ROM
 `0x467BC..0x468AC` has no padding. Current linked equality proves fallback only.
 
-Resident `func_8004BA8C` owns nine exact static records in retained genuine C:
+Resident `func_8004BA8C` owns nine target static records. Historical
+policy-defective C emitted all nine exactly:
 HI16/LO16 pairs to `D_800D60E4` at `+0x04/+0x08`, `D_800D6628` at
 `+0x14/+0x28`, and `D_800D6644` at `+0x34/+0x38` and `+0x48/+0x54`, plus
 an R_MIPS_26 call to `func_8004D39C` at `+0x40`. ORT 880 exports resident
@@ -1021,8 +1022,9 @@ offset `0x4B63C`; resident callers are `func_8004B1DC+0x1E4/+0x294` and
 and Overlay 45 record 22 at `+0x3B0` call it from `overlay41DrawItem+0x4C`
 and `overlay45ConfigureLayout+0x9C`. No additional direct JAL, resident
 runtime-table, overlay SYMBOL, or stored-pointer inbound is authenticated.
-Current linked equality proves fallback only; the two overlay proxy names still
-need metadata-only rebinding to this shared identity when clean V0 is compiled.
+Current clean C is uncompiled, so its tuple surface awaits V0 and linked equality
+proves fallback only. Overlay 41's existing rename and Overlay 45's proxy already
+preserve the runtime carriers; no new resident rebinding is required.
 
 Resident `func_8002B7AC` targets 12 static records: HI16/LO16 pairs to
 `D_800D21B0` at `+0x08/+0x0C`, `D_800D21A8` at `+0x44/+0x48`,
