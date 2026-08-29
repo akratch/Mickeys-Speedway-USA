@@ -432,25 +432,23 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B1DC.s")
 #endif
 #ifdef NON_MATCHING
-/* PROVENANCE: JFG's permitted src/font.c::fontStringWidth assembly and DKR's
- * src/font.c::get_text_width Japanese branch informed organization; Mickey
- * data and m2c remain authoritative.
- * Retained configured isolated and full-TU evidence is exact-size with eight
- * raw/normalized sites at +0x30,+0x3C,+0x44,+0x4C,+0x50,+0x60,+0x90,+0x94,
- * a 0x30 frame, and nine exact relocation tuples. No linked C proof survives.
- * Only V0 is artifact-authenticated. Reproduce it, retain the full flag
- * lattice, reconstruct the historical u32 glyph-index form, then try one
- * trace-selected natural font-data-web or spill-home spelling. */
+/* PROVENANCE: JFG's permitted src/font.c::fontStringWidth assembly-backed
+ * NON_EQUIVALENT draft and DKR's unbuilt Japanese get_text_width branch inform
+ * structure only; neither is genuine donor C. Mickey remains authoritative.
+ * Retained pre-current-layout isolated and full-TU C are a diagnostic 38/46
+ * raw/normalized words, frame 0x30, with nine exact relocation tuples. The
+ * former stackPad/empty condition were artificial frame-allocation aids and
+ * have been removed; clean V0 is uncompiled. Retain 119 flags, capture one
+ * allocator trace, try a replacing scoped glyphIndex and one trace-selected
+ * fontData/spacing lifetime form, and combine only strict gains. Hard cap: 122
+ * stock builds plus one trace; no generic batch without a legal natural gain. */
 s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
-    u8 stackPad[1];
     FontSpacingData *fontData;
     u8 *spacing;
     s32 width;
     u8 current;
     u8 defaultWidth;
     u8 glyphWidth;
-
-    if (&stackPad);
 
     fontData = &D_800D60E4[font];
     spacing = D_800D6628[font];

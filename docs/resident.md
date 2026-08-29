@@ -271,17 +271,31 @@ Remaining: initial pool setup and saved-header copy schedule.
 frame, relocation identities, and linked ROM bytes match after bounded
 permutation resolved the final temp web.
 
-`func_8004BA8C`'s retained configured isolated and full-TU `NON_MATCHING`
-candidates match 38/46 words. Both raw and relocation-normalized residuals are
-the eight sites `+0x30,+0x3C,+0x44,+0x4C,+0x50,+0x60,+0x90,+0x94`; the
-`0x30` frame and nine relocation tuples are exact. No linked C candidate proof
-survives. The allocation trace selects `a3` for the font-data web while `v0`
-is the target carrier, while two candidate spill homes and two commutative
-operand orders make up the rest of the residual. Only V0 has attributable
-artifacts; the historical trace, source, flag, and permutation outcomes survive
-only as scheduling prose. Reproduce V0, retain the complete flag lattice,
-reconstruct the historical `u32 glyphIndex` form, then try one trace-selected
-natural web or spill-home spelling; cap four steps.
+`func_8004BA8C` owns VRAM `0x8004BA8C..0x8004BB44`, ROM
+`0x4C68C..0x4C744`: 184 bytes/46 words, frame `0x30`, and no target padding.
+The isolated object's trailing eight alignment bytes are outside the function.
+Retained pre-current-layout configured isolated and full-TU C are byte-identical
+at 38/46 raw and relocation-normalized words, first `+0x30`; ordinary 46/46
+object and linked equality are assembly fallback only. The eight residual sites
+are the `fontData` carrier, `fontData`/`spacing` spill homes, and two equivalent
+operand orders.
+
+All nine target tuples are exact in retained C: pairs to `D_800D60E4` at
+`+0x04/+0x08`, `D_800D6628` at `+0x14/+0x28`, and `D_800D6644` at
+`+0x34/+0x38` and `+0x48/+0x54`, plus the `func_8004D39C` call at `+0x40`.
+ORT 880 exports resident offset `0x4B63C`. Its five callers are
+`func_8004B1DC+0x1E4/+0x294`, `func_8004BCC4+0x12C`,
+`overlay41DrawItem+0x4C`, and `overlay45ConfigureLayout+0x9C`; there are no
+other direct, runtime-table, overlay-SYMBOL, or stored-pointer inbounds.
+
+The retained 38/46 score is diagnostic: `stackPad` and its empty condition were
+artificial frame/allocation aids and are now removed, leaving clean V0
+uncompiled. JFG's same-sized function is an assembly-backed NON_EQUIVALENT
+draft and DKR's Japanese structural branch was not the built US producer.
+Retain exactly 119 flags, capture one allocator trace, try a replacing scoped
+`glyphIndex` and one trace-selected `fontData`/`spacing` lifetime form, then
+combine only independent gains. Hard cap 122 stock builds plus one trace; no
+generic permutation without a policy-clean natural gain.
 
 The font subsegment's FP-register census contains only even-numbered single-
 precision registers (`$f0`, `$f4`, `$f6`, `$f8`, `$f10`, `$f16`, and `$f18`),

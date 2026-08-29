@@ -863,6 +863,18 @@ R_MIPS_26 `_bcopy` calls at `+0x4C,+0x6C,+0x88`; and `packWriteFile` at
 `func_80045CAC+0x64` is the sole direct caller. Current linked equality proves
 fallback only.
 
+Resident `func_8004BA8C` owns nine exact static records in retained genuine C:
+HI16/LO16 pairs to `D_800D60E4` at `+0x04/+0x08`, `D_800D6628` at
+`+0x14/+0x28`, and `D_800D6644` at `+0x34/+0x38` and `+0x48/+0x54`, plus
+an R_MIPS_26 call to `func_8004D39C` at `+0x40`. ORT 880 exports resident
+offset `0x4B63C`; resident callers are `func_8004B1DC+0x1E4/+0x294` and
+`func_8004BCC4+0x12C`, while Overlay 41 table-1 record 88 at module `+0x1CD0`
+and Overlay 45 record 22 at `+0x3B0` call it from `overlay41DrawItem+0x4C`
+and `overlay45ConfigureLayout+0x9C`. No additional direct JAL, resident
+runtime-table, overlay SYMBOL, or stored-pointer inbound is authenticated.
+Current linked equality proves fallback only; the two overlay proxy names still
+need metadata-only rebinding to this shared identity when clean V0 is compiled.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to
