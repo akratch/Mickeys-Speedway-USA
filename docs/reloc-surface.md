@@ -462,7 +462,12 @@ to `+0x2948`, plus `+0x25C/+0x41C` to `func_80005820`,
 `func_80028528`, and `+0x3DC` to `func_8003A754`. The function is unexported;
 its sole inbound is table-2 LOCAL JUMP record 68 at module `+0x930` from
 `func_overlay_011_F0000150_1868998+0x7E0`. Linked equality proves fallback
-only; clean current source and restored zero carriers are uncompiled.
+only. Removed padded/wrong-identity C emitted all 102 sites; clean current
+source is uncompiled, so its score, frame, extent, and offsets are unknown.
+Although source names the 13 SYMBOL call endpoints, the fallback-specific
+production postprocess still collapses twelve onto one zero carrier. A genuine
+C promotion must replace that collapse with 13 distinct typed proxies and give
+the BSS identities unique stored-addend aliases.
 
 Nine now carry an in-range word count and a linked-ROM oracle. Four are
 `schedule-divergence-at-site`, which is the honest answer and a codegen problem:

@@ -55,19 +55,22 @@ extern void func_800006BC(f32 arg0, s32 arg1);
 extern void func_overlay_045_F0001BF4_188E04C(void *handle, s32 value);
 extern void func_overlay_066_F0000000(void *arg0);
 
-/* Pinned DKR v77/v80 and JFG donor scans classify overlay 11 as none. */
+/* Pinned exact-overlay DKR v77/v80 and JFG scans found no exact donor. */
 /*
- * Retained pre-current-identity/current-body configured full-TU and isolated C
- * are 285/301 relocation-annotated raw (278/301 literal) and 299/301 runtime-
- * normalized words, size 1204 B, frame 0x48, with all 102 sites. Only the live
- * index/handle stores at +0x138/+0x140 remain. That score is diagnostic: three
- * dead padding arrays existed only to inflate the natural 0x30 frame and are
- * removed below. Clean current identity V0 is uncompiled. Runtime names +0x8
- * as resident func_80028F54; source and metadata preserve all 13 SYMBOL call
- * identities and zero carriers. Historical flags, trace, source probes, and
- * search are unretained. Run 119 flags on clean V0, trace once, try at most two
- * natural declaration/lifetime forms plus an improving-only combination; cap
- * 122 stock builds plus trace and batch only after a legal strict gain.
+ * The removed padded/wrong-identity source measured 285/301 relocation-
+ * annotated raw (278/301 literal) and 299/301 runtime-normalized words, size
+ * 1204 B, frame 0x48, with all 102 sites; only +0x138/+0x140 remained after
+ * normalization. Its three dead arrays existed only to inflate the expected
+ * natural 0x30 frame. Current clean source also repairs +0x8 to resident
+ * func_80028F54, but is uncompiled: score, frame, extent, and relocation
+ * offsets are unknown. The runtime table and historical pre-postprocess C
+ * preserve 13 distinct SYMBOL call identities; current source names them, but
+ * the fallback-specific production postprocess still collapses twelve onto the
+ * zero carrier. Promotion requires distinct typed proxies for all 13 endpoints
+ * and unique stored-addend aliases for the BSS identities. Run 119 flags on
+ * clean V0, trace once, try at most two natural declaration/lifetime forms plus
+ * an improving-only combination; cap 122 stock builds plus trace, no generic
+ * batch or padding-array revival.
  */
 #ifdef NON_MATCHING
 void overlay11UpdateMenu(s32 updateRate) {
