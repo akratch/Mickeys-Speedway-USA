@@ -930,6 +930,17 @@ raw C used a false second argument and allocation aids, so it is diagnostic.
 Clean pointer-typed, one-argument source is staged but uncompiled. The owned
 `+0x2C8..+0x378` range has no padding, and linked equality proves fallback only.
 
+Overlay 22 `+0xD30` (`func_overlay_022_F0000D30_1878E38`) has 12 exact
+runtime-backed tuples in the configured candidate. LOCAL HI16/LO16 pairs at
+function `+0x14/+0x18` resolve through count `+0xED0`; pairs at
+`+0x20/+0x38`, `+0x70/+0x7C`, and `+0x90/+0x94` resolve to the node-array
+base at `+0xEA0`. SYMBOL calls at `+0xE8/+0x118/+0x148/+0x150` resolve to
+resident `partUpdateTriggers`, `func_80002FE0` twice, and `func_80006EA0`.
+The extracted fallback object retains only the count pair and collapses the
+four call identities, so the shipped runtime tables are the identity authority.
+The candidate remains nonexact at 43 register-only words; linked equality
+proves only the assembly fallback.
+
 Overlay 73 `+0x0` (`func_overlay_073_F0000000_18CAAC0`) owns eight LOCAL
 records: `+0x1C/+0x3C` resolves through base `+0xEB0`, addend `+0x80`, to
 module `+0xF30`; pairs at `+0x140/+0x144`, `+0x14C/+0x160`, and
