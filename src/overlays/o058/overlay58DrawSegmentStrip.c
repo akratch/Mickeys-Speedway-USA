@@ -54,8 +54,6 @@ void overlay58DrawSegmentStrip(f32 x0, f32 y0, f32 z0, f32 x1, f32 y1,
 
     overlay58PrepareStripReloc(&gOverlay58StripDisplayListReloc, (void *)0,
                                5, 0);
-    if (limit != 0.0f) {
-    }
 
     while (t < limit) {
         Overlay58StripVertex *vertices;
