@@ -630,6 +630,13 @@ LO16 instruction fields at `+0x160/+0x168/+0x174`, which ADR 0002 prohibits.
 Fresh C must preserve all 24 semantic identities and emit those addends
 naturally from the already-owned initialized data.
 
+Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
+timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
+duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to
+`D_800D6C4C`, `D_800D6C52`, `D_800D6C50`, `D_800D6C4E`, and `D_800D6C54`.
+The retained current-layout C object emits all ten roles; the fallback target
+retains none statically, making the runtime table the identity authority.
+
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 

@@ -56,11 +56,11 @@ extern s16 gOverlay40BlendOutput;
  * comma-expression, and timer-separated copy formation reportedly widened it
  * to 16, 16, and 41 words. No attributable source/object pair for those probes
  * survives, so they are scheduling context rather than exhaustion proof. The
- * remaining bounded ladder is: fresh configured baseline; derive current
- * through output; swap only the output/current/timer declaration order; then
- * combine those changes or use declaration initializers only after a strict
- * improvement. Stop after the first three runs if both probes are flat; five
- * is the hard cap. Mickey-only reconstruction; the donor ledger classifies
+ * policy-complete ladder is: fresh V0; all 119 flags scored raw; one allocator
+ * trace; independent output-origin and output/current/timer declaration-order
+ * probes; combine or initialize only after strict gains. Five source forms are
+ * the hard cap, separate from the lattice. Mickey-only reconstruction; the
+ * donor ledger classifies
  * pinned DKR v77/v80/JFG candidates as negative. */
 #ifdef NON_MATCHING
 void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
