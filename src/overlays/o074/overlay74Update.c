@@ -30,6 +30,9 @@ typedef struct Overlay74QueryResult {
 
 extern u32 gOverlay74Flags;
 
+/* Runtime identities: func_8005776C, func_800291B4, amSndPlay, func_8003A680.
+ * The first two ABIs need a bounded configured probe before these declarations
+ * can adopt the resident prototypes. */
 Overlay74UpdateObject *overlay74QueryReloc(f32 x, f32 y, s32 z, f32 strength,
                                            s32 enabled,
                                            Overlay74QueryResult *result);
@@ -39,12 +42,15 @@ void overlay74RewardReloc(s32 count);
 
 /* NON_MATCHING plateau (retested 2026-08-28): the nearest skeleton score is
  * 0.056 and all 119 flag combinations miss. Ten structural variants reduced
- * the exact-size, 100-word candidate from 14 differing words to six while
- * preserving the 0x60 frame. The first mismatch remains +0xC: five words swap
- * the result aggregate's address/object register pair, and one later OR uses
- * the opposite commutative encoding. A bounded two-worker permuter batch found
- * no exact form. An instrumented IDO build reproduced the project compiler's
- * text exactly. Removing the artificial aggregate-address use makes the first
+ * the exact-size, 100-word candidate from 14 differing words to six raw and
+ * six relocation-normalized words at +0xC,+0x68,+0x84,+0x8C,+0x90,+0x124,
+ * while preserving the 0x60 frame. Five words swap the result aggregate's
+ * address/object register pair, and the last OR uses the opposite commutative
+ * encoding. A bounded two-worker permuter batch found no exact form. A recorded
+ * instrumented IDO build reproduced the project compiler's text exactly; the
+ * surviving configured candidate is an imported standalone object, and the
+ * assembled target retains only four of the eight runtime relocations.
+ * Removing the artificial aggregate-address use makes the first
  * pair exact but rotates 32 later temporary words; local-carrier, ABI-return,
  * and operand-order spellings do not retain that gain. Forced-color probes
  * move 85+ words or change the instruction count, confirming this is a
