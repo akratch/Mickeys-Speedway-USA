@@ -42,10 +42,16 @@ it never reads a sibling worktree, index, process, or uncommitted file. Run
 `tools/lane_status.py --pending-only` for the fleet view or
 `tools/lane_status.py --symbol <name>` before assignment. Its rows are
 commit-message claims, not match evidence; integration repeats every normal
-proof. Subjects explicitly marked near-match, near-miss, plateau, candidate, or
-diagnostic are not trusted as dispositions: subjects are scheduling metadata,
-not evidence. A reviewed exact claim that canonical rejects or supersedes is
-recorded by full claim and decision commit IDs in
+proof. A symbol check also compares the exact committed definition path and
+source blob with descendant lane refs, then checks any source
+`PLATEAU-HANDOFF` against that symbol's committed triage history. It reports
+`base-only`, `active`, `already-integrated/exhausted`, or `stale-ledger` and
+returns success only for `base-only`; this makes stale pre-cleanup evidence a
+closed assignment gate instead of an implicit ready row. Subjects explicitly
+marked near-match, near-miss, plateau, candidate, or diagnostic are not trusted
+as exact-match dispositions: subjects are scheduling metadata, not proof. A
+reviewed exact claim that canonical rejects or supersedes is recorded by full
+claim and decision commit IDs in
 `config/lane-claim-dispositions.us.json`; full reports retain that disposition,
 while `--pending-only` excludes only the reviewed claim hash. See
 [ADR 0011](adr/0011-cross-lane-knowledge-and-task-budgets.md).
@@ -456,7 +462,14 @@ interrupted report without recompiling recorded identities, and repeated
   the claiming lane does not; it is a coordination hint, never a replacement
   for integration validation. Reviewed dispositions remain visible with their
   canonical decision commit in the full report but never enter
-  `--pending-only`; subject wording alone never suppresses a claim.
+  `--pending-only`; subject wording alone never suppresses a claim. With
+  `--symbol`, the leading `assignment` row is the fail-closed scheduling
+  verdict: only `base-only` exits zero. `active` identifies a descendant lane
+  with a different committed target source blob,
+  `already-integrated/exhausted` covers a base match or a current plateau, and
+  `stale-ledger` means exact source identity or target-specific triage history
+  is missing or older than the committed plateau. The check reads Git objects,
+  never another lane's worktree or index.
 
 ### Integration housekeeping: `fix_stale_externs.py`, `refresh_atlas_digest.py`
 

@@ -75,7 +75,9 @@ and never need a job ceiling to avoid stepping on each other
   match claim is scheduling information, never match proof.
 - The primary/coordinating agent's job is to keep the ready queue populated
   and assign disjoint targets to free lanes, not to police a slot count. Run
-  `tools/lane_status.py --symbol <name>` before assigning a target.
+  `tools/lane_status.py --symbol <name>` before assigning a target and proceed
+  only on its zero-exit `base-only` verdict. `active`,
+  `already-integrated/exhausted`, and `stale-ledger` fail closed.
 - Every non-interactive lane has an explicit soft deadline and short hard-stop
   grace period. Reserve the end for an exact commit or plateau handoff; do not
   start a bounded tool call that cannot fit in the remaining budget. The
