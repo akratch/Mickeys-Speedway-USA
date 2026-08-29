@@ -30,7 +30,8 @@ lane without duplicating its physical blocks; later writes remain lane-local.
 - Restoration copy-on-write clones files on APFS and copies them normally on
   other filesystems. No directory is shared writable between lanes.
 - When no exact-commit cache exists, lane creation retains its ordinary splat
-  extraction behavior. `--no-cache` explicitly selects that path.
+  extraction behavior. `--no-cache` explicitly selects that path, while
+  `--no-extract` continues to create a source-only lane without restoring.
 
 ## Consequences
 

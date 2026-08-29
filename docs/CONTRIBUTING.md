@@ -437,7 +437,8 @@ interrupted report without recompiling recorded identities, and repeated
   and stores an ignored immutable snapshot below Git's common directory. A
   cache hit copy-on-write clones the verified split/build prerequisites into
   the new lane without sharing writable files. A miss runs the ordinary splat
-  extract unless `--no-extract` was requested; `--no-cache` forces that path.
+  extract; `--no-extract` creates a source-only lane and `--no-cache` forces a
+  fresh extract.
   Each lane gets its own `build/`/`asm/`. It resolves the primary checkout
   through Git's common directory even when invoked from another lane, and
   fails instead of installing a dirty symlink when a tracked submodule cannot

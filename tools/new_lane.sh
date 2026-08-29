@@ -55,7 +55,7 @@ done
 # tools/permuter to point at it (git-ignored, machine-specific).
 [ -e "$root/tools/permuter" ] && ln -s "$(readlink "$root/tools/permuter" || echo "$root/tools/permuter")" "$dest/tools/permuter"
 restored=0
-if [ "$cache" = 1 ]; then
+if [ "$cache" = 1 ] && [ "$extract" = 1 ]; then
   set +e
   (cd "$dest" && python3 tools/lane_cache.py restore --quiet)
   cache_status=$?
