@@ -33,7 +33,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8001D880` | `src/main/charControl.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8001DCD0` | `src/main/charControl.c` | none | — | No ownership change; continue source/codegen work. |
 | `diCpuThread` | `src/main/diCpu.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_80045BBC` | `src/main/diCpu.c` | none | — | Retained configured-isolated candidate is 60 words/frame `0x30`, with eight raw sites and two value-normalized executable sites at `+0xBC/+0xC0`; literal fixed-address lvalues emit 18 static tuples versus target 24. Source/flag/permuter routes exhausted and no linked C proof survives; one unchanged full-TU/linked reproof, then park. |
+| `func_80045BBC` | `src/main/diCpu.c` | none | — | Retained configured full-TU and isolated C are 60 words/frame `0x30`, with eight raw sites and two value-normalized executable sites at `+0xBC/+0xC0`; literal fixed-address lvalues emit 18 static tuples versus target 24. No linked C proof survives and only V0 has attributable artifacts. Reproduce V0 and the flag lattice; probe the three missing identities independently, then one trace-led FIFO form and an improving-only annotated batch. |
 | `func_80045D34` | `src/main/diCpu.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80046AA8` | `src/main/diCpu.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `diRcpPrintDL` | `src/main/diRcp.c` | matched | — | Promoted to exact C; no ownership work remains. |

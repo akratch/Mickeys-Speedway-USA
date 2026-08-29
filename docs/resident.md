@@ -2495,17 +2495,19 @@ combinations, ten scheduling/type forms, and bounded permutation did not close
 the saved-register and loop-delay web. The attempt cap is exhausted; the
 candidate stays `NON_MATCHING` and assembly remains canonical.
 
-`tier-D func_80045BBC` has retained configured-isolated evidence at 60 words
-and frame `0x30`. Eight raw sites remain at
+`tier-D func_80045BBC` has retained configured full-TU and isolated C evidence
+at 60 words and frame `0x30`. Eight raw sites remain at
 `+0x18,+0x20,+0x28,+0x30,+0x38,+0x40,+0xBC,+0xC0`; value normalization of
 the six absolute-address fields leaves two executable sites at `+0xBC/+0xC0`.
 The candidate carries 18 static relocation tuples versus target 24 because its
 literal `D_80705014/18/1C` lvalues omit six HI16/LO16 bindings. The resident
 runtime relocation census has no record inside this function; these are static
-link bindings. No full-TU or linked C artifact survives. Symbolic-address,
-argument-hoist, phantom-pop, subtraction, flag-lattice, and bounded-permutation
-levers did not close the binding/FIFO wall. Reproof unchanged V0 once, then
-park; assembly stays canonical.
+link bindings. No linked C artifact survives. Only V0 has attributable
+artifacts; historical source, flag, trace, and permutation outcomes are
+scheduling evidence. Reproduce V0 and retain the flag lattice; probe each of
+the three missing identities independently and combine only strict gains, then
+try one trace-selected natural FIFO form. Permit one relocation-annotated
+bounded batch only after a strict gain; assembly stays canonical.
 
 The 292-byte `func_80046AA8` packed-glyph renderer is Evidence A exact C after
 bounded permutation: all 73 instruction words, its 72-byte frame, relocation

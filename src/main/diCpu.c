@@ -176,14 +176,14 @@ void stop_all_threads_except_main(void) {
 /* PROVENANCE: body adapted from JFG src/diCpu.c::func_80066D28_67928;
  * Mickey's target fixes the dump-size calculation to use the copied range. */
 /* Workbench plateau (retested 2026-08-28, audited 2026-08-29): retained
- * configured-isolated evidence is 60 words/frame 0x30 with eight raw sites at
+ * configured full-TU and isolated C are 60 words/frame 0x30 with raw sites at
  * +0x18,+0x20,+0x28,+0x30,+0x38,+0x40,+0xBC,+0xC0. Value-normalizing six
  * absolute-address fields leaves the t6/t4 FIFO web at +0xBC/+0xC0; the
  * candidate has 18 static relocation tuples versus target 24 because literal
- * D_80705014/18/1C lvalues omit six HI16/LO16 records. No full-TU or linked C
- * artifact survives. Symbolic-address, argument-hoist, phantom-pop,
- * subtraction, flag-lattice, scoped-local, and bounded-permutation routes are
- * exhausted; unchanged configured reproof only. */
+ * D_80705014/18/1C lvalues omit six HI16/LO16 records. No linked C proof
+ * survives. Only V0 has attributable artifacts: reproduce it and the flag
+ * lattice, probe each missing identity independently, then use one trace-led
+ * natural FIFO form and a bounded annotated batch only after a strict gain. */
 void func_80045BBC(void *thread) {
     s32 copySize;
     void *source;
