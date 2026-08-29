@@ -260,11 +260,13 @@ void overlay7CommitSelection(s32 selection) {
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000DBC_185CC44.s")
 #endif
 
-/* Pinned DKR v77/v80 and JFG object scans found no exact donor. */
+/* Pinned DKR v77/v80 and JFG object scans found no exact donor. Exact but
+ * non-natural: the empty condition and dummy comma-expression operand are
+ * semantically inert allocation aids preserving IDO's 11-word coloring.
+ * Tracked in docs/cleanup-queue.md. */
 s32 overlay7FillValues(s16 *value) {
     s32 remaining;
 
-    /* Preserves the original IDO register coloring without emitted code. */
     if (((!value) & 0xFFFFU) && (!value)) {
     }
     value = &gOverlay7ValuesEnd;

@@ -665,6 +665,13 @@ generic records. ORT 1444 exports `+0xD4`; resident relocation 302 at
 `func_80038E1C+0x3A4` is the sole inbound. Runtime tables, not friendly proxy
 names or fallback ELF records, are the identity authority.
 
+Overlay 7 `+0xEDC` (`overlay7FillValues`) is an exact 11-word C island inside a
+mixed TU. Its only records are LOCAL HI16/LO16 at `+0x00/+0x04`, resolving
+through base `+0x1910` plus addend `+0x2AA` to BSS `gOverlay7ValuesEnd`.
+ORT 1517 exports it; Overlay 1 table-1 relocation 167 calls it from
+`overlay1UpdateObjectPhysics+0x8C0`. Linked range/module/ROM equality is
+C-produced; its two inert source aids are tracked in the cleanup queue.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to

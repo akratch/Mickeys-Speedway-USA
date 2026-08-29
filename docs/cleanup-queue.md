@@ -33,6 +33,7 @@ not a correctness gap.
 | `func_800148E0` | track fog changer | empty `if (1)` block | The inert block preserves exact fog-distance allocation. Seek a natural scope/association spelling with the same bytes and relocations. |
 | `overlay8ScaleOutputs` | overlay 8 scale outputs | empty `!index` condition | The inert condition preserves exact selector/index allocation. Seek a natural cast/lifetime spelling with the same bytes and relocations. |
 | `overlay27Activate` | overlay 27 state transition | duplicated empty state-null condition | The inert condition preserves exact saved-object allocation. Seek a natural assignment/lifetime spelling with the same bytes and relocations. |
+| `overlay7FillValues` | overlay 7 value-table reset | empty duplicated `!value` condition and dummy comma-expression operand | Both inert forms preserve the exact 11-word allocation. Seek a natural spelling retaining 11 words and the two LOCAL HI16/LO16 records. |
 
 Add rows as ugly-but-verified matches land. When revisiting: reproduce the match
 with idiomatic C, `gmake verify`, then delete the row + the in-source comment.
