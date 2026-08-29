@@ -512,6 +512,12 @@ generator owns the alias block (§5.3).
                                                   8  overlay1ResolvePathPoint           o1
                                                   8  overlay20UpdateObjectResource      o20
 
+`overlay84LoadCurrent`'s four-word row is historical. A bounded
+annotated-target permutation produced exact 72-word C, promoted in
+`306a1c31`. Its five runtime relocation roles, linked owned range, complete
+Overlay 84 image, and preserved full ROM are byte-identical. It no longer
+belongs in the `NON_MATCHING` queue.
+
 `func_overlay_022_F0000000_1878108`'s six-word entry is that historical linked
 trial. The surviving isolated object has five stack-home/store-order words but
 omits the TU's required `-Wab,-r4300_mul`; fresh configured V0 must reconcile
