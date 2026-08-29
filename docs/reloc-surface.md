@@ -829,7 +829,9 @@ HI16/LO16 pairs at `+0x34/+0x38`, `+0x80/+0x84`, and `+0xB8/+0xC4` for module
 data `+0`, `+4`, and `+8` (`gOverlay34Records`, `gOverlay34Pointers`, and
 `gOverlay34Count`). Its standalone target object retains only four static
 records and bakes the final `+8` addend; runtime normalization is authoritative.
-Retained genuine C emits all eight at 45/50 raw and 46/50 normalized words.
+Historical pre-type-repair C emitted all eight at 45/50 raw and 46/50
+normalized words. Pointer aggregate and allocator tag types are now repaired,
+so current tuple/score proof awaits clean V0.
 ORT 1352 has exactly two authenticated inbounds, resident records 205/206 at
 `levelInit+0x3E0/+0x3F0`; a neighboring source-only two-argument unresolved
 carrier is not an authenticated initializer caller. The function ends at

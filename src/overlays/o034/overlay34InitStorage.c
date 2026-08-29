@@ -12,12 +12,14 @@ extern void *func_8002B280(s32 size, u32 colourTag);
 /* Pinned exact-overlay scans found no exact DKR v77/v80 or JFG donor;
  * structural or semantic donors remain unqualified. */
 /*
- * Plateau: exact 0xC8 function symbol and 0x30 frame, 45/50 raw and 46/50
- * relocation-normalized words,
- * first mismatch +0x24. The surviving isolated ranking has a fifth raw
+ * Reproof: historical pre-type-repair C had an exact 0xC8 function symbol and
+ * 0x30 frame at 45/50 raw and 46/50 relocation-normalized words, first
+ * mismatch +0x24. The stale isolated ranking has a fifth raw
  * difference at +0xC4 because its assembled target bakes the local-data +8
- * addend; the candidate and runtime table require eight relocation sites. The
- * genuine C section's trailing eight alignment bytes are not target ownership.
+ * addend; historical candidate C and the runtime table require eight relocation
+ * sites. Current pointer-aggregate and allocator-tag types are repaired, but
+ * clean V0 is uncompiled and every current metric is unknown. The historical
+ * C section's trailing eight alignment bytes are not target ownership.
  * The target assigns the reused size spill to sp+0x1C; IDO assigns this body
  * to sp+0x18. Historical declaration, lifetime, type, flag, trace, and
  * permutation outcomes have no surviving attributable result set and do not
