@@ -60,7 +60,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `joyRead` | `src/main/joy.c` | bss-aggregate | D_800CF370..D_800CF3BC | Own the controller arrays and counters as one joy BSS layout. |
 | `joyResetMap` | `src/main/joy.c` | resolved-plateau | D_800CF3B0 | Controller map is TU-owned; expression-tree mismatch remains. |
 | `levelGetCounts` | `src/main/level.c` | resolved-plateau | D_800CF3E0, D_800CF420 | Level BSS ranges are TU-owned. Retained full-TU candidate is 256/259 normalized words (`+0x13C,+0x148,+0x154`), frame `0x58`, with 37 records; target endpoint pair names `D_800CF420`, candidate `D_800CF3E0+0x40`. Source/flag/trace/permuter routes exhausted; one unchanged linked reproof, then park. |
-| `levelInit` | `src/main/level.c` | none | — | No ownership change; continue source/codegen work. |
+| `levelInit` | `src/main/level.c` | none | — | Retained configured full-TU C is 394/516 words, frame `0x80`, first `+0x238`, with all 110 relocation tuples exact. Ten source families, 119 flags, and bounded permutation are exhausted; run one unchanged configured/linked V0, then park absent new declaration/allocator evidence. Proven level BSS begins at `0x800CF3E0`; the preceding `0x20`-byte gap is unresolved. |
 | `func_80019934` | `src/main/lights.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80019DE8` | `src/main/lights.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8001A154` | `src/main/lights.c` | matched | — | Promoted to exact C; no ownership work remains. |
@@ -73,7 +73,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8002AF6C` | `src/main/matrix.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002B040` | `src/main/matrix.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002B524` | `src/main/memory.c` | none | — | Retained full-TU candidate is 102/116 words, frame `0x58`, with 14 raw/normalized late-path sites and 12 exact relocation tuples. Run V0, narrow slot-data cache, separate lower/upper guards, improving combination, then improving-only `sp+0x3C` call-live record probe; park after five flat builds. |
-| `func_8002B7AC` | `src/main/memory.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_8002B7AC` | `src/main/memory.c` | none | — | Parked after flag, pointer, structure-bucket, and permuter campaigns. Reproduce one full-TU baseline, then test at most two early-base/later-cursor lifetime forms that retain both `D_800D20A8` HI/LO pairs; stop unless all 12 relocation tuples become exact and the retained 11-row residual improves. |
 | `func_8002BB40` | `src/main/memory.c` | none | — | Retained configured full-TU C is instruction-identical for all 72 frameless words and has the target's eight HI/LO relocations; the 30-word report comes only from a stale standalone import. Fresh compile plus linked resident-range and ROM proof are required before removing the guard. |
 | `func_80038750` | `src/main/menu.c` | shared-rodata | jtbl_80082734 | Move the language switch table and labels into menu. |
 | `func_80038878` | `src/main/menu.c` | none | — | No ownership change; continue source/codegen work. |
@@ -82,12 +82,12 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_80038E1C` | `src/main/menu.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003968C` | `src/main/menu.c` | bss-aggregate/blocked | D_800D3198 repeat state | A menu BSS carve pools the stores and changes an exact consumer. |
 | `func_80039E34` | `src/main/menu.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8003A2C8` | `src/main/menu.c` | none | — | Configured records are exact-size/frameless with six exact relocations and five mode-web words at `+0xC/+0x10/+0x14/+0x18/+0x20`; the surviving isolated object omits menu's loop-unroll flag. Reproof-only V0 remains; forced-color 31/32 is diagnostic, not source proof. |
+| `func_8003A2C8` | `src/main/menu.c` | none | — | Historical configured records (object no longer retained) are exact-size/frameless with six exact relocations and five mode-web words at `+0xC/+0x10/+0x14/+0x18/+0x20`; the surviving isolated object omits menu's loop-unroll flag. One unchanged configured V0 remains; forced-color 31/32 is diagnostic, not source proof. |
 | `func_8003A520` | `src/main/menu.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8001FC50` | `src/main/models.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002057C` | `src/main/models.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80020B10` | `src/main/models.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_80020D8C` | `src/main/models.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_80020D8C` | `src/main/models.c` | none | — | Retained full-TU and isolated C agree at 35/48 words, frame `-0x8`, no relocations, first `+0x38`; the texture temp lane starts two registers late. Its sole caller passes four arguments while the callee consumes three; do not normalize that split. Reprove unchanged once, then park absent a new UGEN temp-class mechanism. |
 | `func_80020E4C` | `src/main/models.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8005A7A0` | `src/main/models_5B300.c` | none | — | Retained configured evidence is exact-sized at 106 words but has a `0x50` versus target `0x38` frame, ten frame/carrier/schedule sites, and the second loader relocation at `+0xC0` versus target `+0xBC`. Run one unchanged full-TU/linked V0, then park absent a new allocator mechanism. |
 | `func_8005A948` | `src/main/models_5B300.c` | none | — | The surviving configured object proves an 11-word 94-word/frame-`0x38` state with 13 exact relocations; the later three-word p10 source has no retained configured/linked artifact. Reprove unchanged p10, then one ugen FIFO trace and at most its indicated address-producer form; park if flat. |
@@ -117,7 +117,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8002C70C` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002C94C` | `src/main/saves.c` | none | — | Matched (permuter): `if (1)` grouping resolves the schedule tie-break. |
 | `func_8002CB18` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8002CF6C` | `src/main/saves.c` | none | — | Historical isolated 88-word/`0x48`-frame candidate has nine raw/normalized register sites from `+0xCC`, but its retained compile omitted required `-Wo,-loopunroll,0`. Run fresh configured V0, then one `savedFlag` volatile-field class-crossing probe if the nine sites reproduce; park if flat. |
+| `func_8002CF6C` | `src/main/saves.c` | none | — | Retained configured full-TU and isolated C agree at 79/88 words, frame `0x48`, nine register-only sites from `+0xCC`, and all 11 relocation tuples exact. The volatile-field, source, flag, phantom-pop, and bounded-permuter routes are exhausted; reprove unchanged once, then park. |
 | `packInit` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
 | `osScGetTaskType` | `src/main/sched.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80030610` | `src/main/sched.c` | none | — | No ownership change; continue source/codegen work. |
@@ -135,7 +135,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_001_F00004B4_184C894` | `src/overlays/o001/overlay_001.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F0000614_184C9F4` | `src/overlays/o001/overlay_001.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F0007D6C_185414C` | `src/overlays/o001/overlay_001_end.c` | none | — | Retained evidence is exact-sized at 152 words with ten raw/eight normalized sites and 19/22 exact runtime tuples. The unsupported clear alias and caller ABI are repaired. Run one configured full-TU/linked V0, then one annotated-target permutation only if the eight sites reproduce. |
-| `func_overlay_001_F0000CA8_184D088` | `src/overlays/o001/overlay_001_head.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_001_F0000CA8_184D088` | `src/overlays/o001/overlay_001_head.c` | none | — | `overlay1InterpolatePath`, `+0xCA8..+0xDF4`, is 83 words/frame `0x68` with 16 raw and 12 relocation-normalized sites. Runtime evidence identifies 13 records: five LOCAL pairs, local `overlay1NextPointer`, and two resident `splinePos` calls; source aliases are corrected, pending configured/linked reproof. Run V0, missing flags, then at most three anchor/lifetime/declaration probes. |
 | `func_overlay_001_F0000DF4_184D1D4` | `src/overlays/o001/overlay_001_head.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F0000F84_184D364` | `src/overlays/o001/overlay_001_head.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F00010C8_184D4A8` | `src/overlays/o001/overlay_001_head.c` | none | — | No ownership change; continue source/codegen work. |
@@ -363,7 +363,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_071_F0000278_18C9D98` | `src/overlays/o071/func_overlay_071_F0000278_18C9D98.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_071_F0000870_18CA390` | `src/overlays/o071/func_overlay_071_F0000870_18CA390.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_073_F0000D70_18CB830` | `src/overlays/o073/overlay73Draw.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_073_F0000000_18CAAC0` | `src/overlays/o073/overlay73Initialize.c` | none | — | Retained configured-isolated candidate is 92/100 words, frame `0x8`, with eight `a2/a3` pool-color sites. Runtime table 2 proves all eight LOCAL records against module data base `+0xF80` and exact `D_0/D_4/D_8/D_80` addends; no linked C proof survives. Continue bounded allocator search. |
+| `func_overlay_073_F0000000_18CAAC0` | `src/overlays/o073/overlay73Initialize.c` | none | — | Retained configured-isolated C is 90/100 raw and 92/100 runtime-normalized words, frame `0x8`, with eight `a2/a3` sites. `D_80` resolves through LOCAL base `+0xEB0`/addend `+0x80`; `D_0/D_4/D_8` use base `+0xF80` with `0/+4/+8`. The 16 apparent module-zero calls are outgoing SYMBOL records, not callers; resident relocation 90 is the sole inbound identity. No linked C proof survives. |
 | `func_overlay_074_F00000B8_18CBD58` | `src/overlays/o074/overlay74Update.c` | none | — | Retained configured standalone candidate is 94/100 words with six raw/normalized sites at `+0xC,+0x68,+0x84,+0x8C,+0x90,+0x124` and an eight-record runtime surface. Run one unchanged reproof plus the bounded `func_800291B4(void)`/`func_8005776C` ABI ladder; park if neither changes the `v0/t3` temp-pool inversion. Fresh linked C proof remains. |
 | `func_overlay_075_F0000214_18CC17C` | `src/overlays/o075/overlay75UpdateMovingObject.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_079_F0000134_18CD0D4` | `src/overlays/o079/func_overlay_079_F0000134_18CD0D4.c` | resolved-plateau | overlay 79 shared data base | TU-owned +0x0..+0x60 aggregate is exact; code generation remains. |

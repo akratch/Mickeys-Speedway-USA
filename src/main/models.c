@@ -5,13 +5,13 @@
  * The working TU is identified from three exact masked-skeleton matches to
  * Jet Force Gemini's built src/models.c.o, the first at the existing yaml
  * boundary, plus the allocator, texture, and matrix call graph of the rest of
- * the block. It is not a whole-object match; docs/modules.md section 3.4
+ * the block. It is not a whole-object match; docs/resident.md section 3.7
  * records the evidence and keeps uncertain JFG correspondences as comments
  * rather than adopting names.
  *
  * PROVENANCE -- JFG's public decomp was consulted for the models.c function
- * order, names, prototypes, and structure vocabulary. No body is adapted in
- * this all-GLOBAL_ASM split. Any body later adapted from JFG must retain a
+ * order, names, prototypes, and structure vocabulary. No body was adapted in
+ * the initial all-GLOBAL_ASM split. Any body later adapted from JFG must retain a
  * point-of-use PROVENANCE note, and Mickey's own bytes remain authoritative.
  *
  * Flags: -O2 -mips2 -32, via the measured src/main/ Makefile rule.
@@ -1186,7 +1186,9 @@ typedef struct ModelFrameInstance {
  * permutation probes were followed by ten focused ABI, scope, declaration,
  * loop-condition, load-order, liveness, and register-hint variants; none
  * closed the temp-FIFO web. The four-argument definition widened the frame,
- * while count-ownership and no-copy forms unrolled the loop. Remains:
+ * while count-ownership and no-copy forms unrolled the loop. The sole caller
+ * passes a fourth owner/context argument, but the target overwrites a3 and
+ * consumes only the first three; preserve that ABI split. Remains:
  * class-crossing ugen temp web; assembly fallback stays canonical. */
 void func_80020D8C(ModelFrameInstance *instance, s32 textureIndex, s32 frame) {
     ObjectModel *model;

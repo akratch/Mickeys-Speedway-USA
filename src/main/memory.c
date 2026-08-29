@@ -297,12 +297,15 @@ void mmFree(void *data) {
  */
 void ReleaseUnusedLinkSlots(void);
 
-/* Plateau (2026-08-28): stock -O2 remains best at 62/63 words, an exact 0x30
- * frame, the same 12 relocation identities, and 11 workbench rows away; first
- * mismatch is +0x4. Predecrement is object-identical; an inverted branch (21
- * rows), a reused BSS cursor (63 rows/10 relocations), and a block-local last
- * count (61/63 words, 26 rows) regress. The target alone keeps &D_800D21B0 in
- * s0; the 119-flag lattice and pointer forms remain exhausted. */
+/* Plateau (2026-08-28): stock -O2 emits 62 instructions (0xF8) versus the
+ * 63-instruction (0xFC) target, with 62 positional differences from +0x4.
+ * Both have the same 12 relocation type/symbol identities, but every candidate
+ * offset is four bytes early, so no tuple is exact. Retained workbench prose
+ * reports 11 aligned rows; its target-specific report artifact is absent.
+ * Predecrement is object-identical; an inverted branch (21 rows), a reused BSS
+ * cursor (63 rows/10 relocations), and a block-local last count (61 words, 26
+ * rows) regress. The target alone keeps &D_800D21B0 in s0; the 119-flag lattice
+ * and pointer forms remain exhausted. */
 #ifdef NON_MATCHING
 void func_8002B7AC(void) {
     s32 i;

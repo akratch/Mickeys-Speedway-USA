@@ -12,9 +12,9 @@
  * src/camera.c, as permitted by docs/CLEANROOM.md. Mickey's own bytes decide
  * every name and body: docs/modules.md records which names are tier A, which
  * are tier B role/order arguments, and which functions remain unresolved.
- * The matched functions below carry adapted JFG bodies, each with its own
- * PROVENANCE note at the point of use; everything else in this split is
- * still GLOBAL_ASM.
+ * The matched functions below carry adapted bodies from the named permitted
+ * JFG or DKR public decomps, each with its own PROVENANCE note at the point of
+ * use; everything else in this split is still GLOBAL_ASM.
  *
  * Flags: -O2 -mips2 -32 -Wab,-r4300_mul; the projection-depth dot product
  * fixes the TU's multiply scheduler mode.
@@ -365,6 +365,8 @@ void camOverrideProjScales(f32 scaleX, f32 scaleY) {
  * PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetFOV,
  * with Mickey's camera-state mirror and region-specific projection scaling.
  */
+/* Exact C: 133 words, 43 relocations, and linked ROM 0x22104..0x22318
+ * byte-identical. */
 void func_80021504(f32 fov, s32 force) {
     Camera *camera;
     s32 videoMode;
@@ -404,6 +406,10 @@ void func_80021504(f32 fov, s32 force) {
 /*
  * PROVENANCE: adapted from DKR's public decomp,
  * src/camera.c:cam_reset_fov.
+ * Retained proof: 37 words, 14 relocations, and linked ROM
+ * 0x22318..0x223AC exact. No static symbol caller is proven; ROM table export
+ * 453 is the only retained inbound evidence. Reprove once because the
+ * full-ROM artifact predates the object.
  */
 void func_80021718(void) {
     func_8004FAD0(D_800CEC98, &D_800CEC94, 60.0f, 1.3333334f, 10.0f,
@@ -509,6 +515,10 @@ void camSetWaterLine(s32 camNo, s32 waterLine) {
  * PROVENANCE: adapted from DKR's public decomp,
  * src/camera.c:copy_viewports_to_stack; JFG's public src/camera.c supplies
  * the camUserViewTick role while Mickey supplies the six-camera bound.
+ * Retained proof: 104 words, eight relocations, linked ROM
+ * 0x225D0..0x22770, and the complete camera TU are byte-identical. Reprove
+ * after later source comments. The computed port spans 10..20;
+ * D_80079D58[20] deliberately aliases adjacent D_80079E98[0].
  */
 void func_800219D0(void) {
     s32 width;

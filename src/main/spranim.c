@@ -146,6 +146,9 @@ typedef struct SpranimB798Target {
 extern u8 D_8007BF2C;
 extern u8 D_8007BF0C;
 extern void func_80006EA0(void *object);
+/* The exact caller passes owner/context in a3, which the target callee
+ * overwrites without consuming. Keep this four-argument declaration local;
+ * the guarded callee's three-argument definition preserves its frame. */
 extern void func_80020D8C(void *arg0, s32 arg1, s32 arg2, void *arg3);
 extern void func_8000D16C(s16 textureIndex, s32 x, s32 y, s32 updateRate);
 extern void func_80036544(void *entry, s32 *mode, s32 animationId, void *state, s32 updateRate);

@@ -50,10 +50,10 @@ function-comparable objects:
   the tree is still in `#ifdef NON_MATCHING` form the `.s` is authoritative
   (the same ordering constraint `tools/wb_compare.sh` documents).
 - `base.o` -- normally the `#ifdef NON_MATCHING` C body isolated by
-  permuter import and compiled with its established flag group
-  (`tools/permute_batch.py`'s `flag_group_for`:
-  the `-O2 -mips2 -32` overlay/main default, the `-O2 -mips1 -32` libultra
-  default, or the `-O2 -g3` override list).
+  permuter import and compiled with the Makefile-expanded recipe recovered by
+  `tools/permute_batch.py`'s `build_recipe_for`, including per-file optimizer,
+  ISA, and backend overrides. Static flag groups are only the explicit
+  fail-loud fallback when that recipe cannot be recovered.
 
 If import cannot compile the pruned source, the tool writes an untracked TU
 copy that selects only this C body and retains every other function's ASM
@@ -276,26 +276,42 @@ table from a fresh run):
 
 | name | overlay/TU | differing_words | first_mismatch_offset | size | size_delta | category |
 |---|---|---:|---:|---:|---:|---|
-| overlay3FindClosestObject | o003 | 4 | 64 | 308 | 0 | register-only |
-| overlay40AddEntry | o040 | 4 | 32 | 132 | 0 | register-only |
-| overlay43SubmitChildren | o043 | 4 | 44 | 276 | 0 | register-only |
-| func_80038750 | main | 6 | 220 | 296 | 0 | register-only |
-| partUpdateTriggers | main | 6 | 228 | 404 | 0 | register-only |
+| func_8003A2C8 | main | 5 | 12 | 128 | 0 | register-only |
 | overlay74Update | o074 | 6 | 12 | 400 | 0 | register-only |
 | overlay20UpdateObjectResource | o020 | 8 | 176 | 392 | 0 | register-only |
 | func_8002CF6C | main | 9 | 204 | 352 | 0 | register-only |
 | overlay19ClassifyEdge | o019 | 10 | 312 | 480 | 0 | register-only |
-| func_80021504 | main | 11 | 468 | 532 | 0 | register-only |
-| func_80021718 | main | 11 | 76 | 148 | 0 | register-only |
 | func_overlay_079_F0001290_18CE230 | o079 | 12 | 200 | 492 | 0 | register-only |
-| func_8001A154 | main | 13 | 28 | 232 | 0 | register-only |
-| overlay1UpdateValueCache | o001 | 15 | 40 | 480 | 0 | register-only |
-| func_800219D0 | main | 17 | 152 | 416 | 0 | register-only |
-| func_80020D8C | main | 17 | 56 | 192 | 0 | register-only |
+| func_80020D8C | main | 13 | 56 | 192 | 0 | register-only |
 | overlay1FindType5ByKey | o001 | 17 | 28 | 156 | 0 | register-only |
-| func_8003A2C8 | main | 19 | 12 | 128 | 0 | register-only |
 | func_overlay_041_F0000000_1887338 | o041 | 26 | 84 | 292 | 0 | register-only |
-| runlinkEnsureJumpIsValid | main | 35 | 32 | 404 | 0 | register-only |
 
-All 20 are `register-only` and size-exact -- the cheapest tier the queue
+All nine remaining rows are `register-only` and size-exact -- the cheapest tier the queue
 has to offer right now.
+
+Seven other rows from the displayed run have since been promoted and are no
+longer search candidates: `overlay3FindClosestObject`, `overlay40AddEntry`,
+`overlay43SubmitChildren`, `func_80038750`, `partUpdateTriggers`,
+`func_8001A154`, and `overlay1UpdateValueCache`. Their canonical source and
+function-specific ledgers carry the exact proofs; stale generated ranking
+entries must not put them back into the ready queue.
+
+`func_80021504` has also since been promoted: retained canonical C is 133
+words with 43 relocations, and linked ROM `0x22104..0x22318` is
+byte-identical. It is no longer an unmatched ranking candidate.
+
+`func_80021718` is likewise already canonical C: the retained object has 37
+words and 14 relocations, and retained linked ROM `0x22318..0x223AC` is
+byte-identical. No current full-ROM artifact postdates that object, so it is a
+reproof-only target rather than a living search candidate.
+
+`func_800219D0` is another stale historical plateau: canonical C is unguarded,
+the retained object has 104 words and eight relocations, and both its linked
+range `0x225D0..0x22770` and the complete camera TU are byte-identical to ROM.
+It needs one fresh reproof after later camera comments, not further search.
+
+`func_800320F0` (the function formerly routed under the JFG donor alias
+`runlinkEnsureJumpIsValid`) has since been promoted: retained canonical C is
+101 words with 21 relocations, and its linked ROM range
+`0x32CF0..0x32E84` is byte-identical. It is no longer an unmatched ranking
+candidate.

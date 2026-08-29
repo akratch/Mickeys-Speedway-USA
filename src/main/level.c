@@ -306,9 +306,12 @@ u32 levelGetGfxIndex(s32 arg0) {
 
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive. */
-/* Workbench p7 batch 12: allocation-mismatch; exact 516 instructions/-0x80 frame, 122 register-only words, first +0x238.
- * Levers: pool-position/temp-FIFO audit plus inherited flag/storage/lifetime/permuter sweeps; no consistent local-color carrier.
- * Remains: resource-table temp/pool allocation; GLOBAL_ASM stays canonical. */
+/* Retained configured full-TU evidence: 394/516 words, frame -0x80, first
+ * +0x238, with all 110 relocation tuples exact (70 R_MIPS_26 plus 20 HI/LO
+ * pairs). No linked C/ROM proof survives. Ten source families, all 119 flags,
+ * and bounded permutation are exhausted; the 12,975->12,580 score was a
+ * historical MIPS-I import that regressed under canonical MIPS II. Reprove
+ * unchanged V0 once, then park absent new declaration/allocator evidence. */
 void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
     s32 lvlStart;
     u32 lvlSize;

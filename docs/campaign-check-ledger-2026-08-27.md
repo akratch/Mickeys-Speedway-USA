@@ -228,8 +228,9 @@ Both routes finished at 0 / 2 exact. `func_8003A2C8` remained size-exact and
 frameless with all six relocations exact; the residual is the same mode-web
 `v0`/`v1` inversion plus one ring-only site. Both routes independently
 exhausted declaration-order, assignment, comparison, and dead-read spelling
-probes. Its next action is a Tier-2 pool/UGEN trace, not another uninstrumented
-source pass.
+probes. At the time its next action was a Tier-2 pool/UGEN trace; later
+allocator-oracle work completed that diagnosis without finding a source lever,
+so the current route is one unchanged configured V0 and then park.
 
 Fresh measurement corrected `func_80012574`'s older six-word note to seven
 raw differing words. The inherited route did not improve it. Sol/xhigh used
@@ -267,9 +268,12 @@ close live rankings, and the new same-ROM leads:
 7. `overlay20UpdateObjectResource` — explicit two-pass plateau;
 8. `overlay74Update` — six-word register-only live ranking;
 9. `overlay2SplitRegion` — W-route scheduler expert or park;
-10. `func_80012574` — rebaseline first because recorded scores conflict;
-11. `runlinkEnsureJumpIsValid` — large register-allocation search space; and
-12. `levelInit` — defer until the compact F-route queue is exhausted.
+10. `func_80012574` — configured 7/57 FP-web/stack-home plateau; run the
+    bounded saved-local/declaration-order ladder;
+11. `func_800320F0` (`runlinkEnsureJumpIsValid` donor alias) — since resolved
+    exact; this dated queue entry is historical only; and
+12. `levelInit` — since classified reproof-only after source, 119-flag, and
+    bounded-permuter exhaustion; this dated queue entry is historical.
 
 `overlay43SubmitChildren` was a four-word ranking at this ledger's baseline.
 It has since been matched and integrated, so it is no longer in the queue.

@@ -564,7 +564,7 @@ extern void camDisableUserView();
 extern void camEnableUserView();
 extern void camSetNo();
 extern void doWeather();
-extern void func_800219D0();
+extern void func_800219D0(void);
 extern void func_80022D20();
 extern void func_80036CAC();
 extern void func_80044BC8();
@@ -4112,12 +4112,14 @@ s32 func_80012234(TrackVec3f *point, TrackVec3f *direction,
  * supply structural context only. Mickey's vector layout, arithmetic, and
  * output pointers are reconstructed from the resident call sites and bytes.
  */
-/* Configured full-TU plateau: allocation-mismatch, 7/57 words, first +0x50.
- * The exact 0x48 frame, opcode schedule, and sqrtf relocation remain; IDO
- * exchanges the projection and projection-square FP webs, then saves the
- * wrong carrier at sp+0x30 instead of target sp+0x38. Next use the existing
- * saved local after sqrtf, move temp_f14 two declaration slots earlier, and
- * combine them; probe one/three slots only if those strictly improve.
+/* Configured full-TU plateau: allocation-mismatch, 50/57 words exact, first +0x50.
+ * The 0x48 frame, opcode schedule, and sole R_MIPS_26 sqrtf relocation at
+ * +0xA4 are exact in retained target/candidate objects. Five retail calls are
+ * retained: two from func_80011CDC and three from func_800563B4. IDO exchanges
+ * the projection and projection-square FP webs, then saves the wrong carrier
+ * at sp+0x30 instead of target sp+0x38. Next use the existing saved local
+ * after sqrtf, move temp_f14 two declaration slots earlier, and combine them;
+ * probe one/three slots only if those strictly improve.
  */
 s32 func_80012574(TrackVec3f *origin, TrackVec3f *direction,
                   TrackVec3f *center, f32 radius, f32 *minimum,

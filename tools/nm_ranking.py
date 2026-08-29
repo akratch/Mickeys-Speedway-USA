@@ -446,8 +446,12 @@ def process_item(item: "pb.QueueItem") -> tuple[Optional[FuncResult], Optional[s
     out_dir = WORK_DIR / safe
     out_dir.mkdir(parents=True, exist_ok=True)
     settings_path = out_dir / "settings.toml"
-    flags = pb.flag_group_for(item.c_file)
-    pb.write_settings_toml(settings_path, flags)
+    # Successful isolated imports must use the same Makefile-expanded recipe
+    # as the real TU. The static path-only flag group misses per-file
+    # overrides such as track.c's -Wab,-r4300_mul and can rank the wrong ISA
+    # result even though the fallback path below preserves the real command.
+    recipe = pb.build_recipe_for(item.c_file)
+    pb.write_settings_toml(settings_path, recipe.flags)
     import_error: Optional[str] = None
     scratch: Optional[pathlib.Path] = None
     try:
