@@ -207,11 +207,12 @@ void *func_8002B4C0(MemoryPoolSlot *slots, s32 size) {
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmAllocAtAddr. Mickey's globals,
  * pool/slot layouts, absent diagnostic calls, and linked bytes are authoritative. */
-/* Retained configured full-TU evidence matches the isolated 116-word, 0x58
- * frame candidate and all 12 relocation tuples; it is stale and has no linked
- * C proof. Fourteen late-path words differ from +0xE0. Fresh-baseline first,
- * then split the guards and cache slot data; test narrow placement/compound
- * guard independently, and a call-live slot record only after improvement. */
+/* Retained configured full-TU evidence matches the isolated candidate at
+ * 102/116 words, frame 0x58, and all 12 relocation tuples; raw and normalized
+ * sites are +0xE0,+0xE8,+0xEC,+0xF0,+0xF4,+0xF8,+0x104,+0x110,+0x114,
+ * +0x118,+0x138,+0x13C,+0x150,+0x1A4. It is stale and has no linked C proof.
+ * Fresh-baseline first, then cache slot data, split the lower/upper guards,
+ * combine only on improvement, and try a call-live slot record last. */
 #ifdef NON_MATCHING
 void *func_8002B524(s32 size, u8 *address, u32 colourTag) {
     s32 slotIndex;
