@@ -630,6 +630,13 @@ LO16 instruction fields at `+0x160/+0x168/+0x174`, which ADR 0002 prohibits.
 Fresh C must preserve all 24 semantic identities and emit those addends
 naturally from the already-owned initialized data.
 
+Overlay 34 `+0x0` (`overlay34InitStorage`) owns eight runtime records: SYMBOL
+JUMPs at `+0x28/+0x74` to resident ORT 82 (`func_8002B280`), then LOCAL
+HI16/LO16 pairs at `+0x34/+0x38`, `+0x80/+0x84`, and `+0xB8/+0xC4` for module
+data `+0`, `+4`, and `+8` (`gOverlay34Records`, `gOverlay34Pointers`, and
+`gOverlay34Count`). Its standalone target object retains only four static
+records and bakes the final `+8` addend; runtime normalization is authoritative.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to
