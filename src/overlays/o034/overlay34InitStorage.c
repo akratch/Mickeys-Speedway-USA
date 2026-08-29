@@ -5,27 +5,30 @@ typedef struct Overlay34Record {
 } Overlay34Record;
 
 extern Overlay34Record *gOverlay34Records;
-extern s32 **gOverlay34Pointers;
+extern Overlay34Record **gOverlay34Pointers;
 extern s32 gOverlay34Count;
-extern void *func_8002B280(s32 size, s32 tag);
+extern void *func_8002B280(s32 size, u32 colourTag);
 
-/* The donor ledger classifies pinned DKR v77/v80 and JFG candidates negative. */
+/* Pinned exact-overlay scans found no exact DKR v77/v80 or JFG donor;
+ * structural or semantic donors remain unqualified. */
 /*
- * Plateau: exact 0xC8 size and 0x30 frame, 46/50 relocation-normalized words,
+ * Plateau: exact 0xC8 function symbol and 0x30 frame, 45/50 raw and 46/50
+ * relocation-normalized words,
  * first mismatch +0x24. The surviving isolated ranking has a fifth raw
  * difference at +0xC4 because its assembled target bakes the local-data +8
- * addend; the candidate and runtime table require eight relocation sites.
+ * addend; the candidate and runtime table require eight relocation sites. The
+ * genuine C section's trailing eight alignment bytes are not target ownership.
  * The target assigns the reused size spill to sp+0x1C; IDO assigns this body
  * to sp+0x18. Historical declaration, lifetime, type, flag, trace, and
  * permutation outcomes have no surviving attributable result set and do not
  * prove exhaustion. Preserve a fresh unchanged V0 and runtime-annotated
- * target, retain the complete 119-recipe flag lattice, then take one
- * CFE/UOPT/UGEN trace. The smallest established mechanism to test, only when
- * trace-supported, is an unused volatile word declared immediately after
- * `size`: descending declaration-home allocation may consume sp+0x18 and move
- * `size` to sp+0x1C. Stop if the trace exposes no lever or that one variant
- * changes anything beyond the four home offsets. The F route is provisional;
- * park as W if no source-visible lever survives.
+ * target, retain the complete 119-recipe flag lattice including V0, then take
+ * one CFE/UOPT/UGEN trace. Only if it identifies a source-visible lever may one
+ * declaration/scope/lifetime form using existing semantic locals be compiled;
+ * no dummy volatile home, inert guard, forced register, or generic permutation.
+ * Stop if the trace exposes no lever or that form changes size, frame, any
+ * identity, any word outside the four home offsets, or remains nonexact. Park
+ * as W.
  */
 #ifdef NON_MATCHING
 void overlay34InitStorage(s32 count) {
