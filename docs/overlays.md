@@ -1062,12 +1062,14 @@ existing anchor to avoid a duplicate 32-byte literal pool at overlay-local
 identities were otherwise preserved through the exact linked image.
 
 Overlay 8's scale-output body beginning at `+0x3368` — 312 bytes / 78 words.
-The stock `-O2 -mips2` build is exact after loading the lower threshold through
-the upper local, copying it to the lower local, and then overwriting the upper
-local. IDO coalesces that source copy into the retail lower-then-upper load
-schedule while retaining the retail `$f2`/`$f0` web colors. Both HI16/LO16
-pairs resolve to overlay-local `+0x1D0/+0x1D4`; the linked range and full US
-ROM are byte-identical without compiler forcing or instruction normalization.
+The configured `-O2 -mips2 -32 -Wab,-r4300_mul` build is exact after loading
+the lower threshold through the upper local, copying it to the lower local,
+and then overwriting the upper local. IDO coalesces that source copy into the
+retail lower-then-upper load schedule while retaining the retail `$f2`/`$f0`
+web colors. Both HI16/LO16 pairs resolve to overlay-local `+0x1D0/+0x1D4`.
+Retained artifacts prove the linked function, complete C text, overlay text,
+and module; a fresh current-tree rebuild remains queued to renew full-ROM
+evidence after the later unrelated Overlay 8 postprocess correction.
 
 The motion-output body at decimal overlay offsets `+18,920..+19,696` adds
 **776 bytes / 194 words**. The measured `-Wab,-r4300_mul` object naturally
