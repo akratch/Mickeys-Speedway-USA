@@ -2738,10 +2738,13 @@ masks two or three instructions longer, and a folded live guard schedule-only
 at the initial global load; none rotated the scan-index web. The p10 best C
 remains under `NON_MATCHING` and the target assembly remains canonical.
 
-`func_8005A7A0` plateaus at 105 instructions against 106, with a `0x58`
-frame against `0x38` and 73 differing positional words from the prologue;
-pointer/array loop variants and all 119 flag combinations retain the excess
-live ranges. A new pointer-induction spelling brings `func_8005AAC0` to the
+`func_8005A7A0` is now exact-sized at 106 words with ten positional
+differences from `+0x0`; its `0x50` candidate frame remains larger than the
+target's `0x38`, and the alignment carrier uses `v1`/`sp+0x30` instead of
+`s0`/`sp+0x34`. More than ten pointer/index, size-expression, coalescing,
+scope, and mask forms plus all 119 flag combinations exhausted the family;
+assembly remains canonical. A new pointer-induction spelling brings
+`func_8005AAC0` to the
 target's 46 instructions with 14 differing words, first at `+0x40`; its cache
 temporaries rotate by one register and its selected-index spill lands at
 `0x1C(sp)` instead of `0x18(sp)`. The flag lattice and bounded permutation do
