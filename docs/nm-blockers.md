@@ -2,11 +2,11 @@
 
 This is a names-only audit of every function body guarded by `NON_MATCHING` in `src/`, reconciled with the plateau notes in `docs/resident.md` and `docs/overlays.md`. Declaration-only guards are excluded. `none` means the recorded blocker is code shape, frame, scheduling, register allocation, ABI typing, or unresolved reconstruction rather than section/TU ownership.
 
-- Guarded functions audited: 413
+- Guarded functions audited: 412
 - Structural blockers found: 39
 - Structural blockers resolved: 3
 - Structural blockers remaining: 36
-- No structural blocker: 374
+- No structural blocker: 373
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
 |---|---|---|---|---|
@@ -390,7 +390,6 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_098_F0000234_18D8BF4` | `src/overlays/o098/overlay98RenderReflections.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_099_F00002A0_18D9850` | `src/overlays/o099/overlay99ApplySegment.c` | resolved-plateau | overlay 99 private table | Retained +0xB0 table owns the compiler references; representation/prologue schedule remains. |
 | `func_overlay_099_F0000638_18D9BE8` | `src/overlays/o099/overlay99BuildHeightGrid.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_099_F0000064_18D9614` | `src/overlays/o099/overlay99InitializeEntries.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_099_F0000BA4_18DA154` | `src/overlays/o099/overlay99RenderSegments.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_099_F0000800_18D9DB0` | `src/overlays/o099/overlay99RenderSortedEntries.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_100_F0000580_18DB2A8` | `src/overlays/o100/overlay100DrawMotion.c` | none | — | No ownership change; continue source/codegen work. |

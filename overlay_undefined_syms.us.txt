@@ -2141,6 +2141,12 @@ gOverlay99Entries = 0x00000000;
 /* overlay 99: overlay99ReleaseEntries.c.o */
 overlay99ReleaseReloc = 0xf0000000;
 
+/* overlay 99: overlay99InitializeEntries.c.o */
+gOverlay99Storage = 0x00000000;
+overlay99CommitEntriesReloc = 0xf0000000;
+overlay99PrepareEntriesReloc = 0xf0000000;
+overlay99SpawnEntryReloc = 0xf0000000;
+
 /* overlay 99: overlay99ProjectVector.c.o */
 overlay99SqrtReloc = 0xf0000000;
 
