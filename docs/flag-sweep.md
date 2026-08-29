@@ -53,8 +53,10 @@ into a driver script that calls IDO's phases directly) — if the Makefile's
 own values move, this file needs the matching edit.
 
 Compiles run in parallel (`ncpu - 2` workers by default, `--jobs` to
-override) into `build/flag_sweep/<tu-stem>/<combo-id>/`, which is gitignored
-by the tree's blanket `build/` rule.
+override) into a content-addressed cache under
+`build/flag_sweep/cache/<compile-key>/<combo-id>/`, which is gitignored by
+the tree's blanket `build/` rule. Objects, logs, and failed-row records are
+retained by default; `--keep` remains only as a no-op compatibility option.
 
 Relative translation-unit, `--target-asm`, and `--elf` paths are resolved
 against the repository root, independent of the caller's current directory.
@@ -68,8 +70,16 @@ unmatched function `func_<VRAM>` until it's matched, so a `NON_MATCHING`
 draft can be named for real (`ProcessRelocationEntry`) while its ROM target
 is still `func_80031A30`.
 
-Target bytes are resolved in this order (first that resolves wins; the CLI
-never asks the caller to pick a mode):
+Before reading bytes, the tool resolves one canonical owner. An overlay
+target must map to exactly one `text_ownership` row in
+`config/overlays.us.json`; an encoded `func_overlay_NNN_Fxxxxxxx_*` offset,
+the overlay number, and the input TU's canonical source path must agree with
+that row. A resident target must have exactly one sized record in
+`symbol_addrs.us.txt`. Missing, overlapping, or contradictory ownership is a
+hard error, not a reason to guess from a candidate object's size.
+
+Target bytes are then resolved in this order (first that resolves wins; the
+CLI never asks the caller to pick a mode):
 
 1. `--target-asm PATH` — assemble this `.s` file directly.
 2. `asm/nonmatchings/**/<target-symbol>.s` — the same file
@@ -77,7 +87,10 @@ never asks the caller to pick a mode):
    -name '<target-symbol>.s'`), for a function that is still `#pragma
    GLOBAL_ASM` or sits under `#ifdef NON_MATCHING`. Assembled with the
    project's `AS`/`ASFLAGS` plus the same `.set noat` / `macro.inc` header
-   `wb_compare.sh` prepends.
+   `wb_compare.sh` prepends. The tool extracts the named ELF function symbol,
+   not the assembled file's whole `.text` section, and verifies that symbol
+   lies inside its atlas owner. Zero alignment or padding words after
+   `endlabel` therefore cannot inflate the target extent.
 3. `<target-symbol>` in `build/mickey.us.elf` — the function is already
    matched, so the linked ELF's bytes for it already *are* the ROM's bytes.
    Read straight from `baseroms/mickey.us.z64` at the symbol's ROM offset.
@@ -132,20 +145,39 @@ top row's match percentage, entirely best-effort: another lane owns
 installing `objdiff`, this one never depends on it, and the flag is silently
 a no-op if the binary isn't there.
 
+## Reusing and rescoring the compile cache
+
+The compile key covers the TU and every recursively resolved literal include,
+the defines and complete flag lattice, Python's major/minor version, and the
+compiler, assembler, IDO phase driver, and asm-processor tool files. Computed
+or unresolved includes fail closed because their dependencies cannot be bound
+soundly. Target assembly, the atlas, linked ELF, and baserom are deliberately
+not compile inputs: they change scoring geometry, not the candidate objects.
+
+A normal invocation reuses every complete cache row and compiles only missing
+rows. To guarantee that no compiler process runs, add `--rescore`:
+
+```sh
+.venv/bin/python tools/flag_sweep.py \
+    src/overlays/o022/overlay22RemoveObject.c \
+    --function func_overlay_022_F0000D30_1878E38 \
+    --jobs 2 --rescore
+```
+
+`--rescore` loads all 119 retained results, resolves current ownership and
+target bytes, and recomputes the ranking. It fails if the current compile key
+has even one missing row. This makes an atlas/range correction cheap without
+allowing stale source, header, flag, or tool inputs to masquerade as a valid
+cache hit.
+
 ## Nothing ROM-derived is ever written to a tracked file
 
-Compiled objects, assembled `.s` targets and their `objcopy`-dumped section
-bytes all live under `build/flag_sweep/`, which the tree's `build/` rule
-already gitignores; `--keep` leaves them for inspection instead of deleting
-them at exit, still under `build/`. The ranked table prints only counts and
-byte offsets — never a mnemonic, an opcode, or a raw word — so a terminal
+Compiled objects, logs, cache manifests, assembled `.s` targets, and their
+`objcopy`-dumped section bytes all live under `build/flag_sweep/`, which the
+tree's `build/` rule already gitignores. The ranked table prints only counts
+and byte offsets — never a mnemonic, an opcode, or a raw word — so a terminal
 transcript of a run is not itself ROM-derived content under
 `docs/CLEANROOM.md`'s rules, the same way `gmake progress`'s output isn't.
-
-`--keep` is inspection-only: a later invocation always recompiles before it
-scores. Safe reuse needs a manifest binding every retained object to the input
-source, flags, compiler and support-tool hashes; directory names or mtimes are
-not sufficient provenance, so stale objects are deliberately not reused.
 
 ## Three worked rankings
 
