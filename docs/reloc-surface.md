@@ -398,6 +398,11 @@ therefore uses separate per-module aliases valued at `0xF0000000`, with
 postprocessing preserving the target object's collapsed surface; assigning
 the resident global itself would corrupt every resident caller of
 `func_80034448`.
+The function's other two records are LOCAL HI16/LO16 at function
+`+0x08/+0x10`, resolving through base `+0xA20` plus stored addend `+0x5A4` to
+module `+0xFC4` (`gOverlay59DescriptorTables`). Genuine C has all six records;
+fallback and target retain only the four collapsed calls. The function is
+unexported and has four local inbounds from `overlay59Advance`.
 
 
 #### What it measured

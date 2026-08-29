@@ -4,18 +4,21 @@
  * PROVENANCE: Mickey-derived from this overlay's owned assembly and runtime
  * relocation tables; pinned DKR/JFG scans found no donor.
  *
- * Plateau (2026-08-28): retained configured evidence is 0xF8 bytes/62 words
- * with frame 0x28. Ten raw sites remain at +0x10/+0x54/+0x5C/+0x68/+0x88/
+ * Plateau (re-audited 2026-08-29): retained pre-HEAD configured full-TU and
+ * configured-recipe isolated C agree at 0xF8 bytes/62 words with frame 0x28.
+ * Ten raw sites remain at +0x10/+0x54/+0x5C/+0x68/+0x88/
  * +0x8C/+0x90/+0x98/+0xB8/+0xC0; normalizing the table LO16 leaves nine
- * descriptor/call-argument allocation sites. The six runtime records are the
- * table HI/LO pair, local JUMPs to overlay59Release at +0x48/+0xD0, and
- * resident SYMBOL calls to func_80034448 at +0x64/+0x94. The synthetic target
+ * descriptor/call-argument carrier web. The LOCAL table pair resolves through
+ * base +0xA20 plus +0x5A4 to module +0xFC4. The other four records are local
+ * JUMPs to overlay59Release at +0x48/+0xD0 and resident ORT 135 calls to
+ * func_80034448 at +0x64/+0x94. The synthetic target
  * object collapses all four zero-field calls to one placeholder and cannot
  * prove their identities. No linked candidate-C proof survives.
  * Historical natural-form, flag, trace, and permutation outcomes have no
- * surviving attributable result set and do not prove exhaustion. Run one
- * identity-correct V0, retain the flag lattice, trace the descriptor value web,
- * then try a distinct value carrier before an improving-only scope/line probe.
+ * surviving attributable result set and do not prove exhaustion. Current alias
+ * spelling is uncompiled. Retain exactly 119 flags including V0, trace the
+ * descriptor web, try one distinct input/result carrier, then only after strict
+ * gain one trace-selected scope/line form; cap 121 stock builds plus trace.
  */
 
 typedef struct Overlay59Descriptor {
