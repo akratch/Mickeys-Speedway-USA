@@ -77,7 +77,8 @@ extern void overlay62DrawLabelReloc(Overlay62Gfx **commands, s32 *state,
 
 #ifdef NON_MATCHING
 /* PROVENANCE: Mickey-derived; pinned DKR v77/v80 and JFG scans found no donor.
- * Retained configured evidence is 289/294 raw and 290/294 runtime-normalized
+ * Retained configured evidence is diagnostic 289/294 raw and 290/294
+ * runtime-normalized
  * words, frame 0x88, with five raw sites at
  * +0x44/+0x50/+0x54/+0x64/+0x130. Runtime normalization removes the exact
  * LOCAL LO16 at +0x130, leaving four register-allocation sites. All 71 runtime
@@ -85,10 +86,11 @@ extern void overlay62DrawLabelReloc(Overlay62Gfx **commands, s32 *state,
  * fallback target object's 29 ELF records are incomplete, and its ordinary
  * 0-word comparison proves assembly rather than candidate C. The isolated
  * 11-word ranking expanded OVERLAY62_EMIT across physical lines and is not the
- * macro-faithful configured baseline. Reproduce V0, retain the missing flag
- * lattice, take one residual-web trace, and try only its indicated source form
- * before an improving-only macro-faithful annotated batch. No linked/ROM-exact
- * candidate proof survives. */
+ * macro-faithful configured baseline. That body used an invented empty
+ * data-dependent guard and redundant `red | 0`; both are removed, so clean V0
+ * is uncompiled. Retain 119 flags, then if the four-site web remains try one
+ * natural shared-negation/shift lifetime before an improving-only,
+ * macro-faithful annotated batch. No linked/ROM-exact C proof survives. */
 void overlay62Update(s32 updateRate) {
     s32 alpha;
     volatile s32 screenBase;
@@ -111,7 +113,7 @@ void overlay62Update(s32 updateRate) {
         blue = 0x80 + (((-gOverlay62Value8) << 7) >> 5);
 
         overlay62SetHandleAlphaReloc(gOverlay62Handle14, alpha);
-        overlay62EntryColorReloc((red | 0) & 0xFF, green & 0xFF, blue & 0xFF,
+        overlay62EntryColorReloc(red & 0xFF, green & 0xFF, blue & 0xFF,
                                  green);
     } else if ((gOverlay62ValueC != 0) || (gOverlay62Value10 != 0)) {
         gOverlay62ValueC -= updateRate;
@@ -125,8 +127,6 @@ void overlay62Update(s32 updateRate) {
         screenBase = 0xF8;
         intensity = 0x154 + ((gOverlay62ValueC * -0xDC) >> 5);
         red = (gOverlay62ValueC << 6) >> 5;
-        if ((gOverlay62ValueC << 6) >> 5) {
-        }
         green = red;
         blue = (gOverlay62ValueC << 7) >> 5;
     } else {

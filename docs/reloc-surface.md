@@ -658,6 +658,13 @@ The fallback target statically retains only the first pair, so runtime tables
 authenticate the other six. ORT 1248 exports `+0`; resident relocation 90 at
 `func_8000AA38+0x42C` is the sole inbound.
 
+Overlay 62 `+0xD4` (`overlay62Update`) owns 71 runtime records: 43 SYMBOL and
+28 LOCAL, comprising 21 calls and 25 HI16/LO16 pairs. The genuine C object has
+all 71 at exact offsets/types; the fallback target retains only 29 incomplete
+generic records. ORT 1444 exports `+0xD4`; resident relocation 302 at
+`func_80038E1C+0x3A4` is the sole inbound. Runtime tables, not friendly proxy
+names or fallback ELF records, are the identity authority.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to
