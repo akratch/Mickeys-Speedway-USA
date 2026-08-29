@@ -381,8 +381,9 @@ u8 *func_8005A948(s16 animationId) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A948.s")
 #endif
 
-/* PROVENANCE: adapted from Jet Force Gemini's public src/models.c:modFreeAnim;
- * Mickey's cache entry layout and teardown call establish this exact body. */
+/* PROVENANCE: Mickey-only reconstruction informed by JFG's corresponding
+ * modFreeAnim identity and structure; the public JFG peer remained assembly,
+ * and no external C body is copied. */
 void func_8005AAC0(u8 *animation) {
     s32 i;
     s32 index;
