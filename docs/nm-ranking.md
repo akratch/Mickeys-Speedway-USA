@@ -204,6 +204,10 @@ tools/objdiff/objdiff-cli report generate -p . -o /tmp/nm_report.json -f json -d
 # Optional linked/whole-TU context:
 .venv/bin/python tools/nm_ranking.py --objdiff-report /tmp/nm_report.json --jobs 12
 .venv/bin/python tools/nm_ranking.py --top 20 --markdown --no-table  # fleet-prompt excerpt
+
+# Fast maintenance between full compile passes: remove snapshot rows whose
+# exact source/symbol identity is no longer guarded by NON_MATCHING.
+.venv/bin/python tools/nm_ranking.py --prune-stale
 ```
 
 A complete pass can run long enough for another lane to promote functions
@@ -211,7 +215,14 @@ that were queued at startup. Immediately before publishing, the ranking tool
 re-scans the canonical source and drops resolved and unresolved rows whose
 `#ifdef NON_MATCHING` block no longer exists. The checked-in JSON is still a
 historical snapshot after the ranking process exits; consumers that need the
-current queue must intersect it with a fresh source scan.
+current queue must intersect it with a fresh source scan. `--prune-stale`
+performs that intersection in place without invoking the compiler or requiring
+decomp-permuter. It keys every row by the exact `(source file, symbol)` pair,
+validates that resolved and unresolved identities are unique, writes the JSON
+atomically, and refuses malformed unresolved rows rather than guessing which
+function they describe. It only removes stale rows and normalizes the retained
+counts: newly added `NON_MATCHING` functions remain unranked and are reported,
+so a full ranking pass is still required to measure them.
 
 ## Distribution (this run)
 
