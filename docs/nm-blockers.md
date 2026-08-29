@@ -91,7 +91,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_80020E4C` | `src/main/models.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8005A7A0` | `src/main/models_5B300.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8005A948` | `src/main/models_5B300.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8005AAC0` | `src/main/models_5B300.c` | reproof-required | — | Unguarded promotion lacks retained byte, relocation, and linked-range proof; re-prove the current raw-array form before relying on its matched status. |
+| `func_8005AAC0` | `src/main/models_5B300.c` | reproof-required | — | Retained candidate bytes and linked function/TU/resident ranges are exact; independently regenerate the target object and prove the seven relocation identities before treating the evidence chain as complete. |
 | `func_8003CE10` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003D25C` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003E8D8` | `src/main/particles.c` | none | — | Exact 140-word configured candidate leaves nine stack-home/branch operands; reorder the call-live pair. |

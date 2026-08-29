@@ -2728,10 +2728,14 @@ initialization helper from JFG `models.c`. Their function bytes and relocation
 identities match in the linked ROM.
 
 Mickey-derived parented matrix-list builder `func_8005B644` adds `0xCC`
-exact bytes under the TU's measured `-Wo,-loopunroll,0` override, bringing
-exact C in `main/models_5B300` to `0x19C` bytes. Its 51 instructions, `0x88`
-frame, calls and relocation identities match; JFG retains the corresponding
-model-matrix routine as assembly, so no donor body was adapted.
+exact bytes under the TU's measured `-Wo,-loopunroll,0` override. The current
+raw-array `func_8005AAC0` adds another `0xB8`, bringing exact C in
+`main/models_5B300` to `0x254` bytes. The latter's retained configured object
+has 46 words, a `0x20` frame, and seven candidate relocations; its linked
+function, complete TU, and resident segment are byte-exact. It remains marked
+reproof-required only because no independently generated target object survives
+to establish relocation count/type/offset/identity. JFG retains both
+corresponding routines as assembly, so no donor body was adapted.
 
 The `func_8005A948` flag lattice additionally establishes
 `-Wo,-loopunroll,0` for `main/models`: without it IDO unrolls the cache scan
@@ -2754,12 +2758,7 @@ differences from `+0x0`; its `0x50` candidate frame remains larger than the
 target's `0x38`, and the alignment carrier uses `v1`/`sp+0x30` instead of
 `s0`/`sp+0x34`. More than ten pointer/index, size-expression, coalescing,
 scope, and mask forms plus all 119 flag combinations exhausted the family;
-assembly remains canonical. A new pointer-induction spelling brings
-`func_8005AAC0` to the
-target's 46 instructions with 14 differing words, first at `+0x40`; its cache
-temporaries rotate by one register and its selected-index spill lands at
-`0x1C(sp)` instead of `0x18(sp)`. The flag lattice and bounded permutation do
-not repair that FIFO. `func_8005ABA8` emits 110 against 111 and first diverges
+assembly remains canonical. `func_8005ABA8` emits 110 against 111 and first diverges
 at `+0x38` before an FP-allocation cascade. `func_8005AF14` now has a
 Mickey-derived matrix/attachment-point candidate; its source comment discloses
 the pinned JFG declaration files used only to cross-check field roles, while
