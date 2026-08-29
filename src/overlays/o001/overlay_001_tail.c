@@ -83,21 +83,23 @@ extern void overlay1GetVariableRecords(O1VariableRecord **records, s32 *length,
  * candidate uses sp+0x30/sp+0x28. The other three sites are one
  * conditional-store branch/address schedule. The imported ELF objects each
  * expose five static relocs, but the shipped runtime contract has seven: the
- * GetRomlistInfo SYMBOL call plus three LOCAL HI/LO pairs for the same BSS
- * word at module+0xA16C. The literal conditional store currently omits the
- * middle static pair, so promotion requires an identity-correct symbolic BSS
- * lvalue and all seven runtime tuples. Removing the unused volatile
+ * three-argument GetRomlistInfo SYMBOL call plus three LOCAL HI/LO pairs for
+ * the same BSS word at module+0xA16C. The current private four-argument alias,
+ * D_1D8CRead names, and literal store are intentionally retained only for the
+ * unchanged V0; they are not identity-correct and linked equality proves the
+ * assembly fallback only. V1 must use GetRomlistInfo(records, length, 1) and
+ * one symbolic D_1D8C identity for every access. Removing the unused volatile
  * local shrank the frame and regressed to 13 words; a typed store pointer,
  * byte cursor, block-local record size, and scoped call outputs retained the
  * eight-word baseline. Direct D_1D8C access fixed the four data-reloc names but
  * regressed to 16 words. Commit 9968f84e repaired the unrelated consolidated
  * TU declaration conflicts. Retained configured full-TU evidence reproduces
- * the same eight-word state; fresh reproof is still required. Then keep all
- * other locals fixed and try records/private/length, records/length/private,
+ * the same eight-word state; fresh reproof is still required. Only if V1
+ * preserves the 44-word/0x38-frame shape, keep all other locals fixed and try
+ * records/private/length, records/length/private,
  * private/length/records, length/private/records, and
  * length/records/private. Finish with records/record collapse and an explicit
- * skip edge; use at most two combinations only from improving constituents,
- * otherwise record p10/no-go.
+ * skip edge selected from the surviving residual; eight-build hard cap.
  */
 #ifdef NON_MATCHING
 void overlay1AssignRecordIndex(s32 unused, O1RecordOwner *owner) {

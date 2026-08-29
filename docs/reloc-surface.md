@@ -517,6 +517,12 @@ trial. The surviving isolated object has five stack-home/store-order words but
 omits the TU's required `-Wab,-r4300_mul`; fresh configured V0 must reconcile
 the count and all 21 runtime relocation sites before either score is reused.
 
+`overlay1AssignRecordIndex`'s eight-word row is retained configured full-TU C,
+not linked C proof. Both isolated objects expose five static records, while the
+runtime contract has seven: three-argument `GetRomlistInfo` and three LOCAL
+HI16/LO16 pairs for `D_1D8C`. Its current private callee alias and literal
+conditional write are not identity-correct; reprove V0 before the symbolic V1.
+
 Overlay 9 `+0x540`'s eight-word entry is likewise historical masked linked
 evidence, not a retained configured candidate. Its surviving standalone object
 omits the TU-required `-Wab,-r4300_mul` and has nine raw/eight normalized sites.
