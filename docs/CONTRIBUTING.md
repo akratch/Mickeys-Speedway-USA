@@ -222,6 +222,31 @@ sizes) are recomputed from the lists they summarise, never copied forward.
 `gmake check-docs` re-derives the mechanically checkable ones and fails on
 drift.
 
+### Overlay build flow
+
+Mickey uses a runtime overlay linker from the same Rare engine lineage as JFG,
+but it does **not** copy JFG's host-side overlay build. There is one build graph
+and one final linker invocation:
+
+1. `config/overlays.us.json` records each module's measured ROM ranges and
+   ownership. `tools/overlay_atlas.py` checks that data against the generated
+   overlay block in `mickey.us.yaml`.
+2. Splat turns that block into ordinary inputs under `src/overlays/oNNN/`,
+   `asm/overlays/oNNN/`, and `assets/overlays/oNNN/`, plus `mickey.us.ld`.
+3. The Makefile's normal C, assembly, and binary-wrapper rules produce objects.
+   The long overlay block in the Makefile contains only measured per-object
+   compiler flags and reviewed ELF normalization; it is not another linker.
+4. `build/mickey.us.elf` links all objects once through splat's script. That script
+   places each module's text, data, and original relocation-table blobs back in
+   its ROM range; `objcopy` and `n64crc` then produce the one ROM image.
+
+`src/main/runlink.c` is the reconstructed code that loads and relocates modules
+on the console at runtime. JFG is disclosed evidence for parts of that engine
+code, while Mickey's own tables, atlas, generated linker script, and exact ROM
+comparison define this repository's build. The detailed runtime mechanism is
+documented in [`overlays.md`](overlays.md); the host-build source of truth is
+the generated overlay block in `mickey.us.yaml`.
+
 ### Overlay donor-first workflow
 
 Before naming or decompiling any overlay function:

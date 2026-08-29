@@ -134,6 +134,12 @@ Before adopting a name or body, run `gmake overlay-donors-scan-check`; it checks
 the complete DKR v77/v80 and JFG object surfaces and catches a stale donor
 ledger. DKR is the first semantic cross-reference for game code, but a similar
 system is not an exact match and Mickey's own bytes and call graph decide.
+The host build does not separately link overlays with JFG machinery: splat
+generates their C, assembly, binary inputs, and placement in `mickey.us.ld`,
+then the Makefile's ordinary object rules feed the same single final link as
+the resident code. [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md#overlay-build-flow)
+traces that path and separates it from `src/main/runlink.c`, the console's
+runtime loader.
 
 C compiles with `-O2 -mips1 -32` by default. Anything else is a per-file
 override in the Makefile's "Per-file compiler flags" block, justified in the
