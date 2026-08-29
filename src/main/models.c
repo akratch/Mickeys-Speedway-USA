@@ -1180,16 +1180,16 @@ typedef struct ModelFrameInstance {
 } ModelFrameInstance;
 
 /* Mickey-only reconstruction; JFG's modSetTextureFrame remains assembly. */
-/* Plateau (2026-08-27, CREW-MODELS-20D8C-READY-17): workbench
- * register-ring-only, 13 register words at 48 instructions/frame -0x8; first
- * +0x38. The prior intermediate-read, normalized-condition, and bounded
- * permutation probes were followed by ten focused ABI, scope, declaration,
- * loop-condition, load-order, liveness, and register-hint variants; none
- * closed the temp-FIFO web. The four-argument definition widened the frame,
- * while count-ownership and no-copy forms unrolled the loop. The sole caller
- * passes a fourth owner/context argument, but the target overwrites a3 and
- * consumes only the first three; preserve that ABI split. Remains:
- * class-crossing ugen temp web; assembly fallback stays canonical. */
+/* Retained configured full-TU and isolated C have identical 48-word bodies,
+ * a 0x8 frame, and no relocations. They are 35/48 words exact; thirteen
+ * register-only sites differ at +0x38,+0x40,+0x44,+0x4C,+0x50,+0x54,+0x5C,
+ * +0x64,+0x70,+0x74,+0xA0,+0xA4,+0xAC. The first texture-address temp lane
+ * starts at t5 instead of target t3; later frame-value, multiply-result, and
+ * loop-count webs also differ. The sole proven caller passes owner/context in
+ * a3, which the target callee overwrites without consuming. Linked
+ * function/TU/ROM equality proves the GLOBAL_ASM fallback only. Reprove one
+ * unchanged configured V0, then attempt only a UGEN-trace-led removal of the
+ * two candidate-only temporary allocations; otherwise park. */
 void func_80020D8C(ModelFrameInstance *instance, s32 textureIndex, s32 frame) {
     ObjectModel *model;
     ModelFrameEntry *entry;

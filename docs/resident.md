@@ -566,15 +566,16 @@ target's exact 342-instruction size but 257 positional words differ from
 and stack-home allocation. The permuter's lower-scoring candidate reused the
 last texture parameter as a command-word temporary and would corrupt the next
 part's cache comparison, so it was rejected.
-`func_80020D8C` is exact-size with 13/48 positional words differing at
+`func_80020D8C` remains guarded `NON_MATCHING`. Retained configured full-TU
+and isolated C are byte-identical at 35/48 words, frame `0x8`, with no
+relocations and thirteen register-only sites at
 `+0x38,+0x40,+0x44,+0x4C,+0x50,+0x54,+0x5C,+0x64,+0x70,+0x74,+0xA0,+0xA4,
-+0xAC`, frame `-0x8`, and no relocations; isolated and full-TU candidate bytes
-agree. One caller passes four arguments although the callee consumes only the
-first three; preserve that split because a four-argument definition widened
-the frame. Assembler-folded narrowing masks improved 17 to 13, combinations
-regressed, and corrected-flag permutation plus later source probes found no
-exact form. Reprove unchanged once, then park absent a new UGEN temp-class
-mechanism; the assembly fallback stays canonical.
++0xAC`. The texture-address lane begins at candidate `t5` versus target `t3`;
+later frame-value, multiply-result, and loop-count webs also differ. The sole
+proven caller passes owner/context in `a3`, which the target callee overwrites
+without consuming. Exact linked function, TU, and ROM ranges prove assembly
+fallback only. Reprove unchanged once, then continue only from a
+UGEN-trace-identified candidate-only temporary producer.
 `func_80020E4C`: workbench structure mismatch, exact 113 instructions/frame -64; 25 words differ, first `+0xC`.
 Explicit byte-scaled indexing is best; pointer-cursor and declaration-order probes did not improve it.
 Exception-loop/pool-slot 1 and temp-slot 3 allocation remains; assembly stays canonical.
