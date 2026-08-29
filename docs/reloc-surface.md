@@ -571,12 +571,21 @@ tuples agree: `D_218` LO16 and `D_1D88` HI16 exchange `+0x090/+0x094`, and
 resolves to existing local `D_220`; the former `D_220_Clear` name had no
 linker/runtime identity.
 
-Overlay 14 `+0x498`'s seven-word entry is normalized text evidence only. The
-shipped function owns 18 runtime records; the synthetic target object's ten
-omit four loader-owned data pairs and collapse the `+0x54` zero-field call.
-Runtime table 2 resolves that call as `SYMBOL` to `overlay14ReleaseOwner`
-(`+0x1B54`), while `+0xB0` is a local `JUMP` to
-`overlay14MoveCommandCursor` (`+0x578`).
+Overlay 14 `+0x498` (`overlay14ResetMode`) owns 18 table-2 records. Four LOCAL
+HI16/LO16 pairs at `+0x20/+0x2C`, `+0x1C/+0x30`, `+0x18/+0x34`, and
+`+0x14/+0x38` resolve respectively to module data `+0x1D3C` (`D_FC`),
+`+0x1D24` (`D_E4`), BSS `+0x1EF8` (`D_128`), and data `+0x1D2C` (`D_EC`).
+The SYMBOL call at `+0x54` resolves through ORT 1652 to Overlay 14 `+0x1B54`
+(`overlay14ReleaseOwner`). Four more LOCAL pairs at `+0x84/+0x88`,
+`+0x8C/+0x90`, `+0x94/+0x98`, and `+0x9C/+0xA4` resolve to module data
+`+0x1D38`, `+0x1D18`, `+0x1D1C`, and `+0x1D20`; the LOCAL JUMP at `+0xB0`
+targets `overlay14MoveCommandCursor` at `+0x578`. The synthetic fallback target
+object exposes only ten records, omitting four loader-owned pairs and collapsing
+the zero-field call. Retained pre-current-alias C proves 17 identities; fresh C
+proof of the repaired SYMBOL alias remains pending. The function has no padding
+or export and has five local inbound JUMPs: table-2 records 226, 238, 241, 267,
+and 270 from `overlay14AdvanceCommand` twice, `overlay14StepCommand`,
+`overlay14DispatchCommand`, and `overlay14CallUpdate`.
 
 `overlay7CommitSelection`'s six-word historical trial also carried a false
 `+0xF4` callee identity: the runtime record is a local `JUMP` to Overlay 7
@@ -688,6 +697,14 @@ BSS addends `+0x1DA0/+0x1D94/+0x1D9C`, plus a SYMBOL call at `+0x34` to
 Overlay 1 ORT 1525 (`+0x5BA4`). ORT 1535 exports it; table-2 index 954 stores
 its sole inbound function pointer at module data `+0x821C`. Its legacy inert
 condition is cleanup-tracked and does not authorize guards in unmatched C.
+
+Resident `rcpClearZBuffer` owns an exact HI16/LO16 pair at `+0x00/+0x04` to
+resident BSS `D_800D2FAC` and is exported as ORT 765. Three shipped SYMBOL
+records call it: Overlay 60 module `+0x2194` from
+`func_overlay_060_F0000334_18BA10C+0x1E60`, Overlay 91 module `+0x518` from
+`overlay91Render+0x5C`, and Overlay 99 module `+0xC8C` from
+`overlay99RenderSegments+0xE8`. Its fourth direct caller is resident
+`rcpClearScreen+0x48`; no other shipped overlay record targets ORT 765.
 
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,

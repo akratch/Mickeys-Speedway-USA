@@ -369,13 +369,15 @@ void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height,
 #endif
 #ifdef NON_MATCHING
 /* Retained configured full-TU C from the immediately preceding D_800D2FAC
- * declaration state is exact-sized at 107 words/frame zero with four
- * register-field residuals at +0x74..+0x80; both D_800D2FAC relocations are
- * exact. The isolated ranking has seven additional schedule-order sites. Fresh
- * current-source V0 is required because the retained full-TU object predates
- * the s32-to-u16-pointer declaration correction. Historical flag, source,
- * trace, and permutation outcomes lack attributable artifacts. Reprove V0,
- * take one UGEN FIFO/web trace, and try at most two trace-indicated forms. */
+ * declaration state is 103/107 words, exact-sized and frameless, with one
+ * two-result temporary FIFO at +0x74/+0x78/+0x7C/+0x80; both D_800D2FAC
+ * relocations are exact. The isolated C is 96/107 and additionally differs at
+ * +0x120/+0x124/+0x128/+0x180/+0x188/+0x190/+0x194. Fresh current-source V0
+ * is required because the best object predates the s32-to-u16-pointer
+ * declaration correction. Historical flag, source, trace, and permutation
+ * outcomes lack attributable artifacts. Run and retain 119 flags, take one
+ * UGEN FIFO trace, and try at most two trace-indicated forms; cap 121 stock
+ * builds plus the trace and park if both forms are flat. */
 /* PROVENANCE: command sequence adapted from DKR's public src/rcp_dkr.c:bgdraw_render. */
 void rcpClearZBuffer(RcpCommand **arg0, u32 arg1, u32 arg2, s32 arg3,
                      s32 arg4, s32 arg5, s32 arg6) {

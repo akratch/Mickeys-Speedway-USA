@@ -1653,15 +1653,19 @@ configured object ranges and the final linked ROM are byte-exact.
 |---|---:|---:|---|---|
 | `rcpFast3d` | `0x2F400` | 0x2A0 | `-O2 -mips2 -32` | Mickey/JFG task construction; 168/168 instruction words and all relocations exact after metadata-only weak-alias rebinding, linked ROM exact |
 
-`rcpClearZBuffer` retains configured full-TU C from the immediately preceding
-`D_800D2FAC` declaration state at 103/107 words, frame zero, with exact
-relocations and four FIFO/register-web sites at `+0x74..+0x80`. The isolated
-ranking has seven additional schedule-order sites. The full-TU artifact
-predates the current `u16 *` declaration, so fresh current-source proof remains
-required. Historical flag, source, trace, and permutation outcomes have no
-attributable retained result set. Reprove V0, take one Tier-2 UGEN FIFO/web
-trace, and try at most two trace-indicated forms. The assembly fallback remains
-canonical.
+`rcpClearZBuffer` owns ROM `0x2FBDC..0x2FD88`, 107 words with no padding before
+`rcpClearScreen`. Retained configured full-TU C from the immediately preceding
+`D_800D2FAC` declaration state is 103/107 words and frameless, with one
+two-result FIFO at `+0x74/+0x78/+0x7C/+0x80`; its HI16/LO16 pair at
+`+0x00/+0x04` exactly names resident BSS `D_800D2FAC`. The isolated C is only
+96/107 and adds seven schedule sites. ORT 765 exports the function to Overlay
+60 `+0x2194`, Overlay 91 `+0x518`, and Overlay 99 `+0xC8C`; the resident caller
+is `rcpClearScreen+0x48`. Exact linked range, resident image, and ROM evidence
+all use the assembly fallback, not C. The best C predates the current `u16 *`
+declaration, so fresh current-source proof remains required. Historical flag,
+source, trace, and permutation outcomes have no attributable retained result
+set. Run and retain 119 flags, take one Tier-2 UGEN FIFO trace, and try at most
+two trace-indicated forms; cap 121 stock builds plus trace and park if flat.
 
 `func_8002EBE0` retains a Mickey-derived `NON_MATCHING` eight-band gradient
 renderer after the 119-combination flag lattice and ten source-shape
