@@ -2814,12 +2814,14 @@ extern Overlay1PoolRecord gOverlay1PoolEnd[];
 extern s32 gOverlay1PoolGroup;
 extern s32 gOverlay1PoolExhausted;
 
-/* Plateau (2026-08-25): the isolated 119-combination flag lattice and eight
- * source variants are exact-sized but retain 9 differing words, first at
- * +0x6C. The prefix and relocation surface are exact; only the post-predicate
- * temporary FIFO web differs. Explicit temporaries, typed union/byte access,
- * operand association, pointer aliases, and register/volatile hints all keep
- * the same coloring. The configured tools/permuter checkout is absent. */
+/* Plateau (2026-08-29): the current isolated ranking is exact-sized at 40
+ * words and leaves 10 differing words, first at +0x50. The earlier bounded
+ * round reached nine words from +0x6C after the 119-combination flag lattice
+ * and eight source variants; only the post-predicate temporary FIFO web moved.
+ * Explicit temporaries, typed union/byte access, operand association, pointer
+ * aliases, and register/volatile hints were covered, but the trial bodies were
+ * not preserved well enough to certify another formulation as new. No-go
+ * pending new allocator evidence; the C has no linked/ROM-exact proof. */
 #ifdef NON_MATCHING
 Overlay1PoolRecord *overlay1AllocateRecord(void) {
     Overlay1PoolRecord *cursor;
