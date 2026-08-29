@@ -670,14 +670,20 @@ uncompiled. ORT 1219 exports `+0x36A0`; resident relocation 61 at ROM `0xB894`
 from `func_8000AA38+0x25C` is the sole inbound. Linked equality proves fallback
 only.
 
-Overlay 9 `+0x540`'s eight-word entry is likewise historical masked linked
-evidence, not a retained configured candidate. Its surviving standalone object
-omits the TU-required `-Wab,-r4300_mul` and has nine raw/eight normalized sites.
-The exact runtime contract is ten records: three `LOCAL` HI16/LO16 pairs to
-module `+0x18B0`, `SYMBOL` calls to resident `mathDiffAngle` and
-`func_8002A8C0`, and one `LOCAL` HI16/LO16 pair to BSS `+0x1930`. The synthetic
-target object collapses the zero-field calls to one local placeholder, so the
-runtime table—not that object—is the callee-identity authority.
+Overlay 9 `+0x540` now has a fresh unchanged configured full-TU reproof under
+canonical `-O2 -mips2 -32 -Wab,-r4300_mul`: exact `0x204` size/frame `0x58`,
+120/129 raw words and 121/129 after runtime relocation or synthetic-VMA link
+resolution, first `+0x4C`. Its ten candidate records agree with the runtime
+contract by offset, type, and identity: `LOCAL` HI16/LO16 pairs at function
+`+0x48/+0x4C`, `+0x50/+0x54`, and `+0x58/+0x5C` use module base `+0x18B0`
+with addends `+0xC/+0x10/+0x14`; `SYMBOL` calls at `+0x80/+0xDC` resolve
+through ORT 707/279 to resident `mathDiffAngle`/`func_8002A8C0`; and the
+`LOCAL` pair at `+0x158/+0x168` uses BSS base `+0x1930` with addend zero. The
+synthetic target object collapses the zero-field calls to one local placeholder,
+so the runtime table remains the callee-identity authority. The eight linked
+differences are a four-way saved-FPR color cycle; linked equality remains
+fallback-only and the bounded reproof is parked without flags, trace, source
+variants, or permutation.
 
 Overlay 1 `+0x7D6C`'s eight-word entry is the addend-normalized result; the
 retained isolated ranking has ten raw sites. Only 19/22 candidate runtime

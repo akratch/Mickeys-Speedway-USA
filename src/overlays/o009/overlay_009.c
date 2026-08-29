@@ -178,13 +178,22 @@ void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F0000000_1866678.s")
 #endif
 /* PROVENANCE: Mickey-derived from the assigned overlay assembly range; no donor body was imported.
- * The retained standalone candidate omitted the TU-required -Wab,-r4300_mul:
- * nine raw sites remain at +0x4C/+0x54/+0x5C/+0x64/+0x6C/+0xA4/+0xB4/
- * +0x128/+0x138, or eight after relocation normalization removes +0x5C.
- * Size 0x204, frame 0x58, CFG, schedule and all ten runtime records otherwise
- * agree; the remaining upper/lower/threshold values form a four-way saved-FPR
- * color cycle. No configured full-TU or linked candidate-C proof survives.
- * Reproof-only: one unchanged configured V0, then park if the cycle reproduces. */
+ * Bounded reproof (2026-08-29): unchanged configured full-TU C under canonical
+ * -O2 -mips2 -32 -Wab,-r4300_mul emits the exact 0x204-byte extent and frame
+ * 0x58. It matches 120/129 raw words and 121/129 after runtime relocation or
+ * real-offset link resolution, first +0x4C. The eight linked residual sites are
+ * +0x4C/+0x54/+0x64/+0x6C/+0xA4/+0xB4/+0x128/+0x138.
+ *
+ * All ten runtime records agree by offset, type, and identity: LOCAL pairs at
+ * +0x48/+0x4C, +0x50/+0x54, and +0x58/+0x5C use module base +0x18B0 with
+ * addends +0xC/+0x10/+0x14; SYMBOL calls at +0x80/+0xDC are ORT 707
+ * mathDiffAngle and ORT 279 func_8002A8C0; the +0x158/+0x168 LOCAL pair uses
+ * BSS base +0x1930 with addend zero. A synthetic-VMA link preserves the real
+ * F0000540 placement and reproduces the same 121/129 owned-range result.
+ * The remaining upper/lower/threshold values form the retained four-way
+ * saved-FPR color cycle. Per the reproof bound, no flag, trace, source-variant,
+ * or permutation search was run. Preserve this body and assembly fallback
+ * until a new saved-FPR coalescing mechanism is proved. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000540_1866BB8(O9Angle *angle, void *unused,
                                        O9Motion *motion, s32 steps) {
