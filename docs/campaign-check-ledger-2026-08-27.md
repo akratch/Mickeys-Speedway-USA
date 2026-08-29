@@ -265,7 +265,8 @@ close live rankings, and the new same-ROM leads:
 5. `func_8003A2C8` — compact P! plateau and bakeoff target;
 6. `overlay40AddEntry` — four-word register-only live ranking;
 7. `overlay20UpdateObjectResource` — historical two-pass claim; canonical Git retains only the isolated scalar, while one stale local V0 object lacks source/build provenance and no route-exhaustion artifacts survive;
-8. `overlay74Update` — six-word register-only live ranking;
+8. `overlay74Update` — historical six-word pre-cleanup diagnostic; current
+   policy-clean C is uncompiled;
 9. `overlay2SplitRegion` — W-route scheduler expert or park;
 10. `func_80012574` — configured 7/57 FP-web/stack-home plateau; run the
     bounded saved-local/declaration-order ladder;

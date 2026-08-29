@@ -2062,9 +2062,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o073/overlay73Draw.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o074/overlay74Init.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xB8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o074/overlay74Init.c.o: CFLAGS += -Wab,-r4300_mul
-# Guarded C is exact-sized and schedule-aligned but differs at six
-# register-allocation words. The ordinary object is the assembly fallback; its
-# symbol-only postprocess does not establish C exactness.
+# Historical pre-cleanup guarded C was exact-sized and six words away. Current
+# ABI-correct C is uncompiled; the ordinary object is the assembly fallback and
+# its symbol-only postprocess does not establish current C shape or exactness.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o074/overlay74Update.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
 		--redefine-sym func_overlay_074_F00000B8_18CBD58=overlay74Update $@
