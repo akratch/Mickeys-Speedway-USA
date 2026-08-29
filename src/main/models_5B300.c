@@ -319,12 +319,13 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A7A0.s")
 #endif
-/* Plateau (near-miss p9): workbench register-ring-only, 3 register words at
+/* Plateau (near-miss p10): workbench register-ring-only, 3 register words at
  * 94 instructions/frame -0x38. Raw interleaved-array final stores, matching
  * the exact adjacent free routine's access shape, close the prior 8-word
- * final-index allocation hunk. A normalized count guard reaches the target
- * t8 scan-index phase but adds one instruction; redundant parameter masking
- * changes the prologue. The one-pop scan-loop FIFO residual remains. */
+ * final-index allocation hunk. Focused FIFO levers are exhausted: a named
+ * byte offset is inert, equivalent shift masks emit real instructions, and a
+ * folded live guard only reschedules the initial global load. The one-pop
+ * scan-loop FIFO residual remains pass-owned. */
 #ifdef NON_MATCHING
 u8 *func_8005A948(s16 animationId) {
     s32 i;

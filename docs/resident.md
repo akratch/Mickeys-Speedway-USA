@@ -2722,8 +2722,11 @@ interleaved arrays used by the exact adjacent free routine closes that entire
 late allocation hunk and leaves **3/94 register-only words**, first `+0x40`:
 the shared cache-index shift uses `t7` instead of target `t8`. Normalizing the
 preceding positive-count guard reaches the target FIFO phase but adds one real
-instruction, while redundant parameter masking changes the prologue. The best
-C remains under `NON_MATCHING` and the target assembly remains canonical.
+instruction, while redundant parameter masking changes the prologue. A final
+source-only FIFO pass found the named byte-offset form inert, equivalent shift
+masks two or three instructions longer, and a folded live guard schedule-only
+at the initial global load; none rotated the scan-index web. The p10 best C
+remains under `NON_MATCHING` and the target assembly remains canonical.
 
 `func_8005A7A0` plateaus at 105 instructions against 106, with a `0x58`
 frame against `0x38` and 73 differing positional words from the prologue;
