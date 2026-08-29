@@ -134,7 +134,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_001_F0000414_184C7F4` | `src/overlays/o001/overlay_001.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F00004B4_184C894` | `src/overlays/o001/overlay_001.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F0000614_184C9F4` | `src/overlays/o001/overlay_001.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_001_F0007D6C_185414C` | `src/overlays/o001/overlay_001_end.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_001_F0007D6C_185414C` | `src/overlays/o001/overlay_001_end.c` | none | — | Retained evidence is exact-sized at 152 words with ten raw/eight normalized sites and 19/22 exact runtime tuples. The unsupported clear alias and caller ABI are repaired. Run one configured full-TU/linked V0, then one annotated-target permutation only if the eight sites reproduce. |
 | `func_overlay_001_F0000CA8_184D088` | `src/overlays/o001/overlay_001_head.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F0000DF4_184D1D4` | `src/overlays/o001/overlay_001_head.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F0000F84_184D364` | `src/overlays/o001/overlay_001_head.c` | none | — | No ownership change; continue source/codegen work. |

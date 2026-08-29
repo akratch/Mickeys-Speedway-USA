@@ -740,7 +740,7 @@ struct _m2c_stack_func_overlay_001_F000438C_185076C {
 };                                                  /* size = 0x138 */
 
 s32 func_overlay_001_F00004B4_184C894();            /* extern */
-M2C_UNK func_overlay_001_F0007D6C_185414C(s32, s32, s16, s16, s16, s16, s16 *, s16 *, void *); /* extern */
+s32 func_overlay_001_F0007D6C_185414C(s16, s16, s16, s16, s16 *, s16 *, void *); /* extern */
 f32 *ext_o8_8();
 void ext_o0_1ee0c();
 void ext_o8_49dc();
@@ -1070,7 +1070,11 @@ block_13:
             }
             temp_f14 = (s32) M2C_FIELD(D_1DA0, f32 *, 0x3D8);
             temp_f12_2 = (s32) M2C_FIELD(D_1DA0, f32 *, 0x3DC);
-            func_overlay_001_F0007D6C_185414C(temp_f12_2, temp_f14, (s16) (s32) M2C_FIELD(D_1DA0, f32 *, 0x3D0), (s16) (s32) M2C_FIELD(D_1DA0, f32 *, 0x3D4), (s16) temp_f14, (s16) temp_f12_2, &sp4E, &sp4C, D_1D9C);
+            func_overlay_001_F0007D6C_185414C(
+                (s16)temp_f12_2, (s16)temp_f14,
+                (s16)(s32)M2C_FIELD(D_1DA0, f32 *, 0x3D0),
+                (s16)(s32)M2C_FIELD(D_1DA0, f32 *, 0x3D4),
+                &sp4E, &sp4C, D_1D9C);
             spD8 = (f32) sp4E;
             spD4 = (f32) sp4C;
         }

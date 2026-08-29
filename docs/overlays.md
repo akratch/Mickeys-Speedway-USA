@@ -1594,7 +1594,16 @@ Overlay 34 `+0x378..+0x540` — 456 bytes / 114 words, storage reset and active-
 
 Overlay 1 `+0x5CD4..+0x5ECC` — 504 bytes / 126 words, directional object selection. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via stack-home plus a two-instruction temporary-web reassignment); source kept as decomp-permuter input. Target-local R4300 multiply hazards naturally recover the exact frame, opcode stream, CFG, FP schedule, and all 11 relocation sites.
 
-Overlay 1 `+0x7D6C..+0x7FCC` — 608 bytes / 152 words, path-point resolution. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via two scheduling permutations plus a four-field register reassignment); source kept as decomp-permuter input. Natural source otherwise recovers the exact 120-byte frame, collision-output stack home, CFG, call topology, delay-slot effects, and full boundary; all 22 shipped runtime relocation records remain exact.
+Overlay 1 `+0x7D6C..+0x7FCC` — 608 bytes / 152 words, path-point resolution.
+NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via two
+scheduling permutations plus a four-field register reassignment); source kept
+as decomp-permuter input. The current retained candidate has the exact
+120-byte frame, boundary, CFG and call topology, but ten raw/eight
+addend-normalized word differences and only 19/22 exact relocation tuples:
+the `D_218` LO16 and `D_1D88` HI16 exchange `+0x090/+0x094`, while the
+`D_1BA4` LO16 is at candidate `+0x14C` instead of target `+0x148`. Runtime
+evidence also corrects the clear target to local `D_220` and the sole caller
+to a seven-argument ABI.
 
 Overlay 1 `+0x5BF4..+0x5CD4` — 224 bytes / 56 words, timer and mode callback dispatch. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a loop-tail reschedule plus register/branch-lowering reassignment); source kept as decomp-permuter input. Natural source otherwise recovers the exact boundary, frame, direct setup call, two indirect callbacks, loop semantics, and all 13 runtime relocation records.
 

@@ -20,7 +20,6 @@ typedef struct Overlay1ErrorOwner {
 } Overlay1ErrorOwner;
 
 extern Overlay1PoolRecord D_220[32];
-extern Overlay1PoolRecord D_220_Clear[32];
 extern u8 D_8[0x200];
 extern Overlay1PoolRecord *D_218;
 extern s32 D_1D88;
@@ -37,15 +36,18 @@ extern s32 overlay1SegmentReloc(f32 x0, f32 y0, f32 x1, f32 y1,
 extern void func_overlay_001_F0007730_1853B10(s16 *x, s16 *y,
                                                u8 selector, u8 mode);
 
-/* Plateau (2026-08-29): the current isolated ranking is exact-sized at 152
- * words and leaves 10 differences, first at +0x90; the linked diagnostic
- * retained the earlier eight-word basin. Ten source forms leave the same
- * D_218/D_1D88 store schedule, record-pointer reuse, and doubled-product
- * register residual; direct BSS-struct and volatility spellings regress it.
- * No-go at the attempt cap; neither comparison is linked/ROM exact C. */
+/* PROVENANCE: Mickey-derived; pinned DKR v77/v80 and JFG scans found no donor.
+ * Plateau (2026-08-29): retained configured evidence is exact-sized at 152
+ * words. Raw sites are +0x090/+0x094/+0x0C8/+0x0EC/+0x124/+0x148/+0x14C/
+ * +0x150/+0x1C8/+0x1CC; addend normalization removes +0x0C8/+0x0EC. Only
+ * 19/22 runtime relocation tuples agree: D_218 LO16 and D_1D88 HI16 exchange
+ * +0x090/+0x094, and D_1BA4 LO16 is +0x14C instead of target +0x148. Ten
+ * source forms exhausted the manual route. Rebuild one ABI/identity-correct
+ * V0, then run one bounded annotated-target permutation if the eight sites
+ * reproduce; neither retained comparison is linked/ROM-exact candidate C. */
 #ifdef NON_MATCHING
 s32 overlay1ResolvePathPoint(s16 x0, s16 y0, s16 x1, s16 y1,
-                             s16 *outX, s16 *outY) {
+                             s16 *outX, s16 *outY, void *unused) {
     register u32 groupAddress;
     s32 index;
     Overlay1PoolRecord *record;
@@ -54,7 +56,7 @@ s32 overlay1ResolvePathPoint(s16 x0, s16 y0, s16 x1, s16 y1,
     s32 scanIndex;
     s32 product;
 
-    overlay1ClearReloc(D_220_Clear, sizeof(D_220_Clear));
+    overlay1ClearReloc(D_220, sizeof(D_220));
     overlay1ClearReloc(D_8, sizeof(D_8));
     D_218 = D_220;
     groupAddress = (u32)&D_1D88;

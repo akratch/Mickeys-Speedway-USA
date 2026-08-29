@@ -526,6 +526,13 @@ module `+0x18B0`, `SYMBOL` calls to resident `mathDiffAngle` and
 target object collapses the zero-field calls to one local placeholder, so the
 runtime table—not that object—is the callee-identity authority.
 
+Overlay 1 `+0x7D6C`'s eight-word entry is the addend-normalized result; the
+retained isolated ranking has ten raw sites. Only 19/22 candidate runtime
+tuples agree: `D_218` LO16 and `D_1D88` HI16 exchange `+0x090/+0x094`, and
+`D_1BA4` LO16 is at `+0x14C` rather than target `+0x148`. The first clear pair
+resolves to existing local `D_220`; the former `D_220_Clear` name had no
+linker/runtime identity.
+
 `overlay7CommitSelection`'s six-word historical trial also carried a false
 `+0xF4` callee identity: the runtime record is a local `JUMP` to Overlay 7
 `+0x000` (`overlay7ReleaseEntry`), not a symbol-table call to `+0xCCC`.
