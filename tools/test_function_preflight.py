@@ -394,6 +394,51 @@ class GeometryAndWorkbenchTests(unittest.TestCase):
         with self.assertRaisesRegex(fp.PreflightError, "linked geometry disagrees"):
             fp._require_tracked_geometry(resolution, 0xF0000020, 0x24)
 
+    def test_promoted_mode_accepts_exact_relocation_shape_with_proxy_identities(self) -> None:
+        resolution = fp.Resolution(
+            "friendly", "generated", "friendly", Path("src/example.c"),
+            "example", "build", Path("build/src/example.c.o"), None,
+            "promoted", resolution_mode="post_promotion",
+        )
+        comparison = {
+            "candidate_record_count": 9,
+            "candidate_identity_resolved_count": 4,
+            "target_record_count": 9,
+            "offset_type_exact": True,
+        }
+        fp._require_static_relocation_evidence(resolution, comparison)
+
+    def test_fallback_mode_still_rejects_unresolved_relocation_identity(self) -> None:
+        resolution = fp.Resolution(
+            "friendly", "generated", "friendly", Path("src/example.c"),
+            "example", "build_non_matching",
+            Path("build_non_matching/src/example.c.o"), Path("target.s"),
+            "guarded fallback",
+        )
+        comparison = {
+            "candidate_record_count": 3,
+            "candidate_identity_resolved_count": 2,
+            "target_record_count": 3,
+            "offset_type_exact": True,
+        }
+        with self.assertRaisesRegex(fp.PreflightError, "unresolved at 1"):
+            fp._require_static_relocation_evidence(resolution, comparison)
+
+    def test_promoted_mode_rejects_relocation_shape_drift(self) -> None:
+        resolution = fp.Resolution(
+            "friendly", "generated", "friendly", Path("src/example.c"),
+            "example", "build", Path("build/src/example.c.o"), None,
+            "promoted", resolution_mode="post_promotion",
+        )
+        comparison = {
+            "candidate_record_count": 9,
+            "candidate_identity_resolved_count": 9,
+            "target_record_count": 8,
+            "offset_type_exact": False,
+        }
+        with self.assertRaisesRegex(fp.PreflightError, "shape disagrees"):
+            fp._require_static_relocation_evidence(resolution, comparison)
+
 
 class FreshnessTests(unittest.TestCase):
     def resolution(self, root: Path) -> fp.Resolution:

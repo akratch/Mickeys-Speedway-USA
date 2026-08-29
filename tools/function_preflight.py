@@ -855,6 +855,37 @@ def _require_tracked_geometry(
         )
 
 
+def _require_static_relocation_evidence(
+    resolution: Resolution, comparison: dict[str, object]
+) -> None:
+    """Apply the relocation proof available in each resolution mode.
+
+    A fallback candidate must resolve every static identity before it can be
+    compared with the extracted target. After promotion, the fallback no
+    longer exists and overlay proxy names need not all resolve; the canonical
+    object can still prove the complete relocation shape while the relocated
+    ROM oracle proves the final bytes. This is the same limitation reported by
+    the post-promotion human/JSON output, not permission for a candidate lane.
+    """
+    candidate_count = int(comparison["candidate_record_count"])
+    resolved_count = int(comparison["candidate_identity_resolved_count"])
+    if resolution.resolution_mode != "post_promotion":
+        if resolved_count != candidate_count:
+            raise PreflightError(
+                "candidate static relocation identity is unresolved at "
+                f"{candidate_count - resolved_count} site(s)"
+            )
+        return
+
+    target_count = int(comparison["target_record_count"])
+    if candidate_count != target_count or comparison.get("offset_type_exact") is not True:
+        raise PreflightError(
+            "post-promotion static relocation shape disagrees with the tracked target: "
+            f"candidate={candidate_count}, target={target_count}, "
+            f"offset/type exact={comparison.get('offset_type_exact')!r}"
+        )
+
+
 def collect(resolution: Resolution) -> dict[str, object]:
     for path, label in (
         (TARGET_ELF, "canonical linked ELF"),
@@ -900,12 +931,7 @@ def collect(resolution: Resolution) -> dict[str, object]:
         target_size,
         section,
     )
-    if comparison["candidate_identity_resolved_count"] != comparison["candidate_record_count"]:
-        raise PreflightError(
-            "candidate static relocation identity is unresolved at "
-            f"{comparison['candidate_record_count'] - comparison['candidate_identity_resolved_count']} "
-            "site(s)"
-        )
+    _require_static_relocation_evidence(resolution, comparison)
     inbound = _inbound_references(context, rom)
     result: dict[str, object] = {
         "schema": "mickey-function-evidence-preflight-v1",
