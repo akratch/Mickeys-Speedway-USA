@@ -451,23 +451,16 @@ s32 mmGetDelay(void) {
 /*
  * PROVENANCE: adapted from JFG src/memory.c:mempool_slot_assign. Mickey's
  * pool accounting, byte-sized slot fields, globals, and bytes are authoritative.
- * Retained full-TU/isolated C agree at diagnostic 42/72 raw/normalized
- * frameless words, first +0x8C, with all eight tuples exact. Its volatile
- * colourTagIndex was an unauthenticated reload aid and is removed with two dead
- * declarations; clean V0 is uncompiled and linked equality is fallback-only.
- * Four resident calls are authenticated, with no runtime/export/pointer inbound.
- * Retain V0, 119 flags and one allocator trace; try JFG-faithful block-local
- * count/index lifetimes and one trace-selected new-slot pointer form, combining
- * only strict gains. Hard cap: 122 builds plus one trace; no generic batch.
+ * Canonical -O2/-mips2 C is exact for all 72 frameless words and all eight
+ * relocation tuples. Reusing dead incoming/local carriers preserves the
+ * allocator's slot-count and remainder-link webs without artificial code.
  */
-#ifdef NON_MATCHING
 s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
                    s32 slotIsTaken, s32 newSlotIsTaken, u32 colourTag) {
     MemoryPool *pool;
     MemoryPoolSlot *slots;
     MemoryPoolSlot *slot;
     s32 index;
-    s32 nextIndex;
     s32 slotSize;
 
     if (slotIsTaken == TRUE) {
@@ -487,9 +480,10 @@ s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
     slot->size = size;
     slot->colourTag = colourTag;
     if (size < slotSize) {
-        index = ((MemoryPoolSlot *)((u8 *)slots +
-                                    (((pool->curNumSlots << 2) + pool->curNumSlots) << 2)))->index;
-        pool->curNumSlots++;
+        slotIsTaken = pool->curNumSlots;
+        index = ((MemoryPoolSlot *)((slotIsTaken * sizeof(MemoryPoolSlot)) +
+                                    (u8 *)slots))->index;
+        pool->curNumSlots = slotIsTaken + 1;
         ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->data =
             slot->data + size;
         ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->size =
@@ -498,23 +492,23 @@ s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
             newSlotIsTaken;
         ((MemoryPoolSlot *)((u8 *)slots + (index << 4) +
                             (index << 2)))->colourTagIndex = D_8007A270;
-        nextIndex = slot->nextIndex;
-        ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->prevIndex =
-            slotIndex;
-        ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->nextIndex =
-            nextIndex;
-        slot->nextIndex = index;
-        if (nextIndex != -1) {
-            ((MemoryPoolSlot *)((u8 *)slots + (nextIndex << 4) +
-                                (nextIndex << 2)))->prevIndex = index;
+        {
+            slotSize = slot->nextIndex;
+
+            ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->prevIndex =
+                slotIndex;
+            ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->nextIndex =
+                slotSize;
+            slot->nextIndex = index;
+            if (slotSize != -1) {
+                ((MemoryPoolSlot *)((u8 *)slots + (slotSize << 4) +
+                                    (slotSize << 2)))->prevIndex = index;
+            }
         }
         return index;
     }
     return slotIndex;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002BB40.s")
-#endif
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmAlign16. */
 u8 *align16(u8 *address) {

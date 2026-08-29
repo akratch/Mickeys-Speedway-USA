@@ -1,6 +1,6 @@
 {
-  "queue_size": 415,
-  "resolved": 409,
+  "queue_size": 414,
+  "resolved": 408,
   "unresolved": 6,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
@@ -160,18 +160,6 @@
       "first_mismatch_offset": 72,
       "size_delta": 0,
       "category": "allocation-mismatch"
-    },
-    {
-      "name": "func_8002BB40",
-      "file": "src/main/memory.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 288,
-      "objdiff_match_pct": null,
-      "differing_words": 30,
-      "first_mismatch_offset": 140,
-      "size_delta": 0,
-      "category": "register-only"
     },
     {
       "name": "func_overlay_022_F0000D30_1878E38",
