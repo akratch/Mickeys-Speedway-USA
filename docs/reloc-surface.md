@@ -833,7 +833,9 @@ module `+0xF30`; pairs at `+0x140/+0x144`, `+0x14C/+0x160`, and
 `+0x164/+0x170` resolve through base `+0xF80` with addends `0/+4/+8`.
 The fallback target statically retains only the first pair, so runtime tables
 authenticate the other six. ORT 1248 exports `+0`; resident relocation 90 at
-`func_8000AA38+0x42C` is the sole inbound.
+`func_8000AA38+0x42C` is the sole inbound. The function owns
+`+0x0..+0x190` / ROM `0x18CAAC0..0x18CAC50` with no target padding; the next
+assembly owner begins at `+0x190`.
 
 Overlay 80 `+0x11C` (`overlay80UpdateContact`) owns 20 records. SYMBOL calls
 at function `+0x30/+0xFC/+0x240/+0x294` resolve through ORTs 371, 101, 381,

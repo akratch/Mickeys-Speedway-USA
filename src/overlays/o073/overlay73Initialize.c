@@ -61,9 +61,10 @@ extern f32 D_4;
 extern f32 D_8;
 
 /* DKR v77/v80 and JFG contain no exact donor for this initializer. */
-/* Retained configured full-TU and isolated current-body C are byte-identical at
- * 90/100 raw words and 92/100 after runtime-relocation normalization, with
- * exact frame 0x8. One a2/a3 allocation web differs at
+/* Retained genuine isolated current-body C is 90/100 raw words and 92/100
+ * after runtime-relocation normalization, with exact frame 0x8; no genuine
+ * configured NON_MATCHING=1 full-TU C object survives. One a2/a3 allocation
+ * web differs at
  * +0x40/+0x50/+0x80/+0x84/+0x94/+0x9C/+0xA8/+0xB0. Runtime table 2 resolves
  * D_80 through LOCAL base
  * +0xEB0/addend +0x80 (module +0xF30), while D_0/D_4/D_8 use LOCAL base
@@ -71,9 +72,15 @@ extern f32 D_8;
  * module-zero symbol in overlay_073.s are outgoing SYMBOL relocations, not
  * callers. ORT 1248 exports +0; resident relocation 90 at
  * func_8000AA38+0x42C is the sole inbound. Historical flag/source-probe
- * outcomes are unretained. Compile V0, retain 119 flags, trace once, try at
- * most two trace-selected natural forms, then one bounded annotated batch.
- * No linked C proof survives; canonical assembly stays. */
+ * outcomes are unretained. Owned +0x0..+0x190 / ROM 0x18CAAC0..0x18CAC50 has
+ * no target padding; the next assembly owner starts at +0x190. Reproduce V0
+ * through isolated and configured C paths, run 119 distinct configurations
+ * including canonical V0, trace once, and use one forced-a3 diagnostic only to
+ * test color reachability. The forced result is never promotable. Try one
+ * natural affinity form only if forcing clears all eight sites, then one
+ * trace-supported scoped form only after strict gain. Stock cap 122; a bounded
+ * annotated batch is permitted only from improved natural source. Ordinary
+ * full-TU/link equality is fallback and no linked C proof survives. */
 #ifdef NON_MATCHING
 void func_overlay_073_F0000000_18CAAC0(Overlay73Object *object,
                                        Overlay73Header *header,
