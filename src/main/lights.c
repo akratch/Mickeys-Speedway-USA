@@ -984,12 +984,17 @@ void func_80019AB8(LightPosition *position, LightObjectContext *object,
 void lightDefaultObjectLight(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s32 arg4) {
     func_80019DE8(&D_800CB298, arg0, arg1, arg2, arg3, arg4);
 }
-/* Retained configured full-TU C: 64 versus 63 words, exact 0x38 frame,
- * 19/63 positional matches, 44 shared-word differences plus one trailing nop,
- * first +0x44.  The three relocation identities agree but are all four bytes
- * late.  Only V0 is artifact-backed; reproduce before the bounded campaign. */
+/* Retained full-TU/isolated C: 64 versus target 63 words, exact 0x38 frame,
+ * 19/63 raw/normalized positional matches, first +0x44. The candidate-only
+ * final word is its shifted return delay slot, not padding. All three identities
+ * are four bytes late; linked equality is fallback-only. ORT 358 has direct
+ * callers lightDefaultObjectLight+0x38 and func_8001A008+0x74/+0xC4 but no
+ * runtime inbound. Retain V0, 119 flags and one allocator trace; try two
+ * valueDelta-first forms and one trace-selected form/strict-gain combination.
+ * Cap 122 stock builds plus one trace and an optional improving-only batch. */
 #ifdef NON_MATCHING
-/* PROVENANCE: adapted from JFG's public asm/nonmatchings/lights/lightSetObjectLight.s, with Mickey's globals. */
+/* PROVENANCE: JFG's public assembly-backed lightSetObjectLight authenticates
+ * the structural role only; Mickey's body and globals remain authoritative. */
 void func_80019DE8(ObjectLightState *state, s32 arg1, s32 arg2, s16 pitch, s16 yaw, s32 shift) {
     s16 rotation[3];
     f32 direction[3];

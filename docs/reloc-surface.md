@@ -918,6 +918,15 @@ ORT export at offset `0x41894`, overlay SYMBOL inbounds, and stored-pointer
 inbounds are all zero. `partDraw+0xEC` is the sole direct caller. Current
 linked equality proves fallback only.
 
+Resident `func_80019DE8` targets three static records: R_MIPS_26
+`mathOneFloatRPY` at `+0xBC` and a `D_800CB290` HI16/LO16 pair at
+`+0xC8/+0xE0`. Genuine C has the same types and identities at
+`+0xC0,+0xCC,+0xE4`, all four bytes late. Resident runtime records inside the
+function are zero. ORT 358 exports offset `0x19998`, but all resident runtime
+and overlay SYMBOL records have zero inbounds; direct callers are
+`lightDefaultObjectLight+0x38` and `func_8001A008+0x74/+0xC4`, with no stored
+pointer. Current linked equality proves fallback only.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to

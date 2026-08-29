@@ -359,7 +359,7 @@ contains none and is split to C with assembly fallbacks. The complete census:
 | `0x80019A24` | `0x94` | `lightDirectionCalc` | unique nearest skeleton (0.432) and exact JFG size; comparison only |
 | `0x80019AB8` | `0x2E0` | `lightObject` | Evidence D: Mickey reconstruction is compiled as a candidate: 191/184 instructions, 178 differing words, first `+0x0`, frame `-0xD0` versus `-0xC8`, and 54 relocation-symbol sites differ; not shape-exact. |
 | `0x80019D98` | `0x50` | `lightDefaultObjectLight` | tier-B comparison: delegates to the following setter |
-| `0x80019DE8` | `0xFC` | `lightSetObjectLight` | tier-D boundary; retained configured full-TU C has the exact `0x38` frame but 64 words versus target 63, 19/63 positional matches, 44 shared-word differences plus one trailing nop, first `+0x44`. The three relocation identities agree but candidate offsets are all `+4` late. Only V0 is artifact-backed; historical flag/source/permuter exhaustion is unretained, so retain `func_` and rerun the bounded campaign. |
+| `0x80019DE8` | `0xFC` | `lightSetObjectLight` | tier-D boundary; retained full-TU/isolated C is 64 versus target 63 words, exact frame `0x38`, 19/63 raw/normalized positional matches, first `+0x44`. The extra return-delay word is not padding; all three tuples are four bytes late. Linked equality is fallback-only; ORT 358 has three direct callers and no runtime inbound. JFG's role is assembly-backed structural evidence only. |
 | `0x80019EE4` | `0x98` | `lightSetupLightSources` | tier-B comparison: loop calls the adopted `addObjectLight` comparison |
 | `0x80019F7C` | `0x8C` | `lightSetupFlareSources` | tier-B comparison: adjacent setup loop and flare helper |
 | `0x8001A008` | `0x14C` | `lightInitObjectLighting` | tier-B comparison; `NON_MATCHING` plateau after the flag lattice and nine source/declaration forms: exact 83-word frame/opcode/register/FP/relocation shape, but 4 positional words differ, first `+0x70`, because the call-live result spills at `0x28(sp)` instead of `0x2C(sp)`; the permuter importer scores the isolated function zero, but the required full-TU build retains this mismatch |
@@ -2148,6 +2148,24 @@ all 88 odd-FP operands and stays assembly under §6.2; lights has none.
 
 PROVENANCE DISCLOSURE. Comparisons use JFG's permitted public
 `src/{shadows_214A0,lights}.c` and `src/lights.h`.
+
+`func_80019DE8` owns VRAM `0x80019DE8..0x80019EE4`, ROM
+`0x1A9E8..0x1AAE4`: 252 bytes/63 words, frame `0x38`, and no padding before
+`lightSetupLightSources`. Retained genuine full-TU and isolated C agree at 64
+words and 19/63 raw/normalized positional words, first `+0x44`; the extra word
+is its shifted return delay slot. Ordinary object/TU/ROM equality is fallback
+only. Target records are `mathOneFloatRPY` at `+0xBC` and a `D_800CB290`
+HI16/LO16 pair at `+0xC8/+0xE0`; genuine C has the correct identities four
+bytes late. ORT 358 exports offset `0x19998`, with zero resident-runtime or
+overlay inbounds. Direct callers are `lightDefaultObjectLight+0x38` and
+`func_8001A008+0x74/+0xC4`; no stored pointer exists.
+
+The policy-clean body uses `-O2 -mips2 -32 -Wab,-r4300_mul`. JFG's
+`lightSetObjectLight` is assembly-backed structural evidence, not donor C.
+Retain V0, all 119 flags, and one allocator trace; try field-first and local
+`valueDelta` forms plus one trace-selected form or independently improving
+combination. Hard cap 122 stock builds plus one trace and, only after a strict
+natural gain, one 20-minute annotated batch.
 
 | Mickey VRAM | Size | JFG namesake | Evidence / disposition |
 |---:|---:|---|---|
