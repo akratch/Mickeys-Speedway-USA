@@ -16,17 +16,23 @@ typedef struct Overlay7SelectionRow {
 /* Overlay 7, ADR 0006 consolidation: C after the middle assembly island. */
 
 /*
- * Plateau (trace-retested 2026-08-28): exact 131-word size with two differing
- * words, first at +0x44. UGEN allocates t3 for the global address, frees it,
- * then takes t4 for the value and t5 for the masked shift. The stock as1 trace
- * receives that allocation unchanged, and uopt records no copy decision, so a
- * zero-code copy-fact barrier has no applicable site. Function- and block-
- * scoped value carriers regress to 112/131; a pointer carrier canonicalizes
- * to this retained 129/131 candidate.
+ * Plateau (evidence reviewed 2026-08-29): the configured isolated candidate
+ * has the exact 131-word size and 0x20 frame. Its ranking has three raw text
+ * differences: substantive t4-versus-t3 register fields at +0x44/+0x64 and a
+ * switch-table LO16 addend at +0xA4 that should resolve only after linking the
+ * owned rodata at +0x934..+0x950. UGEN frees the t3 address carrier before
+ * allocating t4 for the value; as1 preserves that choice and uopt records no
+ * copy decision. Function- and block-scoped carriers regress to 112/131, and
+ * a pointer carrier canonicalizes to the retained 129/131 normalized result.
+ * No fresh full-TU or linked candidate proof survives. Re-prove V0 and all 23
+ * candidate relocation sites, then try mutually exclusive volatile-scalar and
+ * one-element-array representations; run dependent union/combined probes only
+ * after an improvement, with a five-run cap.
  */
 /* Ownership trial (2026-08-28): fixed the TU's +0x934..+0x950 .rodata range;
- * linked promotion is text-differs with 455 in-range words, first at +0x0.
- * Module growth is cleared; the remaining gap is codegen/register allocation. */
+ * its 455-word linked failure measured the whole trial surface, not this
+ * function's isolated plateau. Module growth is cleared; exact function/TU,
+ * relocation, linked-range, and ROM proof remain outstanding. */
 #ifdef NON_MATCHING
 void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) {
     Overlay7ModeState *firstState;
