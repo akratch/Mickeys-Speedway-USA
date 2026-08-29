@@ -278,7 +278,7 @@ generated historical snapshot; regenerate it when compile capacity is free.
 | `overlay40FadeRecords` (retained line layout; HEAD pending) | o040 | 3 | 12 | 404 | 0 | register-only |
 | `func_8003A2C8` (pre-cleanup diagnostic spelling) | main | 5 | 12 | 128 | 0 | register-only |
 | `overlay74Update` (pre-cleanup diagnostic; clean score unknown) | o074 | 6 | 12 | 400 | 0 | register-only |
-| `overlay20UpdateObjectResource` (pre-HEAD/current-layout V0) | o020 | 8 | 176 | 392 | 0 | register-only |
+| `overlay20UpdateObjectResource` (retained line layout; HEAD pending) | o020 | 8 | 176 | 392 | 0 | register-only |
 | `func_8002CF6C` (pre-cleanup diagnostic; clean score unknown) | main | 9 | 204 | 352 | 0 | register-only |
 | overlay19ClassifyEdge | o019 | 10 | 312 | 480 | 0 | register-only |
 | func_overlay_079_F0001290_18CE230 | o079 | 12 | 200 | 492 | 0 | register-only |
