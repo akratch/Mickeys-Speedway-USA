@@ -679,9 +679,12 @@ Resident `levelGetCounts` owns 37 records: calls to `func_8002B280` at
 `piRomLoadSection` at `+0x124/+0x310`, `mmFree` at
 `+0x26C/+0x274/+0x3E0`, and `align4` at `+0x2D4/+0x2EC`, plus twelve
 HI16/LO16 pairs. Retained C has every offset/type but binds the endpoint pair
-`+0x44/+0x50` to `D_800CF3E0+0x40` instead of `D_800CF420`; source now names
-the target identity and is uncompiled. ORT 518 has sole inbound Overlay 18
-table-1 record 56 at `overlay18Initialize+0x8`. Linked equality is fallback-only.
+`+0x44/+0x50` to `D_800CF3E0+0x40` instead of `D_800CF420`, so the historical
+pre-endpoint measurement had only 35/37 exact identities. No attributable C
+object survives. Source now names the target endpoint but is uncompiled; all 37
+current offsets, types, and identities remain pending. ORT 518 has sole inbound
+Overlay 18 table-1 record 56 at `overlay18Initialize+0x8`. The owned
+`0x263F0..0x267FC` range has no padding. Linked equality is fallback-only.
 
 Resident `levelInit` owns 110 exact static tuples in retained diagnostic C:
 70 R_MIPS_26 calls and 20 HI16/LO16 pairs. Eight resident runtime records occur

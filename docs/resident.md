@@ -2434,17 +2434,21 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
 - `mainUpdateZBCheck`: Evidence A exact C after bounded permutation; all 63
   instruction words, the `-0x48` frame, relocation identities, and linked ROM
   bytes match.
-- `levelGetCounts`: retained pre-HEAD/current-token configured C owns exactly
-  259 words, frame `0x58`, and 37 offsets/types, scoring 255/259 raw and
-  256/259 relocation-normalized. Raw `+0x50` binds the loop endpoint to
-  address-equivalent but identity-wrong `D_800CF3E0+0x40`; substantive
-  `+0x13C/+0x148/+0x154` are one world-value carrier. The endpoint now names
-  `D_800CF420` directly and is uncompiled. ORT 518 has exactly one inbound,
-  `overlay18Initialize+0x8`; no padding follows the function. Pinned JFG keeps
-  the body in assembly, while later public JFG C is structural/provenance input,
-  not an exact donor. Linked equality proves fallback only. Retain 119 flags,
-  trace once, try one carrier form and strict-gain combination, capped at 122
-  builds plus trace before an improving-only annotated batch.
+- `levelGetCounts`: historically measured pre-endpoint full-TU C owns exactly
+  259 words, frame `0x58`, and all 37 offsets/types, scoring 255/259 raw and
+  256/259 relocation-normalized; no attributable C object survives. Only 35/37
+  identities were exact: raw first `+0x50` bound the endpoint pair to
+  address-equivalent but identity-wrong `D_800CF3E0+0x40`. Normalized first
+  `+0x13C`, with `+0x148/+0x154`, was one world-value carrier. A reformatted
+  isolated import measured only 251/259 raw and 252/259 normalized. Current
+  `D_800CF420` source is uncompiled, so its score, frame, and identities are
+  unknown. ORT 518 has exactly one inbound, `overlay18Initialize+0x8`; the
+  owned ROM `0x263F0..0x267FC` has no padding. Pinned JFG keeps the body in
+  assembly; public JFG `src/level.c` is disclosed provenance input, not an
+  exact donor. Linked equality proves fallback only. Run current V0, one
+  historical control only on regression, exactly 119 configurations only if
+  the three-site carrier reproduces, then one trace and one natural carrier
+  form. A strict gain alone permits a 2,000-candidate/20-minute batch.
 - `levelInit`, ROM `0x26A18..0x27228`, owns 516 words with no following padding.
   Retained pre-cleanup configured full-TU and isolated C reproduce 394/516 raw
   words, frame `0x80`, first `+0x238`, and all 110 static tuples (70 calls and

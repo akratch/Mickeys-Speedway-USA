@@ -188,17 +188,21 @@ extern void runlinkFlushModules(void);
 
 #ifdef NON_MATCHING
 /*
- * PROVENANCE: body adapted from public JFG commits 773e313/1a92d81; the pinned
- * JFG reference still uses GLOBAL_ASM, and Mickey byte identity is decisive.
- * Evidence review (2026-08-29): retained pre-HEAD/current-token configured C
- * is 255/259 raw and 256/259 relocation-normalized, exact 259-word size, 0x58
- * frame, and 37 offsets/types. Raw +0x50 is the endpoint identity; substantive
- * +0x13C/+0x148/+0x154 are one v0/target-a0 world carrier. The reformatted
- * isolated import is inferior. Linked equality proves GLOBAL_ASM only. The
- * endpoint now names D_800CF420 directly; clean V0 is uncompiled. Retain 119
- * flags, trace once, try one block-scoped carrier, and combine only strict
- * gains; cap at 122 deterministic builds plus trace before an improving-only
- * annotated batch.
+ * PROVENANCE: body adapted from public JFG src/level.c at commits
+ * 773e313/1a92d81; the pinned JFG reference still uses GLOBAL_ASM, and Mickey
+ * byte identity is decisive. The historically measured pre-endpoint full-TU
+ * spelling was 255/259 raw and 256/259 relocation-normalized, exact 259-word
+ * size/frame 0x58, with all 37 offsets/types but only 35 identities; no
+ * attributable C object survives. Raw first +0x50 was the identity-wrong
+ * D_800CF3E0+0x40 endpoint pair; normalized first +0x13C and +0x148/+0x154
+ * were one v0/target-a0 world carrier. A reformatted isolated import measured
+ * only 251/259 raw and 252/259 normalized. Current D_800CF420 source is
+ * uncompiled, so score, frame, and all identities are unknown; linked equality
+ * proves fallback only. Run current full-TU V0 and, only on material regression,
+ * one historical 0348d2f control. If V0 reproduces only the three normalized
+ * carrier sites, retain exactly 119 configurations, trace once, and try one
+ * natural block-scoped carrier. A strict legal gain alone permits one annotated
+ * batch capped at 2,000 candidates or 20 minutes; otherwise park.
  */
 void levelGetCounts(void) {
     s32 i;
