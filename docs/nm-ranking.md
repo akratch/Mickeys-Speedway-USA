@@ -303,9 +303,12 @@ longer search candidates: `overlay3FindClosestObject`, `overlay40AddEntry`,
 function-specific ledgers carry the exact proofs; stale generated ranking
 entries must not put them back into the ready queue.
 
-`func_80021504` has also since been promoted: retained canonical C is 133
-words with 43 relocations, and linked ROM `0x22104..0x22318` is
-byte-identical. It is no longer an unmatched ranking candidate.
+`func_80021504` is unguarded matched C and no longer a ranking candidate.
+Retained configured C owns 133 words with frame `0x28` and 43 candidate
+relocation tuples. Its linked range, complete camera TU, and resident `.main`
+section are byte-identical to ROM. The retained full `.bin` predates the
+object and independent target relocation metadata is absent, so this is a
+reproof-only integrity target rather than living search.
 
 `func_80021718` is already canonical C: retained configured C owns 37
 words, frame `0x28`, and 14 candidate relocation tuples. Those tuples

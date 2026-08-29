@@ -365,8 +365,18 @@ void camOverrideProjScales(f32 scaleX, f32 scaleY) {
  * PROVENANCE: adapted from JFG's public decomp, src/camera.c:camSetFOV,
  * with Mickey's camera-state mirror and region-specific projection scaling.
  */
-/* Exact C: 133 words, 43 relocations, and linked ROM 0x22104..0x22318
- * byte-identical. */
+/*
+ * Retained evidence (audited 2026-08-29): configured C owns 0x214 bytes /
+ * 133 words at .text+0x224 with a 0x28 frame and 43 candidate relocation
+ * tuples. All 90 non-relocation words agree with the retained linked ELF;
+ * the other 43 object-to-linked differences occur exactly at those tuples.
+ * The linked function, complete 0x3D40-byte camera TU, and resident .main
+ * section are byte-identical to ROM.
+ *
+ * The executable source tokens are unchanged since this object. The exact
+ * retained full .bin predates it, and no independent target relocation
+ * object survives, so one fresh target/object/link/full-bin reproof remains.
+ */
 void func_80021504(f32 fov, s32 force) {
     Camera *camera;
     s32 videoMode;
