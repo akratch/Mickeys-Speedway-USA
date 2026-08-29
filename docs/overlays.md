@@ -1483,18 +1483,28 @@ the direct linked slice SHA256 is
 Only the explicit twelve-byte tail padding remains assembly-owned, credited
 as closure fifteen.
 
-Overlay 48's state initializer at `+0x060..+0x144` — 228 bytes / 57 words,
-and removed that module's final executable assembly gap. NON_MATCHING:
-retired 2026-08-24 per ADR 0002 (was made to match via a fail-loud
-schedule/field ledger selecting retail's equivalent private register web and
-a proved constant boolean); source kept as decomp-permuter input. Natural
-source otherwise supplied the exact `0x18` frame, stores, two calls, and
-branch-free integer topology. The raw configured body SHA256 is
-`312385b63b2beaee48fb7cb069e6737ad4f7a622031d1e50220c157016092ce0`;
-the direct linked slice SHA256 is
-`927bc336aca97507f1ed258868c5d24a53d8db1eacb9cdcb2a07f53f37d380a5`.
-Only the explicit four-byte tail padding remains assembly-owned, credited as
-closure sixteen.
+Overlay 48's state initializer at `+0x060..+0x144` owns 228 bytes / 57 words
+with frame `0x18`; `+0x144` starts the next function, so it owns no padding.
+It remains NON_MATCHING. Fresh configured C emits 53 words and preserves the
+frame, but matches only 10/57 positional words from first mismatch `+0x0`.
+The target's 25 runtime records are fully decoded: local state/seed/script
+roles plus two resident calls. The candidate emits 24 records; its shifted
+schedule aligns only 12 offset/type sites, resolves eight candidate identities,
+and aligns one identity. ORT 1423 exports the function, and resident
+`func_80038BC4+0x188` is its sole authenticated caller.
+
+A bounded 14-build pass tested twelve natural source families spanning direct
+arrays, pointer-controlled loops, `for`/`do` forms, hand unrolling, aggregate
+and scalar BSS ownership, local/global declarations, and volatile qualifiers.
+A scalar declaration model reproduced the module's exact `0x60` BSS extent,
+but worsened text. Every loop form either peeled the first record or emitted
+extra address producers; every hand-unrolled form erased the target's retained
+index/seed-base setup. The prior full flag lattice was therefore not repeated.
+The exact-donor scan is negative, and the nearest JFG result (`levelFreeAll`,
+0.0769 skeleton similarity) is unrelated and offers no actionable source or
+JFG-maintainer lead. Preserve the retained baseline and assembly fallback;
+resume only with source-authentic declaration/TU evidence that keeps the
+unrolled index setup while materializing the record base from its first entry.
 
 Overlay 16's gradient applicator owns `+0x1E0..+0x424`, 580 bytes / 145
 words. Its policy-clean configured C remains NON_MATCHING but has the exact
