@@ -279,7 +279,7 @@ generated historical snapshot; regenerate it when compile capacity is free.
 | `func_8003A2C8` (pre-cleanup diagnostic spelling) | main | 5 | 12 | 128 | 0 | register-only |
 | overlay74Update | o074 | 6 | 12 | 400 | 0 | register-only |
 | `overlay20UpdateObjectResource` (pre-HEAD/current-layout V0) | o020 | 8 | 176 | 392 | 0 | register-only |
-| `func_8002CF6C` (pre-HEAD policy-qualified diagnostic) | main | 9 | 204 | 352 | 0 | register-only |
+| `func_8002CF6C` (pre-cleanup diagnostic; clean score unknown) | main | 9 | 204 | 352 | 0 | register-only |
 | overlay19ClassifyEdge | o019 | 10 | 312 | 480 | 0 | register-only |
 | func_overlay_079_F0001290_18CE230 | o079 | 12 | 200 | 492 | 0 | register-only |
 | `func_80020D8C` (prior-layout masked diagnostic) | main | 13 | 56 | 192 | 0 | register-only |

@@ -1,4 +1,5 @@
 #include "ultra64.h"
+#include "game/saves.h"
 
 /*
  * Resident controller input, ROM 0x25C20-0x263F0.
@@ -58,7 +59,6 @@ extern void joySaveActionB(void);
 extern void joySaveActionC(s32 *, s32, s32 *);
 extern void joySaveActionD(void *);
 extern void joySaveActionE(void *);
-extern void joySaveActionF(void *);
 extern void joySaveActionG(void);
 extern void joySaveActionH(s32);
 

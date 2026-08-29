@@ -11,6 +11,9 @@
 #include "PR/ultratypes.h"
 #include "PR/os_message.h"
 #include "PR/os_pfs.h"
+#include "game/saves.h"
+
+s32 packCalculateGlobalFlagsChecksum(u8 *buffer);
 
 extern u8 D_8007A2F8;
 extern u8 D_8007A2F0;
@@ -735,7 +738,7 @@ void func_8002CD6C(void) {
     }
     func_8002C79C(state.writer);
 }
-/* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/saves.c:packCalculateGlobalFlagsChecksum. */
+/* Mickey-derived checksum body; the surrounding save path establishes its role. */
 s32 packCalculateGlobalFlagsChecksum(buffer)
 u8 *buffer;
 {
@@ -792,13 +795,16 @@ void func_8002CF0C(void *globalFlags) {
     }
 }
 #ifdef NON_MATCHING
-/* Retained pre-HEAD/current-body full-TU and isolated C agree at 79/88 words,
- * first +0xCC, frame 0x48, and all 11 relocations. The nine residuals are one
+/* Retained pre-cleanup diagnostic full-TU and isolated C agree at 79/88 raw
+ * and relocation-normalized words, first +0xCC, frame 0x48, no padding, and
+ * all 11 relocations. The nine residuals are one
  * post-checksum FIFO: savedFlag +0xCC/+0xD8/+0xDC, current byte
  * +0xD0/+0xE0/+0xE4/+0xEC, and final copy +0x104/+0x114. That producer used a
  * synthetic padded struct and volatile buffer solely to shape stack/allocation,
- * so 79/88 is policy-qualified diagnostic evidence. It is replaced below by
- * natural scalar locals; clean V0 is uncompiled. ORT 505 and sole caller
+ * so 79/88 is diagnostic evidence. A later scalar rewrite still passed three
+ * false arguments through an old-style checksum declaration and advanced a
+ * dead footer carrier; those aids are removed below. Genuinely clean V0 is
+ * uncompiled and its score is unknown. ORT 505 and sole caller
  * joyRead+0x130 are authenticated; linked equality proves fallback only.
  * Historical flags, trace, forms, and search are unretained. Run 119 flags on
  * clean V0, trace once, and try at most two mutually exclusive savedFlag
@@ -831,8 +837,6 @@ void func_8002CF6C(u8 *globalFlags) {
             footerBuffer = stateBuffer;
             *(u32 *) (footerBuffer + 0x1C0) = count;
             *(u32 *) (footerBuffer + 0x1C4) = 0x12345678;
-            footerBuffer += 0x1C0;
-
             savedByte = (s8) globalFlags[3];
             savedFlag = (u32) (*(u16 *) globalFlags << 17) >> 31;
             src = D_8007A304;
@@ -842,9 +846,7 @@ void func_8002CF6C(u8 *globalFlags) {
                 *dst++ = *src++;
             } while (count--);
             *(u16 *) (globalFlags + 0x16) =
-                packCalculateGlobalFlagsChecksum(globalFlags, src,
-                                                  footerBuffer,
-                                                  savedFlag);
+                packCalculateGlobalFlagsChecksum(globalFlags);
             globalFlags[0] =
                 ((savedFlag << 6) & 0x40) |
                 (globalFlags[0] & ~0x40);

@@ -856,9 +856,11 @@ Resident `func_8002CF6C` owns 11 exact records: R_MIPS_26 calls at `+0x0C` to
 `+0x54` to `func_8002CCE4`, `+0x60` to `packCalculateGameChecksum`, `+0xC4`
 to `packCalculateGlobalFlagsChecksum`, `+0x120` to `mainResetPressed`, `+0x13C`
 to `func_8002C8B4`, and `+0x144` to `mmFree`, plus a HI16/LO16 pair at
-`+0x80/+0x90` to `D_8007A304`. ORT 505 exports it; `joyRead+0x130` is the
-sole authenticated caller, with no overlay SYMBOL, resident runtime-table, or
-absolute-pointer inbound. Current linked equality proves fallback only.
+`+0x80/+0x90` to `D_8007A304`. ORT 505 exports it from entry ROM `0x1849F14`;
+exactly one export row and one direct call (`joyRead+0x130`) identify it. There
+are zero resident runtime records inside the function, zero resident or overlay
+records targeting ORT 505 across the shipped tables, and zero aligned absolute
+function pointers. Current linked equality proves fallback only.
 
 Resident `debug_text_width` owns five exact records: R_MIPS_26 calls at `+0x18`
 and `+0x30` to `sprintfSetSpacingCodes`, `+0x28` to `vsprintf`, and a
