@@ -1375,6 +1375,23 @@ no donor body or descriptive-name evidence is used. The default flags, both
 data-relocation words, object words, and linked ROM range are exact without
 post-processing.
 
+`func_8003A2C8` remains guarded `NON_MATCHING` over ROM `0x3AEC8..0x3AF48`.
+Retained configured full-TU and isolated C compile its older policy-invalid
+spelling to 27/32 raw and relocation-normalized words, first `+0x0C`, with no
+frame or padding and all six relocations exact. The five sites exchange the
+normalized mode and narrowed-byte carriers. Three inert arithmetic aids are
+removed in the current policy-clean source, which is uncompiled; ordinary and
+linked exact output is assembly fallback only. ORT 606 and exactly three
+callers are authenticated: resident `func_80027EC0+0x80`, Overlay 46
+`overlay46ReleaseState+0x70`, and Overlay 60
+`func_overlay_060_F0000334_18BA10C+0x1238`. There are no runtime records inside
+the function, extra direct calls, stored pointers, or other overlay inbounds.
+JFG's ordered `frontSetScreenMode` peer is assembly-backed accessor-family role
+evidence, not donor C. Run clean V0 and 119 flags, capture one allocator trace,
+try the split-carrier and reversed-comparison forms, and combine them only if
+both improve. Cap the route at 122 stock builds plus one trace and one optional
+1,000-candidate/10-minute batch after a strict natural gain.
+
 The tier-D `func_8003A55C` adds **0x34 bytes / 13 words** at ROM `0x3B15C`.
 Its Mickey-derived body stops the active tune, stores the caller's byte, and
 sets the paired halfword timer to `0x78`. The adjacent JFG menu names do not

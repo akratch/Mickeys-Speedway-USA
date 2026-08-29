@@ -1179,15 +1179,16 @@ s32 frontGetScreenMode(void) {
     return mode;
 }
 #ifdef NON_MATCHING
-/* Allocation plateau (evidence reviewed 2026-08-29): retained pre-HEAD,
- * current-body full-TU and isolated C are byte-identical at 27/32 words,
- * frameless, with six exact relocations and one mode-value web at
- * +0xC/+0x10/+0x14/+0x18/+0x20. That retained body used three inert arithmetic
- * aids, so its score is diagnostic; they are removed below and clean current-
- * layout V0 is uncompiled. ORT 606 exports this function; callers are
+/* Allocation plateau (evidence reviewed 2026-08-29): retained pre-cleanup
+ * diagnostic full-TU and isolated C are byte-identical at 27/32 raw and
+ * relocation-normalized words, first +0xC, frameless and without padding,
+ * with six exact relocations and one mode-value web through +0x20. That body
+ * used three inert arithmetic aids; they are removed below and clean V0 is
+ * uncompiled. ORT 606 exports this function; callers are
  * func_80027EC0+0x80, overlay46ReleaseState+0x70, and
  * func_overlay_060_F0000334_18BA10C+0x1238. Linked equality proves fallback
- * only. Forced-color 31/32 and prior route outcomes are unretained prose. Run
+ * only. JFG's ordered peer is assembly-backed role evidence, not donor C.
+ * Forced-color 31/32 and prior route outcomes are unretained prose. Run
  * 119 flags on clean V0, trace once, try independent split-web and reversed-
  * comparison forms plus an improving-only combination, and cap 122 stock
  * builds plus trace; batch only after a strict natural gain. */

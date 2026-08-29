@@ -817,7 +817,9 @@ Resident `func_8003A2C8` owns exact HI16/LO16 pairs at `+0x00/+0x04` to
 46 table-1 record 60 at module `+0x684` (`overlay46ReleaseState+0x70`), and
 Overlay 60 table-1 record 206 at module `+0x156C`
 (`func_overlay_060_F0000334_18BA10C+0x1238`); no other shipped overlay record
-targets ORT 606. Linked equality currently proves the fallback only.
+targets ORT 606. There are no resident runtime sites inside the function, no
+resident runtime inbound, no additional direct `jal`, and no aligned literal
+function pointer. Linked equality currently proves the fallback only.
 
 Overlay 1 `+0x7B64` (`overlay1FindBestRecord`) owns four LOCAL records:
 table-2 884/885 at `+0x00/+0x08` resolve through BSS base `+0x83E0` and addend

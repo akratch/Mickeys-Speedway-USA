@@ -244,7 +244,6 @@ extern void osSetTime(OSTime);
 extern OSTime osGetTime(void);
 extern u16 joyGetButtons(s32);
 extern u16 joyGetPressed(s32);
-extern void func_8003A2C8(s32);
 extern void mainFrontInit(s32, s32, s32);
 extern void RevealReturnAddresses(void);
 extern void mmInit(void);
