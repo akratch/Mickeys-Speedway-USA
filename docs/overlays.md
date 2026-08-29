@@ -1097,11 +1097,13 @@ opcode/CFG sequence, with both local call relocations exact.
 Overlay 62's decimal overlay range `+212..+1,388`, between the existing
 initializer and release routine — 1,176 bytes / 294 words. NON_MATCHING: the
 configured C baseline preserves the target's 294-instruction shape and 0x88-byte
-frame but differs in four register/opcode words; its relocation surface has 71
-records versus the target's 29. Seven bounded source-faithful probes did not
-change that result, and no instrumented globalcolor/UGEN trace is available.
-The assembly fallback remains canonical pending a source spelling with the
-target allocation and relocation surface.
+frame. It has five raw sites at `+0x44/+0x50/+0x54/+0x64/+0x130`; runtime
+normalization removes the exact local LO16 at `+0x130`, leaving four
+register-allocation sites. All 71 runtime tuples are exact. The assembled
+fallback target's 29 ELF records are incomplete, and the former ordinary
+zero-word comparison proved the fallback rather than candidate C. One fresh
+configured baseline, the missing flag lattice, and one bounded macro-faithful
+annotated permutation remain; the assembly fallback stays canonical.
 
 Overlay 84's current-record activation body at decimal overlay offsets
 `+4,192..+4,596` — 404 bytes / 101 words. NON_MATCHING: retired 2026-08-24 per
