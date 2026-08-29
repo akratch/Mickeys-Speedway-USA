@@ -174,15 +174,21 @@ extern void runlinkFlushModules(void);
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive.
- * Retained configured full-TU evidence has four raw sites at
- * +0x50,+0x13C,+0x148,+0x154 and three after relocation normalization,
- * 259 instructions/frame 0x58 exact. Both objects have 37 records; target uses
- * D_800CF420 at +0x44/+0x50 while the candidate uses D_800CF3E0+0x40.
- * Eight bounded lifetime, zeroing, endpoint, name-association, and relational
- * variants either collapsed here or regressed the frame/structure. The trace
- * confirms one downstream pool-web difference: a0 versus v0 for world, plus
- * the unresolved D_800CF420 zero-loop endpoint identity. No linked C proof
- * survives; unchanged configured full-TU/linked reproof only.
+ * Evidence review (2026-08-29): no configured full-TU C object currently
+ * survives. The retained isolated import owns 259 words with a 0x58 frame
+ * and 37 relocations. It is 251/259 raw and 252/259 after address
+ * normalization, first raw +0x50; four additional zero-loop store-order
+ * sites come from the isolated import, followed by the three-site
+ * candidate-$v0/target-$a0 world-value web at +0x13C,+0x148,+0x154.
+ *
+ * Git history records an unretained configured full-TU V0 at 255/259 raw
+ * and 256/259 after relocation-value normalization. Its target endpoint
+ * pair at +0x44/+0x50 names D_800CF420 while candidate C names
+ * D_800CF3E0+0x40. Those spellings resolve to the same address but are not
+ * relocation-identical. Ordinary-object, linked-function/TU, and full-ROM
+ * equality prove GLOBAL_ASM only. Historical source, flag, trace, and
+ * bounded-permuter routes are recorded as exhausted; run one unchanged
+ * configured full-TU/linked V0, then park if the three-site wall reproduces.
  */
 void levelGetCounts(void) {
     s32 i;
