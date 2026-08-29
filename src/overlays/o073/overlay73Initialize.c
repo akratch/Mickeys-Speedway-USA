@@ -61,26 +61,30 @@ extern f32 D_4;
 extern f32 D_8;
 
 /* DKR v77/v80 and JFG contain no exact donor for this initializer. */
-/* Retained genuine isolated current-body C is 90/100 raw words and 92/100
- * after runtime-relocation normalization, with exact frame 0x8; no genuine
- * configured NON_MATCHING=1 full-TU C object survives. One a2/a3 allocation
- * web differs at
- * +0x40/+0x50/+0x80/+0x84/+0x94/+0x9C/+0xA8/+0xB0. Runtime table 2 resolves
+/* Fresh configured full-TU and isolated canonical V0 objects are text-identical
+ * at 90/100 raw and 92/100 runtime-relocation-normalized words, with exact
+ * 100-word extent and frame 0x8. The first mismatch is +0x40; all eight
+ * codegen residual words are one reciprocal a2/a3 allocation swap at
+ * +0x40/+0x50/+0x80/+0x84/+0x94/+0x9C/+0xA8/+0xB0. All 119 flag-lattice
+ * configurations were attempted: 53 compiled, thirteen O2/MIPS-II rows tied
+ * with V0, and none was exact. A fidelity-clean procedure-0 trace shows the
+ * loop/resource-index web selecting a2 while a3 has the same zero cost. The
+ * diagnostic force to a3 clears every normalized site and cascades the paired
+ * web back to a2, proving the cause but never a promotable result. Naturally
+ * initializing the shared index before the preserve-state branch regressed to
+ * 55/100 raw and normalized words and shifted the first LOCAL pair, so no
+ * strict gain authorized a scoped form or batch. The 122-stock-build cap is
+ * exhausted. Runtime table 2 resolves
  * D_80 through LOCAL base
  * +0xEB0/addend +0x80 (module +0xF30), while D_0/D_4/D_8 use LOCAL base
  * +0xF80 and addends 0/+4/+8. The 16 zero-immediate calls labelled with this
  * module-zero symbol in overlay_073.s are outgoing SYMBOL relocations, not
  * callers. ORT 1248 exports +0; resident relocation 90 at
- * func_8000AA38+0x42C is the sole inbound. Historical flag/source-probe
- * outcomes are unretained. Owned +0x0..+0x190 / ROM 0x18CAAC0..0x18CAC50 has
- * no target padding; the next assembly owner starts at +0x190. Reproduce V0
- * through isolated and configured C paths, run 119 distinct configurations
- * including canonical V0, trace once, and use one forced-a3 diagnostic only to
- * test color reachability. The forced result is never promotable. Try one
- * natural affinity form only if forcing clears all eight sites, then one
- * trace-supported scoped form only after strict gain. Stock cap 122; a bounded
- * annotated batch is permitted only from improved natural source. Ordinary
- * full-TU/link equality is fallback and no linked C proof survives. */
+ * func_8000AA38+0x42C is the sole inbound. Fresh relocation-surface comparison
+ * reports target/candidate 8/8, offset/type 8/8, identity 8/8, and all eight
+ * resolved. Owned +0x0..+0x190 / ROM 0x18CAAC0..0x18CAC50 has no target
+ * padding; the next assembly owner starts at +0x190. Ordinary full-TU/link
+ * equality remains fallback-only and no linked C proof exists. */
 #ifdef NON_MATCHING
 void func_overlay_073_F0000000_18CAAC0(Overlay73Object *object,
                                        Overlay73Header *header,
@@ -134,3 +138,13 @@ void func_overlay_073_F0000000_18CAAC0(Overlay73Object *object,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o073/overlay73Initialize/func_overlay_073_F0000000_18CAAC0.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_073_F0000000_18CAAC0:start
+ * symbol: func_overlay_073_F0000000_18CAAC0
+ * score: 92/100 words
+ * frame: 0x8
+ * relocations: 8
+ * first-mismatch: +0x40
+ * summary: 119 flags and an early-index lifetime form are exhausted; one equal-cost a2/a3 allocator web remains
+ * PLATEAU-HANDOFF:func_overlay_073_F0000000_18CAAC0:end
+ */
