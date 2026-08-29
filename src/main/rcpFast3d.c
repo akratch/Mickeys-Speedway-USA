@@ -368,21 +368,21 @@ void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002EBE0.s")
 #endif
 #ifdef NON_MATCHING
-/* Historical same-body configured full-TU C under the preceding s32
- * D_800D2FAC declaration was reported at 103/107 words, exact-sized and
- * frameless, with one four-site temporary FIFO from +0x74 and both D_800D2FAC
- * tuples exact. No candidate object/report/hash survives. The generated
- * isolated scalar records 96/107, first +0x74, but its object is absent and it
- * predates the u16-pointer declaration correction. Current C score, shape, and
- * tuples are unknown. A retained structural scan found JFG's assembly-only
- * rcpClearZBuffer first at 0.482 (472 versus Mickey's 428 bytes); no close C
- * donor exists. Compile configured V0 and use exactly one prior-s32 control if
- * 103/107, framelessness, or both tuples fail to reproduce; invalidate the
- * historical baseline if the control also fails. Retain 119 configurations
- * including V0, one UGEN FIFO trace, at most two trace-supported natural forms,
- * and a combination only if both strictly improve. Hard cap 122 deterministic
- * builds plus one trace, 123 only for the regression control; no generic batch
- * or artificial allocation aids. */
+/* Fresh configured full-TU V0 is exact-sized and frameless at 103/107 words,
+ * first +0x74, with four register-only fields: target t8/t9 versus candidate
+ * t7/t8 at ugen temporary slots 9-10. Both D_800D2FAC relocation tuples are
+ * exact. All 119 flag identities were attempted; seven O2/MIPS-II variants tie
+ * V0 and none is exact. A fidelity-clean trace maps this symbol uniquely to
+ * uopt procedure 6 with 29 integer and one FP decision; its mixed-TU ugen rows
+ * cannot be auto-attributed, while source-line stamps locate the candidate
+ * t7/t8 pops at the two aligned-coordinate assignments. Pointer-truth and
+ * staged-alignedX1 forms are byte-identical to V0, so no strict-gain combination
+ * or batch is eligible. ORT 765 and four callers remain authenticated; linked
+ * equality is fallback-only. Preserve V0 and resume only with a new natural
+ * preceding phantom-pop or web-existence mechanism. Do not repeat the flag
+ * lattice, trace, these forms, a generic batch, or artificial allocation aids.
+ * Raw allocator artifacts remain ignored under build/ and are not tracked.
+ * The assembly fallback remains canonical. */
 /* PROVENANCE: command sequence adapted from DKR's public src/rcp_dkr.c:bgdraw_render. */
 void rcpClearZBuffer(RcpCommand **arg0, u32 arg1, u32 arg2, s32 arg3,
                      s32 arg4, s32 arg5, s32 arg6) {
@@ -820,3 +820,13 @@ void func_8002FB34(RcpCommand **arg0, RcpTextureNode *arg1, f32 arg2,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002FB34.s")
 #endif
+
+/* PLATEAU-HANDOFF:rcpClearZBuffer:start
+ * symbol: rcpClearZBuffer
+ * score: 103/107 words
+ * frame: frameless
+ * relocations: 2
+ * first-mismatch: +0x74
+ * summary: ugen temp slots 9-10 are one FIFO pop early; 119 flags and two trace-supported forms are exhausted
+ * PLATEAU-HANDOFF:rcpClearZBuffer:end
+ */

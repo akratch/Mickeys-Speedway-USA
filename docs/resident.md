@@ -1789,22 +1789,24 @@ configured object ranges and the final linked ROM are byte-exact.
 | `rcpFast3d` | `0x2F400` | 0x2A0 | `-O2 -mips2 -32` | Mickey/JFG task construction; 168/168 instruction words and all relocations exact after metadata-only weak-alias rebinding, linked ROM exact |
 
 `rcpClearZBuffer` owns ROM `0x2FBDC..0x2FD88`, 107 words with no padding before
-`rcpClearScreen`. Historical same-body configured full-TU C under the preceding
-`s32 D_800D2FAC` declaration was reported at 103/107 words and frameless, with
-one four-site FIFO from `+0x74` and the target HI16/LO16 pair at `+0x00/+0x04`;
-no candidate object/report/hash survives. The generated isolated scalar records
-96/107, first `+0x74`, but its object is absent and it predates the current
-`u16 *` declaration. Current C score/shape/tuples are unknown. ORT 765 exports
+`rcpClearScreen`. Fresh configured full-TU V0 is exact-sized and frameless at
+103/107 raw and normalized words, first `+0x74`. The four residual fields are
+one ugen temporary-phase difference: target `t8/t9` versus candidate `t7/t8`
+at temporary slots 9-10. Its HI16/LO16 pair at `+0x00/+0x04` exactly names
+resident BSS `D_800D2FAC`. All 119 flag identities are nonexact; seven
+O2/MIPS-II variants tie V0. A fidelity-clean trace maps this symbol uniquely to
+uopt procedure 6 and records 29 integer plus one FP decision. The current
+producer cannot attribute ugen rows automatically in this mixed TU, while its
+source-line stamps locate the candidate `t7/t8` pops at the two aligned-coordinate
+assignments. Pointer-truth and staged-`alignedX1` forms are byte-identical to
+V0, so no strict-gain combination or generic batch qualified. ORT 765 exports
 the function to Overlay 60 `+0x2194`, Overlay 91 `+0x518`, and Overlay 99
-`+0xC8C`; the resident caller
-is `rcpClearScreen+0x48`. Exact linked range, resident image, and ROM evidence
-all use the assembly fallback, not C. A retained structural scan finds JFG's
-assembly-only same-name function first at 0.482 (472 versus 428 bytes), not a C
-donor. Compile current V0; use one prior-s32 control only on regression, then
-119 configurations including V0, one trace, two trace-supported forms, and a
-strict-gain combination. Cap 122 deterministic builds plus trace, 123 only for
-the control; historical source/trace/permutation outcomes have no retained
-result set.
+`+0xC8C`; resident `rcpClearScreen+0x48` is the fourth caller. Exact linked
+range, resident image, and ROM evidence still use the assembly fallback. The
+retained structural scan finds JFG's assembly-only same-name function first at
+0.482 (472 versus 428 bytes), not a C donor. Preserve V0 and resume only with a
+new natural preceding phantom-pop or web-existence mechanism; do not repeat the
+lattice, trace, two flat forms, generic batch, or artificial allocation aids.
 
 `func_8002EBE0` retains a Mickey-derived `NON_MATCHING` eight-band gradient
 renderer after the 119-combination flag lattice and ten source-shape

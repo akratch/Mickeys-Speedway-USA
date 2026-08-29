@@ -1035,8 +1035,9 @@ its sole inbound function pointer at module data `+0x821C`. Its legacy inert
 condition is cleanup-tracked and does not authorize guards in unmatched C.
 
 Resident `rcpClearZBuffer` owns an exact HI16/LO16 pair at `+0x00/+0x04` to
-resident BSS `D_800D2FAC` and is exported as ORT 765. Three shipped SYMBOL
-records call it: Overlay 60 module `+0x2194` from
+resident BSS `D_800D2FAC`; fresh configured nonmatching C reproduces both
+records' offsets, types, and identities exactly. It is exported as ORT 765.
+Three shipped SYMBOL records call it: Overlay 60 module `+0x2194` from
 `func_overlay_060_F0000334_18BA10C+0x1E60`, Overlay 91 module `+0x518` from
 `overlay91Render+0x5C`, and Overlay 99 module `+0xC8C` from
 `overlay99RenderSegments+0xE8`. Its fourth direct caller is resident
