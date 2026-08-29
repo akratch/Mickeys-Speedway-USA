@@ -54,7 +54,7 @@ class PublicPreflightTests(unittest.TestCase):
     def test_outgoing_commit_messages_are_scanned(self) -> None:
         (self.repo / "README.md").write_text("safe update\n")
         self.git("add", "README.md")
-        self.git("commit", "-q", "-m", "Sync campaign/unchain details")
+        self.git("commit", "-q", "-m", "Sync campaign/" + "unchain details")
         with self.assertRaisesRegex(release_gate.PreflightError, "tracked/outgoing"):
             release_gate._public_preflight(self.repo, "master", "public")
 
@@ -62,6 +62,12 @@ class PublicPreflightTests(unittest.TestCase):
         (self.repo / "README.md").write_text("dirty\n")
         with self.assertRaisesRegex(release_gate.PreflightError, "tracked worktree"):
             release_gate._public_preflight(self.repo, "master", "public")
+
+    def test_secret_assignment_scan_distinguishes_code_from_credentials(self) -> None:
+        self.assertFalse(release_gate._scan_text("code.c", "token = poll_next(0);"))
+        self.assertTrue(
+            release_gate._scan_text("config", 'password = "not-a-real-password"')
+        )
 
 
 class GateExecutionTests(unittest.TestCase):

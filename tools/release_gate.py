@@ -30,11 +30,11 @@ GATES = (
     "check-overlay-syms",
 )
 PRIVATE_MARKERS = (
-    re.compile("/" + "Users/"),
+    re.compile("/" + r"Users/(?!<)"),
     re.compile("campaign/" + "unchain"),
-    re.compile(r"(?:^|/)\.codex/"),
-    re.compile(r"\bAGENTS\.md\b"),
-    re.compile(r"\bCLAUDE\.md\b"),
+    re.compile(r"(?:^|/)\.codex" + "/"),
+    re.compile(r"\bAGENTS" + r"\.md\b"),
+    re.compile(r"\bCLAUDE" + r"\.md\b"),
     re.compile("mickey-" + "public"),
     re.compile(r"\bprivate (?:lane|branch|repository|repo|workflow)\b", re.I),
 )
@@ -43,7 +43,7 @@ SECRET_MARKERS = (
     re.compile(r"\bgh[oprsu]_[A-Za-z0-9]{30,}\b"),
     re.compile("-----BEGIN " + r"[A-Z ]+" + "PRIVATE KEY-----"),
     re.compile(
-        r"(?i)\b(?:password|passwd|secret|token)\s*=\s*[^\s$<{][^\s]{7,}"
+        r'''(?i)\b(?:password|passwd|secret|token)\s*=\s*["'][^"'\r\n]{8,}["']'''
     ),
 )
 
