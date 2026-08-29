@@ -29,24 +29,33 @@ void overlay74HitReloc(void);
 void overlay74SoundReloc(u16 soundId, void **handle);
 void overlay74RewardReloc(s32 count);
 
-/* NON_MATCHING diagnostic (re-reviewed 2026-08-29): retained full-TU and
- * isolated C compile the former policy-invalid two-empty-guard body at 94/100
- * raw and relocation-normalized words, first +0xC, frame 0x60. Five sites swap
- * its result aggregate's address/object web and +0x124 reverses an OR. Current
- * source removes the guards, adopts the authenticated resident ABIs, uses a
- * natural 13-pointer hit array, and uses integer flag/count carriers; this V0
- * is uncompiled, so its score/frame/mechanism are unknown. Its eight
+/* NON_MATCHING plateau (reproved 2026-08-29): policy-clean configured C is
+ * exact-sized at 100 words with all eight required relocation offsets/types,
+ * but differs in 39 relocation-masked words from +0x0 and uses a 0x70 frame
+ * instead of the target's 0x60. The extra 16 non-save bytes shift the result
+ * array and cascade through the integer pool/temp register assignments. All
+ * 119 flag-lattice rows were attempted; the 53 supported configurations
+ * compile, canonical -O2 -mips2 -32 is best, and the remaining rows are
+ * rejected by the compiler/driver before code generation. Reversing the outer
+ * OR at +0x124 is byte-identical to V0. The source keeps the authenticated
+ * resident ABIs, natural 13-pointer hit array, and integer carriers. Its eight
  * offsets/types agree with the retained runtime records,
  * including both gOverlay74Flags pairs resolved through reserved selector
  * 0xFFF/addend 0x4D6E8 to D_800D3128; the assembled target retains only four
  * static call relocations. Exact pinned DKR v77/v80/JFG range scans found no
  * donor; no attributable near-match oracle survives.
- * Historical flag, structural, forced-color, and permuter scores have no
- * surviving attributable variant objects and are scheduling context, not
- * exhaustion proof. Compile ABI-correct V0, then run the 119-flag lattice
- * including V0; reverse the outer OR only if +0x124 remains. Cap 120 unique
- * stock candidates. Linked equality proves fallback only. */
+ * Historical forced-color and permuter scores have no surviving attributable
+ * variant objects and remain scheduling context only. The bounded clean-source
+ * route is exhausted; linked equality proves the assembly fallback only. */
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: overlay74Update
+ * score: 39 differing words
+ * frame: 0x70
+ * relocations: 8
+ * first-mismatch: +0x0
+ * summary: Target frame is 0x60; 16 extra non-save bytes shift the result array and cascade pool/temp assignments; flags and outer-OR order are exhausted.
+ */
 void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
     Overlay74UpdateObject *results[13];
     Overlay74UpdateObject *hitObject;

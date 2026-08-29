@@ -277,7 +277,6 @@ generated historical snapshot; regenerate it when compile capacity is free.
 |---|---|---:|---:|---:|---:|---|
 | `overlay40FadeRecords` (historical scalar; object absent, HEAD pending) | o040 | 3 | 12 | 404 | 0 | register-only |
 | `func_8003A2C8` (policy-clean configured/isolated plateau) | main | 8 | 0 | 128 | 0 | register-only |
-| `overlay74Update` (pre-cleanup diagnostic; clean score unknown) | o074 | 6 | 12 | 400 | 0 | register-only |
 | `overlay20UpdateObjectResource` (canonical isolated scalar; stale local configured object, HEAD pending) | o020 | 8 | 176 | 392 | 0 | register-only |
 | `func_8002CF6C` (pre-cleanup diagnostic; clean score unknown) | main | 9 | 204 | 352 | 0 | register-only |
 | `overlay19ClassifyEdge` (current-body isolated scalar; object/full-TU context absent) | o019 | 10 | 312 | 480 | 0 | register-only |

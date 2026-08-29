@@ -363,7 +363,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_071_F0000870_18CA390` | `src/overlays/o071/func_overlay_071_F0000870_18CA390.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_073_F0000D70_18CB830` | `src/overlays/o073/overlay73Draw.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_073_F0000000_18CAAC0` | `src/overlays/o073/overlay73Initialize.c` | none | — | Retained genuine isolated C is 90/100 raw and 92/100 runtime-normalized words/frame `0x8`; no genuine configured full-TU C object survives. One `a2/a3` web differs at `+0x40/+0x50/+0x80/+0x84/+0x94/+0x9C/+0xA8/+0xB0`. All eight LOCAL identities are exact: `D_80` resolves through base `+0xEB0`/addend `+0x80`; `D_0/D_4/D_8` through base `+0xF80` with `0/+4/+8`. ORT 1248 has sole inbound `func_8000AA38+0x42C`. Owned `+0x0..+0x190` / ROM `0x18CAAC0..0x18CAC50` has no target padding; ordinary full-TU/link equality is fallback. Reproduce isolated/configured V0; run 119 configurations including V0; one trace and forced-`a3` diagnostic, never promotable; one natural affinity form only if forcing clears all sites, then one scoped form only after strict gain. Stock cap 122; one bounded batch only from improved natural source. |
-| `func_overlay_074_F00000B8_18CBD58` | `src/overlays/o074/overlay74Update.c` | none | — | Historical full-TU/isolated C compiled the pre-cleanup two-empty-guard body at diagnostic 94/100 raw/normalized words, first `+0xC`, frame `0x60`. Current source removes the guards, adopts `s32 func_8005776C`, `void func_800291B4(void)`, and typed `amSndPlay` proxy ABIs, and replaces padded/pointer-shaped carriers with a natural hit array and integers; clean V0 is uncompiled, so every current metric is unknown. Eight runtime tuples include two `D_800D3128` pairs; sole inbound is resident `func_8000AEEC+0x34C`; owned `+0xB8..+0x248` excludes separate eight-byte padding and linked exactness proves fallback only. Inspect the inbound ABI, compile V0 under canonical `-O2 -mips1 -32`, retain 119 configurations only if nonexact, and reverse the outer OR only if `+0x124` remains; cap 120 deterministic builds. |
+| `func_overlay_074_F00000B8_18CBD58` | `src/overlays/o074/overlay74Update.c` | none | — | Policy-clean configured C is exact-sized at 100 words and emits all eight runtime tuples, including both `D_800D3128` pairs, but differs in 39 relocation-masked words from `+0x0`. Its `0x70` frame has 16 more non-save bytes than the target's `0x60`, shifting the result array and cascading through the integer pool/temp assignments. All 119 lattice rows were attempted; 53 supported rows compiled, canonical `-O2 -mips2 -32` is best, and reversing the outer OR is byte-identical. Sole inbound is resident `func_8000AEEC+0x34C`; owned `+0xB8..+0x248` excludes separate eight-byte padding and linked exactness proves fallback only. Preserve this clean source basin; resume only with a newly proved frame-allocation/coalescing mechanism. |
 | `func_overlay_075_F0000214_18CC17C` | `src/overlays/o075/overlay75UpdateMovingObject.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_079_F0000134_18CD0D4` | `src/overlays/o079/func_overlay_079_F0000134_18CD0D4.c` | resolved-plateau | overlay 79 shared data base | TU-owned +0x0..+0x60 aggregate is exact; code generation remains. |
 | `func_overlay_079_F0000FA0_18CDF40` | `src/overlays/o079/func_overlay_079_F0000FA0_18CDF40.c` | none | — | No ownership change; continue source/codegen work. |
@@ -423,3 +423,14 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_101_F000BA34_18E7254` | `src/overlays/o101/overlay101TailBA34.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F000C144_18E7964` | `src/overlays/o101/overlay101TailC144.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F000C6E8_18E7F08` | `src/overlays/o101/overlay101TailC6E8.c` | none | — | No ownership change; continue source/codegen work. |
+
+<!-- plateau-handoff:overlay74Update:start -->
+### `overlay74Update` plateau handoff
+
+- source: `src/overlays/o074/overlay74Update.c`
+- score: 39 differing words
+- frame: 0x70
+- relocations: 8
+- first mismatch: +0x0
+- summary: Target frame is 0x60; 16 extra non-save bytes shift the result array and cascade pool/temp assignments; flags and outer-OR order are exhausted.
+<!-- plateau-handoff:overlay74Update:end -->
