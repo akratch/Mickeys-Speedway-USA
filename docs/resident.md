@@ -1830,12 +1830,17 @@ The still-unnamed bit writer `func_8002C69C` retains a Mickey-derived
 `NON_MATCHING` body. The surviving configured full-TU and isolated C objects
 compile an earlier cursor-update spelling: both are exact-sized and frameless
 but match only 10/28 words, with 18 register-field differences from `+0x10`
-and no relocations. The current cursor re-cache spelling's reported 17/28
+and no relocations. The isolated recipe omitted canonical
+`-Wo,-loopunroll,0`, but configured full-TU equality proves it inert only for
+that earlier spelling. ORT 727 has five direct calls in matched
+`func_8002C94C` and no runtime/overlay/pointer inbound; linked equality is
+fallback-only. The current cursor re-cache spelling's reported 17/28
 result, four-web diagnosis, flag lattice, source matrix, trace, and cost-55
 permuter run have no retained objects or summaries. Reproduce current V0,
-retain the complete flag lattice, and use one allocator trace to select at most
-two natural forms before any improving-only combination or timed batch. The
-assembly fallback remains canonical.
+retain the 119-recipe flag lattice including V0, and use one allocator trace to
+select at most two natural forms, combining only if both improve. Cap 122
+deterministic builds and then record a plateau; no generic batch is needed.
+The assembly fallback remains canonical.
 
 The 124-byte `func_8002C70C` is exact under canonical `-Wo,-loopunroll,0 -O2 -mips2 -32`; its 31 words and relocation-free linked range match.
 

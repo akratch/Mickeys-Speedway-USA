@@ -446,9 +446,15 @@ SavesBitWriter *func_8002C60C(s32 size, s32 clear) {
 #ifdef NON_MATCHING
 /* Retained configured full-TU C predates the current cursor re-cache spelling:
  * that earlier body is exact-sized and frameless but only 10/28 words match,
- * with 18 register-field differences from +0x10 and no relocations.  The
+ * with 18 register-field differences from +0x10 and no relocations. The
+ * isolated recipe omitted canonical -Wo,-loopunroll,0, but configured equality
+ * proves it inert for that old spelling only. ORT 727 has five direct callers
+ * in func_8002C94C and no runtime/overlay/pointer inbound; linked equality is
+ * fallback-only. The
  * reported current-body 17/28 result and later flag/search outcomes are
- * historical and unretained; reproduce the current V0 before campaigning. */
+ * historical and unretained, so current score is unknown. Run 119 flags
+ * including V0, trace once, try at most two independent natural forms and a
+ * combination only if both improve; cap 122 deterministic builds. */
 void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
     s32 isSet;
     u32 nextBit;
