@@ -64,16 +64,16 @@ typedef struct Overlay99DrawRecord {
     void *matrix;
 } Overlay99DrawRecord;
 
-extern f32 overlay99Measure(f32 x, f32 y, f32 z);
-extern Overlay99Transform *overlay99GetTransform(void);
-extern void overlay99UpdateState(Overlay99RenderState *state);
-extern void overlay99BuildMatrix(Overlay99RenderState *state, void **matrix);
+extern f32 overlay99Measure(f32 x, f32 y, f32 z); /* runtime: camGetProjZ */
+extern Overlay99Transform *overlay99GetTransform(void); /* camGetPtr */
+extern void overlay99UpdateState(Overlay99RenderState *state); /* func_80022E80 */
+extern void overlay99BuildMatrix(Overlay99RenderState *state, void **matrix); /* func_8002AA50 */
 extern void overlay99BuildRecord(void **matrix, f32 x, f32 y, f32 z,
-                                 u32 *outB8, s16 *outBC, u32 *outC0);
+                                 u32 *outB8, s16 *outBC, u32 *outC0); /* mtxf_transform_point */
 extern void overlay99DrawEntry(Overlay99Gfx **displayList, void *arg1,
                                void *arg2, Overlay99RenderState *state,
                                void *resource, Overlay99DrawRecord *record,
-                               s32 mode, s32 selector);
+                               s32 mode, s32 selector); /* func_80022FD4 */
 extern f32 D_8;
 extern f32 D_4;
 
@@ -85,8 +85,8 @@ extern f32 D_4;
  * sorted-array/call-home sites and four command-value/store sites. Git history
  * reports 220/233 normalized for the current store order, but no corresponding
  * object or linked C trial survives. Exact linked function/module/ROM evidence
- * proves GLOBAL_ASM only. Reproduce current configured V0 and correct the six
- * resident callee identities before declaration-placement probes for sorted[].
+ * proves GLOBAL_ASM only. Reproduce current configured V0, replace the six
+ * diagnostic proxies with their runtime identities, then probe sorted[] homes.
  */
 #ifdef NON_MATCHING
 void overlay99RenderSortedEntries(Overlay99Gfx **displayList, void *arg1,

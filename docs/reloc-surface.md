@@ -577,6 +577,14 @@ the exact seven-entry switch payload only. Its retained isolated candidate used
 one false callee for all eight calls; repaired six-identity, 21-record, linked C
 proof is still required before its five normalized schedule sites can be reused.
 
+Overlay 99 `+0x800` (`overlay99RenderSortedEntries`) has ten authoritative
+runtime records: calls at `+0x09C/+0x1E4/+0x220/+0x258/+0x32C/+0x360` to
+`camGetProjZ`, `camGetPtr`, `func_80022E80`, `func_8002AA50`,
+`mtxf_transform_point`, and `func_80022FD4`, plus LOCAL HI16/LO16 pairs at
+`+0x1F4/+0x21C` and `+0x260/+0x264` for module base `+0x1410` with addends
+four and eight. Its assembled fallback target retains only the six generic call
+records, so the runtime table is the identity authority.
+
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 
