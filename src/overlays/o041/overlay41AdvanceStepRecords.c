@@ -10,18 +10,15 @@ typedef struct Overlay41StepRecord {
     s32 dy;
 } Overlay41StepRecord;
 
-extern Overlay41StepRecord gOverlay41StepRecords[8];
-extern void overlay41EmitStep(s32 id, s32 x, s32 y);
+extern Overlay41StepRecord overlay41StepRecordsReloc[8];
+extern void overlay41EmitStepReloc(s32 id, s32 x, s32 y);
 
-/* Exact-candidate replay: moving the remaining decrement after both position
- * accumulations is the sole statement-order change from the retained 47/73
- * baseline and is semantics-preserving for the distinct nonvolatile fields.
- * No attributable C object from this replay survives, so the guard and
- * assembly fallback remain canonical pending fresh 73-word/0x30-frame proof,
- * the D_800D6B58 pair at +0x14/+0x28, resident func_8000D16C at +0xD0,
- * linked module, and full-bin equality. Pinned exact-overlay scans found no
- * exact DKR/JFG donor. */
-#ifdef NON_MATCHING
+#define gOverlay41StepRecords overlay41StepRecordsReloc
+#define overlay41EmitStep overlay41EmitStepReloc
+
+/* Updating both accumulators before decrementing the independent remaining
+ * field preserves the source semantics and reproduces IDO's retail schedule.
+ * Pinned exact-overlay scans found no exact DKR/JFG donor. */
 void func_overlay_041_F0000000_1887338(s32 amount) {
     Overlay41StepRecord *record;
     s32 i;
@@ -51,6 +48,3 @@ void func_overlay_041_F0000000_1887338(s32 amount) {
         record++;
     } while (i--);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41AdvanceStepRecords/func_overlay_041_F0000000_1887338.s")
-#endif

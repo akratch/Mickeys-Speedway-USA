@@ -3106,6 +3106,21 @@
       "class": "metadata",
       "matched_c": false,
       "nonmatching": true,
+      "object": "build/src/overlays/o034/overlay34UpdateRecords.c.o",
+      "offset": 1036,
+      "overlay": 34,
+      "size": 308,
+      "source": "src/overlays/o034/overlay34UpdateRecords.c",
+      "tools": [
+        "trim_elf_section.py",
+        "objcopy"
+      ]
+    },
+    {
+      "c_owned": true,
+      "class": "metadata",
+      "matched_c": false,
+      "nonmatching": true,
       "object": "build/src/overlays/o035/func_overlay_035_F00001E0_1881EC0.c.o",
       "offset": 480,
       "overlay": 35,
@@ -3700,8 +3715,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o041/overlay41AdvanceStepRecords.c.o",
       "offset": 0,
       "overlay": 41,
@@ -7604,6 +7619,35 @@
       "class": "metadata",
       "matched_c": false,
       "nonmatching": true,
+      "object": "build/src/overlays/o098/overlay98CheckObject.c.o",
+      "offset": 2120,
+      "overlay": 98,
+      "size": 444,
+      "source": "src/overlays/o098/overlay98CheckObject.c",
+      "tools": [
+        "trim_elf_section.py",
+        "objcopy"
+      ]
+    },
+    {
+      "c_owned": true,
+      "class": "metadata",
+      "matched_c": false,
+      "nonmatching": true,
+      "object": "build/src/overlays/o098/overlay98CollectAccepted.c.o",
+      "offset": 324,
+      "overlay": 98,
+      "size": 240,
+      "source": "src/overlays/o098/overlay98CollectAccepted.c",
+      "tools": [
+        "objcopy"
+      ]
+    },
+    {
+      "c_owned": true,
+      "class": "metadata",
+      "matched_c": false,
+      "nonmatching": true,
       "object": "build/src/overlays/o098/overlay98CollectUniqueY.c.o",
       "offset": 0,
       "overlay": 98,
@@ -8880,9 +8924,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 619
+      "metadata": 622
     },
-    "matched_c_bytes_with_postprocess": 101436,
-    "objects_with_postprocess": 619
+    "matched_c_bytes_with_postprocess": 101728,
+    "objects_with_postprocess": 622
   }
 }
