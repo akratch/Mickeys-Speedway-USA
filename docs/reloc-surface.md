@@ -1058,6 +1058,17 @@ not a relocation. ORT 1194 and resident runtime record 36 at
 Overlay 97's separate `+0xA54..+0xA60` padding follows another function.
 Current linked equality proves fallback only.
 
+Overlay 43 `+0x1378` (`overlay43FilterImage`) owns no static or runtime
+relocations across its exact `+0x1378..+0x1424` range. Two local JUMP records
+at overlay `+0x218/+0x24C`, both from
+`func_overlay_043_F0000194_188A164`, are its only authenticated inbounds; it
+has no ORT export, resident or cross-overlay inbound. Retained pre-cleanup
+configured C is frameless and diagnostic 39/43 raw/normalized words; current
+policy-clean C is uncompiled. The following `+0x1424..+0x1430` three-word
+assembly padding is separate ownership, while standalone C's one alignment
+word is trimmed and earns no credit. Current linked equality proves fallback
+only.
+
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 
