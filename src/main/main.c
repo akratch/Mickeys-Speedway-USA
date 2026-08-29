@@ -1455,35 +1455,34 @@ s32 func_80028FB8(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: func_80028FCC
+ * score: 17/27 words
+ * frame: 0x18
+ * relocations: 3
+ * first-mismatch: +0x1C
+ * summary: shared-result form regressed to 25 words; target Boolean materialization remains structural
+ */
 /*
  * PROVENANCE: JFG's pinned src/main.c::mainAnyoneHas remains GLOBAL_ASM and
  * supplies only an assembly/object structural analogue and TU-role comparison;
  * no C body was adapted. Mickey establishes this boundary, ABI, calls, Boolean
- * normalization, and staged body.
+ * normalization, and candidate body.
  *
- * The preceding early-return spelling measured 17/27 configured full-TU
- * words, exact 108-byte size/frame 0x18, and calls at +0x14/+0x30/+0x4C. No
- * attributable object survives; the isolated measurement is diagnostic because
- * it omitted canonical -Wo,-Olimit,100. The target normalizes each result and
- * shares one epilogue; that natural form is now staged but uncompiled. ORT 663
- * has no authenticated caller. If not exact, retain 119 flags and use one
- * trace-led lifetime form only after a strict gain; cap at 121 stock builds
- * plus trace.
+ * The shared-result/shared-epilogue probe regressed to 25 words and moved the
+ * second and third calls, so it did not unlock another flag lattice or trace.
+ * This retained early-return spelling is the best source-faithful form: exact
+ * 108-byte size/frame 0x18 and calls at +0x14/+0x30/+0x4C. ORT 663 has no
+ * authenticated caller.
  */
 s32 func_80028FCC(s32 arg0) {
-    s32 result;
-
-    result = func_80028FB8(0, 0, arg0) != 0;
-    if (result) {
-        goto done;
+    if (func_80028FB8(0, 0, arg0)) {
+        return TRUE;
     }
-    result = func_80028FB8(0, 0, arg0) != 0;
-    if (result) {
-        goto done;
+    if (func_80028FB8(0, 0, arg0)) {
+        return TRUE;
     }
-    result = func_80028FB8(0, 0, arg0) != 0;
-done:
-    return result;
+    return func_80028FB8(0, 0, arg0) != 0;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028FCC.s")

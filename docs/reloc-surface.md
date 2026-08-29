@@ -759,12 +759,13 @@ with no resident runtime, overlay `SYMBOL`, or aligned-pointer inbound. Current
 linked equality proves fallback only.
 
 Resident `func_80028FCC` owns three `R_MIPS_26` records to `func_80028FB8` at
-`+0x14/+0x30/+0x4C`, all exact in the preceding early-return spelling's 17/27
-configured full-TU measurement. No attributable object survives; isolated C
-omitted canonical `-Wo,-Olimit,100`. ORT 663 exports the function, but
-exhaustive resident relocation, overlay SYMBOL, direct-JAL, literal-pointer,
-object-reference, and source scans authenticate no caller. The staged
-shared-result source is uncompiled; linked equality is fallback-only.
+`+0x14/+0x30/+0x4C`, all exact in fresh configured full-TU C with canonical
+`-Wo,-Olimit,100`; that retained spelling is 17/27 words with exact `0x6C`
+boundary/frame `0x18` and first mismatch `+0x1C`. ORT 663 exports the function,
+but exhaustive resident relocation, overlay SYMBOL, direct-JAL, literal-pointer,
+object-reference, and source scans authenticate no caller. The shared-result
+probe regressed to 25 words and moved the latter two calls; linked equality is
+fallback-only.
 
 Overlay 61 `+0x1648` has eleven authoritative records: resident calls at
 `+0x14/+0x34/+0x4C/+0x6C/+0x8C/+0x140/+0x154` to `packOpen`,

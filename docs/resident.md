@@ -2475,18 +2475,18 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   a legal gain. No linked C/ROM proof survives.
   Proven level `.bss` ownership is `0x800CF3E0..0x800CF490`; the preceding
   configured `bss_gap_D800CF3C0..D800CF3E0` remains unresolved.
-- `func_80028FCC`: the preceding early-return spelling measured 17/27
-  configured full-TU words, exact 108-byte boundary/frame `0x18`, first
-  `+0x1C`; no attributable object survives, and isolated C omitted canonical
-  `-Wo,-Olimit,100`. All three `R_MIPS_26` calls to `func_80028FB8` at
-  `+0x14/+0x30/+0x4C` were exact. A natural normalized-result/shared-epilogue
-  form is staged and uncompiled. ORT 663 is real, but exhaustive resident,
+- `func_80028FCC`: fresh configured full-TU C with canonical
+  `-Wo,-Olimit,100` reproduces 17/27 words, exact 108-byte boundary/frame
+  `0x18`, first `+0x1C`, and all three `R_MIPS_26` calls to `func_80028FB8` at
+  `+0x14/+0x30/+0x4C`. The natural normalized-result/shared-epilogue probe
+  regressed to 25 words and moved the latter two calls, so it did not unlock
+  another flag lattice or trace. ORT 663 is real, but exhaustive resident,
   overlay, direct-JAL, and pointer scans authenticate no caller. There is no
   padding, and linked equality proves fallback only. JFG's pinned
   `src/main.c::mainAnyoneHas` remains assembly and supplies only a structural
-  analogue/TU-role comparison; no C body was adapted. If the staged form is
-  not exact, retain 119 flags and try one trace-led lifetime form only after
-  strict gain; cap 121 builds plus trace.
+  analogue/TU-role comparison; no C body was adapted. Park pending a new
+  source-faithful Boolean-lowering mechanism; do not repeat flags, trace, or
+  generic permutation without a strict structural gain.
 - `levelFreeAll`, ten spellings, first mismatch `+0x13c`: exact 468-byte size
   and 113/117 words; only the masked resource index/table-base registers swap.
 - `func_80029274`, seventeen control-flow/parameter/register-lifetime
