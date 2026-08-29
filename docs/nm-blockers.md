@@ -2,11 +2,11 @@
 
 This is a names-only audit of every function body guarded by `NON_MATCHING` in `src/`, reconciled with the plateau notes in `docs/resident.md` and `docs/overlays.md`. Declaration-only guards are excluded. `none` means the recorded blocker is code shape, frame, scheduling, register allocation, ABI typing, or unresolved reconstruction rather than section/TU ownership.
 
-- Guarded functions audited: 410
+- Guarded functions audited: 409
 - Structural blockers found: 39
 - Structural blockers resolved: 3
 - Structural blockers remaining: 36
-- No structural blocker: 371
+- No structural blocker: 370
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
 |---|---|---|---|---|
@@ -172,7 +172,6 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_002_F00006E0_18574D8` | `src/overlays/o002/overlay2ChooseBoundary.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_002_F00002C4_18570BC` | `src/overlays/o002/overlay2ClassifyBoundary.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_002_F00016A0_1858498` | `src/overlays/o002/overlay2QueryNode.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_002_F0000B70_1857968` | `src/overlays/o002/overlay2SplitRegion.c` | none | — | Retained configured-isolated candidate is 65/72 words with seven raw/normalized prologue sites at `+0xC,+0x10,+0x14,+0x18,+0x1C,+0x28,+0x34`; its two HI16 records sit at `+0x18/+0x1C` instead of target `+0xC/+0x10`, within a nine-relocation surface. Flag, representation, trace, and bounded-permuter routes are exhausted. Reproof-only pending a new IDO prologue-scheduling mechanism and fresh linked C proof. |
 | `func_overlay_003_F000027C_1859FAC` | `src/overlays/o003/overlay3FindClosestObject.c` | matched | — | Promoted as `overlay3FindClosestObject`; no ownership work remains. |
 | `func_overlay_003_F00000B8_1859DE8` | `src/overlays/o003/overlay3RunCachedModeAction.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_003_F00003B0_185A0E0` | `src/overlays/o003/overlay3SelectScoredObject.c` | none | — | No ownership change; continue source/codegen work. |

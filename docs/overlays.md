@@ -1874,3 +1874,13 @@ for the chosen byte preserves the retail register lifetime and `0x30` frame;
 the configured object is instruction-exact and retains the expected global
 HI16/LO16 pair plus three call relocations. The linked owned range and the full
 5,752-byte overlay section are byte-identical to the US ROM.
+
+`overlay 2 +0x0B70..+0x0C90` (`overlay2SplitRegion`) contributes **288 exact C
+bytes / 72 words**. All 119 compiler configurations leave the configured
+seven-word prologue schedule residual. A fidelity-clean IDO 5.3 `as1 -R`
+trace identifies a physical-line tie between the function and loop headers;
+placing those token-equivalent headers on one line produces the retail order.
+The exact `0x30` frame and all nine runtime relocation tuples and identities
+agree: local data at `+0x4/+0x24`, calls to `+0/+0x6E0/+0x49C` twice, and the
+recursive `+0xB70` call. The linked owned range, complete overlay, and full ROM
+are byte-identical.

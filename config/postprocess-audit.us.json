@@ -549,8 +549,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o002/overlay2SplitRegion.c.o",
       "offset": 2928,
       "overlay": 2,
