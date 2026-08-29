@@ -161,8 +161,8 @@ function name is, whether or not that differs from the `.s` label.
 
 Until this section was written the runner shipped `--resident-only`, because
 for an overlay function the permuter's score was not a measurement of
-anything. `overlay18Load` differs from the shipped ROM by **two words** and
-scored **700**.
+anything. The historical pre-`OSTime` `overlay18Load` candidate differed from
+the shipped ROM by **two words** and scored **700**.
 
 ### Why
 
@@ -241,7 +241,7 @@ Base score before and after annotation, against
 
 | function | ov | trial words | base before | base after | differing rows |
 |---|---:|---:|---:|---:|---|
-| `overlay18Load` | 18 | 2 | 700 | **400** | 62 -> 2 |
+| `overlay18Load` (pre-`OSTime`) | 18 | 2 | 700 | **400** | 62 -> 2 |
 | `overlay7DispatchSelection` | 7 | 2 | 75 | **10** | 14 -> 2 |
 | `overlay97InitScale` | 97 | 1 | 10 | 10 | 1 -> 1 |
 | `overlay84AdvanceCurrent` | 84 | 2 | 41 | **16** | 7 -> 2 |
@@ -253,6 +253,13 @@ proof. For `overlay40FadeRecords`, only the
 scalar 98/101 measurement and imported scratch source/settings survive; no
 configured V0 object, annotated summary, or per-variant object survives. Use
 its row as scheduling context, not artifact-backed exhaustion proof.
+
+`overlay18Load` is no longer a close-candidate queue item. Its O32
+`osSetTime(OSTime)` repair produced unguarded canonical C for Overlay 18
+`+0x000..+0x1F4`; retained configured and linked-overlay artifacts corroborate
+all 125 words and 60 runtime records. A fresh current-HEAD whole-ROM reproof is
+still required, so this historical scalar is neither current search evidence
+nor standalone promotion proof.
 
 `overlay97InitScale` has no site the module's table names inside it, so
 nothing is annotated and nothing changes -- which is the honest answer, and

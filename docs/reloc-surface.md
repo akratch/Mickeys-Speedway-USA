@@ -558,7 +558,7 @@ generator owns the alias block (§5.3).
 
     1  overlay80InitializeContact          o80    4  overlay1FindNextAngle              o1
     1  overlay97InitScale                  o97    4  overlay1FindPreviousAngle          o1
-    2  overlay18Load                       o18    4  overlay20BuildTileCommands         o20
+    2  overlay18Load (historical)          o18    4  overlay20BuildTileCommands         o20
     2  overlay7DispatchSelection           o7     4  overlay3FindClosestObject          o3
     2  overlay84AdvanceCurrent             o84    4  overlay43FilterImage               o43
     2  overlay8ScaleOutputs                o8     4  overlay62Update                    o62
@@ -597,6 +597,13 @@ now expresses those identities, uses two `s32` outputs, and writes the second
 segment coordinate and constant `5.0f` to retail offsets `+0x10` and `+0x14`.
 The repaired body is uncompiled, so no old score, frame, or configured-object
 claim applies to it.
+
+`overlay18Load`'s two-word row is the superseded pre-`OSTime` candidate. The
+canonical unguarded body owns Overlay 18 `+0x000..+0x1F4` (125 words) and uses
+the authenticated O32 `osSetTime(OSTime)` ABI. Retained configured-object and
+linked-overlay evidence agrees across all 60 runtime records, but a fresh
+current-HEAD whole-ROM reproof remains pending. Do not route further source
+search or permutation to this row.
 
 `func_overlay_022_F0000000_1878108`'s six-word entry is that historical linked
 trial. The surviving isolated object has five stack-home/store-order words but
