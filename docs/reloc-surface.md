@@ -631,9 +631,14 @@ LOCAL pairs to module `+0x1BA8/+0x100C/+0xFCC/+0xFEC`; and a LOCAL JUMP to
 is 58/60 after runtime normalization. ORT 1510 exports the function and
 fourteen calls arrive from Overlays 1, 7, and 8; linked equality is fallback-only.
 
-`overlay7CommitSelection`'s six-word historical trial also carried a false
-`+0xF4` callee identity: the runtime record is a local `JUMP` to Overlay 7
-`+0x000` (`overlay7ReleaseEntry`), not a symbol-table call to `+0xCCC`.
+Overlay 7 `+0xDBC` (`overlay7CommitSelection`) owns 17 records: a SYMBOL pair
+through ORT 1579 to resident `D_800D3128+2`; two calls to `mathRnd`; calls to
+resident `func_800031E8` and `amSndPlay`; LOCAL pairs to module
+`+0x1714/+0x18B4/+0xFC0/+0x1BA0/+0xFC4`; and a LOCAL JUMP at `+0xF4` to
+`overlay7ReleaseEntry` at `+0x000`. Retained pre-identity-repair C is 69/72
+runtime-normalized; current source expresses the corrected identities but is
+uncompiled. ORT 1345 exports it and seventeen calls arrive from resident code
+and Overlays 1, 7, 36, 86, 90, and 91. Linked equality is fallback-only.
 
 `func_overlay_014_F0001830_1871108`'s ownership trial proves module growth and
 the exact seven-entry switch payload only. Its retained isolated candidate used
