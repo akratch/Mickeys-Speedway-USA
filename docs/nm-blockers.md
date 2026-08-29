@@ -295,7 +295,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_043_F0000324_188A2F4` | `src/overlays/o043/func_overlay_043_F0000324_188A2F4.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_043_F0000BE4_188ABB4` | `src/overlays/o043/func_overlay_043_F0000BE4_188ABB4.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_043_F00010A8_188B078` | `src/overlays/o043/overlay43ComputeMotion.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_043_F0001378_188B348` | `src/overlays/o043/overlay43FilterImage.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_043_F0001378_188B348` | `src/overlays/o043/overlay43FilterImage.c` | none | — | Exact frameless 43-word shape with no relocations. Historical full-TU/linked evidence says four pixel-web words; the surviving isolated object says six by adding a `+0x7C/+0x80` schedule swap. Reconcile with configured V0 before an instrumented trace or further source work. |
 | `func_overlay_043_F0000000_1889FD0` | `src/overlays/o043/overlay43InitializeState.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_043_F0001264_188B234` | `src/overlays/o043/overlay43SubmitChildren.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_044_F0000580_188BDE0` | `src/overlays/o044/func_overlay_044_F0000580_188BDE0.c` | none | — | No ownership change; continue source/codegen work. |

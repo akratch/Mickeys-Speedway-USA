@@ -6,20 +6,17 @@ typedef struct Overlay43Image {
 } Overlay43Image;
 
 /* DKR v77/v80 and JFG contain no exact donor for this image filter. */
-/*
- * Plateau (2026-08-27, CREW-O43-FILTER-PIPE-12): correct 0xAC-byte shape at
- * -O2 -mips2, with four register-only differences beginning at +0x0C. The
- * prior flag lattice and bounded permuter did not close the pixel[0]/pixel[1]
- * web-existence/coalescing difference. Nine additional source-faithful Tier-2
- * variants (sum association/comma, guard placement/order/read form, sum width,
- * and declaration order) left this baseline allocation as the best result;
- * workbench diagnosis is pool-position with a temp-FIFO divergence and no
- * consistent permutation. No instrumented global-color trace is configured
- * for the remaining source-only lever.
- */
-/* Symbol-aware object reproof confirms the exact 43-instruction frameless
- * shape but four register words still differ at +0xC/+0x10/+0x20/+0x28.
- * The earlier zero-word claim compared the fallback body, not this C. */
+/* Plateau evidence reviewed 2026-08-29: every retained result has the exact
+ * frameless 0xAC/43-word shape and no relocations. Historical configured
+ * full-TU/linked records report four pixel-web register differences at
+ * +0xC/+0x10/+0x20/+0x28, while the surviving source-current isolated ranking
+ * object has those four plus a +0x7C/+0x80 constant-load schedule swap. The
+ * earlier zero-word claim compared the fallback body, not this C. The flag
+ * lattice, bounded permuter, and nine source-faithful sum/guard/width/order
+ * probes did not improve the pixel[0]/pixel[1] FIFO basin. Re-prove unchanged
+ * configured V0 and preserve both objects before any new source work; if the
+ * four-word full-TU baseline returns, the next justified action is an
+ * instrumented allocation trace, not another blind permutation pass. */
 #ifdef NON_MATCHING
 void overlay43FilterImage(Overlay43Image *image) {
     u8 *pixel;
