@@ -150,13 +150,15 @@ remaining in-range word counts range from 7 to 196 and are genuine codegen
 differences - which is the point. Those candidates now have a linked-ROM oracle
 and an exact in-range word count where before they had a link error.
 
-For completeness, the five candidates named in the spike brief
+For completeness, at the time of the spike the five candidates named in the brief
 (`overlay7DispatchSelection`, `overlay8ScaleOutputs`, `overlay18Load`,
 `overlay20BuildTileCommands`, `overlay1CloneRecord`) already link on the
 existing surface: promoted, they build first time and reproduce the trial's
 2/2/2/4/3 in-range words with no synthesis at all. Their residual is codegen,
-not relocation surface. The blocked pool is the 100 undefined-reference
-candidates, not these.
+not relocation surface. This is historical oracle evidence, not current queue
+status; later exact promotions such as `overlay8ScaleOutputs` supersede their
+listed residual. The blocked pool was the 100 undefined-reference candidates,
+not these.
 
 ## 4. Limits
 
