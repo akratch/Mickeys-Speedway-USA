@@ -237,7 +237,7 @@ The immediate mechanical consequence was the ADR 0001/0002 rescoring: every
 object `tools/postprocess_audit.py` finds an instruction-altering
 `POSTPROCESS` step on moved from matched to `NON_MATCHING`, and
 `config/postprocess-audit.us.json` now records zero such objects remaining
-(`{"metadata": 621}`) — the conversion is complete, not partial. Work
+(`{"metadata": 619}`) — the conversion is complete, not partial. Work
 continues on `campaign/unchain` in per-worker lanes (`tools/new_lane.sh`/`merge_lane.sh`), the
 compile-job ceiling is gone, decomp-permuter and objdiff-cli are installed
 tools rather than survey findings, and the `n_audio` library adoption from

@@ -2153,34 +2153,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o098/overlay98CollectUniqueY.c.o: POSTPROCESS =
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_098_F0000000_18D89C0=overlay98CollectUniqueY $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x144
-# These two exact edge owners surround O98's remaining assembly core. Their
-# private fail-loud normalizers assert the natural source/relocation hashes and
-# select the shipped frame, schedule, and allocation representations.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o098/overlay98CollectAccepted.c.o: \
-	config/normalizations/overlay98CollectAccepted.prepare.py
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o098/overlay98CollectAccepted.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) config/normalizations/overlay98CollectAccepted.prepare.py $@ $@ && \
-	$(OBJCOPY) \
-		--redefine-sym overlay98AcquireContextReloc=func_overlay_098_F0000000_18D89C0 \
-		--redefine-sym gOverlay98AcceptedCount=D_84 \
-		--redefine-sym gOverlay98AcceptedEntries=D_88 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xF0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o098/overlay98RenderReflections.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_098_F0000234_18D8BF4=overlay98RenderReflections $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x614
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o098/overlay98CheckObject.c.o: \
-	config/normalizations/overlay98CheckObject.prepare.py \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o098/overlay98CheckObject.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) config/normalizations/overlay98CheckObject.prepare.py $@ $@ && \
-	$(OBJCOPY) \
-		--redefine-sym overlay98CheckInitialReloc=func_overlay_098_F0000000_18D89C0 \
-		--redefine-sym overlay98UniqueCountReloc=D_80 \
-		--redefine-sym overlay98UniqueYReloc=D_308 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x154:overlay98CheckCandidateReloc:func_overlay_098_F0000000_18D89C0 && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1BC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97InitRadius.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o097/overlay97CopyAngles.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C

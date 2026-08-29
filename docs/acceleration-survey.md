@@ -17,8 +17,8 @@ file-level note below on why this file itself stays a snapshot.
   [ADR 0002](adr/0002-no-post-compile-instruction-editing.md) (no
   post-compile instruction editing). `tools/postprocess_audit.py`
   classifies every object's `POSTPROCESS` step; `config/postprocess-audit.us.json`
-  now reads zero `altered` objects across all 621 audited objects
-  (`summary.by_class: {"metadata": 621}`) — the conversion reached every
+  now reads zero `altered` objects across all 619 audited objects
+  (`summary.by_class: {"metadata": 619}`) — the conversion reached every
   object, not just the ones this lane's prose describes. The 274 affected
   functions moved to `#ifdef NON_MATCHING` over `#pragma GLOBAL_ASM`, per
   ADR 0002's Consequences.

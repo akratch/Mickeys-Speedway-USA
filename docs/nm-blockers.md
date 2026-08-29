@@ -387,7 +387,9 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_096_F0000070_18D76A8` | `src/overlays/o096/overlay96Unregister.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_097_F0000508_18D83A0` | `src/overlays/o097/overlay97InitScale.c` | none | — | Direct candidate and canonical promotion are one address-carrier word away at +0xD0; the former object-exact note was a fallback self-comparison. |
 | `func_overlay_098_F0000000_18D89C0` | `src/overlays/o098/overlay98CollectUniqueY.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_098_F0000144_18D8B04` | `src/overlays/o098/overlay98CollectAccepted.c` | none | — | Prior equality required prohibited frame/home and ten-instruction schedule edits; assembly fallback restored. |
 | `func_overlay_098_F0000234_18D8BF4` | `src/overlays/o098/overlay98RenderReflections.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_098_F0000848_18D9208` | `src/overlays/o098/overlay98CheckObject.c` | none | — | Prior equality required prohibited frame, CFG, schedule, and register-field edits; assembly fallback restored. |
 | `func_overlay_099_F00002A0_18D9850` | `src/overlays/o099/overlay99ApplySegment.c` | resolved-plateau | overlay 99 private table | Retained +0xB0 table owns the compiler references; representation/prologue schedule remains. |
 | `func_overlay_099_F0000638_18D9BE8` | `src/overlays/o099/overlay99BuildHeightGrid.c` | none | — | Exact 114-word p8 candidate leaves one three-use magnitude register web; try a dead-argument carrier. |
 | `func_overlay_099_F0000BA4_18DA154` | `src/overlays/o099/overlay99RenderSegments.c` | none | — | No ownership change; continue source/codegen work. |

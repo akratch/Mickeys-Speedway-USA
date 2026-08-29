@@ -15,6 +15,9 @@ extern s32 overlay98CheckObject(O98Object *, s32, f32 *);
 extern s32 gOverlay98AcceptedCount;
 extern O98Entry gOverlay98AcceptedEntries[0x50];
 
+/* Natural C requires prohibited frame/home and schedule instruction edits to
+ * reproduce retail. Keep it as a matching candidate; assembly is canonical. */
+#ifdef NON_MATCHING
 void overlay98CollectAccepted(s32 count, O98Object **objects) {
     f32 value;
     s32 context;
@@ -47,3 +50,6 @@ void overlay98CollectAccepted(s32 count, O98Object **objects) {
         } while (index >= 0);
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o098/overlay98CollectAccepted/func_overlay_098_F0000144_18D8B04.s")
+#endif
