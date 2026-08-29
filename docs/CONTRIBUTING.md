@@ -321,6 +321,13 @@ text or ROM bytes. Sparse resident startup-table records are reported
 separately and may legitimately be absent. See [`tools.md`](tools.md) for the
 report and `wb_compare.sh --diagnose` usage.
 
+After an exact promotion removes the extracted fallback, preflight admits a
+separate `post_promotion` route only when one unconditional C definition, its
+tracked symbol/overlay-atlas ownership, and the linked value and size all agree.
+It uses the ordinary object and the fully relocated ROM comparison for the
+scalar score. A missing fallback never promotes a guarded `NON_MATCHING` body,
+and absent or ambiguous tracked exact evidence remains an error.
+
 ### Safe plateau finalization
 
 After a bounded attempt reaches ADR 0009's cap, preserve it with the original

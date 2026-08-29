@@ -209,6 +209,23 @@ command also fails when an alias, source, range, or relocation identity is not
 unique; its output deliberately excludes instruction listings, words, and
 hexdumps.
 
+Promotion does not make the preflight unusable when splat removes the
+function's `asm/nonmatchings` fallback. With no fallback present, the resolver
+enters `post_promotion` mode only for one unconditional requested C definition
+with no matching `GLOBAL_ASM`. It then requires one agreeing tracked exact
+identity: an overlay's friendly/generated alias plus either an exact
+`text_ownership` row or function-sized `mixed_tu_exact_c_ranges` row in the
+overlay atlas, or a resident symbol's single `type:func`, size-bearing
+`matched C` row in `symbol_addrs.us.txt`. The tracked source and range must
+agree with the unique definition and the linked ELF's value and size. Missing,
+stale, conflicting, or merely C-looking evidence fails closed; in particular,
+a guarded `NON_MATCHING` body cannot enter this path just because its extracted
+fallback is absent. Post-promotion reports use the ordinary `build/` object and
+automatically obtain their scalar score from the fully relocated ROM oracle.
+This can reconfirm exactness but does not provide the relocation diagnostics of
+the pre-promotion assembly comparison. JSON reports expose the distinction as
+`resolution_mode` and `workbench.comparison_mode`.
+
 `tools/wb_compare.sh` uses the same resolver, so manual
 `WB_CANDIDATE_SYMBOL`/`WB_CANDIDATE_BUILD_DIR` settings are no longer needed
 for normal guarded functions:
@@ -221,7 +238,10 @@ tools/wb_compare.sh --diagnose overlay16ApplyGradient --trace trace.log --trace-
 Wrapper options precede the symbol; all arguments after the symbol are passed
 unchanged to `decomp-workbench compare` or, with `--diagnose`, to
 `decomp-workbench diagnose`. `--rom` retains the linked-ROM final-oracle mode,
-and can be combined with `--diagnose` to select `diagnose-dumps`.
+and can be combined with `--diagnose` to select `diagnose-dumps`. Invoke
+`wb_compare.sh --rom <linked-C-name>` directly after promotion; ordinary
+`function_preflight.py` chooses that mode automatically once its tracked
+post-promotion checks pass.
 
 ## tools/check_tools.sh
 
