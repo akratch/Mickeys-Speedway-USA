@@ -1179,12 +1179,13 @@ s32 frontGetScreenMode(void) {
     return mode;
 }
 #ifdef NON_MATCHING
-/* Allocation plateau (evidence reviewed 2026-08-29): retained pre-cleanup
+/* Allocation reproof (evidence reviewed 2026-08-29): retained pre-cleanup
  * diagnostic full-TU and isolated C are byte-identical at 27/32 raw and
  * relocation-normalized words, first +0xC, frameless and without padding,
  * with six exact relocations and one mode-value web through +0x20. That body
  * used three inert arithmetic aids; they are removed below and clean V0 is
- * uncompiled. ORT 606 exports this function; callers are
+ * uncompiled, so every current metric is unknown. ORT 606 exports this
+ * function; callers are
  * func_80027EC0+0x80, overlay46ReleaseState+0x70, and
  * func_overlay_060_F0000334_18BA10C+0x1238. Linked equality proves fallback
  * only. JFG's ordered peer is assembly-backed role evidence, not donor C.
@@ -1192,8 +1193,8 @@ s32 frontGetScreenMode(void) {
  * 119 flags on clean V0, trace once, try independent split-web and reversed-
  * comparison forms plus an improving-only combination, and cap 122 stock
  * builds plus trace; batch only after a strict natural gain. */
-/* PROVENANCE: mask, state guard, and order compared with JFG's public
- * src/menu.c::frontSetScreenMode; packed fields derived from Mickey. */
+/* PROVENANCE: ordered accessor-family role compared with JFG's assembly-backed
+ * src/menu.c::frontSetScreenMode; mask, guard, and packed fields are Mickey-derived. */
 void func_8003A2C8(s32 screenMode) {
     u8 *modeState;
     s32 mode;

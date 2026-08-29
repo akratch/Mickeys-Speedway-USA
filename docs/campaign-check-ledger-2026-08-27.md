@@ -219,9 +219,9 @@ measures model-guided compiler feedback rather than search throughput.
 
 | Route | Target | Attempts | Baseline | Best | Active wall time | Verdict |
 |---|---|---:|---:|---:|---:|---|
-| inherited | `func_8003A2C8` | 10 | 5 / 32 | 5 / 32 | about 5 min | plateau |
+| inherited | `func_8003A2C8` (pre-cleanup) | 10 | 5 / 32 | 5 / 32 | about 5 min | historical diagnostic |
 | inherited | `func_80012574` | 10 | 7 / 57 | 7 / 57 | about 5 min | plateau |
-| Sol/xhigh | `func_8003A2C8` | 8 | 5 / 32 | 5 / 32 | about 3 min | plateau |
+| Sol/xhigh | `func_8003A2C8` (pre-cleanup) | 8 | 5 / 32 | 5 / 32 | about 3 min | historical diagnostic |
 | Sol/xhigh | `func_80012574` | 10 | 7 / 57 | 2 / 57 | about 5.5 min | diagnostic, rejected source |
 
 Both routes reported 0 / 2 exact. Their attempt counts, matrices, objects, and
