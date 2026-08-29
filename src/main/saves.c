@@ -579,7 +579,8 @@ void func_8002C8B4(s32 arg0, s32 arg1, void *arg2, s32 arg3) {
 }
 /* Mickey-derived serialization of one 0x94-byte save window. */
 /* The `if (1)` block around the entry init is a register-scheduling nudge
- * needed to match the callee-saved slot/counter tie-break (permuter). */
+ * needed to match the callee-saved slot/counter tie-break (permuter); tracked
+ * in docs/cleanup-queue.md. */
 void func_8002C94C(s32 saveIndex) {
     SavesBitWriter *writer;
     s32 inner;

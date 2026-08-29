@@ -661,7 +661,9 @@ void func_800035F8(s32 group) {
         } while (index < countValue);
     }
 }
-/* Exact C: all 25 instruction words, the frame, relocations, and linked ROM range match. */
+/* Exact C: all 25 instruction words, the frame, relocations, and linked ROM
+ * range match. The legacy canceling pointer operations and one-iteration loop
+ * are cleanup-tracked allocation aids. */
 void func_80003760(AudioPoint *point)
 {
   AudioUpdateEntry *entry;

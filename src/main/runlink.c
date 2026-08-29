@@ -859,7 +859,8 @@ void runlinkUnloadOverlay(s32 overlayIndex) {
             }
 
             patchOperation = (u32) relocEntry->u.b.flags >> 4;
-            /* JFG's identity spelling preserves IDO's comparison operand order. */
+            /* Legacy inert xor preserves IDO's comparison operand order;
+             * tracked in docs/cleanup-queue.md. */
             if ((patchOperation ^ 0) == RELOC_TYPE_26) {
                 address = (u32) TrapDanglingJump;
             } else {

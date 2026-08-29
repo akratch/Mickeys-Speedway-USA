@@ -99,7 +99,8 @@ u8 *piRomLoadCompressed(u32 assetIndex, s32 extraMemory) {
     }
     gzipHeaderRamPos = (out + totalSpace) - size;
     if (1) {
-        /* Preserve IDO's tail-call parameter lifetime. */
+        /* Preserve IDO's tail-call parameter lifetime; tracked in
+         * docs/cleanup-queue.md. */
     }
     romCopy((u32) (start + D_86760), (u32) gzipHeaderRamPos, size);
     func_8004D7E0(gzipHeaderRamPos, out);
