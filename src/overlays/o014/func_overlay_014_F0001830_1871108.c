@@ -1,7 +1,15 @@
 #include "PR/ultratypes.h"
 
 extern s32 gOverlay14ValueC0;
-extern s32 func_overlay_014_F0000000_186F8D8();
+extern u8 func_8004D5C0(s32 font);
+extern void func_8004B0DC(s32 red, s32 green, s32 blue, s32 alpha);
+extern void fontColour(s32 red, s32 green, s32 blue, s32 alpha,
+                       s32 opacity);
+extern void func_8004B0A4(s32 font);
+extern u8 *func_8004D40C(s32 font, char *text, s32 maxWidth,
+                         u8 **lineStart, s32 *outWidth);
+extern void func_8004B0F8(void *displayList, s32 x, s32 y, char *text,
+                          s32 alignmentFlags);
 
 #define CASE_PREINC 1
 
@@ -9,12 +17,17 @@ extern s32 func_overlay_014_F0000000_186F8D8();
 /* PROVENANCE: structure cross-checked against JFG
  * asm/nonmatchings/overlays/o7/overlay_7/func_overlay_7_007023D4_1EFD4FC.s;
  * body reconstructed from Mickey evidence. */
-/* Workbench verdict=structure-mismatch; 5 masked/8 raw words differ in the exact 201-word frame, first real mismatch +0x1F4.
- * Levers tried: constant audit, stack order, flag lattice, and case-7 load-before-increment/postincrement spellings; the latter is one word short.
- * Remains: case-7 load/increment schedule plus overlay relocation identities; no further structural lever is evidenced. */
+/* Retained configured-isolated evidence is exact-size at 201 words/frame 0x90
+ * with eight raw sites at +0x98,+0x11C,+0x1C0,+0x1F4,+0x1F8,+0x1FC,+0x200,
+ * +0x208 and five after local-relocation normalization at +0x1F4..+0x208.
+ * Its 21 runtime records and seven-entry switch payload are structurally exact,
+ * but all eight calls previously used one false overlay-local identity. The
+ * declarations below repair the six resident font identities; configured V0
+ * must re-establish the relocation surface before one target-shaped case-7
+ * load-before-increment probe. Park after those two builds if flat. */
 /* Ownership trial (2026-08-28): fixed the TU's +0x174..+0x190 .rodata range;
- * linked promotion is text-differs with 201 in-range words, first at +0x0.
- * Module growth is cleared; the remaining gap is codegen/register allocation. */
+ * linked promotion established module-growth/table ownership only, not exact C
+ * text or relocation identity. Module growth is cleared. */
 s32 func_overlay_014_F0001830_1871108(s32 context, u8 *stream, s32 skip) {
     s32 remaining;
     s32 y;
@@ -31,12 +44,12 @@ s32 func_overlay_014_F0001830_1871108(s32 context, u8 *stream, s32 skip) {
 
     result = 0;
     done = 0;
-    cellWidth = func_overlay_014_F0000000_186F8D8(2);
+    cellWidth = func_8004D5C0(2);
     remaining = (0x58 / cellWidth) - 1;
-    func_overlay_014_F0000000_186F8D8(0, 0, 0, 0);
-    func_overlay_014_F0000000_186F8D8(0xFF, 0xFF, 0xFF, 0xFF,
-                                      (gOverlay14ValueC0 * 0xFF) >> 8);
-    func_overlay_014_F0000000_186F8D8(2);
+    func_8004B0DC(0, 0, 0, 0);
+    fontColour(0xFF, 0xFF, 0xFF, 0xFF,
+               (gOverlay14ValueC0 * 0xFF) >> 8);
+    func_8004B0A4(2);
     y = ((0x58 - (remaining * cellWidth)) >> 1) + 0x14;
     do {
         x = 0x60; width = 0xC8; cursor = 0; adjust = 0; extra = 0;
@@ -68,17 +81,17 @@ s32 func_overlay_014_F0001830_1871108(s32 context, u8 *stream, s32 skip) {
 #if CASE_PREINC
             stream += 8;
             saved = stream[-2];
-            func_overlay_014_F0000000_186F8D8(stream[-7], stream[-6], stream[-5], stream[-3],
-                                              (saved * gOverlay14ValueC0) >> 8);
+            fontColour(stream[-7], stream[-6], stream[-5], stream[-3],
+                       (saved * gOverlay14ValueC0) >> 8);
 #else
-            func_overlay_014_F0000000_186F8D8(stream[1], stream[2], stream[3], stream[5],
-                                              (stream[6] * gOverlay14ValueC0) >> 8);
+            fontColour(stream[1], stream[2], stream[3], stream[5],
+                       (stream[6] * gOverlay14ValueC0) >> 8);
             stream += 8;
 #endif
             break;
         case 7:
             stream += 8;
-            func_overlay_014_F0000000_186F8D8(stream[-7], stream[-6], stream[-5], stream[-3]);
+            func_8004B0DC(stream[-7], stream[-6], stream[-5], stream[-3]);
             break;
         default:
             done = 1;
@@ -87,13 +100,15 @@ s32 func_overlay_014_F0001830_1871108(s32 context, u8 *stream, s32 skip) {
         if ((cursor != 0) && (remaining >= 0)) {
             do {
                 if (adjust != 0) { x += 8; width -= 8; }
-                cursor = (u8 *)func_overlay_014_F0000000_186F8D8(2, cursor, width, drawArgs, 0);
+                cursor = func_8004D40C(2, (char *)cursor, width,
+                                       (u8 **)drawArgs, 0);
                 if (cursor != 0) {
                     if (skip == 0) {
                         remaining--;
                         if (remaining >= 0) {
                             saved = *cursor; *cursor = 0;
-                            func_overlay_014_F0000000_186F8D8(context, x, y, drawArgs[0], extra);
+                            func_8004B0F8((void *)context, x, y,
+                                          (char *)drawArgs[0], extra);
                             *cursor = saved; y += cellWidth;
                         }
                     } else {

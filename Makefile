@@ -1431,6 +1431,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F00013F4_1870CCC.c.o: POS
 		--redefine-sym gOverlay14Args30=D_30 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x14C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F0001830_1871108.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym gOverlay14ValueC0=D_C0 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x324
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F0001540_1870E18.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2F0

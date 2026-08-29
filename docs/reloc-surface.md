@@ -512,6 +512,11 @@ the count and all 21 runtime relocation sites before either score is reused.
 `+0xF4` callee identity: the runtime record is a local `JUMP` to Overlay 7
 `+0x000` (`overlay7ReleaseEntry`), not a symbol-table call to `+0xCCC`.
 
+`func_overlay_014_F0001830_1871108`'s ownership trial proves module growth and
+the exact seven-entry switch payload only. Its retained isolated candidate used
+one false callee for all eight calls; repaired six-identity, 21-record, linked C
+proof is still required before its five normalized schedule sites can be reused.
+
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 
