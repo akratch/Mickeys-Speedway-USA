@@ -76,21 +76,23 @@ extern void overlay62DrawLabelReloc(Overlay62Gfx **commands, s32 *state,
 } while (0)
 
 #ifdef NON_MATCHING
-/* PROVENANCE: Mickey-derived; pinned DKR v77/v80 and JFG scans found no donor.
- * Retained configured evidence is diagnostic 289/294 raw and 290/294
- * runtime-normalized
- * words, frame 0x88, with five raw sites at
- * +0x44/+0x50/+0x54/+0x64/+0x130. Runtime normalization removes the exact
- * LOCAL LO16 at +0x130, leaving four register-allocation sites. All 71 runtime
- * tuples (21 R26 and 25 HI/LO pairs; 43 SYMBOL/28 LOCAL) are exact; the
- * fallback target object's 29 ELF records are incomplete, and its ordinary
- * 0-word comparison proves assembly rather than candidate C. The isolated
- * 11-word ranking expanded OVERLAY62_EMIT across physical lines and is not the
- * macro-faithful configured baseline. That body used an invented empty
- * data-dependent guard and redundant `red | 0`; both are removed, so clean V0
- * is uncompiled. Retain 119 flags, then if the four-site web remains try one
- * natural shared-negation/shift lifetime before an improving-only,
- * macro-faithful annotated batch. No linked/ROM-exact C proof survives. */
+/* PROVENANCE: Mickey-derived; pinned exact-overlay DKR v77/v80 and JFG scans
+ * found no exact donor. Pre-cleanup macro-faithful configured C measured a
+ * diagnostic 289/294 raw and 290/294 runtime-normalized words, frame 0x88.
+ * Its raw sites were +0x44/+0x50/+0x54/+0x64/+0x130; normalization removed the
+ * LOCAL LO16 at +0x130, leaving one four-site allocation web. That historical
+ * measurement reported the complete 71-role topology (21 R26 and 25 HI/LO
+ * pairs; 43 SYMBOL/28 LOCAL), but no attributable C object or site-by-site map
+ * survives. The fallback object's 29 records are incomplete and ordinary
+ * equality proves assembly only. The isolated row means 11 differing words
+ * (283/294 raw), not an 11-word function; it expanded OVERLAY62_EMIT across
+ * physical lines and is not macro-faithful. Its empty guard and `red | 0` are
+ * removed, so clean V0's score, frame, extent, and records are unknown. Owned
+ * +0xD4..+0x56C is 294 words with no target padding; release starts at +0x56C.
+ * Run exactly 119 configurations, then if the historical web remains try one
+ * natural shared-negation/shift lifetime. Permit one 20-minute macro-preserving
+ * annotated batch only after a strict gain. No linked/ROM-exact C proof
+ * survives. */
 void overlay62Update(s32 updateRate) {
     s32 alpha;
     volatile s32 screenBase;
