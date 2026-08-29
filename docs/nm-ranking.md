@@ -315,10 +315,14 @@ ROM-table row 453 is an unreferenced export, not inbound evidence. The
 full `.bin` predates the object and independent target relocation metadata
 is absent, so this remains a reproof-only target rather than living search.
 
-`func_800219D0` is another stale historical plateau: canonical C is unguarded,
-the retained object has 104 words and eight relocations, and both its linked
-range `0x225D0..0x22770` and the complete camera TU are byte-identical to ROM.
-It needs one fresh reproof after later camera comments, not further search.
+`func_800219D0` is a reproof-only matched function, not a ranking candidate.
+The retained pre-comment configured object owns 104 words with frame `0x8`
+and eight HI16/LO16 records. Its raw function agrees with the retained
+`NON_MATCHING=1` object, and its linked range, complete camera TU, and resident
+`.main` section are byte-identical to ROM. The later canonical change added
+comments only, so no source/codegen search is warranted. The exact retained
+whole `.bin` predates the object and is historical rather than causal proof;
+fresh current-source object, link, and full-bin comparisons remain due.
 
 `func_800320F0` (the function formerly routed under the JFG donor alias
 `runlinkEnsureJumpIsValid`) has since been promoted: retained canonical C is

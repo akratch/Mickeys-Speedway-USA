@@ -523,10 +523,18 @@ void camSetWaterLine(s32 camNo, s32 waterLine) {
  * PROVENANCE: adapted from DKR's public decomp,
  * src/camera.c:copy_viewports_to_stack; JFG's public src/camera.c supplies
  * the camUserViewTick role while Mickey supplies the six-camera bound.
- * Retained proof: 104 words, eight relocations, linked ROM
- * 0x225D0..0x22770, and the complete camera TU are byte-identical. Reprove
- * after later source comments. The computed port spans 10..20;
- * D_80079D58[20] deliberately aliases adjacent D_80079E98[0].
+ *
+ * Retained evidence (audited 2026-08-29): the pre-comment configured object
+ * owns 0x1A0 bytes / 104 words at .text+0x6F0, uses an 0x8 frame saving s0,
+ * and carries eight HI16/LO16 records: two pairs for D_80079D48 and one pair
+ * each for D_80079C10 and D_80079D58. Its linked range and complete camera TU
+ * are byte-identical to ROM. The current executable source tokens are
+ * unchanged; fresh current-source object/link/full-bin proof remains due.
+ *
+ * D_80079D48 initializes to zero and is toggled only here, so port spans
+ * 10..20. Linked storage gives D_80079D58 exactly twenty Vp entries and places
+ * D_80079E98 immediately afterward; port 20 therefore resolves to
+ * D_80079E98[0]. The physical alias is proven, but original intent is not.
  */
 void func_800219D0(void) {
     s32 width;
