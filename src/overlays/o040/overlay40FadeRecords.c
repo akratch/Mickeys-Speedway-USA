@@ -51,14 +51,17 @@ extern s16 gOverlay40BlendOutput;
  * retain none of them statically. The former zero-word claim compared the
  * linked GLOBAL_ASM fallback, not this C candidate. Historical prose says a
  * linked promotion trial rejected C, but no candidate ELF/ROM survives.
- * An instrumented guide-19 oracle moved 16 rows across 11 runs
- * and worsened the residual to 13 words; chained, comma-expression, and
- * timer-separated copy formation widened it to 16, 16, and 41 words. The
+ * Historical prose reports that an instrumented guide-19 oracle moved 16 rows
+ * across 11 runs and worsened the residual to 13 words; chained,
+ * comma-expression, and timer-separated copy formation reportedly widened it
+ * to 16, 16, and 41 words. No attributable source/object pair for those probes
+ * survives, so they are scheduling context rather than exhaustion proof. The
  * remaining bounded ladder is: fresh configured baseline; derive current
  * through output; swap only the output/current/timer declaration order; then
  * combine those changes or use declaration initializers only after a strict
  * improvement. Stop after the first three runs if both probes are flat; five
- * is the hard cap. Mickey-only reconstruction; DKR v77/v80/JFG are negative. */
+ * is the hard cap. Mickey-only reconstruction; the donor ledger classifies
+ * pinned DKR v77/v80/JFG candidates as negative. */
 #ifdef NON_MATCHING
 void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
                           s32 amount) {

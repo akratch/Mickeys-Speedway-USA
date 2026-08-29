@@ -247,6 +247,11 @@ Base score before and after annotation, against
 | `overlay84AdvanceCurrent` | 84 | 2 | 41 | **16** | 7 -> 2 |
 | `overlay40FadeRecords` | 40 | 3 | 75 | **25** | 11 -> 3 |
 
+These are historical lane measurements. For `overlay40FadeRecords`, the
+configured 98/101 V0 objects survive, but the annotated campaign's source,
+summary, and per-variant objects do not; use its row as scheduling context,
+not artifact-backed exhaustion proof.
+
 `overlay97InitScale` has no site the module's table names inside it, so
 nothing is annotated and nothing changes -- which is the honest answer, and
 it already scored its one real word.
