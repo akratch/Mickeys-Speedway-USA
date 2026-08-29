@@ -1744,14 +1744,13 @@ build_routes:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DB34.s")
 #endif
-/* Retained configured full-TU and isolated objects agree: 24 register-only
- * words differ, first at +0x24, with the exact 118-word schedule, 0x28 frame,
- * and the runlinkIsModuleLoaded/TrapDanglingJump relocations. A historical
- * 15-word basin has no surviving source or object and is not reproducible
- * evidence. TrackKeyRecord is layout-compatible with TrackRouteResult: key is
- * segmentIndex, sortValue is flags, and pad04 holds object. Reprove V0, then
- * merge recordIndex/passCount; only on strict improvement reuse key as
- * nextValue or widen carrier reuse. */
+/* Retained isolated current-body C is 94/118 words with 24 register-field
+ * differences from +0x24, frame 0x28, and exact runlinkIsModuleLoaded and
+ * TrapDanglingJump calls. Its import omitted -Wab,-r4300_mul; no configured
+ * full-TU C object survives, and current full-TU equality is fallback. The
+ * historical 15-word basin is unretained. Reproduce configured/isolated V0,
+ * then merge recordIndex/passCount; only on strict improvement reuse dead key
+ * as nextValue before one bounded declaration/lifetime sweep. */
 #ifdef NON_MATCHING
 s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records,
                   TrackKeyRecord **matches) {
