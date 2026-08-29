@@ -10,6 +10,7 @@ from pathlib import Path
 import sys
 import time
 import unittest
+from unittest import mock
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -152,6 +153,101 @@ class ReadyQueueTests(unittest.TestCase):
             [value["symbol"] for value in report["ready"]],
             ["a", "b", "c", "d"],
         )
+
+    def test_quality_ranking_can_promote_small_other_mismatch(self) -> None:
+        allocator = row("src/main/a.c", "a", 30)
+        other = row("src/main/b.c", "b", 1)
+        other["category"] = "other"
+        rows = [allocator, other]
+        items = [Item(str(value["file"]), str(value["name"])) for value in rows]
+        states = {
+            "a": assignment("a", "src/main/a.c"),
+            "b": assignment("b", "src/main/b.c"),
+        }
+        report = self.report(rows, items, states)
+        self.assertEqual([value["symbol"] for value in report["ready"]], ["b", "a"])
+        self.assertEqual(report["ready"][0]["snapshot_rank"], 2)
+        self.assertEqual(report["ready"][0]["proof_quality"], "codegen")
+
+    def test_stale_ranking_is_assignable_only_as_reproof(self) -> None:
+        rows = [row("src/main/a.c", "a", 1)]
+        called = False
+
+        def classify(_base: str, _symbol: str) -> lane_status.Assignment:
+            nonlocal called
+            called = True
+            return assignment("a", "src/main/a.c")
+
+        report = rq.build_report(
+            document(rows), [Item("src/main/a.c", "a")], base="base",
+            base_commit="abc", ranking_name="ranking.json", scan=1, top=1,
+            freshness={
+                ("src/main/a.c", "a"): rq.RankingEvidence("deadbeef", False),
+            },
+            classify=classify,
+        )
+        self.assertTrue(called)
+        self.assertEqual([row["symbol"] for row in report["ready"]], ["a"])
+        self.assertTrue(report["ready"][0]["requires_reproof"])
+        self.assertEqual(report["ready"][0]["proof_quality"], "reproof-allocator")
+        self.assertIn("refresh configured baseline", report["ready"][0]["reason"])
+
+    def test_freshness_ignores_comments_and_other_candidate_bodies(self) -> None:
+        old = """extern int shared;
+#ifdef NON_MATCHING
+void a(void) { shared++; }
+#else
+#pragma GLOBAL_ASM("asm/a.s")
+#endif
+#ifdef NON_MATCHING
+void b(void) { shared++; }
+#else
+#pragma GLOBAL_ASM("asm/b.s")
+#endif
+"""
+        current = """/* evidence note */
+extern int shared;
+#ifdef NON_MATCHING
+void a(void) { shared++; }
+#else
+#pragma GLOBAL_ASM("asm/a.s")
+#endif
+#ifdef NON_MATCHING
+void b(void) { shared += 2; }
+#else
+#pragma GLOBAL_ASM("asm/b.s")
+#endif
+"""
+        doc = document([row("src/main/a.c", "a", 1)])
+        with mock.patch.object(
+            rq, "ranking_evidence_commits",
+            return_value={("src/main/a.c", "a"): "measured"},
+        ), mock.patch.object(
+            lane_status, "show_file",
+            side_effect=lambda ref, _path: current if ref == "base" else old,
+        ):
+            freshness = rq.ranking_freshness("base", "ranking.json", doc)
+        self.assertTrue(freshness[("src/main/a.c", "a")].fresh)
+
+    def test_freshness_covers_shared_declarations(self) -> None:
+        old = """extern int shared;
+#ifdef NON_MATCHING
+void a(void) { shared++; }
+#else
+#pragma GLOBAL_ASM("asm/a.s")
+#endif
+"""
+        current = old.replace("extern int shared", "extern short shared")
+        doc = document([row("src/main/a.c", "a", 1)])
+        with mock.patch.object(
+            rq, "ranking_evidence_commits",
+            return_value={("src/main/a.c", "a"): "measured"},
+        ), mock.patch.object(
+            lane_status, "show_file",
+            side_effect=lambda ref, _path: current if ref == "base" else old,
+        ):
+            freshness = rq.ranking_freshness("base", "ranking.json", doc)
+        self.assertFalse(freshness[("src/main/a.c", "a")].fresh)
 
     def test_live_source_path_disagreement_fails_closed(self) -> None:
         rows = [row("src/main/ranked.c", "target", 1)]

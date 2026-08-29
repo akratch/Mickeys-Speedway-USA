@@ -1,13 +1,20 @@
 # Ranked ready queue
 
 `tools/ready_queue.py` gives a coordinator a deterministic ranked prefix of
-targets that are safe to assign. It joins three independent checks:
+targets that are safe to assign. It joins four independent checks:
 
 1. `config/nonmatching-ranking.us.json` must pass the complete canonical
    validator in `tools/nm_ranking.py`.
-2. The exact `(file, symbol)` identity must still be present in the live
+2. Git blame identifies the commit that last changed each row's
+   `differing_words` measurement. The compiler-relevant selective-TU context
+   at that commit must equal the context at the requested base ref. Other
+   `NON_MATCHING` candidate bodies and comments are removed before hashing;
+   shared declarations, matched code, fallback identities, and this target's
+   body remain covered. A relevant later edit makes the ranking evidence stale
+   even when the symbol and path still exist.
+3. The exact `(file, symbol)` identity must still be present in the live
    `NON_MATCHING` source queue discovered by `tools/permute_batch.py`.
-3. `tools/lane_status.py` must classify the symbol as `base-only`. This is the
+4. `tools/lane_status.py` must classify the symbol as `base-only`. This is the
    only assignable state under ADR 0011.
 
 The command is read-only. It reads source and committed Git objects; it does
@@ -21,23 +28,34 @@ python3 tools/ready_queue.py --scan 100 --top 20 --format markdown
 python3 tools/ready_queue.py --scan 100 --top 20 --format json
 ```
 
-`--scan` bounds how many rows of the retained `functions` ranking are
+Before applying `--scan`, the tool derives a bounded-effort score from exact
+size, differing-word count and ratio, and mismatch mechanism. This lets a
+one-word `other` mismatch outrank a very large register-only plateau without
+rewriting the retained measurement snapshot. Output reports both the derived
+priority rank and the original snapshot rank, plus the proof-quality class and
+effort score. Stale measurement context adds a 40-point penalty and changes
+the quality to `reproof-*`; such a row is safe to assign only with a mandatory
+configured baseline refresh before any source edit.
+
+`--scan` bounds how many rows of that derived priority order are
 examined. `--top` bounds how many assignable rows are returned, and cannot
 exceed `--scan`. Processing stops as soon as either bound is reached. The
 defaults are 50 scanned rows and ten returned rows; hard limits are 1,000 and
-100 respectively. Ranked rows keep their original order and rank number.
+100 respectively. Ties preserve the retained snapshot order.
 
 Unresolved ranking rows are reported as a count but are not invented into the
 ranked order. Regenerate the ranking to give them measured positions.
 
 Table output is intended for a terminal. Markdown is paste-ready for a queue
-or handoff. JSON is schema version 1, uses stable field names, preserves row
+or handoff. JSON is schema version 2, uses stable field names, preserves row
 order in arrays, and includes the resolved base commit, limits, detailed
 ready/skipped rows, and summary counts.
 
 ## Fail-closed behavior
 
-Rows classified `active`, `already-integrated/exhausted`, or `stale-ledger`
+Rows with changed compiler contexts are visibly marked `reproof-*` and ranked
+behind equally promising current evidence; their stale score is never claimed
+as current. Rows classified `active`, `already-integrated/exhausted`, or `stale-ledger`
 are skipped and summarized separately. A ranking identity no longer present
 in the live queue is summarized as `not-live`; use the ranking prune or
 regeneration flow to remove it.

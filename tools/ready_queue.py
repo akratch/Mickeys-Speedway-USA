@@ -12,7 +12,11 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import hashlib
 import json
+import math
+import re
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 import sys
@@ -36,7 +40,7 @@ MAX_SCAN = 1000
 MAX_TOP = 100
 MAX_JOBS = 16
 DEFAULT_JOBS = 4
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 ASSIGNABLE_STATE = "base-only"
 SKIPPED_STATES = (
     "active",
@@ -44,6 +48,18 @@ SKIPPED_STATES = (
     "stale-ledger",
     "not-live",
 )
+STALE_EVIDENCE_PENALTY = 40
+
+CATEGORY_PENALTY = {
+    "register-only": 0,
+    "allocation-mismatch": 2,
+    "schedule-only": 2,
+    "other": 4,
+    "reloc-mismatch": 8,
+    "structure-mismatch": 16,
+    "size-mismatch": 32,
+}
+BLAME_HEADER_RE = re.compile(r"^\^?([0-9a-f]{40})\s+\d+\s+\d+")
 
 
 class ReadyQueueError(ValueError):
@@ -54,6 +70,15 @@ class ReadyQueueError(ValueError):
 class LiveIdentity:
     file: str
     symbol: str
+
+
+@dataclass(frozen=True)
+class RankingEvidence:
+    commit: str
+    fresh: bool
+
+
+FreshnessMap = dict[tuple[str, str], RankingEvidence]
 
 
 AssignmentClassifier = Callable[[str, str], lane_status.Assignment]
@@ -112,9 +137,67 @@ def live_identities(items: Iterable[object]) -> list[LiveIdentity]:
     return identities
 
 
-def _ranking_details(row: dict[str, object], rank: int) -> dict[str, object]:
+def proof_quality(row: dict[str, object]) -> str:
+    if int(row["size_delta"]) != 0:
+        return "size"
+    category = str(row["category"])
+    if category in {"register-only", "allocation-mismatch", "schedule-only"}:
+        return "allocator"
+    if category == "reloc-mismatch":
+        return "relocation"
+    if category == "structure-mismatch":
+        return "structural"
+    return "codegen"
+
+
+def effort_score(row: dict[str, object]) -> int:
+    """Estimate bounded matching effort from retained aggregate evidence."""
+    differing = int(row["differing_words"])
+    words = max(1, int(row["size_bytes"]) // 4)
+    ratio_penalty = math.ceil(20 * differing / words)
+    category_penalty = CATEGORY_PENALTY.get(str(row["category"]), 20)
+    size_penalty = min(abs(int(row["size_delta"])) // 4, 50) * 2
+    return differing + ratio_penalty + category_penalty + size_penalty
+
+
+def prioritized_rows(
+    functions: list[object], freshness: FreshnessMap | None = None,
+) -> list[tuple[int, int, dict[str, object], int]]:
+    """Return (priority rank, snapshot rank, row, effort score)."""
+    measured = []
+    for snapshot_rank, raw in enumerate(functions, 1):
+        assert isinstance(raw, dict)
+        key = (str(raw["file"]), str(raw["name"]))
+        evidence = freshness.get(key) if freshness is not None else None
+        stale_penalty = (
+            STALE_EVIDENCE_PENALTY
+            if evidence is not None and not evidence.fresh else 0
+        )
+        measured.append((effort_score(raw) + stale_penalty, snapshot_rank, raw))
+    measured.sort(key=lambda value: (value[0], value[1]))
+    return [
+        (priority_rank, snapshot_rank, row, score)
+        for priority_rank, (score, snapshot_rank, row)
+        in enumerate(measured, 1)
+    ]
+
+
+def _ranking_details(
+    row: dict[str, object], rank: int, snapshot_rank: int, score: int,
+    evidence: RankingEvidence | None,
+) -> dict[str, object]:
     return {
         "rank": rank,
+        "snapshot_rank": snapshot_rank,
+        "effort_score": score,
+        "proof_quality": (
+            "reproof-" + proof_quality(row)
+            if evidence is not None and not evidence.fresh
+            else proof_quality(row)
+        ),
+        "requires_reproof": evidence is not None and not evidence.fresh,
+        "ranking_evidence_commit": evidence.commit if evidence else None,
+        "ranking_evidence_fresh": evidence.fresh if evidence else None,
         "file": row["file"],
         "symbol": row["name"],
         "category": row["category"],
@@ -124,6 +207,164 @@ def _ranking_details(row: dict[str, object], rank: int) -> dict[str, object]:
         "size_delta": row["size_delta"],
         "objdiff_match_pct": row["objdiff_match_pct"],
     }
+
+
+def blamed_source_lines(base: str, path: str) -> list[tuple[str, str]]:
+    """Return each tracked source line with its porcelain-blame commit."""
+    raw = lane_status.git("blame", "--line-porcelain", base, "--", path)
+    result: list[tuple[str, str]] = []
+    commit: str | None = None
+    for line in raw.splitlines():
+        header = BLAME_HEADER_RE.match(line)
+        if header:
+            commit = header.group(1)
+        elif line.startswith("\t"):
+            if commit is None:
+                raise ReadyQueueError(f"blame source line lacks a commit in {path}")
+            result.append((commit, line[1:]))
+            commit = None
+    return result
+
+
+def ranking_evidence_commits(base: str, path: str) -> dict[tuple[str, str], str]:
+    """Map each row to the commit that last changed its diff measurement."""
+    rows: dict[tuple[str, str], str] = {}
+    symbol: str | None = None
+    file_name: str | None = None
+    for commit, line in blamed_source_lines(base, path):
+        stripped = line.strip()
+        if stripped.startswith('"name":'):
+            symbol = str(json.loads(stripped.split(":", 1)[1].rstrip(",")))
+            file_name = None
+        elif stripped.startswith('"file":'):
+            file_name = str(json.loads(stripped.split(":", 1)[1].rstrip(",")))
+        elif stripped.startswith('"differing_words":'):
+            if symbol is None or file_name is None:
+                raise ReadyQueueError(
+                    f"ranking measurement lacks file/symbol context in {path}"
+                )
+            key = (file_name, symbol)
+            if key in rows:
+                raise ReadyQueueError(
+                    f"duplicate blamed ranking identity {file_name}:{symbol}"
+                )
+            rows[key] = commit
+    return rows
+
+
+def ranking_freshness(
+    base: str, ranking_path: str, document: object,
+) -> FreshnessMap:
+    """Prove each metric row was measured against the current source blob."""
+    validated = nm_ranking.validate_ranking_document(document)
+    functions = validated["functions"]
+    assert isinstance(functions, list)
+    evidence_commits = ranking_evidence_commits(base, ranking_path)
+    expected = {
+        (str(row["file"]), str(row["name"]))
+        for row in functions if isinstance(row, dict)
+    }
+    if set(evidence_commits) != expected:
+        missing = sorted(expected - set(evidence_commits))
+        extra = sorted(set(evidence_commits) - expected)
+        raise ReadyQueueError(
+            "ranking blame identities disagree with validated rows: "
+            f"missing={missing[:3]} extra={extra[:3]}"
+        )
+
+    source_cache: dict[tuple[str, str], str | None] = {}
+    digest_cache: dict[tuple[str, str, str], str | None] = {}
+
+    def source(ref: str, path: str) -> str | None:
+        key = (ref, path)
+        if key not in source_cache:
+            source_cache[key] = lane_status.show_file(ref, path)
+        return source_cache[key]
+
+    def strip_comments(text: str) -> str:
+        """Remove C comments while preserving strings and physical lines."""
+        output: list[str] = []
+        index = 0
+        state = "code"
+        quote = ""
+        while index < len(text):
+            char = text[index]
+            following = text[index + 1] if index + 1 < len(text) else ""
+            if state == "code":
+                if char == "/" and following == "*":
+                    state = "block"
+                    output.extend("  ")
+                    index += 2
+                    continue
+                if char == "/" and following == "/":
+                    state = "line"
+                    output.extend("  ")
+                    index += 2
+                    continue
+                if char in {'"', "'"}:
+                    state = "quote"
+                    quote = char
+                output.append(char)
+            elif state == "block":
+                if char == "*" and following == "/":
+                    output.extend("  ")
+                    state = "code"
+                    index += 2
+                    continue
+                output.append("\n" if char == "\n" else " ")
+            elif state == "line":
+                if char == "\n":
+                    output.append(char)
+                    state = "code"
+                else:
+                    output.append(" ")
+            else:
+                output.append(char)
+                if char == "\\" and following:
+                    output.append(following)
+                    index += 2
+                    continue
+                if char == quote:
+                    state = "code"
+            index += 1
+        stripped = "".join(output)
+        return "\n".join(
+            line.rstrip() for line in stripped.splitlines() if line.strip()
+        ) + "\n"
+
+    def context_digest(text: str | None, symbol: str) -> str | None:
+        if text is None:
+            return None
+        blocks = list(permute_batch.iter_nonmatching_blocks(text))
+        targets = [
+            block for block in blocks
+            if permute_batch.block_function_name(text, block) == symbol
+        ]
+        if len(targets) != 1:
+            return None
+        target = targets[0]
+        selected = text
+        for block in reversed(blocks):
+            replacement = block.body if block is target else block.fallback
+            selected = selected[:block.start] + replacement + selected[block.end:]
+        normalized = strip_comments(selected)
+        return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+    def digest(ref: str, path: str, symbol: str) -> str | None:
+        key = (ref, path, symbol)
+        if key not in digest_cache:
+            digest_cache[key] = context_digest(source(ref, path), symbol)
+        return digest_cache[key]
+
+    result: FreshnessMap = {}
+    for key, commit in evidence_commits.items():
+        current = digest(base, key[0], key[1])
+        measured = digest(commit, key[0], key[1])
+        result[key] = RankingEvidence(
+            commit=commit,
+            fresh=current is not None and current == measured,
+        )
+    return result
 
 
 def build_report(
@@ -136,6 +377,7 @@ def build_report(
     scan: int,
     top: int,
     jobs: int = 1,
+    freshness: FreshnessMap | None = None,
     classify: AssignmentClassifier = lane_status.assignment_status,
 ) -> dict[str, object]:
     """Join ranking, live source identities, and assignment verdicts."""
@@ -156,7 +398,7 @@ def build_report(
     skipped_counts = {state: 0 for state in SKIPPED_STATES}
     scanned = 0
 
-    ranked_rows = list(enumerate(functions[:scan], 1))
+    ranked_rows = prioritized_rows(functions, freshness)[:scan]
     chunk_size = max(1, jobs * 2)
     for chunk_start in range(0, len(ranked_rows), chunk_size):
         if len(ready) >= top:
@@ -166,14 +408,15 @@ def build_report(
         executor: concurrent.futures.ThreadPoolExecutor | None = None
         if jobs > 1:
             executor = concurrent.futures.ThreadPoolExecutor(max_workers=jobs)
-            for rank, raw_row in chunk:
+            for rank, _snapshot_rank, raw_row, _score in chunk:
                 assert isinstance(raw_row, dict)
                 key = (str(raw_row["file"]), str(raw_row["name"]))
+                evidence = freshness.get(key) if freshness is not None else None
                 if key in live_keys:
                     futures[rank] = executor.submit(classify, base, key[1])
 
         try:
-            for rank, raw_row in chunk:
+            for rank, snapshot_rank, raw_row, score in chunk:
                 if len(ready) >= top:
                     break
                 assert isinstance(raw_row, dict)
@@ -181,6 +424,7 @@ def build_report(
                 file_name = str(raw_row["file"])
                 symbol = str(raw_row["name"])
                 key = (file_name, symbol)
+                evidence = freshness.get(key) if freshness is not None else None
 
                 if key not in live_keys:
                     other_paths = sorted(live_paths_by_symbol.get(symbol, set()))
@@ -192,7 +436,9 @@ def build_report(
                         )
                     skipped_counts["not-live"] += 1
                     skipped.append({
-                        **_ranking_details(raw_row, rank),
+                        **_ranking_details(
+                            raw_row, rank, snapshot_rank, score, evidence,
+                        ),
                         "state": "not-live",
                         "reason": (
                             "exact identity is absent from the live "
@@ -225,9 +471,16 @@ def build_report(
                             "source-path agreement"
                         )
                     ready.append({
-                        **_ranking_details(raw_row, rank),
+                        **_ranking_details(
+                            raw_row, rank, snapshot_rank, score, evidence,
+                        ),
                         "state": assignment.state,
-                        "reason": assignment.reason,
+                        "reason": (
+                            assignment.reason
+                            if evidence is None or evidence.fresh
+                            else assignment.reason + "; refresh configured "
+                            "baseline before source edits"
+                        ),
                     })
                     continue
                 if assignment.state not in skipped_counts:
@@ -237,7 +490,9 @@ def build_report(
                     )
                 skipped_counts[assignment.state] += 1
                 skipped.append({
-                    **_ranking_details(raw_row, rank),
+                    **_ranking_details(
+                        raw_row, rank, snapshot_rank, score, evidence,
+                    ),
                     "state": assignment.state,
                     "reason": assignment.reason,
                     "active_lanes": list(assignment.active_lanes),
@@ -279,9 +534,11 @@ def _display_rows(report: dict[str, object]) -> list[list[str]]:
         size = raw["size_bytes"]
         rows.append([
             str(raw["rank"]),
+            str(raw["snapshot_rank"]),
             str(raw["symbol"]),
             str(raw["file"]),
-            str(raw["category"]),
+            str(raw["proof_quality"]),
+            str(raw["effort_score"]),
             f"{mismatch}/{int(size) // 4}",
         ])
     return rows
@@ -301,7 +558,7 @@ def summary_line(report: dict[str, object]) -> str:
 
 
 def render_table(report: dict[str, object]) -> str:
-    headers = ["rank", "symbol", "file", "category", "diff/words"]
+    headers = ["rank", "snap", "symbol", "file", "quality", "cost", "diff/words"]
     rows = _display_rows(report)
     if not rows:
         return f"(no assignable targets)\n{summary_line(report)}\n"
@@ -320,7 +577,9 @@ def render_table(report: dict[str, object]) -> str:
 
 
 def render_markdown(report: dict[str, object]) -> str:
-    headers = ["Rank", "Symbol", "File", "Category", "Diff/words"]
+    headers = [
+        "Rank", "Snapshot", "Symbol", "File", "Quality", "Cost", "Diff/words",
+    ]
     rows = _display_rows(report)
     rendered = [
         "| " + " | ".join(headers) + " |",
@@ -328,11 +587,11 @@ def render_markdown(report: dict[str, object]) -> str:
     ]
     for row in rows:
         escaped = [cell.replace("|", "\\|") for cell in row]
-        escaped[1] = f"`{escaped[1]}`"
         escaped[2] = f"`{escaped[2]}`"
+        escaped[3] = f"`{escaped[3]}`"
         rendered.append("| " + " | ".join(escaped) + " |")
     if not rows:
-        rendered.append("| — | No assignable targets | — | — | — |")
+        rendered.append("| — | — | No assignable targets | — | — | — | — |")
     rendered.extend(("", summary_line(report)))
     return "\n".join(rendered) + "\n"
 
@@ -376,13 +635,16 @@ def main(argv: list[str] | None = None) -> int:
             "rev-parse", "--verify", f"{args.base}^{{commit}}"
         ).strip()
         document = json.loads(args.ranking.read_text(encoding="utf-8"))
+        ranking_name = portable_path(args.ranking)
+        freshness = ranking_freshness(args.base, ranking_name, document)
         report = build_report(
             document,
             permute_batch.discover_queue(),
             base=args.base,
             base_commit=base_commit,
-            ranking_name=portable_path(args.ranking),
+            ranking_name=ranking_name,
             scan=args.scan, top=args.top, jobs=args.jobs,
+            freshness=freshness,
         )
     except (
         OSError,
