@@ -451,12 +451,11 @@ SavesBitWriter *func_8002C60C(s32 size, s32 clear) {
     return writer;
 }
 #ifdef NON_MATCHING
-/* Plateau (2026-08-29): exact 28-word schedule with 11 register-only words,
- * first +0x10. Reordering the cursor advance and re-cache reduced 18 words to
- * 11 and five allocator webs to four. A stack-aware, one-thread MIPS2
- * permuter reseed reached cost 55 but no zero; lower-cost mutations changed
- * which byte was cleared. The pool/temp-ring allocation remains unresolved,
- * so the assembly fallback stays canonical. */
+/* Retained configured full-TU C predates the current cursor re-cache spelling:
+ * that earlier body is exact-sized and frameless but only 10/28 words match,
+ * with 18 register-field differences from +0x10 and no relocations.  The
+ * reported current-body 17/28 result and later flag/search outcomes are
+ * historical and unretained; reproduce the current V0 before campaigning. */
 void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
     s32 isSet;
     u32 nextBit;

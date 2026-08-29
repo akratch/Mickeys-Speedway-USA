@@ -1704,15 +1704,15 @@ Removing the wrapper fails the full link because `jtbl_800823D8` references seve
 The remaining lever is coordinated rodata ownership; assembly stays canonical.
 
 The still-unnamed bit writer `func_8002C69C` retains a Mickey-derived
-`NON_MATCHING` body. Its configured `NON_MATCHING=1` object has the exact
-28-word schedule and no structural, opcode, or relocation residual; 11
-register-only words remain from function `+0x10`. Reordering the cursor advance
-and re-cache preserves the bit stream while reducing the prior 18-word,
-five-web result to four allocator webs. A corrected `-O2 -mips2
--Wo,-loopunroll,0`, stack-aware one-thread permuter reseed reached cost 55 but
-no zero in four minutes. Its lower-cost mutations cleared the wrong byte and
-were rejected. The next action is an F-route web-existence/temp-FIFO lever;
-the assembly fallback remains canonical.
+`NON_MATCHING` body. The surviving configured full-TU and isolated C objects
+compile an earlier cursor-update spelling: both are exact-sized and frameless
+but match only 10/28 words, with 18 register-field differences from `+0x10`
+and no relocations. The current cursor re-cache spelling's reported 17/28
+result, four-web diagnosis, flag lattice, source matrix, trace, and cost-55
+permuter run have no retained objects or summaries. Reproduce current V0,
+retain the complete flag lattice, and use one allocator trace to select at most
+two natural forms before any improving-only combination or timed batch. The
+assembly fallback remains canonical.
 
 The 124-byte `func_8002C70C` is exact under canonical `-Wo,-loopunroll,0 -O2 -mips2 -32`; its 31 words and relocation-free linked range match.
 

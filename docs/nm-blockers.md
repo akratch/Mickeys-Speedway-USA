@@ -113,7 +113,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `runlinkInit` | `src/main/runlink.c` | none | — | No ownership change; continue source/codegen work. |
 | `runlinkResumeCode` | `src/main/runlink.c` | resolved | pending-load carrier | Exact C body, frame, relocations, and linked ROM range. |
 | `runlinkGetAddressInfo` | `src/main/runlink.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8002C69C` | `src/main/saves.c` | none | — | No ownership change; four-web allocation plateau, with an F-route web-existence lever next. |
+| `func_8002C69C` | `src/main/saves.c` | resolved-plateau | — | Retained configured full-TU and isolated C compile an earlier body at 10/28 words, exact frameless shape, first `+0x10`, with 18 register-field differences and zero relocations. The current-body 17/28 claim and route exhaustion are unretained. Reproduce current V0, retain the 119-recipe flag lattice, capture one allocator trace, try at most two independent natural forms and one improving-only combination, then one improving-only batch. Five direct calls are all in `func_8002C94C`. |
 | `func_8002C70C` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002C94C` | `src/main/saves.c` | none | — | Matched (permuter): `if (1)` grouping resolves the schedule tie-break. |
 | `func_8002CB18` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
