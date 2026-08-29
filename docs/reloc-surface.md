@@ -1029,6 +1029,14 @@ records call it: Overlay 60 module `+0x2194` from
 `overlay99RenderSegments+0xE8`. Its fourth direct caller is resident
 `rcpClearScreen+0x48`; no other shipped overlay record targets ORT 765.
 
+Resident `func_8002B040` owns no static or runtime relocations across its exact
+ROM `0x2BC40..0x2BCD0` range and is not exported. Its four authenticated
+inbounds are Overlay 69 module `+0xC0`, Overlay 88 module `+0x110`, and Overlay
+94 module `+0xE0/+0x414`, all `R_MIPS_26` calls. The next resident function,
+`mmInit`, starts immediately at `0x2BCD0`, so there is no target padding.
+Configured C remains one instruction long; linked equality proves fallback
+only.
+
 Resident `func_8003A2C8` owns exact HI16/LO16 pairs at `+0x00/+0x04` to
 `D_8007C090` and at `+0x24/+0x28` plus `+0x3C/+0x40` to `D_800D3128`. ORT
 606 exports it. Its direct callers are resident `func_80027EC0+0x80`, Overlay

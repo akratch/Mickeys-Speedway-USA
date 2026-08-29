@@ -947,6 +947,7 @@ linkSlotTable = 0x800D2E48;
 // and naming a symbol whose C is not in the ROM would put a second evidence
 // tier into this file, which is exactly what the libultra work avoided.
 // ---------------------------------------------------------------------------
+func_8002B040 = 0x8002B040; // type:func size:0x88 ROM 0x2bc40 tier-D NON_MATCHING bounded plateau, canonical 1/34 words and +1 instruction, first +0x0, frameless/no padding/zero relocs, 119 flags plus 10 structural forms nonexact, 4 overlay callers, linked exactness fallback-only
 
 // ---------------------------------------------------------------------------
 // STRING-LITERAL CORRESPONDENCE WITH THE JET FORCE GEMINI PUBLIC DECOMP

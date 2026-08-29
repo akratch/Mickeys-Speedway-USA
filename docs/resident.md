@@ -138,6 +138,19 @@ inside `main/matrix`) clear the bar but are **not** written into
 `symbol_addrs.us.txt`: their C is parked non-matching, and 1.5 forbids naming
 a symbol whose C is not in the ROM. They are recorded instead in §6.2.
 
+The adjacent anonymous `func_8002B040` is separately authenticated over ROM
+`0x2BC40..0x2BCD0`: 34 frameless words, no padding before `mmInit`, and no
+relocations. Its configured guarded C emits 35 words and matches 1/34
+positionally from `+0x0`; IDO spills and reloads the second `f32` formal where
+the target transfers all three incoming GPR bit patterns directly to FP
+registers. The complete 119-row flag lattice is nonexact (`-O2 -mips1 -32`
+improves only to 2/34 while remaining one word long), as are ten bounded
+source-faithful type, matrix-shape, temporary, K&R, register, operand-order,
+and uopt-O3 forms. Four shipped callers in Overlays 69,
+88, and 94 authenticate the scalar-vector ABI. DKR/JFG matrix-transform
+assembly supplies structural context only; it does not justify a friendly
+name or a C-origin claim. The assembly fallback remains canonical.
+
 Of the 68 adopted, 46 carry a real JFG/BK function name (adopted verbatim,
 `symbol_addrs.us.txt`); 22 are JFG placeholder names (`func_8xxxxxxx`), which
 1.5 forbids importing, so Mickey's own `func_<VRAM>` stands and the comment

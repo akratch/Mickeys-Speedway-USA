@@ -328,13 +328,13 @@ void func_8002AE10(MatrixTransform *trans, MtxF dest) {
  * instruction count and kinds exactly, differing only in register names. Do
  * not rewrite them from scratch.
  *
- * func_8002B040 (MatrixRotateVec3) does not belong to this discussion at all:
- * it uses no odd registers. Its blocker is ugen's expression scheduling, and
- * with the stock toolchain at uopt -O3 -- reachable only through
- * tools/ido-phases.py, since `cc -O3` dies in uld -- and the m[i][j]*x operand
- * order it is 16 of 34 instructions from a match, with two systematic
- * residuals: the final add.s operand order (the ROM writes the accumulator
- * first) and the third mul.s's placement in rows 2 and 3.
+ * func_8002B040 does not use odd FP registers. A fresh ownership-aware reproof
+ * instead isolates one structural ABI-lowering difference: IDO spills the
+ * second f32 formal and reloads it, while the 34-word target moves all three
+ * incoming GPR bit patterns directly into FP registers. No stock flag or
+ * source-faithful type/expression spelling tested below removes that extra
+ * instruction; the public DKR/JFG matrix-transform assembly is donor context,
+ * not evidence that this target was compiled from C.
  */
 #ifdef NON_MATCHING
 /*
@@ -376,17 +376,18 @@ void MatrixMultiplyVec4(MtxF m, f32 *src, f32 *dst) {
  * the stack arguments at 0x10/0x14/0x18(sp).
  */
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, 34 differing words, first mismatch +0x0. */
-/* Structural gap: target 34 instructions versus candidate 35; one input spill shifts the FP schedule. */
-/* Not shape-exact or permuter-ready; caller ABI and row/column arithmetic are preserved. */
-void func_8002B040(void *arg0, f32 arg1, f32 arg2, f32 arg3,
+/* Workbench: canonical C is 1/34 positional words, first mismatch +0x0. */
+/* Structural gap: target 34 instructions versus candidate 35; the a2 spill/reload is the extra word. */
+/* All 119 flag rows are nonexact; -O2/-mips1 improves only to 2/34 and is still one word long. */
+/* Bounded type, matrix-shape, temporary, K&R, register, operand-order, and uopt-O3 forms were nonexact. */
+void func_8002B040(MtxF matrix, f32 arg1, f32 arg2, f32 arg3,
                    f32 *arg4, f32 *arg5, f32 *arg6) {
-    f32 *matrix;
+    f32 *flatMatrix;
 
-    matrix = (f32 *)arg0;
-    *arg4 = arg1 * matrix[0] + arg2 * matrix[4] + arg3 * matrix[8];
-    *arg5 = arg1 * matrix[1] + arg2 * matrix[5] + arg3 * matrix[9];
-    *arg6 = arg1 * matrix[2] + arg2 * matrix[6] + arg3 * matrix[10];
+    flatMatrix = (f32 *)matrix;
+    *arg4 = arg1 * flatMatrix[0] + arg2 * flatMatrix[4] + arg3 * flatMatrix[8];
+    *arg5 = arg1 * flatMatrix[1] + arg2 * flatMatrix[5] + arg3 * flatMatrix[9];
+    *arg6 = arg1 * flatMatrix[2] + arg2 * flatMatrix[6] + arg3 * flatMatrix[10];
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002B040.s")
