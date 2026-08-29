@@ -162,7 +162,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_001_F0007580_1853960` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F0007730_1853B10` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F00078DC_1853CBC` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_001_F0007B64_1853F44` | `src/overlays/o001/overlay_001_tail.c` | none | — | `overlay1FindBestRecord` remains a 12-word exact-size codegen target; no ownership change is indicated. |
+| `func_overlay_001_F0007B64_1853F44` | `src/overlays/o001/overlay_001_tail.c` | none | — | `overlay1FindBestRecord` is exact-size with 12 register-field differences; no ownership change is indicated. |
 | `func_overlay_002_F0000C90_1857A88` | `src/overlays/o002/func_overlay_002_F0000C90_1857A88.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_002_F0001364_185815C` | `src/overlays/o002/func_overlay_002_F0001364_185815C.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_002_F0001A94_185888C` | `src/overlays/o002/func_overlay_002_F0001A94_185888C.c` | none | — | No ownership change; continue source/codegen work. |
@@ -234,7 +234,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_020_F0001018_18775F0` | `src/overlays/o020/overlay20RemoveEntry.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_020_F0000A68_1877040` | `src/overlays/o020/overlay20UpdateGrid.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_020_F0000204_18767DC` | `src/overlays/o020/overlay20UpdateObjectResource.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_021_F000010C_1877D94` | `src/overlays/o021/overlay21ApplyPriorities.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_021_F000010C_1877D94` | `src/overlays/o021/overlay21ApplyPriorities.c` | matched | — | Promoted to exact C with a redundant comparison temporary; no ownership work remains. |
 | `func_overlay_022_F00002B0_18783B8` | `src/overlays/o022/func_overlay_022_F00002B0_18783B8.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_022_F0000000_1878108` | `src/overlays/o022/overlay22InitializeObject.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_022_F0000D30_1878E38` | `src/overlays/o022/overlay22RemoveObject.c` | resolved-plateau | overlay 22 local globals | Initialized block is TU-owned; pool-position structure remains. |

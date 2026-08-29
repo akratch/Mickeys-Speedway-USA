@@ -3189,9 +3189,9 @@ extern s32 gOverlay1SelectedType;
 /* DKR v77/v80 and JFG have no exact donor for this fixed record scan.
  * Isolated plateau: exact 30-word size, 12 register-field differences from
  * +0x4, all in an a1/a3 carrier exchange; no natural linked/ROM proof exists.
- * Next bounded probes are the selectedType/value register-declaration swap,
- * the literal record/value declaration-position swap, then a block-local value
- * only if neither declaration-only probe closes the carrier web. */
+ * Next bounded probes are the selectedType/value declaration-slot swap,
+ * a block-local value, then the lower-probability literal record/value
+ * declaration-position swap; combine only variants that strictly improve. */
 #ifdef NON_MATCHING
 Overlay1BestRecord *overlay1FindBestRecord(void) {
     Overlay1BestRecord *record;
