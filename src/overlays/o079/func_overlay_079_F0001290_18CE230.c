@@ -74,6 +74,17 @@ extern u8 gOverlay79FlagsReloc[];
  * regressed to 14-42; the scoped emit-id local was exact-sized but regressed
  * to 33. No JFG function supplies a body, ABI, or allocator mechanism here.
  *
+ * A resumed bounded pass (2026-08-30) proved the missing temp-FIFO mechanism.
+ * Preserving the u8 width explicitly as `(value & 0xFF) | 4` consumes one
+ * backend temp while the redundant mask emits no instruction. The retained C
+ * remains exactly 123 words / 492 bytes with frame 0x48 and first mismatch
+ * +0xC8, improves to 119/123 raw and runtime-normalized words, and reproduces
+ * the complete integer temp lane. An opaque `void *` state slot and a zero-
+ * offset typed state-slot wrapper were independently byte-flat on top of that
+ * gain. The sole executable residual is now the four-site v1/v0 linked-state
+ * pool web; no source-faithful coalescing form was found within the narrow
+ * follow-up cap.
+ *
  * The owned +0x1290..+0x147C range has no target padding. IDO's four trailing
  * alignment bytes are outside the function and production trims only them.
  * The C object emits all 15 shipped runtime tuples. Fresh ordinary preflight
@@ -86,9 +97,8 @@ extern u8 gOverlay79FlagsReloc[];
  * ORT 1297 and resident relocation 139 establish func_8000AEEC+0x43C as the
  * sole inbound; no cross-overlay inbound exists. Pinned DKR v77/v80 and JFG
  * scans are negative. Preserve the fallback and resume only with a newly
- * proved source form that consumes exactly one backend temp before the flags
- * update without perturbing global color, or a natural v0/v1 coalescing form;
- * do not repeat flags, these forms, or a generic batch. */
+ * proved natural v0/v1 linked-state coalescing form; do not repeat the flag
+ * lattice, temp-FIFO lever, state-slot type forms, or a generic batch. */
 #ifdef NON_MATCHING
 void func_overlay_079_F0001290_18CE230(Overlay79Object *object, s32 arg1) {
     Overlay79Node *node;
@@ -126,7 +136,8 @@ void func_overlay_079_F0001290_18CE230(Overlay79Object *object, s32 arg1) {
             spawned->field3C = 0;
             if (++gOverlay79CounterReloc == 0x14) {
                 overlay79EmitReloc(0x27C, 0);
-                gOverlay79FlagsReloc[1] |= 4;
+                gOverlay79FlagsReloc[1] =
+                    (gOverlay79FlagsReloc[1] & 0xFF) | 4;
                 overlay79TriggerReloc();
             } else {
                 overlay79EmitAtReloc(0x277, object->position.x,

@@ -266,8 +266,8 @@ A supplementary objdiff report was not supplied; `objdiff_match_pct` covers **0 
 
 | Threshold | Count |
 |---|---:|
-| `differing_words <= 5` | 10 |
-| `differing_words <= 10` | 34 |
+| `differing_words <= 5` | 11 |
+| `differing_words <= 10` | 35 |
 | `differing_words <= 20` | 76 |
 
 ### Complete ranked queue
@@ -285,7 +285,7 @@ units remain distinct.
 | 5 | `src/main/saves.c` | `func_8002CF6C` | `main` | `structure-mismatch` | 352 | 77 | 8 | -12 | — |
 | 6 | `src/overlays/o019/overlay19ClassifyEdge.c` | `overlay19ClassifyEdge` | `o019` | `register-only` | 480 | 10 | 312 | 0 | — |
 | 7 | `src/main/models_5B300.c` | `func_8005A948` | `main` | `allocation-mismatch` | 376 | 9 | 64 | 0 | — |
-| 8 | `src/overlays/o079/func_overlay_079_F0001290_18CE230.c` | `func_overlay_079_F0001290_18CE230` | `o079` | `register-only` | 492 | 12 | 200 | 0 | — |
+| 8 | `src/overlays/o079/func_overlay_079_F0001290_18CE230.c` | `func_overlay_079_F0001290_18CE230` | `o079` | `register-only` | 492 | 4 | 200 | 0 | — |
 | 9 | `src/main/models.c` | `func_80020D8C` | `main` | `register-only` | 192 | 17 | 56 | 0 | — |
 | 10 | `src/overlays/o001/overlay_001.c` | `overlay1FindType5ByKey` | `o001` | `register-only` | 156 | 17 | 28 | 0 | — |
 | 11 | `src/main/saves.c` | `func_8002C69C` | `main` | `register-only` | 112 | 11 | 16 | 0 | — |

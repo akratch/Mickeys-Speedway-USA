@@ -635,9 +635,12 @@ compared in the complete US ROM. No generated alignment padding is credited.
 Overlay 79's unresolved `+0x1290..+0x147C` owner
 (`func_overlay_079_F0001290_18CE230`) remains `NON_MATCHING` at 492 bytes / 123
 words. Retained configured-flag isolated C is 111/123 words with frame `0x48`
-and 12 register-only sites from `+0xC8`. All 119 flag identities are nonexact;
-seven O2/MIPS-II rows tie. One fidelity-clean globalcolor trace and three
-natural linked-state/next-node lifetime forms found no gain. Its 15 runtime-
+and 12 register-only sites from `+0xC8` at the historical baseline. Explicit
+`u8` width preservation with `(value & 0xFF) | 4` consumes one backend temp
+without emitting an instruction; the retained C is now 119/123 words with four
+register-only sites, and its integer temp lane is exact. Opaque-pointer and
+zero-offset typed state-slot follow-ups were byte-flat, leaving only the
+linked-state v1/v0 pool web. All 119 flag identities remain nonexact. Its 15 runtime-
 backed records include eleven calls, a local counter pair, and the reserved
 loader flags pair; an identity-canonical comparison proves all 15 offsets, types,
 identities, and addends. The assembled target retains only 13 static records

@@ -96,7 +96,7 @@
       "tu": "overlays/o079",
       "size_bytes": 492,
       "objdiff_match_pct": null,
-      "differing_words": 12,
+      "differing_words": 4,
       "first_mismatch_offset": 200,
       "size_delta": 0,
       "category": "register-only"
