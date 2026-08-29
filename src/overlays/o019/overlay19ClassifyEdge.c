@@ -2,24 +2,34 @@
 
 /*
  * Classify an edge against a candidate edge, accepting either orientation.
- * PROVENANCE: Mickey-derived; the donor ledger classifies pinned DKR v77/v80
- * and JFG candidates as negative.
- * Plateau (evidence reviewed 2026-08-29): retained pre-HEAD/current-body
- * configured full-TU and isolated C are byte-identical across 120 words. Both
- * are frameless and relocation-free, with 110/120 exact. One carrier web uses
- * candidate $v1 versus target $t3 at +0x138/+0x140/+0x148/+0x154/+0x15C/
- * +0x164; final y/z load pairs reverse at +0x194/+0x198 and +0x1B0/+0x1B4.
+ * PROVENANCE: Mickey-derived. The exact-donor ledger is negative. A retained
+ * structural scan found JFG assembly-only
+ * func_overlay_30_000012F0_1F4A3C0 at 0.443 and DKR public
+ * src/object_models.c:func_80060C58, a five-argument edge classifier, at 0.227;
+ * neither is an exact donor and no external C is adapted here.
+ * Reproof lead (evidence reviewed 2026-08-29): the generated isolated scalar
+ * repeatedly records the unchanged body at exact size, 110/120 positional
+ * words, first +0x138, category register-only. No isolated object/report is
+ * retained. Historical configured full-TU prose reports the same score,
+ * frameless/zero-relocation shape, and a carrier web at +0x138/+0x140/+0x148/
+ * +0x154/+0x15C/+0x164 with final y/z load pairs reversed at +0x194/+0x198 and
+ * +0x1B0/+0x1B4, but no configured object/hash/site map survives. Configured
+ * score, frame, relocations, and the complete ten-site list therefore require
+ * reproof.
  * The sole inbound is overlay19FindAdjacent+0xD8; this function is unexported.
  *
  * Historical prose attributes the gain from 106/120 to promoted-s16
  * comparisons and reports several flat source/trace/permuter probes, but their
  * attributable objects do not survive and do not prove exhaustion. Ordinary
  * object, linked-function, module, and ROM identity prove the GLOBAL_ASM
- * fallback only; no linked C candidate survives. The complete 119-flag lattice
- * remains unrun at the artifact tier. Retain exactly 119 flags including V0,
- * trace once, try one natural carrier-lifetime form and one line/association
- * form, then combine only if both strictly improve; cap 122 stock builds plus
- * trace and park if both natural probes are flat.
+ * fallback only; no linked C candidate survives. Compile configured V0 after
+ * the retained oracle and invalidate the detailed plateau if 110/120,
+ * framelessness, or zero records fails to reproduce. Otherwise retain exactly
+ * 119 configurations including V0, trace once, try one natural carrier-
+ * lifetime/DKR-faithful lexical form and one independent y/z line-association
+ * form, then combine only if both strictly improve. Hard stop at 122
+ * deterministic builds plus one trace; no generic batch or forced-color
+ * promotion.
  */
 #ifdef NON_MATCHING
 s32 overlay19ClassifyEdge(

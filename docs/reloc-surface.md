@@ -888,7 +888,9 @@ C-produced; its two inert source aids are tracked in the cleanup queue.
 Overlay 19 `+0xD78` (`overlay19ClassifyEdge`) owns no static or runtime
 relocations. It is unexported. Its sole inbound is table-2 JUMP index 6 at
 module `+0xCF4`, from `overlay19FindAdjacent+0xD8`; linked equality currently
-comes from the fallback, not the retained 110/120 C producer.
+comes from the fallback. A repeatable isolated scalar records 110/120 for the
+unchanged body, while the matching configured result and zero-record candidate
+shape survive only as historical prose; configured C output awaits reproof.
 
 Overlay 1 `+0x63CC` (`overlay1UpdateCountdown`) is exact C after masking seven
 records: LOCAL pairs at `+0x00/+0x04`, `+0x10/+0x14`, and `+0x30/+0x38` for
