@@ -1959,7 +1959,7 @@ func_80010178 = 0x80010178; // type:func size:0x25C ROM 0x10d78 tier-D (Mickey r
 
 // No public name adopted: JFG's assembly-only `trackSphereIntersect` supplies
 // the tier-D collision role and TU position; the placeholder is retained.
-func_80012574 = 0x80012574; // type:func size:0xE4 ROM 0x13174 tier-D (JFG src/track.c trackSphereIntersect, placeholder retained)
+func_80012574 = 0x80012574; // type:func size:0xE4 ROM 0x13174 tier-D NON_MATCHING full-TU 7/57-word plateau, first +0x50, JFG trackSphereIntersect structural oracle
 
 // JFG's `trackClip3D` supplies tier-D structure for the preceding caller,
 // while Mickey proves its shorter boundary and exact six-call body.
