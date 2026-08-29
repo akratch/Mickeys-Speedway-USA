@@ -2229,9 +2229,14 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   allocation divergence (`$a2` rather than `$a3`). The permuter improved its
   MIPS I import from 12,975 to 12,580 only with a redundant fog-width mask;
   canonical MIPS II recompilation added two instructions, so it was rejected.
-- `func_80028FCC`: exact 108-byte/27-word body, ten words differ, first `+0x1c`.
-  Fresh m2c-local, OR-chain and common-epilogue spellings all canonicalize to
-  25 words, so the prior raw-return candidate remains best.
+- `func_80028FCC`: the configured full-TU and retained isolated objects agree
+  on an exact 108-byte/27-word body and frame `0x18`. Ten raw/normalized words
+  differ at `+0x1c/+0x20/+0x24/+0x28/+0x38/+0x3c/+0x40/+0x44/+0x54/+0x58`;
+  all three `R_MIPS_26` calls to `func_80028FB8` are exact. Thirteen
+  structural/ABI spellings and the complete 119-flag lattice exhausted the
+  source, flag, and bounded-search routes. One unchanged configured full-TU
+  and linked V0 remains for reconciliation; park it if the target's explicit
+  boolean temporaries/shared epilogue are reproduced as the same ten-word wall.
 - `levelFreeAll`, ten spellings, first mismatch `+0x13c`: exact 468-byte size
   and 113/117 words; only the masked resource index/table-base registers swap.
 - `func_80029274`, seventeen control-flow/parameter/register-lifetime
