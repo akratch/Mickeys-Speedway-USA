@@ -11,6 +11,7 @@ text.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -33,6 +34,8 @@ DEFAULT_SCAN = 50
 DEFAULT_TOP = 10
 MAX_SCAN = 1000
 MAX_TOP = 100
+MAX_JOBS = 16
+DEFAULT_JOBS = 4
 SCHEMA_VERSION = 1
 ASSIGNABLE_STATE = "base-only"
 SKIPPED_STATES = (
@@ -74,6 +77,10 @@ def scan_value(value: str) -> int:
 
 def top_value(value: str) -> int:
     return positive_bounded(value, name="--top", maximum=MAX_TOP)
+
+
+def jobs_value(value: str) -> int:
+    return positive_bounded(value, name="--jobs", maximum=MAX_JOBS)
 
 
 def portable_path(path: Path) -> str:
@@ -128,6 +135,7 @@ def build_report(
     ranking_name: str,
     scan: int,
     top: int,
+    jobs: int = 1,
     classify: AssignmentClassifier = lane_status.assignment_status,
 ) -> dict[str, object]:
     """Join ranking, live source identities, and assignment verdicts."""
@@ -148,70 +156,104 @@ def build_report(
     skipped_counts = {state: 0 for state in SKIPPED_STATES}
     scanned = 0
 
-    for rank, raw_row in enumerate(functions, 1):
-        if scanned >= scan or len(ready) >= top:
+    ranked_rows = list(enumerate(functions[:scan], 1))
+    chunk_size = max(1, jobs * 2)
+    for chunk_start in range(0, len(ranked_rows), chunk_size):
+        if len(ready) >= top:
             break
-        assert isinstance(raw_row, dict)
-        scanned += 1
-        file_name = str(raw_row["file"])
-        symbol = str(raw_row["name"])
-        key = (file_name, symbol)
+        chunk = ranked_rows[chunk_start : chunk_start + chunk_size]
+        futures: dict[int, concurrent.futures.Future[lane_status.Assignment]] = {}
+        executor: concurrent.futures.ThreadPoolExecutor | None = None
+        if jobs > 1:
+            executor = concurrent.futures.ThreadPoolExecutor(max_workers=jobs)
+            for rank, raw_row in chunk:
+                assert isinstance(raw_row, dict)
+                key = (str(raw_row["file"]), str(raw_row["name"]))
+                if key in live_keys:
+                    futures[rank] = executor.submit(classify, base, key[1])
 
-        if key not in live_keys:
-            other_paths = sorted(live_paths_by_symbol.get(symbol, set()))
-            if other_paths:
-                raise ReadyQueueError(
-                    "source-path disagreement for "
-                    f"{symbol}: ranking={file_name}, live={','.join(other_paths)}"
-                )
-            skipped_counts["not-live"] += 1
-            skipped.append({
-                **_ranking_details(raw_row, rank),
-                "state": "not-live",
-                "reason": "exact identity is absent from the live NON_MATCHING queue",
-                "active_lanes": [],
-                "source_commit": None,
-                "ledger_commit": None,
-            })
-            continue
+        try:
+            for rank, raw_row in chunk:
+                if len(ready) >= top:
+                    break
+                assert isinstance(raw_row, dict)
+                scanned += 1
+                file_name = str(raw_row["file"])
+                symbol = str(raw_row["name"])
+                key = (file_name, symbol)
 
-        assignment = classify(base, symbol)
-        if assignment.source_path is not None and assignment.source_path != file_name:
-            raise ReadyQueueError(
-                "source-path disagreement for "
-                f"{symbol}: ranking={file_name}, base={assignment.source_path}"
-            )
-        if assignment.state == ASSIGNABLE_STATE:
-            if assignment.source_path != file_name:
-                raise ReadyQueueError(
-                    f"assignable {symbol} has no exact base source-path agreement"
+                if key not in live_keys:
+                    other_paths = sorted(live_paths_by_symbol.get(symbol, set()))
+                    if other_paths:
+                        raise ReadyQueueError(
+                            "source-path disagreement for "
+                            f"{symbol}: ranking={file_name}, "
+                            f"live={','.join(other_paths)}"
+                        )
+                    skipped_counts["not-live"] += 1
+                    skipped.append({
+                        **_ranking_details(raw_row, rank),
+                        "state": "not-live",
+                        "reason": (
+                            "exact identity is absent from the live "
+                            "NON_MATCHING queue"
+                        ),
+                        "active_lanes": [],
+                        "source_commit": None,
+                        "ledger_commit": None,
+                    })
+                    continue
+
+                assignment = (
+                    futures[rank].result()
+                    if executor is not None
+                    else classify(base, symbol)
                 )
-            ready.append({
-                **_ranking_details(raw_row, rank),
-                "state": assignment.state,
-                "reason": assignment.reason,
-            })
-            continue
-        if assignment.state not in skipped_counts:
-            raise ReadyQueueError(
-                f"lane_status returned unknown state {assignment.state!r} for {symbol}"
-            )
-        skipped_counts[assignment.state] += 1
-        skipped.append({
-            **_ranking_details(raw_row, rank),
-            "state": assignment.state,
-            "reason": assignment.reason,
-            "active_lanes": list(assignment.active_lanes),
-            "source_commit": assignment.source_commit,
-            "ledger_commit": assignment.ledger_commit,
-        })
+                if (
+                    assignment.source_path is not None
+                    and assignment.source_path != file_name
+                ):
+                    raise ReadyQueueError(
+                        "source-path disagreement for "
+                        f"{symbol}: ranking={file_name}, "
+                        f"base={assignment.source_path}"
+                    )
+                if assignment.state == ASSIGNABLE_STATE:
+                    if assignment.source_path != file_name:
+                        raise ReadyQueueError(
+                            f"assignable {symbol} has no exact base "
+                            "source-path agreement"
+                        )
+                    ready.append({
+                        **_ranking_details(raw_row, rank),
+                        "state": assignment.state,
+                        "reason": assignment.reason,
+                    })
+                    continue
+                if assignment.state not in skipped_counts:
+                    raise ReadyQueueError(
+                        "lane_status returned unknown state "
+                        f"{assignment.state!r} for {symbol}"
+                    )
+                skipped_counts[assignment.state] += 1
+                skipped.append({
+                    **_ranking_details(raw_row, rank),
+                    "state": assignment.state,
+                    "reason": assignment.reason,
+                    "active_lanes": list(assignment.active_lanes),
+                    "source_commit": assignment.source_commit,
+                    "ledger_commit": assignment.ledger_commit,
+                })
+        finally:
+            if executor is not None:
+                executor.shutdown(wait=True, cancel_futures=True)
 
     return {
         "schema_version": SCHEMA_VERSION,
         "base": base,
         "base_commit": base_commit,
         "ranking": ranking_name,
-        "limits": {"scan": scan, "top": top},
+        "limits": {"scan": scan, "top": top, "jobs": jobs},
         "ranking_rows": len(functions),
         "unresolved_rows": len(unresolved),
         "scanned": scanned,
@@ -311,6 +353,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help=f"maximum assignable rows to return (1-{MAX_TOP}; default {DEFAULT_TOP})",
     )
     parser.add_argument(
+        "--jobs", type=jobs_value, default=DEFAULT_JOBS,
+        help=(
+            "parallel read-only assignment checks "
+            f"(1-{MAX_JOBS}; default {DEFAULT_JOBS})"
+        ),
+    )
+    parser.add_argument(
         "--format", choices=("table", "markdown", "json"), default="table",
         help="stable JSON or concise human-readable output (default table)",
     )
@@ -333,8 +382,7 @@ def main(argv: list[str] | None = None) -> int:
             base=args.base,
             base_commit=base_commit,
             ranking_name=portable_path(args.ranking),
-            scan=args.scan,
-            top=args.top,
+            scan=args.scan, top=args.top, jobs=args.jobs,
         )
     except (
         OSError,

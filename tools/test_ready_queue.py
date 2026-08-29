@@ -8,6 +8,7 @@ import contextlib
 import io
 from pathlib import Path
 import sys
+import time
 import unittest
 
 
@@ -127,6 +128,31 @@ class ReadyQueueTests(unittest.TestCase):
         self.assertEqual([value["symbol"] for value in top_limited["ready"]], ["b"])
         self.assertTrue(top_limited["summary"]["top_limit_reached"])
 
+    def test_parallel_classification_preserves_ranking_order(self) -> None:
+        rows = [
+            row(f"src/main/{name}.c", name, index)
+            for index, name in enumerate("abcd", 1)
+        ]
+        items = [Item(str(value["file"]), str(value["name"])) for value in rows]
+        states = {
+            name: assignment(name, f"src/main/{name}.c")
+            for name in "abcd"
+        }
+
+        def classify(_base: str, symbol: str) -> lane_status.Assignment:
+            time.sleep({"a": 0.04, "b": 0.03, "c": 0.02, "d": 0.01}[symbol])
+            return states[symbol]
+
+        report = rq.build_report(
+            document(rows), items, base="base", base_commit="abc",
+            ranking_name="ranking.json", scan=4, top=4, jobs=4,
+            classify=classify,
+        )
+        self.assertEqual(
+            [value["symbol"] for value in report["ready"]],
+            ["a", "b", "c", "d"],
+        )
+
     def test_live_source_path_disagreement_fails_closed(self) -> None:
         rows = [row("src/main/ranked.c", "target", 1)]
         with self.assertRaisesRegex(rq.ReadyQueueError, "source-path disagreement"):
@@ -190,6 +216,8 @@ class ArgumentTests(unittest.TestCase):
                 rq.parse_args(["--scan", "0"])
             with self.assertRaises(SystemExit):
                 rq.parse_args(["--scan", "2", "--top", "3"])
+            with self.assertRaises(SystemExit):
+                rq.parse_args(["--jobs", "0"])
 
 
 if __name__ == "__main__":
