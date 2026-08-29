@@ -98,16 +98,6 @@ typedef struct SavesGameWriteState {
     s32 messageQueue;
 } SavesGameWriteState;
 
-typedef struct SavesFullWriteState {
-    s32 messageQueue;
-    s32 unused;
-    u8 *volatile buffer;
-    u8 pad0C[0xC];
-    s32 savedByte;
-    u32 savedFlag;
-    u8 pad20[8];
-} SavesFullWriteState;
-
 typedef struct RumbleState {
     u8 state;
     u8 pad01;
@@ -802,15 +792,22 @@ void func_8002CF0C(void *globalFlags) {
     }
 }
 #ifdef NON_MATCHING
-/* Retained configured full-TU and isolated C agree: 79/88 words, first +0xCC,
- * exact frame 0x48, and all 11 relocation tuples exact. The isolated import
- * omitted this TU's -Wo,-loopunroll,0, but that flag does not change the
- * current body. The nine residuals are register fields in the post-checksum
- * savedFlag/current-byte/final-copy webs. Only V0 is artifact-authenticated:
- * reproduce it with the configured flags, retain the complete flag lattice,
- * capture one allocator trace, then try one trace-selected natural form. */
+/* Retained pre-HEAD/current-body full-TU and isolated C agree at 79/88 words,
+ * first +0xCC, frame 0x48, and all 11 relocations. The nine residuals are one
+ * post-checksum FIFO: savedFlag +0xCC/+0xD8/+0xDC, current byte
+ * +0xD0/+0xE0/+0xE4/+0xEC, and final copy +0x104/+0x114. That producer used a
+ * synthetic padded struct and volatile buffer solely to shape stack/allocation,
+ * so 79/88 is policy-qualified diagnostic evidence. It is replaced below by
+ * natural scalar locals; clean V0 is uncompiled. ORT 505 and sole caller
+ * joyRead+0x130 are authenticated; linked equality proves fallback only.
+ * Historical flags, trace, forms, and search are unretained. Run 119 flags on
+ * clean V0, trace once, and try at most two mutually exclusive savedFlag
+ * lifetime forms; cap 122 stock builds plus trace and batch only after a gain. */
 void func_8002CF6C(u8 *globalFlags) {
-    SavesFullWriteState state;
+    s32 stateMessageQueue;
+    u8 *stateBuffer;
+    s32 savedByte;
+    u32 savedFlag;
     s32 messageQueue;
     u8 *allocatedBuffer;
     u8 *footerBuffer;
@@ -819,10 +816,10 @@ void func_8002CF6C(u8 *globalFlags) {
     s32 count;
 
     messageQueue = joyMessageQ();
-    state.messageQueue = messageQueue;
+    stateMessageQueue = messageQueue;
     if (func_80070170(messageQueue) != 0) {
         allocatedBuffer = func_8002B280(0x200, 0x85);
-        state.buffer = allocatedBuffer;
+        stateBuffer = allocatedBuffer;
         if (allocatedBuffer != NULL) {
             dst = allocatedBuffer;
             count = 0x1FF;
@@ -830,15 +827,14 @@ void func_8002CF6C(u8 *globalFlags) {
                 *dst++ = 0;
             } while (count--);
             func_8002CCE4();
-            count = packCalculateGameChecksum(state.buffer, 0x1C0);
-            footerBuffer = state.buffer;
+            count = packCalculateGameChecksum(stateBuffer, 0x1C0);
+            footerBuffer = stateBuffer;
             *(u32 *) (footerBuffer + 0x1C0) = count;
             *(u32 *) (footerBuffer + 0x1C4) = 0x12345678;
             footerBuffer += 0x1C0;
 
-            state.savedByte = (s8) globalFlags[3];
-            state.savedFlag =
-                (u32) (*(u16 *) globalFlags << 17) >> 31;
+            savedByte = (s8) globalFlags[3];
+            savedFlag = (u32) (*(u16 *) globalFlags << 17) >> 31;
             src = D_8007A304;
             dst = globalFlags;
             count = 0x17;
@@ -848,22 +844,22 @@ void func_8002CF6C(u8 *globalFlags) {
             *(u16 *) (globalFlags + 0x16) =
                 packCalculateGlobalFlagsChecksum(globalFlags, src,
                                                   footerBuffer,
-                                                  state.savedFlag);
+                                                  savedFlag);
             globalFlags[0] =
-                ((state.savedFlag << 6) & 0x40) |
+                ((savedFlag << 6) & 0x40) |
                 (globalFlags[0] & ~0x40);
-            globalFlags[3] = state.savedByte;
+            globalFlags[3] = savedByte;
 
             src = globalFlags;
-            dst = state.buffer + 0x1C8;
+            dst = stateBuffer + 0x1C8;
             count = 0x17;
             do {
                 *dst++ = *src++;
             } while (count--);
             count = mainResetPressed();
-            allocatedBuffer = state.buffer;
+            allocatedBuffer = stateBuffer;
             if (count == 0) {
-                func_8002C8B4(state.messageQueue, 0, allocatedBuffer, 0x200);
+                func_8002C8B4(stateMessageQueue, 0, allocatedBuffer, 0x200);
             }
             mmFree(allocatedBuffer);
         }

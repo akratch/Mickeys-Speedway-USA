@@ -766,6 +766,15 @@ at `+0x310/+0x320/+0x368/+0x38C/+0x3BC/+0x3DC` from
 argument in `a3` that the callee overwrites without reading. No other shipped
 overlay record targets ORT 374; linked equality currently proves fallback only.
 
+Resident `func_8002CF6C` owns 11 exact records: R_MIPS_26 calls at `+0x0C` to
+`joyMessageQ`, `+0x18` to `func_80070170`, `+0x28` to `func_8002B280`,
+`+0x54` to `func_8002CCE4`, `+0x60` to `packCalculateGameChecksum`, `+0xC4`
+to `packCalculateGlobalFlagsChecksum`, `+0x120` to `mainResetPressed`, `+0x13C`
+to `func_8002C8B4`, and `+0x144` to `mmFree`, plus a HI16/LO16 pair at
+`+0x80/+0x90` to `D_8007A304`. ORT 505 exports it; `joyRead+0x130` is the
+sole authenticated caller, with no overlay SYMBOL, resident runtime-table, or
+absolute-pointer inbound. Current linked equality proves fallback only.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to

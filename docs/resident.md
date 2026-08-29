@@ -1728,19 +1728,24 @@ assembly fallback remains canonical.
 
 The 124-byte `func_8002C70C` is exact under canonical `-Wo,-loopunroll,0 -O2 -mips2 -32`; its 31 words and relocation-free linked range match.
 
-`func_8002CF6C` remains Mickey-derived `NON_MATCHING`. Retained configured
-full-TU and isolated C are byte-identical at 79/88 words, frame `0x48`, with
+`func_8002CF6C` owns ROM `0x2DB6C..0x2DCCC`, 88 words with no padding before
+`packOpen`. Retained pre-HEAD/current-body full-TU and isolated C are
+byte-identical at 79/88 words, frame `0x48`, with
 nine register-only sites at `+0xCC,+0xD0,+0xD8,+0xDC,+0xE0,+0xE4,+0xEC,
 +0x104,+0x114` and all 11 relocation tuples exact. The isolated import omitted
 the TU-required `-Wo,-loopunroll,0`, but the retained full-TU result proves that
 flag does not alter this body. A post-checksum `savedFlag` reload was
 codegen-inert: the candidate still uses a colored `a3` web where the target
-uses FIFO temp `t1`, with the current-byte and final-copy webs rotating behind
-it. Only V0 has attributable artifacts; the historical source, flag, trace,
-and permutation outcomes survive only as scheduling prose. Reproduce V0,
-retain the complete flag lattice, capture one allocator trace, then try one
-trace-selected natural carrier, lifetime, or physical-line form; cap four.
-The assembly fallback remains canonical.
+uses FIFO temp `t1`, with current-byte and final-copy webs rotating behind it.
+Its synthetic padded local struct and volatile buffer make 79/88 policy-
+qualified diagnostic evidence; natural scalar locals now replace them and are
+uncompiled. The 11 exact records are calls at `+0x0C/+0x18/+0x28/+0x54/+0x60/
++0xC4/+0x120/+0x13C/+0x144` plus the `D_8007A304` pair at `+0x80/+0x90`.
+ORT 505 exports it; `joyRead+0x130` is the sole caller and no overlay/runtime-
+table inbound exists. Linked equality proves fallback only. Historical flags,
+trace, forms, and search are unretained. Run 119 flags on clean V0, trace once,
+and try at most two mutually exclusive savedFlag-lifetime forms; cap 122 stock
+builds plus trace and batch only after a strict gain.
 
 The save-window serializer `func_8002C94C` is now **matched** (tier-A byte-identity).
 The residual was a pure `schedule-mismatch` (exact 115-word shape, `0x70` frame, relocations already agreeing); the decomp-permuter closed it, finding an `if (1) { ... }` grouping around the entry initialization that resolves the callee-saved slot/counter scheduling tie-break. The C in `src/main/saves.c` now compiles byte-identical to the ROM; no assembly fallback remains.
