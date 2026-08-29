@@ -7,7 +7,7 @@
 #define overlay69MetricReloc overlay88MetricReloc
 #define overlay69PrepareTransformReloc overlay88PrepareTransformReloc
 #define overlay69SubmitDynamicReloc overlay88SubmitDynamicReloc
-#define overlay69SubmitFixedReloc overlay88SubmitFixedReloc
+#define overlay69DrawConeReloc overlay88DrawConeReloc
 
 /* Plateau: the shared Mickey body has the exact 0x59C boundary, CFG, FP
  * topology, and call surface, but 140/359 positional words differ from +0x0.

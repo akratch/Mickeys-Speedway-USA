@@ -901,6 +901,15 @@ resident offset `0x2B35C`; resident runtime and overlay SYMBOL inbounds are
 zero, and `func_80026FB4+0x5F8` is the sole direct caller. Current linked
 equality proves fallback only.
 
+Resident `func_80047CD8` owns four exact R_MIPS_26 records to
+`func_800349A4` at `+0x19C,+0x1F0,+0x244,+0x278`. It has no resident runtime
+record or ORT export. Authenticated inbounds are resident
+`func_80009414+0x520`, Overlay 69 table-1 record 9 at
+`overlay69DrawSortedGeometry+0x530`, and Overlay 88 table-1 record 12 at
+`overlay88DrawSortedGeometry+0x530`; the overlay proxy names now disclose the
+shared draw-cone identity and await regenerated metadata. Current linked
+equality proves fallback only.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to

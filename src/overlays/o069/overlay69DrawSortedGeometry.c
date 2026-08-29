@@ -5,7 +5,7 @@
 #define SHARED_METRIC_RELOC overlay69MetricReloc
 #define SHARED_TRANSFORM_RELOC overlay69PrepareTransformReloc
 #define SHARED_DYNAMIC_SUBMIT_RELOC overlay69SubmitDynamicReloc
-#define SHARED_FIXED_SUBMIT_RELOC overlay69SubmitFixedReloc
+#define SHARED_FIXED_SUBMIT_RELOC overlay69DrawConeReloc
 
 #define SHARED_SET_ENV_WHITE_ZERO_ALPHA(packet)             \
     {                                                        \

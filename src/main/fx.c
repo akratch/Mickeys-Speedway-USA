@@ -630,11 +630,14 @@ void func_800479D4(FxCone *cone, s16 height, f32 radius, f32 depth,
 }
 
 #ifdef NON_MATCHING
-/* Retained prior-line-layout configured full-TU C is 226/234 words, exact
- * 0x68 frame, first +0x298, with four exact func_800349A4 relocations. Five
- * sites belong to the cone->mode value web and three to segmentCount. The
- * isolated import is only 214/234. Historical allocator/permuter conclusions
- * are unretained; reproduce current-layout V0 before a bounded campaign. */
+/* Retained prior-line-layout configured full-TU C is 226/234 raw/normalized
+ * words, exact 0x68 frame, first +0x298, with four exact func_800349A4 calls.
+ * Five sites belong to the cone->mode web and three to segmentCount; isolated
+ * C is only 214/234. Callers are func_80009414+0x520 and Overlay 69/88 draw at
+ * +0x530; runtime records are zero. Historical routes are unretained. Compile
+ * current V0, retain 119 flags and one trace, try one natural form per web and
+ * an improving-only combination, then one bounded batch. Hard cap: 122
+ * deterministic trials. */
 /* Mickey-derived draft; JFG's corresponding fxDrawCone body is assembly-only. */
 void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
     s32 hasTexture;
