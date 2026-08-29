@@ -563,7 +563,7 @@ generator owns the alias block (§5.3).
     2  overlay84AdvanceCurrent             o84    4  overlay43FilterImage               o43
     2  overlay8ScaleOutputs                o8     4  overlay62Update                    o62
     2  overlay99RenderSegments             o99    4  overlay84LoadCurrent               o84
-    3  overlay101DrawClock                 o101   6  func_overlay_022_F0000000_1878108  o22
+    3  overlay101DrawClock (historical)    o101   6  func_overlay_022_F0000000_1878108  o22
     3  overlay1CloneRecord                 o1     6  func_overlay_041_F0001650_1888988  o41
     3  overlay40FadeRecords                o40    6  overlay68PromoteSecondary          o68
     4  func_overlay_014_F0000000_186F8D8   o14    6  overlay74Update                    o74
@@ -579,6 +579,14 @@ annotated-target permutation produced exact 72-word C, promoted in
 `306a1c31`. Its five runtime relocation roles, linked owned range, complete
 Overlay 84 image, and preserved full ROM are byte-identical. It no longer
 belongs in the `NON_MATCHING` queue.
+
+`overlay101DrawClock`'s three-word row is also a historical pre-promotion
+snapshot. Canonical source is unguarded and the tracked promotion owns exactly
+`+0x332C..+0x36E4` (238 words) with a `0x98` frame; current postprocessing is
+only a symbol rename and zero-tail trim. The old candidate row is not current
+proof. A future exact reproof must retain the configured object and record each
+runtime relocation site's type, operation, addend, and stable target identity;
+the export row alone does not authenticate its five-argument ABI or callees.
 
 `func_overlay_022_F0000000_1878108`'s six-word entry is that historical linked
 trial. The surviving isolated object has five stack-home/store-order words but
