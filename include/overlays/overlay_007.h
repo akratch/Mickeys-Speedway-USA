@@ -99,6 +99,7 @@ extern u8 gOverlay7DispatchTypes[];
 extern s8 gOverlay7DispatchMap[];
 extern Overlay7ModeRecord gOverlay7PrimaryModes[][10];
 extern Overlay7ModeRecord gOverlay7AlternateModes[][10];
+/* Runtime ORT 1579 resolves this byte proxy to resident D_800D3128 + 2. */
 extern u8 gOverlay7DispatchModeReloc;
 extern u8 gOverlay7DispatchData[];
 extern void *gOverlay7DispatchObject;

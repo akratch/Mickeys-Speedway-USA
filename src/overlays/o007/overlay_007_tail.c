@@ -205,14 +205,14 @@ query:
 #endif
 
 /*
- * Plateau (2026-08-25 rerun, identity audit 2026-08-29): retained isolated
- * evidence is exact-size with six raw words at +0x4,+0x88,+0xBC,+0xC4,+0xD4,
- * +0xF8 and three relocation-normalized words at +0xBC,+0xC4,+0xD4. A typed
- * six-byte selection row fixes the default table-index temp rotation. The
- * 119-case flag lattice and explicit/cast/temporary narrowing forms still keep
- * the post-call u16 result in a2 instead of target a3/t2. The runtime table
- * requires 17 relocation tuples; in particular +0xF4 is a local JUMP to
- * overlay7ReleaseEntry, not a SYMBOL reference to the +0xCCC dispatcher.
+ * Plateau (identity audit 2026-08-29): retained pre-identity-repair C is 66/72
+ * raw and 69/72 runtime-normalized, exact size/frame, first substantive +0xBC.
+ * The three sites +0xBC/+0xC4/+0xD4 are one post-mathRnd u16 narrowing carrier;
+ * +0x4/+0x88/+0xF8 are relocation-only. Current source correctly expresses all
+ * 17 identities, including +0xF4's local JUMP to overlay7ReleaseEntry, but no
+ * identity-current C object survives. Historical flags, trace, source forms,
+ * and search are unretained. Compile V0, retain 119 flags, trace once, and try
+ * at most two natural narrowing forms; cap at 121 stock builds plus one trace.
  */
 #ifdef NON_MATCHING
 void overlay7CommitSelection(s32 selection) {
