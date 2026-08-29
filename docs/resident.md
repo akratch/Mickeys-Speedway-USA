@@ -406,7 +406,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2C5D0` | `func_8002B9D0` | `mempool_slot_clear` | B: frees a slot and coalesces adjacent free records; linked C exact |
 | `0x2C720` | `mmGetSlotPtr` | `mmGetSlotPtr` | B: returns one pool's slot-array pointer; matched C exact |
 | `0x2C734` | `mmGetDelay` | `mmGetDelay` | B: returns the deferred-free delay; matched C exact |
-| `0x2C740` | `func_8002BB40` | `mempool_slot_assign` | B: assigns a slot and, where needed, creates and links its remainder; retained configured isolated C is 42/72 words with 30 register-only differences and all eight relocations exact; the matching full-TU result is historical and unretained |
+| `0x2C740` | `func_8002BB40` | `mempool_slot_assign` | B: retained pre-cleanup full-TU/isolated C is diagnostic 42/72 raw/normalized frameless words, first `+0x8C`, with all eight tuples exact. Volatile reload aid and dead declarations are removed; clean V0 is uncompiled and linked equality is fallback-only. Four direct callers; no export/runtime/pointer inbound. |
 | `0x2C860` | `align16` | `mmAlign16` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
 | `0x2C87C` | `align8` | — | A: existing exact 7-word `memory.c.o` match; no JFG counterpart |
 | `0x2C898` | `align4` | `mmAlign4` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
@@ -461,6 +461,30 @@ and one allocator trace; try JFG-faithful lexical layout and distinct scoped
 early-base/later-delay-cursor lifetimes, combining only independent gains.
 Hard cap 122 deterministic builds plus one trace; no generic batch absent a
 policy-clean natural gain.
+
+`func_8002BB40` owns VRAM `0x8002BB40..0x8002BC60`, ROM
+`0x2C740..0x2C860`: 288 bytes/72 words, frameless, with no padding before
+`align16`. Retained pre-cleanup configured full-TU and isolated C agree at
+diagnostic 42/72 raw/normalized words, first `+0x8C`; all 30 residuals are
+register allocation. Ordinary object/TU/ROM equality is assembly fallback
+only. The former volatile `colourTagIndex` was an unauthenticated reload aid
+and is removed with two dead declarations, leaving clean V0 uncompiled.
+
+All eight tuples were exact in diagnostic C: `D_8007A270` at
+`+0x08/+0x64`, `D_800D21B0` at `+0x14/+0x18`, and two `D_800D1C60` pairs at
+`+0x28/+0x2C` and `+0x40/+0x44`. Serialized ELF row order differs from the
+assembled target, so promotion must explicitly recheck whether any gate treats
+row ordering as material. There is no resident runtime record, ORT export at
+offset `0x2B6F0`, overlay inbound, or stored pointer. Direct callers are
+`func_8002B3A8+0xE0` and `func_8002B524+0x134/+0x160/+0x180`.
+
+The clean body uses ordinary `-O2 -mips2 -32`. JFG's genuine
+`mempool_slot_assign` and DKR's related allocator are smaller structural donors,
+not exact C; the historical “57/72” claim was ambiguous and unretained. Retain
+clean V0, 119 flags, and one allocator trace; try JFG-faithful block-local
+count/index lifetimes and one trace-selected scoped new-slot pointer form,
+combining only independent gains. Hard cap 122 deterministic builds plus one
+trace; no generic batch absent a policy-clean natural gain.
 
 Matched C: `align16` is exact for all `0x1C` bytes and has no relocations.
 The canonical `-O2 -mips2 -32` flags reproduce the target; JFG's

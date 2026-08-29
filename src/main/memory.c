@@ -151,9 +151,6 @@ void *func_8002B314(s32 size, u32 colourTag) {
     return func_8002B3A8(MEMORY_POOL_MAIN, size, colourTag);
 }
 
-s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
-                   s32 slotIsTaken, s32 newSlotIsTaken, u32 colourTag);
-
 /* PROVENANCE: adapted from JFG src/memory.c:mempool_slot_find. */
 void *func_8002B3A8(MemoryPoolIndex poolIndex, s32 size, u32 colourTag) {
     s32 slotSize;
@@ -450,14 +447,14 @@ s32 mmGetDelay(void) {
 /*
  * PROVENANCE: adapted from JFG src/memory.c:mempool_slot_assign. Mickey's
  * pool accounting, byte-sized slot fields, globals, and bytes are authoritative.
- * The retained configured isolated C object agrees at 42/72 frameless words,
- * with 30 register-only differences from +0x8C and all eight target HI16/LO16
- * tuples exact. A historical handoff reports the same configured full-TU result,
- * but no such object survives; the 72/72 build/src object is the ordinary
- * GLOBAL_ASM fallback. Reproduce V0, then restore the historical JFG index form
- * before trying dead slotIsTaken as the slot-count carrier. Reuse poolIndex as
- * the selected index only after a strict gain; cap the ladder at six builds.
- * Assembly stays canonical.
+ * Retained full-TU/isolated C agree at diagnostic 42/72 raw/normalized
+ * frameless words, first +0x8C, with all eight tuples exact. Its volatile
+ * colourTagIndex was an unauthenticated reload aid and is removed with two dead
+ * declarations; clean V0 is uncompiled and linked equality is fallback-only.
+ * Four resident calls are authenticated, with no runtime/export/pointer inbound.
+ * Retain V0, 119 flags and one allocator trace; try JFG-faithful block-local
+ * count/index lifetimes and one trace-selected new-slot pointer form, combining
+ * only strict gains. Hard cap: 122 builds plus one trace; no generic batch.
  */
 #ifdef NON_MATCHING
 s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
@@ -465,14 +462,10 @@ s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
     MemoryPool *pool;
     MemoryPoolSlot *slots;
     MemoryPoolSlot *slot;
-    MemoryPoolSlot *newSlot;
-    volatile s32 *colourTagIndex;
     s32 index;
     s32 nextIndex;
     s32 slotSize;
-    s32 colourIndex;
 
-    colourTagIndex = &D_8007A270;
     if (slotIsTaken == TRUE) {
         if (poolIndex == MEMORY_POOL_MAIN) {
             D_800D21B0 -= size;
@@ -485,7 +478,7 @@ s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
     slots = pool->slots;
     slot = (MemoryPoolSlot *)((u8 *)slots + (slotIndex << 4) + (slotIndex << 2));
     slot->flags = slotIsTaken;
-    slot->colourTagIndex = *colourTagIndex;
+    slot->colourTagIndex = D_8007A270;
     slotSize = slot->size;
     slot->size = size;
     slot->colourTag = colourTag;
@@ -500,7 +493,7 @@ s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
         ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->flags =
             newSlotIsTaken;
         ((MemoryPoolSlot *)((u8 *)slots + (index << 4) +
-                            (index << 2)))->colourTagIndex = *colourTagIndex;
+                            (index << 2)))->colourTagIndex = D_8007A270;
         nextIndex = slot->nextIndex;
         ((MemoryPoolSlot *)((u8 *)slots + (index << 4) + (index << 2)))->prevIndex =
             slotIndex;

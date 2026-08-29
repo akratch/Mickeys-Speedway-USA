@@ -940,6 +940,16 @@ R_MIPS_32 function pointer consumed by `RevealReturnAddresses`; no resident
 runtime-table record targets ORT 547. Current linked equality proves fallback
 only, and overlay proxy names await identity-explicit metadata regeneration.
 
+Resident `func_8002BB40` owns eight exact tuples in retained diagnostic C:
+HI16/LO16 pairs to `D_8007A270` at `+0x08/+0x64`, `D_800D21B0` at
+`+0x14/+0x18`, and `D_800D1C60` at `+0x28/+0x2C` and `+0x40/+0x44`.
+The C and assembled-target tuple sets agree although serialized ELF row order
+differs, which promotion must explicitly recheck against the relocation gate.
+Resident runtime records, an ORT export at offset `0x2B6F0`, overlay SYMBOL
+inbounds, and stored pointers are zero. Direct callers are
+`func_8002B3A8+0xE0` and `func_8002B524+0x134/+0x160/+0x180`. Current linked
+equality proves fallback only.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to
