@@ -23,6 +23,10 @@ extern s32 gOverlay34ActiveCount;
 extern f32 gOverlay34Value10;
 extern void overlay34RemoveRecord(Overlay34Record *record);
 
+/* The natural C is 320 bytes versus the 308-byte retail owner. The retired
+ * wrapper reached equality only by deleting, reordering, and editing
+ * instructions, so ADR 0002 requires the assembly fallback. */
+#ifdef NON_MATCHING
 void overlay34UpdateRecords(s32 updateRate) {
     Overlay34Record *record;
     s32 index;
@@ -64,3 +68,6 @@ void overlay34UpdateRecords(s32 updateRate) {
         }
     }
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o034/overlay34UpdateRecords/func_overlay_034_F000040C_18815B4.s")
+#endif

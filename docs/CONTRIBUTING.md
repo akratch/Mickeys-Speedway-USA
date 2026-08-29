@@ -286,7 +286,7 @@ tools/postprocess_audit.py --check    # fail if that JSON is stale
 object carrying a `POSTPROCESS` override, its class, tool list, and
 (where known) its `(overlay, offset, size)` ownership joined from
 `config/overlays.us.json`. As of this pass its `summary.by_class` reads
-`{"metadata": 687}` — zero `altered` objects — which is the mechanical proof
+`{"metadata": 621}` — zero `altered` objects — which is the mechanical proof
 that the ADR 0002 conversion reached every object in the tree, not just the
 functions this lane's prose describes.
 

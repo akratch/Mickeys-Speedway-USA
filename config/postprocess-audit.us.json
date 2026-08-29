@@ -1738,8 +1738,7 @@
       "size": 500,
       "source": "src/overlays/o018/overlay18Load.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -1888,8 +1887,7 @@
       "size": 536,
       "source": "src/overlays/o020/overlay20BuildTileCommands.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -2673,18 +2671,6 @@
       "tools": [
         "trim_elf_section.py",
         "objcopy"
-      ]
-    },
-    {
-      "class": "metadata",
-      "matched_c": true,
-      "object": "build/src/overlays/o034/overlay34UpdateRecords.c.o",
-      "offset": 1036,
-      "overlay": 34,
-      "size": 308,
-      "source": "src/overlays/o034/overlay34UpdateRecords.c",
-      "tools": [
-        "overlay34UpdateRecords.postprocess.py"
       ]
     },
     {
@@ -5785,8 +5771,7 @@
       "size": 404,
       "source": "src/overlays/o084/overlay84ActivateCurrent.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -6662,8 +6647,7 @@
       "size": 440,
       "source": "src/overlays/o099/overlay99InitializeEntries.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -7691,9 +7675,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 622
+      "metadata": 621
     },
-    "matched_c_bytes_with_postprocess": 405464,
-    "objects_with_postprocess": 622
+    "matched_c_bytes_with_postprocess": 405156,
+    "objects_with_postprocess": 621
   }
 }

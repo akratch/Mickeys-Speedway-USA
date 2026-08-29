@@ -265,6 +265,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_034_F00000D4_188127C` | `src/overlays/o034/overlay34CreateRecord.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_034_F0000000_18811A8` | `src/overlays/o034/overlay34InitStorage.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_034_F00002C8_1881470` | `src/overlays/o034/overlay34RemoveRecord.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_034_F000040C_18815B4` | `src/overlays/o034/overlay34UpdateRecords.c` | none | — | Natural C is 320 bytes versus the 308-byte target; prior equality required prohibited instruction deletion, reordering, and field edits. |
 | `func_overlay_034_F0000608_18817B0` | `src/overlays/o034/overlay34SortAndDraw.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_035_F00001E0_1881EC0` | `src/overlays/o035/func_overlay_035_F00001E0_1881EC0.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_035_F0000B40_1882820` | `src/overlays/o035/func_overlay_035_F0000B40_1882820.c` | none | — | No ownership change; continue source/codegen work. |
