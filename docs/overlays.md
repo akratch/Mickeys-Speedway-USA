@@ -910,6 +910,10 @@ relocation resolution. Overlay 1's fixed-record selector (`+0x7B64..+0x7BDC`)
 — 120 bytes. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match
 via a twelve-word register-coloring reassignment, IDO's interchangeable
 `a1`/`a3` choice restored to retail's); source kept as decomp-permuter input.
+The table row above is therefore a historical checkpoint, not current C
+credit; the generated scoreboard is authoritative. Retained configured C is
+18/30 words with all four runtime records, while linked range/module/ROM
+identity proves the assembly fallback only.
 
 Overlays 74, 77, 85, and 97 are now entirely exact C apart from proven
 alignment padding. Together with the earlier overlay 39 and 95 closures, this

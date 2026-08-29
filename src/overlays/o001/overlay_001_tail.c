@@ -3202,12 +3202,16 @@ typedef struct Overlay1BestRecord {
 extern Overlay1BestRecord gOverlay1BestRecords[32];
 extern s32 gOverlay1SelectedType;
 
-/* DKR v77/v80 and JFG have no exact donor for this fixed record scan.
- * Isolated plateau: exact 30-word size, 12 register-field differences from
- * +0x4, all in an a1/a3 carrier exchange; no natural linked/ROM proof exists.
- * Next bounded probes are the selectedType/value declaration-slot swap,
- * a block-local value, then the lower-probability literal record/value
- * declaration-position swap; combine only variants that strictly improve. */
+/* Mickey-only reconstruction; DKR v77/v80 and JFG have no exact donor.
+ * Retained configured full-TU and isolated C agree: exact 30-word frameless
+ * shape, 18/30 words exact, and 12 runtime-normalized register differences
+ * from +0x4, all in one a1/a3 carrier exchange. The candidate retains both
+ * gOverlay1BestRecords and gOverlay1SelectedType HI16/LO16 pairs; the target
+ * static object literalizes the latter, while the runtime table proves all
+ * four records. Linked range/module/ROM identity proves assembly fallback
+ * only; no linked C proof survives. Reprove V0, then try the selectedType/
+ * value slot swap, block-local value, and record/value declaration-position
+ * swap. Stop there if flat; use at most two combinations of strict gains. */
 #ifdef NON_MATCHING
 Overlay1BestRecord *overlay1FindBestRecord(void) {
     Overlay1BestRecord *record;
