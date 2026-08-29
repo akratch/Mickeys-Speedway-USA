@@ -1647,16 +1647,14 @@ configured object ranges and the final linked ROM are byte-exact.
 |---|---:|---:|---|---|
 | `rcpFast3d` | `0x2F400` | 0x2A0 | `-O2 -mips2 -32` | Mickey/JFG task construction; 168/168 instruction words and all relocations exact after metadata-only weak-alias rebinding, linked ROM exact |
 
-`rcpClearZBuffer` retains a `NON_MATCHING` DKR-shaped command-stream body after
-the 119-combination flag lattice, nine source-shape hypotheses, and six bounded
-source-faithful aligned-coordinate declaration, mask, and lifetime probes. The
-retained isolated object has the target's 107 instructions, no frame, and exact
-`D_800D2FAC` relocations, but 11 raw/normalized positional sites at
-`+0x74/+0x78/+0x7c/+0x80/+0x120/+0x124/+0x128/+0x180/+0x188/+0x190/+0x194`.
-Schedule alignment removes seven instruction-order sites and leaves four
-register fields at `+0x74..+0x80`; the historical full-TU four-site result is
-not retained. Reprove it once, then run one available Tier-2 UGEN FIFO/web
-trace and at most two trace-indicated forms. The assembly fallback remains
+`rcpClearZBuffer` retains configured full-TU C from the immediately preceding
+`D_800D2FAC` declaration state at 103/107 words, frame zero, with exact
+relocations and four FIFO/register-web sites at `+0x74..+0x80`. The isolated
+ranking has seven additional schedule-order sites. The full-TU artifact
+predates the current `u16 *` declaration, so fresh current-source proof remains
+required. Historical flag, source, trace, and permutation outcomes have no
+attributable retained result set. Reprove V0, take one Tier-2 UGEN FIFO/web
+trace, and try at most two trace-indicated forms. The assembly fallback remains
 canonical.
 
 `func_8002EBE0` retains a Mickey-derived `NON_MATCHING` eight-band gradient
