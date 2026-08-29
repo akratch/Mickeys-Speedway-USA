@@ -1262,6 +1262,16 @@ inbounds, and stored pointers are zero. Direct callers are
 `func_8002B3A8+0xE0` and `func_8002B524+0x134/+0x160/+0x180`. Current linked
 equality proves fallback only.
 
+Overlay 40 `+0xE8` (`overlay40UpdateEntries`) owns four runtime records: one
+HI16/LO16 pair for the eight-entry table and one for the object-table pointer.
+The bounded direct-shift C emits all four identities; three records align by
+offset and type, while the object-table LO16 is at `+0x10` instead of target
+`+0x0C` because its address completion swaps with loop-count initialization.
+ORT 1451 exports the exact `+0xE8..+0x1A0` no-padding owner, and resident
+runtime relocation at `func_80051364+0x78` is its sole inbound. The caller
+supplies the amount in `a0`; the source's second carrier is overwritten before
+use. Current linked equality proves fallback only.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to

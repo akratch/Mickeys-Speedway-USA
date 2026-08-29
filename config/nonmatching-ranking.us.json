@@ -2460,10 +2460,10 @@
       "tu": "overlays/o040",
       "size_bytes": 184,
       "objdiff_match_pct": null,
-      "differing_words": 44,
-      "first_mismatch_offset": 8,
-      "size_delta": 4,
-      "category": "size-mismatch"
+      "differing_words": 2,
+      "first_mismatch_offset": 12,
+      "size_delta": 0,
+      "category": "schedule-mismatch"
     },
     {
       "name": "func_80019DE8",

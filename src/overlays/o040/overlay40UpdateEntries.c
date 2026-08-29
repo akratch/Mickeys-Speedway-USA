@@ -22,15 +22,20 @@ typedef struct Overlay40Object {
 extern Overlay40Entry gOverlay40Entries[8];
 extern Overlay40Object **gOverlay40Objects;
 
-/* Workbench: structure-mismatch, 43 differing words, first mismatch +0x08.
- * Size is target-sized; the remaining gap is an early amount copy and register web.
- * This is not shape-exact: four alignment gaps remain before allocation cleanup. */
+/* PLATEAU-HANDOFF: exact 0xB8 extent and frameless CFG; 44/46 positional
+ * words match, with the only residual at +0xC/+0x10: IDO schedules the loop
+ * count before the gOverlay40Objects LO16 while the target completes that
+ * address first. All 119 flag identities preserve or worsen the schedule.
+ * The direct shift below is required: its source ordering gives the target's
+ * t7/t8 byte webs and removed the prior one-word amount copy. The sole
+ * resident caller supplies amount in a0; remaining is overwritten before use.
+ * Keep the assembly fallback until a natural entry-scheduling lever closes
+ * the final swap and all four relocation tuples compare exact. */
 #ifdef NON_MATCHING
 void overlay40UpdateEntries(s32 amount, s32 remaining) {
     Overlay40Entry *entry;
     Overlay40Object *object;
     s8 previous;
-    s8 older;
 
     entry = gOverlay40Entries;
     remaining = 7;
@@ -40,10 +45,9 @@ void overlay40UpdateEntries(s32 amount, s32 remaining) {
                 entry->state++;
             }
             previous = entry->scales[0];
-            older = entry->scales[1];
+            entry->scales[2] = entry->scales[1];
             entry->scales[0] = previous - amount;
             entry->scales[1] = previous;
-            entry->scales[2] = older;
             if (entry->scales[0] < 0) {
                 entry->scales[0] = 0;
             }

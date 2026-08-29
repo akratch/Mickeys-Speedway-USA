@@ -1269,12 +1269,16 @@ symbol and payload bindings. Both configured objects, direct slices, and the
 full ROM are exact.
 
 Overlay 40's state updater at `+0x0E8..+0x1A0` — 184 bytes / 46 words,
-creating a 416-byte contiguous prefix. NON_MATCHING: retired 2026-08-24 per
-ADR 0002 (was made to match via a guarded permutation moving a dead
-incoming-argument precolor into rejected alignment plus one address schedule
-fix); source kept as decomp-permuter input. The exact four runtime relocation
-records with separate entry-table and object-table symbol identities were
-otherwise preserved; the two later assembly regions remain unresolved.
+creating a 416-byte contiguous prefix. NON_MATCHING: the bounded natural
+direct-shift source is exact-sized and frameless at 44/46 positional words,
+first `+0xC`. Its body and register allocation are exact; only the adjacent
+loop-count initialization and object-table LO16 completion are reversed.
+Three of four runtime tuples align exactly by offset, type, and identity, with
+the fourth displaced by that schedule swap. All 119 ownership-aware cached
+flag rows are nonexact. ORT 1451 and sole resident inbound
+`func_80051364+0x78` authenticate the exact no-padding owner. JFG's nearest
+skeleton is an assembly-only contextual result, not a donor body. Exact linked
+range/module/ROM evidence therefore still proves the assembly fallback only.
 
 Overlay 40's fade-record owner at `+0x690..+0x824` remains `NON_MATCHING` at
 404 bytes / 101 words; `+0x824..+0x830` is separate padding. The compiled
