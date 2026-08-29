@@ -715,8 +715,13 @@ Resident calls resolve to `reset_particles`, `func_8002B280`, `piRomLoad`,
 `func_800355A0`, `func_80034448`, `func_8001F520`, and `mmFree`; seven local
 calls cover the four config builders, pool, records, and reset helper. The
 unannotated fallback target preserves only the 16 calls, so this runtime decode
-is the identity authority. The current replay still needs a fresh exact C
-object proving all 54 roles before its claimed 245/245 words can be promoted.
+is the identity authority. Lane `06c1a74d` claims exactness from moving
+`assetBuffer` after the three integer locals, but committed canonical source
+does not yet contain that guarded replay and no winning C object survives.
+ORT 1386 and resident record 240 authenticate sole inbound
+`func_80028564+0x5BC`; owned `+0x6B0..+0xA84` has no padding. Fresh proof must
+retain all 54 distinct roles—never filter the 38 data records or collapse the
+external call identities—before claimed 245/245 words can be promoted.
 
 Overlay 68 `+0x1250` (`overlay68RebuildSecondaryEntry`) owns 19 runtime
 records. Table 1 pairs 52/53, 60/61, and 63/64 at function
