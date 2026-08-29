@@ -558,7 +558,7 @@ generator owns the alias block (§5.3).
 
     1  overlay80InitializeContact          o80    4  overlay1FindNextAngle              o1
     1  overlay97InitScale                  o97    4  overlay1FindPreviousAngle          o1
-    2  overlay18Load (historical)          o18    4  overlay20BuildTileCommands         o20
+    2  overlay18Load (historical)          o18    4  overlay20BuildTileCommands (hist.) o20
     2  overlay7DispatchSelection           o7     4  overlay3FindClosestObject          o3
     2  overlay84AdvanceCurrent             o84    4  overlay43FilterImage               o43
     2  overlay8ScaleOutputs                o8     4  overlay62Update                    o62
@@ -604,6 +604,15 @@ the authenticated O32 `osSetTime(OSTime)` ABI. Retained configured-object and
 linked-overlay evidence agrees across all 60 runtime records, but a fresh
 current-HEAD whole-ROM reproof remains pending. Do not route further source
 search or permutation to this row.
+
+`overlay20BuildTileCommands`'s four-word row is also historical. Canonical
+unguarded C owns Overlay 20 `+0x7C4..+0x9DC` (134 words) with no target
+padding. The call at function `+0x38` is table-1 record 13, `R_MIPS_26/SYMBOL`,
+ORT 206 to resident `func_80034554`; the source auto-name is only a zero-valued
+carrier. ORT 1692 exports `+0x7C4`, and Overlay 20 table-2 record 4 from
+`overlay20DrawResource+0x54` is the sole inbound. Promotion evidence remains
+the byte-identity authority; queue only an unchanged current-HEAD reproof, not
+more source search.
 
 `func_overlay_022_F0000000_1878108`'s six-word entry is that historical linked
 trial. The surviving isolated object has five stack-home/store-order words but
