@@ -439,6 +439,11 @@ from the second pass alone.
 `tools/promotion_trial.py --overlays-only`, all 279 overlay candidates, lane
 `lane/reloc-synth2`:
 
+The counts and per-function scores below are the historical linked,
+relocation-masked spike result. They are not the later raw isolated ranking;
+for example, both Overlay 1 angle scans show four schedule words here but five
+raw positions when their unresolved local-data addend is included.
+
 | class | before | after |
 |---|---:|---:|
 | `text-differs` -- links, N words differ in range | 110 | **150** |

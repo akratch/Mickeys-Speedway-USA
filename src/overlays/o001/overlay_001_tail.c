@@ -1721,7 +1721,8 @@ WORLD_GLOBAL_DECL
 extern u8 D_6C[];
 extern void overlay1ModeAction2(void *object, s32 arg);
 extern s32 overlay1ModeRandom(s32 minimum, s32 maximum);
-extern Overlay1ModeObject *overlay1ModeFind(f32 angle);
+extern Overlay1ModeObject *overlay1FindPreviousAngle(f32 angle);
+extern Overlay1ModeObject *overlay1FindNextAngle(f32 angle);
 extern void overlay1ModeAction3(void *object);
 extern void overlay1ModeAction4(void *object);
 extern void overlay1ModeAction5(void *object);
@@ -1759,7 +1760,7 @@ s32 overlay1DispatchMode(void) {
             CASE_END;
         case 3:
             if (D_6C[WORLD->index] < overlay1ModeRandom(1, 100)) {
-                object = overlay1ModeFind(WORLD->angle);
+                object = overlay1FindPreviousAngle(WORLD->angle);
                 if (object != 0) {
                     state = object->state;
                     if (WORLD->status[state->index] >= 3) {
@@ -1770,7 +1771,7 @@ s32 overlay1DispatchMode(void) {
             CASE_END;
         case 4:
             if (D_6C[WORLD->index] < overlay1ModeRandom(1, 100)) {
-                object = overlay1ModeFind(WORLD->angle);
+                object = overlay1FindPreviousAngle(WORLD->angle);
                 if (object != 0) {
                     state = object->state;
                     if (WORLD->status[state->index] >= 3) {
@@ -1785,7 +1786,7 @@ s32 overlay1DispatchMode(void) {
             CASE_END;
         case 5:
             if (D_6C[WORLD->index] < overlay1ModeRandom(1, 100)) {
-                object = overlay1ModeFind(WORLD->angle);
+                object = overlay1FindPreviousAngle(WORLD->angle);
                 if (object != 0) {
                     state = object->state;
                     if (WORLD->status[state->index] >= 3) {
@@ -1795,7 +1796,7 @@ s32 overlay1DispatchMode(void) {
             }
             CASE_END;
         case 6:
-            object = overlay1ModeFind(WORLD->angle);
+            object = overlay1FindNextAngle(WORLD->angle);
             if (object != 0) {
                 state = object->state;
                 difference = overlay1WrapOffset(WORLD->angle, state->angle);

@@ -18,11 +18,16 @@ extern f32 overlay1WrapOffset(f32 first, f32 second);
 extern f32 gOverlay1NextAngleLimit;
 
 /* DKR v77/v80 and JFG contain no exact donor for this angle-selection scan. */
-/* Eight bounded source-faithful variants retain the exact 50-instruction,
- * frame -104 shape. Symbol-aware object reproof finds two schedule swaps at
- * +0x3C/+0x40 and +0x6C/+0x70, plus the unresolved limit relocation layout at
- * +0x34/+0x38. The earlier zero-word claim compared the fallback body, not
- * this C, so retain NON_MATCHING. */
+/* Plateau evidence reviewed 2026-08-29: the surviving source-current isolated
+ * candidate has the exact 0xC8/50-word boundary and 0x68 frame. Five raw
+ * positions differ: the local-data LO16 addend at +0x38 and schedule swaps at
+ * +0x3C/+0x40 and +0x6C/+0x70; masking the addend leaves four. The candidate
+ * has all four required relocation sites, but the assembled target bakes the
+ * local HI16/LO16 pair, so it is not a fully annotated promotion oracle. The
+ * earlier zero-word claim compared fallback assembly. The full flag lattice
+ * and eight source-faithful cursor/init/access/FP variants missed. Re-prove
+ * unchanged full-TU V0 with a runtime-annotated target, then park absent a new
+ * scheduling mechanism. */
 #ifdef NON_MATCHING
 Overlay1AngleObject *overlay1FindNextAngle(f32 angle) {
     s32 count;

@@ -192,20 +192,19 @@ which was not tracked.
 
 ```
 .venv/bin/python tools/flag_sweep.py \
-    src/overlays/o001/overlay1FindNextAngle.c --function overlay1FindNextAngle
+    src/overlays/o001/overlay_001_middle.c --function overlay1FindNextAngle
 ```
 
 Top row: `-O2 -mips2 -32` (the overlay directory's project default,
 `Makefile` ~615) with a correct size (delta 0) and exactly 4 masked-diff
 words, first mismatch at byte 0x3c. That is not a flags gap: the file's own
 header comment says two operand pairs are swapped at the shipped object's
-natural scheduling points, and `POSTPROCESS` runs
-`tools/normalize_elf_instructions.py` after compiling to swap them back —
-at offsets 0x3c, 0x40, 0x6c and 0x70, the same four sites this sweep flags
-independently, without having read that script. This is the sweep correctly
-reporting "flags alone don't reach this one" rather than manufacturing a
-false top rank; the next step for a case like this is the normalize/trim
-`POSTPROCESS` machinery, not another flag combination.
+natural scheduling points at offsets 0x3c, 0x40, 0x6c and 0x70. Current
+`POSTPROCESS` only renames fallback symbols and trims zero alignment; it does
+not and must not rewrite instructions. This is the sweep correctly reporting
+"flags alone don't reach this one." Eight bounded source families have also
+missed, so the current next action is an unchanged, fully annotated reproof,
+not normalization or another flag combination.
 
 ## Runtime
 
