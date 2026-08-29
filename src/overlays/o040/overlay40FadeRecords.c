@@ -43,9 +43,10 @@ extern s16 gOverlay40BlendTarget;
 extern s16 gOverlay40BlendDuration;
 extern s16 gOverlay40BlendOutput;
 
-/* Plateau re-reviewed 2026-08-29 against the retained configured full-TU and
- * isolated candidate: 98/101 words and the 0x8 frame agree, with only the
- * v0/v1 operands at +0xC/+0x10/+0x24 differing. Its ten static pairs map to
+/* Plateau re-reviewed 2026-08-29 against retained-line-layout configured
+ * full-TU and isolated C: both are 98/101 raw and relocation-normalized words,
+ * first +0xC, with frame 0x8 and only +0xC/+0x10/+0x24 differing. Its ten
+ * static relocations (five HI16/LO16 pairs) map to
  * runtime BSS D_800D6C4C(timer), D_800D6C52(current), D_800D6C50(target),
  * D_800D6C4E(duration), and D_800D6C54(output); the target/fallback objects
  * retain none of them statically. The former zero-word claim compared the
@@ -56,12 +57,14 @@ extern s16 gOverlay40BlendOutput;
  * comma-expression, and timer-separated copy formation reportedly widened it
  * to 16, 16, and 41 words. No attributable source/object pair for those probes
  * survives, so they are scheduling context rather than exhaustion proof. The
- * policy-complete ladder is: fresh V0; all 119 flags scored raw; one allocator
+ * policy-complete ladder is: fresh HEAD V0 and a retained near-match oracle;
+ * all 119 flags scored raw; one allocator
  * trace; independent output-origin and output/current/timer declaration-order
- * probes; combine or initialize only after strict gains. Five source forms are
- * the hard cap, separate from the lattice. Mickey-only reconstruction; the
- * donor ledger classifies
- * pinned DKR v77/v80/JFG candidates as negative. */
+ * probes; combine or initialize only after strict gains. The hard cap is 123
+ * deterministic builds plus one trace: 119 flags and four additional forms,
+ * five total forms including V0. Mickey-only reconstruction; exact pinned DKR
+ * v77/v80/JFG overlay-range scans are negative, but no near-match oracle report
+ * survives. */
 #ifdef NON_MATCHING
 void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
                           s32 amount) {

@@ -275,7 +275,7 @@ generated historical snapshot; regenerate it when compile capacity is free.
 
 | name | overlay/TU | differing_words | first_mismatch_offset | size | size_delta | category |
 |---|---|---:|---:|---:|---:|---|
-| overlay40FadeRecords | o040 | 3 | 12 | 404 | 0 | register-only |
+| `overlay40FadeRecords` (retained line layout; HEAD pending) | o040 | 3 | 12 | 404 | 0 | register-only |
 | `func_8003A2C8` (pre-cleanup diagnostic spelling) | main | 5 | 12 | 128 | 0 | register-only |
 | overlay74Update | o074 | 6 | 12 | 400 | 0 | register-only |
 | `overlay20UpdateObjectResource` (pre-HEAD/current-layout V0) | o020 | 8 | 176 | 392 | 0 | register-only |
