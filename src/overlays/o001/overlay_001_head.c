@@ -39,6 +39,11 @@ extern O1ControlTable *D_1D6C;
 extern O1ControlTable *overlay1NextControlTable(O1ControlTable *table);
 extern f32 overlay1CubicInterpolate(f32 a, f32 b, f32 c, f32 d, f32 t);
 
+/* Isolated plateau: exact 83-word size, 16 positional differences from +0x8
+ * (12 after masking reconstructed relocation addends); no natural linked/ROM
+ * proof exists. The committed whole/originalWhole/remaining web is already
+ * tried. Next, scope only the next-count carrier; then try scoped loop values
+ * or a fused transfer/decrement only if the narrower lifetime probe improves. */
 #ifdef NON_MATCHING
 void overlay1InterpolatePath(f32 *outX, f32 *outZ, s32 path, f32 offset) {
     O1ControlTable *table3Base;
