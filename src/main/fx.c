@@ -630,9 +630,11 @@ void func_800479D4(FxCone *cone, s16 height, f32 radius, f32 depth,
 }
 
 #ifdef NON_MATCHING
-/* Workbench: allocation-mismatch, 8 differing words, first mismatch +0x298. */
-/* Candidate shape: 234 instructions/frame -0x68; CFG and relocations exact, permuter-ready. */
-/* Remaining gap: one callee-saved pool-color cascade (v1->a0, a0->a1, a2->v0). */
+/* Workbench p10: the real NON_MATCHING TU compiles to the exact 234/-0x68
+ * shape with eight register-only words from +0x298 and exact relocations.
+ * The temp lane is identical; pool slot 28 begins one v1/a0/a1/v0 cascade,
+ * with no copy-shaped source lever. A corrected MIPS2, stack-aware, two-worker
+ * permuter batch ran to its four-minute cap (205 -> 60, no zero). */
 /* Mickey-derived draft; JFG's corresponding fxDrawCone body is assembly-only. */
 void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
     s32 hasTexture;
