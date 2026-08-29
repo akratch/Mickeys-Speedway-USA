@@ -363,7 +363,7 @@ contains none and is split to C with assembly fallbacks. The complete census:
 | `0x80019A24` | `0x94` | `lightDirectionCalc` | unique nearest skeleton (0.432) and exact JFG size; comparison only |
 | `0x80019AB8` | `0x2E0` | `lightObject` | Evidence D: Mickey reconstruction is compiled as a candidate: 191/184 instructions, 178 differing words, first `+0x0`, frame `-0xD0` versus `-0xC8`, and 54 relocation-symbol sites differ; not shape-exact. |
 | `0x80019D98` | `0x50` | `lightDefaultObjectLight` | tier-B comparison: delegates to the following setter |
-| `0x80019DE8` | `0xFC` | `lightSetObjectLight` | tier-D boundary; retained full-TU/isolated C is 64 versus target 63 words, exact frame `0x38`, 19/63 raw/normalized positional matches, first `+0x44`. The extra return-delay word is not padding; all three tuples are four bytes late. Linked equality is fallback-only; ORT 358 has three direct callers and no runtime inbound. JFG's role is assembly-backed structural evidence only. |
+| `0x80019DE8` | `0xFC` | `lightSetObjectLight` | tier-D boundary; bounded reproof preserves full-TU/isolated C at 64 versus target 63 words, exact frame `0x38`, 19/63 raw/normalized positional matches, first `+0x44`. The extra return-delay word is not padding; all three tuples are four bytes late. All 119 flag rows are nonexact, a fidelity-clean proc-22 trace has no source attribution, and both valueDelta-first forms regress. Linked equality is fallback-only; ORT 358 has three direct callers and no runtime inbound. JFG's role is assembly-backed structural evidence only. |
 | `0x80019EE4` | `0x98` | `lightSetupLightSources` | tier-B comparison: loop calls the adopted `addObjectLight` comparison |
 | `0x80019F7C` | `0x8C` | `lightSetupFlareSources` | tier-B comparison: adjacent setup loop and flare helper |
 | `0x8001A008` | `0x14C` | `lightInitObjectLighting` | tier-B comparison; `NON_MATCHING` plateau after the flag lattice and nine source/declaration forms: exact 83-word frame/opcode/register/FP/relocation shape, but 4 positional words differ, first `+0x70`, because the call-live result spills at `0x28(sp)` instead of `0x2C(sp)`; the permuter importer scores the isolated function zero, but the required full-TU build retains this mismatch |
@@ -2250,11 +2250,19 @@ overlay inbounds. Direct callers are `lightDefaultObjectLight+0x38` and
 `func_8001A008+0x74/+0xC4`; no stored pointer exists.
 
 The policy-clean body uses `-O2 -mips2 -32 -Wab,-r4300_mul`. JFG's
-`lightSetObjectLight` is assembly-backed structural evidence, not donor C.
-Retain V0, all 119 flags, and one allocator trace; try field-first and local
-`valueDelta` forms plus one trace-selected form or independently improving
-combination. Hard cap 122 stock builds plus one trace and, only after a strict
-natural gain, one 20-minute annotated batch.
+`lightSetObjectLight` is assembly-backed structural evidence, not donor C. All
+119 flag rows were attempted: 53 produced candidates, 66 failed to compile or
+extract, and seven rows tie at the 45-word residual, including the configured
+recipe. A fidelity-clean uopt trace maps the function to procedure 22 and finds
+eight low-confidence webs, but no source attribution, so it authorizes no
+allocator form. The field-first `valueDelta` form regresses to 46 residual
+words with the same 64-word/`0x38` shape; the local-first form regresses to 62
+and a `0x40` frame. Neither gains, so no combination or batch was authorized.
+The cap is exhausted at 122 stock builds plus one trace. Resume only with a
+source-faithful structural lever that removes the extra pre-call word and
+advances all three relocations together; do not repeat flags, valueDelta
+ordering, allocator guesses, or a generic batch absent a strict structural
+gain.
 
 | Mickey VRAM | Size | JFG namesake | Evidence / disposition |
 |---:|---:|---|---|
@@ -2284,7 +2292,7 @@ natural gain, one 20-minute annotated batch.
 | `0x80019A24` | `0x94` | `lightDirectionCalc` | Tier A: JFG C is compiler/link exact |
 | `0x80019AB8` | `0x2E0` | `lightObject` | Evidence D: Mickey reconstruction is compiled as a candidate: 191/184 instructions, 178 differing words, first `+0x0`, frame `-0xD0` versus `-0xC8`, and 54 relocation-symbol sites differ; not shape-exact |
 | `0x80019D98` | `0x50` | `lightDefaultObjectLight` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
-| `0x80019DE8` | `0xFC` | `lightSetObjectLight` | tier-D boundary; retained configured full-TU C has the exact `0x38` frame but 64 words versus target 63, 19/63 positional matches, 44 shared-word differences plus one trailing nop, first `+0x44`. The three relocation identities agree but candidate offsets are all `+4` late. Only V0 is artifact-backed; historical flag/source/permuter exhaustion is unretained, so retain `func_` and rerun the bounded campaign. |
+| `0x80019DE8` | `0xFC` | `lightSetObjectLight` | tier-D boundary; bounded reproof preserves configured full-TU C at the exact `0x38` frame but 64 words versus target 63, 19/63 positional matches, 44 shared-word differences plus one trailing nop, first `+0x44`. The three relocation identities agree but candidate offsets are all `+4` late. All 119 flags are nonexact; a fidelity-clean proc-22 trace lacks source attribution, and both valueDelta-first forms regress. Assembly remains canonical; resume only with a new structural lever that removes the extra pre-call word and advances all three relocations together. |
 | `0x80019EE4` | `0x98` | `lightSetupLightSources` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x80019F7C` | `0x8C` | `lightSetupFlareSources` | Tier A: Mickey/JFG-adapted C is compiler/link exact |
 | `0x8001A008` | `0x14C` | `lightInitObjectLighting` | tier-B comparison; `NON_MATCHING` plateau after the flag lattice and nine source/declaration forms: exact 83-word frame/opcode/register/FP/relocation shape, but 4 positional words differ, first `+0x70`, because the call-live result spills at `0x28(sp)` instead of `0x2C(sp)`; the permuter importer scores the isolated function zero, but the required full-TU build retains this mismatch |

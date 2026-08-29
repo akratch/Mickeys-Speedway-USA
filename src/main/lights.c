@@ -984,14 +984,19 @@ void func_80019AB8(LightPosition *position, LightObjectContext *object,
 void lightDefaultObjectLight(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s32 arg4) {
     func_80019DE8(&D_800CB298, arg0, arg1, arg2, arg3, arg4);
 }
-/* Retained full-TU/isolated C: 64 versus target 63 words, exact 0x38 frame,
- * 19/63 raw/normalized positional matches, first +0x44. The candidate-only
- * final word is its shifted return delay slot, not padding. All three identities
- * are four bytes late; linked equality is fallback-only. ORT 358 has direct
- * callers lightDefaultObjectLight+0x38 and func_8001A008+0x74/+0xC4 but no
- * runtime inbound. Retain V0, 119 flags and one allocator trace; try two
- * valueDelta-first forms and one trace-selected form/strict-gain combination.
- * Cap 122 stock builds plus one trace and an optional improving-only batch. */
+/* Bounded plateau: configured full-TU V0 and the retained isolated C are 64
+ * versus target 63 words, exact 0x38 frame, 19/63 raw/normalized positional
+ * matches, first +0x44. The extra return-delay word is not padding and all
+ * three identities are four bytes late. All 119 flag rows were attempted;
+ * seven tie at the 45-word residual, including the configured recipe. One
+ * fidelity-clean proc-22 uopt trace found eight low-confidence webs but no
+ * source attribution, so it authorized no allocator form. Field-first
+ * valueDelta regressed to 46 residual words; a local-first form regressed to
+ * 62 and a 0x40 frame. With no strict gain, no combination or batch was run.
+ * Linked equality is fallback-only. ORT 358 has direct callers
+ * lightDefaultObjectLight+0x38 and func_8001A008+0x74/+0xC4 but no runtime
+ * inbound. Resume only with a source-faithful structural lever that removes
+ * the extra pre-call word and advances all three identities together. */
 #ifdef NON_MATCHING
 /* PROVENANCE: JFG's public assembly-backed lightSetObjectLight authenticates
  * the structural role only; Mickey's body and globals remain authoritative. */
