@@ -1624,12 +1624,14 @@ configured object ranges and the final linked ROM are byte-exact.
 `rcpClearZBuffer` retains a `NON_MATCHING` DKR-shaped command-stream body after
 the 119-combination flag lattice, nine source-shape hypotheses, and six bounded
 source-faithful aligned-coordinate declaration, mask, and lifetime probes. The
-best no-frame full-TU candidate has the target's 107 instructions and exact
-relocations, with only four register-allocation words differing; the first
-divergence is function `+0x74`, where the two aligned-coordinate masks use the
-preceding temporary-ring slots. No instrumented globalcolor/UGEN trace is
-available in this lane, so the remaining allocation choice is unresolved. The
-assembly fallback remains canonical.
+retained isolated object has the target's 107 instructions, no frame, and exact
+`D_800D2FAC` relocations, but 11 raw/normalized positional sites at
+`+0x74/+0x78/+0x7c/+0x80/+0x120/+0x124/+0x128/+0x180/+0x188/+0x190/+0x194`.
+Schedule alignment removes seven instruction-order sites and leaves four
+register fields at `+0x74..+0x80`; the historical full-TU four-site result is
+not retained. Reprove it once, then run one available Tier-2 UGEN FIFO/web
+trace and at most two trace-indicated forms. The assembly fallback remains
+canonical.
 
 `func_8002EBE0` retains a Mickey-derived `NON_MATCHING` eight-band gradient
 renderer after the 119-combination flag lattice and ten source-shape

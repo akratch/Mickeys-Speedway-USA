@@ -117,7 +117,7 @@ extern OSMesgQueue D_800D2CD0;
 extern OSMesg D_800D2CE8[];
 extern OSMesgQueue D_800D2D08;
 extern OSMesg D_800D2D20[];
-extern s32 D_800D2FAC;
+extern u16 *D_800D2FAC;
 extern OSScTask D_800D2910[];
 extern OSScTask D_800D29F0[];
 extern OSScTask D_800D2AD0[];
@@ -368,10 +368,14 @@ void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002EBE0.s")
 #endif
 #ifdef NON_MATCHING
-/* Workbench: register-ring-only; 4/107 words differ first at +0x74, with frame and relocations exact.
- * Levers: context parity, direct masks, full flag lattice, FIFO 14-16, and bounded permutation.
- * Six source-faithful declaration/mask/lifetime probes preserve this residual;
- * no instrumented globalcolor/UGEN trace is available in this lane. */
+/* Retained isolated evidence is exact-sized at 107 words/frame zero with 11
+ * raw and relocation-normalized sites: +0x74/+0x78/+0x7C/+0x80/+0x120/
+ * +0x124/+0x128/+0x180/+0x188/+0x190/+0x194. Workbench alignment removes
+ * seven instruction-order sites and leaves four register-field residuals at
+ * +0x74..+0x80; the two D_800D2FAC relocations at +0x0/+0x4 are exact. The
+ * historical full-TU four-site result is not retained. Reprove V0, then one
+ * Tier-2 UGEN FIFO/web-existence trace and at most two trace-indicated forms;
+ * the flag lattice, broad source shapes, and blind permutation are exhausted. */
 /* PROVENANCE: command sequence adapted from DKR's public src/rcp_dkr.c:bgdraw_render. */
 void rcpClearZBuffer(RcpCommand **arg0, u32 arg1, u32 arg2, s32 arg3,
                      s32 arg4, s32 arg5, s32 arg6) {

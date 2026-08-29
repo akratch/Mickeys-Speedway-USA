@@ -105,7 +105,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_80041530` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80041CE4` | `src/main/particles.c` | none | — | Recorded configured full-TU probes report 126/153 words, frame `0x80`, and exact relocations, but the surviving isolated import omitted required `-Wab,-r4300_mul`. Run one configured V0 to reconcile; declaration/lifetime/type/flag/permuter routes are exhausted, so park if 27 sites reproduce. |
 | `func_8002EBE0` | `src/main/rcpFast3d.c` | none | — | No ownership change; continue source/codegen work. |
-| `rcpClearZBuffer` | `src/main/rcpFast3d.c` | none | — | No ownership change; continue source/codegen work. |
+| `rcpClearZBuffer` | `src/main/rcpFast3d.c` | none | — | Retained isolated evidence is exact-sized at 107 words/frame zero with 11 raw/normalized sites; schedule alignment leaves four register fields at `+0x74..+0x80`, and both relocations are exact. Reprove full-TU V0, then one UGEN FIFO trace and at most two indicated forms; park if flat. |
 | `func_80031A30` | `src/main/runlink.c` | none | — | No ownership change; continue source/codegen work. |
 | `runlinkDownloadCode` | `src/main/runlink.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_800320F0` | `src/main/runlink.c` | matched | — | Promoted to exact C; no ownership work remains. |
