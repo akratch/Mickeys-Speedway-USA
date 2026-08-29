@@ -3202,15 +3202,19 @@ extern s32 gOverlay1SelectedType;
  * all differences: selectedType at +0x04/+0x14/+0x28, the loop copy at
  * +0x2C/+0x4C/+0x54/+0x60, and value at
  * +0x30/+0x34/+0x38/+0x40/+0x58. The isolated recipe omitted
- * -Wab,-r4300_mul, but the configured full-TU producer proves it inert for this
- * body; current-layout proof remains pending. Runtime records 884..887 prove
+ * -Wab,-r4300_mul, but the prior-layout full-TU producer proves it inert only
+ * for that body. Current-layout C is uncompiled, so every current metric is
+ * unknown. A historical exact claim rewrote twelve a1/a3 instruction fields
+ * after compilation and is prohibited evidence. Runtime records 884..887 prove
  * both HI16/LO16 pairs and identities D_220/D_1D88. The function is unexported;
  * local caller records 889 and 895 are both in overlay1CreateRecord. Linked
  * range/module/ROM identity proves fallback only. Historical flag, trace,
  * source, and search outcomes are unretained. Run and retain 119 flags on V0,
  * trace once, then try only the selectedType/value slot swap, block-local
  * value, and a trace-supported record/value position; cap 122 stock builds
- * plus trace and park after three flat forms. */
+ * plus trace and park after three flat forms. Promotion must also share the
+ * record type with overlay1CreateRecord and metadata-rebind distinct D_220 and
+ * D_1D88 identities; neither changes candidate instruction fields. */
 #ifdef NON_MATCHING
 Overlay1BestRecord *overlay1FindBestRecord(void) {
     Overlay1BestRecord *record;
