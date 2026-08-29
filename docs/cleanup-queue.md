@@ -18,6 +18,8 @@ not a correctness gap.
 | `func_overlay_014_F00009F4_18702CC` | overlay 14 asset loader | inert `if (1) {}` around the relocation loop | The boundary preserves the exact pool allocation found by the annotated-target permuter; seek a natural loop/lifetime spelling. |
 | `overlay1UpdateValueCache` | overlay 1 value cache | algebraically zero `remaining * 0` return | The live counter read preserves IDO's exact caller-saved web. Seek a natural zero return with the same 120 words and two local relocation pairs. |
 | `overlay59DrawFrame` | overlay 59 frame renderer | empty duplicated `!index` condition | The inert condition preserves the exact entry/owner register order. Seek a natural declaration or lifetime spelling with the same 76 words and relocation surface. |
+| `func_overlay_012_F00000C4_186D344` | overlay 12 release path | empty `!i` condition after fixed-count clear | The inert condition preserves exact allocation in the 60-word release routine. Seek a natural loop/epilogue spelling with the same bytes and relocation surface. |
+| `overlay12Initialize` | overlay 12 resource initializer | empty `!remaining` condition after fixed-count clear | The inert condition preserves exact allocation in the 49-word initializer. Seek a natural loop/epilogue spelling with the same bytes and relocation surface. |
 
 Add rows as ugly-but-verified matches land. When revisiting: reproduce the match
 with idiomatic C, `gmake verify`, then delete the row + the in-source comment.
