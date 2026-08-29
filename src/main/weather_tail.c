@@ -43,12 +43,13 @@ extern u8 *D_8007C838[];
 extern u8 D_800D40F0[];
 extern void func_8002EBD4(u32 value);
 
-/* Workbench: structure-mismatch; 106 words differ, first structural mismatch +0x14. */
-/* Candidate is not shape-exact: target/candidate 118/117 instructions, frame -56/-56; one instruction, 75 structural and 51 register residuals remain. */
+/* Retained draft is diagnostic: 106 positional words differ, first +0x14;
+ * target/candidate are 118/117 instructions with 75 structural and 51 register
+ * residuals. Its unused eight-byte pad only forced the target-sized frame and
+ * is removed; clean shape/frame are uncompiled. */
 /* PROVENANCE: palette layouts and interpolation control flow are reconstructed from Mickey's target accesses; no external donor body was used. */
 #ifdef NON_MATCHING
 void func_8003C80C(s32 arg0) {
-    u8 pad[8];
     s32 sp30;
     u8 *sp20;
     u8 *sp1C;
