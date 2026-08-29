@@ -248,18 +248,20 @@ typedef struct Overlay1SearchRecord {
 
 extern Overlay1SearchRecord **func_8000572C(s32 *start, s32 *end);
 
-/* Pinned DKR v77/v80 and JFG scans found no exact-byte donor. Retained pre-HEAD,
- * current-body configured full-TU and isolated C agree at 22/39 words, frame
- * 0x30, first +0x1C. The 17 register sites split into loop/cursor FIFO
- * +0x1C/+0x20/+0x28/+0x2C/+0x34/+0x40/+0x44/+0x50/+0x54/+0x5C/+0x6C/
- * +0x74/+0x78/+0x7C and key FIFO +0x60/+0x64/+0x68. Runtime table-1 record 1
- * binds +0x14 to resident func_8000572C; the metadata rebind preserves that
- * identity. ORT 1485 exports this function and table-2 record 548 is its sole
- * inbound. The historical apparent match rewrote all 17 instruction fields and
- * is prohibited; historical flags, trace, forms, and search are unretained.
- * Run current V0 and 119 flags, trace once, try split array/cursor and scoped
- * record-key forms plus an improving-only combination; cap 123 stock builds
- * plus trace and batch only after a strict natural gain. */
+/* Pinned DKR v77/v80 and JFG scans found no exact-byte donor. Fresh configured
+ * full-TU V0 is exact-sized at 39 words with frame 0x30, 22/39 positional
+ * words, and first substantive mismatch +0x1C. All 17 residual sites are
+ * register-only and split into loop/cursor and key-comparison FIFOs. All 119
+ * flag identities were attempted; 53 compiled/extracted and thirteen O2/MIPS
+ * II-or-III rows tie V0. A fidelity-clean proc-11 uopt trace records six
+ * integer-pool decisions; mixed-TU ugen temporary decisions are not safely
+ * attributable. Explicit array/cursor splitting is byte-identical to V0, and
+ * a scoped record-key carrier remains 17 positional words while introducing
+ * two opcode/alignment discrepancies. Runtime table-1 record 1 proves the sole
+ * +0x14 relocation's offset, type, and resident func_8000572C identity. ORT
+ * 1485 exports this function and table-2 record 548 is its sole inbound. No
+ * strict natural gain exists, so combination and batch routes are ineligible;
+ * retain this fallback-backed plateau. */
 #ifdef NON_MATCHING
 Overlay1SearchRecord *overlay1FindType5ByKey(const s8 *key) {
     s32 start;

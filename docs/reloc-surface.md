@@ -1081,8 +1081,10 @@ function `+0x14`/module `+0x38C`, resolving through ORT 128 to resident
 to the Overlay 1 zero-addend placeholder. ORT 1485 exports `+0x378`; its sole
 inbound is table-2 SYMBOL record 548 at module `+0x4018`, from
 `overlay1TransitionState+0x40`. There are no resident, cross-overlay, or local
-JUMP inbounds. Retained pre-HEAD/current-body C is 22/39 with the outbound site
-at the exact offset/type; current linked equality proves fallback only.
+JUMP inbounds. Fresh configured full-TU V0 is 22/39 positional words with the
+outbound site exact by runtime offset/type/identity. The complete 119-row flag
+lattice and two natural source forms are nonexact; current linked equality
+proves fallback only.
 
 Resident `func_8002C69C` owns no static or runtime records. Five exact inbound
 R_MIPS_26 calls come from matched `func_8002C94C` at
