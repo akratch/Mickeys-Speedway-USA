@@ -4109,14 +4109,12 @@ s32 func_80012234(TrackVec3f *point, TrackVec3f *direction,
  * supply structural context only. Mickey's vector layout, arithmetic, and
  * output pointers are reconstructed from the resident call sites and bytes.
  */
-/* Full-TU plateau: allocation-mismatch, 7/57 words, first +0x50.
+/* Configured full-TU plateau: allocation-mismatch, 7/57 words, first +0x50.
  * The exact 0x48 frame, opcode schedule, and sqrtf relocation remain; IDO
- * exchanges the projection and projection-square FP webs. A bounded lifetime
- * revisit found that negative-projection and named-discriminant forms are
- * byte-identical, while fresh or reused named dot terms grow the body to 63
- * words (the fresh-local form also grows the frame to 0x58). The next bounded
- * probe moves temp_f14 two declaration slots earlier to target its call-live
- * stack home without changing expressions or lifetimes.
+ * exchanges the projection and projection-square FP webs, then saves the
+ * wrong carrier at sp+0x30 instead of target sp+0x38. Next use the existing
+ * saved local after sqrtf, move temp_f14 two declaration slots earlier, and
+ * combine them; probe one/three slots only if those strictly improve.
  */
 s32 func_80012574(TrackVec3f *origin, TrackVec3f *direction,
                   TrackVec3f *center, f32 radius, f32 *minimum,

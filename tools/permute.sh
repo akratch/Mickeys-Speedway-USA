@@ -241,9 +241,8 @@ fi
 # (the func_8000D018 TrapDanglingJump fix). import.py's scratch runs cc only, so
 # the scratch object differs from the real per-TU object and a score-0 in the
 # scratch does NOT transfer to the real build -- a "false ceiling" that wastes
-# ~an hour per function (func_80012574 in track.c scored 0 in scratch yet was
-# 2-4 words off in the real build). Recover the same post-compile step from the
-# `gmake -n` output already captured above and append it to compile.sh, after
+# search time. Recover the same post-compile step from the `gmake -n` output
+# already captured above and append it to compile.sh, after
 # cc, retargeted from the real object path to the scratch's "$OUTPUT".
 #
 # The compile line names $obj but invokes cc/as (never objcopy), so selecting
