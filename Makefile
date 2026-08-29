@@ -449,6 +449,7 @@ check-docs:
 	$(PYTHON) $(TOOLS_DIR)/check_derived_numbers.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/overlay_donor_scan.py --check
 	$(HOST_PYTHON) $(TOOLS_DIR)/postprocess_audit.py --check-redefines
+	$(HOST_PYTHON) $(TOOLS_DIR)/nm_ranking.py --check-doc
 
 # Builds just far enough to have a linked ELF (no crc/z64 round-trip needed --
 # tools/progress.py only reads the ELF's symbol table plus the current asm/
