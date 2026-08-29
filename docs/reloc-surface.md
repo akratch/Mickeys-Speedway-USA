@@ -979,11 +979,12 @@ Resident `func_80045BBC` owns 24 static records: HI16/LO16 pairs for
 `D_800D5D40` at `+0x78/+0x8C`, `D_800D5D48` at `+0x7C/+0x80`,
 `D_80083A80` at `+0xB4/+0xC8`, and `D_80083A88` at `+0xB8/+0xC4`;
 R_MIPS_26 `_bcopy` calls at `+0x4C,+0x6C,+0x88`; and `packWriteFile` at
-`+0xD4`. Genuine C emits 18 exact tuples but literalizes the three
-`D_80705014/18/1C` pairs. Resident runtime records, ORT export rows at offset
+`+0xD4`. The retained body/codegen measurement emits 18 exact tuples but
+literalizes the three `D_80705014/18/1C` pairs; no current-HEAD candidate object
+survives. Resident runtime records, ORT export rows at offset
 `0x4576C`, overlay SYMBOL inbounds, and stored-pointer inbounds are all zero;
-`func_80045CAC+0x64` is the sole direct caller. Current linked equality proves
-fallback only.
+`func_80045CAC+0x64` is the sole direct caller. The owned ROM
+`0x467BC..0x468AC` has no padding. Current linked equality proves fallback only.
 
 Resident `func_8004BA8C` owns nine exact static records in retained genuine C:
 HI16/LO16 pairs to `D_800D60E4` at `+0x04/+0x08`, `D_800D6628` at

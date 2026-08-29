@@ -177,15 +177,19 @@ void stop_all_threads_except_main(void) {
  * source is a disabled, assembly-backed structural draft rather than an
  * exact-C donor; Mickey's bytes remain authoritative. Mickey's target fixes
  * the dump-size calculation to use the copied range. */
-/* Workbench plateau (retested 2026-08-28, audited 2026-08-29): retained
- * configured full-TU and isolated C are 52/60 raw words, 58/60 after resolving
- * the six fixed-address fields, and frame 0x30. The substantive t6/t4 FIFO web
- * is at +0xBC/+0xC0; the candidate has 18 static relocation tuples versus
- * target 24 because literal D_80705014/18/1C lvalues omit six HI16/LO16
- * records. No linked C proof survives. Reproduce V0, probe each missing
- * identity independently, combine the identity-correct baseline, retain all
- * 119 flags, then use one trace-led natural FIFO form and an improving-only
- * bounded batch. Hard cap: 125 deterministic builds plus one trace. */
+/* Workbench plateau (retested 2026-08-28, audited 2026-08-29): the retained
+ * body/codegen measurement is 52/60 raw words, 58/60 after resolving six
+ * fixed-address fields, frame 0x30; no current-HEAD candidate object or hash
+ * survives. The substantive t6/t4 FIFO web is at +0xBC/+0xC0. Candidate C has
+ * 18 static relocation tuples versus target 24 because literal
+ * D_80705014/18/1C lvalues omit six HI16/LO16 records. Owned
+ * 0x80045BBC..0x80045CAC / ROM 0x467BC..0x468AC has no padding; ordinary/link
+ * equality proves fallback only. Reproduce configured V0, probe the three
+ * symbolic identities independently and combine strict gains, then run the
+ * 119-entry lattice on the identity-correct 60-word/frame-0x30 baseline. Take
+ * one fresh FIFO trace and try exactly one natural trace-supported form. Any
+ * gain-gated batch must fit inside the 125 deterministic-build total; no extra
+ * batch beyond that cap. */
 void func_80045BBC(OSThread *thread) {
     s32 copySize;
     void *source;

@@ -2700,12 +2700,12 @@ the saved-register and loop-delay web. The attempt cap is exhausted; the
 candidate stays `NON_MATCHING` and assembly remains canonical.
 
 `tier-D func_80045BBC` owns VRAM `0x80045BBC..0x80045CAC`, ROM
-`0x467BC..0x468AC`: 240 bytes/60 words, frame `0x30`, and no padding. Retained
-configured full-TU and isolated current-body C are byte-identical at 52/60 raw
-words and 58/60 after resolving the six fixed-address fields. The remaining
-substantive sites at `+0xBC/+0xC0` are one final-argument `t6/t4` FIFO web.
-Ordinary object and linked equality are `GLOBAL_ASM` fallback only; no linked C
-artifact survives.
+`0x467BC..0x468AC`: 240 bytes/60 words, frame `0x30`, and no padding. The
+retained body/codegen measurement is 52/60 raw words and 58/60 after resolving
+the six fixed-address fields, but no current-HEAD candidate object or hash
+survives. The remaining substantive sites at `+0xBC/+0xC0` are one
+final-argument `t6/t4` FIFO web. Ordinary object and linked equality are
+`GLOBAL_ASM` fallback only; no linked C artifact survives.
 
 The target owns 24 static records: HI16/LO16 pairs for `D_8007CFE8` at
 `+0x04/+0x08`, `D_80705014` at `+0x18/+0x20`, `D_8007CFE0` at
@@ -2723,11 +2723,11 @@ return register.
 
 The TU uses ordinary `-O2 -mips2 -32`. JFG `func_800676F8` is a disabled,
 assembly-backed structural draft, not genuine donor C. Reproduce V0, probe the
-three identities independently, combine the identity-correct baseline, retain
-all 119 flags, capture one FIFO trace, and try one trace-selected natural form
-plus an improving-only combination. Permit one relocation-annotated batch only
-after a strict gain; hard cap 125 deterministic builds plus one trace. Assembly
-stays canonical.
+three identities independently, combine only strict gains, run the 119-entry
+lattice on the identity-correct 60-word/frame-`0x30` baseline, capture one FIFO
+trace, and try exactly one trace-selected natural form. A gain-gated batch may
+replace unused budget only within the hard 125 deterministic-build total; it is
+not extra. Assembly stays canonical.
 
 The 292-byte `func_80046AA8` packed-glyph renderer is Evidence A exact C after
 bounded permutation: all 73 instruction words, its 72-byte frame, relocation
