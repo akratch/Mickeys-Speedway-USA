@@ -91,6 +91,7 @@ extern Overlay7Entry *gOverlay7Selected;
 #endif
 extern s32 gOverlay7PriorityThresholdReloc;
 extern s32 D_8;
+/* Runtime SYMBOL ORT 1579 resolves this proxy to resident BSS D_800D3128. */
 extern u32 gOverlay7DispatchFlagsReloc;
 extern u16 gOverlay7DispatchOverride[32];
 extern u16 gOverlay7DispatchValues[][30];

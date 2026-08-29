@@ -609,6 +609,17 @@ or export and has five local inbound JUMPs: table-2 records 226, 238, 241, 267,
 and 270 from `overlay14AdvanceCommand` twice, `overlay14StepCommand`,
 `overlay14DispatchCommand`, and `overlay14CallUpdate`.
 
+Overlay 7 `+0x894` (`overlay7DispatchModes`) owns 23 text and seven switch-table
+records. The text surface comprises LOCAL pairs to mode arrays at module
+`+0x1264/+0x14BC`, a LOCAL pair to the switch table at `+0x18F4`, a SYMBOL
+pair through ORT 1579 to resident BSS `D_800D3128`, two SYMBOL calls through
+ORT 171 to resident `mathRnd`, nine local calls to `overlay7CreateEntry`, and
+four local calls to `overlay7AppendEntry`. The seven `R_MIPS_32/LOCAL` data
+records at module `+0x18F4..+0x190C` target case labels inside
+`+0x894..+0xAA0`. ORT 1471 exports the function; five resident calls and
+Overlay 25 table-1 record 15 are its six inbounds. Retained genuine C is
+128/131 raw and 129/131 normalized, while linked equality is fallback-only.
+
 `overlay7CommitSelection`'s six-word historical trial also carried a false
 `+0xF4` callee identity: the runtime record is a local `JUMP` to Overlay 7
 `+0x000` (`overlay7ReleaseEntry`), not a symbol-table call to `+0xCCC`.

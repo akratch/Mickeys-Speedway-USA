@@ -18,15 +18,15 @@ typedef struct Overlay7SelectionRow {
 /*
  * Plateau (evidence reviewed 2026-08-29): retained configured full-TU and
  * isolated C artifacts have the exact 131-word size and 0x20 frame, but both
- * predate the source's corrected mathRnd identities. Their ranking has three raw text
- * differences: substantive t4-versus-t3 register fields at +0x44/+0x64 and a
- * switch-table LO16 addend at +0xA4 that should resolve only after linking the
- * owned rodata at +0x934..+0x950. Historical trace and carrier outcomes have no
- * surviving attributable variant artifacts and do not prove exhaustion. No
- * source-current full-TU or linked candidate proof survives. Re-prove V0 with
- * all 23 text relocations plus the seven owned switch-table records, then try
- * independent volatile-scalar, one-element-array, pointer, and function-scoped
- * scalar carriers; tighten scope only after a strict gain, with a six-run cap.
+ * predate the source's corrected mathRnd identities. They are 128/131 raw and
+ * 129/131 after runtime-relocation normalization: one t4-versus-t3 value web
+ * differs at +0x44/+0x64, while the raw +0xA4 difference is the owned switch
+ * table's LO16 addend. That score used a redundant low-ten-bit mask, now
+ * removed, so clean current-source V0 remains uncompiled. ORT 1471 has six
+ * callers. Re-prove all 23 text and seven switch-table relocations, retain the
+ * 119-flag lattice, trace the remaining value web once, and try at most two
+ * trace-selected natural scalar/scope forms. Cap the clean campaign at 121
+ * stock builds plus one trace; historical route claims are not retained proof.
  */
 /* Ownership trial (2026-08-28): fixed the TU's +0x934..+0x950 .rodata range;
  * its historical 455-word linked failure measured the whole trial surface, not this
@@ -45,7 +45,7 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
                                         : gOverlay7PrimaryModes;
     record = &modes[firstState->index][secondState->index];
 
-    if ((s32)((gOverlay7DispatchFlagsReloc & 0x3FF) << 22) < 0) {
+    if ((s32)(gOverlay7DispatchFlagsReloc << 22) < 0) {
         secondState->timer = 100;
         secondState->height += 5.0f;
         switch (record->mode) {
