@@ -247,7 +247,9 @@ Base score before and after annotation, against
 | `overlay84AdvanceCurrent` | 84 | 2 | 41 | **16** | 7 -> 2 |
 | `overlay40FadeRecords` | 40 | 3 | 75 | **25** | 11 -> 3 |
 
-These are historical lane measurements. For `overlay40FadeRecords`, only the
+These are historical lane measurements. `overlay7DispatchSelection`'s scalar
+is scheduling evidence for stale pre-identity C, not current C or promotion
+proof. For `overlay40FadeRecords`, only the
 scalar 98/101 measurement and imported scratch source/settings survive; no
 configured V0 object, annotated summary, or per-variant object survives. Use
 its row as scheduling context, not artifact-backed exhaustion proof.

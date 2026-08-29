@@ -166,15 +166,17 @@ void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000AA0_185C928.s")
 #endif
 
-/* Plateau evidence reviewed 2026-08-29: retained pre-current-line-layout
- * full-TU C is 55/60 relocation-annotated, 53/60 literal, and 58/60 after
+/* Reproof evidence reviewed 2026-08-29: stale pre-identity full-TU and
+ * isolated C are 55/60 relocation-annotated, 53/60 literal, and 58/60 after
  * runtime normalization, exact size/frame, first substantive mismatch +0x4.
  * The two normalized sites at +0x4/+0x10 are one t7-versus-t6 flags-value web;
- * +0x40/+0x84/+0x88/+0x90/+0xC0 are relocation-only. It owns all 13 runtime
- * records; linked equality is fallback-only. Historical flag, trace, source,
- * and search outcomes are unretained. Compile identity-correct current V0,
- * retain 119 flags, trace once, and try at most two trace-selected natural
- * scalar forms; cap at 122 stock builds plus trace and stop on exact. */
+ * +0x40/+0x84/+0x88/+0x90/+0xC0 are relocation-only. Those objects carry all
+ * 13 offsets/types but misname the +0xA4/+0xD8 calls. Current source names the
+ * corrected roles but is uncompiled, so score, frame, records, and link are
+ * unknown. Compile configured V0, use one same-body control only on material
+ * drift, retain 119 configurations, trace once, and try at most two
+ * trace-selected natural scalar forms. Cap 122 deterministic builds plus trace;
+ * the control replaces a later form and no generic batch is justified. */
 #ifdef NON_MATCHING
 void overlay7DispatchSelection(Overlay7DispatchOwner *owner, s32 selection) {
     Overlay7DispatchState *state;

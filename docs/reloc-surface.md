@@ -649,12 +649,17 @@ Current clean C score and 30 emitted identities await reproof, while linked
 equality is fallback-only.
 
 Overlay 7 `+0xCCC` (`overlay7DispatchSelection`) owns 13 records: a SYMBOL
-HI16/LO16 pair through ORT 1579 to resident `D_800D3128`; SYMBOL calls through
-ORT 284 to `camGetMode` and ORT 1580 to Overlay 59 `overlay59AppendValue`;
-LOCAL pairs to module `+0x1BA8/+0x100C/+0xFCC/+0xFEC`; and a LOCAL JUMP to
-`overlay7CreateEntry` at `+0x228`. Retained genuine C has every offset/type and
-is 58/60 after runtime normalization. ORT 1510 exports the function and
-fourteen calls arrive from Overlays 1, 7, and 8; linked equality is fallback-only.
+HI16/LO16 pair at `+0x00/+0x04` through ORT 1579 to resident `D_800D3128`;
+LOCAL pairs at `+0x3C/+0x40`, `+0x64/+0x88`, `+0x68/+0x84`, and
+`+0xB8/+0xC0` to module `+0x1BA8`, `+0x100C`, `+0xFCC`, and `+0xFEC`; a
+LOCAL JUMP at `+0x90` to `overlay7CreateEntry` at `+0x228`; and SYMBOL calls
+at `+0xA4/+0xD8` through ORT 284 to `camGetMode` and ORT 1580 to Overlay 59
+`overlay59AppendValue`. Stale pre-identity C has every offset/type and is 58/60
+after runtime normalization, but names both calls incorrectly. Current source
+names all 13 roles; emitted-tuple proof awaits configured V0. The fallback has
+only five static records and collapses both calls onto `overlay7ReleaseEntry`.
+ORT 1510 exports the function and fourteen calls arrive from Overlays 1, 7, and
+8; linked equality is fallback-only.
 
 Overlay 7 `+0xDBC` (`overlay7CommitSelection`) owns 17 records: a SYMBOL pair
 through ORT 1579 to resident `D_800D3128+2`; two calls to `mathRnd`; calls to
