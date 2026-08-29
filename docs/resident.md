@@ -215,16 +215,11 @@ overlay callers/callees outside the range were observed.
 | `0x4BC70` | `0x34` | `fontSetWindowNoise` | same | A, matched C | leaf |
 | `0x4BCA4` | `0x14` | `func_8004B0A4` | `fontUseFont` | D, matched C | leaf; text-setup callers |
 | `0x4BCB8` | `0x24` | `fontColour` | same | A, matched C | leaf; text-setup callers |
-| `0x4BCDC` | `0x1C` | `func_8004B0DC` | `fontBackground` | D, matched C | leaf; text-setup callers |
-| `0x4BCF8` | `0x44` | `func_8004B0F8` | `fontPrintXY` | B, matched C | calls `0x4BD3C` |
-| `0x4BD3C` | `0xA0` | `func_8004B13C` | `fontPrintWindowXY` | B, matched C | calls `0x4BDDC` |
-| `0x4BDDC` | `0x8B0` | `func_8004B1DC` | JFG `func_80070518` | D | calls `0x4DF9C`, `0x4C68C`, `0x4D290`, ext |
-| `0x4C68C` | `0xB8` | `func_8004BA8C` | `fontStringWidth` | B | calls `0x4DF9C`; ext callers |
 | `0x4BCDC` | `0x1C` | `func_8004B0DC` | `fontBackground` | B/D, matched C | leaf; text-setup callers |
 | `0x4BCF8` | `0x44` | `func_8004B0F8` | `fontPrintXY` | B/D, matched C | calls `0x4BD3C` |
 | `0x4BD3C` | `0xA0` | `func_8004B13C` | `fontPrintWindowXY` | B/D, matched C | calls `0x4BDDC` |
 | `0x4BDDC` | `0x8B0` | `func_8004B1DC` | JFG `func_80070518` | D, plateau | calls `0x4DF9C`, `0x4C68C`, `0x4D290`, ext |
-| `0x4C68C` | `0xB8` | `func_8004BA8C` | `fontStringWidth` | B/D, plateau | calls `0x4DF9C`; ext callers |
+| `0x4C68C` | `0xB8` | `func_8004BA8C` | `fontStringWidth` | B/D, plateau | calls `0x4DF9C`; called twice by `0x4BDDC`, once by `0x4C8C4`, and by overlay 41 |
 | `0x4C744` | `0x9C` | `func_8004BB44` | `fontWindowSize` | D, matched C | leaf; ext callers |
 | `0x4C7E0` | `0x1C` | `func_8004BBE0` | `fontWindowUseFont` | D, matched C | leaf; ext callers |
 | `0x4C7FC` | `0x40` | `fontWindowColour` | same | A, matched C | leaf; ext callers |
@@ -276,14 +271,16 @@ Remaining: initial pool setup and saved-header copy schedule.
 frame, relocation identities, and linked ROM bytes match after bounded
 permutation resolved the final temp web.
 
-`func_8004BA8C`'s configured `NON_MATCHING` candidate matches 38/46 words;
-its frame and nine relocations are exact, with eight raw residual words
-beginning at `+0x30`. The allocation trace selects `a3` for the font-data web
-while `v0` is forbidden by interference; the one causal `v0` force declined
-and alias tracing found no isolated ownership. Natural lifetime/expression
-forms were neutral, reordered initialization regressed, and a bounded
-single-thread permuter reinstated only retired pointer/index/pad forms, so
-assembly stays canonical.
+`func_8004BA8C`'s retained configured isolated and full-TU `NON_MATCHING`
+candidates match 38/46 words. Both raw and relocation-normalized residuals are
+the eight sites `+0x30,+0x3C,+0x44,+0x4C,+0x50,+0x60,+0x90,+0x94`; the
+`0x30` frame and nine relocation tuples are exact. No linked C candidate proof
+survives. The allocation trace selects `a3` for the font-data web while `v0`
+is forbidden by interference; the one causal `v0` force declined and alias
+tracing found no isolated ownership. Natural lifetime/expression forms were
+neutral, reordered initialization regressed, and a bounded single-thread
+permuter reinstated only retired pointer/index/pad forms. Reproof unchanged V0
+once, then park absent a new allocation mechanism.
 
 The font subsegment's FP-register census contains only even-numbered single-
 precision registers (`$f0`, `$f4`, `$f6`, `$f8`, `$f10`, `$f16`, and `$f18`),
@@ -1684,8 +1681,15 @@ the assembly fallback remains canonical.
 
 The 124-byte `func_8002C70C` is exact under canonical `-Wo,-loopunroll,0 -O2 -mips2 -32`; its 31 words and relocation-free linked range match.
 
-`func_8002CF6C` remains Mickey-derived `NON_MATCHING`: all 88 instructions, the 72-byte frame, and relocations agree; workbench reports `register-ring-only`, 9 sites from `+0xCC`.
-The p7 pipeline retry scoped a `savedFlag` reload to after the checksum call, matching the target's lifetime boundary, but it was codegen-inert: the candidate still uses a colored web where the target uses the FIFO temp ring.
+`func_8002CF6C` remains Mickey-derived `NON_MATCHING`. Historical isolated
+workbench evidence reports an 88-instruction, 72-byte-frame
+`register-ring-only` result with nine sites from `+0xCC`, but the retained
+candidate's compile script omits the TU-required `-Wo,-loopunroll,0`; it is not
+a configured baseline. Fresh V0 must reconcile size, frame, relocations, and
+the nine sites before the score is reused. The p7 pipeline retry scoped a
+`savedFlag` reload to after the checksum call, matching the target's lifetime
+boundary, but it was codegen-inert: the candidate still uses a colored web
+where the target uses the FIFO temp ring.
 Hoisted-argument, folded-mask, and addressable-scalar levers remain exhausted; the 30-minute permuter produced only invented no-op identities. The remaining trace route requires an instrumented compiler source not configured in this lane, so the assembly fallback remains canonical.
 
 The save-window serializer `func_8002C94C` is now **matched** (tier-A byte-identity).
@@ -2433,9 +2437,17 @@ combinations, ten scheduling/type forms, and bounded permutation did not close
 the saved-register and loop-delay web. The attempt cap is exhausted; the
 candidate stays `NON_MATCHING` and assembly remains canonical.
 
-`tier-D func_80045BBC`: 2 instruction words plus 6 relocation sites remain, first `+0x18`; size, frame, calls, and copy structure are exact.
-Workbench constant/allocation; symbolic-address, argument-hoist, phantom-pop, subtraction, flag-lattice, and bounded permutation levers did not close it.
-Fixed-buffer relocation identities and final `packWriteFile` argument coloring remain; assembly stays canonical.
+`tier-D func_80045BBC` has retained configured-isolated evidence at 60 words
+and frame `0x30`. Eight raw sites remain at
+`+0x18,+0x20,+0x28,+0x30,+0x38,+0x40,+0xBC,+0xC0`; value normalization of
+the six absolute-address fields leaves two executable sites at `+0xBC/+0xC0`.
+The candidate carries 18 static relocation tuples versus target 24 because its
+literal `D_80705014/18/1C` lvalues omit six HI16/LO16 bindings. The resident
+runtime relocation census has no record inside this function; these are static
+link bindings. No full-TU or linked C artifact survives. Symbolic-address,
+argument-hoist, phantom-pop, subtraction, flag-lattice, and bounded-permutation
+levers did not close the binding/FIFO wall. Reproof unchanged V0 once, then
+park; assembly stays canonical.
 
 The 292-byte `func_80046AA8` packed-glyph renderer is Evidence A exact C after
 bounded permutation: all 73 instruction words, its 72-byte frame, relocation

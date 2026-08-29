@@ -33,7 +33,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8001D880` | `src/main/charControl.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8001DCD0` | `src/main/charControl.c` | none | — | No ownership change; continue source/codegen work. |
 | `diCpuThread` | `src/main/diCpu.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_80045BBC` | `src/main/diCpu.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_80045BBC` | `src/main/diCpu.c` | none | — | Retained configured-isolated candidate is 60 words/frame `0x30`, with eight raw sites and two value-normalized executable sites at `+0xBC/+0xC0`; literal fixed-address lvalues emit 18 static tuples versus target 24. Source/flag/permuter routes exhausted and no linked C proof survives; one unchanged full-TU/linked reproof, then park. |
 | `func_80045D34` | `src/main/diCpu.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80046AA8` | `src/main/diCpu.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `diRcpPrintDL` | `src/main/diRcp.c` | matched | — | Promoted to exact C; no ownership work remains. |
@@ -43,7 +43,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `debug_text_width` | `src/main/diprint.c` | none | — | Size/frame/relocations exact at 66 words with seven current-byte/newline schedule residuals, first `+0x38`; source attempt cap exhausted. Reproof-only V0. |
 | `debug_text_parse` | `src/main/diprint.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_8004B1DC` | `src/main/font.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8004BA8C` | `src/main/font.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_8004BA8C` | `src/main/font.c` | none | — | Retained configured isolated/full-TU candidate is 38/46 words with eight raw/normalized allocation, spill-home, and operand-order sites at `+0x30,+0x3C,+0x44,+0x4C,+0x50,+0x60,+0x90,+0x94`; frame `0x30` and nine relocation tuples are exact, but no linked C proof survives. Source/flag/trace/permuter routes exhausted; one unchanged reproof, then park. |
 | `func_8004BCC4` | `src/main/font.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_8004C690` | `src/main/font.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8004D40C` | `src/main/font.c` | matched | — | Promoted to exact C; no ownership work remains. |
@@ -117,7 +117,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8002C70C` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002C94C` | `src/main/saves.c` | none | — | Matched (permuter): `if (1)` grouping resolves the schedule tie-break. |
 | `func_8002CB18` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8002CF6C` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_8002CF6C` | `src/main/saves.c` | none | — | Historical isolated 88-word/`0x48`-frame candidate has nine raw/normalized register sites from `+0xCC`, but its retained compile omitted required `-Wo,-loopunroll,0`. Run fresh configured V0, then one `savedFlag` volatile-field class-crossing probe if the nine sites reproduce; park if flat. |
 | `packInit` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
 | `osScGetTaskType` | `src/main/sched.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80030610` | `src/main/sched.c` | none | — | No ownership change; continue source/codegen work. |

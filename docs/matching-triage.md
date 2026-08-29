@@ -39,11 +39,12 @@ Updated as the permuter campaign and analysis proceed.
 |---|---|---|---|---|
 | `func_8002C94C` | saves | **P** | globalcolor s5/s6 inversion; permuter base 40 → **0** | ✅ matched (permuter) |
 | `func_8003A2C8` | menu | **P!** | configured records are 5/32 with six exact relocations; forced v1/v0 plus shared `modeBits` reaches diagnostic 1/32, but the last memory-first comparison carrier is ring-only and not color-reachable | reproof-only V0; park absent a new allocator mechanism |
-| `func_8002CF6C` | saves | **P** | same-length ring permutation | grinding |
+| `func_8002CF6C` | saves | **F/P!** | historical isolated 9/88 ring result omitted required `-Wo,-loopunroll,0`; first class crossing is `savedFlag` colored `a3` versus target FIFO `t1` | fresh configured V0, then one volatile-field probe; park if flat |
 | `func_80020D8C` | models | **P** | +2 ring phase shift | queued |
 | `func_8001A154` | lights | **P** (was mis-called **W**) | permuter cracked it: drop the redundant `& 0xFFFFU` blue mask (phantom ring pop) + fold `flare.scaledSize`. The 'no source lever' verdict was a FALSE FLOOR. | ✅ matched (permuter) |
 | `mainUpdateZBCheck` | main | **P** (was **I** via -mips1 flag bug) | permuter cracked it once flags fixed: compare `(u16*)row+columns` directly, no cached pixel. | ✅ matched (permuter) |
 | `func_80047CD8` | fx | **P!** | the real `NON_MATCHING` TU now compiles: 226/234 exact rows, 8 register words from `+0x298`, identical temp lane, pool slot 28, and no copy site; corrected MIPS2/stack-aware two-worker search ran 205→60 at the four-minute cap, no zero | p10 allocation plateau |
+| `func_80045BBC` | diCpu | **F/W** | 60 words/frame `0x30`; eight raw/two value-normalized sites, target 24 versus candidate 18 static relocations, with a final `t6/t4` FIFO web | unchanged full-TU/linked reproof, then park absent a symbolic-address/FIFO mechanism |
 | `func_8005A948` | models_5B300 | **P!** | raw interleaved-array final stores close 8 words; 3/94 remain at the scan-index `t7`/target `t8` FIFO phase; named-offset, redundant-mask, and folded-live-guard levers did not rotate it | p10 plateau; source-only FIFO levers exhausted |
 | `func_80055B24` | anim | **P** | typed `void` callback alias removes the generic trap placeholder's phantom return web; metadata-only rebind restores the exact call identity | ✅ matched (ABI reconstruction) |
 | `func_8002C69C` | saves | **P!** | coherent cursor re-cache reduced 18→11 register-only words at exact 28-word size; first `+0x10`, four allocator webs; corrected MIPS2/stack-aware reseed reached cost 55 but no zero | plateau; F-route web-existence lever next |
