@@ -1134,6 +1134,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_tail.c.o: POSTPROCESS = \
 		--redefine-sym func_overlay_001_F0007730_1853B10=overlay1BendPathPoint \
 		--redefine-sym func_overlay_001_F00078DC_1853CBC=overlay1AdvancePath \
 		--redefine-sym func_overlay_001_F0007B64_1853F44=overlay1FindBestRecord $@ && \
+	$(OBJCOPY) --redefine-sym overlay1GetRomlistInfoReloc=func_overlay_001_F0000000_184C3E0 $@ && \
 	$(OBJCOPY) --redefine-sym func_8000572C=func_overlay_001_F0000000_184C3E0 $@ && \
 	$(OBJCOPY) --redefine-sym func_80005820=func_overlay_001_F0000000_184C3E0 $@ && \
 	$(OBJCOPY) --redefine-sym overlay4RemoveObject=func_overlay_001_F0000000_184C3E0 $@ && \

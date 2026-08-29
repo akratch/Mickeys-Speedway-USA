@@ -546,14 +546,17 @@ the count and all 21 runtime relocation sites before either score is reused.
 in `07e04a0f`. Its two raw LO16 fields become exact under the four proved
 runtime LOCAL tuples, and it no longer belongs in the NON_MATCHING queue.
 
-`overlay1AssignRecordIndex`'s eight-word row is authenticated by retained
-prior-layout configured full-TU and isolated C objects at 36/44 words, frame
-`0x38`, first `+0x1C`. The isolated recipe omitted the TU's
-`-Wab,-r4300_mul`, but both owned ranges are byte-identical, proving that flag
-inert for V0. Those C artifacts expose five records, while the runtime contract
-has seven: three-argument `GetRomlistInfo` and three LOCAL HI16/LO16 pairs for
-`D_1D8C`. The private callee alias and literal conditional write are not
-identity-correct; reproduce current-layout V0 before the symbolic V1.
+`overlay1AssignRecordIndex` owns Overlay 1 `+0x36A0..+0x3750`, 44 words with
+no padding. Its runtime contract has seven records: table-1 record 128 is a
+SYMBOL call at function `+0x28` through ORT 257 to resident `GetRomlistInfo`;
+table-2 LOCAL pairs 458/459, 460/461, and 462/463 at
+`+0x44/+0x48`, `+0x70/+0x74`, and `+0x90/+0x94` all resolve through BSS base
+`+0x83E0` plus addend `+0x1D8C` to module `+0xA16C` (`D_1D8C`). Retained
+diagnostic C emits only five records and is 34/44 literal, 36/44 after runtime
+normalization. Clean source now expresses all seven identities but is
+uncompiled. ORT 1219 exports `+0x36A0`; resident relocation 61 at ROM `0xB894`
+from `func_8000AA38+0x25C` is the sole inbound. Linked equality proves fallback
+only.
 
 Overlay 9 `+0x540`'s eight-word entry is likewise historical masked linked
 evidence, not a retained configured candidate. Its surviving standalone object

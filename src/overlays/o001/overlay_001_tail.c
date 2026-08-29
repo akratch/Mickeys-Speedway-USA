@@ -71,23 +71,23 @@ void overlay1InitializeGaugeObjects(void) {
 
 typedef struct O1VariableRecord { s16 type; u8 size; u8 pad03[9]; u16 index; } O1VariableRecord;
 typedef struct O1RecordOwner { u8 pad00[0xC]; u16 index; } O1RecordOwner;
-extern s32 D_1D8CRead;
-extern void overlay1GetVariableRecords(O1VariableRecord **records, s32 *length,
-                                       s32 enabled, O1RecordOwner *owner);
+extern s32 D_1D8C;
+extern void overlay1GetRomlistInfoReloc(O1VariableRecord **records, s32 *length,
+                                        s32 enabled);
 
-/* Retained prior-layout configured full-TU and isolated C agree at 36/44
- * words, frame 0x38, first +0x1C. Five sites are records/length stack homes;
- * three are the conditional-store branch/address schedule. The isolated
- * recipe omitted -Wab,-r4300_mul, which the configured artifact proves inert.
- * Runtime requires seven records: a three-argument GetRomlistInfo call and
- * three LOCAL D_1D8C pairs. This diagnostic V0's private four-argument alias,
- * D_1D8CRead identities, and literal write expose only five and cannot promote.
- * Current-layout V0 is pending; then build identity-correct V1, retain one
- * flag lattice, test five declaration orders independently, and use one trace
- * to select one residual form. Hard cap: eight natural forms plus the lattice. */
+/* Retained pre-HEAD full-TU and isolated diagnostic C agree at 36/44 after
+ * runtime normalization (34/44 against literal ROM), frame 0x38, first +0x1C.
+ * Five sites are records/length stack homes and three are the conditional-store
+ * lowering. That body used a dummy volatile, a false fourth call argument,
+ * private D_1D8CRead, and a literal address write, so it is not a clean
+ * baseline. They are removed below. Runtime requires seven records: a
+ * three-argument GetRomlistInfo SYMBOL call and three LOCAL D_1D8C pairs.
+ * Clean identity-correct V0 is uncompiled. Run and retain 119 flags, trace the
+ * output homes/conditional store once, then try at most four natural scope,
+ * owner-lifetime, symbolic-lvalue, and skip-edge forms; combine only strict
+ * gains at most twice and batch only after a natural improvement. */
 #ifdef NON_MATCHING
 void overlay1AssignRecordIndex(s32 unused, O1RecordOwner *owner) {
-    volatile s32 private;
     O1VariableRecord *records;
     O1VariableRecord *record;
     s32 length;
@@ -96,21 +96,21 @@ void overlay1AssignRecordIndex(s32 unused, O1RecordOwner *owner) {
     u8 size;
 
     if (owner->index == 0xFFFF) {
-        overlay1GetVariableRecords(&records, &length, 1, owner);
+        overlay1GetRomlistInfoReloc(&records, &length, 1);
         offset = 0;
         record = records;
         if (length > 0) {
             do {
                 if (record->type == 0xCA) {
                     next = record->index + 1;
-                    if (D_1D8CRead < next) *(s32 *)0x1D8C = next;
+                    if (D_1D8C < next) D_1D8C = next;
                 }
                 size = record->size;
                 offset += size;
                 record = (O1VariableRecord *)((u8 *)record + size);
             } while (offset < length);
         }
-        owner->index = (u16)D_1D8CRead;
+        owner->index = (u16)D_1D8C;
     }
 }
 
