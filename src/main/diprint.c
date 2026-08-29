@@ -912,20 +912,24 @@ void diPrintfSetXY(u16 x, u16 y) {
 }
 /* PROVENANCE: body adapted from DKR src/printf.c:debug_text_width. */
 #ifdef NON_MATCHING
-/* Retained prior-line-layout configured full-TU C under -O2 -mips2 -32
- * -Wab,-r4300_mul is 59/66 raw/relocation-normalized words, frame 0x138,
- * first +0x38, with all five relocations exact. The current body is unchanged,
- * but no compiled selective object survives; ordinary 66/66 and linked
- * equality are GLOBAL_ASM fallback only. There is no target padding and
- * objdiff percentage is unknown. One current-byte/classification web differs at
- * +0x38/+0x44/+0x5C/+0x60/+0x64/+0xEC/+0xF4: target uses v1 plus a v0 copy,
- * while C uses v0 and a two-word branch-likely newline lowering. ORT 862 is
- * exported but exhaustive resident, overlay, direct-jal, pointer, and source
- * scans found no caller. Historical source, flags, trace, and search are
- * unretained. Run 119 flags on current V0, trace once, try separate-byte and
- * trace-selected newline/tail forms plus an improving-only combination; cap
- * 122 stock builds plus trace; any separately bounded batch requires a strict
- * natural-source gain. */
+/* PLATEAU-HANDOFF
+ * symbol: debug_text_width
+ * score: 59/66 words
+ * frame: 0x138
+ * relocations: 5
+ * first-mismatch: +0x38
+ * summary: one current-byte/classification web and newline lowering remain after 119 flags, one trace, and two flat/regressing natural forms
+ */
+/* Fresh configured full-TU C under -O2 -mips2 -32 -Wab,-r4300_mul is
+ * 59/66 raw/relocation-normalized words, frame 0x138, first +0x38, with all
+ * five relocation tuples exact and no target padding. All 119 flag rows were
+ * attempted; thirteen O2/MIPS-II rows tied this best basin and none was exact.
+ * One allocator trace and workbench isolate a five-site current-byte v1/v0 web
+ * plus the two-word branch-likely newline lowering. A separate classification
+ * scalar regressed to 57/66 by gaining a stack home; an explicit newline-tail
+ * jump was flat at 59/66, so they were not combined. ORT 862 is exported but
+ * exhaustive resident, overlay, direct-jal, pointer, and source scans found no
+ * caller. Ordinary 66/66 and linked equality remain GLOBAL_ASM fallback only. */
 s32 debug_text_width(const char *format, ...) {
     s32 stringLength;
     s32 fontTexture;
