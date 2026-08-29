@@ -43,17 +43,22 @@ extern s16 gOverlay40BlendTarget;
 extern s16 gOverlay40BlendDuration;
 extern s16 gOverlay40BlendOutput;
 
-/* Plateau re-reviewed 2026-08-29 against the retained configured candidate:
- * the 101-word body and 0x8 frame agree, with only the v0/v1 operands at
- * +0xC/+0x10/+0x24 differing. The former zero-word claim compared the linked
- * GLOBAL_ASM fallback, not this C candidate; a linked promotion trial also
- * rejected it. An instrumented guide-19 oracle moved 16 rows across 11 runs
+/* Plateau re-reviewed 2026-08-29 against the retained configured full-TU and
+ * isolated candidate: 98/101 words and the 0x8 frame agree, with only the
+ * v0/v1 operands at +0xC/+0x10/+0x24 differing. Its ten static pairs map to
+ * runtime BSS D_800D6C4C(timer), D_800D6C52(current), D_800D6C50(target),
+ * D_800D6C4E(duration), and D_800D6C54(output); the target/fallback objects
+ * retain none of them statically. The former zero-word claim compared the
+ * linked GLOBAL_ASM fallback, not this C candidate. Historical prose says a
+ * linked promotion trial rejected C, but no candidate ELF/ROM survives.
+ * An instrumented guide-19 oracle moved 16 rows across 11 runs
  * and worsened the residual to 13 words; chained, comma-expression, and
  * timer-separated copy formation widened it to 16, 16, and 41 words. The
  * remaining bounded ladder is: fresh configured baseline; derive current
  * through output; swap only the output/current/timer declaration order; then
  * combine those changes or use declaration initializers only after a strict
- * improvement. Stop after five runs if the three-word allocator basin holds. */
+ * improvement. Stop after the first three runs if both probes are flat; five
+ * is the hard cap. Mickey-only reconstruction; DKR v77/v80/JFG are negative. */
 #ifdef NON_MATCHING
 void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
                           s32 amount) {

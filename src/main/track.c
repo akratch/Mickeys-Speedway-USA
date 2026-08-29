@@ -1599,6 +1599,7 @@ void func_8000D978(s32 copySegmentData, s32 updateRate) {
         if (runlinkIsModuleLoaded(16) != 0) {
             TrapDanglingJump(&D_800C95B4, D_800792E8, updateRate);
         } else if ((D_800D6C54 != 0xFF) || (D_800D6C4C != 0)) {
+            /* Runtime relocation: overlay 40 +0x690 (overlay40FadeRecords). */
             TrapDanglingJump(&D_800C95B4, D_800792E8, updateRate);
         } else {
             func_8000D820();

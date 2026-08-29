@@ -276,6 +276,7 @@ table from a fresh run):
 
 | name | overlay/TU | differing_words | first_mismatch_offset | size | size_delta | category |
 |---|---|---:|---:|---:|---:|---|
+| overlay40FadeRecords | o040 | 3 | 12 | 404 | 0 | register-only |
 | func_8003A2C8 | main | 5 | 12 | 128 | 0 | register-only |
 | overlay74Update | o074 | 6 | 12 | 400 | 0 | register-only |
 | overlay20UpdateObjectResource | o020 | 8 | 176 | 392 | 0 | register-only |
@@ -286,7 +287,7 @@ table from a fresh run):
 | overlay1FindType5ByKey | o001 | 17 | 28 | 156 | 0 | register-only |
 | func_overlay_041_F0000000_1887338 | o041 | 26 | 84 | 292 | 0 | register-only |
 
-All nine remaining rows are `register-only` and size-exact -- the cheapest tier the queue
+All ten remaining rows are `register-only` and size-exact -- the cheapest tier the queue
 has to offer right now.
 
 `overlay1FindBestRecord` is another size-exact register-allocation near miss,
