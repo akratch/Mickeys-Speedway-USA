@@ -395,11 +395,12 @@ u8 *func_8005A948(s16 animationId) {
 /* PROVENANCE: Mickey-only reconstruction informed by JFG's corresponding
  * modFreeAnim identity and structure; the public JFG peer remained assembly,
  * and no external C body is copied. */
-/* Reproof required: retained C is 39/46 raw words and 46/46 after applying
- * its seven candidate relocations (D_800D7D04 pair, two D_800D7CF4 pairs,
- * and mmFree call); linked function/TU/resident bytes are exact. No
- * independently generated target object survives to prove target relocation
- * count/type/offset/identity, so this is not yet a complete Evidence A chain. */
+/* Retained configured C is instruction-identical to an independently rebuilt
+ * historical target across all 46 words, with frame 0x20 and exact target
+ * relocations: D_800D7D04 HI/LO at +0x14/+0x28, D_800D7CF4 HI/LO at
+ * +0x38/+0x3C and +0x7C/+0x84, and mmFree R_MIPS_26 at +0x74. Linked
+ * function/TU/resident bytes are exact; a fresh current-source compile through
+ * full-ROM comparison remains as a contemporaneous reproof. */
 void func_8005AAC0(u8 *animation) {
     s32 i;
     s32 index;

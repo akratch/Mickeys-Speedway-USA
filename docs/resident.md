@@ -2808,16 +2808,16 @@ identities match in the linked ROM.
 Mickey-derived parented matrix-list builder `func_8005B644` adds `0xCC`
 proven exact bytes under the TU's measured `-Wo,-loopunroll,0` override,
 bringing proven exact C in `main/models_5B300` to `0x19C`. The tracked
-scoreboard currently carries another provisional `0xB8` for raw-array
-`func_8005AAC0`; treat it as reproof-required, not banked Evidence A. Retained
-configured C has 46 words, a `0x20` frame, 39 raw target-equal words, and seven
-candidate relocations; applying those relocations reproduces all 46 target
-words, and linked function/TU/resident bytes are exact. No independently
-generated target object survives to establish target relocation
-count/type/offset/identity. If fresh target tuples and linked proof agree,
-proven exact C in this TU becomes `0x254`; otherwise restore the fallback and
-demote the provisional credit. JFG retains both corresponding routines as
-assembly, so no donor body was adapted.
+scoreboard carries another exact `0xB8` for raw-array `func_8005AAC0`, bringing
+proven exact C in this TU to `0x254`. A target object independently rebuilt
+from the historical pre-promotion split is instruction-identical to the
+retained configured C across all 46 words with frame `0x20`. Its seven target
+tuples exactly match the candidate: `D_800D7D04` HI/LO at `+0x14/+0x28`,
+`D_800D7CF4` HI/LO at `+0x38/+0x3C` and `+0x7C/+0x84`, and `mmFree`
+`R_MIPS_26` at `+0x74`. Linked function/TU/resident bytes are also exact. A
+fresh current-source compile through full-ROM comparison remains queued as a
+contemporaneous reproof, not as missing target evidence. JFG retains both
+corresponding routines as assembly, so no donor body was adapted.
 
 The `func_8005A948` flag lattice additionally establishes
 `-Wo,-loopunroll,0` for `main/models_5B300`: without it IDO unrolls the cache scan
