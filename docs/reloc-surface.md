@@ -562,7 +562,7 @@ generator owns the alias block (§5.3).
     2  overlay7DispatchSelection           o7     4  overlay3FindClosestObject          o3
     2  overlay84AdvanceCurrent             o84    4  overlay43FilterImage               o43
     2  overlay8ScaleOutputs                o8     4  overlay62Update                    o62
-    2  overlay99RenderSegments             o99    4  overlay84LoadCurrent               o84
+    2  overlay99RenderSegments (historical) o99   4  overlay84LoadCurrent               o84
     3  overlay101DrawClock (historical)    o101   6  func_overlay_022_F0000000_1878108  o22
     3  overlay1CloneRecord                 o1     6  func_overlay_041_F0001650_1888988  o41
     3  overlay40FadeRecords                o40    6  overlay68PromoteSecondary          o68
@@ -587,6 +587,16 @@ only a symbol rename and zero-tail trim. The old candidate row is not current
 proof. A future exact reproof must retain the configured object and record each
 runtime relocation site's type, operation, addend, and stable target identity;
 the export row alone does not authenticate its five-argument ABI or callees.
+
+`overlay99RenderSegments`'s two-word row is historical pre-source-repair
+evidence. Overlay 99's shipped tables identify the addressed outputs as
+`viGetCurrentSize(s32 *, s32 *)`, the seven-argument setup call as
+`rcpClearZBuffer`, and the following calls as `func_80034920`, `Arctanf`,
+`sqrtf`, `func_80009E78`, and local `overlay99RenderSortedEntries`. Current C
+now expresses those identities, uses two `s32` outputs, and writes the second
+segment coordinate and constant `5.0f` to retail offsets `+0x10` and `+0x14`.
+The repaired body is uncompiled, so no old score, frame, or configured-object
+claim applies to it.
 
 `func_overlay_022_F0000000_1878108`'s six-word entry is that historical linked
 trial. The surviving isolated object has five stack-home/store-order words but

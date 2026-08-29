@@ -14,32 +14,25 @@ typedef struct Overlay99Segment {
 extern s32 gOverlay99SegmentCount;
 extern Overlay99Segment gOverlay99Segments[];
 extern void *gOverlay99Texture;
-extern int overlay99Begin(void **outA, s32 *outB);
-extern void overlay99Setup(Gfx **displayList, void *a, s32 b,
-                           void *zero0, s32 zero1, void *a2, s32 b2);
-extern void overlay99End(Gfx **displayList);
-extern s16 overlay99Angle(f32 x, f32 z);
-extern f32 overlay99Sqrt(f32 squared);
-extern void overlay99DrawObject(Gfx **displayList, Mtx **matrices,
-                                void *vertices, Overlay99RenderState *object);
+extern void overlay99GetCurrentSizeReloc(s32 *width, s32 *height);
+extern void overlay99ClearZBufferReloc(Gfx **displayList, u32 width,
+                                       u32 height, s32 x1, s32 y1, s32 x2,
+                                       s32 y2);
+extern void overlay99Func80034920Reloc(Gfx **displayList);
+extern s16 overlay99ArctanfReloc(f32 x, f32 z);
+extern f32 overlay99SqrtReloc(f32 squared);
+extern void overlay99Func80009E78Reloc(Gfx **displayList, Mtx **matrices,
+                                       void *vertices,
+                                       Overlay99RenderState *object);
 
-/* Bounded workbench closeout (2026-08-28): the configured candidate is
- * exact-sized at 142 words with the exact 0xa8 frame and all 15 runtime
- * relocation roles. Stock-gated CFE/Ucode and ugen/as1 captures traced the
- * addressed setup result; three natural layout/scope variants either moved
- * its homes or grew the frame. A five-minute, one-thread permuter found the
- * non-void begin ABI, which the real full-TU build confirmed by selecting the
- * retail display-list register. The retained candidate is 140/142 words after
- * masking relocation addends; its only residual is setup.b at sp+0xa0 rather
- * than retail's sp+0x98, first visible at +0x7c. */
+/* Overlay 99 +0xBA4..+0xDDC, 142 words with no target padding. The shipped
+ * relocation tables authenticate viGetCurrentSize, rcpClearZBuffer,
+ * func_80034920, Arctanf, sqrtf, func_80009E78, and the local sorted-entry
+ * renderer. Historical 140/142 evidence predates these identity, local-layout,
+ * and coordinate-store repairs; clean configured V0 is uncompiled. */
 #ifdef NON_MATCHING
 void overlay99RenderSegments(Gfx **displayList, Mtx **matrices, void *vertices,
                              f32 scale) {
-    struct {
-        void *a;
-        s32 b;
-        u32 reserved;
-    } setup;
     f32 dx;
     f32 dz;
     f32 length;
@@ -48,6 +41,8 @@ void overlay99RenderSegments(Gfx **displayList, Mtx **matrices, void *vertices,
     Gfx *command;
     s32 initialized;
     s32 i;
+    s32 width;
+    s32 height;
 
     i = 0;
     segment = gOverlay99Segments;
@@ -57,34 +52,35 @@ void overlay99RenderSegments(Gfx **displayList, Mtx **matrices, void *vertices,
             object = segment->object;
             if (object != 0) {
                 if (initialized == 0) {
-                    overlay99Begin(&setup.a, &setup.b);
+                    overlay99GetCurrentSizeReloc(&width, &height);
                     initialized = 1;
                     command = *displayList;
                     *displayList = command + 1;
                     command->words.w0 = 0xBC000806;
                     command->words.w1 = (u32)gOverlay99Texture + 0x80000000;
-                    overlay99Setup(displayList, setup.a, setup.b, 0, 0,
-                                   setup.a, setup.b);
-                    overlay99End(displayList);
+                    overlay99ClearZBufferReloc(displayList, width, height, 0,
+                                               0, width, height);
+                    overlay99Func80034920Reloc(displayList);
                 }
 
                 dx = segment->x1 - segment->x0;
                 dz = segment->z1 - segment->z0;
                 object->rotation0 = 0;
                 object->rotation1 = 0;
-                object->heading = overlay99Angle(-dx, dz);
+                object->heading = overlay99ArctanfReloc(-dx, dz);
                 dx *= scale;
                 dz *= scale;
                 object->x = segment->x0 + dx;
-                object->z = segment->z0 + dz;
-                object->y = 5.0f;
-                length = overlay99Sqrt((dx * dx) + (dz * dz));
+                object->y = segment->z0 + dz;
+                object->z = 5.0f;
+                length = overlay99SqrtReloc((dx * dx) + (dz * dz));
                 if (segment->headingOffset != 0) {
                     object->heading += (s32)((f32)segment->headingOffset *
                                              65536.0f * scale);
                 }
                 object->flags &= ~0x400;
-                overlay99DrawObject(displayList, matrices, vertices, object);
+                overlay99Func80009E78Reloc(displayList, matrices, vertices,
+                                           object);
                 object->flags |= 0x400;
                 overlay99RenderSortedEntries(displayList, matrices, vertices,
                                              object, length);

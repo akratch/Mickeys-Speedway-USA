@@ -2,6 +2,7 @@
 #define OVERLAY_099_H
 
 #include "ultra64.h"
+#include "n_audio/gbi.h"
 
 typedef struct Overlay99Vec3 {
     f32 x;
