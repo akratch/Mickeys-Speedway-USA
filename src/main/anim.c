@@ -1375,8 +1375,9 @@ void func_80055970(HitCopyState *first, HitCopyState *second, f32 unused) {
  * source-faithful follow-up reordered the initial pointer assignments and
  * reached 118/121 instructions with the exact 0x50 frame, nine calls, and FP
  * schedule. The remaining three words are one v0->v1 allocator web at the
- * 0x258 stores; timer lifetime/width forms and the alias probe did not move it.
- * See the function's plateau entry in docs/resident.md for the evidence. */
+ * 0x258 stores. A faithful five-minute permuter sweep reached zero only by
+ * inserting a prohibited dead guard after the first call; honest scope and
+ * expression-boundary probes stayed at three words. See docs/resident.md. */
 void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
     HitCollisionNormalLink *secondTarget;
     HitCopySource *secondSource;
@@ -1388,9 +1389,9 @@ void func_80055B24(HitCopyState *first, HitCopyState *second, f32 unused) {
     f32 deltaZ;
     f32 distance;
 
-    firstSource = first->source;
     secondTarget = (HitCollisionNormalLink *) second->target;
     secondSource = second->source;
+    firstSource = first->source;
     firstVehicle = (HitCollisionVehicle *) first->target;
     if ((firstVehicle->unk16A == 0) && (firstVehicle->unk168 == 0)) {
         TrapDanglingJump(first, firstVehicle);
