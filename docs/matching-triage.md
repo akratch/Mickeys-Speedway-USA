@@ -167,5 +167,5 @@ routing facts from that sweep; the sweep's `summary.json` is the measurement.
 |---|---|---|---|---|
 | `func_8004D40C` | font | **P** (was recorded as pass-owned "lifetime" plateau, 2 words) | permuter score 205 → 0 in 255 s once the scratch used the TU's real flags; another false floor in the "proven" column | ✅ matched (permuter) |
 | `overlay1CloneRecord` | o001 | **I** | import.py's scratch redeclares the function with a conflicting return type against the TU's own prototype (`Overlay1PathState *`); scratch never compiles, base score None | needs a prototype-aware import (workbench backlog #7 preflight would have flagged it) |
-| `overlay40FadeRecords` | o040 | **P!** | base 75, no improvement in 20 min | re-seed / longer cap before any hand pass |
+| `overlay40FadeRecords` | o040 | **R** | retained configured candidate is 3/101 register-only words from exact at `+0xC/+0x10/+0x24`, frame `0x8`; the 20-minute blind batch did not improve it | five-run cap: fresh baseline, reverse the `current`/`output` value origin, then declaration order; combine or initialize declarations only after a strict improvement |
 | `overlay18Load` | o018 | **P!** | relocation-aware pass exposed a 64-bit first-argument ABI; overlay metadata resolves the call to `osSetTime(OSTime)` | ✅ matched (ABI reconstruction) |
