@@ -15,7 +15,7 @@ extern void **gOverlay41Resources;
 
 extern void func_8004B0A4(s32 mode);
 extern void func_8004B0DC(s32 red, s32 green, s32 blue, s32 alpha);
-extern s32 func_8004BA8C(void *resource, s32 font, s32 scaled);
+extern s32 func_8004BA8C(char *text, s32 font, s32 convertString);
 extern void func_8004B0B8(s32 red, s32 green, s32 blue, s32 alpha,
                          s32 intensity);
 extern void func_overlay_067_F0000000_18C6F40(void *displayList, s32 arg1,

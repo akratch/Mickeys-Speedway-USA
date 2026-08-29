@@ -162,9 +162,6 @@ void func_8004B13C(Gfx **displayList, s32 windowId, s32 xpos, s32 ypos,
  * instructions, m2c draft, fields, control bytes, and display-list words
  * determine this candidate.
  */
-/* Workbench blocked: the full-TU candidate stops on duplicate locals in adjacent func_8004BA8C, so no valid object was produced.
- * Levers: no function edit; repairing that unrelated translation-unit error is outside this assignment.
- * Remaining: compile the intact TU, then diagnose this function against its target object. */
 void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
                    char *text, s32 alignmentFlags) {
     s32 savedFont;
@@ -435,9 +432,14 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/font/func_8004B1DC.s")
 #endif
 #ifdef NON_MATCHING
-/* PROVENANCE: JFG's permitted fontStringWidth assembly and DKR's Japanese get_text_width body informed organization; Mickey data and m2c remain authoritative.
- * Workbench: allocation-mismatch, 8/46 words differ first at +0x30; frame and relocations are exact, with a v0/a3 font-data web.
- * Levers: flag lattice, width/index hoists, declaration/stack-pad/alias, address/type, and spacing-order forms; the web and spill homes remain. */
+/* PROVENANCE: JFG's permitted src/font.c::fontStringWidth assembly and DKR's
+ * src/font.c::get_text_width Japanese branch informed organization; Mickey
+ * data and m2c remain authoritative.
+ * Retained configured isolated and full-TU evidence is exact-size with eight
+ * raw/normalized sites at +0x30,+0x3C,+0x44,+0x4C,+0x50,+0x60,+0x90,+0x94,
+ * a 0x30 frame, and nine exact relocation tuples. No linked C proof survives.
+ * Flag, width/index, declaration/stack-pad/alias, address/type, spacing-order,
+ * trace, and bounded-permuter routes are exhausted; unchanged reproof only. */
 s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
     u8 stackPad[1];
     FontSpacingData *fontData;
