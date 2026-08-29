@@ -1500,6 +1500,17 @@ Epoch 12 opens with four consecutive presentation builders in overlay 101.
 
 Overlay 33's present-and-swap helper at `+0x066C..+0x0708` — 156 bytes / 39 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via private-register web reassignment); source kept as decomp-permuter input. Declaring the double-buffer index volatile naturally reproduces the target's `0x18` frame, size, opcode schedule, two calls, and all 18 relocation sites. The larger renderer and initializer remain assembly-owned, so this is not a module closure.
 
+#### ADR 0001/0002 reclassification of the following Epoch 12 tranche
+
+A later canonical-source audit found that the historical rolling checkpoints
+from `overlay 58 +0x5554` through `overlay 1 +0x7D6C` credited **25,548 bytes**
+whose C bodies remain guarded by `NON_MATCHING`. Those candidates remain useful
+matching evidence, but assembly is canonical and they receive no matched-C,
+resolved-text, or module-closure credit. The tranche contains **13,752 bytes**
+of genuine exact promotions; its old cumulative numerators, percentages, and
+closure-gate values are withdrawn. Current cumulative progress is reported
+only by the generated scoreboard.
+
 Overlay 58's final executable body at `+0x00005554..+0x00005A14` — 1,216 bytes / 304 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via private register/schedule web reassignment); source kept as decomp-permuter input. Retains the complete packed-status state machine, all 24 calls, and all 48 source relocations. The following `+0x00005A14..+0x00005A20` nop island remains assembly-owned padding.
 
 Overlay 101's next presentation body at `+0xA6BC..+0xAB4C` — 1,168 bytes / 292 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via address-rematerialization and register/frame/schedule web reassignment); source kept as decomp-permuter input. Preserves the three-word ABI, six-call semantic graph, and all 44 compile relocations.
