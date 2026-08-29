@@ -58,12 +58,16 @@ extern void func_overlay_066_F0000000(void *arg0);
 /* Pinned DKR v77/v80 and JFG donor scans classify overlay 11 as none. */
 /*
  * Plateau (2026-08-28): canonical -O2 -mips2 is size-exact (1204 B/301 words),
- * with a 0x48-byte frame, 102 relocation roles, and 299/301 words identical;
- * the first mismatch is the reversed live index/handle spill pair at +0x138.
+ * with a 0x48-byte frame, 102 relocation sites, and 299/301 words identical
+ * after masking the runtime relocation fields; the first executable mismatch
+ * is the reversed live index/handle spill pair at +0x138. This is configured
+ * isolated-C evidence, not retained full-TU C proof. The current +0x8 call is
+ * also identity-wrong: runtime names resident func_80028F54, not overlay 11 +0.
  * A scoped handle after the ternary and a block-scoped callback value are
  * baseline-equivalent; moving the handle before it swaps the pair but hoists
  * the zero-value setup and changes schedule. The prohibited frame/spill rewrite
- * remains non-promotable; canonical assembly stays.
+ * remains non-promotable; canonical assembly stays. Correct the call identity
+ * before a trace-led source-line/declaration association campaign.
  */
 #ifdef NON_MATCHING
 void overlay11UpdateMenu(s32 updateRate) {
