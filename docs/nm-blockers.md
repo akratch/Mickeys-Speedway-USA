@@ -103,7 +103,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_80040740` | `src/main/particles.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80040B88` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80041530` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_80041CE4` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_80041CE4` | `src/main/particles.c` | none | — | Recorded configured full-TU probes report 126/153 words, frame `0x80`, and exact relocations, but the surviving isolated import omitted required `-Wab,-r4300_mul`. Run one configured V0 to reconcile; declaration/lifetime/type/flag/permuter routes are exhausted, so park if 27 sites reproduce. |
 | `func_8002EBE0` | `src/main/rcpFast3d.c` | none | — | No ownership change; continue source/codegen work. |
 | `rcpClearZBuffer` | `src/main/rcpFast3d.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80031A30` | `src/main/runlink.c` | none | — | No ownership change; continue source/codegen work. |
