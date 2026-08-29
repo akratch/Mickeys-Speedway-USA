@@ -682,6 +682,13 @@ relocations. It is unexported. Its sole inbound is table-2 JUMP index 6 at
 module `+0xCF4`, from `overlay19FindAdjacent+0xD8`; linked equality currently
 comes from the fallback, not the retained 110/120 C producer.
 
+Overlay 1 `+0x63CC` (`overlay1UpdateCountdown`) is exact C after masking seven
+records: LOCAL pairs at `+0x00/+0x04`, `+0x10/+0x14`, and `+0x30/+0x38` for
+BSS addends `+0x1DA0/+0x1D94/+0x1D9C`, plus a SYMBOL call at `+0x34` to
+Overlay 1 ORT 1525 (`+0x5BA4`). ORT 1535 exports it; table-2 index 954 stores
+its sole inbound function pointer at module data `+0x821C`. Its legacy inert
+condition is cleanup-tracked and does not authorize guards in unmatched C.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to

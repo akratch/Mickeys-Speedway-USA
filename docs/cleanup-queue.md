@@ -8,6 +8,9 @@ form is inert, and record it here. Return later to find a cleaner C that produce
 the same bytes. These are byte-identical matches with **no fakes and no
 ROM-derived content** — only the *spelling* is unnatural.
 
+This exception records already-proved exact C; it never authorizes adding an
+inert guard or operation to improve a non-exact candidate.
+
 A match here is DONE for scoreboard purposes; the cleanup is a quality follow-up,
 not a correctness gap.
 
@@ -34,6 +37,7 @@ not a correctness gap.
 | `overlay8ScaleOutputs` | overlay 8 scale outputs | empty `!index` condition | The inert condition preserves exact selector/index allocation. Seek a natural cast/lifetime spelling with the same bytes and relocations. |
 | `overlay27Activate` | overlay 27 state transition | duplicated empty state-null condition | The inert condition preserves exact saved-object allocation. Seek a natural assignment/lifetime spelling with the same bytes and relocations. |
 | `overlay7FillValues` | overlay 7 value-table reset | empty duplicated `!value` condition and dummy comma-expression operand | Both inert forms preserve the exact 11-word allocation. Seek a natural spelling retaining 11 words and the two LOCAL HI16/LO16 records. |
+| `overlay1UpdateCountdown` | overlay 1 countdown update | impossible empty pointer/mask condition plus packed statement line | Retained C is 22/22 after relocation masking with seven records. First remove only the condition; independently unpack the three real statements, retaining exact bytes. |
 
 Add rows as ugly-but-verified matches land. When revisiting: reproduce the match
 with idiomatic C, `gmake verify`, then delete the row + the in-source comment.
