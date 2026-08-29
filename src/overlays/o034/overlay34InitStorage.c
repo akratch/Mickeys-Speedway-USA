@@ -11,7 +11,10 @@ extern void *func_8002B280(s32 size, s32 tag);
 
 /* Pinned DKR v77/v80 and JFG scans found no exact donor. */
 /*
- * Plateau: exact 0xC8 size, 46/50 instruction words, first mismatch +0x24.
+ * Plateau: exact 0xC8 size and 0x30 frame, 46/50 relocation-normalized words,
+ * first mismatch +0x24. The surviving isolated ranking has a fifth raw
+ * difference at +0xC4 because its assembled target bakes the local-data +8
+ * addend; the candidate and runtime table require eight relocation sites.
  * The target assigns the reused size spill to sp+0x1C; IDO assigns this body
  * to sp+0x18. Declaration, lifetime, expression, and type variants either
  * preserve those four differences or grow the frame. A 10-minute, two-worker
@@ -25,7 +28,9 @@ extern void *func_8002B280(s32 size, s32 tag);
  * Giving each post-call region its own remaining local keeps all 50 words and
  * reaches the target spill home, but grows the frame from 0x30 to 0x38; one
  * shared region-local returns exactly to this baseline. The exact-frame body
- * therefore remains best at 46/50 relocation-masked words.
+ * therefore remains best at 46/50 relocation-masked words. Preserve a fresh
+ * unchanged V0 and runtime-annotated target, then park absent a new IDO
+ * stack-allocation mechanism.
  */
 #ifdef NON_MATCHING
 void overlay34InitStorage(s32 count) {

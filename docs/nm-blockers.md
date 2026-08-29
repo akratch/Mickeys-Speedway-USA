@@ -264,7 +264,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_033_F0000000_18807E8` | `src/overlays/o033/overlay33InitializeBuffers.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_033_F000066C_1880E54` | `src/overlays/o033/overlay33PresentAndSwap.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_034_F00000D4_188127C` | `src/overlays/o034/overlay34CreateRecord.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_034_F0000000_18811A8` | `src/overlays/o034/overlay34InitStorage.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_034_F0000000_18811A8` | `src/overlays/o034/overlay34InitStorage.c` | none | — | Exact 50-word/`0x30`-frame candidate has four normalized stack-home differences at `+0x24/+0x30/+0x78/+0x7C` (`sp+0x18` versus target `sp+0x1C`) and eight required relocations; the fifth raw ranking word is the baked `+0xC4` addend. Trials exhausted; reproof-only V0. |
 | `func_overlay_034_F00002C8_1881470` | `src/overlays/o034/overlay34RemoveRecord.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_034_F000040C_18815B4` | `src/overlays/o034/overlay34UpdateRecords.c` | none | — | Natural C is 320 bytes versus the 308-byte target; prior equality required prohibited instruction deletion, reordering, and field edits. |
 | `func_overlay_034_F0000608_18817B0` | `src/overlays/o034/overlay34SortAndDraw.c` | none | — | No ownership change; continue source/codegen work. |
