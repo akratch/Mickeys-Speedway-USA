@@ -113,8 +113,9 @@ extern void *overlay7GetCurrentReloc(void);
 extern s32 overlay7GetCheckIndexReloc(void *current);
 extern void overlay7RecordCheckReloc(s32 value);
 extern void overlay7SetOwnerModeReloc(Overlay7CheckOwner *owner, s32 mode);
-extern s32 overlay7QueryReloc(void);
-extern void overlay7ApplyReloc(s32 arg0, s8 index, s8 value, u8 field);
+extern s32 camGetModeReloc(void);
+extern void overlay59AppendValueReloc(s32 arg0, s32 index, s32 value,
+                                      s32 field);
 extern void func_800031E8(void *object);
 extern void amSndPlay(u16 value, void **argument);
 

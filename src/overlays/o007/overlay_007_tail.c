@@ -159,17 +159,15 @@ void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000AA0_185C928.s")
 #endif
 
-/* Plateau evidence reviewed 2026-08-29: the source-current isolated candidate
- * has the exact 60-word size and 0x20 frame. Five raw positions differ: the
- * t7-versus-t6 address/result carrier at +0x4/+0x10 and local-data addends at
- * +0x84/+0x88/+0xC0; runtime relocation normalization leaves two substantive
- * words. The candidate requires 13 relocation sites, while the assembled
- * target preserves only five, so neither the old zero-word fallback
- * self-comparison nor current fallback-linked bytes are C proof. The 119-case
- * flag lattice, volatile/signed/array representations, local flag/table webs,
- * cast placement, and Tier-2 trace found no applicable FIFO/copy lever.
- * Re-prove unchanged full-TU V0 with all 13 relocations and then park absent a
- * new address-carrier coalescing mechanism. */
+/* Plateau evidence reviewed 2026-08-29: retained pre-current-line-layout
+ * full-TU C is 55/60 relocation-annotated, 53/60 literal, and 58/60 after
+ * runtime normalization, exact size/frame, first substantive mismatch +0x4.
+ * The two normalized sites at +0x4/+0x10 are one t7-versus-t6 flags-value web;
+ * +0x40/+0x84/+0x88/+0x90/+0xC0 are relocation-only. It owns all 13 runtime
+ * records; linked equality is fallback-only. Historical flag, trace, source,
+ * and search outcomes are unretained. Compile identity-correct current V0,
+ * retain 119 flags, trace once, and try at most two trace-selected natural
+ * scalar forms; cap at 122 stock builds plus trace and stop on exact. */
 #ifdef NON_MATCHING
 void overlay7DispatchSelection(Overlay7DispatchOwner *owner, s32 selection) {
     Overlay7DispatchState *state;
@@ -193,10 +191,11 @@ create:
         }
     } else {
 query:
-        if (overlay7QueryReloc() == 0) {
+        if (camGetModeReloc() == 0) {
             mapped = gOverlay7DispatchMap[selection];
             if (mapped != -1) {
-                overlay7ApplyReloc(0, state->index, mapped, state->field45D);
+                overlay59AppendValueReloc(0, state->index, mapped,
+                                          state->field45D);
             }
         }
     }
