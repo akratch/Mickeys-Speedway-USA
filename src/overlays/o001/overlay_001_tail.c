@@ -87,9 +87,12 @@ extern void overlay1GetVariableRecords(O1VariableRecord **records, s32 *length,
  * local shrank the frame and regressed to 13 words; a typed store pointer,
  * byte cursor, block-local record size, and scoped call outputs retained the
  * eight-word baseline. Direct D_1D8C access fixed the four data-reloc names but
- * regressed to 16 words. The consolidated NON_MATCHING TU is independently
- * blocked by unrelated candidate declarations, so no linked exact claim is
- * possible from the selective diagnostic.
+ * regressed to 16 words. Commit 9968f84e repaired the unrelated consolidated
+ * TU declaration conflicts; the next bounded pass is therefore a natural
+ * full-TU measurement followed by at most three independent probes: reorder
+ * the address-taken output declarations, collapse records/record into one
+ * carrier, and spell the conditional store as an explicit skip edge. If none
+ * improves the eight-word baseline, record p10/no-go.
  */
 #ifdef NON_MATCHING
 void overlay1AssignRecordIndex(s32 unused, O1RecordOwner *owner) {
