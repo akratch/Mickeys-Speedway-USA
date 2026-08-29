@@ -380,7 +380,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2BF14` | `func_8002B314` | `mmAlloc2` | B: second wrapper with the same calls and result role; linked C exact |
 | `0x2BFA8` | `func_8002B3A8` | `mempool_slot_find` | B: common worker used by all three allocation wrappers and the fixed-address allocator; linked C exact |
 | `0x2C0C0` | `func_8002B4C0` | `mmAllocR` | B: selects a pool by its slot-array pointer, then calls the common worker; linked C exact |
-| `0x2C124` | `func_8002B524` | `mmAllocAtAddr` | B: fixed-address allocation through up to three slot assignments; plateau, 102/116 words exact, first `+0xE0`, frame `0x58`, 12 exact relocations |
+| `0x2C124` | `func_8002B524` | `mmAllocAtAddr` | B: fixed-address allocation with three static slot-assignment call sites but at most two executed per path; guarded current-body C is 102/116 words, first `+0xE0`, frame `0x58`, with all 12 relocations exact |
 | `0x2C2F4` | `mmSetDelay` | `mmSetDelay` | B: writes the deferred-free delay used by `mmFree`; matched C exact |
 | `0x2C300` | `func_8002B700` | `mmFlushFreeStack` | B: drains queued addresses through the address-free worker; linked C exact |
 | `0x2C368` | `mmFree` | `mmFree` | A: unique 17-word skeleton with four relocated words masked; linked C exact |
@@ -457,16 +457,18 @@ reproduce Mickey's target and both call relocations.
 extended-RAM choice, main-pool construction, deferred-free delay, and queue
 reset reproduce all 30 words and the linked global/call relocations.
 
-`func_8002B524`: retained configured full-TU evidence agrees byte-for-byte with
-the isolated candidate at 102/116 exact words, frame `0x58`, and all 12
-relocation tuples. Raw and normalized residuals are the 14 sites
+`func_8002B524`: the retained configured `NON_MATCHING` full-TU object and
+isolated candidate are byte-identical and represent the current function body.
+They own 116 words with the exact `0x58` frame, all 12 target relocation
+tuples, and 102 exact raw and relocation-normalized words. The fourteen
+differences are
 `+0xE0,+0xE8,+0xEC,+0xF0,+0xF4,+0xF8,+0x104,+0x110,+0x114,+0x118,+0x138,
-+0x13C,+0x150,+0x1A4`. It is stale supporting evidence, not a fresh baseline,
-and no linked C proof exists. The mismatch is the slot-record/data-pointer
-carrier, normal-versus-likely lower-bound branch, and call-live record home at
-candidate `sp+0x38` versus target `sp+0x3C`. Cap the next campaign at V0,
-narrow slot-data cache, separate lower/upper guards, improving combination,
-and an improving-only call-live record probe; park after five flat builds.
++0x13C,+0x150,+0x1A4`: ten slot-record/data-carrier sites, two lower-bound
+branch/delay-slot sites, and the call-live record home at candidate `sp+0x38`
+versus target `sp+0x3C`. The ordinary object, linked owned range, complete
+memory TU, and exact ROM contain `GLOBAL_ASM`; no linked C candidate survives.
+Use the bounded five-build cache/guard/combination/spill ladder and park if
+flat.
 
 `func_8002BB40`: the stale standalone import is 72 words with 30 register
 differences from `+0x8C`, but it drops the real translation-unit context. The

@@ -207,12 +207,18 @@ void *func_8002B4C0(MemoryPoolSlot *slots, s32 size) {
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmAllocAtAddr. Mickey's globals,
  * pool/slot layouts, absent diagnostic calls, and linked bytes are authoritative. */
-/* Retained configured full-TU evidence matches the isolated candidate at
- * 102/116 words, frame 0x58, and all 12 relocation tuples; raw and normalized
- * sites are +0xE0,+0xE8,+0xEC,+0xF0,+0xF4,+0xF8,+0x104,+0x110,+0x114,
- * +0x118,+0x138,+0x13C,+0x150,+0x1A4. It is stale and has no linked C proof.
- * Fresh-baseline first, then cache slot data, split the lower/upper guards,
- * combine only on improvement, and try a call-live slot record last. */
+/*
+ * Retained current-body evidence (reviewed 2026-08-29): the configured
+ * NON_MATCHING full-TU object and isolated candidate are byte-identical at
+ * 102/116 words, frame 0x58, first +0xE0, with all 12 target relocation
+ * tuples exact. The fourteen raw and normalized differences are ten
+ * slot-record/data-carrier sites, two lower-bound branch/delay-slot sites,
+ * and the call-live record home at candidate sp+0x38 versus target sp+0x3C.
+ * Ordinary object, linked owned range/TU, and ROM equality prove GLOBAL_ASM
+ * only; no linked C trial survives. Reprove V0, then use the bounded
+ * slot-data-cache, split-guard, improving-combination, and improving-only
+ * call-live-record ladder.
+ */
 #ifdef NON_MATCHING
 void *func_8002B524(s32 size, u8 *address, u32 colourTag) {
     s32 slotIndex;
