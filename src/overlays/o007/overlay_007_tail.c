@@ -16,17 +16,24 @@ typedef struct Overlay7SelectionRow {
 /* Overlay 7, ADR 0006 consolidation: C after the middle assembly island. */
 
 /*
- * Plateau (evidence reviewed 2026-08-29): retained configured full-TU and
- * isolated C artifacts have the exact 131-word size and 0x20 frame, but both
- * predate the source's corrected mathRnd identities. They are 128/131 raw and
- * 129/131 after runtime-relocation normalization: one t4-versus-t3 value web
+ * Reproof lead (evidence reviewed 2026-08-29): stale local configured full-TU
+ * and isolated objects from the historical masked spelling have the exact 131-
+ * word size and 0x20 frame but survive only outside canonical Git and predate
+ * the corrected mathRnd identities. They measured 128/131 raw and 129/131
+ * after runtime-relocation normalization: one t4-versus-t3 value web
  * differs at +0x44/+0x64, while the raw +0xA4 difference is the owned switch
  * table's LO16 addend. That score used a redundant low-ten-bit mask, now
- * removed, so clean current-source V0 remains uncompiled. ORT 1471 has six
- * callers. Re-prove all 23 text and seven switch-table relocations, retain the
- * 119-flag lattice, trace the remaining value web once, and try at most two
- * trace-selected natural scalar/scope forms. Cap the clean campaign at 121
- * stock builds plus one trace; historical route claims are not retained proof.
+ * removed, so clean current-source V0 remains uncompiled and its score, frame,
+ * size, and tuples are unknown. The stale objects preserve all 30 offsets/types
+ * but incorrectly name both +0x124/+0x1BC calls as overlay7LookupReloc rather
+ * than runtime-authenticated mathRnd; they cannot support promotion. ORT 1471
+ * has six callers. An exact-range structural scan found no credible donor,
+ * best similarity 0.101. Compile current V0 and re-prove all 23 text plus seven
+ * switch-table records. If shape regresses, use one identity-correct masked
+ * diagnostic control; otherwise retain 119 configurations including V0, trace
+ * the value web once, and try at most two trace-selected natural scalar/scope
+ * forms. Hard cap 121 deterministic builds plus one trace, 122 only for the
+ * control; no combination or generic batch.
  */
 /* Ownership trial (2026-08-28): fixed the TU's +0x934..+0x950 .rodata range;
  * its historical 455-word linked failure measured the whole trial surface, not this

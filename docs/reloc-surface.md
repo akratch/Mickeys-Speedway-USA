@@ -642,8 +642,11 @@ ORT 171 to resident `mathRnd`, nine local calls to `overlay7CreateEntry`, and
 four local calls to `overlay7AppendEntry`. The seven `R_MIPS_32/LOCAL` data
 records at module `+0x18F4..+0x190C` target case labels inside
 `+0x894..+0xAA0`. ORT 1471 exports the function; five resident calls and
-Overlay 25 table-1 record 15 are its six inbounds. Retained genuine C is
-128/131 raw and 129/131 normalized, while linked equality is fallback-only.
+Overlay 25 table-1 record 15 are its six inbounds. Historical masked,
+pre-identity diagnostic C was measured at 128/131 raw and 129/131 normalized;
+its stale objects preserve all offsets/types but misname both math calls.
+Current clean C score and 30 emitted identities await reproof, while linked
+equality is fallback-only.
 
 Overlay 7 `+0xCCC` (`overlay7DispatchSelection`) owns 13 records: a SYMBOL
 HI16/LO16 pair through ORT 1579 to resident `D_800D3128`; SYMBOL calls through
