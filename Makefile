@@ -911,18 +911,9 @@ $(BUILD_DIR)/$(SRC_DIR)/main/track.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/main/track.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym trackCamPosTrap=TrapDanglingJump $@
 
-# levelInit reaches seven runtime-loaded functions through the shared resident
-# trap. Typed weak aliases preserve each real ABI; this metadata-only step
-# restores the shipped undefined symbol identity without changing section data.
-$(BUILD_DIR)/$(SRC_DIR)/main/level.c.o: POSTPROCESS = \
-	$(OBJCOPY) \
-		--redefine-sym levelTrackInitTrap=TrapDanglingJump \
-		--redefine-sym levelOverlay7InitPoolTrap=TrapDanglingJump \
-		--redefine-sym levelOverlay34InitStorageTrap=TrapDanglingJump \
-		--redefine-sym levelOverlay33InitializeBuffersTrap=TrapDanglingJump \
-		--redefine-sym levelOverlay42InitTrap=TrapDanglingJump \
-		--redefine-sym levelOverlay16InitializeBufferTrap=TrapDanglingJump \
-		--redefine-sym levelOverlay103CheckSignatureTrap=TrapDanglingJump $@
+# levelInit's typed weak aliases preserve the seven runtime-loaded ABIs while
+# IDO emits their calls against the shared TrapDanglingJump identity directly.
+# No postprocess is needed.
 
 # The gsSnd flag lattice reproduces its debug-shaped epilogues only with bare -g.
 $(BUILD_DIR)/$(SRC_DIR)/main/gsSnd.c.o: OPT_FLAGS := -g

@@ -138,32 +138,10 @@ def duplicate_redefine_targets(command):
     return conflicts
 
 
-def source_weak_aliases(target, root_dir=ROOT_DIR):
-    src = object_to_src(target)
-    if src is None:
-        return set()
-    path = os.path.join(root_dir, src)
-    try:
-        with open(path, encoding="utf-8") as fh:
-            text = fh.read()
-    except OSError:
-        return set()
-    return set(
-        re.findall(
-            r"^\s*#pragma\s+weak\s+(\S+)\s*=\s*(\S+)\s*$",
-            text,
-            flags=re.MULTILINE,
-        )
-    )
-
-
-def redefine_conflicts(commands, root_dir=ROOT_DIR):
+def redefine_conflicts(commands):
     problems = []
     for target, command in sorted(commands.items()):
-        weak_aliases = source_weak_aliases(target, root_dir=root_dir)
         for destination, sources in duplicate_redefine_targets(command):
-            if all((source, destination) in weak_aliases for source in sources):
-                continue
             problems.append((target, destination, sources))
     return problems
 
