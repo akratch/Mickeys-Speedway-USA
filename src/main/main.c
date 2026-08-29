@@ -1457,24 +1457,29 @@ s32 func_80028FB8(s32 arg0, s32 arg1, s32 arg2) {
 
 #ifdef NON_MATCHING
 /*
- * PROVENANCE: control structure adapted from Jet Force Gemini
- * src/main.c::mainAnyoneHas. That donor has different arguments; Mickey's own
- * ABI, three calls and instructions determine this candidate.
+ * PROVENANCE: JFG's pinned mainAnyoneHas remains GLOBAL_ASM and supplies only
+ * the name/close structure; this body is reconstructed from Mickey's bytes.
  *
- * Retained pre-current-line-layout full-TU and isolated C agree on the exact
- * 108-byte/27-word body and frame 0x18, with ten raw/normalized differences
- * and exact calls at +0x14/+0x30/+0x4C. Fresh configured V0 is required. Then
- * retain the flag lattice, try one reused normalized-result spelling, and use
- * one trace-selected lifetime/shared-epilogue form only after a strict gain.
+ * Retained configured full-TU C is 17/27 words, exact 108-byte size/frame 0x18
+ * and calls at +0x14/+0x30/+0x4C. The target normalizes each result and shares
+ * one epilogue; that natural form is now staged but uncompiled. ORT 663 has no
+ * authenticated inbound. If not exact, retain 119 flags and use one trace-led
+ * lifetime form only after a strict gain; cap at 121 stock builds plus trace.
  */
 s32 func_80028FCC(s32 arg0) {
-    if (func_80028FB8(0, 0, arg0)) {
-        return TRUE;
+    s32 result;
+
+    result = func_80028FB8(0, 0, arg0) != 0;
+    if (result) {
+        goto done;
     }
-    if (func_80028FB8(0, 0, arg0)) {
-        return TRUE;
+    result = func_80028FB8(0, 0, arg0) != 0;
+    if (result) {
+        goto done;
     }
-    return func_80028FB8(0, 0, arg0) != 0;
+    result = func_80028FB8(0, 0, arg0) != 0;
+done:
+    return result;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/main/func_80028FCC.s")
