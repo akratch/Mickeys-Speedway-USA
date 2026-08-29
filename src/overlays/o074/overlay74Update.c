@@ -40,8 +40,8 @@ void overlay74HitReloc(Overlay74UpdateObject *object);
 void overlay74SoundReloc(s32 soundId, s32 arg1);
 void overlay74RewardReloc(s32 count);
 
-/* NON_MATCHING plateau (re-reviewed 2026-08-29): retained configured full-TU
- * and isolated C agree on the exact-size 100-word candidate at six raw and
+/* NON_MATCHING diagnostic (re-reviewed 2026-08-29): retained full-TU and
+ * isolated C agree on the former empty-guard candidate at six raw and
  * six relocation-normalized words at +0xC,+0x68,+0x84,+0x8C,+0x90,+0x124,
  * while preserving the 0x60 frame. Five words swap the result aggregate's
  * address/object register pair, and the last OR uses the opposite commutative
@@ -52,9 +52,9 @@ void overlay74RewardReloc(s32 count);
  * static call relocations. Pinned DKR v77/v80 and JFG scans found no donor.
  * Historical flag, structural, forced-color, and permuter scores have no
  * surviving attributable variant objects and are scheduling context, not
- * exhaustion proof. Reprove V0; independently probe the resident s32 query
- * return, void no-argument hit ABI, and reversed outer OR operands; combine
- * only strict gains within a five-build cap. Linked C proof does not survive. */
+ * exhaustion proof. The invented empty guards are now removed. Compile a
+ * source-faithful V0, probe both resident ABIs, retain the 119-flag lattice,
+ * then reverse the outer OR once. Linked C proof does not survive. */
 #ifdef NON_MATCHING
 void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
     Overlay74QueryResult result;
@@ -65,9 +65,6 @@ void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
     if (!(object->flags & 0x400)) {
         object->angle += amount << 8;
         state = object->state;
-        /* Preserve IDO's original aggregate-address allocation. */
-        if (!&result) {
-        }
         if (overlay74QueryReloc(object->x, object->y, object->z,
                                 (f32)state->strength, 1, &result)) {
             amount = (s32)result.object->state;
@@ -84,8 +81,6 @@ void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
                 overlay74SoundReloc(0x27C, 0);
 
                 object = (Overlay74UpdateObject *)5;
-                if (!object) {
-                }
                 state = (Overlay74UpdateState *)((gOverlay74Flags << 5) >> 28);
                 mask = 8;
                 do {
