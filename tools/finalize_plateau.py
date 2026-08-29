@@ -26,6 +26,9 @@ HANDOFF_RE = re.compile(
     r"(?: \* [^\n]*\n)*?"
     r" \*/\n",
 )
+GENERATED_OVERLAY_FALLBACK_RE = re.compile(
+    r"^func_overlay_[0-9]{3}_F[0-9A-Fa-f]{7}_[0-9A-Fa-f]+\.s$"
+)
 
 
 class PlateauError(RuntimeError):
@@ -135,12 +138,17 @@ def guarded_candidates(text: str, symbol: str) -> list[GuardedCandidate]:
             continue
         fallback_text = "".join(lines[else_line + 1:end_line])
         fallbacks = fallback_re.findall(fallback_text)
-        exact = [path for path in fallbacks if Path(path).name == f"{symbol}.s"]
-        if len(fallbacks) != 1 or len(exact) != 1:
+        valid = [
+            path for path in fallbacks
+            if Path(path).name == f"{symbol}.s"
+            or GENERATED_OVERLAY_FALLBACK_RE.fullmatch(Path(path).name)
+        ]
+        if len(fallbacks) != 1 or len(valid) != 1:
             raise PlateauError(
-                f"{symbol} must have exactly one #pragma GLOBAL_ASM fallback named {symbol}.s"
+                f"{symbol} must have exactly one matching or generated-overlay "
+                "#pragma GLOBAL_ASM fallback"
             )
-        found.append(GuardedCandidate(start, else_line, end_line, exact[0]))
+        found.append(GuardedCandidate(start, else_line, end_line, valid[0]))
     return found
 
 

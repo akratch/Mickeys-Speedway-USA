@@ -287,13 +287,16 @@ tools/finalize_plateau.py overlay40FadeRecords \
 ```
 
 The exact function must already be C under `#ifdef NON_MATCHING`, followed by
-one `#else` / `#pragma GLOBAL_ASM(".../<symbol>.s")` fallback. The command
-refuses an unguarded or ambiguous body, a mismatched fallback, an untracked
-source, or worktree/index dirt outside that source and an optional
-`--handoff-doc docs/<file>.md`. It records only the supplied score, frame,
-relocation count, first mismatch, and one-line summary in a fixed-field source
-comment (and, when requested, a bounded Markdown block). It never records
-instruction rows or claims exactness.
+one `#else` / `#pragma GLOBAL_ASM(...)` fallback. The fallback filename must
+either match the C symbol or use splat's canonical generated overlay-function
+form (`func_overlay_NNN_F...s`), which is how friendly overlay names retain
+their original assembly identity. The command refuses an unguarded or
+ambiguous body, any other mismatched fallback, an untracked source, or
+worktree/index dirt outside that source and an optional `--handoff-doc
+docs/<file>.md`. It records only the supplied score, frame, relocation count,
+first mismatch, and one-line summary in a fixed-field source comment (and,
+when requested, a bounded Markdown block). It never records instruction rows
+or claims exactness.
 
 The finalizer runs the source-only `cleanroom` and `check-docs` gates. Those
 gates preserve a safe handoff; they do not replace configured compilation or

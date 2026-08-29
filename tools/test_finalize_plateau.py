@@ -53,6 +53,13 @@ class GuardValidationTests(unittest.TestCase):
         with self.assertRaisesRegex(plateau.PlateauError, "exactly one"):
             plateau.require_guarded_candidate(source, "demo_symbol")
 
+    def test_accepts_generated_overlay_fallback_for_friendly_symbol(self) -> None:
+        generated = VALID_SOURCE.replace(
+            "demo_symbol.s", "func_overlay_040_F0000690_1886F40.s"
+        )
+        candidate = plateau.require_guarded_candidate(generated, "demo_symbol")
+        self.assertTrue(candidate.fallback.endswith("func_overlay_040_F0000690_1886F40.s"))
+
     def test_rejects_non_assembly_fallback_with_matching_stem(self) -> None:
         source = VALID_SOURCE.replace("demo_symbol.s", "demo_symbol.c")
         with self.assertRaisesRegex(plateau.PlateauError, "exactly one"):
