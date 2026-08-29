@@ -276,9 +276,14 @@ Remaining: initial pool setup and saved-header copy schedule.
 frame, relocation identities, and linked ROM bytes match after bounded
 permutation resolved the final temp web.
 
-`func_8004BA8C` is exact in 42/46 words with the target frame and relocations; four register-only words differ first at `+0x30`.
-Workbench reports one `v0`/`a3` font-data web; the restored width-hoist/u32-index body is the best retained candidate.
-Fresh explicit byte-offset and base-pointer forms regress the schedule, so assembly stays canonical.
+`func_8004BA8C`'s configured `NON_MATCHING` candidate matches 38/46 words;
+its frame and nine relocations are exact, with eight raw residual words
+beginning at `+0x30`. The allocation trace selects `a3` for the font-data web
+while `v0` is forbidden by interference; the one causal `v0` force declined
+and alias tracing found no isolated ownership. Natural lifetime/expression
+forms were neutral, reordered initialization regressed, and a bounded
+single-thread permuter reinstated only retired pointer/index/pad forms, so
+assembly stays canonical.
 
 The font subsegment's FP-register census contains only even-numbered single-
 precision registers (`$f0`, `$f4`, `$f6`, `$f8`, `$f10`, `$f16`, and `$f18`),
