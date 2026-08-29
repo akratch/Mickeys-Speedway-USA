@@ -527,13 +527,14 @@ the count and all 21 runtime relocation sites before either score is reused.
 in `07e04a0f`. Its two raw LO16 fields become exact under the four proved
 runtime LOCAL tuples, and it no longer belongs in the NON_MATCHING queue.
 
-`overlay1AssignRecordIndex`'s eight-word row is a credible historical configured
-measurement, but no configured full-TU C object survives. The retained isolated
-C omitted the TU's `-Wab,-r4300_mul`, and full-TU equality is assembly fallback.
-The surviving static artifacts expose five records, while the runtime contract
+`overlay1AssignRecordIndex`'s eight-word row is authenticated by retained
+prior-layout configured full-TU and isolated C objects at 36/44 words, frame
+`0x38`, first `+0x1C`. The isolated recipe omitted the TU's
+`-Wab,-r4300_mul`, but both owned ranges are byte-identical, proving that flag
+inert for V0. Those C artifacts expose five records, while the runtime contract
 has seven: three-argument `GetRomlistInfo` and three LOCAL HI16/LO16 pairs for
-`D_1D8C`. Its current private callee alias and literal conditional write are not
-identity-correct; reprove V0 before the symbolic V1.
+`D_1D8C`. The private callee alias and literal conditional write are not
+identity-correct; reproduce current-layout V0 before the symbolic V1.
 
 Overlay 9 `+0x540`'s eight-word entry is likewise historical masked linked
 evidence, not a retained configured candidate. Its surviving standalone object

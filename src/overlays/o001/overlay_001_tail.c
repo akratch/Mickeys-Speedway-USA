@@ -75,33 +75,16 @@ extern s32 D_1D8CRead;
 extern void overlay1GetVariableRecords(O1VariableRecord **records, s32 *length,
                                        s32 enabled, O1RecordOwner *owner);
 
-/*
- * Plateau (2026-08-28): the target and selective-context candidate are both
- * 0xB0 bytes (44 words) with a 0x38 frame; eight instruction words differ,
- * at +0x1C,+0x20,+0x30,+0x40,+0x6C,+0x70,+0x74,+0x7C. Five sites are the two
- * call-output homes: target records and length use sp+0x34/sp+0x20, while the
- * candidate uses sp+0x30/sp+0x28. The other three sites are one
- * conditional-store branch/address schedule. The imported ELF objects each
- * expose five static relocs, but the shipped runtime contract has seven: the
- * three-argument GetRomlistInfo SYMBOL call plus three LOCAL HI/LO pairs for
- * the same BSS word at module+0xA16C. The current private four-argument alias,
- * D_1D8CRead names, and literal store are intentionally retained only for the
- * unchanged V0; they are not identity-correct and linked equality proves the
- * assembly fallback only. V1 must use GetRomlistInfo(records, length, 1) and
- * one symbolic D_1D8C identity for every access. Removing the unused volatile
- * local shrank the frame and regressed to 13 words; a typed store pointer,
- * byte cursor, block-local record size, and scoped call outputs retained the
- * eight-word baseline. Direct D_1D8C access fixed the four data-reloc names but
- * regressed to 16 words. Commit 9968f84e repaired the unrelated consolidated
- * TU declaration conflicts. The retained isolated C reproduces the same
- * eight-word state but omitted -Wab,-r4300_mul; full-TU equality is fallback,
- * so fresh configured reproof is required. Only if V1
- * preserves the 44-word/0x38-frame shape, keep all other locals fixed and try
- * records/private/length, records/length/private,
- * private/length/records, length/private/records, and
- * length/records/private. Finish with records/record collapse and an explicit
- * skip edge selected from the surviving residual; eight-build hard cap.
- */
+/* Retained prior-layout configured full-TU and isolated C agree at 36/44
+ * words, frame 0x38, first +0x1C. Five sites are records/length stack homes;
+ * three are the conditional-store branch/address schedule. The isolated
+ * recipe omitted -Wab,-r4300_mul, which the configured artifact proves inert.
+ * Runtime requires seven records: a three-argument GetRomlistInfo call and
+ * three LOCAL D_1D8C pairs. This diagnostic V0's private four-argument alias,
+ * D_1D8CRead identities, and literal write expose only five and cannot promote.
+ * Current-layout V0 is pending; then build identity-correct V1, retain one
+ * flag lattice, test five declaration orders independently, and use one trace
+ * to select one residual form. Hard cap: eight natural forms plus the lattice. */
 #ifdef NON_MATCHING
 void overlay1AssignRecordIndex(s32 unused, O1RecordOwner *owner) {
     volatile s32 private;
