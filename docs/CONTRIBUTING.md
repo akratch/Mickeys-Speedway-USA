@@ -319,9 +319,14 @@ their original assembly identity. The command refuses an unguarded or
 ambiguous body, any other mismatched fallback, an untracked source, or
 worktree/index dirt outside that source and an optional `--handoff-doc
 docs/<file>.md`. It records only the supplied score, frame, relocation count,
-first mismatch, and one-line summary in a fixed-field source comment (and,
-when requested, a bounded Markdown block). It never records instruction rows
-or claims exactness.
+first mismatch, and one-line summary in a symbol-keyed metadata comment at
+the end of the source file (and, when requested, a bounded Markdown block).
+Appending the source metadata preserves every pre-existing byte and physical
+source line, including the measured guarded function. Re-running the command
+updates only that symbol's EOF block, and multiple symbols may share a source
+file. The command refuses legacy inline handoff comments because moving one
+would itself require a fresh compile and byte-comparison proof. It never
+records instruction rows or claims exactness.
 
 The finalizer runs the source-only `cleanroom` and `check-docs` gates. Those
 gates preserve a safe handoff; they do not replace configured compilation or
