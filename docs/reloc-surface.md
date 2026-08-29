@@ -662,13 +662,18 @@ ORT 1510 exports the function and fourteen calls arrive from Overlays 1, 7, and
 8; linked equality is fallback-only.
 
 Overlay 7 `+0xDBC` (`overlay7CommitSelection`) owns 17 records: a SYMBOL pair
-through ORT 1579 to resident `D_800D3128+2`; two calls to `mathRnd`; calls to
-resident `func_800031E8` and `amSndPlay`; LOCAL pairs to module
-`+0x1714/+0x18B4/+0xFC0/+0x1BA0/+0xFC4`; and a LOCAL JUMP at `+0xF4` to
-`overlay7ReleaseEntry` at `+0x000`. Retained pre-identity-repair C is 69/72
-runtime-normalized; current source expresses the corrected identities but is
-uncompiled. ORT 1345 exports it and seventeen calls arrive from resident code
-and Overlays 1, 7, 36, 86, 90, and 91. Linked equality is fallback-only.
+at `+0x00/+0x04` through ORT 1579 to resident `D_800D3128+2`; calls at
+`+0x58/+0xAC` to `mathRnd`, `+0xE8` to resident `func_800031E8`, and `+0x108`
+to `amSndPlay`; LOCAL pairs at `+0x68/+0x80`, `+0x84/+0x88`, `+0xD8/+0xDC`,
+`+0xF0/+0xF8`, and `+0x100/+0x104` to module `+0x1714`, `+0x18B4`, `+0xFC0`,
+`+0x1BA0`, and `+0xFC4`; and a LOCAL JUMP at `+0xF4` to
+`overlay7ReleaseEntry` at `+0x000`. Stale pre-identity full-TU C is 67/72 raw,
+its isolated build is 66/72, and both are 69/72 runtime-normalized. Current
+source names the corrected roles but emitted-tuple proof awaits V0. The
+fallback exposes only nine records: five calls collapsed onto the module entry
+and pairs at `+0x84/+0x88` and `+0x100/+0x104`; it omits the other eight address
+records. ORT 1345 exports the function and seventeen calls arrive from resident
+code and Overlays 1, 7, 36, 86, 90, and 91. Linked equality is fallback-only.
 
 `func_overlay_014_F0001830_1871108`'s ownership trial proves module growth and
 the exact seven-entry switch payload only. Its retained isolated candidate used

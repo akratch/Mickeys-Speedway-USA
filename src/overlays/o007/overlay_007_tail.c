@@ -214,14 +214,16 @@ query:
 #endif
 
 /*
- * Plateau (identity audit 2026-08-29): retained pre-identity-repair C is 66/72
- * raw and 69/72 runtime-normalized, exact size/frame, first substantive +0xBC.
- * The three sites +0xBC/+0xC4/+0xD4 are one post-mathRnd u16 narrowing carrier;
- * +0x4/+0x88/+0xF8 are relocation-only. Current source correctly expresses all
- * 17 identities, including +0xF4's local JUMP to overlay7ReleaseEntry, but no
- * identity-current C object survives. Historical flags, trace, source forms,
- * and search are unretained. Compile V0, retain 119 flags, trace once, and try
- * at most two natural narrowing forms; cap at 121 stock builds plus one trace.
+ * Reproof (identity audit 2026-08-29): stale pre-identity full-TU C is 67/72
+ * raw while its isolated build is 66/72; both normalize to 69/72 with exact
+ * size/frame and first substantive mismatch +0xBC. The three sites
+ * +0xBC/+0xC4/+0xD4 are one post-mathRnd u16 narrowing carrier. Current source
+ * names all 17 roles, including +0xF4's local JUMP to overlay7ReleaseEntry, but
+ * emitted tuples and all current metrics await reproof. The fallback exposes
+ * only nine records and collapses five calls onto the module-entry symbol.
+ * Compile V0, use one pre-identity control only on material drift, retain 119
+ * configurations, trace once, and try at most two trace-supported narrowing
+ * forms. Cap 121 deterministic builds plus trace; a control replaces a form.
  */
 #ifdef NON_MATCHING
 void overlay7CommitSelection(s32 selection) {
