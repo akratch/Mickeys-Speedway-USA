@@ -18,10 +18,12 @@ extern void overlay2ClipLines(Overlay2Region *input, Overlay2Region *output,
                               s32 wantedSide);
 
 /*
- * Plateau (2026-08-25): the best -O2/-mips2 body is exact-size and differs
- * in 7/72
- * relocation-masked words, first at +0xC; every word from +0x38 onward is
- * aligned, leaving only the callee-save/global-address prologue schedule.
+ * Plateau (2026-08-25, audited 2026-08-29): retained configured-isolated
+ * evidence is exact-size and differs in seven raw and seven relocation-masked
+ * words at +0xC,+0x10,+0x14,+0x18,+0x1C,+0x28,+0x34; every word from +0x38
+ * onward is aligned, leaving only the callee-save/global-address prologue
+ * schedule. The candidate moves the D_24/D_4 HI16 relocations from target
+ * +0xC/+0x10 to +0x18/+0x1C; the other seven of nine relocations stay put.
  * Reusing the two parameters as the loop state removed two differences;
  * explicit global-address aliases regressed the full body. Reversing the two
  * equality spellings previously removed four real differences. A five-minute
@@ -37,7 +39,8 @@ extern void overlay2ClipLines(Overlay2Region *input, Overlay2Region *output,
  * final-home fields. A same-line tail-state reassignment probe preserved the
  * exact 0x120-byte/frame-0x30 body and reproduced 7/72 words with first
  * mismatch +0xC and the identical prologue reorder. The grounded family is
- * parked pending new scheduler evidence.
+ * parked pending new scheduler evidence. Fresh canonical build-path and linked
+ * C proof remain required before promotion.
  */
 #ifdef NON_MATCHING
 void overlay2SplitRegion(Overlay2Region *previous, Overlay2Region *region) {
