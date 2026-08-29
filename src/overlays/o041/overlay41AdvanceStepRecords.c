@@ -13,16 +13,12 @@ typedef struct Overlay41StepRecord {
 extern Overlay41StepRecord gOverlay41StepRecords[8];
 extern void overlay41EmitStep(s32 id, s32 x, s32 y);
 
-/* Workbench: allocation-mismatch, exact 73-word/0x30-frame shape, 26
- * register-only words from +0x54; temp phase +1. Temp-FIFO structure,
- * lifetime, width, and scope probes left the ring topology unchanged.
- * Runtime evidence fixes the +0x14/+0x28 HI16/LO16 pair as D_800D6B58
- * and the +0xD0 call as resident func_8000D16C. The historical filter
- * spec records diagnostics only and is not in production POSTPROCESS.
- * Mickey-only reconstruction: pinned DKR/JFG scans are negative; JFG's
- * animseqUpdateTextureScrollers is a role-only comparison, not a donor.
- * Reproduce once with configured flags, then park pending a new allocator
- * mechanism; assembly fallback stays canonical. */
+/* Exact-candidate replay: moving the remaining decrement after both position
+ * accumulations is the sole semantic source change from the retained 47/73
+ * baseline. No candidate object survives in this worktree, so the guard and
+ * assembly fallback remain canonical pending fresh 73-word/0x30-frame proof,
+ * the D_800D6B58 pair at +0x14/+0x28, resident func_8000D16C at +0xD0,
+ * linked module, and full-bin equality. Pinned DKR/JFG scans are negative. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0000000_1887338(s32 amount) {
     Overlay41StepRecord *record;
@@ -40,9 +36,9 @@ void func_overlay_041_F0000000_1887338(s32 amount) {
                 if (amount < step) {
                     step = amount;
                 }
-                record->remaining -= step;
                 record->x += record->dx * step;
                 record->y += record->dy * step;
+                record->remaining -= step;
             }
             x = ((record->x * amount) >> 8) + (record->residual & 0xF);
             y = ((record->y * amount) >> 8) + (record->residual >> 4);
