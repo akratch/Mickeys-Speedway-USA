@@ -927,6 +927,7 @@ $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: CFLAGS += -Wo,-loopunroll,0
 # anonymous pool (0.02f onward) begins immediately after it.
 $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym animResetTrap=TrapDanglingJump $@ && \
+	$(OBJCOPY) --redefine-sym hitCopyFirstTrap=TrapDanglingJump $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x4
 
 # The menu initialization loops are scalar in the target; the flag lattice

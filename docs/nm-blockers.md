@@ -19,7 +19,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_80051364` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80053550` | `src/main/anim.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80055970` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_80055B24` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_80055B24` | `src/main/anim.c` | matched | — | Promoted to exact C with a typed callback alias; no ownership work remains. |
 | `func_80056DD8` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8005716C` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_800573C8` | `src/main/anim.c` | none | — | No ownership change; continue source/codegen work. |
