@@ -173,17 +173,17 @@ extern void runlinkFlushModules(void);
 
 #ifdef NON_MATCHING
 /*
- * PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive.
- * Evidence review (2026-08-29): retained configured full-TU C owns 259 words
- * with frame 0x58 and 37 records, scoring 255/259 raw and 256/259 after
- * address normalization. Its target endpoint pair at +0x44/+0x50 names
- * D_800CF420 while candidate C names
- * D_800CF3E0+0x40. Those spellings resolve to the same address but are not
- * relocation-identical; the other three sites are one v0/target-a0 web. The
- * reformatted isolated import adds four store-order sites and is not the
- * configured baseline. Linked equality proves GLOBAL_ASM only. Reproduce V0
- * and retain the flag lattice, then test the endpoint identity and one trace-
- * selected world-value spelling independently, combining only strict gains.
+ * PROVENANCE: body adapted from public JFG commits 773e313/1a92d81; the pinned
+ * JFG reference still uses GLOBAL_ASM, and Mickey byte identity is decisive.
+ * Evidence review (2026-08-29): retained pre-HEAD/current-token configured C
+ * is 255/259 raw and 256/259 relocation-normalized, exact 259-word size, 0x58
+ * frame, and 37 offsets/types. Raw +0x50 is the endpoint identity; substantive
+ * +0x13C/+0x148/+0x154 are one v0/target-a0 world carrier. The reformatted
+ * isolated import is inferior. Linked equality proves GLOBAL_ASM only. The
+ * endpoint now names D_800CF420 directly; clean V0 is uncompiled. Retain 119
+ * flags, trace once, try one block-scoped carrier, and combine only strict
+ * gains; cap at 122 deterministic builds plus trace before an improving-only
+ * annotated batch.
  */
 void levelGetCounts(void) {
     s32 i;
@@ -194,7 +194,7 @@ void levelGetCounts(void) {
     header = func_8002B280(sizeof(LevelHeaderSummarySource), 0x8F);
     D_800CF3C0 = piRomLoad(0x1E);
 
-    for (i = 0; i != 16; i++) { D_800CF3E0[i] = 0;
+    for (i = 0; &D_800CF3E0[i] != (s32 *)D_800CF420; i++) { D_800CF3E0[i] = 0;
     }
 
     D_800CF3D4 = 0;
