@@ -221,3 +221,14 @@ routing facts from that sweep; the sweep's `summary.json` is the measurement.
 | `overlay20RemoveEntry` | o020 | **P!/W bounded plateau** | retained configured full-TU C is 36/53 raw and runtime-normalized words, frameless, first `+0x4C`, with exact `0xD4` ownership and all ten LOCAL tuples/identities. The guarded scalar parameter is an ABI-equivalent allocator carrier; ORT 1174 and sole inbound `func_80007118+0x424` authenticate an owner pointer in `a0`. All 119 flags are nonexact and a fidelity-clean proc-0 trace records 13 caller-saved decisions. Narrow `newCount` scope is flat, independent compaction cursors regress to 19 differences, and direct count-carrier reuse supplies the retained one-word gain. No target padding; linked equality is fallback-only | preserve the 17-word residual and fallback. Resume only with a new natural temp-FIFO/web-existence spelling; do not repeat flags, these three forms, or a generic batch without another independent legal gain |
 | `func_overlay_041_F0001650_1888988` | o041 | **P!/W** | retained configured-recipe isolated C is frameless and 49/55 words. Four count-web sites exchange `a1/v1` at `+0x10/+0x18/+0xCC/+0xD0`; the commutative float loads reverse at `+0xA0/+0xA4`. Runtime resolves `gOverlay41Slots` to resident `D_800D6C58` and local `D_0[0x15]` to module `+0x1E34`; historical route exhaustion is unretained | current V0 in the 119-flag lattice, multiplication-operand reversal, then only if needed one trace-selected natural count-web form; cap 121 stock builds plus trace |
 | `overlay18Load` | o018 | **P!** | relocation-aware pass exposed a 64-bit first-argument ABI; overlay metadata resolves the call to `osSetTime(OSTime)` | ✅ matched (ABI reconstruction) |
+
+<!-- plateau-handoff:overlay57UpdateModeState:start -->
+### `overlay57UpdateModeState` plateau handoff
+
+- source: `src/overlays/o057/overlay57UpdateModeState.c`
+- score: 267/354 words
+- frame: 0x30
+- relocations: 59
+- first mismatch: +0xDC
+- summary: Candidate emits 122 records; 58 offset/type pairs align; ten natural forms exhausted and the apparent 74-word gain breaks opcodes, alignment, and stack home.
+<!-- plateau-handoff:overlay57UpdateModeState:end -->
