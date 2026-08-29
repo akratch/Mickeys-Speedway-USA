@@ -295,6 +295,61 @@ guess whether one range was promoted, retracted, split, or renamed. The delta
 audits atlas state transitions; the ordinary exact-object, linked-ROM, and
 scoreboard gates remain the proof that a promotion is valid.
 
+## Deterministic public-release reconciliation
+
+`tools/public_release.py` is the final, push-incapable release preflight for a
+checked-out publication branch. Both the branch and remote must be named on
+the command line; the tool confirms the current branch, both remote URLs, the
+local remote-tracking ref, and that the release is a fast-forward from that
+ref. It deliberately does not fetch, merge, copy from another checkout, or
+push. Fetching the comparison ref and publishing a proven commit remain
+separate human actions.
+
+The default is a read-only dry run:
+
+```sh
+gmake public-release \
+  PUBLIC_RELEASE_ARGS="--remote public --branch master"
+```
+
+It regenerates the overlay atlas and post-process report in memory and checks
+the donor digest, then composes the serial health-gated `verify`, tooling,
+clean-room, documentation, scoreboard, and overlay-symbol checks. It scans
+the complete resulting tree, every tree in the outgoing commit range, and
+every outgoing commit message. Scanning every intermediate tree matters: text
+introduced by one outgoing commit and deleted by a later one would still be
+transferred. Operator-only paths, local absolute paths, release credentials,
+and automated generator/co-author trailers fail closed. Untracked local setup
+is ignored; tracked worktree or index changes are rejected.
+
+The report compares the freshly generated scoreboard with the named
+remote-tracking branch and prints exact numeric deltas. Overlay promotions and
+retractions are additionally derived by interval-diffing the two canonical
+atlases and are reconciled against `matched_overlay_c_bytes`; each changed
+range is reported by overlay, offset, byte count, and owning source. Resident
+changes are available as exact scoreboard metric deltas because the overlay
+atlas does not own resident function boundaries.
+
+If generated files actually need refreshing, opt in explicitly:
+
+```sh
+gmake public-release \
+  PUBLIC_RELEASE_ARGS="--remote public --branch master --write-derived"
+```
+
+Write mode invokes only these existing public-safe generators, in order:
+
+1. `overlay-atlas-write`;
+2. the atlas digest refresh for the donor ledger;
+3. `postprocess_audit.py --write`;
+4. `overlay-syms`;
+5. `scoreboard`.
+
+It runs the same gates and scans against the generated worktree, but leaves
+all changes unstaged for review. Commit only reviewed generated changes, then
+rerun the default clean dry run. Neither mode contains a publication command;
+the final success line always says `push=disabled`.
+
 ## Map: the rest of the toolbox
 
 The tools above (decomp-permuter, objdiff, mapfile_parser, check_tools.sh)
@@ -313,3 +368,4 @@ this file is a map, not a manual, for the rest.
 | `tools/lane_status.py` | Read committed `lane/*` refs without opening sibling worktrees; reports advisory match claims and gives `--symbol` a fail-closed assignment verdict from exact source identity, descendant lane blobs, plateau handoffs, and target-specific triage history (ADR 0011). | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Lane helpers` |
 | `tools/fix_stale_externs.py`, `tools/refresh_atlas_digest.py`, `tools/resolve_modules_split.py` | Post-merge/integration housekeeping: stale `func_<VRAM>` externs, a stale atlas digest, and the `docs/modules.md`/`docs/overlays.md` split conflict. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Integration housekeeping` and `## docs/modules.md / docs/overlays.md split` |
 | `tools/postprocess_audit.py` | Classifies every object's `POSTPROCESS` build step as `altered` (forbidden, ADR 0002) or `metadata` (permitted); the mechanical check behind the scoreboard's decompiled line. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Auditing post-compile steps` |
+| `tools/public_release.py` | Regenerates/checks public-safe derived artifacts, reports exact release deltas, scans every outgoing tree/message, and composes all release gates. It never publishes. | this file, `## Deterministic public-release reconciliation` |

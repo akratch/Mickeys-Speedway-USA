@@ -28,6 +28,7 @@
 #   gmake system-health     read-only campaign load/memory/process summary
 #   gmake check-tooling     focused safety/provenance/tooling regressions
 #   gmake release-gate      serial, niced release checks with compact output
+#   gmake public-release    dry-run reconciliation/preflight; never pushes
 #   gmake clean      remove build/
 #   gmake distclean  also remove splat's generated output
 
@@ -321,9 +322,22 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_crew_heartbeat.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_release_gate.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_lane_cache.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_public_release.py
 
 release-gate:
 	$(HOST_PYTHON) $(TOOLS_DIR)/release_gate.py $(RELEASE_GATE_ARGS)
+
+# Public release reconciliation has no push operation.  The default rerenders
+# derived artifacts through their read-only checks, computes exact deltas from
+# the explicitly named remote-tracking branch, scans every outgoing commit
+# tree/message, and composes the ordinary release gate.  Explicit
+# --write-derived invokes only the documented in-tree artifact generators and
+# leaves their output for review; a clean dry-run must follow the commit.
+#
+#   gmake public-release \
+#     PUBLIC_RELEASE_ARGS="--remote public --branch master"
+public-release:
+	$(HOST_PYTHON) $(TOOLS_DIR)/public_release.py $(PUBLIC_RELEASE_ARGS)
 
 # Asserts that no clean-room decoder is inventing words -- that every stage
 # which exists to DECODE something contributes nothing to a tree whose content
@@ -4056,7 +4070,7 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 	fi
 	@ls -l $@
 
-.PHONY: default all setup hooks extract prune-asm verify cleanroom system-health check-tooling release-gate audit-decoders overlay-tables overlay-atlas overlay-atlas-write overlay-syms check-overlay-syms overlay-donors overlay-donors-write overlay-donors-scan-check check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
+.PHONY: default all setup hooks extract prune-asm verify cleanroom system-health check-tooling release-gate public-release audit-decoders overlay-tables overlay-atlas overlay-atlas-write overlay-syms check-overlay-syms overlay-donors overlay-donors-write overlay-donors-scan-check check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail
 
