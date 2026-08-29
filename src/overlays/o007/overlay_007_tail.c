@@ -221,19 +221,27 @@ query:
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000CCC_185CB54.s")
 #endif
 
-/*
- * Reproof (identity audit 2026-08-29): stale pre-identity full-TU C is 67/72
- * raw while its isolated build is 66/72; both normalize to 69/72 with exact
- * size/frame and first substantive mismatch +0xBC. The three sites
- * +0xBC/+0xC4/+0xD4 are one post-mathRnd u16 narrowing carrier. Current source
- * names all 17 roles, including +0xF4's local JUMP to overlay7ReleaseEntry, but
- * emitted tuples and all current metrics await reproof. The fallback exposes
- * only nine records and collapses five calls onto the module-entry symbol.
- * Compile V0, use one pre-identity control only on material drift, retain 119
- * configurations, trace once, and try at most two trace-supported narrowing
- * forms. Cap 121 deterministic builds plus trace; a control replaces a form.
+/* Bounded reproof 2026-08-29: current configured full-TU C is 67/72 raw and
+ * 69/72 after runtime relocation normalization, with exact 0x120 size, 0x30
+ * frame, and first substantive mismatch +0xBC. The three residual sites at
+ * +0xBC/+0xC4/+0xD4 are one post-mathRnd u16 conversion carrier. Runtime
+ * metadata proves all 17 emitted offsets, types, and identities, including
+ * the local JUMP at +0xF4 and four authenticated external calls. ORT 1345 and
+ * all 17 resident/cross-overlay callers are authenticated. All 119 flag rows
+ * were nonexact; the proc-3 trace places the candidate conversion in uopt pool
+ * slot 20 while the target uses temp-FIFO slot 9. Explicit assignment and a
+ * scoped u16 carrier both regressed to 68/72 normalized. The fallback remains
+ * canonical; retry only after a new source route for this pool/temp decision.
  */
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: overlay7CommitSelection
+ * score: 69/72 words
+ * frame: 0x30
+ * relocations: 17
+ * first-mismatch: +0xBC
+ * summary: Unnamed post-mathRnd u16 conversion remains in the uopt pool instead of the target temp FIFO; flags and two natural forms are exhausted.
+ */
 void overlay7CommitSelection(s32 selection) {
     u16 value;
     Overlay7Pair *pair;
