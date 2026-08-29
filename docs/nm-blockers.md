@@ -180,7 +180,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_007_F00000A8_185BF30` | `src/overlays/o007/overlay_007.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_007_F0000894_185C71C` | `src/overlays/o007/overlay_007_tail.c` | resolved-plateau | overlay 7 mode switch table | TU-owned `+0x934..+0x950` range clears module growth. The configured isolated candidate is 129/131 after relocation normalization (`+0x44/+0x64` register fields); raw `+0xA4` is the unresolved switch-table LO16 addend. Fresh full-TU, 23-relocation, and linked proof remain. |
 | `func_overlay_007_F0000AA0_185C928` | `src/overlays/o007/overlay_007_tail.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_007_F0000CCC_185CB54` | `src/overlays/o007/overlay_007_tail.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_007_F0000CCC_185CB54` | `src/overlays/o007/overlay_007_tail.c` | none | — | Exact 60-word/`0x20`-frame candidate has five raw words, two after relocation normalization at `+0x4/+0x10` (`t7` versus target `t6`), and requires 13 relocations; representation/flag/local-web routes exhausted. Reproof-only V0. |
 | `func_overlay_007_F0000DBC_185CC44` | `src/overlays/o007/overlay_007_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_008_F0000058_185DDB0` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_008_F0000894_185E5EC` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |

@@ -160,18 +160,17 @@ void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000AA0_185C928.s")
 #endif
 
-/*
- * Plateau (retested 2026-08-28): exact 60-word size with two differing words,
- * first at +0x4. The 119-case flag lattice, volatile/signed/array global
- * types, local flag and table-offset webs, and cast placement do not coalesce
- * the initial flag load with the later table offset; typed web reuse widens
- * the diff. A fresh Tier-2 trace preserves the stock text but records no UGEN
- * FIFO events, only five already-aligned global-color webs, so it cannot
- * diagnose or promote a force for the remaining t6-to-t7 temp web.
- */
-/* Object-level reproof: instruction-words-identical, 0 differing words, first
- * mismatch none; the 60-instruction, frame -32 shape is exact and permuter-ready.
- * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
+/* Plateau evidence reviewed 2026-08-29: the source-current isolated candidate
+ * has the exact 60-word size and 0x20 frame. Five raw positions differ: the
+ * t7-versus-t6 address/result carrier at +0x4/+0x10 and local-data addends at
+ * +0x84/+0x88/+0xC0; runtime relocation normalization leaves two substantive
+ * words. The candidate requires 13 relocation sites, while the assembled
+ * target preserves only five, so neither the old zero-word fallback
+ * self-comparison nor current fallback-linked bytes are C proof. The 119-case
+ * flag lattice, volatile/signed/array representations, local flag/table webs,
+ * cast placement, and Tier-2 trace found no applicable FIFO/copy lever.
+ * Re-prove unchanged full-TU V0 with all 13 relocations and then park absent a
+ * new address-carrier coalescing mechanism. */
 #ifdef NON_MATCHING
 void overlay7DispatchSelection(Overlay7DispatchOwner *owner, s32 selection) {
     Overlay7DispatchState *state;
