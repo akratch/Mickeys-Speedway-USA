@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 115604,
-  "nonmatching_overlay_c_bytes": 308260,
+  "matched_overlay_c_bytes": 116104,
+  "nonmatching_overlay_c_bytes": 307760,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 2348,
   "bss_bytes": 77680,
@@ -4783,7 +4783,7 @@
      "type": "c",
      "source": "overlays/o018/overlay18Load",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x1F4",

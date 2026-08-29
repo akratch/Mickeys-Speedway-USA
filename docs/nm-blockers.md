@@ -2,11 +2,11 @@
 
 This is a names-only audit of every function body guarded by `NON_MATCHING` in `src/`, reconciled with the plateau notes in `docs/resident.md` and `docs/overlays.md`. Declaration-only guards are excluded. `none` means the recorded blocker is code shape, frame, scheduling, register allocation, ABI typing, or unresolved reconstruction rather than section/TU ownership.
 
-- Guarded functions audited: 415
+- Guarded functions audited: 414
 - Structural blockers found: 39
 - Structural blockers resolved: 3
 - Structural blockers remaining: 36
-- No structural blocker: 376
+- No structural blocker: 375
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
 |---|---|---|---|---|
@@ -224,7 +224,6 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_017_F0000000_18739B8` | `src/overlays/o017/overlay17CalculateEndpoints.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_017_F0000318_1873CD0` | `src/overlays/o017/overlay17CreateChain.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_017_F00008B4_187426C` | `src/overlays/o017/overlay17DrawStrip.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_018_F0000000_18745B8` | `src/overlays/o018/overlay18Load.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_019_F0000A30_1875C88` | `src/overlays/o019/overlay19BuildAdjacency.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_019_F00001E0_1875438` | `src/overlays/o019/overlay19BuildPlanes.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_019_F0000F58_18761B0` | `src/overlays/o019/overlay19BuildSpatialMasks.c` | none | — | No ownership change; continue source/codegen work. |

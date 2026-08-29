@@ -60,6 +60,13 @@ bytes and disassembly never belong here.
   standalone callee looks exact. Treat symbol binding, visible prototypes, and
   TU ownership as part of the compiler input. Evidence: the merged-TU blocker
   class in `docs/matching-triage.md`.
+- Under O32, a single 64-bit integer argument occupies an aligned `a0`/`a1`
+  pair. IDO materializes the two halves of a constant zero independently, so a
+  target with two adjacent argument-register zero loads can indicate one
+  `u64`/`OSTime` parameter rather than two scalar parameters. Use relocation or
+  callee metadata to prove that ABI before changing a prototype; equal register
+  contents alone are insufficient. Evidence: Overlay 18's exact startup loader
+  in `docs/overlays.md`.
 - An algebraically zero integer read can be a caller-saved coloring lever. On
   a path that already returns zero, spelling the result as `value * 0` kept the
   value's web live through IDO's allocation decision while still folding to a

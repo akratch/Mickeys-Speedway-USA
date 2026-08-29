@@ -1367,15 +1367,13 @@ effects, and all 50 runtime relocation sites and types. Only
 than a closure.
 
 Overlay 18's startup loader at `+0x000..+0x1F4` — 500 bytes / 125 words, and
-removed the module's final executable assembly gap. NON_MATCHING: retired
-2026-08-24 per ADR 0002 (was made to match via a fail-loud ledger selecting a
-five-instruction result-publication schedule, the retail display-list
-register web, and two equal zero materializations); source kept as
-decomp-permuter input. Natural source otherwise supplied the exact `0x18`
-frame, straight-line control flow, 46 calls, display-list command stream, and
-all 60 runtime relocation sites and types. Together with the two already
-exact successors, this had made all **1,616 executable bytes** of overlay 18
-C-owned, credited as closure thirteen.
+removes the module's final executable assembly gap. The module's own
+relocation record at `+0x1CC` resolves through resident overlay zero to
+`osSetTime`; restoring its real one-`OSTime` ABI makes IDO naturally emit the
+retail `a0`/`a1` zero pair. Ordinary `-O2 -mips2 -32` codegen then reproduces
+all 125 words, and the configured object retains all 60 runtime relocation
+sites and identities. Together with the three exact successors, all **1,616
+executable bytes** of overlay 18 are C-owned, credited as closure thirteen.
 
 Overlay 88's anchor updater at `+0x04C..+0x1A4` adds **344 exact C bytes / 86
 words** and removes its final executable assembly gap. Natural source

@@ -3201,7 +3201,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o017/overlay17DrawStrip.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o018/overlay18Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x58
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o018/overlay18Load.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_018_F0000000_18745B8=overlay18Load $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1F4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o018/overlay18Reconfigure.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_018_F000024C_1874804=overlay18Reconfigure $@ && \

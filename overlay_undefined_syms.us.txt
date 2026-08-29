@@ -495,7 +495,38 @@ overlay16ReleaseReloc = 0xf0000000;
 overlay17ReleaseReloc = 0xf0000000;
 
 /* overlay 18: overlay18Load.c.o */
-D_80 = 0x00000080;
+gOverlay18DisplayCursor = 0x00000000;
+gOverlay18DisplayFlag = 0x00000000;
+gOverlay18DisplaySource = 0x00000000;
+gOverlay18ExternalData = 0x00000000;
+gOverlay18LocalData80 = 0x00000080;
+gOverlay18PrefixHandle = 0x00000000;
+gOverlay18SetupPointer = 0x00000000;
+overlay10InitializeReloc = 0xf0000000;
+overlay18BindDataReloc = 0xf0000000;
+overlay18CommonReloc = 0xf0000000;
+overlay18CreatePrefixHandleReloc = 0xf0000000;
+overlay18Role02Reloc = 0xf0000000;
+overlay18Role03Reloc = 0xf0000000;
+overlay18Role05Reloc = 0xf0000000;
+overlay18Role06Reloc = 0xf0000000;
+overlay18Role08Reloc = 0xf0000000;
+overlay18Role09Reloc = 0xf0000000;
+overlay18Role10Reloc = 0xf0000000;
+overlay18Role11Reloc = 0xf0000000;
+overlay18Role12Reloc = 0xf0000000;
+overlay18Role13Reloc = 0xf0000000;
+overlay18Role14Reloc = 0xf0000000;
+overlay18Role15Reloc = 0xf0000000;
+overlay18Role16Reloc = 0xf0000000;
+overlay18Role17Reloc = 0xf0000000;
+overlay18Role18Reloc = 0xf0000000;
+overlay18Role19Reloc = 0xf0000000;
+overlay18Role20Reloc = 0xf0000000;
+overlay18SelectPhaseReloc = 0xf0000000;
+overlay18SetupWithPointerReloc = 0xf0000000;
+overlay30InitializeReloc = 0xf0000000;
+overlay31PrepareReloc = 0xf0000000;
 
 /* overlay 18: overlay18Initialize.c.o */
 gOverlay18Handle = 0x00000000;
@@ -566,6 +597,9 @@ overlay20ReleaseReloc = 0xf0000000;
 
 /* overlay 20: overlay20DrawResource.c.o */
 overlay20DrawResourceReloc = 0xf0000000;
+
+/* overlay 20: overlay20ConfigureEntry.c.o */
+D_80 = 0x00000080;
 
 /* overlay 20: overlay20CreateEntry.c.o */
 gOverlay20Scale = 0x00000028;
