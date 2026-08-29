@@ -517,8 +517,9 @@ void func_8003E7B8(ParticleObject *object, s32 index) {
 }
 #ifdef NON_MATCHING
 /* Workbench: operand-mismatch, 9 differing words, size_delta 0; first mismatch +0x38 (branch displacement).
- * Lever: model-entry type and scalar declaration order recover the target frame and register topology.
- * Remains: 8 stack-home operands and one branch displacement; not shape-exact, assembly fallback stays canonical. */
+ * Lever: model-entry type and scalar declaration order recover the target frame and opcode sequence.
+ * Remains: 8 stack-home operands and one branch displacement; operand/target shape is not exact,
+ * so the assembly fallback stays canonical. */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8005FAE8.s; body reconstructed from Mickey evidence. */
 s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger) {
     ParticleModelEntry *entry;
