@@ -1876,14 +1876,14 @@ pointer order, AST/lifetime probes, the flag lattice, and bounded permutation
 did not recover the folded initial address shift or pool/temporary web. The
 attempt cap is exhausted and assembly stays canonical.
 
-`func_8003E8D8`: the retained isolated candidate is shape-exact at 140
-instructions with the target `0x38` frame and all ten relocation identities,
-but its settings omit the TU's required `-Wab,-r4300_mul`; a fresh configured
-full-TU baseline is required. Nine operand words remain, first at `+0x38`.
-The call-live `entry` home is `sp+0x34` instead of target `sp+0x24`, `result`
-is at `sp+0x20` instead of `sp+0x34`, and the first zero-count branch skips
-one extra instruction. Probe declaration/save ordering only after rebaseline;
-asm stays canonical.
+`func_8003E8D8` retains an isolated 131/140-word candidate with exact `0x230`
+size, `0x38` frame, and ten target relocation tuples. Its import omitted this
+TU's configured `-Wab,-r4300_mul`, so no current full-TU C baseline survives.
+The differences are one zero-count branch target at `+0x38` and eight
+call-live stack homes: `entry` uses `sp+0x34` rather than target `sp+0x24`,
+while `result` uses `sp+0x20` rather than target `sp+0x34`, repeated around
+both calls. Exact linked function/TU/ROM evidence proves `GLOBAL_ASM` only.
+Reproduce configured V0 before running the bounded declaration-order ladder.
 
 | Newly matched function | ROM / size | Match evidence |
 |---|---:|---|

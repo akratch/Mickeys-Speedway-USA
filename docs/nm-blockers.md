@@ -94,7 +94,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8005AAC0` | `src/main/models_5B300.c` | reproof-required | — | Retained configured C is 46/46 words after its seven relocations, frame `0x20`; candidate tuples are one `D_800D7D04` HI/LO pair, two `D_800D7CF4` HI/LO pairs, and one `mmFree` call. Linked function/TU/resident ranges are exact, but independent target relocation metadata and a fresh compile→link→ROM chain are absent. |
 | `func_8003CE10` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003D25C` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8003E8D8` | `src/main/particles.c` | none | — | Exact 140-word configured candidate leaves nine stack-home/branch operands; reorder the call-live pair. |
+| `func_8003E8D8` | `src/main/particles.c` | none | — | Retained isolated IDO C is 131/140 words with exact `0x230` size, `0x38` frame, and all ten target tuples; its import omitted configured `-Wab,-r4300_mul`. One zero-count branch target differs at `+0x38`; eight call-live homes place `entry` at `sp+0x34` versus target `sp+0x24` and `result` at `sp+0x20` versus target `sp+0x34` around both calls. Linked equality proves fallback only. Run configured V0, then the bounded declaration-order ladder. |
 | `func_8003EC8C` | `src/main/particles.c` | matched | — | Promoted to 188-byte linked-exact C; no ownership work remains. |
 | `partUpdateTriggers` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003F154` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
