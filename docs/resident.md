@@ -2836,25 +2836,19 @@ fresh current-source compile through full-ROM comparison remains queued as a
 contemporaneous reproof, not as missing target evidence. JFG retains both
 corresponding routines as assembly, so no donor body was adapted.
 
-The `func_8005A948` flag lattice additionally establishes
-`-Wo,-loopunroll,0` for `main/models_5B300`: without it IDO unrolls the cache scan
-to 166 instructions, while the disabled-unroll candidate has the target's 94
-instructions, frame, opcodes, CFG and 13 relocation identities. The surviving
-configured object proves the earlier 11-word state at
+`func_8005A948` retains configured full-TU C for the earlier structured-store
+body under canonical `-Wo,-loopunroll,0`. It has the target's 94-word size,
+frame `0x38`, CFG, instruction schedule, and 13 relocation identities, matching
+83/94 raw/normalized words. The 11 register-field sites are
 `+0x40/+0x44/+0x80/+0x130/+0x148/+0x14c/+0x150/+0x154/+0x158/+0x15c/+0x160`.
-Spelling the two final cache stores as the same raw interleaved arrays used by
-the exact adjacent free routine closed the last eight sites at commit time and
-left historical p10 evidence at **3/94 register-only words**,
-`+0x40/+0x44/+0x80`: the shared cache-index shift uses `t7` instead of target
-`t8`. No configured or linked p10 artifact survives. Normalizing the
-preceding positive-count guard reaches the target FIFO phase but adds one real
-instruction, while redundant parameter masking changes the prologue. A final
-source-only FIFO pass found the named byte-offset form inert, equivalent shift
-masks two or three instructions longer, and a folded live guard schedule-only
-at the initial global load; none rotated the scan-index web. The p10 best C
-remains under `NON_MATCHING` and the target assembly remains canonical. Reprove
-that source once, then run one instrumented ugen FIFO trace only if the three
-sites reproduce; all broader source, flag and permutation routes are exhausted.
+The current raw interleaved-array p10 source reportedly removed the final eight
+sites, but no current-body configured, isolated, or linked object survives;
+the 91/94 claim and historical 166-word flag result, source matrix, allocator
+trace, and permutation outcomes are unretained. There are zero runtime records,
+and `func_8005A7A0+0x104` is the sole authenticated caller. Reproduce current
+V0, retain exactly 119 flag recipes, capture one allocator trace, and try at
+most one selected natural address-producer/lifetime form. Permit one bounded
+batch only after a strict source gain; assembly remains canonical.
 
 `func_8005A7A0` has retained configured full-TU evidence at 106 words, with
 ten raw sites and seven relocation-normalized positional sites. The raw sites are

@@ -913,7 +913,8 @@ $(BUILD_DIR)/$(SRC_DIR)/main/track.c.o: POSTPROCESS = \
 # The gsSnd flag lattice reproduces its debug-shaped epilogues only with bare -g.
 $(BUILD_DIR)/$(SRC_DIR)/main/gsSnd.c.o: OPT_FLAGS := -g
 
-# The models cache loops retain their scalar source shape only with unrolling disabled.
+# Retained configured C has target-shaped cache loops under this override;
+# historical comparative flag-lattice outputs are not retained.
 $(BUILD_DIR)/$(SRC_DIR)/main/models_5B300.c.o: CFLAGS += -Wo,-loopunroll,0
 
 # The resident animation TU's reset loops use IDO's non-unrolled form. The

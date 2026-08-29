@@ -10,9 +10,9 @@
  *
  * PROVENANCE: JFG's permitted src/models.c, models.h and camera.c were read
  * for names, layouts and comparison. The initial split adapted no body;
- * point-of-use notes identify the later JFG adaptations. The func_8005A948
- * flag lattice showed that this TU's cache loop has target length only with
- * `-Wo,-loopunroll,0`, recorded as a per-file Makefile override.
+ * point-of-use notes identify the later JFG adaptations. Retained configured
+ * func_8005A948 C uses the per-file `-Wo,-loopunroll,0` override and has the
+ * target length; the historical comparative flag-lattice artifacts are gone.
  */
 
 #include "PR/ultratypes.h"
@@ -328,15 +328,12 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A7A0.s")
 #endif
-/* Plateau (near-miss p10): the surviving configured full-TU object is the
- * earlier 11-word state at +0x40/+0x44/+0x80/+0x130/+0x148/+0x14C/+0x150/
- * +0x154/+0x158/+0x15C/+0x160, exact-sized at 94 words/frame 0x38 with 13
- * exact relocation tuples. The later raw interleaved-array source removed
- * the final eight sites at commit time, leaving historical p10 evidence at
- * +0x40/+0x44/+0x80, but no configured or linked p10 artifact survives.
- * Reprove unchanged p10 once; if those three t7/target-t8 FIFO sites reproduce,
- * run one instrumented ugen causal trace and at most its indicated
- * address-producer spelling, then park if flat. */
+/* Retained configured full-TU C compiles the earlier structured-store body at
+ * 83/94 raw/normalized words, frame 0x38, first +0x40, with all 13 relocations
+ * exact. The current raw-array p10 body's reported 91/94 result has no retained
+ * object; historical flag/source/trace/search outcomes are likewise unretained.
+ * Reproduce current V0, retain 119 flags, then use one allocator trace to
+ * select at most one natural address-producer/lifetime spelling. */
 #ifdef NON_MATCHING
 u8 *func_8005A948(s16 animationId) {
     s32 i;
