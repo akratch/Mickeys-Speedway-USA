@@ -2731,7 +2731,7 @@ placeholder name or counting padding as function text.
 | `0x5B370` / `0x8005A770` | `0x30` | `func_8005A770` | D: flushes the pending animation table, then resets its count; no per-symbol caller argument recorded |
 | `0x5B3A0` / `0x8005A7A0` | `0x1A8` | `func_8005A7A0` | B: loads a model's animation-ID table and allocates its animation pointer array; sole proven caller is `func_8001F520+0x42C`, passing the loaded model and model ID |
 | `0x5B548` / `0x8005A948` | `0x178` | `func_8005A948` | B: reference-counted single-animation loader; sole proven caller is `func_8005A7A0+0x104`, passing an `lh` animation ID and consuming the returned pointer |
-| `0x5B6C0` / `0x8005AAC0` | `0xB8` | `func_8005AAC0` | D: releases one reference-counted animation; nearest non-exact JFG `models.c` skeleton |
+| `0x5B6C0` / `0x8005AAC0` | `0xB8` | `func_8005AAC0` | B: releases one reference-counted animation; direct callers are `func_80020278+0xD0` and `func_8005A7A0+0x140`, each passing an animation pointer |
 | `0x5B778` / `0x8005AB78` | `0x30` | `camConvertMatrixList` | A: exact JFG `camera.c` helper, used by the matrix builder below |
 | `0x5B7A8` / `0x8005ABA8` | `0x1BC` | `func_8005ABA8` | D: advances/clamps the current animation frame |
 | `0x5B964` / `0x8005AD64` | `0x1B0` | `func_8005AD64` | D: selects an animation and establishes its frame/blend state; no per-symbol caller argument recorded |
@@ -2797,14 +2797,18 @@ initialization helper from JFG `models.c`. Their function bytes and relocation
 identities match in the linked ROM.
 
 Mickey-derived parented matrix-list builder `func_8005B644` adds `0xCC`
-exact bytes under the TU's measured `-Wo,-loopunroll,0` override. The current
-raw-array `func_8005AAC0` adds another `0xB8`, bringing exact C in
-`main/models_5B300` to `0x254` bytes. The latter's retained configured object
-has 46 words, a `0x20` frame, and seven candidate relocations; its linked
-function, complete TU, and resident segment are byte-exact. It remains marked
-reproof-required only because no independently generated target object survives
-to establish relocation count/type/offset/identity. JFG retains both
-corresponding routines as assembly, so no donor body was adapted.
+proven exact bytes under the TU's measured `-Wo,-loopunroll,0` override,
+bringing proven exact C in `main/models_5B300` to `0x19C`. The tracked
+scoreboard currently carries another provisional `0xB8` for raw-array
+`func_8005AAC0`; treat it as reproof-required, not banked Evidence A. Retained
+configured C has 46 words, a `0x20` frame, 39 raw target-equal words, and seven
+candidate relocations; applying those relocations reproduces all 46 target
+words, and linked function/TU/resident bytes are exact. No independently
+generated target object survives to establish target relocation
+count/type/offset/identity. If fresh target tuples and linked proof agree,
+proven exact C in this TU becomes `0x254`; otherwise restore the fallback and
+demote the provisional credit. JFG retains both corresponding routines as
+assembly, so no donor body was adapted.
 
 The `func_8005A948` flag lattice additionally establishes
 `-Wo,-loopunroll,0` for `main/models_5B300`: without it IDO unrolls the cache scan
