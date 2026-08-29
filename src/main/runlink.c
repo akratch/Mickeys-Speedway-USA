@@ -559,8 +559,13 @@ s32 runlinkDownloadCode(s32 overlayIndex) {
 
     return 1;
 }
-/* Exact C: 101 instruction words, frame -0x20, and all 21 relocations match. */
-/* The inert constant-true blocks are permuter-forced register-allocation aids; see docs/cleanup-queue.md. */
+/* PROVENANCE: Jet Force Gemini,
+ * asm/nonmatchings/runLink/runlinkEnsureJumpIsValid.s; role and skeleton
+ * context only. Mickey's boundary, source spelling, object, and ROM bytes are
+ * authoritative. */
+/* Exact C: 101 instruction words, frame -0x20, and all 21 relocations match.
+ * Four inert allocation aids remain: one overlayCount block and three
+ * constant-true blocks. See docs/cleanup-queue.md. */
 s32 func_800320F0(void **jumpAddress)
 {
   register void **address;
