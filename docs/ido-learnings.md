@@ -49,8 +49,11 @@ bytes and disassembly never belong here.
 - Declaration order can determine stack-home order for call-crossing locals.
   When the operation sequence is exact but spill offsets differ, reorder
   semantically independent declarations before inventing extra state.
-  Evidence: the exact resident collision-handler cohort recorded in
-  `docs/resident.md`.
+  Addressable local arrays can retain the same declaration-relative placement
+  even when preceding scalar and cursor locals are colored into registers, so
+  moving an existing array past those declarations can change only its frame
+  offset. Evidence: the exact resident collision-handler cohort in
+  `docs/resident.md` and the exact tile-command builder in `docs/overlays.md`.
 - Expression association, signedness, and width affect IDO's internal values
   even when C semantics appear equivalent. Preserve the ABI and inferred data
   model; use typed rewrites as a diagnosed lever, not an arbitrary score nudge.

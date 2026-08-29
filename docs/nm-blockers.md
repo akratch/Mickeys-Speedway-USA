@@ -2,11 +2,11 @@
 
 This is a names-only audit of every function body guarded by `NON_MATCHING` in `src/`, reconciled with the plateau notes in `docs/resident.md` and `docs/overlays.md`. Declaration-only guards are excluded. `none` means the recorded blocker is code shape, frame, scheduling, register allocation, ABI typing, or unresolved reconstruction rather than section/TU ownership.
 
-- Guarded functions audited: 414
+- Guarded functions audited: 413
 - Structural blockers found: 39
 - Structural blockers resolved: 3
 - Structural blockers remaining: 36
-- No structural blocker: 375
+- No structural blocker: 374
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
 |---|---|---|---|---|
@@ -230,7 +230,6 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_019_F0000D78_1875FD0` | `src/overlays/o019/overlay19ClassifyEdge.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_020_F000038C_1876964` | `src/overlays/o020/func_overlay_020_F000038C_1876964.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_020_F0001148_1877720` | `src/overlays/o020/func_overlay_020_F0001148_1877720.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_020_F00007C4_1876D9C` | `src/overlays/o020/overlay20BuildTileCommands.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_020_F0001018_18775F0` | `src/overlays/o020/overlay20RemoveEntry.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_020_F0000A68_1877040` | `src/overlays/o020/overlay20UpdateGrid.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_020_F0000204_18767DC` | `src/overlays/o020/overlay20UpdateObjectResource.c` | none | — | No ownership change; continue source/codegen work. |
