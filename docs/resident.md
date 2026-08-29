@@ -1829,13 +1829,14 @@ pointer order, AST/lifetime probes, the flag lattice, and bounded permutation
 did not recover the folded initial address shift or pool/temporary web. The
 attempt cap is exhausted and assembly stays canonical.
 
-`func_8003E8D8`: the current configured candidate is shape-exact at 140
-instructions with the target `0x38` frame and all ten relocation identities;
-nine operand words remain, first at `+0x38`. The call-live `entry` home is
-`sp+0x34` instead of target `sp+0x24`, `result` is at `sp+0x20` instead of
-`sp+0x34`, and the first zero-count branch skips one extra instruction. The
-next bounded lever is declaration/save ordering for that pair under the TU's
-required `-Wab,-r4300_mul`; asm stays canonical.
+`func_8003E8D8`: the retained isolated candidate is shape-exact at 140
+instructions with the target `0x38` frame and all ten relocation identities,
+but its settings omit the TU's required `-Wab,-r4300_mul`; a fresh configured
+full-TU baseline is required. Nine operand words remain, first at `+0x38`.
+The call-live `entry` home is `sp+0x34` instead of target `sp+0x24`, `result`
+is at `sp+0x20` instead of `sp+0x34`, and the first zero-count branch skips
+one extra instruction. Probe declaration/save ordering only after rebaseline;
+asm stays canonical.
 
 | Newly matched function | ROM / size | Match evidence |
 |---|---:|---|

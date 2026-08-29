@@ -516,12 +516,12 @@ void func_8003E7B8(ParticleObject *object, s32 index) {
     object->activeTriggerCount++;
 }
 #ifdef NON_MATCHING
-/* Workbench: exact 140-word size, 0x38 frame, and ten relocation roles; nine
- * operand words differ, first at +0x38. Entry uses sp+0x34 versus target
- * sp+0x24, while result uses sp+0x20 versus target sp+0x34. Next bounded
- * declaration probes are result-first/entry-fifth, a position-only pair swap,
- * and an adjacent result/entry pair; only an improving order earns the two
- * branch-shape probes. No object-, linked-, or ROM-exact C proof exists. */
+/* Retained isolated workbench result: exact 140-word size, 0x38 frame, and ten
+ * relocation roles; it omitted this TU's -Wab,-r4300_mul. Nine words differ:
+ * the +0x38 branch target, entry at sp+0x34 versus target sp+0x24, and result
+ * at sp+0x20 versus target sp+0x34. After a fresh configured baseline, probe
+ * result-first/entry-fifth and the pair-only swap; branch forms run only if a
+ * declaration order improves. No linked- or ROM-exact C proof exists. */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8005FAE8.s; body reconstructed from Mickey evidence. */
 s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger) {
     ParticleModelEntry *entry;
