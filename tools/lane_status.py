@@ -229,6 +229,45 @@ def path_plateau_record(ref: str, path: str) -> tuple[str, str] | None:
     return None
 
 
+def ledger_source_plateau_record(
+    ref: str, symbol: str, source_path: str,
+) -> tuple[str, str] | None:
+    """Find exact-symbol plateau evidence committed with a mixed-TU source.
+
+    Older consolidated translation units often used a shortened generated
+    name (or only an overlay number) in the commit subject.  The exact symbol
+    still appears in the triage row changed by that commit.  Requiring the
+    same commit to change both that exact row and the owning source path keeps
+    this fallback unambiguous without treating every path-wide plateau as
+    evidence for every guarded function in the file.
+    """
+    raw = git(
+        "log", "--format=%H%x00%s%x1e", f"-G{re.escape(symbol)}", ref,
+        "--", TRIAGE_PATH,
+    )
+    token = exact_symbol_pattern(symbol)
+    for record in raw.split("\x1e"):
+        record = record.strip("\n")
+        if not record:
+            continue
+        commit, subject = record.split("\0", 1)
+        if not PLATEAU_SUBJECT_RE.search(subject):
+            continue
+        changed = set(git(
+            "diff-tree", "--no-commit-id", "--name-only", "-r", commit,
+            "--", source_path, TRIAGE_PATH,
+        ).splitlines())
+        if source_path not in changed or TRIAGE_PATH not in changed:
+            continue
+        triage = show_file(commit, TRIAGE_PATH)
+        if triage is None:
+            continue
+        rows = (line for line in triage.splitlines() if token.search(line))
+        if any(PLATEAU_SUBJECT_RE.search(line) for line in rows):
+            return commit, subject
+    return None
+
+
 def latest_token_commit(ref: str, token: str, path: str) -> str | None:
     """Find the latest edit to a ledger row containing one exact token."""
     # Git's -G uses its own regex engine and does not support the Python
@@ -412,10 +451,14 @@ def assignment_status(base: str, symbol: str) -> Assignment:
         if len(re.findall(r"#\s*ifdef\s+NON_MATCHING\b", text)) == 1
         else None
     )
+    ledger_source_record = ledger_source_plateau_record(
+        base, symbol, path,
+    )
     if (
         not has_plateau_handoff(text, symbol)
         and named_plateau_record is None
         and path_record is None
+        and ledger_source_record is None
     ):
         return Assignment(
             symbol, "base-only", path, None, None, [],
@@ -425,7 +468,11 @@ def assignment_status(base: str, symbol: str) -> Assignment:
     source_commit = (
         named_plateau_record[0]
         if named_plateau_record is not None
-        else path_record[0] if path_record is not None else None
+        else path_record[0]
+        if path_record is not None
+        else ledger_source_record[0]
+        if ledger_source_record is not None
+        else None
     )
     triage_text = show_file(base, TRIAGE_PATH)
     ledger_has_symbol = bool(

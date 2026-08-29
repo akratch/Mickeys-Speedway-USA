@@ -173,6 +173,54 @@ class LaneStatusAssignmentTests(unittest.TestCase):
         self.assertEqual(assignment["source_commit"], source_commit)
         self.assertEqual(assignment["ledger_commit"], ledger_commit)
 
+    def test_mixed_tu_plateau_uses_exact_row_and_source_commit(self) -> None:
+        second = """\n#ifdef NON_MATCHING
+void unrelatedFunction(void) {
+}
+#else
+#pragma GLOBAL_ASM(\"asm/nonmatchings/overlays/o043/unrelatedFunction.s\")
+#endif
+"""
+        (self.repo / SOURCE_PATH).write_text(
+            candidate() + second, encoding="utf-8",
+        )
+        (self.repo / "docs/matching-triage.md").write_text(
+            f"| `{SYMBOL}` | bounded plateau; route exhausted |\n",
+            encoding="utf-8",
+        )
+        plateau_commit = self.commit("Record overlay 43 allocation plateau")
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(
+            assignment["state"], "already-integrated/exhausted",
+        )
+        self.assertEqual(assignment["source_commit"], plateau_commit)
+        self.assertEqual(assignment["ledger_commit"], plateau_commit)
+
+    def test_mixed_tu_plateau_row_without_source_change_is_stale(self) -> None:
+        second = """\n#ifdef NON_MATCHING
+void unrelatedFunction(void) {
+}
+#else
+#pragma GLOBAL_ASM(\"asm/nonmatchings/overlays/o043/unrelatedFunction.s\")
+#endif
+"""
+        (self.repo / SOURCE_PATH).write_text(
+            candidate() + second, encoding="utf-8",
+        )
+        self.commit("Create mixed overlay 43 translation unit")
+        (self.repo / "docs/matching-triage.md").write_text(
+            f"| `{SYMBOL}` | bounded plateau; route exhausted |\n",
+            encoding="utf-8",
+        )
+        self.commit("Record overlay 43 allocation plateau")
+
+        result, report = self.status()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(report["assignment"]["state"], "base-only")
+
     def test_definition_without_fallback_is_already_integrated(self) -> None:
         (self.repo / SOURCE_PATH).write_text(
             f"void {SYMBOL}(void) {{\n}}\n", encoding="utf-8",
