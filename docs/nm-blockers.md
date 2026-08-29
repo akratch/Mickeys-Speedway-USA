@@ -2,11 +2,11 @@
 
 This is a names-only audit of every function body guarded by `NON_MATCHING` in `src/`, reconciled with the plateau notes in `docs/resident.md` and `docs/overlays.md`. Declaration-only guards are excluded. `none` means the recorded blocker is code shape, frame, scheduling, register allocation, ABI typing, or unresolved reconstruction rather than section/TU ownership.
 
-- Guarded functions audited: 409
+- Guarded functions audited: 408
 - Structural blockers found: 39
 - Structural blockers resolved: 3
 - Structural blockers remaining: 36
-- No structural blocker: 370
+- No structural blocker: 369
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
 |---|---|---|---|---|
@@ -397,7 +397,6 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_099_F0000800_18D9DB0` | `src/overlays/o099/overlay99RenderSortedEntries.c` | none | — | Retained pre-current-body configured C is diagnostic 216/233 raw and 218/233 runtime-normalized, frame `0x148`, with all ten records; no isolated object survives. Four volatile gap arrays hid a real `CameraSprite` at `sp+0xA8` and separate `MtxF` at `sp+0xCC`; clean typed source removes them and is uncompiled. The function is unexported with sole local inbound `overlay99RenderSegments+0x1D4`; linked equality is fallback-only. Retain 119 flags, trace once, try four natural local placements, one trace-led form, and an improving-only combination; cap 125 builds plus trace. |
 | `func_overlay_100_F0000580_18DB2A8` | `src/overlays/o100/overlay100DrawMotion.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_100_F0000000_18DAD28` | `src/overlays/o100/overlay100InitializeMotion.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_100_F000038C_18DB0B4` | `src/overlays/o100/overlay100UpdateMotion.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F0002510_18DDD30` | `src/overlays/o101/func_overlay_101_F0002510_18DDD30.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F0003A58_18DF278` | `src/overlays/o101/func_overlay_101_F0003A58_18DF278.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_101_F000512C_18E094C` | `src/overlays/o101/func_overlay_101_F000512C_18E094C.c` | none | — | No ownership change; continue source/codegen work. |
