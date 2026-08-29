@@ -1215,16 +1215,17 @@ guarded register-only word selections); source kept as decomp-permuter
 input. The natural object was otherwise topology-, frame-, and
 relocation-exact.
 
-Overlay 19's `+0xD78..+0xF58` edge classifier — 480 bytes / 120 words.
-NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via guarded
-normalization of four independent two-load schedules and one six-use
-temporary web); source kept as decomp-permuter input. The natural object was
-size-, opcode-, CFG-, memory-, return-, and likely-branch-exact at 106/120
-words in that historical trial. Current retained configured evidence is
-110/120: six `$t3/$v1` allocation sites and four final load-order sites, with
-no frame or relocations. Source-faithful forms, forced coloring, tracing, and
-bounded permutation are exhausted; one complete 119-flag lattice remains
-before parking it as a toolchain allocator wall.
+Overlay 19's `+0xD78..+0xF58` edge classifier owns 480 bytes /
+120 words with no padding, frame, calls, or static/runtime relocations.
+It remains guarded `NON_MATCHING`. Historical exactness used prohibited
+instruction-field normalization and was retired under ADR 0002. The retained
+configured full-TU and isolated C candidates are byte-identical at 110/120
+words: six `$v1`/target-`$t3` carrier sites and four final two-load ordering
+sites differ, first at `+0x138`. The sole direct caller is the exact local
+`R_MIPS_26` call from `overlay19FindAdjacent+0xD8`. Exact ordinary-object,
+linked-function, complete-module, and ROM evidence proves the assembly
+fallback only; no linked C candidate survives. Run the one unrecorded
+119-flag lattice, then park if canonical flags remain best.
 
 Overlay 42's `+0x0F4..+0x6A4` captured-buffer renderer adds **1,456 naturally
 exact C bytes / 364 words**. Its historical display-list macro spelling

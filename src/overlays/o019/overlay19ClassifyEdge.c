@@ -3,34 +3,20 @@
 /*
  * Classify an edge against a candidate edge, accepting either orientation.
  * PROVENANCE: Mickey-derived; pinned DKR v77/v80 and JFG scans found no donor.
- * Plateau (2026-08-25, cx-ov-2-a-r4): canonical -O2 -mips2 is exact-size at
- * 0x1E0 bytes, with 10 differing words and the first mismatch at +0x138.
- * Equivalent promoted-s16 `>= value + 1` tests reduce the original 14-word
- * deficit, and the bounded ten-minute permuter improves score 110 to 90. The
- * remaining reversed-coordinate block splits queryStartX's target $t3 live
- * range into $v1; explicit coordinate temporaries disturb the full register
- * web instead of preserving that allocation.
- * Follow-up plateau (2026-08-27, CREW-O19-EDGE-PIPE-07): the configured
- * object compare is still allocation-mismatch (schedule: 4, register: 6),
- * with 110/120 aligned instructions exact, 480-byte exact size, and the
- * first mismatch at +0x138. A `-g0` compile is unchanged; context lint has
- * no findings. The overlay-aware ten-minute single-thread batch reports
- * best permuter score 50 (zero is exact), with no zero-score candidate and
- * no promotion. Its retained scratch contains no candidate source suitable
- * for a real-TU rebuild, so the six-site `$t3` to `$v1` web and four final
- * schedule sites remain unresolved.
- * Trace follow-up (2026-08-28, CREW-O19-EDGE-READY-68): the configured
- * instrumented uopt run assigns candidate web 9 to `$v1`, while the target's
- * six reversed-coordinate sites require the `$t3` carrier. A single forced
- * `web 9 -> t3` diagnostic was accepted but perturbed the whole allocation
- * (62/120 aligned instructions exact), so it is not promotable. Direct loads
- * reached 108/120, temporary reuse 96/120, and `s16 queryStartX` changed size.
- * Reordering the final y/z checks preserved 110/120 while removing the
- * schedule class; swapped relational spellings canonicalized to baseline.
- * Current raw/normalized sites are +0x138/+0x140/+0x148/+0x154/+0x15C/
- * +0x164/+0x194/+0x198/+0x1B0/+0x1B4, with no relocations. Run the one
- * missing 119-combination flag lattice; if canonical flags remain best, park
- * absent a new allocator mechanism.
+ * Plateau (evidence reviewed 2026-08-29): the retained configured full-TU
+ * NON_MATCHING candidate and isolated candidate are byte-identical across
+ * 120 words. Both are frameless and relocation-free, with 110/120 words
+ * exact and the first difference at +0x138. Six sites use candidate $v1
+ * where the target uses $t3; four sites exchange the order of two final
+ * y/z loads. The sole direct caller is overlay19FindAdjacent+0xD8.
+ *
+ * Promoted-s16 comparisons improved the historical 106/120 body to 110/120.
+ * -g0 was inert; direct-load, temporary-reuse, narrow-local, relational,
+ * final-check-order, forced-color, and bounded-permuter probes did not
+ * produce exact C. Ordinary object, linked-function, module, and ROM
+ * identity prove the GLOBAL_ASM fallback only; no linked C candidate
+ * survives. The complete 119-flag lattice remains unrecorded. Reproduce
+ * V0, run that lattice once, then park if canonical flags remain best.
  */
 #ifdef NON_MATCHING
 s32 overlay19ClassifyEdge(
