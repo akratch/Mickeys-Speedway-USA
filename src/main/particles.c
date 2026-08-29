@@ -1301,7 +1301,8 @@ CircularParticle *func_8003FB98(ParticleEmitterObject *object, ParticleTrigger *
     return particle;
 }
 #ifdef NON_MATCHING
-/* Before -> after: structure-mismatch, 124/125 instructions, 33 aligned words -> unchanged; first +0x4C.
+/* Before -> after: size-mismatch, 124/125 instructions; 101 positional words differ
+ * from +0x2C, while shift-tolerant diagnosis leaves 33 aligned words from +0x4C.
  * Type lever: unsigned free-bit pointer and pool aggregate; no scan-shape movement.
  * Remains: initial address shift, pool/temporary web, and one missing instruction. */
 /* PROVENANCE: structure cross-checked against JFG

@@ -1820,8 +1820,13 @@ Workbench p7 classifies two structural and five register words: the target uses
 dependent newline branch schedule. The attempt cap is exhausted; asm remains
 canonical.
 
-`func_8004054C`: before/after structure mismatch, 124/125 instructions and 33 words, first `+0x4C`.
-Type lever: unsigned free-bit pointer and pool aggregate; no scan-shape movement. Remains the pool/temporary web and missing instruction; asm stays canonical.
+`func_8004054C` remains one instruction short at 124/125 words. Positional
+ranking reports 101 differences from `+0x2C`; shift-tolerant workbench
+alignment leaves 33 residuals from `+0x4C` (four structural, one commutative,
+and 28 register words). Unsigned free-bit pointers, a shared pool aggregate,
+pointer order, AST/lifetime probes, the flag lattice, and bounded permutation
+did not recover the folded initial address shift or pool/temporary web. The
+attempt cap is exhausted and assembly stays canonical.
 
 `func_8003E8D8`: the current configured candidate is shape-exact at 140
 instructions with the target `0x38` frame and all ten relocation identities;
@@ -2406,9 +2411,13 @@ the checked-in body. Aggregate lifetime, assignment order, and direct
 trap-address forms did not close the callback/trap and counter webs; the
 attempt cap is exhausted and assembly stays canonical.
 
-`func_8004AF68` remains a workbench `structure-mismatch`: 54/52 words and 48 positional differences from `+0x4`.
-Constant audit, context lint, pool-vs-temp inlining, and pointer-lifetime placement did not remove the saved secondary-array base web.
-Its two extra boundary words remain; the coherent candidate stays `NON_MATCHING` and assembly remains canonical.
+`func_8004AF68` remains exact-size at 52 words with 26 positional differences
+from `+0x10`; shift-aware workbench diagnosis leaves 18 structural words. The
+older 54/52-word, 48-difference record predates the retained indexed
+`D_800D60C0[i]` rewrite. Nine coherent pointer/index forms, 119 flag
+combinations, ten scheduling/type forms, and bounded permutation did not close
+the saved-register and loop-delay web. The attempt cap is exhausted; the
+candidate stays `NON_MATCHING` and assembly remains canonical.
 
 `tier-D func_80045BBC`: 2 instruction words plus 6 relocation sites remain, first `+0x18`; size, frame, calls, and copy structure are exact.
 Workbench constant/allocation; symbolic-address, argument-hoist, phantom-pop, subtraction, flag-lattice, and bounded permutation levers did not close it.
