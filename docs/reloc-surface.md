@@ -916,8 +916,10 @@ Resident `debug_text_width` owns five exact records: R_MIPS_26 calls at `+0x18`
 and `+0x30` to `sprintfSetSpacingCodes`, `+0x28` to `vsprintf`, and a
 HI16/LO16 pair at `+0x4C/+0x50` to `D_8007CE98`. ORT 862 exports it, but all
 375 resident relocation entries, every shipped overlay SYMBOL record, direct
-JAL and literal-pointer scans, and source references are empty. Current linked
-equality proves fallback only.
+JAL and literal-pointer scans, and source references are empty. Retained
+prior-line-layout configured full-TU C emits all five at 59/66 raw/normalized
+words under the canonical flags; no selective C object survives. There is no
+target padding. Ordinary 66/66 and current linked equality prove fallback only.
 
 Resident `func_80045BBC` owns 24 static records: HI16/LO16 pairs for
 `D_8007CFE8` at `+0x04/+0x08`, `D_80705014` at `+0x18/+0x20`,

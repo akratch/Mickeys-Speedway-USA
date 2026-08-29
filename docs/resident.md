@@ -2008,17 +2008,19 @@ An explicit end pointer changes the frame, so asm stays canonical.
 
 `debug_text_width` owns ROM `0x44DD4..0x44EDC`, 66 words with no padding before
 `debug_text_parse`. Retained prior-line-layout configured full-TU C is 59/66
-words, exact frame `0x138`, first `+0x38`; no compiled selective object survives.
+raw and relocation-normalized words under canonical game-code flags, exact
+frame `0x138`, first `+0x38`; the current body is
+unchanged, but no compiled selective object survives and objdiff is unknown.
 One current-byte/classification web differs at `+0x38/+0x44/+0x5C/+0x60/
 +0x64/+0xEC/+0xF4`: target carries the byte in `v1` plus a `v0` copy, while C
 uses `v0` and a branch-likely newline lowering. Exact records are calls to
 `sprintfSetSpacingCodes` at `+0x18/+0x30`, `vsprintf` at `+0x28`, and the
 `D_8007CE98` pair at `+0x4C/+0x50`. ORT 862 exports it, but exhaustive resident,
-overlay, direct-jal, literal-pointer, and source scans found no caller. Linked
-equality proves fallback only. Historical source, flags, trace, and search are
-unretained. Run 119 flags on current V0, trace once, try separate-byte and
-trace-selected newline/tail forms plus an improving-only combination; cap 122
-stock builds plus trace and batch only after a strict natural gain.
+overlay, direct-jal, literal-pointer, and source scans found no caller. Ordinary
+66/66 and linked equality prove fallback only. Historical source, flags, trace,
+and search are unretained. Run 119 flags on current V0, trace once, try two
+independent trace-supported forms and combine only if both strictly improve;
+cap 122 stock builds plus trace. Any separate batch requires a natural gain.
 
 `func_8004054C` remains one instruction short at 124/125 words. Positional
 ranking reports 101 differences from `+0x2C`; shift-tolerant workbench
