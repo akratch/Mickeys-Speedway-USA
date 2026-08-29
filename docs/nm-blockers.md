@@ -195,7 +195,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_009_F0000540_1866BB8` | `src/overlays/o009/overlay_009.c` | none | — | Retained unconfigured evidence is 121/129 normalized words, frame `0x58`, with a four-way saved-FPR color cycle and ten runtime records; it omitted required `-Wab,-r4300_mul`. Run one identity-correct configured full-TU/linked V0, then park if the eight sites reproduce. |
 | `func_overlay_009_F0000CE4_186735C` | `src/overlays/o009/overlay_009.c` | resolved-plateau | overlay 9 float pool | TU-owned +0x390..+0x3E0 .rodata clears module growth; code generation remains. |
 | `func_overlay_009_F00010B4_186772C` | `src/overlays/o009/overlay_009.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_010_F0000000_1868450` | `src/overlays/o010/overlay10Initialize.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_010_F0000000_1868450` | `src/overlays/o010/overlay10Initialize.c` | none | — | Removed an invented triplicated empty `offset` guard from the guarded initializer; no attributable clean baseline survives. Compile clean V0 and authenticate its boundary/relocations before source/codegen work. |
 | `func_overlay_011_F0000150_1868998` | `src/overlays/o011/func_overlay_011_F0000150_1868998.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_011_F0001E4C_186A694` | `src/overlays/o011/func_overlay_011_F0001E4C_186A694.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_011_F00022E8_186AB30` | `src/overlays/o011/func_overlay_011_F00022E8_186AB30.c` | none | — | No ownership change; continue source/codegen work. |

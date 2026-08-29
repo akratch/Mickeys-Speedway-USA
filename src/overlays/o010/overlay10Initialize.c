@@ -146,8 +146,6 @@ void overlay10Initialize(void) {
     gOverlay10LargeBlock += 0x10;
     angle = 0;
     offset = 0;
-    if (((!offset) && (!offset)) && (!offset)) {
-    }
     do {
         ((volatile Overlay10Entry *)((u8 *)gOverlay10Entries + offset))->marker = 0xFF;
         ((volatile Overlay10Entry *)((u8 *)gOverlay10Entries + offset))->state0 = 0;
