@@ -95,15 +95,29 @@ Remaining: frame/home excess, relocation bindings, and patch-loop schedule.
 Workbench frame-layout; stack-home levers 26/32, frame-local variants, flag lattice, and bounded permutation did not alter the frame.
 The target reserves `0x50` with pendingLoad at `sp+0x44`; the candidate reserves `0x48` with the home at `sp+0x40`.
 
-`runlinkInit` remains `NON_MATCHING` after seven coherent source variants, the
-119-combination flag lattice, and a bounded permuter pass. The best adapted
-JFG candidate is 142 instructions against 146, with a `0x40` frame against
-`0x38`, 64 masked positional differences, and its first mismatch at `+0x8`.
-The three allocation-and-copy sequences agree apart from frame-relative local
-homes; the four-instruction deficit comes later, where IDO reuses two resident
-section-anchor addresses that Mickey rematerializes. The permuter found lower
-numeric scores only by introducing the wrong relocation identities, so those
-variants were rejected rather than promoted.
+`runlinkInit` remains `NON_MATCHING`. Its authenticated owner is resident
+`0x800328CC..0x80032B14` (ROM `0x334CC..0x33714`), with no padding before
+`runlinkSuspendCode`; exact-C `mainInitGame+0x12C` is its sole direct caller,
+the ABI is `void (void)`, and it has no export or runtime-overlay relocation.
+The best adapted JFG candidate is still 142 instructions against 146, with a
+`0x40` frame against `0x38`, 64 positional differences, and its first mismatch
+at `+0x8`. The target has 64 static relocation records against the candidate's
+62: it rematerializes both `D_80078D60` and `D_80085A40`, while the candidate
+shares them and instead rematerializes `overlayCount` once more.
+
+The original seven coherent forms, complete 119-row flag lattice and bounded
+permuter are now joined by thirteen configured/instrumented builds and
+controlled diagnostics. A fidelity-clean proc-11 receipt records 27 integer
+globalcolor decisions (17 colored, 10 split) and no FP decisions; natural
+pointer, signed-size, separate-counter, local-slot and anchor-expression forms
+are flat or worse, and forced split objects are causal diagnostics only. The
+next admissible lever is a source-authentic lifetime form that keeps the
+`overlayCount` address through the pending-load loop while independently
+materializing the two adjacent section anchors. JFG applicability is concrete
+but limited: its published `runlinkInitialise` target has the same table setup,
+pending-list, resident-header and anchor-rematerialization schedule, but its C
+is also non-equivalent and Mickey's best body was adapted from it. This is a
+shared blocker map for JFG maintainers, not a new donor body or match claim.
 
 | Function | ROM | Bytes | Flags | Donor and verdict |
 |---|---:|---:|---|---|

@@ -866,7 +866,7 @@ ReleaseUnusedLinkSlots = 0x8003314C; // type:func size:0x98  tier-D invented
 // past it, overlayCount as (headerBlockSize >> 5) + 1, the 16-entry pending
 // list filled with 0xFFB, linkSlotTable allocated and zeroed, overlayTable[0]
 // synthesized for the resident module, and every overlay's romAddress
-// relocated by 0x184C3E0. Called from func_80026E4C, immediately before the
+// relocated by 0x184C3E0. Called from mainInitGame+0x12C, immediately before the
 // first TrapDanglingJump. See docs/modules.md 5.3.
 //
 // GetSymbolName (0x800317E0). Four instructions. It is called from exactly one
@@ -882,7 +882,7 @@ ReleaseUnusedLinkSlots = 0x8003314C; // type:func size:0x98  tier-D invented
 // JFG's version reads simply absent. The name is adopted for the ROLE the call
 // site proves, and the stub is the finding.
 GetSymbolName = 0x800317E0;         // type:func size:0x10 tier-B call-graph
-runlinkInit = 0x800328CC;           // type:func size:0x248  tier-D invented
+runlinkInit = 0x800328CC;           // type:func size:0x248 tier-D NON_MATCHING bounded structural plateau
 runlinkDownloadCode = 0x80031C78;   // type:func size:0x478 tier-B call-graph C-object+linked-ROM-exact
 runlinkGetAddressInfo = 0x800331E4; // type:func size:0x1BC
 // TIER A, no longer resting on the call-graph argument above. The whole 0x1E0

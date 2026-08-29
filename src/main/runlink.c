@@ -908,9 +908,29 @@ void runlinkFlushModules(void) {
  * section anchors, packed header layout, and pending-load count determine the
  * final body.
  */
-/* Plateau: workbench structure-mismatch, 142/146 instructions, candidate frame -0x40 vs target -0x38, first +0x8.
- * Lever tried: reordered overlayCount/mainRelocTable and the 119-combination flag lattice; the reorder worsened to 65 words.
- * Remaining: target's table-count/materialization schedule and relocation identities add four instructions under these semantics. */
+/*
+ * Plateau (2026-08-30): the owned resident range is 0x800328CC..0x80032B14
+ * (146 instructions, no padding before runlinkSuspendCode). The configured
+ * candidate remains 142 instructions with 64 positional differences, first
+ * +0x8, and a 0x40 frame against the target's 0x38. mainInitGame+0x12C is the
+ * sole direct caller; the void(void) ABI and absence of exports are exact.
+ *
+ * The target has 64 static relocation records against the candidate's 62.
+ * It materializes D_80078D60 and D_80085A40 twice each and overlayCount three
+ * times; the candidate shares each section anchor and materializes
+ * overlayCount four times. All named static identities are authenticated, and
+ * this resident initializer owns no runtime-overlay relocation records.
+ *
+ * A fidelity-clean proc-11 allocator receipt records 27 integer globalcolor
+ * decisions (17 colored, 10 split), no FP decisions, and no attributable ugen
+ * lane in this mixed TU. Thirteen fresh builds/controlled diagnostics covered
+ * pointer, signed-size, separate-counter, local-slot, explicit-anchor and
+ * volatile-pointer forms plus web-split causality probes; none improves the
+ * natural baseline. The earlier 119-row lattice, seven source variants and
+ * bounded permuter remain exhausted. Resume only with a source-authentic form
+ * that retains the overlayCount address across the pending-load loop while
+ * independently rematerializing the two adjacent section anchors.
+ */
 void runlinkInit(void) {
     u32 overlayTableSize;
     u32 tableSize;
