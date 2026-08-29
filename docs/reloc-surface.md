@@ -822,9 +822,11 @@ and 967 to resident `func_8005776C`, `sqrtf`, `func_8005AD64`, and
 `+0x3F0` with addends `+4,+8,+0xC,+0x10,+0x14,+0x18,+0x1C,+0x20`. ORT 1290
 exports `+0x11C`; resident relocation 132 at `func_8000AEEC+0x3B0` is the sole
 inbound. The retained genuine-C baseline has the expected topology but is
-142/180 words; canonical linked equality is fallback-only. A later exact
-source claim has no retained winning object and must independently reproduce
-all 20 tuples before receiving credit.
+142/180 raw words with frame `0x78`; normalized score is unretained and
+canonical linked equality is fallback-only. The exact lane body is now staged
+under the canonical guard but remains uncompiled. Owned `+0x11C..+0x3EC`
+excludes the separate `+0x3EC..+0x3F0` padding word. Fresh C must independently
+reproduce all 20 distinct tuples before receiving credit.
 
 Resident `func_8005A948` owns 13 static records: HI16/LO16 pairs to
 `D_800D7D04` at `+0x00/+0x04`, `D_800D7CF4` at `+0x34/+0x38` and
