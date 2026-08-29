@@ -123,7 +123,7 @@ typedef struct {
 extern EpcDebugObject *D_8007A214;
 void stop_all_threads_except_main(void);
 void diCpuThread(void *unused);
-void func_80045BBC(void *thread);
+void func_80045BBC(OSThread *thread);
 void func_80045D34();
 
 /* PROVENANCE: body adapted from JFG src/diCpu.c::diCpuTraceInit. */
@@ -173,18 +173,20 @@ void stop_all_threads_except_main(void) {
     }
 }
 #ifdef NON_MATCHING
-/* PROVENANCE: body adapted from JFG src/diCpu.c::func_80066D28_67928;
- * Mickey's target fixes the dump-size calculation to use the copied range. */
+/* PROVENANCE: body adapted from JFG src/diCpu.c::func_800676F8. That JFG
+ * source is a disabled, assembly-backed structural draft rather than an
+ * exact-C donor; Mickey's bytes remain authoritative. Mickey's target fixes
+ * the dump-size calculation to use the copied range. */
 /* Workbench plateau (retested 2026-08-28, audited 2026-08-29): retained
- * configured full-TU and isolated C are 60 words/frame 0x30 with raw sites at
- * +0x18,+0x20,+0x28,+0x30,+0x38,+0x40,+0xBC,+0xC0. Value-normalizing six
- * absolute-address fields leaves the t6/t4 FIFO web at +0xBC/+0xC0; the
- * candidate has 18 static relocation tuples versus target 24 because literal
- * D_80705014/18/1C lvalues omit six HI16/LO16 records. No linked C proof
- * survives. Only V0 has attributable artifacts: reproduce it and the flag
- * lattice, probe each missing identity independently, then use one trace-led
- * natural FIFO form and a bounded annotated batch only after a strict gain. */
-void func_80045BBC(void *thread) {
+ * configured full-TU and isolated C are 52/60 raw words, 58/60 after resolving
+ * the six fixed-address fields, and frame 0x30. The substantive t6/t4 FIFO web
+ * is at +0xBC/+0xC0; the candidate has 18 static relocation tuples versus
+ * target 24 because literal D_80705014/18/1C lvalues omit six HI16/LO16
+ * records. No linked C proof survives. Reproduce V0, probe each missing
+ * identity independently, combine the identity-correct baseline, retain all
+ * 119 flags, then use one trace-led natural FIFO form and an improving-only
+ * bounded batch. Hard cap: 125 deterministic builds plus one trace. */
+void func_80045BBC(OSThread *thread) {
     s32 copySize;
     void *source;
     register u8 *destination;

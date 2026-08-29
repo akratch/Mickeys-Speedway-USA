@@ -2526,19 +2526,35 @@ combinations, ten scheduling/type forms, and bounded permutation did not close
 the saved-register and loop-delay web. The attempt cap is exhausted; the
 candidate stays `NON_MATCHING` and assembly remains canonical.
 
-`tier-D func_80045BBC` has retained configured full-TU and isolated C evidence
-at 60 words and frame `0x30`. Eight raw sites remain at
-`+0x18,+0x20,+0x28,+0x30,+0x38,+0x40,+0xBC,+0xC0`; value normalization of
-the six absolute-address fields leaves two executable sites at `+0xBC/+0xC0`.
-The candidate carries 18 static relocation tuples versus target 24 because its
-literal `D_80705014/18/1C` lvalues omit six HI16/LO16 bindings. The resident
-runtime relocation census has no record inside this function; these are static
-link bindings. No linked C artifact survives. Only V0 has attributable
-artifacts; historical source, flag, trace, and permutation outcomes are
-scheduling evidence. Reproduce V0 and retain the flag lattice; probe each of
-the three missing identities independently and combine only strict gains, then
-try one trace-selected natural FIFO form. Permit one relocation-annotated
-bounded batch only after a strict gain; assembly stays canonical.
+`tier-D func_80045BBC` owns VRAM `0x80045BBC..0x80045CAC`, ROM
+`0x467BC..0x468AC`: 240 bytes/60 words, frame `0x30`, and no padding. Retained
+configured full-TU and isolated current-body C are byte-identical at 52/60 raw
+words and 58/60 after resolving the six fixed-address fields. The remaining
+substantive sites at `+0xBC/+0xC0` are one final-argument `t6/t4` FIFO web.
+Ordinary object and linked equality are `GLOBAL_ASM` fallback only; no linked C
+artifact survives.
+
+The target owns 24 static records: HI16/LO16 pairs for `D_8007CFE8` at
+`+0x04/+0x08`, `D_80705014` at `+0x18/+0x20`, `D_8007CFE0` at
+`+0x1C/+0x24`, `D_80705018` at `+0x28/+0x30`, `D_8007CFE4` at
+`+0x2C/+0x34`, `D_8070501C` at `+0x38/+0x40`, `D_800D5D40` at
+`+0x78/+0x8C`, `D_800D5D48` at `+0x7C/+0x80`, `D_80083A80` at
+`+0xB4/+0xC8`, and `D_80083A88` at `+0xB8/+0xC4`; `_bcopy` calls at
+`+0x4C,+0x6C,+0x88`; and `packWriteFile` at `+0xD4`. The candidate carries
+the other 18 records at exact offsets/types/identities, but its literal
+`D_80705014/18/1C` lvalues omit those six pairs. Runtime evidence is empty:
+zero resident relocation records, no ORT export at resident offset `0x4576C`,
+and no overlay inbound. The sole authenticated caller is
+`func_80045CAC+0x64`, which passes its selected `OSThread *` and ignores the
+return register.
+
+The TU uses ordinary `-O2 -mips2 -32`. JFG `func_800676F8` is a disabled,
+assembly-backed structural draft, not genuine donor C. Reproduce V0, probe the
+three identities independently, combine the identity-correct baseline, retain
+all 119 flags, capture one FIFO trace, and try one trace-selected natural form
+plus an improving-only combination. Permit one relocation-annotated batch only
+after a strict gain; hard cap 125 deterministic builds plus one trace. Assembly
+stays canonical.
 
 The 292-byte `func_80046AA8` packed-glyph renderer is Evidence A exact C after
 bounded permutation: all 73 instruction words, its 72-byte frame, relocation

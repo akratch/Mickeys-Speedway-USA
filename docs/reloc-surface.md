@@ -850,6 +850,19 @@ HI16/LO16 pair at `+0x4C/+0x50` to `D_8007CE98`. ORT 862 exports it, but all
 JAL and literal-pointer scans, and source references are empty. Current linked
 equality proves fallback only.
 
+Resident `func_80045BBC` owns 24 static records: HI16/LO16 pairs for
+`D_8007CFE8` at `+0x04/+0x08`, `D_80705014` at `+0x18/+0x20`,
+`D_8007CFE0` at `+0x1C/+0x24`, `D_80705018` at `+0x28/+0x30`,
+`D_8007CFE4` at `+0x2C/+0x34`, `D_8070501C` at `+0x38/+0x40`,
+`D_800D5D40` at `+0x78/+0x8C`, `D_800D5D48` at `+0x7C/+0x80`,
+`D_80083A80` at `+0xB4/+0xC8`, and `D_80083A88` at `+0xB8/+0xC4`;
+R_MIPS_26 `_bcopy` calls at `+0x4C,+0x6C,+0x88`; and `packWriteFile` at
+`+0xD4`. Genuine C emits 18 exact tuples but literalizes the three
+`D_80705014/18/1C` pairs. Resident runtime records, ORT export rows at offset
+`0x4576C`, overlay SYMBOL inbounds, and stored-pointer inbounds are all zero;
+`func_80045CAC+0x64` is the sole direct caller. Current linked equality proves
+fallback only.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to
