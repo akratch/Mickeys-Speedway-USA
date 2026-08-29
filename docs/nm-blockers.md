@@ -2,11 +2,11 @@
 
 This is a names-only audit of every function body guarded by `NON_MATCHING` in `src/`, reconciled with the plateau notes in `docs/resident.md` and `docs/overlays.md`. Declaration-only guards are excluded. `none` means the recorded blocker is code shape, frame, scheduling, register allocation, ABI typing, or unresolved reconstruction rather than section/TU ownership.
 
-- Guarded functions audited: 411
+- Guarded functions audited: 410
 - Structural blockers found: 39
 - Structural blockers resolved: 3
 - Structural blockers remaining: 36
-- No structural blocker: 372
+- No structural blocker: 371
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
 |---|---|---|---|---|
@@ -371,7 +371,6 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_083_F000053C_18CFCFC` | `src/overlays/o083/overlay83BuildBatch.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_083_F0000850_18D0010` | `src/overlays/o083/overlay83DrawStrip.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_084_F0000314_18D07F4` | `src/overlays/o084/func_overlay_084_F0000314_18D07F4.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_084_F0001060_18D1540` | `src/overlays/o084/overlay84ActivateCurrent.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_084_F0000DD0_18D12B0` | `src/overlays/o084/overlay84AdvanceCurrent.c` | matched | — | Promoted as `overlay84AdvanceCurrent`; no ownership work remains. |
 | `func_overlay_084_F0000048_18D0528` | `src/overlays/o084/overlay84InitializeAndUpdate.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_084_F0000C9C_18D117C` | `src/overlays/o084/overlay84LoadCurrent.c` | matched | — | Promoted to exact C; no ownership work remains. |

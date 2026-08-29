@@ -1830,3 +1830,10 @@ decomp-permuter pass ran 361 seconds without improving its ten register-only
 words. The first allocator divergence is pool slot 11 at `+0x74`; all six
 target relocations are exact, while the C object also emits state-anchor
 HI16/LO16 records at `+0x0/+0x4` that the target lacks. No C credit is claimed.
+
+`overlay 84 +0x1060..+0x11F4` (`overlay84ActivateCurrent`) contributes **404
+naturally exact bytes / 101 words**. Reusing the word-sized selector parameter
+for the chosen byte preserves the retail register lifetime and `0x30` frame;
+the configured object is instruction-exact and retains the expected global
+HI16/LO16 pair plus three call relocations. The linked owned range and the full
+5,752-byte overlay section are byte-identical to the US ROM.

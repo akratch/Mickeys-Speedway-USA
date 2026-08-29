@@ -2013,6 +2013,11 @@ gOverlay84ObjectRead = 0x00000000;
 gOverlay84ObjectWrite = 0x00000000;
 overlay84Atan2 = 0xf0000000;
 
+/* overlay 84: overlay84ActivateCurrent.c.o */
+overlay84LookupReloc = 0xf0000000;
+overlay84PrepareReloc = 0xf0000000;
+overlay84ReleaseReloc = 0xf0000000;
+
 /* overlay 84: overlay84InitializeCurrent.c.o */
 gOverlay84CurrentObject = 0x00000000;
 

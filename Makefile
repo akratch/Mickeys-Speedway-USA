@@ -1685,7 +1685,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84SetBit.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84GetValues.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84ActivateCurrent.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_084_F0001060_18D1540=overlay84ActivateCurrent $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x194
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o084/overlay84ClearActive.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20

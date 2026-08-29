@@ -60,6 +60,13 @@ bytes and disassembly never belong here.
   model; use typed rewrites as a diagnosed lever, not an arbitrary score nudge.
   Evidence: the exact animation, save, and collision cohorts in
   `docs/resident.md`.
+- Reusing a word-sized parameter for a value that is narrowed only at its
+  eventual byte store can preserve IDO's full-width register web and compact
+  frame. Introducing a separate byte local may instead truncate at entry and
+  create a byte-sized stack home. Apply this only when every intervening use
+  has the same proven value domain and the callee ABI accepts the narrowing;
+  reject it unless code, relocations, and linked bytes remain exact. Evidence:
+  Overlay 84's exact current-resource activator in `docs/overlays.md`.
 - A merged TU or a shared placeholder prototype can change caller code while a
   standalone callee looks exact. Treat symbol binding, visible prototypes, and
   TU ownership as part of the compiler input. Evidence: the merged-TU blocker
