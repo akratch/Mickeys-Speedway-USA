@@ -566,7 +566,8 @@ modules closed.
 
 Only overlays 39 and 95 reached full cohort closure. The other seven closure
 targets were bounded and left as assembly where exactness failed: overlay 74
-has one 400-byte allocator/scheduler mismatch; overlay 85 has a 476-byte
+has one 400-byte, six-word register-allocation mismatch with its instruction
+schedule aligned; overlay 85 has a 476-byte
 timer/trigger register-colouring mismatch; overlay 23 retains indivisible
 520- and 256-byte bodies; overlay 77 retains one 648-byte projectile body;
 overlay 24 retains 616- and 400-byte bodies; overlay 82 retains its 64-byte
@@ -915,9 +916,12 @@ credit; the generated scoreboard is authoritative. Retained configured C is
 18/30 words with all four runtime records, while linked range/module/ROM
 identity proves the assembly fallback only.
 
-Overlays 74, 77, 85, and 97 are now entirely exact C apart from proven
-alignment padding. Together with the earlier overlay 39 and 95 closures, this
-satisfies the Epoch 5 cohort exit at **6 / 6**. The regenerated donor ledger
+At this historical checkpoint overlays 74, 77, 85, and 97 were counted exact
+under the then-active instruction-field normalization. Current canonical
+`overlay74Update` remains guarded `NON_MATCHING`, contributes zero exact C
+bytes, and its exact linked/module/ROM evidence proves assembly fallback only.
+That retired accounting, together with the earlier overlay 39 and 95 closures,
+had satisfied the Epoch 5 cohort exit at **6 / 6**. The regenerated donor ledger
 covers 107 overlays against pinned DKR v77/v80 and JFG and remains negative
 for the final three clusters. A bounded `gmake -j2` rebuild is byte-identical
 to the US baserom with SHA1

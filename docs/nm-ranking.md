@@ -267,12 +267,11 @@ objdiff report was supplied.
 5. **No isolation backlog remains.** All discovered functions participate
    in the same sorted fleet queue.
 
-## Top 20 near-misses (this run)
+## Living register-only near misses (retained snapshot)
 
-The 20 lowest `differing_words` scores, `register-only`/`schedule-only`
-first per the sort order above (full list, sortable, in
-`config/nonmatching-ranking.us.json`; `--top 20 --markdown` reproduces this
-table from a fresh run):
+These are the latest audit-corrected configured full-TU or isolated
+measurements. The sortable `config/nonmatching-ranking.us.json` remains the
+generated historical snapshot; regenerate it when compile capacity is free.
 
 | name | overlay/TU | differing_words | first_mismatch_offset | size | size_delta | category |
 |---|---|---:|---:|---:|---:|---|

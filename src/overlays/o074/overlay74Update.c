@@ -46,10 +46,11 @@ void overlay74RewardReloc(s32 count);
  * six relocation-normalized words at +0xC,+0x68,+0x84,+0x8C,+0x90,+0x124,
  * while preserving the 0x60 frame. Five words swap the result aggregate's
  * address/object register pair, and the last OR uses the opposite commutative
- * encoding. A bounded two-worker permuter batch found no exact form. A recorded
- * instrumented IDO build reproduced the project compiler's text exactly; the
- * surviving candidate is a configured-flag isolated import, not full-TU or
- * linked C proof. Its eight offsets/types agree with the runtime records,
+ * encoding. A bounded two-worker permuter batch found no exact form.
+ * Historical logs say an instrumented IDO build reproduced the isolated
+ * candidate; the retained evidence is a configured-flag isolated 94/100-word
+ * object, not configured full-TU or linked C proof. Its eight offsets/types
+ * agree with the runtime records,
  * including both gOverlay74Flags pairs resolved through reserved selector
  * 0xFFF/addend 0x4D6E8 to D_800D3128; the assembled target retains only four
  * static call relocations. Pinned DKR v77/v80 and JFG scans found no donor.
@@ -57,7 +58,9 @@ void overlay74RewardReloc(s32 count);
  * pair exact but rotates 32 later temporary words; local-carrier, ABI-return,
  * and operand-order spellings do not retain that gain. Forced-color probes
  * move 85+ words or change the instruction count, confirming this is a
- * temp-FIFO/pool-position boundary rather than a safe one-web recoloring. */
+ * temp-FIFO/pool-position boundary rather than a safe one-web recoloring.
+ * Reprove V0, then probe the resident s32 query return and void no-argument hit
+ * ABIs; stop if both are flat, with a four-build hard cap. */
 #ifdef NON_MATCHING
 void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
     Overlay74QueryResult result;
