@@ -153,7 +153,6 @@ typedef struct Overlay5SequenceConfig {
     s32 field08;
     void *field0C;
     s16 field10;
-    u8 pad12[8];
 } Overlay5SequenceConfig;
 
 extern u8 gOverlay5AudioHeap[];
@@ -169,12 +168,13 @@ extern void *gOverlay5Span1;
 extern void *gOverlay5Span2;
 extern u32 gOverlay5Span0Size;
 extern u32 gOverlay5Span1Size;
-extern u32 gOverlay5ScaleValue;
+extern u32 gOverlay5Span0ScaleValue;
+extern u32 gOverlay5Span1ScaleValue;
 extern Overlay5Bank *gOverlay5Bank;
 extern u32 *gOverlay5EntryValues;
 extern void *gOverlay5Player0;
 extern void *gOverlay5Player1;
-extern u8 gOverlay5SoundState[];
+extern u8 gOverlay5OwnerSoundState[];
 extern u8 gOverlay5MessageQueue[];
 extern u8 gOverlay5MessageBuffer[];
 

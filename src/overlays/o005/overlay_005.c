@@ -11,15 +11,16 @@ void overlay5InitSequence(void *owner, s32 value) {
 }
 
 /*
- * Plateau evidence (reviewed 2026-08-29): retained prior-layout configured
- * full-TU and selective C agree at 211/233 raw and runtime-normalized words,
- * exact 0x3A4-byte size and 0x98 frame, first mismatch +0x9C. All 71 runtime
- * sites align by offset/type, but two source names collapse distinct runtime
- * identities: ORT 1559/1561 and ORT 1565/1568. The residual is three Span1
- * carrier words, the +0x214/+0x218 initialization swap, and shifted bankSize,
- * soundConfig, and sequenceConfig homes. Current-layout C is unproven; linked
- * equality proves fallback only. Reopen with identity-correct V0, 119 flags,
- * one allocator trace, and trace-selected forms; canonical assembly remains.
+ * Plateau evidence (reviewed 2026-08-29): retained pre-HEAD/current-body,
+ * current-layout full-TU and selective C agree at 211/233 raw and normalized
+ * words, exact 0x3A4-byte size and 0x98 frame, first mismatch +0x9C. That score
+ * used an unauthenticated eight-byte SequenceConfig tail, now removed, so clean
+ * V0 is uncompiled. The remaining 22 sites are three Span1 carrier words, the
+ * +0x214/+0x218 initialization swap, and shifted bankSize, soundConfig, and
+ * sequenceConfig homes. All 71 runtime records align by offset/type; ORTs
+ * 1559/1561 and 1565/1568 now have distinct source identities. Linked equality
+ * proves fallback only. Run 119 flags, one trace, three natural forms, and an
+ * improving-only combination; cap at 123 stock candidates plus one trace.
  */
 #ifdef NON_MATCHING
 void overlay5InitializeAudio(void *context) {
@@ -30,7 +31,7 @@ void overlay5InitializeAudio(void *context) {
     u32 maxValue;
 
     maxValue = 0;
-    gOverlay5AudioOwner = gOverlay5SoundState;
+    gOverlay5AudioOwner = gOverlay5OwnerSoundState;
     alHeapInit(gOverlay5HeapState, gOverlay5HeapMemory, 0x30D40);
 
     resource = func_8002E148(0x31);
@@ -38,13 +39,13 @@ void overlay5InitializeAudio(void *context) {
     gOverlay5Span0 = func_8002B280(gOverlay5Span0Size, 0x82);
     func_8002E2E0(0x32, gOverlay5Span0,
                   (void *)resource->span1End, gOverlay5Span0Size);
-    gOverlay5ScaleValue = gOverlay5Span0Size / 10U;
+    gOverlay5Span0ScaleValue = gOverlay5Span0Size / 10U;
 
     gOverlay5Span1Size = resource->span1End - resource->span1Start;
     gOverlay5Span1 = func_8002B280(gOverlay5Span1Size, 0x82);
     func_8002E2E0(0x32, gOverlay5Span1,
                   (void *)resource->span1Start, gOverlay5Span1Size);
-    gOverlay5ScaleValue = gOverlay5Span1Size / 3U;
+    gOverlay5Span1ScaleValue = gOverlay5Span1Size / 3U;
 
     gOverlay5Span2 = func_8002B280(resource->span0Start, 0x82);
     func_8002E2E0(0x32, gOverlay5Span2, 0, resource->span0Start);
@@ -108,7 +109,7 @@ void overlay5InitializeAudio(void *context) {
     soundConfig.field1C = 6;
     soundConfig.field0C = 1;
     soundConfig.field18 = 0;
-    soundConfig.field14 = gOverlay5SoundState;
+    soundConfig.field14 = gOverlay5HeapState;
     func_80001740(&soundConfig, 0x0C, context);
 
     gOverlay5Player0 = overlay5CreatePlayer(0x20, 0x96);
@@ -118,7 +119,7 @@ void overlay5InitializeAudio(void *context) {
     sequenceConfig.field00 = (void *)0x20;
     sequenceConfig.field08 = 0x10;
     sequenceConfig.field10 = 5;
-    sequenceConfig.field0C = gOverlay5SoundState;
+    sequenceConfig.field0C = gOverlay5HeapState;
     gsSndpNew(&sequenceConfig);
 
     func_80001BA0();
