@@ -3129,9 +3129,23 @@ and receive no credit. Exact executable C in `main/vehicle_sounds` now totals
 `0xF4` bytes.
 
 The remaining vehicle functions plateau without exact credit.
-`func_80058250`: 26/22 words, 19 positional differences from `+0x0`; workbench reports structure-mismatch.
-The TU now owns the measured four-record `0x800D78B0`–`0x800D78F0` BSS; an array collapses to 16 words and volatile slots differ in 21/22.
-Stock `-O2 -mips2 -32` remains best after the 119-configuration flag lattice; assembly stays canonical.
+`func_80058250` has a fresh configured full-TU reproof at 26 candidate versus
+22 target words, with 3/22 positional matches and first mismatch `+0x0`. The
+target owns exactly ROM `0x58E50..0x58EA8`, is frameless, and has no padding
+before `func_800582A8`. The TU owns the measured four-record
+`0x800D78B0`–`0x800D78F0` BSS. Its twelve stores are semantically correct, but
+the candidate carries 24 relocations against 20: the target uses separate
+handle and racer-object bases for each record and reuses the latter high half
+for the preceding float's distinct LO16, eliminating exactly four HI16 loads.
+All twelve BSS identities and the sole call from `func_80004FE0+0x54C` are
+authenticated. The earlier 119-configuration lattice, array, four-slot,
+volatile and split-tail families, plus fresh target-order, TU-local-scalar,
+comma-expression, racer-base-pointer and volatile-tail probes are nonexact;
+none strictly improves the retained named-global V0. No exact or structurally
+credible permitted donor was found. Resume only with an original declaration
+or TU model that naturally emits two direct bases and three separately named
+LO16s per slot, or evidence that the initializer was handwritten. Assembly
+stays canonical.
 
 `func_8005830C`: 758/762 words, 699 positional differences from `+0x0`, frame `0x110`/`0x118`.
 Workbench reports mixed constant/structure/register mismatch; the next lever is constant-audit.

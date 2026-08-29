@@ -1180,6 +1180,18 @@ bounded C remains 126/153 words with candidate SHA prefix `90eeefb220a1`;
 all 119 flags and two flat natural forms are nonexact, so linked equality
 continues to prove fallback only.
 
+Resident `func_80058250` targets 20 static records across its exact
+`0x58E50..0x58EA8` range: eight HI16s and twelve LO16s naming the handle,
+doppler-pitch, and racer-object fields of four contiguous sound slots. The
+configured named-global V0 represents all twelve identities but emits 24
+records because each field receives its own HI16/LO16 pair; its four extra
+HI16s account exactly for the `+0x10` text-size delta. Target code instead
+uses a handle base and racer-object base per slot, with each racer-object high
+half also carrying the preceding float's distinct LO16. The function is
+frameless and has no padding; `func_80004FE0+0x54C` is its sole direct caller,
+and there are no calls or pointer relocations inside it. Current linked
+equality proves fallback only.
+
 Resident `func_8003E8D8` owns ten exact static tuples in bounded 139/140
 configured full-TU C:
 HI16/LO16 pairs to `D_8007C898` at `+0x00/+0x04`, `D_8007C890` at

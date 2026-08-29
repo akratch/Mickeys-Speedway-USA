@@ -127,9 +127,18 @@ f32 sqrtf(f32 value);
 f32 func_80058EF4(f32 value);
 
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, 26 candidate/22 target instructions, 19 raw words from +0x0.
- * Lever: aggregate and target-order store probes confirmed the stock named globals remain best; target high-half reuse is not source-reached.
- * Remains: original BSS ownership and relocation layout; assembly fallback stays canonical. */
+/* Bounded plateau: owns ROM 0x58E50..0x58EA8, 22 frameless words with no
+ * padding. Configured full-TU C is 26 words, matches 3/22 positionally, first
+ * +0x0, and carries 24 relocations against the target's 20. The four-word
+ * excess is one redundant high-half load per slot: the target uses two direct
+ * absolute bases for three stores while retaining separately named LO16s.
+ * The previous 119-row lattice, aggregate/volatile-slot families, and this
+ * pass's target ordering, TU-local-scalar, comma-expression, racer-base pointer,
+ * and volatile split-tail forms are all nonexact; none strictly improves V0.
+ * The sole caller is func_80004FE0+0x54C and no credible donor exists. Resume
+ * only with an original declaration/TU model that naturally emits that mixed
+ * relocation shape, or evidence that this initializer was handwritten; do
+ * not repeat flags or these storage forms. Assembly remains canonical. */
 void func_80058250(void) {
     D_800D78B0 = 0;
     D_800D78B8 = 0.0f;
