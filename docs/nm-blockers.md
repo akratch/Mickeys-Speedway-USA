@@ -336,7 +336,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_058_F0004C04_18B3DEC` | `src/overlays/o058/overlay58DrawSegmentStrip.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_058_F0005554_18B473C` | `src/overlays/o058/overlay58FinalizePackedStatus.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_059_F000036C_18B8ABC` | `src/overlays/o059/overlay59Advance.c` | resolved-plateau | overlay 59 state switch table | Retained +0x76C table owns the compiler references; prologue schedule remains. |
-| `func_overlay_059_F0000070_18B87C0` | `src/overlays/o059/overlay59PrepareEntry.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_059_F0000070_18B87C0` | `src/overlays/o059/overlay59PrepareEntry.c` | none | — | Retained configured evidence is 53/62 normalized words, frame `0x28`, with one `v0/a0` allocation web. Its six runtime records distinguish local `JUMP` cleanup calls from resident `SYMBOL` acquisition calls. Run one identity-correct configured/linked V0, then park if the nine sites reproduce. |
 | `func_overlay_060_F0002F54_18BCD2C` | `src/overlays/o060/func_overlay_060_F0002F54_18BCD2C.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_060_F0000000_18B9DD8` | `src/overlays/o060/overlay60Initialize.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_060_F0003488_18BD260` | `src/overlays/o060/overlay60ReassignChoiceSlots.c` | none | — | No ownership change; continue source/codegen work. |

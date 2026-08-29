@@ -376,6 +376,15 @@ Three properties make it safe to run inside `generate`:
   caller matching `UNRESOLVED` does not read a measurable candidate as a
   failure.
 
+Overlay 59's entry preparer demonstrates both roles in one body. Its calls at
+module `+0xB8/+0x140` are local `JUMP` records to `overlay59Release`, while
+`+0xD4/+0x104` are resident `SYMBOL` records to `func_80034448`. All four store
+zero and collapse to one symbol in the synthetic target object. The candidate
+therefore uses separate per-module aliases valued at `0xF0000000`, with
+postprocessing preserving the target object's collapsed surface; assigning
+the resident global itself would corrupt every resident caller of
+`func_80034448`.
+
 
 #### What it measured
 

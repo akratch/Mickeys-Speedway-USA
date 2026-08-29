@@ -1255,9 +1255,13 @@ sites, and the linked overlay is byte-identical to the ROM.
 Overlay 59's `+0x070..+0x168` entry preparer — 248 bytes / 62 words.
 NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
 nine-word decoded ledger selecting retail's equivalent descriptor-value/
-call-argument web); source kept as decomp-permuter input. Natural source
-otherwise supplied the exact boundary, frame, CFG, memory effects, four
-calls, and six relocation records.
+call-argument web); source kept as decomp-permuter input. Retained configured
+evidence is 53/62 relocation-normalized words with the exact boundary, frame,
+CFG and memory effects, but no linked candidate-C proof survives. The six
+runtime records are a local table HI/LO pair, local `JUMP` calls to
+`overlay59Release` at `+0x48/+0xD0`, and resident `SYMBOL` calls to
+`func_80034448` at `+0x64/+0x94`; the synthetic target object collapses those
+four zero-field calls and is not identity authority.
 
 Overlay 48's `+0x144..+0x40C` state updater — 712 bytes / 178 words.
 NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
