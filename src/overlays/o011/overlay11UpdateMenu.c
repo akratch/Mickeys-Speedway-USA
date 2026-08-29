@@ -57,29 +57,40 @@ extern void func_overlay_066_F0000000(void *arg0);
 
 /* Pinned exact-overlay DKR v77/v80 and JFG scans found no exact donor. */
 /*
- * The removed padded/wrong-identity source measured 285/301 relocation-
- * annotated raw (278/301 literal) and 299/301 runtime-normalized words, size
- * 1204 B, frame 0x48, with all 102 sites; only +0x138/+0x140 remained after
- * normalization. Its three dead arrays existed only to inflate the expected
- * natural 0x30 frame. Current clean source also repairs +0x8 to resident
- * func_80028F54, but is uncompiled: score, frame, extent, and relocation
- * offsets are unknown. The runtime table and historical pre-postprocess C
- * preserve 13 distinct SYMBOL call identities; current source names them, but
- * the fallback-specific production postprocess still collapses twelve onto the
- * zero carrier. Promotion requires distinct typed proxies for all 13 endpoints
- * and unique stored-addend aliases for the BSS identities. Run 119 flags on
- * clean V0, trace once, try at most two natural declaration/lifetime forms plus
- * an improving-only combination; cap 122 stock builds plus trace, no generic
- * batch or padding-array revival.
+ * The 2026-08-29 bounded reproof exhausted 122 stock builds plus one
+ * codegen-faithful allocator trace. Clean V0 emitted 301 instructions with a
+ * 0x30 frame and 23 relocation-masked positional differences. All 119 flag
+ * configurations were nonexact (53 compiled; seven tied V0; 66 failed). The
+ * trace found identical uopt pool and ugen temporary lanes. An explicit
+ * current-handle form regressed to 30 differences. Keeping the three loop
+ * locals in their natural lexical block is the sole strict gain: 301
+ * instructions, exact 0x48 frame, 33 raw target-object differences and 19
+ * after masking linker-filled fields (workbench norm=4, regs=2), first +0x1C.
+ * The historical +0x138/+0x140 v0/v1 pair remains, but the removed source's
+ * 299/301 runtime-normalized score does not transfer to this clean body.
+ *
+ * The retained object has all 102 runtime sites at exact offsets and types.
+ * The surface comparator resolves and agrees on 73 identities; 29 remain
+ * unresolved. Separately, all 26 calls prove the 13 typed SYMBOL endpoints
+ * and zero stored addends, plus the five local JUMPs. Generic D_* assignments
+ * cannot prove object ownership for the overlay-local BSS identities, so no C
+ * link or promotion is attempted. The exact linked range remains fallback
+ * assembly only; do not revive dead frame arrays or repeat this bounded sweep.
  */
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: overlay11UpdateMenu
+ * score: 282/301 relocation-masked positional words
+ * frame: 0x48
+ * relocations: 102
+ * first mismatch: +0x1C
+ * summary: exact extent/frame and call surface; nonexact code plus ambiguous
+ *          object-scoped BSS identities require the retained ASM fallback
+ */
 void overlay11UpdateMenu(s32 updateRate) {
-    s32 index;
     O11Status *status;
     s32 finish;
-    void **handle;
     s8 direction;
-    s16 value;
     s32 selection;
     O11Object *object;
     O11ObjectSub *sub;
@@ -108,14 +119,20 @@ void overlay11UpdateMenu(s32 updateRate) {
         }
     }
 
-    handle = D_1CC;
-    index = 1;
-    do {
-        value = (index == D_1BC) ? D_1B8 : 0;
-        func_overlay_045_F0001BF4_188E04C(*handle, value);
-        index++;
-        handle++;
-    } while (index != 4);
+    {
+        void **handle;
+        s32 index;
+        s16 value;
+
+        handle = D_1CC;
+        index = 1;
+        do {
+            value = (index == D_1BC) ? D_1B8 : 0;
+            func_overlay_045_F0001BF4_188E04C(*handle, value);
+            index++;
+            handle++;
+        } while (index != 4);
+    }
 
     menuInput = (s32 *)(D_menuBase + 0x1C4);
     if ((func_8002554C(D_1C4) & 0x8000) || *menuInput != 0) {

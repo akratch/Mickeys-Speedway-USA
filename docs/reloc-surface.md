@@ -473,7 +473,7 @@ resident target (splat auto-name or `D_8…`), which is a superset of the 15
 | `overlay5InitializeAudio` | `resident-symbol-missing` | `text-differs` 22 |
 | `func_overlay_011_F0001E4C_186A694` | `resident-symbol-missing` | `schedule-divergence-at-site` |
 | `func_overlay_011_F00022E8_186AB30` | `resident-symbol-missing` | `schedule-divergence-at-site` |
-| `overlay11UpdateMenu` | `resident-symbol-missing` | pre-current-identity diagnostic C: 16 annotated raw differences, 2 after runtime normalization |
+| `overlay11UpdateMenu` | `resident-symbol-missing` | bounded current C: 33 raw target-object differences, 19 after masking linker-filled fields; exact 102/102 offset/type surface, 73/102 resolved identities |
 | `func_overlay_026_F0000D24_187B11C` | `resident-symbol-missing` | `text-differs` 39 |
 | `func_overlay_027_F0000064_187BA3C` | `resident-symbol-missing` | `schedule-divergence-at-site` |
 | `func_overlay_029_F00005C4_187D874` | `resident-symbol-missing` | `schedule-divergence-at-site` |
@@ -500,14 +500,18 @@ to `+0x2948`, plus `+0x25C/+0x41C` to `func_80005820`,
 `+0x328/+0x370/+0x46C/+0x490` to `func_80028374`, `+0x330/+0x474` to
 `func_80028528`, and `+0x3DC` to `func_8003A754`. The function is unexported;
 its sole inbound is table-2 LOCAL JUMP record 68 at module `+0x930` from
-`func_overlay_011_F0000150_1868998+0x7E0`. Linked equality proves fallback
-only. Removed padded/wrong-identity C emitted all 102 sites; clean current
-source is uncompiled, so its score, frame, extent, and offsets are unknown.
-The fallback-specific production postprocess now preserves all 13 SYMBOL call
-roles with one-to-one zero-addend proxies. A genuine C promotion must add
-object-scoped aliases for its BSS identities and prove every typed identity
-and addend against the runtime records; generic `D_*` linker assignments are
-not object-scoped and must not be used.
+`func_overlay_011_F0000150_1868998+0x7E0`. The bounded current object is 301
+instructions with the exact `0x48` frame and no padding. It differs in 33 raw
+target-object words and 19 relocation-masked positional words, first `+0x1C`;
+the removed source's historical 299/301 normalized score is not current-body
+evidence. Mechanical surface comparison proves all 102 offsets/types and 73
+stable identities. Its 26 calls prove all 13 distinct typed SYMBOL endpoints
+with zero stored addends, and its five LOCAL JUMPs prove the three local text
+targets. The remaining 29 identities are unresolved, and generic `D_*` linker
+assignments do not establish object ownership for the BSS identities. The
+122-stock-build cap (V0, 119 flags, two natural forms) plus one allocator trace
+is exhausted; linked equality therefore remains fallback-only and no C
+promotion or candidate link is claimed.
 
 Nine now carry an in-range word count and a linked-ROM oracle. Four are
 `schedule-divergence-at-site`, which is the honest answer and a codegen problem:
