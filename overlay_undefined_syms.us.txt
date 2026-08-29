@@ -260,6 +260,8 @@ overlay8SampleChannel = 0xf0000000;
 D_2D0 = 0x000002d0;
 D_388 = 0x00000388;
 D_4C = 0x0000004c;
+o9P540MathDiffAngleReloc = 0xf0000000; /* runtime SYMBOL: mathDiffAngle */
+o9P540CosReloc = 0xf0000000; /* runtime SYMBOL: func_8002A8C0 */
 
 /* overlay 10: overlay10Initialize.c.o */
 D_140 = 0x00000140;

@@ -178,9 +178,13 @@ void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F0000000_1866678.s")
 #endif
 /* PROVENANCE: Mickey-derived from the assigned overlay assembly range; no donor body was imported.
- * Workbench p6: mixed constant/schedule/register; 8/129 masked words (9 raw) remain, first +0x4C; frame exact.
- * Rechecked Phase-B range, initializer/lifetime, and code-free-read levers; FP pool remains cyclically colored.
- * Remains: four FP-pool placements and standalone overlay relocation identities. */
+ * The retained standalone candidate omitted the TU-required -Wab,-r4300_mul:
+ * nine raw sites remain at +0x4C/+0x54/+0x5C/+0x64/+0x6C/+0xA4/+0xB4/
+ * +0x128/+0x138, or eight after relocation normalization removes +0x5C.
+ * Size 0x204, frame 0x58, CFG, schedule and all ten runtime records otherwise
+ * agree; the remaining upper/lower/threshold values form a four-way saved-FPR
+ * color cycle. No configured full-TU or linked candidate-C proof survives.
+ * Reproof-only: one unchanged configured V0, then park if the cycle reproduces. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000540_1866BB8(O9Angle *angle, void *unused,
                                        O9Motion *motion, s32 steps) {
@@ -199,13 +203,13 @@ void func_overlay_009_F0000540_1866BB8(O9Angle *angle, void *unused,
         upper = 16.0f;
         lower = -16.0f;
         do {
-            delta = ext_o0_2a5bc(motion->angle, -angle->angle);
+            delta = o9P540MathDiffAngleReloc(motion->angle, -angle->angle);
             if ((delta >= -0x3F) && (delta < 0x40) &&
                 (motion->velocity > lower) && (motion->velocity < upper)) {
                 motion->velocity = 0.0f;
                 motion->angle = -angle->angle;
             } else {
-                motion->velocity += 20.0f * ext_o0_2a470(delta);
+                motion->velocity += 20.0f * o9P540CosReloc(delta);
                 motion->angle += (s32) motion->velocity;
             }
             motion->velocity *= damping;

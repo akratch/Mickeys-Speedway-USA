@@ -1316,6 +1316,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o009/overlay_009.c.o: POSTPROCESS = \
 		ext_o0_2d70=func_overlay_009_F0000000_1866678 $@ && \
 	$(OBJCOPY) --redefine-sym \
 		ext_o0_2c64=func_overlay_009_F0000000_1866678 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o9P540MathDiffAngleReloc=func_overlay_009_F0000000_1866678 $@ && \
+	$(OBJCOPY) --redefine-sym \
+		o9P540CosReloc=func_overlay_009_F0000000_1866678 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
 		@config/normalizations/overlay9Output.filter.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1520 && \

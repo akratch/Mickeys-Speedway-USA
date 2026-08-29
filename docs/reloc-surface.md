@@ -508,6 +508,15 @@ trial. The surviving isolated object has five stack-home/store-order words but
 omits the TU's required `-Wab,-r4300_mul`; fresh configured V0 must reconcile
 the count and all 21 runtime relocation sites before either score is reused.
 
+Overlay 9 `+0x540`'s eight-word entry is likewise historical masked linked
+evidence, not a retained configured candidate. Its surviving standalone object
+omits the TU-required `-Wab,-r4300_mul` and has nine raw/eight normalized sites.
+The exact runtime contract is ten records: three `LOCAL` HI16/LO16 pairs to
+module `+0x18B0`, `SYMBOL` calls to resident `mathDiffAngle` and
+`func_8002A8C0`, and one `LOCAL` HI16/LO16 pair to BSS `+0x1930`. The synthetic
+target object collapses the zero-field calls to one local placeholder, so the
+runtime table—not that object—is the callee-identity authority.
+
 `overlay7CommitSelection`'s six-word historical trial also carried a false
 `+0xF4` callee identity: the runtime record is a local `JUMP` to Overlay 7
 `+0x000` (`overlay7ReleaseEntry`), not a symbol-table call to `+0xCCC`.

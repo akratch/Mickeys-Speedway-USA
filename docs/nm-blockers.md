@@ -192,7 +192,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_008_F00042A8_1862000` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_008_F0004CF0_1862A48` | `src/overlays/o008/overlay_008.c` | resolved-plateau | overlay 8 literal pool | TU-owned +0x27C..+0x2AC .rodata clears module growth; code generation remains. |
 | `func_overlay_009_F0000000_1866678` | `src/overlays/o009/overlay_009.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_009_F0000540_1866BB8` | `src/overlays/o009/overlay_009.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_009_F0000540_1866BB8` | `src/overlays/o009/overlay_009.c` | none | — | Retained unconfigured evidence is 121/129 normalized words, frame `0x58`, with a four-way saved-FPR color cycle and ten runtime records; it omitted required `-Wab,-r4300_mul`. Run one identity-correct configured full-TU/linked V0, then park if the eight sites reproduce. |
 | `func_overlay_009_F0000CE4_186735C` | `src/overlays/o009/overlay_009.c` | resolved-plateau | overlay 9 float pool | TU-owned +0x390..+0x3E0 .rodata clears module growth; code generation remains. |
 | `func_overlay_009_F00010B4_186772C` | `src/overlays/o009/overlay_009.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_010_F0000000_1868450` | `src/overlays/o010/overlay10Initialize.c` | none | — | No ownership change; continue source/codegen work. |

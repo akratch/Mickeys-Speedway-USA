@@ -193,6 +193,10 @@ extern void ext_o0_29adc(s16 *, f32 *);
 extern s32 ext_o0_1312c(f32, f32, void *, s32, s32);
 extern f32 ext_o0_2a470(s32);
 extern f32 ext_o0_2a46c(s32);
+/* Overlay 9 +0x540 runtime SYMBOL proxies: resident mathDiffAngle/func_8002A8C0. */
+extern s32 o9P540MathDiffAngleReloc(s32, s32);
+extern f32 o9P540CosReloc(s32);
+extern s32 ext_o0_2a5bc(s32, s32);
 extern void ext_o0_5aac4(void *, void *, void *);
 extern void ext_o0_19668(void *, void *, void *, void *);
 extern void ext_o0_1d510(void *, void *, void *, void *, s32);
@@ -203,7 +207,6 @@ extern void ext_o0_2b90(s32, f32, f32, f32, s32, void **);
 extern void ext_o0_2b90();
 #endif
 extern void ext_o0_3e99c(void *, s32);
-extern s32 ext_o0_2a5bc(s32, s32);
 extern s32 ext_o0_2952c(s32, s32);
 extern s32 ext_o0_2d70(s32, s32, s32, s32);
 extern s32 ext_o0_2c64(s32, u8);
