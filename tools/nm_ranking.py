@@ -588,13 +588,32 @@ def main() -> int:
         queue = queue[: args.limit]
 
     results: list[FuncResult] = []
-    errors: list[str] = []
+    errors: list[tuple[tuple[str, str], str]] = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
-        for result, error in pool.map(process_item, queue):
+        for item, (result, error) in zip(queue, pool.map(process_item, queue)):
             if result is not None:
                 results.append(result)
             if error is not None:
-                errors.append(error)
+                errors.append(((item.rel_c_file, item.func), error))
+
+    # A full ranking pass can overlap matching work for hours. Re-scan the
+    # canonical source immediately before publishing so functions promoted
+    # while this process was compiling do not survive as stale ranking rows.
+    # Filter the original queue too, preserving --limit and the reported
+    # queue/resolution counts for the exact set this invocation processed.
+    live_keys = {
+        (item.rel_c_file, item.func)
+        for item in pb.discover_queue_from_source_scan()
+    }
+    queue = [
+        item for item in queue
+        if (item.rel_c_file, item.func) in live_keys
+    ]
+    results = [
+        result for result in results
+        if (result.file, result.name) in live_keys
+    ]
+    errors = [error for key, error in errors if key in live_keys]
 
     pct_by_name = load_objdiff_pct(args.objdiff_report)
     for r in results:
