@@ -45,17 +45,14 @@ extern void overlay68FreeProbeReloc(void *probe);
 extern void overlay68ReleaseReloc(void *resource);
 
 /*
- * NON_MATCHING plateau: retained configured-isolated -O2 -mips2 evidence is
- * 488 bytes with 9/122 differing words, first at +0x58. This immutable mapping
- * base plus mutable cursor
- * reaches the target's 0x40-byte frame and amount home at +0x3c, but moves
- * the entry and resident-entry homes four bytes high. The residual is one
- * sentinel operand order, six home offsets, and two probe-base choices; all
- * 19 relocation records retain the target's types, offsets, and identities.
- * Two full flag lattices, a bounded permuter run, typed value-array forms,
- * whole-probe casts, natural sentinel reversal, split amount lifetimes, and
- * block-scoped mapping lifetimes found no faithful exact form. No linked C
- * proof survives; unchanged configured/linked reproof only.
+ * Retained configured full-TU and isolated C are 488 bytes with 9/122
+ * differing words, first +0x58. The 0x40-byte frame and amount home agree;
+ * one sentinel operand order, six stack-home offsets, and two a0/s0 probe
+ * choices remain. Candidate offset/type/identity aligns with all 19 runtime
+ * relocation requirements, but no linked C proof survives. Only V0 is
+ * artifact-authenticated: reproduce it and the flag lattice, reverse the
+ * sentinel, then try trace-selected stack-home/probe forms and an improving-
+ * only annotated batch.
  */
 #ifdef NON_MATCHING
 void overlay68RebuildSecondaryEntry(s32 kind) {
