@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 113012,
-  "nonmatching_overlay_c_bytes": 310852,
+  "matched_overlay_c_bytes": 114732,
+  "nonmatching_overlay_c_bytes": 309132,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 2348,
   "bss_bytes": 77680,
@@ -1968,12 +1968,36 @@
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
     },
     {
+     "offset": "0x5D0",
+     "end_offset": "0x710",
+     "size": "0x140",
+     "label": "overlay4UpdateGroupSpacing",
+     "source": "overlays/o004/overlay_004",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
+    },
+    {
      "offset": "0x710",
      "end_offset": "0x734",
      "size": "0x24",
      "label": "overlay4GroupCount",
      "source": "overlays/o004/overlay_004",
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x734",
+     "end_offset": "0x8F4",
+     "size": "0x1C0",
+     "label": "overlay4FindCategory2Object",
+     "source": "overlays/o004/overlay_004",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
+    },
+    {
+     "offset": "0x8F4",
+     "end_offset": "0xCAC",
+     "size": "0x3B8",
+     "label": "overlay4FindSearchPosition",
+     "source": "overlays/o004/overlay_004",
+     "evidence": "canonical mixed-TU object and linked bytes exact"
     }
    ]
   },

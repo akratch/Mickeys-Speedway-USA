@@ -1145,7 +1145,25 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x000, 0x138, "overlay4InitializeObjectMotion"),
         (0x4D0, 0x52C, "overlay4AttachObject"),
         (0x52C, 0x5D0, "overlay4RemoveObject"),
+        (
+            0x5D0,
+            0x710,
+            "overlay4UpdateGroupSpacing",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
         (0x710, 0x734, "overlay4GroupCount"),
+        (
+            0x734,
+            0x8F4,
+            "overlay4FindCategory2Object",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x8F4,
+            0xCAC,
+            "overlay4FindSearchPosition",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
     ],
     5: [
         (0x2E4, 0x31C, "overlay5InitSequence"),
