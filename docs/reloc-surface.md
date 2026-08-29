@@ -1040,7 +1040,13 @@ Resident `func_8002C69C` owns no static or runtime records. Five exact inbound
 R_MIPS_26 calls come from matched `func_8002C94C` at
 `+0x80/+0x90/+0xA0/+0xE0/+0xF0`; no other direct call or stored pointer is
 authenticated. ORT 727 exports it, with zero resident-runtime or overlay
-`SYMBOL` users. Current linked equality proves fallback only.
+`SYMBOL` users. All five sites pass the writer in `a0`, a signed value in `a1`,
+and the bit count in `a2`, and consume no return value, authenticating the
+adopted `void (SavesBitWriter *, s32, s32)` ABI. Its exact owner is VRAM
+`0x8002C69C..0x8002C70C`, ROM
+`0x2D29C..0x2D30C`, 28 words with no padding. Fresh configured C preserves that
+extent and emits zero relocations, but eleven register-only words differ; linked
+equality therefore proves fallback only.
 
 Resident `func_80012574` targets one R_MIPS_26 record to `sqrtf` at `+0xA4`.
 Historical pre-cleanup configured C was reported to emit that exact tuple, but

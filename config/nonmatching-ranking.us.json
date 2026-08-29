@@ -132,7 +132,7 @@
       "tu": "main",
       "size_bytes": 112,
       "objdiff_match_pct": null,
-      "differing_words": 18,
+      "differing_words": 11,
       "first_mismatch_offset": 16,
       "size_delta": 0,
       "category": "register-only"

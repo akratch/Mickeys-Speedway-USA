@@ -1833,21 +1833,24 @@ Removing the wrapper fails the full link because `jtbl_800823D8` references seve
 The remaining lever is coordinated rodata ownership; assembly stays canonical.
 
 The still-unnamed bit writer `func_8002C69C` retains a Mickey-derived
-`NON_MATCHING` body. The surviving configured full-TU and isolated C objects
-compile an earlier cursor-update spelling: both are exact-sized and frameless
-but match only 10/28 words, with 18 register-field differences from `+0x10`
-and no relocations. The isolated recipe omitted canonical
-`-Wo,-loopunroll,0`, but configured full-TU equality proves it inert only for
-that earlier spelling. ORT 727 has five direct calls in matched
-`func_8002C94C` and no runtime/overlay/pointer inbound; linked equality is
-fallback-only. The current cursor re-cache spelling's reported 17/28
-result, four-web diagnosis, flag lattice, source matrix, trace, and cost-55
-permuter run are prose-only. Every metric for current C is therefore unknown.
-Treat this as reproof: compile configured V0 first, and use one old-body control
-only if V0 materially drifts. Then retain 119 configurations, one allocator
-trace, and at most two trace-supported natural forms, combining only independent
-gains. Cap 122 deterministic builds plus trace; a control replaces a later form
-and no generic batch is justified. The assembly fallback remains canonical.
+`NON_MATCHING` body. Fresh configured full-TU C is exact-sized and frameless at
+17/28 raw and normalized words, with eleven register-only differences from
+`+0x10`, no padding, and no relocations (candidate SHA-256
+`e83f284ce9feecca2c1edc9024181320c777c70978009249393dd1374ca67b32`). All
+119 flag identities were attempted; 53 compile and thirteen O2/MIPS-II rows tie
+V0, while none is exact. A fidelity-clean procedure-11 allocator trace records
+eleven caller-saved decisions. Lane analysis reduces the residue to one
+four-web class crossing: the target retains the reset constant in the colored
+pool at `a3` and routes the value test, next bit, and shifted mask through the
+temporary ring at `t1/t4/t5`; V0 instead uses `t1/a2/a3/t4`. Named unsigned and
+signed reset-mask forms retain eleven positional differences and each replace
+the required narrowing instruction with a different opcode, so neither gains
+and no combination is eligible. The historical 10/28 body control was skipped
+because current V0 materially improves it. ORT 727 has five direct calls in
+matched `func_8002C94C` and no runtime/overlay/pointer inbound. Resume only with
+a new natural web-existence/class-crossing mechanism; do not repeat the flag
+lattice, trace, reset-mask forms, historical control, or generic permutation.
+The assembly fallback remains canonical.
 
 The 124-byte `func_8002C70C` is exact under canonical `-Wo,-loopunroll,0 -O2 -mips2 -32`; its 31 words and relocation-free linked range match.
 

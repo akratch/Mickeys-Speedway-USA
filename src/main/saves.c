@@ -444,18 +444,16 @@ SavesBitWriter *func_8002C60C(s32 size, s32 clear) {
     return writer;
 }
 #ifdef NON_MATCHING
-/* Retained configured full-TU C predates the current cursor re-cache spelling:
- * that earlier body is exact-sized and frameless but only 10/28 words match,
- * with 18 register-field differences from +0x10 and no relocations. The
- * isolated recipe omitted canonical -Wo,-loopunroll,0, but configured equality
- * proves it inert for that old spelling only. ORT 727 has five direct callers
- * in func_8002C94C and no runtime/overlay/pointer inbound; linked equality is
- * fallback-only. The reported current-body 17/28 result and later flag/search
- * outcomes are prose-only, so every current-body metric is unknown. Reprove
- * configured V0 first; use one old-body control only if V0 materially drifts,
- * then run 119 flags, one trace, and at most two trace-supported natural forms,
- * combining only independent gains. Cap 122 deterministic builds plus trace;
- * the control replaces a later form and no generic batch is justified. */
+/* Bounded plateau: configured full-TU C is exact-sized and frameless at 17/28
+ * words, first +0x10, with eleven register-only differences and no relocations.
+ * All 119 flag identities are nonexact; thirteen O2/MIPS-II rows tie V0. A
+ * fidelity-clean proc-11 trace plus lane analysis finds one four-web crossing:
+ * target keeps the reset constant in a3 and routes the value test, next bit,
+ * and shifted mask through t1/t4/t5, while V0 uses t1/a2/a3/t4. Named unsigned
+ * and signed reset-mask forms retain eleven differences and each introduce one
+ * opcode mismatch, so neither gains and no combination is eligible. The old
+ * 10/28 control was skipped because current V0 materially improves it. ORT 727
+ * has five direct callers in func_8002C94C; fallback linkage remains exact. */
 void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
     s32 isSet;
     u32 nextBit;
