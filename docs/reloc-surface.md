@@ -1047,6 +1047,15 @@ linked equality proves fallback only. ORT 1297 and resident relocation 139 at
 or target padding exists; production trims only four non-owned section
 alignment bytes.
 
+Overlay 97 `+0x508` (`overlay97InitScale`) owns no static or runtime
+relocations across its exact `+0x508..+0x748` range. Retained configured C
+under `-O2 -mips2 -32 -Wab,-r4300_mul` is frameless and 143/144 raw/normalized
+words; its sole `+0xD0` difference is an address-equivalent carrier choice,
+not a relocation. ORT 1194 and resident runtime record 36 at
+`func_8000AA38+0x7C` authenticate the sole inbound. There is no target padding;
+Overlay 97's separate `+0xA54..+0xA60` padding follows another function.
+Current linked equality proves fallback only.
+
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 

@@ -81,8 +81,11 @@ typedef struct Overlay97ScaleEntry {
  * The artifact predates current HEAD, but the source body and physical overlay
  * boundaries are unchanged; current-HEAD reproducibility is still unproven.
  * No linked-C trial artifact survives; ordinary linked equality proves the
- * fallback only. Retail derives the
- * values cursor as a3+2, while C emits the equivalent a1+0x3E address. Both
+ * fallback only. The owned +0x508..+0x748 range has no padding or relocation;
+ * Overlay 97's separate trailing padding is outside this function. ORT 1194
+ * and resident relocation 36 authenticate func_8000AA38+0x7C as the sole
+ * inbound. Retail derives the values cursor as a3+2, while C emits the
+ * equivalent a1+0x3E address. Both
  * forms are frameless, 0x240 bytes / 144 instructions, and have no relocations.
  * The earlier object-exact note compared the fallback assembly to itself and
  * was invalid. The checked-in three-word ranking also omitted
@@ -91,9 +94,9 @@ typedef struct Overlay97ScaleEntry {
  * permutation outcomes have no surviving attributable variant artifacts and
  * do not prove exhaustion. Re-run configured V0, then assign bounds first and
  * independently derive values from that live carrier as (u8 *)bounds + 2 and
- * &bounds->bounds[1]. Only if V0 drifts and a probe strictly improves it may a
- * fourth build tighten scan-tail scope. The assembly fallback remains
- * canonical.
+ * &bounds->bounds[1]. Cap at those three builds; only if V0 drifts and a probe
+ * strictly improves it may a fourth build tighten scan-tail scope. The
+ * assembly fallback remains canonical.
  */
 #ifdef NON_MATCHING
 void overlay97InitScale(Overlay97ScaleObject *object, void *entryArg) {
