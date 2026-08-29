@@ -21,6 +21,8 @@ import uuid
 
 
 SCHEMA_VERSION = 1
+HEARTBEAT_SCHEMA_VERSION = 1
+HEARTBEAT_STATES = ("active", "stopping", "handoff", "complete", "failed")
 STATES = (
     "ACTIVE",
     "READY",
@@ -50,6 +52,7 @@ MESSAGE_TYPES = (
 )
 NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,31}$")
 TASK_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
+COMMIT_RE = re.compile(r"^[0-9a-f]{7,40}$")
 
 
 class CrewError(RuntimeError):
@@ -93,6 +96,13 @@ def clean_line(value: str) -> str:
     return " ".join(value.replace("\x00", "").splitlines()).strip()
 
 
+def concise_line(value: str, label: str, limit: int = 160) -> str:
+    cleaned = clean_line(value)
+    if not cleaned or len(cleaned) > limit or "\t" in value:
+        raise CrewError(f"{label} must be one concise line")
+    return cleaned
+
+
 def validate_name(value: str, label: str) -> str:
     if not NAME_RE.fullmatch(value):
         raise CrewError(f"invalid {label} {value!r}; use lowercase letters, digits, and hyphens")
@@ -117,6 +127,80 @@ def atomic_write(path: Path, content: str) -> None:
         os.replace(temp_path, path)
     finally:
         temp_path.unlink(missing_ok=True)
+
+
+def heartbeat_path(root: Path, worker: str) -> Path:
+    return root / "heartbeats" / f"{validate_name(worker, 'heartbeat worker')}.json"
+
+
+def load_heartbeat(path: Path) -> dict[str, object]:
+    try:
+        record = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as error:
+        raise CrewError(f"cannot read heartbeat {path}: {error}") from error
+    if record.get("schema") != HEARTBEAT_SCHEMA_VERSION:
+        raise CrewError(f"unsupported heartbeat schema in {path}")
+    required = {
+        "worker": str,
+        "target": str,
+        "base": str,
+        "last_progress": str,
+        "last_progress_at": str,
+        "last_commit": str,
+        "deadline_unix": int,
+        "state": str,
+    }
+    for field, field_type in required.items():
+        if not isinstance(record.get(field), field_type):
+            raise CrewError(f"heartbeat {path} has invalid {field}")
+    validate_name(str(record["worker"]), "heartbeat worker")
+    concise_line(str(record["target"]), "heartbeat target", 128)
+    concise_line(str(record["last_progress"]), "heartbeat progress")
+    if not COMMIT_RE.fullmatch(str(record["base"])):
+        raise CrewError(f"heartbeat {path} has invalid base")
+    if not COMMIT_RE.fullmatch(str(record["last_commit"])):
+        raise CrewError(f"heartbeat {path} has invalid last_commit")
+    if record["state"] not in HEARTBEAT_STATES:
+        raise CrewError(f"heartbeat {path} has invalid state")
+    if int(record["deadline_unix"]) <= 0:
+        raise CrewError(f"heartbeat {path} has invalid deadline_unix")
+    parse_timestamp(str(record["last_progress_at"]))
+    return record
+
+
+def parse_timestamp(value: str) -> dt.datetime:
+    try:
+        parsed = dt.datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as error:
+        raise CrewError(f"invalid heartbeat timestamp {value!r}") from error
+    if parsed.tzinfo is None:
+        raise CrewError(f"heartbeat timestamp lacks a timezone: {value!r}")
+    return parsed.astimezone(dt.timezone.utc)
+
+
+def heartbeat_staleness(
+    record: dict[str, object], now: dt.datetime, stale_after: dt.timedelta
+) -> list[str]:
+    if record["state"] not in ("active", "stopping"):
+        return []
+    reasons: list[str] = []
+    last_progress = parse_timestamp(str(record["last_progress_at"]))
+    if now - last_progress > stale_after:
+        minutes = int((now - last_progress).total_seconds() // 60)
+        reasons.append(f"no progress for {minutes}m")
+    deadline = dt.datetime.fromtimestamp(int(record["deadline_unix"]), dt.timezone.utc)
+    if now > deadline:
+        minutes = int((now - deadline).total_seconds() // 60)
+        reasons.append(f"deadline passed {minutes}m ago")
+    return reasons
+
+
+def graceful_stop_guidance(worker: str) -> str:
+    return (
+        f"ask {worker} to finish its current bounded call, guard the best candidate, "
+        "run tools/finalize_plateau.py, and hand off; if it is unresponsive, inspect "
+        "the exact launcher PID before sending SIGINT. No process was stopped automatically."
+    )
 
 
 def load_config(root: Path) -> dict[str, object]:
@@ -441,6 +525,88 @@ def command_set_status(args: argparse.Namespace, root: Path) -> None:
     print(root / "status" / f"{role}.md")
 
 
+def command_heartbeat(args: argparse.Namespace, root: Path) -> None:
+    path = heartbeat_path(root, args.worker)
+    existing = load_heartbeat(path) if path.is_file() else None
+    target = concise_line(args.target, "target", 128) if args.target else None
+    base = args.base
+    deadline = args.deadline_unix
+    if existing is None:
+        missing = [
+            name for name, value in (("--target", target), ("--base", base),
+                                     ("--deadline-unix", deadline)) if value is None
+        ]
+        if missing:
+            raise CrewError("new heartbeat requires " + ", ".join(missing))
+    else:
+        target = target or str(existing["target"])
+        base = base or str(existing["base"])
+        deadline = deadline if deadline is not None else int(existing["deadline_unix"])
+
+    assert target is not None and base is not None and deadline is not None
+    if not COMMIT_RE.fullmatch(base):
+        raise CrewError("heartbeat base must be a 7-40 character lowercase commit id")
+    if deadline <= 0:
+        raise CrewError("heartbeat deadline must be a positive Unix timestamp")
+    progress = concise_line(args.progress, "progress")
+    last_commit = run_git("rev-parse", "HEAD")
+    if not COMMIT_RE.fullmatch(last_commit):
+        raise CrewError("could not resolve the current lane commit")
+    now = utc_now()
+    record = {
+        "schema": HEARTBEAT_SCHEMA_VERSION,
+        "worker": args.worker,
+        "target": target,
+        "base": base,
+        "last_progress": progress,
+        "last_progress_at": timestamp(now),
+        "last_commit": last_commit,
+        "deadline_unix": deadline,
+        "state": args.state,
+        "updated_at": timestamp(now),
+    }
+    atomic_write(path, json.dumps(record, indent=2, sort_keys=True) + "\n")
+    print(path)
+
+
+def command_heartbeat_status(args: argparse.Namespace, root: Path) -> None:
+    directory = root / "heartbeats"
+    paths = [heartbeat_path(root, args.worker)] if args.worker else sorted(directory.glob("*.json"))
+    if args.worker and not paths[0].is_file():
+        raise CrewError(f"no heartbeat for {args.worker}")
+    if not paths:
+        print("no heartbeat records")
+        return
+
+    now = utc_now()
+    stale_after = dt.timedelta(minutes=args.stale_after_minutes)
+    stale_records: list[tuple[dict[str, object], list[str]]] = []
+    print("worker\tstate\ttarget\tbase\tlast-commit\tlast-progress\tdeadline\tstatus")
+    for path in paths:
+        record = load_heartbeat(path)
+        reasons = heartbeat_staleness(record, now, stale_after)
+        age = int((now - parse_timestamp(str(record["last_progress_at"]))).total_seconds() // 60)
+        status = "; ".join(reasons) if reasons else "current"
+        print(
+            "\t".join((
+                str(record["worker"]),
+                str(record["state"]),
+                str(record["target"]),
+                str(record["base"])[:12],
+                str(record["last_commit"])[:12],
+                f"{age}m: {record['last_progress']}",
+                timestamp(dt.datetime.fromtimestamp(int(record["deadline_unix"]), dt.timezone.utc)),
+                status,
+            ))
+        )
+        if reasons:
+            stale_records.append((record, reasons))
+    for record, _ in stale_records:
+        print(f"guidance: {graceful_stop_guidance(str(record['worker']))}")
+    if stale_records and args.check:
+        raise CrewError(f"{len(stale_records)} stale heartbeat(s)")
+
+
 def command_queue(args: argparse.Namespace, root: Path) -> None:
     load_config(root)
     path = root / "queue.md"
@@ -573,6 +739,32 @@ def build_parser() -> argparse.ArgumentParser:
     set_status.add_argument("--summary", default="")
     set_status.set_defaults(function=command_set_status)
 
+    heartbeat = commands.add_parser(
+        "heartbeat", help="Record one worker's target, progress, commit, and deadline"
+    )
+    heartbeat.add_argument("--worker", required=True)
+    heartbeat.add_argument("--target", help="Exact assigned target (required for a new record)")
+    heartbeat.add_argument("--base", help="Assignment base commit (required for a new record)")
+    heartbeat.add_argument(
+        "--deadline-unix", type=int, help="Soft deadline (required for a new record)"
+    )
+    heartbeat.add_argument("--progress", required=True, help="One-line material progress update")
+    heartbeat.add_argument(
+        "--state", choices=HEARTBEAT_STATES,
+        default="active",
+    )
+    heartbeat.set_defaults(function=command_heartbeat)
+
+    heartbeat_status = commands.add_parser(
+        "heartbeat-status", help="Report current and stale workers without stopping them"
+    )
+    heartbeat_status.add_argument("--worker")
+    heartbeat_status.add_argument("--stale-after-minutes", type=int, default=15)
+    heartbeat_status.add_argument(
+        "--check", action="store_true", help="Exit nonzero when an active heartbeat is stale"
+    )
+    heartbeat_status.set_defaults(function=command_heartbeat_status)
+
     queue = commands.add_parser("queue", help="Show the leader-owned ready queue")
     queue.set_defaults(function=command_queue)
 
@@ -590,6 +782,8 @@ def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
     try:
+        if getattr(args, "stale_after_minutes", 1) <= 0:
+            raise CrewError("stale-after-minutes must be positive")
         root = (args.root.resolve() if args.root else default_crew_root())
         args.function(args, root)
     except (CrewError, OSError) as error:

@@ -55,6 +55,14 @@ passes a soft deadline to the agent and tools, reserves five minutes for a
 handoff, and then interrupts the exact process it launched. Expiry preserves a
 best candidate/plateau; it never resets a lane or discards work.
 
+`codex_lane.sh` also creates an atomic heartbeat under
+`$(git rev-parse --git-common-dir)/codex-crew/heartbeats/`. Each record names
+the target and assignment base, last material progress and current lane
+commit, and soft deadline. Workers refresh it after meaningful progress and
+before long bounded calls; coordinators use `tools/crew.py heartbeat-status`
+to see current and stale work. A stale report is scheduling evidence only. It
+prints a graceful plateau/interrupt procedure and never kills a process.
+
 ### Three-session interactive crew
 
 ADR 0013 defines a small persistent topology for several interactive Codex
@@ -68,6 +76,7 @@ tools/crew.py init --worker worker-1=crew-worker-1 \
 tools/crew.py doctor
 tools/crew.py status
 tools/crew.py inbox worker-1
+tools/crew.py heartbeat-status --stale-after-minutes 15 --check
 ```
 
 The runtime directory is `$(git rev-parse --git-common-dir)/codex-crew/`, so
@@ -265,6 +274,33 @@ literal: "verify does not run under NON_MATCHING=1"`), exactly DKR's own
 guard for the same escape hatch. Unset it and rebuild before running
 `verify`.
 
+### Safe plateau finalization
+
+After a bounded attempt reaches ADR 0009's cap, preserve it with the original
+assembly fallback still active:
+
+```sh
+tools/finalize_plateau.py overlay40FadeRecords \
+  src/overlays/o040/overlay40FadeRecords.c \
+  --score "98/101 words" --frame 0x8 --relocations 10 \
+  --first-mismatch +0xC --summary "one allocator web remains"
+```
+
+The exact function must already be C under `#ifdef NON_MATCHING`, followed by
+one `#else` / `#pragma GLOBAL_ASM(".../<symbol>.s")` fallback. The command
+refuses an unguarded or ambiguous body, a mismatched fallback, an untracked
+source, or worktree/index dirt outside that source and an optional
+`--handoff-doc docs/<file>.md`. It records only the supplied score, frame,
+relocation count, first mismatch, and one-line summary in a fixed-field source
+comment (and, when requested, a bounded Markdown block). It never records
+instruction rows or claims exactness.
+
+The finalizer runs the source-only `cleanroom` and `check-docs` gates. Those
+gates preserve a safe handoff; they do not replace configured compilation or
+ROM verification. It leaves the result uncommitted by default. Pass `--commit`
+only after reviewing the diff; that mode stages and commits only the named
+source and optional handoff document.
+
 ### Auditing post-compile steps: `tools/postprocess_audit.py`
 
 `tools/postprocess_audit.py` is what makes ADR 0002 enforceable rather than
@@ -355,16 +391,27 @@ interrupted report without recompiling recorded identities, and repeated
   `MICKEY_BUILD_JOBS` and `MICKEY_BUILD_NICE` when local workstation policy
   requires a lower compiler concurrency or priority; the three-session crew
   uses two jobs and niceness 15.
-- **`tools/codex_lane.sh <name> <prompt-file> [--minutes N] [--no-extract]`**
+- **`tools/codex_lane.sh <name> <prompt-file> [--minutes N] [--target SYMBOL] [--no-extract]`**
   creates a lane with `new_lane.sh` and launches a detached, non-interactive
   `codex exec` worker inside it; the worker commits on `lane/<name>` like any
   other worker. The default soft budget is 180 minutes (overridable by
   `CODEX_MINUTES` or `--minutes`), followed by a five-minute hard-stop grace
   period. `MICKEY_TASK_BUDGET_SECONDS`, `MICKEY_TASK_DEADLINE_UNIX`, and
   `MICKEY_TASK_HARD_DEADLINE_UNIX` are available to the worker and its tools.
+  `--target` defaults to the lane name. Launch, worker progress, current commit,
+  deadline, and runner exit are recorded in shared heartbeat state; the worker
+  receives the exact refresh command in its effective prompt.
   Progress, effective prompt, final message and exit status land in
   `<lane>/.codex-run.log`, `<lane>/.codex-effective-prompt.md`,
   `<lane>/.codex-last.md`, and `<lane>/.codex-status` (all gitignored).
+- **`tools/crew.py heartbeat ...` / `heartbeat-status`** atomically updates or
+  reports the Git-common-dir heartbeat records without changing the ADR 0013/
+  0014 mailbox lifecycle. A new heartbeat requires worker, target, assignment
+  base, deadline, and progress; later updates preserve assignment metadata and
+  refresh the actual lane `HEAD`. `heartbeat-status --check` exits nonzero for
+  active records whose progress age exceeds the threshold or whose deadline
+  has passed. Reporting provides graceful-stop guidance only—there is no
+  automatic kill path.
 - **`tools/lane_status.py [--base REF] [--pending-only] [--symbol NAME]`**
   reports unintegrated commits and `Match <symbol>` claims from committed lane
   refs only. `pending` means the base still has that symbol's `GLOBAL_ASM` while
