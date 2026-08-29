@@ -43,6 +43,12 @@ bytes and disassembly never belong here.
 - Per-TU flags stay local. One exact function can establish a candidate flag
   group, but changing a shared group requires evidence and an impact review
   across every consumer. Evidence: ADR 0007 and `docs/flag-sweep.md`.
+- `-Wab,-r4300_mul` can alter FP multiply hazard scheduling as well as the
+  integer-multiply cases its name suggests. When otherwise exact MIPS-II code
+  is one scheduler nop short between adjacent FP multiplies, test this flag as
+  a focused mechanism probe; keep it only after every function in the shared
+  TU, all relocations, and the linked image remain exact. Evidence: Overlay
+  25's exact effect initializer in `docs/overlays.md`.
 
 ### Allocation and source shape
 

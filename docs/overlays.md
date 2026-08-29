@@ -1918,3 +1918,17 @@ The exact `0x30` frame and all nine runtime relocation tuples and identities
 agree: local data at `+0x4/+0x24`, calls to `+0/+0x6E0/+0x49C` twice, and the
 recursive `+0xB70` call. The linked owned range, complete overlay, and full ROM
 are byte-identical.
+
+`overlay 25 +0x000..+0x17C` (`overlay25InitializeEffect`) contributes **380
+exact C bytes / 95 words**. Reading the retained owner through `state->owner`
+reproduces the shipped `s0`/`s1` carrier allocation, while the measured
+`-Wab,-r4300_mul` mode supplies the one FP multiply-hazard nop omitted by the
+default schedule. The exact `0x40` frame and all nine runtime relocation
+offsets, types, and identities agree: two calls each to resident
+`func_8002A8C0` and `func_8002A8BC`, one call to `func_800299E8`, one reserved
+data pair, and one Overlay 25 local-data pair. ORT 1225 and resident relocation
+row 67 prove the sole inbound call; `+0x17C` starts the next function with no
+padding. The linked owner, complete 1,904-byte overlay, and full ROM are
+byte-identical. Pinned DKR v77/v80 and JFG donor rows for Overlay 25 remain
+empty, so this is Mickey-derived source and does not support a JFG function or
+module mapping.
