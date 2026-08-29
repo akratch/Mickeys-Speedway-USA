@@ -288,15 +288,16 @@ All nine remaining rows are `register-only` and size-exact -- the cheapest tier 
 has to offer right now.
 
 `overlay1FindBestRecord` is another size-exact register-allocation near miss,
-but the historical generated snapshot classifies it as `other`: the extracted
-target object omits the selected-type HI16/LO16 pair that the shipped runtime
-table and candidate both retain. Runtime-normalized comparison is 18/30 words
-with 12 `a1`/`a3` carrier differences from `+0x04`; it belongs beside the
-12-word rows operationally. Historical isolated and prior-layout full-TU C
-agree, but current-layout C is uncompiled and every current metric is unknown.
-The earlier exact claim depended on prohibited post-compile field edits. Run
-119 configurations, one trace, and at most three trace-supported forms, then
-park if all three are flat.
+but the generated snapshot classifies it as `other`: the extracted target
+object omits the selected-type HI16/LO16 pair that the shipped runtime table
+and candidate both retain. Current configured full-TU V0 is frameless and
+18/30 words with 12 `a1`/`a3` pool-register differences from `+0x04`; it
+belongs beside the 12-word rows operationally. All 119 flag configurations
+were attempted, seven O2/MIPS-II rows tie V0, and none is exact. A
+fidelity-clean proc-38 allocator trace plus all three permitted natural
+declaration/scope forms leave the same object, so the fallback is parked
+pending a new allocator-order mechanism. The earlier exact claim depended on
+prohibited post-compile field edits and remains inadmissible.
 
 Nine other rows from the displayed run have since been promoted and are no
 longer search candidates: `overlay3FindClosestObject`, `overlay40AddEntry`,

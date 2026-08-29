@@ -1017,11 +1017,13 @@ at `+0x04/+0x14` use addend `+0x1D88` to resolve to module `+0xA168`
 (`gOverlay1SelectedType`/`D_1D88`). The assembled fallback literalizes the
 second pair, so the runtime table is authoritative. The function is unexported;
 its only callers are `overlay1CreateRecord+0x30` and `+0x144`, table-2 LOCAL
-JUMP records 889 and 895 at module `+0x7C0C/+0x7D20`. Historical C emitted all
-four tuples, but current-layout C is uncompiled and the assembled fallback
-literalizes the selected-type pair. Promotion requires distinct metadata-only
-rebinding for both C identities and one shared caller/callee record type;
-current linked equality proves fallback only.
+JUMP records 889 and 895 at module `+0x7C0C/+0x7D20`. Current configured C
+emits the same four offsets and types under the friendly identities, while the
+assembled fallback literalizes the selected-type pair. The bounded 119-flag,
+one-trace, three-form reproof is nonexact solely on a 12-site `a1/a3`
+allocation exchange. Promotion still requires distinct metadata-only rebinding
+for both C identities and one shared caller/callee record type; current linked
+equality proves fallback only.
 
 Overlay 1 `+0x378` (`overlay1FindType5ByKey`) owns table-1 SYMBOL record 1 at
 function `+0x14`/module `+0x38C`, resolving through ORT 128 to resident
