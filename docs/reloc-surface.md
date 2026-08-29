@@ -154,6 +154,11 @@ For `overlay20UpdateObjectResource`, that linked-C trial survives only as this
 historical report: no attributable trial object, ELF, map, ROM, or report is
 retained. Current linked equality therefore proves the assembly fallback only.
 
+The same qualification applies to `overlay5InitializeAudio`: its retained
+configured full-TU C is prior-layout and differs at 22 owned words. The exact
+linked function, module, and ROM use the assembly fallback; no attributable
+C-linked ELF, map, module, or ROM survives from the historical promotion trial.
+
 For completeness, at the time of the spike the five candidates named in the brief
 (`overlay7DispatchSelection`, `overlay8ScaleOutputs`, `overlay18Load`,
 `overlay20BuildTileCommands`, `overlay1CloneRecord`) already link on the

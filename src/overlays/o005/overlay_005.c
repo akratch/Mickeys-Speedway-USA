@@ -11,15 +11,15 @@ void overlay5InitSequence(void *owner, s32 value) {
 }
 
 /*
- * Plateau evidence (reviewed 2026-08-29): retained configured full-TU C is
- * 211/233 words under -O2 -mips2, exact 0x3A4-byte size and 0x98 frame, first
- * mismatch +0x9C, with all 71 runtime relocation sites aligned. The residual
- * is three gOverlay5Span1Size carrier words, the +0x214/+0x218 initialization
- * swap, and shifted bankSize/soundConfig/sequenceConfig stack homes. Runtime
- * identity also distinguishes the two addresses each currently sharing the
- * gOverlay5SoundState and gOverlay5ScaleValue source names; resolve those
- * aliases before promotion. Use only the bounded six-build ladder recorded in
- * docs/nm-blockers.md; canonical assembly remains authoritative.
+ * Plateau evidence (reviewed 2026-08-29): retained prior-layout configured
+ * full-TU and selective C agree at 211/233 raw and runtime-normalized words,
+ * exact 0x3A4-byte size and 0x98 frame, first mismatch +0x9C. All 71 runtime
+ * sites align by offset/type, but two source names collapse distinct runtime
+ * identities: ORT 1559/1561 and ORT 1565/1568. The residual is three Span1
+ * carrier words, the +0x214/+0x218 initialization swap, and shifted bankSize,
+ * soundConfig, and sequenceConfig homes. Current-layout C is unproven; linked
+ * equality proves fallback only. Reopen with identity-correct V0, 119 flags,
+ * one allocator trace, and trace-selected forms; canonical assembly remains.
  */
 #ifdef NON_MATCHING
 void overlay5InitializeAudio(void *context) {
