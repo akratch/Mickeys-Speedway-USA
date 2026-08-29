@@ -3078,18 +3078,19 @@ including V0, one trace, and at most one trace-selected natural form. Hard cap
 120 deterministic builds plus trace, 121 only for the control; do not batch.
 Assembly remains canonical.
 
-`func_8005A7A0` has retained configured full-TU evidence at 106 words, with
-ten raw sites and seven relocation-normalized positional sites. The raw sites are
+`func_8005A7A0` has fresh unchanged current-HEAD configured full-TU evidence at
+106 words: 96/106 raw and 99/106 relocation-normalized object words, with ten
+raw sites and seven relocation-normalized positional sites. The raw sites are
 `+0x000/+0x08c/+0x0a0/+0x0bc/+0x0c0/+0x0c4/+0x0c8/+0x0dc/+0x0f4/+0x1a4`.
 Its `0x50` candidate frame remains larger than the target's `0x38`, and the
 alignment carrier uses `v1`/`sp+0x30` instead of `s0`/`sp+0x34`. All ten
 relocation identities agree as a multiset and nine tuples are exact, but the
 second `piRomLoadSection` call moves from target `+0xbc` to candidate `+0xc0`.
-More than ten pointer/index,
-size-expression, coalescing, scope, and mask forms plus all 119 flag groups
-exhausted the family. Run one unchanged configured full-TU and real-address
-linked V0, then park if reproduced; no linked candidate-C proof survives.
-Assembly remains canonical. `func_8005ABA8` emits 110 against 111 and first diverges
+The real-address linked V0 is 94/106 raw and 99/106 relocation-normalized
+words. More than ten pointer/index, size-expression, coalescing, scope, and
+mask forms plus all 119 flag groups exhausted the family. The focused reproof
+is complete; park pending a new frame/carrier allocation mechanism. Assembly
+remains canonical. `func_8005ABA8` emits 110 against 111 and first diverges
 at `+0x38` before an FP-allocation cascade. `func_8005AF14` now has a
 Mickey-derived matrix/attachment-point candidate; its source comment discloses
 the pinned JFG declaration files used only to cross-check field roles, while

@@ -259,15 +259,17 @@ void func_8005A770(void) {
  * PROVENANCE: Mickey-derived. JFG src/models.c::modLoadModel remains assembly
  * and supplies role/TU context only; no donor body was imported.
  *
- * Plateau: retained configured full-TU evidence is exact-sized at 106 words,
+ * Plateau: fresh unchanged current-HEAD configured full-TU V0 is exact-sized
+ * at 106 words, with 96/106 raw and 99/106 relocation-normalized object words,
  * but uses frame 0x50 versus target 0x38. Ten raw sites remain at
  * +0x000/+0x08C/+0x0A0/+0x0BC/+0x0C0/+0x0C4/+0x0C8/+0x0DC/+0x0F4/+0x1A4.
  * Relocation normalization leaves seven positional sites. The ten relocation
  * identities agree as a multiset and nine tuples are exact; the second
  * piRomLoadSection call moves from target +0xBC to candidate +0xC0. Alignment
- * remains v1/sp+0x30 instead of s0/sp+0x34. More than ten source forms and all
- * 119 flag groups exhausted the frame/carrier/schedule route; one unchanged
- * configured full-TU/linked V0 remains, then park absent a new mechanism.
+ * remains v1/sp+0x30 instead of s0/sp+0x34. The real-address linked V0 has
+ * 94/106 raw and 99/106 relocation-normalized words. More than ten source forms
+ * and all 119 flag groups exhausted the frame/carrier/schedule route. The
+ * focused reproof is complete; park pending a new frame/carrier mechanism.
  */
 #ifdef NON_MATCHING
 s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
@@ -845,3 +847,13 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
         } while (i != count);
     }
 }
+
+/* PLATEAU-HANDOFF:func_8005A7A0:start
+ * symbol: func_8005A7A0
+ * score: 96/106 words
+ * frame: 0x50
+ * relocations: 10
+ * first-mismatch: +0x0
+ * summary: 99/106 normalized; target frame 0x38; second loader tuple four bytes late; park for a new frame/carrier mechanism
+ * PLATEAU-HANDOFF:func_8005A7A0:end
+ */
