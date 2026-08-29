@@ -1293,11 +1293,17 @@ register-only sites in the address, normalized-mode, and narrowed-byte carrier
 webs; no opcode or relocation mismatch remains.
 
 Exactly 119 configurations were retained. Thirteen O2/MIPS-II rows tie clean
-V0 and every other viable family regresses. A codegen-faithful allocator trace
-reproduces the candidate text and confirms the carrier-coloring wall. The
-independent split-web form regressed to 31 instructions with relocation drift;
-reversing the comparison was flat. Because neither form gained, the improving-
-only combination and batch were not authorized. ORT 606 exports the function;
+V0 and every other viable family regresses. A second full-TU pass reproduced
+that lattice and used an instrumented proc-20 build whose `.text`, `.data`,
+`.rodata`, symbols, and relocations all pass the stock-toolchain fidelity gate.
+The trace separates the full mode, narrowed byte, state address, and comparison
+carrier webs. All six declaration orders, direct-global access, and a narrow-
+first split assignment are byte-flat. Full-first association emits 31
+instructions with relocation-identity drift, while sharing the byte carrier for
+both tests regresses to 13/32. The older 27/32 ranking row was generated from
+three inert constant-expression aids and remains diagnostic rather than
+promotable. With no strict natural gain, no combination or permutation batch
+was authorized. ORT 606 exports the function;
 authenticated callers remain `func_80027EC0+0x80`,
 `overlay46ReleaseState+0x70`, and
 `func_overlay_060_F0000334_18BA10C+0x1238`. Exact ordinary-object, linked-
@@ -1382,10 +1388,14 @@ post-processing.
 Provenance-tied configured full-TU and generated isolated policy-clean C agree
 at 24/32 raw and relocation-normalized words, first `+0x0`, with no frame or
 padding and all six relocations exact. Thirteen O2/MIPS-II configurations tie
-in the completed 119-row lattice; the rest regress. A codegen-faithful trace
-confirms address, normalized-mode, and narrowed-byte carrier coloring as the
-wall. Split-web regressed to 31 instructions with relocation drift, while the
-reversed comparison was flat; no improving-only combination or batch followed.
+in the freshly repeated 119-row lattice; the rest regress. A fidelity-gated
+proc-20 trace confirms distinct full-mode, narrowed-byte, state-address, and
+comparison-carrier webs. Six declaration orders, direct-global access, and a
+narrow-first split assignment are flat; full-first association loses one
+instruction and relocation identity, and a shared byte carrier regresses to
+13/32. The stale five-difference ranking came from policy-invalid inert
+constant expressions. No source-faithful form gained, so no combination or
+permutation batch followed.
 Ordinary and linked exact output remains assembly fallback only. ORT 606 and
 exactly three callers are authenticated: resident `func_80027EC0+0x80`, Overlay
 46 `overlay46ReleaseState+0x70`, and Overlay 60

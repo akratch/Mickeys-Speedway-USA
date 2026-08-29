@@ -1185,18 +1185,21 @@ s32 frontGetScreenMode(void) {
  * frame: frameless
  * relocations: 6
  * first-mismatch: +0x0
- * summary: eight register-only sites remain after 119 flags; split-web regressed and reversed comparison was flat
+ * summary: eight register-only sites remain after 119 flags and a second trace-led natural-form pass
  */
-/* Allocation plateau (measured 2026-08-29): provenance-tied configured full-TU
+/* Allocation plateau (reproved 2026-08-29): provenance-tied configured full-TU
  * and generated isolated C agree at 24/32 raw and relocation-normalized words,
  * first +0x0, exact 0x80-byte frameless shape without padding, and six exact
  * relocations. Thirteen O2/MIPS-II rows tie in the 119-configuration lattice;
- * every other viable family regresses. A codegen-faithful allocator trace
- * confirms address, normalized-mode, and narrowed-byte carrier coloring as the
- * wall. The split-web form regressed to 31 instructions with relocation drift;
- * reversed comparison was flat, so no combination or batch was authorized.
- * ORT 606 and its three callers remain authenticated. Linked equality proves
- * fallback only; JFG's ordered peer is role evidence, not donor C. */
+ * every other viable family regresses. A fidelity-gated proc-20 allocator
+ * trace confirms the full mode, narrowed byte, state address, and comparison
+ * carrier as distinct webs. All six declaration orders, direct-global access,
+ * and narrow-first split assignment are flat. Full-first association emits 31
+ * instructions with relocation drift; sharing the byte carrier for both tests
+ * regresses to 13/32. No natural gain qualified for combination or permutation.
+ * The stale 27/32 ranking row came from inert constant-expression aids and is
+ * diagnostic only. ORT 606 and its three callers remain authenticated. Linked
+ * equality proves fallback only; JFG's ordered peer is role evidence, not donor C. */
 /* PROVENANCE: ordered accessor-family role compared with JFG's assembly-backed
  * src/menu.c::frontSetScreenMode; mask, guard, and packed fields are Mickey-derived. */
 void func_8003A2C8(s32 screenMode) {
