@@ -49,7 +49,12 @@ import reloc_surface as rs  # noqa: E402
 
 ROOT = pb.ROOT
 BASEROM = ROOT / "baseroms" / "mickey.us.z64"
-ROM = ROOT / "build" / "mickey.us.z64"
+# Compare the raw linked image. Building .z64 would additionally execute the
+# generated host n64crc helper; a promotion trial needs only compile, link,
+# objcopy, and byte comparison, and the canonical .bin includes the same full
+# image bytes before that no-op checksum gate.
+ROM = ROOT / "build" / "mickey.us.bin"
+ROM_TARGET = str(ROM.relative_to(ROOT))
 OUT_JSON = ROOT / "build" / "promotion-trial.json"
 OUT_TXT = ROOT / "build" / "promotion-trial.txt"
 LINK_SYMS = ROOT / "overlay_undefined_syms.us.txt"
@@ -212,7 +217,7 @@ def build(jobs: int, full_log: bool = False) -> tuple[bool, str]:
     """
     wait_for_load("promotion build")
     env = dict(os.environ, PROMOTION_TRIAL="1")
-    r = subprocess.run(["gmake", f"-j{jobs}"], cwd=ROOT, capture_output=True,
+    r = subprocess.run(["gmake", f"-j{jobs}", ROM_TARGET], cwd=ROOT, capture_output=True,
                        text=True, timeout=1800, env=env)
     log = r.stdout + r.stderr
     return r.returncode == 0, log if full_log else log[-6000:]
@@ -492,7 +497,7 @@ def main(argv: list[str]) -> int:
         write(results)
     write(results)
     wait_for_load("promotion cleanup build")
-    subprocess.run(["gmake", f"-j{args.jobs}"], cwd=ROOT, capture_output=True)
+    subprocess.run(["gmake", f"-j{args.jobs}", ROM_TARGET], cwd=ROOT, capture_output=True)
     return 0
 
 
