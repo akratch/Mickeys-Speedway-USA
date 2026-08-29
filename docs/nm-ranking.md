@@ -280,7 +280,7 @@ generated historical snapshot; regenerate it when compile capacity is free.
 | `overlay20UpdateObjectResource` (fresh configured full-TU plateau) | o020 | 8 | 176 | 392 | 0 | register-only |
 | `func_8002CF6C` (policy-clean bounded plateau) | main | 77 | 8 | 352 | -12 | structure-mismatch |
 | `overlay19ClassifyEdge` (configured full-TU bounded plateau) | o019 | 10 | 312 | 480 | 0 | register-only |
-| func_overlay_079_F0001290_18CE230 | o079 | 12 | 200 | 492 | 0 | register-only |
+| `func_overlay_079_F0001290_18CE230` (fresh bounded plateau) | o079 | 12 | 200 | 492 | 0 | register-only |
 | `func_80020D8C` (policy-clean configured plateau) | main | 17 | 56 | 192 | 0 | register-only |
 | `overlay1FindType5ByKey` (pre-HEAD/current-body V0) | o001 | 17 | 28 | 156 | 0 | register-only |
 

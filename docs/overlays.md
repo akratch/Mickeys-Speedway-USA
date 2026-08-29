@@ -621,13 +621,17 @@ compared in the complete US ROM. No generated alignment padding is credited.
 Overlay 79's unresolved `+0x1290..+0x147C` owner
 (`func_overlay_079_F0001290_18CE230`) remains `NON_MATCHING` at 492 bytes / 123
 words. Retained configured-flag isolated C is 111/123 words with frame `0x48`
-and 12 register-only sites from `+0xC8`. Its 15 runtime-backed records include
-eleven calls, a local counter pair, and the shipped BSS flags pair; the
-assembled target retains only 13 static records because the runtime table
-supplies the already-zero flags instructions. The committed filter/rebind
-metadata is diagnostic and is not part of production `POSTPROCESS`. Exact
-linked range/module/full-ROM evidence proves the assembly fallback only; no
-linked C candidate survives. Pinned DKR v77/v80 and JFG scans are negative.
+and 12 register-only sites from `+0xC8`. All 119 flag identities are nonexact;
+seven O2/MIPS-II rows tie. One fidelity-clean globalcolor trace and three
+natural linked-state/next-node lifetime forms found no gain. Its 15 runtime-
+backed records include eleven calls, a local counter pair, and the reserved
+loader flags pair; an identity-canonical comparison proves all 15 offsets, types,
+identities, and addends. The assembled target retains only 13 static records
+because the runtime table supplies the already-zero flags instructions. The
+committed filter/rebind metadata is diagnostic and is not part of production
+`POSTPROCESS`. Exact linked range/module/full-ROM evidence proves the assembly
+fallback only; no linked C candidate survives. Pinned DKR v77/v80 and JFG
+scans are negative.
 
 Overlay 41's `+0x000..+0x124` owner
 (`func_overlay_041_F0000000_1887338`) is exact C: 292 bytes / 73 words with the

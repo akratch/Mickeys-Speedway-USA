@@ -1218,10 +1218,16 @@ Overlay 79 `+0x1290` (`func_overlay_079_F0001290_18CE230`) owns 15
 runtime-backed records: paired SYMBOL calls to the random, spawn, emit-at, and
 finish roles at `+0x7C/+0x138`, `+0x8C/+0x148`, `+0xB4/+0x1B8`, and
 `+0xCC/+0x1D0`; local call `overlay79FindNearby` at `+0xDC`; emit and trigger
-roles at `+0x17C/+0x194`; and LOCAL HI16/LO16 pairs for the counter at
-`+0x154/+0x158` and flags at `+0x184/+0x188`. The assembled target exposes 13
-static records because the runtime table patches the already-zero flags pair.
-Retained genuine C emits all 15, but is 111/123 raw/runtime-normalized words;
+roles at `+0x17C/+0x194`; a LOCAL HI16/LO16 counter pair at `+0x154/+0x158`;
+and a SYMBOL flags pair at `+0x184/+0x188`. Runtime identity resolution maps
+the resident calls to `mathRnd`, `func_8000590C`, `func_80002FE0`,
+`func_80006EA0`, `func_80000F94`, and `func_800291B4`, all with zero addends;
+the local jump targets Overlay 79 `+0xEFC`, the counter pair resolves to
+Overlay 79 `+0x14F4` through addend `+0x14`, and the flags pair is the reserved
+loader SYMBOL with zero addend. An identity-canonical comparator run proves
+all 15 candidate/runtime offsets, types, identities, and addends. The assembled
+target exposes 13 static records because the runtime table patches the already-
+zero flags pair. Retained genuine C is 111/123 raw/runtime-normalized words;
 linked equality proves fallback only. ORT 1297 and resident relocation 139 at
 `func_8000AEEC+0x43C` authenticate the sole inbound. No cross-overlay inbound
 or target padding exists; production trims only four non-owned section

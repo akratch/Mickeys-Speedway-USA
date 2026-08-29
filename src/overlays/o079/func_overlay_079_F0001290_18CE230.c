@@ -52,30 +52,29 @@ extern void overlay79TriggerReloc(void);
 extern s32 gOverlay79CounterReloc;
 extern u8 gOverlay79FlagsReloc[];
 
-/* Workbench plateau (2026-08-28, 10 directed variants after baseline):
- * the best source-faithful candidate remains exactly 123 instructions / 492
- * bytes with a 0x48 frame, 111/123 raw/runtime-normalized words, 12
- * register-field differences, and first mismatch at +0xC8. The genuine C
- * recipe is this overlay's ordinary -O2 -mips2 -32 with no per-function flag
- * override. The owned +0x1290..+0x147C range has no target padding; IDO's four
- * trailing alignment bytes are outside the function and production trims only
- * those bytes.
- * Its isolated object has all 15 runtime-backed sites; the assembled target
- * has only 13 static records because the shipped table supplies the already-
- * zero flags pair. The committed rebind spec is diagnostic metadata and is
- * not wired into production POSTPROCESS; linked C proof is still absent. Scoped
- * linked-state lifetimes, explicit next-node declarations, branch-local
- * spawned declarations, direct chained stores, flag-base pointers, explicit
- * byte stores, and counter-result locals either remained at 12 or worsened to
- * 18-59 words; every lifetime-local form that changed code also grew the frame
- * to -80. The counter assignment spelling was byte-identical to baseline.
- * The remaining blocker is the target's v0/v1 linked-state pool coloring and
- * t2/t3 counter/flag temp FIFO. ORT 1297 and resident relocation 139 establish
- * func_8000AEEC+0x43C as the sole inbound; no cross-overlay inbound exists.
- * Pinned DKR v77/v80 and JFG scans are negative; this is Mickey-only
- * reconstruction. No exact, relocation-complete, linked result was found
- * within the bounded campaign. Recompile unchanged V0 once, require this full
- * evidence shape, then park absent a newly proved allocator mechanism. */
+/* Bounded reproof (2026-08-29): configured -O2 -mips2 -32 C remains exactly
+ * 123 instructions / 492 bytes with frame 0x48, 111/123 raw and runtime-
+ * normalized words, 12 register-field differences, and first mismatch +0xC8.
+ * Its executable-text SHA-256 is d8b80e23d14ea9c2. All 119 flag identities
+ * were attempted; seven O2/MIPS-II rows tie V0 and none is exact. A fidelity-
+ * clean proc-0 globalcolor trace identifies separate v1/v0 linked-state webs.
+ * A distinct linked-state local and branch-local linked-state scopes both
+ * regress to frame 0x50 and 30 differences; a distinct next-node carrier
+ * regresses to frame 0x50 and 43 differences. No strict gain authorized a
+ * combination or generic batch. Earlier source-faithful lifetime/access forms
+ * likewise remained at 12 or regressed.
+ *
+ * The owned +0x1290..+0x147C range has no target padding. IDO's four trailing
+ * alignment bytes are outside the function and production trims only them.
+ * The C object emits all 15 shipped runtime tuples; an identity-canonical
+ * diagnostic comparison proves all 15 offsets, types, identities, and addends.
+ * The assembled target has 13 static records because the runtime table adds
+ * the already-zero flags pair. The committed filter/rebind metadata remains
+ * diagnostic and is not production POSTPROCESS, so linked C proof is absent.
+ * ORT 1297 and resident relocation 139 establish func_8000AEEC+0x43C as the
+ * sole inbound; no cross-overlay inbound exists. Pinned DKR v77/v80 and JFG
+ * scans are negative. Preserve the fallback and resume only with a newly
+ * proved v0/v1 pool-color or t2/t3 temp-FIFO source mechanism. */
 #ifdef NON_MATCHING
 void func_overlay_079_F0001290_18CE230(Overlay79Object *object, s32 arg1) {
     Overlay79Node *node;
