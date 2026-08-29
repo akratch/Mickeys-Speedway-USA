@@ -76,27 +76,31 @@ typedef struct Overlay97ScaleEntry {
  * Mickey's model-bound scan tail. The local header-sized pointer step is
  * intentional: it preserves the original traversal base through the scan.
  *
- * Promotion reproof (2026-08-29): retained configured NON_MATCHING C is
- * 143/144 against an independently assembled target, one word away at +0xD0.
- * The artifact predates current HEAD, but the source body and physical overlay
- * boundaries are unchanged; current-HEAD reproducibility is still unproven.
- * No linked-C trial artifact survives; ordinary linked equality proves the
- * fallback only. The owned +0x508..+0x748 range has no padding or relocation;
- * Overlay 97's separate trailing padding is outside this function. ORT 1194
- * and resident relocation 36 authenticate func_8000AA38+0x7C as the sole
- * inbound. Retail derives the values cursor as a3+2, while C emits the
- * equivalent a1+0x3E address. Both
- * forms are frameless, 0x240 bytes / 144 instructions, and have no relocations.
+ * Promotion reproof (2026-08-29): historical configured NON_MATCHING C was
+ * measured at 143/144, one word away at +0xD0, frameless and 0x240 bytes with
+ * zero relocations. No candidate object, target object, comparison digest, or
+ * linked-C artifact survives in canonical Git. The source body is unchanged,
+ * but current-HEAD C remains uncompiled; ordinary linked equality proves the
+ * fallback only. The owned +0x508..+0x748 / ROM 0x18D83A0..0x18D85E0 range
+ * has no padding; Overlay 97's separate +0xA54..+0xA60 padding follows another
+ * function. ORT 1194 and resident relocation 36 authenticate
+ * func_8000AA38+0x7C as the sole inbound. Historical C derived the values
+ * cursor as a1+0x3E while retail used equivalent a3+2. This is an address-
+ * carrier allocation difference, not CFG, size, frame, padding, or relocation
+ * drift.
  * The earlier object-exact note compared the fallback assembly to itself and
  * was invalid. The checked-in three-word ranking also omitted
  * -Wab,-r4300_mul; that flag fixes its +0x24/+0x28 scheduling differences and
  * leaves only +0xD0. Historical volatile, typed-base, declaration, flag, and
  * permutation outcomes have no surviving attributable variant artifacts and
- * do not prove exhaustion. Re-run configured V0, then assign bounds first and
+ * do not prove exhaustion. Compile configured V0, then assign bounds first and
  * independently derive values from that live carrier as (u8 *)bounds + 2 and
  * &bounds->bounds[1]. Cap at those three builds; only if V0 drifts and a probe
- * strictly improves it may a fourth build tighten scan-tail scope. The
- * assembly fallback remains canonical.
+ * strictly improves it while preserving shape may a fourth build tighten scan-
+ * tail scope. Require 144/144 untouched IDO output, frame zero, zero records,
+ * exact owned range/boundaries, ORT 1194 and resident record 36, complete
+ * Overlay 97, and full-ROM equality before promotion. The assembly fallback
+ * remains canonical.
  */
 #ifdef NON_MATCHING
 void overlay97InitScale(Overlay97ScaleObject *object, void *entryArg) {

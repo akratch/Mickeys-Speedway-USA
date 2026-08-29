@@ -1110,10 +1110,11 @@ or target padding exists; production trims only four non-owned section
 alignment bytes.
 
 Overlay 97 `+0x508` (`overlay97InitScale`) owns no static or runtime
-relocations across its exact `+0x508..+0x748` range. Retained configured C
-under `-O2 -mips2 -32 -Wab,-r4300_mul` is frameless and 143/144 raw/normalized
-words; its sole `+0xD0` difference is an address-equivalent carrier choice,
-not a relocation. ORT 1194 and resident runtime record 36 at
+relocations across its exact `+0x508..+0x748` range. Historical configured C
+under `-O2 -mips2 -32 -Wab,-r4300_mul` was measured frameless and 143/144
+raw/normalized words; no candidate artifact survives and current C output is
+pending. Its sole historical `+0xD0` difference was an address-equivalent
+carrier choice, not a relocation. ORT 1194 and resident runtime record 36 at
 `func_8000AA38+0x7C` authenticate the sole inbound. There is no target padding;
 Overlay 97's separate `+0xA54..+0xA60` padding follows another function.
 Current linked equality proves fallback only.
