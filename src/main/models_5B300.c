@@ -319,9 +319,12 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A7A0.s")
 #endif
-/* Plateau (near-miss p8): workbench register-permutation, 11 register-only words at 94 instructions/frame -0x38.
- * Separate indices, pointer traversal, scoped/direct existing-entry forms, and final-entry materialization were rechecked.
- * They were inert or changed the target shape; the cache-index temp phase and final empty-index allocation stay unresolved. */
+/* Plateau (near-miss p9): workbench register-ring-only, 3 register words at
+ * 94 instructions/frame -0x38. Raw interleaved-array final stores, matching
+ * the exact adjacent free routine's access shape, close the prior 8-word
+ * final-index allocation hunk. A normalized count guard reaches the target
+ * t8 scan-index phase but adds one instruction; redundant parameter masking
+ * changes the prologue. The one-pop scan-loop FIFO residual remains. */
 #ifdef NON_MATCHING
 u8 *func_8005A948(s16 animationId) {
     s32 i;
@@ -369,8 +372,8 @@ u8 *func_8005A948(s16 animationId) {
     piRomLoadSection(0x2B, animation, offset, size);
     animation->references = 1;
     animation->id = animationId;
-    ((AnimationCacheEntry *)D_800D7CF4)[emptyIndex].id = animationId;
-    ((AnimationCacheEntry *)D_800D7CF4)[emptyIndex].animation = (u8 *)animation;
+    ((s32 *)D_800D7CF4)[emptyIndex * 2] = animationId;
+    ((u8 **)D_800D7CF4)[(emptyIndex * 2) + 1] = (u8 *)animation;
     return (u8 *)animation;
 }
 #else
