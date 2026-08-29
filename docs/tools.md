@@ -188,15 +188,24 @@ tools/function_preflight.py func_overlay_016_F00001E0_1873678 --json
 Either the friendly C name or splat's generated overlay name resolves to the
 same identity. The command incrementally builds the canonical linked ELF and
 the correct full-TU candidate object, automatically selecting
-`build_non_matching/` for a guarded candidate. It then reports the exact
+`build_non_matching/` for a guarded candidate. Each build uses the Makefile's
+separate split and target phases, so regenerated assembly cannot be hidden by
+Make's same-invocation timestamp scan. It then reports the exact
 owned range and next ownership/padding boundary, ROM-table exports, inbound
 call sites, the candidate declaration and frame, every shipped runtime
 relocation tuple (function-relative offset, type, stable identity, and stored
 addend), candidate relocation-surface agreement, and the current workbench
 word score and first mismatch. `--no-build` makes existing artifacts a hard
-requirement instead. The command fails when an alias, source, range, or
-relocation identity is not unique; its output deliberately excludes
-instruction listings, words, and hexdumps.
+requirement instead. Before any comparison, both that full-TU object and the
+canonical linked ELF must be current according to Make's real dependency
+graph. The preflight also checks the root Makefile and checked-in normalization
+fragments explicitly, because Make does not age an output merely because its
+recipe changed. Ordinary preflight refreshes artifacts stale in the dependency
+graph; a recipe/config edit requires a clean rebuild. `--no-build` and direct
+`wb_compare.sh` use fail closed with an actionable rebuild diagnosis. The
+command also fails when an alias, source, range, or relocation identity is not
+unique; its output deliberately excludes instruction listings, words, and
+hexdumps.
 
 `tools/wb_compare.sh` uses the same resolver, so manual
 `WB_CANDIDATE_SYMBOL`/`WB_CANDIDATE_BUILD_DIR` settings are no longer needed
