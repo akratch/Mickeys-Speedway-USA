@@ -17,9 +17,9 @@ typedef struct Overlay43Image {
  * consistent permutation. No instrumented global-color trace is configured
  * for the remaining source-only lever.
  */
-/* Object-level reproof: instruction-words-identical, 0 differing words, first
- * mismatch none; the 43-instruction frameless shape is exact and permuter-ready.
- * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
+/* Symbol-aware object reproof confirms the exact 43-instruction frameless
+ * shape but four register words still differ at +0xC/+0x10/+0x20/+0x28.
+ * The earlier zero-word claim compared the fallback body, not this C. */
 #ifdef NON_MATCHING
 void overlay43FilterImage(Overlay43Image *image) {
     u8 *pixel;

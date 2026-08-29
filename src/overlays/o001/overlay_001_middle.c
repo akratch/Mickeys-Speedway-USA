@@ -18,14 +18,11 @@ extern f32 overlay1WrapOffset(f32 first, f32 second);
 extern f32 gOverlay1NextAngleLimit;
 
 /* DKR v77/v80 and JFG contain no exact donor for this angle-selection scan. */
-/* Eight bounded source-faithful variants plateaued at 44/50 instructions;
- * the first opcode mismatch is at function offset +0x3C. Workbench reports
- * mixed(constant:1, schedule:6), with structure-buckets/constant-audit as
- * the next levers; the limit's low-overlay relocation presentation remains
- * unresolved. */
-/* Object-level reproof: instruction-words-identical, 0 differing words, first
- * mismatch none; the 50-instruction, frame -104 shape is exact and permuter-ready.
- * Overlay relocation/link proof remains deferred, so retain NON_MATCHING. */
+/* Eight bounded source-faithful variants retain the exact 50-instruction,
+ * frame -104 shape. Symbol-aware object reproof finds two schedule swaps at
+ * +0x3C/+0x40 and +0x6C/+0x70, plus the unresolved limit relocation layout at
+ * +0x34/+0x38. The earlier zero-word claim compared the fallback body, not
+ * this C, so retain NON_MATCHING. */
 #ifdef NON_MATCHING
 Overlay1AngleObject *overlay1FindNextAngle(f32 angle) {
     s32 count;
