@@ -9,28 +9,19 @@ extern s32 **gOverlay34Pointers;
 extern s32 gOverlay34Count;
 extern void *func_8002B280(s32 size, s32 tag);
 
-/* Pinned DKR v77/v80 and JFG scans found no exact donor. */
+/* The donor ledger classifies pinned DKR v77/v80 and JFG candidates negative. */
 /*
  * Plateau: exact 0xC8 size and 0x30 frame, 46/50 relocation-normalized words,
  * first mismatch +0x24. The surviving isolated ranking has a fifth raw
  * difference at +0xC4 because its assembled target bakes the local-data +8
  * addend; the candidate and runtime table require eight relocation sites.
  * The target assigns the reused size spill to sp+0x1C; IDO assigns this body
- * to sp+0x18. Declaration, lifetime, expression, and type variants either
- * preserve those four differences or grow the frame. A 10-minute, two-worker
- * permuter run found no candidate below its baseline score of 40. This run's
- * full 119-combination flag lattice and typed scalar/aggregate layout checks
- * preserved the same four-word residual and +0x24 first mismatch.
- * A stock-gated pass capture on 2026-08-28 found that cfe assigns both size
- * definitions one virtual home and uopt/UGEN reproduce one call-live spill
- * topology in both halves. Reusing remaining as the byte carrier reaches the
- * target spill home but removes two required copies and shrinks to 48 words.
- * Giving each post-call region its own remaining local keeps all 50 words and
- * reaches the target spill home, but grows the frame from 0x30 to 0x38; one
- * shared region-local returns exactly to this baseline. The exact-frame body
- * therefore remains best at 46/50 relocation-masked words. Preserve a fresh
- * unchanged V0 and runtime-annotated target, then park absent a new IDO
- * stack-allocation mechanism.
+ * to sp+0x18. Historical declaration, lifetime, type, flag, trace, and
+ * permutation outcomes have no surviving attributable result set and do not
+ * prove exhaustion. Preserve a fresh unchanged V0 and runtime-annotated
+ * target, retain the complete flag lattice, then take one CFE/UOPT/UGEN trace
+ * and build only its single source-visible declaration/lifetime lever. Stop if
+ * the trace exposes no lever or the one variant does not strictly improve.
  */
 #ifdef NON_MATCHING
 void overlay34InitStorage(s32 count) {
