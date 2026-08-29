@@ -101,3 +101,4 @@ nonmatchings/
 # Codex lane runner state
 .codex-*
 .lane-extract.log
+.metadata_never_index
