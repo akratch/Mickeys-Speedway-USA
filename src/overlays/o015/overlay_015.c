@@ -167,9 +167,15 @@ typedef struct Overlay15StarPointerView {
     Overlay15Star *stars;
 } Overlay15StarPointerView;
 
-/* Workbench: size-mismatch, +16 bytes (58 vs 54 instructions), first +0x30.
- * Target CFG/FP/call shape is recovered; four redundant BSS address producers remain.
- * Not shape-exact: contiguous bound-address reuse is unresolved. */
+/* PLATEAU-HANDOFF (2026-08-29, wave2-o15-move-stars): configured full-TU C
+ * remains 58 instructions against the exact 54-word / 0xD8 owner, frame 0x40,
+ * first mismatch +0x30. The target has 21 runtime records; C emits 25 because
+ * four extra BSS HI16 producers split the nine contiguous bound loads. Pair
+ * structs/arrays, file-static scalars, and pointer-derived adjacent fields
+ * were flat in size and worse in schedule or relocation shape, so the prior
+ * 119-row nonexact flag result was not repeated. JFG starfieldMove is the same
+ * size and role but supplies only contextual call-graph evidence. Preserve the
+ * fallback until a natural direct-load form shares one HI16 per adjacent pair. */
 #ifdef NON_MATCHING
 void overlay15MoveStars(f32 movementX, f32 movementY, f32 movementZ,
                         s32 rate) {

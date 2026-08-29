@@ -1303,6 +1303,19 @@ temporary-FIFO/web-coalescing source blocker. The following
 standalone C's one alignment word is trimmed and earns no credit. Current
 linked equality proves fallback only.
 
+Overlay 15 `+0x428` (`overlay15MoveStars`) owns 21 runtime records across its
+exact `+0x428..+0x500` range: one SYMBOL `R_MIPS_26` call at function `+0xC0`
+to resident `starfieldFastMove`; LOCAL pairs for movement-base `+0xCC0` at
+`+0x08/+0x10`, star pointer `+0xC74` at `+0x1C/+0x24`, and count `+0xC70` at
+`+0x80/+0x88`; plus five bound high halves and nine bound low halves spanning
+runtime identities `+0xCC0..+0xCE0`. Configured C emits 25 records because it
+uses nine independent bound symbols and therefore four extra HI16 producers;
+only 12 offset/type sites currently align. Pair aggregates reduce records but
+form explicit general-register bases, preserving the four-word size excess and
+worsening instruction schedule. ORT 1663 exports the function. No resident or
+cross-overlay relocation directly targets it, and the next function starts at
+`+0x500` with no padding. Linked equality proves fallback only.
+
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 
