@@ -150,10 +150,10 @@ remaining in-range word counts range from 7 to 196 and are genuine codegen
 differences - which is the point. Those candidates now have a linked-ROM oracle
 and an exact in-range word count where before they had a link error.
 
-For `overlay20UpdateObjectResource`, that linked-C trial survives only as this
-historical report: no attributable trial object, ELF, map, ROM, or report is
-retained. Current linked equality therefore proves the assembly fallback only.
-Its four runtime-table SYMBOL calls are nevertheless authenticated at function
+For `overlay20UpdateObjectResource`, fresh configured full-TU C proves exact
+`R_MIPS_26` offsets/types for all four calls, but no fresh linked-C trial exists;
+current linked equality therefore proves the assembly fallback only. Its four
+runtime-table SYMBOL calls are authenticated at function
 `+0x14/+0x30/+0x134/+0x168`: resident ORT 202 (`trackGetTrack`), resident ORT
 203 (`func_8000FEEC`), Overlay 20 ORT 1690 (`+0xA8`,
 `overlay20ConfigureResource`), and resident ORT 101 (`sqrtf`). Fresh C must

@@ -277,7 +277,7 @@ generated historical snapshot; regenerate it when compile capacity is free.
 |---|---|---:|---:|---:|---:|---|
 | `overlay40FadeRecords` (historical scalar; object absent, HEAD pending) | o040 | 3 | 12 | 404 | 0 | register-only |
 | `func_8003A2C8` (policy-clean configured/isolated plateau) | main | 8 | 0 | 128 | 0 | register-only |
-| `overlay20UpdateObjectResource` (canonical isolated scalar; stale local configured object, HEAD pending) | o020 | 8 | 176 | 392 | 0 | register-only |
+| `overlay20UpdateObjectResource` (fresh configured full-TU plateau) | o020 | 8 | 176 | 392 | 0 | register-only |
 | `func_8002CF6C` (policy-clean bounded plateau) | main | 77 | 8 | 352 | -12 | structure-mismatch |
 | `overlay19ClassifyEdge` (current-body isolated scalar; object/full-TU context absent) | o019 | 10 | 312 | 480 | 0 | register-only |
 | func_overlay_079_F0001290_18CE230 | o079 | 12 | 200 | 492 | 0 | register-only |

@@ -1838,14 +1838,19 @@ at most three `s3`-lifetime probes. No C credit is claimed.
 `overlay 20 +0x07C4..+0x09DC` (`overlay20BuildTileCommands`) — **536 exact C bytes / 134 words**. Mickey's `0x90` frame and `sp+0x5C` array base prove the seven-entry chunk array; declaring it after the six preceding scalar/cursor locals reproduces both homes without padding or synthetic control flow. The configured object is instruction-word-identical, its sole helper call relocation is exact by type, offset, and identity, and the linked overlay and full ROM are byte-identical.
 
 `overlay 20 +0x0204..+0x038C` (`overlay20UpdateObjectResource`) remains
-`NON_MATCHING`: retained full-TU and isolated C agree at 90/98 words, frame
-`0x70`, with eight register-only sites at `+0xB0,+0xB4,+0xC0,+0xC8,+0x108,
-+0x10C,+0x110,+0x114`. Runtime records prove calls to `trackGetTrack`,
+`NON_MATCHING`: fresh configured full-TU C is exact-sized at 98 words with frame
+`0x70` and 90/98 raw/normalized words, with eight register-only sites at
+`+0xB0,+0xB4,+0xC0,+0xC8,+0x108,+0x10C,+0x110,+0x114`. All 119 compiler
+configurations are nonexact. A stock-fidelity allocator/FIFO trace proves the
+later `value0F`/`start` exchange is downstream of the scoped count carrier's
+`v1` pool placement versus the target's temp `t6`; direct field access regresses
+to 73/98. Runtime records prove calls to `trackGetTrack`,
 `func_8000FEEC`, local `overlay20ConfigureResource`, and `sqrtf`; the fallback
 object collapses those names to an assembly placeholder. A historical linked
 C trial differed only inside the owned function, but no linked candidate
 artifact survives. Current exact module/full-ROM evidence proves the assembly
-fallback only. Pinned DKR v77/v80 and JFG scans are negative.
+fallback only. Pinned DKR v77/v80 and JFG scans are negative. Resume only with
+a new legal pool-to-temp web-formation mechanism.
 
 `overlay 34 +0x02C8..+0x0378` (`overlay34RemoveRecord`) — 176 bytes / 44 words. NON_MATCHING: bounded 2026-08-28 closeout retained the size-exact source after indexed-compaction, pointer-cursor, separated-count, and scoped-call probes. The best candidate matches 32/44 words with the first schedule/register residual at `+0x14`; it preserves one helper relocation and two repeated active-count HI16/LO16 pairs, while the target encodes its pointer load without relocation. Removing those source pointer relocations is prohibited, so no C credit is claimed.
 
