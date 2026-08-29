@@ -2,11 +2,11 @@
 
 This is a names-only audit of every function body guarded by `NON_MATCHING` in `src/`, reconciled with the plateau notes in `docs/resident.md` and `docs/overlays.md`. Declaration-only guards are excluded. `none` means the recorded blocker is code shape, frame, scheduling, register allocation, ABI typing, or unresolved reconstruction rather than section/TU ownership.
 
-- Guarded functions audited: 412
+- Guarded functions audited: 411
 - Structural blockers found: 39
 - Structural blockers resolved: 3
 - Structural blockers remaining: 36
-- No structural blocker: 373
+- No structural blocker: 372
 
 | Function | TU | Class | Symbols involved | One-line fix idea |
 |---|---|---|---|---|

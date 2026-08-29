@@ -88,6 +88,13 @@ bytes and disassembly never belong here.
   shape unless instruction count, relocations, linked bytes, and the full ROM
   remain exact. Evidence: Overlay 8's exact scale-output body in
   `docs/overlays.md`.
+- For a commutative address calculation, source operand order can select which
+  producer receives each block-local temporary without changing the final
+  `addu`. When only the base load and scaled-index shift exchange ring
+  registers, spell the proven-equal expression as integer-plus-pointer or
+  pointer-plus-integer to match their evaluation order; reject the lever if any
+  other word, relocation, or linked byte moves. Evidence: the exact Huffman
+  table builder in `docs/resident.md`.
 
 ### Search fidelity and false floors
 

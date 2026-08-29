@@ -294,10 +294,9 @@ segments:
       # an ordered-function and two-sided-boundary claim, not a whole-.text
       # claim.
       - [0x4BC40, c, main/font]
-      # The PI-manager/rzip prefix and huft builder form the C half of the
-      # inflate subsystem. DKR's src/gzip.c identifies the source unit; only
-      # byteswap32 is compiler-exact so far, and the other five functions stay
-      # as GLOBAL_ASM until independently matched.
+      # The PI-manager/rzip prefix and huft builder form the compiler-exact C
+      # half of the inflate subsystem. DKR's src/gzip.c identifies this
+      # six-function source unit; each function is independently matched.
       - [0x4E1E0, c, main/gzip]
       # Measured boundary. The whole 0xA74-byte .text of DKR's built
       # `src/hasm/gzip_asm.s.o` -- the hand-written inflate core the asset
