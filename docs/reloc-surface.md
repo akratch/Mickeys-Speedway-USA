@@ -702,8 +702,13 @@ Overlay 61 `+0x1648` has eleven authoritative records: resident calls at
 `packOpenFile`, `packFileSize`, `func_8002B280`, `packReadFile`, `mmFree`, and
 `packClose`; two calls at `+0xC0/+0xDC` to Overlay 68 `+0`; and a LOCAL
 HI16/LO16 pair at `+0x24/+0x28` with stored addend `+0x164`. The current
-guarded source names that pair `gOverlay61SavePathReloc`, but the linker-symbol
-ledger still exposes only `D_164`; identity-correct C linkage remains pending.
+source names that pair `gOverlay61SavePathReloc`, but the linker-symbol ledger
+still exposes only fallback-required `D_164`; identity-correct C linkage needs
+both names during a guarded trial. Lane `9319885d`'s semantically inert
+one-iteration grouping is not yet in committed canonical source and no winning
+C object survives. Prior genuine C is 78/92 words with all 11 records; linked
+equality proves fallback only. Owned `+0x1648..+0x17B8` has no padding, one
+local inbound at `+0x120C`, and no export.
 
 Overlay 31 `+0x6B0` (`overlay31InitializeBuffers`) has a retained prior C
 object with 54 static records: 16 calls and 19 HI16/LO16 pairs, all at the
