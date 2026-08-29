@@ -1185,11 +1185,12 @@ typedef struct ModelFrameInstance {
  * register-only sites differ at +0x38,+0x40,+0x44,+0x4C,+0x50,+0x54,+0x5C,
  * +0x64,+0x70,+0x74,+0xA0,+0xA4,+0xAC. The first texture-address temp lane
  * starts at t5 instead of target t3; later frame-value, multiply-result, and
- * loop-count webs also differ. The sole proven caller passes owner/context in
- * a3, which the target callee overwrites without consuming. Linked
- * function/TU/ROM equality proves the GLOBAL_ASM fallback only. Reprove one
- * unchanged configured V0, then attempt only a UGEN-trace-led removal of the
- * two candidate-only temporary allocations; otherwise park. */
+ * loop-count webs also differ. One resident call and eight runtime overlay
+ * records across overlays 57, 60, and 82 are authenticated; the resident call
+ * passes owner/context in a3, which the callee overwrites without consuming.
+ * Linked equality proves fallback only. Only V0 is artifact-authenticated:
+ * reproduce it, retain the flag lattice, capture one allocator trace, then try
+ * one trace-selected natural web-birth, lifetime, or line-association form. */
 void func_80020D8C(ModelFrameInstance *instance, s32 textureIndex, s32 frame) {
     ObjectModel *model;
     ModelFrameEntry *entry;

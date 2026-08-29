@@ -576,10 +576,13 @@ relocations and thirteen register-only sites at
 `+0x38,+0x40,+0x44,+0x4C,+0x50,+0x54,+0x5C,+0x64,+0x70,+0x74,+0xA0,+0xA4,
 +0xAC`. The texture-address lane begins at candidate `t5` versus target `t3`;
 later frame-value, multiply-result, and loop-count webs also differ. The sole
-proven caller passes owner/context in `a3`, which the target callee overwrites
-without consuming. Exact linked function, TU, and ROM ranges prove assembly
-fallback only. Reprove unchanged once, then continue only from a
-UGEN-trace-identified candidate-only temporary producer.
+resident caller, `func_8001BB10+0x60`, passes owner/context in `a3`, which the
+callee overwrites without consuming. Runtime table index 374 also authenticates
+one call from overlay 57, one from overlay 60, and six from `overlay82Update`,
+for nine sites across four callers. Exact linked function, TU, and ROM ranges
+prove assembly fallback only. Only V0 has attributable artifacts; reproduce it,
+retain the complete flag lattice, capture one allocator trace, then try one
+trace-selected natural web-birth, lifetime, or line-association form; cap four.
 `func_80020E4C`: workbench structure mismatch, exact 113 instructions/frame -64; 25 words differ, first `+0xC`.
 Explicit byte-scaled indexing is best; pointer-cursor and declaration-order probes did not improve it.
 Exception-loop/pool-slot 1 and temp-slot 3 allocation remains; assembly stays canonical.
