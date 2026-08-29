@@ -391,7 +391,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2C5D0` | `func_8002B9D0` | `mempool_slot_clear` | B: frees a slot and coalesces adjacent free records; linked C exact |
 | `0x2C720` | `mmGetSlotPtr` | `mmGetSlotPtr` | B: returns one pool's slot-array pointer; matched C exact |
 | `0x2C734` | `mmGetDelay` | `mmGetDelay` | B: returns the deferred-free delay; matched C exact |
-| `0x2C740` | `func_8002BB40` | `mempool_slot_assign` | B: assigns a slot and, where needed, creates and links its remainder; retained configured full-TU C is 72/72 words with all eight relocations, pending fresh linked/ROM reproof |
+| `0x2C740` | `func_8002BB40` | `mempool_slot_assign` | B: assigns a slot and, where needed, creates and links its remainder; retained NON_MATCHING full-TU and isolated C are 42/72 words with 30 register-only differences and all eight relocations exact |
 | `0x2C860` | `align16` | `mmAlign16` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
 | `0x2C87C` | `align8` | — | A: existing exact 7-word `memory.c.o` match; no JFG counterpart |
 | `0x2C898` | `align4` | `mmAlign4` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
@@ -470,15 +470,16 @@ memory TU, and exact ROM contain `GLOBAL_ASM`; no linked C candidate survives.
 Use the bounded five-build cache/guard/combination/spill ladder and park if
 flat.
 
-`func_8002BB40`: the stale standalone import is 72 words with 30 register
-differences from `+0x8C`, but it drops the real translation-unit context. The
-retained configured `memory.c.o` instead reproduces all 72 frameless words and
-the target's eight HI16/LO16 relocations: pairs for `D_8007A270`,
-`D_800D21B0`, and two references to `D_800D1C60`. The source body is unchanged
-since that object; later edits touched comments and another guarded function.
-This is an exact candidate, not an allocator-search plateau, but it remains
-guarded until a fresh configured compile, linked resident range, and full-ROM
-comparison prove promotion.
+`func_8002BB40`: the retained true `NON_MATCHING` full-TU object and isolated
+candidate are byte-identical at 42/72 frameless words, with 30 register-only
+differences from `+0x8C`. All eight HI16/LO16 tuples are exact: pairs for
+`D_8007A270`, `D_800D21B0`, and two references to `D_800D1C60`. The apparent
+72/72 `build/src/main/memory.c.o` result is the ordinary `GLOBAL_ASM` fallback,
+not C; the same object contains the target assembly for neighboring guarded
+`func_8002B524` and `func_8002B7AC`, while the retained `NON_MATCHING` object
+contains their documented C candidates. Reprove V0, then test reuse of dead
+`slotIsTaken` as the slot-count carrier and `poolIndex` as the selected index
+only after strict improvement; cap the bounded ladder at eight builds.
 
 `func_8002B7AC`: retained configured full-TU and isolated NON_MATCHING C are
 byte-identical for the unchanged current body. They emit 62 words versus the

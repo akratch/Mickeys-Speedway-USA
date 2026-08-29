@@ -448,12 +448,13 @@ s32 mmGetDelay(void) {
 /*
  * PROVENANCE: adapted from JFG src/memory.c:mempool_slot_assign. Mickey's
  * pool accounting, byte-sized slot fields, globals, and bytes are authoritative.
- * Retained configured full-TU evidence is instruction-identical for all 72
- * frameless words and carries the target's eight HI/LO relocations. The stale
- * standalone import reports 30 register differences because it loses the real
- * TU context; it is not promotion evidence. The source body has not changed
- * since the retained full-TU object, but fresh compile, linked resident-range,
- * and ROM proof are still required. Assembly fallback remains canonical.
+ * The retained NON_MATCHING full-TU and isolated C objects agree at 42/72
+ * frameless words, with 30 register-only differences from +0x8C and all eight
+ * target HI16/LO16 tuples exact. The 72/72 build/src object is the ordinary
+ * GLOBAL_ASM fallback, as its neighboring guarded functions also contain their
+ * target assembly rather than C. Reprove V0, then reuse dead slotIsTaken as the
+ * slot-count carrier and poolIndex as the selected index only after a strict
+ * improvement; cap the bounded ladder at eight builds. Assembly stays canonical.
  */
 #ifdef NON_MATCHING
 s32 func_8002BB40(MemoryPoolIndex poolIndex, s32 slotIndex, s32 size,
