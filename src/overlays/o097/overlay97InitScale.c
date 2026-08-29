@@ -76,9 +76,10 @@ typedef struct Overlay97ScaleEntry {
  * Mickey's model-bound scan tail. The local header-sized pointer step is
  * intentional: it preserves the original traversal base through the scan.
  *
- * Promotion reproof (2026-08-29): retained prior-physical-layout configured
- * NON_MATCHING C is 143/144 against an independently assembled target, one
- * word away at +0xD0. The body is unchanged but current-layout V0 is unproven.
+ * Promotion reproof (2026-08-29): retained configured NON_MATCHING C is
+ * 143/144 against an independently assembled target, one word away at +0xD0.
+ * The artifact predates current HEAD, but the source body and physical overlay
+ * boundaries are unchanged; current-HEAD reproducibility is still unproven.
  * No linked-C trial artifact survives; ordinary linked equality proves the
  * fallback only. Retail derives the
  * values cursor as a3+2, while C emits the equivalent a1+0x3E address. Both
@@ -88,10 +89,11 @@ typedef struct Overlay97ScaleEntry {
  * -Wab,-r4300_mul; that flag fixes its +0x24/+0x28 scheduling differences and
  * leaves only +0xD0. Historical volatile, typed-base, declaration, flag, and
  * permutation outcomes have no surviving attributable variant artifacts and
- * do not prove exhaustion. Re-run current-layout configured V0, then derive
- * values from the already-live bounds carrier as a byte address and as
- * &bounds->bounds[1]; tighten scan-tail scope only after a strict gain, with a
- * four-build cap. The assembly fallback remains canonical.
+ * do not prove exhaustion. Re-run configured V0, then assign bounds first and
+ * independently derive values from that live carrier as (u8 *)bounds + 2 and
+ * &bounds->bounds[1]. Only if V0 drifts and a probe strictly improves it may a
+ * fourth build tighten scan-tail scope. The assembly fallback remains
+ * canonical.
  */
 #ifdef NON_MATCHING
 void overlay97InitScale(Overlay97ScaleObject *object, void *entryArg) {
