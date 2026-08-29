@@ -51,21 +51,30 @@ extern Overlay20LookupResult *overlay20LookupReloc(s16 index);
 extern void *overlay20ConfigureResourceReloc();
 extern f32 overlay20SqrtReloc(f32 value);
 
-/* Retained configured full-TU and isolated unchanged-body C agree at 90/98
- * raw/normalized words, frame 0x70, first +0xB0; fresh HEAD line-layout proof
- * is pending. The owned +0x204..+0x38C range has no target padding; IDO's
+/* Reproof lead: historical same-body configured C was measured at 90/98 raw/
+ * normalized words, frame 0x70, first +0xB0. A stale local configured object
+ * reproduces those scalars and four proxy call records but has no source hash or
+ * build ledger and predates current line layout. Canonical Git retains only the
+ * eight-difference isolated scalar; no candidate object/report survives there.
+ * Current score, frame, size, and emitted relocations are unknown. The owned
+ * +0x204..+0x38C / ROM 0x18767DC..0x1876964 range has no target padding; IDO's
  * trailing eight-byte section alignment is outside the function. Four
  * count/entries carrier sites remain at
  * +0xB0/+0xB4/+0xC0/+0xC8; +0x108/+0x10C/+0x110/+0x114 are a downstream
  * value0F/start argument-temporary cluster, but causal independence is
- * unproved. Runtime tables authenticate all four call identities and offsets;
- * C names remain proxies. Historical source/flag/trace/permuter and linked-C
+ * unproved. Runtime tables authenticate target calls at +0x14/+0x30/+0x134/
+ * +0x168 as trackGetTrack, func_8000FEEC, local overlay20ConfigureResource, and
+ * sqrtf; the stale candidate's proxy records prove offsets/types, not identities.
+ * Historical source/flag/trace/permuter and linked-C
  * trial claims are unretained; linked equality proves fallback only.
- * Exact pinned overlay-wide DKR v77/v80/JFG scans found no compiled-symbol
- * candidate, but no function-specific near-match oracle survives. Retain an
- * oracle, run 119 flags including V0, trace once, then try one natural form for
- * each cluster and combine only independent strict gains. Cap 122 deterministic
- * builds; allow one <=2,000-candidate batch only after a legal gain. */
+ * Exact pinned overlay-wide DKR v77/v80/JFG scans found no candidate; a retained
+ * function-specific structural scan is also negative (best 0.075, first JFG
+ * 0.052). Compile V0; on regression use one historical line-layout control and
+ * invalidate the baseline if it also fails. Otherwise retain 119 configurations
+ * including V0, one trace, one natural form per cluster, and combine only
+ * independent strict gains. Hard cap 122 deterministic builds plus one trace,
+ * 123 only for the control. Allow one 20-minute/2,000-candidate annotated batch
+ * only after a legal natural-source gain; no generic batch from V0. */
 #ifdef NON_MATCHING
 void overlay20UpdateObjectResource(Overlay20Object *object,
                                    Overlay20Config *config) {
