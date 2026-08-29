@@ -43,10 +43,12 @@ extern s16 gOverlay40BlendTarget;
 extern s16 gOverlay40BlendDuration;
 extern s16 gOverlay40BlendOutput;
 
-/* Plateau re-reviewed 2026-08-29 against retained-line-layout configured
- * full-TU and isolated C: both are 98/101 raw and relocation-normalized words,
- * first +0xC, with frame 0x8 and only +0xC/+0x10/+0x24 differing. Its ten
- * static relocations (five HI16/LO16 pairs) map to
+/* Reproof lead reviewed 2026-08-29: historical same-body configured full-TU
+ * and isolated C were measured at 98/101 raw and relocation-normalized words,
+ * first +0xC, frame 0x8, with +0xC/+0x10/+0x24 differing. No candidate object,
+ * comparison report, or linked-C artifact survives; current score, frame, and
+ * emitted tuples are unknown. Runtime authenticates ten roles (five HI16/LO16
+ * pairs) mapping to
  * runtime BSS D_800D6C4C(timer), D_800D6C52(current), D_800D6C50(target),
  * D_800D6C4E(duration), and D_800D6C54(output); the target/fallback objects
  * retain none of them statically. The former zero-word claim compared the
@@ -61,10 +63,15 @@ extern s16 gOverlay40BlendOutput;
  * all 119 flags scored raw; one allocator
  * trace; independent output-origin and output/current/timer declaration-order
  * probes; combine or initialize only after strict gains. The hard cap is 123
- * deterministic builds plus one trace: 119 flags and four additional forms,
- * five total forms including V0. Mickey-only reconstruction; exact pinned DKR
- * v77/v80/JFG overlay-range scans are negative, but no near-match oracle report
- * survives. */
+ * deterministic builds plus one trace: 119 configurations including V0 and
+ * four gain-gated forms; permit build 124 only for a regression-triggered
+ * historical line-layout control. No generic batch absent a strict natural
+ * gain. The owned +0x690..+0x824 / ROM 0x1886F40..0x18870D4 range has no
+ * padding; separate +0x824..+0x830 padding follows. ORT 1314 and resident
+ * runtime record 156 at func_8000D978+0x130 authenticate the sole inbound trap
+ * site. Mickey-only reconstruction; exact pinned DKR v77/v80/JFG scans are
+ * negative, and the retained function-specific structural oracle found no
+ * credible donor (best similarity 0.056). */
 #ifdef NON_MATCHING
 void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
                           s32 amount) {
