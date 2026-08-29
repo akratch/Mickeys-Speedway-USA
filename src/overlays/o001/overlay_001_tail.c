@@ -2817,14 +2817,16 @@ extern Overlay1PoolRecord gOverlay1PoolEnd[];
 extern s32 gOverlay1PoolGroup;
 extern s32 gOverlay1PoolExhausted;
 
-/* Plateau (2026-08-29): the current isolated ranking is exact-sized at 40
- * words and leaves 10 differing words, first at +0x50. The earlier bounded
+/* Plateau (2026-08-29): the surviving isolated ranking omitted this TU's
+ * required -Wab,-r4300_mul; it is exact-sized at 40 words and leaves 10 raw
+ * words, first at +0x50. The earlier bounded
  * round reached nine words from +0x6C after the 119-combination flag lattice
  * and eight source variants; only the post-predicate temporary FIFO web moved.
  * Explicit temporaries, typed union/byte access, operand association, pointer
  * aliases, and register/volatile hints were covered, but the trial bodies were
  * not preserved well enough to certify another formulation as new. No-go
- * pending new allocator evidence; the C has no linked/ROM-exact proof. */
+ * pending fresh configured V0 and all ten runtime LOCAL relocation records;
+ * the C has no linked/ROM-exact proof. */
 #ifdef NON_MATCHING
 Overlay1PoolRecord *overlay1AllocateRecord(void) {
     Overlay1PoolRecord *cursor;
