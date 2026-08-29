@@ -134,74 +134,56 @@ after
         self.assertIn("metric whole resolved bytes: 640 -> 700 (+60)", lines)
 
     def test_overlay_promotions_and_retractions_reconcile_to_total(self) -> None:
+        def row(start: int, end: int, *, exact: bool, source: str) -> dict:
+            return {
+                "offset": hex(start),
+                "end_offset": hex(end),
+                "size": hex(end - start),
+                "type": "c",
+                "matched": True,
+                "nonmatching": not exact,
+                "source": source,
+            }
+
         def atlas(rows: list[dict], matched: int) -> dict:
             return {
+                "schema_version": 1,
                 "totals": {"matched_overlay_c_bytes": matched},
                 "modules": [{"overlay": 7, "text_ownership": rows}],
             }
 
         old = atlas(
             [
-                {
-                    "offset": "0x0",
-                    "end_offset": "0x20",
-                    "type": "c",
-                    "matched": True,
-                    "nonmatching": False,
-                    "source": "oldExact",
-                },
-                {
-                    "offset": "0x20",
-                    "end_offset": "0x40",
-                    "type": "asm",
-                    "matched": False,
-                    "nonmatching": False,
-                    "source": "oldAsm",
-                },
+                row(0x0, 0x20, exact=True, source="oldExact"),
+                row(0x20, 0x40, exact=False, source="oldCandidate"),
             ],
             32,
         )
         new = atlas(
             [
-                {
-                    "offset": "0x0",
-                    "end_offset": "0x10",
-                    "type": "c",
-                    "matched": True,
-                    "nonmatching": False,
-                    "source": "oldExact",
-                },
-                {
-                    "offset": "0x10",
-                    "end_offset": "0x20",
-                    "type": "asm",
-                    "matched": False,
-                    "nonmatching": False,
-                    "source": "retracted",
-                },
-                {
-                    "offset": "0x20",
-                    "end_offset": "0x40",
-                    "type": "c",
-                    "matched": True,
-                    "nonmatching": False,
-                    "source": "promoted",
-                },
+                row(0x0, 0x20, exact=False, source="oldExact"),
+                row(0x20, 0x40, exact=True, source="oldCandidate"),
             ],
-            48,
+            32,
         )
-        rows = pr._exact_range_deltas(old, new)
+        delta = pr._exact_range_delta(old, new)
         self.assertEqual(
-            [(row.kind, row.start, row.end, row.size) for row in rows],
-            [("retraction", 0x10, 0x20, 16), ("promotion", 0x20, 0x40, 32)],
+            [(row["offset"], row["end_offset"], row["size"]) for row in delta["retractions"]],
+            [(0x0, 0x20, 32)],
         )
+        self.assertEqual(delta["promotions"][0]["offset"], 0x20)
+        self.assertEqual(delta["totals"]["net_exact_c_bytes"], 0)
 
     def test_overlay_delta_fails_if_totals_do_not_reconcile(self) -> None:
-        empty = {"totals": {"matched_overlay_c_bytes": 0}, "modules": []}
+        empty = {
+            "schema_version": 1,
+            "totals": {"matched_overlay_c_bytes": 0},
+            "modules": [],
+        }
         stale = json.loads(json.dumps(empty))
         stale["totals"]["matched_overlay_c_bytes"] = 4
-        with self.assertRaisesRegex(pr.PublicReleaseError, "does not reconcile"):
-            pr._exact_range_deltas(empty, stale)
+        with self.assertRaisesRegex(pr.PublicReleaseError, "atlas declares 4"):
+            pr._exact_range_delta(empty, stale)
 
 
 class CommandPlanTests(unittest.TestCase):

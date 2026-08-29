@@ -25,6 +25,7 @@ from typing import Iterable
 sys.dont_write_bytecode = True
 
 import release_gate
+import overlay_atlas
 from system_health import collect_health, format_report
 
 
@@ -114,20 +115,6 @@ class ReleaseContext:
 class Metric:
     value: int
     total: int | None
-
-
-@dataclass(frozen=True)
-class ExactRangeDelta:
-    kind: str
-    overlay: int
-    start: int
-    end: int
-    old_source: str
-    new_source: str
-
-    @property
-    def size(self) -> int:
-        return self.end - self.start
 
 
 def _git(
@@ -355,84 +342,12 @@ def _read_json(text: str | None) -> dict | None:
     return value if isinstance(value, dict) else None
 
 
-def _ownership(atlas: dict, overlay: int) -> list[dict]:
-    for module in atlas.get("modules", []):
-        if module.get("overlay") == overlay:
-            return list(module.get("text_ownership", []))
-    return []
-
-
-def _range_state(rows: list[dict], offset: int) -> tuple[bool, str]:
-    for row in rows:
-        start = int(row["offset"], 0)
-        end = int(row["end_offset"], 0)
-        if start <= offset < end:
-            exact = (
-                row.get("type") == "c"
-                and bool(row.get("matched"))
-                and not bool(row.get("nonmatching"))
-            )
-            return exact, str(row.get("source", "(unknown)"))
-    return False, "(unowned)"
-
-
-def _exact_range_deltas(old: dict, new: dict) -> list[ExactRangeDelta]:
-    old_ids = {int(row["overlay"]) for row in old.get("modules", [])}
-    new_ids = {int(row["overlay"]) for row in new.get("modules", [])}
-    deltas: list[ExactRangeDelta] = []
-    for overlay in sorted(old_ids | new_ids):
-        old_rows = _ownership(old, overlay)
-        new_rows = _ownership(new, overlay)
-        bounds = sorted(
-            {
-                int(row[key], 0)
-                for row in (*old_rows, *new_rows)
-                for key in ("offset", "end_offset")
-            }
-        )
-        for start, end in zip(bounds, bounds[1:]):
-            old_exact, old_source = _range_state(old_rows, start)
-            new_exact, new_source = _range_state(new_rows, start)
-            if old_exact == new_exact:
-                continue
-            kind = "promotion" if new_exact else "retraction"
-            candidate = ExactRangeDelta(
-                kind, overlay, start, end, old_source, new_source
-            )
-            if (
-                deltas
-                and deltas[-1].kind == candidate.kind
-                and deltas[-1].overlay == candidate.overlay
-                and deltas[-1].end == candidate.start
-                and deltas[-1].old_source == candidate.old_source
-                and deltas[-1].new_source == candidate.new_source
-            ):
-                previous = deltas.pop()
-                candidate = ExactRangeDelta(
-                    candidate.kind,
-                    candidate.overlay,
-                    previous.start,
-                    candidate.end,
-                    candidate.old_source,
-                    candidate.new_source,
-                )
-            deltas.append(candidate)
-
-    promoted = sum(row.size for row in deltas if row.kind == "promotion")
-    retracted = sum(row.size for row in deltas if row.kind == "retraction")
+def _exact_range_delta(old: dict, new: dict) -> dict[str, object]:
+    """Use the atlas tool's canonical, fail-closed exact-C identity model."""
     try:
-        expected = (
-            int(new["totals"]["matched_overlay_c_bytes"])
-            - int(old["totals"]["matched_overlay_c_bytes"])
-        )
-    except (KeyError, TypeError, ValueError) as exc:
-        raise PublicReleaseError("overlay atlas lacks matched-C totals") from exc
-    if promoted - retracted != expected:
-        raise PublicReleaseError(
-            "overlay exact-range delta does not reconcile with atlas totals: "
-            f"{promoted} - {retracted} != {expected}"
-        )
-    return deltas
+        return overlay_atlas.compare_exact_c_atlases(old, new)
+    except overlay_atlas.AtlasDeltaError as exc:
+        raise PublicReleaseError(f"overlay exact-range delta is invalid: {exc}") from exc
 
 
 def _delta_report(ctx: ReleaseContext) -> list[str]:
@@ -452,19 +367,24 @@ def _delta_report(ctx: ReleaseContext) -> list[str]:
     if old_atlas is None or new_atlas is None:
         lines.append("overlay exact-range deltas: unavailable")
         return lines
-    deltas = _exact_range_deltas(old_atlas, new_atlas)
-    promoted = sum(row.size for row in deltas if row.kind == "promotion")
-    retracted = sum(row.size for row in deltas if row.kind == "retraction")
+    delta = _exact_range_delta(old_atlas, new_atlas)
+    totals = delta["totals"]
+    assert isinstance(totals, dict)
+    promoted = int(totals["promotion_bytes"])
+    retracted = int(totals["retraction_bytes"])
     lines.append(
         f"overlay exact ranges: promoted={promoted} retracted={retracted} "
         f"net={promoted - retracted:+d}"
     )
-    for row in deltas:
-        source = row.new_source if row.kind == "promotion" else row.old_source
-        lines.append(
-            f"  {row.kind} overlay {row.overlay} "
-            f"+0x{row.start:X}..+0x{row.end:X} {row.size} bytes source={source}"
-        )
+    for kind, key in (("promotion", "promotions"), ("retraction", "retractions")):
+        rows = delta[key]
+        assert isinstance(rows, list)
+        for row in rows:
+            lines.append(
+                f"  {kind} overlay {int(row['overlay'])} "
+                f"+0x{int(row['offset']):X}..+0x{int(row['end_offset']):X} "
+                f"{int(row['size'])} bytes source={row['source']}"
+            )
     return lines
 
 
