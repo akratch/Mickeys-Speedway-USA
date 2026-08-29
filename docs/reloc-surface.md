@@ -593,6 +593,29 @@ HI16/LO16 pair at `+0x24/+0x28` with stored addend `+0x164`. The current
 guarded source names that pair `gOverlay61SavePathReloc`, but the linker-symbol
 ledger still exposes only `D_164`; identity-correct C linkage remains pending.
 
+Overlay 31 `+0x6B0` (`overlay31InitializeBuffers`) has a retained prior C
+object with 54 static records: 16 calls and 19 HI16/LO16 pairs, all at the
+target's opcode-compatible sites. The unannotated fallback target preserves
+only the 16 calls and collapses external identities to a module-base proxy; it
+cannot authenticate the 19 data identities. The current declaration-order
+replay therefore needs a fresh exact C object plus a runtime-table decode before
+its claimed 245/245 words and complete relocation contract can be promoted.
+
+Overlay 41 `+0x000` owns exactly three runtime records: a SYMBOL HI16/LO16
+pair at function `+0x14/+0x28` resolving to `D_800D6B58`, and a SYMBOL call at
+`+0xD0` resolving to resident `func_8000D16C`. The retained prior C has these
+offsets/types, while the assembled fallback target retains only the call. The
+current guarded decrement-reorder replay has no surviving C object, so its
+three static identities and claimed 73/73 words still require fresh proof.
+
+Overlay 21 `+0x10C` (`overlay21ApplyPriorities`) owns nine runtime records: a
+SYMBOL call at `+0x1C` to resident `camGetPtr`; LOCAL pairs at `+0x24/+0x28`
+for object count and `+0x30/+0x40` for the object array; and count-reload pairs
+at `+0x114/+0x11C` and `+0x19C/+0x1A0`. The retained exact-looking objects
+expose only the fallback's three generic records and depend on extracted
+assembly. A fresh C object must prove all nine tuples before the dirty
+scoreboard's 456-byte credit is accepted.
+
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 
