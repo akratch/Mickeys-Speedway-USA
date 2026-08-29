@@ -5,22 +5,30 @@ typedef struct Overlay43Image {
     u8 *pixels;
 } Overlay43Image;
 
-/* The committed exact-donor scan reports no DKR v77/v80 or JFG donor. Retain
- * one function-specific near-donor/skeleton result before compilation. */
-/* Diagnostic evidence reviewed 2026-08-29: retained configured full-TU C has
- * the exact frameless 0xAC/43-word shape, no relocations, and four pixel-web
- * register differences at +0xC/+0x10/+0x20/+0x28. The isolated ranking has
- * those four plus a +0x7C/+0x80 schedule swap because import changed physical
- * line placement; its AST is equivalent but its source-line mapping is not
- * current. The earlier zero-word claim compared fallback assembly. Historical
+/* PROVENANCE: no code adapted. The pinned DKR/JFG exact-donor scan is negative.
+ * A function-specific structural scan found JFG assembly-only
+ * func_overlay_4_000015A8_1EF7898 as a 0.574 masked-skeleton relative; it
+ * supplies no donor C. */
+/* Diagnostic evidence reviewed 2026-08-29: historical pre-cleanup configured
+ * full-TU C was measured at the frameless 0xAC/43-word shape, no relocations,
+ * and four pixel-web register differences at +0xC/+0x10/+0x20/+0x28. No
+ * candidate object/report survives. The stale isolated ranking measured 37/43,
+ * adding a +0x7C/+0x80 schedule swap because import changed physical line
+ * placement; its object is also absent. The earlier zero-word claim compared
+ * fallback assembly. Historical
  * flag, permutation, and source-probe outcomes lack attributable artifacts and
  * do not prove exhaustion. That 39/43 body also used two invented empty guards,
  * an inert comma operand, and allocation-sensitive physical-line packing; all
- * are removed, so policy-clean current V0 is uncompiled and its score/frame are
- * unknown. Compile configured and isolated V0, retain the 119-flag lattice,
- * take one allocation trace, then try at most one natural sum/line form and one
- * web-birth form, combining only strict independent gains. Cap 123 stock builds
- * plus trace; no generic batch absent a legal gain. Linked C proof is absent. */
+ * are removed, so policy-clean current V0 is uncompiled and its score, size,
+ * frame, and emitted relocation table are unknown. It owns overlay
+ * +0x1378..+0x1424 / ROM 0x188B348..0x188B3F4 with no target padding; separate
+ * +0x1424..+0x1430 padding follows. Two local JUMPs at +0x218/+0x24C are its
+ * only inbounds, with no export or outbound relocation. Compile configured and
+ * isolated V0, retain 119 configurations including configured V0, take one
+ * allocation trace, then try at most one natural sum/line form and one web-
+ * birth form, combining only strict independent gains. Hard cap 123
+ * deterministic builds plus one trace; permit build 124 only for a regression-
+ * triggered historical control. No generic batch. Linked C proof is absent. */
 #ifdef NON_MATCHING
 void overlay43FilterImage(Overlay43Image *image) {
     u8 *pixel;

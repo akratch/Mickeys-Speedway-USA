@@ -1122,9 +1122,10 @@ Overlay 43 `+0x1378` (`overlay43FilterImage`) owns no static or runtime
 relocations across its exact `+0x1378..+0x1424` range. Two local JUMP records
 at overlay `+0x218/+0x24C`, both from
 `func_overlay_043_F0000194_188A164`, are its only authenticated inbounds; it
-has no ORT export, resident or cross-overlay inbound. Retained pre-cleanup
-configured C is frameless and diagnostic 39/43 raw/normalized words; current
-policy-clean C is uncompiled. The following `+0x1424..+0x1430` three-word
+has no ORT export, resident or cross-overlay inbound. Historical pre-cleanup
+configured C was measured frameless at 39/43 raw/normalized words with zero
+records, but no candidate object/report survives; current policy-clean C's
+shape and emitted table are unknown. The following `+0x1424..+0x1430` three-word
 assembly padding is separate ownership, while standalone C's one alignment
 word is trimmed and earns no credit. Current linked equality proves fallback
 only.
