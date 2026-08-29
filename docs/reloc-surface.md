@@ -7,8 +7,8 @@ Implemented. Tool: `tools/reloc_surface.py`. Generated artifact:
 ## Function-sized relocation comparison
 
 Matching lanes can compare a full-TU candidate object's static relocations
-with the shipped runtime records without rebuilding a second relocation
-decoder:
+with the target function's authenticated relocation surface without rebuilding
+a second relocation decoder:
 
 ```sh
 tools/reloc_surface.py compare overlay7DispatchSelection \
@@ -21,16 +21,29 @@ where extracted assembly keeps a generated name while C uses a friendly one.
 Use `--json` for a compact machine-readable record and `--check` when a caller
 needs non-exactness to return status 1.
 
-The report gives the target runtime count, candidate static count, exact
+The report gives the target count, candidate static count, exact
 function-relative offset/type alignments, and exact stable-identity alignments.
 Stable identities are runtime `(overlay, byte offset)` addresses, not source
-names or the shared `0xF0000000` synthetic VMA. The command reuses
-`overlay_tables.py` for both overlay and resident runtime records and this
-module's existing ELF reader. It refuses duplicate/missing overlay ownership,
-an overlay assertion that disagrees with the atlas, a target span outside its
-owner, and incomplete or inconsistent runtime HI16/LO16 pairs. A copied
+names or the shared `0xF0000000` synthetic VMA. Overlay targets continue to
+come from their shipped module runtime tables. Resident targets instead come
+from the ordinary canonical object's static `.rel.text`: the resident runtime
+patch table is sparse and is not a complete static-link surface. Before those
+resident tuples are trusted, the tool requires one canonical `build/src`
+object, exact linked/object symbol size, and byte identity across the linked
+range after masking only that object's relocation words. Every target tuple
+must then resolve to one stable runtime identity, and the masked words are
+independently checked against their resolved static-link values. The JSON field
+`target_surface_source` states which path supplied the target; the older
+`target_runtime_record_count` key remains as a compatibility alias for
+`target_record_count`.
+
+The command refuses duplicate/missing overlay ownership, an overlay assertion
+that disagrees with the atlas, a target span outside its owner, incomplete or
+inconsistent runtime HI16/LO16 pairs, conflicting resident source identities,
+a missing canonical resident object, object/link range disagreement outside
+relocation words, and unresolved or duplicate resident tuples. A copied
 scratch object whose path has lost `build*/src/...` context must pass its
-canonical atlas key with `--source`; `--overlay` is only an assertion and
+canonical source key with `--source`; `--overlay` is only an assertion and
 never selects between ambiguous owners.
 
 Sections 1-4 are the model and the feasibility evidence (lane
@@ -1191,11 +1204,12 @@ still proves fallback only.
 Resident `func_800498FC` owns five exact static records: a HI16/LO16 pair to
 `D_800D5F58` at `+0x2C/+0x30`, calls to `func_80021FB0` at `+0x88/+0xC4`,
 and a call to `camGetMode` at `+0x9C`. The retained exact-sized candidate
-reproduces every offset, type, and symbol identity. The resident runtime-table
-helper currently resolves only four candidate records and mis-bounds this
-resident range, so static target assembly plus linked symbol identities are
-the authority for this plateau. Five `main.c` calls and one `weather.c` call
-authenticate the ABI; linked equality proves fallback only.
+reproduces every offset, type, and symbol identity. The resident comparison now
+authenticates `0x800498FC..0x80049A8C` against the canonical fallback object and
+linked ELF, then reports all five target and all five candidate tuples exact;
+the sparse resident runtime table is no longer mistaken for the target static
+surface. Five `main.c` calls and one `weather.c` call authenticate the ABI;
+linked equality proves fallback only.
 
 Resident `func_80041CE4` owns nine exact static records in retained genuine C:
 HI16/LO16 pairs to `D_8007C894` at `+0x04/+0x08`, `D_8007C88C` at
