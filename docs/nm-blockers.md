@@ -82,7 +82,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_80038E1C` | `src/main/menu.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003968C` | `src/main/menu.c` | bss-aggregate/blocked | D_800D3198 repeat state | A menu BSS carve pools the stores and changes an exact consumer. |
 | `func_80039E34` | `src/main/menu.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8003A2C8` | `src/main/menu.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_8003A2C8` | `src/main/menu.c` | none | — | Configured records are exact-size/frameless with six exact relocations and five mode-web words at `+0xC/+0x10/+0x14/+0x18/+0x20`; the surviving isolated object omits menu's loop-unroll flag. Reproof-only V0 remains; forced-color 31/32 is diagnostic, not source proof. |
 | `func_8003A520` | `src/main/menu.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8001FC50` | `src/main/models.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002057C` | `src/main/models.c` | none | — | No ownership change; continue source/codegen work. |

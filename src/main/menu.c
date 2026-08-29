@@ -1176,10 +1176,15 @@ s32 frontGetScreenMode(void) {
     return mode;
 }
 #ifdef NON_MATCHING
-/* Workbench: allocation-mismatch, exact 32-instruction shape, five register words from +0xC.
- * An instrumented five-web trace and forced-color oracle close the v1/v0 pool inversion;
- * using modeBits for both field tests then reaches 31/32. The last comparison carrier is
- * ring-only and unreachable by globalcolor, so the assembly fallback stays canonical. */
+/* Allocation plateau (evidence reviewed 2026-08-29): configured full-TU runs
+ * under -O2 -mips2 -32 -Wo,-loopunroll,0 reproduce the exact frameless
+ * 32-word shape, six relocations, and five register-only differences at
+ * +0xC/+0x10/+0x14/+0x18/+0x20. The surviving isolated ranking object omits
+ * the menu-only loop-unroll flag, so it is credible but not promotion proof.
+ * A forced-color oracle closes the v1/v0 mode-web inversion and shared
+ * modeBits tests reach 31/32; the remaining memory-first comparison carrier
+ * is ring-only. The configured candidate object no longer survives. Re-prove
+ * unchanged V0, then retain the fallback absent a new allocator mechanism. */
 /* PROVENANCE: mask, state guard, and order compared with JFG's public
  * src/menu.c::frontSetScreenMode; packed fields derived from Mickey. */
 void func_8003A2C8(s32 screenMode) {
