@@ -162,7 +162,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_001_F0007580_1853960` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F0007730_1853B10` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F00078DC_1853CBC` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_001_F0007B64_1853F44` | `src/overlays/o001/overlay_001_tail.c` | none | — | `overlay1FindBestRecord` is exact-size with 12 register-field differences; no ownership change is indicated. |
+| `func_overlay_001_F0007B64_1853F44` | `src/overlays/o001/overlay_001_tail.c` | none | — | `overlay1FindBestRecord` is exact-sized at 30 words/frame zero with 12 `a1/a3` carrier differences, first `+0x04`. Run V0, selected-type/value declaration swap, block-local value, record/value position swap, and improving combinations only; six-run cap. |
 | `func_overlay_002_F0000C90_1857A88` | `src/overlays/o002/func_overlay_002_F0000C90_1857A88.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_002_F0001364_185815C` | `src/overlays/o002/func_overlay_002_F0001364_185815C.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_002_F0001A94_185888C` | `src/overlays/o002/func_overlay_002_F0001A94_185888C.c` | none | — | No ownership change; continue source/codegen work. |
