@@ -8,8 +8,9 @@ extern Object **overlay3GetObjectRangeReloc(s32 *, s32 *);
 extern s32 overlay3ContainsValueReloc(Object *, Object *);
 extern f32 overlay3DistanceSquaredReloc(f32, f32, f32, f32, f32, f32);
 extern f32 gOverlay3SearchMaxDistance[];
-/* Exact C: all 77 instruction words, the -120 frame, relocations, and linked
- * overlay range match after bounded permutation. */
+/* Exact C: all 77 instruction words, the 0x78 frame, relocations, and linked
+ * overlay range match after bounded permutation. Three inert allocation/block
+ * aids remain below and are tracked in docs/cleanup-queue.md. */
 Object *overlay3FindClosestObject(Object *anchor, void *unused)
 {
   s32 pad;
