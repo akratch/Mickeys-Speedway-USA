@@ -2207,9 +2207,13 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
 - `mainUpdateZBCheck`: Evidence A exact C after bounded permutation; all 63
   instruction words, the `-0x48` frame, relocation identities, and linked ROM
   bytes match.
-- `levelGetCounts`: workbench `allocation-mismatch`, first `+0x13c`; the level
-  TU now owns the linked `0x40`-byte `D_800CF3E0` count table and `0x70`-byte
-  `D_800CF420` state, but three register words and the end-label relocation remain.
+- `levelGetCounts`: retained configured full-TU evidence is 259 words/frame
+  `0x58` with four raw sites at `+0x50,+0x13C,+0x148,+0x154` and three after
+  relocation normalization. Both objects have 37 records; 35 identities agree,
+  while target `+0x44/+0x50` names `D_800CF420` and the candidate names
+  `D_800CF3E0+0x40`. The level TU owns both adjacent BSS ranges, but no linked C
+  proof survives. Eight source variants, flags, trace, and bounded permutation
+  are exhausted; one unchanged full-TU/linked reproof, then park.
 - `levelInit`, ten structural, storage, type and register-lifetime hypotheses,
   the full 119-combination flag lattice and a bounded two-worker permuter
   batch, first mismatch `+0x238`: the JFG-adapted, Mickey-specific candidate

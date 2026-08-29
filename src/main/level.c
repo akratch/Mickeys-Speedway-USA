@@ -174,12 +174,15 @@ extern void runlinkFlushModules(void);
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: body adapted from JFG src/level.c; Mickey byte identity is decisive.
- * Workbench successor: allocation-mismatch; 3 masked code words plus one
- * relocation-controlled word, 259 instructions/-0x58 frame exact, first +0x13C.
+ * Retained configured full-TU evidence has four raw sites at
+ * +0x50,+0x13C,+0x148,+0x154 and three after relocation normalization,
+ * 259 instructions/frame 0x58 exact. Both objects have 37 records; target uses
+ * D_800CF420 at +0x44/+0x50 while the candidate uses D_800CF3E0+0x40.
  * Eight bounded lifetime, zeroing, endpoint, name-association, and relational
  * variants either collapsed here or regressed the frame/structure. The trace
  * confirms one downstream pool-web difference: a0 versus v0 for world, plus
- * the unresolved D_800CF420 zero-loop endpoint identity.
+ * the unresolved D_800CF420 zero-loop endpoint identity. No linked C proof
+ * survives; unchanged configured full-TU/linked reproof only.
  */
 void levelGetCounts(void) {
     s32 i;
