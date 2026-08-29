@@ -494,7 +494,7 @@ resident target (splat auto-name or `D_8…`), which is a superset of the 15
 | `func_overlay_026_F0000D24_187B11C` | `resident-symbol-missing` | `text-differs` 39 |
 | `func_overlay_027_F0000064_187BA3C` | `resident-symbol-missing` | `schedule-divergence-at-site` |
 | `func_overlay_029_F00005C4_187D874` | `resident-symbol-missing` | `schedule-divergence-at-site` |
-| `overlay34CreateRecord` | `resident-symbol-missing` | `text-differs` 36 (4 out of range) |
+| `overlay34CreateRecord` | `resident-symbol-missing` | bounded C: 30 relocation-aware positional differences; exact 12/12 offset/type/identity surface |
 | `overlay37RenderEffect` | `resident-symbol-missing` | `text-differs` 138 |
 | `func_overlay_041_F0000854_1887B8C` | `resident-symbol-missing` | `rom-size` |
 | `func_overlay_046_F0000120_188E518` | `resident-symbol-missing` | `rom-size` |

@@ -88,8 +88,8 @@ Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
     candidate = NULL;
     if (gOverlay34ActiveCount < gOverlay34Count) {
         if (gOverlay34Count > 0) {
-            record = gOverlay34Records;
             index = 0;
+            record = gOverlay34Records;
             do {
                 index++;
                 current = record;
@@ -130,8 +130,8 @@ Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
                 candidate->word2C = input->word20;
                 candidate->word30 = input->word2C;
                 candidate->word34 = input->word24;
-                candidate->byte3C = 0;
                 candidate->word38 = input->word30;
+                candidate->byte3C = 0;
                 candidate->byte3D = input->mode * 6;
                 candidate->x1 = input->x;
                 candidate->y1 = input->y;
@@ -141,8 +141,8 @@ Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
                 candidate->z2 = input->z;
                 candidate->depth = -input->depth;
                 func_80029FE4(input, candidate->direction);
-                candidate->active = 1;
                 candidate->value = input->value;
+                candidate->active = 1;
                 gOverlay34Pointers[gOverlay34ActiveCount] = candidate;
                 gOverlay34ActiveCount++;
             }
@@ -153,3 +153,13 @@ Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o034/overlay34CreateRecord/func_overlay_034_F00000D4_188127C.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay34CreateRecord:start
+ * symbol: overlay34CreateRecord
+ * score: 95/125 words
+ * frame: 0x28
+ * relocations: 12
+ * first-mismatch: +0x0
+ * summary: Two loop-shape opcodes, an eight-byte frame deficit, and seven allocator webs remain after two strict-gain forms.
+ * PLATEAU-HANDOFF:overlay34CreateRecord:end
+ */
