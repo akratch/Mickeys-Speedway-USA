@@ -175,13 +175,15 @@ void stop_all_threads_except_main(void) {
 #ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diCpu.c::func_80066D28_67928;
  * Mickey's target fixes the dump-size calculation to use the copied range. */
-/* Workbench plateau (retested 2026-08-28): two masked code words plus six
- * relocation identities, 60 instructions/frame exact, first +0x18. Earlier
- * symbolic-address, argument-hoist, phantom-pop, subtraction, flag-lattice,
- * and bounded-permutation levers remain closed. A scoped-local variant grew
- * the frame to -56; copy-size order/initializer and register-source variants
- * were baseline-equivalent. Remains: D_80705014/18/1C bindings and the final
- * packWriteFile temporary color. */
+/* Workbench plateau (retested 2026-08-28, audited 2026-08-29): retained
+ * configured-isolated evidence is 60 words/frame 0x30 with eight raw sites at
+ * +0x18,+0x20,+0x28,+0x30,+0x38,+0x40,+0xBC,+0xC0. Value-normalizing six
+ * absolute-address fields leaves the t6/t4 FIFO web at +0xBC/+0xC0; the
+ * candidate has 18 static relocation tuples versus target 24 because literal
+ * D_80705014/18/1C lvalues omit six HI16/LO16 records. No full-TU or linked C
+ * artifact survives. Symbolic-address, argument-hoist, phantom-pop,
+ * subtraction, flag-lattice, scoped-local, and bounded-permutation routes are
+ * exhausted; unchanged configured reproof only. */
 void func_80045BBC(void *thread) {
     s32 copySize;
     void *source;
