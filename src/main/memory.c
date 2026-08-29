@@ -315,10 +315,14 @@ void ReleaseUnusedLinkSlots(void);
  * the first D_800D20A8 LO16 is at +0x50 versus target +0x5C. The historical
  * 11-aligned-row claim has no surviving report or variant object.
  *
- * Prior flag, permutation, pointer, branch, cursor, and block-local-count
- * routes did not close it. Reprove V0, then test only the lexical and explicit
- * early-D_800D21B0/later-D_800D20A8 lifetime handoffs while preserving both
- * D_800D20A8 pairs.
+ * Historical flag, permutation, pointer, branch, cursor, and block-local-count
+ * outcomes have no surviving artifacts and are scheduling evidence only.
+ * Retain fresh V0, the 119-recipe lattice, and one allocator trace, then test
+ * JFG-faithful lexical layout and explicit early-D_800D21B0/later-D_800D20A8
+ * lifetimes while preserving both D_800D20A8 pairs. Combine only independent
+ * gains; cap 122 deterministic builds plus one trace and do not run a generic
+ * batch absent a policy-clean natural gain. ORT 593 has one authenticated
+ * inbound, func_80026FB4+0x5F8.
  */
 #ifdef NON_MATCHING
 void func_8002B7AC(void) {

@@ -411,6 +411,32 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2C87C` | `align8` | — | A: existing exact 7-word `memory.c.o` match; no JFG counterpart |
 | `0x2C898` | `align4` | `mmAlign4` | A: existing exact 7-word `memory.c.o` match; JFG corroborates the role |
 
+`func_8002B7AC` owns VRAM `0x8002B7AC..0x8002B8A8`, ROM
+`0x2C3AC..0x2C4A8`: 252 bytes/63 words, frame `0x30`, saves `s0` through
+`s5` and `ra`, and has no target padding. Retained configured full-TU and
+isolated current-body C are byte-identical but one instruction short at 62
+words: only 1/63 words agrees positionally, first `+0x04`, with eight isolated
+alignment bytes outside the function. Ordinary object, complete memory TU, and
+linked-ROM equality are assembly fallback only.
+
+Candidate and target have the same 12 type/identity records, but no complete
+tuple has an exact offset. Target pairs are `D_800D21B0` at `+0x08/+0x0C`,
+`D_800D21A8` at `+0x44/+0x48`, first `D_800D20A8` at `+0x50/+0x5C`, second
+`D_800D20A8` at `+0x60/+0x6C`, and `D_800D1CA8` at `+0x64/+0x68`; calls are
+`ReleaseUnusedLinkSlots` at `+0x3C` and `func_8002B8A8` at `+0x8C`. Eleven
+candidate records are four bytes early and the first `D_800D20A8` LO16 is
+twelve bytes early. ORT 593 exports resident offset `0x2B35C` but has no
+runtime-table or overlay inbound; `func_80026FB4+0x5F8` is the sole direct
+caller. The friendly `ReleaseUnusedLinkSlots` name remains tier-D/invented.
+
+The current C is policy-clean and uses ordinary `-O2 -mips2 -32`. JFG
+`mmFreeTick` and DKR `mempool_free_queue_clear` are structural relatives with
+different size/control flow, not exact donors. Retain fresh V0, all 119 flags,
+and one allocator trace; try JFG-faithful lexical layout and distinct scoped
+early-base/later-delay-cursor lifetimes, combining only independent gains.
+Hard cap 122 deterministic builds plus one trace; no generic batch absent a
+policy-clean natural gain.
+
 Matched C: `align16` is exact for all `0x1C` bytes and has no relocations.
 The canonical `-O2 -mips2 -32` flags reproduce the target; JFG's
 `mmAlign16` body is the adapted donor.

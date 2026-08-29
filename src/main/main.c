@@ -1,6 +1,7 @@
 #include "ultra64.h"
 #include "game/font.h"
 #include "game/gameVi.h"
+#include "game/memory.h"
 #include "game/menu.h"
 #include "game/sched_internal.h"
 #include "n_audio/mbi.h"
@@ -330,7 +331,6 @@ extern void func_8004D32C(void);
 extern void func_8000D1B8(void);
 extern void func_8000D978(s32, s32);
 extern void runlinkTick(void);
-extern void func_8002B7AC(void);
 extern void func_80027628(s32);
 extern void func_80027EC0(s32);
 extern void func_80027FB8(s32);
