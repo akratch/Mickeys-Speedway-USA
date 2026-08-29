@@ -696,6 +696,21 @@ unannotated fallback target preserves only the 16 calls, so this runtime decode
 is the identity authority. The current replay still needs a fresh exact C
 object proving all 54 roles before its claimed 245/245 words can be promoted.
 
+Overlay 68 `+0x1250` (`overlay68RebuildSecondaryEntry`) owns 19 runtime
+records. Table 1 pairs 52/53, 60/61, and 63/64 at function
+`+0x08/+0x1C`, `+0x1A4/+0x1B0`, and `+0x1BC/+0x1C0` resolve through reserved
+DATA1 `+0x1498`/ORT 1850 to resident `D_8007A1F8`; 54/55 at `+0x74/+0x90`
+resolve to `func_8002B280`; 56/59 at `+0xB8/+0x198` to `piRomLoadSection`;
+57 at `+0xC0` to `func_800291C4`; 58 at `+0xCC` to `levelGetBlurEffect`; and
+62/65 at `+0x1B4/+0x1CC` to `mmFree`. Table 2 LOCAL pairs 14/15 and 16/17 at
+`+0x04/+0x0C` and `+0x34/+0x38` share data base `+0x15B0`, addend `+0x14`,
+module identity `+0x15C4`; record 18 at `+0x68` calls local
+`overlay68PayloadLimit` (`+0`). Retained diagnostic C emits all 19 sites, but
+its friendly aliases split shared identities; clean source now unifies them and
+awaits regenerated metadata plus compilation. ORT 1163's sole inbound is
+resident relocation 4, `func_80004FE0+0x4C8`; there are no local or
+cross-overlay callers. Current linked equality proves fallback only.
+
 Overlay 41 `+0x000` owns exactly three runtime records: a SYMBOL HI16/LO16
 pair at function `+0x14/+0x28` resolving to `D_800D6B58`, and a SYMBOL call at
 `+0xD0` resolving to resident `func_8000D16C`. The retained prior C has these

@@ -8,8 +8,8 @@ typedef struct Overlay68KindPair {
 } Overlay68KindPair;
 
 typedef struct Overlay68Probe {
-    void *data[4];
-    void *slots[4];
+    s32 assetOffsets[4];
+    s32 assetSizes[4];
     s16 values[4];
 } Overlay68Probe;
 
@@ -28,54 +28,46 @@ typedef struct Overlay68ResidentEntry {
     u8 pad04[0x1C];
 } Overlay68ResidentEntry;
 
-extern const Overlay68KindPair gOverlay68KindMapInitial[];
-extern volatile const s8 gOverlay68KindMapLoop;
+extern const Overlay68KindPair gOverlay68KindMap[];
 extern Overlay68EntryHeader *gOverlay68SecondaryEntry;
 
 extern s32 overlay68PayloadLimit(void);
-extern Overlay68EntryHeader *overlay68AllocReloc(s32 size, s32 tag);
-extern Overlay68Probe *overlay68AllocProbeReloc(s32 size, s32 tag);
-extern void overlay68FillProbeReloc(s32 kind, Overlay68Probe *probe,
-                                    s32 totalBytes, s32 stride);
+extern void *overlay68AllocReloc(s32 size, s32 tag);
+extern s32 overlay68RomLoadSectionReloc(u32 assetIndex, u32 address,
+                                       s32 assetOffset, s32 size);
 extern Overlay68ResidentEntry *overlay68GetResidentEntriesReloc(void);
-extern s32 overlay68MapResidentIndexReloc(s32 kind);
-extern s32 overlay68BindEntryReloc(s32 kind, Overlay68EntryHeader *entry,
-                                   void *data, void *slot);
-extern void overlay68FreeProbeReloc(void *probe);
+extern s32 overlay68GetBlurEffectReloc(s32 kind);
 extern void overlay68ReleaseReloc(void *resource);
 
 /*
- * Retained configured full-TU and isolated C are 488 bytes with 9/122
- * differing words, first +0x58. The 0x40-byte frame and amount home agree;
- * one sentinel operand order, six stack-home offsets, and two a0/s0 probe
- * choices remain. Candidate offset/type/identity aligns with all 19 runtime
- * relocation requirements, but no linked C proof survives. Only V0 is
- * artifact-authenticated: reproduce it and the flag lattice, reverse the
- * sentinel, then try trace-selected stack-home/probe forms and an improving-
- * only annotated batch.
+ * Retained pre-cleanup configured full-TU and isolated C are diagnostic
+ * 111/122 literal and 113/122 runtime-normalized words, frame 0x40, first
+ * substantive +0x58, with all 19 runtime record sites. The former duplicate
+ * map identity, mappingStart, loopMapping, valueCursor, false pointer fields,
+ * and split aliases were allocation/reload aids and are removed. Clean,
+ * identity-correct V0 is uncompiled. Retain 119 flags and one allocator trace,
+ * then try sentinel order and one trace-selected stack-home form, combining
+ * only strict gains. Hard cap: 122 stock builds plus one trace; annotated batch
+ * only after a policy-clean gain. ORT 1163's sole inbound is
+ * func_80004FE0+0x4C8.
  */
 #ifdef NON_MATCHING
 void overlay68RebuildSecondaryEntry(s32 kind) {
     s32 amount;
-    const Overlay68KindPair *mappingStart;
     const Overlay68KindPair *mapping;
-    volatile const s8 *loopMapping;
     Overlay68EntryHeader *entry;
     Overlay68Probe *probe;
     Overlay68ResidentEntry *entries;
-    s16 *valueCursor;
     s32 currentKind;
     s32 threshold;
     s32 index;
 
     gOverlay68SecondaryEntry = 0;
     amount = -1;
-    mappingStart = gOverlay68KindMapInitial;
-    mapping = mappingStart;
+    mapping = gOverlay68KindMap;
 
-    if (mappingStart->kind != -1) {
-        loopMapping = &gOverlay68KindMapLoop;
-        currentKind = *loopMapping;
+    if (mapping->kind != -1) {
+        currentKind = mapping->kind;
         do {
             if (kind == currentKind) {
                 amount = mapping->amount;
@@ -89,43 +81,42 @@ void overlay68RebuildSecondaryEntry(s32 kind) {
     if (amount != -1) {
         entry = overlay68AllocReloc(overlay68PayloadLimit(), 0x85);
         if (entry != 0) {
-            probe = overlay68AllocProbeReloc(sizeof(*probe), 0x85);
+            probe = overlay68AllocReloc(sizeof(*probe), 0x85);
             if (probe != 0) {
-                overlay68FillProbeReloc(0x3F, probe,
-                                        amount * (s32)sizeof(*probe),
-                                        sizeof(*probe));
+                overlay68RomLoadSectionReloc(0x3F, (u32)probe,
+                                             amount * (s32)sizeof(*probe),
+                                             sizeof(*probe));
                 entries = overlay68GetResidentEntriesReloc();
-                index = overlay68MapResidentIndexReloc(kind);
+                index = overlay68GetBlurEffectReloc(kind);
                 threshold = entries[index].thresholdNumerator / 5;
                 if (threshold == 0) {
                     threshold = 0x7080;
                 }
 
                 index = 0;
-                valueCursor = (s16 *)probe;
-                if ((probe->slots[0] != 0) &&
-                    (threshold < valueCursor[0x10])) {
+                if ((probe->assetSizes[0] != 0) &&
+                    (threshold < probe->values[0])) {
                     do {
                         index++;
                     } while ((index < 4) &&
-                             (probe->slots[index] != 0) &&
-                             (threshold < valueCursor[index + 0x10]));
+                             (probe->assetSizes[index] != 0) &&
+                             (threshold < probe->values[index]));
                 }
 
                 if (index >= 4) {
                     index = 3;
-                } else if (probe->slots[index] == 0) {
+                } else if (probe->assetSizes[index] == 0) {
                     index--;
                 }
 
                 if (index >= 0) {
-                    overlay68BindEntryReloc(0x40, entry,
-                                            probe->data[index],
-                                            probe->slots[index]);
+                    overlay68RomLoadSectionReloc(0x40, (u32)entry,
+                                                 probe->assetOffsets[index],
+                                                 probe->assetSizes[index]);
                     entry->payload = entry + 1;
                     gOverlay68SecondaryEntry = entry;
                 }
-                overlay68FreeProbeReloc(probe);
+                overlay68ReleaseReloc(probe);
             }
             if (gOverlay68SecondaryEntry == 0) {
                 overlay68ReleaseReloc(entry);
