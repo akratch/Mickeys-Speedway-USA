@@ -1461,14 +1461,11 @@ s32 func_80028FB8(s32 arg0, s32 arg1, s32 arg2) {
  * src/main.c::mainAnyoneHas. That donor has different arguments; Mickey's own
  * ABI, three calls and instructions determine this candidate.
  *
- * Workbench: configured full-TU and retained isolated objects agree on the
- * exact 108-byte/27-word body and frame 0x18. Ten raw/normalized words differ,
- * at +0x1C/+0x20/+0x24/+0x28/+0x38/+0x3C/+0x40/+0x44/+0x54/+0x58; the three
- * R_MIPS_26 relocations to func_80028FB8 are exact at +0x14/+0x30/+0x4C.
- * Thirteen structural/ABI spellings and the complete 119-flag lattice did not
- * reproduce the target's materialized boolean temporaries and shared epilogue.
- * Reproof-only: run one unchanged configured full-TU/linked V0, then park absent
- * a new boolean-lowering mechanism.
+ * Retained pre-current-line-layout full-TU and isolated C agree on the exact
+ * 108-byte/27-word body and frame 0x18, with ten raw/normalized differences
+ * and exact calls at +0x14/+0x30/+0x4C. Fresh configured V0 is required. Then
+ * retain the flag lattice, try one reused normalized-result spelling, and use
+ * one trace-selected lifetime/shared-epilogue form only after a strict gain.
  */
 s32 func_80028FCC(s32 arg0) {
     if (func_80028FB8(0, 0, arg0)) {

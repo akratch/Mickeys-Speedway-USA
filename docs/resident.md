@@ -2268,14 +2268,14 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   fog-width mask; canonical MIPS II added two instructions, so it was rejected.
   Proven level `.bss` ownership is `0x800CF3E0..0x800CF490`; the preceding
   configured `bss_gap_D800CF3C0..D800CF3E0` remains unresolved.
-- `func_80028FCC`: the configured full-TU and retained isolated objects agree
-  on an exact 108-byte/27-word body and frame `0x18`. Ten raw/normalized words
+- `func_80028FCC`: retained pre-current-line-layout full-TU and isolated C
+  agree on an exact 108-byte/27-word body and frame `0x18`. Ten raw/normalized words
   differ at `+0x1c/+0x20/+0x24/+0x28/+0x38/+0x3c/+0x40/+0x44/+0x54/+0x58`;
-  all three `R_MIPS_26` calls to `func_80028FB8` are exact. Thirteen
-  structural/ABI spellings and the complete 119-flag lattice exhausted the
-  source, flag, and bounded-search routes. One unchanged configured full-TU
-  and linked V0 remains for reconciliation; park it if the target's explicit
-  boolean temporaries/shared epilogue are reproduced as the same ten-word wall.
+  all three `R_MIPS_26` calls to `func_80028FB8` are exact. The historical
+  structural, flag, trace, and bounded-search outcomes have no attributable
+  artifacts. Reproduce current-line-layout configured V0 and retain the flag
+  lattice, then try one reused normalized-result spelling and one improving-
+  only trace-selected lifetime/shared-epilogue form; cap four stages.
 - `levelFreeAll`, ten spellings, first mismatch `+0x13c`: exact 468-byte size
   and 113/117 words; only the masked resource index/table-base registers swap.
 - `func_80029274`, seventeen control-flow/parameter/register-lifetime

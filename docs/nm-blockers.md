@@ -68,7 +68,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_80026FB4` | `src/main/main.c` | none | — | No ownership change; continue source/codegen work. |
 | `mainUpdateZBCheck` | `src/main/main.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80028564` | `src/main/main.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_80028FCC` | `src/main/main.c` | none | — | Configured full-TU and retained isolated evidence agree at 17/27 words, frame `0x18`, with ten raw/normalized boolean-lowering sites and three exact calls. Run one unchanged full-TU/linked V0, then park absent a new explicit-temporary/shared-epilogue mechanism. |
+| `func_80028FCC` | `src/main/main.c` | none | — | Retained pre-current-line-layout full-TU and isolated C agree at 17/27 words, frame `0x18`, with ten raw/normalized boolean-lowering sites and three exact calls. Fresh configured V0 is required; retain the flag lattice, then try one reused normalized-result spelling and one improving-only trace-selected lifetime/shared-epilogue form; cap four stages. |
 | `func_80029274` | `src/main/main.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002AF6C` | `src/main/matrix.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002B040` | `src/main/matrix.c` | none | — | No ownership change; continue source/codegen work. |
