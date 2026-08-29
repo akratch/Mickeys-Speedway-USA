@@ -144,7 +144,7 @@
       "tu": "overlays/o020",
       "size_bytes": 212,
       "objdiff_match_pct": null,
-      "differing_words": 18,
+      "differing_words": 17,
       "first_mismatch_offset": 76,
       "size_delta": 0,
       "category": "register-only"

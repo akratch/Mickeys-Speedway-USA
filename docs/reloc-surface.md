@@ -191,11 +191,15 @@ preserve those identities; fallback placeholder names do not prove them.
 Overlay 20 `+0x1018` (`overlay20RemoveEntry`) owns ten runtime-authenticated
 HI16/LO16 sites: entry count at `+0x04/+0x08`, entries at `+0x18/+0x24`, shift
 entries at `+0x5C/+0x60`, marker end at `+0x88/+0x8C`, and active bits at
-`+0x98/+0x9C`. Retained genuine C expresses all ten, while fallback assembly
-retains only the last four; runtime metadata is the identity authority. ORT
-1174 exports it, and resident runtime record 16 at `func_80007118+0x424` is the
-sole authenticated inbound. The owned `+0x1018..+0x10EC` range has no target
-padding; linked equality proves fallback only.
+`+0x98/+0x9C`. Runtime metadata resolves those pairs respectively to Overlay
+20 `+0x1490`, `+0x14E0`, `+0x14E0`, `+0x19BC`, and `+0x1494`; metadata-only
+evidence aliases make all 10 candidate offset/type/identity tuples mechanically
+exact without changing the generated canonical fallback symbol surface.
+Retained genuine C expresses all ten, while fallback assembly retains only the
+last four. ORT 1174 exports it, and resident runtime record 16 at
+`func_80007118+0x424` is the sole authenticated inbound. The owned
+`+0x1018..+0x10EC` range has no target padding; linked equality proves fallback
+only.
 
 The same qualification applies to `overlay5InitializeAudio`: retained genuine
 C is current-layout but diagnostic 211/233. It owns 67 SYMBOL and four LOCAL
