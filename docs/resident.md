@@ -1720,10 +1720,12 @@ nine register-only sites at `+0xCC,+0xD0,+0xD8,+0xDC,+0xE0,+0xE4,+0xEC,
 the TU-required `-Wo,-loopunroll,0`, but the retained full-TU result proves that
 flag does not alter this body. A post-checksum `savedFlag` reload was
 codegen-inert: the candidate still uses a colored `a3` web where the target
-uses FIFO temp `t1`. Hoisted-argument, folded-mask, addressable-scalar,
-volatile-field, phantom-pop, flag-lattice, and bounded-permuter routes are
-exhausted. Reprove unchanged once, then park; the assembly fallback remains
-canonical.
+uses FIFO temp `t1`, with the current-byte and final-copy webs rotating behind
+it. Only V0 has attributable artifacts; the historical source, flag, trace,
+and permutation outcomes survive only as scheduling prose. Reproduce V0,
+retain the complete flag lattice, capture one allocator trace, then try one
+trace-selected natural carrier, lifetime, or physical-line form; cap four.
+The assembly fallback remains canonical.
 
 The save-window serializer `func_8002C94C` is now **matched** (tier-A byte-identity).
 The residual was a pure `schedule-mismatch` (exact 115-word shape, `0x70` frame, relocations already agreeing); the decomp-permuter closed it, finding an `if (1) { ... }` grouping around the entry initialization that resolves the callee-saved slot/counter scheduling tie-break. The C in `src/main/saves.c` now compiles byte-identical to the ROM; no assembly fallback remains.

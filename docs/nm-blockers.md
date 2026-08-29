@@ -117,7 +117,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8002C70C` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002C94C` | `src/main/saves.c` | none | — | Matched (permuter): `if (1)` grouping resolves the schedule tie-break. |
 | `func_8002CB18` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8002CF6C` | `src/main/saves.c` | none | — | Retained configured full-TU and isolated C agree at 79/88 words, frame `0x48`, nine register-only sites from `+0xCC`, and all 11 relocation tuples exact. The volatile-field, source, flag, phantom-pop, and bounded-permuter routes are exhausted; reprove unchanged once, then park. |
+| `func_8002CF6C` | `src/main/saves.c` | none | — | Retained configured full-TU and isolated C agree at 79/88 words, frame `0x48`, nine register-only sites from `+0xCC`, and all 11 relocation tuples exact. Only V0 has attributable artifacts. Reproduce it, retain the flag lattice, capture one allocator trace, then try one trace-selected natural carrier/lifetime/line form; cap four. |
 | `packInit` | `src/main/saves.c` | none | — | No ownership change; continue source/codegen work. |
 | `osScGetTaskType` | `src/main/sched.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80030610` | `src/main/sched.c` | none | — | No ownership change; continue source/codegen work. |

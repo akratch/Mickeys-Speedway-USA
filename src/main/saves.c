@@ -805,10 +805,10 @@ void func_8002CF0C(void *globalFlags) {
 /* Retained configured full-TU and isolated C agree: 79/88 words, first +0xCC,
  * exact frame 0x48, and all 11 relocation tuples exact. The isolated import
  * omitted this TU's -Wo,-loopunroll,0, but that flag does not change the
- * current body. A lexical post-call savedFlag reload was codegen-inert; target
- * needs a FIFO temp where this body keeps a colored web. Hoisted arguments,
- * folded masks, addressable scalars, volatile-field probes, two phantom-pop
- * placements, the flag lattice, and bounded permutation remain exhausted. */
+ * current body. The nine residuals are register fields in the post-checksum
+ * savedFlag/current-byte/final-copy webs. Only V0 is artifact-authenticated:
+ * reproduce it with the configured flags, retain the complete flag lattice,
+ * capture one allocator trace, then try one trace-selected natural form. */
 void func_8002CF6C(u8 *globalFlags) {
     SavesFullWriteState state;
     s32 messageQueue;
