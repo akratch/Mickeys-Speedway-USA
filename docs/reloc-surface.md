@@ -714,6 +714,17 @@ Overlay 60 table-1 record 206 at module `+0x156C`
 (`func_overlay_060_F0000334_18BA10C+0x1238`); no other shipped overlay record
 targets ORT 606. Linked equality currently proves the fallback only.
 
+Overlay 1 `+0x7B64` (`overlay1FindBestRecord`) owns four LOCAL records:
+table-2 884/885 at `+0x00/+0x08` resolve through BSS base `+0x83E0` and addend
+`+0x220` to module `+0x8600` (`gOverlay1BestRecords`/`D_220`), while 886/887
+at `+0x04/+0x14` use addend `+0x1D88` to resolve to module `+0xA168`
+(`gOverlay1SelectedType`/`D_1D88`). The assembled fallback literalizes the
+second pair, so the runtime table is authoritative. The function is unexported;
+its only callers are `overlay1CreateRecord+0x30` and `+0x144`, table-2 LOCAL
+JUMP records 889 and 895 at module `+0x7C0C/+0x7D20`. Promotion requires
+metadata-only rebinding for both C identities; current linked equality proves
+fallback only.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to

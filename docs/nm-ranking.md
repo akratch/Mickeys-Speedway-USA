@@ -294,7 +294,9 @@ but the historical generated snapshot classifies it as `other`: the extracted
 target object omits the selected-type HI16/LO16 pair that the shipped runtime
 table and candidate both retain. Runtime-normalized comparison is 18/30 words
 with 12 `a1`/`a3` carrier differences from `+0x04`; it belongs beside the
-12-word rows operationally, under a conditional six-run cap.
+12-word rows operationally. Retained isolated and genuinely prior-layout
+full-TU C agree; current-layout proof is pending. Run 119 flags, one trace, and
+at most three trace-informed forms, then park if all three are flat.
 
 Seven other rows from the displayed run have since been promoted and are no
 longer search candidates: `overlay3FindClosestObject`, `overlay40AddEntry`,

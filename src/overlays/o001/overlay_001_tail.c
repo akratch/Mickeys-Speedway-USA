@@ -3196,17 +3196,21 @@ typedef struct Overlay1BestRecord {
 extern Overlay1BestRecord gOverlay1BestRecords[32];
 extern s32 gOverlay1SelectedType;
 
-/* Mickey-only reconstruction; DKR v77/v80 and JFG have no exact donor.
- * Retained isolated and prior-layout full-TU C share the exact 30-word
- * frameless shape at 18/30 words, with one 12-site a1/a3 carrier exchange.
- * The isolated recipe omitted -Wab,-r4300_mul; current-layout configured proof
- * is pending. The candidate retains both
- * gOverlay1BestRecords and gOverlay1SelectedType HI16/LO16 pairs; the target
- * static object literalizes the latter, while the runtime table proves all
- * four records. Linked range/module/ROM identity proves assembly fallback
- * only; no linked C proof survives. Reprove V0, then try the selectedType/
- * value slot swap, block-local value, and record/value declaration-position
- * swap. Stop there if flat; use at most two combinations of strict gains. */
+/* Mickey-only reconstruction; pinned DKR v77/v80 and JFG scans have no exact
+ * byte donor. Retained isolated and genuinely prior-layout full-TU C share the
+ * exact 30-word frameless shape at 18/30 words. One a1/a3 carrier exchange owns
+ * all differences: selectedType at +0x04/+0x14/+0x28, the loop copy at
+ * +0x2C/+0x4C/+0x54/+0x60, and value at
+ * +0x30/+0x34/+0x38/+0x40/+0x58. The isolated recipe omitted
+ * -Wab,-r4300_mul, but the configured full-TU producer proves it inert for this
+ * body; current-layout proof remains pending. Runtime records 884..887 prove
+ * both HI16/LO16 pairs and identities D_220/D_1D88. The function is unexported;
+ * local caller records 889 and 895 are both in overlay1CreateRecord. Linked
+ * range/module/ROM identity proves fallback only. Historical flag, trace,
+ * source, and search outcomes are unretained. Run and retain 119 flags on V0,
+ * trace once, then try only the selectedType/value slot swap, block-local
+ * value, and a trace-supported record/value position; cap 122 stock builds
+ * plus trace and park after three flat forms. */
 #ifdef NON_MATCHING
 Overlay1BestRecord *overlay1FindBestRecord(void) {
     Overlay1BestRecord *record;
