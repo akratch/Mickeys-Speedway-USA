@@ -101,11 +101,11 @@ extern Overlay7ModeRecord gOverlay7AlternateModes[][10];
 extern u8 gOverlay7DispatchModeReloc;
 extern u8 gOverlay7DispatchData[];
 extern void *gOverlay7DispatchObject;
-extern u16 gOverlay7CommitArgument;
+extern void *gOverlay7CommitArgument;
 extern s16 gOverlay7ValuesEnd;
 
 extern Overlay7Entry *overlay7Acquire(void *owner, u16 value, u8 type);
-extern s32 overlay7LookupReloc(s32 arg0, s32 value);
+extern s32 mathRnd(s32 minimum, s32 maximum);
 extern u8 *overlay7GetModeReloc(void);
 extern void *overlay7GetCheckTableReloc(void);
 extern void *overlay7GetCurrentReloc(void);
@@ -114,9 +114,8 @@ extern void overlay7RecordCheckReloc(s32 value);
 extern void overlay7SetOwnerModeReloc(Overlay7CheckOwner *owner, s32 mode);
 extern s32 overlay7QueryReloc(void);
 extern void overlay7ApplyReloc(s32 arg0, s8 index, s8 value, u8 field);
-extern void overlay7ObjectReloc(void *object);
-extern void overlay7CommitReloc(u16 value, void *argument);
-extern void func_overlay_007_F0000CCC_185CB54(void *selected);
+extern void func_800031E8(void *object);
+extern void amSndPlay(u16 value, void **argument);
 
 void overlay7ReleaseEntry(Overlay7Entry *entry);
 Overlay7Entry *overlay7AcquireEntry(Overlay7Owner *owner, u16 value, u8 type);

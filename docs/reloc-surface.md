@@ -508,6 +508,10 @@ trial. The surviving isolated object has five stack-home/store-order words but
 omits the TU's required `-Wab,-r4300_mul`; fresh configured V0 must reconcile
 the count and all 21 runtime relocation sites before either score is reused.
 
+`overlay7CommitSelection`'s six-word historical trial also carried a false
+`+0xF4` callee identity: the runtime record is a local `JUMP` to Overlay 7
+`+0x000` (`overlay7ReleaseEntry`), not a symbol-table call to `+0xCCC`.
+
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 

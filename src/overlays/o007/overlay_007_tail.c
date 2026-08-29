@@ -62,7 +62,7 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
             overlay7AppendEntry(first, record->first, 3);
             break;
         case 4:
-            if (overlay7LookupReloc(1, 2) == 1) {
+            if (mathRnd(1, 2) == 1) {
                 overlay7CreateEntry(first, record->first, 3);
                 overlay7AppendEntry(second, record->second, 3);
             } else {
@@ -76,7 +76,7 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
             overlay7CreateEntry(second, record->second, 3);
             break;
         case 6:
-            if (overlay7LookupReloc(1, 2) == 1) {
+            if (mathRnd(1, 2) == 1) {
                 overlay7CreateEntry(first, record->first, 3);
                 break;
             }
@@ -207,10 +207,14 @@ query:
 #endif
 
 /*
- * Plateau (2026-08-25 rerun): exact size with three differing words, first at
- * +0xBC. A typed six-byte selection row fixes the default table-index temp
- * rotation. The 119-case flag lattice and explicit/cast/temporary narrowing
- * forms still keep the post-call u16 result in a2 instead of target a3/t2.
+ * Plateau (2026-08-25 rerun, identity audit 2026-08-29): retained isolated
+ * evidence is exact-size with six raw words at +0x4,+0x88,+0xBC,+0xC4,+0xD4,
+ * +0xF8 and three relocation-normalized words at +0xBC,+0xC4,+0xD4. A typed
+ * six-byte selection row fixes the default table-index temp rotation. The
+ * 119-case flag lattice and explicit/cast/temporary narrowing forms still keep
+ * the post-call u16 result in a2 instead of target a3/t2. The runtime table
+ * requires 17 relocation tuples; in particular +0xF4 is a local JUMP to
+ * overlay7ReleaseEntry, not a SYMBOL reference to the +0xCCC dispatcher.
  */
 #ifdef NON_MATCHING
 void overlay7CommitSelection(s32 selection) {
@@ -232,24 +236,24 @@ void overlay7CommitSelection(s32 selection) {
         default:
             value = ((Overlay7SelectionRow *)&gOverlay7DispatchData[0x754])
                         [selection]
-                            .values[overlay7LookupReloc(0, 2)];
+                            .values[mathRnd(0, 2)];
             break;
         }
         pair = (Overlay7Pair *)&gOverlay7DispatchData[0x8F4];
         remaining = 11;
         do {
             if (pair->key == value) {
-                value += overlay7LookupReloc(0, pair->value);
+                value += mathRnd(0, pair->value);
                 break;
             }
             pair++;
         } while (remaining--);
         if (value != 0) {
             if (gOverlay7DispatchObject != 0) {
-                overlay7ObjectReloc(gOverlay7DispatchObject);
-                func_overlay_007_F0000CCC_185CB54(gOverlay7Selected);
+                func_800031E8(gOverlay7DispatchObject);
+                overlay7ReleaseEntry(gOverlay7Selected);
             }
-            overlay7CommitReloc(value, &gOverlay7CommitArgument);
+            amSndPlay(value, &gOverlay7CommitArgument);
         }
     }
 }
