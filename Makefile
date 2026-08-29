@@ -319,6 +319,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_finalize_plateau.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_crew_heartbeat.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_release_gate.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_lane_cache.py
 
 release-gate:
 	$(HOST_PYTHON) $(TOOLS_DIR)/release_gate.py $(RELEASE_GATE_ARGS)

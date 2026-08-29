@@ -428,11 +428,16 @@ interrupted report without recompiling recorded identities, and repeated
 
 ### Lane helpers: `new_lane.sh`, `merge_lane.sh`, `codex_lane.sh`
 
-- **`tools/new_lane.sh <name> [--no-extract] [base-branch]`** creates
+- **`tools/new_lane.sh <name> [--no-extract] [--no-cache] [base-branch]`** creates
   `../mickey-lane-<name>` on branch `lane/<name>` from `base-branch`
   (default `campaign/unchain`), symlinking the untracked toolchain, baserom,
-  venv and vendored tool checkouts in rather than copying them, and (unless
-  `--no-extract`) runs the splat extract so the lane can build immediately.
+  venv and vendored tool checkouts in rather than copying them. It first looks
+  for an exact-commit bootstrap published by `tools/lane_cache.py publish`;
+  that command accepts only a tracked-clean worktree, reruns `gmake verify`,
+  and stores an ignored immutable snapshot below Git's common directory. A
+  cache hit copy-on-write clones the verified split/build prerequisites into
+  the new lane without sharing writable files. A miss runs the ordinary splat
+  extract unless `--no-extract` was requested; `--no-cache` forces that path.
   Each lane gets its own `build/`/`asm/`. It resolves the primary checkout
   through Git's common directory even when invoked from another lane, and
   fails instead of installing a dirty symlink when a tracked submodule cannot

@@ -1,18 +1,24 @@
 #!/usr/bin/env bash
 # Create an isolated worktree ("lane") for one worker.
 #
-#   tools/new_lane.sh <name> [--no-extract] [base-branch]
+#   tools/new_lane.sh <name> [--no-extract] [--no-cache] [base-branch]
 #
 # Creates ../mickey-lane-<name> on branch lane/<name> from base-branch
 # (default campaign/unchain), shares the untracked toolchain, baserom, venv and
-# vendored tool checkouts with this repository by symlink, and runs the splat
-# extract so the lane can build. Each lane has its own build/ and asm/, so
-# lanes never contend for the same objects. Prints the lane path.
+# vendored tool checkouts with this repository by symlink. When a verified
+# commit-keyed bootstrap exists below Git's common directory, it copy-on-write
+# clones the ignored split/build prerequisites into this lane; otherwise it
+# runs the splat extract. Each lane still owns its build/ and asm/. Prints the
+# lane path.
 set -euo pipefail
 name=${1:?lane name}; shift
-extract=1; base=campaign/unchain
+extract=1; cache=1; base=campaign/unchain
 for a in "$@"; do
-  case "$a" in --no-extract) extract=0 ;; *) base=$a ;; esac
+  case "$a" in
+    --no-extract) extract=0 ;;
+    --no-cache) cache=0 ;;
+    *) base=$a ;;
+  esac
 done
 # Always anchor lane creation in the primary checkout. When this helper is
 # invoked from an existing linked worktree, --show-toplevel names that lane and
@@ -48,7 +54,19 @@ done
 # The permuter checkout is outside the repository; tools/permute.sh expects
 # tools/permuter to point at it (git-ignored, machine-specific).
 [ -e "$root/tools/permuter" ] && ln -s "$(readlink "$root/tools/permuter" || echo "$root/tools/permuter")" "$dest/tools/permuter"
-if [ "$extract" = 1 ]; then
+restored=0
+if [ "$cache" = 1 ]; then
+  set +e
+  (cd "$dest" && python3 tools/lane_cache.py restore --quiet)
+  cache_status=$?
+  set -e
+  case "$cache_status" in
+    0) restored=1 ;;
+    3) ;; # no exact-commit cache: use the ordinary extraction path below
+    *) echo "verified lane-cache restore failed" >&2; exit "$cache_status" ;;
+  esac
+fi
+if [ "$extract" = 1 ] && [ "$restored" = 0 ]; then
   (cd "$dest" && gmake extract >"$dest/.lane-extract.log" 2>&1) || {
     echo "extract failed, see $dest/.lane-extract.log" >&2; exit 1; }
 fi
