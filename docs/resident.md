@@ -2855,19 +2855,17 @@ fresh current-source compile through full-ROM comparison remains queued as a
 contemporaneous reproof, not as missing target evidence. JFG retains both
 corresponding routines as assembly, so no donor body was adapted.
 
-`func_8005A948` retains configured full-TU C for the earlier structured-store
-body under canonical `-Wo,-loopunroll,0`. It has the target's 94-word size,
-frame `0x38`, CFG, instruction schedule, and 13 relocation identities, matching
-83/94 raw/normalized words. The 11 register-field sites are
+`func_8005A948` retains genuine isolated C for the earlier structured-store
+body, but its recipe omitted canonical `-Wo,-loopunroll,0`; ordinary full-TU
+equality is fallback assembly. It has the target's 94-word size, frame `0x38`,
+and 13 relocation identities, matching 83/94 words. The 11 sites are
 `+0x40/+0x44/+0x80/+0x130/+0x148/+0x14c/+0x150/+0x154/+0x158/+0x15c/+0x160`.
-The current raw interleaved-array p10 source reportedly removed the final eight
-sites, but no current-body configured, isolated, or linked object survives;
-the 91/94 claim and historical 166-word flag result, source matrix, allocator
-trace, and permutation outcomes are unretained. There are zero runtime records,
-and `func_8005A7A0+0x104` is the sole authenticated caller. Reproduce current
-V0, retain exactly 119 flag recipes, capture one allocator trace, and try at
-most one selected natural address-producer/lifetime form. Permit one bounded
-batch only after a strict source gain; assembly remains canonical.
+The current p10 source's reported 91/94 is unretained and used a redundant
+boolean wrapper, now removed; clean configured V0 is uncompiled. Historical
+flag, source, trace, and search outcomes are likewise unretained. There are
+zero runtime records or exports, and `func_8005A7A0+0x104` is the sole caller.
+Retain 119 flag recipes, trace once, and try at most one natural form, capped at
+120 builds plus trace; assembly remains canonical.
 
 `func_8005A7A0` has retained configured full-TU evidence at 106 words, with
 ten raw sites and seven relocation-normalized positional sites. The raw sites are

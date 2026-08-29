@@ -159,10 +159,13 @@ Its four runtime-table SYMBOL calls are nevertheless authenticated at function
 `overlay20ConfigureResource`), and resident ORT 101 (`sqrtf`). Fresh C must
 preserve those identities; fallback placeholder names do not prove them.
 
-The same qualification applies to `overlay5InitializeAudio`: its retained
-configured full-TU C is prior-layout and differs at 22 owned words. The exact
-linked function, module, and ROM use the assembly fallback; no attributable
-C-linked ELF, map, module, or ROM survives from the historical promotion trial.
+The same qualification applies to `overlay5InitializeAudio`: retained genuine
+C is current-layout but diagnostic 211/233. It owns 67 SYMBOL and four LOCAL
+records: 29 calls and 21 HI16/LO16 pairs. ORTs 1559/1561 and 1565/1568 were
+collapsed behind two friendly names and now have distinct source identities;
+all 16 resident callees also require per-overlay zero-carrier aliases. ORT 1558
+exports the function and Overlay 18 table-1 record 3 at `overlay18Load+0x14` is
+its sole inbound. Exact linked function/module/ROM evidence uses the fallback.
 
 For completeness, at the time of the spike the five candidates named in the brief
 (`overlay7DispatchSelection`, `overlay8ScaleOutputs`, `overlay18Load`,
@@ -620,6 +623,14 @@ records at module `+0x18F4..+0x190C` target case labels inside
 Overlay 25 table-1 record 15 are its six inbounds. Retained genuine C is
 128/131 raw and 129/131 normalized, while linked equality is fallback-only.
 
+Overlay 7 `+0xCCC` (`overlay7DispatchSelection`) owns 13 records: a SYMBOL
+HI16/LO16 pair through ORT 1579 to resident `D_800D3128`; SYMBOL calls through
+ORT 284 to `camGetMode` and ORT 1580 to Overlay 59 `overlay59AppendValue`;
+LOCAL pairs to module `+0x1BA8/+0x100C/+0xFCC/+0xFEC`; and a LOCAL JUMP to
+`overlay7CreateEntry` at `+0x228`. Retained genuine C has every offset/type and
+is 58/60 after runtime normalization. ORT 1510 exports the function and
+fourteen calls arrive from Overlays 1, 7, and 8; linked equality is fallback-only.
+
 `overlay7CommitSelection`'s six-word historical trial also carried a false
 `+0xF4` callee identity: the runtime record is a local `JUMP` to Overlay 7
 `+0x000` (`overlay7ReleaseEntry`), not a symbol-table call to `+0xCCC`.
@@ -704,6 +715,25 @@ module `+0xF30`; pairs at `+0x140/+0x144`, `+0x14C/+0x160`, and
 The fallback target statically retains only the first pair, so runtime tables
 authenticate the other six. ORT 1248 exports `+0`; resident relocation 90 at
 `func_8000AA38+0x42C` is the sole inbound.
+
+Overlay 80 `+0x11C` (`overlay80UpdateContact`) owns 20 records. SYMBOL calls
+at function `+0x30/+0xFC/+0x240/+0x294` resolve through ORTs 371, 101, 381,
+and 967 to resident `func_8005776C`, `sqrtf`, `func_8005AD64`, and
+`func_8005ABA8`. Eight LOCAL HI16/LO16 pairs resolve through data base
+`+0x3F0` with addends `+4,+8,+0xC,+0x10,+0x14,+0x18,+0x1C,+0x20`. ORT 1290
+exports `+0x11C`; resident relocation 132 at `func_8000AEEC+0x3B0` is the sole
+inbound. The retained genuine-C baseline has the expected topology but is
+142/180 words; canonical linked equality is fallback-only. A later exact
+source claim has no retained winning object and must independently reproduce
+all 20 tuples before receiving credit.
+
+Resident `func_8005A948` owns 13 static records: HI16/LO16 pairs to
+`D_800D7D04` at `+0x00/+0x04`, `D_800D7CF4` at `+0x34/+0x38` and
+`+0x134/+0x13C`, and `D_800D7CF8` at `+0xB4/+0xB8` and `+0xD0/+0xD4`, plus
+calls to `piRomLoadSection` at `+0xC8/+0x124` and `func_8002B314` at `+0xF8`.
+It has no export-table entry or overlay runtime record; `func_8005A7A0+0x104`
+is its sole caller. Retained isolated C agrees on all tuples but is 83/94 words
+and omitted the TU's canonical `-Wo,-loopunroll,0`; linked equality is fallback-only.
 
 Overlay 62 `+0xD4` (`overlay62Update`) owns 71 runtime records: 43 SYMBOL and
 28 LOCAL, comprising 21 calls and 25 HI16/LO16 pairs. The genuine C object has
