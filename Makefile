@@ -1441,6 +1441,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F0001540_1870E18.c.o: POS
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2F0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/func_overlay_014_F00009F4_18702CC.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD8
+# The dedicated source alias denotes runtime ORT 1652 / overlay 14 +0x1B54.
+# The zero-field placeholder below is link scaffolding; promotion must retain
+# the pre-postprocess alias and prove the runtime identity independently.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o014/overlay14ResetMode.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
 		--redefine-sym func_overlay_014_F0000498_186FD70=overlay14ResetMode \
