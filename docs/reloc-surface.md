@@ -749,6 +749,10 @@ pair at function `+0x14/+0x28` resolving to `D_800D6B58`, and a SYMBOL call at
 offsets/types, while the assembled fallback target retains only the call. The
 current guarded decrement-reorder replay has no surviving C object, so its
 three static identities and claimed 73/73 words still require fresh proof.
+Owned `+0x0..+0x124` has no target padding. ORT 1452 and resident relocation
+314 authenticate sole inbound `func_80051364+0x2D4`; there is no local or
+cross-overlay caller. Production may trim only the standalone section-alignment
+tail, never filter or collapse the three identities.
 
 Overlay 41 `+0x1650` (`func_overlay_041_F0001650_1888988`) owns four runtime
 records: SYMBOL HI16/LO16 at `+0x08/+0x0C` resolving to resident
