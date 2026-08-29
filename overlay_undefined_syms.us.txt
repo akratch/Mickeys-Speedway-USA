@@ -434,6 +434,7 @@ gOverlay14CommandHeader = 0x000000fc;
 /* overlay 14: func_overlay_014_F00009F4_18702CC.c.o */
 D_A4 = 0x000000a4;
 D_B4 = 0x000000b4;
+gOverlay14State = 0x00000000;
 
 /* overlay 14: overlay14ResetFlags.c.o */
 gOverlay14FlagC4 = 0x000000c4;
