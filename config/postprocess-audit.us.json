@@ -5442,8 +5442,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o061/func_overlay_061_F0001648_18C0A10.c.o",
       "offset": 5704,
       "overlay": 61,
@@ -8924,7 +8924,7 @@
     "by_class": {
       "metadata": 622
     },
-    "matched_c_bytes_with_postprocess": 103884,
+    "matched_c_bytes_with_postprocess": 104252,
     "objects_with_postprocess": 622
   }
 }

@@ -321,8 +321,8 @@ The four required pilot reviews are:
   records: 160 `SYMBOL`, 373 `LOCAL`, 16 `JUMP`, with 19 `R_MIPS_32`, 158
   `R_MIPS_26`, and 186 each `HI16`/`LO16`. Fifty-four imports target overlay
   45 and two target overlay 68. The `0x2A0` initialized range and `0x5E0` BSS
-  remain raw. Exact C now owns the contiguous `+0x000..+0xB84` prefix,
-  `+0x1578..+0x1648`, and `+0x17B8..+0x1A84`; the
+  remain raw. Exact C now owns the contiguous `+0x000..+0xB84` prefix and
+  `+0x1578..+0x1A84`; the
   intervening ranges remain assembly, followed by twelve bytes of padding.
   DKR's `save_data.c`,
   `racer.c`, and `menu.c` are a semantic navigation crosswalk only: the ghost
@@ -1563,7 +1563,7 @@ A later canonical-source audit found that the historical rolling checkpoints
 from `overlay 58 +0x5554` through `overlay 1 +0x7D6C` credited **25,548 bytes**
 whose C bodies remain guarded by `NON_MATCHING`. Those candidates remain useful
 matching evidence, but assembly is canonical and they receive no matched-C,
-resolved-text, or module-closure credit. The tranche contains **13,752 bytes**
+resolved-text, or module-closure credit. The tranche now contains **14,120 bytes**
 of genuine exact promotions; its old cumulative numerators, percentages, and
 closure-gate values are withdrawn. Current cumulative progress is reported
 only by the generated scoreboard.
@@ -1583,16 +1583,16 @@ ranges credited before this tranche are excluded.
 | 14 | `+0x1B7C..+0x1C40` (196) | 196 |
 | 20 | `+0x00A8..+0x0204` (348); `+0x07C4..+0x09DC` (536); `+0x0E28..+0x0F78` (336) | 1,220 |
 | 40 | `+0x0534..+0x0690` (348) | 348 |
-| 61 | `+0x0000..+0x01C0` (448); `+0x01DC..+0x03C0` (484); `+0x03C0..+0x07C4` (1,028); `+0x07C4..+0x0968` (420); `+0x1578..+0x1648` (208); `+0x17B8..+0x18A0` (232); `+0x18A0..+0x19B0` (272) | 3,092 |
+| 61 | `+0x0000..+0x01C0` (448); `+0x01DC..+0x03C0` (484); `+0x03C0..+0x07C4` (1,028); `+0x07C4..+0x0968` (420); `+0x1578..+0x19B0` (1,080) | 3,460 |
 | 83 | `+0x02A0..+0x0514` (628) | 628 |
 | 87 | `+0x0000..+0x0128` (296) | 296 |
 | 91 | `+0x004C..+0x04BC` (1,136) | 1,136 |
 | 96 | `+0x0000..+0x0070` (112); `+0x00F8..+0x04BC` (964); `+0x04BC..+0x057C` (192) | 1,268 |
-| **Total** | | **13,752** |
+| **Total** | | **14,120** |
 
 Overlay 4's three omitted mixed-TU atlas exceptions total **1,720 bytes**
 (`+0x05D0..+0x0710`, `+0x0734..+0x08F4`, and
-`+0x08F4..+0x0CAC`). They are already included in the 13,752-byte subtotal;
+`+0x08F4..+0x0CAC`). They are already included in the 14,120-byte subtotal;
 the atlas correction changes attribution, not this tranche total.
 
 #### Guarded and uncredited ranges
@@ -1805,7 +1805,7 @@ evidence proves the assembly fallback only.
 
 `overlay 15 +0x004C..+0x0428` (`overlay15InitStarsAndPalette`) — 988 bytes / 247 words, supplying C-source coverage for this interval but not exact closure. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a relocation-anchored carrier rewrite); source kept as decomp-permuter input. All 14 shipped runtime roles reduce to an exact six-record split surface. Six Overlay 15 owners totaling 3,012 bytes remain guarded `NON_MATCHING`, so the module receives no closure credit.
 
-`overlay 61 +0x1648..+0x17B8` (`func_overlay_061_F0001648_18C0A10`) — 368 bytes / 92 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a private copy-size/loop carrier rewrite); source kept as decomp-permuter input. The object retains all nine call relocations and the local path-address pair.
+`overlay 61 +0x1648..+0x17B8` (`func_overlay_061_F0001648_18C0A10`) contributes **368 exact C bytes / 92 words**. A disclosed one-iteration grouping preserves IDO's exact 0x38-byte frame and instruction allocation. The object retains all nine calls plus the local path-address pair, and the linked overlay and whole ROM are byte-identical.
 
 `overlay 11 +0x1E4C..+0x22E8` (`func_overlay_011_F0001E4C_186A694`) — 1,180 bytes / 295 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a complete carrier-schedule rewrite); source kept as decomp-permuter input. The retained split text surface is 41 records; the five-entry runtime switch table and its five relocations remain in their original data/rodata owner.
 
