@@ -22,6 +22,8 @@
 #   gmake check-reference-builds  prove that farm is the one the names came from
 #   gmake scoreboard        regenerate README.md's progress block from the tree
 #   gmake check-scoreboard  fail if that block has gone stale
+#   gmake system-health     read-only campaign load/memory/process summary
+#   gmake release-gate      serial, niced release checks with compact output
 #   gmake clean      remove build/
 #   gmake distclean  also remove splat's generated output
 
@@ -290,6 +292,12 @@ hooks:
 #   gmake cleanroom CLEANROOM_ARGS="--range A..B"    a commit range
 cleanroom:
 	bash $(TOOLS_DIR)/cleanroom_check.sh $(CLEANROOM_ARGS)
+
+system-health:
+	$(HOST_PYTHON) $(TOOLS_DIR)/system_health.py $(SYSTEM_HEALTH_ARGS)
+
+release-gate:
+	$(HOST_PYTHON) $(TOOLS_DIR)/release_gate.py $(RELEASE_GATE_ARGS)
 
 # Asserts that no clean-room decoder is inventing words -- that every stage
 # which exists to DECODE something contributes nothing to a tree whose content
@@ -3988,7 +3996,7 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 	fi
 	@ls -l $@
 
-.PHONY: default all setup hooks extract prune-asm verify cleanroom audit-decoders overlay-tables overlay-atlas overlay-atlas-write overlay-syms check-overlay-syms overlay-donors overlay-donors-write overlay-donors-scan-check check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
+.PHONY: default all setup hooks extract prune-asm verify cleanroom system-health release-gate audit-decoders overlay-tables overlay-atlas overlay-atlas-write overlay-syms check-overlay-syms overlay-donors overlay-donors-write overlay-donors-scan-check check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail
 
