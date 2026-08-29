@@ -3211,10 +3211,10 @@ extern Overlay1BestRecord gOverlay1BestRecords[32];
 extern s32 gOverlay1SelectedType;
 
 /* Mickey-only reconstruction; DKR v77/v80 and JFG have no exact donor.
- * Retained isolated C has the exact 30-word frameless shape, 18/30 words
- * exact, and 12 runtime-normalized register differences from +0x4, all in one
- * a1/a3 carrier exchange, but its recipe omitted -Wab,-r4300_mul and no
- * configured full-TU C object survives. The candidate retains both
+ * Retained isolated and prior-layout full-TU C share the exact 30-word
+ * frameless shape at 18/30 words, with one 12-site a1/a3 carrier exchange.
+ * The isolated recipe omitted -Wab,-r4300_mul; current-layout configured proof
+ * is pending. The candidate retains both
  * gOverlay1BestRecords and gOverlay1SelectedType HI16/LO16 pairs; the target
  * static object literalizes the latter, while the runtime table proves all
  * four records. Linked range/module/ROM identity proves assembly fallback
