@@ -68,7 +68,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_80026FB4` | `src/main/main.c` | none | — | No ownership change; continue source/codegen work. |
 | `mainUpdateZBCheck` | `src/main/main.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80028564` | `src/main/main.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_80028FCC` | `src/main/main.c` | none | — | Retained configured full-TU C is 17/27 words, frame `0x18`, first `+0x1C`, with three exact calls; isolated C agrees but omitted canonical `-Wo,-Olimit,100`. A natural reused normalized-result/shared-epilogue form is staged and uncompiled. ORT 663 has no authenticated inbound; linked equality is fallback-only. If not exact, retain 119 flags and try one trace-selected lifetime form only after strict gain; cap 121 stock builds plus trace. |
+| `func_80028FCC` | `src/main/main.c` | none | — | The preceding early-return spelling measured 17/27 configured full-TU words, frame `0x18`, first `+0x1C`, with three exact calls; no attributable object survives, and isolated C omitted canonical `-Wo,-Olimit,100`. A natural reused normalized-result/shared-epilogue form is staged and uncompiled. ORT 663 has no authenticated caller; linked equality is fallback-only. If not exact, retain 119 flags and try one trace-selected lifetime form only after strict gain; cap 121 stock builds plus trace. |
 | `func_80029274` | `src/main/main.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002AF6C` | `src/main/matrix.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002B040` | `src/main/matrix.c` | none | — | No ownership change; continue source/codegen work. |

@@ -1456,14 +1456,19 @@ s32 func_80028FB8(s32 arg0, s32 arg1, s32 arg2) {
 
 #ifdef NON_MATCHING
 /*
- * PROVENANCE: JFG's pinned mainAnyoneHas remains GLOBAL_ASM and supplies only
- * the name/close structure; this body is reconstructed from Mickey's bytes.
+ * PROVENANCE: JFG's pinned src/main.c::mainAnyoneHas remains GLOBAL_ASM and
+ * supplies only an assembly/object structural analogue and TU-role comparison;
+ * no C body was adapted. Mickey establishes this boundary, ABI, calls, Boolean
+ * normalization, and staged body.
  *
- * Retained configured full-TU C is 17/27 words, exact 108-byte size/frame 0x18
- * and calls at +0x14/+0x30/+0x4C. The target normalizes each result and shares
- * one epilogue; that natural form is now staged but uncompiled. ORT 663 has no
- * authenticated inbound. If not exact, retain 119 flags and use one trace-led
- * lifetime form only after a strict gain; cap at 121 stock builds plus trace.
+ * The preceding early-return spelling measured 17/27 configured full-TU
+ * words, exact 108-byte size/frame 0x18, and calls at +0x14/+0x30/+0x4C. No
+ * attributable object survives; the isolated measurement is diagnostic because
+ * it omitted canonical -Wo,-Olimit,100. The target normalizes each result and
+ * shares one epilogue; that natural form is now staged but uncompiled. ORT 663
+ * has no authenticated caller. If not exact, retain 119 flags and use one
+ * trace-led lifetime form only after a strict gain; cap at 121 stock builds
+ * plus trace.
  */
 s32 func_80028FCC(s32 arg0) {
     s32 result;
