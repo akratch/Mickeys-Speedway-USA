@@ -1182,24 +1182,27 @@ confirmed by the paired writes in the following setter. The adapted type has a
 point-of-use `PROVENANCE` note, and the default flags, object words, and linked
 ROM range are exact without post-processing.
 
-`func_8003A2C8` remains a guarded, exact-sized, frameless **5/32 register-only
-prior-layout plateau**. Retained configured full-TU and isolated C both
-survive, and their owned 32 words are byte-identical. Differences are at
+`func_8003A2C8` remains guarded and exact-sized. Retained pre-HEAD/current-body
+configured full-TU and isolated C are byte-identical at 27/32 words and
+frameless. Differences are at
 `+0xC/+0x10/+0x14/+0x18/+0x20`; both carry the target's six HI16/LO16 records
-for `D_8007C090` and `D_800D3128`. Configured flags are
-`-O2 -mips2 -32 -Wo,-loopunroll,0`; the isolated import omitted no-unroll,
-which is inert for this loop-free body. Current physical-layout C is unproven.
-No linked C candidate survives. Exact ordinary-object, linked-function,
-complete-menu-TU, and ROM evidence proves assembly fallback only.
+at `+0x00/+0x04`, `+0x24/+0x28`, and `+0x3C/+0x40` for `D_8007C090` and
+`D_800D3128`. The five sites are one mode-value allocation web plus a
+commutative comparison-order site. The retained body used three inert
+arithmetic aids and is diagnostic under source policy; those aids are removed,
+but clean current-layout C is uncompiled. No linked C candidate survives. Exact
+ordinary-object, linked-function, complete-menu-TU, and ROM evidence proves
+assembly fallback only.
 
 Historical pool-position, shape, flag, and model-guided campaign outcomes lack
 attributable retained result sets and do not prove exhaustion. Allocator-oracle
 prose reports a forced-color 31/32 diagnostic, but neither that object nor its
 trace survives. ORT 606 exports the function; authenticated callers are
-`func_80027EC0+0x80`, `overlay46ReleaseState+0x70`, and Overlay 60 `+0x156C`.
-Run current-layout V0, exactly 119 flags, one allocator trace, at most two
-trace-selected natural forms and one improving-only combination, then one
-improving-only 1,000-candidate/ten-minute batch; cap 122 deterministic builds.
+`func_80027EC0+0x80`, `overlay46ReleaseState+0x70`, and
+`func_overlay_060_F0000334_18BA10C+0x1238`. Run exactly 119 flags on clean V0,
+one allocator trace, independent split-web and reversed-comparison forms, and
+an improving-only combination. Cap 122 stock builds plus trace; permit one
+1,000-candidate/ten-minute batch only after a strict natural-form gain.
 
 The tier-A-named `frontGetLevelScreenMode` adds **0x68 bytes / 26 words** at
 ROM `0x3AF68`. Its JFG source body is still `GLOBAL_ASM`, so the C body was

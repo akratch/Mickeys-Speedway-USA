@@ -706,6 +706,14 @@ records call it: Overlay 60 module `+0x2194` from
 `overlay99RenderSegments+0xE8`. Its fourth direct caller is resident
 `rcpClearScreen+0x48`; no other shipped overlay record targets ORT 765.
 
+Resident `func_8003A2C8` owns exact HI16/LO16 pairs at `+0x00/+0x04` to
+`D_8007C090` and at `+0x24/+0x28` plus `+0x3C/+0x40` to `D_800D3128`. ORT
+606 exports it. Its direct callers are resident `func_80027EC0+0x80`, Overlay
+46 table-1 record 60 at module `+0x684` (`overlay46ReleaseState+0x70`), and
+Overlay 60 table-1 record 206 at module `+0x156C`
+(`func_overlay_060_F0000334_18BA10C+0x1238`); no other shipped overlay record
+targets ORT 606. Linked equality currently proves the fallback only.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to

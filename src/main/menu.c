@@ -1177,16 +1177,18 @@ s32 frontGetScreenMode(void) {
     return mode;
 }
 #ifdef NON_MATCHING
-/* Allocation plateau (evidence reviewed 2026-08-29): retained prior-layout
- * configured full-TU and isolated C are byte-identical: 27/32 exact, frameless,
- * with six exact relocations and differences at +0xC/+0x10/+0x14/+0x18/+0x20.
- * Configured C uses -O2 -mips2 -32 -Wo,-loopunroll,0; the isolated import
- * omitted inert no-unroll. Current physical layout is uncompiled. ORT 606
- * exports this function; callers are func_80027EC0+0x80, overlay46ReleaseState
- * +0x70, and overlay 60 +0x156C. Linked equality proves fallback only.
- * Forced-color 31/32 and prior route outcomes are unretained prose. Reopen with
- * current V0, 119 flags, one allocator trace, at most two natural forms and an
- * improving combination, then one improving-only bounded batch. */
+/* Allocation plateau (evidence reviewed 2026-08-29): retained pre-HEAD,
+ * current-body full-TU and isolated C are byte-identical at 27/32 words,
+ * frameless, with six exact relocations and one mode-value web at
+ * +0xC/+0x10/+0x14/+0x18/+0x20. That retained body used three inert arithmetic
+ * aids, so its score is diagnostic; they are removed below and clean current-
+ * layout V0 is uncompiled. ORT 606 exports this function; callers are
+ * func_80027EC0+0x80, overlay46ReleaseState+0x70, and
+ * func_overlay_060_F0000334_18BA10C+0x1238. Linked equality proves fallback
+ * only. Forced-color 31/32 and prior route outcomes are unretained prose. Run
+ * 119 flags on clean V0, trace once, try independent split-web and reversed-
+ * comparison forms plus an improving-only combination, and cap 122 stock
+ * builds plus trace; batch only after a strict natural gain. */
 /* PROVENANCE: mask, state guard, and order compared with JFG's public
  * src/menu.c::frontSetScreenMode; packed fields derived from Mickey. */
 void func_8003A2C8(s32 screenMode) {
@@ -1198,12 +1200,12 @@ void func_8003A2C8(s32 screenMode) {
     mode = (modeBits = screenMode & 3);
     if (*modeState != mode) {
         D_8007C090 = screenMode & 3;
-        if (modeBits & (1 ^ 0)) {
+        if (modeBits & 1) {
             D_800D3128.bits.modeBit0 = 1;
         } else {
-            D_800D3128.bits.modeBit0 = 0 & 0xFFFFFFFFFFFFFFFFu;
+            D_800D3128.bits.modeBit0 = 0;
         }
-        if ((screenMode & 3) & (2 & 0xFFFFFFFFu)) {
+        if ((screenMode & 3) & 2) {
             D_800D3128.bits.modeBit1 = 1;
         } else {
             D_800D3128.bits.modeBit1 = 0;
