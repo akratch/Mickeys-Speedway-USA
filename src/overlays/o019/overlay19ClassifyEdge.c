@@ -4,20 +4,22 @@
  * Classify an edge against a candidate edge, accepting either orientation.
  * PROVENANCE: Mickey-derived; the donor ledger classifies pinned DKR v77/v80
  * and JFG candidates as negative.
- * Plateau (evidence reviewed 2026-08-29): the retained configured full-TU
- * NON_MATCHING candidate and isolated candidate are byte-identical across
- * 120 words. Both are frameless and relocation-free, with 110/120 words
- * exact and the first difference at +0x138. Six sites use candidate $v1
- * where the target uses $t3; four sites exchange the order of two final
- * y/z loads. The sole authenticated caller is overlay19FindAdjacent+0xD8.
+ * Plateau (evidence reviewed 2026-08-29): retained pre-HEAD/current-body
+ * configured full-TU and isolated C are byte-identical across 120 words. Both
+ * are frameless and relocation-free, with 110/120 exact. One carrier web uses
+ * candidate $v1 versus target $t3 at +0x138/+0x140/+0x148/+0x154/+0x15C/
+ * +0x164; final y/z load pairs reverse at +0x194/+0x198 and +0x1B0/+0x1B4.
+ * The sole inbound is overlay19FindAdjacent+0xD8; this function is unexported.
  *
  * Historical prose attributes the gain from 106/120 to promoted-s16
  * comparisons and reports several flat source/trace/permuter probes, but their
  * attributable objects do not survive and do not prove exhaustion. Ordinary
  * object, linked-function, module, and ROM identity prove the GLOBAL_ASM
  * fallback only; no linked C candidate survives. The complete 119-flag lattice
- * remains unrun at the artifact tier. Reproduce V0, retain the full lattice,
- * then park if canonical flags remain best.
+ * remains unrun at the artifact tier. Retain exactly 119 flags including V0,
+ * trace once, try one natural carrier-lifetime form and one line/association
+ * form, then combine only if both strictly improve; cap 122 stock builds plus
+ * trace and park if both natural probes are flat.
  */
 #ifdef NON_MATCHING
 s32 overlay19ClassifyEdge(

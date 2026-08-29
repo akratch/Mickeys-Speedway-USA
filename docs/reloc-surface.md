@@ -677,6 +677,11 @@ ORT 1517 exports it; Overlay 1 table-1 relocation 167 calls it from
 `overlay1UpdateObjectPhysics+0x8C0`. Linked range/module/ROM equality is
 C-produced; its two inert source aids are tracked in the cleanup queue.
 
+Overlay 19 `+0xD78` (`overlay19ClassifyEdge`) owns no static or runtime
+relocations. It is unexported. Its sole inbound is table-2 JUMP index 6 at
+module `+0xCF4`, from `overlay19FindAdjacent+0xD8`; linked equality currently
+comes from the fallback, not the retained 110/120 C producer.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to
