@@ -2002,17 +2002,22 @@ pointer order, AST/lifetime probes, the flag lattice, and bounded permutation
 did not recover the folded initial address shift or pool/temporary web. The
 attempt cap is exhausted and assembly stays canonical.
 
-`func_8003E8D8` retains prior-layout configured full-TU and isolated C at
-131/140 words with exact `0x230` size, `0x38` frame, and ten target relocation
-tuples; the isolated import omitted inert `-Wab,-r4300_mul`. Current-layout
-proof is pending.
+`func_8003E8D8` retains configured full-TU and isolated current-body C at
+131/140 raw and relocation-normalized words, first `+0x38`, with exact `0x230`
+size, `0x38` frame, and no padding. The isolated import omitted inert
+`-Wab,-r4300_mul`; a fresh HEAD full-TU V0 remains pending because unrelated
+parts of `particles.c` changed after the retained build.
 The differences are one zero-count branch target at `+0x38` and eight
 call-live stack homes: `entry` uses `sp+0x34` rather than target `sp+0x24`,
 while `result` uses `sp+0x20` rather than target `sp+0x34`, repeated around
 both calls. Exact linked function/TU/ROM evidence proves `GLOBAL_ASM` only.
-The sole authenticated caller is `func_8003E7B8+0xE4`. Reproduce current V0
-and retain the flag lattice, then test the three declaration forms, one
-improving-only trace-selected form/combination, and an improving-only batch.
+The sole authenticated caller is `func_8003E7B8+0xE4`; there is no ORT export,
+resident runtime record, overlay `SYMBOL` inbound, or stored-pointer inbound.
+JFG's ordered peer is assembly-backed and 0x24C bytes, so it is structural
+evidence only. Reproduce HEAD V0, run 119 flags, capture one allocator trace,
+then test three natural declaration arrangements, at most one trace-selected
+lifetime form and one improving-only combination. Permit one 20-minute batch
+only after a policy-valid gain; cap the route at 124 deterministic builds.
 
 | Newly matched function | ROM / size | Match evidence |
 |---|---:|---|

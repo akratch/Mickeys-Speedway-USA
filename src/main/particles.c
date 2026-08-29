@@ -516,15 +516,16 @@ void func_8003E7B8(ParticleObject *object, s32 index) {
     object->activeTriggerCount++;
 }
 #ifdef NON_MATCHING
-/* Retained prior-layout configured full-TU and isolated C are 131/140 words
- * with exact 0x230 size, 0x38 frame, and all ten target relocation tuples;
- * the isolated import omitted inert -Wab,-r4300_mul. Current-layout proof is
- * pending. The +0x38 zero-count branch skips the target's
- * redundant pool-base reset; entry uses sp+0x34 versus target sp+0x24 and
- * result uses sp+0x20 versus target sp+0x34 around both calls. Linked
- * function/TU/ROM identity proves GLOBAL_ASM only. Reproduce current V0 and
- * retain the flag lattice, then test three declaration forms, one improving-
- * only trace-selected form/combination, and an improving-only bounded batch. */
+/* Retained configured full-TU and isolated current-body C are 131/140 raw and
+ * relocation-normalized words, first +0x38, with exact 0x230 size, 0x38 frame,
+ * and all ten target relocation tuples. The isolated import omitted inert
+ * -Wab,-r4300_mul. The zero-count branch skips the target's redundant pool-base
+ * reset; entry uses sp+0x34 versus target sp+0x24 and result uses sp+0x20 versus
+ * target sp+0x34 around both calls. func_8003E7B8+0xE4 is the sole caller; no
+ * runtime/export/overlay/pointer inbound exists. Linked identity proves fallback
+ * only. Reprove HEAD V0, run 119 flags, trace once, and try three natural forms,
+ * one improving-only combination, and an optional improving-only batch; hard
+ * cap 124 deterministic builds plus one trace and one 20-minute batch. */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8005FAE8.s; body reconstructed from Mickey evidence. */
 s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger) {
     ParticleModelEntry *entry;
