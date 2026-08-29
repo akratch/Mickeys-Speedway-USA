@@ -954,11 +954,12 @@ Resident `func_8005A948` owns 13 static records: HI16/LO16 pairs to
 calls to `piRomLoadSection` at `+0xC8/+0x124` and `func_8002B314` at `+0xF8`.
 It has no export-table entry or overlay runtime record; `func_8005A7A0+0x104`
 is its sole caller, with no stored-pointer inbound and no target padding.
-Ignored local isolated objects for the earlier structured-store body agree on
-all 13 tuples but are 83/94 raw/normalized and omitted the TU's canonical
-`-Wo,-loopunroll,0`; 94/94 register-field masking is diagnostic only. Historical
-raw-array p9/p10 is prose-only, and current cleaned C tuples/score await
-configured reproof. Linked equality is fallback-only.
+Fresh configured V0 and the retained natural candidate both reproduce all 13
+offset/type/identity tuples exactly. The natural candidate is exact-sized/frame
+and reaches 85/94 raw and relocation-normalized words (91/94 under the
+workbench's stack-home normalization); its remaining three register and six
+stack-home sites are unrelated to the relocation surface. Linked equality
+remains fallback-only.
 
 Overlay 62 `+0xD4` (`overlay62Update`) owns 71 runtime records: 43 SYMBOL and
 28 LOCAL, comprising 21 calls and 25 HI16/LO16 pairs. Historical pre-cleanup C

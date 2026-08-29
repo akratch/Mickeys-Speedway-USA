@@ -330,24 +330,23 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A7A0.s")
 #endif
-/* Reproof lead: ignored local isolated objects for the earlier structured-
- * store body measure 83/94 raw/relocation-normalized words, frame 0x38, first
- * +0x40, and all 13 tuples; register-field masking reaches diagnostic 94/94.
- * That importer omitted canonical -Wo,-loopunroll,0 and no canonical Git
- * artifact supplies configured proof. Historical raw-array p9/p10 reportedly
- * reached 91/94, but only source/prose survives. Current source removes its
- * redundant boolean wrapper and adds tableOffset; it has never been compiled,
- * so current size, score, frame, and tuples are unknown. The owned
- * 0x8005A948..0x8005AAC0 / ROM 0x5B548..0x5B6C0 range is 94 words/frame 0x38
- * with no padding. Sole caller is func_8005A7A0+0x104; no export/runtime/
- * overlay/pointer inbound exists and linked equality is fallback-only. A
- * retained structural scan finds JFG assembly-only modLoadAnimEvents at 0.336
- * (388 versus 376 bytes), with all other similarities <=0.068; no C donor.
- * Compile current configured V0. On structural regression, use exactly one
- * earlier structured-store or raw-array control. If sound, retain 119
- * configurations including V0, one allocator trace, and at most one trace-
- * selected natural carrier/lifetime form. Hard cap 120 deterministic builds
- * plus one trace, 121 only for the conditional control; no generic batch. */
+/* Bounded plateau: fresh configured V0 is exact-sized at 94 words with frame
+ * 0x38, 62/94 raw and relocation-normalized words (68/94 under workbench stack-
+ * home normalization), first +0x40, and all 13 offset/type/identity tuples
+ * exact. All 119 flag identities were nonexact;
+ * seven O2/MIPS-II configurations tie V0. A fidelity-clean proc-4 allocator
+ * trace and aligned view show the 34-entry colored-variable lane is exact while
+ * the temporary FIFO first trails by one pop at slot 4. The sole natural
+ * boolean-normalization form advances the downstream FIFO and improves to
+ * 85/94 raw and relocation-normalized words (91/94 workbench-normalized). Its
+ * remaining sites are one t7/t8 web
+ * at +0x40/+0x44/+0x80 and six call-argument homes at
+ * +0xF0/+0xFC/+0x100/+0x104/+0x120/+0x12C, each four bytes below target.
+ * Candidate SHA-256 is e7db045544f31f17a9354b019b0c3dc66a91eae6992daaeffcc255d017f0891c.
+ * The owned 0x8005A948..0x8005AAC0 / ROM 0x5B548..0x5B6C0 range has no
+ * padding. func_8005A7A0+0x104 is the sole caller, passing an lh animation ID;
+ * there is no export/runtime/overlay/pointer inbound. The cap is exhausted;
+ * no historical control or generic batch was run. Assembly remains canonical. */
 #ifdef NON_MATCHING
 u8 *func_8005A948(s16 animationId) {
     s32 i;
@@ -363,7 +362,7 @@ u8 *func_8005A948(s16 animationId) {
         do {
             AnimationCacheEntry *entry = &((AnimationCacheEntry *)D_800D7CF4)[i];
 
-            if (animationId == entry->id) {
+            if ((animationId == entry->id) != 0U) {
                 u8 *existing = entry->animation;
 
                 existing[0]++;

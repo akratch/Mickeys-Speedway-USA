@@ -3059,24 +3059,23 @@ fresh current-source compile through full-ROM comparison remains queued as a
 contemporaneous reproof, not as missing target evidence. JFG retains both
 corresponding routines as assembly, so no donor body was adapted.
 
-`func_8005A948` has ignored local isolated objects for the earlier structured-
-store body, but their recipe omitted canonical `-Wo,-loopunroll,0`; they are
-not canonical configured proof and ordinary full-TU equality is fallback. That
-body has the target's 94-word size, frame `0x38`, and 13 tuples, matching 83/94
-raw/normalized words and reaching 94/94 only after diagnostic register-field
-masking. Its 11 sites are
-`+0x40/+0x44/+0x80/+0x130/+0x148/+0x14c/+0x150/+0x154/+0x158/+0x15c/+0x160`.
-Historical raw-array p9/p10's reported 91/94 is prose-only. Current source
-removes its redundant boolean wrapper and adds `tableOffset`; it is uncompiled,
-so current size/score/frame/tuples are unknown. A retained structural scan finds
-JFG assembly-only `modLoadAnimEvents` at 0.336 (388 versus 376 bytes), with all
-others at 0.068 or below; no C donor. There are zero runtime records or exports,
-`func_8005A7A0+0x104` is the sole caller, and no overlay or stored-pointer
-inbound exists. The function owns no target padding. Compile current V0; use at
-most one historical control on structural regression, then 119 configurations
-including V0, one trace, and at most one trace-selected natural form. Hard cap
-120 deterministic builds plus trace, 121 only for the control; do not batch.
-Assembly remains canonical.
+`func_8005A948` now has fresh configured full-TU proof. V0 has the target's
+94-word size and frame `0x38`, with 62/94 raw and relocation-normalized words
+(68/94 workbench-normalized), first mismatch `+0x40`, and all 13 relocation
+tuples exact. All 119 flag
+identities were nonexact; seven O2/MIPS-II configurations tie V0. A
+fidelity-clean proc-4 allocator trace and aligned comparison show all 34
+colored-variable slots agree while the temporary FIFO first trails by one pop
+at slot 4. The sole natural boolean-normalization form fixes the downstream
+rotation and improves to 85/94 raw/relocation-normalized and 91/94
+workbench-normalized words. The remaining
+register web is `t7` versus target `t8` at `+0x40/+0x44/+0x80`; call-argument
+homes at `+0xF0/+0xFC/+0x100/+0x104/+0x120/+0x12C` are each four bytes below
+target. There are zero runtime records or exports, `func_8005A7A0+0x104` is the
+sole caller and passes an `lh` animation ID, and no overlay or stored-pointer
+inbound exists. The function owns no target padding. The bounded route is
+exhausted without a historical control or generic batch; assembly remains
+canonical.
 
 `func_8005A7A0` has fresh unchanged current-HEAD configured full-TU evidence at
 106 words: 96/106 raw and 99/106 relocation-normalized object words, with ten
