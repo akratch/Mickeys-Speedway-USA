@@ -63,7 +63,7 @@ Updated as the permuter campaign and analysis proceed.
 | `func_8005A948` | models_5B300 | **F/W** | surviving configured evidence is the earlier 11-word state; the later raw-array p10 result has historical three-site `t7`/target-`t8` evidence but no retained configured/linked artifact, and broad source/flag/permuter routes are exhausted | reprove p10, then one ugen FIFO trace and at most its indicated address-producer form |
 | `func_80055B24` | anim | **P** | typed `void` callback alias removes the generic trap placeholder's phantom return web; metadata-only rebind restores the exact call identity | ✅ matched (ABI reconstruction) |
 | `func_8002C69C` | saves | **P!** | coherent cursor re-cache reduced 18→11 register-only words at exact 28-word size; first `+0x10`, four allocator webs; corrected MIPS2/stack-aware reseed reached cost 55 but no zero | plateau; F-route web-existence lever next |
-| `func_80041CE4` | particles | **P!** | recorded configured full-TU result is 27/153 register-only, but surviving isolated import omitted required `-Wab,-r4300_mul`; ten source-faithful probes and bounded search were flat | one configured reconciliation V0, then park if reproduced |
+| `func_80041CE4` | particles | **P!** | retained configured full-TU and isolated C agree at 126/153 words, frame `0x80`, with all nine relocations exact; the omitted isolated `-Wab,-r4300_mul` flag is inert. The 27 sites span outer/point-count and display-list/command carrier webs; historical route outcomes are unretained | preserve V0, retain flag lattice, two trace-selected forms and improving combination, then one corrected-flag annotated batch |
 | `func_8002BB40` | memory | **P** | retained configured isolated C is 42/72 words with 30 register-only differences from `+0x8C` and all eight tuples exact; the matching full-TU result is historical and unretained, while the apparent 72/72 ordinary object is `GLOBAL_ASM` | reproduce V0 and the historical 57/72 JFG form, then bounded dead-argument carrier ladder; six-build cap |
 | `func_800320F0` (`runlinkEnsureJumpIsValid` donor alias) | runlink | **P** | retained canonical object has 101 words/frame `0x20` and 21 relocations; linked ROM `0x32CF0..0x32E84` is byte-identical | ✅ matched; remove from living unmatched queues |
 | `levelInit` | level | **F/W** | retained configured full-TU C is 394/516 words/frame `0x80`, first `+0x238`, with all 110 relocation tuples exact; ten source families, 119 flags, and bounded permutation are exhausted | one unchanged configured/linked V0, then park absent new allocator evidence |
@@ -159,17 +159,13 @@ A permuter score of 0 is only trustworthy if the scratch object it searches is
    entries (`tools/permuter_settings.toml` `[preserve_macros]`) and restores them
    at candidate-compile time (`ast_util.py process_pragmas`). The definitions come
    from the TU's real headers via `cpp -dD -fdirectives-only`, so the *bodies* are
-   correct — but for a display-list function like particles.c `func_80041CE4`
-   the pruned/round-tripped scratch still reproduces a different frame (-136 vs
-   -128) than the full TU. The remaining suspects are (a) a preserved macro that
-   expands to a sub-macro *not* in the preserve set, so import-time vs
-   search-time expansion order diverges, and (b) pycparser's AST round-trip of
-   the macro-call arguments. **What must change:** compile the particles import
-   both ways, byte-diff `func_80041CE4` between the scratch object and
-   `build/src/main/particles.c.o`, and either widen `[preserve_macros]` to cover
-   every gfx sub-macro the function touches or make the scratch include the real
-   header directly (suppress the conflicting latedefine). Until then, treat any
-   gfx-heavy permuter 0 as unverified. (particles.c also carries a
+   correct. The historical `func_80041CE4` scratch frame discrepancy is now
+   resolved: retained isolated and configured full-TU C are byte-identical at
+   frame `0x80`. Other gfx-heavy imports still require this byte-diff preflight,
+   because a preserved macro can expand through an unpreserved sub-macro or
+   pycparser can alter macro-call argument structure. Treat any gfx-heavy
+   permuter zero as unverified until its scratch baseline equals the configured
+   full-TU object. (particles.c also carries a
    `trim_elf_section .rodata 0x28` POSTPROCESS, which is correctly *skipped* by
    fix #1 with a warning — its scratch is not bit-identical for that reason too.)
 

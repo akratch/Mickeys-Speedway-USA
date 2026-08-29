@@ -1912,13 +1912,14 @@ original asm body remains canonical.
 supplies the body donor and a bounded canonical-flag permuter found the final
 loop-condition web coalescing.
 
-`func_80041CE4`: recorded configured full-TU probes report an allocation
-mismatch at 153 instructions and 27 words, exact size/frame/relocations, first
-`+0x48`. The surviving isolated import omits the particles TU's required
-`-Wab,-r4300_mul`, so fresh configured V0 must reconcile the count. The
-canonical line-entry type lever and ten cursor/declaration/lifetime/order probes
-did not move the outer-count, display-list-home, or command-word pool rotation.
-Reproof only, then park if the 27 sites reproduce; asm stays canonical.
+`func_80041CE4`: retained configured full-TU and isolated C are byte-identical
+at 126/153 words, frame `0x80`, first `+0x48`, with all nine relocations exact;
+the isolated import omitted `-Wab,-r4300_mul`, proving that flag inert for V0.
+The 27 register sites span outer/point-count and display-list/command carrier
+webs. Historical source, flag, trace, and permutation outcomes are unretained.
+Preserve V0, retain the flag lattice, try at most two trace-selected natural
+forms and their improving-only combination, then one corrected-flag annotated
+batch; asm stays canonical.
 
 `func_8003D25C`: before/after allocation mismatch, 168 instructions and 70 register-only words, first `+0x50`.
 Type lever: pool/render-resource aggregates and vector aliases; no allocation movement. Remains temp slot 0 and pool substitutions; asm stays canonical.
