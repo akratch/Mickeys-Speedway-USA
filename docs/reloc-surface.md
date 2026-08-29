@@ -627,8 +627,9 @@ The SYMBOL call at `+0x54` resolves through ORT 1652 to Overlay 14 `+0x1B54`
 `+0x1D38`, `+0x1D18`, `+0x1D1C`, and `+0x1D20`; the LOCAL JUMP at `+0xB0`
 targets `overlay14MoveCommandCursor` at `+0x578`. The synthetic fallback target
 object exposes only ten records, omitting four loader-owned pairs and collapsing
-the zero-field call. Retained pre-current-alias C proves 17 identities; fresh C
-proof of the repaired SYMBOL alias remains pending. The function has no padding
+the zero-field call. Historical pre-current-alias C was reported to carry 17
+identities, but no candidate artifact survives; current C proof of the repaired
+SYMBOL alias and all 18 emitted tuples remains pending. The function has no padding
 or export and has five local inbound JUMPs: table-2 records 226, 238, 241, 267,
 and 270 from `overlay14AdvanceCommand` twice, `overlay14StepCommand`,
 `overlay14DispatchCommand`, and `overlay14CallUpdate`.

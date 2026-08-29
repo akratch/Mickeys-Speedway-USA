@@ -14,19 +14,27 @@ extern void overlay14ResetReleaseOwnerReloc(void);
 extern s32 func_overlay_014_F0000578_186FE50(s32);
 
 /* PROVENANCE: Mickey-derived; pinned DKR v77/v80 and JFG scans found no exact
- * byte donor. Retained pre-current-alias full-TU and isolated C have identical
- * text at 45/56 raw and 49/56 after relocation normalization, with frame 0x30.
- * Raw sites are
+ * byte donor. A retained function-specific structural scan found no credible
+ * near donor (best similarity 0.167).
+ * Historical pre-current-alias full-TU/isolated C was measured at 45/56 raw and
+ * 49/56 after runtime-relocation normalization, frame 0x30. No candidate object,
+ * hash, report, or linked-C artifact survives. Raw sites were
  * +0x14/+0x18/+0x1C/+0x20/+0x24/+0x28/+0x3C/+0x88/+0x90/+0x98/+0xA4;
  * normalizing four output LO16 addends leaves one seven-site prologue schedule:
- * four address materializations and the s3/ra saves plus s3 = 1. Everything
- * from +0x40 onward is instruction-identical. The shipped surface has 18
- * runtime records, not the extracted target object's incomplete ten. Current
- * source annotates +0x54 as overlay14ReleaseOwner (+0x1B54), but fresh compiled
- * pre/postprocess identity proof is pending; +0xB0 is a local JUMP to
- * overlay14MoveCommandCursor (+0x578). Run and retain the 119-row lattice on
- * identity-correct V0, trace once, and try at most three natural s3-lifetime
- * forms; cap at 122 stock builds plus the trace and batch only after a gain. */
+ * four address materializations and the s3/ra saves plus s3 = 1. Only after
+ * runtime normalization was everything from +0x40 onward instruction-identical.
+ * The shipped surface has 18 runtime records, not the extracted target object's
+ * incomplete ten. Historical C was reported to carry 17 identities. Current
+ * source repairs +0x54 to overlay14ReleaseOwner (+0x1B54), but is uncompiled,
+ * so current score, frame, size, and all 18 emitted tuples are unknown; +0xB0
+ * is a local JUMP to overlay14MoveCommandCursor (+0x578). Compile identity-
+ * correct V0 as one of 119 configurations. If shape materially regresses, use
+ * one pre-alias control in place of a later form. Trace once, try at most two
+ * trace-selected natural s3/address-base lifetime forms, and combine only after
+ * strict gains. Hard cap 122 deterministic builds plus one trace. Only after a
+ * legal gain permit one annotated 20-minute/2,000-candidate batch; no second
+ * batch. The owned +0x498..+0x578 / ROM 0x186FD70..0x186FE50 range has no
+ * padding or export and has five local inbound JUMPs. */
 #ifdef NON_MATCHING
 void overlay14ResetMode(void) {
     Overlay14Command *command;
