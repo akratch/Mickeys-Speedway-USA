@@ -912,12 +912,11 @@ void diPrintfSetXY(u16 x, u16 y) {
 }
 /* PROVENANCE: body adapted from DKR src/printf.c:debug_text_width. */
 #ifdef NON_MATCHING
-/* Workbench p7: mixed structural/register; 7/66 words remain, first +0x38;
- * frame and relocations are exact. Unsigned/current-byte, bottom-read, and
- * newline-first forms were inert; scopes and a named glyph regressed. Target
- * uses v1 versus candidate v0 for the current-byte web and dependent newline
- * branch schedule. The attempt cap is exhausted: re-prove unchanged V0, then
- * park absent a new scheduling mechanism. */
+/* Retained prior-line-layout configured full-TU C is 59/66 words, frame
+ * 0x138, first +0x38, with all five relocations exact. Target carries the
+ * current byte in v1 and a classification copy in v0; candidate keeps it in
+ * v0 and lowers the newline test as branch-likely. Historical source, flag,
+ * trace, and search outcomes are unretained; reproduce current-layout V0. */
 s32 debug_text_width(const char *format, ...) {
     s32 stringLength;
     s32 fontTexture;

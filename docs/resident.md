@@ -1869,11 +1869,17 @@ Type lever: Basic/emitter/vector aggregates; no structure movement. Remains the 
 residuals from `+0x0`; implicit loop bounds seed both carrier pairs oppositely.
 An explicit end pointer changes the frame, so asm stays canonical.
 
-`debug_text_width` is size/frame exact with 7/66 residuals, first `+0x38`.
-Workbench p7 classifies two structural and five register words: the target uses
-`v1` for the current-byte web while the candidate uses `v0`, changing the
-dependent newline branch schedule. The attempt cap is exhausted; asm remains
-canonical.
+`debug_text_width` retains prior-line-layout configured full-TU and selective C
+at 59/66 raw/normalized words, exact size and frame `0x138`, first `+0x38`,
+with all five relocations exact. Five register fields and two structural words
+remain: target carries the current byte in `v1` and a classification copy in
+`v0`, while the candidate uses `v0` and a branch-likely newline test. The
+selective import omitted inert `-Wab,-r4300_mul`; linked equality proves
+fallback only. ORT 862 exports the function but has no authenticated user.
+Historical source, flag, trace, and search outcomes are unretained. Reproduce
+current V0, retain the flag lattice, test two dual-carrier forms and one
+trace-selected lifetime form, combine only strict gains, then optionally run
+one improving-only batch; asm remains canonical.
 
 `func_8004054C` remains one instruction short at 124/125 words. Positional
 ranking reports 101 differences from `+0x2C`; shift-tolerant workbench
