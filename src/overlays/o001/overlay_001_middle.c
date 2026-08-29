@@ -67,14 +67,17 @@ extern f32 overlay1WrapOffset(f32 first, f32 second);
 extern f32 gOverlay1PreviousAngleLimit;
 
 /* DKR v77/v80 and JFG contain no exact donor for this angle-selection scan. */
-/* Plateau (2026-08-29): the configured NON_MATCHING=1 TU emits the exact
- * 0xC8/50-word boundary and -0x68 frame, with five raw positional words first
- * at +0x38. Four are two schedule-order pairs; the fifth is the linked
- * local-data addend. The runtime table confirms all four relocation
- * type/offset/roles. Six directed statement/lifetime probes were neutral, and
- * a five-minute, one-thread, relocation-annotated MIPS2 permuter pass reached
- * cost 120 but no zero. Its only source changes were byte-neutral/worse or
- * moved the cursor decrement inside the new-best branch. Retain NON_MATCHING. */
+/* Plateau (evidence reviewed 2026-08-29): configured full-TU records and the
+ * surviving isolated ranking agree on the exact 0xC8/50-word boundary and
+ * -0x68 frame. Five raw positions differ first at +0x38: statement schedules
+ * are swapped at +0x3C/+0x40 and +0x6C/+0x70, while +0x38 is the unresolved
+ * local-data addend. The candidate has four relocations; the assembled target
+ * bakes the HI16/LO16 addend, but the runtime table confirms all four roles.
+ * Six directed statement/lifetime probes were neutral, and a five-minute,
+ * relocation-annotated MIPS2 permuter pass reached cost 120 but no zero. Its
+ * only changes were neutral/worse or moved the cursor decrement inside the
+ * new-best branch. The configured full-TU candidate object no longer survives:
+ * re-prove unchanged V0, then park absent a new scheduling mechanism. */
 #ifdef NON_MATCHING
 Overlay1PreviousAngleObject *overlay1FindPreviousAngle(f32 angle) {
     s32 count;
