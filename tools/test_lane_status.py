@@ -9,6 +9,10 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import lane_status as ls  # noqa: E402
 
 
 TOOL = Path(__file__).with_name("lane_status.py").resolve()
@@ -147,6 +151,46 @@ class LaneStatusAssignmentTests(unittest.TestCase):
         self.assertEqual(
             report["assignment"]["state"], "already-integrated/exhausted",
         )
+
+
+class LaneRefQueryTests(unittest.TestCase):
+    def test_lane_scan_filters_refs_already_merged_into_base(self) -> None:
+        with mock.patch.object(ls, "git", return_value="") as git:
+            self.assertEqual(
+                ls.lane_refs(containing="source", unmerged_into="campaign/unchain"),
+                [],
+            )
+        self.assertIn("--contains=source", git.call_args.args)
+        self.assertIn("--no-merged=campaign/unchain", git.call_args.args)
+
+    def test_equal_source_blob_skips_expensive_symbol_resolution(self) -> None:
+        calls = []
+
+        def fake_git(*args, **_kwargs):
+            calls.append(args)
+            if args[0] == "for-each-ref":
+                return "lane/history\x00deadbeef\n"
+            raise AssertionError(f"unexpected Git query: {args}")
+
+        with mock.patch.object(ls, "git", side_effect=fake_git), mock.patch.object(
+            ls, "blob_ids", return_value={"lane/history": "same-blob"}
+        ), mock.patch.object(
+            ls, "source_identity", side_effect=AssertionError("should be skipped")
+        ):
+            active = ls.active_lanes_for_source(
+                "campaign/unchain", "symbol", "path.c", "same-blob", "source"
+            )
+        self.assertEqual(active, [])
+
+    def test_blob_ids_uses_one_batch_object_query(self) -> None:
+        completed = subprocess.CompletedProcess(
+            [], 0, "a" * 40 + " blob\n" + "b" * 40 + " blob\n", ""
+        )
+        with mock.patch.object(subprocess, "run", return_value=completed) as run:
+            rows = ls.blob_ids(["lane/one", "lane/two"], "src/a.c")
+        self.assertEqual(rows["lane/one"], "a" * 40)
+        self.assertEqual(rows["lane/two"], "b" * 40)
+        self.assertEqual(run.call_count, 1)
 
 
 if __name__ == "__main__":

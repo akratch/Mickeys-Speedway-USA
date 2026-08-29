@@ -89,6 +89,35 @@ def blob_id(ref: str, path: str) -> str | None:
     raise RuntimeError(f"git rev-parse failed for {ref}:{path}")
 
 
+def blob_ids(refs: list[str], path: str) -> dict[str, str | None]:
+    """Resolve one path for many refs with one Git object-database process."""
+    if not refs:
+        return {}
+    queries = "".join(f"{ref}:{path}\n" for ref in refs)
+    result = subprocess.run(
+        ["git", "cat-file", "--batch-check=%(objectname) %(objecttype)"],
+        input=queries,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"git cat-file batch failed: {result.stderr.strip()}")
+    lines = result.stdout.splitlines()
+    if len(lines) != len(refs):
+        raise RuntimeError("git cat-file batch returned the wrong row count")
+    resolved: dict[str, str | None] = {}
+    for ref, line in zip(refs, lines, strict=True):
+        if line.endswith(" missing"):
+            resolved[ref] = None
+            continue
+        fields = line.split()
+        if len(fields) != 2 or fields[1] != "blob":
+            raise RuntimeError(f"{ref}:{path} did not resolve to one blob")
+        resolved[ref] = fields[0]
+    return resolved
+
+
 def exact_symbol_pattern(symbol: str) -> re.Pattern[str]:
     return re.compile(
         SYMBOL_TOKEN_TEMPLATE.format(symbol=re.escape(symbol)), re.MULTILINE,
@@ -250,11 +279,15 @@ class Assignment:
     reason: str
 
 
-def lane_refs(*, containing: str | None = None) -> list[tuple[str, str]]:
+def lane_refs(
+    *, containing: str | None = None, unmerged_into: str | None = None
+) -> list[tuple[str, str]]:
     rows = []
     args = ["for-each-ref", "--format=%(refname:short)%00%(objectname)"]
     if containing:
         args.append(f"--contains={containing}")
+    if unmerged_into:
+        args.append(f"--no-merged={unmerged_into}")
     args.append("refs/heads/lane/")
     output = git(*args)
     for line in output.splitlines():
@@ -268,18 +301,23 @@ def active_lanes_for_source(
     base_source_commit: str,
 ) -> list[str]:
     active = []
-    for branch, _head in lane_refs(containing=base_source_commit):
-        # A writable lane starts from the committed target version it owns.
-        # Old divergent refs that predate a later canonical target change are
-        # history, not active ownership, even when their whole-file blob is
-        # different from today's base.
-        if latest_path_commit(branch, base_path, exclude=base) is None:
+    refs = lane_refs(
+        containing=base_source_commit, unmerged_into=base
+    )
+    blobs = blob_ids([branch for branch, _head in refs], base_path)
+    for branch, _head in refs:
+        # The contains filter already excludes old refs that predate the
+        # current target source. Most retained lane refs have not changed this
+        # path at all; compare its blob before paying for a full symbol/path
+        # resolution on the small differing remainder.
+        lane_blob = blobs[branch]
+        if lane_blob == base_blob:
             continue
         lane_path, lane_error = source_identity(branch, symbol)
         if lane_error or lane_path != base_path:
             active.append(branch)
             continue
-        if blob_id(branch, lane_path) != base_blob:
+        if lane_blob != base_blob:
             active.append(branch)
     return sorted(active)
 
@@ -444,7 +482,7 @@ def collect(base: str, symbol_filter: str | None) -> list[Lane]:
     git("rev-parse", "--verify", base)
     dispositions = claim_dispositions(base)
     lanes = []
-    for branch, head in lane_refs():
+    for branch, head in lane_refs(unmerged_into=base):
         commits = unique_commits(branch, base)
         if not commits:
             continue

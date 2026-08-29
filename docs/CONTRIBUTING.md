@@ -498,7 +498,9 @@ interrupted report without recompiling recorded identities, and repeated
   `already-integrated/exhausted` covers a base match or a current plateau, and
   `stale-ledger` means exact source identity or target-specific triage history
   is missing or older than the committed plateau. The check reads Git objects,
-  never another lane's worktree or index.
+  never another lane's worktree or index. Its ref query excludes branches
+  already merged into the selected base before doing target-history work, so
+  retained historical lane refs do not slow assignment checks.
 
 ### Integration housekeeping: `fix_stale_externs.py`, `refresh_atlas_digest.py`
 
