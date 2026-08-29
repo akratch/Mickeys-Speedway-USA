@@ -315,8 +315,10 @@ either a friendly or generated overlay name and fails closed unless it can
 prove one source, one owned range, one padding boundary, and stable runtime
 relocation identities. It also selects the ordinary or `NON_MATCHING` full-TU
 build automatically and reports callers, exports, the candidate ABI context,
-relocation tuples, and the current workbench score/first mismatch without
-printing instruction text or ROM bytes. See [`tools.md`](tools.md) for the
+overlay runtime records or authenticated resident static relocation tuples,
+and the current workbench score/first mismatch without printing instruction
+text or ROM bytes. Sparse resident startup-table records are reported
+separately and may legitimately be absent. See [`tools.md`](tools.md) for the
 report and `wb_compare.sh --diagnose` usage.
 
 ### Safe plateau finalization

@@ -192,9 +192,11 @@ the correct full-TU candidate object, automatically selecting
 separate split and target phases, so regenerated assembly cannot be hidden by
 Make's same-invocation timestamp scan. It then reports the exact
 owned range and next ownership/padding boundary, ROM-table exports, inbound
-call sites, the candidate declaration and frame, every shipped runtime
-relocation tuple (function-relative offset, type, stable identity, and stored
-addend), candidate relocation-surface agreement, and the current workbench
+call sites, and the candidate declaration and frame. For overlays it reports
+every shipped runtime relocation record; for resident functions it reports
+the authenticated canonical object's static relocation tuples separately from
+the sparse resident startup-table records, where zero records is valid. It
+then reports candidate static-relocation agreement and the current workbench
 word score and first mismatch. `--no-build` makes existing artifacts a hard
 requirement instead. Before any comparison, both that full-TU object and the
 canonical linked ELF must be current according to Make's real dependency
