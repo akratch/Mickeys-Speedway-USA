@@ -77,6 +77,12 @@ extern void overlay99DrawEntry(Overlay99Gfx **displayList, void *arg1,
 extern f32 D_8;
 extern f32 D_4;
 
+/*
+ * Plateau: exact 233-word shape and 0x148 frame. Field-order stores reduce the
+ * masked residual to 13 words: sorted[] is at sp+0x90 instead of target
+ * sp+0x80, two call-spill homes are four bytes low, and one command-store web
+ * remains. The next lever is declaration placement of the address-taken array.
+ */
 #ifdef NON_MATCHING
 void overlay99RenderSortedEntries(Overlay99Gfx **displayList, void *arg1,
                                   void *arg2, Overlay99RenderState *state,
@@ -159,8 +165,8 @@ void overlay99RenderSortedEntries(Overlay99Gfx **displayList, void *arg1,
     command->w0 = 0xE7000000;
     command = *displayList;
     *displayList = command + 1;
-    command->w1 = 0xFFFFFF00;
     command->w0 = 0xFB000000;
+    command->w1 = 0xFFFFFF00;
 
     for (i = 0; i < count; i++) {
         entry = sorted[i];
