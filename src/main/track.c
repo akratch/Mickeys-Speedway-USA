@@ -1739,11 +1739,16 @@ build_routes:
 #endif
 /* Retained isolated current-body C is 94/118 words with 24 register-field
  * differences from +0x24, frame 0x28, and exact runlinkIsModuleLoaded and
- * TrapDanglingJump calls. Its import omitted -Wab,-r4300_mul; no configured
- * full-TU C object survives, and current full-TU equality is fallback. The
- * historical 15-word basin is unretained. Reproduce configured/isolated V0,
+ * TrapDanglingJump calls. Its import omitted -Wab,-r4300_mul, but a retained
+ * pre-current-layout configured-path full-TU C object is byte-identical over
+ * the function, proving that flag inert here. No current-HEAD selective
+ * producer command/link proof survives; ordinary equality is fallback. The
+ * sole caller is func_8000E5EC+0x288, and runtime relocation 157 at +0x128
+ * resolves through ORT 1315 to Overlay 21 +0x10C. There is no export/runtime
+ * inbound or target padding; isolated trailing alignment is outside ownership.
+ * The historical 15-word basin is unretained. Run 119 flags and one trace,
  * then merge recordIndex/passCount; only on strict improvement reuse dead key
- * as nextValue before one bounded declaration/lifetime sweep. */
+ * as nextValue. Cap 121 builds plus trace and a gain-gated short batch. */
 #ifdef NON_MATCHING
 s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records,
                   TrackKeyRecord **matches) {

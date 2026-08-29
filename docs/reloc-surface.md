@@ -756,6 +756,16 @@ expose only the fallback's three generic records and depend on extracted
 assembly. A fresh C object must prove all nine tuples before the dirty
 scoreboard's 456-byte credit is accepted.
 
+Resident `func_8000DDE4` owns exactly two static R_MIPS_26 records:
+`runlinkIsModuleLoaded` at `+0x114` and the metadata trampoline
+`TrapDanglingJump` at `+0x128`. Retained isolated and pre-current-layout
+configured-path full-TU C reproduce both tuples at 94/118 raw/normalized
+words. Runtime resident record 157 replaces the second role with ORT 1315,
+Overlay 21 `+0x10C` (`overlay21ApplyPriorities`). Sole direct inbound is
+`func_8000E5EC+0x288`; there is no ORT export, resident-runtime or overlay
+inbound, stored pointer, data relocation, or target padding. Current linked
+equality proves fallback only.
+
 Overlay 45 `+0x764` owns 24 runtime records: 13 external calls, one local call
 to `+0x1158`, two SYMBOL HI16/LO16 pairs for the resource head and resident
 scissor state, and three LOCAL pairs for retained constants. The historical p4
