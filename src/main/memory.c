@@ -207,9 +207,12 @@ void *func_8002B4C0(MemoryPoolSlot *slots, s32 size) {
 
 /* PROVENANCE: adapted from JFG src/memory.c:mmAllocAtAddr. Mickey's globals,
  * pool/slot layouts, absent diagnostic calls, and linked bytes are authoritative. */
-/* Workbench verdict: mixed(constant:2, structural:2, register:10); 14/116 words, exact frame.
- * Lever: volatile padding fixed two stack-home words; prior pointer/condition and declaration probes left the slot register web.
- * Remaining: target branch/data-pointer shape; assembly fallback stays canonical. */
+/* Isolated workbench verdict: exact 116-word size and frame; 14 differing words
+ * from +0xE0 (constant:2, structural:2, register:10). No full-TU, relocation,
+ * linked-range, or ROM-exact C proof exists; the assembly fallback is canonical.
+ * Next bounded probes: separate early guards plus a call-live new-slot data
+ * pointer, then a compound guard, then a call-live new-slot record. None appears
+ * in retained Git, though historical pointer/condition scratch probes may overlap. */
 #ifdef NON_MATCHING
 void *func_8002B524(s32 size, u8 *address, u32 colourTag) {
     s32 slotIndex;
