@@ -76,20 +76,21 @@ typedef struct Overlay97ScaleEntry {
  * Mickey's model-bound scan tail. The local header-sized pointer step is
  * intentional: it preserves the original traversal base through the scan.
  *
- * Promotion reproof (2026-08-29): a direct comparison of the NON_MATCHING C
- * object against an independently assembled target is one word away at +0xD0;
- * the ordinary linked C promotion has the same residual. Retail derives the
+ * Promotion reproof (2026-08-29): retained configured NON_MATCHING C is
+ * 143/144 against an independently assembled target, one word away at +0xD0.
+ * No linked-C trial artifact survives; ordinary linked equality proves the
+ * fallback only. Retail derives the
  * values cursor as a3+2, while C emits the equivalent a1+0x3E address. Both
  * forms are frameless, 0x240 bytes / 144 instructions, and have no relocations.
  * The earlier object-exact note compared the fallback assembly to itself and
  * was invalid. The checked-in three-word ranking also omitted
  * -Wab,-r4300_mul; that flag fixes its +0x24/+0x28 scheduling differences and
- * leaves only +0xD0. Broader volatile and typed-base spellings perturb the
- * body, so the assembly fallback remains canonical. Adjacent header,
- * byte-member, and bounds-derived narrow-volatile variants collapse to 143
- * instructions with 69 positional differences. Re-run only an unchanged,
- * fully configured V0 to preserve fresh candidate and target objects; stop if
- * it reproduces the one-word plateau.
+ * leaves only +0xD0. Historical volatile, typed-base, declaration, flag, and
+ * permutation outcomes have no surviving attributable variant artifacts and
+ * do not prove exhaustion. Re-run configured V0, then independently derive
+ * values from the already-live bounds carrier as a byte address and as
+ * &bounds->bounds[1]; tighten scan-tail scope only after a strict gain, with a
+ * four-build cap. The assembly fallback remains canonical.
  */
 #ifdef NON_MATCHING
 void overlay97InitScale(Overlay97ScaleObject *object, void *entryArg) {
