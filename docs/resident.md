@@ -384,7 +384,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2C2F4` | `mmSetDelay` | `mmSetDelay` | B: writes the deferred-free delay used by `mmFree`; matched C exact |
 | `0x2C300` | `func_8002B700` | `mmFlushFreeStack` | B: drains queued addresses through the address-free worker; linked C exact |
 | `0x2C368` | `mmFree` | `mmFree` | A: unique 17-word skeleton with four relocated words masked; linked C exact |
-| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; guarded candidate is 62 instructions (`0xF8`) versus the 63-instruction (`0xFC`) target, with 62 positional differences from `+0x4`; retained workbench prose reports 11 aligned rows after owned BSS leaves the target's saved base in `s0` |
+| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; retained configured full-TU and isolated C agree at 62 words versus the 63-word target, frame `0x30`, with 62 raw/normalized positional differences from `+0x4`. All 12 type/identity records survive, but eleven are four bytes early and the first `D_800D20A8` LO16 is twelve bytes early. Linked equality proves `GLOBAL_ASM` only. |
 | `0x2C4A8` | `func_8002B8A8` | `mempool_free_addr` | B: finds an address's pool and clears its matching live slot; linked C exact |
 | `0x2C53C` | `func_8002B93C` | `mempool_free_queue` | B: appends an address and delay to the deferred-free arrays; linked C exact |
 | `0x2C578` | `func_8002B978` | `mempool_get_pool` | B: reverse-searches the pool table for the containing address range; linked C exact |
@@ -480,16 +480,17 @@ This is an exact candidate, not an allocator-search plateau, but it remains
 guarded until a fresh configured compile, linked resident range, and full-ROM
 comparison prove promotion.
 
-`func_8002B7AC`: the guarded candidate is 62 instructions (`0xF8`) versus the
-63-instruction (`0xFC`) target, with 62 positional differing words from
-`+0x4`. Both retain the same 12 relocation type/symbol identities, but every
-candidate offset is four bytes early, so no tuple is exact. The target
-preserves the initial `D_800D21B0` base in `s0` while the candidate first uses
-`t6`; retained workbench prose reports 11 aligned rows, but no current report
-artifact survives. Earlier flag, pointer, structure-bucket, and permuter
-campaigns did not close it. Reproduce one full-TU baseline, then try at most
-two forms that share the early base lifetime with the later `D_800D20A8`
-cursor while preserving its second independent HI/LO pair; otherwise park.
+`func_8002B7AC`: retained configured full-TU and isolated NON_MATCHING C are
+byte-identical for the unchanged current body. They emit 62 words versus the
+63-word target with the exact `0x30` frame. Raw and relocation-normalized
+positional comparison is 1/63 exact: 62 words differ including the missing
+target tail, first `+0x4`. Candidate and target have the same 12 relocation
+type/identity records, but zero exact-offset tuples. Eleven candidate records
+are four bytes early; the first `D_800D20A8` LO16 is at `+0x50` versus target
+`+0x5C`. The historical 11-aligned-row result survives only as prose. Ordinary
+object, linked function/TU, and ROM equality prove the assembly fallback only.
+Reprove V0, then try only the two early-base/later-cursor lifetime handoffs
+while preserving both `D_800D20A8` pairs.
 
 The `models` block is now the deliberate exception to that earlier scheduling
 rule: it has been split as a **working decompilation TU**, not promoted to a

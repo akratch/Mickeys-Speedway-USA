@@ -303,15 +303,23 @@ void mmFree(void *data) {
  */
 void ReleaseUnusedLinkSlots(void);
 
-/* Plateau (2026-08-28): stock -O2 emits 62 instructions (0xF8) versus the
- * 63-instruction (0xFC) target, with 62 positional differences from +0x4.
- * Both have the same 12 relocation type/symbol identities, but every candidate
- * offset is four bytes early, so no tuple is exact. Retained workbench prose
- * reports 11 aligned rows; its target-specific report artifact is absent.
- * Predecrement is object-identical; an inverted branch (21 rows), a reused BSS
- * cursor (63 rows/10 relocations), and a block-local last count (61 words, 26
- * rows) regress. The target alone keeps &D_800D21B0 in s0; the 119-flag lattice
- * and pointer forms remain exhausted. */
+/*
+ * Retained configured full-TU and isolated NON_MATCHING C are byte-identical
+ * for the unchanged current body: 0xF8 / 62 words versus the 0xFC / 63-word
+ * target, with the exact 0x30 frame. Raw and relocation-normalized positional
+ * comparison is 1/63 exact, 62 differing words including the missing target
+ * tail, first +0x4.
+ *
+ * Candidate and target have the same 12 relocation type/identity records, but
+ * no tuple has an exact offset. Eleven candidate records are four bytes early;
+ * the first D_800D20A8 LO16 is at +0x50 versus target +0x5C. The historical
+ * 11-aligned-row claim has no surviving report or variant object.
+ *
+ * Prior flag, permutation, pointer, branch, cursor, and block-local-count
+ * routes did not close it. Reprove V0, then test only the lexical and explicit
+ * early-D_800D21B0/later-D_800D20A8 lifetime handoffs while preserving both
+ * D_800D20A8 pairs.
+ */
 #ifdef NON_MATCHING
 void func_8002B7AC(void) {
     s32 i;
