@@ -1980,14 +1980,29 @@ original asm body remains canonical.
 supplies the body donor and a bounded canonical-flag permuter found the final
 loop-condition web coalescing.
 
-`func_80041CE4`: retained configured full-TU and isolated C are byte-identical
-at 126/153 words, frame `0x80`, first `+0x48`, with all nine relocations exact;
-the isolated import omitted `-Wab,-r4300_mul`, proving that flag inert for V0.
-The 27 register sites span outer/point-count and display-list/command carrier
-webs. Historical source, flag, trace, and permutation outcomes are unretained.
-Preserve V0, retain the flag lattice, try at most two trace-selected natural
-forms and their improving-only combination, then one corrected-flag annotated
-batch; asm stays canonical.
+`func_80041CE4` owns VRAM `0x80041CE4..0x80041F48`, ROM
+`0x428E4..0x42B48`: 612 bytes/153 words, frame `0x80`, and no target padding.
+Retained configured full-TU and isolated C are byte-identical at 126/153 raw
+and relocation-normalized words, first `+0x48`; ordinary object and linked-ROM
+equality are assembly fallback only. The isolated section's final 12 bytes are
+alignment outside the function. The 27 register-field sites split into outer
+count, early point-count, and post-call point-count/display-list carrier webs.
+
+All nine target records are exact in genuine C: pairs to `D_8007C894` at
+`+0x04/+0x08`, `D_8007C88C` at `+0x48/+0x4C` and `+0x1E4/+0x1F0`, and
+`D_7C900` at `+0x9C/+0xA4`, plus the `func_800349A4` call at `+0x158`.
+Runtime/export evidence is empty: zero resident records, no ORT row at offset
+`0x41894`, no overlay SYMBOL inbound, and no stored pointer. `partDraw+0xEC`
+is the sole direct caller and passes typed `Gfx **`/`ParticleLineVertex **`.
+
+The configured flags are `-O2 -mips2 -32 -Wab,-r4300_mul`; equality with the
+isolated object proves the omitted multiply flag inert here. The body is
+policy-valid. JFG `func_80063514` is a larger assembly-backed structural peer,
+not genuine donor C. Retain 119 flags and one allocator trace, compile at most
+two trace-selected natural forms and an improving-only combination, then one
+macro-faithful 20-minute batch only after a strict gain. Hard cap 122
+deterministic compiler invocations plus one trace and the optional batch; asm
+stays canonical.
 
 `func_8003D25C`: before/after allocation mismatch, 168 instructions and 70 register-only words, first `+0x50`.
 Type lever: pool/render-resource aggregates and vector aliases; no allocation movement. Remains temp slot 0 and pool substitutions; asm stays canonical.

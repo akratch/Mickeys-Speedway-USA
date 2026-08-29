@@ -910,6 +910,14 @@ record or ORT export. Authenticated inbounds are resident
 shared draw-cone identity and await regenerated metadata. Current linked
 equality proves fallback only.
 
+Resident `func_80041CE4` owns nine exact static records in retained genuine C:
+HI16/LO16 pairs to `D_8007C894` at `+0x04/+0x08`, `D_8007C88C` at
+`+0x48/+0x4C` and `+0x1E4/+0x1F0`, and `D_7C900` at `+0x9C/+0xA4`, plus an
+R_MIPS_26 call to `func_800349A4` at `+0x158`. Resident runtime records, an
+ORT export at offset `0x41894`, overlay SYMBOL inbounds, and stored-pointer
+inbounds are all zero. `partDraw+0xEC` is the sole direct caller. Current
+linked equality proves fallback only.
+
 Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to

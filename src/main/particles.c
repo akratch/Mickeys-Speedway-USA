@@ -43,7 +43,7 @@ void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, Parti
                    ParticleConfig *config);
 void func_8003F5F8(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
                    ParticleConfig *config);
-void func_80041CE4(void **dList, void **vertices);
+void func_80041CE4(Gfx **dList, ParticleLineVertex **vertices);
 void func_80041F48(s32 arg0, ParticleTrigger *trigger);
 s32 func_80040878(CircularParticle *particle, s32 updateRate);
 CircularParticle *func_8004054C(s32 type, s32 direction);
@@ -1960,18 +1960,20 @@ void func_80041C50(s32 arg0, s32 arg1) {
     }
 }
 /*
- * Retained configured full-TU and isolated C agree at 126/153 words, frame
- * 0x80, first +0x48, with all nine relocations exact; -Wab,-r4300_mul is inert
- * for V0. The 27 sites are outer/point-count and display-list/command carrier
- * webs. Historical source, flag, trace, and permuter outcomes are unretained.
- * Preserve V0, retain the flag lattice, then try at most two trace-selected
- * natural declaration/lifetime forms and their improving-only combination
- * before one corrected-flag annotated batch.
+ * Owns ROM 0x428E4..0x42B48: 153 words, frame 0x80, no padding. Retained
+ * full-TU/isolated C agree at 126/153 raw and relocation-normalized words,
+ * first +0x48, with all nine tuples exact; -Wab,-r4300_mul is inert for V0.
+ * The 27 sites are three carrier webs. Linked equality is fallback-only;
+ * partDraw+0xEC is the sole caller and runtime/export/overlay inbounds are
+ * zero. Retain 119 flags and one allocator trace, try at most two natural
+ * declaration/lifetime forms and an improving-only combination, then one
+ * macro-faithful bounded batch only after a strict gain. Hard cap: 122
+ * deterministic invocations plus one trace and one optional 20-minute batch.
  */
 /* PROVENANCE: structure cross-checked against JFG's assembly-only
  * func_80063514 sibling; body reconstructed from Mickey evidence. */
 #ifdef NON_MATCHING
-void func_80041CE4(void **dList, void **vertices) {
+void func_80041CE4(Gfx **dList, ParticleLineVertex **vertices) {
     Gfx *command;
     ParticleLineVertex *vertex;
     ParticleLineVertex *vertexStart;
@@ -2237,7 +2239,7 @@ void partUpdateParticles(s32 updateRate) {
 }
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/partDraw.s; body reconstructed from Mickey evidence. */
 void partDraw(Gfx **dList, s32 arg1, s32 mode) {
-    void *vertices;
+    ParticleLineVertex *vertices;
     s32 pad;
 
     if (mode != 0) {
@@ -2246,17 +2248,18 @@ void partDraw(Gfx **dList, s32 arg1, s32 mode) {
     vertices = (u8 *)D_8007C89C[D_8007C8E8] + (D_8007C8EC * 10);
     gDPPipeSync((*dList)++);
     if (mode == 1) {
-        D_8007C8EC = func_8003CE10(dList, arg1, &vertices, D_800D4128, 1);
+        D_8007C8EC = func_8003CE10(dList, arg1, (void **)&vertices,
+                                   D_800D4128, 1);
         return;
     }
     camSetNo(0);
     func_800221E8((void **)dList, arg1);
-    func_8003D4FC((void **)dList, &vertices, D_800D4120[0]);
-    func_8003D4FC((void **)dList, &vertices, D_800D4124);
-    func_80041CE4((void **)dList, &vertices);
+    func_8003D4FC((void **)dList, (void **)&vertices, D_800D4120[0]);
+    func_8003D4FC((void **)dList, (void **)&vertices, D_800D4124);
+    func_80041CE4(dList, &vertices);
     func_80041C50((s32)dList, (s32)&vertices);
-    func_8003CE10(dList, arg1, &vertices, D_800D4128, mode);
-    func_8003D25C(dList, arg1, &vertices, D_800D412C);
+    func_8003CE10(dList, arg1, (void **)&vertices, D_800D4128, mode);
+    func_8003D25C(dList, arg1, (void **)&vertices, D_800D412C);
     D_8007C8E8 ^= 1;
 }
 void partNullifyCircularParticleParents(ParticlePosition *position) {
