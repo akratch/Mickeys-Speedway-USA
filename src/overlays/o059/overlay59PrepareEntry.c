@@ -4,15 +4,17 @@
  * PROVENANCE: Mickey-derived from this overlay's owned assembly and runtime
  * relocation tables; pinned DKR/JFG scans found no donor.
  *
- * Reproof lead (re-audited 2026-08-29): the historical pre-split-carrier
- * same-body configured full-TU and isolated C were measured at 52/62 raw and
- * 53/62 normalized words, 0xF8 bytes/frame 0x28, first raw +0x10 and
- * substantive +0x54. No attributable candidate object, comparison report, or
- * linked-C proof survives, so the current source's score, frame, extent, and
- * emitted relocations are unknown.
- * Ten raw sites remain at +0x10/+0x54/+0x5C/+0x68/+0x88/
- * +0x8C/+0x90/+0x98/+0xB8/+0xC0; normalizing the table LO16 leaves nine
- * descriptor/call-argument carrier web. The owned range is overlay
+ * Bounded reproof (2026-08-29): the policy-clean split-carrier C compiles to
+ * the exact 0xF8/62-word extent with frame 0x28. It matches 52/62 raw words
+ * and 53/62 relocation-normalized words, with first raw +0x10 and first
+ * substantive +0x54. Ten raw sites remain; normalizing the table LO16 leaves
+ * nine sites in one descriptor/call-argument carrier web. All 119 compiler
+ * configurations were nonexact, with canonical -O2 -mips2 tied for best. One
+ * instrumented UOPT trace found seven colored webs and an otherwise exact
+ * temporary-register lane. The trace-supported natural form that coalesced
+ * descriptor input with the acquisition result compiled byte-identically to
+ * this split-carrier body, so there was no strict gain to retain.
+ * The owned range is overlay
  * +0x70..+0x168 (ROM 0x18B87C0..0x18B88B8), with no target padding and the next
  * function beginning at +0x168; the separate +0xA1C..+0xA20 padding is not
  * owned. The LOCAL table pair resolves through
@@ -23,14 +25,11 @@
  * prove their identities. No linked candidate-C proof survives.
  * The s32 three-argument ABI is called only from four sites in
  * overlay59Advance at module +0x418/+0x590/+0x614/+0x66C; it is not exported
- * and has no resident or cross-overlay inbound. Historical natural-form, flag,
- * trace, and permutation outcomes have no surviving attributable result set
- * and do not prove exhaustion. The retained function-specific structural
- * oracle is negative (best similarity 0.106, with no credible donor). The
- * current policy-clean source splits descriptor input from acquisition result;
- * this alias-correct V1 is uncompiled. Retain 119 configurations including V0,
- * trace the web, then try one scope/line form only after strict gain; hard stop
- * at 121 deterministic builds plus one trace, with no generic batch.
+ * and has no resident or cross-overlay inbound. The retained function-specific
+ * structural oracle is negative (best similarity 0.106, with no credible
+ * donor). The fallback remains active. The next pass needs a different
+ * source-faithful call-argument carrier/coalescing lever, not another flag
+ * sweep or generic permutation batch.
  */
 
 typedef struct Overlay59Descriptor {
@@ -55,6 +54,14 @@ extern void overlay59PrepareReleaseReloc(Overlay59Entry *entry);
 extern u32 overlay59PrepareAcquireReloc(u32 value);
 
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: overlay59PrepareEntry
+ * score: 53/62 words
+ * frame: 0x28
+ * relocations: 6
+ * first-mismatch: +0x54
+ * summary: All 119 flags were nonexact; trace-supported carrier coalescing was flat, leaving one descriptor/call-argument carrier web.
+ */
 s32 overlay59PrepareEntry(Overlay59Entry *entry, s32 tableIndex, s32 itemIndex) {
     Overlay59Descriptor *descriptor;
     u32 descriptorValue;
