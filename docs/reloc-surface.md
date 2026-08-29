@@ -833,11 +833,11 @@ resolve to `func_8002B280`; 56/59 at `+0xB8/+0x198` to `piRomLoadSection`;
 62/65 at `+0x1B4/+0x1CC` to `mmFree`. Table 2 LOCAL pairs 14/15 and 16/17 at
 `+0x04/+0x0C` and `+0x34/+0x38` share data base `+0x15B0`, addend `+0x14`,
 module identity `+0x15C4`; record 18 at `+0x68` calls local
-`overlay68PayloadLimit` (`+0`). Retained diagnostic C emits all 19 sites, but
-its friendly aliases split shared identities; clean source now unifies them and
-awaits regenerated metadata plus compilation. ORT 1163's sole inbound is
-resident relocation 4, `func_80004FE0+0x4C8`; there are no local or
-cross-overlay callers. Current linked equality proves fallback only.
+`overlay68PayloadLimit` (`+0`). Policy-clean configured C represents all 19
+runtime roles, but its 120-word/`0x38`-frame structure shifts static sites after
+`+0x64` against the 122-word/`0x40` target. ORT 1163's sole inbound is resident
+relocation 4, `func_80004FE0+0x4C8`; there are no local or cross-overlay
+callers. Current linked equality proves fallback only.
 
 Overlay 41 `+0x000` owns exactly three runtime records: a SYMBOL HI16/LO16
 pair at function `+0x14/+0x28` resolving to `D_800D6B58`, and a SYMBOL call at

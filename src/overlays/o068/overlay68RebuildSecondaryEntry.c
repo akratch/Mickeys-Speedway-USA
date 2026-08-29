@@ -40,27 +40,21 @@ extern s32 overlay68GetBlurEffectReloc(s32 kind);
 extern void overlay68ReleaseReloc(void *resource);
 
 /*
- * Retained pre-cleanup configured full-TU and isolated C are diagnostic
- * 111/122 literal and 113/122 runtime-normalized words, frame 0x40, first
- * substantive +0x58, with all 19 runtime record sites. The former duplicate
- * map identity, mappingStart, loopMapping, valueCursor, false pointer fields,
- * and split aliases were allocation/reload aids and are removed. Clean,
- * identity-correct V0 is uncompiled. Retain 119 flags and one allocator trace,
- * then try sentinel order and one trace-selected stack-home form, combining
- * only strict gains. Hard cap: 122 stock builds plus one trace; annotated batch
- * only after a policy-clean gain. ORT 1163's sole inbound is
- * func_80004FE0+0x4C8.
+ * Policy-clean configured C plateaus at 17/122 positional words, with 120
+ * emitted words, frame 0x38, and first mismatch +0x0. All 19 runtime roles
+ * remain represented, but structural drift shifts sites after +0x64. All 119
+ * flag configurations were nonexact; the closest debug family still differs
+ * in 77 words and has the wrong extent. One codegen-faithful allocator trace
+ * supported lexical stack-home scoping, which improved one word but did not
+ * restore the target's 122-word/0x40-frame shape. Sentinel operand order was
+ * byte-identical, so no batch was authorized. The assembly fallback remains;
+ * ORT 1163's sole inbound is func_80004FE0+0x4C8.
  */
 #ifdef NON_MATCHING
 void overlay68RebuildSecondaryEntry(s32 kind) {
     s32 amount;
     const Overlay68KindPair *mapping;
-    Overlay68EntryHeader *entry;
-    Overlay68Probe *probe;
-    Overlay68ResidentEntry *entries;
     s32 currentKind;
-    s32 threshold;
-    s32 index;
 
     gOverlay68SecondaryEntry = 0;
     amount = -1;
@@ -79,10 +73,18 @@ void overlay68RebuildSecondaryEntry(s32 kind) {
     }
 
     if (amount != -1) {
+        Overlay68EntryHeader *entry;
+
         entry = overlay68AllocReloc(overlay68PayloadLimit(), 0x85);
         if (entry != 0) {
+            Overlay68Probe *probe;
+
             probe = overlay68AllocReloc(sizeof(*probe), 0x85);
             if (probe != 0) {
+                Overlay68ResidentEntry *entries;
+                s32 threshold;
+                s32 index;
+
                 overlay68RomLoadSectionReloc(0x3F, (u32)probe,
                                              amount * (s32)sizeof(*probe),
                                              sizeof(*probe));
@@ -127,3 +129,13 @@ void overlay68RebuildSecondaryEntry(s32 kind) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o068/overlay68RebuildSecondaryEntry/func_overlay_068_F0001250_18C83B0.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay68RebuildSecondaryEntry:start
+ * symbol: overlay68RebuildSecondaryEntry
+ * score: 17/122 words
+ * frame: 0x38
+ * relocations: 19
+ * first-mismatch: +0x0
+ * summary: 120-word scoped C retains 19 roles; target requires 122 words and a 0x40 frame
+ * PLATEAU-HANDOFF:overlay68RebuildSecondaryEntry:end
+ */
