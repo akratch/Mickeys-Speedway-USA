@@ -1075,6 +1075,16 @@ adopted `void (SavesBitWriter *, s32, s32)` ABI. Its exact owner is VRAM
 extent and emits zero relocations, but eleven register-only words differ; linked
 equality therefore proves fallback only.
 
+Resident `func_8001D880` owns VRAM `0x8001D880..0x8001D910`, ROM
+`0x1E480..0x1E510`, with no padding and no static or runtime relocations.
+ORT 405 exports it. Overlay 26 table-1 record 17 at module `+0xA0C` and
+Overlay 80 table-1 record 1 at module `+0xD0` are its only runtime inbounds;
+there is no resident inbound. Their current friendly call prototypes and
+argument setup conflict with the target's observed
+`f32 (f32, f32, f32 *, f32)` ABI, so they authenticate identity and call sites
+only, not caller semantics. Fresh configured C is exact-sized at 36 words but
+has 29 positional differences; linked equality therefore proves fallback only.
+
 Resident `func_80012574` targets one R_MIPS_26 record to `sqrtf` at `+0xA4`.
 Historical pre-cleanup configured C was reported to emit that exact tuple, but
 no candidate object/hash survives and current clean C output is pending. It owns

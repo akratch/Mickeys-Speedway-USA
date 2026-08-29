@@ -2364,10 +2364,10 @@
       "tu": "main",
       "size_bytes": 144,
       "objdiff_match_pct": null,
-      "differing_words": 32,
+      "differing_words": 29,
       "first_mismatch_offset": 4,
-      "size_delta": -4,
-      "category": "size-mismatch"
+      "size_delta": 0,
+      "category": "structure-mismatch"
     },
     {
       "name": "overlay1HandleCachedMode",

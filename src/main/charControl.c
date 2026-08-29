@@ -1227,9 +1227,15 @@ s16 dAngle(s16 arg0, s16 arg1, f32 arg2) {
     }
     return (s16) (arg0 + (s32) ((f32) var_v1 * arg2));
 }
-/* Workbench: mixed(structural:2, register:28), exact 36 instructions/29 words, first +0x4.
- * Levers: table type, pointer aliasing, final-expression forms, and flag/source-shape sweep; none matched.
- * Remains: divisor-load scheduling and FP/int pool coloring. */
+/* PLATEAU-HANDOFF
+ * Fresh configured full-TU C is exact-sized at 36 words/0x90, frameless,
+ * with 7/36 positional words equal and first mismatch +0x4; no relocations.
+ * Thirteen bounded natural builds plus four fidelity-clean trace diagnostics
+ * found no strict gain. Proc 21 shows the second-base FP web occupying the
+ * target constant color, cascading the register map and final load/multiply
+ * schedule. Preserve V0 and fallback; resume only with a source-authentic
+ * pool-to-temp/web-formation mechanism.
+ */
 /* PROVENANCE -- adapted from JFG's charControl controlMakeV implementation. */
 #ifdef NON_MATCHING
 f32 func_8001D880(f32 arg0, f32 arg1, f32 *table, f32 divisor) {
