@@ -1275,6 +1275,17 @@ Metadata-only identity rebinding still leaves only 48/60 linked words equal,
 with first mismatch `+0x0`; ORT 1322 and resident relocation 164 authenticate
 the inbound from `func_8000E5EC+0x190` (ROM call site `0xF7CC`).
 
+The same reproof authenticated `overlay98CheckObject` at `+0x848..+0xA04`.
+It owns six runtime tuples: R_MIPS_26 resident `+0x1312C` at `+0xA4`; LOCAL
+HI16/LO16 identities Overlay 98 `+0xAB0` (stored addend `+0x80`) at
+`+0xE4/+0xE8` and `+0xD38` (stored addend `+0x308`) at `+0x108/+0x10C`;
+and R_MIPS_26 resident `+0x124CC` at `+0x154`. Canonical `-O2 -mips2`
+places all six sites four bytes early; `-Wab,-r4300_mul` restores every
+offset/type and the exact 111-word extent, but metadata-only rebinding and
+section trimming still leave only 78/111 linked words equal. It has no export;
+its sole inbound is the local JUMP from `overlay98CollectAccepted+0x74` at
+module offset `+0x1B8`.
+
 ## 7. What is still hand-written
 
 - **Section externalization.** `externalize_elf_section.py` takes the expected

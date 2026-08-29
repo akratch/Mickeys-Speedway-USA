@@ -33,6 +33,10 @@ extern s32 overlay98CheckCandidateReloc(void *, Vec3f *, Vec3f *, s32, s32);
 extern s32 overlay98UniqueCountReloc;
 extern s16 overlay98UniqueYReloc[];
 
+/* PROVENANCE: candidate source reproduced from the project's public mirror at
+ * f56d08c746f891f76c4b7bab8e3a2a4332894634. All retained measurements were
+ * independently derived from Mickey's own source, object, relocation tables,
+ * and retail bytes. */
 /* Natural C requires prohibited frame, CFG, schedule, and register-field
  * instruction edits to reproduce retail. Assembly remains canonical. */
 #ifdef NON_MATCHING
@@ -77,3 +81,14 @@ s32 overlay98CheckObject(O98Object *object, u8 *context, f32 *result) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o098/overlay98CheckObject/func_overlay_098_F0000848_18D9208.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay98CheckObject:start
+ * symbol: overlay98CheckObject
+ * score: 78/111 linked words
+ * frame: 0x80 (target 0xA8)
+ * relocations: 6
+ * first-mismatch: +0x0
+ * summary: -Wab,-r4300_mul is the best of 119 flags and restores exact extent
+ * and relocation shape; 33 operand/register words and the frame remain wrong.
+ * PLATEAU-HANDOFF:overlay98CheckObject:end
+ */
