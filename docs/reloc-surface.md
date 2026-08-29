@@ -989,12 +989,12 @@ stack-home sites are unrelated to the relocation surface. Linked equality
 remains fallback-only.
 
 Overlay 62 `+0xD4` (`overlay62Update`) owns 71 runtime records: 43 SYMBOL and
-28 LOCAL, comprising 21 calls and 25 HI16/LO16 pairs. Historical pre-cleanup C
-was reported with all 71 at exact offsets/types, but no attributable object or
-site-by-site map survives; clean source is uncompiled and must regenerate the
-complete mapping. The fallback target retains only 29 incomplete generic
-records. The function owns `+0xD4..+0x56C` with no target padding; the next
-owner begins at `+0x56C`. ORT 1444 exports `+0xD4`; resident relocation 302 at
+28 LOCAL, comprising 21 calls and 25 HI16/LO16 pairs. Fresh configured C emits
+all 71 at exact offsets and types. The identity comparator resolves 18 friendly
+aliases and leaves 53 proxy names unmapped, so those roles are not yet proved
+for promotion; the fallback target's 29 generic records remain incomplete. The
+function owns `+0xD4..+0x56C` with no target padding; the next owner begins at
+`+0x56C`. ORT 1444 exports `+0xD4`; resident relocation 302 at
 `func_80038E1C+0x3A4` is the sole runtime inbound. Runtime tables, not friendly
 proxy names or fallback ELF records, are the identity authority. Linked
 equality proves fallback only.

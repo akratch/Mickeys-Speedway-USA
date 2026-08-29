@@ -77,22 +77,21 @@ extern void overlay62DrawLabelReloc(Overlay62Gfx **commands, s32 *state,
 
 #ifdef NON_MATCHING
 /* PROVENANCE: Mickey-derived; pinned exact-overlay DKR v77/v80 and JFG scans
- * found no exact donor. Pre-cleanup macro-faithful configured C measured a
- * diagnostic 289/294 raw and 290/294 runtime-normalized words, frame 0x88.
- * Its raw sites were +0x44/+0x50/+0x54/+0x64/+0x130; normalization removed the
- * LOCAL LO16 at +0x130, leaving one four-site allocation web. That historical
- * measurement reported the complete 71-role topology (21 R26 and 25 HI/LO
- * pairs; 43 SYMBOL/28 LOCAL), but no attributable C object or site-by-site map
- * survives. The fallback object's 29 records are incomplete and ordinary
- * equality proves assembly only. The isolated row means 11 differing words
- * (283/294 raw), not an 11-word function; it expanded OVERLAY62_EMIT across
- * physical lines and is not macro-faithful. Its empty guard and `red | 0` are
- * removed, so clean V0's score, frame, extent, and records are unknown. Owned
- * +0xD4..+0x56C is 294 words with no target padding; release starts at +0x56C.
- * Run exactly 119 configurations, then if the historical web remains try one
- * natural shared-negation/shift lifetime. Permit one 20-minute macro-preserving
- * annotated batch only after a strict gain. No linked/ROM-exact C proof
- * survives. */
+ * found no exact donor. Fresh configured full-TU C has the exact 294-word
+ * extent and 0x88 frame, with 287/294 relocation-masked words (286/294 literal
+ * object words) and first mismatch +0x44. All 119 flag configurations are
+ * nonexact; seven O2/MIPS-II rows tie V0. A fidelity-clean proc-0 allocator
+ * trace leaves all 85 temp-lane assignments exact and first diverges at pool
+ * slot 6. An explicit shared negation lifetime regresses to 297 words/frame
+ * 0x90, while removing the `register` hint is byte-identical, so neither gives
+ * the strict gain required for a batch. The candidate emits all 71 runtime
+ * records (21 R26 and 25 HI/LO pairs; 43 SYMBOL/28 LOCAL) at exact offsets and
+ * types. The identity comparator resolves 18/71 friendly aliases; the other 53
+ * remain proxy-identity work and prohibit promotion. Owned +0xD4..+0x56C has
+ * no target padding; release starts at +0x56C. ORT 1444 and sole inbound
+ * func_80038E1C+0x3A4 are authenticated. Linked equality proves fallback only;
+ * resume with a new natural pool/web-formation spelling and complete identity
+ * mapping, not more flags, these two forms, or an ungated batch. */
 void overlay62Update(s32 updateRate) {
     s32 alpha;
     volatile s32 screenBase;
