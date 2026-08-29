@@ -2,6 +2,7 @@
 
 /*
  * Classify an edge against a candidate edge, accepting either orientation.
+ * PROVENANCE: Mickey-derived; pinned DKR v77/v80 and JFG scans found no donor.
  * Plateau (2026-08-25, cx-ov-2-a-r4): canonical -O2 -mips2 is exact-size at
  * 0x1E0 bytes, with 10 differing words and the first mismatch at +0x138.
  * Equivalent promoted-s16 `>= value + 1` tests reduce the original 14-word
@@ -18,6 +19,18 @@
  * no promotion. Its retained scratch contains no candidate source suitable
  * for a real-TU rebuild, so the six-site `$t3` to `$v1` web and four final
  * schedule sites remain unresolved.
+ * Trace follow-up (2026-08-28, CREW-O19-EDGE-READY-68): the configured
+ * instrumented uopt run assigns candidate web 9 to `$v1`, while the target's
+ * six reversed-coordinate sites require the `$t3` carrier. A single forced
+ * `web 9 -> t3` diagnostic was accepted but perturbed the whole allocation
+ * (62/120 aligned instructions exact), so it is not promotable. Direct loads
+ * reached 108/120, temporary reuse 96/120, and `s16 queryStartX` changed size.
+ * Reordering the final y/z checks preserved 110/120 while removing the
+ * schedule class; swapped relational spellings canonicalized to baseline.
+ * Current raw/normalized sites are +0x138/+0x140/+0x148/+0x154/+0x15C/
+ * +0x164/+0x194/+0x198/+0x1B0/+0x1B4, with no relocations. Run the one
+ * missing 119-combination flag lattice; if canonical flags remain best, park
+ * absent a new allocator mechanism.
  */
 #ifdef NON_MATCHING
 s32 overlay19ClassifyEdge(

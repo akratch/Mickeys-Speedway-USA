@@ -1182,7 +1182,11 @@ NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via guarded
 normalization of four independent two-load schedules and one six-use
 temporary web); source kept as decomp-permuter input. The natural object was
 size-, opcode-, CFG-, memory-, return-, and likely-branch-exact at 106/120
-words.
+words in that historical trial. Current retained configured evidence is
+110/120: six `$t3/$v1` allocation sites and four final load-order sites, with
+no frame or relocations. Source-faithful forms, forced coloring, tracing, and
+bounded permutation are exhausted; one complete 119-flag lattice remains
+before parking it as a toolchain allocator wall.
 
 Overlay 42's `+0x0F4..+0x6A4` captured-buffer renderer adds **1,456 naturally
 exact C bytes / 364 words**. Its historical display-list macro spelling

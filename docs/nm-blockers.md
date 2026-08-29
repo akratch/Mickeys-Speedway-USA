@@ -228,7 +228,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_019_F0000A30_1875C88` | `src/overlays/o019/overlay19BuildAdjacency.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_019_F00001E0_1875438` | `src/overlays/o019/overlay19BuildPlanes.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_019_F0000F58_18761B0` | `src/overlays/o019/overlay19BuildSpatialMasks.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_019_F0000D78_1875FD0` | `src/overlays/o019/overlay19ClassifyEdge.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_019_F0000D78_1875FD0` | `src/overlays/o019/overlay19ClassifyEdge.c` | none | — | Retained configured evidence is 110/120 words with ten raw/normalized register/load-order sites, no frame or relocations. Source, trace, forced-color, and bounded-permuter probes are exhausted, but the full 119-flag lattice is unrecorded. Run it once; park if canonical flags remain best. |
 | `func_overlay_020_F000038C_1876964` | `src/overlays/o020/func_overlay_020_F000038C_1876964.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_020_F0001148_1877720` | `src/overlays/o020/func_overlay_020_F0001148_1877720.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_020_F0001018_18775F0` | `src/overlays/o020/overlay20RemoveEntry.c` | none | — | No ownership change; continue source/codegen work. |
