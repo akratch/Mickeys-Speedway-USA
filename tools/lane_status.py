@@ -17,6 +17,9 @@ from dataclasses import asdict, dataclass
 
 
 MATCH_RE = re.compile(r"^match(?:ed)?\s+([A-Za-z_][A-Za-z0-9_]*)\b", re.I)
+REMOVED_GLOBAL_ASM_RE = re.compile(
+    r'^-\s*#pragma\s+GLOBAL_ASM\("(?P<path>[^"]+)"\)', re.MULTILINE,
+)
 
 
 def git(*args: str, check: bool = True) -> str:
@@ -38,6 +41,24 @@ def has_global_asm(ref: str, symbol: str) -> bool:
     if result.returncode not in (0, 1):
         raise RuntimeError(f"git grep failed for {ref}:{symbol}")
     return result.returncode == 0
+
+
+def has_text(ref: str, text: str) -> bool:
+    result = subprocess.run(
+        ["git", "grep", "-q", "-F", text, ref, "--", "src"],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+    )
+    if result.returncode not in (0, 1):
+        raise RuntimeError(f"git grep failed for {ref}:{text}")
+    return result.returncode == 0
+
+
+def removed_global_asms(commit: str) -> list[str]:
+    patch = git(
+        "show", "--format=", "--no-ext-diff", "--unified=0", commit,
+        "--", "src",
+    )
+    return sorted(set(REMOVED_GLOBAL_ASM_RE.findall(patch)))
 
 
 def source_paths(commit: str) -> list[str]:
@@ -110,6 +131,20 @@ def collect(base: str, symbol_filter: str | None) -> list[Lane]:
                 continue
             base_fallback = has_global_asm(base, symbol)
             lane_fallback = has_global_asm(branch, symbol)
+            # Friendly C names and splat's generated fallback names can differ.
+            # A match commit records the authoritative association by deleting
+            # the exact GLOBAL_ASM path, so use that path when the friendly-name
+            # probe cannot see the fallback.
+            fallback_paths = removed_global_asms(commit)
+            if not base_fallback and fallback_paths:
+                base_fallback = any(
+                    has_text(base, f'GLOBAL_ASM("{path}")')
+                    for path in fallback_paths
+                )
+                lane_fallback = any(
+                    has_text(branch, f'GLOBAL_ASM("{path}")')
+                    for path in fallback_paths
+                )
             if base_fallback and not lane_fallback:
                 state = "pending"
             elif not base_fallback:
