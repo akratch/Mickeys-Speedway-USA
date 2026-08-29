@@ -2432,7 +2432,7 @@ fb_memcpy = 0x80034230; // type:func size:0x30   ROM 0x34e30  src/gameVi.c.o  ma
 initColourCycle = 0x80036A50; // type:func size:0x30 tier-A exact C, JFG src/textures.c body
 // donor-jfg-src/menu.c.o
 func_80038750 = 0x80038750; // type:func size:0x128 tier-A ROM 0x39350 IDO C exact, JFG src/menu.c structural oracle, allocator-trace-guided, owns jtbl at 0x83334
-func_80038878 = 0x80038878; // type:func size:0x154 tier-D ROM 0x39478 NON_MATCHING plateau 66/85 words differ, first +0x14
+func_80038878 = 0x80038878; // type:func size:0x154 tier-D ROM 0x39478 NON_MATCHING diagnostic p6 target 85/candidate 86 instructions, 66/85 positional differences, first +0x14; artificial empty address condition removed
 func_800389CC = 0x800389CC; // type:func size:0x1F8 tier-D ROM 0x395CC exact C, JFG-adapted body and compiler-owned switch table
 func_80038BC4 = 0x80038BC4; // type:func size:0x1E8 tier-D ROM 0x397C4 exact C, JFG-comparison body and compiler-owned switch table
 jtbl_80082748 = 0x80082748; // type:jtbl size:0x4C tier-A compiler-owned menu switch table

@@ -318,9 +318,12 @@ void func_80038750(s32 language) {
     }
 }
 #ifdef NON_MATCHING
-/* Workbench plateau: structure-mismatch, 54 words; 85/86 instructions, frame -24, first +0x14.
- * Lever: an address-alias mark improved the initial global web but added one instruction; a call-result local was inert.
- * Remains: separate initial store/base materialization, later loop webs, and relocation bindings. */
+/* Retained p6 was diagnostic: 85/86 instructions, frame 0x18, first +0x14,
+ * with 66/85 positional target-word differences. Its empty address condition
+ * was introduced only as an allocation lever and is removed; clean V0 is
+ * uncompiled. Remaining work is the initial global-address allocation, later
+ * loop webs, and relocation identities. Historical route exhaustion is
+ * scheduling evidence only. */
 /* PROVENANCE: compared with JFG's public src/menu.c::initFront, which retains assembly. */
 void func_80038878(void) {
     s32 *buffer;
@@ -331,7 +334,6 @@ void func_80038878(void) {
     u8 *loadedEnd;
 
     D_800D3150[0] = (s32) func_8002B280(0x5B8, 0x8F);
-    if (&D_800D3150[0]);
     buffer = D_800D3150;
     bufferEnd = D_800D3168;
     value = buffer[-1];

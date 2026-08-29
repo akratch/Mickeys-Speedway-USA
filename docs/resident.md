@@ -1067,9 +1067,14 @@ TU now owns its five-entry language jump table (`.rodata` carve moved to
 `assetIndex = language + 1` in descending case order, which the old
 JFG-adapted reversal got wrong while matching `.text` by coincidence.
 
-`func_80038878` remains tier-D `NON_MATCHING`: 66/85 words differ, first `+0x14`; frame and instruction count are exact.
-Levers covered first-loop pointer/cache, globals/volatile, type/order, flags, and the bounded permuter; JFG remains the structural lead.
-Remaining: initial global-address allocation, later loop webs, and relocation bindings.
+`func_80038878` remains tier-D `NON_MATCHING`. Its retained p6 result is
+diagnostic: target 85 versus candidate 86 instructions, frame `0x18`, 66/85
+positional target-word differences, first `+0x14`. The empty address condition
+was introduced only as an allocation lever and is removed; clean V0 is
+uncompiled and historical flag/source/permuter exhaustion is scheduling
+evidence only. JFG's assembly-backed `initFront` remains a structural lead.
+Remaining work is the initial global-address allocation, later loop webs, and
+relocation identities.
 
 | Function | Exact result |
 |---|---|
