@@ -1584,7 +1584,12 @@ typedef struct Overlay1CallbackEntry {
     u16 padA;
 } Overlay1CallbackEntry;
 
-/* Fresh pinned DKR v77/v80 and JFG scans found no Overlay 1 donor. */
+/* Fresh pinned DKR v77/v80 and JFG scans found no Overlay 1 donor.
+ * Retained genuine C measures 36/56 words with all 13 runtime-backed records.
+ * Lane 704a9f31 reached an apparent exact result only by adding an empty
+ * pointer condition after the callback; that invented guard is rejected and
+ * must not be promoted. Reproduce the natural baseline before a source-faithful
+ * allocator/lifetime attempt. */
 extern s32 overlay1IsObjectActive(void *object);
 extern s32 gOverlay1TimerStep;
 extern f32 gOverlay1CallbackStepFloat;
