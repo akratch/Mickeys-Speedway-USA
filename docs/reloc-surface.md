@@ -1176,7 +1176,9 @@ HI16/LO16 pairs to `D_8007C894` at `+0x04/+0x08`, `D_8007C88C` at
 R_MIPS_26 call to `func_800349A4` at `+0x158`. Resident runtime records, an
 ORT export at offset `0x41894`, overlay SYMBOL inbounds, and stored-pointer
 inbounds are all zero. `partDraw+0xEC` is the sole direct caller. Current
-linked equality proves fallback only.
+bounded C remains 126/153 words with candidate SHA prefix `90eeefb220a1`;
+all 119 flags and two flat natural forms are nonexact, so linked equality
+continues to prove fallback only.
 
 Resident `func_8003E8D8` owns ten exact static tuples in bounded 139/140
 configured full-TU C:

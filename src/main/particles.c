@@ -1967,13 +1967,15 @@ void func_80041C50(s32 arg0, s32 arg1) {
 /*
  * Owns ROM 0x428E4..0x42B48: 153 words, frame 0x80, no padding. Retained
  * full-TU/isolated C agree at 126/153 raw and relocation-normalized words,
- * first +0x48, with all nine tuples exact; -Wab,-r4300_mul is inert for V0.
- * The 27 sites are three carrier webs. Linked equality is fallback-only;
- * partDraw+0xEC is the sole caller and runtime/export/overlay inbounds are
- * zero. Retain 119 flags and one allocator trace, try at most two natural
- * declaration/lifetime forms and an improving-only combination, then one
- * macro-faithful bounded batch only after a strict gain. Hard cap: 122
- * deterministic invocations plus one trace and one optional 20-minute batch.
+ * first +0x48, with all nine tuples exact; candidate SHA prefix 90eeefb220a1.
+ * All 119 flags are nonexact; six O2/MIPS-II variants and phase-all-O3 tie
+ * V0. A fidelity-clean proc-43 trace leaves the temporary and FP lanes exact;
+ * 27 instructions retain six integer pool substitutions. A named/reloaded
+ * outer count and lexical point-count/address locals are byte-identical to
+ * V0, so no strict-gain combination or batch qualified. Linked equality is
+ * fallback-only; partDraw+0xEC is the sole caller and runtime/export/overlay
+ * inbounds are zero. Resume only with a new natural pool-position/coalescing
+ * mechanism; do not repeat this lattice, trace, or the two flat forms.
  */
 /* PROVENANCE: structure cross-checked against JFG's assembly-only
  * func_80063514 sibling; body reconstructed from Mickey evidence. */

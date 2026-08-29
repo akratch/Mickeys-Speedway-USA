@@ -2082,7 +2082,9 @@ Retained configured full-TU and isolated C are byte-identical at 126/153 raw
 and relocation-normalized words, first `+0x48`; ordinary object and linked-ROM
 equality are assembly fallback only. The isolated section's final 12 bytes are
 alignment outside the function. The 27 register-field sites split into outer
-count, early point-count, and post-call point-count/display-list carrier webs.
+count, early point-count, and post-call point-count/display-list carriers,
+forming six consistent integer pool substitutions; the 47-entry temporary
+lane and both FP lanes are exact. Candidate SHA prefix is `90eeefb220a1`.
 
 All nine target records are exact in genuine C: pairs to `D_8007C894` at
 `+0x04/+0x08`, `D_8007C88C` at `+0x48/+0x4C` and `+0x1E4/+0x1F0`, and
@@ -2094,11 +2096,12 @@ is the sole direct caller and passes typed `Gfx **`/`ParticleLineVertex **`.
 The configured flags are `-O2 -mips2 -32 -Wab,-r4300_mul`; equality with the
 isolated object proves the omitted multiply flag inert here. The body is
 policy-valid. JFG `func_80063514` is a larger assembly-backed structural peer,
-not genuine donor C. Retain 119 flags and one allocator trace, compile at most
-two trace-selected natural forms and an improving-only combination, then one
-macro-faithful 20-minute batch only after a strict gain. Hard cap 122
-deterministic compiler invocations plus one trace and the optional batch; asm
-stays canonical.
+not genuine donor C. All 119 flag identities are nonexact; six O2/MIPS-II
+variants and phase-all-O3 tie V0. A fidelity-clean proc-43 globalcolor trace
+records six colored webs. A named/reloaded outer count and lexical
+point-count/address locals are each byte-identical to V0. Since neither form
+made a strict gain, no combination or macro-faithful batch qualified. The asm
+stays canonical pending a new natural pool-position/coalescing mechanism.
 
 `func_8003D25C`: before/after allocation mismatch, 168 instructions and 70 register-only words, first `+0x50`.
 Type lever: pool/render-resource aggregates and vector aliases; no allocation movement. Remains temp slot 0 and pool substitutions; asm stays canonical.

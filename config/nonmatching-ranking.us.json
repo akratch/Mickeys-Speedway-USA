@@ -159,7 +159,7 @@
       "differing_words": 27,
       "first_mismatch_offset": 72,
       "size_delta": 0,
-      "category": "register-only"
+      "category": "allocation-mismatch"
     },
     {
       "name": "func_8002BB40",
