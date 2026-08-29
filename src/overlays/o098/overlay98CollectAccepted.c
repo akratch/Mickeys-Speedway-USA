@@ -10,17 +10,21 @@ typedef struct O98Entry {
     f32 value;
 } O98Entry;
 
-extern s32 overlay98AcquireContextReloc(void);
-extern s32 overlay98CheckObject(O98Object *, s32, f32 *);
+extern u8 *overlay98AcquireContextReloc(void);
+extern s32 overlay98CheckObject(O98Object *, u8 *, f32 *);
 extern s32 gOverlay98AcceptedCount;
 extern O98Entry gOverlay98AcceptedEntries[0x50];
 
+/* PROVENANCE: candidate source reproduced from the project's public mirror at
+ * f56d08c746f891f76c4b7bab8e3a2a4332894634. All retained measurements and
+ * the ABI correction above were independently derived from Mickey's own
+ * source, object, relocation tables, and retail bytes. */
 /* Natural C requires prohibited frame/home and schedule instruction edits to
  * reproduce retail. Keep it as a matching candidate; assembly is canonical. */
 #ifdef NON_MATCHING
 void overlay98CollectAccepted(s32 count, O98Object **objects) {
     f32 value;
-    s32 context;
+    u8 *context;
     s32 index;
 
     context = overlay98AcquireContextReloc();
@@ -53,3 +57,14 @@ void overlay98CollectAccepted(s32 count, O98Object **objects) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o098/overlay98CollectAccepted/func_overlay_098_F0000144_18D8B04.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay98CollectAccepted:start
+ * symbol: overlay98CollectAccepted
+ * score: 48/60 linked words
+ * frame: 0x58 (target 0x50)
+ * relocations: 6
+ * first-mismatch: +0x0
+ * summary: All 119 flags exhausted; exact extent and relocation shape, but
+ * the public equality required prohibited frame and ten-instruction rewrites.
+ * PLATEAU-HANDOFF:overlay98CollectAccepted:end
+ */

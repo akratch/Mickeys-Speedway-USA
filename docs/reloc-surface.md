@@ -1264,6 +1264,17 @@ only.
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 
+A later independent reproof of the public Overlay 98 contribution authenticated
+`overlay98CollectAccepted` without accepting its instruction-rewriting helper.
+`overlay98CollectAccepted` at `+0x144..+0x234` owns six exact runtime tuples:
+R_MIPS_26 resident `+0x241DC` at function `+0x2C`; LOCAL HI16/LO16 identities
+Overlay 98 `+0xAB4` (stored addend `+0x84`) at `+0x34/+0x38` and `+0xAB8`
+(stored addend `+0x88`) at `+0x4C/+0x50`; and the local JUMP to Overlay 98
+`+0x848` at `+0x74`. Its untouched C emits the same six offsets and types.
+Metadata-only identity rebinding still leaves only 48/60 linked words equal,
+with first mismatch `+0x0`; ORT 1322 and resident relocation 164 authenticate
+the inbound from `func_8000E5EC+0x190` (ROM call site `0xF7CC`).
+
 ## 7. What is still hand-written
 
 - **Section externalization.** `externalize_elf_section.py` takes the expected
