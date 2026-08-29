@@ -13,9 +13,16 @@ typedef struct Overlay41StepRecord {
 extern Overlay41StepRecord gOverlay41StepRecords[8];
 extern void overlay41EmitStep(s32 id, s32 x, s32 y);
 
-/* Workbench: allocation-mismatch, exact 73/-48 shape, 26 register words from +0x54; temp phase +1.
- * Lever: temp-FIFO structure/lifetime/width/scope probes left the ring topology unchanged.
- * Remains: one temp-ring pop/death and three overlay relocation identities; assembly fallback stays canonical. */
+/* Workbench: allocation-mismatch, exact 73-word/0x30-frame shape, 26
+ * register-only words from +0x54; temp phase +1. Temp-FIFO structure,
+ * lifetime, width, and scope probes left the ring topology unchanged.
+ * Runtime evidence fixes the +0x14/+0x28 HI16/LO16 pair as D_800D6B58
+ * and the +0xD0 call as resident func_8000D16C. The historical filter
+ * spec records diagnostics only and is not in production POSTPROCESS.
+ * Mickey-only reconstruction: pinned DKR/JFG scans are negative; JFG's
+ * animseqUpdateTextureScrollers is a role-only comparison, not a donor.
+ * Reproduce once with configured flags, then park pending a new allocator
+ * mechanism; assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_041_F0000000_1887338(s32 amount) {
     Overlay41StepRecord *record;

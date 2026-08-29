@@ -896,9 +896,9 @@ void func_80051364(s32 updateRate) {
             if (D_8007D6A4 == 1) {
                 func_800517E0();
             }
-            TrapDanglingJump(updateRate);
-            TrapDanglingJump(updateRate);
-            TrapDanglingJump(updateRate);
+            TrapDanglingJump(updateRate); /* runtime: overlay 41 +0x000 */
+            TrapDanglingJump(updateRate); /* runtime: overlay 41 +0x124 */
+            TrapDanglingJump(updateRate); /* runtime: overlay 41 +0x1B00 */
             offset = 0;
             do {
                 path = *(AnimPath **) ((u8 *) D_800D6B00 + offset);

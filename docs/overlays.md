@@ -628,6 +628,20 @@ metadata is diagnostic and is not part of production `POSTPROCESS`. Exact
 linked range/module/full-ROM evidence proves the assembly fallback only; no
 linked C candidate survives. Pinned DKR v77/v80 and JFG scans are negative.
 
+Overlay 41's unresolved `+0x000..+0x124` owner
+(`func_overlay_041_F0000000_1887338`) remains `NON_MATCHING` at 292 bytes / 73
+words. Retained configured C is 47/73 words with the exact `0x30` frame and 26
+register-only differences from `+0x54`. Runtime evidence fixes its three
+records as the `D_800D6B58` HI16/LO16 pair and resident call `func_8000D16C`;
+the assembled target retains only the call as static ELF metadata. The
+historical filter spec is diagnostic and is not part of production
+`POSTPROCESS`. Exact linked range/module/full-ROM evidence proves the assembly
+fallback only, not C. Temp-FIFO, flag, source-form, and bounded-permuter routes
+are exhausted; reproduce the unchanged full-TU candidate once, then park
+pending a new allocator mechanism. Pinned DKR v77/v80 and JFG scans are
+negative; JFG's `animseqUpdateTextureScrollers` is a role-only comparison, not
+a donor.
+
 Two old compiler blockers were closed rather than merely bypassed. Overlay 97
 `+0x000` required preserving explicit unsigned-byte angle masks plus
 `-Wab,-r4300_mul`; `+0x3F4` required the original three-argument ABI shape,
