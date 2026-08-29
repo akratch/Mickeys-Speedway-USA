@@ -2840,12 +2840,13 @@ that source once, then run one instrumented ugen FIFO trace only if the three
 sites reproduce; all broader source, flag and permutation routes are exhausted.
 
 `func_8005A7A0` has retained configured full-TU evidence at 106 words, with
-ten raw/normalized sites at
+ten raw sites and seven relocation-normalized positional sites. The raw sites are
 `+0x000/+0x08c/+0x0a0/+0x0bc/+0x0c0/+0x0c4/+0x0c8/+0x0dc/+0x0f4/+0x1a4`.
 Its `0x50` candidate frame remains larger than the target's `0x38`, and the
 alignment carrier uses `v1`/`sp+0x30` instead of `s0`/`sp+0x34`. All ten
-relocation identities agree, but the second `piRomLoadSection` call moves from
-target `+0xbc` to candidate `+0xc0`. More than ten pointer/index,
+relocation identities agree as a multiset and nine tuples are exact, but the
+second `piRomLoadSection` call moves from target `+0xbc` to candidate `+0xc0`.
+More than ten pointer/index,
 size-expression, coalescing, scope, and mask forms plus all 119 flag groups
 exhausted the family. Run one unchanged configured full-TU and real-address
 linked V0, then park if reproduced; no linked candidate-C proof survives.

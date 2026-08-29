@@ -260,13 +260,14 @@ void func_8005A770(void) {
  * and supplies role/TU context only; no donor body was imported.
  *
  * Plateau: retained configured full-TU evidence is exact-sized at 106 words,
- * but uses frame 0x50 versus target 0x38. Ten raw/normalized sites remain at
+ * but uses frame 0x50 versus target 0x38. Ten raw sites remain at
  * +0x000/+0x08C/+0x0A0/+0x0BC/+0x0C0/+0x0C4/+0x0C8/+0x0DC/+0x0F4/+0x1A4.
- * The ten relocation identities agree, but the second piRomLoadSection call
- * moves from target +0xBC to candidate +0xC0. Alignment remains v1/sp+0x30
- * instead of s0/sp+0x34. More than ten source forms and all 119 flag groups
- * exhausted the frame/carrier/schedule route; one unchanged configured
- * full-TU/linked V0 remains, then park absent a new allocator mechanism.
+ * Relocation normalization leaves seven positional sites. The ten relocation
+ * identities agree as a multiset and nine tuples are exact; the second
+ * piRomLoadSection call moves from target +0xBC to candidate +0xC0. Alignment
+ * remains v1/sp+0x30 instead of s0/sp+0x34. More than ten source forms and all
+ * 119 flag groups exhausted the frame/carrier/schedule route; one unchanged
+ * configured full-TU/linked V0 remains, then park absent a new mechanism.
  */
 #ifdef NON_MATCHING
 s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
