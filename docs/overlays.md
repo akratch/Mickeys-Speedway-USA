@@ -1492,21 +1492,21 @@ the direct linked slice SHA256 is
 Only the explicit four-byte tail padding remains assembly-owned, credited as
 closure sixteen.
 
-Overlay 16's gradient applicator at `+0x1E0..+0x424` — 580 bytes / 145 words,
-and removed the module's final executable assembly gap. NON_MATCHING:
-retired 2026-08-24 per ADR 0002 (was made to match via two dead-store
-deletions plus a fail-loud schedule/field ledger selecting retail's
-equivalent frame, saved-register allocation, and branch spelling); source
-kept as decomp-permuter input. The typed natural source otherwise had the
-exact loops, color arithmetic, memory effects, and six local relocation
-sites. Configured-link validation also corrected the module's local storage
-names: the accumulator is at `+8` and the mode selector at `+4`, consistently
-in both its initializer and this consumer. The raw configured body SHA256 is
-`e51a18791518c07f21b505a4105a51c8d4ef354bba38f2444af0ec2562aa78e6`;
-the retail-linked slice SHA256 is
-`237587594c7077add06692d8498a6b5c71f67130f275dd4719b0d81f0a91a5e2`.
-Only the explicit twelve-byte tail padding remains assembly-owned, credited
-as closure seventeen.
+Overlay 16's gradient applicator owns `+0x1E0..+0x424`, 580 bytes / 145
+words. Its policy-clean configured C remains NON_MATCHING but has the exact
+`0x20` frame, 85/145 raw and runtime-normalized words, first difference
+`+0x3C`, and all six LOCAL relocation tuples exact by offset, type, identity,
+and addend. Those pairs address the gradient buffer at addend zero, phase at
+`+8`, and mode at `+4`. ORT 1313 exports the function; resident relocation
+155 at exact-C `func_8000D978+0xFC` is its sole authenticated inbound. The
+2026-08-29 bounded pass exhausted V0, all 119 canonical flags, one
+fidelity-clean allocator trace, and three natural forms. Reordering the six
+channel definitions was the sole strict gain, reducing 64 register-only
+differences to 60; phase chaining was flat and delayed gradient loads
+regressed. No exact untouched IDO object was found, so the assembly fallback
+remains canonical. The following `+0x424..+0x430` twelve-byte padding is
+separate ownership. The earlier post-compile match remains retired under ADR
+0002 and is not promotion evidence.
 
 Overlay 49's initializer and updater at `+0x000..+0x354` — 852 bytes / 213
 words, and removed its final executable assembly. NON_MATCHING: retired

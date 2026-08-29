@@ -192,7 +192,7 @@
       "tu": "overlays/o016",
       "size_bytes": 580,
       "objdiff_match_pct": null,
-      "differing_words": 64,
+      "differing_words": 60,
       "first_mismatch_offset": 60,
       "size_delta": 0,
       "category": "register-only"

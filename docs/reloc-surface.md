@@ -717,6 +717,18 @@ or export and has five local inbound JUMPs: table-2 records 226, 238, 241, 267,
 and 270 from `overlay14AdvanceCommand` twice, `overlay14StepCommand`,
 `overlay14DispatchCommand`, and `overlay14CallUpdate`.
 
+Overlay 16 `+0x1E0` (`overlay16ApplyGradient`) owns exactly six LOCAL records.
+The HI16/LO16 pairs at function `+0x4/+0x8`, `+0x30/+0x34`, and
+`+0x40/+0x5C` resolve respectively to `gOverlay16Buffer` at module addend
+zero, `gOverlay16Phase` at `+8`, and `gOverlay16Mode` at `+4`. The retained
+configured candidate agrees with all six runtime records by offset, type,
+stable identity, and addend. ORT 1313 exports module `+0x1E0`; resident
+relocation 155 at exact-C `func_8000D978+0xFC` is the sole authenticated
+inbound. The function owns `+0x1E0..+0x424`; module `+0x424..+0x430` is
+separate twelve-byte assembly padding. Its retained 145-word/frame-`0x20` C
+still has 60 register-only differences from first `+0x3C`, so current linked
+equality proves only the assembly fallback.
+
 Overlay 7 `+0x894` (`overlay7DispatchModes`) owns 23 text and seven switch-table
 records. The text surface comprises LOCAL pairs to mode arrays at module
 `+0x1264/+0x14BC`, a LOCAL pair to the switch table at `+0x18F4`, a SYMBOL

@@ -58,9 +58,12 @@ void overlay16ReleaseBuffer(void) {
 }
 
 /* DKR v77/v80 and JFG contain no exact donor for this gradient pass. */
-/* Plateau (2026-08-25): exact-size 0x244, 64 register-only words differ,
- * first +0x3C; sharing the block/vertex counter closed opcode and schedule.
- * The flag lattice was neutral; the 40-minute permuter bottomed out at 345. */
+/* Bounded plateau (2026-08-29): configured full-TU C is exact-sized at
+ * 145 words with frame 0x20; 60 register-only words differ, first +0x3C,
+ * and all six LOCAL relocation tuples agree. The complete 119-flag lattice
+ * was nonexact. One fidelity-clean allocator trace and three natural forms
+ * found one strict gain: channel-definition order reduced 64 differences to
+ * 60. Chained phase assignment was flat; delayed gradient loads regressed. */
 #ifdef NON_MATCHING
 void overlay16ApplyGradient(s32 *active, Overlay16Context *context,
                             s32 phaseStep) {
@@ -129,10 +132,11 @@ void overlay16ApplyGradient(s32 *active, Overlay16Context *context,
                         gradientColor += gradientIndex;
                         inputRed = input[0];
                         gradientRed = gradientColor[0];
-                        gradientGreen = gradientColor[1];
-                        gradientBlue = gradientColor[2];
+                        /* This order is the best retained natural allocation. */
                         inputGreen = input[1];
                         inputBlue = input[2];
+                        gradientGreen = gradientColor[1];
+                        gradientBlue = gradientColor[2];
                         if (gradientRed < inputRed) {
                             vertex->red = inputRed;
                         } else {
