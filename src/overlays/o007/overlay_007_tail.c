@@ -166,18 +166,26 @@ void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000AA0_185C928.s")
 #endif
 
-/* Reproof evidence reviewed 2026-08-29: stale pre-identity full-TU and
- * isolated C are 55/60 relocation-annotated, 53/60 literal, and 58/60 after
- * runtime normalization, exact size/frame, first substantive mismatch +0x4.
- * The two normalized sites at +0x4/+0x10 are one t7-versus-t6 flags-value web;
- * +0x40/+0x84/+0x88/+0x90/+0xC0 are relocation-only. Those objects carry all
- * 13 offsets/types but misname the +0xA4/+0xD8 calls. Current source names the
- * corrected roles but is uncompiled, so score, frame, records, and link are
- * unknown. Compile configured V0, use one same-body control only on material
- * drift, retain 119 configurations, trace once, and try at most two
- * trace-selected natural scalar forms. Cap 122 deterministic builds plus trace;
- * the control replaces a later form and no generic batch is justified. */
+/* Bounded reproof 2026-08-29: current configured full-TU C is 55/60 raw and
+ * 58/60 after runtime relocation normalization, with exact 0xF0 size, 0x20
+ * frame, and first substantive mismatch +0x4. The two residual sites at
+ * +0x4/+0x10 are one t7-versus-t6 unnamed flags/selection-offset temp web.
+ * Runtime metadata proves all 13 emitted offsets, types, and identities,
+ * including camGetModeReloc at +0xA4 and overlay59AppendValueReloc at +0xD8.
+ * All 119 flag rows were nonexact; the proc-2 allocator trace found the named
+ * webs already clean, and two trace-selected scalar/scope forms regressed to
+ * 39/60. The fallback remains canonical. A later attempt needs a new UGEN
+ * temp-coalescing mechanism, not more flags, explicit locals, or a generic
+ * permutation batch. */
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: overlay7DispatchSelection
+ * score: 58/60 words
+ * frame: 0x20
+ * relocations: 13
+ * first-mismatch: +0x4
+ * summary: Unnamed flags-load temp does not coalesce with the later selection-offset temp; 119 flags and two trace-selected scalar/scope forms are exhausted.
+ */
 void overlay7DispatchSelection(Overlay7DispatchOwner *owner, s32 selection) {
     Overlay7DispatchState *state;
     u16 *override;
