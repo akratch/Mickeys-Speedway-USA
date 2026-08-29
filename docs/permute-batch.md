@@ -249,10 +249,11 @@ Base score before and after annotation, against
 
 These are historical lane measurements. `overlay7DispatchSelection`'s scalar
 is scheduling evidence for stale pre-identity C, not current C or promotion
-proof. For `overlay40FadeRecords`, only the
-scalar 98/101 measurement and imported scratch source/settings survive; no
-configured V0 object, annotated summary, or per-variant object survives. Use
-its row as scheduling context, not artifact-backed exhaustion proof.
+proof. For `overlay40FadeRecords`, configured full-TU and isolated objects for
+the preceding body survive and confirm 98/101 words, frame `0x8`, and one
+three-site register web. Current source applies the uncompiled natural
+semantic-role repair identified by that web, so the historical scalar is
+baseline evidence rather than a score for the new body.
 
 `overlay18Load` is no longer a close-candidate queue item. Its O32
 `osSetTime(OSTime)` repair produced unguarded canonical C for Overlay 18
