@@ -1273,14 +1273,17 @@ records with separate entry-table and object-table symbol identities were
 otherwise preserved; the two later assembly regions remain unresolved.
 
 Overlay 40's fade-record owner at `+0x690..+0x824` remains `NON_MATCHING` at
-404 bytes / 101 words; `+0x824..+0x830` is separate padding. Retained
-configured full-TU and isolated C agree at 98/101 words, frame `0x8`, with
-three register-only differences at `+0xC/+0x10/+0x24`. Its ten runtime BSS
-records resolve to `D_800D6C4C`, `D_800D6C52`, `D_800D6C50`, `D_800D6C4E`,
-and `D_800D6C54`; the target/fallback object retains none statically. Resident
-`func_8000D978 +0x130` is the sole proved direct caller. Exact linked
-range/module/full-ROM evidence proves assembly fallback only; no linked C
-artifact survives. Pinned DKR v77/v80 and JFG scans are negative.
+404 bytes / 101 words; `+0x824..+0x830` is separate padding. The compiled
+output-origin C is the bounded plateau at 98/101 words, frame `0x8`, with only
+`+0xC/+0x10/+0x24` differing as one `v0`/`v1` globalcolor outcome; its
+temporary-register lane is exact. One allocator trace isolated that pool swap,
+and all 119 flag combinations were nonexact with canonical `-O2 -mips2` tied
+for best. Its ten runtime BSS records resolve to `D_800D6C4C`, `D_800D6C52`,
+`D_800D6C50`, `D_800D6C4E`, and `D_800D6C54`; the target/fallback object
+retains none statically. Resident `func_8000D978 +0x130` is the sole proved
+direct caller. Exact linked range/module/full-ROM evidence proves assembly
+fallback only; no linked C artifact survives. Pinned DKR v77/v80 and JFG scans
+are negative.
 
 Overlay 30's `+0x2B4..+0x438` byte-plane transposer — 388 bytes / 97 words.
 NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a

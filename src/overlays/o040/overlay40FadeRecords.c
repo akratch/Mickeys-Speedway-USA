@@ -43,15 +43,13 @@ extern s16 gOverlay40BlendTarget;
 extern s16 gOverlay40BlendDuration;
 extern s16 gOverlay40BlendOutput;
 
-/* Retained configured and isolated objects for the preceding body measure
- * 98/101 words, first +0xC, frame 0x8, with +0xC/+0x10/+0x24 forming one
- * register web. Retail keeps current immutable in v1 and mutates output in v0;
- * this body restores those natural semantic roles while preserving the exact
- * loop structure and is uncompiled. The retained objects emit all ten runtime
- * HI16/LO16 roles: D_800D6C4C(timer), D_800D6C52(current),
- * D_800D6C50(target), D_800D6C4E(duration), and D_800D6C54(output). Compile
- * this focused repair once; if nonexact, take one allocator trace and try only
- * the equivalent output-origin spelling before the 119-flag lattice. Owned
+/* Bounded reproof: the output-origin spelling below is the best stock object
+ * at 98/101 words, first +0xC, frame 0x8. The three differences at
+ * +0xC/+0x10/+0x24 are one v0/v1 globalcolor outcome; the temporary-register
+ * lane is exact. One allocator trace and the complete 119-flag lattice found
+ * no exact object, with canonical -O2 -mips2 tied for best. The object emits
+ * all ten runtime HI16/LO16 roles: D_800D6C4C(timer), D_800D6C52(current),
+ * D_800D6C50(target), D_800D6C4E(duration), and D_800D6C54(output). Owned
  * Overlay 40 +0x690..+0x824 / ROM 0x1886F40..0x18870D4 excludes separate
  * +0x824..+0x830 padding. ORT 1314 and resident runtime record 156 at
  * func_8000D978+0x130 authenticate the sole inbound trap site. Mickey-only;
@@ -71,8 +69,8 @@ void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
     s32 groupRemaining;
     s32 vertexRemaining;
 
-    current = gOverlay40BlendCurrent;
-    output = current;
+    output = gOverlay40BlendCurrent;
+    current = output;
     timer = gOverlay40BlendTimer;
     if (timer != 0) {
         if (amount < timer) {

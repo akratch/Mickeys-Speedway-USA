@@ -1132,10 +1132,11 @@ Overlay 40 `+0x690` (`overlay40FadeRecords`) owns five SYMBOL HI16/LO16 pairs:
 timer at `+0x00/+0x04`, current at `+0x0C/+0x10`, target at `+0x38/+0x3C`,
 duration at `+0x44/+0x50`, and output at `+0x9C/+0xA0`. They resolve to
 `D_800D6C4C`, `D_800D6C52`, `D_800D6C50`, `D_800D6C4E`, and `D_800D6C54`.
-Retained configured and isolated objects for the preceding C body emit all ten
-roles and measure 98/101 words; the focused semantic-role repair is uncompiled.
-The fallback target retains none statically, making the runtime table the
-identity authority. ORT
+The compiled output-origin spelling emits all ten roles and measures 98/101
+words, with three register-only differences. One allocator trace isolated a
+single `v0`/`v1` globalcolor outcome and the 119-flag lattice found no exact
+object. The fallback target retains none statically, making the runtime table
+the identity authority. ORT
 1314 exports the function, and resident runtime record 156 at
 `func_8000D978+0x130` is its sole authenticated inbound/trap site; it is not an
 ordinary direct static call. Current linked equality proves fallback only.
