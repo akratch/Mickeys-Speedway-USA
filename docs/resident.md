@@ -2274,17 +2274,17 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
 - `mainUpdateZBCheck`: Evidence A exact C after bounded permutation; all 63
   instruction words, the `-0x48` frame, relocation identities, and linked ROM
   bytes match.
-- `levelGetCounts`: retained configured full-TU C owns 259 words with frame
-  `0x58` and 37 records, scoring 255/259 raw and 256/259 after address
-  normalization. The reformatted isolated import's 251/259 result adds four
-  store-order sites and is not the configured baseline. Target `+0x44/+0x50`
-  names `D_800CF420`; candidate
-  C names address-equivalent but metadata-distinct `D_800CF3E0+0x40`.
-  Ordinary-object, linked-function/TU, and full-ROM equality prove the
-  assembly fallback only. Overlay 18 ORT 518 is the sole authenticated inbound
-  call. Reproduce V0 and retain the flag lattice; test the endpoint identity
-  and one trace-selected three-site world-value spelling independently,
-  combine only strict gains, and permit one improving-only annotated batch.
+- `levelGetCounts`: retained pre-HEAD/current-token configured C owns exactly
+  259 words, frame `0x58`, and 37 offsets/types, scoring 255/259 raw and
+  256/259 relocation-normalized. Raw `+0x50` binds the loop endpoint to
+  address-equivalent but identity-wrong `D_800CF3E0+0x40`; substantive
+  `+0x13C/+0x148/+0x154` are one world-value carrier. The endpoint now names
+  `D_800CF420` directly and is uncompiled. ORT 518 has exactly one inbound,
+  `overlay18Initialize+0x8`; no padding follows the function. Pinned JFG keeps
+  the body in assembly, while later public JFG C is structural/provenance input,
+  not an exact donor. Linked equality proves fallback only. Retain 119 flags,
+  trace once, try one carrier form and strict-gain combination, capped at 122
+  builds plus trace before an improving-only annotated batch.
 - `levelInit`, ten structural, storage, type and register-lifetime hypotheses,
   the full 119-combination flag lattice and a bounded two-worker permuter
   batch, first mismatch `+0x238`: retained configured full-TU C reproduces 394
@@ -2298,14 +2298,15 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   fog-width mask; canonical MIPS II added two instructions, so it was rejected.
   Proven level `.bss` ownership is `0x800CF3E0..0x800CF490`; the preceding
   configured `bss_gap_D800CF3C0..D800CF3E0` remains unresolved.
-- `func_80028FCC`: retained pre-current-line-layout full-TU and isolated C
-  agree on an exact 108-byte/27-word body and frame `0x18`. Ten raw/normalized words
-  differ at `+0x1c/+0x20/+0x24/+0x28/+0x38/+0x3c/+0x40/+0x44/+0x54/+0x58`;
-  all three `R_MIPS_26` calls to `func_80028FB8` are exact. The historical
-  structural, flag, trace, and bounded-search outcomes have no attributable
-  artifacts. Reproduce current-line-layout configured V0 and retain the flag
-  lattice, then try one reused normalized-result spelling and one improving-
-  only trace-selected lifetime/shared-epilogue form; cap four stages.
+- `func_80028FCC`: retained configured full-TU C is 17/27 words, exact
+  108-byte boundary/frame `0x18`, first `+0x1C`; isolated C agrees but omitted
+  canonical `-Wo,-Olimit,100`. All three `R_MIPS_26` calls to `func_80028FB8`
+  at `+0x14/+0x30/+0x4C` are exact. A natural normalized-result/shared-epilogue
+  form is staged and uncompiled. ORT 663 is real, but exhaustive resident,
+  overlay, direct-JAL, and pointer scans authenticate no inbound. There is no
+  padding, and linked equality proves fallback only. If the staged form is not
+  exact, retain 119 flags and try one trace-led lifetime form only after strict
+  gain; cap 121 builds plus trace.
 - `levelFreeAll`, ten spellings, first mismatch `+0x13c`: exact 468-byte size
   and 113/117 words; only the masked resource index/table-base registers swap.
 - `func_80029274`, seventeen control-flow/parameter/register-lifetime

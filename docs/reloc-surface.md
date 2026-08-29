@@ -405,7 +405,9 @@ The function's other two records are LOCAL HI16/LO16 at function
 `+0x08/+0x10`, resolving through base `+0xA20` plus stored addend `+0x5A4` to
 module `+0xFC4` (`gOverlay59DescriptorTables`). Genuine C has all six records;
 fallback and target retain only the four collapsed calls. The function is
-unexported and has four local inbounds from `overlay59Advance`.
+unexported. These are table-2 records 0/1 (descriptor pair), 2/3 (release
+JUMPs) and table-1 records 1/2 (ORT 135 acquisitions). Four local inbounds are
+table-2 records 25/28/29/30 from `overlay59Advance+0xAC/+0x224/+0x2A8/+0x300`.
 
 
 #### What it measured
@@ -646,12 +648,32 @@ one false callee for all eight calls; repaired six-identity, 21-record, linked C
 proof is still required before its five normalized schedule sites can be reused.
 
 Overlay 99 `+0x800` (`overlay99RenderSortedEntries`) has ten authoritative
-runtime records: calls at `+0x09C/+0x1E4/+0x220/+0x258/+0x32C/+0x360` to
+runtime records: table-1 records 20..25 call at
+`+0x09C/+0x1E4/+0x220/+0x258/+0x32C/+0x360` to
 `camGetProjZ`, `camGetPtr`, `func_80022E80`, `func_8002AA50`,
 `mtxf_transform_point`, and `func_80022FD4`, plus LOCAL HI16/LO16 pairs at
 `+0x1F4/+0x21C` and `+0x260/+0x264` for module base `+0x1410` with addends
-four and eight. Its assembled fallback target retains only the six generic call
-records, so the runtime table is the identity authority.
+four and eight (table-2 records 49..52, transform-Z and intensity-scale
+constants). Its assembled fallback target retains only the six generic calls,
+so the runtime table is authoritative. The function is unexported; table-2
+record 57 at `overlay99RenderSegments+0x1D4` is its sole inbound. Retained
+218/233 C used false frame gaps; clean `CameraSprite + MtxF` source is uncompiled
+and linked equality proves fallback only.
+
+Resident `levelGetCounts` owns 37 records: calls to `func_8002B280` at
+`+0x24/+0xC8/+0x280/+0x2E0`, `piRomLoad` at `+0x30/+0x290`,
+`piRomLoadSection` at `+0x124/+0x310`, `mmFree` at
+`+0x26C/+0x274/+0x3E0`, and `align4` at `+0x2D4/+0x2EC`, plus twelve
+HI16/LO16 pairs. Retained C has every offset/type but binds the endpoint pair
+`+0x44/+0x50` to `D_800CF3E0+0x40` instead of `D_800CF420`; source now names
+the target identity and is uncompiled. ORT 518 has sole inbound Overlay 18
+table-1 record 56 at `overlay18Initialize+0x8`. Linked equality is fallback-only.
+
+Resident `func_80028FCC` owns three `R_MIPS_26` records to `func_80028FB8` at
+`+0x14/+0x30/+0x4C`, all exact in retained 17/27 configured C. ORT 663 exports
+the function, but exhaustive resident relocation, overlay SYMBOL, direct-JAL,
+literal-pointer, object-reference, and source scans authenticate no inbound.
+The staged shared-result source is uncompiled; linked equality is fallback-only.
 
 Overlay 61 `+0x1648` has eleven authoritative records: resident calls at
 `+0x14/+0x34/+0x4C/+0x6C/+0x8C/+0x140/+0x154` to `packOpen`,
