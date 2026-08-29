@@ -1174,20 +1174,22 @@ confirmed by the paired writes in the following setter. The adapted type has a
 point-of-use `PROVENANCE` note, and the default flags, object words, and linked
 ROM range are exact without post-processing.
 
-`func_8003A2C8`: historical configured full-TU campaign records (whose object
-no longer survives) reproduce an exact-sized, frameless **5/32 register-only
-plateau** at `+0xC/+0x10/+0x14/+0x18/+0x20` with all six relocations exact.
-The surviving candidate object is only an
-isolated ranking artifact and omits menu's `-Wo,-loopunroll,0` override; the
-function has no loop, but that object is not promotion proof. Fresh
-pool-position/shape-preserving probes and a four-variant basin census left the
-default object best. A later instrumented trace found five allocator webs;
-forcing the two mode webs into the target's v1/v0 order and using `modeBits`
-for both field tests reaches **1/32**, but the remaining memory-first comparison
-carrier is ring-only and no globalcolor choice can produce it. All 119 flag
-combinations and two model-guided campaigns missed. Re-prove unchanged V0 and
-preserve both objects; absent a new allocator mechanism, assembly remains
-authoritative.
+`func_8003A2C8` remains a guarded, exact-sized, frameless **5/32 register-only
+plateau**. Retained configured full-TU and isolated C both survive, and their
+owned 32 words are byte-identical. Differences are at
+`+0xC/+0x10/+0x14/+0x18/+0x20`; both carry the target's six HI16/LO16 records
+for `D_8007C090` and `D_800D3128`. Configured flags are
+`-O2 -mips2 -32 -Wo,-loopunroll,0`; the isolated import omitted no-unroll,
+which is inert for this loop-free body. No linked C candidate survives. Exact
+ordinary-object, linked-function, complete-menu-TU, and ROM evidence proves
+assembly fallback only.
+
+Pool-position and shape probes, a four-variant basin census, all 119 flag
+combinations, and two capped model-guided campaigns failed to improve the
+five-word result. Historical allocator-oracle prose reports a forced-color
+31/32 diagnostic, but neither that object nor its trace survives. Run one
+fresh configured V0 and preserve it; if reproduced, park until a new allocator
+mechanism can alter the remaining memory-first comparison carrier.
 
 The tier-A-named `frontGetLevelScreenMode` adds **0x68 bytes / 26 words** at
 ROM `0x3AF68`. Its JFG source body is still `GLOBAL_ASM`, so the C body was

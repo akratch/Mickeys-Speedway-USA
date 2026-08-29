@@ -6,7 +6,8 @@
  * and provenance are recorded in docs/modules.md section 3.4. Functions stay
  * under GLOBAL_ASM until their C compiles to Mickey's bytes exactly.
  *
- * Flags: -O2 -mips2 -32, via the shared src/main rule.
+ * Flags: -O2 -mips2 -32 -Wo,-loopunroll,0. The game-code ISA and
+ * menu-specific no-unroll override are selected by Makefile.
  */
 
 #include "PR/ultratypes.h"
@@ -1176,15 +1177,16 @@ s32 frontGetScreenMode(void) {
     return mode;
 }
 #ifdef NON_MATCHING
-/* Allocation plateau (evidence reviewed 2026-08-29): configured full-TU runs
- * under -O2 -mips2 -32 -Wo,-loopunroll,0 reproduce the exact frameless
- * 32-word shape, six relocations, and five register-only differences at
- * +0xC/+0x10/+0x14/+0x18/+0x20. The surviving isolated ranking object omits
- * the menu-only loop-unroll flag, so it is credible but not promotion proof.
- * A forced-color oracle closes the v1/v0 mode-web inversion and shared
- * modeBits tests reach 31/32; the remaining memory-first comparison carrier
- * is ring-only. The configured candidate object no longer survives. Re-prove
- * unchanged V0, then retain the fallback absent a new allocator mechanism. */
+/* Allocation plateau (evidence reviewed 2026-08-29): retained configured
+ * full-TU C and retained isolated C are byte-identical across the owned
+ * 32 words: 27/32 exact, frameless, with six exact relocations and differences
+ * at +0xC/+0x10/+0x14/+0x18/+0x20. The full-TU object uses
+ * -O2 -mips2 -32 -Wo,-loopunroll,0; the isolated import omitted no-unroll,
+ * which is inert for this loop-free body. No linked C candidate survives;
+ * ordinary object/ELF/ROM identity proves the assembly fallback only.
+ * Historical prose reports a forced-color 31/32 diagnostic, but that object
+ * does not survive. Recompile one unchanged configured V0, then park absent
+ * a new allocator mechanism. */
 /* PROVENANCE: mask, state guard, and order compared with JFG's public
  * src/menu.c::frontSetScreenMode; packed fields derived from Mickey. */
 void func_8003A2C8(s32 screenMode) {
