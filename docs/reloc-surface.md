@@ -595,11 +595,16 @@ ledger still exposes only `D_164`; identity-correct C linkage remains pending.
 
 Overlay 31 `+0x6B0` (`overlay31InitializeBuffers`) has a retained prior C
 object with 54 static records: 16 calls and 19 HI16/LO16 pairs, all at the
-target's opcode-compatible sites. The unannotated fallback target preserves
-only the 16 calls and collapses external identities to a module-base proxy; it
-cannot authenticate the 19 data identities. The current declaration-order
-replay therefore needs a fresh exact C object plus a runtime-table decode before
-its claimed 245/245 words and complete relocation contract can be promoted.
+target's opcode-compatible sites. The shipped tables authenticate 47 SYMBOL
+records and seven local JUMPs. Data pairs resolve to `gOverlay31MaxLine`,
+`gOverlay31MaxPoint`, both vertex buffers, triangle and rectangle sources,
+configs, point pool, line records, dummy assets/count, and effect records/count.
+Resident calls resolve to `reset_particles`, `func_8002B280`, `piRomLoad`,
+`func_800355A0`, `func_80034448`, `func_8001F520`, and `mmFree`; seven local
+calls cover the four config builders, pool, records, and reset helper. The
+unannotated fallback target preserves only the 16 calls, so this runtime decode
+is the identity authority. The current replay still needs a fresh exact C
+object proving all 54 roles before its claimed 245/245 words can be promoted.
 
 Overlay 41 `+0x000` owns exactly three runtime records: a SYMBOL HI16/LO16
 pair at function `+0x14/+0x28` resolving to `D_800D6B58`, and a SYMBOL call at
