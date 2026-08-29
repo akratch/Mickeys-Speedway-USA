@@ -23,9 +23,11 @@ extern s32 gOverlay34ActiveCount;
 extern f32 gOverlay34Value10;
 extern void overlay34RemoveRecord(Overlay34Record *record);
 
-/* The natural C is 320 bytes versus the 308-byte retail owner. The retired
- * wrapper reached equality only by deleting, reordering, and editing
- * instructions, so ADR 0002 requires the assembly fallback. */
+/* Public-claim reproof: untouched IDO emits 80 instructions / 0x140 bytes
+ * with a 0x38 frame versus the retail owner's 77 / 0x134 and 0x30 frame.
+ * All 119 flag configurations are nonexact. The retired wrapper reached
+ * equality only by deleting three instructions, reordering instructions,
+ * and editing register/immediate fields, so ADR 0002 requires the fallback. */
 #ifdef NON_MATCHING
 void overlay34UpdateRecords(s32 updateRate) {
     Overlay34Record *record;
