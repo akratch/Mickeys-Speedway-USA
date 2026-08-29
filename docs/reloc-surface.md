@@ -412,11 +412,16 @@ the resident global itself would corrupt every resident caller of
 `func_80034448`.
 The function's other two records are LOCAL HI16/LO16 at function
 `+0x08/+0x10`, resolving through base `+0xA20` plus stored addend `+0x5A4` to
-module `+0xFC4` (`gOverlay59DescriptorTables`). Genuine C has all six records;
-fallback and target retain only the four collapsed calls. The function is
-unexported. These are table-2 records 0/1 (descriptor pair), 2/3 (release
-JUMPs) and table-1 records 1/2 (ORT 135 acquisitions). Four local inbounds are
-table-2 records 25/28/29/30 from `overlay59Advance+0xAC/+0x224/+0x2A8/+0x300`.
+module `+0xFC4` (`gOverlay59DescriptorTables`). Runtime therefore requires six
+distinct roles; fallback and the synthetic target expose only the four
+collapsed calls, and the current split-carrier C has not yet emitted an
+authenticated relocation table. The function is unexported. These are table-2
+records 0/1 (descriptor pair), 2/3 (release JUMPs) and table-1 records 1/2
+(ORT 135 acquisitions). Four local inbounds are table-2 records 25/28/29/30
+from `overlay59Advance+0xAC/+0x224/+0x2A8/+0x300` (module
+`+0x418/+0x590/+0x614/+0x66C`). The owned range is `+0x70..+0x168`, ROM
+`0x18B87C0..0x18B88B8`, with no target padding; the next function starts at
+`+0x168`, while `+0xA1C..+0xA20` is separate overlay padding.
 
 
 #### What it measured
