@@ -95,7 +95,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8003CE10` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003D25C` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003E8D8` | `src/main/particles.c` | none | — | Exact 140-word configured candidate leaves nine stack-home/branch operands; reorder the call-live pair. |
-| `func_8003EC8C` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_8003EC8C` | `src/main/particles.c` | matched | — | Promoted to 188-byte linked-exact C; no ownership work remains. |
 | `partUpdateTriggers` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003F154` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003F5F8` | `src/main/particles.c` | matched | — | Promoted to exact C; no ownership work remains. |
