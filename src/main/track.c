@@ -1737,24 +1737,15 @@ build_routes:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DB34.s")
 #endif
-/* Retained isolated current-body C is 94/118 words with 24 register-field
- * differences from +0x24, frame 0x28, and exact runlinkIsModuleLoaded and
- * TrapDanglingJump calls. Its import omitted -Wab,-r4300_mul, but a retained
- * pre-current-layout configured-path full-TU C object is byte-identical over
- * the function, proving that flag inert here. No current-HEAD selective
- * producer command/link proof survives; ordinary equality is fallback. The
- * sole caller is func_8000E5EC+0x288, and runtime relocation 157 at +0x128
- * resolves through ORT 1315 to Overlay 21 +0x10C. There is no export/runtime
- * inbound or target padding; isolated trailing alignment is outside ownership.
- * The historical 15-word basin is unretained. Run 119 flags and one trace,
- * then merge recordIndex/passCount; only on strict improvement reuse dead key
- * as nextValue. Cap 121 builds plus trace and a gain-gated short batch. */
-#ifdef NON_MATCHING
+/* Exact 118-word C: reusing the dead recordIndex carrier for the later sort
+ * passes closes the 24-site allocator bijection while preserving the 0x28
+ * frame and both R_MIPS_26 call identities. The complete flag lattice was
+ * nonexact and one codegen-faithful allocator trace selected this lifetime
+ * merge; the reference skeleton scan found no credible donor. */
 s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records,
                   TrackKeyRecord **matches) {
     s32 recordIndex;
     s32 matchCount;
-    s32 passCount;
     s32 compareCount;
     s32 sorted;
     TrackKeyRecord **match;
@@ -1773,15 +1764,15 @@ s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records,
         TrapDanglingJump(key, matchCount, matches);
     }
     if (matchCount >= 2) {
-        passCount = matchCount - 1;
+        recordIndex = matchCount - 1;
         if (matchCount != 0) {
             do {
                 current = matches[0];
                 match = matches;
                 sorted = TRUE;
-                compareCount = passCount - 1;
+                compareCount = recordIndex - 1;
                 currentValue = current->sortValue;
-                if (passCount != 0) {
+                if (recordIndex != 0) {
                     do {
                         next = match[1];
                         nextValue = next->sortValue;
@@ -1799,16 +1790,13 @@ s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records,
                 }
                 match[0] = current;
                 if (sorted) {
-                    passCount = 0;
+                    recordIndex = 0;
                 }
-            } while (passCount--);
+            } while (recordIndex--);
         }
     }
     return matchCount;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DDE4.s")
-#endif
 #ifdef NON_MATCHING
 /* PROVENANCE: JFG's public track.c supplies the resident track draw-loop
  * organization; Mickey's segment and display-list accesses are authoritative. */
