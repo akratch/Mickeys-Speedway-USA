@@ -585,6 +585,14 @@ runtime records: calls at `+0x09C/+0x1E4/+0x220/+0x258/+0x32C/+0x360` to
 four and eight. Its assembled fallback target retains only the six generic call
 records, so the runtime table is the identity authority.
 
+Overlay 61 `+0x1648` has eleven authoritative records: resident calls at
+`+0x14/+0x34/+0x4C/+0x6C/+0x8C/+0x140/+0x154` to `packOpen`,
+`packOpenFile`, `packFileSize`, `func_8002B280`, `packReadFile`, `mmFree`, and
+`packClose`; two calls at `+0xC0/+0xDC` to Overlay 68 `+0`; and a LOCAL
+HI16/LO16 pair at `+0x24/+0x28` with stored addend `+0x164`. The current
+guarded source names that pair `gOverlay61SavePathReloc`, but the linker-symbol
+ledger still exposes only `D_164`; identity-correct C linkage remains pending.
+
 Eleven of these were not measurable before this lane. They are the sweep's next
 targets: within eight words is the range where the permuter closes candidates.
 
