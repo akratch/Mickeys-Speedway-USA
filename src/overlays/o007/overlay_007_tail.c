@@ -16,21 +16,20 @@ typedef struct Overlay7SelectionRow {
 /* Overlay 7, ADR 0006 consolidation: C after the middle assembly island. */
 
 /*
- * Plateau (evidence reviewed 2026-08-29): the configured isolated candidate
- * has the exact 131-word size and 0x20 frame. Its ranking has three raw text
+ * Plateau (evidence reviewed 2026-08-29): retained configured full-TU and
+ * isolated C artifacts have the exact 131-word size and 0x20 frame, but both
+ * predate the source's corrected mathRnd identities. Their ranking has three raw text
  * differences: substantive t4-versus-t3 register fields at +0x44/+0x64 and a
  * switch-table LO16 addend at +0xA4 that should resolve only after linking the
- * owned rodata at +0x934..+0x950. UGEN frees the t3 address carrier before
- * allocating t4 for the value; as1 preserves that choice and uopt records no
- * copy decision. Function- and block-scoped carriers regress to 112/131, and
- * a pointer carrier canonicalizes to the retained 129/131 normalized result.
- * No fresh full-TU or linked candidate proof survives. Re-prove V0 and all 23
- * candidate relocation sites, then try mutually exclusive volatile-scalar and
- * one-element-array representations; run dependent union/combined probes only
- * after an improvement, with a five-run cap.
+ * owned rodata at +0x934..+0x950. Historical trace and carrier outcomes have no
+ * surviving attributable variant artifacts and do not prove exhaustion. No
+ * source-current full-TU or linked candidate proof survives. Re-prove V0 with
+ * all 23 text relocations plus the seven owned switch-table records, then try
+ * independent volatile-scalar, one-element-array, pointer, and function-scoped
+ * scalar carriers; tighten scope only after a strict gain, with a six-run cap.
  */
 /* Ownership trial (2026-08-28): fixed the TU's +0x934..+0x950 .rodata range;
- * its 455-word linked failure measured the whole trial surface, not this
+ * its historical 455-word linked failure measured the whole trial surface, not this
  * function's isolated plateau. Module growth is cleared; exact function/TU,
  * relocation, linked-range, and ROM proof remain outstanding. */
 #ifdef NON_MATCHING
