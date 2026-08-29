@@ -59,7 +59,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `joyInit` | `src/main/joy.c` | bss-aggregate | D_800CF3B4..D_800CF3B7 | Own the adjacent controller-state BSS in joy. |
 | `joyRead` | `src/main/joy.c` | bss-aggregate | D_800CF370..D_800CF3BC | Own the controller arrays and counters as one joy BSS layout. |
 | `joyResetMap` | `src/main/joy.c` | resolved-plateau | D_800CF3B0 | Controller map is TU-owned; expression-tree mismatch remains. |
-| `levelGetCounts` | `src/main/level.c` | resolved-plateau | D_800CF3E0, D_800CF420 | Level BSS ranges are TU-owned; three register words and one end-label relocation remain. |
+| `levelGetCounts` | `src/main/level.c` | resolved-plateau | D_800CF3E0, D_800CF420 | Level BSS ranges are TU-owned. Retained full-TU candidate is 256/259 normalized words (`+0x13C,+0x148,+0x154`), frame `0x58`, with 37 records; target endpoint pair names `D_800CF420`, candidate `D_800CF3E0+0x40`. Source/flag/trace/permuter routes exhausted; one unchanged linked reproof, then park. |
 | `levelInit` | `src/main/level.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80019934` | `src/main/lights.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80019DE8` | `src/main/lights.c` | none | — | No ownership change; continue source/codegen work. |
@@ -72,7 +72,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_80029274` | `src/main/main.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002AF6C` | `src/main/matrix.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002B040` | `src/main/matrix.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8002B524` | `src/main/memory.c` | none | — | Exact-size/`0x58`-frame candidate has 14 late-path differences and 12 exact relocation tuples; rebaseline full-TU, then split guards/cache slot data before any call-live record probe. |
+| `func_8002B524` | `src/main/memory.c` | none | — | Retained full-TU candidate is 102/116 words, frame `0x58`, with 14 raw/normalized late-path sites and 12 exact relocation tuples. Run V0, narrow slot-data cache, separate lower/upper guards, improving combination, then improving-only `sp+0x3C` call-live record probe; park after five flat builds. |
 | `func_8002B7AC` | `src/main/memory.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8002BB40` | `src/main/memory.c` | none | — | Exact 72-word candidate leaves 30 register words; reuse dead `slotIsTaken`/`poolIndex` arguments for count/index. |
 | `func_80038750` | `src/main/menu.c` | shared-rodata | jtbl_80082734 | Move the language switch table and labels into menu. |
@@ -209,7 +209,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_014_F000013C_186FA14` | `src/overlays/o014/func_overlay_014_F000013C_186FA14.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_014_F00009F4_18702CC` | `src/overlays/o014/func_overlay_014_F00009F4_18702CC.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_overlay_014_F0001540_1870E18` | `src/overlays/o014/func_overlay_014_F0001540_1870E18.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_014_F0001830_1871108` | `src/overlays/o014/func_overlay_014_F0001830_1871108.c` | resolved-plateau | overlay 14 switch table | TU-owned +0x174..+0x190 .rodata clears module growth; code generation remains. |
+| `func_overlay_014_F0001830_1871108` | `src/overlays/o014/func_overlay_014_F0001830_1871108.c` | resolved-plateau | overlay 14 switch table | TU-owned `+0x174..+0x190` table clears module growth. Retained imported evidence is 196/201 normalized words (`+0x1F4,+0x1F8,+0x1FC,+0x200,+0x208`), frame `0x90`, with 21 records and exact switch payload, but carried one false callee for eight calls. Reprove the repaired six font identities, then one target-shaped case-7 schedule rung; park if flat. |
 | `func_overlay_014_F00006FC_186FFD4` | `src/overlays/o014/overlay14CreateValue.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_014_F000087C_1870154` | `src/overlays/o014/overlay14LoadRelocatedValue.c` | resolved-plateau | overlay 14 switch table | TU-owned +0x158..+0x174 .rodata clears module growth; code generation remains. |
 | `func_overlay_014_F0000B5C_1870434` | `src/overlays/o014/overlay14PrepareInputState.c` | none | — | No ownership change; continue source/codegen work. |
