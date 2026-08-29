@@ -37,6 +37,7 @@ TYPE_NAMES = {2: "R_MIPS_32", 4: "R_MIPS_26", 5: "R_MIPS_HI16", 6: "R_MIPS_LO16"
 sys.path.insert(0, str(TOOLS))
 import overlay_tables as ot  # noqa: E402
 import proof_provenance as pp  # noqa: E402
+import postprocess_audit as pa  # noqa: E402
 import reloc_surface as rs  # noqa: E402
 
 
@@ -886,6 +887,24 @@ def _require_static_relocation_evidence(
         )
 
 
+def _candidate_redefine_aliases(candidate_object: Path) -> dict[str, str]:
+    """Map postprocessed object names back to their compile-time identities."""
+    target = _relative(candidate_object)
+    command = pa.postprocess_commands(pa.run_make_database()).get(target)
+    if command is None:
+        return {}
+    proposed: dict[str, set[str]] = {}
+    for source, destination in pa.objcopy_redefine_pairs(command):
+        proposed.setdefault(destination, set()).add(source)
+    # A destination reused by separate metadata passes does not identify one
+    # compile-time source. Leave it unresolved rather than guessing; unique
+    # destinations retain exact provenance.
+    return {
+        destination: next(iter(sources))
+        for destination, sources in proposed.items() if len(sources) == 1
+    }
+
+
 def collect(resolution: Resolution) -> dict[str, object]:
     for path, label in (
         (TARGET_ELF, "canonical linked ELF"),
@@ -910,6 +929,9 @@ def collect(resolution: Resolution) -> dict[str, object]:
         context.update(
             _resident_boundary(target_elf, target_value, target_size, section)
         )
+    candidate_redefine_aliases = _candidate_redefine_aliases(
+        resolution.candidate_object
+    )
     comparison = rs.function_surface_comparison(
         resolution.requested_symbol,
         resolution.candidate_object,
@@ -920,6 +942,7 @@ def collect(resolution: Resolution) -> dict[str, object]:
         candidate_symbol=resolution.candidate_symbol,
         target_symbol=linked_name,
         source=resolution.translation_unit,
+        candidate_redefine_aliases=candidate_redefine_aliases,
     )
     relocation_evidence = _relocation_evidence(
         resolution,

@@ -1234,7 +1234,7 @@ def _numeric_assignments(path):
 
 
 def _stable_symbol_identities(path, candidate_elf, overlay, tu_base_offset,
-                              target_elf):
+                              target_elf, redefine_aliases=None):
     """Map names to unambiguous ``(overlay, offset)`` runtime identities."""
     proposed = collections.defaultdict(set)
 
@@ -1277,6 +1277,23 @@ def _stable_symbol_identities(path, candidate_elf, overlay, tu_base_offset,
         for name, value, _size, _info, shndx in candidate_elf.symbols():
             if name and shndx == text_idx:
                 propose(name, (overlay, tu_base_offset + value))
+
+    # Metadata-only objcopy renames preserve the original symbol's runtime
+    # identity. Carry that provenance onto the destination name found in the
+    # postprocessed object. Iterate to support a short rename chain while
+    # retaining the ordinary ambiguity check below.
+    redefine_aliases = redefine_aliases or {}
+    pending = dict(redefine_aliases)
+    while pending:
+        progressed = False
+        for destination, source in list(pending.items()):
+            if source not in proposed:
+                continue
+            proposed[destination].update(proposed[source])
+            del pending[destination]
+            progressed = True
+        if not progressed:
+            break
 
     resolved = {name: next(iter(identities))
                 for name, identities in proposed.items() if len(identities) == 1}
@@ -1592,7 +1609,8 @@ def _resident_target_records(candidate_object, source, target_elf,
 def function_surface_comparison(symbol, candidate_object, target_elf_path,
                                 rom_path=DEFAULT_ROM, atlas_path=None,
                                 values_path=LINK_SYMS, candidate_symbol=None,
-                                target_symbol=None, overlay_hint=None, source=None):
+                                target_symbol=None, overlay_hint=None, source=None,
+                                candidate_redefine_aliases=None):
     candidate_symbol = candidate_symbol or symbol
     target_symbol = target_symbol or symbol
     atlas_path = atlas_path or (REPO / "config" / "overlays.us.json")
@@ -1657,12 +1675,16 @@ def function_surface_comparison(symbol, candidate_object, target_elf_path,
             target_value, target_size, target_section, values_path,
             resident_runtime_records)
     identities, ambiguous_identities = _stable_symbol_identities(
-        values_path, candidate_elf, overlay, tu_base_offset, target_elf)
+        values_path, candidate_elf, overlay, tu_base_offset, target_elf,
+        candidate_redefine_aliases)
     numeric_values = _numeric_assignments(values_path)
     candidate_records = _candidate_surface_records(
         candidate_elf, candidate_start, candidate_size, target_records,
         identities, numeric_values, ambiguous_identities, overlay)
     result = compare_record_sets(target_records, candidate_records)
+    result["candidate_redefine_alias_count"] = len(
+        candidate_redefine_aliases or {}
+    )
     result.update({
         "symbol": symbol,
         "candidate_symbol": candidate_symbol,

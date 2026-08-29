@@ -73,6 +73,32 @@ class SymbolResolutionTests(unittest.TestCase):
         with self.assertRaisesRegex(fp.PreflightError, "ambiguous"):
             fp._identity_text(None)
 
+    def test_candidate_redefine_aliases_preserve_sources(self) -> None:
+        command = (
+            "tools/binutils/mips64-elf-objcopy "
+            "--redefine-sym func_80005750=func_80005750_o001Reloc "
+            "--redefine-sym=mathRnd=mathRnd_o001Reloc "
+            "--redefine-sym first=sharedProxy && "
+            "tools/binutils/mips64-elf-objcopy --redefine-sym second=sharedProxy "
+            "build/src/example.c.o"
+        )
+        with mock.patch.object(
+            fp.pa, "run_make_database", return_value="database"
+        ), mock.patch.object(
+            fp.pa, "postprocess_commands",
+            return_value={"build/src/example.c.o": command},
+        ):
+            aliases = fp._candidate_redefine_aliases(
+                fp.REPO / "build/src/example.c.o"
+            )
+        self.assertEqual(
+            aliases,
+            {
+                "func_80005750_o001Reloc": "func_80005750",
+                "mathRnd_o001Reloc": "mathRnd",
+            },
+        )
+
     def test_promoted_overlay_resolves_from_exact_atlas_owner_without_asm(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -92,13 +92,8 @@ def postprocess_commands(dump):
     return seen
 
 
-def duplicate_redefine_targets(command):
-    """Find destination symbols repeated in one objcopy invocation.
-
-    GNU objcopy rejects two ``--redefine-sym`` options with the same target.
-    More importantly for overlays, distinct relocation identities must not be
-    collapsed merely because their encoded addends happen to agree.
-    """
+def _objcopy_redefine_groups(command):
+    """Return rename pairs grouped by individual objcopy invocation."""
     lexer = shlex.shlex(command, posix=True, punctuation_chars=";&|")
     lexer.whitespace_split = True
     lexer.commenters = ""
@@ -114,11 +109,11 @@ def duplicate_redefine_targets(command):
     if segment:
         segments.append(segment)
 
-    conflicts = []
+    groups = []
     for tokens in segments:
         if not any(OBJCOPY_RE.search(token) for token in tokens):
             continue
-        destinations = {}
+        pairs = []
         index = 0
         while index < len(tokens):
             token = tokens[index]
@@ -130,8 +125,31 @@ def duplicate_redefine_targets(command):
                 spec = token[len("--redefine-sym=") :]
             if spec and "=" in spec:
                 source, destination = spec.split("=", 1)
-                destinations.setdefault(destination, []).append(source)
+                pairs.append((source, destination))
             index += 1
+        groups.append(pairs)
+    return groups
+
+
+def objcopy_redefine_pairs(command):
+    """Return ordered ``(source, destination)`` objcopy rename pairs."""
+    return [
+        pair for group in _objcopy_redefine_groups(command) for pair in group
+    ]
+
+
+def duplicate_redefine_targets(command):
+    """Find destination symbols repeated in one objcopy invocation.
+
+    GNU objcopy rejects two ``--redefine-sym`` options with the same target.
+    More importantly for overlays, distinct relocation identities must not be
+    collapsed merely because their encoded addends happen to agree.
+    """
+    conflicts = []
+    for group in _objcopy_redefine_groups(command):
+        destinations = {}
+        for source, destination in group:
+            destinations.setdefault(destination, []).append(source)
         for destination, sources in destinations.items():
             if len(sources) > 1:
                 conflicts.append((destination, sources))
