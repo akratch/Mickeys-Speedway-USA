@@ -406,10 +406,18 @@ void func_80021504(f32 fov, s32 force) {
 /*
  * PROVENANCE: adapted from DKR's public decomp,
  * src/camera.c:cam_reset_fov.
- * Retained proof: 37 words, 14 relocations, and linked ROM
- * 0x22318..0x223AC exact. No static symbol caller is proven; ROM table export
- * 453 is the only retained inbound evidence. Reprove once because the
- * full-ROM artifact predates the object.
+ * Retained evidence (reviewed 2026-08-29): configured C owns 37 words
+ * with a 0x28 frame and 14 candidate relocation tuples. Applying those
+ * tuples at the linked symbol addresses reproduces all 37 words in the
+ * retained post-object ELF; ROM 0x22318..0x223AC and the complete camera
+ * TU are byte-identical to the baserom.
+ *
+ * No source/object reference, resident direct jump, main-reloc entry,
+ * overlay SYMBOL relocation, or absolute pointer is retained. ROM-table
+ * row 453 merely exports resident offset +0x212C8; it is not inbound
+ * evidence. The exact full .bin predates the object, and no independent
+ * target relocation object survives, so run one fresh target/object/link/
+ * full-bin reproof.
  */
 void func_80021718(void) {
     func_8004FAD0(D_800CEC98, &D_800CEC94, 60.0f, 1.3333334f, 10.0f,
