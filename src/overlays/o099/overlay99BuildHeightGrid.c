@@ -27,21 +27,25 @@ extern s32 gOverlay99Arg5;
 extern void overlay99ApplySegment(Overlay99Segment *segment, f32 scale);
 
 /*
- * Retained-evidence diagnostic (reviewed 2026-08-29): target is 114 words with
- * a 0x28 frame. The retained genuine isolated object predates the grid-load
- * reorder below and is 104/114 words after runtime-relocation normalization,
- * but its recipe omitted the TU's explicit -Wo,-loopunroll,0. Its ten
- * register-only sites are at +0x108,+0x10C,+0x110,
- * +0x114,+0x118,+0x120,+0x124,+0x154,+0x15C,+0x170. Its 29 static
- * relocations match all 29 shipped runtime sites and types. The reorder was
- * historically reported to remove the first seven sites, leaving the
- * three-use negative-magnitude web, but no untouched current-source object
- * survives. Both bodies also used an invented empty read of `unused` to alter
- * its ABI lifetime; that guard is removed, so both scores are diagnostic only.
- * Ordinary object/link/module/ROM equality proves GLOBAL_ASM. Compile clean
- * V0, retain the 119-flag lattice, take one allocator trace, then try only its
- * indicated natural magnitude-carrier form. */
+ * Bounded clean-source plateau (reviewed 2026-08-29): the owned target is
+ * 114 words with a 0x28 frame. Configured -O2 -mips2 -32
+ * -Wo,-loopunroll,0 emits 115 words, with 104 differing positions and first
+ * mismatch +0x2C. It carries 29 static relocations, but only 8 of their
+ * offset/type pairs align with the 29 shipped runtime records. All 119 flag
+ * rows were attempted; the compilable O2/MIPS-II rows tie this result. A
+ * codegen-faithful allocator trace colors the negative-magnitude web into v0
+ * while target t4 is eligible at equal cost. Giving that magnitude a natural
+ * block-local carrier regresses to 107 differing positions and swaps the main
+ * v0/v1 pool. The assembly fallback remains the only exact linked output. */
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: overlay99BuildHeightGrid
+ * score: 104 differing words
+ * frame: 0x28
+ * relocations: 29
+ * first-mismatch: +0x2C
+ * summary: clean V0 is 115/114 words; only 8/29 runtime offset/type pairs align; trace-led magnitude split regresses
+ */
 void overlay99BuildHeightGrid(f32 scale, void *unused, s32 widthMinusOne,
                               s32 heightMinusOne, s32 arg4, s32 arg5) {
     Overlay99GridPoint *point;
