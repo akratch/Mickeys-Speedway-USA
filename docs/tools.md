@@ -176,6 +176,42 @@ Underlies decomp.dev-style progress reporting elsewhere in the splat/objdiff
 ecosystem; not itself wired into a script here, but smoke-tested by
 `tools/check_tools.sh` since it's a `gmake setup` dependency going forward.
 
+## Function evidence preflight and workbench comparison
+
+Run the evidence preflight before a flag sweep or allocator experiment:
+
+```sh
+tools/function_preflight.py overlay16ApplyGradient
+tools/function_preflight.py func_overlay_016_F00001E0_1873678 --json
+```
+
+Either the friendly C name or splat's generated overlay name resolves to the
+same identity. The command incrementally builds the canonical linked ELF and
+the correct full-TU candidate object, automatically selecting
+`build_non_matching/` for a guarded candidate. It then reports the exact
+owned range and next ownership/padding boundary, ROM-table exports, inbound
+call sites, the candidate declaration and frame, every shipped runtime
+relocation tuple (function-relative offset, type, stable identity, and stored
+addend), candidate relocation-surface agreement, and the current workbench
+word score and first mismatch. `--no-build` makes existing artifacts a hard
+requirement instead. The command fails when an alias, source, range, or
+relocation identity is not unique; its output deliberately excludes
+instruction listings, words, and hexdumps.
+
+`tools/wb_compare.sh` uses the same resolver, so manual
+`WB_CANDIDATE_SYMBOL`/`WB_CANDIDATE_BUILD_DIR` settings are no longer needed
+for normal guarded functions:
+
+```sh
+tools/wb_compare.sh overlay16ApplyGradient --json
+tools/wb_compare.sh --diagnose overlay16ApplyGradient --trace trace.log --trace-proc 0
+```
+
+Wrapper options precede the symbol; all arguments after the symbol are passed
+unchanged to `decomp-workbench compare` or, with `--diagnose`, to
+`decomp-workbench diagnose`. `--rom` retains the linked-ROM final-oracle mode,
+and can be combined with `--diagnose` to select `diagnose-dumps`.
+
 ## tools/check_tools.sh
 
 Runs each tool's `--version`/`--help` and prints one line per tool:
