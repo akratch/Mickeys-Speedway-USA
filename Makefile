@@ -2883,7 +2883,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateSelection.c.o: POSTPROCESS 
 # NON_MATCHING fallback assembly supplies the retail body; restore the
 # friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o011/overlay11UpdateMenu.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_011_F0001398_1869BE0=overlay11UpdateMenu $@ && \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_011_F0001398_1869BE0=overlay11UpdateMenu \
+		--redefine-sym func_80028F54=overlay11GetStatusReloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4B4
 # Overlay-local data addends are encoded in retail, while its runtime calls
 # all use the extracted range's offset-zero carrier.

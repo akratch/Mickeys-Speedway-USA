@@ -37,7 +37,7 @@ extern s32 D_paramC;
 extern s32 D_paramD;
 extern s32 D_modeFlag;
 
-extern O11Status *func_overlay_011_F0000000_1868848(void);
+extern O11Status *func_80028F54(void);
 extern void func_overlay_011_F0001058_18698A0(s32 arg0);
 extern void func_overlay_011_F0001130_1869978(s32 arg0);
 extern void func_overlay_011_F0002948_186B190(void);
@@ -57,17 +57,17 @@ extern void func_overlay_066_F0000000(void *arg0);
 
 /* Pinned DKR v77/v80 and JFG donor scans classify overlay 11 as none. */
 /*
- * Plateau (2026-08-28): canonical -O2 -mips2 is size-exact (1204 B/301 words),
- * with a 0x48-byte frame, 102 relocation sites, and 299/301 words identical
- * after masking the runtime relocation fields; the first executable mismatch
- * is the reversed live index/handle spill pair at +0x138. This is configured
- * isolated-C evidence, not retained full-TU C proof. The current +0x8 call is
- * also identity-wrong: runtime names resident func_80028F54, not overlay 11 +0.
- * A scoped handle after the ternary and a block-scoped callback value are
- * baseline-equivalent; moving the handle before it swaps the pair but hoists
- * the zero-value setup and changes schedule. The prohibited frame/spill rewrite
- * remains non-promotable; canonical assembly stays. Correct the call identity
- * before a trace-led source-line/declaration association campaign.
+ * Plateau (2026-08-28): retained prior-layout configured full-TU and isolated
+ * C are 285/301 raw and 299/301 runtime-normalized words, size 1204 B, with a
+ * 0x48-byte frame and all 102 relocation sites. The executable residual is the
+ * reversed live index/handle spill pair at +0x138/+0x140. Current-layout C is
+ * unproven. Runtime names the +0x8 call as resident func_80028F54; the source
+ * and metadata rebind now preserve that identity instead of overlay 11 +0.
+ * Reopen with current V0, the retained 119-recipe flag lattice, one allocator
+ * trace, and at most two independently trace-selected declaration/lifetime
+ * forms plus an improving-only combination. Permit one <=2000-candidate batch
+ * only after a legal deterministic gain. The prohibited frame/spill rewrite
+ * remains non-promotable; canonical assembly stays until an exact C link.
  */
 #ifdef NON_MATCHING
 void overlay11UpdateMenu(s32 updateRate) {
@@ -86,7 +86,7 @@ void overlay11UpdateMenu(s32 updateRate) {
     volatile s32 *menuInput;
     s32 action;
 
-    status = func_overlay_011_F0000000_1868848();
+    status = func_80028F54();
     direction = D_0[D_1C4];
     if (direction < -32) {
         if (((status->mode >= 2) && (D_1BC < 3)) ||

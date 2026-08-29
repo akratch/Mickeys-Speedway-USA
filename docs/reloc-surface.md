@@ -405,7 +405,7 @@ resident target (splat auto-name or `D_8…`), which is a superset of the 15
 | `overlay5InitializeAudio` | `resident-symbol-missing` | `text-differs` 22 |
 | `func_overlay_011_F0001E4C_186A694` | `resident-symbol-missing` | `schedule-divergence-at-site` |
 | `func_overlay_011_F00022E8_186AB30` | `resident-symbol-missing` | `schedule-divergence-at-site` |
-| `overlay11UpdateMenu` | `resident-symbol-missing` | `text-differs` 4 |
+| `overlay11UpdateMenu` | `resident-symbol-missing` | prior-layout C: 16 raw differences, 2 after runtime normalization |
 | `func_overlay_026_F0000D24_187B11C` | `resident-symbol-missing` | `text-differs` 39 |
 | `func_overlay_027_F0000064_187BA3C` | `resident-symbol-missing` | `schedule-divergence-at-site` |
 | `func_overlay_029_F00005C4_187D874` | `resident-symbol-missing` | `schedule-divergence-at-site` |
