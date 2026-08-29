@@ -617,6 +617,17 @@ compared in the complete US ROM. No generated alignment padding is credited.
 | 101 | `+0x1BB4..+0x1BD0` | 28 | generic three-global reset only; no donor |
 | **total** | | **1,040** | pinned DKR v77/v80 ledger remains exact-donor negative for every adopted module |
 
+Overlay 79's unresolved `+0x1290..+0x147C` owner
+(`func_overlay_079_F0001290_18CE230`) remains `NON_MATCHING` at 492 bytes / 123
+words. Retained configured-flag isolated C is 111/123 words with frame `0x48`
+and 12 register-only sites from `+0xC8`. Its 15 runtime-backed records include
+eleven calls, a local counter pair, and the shipped BSS flags pair; the
+assembled target retains only 13 static records because the runtime table
+supplies the already-zero flags instructions. The committed filter/rebind
+metadata is diagnostic and is not part of production `POSTPROCESS`. Exact
+linked range/module/full-ROM evidence proves the assembly fallback only; no
+linked C candidate survives. Pinned DKR v77/v80 and JFG scans are negative.
+
 Two old compiler blockers were closed rather than merely bypassed. Overlay 97
 `+0x000` required preserving explicit unsigned-byte angle masks plus
 `-Wab,-r4300_mul`; `+0x3F4` required the original three-argument ABI shape,

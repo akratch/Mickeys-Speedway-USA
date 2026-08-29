@@ -368,7 +368,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_075_F0000214_18CC17C` | `src/overlays/o075/overlay75UpdateMovingObject.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_079_F0000134_18CD0D4` | `src/overlays/o079/func_overlay_079_F0000134_18CD0D4.c` | resolved-plateau | overlay 79 shared data base | TU-owned +0x0..+0x60 aggregate is exact; code generation remains. |
 | `func_overlay_079_F0000FA0_18CDF40` | `src/overlays/o079/func_overlay_079_F0000FA0_18CDF40.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_079_F0001290_18CE230` | `src/overlays/o079/func_overlay_079_F0001290_18CE230.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_overlay_079_F0001290_18CE230` | `src/overlays/o079/func_overlay_079_F0001290_18CE230.c` | none | — | Retained configured-flag isolated C is 111/123 words, frame `0x48`, with 12 register-only sites from `+0xC8` and 15 runtime-backed records. The assembled target retains 13 static records; its missing flags pair comes from the shipped runtime table. Source, flag, lifetime, and bounded-permuter routes are exhausted; the rebind spec is diagnostic, not production postprocess. One unchanged V0, then park. |
 | `func_overlay_080_F0000000_18CE8C8` | `src/overlays/o080/overlay80InitializeContact.c` | matched | — | Promoted as `overlay80InitializeContact`; no ownership work remains. |
 | `func_overlay_080_F000011C_18CE9E4` | `src/overlays/o080/overlay80UpdateContact.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_083_F000053C_18CFCFC` | `src/overlays/o083/overlay83BuildBatch.c` | none | — | No ownership change; continue source/codegen work. |
