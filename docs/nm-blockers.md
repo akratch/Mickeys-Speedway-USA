@@ -154,7 +154,6 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_001_F0005BF4_1851FD4` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F0005ED4_18522B4` | `src/overlays/o001/overlay_001_tail.c` | resolved-plateau | overlay 1 dispatch table | TU-owned +0x274..+0x294 initialized range clears module growth; code generation remains. |
 | `func_overlay_001_F00061F0_18525D0` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_001_F0006270_1852650` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F00064F8_18528D8` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F00067C0_1852BA0` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_001_F0006A14_1852DF4` | `src/overlays/o001/overlay_001_tail.c` | none | — | No ownership change; continue source/codegen work. |

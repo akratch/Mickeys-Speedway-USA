@@ -1699,7 +1699,7 @@ Overlay 34 `+0x608..+0x900` — final 760 bytes / 190 words. NON_MATCHING: retir
 
 `overlay 1 +0x5ED4..+0x61F0` — 796 bytes / 199 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via allocator-web reassignment plus a pre-loader addend rewrite); source kept as decomp-permuter input. 61 runtime text records were confirmed authoritative.
 
-`overlay 1 +0x6270..+0x63CC` — 348 bytes / 87 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via private stack-home reassignment plus a pre-loader addend rewrite); source kept as decomp-permuter input. 13 runtime text records were confirmed authoritative.
+`overlay 1 +0x6270..+0x63CC` (`overlay1ChooseModeObject`) is now **348 exact C bytes / 87 words**. The ordinary configured IDO build reaches the target by declaring the existing locals in reverse stack-home order; no synthetic local, compiler-output edit, or pre-loader addend rewrite is used. The `0x50` frame and all 13 runtime text records are exact by offset, type, and identity: calls resolve to resident `func_80005750` once and `mathRnd` twice, while the five local HI16/LO16 pairs retain their overlay-local identities. The function has no owned padding, is referenced by the overlay-local `R_MIPS_32` table entry at `+0x8218`, and is exact in the linked overlay and full ROM. The donor scan found no useful DKR, JFG, Conker, or same-overlay sibling candidate.
 
 `overlay 1 +0x64F8..+0x6724` — 556 bytes / 139 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via loop-control carrier relocation and a shared-tail reorder); source kept as decomp-permuter input. Four runtime call records were confirmed exact.
 
