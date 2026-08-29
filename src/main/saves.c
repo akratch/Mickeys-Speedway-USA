@@ -802,9 +802,13 @@ void func_8002CF0C(void *globalFlags) {
     }
 }
 #ifdef NON_MATCHING
-/* Workbench p7: register-ring-only, 9/88 words remain, first +0xCC; frame/relocations exact.
- * A lexical post-call savedFlag reload is codegen-inert; target needs a FIFO temp where this body keeps a colored web.
- * Hoisted arguments, folded masks, addressable scalars, flag probes, and two phantom-pop placements remain exhausted. */
+/* Historical isolated workbench p7: register-ring-only, 9/88 words remain,
+ * first +0xCC; frame/relocations agree. The retained import omitted this TU's
+ * required -Wo,-loopunroll,0, so fresh configured V0 must reconcile that count
+ * before reuse. A lexical post-call savedFlag reload was codegen-inert; target
+ * needs a FIFO temp where this body keeps a colored web. Hoisted arguments,
+ * folded masks, addressable scalars, flag probes, and two phantom-pop
+ * placements remain exhausted. */
 void func_8002CF6C(u8 *globalFlags) {
     SavesFullWriteState state;
     s32 messageQueue;
