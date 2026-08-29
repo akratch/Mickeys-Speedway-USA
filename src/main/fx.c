@@ -630,14 +630,14 @@ void func_800479D4(FxCone *cone, s16 height, f32 radius, f32 depth,
 }
 
 #ifdef NON_MATCHING
-/* Retained prior-line-layout configured full-TU C is 226/234 raw/normalized
- * words, exact 0x68 frame, first +0x298, with four exact func_800349A4 calls.
- * Five sites belong to the cone->mode web and three to segmentCount; isolated
- * C is only 214/234. Callers are func_80009414+0x520 and Overlay 69/88 draw at
- * +0x530; runtime records are zero. Historical routes are unretained. Compile
- * current V0, retain 119 flags and one trace, try one natural form per web and
- * an improving-only combination, then one bounded batch. Hard cap: 122
- * deterministic trials. */
+/* Current configured full-TU V0 is 226/234 raw/normalized words with exact
+ * 0x3A8 extent, 0x68 frame, and four func_800349A4 relocation tuples; first
+ * mismatch is +0x298. Five sites are the cone->mode web and three are the
+ * segmentCount web. All 119 flag identities were attempted; seven O2/MIPS-II
+ * rows tie at eight residual words. A proc-7 globalcolor trace leaves the temp
+ * lane exact. A mode local grew to 236 words/frame 0x70 with tuple drift; a
+ * scoped segmentCount local retained 234 words but moved to frame 0x70 and 35
+ * raw differences. No strict gain unlocked a combination or batch. */
 /* Mickey-derived draft; JFG's corresponding fxDrawCone body is assembly-only. */
 void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
     s32 hasTexture;
@@ -2497,3 +2497,13 @@ void func_8004AF68(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004AF68.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_80047CD8:start
+ * symbol: func_80047CD8
+ * score: 226/234 words
+ * frame: 0x68
+ * relocations: 4
+ * first-mismatch: +0x298
+ * summary: all 119 flag identities and both natural web-local forms were nonexact; a globalcolor allocation outcome remains
+ * PLATEAU-HANDOFF:func_80047CD8:end
+ */

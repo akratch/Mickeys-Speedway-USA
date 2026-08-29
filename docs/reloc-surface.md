@@ -1124,8 +1124,10 @@ record or ORT export. Authenticated inbounds are resident
 `func_80009414+0x520`, Overlay 69 table-1 record 9 at
 `overlay69DrawSortedGeometry+0x530`, and Overlay 88 table-1 record 12 at
 `overlay88DrawSortedGeometry+0x530`; the overlay proxy names now disclose the
-shared draw-cone identity and await regenerated metadata. Current linked
-equality proves fallback only.
+shared draw-cone identity and await regenerated metadata. The current
+configured full-TU candidate emits exactly the same four offsets, types, and
+identities and no other record in its owned range. Current linked equality
+still proves fallback only.
 
 Resident `func_80041CE4` owns nine exact static records in retained genuine C:
 HI16/LO16 pairs to `D_8007C894` at `+0x04/+0x08`, `D_8007C88C` at
