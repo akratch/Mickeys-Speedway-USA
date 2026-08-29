@@ -10,9 +10,9 @@
  *
  * PROVENANCE: JFG's permitted src/models.c, models.h and camera.c were read
  * for names, layouts and comparison. The initial split adapted no body;
- * point-of-use notes identify the later JFG adaptations. Retained configured
- * func_8005A948 C uses the per-file `-Wo,-loopunroll,0` override and has the
- * target length; the historical comparative flag-lattice artifacts are gone.
+ * point-of-use notes identify the later JFG adaptations. Canonical
+ * func_8005A948 flags include `-Wo,-loopunroll,0`, but its authenticated
+ * retained isolated C omitted that override; current HEAD is uncompiled.
  */
 
 #include "PR/ultratypes.h"
@@ -328,12 +328,16 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models_5B300/func_8005A7A0.s")
 #endif
-/* Retained isolated C for the earlier structured-store body is 83/94 words,
- * frame 0x38, first +0x40, with all 13 relocations exact; its recipe omitted
- * this TU's -Wo,-loopunroll,0. The current raw-array p10's reported 91/94 has
- * no object and used a redundant boolean wrapper, now removed, so clean V0 is
- * uncompiled. Retain 119 flags, trace once, and try at most one natural form;
- * cap at 120 compiler invocations plus trace. */
+/* Retained isolated C for the earlier structured-store body is 83/94 raw and
+ * relocation-normalized words, but 94/94 after register-field masking, frame
+ * 0x38, first +0x40, with all 13 tuples exact. Its recipe omitted canonical
+ * -Wo,-loopunroll,0. Historical raw-array p9/p10 reportedly reached 91/94 but
+ * no object survives; it reused i and retained a redundant boolean wrapper.
+ * Current source removes that wrapper and adds tableOffset, so its score is
+ * unknown. Sole caller is func_8005A7A0+0x104; no export/runtime/overlay/pointer
+ * inbound exists and linked equality is fallback-only. Run 119 flags including
+ * V0, trace once, then at most one trace-selected natural form; cap 120 builds
+ * plus trace, with no batch. */
 #ifdef NON_MATCHING
 u8 *func_8005A948(s16 animationId) {
     s32 i;

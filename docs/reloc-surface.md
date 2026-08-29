@@ -796,8 +796,12 @@ Resident `func_8005A948` owns 13 static records: HI16/LO16 pairs to
 `+0x134/+0x13C`, and `D_800D7CF8` at `+0xB4/+0xB8` and `+0xD0/+0xD4`, plus
 calls to `piRomLoadSection` at `+0xC8/+0x124` and `func_8002B314` at `+0xF8`.
 It has no export-table entry or overlay runtime record; `func_8005A7A0+0x104`
-is its sole caller. Retained isolated C agrees on all tuples but is 83/94 words
-and omitted the TU's canonical `-Wo,-loopunroll,0`; linked equality is fallback-only.
+is its sole caller, with no stored-pointer inbound and no target padding.
+Retained isolated C agrees on all tuples but is 83/94 raw and
+relocation-normalized words, reaching 94/94 only after register-field masking;
+it omitted the TU's canonical `-Wo,-loopunroll,0`. Historical raw-array p9/p10
+and current-source scores are unretained or unknown; linked equality is
+fallback-only.
 
 Overlay 62 `+0xD4` (`overlay62Update`) owns 71 runtime records: 43 SYMBOL and
 28 LOCAL, comprising 21 calls and 25 HI16/LO16 pairs. The genuine C object has

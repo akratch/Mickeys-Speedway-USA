@@ -3039,14 +3039,18 @@ corresponding routines as assembly, so no donor body was adapted.
 `func_8005A948` retains genuine isolated C for the earlier structured-store
 body, but its recipe omitted canonical `-Wo,-loopunroll,0`; ordinary full-TU
 equality is fallback assembly. It has the target's 94-word size, frame `0x38`,
-and 13 relocation identities, matching 83/94 words. The 11 sites are
+and 13 relocation identities, matching 83/94 raw and relocation-normalized
+words and reaching 94/94 only after register-field masking. The 11 sites are
 `+0x40/+0x44/+0x80/+0x130/+0x148/+0x14c/+0x150/+0x154/+0x158/+0x15c/+0x160`.
-The current p10 source's reported 91/94 is unretained and used a redundant
-boolean wrapper, now removed; clean configured V0 is uncompiled. Historical
-flag, source, trace, and search outcomes are likewise unretained. There are
-zero runtime records or exports, and `func_8005A7A0+0x104` is the sole caller.
-Retain 119 flag recipes, trace once, and try at most one natural form, capped at
-120 builds plus trace; assembly remains canonical.
+Historical raw-array p9/p10's reported 91/94 is unretained; that source reused
+`i` and retained a redundant boolean wrapper. Current source removes the
+wrapper and adds `tableOffset`, so clean configured V0 and its score remain
+unknown. Historical flag, source, trace, and search outcomes are likewise
+unretained. There are zero runtime records or exports,
+`func_8005A7A0+0x104` is the sole caller, and no overlay or stored-pointer
+inbound exists. The function owns no target padding. Retain 119 flag recipes,
+trace once, and try at most one trace-selected natural form, capped at 120
+builds plus trace; do not batch. Assembly remains canonical.
 
 `func_8005A7A0` has retained configured full-TU evidence at 106 words, with
 ten raw sites and seven relocation-normalized positional sites. The raw sites are
