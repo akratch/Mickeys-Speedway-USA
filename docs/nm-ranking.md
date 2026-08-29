@@ -299,12 +299,13 @@ The earlier exact claim depended on prohibited post-compile field edits. Run
 119 configurations, one trace, and at most three trace-supported forms, then
 park if all three are flat.
 
-Seven other rows from the displayed run have since been promoted and are no
+Nine other rows from the displayed run have since been promoted and are no
 longer search candidates: `overlay3FindClosestObject`, `overlay40AddEntry`,
 `overlay43SubmitChildren`, `func_80038750`, `partUpdateTriggers`,
-`func_8001A154`, and `overlay1UpdateValueCache`. Their canonical source and
-function-specific ledgers carry the exact proofs; stale generated ranking
-entries must not put them back into the ready queue.
+`func_8001A154`, `overlay1UpdateValueCache`,
+`func_overlay_041_F0000000_1887338`, and `overlay80UpdateContact`. Their
+canonical source and function-specific ledgers carry the exact proofs; stale
+generated ranking entries must not put them back into the ready queue.
 
 `func_80021504` is unguarded matched C and no longer a ranking candidate.
 Retained configured C owns 133 words with frame `0x28` and 43 candidate

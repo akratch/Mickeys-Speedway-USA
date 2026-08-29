@@ -6507,8 +6507,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o080/overlay80UpdateContact.c.o",
       "offset": 284,
       "overlay": 80,
@@ -8926,7 +8926,7 @@
     "by_class": {
       "metadata": 622
     },
-    "matched_c_bytes_with_postprocess": 101728,
+    "matched_c_bytes_with_postprocess": 102448,
     "objects_with_postprocess": 622
   }
 }
