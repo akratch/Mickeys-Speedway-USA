@@ -2399,9 +2399,12 @@ indirect call retain all target instruction words and relocation identities at
 the resident defaults; spelling the constant-count loop as `while (index--)`
 reproduces IDO's rotated `3`-through-`0` schedule without normalization.
 
-`func_8004ACC4` remains exact-size with 14/28 positional words differing, first `+0x14`; workbench verdict: mixed structure/register residual.
-Logical-line grouping improved 18 to 14; aggregate lifetime, assignment order, and direct trap-address forms did not.
-The callback/trap address web and counter schedule remain; the assembly fallback stays canonical.
+`func_8004ACC4` remains exact-size with 16/28 positional words differing in
+the current full-TU candidate, first `+0x10`; the isolated ranking reports the
+same count from `+0x14`. The older logical-line grouping reached 14 but is not
+the checked-in body. Aggregate lifetime, assignment order, and direct
+trap-address forms did not close the callback/trap and counter webs; the
+attempt cap is exhausted and assembly stays canonical.
 
 `func_8004AF68` remains a workbench `structure-mismatch`: 54/52 words and 48 positional differences from `+0x4`.
 Constant audit, context lint, pool-vs-temp inlining, and pointer-lifetime placement did not remove the saved secondary-array base web.
