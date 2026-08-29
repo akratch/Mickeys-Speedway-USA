@@ -27,11 +27,16 @@ extern s32 gOverlay99Arg5;
 extern void overlay99ApplySegment(Overlay99Segment *segment, f32 scale);
 
 /*
- * Plateau p8: exact 114-word shape and frame, with three register-only words
- * from +0x154.  Loading the grid after the second width/height product fixes
- * the preceding seven-word reload web; the remaining lever is the short-lived
- * clamp magnitude carrier (target t4, candidate v0).
- */
+ * Retained-evidence plateau (reviewed 2026-08-29): target is 114 words with
+ * a 0x28 frame. The latest retained configured NON_MATCHING object predates
+ * the grid-load reorder below and is 104/114 words after runtime-relocation
+ * normalization, with ten register-only sites at +0x108,+0x10C,+0x110,
+ * +0x114,+0x118,+0x120,+0x124,+0x154,+0x15C,+0x170. Its 29 static
+ * relocations match all 29 shipped runtime sites and types. The reorder was
+ * historically reported to remove the first seven sites, leaving the
+ * three-use negative-magnitude web, but no untouched current-source object
+ * survives. Ordinary object/link/module/ROM equality proves GLOBAL_ASM only.
+ * Reprove current V0, then attempt one dead-argument lifetime carrier. */
 #ifdef NON_MATCHING
 void overlay99BuildHeightGrid(f32 scale, void *unused, s32 widthMinusOne,
                               s32 heightMinusOne, s32 arg4, s32 arg5) {

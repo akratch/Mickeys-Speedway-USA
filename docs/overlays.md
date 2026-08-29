@@ -1757,6 +1757,16 @@ The full flag lattice and 40-minute permuter produced no valid exact source.
 
 `overlay 99 +0x0064..+0x021C` (`overlay99InitializeEntries`) contributes **440 naturally exact bytes / 110 words**. Declaring the address-taken spawn descriptor after the entry cursor moves its compiler-selected home from `sp+0x58` to the retail `sp+0x54`; the ordinary `-O2 -mips2 -32` object is then instruction-exact. The linked overlay retains all 7 runtime relocation roles, including both local-storage pairs and the exact `+0x90` addend, and the full ROM is byte-exact.
 
+`overlay 99 +0x0638..+0x0800` (`overlay99BuildHeightGrid`) owns 456 bytes / 114 words with a `0x28` frame. The retained configured NON_MATCHING object predates the current grid-load reorder and is 104/114 words after runtime-relocation normalization, with all 29 shipped relocation sites and types. The current p8 source is historically reported to leave three negative-magnitude register sites, but no untouched object or linked C candidate survives. Exact linked function, overlay text, complete module, and ROM evidence proves the `GLOBAL_ASM` fallback only.
+
+`overlay 99 +0x0800..+0x0BA4` (`overlay99RenderSortedEntries`) owns
+932 guarded bytes / 233 words. The surviving configured C predates the latest
+field-store change and is 216/233 raw or 218/233 runtime-normalized, with the
+exact `0x148` frame and ten runtime-backed relocation sites. The current
+220/233 normalized claim is unretained historical evidence. The sole inbound
+identity is overlay-local call `+0xD78`; exact linked function/module/ROM
+evidence proves the assembly fallback only.
+
 `overlay 11 +0x0AF4..+0x0C88` (`overlay11InitializeFour`) contributes **404 naturally exact bytes / 101 words**. Ordinary `-O2 -mips2 -32` codegen is exact; only independent section alignment is trimmed, and the link resolves three proved local addends. The object retains all 22 runtime relocation roles.
 
 `overlay 11 +0x0000..+0x0150` (`overlay11Initialize`) contributes **336 naturally exact bytes / 84 words**. Typed source's compiler-emitted six-entry switch table exactly matches the existing runtime-relocated table at module `+0x2ED8`; the duplicate private section is discarded after rebinding a local `+8` text pair. The object retains all 31 runtime text relocation roles, and the retained table preserves its six `R_MIPS_32` roles.

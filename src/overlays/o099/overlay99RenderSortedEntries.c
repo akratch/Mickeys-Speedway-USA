@@ -78,10 +78,15 @@ extern f32 D_8;
 extern f32 D_4;
 
 /*
- * Plateau: exact 233-word shape and 0x148 frame. Field-order stores reduce the
- * masked residual to 13 words: sorted[] is at sp+0x90 instead of target
- * sp+0x80, two call-spill homes are four bytes low, and one command-store web
- * remains. The next lever is declaration placement of the address-taken array.
+ * Retained configured full-TU NON_MATCHING C predates the current field-store
+ * order. It owns 233 words, has the exact 0x148 frame and ten runtime-backed
+ * relocation sites, and is 216/233 raw or 218/233 after runtime relocation
+ * normalization, first +0x64. Its fifteen normalized differences are eleven
+ * sorted-array/call-home sites and four command-value/store sites. Git history
+ * reports 220/233 normalized for the current store order, but no corresponding
+ * object or linked C trial survives. Exact linked function/module/ROM evidence
+ * proves GLOBAL_ASM only. Reproduce current configured V0 and correct the six
+ * resident callee identities before declaration-placement probes for sorted[].
  */
 #ifdef NON_MATCHING
 void overlay99RenderSortedEntries(Overlay99Gfx **displayList, void *arg1,
