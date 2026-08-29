@@ -219,7 +219,7 @@ overlay callers/callees outside the range were observed.
 | `0x4BCF8` | `0x44` | `func_8004B0F8` | `fontPrintXY` | B/D, matched C | calls `0x4BD3C` |
 | `0x4BD3C` | `0xA0` | `func_8004B13C` | `fontPrintWindowXY` | B/D, matched C | calls `0x4BDDC` |
 | `0x4BDDC` | `0x8B0` | `func_8004B1DC` | JFG `func_80070518` | D, plateau | calls `0x4DF9C`, `0x4C68C`, `0x4D290`, ext |
-| `0x4C68C` | `0xB8` | `func_8004BA8C` | `fontStringWidth` | B/D, plateau | calls `0x4DF9C`; called twice by `0x4BDDC`, once by `0x4C8C4`, and by overlay 41 |
+| `0x4C68C` | `0xB8` | `func_8004BA8C` | `fontStringWidth` | B/D, plateau | calls `0x4DF9C`; called twice by `0x4BDDC`, once by `0x4C8C4`, and by overlays 41 and 45 |
 | `0x4C744` | `0x9C` | `func_8004BB44` | `fontWindowSize` | D, matched C | leaf; ext callers |
 | `0x4C7E0` | `0x1C` | `func_8004BBE0` | `fontWindowUseFont` | D, matched C | leaf; ext callers |
 | `0x4C7FC` | `0x40` | `fontWindowColour` | same | A, matched C | leaf; ext callers |
@@ -276,11 +276,12 @@ candidates match 38/46 words. Both raw and relocation-normalized residuals are
 the eight sites `+0x30,+0x3C,+0x44,+0x4C,+0x50,+0x60,+0x90,+0x94`; the
 `0x30` frame and nine relocation tuples are exact. No linked C candidate proof
 survives. The allocation trace selects `a3` for the font-data web while `v0`
-is forbidden by interference; the one causal `v0` force declined and alias
-tracing found no isolated ownership. Natural lifetime/expression forms were
-neutral, reordered initialization regressed, and a bounded single-thread
-permuter reinstated only retired pointer/index/pad forms. Reproof unchanged V0
-once, then park absent a new allocation mechanism.
+is the target carrier, while two candidate spill homes and two commutative
+operand orders make up the rest of the residual. Only V0 has attributable
+artifacts; the historical trace, source, flag, and permutation outcomes survive
+only as scheduling prose. Reproduce V0, retain the complete flag lattice,
+reconstruct the historical `u32 glyphIndex` form, then try one trace-selected
+natural web or spill-home spelling; cap four steps.
 
 The font subsegment's FP-register census contains only even-numbered single-
 precision registers (`$f0`, `$f4`, `$f6`, `$f8`, `$f10`, `$f16`, and `$f18`),

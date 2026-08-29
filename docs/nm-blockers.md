@@ -43,7 +43,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `debug_text_width` | `src/main/diprint.c` | none | — | Size/frame/relocations exact at 66 words with seven current-byte/newline schedule residuals, first `+0x38`; source attempt cap exhausted. Reproof-only V0. |
 | `debug_text_parse` | `src/main/diprint.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_8004B1DC` | `src/main/font.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_8004BA8C` | `src/main/font.c` | none | — | Retained configured isolated/full-TU candidate is 38/46 words with eight raw/normalized allocation, spill-home, and operand-order sites at `+0x30,+0x3C,+0x44,+0x4C,+0x50,+0x60,+0x90,+0x94`; frame `0x30` and nine relocation tuples are exact, but no linked C proof survives. Source/flag/trace/permuter routes exhausted; one unchanged reproof, then park. |
+| `func_8004BA8C` | `src/main/font.c` | none | — | Retained configured isolated/full-TU candidate is 38/46 words with eight raw/normalized allocation, spill-home, and operand-order sites at `+0x30,+0x3C,+0x44,+0x4C,+0x50,+0x60,+0x90,+0x94`; frame `0x30` and nine relocation tuples are exact, but no linked C proof survives. Only V0 has attributable artifacts. Reproduce it, retain the flag lattice, reconstruct the historical `u32 glyphIndex` form, then try one trace-selected natural web or spill-home spelling; cap four. |
 | `func_8004BCC4` | `src/main/font.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_8004C690` | `src/main/font.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8004D40C` | `src/main/font.c` | matched | — | Promoted to exact C; no ownership work remains. |

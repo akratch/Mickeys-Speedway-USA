@@ -438,8 +438,9 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
  * Retained configured isolated and full-TU evidence is exact-size with eight
  * raw/normalized sites at +0x30,+0x3C,+0x44,+0x4C,+0x50,+0x60,+0x90,+0x94,
  * a 0x30 frame, and nine exact relocation tuples. No linked C proof survives.
- * Flag, width/index, declaration/stack-pad/alias, address/type, spacing-order,
- * trace, and bounded-permuter routes are exhausted; unchanged reproof only. */
+ * Only V0 is artifact-authenticated. Reproduce it, retain the full flag
+ * lattice, reconstruct the historical u32 glyph-index form, then try one
+ * trace-selected natural font-data-web or spill-home spelling. */
 s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
     u8 stackPad[1];
     FontSpacingData *fontData;
