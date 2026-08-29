@@ -328,14 +328,6 @@ overlay11ReadInputReloc = 0xf0000000;
 /* overlay 11: overlay11UpdateMenu.c.o */
 D_1C4 = 0x000001c4;
 D_1CC = 0x000001cc;
-D_count = 0x00000000;
-D_flags = 0x00000000;
-D_modeFlag = 0x00000000;
-D_paramA = 0x00000000;
-D_paramB = 0x00000000;
-D_paramC = 0x00000000;
-D_paramD = 0x00000000;
-D_table = 0x00000000;
 overlay11Func2BF4Reloc = 0xf0000000;
 overlay11Func800006BCReloc = 0xf0000000;
 overlay11Func80005820Reloc = 0xf0000000;

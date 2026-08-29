@@ -469,10 +469,11 @@ its sole inbound is table-2 LOCAL JUMP record 68 at module `+0x930` from
 `func_overlay_011_F0000150_1868998+0x7E0`. Linked equality proves fallback
 only. Removed padded/wrong-identity C emitted all 102 sites; clean current
 source is uncompiled, so its score, frame, extent, and offsets are unknown.
-Source and the fallback-specific production postprocess now preserve all 13
-SYMBOL call roles with one-to-one zero-addend proxies, and the BSS identities
-retain distinct names at their stored addends. A genuine C promotion must
-still prove every typed identity and addend against the runtime records.
+The fallback-specific production postprocess now preserves all 13 SYMBOL call
+roles with one-to-one zero-addend proxies. A genuine C promotion must add
+object-scoped aliases for its BSS identities and prove every typed identity
+and addend against the runtime records; generic `D_*` linker assignments are
+not object-scoped and must not be used.
 
 Nine now carry an in-range word count and a linked-ROM oracle. Four are
 `schedule-divergence-at-site`, which is the honest answer and a codegen problem:
