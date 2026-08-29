@@ -129,6 +129,11 @@ proved by a Mickey-exact result or controlled local experiment belongs in
 resident, overlay, and triage ledgers. See
 [ADR 0012](adr/0012-known-sources-and-reusable-knowledge.md).
 
+For allocator investigations, use the fail-closed procedure mapping and
+fidelity receipt in
+[`allocator-trace-receipts.md`](allocator-trace-receipts.md). Raw traces and
+objects remain untracked evidence; only compact findings belong in ledgers.
+
 ## The clean-room rule
 
 Nothing ROM-derived is ever tracked in git: no disassembly, no instruction
