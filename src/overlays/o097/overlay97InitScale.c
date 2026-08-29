@@ -82,10 +82,14 @@ typedef struct Overlay97ScaleEntry {
  * values cursor as a3+2, while C emits the equivalent a1+0x3E address. Both
  * forms are frameless, 0x240 bytes / 144 instructions, and have no relocations.
  * The earlier object-exact note compared the fallback assembly to itself and
- * was invalid. Broader volatile and typed-base spellings perturb the body, so
- * the assembly fallback remains canonical. Adjacent header, byte-member, and
- * bounds-derived narrow-volatile variants collapse to 143 instructions with
- * 69 positional differences; prior flag and bounded-permuter sweeps also miss.
+ * was invalid. The checked-in three-word ranking also omitted
+ * -Wab,-r4300_mul; that flag fixes its +0x24/+0x28 scheduling differences and
+ * leaves only +0xD0. Broader volatile and typed-base spellings perturb the
+ * body, so the assembly fallback remains canonical. Adjacent header,
+ * byte-member, and bounds-derived narrow-volatile variants collapse to 143
+ * instructions with 69 positional differences. Re-run only an unchanged,
+ * fully configured V0 to preserve fresh candidate and target objects; stop if
+ * it reproduces the one-word plateau.
  */
 #ifdef NON_MATCHING
 void overlay97InitScale(Overlay97ScaleObject *object, void *entryArg) {
