@@ -42,7 +42,13 @@ it never reads a sibling worktree, index, process, or uncommitted file. Run
 `tools/lane_status.py --pending-only` for the fleet view or
 `tools/lane_status.py --symbol <name>` before assignment. Its rows are
 commit-message claims, not match evidence; integration repeats every normal
-proof. See [ADR 0011](adr/0011-cross-lane-knowledge-and-task-budgets.md).
+proof. Subjects explicitly marked near-match, near-miss, plateau, candidate, or
+diagnostic are not trusted as dispositions: subjects are scheduling metadata,
+not evidence. A reviewed exact claim that canonical rejects or supersedes is
+recorded by full claim and decision commit IDs in
+`config/lane-claim-dispositions.us.json`; full reports retain that disposition,
+while `--pending-only` excludes only the reviewed claim hash. See
+[ADR 0011](adr/0011-cross-lane-knowledge-and-task-budgets.md).
 
 Non-interactive workers also receive an explicit task budget. The launcher
 passes a soft deadline to the agent and tools, reserves five minutes for a
@@ -355,7 +361,9 @@ interrupted report without recompiling recorded identities, and repeated
   reports unintegrated commits and `Match <symbol>` claims from committed lane
   refs only. `pending` means the base still has that symbol's `GLOBAL_ASM` while
   the claiming lane does not; it is a coordination hint, never a replacement
-  for integration validation.
+  for integration validation. Reviewed dispositions remain visible with their
+  canonical decision commit in the full report but never enter
+  `--pending-only`; subject wording alone never suppresses a claim.
 
 ### Integration housekeeping: `fix_stale_externs.py`, `refresh_atlas_digest.py`
 

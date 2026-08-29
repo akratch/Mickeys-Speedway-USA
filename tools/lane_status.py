@@ -20,6 +20,7 @@ MATCH_RE = re.compile(r"^match(?:ed)?\s+([A-Za-z_][A-Za-z0-9_]*)\b", re.I)
 REMOVED_GLOBAL_ASM_RE = re.compile(
     r'^-\s*#pragma\s+GLOBAL_ASM\("(?P<path>[^"]+)"\)', re.MULTILINE,
 )
+DISPOSITIONS_PATH = "config/lane-claim-dispositions.us.json"
 
 
 def git(*args: str, check: bool = True) -> str:
@@ -77,6 +78,8 @@ class Claim:
     subject: str
     state: str
     source_paths: list[str]
+    reason: str | None = None
+    decision_commit: str | None = None
 
 
 @dataclass
@@ -114,8 +117,64 @@ def unique_commits(branch: str, base: str) -> list[tuple[str, str, str]]:
     return rows
 
 
+def claim_dispositions(base: str) -> dict[str, dict[str, str]]:
+    raw = git("show", f"{base}:{DISPOSITIONS_PATH}", check=False)
+    if not raw:
+        return {}
+    try:
+        document = json.loads(raw)
+    except json.JSONDecodeError as error:
+        raise RuntimeError(f"{base}:{DISPOSITIONS_PATH}: {error}") from error
+    if document.get("schema_version") != 1:
+        raise RuntimeError(f"{base}:{DISPOSITIONS_PATH}: unsupported schema")
+    claims = document.get("claims")
+    if not isinstance(claims, dict):
+        raise RuntimeError(f"{base}:{DISPOSITIONS_PATH}: claims must be an object")
+    for commit, row in claims.items():
+        if not re.fullmatch(r"[0-9a-f]{40}", commit):
+            raise RuntimeError(
+                f"{base}:{DISPOSITIONS_PATH}: invalid commit {commit!r}"
+            )
+        if not isinstance(row, dict):
+            raise RuntimeError(
+                f"{base}:{DISPOSITIONS_PATH}: {commit} must be an object"
+            )
+        if row.get("state") not in {"rejected", "superseded"}:
+            raise RuntimeError(
+                f"{base}:{DISPOSITIONS_PATH}: {commit} has invalid state"
+            )
+        if not isinstance(row.get("symbol"), str) or not row["symbol"]:
+            raise RuntimeError(
+                f"{base}:{DISPOSITIONS_PATH}: {commit} needs a symbol"
+            )
+        if not isinstance(row.get("reason"), str) or not row["reason"]:
+            raise RuntimeError(
+                f"{base}:{DISPOSITIONS_PATH}: {commit} needs a reason"
+            )
+        decision_commit = row.get("decision_commit")
+        if not isinstance(decision_commit, str) or not re.fullmatch(
+            r"[0-9a-f]{40}", decision_commit
+        ):
+            raise RuntimeError(
+                f"{base}:{DISPOSITIONS_PATH}: {commit} needs a full "
+                "decision_commit"
+            )
+        decision_is_ancestor = subprocess.run(
+            ["git", "merge-base", "--is-ancestor", decision_commit, base],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        if decision_is_ancestor.returncode != 0:
+            raise RuntimeError(
+                f"{base}:{DISPOSITIONS_PATH}: decision {decision_commit} "
+                f"is not an ancestor of {base}"
+            )
+    return claims
+
+
 def collect(base: str, symbol_filter: str | None) -> list[Lane]:
     git("rev-parse", "--verify", base)
+    dispositions = claim_dispositions(base)
     lanes = []
     for branch, head in lane_refs():
         commits = unique_commits(branch, base)
@@ -129,28 +188,41 @@ def collect(base: str, symbol_filter: str | None) -> list[Lane]:
             symbol = match.group(1)
             if symbol_filter and symbol != symbol_filter:
                 continue
-            base_fallback = has_global_asm(base, symbol)
-            lane_fallback = has_global_asm(branch, symbol)
-            # Friendly C names and splat's generated fallback names can differ.
-            # A match commit records the authoritative association by deleting
-            # the exact GLOBAL_ASM path, so use that path when the friendly-name
-            # probe cannot see the fallback.
-            fallback_paths = removed_global_asms(commit)
-            if not base_fallback and fallback_paths:
-                base_fallback = any(
-                    has_text(base, f'GLOBAL_ASM("{path}")')
-                    for path in fallback_paths
-                )
-                lane_fallback = any(
-                    has_text(branch, f'GLOBAL_ASM("{path}")')
-                    for path in fallback_paths
-                )
-            if base_fallback and not lane_fallback:
-                state = "pending"
-            elif not base_fallback:
-                state = "already-in-base"
+            reason = None
+            decision_commit = None
+            disposition = dispositions.get(commit)
+            if disposition:
+                if disposition["symbol"] != symbol:
+                    raise RuntimeError(
+                        f"{base}:{DISPOSITIONS_PATH}: {commit} names "
+                        f"{disposition['symbol']}, subject names {symbol}"
+                    )
+                state = disposition["state"]
+                reason = disposition["reason"]
+                decision_commit = disposition["decision_commit"]
             else:
-                state = "claim-only"
+                base_fallback = has_global_asm(base, symbol)
+                lane_fallback = has_global_asm(branch, symbol)
+                # Friendly C names and splat's generated fallback names can
+                # differ. A match commit records the authoritative association
+                # by deleting the exact GLOBAL_ASM path, so use that path when
+                # the friendly-name probe cannot see the fallback.
+                fallback_paths = removed_global_asms(commit)
+                if not base_fallback and fallback_paths:
+                    base_fallback = any(
+                        has_text(base, f'GLOBAL_ASM("{path}")')
+                        for path in fallback_paths
+                    )
+                    lane_fallback = any(
+                        has_text(branch, f'GLOBAL_ASM("{path}")')
+                        for path in fallback_paths
+                    )
+                if base_fallback and not lane_fallback:
+                    state = "pending"
+                elif not base_fallback:
+                    state = "already-in-base"
+                else:
+                    state = "claim-only"
             claims.append(Claim(
                 symbol=symbol,
                 commit=commit,
@@ -158,6 +230,8 @@ def collect(base: str, symbol_filter: str | None) -> list[Lane]:
                 subject=subject,
                 state=state,
                 source_paths=source_paths(commit),
+                reason=reason,
+                decision_commit=decision_commit,
             ))
         if symbol_filter and not claims:
             continue
@@ -183,6 +257,11 @@ def print_text(base: str, lanes: list[Lane], pending_only: bool) -> None:
                 f"  {claim.state:15s} {claim.symbol:42s} "
                 f"{claim.commit[:12]} {paths}"
             )
+            if claim.reason:
+                print(
+                    f"    decision: {claim.decision_commit[:12]} "
+                    f"reason: {claim.reason}"
+                )
 
 
 def main() -> int:

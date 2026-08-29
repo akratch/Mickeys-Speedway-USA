@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "claims": {
+    "704a9f3145ec923c9af54bba7fb6bfaee35605d5": {
+      "symbol": "overlay1StartTimerCallbacks",
+      "state": "rejected",
+      "decision_commit": "4df57fd49ef6720ac8da484d79609a8a3396e116",
+      "reason": "Canonical review rejected the invented empty post-callback pointer condition; it is diagnostic codegen evidence, not promotable C."
+    },
+    "f3577040efdc58281874deedaf1a3a0a209d74f6": {
+      "symbol": "func_overlay_045_F0000764_188CBBC",
+      "state": "rejected",
+      "decision_commit": "a676f1c3af7591960d0abf46072d7f2953fcab58",
+      "reason": "Canonical review rejected equality that required prohibited post-compile instruction-field externalization and restored the assembly fallback."
+    }
+  }
+}
