@@ -55,6 +55,14 @@ extern s16 gOverlay40BlendOutput;
  * func_8000D978+0x130 authenticate the sole inbound trap site. Mickey-only;
  * exact pinned DKR v77/v80/JFG scans are negative. */
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: overlay40FadeRecords
+ * score: 98/101 words
+ * frame: 0x8
+ * relocations: 10
+ * first-mismatch: +0xC
+ * summary: declaration-order and lexical-scope probes were flat; one v0/v1 globalcolor web remains
+ */
 void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
                           s32 amount) {
     Overlay40FadeRecord *record;
