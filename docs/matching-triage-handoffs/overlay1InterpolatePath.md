@@ -6,5 +6,5 @@
 - frame: 0x68
 - relocations: 13
 - first mismatch: +0x94
-- summary: One saved integral position stack home remains at sp+0x38 instead of target sp+0x40 and needs new source authentic evidence
+- summary: Fresh V0 is 81/83; only the integral-position home remains at sp+0x38 versus sp+0x40; aggregate regresses and two expression forms are flat
 <!-- plateau-handoff:overlay1InterpolatePath:end -->
