@@ -235,13 +235,17 @@ D_350 = 0x00000350;
 D_4E0 = 0x000004e0;
 D_520 = 0x00000520;
 D_C = 0x0000000c;
+func_8001F320_o008Reloc = 0xf0000000;
+func_8002A878_o008Reloc = 0xf0000000;
 gOverlay8ActivationGateTimerReloc = 0x00000000;
 gOverlay8Buffer = 0x00000000;
 gOverlay8IndexMode = 0x00000000;
+gOverlay8PhaseScales = 0x00000560;
 gOverlay8Primary = 0x00000000;
 gOverlay8ScaleLowerReloc = 0x000001d0;
 gOverlay8ScaleUpperReloc = 0x000001d4;
 gOverlay8Secondary = 0x00000000;
+gOverlay8UpdateChannelConstants = 0x000001bc;
 gOverlay8UpdateDecayReloc = 0x000001b8;
 gOverlay8UpdateLowerReloc = 0x000001b0;
 gOverlay8UpdateUpperReloc = 0x000001b4;
@@ -946,6 +950,13 @@ D_8000003B = 0x0000003b;
 /* overlay 41: overlay41IsUnitScale.c.o */
 gOverlay41Objects = 0x00000000;
 
+/* overlay 41: overlay41SpawnItems.c.o */
+gOverlay41RootsReloc = 0x00000000;
+gOverlay41SpawnConstants = 0x00000058;
+overlay41ConvertPairReloc = 0xf0000000;
+overlay41RandomRangeReloc = 0xf0000000;
+overlay41SpawnEffectReloc = 0xf0000000;
+
 /* overlay 41: overlay41TickTransitions.c.o */
 gOverlay41Transitions = 0x00000000;
 
@@ -1021,6 +1032,16 @@ overlay45GetGlyph = 0xf0000000;
 overlay45MeasureStream = 0xf0000000;
 overlay45RandomRangeReloc = 0xf0000000;
 overlay45StringLengthReloc = 0xf0000000;
+
+/* overlay 45: func_overlay_045_F0000764_188CBBC.c.o */
+gOverlay45RetainedMotionConstants = 0x00000024;
+overlay45ColorCallReloc = 0xf0000000;
+overlay45DisplayCallReloc = 0xf0000000;
+overlay45FloatCallReloc = 0xf0000000;
+overlay45FontCallReloc = 0xf0000000;
+overlay45MatrixLoadReloc = 0xf0000000;
+overlay45MatrixPushReloc = 0xf0000000;
+overlay45ScissorReloc = 0x00000000;
 
 /* overlay 46: overlay46InitializeState.c.o */
 gOverlay46Group54 = 0x00000054;
@@ -1169,11 +1190,21 @@ overlay48SelectMode = 0xf0000000;
 overlay48ReleaseReloc = 0xf0000000;
 
 /* overlay 49: overlay_049.c.o */
+func_80028F54_o049Reloc = 0xf0000000;
+func_8002917C_o049Reloc = 0xf0000000;
+func_800508B4_o049Reloc = 0xf0000000;
+gOverlay49ExtendedModeReloc = 0x00000000;
 gOverlay49Finished = 0x00000004;
 gOverlay49InputEnabled = 0x0000002c;
+gOverlay49Masks = 0x00000008;
+gOverlay49MenuModeReloc = 0x00000000;
+gOverlay49Modes = 0x00000000;
+gOverlay49PackedStatusReloc = 0x00000000;
 gOverlay49Result = 0x00000028;
+gOverlay49Shifts = 0x00000018;
 gOverlay49Timer = 0x00000000;
 overlay49RefractOutputReloc = 0xf0000000;
+overlay65Initialize = 0xf0000000;
 overlay65UpdateReloc = 0xf0000000;
 
 /* overlay 50: overlay50Initialize.c.o */
@@ -2674,12 +2705,12 @@ func_overlay_007_F0000DBC_185CC44 = overlay7CommitSelection;
 /* overlay 8: overlay_008.c.o */
 func_overlay_008_F0000000_185DD58 = overlay8Ignore;
 func_overlay_008_F0000008_185DD60 = overlay8GetIndexed;
+func_overlay_008_F0003018_1860D70 = overlay8UpdateChannels;
 func_overlay_008_F0003368_18610C0 = overlay8ScaleOutputs;
 func_overlay_008_F00049A4_18626FC = overlay8SetBuffer;
 func_overlay_008_F00049B4_186270C = overlay8WriteCommand;
 func_overlay_008_F00049DC_1862734 = overlay8SetValue;
 func_overlay_008_F00049E8_1862740 = overlay8UpdateMotionOutput;
-func_overlay_008_F0003018_1860D70 = overlay8UpdateChannels;
 
 /* overlay 9: overlay_009.c.o */
 func_overlay_009_F00010A4_186771C = overlay9Ignore;
@@ -3275,9 +3306,9 @@ func_overlay_048_F0000144_189554C = overlay48UpdateState;
 func_overlay_048_F000040C_1895814 = overlay48ReleaseAll;
 
 /* overlay 49: overlay_049.c.o */
+func_overlay_049_F0000000_1896410 = overlay49Initialize;
 func_overlay_049_F00001F4_1896604 = overlay49Update;
 func_overlay_049_F0000354_1896764 = refractOutput;
-func_overlay_049_F0000000_1896410 = overlay49Initialize;
 
 /* overlay 50: overlay50PatchIndices.c.o */
 func_overlay_050_F00002E4_1896C54 = overlay50PatchIndices;

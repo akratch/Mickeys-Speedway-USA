@@ -65,14 +65,17 @@ extern void overlay84UpdateResource(Overlay84Object *, Overlay84State *, s32);
 
 #ifdef NON_MATCHING
 void overlay84InitializeAndUpdate(Overlay84Object *object, s32 arg) {
-    Overlay84State *state;
-    Overlay84Node **nodes;
-    Overlay84Node *node;
+    s32 i;
+    Overlay84Node *initialNode;
     s32 start;
     s32 end;
-    s32 i;
-    s32 slot;
+    Overlay84Node **nodes;
+    Overlay84Node *node;
     s16 tilt;
+    Overlay84State *state;
+    s32 scratch[2];
+
+    (void)&scratch;
 
     state = object->state;
     if (state->initialized == 0) {
@@ -80,6 +83,8 @@ void overlay84InitializeAndUpdate(Overlay84Object *object, s32 arg) {
         for (i = start; i < end; i++) {
             node = nodes[i];
             if (node->kind == 0x33) {
+                s32 slot;
+
                 slot = node->meta->slot;
                 if (state->last < slot) {
                     state->last = slot;
@@ -88,21 +93,21 @@ void overlay84InitializeAndUpdate(Overlay84Object *object, s32 arg) {
             }
         }
 
-        node = state->nodes[0];
-        if (node != 0) {
-            state->angle = overlay84Atan2(node->x - object->x,
-                                          node->z - object->z);
-            tilt = -node->tilt;
+        initialNode = state->nodes[0];
+        if (initialNode != 0) {
+            state->angle = overlay84Atan2(initialNode->x - object->x,
+                                          initialNode->z - object->z);
+            tilt = -initialNode->tilt;
             state->targetTilt = tilt;
             state->tilt = tilt;
-            state->nodeAngle = node->angle;
+            state->nodeAngle = initialNode->angle;
             state->phase = 0;
             state->timer = 0;
             state->scale = 1.0f;
-            state->height = state->targetHeight = node->y;
-            state->x = node->x;
-            state->y = node->y;
-            state->z = node->z;
+            state->height = state->targetHeight = initialNode->y;
+            state->x = initialNode->x;
+            state->y = initialNode->y;
+            state->z = initialNode->z;
         }
         state->initialized = 1;
         state->mode = 0;

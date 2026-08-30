@@ -50,8 +50,31 @@ bytes and disassembly never belong here.
   TU, all relocations, and the linked image remain exact. Evidence: Overlay
   25's exact effect initializer in `docs/overlays.md`.
 
+### Retained data and relocations
+
+- When a mixed translation unit emits the exact instruction fields but also
+  creates a duplicate compiler-private literal pool, preserve the fields and
+  rebind only their existing relocations to one absolute symbol for the
+  retained overlay-local pool. Externalize the duplicate section only behind
+  an exact payload digest, and require the complete runtime relocation surface
+  plus linked ROM bytes to agree. This applies only when the source object's
+  words are already exact after ordinary relocation; moving an addend into a
+  LO16 field after compilation remains prohibited. Compiler-private jump-table
+  relocations may use the same contract when the duplicate table's relocation
+  section is removed as metadata and the retained payload is independently
+  authenticated. Evidence: Overlay 8's exact channel updater and Overlay 41's
+  exact item spawner in `docs/overlays.md`.
+
 ### Allocation and source shape
 
+- The lexical start of a conditional block can be an allocation boundary for
+  a loop-invariant expression. If IDO hoists an invariant value into a saved
+  register, adding save/restore and move instructions, initialize the existing
+  local at the start of the only branch that consumes it; IDO may keep a
+  per-iteration temporary and recover the smaller frame. This is valid only
+  when the rejected path never observes the value and the ordinary object,
+  relocations, linked owner, and ROM all remain exact. Evidence: Overlay 34's
+  exact record updater in `docs/overlays.md`.
 - Declaration order can determine stack-home order for call-crossing locals.
   When the operation sequence is exact but spill offsets differ, reorder
   semantically independent declarations before inventing extra state.
@@ -101,6 +124,15 @@ bytes and disassembly never belong here.
   shape unless instruction count, relocations, linked bytes, and the full ROM
   remain exact. Evidence: Overlay 8's exact scale-output body in
   `docs/overlays.md`.
+- When two independent initializations need reversed caller-saved colors but
+  separate statements let the scheduler split a relocated address pair,
+  preserve their evaluation order in one comma expression. IDO can retain the
+  desired web-formation chronology while scheduling the address pair together;
+  separate-statement orders may independently fix either coloring or schedule
+  without fixing both. Apply this only to semantically independent
+  initializations, and reject it unless instruction count, relocation identity,
+  linked bytes, and the full ROM all remain exact. Evidence: the exact camera
+  override search in `docs/resident.md`.
 - For a commutative address calculation, source operand order can select which
   producer receives each block-local temporary without changing the final
   `addu`. When only the base load and scaled-index shift exchange ring

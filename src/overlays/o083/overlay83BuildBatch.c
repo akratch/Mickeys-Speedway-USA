@@ -106,7 +106,6 @@ void overlay83BuildBatch(O83Parent *parent, O83Source *source) {
     s32 remaining;
     f32 scaleFactor;
     s8 one;
-    O83LinkedInit linkedInit;
 
     batch = parent->batch;
     allocated = overlay83AllocateBatchReloc(source->count * 0x258, (void *)0x87);
@@ -151,6 +150,8 @@ void overlay83BuildBatch(O83Parent *parent, O83Source *source) {
                 output->zero24 = 0.0f;
                 output->alpha = source->alpha;
                 if (input->flags & 1) {
+                    O83LinkedInit linkedInit;
+
                     linkedInit.mode = one;
                     linkedInit.count = 3;
                     linkedInit.flags = input->flags;
@@ -188,3 +189,13 @@ void overlay83BuildBatch(O83Parent *parent, O83Source *source) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o083/overlay83BuildBatch/func_overlay_083_F000053C_18CFCFC.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay83BuildBatch:start
+ * symbol: overlay83BuildBatch
+ * score: 71/168 words
+ * frame: 0x90
+ * relocations: 5
+ * first-mismatch: +0x0
+ * summary: Initializer scope cuts frame 0x98 to 0x90 (target 0x78); count/scale allocation remains; relocs 3/5 offset/type, 0/5 static identity.
+ * PLATEAU-HANDOFF:overlay83BuildBatch:end
+ */

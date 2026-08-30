@@ -15,13 +15,12 @@ void overlay27Init(O27Object *object, Overlay27InitData *init) {
     state->scaleTarget = 96.0f; state->fadeFloat = 0.0f; state->source = init->target;
 }
 
-/* Plateau: workbench mixed constant/structure/schedule/register, exact 368-instruction length; 66 masked words, first +0x18.
- * Levers tried: prior flag/local/pulse probes plus pass-5 constant audit and target-home/FP review; no new C lever improved it.
- * Remaining: source homes and the persistent f12/f16 FP pool stay displaced; filtered table/canonical-call relocations are not clean-C output. */
+/* Plateau reproof: exact 368-instruction length/frame 0x60; 63 raw (62 relocation-masked) words differ, first +0x18.
+ * Moving source below the scalar locals makes its spill pair exact and retains a four-word gain; all 119 flags and ten natural local/lifetime forms are nonexact.
+ * Remaining: the update-rate home and persistent FP pool differ; 21/22 relocation offset/type sites and 12/22 static identities are resolved. */
 #ifdef NON_MATCHING
 void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
     O27State *state;
-    O27Object *source;
     union {
         O27State *sourceState;
         s32 intensity;
@@ -30,6 +29,7 @@ void func_overlay_027_F0000064_187BA3C(O27Object *object, s32 updateRate) {
     s32 initialPhase;
     s32 phase;
     s32 value;
+    O27Object *source;
     f32 fraction;
     f32 scaleFactor;
 
@@ -450,4 +450,14 @@ s32 overlay27Activate(O27Object *object) {
  * first-mismatch: +0x0
  * summary: The a1/a2 allocator web and X/Y table-address LO16 schedule remain; resume only with new source-authentic web-formation evidence.
  * PLATEAU-HANDOFF:overlay27UpdateCoordinates:end
+ */
+
+/* PLATEAU-HANDOFF:func_overlay_027_F0000064_187BA3C:start
+ * symbol: func_overlay_027_F0000064_187BA3C
+ * score: 63 differing words
+ * frame: 0x60
+ * relocations: 22
+ * first-mismatch: +0x18
+ * summary: Retained source-declaration ordering heals four raw words; reopen only with new update-rate-home or persistent-FP-pool evidence.
+ * PLATEAU-HANDOFF:func_overlay_027_F0000064_187BA3C:end
  */

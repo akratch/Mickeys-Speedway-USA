@@ -27,6 +27,7 @@
 #   gmake check-scoreboard  fail if that block has gone stale
 #   gmake system-health     read-only campaign load/memory/process summary
 #   gmake check-tooling     focused safety/provenance/tooling regressions
+#   gmake promotion-proof SYMBOL=name  strict post-promotion exactness receipt
 #   gmake release-gate      serial, niced release checks with compact output
 #   gmake public-release    dry-run reconciliation/preflight; never pushes
 #   gmake clean      remove build/
@@ -186,6 +187,16 @@ S_FILES   := $(foreach dir,$(ASM_DIRS),$(wildcard $(dir)/*.s))
 BIN_FILES := $(foreach dir,$(BIN_DIRS),$(wildcard $(dir)/*.bin))
 C_FILES   := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c))
 
+# Matching tools deliberately compile the guarded C bodies in files that
+# contain NON_MATCHING candidates.  They normally use build_non_matching/ or
+# build/wb/, but a manual full-TU probe can still leave one of those objects in
+# build/.  Timestamps cannot tell that its preprocessor mode was wrong.  The
+# successful-verify receipt lets the guard force only objects whose content
+# changed since the last byte-identical ROM proof.
+NONMATCHING_C_FILES := $(shell grep -l '#ifdef NON_MATCHING' $(C_FILES) 2>/dev/null)
+CANONICAL_CANDIDATE_O_FILES := $(addprefix build/,$(addsuffix .o,$(NONMATCHING_C_FILES)))
+CANONICAL_CANDIDATE_RECEIPT := build/.canonical-candidate-objects.json
+
 # Every header, as a blunt prerequisite for every object: there are only a
 # handful of them and IDO's dependency output is awkward to wire in, so
 # "recompile all C when any header changes" is the cheap correct answer.
@@ -277,11 +288,29 @@ ifneq ($(NON_MATCHING),0)
 	$(error verify does not run under NON_MATCHING=1 -- it never produces a byte-identical ROM; unset NON_MATCHING and rebuild)
 endif
 	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
-	@$(MAKE) --no-print-directory $(TARGET).z64
+	@stale="$$($(HOST_PYTHON) $(TOOLS_DIR)/canonical_candidate_guard.py \
+		--manifest $(CANONICAL_CANDIDATE_RECEIPT) dirty \
+		$(CANONICAL_CANDIDATE_O_FILES))"; \
+	if [ -n "$$stale" ]; then \
+		count=$$(printf '%s\n' $$stale | wc -w | tr -d ' '); \
+		echo "canonical candidate guard: rebuilding $$count changed/unproven object(s)"; \
+		$(HOST_PYTHON) $(TOOLS_DIR)/run_logged.py \
+			--repo . --log build/verify/canonical-candidates.log \
+			--label "canonical candidate rebuild ($$count objects)" -- \
+			$(MAKE) --no-print-directory --always-make \
+				--assume-old=$(PYTHON) --assume-old=$(SPLAT_STAMP) $$stale || exit $$?; \
+	fi
+	@$(HOST_PYTHON) $(TOOLS_DIR)/run_logged.py \
+		--repo . --log build/verify/rom-build.log \
+		--label "canonical ROM build" -- \
+		$(MAKE) --no-print-directory $(TARGET).z64
 	@got=$$($(SHA1) $(TARGET).z64 | cut -d' ' -f1); \
 	echo "expected $(EXPECTED_SHA1)"; \
 	echo "built    $$got"; \
 	if [ "$$got" = "$(EXPECTED_SHA1)" ]; then \
+		$(HOST_PYTHON) $(TOOLS_DIR)/canonical_candidate_guard.py \
+			--manifest $(CANONICAL_CANDIDATE_RECEIPT) write \
+			$(CANONICAL_CANDIDATE_O_FILES); \
 		echo "OK  $(TARGET).z64 matches the expected US ROM hash"; \
 	else \
 		echo "FAIL $(TARGET).z64 does not match the expected US ROM hash"; \
@@ -310,22 +339,35 @@ system-health:
 check-tooling:
 	$(HOST_PYTHON) tests/test_make_layout.py
 	$(HOST_PYTHON) tests/test_flag_sweep.py
+	$(HOST_PYTHON) tests/test_tu_flag_impact.py
 	$(HOST_PYTHON) tests/test_overlay_atlas.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_reloc_identity.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_reloc_surface.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_proof_provenance.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_history.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_preflight.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_canonical_candidate_guard.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_promotion_proof.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_allocator_trace_receipt.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_integration_base.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_lane_status.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_ready_queue.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_skeleton_scan.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_wb_compare.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_nm_ranking.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_permute_batch_deadline.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_finalize_plateau.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_crew_heartbeat.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_release_gate.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_run_logged.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_experiment_ledger.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_plateau_remeasure.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_lane_cache.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_public_release.py
+
+promotion-proof:
+	@test -n "$(SYMBOL)" || { echo "usage: gmake promotion-proof SYMBOL=name [PROMOTION_PROOF_ARGS='--canonical']"; exit 2; }
+	$(HOST_PYTHON) $(TOOLS_DIR)/promotion_proof.py "$(SYMBOL)" $(PROMOTION_PROOF_ARGS)
 
 release-gate:
 	$(HOST_PYTHON) $(TOOLS_DIR)/release_gate.py $(RELEASE_GATE_ARGS)
@@ -468,6 +510,14 @@ check-docs:
 	$(HOST_PYTHON) $(TOOLS_DIR)/overlay_donor_scan.py --check
 	$(HOST_PYTHON) $(TOOLS_DIR)/postprocess_audit.py --check-redefines
 	$(HOST_PYTHON) $(TOOLS_DIR)/nm_ranking.py --check-doc
+	$(HOST_PYTHON) $(TOOLS_DIR)/plateau_handoff_audit.py --check
+
+# Keep the shared linked-ELF prerequisite quiet for progress consumers while
+# retaining complete compiler/linker diagnostics on disk.
+QUIET_ELF_BUILD = $(HOST_PYTHON) $(TOOLS_DIR)/run_logged.py \
+	--repo . --log build/progress/elf-build.log \
+	--label "linked ELF build" -- \
+	$(MAKE) --no-print-directory $(TARGET).elf
 
 # Builds just far enough to have a linked ELF (no crc/z64 round-trip needed --
 # tools/progress.py only reads the ELF's symbol table plus the current asm/
@@ -476,7 +526,7 @@ check-docs:
 # same reason (see the big comment on `all` above).
 progress:
 	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
-	@$(MAKE) --no-print-directory $(TARGET).elf
+	@$(QUIET_ELF_BUILD)
 	$(PYTHON) $(TOOLS_DIR)/progress.py --version $(VERSION)
 
 # Rewrites README.md's scoreboard block, between its SCOREBOARD_BEGIN /
@@ -488,7 +538,7 @@ progress:
 # generated, and `check-scoreboard` below proves it stayed generated.
 scoreboard:
 	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
-	@$(MAKE) --no-print-directory $(TARGET).elf
+	@$(QUIET_ELF_BUILD)
 	$(PYTHON) $(TOOLS_DIR)/progress.py --version $(VERSION) --update-readme
 
 # Fails if README.md's scoreboard block is not what the tree generates right
@@ -499,7 +549,7 @@ scoreboard:
 # nothing to do with one.
 check-scoreboard:
 	@$(MAKE) --no-print-directory $(SPLAT_STAMP)
-	@$(MAKE) --no-print-directory $(TARGET).elf
+	@$(QUIET_ELF_BUILD)
 	$(PYTHON) $(TOOLS_DIR)/progress.py --version $(VERSION) --check-readme
 
 clean:
@@ -1095,7 +1145,7 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 	fi
 	@ls -l $@
 
-.PHONY: default all setup hooks extract prune-asm verify cleanroom system-health check-tooling release-gate public-release audit-decoders overlay-tables overlay-atlas overlay-atlas-write overlay-syms check-overlay-syms overlay-donors overlay-donors-write overlay-donors-scan-check check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
+.PHONY: default all setup hooks extract prune-asm verify cleanroom system-health check-tooling promotion-proof release-gate public-release audit-decoders overlay-tables overlay-atlas overlay-atlas-write overlay-syms check-overlay-syms overlay-donors overlay-donors-write overlay-donors-scan-check check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail
 

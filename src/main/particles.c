@@ -373,16 +373,12 @@ void func_8003D25C(Gfx **dList, s32 renderContext, void **vertices, CircularPart
                     camPushModelMtx(dList, renderContext, &transform, 1.0f, 0.0f);
                     gDPPipeSync((*dList)++);
                     if (particle->flags & 0x800) {
-                        intensity = particle->intensity;
+                        intensity = particle->alpha;
                         red = particle->red;
                         green = particle->green;
                         blue = particle->blue;
-                        color = (((red * intensity) >> 8) << 24) |
-                                ((((green * intensity) >> 8) & 0xFF) << 16) |
-                                ((((blue * intensity) >> 8) & 0xFF) << 8) | 0xFF;
-                        command = (*dList)++;
-                        command->words.w0 = 0xFA000000;
-                        command->words.w1 = color;
+                        gDPSetPrimColor((*dList)++, 0, 0, (red * intensity) >> 8, (green * intensity) >> 8,
+                                        (blue * intensity) >> 8, 0xFF);
                     } else {
                         gDPSetPrimColor((*dList)++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
                     }
@@ -818,9 +814,9 @@ void func_8003EF80(ParticleObject *object, ParticleTriggerSlot *trigger) {
     }
 }
 #ifdef NON_MATCHING
-/* Workbench: allocation-mismatch, 30 differing words, size_delta 0; first mismatch +0x20C.
- * Shape-exact/permuter-ready: target and candidate are 297 instructions with the exact frame and structural schedule.
- * Remaining residual is register allocation; assembly fallback stays canonical.
+/* Workbench: mixed schedule/allocation plateau, 21 differing words, size_delta 0; first mismatch +0x20C.
+ * Target and candidate are 297 instructions with the exact 0x58 frame and 16 relocation identities.
+ * The integer temp lane is exact; 19 float-register words and one two-load schedule swap remain.
  * PROVENANCE: structure cross-checked against JFG's assembly-only asm/nonmatchings/particles/func_80060400.s sibling; body reconstructed from Mickey evidence. */
 void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
                    ParticleConfig *config) {
@@ -918,10 +914,10 @@ void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, Parti
             } else {
                 mtxf_transform_dir(
                     (u8 *)resource->matrices[resource->matrixTableIndex] +
-                        (header->transformIndices[pointIndex].matrixIndex << 6),
+                        ((header->transformIndices[pointIndex].matrixIndex << 5) << 1),
                     offset, offset, header);
-                magnitude = sqrtf(((offset[0] * offset[0]) + (offset[1] * offset[1])) +
-                                  (offset[2] * offset[2]));
+                scale = (offset[0] * offset[0]) + (offset[1] * offset[1]);
+                magnitude = sqrtf(scale + (offset[2] * offset[2]));
                 if (magnitude == 0.0f) {
                     scale = speed;
                 } else {
@@ -1616,10 +1612,10 @@ void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) 
                 position.y += object->y;
                 position.z += object->z;
                 if (trigger->config->flags & 0x1000) {
-                    scale *= sqrtf((object->velocityX * object->velocityX) +
-                                   (object->velocityY * object->velocityY) +
-                                   (object->velocityZ * object->velocityZ)) *
-                             D_80082A6C;
+                    scale = scale * sqrtf((object->velocityX * object->velocityX) +
+                                          (object->velocityY * object->velocityY) +
+                                          (object->velocityZ * object->velocityZ)) *
+                            D_80082A6C;
                 }
 
                 orientation = *(u16 *)&descriptor->flags & 0xF;
@@ -2296,3 +2292,33 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
         } while (poolPtr != (CircularParticlePool **)&D_800D4134);
     } while (0);
 }
+
+/* PLATEAU-HANDOFF:func_8003F154:start
+ * symbol: func_8003F154
+ * score: 21 differing words
+ * frame: 0x58
+ * relocations: 16
+ * first-mismatch: +0x20C
+ * summary: 276/297 words align; integer temp lane closed, leaving FP allocation and one two-load schedule swap after bounded flag and permuter searches.
+ * PLATEAU-HANDOFF:func_8003F154:end
+ */
+
+/* PLATEAU-HANDOFF:func_8003D25C:start
+ * symbol: func_8003D25C
+ * score: 100/168 words
+ * frame: 0xB8
+ * relocations: 2
+ * first-mismatch: +0x50
+ * summary: JFG-backed alpha-field and native prim-color macro reduce the exact-sized candidate from 70 to 68 register-only differences; temp/pool allocation remains
+ * PLATEAU-HANDOFF:func_8003D25C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80040B88:start
+ * symbol: func_80040B88
+ * score: 157 differing words
+ * frame: 0x70
+ * relocations: 12
+ * first-mismatch: +0x0
+ * summary: Left-associated speed scale aligns two more relocation tuples; target frame 0x68 and the entry-trigger home/allocator web remain.
+ * PLATEAU-HANDOFF:func_80040B88:end
+ */

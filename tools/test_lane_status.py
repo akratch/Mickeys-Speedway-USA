@@ -73,6 +73,7 @@ class LaneStatusAssignmentTests(unittest.TestCase):
     def tearDown(self) -> None:
         ls.show_file.cache_clear()
         ls.blob_id.cache_clear()
+        ls.merge_base.cache_clear()
         self.temporary.cleanup()
 
     def command(self, *command: str, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -97,6 +98,27 @@ class LaneStatusAssignmentTests(unittest.TestCase):
         result, report = self.status()
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(report["assignment"]["state"], "base-only")
+
+    def test_call_followed_by_block_is_not_a_second_definition(self) -> None:
+        caller = self.repo / "src/main/caller.c"
+        caller.parent.mkdir(parents=True)
+        caller.write_text(
+            f"""extern void {SYMBOL}(void);
+extern int accepts_value(int value);
+
+void caller(void) {{
+    if (accepts_value(({SYMBOL}(), 1))) {{
+    }}
+}}
+""",
+            encoding="utf-8",
+        )
+        self.commit("Add caller with a following control block")
+
+        result, report = self.status()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(report["assignment"]["state"], "base-only")
+        self.assertEqual(report["assignment"]["source_path"], SOURCE_PATH.as_posix())
 
     def test_unintegrated_source_blob_is_active(self) -> None:
         self.command("git", "switch", "-q", "-c", "lane/o43-active")
@@ -253,6 +275,25 @@ void unrelatedFunction(void) {
         self.assertEqual(assignment["state"], "already-integrated/exhausted")
         self.assertEqual(assignment["source_commit"], plateau_commit)
         self.assertEqual(assignment["ledger_commit"], plateau_commit)
+
+    def test_base_only_shard_repair_does_not_activate_historical_lane(self) -> None:
+        (self.repo / SOURCE_PATH).write_text(candidate(plateau=True), encoding="utf-8")
+        source_commit = self.commit("Plateau overlay43FilterImage allocator")
+        self.command("git", "switch", "-q", "-c", "lane/historical")
+        (self.repo / "lane-note.txt").write_text("unrelated\n", encoding="utf-8")
+        self.commit("Record unrelated lane note")
+        self.command("git", "switch", "-q", "campaign/unchain")
+        (self.repo / SHARD_PATH.parent).mkdir()
+        (self.repo / SHARD_PATH).write_text(shard(), encoding="utf-8")
+        ledger_commit = self.commit("Reconcile overlay43FilterImage evidence")
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(assignment["state"], "already-integrated/exhausted")
+        self.assertEqual(assignment["source_commit"], source_commit)
+        self.assertEqual(assignment["ledger_commit"], ledger_commit)
+        self.assertEqual(assignment["active_lanes"], [])
 
     def test_malformed_symbol_shard_fails_closed(self) -> None:
         (self.repo / SHARD_PATH.parent).mkdir()
@@ -445,6 +486,7 @@ class LaneRefQueryTests(unittest.TestCase):
     def tearDown(self) -> None:
         ls.show_file.cache_clear()
         ls.blob_id.cache_clear()
+        ls.merge_base.cache_clear()
 
     def test_lane_scan_filters_refs_already_merged_into_base(self) -> None:
         with mock.patch.object(ls, "git", return_value="") as git:
@@ -508,6 +550,61 @@ class LaneRefQueryTests(unittest.TestCase):
         self.assertEqual(rows["lane/one"], ("a" * 40, "one\n"))
         self.assertEqual(rows["lane/two"], ("b" * 40, "two\n"))
         self.assertEqual(run.call_count, 1)
+
+    def test_batch_source_identity_uses_one_grep_and_one_object_batch(self) -> None:
+        completed = subprocess.CompletedProcess(
+            [], 0, "HEAD:src/a.c\nHEAD:src/b.c\n", "",
+        )
+        sources = {
+            "src/a.c": ("a" * 40, "void alpha(void) { }\n"),
+            "src/b.c": ("b" * 40, "void beta(void) { alpha(); }\n"),
+        }
+        with mock.patch.object(
+            subprocess, "run", return_value=completed,
+        ) as run, mock.patch.object(
+            ls, "blob_contents_by_path", return_value=sources,
+        ) as batch:
+            identities = ls.source_identity_index("HEAD", ["alpha", "beta"])
+        self.assertEqual(identities["alpha"], ("src/a.c", None))
+        self.assertEqual(identities["beta"], ("src/b.c", None))
+        self.assertEqual(run.call_count, 1)
+        batch.assert_called_once_with("HEAD", ["src/a.c", "src/b.c"])
+
+    def test_lane_index_filters_shared_legacy_edits_by_exact_symbol(self) -> None:
+        base = ls.LanePathIndex(
+            base="base",
+            refs_by_path={"src/a.c": (("lane/source", "a" * 40),)},
+            legacy_refs_by_symbol={
+                "alpha": (("lane/legacy", "b" * 40),),
+            },
+            common_by_branch={
+                "lane/source": "c" * 40,
+                "lane/legacy": "d" * 40,
+            },
+        )
+        self.assertEqual(
+            base.refs_for(["src/a.c"], symbol="alpha"),
+            [("lane/legacy", "b" * 40), ("lane/source", "a" * 40)],
+        )
+        self.assertEqual(
+            base.refs_for(["src/other.c"], symbol="beta"), [],
+        )
+
+    def test_indexed_active_scan_skips_unrelated_lane_paths(self) -> None:
+        index = ls.LanePathIndex(
+            base="base", refs_by_path={}, legacy_refs_by_symbol={},
+            common_by_branch={},
+        )
+        with mock.patch.object(
+            ls, "lane_refs", side_effect=AssertionError("must use index"),
+        ), mock.patch.object(
+            ls, "is_ancestor", side_effect=AssertionError("no candidates"),
+        ):
+            active = ls.active_lanes_for_source(
+                "base", "alpha", "src/a.c", "blob", "commit", "source",
+                index,
+            )
+        self.assertEqual(active, [])
 
 
 if __name__ == "__main__":

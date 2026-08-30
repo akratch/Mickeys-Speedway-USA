@@ -49,6 +49,15 @@ extern u8 gOverlay100SegmentReloc[];
             ((((u32)(uly)) & 0x3FF) << 2);                               \
     }
 
+/*
+ * Plateau: the complete flag lattice and ten distinct source/allocation
+ * candidates remain nonexact.  Keeping the projection scalars ahead of the
+ * two separate color homes preserves the exact 243-word extent and improves
+ * the natural frame from 0x88 to 0xB0 (target 0xC0), but 161 positional words
+ * still differ from +0x0.  The candidate retains seven static relocations;
+ * only four offset/type sites align and their runtime identities are not yet
+ * proved.  Resume with source-authentic command/color lifetime evidence.
+ */
 #ifdef NON_MATCHING
 void overlay100DrawMotion(O100Command **commandPtr, Overlay100Motion *motion) {
     O100Command *commands;
@@ -59,9 +68,10 @@ void overlay100DrawMotion(O100Command **commandPtr, Overlay100Motion *motion) {
     register s32 alphaStep;
     s32 alpha;
     register s32 red;
-    volatile s32 green, blue;
-    s32 x, y, progress;
     f32 sinAngle, cosAngle, xScale, yScale, depthScale, depth, inverseDepth;
+    s32 x, y, progress;
+    volatile s32 green;
+    volatile s32 blue;
 
     if (motion == 0) return;
     commands = *commandPtr;
@@ -126,3 +136,13 @@ void overlay100DrawMotion(O100Command **commandPtr, Overlay100Motion *motion) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o100/overlay100DrawMotion/func_overlay_100_F0000580_18DB2A8.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay100DrawMotion:start
+ * symbol: overlay100DrawMotion
+ * score: 161 differing words
+ * frame: 0xB0 (target 0xC0)
+ * relocations: 7
+ * first-mismatch: +0x0
+ * summary: 82/243 words matched; 4/7 relocation offsets and types align, no identities resolve; next lever is source-authentic command/color lifetime evidence
+ * PLATEAU-HANDOFF:overlay100DrawMotion:end
+ */

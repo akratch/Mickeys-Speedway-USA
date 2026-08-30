@@ -775,3 +775,13 @@ void func_80046E00(void) {
         *screen++ = 0;
     }
 }
+
+/* PLATEAU-HANDOFF:func_80046BCC:start
+ * symbol: func_80046BCC
+ * score: 17/106 words
+ * frame: 0x40
+ * relocations: 3
+ * first-mismatch: +0x2C
+ * summary: One loop-entry transfer keeps size +4 and shifts all three relocation sites; 10 source forms and 119 flags exhausted, with one static identity unresolved.
+ * PLATEAU-HANDOFF:func_80046BCC:end
+ */

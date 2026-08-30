@@ -1197,6 +1197,12 @@ MIXED_TU_EXACT_C_RANGES = {
         (0xE88, 0xF1C, "overlay8StartMotion"),
         (0xF1C, 0x1000, "overlay8Activate"),
         (0x2EC0, 0x3018, "overlay8UpdateChild"),
+        (
+            0x3018,
+            0x3278,
+            "overlay8UpdateChannels",
+            "canonical mixed-TU object, 16 runtime relocations, and linked bytes exact",
+        ),
         (0x3278, 0x3368, "overlay8ApplyColors"),
         (
             0x3368,
@@ -1211,6 +1217,14 @@ MIXED_TU_EXACT_C_RANGES = {
     ],
     9: [
         (0x10A4, 0x10B4, "overlay9Ignore"),
+    ],
+    45: [
+        (
+            0x764,
+            0x1158,
+            "func_overlay_045_F0000764_188CBBC",
+            "canonical object, 24 runtime relocations, and linked bytes exact",
+        ),
     ],
     12: [
         (0x000, 0x0C4, "overlay12Initialize"),

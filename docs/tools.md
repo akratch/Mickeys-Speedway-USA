@@ -216,7 +216,36 @@ detected, the target phase uses Make's always-build mode so old objects cannot
 survive the changed recipe. `--no-build` instead fails closed with an
 actionable diagnosis. The command also fails when an alias, source, range, or
 relocation identity is not unique; its output deliberately excludes
-instruction listings, words, and hexdumps.
+instruction listings, words, and hexdumps. For consolidated overlay TUs, a
+candidate that has been shifted by earlier guarded bodies still fails closed,
+but the error reports the candidate object extent, linked target extent,
+prefix-size drift, and owner overrun. If a shared-TU definition's compiled
+location disagrees with its generated alias identity, the error reports both
+identities and their delta rather than only saying that the relocation symbol
+is ambiguous. `wb_compare.sh` remains available for scalar source-shape
+diagnostics; neither message authorizes relocation or ownership inference.
+
+One narrower case preserves otherwise-valid analysis evidence. When the
+candidate relocation surface is measurable but one or more static relocation
+names have no provable runtime identity, the report gains a small additive
+`preflight` object. Its stable ingestion fields are `status` (`complete` or
+`partial`), `action` (`continue_matching`,
+`resolve_candidate_static_relocation_identities`,
+`restore_linked_runtime_identity_proof`, or `run_promotion_proof`), named
+relocation `counts`, and bounded `diagnostics`. `complete` means evidence
+collection is complete, not that the function matches. Each unresolved
+diagnostic carries the candidate-relative offset and relocation type; it never
+supplies or guesses an identity. The existing `workbench` object still carries
+target/candidate/matched word counts, frame sizes, verdict, and first mismatch.
+
+Partial status is explicitly non-exact. Normal proof mode prints the full
+human or JSON report and exits 1; hard preflight errors still exit 2 without a
+report. `--analysis-only` changes a partial report's exit to 0 for experiment
+ledger ingestion but leaves its status, action, error diagnostic, and missing
+identity unchanged. A post-promotion report remains complete only when the
+existing linked-ROM/runtime-table path proves exact effective identities; the
+promotion proof wrapper also independently rejects any preflight status other
+than `complete`.
 
 Promotion does not make the preflight unusable when splat removes the
 function's `asm/nonmatchings` fallback. With no fallback present, the resolver
@@ -234,6 +263,30 @@ automatically obtain their scalar score from the fully relocated ROM oracle.
 This can reconfirm exactness but does not provide the relocation diagnostics of
 the pre-promotion assembly comparison. JSON reports expose the distinction as
 `resolution_mode` and `workbench.comparison_mode`.
+
+After promotion, reduce that detailed report to one strict proof receipt with:
+
+```sh
+tools/promotion_proof.py overlay41SpawnItems
+gmake promotion-proof SYMBOL=overlay41SpawnItems
+```
+
+`promotion_proof.py` runs and consumes the existing preflight JSON; it does not
+reimplement symbol, ROM, or relocation analysis. It passes only when the
+requested function resolves through `post_promotion`, uses the linked-ROM
+oracle, has identical nonempty word counts with zero differing words, has an
+identical frame (including the valid no-frame leaf case), and has exact
+relocation counts, offsets/types, and effective runtime identities. The output
+is a compact receipt containing only those proof totals and modes. Use
+`--no-build` to require already-fresh preflight artifacts.
+
+For a canonical integration proof, append `--canonical` (or set
+`PROMOTION_PROOF_ARGS=--canonical` on the Make target). After the function
+receipt passes, this runs `gmake verify` and `gmake check-overlay-syms` as two
+explicit, sequential `nice -n 10`, `-j2` commands. This proves the full ROM and
+the tracked overlay relocation surface without writing shared generated
+artifacts. `--json` keeps the final receipt machine-readable and sends the
+canonical commands' progress to standard error.
 
 `tools/wb_compare.sh` uses the same resolver, so manual
 `WB_CANDIDATE_SYMBOL`/`WB_CANDIDATE_BUILD_DIR` settings are no longer needed
@@ -255,6 +308,55 @@ post-promotion checks pass. In assembly mode the wrapper performs the same
 automatic two-phase refresh as ordinary preflight. Use wrapper-level
 `--no-build` only when a diagnostic or test must prove existing evidence is
 already fresh without compiling.
+
+`--summary-json` emits the concise `mickey-wb-summary-v1` checkpoint input.
+When its proof manifest's source, full-TU candidate object, and target artifact
+still match their recorded hashes, the report carries one explicitly named
+`relocation_surfaces` member:
+
+- `fallback_static` for an assembly-fallback comparison; or
+- `promoted_linked` for a ROM comparison whose promoted source/object owner,
+  canonical linked ELF, and retail runtime surface can all be authenticated.
+
+Each surface records its `evidence_mode`, candidate and target counts,
+offset/type count, resolved candidate identities, exact candidate-to-target
+identities, and computed `complete` state. Completeness means the whole
+candidate/target shape is aligned and every candidate identity is resolved; it
+does not mean every identity is equal. No field from one mode is inferred for
+the other. Friendly requested names are valid artifact owners: the artifact
+filename uses that requested spelling, while its object contents remain
+authenticated against the generated target symbol.
+
+The existing top-level `relocations` object remains unchanged for single-state
+consumers. Its scalars are `candidate_relocations`, `target_relocations`, and
+`exact_relocation_identities`; the last counts exact candidate-to-target
+runtime identity alignments, not merely resolved candidate records. Missing
+proof inputs omit all relocation fields. Malformed, stale, conflicting, or
+ownership-inconsistent evidence fails closed.
+
+Capture the two modes before committing the promotion, while the lane's HEAD
+and branch still identify the same assignment base, then compose them without
+transcribing counts:
+
+```sh
+tools/wb_compare.sh --summary-json symbol > build/wb/symbol.fallback.json
+# Promote and rebuild the same C body, but do not commit or change branches yet.
+tools/wb_compare.sh --rom --summary-json symbol > build/wb/symbol.promoted.json
+tools/function_preflight.py --compose-relocation-summaries \
+  build/wb/symbol.fallback.json build/wb/symbol.promoted.json
+tools/function_preflight.py --compose-relocation-summaries \
+  build/wb/symbol.fallback.json build/wb/symbol.promoted.json --json \
+  > build/wb/symbol.paired.json
+```
+
+Composition accepts only fresh regular files under `build/`, requires distinct
+fallback-static and promoted-linked modes, verifies each receipt's
+source/object/target hashes, symbol identity, assignment base, branch, source
+owner, and boundary, and rejects duplicate surfaces. Human output prints both
+surfaces side by side. In paired JSON, the compatibility `relocations` object
+deliberately remains the fallback-static view, so linked evidence cannot create
+a false object-exact checkpoint. This is evidence reporting only; promotion
+policy and the canonical ROM/relocation gates are unchanged.
 
 ## tools/check_tools.sh
 
@@ -335,6 +437,24 @@ transferred. Operator-only paths, local absolute paths, release credentials,
 and automated generator/co-author trailers fail closed. Untracked local setup
 is ignored; tracked worktree or index changes are rejected.
 
+Campaign maintainers with the out-of-tree donor farm can opt into an earlier
+farm check:
+
+```sh
+gmake public-release \
+  PUBLIC_RELEASE_ARGS="--remote public --branch master --check-reference-builds"
+```
+
+This runs `tools/verify_reference_builds.sh` before any reconciliation
+generator, so a missing, stale, or locally divergent lock-pinned reference
+build fails before donor-derived artifacts are considered. It checks every
+title in `tools/reference-builds.lock`, including the canonical DKR and JFG
+farms, and honors the verifier's existing `REFS_ROOT` environment override.
+The option is deliberately off by default because ordinary public
+contributors do not have the external farm. It can be combined with
+`--write-derived` when a maintainer is intentionally refreshing generated
+release artifacts.
+
 The report compares the freshly generated scoreboard with the named
 remote-tracking branch and prints exact numeric deltas. Overlay promotions and
 retractions are additionally derived by interval-diffing the two canonical
@@ -363,6 +483,93 @@ all changes unstaged for review. Commit only reviewed generated changes, then
 rerun the default clean dry run. Neither mode contains a publication command;
 the final success line always says `push=disabled`.
 
+### Reviewed manifests across rewritten histories
+
+The source and publication histories intentionally have different commit
+identities. A source maintainer can create a scalar release manifest without
+making the tool copy files or infer a relationship between those histories:
+
+```sh
+python3 tools/public_release.py \
+  --remote SOURCE_REMOTE --branch SOURCE_BRANCH \
+  --manifest-range LAST_RELEASED_SOURCE..HEAD
+```
+
+Manifest mode requires a clean checked-out source branch whose configured
+upstream, named remote-tracking ref, and `HEAD` are identical. The range must
+be exactly `BASE..TIP`, the base must be an ancestor, and the tip must be that
+current `HEAD`. Merge commits, empty commits, and unresolved or ambiguous
+endpoints are rejected. This makes every selected commit an integrated,
+ordered source commit instead of an unreviewed side-branch object.
+
+The deterministic output is
+`build/public-release/manifest.json`. It contains one public commit unit per
+source commit, retaining the commit's changed-path group and order. Each row
+records status, old and new path where applicable, regular-file modes, exact
+old/new Git blob identities, and one of these policy classifications:
+
+- `public-safe`: a regular add or modification in a known public project path;
+- `review-required`: an unknown path, deletion, rename/copy, or regular-file
+  mode change that needs an explicit reviewer decision;
+- `forbidden`: operating state or a ROM-derived, toolchain, scratch, or build
+  artifact. A forbidden row stops generation and is never approvable.
+
+The manifest also records the four canonical source/public gates on every
+unit, adding the tooling and overlay-symbol gates when their paths make those
+checks applicable. It records no file contents, diffs, disassembly, remote
+URLs, timestamps, credentials, or workstation paths. Commit and blob IDs,
+message digests, path/status metadata, gate names, and a SHA-256 seal are the
+only release evidence. Source ref names and remote destinations are represented
+only by SHA-256 identities. Re-running the command against unchanged refs
+produces byte-identical JSON.
+
+Generation also creates
+`build/public-release/manifest.approval.json` once, with every path decision
+set to `pending`. The tool preserves an existing approval file. A human reviews
+each commit unit, its classification, path transition, and blob identities,
+then changes only accepted path decisions to `approve` and chooses the plain
+one-line `public_subject`. Validate that reviewed file against freshly derived
+source evidence before recreating anything:
+
+```sh
+python3 tools/public_release.py \
+  --remote SOURCE_REMOTE --branch SOURCE_BRANCH \
+  --manifest-range LAST_RELEASED_SOURCE..HEAD \
+  --approval build/public-release/manifest.approval.json
+```
+
+Approval is exact, not a glob. Missing, extra, reordered, stale, or altered
+path/blob/mode rows fail, as do a stale manifest seal or changed source/remote tip.
+Publication filters run over each selected commit message and each changed
+text blob without echoing matched credentials. Absolute/noncanonical paths,
+operating-only paths, binary/build artifacts, symlinks, gitlinks, automated
+trailers, and unsafe messages stop the process before approval.
+
+After the operator separately recreates those units on the publication branch,
+place the two scalar JSON files in that checkout's ignored
+`build/public-release/` directory and run the structural export check:
+
+```sh
+python3 tools/public_release.py \
+  --remote public --branch master --validate-export \
+  --approval build/public-release/manifest.approval.json
+```
+
+This intentionally does not require shared ancestry. It pairs the outgoing
+publication commits with approved units in order and requires each commit's
+plain subject and exact status/path/old-blob/new-blob/regular-mode transition
+to agree.
+Different commit IDs are expected; different file blobs are not. Then run the
+ordinary read-only public-release preflight above to execute every recorded
+gate and scan the complete resulting publication trees.
+
+Manifest, approval, and export-validation modes never fetch, merge,
+cherry-pick, copy source files, stage, commit, or push. They do not decide
+whether a change is useful, prove a C match, replace clean-room review, or
+prove the destination gates passed. The approval records what a reviewer
+accepted; the export validator proves only that the manually recreated commit
+units have those exact regular-file transitions.
+
 ## Map: the rest of the toolbox
 
 The tools above (decomp-permuter, objdiff, mapfile_parser, check_tools.sh)
@@ -379,8 +586,13 @@ this file is a map, not a manual, for the rest.
 | `tools/overlay_atlas.py --delta` | Audits exact-C overlay promotions, retractions, and net byte changes between refs, manifests, or checkouts using fail-closed `(overlay, offset)` identities; `--format json` is machine-readable. | [Overlay atlas release deltas](#overlay-atlas-release-deltas) above |
 | `tools/permute.sh` | One bounded decomp-permuter run for one function: locates its C file and target `.s` (regenerating the target from the baserom via a temporary `GLOBAL_ASM` swap if the function already has a C body), imports both, and runs `permuter.py` under a wall-clock cap. Batch-only per ADR 0007 — never run inside an agent's own turn-by-turn reasoning loop. | this file, `## decomp-permuter` above |
 | `tools/finalize_plateau.py` | Validates and preserves one guarded candidate, appends symbol-keyed EOF metadata without moving measured source lines, and writes a conflict-free `docs/matching-triage-handoffs/<symbol>.md` shard by default; explicit custom ledgers must already be tracked. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Safe plateau finalization` |
+| `tools/plateau_handoff_audit.py` | Audits structured source plateau markers against exact-symbol shards; `--check` reports drift and `--write` atomically reconciles only valid missing/stale shards without deriving metrics from prose or ROM data. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Safe plateau finalization` |
 | `tools/new_lane.sh`, `tools/merge_lane.sh`, `tools/codex_lane.sh` | Create, integrate, and (for Codex) launch a deadline-aware worker in an isolated lane worktree. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Lane helpers` |
-| `tools/lane_status.py` | Read committed `lane/*` refs without opening sibling worktrees; reports advisory match claims and gives `--symbol` a fail-closed assignment verdict from exact source identity, batched descendant target-guard comparisons, plateau handoffs, per-symbol shards, and legacy target-specific triage history (ADR 0011). | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Lane helpers` |
+| `tools/integration_base.py` | Selects the newer linearly related local/remote campaign integration ref, fails on divergence, and prevents workers from silently starting on a stale checked-out branch. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Lane helpers` |
+| `tools/lane_status.py` | Read committed `lane/*` refs without opening sibling worktrees; reports advisory match claims and gives `--symbol` a fail-closed assignment verdict from exact source identity, batched descendant target-guard comparisons, plateau handoffs, per-symbol shards, and legacy target-specific triage history. Complete queue scans reuse one source-identity and lane-path index (ADR 0011). | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Lane helpers` |
 | `tools/fix_stale_externs.py`, `tools/refresh_atlas_digest.py`, `tools/resolve_modules_split.py` | Post-merge/integration housekeeping: stale `func_<VRAM>` externs, a stale atlas digest, and the `docs/modules.md`/`docs/overlays.md` split conflict. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Integration housekeeping` and `## docs/modules.md / docs/overlays.md split` |
 | `tools/postprocess_audit.py` | Classifies every object's `POSTPROCESS` build step as `altered` (forbidden, ADR 0002) or `metadata` (permitted); the mechanical check behind the scoreboard's decompiled line. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Auditing post-compile steps` |
-| `tools/public_release.py` | Regenerates/checks public-safe derived artifacts, reports exact release deltas, scans every outgoing tree/message, and composes all release gates. It never publishes. | this file, `## Deterministic public-release reconciliation` |
+| `tools/public_release.py` | Regenerates/checks public-safe derived artifacts, emits and validates reviewed exact-blob release manifests across rewritten histories, reports exact release deltas, scans every outgoing tree/message, and composes all release gates. It never publishes or copies source files. | this file, `## Deterministic public-release reconciliation` |
+| `tools/run_logged.py` | Runs one build command with complete output under `build/`, prints one compact PASS/FAIL receipt, and shows only a bounded tail on failure. Verification and progress/scoreboard targets use it for their noisy build prerequisites. | `gmake verify`, `gmake progress`, `gmake scoreboard` |
+| `tools/reloc_identity.py` | Gives preflight and relocation-surface proof one fail-closed parser and canonical identity model for linker aliases, objcopy rename chains, addends, and ambiguity. | [`docs/reloc-surface.md`](reloc-surface.md) |
+| `tools/experiment_ledger.py` | Appends compact, non-ROM-derived attempt metrics to an immutable local JSONL journal under ignored `build/`, then lists, ranks, or summarizes them without replacing canonical proof. | [`docs/experiment-ledger.md`](experiment-ledger.md) |

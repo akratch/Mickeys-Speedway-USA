@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import contextlib
 import dataclasses
+import hashlib
 import io
 import json
 import os
@@ -17,6 +18,7 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import function_preflight as fp  # noqa: E402
+import crew  # noqa: E402
 
 
 class SymbolResolutionTests(unittest.TestCase):
@@ -99,6 +101,42 @@ class SymbolResolutionTests(unittest.TestCase):
                 "mathRnd_o001Reloc": "mathRnd",
             },
         )
+
+    def test_candidate_redefine_aliases_collapse_transitive_chain(self) -> None:
+        command = (
+            "tools/binutils/mips64-elf-objcopy --redefine-sym original=proxy "
+            "build/src/example.c.o && "
+            "tools/binutils/mips64-elf-objcopy --redefine-sym proxy=final "
+            "build/src/example.c.o"
+        )
+        with mock.patch.object(
+            fp.pa, "run_make_database", return_value="database"
+        ), mock.patch.object(
+            fp.pa, "postprocess_commands",
+            return_value={"build/src/example.c.o": command},
+        ):
+            aliases = fp._candidate_redefine_aliases(
+                fp.REPO / "build/src/example.c.o"
+            )
+        self.assertEqual(
+            {"proxy": "original", "final": "original"}, aliases
+        )
+
+    def test_candidate_redefine_alias_cycle_fails_closed(self) -> None:
+        command = (
+            "$(OBJCOPY) --redefine-sym first=second build/src/example.c.o && "
+            "$(OBJCOPY) --redefine-sym second=first build/src/example.c.o"
+        )
+        with mock.patch.object(
+            fp.pa, "run_make_database", return_value="database"
+        ), mock.patch.object(
+            fp.pa, "postprocess_commands",
+            return_value={"build/src/example.c.o": command},
+        ):
+            with self.assertRaisesRegex(fp.PreflightError, "contain a cycle"):
+                fp._candidate_redefine_aliases(
+                    fp.REPO / "build/src/example.c.o"
+                )
 
     def test_promoted_overlay_resolves_from_exact_atlas_owner_without_asm(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -226,6 +264,58 @@ class SymbolResolutionTests(unittest.TestCase):
         self.assertEqual(0x17C, resolution.expected_size)
         self.assertIn("mixed_tu_exact_c_ranges", resolution.identity_evidence)
 
+    def test_promoted_exact_tu_uses_next_export_as_function_boundary(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            alias = root / "aliases.txt"
+            alias.write_text(
+                "func_overlay_049_F0000000_1896410 = friendly;\n",
+                encoding="utf-8",
+            )
+            source = root / "src/overlays/o049/overlay_049.c"
+            source.parent.mkdir(parents=True)
+            source.write_text("void friendly(void) {}\n", encoding="utf-8")
+            atlas = root / "atlas.json"
+            atlas.write_text(
+                json.dumps(
+                    {
+                        "modules": [
+                            {
+                                "overlay": 49,
+                                "text_ownership": [
+                                    {
+                                        "offset": "0x0",
+                                        "end_offset": "0x374",
+                                        "size": "0x374",
+                                        "type": "c",
+                                        "source": "overlays/o049/overlay_049",
+                                        "matched": True,
+                                        "nonmatching": False,
+                                    }
+                                ],
+                                "exports": [
+                                    {"rom_table_index": 1415, "offset": "0x0"},
+                                    {"rom_table_index": 1433, "offset": "0x1F4"},
+                                    {"rom_table_index": 1397, "offset": "0x354"},
+                                ],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            resolution = fp.resolve(
+                "friendly",
+                root=root,
+                alias_path=alias,
+                atlas_path=atlas,
+                symbol_path=root / "unused-symbols.txt",
+            )
+
+        self.assertEqual(0x1F4, resolution.expected_size)
+        self.assertIn("export boundary", resolution.identity_evidence)
+
     def test_promoted_resident_requires_matched_c_symbol_geometry(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -321,6 +411,606 @@ class GeometryAndWorkbenchTests(unittest.TestCase):
             FakeElf(), ("friendly", "generated")
         )
         self.assertEqual((name, value, size, section), ("friendly", 0xF0000010, 0x20, ".text"))
+
+    def test_preflight_boundary_serves_when_size_annotation_is_absent(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            symbols = Path(directory) / "symbols.txt"
+            symbols.write_text(
+                "friendly = 0x80001000; // type:func tier-D\n",
+                encoding="utf-8",
+            )
+
+            evidence = fp._optional_size_annotation("friendly", 0x20, symbols)
+
+        self.assertEqual("preflight-owned-boundary", evidence)
+
+    def test_size_annotation_must_agree_with_preflight_boundary(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            symbols = Path(directory) / "symbols.txt"
+            symbols.write_text(
+                "friendly = 0x80001000; // type:func size:0x24 tier-D\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(fp.PreflightError, "disagrees"):
+                fp._optional_size_annotation("friendly", 0x20, symbols)
+
+    def test_duplicate_size_rows_fail_closed_even_when_values_agree(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            symbols = Path(directory) / "symbols.txt"
+            symbols.write_text(
+                "friendly = 0x80001000; // type:func size:0x20 tier-D\n"
+                "friendly = 0x80001000; // type:func size:0x20 tier-D\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(fp.PreflightError, "ambiguous"):
+                fp._optional_size_annotation("friendly", 0x20, symbols)
+
+
+class GeometryAndWorkbenchSummaryTests(unittest.TestCase):
+    @staticmethod
+    def proof_context() -> dict[str, object]:
+        digest = "a" * 64
+        return {
+            "base": "b" * 40,
+            "branch": "lane/test",
+            "owner": "src/example.c",
+            "manifest_sha256": "c" * 64,
+            "created_unix_ns": 1,
+            "artifacts": {
+                "source": {
+                    "path": "src/example.c",
+                    "sha256": digest,
+                    "size": 1,
+                },
+                "candidate_object": {
+                    "path": "build/src/example.c.o",
+                    "sha256": digest,
+                    "size": 1,
+                },
+                "target_object": {
+                    "path": "build/wb/generated.target.o",
+                    "sha256": digest,
+                    "size": 1,
+                },
+            },
+        }
+
+    def inputs(self, root: Path, *, exact: bool = False) -> tuple[Path, Path]:
+        payload = {
+            "schema": "decomp-workbench-comparison-v1",
+            "exact": exact,
+            "accepted": exact,
+            "acceptance_basis": "function-exact" if exact else "mismatch",
+            "verdict": "exact" if exact else "register-mismatch",
+            "target_instructions": 8,
+            "target_insns": 8,
+            "candidate_instructions": 8,
+            "insns": 8,
+            "instruction_delta": 0,
+            "insn_delta": 0,
+            "word_mismatches": 0 if exact else 2,
+            "words": 0 if exact else 2,
+            "raw_word_mismatches": 0 if exact else 3,
+            "raw": 0 if exact else 3,
+            "normalized_distance": 0 if exact else 2,
+            "norm": 0 if exact else 2,
+            "opcode_mismatches": 0,
+            "opcodes": 0,
+            "register_mismatches": 0 if exact else 2,
+            "regs": 0 if exact else 2,
+            "fp_register_mismatches": 0,
+            "fp": 0,
+            "aligned_total": 0 if exact else 2,
+            "aligned_structural": 0,
+            "aligned_schedule": 0,
+            "aligned_register": 0 if exact else 2,
+            "aligned_constant": 0,
+            "first_divergent_row": None if exact else 1,
+            "target_frame_size": None if exact else -16,
+            "target_frame": None if exact else -16,
+            "candidate_frame_size": None if exact else -16,
+            "frame": None if exact else -16,
+            "relocation_metadata_mismatches": 0,
+            "relocation_target_mismatches": 0,
+            "diff_sites": [{"instruction": "must not escape"}],
+        }
+        raw = root / "raw.json"
+        raw.write_text(json.dumps(payload), encoding="utf-8")
+        digest = {"sha256": "a" * 64}
+        manifest = root / "manifest.json"
+        manifest.write_text(
+            json.dumps(
+                {
+                    "schema": "mickey-wb-proof-provenance-v1",
+                    "selection": {"classification": "non_matching_candidate"},
+                    "exact_claim_allowed": True,
+                    "verdict": "c_evidence",
+                    "source": digest,
+                    "candidate_object": digest,
+                    "target_object": digest,
+                }
+            ),
+            encoding="utf-8",
+        )
+        return raw, manifest
+
+    def summarize(self, root: Path, *, exact: bool = False, size: int = 32):
+        raw, manifest = self.inputs(root, exact=exact)
+        return fp.workbench_summary(
+            raw,
+            manifest,
+            requested_symbol="friendly",
+            target_symbol="generated",
+            candidate_symbol="friendly",
+            comparison_mode="asm",
+            boundary_evidence="extracted-fallback-symbol",
+            boundary_size=size,
+        )
+
+    def test_summary_is_code_free_and_keeps_decision_metrics(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            report = self.summarize(Path(directory))
+
+        self.assertEqual("mickey-wb-summary-v1", report["schema"])
+        self.assertEqual(6, report["comparison"]["matched_words"])
+        self.assertEqual(4, report["comparison"]["first_mismatch_offset"])
+        self.assertEqual(16, report["comparison"]["target_frame_bytes"])
+        self.assertFalse(report["evidence"]["admissible_exact_comparison"])
+        self.assertNotIn("diff_sites", json.dumps(report))
+        self.assertNotIn("relocations", report)
+
+    def test_summary_includes_only_authenticated_relocation_scalars(self) -> None:
+        comparison = {
+            "candidate_record_count": 21,
+            "target_record_count": 21,
+            "offset_type_alignment_count": 21,
+            "stable_identity_alignment_count": 11,
+            "candidate_identity_resolved_count": 21,
+            "candidate_identity_unresolved_records": [],
+            "offset_type_exact": True,
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            with mock.patch.object(
+                fp,
+                "_authenticated_summary_relocation_comparison",
+                return_value=comparison,
+            ), mock.patch.object(
+                fp,
+                "_canonical_summary_symbols",
+                return_value=("generated", "friendly"),
+            ), mock.patch.object(
+                fp, "_summary_proof_context", return_value=self.proof_context()
+            ):
+                report = self.summarize(Path(directory))
+
+        self.assertEqual(
+            {
+                "candidate_relocations": 21,
+                "target_relocations": 21,
+                "exact_relocation_identities": 11,
+            },
+            report["relocations"],
+        )
+        self.assertEqual(
+            {
+                "candidate_relocations": 21,
+                "target_relocations": 21,
+                "offset_type_relocations": 21,
+                "resolved_candidate_identities": 21,
+                "exact_relocation_identities": 11,
+                "evidence_mode": "fallback-static",
+                "complete": True,
+            },
+            report["relocation_surfaces"]["fallback_static"],
+        )
+
+    def test_promoted_summary_keeps_its_own_linked_surface(self) -> None:
+        comparison = {
+            "candidate_record_count": 46,
+            "target_record_count": 46,
+            "offset_type_alignment_count": 46,
+            "stable_identity_alignment_count": 34,
+            "candidate_identity_resolved_count": 46,
+            "candidate_identity_unresolved_records": [],
+            "offset_type_exact": True,
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            raw, manifest = self.inputs(root)
+            with mock.patch.object(
+                fp,
+                "_authenticated_summary_relocation_comparison",
+                return_value=comparison,
+            ), mock.patch.object(
+                fp,
+                "_canonical_summary_symbols",
+                return_value=("generated", "friendly"),
+            ), mock.patch.object(
+                fp, "_summary_proof_context", return_value=self.proof_context()
+            ):
+                report = fp.workbench_summary(
+                    raw,
+                    manifest,
+                    requested_symbol="friendly",
+                    target_symbol="generated",
+                    candidate_symbol="friendly",
+                    comparison_mode="rom",
+                    boundary_evidence="preflight-owned-boundary",
+                    boundary_size=32,
+                )
+
+        self.assertEqual(
+            "promoted-linked",
+            report["relocation_surfaces"]["promoted_linked"]["evidence_mode"],
+        )
+        self.assertEqual("generated", report["symbol"]["target"])
+        self.assertEqual(
+            34,
+            report["relocation_surfaces"]["promoted_linked"][
+                "exact_relocation_identities"
+            ],
+        )
+        self.assertTrue(
+            report["relocation_surfaces"]["promoted_linked"]["complete"]
+        )
+
+    def test_summary_rejects_inconsistent_relocation_counts(self) -> None:
+        comparison = {
+            "candidate_record_count": 1,
+            "target_record_count": 1,
+            "offset_type_alignment_count": 1,
+            "stable_identity_alignment_count": 2,
+            "candidate_identity_resolved_count": 1,
+            "candidate_identity_unresolved_records": [],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            with mock.patch.object(
+                fp,
+                "_authenticated_summary_relocation_comparison",
+                return_value=comparison,
+            ):
+                with self.assertRaisesRegex(
+                    fp.PreflightError, "exact relocation identities exceed"
+                ):
+                    self.summarize(Path(directory))
+
+    def test_declared_relocation_artifact_digest_conflict_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            artifact = root / "candidate.o"
+            artifact.write_bytes(b"current object")
+            manifest = {
+                "candidate_object": {
+                    "path": "candidate.o",
+                    "sha256": hashlib.sha256(b"stale object").hexdigest(),
+                    "size": artifact.stat().st_size,
+                }
+            }
+
+            with self.assertRaisesRegex(fp.PreflightError, "digest no longer agrees"):
+                fp._verified_summary_artifact(
+                    manifest, "candidate_object", root=root
+                )
+
+    def test_incomplete_relocation_artifact_record_is_unavailable(self) -> None:
+        manifest = {"candidate_object": {"sha256": "a" * 64}}
+        with tempfile.TemporaryDirectory() as directory:
+            self.assertIsNone(
+                fp._verified_summary_artifact(
+                    manifest, "candidate_object", root=Path(directory)
+                )
+            )
+
+    def test_friendly_requested_name_authenticates_generated_target_object(self) -> None:
+        source = fp.REPO / "src/overlays/o001/example.c"
+        candidate = fp.REPO / "build_non_matching/src/overlays/o001/example.c.o"
+        friendly_target = fp.REPO / "build/wb/overlay1AllocateRecord.target.o"
+        artifacts = {
+            "source": source,
+            "candidate_object": candidate,
+            "target_object": friendly_target,
+        }
+        comparison = {"candidate_record_count": 0}
+
+        with mock.patch.object(
+            fp,
+            "_verified_summary_artifact",
+            side_effect=lambda _manifest, name: artifacts[name],
+        ), mock.patch.object(Path, "is_file", return_value=True), mock.patch.object(
+            fp.rs, "Elf", return_value=mock.sentinel.target_elf
+        ), mock.patch.object(
+            fp,
+            "_symbol_geometry",
+            return_value=("overlay1AllocateRecord", fp.rs.SYNTHETIC_VMA, 0xA0, ".text"),
+        ), mock.patch.object(
+            fp, "_candidate_redefine_aliases", return_value={}
+        ), mock.patch.object(
+            fp.rs, "function_surface_comparison", return_value=comparison
+        ) as compare:
+            result = fp._authenticated_summary_relocation_comparison(
+                {
+                    "mode": "asm",
+                    "symbol": "func_overlay_001_F0000000_0000000",
+                    "candidate_symbol": "overlay1AllocateRecord",
+                },
+                requested_symbol="overlay1AllocateRecord",
+                target_symbol="func_overlay_001_F0000000_0000000",
+                candidate_symbol="overlay1AllocateRecord",
+                comparison_mode="asm",
+            )
+
+        self.assertIs(result, comparison)
+        self.assertEqual(
+            "overlay1AllocateRecord",
+            compare.call_args.kwargs["target_symbol"],
+        )
+
+    def test_friendly_requested_name_rejects_other_target_artifact(self) -> None:
+        artifacts = {
+            "source": fp.REPO / "src/overlays/o001/example.c",
+            "candidate_object": fp.REPO
+            / "build_non_matching/src/overlays/o001/example.c.o",
+            "target_object": fp.REPO / "build/wb/otherAlias.target.o",
+        }
+        with mock.patch.object(
+            fp,
+            "_verified_summary_artifact",
+            side_effect=lambda _manifest, name: artifacts[name],
+        ):
+            with self.assertRaisesRegex(
+                fp.PreflightError, "target object disagrees with requested symbol"
+            ):
+                fp._authenticated_summary_relocation_comparison(
+                    {
+                        "mode": "asm",
+                        "symbol": "func_overlay_001_F0000000_0000000",
+                        "candidate_symbol": "overlay1AllocateRecord",
+                    },
+                    requested_symbol="overlay1AllocateRecord",
+                    target_symbol="func_overlay_001_F0000000_0000000",
+                    candidate_symbol="overlay1AllocateRecord",
+                    comparison_mode="asm",
+                )
+
+    def test_friendly_alias_still_authenticates_generated_target_offset(self) -> None:
+        artifacts = {
+            "source": fp.REPO / "src/overlays/o001/example.c",
+            "candidate_object": fp.REPO
+            / "build_non_matching/src/overlays/o001/example.c.o",
+            "target_object": fp.REPO / "build/wb/overlay1AllocateRecord.target.o",
+        }
+        with mock.patch.object(
+            fp,
+            "_verified_summary_artifact",
+            side_effect=lambda _manifest, name: artifacts[name],
+        ), mock.patch.object(Path, "is_file", return_value=True), mock.patch.object(
+            fp.rs, "Elf", return_value=mock.sentinel.target_elf
+        ), mock.patch.object(
+            fp,
+            "_symbol_geometry",
+            return_value=("overlay1AllocateRecord", fp.rs.SYNTHETIC_VMA, 0xA0, ".text"),
+        ):
+            with self.assertRaisesRegex(
+                fp.PreflightError, "generated target symbol offset disagrees"
+            ):
+                fp._authenticated_summary_relocation_comparison(
+                    {
+                        "mode": "asm",
+                        "symbol": "func_overlay_001_F0000004_0000000",
+                        "candidate_symbol": "overlay1AllocateRecord",
+                    },
+                    requested_symbol="overlay1AllocateRecord",
+                    target_symbol="func_overlay_001_F0000004_0000000",
+                    candidate_symbol="overlay1AllocateRecord",
+                    comparison_mode="asm",
+                )
+
+    def test_promoted_friendly_summary_authenticates_linked_surface(self) -> None:
+        source = fp.REPO / "src/overlays/o047/example.c"
+        candidate = fp.REPO / "build/src/overlays/o047/example.c.o"
+        artifacts = {
+            "source": source,
+            "candidate_object": candidate,
+            "target_object": fp.REPO / "build/wb/friendly.target.objdump",
+        }
+        resolution = fp.Resolution(
+            "friendly",
+            "func_overlay_047_F00009D0_18917E8",
+            "friendly",
+            source,
+            "overlays/o047/example",
+            "build",
+            candidate,
+            None,
+            "promoted",
+            resolution_mode="post_promotion",
+            expected_value=fp.rs.SYNTHETIC_VMA + 0x9D0,
+            expected_size=0x160,
+        )
+        comparison = {"candidate_record_count": 46}
+        with mock.patch.object(
+            fp,
+            "_verified_summary_artifact",
+            side_effect=lambda _manifest, name: artifacts[name],
+        ), mock.patch.object(fp, "resolve", return_value=resolution), mock.patch.object(
+            Path, "is_file", return_value=True
+        ), mock.patch.object(
+            fp, "_require_fresh_target"
+        ), mock.patch.object(
+            fp, "_require_fresh_linked_boundary"
+        ), mock.patch.object(
+            fp.rs, "Elf", return_value=mock.sentinel.target_elf
+        ), mock.patch.object(
+            fp,
+            "_symbol_geometry",
+            return_value=("friendly", fp.rs.SYNTHETIC_VMA + 0x9D0, 0x160, ".text"),
+        ), mock.patch.object(
+            fp, "_require_tracked_geometry"
+        ), mock.patch.object(
+            Path, "read_text", return_value='{"modules": []}'
+        ), mock.patch.object(
+            Path, "read_bytes", return_value=b""
+        ), mock.patch.object(
+            fp, "_target_context", return_value=({}, [])
+        ), mock.patch.object(
+            fp, "_candidate_redefine_aliases", return_value={}
+        ), mock.patch.object(
+            fp.rs, "function_surface_comparison", return_value=comparison
+        ) as compare:
+            result = fp._authenticated_promoted_summary_relocation_comparison(
+                {},
+                requested_symbol="friendly",
+                target_symbol="func_overlay_047_F00009D0_18917E8",
+                candidate_symbol="friendly",
+            )
+
+        self.assertIs(result, comparison)
+        self.assertEqual("friendly", compare.call_args.kwargs["target_symbol"])
+
+    def test_exact_summary_accepts_null_optional_metrics(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            report = self.summarize(Path(directory), exact=True)
+
+        self.assertIsNone(report["comparison"]["first_mismatch_offset"])
+        self.assertIsNone(report["comparison"]["target_frame_bytes"])
+        self.assertTrue(report["evidence"]["admissible_exact_comparison"])
+        self.assertFalse(report["evidence"]["promotion_proof_included"])
+
+    def test_summary_rejects_boundary_disagreement(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(fp.PreflightError, "boundary size disagrees"):
+                self.summarize(Path(directory), size=36)
+
+    def test_consolidated_tu_escape_reports_target_and_candidate_drift(self) -> None:
+        class FakeElf:
+            names = ["", ".text"]
+
+            @staticmethod
+            def symbols():
+                return [
+                    (
+                        "func_overlay_009_F00010B4_186772C",
+                        0x10DC,
+                        0x468,
+                        2,
+                        1,
+                    )
+                ]
+
+        resolution = fp.Resolution(
+            "func_overlay_009_F00010B4_186772C",
+            "func_overlay_009_F00010B4_186772C",
+            "func_overlay_009_F00010B4_186772C",
+            fp.REPO / "src/overlays/o009/overlay_009.c",
+            "overlays/o009/overlay_009",
+            "build_non_matching",
+            fp.REPO / "build_non_matching/src/overlays/o009/overlay_009.c.o",
+            fp.REPO / "asm/target.s",
+            "guarded",
+        )
+        atlas = {
+            "modules": [
+                {
+                    "overlay": 9,
+                    "text_ownership": [
+                        {
+                            "offset": "0x0",
+                            "end_offset": "0x1520",
+                            "size": "0x1520",
+                            "type": "c",
+                            "source": "overlays/o009/overlay_009",
+                        }
+                    ],
+                }
+            ]
+        }
+
+        with mock.patch.object(fp.rs, "Elf", return_value=FakeElf()):
+            message = fp._surface_error_diagnostic(
+                fp.rs.SurfaceComparisonError("candidate function escapes TU ownership"),
+                resolution,
+                atlas,
+                0xF00010B4,
+                0x468,
+            )
+
+        self.assertIn("TU .text+0x10DC..+0x1544", message)
+        self.assertIn("target belongs at TU+0x10B4..+0x151C", message)
+        self.assertIn("shifted this function by +0x28", message)
+        self.assertIn("exceeds the owner by 0x24", message)
+        self.assertIn("will not reinterpret bytes outside the atlas owner", message)
+
+    def test_consolidated_alias_error_reports_compiled_identity_drift(self) -> None:
+        class FakeElf:
+            names = ["", ".text"]
+
+            @staticmethod
+            def section(name):
+                if name != ".text":
+                    raise ValueError(name)
+                return 1, {"size": 0x4664}
+
+            @staticmethod
+            def symbols():
+                return [
+                    ("aimed", 0x37D4, 0x3E4, 2, 1),
+                    ("overlay1ReadSelection", 0x2ECC, 0xD4, 2, 1),
+                ]
+
+        resolution = fp.Resolution(
+            "aimed",
+            "func_overlay_001_F0006D4C_185312C",
+            "aimed",
+            fp.REPO / "src/overlays/o001/overlay_001_tail.c",
+            "overlays/o001/overlay_001_tail",
+            "build_non_matching",
+            fp.REPO / "build_non_matching/src/overlays/o001/overlay_001_tail.c.o",
+            fp.REPO / "asm/target.s",
+            "guarded",
+        )
+        atlas = {
+            "modules": [
+                {
+                    "overlay": 1,
+                    "text_ownership": [
+                        {
+                            "offset": "0x3578",
+                            "end_offset": "0x7BDC",
+                            "size": "0x4664",
+                            "type": "c",
+                            "source": "overlays/o001/overlay_001_tail",
+                        }
+                    ],
+                }
+            ]
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            aliases = Path(directory) / "aliases.txt"
+            aliases.write_text(
+                "func_overlay_001_F0006424_1852804 = overlay1ReadSelection;\n",
+                encoding="utf-8",
+            )
+            error = fp.rs.SurfaceComparisonError(
+                "candidate relocation symbol overlay1ReadSelection "
+                "has ambiguous runtime identity"
+            )
+            with mock.patch.object(fp.rs, "Elf", return_value=FakeElf()):
+                message = fp._surface_error_diagnostic(
+                    error,
+                    resolution,
+                    atlas,
+                    0xF0006D4C,
+                    0x3E4,
+                    alias_path=aliases,
+                )
+
+        self.assertIn("tracked alias identity is overlay:1:+0x6424", message)
+        self.assertIn("lands at overlay:1:+0x6444", message)
+        self.assertIn("TU .text+0x2ECC", message)
+        self.assertIn("disagreement +0x20", message)
+        self.assertIn("candidate prefix-layout drift", message)
 
     def test_resident_boundary_reports_exact_gap_to_next_function(self) -> None:
         class FakeElf:
@@ -454,6 +1144,89 @@ class GeometryAndWorkbenchTests(unittest.TestCase):
         }
         with self.assertRaisesRegex(fp.PreflightError, "unresolved at 1"):
             fp._require_static_relocation_evidence(resolution, comparison)
+
+    def test_unresolved_fallback_identity_becomes_structured_partial_evidence(self) -> None:
+        resolution = fp.Resolution(
+            "friendly", "generated", "friendly", Path("src/example.c"),
+            "example", "build_non_matching",
+            Path("build_non_matching/src/example.c.o"), Path("target.s"),
+            "guarded fallback",
+        )
+        comparison = {
+            "candidate_record_count": 3,
+            "candidate_identity_resolved_count": 2,
+            "candidate_identity_unresolved_records": [
+                {"offset": 0x18, "rtype": fp.rs.R_MIPS_26}
+            ],
+            "target_record_count": 3,
+            "offset_type_alignment_count": 3,
+            "stable_identity_alignment_count": 2,
+            "effective_identity_alignment_count": 2,
+            "offset_type_exact": True,
+            "effective_identity_exact": False,
+        }
+
+        status = fp._preflight_evidence_status(resolution, comparison)
+
+        self.assertEqual("partial", status["status"])
+        self.assertEqual(
+            "resolve_candidate_static_relocation_identities", status["action"]
+        )
+        self.assertEqual(1, status["counts"]["candidate_identities_unresolved"])
+        diagnostic = status["diagnostics"][0]
+        self.assertEqual(
+            "candidate_static_relocation_identity_unresolved", diagnostic["code"]
+        )
+        self.assertEqual(
+            [{"offset": "+0x18", "type": "R_MIPS_26"}],
+            diagnostic["sites"],
+        )
+        self.assertNotIn("identity", diagnostic["sites"][0])
+
+    def test_post_promotion_runtime_proof_keeps_static_gap_visible(self) -> None:
+        resolution = fp.Resolution(
+            "friendly", "generated", "friendly", Path("src/example.c"),
+            "example", "build", Path("build/src/example.c.o"), None,
+            "promoted", resolution_mode="post_promotion",
+        )
+        comparison = {
+            "candidate_record_count": 3,
+            "candidate_identity_resolved_count": 2,
+            "candidate_identity_unresolved_records": [
+                {"offset": 0x18, "rtype": fp.rs.R_MIPS_26}
+            ],
+            "target_record_count": 3,
+            "offset_type_alignment_count": 3,
+            "stable_identity_alignment_count": 2,
+            "effective_identity_alignment_count": 3,
+            "offset_type_exact": True,
+            "effective_identity_exact": True,
+        }
+
+        status = fp._preflight_evidence_status(resolution, comparison)
+
+        self.assertEqual("complete", status["status"])
+        self.assertEqual("run_promotion_proof", status["action"])
+        self.assertEqual("warning", status["diagnostics"][0]["severity"])
+
+    def test_unresolved_diagnostic_count_mismatch_fails_closed(self) -> None:
+        resolution = fp.Resolution(
+            "friendly", "generated", "friendly", Path("src/example.c"),
+            "example", "build_non_matching",
+            Path("build_non_matching/src/example.c.o"), Path("target.s"),
+            "guarded fallback",
+        )
+        comparison = {
+            "candidate_record_count": 2,
+            "candidate_identity_resolved_count": 1,
+            "candidate_identity_unresolved_records": [],
+            "target_record_count": 2,
+            "offset_type_alignment_count": 2,
+            "stable_identity_alignment_count": 1,
+        }
+
+        with self.assertRaisesRegex(fp.PreflightError, "disagree with the count"):
+            fp._preflight_evidence_status(resolution, comparison)
 
     def test_promoted_mode_rejects_relocation_shape_drift(self) -> None:
         resolution = fp.Resolution(
@@ -627,6 +1400,44 @@ class FreshnessTests(unittest.TestCase):
                         build_logic_inputs=(),
                     )
 
+    def test_workbench_boundary_fails_closed_on_a_modified_fallback(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            resolution = self.resolution(root)
+            resolution.target_asm.parent.mkdir(parents=True)
+            resolution.target_asm.write_text("glabel generated\n", encoding="utf-8")
+            stamp = root / "build_non_matching/.splat-stamp"
+            stamp.parent.mkdir(parents=True, exist_ok=True)
+            stamp.write_text("split\n", encoding="utf-8")
+            stamp_time = stamp.stat().st_mtime_ns
+            os.utime(
+                resolution.target_asm,
+                ns=(stamp_time + 1_000_000, stamp_time + 1_000_000),
+            )
+
+            with mock.patch.object(
+                fp, "_wb_split_receipts", return_value=((stamp, True),)
+            ), mock.patch.object(fp, "_require_fresh_target"):
+                with self.assertRaisesRegex(fp.PreflightError, "newer than"):
+                    fp._require_fresh_wb_evidence(resolution)
+
+    def test_canonical_split_receipt_can_prove_shared_fallback(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            resolution = self.resolution(root)
+            resolution.target_asm.parent.mkdir(parents=True)
+            resolution.target_asm.write_text("glabel generated\n", encoding="utf-8")
+            stamp = root / "build/.splat-stamp"
+            stamp.parent.mkdir(parents=True, exist_ok=True)
+            stamp.write_text("split\n", encoding="utf-8")
+            asm_time = resolution.target_asm.stat().st_mtime_ns
+            os.utime(stamp, ns=(asm_time + 1_000_000, asm_time + 1_000_000))
+
+            with mock.patch.object(
+                fp, "_wb_split_receipts", return_value=((stamp, False),)
+            ), mock.patch.object(fp, "_require_fresh_target"):
+                fp._require_fresh_wb_boundary(resolution)
+
     def test_build_runs_split_and_target_as_separate_make_invocations(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -668,6 +1479,7 @@ class FreshnessTests(unittest.TestCase):
             commands = [call.args[0] for call in run.call_args_list]
             self.assertNotIn("--always-make", commands[0])
             self.assertIn("--always-make", commands[1])
+            self.assertIn("--assume-old=.venv/bin/python", commands[1])
             self.assertEqual(commands[1][-1], fp._relative(resolution.candidate_object))
 
     def test_resolve_wb_refreshes_by_default_and_no_build_is_explicit(self) -> None:
@@ -677,8 +1489,8 @@ class FreshnessTests(unittest.TestCase):
             resolution.target_asm.write_text("glabel generated\n", encoding="utf-8")
             with mock.patch.object(
                 fp, "resolve", return_value=resolution
-            ), mock.patch.object(fp, "_build") as build, mock.patch.object(
-                fp, "require_fresh_evidence"
+            ), mock.patch.object(fp, "_build_wb_evidence") as build, mock.patch.object(
+                fp, "_require_fresh_wb_evidence"
             ) as freshness:
                 with contextlib.redirect_stdout(io.StringIO()):
                     self.assertEqual(0, fp.main(["friendly", "--resolve-wb"]))
@@ -687,8 +1499,8 @@ class FreshnessTests(unittest.TestCase):
 
             with mock.patch.object(
                 fp, "resolve", return_value=resolution
-            ), mock.patch.object(fp, "_build") as build, mock.patch.object(
-                fp, "require_fresh_evidence"
+            ), mock.patch.object(fp, "_build_wb_evidence") as build, mock.patch.object(
+                fp, "_require_fresh_wb_evidence"
             ) as freshness:
                 with contextlib.redirect_stdout(io.StringIO()):
                     self.assertEqual(
@@ -701,7 +1513,11 @@ class FreshnessTests(unittest.TestCase):
     def test_nonmatching_candidate_build_precedes_final_canonical_build(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             resolution = self.resolution(Path(directory))
-            with mock.patch.object(fp, "_build_target") as build_target:
+            with mock.patch.object(
+                fp,
+                "_require_fresh_target",
+                side_effect=fp.StaleEvidenceError("stale"),
+            ), mock.patch.object(fp, "_build_target") as build_target:
                 fp._build(resolution)
 
             self.assertEqual(
@@ -721,12 +1537,447 @@ class FreshnessTests(unittest.TestCase):
             resolution = dataclasses.replace(
                 self.resolution(Path(directory)), candidate_build_dir="build"
             )
-            with mock.patch.object(fp, "_build_target") as build_target:
+            with mock.patch.object(
+                fp,
+                "_require_fresh_target",
+                side_effect=fp.StaleEvidenceError("stale"),
+            ), mock.patch.object(fp, "_build_target") as build_target:
                 fp._build(resolution)
 
             build_target.assert_called_once_with(
                 fp.TARGET_ELF, non_matching=False, label="canonical"
             )
+
+    def test_current_full_evidence_skips_every_build(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            resolution = self.resolution(Path(directory))
+            with mock.patch.object(
+                fp, "_require_fresh_target"
+            ), mock.patch.object(fp, "_build_target") as build_target:
+                fp._build(resolution)
+
+            build_target.assert_not_called()
+
+    def test_workbench_refresh_builds_candidate_without_linking_canonical_elf(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            resolution = self.resolution(Path(directory))
+            with mock.patch.object(
+                fp, "_require_fresh_wb_boundary"
+            ), mock.patch.object(
+                fp,
+                "_require_fresh_target",
+                side_effect=fp.StaleEvidenceError("stale candidate"),
+            ), mock.patch.object(fp, "_build_target") as build_target:
+                fp._build_wb_evidence(resolution)
+
+            build_target.assert_called_once_with(
+                resolution.candidate_object,
+                non_matching=True,
+                label="candidate",
+            )
+            self.assertNotIn(fp.TARGET_ELF, [call.args[0] for call in build_target.call_args_list])
+
+    def test_current_workbench_evidence_skips_candidate_build(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            resolution = self.resolution(Path(directory))
+            with mock.patch.object(
+                fp, "_require_fresh_wb_boundary"
+            ), mock.patch.object(
+                fp, "_require_fresh_target"
+            ), mock.patch.object(fp, "_build_target") as build_target:
+                fp._build_wb_evidence(resolution)
+
+            build_target.assert_not_called()
+
+    def test_stale_workbench_boundary_refreshes_split_before_candidate(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            resolution = self.resolution(Path(directory))
+            stamp = Path(directory) / "build_non_matching/.splat-stamp"
+            with mock.patch.object(
+                fp,
+                "_require_fresh_wb_boundary",
+                side_effect=fp.StaleEvidenceError("stale split"),
+            ), mock.patch.object(
+                fp, "_require_fresh_target"
+            ), mock.patch.object(
+                fp, "_candidate_split_stamp", return_value=stamp
+            ), mock.patch.object(fp, "_build_target") as build_target:
+                fp._build_wb_evidence(resolution)
+
+            self.assertEqual(
+                [
+                    mock.call(stamp, non_matching=True, label="target boundary"),
+                    mock.call(
+                        resolution.candidate_object,
+                        non_matching=True,
+                        label="candidate",
+                    ),
+                ],
+                build_target.call_args_list,
+            )
+
+    def test_resolve_rom_emits_one_preflight_proved_boundary(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            resolution = self.resolution(Path(directory))
+            boundary = {
+                "linked_symbol": "friendly",
+                "value": 0x80001000,
+                "size": 0x20,
+                "section": ".text",
+                "evidence": "preflight-owned-boundary",
+            }
+            output = io.StringIO()
+            with mock.patch.object(
+                fp, "resolve", return_value=resolution
+            ), mock.patch.object(fp, "_build_linked_boundary") as build, mock.patch.object(
+                fp, "_require_fresh_linked_boundary"
+            ) as freshness, mock.patch.object(
+                fp, "_linked_boundary", return_value=boundary
+            ), contextlib.redirect_stdout(output):
+                self.assertEqual(0, fp.main(["friendly", "--resolve-rom"]))
+
+            build.assert_called_once_with()
+            freshness.assert_called_once_with()
+            self.assertEqual(
+                "friendly\t80001000\t20\t.text\tpreflight-owned-boundary\n",
+                output.getvalue(),
+            )
+
+
+class PairedRelocationSummaryTests(unittest.TestCase):
+    NOW_NS = 2_000_000_000_000
+    BASE = "b" * 40
+    BRANCH = "lane/wave10-reloc-dual"
+    OWNER = "src/overlays/o047/overlay47ReleaseResources.c"
+
+    def summary(
+        self,
+        surface_name: str,
+        *,
+        exact_identities: int,
+        resolved_identities: int,
+        base: str | None = None,
+        symbol: str = "func_overlay_047_F00009D0_18917E8",
+        created_ns: int | None = None,
+    ) -> dict[str, object]:
+        mode = "asm" if surface_name == "fallback_static" else "rom"
+        evidence_mode = fp.WB_RELOCATION_SURFACE_MODES[surface_name]
+        digest_prefix = "a" if surface_name == "fallback_static" else "d"
+        digest = digest_prefix * 64
+        surface = {
+            "candidate_relocations": 46,
+            "target_relocations": 46,
+            "offset_type_relocations": 46,
+            "resolved_candidate_identities": resolved_identities,
+            "exact_relocation_identities": exact_identities,
+            "evidence_mode": evidence_mode,
+            "complete": resolved_identities == 46,
+        }
+        artifacts = {
+            "source": {
+                "path": self.OWNER,
+                "sha256": digest,
+                "size": 100,
+            },
+            "candidate_object": {
+                "path": f"build/{surface_name}.candidate.o",
+                "sha256": digest,
+                "size": 200,
+            },
+            "target_object": {
+                "path": f"build/wb/{surface_name}.target.o",
+                "sha256": digest,
+                "size": 300,
+            },
+        }
+        return {
+            "schema": fp.WB_SUMMARY_SCHEMA,
+            "symbol": {
+                "requested": symbol,
+                "target": symbol,
+                "candidate": symbol,
+            },
+            "mode": mode,
+            "boundary": {
+                "bytes": 352,
+                "evidence": (
+                    "extracted-fallback-symbol"
+                    if mode == "asm"
+                    else "preflight-owned-boundary"
+                ),
+            },
+            "comparison": {
+                "exact": True,
+                "accepted": True,
+                "target_words": 88,
+                "candidate_words": 88,
+                "matched_words": 88,
+                "differing_words": 0,
+                "raw_differing_words": 0,
+            },
+            "provenance": {
+                "classification": "non_matching_candidate",
+                "exact_claim_allowed": True,
+                "verdict": "c_evidence",
+                "source_sha256": digest,
+                "candidate_object_sha256": digest,
+                "target_object_sha256": digest,
+            },
+            "evidence": {
+                "admissible_exact_comparison": True,
+                "promotion_proof_included": False,
+                "scope": "workbench-comparison-not-canonical-promotion-proof",
+                "raw_report_sha256": ("e" if mode == "asm" else "f") * 64,
+            },
+            "relocations": fp._summary_relocations(surface),
+            "relocation_surfaces": {surface_name: surface},
+            "proof_context": {
+                "base": self.BASE if base is None else base,
+                "branch": self.BRANCH,
+                "owner": self.OWNER,
+                "manifest_sha256": ("1" if mode == "asm" else "2") * 64,
+                "created_unix_ns": (
+                    self.NOW_NS if created_ns is None else created_ns
+                ),
+                "artifacts": artifacts,
+            },
+        }
+
+    def write_pair(
+        self,
+        root: Path,
+        *,
+        fallback: dict[str, object] | None = None,
+        promoted: dict[str, object] | None = None,
+    ) -> tuple[Path, Path]:
+        build = root / "build"
+        build.mkdir()
+        fallback_path = build / "fallback.json"
+        promoted_path = build / "promoted.json"
+        fallback_path.write_text(
+            json.dumps(
+                self.summary(
+                    "fallback_static", exact_identities=9, resolved_identities=20
+                )
+                if fallback is None
+                else fallback
+            ),
+            encoding="utf-8",
+        )
+        promoted_path.write_text(
+            json.dumps(
+                self.summary(
+                    "promoted_linked", exact_identities=34, resolved_identities=46
+                )
+                if promoted is None
+                else promoted
+            ),
+            encoding="utf-8",
+        )
+        os.utime(
+            fallback_path,
+            ns=(self.NOW_NS, self.NOW_NS),
+        )
+        os.utime(
+            promoted_path,
+            ns=(self.NOW_NS, self.NOW_NS),
+        )
+        return fallback_path, promoted_path
+
+    def compose(
+        self,
+        root: Path,
+        fallback: Path,
+        promoted: Path,
+    ) -> dict[str, object]:
+        return fp.compose_relocation_summaries(
+            fallback,
+            promoted,
+            root=root,
+            now_ns=self.NOW_NS,
+            repository_context={"base": self.BASE, "branch": self.BRANCH},
+        )
+
+    def test_pairs_nine_static_with_thirty_four_promoted_without_inference(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fallback, promoted = self.write_pair(root)
+            report = self.compose(root, fallback, promoted)
+
+        surfaces = report["relocation_surfaces"]
+        self.assertEqual(9, surfaces["fallback_static"]["exact_relocation_identities"])
+        self.assertFalse(surfaces["fallback_static"]["complete"])
+        self.assertEqual(34, surfaces["promoted_linked"]["exact_relocation_identities"])
+        self.assertTrue(surfaces["promoted_linked"]["complete"])
+        self.assertEqual(9, report["relocations"]["exact_relocation_identities"])
+        self.assertEqual("fallback_static", report["relocation_pair"]["legacy_surface"])
+
+    def test_human_rendering_shows_both_surfaces(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fallback, promoted = self.write_pair(root)
+            report = self.compose(root, fallback, promoted)
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            fp._render_workbench_summary_human(report)
+        rendered = output.getvalue()
+        self.assertIn("fallback-static", rendered)
+        self.assertIn("exact identities=9", rendered)
+        self.assertIn("promoted-linked", rendered)
+        self.assertIn("exact identities=34", rendered)
+
+    def test_stale_input_fails_closed(self) -> None:
+        stale = self.summary(
+            "fallback_static",
+            exact_identities=9,
+            resolved_identities=20,
+            created_ns=self.NOW_NS - (fp.WB_SUMMARY_MAX_AGE_SECONDS + 1) * 1_000_000_000,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fallback, promoted = self.write_pair(root, fallback=stale)
+            with self.assertRaisesRegex(fp.PreflightError, "summary is stale"):
+                self.compose(root, fallback, promoted)
+
+    def test_malformed_surface_fails_closed(self) -> None:
+        malformed = self.summary(
+            "fallback_static", exact_identities=9, resolved_identities=20
+        )
+        malformed["relocation_surfaces"]["fallback_static"][
+            "exact_relocation_identities"
+        ] = 47
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fallback, promoted = self.write_pair(root, fallback=malformed)
+            with self.assertRaisesRegex(fp.PreflightError, "exceed"):
+                self.compose(root, fallback, promoted)
+
+    def test_cross_symbol_fails_closed(self) -> None:
+        promoted_payload = self.summary(
+            "promoted_linked",
+            exact_identities=34,
+            resolved_identities=46,
+            symbol="other_symbol",
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fallback, promoted = self.write_pair(root, promoted=promoted_payload)
+            with self.assertRaisesRegex(fp.PreflightError, "cross-symbol"):
+                self.compose(root, fallback, promoted)
+
+    def test_cross_base_fails_closed(self) -> None:
+        promoted_payload = self.summary(
+            "promoted_linked",
+            exact_identities=34,
+            resolved_identities=46,
+            base="c" * 40,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fallback, promoted = self.write_pair(root, promoted=promoted_payload)
+            with self.assertRaisesRegex(fp.PreflightError, "cross-base"):
+                self.compose(root, fallback, promoted)
+
+    def test_duplicate_surface_inputs_fail_closed(self) -> None:
+        duplicate = self.summary(
+            "fallback_static", exact_identities=9, resolved_identities=20
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fallback, promoted = self.write_pair(root, promoted=duplicate)
+            with self.assertRaisesRegex(fp.PreflightError, "wrong comparison mode"):
+                self.compose(root, fallback, promoted)
+
+    def test_paired_linked_evidence_cannot_claim_object_exact(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fallback, promoted = self.write_pair(root)
+            report = self.compose(root, fallback, promoted)
+        with mock.patch.object(crew, "read_fresh_workbench_summary", return_value=report):
+            result = crew.workbench_summary_result(
+                "build/paired.json",
+                worker="worker-1",
+                target="func_overlay_047_F00009D0_18917E8",
+            )
+        self.assertEqual("compiled", result["promotion_state"])
+        self.assertEqual(9, result["exact_relocation_identities"])
+
+
+class PartialEvidenceCliTests(unittest.TestCase):
+    def report(self) -> dict[str, object]:
+        return {
+            "schema": "mickey-function-evidence-preflight-v1",
+            "preflight": {
+                "status": "partial",
+                "action": "resolve_candidate_static_relocation_identities",
+                "counts": {
+                    "target_relocations": 3,
+                    "candidate_static_relocations": 3,
+                    "offset_type_aligned": 3,
+                    "stable_identities_aligned": 2,
+                    "effective_identities_aligned": 2,
+                    "candidate_identities_resolved": 2,
+                    "candidate_identities_unresolved": 1,
+                },
+                "diagnostics": [
+                    {
+                        "code": "candidate_static_relocation_identity_unresolved",
+                        "severity": "error",
+                        "count": 1,
+                        "sites": [{"offset": "+0x18", "type": "R_MIPS_26"}],
+                        "message": "no identity was inferred",
+                    }
+                ],
+            },
+            "workbench": {
+                "target_words": 20,
+                "candidate_words": 20,
+                "matched_words": 19,
+                "differing_words": 1,
+                "target_frame": 32,
+                "candidate_frame": 32,
+                "first_mismatch": "+0x8",
+                "verdict": "register-mismatch",
+            },
+        }
+
+    def invoke(self, *extra: str) -> tuple[int, dict[str, object]]:
+        output = io.StringIO()
+        with (
+            mock.patch.object(fp, "resolve", return_value=mock.sentinel.resolution),
+            mock.patch.object(fp, "require_fresh_evidence"),
+            mock.patch.object(fp, "collect", return_value=self.report()),
+            contextlib.redirect_stdout(output),
+        ):
+            result = fp.main(["friendly", "--no-build", "--json", *extra])
+        return result, json.loads(output.getvalue())
+
+    def test_proof_mode_emits_partial_json_and_distinct_nonzero_exit(self) -> None:
+        result, payload = self.invoke()
+
+        self.assertEqual(fp.PARTIAL_EVIDENCE_EXIT, result)
+        self.assertEqual("partial", payload["preflight"]["status"])
+        self.assertEqual(20, payload["workbench"]["target_words"])
+        self.assertEqual(32, payload["workbench"]["candidate_frame"])
+        self.assertEqual("+0x8", payload["workbench"]["first_mismatch"])
+
+    def test_analysis_only_keeps_partial_status_and_returns_success(self) -> None:
+        result, payload = self.invoke("--analysis-only")
+
+        self.assertEqual(0, result)
+        self.assertEqual("partial", payload["preflight"]["status"])
+        self.assertEqual("error", payload["preflight"]["diagnostics"][0]["severity"])
+
+    def test_human_partial_status_includes_counts_and_unresolved_site(self) -> None:
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            fp._render_preflight_status(self.report()["preflight"])
+
+        rendered = output.getvalue()
+        self.assertIn("status: partial (non-exact)", rendered)
+        self.assertIn("action: resolve_candidate_static_relocation_identities", rendered)
+        self.assertIn("resolved=2 unresolved=1", rendered)
+        self.assertIn("+0x18 R_MIPS_26 identity=unresolved", rendered)
 
 
 class RelocationEvidenceTests(unittest.TestCase):
@@ -791,6 +2042,20 @@ class RelocationEvidenceTests(unittest.TestCase):
             "candidate_symbol": "func_8002BB40",
             "resolution_mode": "post_promotion",
             "identity_evidence": "symbol_addrs matched-C function row",
+            "preflight": {
+                "status": "complete",
+                "action": "run_promotion_proof",
+                "counts": {
+                    "target_relocations": 8,
+                    "candidate_static_relocations": 8,
+                    "offset_type_aligned": 8,
+                    "stable_identities_aligned": 8,
+                    "effective_identities_aligned": 8,
+                    "candidate_identities_resolved": 8,
+                    "candidate_identities_unresolved": 0,
+                },
+                "diagnostics": [],
+            },
             "source": "src/main/memory.c",
             "candidate_build_dir": "build",
             "candidate_signature": "s32 func_8002BB40(void)",
@@ -833,6 +2098,7 @@ class RelocationEvidenceTests(unittest.TestCase):
         self.assertIn("resident runtime records: 0", rendered)
         self.assertIn("runtime overlay records: not applicable", rendered)
         self.assertIn("offset/type=8/8 identity=8/8", rendered)
+        self.assertIn("workbench [rom]: matched=72/72", rendered)
 
     def test_overlay_runtime_records_are_not_called_static_target_records(self) -> None:
         resolution = fp.Resolution(

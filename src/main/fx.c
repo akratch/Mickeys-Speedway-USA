@@ -30,7 +30,7 @@ typedef struct FxWakeRippleData {
     s16 angleStep;
     f32 value7C;
     f32 value80;
-    void *update;
+    s32 update;
 } FxWakeRippleData;
 
 typedef struct FxWakeTexture {
@@ -65,8 +65,8 @@ typedef struct FxWakeSegment {
 } FxWakeSegment;
 
 extern void func_80048080(s32 count, s16 arg1, s16 arg2, s16 arg3,
-                          s32 arg4, s32 arg5, FxConePoint *points,
-                          void *vertices, s32 alpha);
+                          s16 arg4, s16 arg5, FxConePoint * volatile points,
+                          u8 * volatile vertices, s32 alpha);
 extern void viGetCurrentSize(s32 *width, s32 *height);
 extern s16 Arctanf(f32 x, f32 y);
 extern s32 viGetVideoMode(void);
@@ -93,9 +93,9 @@ void func_80046E70(FxCone *cone) {
     }
     mmFree(cone);
 }
-/* Workbench: structure-mismatch, 61 differing words, first mismatch +0x2c. */
-/* Candidate shape: 111/110 instructions, frame -0x48/-0x48; one address-base instruction remains. */
-/* Remaining gap: target preserves the stored cone-end base for address construction; registers remain. */
+/* Workbench: structure-mismatch, 60 differing words, first mismatch +0x68. */
+/* Candidate shape: 111/110 instructions, frame -0x48/-0x48; 3/6 call relocations align. */
+/* The retained flag's stack home is exact; one address-base instruction and register coloring remain. */
 #ifdef NON_MATCHING
 extern void *func_8002B280(s32 size, s32 tag);
 extern void *func_80034448(s32 resourceId);
@@ -110,8 +110,8 @@ void *func_80046EC4(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
                     s32 argA) {
     s32 sp44;
     s32 sp40;
-    s32 sp38;
     s32 temp_a0;
+    s32 sp38;
     FxCone *cone;
     u8 *temp_v1;
 
@@ -180,16 +180,15 @@ void func_8004707C(FxCone *cone, s32 value2C, s32 value2D, s32 value2E,
         cone->envBlue = value32;
     }
 }
-/* Workbench verdict: structure-mismatch, 121 differing words, first mismatch +0x44. */
-/* Candidate: 150/149 instructions with the target -0x168 frame; relocation and CFG residuals remain, so it is not shape-exact. */
-/* Shape status: one-word length delta; the helper loop and signed angle path are preserved for the permuter-ready pass. */
+/* Workbench verdict: structure-mismatch, 90 differing words, first mismatch +0x44. */
+/* Candidate: exact 149-instruction and -0x168 frame shape; all three call sites remain offset from target. */
+/* Shape status: point extent, countdown CFG, and integer vertex indices are recovered; allocator and call-loop scheduling remain. */
 /* PROVENANCE: JFG's public src/fx.c establishes the corresponding cone routine and call roles; this body is reconstructed from Mickey's own m2c draft and typed layouts. */
 #ifdef NON_MATCHING
 void func_800470B0(FxCone *cone, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
                    s16 arg5, f32 arg6, f32 arg7, f32 arg8) {
-    FxConePoint points[17];
     FxConePoint *point;
-    u8 *address;
+    void **address;
     u8 *vertex;
     s32 angleStep;
     f32 var_f0;
@@ -197,23 +196,24 @@ void func_800470B0(FxCone *cone, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
     f32 temp_f6;
     s32 i;
     s32 j;
+    FxConePoint points[16];
 
     if (cone->flags != 0) {
-        angleStep = -0x10000 / (s32) cone->segmentCount;
         var_f0 = 0.0f;
         var_f24 = -arg8;
+        angleStep = -0x10000 / (s32) cone->segmentCount;
     } else {
-        angleStep = 0x10000 / (s32) cone->segmentCount;
         var_f24 = 0.0f;
         var_f0 = -arg8;
+        angleStep = 0x10000 / (s32) cone->segmentCount;
     }
     points[0].x = 0.0f;
     points[0].y = 0.0f;
     points[0].z = var_f0;
     point = points + 1;
     i = 0;
-    j = cone->segmentCount - 1;
-    if (cone->segmentCount != 0) {
+    j = cone->segmentCount;
+    if (j--) {
         do {
             point->x = (f32) (func_8002A8C0(i) * arg6);
             temp_f6 = func_8002A8BC(i) * arg7;
@@ -221,21 +221,20 @@ void func_800470B0(FxCone *cone, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
             point++;
             i += angleStep;
             point[-1].y = temp_f6;
-            j--;
-        } while (j != 0);
+        } while (j--);
     }
-    address = (u8 *) cone;
+    address = (void **) cone;
     i = 0;
     do {
         func_80048080(cone->mode, arg1, arg2, arg3, (s32) arg4,
-                      (s32) arg5, points, *(void **)(address + 8), 0xFF);
+                      (s32) arg5, points, address[2], 0xFF);
+        address++;
         i += 4;
-        address += 4;
     } while (i < 8);
     vertex = cone->vertices;
     {
-        s8 index;
-        s8 next;
+        s32 index;
+        s32 next;
 
         index = 1;
         if ((s32) cone->segmentCount > 0) {
@@ -689,9 +688,9 @@ void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80047CD8.s")
 #endif
-/* Workbench: structure-mismatch, 87 differing words, first mismatch +0x0. */
-/* Candidate shape: 82 instructions/frame -0x40 vs target 89/-0x48; not permuter-ready. */
-/* Remaining structural gap: IDO's count/pointer loop and stack-home shape. */
+/* Workbench: structure-mismatch, 43 differing words, first mismatch +0x74. */
+/* Candidate shape: 88/89 instructions, exact -0x48 frame and four call relocations. */
+/* R4300 hazard mode reaches 89 words with 12 differences; load/register order remains. */
 #ifdef NON_MATCHING
 typedef struct FxTransformInput {
     f32 x;
@@ -709,58 +708,54 @@ typedef struct FxTransformOutput {
     s8 alpha;
 } FxTransformOutput;
 
-void func_80048080(s32 count, s16 x, s16 y, s16 z, s32 angle0Arg, s32 angle1Arg,
-                   FxConePoint *inputArg, void *outputArg, s32 alpha) {
-    /* Parameter types follow the top-level prototype the matched callers use. */
-    s16 angle0 = angle0Arg;
-    s16 angle1 = angle1Arg;
-    FxTransformInput *input = (FxTransformInput *) inputArg;
-    FxTransformOutput *output = (FxTransformOutput *) outputArg;
-    f32 cos1;
-    f32 sin1;
+void func_80048080(s32 count, s16 x, s16 y, s16 z, s16 angle0, s16 angle1,
+                   FxConePoint * volatile input, u8 * volatile output,
+                   s32 alpha) {
+    register f32 cos1 = func_8002A8C0(angle1);
+    register f32 sin1 = func_8002A8BC(angle1);
+    volatile f32 savedCos0;
     f32 cos0;
     f32 sin0;
-    f32 inputX;
-    f32 inputY;
     f32 inputZ;
+    f32 inputY;
+    f32 inputX;
     f32 cross;
-    register s32 var_s0;
-    f32 *var_v1;
-    u8 *var_v0;
+    s32 oldCount;
+    f32 *inputCursor;
+    u8 *outputCursor;
 
-    cos1 = func_8002A8C0(angle1);
-    sin1 = func_8002A8BC(angle1);
-    cos0 = func_8002A8C0(angle0);
+    savedCos0 = func_8002A8C0(angle0);
     sin0 = func_8002A8BC(angle0);
-    var_s0 = count - 1;
-    if (count == 0) {
+    cos0 = savedCos0;
+    oldCount = count--;
+    if (oldCount == 0) {
         goto done;
     }
-    var_v1 = input;
-    var_v0 = output;
+    inputCursor = (f32 *)input;
+    outputCursor = output;
 loop:
-    inputZ = var_v1[2];
-    inputY = var_v1[1];
-    inputX = var_v1[0];
-    var_v1 += 3;
-    var_v0[6] = 0xFF;
-    var_v0[7] = 0xFF;
-    var_v0[8] = 0xFF;
-    var_v0[9] = alpha;
-    var_v0 += 10;
+    inputZ = inputCursor[2];
+    inputX = inputCursor[0];
+    inputY = inputCursor[1];
+    inputCursor += 3;
+    outputCursor[6] = 0xFF;
+    outputCursor[7] = 0xFF;
+    outputCursor[8] = 0xFF;
+    outputCursor[9] = alpha;
+    outputCursor += 10;
     cross = (inputZ * sin1) + (inputY * cos1);
-    ((s16 *)var_v0)[-5] =
+    ((s16 *)outputCursor)[-5] =
         (s16)((s32)((inputX * sin0) + (cross * cos0)) + x);
-    ((s16 *)var_v0)[-4] =
+    ((s16 *)outputCursor)[-4] =
         (s16)((s32)((inputY * sin1) - (inputZ * cos1)) + y);
-    ((s16 *)var_v0)[-3] =
+    ((s16 *)outputCursor)[-3] =
         (s16)((s32)((cross * sin0) - (inputX * cos0)) + z);
-    var_s0--;
-    if (var_s0 != 0) {
+    oldCount = count--;
+    if (oldCount != 0) {
         goto loop;
     }
-    input = var_v1;
-    output = var_v0;
+    input = (FxConePoint *)inputCursor;
+    output = outputCursor;
 done:
     ;
 }
@@ -962,17 +957,18 @@ s32 func_80048760(void *arg0, s32 arg1) {
     FxConeTextureInfo *temp_a2;
     s16 temp_t7;
     s16 temp_t8;
+    u8 fill;
     u8 *var_v0;
     FxRippleFrame *frame;
 
     size = arg1 & 7;
-    var_s0 = (FxRippleOutput *) arg1;
     if (size != 0) {
         size = 8 - size;
-        var_s0 = (FxRippleOutput *) (arg1 + size);
+        arg1 += size;
     } else {
         size = 0;
     }
+    var_s0 = (FxRippleOutput *) arg1;
     size += (s32) align4((u8 *) 0x88);
     temp_t0 = ((FxRippleSetup *) arg0)->source;
     ((FxRippleSetup *) arg0)->output = (u8 *) var_s0;
@@ -1005,27 +1001,28 @@ s32 func_80048760(void *arg0, s32 arg1) {
     frame->value1C = 0;
     frame->value1E = temp_t8;
 
+    fill = 0xFF;
     var_a0 = 0;
     var_v0 = (u8 *) var_s0;
     do {
         var_a0++;
         var_v0 += 0x28;
-        var_v0[0x8] = 0xFF;
-        var_v0[0x9] = 0xFF;
-        var_v0[0xA] = 0xFF;
-        var_v0[0xB] = 0xFF;
-        var_v0[0x12] = 0xFF;
-        var_v0[0x13] = 0xFF;
-        var_v0[0x14] = 0xFF;
-        var_v0[0x15] = 0xFF;
-        var_v0[0x1C] = 0xFF;
-        var_v0[0x1D] = 0xFF;
-        var_v0[0x1E] = 0xFF;
-        var_v0[0x1F] = 0xFF;
-        var_v0[-2] = 0xFF;
-        var_v0[-1] = 0xFF;
-        var_v0[0] = 0xFF;
-        var_v0[1] = 0xFF;
+        var_v0[0x8] = fill;
+        var_v0[0x9] = fill;
+        var_v0[0xA] = fill;
+        var_v0[0xB] = fill;
+        var_v0[0x12] = fill;
+        var_v0[0x13] = fill;
+        var_v0[0x14] = fill;
+        var_v0[0x15] = fill;
+        var_v0[0x1C] = fill;
+        var_v0[0x1D] = fill;
+        var_v0[0x1E] = fill;
+        var_v0[0x1F] = fill;
+        var_v0[-2] = fill;
+        var_v0[-1] = fill;
+        var_v0[0] = fill;
+        var_v0[1] = fill;
     } while (var_a0 != 2);
 
     var_s0->value74 = 0;
@@ -1293,13 +1290,14 @@ void wakeUpdate(s32 update, f32 arg1, f32 arg2, f32 arg3, s32 angle, s32 arg5) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeUpdate.s")
 #endif
-/* Workbench verdict: structure-mismatch, 125 differing words, first mismatch +0x0. */
-/* Candidate: 150/149 instructions with a -0x30 frame versus target -0x38; 88 structural words remain, so it is not shape-exact. */
-/* Shape status: ripple fade/angle/vertex updates and both calls are present; frame and pointer-layout gap remains. */
+/* Workbench verdict: structure-mismatch, 69 differing words, first mismatch +0x0. */
+/* Candidate: 149/149 instructions with a -0x30 frame versus target -0x38; both call relocations are exact. */
+/* Next lever: recover the declaration/home that expands the frame and changes the mode/height lifetime schedule. */
 /* PROVENANCE: JFG names the corresponding routine wakeUpdateRipple; this Mickey body uses only Mickey target offsets and calls. */
 #ifdef NON_MATCHING
 void func_80049000(FxWakeUpdateOwner *owner, s32 delta) {
     FxWakeRippleData *ripple;
+    FxWakeTexture *texture;
     u8 mode;
     s16 angle;
     s16 step;
@@ -1321,10 +1319,13 @@ void func_80049000(FxWakeUpdateOwner *owner, s32 delta) {
         }
         step = ripple->angleStep;
         if (step != 0) {
-            if (ripple->update != 0) {
+            texture = ripple->texture;
+            if (texture != 0) {
                 ripple->angle = (s16) (ripple->angle + (step * delta));
-                while (ripple->angle >= (s32) ((FxWakeTexture *) ripple->texture)->length) {
-                    ripple->angle = (s16) (ripple->angle - ((s32) ((FxWakeTexture *) ripple->texture)->length));
+                if (ripple->angle >= (s32) texture->length) {
+                    do {
+                        ripple->angle = (s16) (ripple->angle - (s32) texture->length);
+                    } while (ripple->angle >= (s32) texture->length);
                 }
             }
         }
@@ -2547,4 +2548,54 @@ void func_8004AF68(void) {
  * first-mismatch: +0x14
  * summary: Five callback/trap identity sites and four counter/address webs remain; 119 flags and ten coherent forms exhausted; needs new source evidence.
  * PLATEAU-HANDOFF:func_8004ACC4:end
+ */
+
+/* PLATEAU-HANDOFF:func_80048760:start
+ * symbol: func_80048760
+ * score: 98/121 words
+ * frame: 0x48
+ * relocations: 4
+ * first-mismatch: +0x8
+ * summary: Parameter-as-cursor and one named fill carrier leave 19 register-only words plus a four-word loop-init schedule; flags and ten coherent forms exhausted.
+ * PLATEAU-HANDOFF:func_80048760:end
+ */
+
+/* PLATEAU-HANDOFF:func_80046EC4:start
+ * symbol: func_80046EC4
+ * score: 60 differing words
+ * frame: 0x48
+ * relocations: 6
+ * first-mismatch: +0x68
+ * summary: Declaration order fixed the flag stack home; one address-base instruction and register coloring remain after 10 source forms and 119 flags.
+ * PLATEAU-HANDOFF:func_80046EC4:end
+ */
+
+/* PLATEAU-HANDOFF:func_80048080:start
+ * symbol: func_80048080
+ * score: 46/89 words
+ * frame: 0x48
+ * relocations: 4
+ * first-mismatch: +0x74
+ * summary: Exact frame and four call tuples; configured build is one word short, while R4300 hazard mode is exact-sized at 77/89 words.
+ * PLATEAU-HANDOFF:func_80048080:end
+ */
+
+/* PLATEAU-HANDOFF:func_80049000:start
+ * symbol: func_80049000
+ * score: 69/149 words
+ * frame: 0x30
+ * relocations: 2
+ * first-mismatch: +0x0
+ * summary: Target 0x38; calls exact. Recover local home/lifetimes. JFG src/fx.c wakeUpdateRipple is semantic scaffolding only; no public release without skeleton proof.
+ * PLATEAU-HANDOFF:func_80049000:end
+ */
+
+/* PLATEAU-HANDOFF:func_800470B0:start
+ * symbol: func_800470B0
+ * score: 90 differing words
+ * frame: 0x168
+ * relocations: 3
+ * first-mismatch: +0x44
+ * summary: Exact size/frame; three shifted call sites and the first allocator web remain; next isolate the fixed-bound loop web.
+ * PLATEAU-HANDOFF:func_800470B0:end
  */

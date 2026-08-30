@@ -24,24 +24,46 @@ targets that are safe to assign. It joins five independent checks:
    row; malformed or source-mismatched target shards fail closed.
 
 The command is read-only. It reads source and committed Git objects; it does
-not compile, inspect ROM text, or inspect sibling worktrees.
+not compile, inspect ROM text, or inspect sibling worktrees. One queue run
+batch-resolves source definitions, indexes each unintegrated lane's committed
+path delta, and parses shared legacy-ledger evidence once. Per-symbol checks
+then inspect only lanes that changed that exact source, shard, or legacy row.
+This preserves the fail-closed verdict while avoiding one full ref/history
+walk per ranking row.
+It resolves the primary checkout from `git worktree list --porcelain`; running
+the command inside an integration or worker lane therefore still protects
+uncommitted source edits in the main checkout.
 
 ## Usage
 
 ```sh
-python3 tools/ready_queue.py --scan 50 --top 10
+python3 tools/ready_queue.py
 python3 tools/ready_queue.py --scan 100 --top 20 --format markdown
 python3 tools/ready_queue.py --scan 100 --top 20 --format json
+python3 tools/ready_queue.py --scan 100 --top 20 --format maintenance
+python3 tools/ready_queue.py --focus retained-data --scan 50 --top 10
 ```
 
 Before applying `--scan`, the tool derives a bounded-effort score from exact
-size, differing-word count and ratio, and mismatch mechanism. This lets a
+size, differing-word count and ratio, and mismatch mechanism. Schema-v3 rows
+use the relocation-masked residual for this cost while preserving the raw
+count and both first-mismatch offsets in JSON and terminal output. This lets a
 one-word `other` mismatch outrank a very large register-only plateau without
 rewriting the retained measurement snapshot. Output reports both the derived
 priority rank and the original snapshot rank, plus the proof-quality class and
 effort score. Stale measurement context adds a 40-point penalty and changes
 the quality to `reproof-*`; such a row is safe to assign only with a mandatory
 configured baseline refresh before any source edit.
+
+The `retained-data` focus is a compile-free ownership-triage view. It selects
+equal-sized `reloc-mismatch` rows: every currently differing word is at a
+relocation-bearing offset. Recent Overlay 41 and Overlay 45 closures showed
+that this signature can identify a compiler-private pool or jump table whose
+payload already belongs to retained overlay data. The view is deliberately a
+lead, not a match claim: a worker must still authenticate the retained payload,
+prove every static and runtime relocation identity, and byte-compare the linked
+owner and full ROM. Relocation rows also carry a lower default effort penalty,
+so promising ownership fixes are no longer buried below generic codegen rows.
 
 The `TU batch` column gives each returned row's position and count among ready
 targets in the same translation unit. Assign those rows to one worker in rank
@@ -52,17 +74,29 @@ instead of rebuilding the same TU in separate lanes.
 `--scan` bounds how many rows of that derived priority order are
 examined. `--top` bounds how many assignable rows are returned, and cannot
 exceed `--scan`. Processing stops as soon as either bound is reached. The
-defaults are 50 scanned rows and ten returned rows; hard limits are 1,000 and
-100 respectively. Ties preserve the retained snapshot order.
+default scan ceiling is the 1,000-row hard limit, so a large prefix of active
+or exhausted evidence cannot produce a false-empty queue; the default return
+limit remains ten rows. Set `--scan` explicitly for a deliberately shallower
+maintenance probe. The hard return limit is 100. Ties preserve the retained
+snapshot order.
 
 Unresolved ranking rows are reported as a count but are not invented into the
 ranked order. Run `tools/nm_ranking.py --refresh-stale` to compile just those
 rows together with changed and newly queued identities.
 
 Table output is intended for a terminal. Markdown is paste-ready for a queue
-or handoff. JSON is schema version 3, uses stable field names, preserves row
+or handoff. JSON is schema version 4, uses stable field names, preserves row
 order in arrays, and includes `file_batch_position`/`file_batch_size`, the
 resolved base commit, limits, detailed ready/skipped rows, and summary counts.
+The `maintenance` format suppresses ready and exhausted rows and gives a
+compact list of `stale-ledger`, `active`, and `dirty-worktree` blockers. Its
+`class` column and JSON `maintenance_class` distinguish lane ownership,
+primary-worktree dirt, malformed structured evidence, and prose-only plateaus
+that need fresh measurement. The summary aggregates the same values under
+`maintenance_classes`. Use them to schedule evidence reproof separately from
+mechanical shard repair or lane release. A lane that merely predates a
+handoff-only repair on the base is not active: target evidence is compared
+with that lane's merge base before ownership is assigned.
 
 ## Fail-closed behavior
 

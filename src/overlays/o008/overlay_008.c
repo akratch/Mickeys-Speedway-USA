@@ -775,9 +775,9 @@ void func_overlay_008_F0002EC0_1860C18(register Overlay8UpdateOwner *owner,
     overlay8FinishUpdateReloc(owner, updateRate);
 }
 
-/* The retired retained-rodata wrapper rewrote five LO16 instruction fields;
- * ADR 0002 therefore requires the assembly fallback. */
-#ifdef NON_MATCHING
+/* Mickey-local reconstruction. The compiler-generated constants are linked
+ * against the overlay's retained literal pool through an ABS section symbol;
+ * no instruction word is changed after compilation. */
 void overlay8UpdateChannels(void *unused, Overlay8ChannelState *state,
                             f32 gate, void *sampleState) {
     f32 factor;
@@ -834,9 +834,6 @@ void overlay8UpdateChannels(void *unused, Overlay8ChannelState *state,
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0003018_1860D70.s")
-#endif
 
 void func_overlay_008_F0003278_1860FD0(void *unused0,
                                        Overlay8ColorState *state,
@@ -1716,3 +1713,23 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0004CF0_1862A48.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_008_F0004CF0_1862A48:start
+ * symbol: func_overlay_008_F0004CF0_1862A48
+ * score: 43 differing words
+ * frame: -0x90
+ * relocations: 15
+ * first-mismatch: +0x178
+ * summary: Canonical flags retained; ten legal stack/aggregate/lifetime forms and a 241s batch were flat. The four-byte normal-home/FP allocation gap remains.
+ * PLATEAU-HANDOFF:func_overlay_008_F0004CF0_1862A48:end
+ */
+
+/* PLATEAU-HANDOFF:func_overlay_008_F0002640_1860398:start
+ * symbol: func_overlay_008_F0002640_1860398
+ * score: 120/183 words
+ * frame: 0xD0
+ * relocations: 14
+ * first-mismatch: +0xB8
+ * summary: allocator-only record/base homes remain; relocation-aware score is 121/183 with 9/14 offsets/types and 2/14 identities aligned
+ * PLATEAU-HANDOFF:func_overlay_008_F0002640_1860398:end
+ */

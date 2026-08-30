@@ -659,6 +659,16 @@ with only trailing section-alignment trimming. Pinned DKR v77/v80 and JFG scans
 remain negative; JFG's `animseqUpdateTextureScrollers` is a role-only
 comparison, not a donor.
 
+Overlay 41's `+0x1740..+0x195C` item spawner is exact C: 540 bytes / 135
+words with the retail `0xA0` frame. Four compiler-private relocations are
+rebound, without changing instruction fields, to the retained jump-table and
+scalar pool beginning at initialized-data `+0x58`; the discarded 32-byte
+duplicate is guarded by SHA-256. All 11 runtime relocation offsets/types are
+exact. Ten identities are explicit in object/link metadata, while the shipped
+runtime record plus exact linked bytes prove the final call as Overlay 12
+`+0x1B4`. The owned range, linked module, and full US ROM are exact. This
+replaces the retired wrapper that edited two LO16 fields after compilation.
+
 Two old compiler blockers were closed rather than merely bypassed. Overlay 97
 `+0x000` required preserving explicit unsigned-byte angle masks plus
 `-Wab,-r4300_mul`; `+0x3F4` required the original three-argument ABI shape,
@@ -1107,11 +1117,13 @@ loop, six LOCAL data relocations (all resolving to module-local `+0x73B0`),
 and a terminal resident-call identity.
 
 Overlay 8's channel updater beginning at `+0x3018` — 608 bytes / 152 words.
-NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
-fail-loud data-literal externalization moving paired MIPS LO16 addends to an
-existing anchor to avoid a duplicate 32-byte literal pool at overlay-local
-`+0x1BC`); source kept as decomp-permuter input. All 16 retail relocation
-identities were otherwise preserved through the exact linked image.
+The stock C emits all 152 instruction words exactly. Ten compiler-private
+literal relocations are rebound, without changing their instruction fields, to
+one absolute symbol naming the retained pool at overlay-local `+0x1BC`; the
+discarded duplicate payload is guarded by its SHA-256 digest. All 16 runtime
+relocation offset/type/identity tuples, the linked range, and the full US ROM
+are exact. This replaces the retired wrapper that reached the same bytes by
+editing five LO16 addends after compilation.
 
 Overlay 8 `+0x3368..+0x34A0` (`overlay8ScaleOutputs`) owns 312 bytes / 78
 words with a `0x8` frame. Retained post-correction configured mixed-TU C is
@@ -1222,6 +1234,18 @@ runtime relocation identities. Direct ROM slices from file offset `0x188C76C`
 share SHA256
 `0eb13f9257a0d760179622fb1929659d758b435121ba7c3f3722dc9a015766b2`,
 and the cumulative ROM is exact.
+
+Overlay 45 `+0x0764..+0x1158`
+(`func_overlay_045_F0000764_188CBBC`) contributes **2,548 exact C bytes /
+637 words** with the retail `0x88` frame. The compiler's instruction fields
+are untouched: six existing HI16/LO16 relocations are rebound to one ABS
+`+0x24` carrier for the three constants already retained at module
+`+0x1C94/+0x1C98/+0x1C9C`, and the duplicate 16-byte literal pool is removed
+only after its complete SHA-256 agrees. All 24 shipped runtime relocation
+offsets, types, and effective identities are exact: 14 identities resolve
+statically, and the remaining 10 are proved by the unchanged runtime table
+plus the instruction-exact linked range. The linked owner, complete overlay,
+and full US ROM are byte-identical.
 
 Overlay 23's `+0x000..+0x208` attachment spawner adds **520 naturally exact C
 bytes / 130 words** with its `0xA0` frame and two call relocations exact.
@@ -1683,9 +1707,11 @@ Overlay 34 `+0x2C8..+0x378` — 176 bytes / 44 words, active-record removal, lis
 
 Overlay 34's record constructor at `+0x0D4..+0x2C8` — 500 bytes / 125 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a compiler-representation/schedule web reassignment); source kept as decomp-permuter input. Natural source otherwise supplies the exact functional boundary, CFG, field initialization, allocation/load path, direction setup, and two-call ABI, preserving all 12 relocation sites: five local-data HI/LO pairs and two independently decoded resident calls.
 
-Overlay 34 `+0x378..+0x540` — 456 bytes / 114 words, storage reset and active-record updates. Reset is naturally exact and retains 15 shipped runtime relocations.
+Overlay 34 `+0x378..+0x540` — 456 bytes / 114 words, storage reset and active-record updates. Both functions are exact C and together retain all 22 shipped runtime relocations.
 
-`overlay 34 +0x040C..+0x0540` (`overlay34UpdateRecords`) — **308 guarded NON_MATCHING bytes / 77 words**. An independent reproof of the claim introduced by public commit `f56d08c74` and carried by `9f4e57c45` compiled the unchanged public-input body with untouched canonical IDO; the body is this project's own earlier work, with no external donor adopted. Configured C emits 80 instructions / 320 bytes with a `0x38` frame against 77 / 308 and `0x30`; all 119 flag configurations were attempted, 53 supported rows compiled, and none were exact. The configured `-O2 -mips2` row remains best at `+12` bytes and 79 positional word differences (candidate SHA-1 prefix `af30a53e3278`). Runtime metadata authenticates target-relative LOCAL sites `+0x28/+0x2C/+0x40/+0x44/+0x48/+0x4C` and the remove-record call at `+0xF0`; the candidate instead emits `+0x2C/+0x30/+0x48/+0x4C/+0x50/+0x54` and `+0xF8`. ORT 1304 and resident relocation-table row 146 prove the sole inbound from `func_8000BD50+0x4C` and its one-word `a0` ABI. The historical equality deleted three owned instructions, moved another, and edited register/immediate fields, so it is prohibited by ADR 0002 rather than evidence of IDO output. The canonical fallback's owned range, complete Overlay 34 image, and full ROM remain byte-identical, and this range contributes **0 exact C bytes**. Resume only with a source-level form that naturally removes the three-instruction/frame excess and restores all seven tuple offsets; do not repeat flags or the retired object-edit route.
+`overlay 34 +0x040C..+0x0540` (`overlay34UpdateRecords`) is **308 exact C bytes / 77 words**. Placing the existing countdown initializer at the start of the live-record branch makes untouched configured IDO emit the retail `0x30` frame and exact instruction stream; it removes the previous invariant saved-register carrier and its three-word/frame excess without synthetic state or compiler-output instruction edits. Runtime metadata authenticates LOCAL sites `+0x28/+0x2C` for active count, `+0x40/+0x4C` for the pointer array, `+0x44/+0x48` for the float parameter, and the local remove-record call at `+0xF0`. The call is rebound only at relocation-symbol metadata to the overlay's zero-field proxy, preserving the shipped effective `overlay34RemoveRecord +0x2C8` identity. The linked owner, complete Overlay 34 image, and full ROM are byte-identical. ORT 1304 and resident relocation-table row 146 prove the sole inbound from `func_8000BD50+0x4C` and its one-word `a0` ABI.
+
+JFG's public `src/overlays/o10/overlay_10.c:sparkUpdate` remains assembly-only but is the closest measured structural counterpart: maintainers can use Mickey's exact body as a starting scaffold at that insertion point. JFG's extra lifetime/fade behavior and different field layout remain project-specific reconstruction work; no JFG C body was adopted here.
 
 Overlay 1 `+0x5CD4..+0x5ECC` — 504 bytes / 126 words, directional object selection. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via stack-home plus a two-instruction temporary-web reassignment); source kept as decomp-permuter input. Target-local R4300 multiply hazards naturally recover the exact frame, opcode stream, CFG, FP schedule, and all 11 relocation sites.
 
@@ -1702,7 +1728,7 @@ to a seven-argument ABI.
 
 Overlay 1 `+0x5BF4..+0x5CD4` — 224 bytes / 56 words, timer and mode callback dispatch. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a loop-tail reschedule plus register/branch-lowering reassignment); source kept as decomp-permuter input. Natural source otherwise recovers the exact boundary, frame, direct setup call, two indirect callbacks, loop semantics, and all 13 runtime relocation records.
 
-Overlay 34 `+0x608..+0x900` — final 760 bytes / 190 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via schedule/register/frame web reassignment); source kept as decomp-permuter input. Typed source owns the depth census, parallel bubble sort, color interpolation, and ten-argument render dispatch; canonical integration rejected a zero-local proxy false positive and retained the shipped semantic local addends for all five HI16/LO16 pairs while using pre-loader carriers only for the six calls, and all 16 runtime records remain exact. Every executable interval now has C source, but five owners remain guarded `NON_MATCHING`; Overlay 34 is not exact-closed and receives no module-closure credit.
+Overlay 34 `+0x608..+0x900` — final 760 bytes / 190 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via schedule/register/frame web reassignment); source kept as decomp-permuter input. Typed source owns the depth census, parallel bubble sort, color interpolation, and ten-argument render dispatch; canonical integration rejected a zero-local proxy false positive and retained the shipped semantic local addends for all five HI16/LO16 pairs while using pre-loader carriers only for the six calls, and all 16 runtime records remain exact. Every executable interval now has C source, but four owners remain guarded `NON_MATCHING`; Overlay 34 is not exact-closed and receives no module-closure credit.
 `overlay 1 +0x7730..+0x78DC` — 428 bytes / 107 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via prologue-instruction reordering plus a commutative-operand swap); source kept as decomp-permuter input. All six runtime calls were confirmed exact.
 
 `overlay 1 +0x6A14..+0x6B28` — 276 bytes / 69 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via instruction-scheduling reorder plus a register-allocation rewrite); source kept as decomp-permuter input. One runtime relocation was confirmed exact.
@@ -1835,7 +1861,7 @@ evidence proves the assembly fallback only.
 
 `overlay 63 +0x0000..+0x01D4` (`overlay63Initialize`) — 468 bytes / 117 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via restoring a folded chain-address materialization and rotating a bounded register web); source kept as decomp-permuter input. The object retains all 46 runtime relocation roles.
 
-`overlay 100 +0x0580..+0x094C` (`overlay100DrawMotion`) — 972 bytes / 243 words; its final four-byte zero word remains separately owned padding. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a private representation rewrite); source kept as decomp-permuter input. The five-call relocation contract was retained. Every non-padding executable interval has C source, but `overlay100DrawMotion` remains guarded `NON_MATCHING`; Overlay 100 is not exact-closed.
+`overlay 100 +0x0580..+0x094C` (`overlay100DrawMotion`) — 972 bytes / 243 words; its final four-byte zero word remains separately owned padding. NON_MATCHING: a complete 119-flag sweep and ten distinct source/allocation candidates leave 161 positional differences from `+0x0`; the retained fidelity-clean declaration order improves the natural frame from `0x88` to `0xB0`, versus target `0xC0`. The candidate and runtime surfaces each contain seven records (five calls and one HI16/LO16 pair), but only four offset/type sites align and candidate runtime identities remain unresolved. The earlier apparent match required a prohibited private representation rewrite. Every non-padding executable interval has C source, but `overlay100DrawMotion` remains guarded `NON_MATCHING`; Overlay 100 is not exact-closed.
 
 `overlay 100 +0x0000..+0x0214` (`overlay100InitializeMotion`) contributes **532 exact C bytes / 133 words**. The configured object has the exact `0x78` frame and no padding. Its 13 static records agree with all runtime offsets and types. The runtime identities are the reserved `overlay:4093:+0x518` pairs at `+0x4/+0x8` and `+0x1C0/+0x1C4`; resident calls to `+0x2AE30` at `+0x68`, `+0x29598` at `+0x110/+0x120/+0x130`, and `+0x29B94` at `+0x150`; and local pairs to `+0x980` at `+0xAC/+0x108` and `+0x990` at `+0x1CC/+0x1D8`, all with zero addends. Eight data identities resolve directly from the ordinary object; linked-ROM equality proves the five friendly call proxies bind to the required resident identities. ORT 1456 exports the function, and its sole inbound is resident `func_800517E0+0xB48` at `vram:0x80052328`. The linked owned range and rebuilt ROM range are byte-identical.
 

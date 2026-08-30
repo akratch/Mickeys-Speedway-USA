@@ -274,7 +274,14 @@ def handoff_shard_path(symbol: str) -> str:
 
 
 def handoff_shard_source(text: str, symbol: str) -> str:
-    """Validate one generated shard and return its exact source identity."""
+    """Validate one symbol-owned shard and return its exact source identity.
+
+    The generated metric header stays deliberately rigid so scheduling can
+    trust the source identity and bounded-result fields.  A worker may append
+    richer, symbol-specific evidence before the closing marker; forcing that
+    useful evidence into a separate document made otherwise valid handoffs
+    look foreign to ``lane_status``.
+    """
     marker = re.escape(f"plateau-handoff:{symbol}")
     pattern = re.compile(
         rf"\A<!-- {marker}:start -->\n"
@@ -285,10 +292,16 @@ def handoff_shard_source(text: str, symbol: str) -> str:
         r"- relocations: [0-9]+\n"
         r"- first mismatch: [^\n|]+\n"
         r"(?:- summary: [^\n|]+\n)?"
+        r"(?P<details>(?:[^\r\n|]*\n)*)"
         rf"<!-- {marker}:end -->\n?\Z"
     )
     match = pattern.fullmatch(text)
     if match is None:
+        raise PlateauError(
+            f"malformed or foreign symbol handoff shard for {symbol}"
+        )
+    details = match.group("details")
+    if "plateau-handoff:" in details:
         raise PlateauError(
             f"malformed or foreign symbol handoff shard for {symbol}"
         )

@@ -29,26 +29,20 @@ extern Overlay9YawScaleReloc gOverlay9YawScaleReloc;
 extern void func_overlay_009_F00010A4_186771C(void *object, void *state,
                                                f32 steps);
 
-/* PLATEAU (2026-08-26): workbench structure-mismatch; best 133 masked/139 raw of 336, first +0x0.
- * Typed F00010A4 f32 ABI and initializer order fixed the size excess; the flag lattice found no further gain.
- * Frame remains 0x88 vs 0x78; private temporary/GPR webs and relocation identities remain. */
+/* PLATEAU (2026-08-30): workbench structure-mismatch; best 125 masked/131 raw
+ * of 336, first +0x3C, with the exact 0x78 frame. Narrowed scalar lifetimes
+ * removed the frame excess. Static relocation proof remains closed on the
+ * ambiguous consolidated F00010A4 identity; stack order and GPR webs remain. */
 #ifdef NON_MATCHING
 void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
     f32 vector[3];
     s16 angles[3];
+    void *entryData;
     void *savedEntry;
     void *entry;
     f32 savedY;
     f32 stepFloat;
-    f32 current;
-    f32 target;
-    f32 rate;
-    f32 velocity;
     void *state;
-    void *entryData;
-    s32 remaining;
-    s32 result;
-    s8 timer;
 
     state = M2C_FIELD(object, void **, 0x64);
     D_410 = (s16 *)((u8 *)state + 0x1B8);
@@ -82,10 +76,9 @@ void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
     M2C_FIELD(state, f32 *, 0x64) = vector[1];
     M2C_FIELD(state, f32 *, 0x5C) = vector[2];
 
-    result = ext_o0_1312c(M2C_FIELD(object, f32 *, 0xC),
-                           M2C_FIELD(object, f32 *, 0x14),
-                           (u8 *)state + 0x68, 0x10000, 0);
-    if ((result & 0x10000) &&
+    if ((ext_o0_1312c(M2C_FIELD(object, f32 *, 0xC),
+                      M2C_FIELD(object, f32 *, 0x14),
+                      (u8 *)state + 0x68, 0x10000, 0) & 0x10000) &&
         ((M2C_FIELD(object, f32 *, 0x10) - 16.0f) <
          M2C_FIELD(state, f32 *, 0x68))) {
         M2C_FIELD(state, f32 *, 0x6C) =
@@ -118,12 +111,17 @@ void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
     if ((M2C_FIELD((u8 *)M2C_FIELD(object, void **, 0x40) +
                        M2C_FIELD(object, u8 *, 0x93), s8 *, 0x1E) == 0) &&
         (savedEntry != NULL) && (M2C_FIELD(savedEntry, s16 *, 8) != 0)) {
+        f32 current;
+        f32 target;
+        f32 rate;
+        s32 remaining;
+
         entryData = M2C_FIELD(savedEntry, void **, 0);
         savedY = M2C_FIELD(object, f32 *, 0x10);
-        velocity = M2C_FIELD(state, f32 *, 4);
-        if ((velocity < -2.0f) ||
+        current = M2C_FIELD(state, f32 *, 4);
+        if ((current < -2.0f) ||
             (M2C_FIELD(state, s32 *, 0x42C) < -0x14) ||
-            (velocity > 2.0f) ||
+            (current > 2.0f) ||
             (M2C_FIELD(state, s32 *, 0x42C) >= 0x15)) {
             target = 0.0f;
             rate = D_394;
@@ -164,9 +162,9 @@ void func_overlay_009_F0000000_1866678(void *object, s32 steps) {
                         M2C_FIELD(object, f32 *, 0x14), 4,
                         (u8 *)state + 0xB8);
         } else {
-            timer = M2C_FIELD(state, s8 *, 0x16E);
-            if (timer > 0) {
-                M2C_FIELD(state, s8 *, 0x16E) = timer - steps;
+            if (M2C_FIELD(state, s8 *, 0x16E) > 0) {
+                M2C_FIELD(state, s8 *, 0x16E) =
+                    M2C_FIELD(state, s8 *, 0x16E) - steps;
             }
         }
     } else {
@@ -464,9 +462,9 @@ void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
 void overlay9Ignore(volatile s32 arg0, volatile s32 arg1, volatile s32 arg2) {
 }
 
-/* Workbench p7: mixed, 282/282 instructions/frame -152, 79 masked (86 raw) words; first code divergence +0x88.
- * Full-TU candidate restores the target length; context/flag, constant/home, pointer, alias, and initializer probes remain exhausted.
- * Residual is 6 structural/5 schedule/67 register rows plus 27 overlay-local relocation identities; retain NON_MATCHING. */
+/* Workbench p8: mixed, 282/282 instructions/frame -152, 52 masked (59 raw) words; first code divergence +0x88.
+ * Explicitly zero-extending the byte counter cut 27 positional differences; all 119 flag identities and ten coherent source forms are exhausted.
+ * Residual is stack-home/allocation dominated; 31/31 relocation offsets/types align and 18/31 stable identities resolve. Retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner,
                                        f32 stepsFloat) {
@@ -485,7 +483,7 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
     ext_o0_210b4(60.0f, 0);
     if (state->flags & 8) D_388[mode]++;
     D_388[mode] &= 3;
-    tableIndex = D_388[mode] + ((ext_o0_214c8() & 3) * 4);
+    tableIndex = (D_388[mode] & 0xFF) + ((ext_o0_214c8() & 3) * 4);
     targetX = D_300[tableIndex] + (D_2D0 * 75.0f);
     targetY = D_340[tableIndex];
     steps = (s32) stepsFloat;
@@ -567,3 +565,33 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o009/overlay_009/func_overlay_009_F00010B4_186772C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_009_F0000CE4_186735C:start
+ * symbol: func_overlay_009_F0000CE4_186735C
+ * score: 5 differing words
+ * frame: 0x50
+ * relocations: 8
+ * first-mismatch: +0xC8
+ * summary: Exact size; four angle-stack operands plus one pool addend remain; permuter improved 37 to 29 without zero. Reopen with new stack-slot or pool-layout evidence.
+ * PLATEAU-HANDOFF:func_overlay_009_F0000CE4_186735C:end
+ */
+
+/* PLATEAU-HANDOFF:func_overlay_009_F00010B4_186772C:start
+ * symbol: func_overlay_009_F00010B4_186772C
+ * score: 59 differing words
+ * frame: 0x98
+ * relocations: 31
+ * first-mismatch: +0x88
+ * summary: Byte zero-extension cut 86 to 59; exact executable size/frame and relocation shape remain blocked by stack-home allocation and 13 unresolved identities.
+ * PLATEAU-HANDOFF:func_overlay_009_F00010B4_186772C:end
+ */
+
+/* PLATEAU-HANDOFF:func_overlay_009_F0000000_1866678:start
+ * symbol: func_overlay_009_F0000000_1866678
+ * score: 125/336 words
+ * frame: 0x78
+ * relocations: 63
+ * first-mismatch: +0x3C
+ * summary: Exact size/frame; 125 masked/131 raw. Static 52 vs runtime 63, 15 identities; F00010A4 is ambiguous. Next: local-stack order/GPR web.
+ * PLATEAU-HANDOFF:func_overlay_009_F0000000_1866678:end
+ */

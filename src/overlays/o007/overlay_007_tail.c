@@ -93,13 +93,24 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000894_185C71C.s")
 #endif
 
-/*
- * Plateau: exact size and opcode schedule, but 81 words still differ from
- * +0x10. The remaining mismatch is a temp-FIFO/register-allocation phase;
- * failed and base now have the target stack homes, and the O2 flag lattice
- * does not change the result.
- */
+/* Bounded reproof 2026-08-30: configured full-TU C remains exact-sized at
+ * 139 words with the exact 0x30 frame and opcode schedule, but 81 register
+ * words differ from +0x10. All 23 runtime relocation offsets/types align;
+ * ten identities resolve and agree while thirteen mixed-fallback identities
+ * remain unresolved. All 119 flag rows and ten natural declaration, scope,
+ * loop-bound, initializer, register, and cursor forms are nonexact. The
+ * nearest permitted skeleton is only 5.12% similar; JFG's best is 4.86%.
+ * The baseline remains best. Resume only with new allocator evidence that
+ * moves the loop index/bound from a0/t0 to v1/a3 without changing schedule. */
 #ifdef NON_MATCHING
+/* PLATEAU-HANDOFF
+ * symbol: overlay7UpdateOwnerMode
+ * score: 58/139 words
+ * frame: 0x30
+ * relocations: 23
+ * first-mismatch: +0x10
+ * summary: Exact opcode schedule; 81 register words remain after 119 flags and ten source-faithful forms, with no donor-quality analogue.
+ */
 void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
     Overlay7CheckState *state;
     s32 failed;

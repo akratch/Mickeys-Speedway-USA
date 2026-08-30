@@ -248,7 +248,12 @@ and one final linker invocation:
 3. The root Makefile's normal C, assembly, and binary-wrapper rules produce
    objects. `mk/overlays.mk` contains only measured per-overlay-object compiler
    flags and reviewed ELF normalization; it is an included policy table, not
-   another build graph or linker.
+   another build graph or linker. Every non-idempotent overlay rule consisting
+   only of `objcopy --redefine-sym` is declared in
+   `config/normalizations/overlay-symbol-aliases.us.json`; the checked-in
+   `mk/overlay_aliases.generated.mk` include is its deterministic projection.
+   Rules that also trim sections or filter/rebind relocations remain explicit
+   in `mk/overlays.mk` so their ordered command chains stay visible.
 4. `build/mickey.us.elf` links all objects once through splat's script. That script
    places each module's text, data, and original relocation-table blobs back in
    its ROM range; `objcopy` and `n64crc` then produce the one ROM image.
@@ -264,6 +269,20 @@ For build debugging, start in the 1,100-line root Makefile: source discovery,
 generic recipes, and the sole final link are all there. Consult
 `mk/overlays.mk` only when one overlay object needs a measured flag, trim, or
 symbol/relocation normalization.
+
+After changing the pure alias manifest, refresh and verify its projection:
+
+```sh
+tools/render_overlay_aliases.py --write
+tools/render_overlay_aliases.py --check
+```
+
+The renderer rejects unknown schema fields, malformed source or destination
+symbols, duplicate object targets, duplicate sources or destinations within a
+target, and order-dependent alias chains. Do not edit the generated include
+by hand or add trim/filter/rebind commands to the manifest. `gmake check-docs`
+runs the render check, and `gmake check-tooling` includes the focused renderer
+tests.
 
 ### Overlay donor-first workflow
 
@@ -309,8 +328,13 @@ its C body under `#ifdef NON_MATCHING`, with the original
 guard is normally off, so the ordinary build still links the `GLOBAL_ASM`
 fallback and stays byte-identical. `gmake NON_MATCHING=1` flips it: every
 converted TU compiles its real C body instead, into a **separate build tree**
-(`build_non_matching/`, never `build/`) so those objects can never be
-mistaken for, or sit next to, the ones `gmake verify` checks. It is a
+(`build_non_matching/`, never `build/`) so that command cannot mix them with
+the objects `gmake verify` checks. As a second
+line of defense against manual full-TU experiments that write directly into
+`build/`, every successful verification receipts the canonical hashes of all
+candidate-bearing objects. The next `gmake verify` forcibly rebuilds only
+objects that no longer match that receipt; a missing receipt fails safe by
+rebuilding the complete candidate-bearing set once. It is a
 compile-only smoke test — proof the C is not obviously wrong, not a matching
 claim. `gmake verify` refuses to run under `NON_MATCHING=1` (`the error is
 literal: "verify does not run under NON_MATCHING=1"`), exactly DKR's own
@@ -388,6 +412,26 @@ only after reviewing the diff; that mode stages and commits only the named
 source and handoff document. The directory README is static and is never
 regenerated or touched by finalization.
 
+Audit all structured source markers against their fixed per-symbol shards with:
+
+```sh
+tools/plateau_handoff_audit.py --check
+tools/plateau_handoff_audit.py --check --json
+tools/plateau_handoff_audit.py --write
+```
+
+`--check` fails on missing or stale shards and on malformed, duplicate, or
+source-mismatched structured evidence. `--write` is the only write mode. It
+preflights the complete audit, then atomically creates or refreshes only the
+exact `docs/matching-triage-handoffs/<symbol>.md` files whose tracked source
+markers are valid and missing or stale. Existing valid detail lines are
+preserved. The audit requires one exact guarded definition and fallback in the
+recorded source path, and it copies only the marker's required metric fields;
+it never derives a metric from prose, assembly, build output, or ROM data.
+Prose-only `PLATEAU-HANDOFF` comments are reported as unstructured and are not
+write inputs. Review and commit generated shards separately; a tooling change
+must not silently mass-refresh them.
+
 ### Auditing post-compile steps: `tools/postprocess_audit.py`
 
 `tools/postprocess_audit.py` is what makes ADR 0002 enforceable rather than
@@ -458,9 +502,11 @@ interrupted report without recompiling recorded identities, and repeated
 ### Lane helpers: `new_lane.sh`, `merge_lane.sh`, `codex_lane.sh`
 
 - **`tools/new_lane.sh <name> [--no-extract] [--no-cache] [base-branch]`** creates
-  `../mickey-lane-<name>` on branch `lane/<name>` from `base-branch`
-  (default `campaign/unchain`), symlinking the untracked toolchain, baserom,
-  venv and vendored tool checkouts in rather than copying them. It first looks
+  `../mickey-lane-<name>` on branch `lane/<name>` from `base-branch`. Without
+  an explicit base it compares local and `origin/` campaign integration refs,
+  selects the newer linear descendant, and fails on divergence; repositories
+  without either campaign ref use `HEAD`. It symlinks the untracked toolchain,
+  baserom, venv and vendored tool checkouts in rather than copying them. It first looks
   for an exact-commit bootstrap published by `tools/lane_cache.py publish`;
   that command accepts only a tracked-clean worktree, reruns `gmake verify`,
   and stores an ignored immutable snapshot below Git's common directory. A
@@ -471,9 +517,12 @@ interrupted report without recompiling recorded identities, and repeated
   Each lane gets its own `build/`/`asm/`. It resolves the primary checkout
   through Git's common directory even when invoked from another lane, and
   fails instead of installing a dirty symlink when a tracked submodule cannot
-  be initialized from the shared local module store. On macOS it also creates
-  a git-ignored `.metadata_never_index` marker before extraction, preventing a
-  multi-lane launch from turning duplicate build trees into a Spotlight spike.
+  be initialized from the shared local module store. On macOS the registered
+  worktree uses a `.noindex` directory and the established
+  `../mickey-lane-<name>` path is a compatibility symlink to it. The helper
+  also creates `.metadata_never_index` before the tracked checkout, cache
+  restoration, or extraction. This keeps duplicate source/build trees out of
+  Spotlight without changing callers' lane paths.
 - **`tools/merge_lane.sh <name>`** integrates one lane back into the current
   branch: it rebuilds the lane from clean and requires `verify`/`check-docs`
   to pass there first, runs the clean-room range scan over the lane's
@@ -522,7 +571,10 @@ interrupted report without recompiling recorded identities, and repeated
   `already-integrated/exhausted` covers a base match or a current plateau, and
   `stale-ledger` means exact source identity or target-specific shard/legacy
   history is malformed, missing, source-mismatched, or older than the committed
-  plateau. The check reads Git objects,
+  plateau. Complete ready-queue scans batch source identity and committed lane
+  path ownership, then inspect shared-ledger changes only for the exact symbol;
+  the maintenance report classifies prose-only remeasurement separately from
+  structured-evidence repair. The check reads Git objects,
   never another lane's worktree or index. Its ref query excludes branches
   already merged into the selected base before doing target-history work, so
   retained historical lane refs do not slow assignment checks. Candidate blobs

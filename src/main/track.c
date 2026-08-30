@@ -460,7 +460,7 @@ void func_8000DFBC(u8 segment, s32 arg1, s32 arg2, s32 arg3);
 s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records, TrackKeyRecord **matches);
 void func_8000F57C(s32 *resultCount, u8 *resultSegments);
 void func_8000FA2C(s32 *result, s32 arg1);
-void shadowGetBuffers(u8 mode, s32 *a, s32 *b, s32 *c);
+void shadowGetBuffers(s32 mode, s32 *a, s32 *b, s32 *c);
 void func_800343F0(s32 mode, s32 segmentIndex);
 void texEnableModes(s32 mode);
 s32 getXZCompareMask(TrackBoundingBox *bounds, s32 x0, s32 z0, s32 x1,
@@ -1474,15 +1474,14 @@ void func_8000D7F8(TrackFloatRecord *arg0, f32 arg1, f32 arg2, f32 arg3) {
  */
 #ifdef NON_MATCHING
 void func_8000D820(void) {
-    s16 segmentCount;
-    s16 lightCount;
+    s32 segmentCount;
+    s32 lightCount;
     s32 *segmentFlags;
     s32 dirty;
     s32 copyMode;
     s32 maskCount;
-    u16 *dirtyMasks;
-    u16 mask;
-    u32 shiftedMask;
+    u8 *dirtyMasks;
+    u32 mask;
     u8 colour;
     TrackLightSource *sourceRecord;
     u8 *sourceBase;
@@ -1495,65 +1494,54 @@ void func_8000D820(void) {
     segment = D_800792E8->segments;
     segmentCount = D_800792E8->segmentCount;
     copyMode = (D_80079308 != NULL) ? 1 : -1;
-    if (segmentCount != 0) {
-        do {
-            dirty = *segmentFlags++;
-            if ((dirty != 0) && ((segment->lightingMode & copyMode) != 0)) {
-                sourceRecord = (TrackLightSource *) segment->unk30;
-                if (sourceRecord != NULL) {
-                    sourceBase = sourceRecord->source;
-                    lightData = (u8 *) segment->lightData;
-                    lightCount = segment->lightBatchCount;
-                    if (copyMode > 0) {
-                        source = sourceBase;
-                        destination = lightData;
-                        if (lightCount != 0) {
-                            do {
-                                destination += 10;
-                                destination[-4] = source[0];
-                                colour = source[1];
-                                source += 3;
-                                destination[-3] = colour;
-                                destination[-2] = source[-1];
-                                lightCount--;
-                            } while (lightCount != 0);
-                        }
-                        segment->lightingMode ^= 1;
-                    } else {
-                        maskCount = (lightCount + 15) >> 4;
-                        dirtyMasks = sourceRecord->dirtyMasks;
-                        if (maskCount != 0) {
-                            do {
-                                mask = *dirtyMasks;
-                                destination = lightData;
-                                source = sourceBase;
-                                *dirtyMasks = 0;
-                                if (mask != 0) {
-                                    do {
-                                        shiftedMask = mask >> 1;
-                                        if ((mask & 1) != 0) {
-                                            destination[6] = source[0];
-                                            destination[7] = source[1];
-                                            destination[8] = source[2];
-                                        }
-                                        destination += 10;
-                                        source += 3;
-                                        mask = (u16) shiftedMask;
-                                    } while (shiftedMask != 0);
-                                }
-                                destination += 0xA0;
-                                source += 0x30;
-                                dirtyMasks += 2;
-                                maskCount--;
-                            } while (maskCount != 0);
-                        }
-                        segment->lightingMode = 0;
+    while (segmentCount--) {
+        dirty = *segmentFlags;
+        segmentFlags++;
+        if ((dirty != 0) && ((segment->lightingMode & copyMode) != 0)) {
+            sourceRecord = (TrackLightSource *) segment->unk30;
+            if (sourceRecord != NULL) {
+                sourceBase = sourceRecord->source;
+                lightData = (u8 *) segment->lightData;
+                lightCount = segment->lightBatchCount;
+                if (copyMode > 0) {
+                    while (lightCount--) {
+                        lightData += 10;
+                        lightData[-4] = sourceBase[0];
+                        colour = sourceBase[1];
+                        sourceBase += 3;
+                        lightData[-3] = colour;
+                        lightData[-2] = sourceBase[-1];
                     }
+                    segment->lightingMode ^= 1;
+                } else {
+                    maskCount = (lightCount + 15) >> 4;
+                    dirtyMasks = (u8 *) sourceRecord->dirtyMasks;
+                    while (maskCount--) {
+                        mask = *(u16 *) dirtyMasks;
+                        destination = lightData;
+                        source = sourceBase;
+                        *(u16 *) dirtyMasks = 0;
+                        if (mask != 0) {
+                            do {
+                                if ((mask & 1) != 0) {
+                                    destination[6] = source[0];
+                                    destination[7] = source[1];
+                                    destination[8] = source[2];
+                                }
+                                destination += 10;
+                                source += 3;
+                                mask >>= 1;
+                            } while (mask != 0);
+                        }
+                        lightData += 0xA0;
+                        sourceBase += 0x30;
+                        dirtyMasks += 2;
+                    }
+                    segment->lightingMode = 0;
                 }
             }
-            segment++;
-            segmentCount--;
-        } while (segmentCount != 0);
+        }
+        segment++;
     }
 }
 #else
@@ -2623,11 +2611,15 @@ void func_8000FA2C(s32 *result, s32 arg1) {
  * nearest-height selection structure. Mickey's bounds are inclusive and its
  * TrackData layout, function boundary, and bytes remain authoritative.
  */
-/* Workbench verdict: structure-mismatch, 43 differing words, first mismatch +0x1c. */
-/* Candidate: target/candidate 62/62 instructions with matching -0x10 frames; the residual begins in the x/z predicate. */
-/* Shape status: boundary-load and non-likely branch scheduling remain structural; this is not permuter-ready. */
+/* Workbench verdict: allocation-mismatch, 20 differing words, first mismatch +0x1c. */
+/* Candidate: target/candidate 62/62 instructions with matching -0x10 frames and exact opcode schedule. */
+/* Shape status: the remaining pool-position/temp-FIFO residual is register-only. */
 s32 func_8000FAE0(f32 x, f32 y, f32 z) {
     s16 segmentCount;
+    s16 xLower;
+    s16 xUpper;
+    s16 zLower;
+    s16 zUpper;
     s16 yLower;
     s16 yUpper;
     s32 xInt;
@@ -2637,6 +2629,7 @@ s32 func_8000FAE0(f32 x, f32 y, f32 z) {
     s32 i;
     s32 heightDiff;
     s32 result;
+    s32 keepGoing;
     TrackBoundingBox *bounds;
 
     result = -1;
@@ -2647,41 +2640,45 @@ s32 func_8000FAE0(f32 x, f32 y, f32 z) {
         i = 0;
         if (segmentCount > 0) {
             xInt = x;
-loop_3:
-            if (bounds->x2 < xInt) {
-                goto block_14;
-            }
-            if (xInt < bounds->x1) {
-                goto block_14;
-            }
-            zInt = z;
-            if (bounds->z2 < zInt) {
-                goto block_14;
-            }
-            if (zInt < bounds->z1) {
-                goto block_14;
-            }
-            yInt = y;
-            yLower = bounds->y1;
-            yUpper = bounds->y2;
-            if ((yInt >= yLower) && (yUpper >= yInt)) {
-                result = i;
-                goto done;
-            }
-            heightDiff = yInt - yUpper;
-            if (yInt < yLower) {
-                heightDiff = yLower - yInt;
-            }
-            if (heightDiff < minVal) {
-                minVal = heightDiff;
-                result = i;
-            }
+            do {
+                xUpper = bounds->x2;
+                xLower = bounds->x1;
+                if (xUpper < xInt) {
+                    goto block_14;
+                }
+                if (xInt < xLower) {
+                    goto block_14;
+                }
+                zInt = z;
+                zUpper = bounds->z2;
+                zLower = bounds->z1;
+                if (zUpper < zInt) {
+                    goto block_14;
+                }
+                if (zInt < zLower) {
+                    goto block_14;
+                }
+                yInt = y;
+                yLower = bounds->y1;
+                yUpper = bounds->y2;
+                if ((yInt >= yLower) && (yUpper >= yInt)) {
+                    result = i;
+                    goto done;
+                }
+                if (yInt < yLower) {
+                    heightDiff = yLower - yInt;
+                } else {
+                    heightDiff = yInt - yUpper;
+                }
+                if (heightDiff < minVal) {
+                    minVal = heightDiff;
+                    result = i;
+                }
 block_14:
-            i++;
-            bounds++;
-            if (i < segmentCount) {
-                goto loop_3;
-            }
+                i++;
+                bounds++;
+                keepGoing = i < segmentCount;
+            } while (keepGoing != 0);
         }
     }
 done:
@@ -5164,32 +5161,33 @@ typedef struct TrackShadowMaterial {
     u8 blue;
 } TrackShadowMaterial;
 
-/* Workbench verdict: structure-mismatch, 195 differing words, first mismatch +0x0. */
-/* Candidate: 217/217 instructions with a -0x90 frame versus target -0xA8; command-field and frame structure remain unresolved. */
+/* Workbench verdict: structure-mismatch, 187 differing words, first mismatch +0x0. */
+/* Candidate: 217/217 instructions with a -0x90 frame versus target -0xA8; 3/4 relocation placements align. */
 /* Shape status: alpha branches, 8-byte shadow stepping, geometry commands, and FA/FB cleanup writes are preserved, but it is not shape-exact. */
 void func_800140CC(TrackShadowObject *object, TrackShadowInstance *instance) {
-    s32 vertexBuffer;
-    s32 indexBuffer;
-    s32 commandBuffer;
     s32 loopIndex;
+    s32 closeTexture;
+    s32 closeCombiner;
+    s32 commandBuffer;
+    s32 indexBuffer;
+    s32 vertexBuffer;
     s32 shadowCount;
     s32 alphaValue;
     s32 commandMode;
-    s32 closeTexture;
-    s32 closeCombiner;
     s32 textureSpan;
     s32 indexSpan;
     s32 vertexAddress;
     s32 indexAddress;
     s16 shadowIndex;
-    s16 endIndex;
     TrackShadowInstance *current;
     u8 *shadow;
+    u8 active;
     TrackShadowMaterial *material;
     Gfx *command;
 
-    if (object->alpha != 0) {
-        shadowGetBuffers(instance->active, &vertexBuffer, &indexBuffer,
+    active = instance->active;
+    if (active != 0) {
+        shadowGetBuffers(active, &vertexBuffer, &indexBuffer,
                          &commandBuffer);
         loopIndex = 0;
         current = instance;
@@ -5206,13 +5204,14 @@ void func_800140CC(TrackShadowObject *object, TrackShadowInstance *instance) {
                         commandMode = 0x0E;
                         if (object->kind == 0x3C) {
                             command = D_800C9520;
+                            material = object->material;
                             D_800C9520 = command + 1;
                             command->words.w1 = (shadowCount & 0xFF) | ~0xFF;
                             command->words.w0 = 0xFA000000;
                             command = D_800C9520;
+                            commandMode = 0x20E;
                             D_800C9520 = command + 1;
                             command->words.w0 = 0xFB000000;
-                            material = object->material;
                             command->words.w1 = (material->red << 24) |
                                                 (material->green << 16) |
                                                 (material->blue << 8);
@@ -5236,8 +5235,7 @@ void func_800140CC(TrackShadowObject *object, TrackShadowInstance *instance) {
                             }
                         }
                         shadowIndex = current->shadowIndex;
-                        endIndex = current->endIndex;
-                        while (shadowIndex < endIndex) {
+                        while (shadowIndex < current->endIndex) {
                             func_800349A4(&D_800C9520, *(void **) shadow,
                                           commandMode,
                                           instance->textureScale << 8);
@@ -5735,3 +5733,43 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
     intensity = (frame >> 8) & 0xFF;
     gDPSetEnvColor(D_800C9520++, intensity, intensity, intensity, intensity);
 }
+
+/* PLATEAU-HANDOFF:func_8000FAE0:start
+ * symbol: func_8000FAE0
+ * score: 42/62 words
+ * frame: 0x10
+ * relocations: 2
+ * first-mismatch: +0x1C
+ * summary: paired bound loads and a loop-condition carrier close the opcode schedule; 20 register-only words remain
+ * PLATEAU-HANDOFF:func_8000FAE0:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000D820:start
+ * symbol: func_8000D820
+ * score: 65/86 words
+ * frame: frameless
+ * relocations: 6
+ * first-mismatch: +0x3C
+ * summary: Two-instruction structural residual; next inspect original declaration lifetimes and dirty/source cursor types.
+ * PLATEAU-HANDOFF:func_8000D820:end
+ */
+
+/* PLATEAU-HANDOFF:func_800133FC:start
+ * symbol: func_800133FC
+ * score: 98 differing words
+ * frame: 0x98
+ * relocations: 1
+ * first-mismatch: +0x0
+ * summary: Candidate is 99 words/frame 0x98 vs target 96/0xA0; sqrtf identity is exact but +0x8 late. Ten natural forms were nonexact; next needs original FP lifetimes.
+ * PLATEAU-HANDOFF:func_800133FC:end
+ */
+
+/* PLATEAU-HANDOFF:func_800140CC:start
+ * symbol: func_800140CC
+ * score: 187 differing words
+ * frame: 0x90
+ * relocations: 4
+ * first-mismatch: +0x0
+ * summary: Frame and local layout remain the primary blocker; retry explicit value lifetimes before allocator work
+ * PLATEAU-HANDOFF:func_800140CC:end
+ */

@@ -40,11 +40,23 @@ Stdlib only. Reads:
   overridable with `--refs DIR [DIR...]` or `$MICKEY_DECOMP_REFS`
 
 It does **not** need `build/mickey.us.elf`. Mickey-side function boundaries
-come from `config/overlays.us.json`'s `text_ownership` (overlays) or
-`symbol_addrs.us.txt`'s `size:0x..` comments (resident, for `similar` only);
-`scan` itself uses the same greedy longest-match-first, non-overlapping
-search the prototype used, since most of the resident segment and nearly all
-overlay text has no boundary information yet.
+come from `config/overlays.us.json`'s exact function-sized
+`mixed_tu_exact_c_ranges` or `text_ownership` (overlays), and from
+`symbol_addrs.us.txt`'s `size:0x..` comments (resident, for `similar` only).
+When an exact mixed-TU function and its coarser ownership container begin at
+the same offset, `similar` uses the mixed-TU range. Duplicate identities and
+mixed-TU rows with inconsistent, unaligned, or out-of-text extents fail
+closed. If an overlay offset has exactly one containing atlas owner but no
+function-sized atlas identity, and has one unique generated file under
+`asm/nonmatchings`, `similar` may use that file's validated
+`glabel`/`endlabel` and contiguous instruction-address span to bound a raw ROM
+slice. This fallback excludes post-`endlabel` padding and is donor-search
+evidence only: it neither creates atlas ownership nor relaxes promotion proof.
+Missing, overlapping, malformed, noncontiguous, or out-of-text ownership or
+fallback boundaries fail closed. `scan` itself uses the same greedy
+longest-match-first, non-overlapping search the prototype used, since most of
+the resident segment and nearly all overlay text has no boundary information
+yet.
 
 Runtime: 2-4 seconds per subcommand on this tree (five reference projects,
 ~21,000 functions >= 10 words indexed).
@@ -147,9 +159,14 @@ manual comparison). `--target` is either:
 
 - `0xVRAM` -- a resident function. It must already have a `size:0x..`
   comment in `symbol_addrs.us.txt` (the tool has no other way to bound it).
-- `N:+0xOFF` -- overlay `N` at text offset `OFF`. `OFF` must be an existing
-  `text_ownership` entry's start (i.e. a function boundary splat already
-  knows).
+- `N:+0xOFF` -- overlay `N` at text offset `OFF`. `OFF` must be the start of
+  an exact function-sized `mixed_tu_exact_c_ranges` row or an existing
+  `text_ownership` entry. An exact mixed-TU row takes precedence over a coarse
+  ownership container at the same offset. If neither exists, one uniquely
+  named generated fallback assembly file may supply only the boundary for a
+  raw-ROM skeleton comparison. Human output labels that route as diagnostic
+  and explicitly says no atlas ownership was inferred. Ambiguous or malformed
+  atlas identities and fallback boundaries are rejected rather than guessed.
 
 Candidates are filtered to reference functions within +/-30% of the
 target's size, then ranked by masked n-gram (default 4-word) Jaccard

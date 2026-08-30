@@ -46,6 +46,118 @@ scratch object whose path has lost `build*/src/...` context must pass its
 canonical source key with `--source`; `--overlay` is only an assertion and
 never selects between ambiguous owners.
 
+### Shared identity normalization
+
+`tools/reloc_identity.py` is the common identity layer used by both
+`reloc_surface.py` and `function_preflight.py`. It parses GNU objdump relocation
+rows into `(section, offset, type, symbol, addend)` tuples, parses successive
+`objcopy --redefine-sym` operations, collapses transitive rename chains, and
+applies relocation addends to stable `(overlay, byte offset)` identities.
+Linker-script identifier aliases and postprocessed object names therefore use
+one canonicalization path in both reports.
+
+The layer fails closed: a rename cycle, conflicting original sources for one
+destination, conflicting linker identities, malformed relocation rows, or
+conflicting numeric assignments never receives a guessed identity. Exact
+duplicate rename pairs are idempotent. The public comparison fields and human
+report remain unchanged; `stable_identity_*` continues to describe identities
+proved statically, while `effective_identity_*` may additionally include an
+exact linked-ROM/runtime-table proof after canonical promotion.
+
+### Canonical same-overlay generated-call boundaries
+
+A guarded candidate can call another function in its own overlay by that
+function's generated name even when no linker-alias row exists for the name.
+The shared synthetic VMA still does not authenticate that call. The comparison
+layer resolves this narrower case only for `R_MIPS_26`, and only when all of
+the following canonical evidence agrees:
+
+- the caller and encoded generated identity name the same overlay;
+- one atlas module and one non-overlapping C `text_ownership` row exist, and
+  the generated offset is exactly the row's start rather than merely somewhere
+  inside a section or broad translation unit;
+- the row's offsets and size agree with the module's exact text/ROM ownership;
+- the tracked source has a fresh canonical object whose physical `.text`
+  extent equals that owner and contains exactly one function symbol at object
+  offset zero; and
+- the linked ELF has one function symbol with the same generated name, encoded
+  overlay offset, overlay section, and canonical-object symbol metadata.
+
+Physical `.text` extent is the boundary authority. Metadata-only trimming may
+leave the function symbol's pre-trim `st_size` larger than that extent; this is
+accepted only when the canonical object and linked symbol retain the same size
+and the physical section still equals the atlas owner. A smaller symbol,
+another function in the object, or disagreement in value/section/size is a
+conflict and is refused.
+
+Cross-overlay names, non-call relocations, duplicate owners, missing or broad
+boundaries, stale/missing source objects, unsafe source paths, and conflicting
+object/linked symbols receive no inferred identity (or stop on contradiction).
+Objcopy rename provenance is still propagated through the shared identity
+layer, so a many-source destination remains ambiguous.
+
+This closes evidence collection, not matching policy. It does not use runtime
+row position to guess a callee, does not turn an unresolved identity into an
+exact one, and does not relax promotion's independent offset/type, identity,
+linked-range, overlay, and full-ROM requirements. On the current Overlay 22
+initializer, it authenticates the generated call at function `+0x274` as the
+uniquely owned Overlay 22 `+0xD30` boundary. Candidate identity resolution
+therefore moves from 20/21 to 21/21 without changing the object or code bytes;
+only 11/21 identities currently align with the target, so the function remains
+non-exact.
+
+### Canonical same-overlay LOCAL/data identities
+
+Overlay data placeholders are not identities merely because a linker-script
+assignment gives them a small numeric value. The comparison tool now admits a
+same-overlay LOCAL/data base only from candidate-side canonical evidence; it
+never borrows the target relocation at the same row or uses the target identity
+to decide what the candidate meant.
+
+The ordinary canonical link can retain two symbols with the same name: one ABS
+symbol for the generated numeric assignment and one overlay-specific data or
+BSS definition. That pair authenticates a candidate name only when the caller's
+overlay is known, the assignment is unique, one current canonical object has a
+compatible data/rodata/BSS definition at exactly that object offset, and one
+linked definition agrees in name, size, section, and synthetic address. When a
+friendly candidate name deliberately has no linked hand alias, a narrower
+fallback is allowed only if one fresh canonical object owns the linked
+overlay's entire BSS section; the assignment is then an exact byte offset in
+that sole object. A partial or shared section does not qualify.
+
+Linked BSS follows the shipped relocation blobs, while runtime BSS follows only
+text plus data/rodata. The tool therefore proves the linked definition first,
+then translates its BSS offset from `ROM-size + object offset` to
+`text-size + data/rodata-size + object offset`. Initialized data keeps its
+linked module offset. Atlas `data_rodata_ownership` must agree when present.
+
+Every HI16 must have its same-symbol LO16 under MIPS REL pairing semantics;
+multiple references are allowed, but an unpaired member supplies no identity.
+Conflicting assignments, duplicate definitions or ownership, stale source,
+object, or linked ELF, cross-overlay definitions, unsafe source paths, and a
+shared synthetic VMA all fail closed. Generated-call authentication remains a
+separate `R_MIPS_26` route.
+
+The first five-target remeasurement deliberately reports the previous
+target-assisted counts beside the new canonical-only counts:
+
+| target | before resolved / exact-aligned | canonical-only resolved / exact-aligned |
+|---|---:|---:|
+| `overlay15DrawScreenStars` | 0 / 0 | 0 / 0 |
+| `overlay33InitializeBuffers` | 0 / 0 | 0 / 0 |
+| `overlay1AllocateRecord` | 0 / 0 | 0 / 0 |
+| `overlay7AcquireEntry` | 9 / 9 | 11 / 9 |
+| `overlay57HandleModeInput` | 17 / 17 | 7 / 7 |
+
+Overlay 7 gains proof for both schedule-displaced `gOverlay7ActiveTail`
+records without using target position. Overlay 57's old 17 were not all
+canonical evidence: ten depended on the removed target-row shortcut. Its seven
+surviving identities comprise six whole-BSS records plus one independently
+authenticated call. The other names are assignments without a unique canonical
+linked data owner, reserved runtime identities, or unresolved calls and remain
+unknown. All five reports therefore remain partial; this route makes their
+evidence honest but does not by itself make the stale plateaus finalizable.
+
 Sections 1-4 are the model and the feasibility evidence (lane
 `lane/reloc-synth`); section 5 is what the full implementation turned out to
 need and what it measured (lane `lane/reloc-synth2`).
@@ -904,6 +1016,14 @@ there is no target padding. ORT 1452 and resident relocation 314 authenticate
 sole inbound `func_80051364+0x2D4`; there is no local or cross-overlay caller.
 Production trims only standalone section alignment.
 
+Overlay 41 `+0x1740` (`overlay41SpawnItems`) owns 11 runtime records. Its
+configured 135-word C has the exact `0xA0` frame and relocation shape. A
+metadata-only retained-pool contract resolves the two formerly differing
+LO16 results through four unchanged relocations, an ABS initialized-data base
+at `+0x58`, and a digest-checked discarded duplicate. The final cross-module
+call is authenticated by the shipped record as Overlay 12 `+0x1B4` and by the
+exact linked range. The complete module and US ROM are byte-identical.
+
 Overlay 41 `+0x1650` (`func_overlay_041_F0001650_1888988`) owns four runtime
 records: SYMBOL HI16/LO16 at `+0x08/+0x0C` resolving to resident
 `D_800D6C58` (`gOverlay41Slots`), and LOCAL HI16/LO16 at `+0x98/+0xA0`
@@ -966,6 +1086,17 @@ the pointer pair is baked; runtime metadata is authoritative. The prior 32/44
 raw C used a false second argument and allocation aids, so it is diagnostic.
 Clean pointer-typed, one-argument source is staged but uncompiled. The owned
 `+0x2C8..+0x378` range has no padding, and linked equality proves fallback only.
+
+Overlay 34 `+0x40C` (`overlay34UpdateRecords`) owns seven runtime records.
+LOCAL HI16/LO16 pairs at function `+0x28/+0x2C`, `+0x40/+0x4C`, and
+`+0x44/+0x48` resolve to module data `+0xC`, `+0x4`, and `+0x10`
+(`gOverlay34ActiveCount`, `gOverlay34Pointers`, and `gOverlay34Value10`). The
+LOCAL JUMP at `+0xF0` resolves to `overlay34RemoveRecord` at module `+0x2C8`;
+the exact C object binds that record through the existing zero-field proxy so
+the shipped runtime relocation remains the effective-identity authority. The
+configured object is exact at 77 words with a `0x30` frame, all seven records
+agree by offset/type/effective identity, and the linked owner, complete overlay,
+and full ROM are exact.
 
 Overlay 22 `+0xD30` (`func_overlay_022_F0000D30_1878E38`) has 12 exact
 runtime-backed tuples in the configured candidate. LOCAL HI16/LO16 pairs at
@@ -1410,9 +1541,11 @@ module offset `+0x1B8`.
 
 ## 7. What is still hand-written
 
-- **Section externalization.** `externalize_elf_section.py` takes the expected
-  payload as a hex literal in the Makefile, which is the one part of the
-  machinery not derivable from addresses alone. Five rules use it.
+- **Section externalization.** `externalize_elf_section.py` takes either the
+  expected payload as a hex literal or its SHA-256 digest in the Makefile,
+  which is the one part of the machinery not derivable from addresses alone.
+  The digest form keeps larger private literal pools fail-closed without
+  embedding their bytes in tracked text.
 - **The `POSTPROCESS` trim sizes themselves.** They are the ownership row's
   extent and could be emitted from the atlas rather than written out per file;
   this lane made the *failure* derivable, not yet the rule.

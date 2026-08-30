@@ -84,12 +84,10 @@ void overlay58DrawSegmentStrip(f32 x0, f32 y0, f32 z0, f32 x1, f32 y1,
         vertices->b = 0xFF;
         vertices->g = 0xFF;
         vertices->r = 0xFF;
-        vertices -= 3;
-        vertices->r = 0xFF;
-        vertices->g = 0xFF;
-        vertices->b = 0xFF;
-        vertices->a = 0xFF;
-        vertices += 3;
+        vertices[-3].r = 0xFF;
+        vertices[-3].g = 0xFF;
+        vertices[-3].b = 0xFF;
+        vertices[-3].a = 0xFF;
 
         next = t + quadSpan;
         if (1.0f < next) {
@@ -153,3 +151,13 @@ void overlay58DrawSegmentStrip(f32 x0, f32 y0, f32 z0, f32 x1, f32 y1,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o058/overlay58DrawSegmentStrip/func_overlay_058_F0004C04_18B3DEC.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay58DrawSegmentStrip:start
+ * symbol: overlay58DrawSegmentStrip
+ * score: 99/201 words
+ * frame: 0x88
+ * relocations: 8
+ * first-mismatch: +0xC
+ * summary: Negative-index cursor spelling fixes one immediate; broad allocator and command-schedule residual remains.
+ * PLATEAU-HANDOFF:overlay58DrawSegmentStrip:end
+ */

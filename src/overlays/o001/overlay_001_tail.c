@@ -2225,13 +2225,8 @@ void overlay1UpdateRangeFlags(Overlay1RangeObject *object, void *unused) {
                 angle = (s16)(((u32)config->angleHigh << 8) +
                               overlay1GetAngleValueReloc(dz, dx));
                 if ((angle < -0x4000) || (angle >= 0x4001)) {
-                    f32 otherY;
-                    f32 objectY;
-
-                    otherY = other->y;
-                    objectY = object->y;
-                    if ((objectY <= otherY + other->heightData->height) &&
-                        (otherY <= objectY +
+                    if ((object->y <= other->y + other->heightData->height) &&
+                        (other->y <= object->y +
                          (f32)(s32)((u32)config->verticalScale * 10U))) {
                         switch (config->mode) {
                             case 0: {
@@ -2592,19 +2587,22 @@ extern f32 func_8002A8BC(s32 angle);
 extern f32 func_8002A8C0(s32 angle);
 extern f32 sqrtf(f32 value);
 
-/* Plateau (2026-08-24): -O2 -g3 -mips2 -Wab,-r4300_mul reaches the
- * retail size, but 56 of 249 words differ from +0x0.  The remaining shape
- * has an 8-byte larger non-save frame and 17 alignment gaps; world-pointer
- * volatility, explicit register storage, and saved-state lifetime variants
- * did not improve it.  It needs a frame/early-load representation change. */
+/* Plateau (2026-08-30): -O2 -mips2 -Wab,-r4300_mul emits the exact
+ * 996-byte extent.  An O32 integer carrier for the shared-world address and
+ * saved-state declaration order reduce the raw residual from 64 to 32 words.
+ * The candidate frame remains 0x88 versus 0x80, and 38 of 43 runtime
+ * relocation offsets/types align; strict identities remain ambiguous in the
+ * shared Overlay 1 TU.  Ten coherent source forms and all 119 flags are
+ * exhausted; the remaining early-load, stack-home, and constant-call schedule
+ * needs new source-authentic evidence rather than generic permutation. */
 #ifdef NON_MATCHING
 void overlay1UpdateAimedTransient(void) {
     Overlay1TransientWorld *world;
-    Overlay1TransientWorld **worldRef;
+    u32 worldAddress;
     Overlay1TransientOwner *owner;
     Overlay1TransientObject *object;
-    Overlay1TransientState *state;
     Overlay1TransientState *savedState;
+    Overlay1TransientState *state;
     Overlay1MotionSource *source;
     f32 factor;
     f32 predictedX;
@@ -2619,8 +2617,8 @@ void overlay1UpdateAimedTransient(void) {
     s16 sourceAngle;
     s16 objectAngle;
 
-    worldRef = (Overlay1TransientWorld **)&D_1DA0;
-    world = *worldRef;
+    worldAddress = (u32)&D_1DA0;
+    world = *(Overlay1TransientWorld **)worldAddress;
     object = world->object;
     source = world->source;
     if (object == 0) {
@@ -2635,7 +2633,7 @@ void overlay1UpdateAimedTransient(void) {
             object->scale = D_188;
             overlay1ReadSelection(D_1D9C, 9, &object->x, &object->y,
                                   &object->z);
-            (*worldRef)->object = object;
+            (*(Overlay1TransientWorld **)worldAddress)->object = object;
             savedState = state;
         }
         world = D_1DA0;
@@ -2818,16 +2816,14 @@ extern Overlay1PoolRecord gOverlay1PoolEnd[];
 extern s32 gOverlay1PoolGroup;
 extern s32 gOverlay1PoolExhausted;
 
-/* Plateau (2026-08-29): the surviving isolated ranking omitted this TU's
- * required -Wab,-r4300_mul; it is exact-sized at 40 words and leaves 10 raw
- * words, first at +0x50. The earlier bounded
- * round reached nine words from +0x6C after the 119-combination flag lattice
- * and eight source variants; only the post-predicate temporary FIFO web moved.
- * Explicit temporaries, typed union/byte access, operand association, pointer
- * aliases, and register/volatile hints were covered, but the trial bodies were
- * not preserved well enough to certify another formulation as new. No-go
- * pending fresh configured V0 and all ten runtime LOCAL relocation records;
- * the C has no linked/ROM-exact proof. */
+/* Plateau (2026-08-30): the configured full-TU body is exact-sized at 40
+ * words and frameless, with 9 relocation-masked differences from +0x6C (10
+ * raw from +0x50). All 10 fallback-static relocation offset/type sites align,
+ * but none of the same-overlay LOCAL/data identities authenticate. Ten fresh
+ * semantic loop, predicate, declaration, and cursor-lifetime forms produced
+ * no strict gain; the remaining code residual is the post-predicate ugen
+ * temporary FIFO/register web. This candidate has no promoted-linked or
+ * linked-ROM exact proof and remains behind NON_MATCHING. */
 #ifdef NON_MATCHING
 Overlay1PoolRecord *overlay1AllocateRecord(void) {
     Overlay1PoolRecord *cursor;
@@ -3290,4 +3286,34 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0x40
  * summary: 119 flags and ten coherent forms exhausted; next lever is source-authentic count/object/state allocator mapping, not the TU-wide diagnostic -g3 flag
  * PLATEAU-HANDOFF:overlay1ConsumeNearbyPending:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1UpdateRangeFlags:start
+ * symbol: overlay1UpdateRangeFlags
+ * score: 41 differing words
+ * frame: 0x70
+ * relocations: 4
+ * first-mismatch: +0x34
+ * summary: Inlining the two Y temporaries makes the frame exact; 31 register sites and four unresolved call identities remain after five natural forms; no permuter.
+ * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1UpdateAimedTransient:start
+ * symbol: overlay1UpdateAimedTransient
+ * score: 32 differing words
+ * frame: 0x88
+ * relocations: 43
+ * first-mismatch: +0x0
+ * summary: O32 address carrier halves the raw residual; frame, early-load schedule, and five relocation offsets remain after ten forms and 119 flags; no permuter.
+ * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1AllocateRecord:start
+ * symbol: overlay1AllocateRecord
+ * score: 31/40 words
+ * frame: frameless
+ * relocations: 10
+ * first-mismatch: +0x50
+ * summary: Masked residual 9 from +0x6C; fallback sites 10/10, LOCAL identities 0/10; ten semantic forms gave no strict gain
+ * PLATEAU-HANDOFF:overlay1AllocateRecord:end
  */

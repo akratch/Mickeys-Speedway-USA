@@ -467,10 +467,10 @@ void func_80050AD4(u8 pathIndex) {
  * globals, allocator call, data boundaries, and compiler output are
  * independently established from Mickey's ROM.
  *
- * Type pass: shared aggregate boundaries are neutral; structure-mismatch,
- * 87/87 instructions, 15 normalized words; first +0x34.
- * s16, for-loop, while/bound, and pointer-order forms were neutral or worse.
- * The target clear-loop branch shape and repeated global-address schedules remain.
+ * Fresh bounded loop/type/lifetime pass: structure-mismatch, 87/87 words,
+ * 15 differing words, first +0x34. Direct comparisons retain IDO's bound
+ * register; a remaining-byte comparison removes it but selects a subtraction
+ * branch and regresses. Five later endpoint/base address schedules remain.
  */
 #ifdef NON_MATCHING
 void func_80050BF4(void) {
@@ -821,9 +821,14 @@ extern void animUpdateTrap(AnimPath *path, f32 delta, s32 updateRate,
  * globals, sound-object offset, and final compiler output are independently
  * established from Mickey's ROM.
  *
- * Workbench p7: structure-mismatch, 287/287 instructions, frame -72 vs target -64, 192 raw words from +0x0.
- * Save slots agree but the candidate has 8 extra non-save bytes; command-state and direct-global probes regress.
- * Prior flag, clock/type/lifetime, and canonical-permuter levers remain exhausted; retain NON_MATCHING. */
+ * Workbench wave 7: structure-mismatch after ten coherent attempts,
+ * 287/287 instructions, frame -72 vs target -64, and 192 raw words from
+ * +0x0. Reordering the interpolation update retained the headline score but
+ * reduced aligned structural differences from 44 to 38 and gaps from 38 to
+ * 32. The target retains playback-state and television-mode addresses in
+ * saved registers; explicit source carriers regress geometry or alignment.
+ * Prior flag, clock/type/lifetime, and canonical-permuter levers remain
+ * exhausted; retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void func_80051364(s32 updateRate) {
     AnimStreamEntry *command;
@@ -873,8 +878,8 @@ void func_80051364(s32 updateRate) {
             } while (camera < (AnimCameraSource **) D_800D6B18);
             if (D_8007D6BC != 0) {
                 if (updateRate < D_8007D6BC) {
-                    D_8007D6BC -= updateRate;
                     D_8007D6B4 += D_8007D6B8 * (f32) updateRate;
+                    D_8007D6BC -= updateRate;
                 } else {
                     D_8007D6B4 += D_8007D6B8 * (f32) D_8007D6BC;
                     D_8007D6BC = 0;
@@ -2094,3 +2099,33 @@ void fmvInit(void) {
         player++;
     }
 }
+
+/* PLATEAU-HANDOFF:func_80051364:start
+ * symbol: func_80051364
+ * score: 95/287 words
+ * frame: 0x48
+ * relocations: 51
+ * first-mismatch: +0x0
+ * summary: Target is frame 0x40 with 47 relocations. Next isolate one source-authentic playback-state carrier lifetime without expanding the frame.
+ * PLATEAU-HANDOFF:func_80051364:end
+ */
+
+/* PLATEAU-HANDOFF:func_80050E9C:start
+ * symbol: func_80050E9C
+ * score: 84/90 words
+ * frame: 0x20
+ * relocations: 41
+ * first-mismatch: +0x64
+ * summary: Fidelity-clean UGEN trace locates one extra temp pop at the path-loop increment and comparison, while direct-control forms regress to 92 words and frame 0x28.
+ * PLATEAU-HANDOFF:func_80050E9C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80050BF4:start
+ * symbol: func_80050BF4
+ * score: 72/87 words
+ * frame: 0x18
+ * relocations: 41
+ * first-mismatch: +0x34
+ * summary: Ten natural forms leave the clear-loop bound web; fallback-static resolves 41/41 identities with 31 exact, and five endpoint/base LO16 pairs remain reversed.
+ * PLATEAU-HANDOFF:func_80050BF4:end
+ */

@@ -47,7 +47,6 @@ from __future__ import annotations
 
 import argparse
 import collections
-import dataclasses
 import json
 import re
 import struct
@@ -56,6 +55,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import overlay_tables as ot  # noqa: E402
+import reloc_identity as ri  # noqa: E402
 
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_ROM = REPO / "baseroms" / "mickey.us.z64"
@@ -365,8 +365,11 @@ def synthesize(obj_path: Path, overlay: int, rom: bytes, atlas_rows, records,
 # accumulated, and removes the alias-block coupling that made promoting one
 # function in a shared TU strand another function's alias line.
 
+STT_NOTYPE = 0
+STT_OBJECT = 1
 STT_FUNC = 2
 STB_GLOBAL = 1
+SHN_ABS = 0xFFF1
 
 GENERATED_HEADER = """\
 /*
@@ -1057,48 +1060,12 @@ class SurfaceComparisonError(Exception):
     """A function's target relocation ownership is not uniquely provable."""
 
 
-@dataclasses.dataclass(frozen=True)
-class SurfaceRecord:
-    """One function-relative relocation and its stable runtime identity."""
-
-    offset: int
-    rtype: int
-    identity: tuple[int, int] | None = None
-    link_addend: int | None = dataclasses.field(default=None, compare=False)
+SurfaceRecord = ri.RelocationRecord
 
 
 def compare_record_sets(target, candidate):
     """Compact exactness census for two relocation-record collections."""
-    target_shape = collections.Counter((r.offset, r.rtype) for r in target)
-    candidate_shape = collections.Counter((r.offset, r.rtype) for r in candidate)
-    target_identity = collections.Counter(
-        (r.offset, r.rtype, r.identity) for r in target if r.identity is not None
-    )
-    candidate_identity = collections.Counter(
-        (r.offset, r.rtype, r.identity)
-        for r in candidate if r.identity is not None
-    )
-    shape_matches = sum((target_shape & candidate_shape).values())
-    identity_matches = sum((target_identity & candidate_identity).values())
-    return {
-        "target_record_count": len(target),
-        # Compatibility for existing workbench/preflight consumers. Overlay
-        # targets are runtime records; resident targets are canonical static
-        # object records authenticated against the linked range.
-        "target_runtime_record_count": len(target),
-        "candidate_record_count": len(candidate),
-        "offset_type_alignment_count": shape_matches,
-        "stable_identity_alignment_count": identity_matches,
-        "candidate_identity_resolved_count": sum(
-            r.identity is not None for r in candidate
-        ),
-        "offset_type_exact": target_shape == candidate_shape,
-        "stable_identity_exact": (
-            target_shape == candidate_shape
-            and len(target_identity) == len(target)
-            and target_identity == candidate_identity
-        ),
-    }
+    return ri.compare_records(target, candidate)
 
 
 def _source_from_object(path: Path):
@@ -1218,19 +1185,16 @@ def _unique_symbol(elf, name, *, require_text=False):
 
 
 def _identity_add(identity, addend):
-    return (identity[0], identity[1] + addend)
+    return ri.effective_identity(identity, addend)
 
 
 def _numeric_assignments(path):
-    values = {}
     if not path.is_file():
-        return values
-    for line in path.read_text().splitlines():
-        m = re.match(
-            r"^\s*([A-Za-z_]\w*)\s*=\s*(0x[0-9A-Fa-f]+|\d+)\s*;", line)
-        if m:
-            values[m.group(1)] = int(m.group(2), 0)
-    return values
+        return {}
+    try:
+        return ri.parse_numeric_assignments(path.read_text())
+    except ri.RelocationIdentityError as error:
+        raise SurfaceComparisonError(str(error)) from error
 
 
 def _stable_symbol_identities(path, candidate_elf, overlay, tu_base_offset,
@@ -1244,16 +1208,13 @@ def _stable_symbol_identities(path, candidate_elf, overlay, tu_base_offset,
 
     # Generated overlay identities and their friendly aliases are stable even
     # though every module shares the same synthetic VMA.
+    equality_aliases = []
     if path.is_file():
-        for line in path.read_text().splitlines():
-            m = re.match(r"^\s*(\w+)\s*=\s*(\w+)\s*;", line)
-            if not m:
-                continue
-            generated, friendly = m.groups()
+        equality_aliases = ri.parse_linker_aliases(path.read_text())
+        for generated, _friendly in equality_aliases:
             gm = GEN_NAME_RE.match(generated)
             if gm:
                 propose(generated, (int(gm.group(1)), int(gm.group(2), 16)))
-                propose(friendly, (int(gm.group(1)), int(gm.group(2), 16)))
 
     # Resident auto-names and every resident address exported by the linked
     # build have a unique address space. Overlay-valued ELF symbols are not
@@ -1278,28 +1239,499 @@ def _stable_symbol_identities(path, candidate_elf, overlay, tu_base_offset,
             if name and shndx == text_idx:
                 propose(name, (overlay, tu_base_offset + value))
 
-    # Metadata-only objcopy renames preserve the original symbol's runtime
-    # identity. Carry that provenance onto the destination name found in the
-    # postprocessed object. Iterate to support a short rename chain while
-    # retaining the ordinary ambiguity check below.
-    redefine_aliases = redefine_aliases or {}
-    pending = dict(redefine_aliases)
-    while pending:
-        progressed = False
-        for destination, source in list(pending.items()):
-            if source not in proposed:
-                continue
-            proposed[destination].update(proposed[source])
-            del pending[destination]
-            progressed = True
-        if not progressed:
-            break
+    redefine_pairs = [
+        (source, destination)
+        for destination, source in (redefine_aliases or {}).items()
+    ]
+    try:
+        resolution = ri.resolve_identities(
+            proposed,
+            equality_aliases=equality_aliases,
+            redefine_aliases=redefine_pairs,
+        )
+    except ri.RelocationIdentityError as error:
+        raise SurfaceComparisonError(str(error)) from error
+    return resolution.resolved, set(resolution.ambiguous)
 
-    resolved = {name: next(iter(identities))
-                for name, identities in proposed.items() if len(identities) == 1}
-    ambiguous = {name for name, identities in proposed.items()
-                 if len(identities) > 1}
-    return resolved, ambiguous
+
+def _atlas_hex(row, field, description):
+    value = row.get(field)
+    if not isinstance(value, str) or not re.fullmatch(r"0x[0-9A-Fa-f]+", value):
+        raise SurfaceComparisonError(
+            "%s has invalid %s %r" % (description, field, value))
+    return int(value, 16)
+
+
+def _canonical_overlay_call_boundary(atlas, source_overlay, generated_name,
+                                     target_elf, root=None,
+                                     elf_loader=None):
+    """Authenticate one same-overlay generated call from canonical ownership.
+
+    Generated overlay names are not identities merely because their linked
+    value lies under the shared synthetic VMA.  This narrow route requires the
+    encoded target to begin one unique atlas owner and requires that owner's
+    fresh canonical object to be one physically function-sized text section.
+    Contradictory canonical evidence is an error; absent, stale, broad-TU, and
+    cross-overlay evidence simply supplies no identity.
+    """
+    match = GEN_NAME_RE.fullmatch(generated_name)
+    if not match or source_overlay is None:
+        return None
+    target_overlay = int(match.group(1))
+    target_offset = int(match.group(2), 16)
+    if target_overlay != source_overlay:
+        return None
+
+    modules = [
+        module for module in atlas.get("modules", [])
+        if module.get("overlay") == target_overlay
+    ]
+    if len(modules) > 1:
+        raise SurfaceComparisonError(
+            "atlas has ambiguous duplicate rows for overlay %d" % target_overlay)
+    if not modules:
+        return None
+    module = modules[0]
+    if module.get("identity") != "overlay:%d" % target_overlay:
+        raise SurfaceComparisonError(
+            "overlay %d atlas identity conflicts with its module row"
+            % target_overlay)
+    if _atlas_hex(module, "synthetic_vma", "overlay module") != SYNTHETIC_VMA:
+        raise SurfaceComparisonError(
+            "overlay %d atlas synthetic VMA conflicts with canonical policy"
+            % target_overlay)
+    text = module.get("sections", {}).get("text")
+    rom = module.get("rom")
+    if not isinstance(text, dict) or not isinstance(rom, dict):
+        return None
+    text_start = _atlas_hex(text, "start", "overlay text section")
+    text_end = _atlas_hex(text, "end", "overlay text section")
+    text_size = _atlas_hex(text, "size", "overlay text section")
+    rom_start = _atlas_hex(rom, "start", "overlay ROM row")
+    if text_start != rom_start or text_end - text_start != text_size:
+        raise SurfaceComparisonError(
+            "overlay %d atlas text ownership is internally inconsistent"
+            % target_overlay)
+
+    covering = []
+    for row in module.get("text_ownership", []):
+        if not isinstance(row, dict):
+            raise SurfaceComparisonError(
+                "overlay %d has a malformed text ownership row" % target_overlay)
+        start = _atlas_hex(row, "offset", "text ownership row")
+        end = _atlas_hex(row, "end_offset", "text ownership row")
+        size = _atlas_hex(row, "size", "text ownership row")
+        if end - start != size or not 0 <= start < end <= text_size:
+            raise SurfaceComparisonError(
+                "overlay %d text ownership boundary is inconsistent"
+                % target_overlay)
+        if start <= target_offset < end:
+            covering.append((row, start, end, size))
+    if len(covering) > 1:
+        raise SurfaceComparisonError(
+            "%s has ambiguous overlapping atlas owners" % generated_name)
+    if not covering:
+        return None
+    row, row_start, _row_end, row_size = covering[0]
+    # Containment in a section or broad TU does not prove a function start.
+    if row_start != target_offset or row.get("type") != "c":
+        return None
+
+    source = row.get("source")
+    if not isinstance(source, str) or not source:
+        return None
+    source_rel = Path(source)
+    if source_rel.is_absolute() or ".." in source_rel.parts:
+        raise SurfaceComparisonError(
+            "%s has an unsafe atlas source path" % generated_name)
+    root = REPO if root is None else Path(root)
+    source_path = root / "src" / (source + ".c")
+    object_path = root / "build" / "src" / (source + ".c.o")
+    if not source_path.is_file() or not object_path.is_file():
+        return None
+    # A stale object cannot authenticate the tracked source/owner relation.
+    if object_path.stat().st_mtime_ns < source_path.stat().st_mtime_ns:
+        return None
+    target_path = getattr(target_elf, "path", None)
+    if (isinstance(target_path, Path) and target_path.is_file()
+            and target_path.stat().st_mtime_ns < object_path.stat().st_mtime_ns):
+        return None
+
+    loader = Elf if elf_loader is None else elf_loader
+    canonical = loader(object_path)
+    text_index, _text_header = canonical.section(".text")
+    if text_index is None or len(canonical.section_bytes(".text")) != row_size:
+        return None
+    canonical_functions = [
+        (name, value, size)
+        for name, value, size, info, shndx in canonical.symbols()
+        if shndx == text_index and (info & 0xF) == STT_FUNC
+    ]
+    definitions = [
+        row for row in canonical_functions if row[0] == generated_name
+    ]
+    if len(definitions) > 1 or len(canonical_functions) > 1:
+        raise SurfaceComparisonError(
+            "%s canonical owner has ambiguous function symbols" % generated_name)
+    if not definitions:
+        return None
+    _name, object_value, object_symbol_size = definitions[0]
+    if object_value != 0 or object_symbol_size < row_size:
+        raise SurfaceComparisonError(
+            "%s canonical object symbol conflicts with atlas boundary"
+            % generated_name)
+
+    linked = []
+    for name, value, size, info, shndx in target_elf.symbols():
+        if (name == generated_name and shndx != SHN_UNDEF
+                and (info & 0xF) == STT_FUNC):
+            section = target_elf.names[shndx] if shndx < len(target_elf.names) else ""
+            linked.append((value, size, section))
+    if len(linked) > 1:
+        raise SurfaceComparisonError(
+            "%s has ambiguous linked function symbols" % generated_name)
+    if not linked:
+        return None
+    linked_value, linked_size, linked_section = linked[0]
+    if (linked_value != SYNTHETIC_VMA + target_offset
+            or linked_section != ".overlay_%03d" % target_overlay
+            or linked_size != object_symbol_size):
+        raise SurfaceComparisonError(
+            "%s linked symbol conflicts with canonical overlay ownership"
+            % generated_name)
+    return target_overlay, target_offset
+
+
+def _stable_overlay_call_identities(path, candidate_elf, source_overlay,
+                                    target_elf, atlas, start, size,
+                                    redefine_aliases=None, root=None,
+                                    elf_loader=None):
+    """Resolve only boundary-authenticated same-overlay ``R_MIPS_26`` names."""
+    symbols = candidate_elf.symbols()
+    proposed = collections.defaultdict(set)
+    reverse = redefine_aliases or {}
+    for _section, offset, rtype, symbol_index in candidate_elf.relocations():
+        if rtype != R_MIPS_26 or not start <= offset < start + size:
+            continue
+        current = symbols[symbol_index][0] if symbol_index < len(symbols) else ""
+        original = reverse.get(current, current)
+        identity = _canonical_overlay_call_boundary(
+            atlas, source_overlay, original, target_elf,
+            root=root, elf_loader=elf_loader)
+        if identity is not None:
+            proposed[original].add(identity)
+
+    equality_aliases = []
+    if path.is_file():
+        equality_aliases = ri.parse_linker_aliases(path.read_text())
+    redefine_pairs = [
+        (source, destination)
+        for destination, source in reverse.items()
+    ]
+    try:
+        resolution = ri.resolve_identities(
+            proposed,
+            equality_aliases=equality_aliases,
+            redefine_aliases=redefine_pairs,
+        )
+    except ri.RelocationIdentityError as error:
+        raise SurfaceComparisonError(str(error)) from error
+    return resolution.resolved, set(resolution.ambiguous)
+
+
+def _overlay_module_extent(module, field, description):
+    value = module.get(field)
+    if not isinstance(value, str) or not re.fullmatch(r"0x[0-9A-Fa-f]+", value):
+        raise SurfaceComparisonError(
+            "overlay %s has invalid %s %r" %
+            (module.get("overlay"), description, value))
+    return int(value, 16)
+
+
+def _canonical_overlay_data_identity(module, candidate_elf, name,
+                                     numeric_value, target_elf, root=None,
+                                     elf_loader=None):
+    """Authenticate one LOCAL/data base without consulting target tuples.
+
+    The linker deliberately contains two symbols with the placeholder's name:
+    an ABS assignment carrying the object's section-relative addend, and the
+    canonical data definition at its overlay-specific linked address.  The
+    latter is a stable identity only after a unique fresh canonical object
+    proves the same definition and section-relative value.
+    """
+    overlay = module.get("overlay")
+    if not isinstance(overlay, int):
+        raise SurfaceComparisonError("overlay module has no numeric identity")
+    if module.get("identity") != "overlay:%d" % overlay:
+        raise SurfaceComparisonError(
+            "overlay %d atlas identity conflicts with its module row" % overlay)
+    if _atlas_hex(module, "synthetic_vma", "overlay module") != SYNTHETIC_VMA:
+        raise SurfaceComparisonError(
+            "overlay %d atlas synthetic VMA conflicts with canonical policy"
+            % overlay)
+
+    absolute = [
+        (value, size, info)
+        for symbol, value, size, info, shndx in target_elf.symbols()
+        if symbol == name and shndx == SHN_ABS
+    ]
+    if len(absolute) > 1:
+        raise SurfaceComparisonError(
+            "candidate data symbol %s has ambiguous linked assignments" % name)
+    if not absolute:
+        return None
+    if absolute[0][0] != numeric_value:
+        raise SurfaceComparisonError(
+            "candidate data symbol %s has a conflicting linked assignment" % name)
+
+    linked = []
+    for symbol, value, size, info, shndx in target_elf.symbols():
+        if symbol != name or shndx in (SHN_UNDEF, SHN_ABS):
+            continue
+        section = target_elf.names[shndx] if shndx < len(target_elf.names) else ""
+        if section in (".overlay_%03d" % overlay,
+                       ".overlay_%03d_bss" % overlay):
+            linked.append((value, size, info, section))
+    if len(linked) > 1:
+        raise SurfaceComparisonError(
+            "candidate data symbol %s has ambiguous overlay definitions" % name)
+    if not linked:
+        # A friendly candidate name may intentionally have no linked data
+        # alias.  A sole canonical object that owns the *entire* output BSS is
+        # still sufficient provenance: the ABS assignment is then an exact
+        # byte offset in that object, independent of any target relocation.
+        root = REPO if root is None else Path(root)
+        loader = Elf if elf_loader is None else elf_loader
+        output_index, output_header = target_elf.section(
+            ".overlay_%03d_bss" % overlay)
+        if output_index is None or not isinstance(output_header, tuple):
+            return None
+        output_address, output_size = output_header[3], output_header[5]
+        rom_size = _atlas_hex(module.get("rom", {}), "size", "overlay ROM row")
+        bss_size = _overlay_module_extent(module, "bss_size", "BSS size")
+        if (output_address != SYNTHETIC_VMA + rom_size
+                or output_size > bss_size or numeric_value >= output_size):
+            return None
+        whole_owners = []
+        for row in module.get("text_ownership", []):
+            if not isinstance(row, dict) or row.get("type") != "c":
+                continue
+            source = row.get("source")
+            if not isinstance(source, str):
+                continue
+            source_rel = Path(source)
+            if source_rel.is_absolute() or ".." in source_rel.parts:
+                raise SurfaceComparisonError(
+                    "overlay %d has an unsafe canonical source path" % overlay)
+            source_path = root / "src" / (source + ".c")
+            object_path = root / "build" / "src" / (source + ".c.o")
+            if not source_path.is_file() or not object_path.is_file():
+                continue
+            if object_path.stat().st_mtime_ns < source_path.stat().st_mtime_ns:
+                continue
+            target_path = getattr(target_elf, "path", None)
+            if (isinstance(target_path, Path) and target_path.is_file()
+                    and target_path.stat().st_mtime_ns
+                    < object_path.stat().st_mtime_ns):
+                continue
+            obj = loader(object_path)
+            _index, header = obj.section(".bss")
+            if isinstance(header, tuple) and header[5] == output_size:
+                whole_owners.append((source, obj))
+        if len(whole_owners) > 1:
+            raise SurfaceComparisonError(
+                "candidate data symbol %s has ambiguous whole-BSS ownership"
+                % name)
+        if not whole_owners:
+            return None
+        candidate_source = _source_from_object(Path(candidate_elf.path))
+        candidate_path = root / "src" / ((candidate_source or "") + ".c")
+        if (not candidate_source or not candidate_path.is_file()
+                or not Path(candidate_elf.path).is_file()
+                or Path(candidate_elf.path).stat().st_mtime_ns
+                < candidate_path.stat().st_mtime_ns):
+            return None
+        text_size = _atlas_hex(
+            module.get("sections", {}).get("text", {}), "size",
+            "overlay text section")
+        data_size = _atlas_hex(
+            module.get("sections", {}).get("data_rodata", {}), "size",
+            "overlay data/rodata section")
+        return overlay, text_size + data_size + numeric_value
+    linked_value, linked_size, linked_info, linked_section = linked[0]
+    linked_type = linked_info & 0xF
+    if linked_type not in (STT_NOTYPE, STT_OBJECT):
+        return None
+    if linked_value < SYNTHETIC_VMA:
+        raise SurfaceComparisonError(
+            "candidate data symbol %s is not at the synthetic VMA" % name)
+    linked_offset = linked_value - SYNTHETIC_VMA
+
+    root = REPO if root is None else Path(root)
+    loader = Elf if elf_loader is None else elf_loader
+    canonical = []
+    sources = []
+    for row in module.get("text_ownership", []):
+        if isinstance(row, dict) and row.get("type") == "c":
+            source = row.get("source")
+            if isinstance(source, str) and source not in sources:
+                sources.append(source)
+    for row in module.get("data_rodata_ownership") or []:
+        if isinstance(row, dict) and row.get("type") == "c":
+            source = row.get("source")
+            if isinstance(source, str) and source not in sources:
+                sources.append(source)
+
+    for source in sources:
+        source_rel = Path(source)
+        if source_rel.is_absolute() or ".." in source_rel.parts:
+            raise SurfaceComparisonError(
+                "overlay %d has an unsafe canonical source path" % overlay)
+        source_path = root / "src" / (source + ".c")
+        object_path = root / "build" / "src" / (source + ".c.o")
+        if not source_path.is_file() or not object_path.is_file():
+            continue
+        if object_path.stat().st_mtime_ns < source_path.stat().st_mtime_ns:
+            continue
+        target_path = getattr(target_elf, "path", None)
+        if (isinstance(target_path, Path) and target_path.is_file()
+                and target_path.stat().st_mtime_ns < object_path.stat().st_mtime_ns):
+            continue
+        obj = loader(object_path)
+        for symbol, value, size, info, shndx in obj.symbols():
+            if symbol != name or shndx in (SHN_UNDEF, SHN_ABS):
+                continue
+            section = obj.names[shndx] if shndx < len(obj.names) else ""
+            if section not in (".data", ".rodata", ".bss"):
+                continue
+            if (info & 0xF) not in (STT_NOTYPE, STT_OBJECT):
+                continue
+            canonical.append((source, obj, value, size, section))
+    if len(canonical) > 1:
+        raise SurfaceComparisonError(
+            "candidate data symbol %s has ambiguous canonical definitions" % name)
+    if not canonical:
+        return None
+    source, obj, object_value, object_size, object_section = canonical[0]
+    if object_value != numeric_value or object_size != linked_size:
+        raise SurfaceComparisonError(
+            "candidate data symbol %s conflicts with its canonical object"
+            % name)
+
+    rom_size = _atlas_hex(module.get("rom", {}), "size", "overlay ROM row")
+    text_size = _atlas_hex(
+        module.get("sections", {}).get("text", {}), "size",
+        "overlay text section")
+    data_size = _atlas_hex(
+        module.get("sections", {}).get("data_rodata", {}), "size",
+        "overlay data/rodata section")
+    bss_size = _overlay_module_extent(module, "bss_size", "BSS size")
+    if object_section == ".bss":
+        if linked_section != ".overlay_%03d_bss" % overlay:
+            raise SurfaceComparisonError(
+                "candidate data symbol %s has conflicting BSS ownership" % name)
+        if not rom_size <= linked_offset < rom_size + bss_size:
+            raise SurfaceComparisonError(
+                "candidate data symbol %s escapes overlay BSS ownership" % name)
+        # The host link lays BSS after the shipped relocation blobs.  The
+        # runtime image discards those blobs before BSS, so translate the
+        # linked offset back to the runtime text+data layout.
+        runtime_offset = text_size + data_size + (linked_offset - rom_size)
+    else:
+        if linked_section != ".overlay_%03d" % overlay:
+            raise SurfaceComparisonError(
+                "candidate data symbol %s has conflicting data ownership" % name)
+        if not text_size <= linked_offset < text_size + data_size:
+            raise SurfaceComparisonError(
+                "candidate data symbol %s escapes overlay data ownership" % name)
+        owners = []
+        for row in module.get("data_rodata_ownership") or []:
+            if not isinstance(row, dict) or row.get("type") != "c":
+                continue
+            if row.get("source") != source:
+                continue
+            section = row.get("section")
+            if section is not None and section != object_section:
+                continue
+            start = _atlas_hex(row, "offset", "data ownership row")
+            end = _atlas_hex(row, "end_offset", "data ownership row")
+            size = _atlas_hex(row, "size", "data ownership row")
+            if end - start != size or not 0 <= start <= end <= data_size:
+                raise SurfaceComparisonError(
+                    "overlay %d data ownership boundary is inconsistent" % overlay)
+            owners.append((start, end))
+        if len(owners) > 1:
+            raise SurfaceComparisonError(
+                "candidate data symbol %s has ambiguous data ownership" % name)
+        if owners:
+            expected = text_size + owners[0][0] + object_value
+            if linked_offset != expected:
+                raise SurfaceComparisonError(
+                    "candidate data symbol %s conflicts with canonical data ownership"
+                    % name)
+        runtime_offset = linked_offset
+
+    # The candidate itself must still be a current object for its asserted TU.
+    candidate_source = _source_from_object(Path(candidate_elf.path))
+    candidate_path = root / "src" / ((candidate_source or "") + ".c")
+    if (not candidate_source or not candidate_path.is_file()
+            or not Path(candidate_elf.path).is_file()
+            or Path(candidate_elf.path).stat().st_mtime_ns
+            < candidate_path.stat().st_mtime_ns):
+        return None
+    return overlay, runtime_offset
+
+
+def _stable_overlay_data_identities(path, candidate_elf, module, target_elf,
+                                    start, size, redefine_aliases=None,
+                                    root=None, elf_loader=None):
+    """Resolve candidate-side same-overlay LOCAL/data identities fail closed."""
+    symbols = candidate_elf.symbols()
+    sites = []
+    names = set()
+    reverse = redefine_aliases or {}
+    for _section, offset, rtype, symbol_index in candidate_elf.relocations():
+        if not start <= offset < start + size or rtype == R_MIPS_26:
+            continue
+        current = symbols[symbol_index][0] if symbol_index < len(symbols) else ""
+        original = reverse.get(current, current)
+        sites.append({"offset": offset, "type": rtype, "symbol": original})
+        names.add(original)
+
+    # A malformed or unpaired HI16/LO16 surface cannot authenticate that name.
+    valid = set(names)
+    for high, low in _pairs(sites):
+        anchor = high or low
+        if anchor is None:
+            continue
+        if anchor["type"] in (R_MIPS_HI16, R_MIPS_LO16) \
+                and (high is None or low is None):
+            valid.discard(anchor["symbol"])
+
+    numeric = _numeric_assignments(path)
+    proposed = collections.defaultdict(set)
+    for name in sorted(valid):
+        if name not in numeric:
+            continue
+        identity = _canonical_overlay_data_identity(
+            module, candidate_elf, name, numeric[name], target_elf,
+            root=root, elf_loader=elf_loader)
+        if identity is not None:
+            proposed[name].add(identity)
+
+    equality_aliases = ri.parse_linker_aliases(path.read_text()) \
+        if path.is_file() else []
+    redefine_pairs = [
+        (source, destination)
+        for destination, source in reverse.items()
+    ]
+    try:
+        resolution = ri.resolve_identities(
+            proposed, equality_aliases=equality_aliases,
+            redefine_aliases=redefine_pairs)
+    except ri.RelocationIdentityError as error:
+        raise SurfaceComparisonError(str(error)) from error
+    return resolution.resolved, set(resolution.ambiguous)
 
 
 def _runtime_base(record, source_overlay, rom_table):
@@ -1401,7 +1833,9 @@ def _target_runtime_records(rom, context, start, size):
 
 
 def _candidate_surface_records(elf, start, size, target, identities,
-                               numeric_values, ambiguous_identities, overlay):
+                               numeric_values, ambiguous_identities, overlay,
+                               overlay_call_identities=None,
+                               ambiguous_overlay_calls=None):
     syms = elf.symbols()
     target_by_shape = {(r.offset, r.rtype): r for r in target}
     raw = []
@@ -1414,22 +1848,31 @@ def _candidate_surface_records(elf, start, size, target, identities,
 
     obj_text = elf.section_bytes(".text")
     output = []
-    used = set()
+    pending_highs = collections.defaultdict(list)
+    high_to_low = {}
+    low_to_highs = collections.defaultdict(list)
+    for index, row in enumerate(raw):
+        if row["type"] == R_MIPS_HI16:
+            pending_highs[row["symbol"]].append(index)
+        elif row["type"] == R_MIPS_LO16:
+            highs = pending_highs.pop(row["symbol"], [])
+            for high_index in highs:
+                high_to_low[high_index] = index
+                low_to_highs[index].append(high_index)
+    paired_identities = collections.defaultdict(list)
     for i, record in enumerate(raw):
-        if i in used:
-            continue
         rtype = record["type"]
         name = record["symbol"]
-        if name in ambiguous_identities:
+        if (name in ambiguous_identities
+                or (rtype == R_MIPS_26
+                    and name in (ambiguous_overlay_calls or set()))):
             raise SurfaceComparisonError(
                 "candidate relocation symbol %s has ambiguous runtime identity"
                 % name)
         target_record = target_by_shape.get((record["relative_offset"], rtype))
         identity = None
         if rtype == R_MIPS_HI16:
-            low_i = next((j for j in range(i + 1, len(raw))
-                          if j not in used and raw[j]["symbol"] == name
-                          and raw[j]["type"] == R_MIPS_LO16), None)
+            low_i = high_to_low.get(i)
             if low_i is not None:
                 low = raw[low_i]
                 high_value = stored_field(obj_text, record["offset"], rtype)
@@ -1437,7 +1880,8 @@ def _candidate_surface_records(elf, start, size, target, identities,
                 addend = (high_value << 16) + sext16(low_value)
                 if name in identities:
                     identity = _identity_add(identities[name], addend)
-                elif name in numeric_values and target_record is not None:
+                elif (overlay is None and name in numeric_values
+                      and target_record is not None):
                     target_identity = target_record.identity
                     if target_identity is not None:
                         # Numeric overlay placeholders carry the link-time
@@ -1449,21 +1893,37 @@ def _candidate_surface_records(elf, start, size, target, identities,
                             candidate_addend - target_record.link_addend)
                 output.append(SurfaceRecord(
                     record["relative_offset"], rtype, identity))
-                low_target = target_by_shape.get(
-                    (low["relative_offset"], R_MIPS_LO16))
-                low_identity = identity if low_target is not None else None
-                output.append(SurfaceRecord(
-                    low["relative_offset"], R_MIPS_LO16, low_identity))
-                used.add(low_i)
+                paired_identities[low_i].append(identity)
                 continue
+            # A HI16's addend is undefined without its REL-paired LO16.
+            output.append(SurfaceRecord(record["relative_offset"], rtype, None))
+            continue
+        if rtype == R_MIPS_LO16 and i in low_to_highs:
+            identities_for_low = set(paired_identities.get(i, []))
+            if len(identities_for_low) > 1:
+                raise SurfaceComparisonError(
+                    "candidate relocation symbol %s has conflicting HI16/LO16 addends"
+                    % name)
+            identity = (next(iter(identities_for_low))
+                        if identities_for_low else None)
+            output.append(SurfaceRecord(record["relative_offset"], rtype, identity))
+            continue
         addend = stored_field(obj_text, record["offset"], rtype)
         if rtype == R_MIPS_LO16:
             addend = sext16(addend)
         elif rtype == R_MIPS_26:
             addend <<= 2
-        if name in identities:
-            identity = _identity_add(identities[name], addend)
-        elif (rtype != R_MIPS_26 and name in numeric_values
+        base_identity = identities.get(name)
+        if rtype == R_MIPS_26 and name in (overlay_call_identities or {}):
+            call_identity = overlay_call_identities[name]
+            if base_identity is not None and base_identity != call_identity:
+                raise SurfaceComparisonError(
+                    "candidate relocation symbol %s has conflicting runtime identity"
+                    % name)
+            base_identity = call_identity
+        if base_identity is not None:
+            identity = _identity_add(base_identity, addend)
+        elif (overlay is None and rtype != R_MIPS_26 and name in numeric_values
               and target_record is not None and target_record.identity is not None):
             candidate_addend = numeric_values[name] + addend
             identity = _identity_add(
@@ -1677,10 +2137,31 @@ def function_surface_comparison(symbol, candidate_object, target_elf_path,
     identities, ambiguous_identities = _stable_symbol_identities(
         values_path, candidate_elf, overlay, tu_base_offset, target_elf,
         candidate_redefine_aliases)
+    overlay_call_identities, ambiguous_overlay_calls = (
+        _stable_overlay_call_identities(
+            values_path, candidate_elf, overlay, target_elf, atlas,
+            candidate_start, candidate_size, candidate_redefine_aliases)
+        if overlay is not None else ({}, set())
+    )
+    if overlay is not None:
+        overlay_data_identities, ambiguous_overlay_data = (
+            _stable_overlay_data_identities(
+                values_path, candidate_elf, module_row, target_elf,
+                candidate_start, candidate_size, candidate_redefine_aliases)
+        )
+        for name, identity in overlay_data_identities.items():
+            existing = identities.get(name)
+            if existing is not None and existing != identity:
+                raise SurfaceComparisonError(
+                    "candidate relocation symbol %s has conflicting runtime identity"
+                    % name)
+            identities[name] = identity
+        ambiguous_identities.update(ambiguous_overlay_data)
     numeric_values = _numeric_assignments(values_path)
     candidate_records = _candidate_surface_records(
         candidate_elf, candidate_start, candidate_size, target_records,
-        identities, numeric_values, ambiguous_identities, overlay)
+        identities, numeric_values, ambiguous_identities, overlay,
+        overlay_call_identities, ambiguous_overlay_calls)
     result = compare_record_sets(target_records, candidate_records)
     result["candidate_redefine_alias_count"] = len(
         candidate_redefine_aliases or {}

@@ -1455,3 +1455,13 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
     mmFree(data);
     return result;
 }
+
+/* PLATEAU-HANDOFF:rumbleTick:start
+ * symbol: rumbleTick
+ * score: 279/343 words
+ * frame: 0x58
+ * relocations: 87
+ * first-mismatch: +0xF4
+ * summary: 119 flags and 10 natural forms nonexact; retry mask homes at +0x40 instead of +0x48, shifting ugen temp FIFO; tail retains 14 opcode mismatches.
+ * PLATEAU-HANDOFF:rumbleTick:end
+ */

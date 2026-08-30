@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 119480,
-  "nonmatching_overlay_c_bytes": 304384,
+  "matched_overlay_c_bytes": 124336,
+  "nonmatching_overlay_c_bytes": 299528,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 2348,
   "bss_bytes": 77680,
@@ -2890,6 +2890,14 @@
      "label": "overlay8UpdateChild",
      "source": "overlays/o008/overlay_008",
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x3018",
+     "end_offset": "0x3278",
+     "size": "0x260",
+     "label": "overlay8UpdateChannels",
+     "source": "overlays/o008/overlay_008",
+     "evidence": "canonical mixed-TU object, 16 runtime relocations, and linked bytes exact"
     },
     {
      "offset": "0x3278",
@@ -7508,7 +7516,7 @@
      "type": "c",
      "source": "overlays/o034/overlay34UpdateRecords",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x540",
@@ -8939,7 +8947,7 @@
      "type": "c",
      "source": "overlays/o041/overlay41SpawnItems",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x195C",
@@ -9675,7 +9683,7 @@
      "type": "c",
      "source": "overlays/o045/func_overlay_045_F0000764_188CBBC",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x1158",
@@ -10404,7 +10412,7 @@
      "type": "c",
      "source": "overlays/o049/overlay_049",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x374",
@@ -10491,17 +10499,7 @@
     "pilot_role": null,
     "exact_donor_match": null,
     "priority_rank": 29
-   },
-   "mixed_tu_exact_c_ranges": [
-    {
-     "offset": "0x354",
-     "end_offset": "0x374",
-     "size": "0x20",
-     "label": "refractOutput",
-     "source": "overlays/o049/overlay_049",
-     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
-    }
-   ]
+   }
   },
   {
    "overlay": 50,
