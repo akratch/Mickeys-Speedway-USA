@@ -2583,7 +2583,7 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_80049000:start
  * symbol: func_80049000
- * score: 80/149 words
+ * score: 69/149 words
  * frame: 0x30
  * relocations: 2
  * first-mismatch: +0x0
