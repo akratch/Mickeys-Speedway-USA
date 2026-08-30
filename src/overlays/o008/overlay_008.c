@@ -1713,3 +1713,13 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0004CF0_1862A48.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_008_F0004CF0_1862A48:start
+ * symbol: func_overlay_008_F0004CF0_1862A48
+ * score: 43 differing words
+ * frame: -0x90
+ * relocations: 15
+ * first-mismatch: +0x178
+ * summary: Canonical flags retained; ten legal stack/aggregate/lifetime forms and a 241s batch were flat. The four-byte normal-home/FP allocation gap remains.
+ * PLATEAU-HANDOFF:func_overlay_008_F0004CF0_1862A48:end
+ */
