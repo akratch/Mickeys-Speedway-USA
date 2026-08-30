@@ -373,16 +373,12 @@ void func_8003D25C(Gfx **dList, s32 renderContext, void **vertices, CircularPart
                     camPushModelMtx(dList, renderContext, &transform, 1.0f, 0.0f);
                     gDPPipeSync((*dList)++);
                     if (particle->flags & 0x800) {
-                        intensity = particle->intensity;
+                        intensity = particle->alpha;
                         red = particle->red;
                         green = particle->green;
                         blue = particle->blue;
-                        color = (((red * intensity) >> 8) << 24) |
-                                ((((green * intensity) >> 8) & 0xFF) << 16) |
-                                ((((blue * intensity) >> 8) & 0xFF) << 8) | 0xFF;
-                        command = (*dList)++;
-                        command->words.w0 = 0xFA000000;
-                        command->words.w1 = color;
+                        gDPSetPrimColor((*dList)++, 0, 0, (red * intensity) >> 8, (green * intensity) >> 8,
+                                        (blue * intensity) >> 8, 0xFF);
                     } else {
                         gDPSetPrimColor((*dList)++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
                     }
@@ -2305,4 +2301,14 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * first-mismatch: +0x20C
  * summary: 276/297 words align; integer temp lane closed, leaving FP allocation and one two-load schedule swap after bounded flag and permuter searches.
  * PLATEAU-HANDOFF:func_8003F154:end
+ */
+
+/* PLATEAU-HANDOFF:func_8003D25C:start
+ * symbol: func_8003D25C
+ * score: 100/168 words
+ * frame: 0xB8
+ * relocations: 2
+ * first-mismatch: +0x50
+ * summary: JFG-backed alpha-field and native prim-color macro reduce the exact-sized candidate from 70 to 68 register-only differences; temp/pool allocation remains
+ * PLATEAU-HANDOFF:func_8003D25C:end
  */
