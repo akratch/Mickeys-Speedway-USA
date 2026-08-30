@@ -313,6 +313,7 @@ check-tooling:
 	$(HOST_PYTHON) tests/test_overlay_atlas.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_reloc_surface.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_proof_provenance.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_history.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_preflight.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_allocator_trace_receipt.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_lane_status.py

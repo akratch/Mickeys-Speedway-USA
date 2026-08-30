@@ -36,6 +36,7 @@ TYPE_NAMES = {2: "R_MIPS_32", 4: "R_MIPS_26", 5: "R_MIPS_HI16", 6: "R_MIPS_LO16"
 
 sys.path.insert(0, str(TOOLS))
 import overlay_tables as ot  # noqa: E402
+import function_history as fh  # noqa: E402
 import proof_provenance as pp  # noqa: E402
 import postprocess_audit as pa  # noqa: E402
 import reloc_surface as rs  # noqa: E402
@@ -477,21 +478,38 @@ def _build_target(target: Path, *, non_matching: bool, label: str) -> None:
     if non_matching:
         command.append("NON_MATCHING=1")
     build_dir = "build_non_matching" if non_matching else "build"
+    # GNU Make does not consider changed recipe text when deciding whether a
+    # target is current.  Detect that surface before phase one and force the
+    # phase-two dependency graph only when a checked-in recipe/policy file is
+    # newer than the artifact.  For the linked ELF this rebuilds every object;
+    # for a NON_MATCHING candidate it rebuilds that complete translation unit.
+    force = bool(_newer_inputs(target, _build_logic_inputs()))
     split = _run([*command, f"{build_dir}/.splat-stamp"], capture=True)
     if split.returncode:
         raise PreflightError(f"{label} split phase failed with exit {split.returncode}")
-    result = _run([*command, _relative(target)], capture=True)
+    target_command = [*command]
+    if force:
+        target_command.append("--always-make")
+    result = _run([*target_command, _relative(target)], capture=True)
     if result.returncode:
         raise PreflightError(f"{label} build failed with exit {result.returncode}")
 
 
 def _build(resolution: Resolution) -> None:
+    candidate_is_nonmatching = resolution.candidate_build_dir == "build_non_matching"
+    if candidate_is_nonmatching:
+        # Both build trees consume the same extracted asm/.  A NON_MATCHING
+        # split therefore has to happen first: running it after the canonical
+        # link would rewrite shared assembly and immediately stale that ELF.
+        _build_target(
+            resolution.candidate_object,
+            non_matching=True,
+            label="candidate",
+        )
+    # The canonical link depends on every ordinary-tree C object, including an
+    # ordinary candidate.  Building it last both supplies that object and
+    # leaves canonical evidence newer than the final shared split output.
     _build_target(TARGET_ELF, non_matching=False, label="canonical")
-    _build_target(
-        resolution.candidate_object,
-        non_matching=resolution.candidate_build_dir == "build_non_matching",
-        label="candidate",
-    )
 
 
 def _symbol_geometry(elf: rs.Elf, names: tuple[str, ...]) -> tuple[str, int, int, str]:
@@ -791,6 +809,7 @@ def _workbench(resolution: Resolution) -> dict[str, object]:
     else:
         command = [
             str(WB_COMPARE),
+            "--no-build",
             resolution.requested_symbol,
             "--json",
             "--color",
@@ -1005,6 +1024,18 @@ def collect(resolution: Resolution) -> dict[str, object]:
     comparison = _augment_runtime_identity_evidence(
         resolution, comparison, workbench
     )
+    try:
+        source_history = [
+            dataclasses.asdict(row)
+            for row in fh.guarded_body_history(
+                resolution.source, resolution.candidate_symbol, root=REPO
+            )
+        ]
+        source_history_status = "ok"
+    except fh.HistoryError as error:
+        source_history = []
+        source_history_status = f"unavailable: {error}"
+
     result: dict[str, object] = {
         "schema": "mickey-function-evidence-preflight-v1",
         "requested_symbol": resolution.requested_symbol,
@@ -1020,6 +1051,8 @@ def collect(resolution: Resolution) -> dict[str, object]:
         "candidate_signature": _source_signature(
             resolution.source, resolution.candidate_symbol
         ),
+        "source_history": source_history,
+        "source_history_status": source_history_status,
         "linked_symbol": linked_name,
         "linked_section": section,
         "owned_size": target_size,
@@ -1056,6 +1089,14 @@ def _render_human(report: dict[str, object]) -> None:
         f"candidate: {report['source']} [{report['candidate_build_dir']}] "
         f"{report['candidate_signature']}"
     )
+    history = report.get("source_history", [])
+    history_status = report.get("source_history_status", "not collected")
+    print(f"source history (guarded-body changes): {history_status}")
+    if history:
+        for row in history:
+            print(f"  {str(row['commit'])[:10]} {row['subject']}")
+    else:
+        print("  none")
     if context["kind"] == "overlay":
         print(
             f"owned range: overlay:{context['overlay']}:+0x{context['offset']:X}.."
@@ -1164,6 +1205,8 @@ def main(argv: list[str]) -> int:
                     "GLOBAL_ASM target; use `tools/wb_compare.sh --rom "
                     f"{resolution.candidate_symbol}`"
                 )
+            if not args.no_build:
+                _build(resolution)
             require_fresh_evidence(resolution)
             fields = (
                 resolution.target_symbol,

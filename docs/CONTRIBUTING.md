@@ -320,12 +320,18 @@ Before sweeping flags, run `tools/function_preflight.py <symbol>`. It accepts
 either a friendly or generated overlay name and fails closed unless it can
 prove one source, one owned range, one padding boundary, and stable runtime
 relocation identities. It also selects the ordinary or `NON_MATCHING` full-TU
-build automatically and reports callers, exports, the candidate ABI context,
+build automatically and reports target-specific guarded-body Git history,
+callers, exports, the candidate ABI context,
 overlay runtime records or authenticated resident static relocation tuples,
 and the current workbench score/first mismatch without printing instruction
-text or ROM bytes. Sparse resident startup-table records are reported
-separately and may legitimately be absent. See [`tools.md`](tools.md) for the
-report and `wb_compare.sh --diagnose` usage.
+text, historical bodies, or ROM bytes. Both ordinary preflight and
+`wb_compare.sh` automatically refresh missing/stale evidence through separate
+low-priority two-job split and target phases; `--no-build` on either command
+instead requires all artifacts to be current and fails closed. A newer
+checked-in build recipe/policy forces the target dependency graph so Make's
+recipe-insensitive freshness rules cannot hide an old object. Sparse resident
+startup-table records are reported separately and may legitimately be absent.
+See [`tools.md`](tools.md) for the report and `wb_compare.sh --diagnose` usage.
 
 After an exact promotion removes the extracted fallback, preflight admits a
 separate `post_promotion` route only when one unconditional C definition, its

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One decomp-workbench comparison for one function.
 #
-#   ./tools/wb_compare.sh [--diagnose] <symbol> [extra workbench args...]
+#   ./tools/wb_compare.sh [--diagnose] [--no-build] <symbol> [extra workbench args...]
 #
 # Friendly/generated aliases, the owning TU, and the canonical versus
 # NON_MATCHING candidate tree are resolved automatically by
@@ -43,16 +43,18 @@ PREFLIGHT_TOOL=tools/function_preflight.py
 
 mode=asm
 wb_command=compare
+no_build=0
 while [ $# -gt 0 ]; do
     case "$1" in
         --rom) mode=rom; shift ;;
         --diagnose) wb_command=diagnose; shift ;;
+        --no-build) no_build=1; shift ;;
         --) shift; break ;;
         *) break ;;
     esac
 done
 if [ $# -lt 1 ]; then
-    echo "usage: $0 [--rom] [--diagnose] <symbol> [workbench args...]" >&2
+    echo "usage: $0 [--rom] [--diagnose] [--no-build] <symbol> [workbench args...]" >&2
     exit 2
 fi
 sym=$1; shift
@@ -64,7 +66,9 @@ cand_build_dir=${WB_CANDIDATE_BUILD_DIR:-build}
 asmfile=
 
 if [ "$mode" = asm ]; then
-    resolution=$($PROVENANCE "$PREFLIGHT_TOOL" "$sym" --resolve-wb) || exit $?
+    preflight_args=("$sym" --resolve-wb)
+    if [ "$no_build" -eq 1 ]; then preflight_args+=(--no-build); fi
+    resolution=$($PROVENANCE "$PREFLIGHT_TOOL" "${preflight_args[@]}") || exit $?
     IFS=$'\t' read -r resolved_target resolved_candidate resolved_source \
         resolved_tu resolved_build_dir resolved_asm <<< "$resolution"
     target_sym=$resolved_target

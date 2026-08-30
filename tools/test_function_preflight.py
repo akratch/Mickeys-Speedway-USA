@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import contextlib
+import dataclasses
 import io
 import json
 import os
@@ -362,9 +363,13 @@ class GeometryAndWorkbenchTests(unittest.TestCase):
         completed = subprocess.CompletedProcess(
             [], 0, stdout=json.dumps(payload), stderr=""
         )
-        with mock.patch.object(fp, "_run", return_value=completed):
+        with mock.patch.object(fp, "_run", return_value=completed) as run:
             report = fp._workbench(resolution)
 
+        self.assertEqual(
+            [str(fp.WB_COMPARE), "--no-build", "friendly"],
+            run.call_args.args[0][:3],
+        )
         self.assertEqual(report["matched_words"], 7)
         self.assertEqual(report["first_mismatch"], "+0x8")
         self.assertNotIn("diff_sites", report)
@@ -640,6 +645,88 @@ class FreshnessTests(unittest.TestCase):
             self.assertEqual(commands[1][-1], fp._relative(resolution.candidate_object))
             self.assertIn("NON_MATCHING=1", commands[0])
             self.assertIn("NON_MATCHING=1", commands[1])
+
+    def test_newer_build_policy_forces_complete_target_dependency_graph(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            resolution = self.resolution(root)
+            policy = root / "mk/flags.mk"
+            policy.parent.mkdir(parents=True)
+            policy.write_text("# changed flags\n", encoding="utf-8")
+            object_time = resolution.candidate_object.stat().st_mtime_ns
+            os.utime(policy, ns=(object_time + 1_000_000, object_time + 1_000_000))
+            completed = subprocess.CompletedProcess([], 0, stdout="", stderr="")
+            with mock.patch.object(
+                fp, "_build_logic_inputs", return_value=(policy,)
+            ), mock.patch.object(fp, "_run", return_value=completed) as run:
+                fp._build_target(
+                    resolution.candidate_object,
+                    non_matching=True,
+                    label="candidate",
+                )
+
+            commands = [call.args[0] for call in run.call_args_list]
+            self.assertNotIn("--always-make", commands[0])
+            self.assertIn("--always-make", commands[1])
+            self.assertEqual(commands[1][-1], fp._relative(resolution.candidate_object))
+
+    def test_resolve_wb_refreshes_by_default_and_no_build_is_explicit(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            resolution = self.resolution(Path(directory))
+            resolution.target_asm.parent.mkdir(parents=True)
+            resolution.target_asm.write_text("glabel generated\n", encoding="utf-8")
+            with mock.patch.object(
+                fp, "resolve", return_value=resolution
+            ), mock.patch.object(fp, "_build") as build, mock.patch.object(
+                fp, "require_fresh_evidence"
+            ) as freshness:
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(0, fp.main(["friendly", "--resolve-wb"]))
+            build.assert_called_once_with(resolution)
+            freshness.assert_called_once_with(resolution)
+
+            with mock.patch.object(
+                fp, "resolve", return_value=resolution
+            ), mock.patch.object(fp, "_build") as build, mock.patch.object(
+                fp, "require_fresh_evidence"
+            ) as freshness:
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(
+                        0,
+                        fp.main(["friendly", "--resolve-wb", "--no-build"]),
+                    )
+            build.assert_not_called()
+            freshness.assert_called_once_with(resolution)
+
+    def test_nonmatching_candidate_build_precedes_final_canonical_build(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            resolution = self.resolution(Path(directory))
+            with mock.patch.object(fp, "_build_target") as build_target:
+                fp._build(resolution)
+
+            self.assertEqual(
+                [
+                    mock.call(
+                        resolution.candidate_object,
+                        non_matching=True,
+                        label="candidate",
+                    ),
+                    mock.call(fp.TARGET_ELF, non_matching=False, label="canonical"),
+                ],
+                build_target.call_args_list,
+            )
+
+    def test_ordinary_candidate_is_supplied_by_canonical_link_build(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            resolution = dataclasses.replace(
+                self.resolution(Path(directory)), candidate_build_dir="build"
+            )
+            with mock.patch.object(fp, "_build_target") as build_target:
+                fp._build(resolution)
+
+            build_target.assert_called_once_with(
+                fp.TARGET_ELF, non_matching=False, label="canonical"
+            )
 
 
 class RelocationEvidenceTests(unittest.TestCase):

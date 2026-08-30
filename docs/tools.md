@@ -197,17 +197,26 @@ every shipped runtime relocation record; for resident functions it reports
 the authenticated canonical object's static relocation tuples separately from
 the sparse resident startup-table records, where zero records is valid. It
 then reports candidate static-relocation agreement and the current workbench
-word score and first mismatch. `--no-build` makes existing artifacts a hard
-requirement instead. Before any comparison, both that full-TU object and the
-canonical linked ELF must be current according to Make's real dependency
-graph. The preflight also checks the root Makefile and checked-in normalization
-fragments explicitly, because Make does not age an output merely because its
-recipe changed. Ordinary preflight refreshes artifacts stale in the dependency
-graph; a recipe/config edit requires a clean rebuild. `--no-build` and direct
-`wb_compare.sh` use fail closed with an actionable rebuild diagnosis. The
-command also fails when an alias, source, range, or relocation identity is not
-unique; its output deliberately excludes instruction listings, words, and
-hexdumps.
+word score and first mismatch. Before those measurements it prints a concise
+Git history of commits that materially changed this exact guarded function.
+The history compares function token streams with each commit's parent, so
+other-function edits in the same TU and comment/whitespace-only churn are not
+reported. JSON consumers receive the same hash/subject rows in
+`source_history`; no historical source or generated instruction text is
+emitted.
+
+`--no-build` makes existing artifacts a hard requirement. Before any
+comparison, both the full-TU object and canonical linked ELF must be current
+according to Make's real dependency graph. Preflight also checks the root
+Makefile and checked-in policy/normalization fragments explicitly, because
+Make does not age an output merely because its recipe changed. Ordinary
+preflight refreshes missing or stale artifacts with separate low-priority,
+two-job split and target invocations. When recipe/policy timestamp drift is
+detected, the target phase uses Make's always-build mode so old objects cannot
+survive the changed recipe. `--no-build` instead fails closed with an
+actionable diagnosis. The command also fails when an alias, source, range, or
+relocation identity is not unique; its output deliberately excludes
+instruction listings, words, and hexdumps.
 
 Promotion does not make the preflight unusable when splat removes the
 function's `asm/nonmatchings` fallback. With no fallback present, the resolver
@@ -233,6 +242,7 @@ for normal guarded functions:
 ```sh
 tools/wb_compare.sh overlay16ApplyGradient --json
 tools/wb_compare.sh --diagnose overlay16ApplyGradient --trace trace.log --trace-proc 0
+tools/wb_compare.sh --no-build overlay16ApplyGradient --json
 ```
 
 Wrapper options precede the symbol; all arguments after the symbol are passed
@@ -241,7 +251,10 @@ unchanged to `decomp-workbench compare` or, with `--diagnose`, to
 and can be combined with `--diagnose` to select `diagnose-dumps`. Invoke
 `wb_compare.sh --rom <linked-C-name>` directly after promotion; ordinary
 `function_preflight.py` chooses that mode automatically once its tracked
-post-promotion checks pass.
+post-promotion checks pass. In assembly mode the wrapper performs the same
+automatic two-phase refresh as ordinary preflight. Use wrapper-level
+`--no-build` only when a diagnostic or test must prove existing evidence is
+already fresh without compiling.
 
 ## tools/check_tools.sh
 
@@ -361,6 +374,7 @@ this file is a map, not a manual, for the rest.
 |---|---|---|
 | `tools/skeleton_scan.py` | Masked-instruction-shape ("skeleton") matching against the reference farm: finds a donor whose bytes changed but whose structure didn't, which the exact-match `find_known_objects.py` cannot do (ADR 0007). Prints candidates only; never writes ROM bytes to a file. | [`docs/skeleton-scan.md`](skeleton-scan.md) |
 | `tools/flag_sweep.py` | Compiles one candidate under the full known compiler-flag lattice and ranks by objdiff score, before any hand permutation is attempted (ADR 0007). | [`docs/flag-sweep.md`](flag-sweep.md) |
+| `tools/function_history.py` | Lists only commits that materially changed one exact guarded C function, excluding unrelated same-TU commits and comment/whitespace churn; preflight embeds the same hash/subject rows. | [Function evidence preflight](#function-evidence-preflight-and-workbench-comparison) above |
 | `tools/overlay_graph_match.py` | Structural overlay-to-module matching against Jet Force Gemini by size, function count, and call graph, since byte identity mostly returns nothing against a differently-revised source tree. Writes `config/overlay-graph.us.json`. | [`docs/overlay-graph.md`](overlay-graph.md) |
 | `tools/overlay_atlas.py --delta` | Audits exact-C overlay promotions, retractions, and net byte changes between refs, manifests, or checkouts using fail-closed `(overlay, offset)` identities; `--format json` is machine-readable. | [Overlay atlas release deltas](#overlay-atlas-release-deltas) above |
 | `tools/permute.sh` | One bounded decomp-permuter run for one function: locates its C file and target `.s` (regenerating the target from the baserom via a temporary `GLOBAL_ASM` swap if the function already has a C body), imports both, and runs `permuter.py` under a wall-clock cap. Batch-only per ADR 0007 — never run inside an agent's own turn-by-turn reasoning loop. | this file, `## decomp-permuter` above |
