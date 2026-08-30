@@ -40,7 +40,9 @@ python3 tools/ready_queue.py --focus retained-data --scan 50 --top 10
 ```
 
 Before applying `--scan`, the tool derives a bounded-effort score from exact
-size, differing-word count and ratio, and mismatch mechanism. This lets a
+size, differing-word count and ratio, and mismatch mechanism. Schema-v3 rows
+use the relocation-masked residual for this cost while preserving the raw
+count and both first-mismatch offsets in JSON and terminal output. This lets a
 one-word `other` mismatch outrank a very large register-only plateau without
 rewriting the retained measurement snapshot. Output reports both the derived
 priority rank and the original snapshot rank, plus the proof-quality class and

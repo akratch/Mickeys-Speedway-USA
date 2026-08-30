@@ -208,6 +208,27 @@ class ReadyQueueTests(unittest.TestCase):
         ranked = rq.prioritized_rows([other, relocation])
         self.assertEqual([value[2]["name"] for value in ranked], ["reloc", "other"])
 
+    def test_masked_residual_drives_effort_and_raw_evidence_is_preserved(self) -> None:
+        relocation_heavy = row("src/main/a.c", "a", 20)
+        relocation_heavy["relocation_masked_differing_words"] = 1
+        relocation_heavy["relocation_masked_first_mismatch_offset"] = 8
+        plain = row("src/main/b.c", "b", 4)
+        plain["relocation_masked_differing_words"] = 4
+        plain["relocation_masked_first_mismatch_offset"] = 0
+        ranked = rq.prioritized_rows([plain, relocation_heavy])
+        self.assertEqual(
+            [value[2]["name"] for value in ranked], ["a", "b"],
+        )
+        report = self.report(
+            [relocation_heavy], [Item("src/main/a.c", "a")],
+            {"a": assignment("a", "src/main/a.c")},
+        )
+        self.assertEqual(report["ready"][0]["differing_words"], 20)
+        self.assertEqual(
+            report["ready"][0]["relocation_masked_differing_words"], 1,
+        )
+        self.assertIn("1/20/10", rq.render_table(report))
+
     def test_retained_data_focus_filters_to_relocation_rows(self) -> None:
         relocation = row("src/main/reloc.c", "reloc", 3)
         relocation["category"] = "reloc-mismatch"

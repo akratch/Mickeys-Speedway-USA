@@ -405,6 +405,7 @@ class RetainedDisplayTests(unittest.TestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0].name, "func")
         self.assertEqual(results[0].differing_words, 2)
+        self.assertIsNone(results[0].relocation_masked_differing_words)
         self.assertEqual(results[0].objdiff_match_pct, 98.5)
 
     def test_rejects_an_invalid_snapshot(self) -> None:

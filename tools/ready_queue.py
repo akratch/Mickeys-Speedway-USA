@@ -157,9 +157,15 @@ def proof_quality(row: dict[str, object]) -> str:
     return "codegen"
 
 
+def actionable_differing_words(row: dict[str, object]) -> int:
+    """Prefer linker-field-masked evidence when the ranking has measured it."""
+    masked = row.get("relocation_masked_differing_words")
+    return int(masked) if masked is not None else int(row["differing_words"])
+
+
 def effort_score(row: dict[str, object]) -> int:
     """Estimate bounded matching effort from retained aggregate evidence."""
-    differing = int(row["differing_words"])
+    differing = actionable_differing_words(row)
     words = max(1, int(row["size_bytes"]) // 4)
     ratio_penalty = math.ceil(20 * differing / words)
     category_penalty = CATEGORY_PENALTY.get(str(row["category"]), 20)
@@ -211,6 +217,12 @@ def _ranking_details(
         "size_bytes": row["size_bytes"],
         "differing_words": row["differing_words"],
         "first_mismatch_offset": row["first_mismatch_offset"],
+        "relocation_masked_differing_words": row.get(
+            "relocation_masked_differing_words"
+        ),
+        "relocation_masked_first_mismatch_offset": row.get(
+            "relocation_masked_first_mismatch_offset"
+        ),
         "size_delta": row["size_delta"],
         "objdiff_match_pct": row["objdiff_match_pct"],
     }
@@ -519,6 +531,7 @@ def _display_rows(report: dict[str, object]) -> list[list[str]]:
     for raw in ready:
         assert isinstance(raw, dict)
         mismatch = raw["differing_words"]
+        masked = raw.get("relocation_masked_differing_words")
         size = raw["size_bytes"]
         rows.append([
             str(raw["rank"]),
@@ -528,7 +541,7 @@ def _display_rows(report: dict[str, object]) -> list[list[str]]:
             str(raw["proof_quality"]),
             str(raw["effort_score"]),
             f"{raw['file_batch_position']}/{raw['file_batch_size']}",
-            f"{mismatch}/{int(size) // 4}",
+            f"{'—' if masked is None else masked}/{mismatch}/{int(size) // 4}",
         ])
     return rows
 
@@ -549,7 +562,7 @@ def summary_line(report: dict[str, object]) -> str:
 def render_table(report: dict[str, object]) -> str:
     headers = [
         "rank", "snap", "symbol", "file", "quality", "cost", "TU batch",
-        "diff/words",
+        "masked/raw/words",
     ]
     rows = _display_rows(report)
     if not rows:
@@ -571,7 +584,7 @@ def render_table(report: dict[str, object]) -> str:
 def render_markdown(report: dict[str, object]) -> str:
     headers = [
         "Rank", "Snapshot", "Symbol", "File", "Quality", "Cost", "TU batch",
-        "Diff/words",
+        "Masked/raw/words",
     ]
     rows = _display_rows(report)
     rendered = [

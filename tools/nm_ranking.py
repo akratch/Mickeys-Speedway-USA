@@ -419,7 +419,7 @@ class FuncResult:
     size_bytes: int
     differing_words: int
     first_mismatch_offset: Optional[int]
-    relocation_masked_differing_words: int
+    relocation_masked_differing_words: Optional[int]
     relocation_masked_first_mismatch_offset: Optional[int]
     size_delta: int
     category: str
@@ -1829,7 +1829,11 @@ def load_objdiff_pct(report_path: Optional[pathlib.Path]) -> dict[str, float]:
 def sort_key(r: FuncResult):
     return (
         CATEGORY_RANK.get(r.category, 99),
-        r.relocation_masked_differing_words,
+        (
+            r.relocation_masked_differing_words
+            if r.relocation_masked_differing_words is not None
+            else r.differing_words
+        ),
         r.differing_words,
         r.file,
         r.name,
@@ -1860,7 +1864,12 @@ def print_table(results: list[FuncResult], top: Optional[int], markdown: bool) -
         )
         return [
             r.name, loc, str(r.size_bytes), pct, str(r.differing_words),
-            str(r.relocation_masked_differing_words), raw_first, masked_first,
+            (
+                str(r.relocation_masked_differing_words)
+                if r.relocation_masked_differing_words is not None
+                else "-"
+            ),
+            raw_first, masked_first,
             str(r.size_delta), r.category,
         ]
 
@@ -1901,6 +1910,20 @@ def retained_results(document: object) -> list[FuncResult]:
             first_mismatch_offset=(
                 int(row["first_mismatch_offset"])
                 if isinstance(row["first_mismatch_offset"], int)
+                else None
+            ),
+            relocation_masked_differing_words=(
+                int(row["relocation_masked_differing_words"])
+                if isinstance(
+                    row.get("relocation_masked_differing_words"), int
+                )
+                else None
+            ),
+            relocation_masked_first_mismatch_offset=(
+                int(row["relocation_masked_first_mismatch_offset"])
+                if isinstance(
+                    row.get("relocation_masked_first_mismatch_offset"), int
+                )
                 else None
             ),
             size_delta=int(row["size_delta"]),
