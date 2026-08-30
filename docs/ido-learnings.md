@@ -67,6 +67,14 @@ bytes and disassembly never belong here.
 
 ### Allocation and source shape
 
+- The lexical start of a conditional block can be an allocation boundary for
+  a loop-invariant expression. If IDO hoists an invariant value into a saved
+  register, adding save/restore and move instructions, initialize the existing
+  local at the start of the only branch that consumes it; IDO may keep a
+  per-iteration temporary and recover the smaller frame. This is valid only
+  when the rejected path never observes the value and the ordinary object,
+  relocations, linked owner, and ROM all remain exact. Evidence: Overlay 34's
+  exact record updater in `docs/overlays.md`.
 - Declaration order can determine stack-home order for call-crossing locals.
   When the operation sequence is exact but spill offsets differ, reorder
   semantically independent declarations before inventing extra state.

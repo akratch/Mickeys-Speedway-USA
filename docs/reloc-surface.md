@@ -975,6 +975,17 @@ raw C used a false second argument and allocation aids, so it is diagnostic.
 Clean pointer-typed, one-argument source is staged but uncompiled. The owned
 `+0x2C8..+0x378` range has no padding, and linked equality proves fallback only.
 
+Overlay 34 `+0x40C` (`overlay34UpdateRecords`) owns seven runtime records.
+LOCAL HI16/LO16 pairs at function `+0x28/+0x2C`, `+0x40/+0x4C`, and
+`+0x44/+0x48` resolve to module data `+0xC`, `+0x4`, and `+0x10`
+(`gOverlay34ActiveCount`, `gOverlay34Pointers`, and `gOverlay34Value10`). The
+LOCAL JUMP at `+0xF0` resolves to `overlay34RemoveRecord` at module `+0x2C8`;
+the exact C object binds that record through the existing zero-field proxy so
+the shipped runtime relocation remains the effective-identity authority. The
+configured object is exact at 77 words with a `0x30` frame, all seven records
+agree by offset/type/effective identity, and the linked owner, complete overlay,
+and full ROM are exact.
+
 Overlay 22 `+0xD30` (`func_overlay_022_F0000D30_1878E38`) has 12 exact
 runtime-backed tuples in the configured candidate. LOCAL HI16/LO16 pairs at
 function `+0x14/+0x18` resolve through count `+0xED0`; pairs at
