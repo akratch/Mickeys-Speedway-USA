@@ -517,9 +517,12 @@ interrupted report without recompiling recorded identities, and repeated
   Each lane gets its own `build/`/`asm/`. It resolves the primary checkout
   through Git's common directory even when invoked from another lane, and
   fails instead of installing a dirty symlink when a tracked submodule cannot
-  be initialized from the shared local module store. On macOS it also creates
-  a git-ignored `.metadata_never_index` marker before extraction, preventing a
-  multi-lane launch from turning duplicate build trees into a Spotlight spike.
+  be initialized from the shared local module store. On macOS the registered
+  worktree uses a `.noindex` directory and the established
+  `../mickey-lane-<name>` path is a compatibility symlink to it. The helper
+  also creates `.metadata_never_index` before the tracked checkout, cache
+  restoration, or extraction. This keeps duplicate source/build trees out of
+  Spotlight without changing callers' lane paths.
 - **`tools/merge_lane.sh <name>`** integrates one lane back into the current
   branch: it rebuilds the lane from clean and requires `verify`/`check-docs`
   to pass there first, runs the clean-room range scan over the lane's
