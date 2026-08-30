@@ -38,16 +38,15 @@ typedef struct Overlay29Context {
     u8 *nodeTable;
 } Overlay29Context;
 
-extern void func_overlay_029_F0000000_187D2B0(
-    Gfx **, s32, Overlay29Group *, f32, f32);
-#define overlay29DrawReloc func_overlay_029_F0000000_187D2B0
-extern void overlay29FlushReloc(Gfx **);
-extern void overlay29FinishReloc(Gfx **);
+extern void camPushModelMtx(Gfx **, s32, Overlay29Group *, f32, f32);
+extern void camRestoreModelMtx(Gfx **);
+extern void func_80034920(Gfx **);
 
 #ifdef NON_MATCHING
-/* Plateau retry (2026-08-25): -O2/-mips2 is exact-sized at 48/129 words,
- * first +0x50; sinking groupIndex improves the preheader. Ten CFG/offset forms
- * and a 40-minute permuter (1370 to 880, no zero) leave the phase unresolved. */
+/* Plateau retry (2026-08-30): -O2/-mips2 is exact-sized at 81/129 positional
+ * words (48 differ), first +0x50, with all three call identities exact. Ten
+ * prior CFG/offset forms, five fresh forms, and the bounded permuter leave the
+ * pre-loop statement/expression-order phase unresolved. */
 void overlay29DrawGroups(Gfx **dl, s32 drawContext,
                          Overlay29Context *context) {
     Overlay29RenderState *render;
@@ -109,7 +108,7 @@ void overlay29DrawGroups(Gfx **dl, s32 drawContext,
             *dl = gfx + 1;
             gfx->w0 = 0xFA000000;
             gfx->w1 = (group->selector & 0xFF) | alphaMask;
-            overlay29DrawReloc(dl, drawContext, group, 1.0f, 0.0f);
+            camPushModelMtx(dl, drawContext, group, 1.0f, 0.0f);
 
             gfx = *dl;
             *dl = gfx + 1;
@@ -125,13 +124,13 @@ void overlay29DrawGroups(Gfx **dl, s32 drawContext,
             *dl = gfx + 1;
             gfx->w1 = 0;
             gfx->w0 = triangleCommand;
-            overlay29FlushReloc(dl);
+            camRestoreModelMtx(dl);
 
             node->consumed = 0;
             nodeOffset -= 4;
         } while (groupIndex--);
 
-        overlay29FinishReloc(dl);
+        func_80034920(dl);
         gfx = *dl;
         *dl = gfx + 1;
         gfx->w1 = 0xFFFFFFFF;
@@ -141,3 +140,13 @@ void overlay29DrawGroups(Gfx **dl, s32 drawContext,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o029/overlay29DrawGroups/func_overlay_029_F00014C8_187E778.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay29DrawGroups:start
+ * symbol: overlay29DrawGroups
+ * score: 81/129 words
+ * frame: 0x58
+ * relocations: 3
+ * first-mismatch: +0x50
+ * summary: All 119 flags and five fresh CFG/address forms are nonexact; resume only with new source-authentic scheduler or expression-order evidence
+ * PLATEAU-HANDOFF:overlay29DrawGroups:end
+ */
