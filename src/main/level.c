@@ -621,9 +621,9 @@ u8 *levelGetName(s32 arg0) {
     return D_8007A0D0;
 }
 
-/* Workbench: allocation-mismatch; 5 words differ, first mismatch +0x13C. */
+/* Workbench: allocation-mismatch; 3 words differ, first mismatch +0x13C. */
 /* Candidate is shape-exact: 117/117 instructions, frame -40/-40 bytes. */
-/* PROVENANCE: structure adapted from JFG src/level.c:levelFreeAll; remaining gap is one temp-FIFO register swap. */
+/* PROVENANCE: structure adapted from JFG src/level.c:levelFreeAll; remaining gap is pointer/scale temp order. */
 #ifdef NON_MATCHING
 void levelFreeAll(void) {
     s16 temp_v0_2;
@@ -657,7 +657,7 @@ void levelFreeAll(void) {
             } else if (temp_v0_2 & 0x8000) {
                 func_800359D4(D_800CF490[i]);
             } else if (temp_v0_2 & 0x4000) {
-                func_80004B04(*(D_800C94E0 + (temp_v0_2 & 0x3FFF)));
+                func_80004B04(*(s16 *) (((temp_v0_2 & 0x3FFF) << 1) + (u32) D_800C94E0));
             } else {
                 modFreeModel(D_800CF490[i]);
             }
@@ -718,10 +718,10 @@ s32 levelInitRegionFlags(void) {
 
 /* PLATEAU-HANDOFF:levelFreeAll:start
  * symbol: levelFreeAll
- * score: 112/117 words
+ * score: 114/117 words
  * frame: 0x28
- * relocations: 36
+ * relocations: 36/36
  * first-mismatch: +0x13C
- * summary: Two-thread 15-minute targeted permuter was flat at base 30; register-only basin remains. Next lever: instrumented ugen FIFO trace at the pointer-add block.
+ * summary: Fidelity-clean IDO 5.3 UGEN tracing improved the pointer-add block to three register-only words. Next lever: a natural mask -> pointer -> scale allocation order; flags and blind permutation are exhausted.
  * PLATEAU-HANDOFF:levelFreeAll:end
  */
