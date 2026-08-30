@@ -44,7 +44,8 @@ it never reads a sibling worktree, index, process, or uncommitted file. Run
 commit-message claims, not match evidence; integration repeats every normal
 proof. A symbol check also compares the exact committed definition path and
 validated `NON_MATCHING` guard with descendant lane refs, then checks any source
-`PLATEAU-HANDOFF` against that symbol's committed triage history. It reports
+`PLATEAU-HANDOFF` against that symbol's committed per-symbol shard and legacy
+triage history. It reports
 `base-only`, `active`, `already-integrated/exhausted`, or `stale-ledger` and
 returns success only for `base-only`; this makes stale pre-cleanup evidence a
 closed assignment gate instead of an implicit ready row. Subjects explicitly
@@ -361,11 +362,18 @@ guards elsewhere in the same translation unit are ignored; validation is tied
 to the requested symbol's own top-level guard and fallback. The command refuses
 an unguarded, nested, unterminated, or ambiguous target body, any other
 mismatched fallback, an untracked source, or worktree/index dirt outside that
-source and its handoff ledger. By default it records the exact-symbol Markdown
-handoff in `docs/matching-triage.md`; `--handoff-doc docs/<file>.md` may select
-another tracked ledger. It records only the supplied score, frame, relocation
-count, first mismatch, and one-line summary in a symbol-keyed metadata comment
-at the end of the source file and a bounded Markdown block in that ledger.
+source and its handoff ledger. By default it creates or updates only
+`docs/matching-triage-handoffs/<symbol>.md`; two symbols therefore never edit a
+shared generated ledger file. Each shard has a strict one-symbol schema and
+records its exact source path. Historical blocks stay in
+`docs/matching-triage.md`; `--handoff-doc docs/<file>.md` may explicitly select
+that or another existing tracked ledger and retains the fail-closed tracked-path
+checks. The reserved shard directory cannot be selected through that option,
+so custom-ledger formatting cannot bypass the one-symbol shard schema. The
+command records only the supplied score, frame, relocation count,
+first mismatch, and one-line summary in a symbol-keyed metadata comment at the
+end of the source file and a bounded Markdown block in the selected shard or
+ledger.
 Appending the source metadata preserves every pre-existing byte and physical
 source line, including the measured guarded function. Re-running the command
 updates only that symbol's EOF block, and multiple symbols may share a source
@@ -377,7 +385,8 @@ The finalizer runs the source-only `cleanroom` and `check-docs` gates. Those
 gates preserve a safe handoff; they do not replace configured compilation or
 ROM verification. It leaves the result uncommitted by default. Pass `--commit`
 only after reviewing the diff; that mode stages and commits only the named
-source and optional handoff document.
+source and handoff document. The directory README is static and is never
+regenerated or touched by finalization.
 
 ### Auditing post-compile steps: `tools/postprocess_audit.py`
 
@@ -507,11 +516,13 @@ interrupted report without recompiling recorded identities, and repeated
   `--pending-only`; subject wording alone never suppresses a claim. With
   `--symbol`, the leading `assignment` row is the fail-closed scheduling
   verdict: only `base-only` exits zero. `active` identifies a descendant lane
-  with a different committed target guard or target handoff; unrelated guarded
-  functions in the same translation unit do not reserve this symbol,
+  with a different committed target guard, source handoff, exact legacy-ledger
+  row, or symbol-owned shard; unrelated guarded functions and unrelated shards
+  do not reserve this symbol,
   `already-integrated/exhausted` covers a base match or a current plateau, and
-  `stale-ledger` means exact source identity or target-specific triage history
-  is missing or older than the committed plateau. The check reads Git objects,
+  `stale-ledger` means exact source identity or target-specific shard/legacy
+  history is malformed, missing, source-mismatched, or older than the committed
+  plateau. The check reads Git objects,
   never another lane's worktree or index. Its ref query excludes branches
   already merged into the selected base before doing target-history work, so
   retained historical lane refs do not slow assignment checks. Candidate blobs

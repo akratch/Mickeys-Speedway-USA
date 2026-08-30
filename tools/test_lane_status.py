@@ -18,6 +18,7 @@ import lane_status as ls  # noqa: E402
 TOOL = Path(__file__).with_name("lane_status.py").resolve()
 SYMBOL = "overlay43FilterImage"
 SOURCE_PATH = Path("src/overlays/o043/overlay43FilterImage.c")
+SHARD_PATH = Path("docs/matching-triage-handoffs") / f"{SYMBOL}.md"
 
 
 def candidate(*, plateau: bool = False) -> str:
@@ -42,8 +43,20 @@ void {SYMBOL}(void) {{
     return text
 
 
+def shard(*, source: str = SOURCE_PATH.as_posix(), symbol: str = SYMBOL) -> str:
+    return ls.finalize_plateau.markdown_handoff(
+        symbol,
+        source,
+        ls.finalize_plateau.Metrics(
+            "35/43 words", "frameless", 0, "+0x4", "allocator web remains",
+        ),
+    )
+
+
 class LaneStatusAssignmentTests(unittest.TestCase):
     def setUp(self) -> None:
+        ls.show_file.cache_clear()
+        ls.blob_id.cache_clear()
         self.temporary = tempfile.TemporaryDirectory()
         self.repo = Path(self.temporary.name)
         self.command("git", "init", "-q", "-b", "campaign/unchain")
@@ -58,6 +71,8 @@ class LaneStatusAssignmentTests(unittest.TestCase):
         self.commit("Seed overlay43FilterImage evidence")
 
     def tearDown(self) -> None:
+        ls.show_file.cache_clear()
+        ls.blob_id.cache_clear()
         self.temporary.cleanup()
 
     def command(self, *command: str, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -134,6 +149,51 @@ void unrelatedFunction(void) {
         self.assertEqual(report["assignment"]["state"], "active")
         self.assertEqual(report["assignment"]["active_lanes"], ["lane/o43-handoff"])
 
+    def test_unintegrated_target_shard_without_source_edit_is_active(self) -> None:
+        self.command("git", "switch", "-q", "-c", "lane/o43-shard")
+        (self.repo / SHARD_PATH.parent).mkdir()
+        (self.repo / SHARD_PATH).write_text(shard(), encoding="utf-8")
+        self.commit("Plateau overlay43FilterImage shard")
+        self.command("git", "switch", "-q", "campaign/unchain")
+
+        result, report = self.status()
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["assignment"]["state"], "active")
+        self.assertEqual(report["assignment"]["active_lanes"], ["lane/o43-shard"])
+
+    def test_unintegrated_legacy_block_metric_edit_is_active(self) -> None:
+        ledger = self.repo / "docs/matching-triage.md"
+        ledger.write_text(shard(), encoding="utf-8")
+        self.commit("Record overlay43FilterImage ledger block")
+        self.command("git", "switch", "-q", "-c", "lane/o43-ledger-metric")
+        ledger.write_text(
+            shard().replace("35/43 words", "36/43 words"), encoding="utf-8",
+        )
+        self.commit("Update overlay43FilterImage plateau metric")
+        self.command("git", "switch", "-q", "campaign/unchain")
+
+        result, report = self.status()
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["assignment"]["state"], "active")
+        self.assertEqual(
+            report["assignment"]["active_lanes"], ["lane/o43-ledger-metric"],
+        )
+
+    def test_unrelated_symbol_shard_does_not_reserve_target(self) -> None:
+        self.command("git", "switch", "-q", "-c", "lane/other-shard")
+        directory = self.repo / SHARD_PATH.parent
+        directory.mkdir()
+        (directory / "unrelatedFunction.md").write_text(
+            shard(source="src/main/other.c", symbol="unrelatedFunction"),
+            encoding="utf-8",
+        )
+        self.commit("Plateau unrelatedFunction")
+        self.command("git", "switch", "-q", "campaign/unchain")
+
+        result, report = self.status()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(report["assignment"]["state"], "base-only")
+
     def test_stale_pre_cleanup_triage_row_fails_closed(self) -> None:
         (self.repo / SOURCE_PATH).write_text(candidate(plateau=True), encoding="utf-8")
         source_commit = self.commit("Plateau overlay43FilterImage temp FIFO reproof")
@@ -159,6 +219,94 @@ void unrelatedFunction(void) {
         self.assertEqual(assignment["state"], "already-integrated/exhausted")
         self.assertEqual(assignment["source_commit"], source_commit)
         self.assertEqual(assignment["ledger_commit"], ledger_commit)
+
+    def test_legacy_generated_block_metric_refresh_is_current(self) -> None:
+        source = candidate(plateau=True)
+        ledger = self.repo / "docs/matching-triage.md"
+        (self.repo / SOURCE_PATH).write_text(source, encoding="utf-8")
+        ledger.write_text(shard(), encoding="utf-8")
+        self.commit("Plateau overlay43FilterImage initial")
+        (self.repo / SOURCE_PATH).write_text(
+            source.replace("8/43 words", "9/43 words"), encoding="utf-8",
+        )
+        ledger.write_text(
+            shard().replace("35/43 words", "36/43 words"), encoding="utf-8",
+        )
+        refreshed = self.commit("Plateau overlay43FilterImage refresh")
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(assignment["state"], "already-integrated/exhausted")
+        self.assertEqual(assignment["source_commit"], refreshed)
+        self.assertEqual(assignment["ledger_commit"], refreshed)
+
+    def test_symbol_shard_reconciles_plateau_without_shared_ledger_edit(self) -> None:
+        (self.repo / SOURCE_PATH).write_text(candidate(plateau=True), encoding="utf-8")
+        (self.repo / SHARD_PATH.parent).mkdir()
+        (self.repo / SHARD_PATH).write_text(shard(), encoding="utf-8")
+        plateau_commit = self.commit("Plateau overlay43FilterImage allocator")
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(assignment["state"], "already-integrated/exhausted")
+        self.assertEqual(assignment["source_commit"], plateau_commit)
+        self.assertEqual(assignment["ledger_commit"], plateau_commit)
+
+    def test_malformed_symbol_shard_fails_closed(self) -> None:
+        (self.repo / SHARD_PATH.parent).mkdir()
+        (self.repo / SHARD_PATH).write_text("# malformed\n", encoding="utf-8")
+        self.commit("Add malformed overlay43FilterImage shard")
+
+        result, report = self.status()
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["assignment"]["state"], "stale-ledger")
+        self.assertIn("malformed or foreign", report["assignment"]["reason"])
+
+    def test_malformed_target_block_in_legacy_ledger_fails_closed(self) -> None:
+        (self.repo / "docs/matching-triage.md").write_text(
+            f"<!-- plateau-handoff:{SYMBOL}:start -->\n"
+            f"### `{SYMBOL}` plateau handoff\n",
+            encoding="utf-8",
+        )
+        ledger_commit = self.commit("Damage overlay43FilterImage handoff block")
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(assignment["state"], "stale-ledger")
+        self.assertEqual(assignment["ledger_commit"], ledger_commit)
+        self.assertIn("malformed target-specific", assignment["reason"])
+
+    def test_symbol_shard_source_mismatch_fails_closed(self) -> None:
+        (self.repo / SHARD_PATH.parent).mkdir()
+        (self.repo / SHARD_PATH).write_text(
+            shard(source="src/main/wrong.c"), encoding="utf-8",
+        )
+        shard_commit = self.commit("Add wrong-source overlay43FilterImage shard")
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(assignment["state"], "stale-ledger")
+        self.assertEqual(assignment["ledger_commit"], shard_commit)
+        self.assertIn("expected", assignment["reason"])
+
+    def test_symbol_shard_older_than_source_plateau_is_stale(self) -> None:
+        (self.repo / SHARD_PATH.parent).mkdir()
+        (self.repo / SHARD_PATH).write_text(shard(), encoding="utf-8")
+        shard_commit = self.commit("Add overlay43FilterImage plateau shard")
+        (self.repo / SOURCE_PATH).write_text(candidate(plateau=True), encoding="utf-8")
+        source_commit = self.commit("Plateau overlay43FilterImage reproof")
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(assignment["state"], "stale-ledger")
+        self.assertEqual(assignment["source_commit"], source_commit)
+        self.assertEqual(assignment["ledger_commit"], shard_commit)
+        self.assertIn("predates", assignment["reason"])
 
     def test_target_named_plateau_commit_is_evidence_without_marker(self) -> None:
         (self.repo / SOURCE_PATH).write_text(
@@ -236,6 +384,28 @@ void unrelatedFunction(void) {
         self.assertEqual(assignment["source_commit"], plateau_commit)
         self.assertEqual(assignment["ledger_commit"], plateau_commit)
 
+    def test_mixed_tu_plateau_uses_exact_symbol_shard(self) -> None:
+        second = """\n#ifdef NON_MATCHING
+void unrelatedFunction(void) {
+}
+#else
+#pragma GLOBAL_ASM(\"asm/nonmatchings/overlays/o043/unrelatedFunction.s\")
+#endif
+"""
+        (self.repo / SOURCE_PATH).write_text(
+            candidate(plateau=True) + second, encoding="utf-8",
+        )
+        (self.repo / SHARD_PATH.parent).mkdir()
+        (self.repo / SHARD_PATH).write_text(shard(), encoding="utf-8")
+        plateau_commit = self.commit("Record overlay 43 allocation plateau")
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(assignment["state"], "already-integrated/exhausted")
+        self.assertEqual(assignment["source_commit"], plateau_commit)
+        self.assertEqual(assignment["ledger_commit"], plateau_commit)
+
     def test_mixed_tu_plateau_row_without_source_change_is_stale(self) -> None:
         second = """\n#ifdef NON_MATCHING
 void unrelatedFunction(void) {
@@ -294,10 +464,17 @@ class LaneRefQueryTests(unittest.TestCase):
                 return "lane/history\x00deadbeef\n"
             raise AssertionError(f"unexpected Git query: {args}")
 
+        def fake_blobs(_refs, path):
+            if path == "path.c":
+                return {"lane/history": ("same-blob", "base")}
+            return {"lane/history": None}
+
         with mock.patch.object(ls, "git", side_effect=fake_git), mock.patch.object(
             ls,
             "blob_contents",
-            return_value={"lane/history": ("same-blob", "base")},
+            side_effect=fake_blobs,
+        ), mock.patch.object(
+            ls, "show_file", return_value=None,
         ), mock.patch.object(
             ls.finalize_plateau,
             "require_guarded_candidate",

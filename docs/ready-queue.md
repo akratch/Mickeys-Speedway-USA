@@ -18,8 +18,10 @@ targets that are safe to assign. It joins five independent checks:
    `NON_MATCHING` source queue discovered by `tools/permute_batch.py`.
 5. `tools/lane_status.py` must classify the symbol as `base-only`. This is the
    only assignable state under ADR 0011. Active ownership is scoped to the
-   validated target guard and its handoff, so a historical edit to another
-   guarded function in the same translation unit does not suppress this row.
+   validated target guard, its source handoff, its exact legacy-ledger rows,
+   and `docs/matching-triage-handoffs/<symbol>.md`. A historical edit to
+   another guarded function or another symbol's shard does not suppress this
+   row; malformed or source-mismatched target shards fail closed.
 
 The command is read-only. It reads source and committed Git objects; it does
 not compile, inspect ROM text, or inspect sibling worktrees.

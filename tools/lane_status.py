@@ -25,7 +25,7 @@ REMOVED_GLOBAL_ASM_RE = re.compile(
     r'^-\s*#pragma\s+GLOBAL_ASM\("(?P<path>[^"]+)"\)', re.MULTILINE,
 )
 DISPOSITIONS_PATH = "config/lane-claim-dispositions.us.json"
-TRIAGE_PATH = "docs/matching-triage.md"
+LEGACY_TRIAGE_PATH = "docs/matching-triage.md"
 SYMBOL_TOKEN_TEMPLATE = r"(?<![A-Za-z0-9_]){symbol}(?![A-Za-z0-9_])"
 FUNCTION_DEFINITION_TEMPLATE = (
     r"(?<![A-Za-z0-9_]){symbol}\s*\([^;{{}}]*\)\s*\{{"
@@ -186,6 +186,32 @@ def exact_symbol_rows(text: str | None, symbol: str) -> list[str]:
     return [line for line in text.splitlines() if token.search(line)]
 
 
+def legacy_evidence_signature(
+    text: str | None, symbol: str,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Select this symbol's rows and generated blocks from the shared ledger."""
+    if text is None:
+        return (), ()
+    marker = re.escape(f"plateau-handoff:{symbol}")
+    pattern = re.compile(
+        rf"<!-- {marker}:start -->.*?<!-- {marker}:end -->\n?",
+        re.DOTALL,
+    )
+    return tuple(exact_symbol_rows(text, symbol)), tuple(pattern.findall(text))
+
+
+def malformed_legacy_marker(text: str | None, symbol: str) -> bool:
+    """Reject a target generated block whose paired markers are damaged."""
+    if text is None:
+        return False
+    start = f"<!-- plateau-handoff:{symbol}:start -->"
+    end = f"<!-- plateau-handoff:{symbol}:end -->"
+    if start not in text and end not in text:
+        return False
+    _rows, blocks = legacy_evidence_signature(text, symbol)
+    return text.count(start) != 1 or text.count(end) != 1 or len(blocks) != 1
+
+
 def source_identity(ref: str, symbol: str) -> tuple[str | None, str | None]:
     """Return the one committed definition path, or a fail-closed reason."""
     output = git(
@@ -235,13 +261,32 @@ def guarded_fallback(text: str, symbol: str) -> bool:
 
 
 def has_plateau_handoff(text: str, symbol: str) -> bool:
+    return bool(plateau_handoff_signature(text, symbol))
+
+
+def plateau_handoff_signature(text: str, symbol: str) -> tuple[str, ...]:
+    """Return only this symbol's inline handoff blocks, byte for byte."""
     token = exact_symbol_pattern(symbol)
+    found = []
     for block in PLATEAU_BLOCK_RE.findall(text):
         if re.search(rf"\bsymbol:\s*{re.escape(symbol)}\s*(?:\n|$)", block):
-            return True
-        if block.startswith(f"/* PLATEAU-HANDOFF:{symbol}:start") and token.search(block):
-            return True
-    return False
+            found.append(block)
+        elif block.startswith(f"/* PLATEAU-HANDOFF:{symbol}:start") and token.search(block):
+            found.append(block)
+    return tuple(found)
+
+
+def shard_path(symbol: str) -> str:
+    return finalize_plateau.handoff_shard_path(symbol)
+
+
+def validated_shard_source(text: str | None, symbol: str) -> str | None:
+    if text is None:
+        return None
+    try:
+        return finalize_plateau.handoff_shard_source(text, symbol)
+    except finalize_plateau.PlateauError as error:
+        raise RuntimeError(str(error)) from error
 
 
 def target_history_record(
@@ -301,8 +346,7 @@ def ledger_source_plateau_record(
     evidence for every guarded function in the file.
     """
     raw = git(
-        "log", "--format=%H%x00%s%x1e", f"-G{re.escape(symbol)}", ref,
-        "--", TRIAGE_PATH,
+        "log", "--format=%H%x00%s%x1e", ref, "--", LEGACY_TRIAGE_PATH,
     )
     token = exact_symbol_pattern(symbol)
     for record in raw.split("\x1e"):
@@ -314,12 +358,18 @@ def ledger_source_plateau_record(
             continue
         changed = set(git(
             "diff-tree", "--no-commit-id", "--name-only", "-r", commit,
-            "--", source_path, TRIAGE_PATH,
+            "--", source_path, LEGACY_TRIAGE_PATH,
         ).splitlines())
-        if source_path not in changed or TRIAGE_PATH not in changed:
+        if source_path not in changed or LEGACY_TRIAGE_PATH not in changed:
             continue
-        triage = show_file(commit, TRIAGE_PATH)
+        triage = show_file(commit, LEGACY_TRIAGE_PATH)
         if triage is None:
+            continue
+        parent = first_parent(commit)
+        previous = show_file(parent, LEGACY_TRIAGE_PATH) if parent else None
+        if legacy_evidence_signature(triage, symbol) == legacy_evidence_signature(
+            previous, symbol,
+        ):
             continue
         rows = (line for line in triage.splitlines() if token.search(line))
         if any(PLATEAU_SUBJECT_RE.search(line) for line in rows):
@@ -327,17 +377,90 @@ def ledger_source_plateau_record(
     return None
 
 
-def latest_token_commit(ref: str, token: str, path: str) -> str | None:
-    """Find the latest edit to a ledger row containing one exact token."""
-    # Git's -G uses its own regex engine and does not support the Python
-    # lookarounds used by exact_symbol_pattern. C identifiers are sufficiently
-    # distinctive here; the current ledger text already passed the exact-token
-    # check before this history query.
-    pattern = re.escape(token)
-    value = git(
-        "log", "-1", "--format=%H", f"-G{pattern}", ref, "--", path
-    ).strip()
-    return value or None
+def shard_source_plateau_record(
+    ref: str, symbol: str, source_path: str,
+) -> tuple[str, str] | None:
+    """Find a plateau commit that changed one source and its exact shard."""
+    ledger_path = shard_path(symbol)
+    raw = git("log", "--format=%H%x00%s%x1e", ref, "--", ledger_path)
+    for record in raw.split("\x1e"):
+        record = record.strip("\n")
+        if not record:
+            continue
+        commit, subject = record.split("\0", 1)
+        if not PLATEAU_SUBJECT_RE.search(subject):
+            continue
+        changed = set(git(
+            "diff-tree", "--no-commit-id", "--name-only", "-r", commit,
+            "--", source_path, ledger_path,
+        ).splitlines())
+        if source_path not in changed or ledger_path not in changed:
+            continue
+        shard = show_file(commit, ledger_path)
+        if shard is None:
+            continue
+        try:
+            recorded_source = finalize_plateau.handoff_shard_source(shard, symbol)
+        except finalize_plateau.PlateauError:
+            continue
+        if recorded_source == source_path:
+            return commit, subject
+    return None
+
+
+def newest_related_commit(commits: list[str]) -> str | None:
+    """Choose the descendant when exact evidence exists in both ledgers."""
+    if not commits:
+        return None
+    selected = commits[0]
+    for commit in commits[1:]:
+        if is_ancestor(selected, commit):
+            selected = commit
+    return selected
+
+
+def first_parent(commit: str) -> str | None:
+    fields = git("rev-list", "--parents", "-n", "1", commit).split()
+    return fields[1] if len(fields) > 1 else None
+
+
+def latest_legacy_evidence_commit(ref: str, symbol: str) -> str | None:
+    """Find the newest commit owning a current target row or block line."""
+    text = show_file(ref, LEGACY_TRIAGE_PATH)
+    if text is None:
+        return None
+    token = exact_symbol_pattern(symbol)
+    start = f"<!-- plateau-handoff:{symbol}:start -->"
+    end = f"<!-- plateau-handoff:{symbol}:end -->"
+    selected_lines: set[int] = set()
+    inside = False
+    for index, line in enumerate(text.splitlines(), 1):
+        if line == start:
+            inside = True
+        if inside or token.search(line):
+            selected_lines.add(index)
+        if line == end:
+            inside = False
+    if not selected_lines:
+        return None
+
+    blame = git(
+        "blame", "--line-porcelain", ref, "--", LEGACY_TRIAGE_PATH,
+    )
+    commits: list[str] = []
+    current_commit: str | None = None
+    current_line = 0
+    for line in blame.splitlines():
+        header = re.fullmatch(r"\^?([0-9a-f]{40}) \d+ \d+(?: \d+)?", line)
+        if header:
+            current_commit = header.group(1)
+        elif line.startswith("\t"):
+            current_line += 1
+            if current_line in selected_lines and current_commit is not None:
+                commits.append(current_commit)
+    if current_line != len(text.splitlines()):
+        raise RuntimeError("git blame returned the wrong legacy-ledger line count")
+    return newest_related_commit(list(dict.fromkeys(commits)))
 
 
 def latest_path_commit(ref: str, path: str, *, exclude: str | None = None) -> str | None:
@@ -441,13 +564,30 @@ def active_lanes_for_source(
     )
     branches = [branch for branch, _head in refs]
     objects = blob_contents(branches, base_path)
+    legacy_objects = blob_contents(branches, LEGACY_TRIAGE_PATH)
+    target_shard_path = shard_path(symbol)
+    shard_objects = blob_contents(branches, target_shard_path)
+    if base_text is None:
+        base_text = show_file(base, base_path)
+    base_legacy_evidence = legacy_evidence_signature(
+        show_file(base, LEGACY_TRIAGE_PATH), symbol,
+    )
+    base_shard = show_file(base, target_shard_path)
     if all(
-        objects[branch] is not None and objects[branch][0] == base_blob
+        objects[branch] is not None
+        and objects[branch][0] == base_blob
+        and legacy_evidence_signature(
+            legacy_objects[branch][1]
+            if legacy_objects[branch] is not None else None,
+            symbol,
+        ) == base_legacy_evidence
+        and (
+            shard_objects[branch][1]
+            if shard_objects[branch] is not None else None
+        ) == base_shard
         for branch in branches
     ):
         return []
-    if base_text is None:
-        base_text = show_file(base, base_path)
     try:
         base_candidate = finalize_plateau.require_guarded_candidate(
             base_text or "", symbol
@@ -459,13 +599,23 @@ def active_lanes_for_source(
         "".join(base_lines[base_candidate.ifdef_line:base_candidate.endif_line + 1])
         if base_candidate is not None else None
     )
-    base_handoff = has_plateau_handoff(base_text or "", symbol)
+    base_handoff = plateau_handoff_signature(base_text or "", symbol)
     for branch, _head in refs:
         # The contains filter already excludes old refs that predate the
         # current target source. Most retained lane refs have not changed this
         # path at all; compare its blob before paying for a full symbol/path
         # resolution on the small differing remainder.
         lane_object = objects[branch]
+        lane_legacy_object = legacy_objects[branch]
+        lane_shard_object = shard_objects[branch]
+        lane_legacy = lane_legacy_object[1] if lane_legacy_object is not None else None
+        lane_shard = lane_shard_object[1] if lane_shard_object is not None else None
+        if legacy_evidence_signature(lane_legacy, symbol) != base_legacy_evidence:
+            active.append(branch)
+            continue
+        if lane_shard != base_shard:
+            active.append(branch)
+            continue
         if lane_object is None:
             active.append(branch)
             continue
@@ -491,7 +641,7 @@ def active_lanes_for_source(
         if lane_region != base_region:
             active.append(branch)
             continue
-        if has_plateau_handoff(lane_text, symbol) != base_handoff:
+        if plateau_handoff_signature(lane_text, symbol) != base_handoff:
             active.append(branch)
     return sorted(active)
 
@@ -558,22 +708,49 @@ def assignment_status(base: str, symbol: str) -> Assignment:
         if guard_count == 1
         else None
     )
-    triage_text = show_file(base, TRIAGE_PATH)
+    triage_text = show_file(base, LEGACY_TRIAGE_PATH)
+    if malformed_legacy_marker(triage_text, symbol):
+        return Assignment(
+            symbol, "stale-ledger", path, None,
+            latest_legacy_evidence_commit(base, symbol), [],
+            "malformed target-specific handoff block in the legacy triage ledger",
+        )
     ledger_rows = exact_symbol_rows(triage_text, symbol)
-    ledger_has_symbol = bool(ledger_rows)
-    ledger_marks_plateau = any(
+    legacy_has_symbol = bool(ledger_rows)
+    legacy_marks_plateau = any(
         PLATEAU_SUBJECT_RE.search(line) for line in ledger_rows
     )
-    ledger_source_record = (
+    legacy_source_record = (
         ledger_source_plateau_record(base, symbol, path)
-        if guard_count > 1 and ledger_marks_plateau
+        if guard_count > 1 and legacy_marks_plateau
+        else None
+    )
+    target_shard_path = shard_path(symbol)
+    shard_text = show_file(base, target_shard_path)
+    try:
+        shard_source = validated_shard_source(shard_text, symbol)
+    except RuntimeError as error:
+        return Assignment(
+            symbol, "stale-ledger", path, None,
+            latest_path_commit(base, target_shard_path), [], str(error),
+        )
+    if shard_source is not None and shard_source != path:
+        return Assignment(
+            symbol, "stale-ledger", path, None,
+            latest_path_commit(base, target_shard_path), [],
+            f"symbol handoff shard records source {shard_source}, expected {path}",
+        )
+    shard_record = (
+        shard_source_plateau_record(base, symbol, path)
+        if shard_source is not None
         else None
     )
     if (
         not has_plateau_handoff(text, symbol)
         and named_plateau_record is None
         and path_record is None
-        and ledger_source_record is None
+        and legacy_source_record is None
+        and shard_source is None
     ):
         return Assignment(
             symbol, "base-only", path, None, None, [],
@@ -585,14 +762,28 @@ def assignment_status(base: str, symbol: str) -> Assignment:
         if named_plateau_record is not None
         else path_record[0]
         if path_record is not None
-        else ledger_source_record[0]
-        if ledger_source_record is not None
+        else legacy_source_record[0]
+        if legacy_source_record is not None
+        else shard_record[0]
+        if shard_record is not None
         else None
     )
-    ledger_commit = (
-        latest_token_commit(base, symbol, TRIAGE_PATH)
-        if ledger_has_symbol
-        else None
+    ledger_commits = []
+    if shard_source is not None:
+        shard_commit = latest_path_commit(base, target_shard_path)
+        if shard_commit is not None:
+            ledger_commits.append(shard_commit)
+    if legacy_has_symbol:
+        legacy_commit = latest_legacy_evidence_commit(base, symbol)
+        if legacy_commit is not None:
+            ledger_commits.append(legacy_commit)
+    current_ledger_commits = (
+        [commit for commit in ledger_commits if is_ancestor(source_commit, commit)]
+        if source_commit is not None
+        else []
+    )
+    ledger_commit = newest_related_commit(
+        current_ledger_commits or ledger_commits
     )
     if source_commit is None:
         return Assignment(
@@ -602,7 +793,7 @@ def assignment_status(base: str, symbol: str) -> Assignment:
     if ledger_commit is None:
         return Assignment(
             symbol, "stale-ledger", path, source_commit, None, [],
-            f"source plateau is missing exact-symbol evidence in {TRIAGE_PATH}",
+            "source plateau is missing exact-symbol handoff ledger evidence",
         )
     if not is_ancestor(source_commit, ledger_commit):
         return Assignment(
