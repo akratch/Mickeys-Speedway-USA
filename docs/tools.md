@@ -225,6 +225,28 @@ identities and their delta rather than only saying that the relocation symbol
 is ambiguous. `wb_compare.sh` remains available for scalar source-shape
 diagnostics; neither message authorizes relocation or ownership inference.
 
+One narrower case preserves otherwise-valid analysis evidence. When the
+candidate relocation surface is measurable but one or more static relocation
+names have no provable runtime identity, the report gains a small additive
+`preflight` object. Its stable ingestion fields are `status` (`complete` or
+`partial`), `action` (`continue_matching`,
+`resolve_candidate_static_relocation_identities`,
+`restore_linked_runtime_identity_proof`, or `run_promotion_proof`), named
+relocation `counts`, and bounded `diagnostics`. `complete` means evidence
+collection is complete, not that the function matches. Each unresolved
+diagnostic carries the candidate-relative offset and relocation type; it never
+supplies or guesses an identity. The existing `workbench` object still carries
+target/candidate/matched word counts, frame sizes, verdict, and first mismatch.
+
+Partial status is explicitly non-exact. Normal proof mode prints the full
+human or JSON report and exits 1; hard preflight errors still exit 2 without a
+report. `--analysis-only` changes a partial report's exit to 0 for experiment
+ledger ingestion but leaves its status, action, error diagnostic, and missing
+identity unchanged. A post-promotion report remains complete only when the
+existing linked-ROM/runtime-table path proves exact effective identities; the
+promotion proof wrapper also independently rejects any preflight status other
+than `complete`.
+
 Promotion does not make the preflight unusable when splat removes the
 function's `asm/nonmatchings` fallback. With no fallback present, the resolver
 enters `post_promotion` mode only for one unconditional requested C definition
