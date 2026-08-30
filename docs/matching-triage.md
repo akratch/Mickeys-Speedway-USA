@@ -325,3 +325,14 @@ routing facts from that sweep; the sweep's `summary.json` is the measurement.
 - first mismatch: +0x0
 - summary: Target frame is 0x38. All 119 flags and ten coherent forms are nonexact; local structs reach 34 differences only with oversized frames. Next: a natural local/declaration layout adding eight non-save bytes, then the post-decrement loop CFG.
 <!-- plateau-handoff:func_8001BBB4:end -->
+
+<!-- plateau-handoff:overlay1FindNextAngle:start -->
+### `overlay1FindNextAngle` plateau handoff
+
+- source: `src/overlays/o001/overlay_001_middle.c`
+- score: 4/50 words
+- frame: 0x68
+- relocations: 4
+- first mismatch: +0x38
+- summary: Five raw positions (four masked) remain; ten directed variants missed both swaps. Next: source-authentic scheduler evidence and resolved local-data identity.
+<!-- plateau-handoff:overlay1FindNextAngle:end -->

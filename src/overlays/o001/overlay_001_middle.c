@@ -237,3 +237,13 @@ void overlay1AdvanceGauge(s32 amount) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_middle/func_overlay_001_F0002AA4_184EE84.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay1FindNextAngle:start
+ * symbol: overlay1FindNextAngle
+ * score: 4/50 words
+ * frame: 0x68
+ * relocations: 4
+ * first-mismatch: +0x38
+ * summary: Five raw positions (four masked) remain; ten directed variants missed both swaps. Next: source-authentic scheduler evidence and resolved local-data identity.
+ * PLATEAU-HANDOFF:overlay1FindNextAngle:end
+ */
