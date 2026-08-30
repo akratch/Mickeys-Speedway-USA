@@ -335,6 +335,24 @@ transferred. Operator-only paths, local absolute paths, release credentials,
 and automated generator/co-author trailers fail closed. Untracked local setup
 is ignored; tracked worktree or index changes are rejected.
 
+Campaign maintainers with the out-of-tree donor farm can opt into an earlier
+farm check:
+
+```sh
+gmake public-release \
+  PUBLIC_RELEASE_ARGS="--remote public --branch master --check-reference-builds"
+```
+
+This runs `tools/verify_reference_builds.sh` before any reconciliation
+generator, so a missing, stale, or locally divergent lock-pinned reference
+build fails before donor-derived artifacts are considered. It checks every
+title in `tools/reference-builds.lock`, including the canonical DKR and JFG
+farms, and honors the verifier's existing `REFS_ROOT` environment override.
+The option is deliberately off by default because ordinary public
+contributors do not have the external farm. It can be combined with
+`--write-derived` when a maintainer is intentionally refreshing generated
+release artifacts.
+
 The report compares the freshly generated scoreboard with the named
 remote-tracking branch and prints exact numeric deltas. Overlay promotions and
 retractions are additionally derived by interval-diffing the two canonical
