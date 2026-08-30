@@ -123,6 +123,25 @@ def summarize_preflight(report: object) -> dict[str, object]:
         not isinstance(first, str) or not re.fullmatch(r"\+0x[0-9A-F]+", first)
     ):
         raise RemeasureError(f"{symbol} has invalid first mismatch {first!r}")
+    target_relocations = _plain_int(
+        counts.get("target_relocations"), f"{symbol}.target_relocations"
+    )
+    candidate_relocations = _plain_int(
+        counts.get("candidate_static_relocations"), f"{symbol}.candidate_relocations"
+    )
+    resolved_identities = _plain_int(
+        counts.get("candidate_identities_resolved"), f"{symbol}.resolved_identities"
+    )
+    unresolved_identities = _plain_int(
+        counts.get("candidate_identities_unresolved"), f"{symbol}.unresolved_identities"
+    )
+    offset_type_aligned = _plain_int(
+        counts.get("offset_type_aligned"), f"{symbol}.offset_type_aligned"
+    )
+    if resolved_identities + unresolved_identities != candidate_relocations:
+        raise RemeasureError(f"{symbol} relocation identity counts disagree")
+    if offset_type_aligned > min(target_relocations, candidate_relocations):
+        raise RemeasureError(f"{symbol} offset/type count exceeds relocation counts")
     return {
         "symbol": symbol,
         "source": source,
@@ -142,21 +161,11 @@ def summarize_preflight(report: object) -> dict[str, object]:
         "candidate_frame": _optional_int(
             workbench.get("candidate_frame"), f"{symbol}.candidate_frame"
         ),
-        "target_relocations": _plain_int(
-            counts.get("target_relocations"), f"{symbol}.target_relocations"
-        ),
-        "candidate_relocations": _plain_int(
-            counts.get("candidate_static_relocations"), f"{symbol}.candidate_relocations"
-        ),
-        "resolved_identities": _plain_int(
-            counts.get("candidate_identities_resolved"), f"{symbol}.resolved_identities"
-        ),
-        "unresolved_identities": _plain_int(
-            counts.get("candidate_identities_unresolved"), f"{symbol}.unresolved_identities"
-        ),
-        "offset_type_aligned": _plain_int(
-            counts.get("offset_type_aligned"), f"{symbol}.offset_type_aligned"
-        ),
+        "target_relocations": target_relocations,
+        "candidate_relocations": candidate_relocations,
+        "resolved_identities": resolved_identities,
+        "unresolved_identities": unresolved_identities,
+        "offset_type_aligned": offset_type_aligned,
     }
 
 
@@ -239,9 +248,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         if args.symbols:
+            if len(args.symbols) > args.top:
+                raise RemeasureError(
+                    f"{len(args.symbols)} requested symbols exceed --top {args.top}"
+                )
             seen: set[str] = set()
             selected = []
-            for raw in args.symbols[: args.top]:
+            for raw in args.symbols:
                 symbol = validate_symbol(raw)
                 if symbol in seen:
                     raise RemeasureError(f"duplicate requested symbol {symbol}")

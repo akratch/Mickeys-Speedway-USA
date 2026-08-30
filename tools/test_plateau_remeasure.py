@@ -96,6 +96,12 @@ class PlateauRemeasureTests(unittest.TestCase):
         self.assertIn("--no-build", run.call_args.args[0])
         self.assertEqual("close_one", row["symbol"])
 
+    def test_rejects_inconsistent_relocation_counts(self) -> None:
+        report = self.report()
+        report["preflight"]["counts"]["candidate_identities_unresolved"] = 1
+        with self.assertRaisesRegex(pr.RemeasureError, "identity counts disagree"):
+            pr.summarize_preflight(report)
+
     def test_json_main_is_one_document(self) -> None:
         measured = pr.summarize_preflight(self.report())
         with (
