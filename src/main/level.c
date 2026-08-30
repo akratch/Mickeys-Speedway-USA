@@ -722,6 +722,6 @@ s32 levelInitRegionFlags(void) {
  * frame: 0x28
  * relocations: 36
  * first-mismatch: +0x13C
- * summary: Exact-shaped for/indexed-array form; one ugen temp-FIFO swap remains after 119 flags and 15 source variants; next lever is a bounded permuter.
+ * summary: Two-thread 15-minute targeted permuter was flat at base 30; register-only basin remains. Next lever: instrumented ugen FIFO trace at the pointer-add block.
  * PLATEAU-HANDOFF:levelFreeAll:end
  */
