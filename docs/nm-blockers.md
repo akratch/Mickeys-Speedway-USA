@@ -188,7 +188,6 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_overlay_008_F0001000_185ED58` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_008_F0002640_1860398` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_008_F000291C_1860674` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_overlay_008_F0003018_1860D70` | `src/overlays/o008/overlay_008.c` | none | — | Prior equality required five prohibited retained-rodata LO16 field edits; assembly fallback restored. |
 | `func_overlay_008_F00034A0_18611F8` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_008_F00042A8_1862000` | `src/overlays/o008/overlay_008.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_overlay_008_F0004CF0_1862A48` | `src/overlays/o008/overlay_008.c` | resolved-plateau | overlay 8 literal pool | TU-owned +0x27C..+0x2AC .rodata clears module growth; code generation remains. |

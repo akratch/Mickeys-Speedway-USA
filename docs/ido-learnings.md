@@ -50,6 +50,18 @@ bytes and disassembly never belong here.
   TU, all relocations, and the linked image remain exact. Evidence: Overlay
   25's exact effect initializer in `docs/overlays.md`.
 
+### Retained data and relocations
+
+- When a mixed translation unit emits the exact instruction fields but also
+  creates a duplicate compiler-private literal pool, preserve the fields and
+  rebind only their existing relocations to one absolute symbol for the
+  retained overlay-local pool. Externalize the duplicate section only behind
+  an exact payload digest, and require the complete runtime relocation surface
+  plus linked ROM bytes to agree. This applies only when the source object's
+  words are already exact; moving an addend into a LO16 field after compilation
+  remains prohibited. Evidence: Overlay 8's exact channel updater in
+  `docs/overlays.md`.
+
 ### Allocation and source shape
 
 - Declaration order can determine stack-home order for call-crossing locals.

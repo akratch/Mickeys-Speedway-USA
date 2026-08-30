@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
   "source_context_version": 3,
-  "queue_size": 407,
-  "resolved": 407,
+  "queue_size": 406,
+  "resolved": 406,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
-  "source_context_coverage": 407,
+  "source_context_coverage": 406,
   "functions": [
     {
       "name": "overlay40FadeRecords",
@@ -2633,19 +2633,6 @@
       "size_delta": 0,
       "category": "reloc-mismatch",
       "source_context_sha256": "legl.rkVt.F_y9.ehLa.88uA.TJu8.HiRk.b8oL.uRgo.3h-r.FVk"
-    },
-    {
-      "name": "overlay8UpdateChannels",
-      "file": "src/overlays/o008/overlay_008.c",
-      "overlay": 8,
-      "tu": "overlays/o008",
-      "size_bytes": 608,
-      "objdiff_match_pct": null,
-      "differing_words": 6,
-      "first_mismatch_offset": 12,
-      "size_delta": 0,
-      "category": "reloc-mismatch",
-      "source_context_sha256": "KoSj.buZW.dOaL.t6xG.j6oE.Y7zM.P4Tt.fsDa.8802.43tx.tj4"
     },
     {
       "name": "func_overlay_014_F0000000_186F8D8",
