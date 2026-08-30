@@ -425,6 +425,32 @@ class HeartbeatTests(unittest.TestCase):
         self.assertEqual(loaded["raw_differing_words"], 0)
         self.assertEqual(loaded["exact_relocation_identities"], 6)
 
+    def test_word_exact_summary_with_incomplete_identities_stays_compiled(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.write_summary(
+                root,
+                raw=0,
+                masked=0,
+                exact=True,
+                admissible=True,
+                relocations={
+                    "candidate_relocations": 21,
+                    "target_relocations": 21,
+                    "exact_relocation_identities": 11,
+                },
+            )
+            args = self.command_args(
+                target="demo_symbol",
+                base="a" * 40,
+                deadline_unix=2_000_000_000,
+                wb_summary="build/wb/demo.summary.json",
+            )
+            loaded = self.run_checkpoint_with_summary(root, args)
+        self.assertEqual(loaded["raw_differing_words"], 0)
+        self.assertEqual(loaded["exact_relocation_identities"], 11)
+        self.assertEqual(loaded["promotion_state"], "compiled")
+
     def test_direct_rom_exact_metrics_require_exact_words_and_relocations(self) -> None:
         exact = {
             "target_words": 108,

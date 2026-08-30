@@ -574,7 +574,10 @@ def workbench_summary_result(
         "candidate_words": candidate_words,
         "raw_differing_words": raw,
         "relocation_masked_differing_words": masked,
-        "promotion_state": "object-exact" if exact and admissible else "compiled",
+        # Word equality alone is not object-exact under ADR 0001.  Derive that
+        # state only after the authenticated relocation block below proves the
+        # complete candidate/target surface and every identity.
+        "promotion_state": "compiled",
     }
     relocations = payload.get("relocations")
     if relocations is not None and not isinstance(relocations, dict):
@@ -587,6 +590,14 @@ def workbench_summary_result(
         if value is not None and (type(value) is not int or int(value) < 0):
             raise CrewError(f"workbench summary has invalid {field}")
         result[field] = value
+    relocation_exact = (
+        result["candidate_relocations"] is not None
+        and result["candidate_relocations"]
+        == result["target_relocations"]
+        == result["exact_relocation_identities"]
+    )
+    if exact and admissible and relocation_exact:
+        result["promotion_state"] = "object-exact"
     return result
 
 

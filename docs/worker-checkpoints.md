@@ -78,7 +78,9 @@ python3 tools/crew.py checkpoint \
 `object-exact`, `canonical-staged`, and `rom-exact` require equal word
 geometry, zero raw and masked differences, equal relocation counts, and every
 identity exact. A workbench summary derives only `compiled` or `object-exact`;
-it cannot claim canonical staging or a ROM proof. `--best-score` remains for
+it derives `object-exact` only when its authenticated relocation block also
+proves every identity, and otherwise retains `compiled` even when the words
+are equal. It cannot claim canonical staging or a ROM proof. `--best-score` remains for
 legacy unmeasured updates, but is refused when numeric evidence is present;
 the tool generates an unambiguous concise score from the integers instead.
 
