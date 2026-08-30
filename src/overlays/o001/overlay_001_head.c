@@ -39,32 +39,32 @@ extern O1ControlTable *D_1D6C;
 extern u8 *overlay1NextPointer(u8 *pointer);
 extern f32 overlay1SplinePosReloc(f32 a, f32 b, f32 c, f32 d, f32 t);
 
-/* Retained plateau: exact 83-word size and 0x68 frame, with 16 raw sites from
- * +0x08 and 12 after runtime-relocation masking from +0x4C. Runtime records
- * identify the local +0x28 call as overlay1NextPointer and both resident calls
- * as splinePos; the source now uses those identities through the required
- * overlay proxy, but no identity-correct configured/linked reproof exists.
- * Reprove V0 and the missing flag lattice, then cap source work at the
- * D_1D6C anchor, integer lifetime, and call-crossing declaration order. */
+/* Retained plateau: exact 83-word size and 0x68 frame; 81/83 compiler words
+ * agree after relocation masking. The only codegen residual is the saved
+ * integral position at sp+0x38 instead of the target sp+0x40. Direct D_1D6C
+ * anchoring and declaration order recover the target register lanes and the
+ * other two call-crossing homes. All 119 flag rows and a bounded two-thread
+ * permuter search are nonexact; role, lifetime, scope, register, and scalar
+ * declaration-order forms leave this final stack home unchanged. */
 #ifdef NON_MATCHING
 void overlay1InterpolatePath(f32 *outX, f32 *outZ, s32 path, f32 offset) {
+    f32 position;
     O1ControlTable *table3Base;
-    O1ControlPoint *point0;
     O1ControlPoint *point1;
+    O1ControlPoint *point0;
     O1ControlPoint *point2;
     O1ControlPoint *point3;
-    f32 position;
+    s32 originalWhole;
     f32 fraction;
     s32 whole;
-    s32 originalWhole;
     s32 remaining;
 
     position = ((O1PathOffsetOwner *)D_1DA0)->pathOffset + offset;
     point0 = &D_1D60->points[path];
     point1 = &((O1ControlTable *)D_1D64)->points[path];
     point2 = &D_1D68->points[path];
+    point3 = &D_1D6C->points[path];
     table3Base = D_1D6C;
-    point3 = &table3Base->points[path];
     whole = (s32) position;
     originalWhole = whole;
     remaining = whole - 1;
@@ -825,3 +825,13 @@ extern void overlay1ResetReloc(void);
 void overlay1CallReset(void) {
     overlay1ResetReloc();
 }
+
+/* PLATEAU-HANDOFF:overlay1InterpolatePath:start
+ * symbol: overlay1InterpolatePath
+ * score: 81/83 words
+ * frame: 0x68
+ * relocations: 13
+ * first-mismatch: +0x94
+ * summary: One saved integral position stack home remains at sp+0x38 instead of target sp+0x40 and needs new source authentic evidence
+ * PLATEAU-HANDOFF:overlay1InterpolatePath:end
+ */
