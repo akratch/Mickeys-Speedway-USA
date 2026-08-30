@@ -49,6 +49,7 @@ gOverlay1ReleaseSecondary = 0x00001d70;
 overlay1ModeResolverReloc = 0xf0000000;
 overlay1ReleaseReloc = 0xf0000000;
 overlay1ResetReloc = 0xf0000000;
+overlay1SplinePosReloc = 0xf0000000;
 
 /* overlay 1: overlay_001_middle.c.o */
 D_0 = 0x00000000;

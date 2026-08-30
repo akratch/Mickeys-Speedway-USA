@@ -36,14 +36,16 @@ typedef struct O1PathOffsetOwner { u8 pad00[0x398]; f32 pathOffset; } O1PathOffs
 extern O1ControlTable *D_1D60;
 extern O1ControlTable *D_1D68;
 extern O1ControlTable *D_1D6C;
-extern O1ControlTable *overlay1NextControlTable(O1ControlTable *table);
-extern f32 overlay1CubicInterpolate(f32 a, f32 b, f32 c, f32 d, f32 t);
+extern u8 *overlay1NextPointer(u8 *pointer);
+extern f32 overlay1SplinePosReloc(f32 a, f32 b, f32 c, f32 d, f32 t);
 
-/* Retained plateau: exact 83-word size and 0x68 frame, 16 raw differences
- * (12 after masking reconstructed addends), first substantive +0x4C; no fresh
- * configured full-TU or linked proof exists. First scope only remaining. Only
- * if that improves, scope whole/remaining under the originalWhole guard, then
- * try reversed block declarations, fused decrement, or direct countdown. */
+/* Retained plateau: exact 83-word size and 0x68 frame, with 16 raw sites from
+ * +0x08 and 12 after runtime-relocation masking from +0x4C. Runtime records
+ * identify the local +0x28 call as overlay1NextPointer and both resident calls
+ * as splinePos; the source now uses those identities through the required
+ * overlay proxy, but no identity-correct configured/linked reproof exists.
+ * Reprove V0 and the missing flag lattice, then cap source work at the
+ * D_1D6C anchor, integer lifetime, and call-crossing declaration order. */
 #ifdef NON_MATCHING
 void overlay1InterpolatePath(f32 *outX, f32 *outZ, s32 path, f32 offset) {
     O1ControlTable *table3Base;
@@ -69,7 +71,7 @@ void overlay1InterpolatePath(f32 *outX, f32 *outZ, s32 path, f32 offset) {
 
     if (whole != 0) {
         do {
-            table3Base = overlay1NextControlTable(table3Base);
+            table3Base = (O1ControlTable *)overlay1NextPointer((u8 *)table3Base);
             point0 = point1;
             point1 = point2;
             point2 = point3;
@@ -80,10 +82,10 @@ void overlay1InterpolatePath(f32 *outX, f32 *outZ, s32 path, f32 offset) {
     }
 
     fraction = position - (f32) originalWhole;
-    *outX = overlay1CubicInterpolate(point0->x, point1->x, point2->x,
-                                     point3->x, fraction);
-    *outZ = overlay1CubicInterpolate(point0->z, point1->z, point2->z,
-                                     point3->z, fraction);
+    *outX = overlay1SplinePosReloc(point0->x, point1->x, point2->x,
+                                  point3->x, fraction);
+    *outZ = overlay1SplinePosReloc(point0->z, point1->z, point2->z,
+                                  point3->z, fraction);
 }
 
 #else
