@@ -225,6 +225,54 @@ class FunctionSurfaceComparisonTests(unittest.TestCase):
         self.assertEqual({self.GENERATED_O22: (22, 0xD30)}, resolved)
         self.assertEqual(set(), ambiguous)
 
+    def test_generated_call_accepts_named_function_in_multi_function_object(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            candidate, canonical, target, _source, _obj = (
+                self.o22_boundary_fixture(root)
+            )
+            canonical._symbols.append(
+                ("neighbor", 0x100, 0x20, rs.STT_FUNC, 1)
+            )
+            resolved, ambiguous = rs._stable_overlay_call_identities(
+                root / "missing-aliases.txt",
+                candidate,
+                22,
+                target,
+                self.o22_atlas(),
+                0,
+                0x2B0,
+                root=root,
+                elf_loader=lambda _path: canonical,
+            )
+
+        self.assertEqual({self.GENERATED_O22: (22, 0xD30)}, resolved)
+        self.assertEqual(set(), ambiguous)
+
+    def test_generated_call_rejects_duplicate_named_function(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            candidate, canonical, target, _source, _obj = (
+                self.o22_boundary_fixture(root)
+            )
+            canonical._symbols.append(
+                (self.GENERATED_O22, 0, 0x1B0, rs.STT_FUNC, 1)
+            )
+            with self.assertRaisesRegex(
+                rs.SurfaceComparisonError, "ambiguous function symbols"
+            ):
+                rs._stable_overlay_call_identities(
+                    root / "missing-aliases.txt",
+                    candidate,
+                    22,
+                    target,
+                    self.o22_atlas(),
+                    0,
+                    0x2B0,
+                    root=root,
+                    elf_loader=lambda _path: canonical,
+                )
+
     def test_generated_call_rejects_ambiguous_ownership(self):
         owner = self.o22_atlas()["modules"][0]["text_ownership"][0]
         with tempfile.TemporaryDirectory() as td:

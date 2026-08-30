@@ -1370,13 +1370,14 @@ def _canonical_overlay_call_boundary(atlas, source_overlay, generated_name,
     definitions = [
         row for row in canonical_functions if row[0] == generated_name
     ]
-    if len(definitions) > 1 or len(canonical_functions) > 1:
+    if len(definitions) > 1:
         raise SurfaceComparisonError(
             "%s canonical owner has ambiguous function symbols" % generated_name)
     if not definitions:
         return None
     _name, object_value, object_symbol_size = definitions[0]
-    if object_value != 0 or object_symbol_size < row_size:
+    expected_object_value = target_offset - row_start
+    if object_value != expected_object_value or object_symbol_size <= 0:
         raise SurfaceComparisonError(
             "%s canonical object symbol conflicts with atlas boundary"
             % generated_name)
