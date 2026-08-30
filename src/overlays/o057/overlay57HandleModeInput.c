@@ -56,22 +56,24 @@ extern void o57ModeSubmitFinalReloc(void *object, void *state, f32 position,
                                    s32 index, s32 mode);
 
 /* Overlay 57 text +0x4064..+0x43C8. */
-/* Plateau: canonical -O2 -mips2 is exact-size at 0x364 and differs in 13
- * words, first at +0xE0.  Reusing inputFlags as the compacted output index
- * fixes the output-table carrier; the remaining initializer schedule and
- * private a1/a2 loop web resisted the bounded source variants. */
+/* Plateau retry (2026-08-30): canonical -O2 -mips2 is exact-size at 0x364
+ * with the exact 0x58 frame, three relocation-masked differences first at
+ * +0xE0, and seven raw differences first at +0x14. Direct global conditions
+ * preserve the input flag in v0 while a separate compacted output index fixes
+ * the loop carriers. The remaining mismatch is the index-zero initializer
+ * schedule; the 119-entry flag lattice and ten source variants did not move it
+ * after both loop base addresses without regressing the candidate. */
 #ifdef NON_MATCHING
 void overlay57HandleModeInput(s32 updateRate) {
-    u32 inputFlags;
     s32 i;
+    s32 outputIndex;
     s32 *idPtr;
     s8 enabled[4];
 
     gOverlay57ModeFlag = 0;
     gOverlay57State = 3;
-    inputFlags = gO57ModeInputFlags;
 
-    if (((inputFlags & 0x9000) != 0) &&
+    if (((gO57ModeInputFlags & 0x9000) != 0) &&
         (gOverlay57DistanceState == 0)) {
         o57ModeBegin12Reloc(12, 0);
 
@@ -85,18 +87,18 @@ void overlay57HandleModeInput(s32 updateRate) {
         gO57ModeShortValue = 0x3FC;
         gO57ModeSixthByte = 0;
 
-        inputFlags = 0;
         i = 0;
+        outputIndex = 0;
         do {
             enabled[i] = gO57ModeChoices[i].enabled;
             if (gO57ModeChoices[i].enabled != 0) {
-                gO57ModeOutputs[inputFlags].value =
+                gO57ModeOutputs[outputIndex].value =
                     (s8) gO57ModeValueTable[
                         gO57ModeChoices[i].tableIndex];
-                inputFlags++;
+                outputIndex++;
             }
             i++;
-        } while (&gO57ModeChoices[i] != gO57ModeChoicesEnd);
+        } while (gO57ModeChoicesEnd != &gO57ModeChoices[i]);
 
         o57ModeSubmitEnabledReloc(enabled);
         o57ModeSelectChoiceReloc(0);
@@ -106,7 +108,7 @@ void overlay57HandleModeInput(s32 updateRate) {
                                0, 5, 1, 0);
         gOverlay57DistanceState = 1;
         o57ModeApplyTableReloc();
-    } else if (((inputFlags & 0x4000) != 0) &&
+    } else if (((gO57ModeInputFlags & 0x4000) != 0) &&
                (gOverlay57DistanceState == 0)) {
         o57ModeBegin13Reloc(13, 0);
         o57ModePrepareAlternateReloc();
@@ -142,3 +144,13 @@ void overlay57HandleModeInput(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57HandleModeInput/func_overlay_057_F0004064_18A7C5C.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay57HandleModeInput:start
+ * symbol: overlay57HandleModeInput
+ * score: 3/217 words
+ * frame: 0x58
+ * relocations: 70
+ * first-mismatch: +0xE0
+ * summary: Three masked (seven raw) differences remain at the loop initializer; next: source-authentic evidence for IDO's base-address scheduling.
+ * PLATEAU-HANDOFF:overlay57HandleModeInput:end
+ */
