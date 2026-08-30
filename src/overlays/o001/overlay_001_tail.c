@@ -3249,3 +3249,13 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * summary: 119 flags and three natural declaration/scope forms are exhausted; one a1/a3 allocator bijection remains
  * PLATEAU-HANDOFF:overlay1FindBestRecord:end
  */
+
+/* PLATEAU-HANDOFF:overlay1AppendPathPoint:start
+ * symbol: overlay1AppendPathPoint
+ * score: 86/108 words
+ * frame: 0x28
+ * relocations: 8
+ * first-mismatch: +0x20
+ * summary: 119 flags and six natural allocator/width forms are exhausted; the initial pool web and anchor temporary lane remain divergent
+ * PLATEAU-HANDOFF:overlay1AppendPathPoint:end
+ */
