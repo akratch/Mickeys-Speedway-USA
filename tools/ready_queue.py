@@ -26,12 +26,12 @@ TOOLS = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS))
 
 import lane_status  # noqa: E402
+import integration_base  # noqa: E402
 import nm_ranking  # noqa: E402
 import permute_batch  # noqa: E402
 
 
 DEFAULT_RANKING = ROOT / "config" / "nonmatching-ranking.us.json"
-DEFAULT_BASE = "campaign/unchain"
 DEFAULT_TOP = 10
 MAX_SCAN = 1000
 DEFAULT_SCAN = MAX_SCAN
@@ -642,7 +642,10 @@ def render_maintenance(report: dict[str, object]) -> str:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--base", default=DEFAULT_BASE, help="canonical Git ref")
+    parser.add_argument(
+        "--base",
+        help="canonical Git ref (default: freshest linear integration ref)",
+    )
     parser.add_argument(
         "--ranking", type=Path, default=DEFAULT_RANKING,
         help=f"ranking JSON (default {DEFAULT_RANKING.relative_to(ROOT)})",
@@ -689,6 +692,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     try:
+        if args.base is None:
+            args.base = integration_base.resolve(ROOT)
         base_commit = lane_status.git(
             "rev-parse", "--verify", f"{args.base}^{{commit}}"
         ).strip()

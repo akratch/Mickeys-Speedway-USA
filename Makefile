@@ -349,6 +349,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_canonical_candidate_guard.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_promotion_proof.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_allocator_trace_receipt.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_integration_base.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_lane_status.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_ready_queue.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_skeleton_scan.py

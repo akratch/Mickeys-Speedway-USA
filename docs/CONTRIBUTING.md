@@ -482,9 +482,11 @@ interrupted report without recompiling recorded identities, and repeated
 ### Lane helpers: `new_lane.sh`, `merge_lane.sh`, `codex_lane.sh`
 
 - **`tools/new_lane.sh <name> [--no-extract] [--no-cache] [base-branch]`** creates
-  `../mickey-lane-<name>` on branch `lane/<name>` from `base-branch`
-  (default `campaign/unchain`), symlinking the untracked toolchain, baserom,
-  venv and vendored tool checkouts in rather than copying them. It first looks
+  `../mickey-lane-<name>` on branch `lane/<name>` from `base-branch`. Without
+  an explicit base it compares local and `origin/` campaign integration refs,
+  selects the newer linear descendant, and fails on divergence; repositories
+  without either campaign ref use `HEAD`. It symlinks the untracked toolchain,
+  baserom, venv and vendored tool checkouts in rather than copying them. It first looks
   for an exact-commit bootstrap published by `tools/lane_cache.py publish`;
   that command accepts only a tracked-clean worktree, reruns `gmake verify`,
   and stores an ignored immutable snapshot below Git's common directory. A

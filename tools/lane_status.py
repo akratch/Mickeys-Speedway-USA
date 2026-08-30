@@ -15,9 +15,10 @@ import re
 import subprocess
 import sys
 from dataclasses import asdict, dataclass
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
 import finalize_plateau
+import integration_base
 
 
 MATCH_RE = re.compile(r"^match(?:ed)?\s+([A-Za-z_][A-Za-z0-9_]*)\b", re.I)
@@ -1033,13 +1034,18 @@ def print_text(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--base", default="campaign/unchain")
+    parser.add_argument(
+        "--base",
+        help="canonical Git ref (default: freshest linear integration ref)",
+    )
     parser.add_argument("--symbol", help="Show claims for one exact symbol")
     parser.add_argument("--pending-only", action="store_true")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
     try:
+        if args.base is None:
+            args.base = integration_base.resolve(Path.cwd())
         lanes = collect(args.base, args.symbol)
         assignment = assignment_status(args.base, args.symbol) if args.symbol else None
     except RuntimeError as error:

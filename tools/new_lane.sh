@@ -4,7 +4,8 @@
 #   tools/new_lane.sh <name> [--no-extract] [--no-cache] [base-branch]
 #
 # Creates ../mickey-lane-<name> on branch lane/<name> from base-branch
-# (default campaign/unchain), shares the untracked toolchain, baserom, venv and
+# (default: freshest linear local/remote campaign integration ref), shares the
+# untracked toolchain, baserom, venv and
 # vendored tool checkouts with this repository by symlink. When a verified
 # commit-keyed bootstrap exists below Git's common directory, it copy-on-write
 # clones the ignored split/build prerequisites into this lane; otherwise it
@@ -12,7 +13,7 @@
 # lane path.
 set -euo pipefail
 name=${1:?lane name}; shift
-extract=1; cache=1; base=campaign/unchain
+extract=1; cache=1; base=
 for a in "$@"; do
   case "$a" in
     --no-extract) extract=0 ;;
@@ -20,6 +21,9 @@ for a in "$@"; do
     *) base=$a ;;
   esac
 done
+# Resolve an explicitly supplied relative ref (especially HEAD) in the calling
+# worktree before switching Git operations to the primary checkout.
+caller=$(git rev-parse --show-toplevel)
 # Always anchor lane creation in the primary checkout. When this helper is
 # invoked from an existing linked worktree, --show-toplevel names that lane and
 # its .git is a file, so "$root/.git/modules" cannot be the shared submodule
@@ -30,9 +34,15 @@ if [ "$(basename "$common")" != .git ]; then
   exit 2
 fi
 root=$(dirname "$common")
+if [ -z "$base" ]; then
+  base=$(python3 "$caller/tools/integration_base.py" --repo "$root")
+  base_commit=$(git -C "$root" rev-parse --verify "$base^{commit}")
+else
+  base_commit=$(git -C "$caller" rev-parse --verify "$base^{commit}")
+fi
 dest=$(dirname "$root")/mickey-lane-$name
 if [ -e "$dest" ]; then echo "lane exists: $dest" >&2; exit 2; fi
-git -C "$root" worktree add -q -b "lane/$name" "$dest" "$base"
+git -C "$root" worktree add -q -b "lane/$name" "$dest" "$base_commit"
 # Creating several full worktrees can make macOS Spotlight index every copied
 # source/build path at once.  Mark the lane before extraction and compilation;
 # other platforms harmlessly ignore this git-ignored empty file.
