@@ -47,7 +47,6 @@ from __future__ import annotations
 
 import argparse
 import collections
-import dataclasses
 import json
 import re
 import struct
@@ -56,6 +55,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import overlay_tables as ot  # noqa: E402
+import reloc_identity as ri  # noqa: E402
 
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_ROM = REPO / "baseroms" / "mickey.us.z64"
@@ -1057,48 +1057,12 @@ class SurfaceComparisonError(Exception):
     """A function's target relocation ownership is not uniquely provable."""
 
 
-@dataclasses.dataclass(frozen=True)
-class SurfaceRecord:
-    """One function-relative relocation and its stable runtime identity."""
-
-    offset: int
-    rtype: int
-    identity: tuple[int, int] | None = None
-    link_addend: int | None = dataclasses.field(default=None, compare=False)
+SurfaceRecord = ri.RelocationRecord
 
 
 def compare_record_sets(target, candidate):
     """Compact exactness census for two relocation-record collections."""
-    target_shape = collections.Counter((r.offset, r.rtype) for r in target)
-    candidate_shape = collections.Counter((r.offset, r.rtype) for r in candidate)
-    target_identity = collections.Counter(
-        (r.offset, r.rtype, r.identity) for r in target if r.identity is not None
-    )
-    candidate_identity = collections.Counter(
-        (r.offset, r.rtype, r.identity)
-        for r in candidate if r.identity is not None
-    )
-    shape_matches = sum((target_shape & candidate_shape).values())
-    identity_matches = sum((target_identity & candidate_identity).values())
-    return {
-        "target_record_count": len(target),
-        # Compatibility for existing workbench/preflight consumers. Overlay
-        # targets are runtime records; resident targets are canonical static
-        # object records authenticated against the linked range.
-        "target_runtime_record_count": len(target),
-        "candidate_record_count": len(candidate),
-        "offset_type_alignment_count": shape_matches,
-        "stable_identity_alignment_count": identity_matches,
-        "candidate_identity_resolved_count": sum(
-            r.identity is not None for r in candidate
-        ),
-        "offset_type_exact": target_shape == candidate_shape,
-        "stable_identity_exact": (
-            target_shape == candidate_shape
-            and len(target_identity) == len(target)
-            and target_identity == candidate_identity
-        ),
-    }
+    return ri.compare_records(target, candidate)
 
 
 def _source_from_object(path: Path):
@@ -1218,19 +1182,16 @@ def _unique_symbol(elf, name, *, require_text=False):
 
 
 def _identity_add(identity, addend):
-    return (identity[0], identity[1] + addend)
+    return ri.effective_identity(identity, addend)
 
 
 def _numeric_assignments(path):
-    values = {}
     if not path.is_file():
-        return values
-    for line in path.read_text().splitlines():
-        m = re.match(
-            r"^\s*([A-Za-z_]\w*)\s*=\s*(0x[0-9A-Fa-f]+|\d+)\s*;", line)
-        if m:
-            values[m.group(1)] = int(m.group(2), 0)
-    return values
+        return {}
+    try:
+        return ri.parse_numeric_assignments(path.read_text())
+    except ri.RelocationIdentityError as error:
+        raise SurfaceComparisonError(str(error)) from error
 
 
 def _stable_symbol_identities(path, candidate_elf, overlay, tu_base_offset,
@@ -1244,16 +1205,13 @@ def _stable_symbol_identities(path, candidate_elf, overlay, tu_base_offset,
 
     # Generated overlay identities and their friendly aliases are stable even
     # though every module shares the same synthetic VMA.
+    equality_aliases = []
     if path.is_file():
-        for line in path.read_text().splitlines():
-            m = re.match(r"^\s*(\w+)\s*=\s*(\w+)\s*;", line)
-            if not m:
-                continue
-            generated, friendly = m.groups()
+        equality_aliases = ri.parse_linker_aliases(path.read_text())
+        for generated, _friendly in equality_aliases:
             gm = GEN_NAME_RE.match(generated)
             if gm:
                 propose(generated, (int(gm.group(1)), int(gm.group(2), 16)))
-                propose(friendly, (int(gm.group(1)), int(gm.group(2), 16)))
 
     # Resident auto-names and every resident address exported by the linked
     # build have a unique address space. Overlay-valued ELF symbols are not
@@ -1278,28 +1236,19 @@ def _stable_symbol_identities(path, candidate_elf, overlay, tu_base_offset,
             if name and shndx == text_idx:
                 propose(name, (overlay, tu_base_offset + value))
 
-    # Metadata-only objcopy renames preserve the original symbol's runtime
-    # identity. Carry that provenance onto the destination name found in the
-    # postprocessed object. Iterate to support a short rename chain while
-    # retaining the ordinary ambiguity check below.
-    redefine_aliases = redefine_aliases or {}
-    pending = dict(redefine_aliases)
-    while pending:
-        progressed = False
-        for destination, source in list(pending.items()):
-            if source not in proposed:
-                continue
-            proposed[destination].update(proposed[source])
-            del pending[destination]
-            progressed = True
-        if not progressed:
-            break
-
-    resolved = {name: next(iter(identities))
-                for name, identities in proposed.items() if len(identities) == 1}
-    ambiguous = {name for name, identities in proposed.items()
-                 if len(identities) > 1}
-    return resolved, ambiguous
+    redefine_pairs = [
+        (source, destination)
+        for destination, source in (redefine_aliases or {}).items()
+    ]
+    try:
+        resolution = ri.resolve_identities(
+            proposed,
+            equality_aliases=equality_aliases,
+            redefine_aliases=redefine_pairs,
+        )
+    except ri.RelocationIdentityError as error:
+        raise SurfaceComparisonError(str(error)) from error
+    return resolution.resolved, set(resolution.ambiguous)
 
 
 def _runtime_base(record, source_overlay, rom_table):

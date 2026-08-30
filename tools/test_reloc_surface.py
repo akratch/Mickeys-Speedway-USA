@@ -142,6 +142,38 @@ class FunctionSurfaceComparisonTests(unittest.TestCase):
             resolved["func_80005750_o001Reloc"], (0, 0x5300),
         )
         self.assertNotIn("func_80005750_o001Reloc", ambiguous)
+
+    def test_transitive_redefine_alias_propagates_stable_identity(self):
+        class FakeElf:
+            def __init__(self, target=False):
+                self.target = target
+
+            def section(self, _name):
+                return 1, object()
+
+            def symbols(self):
+                original = (
+                    ("func_80005750", 0x80005750, 4, 0, 1)
+                    if self.target
+                    else ("func_80005750", 0, 0, 0, rs.SHN_UNDEF)
+                )
+                return [
+                    original,
+                    ("middle", 0, 0, 0, rs.SHN_UNDEF),
+                    ("final", 0, 0, 0, rs.SHN_UNDEF),
+                ]
+
+        resolved, ambiguous = rs._stable_symbol_identities(
+            Path("missing"),
+            FakeElf(),
+            1,
+            0x3578,
+            FakeElf(target=True),
+            {"middle": "func_80005750", "final": "func_80005750"},
+        )
+        self.assertEqual((0, 0x5300), resolved["final"])
+        self.assertNotIn("final", ambiguous)
+
     def test_exact_surface_counts_shape_and_identity(self):
         target = [
             rs.SurfaceRecord(0x10, rs.R_MIPS_26, (0, 0x1234)),
