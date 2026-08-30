@@ -90,3 +90,13 @@ scan_loop:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14CreateValue/func_overlay_014_F00006FC_186FFD4.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay14CreateValue:start
+ * symbol: overlay14CreateValue
+ * score: 80/96 words
+ * frame: 0x28
+ * relocations: 15
+ * first-mismatch: +0x18
+ * summary: 16 masked/17 raw differences; LO16 order, pointer/key reload allocation, and 14 unresolved relocation identities remain; all flags tie.
+ * PLATEAU-HANDOFF:overlay14CreateValue:end
+ */
