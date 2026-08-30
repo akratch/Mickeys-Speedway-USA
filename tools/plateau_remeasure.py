@@ -25,10 +25,25 @@ SCHEMA = "mickey-plateau-remeasurement-v1"
 READY_QUEUE_SCHEMAS = (4, 5)
 SYMBOL_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 MAINTENANCE_CLASS = "prose-needs-remeasurement"
+FAILURE_STATUS = "failed"
+FAILURE_CATEGORIES = frozenset(
+    {"command-failed", "invalid-evidence", "invocation-failed", "malformed-json", "timeout"}
+)
+FAILURE_REASON_LIMIT = 160
 
 
 class RemeasureError(ValueError):
     """The batch cannot continue without guessing about evidence."""
+
+
+class MeasurementFailure(RemeasureError):
+    """One selected symbol could not be measured safely."""
+
+    def __init__(self, category: str, reason: str) -> None:
+        if category not in FAILURE_CATEGORIES:
+            raise ValueError(f"unknown measurement failure category {category!r}")
+        super().__init__(reason)
+        self.category = category
 
 
 def bounded_int(value: str, *, label: str, minimum: int, maximum: int) -> int:
@@ -59,6 +74,18 @@ def validate_symbol(value: object) -> str:
     if not isinstance(value, str) or not SYMBOL_RE.fullmatch(value):
         raise RemeasureError(f"invalid exact symbol {value!r}")
     return value
+
+
+def sanitize_failure_reason(reason: object) -> str:
+    """Return one bounded, path-free line suitable for public scalar output."""
+    text = reason if isinstance(reason, str) else "measurement failed"
+    text = re.sub(r"[\x00-\x1f\x7f]+", " ", text)
+    text = text.replace(str(ROOT), "<repo>")
+    text = re.sub(r"(?<![A-Za-z0-9_.-])/(?:[^/\s]+/)+[^/\s]*", "<path>", text)
+    text = " ".join(text.split()) or "measurement failed"
+    if len(text) > FAILURE_REASON_LIMIT:
+        text = text[: FAILURE_REASON_LIMIT - 3].rstrip() + "..."
+    return text
 
 
 def select_stale_rows(document: object, limit: int) -> list[dict[str, object]]:
@@ -179,17 +206,23 @@ def _run_json(command: Sequence[str], *, timeout: int, label: str) -> object:
             command, cwd=ROOT, text=True, capture_output=True, timeout=timeout, check=False
         )
     except subprocess.TimeoutExpired as exc:
-        raise RemeasureError(f"{label} exceeded {timeout}s") from exc
+        raise MeasurementFailure("timeout", f"{label} exceeded {timeout}s timeout") from exc
+    except OSError as exc:
+        raise MeasurementFailure(
+            "invocation-failed", f"{label} command could not be started"
+        ) from exc
     if result.returncode:
-        diagnostic = (result.stderr or result.stdout).strip().splitlines()
-        tail = diagnostic[-1] if diagnostic else "no diagnostic"
-        raise RemeasureError(
-            f"{label} failed ({result.returncode}): {tail.replace(str(ROOT), '.')}"
+        # Command output can contain paths or ROM-derived diagnostics. Keep it in
+        # ignored preflight state; batch output records only a scalar status.
+        raise MeasurementFailure(
+            "command-failed", f"{label} command exited with status {result.returncode}"
         )
     try:
         return json.loads(result.stdout)
     except json.JSONDecodeError as exc:
-        raise RemeasureError(f"{label} did not emit one JSON document") from exc
+        raise MeasurementFailure(
+            "malformed-json", f"{label} did not emit valid JSON"
+        ) from exc
 
 
 def discover(args: argparse.Namespace) -> list[dict[str, object]]:
@@ -213,8 +246,71 @@ def measure(row: dict[str, object], args: argparse.Namespace) -> dict[str, objec
         command.append("--no-build")
     report = _run_json(command, timeout=args.timeout, label=f"preflight {symbol}")
     measured = summarize_preflight(report)
+    if measured["symbol"] != symbol:
+        raise RemeasureError(f"{symbol} preflight returned another symbol")
+    expected_source = row.get("source")
+    if expected_source is not None and measured["source"] != expected_source:
+        raise RemeasureError(f"{symbol} preflight returned another source")
     measured.update({key: value for key, value in row.items() if key not in measured})
     return measured
+
+
+def failure_row(
+    row: dict[str, object], *, category: str, reason: object
+) -> dict[str, object]:
+    if category not in FAILURE_CATEGORIES:
+        raise ValueError(f"unknown measurement failure category {category!r}")
+    result = {
+        key: row[key]
+        for key in (
+            "symbol",
+            "source",
+            "queue_rank",
+            "retained_differing_words",
+            "retained_masked_differing_words",
+        )
+        if key in row
+    }
+    result.update(
+        {
+            "status": FAILURE_STATUS,
+            "failure_category": category,
+            "reason": sanitize_failure_reason(reason),
+        }
+    )
+    return result
+
+
+def measure_safely(
+    row: dict[str, object], args: argparse.Namespace
+) -> dict[str, object]:
+    symbol = validate_symbol(row.get("symbol"))
+    try:
+        return measure(row, args)
+    except MeasurementFailure as error:
+        return failure_row(row, category=error.category, reason=str(error))
+    except RemeasureError:
+        return failure_row(
+            row,
+            category="invalid-evidence",
+            reason=f"preflight {symbol} failed scalar evidence validation",
+        )
+
+
+def aggregate_counts(rows: Sequence[dict[str, object]]) -> dict[str, int]:
+    complete = sum(row.get("status") == "complete" for row in rows)
+    partial = sum(row.get("status") == "partial" for row in rows)
+    failed = sum(row.get("status") == FAILURE_STATUS for row in rows)
+    measured = complete + partial
+    if measured + failed != len(rows):
+        raise RemeasureError("batch contains an unknown result status")
+    return {
+        "selected": len(rows),
+        "measured": measured,
+        "complete": complete,
+        "partial": partial,
+        "failed": failed,
+    }
 
 
 def render_table(rows: Sequence[dict[str, object]]) -> str:
@@ -223,6 +319,15 @@ def render_table(rows: Sequence[dict[str, object]]) -> str:
         "----  --------------------------------------------  ----  ----------  ----------  -----  ---  --------",
     ]
     for row in rows:
+        if row.get("status") == FAILURE_STATUS:
+            lines.append(
+                f"{str(row.get('queue_rank', '-')):>4}  {str(row['symbol']):<44}  "
+                f"{'-':>4}  {'-':<10}  {'-':<10}  {'-':<5}  {'-':>3}  failed"
+            )
+            lines.append(
+                f"      failure={row['failure_category']} reason={row['reason']}"
+            )
+            continue
         frame = f"{row['candidate_frame']}/{row['target_frame']}"
         reloc = f"{row['candidate_relocations']}/{row['target_relocations']}"
         words = f"{row['candidate_words']}/{row['target_words']}"
@@ -231,6 +336,11 @@ def render_table(rows: Sequence[dict[str, object]]) -> str:
             f"{int(row['differing_words']):>4}  {words:<10}  {frame:<10}  "
             f"{reloc:<5}  {int(row['resolved_identities']):>3}  {row['status']}"
         )
+    counts = aggregate_counts(rows)
+    lines.append(
+        "summary "
+        + " ".join(f"{key}={value}" for key, value in counts.items())
+    )
     return "\n".join(lines)
 
 
@@ -268,15 +378,21 @@ def main(argv: Sequence[str] | None = None) -> int:
             selected = discover(args)
         if not selected:
             raise RemeasureError("no stale plateau rows selected")
-        measured = [measure(row, args) for row in selected]
     except RemeasureError as error:
         parser.error(str(error))
-    payload = {"schema": SCHEMA, "count": len(measured), "functions": measured}
+    measured = [measure_safely(row, args) for row in selected]
+    summary = aggregate_counts(measured)
+    payload = {
+        "schema": SCHEMA,
+        "count": len(measured),
+        "summary": summary,
+        "functions": measured,
+    }
     print(
         json.dumps(payload, indent=2, sort_keys=True)
         if args.format == "json" else render_table(measured)
     )
-    return 0
+    return 1 if summary["failed"] else 0
 
 
 if __name__ == "__main__":

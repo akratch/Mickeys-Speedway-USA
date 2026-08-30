@@ -41,10 +41,10 @@ class PlateauRemeasureTests(unittest.TestCase):
             ],
         }
 
-    def report(self) -> dict[str, object]:
+    def report(self, symbol: str = "close_one") -> dict[str, object]:
         return {
             "schema": "mickey-function-evidence-preflight-v1",
-            "candidate_symbol": "close_one",
+            "candidate_symbol": symbol,
             "source": "src/main/example.c",
             "workbench": {
                 "differing_words": 2,
@@ -113,6 +113,130 @@ class PlateauRemeasureTests(unittest.TestCase):
         with self.assertRaisesRegex(pr.RemeasureError, "identity counts disagree"):
             pr.summarize_preflight(report)
 
+    def test_explicit_batch_continues_after_middle_command_failure(self) -> None:
+        reports = [
+            self.report("first_one"),
+            pr.MeasurementFailure(
+                "command-failed", "preflight middle_one command exited with status 1"
+            ),
+            self.report("last_one"),
+        ]
+        with (
+            mock.patch.object(pr, "_run_json", side_effect=reports) as run,
+            mock.patch("builtins.print") as output,
+        ):
+            exit_code = pr.main(
+                ["--format", "json", "first_one", "middle_one", "last_one"]
+            )
+        payload = json.loads(output.call_args.args[0])
+        self.assertEqual(1, exit_code)
+        self.assertEqual(3, run.call_count)
+        self.assertEqual(
+            ["first_one", "middle_one", "last_one"],
+            [row["symbol"] for row in payload["functions"]],
+        )
+        self.assertEqual(
+            ["complete", "failed", "complete"],
+            [row["status"] for row in payload["functions"]],
+        )
+        self.assertEqual(
+            {"selected": 3, "measured": 2, "complete": 2, "partial": 0, "failed": 1},
+            payload["summary"],
+        )
+
+    def test_discovered_batch_uses_same_resilient_ordering(self) -> None:
+        selected = [
+            {"symbol": "first_one", "source": "src/main/example.c", "queue_rank": 1},
+            {"symbol": "middle_one", "source": "src/main/example.c", "queue_rank": 2},
+            {"symbol": "last_one", "source": "src/main/example.c", "queue_rank": 3},
+        ]
+        rows = [
+            pr.summarize_preflight(self.report("first_one")),
+            pr.failure_row(
+                selected[1], category="timeout", reason="preflight middle_one timed out"
+            ),
+            pr.summarize_preflight(self.report("last_one")),
+        ]
+        with (
+            mock.patch.object(pr, "discover", return_value=selected),
+            mock.patch.object(pr, "measure_safely", side_effect=rows) as measure,
+            mock.patch("builtins.print") as output,
+        ):
+            exit_code = pr.main(["--format", "json"])
+        payload = json.loads(output.call_args.args[0])
+        self.assertEqual(1, exit_code)
+        self.assertEqual(selected, [call.args[0] for call in measure.call_args_list])
+        self.assertEqual(
+            ["first_one", "middle_one", "last_one"],
+            [row["symbol"] for row in payload["functions"]],
+        )
+
+    def test_timeout_becomes_fail_closed_result(self) -> None:
+        args = pr.build_parser().parse_args(["close_one"])
+        expired = pr.subprocess.TimeoutExpired(
+            ["preflight"], args.timeout, output="raw bytes", stderr="traceback"
+        )
+        with mock.patch.object(pr.subprocess, "run", side_effect=expired):
+            row = pr.measure_safely({"symbol": "close_one"}, args)
+        self.assertEqual("failed", row["status"])
+        self.assertEqual("timeout", row["failure_category"])
+        self.assertNotIn("raw bytes", row["reason"])
+        self.assertNotIn("traceback", row["reason"])
+
+    def test_malformed_json_becomes_fail_closed_result(self) -> None:
+        args = pr.build_parser().parse_args(["close_one"])
+        completed = pr.subprocess.CompletedProcess(
+            ["preflight"], 0, stdout="not JSON /Users/example/private", stderr=""
+        )
+        with mock.patch.object(pr.subprocess, "run", return_value=completed):
+            row = pr.measure_safely({"symbol": "close_one"}, args)
+        self.assertEqual("failed", row["status"])
+        self.assertEqual("malformed-json", row["failure_category"])
+        self.assertNotIn("not JSON", row["reason"])
+        self.assertNotIn("/Users/", row["reason"])
+
+    def test_command_failure_never_copies_raw_diagnostic(self) -> None:
+        args = pr.build_parser().parse_args(["close_one"])
+        completed = pr.subprocess.CompletedProcess(
+            ["preflight"],
+            7,
+            stdout="instruction bytes 0xDEADBEEF",
+            stderr="Traceback at /Users/example/private.py\nraw disassembly",
+        )
+        with mock.patch.object(pr.subprocess, "run", return_value=completed):
+            row = pr.measure_safely({"symbol": "close_one"}, args)
+        self.assertEqual("command-failed", row["failure_category"])
+        self.assertEqual(
+            "preflight close_one command exited with status 7", row["reason"]
+        )
+        serialized = json.dumps(row)
+        self.assertNotIn("DEADBEEF", serialized)
+        self.assertNotIn("Traceback", serialized)
+        self.assertNotIn("/Users/", serialized)
+        self.assertNotIn("disassembly", serialized)
+
+    def test_reason_sanitization_is_bounded_and_path_free(self) -> None:
+        reason = pr.sanitize_failure_reason(
+            "/Users/example/private/file.c\n" + "detail " * 100
+        )
+        self.assertNotIn("/Users/", reason)
+        self.assertNotIn("\n", reason)
+        self.assertLessEqual(len(reason), pr.FAILURE_REASON_LIMIT)
+
+    def test_invalid_evidence_is_not_counted_as_measurement(self) -> None:
+        bad_report = self.report()
+        bad_report["preflight"]["counts"]["candidate_identities_unresolved"] = 1
+        with (
+            mock.patch.object(pr, "_run_json", return_value=bad_report),
+            mock.patch("builtins.print") as output,
+        ):
+            exit_code = pr.main(["--format", "json", "close_one"])
+        payload = json.loads(output.call_args.args[0])
+        self.assertEqual(1, exit_code)
+        self.assertEqual("invalid-evidence", payload["functions"][0]["failure_category"])
+        self.assertEqual(0, payload["summary"]["measured"])
+        self.assertEqual(1, payload["summary"]["failed"])
+
     def test_json_main_is_one_document(self) -> None:
         measured = pr.summarize_preflight(self.report())
         with (
@@ -123,6 +247,24 @@ class PlateauRemeasureTests(unittest.TestCase):
         payload = json.loads(output.call_args.args[0])
         self.assertEqual(pr.SCHEMA, payload["schema"])
         self.assertEqual(1, payload["count"])
+        self.assertEqual([measured], payload["functions"])
+        self.assertEqual(1, payload["summary"]["measured"])
+        self.assertEqual(0, payload["summary"]["failed"])
+
+    def test_table_retains_success_rows_and_reports_failures_and_counts(self) -> None:
+        measured = pr.summarize_preflight(self.report())
+        failed = pr.failure_row(
+            {"symbol": "middle_one"},
+            category="command-failed",
+            reason="preflight middle_one command exited with status 2",
+        )
+        table = pr.render_table([measured, failed])
+        self.assertIn("close_one", table)
+        self.assertIn("middle_one", table)
+        self.assertIn("failure=command-failed", table)
+        self.assertTrue(
+            table.endswith("selected=2 measured=1 complete=1 partial=0 failed=1")
+        )
 
 
 if __name__ == "__main__":

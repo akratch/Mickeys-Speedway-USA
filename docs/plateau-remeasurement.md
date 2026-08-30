@@ -20,6 +20,18 @@ the function matches. A `partial` result remains useful for prioritization but
 must stay fail-closed until the reported identity or boundary problem is
 resolved.
 
+Every selected symbol is attempted serially with the configured per-command
+timeout. In a discovered or explicit multi-symbol batch, one failed preflight
+does not suppress later symbols. The output retains selection order and has one
+row per symbol. Failed rows use `status: failed`, one stable
+`failure_category` (`command-failed`, `timeout`, `malformed-json`,
+`invocation-failed`, or `invalid-evidence`), and a bounded sanitized reason.
+They never contain preflight stdout/stderr, absolute paths, tracebacks,
+instruction bytes, disassembly, or relocation details, and they are never
+counted as measurements. JSON and table output both finish with aggregate
+selected, measured, complete, partial, and failed counts. The process exits
+nonzero if any selected row failed, even though it emits the complete batch.
+
 Pass exact symbols to remeasure an already selected batch. `--no-build`
 requires all canonical and candidate artifacts to be current. JSON output is
 available for queue automation:
@@ -31,3 +43,9 @@ available for queue automation:
 
 The output belongs in ignored campaign state. Do not commit remeasurement
 JSON, candidate objects, disassembly, or other ROM-derived evidence.
+
+A one-symbol request follows the same contract: success emits one measurement
+and exits zero; a command or evidence failure emits one sanitized failed row
+and exits nonzero. Invalid CLI input, failed discovery, or an empty selection
+still stops before measurement because there is no trustworthy symbol list for
+a batch result.
