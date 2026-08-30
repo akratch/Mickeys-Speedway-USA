@@ -110,3 +110,13 @@ void overlay98CollectUniqueY(Overlay98Group *group) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o098/overlay98CollectUniqueY/func_overlay_098_F0000000_18D89C0.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay98CollectUniqueY:start
+ * symbol: overlay98CollectUniqueY
+ * score: 49/81 words
+ * frame: 0x10
+ * relocations: 8
+ * first-mismatch: +0x68
+ * summary: Exact geometry; array-address CSE leaves 32 positional differences and the candidate emits 6 versus 8 target relocations.
+ * PLATEAU-HANDOFF:overlay98CollectUniqueY:end
+ */
