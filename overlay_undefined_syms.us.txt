@@ -1022,15 +1022,23 @@ gOverlay45Defaults = 0x00000000;
 gOverlay45Metrics = 0x00000000;
 gOverlay45MetricsIndex = 0x00000000;
 gOverlay45ResourceHead = 0x00000000;
+gOverlay45RetainedMotionConstants = 0x00000024;
 gOverlay45TightAdvance = 0x00000000;
 overlay45AllocReloc = 0xf0000000;
 overlay45BuildControlStream = 0xf0000000;
+overlay45ColorCallReloc = 0xf0000000;
 overlay45ConfigureReloc = 0xf0000000;
+overlay45DisplayCallReloc = 0xf0000000;
+overlay45FloatCallReloc = 0xf0000000;
+overlay45FontCallReloc = 0xf0000000;
 overlay45FormatReloc = 0xf0000000;
 overlay45FreeReloc = 0xf0000000;
 overlay45GetGlyph = 0xf0000000;
+overlay45MatrixLoadReloc = 0xf0000000;
+overlay45MatrixPushReloc = 0xf0000000;
 overlay45MeasureStream = 0xf0000000;
 overlay45RandomRangeReloc = 0xf0000000;
+overlay45ScissorReloc = 0x00000000;
 overlay45StringLengthReloc = 0xf0000000;
 
 /* overlay 46: overlay46InitializeState.c.o */

@@ -1300,11 +1300,33 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/overlay_045.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		overlay45RandomRangeStoredReloc=func_overlay_045_F0000000_188C458 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x764
-ifeq ($(NON_MATCHING),0)
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/func_overlay_045_F0000764_188CBBC.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9F4
-endif
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/func_overlay_045_F0000764_188CBBC.c.o: CFLAGS += -Wab,-r4300_mul
+O45_RENDER_OBJ := \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o045/func_overlay_045_F0000764_188CBBC.c.o
+$(O45_RENDER_OBJ): \
+	config/normalizations/func_overlay_045_F0000764_188CBBC.rebind.spec
+$(O45_RENDER_OBJ): CFLAGS += -Wab,-r4300_mul
+# Preserve the compiler's exact instruction fields while binding its private
+# literal-pool references to the three identical constants already retained
+# in Overlay 45's initialized-data owner. The duplicate pool is discarded only
+# after its full payload digest agrees. Call/scissor renames change symbols,
+# not instructions; the runtime relocation table remains the identity oracle.
+$(O45_RENDER_OBJ): POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym func_80034920=overlay45DisplayCallReloc \
+		--redefine-sym func_8004B0A4=overlay45FontCallReloc \
+		--redefine-sym func_800221E8=overlay45MatrixPushReloc \
+		--redefine-sym func_80022A50=overlay45MatrixLoadReloc \
+		--redefine-sym func_8004B0B8=overlay45ColorCallReloc \
+		--redefine-sym func_8002997C=overlay45RandomRangeReloc \
+		--redefine-sym func_8002A8C0=overlay45FloatCallReloc $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9F4 && \
+	$(OBJCOPY) \
+		--add-symbol gOverlay45RetainedMotionConstants=0x24,global \
+		--add-symbol overlay45ScissorReloc=0,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		@config/normalizations/func_overlay_045_F0000764_188CBBC.rebind.spec && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
+		sha256:c52cb05fd2fed4ffaf80d0f50519a1b99d267a85960aeefe5e036df19162ad00
 ifeq ($(NON_MATCHING),0)
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o045/func_overlay_045_F0001158_188D5B0.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA88

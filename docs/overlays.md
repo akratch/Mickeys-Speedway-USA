@@ -1235,6 +1235,18 @@ share SHA256
 `0eb13f9257a0d760179622fb1929659d758b435121ba7c3f3722dc9a015766b2`,
 and the cumulative ROM is exact.
 
+Overlay 45 `+0x0764..+0x1158`
+(`func_overlay_045_F0000764_188CBBC`) contributes **2,548 exact C bytes /
+637 words** with the retail `0x88` frame. The compiler's instruction fields
+are untouched: six existing HI16/LO16 relocations are rebound to one ABS
+`+0x24` carrier for the three constants already retained at module
+`+0x1C94/+0x1C98/+0x1C9C`, and the duplicate 16-byte literal pool is removed
+only after its complete SHA-256 agrees. All 24 shipped runtime relocation
+offsets, types, and effective identities are exact: 14 identities resolve
+statically, and the remaining 10 are proved by the unchanged runtime table
+plus the instruction-exact linked range. The linked owner, complete overlay,
+and full US ROM are byte-identical.
+
 Overlay 23's `+0x000..+0x208` attachment spawner adds **520 naturally exact C
 bytes / 130 words** with its `0xA0` frame and two call relocations exact.
 With the existing C islands and separate eight-byte tail padding, this had
