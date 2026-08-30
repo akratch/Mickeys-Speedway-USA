@@ -20,9 +20,6 @@ extern f32 sqrtf(f32 value);
 #ifdef NON_MATCHING
 s32 overlay19BuildPlanes(
     O19Context *context, O19Group *group, O19Output *output) {
-    register O19Group *g = group;
-    register O19Output *o = output;
-
     O19ScratchRecord *scratch;
     O19ScratchRecord *scratchRecord;
     O19ScratchRecord *record;
@@ -52,16 +49,25 @@ s32 overlay19BuildPlanes(
     s16 vertexBase;
     u32 neighbor;
 
-    scratch = o19AllocateReloc(g->itemCount * sizeof(O19ScratchRecord), 0x8A);
-    for (item = 0; item < g->itemCount * 2; item++) {
-        ((s32 *)scratch)[item] = ((s32 *)o->records)[item];
+    scratch = o19AllocateReloc(group->itemCount * sizeof(O19ScratchRecord), 0x8A);
+    {
+        s32 *scratchWord = (s32 *)scratch;
+        s32 *recordWord = (s32 *)output->records;
+
+        item = 0;
+        if (group->itemCount * 2 > 0) {
+            do {
+                *scratchWord++ = *recordWord++;
+                item++;
+            } while (item < group->itemCount * 2);
+        }
     }
 
-    planes = (O19Plane *)o->unknown08;
+    planes = (O19Plane *)output->unknown08;
     planeCount = 0;
     spanOffset = 0;
-    for (spanIndex = 0; spanIndex < g->spanCount; spanIndex++, spanOffset += sizeof(O19Span)) {
-        span = (O19Span *)((u8 *)g->spans + spanOffset);
+    for (spanIndex = 0; spanIndex < group->spanCount; spanIndex++, spanOffset += sizeof(O19Span)) {
+        span = (O19Span *)((u8 *)group->spans + spanOffset);
         item = span->itemStart;
         itemEnd = (span + 1)->itemStart;
         vertexBase = span->vertexBase;
@@ -69,7 +75,7 @@ s32 overlay19BuildPlanes(
             item = itemEnd;
         }
         while (item < itemEnd) {
-            point = &g->points[item];
+            point = &group->points[item];
             v0 = (O19Vertex *)((u8 *)context->vertices +
                               (point->selectors[0] + vertexBase) * sizeof(O19Vertex));
             x0 = v0->x; y0 = v0->y; z0 = v0->z;
@@ -90,7 +96,7 @@ s32 overlay19BuildPlanes(
                 ny = rawNy / length;
                 nz /= length;
             }
-            o->records[item].item = planeCount;
+            output->records[item].item = planeCount;
             plane = &planes[planeCount++];
             plane->x = nx;
             plane->y = ny;
@@ -101,8 +107,8 @@ s32 overlay19BuildPlanes(
     }
 
     spanOffset = 0;
-    for (spanIndex = 0; spanIndex < g->spanCount; spanIndex++, spanOffset += sizeof(O19Span)) {
-        span = (O19Span *)((u8 *)g->spans + spanOffset);
+    for (spanIndex = 0; spanIndex < group->spanCount; spanIndex++, spanOffset += sizeof(O19Span)) {
+        span = (O19Span *)((u8 *)group->spans + spanOffset);
         item = span->itemStart;
         itemEnd = (span + 1)->itemStart;
         vertexBase = span->vertexBase;
@@ -111,7 +117,7 @@ s32 overlay19BuildPlanes(
         }
         while (item < itemEnd) {
             scratchRecord = &scratch[item];
-            plane = &planes[o->records[item].item];
+            plane = &planes[output->records[item].item];
             for (edge = 0; edge < 3; edge++) {
                 nextEdge = edge + 1;
                 if (nextEdge >= 3) nextEdge = 0;
@@ -120,12 +126,12 @@ s32 overlay19BuildPlanes(
                 neighbor = scratchRecord->edgeNeighbor[edge];
                 if (neighbor != 0xFFFF) {
                     if (neighbor == 0xFFFE) {
-                        neighborPlane = &planes[o->records[item].item];
+                        neighborPlane = &planes[output->records[item].item];
                     } else {
-                        neighborPlane = &planes[o->records[neighbor].item];
+                        neighborPlane = &planes[output->records[neighbor].item];
                     }
                     v0 = (O19Vertex *)((u8 *)context->vertices +
-                                      (point = &g->points[item],
+                                      (point = &group->points[item],
                                        (point->selectors[edge] + vertexBase) * sizeof(O19Vertex)));
                     v1 = (O19Vertex *)((u8 *)context->vertices +
                                       (point->selectors[nextEdge] + vertexBase) * sizeof(O19Vertex));
@@ -144,14 +150,14 @@ s32 overlay19BuildPlanes(
                         nz /= length;
                     }
                     if (neighbor == 0xFFFE) {
-                        g->points[item].unknown00 |= 1 << edge;
+                        group->points[item].unknown00 |= 1 << edge;
                     } else {
                         s32 halfOffset;
                         record = &scratch[neighbor];
                         halfOffset = 0;
                         while (halfOffset != 6) {
                             if (item == record->edgeNeighbor[halfOffset >> 1]) {
-                                o->records[neighbor].edgeNeighbor[halfOffset >> 1] =
+                                output->records[neighbor].edgeNeighbor[halfOffset >> 1] =
                                     planeCount | 0x8000;
                                 record->edgeNeighbor[halfOffset >> 1] = 0xFFFF;
                             }
@@ -164,10 +170,10 @@ s32 overlay19BuildPlanes(
                              ((v2->x * neighborPlane->x) +
                               (v2->y * neighborPlane->y) +
                               (v2->z * neighborPlane->z))) < 0.0f) {
-                            g->points[item].unknown00 |= 1 << edge;
+                            group->points[item].unknown00 |= 1 << edge;
                         }
                     }
-                    o->records[item].edgeNeighbor[edge] = planeCount;
+                    output->records[item].edgeNeighbor[edge] = planeCount;
                     scratchRecord->edgeNeighbor[edge] = 0xFFFF;
                     plane = &planes[planeCount++];
                     plane->x = nx;
@@ -185,3 +191,13 @@ s32 overlay19BuildPlanes(
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o019/overlay19BuildPlanes/func_overlay_019_F00001E0_1875438.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay19BuildPlanes:start
+ * symbol: overlay19BuildPlanes
+ * score: 512 differing words
+ * frame: 0x140
+ * relocations: 4
+ * first-mismatch: +0x48
+ * summary: Exact frame is retained, but broad structure/register divergence remains after the full flag lattice and ten coherent source hypotheses.
+ * PLATEAU-HANDOFF:overlay19BuildPlanes:end
+ */
