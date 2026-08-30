@@ -132,3 +132,13 @@ f32 func_overlay_020_F0001148_1877720(Overlay20TailGrid *grid, f32 x, f32 y,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o020/func_overlay_020_F0001148_1877720/func_overlay_020_F0001148_1877720.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_020_F0001148_1877720:start
+ * symbol: func_overlay_020_F0001148_1877720
+ * score: 178 differing words
+ * frame: -0x90
+ * relocations: 5
+ * first-mismatch: +0x20
+ * summary: Target is 207 words versus 205; four of five relocation offset/type sites align but static identities remain unresolved.
+ * PLATEAU-HANDOFF:func_overlay_020_F0001148_1877720:end
+ */
