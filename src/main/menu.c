@@ -1032,11 +1032,11 @@ void setupFrontEndObject(s32 objectId) {
     destination->pad1C[3] = source->pad1C[3];
 }
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, target 262 vs candidate 264 instructions; 190 words differ, first +0x14, frame exact.
- * Constant audit, base/caching, pointer-scope, and inline forms left the candidate's two extra words or regressed.
- * Remains: D_800D31C8 base temp t2 versus target t5 and the unresolved switch schedule. */
+/* Workbench: structure-mismatch, exact 262-word geometry and 0xB8 frame;
+ * 161 differ, first +0x14, with 28 of 42 relocation identities exact.
+ * Volatile copy accesses help; the D_800D31C8 t2-vs-t5 web still cascades. */
 void func_80039E34(s32 index) {
-    MenuDrawStack stack;
+    volatile MenuDrawStack stack;
     s16 flags;
     MenuFrontObject *renderObject;
     MenuCurrentObject *current;
@@ -1045,14 +1045,14 @@ void func_80039E34(s32 index) {
     current = &D_800D3550[index];
     if ((D_800D31C8[current->index] != NULL) &&
         ((D_8007C1B8[current->index] & 0xC000) != 0xC000)) {
-        stack.sp7C = current->unk0;
-        stack.sp7E = current->unk2;
-        stack.sp80 = current->unk4;
-        stack.sp88 = current->unkC;
-        stack.sp8C = current->unk10;
-        stack.sp90 = current->unk14;
-        stack.sp84 = current->unk8;
-        flags = D_8007C1B8[current->index];
+        stack.sp7C = *(volatile s16 *)&current->unk0;
+        stack.sp7E = *(volatile s16 *)&current->unk2;
+        stack.sp80 = *(volatile s16 *)&current->unk4;
+        stack.sp88 = *(volatile f32 *)&current->unkC;
+        stack.sp8C = *(volatile f32 *)&current->unk10;
+        stack.sp90 = *(volatile f32 *)&current->unk14;
+        stack.sp84 = *(volatile f32 *)&current->unk8;
+        flags = D_8007C1B8[*(volatile s16 *)&current->index];
         if (flags & 0x4000) {
             MenuCurrentObject *drawObject =
                 (MenuCurrentObject *)D_800D31C8[current->index];
@@ -1123,16 +1123,17 @@ void func_80039E34(s32 index) {
             stack.spAC = renderObject;
             camPushModelMtx(&D_800D3140, &D_800D3144, &stack.sp7C, 1.0f,
                           0.0f);
+            renderObject = stack.spAC;
             command = D_800D3140;
             D_800D3140 = command + 1;
-            command->w0 = (((stack.spAC->unkC[stack.spAC->indexA] +
+            command->w0 = (((renderObject->unkC[renderObject->indexA] +
                             0x80000000) &
                             0xFFFFFF) | 0xBF000000);
-            command->w1 = stack.spAC->unk4 + 0x80000000;
+            command->w1 = renderObject->unk4 + 0x80000000;
             command = D_800D3140;
             D_800D3140 = command + 1;
             command->w0 = 0x06000000;
-            command->w1 = (s32)stack.spAC->resource->unk68 + 0x80000000;
+            command->w1 = (s32)renderObject->resource->unk68 + 0x80000000;
             command = D_800D3140;
             D_800D3140 = command + 1;
             command->w1 = 0;
@@ -1179,14 +1180,13 @@ s32 frontGetScreenMode(void) {
     return mode;
 }
 #ifdef NON_MATCHING
-/* PLATEAU-HANDOFF
- * symbol: func_8003A2C8
- * score: 24/32 words
- * frame: frameless
- * relocations: 6
- * first-mismatch: +0x0
- * summary: eight register-only sites remain after 119 flags and a second trace-led natural-form pass
- */
+
+
+
+
+
+
+
 /* Allocation plateau (reproved 2026-08-29): provenance-tied configured full-TU
  * and generated isolated C agree at 24/32 raw and relocation-normalized words,
  * first +0x0, exact 0x80-byte frameless shape without padding, and six exact
@@ -1345,3 +1345,23 @@ void func_8003A55C(s32 value) {
 void func_8003A590(void) {
     D_8007BF70 = -1;
 }
+
+/* PLATEAU-HANDOFF:func_8003A2C8:start
+ * symbol: func_8003A2C8
+ * score: 24/32 words
+ * frame: frameless
+ * relocations: 6
+ * first-mismatch: +0x0
+ * summary: eight register-only sites remain after 119 flags and a second trace-led natural-form pass
+ * PLATEAU-HANDOFF:func_8003A2C8:end
+ */
+
+/* PLATEAU-HANDOFF:func_80039E34:start
+ * symbol: func_80039E34
+ * score: 161 differing words
+ * frame: 0xB8
+ * relocations: 42
+ * first-mismatch: +0x14
+ * summary: Exact geometry; volatile copy order helps, but the initial table-base temp allocation still cascades.
+ * PLATEAU-HANDOFF:func_80039E34:end
+ */
