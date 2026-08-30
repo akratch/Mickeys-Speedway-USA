@@ -962,17 +962,18 @@ s32 func_80048760(void *arg0, s32 arg1) {
     FxConeTextureInfo *temp_a2;
     s16 temp_t7;
     s16 temp_t8;
+    u8 fill;
     u8 *var_v0;
     FxRippleFrame *frame;
 
     size = arg1 & 7;
-    var_s0 = (FxRippleOutput *) arg1;
     if (size != 0) {
         size = 8 - size;
-        var_s0 = (FxRippleOutput *) (arg1 + size);
+        arg1 += size;
     } else {
         size = 0;
     }
+    var_s0 = (FxRippleOutput *) arg1;
     size += (s32) align4((u8 *) 0x88);
     temp_t0 = ((FxRippleSetup *) arg0)->source;
     ((FxRippleSetup *) arg0)->output = (u8 *) var_s0;
@@ -1005,27 +1006,28 @@ s32 func_80048760(void *arg0, s32 arg1) {
     frame->value1C = 0;
     frame->value1E = temp_t8;
 
+    fill = 0xFF;
     var_a0 = 0;
     var_v0 = (u8 *) var_s0;
     do {
         var_a0++;
         var_v0 += 0x28;
-        var_v0[0x8] = 0xFF;
-        var_v0[0x9] = 0xFF;
-        var_v0[0xA] = 0xFF;
-        var_v0[0xB] = 0xFF;
-        var_v0[0x12] = 0xFF;
-        var_v0[0x13] = 0xFF;
-        var_v0[0x14] = 0xFF;
-        var_v0[0x15] = 0xFF;
-        var_v0[0x1C] = 0xFF;
-        var_v0[0x1D] = 0xFF;
-        var_v0[0x1E] = 0xFF;
-        var_v0[0x1F] = 0xFF;
-        var_v0[-2] = 0xFF;
-        var_v0[-1] = 0xFF;
-        var_v0[0] = 0xFF;
-        var_v0[1] = 0xFF;
+        var_v0[0x8] = fill;
+        var_v0[0x9] = fill;
+        var_v0[0xA] = fill;
+        var_v0[0xB] = fill;
+        var_v0[0x12] = fill;
+        var_v0[0x13] = fill;
+        var_v0[0x14] = fill;
+        var_v0[0x15] = fill;
+        var_v0[0x1C] = fill;
+        var_v0[0x1D] = fill;
+        var_v0[0x1E] = fill;
+        var_v0[0x1F] = fill;
+        var_v0[-2] = fill;
+        var_v0[-1] = fill;
+        var_v0[0] = fill;
+        var_v0[1] = fill;
     } while (var_a0 != 2);
 
     var_s0->value74 = 0;
@@ -2547,4 +2549,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x14
  * summary: Five callback/trap identity sites and four counter/address webs remain; 119 flags and ten coherent forms exhausted; needs new source evidence.
  * PLATEAU-HANDOFF:func_8004ACC4:end
+ */
+
+/* PLATEAU-HANDOFF:func_80048760:start
+ * symbol: func_80048760
+ * score: 98/121 words
+ * frame: 0x48
+ * relocations: 4
+ * first-mismatch: +0x8
+ * summary: Parameter-as-cursor and one named fill carrier leave 19 register-only words plus a four-word loop-init schedule; flags and ten coherent forms exhausted.
+ * PLATEAU-HANDOFF:func_80048760:end
  */
