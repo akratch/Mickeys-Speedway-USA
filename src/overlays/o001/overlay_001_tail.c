@@ -2225,13 +2225,8 @@ void overlay1UpdateRangeFlags(Overlay1RangeObject *object, void *unused) {
                 angle = (s16)(((u32)config->angleHigh << 8) +
                               overlay1GetAngleValueReloc(dz, dx));
                 if ((angle < -0x4000) || (angle >= 0x4001)) {
-                    f32 otherY;
-                    f32 objectY;
-
-                    otherY = other->y;
-                    objectY = object->y;
-                    if ((objectY <= otherY + other->heightData->height) &&
-                        (otherY <= objectY +
+                    if ((object->y <= other->y + other->heightData->height) &&
+                        (other->y <= object->y +
                          (f32)(s32)((u32)config->verticalScale * 10U))) {
                         switch (config->mode) {
                             case 0: {
@@ -3290,4 +3285,14 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0x40
  * summary: 119 flags and ten coherent forms exhausted; next lever is source-authentic count/object/state allocator mapping, not the TU-wide diagnostic -g3 flag
  * PLATEAU-HANDOFF:overlay1ConsumeNearbyPending:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1UpdateRangeFlags:start
+ * symbol: overlay1UpdateRangeFlags
+ * score: 41 differing words
+ * frame: 0x70
+ * relocations: 4
+ * first-mismatch: +0x34
+ * summary: Inlining the two Y temporaries makes the frame exact; 31 register sites and four unresolved call identities remain after five natural forms; no permuter.
+ * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
