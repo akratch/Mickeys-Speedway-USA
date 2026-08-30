@@ -42,7 +42,6 @@ void overlay34SortAndDraw(s32 arg0, s32 arg1) {
     u32 color2;
     f32 distances[64];
     Overlay34Record *record;
-    Overlay34Record *swapRecord;
     f32 swapDistance;
     s32 i;
     s32 j;
@@ -51,32 +50,30 @@ void overlay34SortAndDraw(s32 arg0, s32 arg1) {
     s32 position;
     s32 length;
 
-    for (i = 0; i < gOverlay34ActiveCount; i++) {
-        record = gOverlay34Pointers[i];
-        distances[i] = func_80024938(record->x1, record->y1, record->z1);
+    for (j = 0; j < gOverlay34ActiveCount; j++) {
+        record = gOverlay34Pointers[j];
+        distances[j] = func_80024938(record->x1, record->y1, record->z1);
     }
 
     i = gOverlay34ActiveCount;
     while (i--) {
-        if (i > 0) {
-            for (j = 0; j < i; j++) {
-                if (distances[j + 1] < distances[j]) {
-                    swapDistance = distances[j];
-                    distances[j] = distances[j + 1];
-                    distances[j + 1] = swapDistance;
-                    swapRecord = gOverlay34Pointers[j];
-                    gOverlay34Pointers[j] = gOverlay34Pointers[j + 1];
-                    gOverlay34Pointers[j + 1] = swapRecord;
-                }
+        for (j = 0; j < i; j++) {
+            if (distances[j + 1] < distances[j]) {
+                swapDistance = distances[j];
+                distances[j] = distances[j + 1];
+                distances[j + 1] = swapDistance;
+                record = gOverlay34Pointers[j];
+                gOverlay34Pointers[j] = gOverlay34Pointers[j + 1];
+                gOverlay34Pointers[j + 1] = record;
             }
         }
     }
 
-    i = 0;
+    j = 0;
     offset = 0;
     if (gOverlay34ActiveCount > 0) {
         do {
-            i++;
+            j++;
             record = *(Overlay34Record **)((u8 *)gOverlay34Pointers + offset);
             offset += 4;
             if (record != NULL) {
@@ -108,9 +105,19 @@ void overlay34SortAndDraw(s32 arg0, s32 arg1) {
                               &record->x1, &record->x2, record->value,
                               color1, color2, 0x200);
             }
-        } while (i < gOverlay34ActiveCount);
+        } while (j < gOverlay34ActiveCount);
     }
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o034/overlay34SortAndDraw/func_overlay_034_F0000608_18817B0.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay34SortAndDraw:start
+ * symbol: overlay34SortAndDraw
+ * score: 128 differing words
+ * frame: 0x1A0
+ * relocations: 16
+ * first-mismatch: +0x14
+ * summary: phase-local lifetime is next: distance array is 24 bytes high, colors 20 bytes high, and seven relocation sites are four bytes early
+ * PLATEAU-HANDOFF:overlay34SortAndDraw:end
+ */
