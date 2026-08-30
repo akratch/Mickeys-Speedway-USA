@@ -314,3 +314,14 @@ routing facts from that sweep; the sweep's `summary.json` is the measurement.
 - first mismatch: +0x10
 - summary: 52-word shape and 14 identities; 119 flags plus bounded source/permuter attempts leave saved-register order and four early LO16 sites
 <!-- plateau-handoff:func_8004AF68:end -->
+
+<!-- plateau-handoff:func_8001BBB4:start -->
+### `func_8001BBB4` plateau handoff
+
+- source: `src/main/charControl.c`
+- score: 38 differing words
+- frame: 0x30
+- relocations: 18
+- first mismatch: +0x0
+- summary: Target frame is 0x38. All 119 flags and ten coherent forms are nonexact; local structs reach 34 differences only with oversized frames. Next: a natural local/declaration layout adding eight non-save bytes, then the post-decrement loop CFG.
+<!-- plateau-handoff:func_8001BBB4:end -->

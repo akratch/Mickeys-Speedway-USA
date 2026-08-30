@@ -249,9 +249,9 @@ void rumbleStart(s32 playerIndex, s32 strength, f32 duration);
 f32 func_8001BB90(s32 cameraIndex) {
     return D_800CB380[cameraIndex].blend;
 }
-/* Workbench verdict: structure-mismatch, 38 differing words, first mismatch +0x0. */
-/* Candidate: 150/150 instructions with exact relocation identities; frame is -0x30 versus target -0x38, so it is not shape-exact. */
-/* Shape status: instruction count and call/branch surface are exact; stack-frame constants and allocator residuals remain. */
+/* Bounded plateau: 150/150 instructions, 38 differing words, first mismatch +0x0. */
+/* The 0x30 frame is eight non-save bytes short of the 0x38 target; all 18 relocation offsets/types align. */
+/* All 119 flags and ten coherent forms are nonexact; resume with a natural eight-byte local-layout mechanism. */
 /* PROVENANCE: JFG's corresponding character-control routine supplied the control-flow role;
  * all field offsets, calls, and the body below are reconstructed from Mickey. */
 #ifdef NON_MATCHING
