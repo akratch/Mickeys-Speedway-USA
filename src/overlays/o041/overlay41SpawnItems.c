@@ -103,3 +103,13 @@ void overlay41SpawnItems(s32 rootIndex, s32 count, s32 mode, s32 centerX,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41SpawnItems/func_overlay_041_F0001740_1888A78.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay41SpawnItems:start
+ * symbol: overlay41SpawnItems
+ * score: 133/135 words
+ * frame: 0xA0
+ * relocations: 11
+ * first-mismatch: +0x80
+ * summary: Compiler-private switch and float rodata need ownership at Overlay 41 data offsets +0x58..+0x70; the Overlay 12 call also needs a stable alias.
+ * PLATEAU-HANDOFF:overlay41SpawnItems:end
+ */
