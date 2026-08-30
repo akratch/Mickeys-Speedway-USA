@@ -14,6 +14,7 @@ import json
 import os
 from pathlib import Path
 import re
+import stat
 import subprocess
 import sys
 import tempfile
@@ -21,9 +22,31 @@ import uuid
 
 
 SCHEMA_VERSION = 1
-HEARTBEAT_SCHEMA_VERSION = 2
+HEARTBEAT_SCHEMA_VERSION = 3
+CHECKPOINT_HEARTBEAT_SCHEMA_VERSION = 2
 LEGACY_HEARTBEAT_SCHEMA_VERSION = 1
 HEARTBEAT_STATES = ("active", "stopping", "handoff", "complete", "failed")
+MEASUREMENT_FIELDS = (
+    "target_words",
+    "candidate_words",
+    "raw_differing_words",
+    "relocation_masked_differing_words",
+    "candidate_relocations",
+    "target_relocations",
+    "exact_relocation_identities",
+)
+PROMOTION_STATES = (
+    "unmeasured",
+    "compiled",
+    "object-exact",
+    "canonical-staged",
+    "rom-exact",
+)
+EXACT_PROMOTION_STATES = frozenset(PROMOTION_STATES[2:])
+WB_SUMMARY_SCHEMA = "mickey-wb-summary-v1"
+WB_SUMMARY_MAX_BYTES = 64 * 1024
+WB_SUMMARY_MAX_AGE_SECONDS = 15 * 60
+WB_SUMMARY_FUTURE_SLOP_SECONDS = 5 * 60
 STATES = (
     "ACTIVE",
     "READY",
@@ -149,6 +172,76 @@ def heartbeat_path(root: Path, worker: str) -> Path:
     return root / "heartbeats" / f"{validate_name(worker, 'heartbeat worker')}.json"
 
 
+def unmeasured_result() -> dict[str, object]:
+    return {
+        **{field: None for field in MEASUREMENT_FIELDS},
+        "promotion_state": "unmeasured",
+    }
+
+
+def validate_measured_result(
+    result: dict[str, object], label: str = "heartbeat measured result"
+) -> dict[str, object]:
+    """Validate and return one normalized, code-free compiler result."""
+
+    promotion_state = result.get("promotion_state")
+    if promotion_state not in PROMOTION_STATES:
+        raise CrewError(f"{label} has invalid promotion_state")
+    present = [result.get(field) is not None for field in MEASUREMENT_FIELDS]
+    if not any(present):
+        if promotion_state != "unmeasured":
+            raise CrewError(f"{label} is unmeasured but promotion_state is not unmeasured")
+        return unmeasured_result()
+    if not all(present):
+        missing = [field for field in MEASUREMENT_FIELDS if result.get(field) is None]
+        raise CrewError(f"{label} is incomplete; missing " + ", ".join(missing))
+
+    normalized: dict[str, object] = {}
+    for field in MEASUREMENT_FIELDS:
+        value = result.get(field)
+        if type(value) is not int or int(value) < 0:
+            raise CrewError(f"{label} has invalid {field}")
+        normalized[field] = int(value)
+    if promotion_state == "unmeasured":
+        raise CrewError(f"{label} has metrics but promotion_state is unmeasured")
+    normalized["promotion_state"] = promotion_state
+
+    target_words = int(normalized["target_words"])
+    candidate_words = int(normalized["candidate_words"])
+    raw = int(normalized["raw_differing_words"])
+    masked = int(normalized["relocation_masked_differing_words"])
+    candidate_relocations = int(normalized["candidate_relocations"])
+    target_relocations = int(normalized["target_relocations"])
+    exact_identities = int(normalized["exact_relocation_identities"])
+    word_surface = max(target_words, candidate_words)
+    if raw > word_surface or masked > word_surface:
+        raise CrewError(f"{label} has differences larger than its word geometry")
+    if masked > raw:
+        raise CrewError(f"{label} has more relocation-masked than raw differences")
+    if exact_identities > min(candidate_relocations, target_relocations):
+        raise CrewError(f"{label} has too many exact relocation identities")
+    if promotion_state in EXACT_PROMOTION_STATES and not (
+        target_words == candidate_words
+        and raw == 0
+        and masked == 0
+        and candidate_relocations == target_relocations == exact_identities
+    ):
+        raise CrewError(
+            f"{label} claims {promotion_state} without exact words and relocation identities"
+        )
+    return normalized
+
+
+def measured_score(result: dict[str, object]) -> str:
+    if result["promotion_state"] == "unmeasured":
+        raise CrewError("cannot format an unmeasured result")
+    return (
+        f"{result['relocation_masked_differing_words']}/{result['target_words']} "
+        f"relocation-masked differing words ({result['raw_differing_words']} raw; "
+        f"candidate {result['candidate_words']})"
+    )
+
+
 def load_heartbeat(path: Path) -> dict[str, object]:
     try:
         record = json.loads(path.read_text(encoding="utf-8"))
@@ -158,7 +251,9 @@ def load_heartbeat(path: Path) -> dict[str, object]:
         raise CrewError(f"heartbeat {path} must contain one JSON object")
     schema = record.get("schema")
     if type(schema) is not int or schema not in (
-        LEGACY_HEARTBEAT_SCHEMA_VERSION, HEARTBEAT_SCHEMA_VERSION
+        LEGACY_HEARTBEAT_SCHEMA_VERSION,
+        CHECKPOINT_HEARTBEAT_SCHEMA_VERSION,
+        HEARTBEAT_SCHEMA_VERSION,
     ):
         raise CrewError(f"unsupported heartbeat schema in {path}")
     required = {
@@ -172,12 +267,17 @@ def load_heartbeat(path: Path) -> dict[str, object]:
         "state": str,
         "updated_at": str,
     }
-    if schema == HEARTBEAT_SCHEMA_VERSION:
+    if schema in (CHECKPOINT_HEARTBEAT_SCHEMA_VERSION, HEARTBEAT_SCHEMA_VERSION):
         required.update({
             "attempt_count": int,
             "best_score": str,
             "mismatch_class": str,
             "eta_unix": (int, type(None)),
+        })
+    if schema == HEARTBEAT_SCHEMA_VERSION:
+        required.update({
+            **{field: (int, type(None)) for field in MEASUREMENT_FIELDS},
+            "promotion_state": str,
         })
     unexpected = sorted(set(record) - {"schema", *required})
     if unexpected:
@@ -187,6 +287,8 @@ def load_heartbeat(path: Path) -> dict[str, object]:
         if field in ("deadline_unix", "attempt_count"):
             valid = type(value) is int
         elif field == "eta_unix":
+            valid = value is None or type(value) is int
+        elif field in MEASUREMENT_FIELDS:
             valid = value is None or type(value) is int
         else:
             valid = isinstance(value, field_type)
@@ -213,7 +315,7 @@ def load_heartbeat(path: Path) -> dict[str, object]:
     if updated_at < last_progress_at:
         raise CrewError(f"heartbeat {path} has updated_at before last_progress_at")
 
-    if schema == HEARTBEAT_SCHEMA_VERSION:
+    if schema in (CHECKPOINT_HEARTBEAT_SCHEMA_VERSION, HEARTBEAT_SCHEMA_VERSION):
         attempt_count = record.get("attempt_count")
         if type(attempt_count) is not int or attempt_count < 0:
             raise CrewError(f"heartbeat {path} has invalid attempt_count")
@@ -228,7 +330,7 @@ def load_heartbeat(path: Path) -> dict[str, object]:
             parse_unix_timestamp(int(eta_unix), f"heartbeat {path} eta_unix")
     else:
         # Schema 1 remains readable so running workers can update in place.
-        # The next update rewrites the record as schema 2 with explicit
+        # The next update rewrites the record as schema 3 with explicit
         # checkpoint defaults.
         record = dict(record)
         record.update({
@@ -237,6 +339,19 @@ def load_heartbeat(path: Path) -> dict[str, object]:
             "mismatch_class": "unclassified",
             "eta_unix": None,
         })
+    if schema == HEARTBEAT_SCHEMA_VERSION:
+        result = validate_measured_result(record, f"heartbeat {path} measured result")
+        record = dict(record)
+        record.update(result)
+        if result["promotion_state"] != "unmeasured":
+            expected_score = measured_score(result)
+            if record["best_score"] != expected_score:
+                raise CrewError(f"heartbeat {path} has noncanonical measured best_score")
+    else:
+        # Schemas 1 and 2 had no unambiguous numeric result. They remain
+        # readable and their next update is normalized to schema 3.
+        record = dict(record)
+        record.update(unmeasured_result())
     return record
 
 
@@ -282,6 +397,242 @@ def graceful_stop_guidance(worker: str) -> str:
         "run tools/finalize_plateau.py, and hand off; if it is unresponsive, report "
         "the exact launcher PID for owner inspection. crew.py never signals or stops a process."
     )
+
+
+def repository_root() -> Path:
+    value = run_git("rev-parse", "--show-toplevel")
+    root = Path(value)
+    if not root.is_absolute():
+        raise CrewError("git returned a non-absolute repository root")
+    return root.resolve()
+
+
+def git_ignored(root: Path, relative: str) -> bool:
+    result = subprocess.run(
+        ["git", "check-ignore", "--quiet", "--", relative],
+        cwd=root,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    if result.returncode not in (0, 1):
+        detail = result.stderr.strip() or "git check-ignore failed"
+        raise CrewError(f"cannot validate workbench summary location: {detail}")
+    return result.returncode == 0
+
+
+def read_fresh_workbench_summary(relative: str) -> dict[str, object]:
+    """Read one fresh, ignored build report without following symlinks."""
+
+    supplied = Path(relative)
+    if supplied.is_absolute() or not supplied.parts or any(
+        part in ("", ".", "..") for part in supplied.parts
+    ) or supplied.as_posix() != relative:
+        raise CrewError("workbench summary path must be a canonical repository-relative path")
+    if supplied.parts[0] != "build":
+        raise CrewError("workbench summary must be below the ignored build/ directory")
+    root = repository_root()
+    canonical_relative = supplied.as_posix()
+    if not git_ignored(root, canonical_relative):
+        raise CrewError("workbench summary path is not ignored by Git")
+
+    path = root
+    for part in supplied.parts[:-1]:
+        path /= part
+        try:
+            metadata = path.lstat()
+        except OSError as error:
+            raise CrewError(f"cannot inspect workbench summary path {canonical_relative}") from error
+        if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISDIR(metadata.st_mode):
+            raise CrewError("workbench summary path contains a symlink or non-directory")
+    path /= supplied.parts[-1]
+    try:
+        expected = path.lstat()
+    except OSError as error:
+        raise CrewError(f"cannot inspect workbench summary {canonical_relative}") from error
+    if stat.S_ISLNK(expected.st_mode) or not stat.S_ISREG(expected.st_mode):
+        raise CrewError("workbench summary is a symlink or is not a regular file")
+
+    flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
+    try:
+        descriptor = os.open(path, flags)
+    except OSError as error:
+        raise CrewError(f"cannot open workbench summary {canonical_relative}") from error
+    try:
+        before = os.fstat(descriptor)
+        if not stat.S_ISREG(before.st_mode):
+            raise CrewError("workbench summary is not a regular file")
+        if before.st_size > WB_SUMMARY_MAX_BYTES:
+            raise CrewError("workbench summary is unexpectedly large")
+        chunks: list[bytes] = []
+        remaining = WB_SUMMARY_MAX_BYTES + 1
+        while remaining:
+            chunk = os.read(descriptor, min(remaining, 16 * 1024))
+            if not chunk:
+                break
+            chunks.append(chunk)
+            remaining -= len(chunk)
+        if remaining == 0 and os.read(descriptor, 1):
+            raise CrewError("workbench summary is unexpectedly large")
+        after = os.fstat(descriptor)
+    finally:
+        os.close(descriptor)
+    try:
+        current = path.lstat()
+    except OSError as error:
+        raise CrewError("workbench summary changed while it was read") from error
+    def identity(value: os.stat_result) -> tuple[int, int, int, int]:
+        return (value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns)
+
+    if (
+        identity(expected) != identity(before)
+        or identity(before) != identity(after)
+        or identity(after) != identity(current)
+    ):
+        raise CrewError("workbench summary changed while it was read")
+
+    age = utc_now().timestamp() - after.st_mtime
+    if age < -WB_SUMMARY_FUTURE_SLOP_SECONDS:
+        raise CrewError("workbench summary timestamp is implausibly in the future")
+    if age > WB_SUMMARY_MAX_AGE_SECONDS:
+        raise CrewError("workbench summary is stale; regenerate it before checkpointing")
+    try:
+        payload = json.loads(b"".join(chunks).decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise CrewError("workbench summary is not one valid UTF-8 JSON value") from error
+    if not isinstance(payload, dict):
+        raise CrewError("workbench summary must contain one JSON object")
+    return payload
+
+
+def summary_integer(record: dict[str, object], field: str) -> int:
+    value = record.get(field)
+    if type(value) is not int or int(value) < 0:
+        raise CrewError(f"workbench summary has invalid {field}")
+    return int(value)
+
+
+def workbench_summary_result(
+    relative: str, *, worker: str, target: str
+) -> dict[str, object]:
+    payload = read_fresh_workbench_summary(relative)
+    if payload.get("schema") != WB_SUMMARY_SCHEMA:
+        raise CrewError("workbench summary has unsupported schema")
+    symbols = payload.get("symbol")
+    if not isinstance(symbols, dict):
+        raise CrewError("workbench summary has malformed symbol identity")
+    identities: set[str] = set()
+    for field in ("requested", "target", "candidate"):
+        value = symbols.get(field)
+        if not isinstance(value, str):
+            raise CrewError(f"workbench summary has invalid symbol.{field}")
+        identities.add(stored_concise_line(value, f"workbench symbol.{field}", 128))
+    if target not in identities:
+        raise CrewError("workbench summary symbol does not agree with the assigned target")
+    summary_worker = payload.get("worker")
+    if summary_worker is not None and summary_worker != worker:
+        raise CrewError("workbench summary worker does not agree with the checkpoint worker")
+
+    comparison = payload.get("comparison")
+    evidence = payload.get("evidence")
+    boundary = payload.get("boundary")
+    if not isinstance(comparison, dict) or not isinstance(evidence, dict):
+        raise CrewError("workbench summary lacks comparison/evidence objects")
+    if not isinstance(boundary, dict):
+        raise CrewError("workbench summary lacks a boundary object")
+    target_words = summary_integer(comparison, "target_words")
+    candidate_words = summary_integer(comparison, "candidate_words")
+    raw = summary_integer(comparison, "raw_differing_words")
+    masked = summary_integer(comparison, "differing_words")
+    boundary_bytes = boundary.get("bytes")
+    if type(boundary_bytes) is not int or boundary_bytes != target_words * 4:
+        raise CrewError("workbench summary boundary disagrees with target_words")
+    matched_words = comparison.get("matched_words")
+    expected_matched = target_words - masked if target_words == candidate_words else None
+    if matched_words != expected_matched:
+        raise CrewError("workbench summary matched_words is inconsistent")
+    exact = comparison.get("exact")
+    admissible = evidence.get("admissible_exact_comparison")
+    promotion_proof = evidence.get("promotion_proof_included")
+    if (
+        not isinstance(exact, bool)
+        or not isinstance(admissible, bool)
+        or not isinstance(promotion_proof, bool)
+    ):
+        raise CrewError("workbench summary has invalid exact-comparison state")
+    if promotion_proof:
+        raise CrewError("workbench summary unexpectedly claims canonical promotion proof")
+    if exact and not (
+        target_words == candidate_words and raw == 0 and masked == 0
+    ):
+        raise CrewError("workbench summary claims exact with nonexact word metrics")
+    if not exact and target_words == candidate_words and raw == 0 and masked == 0:
+        raise CrewError("workbench summary denies exact despite exact word metrics")
+
+    result: dict[str, object] = {
+        "target_words": target_words,
+        "candidate_words": candidate_words,
+        "raw_differing_words": raw,
+        "relocation_masked_differing_words": masked,
+        "promotion_state": "object-exact" if exact and admissible else "compiled",
+    }
+    relocations = payload.get("relocations")
+    if relocations is not None and not isinstance(relocations, dict):
+        raise CrewError("workbench summary has malformed relocations")
+    relocation_source = relocations if isinstance(relocations, dict) else comparison
+    for field in (
+        "candidate_relocations", "target_relocations", "exact_relocation_identities"
+    ):
+        value = relocation_source.get(field)
+        if value is not None and (type(value) is not int or int(value) < 0):
+            raise CrewError(f"workbench summary has invalid {field}")
+        result[field] = value
+    return result
+
+
+def checkpoint_result(
+    args: argparse.Namespace,
+    *,
+    target: str,
+    existing: dict[str, object] | None,
+    assignment_changed: bool,
+) -> dict[str, object]:
+    explicit = {
+        field: getattr(args, field, None)
+        for field in (*MEASUREMENT_FIELDS, "promotion_state")
+    }
+    summary_path = getattr(args, "wb_summary", None)
+    imported = (
+        workbench_summary_result(summary_path, worker=args.worker, target=target)
+        if summary_path is not None else None
+    )
+    supplied = imported is not None or any(value is not None for value in explicit.values())
+    if not supplied:
+        if existing is not None and not assignment_changed:
+            return validate_measured_result(existing)
+        return unmeasured_result()
+
+    if imported is not None:
+        combined: dict[str, object] = dict(imported)
+    elif existing is not None and not assignment_changed:
+        combined = {
+            field: existing.get(field)
+            for field in (*MEASUREMENT_FIELDS, "promotion_state")
+        }
+    else:
+        combined = {}
+    for field, value in explicit.items():
+        if value is None:
+            continue
+        if (
+            imported is not None
+            and field in combined
+            and combined[field] is not None
+            and combined[field] != value
+        ):
+            raise CrewError(f"explicit {field} conflicts with workbench summary")
+        combined[field] = value
+    return validate_measured_result(combined, "checkpoint measured result")
 
 
 def load_config(root: Path) -> dict[str, object]:
@@ -635,7 +986,7 @@ def command_heartbeat(args: argparse.Namespace, root: Path) -> None:
         target != str(existing["target"]) or base != str(existing["base"])
     )
     attempt_arg = getattr(args, "attempt_count", None)
-    if attempt_arg is not None and attempt_arg < 0:
+    if attempt_arg is not None and (type(attempt_arg) is not int or attempt_arg < 0):
         raise CrewError("heartbeat attempt-count must be non-negative")
     if assignment_changed:
         attempt_count = attempt_arg if attempt_arg is not None else 0
@@ -660,13 +1011,23 @@ def command_heartbeat(args: argparse.Namespace, root: Path) -> None:
         )
     if existing is not None and not assignment_changed and attempt_count < int(existing["attempt_count"]):
         raise CrewError("heartbeat attempt-count cannot decrease for the same assignment")
+    measured_result = checkpoint_result(
+        args,
+        target=target,
+        existing=existing,
+        assignment_changed=assignment_changed,
+    )
+    if measured_result["promotion_state"] != "unmeasured":
+        if getattr(args, "best_score", None) is not None:
+            raise CrewError("--best-score cannot accompany unambiguous measured metrics")
+        best_score = measured_score(measured_result)
     best_score = concise_line(best_score, "best-score", 128)
     if not MISMATCH_CLASS_RE.fullmatch(mismatch_class):
         raise CrewError(
             "heartbeat mismatch-class must start with a lowercase letter and use "
             "lowercase letters, digits, '+', '.', '_', '/', or '-'"
         )
-    if eta_unix is not None and eta_unix <= 0:
+    if eta_unix is not None and (type(eta_unix) is not int or eta_unix <= 0):
         raise CrewError("heartbeat ETA must be a positive Unix timestamp")
     if eta_unix is not None:
         parse_unix_timestamp(eta_unix, "heartbeat ETA")
@@ -687,6 +1048,7 @@ def command_heartbeat(args: argparse.Namespace, root: Path) -> None:
         "best_score": best_score,
         "mismatch_class": mismatch_class,
         "eta_unix": eta_unix,
+        **measured_result,
         "state": args.state,
         "updated_at": timestamp(now),
     }
@@ -733,6 +1095,8 @@ def command_heartbeat_status(args: argparse.Namespace, root: Path) -> None:
             "attempt_count": record["attempt_count"],
             "best_score": record["best_score"],
             "mismatch_class": record["mismatch_class"],
+            **{field: record[field] for field in MEASUREMENT_FIELDS},
+            "promotion_state": record["promotion_state"],
             "progress": record["last_progress"],
             "progress_age_seconds": progress_age_seconds,
             "deadline_unix": deadline_unix,
@@ -945,6 +1309,18 @@ def build_parser() -> argparse.ArgumentParser:
     heartbeat.add_argument("--attempt-count", type=int, help="Completed bounded source attempts")
     heartbeat.add_argument("--best-score", help="Concise best comparison score")
     heartbeat.add_argument("--mismatch-class", help="Lowercase mismatch classification slug")
+    heartbeat.add_argument(
+        "--wb-summary",
+        help="Fresh repository-relative build/ path containing mickey-wb-summary-v1 JSON",
+    )
+    heartbeat.add_argument("--target-words", type=int)
+    heartbeat.add_argument("--candidate-words", type=int)
+    heartbeat.add_argument("--raw-differing-words", type=int)
+    heartbeat.add_argument("--relocation-masked-differing-words", type=int)
+    heartbeat.add_argument("--candidate-relocations", type=int)
+    heartbeat.add_argument("--target-relocations", type=int)
+    heartbeat.add_argument("--exact-relocation-identities", type=int)
+    heartbeat.add_argument("--promotion-state", choices=PROMOTION_STATES)
     heartbeat.add_argument("--eta-unix", type=int, help="Optional expected handoff Unix timestamp")
     heartbeat.add_argument(
         "--state", choices=HEARTBEAT_STATES,
