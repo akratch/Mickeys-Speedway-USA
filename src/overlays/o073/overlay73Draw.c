@@ -25,7 +25,7 @@ extern void func_80034554(Overlay73Command **commands, void *resource,
                          s32 mode, s32 flags);
 extern void func_800241BC(Overlay73Command **commands);
 
-/* Workbench: structure-mismatch, 47 differing words, first mismatch +0x04.
+/* Workbench: structure-mismatch, 47 differing words, first mismatch +0x1C.
  * Exact 78-instruction frame/CFG; packet arithmetic is reordered by IDO.
  * Structural gap: saved-list/address scheduling and register web remain. */
 #ifdef NON_MATCHING
@@ -81,3 +81,13 @@ void func_overlay_073_F0000D70_18CB830(Overlay73Command **commands,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o073/overlay73Draw/func_overlay_073_F0000D70_18CB830.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_073_F0000D70_18CB830:start
+ * symbol: func_overlay_073_F0000D70_18CB830
+ * score: 47 differing words
+ * frame: 0x30
+ * relocations: 5
+ * first-mismatch: +0x1C
+ * summary: All 119 flag rows were nonexact; stack-home/register allocation delays the LOCAL pair, so resume only with a source-authentic packet/local-layout form.
+ * PLATEAU-HANDOFF:func_overlay_073_F0000D70_18CB830:end
+ */
