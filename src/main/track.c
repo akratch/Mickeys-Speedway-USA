@@ -1474,15 +1474,14 @@ void func_8000D7F8(TrackFloatRecord *arg0, f32 arg1, f32 arg2, f32 arg3) {
  */
 #ifdef NON_MATCHING
 void func_8000D820(void) {
-    s16 segmentCount;
-    s16 lightCount;
+    s32 segmentCount;
+    s32 lightCount;
     s32 *segmentFlags;
     s32 dirty;
     s32 copyMode;
     s32 maskCount;
-    u16 *dirtyMasks;
-    u16 mask;
-    u32 shiftedMask;
+    u8 *dirtyMasks;
+    u32 mask;
     u8 colour;
     TrackLightSource *sourceRecord;
     u8 *sourceBase;
@@ -1495,65 +1494,54 @@ void func_8000D820(void) {
     segment = D_800792E8->segments;
     segmentCount = D_800792E8->segmentCount;
     copyMode = (D_80079308 != NULL) ? 1 : -1;
-    if (segmentCount != 0) {
-        do {
-            dirty = *segmentFlags++;
-            if ((dirty != 0) && ((segment->lightingMode & copyMode) != 0)) {
-                sourceRecord = (TrackLightSource *) segment->unk30;
-                if (sourceRecord != NULL) {
-                    sourceBase = sourceRecord->source;
-                    lightData = (u8 *) segment->lightData;
-                    lightCount = segment->lightBatchCount;
-                    if (copyMode > 0) {
-                        source = sourceBase;
-                        destination = lightData;
-                        if (lightCount != 0) {
-                            do {
-                                destination += 10;
-                                destination[-4] = source[0];
-                                colour = source[1];
-                                source += 3;
-                                destination[-3] = colour;
-                                destination[-2] = source[-1];
-                                lightCount--;
-                            } while (lightCount != 0);
-                        }
-                        segment->lightingMode ^= 1;
-                    } else {
-                        maskCount = (lightCount + 15) >> 4;
-                        dirtyMasks = sourceRecord->dirtyMasks;
-                        if (maskCount != 0) {
-                            do {
-                                mask = *dirtyMasks;
-                                destination = lightData;
-                                source = sourceBase;
-                                *dirtyMasks = 0;
-                                if (mask != 0) {
-                                    do {
-                                        shiftedMask = mask >> 1;
-                                        if ((mask & 1) != 0) {
-                                            destination[6] = source[0];
-                                            destination[7] = source[1];
-                                            destination[8] = source[2];
-                                        }
-                                        destination += 10;
-                                        source += 3;
-                                        mask = (u16) shiftedMask;
-                                    } while (shiftedMask != 0);
-                                }
-                                destination += 0xA0;
-                                source += 0x30;
-                                dirtyMasks += 2;
-                                maskCount--;
-                            } while (maskCount != 0);
-                        }
-                        segment->lightingMode = 0;
+    while (segmentCount--) {
+        dirty = *segmentFlags;
+        segmentFlags++;
+        if ((dirty != 0) && ((segment->lightingMode & copyMode) != 0)) {
+            sourceRecord = (TrackLightSource *) segment->unk30;
+            if (sourceRecord != NULL) {
+                sourceBase = sourceRecord->source;
+                lightData = (u8 *) segment->lightData;
+                lightCount = segment->lightBatchCount;
+                if (copyMode > 0) {
+                    while (lightCount--) {
+                        lightData += 10;
+                        lightData[-4] = sourceBase[0];
+                        colour = sourceBase[1];
+                        sourceBase += 3;
+                        lightData[-3] = colour;
+                        lightData[-2] = sourceBase[-1];
                     }
+                    segment->lightingMode ^= 1;
+                } else {
+                    maskCount = (lightCount + 15) >> 4;
+                    dirtyMasks = (u8 *) sourceRecord->dirtyMasks;
+                    while (maskCount--) {
+                        mask = *(u16 *) dirtyMasks;
+                        destination = lightData;
+                        source = sourceBase;
+                        *(u16 *) dirtyMasks = 0;
+                        if (mask != 0) {
+                            do {
+                                if ((mask & 1) != 0) {
+                                    destination[6] = source[0];
+                                    destination[7] = source[1];
+                                    destination[8] = source[2];
+                                }
+                                destination += 10;
+                                source += 3;
+                                mask >>= 1;
+                            } while (mask != 0);
+                        }
+                        lightData += 0xA0;
+                        sourceBase += 0x30;
+                        dirtyMasks += 2;
+                    }
+                    segment->lightingMode = 0;
                 }
             }
-            segment++;
-            segmentCount--;
-        } while (segmentCount != 0);
+        }
+        segment++;
     }
 }
 #else
@@ -5753,4 +5741,14 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x1C
  * summary: paired bound loads and a loop-condition carrier close the opcode schedule; 20 register-only words remain
  * PLATEAU-HANDOFF:func_8000FAE0:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000D820:start
+ * symbol: func_8000D820
+ * score: 65/86 words
+ * frame: frameless
+ * relocations: 6
+ * first-mismatch: +0x3C
+ * summary: Two-instruction structural residual; next inspect original declaration lifetimes and dirty/source cursor types.
+ * PLATEAU-HANDOFF:func_8000D820:end
  */
