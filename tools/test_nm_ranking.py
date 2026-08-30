@@ -296,6 +296,39 @@ void b(void) { shared++; }
         )
 
 
+class RetainedDisplayTests(unittest.TestCase):
+    def test_recovers_validated_rows_without_source_or_compile_state(self) -> None:
+        document = ranking_document([
+            function_row(
+                "src/main/file.c",
+                "func",
+                category="register-only",
+                differing_words=2,
+                pct=98.5,
+            )
+        ])
+        results = ranking.retained_results(document)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].name, "func")
+        self.assertEqual(results[0].differing_words, 2)
+        self.assertEqual(results[0].objdiff_match_pct, 98.5)
+
+    def test_rejects_an_invalid_snapshot(self) -> None:
+        document = ranking_document()
+        document["queue_size"] = 99
+        with self.assertRaises(ranking.RankingDocumentError):
+            ranking.retained_results(document)
+
+    def test_presentation_flag_alone_cannot_start_a_full_compile(self) -> None:
+        with mock.patch.object(sys, "argv", ["nm_ranking.py", "--top", "1"]):
+            with mock.patch.object(
+                ranking,
+                "missing_permuter_inputs",
+                side_effect=AssertionError("compile path reached"),
+            ):
+                self.assertEqual(ranking.main(), 2)
+
+
 class IncrementalRefreshTests(unittest.TestCase):
     def setUp(self) -> None:
         self.keep = ("src/main/keep.c", "keep")

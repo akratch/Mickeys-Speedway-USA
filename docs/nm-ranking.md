@@ -203,7 +203,7 @@ tools/objdiff/objdiff-cli report generate -p . -o /tmp/nm_report.json -f json -d
     --out config/nonmatching-ranking.us.json --no-table
 # Optional linked/whole-TU context:
 .venv/bin/python tools/nm_ranking.py --objdiff-report /tmp/nm_report.json --jobs 12
-.venv/bin/python tools/nm_ranking.py --top 20 --markdown --no-table  # fleet-prompt excerpt
+.venv/bin/python tools/nm_ranking.py --show-retained --top 20 --markdown  # fleet-prompt excerpt; no compilation
 
 # Fast maintenance between full compile passes: remove snapshot rows whose
 # exact source/symbol identity is no longer guarded by NON_MATCHING.

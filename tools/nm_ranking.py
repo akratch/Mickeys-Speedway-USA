@@ -44,8 +44,8 @@ Usage:
     .venv/bin/python tools/nm_ranking.py \\
         --objdiff-report /path/to/objdiff-report.json
 
-    # top 20 as a markdown table, for pasting into a fleet prompt:
-    .venv/bin/python tools/nm_ranking.py --top 20 --markdown
+    # top 20 retained rows as a markdown table, with no compilation:
+    .venv/bin/python tools/nm_ranking.py --show-retained --top 20 --markdown
 
     # remove now-matched rows from the retained snapshot without compiling:
     .venv/bin/python tools/nm_ranking.py --prune-stale
@@ -1648,6 +1648,37 @@ def print_table(results: list[FuncResult], top: Optional[int], markdown: bool) -
         print(line(row))
 
 
+def retained_results(document: object) -> list[FuncResult]:
+    """Recover display-only rows from a validated retained snapshot."""
+    validated = validate_ranking_document(document)
+    functions = validated["functions"]
+    assert isinstance(functions, list)
+    return [
+        FuncResult(
+            name=str(row["name"]),
+            file=str(row["file"]),
+            overlay=row["overlay"] if isinstance(row["overlay"], int) else None,
+            tu=str(row["tu"]),
+            size_bytes=int(row["size_bytes"]),
+            differing_words=int(row["differing_words"]),
+            first_mismatch_offset=(
+                int(row["first_mismatch_offset"])
+                if isinstance(row["first_mismatch_offset"], int)
+                else None
+            ),
+            size_delta=int(row["size_delta"]),
+            category=str(row["category"]),
+            objdiff_match_pct=(
+                float(row["objdiff_match_pct"])
+                if isinstance(row["objdiff_match_pct"], (int, float))
+                else None
+            ),
+        )
+        for row in functions
+        if isinstance(row, dict)
+    ]
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--objdiff-report", type=pathlib.Path, default=None,
@@ -1675,9 +1706,23 @@ def main() -> int:
         action="store_true",
         help="validate --out and fail if the marked region in --doc has drifted",
     )
-    ap.add_argument("--top", type=int, default=None, help="only print the top N rows")
-    ap.add_argument("--markdown", action="store_true", help="print the table as markdown")
+    ap.add_argument(
+        "--top",
+        type=int,
+        default=None,
+        help="only print the top N rows (requires --show-retained or --refresh-stale)",
+    )
+    ap.add_argument(
+        "--markdown",
+        action="store_true",
+        help="print the table as markdown (requires --show-retained or --refresh-stale)",
+    )
     ap.add_argument("--no-table", action="store_true", help="skip printing the table")
+    ap.add_argument(
+        "--show-retained",
+        action="store_true",
+        help="display the validated --out snapshot without compiling candidates",
+    )
     ap.add_argument("--limit", type=int, default=None,
                      help="process at most N queue items; with --refresh-stale, "
                           "deferred rows remain explicitly unproven")
@@ -1709,6 +1754,54 @@ def main() -> int:
     if args.limit is not None and args.limit < 1:
         print("error: --limit must be at least 1", file=sys.stderr)
         return 2
+    if (
+        (args.top is not None or args.markdown)
+        and not args.show_retained
+        and not args.refresh_stale
+    ):
+        print(
+            "error: --top/--markdown require --show-retained for a "
+            "compile-free snapshot view (or --refresh-stale)",
+            file=sys.stderr,
+        )
+        return 2
+
+    if args.show_retained:
+        incompatible = []
+        if args.objdiff_report is not None:
+            incompatible.append("--objdiff-report")
+        if args.limit is not None:
+            incompatible.append("--limit")
+        if args.no_table:
+            incompatible.append("--no-table")
+        if args.write_doc:
+            incompatible.append("--write-doc")
+        if args.check_doc:
+            incompatible.append("--check-doc")
+        if args.prune_stale:
+            incompatible.append("--prune-stale")
+        if args.refresh_stale:
+            incompatible.append("--refresh-stale")
+        if args.evidence_ref != "HEAD":
+            incompatible.append("--evidence-ref")
+        if incompatible:
+            print(
+                "error: --show-retained cannot be combined with "
+                + ", ".join(incompatible),
+                file=sys.stderr,
+            )
+            return 2
+        try:
+            document = json.loads(args.out.read_text(encoding="utf-8"))
+            results = retained_results(document)
+        except (OSError, json.JSONDecodeError, RankingDocumentError) as exc:
+            print(
+                f"error: refusing to display retained ranking: {exc}",
+                file=sys.stderr,
+            )
+            return 2
+        print_table(results, args.top, args.markdown)
+        return 0
 
     if args.write_doc or args.check_doc:
         incompatible = []
