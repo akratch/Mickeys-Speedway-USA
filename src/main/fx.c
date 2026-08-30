@@ -2460,8 +2460,8 @@ void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ADE8.s")
 #endif
 /* Workbench: structure-mismatch, 26 differing words, first mismatch +0x10. */
-/* Candidate shape: 52 instructions/frame -0x38; D_800D60C0 is per-iteration, not exact. */
-/* Remaining gap: saved-register order and loop-delay schedule; 18 structural words remain. */
+/* Candidate shape: exact 52 instructions/frame -0x38; 10/14 relocation tuples align. */
+/* Remaining gap: saved-register order, four early LO16 sites, and loop-delay schedule. */
 #ifdef NON_MATCHING
 /* Mickey-derived body; JFG's fxCpuTextureFlush is assembly-only. */
 void func_8004AF68(void) {
@@ -2527,4 +2527,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x60
  * summary: all 119 flags and bounded source forms are nonexact; nine stack-home displacements remain while opcode/register lanes agree
  * PLATEAU-HANDOFF:func_8004ADE8:end
+ */
+
+/* PLATEAU-HANDOFF:func_8004AF68:start
+ * symbol: func_8004AF68
+ * score: 26 differing words
+ * frame: 0x38
+ * relocations: 14
+ * first-mismatch: +0x10
+ * summary: 52-word shape and 14 identities; 119 flags plus bounded source/permuter attempts leave saved-register order and four early LO16 sites
+ * PLATEAU-HANDOFF:func_8004AF68:end
  */

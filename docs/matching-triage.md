@@ -303,3 +303,14 @@ routing facts from that sweep; the sweep's `summary.json` is the measurement.
 - first mismatch: +0x60
 - summary: all 119 flags and bounded source forms are nonexact; nine stack-home displacements remain while opcode/register lanes agree
 <!-- plateau-handoff:func_8004ADE8:end -->
+
+<!-- plateau-handoff:func_8004AF68:start -->
+### `func_8004AF68` plateau handoff
+
+- source: `src/main/fx.c`
+- score: 26 differing words
+- frame: 0x38
+- relocations: 14
+- first mismatch: +0x10
+- summary: 52-word shape and 14 identities; 119 flags plus bounded source/permuter attempts leave saved-register order and four early LO16 sites
+<!-- plateau-handoff:func_8004AF68:end -->
