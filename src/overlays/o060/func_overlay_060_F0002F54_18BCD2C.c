@@ -111,3 +111,13 @@ s32 func_overlay_060_F0002F54_18BCD2C(s32 left, s32 bottom, s32 width,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o060/func_overlay_060_F0002F54_18BCD2C/func_overlay_060_F0002F54_18BCD2C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_060_F0002F54_18BCD2C:start
+ * symbol: func_overlay_060_F0002F54_18BCD2C
+ * score: 84 differing words
+ * frame: 0xC0
+ * relocations: 12
+ * first-mismatch: +0x58
+ * summary: Exact geometry and frame; 11 of 12 relocation positions and types align; flags and source cap exhausted; display-list and x allocator web remains.
+ * PLATEAU-HANDOFF:func_overlay_060_F0002F54_18BCD2C:end
+ */
