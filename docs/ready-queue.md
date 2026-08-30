@@ -5,13 +5,13 @@ targets that are safe to assign. It joins five independent checks:
 
 1. `config/nonmatching-ranking.us.json` must pass the complete canonical
    validator in `tools/nm_ranking.py`.
-2. Git blame identifies the commit that last changed each row's
-   `differing_words` measurement. The compiler-relevant selective-TU context
-   at that commit must equal the context at the requested base ref. Other
-   `NON_MATCHING` candidate bodies and comments are removed before hashing;
-   shared declarations, matched code, fallback identities, and this target's
-   body remain covered. A relevant later edit makes the ranking evidence stale
-   even when the symbol and path still exist.
+2. Schema-v2 rows carry the selective-TU source digest recorded by
+   `nm_ranking.py`; legacy rows recover the same evidence from the Git-blamed
+   measurement commit. That evidence must equal the context at the requested
+   base ref. Other `NON_MATCHING` candidate bodies and comments are removed
+   before hashing; shared declarations, matched code, fallback identities, and
+   this target's body remain covered. A relevant later edit makes the ranking
+   evidence stale even when the symbol and path still exist.
 3. The owning source path must be clean in the primary worktree and index, so
    an uncommitted contributor edit cannot be assigned to another lane.
 4. The exact `(file, symbol)` identity must still be present in the live
@@ -54,7 +54,8 @@ defaults are 50 scanned rows and ten returned rows; hard limits are 1,000 and
 100 respectively. Ties preserve the retained snapshot order.
 
 Unresolved ranking rows are reported as a count but are not invented into the
-ranked order. Regenerate the ranking to give them measured positions.
+ranked order. Run `tools/nm_ranking.py --refresh-stale` to compile just those
+rows together with changed and newly queued identities.
 
 Table output is intended for a terminal. Markdown is paste-ready for a queue
 or handoff. JSON is schema version 3, uses stable field names, preserves row

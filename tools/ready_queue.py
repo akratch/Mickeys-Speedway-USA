@@ -12,10 +12,8 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
-import hashlib
 import json
 import math
-import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -60,7 +58,6 @@ CATEGORY_PENALTY = {
     "structure-mismatch": 16,
     "size-mismatch": 32,
 }
-BLAME_HEADER_RE = re.compile(r"^\^?([0-9a-f]{40})\s+\d+\s+\d+")
 
 
 class ReadyQueueError(ValueError):
@@ -210,49 +207,6 @@ def _ranking_details(
     }
 
 
-def blamed_source_lines(base: str, path: str) -> list[tuple[str, str]]:
-    """Return each tracked source line with its porcelain-blame commit."""
-    raw = lane_status.git("blame", "--line-porcelain", base, "--", path)
-    result: list[tuple[str, str]] = []
-    commit: str | None = None
-    for line in raw.splitlines():
-        header = BLAME_HEADER_RE.match(line)
-        if header:
-            commit = header.group(1)
-        elif line.startswith("\t"):
-            if commit is None:
-                raise ReadyQueueError(f"blame source line lacks a commit in {path}")
-            result.append((commit, line[1:]))
-            commit = None
-    return result
-
-
-def ranking_evidence_commits(base: str, path: str) -> dict[tuple[str, str], str]:
-    """Map each row to the commit that last changed its diff measurement."""
-    rows: dict[tuple[str, str], str] = {}
-    symbol: str | None = None
-    file_name: str | None = None
-    for commit, line in blamed_source_lines(base, path):
-        stripped = line.strip()
-        if stripped.startswith('"name":'):
-            symbol = str(json.loads(stripped.split(":", 1)[1].rstrip(",")))
-            file_name = None
-        elif stripped.startswith('"file":'):
-            file_name = str(json.loads(stripped.split(":", 1)[1].rstrip(",")))
-        elif stripped.startswith('"differing_words":'):
-            if symbol is None or file_name is None:
-                raise ReadyQueueError(
-                    f"ranking measurement lacks file/symbol context in {path}"
-                )
-            key = (file_name, symbol)
-            if key in rows:
-                raise ReadyQueueError(
-                    f"duplicate blamed ranking identity {file_name}:{symbol}"
-                )
-            rows[key] = commit
-    return rows
-
-
 def ranking_freshness(
     base: str, ranking_path: str, document: object,
 ) -> FreshnessMap:
@@ -260,7 +214,10 @@ def ranking_freshness(
     validated = nm_ranking.validate_ranking_document(document)
     functions = validated["functions"]
     assert isinstance(functions, list)
-    evidence_commits = ranking_evidence_commits(base, ranking_path)
+    try:
+        evidence_commits = nm_ranking.ranking_evidence_commits(base, ranking_path)
+    except nm_ranking.RankingDocumentError as exc:
+        raise ReadyQueueError(str(exc)) from exc
     expected = {
         (str(row["file"]), str(row["name"]))
         for row in functions if isinstance(row, dict)
@@ -282,85 +239,27 @@ def ranking_freshness(
             source_cache[key] = lane_status.show_file(ref, path)
         return source_cache[key]
 
-    def strip_comments(text: str) -> str:
-        """Remove C comments while preserving strings and physical lines."""
-        output: list[str] = []
-        index = 0
-        state = "code"
-        quote = ""
-        while index < len(text):
-            char = text[index]
-            following = text[index + 1] if index + 1 < len(text) else ""
-            if state == "code":
-                if char == "/" and following == "*":
-                    state = "block"
-                    output.extend("  ")
-                    index += 2
-                    continue
-                if char == "/" and following == "/":
-                    state = "line"
-                    output.extend("  ")
-                    index += 2
-                    continue
-                if char in {'"', "'"}:
-                    state = "quote"
-                    quote = char
-                output.append(char)
-            elif state == "block":
-                if char == "*" and following == "/":
-                    output.extend("  ")
-                    state = "code"
-                    index += 2
-                    continue
-                output.append("\n" if char == "\n" else " ")
-            elif state == "line":
-                if char == "\n":
-                    output.append(char)
-                    state = "code"
-                else:
-                    output.append(" ")
-            else:
-                output.append(char)
-                if char == "\\" and following:
-                    output.append(following)
-                    index += 2
-                    continue
-                if char == quote:
-                    state = "code"
-            index += 1
-        stripped = "".join(output)
-        return "\n".join(
-            line.rstrip() for line in stripped.splitlines() if line.strip()
-        ) + "\n"
-
-    def context_digest(text: str | None, symbol: str) -> str | None:
-        if text is None:
-            return None
-        blocks = list(permute_batch.iter_nonmatching_blocks(text))
-        targets = [
-            block for block in blocks
-            if permute_batch.block_function_name(text, block) == symbol
-        ]
-        if len(targets) != 1:
-            return None
-        target = targets[0]
-        selected = text
-        for block in reversed(blocks):
-            replacement = block.body if block is target else block.fallback
-            selected = selected[:block.start] + replacement + selected[block.end:]
-        normalized = strip_comments(selected)
-        return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
-
     def digest(ref: str, path: str, symbol: str) -> str | None:
         key = (ref, path, symbol)
         if key not in digest_cache:
-            digest_cache[key] = context_digest(source(ref, path), symbol)
+            digest_cache[key] = nm_ranking.source_context_digest(
+                source(ref, path), symbol
+            )
         return digest_cache[key]
 
     result: FreshnessMap = {}
+    rows_by_key = {
+        (str(row["file"]), str(row["name"])): row
+        for row in functions if isinstance(row, dict)
+    }
     for key, commit in evidence_commits.items():
         current = digest(base, key[0], key[1])
-        measured = digest(commit, key[0], key[1])
+        embedded = rows_by_key[key].get(nm_ranking.SOURCE_CONTEXT_FIELD)
+        measured = (
+            str(embedded)
+            if embedded is not None
+            else digest(commit, key[0], key[1])
+        )
         result[key] = RankingEvidence(
             commit=commit,
             fresh=current is not None and current == measured,

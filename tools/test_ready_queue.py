@@ -265,7 +265,7 @@ void b(void) { shared += 2; }
 """
         doc = document([row("src/main/a.c", "a", 1)])
         with mock.patch.object(
-            rq, "ranking_evidence_commits",
+            rq.nm_ranking, "ranking_evidence_commits",
             return_value={("src/main/a.c", "a"): "measured"},
         ), mock.patch.object(
             lane_status, "show_file",
@@ -285,7 +285,7 @@ void a(void) { shared++; }
         current = old.replace("extern int shared", "extern short shared")
         doc = document([row("src/main/a.c", "a", 1)])
         with mock.patch.object(
-            rq, "ranking_evidence_commits",
+            rq.nm_ranking, "ranking_evidence_commits",
             return_value={("src/main/a.c", "a"): "measured"},
         ), mock.patch.object(
             lane_status, "show_file",

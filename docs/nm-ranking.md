@@ -209,6 +209,15 @@ tools/objdiff/objdiff-cli report generate -p . -o /tmp/nm_report.json -f json -d
 # exact source/symbol identity is no longer guarded by NON_MATCHING.
 .venv/bin/python tools/nm_ranking.py --prune-stale
 
+# Incremental maintenance: retain source-proven rows, compile only changed,
+# newly queued, or previously unresolved identities, then merge and re-sort.
+.venv/bin/python tools/nm_ranking.py --refresh-stale --jobs 2
+
+# A bounded checkpoint compiles at most five stale identities. Deferred old
+# measurements stay explicitly unproven and deferred new identities stay in
+# the unresolved list; rerun without --limit to finish the refresh.
+.venv/bin/python tools/nm_ranking.py --refresh-stale --limit 5 --jobs 2
+
 # Regenerate or verify the marked human-readable snapshot without compiling.
 .venv/bin/python tools/nm_ranking.py --write-doc
 .venv/bin/python tools/nm_ranking.py --check-doc
@@ -225,12 +234,38 @@ decomp-permuter. It keys every row by the exact `(source file, symbol)` pair,
 validates that resolved and unresolved identities are unique, writes the JSON
 atomically, and refuses malformed unresolved rows rather than guessing which
 function they describe. It only removes stale rows and normalizes the retained
-counts: newly added `NON_MATCHING` functions remain unranked and are reported,
-so a full ranking pass is still required to measure them.
+counts: newly added `NON_MATCHING` functions remain unranked and are reported.
 
-Full canonical ranking writes and canonical `--prune-stale` runs update the
-marked region below in the same invocation. `--write-doc` is the source-only
-repair command; `--check-doc` validates the complete JSON schema and exact
+`--refresh-stale` closes that gap without replaying the whole queue. Each
+resolved schema-v2 row records a SHA-256 of the exact selective-TU source
+context used by the isolated compile: the selected body remains C, every other
+queued body becomes its fallback, comments are ignored, and shared
+declarations, macros, local data, matched code, fallback identities, and the
+selected body remain covered. The refresh validates the complete retained
+document, discovers the live exact `(file, symbol)` queue, and classifies rows
+as follows:
+
+- an embedded digest equal to current context is retained without compilation;
+- a schema-v1 row may migrate without compilation only when Git blame locates
+  its measurement commit and that commit's selective context equals current;
+- changed rows, unresolved rows, and newly queued identities are compiled via
+  the ordinary `process_item` path;
+- identities no longer live are removed.
+
+The tool re-discovers and re-hashes the complete queue after compilation. Any
+membership/context race or selected per-item error exits nonzero before the
+JSON or generated documentation is replaced. A bounded `--limit` applies only
+to compile work: deferred stale measurements remain present without a context
+digest, and deferred new identities are added to `unresolved_functions`, so
+the snapshot still covers the complete live queue without claiming those rows
+are current. The canonical JSON and marked documentation are fully rendered
+before their atomic replacements. A supplementary `--objdiff-report` applies
+to newly measured rows; omitted refreshes keep proven-fresh retained values and
+leave refreshed values null.
+
+Full canonical ranking writes and canonical `--prune-stale` and
+`--refresh-stale` runs update the marked region below in the same invocation.
+`--write-doc` is the source-only repair command; `--check-doc` validates the complete JSON schema and exact
 `(file, symbol)` identity uniqueness before comparing the rendered region.
 `gmake check-docs` runs that check, so edited prose, category summaries, ranked
 rows, and unresolved tables cannot silently diverge from the persisted JSON.
@@ -248,6 +283,8 @@ The snapshot contains **407 queued identities**: **401 resolved measurements** a
 Resolved rows span **74 overlays** and **1 resident TU group** (`main`).
 
 A supplementary objdiff report was not supplied; `objdiff_match_pct` covers **0 / 401** resolved rows.
+
+Persisted selective-TU source evidence covers **0 / 401** resolved rows. Rows without it are retained legacy or bounded-refresh measurements and must be treated as requiring reproof.
 
 ### Category distribution
 
