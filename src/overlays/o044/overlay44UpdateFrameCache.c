@@ -138,3 +138,13 @@ void overlay44UpdateFrameCache(Overlay44AnimationState *state,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o044/overlay44UpdateFrameCache/func_overlay_044_F0000294_188BAF4.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay44UpdateFrameCache:start
+ * symbol: overlay44UpdateFrameCache
+ * score: 54/187 words
+ * frame: 0x40
+ * relocations: 4
+ * first-mismatch: +0x0
+ * summary: candidate remains one word short with an eight-byte frame deficit; resume with source-authentic stack-home or allocator evidence
+ * PLATEAU-HANDOFF:overlay44UpdateFrameCache:end
+ */
