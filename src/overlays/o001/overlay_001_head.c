@@ -147,9 +147,12 @@ void overlay1ResolveMotionPoint(O1PathOwner *owner, s32 path, f32 *outX,
 
 extern f32 overlay1EvaluateCurve(f32, f32, s32, s32, f32);
 extern f32 overlay1SquareRoot(f32);
-/* Workbench: schedule-mismatch, 27 differing words, first mismatch +0x0C.
- * Exact 79-word frame/CFG and instruction multiset; calls and guards only reorder.
- * Shape-exact and permuter-ready; no structural gap remains. */
+/* Retained plateau: schedule-only at 52/79 positional words, first mismatch
+ * +0x0C, with the exact 79-word extent, 0x70 frame, CFG, and instruction
+ * multiset. All 119 flag rows are nonexact. A bounded two-thread permuter
+ * improves its private score only through an inert comma expression, which is
+ * rejected; traditional declaration/assignment separation is byte-flat.
+ * Resume only with a source-authentic statement-line or grouping model. */
 #ifdef NON_MATCHING
 f32 overlay1MeasureCurves(volatile f32 startX, volatile f32 startY,
                           volatile f32 endX, volatile f32 endY,
@@ -834,4 +837,14 @@ void overlay1CallReset(void) {
  * first-mismatch: +0x94
  * summary: One saved integral position stack home remains at sp+0x38 instead of target sp+0x40 and needs new source authentic evidence
  * PLATEAU-HANDOFF:overlay1InterpolatePath:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1MeasureCurves:start
+ * symbol: overlay1MeasureCurves
+ * score: 52/79 words
+ * frame: 0x70
+ * relocations: 5
+ * first-mismatch: +0x0C
+ * summary: Exact instruction multiset remains schedule only after all flags and a bounded search rejected an inert best mutation
+ * PLATEAU-HANDOFF:overlay1MeasureCurves:end
  */
