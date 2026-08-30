@@ -31,6 +31,7 @@ ATLAS = REPO / "config" / "overlays.us.json"
 ALIASES = REPO / "overlay_undefined_syms.us.txt"
 SYMBOLS = REPO / "symbol_addrs.us.txt"
 TARGET_ELF = REPO / "build" / "mickey.us.elf"
+VENV_PYTHON_TARGET = ".venv/bin/python"
 WB_COMPARE = TOOLS / "wb_compare.sh"
 TYPE_NAMES = {2: "R_MIPS_32", 4: "R_MIPS_26", 5: "R_MIPS_HI16", 6: "R_MIPS_LO16"}
 
@@ -489,7 +490,16 @@ def _build_target(target: Path, *, non_matching: bool, label: str) -> None:
         raise PreflightError(f"{label} split phase failed with exit {split.returncode}")
     target_command = [*command]
     if force:
-        target_command.append("--always-make")
+        # Lanes intentionally share the primary checkout's virtualenv through
+        # a symlink.  `--always-make` must rebuild the evidence graph after a
+        # recipe edit, but it must not rerun the venv bootstrap recipe against
+        # that symlink (GNU Make would try to replace its parent directory).
+        # `--assume-old` exempts only this immutable host-tool prerequisite;
+        # C/asm/data objects, the link, and all evidence-producing recipes are
+        # still forced.
+        target_command.extend(
+            ["--always-make", f"--assume-old={VENV_PYTHON_TARGET}"]
+        )
     result = _run([*target_command, _relative(target)], capture=True)
     if result.returncode:
         raise PreflightError(f"{label} build failed with exit {result.returncode}")

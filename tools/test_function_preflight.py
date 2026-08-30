@@ -668,6 +668,7 @@ class FreshnessTests(unittest.TestCase):
             commands = [call.args[0] for call in run.call_args_list]
             self.assertNotIn("--always-make", commands[0])
             self.assertIn("--always-make", commands[1])
+            self.assertIn("--assume-old=.venv/bin/python", commands[1])
             self.assertEqual(commands[1][-1], fp._relative(resolution.candidate_object))
 
     def test_resolve_wb_refreshes_by_default_and_no_build_is_explicit(self) -> None:

@@ -105,9 +105,10 @@ def validate_report(symbol: str, report: dict[str, object]) -> dict[str, object]
         raise ProofError(
             "linked comparison reports a first mismatch despite zero differing words"
         )
-    if workbench.get("verdict") != "exact":
+    if workbench.get("verdict") not in {"exact", "instruction-words-identical"}:
         raise ProofError(
-            f"linked comparison verdict is not exact: {workbench.get('verdict')!r}"
+            "linked comparison verdict is not an exact-word verdict: "
+            f"{workbench.get('verdict')!r}"
         )
     target_frame = workbench.get("target_frame")
     candidate_frame = workbench.get("candidate_frame")

@@ -74,6 +74,11 @@ class ReportPolicyTests(unittest.TestCase):
         self.assertIsNone(receipt["frame_size"])
         self.assertEqual(0, receipt["exact_relocations"])
 
+    def test_workbench_native_exact_word_verdict_is_accepted(self) -> None:
+        report = exact_report()
+        report["workbench"]["verdict"] = "instruction-words-identical"
+        self.assertEqual("exact", proof.validate_report("friendly", report)["verdict"])
+
     def test_fallback_mode_is_not_a_promotion_proof(self) -> None:
         report = exact_report()
         report["resolution_mode"] = "fallback"
@@ -83,7 +88,10 @@ class ReportPolicyTests(unittest.TestCase):
     def test_every_exactness_surface_fails_closed(self) -> None:
         mutations = (
             ("linked words", lambda row: row["workbench"].update(differing_words=1)),
-            ("verdict", lambda row: row["workbench"].update(verdict="register-mismatch")),
+            (
+                "exact-word verdict",
+                lambda row: row["workbench"].update(verdict="register-mismatch"),
+            ),
             ("frame", lambda row: row["workbench"].update(candidate_frame=32)),
             (
                 "relocation counts",
