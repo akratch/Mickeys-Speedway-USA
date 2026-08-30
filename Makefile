@@ -333,6 +333,7 @@ system-health:
 check-tooling:
 	$(HOST_PYTHON) tests/test_make_layout.py
 	$(HOST_PYTHON) tests/test_flag_sweep.py
+	$(HOST_PYTHON) tests/test_tu_flag_impact.py
 	$(HOST_PYTHON) tests/test_overlay_atlas.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_reloc_surface.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_proof_provenance.py
