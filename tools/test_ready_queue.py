@@ -196,6 +196,36 @@ class ReadyQueueTests(unittest.TestCase):
         self.assertEqual(report["ready"][0]["snapshot_rank"], 2)
         self.assertEqual(report["ready"][0]["proof_quality"], "codegen")
 
+    def test_relocation_mismatch_is_prioritized_as_a_low_cost_mechanism(self) -> None:
+        relocation = row("src/main/reloc.c", "reloc", 3)
+        relocation["category"] = "reloc-mismatch"
+        other = row("src/main/other.c", "other", 3)
+        other["category"] = "other"
+        ranked = rq.prioritized_rows([other, relocation])
+        self.assertEqual([value[2]["name"] for value in ranked], ["reloc", "other"])
+
+    def test_retained_data_focus_filters_to_relocation_rows(self) -> None:
+        relocation = row("src/main/reloc.c", "reloc", 3)
+        relocation["category"] = "reloc-mismatch"
+        allocator = row("src/main/alloc.c", "alloc", 1)
+        items = [Item("src/main/reloc.c", "reloc"), Item("src/main/alloc.c", "alloc")]
+        states = {
+            "reloc": assignment("reloc", "src/main/reloc.c"),
+            "alloc": assignment("alloc", "src/main/alloc.c"),
+        }
+
+        def classify(_base: str, symbol: str) -> lane_status.Assignment:
+            return states[symbol]
+
+        report = rq.build_report(
+            document([allocator, relocation]), items, base="base",
+            base_commit="abc", ranking_name="ranking.json", scan=10, top=10,
+            focus="retained-data", classify=classify,
+        )
+        self.assertEqual([value["symbol"] for value in report["ready"]], ["reloc"])
+        self.assertEqual(report["focus"], "retained-data")
+        self.assertEqual(report["focused_ranking_rows"], 1)
+
     def test_stale_ranking_is_assignable_only_as_reproof(self) -> None:
         rows = [row("src/main/a.c", "a", 1)]
         called = False

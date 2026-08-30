@@ -32,6 +32,7 @@ not compile, inspect ROM text, or inspect sibling worktrees.
 python3 tools/ready_queue.py --scan 50 --top 10
 python3 tools/ready_queue.py --scan 100 --top 20 --format markdown
 python3 tools/ready_queue.py --scan 100 --top 20 --format json
+python3 tools/ready_queue.py --focus retained-data --scan 50 --top 10
 ```
 
 Before applying `--scan`, the tool derives a bounded-effort score from exact
@@ -42,6 +43,16 @@ priority rank and the original snapshot rank, plus the proof-quality class and
 effort score. Stale measurement context adds a 40-point penalty and changes
 the quality to `reproof-*`; such a row is safe to assign only with a mandatory
 configured baseline refresh before any source edit.
+
+The `retained-data` focus is a compile-free ownership-triage view. It selects
+equal-sized `reloc-mismatch` rows: every currently differing word is at a
+relocation-bearing offset. Recent Overlay 41 and Overlay 45 closures showed
+that this signature can identify a compiler-private pool or jump table whose
+payload already belongs to retained overlay data. The view is deliberately a
+lead, not a match claim: a worker must still authenticate the retained payload,
+prove every static and runtime relocation identity, and byte-compare the linked
+owner and full ROM. Relocation rows also carry a lower default effort penalty,
+so promising ownership fixes are no longer buried below generic codegen rows.
 
 The `TU batch` column gives each returned row's position and count among ready
 targets in the same translation unit. Assign those rows to one worker in rank

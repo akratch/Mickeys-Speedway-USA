@@ -51,12 +51,21 @@ STALE_EVIDENCE_PENALTY = 40
 
 CATEGORY_PENALTY = {
     "register-only": 0,
+    # Two recent exact overlay promotions showed that an equal-sized candidate
+    # whose residual words are all relocation-bearing can be an ownership or
+    # retained-data problem rather than a hard codegen problem.  Keep this
+    # class near allocator/schedule work instead of burying it below `other`.
+    "reloc-mismatch": 1,
     "allocation-mismatch": 2,
     "schedule-only": 2,
     "other": 4,
-    "reloc-mismatch": 8,
     "structure-mismatch": 16,
     "size-mismatch": 32,
+}
+
+FOCUS_CATEGORIES = {
+    "default": None,
+    "retained-data": frozenset({"reloc-mismatch"}),
 }
 
 
@@ -287,6 +296,7 @@ def build_report(
     scan: int,
     top: int,
     jobs: int = 1,
+    focus: str = "default",
     freshness: FreshnessMap | None = None,
     dirty_paths: set[str] | None = None,
     classify: AssignmentClassifier = lane_status.assignment_status,
@@ -310,7 +320,18 @@ def build_report(
     skipped_counts = {state: 0 for state in SKIPPED_STATES}
     scanned = 0
 
-    ranked_rows = prioritized_rows(functions, freshness)[:scan]
+    if focus not in FOCUS_CATEGORIES:
+        raise ReadyQueueError(f"unknown focus {focus!r}")
+    focus_categories = FOCUS_CATEGORIES[focus]
+    focused_functions = [
+        row for row in functions
+        if focus_categories is None
+        or (
+            isinstance(row, dict)
+            and str(row.get("category")) in focus_categories
+        )
+    ]
+    ranked_rows = prioritized_rows(focused_functions, freshness)[:scan]
     chunk_size = max(1, jobs * 2)
     for chunk_start in range(0, len(ranked_rows), chunk_size):
         if len(ready) >= top:
@@ -448,8 +469,10 @@ def build_report(
         "base": base,
         "base_commit": base_commit,
         "ranking": ranking_name,
+        "focus": focus,
         "limits": {"scan": scan, "top": top, "jobs": jobs},
         "ranking_rows": len(functions),
+        "focused_ranking_rows": len(focused_functions),
         "unresolved_rows": len(unresolved),
         "scanned": scanned,
         "ready": ready,
@@ -459,7 +482,7 @@ def build_report(
             "skipped": skipped_counts,
             "top_limit_reached": len(ready) >= top,
             "scan_limit_reached": scanned >= scan and len(ready) < top,
-            "ranking_exhausted": scanned == len(functions),
+            "ranking_exhausted": scanned == len(focused_functions),
         },
     }
 
@@ -564,6 +587,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--focus", choices=tuple(FOCUS_CATEGORIES), default="default",
+        help=(
+            "queue view: default bounded-effort order, or retained-data for "
+            "equal-sized rows whose residuals are all relocation-bearing"
+        ),
+    )
+    parser.add_argument(
         "--format", choices=("table", "markdown", "json"), default="table",
         help="stable JSON or concise human-readable output (default table)",
     )
@@ -590,6 +620,7 @@ def main(argv: list[str] | None = None) -> int:
             base_commit=base_commit,
             ranking_name=ranking_name,
             scan=args.scan, top=args.top, jobs=args.jobs,
+            focus=args.focus,
             freshness=freshness,
             dirty_paths=dirty_paths,
         )
