@@ -441,3 +441,13 @@ s32 overlay27Activate(O27Object *object) {
     }
     return 0;
 }
+
+/* PLATEAU-HANDOFF:overlay27UpdateCoordinates:start
+ * symbol: overlay27UpdateCoordinates
+ * score: 19/65 words
+ * frame: frameless
+ * relocations: 10
+ * first-mismatch: +0x0
+ * summary: The a1/a2 allocator web and X/Y table-address LO16 schedule remain; resume only with new source-authentic web-formation evidence.
+ * PLATEAU-HANDOFF:overlay27UpdateCoordinates:end
+ */

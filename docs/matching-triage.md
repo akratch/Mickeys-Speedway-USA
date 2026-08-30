@@ -281,3 +281,14 @@ routing facts from that sweep; the sweep's `summary.json` is the measurement.
 - first mismatch: +0x1C
 - summary: 119 flags exhausted; next lever is a source-authentic packet/local-layout form that changes the stack-home and register-allocation web.
 <!-- plateau-handoff:func_overlay_073_F0000D70_18CB830:end -->
+
+<!-- plateau-handoff:overlay27UpdateCoordinates:start -->
+### `overlay27UpdateCoordinates` plateau handoff
+
+- source: `src/overlays/o027/overlay_027.c`
+- score: 19/65 words
+- frame: frameless
+- relocations: 10
+- first mismatch: +0x0
+- summary: The a1/a2 allocator web and X/Y table-address LO16 schedule remain; resume only with new source-authentic web-formation evidence.
+<!-- plateau-handoff:overlay27UpdateCoordinates:end -->
