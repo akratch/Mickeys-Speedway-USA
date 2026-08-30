@@ -30,7 +30,7 @@ typedef struct FxWakeRippleData {
     s16 angleStep;
     f32 value7C;
     f32 value80;
-    void *update;
+    s32 update;
 } FxWakeRippleData;
 
 typedef struct FxWakeTexture {
@@ -1291,13 +1291,14 @@ void wakeUpdate(s32 update, f32 arg1, f32 arg2, f32 arg3, s32 angle, s32 arg5) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeUpdate.s")
 #endif
-/* Workbench verdict: structure-mismatch, 125 differing words, first mismatch +0x0. */
-/* Candidate: 150/149 instructions with a -0x30 frame versus target -0x38; 88 structural words remain, so it is not shape-exact. */
-/* Shape status: ripple fade/angle/vertex updates and both calls are present; frame and pointer-layout gap remains. */
+/* Workbench verdict: structure-mismatch, 69 differing words, first mismatch +0x0. */
+/* Candidate: 149/149 instructions with a -0x30 frame versus target -0x38; both call relocations are exact. */
+/* Next lever: recover the declaration/home that expands the frame and changes the mode/height lifetime schedule. */
 /* PROVENANCE: JFG names the corresponding routine wakeUpdateRipple; this Mickey body uses only Mickey target offsets and calls. */
 #ifdef NON_MATCHING
 void func_80049000(FxWakeUpdateOwner *owner, s32 delta) {
     FxWakeRippleData *ripple;
+    FxWakeTexture *texture;
     u8 mode;
     s16 angle;
     s16 step;
@@ -1319,10 +1320,13 @@ void func_80049000(FxWakeUpdateOwner *owner, s32 delta) {
         }
         step = ripple->angleStep;
         if (step != 0) {
-            if (ripple->update != 0) {
+            texture = ripple->texture;
+            if (texture != 0) {
                 ripple->angle = (s16) (ripple->angle + (step * delta));
-                while (ripple->angle >= (s32) ((FxWakeTexture *) ripple->texture)->length) {
-                    ripple->angle = (s16) (ripple->angle - ((s32) ((FxWakeTexture *) ripple->texture)->length));
+                if (ripple->angle >= (s32) texture->length) {
+                    do {
+                        ripple->angle = (s16) (ripple->angle - (s32) texture->length);
+                    } while (ripple->angle >= (s32) texture->length);
                 }
             }
         }
@@ -2575,4 +2579,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x74
  * summary: Exact frame and four call tuples; configured build is one word short, while R4300 hazard mode is exact-sized at 77/89 words.
  * PLATEAU-HANDOFF:func_80048080:end
+ */
+
+/* PLATEAU-HANDOFF:func_80049000:start
+ * symbol: func_80049000
+ * score: 80/149 words
+ * frame: 0x30
+ * relocations: 2
+ * first-mismatch: +0x0
+ * summary: Target 0x38; calls exact. Recover local home/lifetimes. JFG src/fx.c wakeUpdateRipple is semantic scaffolding only; no public release without skeleton proof.
+ * PLATEAU-HANDOFF:func_80049000:end
  */
