@@ -309,8 +309,13 @@ its C body under `#ifdef NON_MATCHING`, with the original
 guard is normally off, so the ordinary build still links the `GLOBAL_ASM`
 fallback and stays byte-identical. `gmake NON_MATCHING=1` flips it: every
 converted TU compiles its real C body instead, into a **separate build tree**
-(`build_non_matching/`, never `build/`) so those objects can never be
-mistaken for, or sit next to, the ones `gmake verify` checks. It is a
+(`build_non_matching/`, never `build/`) so that command cannot mix them with
+the objects `gmake verify` checks. As a second
+line of defense against manual full-TU experiments that write directly into
+`build/`, every successful verification receipts the canonical hashes of all
+candidate-bearing objects. The next `gmake verify` forcibly rebuilds only
+objects that no longer match that receipt; a missing receipt fails safe by
+rebuilding the complete candidate-bearing set once. It is a
 compile-only smoke test — proof the C is not obviously wrong, not a matching
 claim. `gmake verify` refuses to run under `NON_MATCHING=1` (`the error is
 literal: "verify does not run under NON_MATCHING=1"`), exactly DKR's own
