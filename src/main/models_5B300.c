@@ -842,3 +842,13 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
  * summary: 99/106 normalized; target frame 0x38; second loader tuple four bytes late; park for a new frame/carrier mechanism
  * PLATEAU-HANDOFF:func_8005A7A0:end
  */
+
+/* PLATEAU-HANDOFF:func_8005ABA8:start
+ * symbol: func_8005ABA8
+ * score: 97 differing words
+ * frame: frameless
+ * relocations: 0
+ * first-mismatch: +0x38
+ * summary: CFE removes the target a2 frame-pointer copy and changes the transition split; next lever is the source-authentic carrier lifetime or field type.
+ * PLATEAU-HANDOFF:func_8005ABA8:end
+ */
