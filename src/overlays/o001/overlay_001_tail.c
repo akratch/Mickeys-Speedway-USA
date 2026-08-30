@@ -1837,16 +1837,15 @@ extern s32 overlay3RunCachedModeAction(void *, W *);
 extern s32 overlay1DispatchMode(void);
 #ifdef NON_MATCHING
 s32 overlay1HandleCachedMode(void) {
-    W *world = (W *)D_1DA0;
-    s32 result = 0;
-    if (world->enabled == 0) goto clear;
-    if (overlay27CanUse(world->object) != 0) goto clear;
-    if (D_83E4 == 3) result = overlay3RunCachedModeAction(D_1D9C, (W *)D_1DA0);
-    else result = overlay1DispatchMode();
-    return result;
+    if (((W *)D_1DA0)->enabled == 0) goto clear;
+    if (overlay27CanUse(((W *)D_1DA0)->object) != 0) goto clear;
+    if (D_83E4 == 3) {
+        return overlay3RunCachedModeAction(D_1D9C, (W *)D_1DA0);
+    }
+    return overlay1DispatchMode();
 clear:
     ((W *)D_1DA0)->state = 0;
-    return result;
+    return 0;
 }
 
 #else
@@ -3270,4 +3269,14 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0x50
  * summary: 119 flags and nine natural forms exhausted; seven static identities remain unresolved and the next lever is source-authentic post-callback pointer liveness
  * PLATEAU-HANDOFF:overlay1StartTimerCallbacks:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1HandleCachedMode:start
+ * symbol: overlay1HandleCachedMode
+ * score: 24 differing words
+ * frame: 0x18
+ * relocations: 13
+ * first-mismatch: +0x14
+ * summary: 119 flags and ten coherent forms exhausted; shared-clear and return CFG stay two words long, with overlay1DispatchMode runtime identity ambiguous
+ * PLATEAU-HANDOFF:overlay1HandleCachedMode:end
  */
