@@ -61,6 +61,8 @@ void overlay15InitStarsAndPalette(s32 count, s32 xRange, s32 yRange,
                                   s32 zRange, u32 startColor, u32 endColor,
                                   s32 colorDivisor) {
     Overlay15Star *stars;
+    Overlay15Star **starsAddress;
+    Overlay15InitBounds *bounds;
     u16 *palette;
     s32 starIndex;
     s32 paletteIndex0;
@@ -80,27 +82,28 @@ void overlay15InitStarsAndPalette(s32 count, s32 xRange, s32 yRange,
     starIndex = count * 12;
     starCount = count;
     stars = overlay15Allocate(starIndex + 0x200, 0x87);
-    gOverlay15Stars = stars;
-    gOverlay15StarPalette = (u16 *) ((u8 *) stars + starIndex);
+    starsAddress = &gOverlay15Stars;
+    *starsAddress = stars;
+    gOverlay15StarPalette = (u16 *) ((u8 *) *starsAddress + starIndex);
 
-    gOverlay15InitBounds.xRange = (f32) xRange;
-    gOverlay15InitBounds.xMin = gOverlay15InitBounds.xRange * -0.5f;
-    xRange <<= 7;
-    gOverlay15InitBounds.xMax = gOverlay15InitBounds.xRange * 0.5f;
-    gOverlay15InitBounds.yRange = (f32) yRange;
-    gOverlay15InitBounds.yMin = gOverlay15InitBounds.yRange * -0.5f;
-    yRange <<= 7;
-    gOverlay15InitBounds.yMax = gOverlay15InitBounds.yRange * 0.5f;
-    gOverlay15InitBounds.zRange = (f32) zRange;
-    zRange = (zRange + 1) << 8;
+    bounds = &gOverlay15InitBounds;
     countAddress = &gOverlay15StarCount;
+    bounds->xRange = (f32) xRange;
+    bounds->xMin = bounds->xRange * -0.5f;
+    xRange <<= 7;
+    bounds->xMax = bounds->xRange * 0.5f;
+    bounds->yRange = (f32) yRange;
+    bounds->yMin = bounds->yRange * -0.5f;
+    yRange <<= 7;
+    bounds->yMax = bounds->yRange * 0.5f;
+    bounds->zRange = (f32) zRange;
+    zRange = (zRange + 1) << 8;
     *countAddress = starCount;
-    gOverlay15InitBounds.zero = 0;
-    gOverlay15InitBounds.colorDivisor = (f32) colorDivisor;
-    gOverlay15InitBounds.zMax = gOverlay15InitBounds.zRange + 1.0f;
-    gOverlay15InitBounds.zMin = 1.0f;
-    gOverlay15InitBounds.colorStep =
-        255.0f / gOverlay15InitBounds.colorDivisor;
+    bounds->zero = 0;
+    bounds->colorDivisor = (f32) colorDivisor;
+    bounds->zMax = bounds->zRange + 1.0f;
+    bounds->zMin = 1.0f;
+    bounds->colorStep = 255.0f / bounds->colorDivisor;
 
     starIndex = 1;
     if (starCount > 0) {
@@ -474,4 +477,14 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * first-mismatch: +0x74
  * summary: Exact-size C retains 13 word differences; LOCAL BSS grouping leaves 14 candidate records versus 17 retail records.
  * PLATEAU-HANDOFF:overlay15DrawRain:end
+ */
+
+/* PLATEAU-HANDOFF:overlay15InitStarsAndPalette:start
+ * symbol: overlay15InitStarsAndPalette
+ * score: 120 differing words
+ * frame: 0x40
+ * relocations: 16
+ * first-mismatch: +0x4
+ * summary: Exact-size 247-word candidate; carrier reuse cut 230 to 120 differences, but allocator structure and two extra static records versus 14 target records remain.
+ * PLATEAU-HANDOFF:overlay15InitStarsAndPalette:end
  */
