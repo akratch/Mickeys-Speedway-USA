@@ -180,16 +180,15 @@ void func_8004707C(FxCone *cone, s32 value2C, s32 value2D, s32 value2E,
         cone->envBlue = value32;
     }
 }
-/* Workbench verdict: structure-mismatch, 121 differing words, first mismatch +0x44. */
-/* Candidate: 150/149 instructions with the target -0x168 frame; relocation and CFG residuals remain, so it is not shape-exact. */
-/* Shape status: one-word length delta; the helper loop and signed angle path are preserved for the permuter-ready pass. */
+/* Workbench verdict: structure-mismatch, 90 differing words, first mismatch +0x44. */
+/* Candidate: exact 149-instruction and -0x168 frame shape; all three call sites remain offset from target. */
+/* Shape status: point extent, countdown CFG, and integer vertex indices are recovered; allocator and call-loop scheduling remain. */
 /* PROVENANCE: JFG's public src/fx.c establishes the corresponding cone routine and call roles; this body is reconstructed from Mickey's own m2c draft and typed layouts. */
 #ifdef NON_MATCHING
 void func_800470B0(FxCone *cone, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
                    s16 arg5, f32 arg6, f32 arg7, f32 arg8) {
-    FxConePoint points[17];
     FxConePoint *point;
-    u8 *address;
+    void **address;
     u8 *vertex;
     s32 angleStep;
     f32 var_f0;
@@ -197,23 +196,24 @@ void func_800470B0(FxCone *cone, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
     f32 temp_f6;
     s32 i;
     s32 j;
+    FxConePoint points[16];
 
     if (cone->flags != 0) {
-        angleStep = -0x10000 / (s32) cone->segmentCount;
         var_f0 = 0.0f;
         var_f24 = -arg8;
+        angleStep = -0x10000 / (s32) cone->segmentCount;
     } else {
-        angleStep = 0x10000 / (s32) cone->segmentCount;
         var_f24 = 0.0f;
         var_f0 = -arg8;
+        angleStep = 0x10000 / (s32) cone->segmentCount;
     }
     points[0].x = 0.0f;
     points[0].y = 0.0f;
     points[0].z = var_f0;
     point = points + 1;
     i = 0;
-    j = cone->segmentCount - 1;
-    if (cone->segmentCount != 0) {
+    j = cone->segmentCount;
+    if (j--) {
         do {
             point->x = (f32) (func_8002A8C0(i) * arg6);
             temp_f6 = func_8002A8BC(i) * arg7;
@@ -221,21 +221,20 @@ void func_800470B0(FxCone *cone, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
             point++;
             i += angleStep;
             point[-1].y = temp_f6;
-            j--;
-        } while (j != 0);
+        } while (j--);
     }
-    address = (u8 *) cone;
+    address = (void **) cone;
     i = 0;
     do {
         func_80048080(cone->mode, arg1, arg2, arg3, (s32) arg4,
-                      (s32) arg5, points, *(void **)(address + 8), 0xFF);
+                      (s32) arg5, points, address[2], 0xFF);
+        address++;
         i += 4;
-        address += 4;
     } while (i < 8);
     vertex = cone->vertices;
     {
-        s8 index;
-        s8 next;
+        s32 index;
+        s32 next;
 
         index = 1;
         if ((s32) cone->segmentCount > 0) {
@@ -2589,4 +2588,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x0
  * summary: Target 0x38; calls exact. Recover local home/lifetimes. JFG src/fx.c wakeUpdateRipple is semantic scaffolding only; no public release without skeleton proof.
  * PLATEAU-HANDOFF:func_80049000:end
+ */
+
+/* PLATEAU-HANDOFF:func_800470B0:start
+ * symbol: func_800470B0
+ * score: 90 differing words
+ * frame: 0x168
+ * relocations: 3
+ * first-mismatch: +0x44
+ * summary: Exact size/frame; three shifted call sites and the first allocator web remain; next isolate the fixed-bound loop web.
+ * PLATEAU-HANDOFF:func_800470B0:end
  */
