@@ -93,9 +93,9 @@ void func_80046E70(FxCone *cone) {
     }
     mmFree(cone);
 }
-/* Workbench: structure-mismatch, 61 differing words, first mismatch +0x2c. */
-/* Candidate shape: 111/110 instructions, frame -0x48/-0x48; one address-base instruction remains. */
-/* Remaining gap: target preserves the stored cone-end base for address construction; registers remain. */
+/* Workbench: structure-mismatch, 60 differing words, first mismatch +0x68. */
+/* Candidate shape: 111/110 instructions, frame -0x48/-0x48; 3/6 call relocations align. */
+/* The retained flag's stack home is exact; one address-base instruction and register coloring remain. */
 #ifdef NON_MATCHING
 extern void *func_8002B280(s32 size, s32 tag);
 extern void *func_80034448(s32 resourceId);
@@ -110,8 +110,8 @@ void *func_80046EC4(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
                     s32 argA) {
     s32 sp44;
     s32 sp40;
-    s32 sp38;
     s32 temp_a0;
+    s32 sp38;
     FxCone *cone;
     u8 *temp_v1;
 
@@ -2559,4 +2559,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x8
  * summary: Parameter-as-cursor and one named fill carrier leave 19 register-only words plus a four-word loop-init schedule; flags and ten coherent forms exhausted.
  * PLATEAU-HANDOFF:func_80048760:end
+ */
+
+/* PLATEAU-HANDOFF:func_80046EC4:start
+ * symbol: func_80046EC4
+ * score: 60 differing words
+ * frame: 0x48
+ * relocations: 6
+ * first-mismatch: +0x68
+ * summary: Declaration order fixed the flag stack home; one address-base instruction and register coloring remain after 10 source forms and 119 flags.
+ * PLATEAU-HANDOFF:func_80046EC4:end
  */
