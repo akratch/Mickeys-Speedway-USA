@@ -412,6 +412,26 @@ only after reviewing the diff; that mode stages and commits only the named
 source and handoff document. The directory README is static and is never
 regenerated or touched by finalization.
 
+Audit all structured source markers against their fixed per-symbol shards with:
+
+```sh
+tools/plateau_handoff_audit.py --check
+tools/plateau_handoff_audit.py --check --json
+tools/plateau_handoff_audit.py --write
+```
+
+`--check` fails on missing or stale shards and on malformed, duplicate, or
+source-mismatched structured evidence. `--write` is the only write mode. It
+preflights the complete audit, then atomically creates or refreshes only the
+exact `docs/matching-triage-handoffs/<symbol>.md` files whose tracked source
+markers are valid and missing or stale. Existing valid detail lines are
+preserved. The audit requires one exact guarded definition and fallback in the
+recorded source path, and it copies only the marker's required metric fields;
+it never derives a metric from prose, assembly, build output, or ROM data.
+Prose-only `PLATEAU-HANDOFF` comments are reported as unstructured and are not
+write inputs. Review and commit generated shards separately; a tooling change
+must not silently mass-refresh them.
+
 ### Auditing post-compile steps: `tools/postprocess_audit.py`
 
 `tools/postprocess_audit.py` is what makes ADR 0002 enforceable rather than
