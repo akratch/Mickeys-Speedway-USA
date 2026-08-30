@@ -26,15 +26,18 @@ typedef struct Overlay36WorldState {
     u8 changed;
 } Overlay36WorldState;
 
-extern s32 overlay36FindNearbyReloc(f32, f32, f32, f32, s32,
-                                    Overlay36Nearby **);
+extern s32 func_8005776C(f32, f32, f32, f32, s32,
+                         Overlay36Nearby **);
 extern Overlay36WorldState *gOverlay36WorldStateReloc;
 
 /* Mickey-local reconstruction; pinned DKR v77/v80 are negative and JFG's
  * Overlay 36 hits occur only at the unrelated +0x1470/+0x1490 wrappers. */
-/* Workbench verdict: mixed(constant:6, structural:5, schedule:1, register:3); 13/63 words, frame -0x80 vs -0x70.
- * Lever: removing the redundant inner remaining guard worsened the residual to 25 words and was reverted; context lint is clean.
- * Remaining: 16-byte non-save frame/FP phase and relocation aliases; assembly fallback stays canonical. */
+/* Workbench verdict: operand mismatch, 56/63 words exact, frame 0x80 versus
+ * 0x70; all opcodes and register lanes are exact after the bound source copy.
+ * The 119-flag lattice and ten source hypotheses are nonexact; removing the
+ * nearby-value home reaches only 0x78 and breaks the exact allocation. The
+ * resident call identity is exact, while the overlay-data HI16/LO16 pair
+ * remains unresolved; assembly fallback stays canonical. */
 
 
 
@@ -53,7 +56,6 @@ void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
                                        s32 remaining) {
     Overlay36Nearby *results[13];
     Overlay36State *state;
-    Overlay36Nearby **current;
     Overlay36Nearby *nearby;
     s32 i;
     f32 center;
@@ -62,20 +64,20 @@ void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
 
     state = object->state;
     if (state->active == 0) {
-        remaining = overlay36FindNearbyReloc(object->x, object->y, object->z,
-                                              64.0f, 1, results);
+        remaining = func_8005776C(object->x, object->y, object->z,
+                                  64.0f, 1, results);
         if (remaining != 0) {
             high = 45.0f;
             center = object->y;
             i = remaining - 1;
-            low = center - high;
+            low = center - 45.0f;
+            high = low;
+            low = center + 45.0f;
             if (remaining != 0) {
-                high += center;
-                current = &results[i];
                 do {
-                    nearby = *current--;
+                    nearby = results[i];
                     center = nearby->y;
-                    if ((center < low) || (high < center)) {
+                    if ((center < high) || (low < center)) {
                         remaining--;
                     }
                 } while (i--);
@@ -92,3 +94,13 @@ void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o036/overlay36CheckNearbyHeight/func_overlay_036_F0000818_1883CD0.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_036_F0000818_1883CD0:start
+ * symbol: func_overlay_036_F0000818_1883CD0
+ * score: 56/63 words
+ * frame: 0x80
+ * relocations: 3
+ * first-mismatch: +0x0
+ * summary: reuse the second phantom home without changing the exact live-range topology, then bind the overlay-data HI16/LO16 identity
+ * PLATEAU-HANDOFF:func_overlay_036_F0000818_1883CD0:end
+ */
