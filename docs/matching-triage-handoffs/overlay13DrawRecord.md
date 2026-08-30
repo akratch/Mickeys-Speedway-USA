@@ -2,13 +2,17 @@
 ### `overlay13DrawRecord` plateau handoff
 
 - source: `src/overlays/o013/overlay13DrawRecord.c`
+- score: 100 differing words
+- frame: 0x38
+- relocations: 18
+- first mismatch: +0x30
 - assignment base: `6ce89d6b`
 - owned range: overlay 13 `+0x580..+0x874`, 756 bytes / 189 words
 - baseline: 108 differing positional words, `0x40` frame, first mismatch `+0x0`
 - retained score: 100 differing positional words / 89 of 189 raw words exact; the masked 97-word residual is only a floor because 19 relocation sites name different symbols
-- frame: exact `0x38`; declaring `savedScale` before the two pointer locals removes the candidate-only eight-byte non-save area
-- relocations: target object has 10 text relocations and the candidate has 18; workbench reports 13 metadata mismatches, and preflight fails closed on eight unresolved candidate static identities
-- first mismatch: `+0x30` in the unlinked object comparison
+- frame proof: exact `0x38`; declaring `savedScale` before the two pointer locals removes the candidate-only eight-byte non-save area
+- relocation proof: target object has 10 text relocations and the candidate has 18; workbench reports 13 metadata mismatches, and preflight fails closed on eight unresolved candidate static identities
+- mismatch proof: first mismatch is `+0x30` in the unlinked object comparison
 - attempts: all 119 flag combinations and seven coherent declaration, pointer-type, command-store, constant-materialization, and expression-tree forms; no generic permuter was run
 - residual: 28 opcode, 69 register, and six relocation-layout diff sites; workbench still classifies the function as `structure-mismatch`, so it is not an allocator-only near miss
 - next action: reopen only with new evidence for the overlay-relative relocation identities or the render-state lifetime/register web; do not repeat the completed flag lattice or these source forms

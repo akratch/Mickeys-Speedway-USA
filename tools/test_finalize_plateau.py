@@ -221,6 +221,37 @@ void demo_symbol(void) {}
                 "demo_symbol",
             )
 
+    def test_symbol_shard_accepts_details_after_canonical_header(self) -> None:
+        block = plateau.markdown_handoff(
+            "demo_symbol",
+            "src/demo.c",
+            plateau.Metrics("98/101 words", "0x8", 10, "+0xC"),
+        )
+        enriched = block.replace(
+            "<!-- plateau-handoff:demo_symbol:end -->",
+            "- attempts: ten bounded source forms\n"
+            "- next action: reopen only with new allocator evidence\n"
+            "<!-- plateau-handoff:demo_symbol:end -->",
+        )
+        self.assertEqual(
+            plateau.handoff_shard_source(enriched, "demo_symbol"),
+            "src/demo.c",
+        )
+
+    def test_symbol_shard_rejects_nested_detail_marker(self) -> None:
+        block = plateau.markdown_handoff(
+            "demo_symbol",
+            "src/demo.c",
+            plateau.Metrics("98/101 words", "0x8", 10, "+0xC"),
+        )
+        malformed = block.replace(
+            "<!-- plateau-handoff:demo_symbol:end -->",
+            "<!-- plateau-handoff:other_symbol:start -->\n"
+            "<!-- plateau-handoff:demo_symbol:end -->",
+        )
+        with self.assertRaisesRegex(plateau.PlateauError, "malformed or foreign"):
+            plateau.handoff_shard_source(malformed, "demo_symbol")
+
     def test_shard_paths_are_fixed_per_symbol(self) -> None:
         self.assertEqual(
             plateau.handoff_shard_path("demo_symbol"),
