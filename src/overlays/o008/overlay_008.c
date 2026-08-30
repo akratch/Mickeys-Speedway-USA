@@ -1723,3 +1723,13 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * summary: Canonical flags retained; ten legal stack/aggregate/lifetime forms and a 241s batch were flat. The four-byte normal-home/FP allocation gap remains.
  * PLATEAU-HANDOFF:func_overlay_008_F0004CF0_1862A48:end
  */
+
+/* PLATEAU-HANDOFF:func_overlay_008_F0002640_1860398:start
+ * symbol: func_overlay_008_F0002640_1860398
+ * score: 120/183 words
+ * frame: 0xD0
+ * relocations: 14
+ * first-mismatch: +0xB8
+ * summary: allocator-only record/base homes remain; relocation-aware score is 121/183 with 9/14 offsets/types and 2/14 identities aligned
+ * PLATEAU-HANDOFF:func_overlay_008_F0002640_1860398:end
+ */
