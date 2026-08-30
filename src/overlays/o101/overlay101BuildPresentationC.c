@@ -72,6 +72,8 @@ typedef struct Overlay101Node24 {
 /* Every A/B alias below is a distinct relocation identity, even where its
  * workbench link placeholder has the same encoded addend as its sibling. */
 extern Overlay101BuilderRoot gOverlay101BuilderRoot;
+extern s32 gOverlay101BuilderRootChainReloc;
+extern s32 gOverlay101BuilderRootChildReloc;
 extern s32 gOverlay101BuilderOrderCountA;
 extern s32 gOverlay101BuilderOrderCountB;
 extern void *gOverlay101BuilderOrderA[];
@@ -110,8 +112,7 @@ void overlay101BuildPresentationC(void) {
     s32 orderIndex;
     s32 node32IndexA;
     s32 node32IndexB;
-    s32 node20IndexA;
-    s32 node20IndexB;
+    s32 node20Index;
     s32 node24IndexA;
     s32 node24IndexB;
     s32 previousType;
@@ -128,7 +129,7 @@ void overlay101BuildPresentationC(void) {
     Overlay101Node24 *node24B;
 
     opacityScale = 1.0f;
-    orderIndex = gOverlay101BuilderOrderCountA;
+    orderIndex = gOverlay101BuilderOrderCountA++;
     gOverlay101BuilderRoot.height30 = 0xF0;
     gOverlay101BuilderRoot.width2E = 0x140;
     gOverlay101BuilderRoot.kind = 4;
@@ -142,8 +143,7 @@ void overlay101BuildPresentationC(void) {
     gOverlay101BuilderRoot.chainType = 0;
     gOverlay101BuilderRoot.chain = NULL;
     gOverlay101BuilderOrderA[orderIndex] =
-        &gOverlay101BuilderRoot.chainType;
-    gOverlay101BuilderOrderCountA = orderIndex + 1;
+        &gOverlay101BuilderRootChainReloc;
 
     node32IndexA = gOverlay101BuilderNode32CountA;
     node32A = &gOverlay101BuilderNodes32A[node32IndexA];
@@ -180,22 +180,22 @@ void overlay101BuildPresentationC(void) {
     gOverlay101BuilderRoot.childType = 0;
     gOverlay101BuilderRoot.text50 = gOverlay101BuilderInput13C;
     gOverlay101BuilderOrderB[orderIndex] =
-        &gOverlay101BuilderRoot.childType;
+        &gOverlay101BuilderRootChildReloc;
     gOverlay101BuilderOrderCountB = orderIndex + 1;
 
-    node20IndexA = gOverlay101BuilderNode20CountA;
-    node20A = &gOverlay101BuilderNodes20A[node20IndexA];
+    node20Index = gOverlay101BuilderNode20CountA;
+    node20A = &gOverlay101BuilderNodes20A[node20Index];
     node20A->x = 0x10;
     node20A->y = 0x16;
     node20A->scale = 1.0f;
     handle = overlay101BuilderCreateReloc(0x17, node20A, orderIndex,
                                           node32IndexB);
 
-    node20IndexB = gOverlay101BuilderNode20CountB;
-    node20B = &gOverlay101BuilderNodes20B[node20IndexB];
+    node20Index = gOverlay101BuilderNode20CountB;
+    node20B = &gOverlay101BuilderNodes20B[node20Index];
     previousType = gOverlay101BuilderRoot.childType;
     previous = gOverlay101BuilderRoot.child;
-    gOverlay101BuilderNode20CountB = node20IndexB + 1;
+    gOverlay101BuilderNode20CountB = node20Index + 1;
     gOverlay101BuilderRoot.childType = 1;
     gOverlay101BuilderRoot.child = node20B;
     node20B->handle = handle;
@@ -237,3 +237,13 @@ void overlay101BuildPresentationC(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101BuildPresentationC/func_overlay_101_F000A044_18E5864.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay101BuildPresentationC:start
+ * symbol: overlay101BuildPresentationC
+ * score: 165 differing words
+ * frame: 0x20
+ * relocations: 52
+ * first-mismatch: +0x10
+ * summary: 209/208 words with 166 raw differences after ten natural forms and the full flag lattice; the early order-count allocator web and late color carrier remain
+ * PLATEAU-HANDOFF:overlay101BuildPresentationC:end
+ */
