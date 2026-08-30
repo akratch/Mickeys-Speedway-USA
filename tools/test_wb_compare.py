@@ -275,6 +275,7 @@ class WrapperRoutingTests(unittest.TestCase):
 
             self.assertEqual(result.returncode, 2)
             self.assertIn("unexpected workbench schema", result.stderr)
+            self.assertNotIn("diff_sites", result.stderr)
 
     def test_summary_json_is_not_available_for_diagnosis_reports(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

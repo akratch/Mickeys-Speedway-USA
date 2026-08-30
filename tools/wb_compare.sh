@@ -153,7 +153,7 @@ print(json.dumps(report, sort_keys=True, separators=(",", ":")))
 ' "$raw_report" "$proof_manifest" "$sym" "$target_sym" "$candidate_sym" \
         "$mode" "$boundary_evidence" "$summary_size"
     then
-        cat "$raw_report" >&2
+        echo "$0: full report retained at $raw_report" >&2
         return 2
     fi
     return "$result"
