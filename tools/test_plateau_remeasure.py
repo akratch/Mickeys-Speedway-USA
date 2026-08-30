@@ -76,6 +76,11 @@ class PlateauRemeasureTests(unittest.TestCase):
         with self.assertRaisesRegex(pr.RemeasureError, "unsupported ready-queue schema"):
             pr.select_stale_rows({"schema_version": 3, "skipped": []}, 1)
 
+    def test_accepts_yield_queue_schema(self) -> None:
+        queue = self.queue()
+        queue["schema_version"] = 5
+        self.assertEqual("close_one", pr.select_stale_rows(queue, 1)[0]["symbol"])
+
     def test_summarizes_only_scalar_evidence(self) -> None:
         row = pr.summarize_preflight(self.report())
         self.assertEqual("complete", row["status"])
@@ -95,6 +100,12 @@ class PlateauRemeasureTests(unittest.TestCase):
             row = pr.measure({"symbol": "close_one"}, args)
         self.assertIn("--no-build", run.call_args.args[0])
         self.assertEqual("close_one", row["symbol"])
+
+    def test_discovery_requests_expected_yield_order(self) -> None:
+        args = pr.build_parser().parse_args([])
+        with mock.patch.object(pr, "_run_json", return_value=self.queue()) as run:
+            pr.discover(args)
+        self.assertIn("expected-yield", run.call_args.args[0])
 
     def test_rejects_inconsistent_relocation_counts(self) -> None:
         report = self.report()

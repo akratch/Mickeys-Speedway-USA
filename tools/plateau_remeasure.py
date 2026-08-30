@@ -22,6 +22,7 @@ PYTHON = ROOT / ".venv/bin/python"
 READY_QUEUE = ROOT / "tools/ready_queue.py"
 PREFLIGHT = ROOT / "tools/function_preflight.py"
 SCHEMA = "mickey-plateau-remeasurement-v1"
+READY_QUEUE_SCHEMAS = (4, 5)
 SYMBOL_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 MAINTENANCE_CLASS = "prose-needs-remeasurement"
 
@@ -61,7 +62,10 @@ def validate_symbol(value: object) -> str:
 
 
 def select_stale_rows(document: object, limit: int) -> list[dict[str, object]]:
-    if not isinstance(document, dict) or document.get("schema_version") != 4:
+    if (
+        not isinstance(document, dict)
+        or document.get("schema_version") not in READY_QUEUE_SCHEMAS
+    ):
         schema = document.get("schema_version") if isinstance(document, dict) else None
         raise RemeasureError(f"unsupported ready-queue schema {schema!r}")
     skipped = document.get("skipped")
@@ -192,7 +196,7 @@ def discover(args: argparse.Namespace) -> list[dict[str, object]]:
     command = [
         str(PYTHON), str(READY_QUEUE), "--base", args.base,
         "--scan", str(args.scan), "--top", "100", "--jobs", str(args.queue_jobs),
-        "--format", "json",
+        "--selection", "expected-yield", "--format", "json",
     ]
     return select_stale_rows(
         _run_json(command, timeout=args.timeout, label="ready queue"), args.top
