@@ -1,13 +1,13 @@
 {
   "schema_version": 3,
   "source_context_version": 3,
-  "queue_size": 401,
-  "resolved": 401,
+  "queue_size": 400,
+  "resolved": 400,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
-  "source_context_coverage": 401,
-  "relocation_masked_coverage": 401,
+  "source_context_coverage": 400,
+  "relocation_masked_coverage": 400,
   "functions": [
     {
       "name": "levelFreeAll",
@@ -53,21 +53,6 @@
       "size_delta": 0,
       "category": "register-only",
       "source_context_sha256": "hGMS.4u5X.n76C.BVgs.nSY1.Do7P.y2FW.6bO0.i4Sj.mwEM.2_w"
-    },
-    {
-      "name": "func_8001C114",
-      "file": "src/main/charControl.c",
-      "overlay": null,
-      "tu": "main",
-      "size_bytes": 432,
-      "objdiff_match_pct": null,
-      "differing_words": 8,
-      "first_mismatch_offset": 244,
-      "relocation_masked_differing_words": 8,
-      "relocation_masked_first_mismatch_offset": 244,
-      "size_delta": 0,
-      "category": "register-only",
-      "source_context_sha256": "wCqS.yeLb.Bb-g.Y2Gb.Zq5e.hRDi.9nD7.pnCs._JOH.UcH6.oSA"
     },
     {
       "name": "func_8003A2C8",
