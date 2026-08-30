@@ -497,6 +497,6 @@ s32 overlay1TestDirection(Overlay1Direction *direction, f32 x, f32 z) {
  * frame: frameless
  * relocations: 4
  * first-mismatch: +0x4
- * summary: Preheader copy and temp-web formation remain; resume only with a new source-faithful CFE lifetime mechanism.
+ * summary: 119 flags and ten coherent forms exhausted; next lever is a source-faithful lifetime form retaining both preheader copies and the temporary-register lane.
  * PLATEAU-HANDOFF:overlay1FindPreviousUsable:end
  */
