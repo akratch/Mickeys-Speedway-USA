@@ -887,6 +887,50 @@ def _require_static_relocation_evidence(
         )
 
 
+def _augment_runtime_identity_evidence(
+    resolution: Resolution,
+    comparison: dict[str, object],
+    workbench: dict[str, object],
+) -> dict[str, object]:
+    """Separate compile-time names from identities proved after promotion.
+
+    Overlay proxy names can intentionally collapse several runtime identities
+    onto one link value.  Once a promoted function is instruction-exact in the
+    linked ROM and its relocation offsets/types are exact, the unchanged retail
+    runtime table proves those remaining identities even though the ordinary
+    object cannot spell them.  Keep that evidence distinct from static symbol
+    resolution instead of either under-counting the proof or pretending the
+    object names were more informative than they are.
+    """
+    result = dict(comparison)
+    target_count = int(result["target_record_count"])
+    static_count = int(result["stable_identity_alignment_count"])
+    linked_exact = (
+        resolution.resolution_mode == "post_promotion"
+        and result.get("offset_type_exact") is True
+        and int(result["candidate_record_count"]) == target_count
+        and workbench.get("differing_words") == 0
+        and workbench.get("target_words") == workbench.get("candidate_words")
+    )
+    linked_count = target_count - static_count if linked_exact else 0
+    effective_count = static_count + linked_count
+    result.update(
+        {
+            "linked_runtime_identity_alignment_count": linked_count,
+            "effective_identity_alignment_count": effective_count,
+            "effective_identity_exact": effective_count == target_count,
+            "identity_proof_mode": (
+                "static"
+                if result.get("stable_identity_exact") is True
+                else "static-plus-runtime-table-and-linked-rom"
+                if linked_exact
+                else "partial-static"
+            ),
+        }
+    )
+    return result
+
+
 def _candidate_redefine_aliases(candidate_object: Path) -> dict[str, str]:
     """Map postprocessed object names back to their compile-time identities."""
     target = _relative(candidate_object)
@@ -956,6 +1000,10 @@ def collect(resolution: Resolution) -> dict[str, object]:
     )
     _require_static_relocation_evidence(resolution, comparison)
     inbound = _inbound_references(context, rom)
+    workbench = _workbench(resolution)
+    comparison = _augment_runtime_identity_evidence(
+        resolution, comparison, workbench
+    )
     result: dict[str, object] = {
         "schema": "mickey-function-evidence-preflight-v1",
         "requested_symbol": resolution.requested_symbol,
@@ -983,7 +1031,7 @@ def collect(resolution: Resolution) -> dict[str, object]:
         "runtime_relocations": _relocation_rows(runtime_records),
         **relocation_evidence,
         "relocation_comparison": comparison,
-        "workbench": _workbench(resolution),
+        "workbench": workbench,
     }
     return result
 
@@ -1070,7 +1118,11 @@ def _render_human(report: dict[str, object]) -> None:
         f"offset/type={reloc['offset_type_alignment_count']}/"
         f"{reloc['target_record_count']} identity="
         f"{reloc['stable_identity_alignment_count']}/"
-        f"{reloc['target_record_count']}"
+        f"{reloc['target_record_count']} static + "
+        f"{reloc.get('linked_runtime_identity_alignment_count', 0)} "
+        "linked-runtime = "
+        f"{reloc.get('effective_identity_alignment_count', reloc['stable_identity_alignment_count'])}/"
+        f"{reloc['target_record_count']} effective"
     )
     wb = report["workbench"]
     matched = "n/a" if wb["matched_words"] is None else f"{wb['matched_words']}/{wb['target_words']}"

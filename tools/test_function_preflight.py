@@ -465,6 +465,62 @@ class GeometryAndWorkbenchTests(unittest.TestCase):
         with self.assertRaisesRegex(fp.PreflightError, "shape disagrees"):
             fp._require_static_relocation_evidence(resolution, comparison)
 
+    def test_promoted_linked_exact_completes_runtime_identity_proof(self) -> None:
+        resolution = fp.Resolution(
+            "friendly", "generated", "friendly", Path("src/example.c"),
+            "example", "build", Path("build/src/example.c.o"), None,
+            "promoted", resolution_mode="post_promotion",
+        )
+        comparison = {
+            "candidate_record_count": 13,
+            "target_record_count": 13,
+            "offset_type_exact": True,
+            "stable_identity_alignment_count": 8,
+            "stable_identity_exact": False,
+        }
+        workbench = {
+            "differing_words": 0,
+            "target_words": 133,
+            "candidate_words": 133,
+        }
+        result = fp._augment_runtime_identity_evidence(
+            resolution, comparison, workbench
+        )
+        self.assertEqual(5, result["linked_runtime_identity_alignment_count"])
+        self.assertEqual(13, result["effective_identity_alignment_count"])
+        self.assertTrue(result["effective_identity_exact"])
+        self.assertEqual(
+            "static-plus-runtime-table-and-linked-rom",
+            result["identity_proof_mode"],
+        )
+
+    def test_unpromoted_exact_words_do_not_replace_static_identity(self) -> None:
+        resolution = fp.Resolution(
+            "friendly", "generated", "friendly", Path("src/example.c"),
+            "example", "build_non_matching",
+            Path("build_non_matching/src/example.c.o"), Path("target.s"),
+            "guarded",
+        )
+        comparison = {
+            "candidate_record_count": 3,
+            "target_record_count": 3,
+            "offset_type_exact": True,
+            "stable_identity_alignment_count": 2,
+            "stable_identity_exact": False,
+        }
+        workbench = {
+            "differing_words": 0,
+            "target_words": 20,
+            "candidate_words": 20,
+        }
+        result = fp._augment_runtime_identity_evidence(
+            resolution, comparison, workbench
+        )
+        self.assertEqual(0, result["linked_runtime_identity_alignment_count"])
+        self.assertEqual(2, result["effective_identity_alignment_count"])
+        self.assertFalse(result["effective_identity_exact"])
+        self.assertEqual("partial-static", result["identity_proof_mode"])
+
 
 class FreshnessTests(unittest.TestCase):
     def resolution(self, root: Path) -> fp.Resolution:
