@@ -539,69 +539,85 @@ void doWeather(Gfx **arg0, Mtx **arg1, WeatherVertex **arg2, WeatherTriangle **a
     *arg2 = D_800D40D4;
     *arg3 = D_800D40D8;
 }
-/* Workbench: structure-mismatch, 146 differing words, first mismatch +0x0. */
-/* Structural gap: target 142 instructions/frame -0x58 versus candidate 146/-0x58; the command loop has four extra instructions. */
-/* Not shape-exact or permuter-ready; snow display-list control flow and relocation calls remain represented. */
+/*
+ * PROVENANCE -- body adapted from Diddy Kong Racing's public retail-derived
+ * src/weather.c::snow_render. Mickey's batch widths, display-list storage,
+ * command words, and control flow remain authoritative here.
+ */
+/* Workbench: structure-mismatch, 142 differing words, first mismatch +0x0. */
+/* Structural gap: target 142 instructions/frame -0x58 versus candidate 146/-0x68. */
+/* The command loop retains four extra instructions and two extra relocations. */
 #ifdef NON_MATCHING
 void snow_render(void) {
     s32 sp54;
     void *sp50;
-    s32 sp4C;
+    WeatherVertex *sp4C;
     s32 sp48;
     s32 temp_a1_2;
     s32 temp_a3;
     s32 temp_a3_2;
     s32 temp_v0;
     s32 var_t0;
-    s32 var_t1;
-    void *command;
+    WeatherVertex *var_t1;
 
     if ((D_8007C398.source.type != 0) && (D_8007C3C8 >= 4)) {
         sp54 = D_8007C3C8;
         sp50 = D_800D40CC;
-        sp4C = (s32)D_8007C3C4;
+        sp4C = D_8007C3C4;
         sp48 = (s32)D_8007C3CC;
         temp_v0 = (s32)camGetProjOrgMtx();
-        command = sp50;
-        sp50 = (u8 *)command + 8;
-        ((Gfx *)command)->w1 = temp_v0 + 0x80000000;
-        ((Gfx *)command)->w0 = 0x01000040;
-        command = sp50;
-        sp50 = (u8 *)command + 8;
-        ((Gfx *)command)->w1 = 0;
-        ((Gfx *)command)->w0 = 0xBC00000A;
+        {
+            Gfx *command;
+
+            command = sp50;
+            sp50 = (u8 *)command + 8;
+            command->w1 = temp_v0 + 0x80000000;
+            command->w0 = 0x01000040;
+            command = sp50;
+            sp50 = (u8 *)command + 8;
+            command->w1 = 0;
+            command->w0 = 0xBC00000A;
+        }
         func_800349A4((Gfx **)&sp50, (void *)D_8007C398.source.type, 2, 0);
         var_t0 = sp54;
         var_t1 = sp4C;
         if (D_800D40C0 < var_t0) {
             do {
-                command = sp50;
-                temp_a3 = var_t1 + 0x80000000;
-                sp50 = (u8 *)command + 8;
-                ((Gfx *)command)->w0 = (((((D_800D40C0 * 8) | (temp_a3 & 6)) & 0xFF) << 16) |
+                Gfx *vertexCommand;
+                Gfx *polygonCommand;
+
+                vertexCommand = sp50;
+                temp_a3 = (s32)var_t1 + 0x80000000;
+                sp50 = (u8 *)vertexCommand + 8;
+                vertexCommand->w0 = (((((D_800D40C0 * 8) | (temp_a3 & 6)) & 0xFF) << 16) |
                                 0x04000000 | (((D_800D40C0 * 0xA) + 8) & 0xFFFF));
-                ((Gfx *)command)->w1 = temp_a3;
-                command = sp50;
-                sp50 = (u8 *)command + 8;
-                ((Gfx *)command)->w0 = ((((((D_800D40C4 - 1) * 0x10) | 1) & 0xFF) << 16) |
+                vertexCommand->w1 = temp_a3;
+                polygonCommand = sp50;
+                sp50 = (u8 *)polygonCommand + 8;
+                polygonCommand->w0 = ((((((D_800D40C4 - 1) * 0x10) | 1) & 0xFF) << 16) |
                                 0x05000000 | ((D_800D40C4 * 0x10) & 0xFFFF));
-                ((Gfx *)command)->w1 = sp48 + 0x80000000;
+                polygonCommand->w1 = sp48 + 0x80000000;
                 var_t0 -= D_800D40C0;
-                var_t1 += D_800D40C0 * 0xA;
+                var_t1 += D_800D40C0;
             } while (D_800D40C0 < var_t0);
         }
-        command = sp50;
-        temp_a3_2 = var_t1 + 0x80000000;
-        sp50 = (u8 *)command + 8;
-        ((Gfx *)command)->w0 = (((((var_t0 * 8) | (temp_a3_2 & 6)) & 0xFF) << 16) |
-                          0x04000000 | (((var_t0 * 0xA) + 8) & 0xFFFF));
-        ((Gfx *)command)->w1 = temp_a3_2;
-        command = sp50;
-        temp_a1_2 = var_t0 >> 1;
-        sp50 = (u8 *)command + 8;
-        ((Gfx *)command)->w0 = ((((((temp_a1_2 - 1) * 0x10) | 1) & 0xFF) << 16) |
-                        0x05000000 | ((temp_a1_2 * 0x10) & 0xFFFF));
-        ((Gfx *)command)->w1 = sp48 + 0x80000000;
+        {
+            Gfx *vertexCommand;
+            Gfx *polygonCommand;
+
+            vertexCommand = sp50;
+            temp_a3_2 = (s32)var_t1 + 0x80000000;
+            sp50 = (u8 *)vertexCommand + 8;
+            vertexCommand->w0 = (((((var_t0 * 8) | (temp_a3_2 & 6)) & 0xFF) << 16) |
+                              0x04000000 | (((var_t0 * 0xA) + 8) & 0xFFFF));
+            vertexCommand->w1 = temp_a3_2;
+            polygonCommand = sp50;
+            temp_a1_2 = var_t0 >> 1;
+            sp50 = (u8 *)polygonCommand + 8;
+            polygonCommand->w0 = ((((((temp_a1_2 - 1) * 0x10) | 1) & 0xFF) << 16) |
+                            0x05000000 | ((temp_a1_2 * 0x10) & 0xFFFF));
+            polygonCommand->w1 = sp48 + 0x80000000;
+        }
         D_800D40CC = sp50;
     }
 }
@@ -950,3 +966,13 @@ void rain_sound(s32 updateRate) {
         func_800031C0(D_8007C720, x, y, z);
     }
 }
+
+/* PLATEAU-HANDOFF:snow_render:start
+ * symbol: snow_render
+ * score: 142 differing words
+ * frame: 0x68
+ * relocations: 20
+ * first-mismatch: +0x0
+ * summary: Four-word and frame gap with seven exact identities; next lever is command-temporary lifetime.
+ * PLATEAU-HANDOFF:snow_render:end
+ */
