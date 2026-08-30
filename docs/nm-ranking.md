@@ -298,15 +298,15 @@ Text outside the markers remains authored and is preserved byte-for-byte.
 > `config/nonmatching-ranking.us.json`. Do not edit this region by hand;
 > `--check-doc` and `gmake check-docs` fail on any drift.
 
-The snapshot contains **402 queued identities**: **402 resolved measurements** and **0 unresolved identities**. Resolved target size totals **411,888 bytes (402.2 KiB)**.
+The snapshot contains **401 queued identities**: **401 resolved measurements** and **0 unresolved identities**. Resolved target size totals **411,388 bytes (401.7 KiB)**.
 
-Resolved rows span **74 overlays** and **1 resident TU group** (`main`).
+Resolved rows span **73 overlays** and **1 resident TU group** (`main`).
 
-A supplementary objdiff report was not supplied; `objdiff_match_pct` covers **0 / 402** resolved rows.
+A supplementary objdiff report was not supplied; `objdiff_match_pct` covers **0 / 401** resolved rows.
 
-Persisted selective-TU source evidence covers **402 / 402** resolved rows. Rows without it are retained legacy or bounded-refresh measurements and must be treated as requiring reproof.
+Persisted selective-TU source evidence covers **401 / 401** resolved rows. Rows without it are retained legacy or bounded-refresh measurements and must be treated as requiring reproof.
 
-Relocation-masked mismatch evidence covers **402 / 402** resolved rows. The raw count preserves literal object differences; the masked count removes only known linker-owned fields to expose the remaining code-generation mismatch. Neither replaces linked byte-identity proof.
+Relocation-masked mismatch evidence covers **401 / 401** resolved rows. The raw count preserves literal object differences; the masked count removes only known linker-owned fields to expose the remaining code-generation mismatch. Neither replaces linked byte-identity proof.
 
 ### Category distribution
 
@@ -314,8 +314,8 @@ Relocation-masked mismatch evidence covers **402 / 402** resolved rows. The raw 
 |---|---:|---:|
 | `register-only` | 19 | 4.7% |
 | `schedule-only` | 2 | 0.5% |
-| `other` | 200 | 49.8% |
-| `size-mismatch` | 181 | 45.0% |
+| `other` | 200 | 49.9% |
+| `size-mismatch` | 180 | 44.9% |
 
 ### Differing-word thresholds
 
@@ -515,8 +515,8 @@ units remain distinct.
 | 177 | `src/overlays/o031/overlay31BuildLookupTables.c` | `func_overlay_031_F0000000_187F520` | `o031` | `other` | 744 | 104 | 104 | 52 | 52 | 0 | — |
 | 178 | `src/overlays/o050/overlay50Initialize.c` | `func_overlay_050_F0000000_1896970` | `o050` | `other` | 740 | 112 | 104 | 60 | 192 | 0 | — |
 | 179 | `src/overlays/o052/overlay52Initialize.c` | `func_overlay_052_F0000000_189A670` | `o052` | `other` | 1,264 | 121 | 117 | 44 | 44 | 0 | — |
-| 180 | `src/overlays/o002/func_overlay_002_F0001364_185815C.c` | `func_overlay_002_F0001364_185815C` | `o002` | `other` | 756 | 125 | 125 | 8 | 8 | 0 | — |
-| 181 | `src/overlays/o101/overlay101TailC6E8.c` | `func_overlay_101_F000C6E8_18E7F08` | `o101` | `other` | 1,268 | 131 | 125 | 52 | 52 | 0 | — |
+| 180 | `src/overlays/o101/overlay101TailC6E8.c` | `func_overlay_101_F000C6E8_18E7F08` | `o101` | `other` | 1,268 | 130 | 124 | 52 | 52 | 0 | — |
+| 181 | `src/overlays/o002/func_overlay_002_F0001364_185815C.c` | `func_overlay_002_F0001364_185815C` | `o002` | `other` | 756 | 125 | 125 | 8 | 8 | 0 | — |
 | 182 | `src/main/level.c` | `levelInit` | `main` | `other` | 2,064 | 127 | 127 | 0 | 0 | 0 | — |
 | 183 | `src/overlays/o025/overlay_025.c` | `overlay25UpdateEffect` | `o025` | `other` | 1,036 | 127 | 127 | 0 | 0 | 0 | — |
 | 184 | `src/overlays/o017/overlay17CreateChain.c` | `overlay17CreateChain` | `o017` | `other` | 784 | 130 | 130 | 0 | 0 | 0 | — |
@@ -571,173 +571,172 @@ units remain distinct.
 | 233 | `src/overlays/o002/overlay2ClassifyBoundary.c` | `overlay2ClassifyBoundary` | `o002` | `size-mismatch` | 316 | 62 | 61 | 4 | 20 | 4 | — |
 | 234 | `src/main/memory.c` | `func_8002B7AC` | `main` | `size-mismatch` | 252 | 62 | 62 | 4 | 4 | -4 | — |
 | 235 | `src/main/runlink.c` | `runlinkInit` | `main` | `size-mismatch` | 584 | 64 | 64 | 8 | 8 | -16 | — |
-| 236 | `src/main/camera.c` | `func_80024978` | `main` | `size-mismatch` | 332 | 67 | 66 | 8 | 8 | 4 | — |
-| 237 | `src/main/saves.c` | `func_8002CF6C` | `main` | `size-mismatch` | 352 | 77 | 77 | 8 | 8 | -12 | — |
-| 238 | `src/main/matrix.c` | `func_8002AB78` | `main` | `size-mismatch` | 268 | 83 | 83 | 0 | 0 | 68 | — |
-| 239 | `src/main/sched.c` | `__scHandleRetrace` | `main` | `size-mismatch` | 1,636 | 84 | 84 | 984 | 984 | -4 | — |
-| 240 | `src/main/track.c` | `func_8000D820` | `main` | `size-mismatch` | 344 | 84 | 84 | 0 | 0 | -8 | — |
+| 236 | `src/main/track.c` | `func_8000D820` | `main` | `size-mismatch` | 344 | 65 | 65 | 52 | 52 | -8 | — |
+| 237 | `src/main/camera.c` | `func_80024978` | `main` | `size-mismatch` | 332 | 67 | 66 | 8 | 8 | 4 | — |
+| 238 | `src/main/saves.c` | `func_8002CF6C` | `main` | `size-mismatch` | 352 | 77 | 77 | 8 | 8 | -12 | — |
+| 239 | `src/main/matrix.c` | `func_8002AB78` | `main` | `size-mismatch` | 268 | 83 | 83 | 0 | 0 | 68 | — |
+| 240 | `src/main/sched.c` | `__scHandleRetrace` | `main` | `size-mismatch` | 1,636 | 84 | 84 | 984 | 984 | -4 | — |
 | 241 | `src/overlays/o015/overlay_015.c` | `overlay15UpdateMovingStars` | `o015` | `size-mismatch` | 412 | 87 | 84 | 36 | 48 | 28 | — |
 | 242 | `src/overlays/o026/overlay26DrawGroups.c` | `func_overlay_026_F0001158_187B550` | `o026` | `size-mismatch` | 536 | 88 | 88 | 76 | 76 | -4 | — |
 | 243 | `src/main/diCpu.c` | `func_80046BCC` | `main` | `size-mismatch` | 424 | 89 | 89 | 44 | 44 | 4 | — |
 | 244 | `src/main/matrix.c` | `func_8002AA50` | `main` | `size-mismatch` | 296 | 92 | 92 | 0 | 0 | 76 | — |
 | 245 | `src/overlays/o001/overlay_001_tail.c` | `overlay1SolveAngleCandidates` | `o001` | `size-mismatch` | 556 | 92 | 92 | 168 | 168 | -8 | — |
-| 246 | `src/overlays/o049/overlay_049.c` | `overlay49Initialize` | `o049` | `size-mismatch` | 500 | 92 | 92 | 32 | 32 | 4 | — |
-| 247 | `src/main/models_5B300.c` | `func_8005ABA8` | `main` | `size-mismatch` | 444 | 97 | 97 | 56 | 56 | -4 | — |
-| 248 | `src/main/track.c` | `func_800133FC` | `main` | `size-mismatch` | 384 | 98 | 98 | 0 | 0 | 12 | — |
-| 249 | `src/overlays/o089/overlay89UpdateStateAndParticles.c` | `overlay89UpdateStateAndParticles` | `o089` | `size-mismatch` | 544 | 98 | 98 | 0 | 0 | 4 | — |
-| 250 | `src/main/particles.c` | `func_8004054C` | `main` | `size-mismatch` | 500 | 101 | 101 | 44 | 44 | -4 | — |
-| 251 | `src/overlays/o063/overlay63UpdateSequence.c` | `overlay63UpdateSequence` | `o063` | `size-mismatch` | 428 | 102 | 102 | 20 | 20 | -4 | — |
-| 252 | `src/overlays/o099/overlay99BuildHeightGrid.c` | `overlay99BuildHeightGrid` | `o099` | `size-mismatch` | 456 | 104 | 104 | 44 | 44 | 4 | — |
-| 253 | `src/main/font.c` | `func_8004C690` | `main` | `size-mismatch` | 584 | 105 | 105 | 0 | 0 | -8 | — |
-| 254 | `src/overlays/o068/overlay68RebuildSecondaryEntry.c` | `overlay68RebuildSecondaryEntry` | `o068` | `size-mismatch` | 488 | 105 | 105 | 0 | 0 | -8 | — |
-| 255 | `src/main/weather_tail.c` | `func_8003C80C` | `main` | `size-mismatch` | 472 | 107 | 107 | 8 | 8 | -4 | — |
-| 256 | `src/overlays/o001/overlay_001_head.c` | `overlay1BuildObjectMappings` | `o001` | `size-mismatch` | 592 | 114 | 114 | 0 | 0 | -16 | — |
-| 257 | `src/main/runlink.c` | `runlinkFreeCode` | `main` | `size-mismatch` | 736 | 117 | 117 | 0 | 0 | -4 | — |
-| 258 | `src/main/matrix.c` | `func_8002AC84` | `main` | `size-mismatch` | 396 | 118 | 118 | 0 | 0 | 80 | — |
-| 259 | `src/overlays/o041/overlay41ProcessEntry.c` | `func_overlay_041_F0001464_188879C` | `o041` | `size-mismatch` | 492 | 120 | 120 | 16 | 16 | 20 | — |
-| 260 | `src/main/track.c` | `func_8000D1B8` | `main` | `size-mismatch` | 512 | 121 | 121 | 4 | 4 | -16 | — |
-| 261 | `src/overlays/o031/overlay31InitializeParticleAssets.c` | `func_overlay_031_F00002E8_187F808` | `o031` | `size-mismatch` | 528 | 123 | 123 | 16 | 16 | 4 | — |
-| 262 | `src/overlays/o001/overlay_001_tail.c` | `overlay1AdvancePath` | `o001` | `size-mismatch` | 648 | 124 | 124 | 16 | 16 | 12 | — |
-| 263 | `src/main/fx.c` | `func_80049000` | `main` | `size-mismatch` | 596 | 125 | 125 | 0 | 0 | 4 | — |
-| 264 | `src/main/fx.c` | `func_80049518` | `main` | `size-mismatch` | 552 | 125 | 125 | 20 | 20 | -28 | — |
-| 265 | `src/main/runlink.c` | `ProcessRelocationEntry` | `main` | `size-mismatch` | 584 | 126 | 126 | 0 | 0 | 4 | — |
-| 266 | `src/overlays/o054/overlay54Initialize.c` | `func_overlay_054_F0000000_189ECA0` | `o054` | `size-mismatch` | 972 | 144 | 127 | 84 | 240 | 4 | — |
-| 267 | `src/main/fx.c` | `func_800470B0` | `main` | `size-mismatch` | 596 | 130 | 130 | 0 | 0 | 4 | — |
-| 268 | `src/main/spranim.c` | `func_8001B798` | `main` | `size-mismatch` | 700 | 131 | 131 | 0 | 0 | -16 | — |
-| 269 | `src/overlays/o044/overlay44UpdateFrameCache.c` | `overlay44UpdateFrameCache` | `o044` | `size-mismatch` | 748 | 133 | 133 | 0 | 0 | -4 | — |
-| 270 | `src/main/matrix.c` | `func_8002AE10` | `main` | `size-mismatch` | 348 | 138 | 138 | 0 | 0 | 208 | — |
-| 271 | `src/overlays/o037/overlay37Render.c` | `overlay37RenderEffect` | `o037` | `size-mismatch` | 856 | 139 | 139 | 0 | 0 | -4 | — |
-| 272 | `src/main/track.c` | `func_80010900` | `main` | `size-mismatch` | 588 | 143 | 143 | 4 | 4 | -8 | — |
-| 273 | `src/main/fx.c` | `fxScreenEffect` | `main` | `size-mismatch` | 588 | 144 | 144 | 12 | 12 | -40 | — |
-| 274 | `src/main/track.c` | `func_8000D3B8` | `main` | `size-mismatch` | 440 | 144 | 144 | 4 | 4 | 160 | — |
-| 275 | `src/overlays/o015/overlay_015.c` | `overlay15InitStars` | `o015` | `size-mismatch` | 760 | 144 | 144 | 100 | 100 | -12 | — |
-| 276 | `src/main/weather.c` | `snow_render` | `main` | `size-mismatch` | 568 | 146 | 146 | 0 | 0 | 16 | — |
-| 277 | `src/overlays/o010/overlay10Initialize.c` | `overlay10Initialize` | `o010` | `size-mismatch` | 688 | 147 | 147 | 0 | 0 | 156 | — |
-| 278 | `src/main/sched.c` | `func_80030610` | `main` | `size-mismatch` | 768 | 148 | 148 | 0 | 0 | 8 | — |
-| 279 | `src/main/fx.c` | `func_8004A10C` | `main` | `size-mismatch` | 628 | 155 | 155 | 0 | 0 | -4 | — |
-| 280 | `src/main/models.c` | `func_80020B10` | `main` | `size-mismatch` | 636 | 156 | 156 | 0 | 0 | 4 | — |
-| 281 | `src/main/track.c` | `func_80012658` | `main` | `size-mismatch` | 708 | 157 | 157 | 0 | 0 | -12 | — |
-| 282 | `src/main/fx.c` | `func_80049E4C` | `main` | `size-mismatch` | 676 | 159 | 159 | 8 | 8 | -8 | — |
-| 283 | `src/overlays/o008/overlay_008.c` | `func_overlay_008_F0001000_185ED58` | `o008` | `size-mismatch` | 660 | 159 | 159 | 8 | 8 | -4 | — |
-| 284 | `src/overlays/o001/overlay_001_tail.c` | `func_overlay_001_F0003FD8_18503B8` | `o001` | `size-mismatch` | 948 | 162 | 162 | 32 | 32 | -12 | — |
-| 285 | `src/overlays/o013/overlay13DrawActive.c` | `overlay13DrawActive` | `o013` | `size-mismatch` | 664 | 163 | 162 | 0 | 0 | -4 | — |
-| 286 | `src/main/lights.c` | `func_80018F08` | `main` | `size-mismatch` | 820 | 166 | 166 | 0 | 0 | -24 | — |
-| 287 | `src/overlays/o034/overlay34SortAndDraw.c` | `overlay34SortAndDraw` | `o034` | `size-mismatch` | 760 | 168 | 168 | 0 | 0 | -4 | — |
-| 288 | `src/overlays/o101/overlay101BuildPresentationA.c` | `overlay101BuildPresentationA` | `o101` | `size-mismatch` | 832 | 169 | 168 | 16 | 16 | 4 | — |
-| 289 | `src/overlays/o101/overlay101BuildPresentationB.c` | `overlay101BuildPresentationB` | `o101` | `size-mismatch` | 832 | 169 | 168 | 16 | 16 | 4 | — |
-| 290 | `src/overlays/o101/overlay101BuildPresentationC.c` | `overlay101BuildPresentationC` | `o101` | `size-mismatch` | 832 | 169 | 168 | 16 | 16 | 4 | — |
-| 291 | `src/main/track.c` | `func_80010654` | `main` | `size-mismatch` | 684 | 172 | 172 | 0 | 0 | 12 | — |
-| 292 | `src/main/fx.c` | `func_80047304` | `main` | `size-mismatch` | 740 | 176 | 176 | 4 | 4 | -8 | — |
-| 293 | `src/main/fx.c` | `func_800479D4` | `main` | `size-mismatch` | 772 | 176 | 176 | 56 | 56 | -56 | — |
-| 294 | `src/main/fx.c` | `wakeDraw` | `main` | `size-mismatch` | 708 | 177 | 177 | 0 | 0 | -56 | — |
-| 295 | `src/main/track.c` | `func_800103D4` | `main` | `size-mismatch` | 640 | 177 | 177 | 0 | 0 | 68 | — |
-| 296 | `src/main/lights.c` | `func_80019AB8` | `main` | `size-mismatch` | 736 | 178 | 178 | 0 | 0 | 28 | — |
-| 297 | `src/overlays/o038/func_overlay_038_F000047C_188618C.c` | `func_overlay_038_F000047C_188618C` | `o038` | `size-mismatch` | 876 | 178 | 178 | 0 | 0 | -4 | — |
-| 298 | `src/overlays/o020/func_overlay_020_F0001148_1877720.c` | `func_overlay_020_F0001148_1877720` | `o020` | `size-mismatch` | 828 | 180 | 178 | 32 | 32 | -8 | — |
-| 299 | `src/main/shadows.c` | `func_800180B4` | `main` | `size-mismatch` | 824 | 179 | 179 | 52 | 52 | -8 | — |
-| 300 | `src/overlays/o066/func_overlay_066_F00004E0_18C6948.c` | `func_overlay_066_F00004E0_18C6948` | `o066` | `size-mismatch` | 816 | 181 | 181 | 0 | 0 | -12 | — |
-| 301 | `src/overlays/o020/overlay20UpdateGrid.c` | `overlay20UpdateGrid` | `o020` | `size-mismatch` | 860 | 184 | 184 | 0 | 0 | 16 | — |
-| 302 | `src/overlays/o014/func_overlay_014_F0001830_1871108.c` | `func_overlay_014_F0001830_1871108` | `o014` | `size-mismatch` | 804 | 186 | 186 | 0 | 0 | 4 | — |
-| 303 | `src/overlays/o011/func_overlay_011_F0001E4C_186A694.c` | `func_overlay_011_F0001E4C_186A694` | `o011` | `size-mismatch` | 1,180 | 189 | 186 | 216 | 216 | -4 | — |
-| 304 | `src/main/menu.c` | `func_80039E34` | `main` | `size-mismatch` | 1,048 | 190 | 190 | 20 | 20 | 8 | — |
-| 305 | `src/overlays/o087/func_overlay_087_F0000128_18D3090.c` | `func_overlay_087_F0000128_18D3090` | `o087` | `size-mismatch` | 1,896 | 195 | 193 | 44 | 44 | -16 | — |
-| 306 | `src/main/anim.c` | `func_800573C8` | `main` | `size-mismatch` | 932 | 203 | 203 | 44 | 44 | -8 | — |
-| 307 | `src/overlays/o099/overlay99ApplySegment.c` | `overlay99ApplySegment` | `o099` | `size-mismatch` | 920 | 206 | 205 | 0 | 0 | -4 | — |
-| 308 | `src/main/main.c` | `func_80026FB4` | `main` | `size-mismatch` | 1,652 | 207 | 207 | 56 | 56 | 24 | — |
-| 309 | `src/main/charControl.c` | `func_8001D960` | `main` | `size-mismatch` | 880 | 208 | 208 | 0 | 0 | 4 | — |
-| 310 | `src/main/track.c` | `func_80011980` | `main` | `size-mismatch` | 860 | 208 | 208 | 0 | 0 | -4 | — |
-| 311 | `src/main/track.c` | `func_80012234` | `main` | `size-mismatch` | 832 | 208 | 208 | 0 | 0 | -132 | — |
-| 312 | `src/main/anim.c` | `func_80056DD8` | `main` | `size-mismatch` | 916 | 214 | 214 | 0 | 0 | -12 | — |
-| 313 | `src/main/camera.c` | `func_80022FD4` | `main` | `size-mismatch` | 1,476 | 216 | 216 | 44 | 44 | -16 | — |
-| 314 | `src/main/fx.c` | `func_80049B14` | `main` | `size-mismatch` | 824 | 216 | 216 | 8 | 8 | 52 | — |
-| 315 | `src/main/fx.c` | `fxSPDPRipple` | `main` | `size-mismatch` | 928 | 226 | 226 | 8 | 8 | 16 | — |
-| 316 | `src/main/track.c` | `func_8000F198` | `main` | `size-mismatch` | 996 | 228 | 228 | 0 | 0 | -8 | — |
-| 317 | `src/overlays/o015/overlay_015.c` | `overlay15InitStarsAndPalette` | `o015` | `size-mismatch` | 988 | 231 | 230 | 4 | 4 | -4 | — |
-| 318 | `src/main/track.c` | `func_800115E4` | `main` | `size-mismatch` | 924 | 232 | 232 | 0 | 0 | 20 | — |
-| 319 | `src/main/charControl.c` | `func_8001EC44` | `main` | `size-mismatch` | 952 | 236 | 236 | 0 | 0 | 8 | — |
-| 320 | `src/overlays/o020/func_overlay_020_F000038C_1876964.c` | `func_overlay_020_F000038C_1876964` | `o020` | `size-mismatch` | 1,080 | 256 | 256 | 0 | 0 | -24 | — |
-| 321 | `src/main/camera.c` | `func_80023598` | `main` | `size-mismatch` | 1,136 | 263 | 263 | 0 | 0 | 8 | — |
-| 322 | `src/overlays/o057/func_overlay_057_F00060F8_18A9CF0.c` | `func_overlay_057_F00060F8_18A9CF0` | `o057` | `size-mismatch` | 1,764 | 278 | 263 | 0 | 0 | -16 | — |
-| 323 | `src/main/lights.c` | `func_8001953C` | `main` | `size-mismatch` | 1,016 | 266 | 266 | 0 | 0 | 188 | — |
-| 324 | `src/main/track.c` | `func_8000DB34` | `main` | `size-mismatch` | 688 | 267 | 267 | 0 | 0 | 380 | — |
-| 325 | `src/overlays/o101/overlay101TailA6BC.c` | `overlay101TailA6BC` | `o101` | `size-mismatch` | 1,168 | 268 | 267 | 0 | 0 | -8 | — |
-| 326 | `src/overlays/o101/func_overlay_101_F0002510_18DDD30.c` | `func_overlay_101_F0002510_18DDD30` | `o101` | `size-mismatch` | 1,172 | 276 | 276 | 0 | 0 | -52 | — |
-| 327 | `src/main/particles.c` | `func_80041530` | `main` | `size-mismatch` | 1,824 | 280 | 280 | 0 | 0 | 4 | — |
-| 328 | `src/main/track.c` | `func_8000E5EC` | `main` | `size-mismatch` | 820 | 283 | 283 | 0 | 0 | 312 | — |
-| 329 | `src/overlays/o035/func_overlay_035_F00001E0_1881EC0.c` | `func_overlay_035_F00001E0_1881EC0` | `o035` | `size-mismatch` | 1,424 | 283 | 283 | 120 | 120 | -12 | — |
-| 330 | `src/main/models.c` | `func_8001FC50` | `main` | `size-mismatch` | 1,332 | 300 | 300 | 0 | 0 | -12 | — |
-| 331 | `src/overlays/o043/func_overlay_043_F0000BE4_188ABB4.c` | `func_overlay_043_F0000BE4_188ABB4` | `o043` | `size-mismatch` | 1,220 | 307 | 307 | 4 | 4 | 28 | — |
-| 332 | `src/main/rcpFast3d.c` | `func_8002F618` | `main` | `size-mismatch` | 1,308 | 312 | 312 | 52 | 52 | -156 | — |
-| 333 | `src/main/shadows.c` | `func_80017BCC` | `main` | `size-mismatch` | 1,256 | 313 | 312 | 0 | 0 | 48 | — |
-| 334 | `src/main/track.c` | `func_8001357C` | `main` | `size-mismatch` | 1,040 | 315 | 315 | 0 | 0 | 280 | — |
-| 335 | `src/main/diCpu.c` | `render_epc_lock_up_display` | `main` | `size-mismatch` | 1,376 | 321 | 321 | 60 | 60 | 12 | — |
-| 336 | `src/overlays/o044/func_overlay_044_F0000580_188BDE0.c` | `func_overlay_044_F0000580_188BDE0` | `o044` | `size-mismatch` | 1,396 | 329 | 329 | 0 | 0 | -8 | — |
-| 337 | `src/main/shadows.c` | `func_80017140` | `main` | `size-mismatch` | 1,312 | 337 | 337 | 0 | 0 | 64 | — |
-| 338 | `src/main/track.c` | `func_80011CDC` | `main` | `size-mismatch` | 1,368 | 339 | 339 | 0 | 0 | -56 | — |
-| 339 | `src/main/fx.c` | `wakeAllocate` | `main` | `size-mismatch` | 1,404 | 340 | 340 | 12 | 12 | -232 | — |
-| 340 | `src/overlays/o012/func_overlay_012_F00003A8_186D628.c` | `func_overlay_012_F00003A8_186D628` | `o012` | `size-mismatch` | 1,384 | 340 | 340 | 16 | 16 | 12 | — |
-| 341 | `src/main/track.c` | `func_8000BDB4` | `main` | `size-mismatch` | 1,612 | 342 | 342 | 48 | 48 | -40 | — |
-| 342 | `src/overlays/o057/func_overlay_057_F0000000_18A3BF8.c` | `func_overlay_057_F0000000_18A3BF8` | `o057` | `size-mismatch` | 2,388 | 371 | 345 | 8 | 8 | -12 | — |
-| 343 | `src/main/rcpFast3d.c` | `func_8002FB34` | `main` | `size-mismatch` | 1,436 | 358 | 358 | 0 | 0 | -16 | — |
-| 344 | `src/overlays/o001/overlay_001_tail.c` | `func_overlay_001_F0003750_184FB30` | `o001` | `size-mismatch` | 1,784 | 364 | 360 | 12 | 12 | 4 | — |
-| 345 | `src/overlays/o046/func_overlay_046_F0000874_188EC6C.c` | `func_overlay_046_F0000874_188EC6C` | `o046` | `size-mismatch` | 1,800 | 364 | 363 | 0 | 0 | 12 | — |
-| 346 | `src/main/track.c` | `func_8001398C` | `main` | `size-mismatch` | 1,320 | 365 | 365 | 0 | 0 | 160 | — |
-| 347 | `src/main/anim.c` | `func_80054B3C` | `main` | `size-mismatch` | 1,480 | 368 | 368 | 0 | 0 | -112 | — |
-| 348 | `src/main/shadows.c` | `func_80017660` | `main` | `size-mismatch` | 1,388 | 368 | 368 | 0 | 0 | 92 | — |
-| 349 | `src/main/models_5B300.c` | `func_8005AF14` | `main` | `size-mismatch` | 1,840 | 377 | 377 | 0 | 0 | 12 | — |
-| 350 | `src/main/track.c` | `func_8000DFBC` | `main` | `size-mismatch` | 1,584 | 380 | 380 | 0 | 0 | -164 | — |
-| 351 | `src/overlays/o008/overlay_008.c` | `func_overlay_008_F00042A8_1862000` | `o008` | `size-mismatch` | 1,788 | 384 | 384 | 68 | 68 | -68 | — |
-| 352 | `src/main/fx.c` | `wakeUpdate` | `main` | `size-mismatch` | 1,592 | 386 | 386 | 0 | 0 | -72 | — |
-| 353 | `src/main/weather.c` | `rain_render_splashes` | `main` | `size-mismatch` | 1,616 | 386 | 386 | 0 | 0 | -24 | — |
-| 354 | `src/main/fx.c` | `func_800475E8` | `main` | `size-mismatch` | 1,004 | 390 | 390 | 0 | 0 | 780 | — |
-| 355 | `src/main/models.c` | `func_8001F520` | `main` | `size-mismatch` | 1,604 | 394 | 394 | 8 | 8 | -228 | — |
-| 356 | `src/main/charControl.c` | `func_8001E5C4` | `main` | `size-mismatch` | 1,664 | 413 | 413 | 0 | 0 | -72 | — |
-| 357 | `src/overlays/o046/func_overlay_046_F0001228_188F620.c` | `func_overlay_046_F0001228_188F620` | `o046` | `size-mismatch` | 1,844 | 416 | 415 | 92 | 92 | -96 | — |
-| 358 | `src/main/charControl.c` | `func_8001CB84` | `main` | `size-mismatch` | 1,820 | 425 | 425 | 0 | 0 | 28 | — |
-| 359 | `src/main/main.c` | `func_80028564` | `main` | `size-mismatch` | 1,956 | 427 | 426 | 4 | 4 | 12 | — |
-| 360 | `src/overlays/o022/func_overlay_022_F00002B0_18783B8.c` | `func_overlay_022_F00002B0_18783B8` | `o022` | `size-mismatch` | 1,996 | 431 | 430 | 4 | 4 | 8 | — |
-| 361 | `src/overlays/o029/func_overlay_029_F00005C4_187D874.c` | `func_overlay_029_F00005C4_187D874` | `o029` | `size-mismatch` | 2,332 | 438 | 438 | 4 | 4 | -4 | — |
-| 362 | `src/main/diCpu.c` | `func_80045D34` | `main` | `size-mismatch` | 1,836 | 440 | 439 | 0 | 0 | -28 | — |
-| 363 | `src/overlays/o055/func_overlay_055_F000031C_18A1E34.c` | `func_overlay_055_F000031C_18A1E34` | `o055` | `size-mismatch` | 2,324 | 445 | 445 | 60 | 60 | -24 | — |
-| 364 | `src/overlays/o002/func_overlay_002_F0001DF8_1858BF0.c` | `func_overlay_002_F0001DF8_1858BF0` | `o002` | `size-mismatch` | 1,840 | 448 | 448 | 4 | 4 | -20 | — |
-| 365 | `src/overlays/o057/func_overlay_057_F0004460_18A8058.c` | `func_overlay_057_F0004460_18A8058` | `o057` | `size-mismatch` | 1,976 | 450 | 449 | 4 | 4 | -144 | — |
-| 366 | `src/overlays/o084/func_overlay_084_F0000314_18D07F4.c` | `func_overlay_084_F0000314_18D07F4` | `o084` | `size-mismatch` | 1,856 | 450 | 449 | 60 | 60 | 16 | — |
-| 367 | `src/overlays/o101/func_overlay_101_F0008128_18E3948.c` | `func_overlay_101_F0008128_18E3948` | `o101` | `size-mismatch` | 2,100 | 472 | 469 | 4 | 4 | -4 | — |
-| 368 | `src/overlays/o101/func_overlay_101_F000895C_18E417C.c` | `func_overlay_101_F000895C_18E417C` | `o101` | `size-mismatch` | 2,100 | 472 | 469 | 4 | 4 | -4 | — |
-| 369 | `src/overlays/o101/func_overlay_101_F0009190_18E49B0.c` | `func_overlay_101_F0009190_18E49B0` | `o101` | `size-mismatch` | 2,100 | 472 | 469 | 4 | 4 | -4 | — |
-| 370 | `src/overlays/o001/overlay_001_head.c` | `overlay1LoadBuildRecords` | `o001` | `size-mismatch` | 2,288 | 491 | 470 | 52 | 52 | -92 | — |
-| 371 | `src/overlays/o101/func_overlay_101_F00078F4_18E3114.c` | `func_overlay_101_F00078F4_18E3114` | `o101` | `size-mismatch` | 2,100 | 480 | 477 | 4 | 4 | -4 | — |
-| 372 | `src/overlays/o008/overlay_008.c` | `func_overlay_008_F0000058_185DDB0` | `o008` | `size-mismatch` | 2,108 | 482 | 477 | 0 | 0 | -76 | — |
-| 373 | `src/overlays/o035/func_overlay_035_F0000B40_1882820.c` | `func_overlay_035_F0000B40_1882820` | `o035` | `size-mismatch` | 2,112 | 486 | 486 | 4 | 4 | -48 | — |
-| 374 | `src/main/shadows.c` | `shadowGenerate` | `main` | `size-mismatch` | 2,040 | 490 | 490 | 12 | 12 | -220 | — |
-| 375 | `src/main/font.c` | `func_8004B1DC` | `main` | `size-mismatch` | 2,224 | 509 | 509 | 48 | 48 | -112 | — |
-| 376 | `src/overlays/o026/func_overlay_026_F00001A0_187A598.c` | `func_overlay_026_F00001A0_187A598` | `o026` | `size-mismatch` | 2,424 | 510 | 510 | 156 | 156 | -16 | — |
-| 377 | `src/overlays/o019/overlay19BuildPlanes.c` | `overlay19BuildPlanes` | `o019` | `size-mismatch` | 2,128 | 514 | 514 | 72 | 72 | -8 | — |
-| 378 | `src/overlays/o043/func_overlay_043_F0000324_188A2F4.c` | `func_overlay_043_F0000324_188A2F4` | `o043` | `size-mismatch` | 2,240 | 529 | 529 | 64 | 64 | -12 | — |
-| 379 | `src/overlays/o011/func_overlay_011_F0000150_1868998.c` | `func_overlay_011_F0000150_1868998` | `o011` | `size-mismatch` | 2,248 | 538 | 535 | 0 | 0 | -120 | — |
-| 380 | `src/main/track.c` | `func_8000E920` | `main` | `size-mismatch` | 2,168 | 536 | 536 | 56 | 56 | 48 | — |
-| 381 | `src/main/track.c` | `func_8001291C` | `main` | `size-mismatch` | 2,192 | 545 | 545 | 0 | 0 | -124 | — |
-| 382 | `src/overlays/o047/func_overlay_047_F0000000_1890E18.c` | `func_overlay_047_F0000000_1890E18` | `o047` | `size-mismatch` | 2,512 | 553 | 548 | 104 | 200 | 16 | — |
-| 383 | `src/main/shadows.c` | `func_80016890` | `main` | `size-mismatch` | 2,224 | 556 | 556 | 0 | 0 | -188 | — |
-| 384 | `src/overlays/o090/overlay_090.c` | `func_overlay_090_F00000FC_18D4BF4` | `o090` | `size-mismatch` | 2,592 | 575 | 575 | 0 | 0 | -36 | — |
-| 385 | `src/overlays/o012/func_overlay_012_F0000910_186DB90.c` | `func_overlay_012_F0000910_186DB90` | `o012` | `size-mismatch` | 2,444 | 582 | 582 | 0 | 0 | -20 | — |
-| 386 | `src/overlays/o057/func_overlay_057_F0001020_18A4C18.c` | `func_overlay_057_F0001020_18A4C18` | `o057` | `size-mismatch` | 2,392 | 585 | 585 | 0 | 0 | -32 | — |
-| 387 | `src/overlays/o045/func_overlay_045_F0001158_188D5B0.c` | `func_overlay_045_F0001158_188D5B0` | `o045` | `size-mismatch` | 2,696 | 593 | 593 | 0 | 0 | 28 | — |
-| 388 | `src/overlays/o101/overlay101TailAB4C.c` | `func_overlay_101_F000AB4C_18E636C` | `o101` | `size-mismatch` | 2,552 | 636 | 636 | 4 | 4 | 108 | — |
-| 389 | `src/main/track.c` | `func_80010B4C` | `main` | `size-mismatch` | 2,712 | 677 | 677 | 4 | 4 | -136 | — |
-| 390 | `src/overlays/o065/overlay65UpdateParticles.c` | `overlay65UpdateParticles` | `o065` | `size-mismatch` | 2,880 | 696 | 689 | 12 | 12 | -40 | — |
-| 391 | `src/main/vehicle_sounds.c` | `func_8005830C` | `main` | `size-mismatch` | 3,048 | 700 | 699 | 0 | 0 | -16 | — |
-| 392 | `src/overlays/o053/func_overlay_053_F0000240_189DBE8.c` | `func_overlay_053_F0000240_189DBE8` | `o053` | `size-mismatch` | 2,544 | 710 | 709 | 0 | 0 | 308 | — |
-| 393 | `src/overlays/o058/func_overlay_058_F00005FC_18AF7E4.c` | `func_overlay_058_F00005FC_18AF7E4` | `o058` | `size-mismatch` | 3,316 | 731 | 724 | 0 | 0 | -12 | — |
-| 394 | `src/overlays/o065/func_overlay_065_F0000C38_18C4EA0.c` | `func_overlay_065_F0000C38_18C4EA0` | `o065` | `size-mismatch` | 3,548 | 824 | 824 | 0 | 0 | -88 | — |
-| 395 | `src/overlays/o079/func_overlay_079_F0000134_18CD0D4.c` | `func_overlay_079_F0000134_18CD0D4` | `o079` | `size-mismatch` | 3,528 | 848 | 848 | 4 | 4 | -48 | — |
-| 396 | `src/overlays/o101/func_overlay_101_F00069E8_18E2208.c` | `func_overlay_101_F00069E8_18E2208` | `o101` | `size-mismatch` | 3,852 | 850 | 849 | 44 | 44 | 16 | — |
-| 397 | `src/overlays/o008/overlay_008.c` | `func_overlay_008_F00034A0_18611F8` | `o008` | `size-mismatch` | 3,592 | 991 | 991 | 0 | 0 | 448 | — |
-| 398 | `src/overlays/o101/func_overlay_101_F0003A58_18DF278.c` | `func_overlay_101_F0003A58_18DF278` | `o101` | `size-mismatch` | 5,844 | 1,396 | 1,396 | 52 | 52 | 8 | — |
-| 399 | `src/overlays/o001/overlay_001_tail.c` | `func_overlay_001_F000438C_185076C` | `o001` | `size-mismatch` | 6,168 | 1,510 | 1,508 | 0 | 0 | 232 | — |
-| 400 | `src/overlays/o050/func_overlay_050_F0000334_1896CA4.c` | `func_overlay_050_F0000334_1896CA4` | `o050` | `size-mismatch` | 6,300 | 1,544 | 1,544 | 0 | 0 | -12 | — |
-| 401 | `src/overlays/o047/func_overlay_047_F0000B30_1891948.c` | `func_overlay_047_F0000B30_1891948` | `o047` | `size-mismatch` | 8,672 | 2,701 | 2,701 | 0 | 0 | 2,176 | — |
-| 402 | `src/overlays/o058/func_overlay_058_F000138C_18B0574.c` | `func_overlay_058_F000138C_18B0574` | `o058` | `size-mismatch` | 14,456 | 3,547 | 3,544 | 0 | 0 | -472 | — |
+| 246 | `src/main/models_5B300.c` | `func_8005ABA8` | `main` | `size-mismatch` | 444 | 97 | 97 | 56 | 56 | -4 | — |
+| 247 | `src/main/track.c` | `func_800133FC` | `main` | `size-mismatch` | 384 | 98 | 98 | 0 | 0 | 12 | — |
+| 248 | `src/overlays/o089/overlay89UpdateStateAndParticles.c` | `overlay89UpdateStateAndParticles` | `o089` | `size-mismatch` | 544 | 98 | 98 | 0 | 0 | 4 | — |
+| 249 | `src/main/particles.c` | `func_8004054C` | `main` | `size-mismatch` | 500 | 101 | 101 | 44 | 44 | -4 | — |
+| 250 | `src/overlays/o063/overlay63UpdateSequence.c` | `overlay63UpdateSequence` | `o063` | `size-mismatch` | 428 | 102 | 102 | 20 | 20 | -4 | — |
+| 251 | `src/overlays/o099/overlay99BuildHeightGrid.c` | `overlay99BuildHeightGrid` | `o099` | `size-mismatch` | 456 | 104 | 104 | 44 | 44 | 4 | — |
+| 252 | `src/main/font.c` | `func_8004C690` | `main` | `size-mismatch` | 584 | 105 | 105 | 0 | 0 | -8 | — |
+| 253 | `src/overlays/o068/overlay68RebuildSecondaryEntry.c` | `overlay68RebuildSecondaryEntry` | `o068` | `size-mismatch` | 488 | 105 | 105 | 0 | 0 | -8 | — |
+| 254 | `src/main/weather_tail.c` | `func_8003C80C` | `main` | `size-mismatch` | 472 | 107 | 107 | 8 | 8 | -4 | — |
+| 255 | `src/overlays/o001/overlay_001_head.c` | `overlay1BuildObjectMappings` | `o001` | `size-mismatch` | 592 | 114 | 114 | 0 | 0 | -16 | — |
+| 256 | `src/main/runlink.c` | `runlinkFreeCode` | `main` | `size-mismatch` | 736 | 117 | 117 | 0 | 0 | -4 | — |
+| 257 | `src/main/matrix.c` | `func_8002AC84` | `main` | `size-mismatch` | 396 | 118 | 118 | 0 | 0 | 80 | — |
+| 258 | `src/overlays/o041/overlay41ProcessEntry.c` | `func_overlay_041_F0001464_188879C` | `o041` | `size-mismatch` | 492 | 120 | 120 | 16 | 16 | 20 | — |
+| 259 | `src/main/track.c` | `func_8000D1B8` | `main` | `size-mismatch` | 512 | 121 | 121 | 4 | 4 | -16 | — |
+| 260 | `src/overlays/o031/overlay31InitializeParticleAssets.c` | `func_overlay_031_F00002E8_187F808` | `o031` | `size-mismatch` | 528 | 123 | 123 | 16 | 16 | 4 | — |
+| 261 | `src/overlays/o001/overlay_001_tail.c` | `overlay1AdvancePath` | `o001` | `size-mismatch` | 648 | 124 | 124 | 16 | 16 | 12 | — |
+| 262 | `src/main/fx.c` | `func_80049000` | `main` | `size-mismatch` | 596 | 125 | 125 | 0 | 0 | 4 | — |
+| 263 | `src/main/fx.c` | `func_80049518` | `main` | `size-mismatch` | 552 | 125 | 125 | 20 | 20 | -28 | — |
+| 264 | `src/main/runlink.c` | `ProcessRelocationEntry` | `main` | `size-mismatch` | 584 | 126 | 126 | 0 | 0 | 4 | — |
+| 265 | `src/overlays/o054/overlay54Initialize.c` | `func_overlay_054_F0000000_189ECA0` | `o054` | `size-mismatch` | 972 | 144 | 127 | 84 | 240 | 4 | — |
+| 266 | `src/main/fx.c` | `func_800470B0` | `main` | `size-mismatch` | 596 | 130 | 130 | 0 | 0 | 4 | — |
+| 267 | `src/main/spranim.c` | `func_8001B798` | `main` | `size-mismatch` | 700 | 131 | 131 | 0 | 0 | -16 | — |
+| 268 | `src/overlays/o044/overlay44UpdateFrameCache.c` | `overlay44UpdateFrameCache` | `o044` | `size-mismatch` | 748 | 133 | 133 | 0 | 0 | -4 | — |
+| 269 | `src/main/matrix.c` | `func_8002AE10` | `main` | `size-mismatch` | 348 | 138 | 138 | 0 | 0 | 208 | — |
+| 270 | `src/overlays/o037/overlay37Render.c` | `overlay37RenderEffect` | `o037` | `size-mismatch` | 856 | 139 | 139 | 0 | 0 | -4 | — |
+| 271 | `src/main/track.c` | `func_80010900` | `main` | `size-mismatch` | 588 | 143 | 143 | 4 | 4 | -8 | — |
+| 272 | `src/main/fx.c` | `fxScreenEffect` | `main` | `size-mismatch` | 588 | 144 | 144 | 12 | 12 | -40 | — |
+| 273 | `src/main/track.c` | `func_8000D3B8` | `main` | `size-mismatch` | 440 | 144 | 144 | 4 | 4 | 160 | — |
+| 274 | `src/overlays/o015/overlay_015.c` | `overlay15InitStars` | `o015` | `size-mismatch` | 760 | 144 | 144 | 100 | 100 | -12 | — |
+| 275 | `src/main/weather.c` | `snow_render` | `main` | `size-mismatch` | 568 | 146 | 146 | 0 | 0 | 16 | — |
+| 276 | `src/overlays/o010/overlay10Initialize.c` | `overlay10Initialize` | `o010` | `size-mismatch` | 688 | 147 | 147 | 0 | 0 | 156 | — |
+| 277 | `src/main/sched.c` | `func_80030610` | `main` | `size-mismatch` | 768 | 148 | 148 | 0 | 0 | 8 | — |
+| 278 | `src/main/fx.c` | `func_8004A10C` | `main` | `size-mismatch` | 628 | 155 | 155 | 0 | 0 | -4 | — |
+| 279 | `src/main/models.c` | `func_80020B10` | `main` | `size-mismatch` | 636 | 156 | 156 | 0 | 0 | 4 | — |
+| 280 | `src/main/track.c` | `func_80012658` | `main` | `size-mismatch` | 708 | 157 | 157 | 0 | 0 | -12 | — |
+| 281 | `src/main/fx.c` | `func_80049E4C` | `main` | `size-mismatch` | 676 | 159 | 159 | 8 | 8 | -8 | — |
+| 282 | `src/overlays/o008/overlay_008.c` | `func_overlay_008_F0001000_185ED58` | `o008` | `size-mismatch` | 660 | 159 | 159 | 8 | 8 | -4 | — |
+| 283 | `src/overlays/o001/overlay_001_tail.c` | `func_overlay_001_F0003FD8_18503B8` | `o001` | `size-mismatch` | 948 | 162 | 162 | 32 | 32 | -12 | — |
+| 284 | `src/overlays/o013/overlay13DrawActive.c` | `overlay13DrawActive` | `o013` | `size-mismatch` | 664 | 163 | 162 | 0 | 0 | -4 | — |
+| 285 | `src/main/lights.c` | `func_80018F08` | `main` | `size-mismatch` | 820 | 166 | 166 | 0 | 0 | -24 | — |
+| 286 | `src/overlays/o034/overlay34SortAndDraw.c` | `overlay34SortAndDraw` | `o034` | `size-mismatch` | 760 | 168 | 168 | 0 | 0 | -4 | — |
+| 287 | `src/overlays/o101/overlay101BuildPresentationA.c` | `overlay101BuildPresentationA` | `o101` | `size-mismatch` | 832 | 169 | 168 | 16 | 16 | 4 | — |
+| 288 | `src/overlays/o101/overlay101BuildPresentationB.c` | `overlay101BuildPresentationB` | `o101` | `size-mismatch` | 832 | 169 | 168 | 16 | 16 | 4 | — |
+| 289 | `src/overlays/o101/overlay101BuildPresentationC.c` | `overlay101BuildPresentationC` | `o101` | `size-mismatch` | 832 | 169 | 168 | 16 | 16 | 4 | — |
+| 290 | `src/main/track.c` | `func_80010654` | `main` | `size-mismatch` | 684 | 172 | 172 | 0 | 0 | 12 | — |
+| 291 | `src/main/fx.c` | `func_80047304` | `main` | `size-mismatch` | 740 | 176 | 176 | 4 | 4 | -8 | — |
+| 292 | `src/main/fx.c` | `func_800479D4` | `main` | `size-mismatch` | 772 | 176 | 176 | 56 | 56 | -56 | — |
+| 293 | `src/main/fx.c` | `wakeDraw` | `main` | `size-mismatch` | 708 | 177 | 177 | 0 | 0 | -56 | — |
+| 294 | `src/main/track.c` | `func_800103D4` | `main` | `size-mismatch` | 640 | 177 | 177 | 0 | 0 | 68 | — |
+| 295 | `src/main/lights.c` | `func_80019AB8` | `main` | `size-mismatch` | 736 | 178 | 178 | 0 | 0 | 28 | — |
+| 296 | `src/overlays/o038/func_overlay_038_F000047C_188618C.c` | `func_overlay_038_F000047C_188618C` | `o038` | `size-mismatch` | 876 | 178 | 178 | 0 | 0 | -4 | — |
+| 297 | `src/overlays/o020/func_overlay_020_F0001148_1877720.c` | `func_overlay_020_F0001148_1877720` | `o020` | `size-mismatch` | 828 | 180 | 178 | 32 | 32 | -8 | — |
+| 298 | `src/main/shadows.c` | `func_800180B4` | `main` | `size-mismatch` | 824 | 179 | 179 | 52 | 52 | -8 | — |
+| 299 | `src/overlays/o066/func_overlay_066_F00004E0_18C6948.c` | `func_overlay_066_F00004E0_18C6948` | `o066` | `size-mismatch` | 816 | 181 | 181 | 0 | 0 | -12 | — |
+| 300 | `src/overlays/o020/overlay20UpdateGrid.c` | `overlay20UpdateGrid` | `o020` | `size-mismatch` | 860 | 184 | 184 | 0 | 0 | 16 | — |
+| 301 | `src/overlays/o014/func_overlay_014_F0001830_1871108.c` | `func_overlay_014_F0001830_1871108` | `o014` | `size-mismatch` | 804 | 186 | 186 | 0 | 0 | 4 | — |
+| 302 | `src/overlays/o011/func_overlay_011_F0001E4C_186A694.c` | `func_overlay_011_F0001E4C_186A694` | `o011` | `size-mismatch` | 1,180 | 189 | 186 | 216 | 216 | -4 | — |
+| 303 | `src/main/menu.c` | `func_80039E34` | `main` | `size-mismatch` | 1,048 | 190 | 190 | 20 | 20 | 8 | — |
+| 304 | `src/overlays/o087/func_overlay_087_F0000128_18D3090.c` | `func_overlay_087_F0000128_18D3090` | `o087` | `size-mismatch` | 1,896 | 195 | 193 | 44 | 44 | -16 | — |
+| 305 | `src/main/anim.c` | `func_800573C8` | `main` | `size-mismatch` | 932 | 203 | 203 | 44 | 44 | -8 | — |
+| 306 | `src/overlays/o099/overlay99ApplySegment.c` | `overlay99ApplySegment` | `o099` | `size-mismatch` | 920 | 206 | 205 | 0 | 0 | -4 | — |
+| 307 | `src/main/main.c` | `func_80026FB4` | `main` | `size-mismatch` | 1,652 | 207 | 207 | 56 | 56 | 24 | — |
+| 308 | `src/main/charControl.c` | `func_8001D960` | `main` | `size-mismatch` | 880 | 208 | 208 | 0 | 0 | 4 | — |
+| 309 | `src/main/track.c` | `func_80011980` | `main` | `size-mismatch` | 860 | 208 | 208 | 0 | 0 | -4 | — |
+| 310 | `src/main/track.c` | `func_80012234` | `main` | `size-mismatch` | 832 | 208 | 208 | 0 | 0 | -132 | — |
+| 311 | `src/main/anim.c` | `func_80056DD8` | `main` | `size-mismatch` | 916 | 214 | 214 | 0 | 0 | -12 | — |
+| 312 | `src/main/camera.c` | `func_80022FD4` | `main` | `size-mismatch` | 1,476 | 216 | 216 | 44 | 44 | -16 | — |
+| 313 | `src/main/fx.c` | `func_80049B14` | `main` | `size-mismatch` | 824 | 216 | 216 | 8 | 8 | 52 | — |
+| 314 | `src/main/fx.c` | `fxSPDPRipple` | `main` | `size-mismatch` | 928 | 226 | 226 | 8 | 8 | 16 | — |
+| 315 | `src/main/track.c` | `func_8000F198` | `main` | `size-mismatch` | 996 | 228 | 228 | 0 | 0 | -8 | — |
+| 316 | `src/overlays/o015/overlay_015.c` | `overlay15InitStarsAndPalette` | `o015` | `size-mismatch` | 988 | 231 | 230 | 4 | 4 | -4 | — |
+| 317 | `src/main/track.c` | `func_800115E4` | `main` | `size-mismatch` | 924 | 232 | 232 | 0 | 0 | 20 | — |
+| 318 | `src/main/charControl.c` | `func_8001EC44` | `main` | `size-mismatch` | 952 | 236 | 236 | 0 | 0 | 8 | — |
+| 319 | `src/overlays/o020/func_overlay_020_F000038C_1876964.c` | `func_overlay_020_F000038C_1876964` | `o020` | `size-mismatch` | 1,080 | 256 | 256 | 0 | 0 | -24 | — |
+| 320 | `src/main/camera.c` | `func_80023598` | `main` | `size-mismatch` | 1,136 | 263 | 263 | 0 | 0 | 8 | — |
+| 321 | `src/overlays/o057/func_overlay_057_F00060F8_18A9CF0.c` | `func_overlay_057_F00060F8_18A9CF0` | `o057` | `size-mismatch` | 1,764 | 278 | 263 | 0 | 0 | -16 | — |
+| 322 | `src/main/lights.c` | `func_8001953C` | `main` | `size-mismatch` | 1,016 | 266 | 266 | 0 | 0 | 188 | — |
+| 323 | `src/main/track.c` | `func_8000DB34` | `main` | `size-mismatch` | 688 | 267 | 267 | 0 | 0 | 380 | — |
+| 324 | `src/overlays/o101/overlay101TailA6BC.c` | `overlay101TailA6BC` | `o101` | `size-mismatch` | 1,168 | 268 | 267 | 0 | 0 | -8 | — |
+| 325 | `src/overlays/o101/func_overlay_101_F0002510_18DDD30.c` | `func_overlay_101_F0002510_18DDD30` | `o101` | `size-mismatch` | 1,172 | 276 | 276 | 0 | 0 | -52 | — |
+| 326 | `src/main/particles.c` | `func_80041530` | `main` | `size-mismatch` | 1,824 | 280 | 280 | 0 | 0 | 4 | — |
+| 327 | `src/main/track.c` | `func_8000E5EC` | `main` | `size-mismatch` | 820 | 283 | 283 | 0 | 0 | 312 | — |
+| 328 | `src/overlays/o035/func_overlay_035_F00001E0_1881EC0.c` | `func_overlay_035_F00001E0_1881EC0` | `o035` | `size-mismatch` | 1,424 | 283 | 283 | 120 | 120 | -12 | — |
+| 329 | `src/main/models.c` | `func_8001FC50` | `main` | `size-mismatch` | 1,332 | 300 | 300 | 0 | 0 | -12 | — |
+| 330 | `src/overlays/o043/func_overlay_043_F0000BE4_188ABB4.c` | `func_overlay_043_F0000BE4_188ABB4` | `o043` | `size-mismatch` | 1,220 | 307 | 307 | 4 | 4 | 28 | — |
+| 331 | `src/main/rcpFast3d.c` | `func_8002F618` | `main` | `size-mismatch` | 1,308 | 312 | 312 | 52 | 52 | -156 | — |
+| 332 | `src/main/shadows.c` | `func_80017BCC` | `main` | `size-mismatch` | 1,256 | 313 | 312 | 0 | 0 | 48 | — |
+| 333 | `src/main/track.c` | `func_8001357C` | `main` | `size-mismatch` | 1,040 | 315 | 315 | 0 | 0 | 280 | — |
+| 334 | `src/main/diCpu.c` | `render_epc_lock_up_display` | `main` | `size-mismatch` | 1,376 | 321 | 321 | 60 | 60 | 12 | — |
+| 335 | `src/overlays/o044/func_overlay_044_F0000580_188BDE0.c` | `func_overlay_044_F0000580_188BDE0` | `o044` | `size-mismatch` | 1,396 | 329 | 329 | 0 | 0 | -8 | — |
+| 336 | `src/main/shadows.c` | `func_80017140` | `main` | `size-mismatch` | 1,312 | 337 | 337 | 0 | 0 | 64 | — |
+| 337 | `src/main/track.c` | `func_80011CDC` | `main` | `size-mismatch` | 1,368 | 339 | 339 | 0 | 0 | -56 | — |
+| 338 | `src/main/fx.c` | `wakeAllocate` | `main` | `size-mismatch` | 1,404 | 340 | 340 | 12 | 12 | -232 | — |
+| 339 | `src/overlays/o012/func_overlay_012_F00003A8_186D628.c` | `func_overlay_012_F00003A8_186D628` | `o012` | `size-mismatch` | 1,384 | 340 | 340 | 16 | 16 | 12 | — |
+| 340 | `src/main/track.c` | `func_8000BDB4` | `main` | `size-mismatch` | 1,612 | 342 | 342 | 48 | 48 | -40 | — |
+| 341 | `src/overlays/o057/func_overlay_057_F0000000_18A3BF8.c` | `func_overlay_057_F0000000_18A3BF8` | `o057` | `size-mismatch` | 2,388 | 371 | 345 | 8 | 8 | -12 | — |
+| 342 | `src/main/rcpFast3d.c` | `func_8002FB34` | `main` | `size-mismatch` | 1,436 | 358 | 358 | 0 | 0 | -16 | — |
+| 343 | `src/overlays/o001/overlay_001_tail.c` | `func_overlay_001_F0003750_184FB30` | `o001` | `size-mismatch` | 1,784 | 364 | 360 | 12 | 12 | 4 | — |
+| 344 | `src/overlays/o046/func_overlay_046_F0000874_188EC6C.c` | `func_overlay_046_F0000874_188EC6C` | `o046` | `size-mismatch` | 1,800 | 364 | 363 | 0 | 0 | 12 | — |
+| 345 | `src/main/track.c` | `func_8001398C` | `main` | `size-mismatch` | 1,320 | 365 | 365 | 0 | 0 | 160 | — |
+| 346 | `src/main/anim.c` | `func_80054B3C` | `main` | `size-mismatch` | 1,480 | 368 | 368 | 0 | 0 | -112 | — |
+| 347 | `src/main/shadows.c` | `func_80017660` | `main` | `size-mismatch` | 1,388 | 368 | 368 | 0 | 0 | 92 | — |
+| 348 | `src/main/models_5B300.c` | `func_8005AF14` | `main` | `size-mismatch` | 1,840 | 377 | 377 | 0 | 0 | 12 | — |
+| 349 | `src/main/track.c` | `func_8000DFBC` | `main` | `size-mismatch` | 1,584 | 380 | 380 | 0 | 0 | -164 | — |
+| 350 | `src/overlays/o008/overlay_008.c` | `func_overlay_008_F00042A8_1862000` | `o008` | `size-mismatch` | 1,788 | 384 | 384 | 68 | 68 | -68 | — |
+| 351 | `src/main/fx.c` | `wakeUpdate` | `main` | `size-mismatch` | 1,592 | 386 | 386 | 0 | 0 | -72 | — |
+| 352 | `src/main/weather.c` | `rain_render_splashes` | `main` | `size-mismatch` | 1,616 | 386 | 386 | 0 | 0 | -24 | — |
+| 353 | `src/main/fx.c` | `func_800475E8` | `main` | `size-mismatch` | 1,004 | 390 | 390 | 0 | 0 | 780 | — |
+| 354 | `src/main/models.c` | `func_8001F520` | `main` | `size-mismatch` | 1,604 | 394 | 394 | 8 | 8 | -228 | — |
+| 355 | `src/main/charControl.c` | `func_8001E5C4` | `main` | `size-mismatch` | 1,664 | 413 | 413 | 0 | 0 | -72 | — |
+| 356 | `src/overlays/o046/func_overlay_046_F0001228_188F620.c` | `func_overlay_046_F0001228_188F620` | `o046` | `size-mismatch` | 1,844 | 416 | 415 | 92 | 92 | -96 | — |
+| 357 | `src/main/charControl.c` | `func_8001CB84` | `main` | `size-mismatch` | 1,820 | 425 | 425 | 0 | 0 | 28 | — |
+| 358 | `src/main/main.c` | `func_80028564` | `main` | `size-mismatch` | 1,956 | 427 | 426 | 4 | 4 | 12 | — |
+| 359 | `src/overlays/o022/func_overlay_022_F00002B0_18783B8.c` | `func_overlay_022_F00002B0_18783B8` | `o022` | `size-mismatch` | 1,996 | 431 | 430 | 4 | 4 | 8 | — |
+| 360 | `src/overlays/o029/func_overlay_029_F00005C4_187D874.c` | `func_overlay_029_F00005C4_187D874` | `o029` | `size-mismatch` | 2,332 | 438 | 438 | 4 | 4 | -4 | — |
+| 361 | `src/main/diCpu.c` | `func_80045D34` | `main` | `size-mismatch` | 1,836 | 440 | 439 | 0 | 0 | -28 | — |
+| 362 | `src/overlays/o055/func_overlay_055_F000031C_18A1E34.c` | `func_overlay_055_F000031C_18A1E34` | `o055` | `size-mismatch` | 2,324 | 445 | 445 | 60 | 60 | -24 | — |
+| 363 | `src/overlays/o002/func_overlay_002_F0001DF8_1858BF0.c` | `func_overlay_002_F0001DF8_1858BF0` | `o002` | `size-mismatch` | 1,840 | 448 | 448 | 4 | 4 | -20 | — |
+| 364 | `src/overlays/o057/func_overlay_057_F0004460_18A8058.c` | `func_overlay_057_F0004460_18A8058` | `o057` | `size-mismatch` | 1,976 | 450 | 449 | 4 | 4 | -144 | — |
+| 365 | `src/overlays/o084/func_overlay_084_F0000314_18D07F4.c` | `func_overlay_084_F0000314_18D07F4` | `o084` | `size-mismatch` | 1,856 | 450 | 449 | 60 | 60 | 16 | — |
+| 366 | `src/overlays/o101/func_overlay_101_F0008128_18E3948.c` | `func_overlay_101_F0008128_18E3948` | `o101` | `size-mismatch` | 2,100 | 472 | 469 | 4 | 4 | -4 | — |
+| 367 | `src/overlays/o101/func_overlay_101_F000895C_18E417C.c` | `func_overlay_101_F000895C_18E417C` | `o101` | `size-mismatch` | 2,100 | 472 | 469 | 4 | 4 | -4 | — |
+| 368 | `src/overlays/o101/func_overlay_101_F0009190_18E49B0.c` | `func_overlay_101_F0009190_18E49B0` | `o101` | `size-mismatch` | 2,100 | 472 | 469 | 4 | 4 | -4 | — |
+| 369 | `src/overlays/o001/overlay_001_head.c` | `overlay1LoadBuildRecords` | `o001` | `size-mismatch` | 2,288 | 491 | 470 | 52 | 52 | -92 | — |
+| 370 | `src/overlays/o101/func_overlay_101_F00078F4_18E3114.c` | `func_overlay_101_F00078F4_18E3114` | `o101` | `size-mismatch` | 2,100 | 480 | 477 | 4 | 4 | -4 | — |
+| 371 | `src/overlays/o008/overlay_008.c` | `func_overlay_008_F0000058_185DDB0` | `o008` | `size-mismatch` | 2,108 | 482 | 477 | 0 | 0 | -76 | — |
+| 372 | `src/overlays/o035/func_overlay_035_F0000B40_1882820.c` | `func_overlay_035_F0000B40_1882820` | `o035` | `size-mismatch` | 2,112 | 486 | 486 | 4 | 4 | -48 | — |
+| 373 | `src/main/shadows.c` | `shadowGenerate` | `main` | `size-mismatch` | 2,040 | 490 | 490 | 12 | 12 | -220 | — |
+| 374 | `src/main/font.c` | `func_8004B1DC` | `main` | `size-mismatch` | 2,224 | 509 | 509 | 48 | 48 | -112 | — |
+| 375 | `src/overlays/o026/func_overlay_026_F00001A0_187A598.c` | `func_overlay_026_F00001A0_187A598` | `o026` | `size-mismatch` | 2,424 | 510 | 510 | 156 | 156 | -16 | — |
+| 376 | `src/overlays/o019/overlay19BuildPlanes.c` | `overlay19BuildPlanes` | `o019` | `size-mismatch` | 2,128 | 514 | 514 | 72 | 72 | -8 | — |
+| 377 | `src/overlays/o043/func_overlay_043_F0000324_188A2F4.c` | `func_overlay_043_F0000324_188A2F4` | `o043` | `size-mismatch` | 2,240 | 529 | 529 | 64 | 64 | -12 | — |
+| 378 | `src/overlays/o011/func_overlay_011_F0000150_1868998.c` | `func_overlay_011_F0000150_1868998` | `o011` | `size-mismatch` | 2,248 | 538 | 535 | 0 | 0 | -120 | — |
+| 379 | `src/main/track.c` | `func_8000E920` | `main` | `size-mismatch` | 2,168 | 536 | 536 | 56 | 56 | 48 | — |
+| 380 | `src/main/track.c` | `func_8001291C` | `main` | `size-mismatch` | 2,192 | 545 | 545 | 0 | 0 | -124 | — |
+| 381 | `src/overlays/o047/func_overlay_047_F0000000_1890E18.c` | `func_overlay_047_F0000000_1890E18` | `o047` | `size-mismatch` | 2,512 | 553 | 548 | 104 | 200 | 16 | — |
+| 382 | `src/main/shadows.c` | `func_80016890` | `main` | `size-mismatch` | 2,224 | 556 | 556 | 0 | 0 | -188 | — |
+| 383 | `src/overlays/o090/overlay_090.c` | `func_overlay_090_F00000FC_18D4BF4` | `o090` | `size-mismatch` | 2,592 | 575 | 575 | 0 | 0 | -36 | — |
+| 384 | `src/overlays/o012/func_overlay_012_F0000910_186DB90.c` | `func_overlay_012_F0000910_186DB90` | `o012` | `size-mismatch` | 2,444 | 582 | 582 | 0 | 0 | -20 | — |
+| 385 | `src/overlays/o057/func_overlay_057_F0001020_18A4C18.c` | `func_overlay_057_F0001020_18A4C18` | `o057` | `size-mismatch` | 2,392 | 585 | 585 | 0 | 0 | -32 | — |
+| 386 | `src/overlays/o045/func_overlay_045_F0001158_188D5B0.c` | `func_overlay_045_F0001158_188D5B0` | `o045` | `size-mismatch` | 2,696 | 593 | 593 | 0 | 0 | 28 | — |
+| 387 | `src/overlays/o101/overlay101TailAB4C.c` | `func_overlay_101_F000AB4C_18E636C` | `o101` | `size-mismatch` | 2,552 | 636 | 636 | 4 | 4 | 108 | — |
+| 388 | `src/main/track.c` | `func_80010B4C` | `main` | `size-mismatch` | 2,712 | 677 | 677 | 4 | 4 | -136 | — |
+| 389 | `src/overlays/o065/overlay65UpdateParticles.c` | `overlay65UpdateParticles` | `o065` | `size-mismatch` | 2,880 | 696 | 689 | 12 | 12 | -40 | — |
+| 390 | `src/main/vehicle_sounds.c` | `func_8005830C` | `main` | `size-mismatch` | 3,048 | 700 | 699 | 0 | 0 | -16 | — |
+| 391 | `src/overlays/o053/func_overlay_053_F0000240_189DBE8.c` | `func_overlay_053_F0000240_189DBE8` | `o053` | `size-mismatch` | 2,544 | 710 | 709 | 0 | 0 | 308 | — |
+| 392 | `src/overlays/o058/func_overlay_058_F00005FC_18AF7E4.c` | `func_overlay_058_F00005FC_18AF7E4` | `o058` | `size-mismatch` | 3,316 | 731 | 724 | 0 | 0 | -12 | — |
+| 393 | `src/overlays/o065/func_overlay_065_F0000C38_18C4EA0.c` | `func_overlay_065_F0000C38_18C4EA0` | `o065` | `size-mismatch` | 3,548 | 824 | 824 | 0 | 0 | -88 | — |
+| 394 | `src/overlays/o079/func_overlay_079_F0000134_18CD0D4.c` | `func_overlay_079_F0000134_18CD0D4` | `o079` | `size-mismatch` | 3,528 | 848 | 848 | 4 | 4 | -48 | — |
+| 395 | `src/overlays/o101/func_overlay_101_F00069E8_18E2208.c` | `func_overlay_101_F00069E8_18E2208` | `o101` | `size-mismatch` | 3,852 | 850 | 849 | 44 | 44 | 16 | — |
+| 396 | `src/overlays/o008/overlay_008.c` | `func_overlay_008_F00034A0_18611F8` | `o008` | `size-mismatch` | 3,592 | 991 | 991 | 0 | 0 | 448 | — |
+| 397 | `src/overlays/o101/func_overlay_101_F0003A58_18DF278.c` | `func_overlay_101_F0003A58_18DF278` | `o101` | `size-mismatch` | 5,844 | 1,396 | 1,396 | 52 | 52 | 8 | — |
+| 398 | `src/overlays/o001/overlay_001_tail.c` | `func_overlay_001_F000438C_185076C` | `o001` | `size-mismatch` | 6,168 | 1,510 | 1,508 | 0 | 0 | 232 | — |
+| 399 | `src/overlays/o050/func_overlay_050_F0000334_1896CA4.c` | `func_overlay_050_F0000334_1896CA4` | `o050` | `size-mismatch` | 6,300 | 1,544 | 1,544 | 0 | 0 | -12 | — |
+| 400 | `src/overlays/o047/func_overlay_047_F0000B30_1891948.c` | `func_overlay_047_F0000B30_1891948` | `o047` | `size-mismatch` | 8,672 | 2,701 | 2,701 | 0 | 0 | 2,176 | — |
+| 401 | `src/overlays/o058/func_overlay_058_F000138C_18B0574.c` | `func_overlay_058_F000138C_18B0574` | `o058` | `size-mismatch` | 14,456 | 3,547 | 3,544 | 0 | 0 | -472 | — |
 
 ### Unresolved identities
 
