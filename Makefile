@@ -27,6 +27,7 @@
 #   gmake check-scoreboard  fail if that block has gone stale
 #   gmake system-health     read-only campaign load/memory/process summary
 #   gmake check-tooling     focused safety/provenance/tooling regressions
+#   gmake promotion-proof SYMBOL=name  strict post-promotion exactness receipt
 #   gmake release-gate      serial, niced release checks with compact output
 #   gmake public-release    dry-run reconciliation/preflight; never pushes
 #   gmake clean      remove build/
@@ -315,6 +316,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_proof_provenance.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_history.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_preflight.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_promotion_proof.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_allocator_trace_receipt.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_lane_status.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_ready_queue.py
@@ -326,6 +328,10 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_release_gate.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_lane_cache.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_public_release.py
+
+promotion-proof:
+	@test -n "$(SYMBOL)" || { echo "usage: gmake promotion-proof SYMBOL=name [PROMOTION_PROOF_ARGS='--canonical']"; exit 2; }
+	$(HOST_PYTHON) $(TOOLS_DIR)/promotion_proof.py "$(SYMBOL)" $(PROMOTION_PROOF_ARGS)
 
 release-gate:
 	$(HOST_PYTHON) $(TOOLS_DIR)/release_gate.py $(RELEASE_GATE_ARGS)
@@ -1095,7 +1101,7 @@ $(TARGET).z64: $(TARGET).bin $(CRC)
 	fi
 	@ls -l $@
 
-.PHONY: default all setup hooks extract prune-asm verify cleanroom system-health check-tooling release-gate public-release audit-decoders overlay-tables overlay-atlas overlay-atlas-write overlay-syms check-overlay-syms overlay-donors overlay-donors-write overlay-donors-scan-check check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
+.PHONY: default all setup hooks extract prune-asm verify cleanroom system-health check-tooling promotion-proof release-gate public-release audit-decoders overlay-tables overlay-atlas overlay-atlas-write overlay-syms check-overlay-syms overlay-donors overlay-donors-write overlay-donors-scan-check check-fixtures check-docs reference-builds check-reference-builds progress scoreboard check-scoreboard clean distclean
 .SECONDARY:
 SHELL = /bin/bash -e -o pipefail
 

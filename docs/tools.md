@@ -235,6 +235,30 @@ This can reconfirm exactness but does not provide the relocation diagnostics of
 the pre-promotion assembly comparison. JSON reports expose the distinction as
 `resolution_mode` and `workbench.comparison_mode`.
 
+After promotion, reduce that detailed report to one strict proof receipt with:
+
+```sh
+tools/promotion_proof.py overlay41SpawnItems
+gmake promotion-proof SYMBOL=overlay41SpawnItems
+```
+
+`promotion_proof.py` runs and consumes the existing preflight JSON; it does not
+reimplement symbol, ROM, or relocation analysis. It passes only when the
+requested function resolves through `post_promotion`, uses the linked-ROM
+oracle, has identical nonempty word counts with zero differing words, has an
+identical frame (including the valid no-frame leaf case), and has exact
+relocation counts, offsets/types, and effective runtime identities. The output
+is a compact receipt containing only those proof totals and modes. Use
+`--no-build` to require already-fresh preflight artifacts.
+
+For a canonical integration proof, append `--canonical` (or set
+`PROMOTION_PROOF_ARGS=--canonical` on the Make target). After the function
+receipt passes, this runs `gmake verify` and `gmake check-overlay-syms` as two
+explicit, sequential `nice -n 10`, `-j2` commands. This proves the full ROM and
+the tracked overlay relocation surface without writing shared generated
+artifacts. `--json` keeps the final receipt machine-readable and sends the
+canonical commands' progress to standard error.
+
 `tools/wb_compare.sh` uses the same resolver, so manual
 `WB_CANDIDATE_SYMBOL`/`WB_CANDIDATE_BUILD_DIR` settings are no longer needed
 for normal guarded functions:
