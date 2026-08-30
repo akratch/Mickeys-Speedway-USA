@@ -8,23 +8,21 @@ typedef struct Overlay31PoolRecord {
 } Overlay31PoolRecord;
 
 extern void *overlay31AllocateReloc(s32 size, s32 tag);
-extern void *overlay31CreateSlotTable(s32 kind, s32 flags, s32 width,
-                                      s32 height, s32 slotCount);
-extern void *gOverlay31SlotTable;
+extern void *overlay31CreateConfig(s32 kind, void *source, s32 width, s32 height,
+                                   s32 slotCount);
+extern void *D_10;
 
 /* DKR v77/v80 and JFG contain no exact donor for this pool allocator. */
 /*
- * Plateau (2026-08-25, independently rechecked in the overlay 31/38/46 lane):
- * the best 50-word candidate has exact size, control flow, and linked
- * relocation surface at 98.42% objdiff. The first mismatch is +0x0: the target
- * frame is 0x38 bytes versus 0x30, followed by one pointer/counter register
- * family (a1/a2 versus a0/a1). The 119-point flag lattice was neutral. The
- * nearest permitted skeleton is JFG's overlay 26 function at +0xF1C (0.727),
- * but it is itself GLOBAL_ASM and supplies no C donor. Named size temporaries,
- * register qualifiers, and local-lifetime changes were codegen-inert; an extra
- * formal argument worsened the result to +4 bytes/47 differing words and
- * contradicts the caller ABI. The remaining code-free dead-web lever would be
- * a fabricated register-control construct, so it was rejected.
+ * Plateau remeasured 2026-08-30: the candidate and target are both 50 words,
+ * with 14 raw and 13 relocation-masked differences. The first mismatch is the
+ * 0x38-byte target frame versus 0x30; the remaining executable differences are
+ * one pointer/counter register family. All four relocation offsets and types
+ * align, but the absolute D_10 pair lacks a complete static-to-runtime identity
+ * proof. The 119-point flag lattice was neutral. The nearest permitted
+ * skeleton remains JFG overlay 26 +0xF1C (0.727), itself GLOBAL_ASM. Natural
+ * size-local, prototype, declaration-order, cast, assignment, and indexed-loop
+ * spellings did not close the allocator gap; fabricated dead webs were rejected.
  */
 #ifdef NON_MATCHING
 Overlay31PoolRecord *overlay31CreatePool(s32 count) {
@@ -34,7 +32,8 @@ Overlay31PoolRecord *overlay31CreatePool(s32 count) {
     s32 i;
     s32 j;
 
-    records = overlay31AllocateReloc(count * sizeof(Overlay31PoolRecord), 0x8C);
+    records = (Overlay31PoolRecord *)overlay31AllocateReloc(
+        count * sizeof(Overlay31PoolRecord), 0x8C);
     record = records;
 
     i = 0;
@@ -61,9 +60,19 @@ Overlay31PoolRecord *overlay31CreatePool(s32 count) {
         } while (i != count);
     }
 
-    gOverlay31SlotTable = overlay31CreateSlotTable(0, 0, 0, 0, count * 15);
+    D_10 = overlay31CreateConfig(0, 0, 0, 0, count * 15);
     return records;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o031/overlay31CreatePool/func_overlay_031_F0000E7C_188039C.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay31CreatePool:start
+ * symbol: overlay31CreatePool
+ * score: 37/50 words
+ * frame: 0x30
+ * relocations: 4
+ * first-mismatch: +0x0
+ * summary: 13 masked differences; target frame 0x38 and one allocator web remain; D_10 identity pair unresolved
+ * PLATEAU-HANDOFF:overlay31CreatePool:end
+ */
