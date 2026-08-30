@@ -292,8 +292,8 @@ void texscrollControl(TexscrollState *state, s32 updateRate) {
 }
 #ifdef NON_MATCHING
 /* Workbench verdict: structure-mismatch, 131 differing words, first mismatch +0x0. */
-/* Candidate: 171/175 instructions with a -0xD0 frame versus target -0xE0; four instruction and stack-home residuals remain. */
-/* Shape status: signed plane tests, intersection arithmetic, and action dispatch are preserved, but the candidate is not shape-exact. */
+/* Candidate: 171/175 instructions, a 0xD0 frame versus target 0xE0, and 3/9 exact relocation identities. */
+/* Shape status: signed plane tests, intersection arithmetic, and action dispatch are preserved; FP lifetimes and stack homes remain non-exact. */
 /* PROVENANCE: JFG's public character-plane control role supplies the idiom; Mickey's fields, globals, and action calls are authoritative below. */
 void func_8001B798(SpranimB798Object *arg0, s32 arg1) {
     SpranimPlane *plane;
@@ -415,4 +415,14 @@ void func_8001BB10(SpranimBB10Object *arg0, void *arg1) {
  * first-mismatch: +0x48
  * summary: Exact frame and relocation identities; trigger stack homes and the hit-loop integer register web remain.
  * PLATEAU-HANDOFF:effectboxControl:end
+ */
+
+/* PLATEAU-HANDOFF:func_8001B798:start
+ * symbol: func_8001B798
+ * score: 44/175 words
+ * frame: 0xD0
+ * relocations: 9
+ * first-mismatch: +0x0
+ * summary: Configured O2/MIPS-II is best; target frame is 0xE0, only 3/9 relocation identities align, and the FP lifetime/stack-home web remains.
+ * PLATEAU-HANDOFF:func_8001B798:end
  */
