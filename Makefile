@@ -509,6 +509,7 @@ check-docs:
 	$(HOST_PYTHON) $(TOOLS_DIR)/overlay_donor_scan.py --check
 	$(HOST_PYTHON) $(TOOLS_DIR)/postprocess_audit.py --check-redefines
 	$(HOST_PYTHON) $(TOOLS_DIR)/nm_ranking.py --check-doc
+	$(HOST_PYTHON) $(TOOLS_DIR)/plateau_handoff_audit.py --check
 
 # Keep the shared linked-ELF prerequisite quiet for progress consumers while
 # retaining complete compiler/linker diagnostics on disk.

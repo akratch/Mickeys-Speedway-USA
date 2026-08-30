@@ -720,7 +720,7 @@ s32 levelInitRegionFlags(void) {
  * symbol: levelFreeAll
  * score: 114/117 words
  * frame: 0x28
- * relocations: 36/36
+ * relocations: 36
  * first-mismatch: +0x13C
  * summary: Fidelity-clean IDO 5.3 UGEN tracing improved the pointer-add block to three register-only words. Next lever: a natural mask -> pointer -> scale allocation order; flags and blind permutation are exhausted.
  * PLATEAU-HANDOFF:levelFreeAll:end

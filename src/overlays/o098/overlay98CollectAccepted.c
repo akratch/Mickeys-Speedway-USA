@@ -64,7 +64,6 @@ void overlay98CollectAccepted(s32 count, O98Object **objects) {
  * frame: 0x58 (target 0x50)
  * relocations: 6
  * first-mismatch: +0x0
- * summary: All 119 flags exhausted; exact extent and relocation shape, but
- * the public equality required prohibited frame and ten-instruction rewrites.
+ * summary: All 119 flags exhausted; exact extent and relocation shape, but the public equality required prohibited frame and ten-instruction rewrites.
  * PLATEAU-HANDOFF:overlay98CollectAccepted:end
  */

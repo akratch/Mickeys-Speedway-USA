@@ -16,7 +16,8 @@ Prefer ingesting the machine-readable evidence preflight so scalar metrics are
 not transposed by hand:
 
 ```sh
-tools/function_preflight.py func_80001234 --json > build/func_80001234.preflight.json
+tools/function_preflight.py func_80001234 --analysis-only --json \
+  > build/func_80001234.preflight.json
 tools/experiment_ledger.py append func_80001234 \
   --preflight-json build/func_80001234.preflight.json \
   --hypothesis "Narrow local lifetime around the conditional" \

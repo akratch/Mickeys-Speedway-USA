@@ -78,14 +78,14 @@ extern void func_overlay_066_F0000000(void *arg0);
  * assembly only; do not revive dead frame arrays or repeat this bounded sweep.
  */
 #ifdef NON_MATCHING
-/* PLATEAU-HANDOFF
+/* PLATEAU-HANDOFF:overlay11UpdateMenu:start
  * symbol: overlay11UpdateMenu
  * score: 282/301 relocation-masked positional words
  * frame: 0x48
  * relocations: 102
- * first mismatch: +0x1C
- * summary: exact extent/frame and call surface; nonexact code plus ambiguous
- *          object-scoped BSS identities require the retained ASM fallback
+ * first-mismatch: +0x1C
+ * summary: exact extent/frame and call surface; nonexact code plus ambiguous object-scoped BSS identities require the retained ASM fallback
+ * PLATEAU-HANDOFF:overlay11UpdateMenu:end
  */
 void overlay11UpdateMenu(s32 updateRate) {
     O11Status *status;

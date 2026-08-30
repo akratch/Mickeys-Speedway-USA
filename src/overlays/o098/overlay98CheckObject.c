@@ -88,7 +88,6 @@ s32 overlay98CheckObject(O98Object *object, u8 *context, f32 *result) {
  * frame: 0x80 (target 0xA8)
  * relocations: 6
  * first-mismatch: +0x0
- * summary: -Wab,-r4300_mul is the best of 119 flags and restores exact extent
- * and relocation shape; 33 operand/register words and the frame remain wrong.
+ * summary: -Wab,-r4300_mul is the best of 119 flags and restores exact extent and relocation shape; 33 operand/register words and the frame remain wrong.
  * PLATEAU-HANDOFF:overlay98CheckObject:end
  */
