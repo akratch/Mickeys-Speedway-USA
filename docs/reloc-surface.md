@@ -474,6 +474,18 @@ from `overlay59Advance+0xAC/+0x224/+0x2A8/+0x300` (module
 `0x18B87C0..0x18B88B8`, with no target padding; the next function starts at
 `+0x168`, while `+0xA1C..+0xA20` is separate overlay padding.
 
+Overlay 59's advancer at `+0x36C..+0x784` has 15 shipped runtime records and
+the configured candidate emits 15. Thirteen candidate offsets/types coincide
+with runtime and twelve of those retain the required identity: the entry-base
+high half, retained switch-table pair, four calls to the entry preparer, the
+table-info pair, the release call, and the entries-end pair. The prologue
+schedule displaces the factor pair from target `+0x30/+0x54` to candidate
+`+0x08/+0x0C`; candidate `+0x54` then carries the entry-base low identity
+instead of the target factor identity, while target entry-base low `+0x50` has
+no candidate record. This is relocation evidence for the scheduling plateau,
+not a promotable surface. ORT 1435 and two resident calls authenticate the
+owner and ABI; linked equality remains assembly-fallback-only.
+
 
 #### What it measured
 

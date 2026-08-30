@@ -1359,13 +1359,23 @@ Natural source otherwise supplied the exact `0x90` frame, ABI, seven-call
 layout, CFG, memory/stack effects, and FP topology.
 
 Overlay 59's `+0x36C..+0x784` six-state advancer — 1,048 bytes / 262 words.
-NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a
-prologue permutation plus asserted retained-data addends selecting the
-retail schedule, discarding a duplicate compiler jump table and
-relocations); source kept as decomp-permuter input. Natural source otherwise
-supplied the exact `0x58` frame, CFG, loops, branch-likely forms, every
-integer/FP register web, and all calls and memory effects. This had made all
-overlay 59 text exact C, credited as closure ten.
+NON_MATCHING: bounded configured C is exact-sized at 240/262 raw and 243/262
+relocation-aware positional words, first `+0x4`, with the exact `0x58` frame,
+CFG, loops, branch-likely forms, and identical integer, FP-pool, and temporary
+register lanes. All 119 compiler configurations are nonexact; canonical
+`-O2 -mips2` ties for best. A trace-off-identical IDO 5.3 `as1 -R` capture
+shows the remaining executable gap is one prologue ready-chain choice: stock
+schedules the factor save/load chain first, while retail schedules the
+constant-register chain first. Ten source-faithful assignment-order, explicit
+constant, copy-carrier, scope, declaration, and physical-line forms were flat
+or worse. The target and C each carry 15 relocations; 13 offsets/types and 12
+identities align, with the factor pair displaced by the prologue schedule. The
+retained switch table at `+0x76C` is already owned and rebound. ORT 1435 and
+resident calls from `func_80038E1C+0x2C4/+0x320` authenticate the one-word
+`steps` ABI and exact owner; `+0x784` starts the next function with no padding.
+The owner is ROM `0x18B8ABC..0x18B8ED4`. No credible permitted donor was found
+(best skeleton similarity 0.0433). Exact linked function, overlay, and ROM
+evidence remains fallback-only and contributes **0 exact C bytes**.
 
 Overlay 68's `+0x51C..+0x650` secondary-entry promoter adds **308 exact C
 bytes / 77 words**. A bounded decomp-permuter pass escaped the former private

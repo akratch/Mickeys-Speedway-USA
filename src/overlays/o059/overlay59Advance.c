@@ -30,12 +30,19 @@ extern s32 overlay59PrepareEntry(Overlay59Entry *entry, s32 tableIndex,
                                  s32 itemIndex);
 extern void overlay59Release(Overlay59Entry *entry);
 
-/* Workbench: structure-mismatch, 19 positional words remain, first +0x4;
- * the target and candidate both use the -0x58 frame and identical register
- * webs. Ownership: the candidate switch table is rebound to retained +0x76C; the prologue schedule remains NON_MATCHING. */
-/* Ownership trial (2026-08-28): fixed the TU's +0x76C..+0x78C .rodata range;
- * linked promotion is text-differs with 262 in-range words, first at +0x0.
- * Module growth is cleared; the remaining gap is prologue/codegen allocation. */
+/* Bounded reproof (2026-08-30): configured C is exact-sized at 240/262 raw
+ * and 243/262 relocation-aware positional words, first +0x4, with the exact
+ * 0x58 frame and identical integer, FP-pool, and temporary register lanes.
+ * All 119 flag configurations are nonexact; canonical -O2/-mips2 ties for
+ * best. A fidelity-clean as1 -R trace proves the remaining prologue choice:
+ * stock schedules the factor save/load chain before the constant-register
+ * chain, while retail selects the opposite ready chain. Ten source-faithful
+ * assignment, declaration, carrier, scope, and physical-line forms found no
+ * gain. The target and C each have 15 relocations; 13 offsets/types and 12
+ * identities align, with the factor pair displaced by the prologue schedule.
+ * The retained +0x76C table is already owned and rebound. The +0x36C..+0x784
+ * owner has no padding, is ORT 1435, and has two resident calls. No credible
+ * donor applies (best permitted skeleton similarity 0.0433). */
 #ifdef NON_MATCHING
 void overlay59Advance(s32 steps) {
     Overlay59Entry *entry;
@@ -205,3 +212,13 @@ void overlay59Advance(s32 steps) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o059/overlay59Advance/func_overlay_059_F000036C_18B8ABC.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay59Advance:start
+ * symbol: overlay59Advance
+ * score: 243/262 words
+ * frame: 0x58
+ * relocations: 15
+ * first-mismatch: +0x4
+ * summary: Exact register lanes; fidelity-clean as1 trace shows factor chain wins over retail constant chain. Ten source-faithful forms were nonimproving.
+ * PLATEAU-HANDOFF:overlay59Advance:end
+ */
