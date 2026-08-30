@@ -270,3 +270,14 @@ routing facts from that sweep; the sweep's `summary.json` is the measurement.
 - first mismatch: +0x4
 - summary: 119 flags and ten coherent forms exhausted; next lever is a source-faithful lifetime form retaining both preheader copies and the temporary-register lane.
 <!-- plateau-handoff:overlay1FindPreviousUsable:end -->
+
+<!-- plateau-handoff:func_overlay_073_F0000D70_18CB830:start -->
+### `func_overlay_073_F0000D70_18CB830` plateau handoff
+
+- source: `src/overlays/o073/overlay73Draw.c`
+- score: 47 differing words
+- frame: 0x30
+- relocations: 5
+- first mismatch: +0x1C
+- summary: 119 flags exhausted; next lever is a source-authentic packet/local-layout form that changes the stack-home and register-allocation web.
+<!-- plateau-handoff:func_overlay_073_F0000D70_18CB830:end -->
