@@ -52,9 +52,9 @@ extern f32 overlay70Cos(s32 angle);
 extern void overlay70Apply(void *target, s32 *flags, s32 mode,
                            f32 *coordinates, s32 ticks);
 
-/* Plateau (near-miss p6): workbench allocation-mismatch, 15 register-only words at 171 instructions/frame -0x48; first +0xC4.
- * Levers: target-local call/table relocation normalization and an intermediate-value read; only the former reduced residuals.
- * Remains: pool/temp class crossing with four ring-only target substitutions; assembly fallback stays canonical. */
+/* Plateau (fresh remeasurement): workbench allocation-mismatch, 6 register-only words at 171 instructions/frame -0x48; first +0xC4.
+ * Levers: commuted angle addition reduced 15 words to 6; the height-table base index fixed the remaining raw addend difference.
+ * Remains: one angle input/result pool web shifts three limit temporaries; flags and bounded permutation are exhausted. */
 #ifdef NON_MATCHING
 void func_overlay_070_F00000D8_18C92A0(O70Object *object, s32 ticks) {
     O70State *state;
@@ -87,7 +87,7 @@ void func_overlay_070_F00000D8_18C92A0(O70Object *object, s32 ticks) {
                 state->countdown = 0;
             }
         } else {
-            angle = state->angle + (state->angleStep * ticks);
+            angle = (state->angleStep * ticks) + state->angle;
             if (angle >= 0x8000) {
                 state->angle = 0x7FFF;
                 state->angleStep = overlay70RandomRange(-0x200, -0x100);
@@ -107,7 +107,7 @@ void func_overlay_070_F00000D8_18C92A0(O70Object *object, s32 ticks) {
         pairX = (f32)pair->x;
         pairZ = (f32)pair->z;
         object->x = (related->x + (pairX * sine)) - (pairZ * cosine);
-        object->y = (f32)gOverlay70HeightTableReloc[state->type] +
+        object->y = (f32)gOverlay70HeightTableReloc[state->type + 12] +
                     (related->y + 20.0f) + relatedState->verticalOffset;
         object->z = related->z + (pairZ * sine) + (pairX * cosine);
         object->facing = related->facing;
@@ -128,3 +128,13 @@ void func_overlay_070_F00000D8_18C92A0(O70Object *object, s32 ticks) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o070/func_overlay_070_F00000D8_18C92A0/func_overlay_070_F00000D8_18C92A0.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_070_F00000D8_18C92A0:start
+ * symbol: func_overlay_070_F00000D8_18C92A0
+ * score: 165/171 words
+ * frame: 0x48
+ * relocations: 12
+ * first-mismatch: +0xC4
+ * summary: Six register-only words remain from one angle input/result allocator web; 119 flags and a 20-minute batch are exhausted.
+ * PLATEAU-HANDOFF:func_overlay_070_F00000D8_18C92A0:end
+ */
