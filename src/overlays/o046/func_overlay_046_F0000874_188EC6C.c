@@ -306,3 +306,13 @@ s32 func_overlay_046_F0000874_188EC6C(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o046/func_overlay_046_F0000874_188EC6C/func_overlay_046_F0000874_188EC6C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_046_F0000874_188EC6C:start
+ * symbol: func_overlay_046_F0000874_188EC6C
+ * score: 87/450 words
+ * frame: 0xE0
+ * relocations: 96
+ * first-mismatch: +0x0
+ * summary: Target 1,800 bytes; candidate is 12 bytes long with a 32-byte frame excess. Constant, lifetime, flag, and register-order families are exhausted.
+ * PLATEAU-HANDOFF:func_overlay_046_F0000874_188EC6C:end
+ */
