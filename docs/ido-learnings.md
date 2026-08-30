@@ -58,9 +58,12 @@ bytes and disassembly never belong here.
   retained overlay-local pool. Externalize the duplicate section only behind
   an exact payload digest, and require the complete runtime relocation surface
   plus linked ROM bytes to agree. This applies only when the source object's
-  words are already exact; moving an addend into a LO16 field after compilation
-  remains prohibited. Evidence: Overlay 8's exact channel updater in
-  `docs/overlays.md`.
+  words are already exact after ordinary relocation; moving an addend into a
+  LO16 field after compilation remains prohibited. Compiler-private jump-table
+  relocations may use the same contract when the duplicate table's relocation
+  section is removed as metadata and the retained payload is independently
+  authenticated. Evidence: Overlay 8's exact channel updater and Overlay 41's
+  exact item spawner in `docs/overlays.md`.
 
 ### Allocation and source shape
 

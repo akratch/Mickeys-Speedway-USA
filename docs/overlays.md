@@ -659,6 +659,16 @@ with only trailing section-alignment trimming. Pinned DKR v77/v80 and JFG scans
 remain negative; JFG's `animseqUpdateTextureScrollers` is a role-only
 comparison, not a donor.
 
+Overlay 41's `+0x1740..+0x195C` item spawner is exact C: 540 bytes / 135
+words with the retail `0xA0` frame. Four compiler-private relocations are
+rebound, without changing instruction fields, to the retained jump-table and
+scalar pool beginning at initialized-data `+0x58`; the discarded 32-byte
+duplicate is guarded by SHA-256. All 11 runtime relocation offsets/types are
+exact. Ten identities are explicit in object/link metadata, while the shipped
+runtime record plus exact linked bytes prove the final call as Overlay 12
+`+0x1B4`. The owned range, linked module, and full US ROM are exact. This
+replaces the retired wrapper that edited two LO16 fields after compilation.
+
 Two old compiler blockers were closed rather than merely bypassed. Overlay 97
 `+0x000` required preserving explicit unsigned-byte angle masks plus
 `-Wab,-r4300_mul`; `+0x3F4` required the original three-argument ABI shape,

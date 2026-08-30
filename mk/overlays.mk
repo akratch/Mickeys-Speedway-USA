@@ -585,10 +585,21 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41ProcessEntry.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1EC
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41AddSlot.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDC
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41SpawnItems.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_041_F0001740_1888A78=overlay41SpawnItems $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x21C
+O41_SPAWN_OBJ := $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41SpawnItems.c.o
+$(O41_SPAWN_OBJ): config/normalizations/overlay41SpawnItems.rebind.spec
+$(O41_SPAWN_OBJ): POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym mathRnd=overlay41RandomRangeReloc \
+		--redefine-sym mathOneFloatPY=overlay41ConvertPairReloc \
+		--redefine-sym func_overlay_012_F00001B4_186D434=overlay41SpawnEffectReloc \
+		--redefine-sym func_overlay_041_F0001740_1888A78=overlay41SpawnItems $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x21C && \
+	$(OBJCOPY) --add-symbol gOverlay41SpawnConstants=0x58,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		@config/normalizations/overlay41SpawnItems.rebind.spec && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
+		sha256:d7c6fadb83cccf1b66eb029d9abf6c67653a548a0a77831c47f6e70cd1af6ad4 && \
+	$(OBJCOPY) --remove-section .rel.rodata $@
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41EnqueueTransition.c.o: CFLAGS += -woff 835
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o041/overlay41EnqueueTransition.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1A4

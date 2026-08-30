@@ -904,6 +904,14 @@ there is no target padding. ORT 1452 and resident relocation 314 authenticate
 sole inbound `func_80051364+0x2D4`; there is no local or cross-overlay caller.
 Production trims only standalone section alignment.
 
+Overlay 41 `+0x1740` (`overlay41SpawnItems`) owns 11 runtime records. Its
+configured 135-word C has the exact `0xA0` frame and relocation shape. A
+metadata-only retained-pool contract resolves the two formerly differing
+LO16 results through four unchanged relocations, an ABS initialized-data base
+at `+0x58`, and a digest-checked discarded duplicate. The final cross-module
+call is authenticated by the shipped record as Overlay 12 `+0x1B4` and by the
+exact linked range. The complete module and US ROM are byte-identical.
+
 Overlay 41 `+0x1650` (`func_overlay_041_F0001650_1888988`) owns four runtime
 records: SYMBOL HI16/LO16 at `+0x08/+0x0C` resolving to resident
 `D_800D6C58` (`gOverlay41Slots`), and LOCAL HI16/LO16 at `+0x98/+0xA0`

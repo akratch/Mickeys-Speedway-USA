@@ -950,6 +950,13 @@ D_8000003B = 0x0000003b;
 /* overlay 41: overlay41IsUnitScale.c.o */
 gOverlay41Objects = 0x00000000;
 
+/* overlay 41: overlay41SpawnItems.c.o */
+gOverlay41RootsReloc = 0x00000000;
+gOverlay41SpawnConstants = 0x00000058;
+overlay41ConvertPairReloc = 0xf0000000;
+overlay41RandomRangeReloc = 0xf0000000;
+overlay41SpawnEffectReloc = 0xf0000000;
+
 /* overlay 41: overlay41TickTransitions.c.o */
 gOverlay41Transitions = 0x00000000;
 
