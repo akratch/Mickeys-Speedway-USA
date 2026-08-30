@@ -292,3 +292,14 @@ routing facts from that sweep; the sweep's `summary.json` is the measurement.
 - first mismatch: +0x0
 - summary: The a1/a2 allocator web and X/Y table-address LO16 schedule remain; resume only with new source-authentic web-formation evidence.
 <!-- plateau-handoff:overlay27UpdateCoordinates:end -->
+
+<!-- plateau-handoff:func_8004ADE8:start -->
+### `func_8004ADE8` plateau handoff
+
+- source: `src/main/fx.c`
+- score: 87/96 words
+- frame: 0x40
+- relocations: 15
+- first mismatch: +0x60
+- summary: all 119 flags and bounded source forms are nonexact; nine stack-home displacements remain while opcode/register lanes agree
+<!-- plateau-handoff:func_8004ADE8:end -->

@@ -2416,17 +2416,17 @@ s32 func_8004AD34(void) {
     }
     D_800D60A8 = 0;
 }
-/* Workbench verdict: structure-mismatch, 19 differing words, first mismatch +0x60. */
-/* Candidate shape: 96 instructions/frame -0x40; three store/branch structural words remain, not shape-exact. */
-/* Remaining gap: second-allocation store scheduling and stack homes; five register residuals remain. */
+/* Workbench verdict: operand-mismatch, 87/96 words, first mismatch +0x60. */
+/* Candidate shape: exact 96 instructions/frame -0x40 and 15 relocations. */
+/* Remaining gap: nine stack-home displacements; opcode and register lanes agree. */
 #ifdef NON_MATCHING
 extern void *func_8002B280(s32 size, s32 tag);
 
 void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
-    s32 offset;
-    s32 i;
     s8 *first;
+    s32 i;
     s8 *second;
+    s32 offset;
 
     index--;
     offset = index * 4;
@@ -2435,8 +2435,8 @@ void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
     if (D_800D60B0[index] == 0) {
         first = func_8002B280(texture->width * texture->height, 0x87);
         D_800D60B0[index] = first;
-        second = func_8002B280(texture->width * texture->height, 0x87);
-        D_800D60C0[index] = second;
+        D_800D60C0[index] = second = func_8002B280(
+            texture->width * texture->height, 0x87);
         if (D_800D60B0[index] == 0 || D_800D60C0[index] == 0) {
             D_800D60B0[index] = 0;
             D_800D60C0[index] = 0;
@@ -2450,8 +2450,9 @@ void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
             second++;
         }
         func_800320F0((s32)&D_8007D47C[index]);
-        if (D_8007D47C[index] != 0) {
-            D_8007D47C[index](index, D_800D6098[index], 1);
+        second = (s8 *)D_8007D47C[index];
+        if (second != 0) {
+            ((FxTextureCallback)second)(index, D_800D6098[index], 1);
         }
     }
 }
@@ -2516,4 +2517,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0xD0
  * summary: exact structure and relocation surface; all flags and six natural forms leave one four-web integer allocation bijection
  * PLATEAU-HANDOFF:func_800498FC:end
+ */
+
+/* PLATEAU-HANDOFF:func_8004ADE8:start
+ * symbol: func_8004ADE8
+ * score: 87/96 words
+ * frame: 0x40
+ * relocations: 15
+ * first-mismatch: +0x60
+ * summary: all 119 flags and bounded source forms are nonexact; nine stack-home displacements remain while opcode/register lanes agree
+ * PLATEAU-HANDOFF:func_8004ADE8:end
  */
