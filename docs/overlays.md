@@ -1975,3 +1975,16 @@ padding. The linked owner, complete 1,904-byte overlay, and full ROM are
 byte-identical. Pinned DKR v77/v80 and JFG donor rows for Overlay 25 remain
 empty, so this is Mickey-derived source and does not support a JFG function or
 module mapping.
+
+`overlay 1 +0x0DF4..+0x0F84` (`overlay1ResolveMotionPoint`) contributes **400
+exact C bytes / 100 words**. Assigning the measured distance through the
+eventual scale local before its positive-value test preserves IDO's original
+floating-point carrier web. The configured object has the exact `0x28` frame.
+All 11 runtime records agree by offset and type; five identities resolve
+directly from the ordinary object, and the unchanged runtime table plus the
+exact linked ROM range proves the remaining three LOCAL pairs. The calls bind
+to local `overlay1ActivateObject` (`+0x4B4`) and
+`overlay1InterpolatePath` (`+0xCA8`), resident `sqrtf`, and resident
+`func_8002A8C0`/`func_8002A8BC`. Overlay 92 calls the function at `+0x520`
+and `+0x958`. The owned range, complete overlay, and full ROM are
+byte-identical.

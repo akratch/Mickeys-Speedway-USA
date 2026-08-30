@@ -140,6 +140,14 @@ bytes and disassembly never belong here.
   pointer-plus-integer to match their evaluation order; reject the lever if any
   other word, relocation, or linked byte moves. Evidence: the exact Huffman
   table builder in `docs/resident.md`.
+- When a computed magnitude is immediately tested and then inverted, assigning
+  it through the eventual scale local before the test can preserve IDO's
+  floating-point carrier web. Testing one local and assigning the reciprocal to
+  another may split otherwise equivalent live ranges and recolor every
+  downstream operation. Use this only when both locals represent exactly the
+  same value at the test and no path observes the intermediate separately;
+  require exact code, relocation identities, linked bytes, and full ROM.
+  Evidence: Overlay 1's exact motion-point resolver in `docs/overlays.md`.
 
 ### Search fidelity and false floors
 

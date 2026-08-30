@@ -39,32 +39,32 @@ extern O1ControlTable *D_1D6C;
 extern u8 *overlay1NextPointer(u8 *pointer);
 extern f32 overlay1SplinePosReloc(f32 a, f32 b, f32 c, f32 d, f32 t);
 
-/* Retained plateau: exact 83-word size and 0x68 frame, with 16 raw sites from
- * +0x08 and 12 after runtime-relocation masking from +0x4C. Runtime records
- * identify the local +0x28 call as overlay1NextPointer and both resident calls
- * as splinePos; the source now uses those identities through the required
- * overlay proxy, but no identity-correct configured/linked reproof exists.
- * Reprove V0 and the missing flag lattice, then cap source work at the
- * D_1D6C anchor, integer lifetime, and call-crossing declaration order. */
+/* Retained plateau: exact 83-word size and 0x68 frame; 81/83 compiler words
+ * agree after relocation masking. The only codegen residual is the saved
+ * integral position at sp+0x38 instead of the target sp+0x40. Direct D_1D6C
+ * anchoring and declaration order recover the target register lanes and the
+ * other two call-crossing homes. All 119 flag rows and a bounded two-thread
+ * permuter search are nonexact; role, lifetime, scope, register, and scalar
+ * declaration-order forms leave this final stack home unchanged. */
 #ifdef NON_MATCHING
 void overlay1InterpolatePath(f32 *outX, f32 *outZ, s32 path, f32 offset) {
+    f32 position;
     O1ControlTable *table3Base;
-    O1ControlPoint *point0;
     O1ControlPoint *point1;
+    O1ControlPoint *point0;
     O1ControlPoint *point2;
     O1ControlPoint *point3;
-    f32 position;
+    s32 originalWhole;
     f32 fraction;
     s32 whole;
-    s32 originalWhole;
     s32 remaining;
 
     position = ((O1PathOffsetOwner *)D_1DA0)->pathOffset + offset;
     point0 = &D_1D60->points[path];
     point1 = &((O1ControlTable *)D_1D64)->points[path];
     point2 = &D_1D68->points[path];
+    point3 = &D_1D6C->points[path];
     table3Base = D_1D6C;
-    point3 = &table3Base->points[path];
     whole = (s32) position;
     originalWhole = whole;
     remaining = whole - 1;
@@ -98,22 +98,20 @@ typedef struct O1PathOwner { s16 angle; u8 pad02[0xA]; f32 x; f32 y; f32 z; } O1
 extern s32 D_0;
 extern f32 D_B4;
 extern f32 D_B8;
-extern s32 overlay1HasPathData(void);
+extern s32 overlay1ActivateObject(void *owner);
 extern void overlay1InterpolatePath(f32 *x, f32 *z, s32 path, f32 offset);
-extern f32 overlay1SinAngle(s16 angle);
-extern f32 overlay1CosAngle(s16 angle);
-extern f32 overlay1SquareRoot(f32 value);
-/* Workbench: structure-mismatch, 37 raw differing words, first mismatch +0x1C.
- * Exact 100-row frame/CFG and call structure; one z-scale scheduling hunk remains.
- * Structural gap: target schedules z scaling after the x store; other residuals are FP allocation/relocations. */
-#ifdef NON_MATCHING
+extern f32 func_8002A8BC(s32 angle);
+extern f32 func_8002A8C0(s32 angle);
+extern f32 sqrtf(f32 value);
+/* Assigning the measured distance through scale preserves the original FP
+ * carrier web; the configured build emits all 100 instruction words exactly. */
 void overlay1ResolveMotionPoint(O1PathOwner *owner, s32 path, f32 *outX,
                                 f32 *outY, f32 *outZ) {
     f32 dx;
     f32 dz;
     f32 distance;
     f32 scale;
-    if (overlay1HasPathData() == 0) {
+    if (overlay1ActivateObject(owner) == 0) {
         *outX = 0.0f;
         *outY = 0.0f;
         *outZ = 0.0f;
@@ -123,9 +121,10 @@ void overlay1ResolveMotionPoint(O1PathOwner *owner, s32 path, f32 *outX,
         overlay1InterpolatePath(outX, outZ, path, 1.0f);
         dx = *outX - owner->x;
         dz = *outZ - owner->z;
-        distance = overlay1SquareRoot((dx * dx) + (dz * dz));
-        if (distance > 0.0f) {
-            scale = 1.0f / distance;
+        distance = sqrtf((dx * dx) + (dz * dz));
+        scale = distance;
+        if (scale > 0.0f) {
+            scale = 1.0f / scale;
             dx *= scale;
             dz *= scale;
         }
@@ -133,23 +132,22 @@ void overlay1ResolveMotionPoint(O1PathOwner *owner, s32 path, f32 *outX,
         *outY = owner->y + D_B4;
         *outZ = owner->z + (dz * 150.0f);
     } else {
-        *outX = owner->x + (overlay1SinAngle(owner->angle) * 150.0f);
+        *outX = owner->x + (func_8002A8C0(owner->angle) * 150.0f);
         *outY = owner->y + D_B8;
-        *outZ = owner->z + (overlay1CosAngle(owner->angle) * 150.0f);
+        *outZ = owner->z + (func_8002A8BC(owner->angle) * 150.0f);
     }
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_head/func_overlay_001_F0000DF4_184D1D4.s")
-#endif
 
 /* ---- overlay1MeasureCurves ---- */
 
 extern f32 overlay1EvaluateCurve(f32, f32, s32, s32, f32);
 extern f32 overlay1SquareRoot(f32);
-/* Workbench: schedule-mismatch, 27 differing words, first mismatch +0x0C.
- * Exact 79-word frame/CFG and instruction multiset; calls and guards only reorder.
- * Shape-exact and permuter-ready; no structural gap remains. */
+/* Retained plateau: schedule-only at 52/79 positional words, first mismatch
+ * +0x0C, with the exact 79-word extent, 0x70 frame, CFG, and instruction
+ * multiset. All 119 flag rows are nonexact. A bounded two-thread permuter
+ * improves its private score only through an inert comma expression, which is
+ * rejected; traditional declaration/assignment separation is byte-flat.
+ * Resume only with a source-authentic statement-line or grouping model. */
 #ifdef NON_MATCHING
 f32 overlay1MeasureCurves(volatile f32 startX, volatile f32 startY,
                           volatile f32 endX, volatile f32 endY,
@@ -825,3 +823,23 @@ extern void overlay1ResetReloc(void);
 void overlay1CallReset(void) {
     overlay1ResetReloc();
 }
+
+/* PLATEAU-HANDOFF:overlay1InterpolatePath:start
+ * symbol: overlay1InterpolatePath
+ * score: 81/83 words
+ * frame: 0x68
+ * relocations: 13
+ * first-mismatch: +0x94
+ * summary: One saved integral position stack home remains at sp+0x38 instead of target sp+0x40 and needs new source authentic evidence
+ * PLATEAU-HANDOFF:overlay1InterpolatePath:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1MeasureCurves:start
+ * symbol: overlay1MeasureCurves
+ * score: 52/79 words
+ * frame: 0x70
+ * relocations: 5
+ * first-mismatch: +0x0C
+ * summary: Exact instruction multiset remains schedule only after all flags and a bounded search rejected an inert best mutation
+ * PLATEAU-HANDOFF:overlay1MeasureCurves:end
+ */
