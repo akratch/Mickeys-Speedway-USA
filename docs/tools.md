@@ -434,6 +434,93 @@ all changes unstaged for review. Commit only reviewed generated changes, then
 rerun the default clean dry run. Neither mode contains a publication command;
 the final success line always says `push=disabled`.
 
+### Reviewed manifests across rewritten histories
+
+The source and publication histories intentionally have different commit
+identities. A source maintainer can create a scalar release manifest without
+making the tool copy files or infer a relationship between those histories:
+
+```sh
+python3 tools/public_release.py \
+  --remote SOURCE_REMOTE --branch SOURCE_BRANCH \
+  --manifest-range LAST_RELEASED_SOURCE..HEAD
+```
+
+Manifest mode requires a clean checked-out source branch whose configured
+upstream, named remote-tracking ref, and `HEAD` are identical. The range must
+be exactly `BASE..TIP`, the base must be an ancestor, and the tip must be that
+current `HEAD`. Merge commits, empty commits, and unresolved or ambiguous
+endpoints are rejected. This makes every selected commit an integrated,
+ordered source commit instead of an unreviewed side-branch object.
+
+The deterministic output is
+`build/public-release/manifest.json`. It contains one public commit unit per
+source commit, retaining the commit's changed-path group and order. Each row
+records status, old and new path where applicable, regular-file modes, exact
+old/new Git blob identities, and one of these policy classifications:
+
+- `public-safe`: a regular add or modification in a known public project path;
+- `review-required`: an unknown path, deletion, rename/copy, or regular-file
+  mode change that needs an explicit reviewer decision;
+- `forbidden`: operating state or a ROM-derived, toolchain, scratch, or build
+  artifact. A forbidden row stops generation and is never approvable.
+
+The manifest also records the four canonical source/public gates on every
+unit, adding the tooling and overlay-symbol gates when their paths make those
+checks applicable. It records no file contents, diffs, disassembly, remote
+URLs, timestamps, credentials, or workstation paths. Commit and blob IDs,
+message digests, path/status metadata, gate names, and a SHA-256 seal are the
+only release evidence. Source ref names and remote destinations are represented
+only by SHA-256 identities. Re-running the command against unchanged refs
+produces byte-identical JSON.
+
+Generation also creates
+`build/public-release/manifest.approval.json` once, with every path decision
+set to `pending`. The tool preserves an existing approval file. A human reviews
+each commit unit, its classification, path transition, and blob identities,
+then changes only accepted path decisions to `approve` and chooses the plain
+one-line `public_subject`. Validate that reviewed file against freshly derived
+source evidence before recreating anything:
+
+```sh
+python3 tools/public_release.py \
+  --remote SOURCE_REMOTE --branch SOURCE_BRANCH \
+  --manifest-range LAST_RELEASED_SOURCE..HEAD \
+  --approval build/public-release/manifest.approval.json
+```
+
+Approval is exact, not a glob. Missing, extra, reordered, stale, or altered
+path/blob/mode rows fail, as do a stale manifest seal or changed source/remote tip.
+Publication filters run over each selected commit message and each changed
+text blob without echoing matched credentials. Absolute/noncanonical paths,
+operating-only paths, binary/build artifacts, symlinks, gitlinks, automated
+trailers, and unsafe messages stop the process before approval.
+
+After the operator separately recreates those units on the publication branch,
+place the two scalar JSON files in that checkout's ignored
+`build/public-release/` directory and run the structural export check:
+
+```sh
+python3 tools/public_release.py \
+  --remote public --branch master --validate-export \
+  --approval build/public-release/manifest.approval.json
+```
+
+This intentionally does not require shared ancestry. It pairs the outgoing
+publication commits with approved units in order and requires each commit's
+plain subject and exact status/path/old-blob/new-blob/regular-mode transition
+to agree.
+Different commit IDs are expected; different file blobs are not. Then run the
+ordinary read-only public-release preflight above to execute every recorded
+gate and scan the complete resulting publication trees.
+
+Manifest, approval, and export-validation modes never fetch, merge,
+cherry-pick, copy source files, stage, commit, or push. They do not decide
+whether a change is useful, prove a C match, replace clean-room review, or
+prove the destination gates passed. The approval records what a reviewer
+accepted; the export validator proves only that the manually recreated commit
+units have those exact regular-file transitions.
+
 ## Map: the rest of the toolbox
 
 The tools above (decomp-permuter, objdiff, mapfile_parser, check_tools.sh)
@@ -456,7 +543,7 @@ this file is a map, not a manual, for the rest.
 | `tools/lane_status.py` | Read committed `lane/*` refs without opening sibling worktrees; reports advisory match claims and gives `--symbol` a fail-closed assignment verdict from exact source identity, batched descendant target-guard comparisons, plateau handoffs, per-symbol shards, and legacy target-specific triage history. Complete queue scans reuse one source-identity and lane-path index (ADR 0011). | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Lane helpers` |
 | `tools/fix_stale_externs.py`, `tools/refresh_atlas_digest.py`, `tools/resolve_modules_split.py` | Post-merge/integration housekeeping: stale `func_<VRAM>` externs, a stale atlas digest, and the `docs/modules.md`/`docs/overlays.md` split conflict. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Integration housekeeping` and `## docs/modules.md / docs/overlays.md split` |
 | `tools/postprocess_audit.py` | Classifies every object's `POSTPROCESS` build step as `altered` (forbidden, ADR 0002) or `metadata` (permitted); the mechanical check behind the scoreboard's decompiled line. | [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) `## Auditing post-compile steps` |
-| `tools/public_release.py` | Regenerates/checks public-safe derived artifacts, reports exact release deltas, scans every outgoing tree/message, and composes all release gates. It never publishes. | this file, `## Deterministic public-release reconciliation` |
+| `tools/public_release.py` | Regenerates/checks public-safe derived artifacts, emits and validates reviewed exact-blob release manifests across rewritten histories, reports exact release deltas, scans every outgoing tree/message, and composes all release gates. It never publishes or copies source files. | this file, `## Deterministic public-release reconciliation` |
 | `tools/run_logged.py` | Runs one build command with complete output under `build/`, prints one compact PASS/FAIL receipt, and shows only a bounded tail on failure. Verification and progress/scoreboard targets use it for their noisy build prerequisites. | `gmake verify`, `gmake progress`, `gmake scoreboard` |
 | `tools/reloc_identity.py` | Gives preflight and relocation-surface proof one fail-closed parser and canonical identity model for linker aliases, objcopy rename chains, addends, and ambiguity. | [`docs/reloc-surface.md`](reloc-surface.md) |
 | `tools/experiment_ledger.py` | Appends compact, non-ROM-derived attempt metrics to an immutable local JSONL journal under ignored `build/`, then lists, ranks, or summarizes them without replacing canonical proof. | [`docs/experiment-ledger.md`](experiment-ledger.md) |
