@@ -139,11 +139,13 @@ generates their C, assembly, binary inputs, and placement in `mickey.us.ld`,
 then the Makefile's ordinary object rules feed the same single final link as
 the resident code. [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md#overlay-build-flow)
 traces that path and separates it from `src/main/runlink.c`, the console's
-runtime loader.
+runtime loader. Overlay-specific compiler and ELF-metadata settings live in
+[`mk/overlays.mk`](mk/overlays.mk); keeping that measured table out of the root
+Makefile makes the one-build/one-link graph visible without changing it.
 
 C compiles with `-O2 -mips1 -32` by default. Anything else is a per-file
-override in the Makefile's "Per-file compiler flags" block, justified in the
-source file's header comment. Measured per-file flags are in
+override in the root Makefile for resident code or `mk/overlays.mk` for overlay
+code, justified in the source file's header comment. Measured per-file flags are in
 [`docs/modules.md`](docs/modules.md) §6.1.
 
 ## Roadmap

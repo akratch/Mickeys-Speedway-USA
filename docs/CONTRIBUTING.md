@@ -244,9 +244,10 @@ and one final linker invocation:
    overlay block in `mickey.us.yaml`.
 2. Splat turns that block into ordinary inputs under `src/overlays/oNNN/`,
    `asm/overlays/oNNN/`, and `assets/overlays/oNNN/`, plus `mickey.us.ld`.
-3. The Makefile's normal C, assembly, and binary-wrapper rules produce objects.
-   The long overlay block in the Makefile contains only measured per-object
-   compiler flags and reviewed ELF normalization; it is not another linker.
+3. The root Makefile's normal C, assembly, and binary-wrapper rules produce
+   objects. `mk/overlays.mk` contains only measured per-overlay-object compiler
+   flags and reviewed ELF normalization; it is an included policy table, not
+   another build graph or linker.
 4. `build/mickey.us.elf` links all objects once through splat's script. That script
    places each module's text, data, and original relocation-table blobs back in
    its ROM range; `objcopy` and `n64crc` then produce the one ROM image.
@@ -257,6 +258,11 @@ code, while Mickey's own tables, atlas, generated linker script, and exact ROM
 comparison define this repository's build. The detailed runtime mechanism is
 documented in [`overlays.md`](overlays.md); the host-build source of truth is
 the generated overlay block in `mickey.us.yaml`.
+
+For build debugging, start in the 1,100-line root Makefile: source discovery,
+generic recipes, and the sole final link are all there. Consult
+`mk/overlays.mk` only when one overlay object needs a measured flag, trim, or
+symbol/relocation normalization.
 
 ### Overlay donor-first workflow
 

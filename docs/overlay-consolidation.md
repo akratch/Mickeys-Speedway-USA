@@ -37,7 +37,7 @@ All four overlays qualified: every POSTPROCESS row for them was
    function symbol lands at which address.
 
 2. **Check every function's own `POSTPROCESS`/`CFLAGS`/`OPT_FLAGS` line in
-   the Makefile.** This is the step that decides whether the overlay folds
+   `mk/overlays.mk`.** This is the step that decides whether the overlay folds
    into one TU or has to stay split:
    - If every function shares identical `CFLAGS`/`OPT_FLAGS` overrides (or
      none), the module folds into exactly one TU. `overlay_039` (both
