@@ -1733,3 +1733,13 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * summary: allocator-only record/base homes remain; relocation-aware score is 121/183 with 9/14 offsets/types and 2/14 identities aligned
  * PLATEAU-HANDOFF:func_overlay_008_F0002640_1860398:end
  */
+
+/* PLATEAU-HANDOFF:func_overlay_008_F0000894_185E5EC:start
+ * symbol: func_overlay_008_F0000894_185E5EC
+ * score: 333/381 words
+ * frame: 0x70
+ * relocations: 48
+ * first-mismatch: +0x6C
+ * summary: Exact geometry/frame and 48 relocation sites; flags and bounded permutation exhausted; first substantive allocator drift +0x428.
+ * PLATEAU-HANDOFF:func_overlay_008_F0000894_185E5EC:end
+ */
