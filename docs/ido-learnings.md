@@ -148,6 +148,16 @@ bytes and disassembly never belong here.
   same value at the test and no path observes the intermediate separately;
   require exact code, relocation identities, linked bytes, and full ROM.
   Evidence: Overlay 1's exact motion-point resolver in `docs/overlays.md`.
+- In a floating-point coefficient sum, a mathematically equivalent term order
+  can change IDO's expression tree and the temporary schedule of later
+  polynomial evaluation. When a residual is confined to that evaluation,
+  preserve the target's inferred association by moving the proved independent
+  leading term to the end of the source sum; also test operand order on a
+  commutative scalar multiply. This lever applies only when the arithmetic
+  domain and evaluation order are semantically interchangeable, and it must be
+  rejected unless the configured object, relocations, linked range, and full
+  ROM are exact. Evidence: Overlay 41's exact curve sampler in
+  `docs/overlays.md`.
 
 ### Search fidelity and false floors
 
