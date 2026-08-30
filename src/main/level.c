@@ -621,15 +621,13 @@ u8 *levelGetName(s32 arg0) {
     return D_8007A0D0;
 }
 
-/* Workbench: structure-mismatch; 19 words differ, first mismatch +0xE0. */
-/* Candidate is not shape-exact: 117/117 instructions, frame -40/-40 bytes. */
-/* PROVENANCE: structure adapted from JFG src/level.c:levelFreeAll; remaining gap is branch-delay placement plus register allocation. */
+/* Workbench: allocation-mismatch; 5 words differ, first mismatch +0x13C. */
+/* Candidate is shape-exact: 117/117 instructions, frame -40/-40 bytes. */
+/* PROVENANCE: structure adapted from JFG src/level.c:levelFreeAll; remaining gap is one temp-FIFO register swap. */
 #ifdef NON_MATCHING
 void levelFreeAll(void) {
     s16 temp_v0_2;
-    s32 *var_s0;
-    s32 var_s1;
-    s32 var_s2;
+    s32 i;
     s8 temp_v1;
     void *temp_v0;
 
@@ -652,26 +650,18 @@ void levelFreeAll(void) {
         func_8002EBD4(0);
     }
     if (D_8007A0F4 != NULL) {
-        var_s2 = 0;
-        var_s1 = 0;
-        if (D_800CF508 > 0) {
-            var_s0 = (s32 *) D_800CF490;
-            do {
-                temp_v0_2 = *(s16 *) ((u8 *) D_8007A0F4 + var_s1);
-                if ((temp_v0_2 & 0xC000) == 0xC000) {
-                    func_800347A0((void *) *var_s0);
-                } else if (temp_v0_2 & 0x8000) {
-                    func_800359D4((void *) *var_s0);
-                } else if (temp_v0_2 & 0x4000) {
-                    func_80004B04(*(D_800C94E0 + (temp_v0_2 & 0x3FFF)));
-                } else {
-                    modFreeModel((void *) *var_s0);
-                }
-                *var_s0 = 0;
-                var_s2 += 1;
-                var_s1 += 2;
-                var_s0 += 1;
-            } while (var_s2 < D_800CF508);
+        for (i = 0; i < D_800CF508; i++) {
+            temp_v0_2 = D_8007A0F4[i];
+            if ((temp_v0_2 & 0xC000) == 0xC000) {
+                func_800347A0(D_800CF490[i]);
+            } else if (temp_v0_2 & 0x8000) {
+                func_800359D4(D_800CF490[i]);
+            } else if (temp_v0_2 & 0x4000) {
+                func_80004B04(*(D_800C94E0 + (temp_v0_2 & 0x3FFF)));
+            } else {
+                modFreeModel(D_800CF490[i]);
+            }
+            D_800CF490[i] = NULL;
         }
         mmFree(D_8007A0F4);
         D_8007A0F4 = NULL;
@@ -725,3 +715,13 @@ s32 levelInitRegionFlags(void) {
     }
     return 0;
 }
+
+/* PLATEAU-HANDOFF:levelFreeAll:start
+ * symbol: levelFreeAll
+ * score: 112/117 words
+ * frame: 0x28
+ * relocations: 36
+ * first-mismatch: +0x13C
+ * summary: Exact-shaped for/indexed-array form; one ugen temp-FIFO swap remains after 119 flags and 15 source variants; next lever is a bounded permuter.
+ * PLATEAU-HANDOFF:levelFreeAll:end
+ */

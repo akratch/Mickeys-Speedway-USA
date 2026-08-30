@@ -2518,8 +2518,15 @@ type byte and `D_8007BF08`, not JFG's region-table initializer.
   analogue/TU-role comparison; no C body was adapted. Park pending a new
   source-faithful Boolean-lowering mechanism; do not repeat flags, trace, or
   generic permutation without a strict structural gain.
-- `levelFreeAll`, ten spellings, first mismatch `+0x13c`: exact 468-byte size
-  and 113/117 words; only the masked resource index/table-base registers swap.
+- `levelFreeAll`: fresh configured full-TU C reaches 112/117 words with the
+  exact 468-byte extent, frame `0x28`, and first mismatch `+0x13C`. The
+  `for`/parallel-indexed-array spelling closes the CFG, saved-register lanes,
+  and all 36 static relocation offset/type/identity records. The five residual
+  words are one ugen temp-FIFO swap between the resource-table base and masked
+  index. All 119 flag configurations and fifteen bounded declaration, loop,
+  join-store, expression, and temp-lifetime forms are nonexact. Linked equality
+  remains fallback-only; resume with a bounded permuter or new FIFO-trace
+  evidence, not another generic source/flag sweep.
 - `func_80029274`, seventeen control-flow/parameter/register-lifetime
   hypotheses and the full flag lattice: the best canonical candidate has the
   exact 348-byte, 87-instruction boundary and `-0x10` frame, but differs in 39

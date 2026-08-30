@@ -347,3 +347,14 @@ routing facts from that sweep; the sweep's `summary.json` is the measurement.
 - first mismatch: +0x38
 - summary: Five raw positions (four masked) remain; ten directed variants missed both swaps. Next: source-authentic scheduler evidence and resolved local-data identity.
 <!-- plateau-handoff:overlay1FindPreviousAngle:end -->
+
+<!-- plateau-handoff:levelFreeAll:start -->
+### `levelFreeAll` plateau handoff
+
+- source: `src/main/level.c`
+- score: 112/117 words
+- frame: 0x28
+- relocations: 36
+- first mismatch: +0x13C
+- summary: Exact-shaped for/indexed-array form; one ugen temp-FIFO swap remains after 119 flags and 15 source variants; next lever is a bounded permuter.
+<!-- plateau-handoff:levelFreeAll:end -->
