@@ -129,3 +129,13 @@ s32 func_overlay_092_F0000068_18D5F88(O92Racer *racer, f32 *outX,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o092/overlay92FindNearestCourse/func_overlay_092_F0000068_18D5F88.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_092_F0000068_18D5F88:start
+ * symbol: func_overlay_092_F0000068_18D5F88
+ * score: 142/168 words
+ * frame: 0x90
+ * relocations: 7
+ * first-mismatch: +0x4
+ * summary: Fresh 119-row lattice is nonexact; FP carrier-copy and comma-grouped index/cursor forms are byte-flat. Resume with a new pool-color mechanism.
+ * PLATEAU-HANDOFF:func_overlay_092_F0000068_18D5F88:end
+ */
