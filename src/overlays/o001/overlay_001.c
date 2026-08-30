@@ -490,3 +490,13 @@ s32 overlay1TestDirection(Overlay1Direction *direction, f32 x, f32 z) {
     angle = overlay1DirectionReloc(x - direction->x, z - direction->z);
     return overlay1CompareDirectionReloc(angle, direction->angle) > 0;
 }
+
+/* PLATEAU-HANDOFF:overlay1FindPreviousUsable:start
+ * symbol: overlay1FindPreviousUsable
+ * score: 14 differing words
+ * frame: frameless
+ * relocations: 4
+ * first-mismatch: +0x4
+ * summary: Preheader copy and temp-web formation remain; resume only with a new source-faithful CFE lifetime mechanism.
+ * PLATEAU-HANDOFF:overlay1FindPreviousUsable:end
+ */
