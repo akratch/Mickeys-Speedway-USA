@@ -5752,3 +5752,13 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * summary: Two-instruction structural residual; next inspect original declaration lifetimes and dirty/source cursor types.
  * PLATEAU-HANDOFF:func_8000D820:end
  */
+
+/* PLATEAU-HANDOFF:func_800133FC:start
+ * symbol: func_800133FC
+ * score: 98 differing words
+ * frame: 0x98
+ * relocations: 1
+ * first-mismatch: +0x0
+ * summary: Candidate is 99 words/frame 0x98 vs target 96/0xA0; sqrtf identity is exact but +0x8 late. Ten natural forms were nonexact; next needs original FP lifetimes.
+ * PLATEAU-HANDOFF:func_800133FC:end
+ */
