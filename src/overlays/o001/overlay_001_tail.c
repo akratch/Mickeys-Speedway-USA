@@ -2330,15 +2330,15 @@ typedef struct Overlay1NearbyObject {
 } Overlay1NearbyObject;
 
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, 51 differing words, first structural gap +0x4C.
- * Reverse countdown, branch-likely guards, and floating-point CFG are target-shaped.
- * Structural gap: one extra move plus register-lane differences; candidate is +1 word. */
+/* Workbench: structure-mismatch, exact 69-word extent and 0x48 frame, with
+ * 31 differing words and first codegen mismatch +0x40. An explicit initial
+ * countdown removes the old extra move; register lanes remain divergent. */
 void overlay1ConsumeNearbyPending(void *objectArg, void *listArg) {
     Overlay1NearbyState *state;
     f32 radiusSquared;
     s32 count;
-    register Overlay1OtherState *otherState;
-    register Overlay1NearbyObject *other;
+    Overlay1NearbyObject *other;
+    Overlay1OtherState *otherState;
 
     state = ((Overlay1NearbyObject *)objectArg)->state;
     radiusSquared = state->radius * 4.0f;
@@ -2346,7 +2346,8 @@ void overlay1ConsumeNearbyPending(void *objectArg, void *listArg) {
     {
         Overlay1NearbyObject *object = objectArg;
         listArg = overlay1GetObjectListReloc(&count);
-        if (count--) {
+        if (count != 0) {
+            count--;
             do {
                 other = ((Overlay1NearbyObject **)listArg)[count];
                 otherState = other->state;
@@ -3279,4 +3280,14 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0x14
  * summary: 119 flags and ten coherent forms exhausted; shared-clear and return CFG stay two words long, with overlay1DispatchMode runtime identity ambiguous
  * PLATEAU-HANDOFF:overlay1HandleCachedMode:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1ConsumeNearbyPending:start
+ * symbol: overlay1ConsumeNearbyPending
+ * score: 31 differing words
+ * frame: 0x48
+ * relocations: 1
+ * first-mismatch: +0x40
+ * summary: 119 flags and ten coherent forms exhausted; next lever is source-authentic count/object/state allocator mapping, not the TU-wide diagnostic -g3 flag
+ * PLATEAU-HANDOFF:overlay1ConsumeNearbyPending:end
  */

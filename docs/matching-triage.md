@@ -380,3 +380,14 @@ routing facts from that sweep; the sweep's `summary.json` is the measurement.
 - first mismatch: +0x14
 - summary: 119 flags and ten coherent forms exhausted; shared-clear and return CFG stay two words long, with overlay1DispatchMode runtime identity ambiguous
 <!-- plateau-handoff:overlay1HandleCachedMode:end -->
+
+<!-- plateau-handoff:overlay1ConsumeNearbyPending:start -->
+### `overlay1ConsumeNearbyPending` plateau handoff
+
+- source: `src/overlays/o001/overlay_001_tail.c`
+- score: 31 differing words
+- frame: 0x48
+- relocations: 1
+- first mismatch: +0x40
+- summary: 119 flags and ten coherent forms exhausted; next lever is source-authentic count/object/state allocator mapping, not the TU-wide diagnostic -g3 flag
+<!-- plateau-handoff:overlay1ConsumeNearbyPending:end -->
