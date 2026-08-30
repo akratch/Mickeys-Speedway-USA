@@ -7833,8 +7833,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o100/overlay100InitializeMotion.c.o",
       "offset": 0,
       "overlay": 100,
@@ -8924,7 +8924,7 @@
     "by_class": {
       "metadata": 622
     },
-    "matched_c_bytes_with_postprocess": 104924,
+    "matched_c_bytes_with_postprocess": 105456,
     "objects_with_postprocess": 622
   }
 }
