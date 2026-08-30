@@ -99,6 +99,27 @@ class LaneStatusAssignmentTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(report["assignment"]["state"], "base-only")
 
+    def test_call_followed_by_block_is_not_a_second_definition(self) -> None:
+        caller = self.repo / "src/main/caller.c"
+        caller.parent.mkdir(parents=True)
+        caller.write_text(
+            f"""extern void {SYMBOL}(void);
+extern int accepts_value(int value);
+
+void caller(void) {{
+    if (accepts_value(({SYMBOL}(), 1))) {{
+    }}
+}}
+""",
+            encoding="utf-8",
+        )
+        self.commit("Add caller with a following control block")
+
+        result, report = self.status()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(report["assignment"]["state"], "base-only")
+        self.assertEqual(report["assignment"]["source_path"], SOURCE_PATH.as_posix())
+
     def test_unintegrated_source_blob_is_active(self) -> None:
         self.command("git", "switch", "-q", "-c", "lane/o43-active")
         (self.repo / SOURCE_PATH).write_text(

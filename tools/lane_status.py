@@ -29,7 +29,8 @@ DISPOSITIONS_PATH = "config/lane-claim-dispositions.us.json"
 LEGACY_TRIAGE_PATH = "docs/matching-triage.md"
 SYMBOL_TOKEN_TEMPLATE = r"(?<![A-Za-z0-9_]){symbol}(?![A-Za-z0-9_])"
 FUNCTION_DEFINITION_TEMPLATE = (
-    r"(?<![A-Za-z0-9_]){symbol}\s*\([^;{{}}]*\)\s*\{{"
+    r"(?m)^[ \t]*(?:[A-Za-z_][A-Za-z0-9_]*[ \t*]+)+"
+    r"{symbol}\s*\([^;{{}}]*\)\s*\{{"
 )
 PLATEAU_BLOCK_RE = re.compile(
     r"/\*\s*PLATEAU-HANDOFF(?::[A-Za-z_][A-Za-z0-9_]*:start)?\b"
