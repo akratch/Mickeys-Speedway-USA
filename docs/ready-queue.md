@@ -25,6 +25,9 @@ targets that are safe to assign. It joins five independent checks:
 
 The command is read-only. It reads source and committed Git objects; it does
 not compile, inspect ROM text, or inspect sibling worktrees.
+It resolves the primary checkout from `git worktree list --porcelain`; running
+the command inside an integration or worker lane therefore still protects
+uncommitted source edits in the main checkout.
 
 ## Usage
 

@@ -276,13 +276,38 @@ def ranking_freshness(
     return result
 
 
-def dirty_worktree_paths() -> set[str]:
-    """Return tracked paths changed in either the index or working tree."""
+def primary_worktree() -> Path:
+    """Resolve the first/main worktree from Git's shared worktree registry."""
+    proc = subprocess.run(
+        ["git", "worktree", "list", "--porcelain"],
+        cwd=ROOT, capture_output=True, text=True,
+    )
+    if proc.returncode:
+        raise ReadyQueueError(
+            proc.stderr.strip() or "cannot resolve the primary Git worktree"
+        )
+    for line in proc.stdout.splitlines():
+        if line.startswith("worktree "):
+            path = Path(line.removeprefix("worktree "))
+            if not path.is_absolute():
+                raise ReadyQueueError("Git returned a non-absolute primary worktree")
+            return path
+    raise ReadyQueueError("Git worktree registry has no primary worktree")
+
+
+def dirty_worktree_paths(root: Path | None = None) -> set[str]:
+    """Return tracked paths dirty in the primary worktree, not this lane."""
+    root = primary_worktree() if root is None else root
     paths: set[str] = set()
     for args in (("diff", "--name-only"), ("diff", "--cached", "--name-only")):
-        paths.update(
-            line for line in lane_status.git(*args).splitlines() if line
+        proc = subprocess.run(
+            ["git", "-C", str(root), *args], capture_output=True, text=True,
         )
+        if proc.returncode:
+            raise ReadyQueueError(
+                proc.stderr.strip() or f"cannot inspect primary worktree {root}"
+            )
+        paths.update(line for line in proc.stdout.splitlines() if line)
     return paths
 
 

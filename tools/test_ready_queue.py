@@ -267,6 +267,31 @@ class ReadyQueueTests(unittest.TestCase):
         self.assertEqual(report["ready"], [])
         self.assertEqual(report["summary"]["skipped"]["dirty-worktree"], 1)
 
+    def test_primary_worktree_comes_from_shared_git_registry(self) -> None:
+        completed = mock.Mock(
+            returncode=0,
+            stdout=(
+                "worktree /repo/main\nHEAD deadbeef\nbranch refs/heads/main\n\n"
+                "worktree /repo/lane\nHEAD cafe\nbranch refs/heads/lane/x\n"
+            ),
+            stderr="",
+        )
+        with mock.patch.object(rq.subprocess, "run", return_value=completed):
+            self.assertEqual(Path("/repo/main"), rq.primary_worktree())
+
+    def test_dirty_paths_are_read_from_explicit_primary_worktree(self) -> None:
+        calls: list[list[str]] = []
+
+        def run(command, **_kwargs):
+            calls.append(command)
+            output = "src/main/a.c\n" if "--cached" not in command else "docs/a.md\n"
+            return mock.Mock(returncode=0, stdout=output, stderr="")
+
+        with mock.patch.object(rq.subprocess, "run", side_effect=run):
+            paths = rq.dirty_worktree_paths(Path("/repo/main"))
+        self.assertEqual({"src/main/a.c", "docs/a.md"}, paths)
+        self.assertTrue(all(call[:3] == ["git", "-C", "/repo/main"] for call in calls))
+
     def test_freshness_ignores_comments_and_other_candidate_bodies(self) -> None:
         old = """extern int shared;
 #ifdef NON_MATCHING
