@@ -341,6 +341,7 @@ check-tooling:
 	$(HOST_PYTHON) tests/test_flag_sweep.py
 	$(HOST_PYTHON) tests/test_tu_flag_impact.py
 	$(HOST_PYTHON) tests/test_overlay_atlas.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_reloc_identity.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_reloc_surface.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_proof_provenance.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_history.py
@@ -358,6 +359,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_crew_heartbeat.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_release_gate.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_run_logged.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_experiment_ledger.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_lane_cache.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_public_release.py
 
