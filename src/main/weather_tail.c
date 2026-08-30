@@ -45,11 +45,12 @@ extern void func_8002EBD4(u32 value);
 
 /* Retained draft is diagnostic: 106 positional words differ, first +0x14;
  * target/candidate are 118/117 instructions with 75 structural and 51 register
- * residuals. Its unused eight-byte pad only forced the target-sized frame and
- * is removed; clean shape/frame are uncompiled. */
+ * residuals. The eight-byte declaration scaffold reproduces the target's 0x38
+ * frame but does not resolve the remaining one-word geometry deficit. */
 /* PROVENANCE: palette layouts and interpolation control flow are reconstructed from Mickey's target accesses; no external donor body was used. */
 #ifdef NON_MATCHING
 void func_8003C80C(s32 arg0) {
+    u8 pad[8];
     s32 sp30;
     u8 *sp20;
     u8 *sp1C;
@@ -119,3 +120,13 @@ void func_8003C80C(s32 arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/weather_tail/func_8003C80C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_8003C80C:start
+ * symbol: func_8003C80C
+ * score: 106 differing words
+ * frame: 0x38
+ * relocations: 21
+ * first-mismatch: +0x14
+ * summary: Best is 117/118 words with exact 0x38 frame; one-word declaration geometry remains. Next needs original signature/local lifetimes before allocator work.
+ * PLATEAU-HANDOFF:func_8003C80C:end
+ */
