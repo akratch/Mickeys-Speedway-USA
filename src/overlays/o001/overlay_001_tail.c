@@ -3252,10 +3252,10 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1AppendPathPoint:start
  * symbol: overlay1AppendPathPoint
- * score: 86/108 words
+ * score: 22 differing words
  * frame: 0x28
  * relocations: 8
  * first-mismatch: +0x20
- * summary: 119 flags and six natural allocator/width forms are exhausted; the initial pool web and anchor temporary lane remain divergent
+ * summary: 119 flags and six coherent forms exhausted; next lever is source evidence for pool formation or anchor temporary FIFO behavior.
  * PLATEAU-HANDOFF:overlay1AppendPathPoint:end
  */

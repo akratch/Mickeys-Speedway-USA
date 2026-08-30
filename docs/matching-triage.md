@@ -248,3 +248,14 @@ routing facts from that sweep; the sweep's `summary.json` is the measurement.
 - first mismatch: +0x58
 - summary: V0 retains 52 raw and 40 masked differences with 22 opcode mismatches; 119 flags and nine natural forms exhausted. Next: leaf-loop and recursive CFG types.
 <!-- plateau-handoff:overlay2QueryNode:end -->
+
+<!-- plateau-handoff:overlay1AppendPathPoint:start -->
+### `overlay1AppendPathPoint` plateau handoff
+
+- source: `src/overlays/o001/overlay_001_tail.c`
+- score: 22 differing words
+- frame: 0x28
+- relocations: 8
+- first mismatch: +0x20
+- summary: 119 flags and six coherent forms exhausted; next lever is source evidence for pool formation or anchor temporary FIFO behavior.
+<!-- plateau-handoff:overlay1AppendPathPoint:end -->
