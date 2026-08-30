@@ -2623,11 +2623,15 @@ void func_8000FA2C(s32 *result, s32 arg1) {
  * nearest-height selection structure. Mickey's bounds are inclusive and its
  * TrackData layout, function boundary, and bytes remain authoritative.
  */
-/* Workbench verdict: structure-mismatch, 43 differing words, first mismatch +0x1c. */
-/* Candidate: target/candidate 62/62 instructions with matching -0x10 frames; the residual begins in the x/z predicate. */
-/* Shape status: boundary-load and non-likely branch scheduling remain structural; this is not permuter-ready. */
+/* Workbench verdict: allocation-mismatch, 20 differing words, first mismatch +0x1c. */
+/* Candidate: target/candidate 62/62 instructions with matching -0x10 frames and exact opcode schedule. */
+/* Shape status: the remaining pool-position/temp-FIFO residual is register-only. */
 s32 func_8000FAE0(f32 x, f32 y, f32 z) {
     s16 segmentCount;
+    s16 xLower;
+    s16 xUpper;
+    s16 zLower;
+    s16 zUpper;
     s16 yLower;
     s16 yUpper;
     s32 xInt;
@@ -2637,6 +2641,7 @@ s32 func_8000FAE0(f32 x, f32 y, f32 z) {
     s32 i;
     s32 heightDiff;
     s32 result;
+    s32 keepGoing;
     TrackBoundingBox *bounds;
 
     result = -1;
@@ -2647,41 +2652,45 @@ s32 func_8000FAE0(f32 x, f32 y, f32 z) {
         i = 0;
         if (segmentCount > 0) {
             xInt = x;
-loop_3:
-            if (bounds->x2 < xInt) {
-                goto block_14;
-            }
-            if (xInt < bounds->x1) {
-                goto block_14;
-            }
-            zInt = z;
-            if (bounds->z2 < zInt) {
-                goto block_14;
-            }
-            if (zInt < bounds->z1) {
-                goto block_14;
-            }
-            yInt = y;
-            yLower = bounds->y1;
-            yUpper = bounds->y2;
-            if ((yInt >= yLower) && (yUpper >= yInt)) {
-                result = i;
-                goto done;
-            }
-            heightDiff = yInt - yUpper;
-            if (yInt < yLower) {
-                heightDiff = yLower - yInt;
-            }
-            if (heightDiff < minVal) {
-                minVal = heightDiff;
-                result = i;
-            }
+            do {
+                xUpper = bounds->x2;
+                xLower = bounds->x1;
+                if (xUpper < xInt) {
+                    goto block_14;
+                }
+                if (xInt < xLower) {
+                    goto block_14;
+                }
+                zInt = z;
+                zUpper = bounds->z2;
+                zLower = bounds->z1;
+                if (zUpper < zInt) {
+                    goto block_14;
+                }
+                if (zInt < zLower) {
+                    goto block_14;
+                }
+                yInt = y;
+                yLower = bounds->y1;
+                yUpper = bounds->y2;
+                if ((yInt >= yLower) && (yUpper >= yInt)) {
+                    result = i;
+                    goto done;
+                }
+                if (yInt < yLower) {
+                    heightDiff = yLower - yInt;
+                } else {
+                    heightDiff = yInt - yUpper;
+                }
+                if (heightDiff < minVal) {
+                    minVal = heightDiff;
+                    result = i;
+                }
 block_14:
-            i++;
-            bounds++;
-            if (i < segmentCount) {
-                goto loop_3;
-            }
+                i++;
+                bounds++;
+                keepGoing = i < segmentCount;
+            } while (keepGoing != 0);
         }
     }
 done:
@@ -5735,3 +5744,13 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
     intensity = (frame >> 8) & 0xFF;
     gDPSetEnvColor(D_800C9520++, intensity, intensity, intensity, intensity);
 }
+
+/* PLATEAU-HANDOFF:func_8000FAE0:start
+ * symbol: func_8000FAE0
+ * score: 42/62 words
+ * frame: 0x10
+ * relocations: 2
+ * first-mismatch: +0x1C
+ * summary: paired bound loads and a loop-condition carrier close the opcode schedule; 20 register-only words remain
+ * PLATEAU-HANDOFF:func_8000FAE0:end
+ */
