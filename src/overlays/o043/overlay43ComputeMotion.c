@@ -25,11 +25,12 @@ typedef struct Vec3f {
 
 extern u8 D_0[];
 #define D_24 (*(f32 *)(D_0 + 0x24))
-extern s32 func_overlay_043_F0000000_1889FD0();
+extern void func_80029FE4(Overlay43RotationInput *input, Vec3f *direction);
+extern void func_8002A82C(Overlay43MotionOutput *output);
 
-/* Plateau (near-miss p6): workbench mixed(structural:4, register:11), 16 words at 55 instructions/frame -0x38; first +0x74.
- * Levers: overlay-local call binding and target-local D_0 relocation filtering made integer lanes exact; FP probes did not.
- * Remains: FP pool/temp phase and four structural words; assembly fallback stays canonical. */
+/* Plateau (remeasured): exact 55-word size/frame -0x38, 9 differing words;
+ * comparison first +0x5C is call-symbol metadata and the first code-bit difference is +0x74.
+ * The FP temp lane is exact; the FP pool f0/f2 swap and D_0 load schedule remain. */
 #ifdef NON_MATCHING
 void func_overlay_043_F00010A8_188B078(Overlay43RotationInput *input,
                                       s32 owner,
@@ -50,20 +51,30 @@ void func_overlay_043_F00010A8_188B078(Overlay43RotationInput *input,
     direction.x = 0.0f;
     direction.y = 0.0f;
     direction.z = -1.0f;
-    func_overlay_043_F0000000_1889FD0(input, &direction);
+    func_80029FE4(input, &direction);
     sp24 = direction.x;
     sp1C = direction.z;
     sp20 = direction.y;
     output->owner = owner;
-    func_overlay_043_F0000000_1889FD0(output);
+    func_8002A82C(output);
 
     temp_f2 = D_24;
     output->unk00 = temp_f2;
-    output->unk14 = 0.0f;
     output->unk10 = -(sp24 / sp20);
-    output->unk28 = temp_f2;
+    output->unk14 = 0.0f;
     output->unk18 = -(sp1C / sp20);
+    output->unk28 = temp_f2;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o043/overlay43ComputeMotion/func_overlay_043_F00010A8_188B078.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_043_F00010A8_188B078:start
+ * symbol: func_overlay_043_F00010A8_188B078
+ * score: 46/55 words
+ * frame: 0x38
+ * relocations: 4
+ * first-mismatch: +0x5C
+ * summary: Two call identities exact; FP pool f0/f2 swap and adjacent D_0 load schedule remain; first code-bit mismatch +0x74.
+ * PLATEAU-HANDOFF:func_overlay_043_F00010A8_188B078:end
+ */
