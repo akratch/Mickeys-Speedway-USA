@@ -146,3 +146,13 @@ void func_overlay_026_F0001158_187B550(Gfx **dl, s32 drawContext,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o026/overlay26DrawGroups/func_overlay_026_F0001158_187B550.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_026_F0001158_187B550:start
+ * symbol: func_overlay_026_F0001158_187B550
+ * score: 88 differing words
+ * frame: 0x58
+ * relocations: 4
+ * first-mismatch: +0x4C
+ * summary: Clean V0 is one word short. Prior exact-size form used a prohibited inert read; flags, constant, pointer, sibling CFG and permutation routes are exhausted.
+ * PLATEAU-HANDOFF:func_overlay_026_F0001158_187B550:end
+ */
