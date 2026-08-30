@@ -2587,19 +2587,22 @@ extern f32 func_8002A8BC(s32 angle);
 extern f32 func_8002A8C0(s32 angle);
 extern f32 sqrtf(f32 value);
 
-/* Plateau (2026-08-24): -O2 -g3 -mips2 -Wab,-r4300_mul reaches the
- * retail size, but 56 of 249 words differ from +0x0.  The remaining shape
- * has an 8-byte larger non-save frame and 17 alignment gaps; world-pointer
- * volatility, explicit register storage, and saved-state lifetime variants
- * did not improve it.  It needs a frame/early-load representation change. */
+/* Plateau (2026-08-30): -O2 -mips2 -Wab,-r4300_mul emits the exact
+ * 996-byte extent.  An O32 integer carrier for the shared-world address and
+ * saved-state declaration order reduce the raw residual from 64 to 32 words.
+ * The candidate frame remains 0x88 versus 0x80, and 38 of 43 runtime
+ * relocation offsets/types align; strict identities remain ambiguous in the
+ * shared Overlay 1 TU.  Ten coherent source forms and all 119 flags are
+ * exhausted; the remaining early-load, stack-home, and constant-call schedule
+ * needs new source-authentic evidence rather than generic permutation. */
 #ifdef NON_MATCHING
 void overlay1UpdateAimedTransient(void) {
     Overlay1TransientWorld *world;
-    Overlay1TransientWorld **worldRef;
+    u32 worldAddress;
     Overlay1TransientOwner *owner;
     Overlay1TransientObject *object;
-    Overlay1TransientState *state;
     Overlay1TransientState *savedState;
+    Overlay1TransientState *state;
     Overlay1MotionSource *source;
     f32 factor;
     f32 predictedX;
@@ -2614,8 +2617,8 @@ void overlay1UpdateAimedTransient(void) {
     s16 sourceAngle;
     s16 objectAngle;
 
-    worldRef = (Overlay1TransientWorld **)&D_1DA0;
-    world = *worldRef;
+    worldAddress = (u32)&D_1DA0;
+    world = *(Overlay1TransientWorld **)worldAddress;
     object = world->object;
     source = world->source;
     if (object == 0) {
@@ -2630,7 +2633,7 @@ void overlay1UpdateAimedTransient(void) {
             object->scale = D_188;
             overlay1ReadSelection(D_1D9C, 9, &object->x, &object->y,
                                   &object->z);
-            (*worldRef)->object = object;
+            (*(Overlay1TransientWorld **)worldAddress)->object = object;
             savedState = state;
         }
         world = D_1DA0;
@@ -3295,4 +3298,14 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0x34
  * summary: Inlining the two Y temporaries makes the frame exact; 31 register sites and four unresolved call identities remain after five natural forms; no permuter.
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1UpdateAimedTransient:start
+ * symbol: overlay1UpdateAimedTransient
+ * score: 32 differing words
+ * frame: 0x88
+ * relocations: 43
+ * first-mismatch: +0x0
+ * summary: O32 address carrier halves the raw residual; frame, early-load schedule, and five relocation offsets remain after ten forms and 119 flags; no permuter.
+ * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
