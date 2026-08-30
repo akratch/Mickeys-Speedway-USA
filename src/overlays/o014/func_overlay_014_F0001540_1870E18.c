@@ -16,9 +16,9 @@ extern void overlay14BuildPanel(s32, void *, s32, s32, s32, s32, s32);
 extern s32 overlay14Dispatch();
 extern s32 overlay14ValidateEntry(s16);
 
-/* Workbench structure-mismatch: 188/188 instructions, 88 normalized words;
- * 82 aligned residuals (22 structural, 9 schedule, 42 register), first +0x6C.
- * Explicit inner CFG and outer update order improved alignment; register/relocation residuals remain. */
+/* Workbench structure-mismatch: 188/188 instructions, 82 normalized words;
+ * 70 aligned residuals (24 structural, 9 schedule, 33 register), first +0x6C.
+ * Source order now reproduces the target temp lane; pool-web, CFG, and relocation residuals remain. */
 #ifdef NON_MATCHING
 void func_overlay_014_F0001540_1870E18(s32 context) {
     u8 saved;
@@ -39,8 +39,8 @@ void func_overlay_014_F0001540_1870E18(s32 context) {
     remaining = (0x58 / cellWidth) - 1;
     overlay14Dispatch(2);
     overlay14Dispatch(0, 0, 0, 0);
-    opacity = (gOverlay14ValueC0 * 0xFF) >> 8;
     y = ((0x58 - (remaining * cellWidth)) >> 1) + 0x14;
+    opacity = (gOverlay14ValueC0 * 0xFF) >> 8;
     if ((gOverlay14Entries->count > 0) && (remaining > 0)) {
         entryOffset = index * 0x10;
 loop_entry:
@@ -53,19 +53,19 @@ loop_entry:
         if (overlay14ValidateEntry(
                 ((Overlay14Entry *)((u8 *)gOverlay14Entries + entryOffset))->kind) == 0) cursor = 0;
         if ((cursor != 0) && (remaining > 0)) {
-        loop_text:
-            cursor = (u8 *)overlay14Dispatch(2, cursor, 0xC8, &drawArg, 0);
-            if (cursor != 0) {
-                saved = *cursor; *cursor = 0;
-                overlay14Dispatch(context, x, y, drawArg, 0);
-                *cursor = saved; y += cellWidth;
-                if (first != 0) { x += 8; first = 0; }
-                remaining--;
-            }
-            if ((cursor != 0) && (remaining > 0)) goto loop_text;
+            do {
+                cursor = (u8 *)overlay14Dispatch(2, cursor, 0xC8, &drawArg, 0);
+                if (cursor != 0) {
+                    saved = *cursor; *cursor = 0;
+                    overlay14Dispatch(context, x, y, drawArg, 0);
+                    *cursor = saved; y += cellWidth;
+                    if (first != 0) { x += 8; first = 0; }
+                    remaining--;
+                }
+            } while ((cursor != 0) && (remaining > 0));
         }
-        entryOffset += 0x10;
         index++;
+        entryOffset += 0x10;
         if ((index < gOverlay14Entries->count) && (remaining > 0)) goto loop_entry;
     }
     overlay14Dispatch(0, 0, 0, 0);
@@ -76,3 +76,13 @@ loop_entry:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/func_overlay_014_F0001540_1870E18/func_overlay_014_F0001540_1870E18.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_014_F0001540_1870E18:start
+ * symbol: func_overlay_014_F0001540_1870E18
+ * score: 106/188 words
+ * frame: 0x80
+ * relocations: 26
+ * first-mismatch: +0x6C
+ * summary: Natural order gained 6 words and exact temp lane; 18/26 relocation sites align. Next lever: original outer-loop spelling that swaps remaining/y pool webs.
+ * PLATEAU-HANDOFF:func_overlay_014_F0001540_1870E18:end
+ */
