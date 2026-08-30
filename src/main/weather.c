@@ -115,6 +115,13 @@ typedef struct RainHeight {
     s8 type;
 } RainHeight;
 
+typedef struct RainPlayer {
+    u8 pad0[0xC];
+    f32 x;
+    u8 pad10[4];
+    f32 z;
+} RainPlayer;
+
 typedef struct WeatherVertex {
     s16 x;
     s16 y;
@@ -171,6 +178,7 @@ extern Matrix *D_800D40E0;
 extern WeatherVertex *D_8007C3C4;
 extern s32 D_8007C3C8;
 extern RainSplash D_8007C3E4[16];
+extern u8 D_7C6A8;
 extern s32 D_8007C6E8;
 extern f32 D_8007C6C8;
 extern f32 D_8007C6CC;
@@ -199,7 +207,7 @@ extern f32 D_80082830;
 extern s32 osTvType;
 
 extern s32 func_800299E8(s32 min, s32 max);
-extern void *func_80005820(s32 arg0);
+extern RainPlayer *func_80005820(s32 arg0);
 extern s32 func_8001398C(f32 x, f32 z, s32 arg2, RainHeight ***arg3);
 extern void func_80023A08(Gfx **dList, Mtx **matrix, WeatherVertex **vertices,
                            RainSplash *splash, void *texture, s32 arg5, s32 arg6);
@@ -744,14 +752,13 @@ void rain_update(s32 updateRate) {
  * cross-checked against Jet Force Gemini's public weather.c donor; Mickey's
  * globals, thresholds, fields, and call sequence are reconstructed here.
  */
-/* Workbench: structure-mismatch, 386 differing words, first mismatch +0x0. */
-/* Structural gap: target 404 instructions/frame -0xB8 versus candidate 398/-0xB0; the incoming rate spill and six instruction tail are unresolved. */
-/* Not shape-exact or permuter-ready; rain-splash update and display-list control flow are represented. */
+/* Workbench: structure-mismatch, 340 differing words, first mismatch +0x0. */
+/* Structural gap: target 404 instructions/frame -0xB8 versus candidate 403/-0xA8; local lifetimes and stack allocation remain unresolved. */
+/* Ten natural forms and the configured flag lattice were nonexact; this is not permuter-ready. */
 #ifdef NON_MATCHING
 void rain_render_splashes(s32 updateRate) {
     RainSplash *splash;
-    RainSplash *splash2;
-    void *player;
+    RainPlayer *player;
     RainHeight **heightResult;
     s32 density;
     s32 delay;
@@ -775,9 +782,9 @@ void rain_render_splashes(s32 updateRate) {
                 D_8007C710 = countdown;
                 if (countdown <= 0) {
                     do {
+                        index = 0x10;
                         found = 0;
                         splash = D_8007C3E4;
-                        index = 0x10;
                         do {
                             index--;
                             if (splash->state == 0) {
@@ -789,8 +796,8 @@ void rain_render_splashes(s32 updateRate) {
                         if (found != 0) {
                             temp = func_800299E8(0, 0xFFFF);
                             radius = (f32) func_800299E8(0x26, 0xFF);
-                            x = (func_8002A8C0(temp) * radius) + *(f32 *)((u8 *)player + 0xC);
-                            z = (func_8002A8BC(temp) * radius) + *(f32 *)((u8 *)player + 0x14);
+                            x = (func_8002A8C0(temp) * radius) + player->x;
+                            z = (func_8002A8BC(temp) * radius) + player->z;
                             if (func_8001398C(x, z, 0x800, &heightResult) != 0) {
                                 splash->x = x;
                                 splash->z = z;
@@ -823,18 +830,18 @@ void rain_render_splashes(s32 updateRate) {
         cmd->w1 = (u32) -0x100;
         age = D_80082830;
         index = 0;
-        splash2 = D_8007C3E4;
+        splash = D_8007C3E4;
         do {
-            if (splash2->state != 0) {
-                splash2->age += (f32) updateRate * age;
-                if (splash2->age < 4.0f) {
-                    if (splash2->state == 1) {
+            if (splash->state != 0) {
+                splash->age += (f32) updateRate * age;
+                if (splash->age < 4.0f) {
+                    if (splash->state == 1) {
                         cmd = D_800D40CC;
                         D_800D40CC = cmd + 1;
                         cmd->w0 = 0xFA000000;
-                        cmd->w1 = (u32) ((splash2->alpha & 0xFF) | ~0xFF);
+                        cmd->w1 = (u32) ((splash->alpha & 0xFF) | ~0xFF);
                         func_80023A08(&D_800D40CC, &D_800D40D0, &D_800D40D4,
-                                      splash2, D_8007C714, 0xE, 0);
+                                      splash, D_8007C714, 0xE, 0);
                     } else {
                         func_800349A4(&D_800D40CC, D_8007C718, 0xE, 0);
                         cmd = D_800D40CC;
@@ -843,41 +850,41 @@ void rain_render_splashes(s32 updateRate) {
                         cmd->w1 = 0xC0E0FFFF;
                         cmd = D_800D40CC;
                         D_800D40CC = cmd + 1;
-                        cmd->w0 = (((((s32) D_800D40D4 + 0x80000000) & 6) | 0x20) << 16) |
-                                   0x04000030;
+                        cmd->w0 = ((((((s32) D_800D40D4 + 0x80000000) & 6) | 0x20) & 0xFF) << 16) |
+                                   0x04000000 | 0x30;
                         cmd->w1 = (u32) ((s32) D_800D40D4 + 0x80000000);
                         cmd = D_800D40CC;
                         D_800D40CC = cmd + 1;
                         cmd->w0 = 0x05110020;
-                        cmd->w1 = (u32) (D_800D40D4 + 0x80000000);
+                        cmd->w1 = (u32) &D_7C6A8;
 
-                        D_800D40D4->x = (s16) (D_8007C6C8 * splash2->age + splash2->x);
-                        D_800D40D4->y = (s16) splash2->height;
-                        D_800D40D4->z = (s16) (D_8007C6D8 * splash2->age + splash2->z);
+                        D_800D40D4->x = (s16) (D_8007C6C8 * splash->age + splash->x);
+                        D_800D40D4->y = (s16) splash->height;
+                        D_800D40D4->z = (s16) (D_8007C6D8 * splash->age + splash->z);
                         D_800D40D4->r = 0xFF;
                         D_800D40D4->g = 0xFF;
                         D_800D40D4->b = 0xFF;
                         D_800D40D4->a = 0xFF;
                         D_800D40D4++;
-                        D_800D40D4->x = (s16) (D_8007C6CC * splash2->age + splash2->x);
-                        D_800D40D4->y = (s16) splash2->height;
-                        D_800D40D4->z = (s16) (D_8007C6DC * splash2->age + splash2->z);
+                        D_800D40D4->x = (s16) (D_8007C6CC * splash->age + splash->x);
+                        D_800D40D4->y = (s16) splash->height;
+                        D_800D40D4->z = (s16) (D_8007C6DC * splash->age + splash->z);
                         D_800D40D4->r = 0xFF;
                         D_800D40D4->g = 0xFF;
                         D_800D40D4->b = 0xFF;
                         D_800D40D4->a = 0xFF;
                         D_800D40D4++;
-                        D_800D40D4->x = (s16) (D_8007C6D0 * splash2->age + splash2->x);
-                        D_800D40D4->y = (s16) splash2->height;
-                        D_800D40D4->z = (s16) (D_8007C6E0 * splash2->age + splash2->z);
+                        D_800D40D4->x = (s16) (D_8007C6D0 * splash->age + splash->x);
+                        D_800D40D4->y = (s16) splash->height;
+                        D_800D40D4->z = (s16) (D_8007C6E0 * splash->age + splash->z);
                         D_800D40D4->r = 0xFF;
                         D_800D40D4->g = 0xFF;
                         D_800D40D4->b = 0xFF;
                         D_800D40D4->a = 0xFF;
                         D_800D40D4++;
-                        D_800D40D4->x = (s16) (D_8007C6D4 * splash2->age + splash2->x);
-                        D_800D40D4->y = (s16) splash2->height;
-                        D_800D40D4->z = (s16) (D_8007C6E4 * splash2->age + splash2->z);
+                        D_800D40D4->x = (s16) (D_8007C6D4 * splash->age + splash->x);
+                        D_800D40D4->y = (s16) splash->height;
+                        D_800D40D4->z = (s16) (D_8007C6E4 * splash->age + splash->z);
                         D_800D40D4->r = 0xFF;
                         D_800D40D4->g = 0xFF;
                         D_800D40D4->b = 0xFF;
@@ -885,11 +892,11 @@ void rain_render_splashes(s32 updateRate) {
                         D_800D40D4++;
                     }
                 } else {
-                    splash2->state = 0;
+                    splash->state = 0;
                 }
             }
             index++;
-            splash2++;
+            splash++;
         } while (index != 0x10);
         cmd = D_800D40CC;
         D_800D40CC = cmd + 1;
@@ -950,3 +957,13 @@ void rain_sound(s32 updateRate) {
         func_800031C0(D_8007C720, x, y, z);
     }
 }
+
+/* PLATEAU-HANDOFF:rain_render_splashes:start
+ * symbol: rain_render_splashes
+ * score: 340 differing words
+ * frame: 0xA8
+ * relocations: 53
+ * first-mismatch: +0x0
+ * summary: Target 404 words/frame 0xB8, candidate 403/0xA8; ten natural forms and 119 flag modes leave declaration-lifetime allocator geometry.
+ * PLATEAU-HANDOFF:rain_render_splashes:end
+ */
