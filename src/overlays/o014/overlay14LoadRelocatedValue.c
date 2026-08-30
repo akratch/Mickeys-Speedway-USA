@@ -69,3 +69,13 @@ void *overlay14LoadRelocatedValue(s32 index, s32 source) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14LoadRelocatedValue/func_overlay_014_F000087C_1870154.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay14LoadRelocatedValue:start
+ * symbol: overlay14LoadRelocatedValue
+ * score: 42/94 words
+ * frame: 0x30
+ * relocations: 6
+ * first-mismatch: +0x4
+ * summary: Target frame is 0x28 versus candidate 0x30; fresh command-lifetime forms were flat or regressed.
+ * PLATEAU-HANDOFF:overlay14LoadRelocatedValue:end
+ */
