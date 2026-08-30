@@ -1849,6 +1849,17 @@ exact `0x148` frame and ten runtime-backed relocation sites. The current
 identity is overlay-local call `+0xD78`; exact linked function/module/ROM
 evidence proves the assembly fallback only.
 
+`overlay 99 +0x0BA4..+0x0DDC` (`overlay99RenderSegments`) contributes **568
+exact C bytes / 142 words** with frame `0xA8` and no padding. Declaring the two
+address-taken size outputs immediately after the coordinate deltas restores
+their retail stack homes; spelling the display-list advance as direct
+post-increment restores its four-register web, and explicit signed flag loads
+select the retail halfword operations. All 15 runtime relocation records agree
+by offset, type, effective identity, and addend: seven calls, three local-data
+pairs, and the texture pair. ORT 1925 exports the owner, with sole local inbound
+at module `+0x1324`. The linked range, complete overlay, and full ROM are
+byte-identical.
+
 `overlay 11 +0x0AF4..+0x0C88` (`overlay11InitializeFour`) contributes **404 naturally exact bytes / 101 words**. Ordinary `-O2 -mips2 -32` codegen is exact; only independent section alignment is trimmed, and the link resolves three proved local addends. The object retains all 22 runtime relocation roles.
 
 `overlay 11 +0x0000..+0x0150` (`overlay11Initialize`) contributes **336 naturally exact bytes / 84 words**. Typed source's compiler-emitted six-entry switch table exactly matches the existing runtime-relocated table at module `+0x2ED8`; the duplicate private section is discarded after rebinding a local `+8` text pair. The object retains all 31 runtime text relocation roles, and the retained table preserves its six `R_MIPS_32` roles.

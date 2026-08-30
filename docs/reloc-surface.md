@@ -768,15 +768,18 @@ proof. A future exact reproof must retain the configured object and record each
 runtime relocation site's type, operation, addend, and stable target identity;
 the export row alone does not authenticate its five-argument ABI or callees.
 
-`overlay99RenderSegments`'s two-word row is historical pre-source-repair
-evidence. Overlay 99's shipped tables identify the addressed outputs as
-`viGetCurrentSize(s32 *, s32 *)`, the seven-argument setup call as
-`rcpClearZBuffer`, and the following calls as `func_80034920`, `Arctanf`,
-`sqrtf`, `func_80009E78`, and local `overlay99RenderSortedEntries`. Current C
-now expresses those identities, uses two `s32` outputs, and writes the second
-segment coordinate and constant `5.0f` to retail offsets `+0x10` and `+0x14`.
-The repaired body is uncompiled, so no old score, frame, or configured-object
-claim applies to it.
+`overlay99RenderSegments`'s former two-word row is superseded. Configured
+`-O2 -mips2 -32 -Wab,-r4300_mul` C is exact across Overlay 99
+`+0xBA4..+0xDDC`: 142 words, frame `0xA8`, and no padding. Its 15 records
+agree with the runtime table by offset, type, effective identity, and addend.
+The calls resolve to `viGetCurrentSize`, `rcpClearZBuffer`, `func_80034920`,
+`Arctanf`, `sqrtf`, `func_80009E78`, and local
+`overlay99RenderSortedEntries`; three local data pairs resolve to the
+segment array and count, and the remaining pair resolves to the texture
+carrier. Static fallback evidence retains only one identity, while the linked
+ROM plus shipped runtime table proves all 15 without collapsing their roles.
+ORT 1925 exports the owner, whose sole inbound is local module call `+0x1324`.
+The linked range, complete Overlay 99 image, and full ROM are byte-identical.
 
 `overlay18Load`'s two-word row is the superseded pre-`OSTime` candidate. The
 canonical unguarded body owns Overlay 18 `+0x000..+0x1F4` (125 words) and uses
