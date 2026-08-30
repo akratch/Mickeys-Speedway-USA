@@ -10,7 +10,9 @@ extern s32 gOverlay14Pulse18;
 extern s32 gOverlay14Timer1C;
 extern s32 gOverlay14Timer20;
 
-extern s32 overlay14ReadInput(s32 channel);
+extern u16 joyGetPressed(s32 player);
+extern s8 joyGetStickX(s32 player);
+extern s8 joyGetStickY(s32 player);
 
 /* Plateau (batch 20): exact 0x20C; 65 words remain, first +0x34.
  * Four branch locals improved 78; pointer, axis, call, load, and 119 flag variants failed.
@@ -25,9 +27,9 @@ void overlay14PrepareInputState(s32 step) {
     s32 secondPositive;
     s32 secondNegative;
 
-    first = overlay14ReadInput(0);
-    second = overlay14ReadInput(0);
-    vertical = overlay14ReadInput(0);
+    first = joyGetPressed(0);
+    second = joyGetStickX(0);
+    vertical = joyGetStickY(0);
 
     gOverlay14InputFlag0 = first & 0x8000;
     gOverlay14InputFlag4 = first & 0x4000;
@@ -98,3 +100,13 @@ void overlay14PrepareInputState(s32 step) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14PrepareInputState/func_overlay_014_F0000B5C_1870434.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay14PrepareInputState:start
+ * symbol: overlay14PrepareInputState
+ * score: 66/131 words
+ * frame: 0x20
+ * relocations: 29
+ * first-mismatch: +0x34
+ * summary: Exact geometry/opcodes; call identities repaired, but 65 allocator words and 26 data identities remain; next lever is UOPT trace or data-symbol binding.
+ * PLATEAU-HANDOFF:overlay14PrepareInputState:end
+ */
