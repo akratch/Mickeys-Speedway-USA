@@ -17,6 +17,8 @@ import sys
 from dataclasses import asdict, dataclass
 from pathlib import PurePosixPath
 
+import finalize_plateau
+
 
 MATCH_RE = re.compile(r"^match(?:ed)?\s+([A-Za-z_][A-Za-z0-9_]*)\b", re.I)
 REMOVED_GLOBAL_ASM_RE = re.compile(
@@ -121,6 +123,53 @@ def blob_ids(refs: list[str], path: str) -> dict[str, str | None]:
         if len(fields) != 2 or fields[1] != "blob":
             raise RuntimeError(f"{ref}:{path} did not resolve to one blob")
         resolved[ref] = fields[0]
+    return resolved
+
+
+def blob_contents(
+    refs: list[str], path: str,
+) -> dict[str, tuple[str, str] | None]:
+    """Read one source path from many committed refs in one Git process."""
+    if not refs:
+        return {}
+    queries = "".join(f"{ref}:{path}\n" for ref in refs).encode()
+    result = subprocess.run(
+        ["git", "cat-file", "--batch"], input=queries,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    )
+    if result.returncode != 0:
+        detail = result.stderr.decode(errors="replace").strip()
+        raise RuntimeError(f"git cat-file batch failed: {detail}")
+    data = result.stdout
+    cursor = 0
+    resolved: dict[str, tuple[str, str] | None] = {}
+    for ref in refs:
+        newline = data.find(b"\n", cursor)
+        if newline < 0:
+            raise RuntimeError("git cat-file batch omitted an object header")
+        header = data[cursor:newline].decode("ascii", errors="replace")
+        cursor = newline + 1
+        if header.endswith(" missing"):
+            resolved[ref] = None
+            continue
+        fields = header.split()
+        if len(fields) != 3 or fields[1] != "blob":
+            raise RuntimeError(f"{ref}:{path} did not resolve to one blob")
+        try:
+            size = int(fields[2], 10)
+        except ValueError as error:
+            raise RuntimeError("git cat-file returned an invalid blob size") from error
+        end = cursor + size
+        if end >= len(data) or data[end:end + 1] != b"\n":
+            raise RuntimeError("git cat-file batch returned a truncated blob")
+        try:
+            text = data[cursor:end].decode("utf-8")
+        except UnicodeDecodeError as error:
+            raise RuntimeError(f"{ref}:{path} is not UTF-8 source") from error
+        resolved[ref] = (fields[0], text)
+        cursor = end + 1
+    if cursor != len(data):
+        raise RuntimeError("git cat-file batch returned unexpected trailing data")
     return resolved
 
 
@@ -376,26 +425,73 @@ def lane_refs(
 
 def active_lanes_for_source(
     base: str, symbol: str, base_path: str, base_blob: str,
-    base_source_commit: str,
+    base_source_commit: str, base_text: str | None = None,
 ) -> list[str]:
+    """Return lanes with committed work on this exact guarded candidate.
+
+    A translation unit may contain many independently assignable NON_MATCHING
+    functions.  Comparing only the whole-file blob made an old edit to any one
+    function reserve every other function in that file.  Compare the validated
+    target guard instead, while still failing closed when a lane removes or
+    damages the guard, or adds a target handoff.
+    """
     active = []
     refs = lane_refs(
         containing=base_source_commit, unmerged_into=base
     )
-    blobs = blob_ids([branch for branch, _head in refs], base_path)
+    branches = [branch for branch, _head in refs]
+    objects = blob_contents(branches, base_path)
+    if all(
+        objects[branch] is not None and objects[branch][0] == base_blob
+        for branch in branches
+    ):
+        return []
+    if base_text is None:
+        base_text = show_file(base, base_path)
+    try:
+        base_candidate = finalize_plateau.require_guarded_candidate(
+            base_text or "", symbol
+        )
+    except finalize_plateau.PlateauError:
+        base_candidate = None
+    base_lines = (base_text or "").splitlines(keepends=True)
+    base_region = (
+        "".join(base_lines[base_candidate.ifdef_line:base_candidate.endif_line + 1])
+        if base_candidate is not None else None
+    )
+    base_handoff = has_plateau_handoff(base_text or "", symbol)
     for branch, _head in refs:
         # The contains filter already excludes old refs that predate the
         # current target source. Most retained lane refs have not changed this
         # path at all; compare its blob before paying for a full symbol/path
         # resolution on the small differing remainder.
-        lane_blob = blobs[branch]
-        if lane_blob == base_blob:
-            continue
-        lane_path, lane_error = source_identity(branch, symbol)
-        if lane_error or lane_path != base_path:
+        lane_object = objects[branch]
+        if lane_object is None:
             active.append(branch)
             continue
-        if lane_blob != base_blob:
+        lane_blob, lane_text = lane_object
+        if lane_blob == base_blob:
+            continue
+        if base_region is None:
+            active.append(branch)
+            continue
+        try:
+            lane_candidate = finalize_plateau.require_guarded_candidate(
+                lane_text, symbol
+            )
+        except finalize_plateau.PlateauError:
+            active.append(branch)
+            continue
+        lane_lines = lane_text.splitlines(keepends=True)
+        lane_region = "".join(
+            lane_lines[
+                lane_candidate.ifdef_line:lane_candidate.endif_line + 1
+            ]
+        )
+        if lane_region != base_region:
+            active.append(branch)
+            continue
+        if has_plateau_handoff(lane_text, symbol) != base_handoff:
             active.append(branch)
     return sorted(active)
 
@@ -429,12 +525,12 @@ def assignment_status(base: str, symbol: str) -> Assignment:
             "exact source path has no committed history",
         )
     active = active_lanes_for_source(
-        base, symbol, path, current_blob, base_source_commit,
+        base, symbol, path, current_blob, base_source_commit, text,
     )
     if active:
         return Assignment(
             symbol, "active", path, None, None, active,
-            "an unintegrated lane has a different committed source blob",
+            "an unintegrated lane has a different committed target guard or handoff",
         )
 
     if not guarded_fallback(text, symbol):

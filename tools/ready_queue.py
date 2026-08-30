@@ -40,7 +40,7 @@ MAX_SCAN = 1000
 MAX_TOP = 100
 MAX_JOBS = 16
 DEFAULT_JOBS = 4
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 ASSIGNABLE_STATE = "base-only"
 SKIPPED_STATES = (
     "dirty-worktree",
@@ -533,6 +533,17 @@ def build_report(
             if executor is not None:
                 executor.shutdown(wait=True, cancel_futures=True)
 
+    file_counts: dict[str, int] = {}
+    for raw in ready:
+        file_name = str(raw["file"])
+        file_counts[file_name] = file_counts.get(file_name, 0) + 1
+    file_positions: dict[str, int] = {}
+    for raw in ready:
+        file_name = str(raw["file"])
+        file_positions[file_name] = file_positions.get(file_name, 0) + 1
+        raw["file_batch_position"] = file_positions[file_name]
+        raw["file_batch_size"] = file_counts[file_name]
+
     return {
         "schema_version": SCHEMA_VERSION,
         "base": base,
@@ -569,6 +580,7 @@ def _display_rows(report: dict[str, object]) -> list[list[str]]:
             str(raw["file"]),
             str(raw["proof_quality"]),
             str(raw["effort_score"]),
+            f"{raw['file_batch_position']}/{raw['file_batch_size']}",
             f"{mismatch}/{int(size) // 4}",
         ])
     return rows
@@ -588,7 +600,10 @@ def summary_line(report: dict[str, object]) -> str:
 
 
 def render_table(report: dict[str, object]) -> str:
-    headers = ["rank", "snap", "symbol", "file", "quality", "cost", "diff/words"]
+    headers = [
+        "rank", "snap", "symbol", "file", "quality", "cost", "TU batch",
+        "diff/words",
+    ]
     rows = _display_rows(report)
     if not rows:
         return f"(no assignable targets)\n{summary_line(report)}\n"
@@ -608,7 +623,8 @@ def render_table(report: dict[str, object]) -> str:
 
 def render_markdown(report: dict[str, object]) -> str:
     headers = [
-        "Rank", "Snapshot", "Symbol", "File", "Quality", "Cost", "Diff/words",
+        "Rank", "Snapshot", "Symbol", "File", "Quality", "Cost", "TU batch",
+        "Diff/words",
     ]
     rows = _display_rows(report)
     rendered = [
@@ -621,7 +637,7 @@ def render_markdown(report: dict[str, object]) -> str:
         escaped[3] = f"`{escaped[3]}`"
         rendered.append("| " + " | ".join(escaped) + " |")
     if not rows:
-        rendered.append("| — | — | No assignable targets | — | — | — | — |")
+        rendered.append("| — | — | No assignable targets | — | — | — | — | — |")
     rendered.extend(("", summary_line(report)))
     return "\n".join(rendered) + "\n"
 

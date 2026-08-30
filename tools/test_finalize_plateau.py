@@ -211,6 +211,9 @@ class FinalizeCommandTests(unittest.TestCase):
         (self.repo / "docs").mkdir()
         (self.repo / "src" / "demo.c").write_text(VALID_SOURCE, encoding="utf-8")
         (self.repo / "docs" / "handoff.md").write_text("# Handoffs\n", encoding="utf-8")
+        (self.repo / "docs" / "matching-triage.md").write_text(
+            "# Matching triage\n", encoding="utf-8"
+        )
         (self.repo / "other.txt").write_text("clean\n", encoding="utf-8")
         self.run_command("git", "add", ".")
         self.run_command("git", "commit", "-q", "-m", "initial")
@@ -259,6 +262,11 @@ class FinalizeCommandTests(unittest.TestCase):
         self.assertEqual(before, after)
         self.assertIn("commit: not requested", result.stdout)
         self.assertIn("PLATEAU-HANDOFF", (self.repo / "src" / "demo.c").read_text())
+        self.assertIn(
+            "plateau-handoff:demo_symbol:start",
+            (self.repo / "docs" / "matching-triage.md").read_text(),
+        )
+        self.assertIn("handoff-doc: docs/matching-triage.md", result.stdout)
         self.assertTrue((self.repo / "src" / "demo.c").read_text().startswith(VALID_SOURCE))
         self.assertEqual(self.gate_log.read_text().splitlines(), ["cleanroom", "check-docs"])
 

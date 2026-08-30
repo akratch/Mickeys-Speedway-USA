@@ -17,6 +17,7 @@ import sys
 
 
 SYMBOL_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+DEFAULT_HANDOFF_DOC = "docs/matching-triage.md"
 SCORE_RE = re.compile(r"^(?:\d+/\d+ (?:words|instructions|bytes)|\d+ differing words)$")
 FRAME_RE = re.compile(r"^(?:-?0x[0-9A-Fa-f]+|frameless|unknown)$")
 MISMATCH_RE = re.compile(r"^(?:\+?0x[0-9A-Fa-f]+|none|unknown)$")
@@ -323,7 +324,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--relocations", required=True, type=int, help="Measured relocation count")
     parser.add_argument("--first-mismatch", required=True, help="Measured offset, e.g. +0xC")
     parser.add_argument("--summary", default="", help="One-line blocker or next lever")
-    parser.add_argument("--handoff-doc", help="Optional tracked Markdown handoff document")
+    parser.add_argument(
+        "--handoff-doc",
+        default=DEFAULT_HANDOFF_DOC,
+        help=(
+            "tracked Markdown handoff ledger "
+            f"(default: {DEFAULT_HANDOFF_DOC})"
+        ),
+    )
     parser.add_argument("--commit", action="store_true", help="Commit only the source and handoff doc")
     parser.add_argument("--message", help="Commit subject; requires --commit")
     return parser
@@ -391,6 +399,7 @@ def main() -> int:
         print(f"frame: {metrics.frame}")
         print(f"relocations: {metrics.relocations}")
         print(f"first-mismatch: {metrics.first_mismatch}")
+        print(f"handoff-doc: {doc_rel}")
         print("source-only-gates: cleanroom, check-docs")
         print(f"commit: {commit}")
     except (OSError, PlateauError) as error:

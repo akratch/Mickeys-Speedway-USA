@@ -43,7 +43,7 @@ it never reads a sibling worktree, index, process, or uncommitted file. Run
 `tools/lane_status.py --symbol <name>` before assignment. Its rows are
 commit-message claims, not match evidence; integration repeats every normal
 proof. A symbol check also compares the exact committed definition path and
-source blob with descendant lane refs, then checks any source
+validated `NON_MATCHING` guard with descendant lane refs, then checks any source
 `PLATEAU-HANDOFF` against that symbol's committed triage history. It reports
 `base-only`, `active`, `already-integrated/exhausted`, or `stale-ledger` and
 returns success only for `base-only`; this makes stale pre-cleanup evidence a
@@ -354,11 +354,12 @@ their original assembly identity. Balanced declaration-only `NON_MATCHING`
 guards elsewhere in the same translation unit are ignored; validation is tied
 to the requested symbol's own top-level guard and fallback. The command refuses
 an unguarded, nested, unterminated, or ambiguous target body, any other
-mismatched fallback, an untracked source, or
-worktree/index dirt outside that source and an optional `--handoff-doc
-docs/<file>.md`. It records only the supplied score, frame, relocation count,
-first mismatch, and one-line summary in a symbol-keyed metadata comment at
-the end of the source file (and, when requested, a bounded Markdown block).
+mismatched fallback, an untracked source, or worktree/index dirt outside that
+source and its handoff ledger. By default it records the exact-symbol Markdown
+handoff in `docs/matching-triage.md`; `--handoff-doc docs/<file>.md` may select
+another tracked ledger. It records only the supplied score, frame, relocation
+count, first mismatch, and one-line summary in a symbol-keyed metadata comment
+at the end of the source file and a bounded Markdown block in that ledger.
 Appending the source metadata preserves every pre-existing byte and physical
 source line, including the measured guarded function. Re-running the command
 updates only that symbol's EOF block, and multiple symbols may share a source
@@ -500,13 +501,15 @@ interrupted report without recompiling recorded identities, and repeated
   `--pending-only`; subject wording alone never suppresses a claim. With
   `--symbol`, the leading `assignment` row is the fail-closed scheduling
   verdict: only `base-only` exits zero. `active` identifies a descendant lane
-  with a different committed target source blob,
+  with a different committed target guard or target handoff; unrelated guarded
+  functions in the same translation unit do not reserve this symbol,
   `already-integrated/exhausted` covers a base match or a current plateau, and
   `stale-ledger` means exact source identity or target-specific triage history
   is missing or older than the committed plateau. The check reads Git objects,
   never another lane's worktree or index. Its ref query excludes branches
   already merged into the selected base before doing target-history work, so
-  retained historical lane refs do not slow assignment checks.
+  retained historical lane refs do not slow assignment checks. Candidate blobs
+  for all relevant refs are read in one object-database batch.
 
 ### Integration housekeeping: `fix_stale_externs.py`, `refresh_atlas_digest.py`
 

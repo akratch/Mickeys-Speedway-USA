@@ -17,7 +17,9 @@ targets that are safe to assign. It joins five independent checks:
 4. The exact `(file, symbol)` identity must still be present in the live
    `NON_MATCHING` source queue discovered by `tools/permute_batch.py`.
 5. `tools/lane_status.py` must classify the symbol as `base-only`. This is the
-   only assignable state under ADR 0011.
+   only assignable state under ADR 0011. Active ownership is scoped to the
+   validated target guard and its handoff, so a historical edit to another
+   guarded function in the same translation unit does not suppress this row.
 
 The command is read-only. It reads source and committed Git objects; it does
 not compile, inspect ROM text, or inspect sibling worktrees.
@@ -39,6 +41,12 @@ effort score. Stale measurement context adds a 40-point penalty and changes
 the quality to `reproof-*`; such a row is safe to assign only with a mandatory
 configured baseline refresh before any source edit.
 
+The `TU batch` column gives each returned row's position and count among ready
+targets in the same translation unit. Assign those rows to one worker in rank
+order when ownership permits it: the content-addressed flag-sweep cache then
+compiles that TU's 119 configurations once and rescores them for each function,
+instead of rebuilding the same TU in separate lanes.
+
 `--scan` bounds how many rows of that derived priority order are
 examined. `--top` bounds how many assignable rows are returned, and cannot
 exceed `--scan`. Processing stops as soon as either bound is reached. The
@@ -49,9 +57,9 @@ Unresolved ranking rows are reported as a count but are not invented into the
 ranked order. Regenerate the ranking to give them measured positions.
 
 Table output is intended for a terminal. Markdown is paste-ready for a queue
-or handoff. JSON is schema version 2, uses stable field names, preserves row
-order in arrays, and includes the resolved base commit, limits, detailed
-ready/skipped rows, and summary counts.
+or handoff. JSON is schema version 3, uses stable field names, preserves row
+order in arrays, and includes `file_batch_position`/`file_batch_size`, the
+resolved base commit, limits, detailed ready/skipped rows, and summary counts.
 
 ## Fail-closed behavior
 

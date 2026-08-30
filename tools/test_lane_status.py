@@ -97,6 +97,43 @@ class LaneStatusAssignmentTests(unittest.TestCase):
         self.assertEqual(report["assignment"]["state"], "active")
         self.assertEqual(report["assignment"]["active_lanes"], ["lane/o43-active"])
 
+    def test_unrelated_candidate_in_same_tu_does_not_reserve_target(self) -> None:
+        second = """
+#ifdef NON_MATCHING
+void unrelatedFunction(void) {
+}
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o043/unrelatedFunction.s")
+#endif
+"""
+        (self.repo / SOURCE_PATH).write_text(candidate() + second, encoding="utf-8")
+        self.commit("Add mixed overlay 43 candidates")
+        self.command("git", "switch", "-q", "-c", "lane/o43-unrelated")
+        (self.repo / SOURCE_PATH).write_text(
+            (candidate() + second).replace(
+                "void unrelatedFunction(void) {\n}",
+                "static void unrelatedFunction(void) {\n    int value = 1;\n}",
+            ),
+            encoding="utf-8",
+        )
+        self.commit("Work unrelatedFunction allocator")
+        self.command("git", "switch", "-q", "campaign/unchain")
+
+        result, report = self.status()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(report["assignment"]["state"], "base-only")
+
+    def test_unintegrated_target_handoff_is_active(self) -> None:
+        self.command("git", "switch", "-q", "-c", "lane/o43-handoff")
+        (self.repo / SOURCE_PATH).write_text(candidate(plateau=True), encoding="utf-8")
+        self.commit("Plateau overlay43FilterImage allocator")
+        self.command("git", "switch", "-q", "campaign/unchain")
+
+        result, report = self.status()
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["assignment"]["state"], "active")
+        self.assertEqual(report["assignment"]["active_lanes"], ["lane/o43-handoff"])
+
     def test_stale_pre_cleanup_triage_row_fails_closed(self) -> None:
         (self.repo / SOURCE_PATH).write_text(candidate(plateau=True), encoding="utf-8")
         source_commit = self.commit("Plateau overlay43FilterImage temp FIFO reproof")
@@ -248,7 +285,7 @@ class LaneRefQueryTests(unittest.TestCase):
         self.assertIn("--contains=source", git.call_args.args)
         self.assertIn("--no-merged=campaign/unchain", git.call_args.args)
 
-    def test_equal_source_blob_skips_expensive_symbol_resolution(self) -> None:
+    def test_equal_source_blob_skips_candidate_resolution(self) -> None:
         calls = []
 
         def fake_git(*args, **_kwargs):
@@ -258,12 +295,16 @@ class LaneRefQueryTests(unittest.TestCase):
             raise AssertionError(f"unexpected Git query: {args}")
 
         with mock.patch.object(ls, "git", side_effect=fake_git), mock.patch.object(
-            ls, "blob_ids", return_value={"lane/history": "same-blob"}
+            ls,
+            "blob_contents",
+            return_value={"lane/history": ("same-blob", "base")},
         ), mock.patch.object(
-            ls, "source_identity", side_effect=AssertionError("should be skipped")
+            ls.finalize_plateau,
+            "require_guarded_candidate",
+            side_effect=AssertionError("should be skipped"),
         ):
             active = ls.active_lanes_for_source(
-                "campaign/unchain", "symbol", "path.c", "same-blob", "source"
+                "campaign/unchain", "symbol", "path.c", "same-blob", "source", "base"
             )
         self.assertEqual(active, [])
 
@@ -275,6 +316,20 @@ class LaneRefQueryTests(unittest.TestCase):
             rows = ls.blob_ids(["lane/one", "lane/two"], "src/a.c")
         self.assertEqual(rows["lane/one"], "a" * 40)
         self.assertEqual(rows["lane/two"], "b" * 40)
+        self.assertEqual(run.call_count, 1)
+
+    def test_blob_contents_uses_one_batch_object_query(self) -> None:
+        first = b"one\n"
+        second = b"two\n"
+        output = (
+            ("a" * 40 + f" blob {len(first)}\n").encode() + first + b"\n"
+            + ("b" * 40 + f" blob {len(second)}\n").encode() + second + b"\n"
+        )
+        completed = subprocess.CompletedProcess([], 0, output, b"")
+        with mock.patch.object(subprocess, "run", return_value=completed) as run:
+            rows = ls.blob_contents(["lane/one", "lane/two"], "src/a.c")
+        self.assertEqual(rows["lane/one"], ("a" * 40, "one\n"))
+        self.assertEqual(rows["lane/two"], ("b" * 40, "two\n"))
         self.assertEqual(run.call_count, 1)
 
 

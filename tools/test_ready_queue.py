@@ -155,6 +155,32 @@ class ReadyQueueTests(unittest.TestCase):
             ["a", "b", "c", "d"],
         )
 
+    def test_same_tu_rows_expose_reusable_worker_batch(self) -> None:
+        rows = [
+            row("src/main/shared.c", "a", 1),
+            row("src/main/other.c", "b", 2),
+            row("src/main/shared.c", "c", 3),
+        ]
+        items = [Item(str(value["file"]), str(value["name"])) for value in rows]
+        states = {
+            str(value["name"]): assignment(
+                str(value["name"]), str(value["file"])
+            )
+            for value in rows
+        }
+        report = self.report(rows, items, states)
+        self.assertEqual(
+            [
+                (
+                    value["symbol"], value["file_batch_position"],
+                    value["file_batch_size"],
+                )
+                for value in report["ready"]
+            ],
+            [("a", 1, 2), ("b", 1, 1), ("c", 2, 2)],
+        )
+        self.assertIn("TU batch", rq.render_table(report))
+
     def test_quality_ranking_can_promote_small_other_mismatch(self) -> None:
         allocator = row("src/main/a.c", "a", 30)
         other = row("src/main/b.c", "b", 1)
