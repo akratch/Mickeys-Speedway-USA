@@ -226,3 +226,13 @@ compare_name:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o046/overlay46UpdateSequence/func_overlay_046_F0000120_188E518.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_046_F0000120_188E518:start
+ * symbol: func_overlay_046_F0000120_188E518
+ * score: 54 differing words
+ * frame: -0x30
+ * relocations: 118
+ * first-mismatch: +0x4
+ * summary: Exact 317-word geometry; allocation/schedule residual remains, while candidate relocation identity proof is partial.
+ * PLATEAU-HANDOFF:func_overlay_046_F0000120_188E518:end
+ */
