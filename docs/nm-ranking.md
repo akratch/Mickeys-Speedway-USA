@@ -254,9 +254,9 @@ A supplementary objdiff report was not supplied; `objdiff_match_pct` covers **0 
 | Category | Count | Share of resolved |
 |---|---:|---:|
 | `register-only` | 14 | 3.5% |
-| `structure-mismatch` | 2 | 0.5% |
+| `structure-mismatch` | 3 | 0.7% |
 | `allocation-mismatch` | 2 | 0.5% |
-| `other` | 172 | 42.9% |
+| `other` | 171 | 42.6% |
 | `reloc-mismatch` | 1 | 0.2% |
 | `size-mismatch` | 208 | 51.9% |
 | `register-mismatch` | 1 | 0.2% |
@@ -394,7 +394,7 @@ units remain distinct.
 | 114 | `src/overlays/o033/overlay33BuildDisplayList.c` | `overlay33BuildDisplayList` | `o033` | `other` | 1,232 | 50 | 448 | 0 | — |
 | 115 | `src/main/anim.c` | `func_8005776C` | `main` | `other` | 420 | 51 | 36 | 0 | — |
 | 116 | `src/overlays/o017/overlay17AdvanceChain.c` | `overlay17AdvanceChain` | `o017` | `other` | 588 | 51 | 24 | 0 | — |
-| 117 | `src/overlays/o002/overlay2QueryNode.c` | `overlay2QueryNode` | `o002` | `other` | 1,012 | 52 | 64 | 0 | — |
+| 117 | `src/overlays/o002/overlay2QueryNode.c` | `overlay2QueryNode` | `o002` | `structure-mismatch` | 1,012 | 52 | 88 | 0 | — |
 | 118 | `src/main/audio_manager_36D0.c` | `func_80003480` | `main` | `other` | 376 | 53 | 0 | 0 | — |
 | 119 | `src/overlays/o014/overlay14LoadRelocatedValue.c` | `overlay14LoadRelocatedValue` | `o014` | `other` | 376 | 53 | 4 | 0 | — |
 | 120 | `src/overlays/o008/overlay_008.c` | `func_overlay_008_F0000894_185E5EC` | `o008` | `other` | 1,524 | 57 | 204 | 0 | — |
