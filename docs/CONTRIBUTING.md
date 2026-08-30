@@ -248,7 +248,12 @@ and one final linker invocation:
 3. The root Makefile's normal C, assembly, and binary-wrapper rules produce
    objects. `mk/overlays.mk` contains only measured per-overlay-object compiler
    flags and reviewed ELF normalization; it is an included policy table, not
-   another build graph or linker.
+   another build graph or linker. Pure `objcopy --redefine-sym`-only rules may
+   instead be declared in
+   `config/normalizations/overlay-symbol-aliases.us.json`; the checked-in
+   `mk/overlay_aliases.generated.mk` include is its deterministic projection.
+   Rules that also trim sections or filter/rebind relocations remain explicit
+   in `mk/overlays.mk` so their ordered command chains stay visible.
 4. `build/mickey.us.elf` links all objects once through splat's script. That script
    places each module's text, data, and original relocation-table blobs back in
    its ROM range; `objcopy` and `n64crc` then produce the one ROM image.
@@ -264,6 +269,20 @@ For build debugging, start in the 1,100-line root Makefile: source discovery,
 generic recipes, and the sole final link are all there. Consult
 `mk/overlays.mk` only when one overlay object needs a measured flag, trim, or
 symbol/relocation normalization.
+
+After changing the pure alias manifest, refresh and verify its projection:
+
+```sh
+tools/render_overlay_aliases.py --write
+tools/render_overlay_aliases.py --check
+```
+
+The renderer rejects unknown schema fields, malformed source or destination
+symbols, duplicate object targets, duplicate sources or destinations within a
+target, and order-dependent alias chains. Do not edit the generated include
+by hand or add trim/filter/rebind commands to the manifest. `gmake check-docs`
+runs the render check, and `gmake check-tooling` includes the focused renderer
+tests.
 
 ### Overlay donor-first workflow
 
