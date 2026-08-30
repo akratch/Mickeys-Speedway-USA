@@ -9,6 +9,7 @@ object, relocation, linked-range, and ROM checks (ADR 0011).
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 from functools import lru_cache
 import json
 import re
@@ -183,6 +184,53 @@ def blob_contents(
     return resolved
 
 
+def blob_contents_by_path(
+    ref: str, paths: list[str],
+) -> dict[str, tuple[str, str] | None]:
+    """Read many paths from one committed ref in one Git process."""
+    if not paths:
+        return {}
+    queries = "".join(f"{ref}:{path}\n" for path in paths).encode()
+    result = subprocess.run(
+        ["git", "cat-file", "--batch"], input=queries,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    )
+    if result.returncode != 0:
+        detail = result.stderr.decode(errors="replace").strip()
+        raise RuntimeError(f"git cat-file batch failed: {detail}")
+    data = result.stdout
+    cursor = 0
+    resolved: dict[str, tuple[str, str] | None] = {}
+    for path in paths:
+        newline = data.find(b"\n", cursor)
+        if newline < 0:
+            raise RuntimeError("git cat-file batch omitted an object header")
+        header = data[cursor:newline].decode("ascii", errors="replace")
+        cursor = newline + 1
+        if header.endswith(" missing"):
+            resolved[path] = None
+            continue
+        fields = header.split()
+        if len(fields) != 3 or fields[1] != "blob":
+            raise RuntimeError(f"{ref}:{path} did not resolve to one blob")
+        try:
+            size = int(fields[2], 10)
+        except ValueError as error:
+            raise RuntimeError("git cat-file returned an invalid blob size") from error
+        end = cursor + size
+        if end >= len(data) or data[end:end + 1] != b"\n":
+            raise RuntimeError("git cat-file batch returned a truncated blob")
+        try:
+            text = data[cursor:end].decode("utf-8")
+        except UnicodeDecodeError as error:
+            raise RuntimeError(f"{ref}:{path} is not UTF-8 source") from error
+        resolved[path] = (fields[0], text)
+        cursor = end + 1
+    if cursor != len(data):
+        raise RuntimeError("git cat-file batch returned unexpected trailing data")
+    return resolved
+
+
 def exact_symbol_pattern(symbol: str) -> re.Pattern[str]:
     return re.compile(
         SYMBOL_TOKEN_TEMPLATE.format(symbol=re.escape(symbol)), re.MULTILINE,
@@ -222,6 +270,7 @@ def malformed_legacy_marker(text: str | None, symbol: str) -> bool:
     return text.count(start) != 1 or text.count(end) != 1 or len(blocks) != 1
 
 
+@lru_cache(maxsize=4096)
 def source_identity(ref: str, symbol: str) -> tuple[str | None, str | None]:
     """Return the one committed definition path, or a fail-closed reason."""
     output = git(
@@ -243,6 +292,64 @@ def source_identity(ref: str, symbol: str) -> tuple[str | None, str | None]:
     if not paths:
         return None, f"no exact committed source definition for {symbol}"
     return None, "ambiguous exact source definitions: " + ", ".join(paths)
+
+
+def source_identity_index(
+    ref: str, symbols: list[str],
+) -> dict[str, tuple[str | None, str | None]]:
+    """Resolve many exact definitions with one grep and one object batch."""
+    ordered = list(dict.fromkeys(symbols))
+    if not ordered:
+        return {}
+    command = ["git", "grep", "-l", "-w"]
+    for symbol in ordered:
+        command.extend(("-e", symbol))
+    command.extend((ref, "--", "src"))
+    result = subprocess.run(
+        command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    )
+    if result.returncode not in (0, 1):
+        detail = result.stderr.strip() or "git grep failed"
+        raise RuntimeError(f"batch source identity: {detail}")
+    paths = sorted({
+        row.split(":", 1)[1] if ":" in row else row
+        for row in result.stdout.splitlines() if row
+    })
+    objects = blob_contents_by_path(ref, paths)
+    found: dict[str, list[str]] = {symbol: [] for symbol in ordered}
+    token = re.compile(
+        r"(?<![A-Za-z0-9_])(?:"
+        + "|".join(re.escape(symbol) for symbol in sorted(ordered, key=len, reverse=True))
+        + r")(?![A-Za-z0-9_])"
+    )
+    for path in paths:
+        item = objects[path]
+        if item is None:
+            continue
+        text = item[1]
+        candidates = {match.group(0) for match in token.finditer(text)}
+        for symbol in candidates:
+            definition = re.compile(
+                FUNCTION_DEFINITION_TEMPLATE.format(symbol=re.escape(symbol)),
+                re.DOTALL,
+            )
+            if definition.search(text):
+                found[symbol].append(path)
+    identities: dict[str, tuple[str | None, str | None]] = {}
+    for symbol in ordered:
+        definitions = sorted(set(found[symbol]))
+        if len(definitions) == 1:
+            identities[symbol] = (definitions[0], None)
+        elif not definitions:
+            identities[symbol] = (
+                None, f"no exact committed source definition for {symbol}",
+            )
+        else:
+            identities[symbol] = (
+                None, "ambiguous exact source definitions: "
+                + ", ".join(definitions),
+            )
+    return identities
 
 
 def guarded_fallback(text: str, symbol: str) -> bool:
@@ -299,20 +406,40 @@ def validated_shard_source(text: str | None, symbol: str) -> str | None:
         raise RuntimeError(str(error)) from error
 
 
-def target_history_record(
-    ref: str, symbol: str, paths: list[str], *, require_plateau: bool,
-) -> tuple[str, str] | None:
-    if not paths:
-        return None
-    raw = git(
-        "log", "--format=%H%x00%s%x1e", ref, "--", *paths,
-    )
-    token = exact_symbol_pattern(symbol)
+@lru_cache(maxsize=4096)
+def path_history(ref: str, path: str) -> tuple[tuple[str, str], ...]:
+    """Return one path's commit/subject history, shared across symbols."""
+    raw = git("log", "--format=%H%x00%s%x1e", ref, "--", path)
+    records: list[tuple[str, str]] = []
     for record in raw.split("\x1e"):
         record = record.strip("\n")
         if not record:
             continue
         commit, subject = record.split("\0", 1)
+        records.append((commit, subject))
+    return tuple(records)
+
+
+def target_history_record(
+    ref: str, symbol: str, paths: list[str], *, require_plateau: bool,
+) -> tuple[str, str] | None:
+    if not paths:
+        return None
+    if len(paths) == 1:
+        records = path_history(ref, paths[0])
+    else:
+        raw = git(
+            "log", "--format=%H%x00%s%x1e", ref, "--", *paths,
+        )
+        parsed: list[tuple[str, str]] = []
+        for record in raw.split("\x1e"):
+            record = record.strip("\n")
+            if not record:
+                continue
+            parsed.append(tuple(record.split("\0", 1)))
+        records = tuple(parsed)
+    token = exact_symbol_pattern(symbol)
+    for commit, subject in records:
         if not token.search(subject):
             continue
         if require_plateau and "plateau" not in subject.lower():
@@ -332,15 +459,18 @@ def target_history_commit(
 
 def path_plateau_record(ref: str, path: str) -> tuple[str, str] | None:
     """Return the latest plateau commit for a single-candidate source path."""
-    raw = git("log", "--format=%H%x00%s%x1e", ref, "--", path)
-    for record in raw.split("\x1e"):
-        record = record.strip("\n")
-        if not record:
-            continue
-        commit, subject = record.split("\0", 1)
+    for commit, subject in path_history(ref, path):
         if PLATEAU_SUBJECT_RE.search(subject):
             return commit, subject
     return None
+
+
+@lru_cache(maxsize=4096)
+def commit_paths(commit: str) -> frozenset[str]:
+    """Return paths owned by one commit without repeated diff-tree calls."""
+    return frozenset(git(
+        "diff-tree", "--no-commit-id", "--name-only", "-r", commit,
+    ).splitlines())
 
 
 def ledger_source_plateau_record(
@@ -366,10 +496,7 @@ def ledger_source_plateau_record(
         commit, subject = record.split("\0", 1)
         if not PLATEAU_SUBJECT_RE.search(subject):
             continue
-        changed = set(git(
-            "diff-tree", "--no-commit-id", "--name-only", "-r", commit,
-            "--", source_path, LEGACY_TRIAGE_PATH,
-        ).splitlines())
+        changed = commit_paths(commit)
         if source_path not in changed or LEGACY_TRIAGE_PATH not in changed:
             continue
         triage = show_file(commit, LEGACY_TRIAGE_PATH)
@@ -400,10 +527,7 @@ def shard_source_plateau_record(
         commit, subject = record.split("\0", 1)
         if not PLATEAU_SUBJECT_RE.search(subject):
             continue
-        changed = set(git(
-            "diff-tree", "--no-commit-id", "--name-only", "-r", commit,
-            "--", source_path, ledger_path,
-        ).splitlines())
+        changed = commit_paths(commit)
         if source_path not in changed or ledger_path not in changed:
             continue
         shard = show_file(commit, ledger_path)
@@ -429,9 +553,27 @@ def newest_related_commit(commits: list[str]) -> str | None:
     return selected
 
 
+@lru_cache(maxsize=4096)
 def first_parent(commit: str) -> str | None:
     fields = git("rev-list", "--parents", "-n", "1", commit).split()
     return fields[1] if len(fields) > 1 else None
+
+
+@lru_cache(maxsize=32)
+def blame_line_commits(ref: str, path: str) -> tuple[str, ...]:
+    """Map current line numbers to commits with one reusable blame."""
+    blame = git("blame", "--line-porcelain", ref, "--", path)
+    commits: list[str] = []
+    current_commit: str | None = None
+    for line in blame.splitlines():
+        header = re.fullmatch(r"\^?([0-9a-f]{40}) \d+ \d+(?: \d+)?", line)
+        if header:
+            current_commit = header.group(1)
+        elif line.startswith("\t"):
+            if current_commit is None:
+                raise RuntimeError("git blame omitted a line commit")
+            commits.append(current_commit)
+    return tuple(commits)
 
 
 def latest_legacy_evidence_commit(ref: str, symbol: str) -> str | None:
@@ -454,25 +596,14 @@ def latest_legacy_evidence_commit(ref: str, symbol: str) -> str | None:
     if not selected_lines:
         return None
 
-    blame = git(
-        "blame", "--line-porcelain", ref, "--", LEGACY_TRIAGE_PATH,
-    )
-    commits: list[str] = []
-    current_commit: str | None = None
-    current_line = 0
-    for line in blame.splitlines():
-        header = re.fullmatch(r"\^?([0-9a-f]{40}) \d+ \d+(?: \d+)?", line)
-        if header:
-            current_commit = header.group(1)
-        elif line.startswith("\t"):
-            current_line += 1
-            if current_line in selected_lines and current_commit is not None:
-                commits.append(current_commit)
-    if current_line != len(text.splitlines()):
+    line_commits = blame_line_commits(ref, LEGACY_TRIAGE_PATH)
+    if len(line_commits) != len(text.splitlines()):
         raise RuntimeError("git blame returned the wrong legacy-ledger line count")
+    commits = [line_commits[line - 1] for line in sorted(selected_lines)]
     return newest_related_commit(list(dict.fromkeys(commits)))
 
 
+@lru_cache(maxsize=8192)
 def latest_path_commit(ref: str, path: str, *, exclude: str | None = None) -> str | None:
     args = ["log", "-1", "--format=%H", ref]
     if exclude:
@@ -482,6 +613,7 @@ def latest_path_commit(ref: str, path: str, *, exclude: str | None = None) -> st
     return value or None
 
 
+@lru_cache(maxsize=16384)
 def is_ancestor(older: str, newer: str) -> bool:
     result = subprocess.run(
         ["git", "merge-base", "--is-ancestor", older, newer],
@@ -537,6 +669,7 @@ class Assignment:
     ledger_commit: str | None
     active_lanes: list[str]
     reason: str
+    reason_code: str | None = None
 
 
 def lane_refs(
@@ -556,9 +689,133 @@ def lane_refs(
     return rows
 
 
+@dataclass(frozen=True)
+class LanePathIndex:
+    """Committed lane deltas indexed once for a complete queue scan."""
+
+    base: str
+    refs_by_path: dict[str, tuple[tuple[str, str], ...]]
+    legacy_refs_by_symbol: dict[str, tuple[tuple[str, str], ...]]
+    common_by_branch: dict[str, str]
+
+    def refs_for(
+        self, paths: list[str], *, symbol: str,
+    ) -> list[tuple[str, str]]:
+        selected: dict[str, str] = {}
+        for path in paths:
+            for branch, head in self.refs_by_path.get(path, ()):
+                selected[branch] = head
+        for branch, head in self.legacy_refs_by_symbol.get(symbol, ()):
+            selected[branch] = head
+        return sorted(selected.items())
+
+
+def _lane_delta(
+    base: str, ref: tuple[str, str],
+) -> tuple[str, str, str, tuple[str, ...]]:
+    branch, head = ref
+    common = merge_base(base, branch)
+    paths = tuple(sorted(set(git(
+        "diff", "--name-only", "--no-renames", common, branch,
+    ).splitlines())))
+    return branch, head, common, paths
+
+
+def legacy_evidence_map(
+    text: str | None, symbols: set[str],
+) -> dict[str, tuple[tuple[str, ...], tuple[str, ...]]]:
+    """Parse exact-symbol legacy evidence once for a branch snapshot."""
+    if text is None:
+        return {}
+    rows: dict[str, list[str]] = {}
+    token = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+    for line in text.splitlines():
+        for symbol in set(token.findall(line)) & symbols:
+            rows.setdefault(symbol, []).append(line)
+    blocks: dict[str, list[str]] = {}
+    block_re = re.compile(
+        r"<!-- plateau-handoff:(?P<symbol>[A-Za-z_][A-Za-z0-9_]*):start -->"
+        r".*?<!-- plateau-handoff:(?P=symbol):end -->\n?",
+        re.DOTALL,
+    )
+    for match in block_re.finditer(text):
+        symbol = match.group("symbol")
+        if symbol in symbols:
+            blocks.setdefault(symbol, []).append(match.group(0))
+    return {
+        symbol: (tuple(rows.get(symbol, ())), tuple(blocks.get(symbol, ())))
+        for symbol in set(rows) | set(blocks)
+    }
+
+
+def build_lane_path_index(
+    base: str, symbols: list[str], *, jobs: int = 1,
+) -> LanePathIndex:
+    """Index lane-owned committed paths without opening lane worktrees."""
+    refs = lane_refs(unmerged_into=base)
+    if jobs > 1 and len(refs) > 1:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as executor:
+            deltas = list(executor.map(lambda ref: _lane_delta(base, ref), refs))
+    else:
+        deltas = [_lane_delta(base, ref) for ref in refs]
+    refs_by_path: dict[str, list[tuple[str, str]]] = {}
+    legacy_candidates: list[tuple[str, str]] = []
+    common_by_branch: dict[str, str] = {}
+    for branch, head, common, paths in deltas:
+        common_by_branch[branch] = common
+        for path in paths:
+            if path == LEGACY_TRIAGE_PATH:
+                legacy_candidates.append((branch, head))
+            else:
+                refs_by_path.setdefault(path, []).append((branch, head))
+
+    legacy_refs_by_symbol: dict[str, list[tuple[str, str]]] = {}
+    if legacy_candidates:
+        branches = [branch for branch, _head in legacy_candidates]
+        common_refs = sorted({common_by_branch[branch] for branch in branches})
+        lane_objects = blob_contents(branches, LEGACY_TRIAGE_PATH)
+        common_objects = blob_contents(common_refs, LEGACY_TRIAGE_PATH)
+        symbol_set = set(symbols)
+        evidence_cache: dict[str, dict[
+            str, tuple[tuple[str, ...], tuple[str, ...]]
+        ]] = {}
+
+        def evidence(item: tuple[str, str] | None) -> dict[
+            str, tuple[tuple[str, ...], tuple[str, ...]]
+        ]:
+            if item is None:
+                return {}
+            blob, text = item
+            if blob not in evidence_cache:
+                evidence_cache[blob] = legacy_evidence_map(text, symbol_set)
+            return evidence_cache[blob]
+
+        for branch, head in legacy_candidates:
+            lane_map = evidence(lane_objects[branch])
+            common_map = evidence(common_objects[common_by_branch[branch]])
+            for symbol in set(lane_map) | set(common_map):
+                if lane_map.get(symbol) != common_map.get(symbol):
+                    legacy_refs_by_symbol.setdefault(symbol, []).append(
+                        (branch, head)
+                    )
+    return LanePathIndex(
+        base=base,
+        refs_by_path={
+            path: tuple(sorted(path_refs))
+            for path, path_refs in refs_by_path.items()
+        },
+        legacy_refs_by_symbol={
+            symbol: tuple(sorted(symbol_refs))
+            for symbol, symbol_refs in legacy_refs_by_symbol.items()
+        },
+        common_by_branch=common_by_branch,
+    )
+
+
 def active_lanes_for_source(
     base: str, symbol: str, base_path: str, base_blob: str,
     base_source_commit: str, base_text: str | None = None,
+    lane_index: LanePathIndex | None = None,
 ) -> list[str]:
     """Return lanes with committed work on this exact guarded candidate.
 
@@ -569,13 +826,25 @@ def active_lanes_for_source(
     damages the guard, or adds a target handoff.
     """
     active = []
-    refs = lane_refs(
-        containing=base_source_commit, unmerged_into=base
-    )
+    target_shard_path = shard_path(symbol)
+    if lane_index is not None:
+        if lane_index.base != base:
+            raise RuntimeError(
+                f"lane path index is for {lane_index.base}, expected {base}"
+            )
+        refs = [
+            ref for ref in lane_index.refs_for(
+                [base_path, target_shard_path], symbol=symbol,
+            )
+            if is_ancestor(base_source_commit, ref[0])
+        ]
+    else:
+        refs = lane_refs(
+            containing=base_source_commit, unmerged_into=base
+        )
     branches = [branch for branch, _head in refs]
     objects = blob_contents(branches, base_path)
     legacy_objects = blob_contents(branches, LEGACY_TRIAGE_PATH)
-    target_shard_path = shard_path(symbol)
     shard_objects = blob_contents(branches, target_shard_path)
     if base_text is None:
         base_text = show_file(base, base_path)
@@ -606,7 +875,11 @@ def active_lanes_for_source(
     # lane's merge base first; the cache bounds this to one Git query per lane
     # across a complete ready-queue scan.
     common_by_branch = {
-        branch: merge_base(base, branch) for branch in branches
+        branch: (
+            lane_index.common_by_branch[branch]
+            if lane_index is not None else merge_base(base, branch)
+        )
+        for branch in branches
     }
     common_refs = sorted(set(common_by_branch.values()))
     common_objects = blob_contents(common_refs, base_path)
@@ -689,17 +962,53 @@ def active_lanes_for_source(
     return sorted(active)
 
 
-def assignment_status(base: str, symbol: str) -> Assignment:
+@dataclass(frozen=True)
+class AssignmentContext:
+    """Shared immutable evidence for many assignment classifications."""
+
+    base: str
+    identities: dict[str, tuple[str | None, str | None]]
+    lane_index: LanePathIndex
+
+    @classmethod
+    def build(
+        cls, base: str, symbols: list[str], *, jobs: int = 1,
+    ) -> "AssignmentContext":
+        return cls(
+            base=base,
+            identities=source_identity_index(base, symbols),
+            lane_index=build_lane_path_index(base, symbols, jobs=jobs),
+        )
+
+    def classify(self, base: str, symbol: str) -> Assignment:
+        if base != self.base:
+            raise RuntimeError(
+                f"assignment context is for {self.base}, expected {base}"
+            )
+        identity = self.identities.get(symbol)
+        if identity is None:
+            raise RuntimeError(f"assignment context does not contain {symbol}")
+        return assignment_status(
+            base, symbol, identity=identity, lane_index=self.lane_index,
+        )
+
+
+def assignment_status(
+    base: str, symbol: str, *,
+    identity: tuple[str | None, str | None] | None = None,
+    lane_index: LanePathIndex | None = None,
+) -> Assignment:
     """Classify whether one exact target is safe to assign.
 
     Only ``base-only`` is assignable. Every other state is deliberately
     fail-closed so stale evidence cannot become duplicate matching work.
     """
-    path, identity_error = source_identity(base, symbol)
+    path, identity_error = identity or source_identity(base, symbol)
     if identity_error or path is None:
         return Assignment(
             symbol, "stale-ledger", path, None, None, [],
             identity_error or "source identity is unavailable",
+            "source-identity",
         )
     text = show_file(base, path)
     current_blob = blob_id(base, path)
@@ -707,6 +1016,7 @@ def assignment_status(base: str, symbol: str) -> Assignment:
         return Assignment(
             symbol, "stale-ledger", path, None, None, [],
             "exact source path is absent from the base object",
+            "source-missing",
         )
 
     base_source_commit = target_history_commit(
@@ -716,20 +1026,24 @@ def assignment_status(base: str, symbol: str) -> Assignment:
         return Assignment(
             symbol, "stale-ledger", path, None, None, [],
             "exact source path has no committed history",
+            "history-missing",
         )
     active = active_lanes_for_source(
         base, symbol, path, current_blob, base_source_commit, text,
+        lane_index,
     )
     if active:
         return Assignment(
             symbol, "active", path, None, None, active,
             "an unintegrated lane has a different committed target guard or handoff",
+            "lane-owned",
         )
 
     if not guarded_fallback(text, symbol):
         return Assignment(
             symbol, "already-integrated/exhausted", path, None, None, [],
             "base has a committed definition without this target's fallback",
+            "matched-or-promoted",
         )
 
     source_record = target_history_record(
@@ -757,6 +1071,7 @@ def assignment_status(base: str, symbol: str) -> Assignment:
             symbol, "stale-ledger", path, None,
             latest_legacy_evidence_commit(base, symbol), [],
             "malformed target-specific handoff block in the legacy triage ledger",
+            "legacy-invalid",
         )
     ledger_rows = exact_symbol_rows(triage_text, symbol)
     legacy_has_symbol = bool(ledger_rows)
@@ -776,12 +1091,14 @@ def assignment_status(base: str, symbol: str) -> Assignment:
         return Assignment(
             symbol, "stale-ledger", path, None,
             latest_path_commit(base, target_shard_path), [], str(error),
+            "shard-invalid",
         )
     if shard_source is not None and shard_source != path:
         return Assignment(
             symbol, "stale-ledger", path, None,
             latest_path_commit(base, target_shard_path), [],
             f"symbol handoff shard records source {shard_source}, expected {path}",
+            "shard-source-mismatch",
         )
     shard_record = (
         shard_source_plateau_record(base, symbol, path)
@@ -798,6 +1115,7 @@ def assignment_status(base: str, symbol: str) -> Assignment:
         return Assignment(
             symbol, "base-only", path, None, None, [],
             "base retains the fallback and has no committed plateau handoff",
+            "ready",
         )
 
     source_commit = (
@@ -832,20 +1150,24 @@ def assignment_status(base: str, symbol: str) -> Assignment:
         return Assignment(
             symbol, "stale-ledger", path, None, ledger_commit, [],
             "source has a plateau handoff but no target-named plateau commit",
+            "prose-needs-remeasurement",
         )
     if ledger_commit is None:
         return Assignment(
             symbol, "stale-ledger", path, source_commit, None, [],
             "source plateau is missing exact-symbol handoff ledger evidence",
+            "prose-needs-remeasurement",
         )
     if not is_ancestor(source_commit, ledger_commit):
         return Assignment(
             symbol, "stale-ledger", path, source_commit, ledger_commit, [],
             "triage evidence predates the committed source plateau",
+            "stale-structured-evidence",
         )
     return Assignment(
         symbol, "already-integrated/exhausted", path, source_commit,
         ledger_commit, [], "source plateau and triage evidence are current",
+        "current-plateau",
     )
 
 

@@ -38,7 +38,7 @@ DEFAULT_SCAN = MAX_SCAN
 MAX_TOP = 100
 MAX_JOBS = 16
 DEFAULT_JOBS = 4
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 ASSIGNABLE_STATE = "base-only"
 SKIPPED_STATES = (
     "dirty-worktree",
@@ -355,6 +355,7 @@ def build_report(
     ready: list[dict[str, object]] = []
     skipped: list[dict[str, object]] = []
     skipped_counts = {state: 0 for state in SKIPPED_STATES}
+    maintenance_counts: dict[str, int] = {}
     scanned = 0
 
     if focus not in FOCUS_CATEGORIES:
@@ -410,6 +411,7 @@ def build_report(
                             raw_row, rank, snapshot_rank, score, evidence,
                         ),
                         "state": "not-live",
+                        "maintenance_class": "not-live",
                         "reason": (
                             "exact identity is absent from the live "
                             "NON_MATCHING queue"
@@ -418,6 +420,9 @@ def build_report(
                         "source_commit": None,
                         "ledger_commit": None,
                     })
+                    maintenance_counts["not-live"] = (
+                        maintenance_counts.get("not-live", 0) + 1
+                    )
                     continue
 
                 if file_name in dirty_paths:
@@ -427,6 +432,7 @@ def build_report(
                             raw_row, rank, snapshot_rank, score, evidence,
                         ),
                         "state": "dirty-worktree",
+                        "maintenance_class": "dirty-worktree",
                         "reason": (
                             "owning source path has uncommitted primary-"
                             "worktree changes"
@@ -435,6 +441,9 @@ def build_report(
                         "source_commit": None,
                         "ledger_commit": None,
                     })
+                    maintenance_counts["dirty-worktree"] = (
+                        maintenance_counts.get("dirty-worktree", 0) + 1
+                    )
                     continue
 
                 assignment = (
@@ -476,11 +485,16 @@ def build_report(
                         f"{assignment.state!r} for {symbol}"
                     )
                 skipped_counts[assignment.state] += 1
+                maintenance_class = assignment.reason_code or "unclassified"
+                maintenance_counts[maintenance_class] = (
+                    maintenance_counts.get(maintenance_class, 0) + 1
+                )
                 skipped.append({
                     **_ranking_details(
                         raw_row, rank, snapshot_rank, score, evidence,
                     ),
                     "state": assignment.state,
+                    "maintenance_class": maintenance_class,
                     "reason": assignment.reason,
                     "active_lanes": list(assignment.active_lanes),
                     "source_commit": assignment.source_commit,
@@ -517,6 +531,7 @@ def build_report(
         "summary": {
             "ready": len(ready),
             "skipped": skipped_counts,
+            "maintenance_classes": dict(sorted(maintenance_counts.items())),
             "top_limit_reached": len(ready) >= top,
             "scan_limit_reached": scanned >= scan and len(ready) < top,
             "ranking_exhausted": scanned == len(focused_functions),
@@ -618,10 +633,13 @@ def render_maintenance(report: dict[str, object]) -> str:
             assert isinstance(lanes, list)
             detail = f"{len(lanes)} lane ref(s): {detail}"
         rows.append([
-            str(raw["rank"]), state, str(raw["symbol"]),
+            str(raw["rank"]), state, str(raw["maintenance_class"]),
+            str(raw["symbol"]),
             str(raw["file"]), detail,
         ])
-    headers = ["rank", "state", "symbol", "file", "maintenance"]
+    headers = [
+        "rank", "state", "class", "symbol", "file", "maintenance",
+    ]
     if not rows:
         return f"(no maintenance blockers)\n{summary_line(report)}\n"
     widths = [len(header) for header in headers]
@@ -701,9 +719,15 @@ def main(argv: list[str] | None = None) -> int:
         ranking_name = portable_path(args.ranking)
         freshness = ranking_freshness(args.base, ranking_name, document)
         dirty_paths = dirty_worktree_paths()
+        live_items = permute_batch.discover_queue()
+        identities = live_identities(live_items)
+        context = lane_status.AssignmentContext.build(
+            args.base, [identity.symbol for identity in identities],
+            jobs=args.jobs,
+        )
         report = build_report(
             document,
-            permute_batch.discover_queue(),
+            live_items,
             base=args.base,
             base_commit=base_commit,
             ranking_name=ranking_name,
@@ -711,6 +735,7 @@ def main(argv: list[str] | None = None) -> int:
             focus=args.focus,
             freshness=freshness,
             dirty_paths=dirty_paths,
+            classify=context.classify,
         )
     except (
         OSError,

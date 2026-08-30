@@ -24,7 +24,12 @@ targets that are safe to assign. It joins five independent checks:
    row; malformed or source-mismatched target shards fail closed.
 
 The command is read-only. It reads source and committed Git objects; it does
-not compile, inspect ROM text, or inspect sibling worktrees.
+not compile, inspect ROM text, or inspect sibling worktrees. One queue run
+batch-resolves source definitions, indexes each unintegrated lane's committed
+path delta, and parses shared legacy-ledger evidence once. Per-symbol checks
+then inspect only lanes that changed that exact source, shard, or legacy row.
+This preserves the fail-closed verdict while avoiding one full ref/history
+walk per ranking row.
 It resolves the primary checkout from `git worktree list --porcelain`; running
 the command inside an integration or worker lane therefore still protects
 uncommitted source edits in the main checkout.
@@ -80,15 +85,18 @@ ranked order. Run `tools/nm_ranking.py --refresh-stale` to compile just those
 rows together with changed and newly queued identities.
 
 Table output is intended for a terminal. Markdown is paste-ready for a queue
-or handoff. JSON is schema version 3, uses stable field names, preserves row
+or handoff. JSON is schema version 4, uses stable field names, preserves row
 order in arrays, and includes `file_batch_position`/`file_batch_size`, the
 resolved base commit, limits, detailed ready/skipped rows, and summary counts.
 The `maintenance` format suppresses ready and exhausted rows and gives a
-compact list of `stale-ledger`, `active`, and `dirty-worktree` blockers. Use it
-to schedule evidence reproof, reconcile a symbol-owned plateau shard, or
-resolve lane ownership without parsing the much larger JSON report. A lane
-that merely predates a handoff-only repair on the base is not active: target
-evidence is compared with that lane's merge base before ownership is assigned.
+compact list of `stale-ledger`, `active`, and `dirty-worktree` blockers. Its
+`class` column and JSON `maintenance_class` distinguish lane ownership,
+primary-worktree dirt, malformed structured evidence, and prose-only plateaus
+that need fresh measurement. The summary aggregates the same values under
+`maintenance_classes`. Use them to schedule evidence reproof separately from
+mechanical shard repair or lane release. A lane that merely predates a
+handoff-only repair on the base is not active: target evidence is compared
+with that lane's merge base before ownership is assigned.
 
 ## Fail-closed behavior
 

@@ -58,7 +58,15 @@ def assignment(
     state: str = "base-only",
     *,
     active_lanes: list[str] | None = None,
+    reason_code: str | None = None,
 ) -> lane_status.Assignment:
+    if reason_code is None:
+        reason_code = {
+            "base-only": "ready",
+            "active": "lane-owned",
+            "already-integrated/exhausted": "current-plateau",
+            "stale-ledger": "unclassified",
+        }.get(state)
     return lane_status.Assignment(
         symbol=symbol,
         state=state,
@@ -67,6 +75,7 @@ def assignment(
         ledger_commit="ledger" if state == "already-integrated/exhausted" else None,
         active_lanes=active_lanes or [],
         reason=f"{state} reason",
+        reason_code=reason_code,
     )
 
 
@@ -92,7 +101,10 @@ class ReadyQueueTests(unittest.TestCase):
         states = {
             "a": assignment("a", "src/main/a.c", "active", active_lanes=["lane/a"]),
             "b": assignment("b", "src/main/b.c", "already-integrated/exhausted"),
-            "c": assignment("c", "src/main/c.c", "stale-ledger"),
+            "c": assignment(
+                "c", "src/main/c.c", "stale-ledger",
+                reason_code="prose-needs-remeasurement",
+            ),
             "d": assignment("d", "src/main/d.c"),
             "e": assignment("e", "src/main/e.c"),
         }
@@ -113,6 +125,15 @@ class ReadyQueueTests(unittest.TestCase):
         maintenance = rq.render_maintenance(report)
         self.assertIn("lane ref(s)", maintenance)
         self.assertIn("stale-ledger", maintenance)
+        self.assertIn("prose-needs-remeasurement", maintenance)
+        self.assertEqual(
+            report["summary"]["maintenance_classes"],
+            {
+                "current-plateau": 1,
+                "lane-owned": 1,
+                "prose-needs-remeasurement": 1,
+            },
+        )
         self.assertNotIn("already-integrated/exhausted  b", maintenance)
 
     def test_scan_and_top_are_hard_bounds(self) -> None:
