@@ -341,9 +341,9 @@ $(O8_OBJ): POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		gOverlay8SelectorScales=D_520 $@ && \
 	$(OBJCOPY) --redefine-sym \
-		overlay8SampleChannel=func_8002A878 $@ && \
+		overlay8SampleChannel=func_8002A878_o008Reloc $@ && \
 	$(OBJCOPY) --redefine-sym \
-		overlay8EmitChannel=func_8001F320 $@ && \
+		overlay8EmitChannel=func_8001F320_o008Reloc $@ && \
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_008_F0003018_1860D70=overlay8UpdateChannels $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x5128 && \
