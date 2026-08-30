@@ -818,9 +818,9 @@ void func_8003EF80(ParticleObject *object, ParticleTriggerSlot *trigger) {
     }
 }
 #ifdef NON_MATCHING
-/* Workbench: allocation-mismatch, 30 differing words, size_delta 0; first mismatch +0x20C.
- * Shape-exact/permuter-ready: target and candidate are 297 instructions with the exact frame and structural schedule.
- * Remaining residual is register allocation; assembly fallback stays canonical.
+/* Workbench: mixed schedule/allocation plateau, 21 differing words, size_delta 0; first mismatch +0x20C.
+ * Target and candidate are 297 instructions with the exact 0x58 frame and 16 relocation identities.
+ * The integer temp lane is exact; 19 float-register words and one two-load schedule swap remain.
  * PROVENANCE: structure cross-checked against JFG's assembly-only asm/nonmatchings/particles/func_80060400.s sibling; body reconstructed from Mickey evidence. */
 void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
                    ParticleConfig *config) {
@@ -918,10 +918,10 @@ void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, Parti
             } else {
                 mtxf_transform_dir(
                     (u8 *)resource->matrices[resource->matrixTableIndex] +
-                        (header->transformIndices[pointIndex].matrixIndex << 6),
+                        ((header->transformIndices[pointIndex].matrixIndex << 5) << 1),
                     offset, offset, header);
-                magnitude = sqrtf(((offset[0] * offset[0]) + (offset[1] * offset[1])) +
-                                  (offset[2] * offset[2]));
+                scale = (offset[0] * offset[0]) + (offset[1] * offset[1]);
+                magnitude = sqrtf(scale + (offset[2] * offset[2]));
                 if (magnitude == 0.0f) {
                     scale = speed;
                 } else {
@@ -2296,3 +2296,13 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
         } while (poolPtr != (CircularParticlePool **)&D_800D4134);
     } while (0);
 }
+
+/* PLATEAU-HANDOFF:func_8003F154:start
+ * symbol: func_8003F154
+ * score: 21 differing words
+ * frame: 0x58
+ * relocations: 16
+ * first-mismatch: +0x20C
+ * summary: 276/297 words align; integer temp lane closed, leaving FP allocation and one two-load schedule swap after bounded flag and permuter searches.
+ * PLATEAU-HANDOFF:func_8003F154:end
+ */
