@@ -6,6 +6,7 @@
 - frame: 0x38
 - relocations: 18
 - first mismatch: +0x30
+- summary: local declaration order fixes the frame; remaining structure/register web and unresolved relocation identities need new evidence
 - assignment base: `6ce89d6b`
 - owned range: overlay 13 `+0x580..+0x874`, 756 bytes / 189 words
 - baseline: 108 differing positional words, `0x40` frame, first mismatch `+0x0`

@@ -6,5 +6,5 @@
 - frame: 0x30
 - relocations: 23
 - first mismatch: +0x10
-- summary: Exact size, frame, and opcode schedule; 81 register-allocation words remain after all 119 flags and ten source-faithful forms. Reopen only with new evidence for the loop index/bound allocation phase.
+- summary: Exact opcode schedule; 81 register words remain after 119 flags and ten source-faithful forms, with no donor-quality analogue.
 <!-- plateau-handoff:overlay7UpdateOwnerMode:end -->

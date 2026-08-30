@@ -2,10 +2,11 @@
 ### `overlay58DrawSegmentStrip` plateau handoff
 
 - source: `src/overlays/o058/overlay58DrawSegmentStrip.c`
-- score: 102 differing words
+- score: 99/201 words
 - frame: 0x88
 - relocations: 8
 - first mismatch: +0xC
+- summary: Negative-index cursor spelling fixes one immediate; broad allocator and command-schedule residual remains.
 - assignment base: `c586089df86a94384eccb45d88e4cbdc7dcbff26`
 - owned range: overlay 58 `+0x4C04..+0x4F28`, 804 bytes / 201 words
 - baseline: 103 differing positional words / 98 of 201 words exact, first mismatch `+0xC`
