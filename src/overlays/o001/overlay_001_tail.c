@@ -1584,6 +1584,7 @@ extern Overlay1CallbackEntry gOverlay1ModeCallbacks[];
 void overlay1StartTimerCallbacks(Overlay1CallbackObject *object, s32 amount) {
     Overlay1CallbackEntry *entry;
     Overlay1Callback callback;
+    Overlay1Callback loadedCallback;
     s32 index;
     u8 mode;
 
@@ -1594,7 +1595,8 @@ void overlay1StartTimerCallbacks(Overlay1CallbackObject *object, s32 amount) {
         for (index = 5; index != 6; index++, entry++) {
             mode = ((Overlay1CallbackState *)gOverlay1TimerState)->mode;
             if (index != mode) {
-                callback = entry->callback;
+                loadedCallback = entry->callback;
+                callback = loadedCallback;
                 if (callback != NULL) {
                     if ((entry->modeMask & (1 << mode)) != 0) {
                         callback();
@@ -3258,4 +3260,14 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0x20
  * summary: 119 flags and six coherent forms exhausted; next lever is source evidence for pool formation or anchor temporary FIFO behavior.
  * PLATEAU-HANDOFF:overlay1AppendPathPoint:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1StartTimerCallbacks:start
+ * symbol: overlay1StartTimerCallbacks
+ * score: 12 differing words
+ * frame: 0x28
+ * relocations: 13
+ * first-mismatch: +0x50
+ * summary: 119 flags and nine natural forms exhausted; seven static identities remain unresolved and the next lever is source-authentic post-callback pointer liveness
+ * PLATEAU-HANDOFF:overlay1StartTimerCallbacks:end
  */
