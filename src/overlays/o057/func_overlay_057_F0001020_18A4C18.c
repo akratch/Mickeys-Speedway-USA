@@ -224,3 +224,13 @@ void func_overlay_057_F0001020_18A4C18(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/func_overlay_057_F0001020_18A4C18/func_overlay_057_F0001020_18A4C18.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_057_F0001020_18A4C18:start
+ * symbol: func_overlay_057_F0001020_18A4C18
+ * score: 585/598 words
+ * frame: 0xD0
+ * relocations: 65
+ * first-mismatch: +0x0
+ * summary: Target holds the display-list base in s0 and point owner in s1 with a 0xF0 frame; source-shape and flag lattices did not recover that allocation.
+ * PLATEAU-HANDOFF:func_overlay_057_F0001020_18A4C18:end
+ */
