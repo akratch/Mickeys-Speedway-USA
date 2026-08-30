@@ -465,3 +465,13 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * summary: Ten source-authentic command, fade-lifetime, and packed-expression forms found no gain; entry scheduling and local-data identity proof remain.
  * PLATEAU-HANDOFF:overlay15DrawScreenStars:end
  */
+
+/* PLATEAU-HANDOFF:overlay15DrawRain:start
+ * symbol: overlay15DrawRain
+ * score: 41/54 words
+ * frame: 0x40
+ * relocations: 17
+ * first-mismatch: +0x74
+ * summary: Exact-size C retains 13 word differences; LOCAL BSS grouping leaves 14 candidate records versus 17 retail records.
+ * PLATEAU-HANDOFF:overlay15DrawRain:end
+ */
