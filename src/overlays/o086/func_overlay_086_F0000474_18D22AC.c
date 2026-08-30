@@ -312,3 +312,13 @@ loop_52:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o086/func_overlay_086_F0000474_18D22AC/func_overlay_086_F0000474_18D22AC.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_086_F0000474_18D22AC:start
+ * symbol: func_overlay_086_F0000474_18D22AC
+ * score: 73 differing words
+ * frame: 0xA8
+ * relocations: 38
+ * first-mismatch: +0x70
+ * summary: Exact geometry and frame; all 38 relocation positions and types align; flags and source cap exhausted; fresh width probe regressed.
+ * PLATEAU-HANDOFF:func_overlay_086_F0000474_18D22AC:end
+ */
