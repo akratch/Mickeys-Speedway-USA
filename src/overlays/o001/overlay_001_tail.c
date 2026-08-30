@@ -2816,16 +2816,14 @@ extern Overlay1PoolRecord gOverlay1PoolEnd[];
 extern s32 gOverlay1PoolGroup;
 extern s32 gOverlay1PoolExhausted;
 
-/* Plateau (2026-08-29): the surviving isolated ranking omitted this TU's
- * required -Wab,-r4300_mul; it is exact-sized at 40 words and leaves 10 raw
- * words, first at +0x50. The earlier bounded
- * round reached nine words from +0x6C after the 119-combination flag lattice
- * and eight source variants; only the post-predicate temporary FIFO web moved.
- * Explicit temporaries, typed union/byte access, operand association, pointer
- * aliases, and register/volatile hints were covered, but the trial bodies were
- * not preserved well enough to certify another formulation as new. No-go
- * pending fresh configured V0 and all ten runtime LOCAL relocation records;
- * the C has no linked/ROM-exact proof. */
+/* Plateau (2026-08-30): the configured full-TU body is exact-sized at 40
+ * words and frameless, with 9 relocation-masked differences from +0x6C (10
+ * raw from +0x50). All 10 fallback-static relocation offset/type sites align,
+ * but none of the same-overlay LOCAL/data identities authenticate. Ten fresh
+ * semantic loop, predicate, declaration, and cursor-lifetime forms produced
+ * no strict gain; the remaining code residual is the post-predicate ugen
+ * temporary FIFO/register web. This candidate has no promoted-linked or
+ * linked-ROM exact proof and remains behind NON_MATCHING. */
 #ifdef NON_MATCHING
 Overlay1PoolRecord *overlay1AllocateRecord(void) {
     Overlay1PoolRecord *cursor;
@@ -3308,4 +3306,14 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0x0
  * summary: O32 address carrier halves the raw residual; frame, early-load schedule, and five relocation offsets remain after ten forms and 119 flags; no permuter.
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1AllocateRecord:start
+ * symbol: overlay1AllocateRecord
+ * score: 31/40 words
+ * frame: frameless
+ * relocations: 10
+ * first-mismatch: +0x50
+ * summary: Masked residual 9 from +0x6C; fallback sites 10/10, LOCAL identities 0/10; ten semantic forms gave no strict gain
+ * PLATEAU-HANDOFF:overlay1AllocateRecord:end
  */
