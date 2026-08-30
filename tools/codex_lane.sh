@@ -63,7 +63,8 @@ heartbeat_file="$common_dir/codex-crew/heartbeats/$name.json"
 heartbeat_args=(heartbeat --worker "$name" --deadline-unix "$soft_deadline"
   --progress "runner launched" --state active)
 if [ ! -f "$heartbeat_file" ]; then
-  heartbeat_args+=(--target "$target" --base "$base_commit")
+  heartbeat_args+=(--target "$target" --base "$base_commit" --attempt-count 0
+    --best-score "not measured" --mismatch-class unclassified)
 fi
 (cd "$lane" && python3 tools/crew.py "${heartbeat_args[@]}" >/dev/null)
 export MICKEY_HEARTBEAT_WORKER="$name"
@@ -82,10 +83,16 @@ preamble = f'''Campaign task budget (ADR 0011):
 - Reserve the end of the soft budget to commit an exact result or the best
   meaningful plateau. Do not start a compile, permuter, or campaign call whose
   own cap cannot fit in the remaining time. Preserve work; never reset it away.
-- After material progress and before a long bounded call, refresh the shared
-  heartbeat with:
-    python3 tools/crew.py heartbeat --worker {os.environ['MICKEY_HEARTBEAT_WORKER']} \\
-      --progress "one concise progress statement"
+- After the baseline, each material attempt, and before a long bounded call,
+  refresh the shared checkpoint. Keep attempt count monotonic; report the best
+  score and current mismatch class, not merely that you are still working:
+    python3 tools/crew.py checkpoint --worker {os.environ['MICKEY_HEARTBEAT_WORKER']} \\
+      --progress "attempt 3: changed declaration order" --attempt-count 3 \\
+      --best-score "187/217 words differ" --mismatch-class frame-allocation
+- If you can estimate handoff time, add --eta-unix UNIX. The assignment's soft
+  deadline is already recorded and available as $MICKEY_TASK_DEADLINE_UNIX.
+- The field contract and fail-closed poll behavior are in
+  docs/worker-checkpoints.md.
 - If stopping at a plateau, guard the candidate and use
   tools/finalize_plateau.py before the handoff.
 
@@ -113,3 +120,4 @@ print(p.pid)
 PY
 )
 echo "$lane (soft deadline ${minutes}m; hard grace 5m)"
+echo "poll: python3 tools/crew.py heartbeat-status --worker $name --json --check"

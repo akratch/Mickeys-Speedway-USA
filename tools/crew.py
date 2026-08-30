@@ -21,7 +21,8 @@ import uuid
 
 
 SCHEMA_VERSION = 1
-HEARTBEAT_SCHEMA_VERSION = 1
+HEARTBEAT_SCHEMA_VERSION = 2
+LEGACY_HEARTBEAT_SCHEMA_VERSION = 1
 HEARTBEAT_STATES = ("active", "stopping", "handoff", "complete", "failed")
 STATES = (
     "ACTIVE",
@@ -53,6 +54,7 @@ MESSAGE_TYPES = (
 NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,31}$")
 TASK_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
 COMMIT_RE = re.compile(r"^[0-9a-f]{7,40}$")
+MISMATCH_CLASS_RE = re.compile(r"^[a-z][a-z0-9+._/-]{0,63}$")
 
 
 class CrewError(RuntimeError):
@@ -92,6 +94,13 @@ def timestamp(value: dt.datetime | None = None) -> str:
     return (value or utc_now()).isoformat(timespec="seconds").replace("+00:00", "Z")
 
 
+def parse_unix_timestamp(value: int, label: str) -> dt.datetime:
+    try:
+        return dt.datetime.fromtimestamp(value, dt.timezone.utc)
+    except (OverflowError, OSError, ValueError) as error:
+        raise CrewError(f"{label} is out of range") from error
+
+
 def clean_line(value: str) -> str:
     return " ".join(value.replace("\x00", "").splitlines()).strip()
 
@@ -100,6 +109,13 @@ def concise_line(value: str, label: str, limit: int = 160) -> str:
     cleaned = clean_line(value)
     if not cleaned or len(cleaned) > limit or "\t" in value:
         raise CrewError(f"{label} must be one concise line")
+    return cleaned
+
+
+def stored_concise_line(value: str, label: str, limit: int = 160) -> str:
+    cleaned = concise_line(value, label, limit)
+    if cleaned != value:
+        raise CrewError(f"{label} is not stored as one canonical concise line")
     return cleaned
 
 
@@ -138,7 +154,12 @@ def load_heartbeat(path: Path) -> dict[str, object]:
         record = json.loads(path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError) as error:
         raise CrewError(f"cannot read heartbeat {path}: {error}") from error
-    if record.get("schema") != HEARTBEAT_SCHEMA_VERSION:
+    if not isinstance(record, dict):
+        raise CrewError(f"heartbeat {path} must contain one JSON object")
+    schema = record.get("schema")
+    if type(schema) is not int or schema not in (
+        LEGACY_HEARTBEAT_SCHEMA_VERSION, HEARTBEAT_SCHEMA_VERSION
+    ):
         raise CrewError(f"unsupported heartbeat schema in {path}")
     required = {
         "worker": str,
@@ -149,13 +170,35 @@ def load_heartbeat(path: Path) -> dict[str, object]:
         "last_commit": str,
         "deadline_unix": int,
         "state": str,
+        "updated_at": str,
     }
+    if schema == HEARTBEAT_SCHEMA_VERSION:
+        required.update({
+            "attempt_count": int,
+            "best_score": str,
+            "mismatch_class": str,
+            "eta_unix": (int, type(None)),
+        })
+    unexpected = sorted(set(record) - {"schema", *required})
+    if unexpected:
+        raise CrewError(f"heartbeat {path} has unknown field(s): {', '.join(unexpected)}")
     for field, field_type in required.items():
-        if not isinstance(record.get(field), field_type):
+        value = record.get(field)
+        if field in ("deadline_unix", "attempt_count"):
+            valid = type(value) is int
+        elif field == "eta_unix":
+            valid = value is None or type(value) is int
+        else:
+            valid = isinstance(value, field_type)
+        if not valid:
             raise CrewError(f"heartbeat {path} has invalid {field}")
-    validate_name(str(record["worker"]), "heartbeat worker")
-    concise_line(str(record["target"]), "heartbeat target", 128)
-    concise_line(str(record["last_progress"]), "heartbeat progress")
+    worker = validate_name(str(record["worker"]), "heartbeat worker")
+    if worker != path.stem:
+        raise CrewError(
+            f"heartbeat {path} names worker {worker!r}; expected {path.stem!r} from its filename"
+        )
+    stored_concise_line(str(record["target"]), "heartbeat target", 128)
+    stored_concise_line(str(record["last_progress"]), "heartbeat progress")
     if not COMMIT_RE.fullmatch(str(record["base"])):
         raise CrewError(f"heartbeat {path} has invalid base")
     if not COMMIT_RE.fullmatch(str(record["last_commit"])):
@@ -164,7 +207,36 @@ def load_heartbeat(path: Path) -> dict[str, object]:
         raise CrewError(f"heartbeat {path} has invalid state")
     if int(record["deadline_unix"]) <= 0:
         raise CrewError(f"heartbeat {path} has invalid deadline_unix")
-    parse_timestamp(str(record["last_progress_at"]))
+    parse_unix_timestamp(int(record["deadline_unix"]), f"heartbeat {path} deadline_unix")
+    last_progress_at = parse_timestamp(str(record["last_progress_at"]))
+    updated_at = parse_timestamp(str(record["updated_at"]))
+    if updated_at < last_progress_at:
+        raise CrewError(f"heartbeat {path} has updated_at before last_progress_at")
+
+    if schema == HEARTBEAT_SCHEMA_VERSION:
+        attempt_count = record.get("attempt_count")
+        if type(attempt_count) is not int or attempt_count < 0:
+            raise CrewError(f"heartbeat {path} has invalid attempt_count")
+        stored_concise_line(str(record["best_score"]), "heartbeat best_score", 128)
+        mismatch_class = record.get("mismatch_class")
+        if not isinstance(mismatch_class, str) or not MISMATCH_CLASS_RE.fullmatch(mismatch_class):
+            raise CrewError(f"heartbeat {path} has invalid mismatch_class")
+        eta_unix = record.get("eta_unix")
+        if eta_unix is not None and (type(eta_unix) is not int or eta_unix <= 0):
+            raise CrewError(f"heartbeat {path} has invalid eta_unix")
+        if eta_unix is not None:
+            parse_unix_timestamp(int(eta_unix), f"heartbeat {path} eta_unix")
+    else:
+        # Schema 1 remains readable so running workers can update in place.
+        # The next update rewrites the record as schema 2 with explicit
+        # checkpoint defaults.
+        record = dict(record)
+        record.update({
+            "attempt_count": 0,
+            "best_score": "not recorded",
+            "mismatch_class": "unclassified",
+            "eta_unix": None,
+        })
     return record
 
 
@@ -185,21 +257,30 @@ def heartbeat_staleness(
         return []
     reasons: list[str] = []
     last_progress = parse_timestamp(str(record["last_progress_at"]))
+    if last_progress - now > dt.timedelta(minutes=5):
+        minutes = int((last_progress - now).total_seconds() // 60)
+        reasons.append(f"progress timestamp is {minutes}m in the future")
     if now - last_progress > stale_after:
         minutes = int((now - last_progress).total_seconds() // 60)
         reasons.append(f"no progress for {minutes}m")
-    deadline = dt.datetime.fromtimestamp(int(record["deadline_unix"]), dt.timezone.utc)
+    deadline = parse_unix_timestamp(int(record["deadline_unix"]), "heartbeat deadline_unix")
     if now > deadline:
         minutes = int((now - deadline).total_seconds() // 60)
         reasons.append(f"deadline passed {minutes}m ago")
+    eta_unix = record.get("eta_unix")
+    if eta_unix is not None:
+        eta = parse_unix_timestamp(int(eta_unix), "heartbeat eta_unix")
+        if now > eta:
+            minutes = int((now - eta).total_seconds() // 60)
+            reasons.append(f"ETA passed {minutes}m ago")
     return reasons
 
 
 def graceful_stop_guidance(worker: str) -> str:
     return (
         f"ask {worker} to finish its current bounded call, guard the best candidate, "
-        "run tools/finalize_plateau.py, and hand off; if it is unresponsive, inspect "
-        "the exact launcher PID before sending SIGINT. No process was stopped automatically."
+        "run tools/finalize_plateau.py, and hand off; if it is unresponsive, report "
+        "the exact launcher PID for owner inspection. crew.py never signals or stops a process."
     )
 
 
@@ -548,7 +629,47 @@ def command_heartbeat(args: argparse.Namespace, root: Path) -> None:
         raise CrewError("heartbeat base must be a 7-40 character lowercase commit id")
     if deadline <= 0:
         raise CrewError("heartbeat deadline must be a positive Unix timestamp")
+    parse_unix_timestamp(deadline, "heartbeat deadline")
     progress = concise_line(args.progress, "progress")
+    assignment_changed = existing is not None and (
+        target != str(existing["target"]) or base != str(existing["base"])
+    )
+    attempt_arg = getattr(args, "attempt_count", None)
+    if attempt_arg is not None and attempt_arg < 0:
+        raise CrewError("heartbeat attempt-count must be non-negative")
+    if assignment_changed:
+        attempt_count = attempt_arg if attempt_arg is not None else 0
+        best_score = getattr(args, "best_score", None) or "not measured"
+        mismatch_class = getattr(args, "mismatch_class", None) or "unclassified"
+        eta_unix = getattr(args, "eta_unix", None)
+    else:
+        attempt_count = attempt_arg if attempt_arg is not None else (
+            int(existing["attempt_count"]) if existing is not None else 0
+        )
+        best_score_arg = getattr(args, "best_score", None)
+        best_score = best_score_arg if best_score_arg is not None else (
+            str(existing["best_score"]) if existing is not None else "not measured"
+        )
+        mismatch_arg = getattr(args, "mismatch_class", None)
+        mismatch_class = mismatch_arg if mismatch_arg is not None else (
+            str(existing["mismatch_class"]) if existing is not None else "unclassified"
+        )
+        eta_arg = getattr(args, "eta_unix", None)
+        eta_unix = eta_arg if eta_arg is not None else (
+            existing.get("eta_unix") if existing is not None else None
+        )
+    if existing is not None and not assignment_changed and attempt_count < int(existing["attempt_count"]):
+        raise CrewError("heartbeat attempt-count cannot decrease for the same assignment")
+    best_score = concise_line(best_score, "best-score", 128)
+    if not MISMATCH_CLASS_RE.fullmatch(mismatch_class):
+        raise CrewError(
+            "heartbeat mismatch-class must start with a lowercase letter and use "
+            "lowercase letters, digits, '+', '.', '_', '/', or '-'"
+        )
+    if eta_unix is not None and eta_unix <= 0:
+        raise CrewError("heartbeat ETA must be a positive Unix timestamp")
+    if eta_unix is not None:
+        parse_unix_timestamp(eta_unix, "heartbeat ETA")
     last_commit = run_git("rev-parse", "HEAD")
     if not COMMIT_RE.fullmatch(last_commit):
         raise CrewError("could not resolve the current lane commit")
@@ -562,6 +683,10 @@ def command_heartbeat(args: argparse.Namespace, root: Path) -> None:
         "last_progress_at": timestamp(now),
         "last_commit": last_commit,
         "deadline_unix": deadline,
+        "attempt_count": attempt_count,
+        "best_score": best_score,
+        "mismatch_class": mismatch_class,
+        "eta_unix": eta_unix,
         "state": args.state,
         "updated_at": timestamp(now),
     }
@@ -574,36 +699,103 @@ def command_heartbeat_status(args: argparse.Namespace, root: Path) -> None:
     paths = [heartbeat_path(root, args.worker)] if args.worker else sorted(directory.glob("*.json"))
     if args.worker and not paths[0].is_file():
         raise CrewError(f"no heartbeat for {args.worker}")
-    if not paths:
-        print("no heartbeat records")
-        return
-
     now = utc_now()
     stale_after = dt.timedelta(minutes=args.stale_after_minutes)
     stale_records: list[tuple[dict[str, object], list[str]]] = []
-    print("worker\tstate\ttarget\tbase\tlast-commit\tlast-progress\tdeadline\tstatus")
+    malformed_records: list[tuple[Path, str]] = []
+    rows: list[dict[str, object]] = []
     for path in paths:
-        record = load_heartbeat(path)
+        try:
+            record = load_heartbeat(path)
+        except CrewError as error:
+            detail = str(error).replace(str(path), path.name)
+            malformed_records.append((path, detail))
+            rows.append({
+                "worker": path.stem,
+                "health": "malformed",
+                "error": detail,
+            })
+            continue
         reasons = heartbeat_staleness(record, now, stale_after)
-        age = int((now - parse_timestamp(str(record["last_progress_at"]))).total_seconds() // 60)
-        status = "; ".join(reasons) if reasons else "current"
-        print(
-            "\t".join((
-                str(record["worker"]),
-                str(record["state"]),
-                str(record["target"]),
-                str(record["base"])[:12],
-                str(record["last_commit"])[:12],
-                f"{age}m: {record['last_progress']}",
-                timestamp(dt.datetime.fromtimestamp(int(record["deadline_unix"]), dt.timezone.utc)),
-                status,
-            ))
+        progress_age_seconds = max(
+            0, int((now - parse_timestamp(str(record["last_progress_at"]))).total_seconds())
         )
+        deadline_unix = int(record["deadline_unix"])
+        eta_unix = record.get("eta_unix")
+        terminal = record["state"] not in ("active", "stopping")
+        health = "stale" if reasons else "terminal" if terminal else "current"
+        rows.append({
+            "worker": record["worker"],
+            "state": record["state"],
+            "target": record["target"],
+            "base": record["base"],
+            "commit": record["last_commit"],
+            "attempt_count": record["attempt_count"],
+            "best_score": record["best_score"],
+            "mismatch_class": record["mismatch_class"],
+            "progress": record["last_progress"],
+            "progress_age_seconds": progress_age_seconds,
+            "deadline_unix": deadline_unix,
+            "seconds_to_deadline": deadline_unix - int(now.timestamp()),
+            "eta_unix": eta_unix,
+            "seconds_to_eta": (
+                int(eta_unix) - int(now.timestamp()) if eta_unix is not None else None
+            ),
+            "health": health,
+            "reasons": reasons,
+        })
         if reasons:
             stale_records.append((record, reasons))
-    for record, _ in stale_records:
-        print(f"guidance: {graceful_stop_guidance(str(record['worker']))}")
-    if stale_records and args.check:
+
+    if getattr(args, "json", False):
+        summary = {
+            "total": len(rows),
+            "current": sum(row["health"] == "current" for row in rows),
+            "terminal": sum(row["health"] == "terminal" for row in rows),
+            "stale": sum(row["health"] == "stale" for row in rows),
+            "malformed": sum(row["health"] == "malformed" for row in rows),
+        }
+        report = {
+            "schema": 1,
+            "generated_at": timestamp(now),
+            "stale_after_seconds": int(stale_after.total_seconds()),
+            "ok": not stale_records and not malformed_records,
+            "summary": summary,
+            "workers": rows,
+        }
+        print(json.dumps(report, separators=(",", ":"), sort_keys=True))
+    elif not paths:
+        print("no heartbeat records")
+    else:
+        print(
+            "worker\tstate\ttarget\tattempt\tbest\tmismatch\tbase\tlast-commit\t"
+            "last-progress\tdeadline\tstatus"
+        )
+        for row in rows:
+            if row["health"] == "malformed":
+                print(f"{row['worker']}\t?\t?\t?\t?\t?\t?\t?\t?\t?\tmalformed: {row['error']}")
+                continue
+            status = "; ".join(row["reasons"]) if row["reasons"] else str(row["health"])
+            print(
+                "\t".join((
+                    str(row["worker"]),
+                    str(row["state"]),
+                    str(row["target"]),
+                    str(row["attempt_count"]),
+                    str(row["best_score"]),
+                    str(row["mismatch_class"]),
+                    str(row["base"])[:12],
+                    str(row["commit"])[:12],
+                    f"{int(row['progress_age_seconds']) // 60}m: {row['progress']}",
+                    timestamp(parse_unix_timestamp(int(row["deadline_unix"]), "heartbeat deadline")),
+                    status,
+                ))
+            )
+        for record, _ in stale_records:
+            print(f"guidance: {graceful_stop_guidance(str(record['worker']))}")
+    if malformed_records:
+        raise CrewError(f"{len(malformed_records)} malformed heartbeat(s)")
+    if stale_records and (args.check or getattr(args, "json", False)):
         raise CrewError(f"{len(stale_records)} stale heartbeat(s)")
 
 
@@ -740,7 +932,8 @@ def build_parser() -> argparse.ArgumentParser:
     set_status.set_defaults(function=command_set_status)
 
     heartbeat = commands.add_parser(
-        "heartbeat", help="Record one worker's target, progress, commit, and deadline"
+        "heartbeat", aliases=("checkpoint",),
+        help="Record one worker's target, matching checkpoint, commit, and deadline"
     )
     heartbeat.add_argument("--worker", required=True)
     heartbeat.add_argument("--target", help="Exact assigned target (required for a new record)")
@@ -749,6 +942,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--deadline-unix", type=int, help="Soft deadline (required for a new record)"
     )
     heartbeat.add_argument("--progress", required=True, help="One-line material progress update")
+    heartbeat.add_argument("--attempt-count", type=int, help="Completed bounded source attempts")
+    heartbeat.add_argument("--best-score", help="Concise best comparison score")
+    heartbeat.add_argument("--mismatch-class", help="Lowercase mismatch classification slug")
+    heartbeat.add_argument("--eta-unix", type=int, help="Optional expected handoff Unix timestamp")
     heartbeat.add_argument(
         "--state", choices=HEARTBEAT_STATES,
         default="active",
@@ -760,6 +957,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     heartbeat_status.add_argument("--worker")
     heartbeat_status.add_argument("--stale-after-minutes", type=int, default=15)
+    heartbeat_status.add_argument(
+        "--json", action="store_true",
+        help="Emit concise JSON and exit nonzero when any record is unhealthy",
+    )
     heartbeat_status.add_argument(
         "--check", action="store_true", help="Exit nonzero when an active heartbeat is stale"
     )
