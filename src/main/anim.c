@@ -2129,3 +2129,13 @@ void fmvInit(void) {
  * summary: Ten natural forms leave the clear-loop bound web; fallback-static resolves 41/41 identities with 31 exact, and five endpoint/base LO16 pairs remain reversed.
  * PLATEAU-HANDOFF:func_80050BF4:end
  */
+
+/* PLATEAU-HANDOFF:func_80056DD8:start
+ * symbol: func_80056DD8
+ * score: 214 differing words
+ * frame: 0x80
+ * relocations: 8
+ * first-mismatch: +0x0
+ * summary: Target is 229 words/frame 0x70; candidate is 226/frame 0x80; 1/8 relocation identities aligns; reopen only with a source-authentic frame lever.
+ * PLATEAU-HANDOFF:func_80056DD8:end
+ */
