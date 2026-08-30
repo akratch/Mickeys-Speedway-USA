@@ -31,31 +31,24 @@ extern s32 overlay68MapResidentIndexReloc(s32 kind);
 extern void overlay68FreeProbeReloc(void *probe);
 
 /*
- * Plateau (2026-08-25): the -O2/-mips2 candidate is size-exact but differs
- * in 18 of 80 words, first at +0x14. The residual is the local-home ordering
- * plus the zero-index probe-cursor schedule; declaration reordering moved to
- * the wrong 0x38-byte frame, and the bounded permuter found no faithful form.
- * Fresh lane revisit (2026-08-25): the full lattice again bottoms out at
- * 18/80 words with the first mismatch at +0x14. Reusing the loop index for
- * the zero cursor removed a required instruction, while ordering the four
- * homed locals by their target slots produced the wrong 0x38-byte frame.
- * Current lane structural pass (2026-08-25): reusing the homed result as the
- * zero cursor and reversing the sentinel comparison did not improve 18/80;
- * typed values-array indexing grew the body by one word and differed in 35.
- * The unresolved cause remains the local-home layout and cursor schedule.
+ * Bounded plateau (2026-08-30): a declaration-slot census reproduces the
+ * exact 0x48-byte frame and all four call-crossing stack homes, improving the
+ * configured candidate from 18 to 10 differing words. The remaining natural
+ * cursor and comparison spellings were flat, all 119 flag modes were
+ * nonexact, and the bounded batch found no admissible exact source.
  */
 #ifdef NON_MATCHING
 s32 overlay68CheckKind(s32 kind) {
+    s32 amount;
     const Overlay68KindPair *mapping;
     volatile const s8 *loopMapping;
-    Overlay68Probe *probe;
-    Overlay68ResidentEntry *entries;
     s32 currentKind;
-    s32 amount;
-    s32 threshold;
-    s32 value;
-    s32 index;
     s32 result;
+    s32 threshold;
+    Overlay68Probe *probe;
+    s32 value;
+    Overlay68ResidentEntry *entries;
+    s32 index;
     s16 *valueCursor;
     s32 cursorIndex;
 
@@ -113,3 +106,13 @@ s32 overlay68CheckKind(s32 kind) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o068/overlay68CheckKind/func_overlay_068_F000146C_18C85CC.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay68CheckKind:start
+ * symbol: overlay68CheckKind
+ * score: 70/80 words
+ * frame: 0x48
+ * relocations: 9
+ * first-mismatch: +0x2C
+ * summary: Exact stack homes leave a cursor CFG/temp web; all nine candidate relocation identities remain unresolved
+ * PLATEAU-HANDOFF:overlay68CheckKind:end
+ */
