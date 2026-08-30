@@ -204,9 +204,9 @@ void spranimOnceControl(SpranimOnceState *state, s32 updateRate) {
     }
 }
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 65 differing words, first mismatch +0x0. */
-/* Candidate: 193/193 instructions with exact relocation identities; frame is -0x98 versus target -0x80 and four opcode residuals remain. */
-/* Shape status: instruction count and hit-list control flow are exact, but the candidate is not shape-exact. */
+/* Workbench verdict: structure-mismatch, 60 differing words, first mismatch +0x48. */
+/* Candidate: 193/193 instructions with an exact 0x80 frame and five exact relocation identities; four opcode residuals remain. */
+/* Shape status: the ten-entry hit list and loop extent are exact, but stack homes and the integer register web remain non-exact. */
 /* PROVENANCE: JFG's public effectboxControl assembly establishes the trigger/hit-list idiom; all Mickey offsets and calls below are reconstructed locally. */
 typedef struct SpranimEffectBox {
     u8 pad0[0xC];
@@ -232,9 +232,6 @@ extern s32 func_8002905C(u8 type, void *state);
 
 void effectboxControl(SpranimEffectBox *arg0, s32 arg1) {
     SpranimEffectState *state;
-    void *hits[16];
-    s32 hitCount;
-    s32 processed;
 
     state = arg0->state64;
     if ((state->planeIndex >= 0) && (state->planeIndex <= 0)) {
@@ -250,6 +247,10 @@ void effectboxControl(SpranimEffectBox *arg0, s32 arg1) {
     }
 
     {
+        s32 hitCount;
+        s32 processed;
+        void *hits[10];
+
         hitCount = func_8005776C(arg0->x, arg0->y, arg0->z, (f32) state->radius, 0, hits);
         if (hitCount != 0) {
             processed = 0;
@@ -405,3 +406,13 @@ void func_8001BB10(SpranimBB10Object *arg0, void *arg1) {
     frame = (arg0->flags88 & 3) << 8;
     func_80020D8C(arg0->entries68[index], 0, frame, arg0);
 }
+
+/* PLATEAU-HANDOFF:effectboxControl:start
+ * symbol: effectboxControl
+ * score: 133/193 words
+ * frame: 0x80
+ * relocations: 5
+ * first-mismatch: +0x48
+ * summary: Exact frame and relocation identities; trigger stack homes and the hit-loop integer register web remain.
+ * PLATEAU-HANDOFF:effectboxControl:end
+ */
