@@ -184,7 +184,7 @@ class ExperimentLedgerTests(unittest.TestCase):
             r"Candidate bytes are \x27\xbd\xff\xe0",
             "Candidate decimal word is 666894304",
             "Try or $8, $9, $10",
-            "Compare against /Users/person/private/object.o",
+            "Compare against /private/object.o",
             r"Compare against C:\\private\\object.o",
             "Use src/main/private.c as a donor",
         )
