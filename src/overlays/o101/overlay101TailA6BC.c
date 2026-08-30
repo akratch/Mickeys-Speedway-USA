@@ -91,9 +91,7 @@ extern s32 overlay101ByteLength(u8 *text);
 #ifdef NON_MATCHING
 void overlay101TailA6BC(s32 base, register s32 positionalA1, s32 workIndex) {
     s32 orderIndex;
-    s32 nodeIndex1;
-    s32 nodeIndex2;
-    s32 nodeIndex3;
+    s32 nodeIndex;
     s32 node24Index;
     void *handle;
     s32 length;
@@ -119,8 +117,8 @@ void overlay101TailA6BC(s32 base, register s32 positionalA1, s32 workIndex) {
     gO101TailOrderSlots[orderIndex] = &gO101TailRoot.chainType;
     gO101TailOrderCount = orderIndex + 1;
 
-    nodeIndex1 = gO101TailNode32Count;
-    node32 = &gO101TailNodes32[nodeIndex1];
+    nodeIndex = gO101TailNode32Count;
+    node32 = &gO101TailNodes32[nodeIndex];
     node32->x = 0xA0;
     node32->y = 0x78;
     node32->value10 = 0xE38;
@@ -130,17 +128,17 @@ void overlay101TailA6BC(s32 base, register s32 positionalA1, s32 workIndex) {
     node32->scale = 5.0f;
     node32->value14 = 0.0f;
     handle = o101TailCreatorReloc(base + 0xA2, NULL, workIndex);
-    nodeIndex1 = *(volatile s32 *)&gO101TailNode32Count;
-    node32 = &gO101TailNodes32[nodeIndex1];
+    nodeIndex = *(volatile s32 *)&gO101TailNode32Count;
+    node32 = &gO101TailNodes32[nodeIndex];
     node32->handle = handle;
     node32->previousType = gO101TailRoot.chainType;
     node32->previous = gO101TailRoot.chain;
     gO101TailRoot.chain = node32;
     gO101TailRoot.chainType = 2;
-    gO101TailNode32Count = nodeIndex1 + 1;
+    gO101TailNode32Count = nodeIndex + 1;
 
-    nodeIndex2 = gO101TailNode32Count;
-    node32 = &gO101TailNodes32[nodeIndex2];
+    nodeIndex = gO101TailNode32Count;
+    node32 = &gO101TailNodes32[nodeIndex];
     node32->x = 0xA0;
     node32->y = 0x78;
     node32->value10 = 0x71C;
@@ -149,18 +147,18 @@ void overlay101TailA6BC(s32 base, register s32 positionalA1, s32 workIndex) {
     node32->value18 = 0;
     node32->scale = 5.0f;
     node32->value14 = 0.0f;
-    handle = o101TailCreatorReloc(base + 0xA2, NULL, nodeIndex2);
-    nodeIndex2 = *(volatile s32 *)&gO101TailNode32Count;
-    node32 = &gO101TailNodes32[nodeIndex2];
+    handle = o101TailCreatorReloc(base + 0xA2, NULL, nodeIndex);
+    nodeIndex = *(volatile s32 *)&gO101TailNode32Count;
+    node32 = &gO101TailNodes32[nodeIndex];
     node32->handle = handle;
     node32->previousType = gO101TailRoot.chainType;
     node32->previous = gO101TailRoot.chain;
     gO101TailRoot.chain = node32;
     gO101TailRoot.chainType = 2;
-    gO101TailNode32Count = nodeIndex2 + 1;
+    gO101TailNode32Count = nodeIndex + 1;
 
-    nodeIndex3 = gO101TailNode32Count;
-    node32 = &gO101TailNodes32[nodeIndex3];
+    nodeIndex = gO101TailNode32Count;
+    node32 = &gO101TailNodes32[nodeIndex];
     node32->x = 0xA0;
     node32->y = 0x78;
     node32->value10 = 0;
@@ -169,15 +167,15 @@ void overlay101TailA6BC(s32 base, register s32 positionalA1, s32 workIndex) {
     node32->value18 = 0;
     node32->scale = 5.0f;
     node32->value14 = 0.0f;
-    handle = o101TailCreatorReloc(base + 0xA2, NULL, nodeIndex3);
-    nodeIndex3 = *(volatile s32 *)&gO101TailNode32Count;
-    node32 = &gO101TailNodes32[nodeIndex3];
+    handle = o101TailCreatorReloc(base + 0xA2, NULL, nodeIndex);
+    nodeIndex = *(volatile s32 *)&gO101TailNode32Count;
+    node32 = &gO101TailNodes32[nodeIndex];
     node32->handle = handle;
     node32->previousType = gO101TailRoot.chainType;
     node32->previous = gO101TailRoot.chain;
     gO101TailRoot.chain = node32;
     gO101TailRoot.chainType = 2;
-    gO101TailNode32Count = nodeIndex3 + 1;
+    gO101TailNode32Count = nodeIndex + 1;
 
     orderIndex = gO101TailOrderCount;
     gO101TailRoot.x42 = 0x20;
@@ -250,3 +248,13 @@ void overlay101TailA6BC(s32 base, register s32 positionalA1, s32 workIndex) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101TailA6BC/func_overlay_101_F000A6BC_18E5EDC.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay101TailA6BC:start
+ * symbol: overlay101TailA6BC
+ * score: 267/292 words
+ * frame: 0x58
+ * relocations: 44
+ * first-mismatch: +0x0
+ * summary: 119 flags and ten source forms are nonexact; retained +1-word shape has one extra saved index web and 0x20 excess non-save frame.
+ * PLATEAU-HANDOFF:overlay101TailA6BC:end
+ */
