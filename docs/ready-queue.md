@@ -32,7 +32,7 @@ uncommitted source edits in the main checkout.
 ## Usage
 
 ```sh
-python3 tools/ready_queue.py --scan 50 --top 10
+python3 tools/ready_queue.py
 python3 tools/ready_queue.py --scan 100 --top 20 --format markdown
 python3 tools/ready_queue.py --scan 100 --top 20 --format json
 python3 tools/ready_queue.py --scan 100 --top 20 --format maintenance
@@ -69,8 +69,11 @@ instead of rebuilding the same TU in separate lanes.
 `--scan` bounds how many rows of that derived priority order are
 examined. `--top` bounds how many assignable rows are returned, and cannot
 exceed `--scan`. Processing stops as soon as either bound is reached. The
-defaults are 50 scanned rows and ten returned rows; hard limits are 1,000 and
-100 respectively. Ties preserve the retained snapshot order.
+default scan ceiling is the 1,000-row hard limit, so a large prefix of active
+or exhausted evidence cannot produce a false-empty queue; the default return
+limit remains ten rows. Set `--scan` explicitly for a deliberately shallower
+maintenance probe. The hard return limit is 100. Ties preserve the retained
+snapshot order.
 
 Unresolved ranking rows are reported as a count but are not invented into the
 ranked order. Run `tools/nm_ranking.py --refresh-stale` to compile just those

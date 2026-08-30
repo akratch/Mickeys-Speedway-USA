@@ -431,6 +431,11 @@ void a(void) { shared++; }
 
 
 class ArgumentTests(unittest.TestCase):
+    def test_default_scan_reaches_the_hard_bound(self) -> None:
+        args = rq.parse_args([])
+        self.assertEqual(rq.MAX_SCAN, args.scan)
+        self.assertEqual(rq.DEFAULT_TOP, args.top)
+
     def test_bounds_reject_zero_and_top_above_scan(self) -> None:
         with contextlib.redirect_stderr(io.StringIO()):
             with self.assertRaises(SystemExit):

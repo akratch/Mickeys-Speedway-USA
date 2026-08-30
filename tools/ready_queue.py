@@ -32,9 +32,9 @@ import permute_batch  # noqa: E402
 
 DEFAULT_RANKING = ROOT / "config" / "nonmatching-ranking.us.json"
 DEFAULT_BASE = "campaign/unchain"
-DEFAULT_SCAN = 50
 DEFAULT_TOP = 10
 MAX_SCAN = 1000
+DEFAULT_SCAN = MAX_SCAN
 MAX_TOP = 100
 MAX_JOBS = 16
 DEFAULT_JOBS = 4
@@ -649,7 +649,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--scan", type=scan_value, default=DEFAULT_SCAN,
-        help=f"maximum ranked rows to examine (1-{MAX_SCAN}; default {DEFAULT_SCAN})",
+        help=(
+            "maximum ranked rows to examine before the requested queue is "
+            f"full (1-{MAX_SCAN}; default {DEFAULT_SCAN})"
+        ),
     )
     parser.add_argument(
         "--top", type=top_value, default=DEFAULT_TOP,
