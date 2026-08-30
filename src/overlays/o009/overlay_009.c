@@ -464,9 +464,9 @@ void func_overlay_009_F0000F6C_18675E4(O9Point *point, O9Height *offset,
 void overlay9Ignore(volatile s32 arg0, volatile s32 arg1, volatile s32 arg2) {
 }
 
-/* Workbench p7: mixed, 282/282 instructions/frame -152, 79 masked (86 raw) words; first code divergence +0x88.
- * Full-TU candidate restores the target length; context/flag, constant/home, pointer, alias, and initializer probes remain exhausted.
- * Residual is 6 structural/5 schedule/67 register rows plus 27 overlay-local relocation identities; retain NON_MATCHING. */
+/* Workbench p8: mixed, 282/282 instructions/frame -152, 52 masked (59 raw) words; first code divergence +0x88.
+ * Explicitly zero-extending the byte counter cut 27 positional differences; all 119 flag identities and ten coherent source forms are exhausted.
+ * Residual is stack-home/allocation dominated; 31/31 relocation offsets/types align and 18/31 stable identities resolve. Retain NON_MATCHING. */
 #ifdef NON_MATCHING
 void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner,
                                        f32 stepsFloat) {
@@ -485,7 +485,7 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
     ext_o0_210b4(60.0f, 0);
     if (state->flags & 8) D_388[mode]++;
     D_388[mode] &= 3;
-    tableIndex = D_388[mode] + ((ext_o0_214c8() & 3) * 4);
+    tableIndex = (D_388[mode] & 0xFF) + ((ext_o0_214c8() & 3) * 4);
     targetX = D_300[tableIndex] + (D_2D0 * 75.0f);
     targetY = D_340[tableIndex];
     steps = (s32) stepsFloat;
@@ -576,4 +576,14 @@ void func_overlay_009_F00010B4_186772C(O9MotionResult *out, O9MotionOwner *owner
  * first-mismatch: +0xC8
  * summary: Exact size; four angle-stack operands plus one pool addend remain; permuter improved 37 to 29 without zero. Reopen with new stack-slot or pool-layout evidence.
  * PLATEAU-HANDOFF:func_overlay_009_F0000CE4_186735C:end
+ */
+
+/* PLATEAU-HANDOFF:func_overlay_009_F00010B4_186772C:start
+ * symbol: func_overlay_009_F00010B4_186772C
+ * score: 59 differing words
+ * frame: 0x98
+ * relocations: 31
+ * first-mismatch: +0x88
+ * summary: Byte zero-extension cut 86 to 59; exact executable size/frame and relocation shape remain blocked by stack-home allocation and 13 unresolved identities.
+ * PLATEAU-HANDOFF:func_overlay_009_F00010B4_186772C:end
  */
