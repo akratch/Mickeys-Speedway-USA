@@ -1753,3 +1753,13 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * summary: Fresh V0 is one instruction short; authentic three-argument ABI retains the unused-a0 home, a3 state carrier, and rollover-join mismatch.
  * PLATEAU-HANDOFF:func_overlay_008_F0001000_185ED58:end
  */
+
+/* PLATEAU-HANDOFF:func_overlay_008_F000291C_1860674:start
+ * symbol: func_overlay_008_F000291C_1860674
+ * score: 56 differing words
+ * frame: -0x70
+ * relocations: 25
+ * first-mismatch: +0x0
+ * summary: Fresh exact geometry retains the 0x70/0x68 frame split and divergent FP pool; prior declaration, lifetime, constant, and flag probes are exhausted.
+ * PLATEAU-HANDOFF:func_overlay_008_F000291C_1860674:end
+ */
