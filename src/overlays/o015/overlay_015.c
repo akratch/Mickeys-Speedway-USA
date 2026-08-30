@@ -284,9 +284,9 @@ void overlay15InitStars(s32 count, s32 xRange, s32 yRange, s32 zRange,
                         u32 startColor, u32 endColor, s32 colorDivisor) {
     Overlay15Star *stars;
     u32 *colors;
-    Overlay15Star **starsAddress;
-    u32 **colorsAddress;
-    s32 *countAddress;
+    Overlay15Star *volatile *starsAddress;
+    u32 *volatile *colorsAddress;
+    volatile s32 *countAddress;
     Overlay15InitBounds *unusedBoundsAddress;
     s32 i;
     s32 startR;
@@ -312,7 +312,10 @@ void overlay15InitStars(s32 count, s32 xRange, s32 yRange, s32 zRange,
     gOverlay15InitBounds.zMin = gOverlay15InitBounds.zRange * -0.5f;
     gOverlay15InitBounds.zMax = gOverlay15InitBounds.zRange * 0.5f;
     gOverlay15InitBounds.colorDivisor = (f32) colorDivisor;
+    gOverlay15InitBounds.colorStep = 255.0f /
+                                     gOverlay15InitBounds.colorDivisor;
 
+    i = 0;
     colors = (u32 *) (stars + count);
     starsAddress = &gOverlay15Stars;
     colorsAddress = &gOverlay15StarColors;
@@ -324,10 +327,7 @@ void overlay15InitStars(s32 count, s32 xRange, s32 yRange, s32 zRange,
     *colorsAddress = colors;
     *countAddress = count;
     gOverlay15InitBounds.zero = 0;
-    gOverlay15InitBounds.colorStep = 255.0f /
-                                     gOverlay15InitBounds.colorDivisor;
 
-    i = 0;
     if (count > 0) {
         startR = (startColor >> 24) & 0xFF;
         startG = (startColor >> 16) & 0xFF;
@@ -474,4 +474,14 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * first-mismatch: +0x74
  * summary: Exact-size C retains 13 word differences; LOCAL BSS grouping leaves 14 candidate records versus 17 retail records.
  * PLATEAU-HANDOFF:overlay15DrawRain:end
+ */
+
+/* PLATEAU-HANDOFF:overlay15InitStars:start
+ * symbol: overlay15InitStars
+ * score: 89 differing words
+ * frame: 0xB8
+ * relocations: 15
+ * first-mismatch: +0x44
+ * summary: exact-size 190-word candidate; workbench structure-mismatch after carrier scheduling basin, next lever bounded p2 allocator trace/permutation
+ * PLATEAU-HANDOFF:overlay15InitStars:end
  */
