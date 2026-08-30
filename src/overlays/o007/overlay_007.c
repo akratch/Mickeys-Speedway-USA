@@ -132,3 +132,13 @@ void overlay7AppendEntry(void *owner, u16 value, u8 type) {
         }
     }
 }
+
+/* PLATEAU-HANDOFF:overlay7AcquireEntry:start
+ * symbol: overlay7AcquireEntry
+ * score: 80/96 words
+ * frame: 0x30
+ * relocations: 13
+ * first-mismatch: +0x104
+ * summary: Tail address-carrier web remains; inspect ugen statement boundaries before another source shape.
+ * PLATEAU-HANDOFF:overlay7AcquireEntry:end
+ */
