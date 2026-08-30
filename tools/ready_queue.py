@@ -256,7 +256,7 @@ def ranking_freshness(
         current = digest(base, key[0], key[1])
         embedded = rows_by_key[key].get(nm_ranking.SOURCE_CONTEXT_FIELD)
         measured = (
-            str(embedded)
+            nm_ranking.normalize_source_context_digest(embedded)
             if embedded is not None
             else digest(commit, key[0], key[1])
         )

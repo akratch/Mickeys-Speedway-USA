@@ -208,7 +208,7 @@ class ValidationTests(unittest.TestCase):
 
     def test_schema_two_context_coverage_is_derived_and_validated(self) -> None:
         row = function_row("src/main/file.c", "symbol")
-        row[ranking.SOURCE_CONTEXT_FIELD] = "a" * 64
+        row[ranking.SOURCE_CONTEXT_FIELD] = ranking.group_source_context("A" * 43)
         document = ranking.make_ranking_document(
             [row], [], objdiff_report_used=False
         )
@@ -224,12 +224,32 @@ class ValidationTests(unittest.TestCase):
         row = function_row("src/main/file.c", "symbol")
         row[ranking.SOURCE_CONTEXT_FIELD] = "not-a-digest"
         with self.assertRaisesRegex(
-            ranking.RankingDocumentError, "lowercase SHA-256"
+            ranking.RankingDocumentError, "SHA-256 encoding"
         ):
             ranking.validate_ranking_document(ranking_document([row]))
 
 
 class SourceContextTests(unittest.TestCase):
+    def test_context_digest_is_cleanroom_safe_base64url(self) -> None:
+        text = """#ifdef NON_MATCHING
+void a(void) {}
+#else
+#pragma GLOBAL_ASM(\"asm/a.s\")
+#endif
+"""
+        digest = ranking.source_context_digest(text, "a")
+        self.assertIsNotNone(digest)
+        self.assertRegex(
+            digest or "", r"^(?:[A-Za-z0-9_-]{4}\.){10}[A-Za-z0-9_-]{3}$"
+        )
+
+    def test_legacy_hex_context_normalizes_without_changing_evidence(self) -> None:
+        legacy = "00" * 32
+        self.assertEqual(
+            ranking.normalize_source_context_digest(legacy),
+            ranking.group_source_context("A" * 43),
+        )
+
     def test_ignores_comments_and_other_candidates_but_covers_shared_context(self) -> None:
         original = """extern int shared;
 #ifdef NON_MATCHING
@@ -260,7 +280,12 @@ void b(void) { shared++; }
             ("1" * 40, '      "name": "func",'),
             ("1" * 40, '      "file": "src/main/file.c",'),
             ("2" * 40, '      "differing_words": 3,'),
-            ("3" * 40, f'      "{ranking.SOURCE_CONTEXT_FIELD}": "' + "a" * 64 + '",'),
+            (
+                "3" * 40,
+                f'      "{ranking.SOURCE_CONTEXT_FIELD}": "'
+                + ranking.group_source_context("A" * 43)
+                + '",',
+            ),
         ]
         with mock.patch.object(
             ranking, "blamed_source_lines", return_value=lines
@@ -280,7 +305,7 @@ class IncrementalRefreshTests(unittest.TestCase):
         self.new = ("src/main/new.c", "new")
         self.removed = ("src/main/removed.c", "removed")
         keep_row = function_row(*self.keep, differing_words=1)
-        keep_row[ranking.SOURCE_CONTEXT_FIELD] = "a" * 64
+        keep_row[ranking.SOURCE_CONTEXT_FIELD] = ranking.group_source_context("A" * 43)
         self.document = ranking_document(
             [
                 keep_row,
@@ -295,11 +320,11 @@ class IncrementalRefreshTests(unittest.TestCase):
             for key in (self.keep, self.legacy, self.stale, self.pending, self.new)
         ]
         self.contexts = {
-            self.keep: "a" * 64,
-            self.legacy: "b" * 64,
-            self.stale: "c" * 64,
-            self.pending: "d" * 64,
-            self.new: "e" * 64,
+            self.keep: ranking.group_source_context("A" * 43),
+            self.legacy: ranking.group_source_context("B" * 43),
+            self.stale: ranking.group_source_context("C" * 43),
+            self.pending: ranking.group_source_context("D" * 43),
+            self.new: ranking.group_source_context("E" * 43),
         }
 
     def test_plan_migrates_legacy_proof_and_bounds_only_compile_work(self) -> None:
@@ -307,7 +332,10 @@ class IncrementalRefreshTests(unittest.TestCase):
             self.document,
             self.items,
             self.contexts,
-            {self.legacy: "b" * 64, self.stale: "f" * 64},
+            {
+                self.legacy: ranking.group_source_context("B" * 43),
+                self.stale: ranking.group_source_context("F" * 43),
+            },
             limit=2,
         )
         self.assertEqual(set(plan.fresh_rows), {self.keep, self.legacy})
@@ -325,7 +353,7 @@ class IncrementalRefreshTests(unittest.TestCase):
             self.document,
             self.items,
             self.contexts,
-            {self.legacy: "b" * 64},
+            {self.legacy: ranking.group_source_context("B" * 43)},
             limit=1,
         )
         selected = plan.selected[0]
@@ -356,7 +384,10 @@ class IncrementalRefreshTests(unittest.TestCase):
         stale_row = next(
             row for row in merged["functions"] if row["name"] == "stale"
         )
-        self.assertEqual(stale_row[ranking.SOURCE_CONTEXT_FIELD], "c" * 64)
+        self.assertEqual(
+            stale_row[ranking.SOURCE_CONTEXT_FIELD],
+            ranking.group_source_context("C" * 43),
+        )
 
     def test_cli_item_error_leaves_input_byte_identical(self) -> None:
         document = ranking_document(
@@ -375,7 +406,9 @@ class IncrementalRefreshTests(unittest.TestCase):
                 ranking.pb, "discover_queue", return_value=[item]
             ), mock.patch.object(
                 ranking, "current_source_contexts",
-                return_value={self.pending: "d" * 64},
+                return_value={
+                    self.pending: ranking.group_source_context("D" * 43)
+                },
             ), mock.patch.object(
                 ranking, "legacy_source_contexts", return_value={}
             ), mock.patch.object(

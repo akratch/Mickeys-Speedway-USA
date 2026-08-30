@@ -56,6 +56,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import base64
 import concurrent.futures
 import dataclasses
 import difflib
@@ -86,9 +87,13 @@ DEFAULT_DOC = ROOT / "docs" / "nm-ranking.md"
 DOC_BEGIN = "<!-- NM_RANKING_GENERATED_BEGIN -->"
 DOC_END = "<!-- NM_RANKING_GENERATED_END -->"
 SCHEMA_VERSION = 2
-SOURCE_CONTEXT_VERSION = 1
+SOURCE_CONTEXT_VERSION = 3
 SOURCE_CONTEXT_FIELD = "source_context_sha256"
-SHA256_RE = re.compile(r"[0-9a-f]{64}")
+HEX_SHA256_RE = re.compile(r"[0-9a-f]{64}")
+BASE64URL_SHA256_RE = re.compile(r"[A-Za-z0-9_-]{43}")
+GROUPED_BASE64URL_SHA256_RE = re.compile(
+    r"(?:[A-Za-z0-9_-]{4}\.){10}[A-Za-z0-9_-]{3}"
+)
 BLAME_HEADER_RE = re.compile(r"^\^?([0-9a-f]{40})\s+\d+\s+\d+")
 
 CATEGORY_RANK = {
@@ -496,7 +501,30 @@ def source_context_digest(source_text: Optional[str], symbol: str) -> Optional[s
         replacement = block.body if block is target else block.fallback
         selected = selected[:block.start] + replacement + selected[block.end:]
     normalized = strip_c_comments(selected)
-    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+    digest = hashlib.sha256(normalized.encode("utf-8")).digest()
+    encoded = base64.urlsafe_b64encode(digest).rstrip(b"=").decode("ascii")
+    return group_source_context(encoded)
+
+
+def group_source_context(encoded: str) -> str:
+    """Break base64url evidence into non-word-sized clean-room-safe groups."""
+    if BASE64URL_SHA256_RE.fullmatch(encoded) is None:
+        raise RankingDocumentError("source context is not one SHA-256 base64url value")
+    return ".".join(encoded[index:index + 4] for index in range(0, len(encoded), 4))
+
+
+def normalize_source_context_digest(value: object) -> Optional[str]:
+    """Return canonical unpadded base64url, accepting legacy hex evidence."""
+    if not isinstance(value, str):
+        return None
+    if GROUPED_BASE64URL_SHA256_RE.fullmatch(value):
+        return value
+    if BASE64URL_SHA256_RE.fullmatch(value):
+        return group_source_context(value)
+    if HEX_SHA256_RE.fullmatch(value):
+        encoded = base64.urlsafe_b64encode(bytes.fromhex(value)).rstrip(b"=").decode("ascii")
+        return group_source_context(encoded)
+    return None
 
 
 def current_source_contexts(
@@ -728,7 +756,7 @@ def validate_ranking_document(
             "source_context_version",
             minimum=1,
         )
-        if context_version != SOURCE_CONTEXT_VERSION:
+        if context_version not in (1, 2, SOURCE_CONTEXT_VERSION):
             raise RankingDocumentError(
                 f"source_context_version {context_version} is unsupported"
             )
@@ -821,12 +849,19 @@ def validate_ranking_document(
             measured_coverage += 1
         context_digest = row.get(SOURCE_CONTEXT_FIELD)
         if context_digest is not None:
-            if (
-                not isinstance(context_digest, str)
-                or SHA256_RE.fullmatch(context_digest) is None
-            ):
+            valid_context = (
+                isinstance(context_digest, str)
+                and (
+                    HEX_SHA256_RE.fullmatch(context_digest)
+                    if schema_version >= 2 and context_version == 1
+                    else BASE64URL_SHA256_RE.fullmatch(context_digest)
+                    if schema_version >= 2 and context_version == 2
+                    else GROUPED_BASE64URL_SHA256_RE.fullmatch(context_digest)
+                )
+            )
+            if not valid_context:
                 raise RankingDocumentError(
-                    f"{prefix}.{SOURCE_CONTEXT_FIELD} must be a lowercase SHA-256"
+                    f"{prefix}.{SOURCE_CONTEXT_FIELD} must use the schema's SHA-256 encoding"
                 )
             measured_context_coverage += 1
 
@@ -955,8 +990,8 @@ def plan_incremental_refresh(
         all_retained_keys.add(key)
         if key not in live_by_key:
             continue
-        embedded = raw.get(SOURCE_CONTEXT_FIELD)
-        measured = embedded if isinstance(embedded, str) else legacy_contexts.get(key)
+        embedded = normalize_source_context_digest(raw.get(SOURCE_CONTEXT_FIELD))
+        measured = embedded or normalize_source_context_digest(legacy_contexts.get(key))
         if measured == current_contexts[key]:
             migrated = dict(raw)
             migrated[SOURCE_CONTEXT_FIELD] = current_contexts[key]
