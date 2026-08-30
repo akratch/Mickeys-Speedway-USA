@@ -37,3 +37,13 @@ void overlay96Unregister(s32 value) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o096/overlay96Unregister/func_overlay_096_F0000070_18D76A8.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay96Unregister:start
+ * symbol: overlay96Unregister
+ * score: 9/34 words
+ * frame: frameless
+ * relocations: 6
+ * first-mismatch: +0x0
+ * summary: Configured V0 is size-exact but structure-mismatched with 8 candidate versus 6 target relocs; next lever is donor/TU evidence for retained global bases.
+ * PLATEAU-HANDOFF:overlay96Unregister:end
+ */
