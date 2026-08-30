@@ -124,6 +124,15 @@ bytes and disassembly never belong here.
   shape unless instruction count, relocations, linked bytes, and the full ROM
   remain exact. Evidence: Overlay 8's exact scale-output body in
   `docs/overlays.md`.
+- When two independent initializations need reversed caller-saved colors but
+  separate statements let the scheduler split a relocated address pair,
+  preserve their evaluation order in one comma expression. IDO can retain the
+  desired web-formation chronology while scheduling the address pair together;
+  separate-statement orders may independently fix either coloring or schedule
+  without fixing both. Apply this only to semantically independent
+  initializations, and reject it unless instruction count, relocation identity,
+  linked bytes, and the full ROM all remain exact. Evidence: the exact camera
+  override search in `docs/resident.md`.
 - For a commutative address calculation, source operand order can select which
   producer receives each block-local temporary without changing the final
   `addu`. When only the base load and scaled-index shift exchange ring
