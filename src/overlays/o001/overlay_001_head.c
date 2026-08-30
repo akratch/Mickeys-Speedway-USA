@@ -39,13 +39,14 @@ extern O1ControlTable *D_1D6C;
 extern u8 *overlay1NextPointer(u8 *pointer);
 extern f32 overlay1SplinePosReloc(f32 a, f32 b, f32 c, f32 d, f32 t);
 
-/* Retained plateau: exact 83-word size and 0x68 frame; 81/83 compiler words
- * agree after relocation masking. The only codegen residual is the saved
+/* Fresh configured plateau: exact 83-word size and 0x68 frame; 81/83 compiler
+ * words agree after relocation masking. The only codegen residual is the saved
  * integral position at sp+0x38 instead of the target sp+0x40. Direct D_1D6C
  * anchoring and declaration order recover the target register lanes and the
  * other two call-crossing homes. All 119 flag rows and a bounded two-thread
- * permuter search are nonexact; role, lifetime, scope, register, and scalar
- * declaration-order forms leave this final stack home unchanged. */
+ * permuter search are nonexact. A fidelity-clean allocator trace confirms the
+ * uopt register pools; a padding-free state aggregate regresses to 77/83, while
+ * implicit conversion and chained assignment forms are byte-flat. */
 #ifdef NON_MATCHING
 void overlay1InterpolatePath(f32 *outX, f32 *outZ, s32 path, f32 offset) {
     f32 position;
@@ -830,7 +831,7 @@ void overlay1CallReset(void) {
  * frame: 0x68
  * relocations: 13
  * first-mismatch: +0x94
- * summary: One saved integral position stack home remains at sp+0x38 instead of target sp+0x40 and needs new source authentic evidence
+ * summary: Fresh V0 is 81/83; only the integral-position home remains at sp+0x38 versus sp+0x40; aggregate regresses and two expression forms are flat
  * PLATEAU-HANDOFF:overlay1InterpolatePath:end
  */
 
