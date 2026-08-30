@@ -7767,8 +7767,8 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o099/overlay99RenderSegments.c.o",
       "offset": 2980,
       "overlay": 99,
@@ -8931,7 +8931,7 @@
     "by_class": {
       "metadata": 622
     },
-    "matched_c_bytes_with_postprocess": 109736,
+    "matched_c_bytes_with_postprocess": 110304,
     "objects_with_postprocess": 622
   }
 }

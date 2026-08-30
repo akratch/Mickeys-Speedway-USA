@@ -28,21 +28,19 @@ extern void overlay99Func80009E78Reloc(Gfx **displayList, Mtx **matrices,
 /* Overlay 99 +0xBA4..+0xDDC, 142 words with no target padding. The shipped
  * relocation tables authenticate viGetCurrentSize, rcpClearZBuffer,
  * func_80034920, Arctanf, sqrtf, func_80009E78, and the local sorted-entry
- * renderer. Historical 140/142 evidence predates these identity, local-layout,
- * and coordinate-store repairs; clean configured V0 is uncompiled. */
-#ifdef NON_MATCHING
+ * renderer. */
 void overlay99RenderSegments(Gfx **displayList, Mtx **matrices, void *vertices,
                              f32 scale) {
     f32 dx;
     f32 dz;
+    s32 width;
+    s32 height;
     f32 length;
     Overlay99Segment *segment;
     Overlay99RenderState *object;
     Gfx *command;
     s32 initialized;
     s32 i;
-    s32 width;
-    s32 height;
 
     i = 0;
     segment = gOverlay99Segments;
@@ -54,8 +52,7 @@ void overlay99RenderSegments(Gfx **displayList, Mtx **matrices, void *vertices,
                 if (initialized == 0) {
                     overlay99GetCurrentSizeReloc(&width, &height);
                     initialized = 1;
-                    command = *displayList;
-                    *displayList = command + 1;
+                    command = (*displayList)++;
                     command->words.w0 = 0xBC000806;
                     command->words.w1 = (u32)gOverlay99Texture + 0x80000000;
                     overlay99ClearZBufferReloc(displayList, width, height, 0,
@@ -78,10 +75,10 @@ void overlay99RenderSegments(Gfx **displayList, Mtx **matrices, void *vertices,
                     object->heading += (s32)((f32)segment->headingOffset *
                                              65536.0f * scale);
                 }
-                object->flags &= ~0x400;
+                object->flags = (s16)object->flags & ~0x400;
                 overlay99Func80009E78Reloc(displayList, matrices, vertices,
                                            object);
-                object->flags |= 0x400;
+                object->flags = (s16)object->flags | 0x400;
                 overlay99RenderSortedEntries(displayList, matrices, vertices,
                                              object, length);
             }
@@ -90,6 +87,3 @@ void overlay99RenderSegments(Gfx **displayList, Mtx **matrices, void *vertices,
         } while (i < gOverlay99SegmentCount);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o099/overlay99RenderSegments/func_overlay_099_F0000BA4_18DA154.s")
-#endif
