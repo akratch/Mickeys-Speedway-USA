@@ -187,3 +187,13 @@ void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o026/overlay26HandleEffects/func_overlay_026_F0000D24_187B11C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_026_F0000D24_187B11C:start
+ * symbol: func_overlay_026_F0000D24_187B11C
+ * score: 230/269 words
+ * frame: 0x48
+ * relocations: 23
+ * first-mismatch: +0x24
+ * summary: fidelity-clean proc-0 trace found 29 uopt decisions but no target stack-home evidence; reopen only for a natural stack-home mechanism
+ * PLATEAU-HANDOFF:func_overlay_026_F0000D24_187B11C:end
+ */
