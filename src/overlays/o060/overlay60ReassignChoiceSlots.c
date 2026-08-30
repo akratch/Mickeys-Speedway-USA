@@ -52,3 +52,13 @@ void overlay60ReassignChoiceSlots(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o060/overlay60ReassignChoiceSlots/func_overlay_060_F0003488_18BD260.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay60ReassignChoiceSlots:start
+ * symbol: overlay60ReassignChoiceSlots
+ * score: 35 differing words
+ * frame: 0x20
+ * relocations: 8
+ * first-mismatch: +0x4
+ * summary: Exact geometry and frame; target 4 relocation sites versus candidate 8; 119 flags flat; only permuter gain skipped available index zero.
+ * PLATEAU-HANDOFF:overlay60ReassignChoiceSlots:end
+ */
