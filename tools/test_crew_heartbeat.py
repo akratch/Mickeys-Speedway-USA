@@ -10,6 +10,7 @@ import io
 import json
 import os
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -81,6 +82,21 @@ class HeartbeatTests(unittest.TestCase):
             row["best_score"] = crew.measured_score(row)
         return row
 
+    def schema_four_record(self, **changes: object) -> dict[str, object]:
+        row = self.measured_record()
+        measurement = {
+            field: row[field] for field in (*crew.MEASUREMENT_FIELDS, "promotion_state")
+        }
+        row.update({
+            "schema": 4,
+            "current_score": crew.measured_score(measurement),
+            "best_result": measurement,
+            "best_mismatch_class": row["mismatch_class"],
+            "best_artifact": None,
+        })
+        row.update(changes)
+        return row
+
     def command_args(self, **changes: object) -> argparse.Namespace:
         values: dict[str, object] = {
             "worker": "worker-1",
@@ -94,6 +110,9 @@ class HeartbeatTests(unittest.TestCase):
             "mismatch_class": None,
             "eta_unix": None,
             "wb_summary": None,
+            "archive_best": False,
+            "source": None,
+            "candidate_object": None,
             **{field: None for field in crew.MEASUREMENT_FIELDS},
             "promotion_state": None,
         }
@@ -140,6 +159,47 @@ class HeartbeatTests(unittest.TestCase):
             payload["relocations"] = relocations
         path.write_text(json.dumps(payload), encoding="utf-8")
         return path
+
+    def init_archive_repo(self, root: Path) -> tuple[str, Path]:
+        subprocess.run(["git", "init", "-q", "-b", "lane/demo"], cwd=root, check=True)
+        subprocess.run(["git", "config", "user.email", "test@example.invalid"], cwd=root, check=True)
+        subprocess.run(["git", "config", "user.name", "Checkpoint Test"], cwd=root, check=True)
+        (root / ".gitignore").write_text("build/\n", encoding="utf-8")
+        source = root / "src/demo.c"
+        source.parent.mkdir(parents=True)
+        source.write_text("int demo_symbol(void) { return 1; }\n", encoding="utf-8")
+        subprocess.run(["git", "add", ".gitignore", "src/demo.c"], cwd=root, check=True)
+        subprocess.run(["git", "commit", "-q", "-m", "fixture"], cwd=root, check=True)
+        base = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=root, check=True, text=True,
+            stdout=subprocess.PIPE,
+        ).stdout.strip()
+        self.write_summary(
+            root, raw=5, masked=5,
+            relocations={
+                "candidate_relocations": 21,
+                "target_relocations": 21,
+                "exact_relocation_identities": 20,
+            },
+        )
+        candidate = root / "build/src/demo.o"
+        candidate.parent.mkdir(parents=True, exist_ok=True)
+        candidate.write_bytes(b"candidate-object")
+        return base, source
+
+    def archive_best(self, root: Path, base: str) -> tuple[Path, dict[str, object]]:
+        crew_root = root / ".git/codex-crew"
+        args = self.command_args(
+            target="demo_symbol", base=base, deadline_unix=2_000_000_000,
+            attempt_count=1, mismatch_class="register-allocation",
+            wb_summary="build/wb/demo.summary.json", archive_best=True,
+            source="src/demo.c", candidate_object="build/src/demo.o",
+        )
+        with mock.patch.object(crew, "repository_root", return_value=root.resolve()):
+            with mock.patch.object(crew, "run_git", return_value=base):
+                with contextlib.redirect_stdout(io.StringIO()):
+                    crew.command_heartbeat(args, crew_root)
+        return crew_root, crew.load_heartbeat(crew_root / "heartbeats/worker-1.json")
 
     def run_checkpoint_with_summary(
         self, root: Path, args: argparse.Namespace
@@ -226,7 +286,7 @@ class HeartbeatTests(unittest.TestCase):
             self.assertEqual(updated["mismatch_class"], "frame-allocation")
             self.assertEqual(updated["eta_unix"], 1787998400)
 
-    def test_legacy_update_rewrites_schema_three(self) -> None:
+    def test_schema_one_update_migrates_to_schema_four_without_guessing_metrics(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             path = root / "heartbeats" / "worker-1.json"
@@ -240,10 +300,29 @@ class HeartbeatTests(unittest.TestCase):
                 with contextlib.redirect_stdout(io.StringIO()):
                     crew.command_heartbeat(args, root)
             raw = json.loads(path.read_text(encoding="utf-8"))
-        self.assertEqual(raw["schema"], 3)
+        self.assertEqual(raw["schema"], 4)
         self.assertEqual(raw["attempt_count"], 1)
         self.assertEqual(raw["promotion_state"], "unmeasured")
+        self.assertEqual(raw["best_result"]["promotion_state"], "unmeasured")
+        self.assertEqual(raw["current_score"], "200 words differ")
         self.assertTrue(all(raw[field] is None for field in crew.MEASUREMENT_FIELDS))
+
+    def test_schemas_one_two_and_three_remain_readable_and_migrate(self) -> None:
+        fixtures = (self.legacy_record(), self.schema_two_record(), self.measured_record())
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for index, fixture in enumerate(fixtures, 1):
+                with self.subTest(schema=index):
+                    path = root / "heartbeats/worker-1.json"
+                    crew.atomic_write(path, json.dumps(fixture) + "\n")
+                    loaded = crew.load_heartbeat(path)
+                    args = self.command_args(progress=f"schema {index} migrated")
+                    with mock.patch.object(crew, "run_git", return_value="c" * 40):
+                        with contextlib.redirect_stdout(io.StringIO()):
+                            crew.command_heartbeat(args, root)
+                    raw = json.loads(path.read_text(encoding="utf-8"))
+                    self.assertEqual(raw["schema"], 4)
+                    self.assertEqual(raw["best_result"], loaded["best_result"])
 
     def test_attempt_count_cannot_regress_for_same_assignment(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -357,6 +436,38 @@ class HeartbeatTests(unittest.TestCase):
                     with self.assertRaises(crew.CrewError):
                         crew.load_heartbeat(path)
 
+    def test_schema_four_fails_closed_on_invalid_or_subordinate_best(self) -> None:
+        exact = {
+            "target_words": 172, "candidate_words": 172,
+            "raw_differing_words": 0, "relocation_masked_differing_words": 0,
+            "candidate_relocations": 21, "target_relocations": 21,
+            "exact_relocation_identities": 20, "promotion_state": "object-exact",
+        }
+        subordinate = {
+            "target_words": 172, "candidate_words": 172,
+            "raw_differing_words": 101, "relocation_masked_differing_words": 9,
+            "candidate_relocations": 21, "target_relocations": 21,
+            "exact_relocation_identities": 20, "promotion_state": "compiled",
+        }
+        rows = (
+            self.schema_four_record(best_result=exact, best_score="invalid"),
+            self.schema_four_record(
+                best_result=subordinate, best_score=crew.measured_score(subordinate)
+            ),
+            self.schema_four_record(
+                best_result=crew.unmeasured_result(), best_score="not measured"
+            ),
+            self.schema_four_record(
+                best_result={**self.schema_four_record()["best_result"], "extra": 1}
+            ),
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "worker-1.json"
+            for row in rows:
+                crew.atomic_write(path, json.dumps(row) + "\n")
+                with self.assertRaises(crew.CrewError):
+                    crew.load_heartbeat(path)
+
     def test_summary_import_distinguishes_100_raw_from_8_masked(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -450,6 +561,112 @@ class HeartbeatTests(unittest.TestCase):
         self.assertEqual(loaded["raw_differing_words"], 0)
         self.assertEqual(loaded["exact_relocation_identities"], 11)
         self.assertEqual(loaded["promotion_state"], "compiled")
+
+    def test_worse_current_checkpoint_never_replaces_best(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.write_summary(
+                root, raw=5, masked=5,
+                relocations={
+                    "candidate_relocations": 21, "target_relocations": 21,
+                    "exact_relocation_identities": 20,
+                },
+            )
+            first = self.command_args(
+                target="demo_symbol", base="a" * 40, deadline_unix=2_000_000_000,
+                attempt_count=1, mismatch_class="register-allocation",
+                wb_summary="build/wb/demo.summary.json",
+            )
+            self.run_checkpoint_with_summary(root, first)
+            self.write_summary(
+                root, raw=8, masked=8,
+                relocations={
+                    "candidate_relocations": 21, "target_relocations": 21,
+                    "exact_relocation_identities": 20,
+                },
+            )
+            second = self.command_args(
+                attempt_count=2, mismatch_class="schedule",
+                wb_summary="build/wb/demo.summary.json",
+            )
+            loaded = self.run_checkpoint_with_summary(root, second)
+        self.assertEqual(loaded["relocation_masked_differing_words"], 8)
+        self.assertEqual(loaded["current_score"], crew.measured_score(loaded))
+        self.assertEqual(loaded["best_result"]["relocation_masked_differing_words"], 5)
+        self.assertEqual(loaded["best_mismatch_class"], "register-allocation")
+        self.assertEqual(loaded["mismatch_class"], "schedule")
+
+    def test_exact_tie_retains_first_best_but_updates_current_class(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.write_summary(
+                root, raw=5, masked=5,
+                relocations={
+                    "candidate_relocations": 21, "target_relocations": 21,
+                    "exact_relocation_identities": 20,
+                },
+            )
+            first = self.command_args(
+                target="demo_symbol", base="a" * 40, deadline_unix=2_000_000_000,
+                mismatch_class="first-form", wb_summary="build/wb/demo.summary.json",
+            )
+            self.run_checkpoint_with_summary(root, first)
+            tied = self.command_args(
+                attempt_count=1, mismatch_class="tied-form",
+                wb_summary="build/wb/demo.summary.json",
+            )
+            loaded = self.run_checkpoint_with_summary(root, tied)
+        self.assertEqual(loaded["mismatch_class"], "tied-form")
+        self.assertEqual(loaded["best_mismatch_class"], "first-form")
+        self.assertEqual(loaded["best_result"]["relocation_masked_differing_words"], 5)
+
+    def test_exact_promotion_replaces_nonexact_best(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.write_summary(
+                root, raw=5, masked=5,
+                relocations={
+                    "candidate_relocations": 21, "target_relocations": 21,
+                    "exact_relocation_identities": 20,
+                },
+            )
+            first = self.command_args(
+                target="demo_symbol", base="a" * 40, deadline_unix=2_000_000_000,
+                mismatch_class="allocation", wb_summary="build/wb/demo.summary.json",
+            )
+            self.run_checkpoint_with_summary(root, first)
+            self.write_summary(
+                root, raw=0, masked=0, exact=True, admissible=True,
+                relocations={
+                    "candidate_relocations": 21, "target_relocations": 21,
+                    "exact_relocation_identities": 21,
+                },
+            )
+            exact = self.command_args(
+                attempt_count=1, mismatch_class="exact",
+                wb_summary="build/wb/demo.summary.json",
+            )
+            loaded = self.run_checkpoint_with_summary(root, exact)
+        self.assertEqual(loaded["promotion_state"], "object-exact")
+        self.assertEqual(loaded["best_result"]["promotion_state"], "object-exact")
+        self.assertEqual(loaded["best_mismatch_class"], "exact")
+
+    def test_comparator_order_and_ties_are_deterministic(self) -> None:
+        baseline = {
+            "target_words": 100, "candidate_words": 100,
+            "raw_differing_words": 5, "relocation_masked_differing_words": 5,
+            "candidate_relocations": 10, "target_relocations": 10,
+            "exact_relocation_identities": 9, "promotion_state": "compiled",
+        }
+        self.assertFalse(crew.better_measurement(dict(baseline), dict(baseline)))
+        geometry_loss = {**baseline, "candidate_words": 99, "raw_differing_words": 0,
+                         "relocation_masked_differing_words": 0}
+        self.assertTrue(crew.better_measurement(baseline, geometry_loss))
+        masked_gain = {**baseline, "raw_differing_words": 4,
+                       "relocation_masked_differing_words": 4}
+        self.assertTrue(crew.better_measurement(masked_gain, baseline))
+        identity_gain = {**baseline, "exact_relocation_identities": 10}
+        self.assertTrue(crew.better_measurement(identity_gain, baseline))
 
     def test_direct_rom_exact_metrics_require_exact_words_and_relocations(self) -> None:
         exact = {
@@ -593,6 +810,150 @@ class HeartbeatTests(unittest.TestCase):
                     with self.assertRaisesRegex(crew.CrewError, "stale"):
                         crew.command_heartbeat(args, crew_root)
             self.assertEqual(heartbeat.read_bytes(), before)
+
+    def test_restore_best_preserves_displaced_source_and_backup_is_recoverable(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            base, source = self.init_archive_repo(root)
+            crew_root, heartbeat = self.archive_best(root, base)
+            self.assertIsNotNone(heartbeat["best_artifact"])
+            first_reference = heartbeat["best_artifact"]
+            best_source = source.read_bytes()
+            displaced = b"int demo_symbol(void) { return 99; }\n"
+            source.write_bytes(displaced)
+            self.write_summary(
+                root, raw=8, masked=8,
+                relocations={
+                    "candidate_relocations": 21, "target_relocations": 21,
+                    "exact_relocation_identities": 20,
+                },
+            )
+            worse = self.command_args(
+                attempt_count=2, mismatch_class="schedule",
+                wb_summary="build/wb/demo.summary.json", archive_best=True,
+                source="src/demo.c", candidate_object="build/src/demo.o",
+            )
+            with mock.patch.object(crew, "repository_root", return_value=root.resolve()):
+                with mock.patch.object(crew, "run_git", return_value=base):
+                    with contextlib.redirect_stdout(io.StringIO()):
+                        crew.command_heartbeat(worse, crew_root)
+            heartbeat = crew.load_heartbeat(crew_root / "heartbeats/worker-1.json")
+            self.assertEqual(heartbeat["relocation_masked_differing_words"], 8)
+            self.assertEqual(heartbeat["best_result"]["relocation_masked_differing_words"], 5)
+            self.assertEqual(heartbeat["best_artifact"], first_reference)
+            output = io.StringIO()
+            with mock.patch.object(crew, "repository_root", return_value=root.resolve()):
+                with contextlib.redirect_stdout(output):
+                    crew.command_restore_best(
+                        argparse.Namespace(worker="worker-1", recover_backup=None), crew_root
+                    )
+            receipt = json.loads(output.getvalue())
+            self.assertEqual(source.read_bytes(), best_source)
+            self.assertTrue(receipt["restored"])
+            token = receipt["displaced_backup"]
+            with mock.patch.object(crew, "repository_root", return_value=root.resolve()):
+                with contextlib.redirect_stdout(io.StringIO()):
+                    crew.command_restore_best(
+                        argparse.Namespace(worker="worker-1", recover_backup=token), crew_root
+                    )
+            self.assertEqual(source.read_bytes(), displaced)
+
+    def test_restore_refuses_archive_hash_and_manifest_path_tamper(self) -> None:
+        for tamper in ("source", "manifest"):
+            with self.subTest(tamper=tamper), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                base, source = self.init_archive_repo(root)
+                crew_root, heartbeat = self.archive_best(root, base)
+                reference = heartbeat["best_artifact"]
+                artifact = crew_root / "best-artifacts/worker-1" / reference["id"]
+                if tamper == "source":
+                    (artifact / "source").write_bytes(b"tampered")
+                    expected = "source hash drift"
+                else:
+                    manifest = json.loads((artifact / "manifest.json").read_text(encoding="utf-8"))
+                    manifest["source_path"] = "src/other.c"
+                    (artifact / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+                    expected = "manifest hash drift"
+                source.write_text("worse\n", encoding="utf-8")
+                with mock.patch.object(crew, "repository_root", return_value=root.resolve()):
+                    with self.assertRaisesRegex(crew.CrewError, expected):
+                        crew.command_restore_best(
+                            argparse.Namespace(worker="worker-1", recover_backup=None), crew_root
+                        )
+
+    def test_restore_refuses_cross_worktree_branch_base_target_and_source_drift(self) -> None:
+        scenarios = ("worktree", "branch", "base", "target", "symlink", "conflict")
+        for scenario in scenarios:
+            with self.subTest(scenario=scenario), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                base, source = self.init_archive_repo(root)
+                crew_root, heartbeat = self.archive_best(root, base)
+                source.write_text("worse\n", encoding="utf-8")
+                expected_root = root.resolve()
+                if scenario == "worktree":
+                    expected_root = (root / "other-worktree").resolve()
+                    expected = "different worktree"
+                elif scenario == "branch":
+                    subprocess.run(["git", "switch", "-q", "-c", "lane/other"], cwd=root, check=True)
+                    expected = "different branch"
+                elif scenario in ("base", "target"):
+                    path = crew_root / "heartbeats/worker-1.json"
+                    raw = json.loads(path.read_text(encoding="utf-8"))
+                    raw[scenario] = ("d" * 40) if scenario == "base" else "other_symbol"
+                    crew.atomic_write(path, json.dumps(raw) + "\n")
+                    expected = "assignment base drift" if scenario == "base" else "target drift"
+                elif scenario == "symlink":
+                    real = root / "src/other.c"
+                    real.write_text("other\n", encoding="utf-8")
+                    source.unlink()
+                    source.symlink_to(real.name)
+                    expected = "symlink"
+                else:
+                    subprocess.run(["git", "add", "src/demo.c"], cwd=root, check=True)
+                    expected = "staged path/content drift"
+                with mock.patch.object(crew, "repository_root", return_value=expected_root):
+                    with self.assertRaisesRegex(crew.CrewError, expected):
+                        crew.command_restore_best(
+                            argparse.Namespace(worker="worker-1", recover_backup=None), crew_root
+                        )
+
+    def test_reproof_is_niced_two_job_and_refreshes_checkpoint(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "src/demo.c"
+            source.parent.mkdir(parents=True)
+            source.write_bytes(b"best")
+            heartbeat = self.schema_four_record(
+                best_artifact={"id": "a" * 24, "manifest_sha256": "b" * 64}
+            )
+            manifest = {
+                "source_path": "src/demo.c", "source_sha256": crew.sha256_bytes(b"best")
+            }
+            completed = subprocess.CompletedProcess(
+                args=[], returncode=0, stdout="{}\n", stderr=""
+            )
+            args = argparse.Namespace(
+                worker="worker-1", progress="restored best re-proved",
+                attempt_count=3, mismatch_class="allocation",
+            )
+            with mock.patch.object(crew, "load_heartbeat", return_value=heartbeat):
+                with mock.patch.object(crew, "load_best_artifact", return_value=(manifest, {}, root)):
+                    with mock.patch.object(crew, "validate_restore_context", return_value=(root, source)):
+                        with mock.patch.object(
+                            crew, "read_repository_file", return_value=(b"best", 0o644, source)
+                        ):
+                            with mock.patch.object(crew.subprocess, "run", return_value=completed) as run:
+                                with mock.patch.object(crew, "command_heartbeat") as checkpoint:
+                                    crew.command_reprove_best(args, root / "crew")
+            command = run.call_args.args[0]
+            environment = run.call_args.kwargs["env"]
+            self.assertEqual(command[:4], ["nice", "-n", "15", "tools/wb_compare.sh"])
+            self.assertEqual(environment["MAKEFLAGS"], "-j2")
+            self.assertEqual(environment["MICKEY_BUILD_JOBS"], "2")
+            checkpoint_args = checkpoint.call_args.args[0]
+            self.assertEqual(
+                checkpoint_args.wb_summary, "build/wb/" + "a" * 24 + ".restore-reproof-summary.json"
+            )
 
     def test_atomic_write_failure_preserves_previous_record_and_removes_temp(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

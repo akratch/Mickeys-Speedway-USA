@@ -1,27 +1,55 @@
 # Worker checkpoints
 
-Long bounded lanes publish coordination state through `tools/crew.py`. The
-records live under `$(git rev-parse --git-common-dir)/codex-crew/heartbeats/`,
-so every worktree can see them but Git cannot stage them. Each replacement is
-an atomic rename. A checkpoint is scheduling telemetry, never match evidence.
+Long bounded lanes publish coordination state through `tools/crew.py`. Records
+live under `$(git rev-parse --git-common-dir)/codex-crew/heartbeats/`, so every
+worktree can see them but Git cannot stage them. Each replacement is atomic.
+A checkpoint is scheduling telemetry, never match evidence.
 
-The launcher seeds the target, assignment base, soft deadline, and an
-unmeasured attempt-zero checkpoint. Schema 3 keeps schema 1 and 2 readable,
-but replaces score prose with an all-or-nothing measured result. A measured
-record has these non-negative integer fields:
+## Current and best measurements
+
+Schema 4 distinguishes the latest **current** measurement from the retained
+**best** measurement. Existing top-level metric fields describe current
+source. `best_result` contains the independently validated best fields,
+`current_score` formats current, and `best_score` formats best. Current and
+best also retain separate mismatch classes. A regressing attempt therefore
+remains visible without erasing the candidate that should be restored.
+
+Each measured result is all-or-nothing:
 
 - `target_words`, `candidate_words`
 - `raw_differing_words`, `relocation_masked_differing_words`
 - `candidate_relocations`, `target_relocations`
 - `exact_relocation_identities`
+- `promotion_state`: `compiled`, `object-exact`, `canonical-staged`, or
+  `rom-exact`
 
-It also has `promotion_state`: `compiled`, `object-exact`,
-`canonical-staged`, or `rom-exact`. An unmeasured record stores null for all
-seven integers and uses `unmeasured`. Partial metric sets fail closed.
+An unmeasured result has null integers and `promotion_state=unmeasured`.
+Partial sets fail closed. `object-exact`, `canonical-staged`, and `rom-exact`
+require equal word geometry, zero raw and masked differences, equal relocation
+counts, and every relocation identity exact.
 
-After the baseline, after each material source attempt, and before a long
-bounded tool call, capture the existing concise workbench report under the
-ignored build tree and ingest it directly:
+A current result replaces best only when its comparison key is strictly
+greater. The key, in order, is:
+
+1. later promotion state (`unmeasured` through `rom-exact`);
+2. exact target/candidate word geometry;
+3. fewer relocation-masked differences, then fewer raw differences;
+4. a complete relocation-identity surface, then the exact-identity fraction;
+5. equal candidate/target relocation counts, then more exact identities;
+6. smaller candidate/target word-count delta.
+
+An exact tie retains the earlier best and its artifact. The ordering is
+deterministic and never consults score prose, timestamps, or attempt count.
+
+Schemas 1, 2, and 3 remain readable. They normalize to unmeasured defaults or,
+for schema 3, treat its sole numeric result as both current and best. The next
+successful update writes schema 4 without guessing numeric meaning from legacy
+score prose.
+
+## Recording a checkpoint
+
+After the baseline, after each material attempt, and before a long bounded
+call, ingest a fresh concise workbench report from the ignored build tree:
 
 ```sh
 symbol=func_8001C114
@@ -34,81 +62,113 @@ python3 tools/crew.py checkpoint \
   --progress "attempt 3: changed declaration order" \
   --attempt-count 3 \
   --wb-summary "$summary" \
-  --candidate-relocations 6 \
-  --target-relocations 6 \
-  --exact-relocation-identities 6 \
   --mismatch-class frame-allocation
 ```
 
-The current `mickey-wb-summary-v1` producer supplies word geometry, raw and
-relocation-masked differences, matched-word consistency, symbol identity, and
-whether an exact object comparison is admissible. It does not yet carry total
-relocation or exact-identity counts, so those three flags remain mandatory for
-that report version. If a compatible producer includes those integers in a
-`relocations` object, do not repeat them on the command line. Any explicit
-metric that disagrees with imported JSON is rejected.
+`mickey-wb-summary-v1` supplies word geometry, raw and relocation-masked
+differences, symbol identity, admissibility, and authenticated relocation
+counts when available. If an older compatible report omits relocation totals,
+supply all three explicitly. Any explicit metric that disagrees with imported
+JSON is rejected.
 
 The import accepts only a fresh (at most 15 minutes old), regular, non-symlink
-file at a canonical repository-relative `build/` path that Git ignores. It
-caps input at 64 KiB, requires the assigned target to equal the report's
-requested, target, or candidate symbol, and checks a report worker when one is
-present. Malformed geometry, matched counts, exact claims, timestamps, or
-numeric invariants fail before the heartbeat is replaced. The report path,
-digests, bytes, disassembly, and relocation rows are never stored.
+file at a canonical ignored `build/` path. It caps input at 64 KiB and checks
+the assigned target and optional report worker. Paths, digests, instruction
+rows, bytes, and disassembly are never stored in the heartbeat.
 
-For a measurement that did not come from `wb_compare.sh`, supply all fields
-explicitly:
+For a measurement not produced by `wb_compare.sh`, supply all fields:
 
 ```sh
 python3 tools/crew.py checkpoint \
   --worker "$MICKEY_HEARTBEAT_WORKER" \
   --progress "canonical promotion and ROM proof complete" \
   --attempt-count 4 \
-  --target-words 108 \
-  --candidate-words 108 \
-  --raw-differing-words 0 \
-  --relocation-masked-differing-words 0 \
-  --candidate-relocations 6 \
-  --target-relocations 6 \
+  --target-words 108 --candidate-words 108 \
+  --raw-differing-words 0 --relocation-masked-differing-words 0 \
+  --candidate-relocations 6 --target-relocations 6 \
   --exact-relocation-identities 6 \
   --promotion-state rom-exact \
   --mismatch-class exact
 ```
 
-`object-exact`, `canonical-staged`, and `rom-exact` require equal word
-geometry, zero raw and masked differences, equal relocation counts, and every
-identity exact. A workbench summary derives only `compiled` or `object-exact`;
-it derives `object-exact` only when its authenticated relocation block also
-proves every identity, and otherwise retains `compiled` even when the words
-are equal. It cannot claim canonical staging or a ROM proof. `--best-score` remains for
-legacy unmeasured updates, but is refused when numeric evidence is present;
-the tool generates an unambiguous concise score from the integers instead.
+A workbench summary derives only `compiled` or `object-exact`; it derives
+`object-exact` only when authenticated relocation evidence proves every
+identity. It cannot claim canonical staging or a ROM proof. `--best-score`
+remains only for legacy unmeasured updates and is refused with numeric metrics.
+
+## Archiving and restoring a best candidate
+
+When a strict new best is accepted, checkpointing can archive its exact source,
+candidate object, and summary under Git-common ignored state:
+
+```sh
+python3 tools/crew.py checkpoint \
+  --worker "$MICKEY_HEARTBEAT_WORKER" \
+  --progress "attempt 5: new best" --attempt-count 5 \
+  --wb-summary "build/wb/$symbol.checkpoint-summary.json" \
+  --mismatch-class register-allocation \
+  --archive-best \
+  --source src/main/example.c \
+  --candidate-object build/src/main/example.c.o
+```
+
+The manifest binds hashes and modes for all three files to worker, target,
+assignment base, branch, worktree, HEAD, and their repository-relative paths.
+Source must be one exact tracked C path; object and summary must be regular,
+non-symlink files below ignored `build/`. The archived summary must reproduce
+the accepted measurement. A tie or regression updates current while preserving
+the old best and archive.
+
+Restore only the recorded source with:
+
+```sh
+python3 tools/crew.py restore-best --worker "$MICKEY_HEARTBEAT_WORKER"
+```
+
+Restore refuses worktree, branch, assignment-base, target, path, manifest,
+content hash, mode, symlink, ancestry, staged-source, or unmerged-source drift.
+It validates every archived payload, copies the displaced current source into
+the artifact's backup directory, then atomically replaces only the recorded
+source path. Its JSON receipt includes the exact
+`restore-best --recover-backup ARTIFACT_ID/BACKUP_ID` command that reverses
+that source replacement. Recovery revalidates the original artifact-manifest
+hash and the same provenance before writing.
+
+After restore, rebuild the comparison and refresh current in one command:
+
+```sh
+python3 tools/crew.py reprove-best \
+  --worker "$MICKEY_HEARTBEAT_WORKER" \
+  --progress "restored best and re-proved object" \
+  --attempt-count 5 \
+  --mismatch-class register-allocation
+```
+
+`reprove-best` first requires the source hash to equal the archive, then runs
+`tools/wb_compare.sh --summary-json` through `nice -n 15` with
+`MAKEFLAGS=-j2` and the campaign's two-job environment. It imports the
+resulting summary as current; the ordinary strict-best comparator still
+decides whether best changes.
+
+Artifacts and backups are local recovery state, not canonical match evidence,
+and are never committed. Archival currently requires a summary carrying enough
+relocation evidence to reproduce the accepted result. Reproof establishes only
+the workbench/object state; canonical staging, linked-range comparison, and
+full-ROM proof remain separate promotion gates.
+
+## Polling and staleness
 
 `heartbeat` remains an alias-compatible spelling of `checkpoint`. Omitted
-assignment and checkpoint fields retain their prior values. Attempt counts may
-not decrease within one assignment. `--eta-unix` may add an expected handoff
-time; the soft `deadline_unix` is always present. Reading schema 1 or 2 fills
-the new metrics with null and `promotion_state=unmeasured`; the next update
-writes schema 3 without trying to reinterpret legacy score prose.
-
-A coordinator polls one worker or the full directory as one compact JSON line:
+assignment and checkpoint fields retain prior values. Attempt counts cannot
+decrease within an assignment. A coordinator can poll compact JSON:
 
 ```sh
 python3 tools/crew.py heartbeat-status --json --check
 python3 tools/crew.py heartbeat-status --worker worker-1 --json --check
 ```
 
-The report includes target/base/commit, attempt count, all normalized numeric
-fields, promotion state, generated best score, mismatch class, progress age,
-ETA/deadline deltas, and a `current`, `terminal`, `stale`, or `malformed`
-health value. Legacy records expose null numeric fields rather than ambiguous
-derived values. Its top-level `ok` is false for stale or malformed state. JSON
-polling exits nonzero for stale or malformed state; `--check` adds the same
-stale-state behavior to the human table. Malformed records always exit
-nonzero. Invalid schemas, types, timestamps, worker/file identities,
-checkpoint fields, and regressing attempt counts fail closed.
-
-Staleness means active progress exceeded the selected age threshold, the soft
-deadline or ETA passed, or the progress timestamp is implausibly in the future.
-It is a signal to request a graceful checkpoint and handoff. Neither polling
-nor updating a checkpoint sends a signal or stops a process.
+The report exposes current and best scores/results separately, plus target,
+base, commit, attempt count, mismatch classes, progress age, ETA/deadline, and
+health. Staleness means progress exceeded the selected age, deadline or ETA
+passed, or a timestamp is implausibly in the future. It requests a graceful
+checkpoint and handoff; polling and updating never signal or stop a process.
