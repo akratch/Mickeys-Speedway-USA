@@ -16,20 +16,21 @@ void overlay4InitializeObjectMotion(Overlay4InitObject *object,
 }
 
 /*
- * Plateau: -O2 -mips2 -32 -Wab,-r4300_mul leaves 15 instruction-word
+ * Plateau: -O2 -mips2 -32 -Wab,-r4300_mul leaves eight instruction-word
  * differences.  The first is +0x44 (the mode temporary is v0 instead of
- * v1); the other blockers are a second temporary-color swap and the spawn
- * packet at sp+0x40 instead of sp+0x4C.  The retail call relocations also all
- * bind to the overlay's F0000000 runtime-relocation placeholder.
+ * v1); the other five are one threshold/result register-web swap.  Declaring
+ * the spawn packet before the three pointer locals gives its exact sp+0x4C
+ * home.  All 11 relocation offsets/types agree; static preflight resolves 10
+ * identities and leaves the overlay 36 call at +0x354 unresolved.
  */
 #ifdef NON_MATCHING
 void overlay4UpdateObjectMotion(Overlay4MotionObject *object, s32 updateRate) {
     Overlay4MotionState *motion;
     Overlay4Config *config;
+    Overlay4SpawnPacket packet;
     Overlay4PositionOwner *positionOwner;
     Overlay4Spawned *spawned;
     Overlay4SpawnState *spawnState;
-    Overlay4SpawnPacket packet;
     s32 delta;
     s32 timer;
 
@@ -271,3 +272,13 @@ void overlay4FindSearchPosition(f32 *outX, f32 *outZ,
     *outX = 0.0f;
     *outZ = 0.0f;
 }
+
+/* PLATEAU-HANDOFF:overlay4UpdateObjectMotion:start
+ * symbol: overlay4UpdateObjectMotion
+ * score: 222/230 words
+ * frame: 0x60
+ * relocations: 11
+ * first-mismatch: +0x44
+ * summary: two integer allocation webs remain; cross-overlay call identity unresolved statically
+ * PLATEAU-HANDOFF:overlay4UpdateObjectMotion:end
+ */
