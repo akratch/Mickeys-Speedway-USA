@@ -124,11 +124,19 @@ each side's own symbol size:
 
 - **`size_bytes`**: the target (ROM) function's size.
 - **`size_delta`**: `base size - target size`.
-- **`differing_words`**: word positions that disagree over the shared
-  prefix, plus every word past the shorter side's end.
-- **`first_mismatch_offset`**: the byte offset of the first disagreeing
-  word (or the shared length, if one side is a truncated/extended prefix
-  of the other).
+- **`differing_words`** and **`first_mismatch_offset`**: the backward-compatible
+  raw byte comparison. The count covers disagreeing positions in the shared
+  prefix plus every word past the shorter side's end; the offset identifies
+  the first such position (or the shared length for a pure size difference).
+- **`relocation_masked_differing_words`** and
+  **`relocation_masked_first_mismatch_offset`**: the same positional evidence
+  after masking only bits owned by a relocation on either object. The mask
+  removes 26 payload bits for `R_MIPS_26`, 16 for the ordinary 16-bit
+  relocation families, and all 32 for `R_MIPS_32`; opcode and register bits
+  still have to agree. Unknown relocation kinds fail closed and mask nothing;
+  missing or extra words remain mismatches. A `null` masked count means a
+  retained schema-v1/v2 measurement has not yet been refreshed, never that it
+  is exact.
 - **`category`**, in this precedence order:
   1. **`size-mismatch`** -- `size_delta != 0`. Nothing else is checked;  a
      size mismatch means the two objects aren't even comparable word-for-word
@@ -155,16 +163,19 @@ each side's own symbol size:
      conservative in the direction that matters: it only ever
      under-counts `register-only`, never mis-labels a real semantic
      difference as one.
-  5. **`reloc-mismatch`** -- equal size, and every differing word's offset
-     carries a relocation entry (`objdump -r .text`) on the base or the
-     target side.
+  5. **`reloc-mismatch`** -- equal size, at least one raw word differs, and
+     masking the union of base/target linker-owned fields removes every
+     difference. An opcode or register difference at a relocation site
+     remains visible and therefore cannot receive this category.
   6. **`other`** -- equal size, everything else. This is the largest
      bucket in this run and is exactly the "needs a human/model
      look, no cheap mechanical explanation available" category.
 
 Sort order for the table and the JSON: category rank (`register-only` <
 `schedule-only` < `other` < `reloc-mismatch` < `size-mismatch`), then
-`differing_words` ascending within a category. Register-only and
+relocation-masked differing words ascending within a category, then raw
+`differing_words`. A legacy row with no masked measurement uses its raw count
+for the masked sort position. Register-only and
 schedule-only mismatches are typically single flag-lattice or `mips_to_c`
 tweaks; size and reloc mismatches usually mean a structural rewrite.
 
@@ -173,9 +184,9 @@ tweaks; size and reloc mismatches usually mean a structural rewrite.
 No instruction word, mnemonic, or hex byte from a decoded `.text` section
 is ever written to `config/nonmatching-ranking.us.json`, printed, or
 otherwise leaves the running process -- every decode exists only long
-enough to produce a count (`differing_words`) or an offset
-(`first_mismatch_offset`) before being discarded. `objdiff_match_pct` is a
-float already computed by objdiff-cli, not ROM content.
+enough to produce raw and relocation-masked counts or first-mismatch offsets
+before being discarded. `objdiff_match_pct` is a float already computed by
+objdiff-cli, not ROM content.
 
 ## Reproducing this run
 
@@ -237,7 +248,7 @@ function they describe. It only removes stale rows and normalizes the retained
 counts: newly added `NON_MATCHING` functions remain unranked and are reported.
 
 `--refresh-stale` closes that gap without replaying the whole queue. Each
-resolved schema-v2 row records a SHA-256 of the exact selective-TU source
+resolved schema-v2/v3 row records a SHA-256 of the exact selective-TU source
 context used by the isolated compile. The digest uses unpadded base64url split
 into four-character groups, so the clean-room scanner cannot mistake a dense
 table of hexadecimal digests for machine words. The selected body remains C, every other
@@ -253,6 +264,13 @@ as follows:
 - changed rows, unresolved rows, and newly queued identities are compiled via
   the ordinary `process_item` path;
 - identities no longer live are removed.
+
+Schema v3 adds relocation-masked evidence and a derived coverage count.
+Schema-v1/v2 documents remain readable. Missing masked evidence is itself a
+bounded-refresh reason, so repeated incremental refreshes converge to full
+coverage. A source-proven old row deferred by `--limit` retains its valid raw
+measurement/context and receives explicit `null` masked fields; real masked
+values appear only after that row is compiled, never by inference.
 
 The tool re-discovers and re-hashes the complete queue after compilation. Any
 membership/context race or selected per-item error exits nonzero before the
