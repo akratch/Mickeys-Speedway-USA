@@ -156,3 +156,13 @@ void func_overlay_036_F0000A60_1883F18(Overlay36Object *object, s32 arg1,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o036/overlay36ChooseWeightedState/func_overlay_036_F0000A60_1883F18.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_036_F0000A60_1883F18:start
+ * symbol: func_overlay_036_F0000A60_1883F18
+ * score: 99/170 words
+ * frame: 0x38
+ * relocations: 33
+ * first-mismatch: +0x24
+ * summary: Exact geometry/frame; commuted blend proves exact FP lanes but adds one word; baseline remains best at 71 differences.
+ * PLATEAU-HANDOFF:func_overlay_036_F0000A60_1883F18:end
+ */
