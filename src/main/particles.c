@@ -1612,10 +1612,10 @@ void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) 
                 position.y += object->y;
                 position.z += object->z;
                 if (trigger->config->flags & 0x1000) {
-                    scale *= sqrtf((object->velocityX * object->velocityX) +
-                                   (object->velocityY * object->velocityY) +
-                                   (object->velocityZ * object->velocityZ)) *
-                             D_80082A6C;
+                    scale = scale * sqrtf((object->velocityX * object->velocityX) +
+                                          (object->velocityY * object->velocityY) +
+                                          (object->velocityZ * object->velocityZ)) *
+                            D_80082A6C;
                 }
 
                 orientation = *(u16 *)&descriptor->flags & 0xF;
@@ -2311,4 +2311,14 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * first-mismatch: +0x50
  * summary: JFG-backed alpha-field and native prim-color macro reduce the exact-sized candidate from 70 to 68 register-only differences; temp/pool allocation remains
  * PLATEAU-HANDOFF:func_8003D25C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80040B88:start
+ * symbol: func_80040B88
+ * score: 157 differing words
+ * frame: 0x70
+ * relocations: 12
+ * first-mismatch: +0x0
+ * summary: Left-associated speed scale aligns two more relocation tuples; target frame 0x68 and the entry-trigger home/allocator web remain.
+ * PLATEAU-HANDOFF:func_80040B88:end
  */
