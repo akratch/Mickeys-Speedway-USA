@@ -2601,7 +2601,7 @@ FX type-pass inventory (target widths/offsets; no source-body promotion):
 | `func_8004A380` | `D_8007D364[12]` bytes, `D_80083DE0` text, `D_800D2FA0` screen pointer; local text buffer. | Evidence A exact C: all 76 instruction words, the `-0x80` frame, all 9 relocations, and linked ROM bytes match. |
 | `fxSPDPRipple` | `D_8007D370[2]`, `D_8007D374[2]`, `D_8007D378[4]`; `FxGfx **`; level/draw helpers. | GLOBAL_ASM → GLOBAL_ASM; global table widths; ripple display CFG remains. |
 | `fxScreenEffect` | `D_8007D380[10]`, `D_8007D3D0[7]`, `D_8007D408[14]` `FxGfx`; VI video mode and display helpers. | GLOBAL_ASM → GLOBAL_ASM; dlist aggregate; effect command CFG remains. |
-| `func_8004ACC4` | `D_800D60A8` word; `D_800D60BC/CC` pointer words; `D_800D60D3` byte; `D_8007D488` callback word; `TrapDanglingJump`. | mixed plateau → structure plateau (`18/28` words); structure-buckets; callback/trap web remains. |
+| `func_8004ACC4` | `D_800D60A8` word; `D_800D60BC/CC` pointer words; `D_800D60D3` byte; `D_8007D488` callback word; `TrapDanglingJump`. | bounded mixed structure/register plateau: exact-size frameless C differs in 14/28 words from `+0x14`; callback/trap identity schedule and counter web remain. |
 | `func_8004ADE8` | `D_800D60A8`, `D_800D6098[4]`, `D_800D60B0[4]`, `D_800D60C0[4]`, `D_8007D47C[4]`; texture info `+6/+8`. | GLOBAL_ASM → GLOBAL_ASM; pool aggregate; saved-index/unroll shape remains. |
 | `func_8004AF68` | `D_800D60BC/CC`, `D_800D60C0[4]`, `D_800D60D3`, `D_8007D47C[4]`, `D_800D60A8`, `TrapDanglingJump`; `mmFree`. | structure plateau → structure plateau (`48` words, first `+4`); structure-buckets; secondary-pool base web remains. |
 
@@ -2729,12 +2729,13 @@ indirect call retain all target instruction words and relocation identities at
 the resident defaults; spelling the constant-count loop as `while (index--)`
 reproduces IDO's rotated `3`-through-`0` schedule without normalization.
 
-`func_8004ACC4` remains exact-size with 16/28 positional words differing in
-the current full-TU candidate, first `+0x10`; the isolated ranking reports the
-same count from `+0x14`. The older logical-line grouping reached 14 but is not
-the checked-in body. Aggregate lifetime, assignment order, and direct
-trap-address forms did not close the callback/trap and counter webs; the
-attempt cap is exhausted and assembly stays canonical.
+`func_8004ACC4` retains the source-faithful logical-line grouping at an
+exact-size, frameless 14/28 positional-word plateau, first `+0x14`. Target and
+candidate each own 12 text relocations; five identity sites remain displaced
+with the callback/trap schedule. All 119 flag identities and ten coherent
+loop, return-type, declaration, assignment, expression-grouping, and pointer-
+type forms are nonexact. Resume only with new source evidence for the shared
+JFG callback/trap and counter web; assembly remains canonical.
 
 `func_8004AF68` remains exact-size at 52 words with 26 positional differences
 from `+0x10`; shift-aware workbench diagnosis leaves 18 structural words. The

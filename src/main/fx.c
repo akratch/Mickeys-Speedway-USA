@@ -2367,30 +2367,30 @@ block_5:
  * PROVENANCE: the descending loop skeleton is adapted from Jet Force
  * Gemini's public fx.c context; Mickey's target establishes the expressions.
  */
-/* Workbench: structure-mismatch, 16 differing words, first mismatch +0x10. */
-/* Candidate shape: 28 instructions with no frame delta; improved, not exact. */
-/* Remaining gap: callback/trap and loop-counter register webs plus schedule. */
+/* Workbench: mixed structure/register residual, 14/28 words, first +0x14. */
+/* Candidate shape: exact 28-word frameless extent and 12 relocations. */
+/* Remaining gap: callback/trap identity schedule and counter register webs. */
 void func_8004ACC4(void) {
-    void **value0;
-    void **value1;
+    s32 *callback;
+    s32 *value0;
+    s32 *value1;
     u8 *available;
-    FxTextureCallback trap;
-    FxTextureCallback *callback;
     s32 i;
-    s32 matches;
+    s32 trap;
+    s32 trapValue;
 
     D_800D60A8 = 0;
     i = 3;
-    trap = (FxTextureCallback) TrapDanglingJump;
-    value0 = &D_800D60BC;
-    value1 = &D_800D60CC;
-    available = &D_800D60D3;
+    trapValue = (s32) TrapDanglingJump; \
+    value0 = &D_800D60BC; \
+    value1 = &D_800D60CC; \
+    available = &D_800D60D3; \
+    trap = trapValue; \
     callback = &D_8007D488;
     do {
-        matches = trap == *callback;
         *value0 = 0;
         *value1 = 0;
-        *available = matches;
+        *available = trap == *callback;
         value0--;
         value1--;
         available--;
@@ -2537,4 +2537,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x10
  * summary: 52-word shape and 14 identities; 119 flags plus bounded source/permuter attempts leave saved-register order and four early LO16 sites
  * PLATEAU-HANDOFF:func_8004AF68:end
+ */
+
+/* PLATEAU-HANDOFF:func_8004ACC4:start
+ * symbol: func_8004ACC4
+ * score: 14/28 words
+ * frame: frameless
+ * relocations: 12
+ * first-mismatch: +0x14
+ * summary: Five callback/trap identity sites and four counter/address webs remain; 119 flags and ten coherent forms exhausted; needs new source evidence.
+ * PLATEAU-HANDOFF:func_8004ACC4:end
  */
