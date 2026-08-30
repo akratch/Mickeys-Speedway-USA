@@ -247,3 +247,13 @@ void overlay1AdvanceGauge(s32 amount) {
  * summary: Five raw positions (four masked) remain; ten directed variants missed both swaps. Next: source-authentic scheduler evidence and resolved local-data identity.
  * PLATEAU-HANDOFF:overlay1FindNextAngle:end
  */
+
+/* PLATEAU-HANDOFF:overlay1FindPreviousAngle:start
+ * symbol: overlay1FindPreviousAngle
+ * score: 4/50 words
+ * frame: 0x68
+ * relocations: 4
+ * first-mismatch: +0x38
+ * summary: Five raw positions (four masked) remain; ten directed variants missed both swaps. Next: source-authentic scheduler evidence and resolved local-data identity.
+ * PLATEAU-HANDOFF:overlay1FindPreviousAngle:end
+ */
