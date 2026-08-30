@@ -110,6 +110,10 @@ class ReadyQueueTests(unittest.TestCase):
             },
         )
         self.assertEqual(report["skipped"][0]["active_lanes"], ["lane/a"])
+        maintenance = rq.render_maintenance(report)
+        self.assertIn("lane ref(s)", maintenance)
+        self.assertIn("stale-ledger", maintenance)
+        self.assertNotIn("already-integrated/exhausted  b", maintenance)
 
     def test_scan_and_top_are_hard_bounds(self) -> None:
         rows = [row(f"src/main/{name}.c", name, index) for index, name in enumerate("abcd", 1)]

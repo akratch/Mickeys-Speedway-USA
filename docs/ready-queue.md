@@ -35,6 +35,7 @@ uncommitted source edits in the main checkout.
 python3 tools/ready_queue.py --scan 50 --top 10
 python3 tools/ready_queue.py --scan 100 --top 20 --format markdown
 python3 tools/ready_queue.py --scan 100 --top 20 --format json
+python3 tools/ready_queue.py --scan 100 --top 20 --format maintenance
 python3 tools/ready_queue.py --focus retained-data --scan 50 --top 10
 ```
 
@@ -77,6 +78,12 @@ Table output is intended for a terminal. Markdown is paste-ready for a queue
 or handoff. JSON is schema version 3, uses stable field names, preserves row
 order in arrays, and includes `file_batch_position`/`file_batch_size`, the
 resolved base commit, limits, detailed ready/skipped rows, and summary counts.
+The `maintenance` format suppresses ready and exhausted rows and gives a
+compact list of `stale-ledger`, `active`, and `dirty-worktree` blockers. Use it
+to schedule evidence reproof, reconcile a symbol-owned plateau shard, or
+resolve lane ownership without parsing the much larger JSON report. A lane
+that merely predates a handoff-only repair on the base is not active: target
+evidence is compared with that lane's merge base before ownership is assigned.
 
 ## Fail-closed behavior
 

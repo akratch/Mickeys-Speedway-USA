@@ -589,6 +589,44 @@ def render_markdown(report: dict[str, object]) -> str:
     return "\n".join(rendered) + "\n"
 
 
+def render_maintenance(report: dict[str, object]) -> str:
+    """Render only queue blockers that require coordination maintenance."""
+    skipped = report["skipped"]
+    assert isinstance(skipped, list)
+    rows: list[list[str]] = []
+    for raw in skipped:
+        assert isinstance(raw, dict)
+        state = str(raw["state"])
+        if state not in {"stale-ledger", "active", "dirty-worktree"}:
+            continue
+        detail = str(raw["reason"])
+        if state == "active":
+            lanes = raw.get("active_lanes", [])
+            assert isinstance(lanes, list)
+            detail = f"{len(lanes)} lane ref(s): {detail}"
+        rows.append([
+            str(raw["rank"]), state, str(raw["symbol"]),
+            str(raw["file"]), detail,
+        ])
+    headers = ["rank", "state", "symbol", "file", "maintenance"]
+    if not rows:
+        return f"(no maintenance blockers)\n{summary_line(report)}\n"
+    widths = [len(header) for header in headers]
+    for row in rows:
+        for index, cell in enumerate(row):
+            widths[index] = max(widths[index], len(cell))
+
+    def line(row: list[str]) -> str:
+        return "  ".join(
+            cell.ljust(widths[index]) for index, cell in enumerate(row)
+        )
+
+    rendered = [line(headers), line(["-" * width for width in widths])]
+    rendered.extend(line(row) for row in rows)
+    rendered.append(summary_line(report))
+    return "\n".join(rendered) + "\n"
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base", default=DEFAULT_BASE, help="canonical Git ref")
@@ -619,8 +657,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
-        "--format", choices=("table", "markdown", "json"), default="table",
-        help="stable JSON or concise human-readable output (default table)",
+        "--format", choices=("table", "markdown", "maintenance", "json"),
+        default="table",
+        help=(
+            "stable JSON, concise ready output, or a maintenance-blocker "
+            "view (default table)"
+        ),
     )
     args = parser.parse_args(argv)
     if args.top > args.scan:
@@ -663,6 +705,8 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(report, indent=2, sort_keys=True))
     elif args.format == "markdown":
         sys.stdout.write(render_markdown(report))
+    elif args.format == "maintenance":
+        sys.stdout.write(render_maintenance(report))
     else:
         sys.stdout.write(render_table(report))
     return 0 if report["ready"] else 1
