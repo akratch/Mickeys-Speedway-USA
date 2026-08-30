@@ -840,9 +840,9 @@ void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
                    volatile u32 textureBase);
 
 /* Mickey-only reconstruction; JFG supplies the tier-B makeModelGfx role and TU position, but retains assembly. */
-/* PLATEAU (2026-08-26): workbench structure-mismatch; 254/342 words differ, first +0x0.
- * Flag lattice confirmed the exact instruction count; slot, tail, and lifetime probes did not close the frame/web drift.
- * Frame remains 0xC8 vs 0xD0, with 118 register and 2 relocation-identity differences. */
+/* PLATEAU (2026-08-31): workbench structure-mismatch; 249/342 words differ, first +0x0.
+ * Block-scoping the s16 texture parameter is a two-word gain; ten source forms and one bounded batch are exhausted.
+ * Exact size remains 342 words; frame is 0xC0 vs 0xD0, with 20/21 relocation identities exact. */
 #ifdef NON_MATCHING
 s32 func_8002057C(Gfx **out, ModelGfxSource *model, s32 flags, s32 mask,
                   s32 lowerGroup, s32 upperGroup, s32 forceSimple) {
@@ -857,7 +857,6 @@ s32 func_8002057C(Gfx **out, ModelGfxSource *model, s32 flags, s32 mask,
     s32 cacheEnabled;
     s32 vertexCount;
     s32 triangleCount;
-    s16 parameter;
     s32 commandCount;
     s8 slots[3];
     u32 i;
@@ -898,6 +897,7 @@ s32 func_8002057C(Gfx **out, ModelGfxSource *model, s32 flags, s32 mask,
 
             if (group >= lowerGroup && group <= upperGroup && !(partFlags & 0x800)) {
                 s32 combinedFlags;
+                s16 parameter;
                 s16 vertexStart = part->vertexStart;
                 s16 vertexIndex = part->vertexIndex;
                 u8 textureIndex = part->textureIndex;
@@ -1385,3 +1385,13 @@ void func_8002109C(ModelPointOwner *owner) {
         } while (i < source->pointCount);
     }
 }
+
+/* PLATEAU-HANDOFF:func_8002057C:start
+ * symbol: func_8002057C
+ * score: 249 differing words
+ * frame: 0xC0
+ * relocations: 21
+ * first-mismatch: +0x0
+ * summary: Block-scoped s16 gains two words, but the 0xC0 frame and pool allocation diverge; next try a JFG-faithful saved-register/stack-home topology.
+ * PLATEAU-HANDOFF:func_8002057C:end
+ */
