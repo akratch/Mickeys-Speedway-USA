@@ -20,19 +20,15 @@ extern void func_80006A50(void *);
 extern s16 func_8000F690(f32, f32, f32);
 extern void func_overlay_022_F0000D30_1878E38(void *, s32, s32 *);
 
-/* Retained isolated evidence: exact 172-word/0x58-frame shape with five
- * differences at +0xCC/+0xE8/+0xEC/+0xF4/+0x190. The objectPosition home is
- * sp+0x28 instead of target sp+0x30, and the two +0xE8/+0xEC stores reverse.
- * This artifact omitted the required -Wab,-r4300_mul flag; a historical linked
- * trial instead recorded six words, so neither result is promotion proof.
- * Lever: aggregate/array-tail carrier probes after prior flag, lifetime, declaration, volatile, nested, and permuter work; each grew or disturbed the frame.
- * Tier-2 trace revisit (2026-08-28): proc 0 retained 17 allocator webs, but
- * trace-stack-homes and trace-frame reported no producer-emitted virtual/final
- * home fields. A scoped objectPosition lifetime variant kept frame -0x58 but
- * worsened the operand residual to 6/172 words by moving the planes carrier to
- * sp+0x30; the target home pair remained unreachable. Re-prove unchanged V0
- * with the complete flag and all 21 runtime relocation sites; then park
- * pending a new stack-home producer mechanism. */
+/* Configured remeasurement retains the exact 172-word/0x58-frame shape with
+ * five instruction differences: objectPosition uses sp+0x28 instead of target
+ * sp+0x30, and the D_A7C home/outgoing stores are reversed. Ten new bounded
+ * parameter reuse, typed-member, scoped-lifetime, address-taking, aggregate,
+ * volatility, and register-class variants were neutral or regressions. All 21
+ * relocation sites/types align; the generated call at +0x274 remains the one
+ * unresolved candidate identity even though runtime ownership identifies
+ * overlay 22 +0xD30. Preserve the assembly fallback pending a new stack-home
+ * producer mechanism and static identity proof. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000000_1878108(void *object, void *init) {
     void *contact;
@@ -110,3 +106,13 @@ void func_overlay_022_F0000000_1878108(void *object, void *init) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o022/overlay22InitializeObject/func_overlay_022_F0000000_1878108.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_022_F0000000_1878108:start
+ * symbol: func_overlay_022_F0000000_1878108
+ * score: 167/172 words
+ * frame: 0x58
+ * relocations: 21
+ * first-mismatch: +0x70
+ * summary: Five stack-home/store-order differences remain; one generated overlay call identity is unresolved statically
+ * PLATEAU-HANDOFF:func_overlay_022_F0000000_1878108:end
+ */
