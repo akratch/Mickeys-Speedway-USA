@@ -97,6 +97,14 @@ def blob_id(ref: str, path: str) -> str | None:
     raise RuntimeError(f"git rev-parse failed for {ref}:{path}")
 
 
+@lru_cache(maxsize=4096)
+def merge_base(left: str, right: str) -> str:
+    value = git("merge-base", left, right).strip()
+    if not re.fullmatch(r"[0-9a-f]{40}", value):
+        raise RuntimeError(f"cannot resolve one merge base for {left} and {right}")
+    return value
+
+
 def blob_ids(refs: list[str], path: str) -> dict[str, str | None]:
     """Resolve one path for many refs with one Git object-database process."""
     if not refs:
@@ -588,6 +596,20 @@ def active_lanes_for_source(
         for branch in branches
     ):
         return []
+
+    # A lane can legitimately predate a handoff-only repair committed on the
+    # integration branch. Comparing that old lane directly with today's base
+    # made the base-owned repair look like lane-owned work and reserved the
+    # target on every historical ref. Determine ownership relative to each
+    # lane's merge base first; the cache bounds this to one Git query per lane
+    # across a complete ready-queue scan.
+    common_by_branch = {
+        branch: merge_base(base, branch) for branch in branches
+    }
+    common_refs = sorted(set(common_by_branch.values()))
+    common_objects = blob_contents(common_refs, base_path)
+    common_legacy_objects = blob_contents(common_refs, LEGACY_TRIAGE_PATH)
+    common_shard_objects = blob_contents(common_refs, target_shard_path)
     try:
         base_candidate = finalize_plateau.require_guarded_candidate(
             base_text or "", symbol
@@ -610,17 +632,36 @@ def active_lanes_for_source(
         lane_shard_object = shard_objects[branch]
         lane_legacy = lane_legacy_object[1] if lane_legacy_object is not None else None
         lane_shard = lane_shard_object[1] if lane_shard_object is not None else None
-        if legacy_evidence_signature(lane_legacy, symbol) != base_legacy_evidence:
+        common = common_by_branch[branch]
+        common_object = common_objects[common]
+        common_legacy_object = common_legacy_objects[common]
+        common_shard_object = common_shard_objects[common]
+        common_legacy = (
+            common_legacy_object[1] if common_legacy_object is not None else None
+        )
+        common_shard = (
+            common_shard_object[1] if common_shard_object is not None else None
+        )
+        lane_legacy_signature = legacy_evidence_signature(lane_legacy, symbol)
+        common_legacy_signature = legacy_evidence_signature(common_legacy, symbol)
+        if (
+            lane_legacy_signature != common_legacy_signature
+            and lane_legacy_signature != base_legacy_evidence
+        ):
             active.append(branch)
             continue
-        if lane_shard != base_shard:
+        if lane_shard != common_shard and lane_shard != base_shard:
             active.append(branch)
             continue
         if lane_object is None:
-            active.append(branch)
+            if common_object is not None:
+                active.append(branch)
             continue
         lane_blob, lane_text = lane_object
         if lane_blob == base_blob:
+            continue
+        if common_object is not None and lane_blob == common_object[0]:
+            # Only base changed this path after the branch point.
             continue
         if base_region is None:
             active.append(branch)

@@ -73,6 +73,7 @@ class LaneStatusAssignmentTests(unittest.TestCase):
     def tearDown(self) -> None:
         ls.show_file.cache_clear()
         ls.blob_id.cache_clear()
+        ls.merge_base.cache_clear()
         self.temporary.cleanup()
 
     def command(self, *command: str, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -253,6 +254,25 @@ void unrelatedFunction(void) {
         self.assertEqual(assignment["state"], "already-integrated/exhausted")
         self.assertEqual(assignment["source_commit"], plateau_commit)
         self.assertEqual(assignment["ledger_commit"], plateau_commit)
+
+    def test_base_only_shard_repair_does_not_activate_historical_lane(self) -> None:
+        (self.repo / SOURCE_PATH).write_text(candidate(plateau=True), encoding="utf-8")
+        source_commit = self.commit("Plateau overlay43FilterImage allocator")
+        self.command("git", "switch", "-q", "-c", "lane/historical")
+        (self.repo / "lane-note.txt").write_text("unrelated\n", encoding="utf-8")
+        self.commit("Record unrelated lane note")
+        self.command("git", "switch", "-q", "campaign/unchain")
+        (self.repo / SHARD_PATH.parent).mkdir()
+        (self.repo / SHARD_PATH).write_text(shard(), encoding="utf-8")
+        ledger_commit = self.commit("Reconcile overlay43FilterImage evidence")
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(assignment["state"], "already-integrated/exhausted")
+        self.assertEqual(assignment["source_commit"], source_commit)
+        self.assertEqual(assignment["ledger_commit"], ledger_commit)
+        self.assertEqual(assignment["active_lanes"], [])
 
     def test_malformed_symbol_shard_fails_closed(self) -> None:
         (self.repo / SHARD_PATH.parent).mkdir()
@@ -445,6 +465,7 @@ class LaneRefQueryTests(unittest.TestCase):
     def tearDown(self) -> None:
         ls.show_file.cache_clear()
         ls.blob_id.cache_clear()
+        ls.merge_base.cache_clear()
 
     def test_lane_scan_filters_refs_already_merged_into_base(self) -> None:
         with mock.patch.object(ls, "git", return_value="") as git:
