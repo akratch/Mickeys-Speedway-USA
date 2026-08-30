@@ -979,6 +979,133 @@ def _candidate_redefine_aliases(candidate_object: Path) -> dict[str, str]:
     }
 
 
+def _signed_hex(value: int) -> str:
+    sign = "+" if value >= 0 else "-"
+    return f"{sign}0x{abs(value):X}"
+
+
+def _tracked_overlay_alias_identities(
+    symbol: str, alias_path: Path = ALIASES
+) -> list[tuple[int, int]]:
+    """Return every generated overlay identity assigned to one friendly name."""
+
+    forward, _reverse = _aliases(alias_path)
+    identities: set[tuple[int, int]] = set()
+    for generated, friendly in forward.items():
+        if symbol not in (generated, friendly):
+            continue
+        match = rs.GEN_NAME_RE.match(generated)
+        if match:
+            identities.add((int(match.group(1)), int(match.group(2), 16)))
+    return sorted(identities)
+
+
+def _surface_error_diagnostic(
+    error: rs.SurfaceComparisonError,
+    resolution: Resolution,
+    atlas: dict[str, object],
+    target_value: int,
+    target_size: int,
+    *,
+    alias_path: Path = ALIASES,
+) -> str:
+    """Explain consolidated-TU failures without weakening the closed gate.
+
+    ``reloc_surface`` deliberately stops at the first ownership or identity
+    contradiction.  Its terse errors are appropriate for a library, but they
+    hide the common cause in a consolidated candidate object: earlier guarded
+    functions changed size, shifting every later definition.  Add the two
+    geometries here while preserving the original failure and verdict.
+    """
+
+    original = str(error)
+    generated = rs.GEN_NAME_RE.match(resolution.target_symbol)
+    if not generated:
+        return original
+
+    try:
+        owner = rs.resolve_overlay_ownership(
+            resolution.candidate_object,
+            atlas,
+            overlay_hint=int(generated.group(1)),
+            source=resolution.translation_unit,
+        )
+        if owner is None:
+            return original
+        module, row = owner
+        overlay = int(module["overlay"])
+        row_start = int(row["offset"], 16)
+        row_end = int(row["end_offset"], 16)
+        candidate_elf = rs.Elf(resolution.candidate_object)
+        candidate_start, candidate_size, _section = rs._unique_symbol(
+            candidate_elf, resolution.candidate_symbol, require_text=True
+        )
+        target_start = target_value - rs.SYNTHETIC_VMA
+        target_local_start = target_start - row_start
+        candidate_end = candidate_start + candidate_size
+    except (OSError, KeyError, TypeError, ValueError, rs.SurfaceComparisonError):
+        return original
+
+    owner_size = row_end - row_start
+    prefix_drift = candidate_start - target_local_start
+    owner_text = (
+        f"overlay:{overlay}:+0x{row_start:X}..+0x{row_end:X} "
+        f"({_relative(resolution.source)})"
+    )
+
+    if original == "candidate function escapes TU ownership":
+        overrun = max(0, candidate_end - owner_size)
+        return (
+            f"{original}: consolidated candidate {resolution.candidate_symbol} occupies "
+            f"TU .text+0x{candidate_start:X}..+0x{candidate_end:X}, while the linked "
+            f"target belongs at TU+0x{target_local_start:X}.."
+            f"+0x{target_local_start + target_size:X} inside {owner_text}; "
+            f"preceding candidate code shifted this function by {_signed_hex(prefix_drift)}"
+            f" and the candidate exceeds the owner by 0x{overrun:X}. Repair or isolate "
+            "the earlier size drift before relocation comparison; preflight will not "
+            "reinterpret bytes outside the atlas owner"
+        )
+
+    ambiguous = re.fullmatch(
+        r"candidate relocation symbol ([A-Za-z_]\w*) has ambiguous runtime identity",
+        original,
+    )
+    if ambiguous:
+        symbol = ambiguous.group(1)
+        try:
+            aliases = _tracked_overlay_alias_identities(symbol, alias_path)
+            text_index, _text = candidate_elf.section(".text")
+            definitions = {
+                (overlay, row_start + value, value)
+                for name, value, _size, _info, shndx in candidate_elf.symbols()
+                if name == symbol and shndx == text_index
+            }
+        except (OSError, ValueError, rs.SurfaceComparisonError):
+            aliases = []
+            definitions = set()
+        if len(aliases) == 1 and len(definitions) == 1:
+            alias_overlay, alias_offset = aliases[0]
+            compiled_overlay, compiled_offset, object_offset = next(iter(definitions))
+            disagreement = compiled_offset - alias_offset
+            return (
+                f"{original}: tracked alias identity is overlay:{alias_overlay}:"
+                f"+0x{alias_offset:X}, but the same definition in consolidated candidate "
+                f"{resolution.translation_unit} lands at overlay:{compiled_overlay}:"
+                f"+0x{compiled_offset:X} (TU .text+0x{object_offset:X}, disagreement "
+                f"{_signed_hex(disagreement)}). This is candidate prefix-layout drift, "
+                "not a second target identity; repair earlier shared-TU sizes before "
+                "preflight can authenticate relocations"
+            )
+        return (
+            f"{original} in consolidated candidate {resolution.translation_unit}; "
+            f"the target range remains uniquely bounded by {owner_text}, but candidate "
+            "symbol provenance does not select one runtime identity. Preflight remains "
+            "closed; use wb_compare.sh only for scalar source-shape diagnostics"
+        )
+
+    return original
+
+
 def collect(resolution: Resolution) -> dict[str, object]:
     for path, label in (
         (TARGET_ELF, "canonical linked ELF"),
@@ -1006,18 +1133,25 @@ def collect(resolution: Resolution) -> dict[str, object]:
     candidate_redefine_aliases = _candidate_redefine_aliases(
         resolution.candidate_object
     )
-    comparison = rs.function_surface_comparison(
-        resolution.requested_symbol,
-        resolution.candidate_object,
-        TARGET_ELF,
-        rom_path=ROM,
-        atlas_path=ATLAS,
-        values_path=ALIASES,
-        candidate_symbol=resolution.candidate_symbol,
-        target_symbol=linked_name,
-        source=resolution.translation_unit,
-        candidate_redefine_aliases=candidate_redefine_aliases,
-    )
+    try:
+        comparison = rs.function_surface_comparison(
+            resolution.requested_symbol,
+            resolution.candidate_object,
+            TARGET_ELF,
+            rom_path=ROM,
+            atlas_path=ATLAS,
+            values_path=ALIASES,
+            candidate_symbol=resolution.candidate_symbol,
+            target_symbol=linked_name,
+            source=resolution.translation_unit,
+            candidate_redefine_aliases=candidate_redefine_aliases,
+        )
+    except rs.SurfaceComparisonError as error:
+        raise PreflightError(
+            _surface_error_diagnostic(
+                error, resolution, atlas, target_value, target_size
+            )
+        ) from error
     relocation_evidence = _relocation_evidence(
         resolution,
         context,

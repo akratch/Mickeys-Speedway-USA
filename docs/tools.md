@@ -216,7 +216,14 @@ detected, the target phase uses Make's always-build mode so old objects cannot
 survive the changed recipe. `--no-build` instead fails closed with an
 actionable diagnosis. The command also fails when an alias, source, range, or
 relocation identity is not unique; its output deliberately excludes
-instruction listings, words, and hexdumps.
+instruction listings, words, and hexdumps. For consolidated overlay TUs, a
+candidate that has been shifted by earlier guarded bodies still fails closed,
+but the error reports the candidate object extent, linked target extent,
+prefix-size drift, and owner overrun. If a shared-TU definition's compiled
+location disagrees with its generated alias identity, the error reports both
+identities and their delta rather than only saying that the relocation symbol
+is ambiguous. `wb_compare.sh` remains available for scalar source-shape
+diagnostics; neither message authorizes relocation or ownership inference.
 
 Promotion does not make the preflight unusable when splat removes the
 function's `asm/nonmatchings` fallback. With no fallback present, the resolver

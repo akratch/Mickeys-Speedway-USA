@@ -322,6 +322,135 @@ class GeometryAndWorkbenchTests(unittest.TestCase):
         )
         self.assertEqual((name, value, size, section), ("friendly", 0xF0000010, 0x20, ".text"))
 
+    def test_consolidated_tu_escape_reports_target_and_candidate_drift(self) -> None:
+        class FakeElf:
+            names = ["", ".text"]
+
+            @staticmethod
+            def symbols():
+                return [
+                    (
+                        "func_overlay_009_F00010B4_186772C",
+                        0x10DC,
+                        0x468,
+                        2,
+                        1,
+                    )
+                ]
+
+        resolution = fp.Resolution(
+            "func_overlay_009_F00010B4_186772C",
+            "func_overlay_009_F00010B4_186772C",
+            "func_overlay_009_F00010B4_186772C",
+            fp.REPO / "src/overlays/o009/overlay_009.c",
+            "overlays/o009/overlay_009",
+            "build_non_matching",
+            fp.REPO / "build_non_matching/src/overlays/o009/overlay_009.c.o",
+            fp.REPO / "asm/target.s",
+            "guarded",
+        )
+        atlas = {
+            "modules": [
+                {
+                    "overlay": 9,
+                    "text_ownership": [
+                        {
+                            "offset": "0x0",
+                            "end_offset": "0x1520",
+                            "size": "0x1520",
+                            "type": "c",
+                            "source": "overlays/o009/overlay_009",
+                        }
+                    ],
+                }
+            ]
+        }
+
+        with mock.patch.object(fp.rs, "Elf", return_value=FakeElf()):
+            message = fp._surface_error_diagnostic(
+                fp.rs.SurfaceComparisonError("candidate function escapes TU ownership"),
+                resolution,
+                atlas,
+                0xF00010B4,
+                0x468,
+            )
+
+        self.assertIn("TU .text+0x10DC..+0x1544", message)
+        self.assertIn("target belongs at TU+0x10B4..+0x151C", message)
+        self.assertIn("shifted this function by +0x28", message)
+        self.assertIn("exceeds the owner by 0x24", message)
+        self.assertIn("will not reinterpret bytes outside the atlas owner", message)
+
+    def test_consolidated_alias_error_reports_compiled_identity_drift(self) -> None:
+        class FakeElf:
+            names = ["", ".text"]
+
+            @staticmethod
+            def section(name):
+                if name != ".text":
+                    raise ValueError(name)
+                return 1, {"size": 0x4664}
+
+            @staticmethod
+            def symbols():
+                return [
+                    ("aimed", 0x37D4, 0x3E4, 2, 1),
+                    ("overlay1ReadSelection", 0x2ECC, 0xD4, 2, 1),
+                ]
+
+        resolution = fp.Resolution(
+            "aimed",
+            "func_overlay_001_F0006D4C_185312C",
+            "aimed",
+            fp.REPO / "src/overlays/o001/overlay_001_tail.c",
+            "overlays/o001/overlay_001_tail",
+            "build_non_matching",
+            fp.REPO / "build_non_matching/src/overlays/o001/overlay_001_tail.c.o",
+            fp.REPO / "asm/target.s",
+            "guarded",
+        )
+        atlas = {
+            "modules": [
+                {
+                    "overlay": 1,
+                    "text_ownership": [
+                        {
+                            "offset": "0x3578",
+                            "end_offset": "0x7BDC",
+                            "size": "0x4664",
+                            "type": "c",
+                            "source": "overlays/o001/overlay_001_tail",
+                        }
+                    ],
+                }
+            ]
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            aliases = Path(directory) / "aliases.txt"
+            aliases.write_text(
+                "func_overlay_001_F0006424_1852804 = overlay1ReadSelection;\n",
+                encoding="utf-8",
+            )
+            error = fp.rs.SurfaceComparisonError(
+                "candidate relocation symbol overlay1ReadSelection "
+                "has ambiguous runtime identity"
+            )
+            with mock.patch.object(fp.rs, "Elf", return_value=FakeElf()):
+                message = fp._surface_error_diagnostic(
+                    error,
+                    resolution,
+                    atlas,
+                    0xF0006D4C,
+                    0x3E4,
+                    alias_path=aliases,
+                )
+
+        self.assertIn("tracked alias identity is overlay:1:+0x6424", message)
+        self.assertIn("lands at overlay:1:+0x6444", message)
+        self.assertIn("TU .text+0x2ECC", message)
+        self.assertIn("disagreement +0x20", message)
+        self.assertIn("candidate prefix-layout drift", message)
+
     def test_resident_boundary_reports_exact_gap_to_next_function(self) -> None:
         class FakeElf:
             names = ["", ".text"]
