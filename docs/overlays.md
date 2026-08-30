@@ -659,6 +659,16 @@ with only trailing section-alignment trimming. Pinned DKR v77/v80 and JFG scans
 remain negative; JFG's `animseqUpdateTextureScrollers` is a role-only
 comparison, not a donor.
 
+Overlay 41's `+0x2AC..+0x7FC` curve sampler is exact C: 1,360 bytes / 340
+words with the retail `0x58` frame. Keeping each coefficient's leading source
+term last and spelling the derivative scale as `coefficient2 * 3.0f` restores
+IDO's late floating-point evaluation and temporary schedule. The compiler's
+64-byte duplicate jump table and literal pool are authenticated by digest,
+then externalized while all 20 text relocations are rebound to the retained
+initialized-data base without changing instruction words or addends. The
+unchanged runtime table plus the exact linked range prove all 20 effective
+identities; the owned range, complete module, and full US ROM are exact.
+
 Overlay 41's `+0x1740..+0x195C` item spawner is exact C: 540 bytes / 135
 words with the retail `0xA0` frame. Four compiler-private relocations are
 rebound, without changing instruction fields, to the retained jump-table and

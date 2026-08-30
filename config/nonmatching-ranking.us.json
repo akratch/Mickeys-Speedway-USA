@@ -1,13 +1,13 @@
 {
   "schema_version": 3,
   "source_context_version": 3,
-  "queue_size": 399,
-  "resolved": 399,
+  "queue_size": 398,
+  "resolved": 398,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
-  "source_context_coverage": 399,
-  "relocation_masked_coverage": 399,
+  "source_context_coverage": 398,
+  "relocation_masked_coverage": 398,
   "functions": [
     {
       "name": "levelFreeAll",
@@ -1133,21 +1133,6 @@
       "size_delta": 0,
       "category": "other",
       "source_context_sha256": "5Hup.u6Uu.6J8s.CRbG.FAts.6RCT.AQQH.37yF.oijy.6bNZ.k98"
-    },
-    {
-      "name": "func_overlay_041_F00002AC_18875E4",
-      "file": "src/overlays/o041/overlay41SampleCurve.c",
-      "overlay": 41,
-      "tu": "overlays/o041",
-      "size_bytes": 1360,
-      "objdiff_match_pct": null,
-      "differing_words": 17,
-      "first_mismatch_offset": 1180,
-      "relocation_masked_differing_words": 17,
-      "relocation_masked_first_mismatch_offset": 1180,
-      "size_delta": 0,
-      "category": "other",
-      "source_context_sha256": "Q7_0.Z-tU.J880.W0m7.os7r.zFyA.JEvl.TfXW.7YRE.gVCj.5sY"
     },
     {
       "name": "func_8005716C",

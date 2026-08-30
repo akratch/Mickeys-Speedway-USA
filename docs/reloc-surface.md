@@ -1016,6 +1016,16 @@ there is no target padding. ORT 1452 and resident relocation 314 authenticate
 sole inbound `func_80051364+0x2D4`; there is no local or cross-overlay caller.
 Production trims only standalone section alignment.
 
+Overlay 41 `+0x2AC` (`func_overlay_041_F00002AC_18875E4`) owns 20 LOCAL
+runtime records: ten HI16/LO16 pairs spanning function offsets
+`+0x30..+0x4D8`, all based at module initialized-data `+0x1DE0`. Exact C emits
+the same 20 offsets and types with unchanged addends. Its compiler-private
+jump table and constants reproduce the retained `+0x0..+0x3C` payload and are
+discarded only after a digest check; relocation metadata binds the text to the
+retained zero-addend base. The unchanged runtime table plus the exact linked
+ROM range prove all 20 effective identities. The 340-word body, `0x58` frame,
+owned `+0x2AC..+0x7FC` range, complete module, and full ROM are exact.
+
 Overlay 41 `+0x1740` (`overlay41SpawnItems`) owns 11 runtime records. Its
 configured 135-word C has the exact `0xA0` frame and relocation shape. A
 metadata-only retained-pool contract resolves the two formerly differing
