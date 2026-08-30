@@ -203,6 +203,40 @@ class WrapperRoutingTests(unittest.TestCase):
             self.assertIn("stale candidate object", result.stderr)
             self.assertFalse(args_out.exists())
 
+    def test_rom_no_build_rejects_same_tick_artifacts(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = pathlib.Path(directory)
+            WrapperFixture(fixture)
+            candidate_rom = fixture / "build/mickey.us.z64"
+            candidate_rom.write_bytes(b"rom")
+            elf = fixture / "build/mickey.us.elf"
+            timestamp_ns = max(elf.stat().st_mtime_ns, candidate_rom.stat().st_mtime_ns)
+            os.utime(elf, ns=(timestamp_ns, timestamp_ns))
+            os.utime(candidate_rom, ns=(timestamp_ns, timestamp_ns))
+            args_out = fixture / "args.txt"
+            env = os.environ.copy()
+            env["WB_ARGS_OUT"] = str(args_out)
+
+            result = subprocess.run(
+                [
+                    str(fixture / "tools/wb_compare.sh"),
+                    "--rom",
+                    "--no-build",
+                    "friendly",
+                ],
+                cwd=fixture,
+                env=env,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("is not strictly newer", result.stderr)
+            self.assertIn("omit --no-build", result.stderr)
+            self.assertFalse(args_out.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

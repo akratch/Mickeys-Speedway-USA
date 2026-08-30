@@ -26,7 +26,10 @@
 # compares the baserom's bytes against the built ROM's bytes over the symbol's
 # address range instead. Fully relocated on both sides, so it can only ever
 # report instruction-words-identical or a real difference -- useful as a final
-# oracle, useless for diagnosing relocation questions.
+# oracle, useless for diagnosing relocation questions. By default this forces
+# only the cheap ELF -> BIN -> ROM derivation so a same-timestamp stale ROM
+# cannot masquerade as current. --no-build instead requires the ROM to be
+# strictly newer than its linked ELF.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -124,9 +127,21 @@ if [ "$mode" = rom ]; then
     rom_build_dir=${WB_ROM_BUILD_DIR:-build}
     candidate_elf=$rom_build_dir/mickey.us.elf
     candidate_rom=$rom_build_dir/mickey.us.z64
-    if [ ! -f "$candidate_elf" ] || [ ! -f "$candidate_rom" ]; then
-        echo "$0: no ROM build under '$rom_build_dir' -- run gmake first." >&2
+    if [ ! -f "$candidate_elf" ]; then
+        echo "$0: no linked ELF under '$rom_build_dir' -- run gmake first." >&2
         exit 1
+    fi
+    if [ "$no_build" -eq 0 ]; then
+        # GNU Make can miss this edge when the link and prior ROM happen in the
+        # same filesystem timestamp tick.  --what-if marks only the linked ELF
+        # as newly changed, forcing the cheap ELF -> BIN -> ROM derivation
+        # without recompiling or relinking the project.
+        nice -n 10 gmake -j2 --no-print-directory \
+            -W "$candidate_elf" "$candidate_rom"
+    elif [ ! -f "$candidate_rom" ] || [ ! "$candidate_rom" -nt "$candidate_elf" ]; then
+        echo "$0: '$candidate_rom' is not strictly newer than '$candidate_elf';" >&2
+        echo "  omit --no-build to refresh the ROM proof artifact." >&2
+        exit 2
     fi
 
     read -r candidate_vram_hex candidate_size_hex candidate_section < <(
