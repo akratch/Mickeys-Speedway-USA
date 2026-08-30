@@ -1743,3 +1743,13 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * summary: Exact geometry/frame and 48 relocation sites; flags and bounded permutation exhausted; first substantive allocator drift +0x428.
  * PLATEAU-HANDOFF:func_overlay_008_F0000894_185E5EC:end
  */
+
+/* PLATEAU-HANDOFF:func_overlay_008_F000291C_1860674:start
+ * symbol: func_overlay_008_F000291C_1860674
+ * score: 56 differing words
+ * frame: -0x70
+ * relocations: 25
+ * first-mismatch: +0x0
+ * summary: Fresh exact geometry retains the 0x70/0x68 frame split and divergent FP pool; prior declaration, lifetime, constant, and flag probes are exhausted.
+ * PLATEAU-HANDOFF:func_overlay_008_F000291C_1860674:end
+ */
