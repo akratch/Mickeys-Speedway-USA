@@ -51,10 +51,12 @@ returns success only for `base-only`; this makes stale pre-cleanup evidence a
 closed assignment gate instead of an implicit ready row. Subjects explicitly
 marked near-match, near-miss, plateau, candidate, or diagnostic are not trusted
 as exact-match dispositions: subjects are scheduling metadata, not proof. A
-reviewed exact claim that canonical rejects or supersedes is recorded by full
-claim and decision commit IDs in
+reviewed exact or target-guard claim that canonical rejects or supersedes is
+recorded by full claim and decision commit IDs in
 `config/lane-claim-dispositions.us.json`; full reports retain that disposition,
-while `--pending-only` excludes only the reviewed claim hash. See
+while `--pending-only` excludes only the reviewed claim hash. An adjudicated
+frozen tip also stops reserving its symbol, while an unrelated change to a
+different guard in the same translation unit never reserves the target. See
 [ADR 0011](adr/0011-cross-lane-knowledge-and-task-budgets.md).
 
 Non-interactive workers also receive an explicit task budget. The launcher

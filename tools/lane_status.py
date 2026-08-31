@@ -440,7 +440,11 @@ def target_history_record(
         records = tuple(parsed)
     token = exact_symbol_pattern(symbol)
     for commit, subject in records:
-        if not token.search(subject):
+        names_target = bool(token.search(subject))
+        changes_target = any(
+            target_guard_changed(commit, symbol, path) for path in paths
+        )
+        if not names_target and not changes_target:
             continue
         if require_plateau and "plateau" not in subject.lower():
             continue
@@ -455,6 +459,32 @@ def target_history_commit(
         ref, symbol, paths, require_plateau=require_plateau,
     )
     return record[0] if record else None
+
+
+@lru_cache(maxsize=16384)
+def guarded_candidate_region(ref: str, path: str, symbol: str) -> str | None:
+    """Return one exact committed NON_MATCHING region for history ownership."""
+    text = show_file(ref, path)
+    if text is None:
+        return None
+    try:
+        candidate = finalize_plateau.require_guarded_candidate(text, symbol)
+    except finalize_plateau.PlateauError:
+        return None
+    lines = text.splitlines(keepends=True)
+    return "".join(lines[candidate.ifdef_line:candidate.endif_line + 1])
+
+
+@lru_cache(maxsize=16384)
+def target_guard_changed(commit: str, symbol: str, path: str) -> bool:
+    """Detect target-owned history even when a commit subject uses a nickname."""
+    parent = first_parent(commit)
+    current = guarded_candidate_region(commit, path, symbol)
+    previous = (
+        guarded_candidate_region(parent, path, symbol)
+        if parent is not None else None
+    )
+    return current != previous and (current is not None or previous is not None)
 
 
 def path_plateau_record(ref: str, path: str) -> tuple[str, str] | None:
@@ -816,6 +846,7 @@ def active_lanes_for_source(
     base: str, symbol: str, base_path: str, base_blob: str,
     base_source_commit: str, base_text: str | None = None,
     lane_index: LanePathIndex | None = None,
+    dispositions: dict[str, dict[str, str]] | None = None,
 ) -> list[str]:
     """Return lanes with committed work on this exact guarded candidate.
 
@@ -826,6 +857,7 @@ def active_lanes_for_source(
     damages the guard, or adds a target handoff.
     """
     active = []
+    dispositions = dispositions or {}
     target_shard_path = shard_path(symbol)
     if lane_index is not None:
         if lane_index.base != base:
@@ -897,7 +929,14 @@ def active_lanes_for_source(
         if base_candidate is not None else None
     )
     base_handoff = plateau_handoff_signature(base_text or "", symbol)
-    for branch, _head in refs:
+    for branch, head in refs:
+        disposition = dispositions.get(head)
+        if disposition is not None and disposition["symbol"] == symbol:
+            # A reviewed frozen tip may retain a historical target guard for
+            # audit even after canonical explicitly rejected or superseded it.
+            # Keep the ref, but do not let that adjudicated guard reserve the
+            # target forever.
+            continue
         # The contains filter already excludes old refs that predate the
         # current target source. Most retained lane refs have not changed this
         # path at all; compare its blob before paying for a full symbol/path
@@ -954,6 +993,29 @@ def active_lanes_for_source(
                 lane_candidate.ifdef_line:lane_candidate.endif_line + 1
             ]
         )
+        common_text = common_object[1] if common_object is not None else None
+        try:
+            common_candidate = finalize_plateau.require_guarded_candidate(
+                common_text or "", symbol
+            )
+        except finalize_plateau.PlateauError:
+            common_candidate = None
+        if common_candidate is not None:
+            common_lines = (common_text or "").splitlines(keepends=True)
+            common_region = "".join(
+                common_lines[
+                    common_candidate.ifdef_line:common_candidate.endif_line + 1
+                ]
+            )
+            if (
+                lane_region == common_region
+                and plateau_handoff_signature(lane_text, symbol)
+                == plateau_handoff_signature(common_text or "", symbol)
+            ):
+                # This lane changed another function in a mixed TU. A later
+                # base-only repair of this target must not turn that unrelated
+                # historical path delta into target ownership.
+                continue
         if lane_region != base_region:
             active.append(branch)
             continue
@@ -1030,7 +1092,7 @@ def assignment_status(
         )
     active = active_lanes_for_source(
         base, symbol, path, current_blob, base_source_commit, text,
-        lane_index,
+        lane_index, claim_dispositions(base),
     )
     if active:
         return Assignment(
