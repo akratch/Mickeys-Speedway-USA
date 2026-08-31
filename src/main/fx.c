@@ -2067,9 +2067,9 @@ typedef struct FxRippleLevel {
 extern FxRippleLevel *levelGetLevel(void);
 extern s32 func_8002A204(s32 angle);
 
-/* Workbench verdict: structure-mismatch; 224 differing words, first mismatch +0x10. */
+/* Workbench verdict: structure-mismatch; 224 differing words, first mismatch +0x8. */
 /* Target 232 instructions/frame -168; candidate 234 instructions/frame -168. */
-/* Remaining gap is prologue/global and command-loop schedule; not shape-exact. */
+/* The remaining gap is the saved-register and command-loop schedule. */
 void fxSPDPRipple(FxGfx **dList, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   s32 arg5) {
     FxGfx *command;
@@ -2170,8 +2170,7 @@ void fxSPDPRipple(FxGfx **dList, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                 command->w0 = 0xE7000000;
             } while (temp_v1_2 != arg4);
         }
-        /* The target call site passes only the display-list pointer. */
-        func_80034920(dList, NULL, NULL);
+        func_80034920(dList);
     }
 }
 #else
@@ -2577,4 +2576,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x60
  * summary: Exact geometry and registers; one LO16 schedule swap remains after 119 flags. Permuter zero used a prohibited inert wrapper; need authentic macro evidence.
  * PLATEAU-HANDOFF:func_80049518:end
+ */
+
+/* PLATEAU-HANDOFF:fxSPDPRipple:start
+ * symbol: fxSPDPRipple
+ * score: 224/232 words
+ * frame: 0xA8
+ * relocations: 18
+ * first-mismatch: +0x8
+ * summary: Removed two fake call args; candidate has 12 relocs versus 18 target. Flags and permutation did not solve saved-register and loop scheduling.
+ * PLATEAU-HANDOFF:fxSPDPRipple:end
  */
