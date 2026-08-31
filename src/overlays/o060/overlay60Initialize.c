@@ -75,9 +75,10 @@ extern Overlay60Object *overlay60FindReloc(u8 index);
 
 #define SOURCE(type, offset) (*(type *)(gOverlay60SourceReloc + (offset)))
 
-/* Workbench: mixed structure/schedule/register, 21 words, first +0x7C.
- * Tried loop-base placement, descriptor-store ordering, and coordinate temporaries.
- * Remains loop-setup scheduling and descriptor temporary allocation. */
+/* Workbench: mixed structure/schedule/register, 21 words, first +0x6C.
+ * A fidelity-clean allocator trace could not attribute source webs or stack
+ * homes. Scheduler-selected descriptor reordering was non-improving in exact
+ * words, and coordinate carriers regressed the frame; retain functional C. */
 #ifdef NON_MATCHING
 void func_overlay_060_F0000000_18B9DD8(void) {
     Overlay60Object **objects;
@@ -167,6 +168,6 @@ void func_overlay_060_F0000000_18B9DD8(void) {
  * frame: 0x60
  * relocations: 76
  * first-mismatch: +0x6C
- * summary: Exact-sized; 46 raw and 21 relocation-masked differences; loop setup and descriptor scheduling remain; static identities unresolved.
+ * summary: Fidelity-clean traces expose no attributable source web; the scheduler-selected reorder loses one exact word, so functional baseline is restored.
  * PLATEAU-HANDOFF:func_overlay_060_F0000000_18B9DD8:end
  */
