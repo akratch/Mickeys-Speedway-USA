@@ -10,6 +10,41 @@
       "source_commit": "69a46cbc44bc8d2d58a9c9ba9a54f9ff6e416838",
       "ledger_commit": null,
       "reason": "Configured exact-size stale remeasurement at 156 bytes and 39 words with 21 masked differences."
+    },
+    "overlay3SelectScoredObject": {
+      "source_commit": "5c5f8e0a24a1b9f78e1fdcaf10cea3f30d90fa57",
+      "ledger_commit": null,
+      "reason": "Configured exact-size stale remeasurement at 472 bytes with 22 masked differences."
+    },
+    "overlay17DrawStrip": {
+      "source_commit": "40fe9ae8f6a8f67920391127d843ac5c74c5a0e3",
+      "ledger_commit": null,
+      "reason": "Configured exact-size stale remeasurement at 476 bytes with 22 masked differences."
+    },
+    "overlay63Initialize": {
+      "source_commit": "c50629e2c475632523de8614099358c5ec17c17f",
+      "ledger_commit": null,
+      "reason": "Configured exact-size stale remeasurement at 468 bytes with 22 masked differences."
+    },
+    "func_80020E4C": {
+      "source_commit": "b453619c2d371287be77826f3eb62b632575c2ba",
+      "ledger_commit": null,
+      "reason": "Configured exact-size stale remeasurement at 452 bytes with 25 masked differences."
+    },
+    "overlay1BendPathPoint": {
+      "source_commit": "6fe1a4e341f5efd5ba9aa0ccd7562cdebec49fee",
+      "ledger_commit": null,
+      "reason": "Configured exact-size stale remeasurement at 428 bytes with 25 masked differences."
+    },
+    "func_overlay_071_F0000278_18C9D98": {
+      "source_commit": "67712101df31b12cbd5e7dc91317ce2ef2f4242e",
+      "ledger_commit": null,
+      "reason": "Configured exact-size stale remeasurement at 1328 bytes with 28 masked differences."
+    },
+    "overlay57UpdateModeTrigger": {
+      "source_commit": "32f9b737781d9a9d814faaa92f011ad48c462367",
+      "ledger_commit": null,
+      "reason": "Configured exact-size stale remeasurement at 376 bytes with 25 masked differences."
     }
   }
 }
