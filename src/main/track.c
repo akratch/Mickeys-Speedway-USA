@@ -2937,15 +2937,17 @@ next_plane:
     } while (planeCount--);
     return TRUE;
 }
-/* Workbench verdict: structure-mismatch, 175 differing words, first mismatch +0x0. */
-/* Candidate: 177/160 instructions with a -0x58 frame versus target -0x38; switch and FP saved-register shape remain unresolved. */
-/* Shape status: visibility branches and plane loop are reconstructed, but the candidate is not shape-exact. */
+/* Workbench verdict: structure-mismatch, 120 positional and 132 aligned
+ * differing words, first mismatch +0x0. */
+/* Candidate: 159/160 instructions with a -0x60 frame versus target -0x38;
+ * target/candidate static relocations are 20/12. */
+/* Shape status: switch semantics, fade direction, and the bottom-tested plane
+ * loop are reconstructed; the saved-FP declaration web remains unresolved. */
 /* PROVENANCE: JFG's assembly-only object-alpha routine supplies the role and switch family;
  * Mickey's jump tables, fields, globals, and arithmetic are authoritative here. */
 #ifdef NON_MATCHING
 s32 func_800103D4(void *object) {
     u8 *gameMode;
-    u8 *player;
     void *state;
     void *bounds;
     TrackPlane *plane;
@@ -2956,11 +2958,14 @@ s32 func_800103D4(void *object) {
     f32 fadeDistance;
     f32 fadeRange;
     f32 fadeScale;
+    f32 fadeRemaining;
+    f32 planeX;
+    f32 planeY;
+    f32 planeZ;
+    f32 planeDistance;
     s16 kind;
     s16 distanceLimit;
     s32 visible;
-    s32 alphaValue;
-    u8 alpha;
 
     visible = 1;
     gameMode = func_80028F54();
@@ -3013,17 +3018,16 @@ s32 func_800103D4(void *object) {
             *(u8 *) ((u8 *) object + 0x39) = 0xFF;
             break;
         }
-    } else if ((kind >= 63) && (kind < 89)) {
+    } else {
         switch (kind) {
         case 63:
             state = *(void **) ((u8 *) object + 0x64);
-            *(u8 *) ((u8 *) object + 0x39) = *gameMode == 5
-                ? *(u8 *) ((u8 *) state + 0x190)
-                : 0xFF;
-            player = (u8 *) state;
-            if ((*gameMode != 5) && ((*(u16 *) (player + 0x1A8) & 1) != 0) &&
-                (*(u8 *) (player + 0x170) != 0)) {
-                *(u8 *) ((u8 *) object + 0x39) = *(u8 *) ((u8 *) object + 0x39);
+            if (*gameMode == 5) {
+                *(u8 *) ((u8 *) object + 0x39) =
+                    *(u8 *) ((u8 *) state + 0x190);
+            } else if (((*(u16 *) ((u8 *) state + 0x1A8) & 1) == 0) ||
+                       (*(u8 *) ((u8 *) state + 0x170) == 0)) {
+                *(u8 *) ((u8 *) object + 0x39) = 0xFF;
             }
             break;
         case 84:
@@ -3056,33 +3060,26 @@ s32 func_800103D4(void *object) {
             *(u8 *) ((u8 *) object + 0x39) = 0xFF;
             break;
         }
-    } else {
-        *(u8 *) ((u8 *) object + 0x39) = 0xFF;
     }
-    alpha = *(u8 *) ((u8 *) object + 0x39);
-    if (alpha == 0) {
+    if (*(u8 *) ((u8 *) object + 0x39) == 0) {
         return 0;
     }
     bounds = *(void **) ((u8 *) object + 0x40);
-    if (bounds != NULL) {
-        distanceLimit = *(s16 *) ((u8 *) bounds + 0x16);
-        if (distanceLimit != 0) {
-            fadeDistance = camDistance(*(f32 *) ((u8 *) object + 0xC),
-                                       *(f32 *) ((u8 *) object + 0x10),
-                                       *(f32 *) ((u8 *) object + 0x14));
-            fadeRange = (f32) distanceLimit;
-            if (fadeRange < fadeDistance) {
-                visible = 0;
-            } else {
-                fadeScale = fadeRange * D_80081770;
-                fadeRange -= fadeDistance;
-                if (fadeRange < fadeScale) {
-                    visible = 0;
-                } else {
-                    alphaValue = (s32) ((f32) alpha * (fadeRange / fadeScale));
-                    alpha = alphaValue;
-                    *(u8 *) ((u8 *) object + 0x39) = alpha;
-                }
+    distanceLimit = *(s16 *) ((u8 *) bounds + 0x16);
+    if (distanceLimit != 0) {
+        fadeDistance = camDistance(*(f32 *) ((u8 *) object + 0xC),
+                                   *(f32 *) ((u8 *) object + 0x10),
+                                   *(f32 *) ((u8 *) object + 0x14));
+        fadeRange = (f32) distanceLimit;
+        if (fadeRange < fadeDistance) {
+            visible = 0;
+        } else {
+            fadeRemaining = fadeRange - fadeDistance;
+            fadeScale = fadeRange * D_80081770;
+            if (fadeRemaining < fadeScale) {
+                *(u8 *) ((u8 *) object + 0x39) =
+                    (s32) ((f32) *(u8 *) ((u8 *) object + 0x39) *
+                           (fadeRemaining / fadeScale));
             }
         }
     }
@@ -3092,16 +3089,20 @@ s32 func_800103D4(void *object) {
         objectZ = *(f32 *) ((u8 *) object + 0x14);
         radius = *(f32 *) ((u8 *) object + 0x34);
         plane = D_800C9578;
-        while ((u8 *) plane < (u8 *) D_800C95A8) {
-            if ((((objectX * plane->x) + (objectY * plane->y)) +
-                 (objectZ * plane->z) + plane->distance + radius) < 0.0f) {
+        do {
+            planeX = plane->x;
+            planeY = plane->y;
+            planeZ = plane->z;
+            planeDistance = plane->distance;
+            if ((((objectX * planeX) + (objectY * planeY)) +
+                 (objectZ * planeZ) + planeDistance + radius) < 0.0f) {
                 visible = 0;
             }
             plane++;
             if (visible == 0) {
                 break;
             }
-        }
+        } while ((u8 *) plane < (u8 *) &D_800C95A8);
     }
     return visible;
 }
@@ -5884,4 +5885,14 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x48
  * summary: Fresh level-global reloads close nine of ten missing words; one instruction and the s0/s1 display-list/constant register cycle remain.
  * PLATEAU-HANDOFF:func_8000BDB4:end
+ */
+
+/* PLATEAU-HANDOFF:func_800103D4:start
+ * symbol: func_800103D4
+ * score: 132 differing words
+ * frame: 0x60
+ * relocations: 20
+ * first-mismatch: +0x0
+ * summary: Best is 159/160 with 120 positional differences; saved-FP storage class and a target 20 versus candidate 12 relocation deficit remain.
+ * PLATEAU-HANDOFF:func_800103D4:end
  */
