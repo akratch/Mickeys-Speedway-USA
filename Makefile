@@ -743,6 +743,12 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/motor.c.o: CFLAGS += -DBUILD_VERSION=7 -DJFGDIF
 $(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakselectbank.c.o: MIPSISET := -mips2 -32
 $(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakselectbank.c.o: CFLAGS += -Wo,-loopunroll,0
 
+# Mickey's EEPROM long-write object uses Banjo-Kazooie's O1/MIPS II group
+# with R4300 multiply-hazard scheduling.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eeplongwrite.c.o: OPT_FLAGS := -O1
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eeplongwrite.c.o: MIPSISET := -mips2 -32
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eeplongwrite.c.o: CFLAGS += -Wab,-r4300_mul
+
 # Perfect Dark's matching Transfer Pak status object uses the default O2
 # loop-unroll mode, unlike the rolled bank-selector TU immediately below.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakgetstatus.c.o: MIPSISET := -mips2 -32
