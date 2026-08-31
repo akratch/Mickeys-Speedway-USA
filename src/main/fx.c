@@ -1644,18 +1644,18 @@ void func_80049A8C(s32 index) {
         record++;
     }
 }
-/* Workbench verdict: structure-mismatch, 216 differing words, first mismatch +0x8. */
-/* Candidate: 219/206 instructions with the target -0x18 frame; switch-state structural gap remains, so it is not shape-exact. */
-/* Shape status: four-record state machine and signed timing fields are reconstructed; branch/constant schedule remains. */
+/* Workbench verdict: structure-mismatch, 154 differing words, first mismatch +0x8. */
+/* Candidate: 207/206 instructions with the target -0x18 frame and all four relocation identities exact. */
+/* Shape status: the five-record post-decrement loop and 32-bit delta/carry widths are reconstructed; switch allocation remains. */
 /* PROVENANCE: Mickey's own FxRecord layout and m2c draft supply the state transitions; no external body is adapted here. */
 #ifdef NON_MATCHING
-s32 func_80049B14(s16 delta) {
+s32 func_80049B14(s32 delta) {
     FxRecord *record;
-    s32 bit;
-    s16 carry;
-    s16 duration;
     s16 current;
-    s16 next;
+    s16 duration;
+    s32 next;
+    s32 carry;
+    s32 bit;
     u16 flags;
     u8 mode;
 
@@ -1766,8 +1766,7 @@ s32 func_80049B14(s16 delta) {
             }
         }
         record++;
-        bit--;
-    } while (bit != 0);
+    } while (bit--);
     return D_800D5F50;
 }
 #else
@@ -2604,4 +2603,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x0
  * summary: 176/177-word JFG command CFG; exact call relocation. Blocked by outer-index spill/xStep allocation and 0x38 non-save-frame delta after 119 flag rows.
  * PLATEAU-HANDOFF:wakeDraw:end
+ */
+
+/* PLATEAU-HANDOFF:func_80049B14:start
+ * symbol: func_80049B14
+ * score: 154 differing words
+ * frame: 0x18
+ * relocations: 4
+ * first-mismatch: +0x8
+ * summary: Five-record post-decrement CFG and 32-bit delta/carry are restored; 207/206 words remain blocked on switch/carry allocation after 119 flag rows.
+ * PLATEAU-HANDOFF:func_80049B14:end
  */
