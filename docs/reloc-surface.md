@@ -1111,6 +1111,16 @@ configured object is exact at 77 words with a `0x30` frame, all seven records
 agree by offset/type/effective identity, and the linked owner, complete overlay,
 and full ROM are exact.
 
+Overlay 22 `+0xA7C` (`func_overlay_022_F0000A7C_1878B84`) owns three runtime
+records. A LOCAL HI16/LO16 pair at function offsets `+0x2C/+0x30` binds the
+module constant base (the LO16 carries the `D_0[4]` displacement), and the
+SYMBOL `R_MIPS_26` at `+0x110` targets resident `sqrtf`. Exact C emits those
+three sites and unchanged addends. Its configured 173-word instruction stream
+and `0x88` frame are exact; metadata-only rebinding names the call's shipped
+overlay placeholder before link. The unchanged runtime table plus exact linked
+range prove all three effective identities. The complete module and full ROM
+are byte-identical.
+
 Overlay 22 `+0xD30` (`func_overlay_022_F0000D30_1878E38`) has 12 exact
 runtime-backed tuples in the configured candidate. LOCAL HI16/LO16 pairs at
 function `+0x14/+0x18` resolve through count `+0xED0`; pairs at
