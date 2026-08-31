@@ -811,9 +811,10 @@ typedef struct HitRecord {
     u32 flags;
 } HitRecord;
 
-/* NON_MATCHING p4 plateau: workbench structure-mismatch; exact-TU candidate 1596 vs 1542 instructions, 1522 raw words different, frames -0x238/-0x138, first +0x0.
- * Levers: exact flag/context parity and constant audit; the earliest loop is still unrolled and the typed ABI/frame shape remains divergent.
- * Remains: m2c field/ABI recovery plus 272 relocation-symbol differences; GLOBAL_ASM remains canonical. */
+/* NON_MATCHING plateau: fresh full-TU V0 remains a structure mismatch at
+ * 1600 versus 1542 words, with 1510 raw/1508 relocation-masked differences
+ * from +0x0. The m2c locals produce a 0x230 frame versus the target's 0x138;
+ * recover the typed ABI/stack layout before further source-shape work. */
 #ifdef NON_MATCHING
 void func_overlay_001_F000438C_185076C(f32 *arg0, s32 arg1) {
     f32 *sp130;
@@ -3366,4 +3367,14 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0x2C
  * summary: Instruction-exact; linked promotion retains six words at the jump-table pair and four same-overlay calls.
  * PLATEAU-HANDOFF:overlay1DispatchMode:end
+ */
+
+/* PLATEAU-HANDOFF:func_overlay_001_F000438C_185076C:start
+ * symbol: func_overlay_001_F000438C_185076C
+ * score: 1508 differing words
+ * frame: 0x230
+ * relocations: 65
+ * first-mismatch: +0x0
+ * summary: Target 0x138 frame versus m2c 0x230; recover typed ABI/stack layout and canonical symbol ownership before further CFG work.
+ * PLATEAU-HANDOFF:func_overlay_001_F000438C_185076C:end
  */
