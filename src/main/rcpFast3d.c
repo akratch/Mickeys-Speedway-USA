@@ -63,6 +63,15 @@ typedef struct RcpGradientColour {
         cmd->w1 = 0; \
     }
 
+#ifdef NON_MATCHING
+#define RCP_WRITE_COMMAND(command, word0, word1) \
+    { \
+        RcpCommand *writeCmd = (command)++; \
+        writeCmd->w0 = (word0); \
+        writeCmd->w1 = (word1); \
+    }
+#endif
+
 #define RCP_SET_COLOR_IMAGE(command, width, address) \
     { \
         RcpCommand *cmd = (command); \
@@ -488,192 +497,141 @@ void rcpInit(OSSched *scheduler) {
 #ifdef NON_MATCHING
 /* No external donor body was used; the command stream and field offsets are
  * reconstructed from Mickey's target assembly and local RCP idioms. */
-/* Workbench verdict: structure-mismatch; 312 differing words, first mismatch +0x34.
- * Target 327 instructions/frame -64; candidate 288 instructions/frame -64.
- * Remaining gap is IDO's collapsed command-pointer/store schedule; not shape-exact. */
+/* Workbench verdict: structure-mismatch; 290 differing words, first mismatch +0x0.
+ * Target/candidate are both 327 instructions; frame -0x40 versus -0x70.
+ * Six relocation identities agree; func_800348D4 is displaced by two words. */
 void func_8002F618(RcpCommand **arg0, RcpTextureNode *arg1, s32 arg2,
                    s32 arg3, u8 arg4, u8 arg5, u8 arg6, u8 arg7) {
-    RcpCommand *temp_s0;
-    RcpCommand *temp_s0_2;
-    RcpCommand *temp_s0_3;
-    RcpCommand *temp_s0_4;
-    RcpCommand *temp_s0_5;
-    RcpCommand *temp_s0_6;
-    RcpCommand *temp_s0_7;
-    RcpCommand *temp_s0_8;
-    RcpCommand *temp_s0_9;
-    RcpCommand *temp_s0_10;
-    RcpCommand *temp_s0_11;
-    RcpCommand *temp_s0_12;
-    RcpCommand *temp_s0_13;
-    RcpCommand *temp_s0_14;
-    RcpCommand *temp_s0_15;
-    RcpCommand *temp_s0_16;
-    RcpCommand *temp_s0_17;
-    RcpCommand *temp_s0_18;
-    RcpCommand *var_s0_2;
-    RcpCommand *temp_v1;
-    RcpCommand *var_s0;
-    RcpCommand *var_a0;
-    RcpTextureInfo *temp_v0;
-    RcpTextureInfo *var_s1;
-    RcpTextureNode *var_s2;
-    s32 temp_a0;
-    s32 temp_a1;
-    s32 temp_fp;
-    s32 temp_s7;
-    s32 temp_t0;
-    s32 var_a2;
-    s32 var_a2_2;
-    s32 var_s3;
-    s32 var_s4;
-    s32 var_s5;
-    s32 var_s6;
+    RcpCommand *dlist;
+    RcpCommand *lastCommand;
+    RcpTextureInfo *alternate;
+    RcpTextureInfo *texture;
+    RcpTextureNode *node;
+    s32 x;
+    s32 y;
+    s32 right;
+    s32 bottom;
+    s32 s;
+    s32 t;
+    s32 maxTexels;
 
     if (arg1->texture != NULL) {
-        temp_s0 = *arg0;
+        dlist = *arg0;
         if (arg1->alternate != NULL) {
-            var_a0 = (RcpCommand *)D_8007A540;
+            lastCommand = (RcpCommand *)D_8007A540;
         } else {
-            var_a0 = (RcpCommand *)D_8007A4F8;
+            lastCommand = (RcpCommand *)D_8007A4F8;
         }
-        temp_s0_2 = temp_s0 + 1;
-        temp_s0->w0 = 0x06000000;
-        temp_s0->w1 = (u32)var_a0;
-        temp_s0_2->w0 = 0xFA000000;
-        var_s0 = temp_s0_2 + 1;
-        temp_s0_2->w1 = ((u32)arg4 << 24) | ((u32)arg5 << 16) |
-                        ((u32)arg6 << 8) | arg7;
-        var_s1 = arg1->texture;
-        var_s2 = arg1;
+        RCP_WRITE_COMMAND(dlist, 0x06000000, (u32)lastCommand);
+        RCP_WRITE_COMMAND(dlist, 0xFA000000,
+                          ((u32)arg4 << 24) | ((u32)arg5 << 16) |
+                              ((u32)arg6 << 8) | arg7);
+        texture = arg1->texture;
+        node = arg1;
         arg2 *= 4;
         arg3 *= 4;
-        if (var_s1 != NULL) {
+        if (texture != NULL) {
             do {
-                var_s3 = (var_s2->x * 4) + arg2;
-                var_s4 = (var_s2->y * 4) + arg3;
-                temp_s7 = (var_s1->width * 4) + var_s3;
-                temp_fp = (var_s1->height * 4) + var_s4;
-                if (temp_s7 > 0) {
-                    var_s5 = 0;
-                    if (temp_fp > 0) {
-                        var_s6 = 0;
-                        if (var_s3 < 0) {
-                            var_s5 = -(var_s3 * 8);
-                            var_s3 = 0;
+                x = (node->x * 4) + arg2;
+                y = (node->y * 4) + arg3;
+                right = (texture->width * 4) + x;
+                bottom = (texture->height * 4) + y;
+                if (right > 0) {
+                    s = 0;
+                    if (bottom > 0) {
+                        t = 0;
+                        if (x < 0) {
+                            s = -(x * 8);
+                            x = 0;
                         }
-                        if (var_s4 < 0) {
-                            var_s6 = -(var_s4 * 8);
-                            var_s4 = 0;
+                        if (y < 0) {
+                            t = -(y * 8);
+                            y = 0;
                         }
-                        temp_v0 = var_s2->alternate;
-                        if (temp_v0 != NULL) {
-                            var_s0->w0 = 0xFD100000;
-                            temp_s0_3 = var_s0 + 1;
-                            temp_s0_4 = temp_s0_3 + 1;
-                            temp_s0_5 = temp_s0_4 + 1;
-                            temp_s0_6 = temp_s0_5 + 1;
-                            var_a2 = 0x7FF;
-                            var_s0->w1 = (u32)((((s32)var_s2->packedOffset >> 16) *
-                                                var_s1->tileRows) +
-                                               (s32)var_s1 + 0x20);
-                            temp_s0_3->w1 = 0x07020080;
-                            temp_s0_3->w0 = 0xF5100000;
-                            temp_s0_4->w1 = 0;
-                            temp_s0_4->w0 = 0xE6000000;
-                            temp_s0_5->w0 = 0xF3000000;
-                            temp_s0_7 = temp_s0_6 + 1;
-                            temp_t0 = (var_s1->width * var_s1->height) - 1;
-                            if (temp_t0 < 0x7FF) {
-                                var_a2 = temp_t0;
+                        alternate = node->alternate;
+                        if (alternate != NULL) {
+                            RCP_WRITE_COMMAND(
+                                dlist, 0xFD100000,
+                                (u32)((((s32)node->packedOffset >> 16) *
+                                       texture->tileRows) +
+                                      (s32)texture + 0x20));
+                            RCP_WRITE_COMMAND(dlist, 0xF5100000, 0x07020080);
+                            RCP_WRITE_COMMAND(dlist, 0xE6000000, 0);
+                            maxTexels = (texture->width * texture->height) - 1;
+                            if (maxTexels > 0x7FF) {
+                                maxTexels = 0x7FF;
                             }
-                            temp_s0_5->w1 = ((var_a2 & 0xFFF) << 12) |
-                                             0x07000000;
-                            temp_s0_6->w1 = 0;
-                            temp_s0_6->w0 = 0xE7000000;
-                            temp_s0_7->w0 = (((((var_s1->width * 2) + 7) >> 3) &
-                                              0x1FF) << 9) | 0xF5100000;
-                            temp_s0_7->w1 = 0x20080;
-                            temp_s0_8 = temp_s0_7 + 1;
-                            temp_s0_8->w0 = 0xF2000000;
-                            temp_s0_9 = temp_s0_8 + 1;
-                            temp_s0_8->w1 = (((((var_s1->width - 1) * 4) &
-                                               0xFFF) << 12) |
-                                              (((var_s1->height - 1) * 4) &
-                                               0xFFF));
-                            temp_s0_9->w0 = 0xFD900000;
-                            temp_s0_10 = temp_s0_9 + 1;
-                            temp_s0_11 = temp_s0_10 + 1;
-                            temp_s0_12 = temp_s0_11 + 1;
-                            temp_s0_13 = temp_s0_12 + 1;
-                            var_a2_2 = 0x7FF;
-                            temp_s0_9->w1 = (u32)((((s32)var_s2->packedOffset >> 16) *
-                                                  temp_v0->tileRows) +
-                                                 (s32)temp_v0 + 0x20);
-                            temp_s0_10->w1 = 0x07020080;
-                            temp_s0_10->w0 = 0xF5900100;
-                            temp_s0_11->w1 = 0;
-                            temp_s0_11->w0 = 0xE6000000;
-                            temp_s0_12->w0 = 0xF3000000;
-                            temp_s0_14 = temp_s0_13 + 1;
-                            temp_s0_15 = temp_s0_14 + 1;
-                            temp_a1 = (((s32)(temp_v0->width * temp_v0->height) +
-                                        3) >> 2) - 1;
-                            if (temp_a1 < 0x7FF) {
-                                var_a2_2 = temp_a1;
+                            RCP_WRITE_COMMAND(
+                                dlist, 0xF3000000,
+                                ((maxTexels & 0xFFF) << 12) | 0x07000000);
+                            RCP_WRITE_COMMAND(dlist, 0xE7000000, 0);
+                            RCP_WRITE_COMMAND(
+                                dlist,
+                                (((((texture->width * 2) + 7) >> 3) & 0x1FF)
+                                 << 9) |
+                                    0xF5100000,
+                                0x20080);
+                            RCP_WRITE_COMMAND(
+                                dlist, 0xF2000000,
+                                ((((texture->width - 1) * 4) & 0xFFF) << 12) |
+                                    (((texture->height - 1) * 4) & 0xFFF));
+                            RCP_WRITE_COMMAND(
+                                dlist, 0xFD900000,
+                                (u32)((((s32)node->packedOffset >> 16) *
+                                       alternate->tileRows) +
+                                      (s32)alternate + 0x20));
+                            RCP_WRITE_COMMAND(dlist, 0xF5900100, 0x07020080);
+                            RCP_WRITE_COMMAND(dlist, 0xE6000000, 0);
+                            maxTexels = (((s32)(alternate->width * alternate->height) +
+                                          3) >> 2) - 1;
+                            if (maxTexels > 0x7FF) {
+                                maxTexels = 0x7FF;
                             }
-                            temp_s0_12->w1 = ((var_a2_2 & 0xFFF) << 12) |
-                                             0x07000000;
-                            temp_s0_13->w1 = 0;
-                            temp_s0_13->w0 = 0xE7000000;
-                            temp_s0_14->w0 = ((((((s32)temp_v0->width >> 1) + 7) >>
-                                                3) & 0x1FF) << 9) |
-                                              0xF5800100;
-                            temp_s0_14->w1 = 0x01020080;
-                            temp_s0_15->w0 = 0xF2000000;
-                            temp_s0_15->w1 = (((((temp_v0->width - 1) * 4) &
-                                               0xFFF) << 12) |
-                                              0x01000000 |
-                                              (((temp_v0->height - 1) * 4) &
-                                               0xFFF));
-                            var_s0_2 = temp_s0_15 + 1;
+                            RCP_WRITE_COMMAND(
+                                dlist, 0xF3000000,
+                                ((maxTexels & 0xFFF) << 12) | 0x07000000);
+                            RCP_WRITE_COMMAND(dlist, 0xE7000000, 0);
+                            RCP_WRITE_COMMAND(
+                                dlist,
+                                ((((((s32)alternate->width >> 1) + 7) >> 3) &
+                                  0x1FF) << 9) |
+                                    0xF5800100,
+                                0x01020080);
+                            RCP_WRITE_COMMAND(
+                                dlist, 0xF2000000,
+                                ((((alternate->width - 1) * 4) & 0xFFF) << 12) |
+                                    0x01000000 |
+                                    (((alternate->height - 1) * 4) & 0xFFF));
                         } else {
-                            var_s0->w0 = *var_s1->data;
-                            var_s0->w1 = (u32)(func_800348D4(
-                                var_s1, var_s2->packedOffset) + 0x80000000U);
-                            temp_s0_16 = var_s0 + 1;
-                            temp_a0 = var_s1->count - 1;
-                            temp_s0_16->w0 = (((temp_a0 & 0xFF) << 16) |
-                                               0x07000000 |
-                                               ((temp_a0 * 8) & 0xFFFF));
-                            temp_s0_16->w1 = (u32)var_s1->data + 0x80000008U;
-                            var_s0_2 = temp_s0_16 + 1;
+                            RCP_WRITE_COMMAND(
+                                dlist, *texture->data,
+                                (u32)(func_800348D4(texture, node->packedOffset) +
+                                      0x80000000U));
+                            maxTexels = texture->count - 1;
+                            RCP_WRITE_COMMAND(
+                                dlist,
+                                ((maxTexels & 0xFF) << 16) | 0x07000000 |
+                                    ((maxTexels * 8) & 0xFFFF),
+                                (u32)texture->data + 0x80000008U);
                         }
-                        var_s0_2->w0 = ((temp_s7 & 0xFFF) << 12) |
-                                        0xE4000000 | (temp_fp & 0xFFF);
-                        var_s0_2->w1 = ((var_s3 & 0xFFF) << 12) |
-                                        (var_s4 & 0xFFF);
-                        temp_s0_17 = var_s0_2 + 1;
-                        temp_s0_17->w0 = 0xB3000000;
-                        temp_s0_18 = temp_s0_17 + 1;
-                        var_a0 = temp_s0_18;
-                        temp_s0_17->w1 = (var_s5 << 16) | (var_s6 & 0xFFFF);
-                        var_a0->w0 = 0xB2000000;
-                        var_a0->w1 = 0x04000400;
-                        var_s0 = temp_s0_18 + 1;
+                        RCP_WRITE_COMMAND(
+                            dlist, ((right & 0xFFF) << 12) | 0xE4000000 |
+                                         (bottom & 0xFFF),
+                            ((x & 0xFFF) << 12) | (y & 0xFFF));
+                        RCP_WRITE_COMMAND(dlist, 0xB3000000,
+                                          (s << 16) | (t & 0xFFFF));
+                        lastCommand = dlist;
+                        RCP_WRITE_COMMAND(dlist, 0xB2000000, 0x04000400);
                     }
                 }
-                var_s1 = var_s2[1].texture;
-                var_s2++;
-            } while (var_s1 != NULL);
+                texture = node[1].texture;
+                node++;
+            } while (texture != NULL);
         }
-        var_s0->w0 = 0xE7000000;
-        var_s0->w1 = 0;
-        temp_v1 = var_s0 + 1;
-        temp_v1->w1 = -1;
-        temp_v1->w0 = 0xFA000000;
-        *arg0 = temp_v1 + 1;
-        func_80034910(var_a0);
+        RCP_WRITE_COMMAND(dlist, 0xE7000000, 0);
+        RCP_WRITE_COMMAND(dlist, 0xFA000000, -1);
+        *arg0 = dlist;
+        func_80034910(lastCommand);
     }
 }
 #else
@@ -859,4 +817,14 @@ void func_8002FB34(RcpCommand **arg0, RcpTextureNode *arg1, f32 arg2,
  * first-mismatch: +0x40
  * summary: Five-word deficit and command/texture live-range allocation remain; seven of nine relocation identities align.
  * PLATEAU-HANDOFF:func_8002FB34:end
+ */
+
+/* PLATEAU-HANDOFF:func_8002F618:start
+ * symbol: func_8002F618
+ * score: 290/327 words
+ * frame: 0x70
+ * relocations: 6
+ * first-mismatch: +0x0
+ * summary: Exact geometry but frame 0x70 vs 0x40 and 290 words remain after 119 flags; permuter improved only via inert wrapper. Need authentic command macro evidence.
+ * PLATEAU-HANDOFF:func_8002F618:end
  */
