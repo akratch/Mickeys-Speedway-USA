@@ -46,20 +46,27 @@ import overlay_tables
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_ROM = REPO / "baseroms" / "mickey.us.z64"
 NON_MATCHING_RE = re.compile(r"^\s*#\s*ifdef\s+NON_MATCHING\b", re.MULTILINE)
+GLOBAL_ASM_RE = re.compile(r"^\s*#\s*pragma\s+GLOBAL_ASM\b", re.MULTILINE)
+
+
+def is_nonmatching_text(text):
+    """Whether source text contains any compiler-unmatched function."""
+    return bool(NON_MATCHING_RE.search(text) or GLOBAL_ASM_RE.search(text))
 
 
 def is_nonmatching_source(overlay, source_name):
-    """Whether overlays/oNNN/<source_name>.c wraps its definition in
-    `#ifdef NON_MATCHING` -- the DKR/docs/acceleration-survey.md sec.13.2
-    convention this project adopted for objects whose compiled instructions
-    used to be edited after the fact. Mechanically derived from the C source
-    every run, never hand-maintained, so it cannot drift from the tree.
+    """Whether overlays/oNNN/<source_name>.c contains unmatched code.
+
+    Both a guarded candidate and a bare ``GLOBAL_ASM`` fallback make the
+    broad translation-unit owner conservative. Reviewed exact functions in
+    such a TU are credited separately through ``MIXED_TU_EXACT_C_RANGES``.
+    The signal is mechanically derived from source every run.
     """
     path = REPO / "src" / "overlays" / f"o{overlay:03d}" / f"{source_name}.c"
     if not path.is_file():
         return False
     with open(path, encoding="utf-8", errors="replace") as fh:
-        return bool(NON_MATCHING_RE.search(fh.read()))
+        return is_nonmatching_text(fh.read())
 DEFAULT_MANIFEST = REPO / "config" / "overlays.us.json"
 DEFAULT_YAML = REPO / "mickey.us.yaml"
 MANIFEST_REPO_PATH = "config/overlays.us.json"
@@ -1270,6 +1277,26 @@ MIXED_TU_EXACT_C_RANGES = {
     ],
     49: [
         (0x354, 0x374, "refractOutput"),
+    ],
+    51: [
+        (
+            0x000,
+            0x080,
+            "overlay51Initialize",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x080,
+            0x0D0,
+            "overlay51PatchIndices",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x858,
+            0x8AC,
+            "overlay51ReleaseState",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
     ],
     56: [
         (

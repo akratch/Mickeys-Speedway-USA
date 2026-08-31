@@ -100,6 +100,7 @@ class ExactCDeltaTests(unittest.TestCase):
         self.assertEqual(delta["promotions"][0]["label"], "overlay7Promoted")
         self.assertEqual(delta["totals"]["net_exact_c_bytes"], 0x18)
 
+
     def test_duplicate_overlay_module_fails_closed(self):
         state = atlas([
             module(1, [ownership(0, 4, exact=True)]),
@@ -201,6 +202,23 @@ class ExactCDeltaTests(unittest.TestCase):
         self.assertEqual(decoded["promotions"][0]["overlay"], 3)
         self.assertEqual(decoded["promotions"][0]["offset"], 4)
         self.assertEqual(decoded["promotions"][0]["size"], 8)
+
+
+class NonmatchingSourceTests(unittest.TestCase):
+    def test_guarded_candidate_is_nonmatching(self):
+        self.assertTrue(
+            overlay_atlas.is_nonmatching_text("#ifdef NON_MATCHING\nvoid f(void) {}\n#endif\n")
+        )
+
+    def test_bare_global_asm_is_nonmatching(self):
+        self.assertTrue(
+            overlay_atlas.is_nonmatching_text(
+                '#pragma GLOBAL_ASM("asm/nonmatchings/example.s")\n'
+            )
+        )
+
+    def test_exact_c_only_is_matching(self):
+        self.assertFalse(overlay_atlas.is_nonmatching_text("void f(void) {}\n"))
 
 
 class AtlasStateLoadingTests(unittest.TestCase):
