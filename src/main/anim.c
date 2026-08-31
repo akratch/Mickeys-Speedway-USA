@@ -2239,3 +2239,13 @@ void fmvInit(void) {
  * summary: typed m2c-faithful candidate is one instruction long; frame allocation remains 0x188 versus 0xD8 and all three sqrtf offsets are non-exact
  * PLATEAU-HANDOFF:func_80054B3C:end
  */
+
+/* PLATEAU-HANDOFF:func_80056DD8:start
+ * symbol: func_80056DD8
+ * score: 214 differing words
+ * frame: 0x80
+ * relocations: 8
+ * first-mismatch: +0x0
+ * summary: Target is 229 words/frame 0x70; candidate is 226/frame 0x80; 1/8 relocation identities aligns; reopen only with a source-authentic frame lever.
+ * PLATEAU-HANDOFF:func_80056DD8:end
+ */
