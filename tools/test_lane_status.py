@@ -57,6 +57,8 @@ class LaneStatusAssignmentTests(unittest.TestCase):
     def setUp(self) -> None:
         ls.show_file.cache_clear()
         ls.blob_id.cache_clear()
+        ls.guarded_candidate_region.cache_clear()
+        ls.target_guard_changed.cache_clear()
         self.temporary = tempfile.TemporaryDirectory()
         self.repo = Path(self.temporary.name)
         self.command("git", "init", "-q", "-b", "campaign/unchain")
@@ -73,6 +75,8 @@ class LaneStatusAssignmentTests(unittest.TestCase):
     def tearDown(self) -> None:
         ls.show_file.cache_clear()
         ls.blob_id.cache_clear()
+        ls.guarded_candidate_region.cache_clear()
+        ls.target_guard_changed.cache_clear()
         ls.merge_base.cache_clear()
         self.temporary.cleanup()
 
@@ -294,6 +298,63 @@ void unrelatedFunction(void) {
         self.assertEqual(assignment["source_commit"], source_commit)
         self.assertEqual(assignment["ledger_commit"], ledger_commit)
         self.assertEqual(assignment["active_lanes"], [])
+
+    def test_unrelated_mixed_tu_edit_does_not_own_repaired_target(self) -> None:
+        source = self.repo / SOURCE_PATH
+        source.write_text(candidate() + "\nvoid neighbor(void) { }\n", encoding="utf-8")
+        self.commit("Add neighboring function")
+        self.command("git", "switch", "-q", "-c", "lane/neighbor")
+        source.write_text(
+            candidate() + "\nvoid neighbor(void) { int value = 1; (void)value; }\n",
+            encoding="utf-8",
+        )
+        self.commit("Plateau neighboring function")
+        self.command("git", "switch", "-q", "campaign/unchain")
+        source.write_text(
+            candidate().replace("{\n}", "{\n    /* repaired */\n}")
+            + "\nvoid neighbor(void) { }\n",
+            encoding="utf-8",
+        )
+        self.commit("Repair overlay43FilterImage source")
+
+        result, report = self.status()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(report["assignment"]["state"], "base-only")
+        self.assertEqual(report["assignment"]["active_lanes"], [])
+
+    def test_reviewed_superseded_guard_does_not_reserve_target(self) -> None:
+        source = self.repo / SOURCE_PATH
+        source.write_text(
+            candidate().replace("{\n}", "{\n    /* repaired */\n}"),
+            encoding="utf-8",
+        )
+        decision = self.commit("Reopen clean source")
+        self.command("git", "switch", "-q", "-c", "lane/old-plateau")
+        source.write_text(
+            candidate().replace("{\n}", "{\n    /* old plateau */\n}"),
+            encoding="utf-8",
+        )
+        lane_head = self.commit("Plateau overlay43FilterImage old form")
+        self.command("git", "switch", "-q", "campaign/unchain")
+        dispositions = self.repo / ls.DISPOSITIONS_PATH
+        dispositions.parent.mkdir(parents=True, exist_ok=True)
+        dispositions.write_text(json.dumps({
+            "schema_version": 1,
+            "claims": {
+                lane_head: {
+                    "symbol": SYMBOL,
+                    "state": "superseded",
+                    "decision_commit": decision,
+                    "reason": "Canonical replaced the historical guard.",
+                },
+            },
+        }), encoding="utf-8")
+        self.commit("Record reviewed guard disposition")
+
+        result, report = self.status()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(report["assignment"]["state"], "base-only")
+        self.assertEqual(report["assignment"]["active_lanes"], [])
 
     def test_malformed_symbol_shard_fails_closed(self) -> None:
         (self.repo / SHARD_PATH.parent).mkdir()
