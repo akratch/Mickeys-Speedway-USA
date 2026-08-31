@@ -125,7 +125,11 @@ extern void overlay58EnsureResource(void);
  * positional score; integer-promoting selection to s32 is byte-identical.
  * Prior ABI/prologue, flags, branch-order, marker-lifetime, geometry, and
  * split-path forms remain exhausted. The extra s8 web and 16-byte frame
- * surplus need a new source-authentic lifetime or CFG mechanism.
+ * surplus need a new source-authentic lifetime or CFG mechanism. A bounded
+ * recheck using Overlay34's later exact conditional-start precedent was flat:
+ * branch-local `increment` retained 826 instructions, 724 differences, and
+ * the 0x98 frame. Branch-local progress regressed to 823/725, while scoping
+ * the early button/selection carriers regressed to 827/732; both kept 0x98.
  */
 #ifdef NON_MATCHING
 void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
@@ -472,6 +476,6 @@ void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
  * frame: 0x98
  * relocations: 267
  * first-mismatch: +0x0
- * summary: The predicate saves eight frame bytes, but one extra s8 web, 16 frame bytes, nine relocations, and broad drift need a new lifetime or CFG mechanism.
+ * summary: Three natural lexical forms were flat or regressed; the extra saved-register web and 16-byte frame surplus remain.
  * PLATEAU-HANDOFF:func_overlay_058_F00005FC_18AF7E4:end
  */
