@@ -34,10 +34,15 @@ extern Overlay36WorldState *gOverlay36WorldStateReloc;
  * Overlay 36 hits occur only at the unrelated +0x1470/+0x1490 wrappers. */
 /* Workbench verdict: operand mismatch, 56/63 words exact, frame 0x80 versus
  * 0x70; all opcodes and register lanes are exact after the bound source copy.
- * The 119-flag lattice and ten source hypotheses are nonexact; removing the
- * nearby-value home reaches only 0x78 and breaks the exact allocation. The
- * resident call identity is exact, while the overlay-data HI16/LO16 pair
- * remains unresolved; assembly fallback stays canonical. */
+ * The 119-flag lattice and ten historical source hypotheses are nonexact;
+ * removing the nearby-value home reaches only 0x78 and breaks the exact
+ * allocation. A later fidelity-gated UOPT trace reproduced all 63 instruction
+ * words and all three relocations under the traced static compiler, then found
+ * eleven naturally colored webs but no producer-emitted final stack-home
+ * evidence. Pointer/FP register qualifiers and block-scoping the post-call
+ * locals are byte-identical to this 0x80-frame V0. The relocation synthesizer
+ * derives the unresolved overlay-data pair consistently as LOCAL value 0x150;
+ * assembly fallback stays canonical. */
 
 
 
@@ -101,6 +106,6 @@ void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
  * frame: 0x80
  * relocations: 3
  * first-mismatch: +0x0
- * summary: reuse the second phantom home without changing the exact live-range topology, then bind the overlay-data HI16/LO16 identity
+ * summary: Fidelity-gated UOPT leaves final stack-home ownership unresolved; three authentic home-shaping forms are flat
  * PLATEAU-HANDOFF:func_overlay_036_F0000818_1883CD0:end
  */
