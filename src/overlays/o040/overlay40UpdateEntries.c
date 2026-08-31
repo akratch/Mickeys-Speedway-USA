@@ -22,7 +22,7 @@ typedef struct Overlay40Object {
 extern Overlay40Entry gOverlay40Entries[8];
 extern Overlay40Object **gOverlay40Objects;
 
-/* PLATEAU-HANDOFF: exact 0xB8 extent and frameless CFG; 44/46 positional
+/* Plateau: exact 0xB8 extent and frameless CFG; 44/46 positional
  * words match, with the only residual at +0xC/+0x10: IDO schedules the loop
  * count before the gOverlay40Objects LO16 while the target completes that
  * address first. All 119 flag identities preserve or worsen the schedule.
@@ -66,3 +66,13 @@ void overlay40UpdateEntries(s32 amount, s32 remaining) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o040/overlay40UpdateEntries/func_overlay_040_F00000E8_1886998.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay40UpdateEntries:start
+ * symbol: overlay40UpdateEntries
+ * score: 44/46 words
+ * frame: frameless
+ * relocations: 4
+ * first-mismatch: +0xC
+ * summary: Cache-comma probe from 6973604a held 46 words but regressed to 40 differences at +0x4 (structure/register); no-gain stop. Preserve V0; comma family exhausted.
+ * PLATEAU-HANDOFF:overlay40UpdateEntries:end
+ */
