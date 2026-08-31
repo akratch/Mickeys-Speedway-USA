@@ -500,3 +500,13 @@ s32 overlay1TestDirection(Overlay1Direction *direction, f32 x, f32 z) {
  * summary: 119 flags and ten coherent forms exhausted; next lever is a source-faithful lifetime form retaining both preheader copies and the temporary-register lane.
  * PLATEAU-HANDOFF:overlay1FindPreviousUsable:end
  */
+
+/* PLATEAU-HANDOFF:overlay1FindType47ByAngle:start
+ * symbol: overlay1FindType47ByAngle
+ * score: 56/74 words
+ * frame: 0x78
+ * relocations: 6
+ * first-mismatch: +0x8
+ * summary: Diagnostic r4300_mul reaches 64/74; angle/scale and start allocation webs remain, with five static identities unresolved.
+ * PLATEAU-HANDOFF:overlay1FindType47ByAngle:end
+ */
