@@ -529,9 +529,9 @@ void controlPlayerReInit(ControlActor *actor, f32 x, f32 y, f32 z, s16 arg4, s16
     player->unk45C = saved45C;
     player->unk45D = saved45D;
 }
-/* Workbench verdict: structure-mismatch, 390 differing words, first mismatch +0x0. */
-/* Candidate shape: 401 instructions/frame -0xC8 versus target 403/-0xA8; relocations remain positionally different. */
-/* Remaining structural gap: callee-saved loop state/stack homes and fixed-count state initialization; not shape-exact. */
+/* Bounded plateau: exact 403-word geometry, 386 differing words, first mismatch +0x0. */
+/* Candidate frame is -0xB8 versus target -0xA8; candidate/target relocations are 41/38. */
+/* Split the synthetic effect-spawn callee so its typed direct call can recover the target register web. */
 /* PROVENANCE: JFG's corresponding character-control initialization role supplied the control-flow lead; fields and body are reconstructed from Mickey. */
 #ifdef NON_MATCHING
 void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode) {
@@ -542,8 +542,7 @@ void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode)
     CharControlParticleDefinition *particle;
     CharControlCharacterData *characterData;
     CharControlParticleSlot *slot;
-    ControlSpawnPacket packet;
-    void *savedActor;
+    CharControlSpawnSetup packet;
     f32 *output;
     s16 *position;
     void **effectOwner;
@@ -618,7 +617,9 @@ void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode)
                 do {
                     if (effectOwner[0x134 / 4] == 0) {
                         effectOwner[0x134 / 4] =
-                            (void *) TrapDanglingJump(
+                            (void *) ((s32 (*)(void *, u8, s16, u8,
+                                              f32, f32, f32, f32,
+                                              u8, u8, u8, u8)) TrapDanglingJump)(
                                 actor, effect->kind, effect->angle, effect->index,
                                 effect->x, effect->y, effect->z, effect->w,
                                 effect->arg14, effect->arg15, effect->arg16,
@@ -750,14 +751,14 @@ void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode)
     if (levelGetType() == 3) {
         packetIndex = 0;
         if (mode != 0) {
-            savedActor = actor;
             packet.kind = 0x124;
-            packet.x = 0;
-            packet.y = 0;
-            packet.z = 0;
+            packet.arg04 = 0;
+            packet.arg06 = 0;
+            packet.arg08 = 0;
+            packet.owner = actor;
             do {
-                packet.unkA = packetIndex;
-                func_8000590C(&packet, 1);
+                packet.arg0A = packetIndex;
+                func_8000590C((ControlSpawnPacket *) &packet, 1);
                 packetIndex++;
             } while (packetIndex != 3);
         }
@@ -1981,4 +1982,14 @@ void controlClearPlayerSetup(void) {
  * first-mismatch: +0xE0
  * summary: Exact frame but one word long; prior lattice and fresh natural address forms cannot stop global-address CSE; resume only with authenticated source-type evidence.
  * PLATEAU-HANDOFF:func_8001D2A0:end
+ */
+
+/* PLATEAU-HANDOFF:func_8001C4C0:start
+ * symbol: func_8001C4C0
+ * score: 386 differing words
+ * frame: 0xB8
+ * relocations: 41
+ * first-mismatch: +0x0
+ * summary: Split the synthetic effect-spawn callee identity and prototype to recover the direct call, saved-register web, and target frame.
+ * PLATEAU-HANDOFF:func_8001C4C0:end
  */
