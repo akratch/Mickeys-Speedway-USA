@@ -118,6 +118,6 @@ void overlay34SortAndDraw(s32 arg0, s32 arg1) {
  * frame: 0x1A0
  * relocations: 16
  * first-mismatch: +0x14
- * summary: phase-local lifetime is next: distance array is 24 bytes high, colors 20 bytes high, and seven relocation sites are four bytes early
+ * summary: A fidelity-gated phase-local block moved ten home operands but left the 128-word target distance flat; the one-word deficit remains.
  * PLATEAU-HANDOFF:overlay34SortAndDraw:end
  */
