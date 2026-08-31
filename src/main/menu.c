@@ -41,6 +41,7 @@ extern s32 D_800D314C;
 extern s32 D_800D3150[];
 extern s32 D_800D3168[];
 extern u8 D_800826C0[];
+extern u8 D_800826D0[];
 extern u16 D_800D312A;
 extern u16 D_800D312C;
 extern u16 D_800D312E;
@@ -565,16 +566,15 @@ u8 frontGetMode(void) {
     return D_8007C0A0;
 }
 #ifdef NON_MATCHING
-/* PLATEAU (2026-08-26): workbench structure-mismatch; best 248/279 words, first +0x24.
- * Flag lattice, dense 0-18 switch coverage, and branch-shape variants did not improve the retained candidate.
- * Fade pool/register web and switch relocation identities remain. */
+/* NON_MATCHING NOTE: exact 279-word extent and 0x28 frame; 219/279 words differ, first +0xD8.
+ * Compound fade/title-timer updates recover the target's early address webs and the distinct second trace string.
+ * The early-exit CFG and later pool/temp allocation remain; target and C each carry 95 external relocations. */
 s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
     s32 sp24;
     u8 *sp20;
     u16 sp1E;
     u16 sp1C;
     u16 sp1A;
-    s32 temp_t1;
     s32 temp_t4;
     s32 temp_v0;
     u8 temp_v0_2;
@@ -586,23 +586,22 @@ s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
         }
         D_8007C1AC = 0x7F;
     } else if (D_8007C1AC > 0) {
-        temp_t1 = D_8007C1AC - (updateRate * 3);
-        D_8007C1AC = temp_t1;
-        if (temp_t1 <= 0) {
+        D_8007C1AC -= updateRate * 3;
+        if (D_8007C1AC <= 0) {
             if (D_8007C1A4 != 0) {
                 amSndStop(D_8007C1A4);
             }
         } else {
-            amSndSetVol(0xA, D_8007C1A4, temp_t1 & 0xFF, &D_8007C1A4);
+            amSndSetVol(0xA, D_8007C1A4, D_8007C1AC & 0xFF, &D_8007C1A4);
         }
     }
     func_80039720(updateRate);
     if (TrapDanglingJump() != 0) {
-    } else {
+        goto done;
+    }
         if (func_8003A550() != 0) {
             func_8003A544(0);
-            temp_t4 = D_8007C09C - updateRate;
-            D_8007C09C = temp_t4;
+            temp_t4 = (D_8007C09C -= updateRate);
             if ((temp_t4 < 0) ||
                 (sp1A = joyGetPressed(2), sp1C = joyGetPressed(1),
                  sp1E = joyGetPressed(0),
@@ -680,7 +679,7 @@ s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
             TrapDanglingJump(updateRate);
             break;
         }
-        func_80044BC8(D_800D3140, D_800826C0, 0x2C5);
+        func_80044BC8(D_800D3140, D_800826D0, 0x2C5);
         *arg0 = D_800D3140;
         *arg1 = D_800D3144;
         *arg2 = D_800D3148;
@@ -690,10 +689,10 @@ s32 func_80038E1C(s32 *arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 updateRate) {
             D_8007BF70 -= updateRate;
             if (D_8007BF70 <= 0) {
                 D_8007BF70 = -1;
-                func_80000510(D_800D3050, -1);
+                func_80000510(D_800D3050, D_8007BF70);
             }
         }
-    }
+done:
     return 0;
 }
 #else
@@ -1345,3 +1344,13 @@ void func_8003A55C(s32 value) {
 void func_8003A590(void) {
     D_8007BF70 = -1;
 }
+
+/* PLATEAU-HANDOFF:func_80038E1C:start
+ * symbol: func_80038E1C
+ * score: 219 differing words
+ * frame: 0x28
+ * relocations: 95
+ * first-mismatch: +0xD8
+ * summary: Compound global updates recover the first 54 words; shared-exit CFG and the title/tail pool-to-temp webs remain.
+ * PLATEAU-HANDOFF:func_80038E1C:end
+ */
