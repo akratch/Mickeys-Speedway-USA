@@ -690,9 +690,9 @@ void lightUpdateObjects(void) {
  * layouts supply this source reconstruction.
  */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch; 266 differing words, first mismatch +0x0. */
-/* Target 254 instructions/frame -160; candidate 301 instructions/frame -128. */
-/* Remaining gap is light-slot selection/control-flow expansion and a 32-byte frame deficit; not shape-exact. */
+/* Workbench verdict: structure-mismatch; 225 differing words, first mismatch +0x0. */
+/* Target 254 instructions/frame -160; candidate 262 instructions/frame -128. */
+/* Remaining gap is FP expression association and a 32-byte local-frame deficit; not shape-exact. */
 void func_8001953C(LightingObject *arg0, s32 arg1) {
     f32 sp74;
     u8 *level;
@@ -707,13 +707,14 @@ void func_8001953C(LightingObject *arg0, s32 arg1) {
     s32 totalLightCount;
     s32 lightOffset;
     s32 slotOffset;
+    s32 slotEnd;
     s32 maximumIntensity;
     s32 candidateIntensity;
     s32 type;
     s32 index;
     s32 endOffset;
-    u8 intensity;
-    u8 minimumIntensity;
+    s32 intensity;
+    s32 minimumIntensity;
     u8 *object;
     u8 *state;
     u8 *slot;
@@ -726,8 +727,9 @@ void func_8001953C(LightingObject *arg0, s32 arg1) {
     maximumIntensity = 0;
     level = levelGetLevel();
     totalLightCount = 0;
-    lightOffset = 0;
     if (D_80079494 > 0) {
+        lightOffset = 0;
+        slotEnd = 0x80;
         do {
             light = *(UnkLight **) ((u8 *) D_80079498 + lightOffset);
             if (light->unk3 & 1) {
@@ -737,17 +739,17 @@ void func_8001953C(LightingObject *arg0, s32 arg1) {
                     candidateIntensity = intensity;
                     if (type != 0) {
                         xDifference = light->x - *(f32 *) (object + 0xC);
-                        distance = *(f32 *) (object + 0x10);
                         zDifference = light->z - *(f32 *) (object + 0x14);
                         candidateIntensity = 0;
+                        distance = *(f32 *) (object + 0x10);
                         yDifference = light->y - distance;
                         distanceXZ = (xDifference * xDifference) +
                                      (zDifference * zDifference);
                         switch (type) {
                         case 2:
                             if ((distanceXZ < light->radiusSquare) &&
-                                (light->radius2 < distance) &&
-                                (distance <= light->radius3)) {
+                                (*(f32 *) ((u8 *) light + 0x38) < distance) &&
+                                (distance <= *(f32 *) ((u8 *) light + 0x3C))) {
                                 candidateIntensity = (s32) func_80019934(
                                     light->unk44, sqrtf(distanceXZ),
                                     *(f32 *) ((u8 *) light + 0x34), light->unk1);
@@ -811,7 +813,7 @@ void func_8001953C(LightingObject *arg0, s32 arg1) {
                                     minimumIntensity = intensity;
                                 }
                                 nextSlot += 0x20;
-                            } while (slotOffset != 0x80);
+                            } while (slotOffset < slotEnd);
                             if (*(u8 *) (slot + 0x15) >= candidateIntensity) {
                                 slot = NULL;
                             }
@@ -847,7 +849,7 @@ void func_8001953C(LightingObject *arg0, s32 arg1) {
         endOffset = *(u8 *) (state + 0xC) - intensity;
     }
     if (maximumIntensity >= 0x40) {
-        intensity = (u8) ((index * intensity) >> 8);
+        intensity = (index * intensity) >> 8;
         endOffset = (index * endOffset) >> 8;
     }
     *(s8 *) (state + 0x25) = intensity + endOffset;
@@ -1154,4 +1156,14 @@ s32 lightKillGlowingLight(void) {
  * first-mismatch: +0x20
  * summary: 183/184 words; early scaling-pointer hoist swaps the s1/s2 carrier; flag lattice lacks a resident size owner
  * PLATEAU-HANDOFF:func_80019AB8:end
+ */
+
+/* PLATEAU-HANDOFF:func_8001953C:start
+ * symbol: func_8001953C
+ * score: 225 differing words
+ * frame: 0x80
+ * relocations: 14
+ * first-mismatch: +0x0
+ * summary: Target is 254 words/frame 0xA0 versus 262/0x80. Relocation identities stay ordered; next recover typed local layout, then FP expression association.
+ * PLATEAU-HANDOFF:func_8001953C:end
  */
