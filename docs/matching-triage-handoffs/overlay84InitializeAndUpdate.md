@@ -6,7 +6,7 @@
 - frame: 0x58
 - relocations: 5
 - first mismatch: +0x14
-- summary: Comma grouping closes structural and allocation differences. Seven stack-home offsets and three static identities remain.
+- summary: Fidelity-clean UOPT trace found 19 allocator webs but no stack-home ownership; add a calibrated producer hook.
 
 #### Fresh comma-mechanism reproof (2026-08-31)
 
@@ -34,4 +34,22 @@
 - one resident caller at `0x8000B0E8` remains ABI-consistent. Pinned DKR and
   JFG donor scans remain negative; the historical JFG structural result was
   only 6.95% and assembly-only.
+
+#### Allocator stack-home trace reproof (2026-08-31)
+
+- assignment base: `11919d20`; the configured V0 freshly retains 716 bytes / 179
+  words, 172/179 relocation-masked words, frame `0x58`, five relocations, and
+  first mismatch `+0x14`. All opcode, CFG, integer-register, and FP-register
+  lanes remain exact; the seven residuals are still only the two home offsets.
+- IDO 5.3 `uopt.c` was regenerated from the repository-recorded static
+  recompiler revision whose source hash matches the workbench's pinned profile.
+  The instrumented and traces-off objects passed the section, relocation, and
+  symbol fidelity gate; the function mapped uniquely to optimizer procedure 0.
+- the one authorized detailed capture reported 19 allocator decisions. The
+  stack-home classifier found zero producer-emitted virtual or final homes and
+  therefore refused to infer ownership from opaque optimizer words. With no
+  authenticated carrier or lifetime mechanism, no source probe was attempted.
+- next lever: add and calibrate a producer hook that explicitly records virtual
+  and final stack-home ownership, repeat the fidelity controls, then reopen only
+  if that evidence names an authentic two-word carrier or lifetime overlap.
 <!-- plateau-handoff:overlay84InitializeAndUpdate:end -->
