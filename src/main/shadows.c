@@ -1149,9 +1149,9 @@ block_38:
  * resident buffer layouts determine the field bindings below.
  */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 312 differing words; first mismatch is at +0x0. */
-/* Target is 314 instructions/frame -264; candidate is 326 instructions/frame -280. */
-/* Remaining gap is structural: prologue/constant setup and pointer/register scheduling; not permuter-ready. */
+/* Workbench verdict: structure-mismatch, 271 differing words; first mismatch is at +0x0. */
+/* Target is 314 instructions/frame -0x108; candidate is 313 instructions/frame -0x120. */
+/* Remaining gap is the original FP declaration/lifetime and saved-register allocation; not permuter-ready. */
 s32 func_80017BCC(void *arg0, void *arg1, void *arg2) {
     u32 projected[3];
     u8 *var_a0;
@@ -1163,7 +1163,7 @@ s32 func_80017BCC(void *arg0, void *arg1, void *arg2) {
     u8 *var_v0_2;
     u8 *temp_v0;
     u8 *source;
-    volatile f32 spA8;
+    f32 spA8;
     f32 temp_f0;
     f32 temp_f12;
     f32 temp_f12_2;
@@ -1187,9 +1187,9 @@ s32 func_80017BCC(void *arg0, void *arg1, void *arg2) {
     s32 var_t3;
     s32 var_v1;
     s32 var_v1_2;
-    s8 var_a0_2;
-    s8 var_a1_2;
-    s8 var_t5;
+    s32 var_a0_2;
+    s32 var_a1_2;
+    s32 var_t5;
     u8 var_a1;
     u8 vertexCount;
 
@@ -1214,9 +1214,9 @@ s32 func_80017BCC(void *arg0, void *arg1, void *arg2) {
     var_f28 = *(f32 *) ((u8 *) arg0 + 0x38);
     var_f18 = 255.0f;
     var_t5 = 0x19;
+    var_f22 = (f32) (*(u16 *) (temp_v0 + 0x6) * 0x10) / var_f26;
     var_t4 = D_800CAF60;
     var_s7 = 0;
-    var_f22 = (f32) (*(u16 *) (temp_v0 + 0x6) * 0x10) / var_f26;
     var_f24 = (f32) (*(u16 *) (temp_v0 + 0x8) << 5) /
               (var_f28 + *(f32 *) ((u8 *) arg0 + 0x3C));
     if (temp_f12 > 0.0f) {
@@ -1318,12 +1318,12 @@ loop_29:
             *(u8 *) (var_a3 + 0x1) = var_a0_2;
             *(u8 *) (var_a3 + 0x2) = var_a1_2;
             *(u8 *) (var_a3 + 0x3) = var_t5;
-            *(u32 *) (var_a3 + 0x4) = *(u32 *) (var_v0_2 + 0x0);
             var_t3 += 1;
             var_v1_2 += 1;
-            *(u32 *) (var_a3 + 0x8) = *(u32 *) (var_v0_2 + 0x4);
-            *(u32 *) (var_a3 + 0xC) = projected[0];
+            *(u32 *) (var_a3 + 0x4) = *(u32 *) (var_v0_2 + 0x0);
             var_a3 += 0x10;
+            *(u32 *) (var_a3 - 0x8) = *(u32 *) (var_v0_2 + 0x4);
+            *(u32 *) (var_a3 - 0x4) = projected[0];
             if (var_t3 >= D_800CB27C) {
                 return 0;
             }
@@ -1488,4 +1488,14 @@ void func_800180B4(ShadowQuery *query) {
  * first-mismatch: +0x34
  * summary: Exact geometry; mixed CFG/allocation residual remains, with 6/8 fallback-static identities aligned.
  * PLATEAU-HANDOFF:func_800180B4:end
+ */
+
+/* PLATEAU-HANDOFF:func_80017BCC:start
+ * symbol: func_80017BCC
+ * score: 271 differing words
+ * frame: -0x120
+ * relocations: 44
+ * first-mismatch: +0x0
+ * summary: Integer index widths recover near-exact geometry; original FP declarations and lifetimes must remove the extra saved pair and 0x18 frame.
+ * PLATEAU-HANDOFF:func_80017BCC:end
  */
