@@ -403,15 +403,12 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
 /* PROVENANCE: JFG's permitted src/font.c::fontStringWidth assembly-backed
  * NON_EQUIVALENT draft and DKR's unbuilt Japanese get_text_width branch inform
  * structure only; neither is genuine donor C. Mickey remains authoritative.
- * Historical policy-defective isolated and full-TU C are a diagnostic 38/46
- * raw/normalized words, frame 0x30, with nine exact relocation tuples. That
- * body used artificial stackPad/empty-condition frame-allocation aids, now
- * removed; every clean-current metric is unknown. Compile configured V0, using
- * one historical control only on material structural drift. Then retain 119
- * configurations, capture one allocator trace, try a block-scoped glyphIndex
- * and one trace-selected fontData/spacing lifetime form, and combine only
- * independent strict gains. Cap 122 deterministic builds plus trace, 123 only
- * if the control is required; no generic batch. */
+ * Clean configured C is exactly 46 words with all nine relocation identities,
+ * but differs at ten words from +0x18 and has a 0x20 frame versus the target's
+ * 0x30. The full 119-mode flag lattice and natural glyph-index, declaration,
+ * width, association, and lifetime forms are non-improving. The rejected
+ * stackPad/empty-condition form is not a source lever; recover an authentic
+ * address-taken local or stack-home lifetime before reopening permutation. */
 s32 func_8004BA8C(char *text, s32 font, s32 convertString) {
     FontSpacingData *fontData;
     u8 *spacing;
@@ -1177,4 +1174,14 @@ u8 func_8004D5C0(s32 font) {
  * first-mismatch: +0x54
  * summary: GBI macros reduce the size deficit to eight words; the remaining setup and glyph command webs are structural/register allocation
  * PLATEAU-HANDOFF:func_8004B1DC:end
+ */
+
+/* PLATEAU-HANDOFF:func_8004BA8C:start
+ * symbol: func_8004BA8C
+ * score: 10 differing words
+ * frame: 0x20
+ * relocations: 9
+ * first-mismatch: +0x18
+ * summary: Exact 46-word geometry and 9 identities; 119 flags plus natural forms stay at 10 differences. Recover an authentic local stack home for the target 0x30 frame.
+ * PLATEAU-HANDOFF:func_8004BA8C:end
  */
