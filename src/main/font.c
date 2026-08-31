@@ -56,6 +56,7 @@ typedef struct FontTextureHeader {
 
 extern DialogueTextElement D_800D60E8[32];
 extern DialogueBoxBackground D_800D64E8[];
+extern s16 D_800D64F2;
 extern DialogueBoxBackground D_800D6510[];
 extern s32 D_8007D538;
 extern s32 D_8007D53C;
@@ -152,9 +153,9 @@ void func_8004B13C(Gfx **displayList, s32 windowId, s32 xpos, s32 ypos,
     }
 }
 
-/* Workbench plateau: structure-mismatch, 528/556 instructions, exact 0x80 frame,
- * 509 positional words, first target divergence +0x54. Command-store, statement-order,
- * u8-spacing, and stack-home probes did not close the setup web; register/CFG drift remains. */
+/* Workbench plateau: structure-mismatch, 548/556 instructions, exact 0x80 frame,
+ * 465 positional differences (466 raw), first target divergence +0x54. Restoring
+ * GBI colour, sync, and fill macros closes 44 sites; register/CFG drift remains. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE -- source-level organization was adapted from Diddy Kong
@@ -202,7 +203,7 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
         s32 x2 = window->x2;
         s32 y2 = window->y2;
 
-        if (D_800D64E8[0].x2 >= x1 && D_800D64E8[0].y2 >= y1 &&
+        if (D_800D64E8[0].x2 >= x1 && D_800D64F2 >= y1 &&
             x2 >= 0 && y2 >= 0) {
             if (x1 < 0) {
                 x1 = 0;
@@ -213,8 +214,8 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
             if (D_800D64E8[0].x2 < x2) {
                 x2 = D_800D64E8[0].x2;
             }
-            if (D_800D64E8[0].y2 < y2) {
-                y2 = D_800D64E8[0].y2;
+            if (D_800D64F2 < y2) {
+                y2 = D_800D64F2;
             }
             dList->words.w0 = 0xED000000 |
                 (((s32) ((f32) x1 * 4.0f) & 0xFFF) << 12) |
@@ -247,43 +248,26 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
     }
 
     if (window->textBGColourA != 0) {
-        dList->words.w0 = 0xFB000000;
-        dList->words.w1 = (window->textBGColourR << 24) |
-                          (window->textBGColourG << 16) |
-                          (window->textBGColourB << 8) |
-                          window->textBGColourA;
-        dList++;
+        gDPSetEnvColor(dList++, window->textBGColourR,
+                       window->textBGColourG, window->textBGColourB,
+                       window->textBGColourA);
         if (width == -1) {
             width = func_8004BA8C(current, window->font, 0);
         }
-        dList->words.w0 = 0xFA000000;
-        dList->words.w1 = (D_8007D538 << 24) |
-                          ((D_8007D53C & 0xFF) << 16) |
-                          ((D_8007D540 & 0xFF) << 8);
-        dList++;
+        gDPSetPrimColor(dList++, 0, 0, D_8007D538, D_8007D53C,
+                        D_8007D540, 0);
         dList->words.w0 = 0x07020010;
         dList->words.w1 = (u32) D_7D528;
         dList++;
-        dList->words.w0 = 0xF6000000 |
-            (((window->x1 + x + width) & 0x3FF) << 14) |
-            (((font->verticalExtent + y + window->y1) & 0x3FF) * 4);
-        dList->words.w1 = (((window->x1 + x) & 0x3FF) << 14) |
-                          (((y + window->y1) & 0x3FF) * 4);
-        dList++;
-        dList->words.w0 = 0xE7000000;
-        dList->words.w1 = 0;
-        dList++;
+        gDPFillRectangle(dList++, window->x1 + x, y + window->y1,
+                         window->x1 + x + width,
+                         font->verticalExtent + y + window->y1);
+        gDPPipeSync(dList++);
     }
 
-    dList->words.w0 = 0xFA000000;
-    dList->words.w1 = 0xFFFFFF00 | window->opacity;
-    dList++;
-    dList->words.w0 = 0xFB000000;
-    dList->words.w1 = (window->textColourR << 24) |
-                      (window->textColourG << 16) |
-                      (window->textColourB << 8) |
-                      window->textColourA;
-    dList++;
+    gDPSetPrimColor(dList++, 0, 0, 0xFF, 0xFF, 0xFF, window->opacity);
+    gDPSetEnvColor(dList++, window->textColourR, window->textColourG,
+                   window->textColourB, window->textColourA);
 
     activeColour = 0;
     first = *current;
@@ -297,39 +281,23 @@ void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
             } else {
                 if (D_800D664D != 0) {
                     if (second == 2) {
-                        dList->words.w0 = 0xE7000000;
-                        dList->words.w1 = 0;
-                        dList++;
-                        dList->words.w0 = 0xFB000000;
-                        dList->words.w1 = 0x0000FFFF;
-                        dList++;
+                        gDPPipeSync(dList++);
+                        gDPSetEnvColor(dList++, 0, 0, 0xFF, 0xFF);
                         activeColour = 1;
                     } else if (second == 0xE) {
-                        dList->words.w0 = 0xE7000000;
-                        dList->words.w1 = 0;
-                        dList++;
-                        dList->words.w0 = 0xFB000000;
-                        dList->words.w1 = 0x00FF00FF;
-                        dList++;
+                        gDPPipeSync(dList++);
+                        gDPSetEnvColor(dList++, 0, 0xFF, 0, 0xFF);
                         activeColour = 1;
                     } else if (second >= 0x41 && second < 0x45) {
-                        dList->words.w0 = 0xE7000000;
-                        dList->words.w1 = 0;
-                        dList++;
-                        dList->words.w0 = 0xFB000000;
-                        dList->words.w1 = 0xFFFF00FF;
-                        dList++;
+                        gDPPipeSync(dList++);
+                        gDPSetEnvColor(dList++, 0xFF, 0xFF, 0, 0xFF);
                         activeColour = 1;
                     } else if (activeColour != 0) {
-                        dList->words.w0 = 0xE7000000;
-                        dList->words.w1 = 0;
-                        dList++;
-                        dList->words.w0 = 0xFB000000;
-                        dList->words.w1 = (window->textColourR << 24) |
-                                          (window->textColourG << 16) |
-                                          (window->textColourB << 8) |
-                                          window->textColourA;
-                        dList++;
+                        gDPPipeSync(dList++);
+                        gDPSetEnvColor(dList++, window->textColourR,
+                                       window->textColourG,
+                                       window->textColourB,
+                                       window->textColourA);
                         activeColour = 0;
                     }
                 }
@@ -1200,3 +1168,13 @@ u8 *func_8004D40C(s32 font, char *text, s32 maxWidth, u8 **lineStart, s32 *outWi
 u8 func_8004D5C0(s32 font) {
     return D_800D60E4[font].height;
 }
+
+/* PLATEAU-HANDOFF:func_8004B1DC:start
+ * symbol: func_8004B1DC
+ * score: 465 differing words
+ * frame: 0x80
+ * relocations: 42
+ * first-mismatch: +0x54
+ * summary: GBI macros reduce the size deficit to eight words; the remaining setup and glyph command webs are structural/register allocation
+ * PLATEAU-HANDOFF:func_8004B1DC:end
+ */
