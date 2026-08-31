@@ -56,6 +56,30 @@ class ResolveCommentHunksTests(unittest.TestCase):
         self.assertEqual(remaining, 1)
         self.assertIn("<" * 7, resolved)
 
+    def test_preserves_existing_sequence_before_new_plateau(self) -> None:
+        conflict = "<" * 7 + " HEAD\n" + """\
+/* PLATEAU-HANDOFF:first:start
+ * score: 9/10 words
+ * PLATEAU-HANDOFF:first:end
+ */
+
+/* PLATEAU-HANDOFF:second:start
+ * score: 8/10 words
+ * PLATEAU-HANDOFF:second:end
+""" + "=" * 7 + "\n" + """\
+/* PLATEAU-HANDOFF:third:start
+ * score: 7/10 words
+ * PLATEAU-HANDOFF:third:end
+""" + ">" * 7 + " lane/third\n" + """\
+ */
+"""
+        remaining, resolved = self.resolve(conflict)
+        self.assertEqual(remaining, 0)
+        self.assertEqual(resolved.count("/* PLATEAU-HANDOFF:"), 3)
+        self.assertEqual(resolved.count(" */"), 3)
+        self.assertLess(resolved.index("first:start"), resolved.index("second:start"))
+        self.assertLess(resolved.index("second:start"), resolved.index("third:start"))
+
 
 if __name__ == "__main__":
     unittest.main()

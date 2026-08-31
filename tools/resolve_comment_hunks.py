@@ -48,20 +48,35 @@ def c_comments(block):
     return not inside
 
 
-def open_plateau_name(block):
-    """Return the symbol for an EOF plateau block closed after the hunk."""
+def open_plateau_names(block):
+    """Return disjoint EOF plateau blocks whose final close follows the hunk."""
     lines = [line.strip() for line in block.splitlines() if line.strip()]
     if not lines:
         return None
-    start = re.fullmatch(r"/\* PLATEAU-HANDOFF:([^:]+):start", lines[0])
-    if not start:
-        return None
-    name = start.group(1)
-    if lines[-1] != f"* PLATEAU-HANDOFF:{name}:end":
-        return None
-    if any("*/" in line for line in lines):
-        return None
-    return name
+    names = []
+    index = 0
+    while index < len(lines):
+        start = re.fullmatch(
+            r"/\* PLATEAU-HANDOFF:([^:]+):start", lines[index]
+        )
+        if not start:
+            return None
+        name = start.group(1)
+        names.append(name)
+        index += 1
+        while index < len(lines) and lines[index] != f"* PLATEAU-HANDOFF:{name}:end":
+            if "*/" in lines[index]:
+                return None
+            index += 1
+        if index == len(lines):
+            return None
+        index += 1
+        if index == len(lines):
+            return names
+        if lines[index] != "*/":
+            return None
+        index += 1
+    return None
 
 
 def row_names(block):
@@ -88,9 +103,9 @@ def resolve(path):
             if yaml_comments(ours) and yaml_comments(theirs):
                 return ours
         elif path.endswith((".c", ".h")):
-            ours_name = open_plateau_name(ours)
-            theirs_name = open_plateau_name(theirs)
-            if ours_name and theirs_name and ours_name != theirs_name:
+            ours_names = open_plateau_names(ours)
+            theirs_names = open_plateau_names(theirs)
+            if ours_names and theirs_names and set(ours_names).isdisjoint(theirs_names):
                 # finalize_plateau appends blocks at EOF. When two lanes add
                 # different blocks, Git puts the common closing delimiter
                 # after the conflict hunk. Close ours here and let that shared
