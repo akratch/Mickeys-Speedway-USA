@@ -92,3 +92,13 @@ void func_overlay_038_F0000154_1885E64(O38Object *object, s32 ticks)
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o038/overlay38UpdateParticles/func_overlay_038_F0000154_1885E64.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_038_F0000154_1885E64:start
+ * symbol: func_overlay_038_F0000154_1885E64
+ * score: 43/202 words
+ * frame: 0x38
+ * relocations: 7
+ * first-mismatch: +0x20
+ * summary: Exact size/frame and all seven relocation offset/type sites persist. r4300-mul, typed/update-order/delta/lifetime and bounded permutation routes are exhausted.
+ * PLATEAU-HANDOFF:func_overlay_038_F0000154_1885E64:end
+ */
