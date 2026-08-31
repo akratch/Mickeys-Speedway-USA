@@ -1275,7 +1275,7 @@ typedef struct ControlFlameParticle {
     s16 value24;
 } ControlFlameParticle;
 
-/* Workbench verdict: structure-mismatch, 208 differing words, first mismatch +0x0. */
+/* Workbench verdict: structure-mismatch, 176 differing words, first mismatch +0x0. */
 /* Candidate: 221/220 instructions with a -0x70 frame versus target -0x60; three instruction/stack and state-machine residuals remain. */
 /* Shape status: four-slot state machine, signed phase/intensity arithmetic, and cone calls are reconstructed, but it is not shape-exact. */
 /* PROVENANCE: JFG's public controlUpdateJetFlames role and Mickey's m2c/assembly establish
@@ -1287,8 +1287,8 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
     f32 var_f20;
     f32 var_f22;
     s16 temp_v1;
-    s16 var_s3;
-    s16 var_s6;
+    s32 var_s3;
+    s32 var_s6;
     s32 *temp_v0;
     s32 temp_a0;
     s32 temp_s2;
@@ -1315,7 +1315,10 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
             var_f22 = *(f32 *) ((u8 *) temp_s7 + 0x1C);
             var_s6 = temp_v1;
             if (var_s1->state == 2) {
-                temp_t7 = arg4 << 5;
+                s32 updateRate;
+
+                updateRate = arg4;
+                temp_t7 = updateRate << 5;
                 if (var_s1->mode == 0) {
                     var_s0 -= temp_t7;
                     if (var_s0 < 0) {
@@ -1357,9 +1360,12 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                         var_s1->mode = 1;
                     }
                     break;
-                case 1:
-                    var_s0 += arg4 << 5;
-                    var_s6 = (s16) ((s32) (temp_v1 * var_s0) >> 7);
+                case 1: {
+                    s32 updateRate;
+
+                    updateRate = arg4;
+                    var_s0 += updateRate << 5;
+                    var_s6 = (s32) (temp_v1 * var_s0) >> 7;
                     if (var_s0 >= 0x100) {
                         var_s0 = 0xFF;
                         if (player->unk186 & var_s5) {
@@ -1369,33 +1375,42 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                         }
                     }
                     break;
-                case 2:
-                    var_s0 += arg4 * 0x10;
+                }
+                case 2: {
+                    s32 updateRate;
+
+                    updateRate = arg4;
+                    var_s0 += updateRate * 0x10;
                     if (var_s0 >= 0x100) {
                         var_s0 = 0xFF;
                     }
-                    var_s3 += arg4 << 0xC;
+                    var_s3 += updateRate << 0xC;
                     temp_t9 = func_8002A204((s16) (var_s3 << 8)) + 0x18000;
                     actor->unk80 |= arg2;
-                    var_s6 = (s16) ((s32) (temp_t9 * ((s32) (var_s6 * var_s0) >> 8)) >> 0x10);
+                    var_s6 = (s32) (temp_t9 * ((s32) (var_s6 * var_s0) >> 8)) >> 0x10;
                     if (!(player->unk186 & var_s5)) {
                         var_s1->mode = 3;
                     }
                     break;
-                case 3:
-                    var_s0 -= arg4 * 8;
+                }
+                case 3: {
+                    s32 updateRate;
+
+                    updateRate = arg4;
+                    var_s0 -= updateRate * 8;
                     if (var_s0 <= 0) {
                         var_s0 = 0;
                         var_s1->mode = 0;
                     } else {
-                        var_s3 += arg4 << 0xC;
-                        var_s6 = (s16) ((s32) ((func_8002A204((s16) (var_s3 << 8)) + 0x18000) *
-                                              ((s32) (var_s6 * var_s0) >> 8)) >> 0x10);
+                        var_s3 += updateRate << 0xC;
+                        var_s6 = (s32) ((func_8002A204((s16) (var_s3 << 8)) + 0x18000) *
+                                       ((s32) (var_s6 * var_s0) >> 8)) >> 0x10;
                         if (player->unk186 & var_s5) {
                             var_s1->mode = 2;
                         }
                     }
                     break;
+                }
                 }
             }
             var_s1->intensity = var_s0;
@@ -1920,3 +1935,13 @@ s32 controlGetPlayerSetup(s16 *arg0, s16 *arg1, s16 *arg2, s16 *arg3) {
 void controlClearPlayerSetup(void) {
     D_80079BF8 = 0;
 }
+
+/* PLATEAU-HANDOFF:func_8001D960:start
+ * symbol: func_8001D960
+ * score: 176 differing words
+ * frame: 0x70
+ * relocations: 6
+ * first-mismatch: +0x0
+ * summary: one word long; fifth-argument promotion rotates saved-register roles and adds 0x10 non-save frame
+ * PLATEAU-HANDOFF:func_8001D960:end
+ */
