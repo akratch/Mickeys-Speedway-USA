@@ -59,6 +59,15 @@ frozen tip also stops reserving its symbol, while an unrelated change to a
 different guard in the same translation unit never reserves the target. See
 [ADR 0011](adr/0011-cross-lane-knowledge-and-task-budgets.md).
 
+A genuinely new mechanism may reopen one current plateau through
+`config/lane-reopen-authorizations.us.json`. Each schema-v1 entry pins the
+symbol's full current source and handoff commit IDs plus a concise reason. A
+missing structured handoff may use `ledger_commit: null` only for a pinned
+source plateau; malformed or source-mismatched evidence still fails closed.
+`lane_status.py` validates identity and ancestry after checking active lanes,
+and reports `base-only` only for that exact pair. The first subsequent source
+or handoff commit makes the authorization stale and the target exhausted again.
+
 Non-interactive workers also receive an explicit task budget. The launcher
 passes a soft deadline to the agent and tools, reserves five minutes for a
 handoff, and then interrupts the exact process it launched. Expiry preserves a
@@ -573,7 +582,9 @@ interrupted report without recompiling recorded identities, and repeated
   `already-integrated/exhausted` covers a base match or a current plateau, and
   `stale-ledger` means exact source identity or target-specific shard/legacy
   history is malformed, missing, source-mismatched, or older than the committed
-  plateau. Complete ready-queue scans batch source identity and committed lane
+  plateau. A commit-pinned reopen authorization may return a current plateau to
+  `base-only` exactly once; malformed or nonancestor entries fail closed and
+  active lane ownership takes precedence. Complete ready-queue scans batch source identity and committed lane
   path ownership, then inspect shared-ledger changes only for the exact symbol;
   the maintenance report classifies prose-only remeasurement separately from
   structured-evidence repair. The check reads Git objects,

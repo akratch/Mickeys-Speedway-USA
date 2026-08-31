@@ -27,6 +27,7 @@ REMOVED_GLOBAL_ASM_RE = re.compile(
     r'^-\s*#pragma\s+GLOBAL_ASM\("(?P<path>[^"]+)"\)', re.MULTILINE,
 )
 DISPOSITIONS_PATH = "config/lane-claim-dispositions.us.json"
+REOPEN_AUTHORIZATIONS_PATH = "config/lane-reopen-authorizations.us.json"
 LEGACY_TRIAGE_PATH = "docs/matching-triage.md"
 SYMBOL_TOKEN_TEMPLATE = r"(?<![A-Za-z0-9_]){symbol}(?![A-Za-z0-9_])"
 FUNCTION_DEFINITION_TEMPLATE = (
@@ -1101,6 +1102,14 @@ def assignment_status(
             "lane-owned",
         )
 
+    try:
+        reopen_authorization = reopen_authorizations(base).get(symbol)
+    except RuntimeError as error:
+        return Assignment(
+            symbol, "stale-ledger", path, None, None, [], str(error),
+            "reopen-authorization-invalid",
+        )
+
     if not guarded_fallback(text, symbol):
         return Assignment(
             symbol, "already-integrated/exhausted", path, None, None, [],
@@ -1215,6 +1224,18 @@ def assignment_status(
             "prose-needs-remeasurement",
         )
     if ledger_commit is None:
+        if (
+            reopen_authorization is not None
+            and reopen_authorization["source_commit"] == source_commit
+            and reopen_authorization["ledger_commit"] is None
+        ):
+            return Assignment(
+                symbol, "base-only", path, source_commit, None, [],
+                "source plateau without structured handoff is explicitly "
+                "reopened for one authenticated maintenance pass: "
+                f"{reopen_authorization['reason']}",
+                "authorized-reopen",
+            )
         return Assignment(
             symbol, "stale-ledger", path, source_commit, None, [],
             "source plateau is missing exact-symbol handoff ledger evidence",
@@ -1225,6 +1246,26 @@ def assignment_status(
             symbol, "stale-ledger", path, source_commit, ledger_commit, [],
             "triage evidence predates the committed source plateau",
             "stale-structured-evidence",
+        )
+    if reopen_authorization is not None:
+        authorized_source = reopen_authorization["source_commit"]
+        authorized_ledger = reopen_authorization["ledger_commit"]
+        if (
+            source_commit == authorized_source
+            and ledger_commit == authorized_ledger
+        ):
+            return Assignment(
+                symbol, "base-only", path, source_commit, ledger_commit, [],
+                "current plateau is explicitly reopened for one authenticated "
+                f"mechanism: {reopen_authorization['reason']}",
+                "authorized-reopen",
+            )
+        return Assignment(
+            symbol, "already-integrated/exhausted", path, source_commit,
+            ledger_commit, [],
+            "reopen authorization is stale because the current source or "
+            "handoff commit no longer matches its pinned pair",
+            "reopen-authorization-stale",
         )
     return Assignment(
         symbol, "already-integrated/exhausted", path, source_commit,
@@ -1301,6 +1342,110 @@ def claim_dispositions(base: str) -> dict[str, dict[str, str]]:
                 f"is not an ancestor of {base}"
             )
     return claims
+
+
+@lru_cache(maxsize=128)
+def reopen_authorizations(base: str) -> dict[str, dict[str, str]]:
+    """Load commit-pinned, one-shot authorizations for current plateaus."""
+    raw = git("show", f"{base}:{REOPEN_AUTHORIZATIONS_PATH}", check=False)
+    if not raw:
+        return {}
+    try:
+        document = json.loads(raw)
+    except json.JSONDecodeError as error:
+        raise RuntimeError(
+            f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {error}"
+        ) from error
+    if not isinstance(document, dict) or set(document) != {
+        "schema_version", "authorizations",
+    }:
+        raise RuntimeError(
+            f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: invalid top-level schema"
+        )
+    if document["schema_version"] != 1:
+        raise RuntimeError(
+            f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: unsupported schema"
+        )
+    authorizations = document["authorizations"]
+    if not isinstance(authorizations, dict):
+        raise RuntimeError(
+            f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: authorizations must be an object"
+        )
+    expected_fields = {"source_commit", "ledger_commit", "reason"}
+    for symbol, row in authorizations.items():
+        if not isinstance(symbol, str) or not re.fullmatch(
+            r"[A-Za-z_][A-Za-z0-9_]*", symbol
+        ):
+            raise RuntimeError(
+                f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: invalid symbol {symbol!r}"
+            )
+        if not isinstance(row, dict) or set(row) != expected_fields:
+            raise RuntimeError(
+                f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} has invalid fields"
+            )
+        source_commit = row["source_commit"]
+        if not isinstance(source_commit, str) or not re.fullmatch(
+            r"[0-9a-f]{40}", source_commit
+        ):
+            raise RuntimeError(
+                f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} needs a "
+                "full source_commit"
+            )
+        if not is_ancestor(source_commit, base):
+            raise RuntimeError(
+                f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} source_commit "
+                f"{source_commit} is not an ancestor of {base}"
+            )
+        ledger_commit = row["ledger_commit"]
+        if ledger_commit is not None and (
+            not isinstance(ledger_commit, str)
+            or not re.fullmatch(r"[0-9a-f]{40}", ledger_commit)
+        ):
+            raise RuntimeError(
+                f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} needs a full "
+                "ledger_commit or null"
+            )
+        if ledger_commit is not None:
+            if not is_ancestor(ledger_commit, base):
+                raise RuntimeError(
+                    f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} "
+                    f"ledger_commit {ledger_commit} is not an ancestor of {base}"
+                )
+            if not is_ancestor(source_commit, ledger_commit):
+                raise RuntimeError(
+                    f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} "
+                    "ledger_commit does not descend from source_commit"
+                )
+        reason = row["reason"]
+        if (
+            not isinstance(reason, str) or not reason.strip()
+            or len(reason) > 240 or "\n" in reason or "|" in reason
+        ):
+            raise RuntimeError(
+                f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} needs one "
+                "concise reason"
+            )
+        source_path, identity_error = source_identity(source_commit, symbol)
+        if identity_error or source_path is None:
+            raise RuntimeError(
+                f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} source_commit "
+                "does not identify exactly one source definition"
+            )
+        if ledger_commit is not None:
+            shard_text = show_file(ledger_commit, shard_path(symbol))
+            try:
+                shard_source = validated_shard_source(shard_text, symbol)
+            except RuntimeError as error:
+                raise RuntimeError(
+                    f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} "
+                    f"ledger_commit has invalid handoff evidence: {error}"
+                ) from error
+            if shard_source != source_path:
+                raise RuntimeError(
+                    f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} "
+                    "ledger_commit does not identify the authorized source path"
+                )
+    return authorizations
 
 
 def collect(base: str, symbol_filter: str | None) -> list[Lane]:
