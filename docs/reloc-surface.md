@@ -622,7 +622,7 @@ resident target (splat auto-name or `D_8…`), which is a superset of the 15
 | `overlay37RenderEffect` | `resident-symbol-missing` | `text-differs` 138 |
 | `func_overlay_041_F0000854_1887B8C` | `resident-symbol-missing` | `rom-size` |
 | `func_overlay_046_F0000120_188E518` | `resident-symbol-missing` | `rom-size` |
-| `func_overlay_071_F0000278_18C9D98` | `resident-symbol-missing` | `text-differs` 28 |
+| `func_overlay_071_F0000278_18C9D98` | `resident-symbol-missing` | subsequently matched: 332/332 words and 6/6 runtime relocation identities |
 | `overlay94UpdateController` | `resident-symbol-missing` | `text-differs` 13 |
 
 `overlay11UpdateMenu` owns Overlay 11 `+0x1398..+0x184C` with no padding and
