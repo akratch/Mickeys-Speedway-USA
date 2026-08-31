@@ -3414,3 +3414,13 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * summary: All 119 flags nonexact; score cursor regressed. Recover the original local lifetimes that place target scores and interpolation locals higher in the 0x90 frame.
  * PLATEAU-HANDOFF:func_overlay_001_F0003750_184FB30:end
  */
+
+/* PLATEAU-HANDOFF:overlay1BendPathPoint:start
+ * symbol: overlay1BendPathPoint
+ * score: 82/107 words
+ * frame: 0x30
+ * relocations: 6
+ * first-mismatch: +0xC
+ * summary: exact geometry; parameter-home scheduling and three coupled integer/pointer register webs remain after the full flag lattice
+ * PLATEAU-HANDOFF:overlay1BendPathPoint:end
+ */
