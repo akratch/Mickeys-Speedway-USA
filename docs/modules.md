@@ -210,9 +210,9 @@ there continues as 3.x.
 
 ### 4.1 The corridor: ROM `0x6F420`–`0x76D10`
 
-VRAM `0x8006E820`–`0x80076110`, `0x78F0` bytes. **96 named subsegments,
-including 95 measured whole-`.text` file boundaries plus one exact
-function-tail carve, and 123 named functions**, all tier A. The yaml carries
+VRAM `0x8006E820`–`0x80076110`, `0x78F0` bytes. **97 named subsegments,
+including 96 measured whole-`.text` file boundaries plus one exact
+function-tail carve, and 124 named functions**, all tier A. The yaml carries
 the boundary argument at both ends and
 `symbol_addrs.us.txt` carries the per-function names.
 
@@ -224,12 +224,13 @@ candidates. Those runs are not drifted copies of DKR's libultra; they are a
 *different build*. Run the finder over Jet Force Gemini's libultra and **eight
 of the ten runs fall**, in fifteen whole-`.text` matches.
 
-The remaining unnamed code is `0x920`, **7.5% of the corridor**, in two
+The remaining unnamed code is `0x7E0`, **6.5% of the corridor**, in three
 contiguous runs:
 
 | ROM | Size | Note |
 |---|---|---|
-| `0x70AF0`–`0x70E20` | `0x330` | Between `dpsetstat` and `pfsdeletefile` |
+| `0x70AF0`–`0x70C30` | `0x140` | Between `dpsetstat` and `eeplongread` |
+| `0x70D70`–`0x70E20` | `0xB0` | Between `eeplongread` and `pfsdeletefile` |
 | `0x74090`–`0x74680` | `0x5F0` | Between `timerintr` and the exact `__osEepStatus` tail |
 
 Neither matches any object in any of the five reference builds, whole or
