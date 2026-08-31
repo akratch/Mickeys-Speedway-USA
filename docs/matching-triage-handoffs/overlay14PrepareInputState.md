@@ -5,6 +5,6 @@
 - score: 66/131 words
 - frame: 0x20
 - relocations: 29
-- first mismatch: +0x34
-- summary: Exact geometry/opcodes; call identities repaired, but 65 allocator words and 26 data identities remain; next lever is UOPT trace or data-symbol binding.
+- first mismatch: +0xC
+- summary: Nine owned BSS definitions enable a 29/29 diagnostic identity proof; 65 allocator words remain, with UOPT lifetime tracing as the next lever.
 <!-- plateau-handoff:overlay14PrepareInputState:end -->
