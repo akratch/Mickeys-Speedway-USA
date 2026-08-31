@@ -926,227 +926,169 @@ loop_27:
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80017140.s")
 #endif
 /*
- * PROVENANCE: the clipping/intersection organization follows JFG's public
- * shadow pipeline; Mickey's target assembly and resident buffers determine
- * every field binding and limit used here.
+ * PROVENANCE: the clipping/intersection organization and typed polygon form
+ * follow Diddy Kong Racing's public src/tracks.c:func_8002FF6C; JFG's public
+ * assembly-only func_8001F288 supports the sibling relationship. Mickey's
+ * target assembly and resident buffers determine every field binding and
+ * limit used here.
  */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 368 differing words; first mismatch is at +0x0. */
-/* Target is 347 instructions/frame -344; candidate is 370 instructions/frame -448. */
-/* Remaining gap is structural: local-frame and clipping-loop shape; not permuter-ready. */
+/* Workbench verdict: structure-mismatch, 337 differing words; first mismatch is at +0x4. */
+/* Target and candidate are both 347 instructions with a 0x158-byte frame. */
+/* Remaining gap is the integer/FP allocation web and clipping-loop CFG; not permuter-ready. */
 s32 func_80017660(void *arg0, s32 arg1, void *arg2, s32 arg3, s32 arg4) {
-    u8 clipped[0x80];
-    u8 *temp_a0;
-    u8 *temp_a1;
-    u8 *temp_a2;
-    u8 *temp_a2_2;
-    u8 *temp_a3;
-    u8 *temp_t1;
-    u8 *temp_v0;
-    u8 *var_a0_2;
-    u8 *var_a0_3;
-    u8 *var_s0;
-    u8 *var_s2;
-    u8 *var_s6;
-    u8 *var_t1;
-    u8 *var_t1_2;
-    u8 *var_t1_3;
-    u8 *var_v0_2;
-    u8 *arg4Bytes;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f0_3;
-    f32 temp_f12;
-    f32 temp_f12_2;
-    f32 temp_f14;
-    f32 temp_f14_2;
-    f32 temp_f16;
-    f32 temp_f20;
-    f32 temp_f22;
-    f32 temp_f24;
-    f32 temp_f28;
-    f32 temp_f28_2;
-    f32 temp_f2;
-    f32 temp_f2_2;
-    f32 temp_f30;
-    f32 temp_f30_2;
-    f32 temp_f30_3;
-    f32 var_f24;
-    s16 var_a0;
-    s16 var_t2;
-    s16 var_t7;
-    s16 var_t9;
-    s32 *temp_t3;
-    s32 temp_a3_2;
-    s32 temp_s7;
-    s32 temp_t4;
-    s32 temp_v1;
-    s32 temp_v1_2;
-    s32 var_s1;
-    s32 var_t0;
-    s32 var_t5;
-    s32 var_v0;
-    s32 var_v0_3;
-    s32 var_v1;
-    s32 var_v1_2;
-    s32 var_v1_3;
+    typedef struct ClipVertex {
+        f32 x;
+        f32 y;
+        f32 z;
+        union {
+            f32 w;
+            struct {
+                s16 unkC;
+                s16 edge;
+            } s;
+        } value;
+    } ClipVertex;
+    typedef struct ClipEdge {
+        f32 x;
+        f32 y;
+        f32 z;
+        s32 owner;
+        f32 x0;
+        f32 z0;
+        f32 x1;
+        f32 z1;
+    } ClipEdge;
+    typedef struct ClipPlanePoint {
+        f32 x;
+        f32 z;
+    } ClipPlanePoint;
 
-    var_s2 = (u8 *) arg2;
-    var_s0 = clipped;
-    var_s1 = arg1;
-    var_t5 = 0;
-    arg4Bytes = (u8 *) arg4;
-    if ((arg3 > 0) && (arg1 >= 3)) {
-        var_s6 = arg4Bytes;
-loop_3:
-        temp_s7 = var_t5 + 1;
-        var_v1 = temp_s7;
-        var_v0 = 0;
-        var_t0 = 0;
-        if (temp_s7 >= arg3) {
-            var_v1 = 0;
+    ClipVertex clipped[8];
+    ClipVertex *input;
+    ClipVertex *output;
+    ClipVertex *swap;
+    ClipEdge *edges;
+    ClipPlanePoint *planes;
+    f32 edgeZ;
+    f32 edgeX;
+    f32 currentSide;
+    f32 nextSide;
+    f32 temp_f14;
+    f32 fraction;
+    s32 plane;
+    s32 nextPlane;
+    s32 current;
+    s32 next;
+    s32 outputCount;
+    s32 remaining;
+    s32 edgeIndex;
+    s32 foundEdge;
+
+    input = (ClipVertex *) arg2;
+    output = clipped;
+    planes = (ClipPlanePoint *) arg4;
+    edges = (ClipEdge *) D_800C9F58;
+
+    for (plane = 0; (plane < arg3) && (arg1 >= 3); plane++) {
+        nextPlane = plane + 1;
+        if (nextPlane >= arg3) {
+            nextPlane = 0;
         }
-        temp_f14 = *(f32 *) (var_s6 + 0x0);
-        temp_a0 = arg4Bytes + (var_v1 * 8);
-        temp_f12 = *(f32 *) (temp_a0 + 0x0);
-        temp_f0 = *(f32 *) (temp_a0 + 0x4);
-        temp_f2 = *(f32 *) (var_s6 + 0x4);
-        var_t1 = var_s2;
-        temp_f20 = temp_f0 - temp_f2;
-        temp_f22 = -(temp_f12 - temp_f14);
-        if (temp_f14 < temp_f12) {
-            var_f24 = (temp_f2 * temp_f22) + (temp_f20 * temp_f14);
+
+        edgeZ = planes[nextPlane].z - planes[plane].z;
+        edgeX = -(planes[nextPlane].x - planes[plane].x);
+        if (planes[plane].x < planes[nextPlane].x) {
+            temp_f14 = (edgeZ * planes[plane].x) + (planes[plane].z * edgeX);
         } else {
-            var_f24 = (temp_f0 * temp_f22) + (temp_f20 * temp_f12);
+            temp_f14 = (edgeZ * planes[nextPlane].x) + (planes[nextPlane].z * edgeX);
         }
-        temp_f24 = -var_f24;
-        if (var_s1 > 0) {
-loop_9:
-            temp_t4 = var_v0 + 1;
-            var_v1_2 = temp_t4;
-            if (temp_t4 >= var_s1) {
-                var_v1_2 = 0;
+        temp_f14 = -temp_f14;
+
+        outputCount = 0;
+        for (current = 0; current < arg1; current++) {
+            next = current + 1;
+            if (next >= arg1) {
+                next = 0;
             }
-            temp_f0_2 = *(f32 *) (var_t1 + 0x8);
-            temp_f2_2 = *(f32 *) (var_t1 + 0x0);
-            temp_a3 = var_s2 + (var_v1_2 * 0x10);
-            temp_f28 = *(f32 *) (temp_a3 + 0x8);
-            temp_f12_2 = *(f32 *) (temp_a3 + 0x0);
-            temp_f14_2 = (temp_f0_2 * temp_f22) +
-                         (temp_f20 * temp_f2_2) + temp_f24;
-            temp_f16 = (temp_f28 * temp_f22) +
-                       (temp_f20 * temp_f12_2) + temp_f24;
-            if (((temp_f14_2 >= 0.0f) && (temp_f16 < 0.0f)) ||
-                ((temp_f14_2 < 0.0f) && (temp_f16 >= 0.0f))) {
-                temp_t3 = (s32 *) (D_800C9F48 + (var_t5 * 4));
-                var_v1_3 = *temp_t3;
-                var_a0 = var_t5 << 5;
-                var_t2 = -1;
-                var_v0_2 = D_800C9F58 + (var_a0 << 5);
-                temp_a2 = var_s0 + (var_t0 * 0x10);
-                if (var_v1_3 > 0) {
-loop_16:
-                    temp_f30 = *(f32 *) (var_v0_2 + 0x10);
-                    if (((temp_f30 == temp_f2_2) &&
-                         (*(f32 *) (var_v0_2 + 0x14) == temp_f0_2) &&
-                         (*(f32 *) (var_v0_2 + 0x18) == temp_f12_2) &&
-                         (*(f32 *) (var_v0_2 + 0x1C) == temp_f28)) ||
-                        ((var_v1_3 -= 1,
-                          (temp_f30 == temp_f12_2)) &&
-                         (*(f32 *) (var_v0_2 + 0x14) == temp_f28) &&
-                         (*(f32 *) (var_v0_2 + 0x18) == temp_f2_2) &&
-                         (*(f32 *) (var_v0_2 + 0x1C) == temp_f0_2))) {
-                        var_t2 = var_a0;
+            currentSide = (edgeZ * input[current].x) + (input[current].z * edgeX) + temp_f14;
+            nextSide = (edgeZ * input[next].x) + (input[next].z * edgeX) + temp_f14;
+
+            if (((currentSide >= 0.0f) && (nextSide < 0.0f)) ||
+                ((currentSide < 0.0f) && (nextSide >= 0.0f))) {
+                remaining = D_800C9F48[plane];
+                foundEdge = -1;
+                edgeIndex = plane << 5;
+                while ((remaining > 0) && (foundEdge < 0)) {
+                    if ((edges[edgeIndex].x0 == input[current].x) &&
+                        (edges[edgeIndex].z0 == input[current].z) &&
+                        (edges[edgeIndex].x1 == input[next].x) &&
+                        (edges[edgeIndex].z1 == input[next].z)) {
+                        foundEdge = edgeIndex;
+                    } else if ((edges[edgeIndex].x0 == input[next].x) &&
+                               (edges[edgeIndex].z0 == input[next].z) &&
+                               (edges[edgeIndex].x1 == input[current].x) &&
+                               (edges[edgeIndex].z1 == input[current].z)) {
+                        foundEdge = edgeIndex;
                     } else {
-                        var_v0_2 += 0x20;
-                        var_a0 += 1;
-                        if (var_v1_3 > 0) {
-                            goto loop_16;
-                        }
+                        remaining--;
+                        edgeIndex++;
                     }
                 }
-                if (var_t2 >= 0) {
-                    *(s16 *) (temp_a2 + 0xE) = var_t2;
-                    var_t0 += 1;
-                    *(f32 *) (temp_a2 + 0x0) = *(f32 *) (var_v0_2 + 0x0);
-                    *(f32 *) (temp_a2 + 0x8) = *(f32 *) (var_v0_2 + 0x8);
-                    if (var_t0 >= 8) {
-                        return 0;
-                    }
-                    goto block_32;
+                if (foundEdge >= 0) {
+                    output[outputCount].value.s.edge = foundEdge;
+                    output[outputCount].x = edges[foundEdge].x;
+                    output[outputCount].z = edges[foundEdge].z;
+                    outputCount++;
+                } else {
+                    fraction = currentSide / (currentSide - nextSide);
+                    output[outputCount].x = input[current].x +
+                        ((input[next].x - input[current].x) * fraction);
+                    output[outputCount].z = input[current].z +
+                        ((input[next].z - input[current].z) * fraction);
+                    edges[edgeIndex].x0 = input[current].x;
+                    edges[edgeIndex].z0 = input[current].z;
+                    edges[edgeIndex].x1 = input[next].x;
+                    edges[edgeIndex].z1 = input[next].z;
+                    edges[edgeIndex].x = output[outputCount].x;
+                    edges[edgeIndex].z = output[outputCount].z;
+                    edges[edgeIndex].owner = *(s32 *) ((u8 *) arg0 + 4);
+                    output[outputCount].value.s.edge = edgeIndex;
+                    D_800C9F48[plane]++;
+                    outputCount++;
                 }
-                var_t0 += 1;
-                temp_f28_2 = temp_f14_2 / (temp_f14_2 - temp_f16);
-                *(f32 *) (temp_a2 + 0x0) =
-                    (((temp_f12_2 - temp_f2_2) * temp_f28_2) + temp_f2_2);
-                temp_f0_3 = *(f32 *) (var_t1 + 0x8);
-                *(f32 *) (temp_a2 + 0x8) =
-                    (((*(f32 *) (temp_a3 + 0x8) - temp_f0_3) * temp_f28_2) +
-                     temp_f0_3);
-                *(f32 *) (var_v0_2 + 0x10) = *(f32 *) (var_t1 + 0x0);
-                *(f32 *) (var_v0_2 + 0x14) = *(f32 *) (var_t1 + 0x8);
-                *(f32 *) (var_v0_2 + 0x18) = *(f32 *) (temp_a3 + 0x0);
-                *(f32 *) (var_v0_2 + 0x1C) = *(f32 *) (temp_a3 + 0x8);
-                *(f32 *) (var_v0_2 + 0x0) = *(f32 *) (temp_a2 + 0x0);
-                *(f32 *) (var_v0_2 + 0x8) = *(f32 *) (temp_a2 + 0x8);
-                *(s32 *) (var_v0_2 + 0xC) = *(s32 *) ((u8 *) arg0 + 0x4);
-                *(s16 *) (temp_a2 + 0xE) = var_a0;
-                if (var_t0 >= 8) {
-                    return 0;
-                }
-                *temp_t3 += 1;
-                goto block_32;
-            }
-block_32:
-            var_v0 = temp_t4;
-            if (temp_f16 <= 0.0f) {
-                temp_a2_2 = var_s0 + (var_t0 * 0x10);
-                *(s16 *) (temp_a2_2 + 0xE) = *(s16 *) (temp_a3 + 0xE);
-                var_t0 += 1;
-                *(f32 *) (temp_a2_2 + 0x0) = *(f32 *) (temp_a3 + 0x0);
-                *(f32 *) (temp_a2_2 + 0x8) = *(f32 *) (temp_a3 + 0x8);
-                if (var_t0 >= 8) {
+                if (outputCount >= 8) {
                     return 0;
                 }
             }
-            var_t1 += 0x10;
-            if (temp_t4 == var_s1) {
-                goto block_36;
+            if (nextSide <= 0.0f) {
+                output[outputCount].value.s.edge = input[next].value.s.edge;
+                output[outputCount].x = input[next].x;
+                output[outputCount].z = input[next].z;
+                outputCount++;
+                if (outputCount >= 8) {
+                    return 0;
+                }
             }
-            goto loop_9;
         }
-block_36:
-        temp_v0 = var_s2;
-        var_s2 = var_s0;
-        var_s1 = var_t0;
-        var_t5 = temp_s7;
-        var_s6 += 8;
-        var_s0 = temp_v0;
-        if ((temp_s7 >= arg3) || (var_t0 < 3)) {
-            goto block_38;
-        }
-        goto loop_3;
+        arg1 = outputCount;
+        swap = input;
+        input = output;
+        output = swap;
     }
-block_38:
-    if (var_s1 >= 3) {
-        if (var_s2 != (u8 *) arg2) {
-            var_v0_3 = 0;
-            if (var_s1 > 0) {
-                for (temp_a3_2 = var_s1; temp_a3_2 > 0; temp_a3_2--) {
-                    temp_a1 = (u8 *) arg2 + (var_v0_3 * 0x10);
-                    temp_a2 = var_s2 + (var_v0_3 * 0x10);
-                    *(f32 *) (temp_a1 + 0x0) = *(f32 *) (temp_a2 + 0x0);
-                    *(f32 *) (temp_a1 + 0x8) = *(f32 *) (temp_a2 + 0x8);
-                    *(s16 *) (temp_a1 + 0xE) = *(s16 *) (temp_a2 + 0xE);
-                    *(s32 *) (temp_a1 + 0x10) = *(s32 *) (temp_a2 + 0x10);
-                    var_v0_3 += 1;
-                }
+
+    if (arg1 >= 3) {
+        if (input != (ClipVertex *) arg2) {
+            for (current = 0; current < arg1; current++) {
+                ((ClipVertex *) arg2)[current].x = input[current].x;
+                ((ClipVertex *) arg2)[current].z = input[current].z;
+                ((ClipVertex *) arg2)[current].value.s.edge = input[current].value.s.edge;
             }
         }
     } else {
-        var_s1 = 0;
+        arg1 = 0;
     }
-    return var_s1;
+    return arg1;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80017660.s")
@@ -1516,4 +1458,14 @@ void func_800180B4(ShadowQuery *query) {
  * first-mismatch: +0xC
  * summary: Mickey-only reconstruction restored exact relocation count and near geometry; local lifetimes and object-kind branch spelling still control the register web.
  * PLATEAU-HANDOFF:shadowGenerate:end
+ */
+
+/* PLATEAU-HANDOFF:func_80017660:start
+ * symbol: func_80017660
+ * score: 337 differing words
+ * frame: 0x158
+ * relocations: 4
+ * first-mismatch: +0x4
+ * summary: Exact geometry and frame; recover original declaration lifetimes to align callee-saved integer and f30 allocation.
+ * PLATEAU-HANDOFF:func_80017660:end
  */
