@@ -2354,6 +2354,7 @@ void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
     TrackSegment *segment;
     TrackBatch *batch;
     TrackTextureHeader *texture;
+    s32 specialFlags;
     s32 sp5C;
     s32 sp58;
     u32 vertexAddress;
@@ -2368,8 +2369,8 @@ void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
     s32 index;
 
     if (D_8007C854 != 0) {
-        color = D_8007C858 & 0xFF;
-        gDPSetPrimColor(D_800C9520++, 0, 0, color, color, color, 0xFF);
+        gDPSetPrimColor(D_800C9520++, 0, 0, D_8007C858 & 0xFF,
+                        D_8007C858 & 0xFF, D_8007C858 & 0xFF, 0xFF);
     }
 
     segment = &D_800792E8->segments[arg0];
@@ -2395,8 +2396,8 @@ void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
 
     batchCount = segment->batchCount;
     batch = segment->batches;
-    index = batchCount;
     if (batchCount != 0) {
+        index = batchCount - 1;
         do {
             if ((1 << batch->unk1) & arg1) {
                 textureFlags = batch->flags;
@@ -2407,12 +2408,12 @@ void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
                         hasTexture = 1;
                         texture = D_800792E8->textures[batch->textureIndex].texture;
                     }
-                    textureFrame = batch->frame << 8;
                     vertexAddress = (u32) segment->lightData +
                                     (batch->u0 * 0xA);
                     positionAddress = (u32) segment->vertexData +
                                       (batch->v0 * 0x10);
-                    if ((texture != NULL) && (texture->flags & 0x40) &&
+                    textureFrame = batch->frame << 8;
+                    if ((texture != NULL) && ((s16) texture->flags & 0x40) &&
                         ((textureFlags & 0x30) != 0x20)) {
                         color = (textureFrame >> 8) & 0xFF;
                         gDPSetEnvColor(D_800C9520++, color, color, color,
@@ -2423,7 +2424,8 @@ void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
                     if (!(textureFlags & 0x180)) {
                         textureFlags |= D_800C9544;
                     }
-                    if ((textureFlags & 0x20000) && (texture != NULL)) {
+                    specialFlags = textureFlags & 0x20000;
+                    if ((specialFlags != 0) && (texture != NULL)) {
                         func_80014ECC(texture, textureFrame, textureFlags);
                     } else {
                         func_800349A4(&D_800C9520, texture,
@@ -2437,14 +2439,13 @@ void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
                     positionAddress += 0x80000000;
                     TRACK_SP_POLYGON(D_800C9520++, positionAddress,
                                      positionCount, hasTexture);
-                    if (textureFlags & 0x20000) {
+                    if (specialFlags != 0) {
                         func_80034920(&D_800C9520);
                     }
                 }
             }
             batch++;
-            index--;
-        } while (index != 0);
+        } while (index--);
     }
     if (arg2 == 0x4000) {
         texEnableModes(2);
@@ -5786,4 +5787,14 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x0
  * summary: Output-address ordering and outer for-loop preserve all relocation identities; a two-word and eight-byte frame-allocation gap remains.
  * PLATEAU-HANDOFF:func_80012658:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000F198:start
+ * symbol: func_8000F198
+ * score: 185 differing words
+ * frame: -0x58
+ * relocations: 21
+ * first-mismatch: +0x0
+ * summary: Exact 249-insn geometry. Target frame is 24 bytes larger and five relocation sites shift. Next lever is local lifetimes moving the counter s8 to s6.
+ * PLATEAU-HANDOFF:func_8000F198:end
  */
