@@ -538,32 +538,33 @@ extern void ext_o0_5a914(Transform *, s32, s32, s32);
 extern Spawned *local_414(s16, Spawned **);
 extern s16 local_c0(Spawned *);
 
-/* Plateau (2026-08-26, p5): workbench mixed, 237/234 instructions and 162 raw differing words from +0x20; both frames are 0x50.
- * The flag/constant audit and prior phase-width, stack-home, pointer/index, and copy-hint probes leave 40 structural, 3 schedule, and 82 register rows.
- * No untried source-backed lever remains; retain NON_MATCHING. */
+/* Plateau (2026-08-31): configured full-TU C is 236/237 words with 160 raw
+ * and relocation-masked differences from +0x20; both frames are 0x50. An
+ * asymmetric selector assignment restored the narrow index mask/shift. Phase
+ * carrier, register-hint, and pointer-advance forms were flat or regressed. */
 #ifdef NON_MATCHING
-void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateRate) {
+void overlay1TransitionState(Transform *obj, State *state, s32 updateRate) {
     Spawned *sp3C;
     s32 value;
-    u8 phaseValue;
-    s32 phase;
+    u8 phase;
+    s32 phaseValue;
     u8 index;
     u8 *point;
     Spawned *spawned;
 
     if (G_o1_83e4 == 3) {
-        phaseValue = state->phase;
-        if (phaseValue == 0) {
+        phase = state->phase;
+        if (phase == 0) {
             return;
         }
-        if (phaseValue == 1) {
+        if (phase == 1) {
                 ext_o7_ccc(obj, 0x13);
                 state->spawned = local_378(state);
                 state->phase = 2;
                 return;
             }
-            phase = phaseValue;
-            if (phase == 2) {
+            phaseValue = phase;
+            if (phaseValue == 2) {
                 value = state->fade - (updateRate * 4);
                 if (value <= 0) {
                     state->phase = 3;
@@ -572,7 +573,7 @@ void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateR
                 state->fade = value;
                 return;
             }
-            if (phase == 3) {
+            if (phaseValue == 3) {
                 spawned = state->spawned;
                 obj->x = spawned->x;
                 obj->y = spawned->at10.y2 + 100.0f;
@@ -589,7 +590,7 @@ void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateR
                 state->phase = 4;
                 return;
             }
-            if (phase == 4) {
+            if (phaseValue == 4) {
                 value = state->fade + (updateRate * 4);
                 if (value >= 255) {
                     state->fade = 255;
@@ -599,7 +600,7 @@ void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateR
                 state->fade = value;
                 return;
             }
-            if (phase == 5) {
+            if (phaseValue == 5) {
                 obj->header->flags |= 1;
                 state->phase = 0;
                 state->active = 0;
@@ -608,11 +609,11 @@ void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateR
                 state->spawned = 0;
         }
     } else {
-        phaseValue = state->phase;
-        if (phaseValue == 0) {
+        phase = state->phase;
+        if (phase == 0) {
             return;
         }
-        if (phaseValue == 1) {
+        if (phase == 1) {
                 ext_o7_ccc(obj, 0x13);
                 state->spawned = local_414(state->pathId, &sp3C);
                 state->pathId = local_c0(sp3C);
@@ -620,8 +621,8 @@ void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateR
                 state->phase = 2;
                 return;
             }
-            phase = phaseValue;
-            if (phase == 2) {
+            phaseValue = phase;
+            if (phaseValue == 2) {
                 value = obj->alpha - (updateRate * 4);
                 if (value <= 0) {
                     state->phase = 3;
@@ -630,11 +631,10 @@ void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateR
                 obj->alpha = value;
                 return;
             }
-            if (phase == 3) {
+            if (phaseValue == 3) {
                 spawned = state->spawned;
-                index = 3;
-                state->selectorA = index;
-                state->selectorB = index;
+                index = state->selectorA = 3;
+                state->selectorB = 3;
                 state->selectorC = 0;
                 point = (u8 *)spawned + (index << 4);
                 obj->x = *(f32 *)(point + 0x14);
@@ -653,7 +653,7 @@ void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateR
                 state->phase = 4;
                 return;
             }
-            if (phase == 4) {
+            if (phaseValue == 4) {
                 value = obj->alpha + (updateRate * 4);
                 if (value >= 255) {
                     obj->alpha = 255;
@@ -663,7 +663,7 @@ void func_overlay_001_F0003FD8_18503B8(Transform *obj, State *state, s32 updateR
                 obj->alpha = value;
                 return;
             }
-            if (phase == 5) {
+            if (phaseValue == 5) {
                 obj->header->flags |= 1;
                 state->phase = 0;
                 state->active = 0;
@@ -3341,4 +3341,14 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0x10
  * summary: All 119 flags and bounded forms are nonexact; one result.x reload remains. Resume with an authentic wide-call/TU-boundary model or allocator evidence.
  * PLATEAU-HANDOFF:overlay1AdvancePath:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1TransitionState:start
+ * symbol: overlay1TransitionState
+ * score: 160 differing words
+ * frame: 0x50
+ * relocations: 13
+ * first-mismatch: +0x20
+ * summary: ten forms exhausted; selector chain restored two words, but phase and pointer forms stayed flat; structural/register residual and 13 unresolved identities
+ * PLATEAU-HANDOFF:overlay1TransitionState:end
  */
