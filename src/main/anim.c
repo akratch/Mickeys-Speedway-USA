@@ -1364,7 +1364,207 @@ s32 func_80054B3C(s32 arg0, AnimCollisionShape *arg1,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80054B3C.s")
 #endif
+typedef struct HitResolveMass {
+    u8 pad0[4];
+    f32 mass;
+} HitResolveMass;
+
+typedef struct HitResolveVehicle {
+    s8 playerIndex;
+    u8 pad1[3];
+    f32 rotatedZ;
+    f32 rotatedX;
+    u8 padC[0x88];
+    AnimVec3f velocity;
+    u8 padA0[0x18];
+    void *soundHandle;
+    u8 padBC[0x18];
+    void *collisionData;
+    u8 padD8[0x18];
+    s16 rotationY;
+    u8 padF2[0xC];
+    s16 rotationX;
+    u8 pad100[0x6A];
+    s16 collisionMode;
+    u8 pad16C[0x3C];
+    u16 flags;
+    u8 pad1AA[0x209];
+    u8 collisionTimer;
+    u8 pad3B4[2];
+    s16 collisionCountA;
+    s16 collisionCountB;
+} HitResolveVehicle;
+
+extern f32 D_800841F0;
+extern u32 func_80001620(s32 soundId);
+extern void func_8000309C(void *handle, u8 volume);
+
+typedef struct HitResolveRotation {
+    s16 x;
+    s16 y;
+    s16 z;
+} HitResolveRotation;
+
+extern void mathOneFloatYPR(HitResolveRotation *rotation, AnimVec3f *vector);
+
+/*
+ * Bare-pragma reconstruction from Mickey's collision response assembly.
+ * The public JFG hit.c family supplies role context only; Mickey fixes every
+ * field offset, call identity and arithmetic association below.
+ */
+#ifdef NON_MATCHING
+void func_80055104(HitCopyState *first, HitCopyState *second, f32 scale) {
+    HitCopySource *firstSource;
+    HitCopySource *secondSource;
+    HitResolveVehicle *firstVehicle;
+    HitResolveVehicle *secondVehicle;
+    HitResolveMass *mass;
+    void *firstCollision;
+    void *secondCollision;
+    HitResolveRotation rotation;
+    AnimVec3f rotated;
+    AnimVec3f direction;
+    AnimVec3f effectPosition;
+    f32 firstMass;
+    f32 secondMass;
+    f32 distance;
+    f32 relativeVelocity;
+    f32 impulse;
+    f32 firstScale;
+    f32 secondScale;
+    f32 halfDistance;
+    f32 soundScale;
+    f32 volume;
+    f32 oldX;
+    f32 oldY;
+    f32 oldZ;
+
+    firstVehicle = (HitResolveVehicle *) first->target;
+    firstSource = first->source;
+    mass = (HitResolveMass *) TrapDanglingJump(firstVehicle);
+    firstMass = mass->mass;
+    secondSource = second->source;
+    secondVehicle = (HitResolveVehicle *) second->target;
+    mass = (HitResolveMass *) TrapDanglingJump(secondVehicle);
+    secondMass = mass->mass;
+    direction.x = secondSource->current.x - firstSource->current.x;
+    direction.y = secondSource->current.y - firstSource->current.y;
+    direction.z = secondSource->current.z - firstSource->current.z;
+    distance = sqrtf((direction.x * direction.x) +
+                     (direction.y * direction.y) +
+                     (direction.z * direction.z));
+    direction.x /= distance;
+    direction.y /= distance;
+    direction.z /= distance;
+    relativeVelocity =
+        ((firstVehicle->velocity.x - secondVehicle->velocity.x) * direction.x) +
+        ((firstVehicle->velocity.y - secondVehicle->velocity.y) * direction.y) +
+        ((firstVehicle->velocity.z - secondVehicle->velocity.z) * direction.z);
+    impulse = (D_800841F0 * relativeVelocity) /
+              ((1.0f / firstMass) + (1.0f / secondMass));
+    firstScale = impulse / firstMass;
+    firstVehicle->velocity.x += firstScale * direction.x;
+    firstVehicle->velocity.y += firstScale * direction.y;
+    firstVehicle->velocity.z += firstScale * direction.z;
+    rotation.x = -(firstVehicle->rotationY + firstVehicle->rotationX);
+    rotation.y = -*(s16 *) ((u8 *) first + 2);
+    rotation.z = -*(s16 *) ((u8 *) first + 4);
+    rotated = firstVehicle->velocity;
+    mathOneFloatYPR(&rotation, &rotated);
+    firstVehicle->rotatedZ = rotated.z;
+    firstVehicle->rotatedX = rotated.x;
+    secondScale = impulse / secondMass;
+    secondVehicle->velocity.x -= secondScale * direction.x;
+    secondVehicle->velocity.y -= secondScale * direction.y;
+    secondVehicle->velocity.z -= secondScale * direction.z;
+    rotation.x = -(secondVehicle->rotationY + secondVehicle->rotationX);
+    rotation.y = -*(s16 *) ((u8 *) second + 2);
+    rotation.z = -*(s16 *) ((u8 *) second + 4);
+    rotated = secondVehicle->velocity;
+    mathOneFloatYPR(&rotation, &rotated);
+    secondVehicle->rotatedZ = rotated.z;
+    secondVehicle->rotatedX = rotated.x;
+    oldY = first->position.y - firstSource->previous.y;
+    oldX = first->position.x - firstSource->previous.x;
+    oldZ = first->position.z - firstSource->previous.z;
+    firstSource->previous.x =
+        (firstVehicle->velocity.x * scale) + firstSource->current.x;
+    firstSource->previous.y =
+        (firstVehicle->velocity.y * scale) + firstSource->current.y;
+    firstSource->previous.z =
+        (firstVehicle->velocity.z * scale) + firstSource->current.z;
+    first->position.x = firstSource->previous.x + oldX;
+    first->position.y = firstSource->previous.y + oldY;
+    first->position.z = firstSource->previous.z + oldZ;
+    oldY = second->position.y - secondSource->previous.y;
+    oldX = second->position.x - secondSource->previous.x;
+    oldZ = second->position.z - secondSource->previous.z;
+    secondSource->previous.x =
+        (secondVehicle->velocity.x * scale) + secondSource->current.x;
+    secondSource->previous.y =
+        (secondVehicle->velocity.y * scale) + secondSource->current.y;
+    secondSource->previous.z =
+        (secondVehicle->velocity.z * scale) + secondSource->current.z;
+    second->position.x = secondSource->previous.x + oldX;
+    second->position.y = secondSource->previous.y + oldY;
+    second->position.z = secondSource->previous.z + oldZ;
+
+    firstCollision = (void *) TrapDanglingJump(firstVehicle->collisionData);
+    secondCollision = (void *) TrapDanglingJump(secondVehicle->collisionData);
+    if (((firstVehicle->collisionMode != 0) ||
+         ((firstCollision == NULL) && (secondCollision != NULL))) &&
+        (TrapDanglingJump(second, secondVehicle) != 0)) {
+        firstVehicle->collisionCountA++;
+        secondVehicle->collisionCountB++;
+        if (*func_80028F54() == 5) {
+            TrapDanglingJump(second);
+        }
+        TrapDanglingJump(first, second);
+    }
+    if (((secondVehicle->collisionMode != 0) ||
+         ((secondCollision == NULL) && (firstCollision != NULL))) &&
+        (TrapDanglingJump(first, firstVehicle) != 0)) {
+        firstVehicle->collisionCountB++;
+        secondVehicle->collisionCountA++;
+        if (*func_80028F54() == 5) {
+            TrapDanglingJump(first);
+        }
+        TrapDanglingJump(second, first);
+    }
+
+    firstVehicle->collisionTimer = 0x64;
+    secondVehicle->collisionTimer = 0x64;
+    if (relativeVelocity > 4.0f) {
+        halfDistance = distance * 0.5f;
+        effectPosition.x =
+            (direction.x * halfDistance) + firstSource->current.x;
+        effectPosition.y =
+            (direction.y * halfDistance) + firstSource->current.y;
+        effectPosition.z =
+            (direction.z * halfDistance) + firstSource->current.z;
+        soundScale = (f32) func_80001620(7);
+        volume = (relativeVelocity / 20.0f) * soundScale;
+        if (soundScale < volume) {
+            volume = soundScale;
+        }
+        if (firstVehicle->soundHandle != NULL) {
+            func_800031E8(firstVehicle->soundHandle);
+        }
+        func_80002FE0(7, effectPosition.x, effectPosition.y,
+                      effectPosition.z, 4,
+                      &firstVehicle->soundHandle);
+        func_8000309C(firstVehicle->soundHandle, (u8) volume);
+        if (!(firstVehicle->flags & 1)) {
+            rumbleStart(firstVehicle->playerIndex, 0x32, 0.4f);
+        }
+        if (!(secondVehicle->flags & 1)) {
+            rumbleStart(secondVehicle->playerIndex, 0x32, 0.4f);
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80055104.s")
+#endif
 /* Mickey-local collision response reconstructed from its resident ABI. */
 void func_800557F8(HitCopyState *first, HitCopyState *second, f32 unused) {
     s32 priority;
@@ -2258,4 +2458,14 @@ void fmvInit(void) {
  * first-mismatch: +0x24
  * summary: Fidelity trace proves -Wab,-r4300_mul fixes the first 28 words and sqrtf site, but the sort cursor then hoists a stack base and leaves 106 words.
  * PLATEAU-HANDOFF:func_8005776C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80055104:start
+ * symbol: func_80055104
+ * score: 425 differing words
+ * frame: 0xD0
+ * relocations: 23
+ * first-mismatch: +0x0
+ * summary: Target 445 words and frame 0xB8; relocation identities agree, but stack lifetimes drift. Add resident size metadata to unlock donor and flag tools.
+ * PLATEAU-HANDOFF:func_80055104:end
  */
