@@ -1746,16 +1746,6 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * PLATEAU-HANDOFF:func_overlay_008_F0000894_185E5EC:end
  */
 
-/* PLATEAU-HANDOFF:func_overlay_008_F0001000_185ED58:start
- * symbol: func_overlay_008_F0001000_185ED58
- * score: 159 differing words
- * frame: -0x18
- * relocations: 18
- * first-mismatch: +0x8
- * summary: Fresh V0 is one instruction short; authentic three-argument ABI retains the unused-a0 home, a3 state carrier, and rollover-join mismatch.
- * PLATEAU-HANDOFF:func_overlay_008_F0001000_185ED58:end
- */
-
 /* PLATEAU-HANDOFF:func_overlay_008_F000291C_1860674:start
  * symbol: func_overlay_008_F000291C_1860674
  * score: 56 differing words
@@ -1764,34 +1754,4 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * first-mismatch: +0x0
  * summary: Fresh exact geometry retains the 0x70/0x68 frame split and divergent FP pool; prior declaration, lifetime, constant, and flag probes are exhausted.
  * PLATEAU-HANDOFF:func_overlay_008_F000291C_1860674:end
- */
-
-/* PLATEAU-HANDOFF:func_overlay_008_F00042A8_1862000:start
- * symbol: func_overlay_008_F00042A8_1862000
- * score: 384 differing words
- * frame: 0xA0
- * relocations: 40
- * first-mismatch: +0x44
- * summary: Configured flags remain best; reconstruct FP lifetimes and named data identities to supply 17 words and 22 relocation records without changing the exact frame.
- * PLATEAU-HANDOFF:func_overlay_008_F00042A8_1862000:end
- */
-
-/* PLATEAU-HANDOFF:func_overlay_008_F0000058_185DDB0:start
- * symbol: func_overlay_008_F0000058_185DDB0
- * score: 438 differing words
- * frame: 0xA0
- * relocations: 86
- * first-mismatch: +0x2C
- * summary: Six surface entries and direct bounds restore the exact frame; recover the remaining eight global relocation pairs and 16 instructions before allocator work.
- * PLATEAU-HANDOFF:func_overlay_008_F0000058_185DDB0:end
- */
-
-/* PLATEAU-HANDOFF:func_overlay_008_F00034A0_18611F8:start
- * symbol: func_overlay_008_F00034A0_18611F8
- * score: 750 differing words
- * frame: 0xC8
- * relocations: 21
- * first-mismatch: +0x0
- * summary: Target frame 0x80; candidate relocation identity remains ambiguous; next lever is query and FP stack ownership.
- * PLATEAU-HANDOFF:func_overlay_008_F00034A0_18611F8:end
  */
