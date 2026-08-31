@@ -1607,62 +1607,40 @@ extern s32 func_8000A39C(s32 first, s32 last);
 extern TrackRouteObject *func_800056F0(s32 index);
 
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 267 differing words, first mismatch +0x0. */
-/* Candidate: 267/172 instructions with a -0x188 frame versus target -0x190; input-loop unrolling and local/register shape remain. */
-/* Shape status: route traversal and bounds filtering are reconstructed, but the candidate is not shape-exact. */
+/* Workbench verdict: structure-mismatch, 146 differing words, first mismatch +0x38. */
+/* Candidate: 170/172 instructions with the exact 0x190 frame and 6/6 relocations. */
+/* Scalar map fill and full-width reverse scan are restored; prologue/register scheduling remains. */
 s32 func_8000DB34(s32 count, u8 *indices, TrackRouteResult *results) {
-    u8 map[256];
     s32 heapCount;
     s32 mapIndex;
-    s32 resultCount;
     s32 lastIndex;
+    s32 resultCount;
     s32 segmentIndex;
     s32 objectRadius;
     s32 minX;
     s32 minY;
     s32 minZ;
     s32 maxDistance;
-    s16 candidateSegment;
+    s32 candidateSegment;
     u8 inputIndex;
     u8 candidateIndex;
-    volatile u8 *input;
+    u8 map[256];
+    u8 *input;
     TrackRouteObject *object;
     TrackBoundingBox *bounds;
 
-    {
-        u8 *mapPointer = map;
-        u8 *mapEnd = map + 256;
-
-        do {
-            *mapPointer++ = 0xFF;
-        } while (mapPointer < mapEnd);
-    }
+    mapIndex = 0;
+    do {
+        map[mapIndex++] = 0xFF;
+    } while (mapIndex < 256);
     mapIndex = 0;
     if (count > 0) {
-        s32 remainder = count & 3;
-
-        if (remainder != 0) {
-            input = indices;
-            do {
-                inputIndex = *input++;
-                map[inputIndex] = mapIndex++;
-            } while (remainder != mapIndex);
-            if (mapIndex == count) {
-                goto build_routes;
-            }
-        }
-        input = indices + mapIndex;
+        input = indices;
         do {
-            map[input[0]] = mapIndex;
-            map[input[1]] = mapIndex + 1;
-            map[input[2]] = mapIndex + 2;
-            map[input[3]] = mapIndex + 3;
-            input += 4;
-            mapIndex += 4;
+            map[*input++] = mapIndex++;
         } while (mapIndex != count);
     }
 
-build_routes:
     heapCount = func_8000A244(&lastIndex);
     func_8000A39C(heapCount, lastIndex - 1);
     resultCount = 0;
@@ -1682,6 +1660,7 @@ build_routes:
                 candidateIndex = map[object->segmentIndex];
                 if (candidateIndex != 0) {
                     input = indices + candidateIndex - 1;
+                    mapIndex = candidateIndex - 1;
                     do {
                         inputIndex = *input--;
                         bounds = &D_800792E8->segmentBounds[inputIndex];
@@ -1693,8 +1672,7 @@ build_routes:
                             (bounds->z1 < (minZ + maxDistance))) {
                             candidateSegment = inputIndex;
                         }
-                        candidateIndex--;
-                    } while (candidateIndex != 0);
+                    } while (mapIndex-- != 0);
                 }
                 results->segmentIndex = candidateSegment;
                 results->flags = 0xFF;
@@ -5900,4 +5878,14 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x48
  * summary: Exact frame and relocation count; 2-word structural drift remains, and flag sweep lacks unique resident ownership metadata.
  * PLATEAU-HANDOFF:func_8000DFBC:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000DB34:start
+ * symbol: func_8000DB34
+ * score: 146 differing words
+ * frame: 0x190
+ * relocations: 6
+ * first-mismatch: +0x38
+ * summary: Scalar fill removes double-unroll and the reverse scan is full-width; two-word/prologue drift remains, while flag sweep lacks a unique owner.
+ * PLATEAU-HANDOFF:func_8000DB34:end
  */
