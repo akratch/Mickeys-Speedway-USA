@@ -830,3 +830,13 @@ void func_8002FB34(RcpCommand **arg0, RcpTextureNode *arg1, f32 arg2,
  * summary: ugen temp slots 9-10 are one FIFO pop early; 119 flags and two trace-supported forms are exhausted
  * PLATEAU-HANDOFF:rcpClearZBuffer:end
  */
+
+/* PLATEAU-HANDOFF:func_8002EBE0:start
+ * symbol: func_8002EBE0
+ * score: 218 differing words
+ * frame: 0x58
+ * relocations: 2
+ * first-mismatch: +0x0
+ * summary: Exact-sized C keeps a 0x58 versus 0x88 frame after RGB aggregate and lifetime forms; next lever is an authentic early-live-web source shape.
+ * PLATEAU-HANDOFF:func_8002EBE0:end
+ */
