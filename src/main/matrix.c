@@ -30,35 +30,27 @@ extern f32 func_8002A8BC(s32 angle);
 extern f32 func_8002A8C0(s32 angle);
 
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, 92 differing words, first mismatch +0x0.
- * Structural gap: 93 instructions/frame -0x48 versus target 74/-0x8; 29 relocation sites also differ.
- * Not shape-exact or permuter-ready; the scaled rotation body retains ABI-induced spills. */
+/* Workbench: structure-mismatch, 90 differing words, first mismatch +0x0.
+ * Structural gap: 91 instructions/frame -0x48 versus target 74/-0x8; 27 aligned relocation sites differ.
+ * Word-copying the fixed fields is the bounded best; six call results still spill around the ABI. */
 /* PROVENANCE: adapted from Jet Force Gemini's public math_matrix implementation;
  * Mickey's own field offsets and call targets remain authoritative here. */
 void func_8002AA50(MatrixTransform *trans, MtxF dest) {
-    f32 cosX;
-    f32 sinX;
-    f32 cosY;
-    f32 sinY;
-    f32 cosZ;
-    f32 sinZ;
-    f32 scale;
+    f32 cosX = func_8002A8C0(trans->rotation0);
+    f32 sinX = func_8002A8BC(trans->rotation0);
+    f32 cosY = func_8002A8C0(trans->rotation1);
+    f32 sinY = func_8002A8BC(trans->rotation1);
+    f32 cosZ = func_8002A8C0(trans->rotation2);
+    f32 sinZ = func_8002A8BC(trans->rotation2);
+    f32 scale = trans->scale;
 
-    cosX = func_8002A8C0(trans->rotation0);
-    sinX = func_8002A8BC(trans->rotation0);
-    cosY = func_8002A8C0(trans->rotation1);
-    sinY = func_8002A8BC(trans->rotation1);
-    cosZ = func_8002A8C0(trans->rotation2);
-    sinZ = func_8002A8BC(trans->rotation2);
-    scale = trans->scale;
-
-    dest[0][3] = 0.0f;
-    dest[1][3] = 0.0f;
-    dest[2][3] = 0.0f;
-    dest[3][0] = trans->x;
-    dest[3][1] = trans->y;
-    dest[3][2] = trans->z;
-    dest[3][3] = 1.0f;
+    ((u32 *)dest)[3] = 0;
+    ((u32 *)dest)[7] = 0;
+    ((u32 *)dest)[11] = 0;
+    ((u32 *)dest)[12] = ((u32 *)trans)[3];
+    ((u32 *)dest)[13] = ((u32 *)trans)[4];
+    ((u32 *)dest)[14] = ((u32 *)trans)[5];
+    ((u32 *)dest)[15] = 0x3F800000;
     dest[0][0] = (((sinZ * sinX) + ((cosZ * cosX) * cosY)) * scale);
     dest[0][1] = (cosZ * sinY) * scale;
     dest[0][2] = (((sinX * cosZ) * cosY) - (sinZ * cosX)) * scale;
@@ -392,3 +384,13 @@ void func_8002B040(MtxF matrix, f32 arg1, f32 arg2, f32 arg3,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002B040.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_8002AA50:start
+ * symbol: func_8002AA50
+ * score: 90 differing words
+ * frame: 0x48
+ * relocations: 6
+ * first-mismatch: +0x0
+ * summary: Target retains six call results in odd caller-saved FP registers; stock IDO cannot emit this hand-assembly pattern.
+ * PLATEAU-HANDOFF:func_8002AA50:end
+ */
