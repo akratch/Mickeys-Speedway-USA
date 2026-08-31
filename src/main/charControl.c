@@ -167,9 +167,14 @@ typedef struct ControlCollisionNormal {
     f32 y;
     f32 z;
 } ControlCollisionNormal;
-extern ControlCollisionNormal D_800CB2C4;
+extern f32 D_800CB2C4;
+extern f32 D_800CB2C8;
+extern f32 D_800CB2CC;
 extern ControlCollisionNormal D_800CB2D0;
-extern ControlCollisionNormal D_800CB2DC;
+extern f32 D_800CB2D4;
+extern f32 D_800CB2DC;
+extern f32 D_800CB2E0;
+extern f32 D_800CB2E4;
 extern s32 D_800CB2F8;
 extern u8 D_800CB2FC;
 extern u8 D_800CB2FD;
@@ -1668,9 +1673,9 @@ s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
  * controlSquashCheckPrior routine, but publishes assembly only; this body is
  * reconstructed from Mickey's fields, calls, branch conditions, and stores. */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch; 236 differing words, first mismatch +0x0. */
-/* Target 238 instructions/frame -160; candidate 240 instructions/frame -208. */
-/* Remaining gap is FP spill/branch scheduling and a 48-byte frame excess; not shape-exact. */
+/* Workbench verdict: structure-mismatch; 231 differing words, first mismatch +0x0. */
+/* Target 238 instructions/frame -160; candidate 241 instructions/frame -224. */
+/* Scalar relocation identities are repaired; common-prefix sinking and FP allocation remain. */
 void func_8001EC44(s32 arg0, ControlVector3 *arg1, ControlVector3 *arg2,
                    f32 arg3, ControlCollisionPlane *arg4) {
     f32 sp94;
@@ -1740,20 +1745,25 @@ void func_8001EC44(s32 arg0, ControlVector3 *arg1, ControlVector3 *arg2,
         } else {
             arg1->y = (-(sp58 + sp50 + sp70) / normalY) + D_80081884;
         }
-        D_800CB2C4.x = normalX;
-        D_800CB2C4.y = normalY;
-        D_800CB2C4.z = normalZ;
+        D_800CB2C4 = normalX;
+        D_800CB2C8 = normalY;
+        D_800CB2CC = normalZ;
         D_800CB2FD |= 2;
     } else if (normalY <= D_80081888) {
         delta = D_8008188C - value;
         arg1->x = pointX + (delta * normalX);
         arg1->y = pointY + (delta * normalY);
         arg1->z = pointZ + (delta * normalZ);
-        D_800CB2DC.x = normalX;
-        D_800CB2DC.y = normalY;
-        D_800CB2DC.z = normalZ;
+        D_800CB2DC = normalX;
+        D_800CB2E0 = normalY;
+        D_800CB2E4 = normalZ;
         D_800CB2FD |= 8;
     } else {
+        f32 planeX;
+        f32 planeZ;
+
+        planeX = normalX;
+        planeZ = normalZ;
         sp54 = pointX;
         delta = D_80081890 - value;
         sp4C = pointY;
@@ -1770,18 +1780,18 @@ void func_8001EC44(s32 arg0, ControlVector3 *arg1, ControlVector3 *arg2,
         if (value != 0.0f) {
             delta = sp8C / value;
             sp6C = delta;
-            distance = sqrtf((normalY * normalY) +
-                             (arg4->z * arg4->z));
-            arg1->x += delta * (normalY / distance);
-            arg1->z += delta * (arg4->z / distance);
+            distance = sqrtf((planeX * planeX) +
+                             (planeZ * planeZ));
+            arg1->x += delta * (planeX / distance);
+            arg1->z += delta * (planeZ / distance);
         } else {
             arg1->x = crossX;
             arg1->y = crossY;
             arg1->z = crossZ;
         }
-        D_800CB2D0.x = normalY;
-        D_800CB2D0.y = arg4->y;
-        D_800CB2D0.z = arg4->z;
+        D_800CB2D0.x = planeX;
+        D_800CB2D4 = arg4->y;
+        D_800CB2D8 = planeZ;
         D_800CB2FD |= 4;
     }
     D_800CB2F8 = arg4->flags;
@@ -1920,3 +1930,13 @@ s32 controlGetPlayerSetup(s16 *arg0, s16 *arg1, s16 *arg2, s16 *arg3) {
 void controlClearPlayerSetup(void) {
     D_80079BF8 = 0;
 }
+
+/* PLATEAU-HANDOFF:func_8001EC44:start
+ * symbol: func_8001EC44
+ * score: 231 differing words
+ * frame: 0xE0
+ * relocations: 45
+ * first-mismatch: +0x0
+ * summary: Target 238w, frame 0xA0, 47 relocs; scalar identities and X/Z normalization are correct, but common-prefix sinking and FP/integer allocation remain.
+ * PLATEAU-HANDOFF:func_8001EC44:end
+ */
