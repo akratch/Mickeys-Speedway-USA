@@ -6,6 +6,11 @@
       "ledger_commit": "6a60c8186b8a937876867e528a47d3942ed88e6e",
       "reason": "Authenticated TU-local typed weak alias plus objcopy redefine restores the direct R_MIPS_26 without changing global symbol policy."
     },
+    "func_8000E5EC": {
+      "source_commit": "baafccf44c8c440209b7d3b3a75dc19ddad384cd",
+      "ledger_commit": "baafccf44c8c440209b7d3b3a75dc19ddad384cd",
+      "reason": "New unique resident owner metadata at 6328f663 unlocks the authenticated flag lattice and one source-backed stack-lifetime experiment; prior broad source churn remains closed."
+    },
     "overlay33PresentAndSwap": {
       "source_commit": "69a46cbc44bc8d2d58a9c9ba9a54f9ff6e416838",
       "ledger_commit": null,
