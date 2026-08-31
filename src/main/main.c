@@ -503,9 +503,14 @@ void mainInitGame(void) {
  * cross-checked against JFG's published src/main.c TU ordering. Mickey's own
  * call graph, resident storage and instructions determine this body.
  *
- * Workbench structure-mismatch: scoped-index candidate is 419 vs 413 instructions, 207 positional words, first +0x48; frame remains -0x28.
- * Lever: a block-local pointer for the D_8007A1B8 toggle cut the prior 388-word floor to 207; display, flag, permuter, constant, and splice variants were regressive.
- * Remains: 52 structural and 55 register words, six extra instructions, and the final display-command schedule prevent exactness.
+ * Fresh configured V0 reproduces the retained structure mismatch at 419 vs
+ * 413 instructions, 207 differing words, first +0x48, and exact frame -0x28.
+ * Target/candidate own 290/298 relocations; 200 offsets/types and 172 effective
+ * identities align. The block-local D_8007A1B8 pointer remains the best natural
+ * form. Nine structural/display-command hypotheses, the full flag lattice, and
+ * a bounded permuter batch are already exhausted; do not repeat them without a
+ * new compiler mechanism. The remaining six words concentrate in final display
+ * command scheduling and register allocation.
  */
 void func_80026FB4(void) {
     s32 drawTransition;
@@ -1719,4 +1724,14 @@ void func_800293D0(void) {
  * first-mismatch: +0x8
  * summary: Fresh V0 reproduces exhausted exact geometry; do not repeat 119 flags or 17 source forms; next lever is authenticated delayed arg1-to-FP move evidence.
  * PLATEAU-HANDOFF:func_80029274:end
+ */
+
+/* PLATEAU-HANDOFF:func_80026FB4:start
+ * symbol: func_80026FB4
+ * score: 207 differing words
+ * frame: 0x28
+ * relocations: 298
+ * first-mismatch: +0x48
+ * summary: Fresh V0 reproduces the exhausted main loop plateau. Resume only with a new display command scheduling or allocator mechanism.
+ * PLATEAU-HANDOFF:func_80026FB4:end
  */
