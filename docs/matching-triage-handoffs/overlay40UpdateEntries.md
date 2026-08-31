@@ -6,5 +6,5 @@
 - frame: frameless
 - relocations: 4
 - first mismatch: +0xC
-- summary: Cache-comma probe from 6973604a held 46 words but regressed to 40 differences at +0x4 (structure/register); no-gain stop. Preserve V0; comma family exhausted.
+- summary: Fresh listing, preprocessed-input, and token-identical line probes preserve 44/46 with the +0xC/+0x10 schedule residual. A bounded permutation batch identified the retained natural previous-before-object declaration order (byte-weighted diagnostic 215 -> 20), but positional exactness remains 44/46. Flags, comma forms, line ownership, and declaration-order families are exhausted; resume only with a genuinely new scheduler mechanism.
 <!-- plateau-handoff:overlay40UpdateEntries:end -->

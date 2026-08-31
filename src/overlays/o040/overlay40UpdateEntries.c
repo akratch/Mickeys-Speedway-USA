@@ -26,16 +26,20 @@ extern Overlay40Object **gOverlay40Objects;
  * words match, with the only residual at +0xC/+0x10: IDO schedules the loop
  * count before the gOverlay40Objects LO16 while the target completes that
  * address first. All 119 flag identities preserve or worsen the schedule.
- * The direct shift below is required: its source ordering gives the target's
- * t7/t8 byte webs and removed the prior one-word amount copy. The sole
- * resident caller supplies amount in a0; remaining is overwritten before use.
- * Keep the assembly fallback until a natural entry-scheduling lever closes
- * the final swap and all four relocation tuples compare exact. */
+ * A token-identical line-boundary probe left both words unchanged, ruling out
+ * statement line ownership for this input. A bounded, gain-gated permutation
+ * batch found the natural declaration order retained below; it improves the
+ * byte-weighted diagnostic from 215 to 20 but preserves the same two-word
+ * schedule residual. The direct shift remains required for the target's t7/t8
+ * byte webs. The sole resident caller supplies amount in a0; remaining is
+ * overwritten before use. Keep the assembly fallback until a new scheduler
+ * mechanism closes the final swap and all four relocation tuples compare
+ * exact. */
 #ifdef NON_MATCHING
 void overlay40UpdateEntries(s32 amount, s32 remaining) {
     Overlay40Entry *entry;
-    Overlay40Object *object;
     s8 previous;
+    Overlay40Object *object;
 
     entry = gOverlay40Entries;
     remaining = 7;
@@ -73,6 +77,6 @@ void overlay40UpdateEntries(s32 amount, s32 remaining) {
  * frame: frameless
  * relocations: 4
  * first-mismatch: +0xC
- * summary: Cache-comma probe from 6973604a held 46 words but regressed to 40 differences at +0x4 (structure/register); no-gain stop. Preserve V0; comma family exhausted.
+ * summary: Fresh listing, preprocessed-input, and token-identical line probes preserve 44/46 with the +0xC/+0x10 schedule residual. A bounded permutation batch identified the retained natural previous-before-object declaration order (byte-weighted diagnostic 215 -> 20), but positional exactness remains 44/46. Flags, comma forms, line ownership, and declaration-order families are exhausted; resume only with a genuinely new scheduler mechanism.
  * PLATEAU-HANDOFF:overlay40UpdateEntries:end
  */
