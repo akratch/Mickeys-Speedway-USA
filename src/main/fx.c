@@ -504,9 +504,9 @@ void func_800475E8(FxCone *cone, s16 angle) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800475E8.s")
 #endif
-/* Workbench verdict: structure-mismatch, 176 differing words, first mismatch +0x40. */
-/* Candidate: 179/193 instructions with the target -0x150 frame; 80 structural words remain, so it is a structural plateau. */
-/* Shape status: branch split and point/call surface are preserved; setup and loop schedule remain short. */
+/* Workbench verdict: structure-mismatch, 167 differing words, first mismatch +0x0. */
+/* Candidate is 188/193 instructions, frame -0x148 versus target -0x150. */
+/* Signed-step and factor webs are repaired; point-array placement remains. */
 /* PROVENANCE: JFG's fxMakeConeLength role identifies the routine; this body is reconstructed from Mickey's target offsets and m2c control flow. */
 #ifdef NON_MATCHING
 void func_800479D4(FxCone *cone, s16 height, f32 radius, f32 depth,
@@ -515,10 +515,9 @@ void func_800479D4(FxCone *cone, s16 height, f32 radius, f32 depth,
     FxConePoint *point;
     u8 *vertices;
     u8 addressIndex;
-    u8 count;
     s32 angle;
-    s32 remaining;
     s32 i;
+    s32 step;
     f32 originZ;
     f32 scale;
     f32 scaleX;
@@ -532,34 +531,36 @@ void func_800479D4(FxCone *cone, s16 height, f32 radius, f32 depth,
         cone->addressIndex = addressIndex;
         vertices = cone->addresses[addressIndex];
         if (cone->flags != 0) {
-            count = cone->segmentCount;
             angle = 0;
-            remaining = count - 1;
-            if (count != 0) {
+            i = cone->segmentCount;
+            step = -0x10000 / i;
+            if (i != 0) {
                 do {
                     point->x = func_8002A8C0(angle) * radius;
                     temp = func_8002A8BC(angle) * depth;
                     point->z = (f32) -height;
                     point++;
-                    angle += 0xFFFF0000 / (s32) count;
+                    angle += step;
                     point[-1].y = temp;
-                    remaining--;
-                } while (remaining != 0);
-                count = cone->segmentCount;
+                    i--;
+                } while (i != 0);
             }
-            func_80048080(count, cone->value26, cone->value28,
+            func_80048080(cone->segmentCount, cone->value26, cone->value28,
                           cone->value2A, (s32) cone->value20,
                           (s32) cone->value22, points, vertices + 0xA, 0);
             return;
         }
-        originZ = (f32) -height;
+        point->z = (f32) -height;
         mathOneFloatPY((u8 *) cone + 0x20, &points[0].x, height);
         *(s16 *) vertices = (s16) ((s32) points[0].x + cone->value26);
         *(s16 *) (vertices + 2) =
             (s16) ((s32) points[0].y + cone->value28);
         *(s16 *) (vertices + 4) =
-            (s16) ((s32) originZ + cone->value2A);
+            (s16) ((s32) points[0].z + cone->value2A);
         if (cone->segmentCount == 0) {
+            scaleX = cone->value18;
+            scaleY = cone->value1C;
+            temp = (f32) cone->value24;
             if (alpha < 0x80) {
                 factor = 0.0f;
             } else if (alpha >= 0x100) {
@@ -569,9 +570,9 @@ void func_800479D4(FxCone *cone, s16 height, f32 radius, f32 depth,
             }
             scale = 1.0f + (2.0f * factor);
             i = 0;
-            scaleX = cone->value18 * scale;
-            scaleY = cone->value1C * scale;
-            temp = -((f32) cone->value24 * (0.25f * factor));
+            scaleX *= scale;
+            scaleY *= scale;
+            temp = -(temp * (0.25f * factor));
             do {
                 angle = i << 0xD;
                 point->x = func_8002A8C0(angle) * scaleX;
@@ -2586,4 +2587,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x8
  * summary: Removed two fake call args; candidate has 12 relocs versus 18 target. Flags and permutation did not solve saved-register and loop scheduling.
  * PLATEAU-HANDOFF:fxSPDPRipple:end
+ */
+
+/* PLATEAU-HANDOFF:func_800479D4:start
+ * symbol: func_800479D4
+ * score: 167/193 words
+ * frame: 0x148
+ * relocations: 7
+ * first-mismatch: +0x0
+ * summary: Signed division/count and early factor webs cut deficit by 9 words; both have 7 relocs. Candidate frame is 8 bytes short and point array 24 bytes high.
+ * PLATEAU-HANDOFF:func_800479D4:end
  */
