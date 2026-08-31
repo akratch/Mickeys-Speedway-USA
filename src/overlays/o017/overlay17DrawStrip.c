@@ -8,14 +8,14 @@ extern void overlay17PrepareStripReloc(G **, void *, s32, s32);
 #define PRIM(p) { G *m=(G *)(p); m->w0=0xFA000000; m->w1=0xFFFFFFFF; }
 #define VTX(p,a,n) { G *m=(G *)(p); m->w0=S(4,24,8)|S(((n)<<3)|((u32)(a)&6),16,8)|S(((n)<<3)+((n)<<1)+8,0,16); m->w1=(u32)(a); }
 #define STRIP(p,a,n,t) { G *m=(G *)(p); m->w0=S(5,24,8)|S((((n)-1)<<4)|(t),16,8)|S((n)<<4,0,16); m->w1=(u32)(a); }
-#define SYNC(p) { volatile G *m=(G *)(p); m->w1=0; m->w0=0xE7000000; }
+#define SYNC(p) { G *m=(G *)(p); m->w1=0; m->w0=0xE7000000; }
 
 /*
- * Plateau (2026-08-25): canonical -O2 -mips2 is exactly 0x1DC bytes but
- * first diverges at +0x0 with 20 differing words. The candidate matches
- * +0x4 through +0x64; the remaining blocker is the target's 0x38-byte frame
- * and pre-loop count/remaining/previous live-range allocation. The flag
- * lattice was neutral, and a bounded permuter run reached score 325.
+ * Plateau: removing the final packet's unnecessary volatile qualifier gives
+ * an exact-size 119-word candidate with 18 masked differences, first +0x0.
+ * All 119 flag forms are nonexact.  The target frame is 0x38 versus 0x40;
+ * the remaining source-supported lever is the pre-loop count/remaining/
+ * previous lifetime that also accounts for the two structural rows.
  */
 #ifdef NON_MATCHING
 void overlay17DrawStrip(G **commands, Strip *strip) {
@@ -68,3 +68,13 @@ check_flush:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o017/overlay17DrawStrip/func_overlay_017_F00008B4_187426C.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay17DrawStrip:start
+ * symbol: overlay17DrawStrip
+ * score: 101/119 words
+ * frame: 0x40
+ * relocations: 1
+ * first-mismatch: +0x0
+ * summary: Nonvolatile sync improves 20 to 18 differences. Recover the target 0x38 frame through authenticated pre-loop count, remaining, and previous lifetimes.
+ * PLATEAU-HANDOFF:overlay17DrawStrip:end
+ */
