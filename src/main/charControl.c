@@ -1452,9 +1452,9 @@ void func_8001DCD0(s16 rotation, ControlVector3 *vector, s16 *pitch, s16 *yaw);
  * controlSquashCheckPrior routine, but publishes assembly only; this body is
  * reconstructed from Mickey's fields, calls, branch conditions, and stores. */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 413 differing words, first mismatch +0x0. */
-/* Candidate shape: 398 instructions/frame -0xF8 versus target 416/-0xD0; relocation roles are present but positionally different. */
-/* Remaining structural gap: state-clear loop and local/call stack homes; not shape-exact. */
+/* Workbench verdict: structure-mismatch, 410 differing words, first mismatch +0x0. */
+/* Candidate shape: 412 instructions/frame -0x100 versus target 416/-0xD0. */
+/* Explicit vector locals repair semantics; loop/frame allocation remains. */
 s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
     s16 sp40;
     s16 sp3E;
@@ -1462,22 +1462,14 @@ s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
     s16 sp3A;
     s16 sp38;
     s32 sp44;
-    f32 spC4;
-    f32 spC0;
-    f32 spBC;
-    f32 spB0;
-    f32 spAC;
-    f32 spA8;
-    f32 spA4;
-    f32 spA0;
-    f32 sp9C;
-    f32 sp98;
+    ControlVector3 spBC;
+    ControlVector3 spB0;
+    ControlVector3 spA4;
+    ControlVector3 sp98;
     f32 sp94;
     f32 sp90;
     f32 sp8C;
-    f32 sp80;
-    f32 sp88;
-    f32 sp84;
+    ControlVector3 sp80;
     f32 sp7C;
     f32 sp78;
     f32 sp74;
@@ -1515,23 +1507,23 @@ s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
         var_v1++;
         var_a2--;
     } while (var_a2 != 0);
-    pointListRPY(player->unk2BC, (s16 *) actor, player->unk2C0, &spB0);
-    spBC = spB0 + actor->x;
-    spC0 = ((f32 *) &spB0)[1] + actor->y;
-    spC4 = ((f32 *) &spB0)[2] + actor->z;
+    pointListRPY(player->unk2BC, (s16 *) actor, player->unk2C0, &spB0.x);
+    spBC.x = spB0.x + actor->x;
+    spBC.y = spB0.y + actor->y;
+    spBC.z = spB0.z + actor->z;
     sp70 = player->unk2B8->w;
     sp2C = (s32) &player->unk2F0;
     trackMakePolylist(1, (ControlVector3 *) sp2C,
-                      (ControlVector3 *) &spBC, &sp70,
+                      &spBC, &sp70,
                       player->unk33C, 1);
     temp_v0 = (u32) func_80010900(
-        (ControlVector3 *) sp2C, (ControlVector3 *) &spBC, sp70,
+        (ControlVector3 *) sp2C, &spBC, sp70,
         (s32) actor, (void *) func_8001EC44);
     temp_t0 = temp_v0 >> 0x1E;
     temp_t3 = temp_v0 & 1;
-    actor->x = spBC - spB0;
-    actor->y = spC0 - ((f32 *) &spB0)[1];
-    actor->z = spC4 - ((f32 *) &spB0)[2];
+    actor->x = spBC.x - spB0.x;
+    actor->y = spBC.y - spB0.y;
+    actor->z = spBC.z - spB0.z;
     sp44 = 0;
     if (temp_t0 != 0) {
         actor->x = player->unk38;
@@ -1623,29 +1615,28 @@ s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
         player->unk324 = D_800CB2F8;
         player->unk344 = (s32) (player->unk344 | D_800CB2F8);
     }
-    spA4 = 0.0f;
-    spA8 = 0.0f;
-    spAC = 0.0f;
+    spA4.x = 0.0f;
+    spA4.y = 0.0f;
+    spA4.z = 0.0f;
     if (player->unk16C != 1) {
-        sp98 = 0.0f;
-        sp9C = -50.0f;
-        spA0 = 0.0f;
-        mathOneFloatRPY((ControlTransform *) actor, &sp98);
-        sp8C = sp98 + spBC;
-        sp90 = sp9C + spC0;
+        sp98.x = 0.0f;
+        sp98.y = -50.0f;
+        sp98.z = 0.0f;
+        mathOneFloatRPY((ControlTransform *) actor, &sp98.x);
+        sp8C = sp98.x + spBC.x;
+        sp90 = sp98.y + spBC.y;
         sp64 = 1.0f;
-        sp94 = spA0 + spC4;
-        if (func_80010654((ControlVector3 *) &spBC,
-                          (ControlVector3 *) &sp8C,
-                          (ControlVector3 *) &sp80, &sp64) != 0) {
-            spA4 += sp80;
-            spA8 += sp84;
-            spAC += sp88;
+        sp94 = sp98.z + spBC.z;
+        if (func_80010654(&spBC, (ControlVector3 *) &sp8C,
+                          &sp80, &sp64) != 0) {
+            spA4.x += sp80.x;
+            spA4.y += sp80.y;
+            spA4.z += sp80.z;
         }
     }
     if (player->unk173 == 0) {
         sp2C = (s32) updateRate;
-        func_8001DCD0(actor->rotationX, (ControlVector3 *) &spA4,
+        func_8001DCD0(actor->rotationX, &spA4,
                       &sp3A, &sp38);
         actor->rotationZ = dAngle(
             actor->rotationZ, sp3A,
@@ -1672,9 +1663,9 @@ s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
     if (player->unk34A == 0) {
         player->unk198 = 0;
     }
-    player->unk2F0 = spBC;
-    player->unk2F4 = spC0;
-    player->unk2F8 = spC4;
+    player->unk2F0 = spBC.x;
+    player->unk2F4 = spBC.y;
+    player->unk2F8 = spBC.z;
     return sp44;
 }
 #else
@@ -1970,4 +1961,14 @@ void controlClearPlayerSetup(void) {
  * first-mismatch: +0x0
  * summary: Exact geometry and relocation offset/type surface; reduce the 0x38 frame/home excess before addressing the FP register-web cascade.
  * PLATEAU-HANDOFF:func_8001CB84:end
+ */
+
+/* PLATEAU-HANDOFF:func_8001E5C4:start
+ * symbol: func_8001E5C4
+ * score: 410/416 words
+ * frame: 0x100
+ * relocations: 53
+ * first-mismatch: +0x0
+ * summary: Explicit vector locals fix adjacency semantics and cut masked differences by 3; candidate has 51 relocs versus 53 target. Need authentic loop/frame structure.
+ * PLATEAU-HANDOFF:func_8001E5C4:end
  */
