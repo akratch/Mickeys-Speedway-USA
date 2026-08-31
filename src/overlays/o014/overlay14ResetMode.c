@@ -16,11 +16,14 @@ extern s32 func_overlay_014_F0000578_186FE50(s32);
 /* PROVENANCE: Mickey-derived; pinned DKR v77/v80 and JFG scans found no exact
  * byte donor. A retained function-specific structural scan found no credible
  * near donor (best similarity 0.167).
- * Fresh identity-correct V0 is exact-sized at 49/56 normalized words (seven
- * masked and eleven raw differences), frame 0x30. All 18 runtime relocation
- * identities are authenticated; 17/18 offset/type sites align because the four
- * initial HI16 materializations are shifted by one instruction. Everything
- * from +0x40 onward is instruction-identical after relocation normalization.
+ * Fresh current-alias V0 is exact-sized at 49/56 normalized words (seven
+ * masked and eleven raw differences), frame 0x30. The target runtime surface
+ * authenticates 18 records. The candidate emits 18 static records and 17/18
+ * offset/type sites align because the four initial HI16 materializations are
+ * shifted by one instruction. Static resolution proves only 1/18 candidate
+ * identities (17 unresolved; linked-runtime alignment zero), so candidate
+ * identity proof remains pending. Everything from +0x40 onward is
+ * instruction-identical after relocation normalization.
  * The complete 119-configuration flag lattice tied V0. A fidelity-gated IDO
  * allocator trace found seven integer webs (v0 twice and s0..s4) and localized
  * the residue to the saved-register/address-materialization schedule. An
@@ -60,6 +63,6 @@ void overlay14ResetMode(void) {
  * frame: 0x30
  * relocations: 18
  * first-mismatch: +0x14
- * summary: Fresh identity-correct V0 has 7 masked/11 raw; flag lattice tied; trace proved schedule residue; carrier tied and D_EC pointer regressed.
+ * summary: Fresh current-alias V0 has 7 masked/11 raw; flag lattice tied; trace proves schedule residue; candidate identity proof remains pending.
  * PLATEAU-HANDOFF:overlay14ResetMode:end
  */
