@@ -112,3 +112,13 @@ void overlay57UpdateModeTrigger(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57UpdateModeTrigger/func_overlay_057_F0004C18_18A8810.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay57UpdateModeTrigger:start
+ * symbol: overlay57UpdateModeTrigger
+ * score: 25 differing words
+ * frame: 0x20
+ * relocations: 35
+ * first-mismatch: +0x10
+ * summary: Fresh V0 is 94 words with 25 masked differences, frame 0x20 vs 0x28, and 33/38 aligned relocs; natural index forms shrink to 89 words.
+ * PLATEAU-HANDOFF:overlay57UpdateModeTrigger:end
+ */
