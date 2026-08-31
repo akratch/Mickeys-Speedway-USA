@@ -743,6 +743,11 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/motor.c.o: CFLAGS += -DBUILD_VERSION=7 -DJFGDIF
 $(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakselectbank.c.o: MIPSISET := -mips2 -32
 $(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakselectbank.c.o: CFLAGS += -Wo,-loopunroll,0
 
+# Perfect Dark's matching Transfer Pak connector-check object uses the rolled
+# O2 loop group and the R4300 multiply-hazard scheduler.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakcheckconnector.c.o: MIPSISET := -mips2 -32
+$(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakcheckconnector.c.o: CFLAGS += -Wab,-r4300_mul -Wo,-loopunroll,0
+
 # -Xphase,uopt,+ -Xphase,uopt,-O1: a FOURTH libultra flag group, and the only
 # one that does not go through the `cc` driver.
 #
