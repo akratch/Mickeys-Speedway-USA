@@ -45,6 +45,91 @@
       "source_commit": "32f9b737781d9a9d814faaa92f011ad48c462367",
       "ledger_commit": null,
       "reason": "Configured exact-size stale remeasurement at 376 bytes with 25 masked differences."
+    },
+    "overlay40UpdateEntries": {
+      "source_commit": "f090b0a6bcec2f9c43f71019e29dc080db89d0b4",
+      "ledger_commit": "f090b0a6bcec2f9c43f71019e29dc080db89d0b4",
+      "reason": "Authorize one calibrated fidelity-preserving UGEN scheduler dependency-edge trace for the two-word initialization/LO16 swap; source probes require an authenticated edge and must not repeat the exhausted flag, line, comma, declaration, or permutation families."
+    },
+    "overlay40FadeRecords": {
+      "source_commit": "f89781dc9d81edc4a499fbe2838aca46c0b82d2b",
+      "ledger_commit": "f89781dc9d81edc4a499fbe2838aca46c0b82d2b",
+      "reason": "Authorize one new fidelity-gated live-range/coalescing-edge capture for the three-word globalcolor residual; source probes require trace-attributed web formation and must not repeat flags, comma order, or generic permutation."
+    },
+    "overlay34InitStorage": {
+      "source_commit": "b03c4f84d593687b231276924f0cd07a5755f610",
+      "ledger_commit": "f6180acf7e12e80c6e8cda7942dc06f1668678bf",
+      "reason": "The source now postdates its structured evidence; authorize a fresh configured reproof plus a calibrated final caller-save-slot assignment trace for the four stack-offset residuals."
+    },
+    "func_overlay_026_F0000B18_187AF10": {
+      "source_commit": "babf17a43f1143a5289f84c7e6ff551a2025430b",
+      "ledger_commit": "61c1106606d62f2d863423e45ef5786bca2a646b",
+      "reason": "Authorize the handoff's untried calibrated producer-to-final-home hook for the two-word projectedX stack-home residual; do not repeat declaration reordering."
+    },
+    "func_overlay_022_F0000000_1878108": {
+      "source_commit": "fbb5a245b14301b58db7687fac6a4885eb40fb15",
+      "ledger_commit": "1acf232ce024ab9c0b3f29437409c0640ec21aaf",
+      "reason": "The source postdates the ledger; authorize one calibrated virtual-to-final stack-home producer trace for the five-word objectPosition home residual, with source mutation only when the trace names an authentic lifetime."
+    },
+    "func_overlay_070_F00000D8_18C92A0": {
+      "source_commit": "f5126bbff59ae896879426e2568b8c729d7a1010",
+      "ledger_commit": "b81e5462965941a7ff6a2bed268349c32bd502ca",
+      "reason": "Authorize a fresh source/ledger reconciliation, runtime relocation-identity closure, and one allocator split-provenance capture for the six-word residual; prior carrier forms remain closed."
+    },
+    "func_overlay_038_F0000000_1885D10": {
+      "source_commit": "4de9d969fb135ff26cfb85ecbb1a6d44569b2017",
+      "ledger_commit": "4de9d969fb135ff26cfb85ecbb1a6d44569b2017",
+      "reason": "Authorize one new producer-dependency trace for the seven-word upstream direction web; do not repeat flat line probes or comma chronologies."
+    },
+    "overlay84InitializeAndUpdate": {
+      "source_commit": "b0c448aff5baf9d50ba9dc476793ca112dfb3307",
+      "ledger_commit": "a36315bae4d78b05b6da7264ccb0901f6621e136",
+      "reason": "Authorize the handoff's untried calibrated virtual/final stack-home ownership hook for the seven-word start/end residual; padding locals, declaration shuffles, alias elimination, flags, and broad permutation remain closed."
+    },
+    "overlay20UpdateObjectResource": {
+      "source_commit": "4907fa86ddcfc497b53af55c7fd8f51dc255a4f1",
+      "ledger_commit": "4907fa86ddcfc497b53af55c7fd8f51dc255a4f1",
+      "reason": "Authorize one new fidelity-gated FIFO/web-existence trace for the eight-word pool-to-temp transition; direct field access, forced splitting, flags, and generic permutation remain closed."
+    },
+    "overlay4UpdateObjectMotion": {
+      "source_commit": "63041be5f87be2c5f11d2c291e105dd29f077dc8",
+      "ledger_commit": "63041be5f87be2c5f11d2c291e105dd29f077dc8",
+      "reason": "Authorize a calibrated source-semantic producer hook for the two tied allocator webs plus linked/runtime proof of the Overlay 36 call identity; source probes require trace attribution."
+    },
+    "func_overlay_036_F0000818_1883CD0": {
+      "source_commit": "68093ebf6f0fcf6b841a0f264e1384a6a8373393",
+      "ledger_commit": "441a1f41d4a731af58b78a8be77ff4eeedfba553",
+      "reason": "The source postdates its ledger; authorize fresh exact-geometry reproof and one final frame-layout producer-home trace beyond the exhausted direct-access frame ladder."
+    },
+    "overlay68CheckKind": {
+      "source_commit": "4a3a6abc10ec00e6493ffade1f6adcdd6684683d",
+      "ledger_commit": "4a3a6abc10ec00e6493ffade1f6adcdd6684683d",
+      "reason": "Authorize runtime relocation-identity closure and one allocator split-provenance capture for the ten-word residual; the three equal cursor forms remain closed."
+    },
+    "overlay14ResetMode": {
+      "source_commit": "64ce57fda593b22d73ac62d097fa7515a3730c7a",
+      "ledger_commit": "5774c2bb06e364d3c5a3b665636c7cf159bd6fb6",
+      "reason": "The source postdates its ledger; authorize one fidelity-preserving instruction-scheduler dependence trace for the prologue/address-materialization residual and candidate relocation-identity closure."
+    },
+    "overlay62Update": {
+      "source_commit": "b23e734acabbecf1f42e081b5febb541511eb06c",
+      "ledger_commit": "b23e734acabbecf1f42e081b5febb541511eb06c",
+      "reason": "Authorize one new expression-scheduling dependency-DAG capture for the seven-word color/intensity residual; previously tested comma groupings remain closed."
+    },
+    "overlay20RemoveEntry": {
+      "source_commit": "9b9e93964d8228e8f3f4ff5aaf1b3d1fc342467a",
+      "ledger_commit": "9b9e93964d8228e8f3f4ff5aaf1b3d1fc342467a",
+      "reason": "Authorize one new fidelity-gated temp-ring/FIFO web-existence trace for the seventeen-word allocator residual; flags, narrow scope, independent cursors, and direct count-carrier reuse remain closed."
+    },
+    "overlay14CreateValue": {
+      "source_commit": "4614f0f92b74ef37e43a4f6a96772e7f32bc0e4e",
+      "ledger_commit": "4614f0f92b74ef37e43a4f6a96772e7f32bc0e4e",
+      "reason": "Authorize runtime relocation-identity closure and one LO16 scheduling-dependence trace for the seventeen-word residual; the completed flag lattice remains closed."
+    },
+    "overlay94UpdateController": {
+      "source_commit": "3bfc5f1ca95041cc46e2f3327c502d08869546cd",
+      "ledger_commit": "51bb0f0dd66db2fb242c6d4628b1acb37457cd5e",
+      "reason": "The source postdates its ledger; authorize runtime identity closure and one source-attributed allocator split-provenance trace for the eighteen-word residual; prior direct, s32, and s16 carriers remain closed."
     }
   }
 }
