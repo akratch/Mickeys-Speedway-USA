@@ -1388,3 +1388,13 @@ void func_8003A590(void) {
  * summary: Exact size and frame remain blocked by initial store and loop base web separation plus late address lifetime.
  * PLATEAU-HANDOFF:func_80038878:end
  */
+
+/* PLATEAU-HANDOFF:func_8003968C:start
+ * symbol: func_8003968C
+ * score: 33 differing words
+ * frame: frameless
+ * relocations: 24
+ * first-mismatch: +0x0
+ * summary: Fresh scalar V0 is 28/37 words with relocs 24/24 and 5 identities aligned. Prior flags, arrays, aliases, casts, volatile, and loop forms are exhausted.
+ * PLATEAU-HANDOFF:func_8003968C:end
+ */
