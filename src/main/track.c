@@ -3995,92 +3995,82 @@ s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3) {
  * PROVENANCE: Mickey's m2c FP dataflow and the resident vector layout
  * reconstruct this plane-intersection query; no external function body is adapted.
  */
-/* Workbench verdict: structure-mismatch, 208 differing words, first mismatch +0x0. */
-/* Candidate: 175/208 instructions with a -0xA0 frame versus target -0x60; FP temporary lifetime and cross-product schedule remain unresolved. */
-/* Shape status: interval calculation and square-root paths are reconstructed, but the candidate is not shape-exact. */
+/* Workbench verdict: structure-mismatch, 187 differing words, first mismatch +0xC. */
+/* Candidate: 211/208 instructions with the exact -0x60 frame; all three sqrtf
+ * relocations are present but the latter two remain displaced by three words. */
+/* Shape status: local vector storage and scalar reuse recover the target frame;
+ * FP allocation and cross-product scheduling remain unresolved. The required
+ * flag lattice fails closed because this resident symbol has no unique sized
+ * symbol_addrs owner. */
 s32 func_80012234(TrackVec3f *point, TrackVec3f *direction,
                   TrackVec3f *origin, TrackVec3f *planeDirection,
                   f32 radius, f32 *minimum, f32 *maximum) {
-    f32 deltaX;
-    f32 deltaY;
-    f32 deltaZ;
-    f32 normalX;
-    f32 normalY;
-    f32 normalZ;
-    f32 normalLengthSquared;
+    f32 delta[3];
+    f32 normal[3];
+    f32 cross[3];
     f32 normalLength;
-    f32 dot;
+    f32 scalar;
     f32 absoluteDot;
-    f32 crossX;
-    f32 crossY;
-    f32 crossZ;
-    f32 secondLengthSquared;
-    f32 secondLength;
-    f32 unitX;
-    f32 unitY;
-    f32 unitZ;
     f32 planeOffset;
     f32 directionDot;
     f32 interval;
     s32 result;
 
-    deltaX = point->f[0] - origin->f[0];
-    deltaY = point->f[1] - origin->f[1];
-    deltaZ = point->f[2] - origin->f[2];
-    normalX = (direction->f[1] * planeDirection->f[2]) -
-              (planeDirection->f[1] * direction->f[2]);
-    normalY = (direction->f[2] * planeDirection->f[0]) -
-              (planeDirection->f[2] * direction->f[0]);
-    normalZ = (direction->f[0] * planeDirection->f[1]) -
-              (planeDirection->f[0] * direction->f[1]);
-    normalLengthSquared = (normalZ * normalZ) +
-                          ((normalX * normalX) + (normalY * normalY));
-    if (normalLengthSquared == 0.0f) {
+    delta[0] = point->f[0] - origin->f[0];
+    delta[1] = point->f[1] - origin->f[1];
+    delta[2] = point->f[2] - origin->f[2];
+    normal[0] = (direction->f[1] * planeDirection->f[2]) -
+                (planeDirection->f[1] * direction->f[2]);
+    normal[1] = (direction->f[2] * planeDirection->f[0]) -
+                (planeDirection->f[2] * direction->f[0]);
+    normal[2] = (direction->f[0] * planeDirection->f[1]) -
+                (planeDirection->f[0] * direction->f[1]);
+    normalLength = (normal[2] * normal[2]) +
+                   ((normal[0] * normal[0]) + (normal[1] * normal[1]));
+    if (normalLength == 0.0f) {
         return 0;
     }
-    normalLength = sqrtf(normalLengthSquared);
-    unitZ = normalZ / normalLength;
-    unitX = normalX / normalLength;
-    unitY = normalY / normalLength;
-    normalZ = unitZ;
-    normalX = unitX;
-    normalY = unitY;
-    dot = (unitZ * deltaZ) + ((deltaX * unitX) + (deltaY * unitY));
-    absoluteDot = dot;
-    if (absoluteDot < 0.0f) {
-        absoluteDot = -dot;
+    normalLength = sqrtf(normalLength);
+    normal[2] = normal[2] / normalLength;
+    normal[0] = normal[0] / normalLength;
+    normal[1] = normal[1] / normalLength;
+    scalar = (normal[2] * delta[2]) +
+             ((delta[0] * normal[0]) + (delta[1] * normal[1]));
+    absoluteDot = scalar;
+    if (scalar < 0.0f) {
+        absoluteDot = -scalar;
     }
     result = 0;
     if (absoluteDot <= radius) {
         result = 1;
     }
     if (result != 0) {
-        crossX = (deltaY * planeDirection->f[2]) -
-                 (planeDirection->f[1] * deltaZ);
-        crossY = (deltaZ * planeDirection->f[0]) -
-                 (planeDirection->f[2] * deltaX);
-        crossZ = (deltaX * planeDirection->f[1]) -
-                 (planeDirection->f[0] * deltaY);
-        planeOffset = -((normalZ * crossZ) +
-                        ((crossX * normalX) + (crossY * normalY))) /
-                      normalLength;
-        crossX = (normalY * planeDirection->f[2]) -
-                 (planeDirection->f[1] * normalZ);
-        crossY = (normalZ * planeDirection->f[0]) -
-                 (planeDirection->f[2] * normalX);
-        crossZ = (normalX * planeDirection->f[1]) -
-                 (planeDirection->f[0] * normalY);
-        secondLengthSquared = (crossZ * crossZ) +
-                              ((crossX * crossX) + (crossY * crossY));
-        secondLength = sqrtf(secondLengthSquared);
-        unitX = crossX / secondLength;
-        unitY = crossY / secondLength;
-        unitZ = crossZ / secondLength;
-        directionDot = (unitZ * direction->f[2]) +
-                       ((direction->f[0] * unitX) +
-                        (direction->f[1] * unitY));
-        interval = sqrtf((radius * radius) -
-                         (absoluteDot * absoluteDot)) /
+        cross[0] = (delta[1] * planeDirection->f[2]) -
+                   (planeDirection->f[1] * delta[2]);
+        cross[1] = (delta[2] * planeDirection->f[0]) -
+                   (planeDirection->f[2] * delta[0]);
+        cross[2] = (delta[0] * planeDirection->f[1]) -
+                   (planeDirection->f[0] * delta[1]);
+        scalar = (normal[2] * cross[2]) +
+                 ((cross[0] * normal[0]) + (cross[1] * normal[1]));
+        planeOffset = -scalar / normalLength;
+        cross[0] = (normal[1] * planeDirection->f[2]) -
+                   (planeDirection->f[1] * normal[2]);
+        cross[1] = (normal[2] * planeDirection->f[0]) -
+                   (planeDirection->f[2] * normal[0]);
+        cross[2] = (normal[0] * planeDirection->f[1]) -
+                   (planeDirection->f[0] * normal[1]);
+        normalLength = sqrtf((cross[2] * cross[2]) +
+                             ((cross[0] * cross[0]) +
+                              (cross[1] * cross[1])));
+        cross[0] = cross[0] / normalLength;
+        cross[1] = cross[1] / normalLength;
+        cross[2] = cross[2] / normalLength;
+        directionDot = (cross[2] * direction->f[2]) +
+                       ((direction->f[0] * cross[0]) +
+                        (direction->f[1] * cross[1]));
+        scalar = radius * radius;
+        interval = sqrtf(scalar - (absoluteDot * absoluteDot)) /
                    directionDot;
         if (interval < 0.0f) {
             interval = -interval;
@@ -5883,4 +5873,14 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x0
  * summary: Best is 159/160 with 120 positional differences; saved-FP storage class and a target 20 versus candidate 12 relocation deficit remain.
  * PLATEAU-HANDOFF:func_800103D4:end
+ */
+
+/* PLATEAU-HANDOFF:func_80012234:start
+ * symbol: func_80012234
+ * score: 187/208 words
+ * frame: 0x60
+ * relocations: 3
+ * first-mismatch: +0xC
+ * summary: 211/208 words; exact frame. Only the first sqrtf relocation aligns. FP allocation and cross-product scheduling remain; flag sweep lacks a sized owner.
+ * PLATEAU-HANDOFF:func_80012234:end
  */
