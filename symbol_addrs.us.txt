@@ -2275,6 +2275,7 @@ GetRomlistInfo = 0x8000BC88; // type:func size:0x28   ROM 0xc888  src/objects.c.
 // donor-jfg-src/track.c.o
 func_80010654 = 0x80010654; // type:func size:0x2AC tier-D ROM 0x11254 src/main/track.c.o NON_MATCHING bounded plateau, resident fallback and adjacent-boundary owner
 func_800115E4 = 0x800115E4; // type:func size:0x39C tier-D ROM 0x121E4 src/main/track.c.o NON_MATCHING resident fallback and adjacent func_80011980 boundary owner, no match credit
+func_8001357C = 0x8001357C; // type:func size:0x410 tier-D ROM 0x1417C src/main/track.c.o -O2 -mips2 -32 -Wab,-r4300_mul NON_MATCHING resident fallback and adjacent func_8001398C boundary owner, no match credit
 trackSetFogOff = 0x800145A0; // type:func size:0x74   ROM 0x151a0  src/track.c.o  masked=2/29
 // donor-jfg-src/shadows_214A0.c.o
 func_80016890 = 0x80016890; // type:func size:0x8B0 tier-D ROM 0x17490 src/main/shadows.c.o -O2 -mips2 -32 NON_MATCHING resident fallback and adjacent func_80017140 boundary owner, no match credit
