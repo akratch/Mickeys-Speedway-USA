@@ -2031,9 +2031,12 @@ void overlay1ReadSelection(Overlay1Object *object, s32 index, f32 *outX,
 extern f32 overlay1SqrtReloc(f32 value);
 extern s32 overlay1AngleReloc(f32 y, f32 x);
 
-/* Plateau (2026-08-25): -O2 -mips2 -Wab,-r4300_mul remains 0x8 short; first mismatch +0xA8.
- * Declaration order now gives the target array slot and the tail CFG is closer, but the loop
- * preheader still lacks two instructions; loop, return, temporary, and qualifier spellings failed. */
+/* Fresh phase-5 plateau: configured C remains 137/139 words, frame 0xA8,
+ * with 92 raw/masked differences and first relocation mismatch +0x50. The
+ * target's root loop retains a two-instruction generic-count preheader. Nine
+ * natural loop/count forms were identical or worse; the only exact-size form
+ * added a saved-register web. -O2 -g3 reaches 139 words/86 differences but
+ * perturbs the shared-TU prologue, so it is diagnostic rather than a flag fix. */
 #ifdef NON_MATCHING
 s16 overlay1SolveAngleCandidates(
     f32 x0, f32 y0, f32 x1, f32 y1,
@@ -3387,4 +3390,14 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0x28
  * summary: Exact geometry and frame with five of seven records and a conditional global store awaiting an authentic separate symbolic lvalue
  * PLATEAU-HANDOFF:overlay1AssignRecordIndex:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1SolveAngleCandidates:start
+ * symbol: overlay1SolveAngleCandidates
+ * score: 47/139 words
+ * frame: 0xA8
+ * relocations: 4
+ * first-mismatch: +0x50
+ * summary: Two relocation offsets/types align; identities unresolved. -O2 -g3 gives 139 words/86 diffs but changes the TU prologue. Need a natural root-count preheader.
+ * PLATEAU-HANDOFF:overlay1SolveAngleCandidates:end
  */
