@@ -2469,3 +2469,13 @@ void fmvInit(void) {
  * summary: Target 445 words and frame 0xB8; relocation identities agree, but stack lifetimes drift. Add resident size metadata to unlock donor and flag tools.
  * PLATEAU-HANDOFF:func_80055104:end
  */
+
+/* PLATEAU-HANDOFF:func_8005716C:start
+ * symbol: func_8005716C
+ * score: 18 differing words
+ * frame: -0x28
+ * relocations: 2
+ * first-mismatch: +0x54
+ * summary: Add unique resident owner metadata to unlock flags; retained 18-word form is diagnostic only because its volatile/padding scaffolds are not promotable.
+ * PLATEAU-HANDOFF:func_8005716C:end
+ */
