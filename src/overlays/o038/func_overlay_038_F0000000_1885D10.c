@@ -46,9 +46,11 @@ extern void mathOneFloatPY(s16 *rotation, f32 *vector);
  * six calls to resident mathRnd and the seventh to resident mathOneFloatPY;
  * they are not masked match credit.
  * Particle/direction declaration initializers regress to 11 words and swap
- * s2/s3. A fresh bounded two-worker permutation batch found setup boundaries,
- * but the real full-TU build regressed their frame to 0x68; the natural 0x60
- * source remains best. Canonical assembly stays absent a new scheduler lever. */
+ * s2/s3. A fidelity-clean as1 -R trace and byte-identical stock ugen/as1
+ * replay isolate an upstream operand wall: C folds direction to pool + 0x18,
+ * while retail retains particle + 0x10. Token-identical line probes are flat;
+ * three new comma-grouping chronologies are flat or regress to 74/85. Preserve
+ * the natural 0x60 source absent a new source-authentic dependency lever. */
 #ifdef NON_MATCHING
 void func_overlay_038_F0000000_1885D10(O38Object *object,
                                        O38Descriptor *descriptor)
@@ -88,6 +90,6 @@ void func_overlay_038_F0000000_1885D10(O38Object *object,
  * frame: 0x60
  * relocations: 7
  * first-mismatch: +0x48
- * summary: Natural full-TU source stays exact-sized; bounded setup-boundary permutations regress the frame to 0x68, leaving an early scheduler wall.
+ * summary: Trace and replay isolate upstream direction dependency formation; line probes are flat and new comma chronologies are flat or regress.
  * PLATEAU-HANDOFF:func_overlay_038_F0000000_1885D10:end
  */
