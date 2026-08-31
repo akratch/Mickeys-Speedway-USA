@@ -298,6 +298,6 @@ void func_overlay_022_F00002B0_18783B8(O22Object *object, s32 updateRate) {
  * frame: 0xE0
  * relocations: 29
  * first-mismatch: +0x4
- * summary: Candidate is 8 bytes long; frame 0xE0 versus target 0x90. No donors; scalar/vector carrier forms regress. Need authentic FP lifetime evidence.
+ * summary: Adjacent exact cross-term rotation and explicit dereference forms are compiler-flat; frame and size drift remain.
  * PLATEAU-HANDOFF:func_overlay_022_F00002B0_18783B8:end
  */
