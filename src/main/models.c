@@ -106,10 +106,10 @@ void modInitModels(void) {
 #ifdef NON_MATCHING
 /* PROVENANCE: JFG's public models.c supplies the cache/asset-loader role;
  * Mickey's cache tables, model offsets and loader call sequence are used. */
-/* Workbench verdict: structure-mismatch, 394 differing words; first mismatch is at +0x0. */
-/* Target is 401 instructions/frame -120; candidate is 344 instructions/frame -168. */
-/* Remaining gap is structural: cache rollback and texture/animation setup CFG differ; not permuter-ready. */
-s32 func_8001F520(s32 arg0, s32 arg1) {
+/* Workbench verdict: structure-mismatch, 376 differing words; first mismatch is at +0x8. */
+/* Target is 401 instructions/frame -120; candidate is 387 instructions/frame -176. */
+/* Relocation identities are exact; cache and texture-loop CFG/local lifetimes remain non-permuter-ready. */
+void *func_8001F520(s32 arg0, s32 arg1) {
     u8 *entry;
     u8 *model;
     u8 *source;
@@ -123,8 +123,8 @@ s32 func_8001F520(s32 arg0, s32 arg1) {
     s32 cacheIndex;
     s32 cacheCount;
     s32 freeIndex;
-    s32 fromFree;
-    s32 newSlot;
+    s8 fromFree;
+    s8 newSlot;
     s32 sourceStart;
     s32 sourceSize;
     s32 allocationSize;
@@ -135,7 +135,7 @@ s32 func_8001F520(s32 arg0, s32 arg1) {
     s32 value;
     s32 start;
     s32 last;
-    s32 result;
+    void *result;
     s16 animationCount;
     u8 textureCount;
 
@@ -152,9 +152,9 @@ s32 func_8001F520(s32 arg0, s32 arg1) {
             if (modelId == *(s32 *) entry) {
                 model = *(u8 **) (entry + 4);
                 if (highBit != 0) {
-                    result = (s32) func_8001FBCC((void *) model);
+                    result = func_8001FBCC((void *) model);
                 } else {
-                    result = (s32) func_8001FC50((void *) model, arg1 & 3);
+                    result = func_8001FC50((void *) model, arg1 & 3);
                 }
                 if (result != 0) {
                     *(s16 *) (model + 0x4C) += 1;
@@ -176,13 +176,19 @@ s32 func_8001F520(s32 arg0, s32 arg1) {
         newSlot = 1;
         D_800CB48C++;
     }
-    source = (u8 *) D_800CB480 + (modelId * 8);
+    source = (u8 *) D_800CB480 + (modelId * 4);
     sourceStart = *(s32 *) source;
     sourceSize = *(s32 *) (source + 4) - sourceStart;
     allocationSize = func_8004D7A8(0x27, sourceStart) + 0x80;
     model = (u8 *) func_8002B314(allocationSize, 0x8A);
     if (model == NULL) {
-        goto load_fail;
+        if (fromFree != 0) {
+            D_800CB494++;
+        }
+        if (newSlot != 0) {
+            D_800CB48C--;
+        }
+        return 0;
     }
     end = model + allocationSize - sourceSize;
     piRomLoadSection(0x27, (u32) end, sourceStart, sourceSize);
@@ -192,7 +198,13 @@ s32 func_8001F520(s32 arg0, s32 arg1) {
         *(void **) (model + 0x78) =
             func_8002B314((count * 4) + 4, 0x8A);
         if (*(void **) (model + 0x78) == NULL) {
-            goto load_fail;
+            if (fromFree != 0) {
+                D_800CB494++;
+            }
+            if (newSlot != 0) {
+                D_800CB48C--;
+            }
+            return 0;
         }
     } else {
         *(void **) (model + 0x78) = NULL;
@@ -236,25 +248,28 @@ s32 func_8001F520(s32 arg0, s32 arg1) {
     loaded = 0;
     if (textureCount > 0) {
         table = *(u8 **) (model + 0x18);
-        cursor = table;
+        i = 0;
         do {
-            *(void **) cursor =
-                func_80034448(*(s16 *) (cursor + 6));
-            if (*(void **) cursor == NULL) {
+            *(void **) (table + i) =
+                func_80034448(*(s16 *) (table + i + 6));
+            if (*(void **) (table + i) == NULL) {
                 j = 0;
+                i = 0;
                 while (j < loaded) {
-                    func_800347A0(*(void **) (table + (j * 8)));
-                    *(void **) (table + (j * 8)) = NULL;
+                    func_800347A0(*(void **) (table + i));
+                    *(void **) (table + i) = NULL;
                     j++;
+                    i += 8;
                 }
                 while (j < textureCount) {
-                    *(void **) (table + (j * 8)) = NULL;
+                    *(void **) (table + i) = NULL;
                     j++;
+                    i += 8;
                 }
                 goto load_fail;
             }
             loaded++;
-            cursor += 8;
+            i += 8;
         } while (loaded < textureCount);
     }
     animationCount = *(s16 *) (model + 0x16);
@@ -268,8 +283,7 @@ s32 func_8001F520(s32 arg0, s32 arg1) {
     if (i != animationCount) {
         goto load_fail;
     }
-    result = func_8005A7A0(model, modelId);
-    if ((result == 0) ||
+    if ((func_8005A7A0(model, modelId) == 0) ||
         ((*(u8 *) (model + 0x11) != 0) &&
          ((*(void **) (model + 0x28) =
              func_8002B314(textureCount * 8, 0x8A)) == NULL))) {
@@ -279,7 +293,7 @@ s32 func_8001F520(s32 arg0, s32 arg1) {
         start = 0;
         i = 0;
         while (i < count) {
-            last = *(s32 *) (*(u8 **) (model + 0x74) + (i * 4)) - 1;
+            last = *(*(u8 **) (model + 0x74) + i) - 1;
             func_8002057C((Gfx **) (*(u8 **) (model + 0x78) + (i * 4)),
                           (ObjectModel *) model, 0, 0,
                           start, last, 0);
@@ -290,19 +304,26 @@ s32 func_8001F520(s32 arg0, s32 arg1) {
                       (ObjectModel *) model, 0, 0,
                       start, 0xFF, 0);
     } else {
-        *(s32 *) (model + 0x2C) =
-            func_8002057C((Gfx **) (model + 0x68),
-                          (ObjectModel *) model, 0, 0,
-                          0, 0xFF, 0);
+        *(u8 *) (model + 0x2C) =
+            (u8) func_8002057C((Gfx **) (model + 0x68),
+                               (ObjectModel *) model, 0, 0,
+                               0, 0xFF, 0);
         if (*(s32 *) (model + 0x68) != 0) {
-            *(s32 *) (model + 0x6C) =
-                func_8002057C((Gfx **) (model + 0x6C),
-                              (ObjectModel *) model, 4, 0,
-                              0, 0xFF, 0);
+            func_8002057C((Gfx **) (model + 0x6C),
+                          (ObjectModel *) model, 4, 0,
+                          0, 0xFF, 0);
             if (*(s32 *) (model + 0x6C) == 0) {
                 goto load_fail;
             }
         }
+    }
+    if (highBit != 0) {
+        result = func_8001FBCC((void *) model);
+    } else {
+        result = func_8001FC50((void *) model, arg1 & 3);
+    }
+    if (result == 0) {
+        goto load_fail;
     }
     entry = (u8 *) D_800CB484 + (freeIndex * 8);
     *(s32 *) entry = modelId;
