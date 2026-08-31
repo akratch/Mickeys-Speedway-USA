@@ -70,11 +70,11 @@ void overlay99ApplySegment(Overlay99Influence *arg0, f32 arg1) {
     s32 var_s3;
     Overlay99GridPoint *var_s1;
 
-    temp_f2 = arg0->x0;
-    temp_f16 = arg0->z0;
+    temp_f26 =
+        ((arg0->x1 - (temp_f2 = arg0->x0)) * arg1) + temp_f2;
+    temp_f28 =
+        ((arg0->z1 - (temp_f16 = arg0->z0)) * arg1) + temp_f16;
     var_s1 = gOverlay99Grids[gOverlay99CurrentGrid];
-    temp_f26 = temp_f2 + ((arg0->x1 - temp_f2) * arg1);
-    temp_f28 = temp_f16 + ((arg0->z1 - temp_f16) * arg1);
     sp8C = temp_f16 - temp_f28;
     sp88 = temp_f26 - temp_f2;
     sp7C = -sp88;
@@ -143,3 +143,13 @@ void overlay99ApplySegment(Overlay99Influence *arg0, f32 arg1) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o099/overlay99ApplySegment/func_overlay_099_F00002A0_18D9850.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay99ApplySegment:start
+ * symbol: overlay99ApplySegment
+ * score: 202 differing words
+ * frame: 0xE8
+ * relocations: 27
+ * first-mismatch: +0x0
+ * summary: endpoint-first interpolation gains three words; saved-register/global-address web keeps a 24-byte excess frame
+ * PLATEAU-HANDOFF:overlay99ApplySegment:end
+ */
