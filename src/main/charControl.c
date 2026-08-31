@@ -1043,8 +1043,8 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001CB84.s")
 #endif
 /*
- * Workbench: structure-mismatch, best 96/95 instructions, 3 masked words, first +0xE0.
- * Levers tried: commutative base add (best), volatile/old-style/comma/result forms, and flags/context.
+ * Workbench: structure-mismatch, 96/95 instructions, 40 raw/9 normalized differences, first +0xE0; frame exact.
+ * Levers tried: prior flags/commutative/volatile/prototype forms plus fresh pointer scope, lvalue, and typed-stride forms.
  * Remains: candidate CSE hoists the global base address before the camera-count call; target keeps it split.
  */
 #ifdef NON_MATCHING
@@ -1971,4 +1971,14 @@ void controlClearPlayerSetup(void) {
  * first-mismatch: +0x0
  * summary: Explicit vector locals fix adjacency semantics and cut masked differences by 3; candidate has 51 relocs versus 53 target. Need authentic loop/frame structure.
  * PLATEAU-HANDOFF:func_8001E5C4:end
+ */
+
+/* PLATEAU-HANDOFF:func_8001D2A0:start
+ * symbol: func_8001D2A0
+ * score: 40 differing words
+ * frame: 0x20
+ * relocations: 10
+ * first-mismatch: +0xE0
+ * summary: Exact frame but one word long; prior lattice and fresh natural address forms cannot stop global-address CSE; resume only with authenticated source-type evidence.
+ * PLATEAU-HANDOFF:func_8001D2A0:end
  */
