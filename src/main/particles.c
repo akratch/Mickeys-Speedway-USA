@@ -1831,9 +1831,12 @@ void func_80041388(ParticleModelEntry *entry, s32 updateRate) {
     }
 }
 #ifdef NON_MATCHING
-/* Workbench p4: structure-mismatch; 280 positional/280 raw words differ,
- * 457/456 instructions, first +0x0, frame -352 versus -360. Levers: commutative
- * audit, triangle-count order/volatility, and array order; remains stack web. */
+/* Fresh phase-5 plateau: configured C remains 457/456 words with 280 raw and
+ * relocation-masked differences, first +0x0, frame 0x160 versus 0x168. The
+ * 119-row flag lattice and ten natural declaration, array, cursor, table-index,
+ * count-CFG, and loop-order forms found no strict gain. The next lever is the
+ * source-faithful triangle-count/loop lifetime that produces the target stack
+ * homes and shifts both vector arrays without an artificial local. */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/
  * func_80062BFC.s; body reconstructed from Mickey evidence. */
 void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
@@ -2321,4 +2324,14 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * first-mismatch: +0x0
  * summary: Left-associated speed scale aligns two more relocation tuples; target frame 0x68 and the entry-trigger home/allocator web remain.
  * PLATEAU-HANDOFF:func_80040B88:end
+ */
+
+/* PLATEAU-HANDOFF:func_80041530:start
+ * symbol: func_80041530
+ * score: 176/456 words
+ * frame: 0x160
+ * relocations: 4
+ * first-mismatch: +0x0
+ * summary: Target frame 0x168; two of four relocation identities align. Next: prove a natural triangle-count/loop lifetime; do not repeat 119 flags or ten forms.
+ * PLATEAU-HANDOFF:func_80041530:end
  */
