@@ -2210,17 +2210,18 @@ void func_8004A9CC(FxGfx **dList) {
     }
     D_8007D478 = 0;
 }
-/* Workbench: structure-mismatch, 144 differing words, first mismatch +0x0. */
-/* Structural gap: target 147 instructions/frame -0x30 versus candidate 137/-0x30; target retains ten command/argument instructions. */
-/* Not shape-exact or permuter-ready; video-mode selection, texture setup, loop, and final state commands are represented. */
+/* Workbench: structure-mismatch, 123 differing words, first mismatch +0x8. */
+/* Structural gap: target 147 instructions/frame -0x30 versus candidate 140/-0x30. */
+/* The command loop is represented; ABI/register allocation and seven words remain unresolved. */
 #ifdef NON_MATCHING
-void fxScreenEffect(FxGfx **dList, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
-                    s32 arg5, s32 arg6, s32 arg7, s32 arg8) {
+void fxScreenEffect(FxGfx **dList, s32 arg1, s32 arg2, s32 arg3,
+                    s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8) {
     FxGfx *var_t1;
     s32 *var_s5;
     s32 temp_t2;
     s32 temp_t6;
     s32 temp_t7;
+    s32 temp_t8;
     s32 temp_t9;
     s32 temp_v0;
     s32 var_a2;
@@ -2232,70 +2233,67 @@ void fxScreenEffect(FxGfx **dList, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
     FxGfx *temp_v0_6;
     FxGfx *temp_v0_7;
     FxGfx *temp_v0_8;
-    void **arg0;
-
-    arg0 = (void **)dList;
     temp_v0 = viGetVideoMode();
     if (temp_v0 != 2) {
         if (temp_v0 != 3) {
             var_s5 = (s32 *)D_8007D3D0;
         } else {
-            goto block_5;
+            var_s5 = (s32 *)D_8007D408;
         }
     } else {
-block_5:
         var_s5 = (s32 *)D_8007D408;
     }
-    temp_v0_2 = (FxGfx *)*arg0;
-    *arg0 = (void *)(temp_v0_2 + 1);
+    temp_v0_2 = *dList;
+    *dList = temp_v0_2 + 1;
     temp_v0_2->w0 = 0x06000000;
     temp_v0_2->w1 = (u32)D_8007D380;
-    temp_v0_3 = (FxGfx *)*arg0;
-    *arg0 = (void *)(temp_v0_3 + 1);
+    temp_v0_3 = *dList;
+    *dList = temp_v0_3 + 1;
     temp_v0_3->w0 = 0xFA000000;
     var_t1 = (FxGfx *)((arg2 * arg5 * 2) + arg1);
     temp_v0_3->w1 = arg8;
     temp_t7 = arg5 * 4;
     temp_t9 = arg7 * 4;
     temp_t6 = arg4 * 4;
+    temp_t8 = arg6 * 4;
     var_a2 = temp_t7;
     if (temp_t7 < temp_t9) {
         do {
             temp_t2 = var_a2;
             var_a2 += 0x10;
-            ((FxGfx *)*arg0)->w0 = (u32)*var_s5;
-            ((FxGfx *)*arg0)->w1 = (u32)var_t1;
+            (*dList)->w0 = (u32)*var_s5;
+            (*dList)->w1 = (u32)var_t1;
             var_t1 = (FxGfx *)((s32)var_t1 + (arg2 * 8));
-            temp_t7_2 = (FxGfx *)*arg0 + 1;
-            *arg0 = temp_t7_2;
-            *arg0 = temp_t7_2 + 1;
+            temp_t7_2 = *dList + 1;
+            *dList = temp_t7_2;
+            *dList = temp_t7_2 + 1;
             temp_t7_2->w1 = (u32)((s32)var_s5 + 0x80000008);
             temp_t7_2->w0 = 0x07060030;
             if (temp_t9 < var_a2) {
                 var_a2 = temp_t9;
             }
-            temp_v0_4 = (FxGfx *)*arg0;
-            *arg0 = temp_v0_4 + 1;
-            temp_v0_4->w0 = ((((arg6 * 4) & 0xFFF) << 12) |
+            temp_v0_4 = *dList;
+            *dList = temp_v0_4 + 1;
+            temp_v0_4->w0 = (((temp_t8 & 0xFFF) << 12) |
                               0xE4000000 | (var_a2 & 0xFFF));
             temp_v0_4->w1 = ((temp_t6 & 0xFFF) << 12) | (temp_t2 & 0xFFF);
-            temp_v0_5 = (FxGfx *)*arg0;
-            *arg0 = temp_v0_5 + 1;
+            temp_v0_5 = *dList;
+            *dList = temp_v0_5 + 1;
             temp_v0_5->w1 = (arg4 << 5) << 16;
             temp_v0_5->w0 = 0xB3000000;
-            temp_v0_6 = (FxGfx *)*arg0;
-            *arg0 = temp_v0_6 + 1;
+            temp_v0_6 = *dList;
+            *dList = temp_v0_6 + 1;
             temp_v0_6->w1 = 0x04000400;
             temp_v0_6->w0 = 0xB2000000;
         } while (var_a2 < temp_t9);
     }
-    func_80034920(arg0, temp_t6, var_a2, arg0);
-    temp_v0_7 = (FxGfx *)*arg0;
-    *arg0 = temp_v0_7 + 1;
+    func_80034920(dList);
+    temp_v0_7 = *dList;
+    *dList = temp_v0_7 + 1;
     temp_v0_7->w1 = -1;
     temp_v0_7->w0 = 0xFA000000;
-    temp_v0_8 = (FxGfx *)*arg0;
-    *arg0 = temp_v0_8 + 1;
+    temp_v0_8 = *dList;
+    *dList = temp_v0_8 + 1;
     temp_v0_8->w1 = -1;
     temp_v0_8->w0 = 0xFB000000;
 }
@@ -2597,4 +2595,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x0
  * summary: Signed division/count and early factor webs cut deficit by 9 words; both have 7 relocs. Candidate frame is 8 bytes short and point array 24 bytes high.
  * PLATEAU-HANDOFF:func_800479D4:end
+ */
+
+/* PLATEAU-HANDOFF:fxScreenEffect:start
+ * symbol: fxScreenEffect
+ * score: 123 differing words
+ * frame: 0x30
+ * relocations: 10
+ * first-mismatch: +0x8
+ * summary: Seven-word geometry and parameter lifetime/register allocation remain; next try a source-authentic stack-argument preload form.
+ * PLATEAU-HANDOFF:fxScreenEffect:end
  */
