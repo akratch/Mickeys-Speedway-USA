@@ -600,10 +600,10 @@ units remain distinct.
 | 262 | `src/overlays/o068/overlay68RebuildSecondaryEntry.c` | `overlay68RebuildSecondaryEntry` | `o068` | `size-mismatch` | 488 | 105 | 105 | 0 | 0 | -8 | — |
 | 263 | `src/main/weather_tail.c` | `func_8003C80C` | `main` | `size-mismatch` | 472 | 106 | 106 | 16 | 16 | -4 | — |
 | 264 | `src/main/sched.c` | `func_80030610` | `main` | `size-mismatch` | 768 | 113 | 112 | 0 | 0 | 4 | — |
-| 265 | `src/main/runlink.c` | `runlinkFreeCode` | `main` | `size-mismatch` | 736 | 117 | 117 | 0 | 0 | -4 | — |
-| 266 | `src/main/matrix.c` | `func_8002AC84` | `main` | `size-mismatch` | 396 | 118 | 118 | 0 | 0 | 80 | — |
-| 267 | `src/overlays/o041/overlay41ProcessEntry.c` | `func_overlay_041_F0001464_188879C` | `o041` | `size-mismatch` | 492 | 120 | 120 | 16 | 16 | 20 | — |
-| 268 | `src/main/track.c` | `func_8000D1B8` | `main` | `size-mismatch` | 512 | 121 | 121 | 4 | 4 | -16 | — |
+| 265 | `src/main/track.c` | `func_8000D1B8` | `main` | `size-mismatch` | 512 | 114 | 114 | 48 | 48 | 8 | — |
+| 266 | `src/main/runlink.c` | `runlinkFreeCode` | `main` | `size-mismatch` | 736 | 117 | 117 | 0 | 0 | -4 | — |
+| 267 | `src/main/matrix.c` | `func_8002AC84` | `main` | `size-mismatch` | 396 | 118 | 118 | 0 | 0 | 80 | — |
+| 268 | `src/overlays/o041/overlay41ProcessEntry.c` | `func_overlay_041_F0001464_188879C` | `o041` | `size-mismatch` | 492 | 120 | 120 | 16 | 16 | 20 | — |
 | 269 | `src/overlays/o001/overlay_001_tail.c` | `overlay1AdvancePath` | `o001` | `size-mismatch` | 648 | 121 | 121 | 16 | 16 | 4 | — |
 | 270 | `src/overlays/o031/overlay31InitializeParticleAssets.c` | `func_overlay_031_F00002E8_187F808` | `o031` | `size-mismatch` | 528 | 123 | 123 | 16 | 16 | 4 | — |
 | 271 | `src/main/fx.c` | `func_80049518` | `main` | `size-mismatch` | 552 | 125 | 125 | 20 | 20 | -28 | — |
@@ -628,8 +628,8 @@ units remain distinct.
 | 290 | `src/overlays/o101/overlay101BuildPresentationC.c` | `overlay101BuildPresentationC` | `o101` | `size-mismatch` | 832 | 166 | 165 | 36 | 36 | 4 | — |
 | 291 | `src/overlays/o101/overlay101BuildPresentationA.c` | `overlay101BuildPresentationA` | `o101` | `size-mismatch` | 832 | 167 | 166 | 16 | 16 | 4 | — |
 | 292 | `src/main/track.c` | `func_80010654` | `main` | `size-mismatch` | 684 | 172 | 172 | 0 | 0 | 12 | — |
-| 293 | `src/main/charControl.c` | `func_8001D960` | `main` | `size-mismatch` | 880 | 176 | 176 | 0 | 0 | 4 | — |
-| 294 | `src/main/fx.c` | `func_80047304` | `main` | `size-mismatch` | 740 | 176 | 176 | 4 | 4 | -8 | — |
+| 293 | `src/main/fx.c` | `func_80047304` | `main` | `size-mismatch` | 740 | 175 | 175 | 4 | 4 | -8 | — |
+| 294 | `src/main/charControl.c` | `func_8001D960` | `main` | `size-mismatch` | 880 | 176 | 176 | 0 | 0 | 4 | — |
 | 295 | `src/main/fx.c` | `func_800479D4` | `main` | `size-mismatch` | 772 | 176 | 176 | 56 | 56 | -56 | — |
 | 296 | `src/main/fx.c` | `wakeDraw` | `main` | `size-mismatch` | 708 | 177 | 177 | 0 | 0 | -56 | — |
 | 297 | `src/main/track.c` | `func_800103D4` | `main` | `size-mismatch` | 640 | 177 | 177 | 0 | 0 | 68 | — |
