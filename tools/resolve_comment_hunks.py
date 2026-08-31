@@ -48,35 +48,53 @@ def c_comments(block):
     return not inside
 
 
-def open_plateau_names(block):
-    """Return disjoint EOF plateau blocks whose final close follows the hunk."""
-    lines = [line.strip() for line in block.splitlines() if line.strip()]
-    if not lines:
-        return None
-    names = []
-    index = 0
-    while index < len(lines):
-        start = re.fullmatch(
-            r"/\* PLATEAU-HANDOFF:([^:]+):start", lines[index]
-        )
-        if not start:
-            return None
-        name = start.group(1)
-        names.append(name)
-        index += 1
-        while index < len(lines) and lines[index] != f"* PLATEAU-HANDOFF:{name}:end":
-            if "*/" in lines[index]:
+plateau_block = re.compile(
+    r"(/\* PLATEAU-HANDOFF:([^:\n]+):start\n.*?"
+    r"\n \* PLATEAU-HANDOFF:\2:end)",
+    re.S,
+)
+
+
+def plateau_sequence(block):
+    """Parse adjacent plateau blocks and whether the shared close is external."""
+    parsed = []
+    position = 0
+    for match in plateau_block.finditer(block):
+        separator = block[position:match.start()]
+        if parsed:
+            if separator.strip() != "*/":
                 return None
-            index += 1
-        if index == len(lines):
+        elif separator.strip():
             return None
-        index += 1
-        if index == len(lines):
-            return names
-        if lines[index] != "*/":
-            return None
-        index += 1
+        parsed.append((match.group(2), match.group(1)))
+        position = match.end()
+    if not parsed:
+        return None
+    tail = block[position:].strip()
+    if tail == "":
+        return parsed, True
+    if tail == "*/":
+        return parsed, False
     return None
+
+
+def merge_plateau_sequences(ours, theirs):
+    ours_sequence = plateau_sequence(ours)
+    theirs_sequence = plateau_sequence(theirs)
+    if not ours_sequence or not theirs_sequence:
+        return None
+    ours_blocks, ours_open = ours_sequence
+    theirs_blocks, theirs_open = theirs_sequence
+    if ours_open != theirs_open:
+        return None
+
+    incoming = {name for name, _body in theirs_blocks}
+    merged = [block for block in ours_blocks if block[0] not in incoming]
+    merged.extend(theirs_blocks)
+    rendered = "\n */\n\n".join(body for _name, body in merged)
+    if not ours_open:
+        rendered += "\n */\n"
+    return rendered
 
 
 def row_names(block):
@@ -103,14 +121,9 @@ def resolve(path):
             if yaml_comments(ours) and yaml_comments(theirs):
                 return ours
         elif path.endswith((".c", ".h")):
-            ours_names = open_plateau_names(ours)
-            theirs_names = open_plateau_names(theirs)
-            if ours_names and theirs_names and set(ours_names).isdisjoint(theirs_names):
-                # finalize_plateau appends blocks at EOF. When two lanes add
-                # different blocks, Git puts the common closing delimiter
-                # after the conflict hunk. Close ours here and let that shared
-                # delimiter close theirs.
-                return ours.rstrip("\n") + "\n */\n\n" + theirs
+            merged = merge_plateau_sequences(ours, theirs)
+            if merged is not None:
+                return merged
             if c_comments(ours) and c_comments(theirs):
                 return theirs
         elif path.endswith(".md"):

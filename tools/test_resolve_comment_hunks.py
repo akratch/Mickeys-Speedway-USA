@@ -40,7 +40,7 @@ class ResolveCommentHunksTests(unittest.TestCase):
         self.assertEqual(resolved.count(" */"), 2)
         self.assertLess(resolved.index("first:start"), resolved.index("second:start"))
 
-    def test_leaves_same_symbol_plateau_conflict_for_review(self) -> None:
+    def test_replaces_same_symbol_plateau_with_incoming_revision(self) -> None:
         conflict = "<" * 7 + " HEAD\n" + """\
 /* PLATEAU-HANDOFF:same:start
  * score: 8/10 words
@@ -53,8 +53,9 @@ class ResolveCommentHunksTests(unittest.TestCase):
  */
 """
         remaining, resolved = self.resolve(conflict)
-        self.assertEqual(remaining, 1)
-        self.assertIn("<" * 7, resolved)
+        self.assertEqual(remaining, 0)
+        self.assertNotIn("8/10 words", resolved)
+        self.assertIn("9/10 words", resolved)
 
     def test_preserves_existing_sequence_before_new_plateau(self) -> None:
         conflict = "<" * 7 + " HEAD\n" + """\
@@ -79,6 +80,36 @@ class ResolveCommentHunksTests(unittest.TestCase):
         self.assertEqual(resolved.count(" */"), 3)
         self.assertLess(resolved.index("first:start"), resolved.index("second:start"))
         self.assertLess(resolved.index("second:start"), resolved.index("third:start"))
+
+    def test_preserves_unique_complete_blocks_and_replaces_overlap(self) -> None:
+        conflict = "<" * 7 + " HEAD\n" + """\
+/* PLATEAU-HANDOFF:keep:start
+ * score: 9/10 words
+ * PLATEAU-HANDOFF:keep:end
+ */
+
+/* PLATEAU-HANDOFF:update:start
+ * score: 8/10 words
+ * PLATEAU-HANDOFF:update:end
+ */
+""" + "=" * 7 + "\n" + """\
+/* PLATEAU-HANDOFF:update:start
+ * score: 10/10 words
+ * PLATEAU-HANDOFF:update:end
+ */
+
+/* PLATEAU-HANDOFF:add:start
+ * score: 7/10 words
+ * PLATEAU-HANDOFF:add:end
+ */
+""" + ">" * 7 + " lane/update\n"
+        remaining, resolved = self.resolve(conflict)
+        self.assertEqual(remaining, 0)
+        self.assertIn("keep:start", resolved)
+        self.assertIn("add:start", resolved)
+        self.assertNotIn("8/10 words", resolved)
+        self.assertIn("10/10 words", resolved)
+        self.assertEqual(resolved.count("/* PLATEAU-HANDOFF:"), 3)
 
 
 if __name__ == "__main__":
