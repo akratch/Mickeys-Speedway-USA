@@ -1710,3 +1710,13 @@ void func_800293D0(void) {
         }
     }
 }
+
+/* PLATEAU-HANDOFF:func_80029274:start
+ * symbol: func_80029274
+ * score: 48/87 words
+ * frame: 0x10
+ * relocations: 0
+ * first-mismatch: +0x8
+ * summary: Fresh V0 reproduces exhausted exact geometry; do not repeat 119 flags or 17 source forms; next lever is authenticated delayed arg1-to-FP move evidence.
+ * PLATEAU-HANDOFF:func_80029274:end
+ */
