@@ -743,6 +743,12 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/motor.c.o: CFLAGS += -DBUILD_VERSION=7 -DJFGDIF
 $(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakselectbank.c.o: MIPSISET := -mips2 -32
 $(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakselectbank.c.o: CFLAGS += -Wo,-loopunroll,0
 
+# Mickey's EEPROM probe uses the O1/MIPS II object recipe and Banjo-Kazooie's
+# VERSION_I selection; the later VERSION_L read-state reset is absent.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eepprobe.c.o: OPT_FLAGS := -O1
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eepprobe.c.o: MIPSISET := -mips2 -32
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eepprobe.c.o: CFLAGS += -Wab,-r4300_mul -DBUILD_VERSION=6
+
 # Mickey's Transfer Pak read/write TU contains the VERSION_K+ zero-size guard
 # and uses the ordinary O2 MIPS II group with R4300 hazard scheduling.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/gbpakreadwrite.c.o: MIPSISET := -mips2 -32
