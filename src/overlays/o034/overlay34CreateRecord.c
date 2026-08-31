@@ -160,6 +160,6 @@ Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
  * frame: 0x28
  * relocations: 12
  * first-mismatch: +0x0
- * summary: Two loop-shape opcodes, an eight-byte frame deficit, and seven allocator webs remain after two strict-gain forms.
+ * summary: A fidelity-gated whole-itable ladder confirms distinct record/current homes, but current-based testing is byte-flat; the eight-byte frame deficit remains.
  * PLATEAU-HANDOFF:overlay34CreateRecord:end
  */
