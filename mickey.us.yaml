@@ -530,7 +530,7 @@ segments:
       - [0x73C20, asm, libultra/maptlbrdb]
       - [0x73C80, asm, libultra/getcause]
       - [0x73C90, c, libultra/timerintr]
-      - [0x74090, asm]
+      - [0x74090, c, libultra/eepread]
       - [0x743A0, asm]
       # Exact __osEepStatus tail carved from the larger SDK conteepwrite TU;
       # the preceding non-identical functions do not gain a boundary claim.
