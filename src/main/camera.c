@@ -1806,10 +1806,10 @@ f32 camGetProjZ(f32 x, f32 y, f32 z) {
  * PROVENANCE: adapted from JFG's public decomp,
  * src/camera.c:camCopyOrthoMatrix.
  *
- * Plateau: workbench structure-mismatch, 84 candidate instructions versus 83
- * target instructions, first mismatch +0x5C.
- * Levers tried: data-aggregate struct plus split-symbol/end-pointer and peeled-loop variants; none improved stock.
- * Remaining: target same-TU data layout and relocation identities; extern-array source retains one extra address materialization.
+ * Fresh workbench: 84 candidate instructions versus 83 target, exact 0x30
+ * frame, 66 masked differences first at +0x8, and 11/12 target relocations exact.
+ * Prior flags, aggregate/split/end-pointer, loop, and bounded-permuter forms are exhausted.
+ * Remaining: same-TU data layout still retains one extra address materialization.
  */
 void func_80024978(MtxF matrix) {
     s32 i;
@@ -1987,4 +1987,14 @@ f32 D_80079F54 = 0.0f;
  * first-mismatch: +0x0
  * summary: Exact-sized macro candidate; frame +8, coordinate homes +20, 55/58 relocs with 53 identities; permuter 7104 to 5720, no zero.
  * PLATEAU-HANDOFF:func_80022FD4:end
+ */
+
+/* PLATEAU-HANDOFF:func_80024978:start
+ * symbol: func_80024978
+ * score: 66 differing words
+ * frame: 0x30
+ * relocations: 13
+ * first-mismatch: +0x8
+ * summary: 83/84 words, 12/13 relocs; 11 identities align. Prior flags/forms exhausted; next lever is authenticated same-TU data layout.
+ * PLATEAU-HANDOFF:func_80024978:end
  */
