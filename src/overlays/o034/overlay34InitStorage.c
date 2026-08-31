@@ -33,6 +33,17 @@ extern void *func_8002B280(s32 size, u32 colourTag);
  * a structural/register cascade. Neither changed the target's four-site
  * stack-home mechanism in isolation, so the exact-sized 46/50 V0 remains the
  * best policy-clean source.
+ *
+ * A fidelity-gated whole-itable capture later identified the abstract -0x14
+ * home as the synthesized old-value carrier for `countdown--`: copy the
+ * countdown, decrement/store it, then compare the old value. The byte-size
+ * expression is instead the multiply/conversion web colored to `a2`; its
+ * caller-save slot is assigned after the captured frontend homes. Making the
+ * old value explicit moved `size` to the -0x14 home while the four emitted
+ * saves and reloads remained at sp+0x18, proving those mechanisms are
+ * decoupled. Assignment-in-call optimized back to V0, while carrying a second
+ * byte-count alias across each call reproduced the known 48-word structural
+ * regression. A later-stage save-slot/UGEN trace is now required.
  */
 #ifdef NON_MATCHING
 /* PLATEAU-HANDOFF
@@ -41,7 +52,7 @@ extern void *func_8002B280(s32 size, u32 colourTag);
  * frame: 0x30
  * relocations: 8
  * first-mismatch: +0x24
- * summary: Fresh V0 remains exact-sized at 46/50 relocation-normalized words with a 0x30 frame and four `sp+0x18` versus target `sp+0x1C` sites. All 119 flags and the retained stack-home trace remain nonexact. A later exact lexical-block precedent justified two bounded natural forms: phase-local scopes retained 50 words but regressed to 41/50 with a 0x40 frame, while branch-local countdowns emitted 49 words with a 0x38 frame and structural/register drift. No isolated legal scope lever remains; preserve V0 and resume only with new producer-emitted stack-home evidence.
+ * summary: Fresh V0 remains exact-sized at 46/50 relocation-normalized words with a 0x30 frame and four `sp+0x18` versus target `sp+0x1C` sites. A fidelity-gated whole-itable capture identifies abstract home -0x14 as the synthesized old-value carrier for `countdown--`, while the byte-size multiply/conversion web is colored to `a2`. Making that old value explicit moves `size` to -0x14 but leaves the emitted caller-save slot at sp+0x18, proving frontend home and final save-slot assignment are decoupled. Assignment-in-call returns V0; a second call-live byte-count alias regresses to 48 words. Preserve V0 and reopen only with later save-slot/UGEN producer evidence.
  */
 void overlay34InitStorage(s32 count) {
     s32 *word;
