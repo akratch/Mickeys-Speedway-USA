@@ -36,13 +36,16 @@ extern Overlay36WorldState *gOverlay36WorldStateReloc;
  * 0x70; all opcodes and register lanes are exact after the bound source copy.
  * The 119-flag lattice and ten historical source hypotheses are nonexact;
  * removing the nearby-value home reaches only 0x78 and breaks the exact
- * allocation. A later fidelity-gated UOPT trace reproduced all 63 instruction
- * words and all three relocations under the traced static compiler, then found
- * eleven naturally colored webs but no producer-emitted final stack-home
- * evidence. Pointer/FP register qualifiers and block-scoping the post-call
- * locals are byte-identical to this 0x80-frame V0. The relocation synthesizer
- * derives the unresolved overlay-data pair consistently as LOCAL value 0x150;
- * assembly fallback stays canonical. */
+ * allocation. A fidelity-gated whole-itable frame ladder identifies the
+ * address-taken 52-byte results array, the state home live across the call,
+ * homes for nearby/i/center/low/high, and the post-decrement temp. Direct
+ * nearby access removes its home and reaches 0x78 but changes the integer
+ * allocation; direct center access remains 0x80 and changes FP allocation;
+ * removing both still stops at 0x78 and combines both regressions. The second
+ * aligned eight-byte quantum therefore needs a producer mechanism that keeps
+ * the exact integer/FP web topology. The relocation synthesizer derives the
+ * unresolved overlay-data pair consistently as LOCAL value 0x150; assembly
+ * fallback stays canonical. */
 
 
 
@@ -106,6 +109,6 @@ void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
  * frame: 0x80
  * relocations: 3
  * first-mismatch: +0x0
- * summary: Fidelity-gated UOPT leaves final stack-home ownership unresolved; three authentic home-shaping forms are flat
+ * summary: Whole-itable frame ladder proves direct nearby/center access cannot remove the second aligned eight-byte quantum without allocation drift
  * PLATEAU-HANDOFF:func_overlay_036_F0000818_1883CD0:end
  */
