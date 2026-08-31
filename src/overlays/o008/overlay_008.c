@@ -21,19 +21,18 @@ void *overlay8GetIndexed(Overlay8IndexedObject *object) {
     return result;
 }
 
-/* Workbench p5: structure-mismatch; 508/527 candidate/target instructions, 477 words from +0x0.
- * Lever: constant-audit plus surface/query declaration order; surface order was neutral and a saved query alias enlarged the frame.
- * Remains: candidate frame is 24 bytes larger, with query-spill ownership and global-relocation cascades unresolved. */
+/* Workbench p6: structure-mismatch; 511/527 candidate/target instructions, 438 words from +0x2C.
+ * A six-entry surface buffer and direct bound globals restore the exact 0xA0 frame and improve
+ * relocation offset/type alignment from 23 to 32; pointer/index surface forms compile equivalently.
+ * Remains: 16 missing instructions and relocation records plus unresolved global identities. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0000058_185DDB0(O8P0058Owner *owner,
                                        s32 updateRate) {
     O8P0058State *state;
     f32 vector[3];
     s16 angles[3];
-    O8P0058Surface surfaces[8];
+    O8P0058Surface surfaces[6];
     O8P0058Surface *surface;
-    f32 minimum;
-    f32 maximum;
     f32 floorHeight;
     f32 update;
     f32 value;
@@ -87,19 +86,17 @@ void func_overlay_008_F0000058_185DDB0(O8P0058Owner *owner,
         }
     }
 
-    minimum = D_B0;
-    maximum = D_B4;
-    if (state->lower4 < minimum) {
-        state->lower4 = minimum;
+    if (state->lower4 < D_B0) {
+        state->lower4 = D_B0;
     }
-    if (maximum < state->lower4) {
-        state->lower4 = maximum;
+    if (D_B4 < state->lower4) {
+        state->lower4 = D_B4;
     }
-    if (state->upper8 < minimum) {
-        state->upper8 = minimum;
+    if (state->upper8 < D_B0) {
+        state->upper8 = D_B0;
     }
-    if (maximum < state->upper8) {
-        state->upper8 = maximum;
+    if (D_B4 < state->upper8) {
+        state->upper8 = D_B4;
     }
 
     o8P0058OrientReloc(owner, state);
@@ -120,15 +117,14 @@ void func_overlay_008_F0000058_185DDB0(O8P0058Owner *owner,
     state->surface68 = -32768.0f;
     if (count != 0) {
         index = count - 1;
-        surface = &surfaces[index];
         do {
+            surface = &surfaces[index];
             if ((surface->flags4 & 0x10000) != 0) {
                 state->surface68 = surface->height0;
             }
             if ((surface->flags4 & 0x08000000) != 0) {
                 floorHeight = surface->height0;
             }
-            surface--;
         } while (index-- != 0);
     }
 
@@ -1772,4 +1768,14 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * first-mismatch: +0x44
  * summary: Configured flags remain best; reconstruct FP lifetimes and named data identities to supply 17 words and 22 relocation records without changing the exact frame.
  * PLATEAU-HANDOFF:func_overlay_008_F00042A8_1862000:end
+ */
+
+/* PLATEAU-HANDOFF:func_overlay_008_F0000058_185DDB0:start
+ * symbol: func_overlay_008_F0000058_185DDB0
+ * score: 438 differing words
+ * frame: 0xA0
+ * relocations: 86
+ * first-mismatch: +0x2C
+ * summary: Six surface entries and direct bounds restore the exact frame; recover the remaining eight global relocation pairs and 16 instructions before allocator work.
+ * PLATEAU-HANDOFF:func_overlay_008_F0000058_185DDB0:end
  */
