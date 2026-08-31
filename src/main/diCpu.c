@@ -533,20 +533,29 @@ void func_8004650C(s32 ticks) {
 #ifdef NON_MATCHING
 /* PROVENANCE: adapted from the SDK-style crash-display control flow in JFG
  * src/diCpu.c; Mickey's own m2c control flow, globals, and ABI are authoritative. */
-/* Workbench verdict: structure-mismatch; 328 differing words, first mismatch +0x3c.
- * Target 344 instructions/frame -80; candidate 346 instructions/frame -80.
- * Remaining gap is branch-local pointer setup; not shape-exact or permuter-ready. */
+/* Bounded plateau (2026-08-31): initializing the register-block pointer at
+ * declaration fixed its call-crossing lifetime and moved configured full-TU
+ * C from 321 to 62 differing words. Target and candidate are both 344 words
+ * with frame 0x50; first mismatch is +0x144. All 127 relocation records are
+ * present and 125 identities align. The residual diagnoses as two structural,
+ * four schedule, and 57 register-class differences. Ten natural source forms
+ * covered pointer lifetime, direct field access, context reassignment,
+ * declaration order, volatility, control boundaries, and cause-word reuse.
+ * The 119-row flag lattice was nonexact; MIPS-I gained one masked word but
+ * worsened size to +20 bytes. The only bounded permuter run found no zero and
+ * its best mutation changed a return width and injected inert branches, so it
+ * was rejected. The nearest five-project skeleton is only 0.077; JFG's
+ * same-named peer remains assembly-only and is substantially larger. */
 void render_epc_lock_up_display(MickeyEpcInfo *arg0) {
     u32 sp4c;
     u32 sp48;
     u32 sp44;
     char *region;
     u32 value;
-    u32 *regs;
+    u32 *regs = (u32 *)((u8 *)arg0 + 0x20);
 
     func_80046E00();
     cpuXYPrintf(0x20, 0x18, D_80083B5C, arg0->unk14, D_8007CFD0);
-    regs = (u32 *)((u8 *)arg0 + 0x20);
     value = regs[0xFC / 4];
     if (value == 0) {
         cpuXYPrintf(0x20, 0x22, D_80083B78);
@@ -784,4 +793,14 @@ void func_80046E00(void) {
  * first-mismatch: +0x2C
  * summary: One loop-entry transfer keeps size +4 and shifts all three relocation sites; 10 source forms and 119 flags exhausted, with one static identity unresolved.
  * PLATEAU-HANDOFF:func_80046BCC:end
+ */
+
+/* PLATEAU-HANDOFF:render_epc_lock_up_display:start
+ * symbol: render_epc_lock_up_display
+ * score: 62/344 words
+ * frame: 0x50
+ * relocations: 127
+ * first-mismatch: +0x144
+ * summary: Exact geometry/frame; 62 register/structure words and two relocation identities remain after 10 forms, 119 flags, and one bounded batch.
+ * PLATEAU-HANDOFF:render_epc_lock_up_display:end
  */
