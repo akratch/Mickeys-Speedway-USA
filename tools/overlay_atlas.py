@@ -1271,6 +1271,50 @@ MIXED_TU_EXACT_C_RANGES = {
     49: [
         (0x354, 0x374, "refractOutput"),
     ],
+    56: [
+        (
+            0x000,
+            0x05C,
+            "overlay56OffsetCoordinates",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x05C,
+            0x0B8,
+            "overlay56CenterCoordinates",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x0B8,
+            0x10C,
+            "overlay56SplitTime",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x10C,
+            0x118,
+            "overlay56SetMode",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x118,
+            0x168,
+            "overlay56LoadResource",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x168,
+            0x1A0,
+            "overlay56ReleaseResource",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0xAB4,
+            0xAF4,
+            "overlay56UnpackColor",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+    ],
     90: [
         (0x000, 0x0FC, "overlay90Initialize"),
     ],
