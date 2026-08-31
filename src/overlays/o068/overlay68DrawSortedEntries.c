@@ -155,3 +155,13 @@ void overlay68DrawSortedEntries(u32 **displayList, s32 arg1, s32 arg2,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o068/overlay68DrawSortedEntries/func_overlay_068_F0000EFC_18C805C.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay68DrawSortedEntries:start
+ * symbol: overlay68DrawSortedEntries
+ * score: 65/213 words
+ * frame: 0x128
+ * relocations: 3
+ * first-mismatch: +0x0
+ * summary: Exact geometry persists; target frame is 0x108. Typed aggregate, array-size, loop-bound, descriptor-web and bounded permutation routes are exhausted.
+ * PLATEAU-HANDOFF:overlay68DrawSortedEntries:end
+ */
