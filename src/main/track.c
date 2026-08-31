@@ -5892,6 +5892,6 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0xE8
  * relocations: 56
  * first-mismatch: +0x0
- * summary: A 128-byte segment list and direct nested-dispatch loads leave four structural words and 16 stack bytes; flags need unique owner metadata.
+ * summary: 119 flags flat; fidelity-clean proc 23 has 34 integer decisions but no stack homes or source-attributed webs, so no lexical experiment is justified
  * PLATEAU-HANDOFF:func_8000E5EC:end
  */
