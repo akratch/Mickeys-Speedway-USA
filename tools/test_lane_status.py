@@ -59,6 +59,7 @@ class LaneStatusAssignmentTests(unittest.TestCase):
         ls.blob_id.cache_clear()
         ls.guarded_candidate_region.cache_clear()
         ls.target_guard_changed.cache_clear()
+        ls.reopen_authorizations.cache_clear()
         self.temporary = tempfile.TemporaryDirectory()
         self.repo = Path(self.temporary.name)
         self.command("git", "init", "-q", "-b", "campaign/unchain")
@@ -78,6 +79,7 @@ class LaneStatusAssignmentTests(unittest.TestCase):
         ls.guarded_candidate_region.cache_clear()
         ls.target_guard_changed.cache_clear()
         ls.merge_base.cache_clear()
+        ls.reopen_authorizations.cache_clear()
         self.temporary.cleanup()
 
     def command(self, *command: str, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -98,10 +100,151 @@ class LaneStatusAssignmentTests(unittest.TestCase):
         )
         return result, json.loads(result.stdout)
 
+    def current_plateau(self) -> str:
+        (self.repo / SOURCE_PATH).write_text(
+            candidate(plateau=True), encoding="utf-8",
+        )
+        (self.repo / SHARD_PATH.parent).mkdir(exist_ok=True)
+        (self.repo / SHARD_PATH).write_text(shard(), encoding="utf-8")
+        return self.commit(f"Plateau {SYMBOL} allocator")
+
+    def authorize_reopen(
+        self, source_commit: str, ledger_commit: str | None, *,
+        reason: str = "new mechanism",
+    ) -> str:
+        path = self.repo / ls.REOPEN_AUTHORIZATIONS_PATH
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({
+            "schema_version": 1,
+            "authorizations": {
+                SYMBOL: {
+                    "source_commit": source_commit,
+                    "ledger_commit": ledger_commit,
+                    "reason": reason,
+                },
+            },
+        }), encoding="utf-8")
+        return self.commit(f"Authorize one-shot {SYMBOL} reproof")
+
     def test_base_only_is_the_only_assignable_state(self) -> None:
         result, report = self.status()
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(report["assignment"]["state"], "base-only")
+
+    def test_exact_current_pair_authorizes_one_shot_reopen(self) -> None:
+        plateau_commit = self.current_plateau()
+        self.authorize_reopen(plateau_commit, plateau_commit)
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(assignment["state"], "base-only")
+        self.assertEqual(assignment["reason_code"], "authorized-reopen")
+        self.assertEqual(assignment["source_commit"], plateau_commit)
+        self.assertEqual(assignment["ledger_commit"], plateau_commit)
+
+    def test_reproof_commit_automatically_exhausts_authorization(self) -> None:
+        plateau_commit = self.current_plateau()
+        self.authorize_reopen(plateau_commit, plateau_commit)
+        (self.repo / SOURCE_PATH).write_text(
+            candidate(plateau=True).replace(
+                "score: 8/43 words", "score: 9/43 words",
+            ),
+            encoding="utf-8",
+        )
+        (self.repo / SHARD_PATH).write_text(
+            shard().replace("35/43 words", "36/43 words"), encoding="utf-8",
+        )
+        refreshed = self.commit(f"Plateau {SYMBOL} authenticated reproof")
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(assignment["state"], "already-integrated/exhausted")
+        self.assertEqual(assignment["reason_code"], "reopen-authorization-stale")
+        self.assertEqual(assignment["source_commit"], refreshed)
+        self.assertEqual(assignment["ledger_commit"], refreshed)
+
+    def test_missing_ledger_authorization_is_one_shot_maintenance(self) -> None:
+        (self.repo / SOURCE_PATH).write_text(
+            candidate(plateau=True), encoding="utf-8",
+        )
+        (self.repo / "docs/matching-triage.md").write_text(
+            "| `unrelatedFunction` | current plateau |\n", encoding="utf-8",
+        )
+        source_commit = self.commit(f"Plateau {SYMBOL} prose maintenance")
+        self.authorize_reopen(source_commit, None)
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(assignment["state"], "base-only")
+        self.assertEqual(assignment["reason_code"], "authorized-reopen")
+        self.assertIsNone(assignment["ledger_commit"])
+
+        (self.repo / SOURCE_PATH).write_text(
+            candidate(plateau=True).replace(
+                "score: 8/43 words", "score: 9/43 words",
+            ),
+            encoding="utf-8",
+        )
+        (self.repo / SHARD_PATH.parent).mkdir(exist_ok=True)
+        (self.repo / SHARD_PATH).write_text(shard(), encoding="utf-8")
+        self.commit(f"Plateau {SYMBOL} structured reproof")
+        result, report = self.status()
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(
+            report["assignment"]["state"], "already-integrated/exhausted",
+        )
+
+    def test_active_lane_precedes_valid_reopen_authorization(self) -> None:
+        plateau_commit = self.current_plateau()
+        self.authorize_reopen(plateau_commit, plateau_commit)
+        self.command("git", "switch", "-q", "-c", "lane/o43-reproof")
+        (self.repo / SOURCE_PATH).write_text(
+            candidate(plateau=True).replace(
+                "void overlay43FilterImage", "static void overlay43FilterImage",
+            ),
+            encoding="utf-8",
+        )
+        self.commit(f"Reproof {SYMBOL} new mechanism")
+        self.command("git", "switch", "-q", "campaign/unchain")
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(assignment["state"], "active")
+        self.assertEqual(assignment["reason_code"], "lane-owned")
+
+    def test_malformed_reopen_authorization_fails_closed(self) -> None:
+        plateau_commit = self.current_plateau()
+        self.authorize_reopen("short", plateau_commit)
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(assignment["state"], "stale-ledger")
+        self.assertEqual(
+            assignment["reason_code"], "reopen-authorization-invalid",
+        )
+        self.assertIn("full source_commit", assignment["reason"])
+
+    def test_nonancestor_reopen_authorization_fails_closed(self) -> None:
+        plateau_commit = self.current_plateau()
+        self.command("git", "switch", "-q", "-c", "authorization-side")
+        (self.repo / "side-note.txt").write_text("side\n", encoding="utf-8")
+        side_commit = self.commit("Create nonancestor authorization commit")
+        self.command("git", "switch", "-q", "campaign/unchain")
+        self.authorize_reopen(side_commit, side_commit)
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(assignment["state"], "stale-ledger")
+        self.assertEqual(
+            assignment["reason_code"], "reopen-authorization-invalid",
+        )
+        self.assertIn("not an ancestor", assignment["reason"])
 
     def test_call_followed_by_block_is_not_a_second_definition(self) -> None:
         caller = self.repo / "src/main/caller.c"

@@ -36,6 +36,13 @@ it lands, so coordination need not inspect another lane's in-flight files.
 - Before assigning a target, the coordinator checks committed lane refs for an
   existing claim. Fresh committed siblings are considered alongside the
   external near-match oracle before a new candidate is written.
+- A current plateau may be reopened only by a tracked, symbol-keyed
+  authorization that pins its full source and handoff commit IDs and names the
+  new mechanism. The assignment gate validates both commits and returns ready
+  only while that exact pair remains current; the next source or handoff commit
+  consumes the authorization automatically. A missing handoff may be pinned as
+  null for one maintenance remeasurement, but malformed or foreign evidence
+  remains closed. Active lane ownership still wins.
 - Every non-interactive agent run receives a soft wall-clock deadline in its
   prompt and environment plus a short hard-stop grace period. It reserves the
   end of the budget for a commit or plateau handoff and does not start a tool
@@ -48,6 +55,8 @@ it lands, so coordination need not inspect another lane's in-flight files.
 
 - `tools/lane_status.py` provides the committed-ref view and labels its output
   as claims rather than proof. It never opens sibling worktree paths.
+- `config/lane-reopen-authorizations.us.json` records rare, reviewable
+  exceptions without making exhausted targets generally assignable.
 - `tools/codex_lane.sh` accepts `--minutes`, exports the soft/hard deadlines,
   injects the handoff rule into the prompt, and records the runner exit status
   as before.
