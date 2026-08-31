@@ -3121,102 +3121,116 @@ typedef struct TrackRayNode {
     TrackPlane *planes;
 } TrackRayNode;
 
-/* Workbench verdict: structure-mismatch, 172 differing words, first mismatch +0x0. */
-/* Candidate: 174/171 instructions with a -0x80 frame versus target -0x98; three instruction/FP-home residuals remain. */
-/* Shape status: vector math, three plane tests, and encoded-node traversal are preserved, but it is not shape-exact. */
+/* Workbench verdict: structure-mismatch, 162 differing words, first mismatch +0x0. */
+/* Candidate: 172/171 instructions with a -0xA0 frame versus target -0x98. */
+/* The direct target-lifetime form leaves an extra saved-GPR pair and threshold-address hoist; not permuter-ready. */
 s32 func_80010654(TrackRayPoint *start, TrackRayPoint *end,
                   TrackPlane *result, f32 *maximum) {
-    TrackRayNode *node;
-    TrackRayNode *entry;
-    TrackPlane *plane;
-    TrackRayPoint difference;
+    u8 *node;
     f32 planeX;
     f32 planeZ;
-    f32 planeDistance;
-    f32 startValue;
-    f32 endValue;
-    f32 intersection;
-    f32 pointX;
-    f32 pointY;
-    f32 pointZ;
+    f32 differenceX;
+    f32 differenceY;
+    f32 differenceZ;
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f12;
+    f32 temp_f14;
+    f32 temp_f16;
+    f32 temp_f18;
+    f32 temp_f18_2;
+    f32 temp_f28;
+    f32 temp_f2;
+    f32 temp_f2_2;
+    f32 temp_f30;
     f32 normalValue;
-    s32 encoded;
-    s32 iteration;
-    s32 entryOffset;
-    s32 edgeOffset;
-    s32 valid;
-    s32 resultValue;
-    s32 sign;
+    s32 temp_a2;
+    s32 temp_t2;
+    s32 var_a3;
+    s32 var_s1;
+    s32 var_s2;
+    s32 var_v0;
+    s32 var_v1;
     u16 edge;
 
-    difference.x = end->x - start->x;
-    difference.y = end->y - start->y;
-    difference.z = end->z - start->z;
-    resultValue = 0;
-    iteration = 0;
-    entryOffset = 0;
+    differenceX = end->x - start->x;
+    var_v1 = 0;
+    var_v0 = 0;
+    var_a3 = 0;
+    differenceY = end->y - start->y;
+    differenceZ = end->z - start->z;
     if (D_800C9D3C > 0) {
         do {
-            iteration++;
-            encoded = *(s32 *) ((u8 *) D_800C9D2C + entryOffset);
-            if (encoded > 0) {
-                node = (TrackRayNode *) (encoded | (s32) 0x80000000);
+            var_v0++;
+            temp_a2 = *(s32 *) ((u8 *) D_800C9D2C + var_a3);
+            if (temp_a2 > 0) {
+                node = (u8 *) (temp_a2 | (s32) 0x80000000);
             } else {
-                entry = (TrackRayNode *) encoded;
-                plane = (TrackPlane *) ((u8 *) node->planes +
-                                        (*(u16 *) entry * 0x10));
-                if (D_80081774 <= plane->distance) {
-                    planeX = plane->x;
-                    planeZ = plane->z;
-                    planeDistance = plane->distance;
-                    endValue = ((plane->x * end->x) +
-                                (plane->distance * end->y)) +
-                               (end->z * plane->z) + plane->distance;
-                    if (endValue < 0.0f) {
-                        startValue = ((plane->x * start->x) +
-                                      (plane->distance * start->y)) +
-                                     (start->z * plane->z) + plane->distance;
-                        if (startValue >= 0.0f) {
-                            intersection = startValue / (startValue - endValue);
-                            if (intersection <= *maximum) {
-                                pointX = start->x + (difference.x * intersection);
-                                pointY = start->y + (difference.y * intersection);
-                                pointZ = start->z + (difference.z * intersection);
-                                valid = 1;
-                                edgeOffset = 0;
-                                do {
-                                    edgeOffset += 2;
-                                    edge = *(u16 *) ((u8 *) entry + edgeOffset);
-                                    sign = edge & 0x8000;
-                                    plane = (TrackPlane *) ((u8 *) node->planes +
-                                                           ((edge ^ sign) * 0x10));
-                                    normalValue = ((plane->x * pointX) +
-                                                   (plane->y * pointY) +
-                                                   (plane->z * pointZ)) +
-                                                  plane->distance;
-                                    if (sign != 0) {
-                                        normalValue = -normalValue;
+                TrackPlane *planes;
+                TrackPlane *plane;
+                u16 *entry;
+
+                entry = (u16 *) temp_a2;
+                planes = ((TrackRayNode *) node)->planes;
+                plane = &planes[*entry];
+                temp_f30 = plane->y;
+                if (D_80081774 <= temp_f30) {
+                    temp_f0 = plane->x;
+                    temp_f2 = plane->z;
+                    temp_f16 = plane->distance;
+                    planeX = temp_f0;
+                    planeZ = temp_f2;
+                    temp_f18 = (end->z * temp_f2) +
+                               ((temp_f0 * end->x) + (temp_f30 * end->y)) + temp_f16;
+                    if (temp_f18 < 0.0f) {
+                        temp_f2_2 = start->x;
+                        temp_f12 = start->y;
+                        temp_f14 = start->z;
+                        temp_f0_2 = (temp_f14 * planeZ) +
+                                    ((planeX * temp_f2_2) + (temp_f30 * temp_f12)) + temp_f16;
+                        if (temp_f0_2 >= 0.0f) {
+                            temp_f28 = temp_f0_2 / (temp_f0_2 - temp_f18);
+                            if (temp_f28 <= *maximum) {
+                                var_s2 = 0 * 2;
+                                var_s1 = 1;
+loop_80010654:
+                                    var_s2 += 2;
+                                    edge = *(u16 *) ((u8 *) entry + var_s2);
+                                    temp_t2 = edge & 0x8000;
+                                    plane = &planes[edge ^ temp_t2];
+                                    temp_f18_2 = (plane->x *
+                                                  (temp_f2_2 + (differenceX * temp_f28))) +
+                                                 (plane->y *
+                                                  (temp_f12 + (differenceY * temp_f28))) +
+                                                 (plane->z *
+                                                  (temp_f14 + (differenceZ * temp_f28))) +
+                                                 plane->distance;
+                                    normalValue = temp_f18_2;
+                                    if (temp_t2 != 0) {
+                                        normalValue = -temp_f18_2;
                                     }
                                     if (normalValue > 0.0f) {
-                                        valid = 0;
+                                        var_s1 = 0;
                                     }
-                                } while ((edgeOffset < 6) && (valid != 0));
-                                if (valid != 0) {
-                                    *maximum = intersection;
-                                    result->distance = planeDistance;
+                                    if ((var_s2 < 6) && (var_s1 != 0)) {
+                                        goto loop_80010654;
+                                    }
+                                if (var_s1 != 0) {
+                                    *maximum = temp_f28;
+                                    result->y = temp_f30;
                                     result->x = planeX;
+                                    var_v1 = 1;
                                     result->z = planeZ;
-                                    resultValue = 1;
                                 }
                             }
                         }
                     }
                 }
             }
-            entryOffset += 4;
-        } while (iteration < D_800C9D3C);
+            var_a3 += 4;
+        } while (var_v0 < D_800C9D3C);
     }
-    return resultValue;
+    return var_v1;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80010654.s")
@@ -5836,4 +5850,14 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x0
  * summary: Globalcolor maps projection web 25 to f18 and square web 40 to f14; target swaps them at frame 0x48, while five natural forms and 119 flag cells stay flat.
  * PLATEAU-HANDOFF:func_80012574:end
+ */
+
+/* PLATEAU-HANDOFF:func_80010654:start
+ * symbol: func_80010654
+ * score: 162 differing words
+ * frame: -0xA0
+ * relocations: 8
+ * first-mismatch: +0x0
+ * summary: Direct target-lifetime form removes most structural gaps; original pointer scopes must prevent threshold-address hoisting and two extra saved GPRs.
+ * PLATEAU-HANDOFF:func_80010654:end
  */
