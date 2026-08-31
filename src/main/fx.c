@@ -385,6 +385,10 @@ void func_80047304(FxCone *cone, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
 #ifdef NON_MATCHING
 /* Mickey-derived draft; JFG's corresponding fxMakeConeTextureCoords body is
  * also assembly-only and supplies no adaptable C source. */
+/* Workbench: structure-mismatch, 390 differing words, first mismatch +0x0. */
+/* Configured shape is 446/251 words with frames -0x108/-0xF8 and 6/6 relocs. */
+/* -Wo,-loopunroll,0 gives 247 words and 178 differences but needs an isolated
+ * compile boundary; widening fx.c's flags is not target-supported. */
 void func_800475E8(FxCone *cone, s16 angle) {
     FxConeTextureInfo *textureInfo;
     FxConeVertex *vertex;
@@ -2597,4 +2601,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x0
  * summary: Signed division/count and early factor webs cut deficit by 9 words; both have 7 relocs. Candidate frame is 8 bytes short and point array 24 bytes high.
  * PLATEAU-HANDOFF:func_800479D4:end
+ */
+
+/* PLATEAU-HANDOFF:func_800475E8:start
+ * symbol: func_800475E8
+ * score: 390 differing words
+ * frame: 0x108
+ * relocations: 6
+ * first-mismatch: +0x0
+ * summary: Configured compilation unrolls fixed vertex loops; the target-supported next lever is a function-isolated -Wo,-loopunroll,0 build boundary.
+ * PLATEAU-HANDOFF:func_800475E8:end
  */
