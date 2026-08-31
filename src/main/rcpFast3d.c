@@ -683,13 +683,14 @@ void func_8002F618(RcpCommand **arg0, RcpTextureNode *arg1, s32 arg2,
 /* PROVENANCE -- the scaled rectangle loop is adapted from Diddy Kong Racing's
  * public src/rcp_dkr.c:texrect_draw_scaled. Mickey's target field offsets,
  * helper calls, and command layout are retained as the controlling evidence. */
-/* Workbench verdict: structure-mismatch; 358 differing words, first mismatch +0x0.
- * Target 359 instructions/frame -224; candidate 355 instructions/frame -200.
- * Remaining gap is command-pointer schedule and 24-byte frame layout; not shape-exact. */
+/* Workbench verdict: structure-mismatch; 272 differing words, first mismatch +0x40.
+ * Target 359 instructions/frame -224; candidate 354 instructions/frame -224.
+ * Both objects have nine relocations, seven with exact identity; the remaining
+ * gap is texture/command live-range allocation and a five-instruction deficit. */
 void func_8002FB34(RcpCommand **arg0, RcpTextureNode *arg1, f32 arg2,
                    f32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7) {
     RcpTextureInfo *tex;
-    RcpCommand *cmd;
+    RcpCommand *dlist;
     RcpCommand *rectCmd;
     RcpCommand *scissorCmd;
     RcpTextureNode *element;
@@ -711,9 +712,11 @@ void func_8002FB34(RcpCommand **arg0, RcpTextureNode *arg1, f32 arg2,
     f32 xScale;
     f32 yScale;
     u8 *dmaDlist;
+    void *helperArg;
 
     width = 0;
     height = 0;
+    dlist = *arg0;
     viGetCurrentSize(&width, &height);
     height *= 4;
     width *= 4;
@@ -723,99 +726,106 @@ void func_8002FB34(RcpCommand **arg0, RcpTextureNode *arg1, f32 arg2,
         dmaDlist = D_8007A600 + ((arg7 & 0xFF) * 0x10);
     }
 
-    cmd = *arg0;
-    cmd->w0 = 0x06000000;
-    cmd->w1 = (u32)D_8007A588;
-    cmd++;
-    cmd->w0 = 0x07020010;
-    cmd->w1 = (u32)dmaDlist + 0x80000000U;
-    cmd++;
-    cmd->w0 = 0xFA000000;
-    cmd->w1 = (u32)arg6;
-    cmd++;
-
-    bFlipX = arg7 & 0x1000;
-    bFlipY = arg7 & 0x2000;
     xScale = arg4 * 4.0f;
     yScale = arg5 * 4.0f;
-    xPos4x = (s32)(arg2 * 4.0f);
-    yPos4x = (s32)(arg3 * 4.0f);
+    RCP_DISPLAY_LIST(dlist++, D_8007A588);
+    {
+        RcpCommand *dmaCmd = dlist++;
+        dmaCmd->w1 = (u32)dmaDlist + 0x80000000U;
+        dmaCmd->w0 = 0x07020010;
+    }
+    {
+        RcpCommand *colourCmd = dlist++;
+        colourCmd->w0 = 0xFA000000;
+        colourCmd->w1 = (u32)arg6;
+    }
 
-    for (element = arg1; (tex = element->texture) != NULL; element++) {
-        if (!bFlipX) {
-            ulx = (s32)((f32)element->x * xScale) + xPos4x;
-        } else {
-            lrx = xPos4x - (s32)((f32)element->x * xScale);
-            ulx = lrx - (s32)(tex->width * xScale);
-        }
-        if (!bFlipY) {
-            uly = (s32)((f32)element->y * yScale) + yPos4x;
-        } else {
-            lry = yPos4x - (s32)((f32)element->y * yScale);
-            uly = lry - (s32)(tex->height * yScale);
-        }
-        if ((ulx < width) && (uly < height)) {
+    tex = arg1->texture;
+    helperArg = NULL;
+    if (tex != NULL) {
+        element = arg1;
+        bFlipX = arg7 & 0x1000;
+        bFlipY = arg7 & 0x2000;
+        xPos4x = (s32)(arg2 * 4.0f);
+        yPos4x = (s32)(arg3 * 4.0f);
+        do {
             if (!bFlipX) {
-                lrx = (s32)(tex->width * xScale) + ulx;
+                ulx = (s32)((f32)element->x * xScale) + xPos4x;
+            } else {
+                lrx = xPos4x - (s32)((f32)element->x * xScale);
+                ulx = lrx - (s32)(tex->width * xScale);
             }
             if (!bFlipY) {
-                lry = (s32)(tex->height * yScale) + uly;
+                uly = (s32)((f32)element->y * yScale) + yPos4x;
+            } else {
+                lry = yPos4x - (s32)((f32)element->y * yScale);
+                uly = lry - (s32)(tex->height * yScale);
             }
-            if ((lrx > 0) && (lry > 0) && (ulx < lrx) && (uly < lry)) {
-                dsdx = ((tex->width - 1) << 12) / (lrx - ulx);
-                if (bFlipX) {
-                    s = (tex->width - 1) << 5;
-                    dsdx = -dsdx;
-                } else {
-                    s = 0;
+            if ((ulx < width) && (uly < height)) {
+                if (!bFlipX) {
+                    lrx = (s32)(tex->width * xScale) + ulx;
                 }
-                dtdy = ((tex->height - 1) << 12) / (lry - uly);
-                if (bFlipY) {
-                    t = (tex->height - 1) << 5;
-                    dtdy = -dtdy;
-                } else {
-                    t = 0;
+                if (!bFlipY) {
+                    lry = (s32)(tex->height * yScale) + uly;
                 }
-                if (ulx < 0) {
-                    s += (-ulx * dsdx) >> 7;
-                    ulx = 0;
+                if ((lrx > 0) && (lry > 0) && (ulx < lrx) && (uly < lry)) {
+                    dsdx = ((tex->width - 1) << 12) / (lrx - ulx);
+                    if (bFlipX) {
+                        s = (tex->width - 1) << 5;
+                        dsdx = -dsdx;
+                    } else {
+                        s = 0;
+                    }
+                    dtdy = ((tex->height - 1) << 12) / (lry - uly);
+                    if (bFlipY) {
+                        t = (tex->height - 1) << 5;
+                        dtdy = -dtdy;
+                    } else {
+                        t = 0;
+                    }
+                    if (ulx < 0) {
+                        s += (-ulx * dsdx) >> 7;
+                        ulx = 0;
+                    }
+                    if (uly < 0) {
+                        t += (-uly * dtdy) >> 7;
+                        uly = 0;
+                    }
+                    dlist->w0 = *tex->data;
+                    dlist->w1 = func_800348D4(tex, element->packedOffset, helperArg,
+                                              (void **)element) + 0x80000000U;
+                    dlist++;
+                    countMinusOne = tex->count - 1;
+                    dlist->w0 = (((countMinusOne & 0xFF) << 16) |
+                                 0x07000000 | ((countMinusOne * 8) & 0xFFFF));
+                    dlist->w1 = (u32)(tex->data + 2) + 0x80000000U;
+                    dlist++;
+                    rectCmd = dlist;
+                    rectCmd->w0 = ((lrx & 0xFFF) << 12) |
+                                   0xE4000000 | (lry & 0xFFF);
+                    rectCmd->w1 = ((ulx & 0xFFF) << 12) | (uly & 0xFFF);
+                    dlist++;
+                    scissorCmd = dlist;
+                    scissorCmd->w0 = 0xB3000000;
+                    scissorCmd->w1 = (s << 16) | (t & 0xFFFF);
+                    dlist++;
+                    dlist->w0 = 0xB2000000;
+                    dlist->w1 = (dsdx << 16) | (dtdy & 0xFFFF);
+                    dlist++;
                 }
-                if (uly < 0) {
-                    t += (-uly * dtdy) >> 7;
-                    uly = 0;
-                }
-                cmd->w0 = *tex->data;
-                cmd->w1 = func_800348D4(tex, element->packedOffset, NULL,
-                                        (void **)element) + 0x80000000U;
-                cmd++;
-                countMinusOne = tex->count - 1;
-                cmd->w0 = (((countMinusOne & 0xFF) << 16) |
-                           0x07000000 | ((countMinusOne * 8) & 0xFFFF));
-                cmd->w1 = (u32)(tex->data + 2) + 0x80000000U;
-                cmd++;
-                rectCmd = cmd;
-                rectCmd->w0 = ((lrx & 0xFFF) << 12) |
-                               0xE4000000 | (lry & 0xFFF);
-                rectCmd->w1 = ((ulx & 0xFFF) << 12) | (uly & 0xFFF);
-                cmd++;
-                scissorCmd = cmd;
-                scissorCmd->w0 = 0xB3000000;
-                scissorCmd->w1 = (s << 16) | (t & 0xFFFF);
-                cmd++;
-                cmd->w0 = 0xB2000000;
-                cmd->w1 = (dsdx << 16) | (dtdy & 0xFFFF);
-                cmd++;
             }
-        }
+            tex = element[1].texture;
+            element++;
+        } while (tex != NULL);
     }
-    cmd->w0 = 0xE7000000;
-    cmd->w1 = 0;
-    cmd++;
-    cmd->w0 = 0xFA000000;
-    cmd->w1 = -1;
-    cmd++;
-    *arg0 = cmd;
-    func_80034910((void *)(s32)countMinusOne, rectCmd, scissorCmd, element);
+    RCP_PIPE_SYNC(dlist++);
+    {
+        RcpCommand *colourCmd = dlist++;
+        colourCmd->w1 = -1;
+        colourCmd->w0 = 0xFA000000;
+    }
+    *arg0 = dlist;
+    func_80034910((void *)(s32)countMinusOne);
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002FB34.s")
@@ -839,4 +849,14 @@ void func_8002FB34(RcpCommand **arg0, RcpTextureNode *arg1, f32 arg2,
  * first-mismatch: +0x0
  * summary: Exact-sized C keeps a 0x58 versus 0x88 frame after RGB aggregate and lifetime forms; next lever is an authentic early-live-web source shape.
  * PLATEAU-HANDOFF:func_8002EBE0:end
+ */
+
+/* PLATEAU-HANDOFF:func_8002FB34:start
+ * symbol: func_8002FB34
+ * score: 272 differing words
+ * frame: 0xE0
+ * relocations: 9
+ * first-mismatch: +0x40
+ * summary: Five-word deficit and command/texture live-range allocation remain; seven of nine relocation identities align.
+ * PLATEAU-HANDOFF:func_8002FB34:end
  */
