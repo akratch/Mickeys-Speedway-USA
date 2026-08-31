@@ -136,6 +136,6 @@ s32 func_overlay_092_F0000068_18D5F88(O92Racer *racer, f32 *outX,
  * frame: 0x90
  * relocations: 7
  * first-mismatch: +0x4
- * summary: Fresh 119-row lattice is nonexact; FP carrier-copy and comma-grouped index/cursor forms are byte-flat. Resume with a new pool-color mechanism.
+ * summary: Post-plateau Overlay22 explicit-dereference precedent was flat in three isolated forms; V0 remains 142/168 pending new pool-color evidence.
  * PLATEAU-HANDOFF:func_overlay_092_F0000068_18D5F88:end
  */
