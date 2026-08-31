@@ -182,34 +182,46 @@ typedef struct LightUpdateState {
     void *table70;
 } LightUpdateState;
 
+typedef struct LightObjectState LightObjectState;
+
 typedef struct LightObjectContext {
-    void *state0;
+    LightObjectState *state0;
     s32 objectId4;
 } LightObjectContext;
 
-typedef struct LightObjectState {
+struct LightObjectState {
     u8 pad0[0x20];
     s32 environment20;
     u8 pad24[0x2B];
-    u8 mode4F;
+    s8 mode4F;
     u8 pad50[0xC];
     s32 value5C;
     s32 value60;
     s32 environment64;
-} LightObjectState;
+};
 
 typedef struct LightDescription {
     f32 scale0;
     u8 pad4[0xA];
     s16 jointCountE;
+    u8 pad10[0x10];
+    u32 packed20;
+    u8 shift24;
+    u8 red25;
+    u8 green26;
+    u8 blue27;
+    u8 pad28[8];
+    void *twoLightData30;
+} LightDescription;
+
+typedef struct LightData {
+    u8 pad0[0x10];
     u32 packed10;
     u8 shift14;
     u8 red15;
-    u8 green16;
-    u8 blue17;
-    u8 pad18[0x18];
-    void *twoLightData30;
-} LightDescription;
+    u8 blue16;
+    u8 green17;
+} LightData;
 
 typedef struct LightPosition {
     u8 pad0[0xC];
@@ -888,27 +900,28 @@ f32 lightDirectionCalc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg
     }
     return var_f2;
 }
-/* Workbench verdict: structure-mismatch, 178 differing words, first mismatch +0x0. */
-/* Candidate: 191/184 instructions with a -0xD0 frame versus target -0xC8; seven instruction and relocation-position residuals remain. */
-/* Shape status: light-count dispatch, colour restore path, environment pass, and call order are preserved, but it is not shape-exact. */
+/* Workbench verdict: structure-mismatch, 155 differing words, first mismatch +0x20. */
+/* Candidate: 183/184 instructions with an exact -0xC8 frame; 1/28 relocation identities is exact. */
+/* Shape status: call order and the +0x20 colour block are preserved; the early pointer/carrier allocation is not shape-exact. */
 /* PROVENANCE: JFG's corresponding object-light routine supplies the role and dispatch idiom; Mickey's fields, globals, and calls are authoritative below. */
 #ifdef NON_MATCHING
 void func_80019AB8(LightPosition *position, LightObjectContext *object,
                    LightDescription *description, f32 *matrix) {
     LightObjectState *state;
     s32 count;
-    u8 *lightData;
-    u8 savedRed;
-    u8 savedGreen;
-    u8 savedBlue;
+    LightData *lightData;
+    s32 savedRed;
+    s32 savedGreen;
+    s32 savedBlue;
     s32 savedPacked;
     s32 changed;
     f32 scale;
     f32 factor;
-    s32 value;
-    u8 *localMatrix;
+    s32 redValue;
+    s32 greenValue;
+    s16 jointCount;
+    f32 local[4][4];
     f32 cameraDelta[3];
-    f32 local[0x16];
 
     state = object->state0;
     if ((description != NULL) || (state->environment64 != 0)) {
@@ -923,24 +936,29 @@ void func_80019AB8(LightPosition *position, LightObjectContext *object,
         if (description != NULL) {
             changed = 0;
             scale = description->scale0;
-            if ((scale != 1.0f) ||
+            if ((1.0f != scale) ||
                 ((D_8007C854 != 0) && (D_8007C85C != 0xFF))) {
-                lightData = (u8 *) description + 0x10;
-                savedRed = lightData[5];
-                savedGreen = lightData[7];
-                savedBlue = lightData[6];
-                savedPacked = *(s32 *) (lightData + 0);
+                LightData *scaledData;
+
+                scaledData = (LightData *) ((u8 *) description + 0x10);
+                savedRed = scaledData->red15;
+                savedGreen = scaledData->green17;
+                savedBlue = scaledData->blue16;
                 factor = scale * ((f32) D_8007C85C * D_800817C8);
-                lightData[5] = (u8) ((s32) ((f32) lightData[5] * factor));
-                value = (s32) ((f32) lightData[7] * factor);
-                lightData[6] = (u8) (lightData[5] - value);
-                *(s32 *) lightData = (lightData[6] & 0xFF) << lightData[4];
-                lightData[7] = (u8) value;
+                savedPacked = scaledData->packed10;
+                redValue = (s32) ((f32) savedRed * factor);
+                scaledData->red15 = (u8) redValue;
+                greenValue = (s32) ((f32) savedGreen * factor);
+                scaledData->blue16 = (u8) (redValue - greenValue);
+                scaledData->packed10 =
+                    ((redValue - greenValue) & 0xFF) << scaledData->shift14;
+                scaledData->green17 = (u8) greenValue;
                 changed = 1;
             }
-            lightData = (u8 *) description + 0x10;
-            if (description->jointCountE > 0) {
-                lightMakeJointPositions(description->jointCountE, (f32 *) lightData,
+            jointCount = description->jointCountE;
+            lightData = (LightData *) ((u8 *) description + 0x10);
+            if (jointCount > 0) {
+                lightMakeJointPositions(jointCount, (f32 *) lightData,
                                         count, matrix, D_800794A0);
                 if (description->jointCountE == 1) {
                     lightSingleLight(object->objectId4, state->value60,
@@ -957,10 +975,10 @@ void func_80019AB8(LightPosition *position, LightObjectContext *object,
                 }
             }
             if (changed != 0) {
-                lightData[5] = savedRed;
-                lightData[7] = savedGreen;
-                lightData[6] = savedBlue;
-                *(s32 *) lightData = savedPacked;
+                lightData->red15 = savedRed;
+                lightData->green17 = savedGreen;
+                lightData->blue16 = savedBlue;
+                lightData->packed10 = savedPacked;
             }
         }
         if (state->environment64 != 0) {
@@ -1126,4 +1144,14 @@ s32 lightKillGlowingLight(void) {
  * first-mismatch: +0x0
  * summary: Exact 205-word extent and seven relocation identities; 0x10 non-save-frame and temporary-allocation cascade remains.
  * PLATEAU-HANDOFF:func_80018F08:end
+ */
+
+/* PLATEAU-HANDOFF:func_80019AB8:start
+ * symbol: func_80019AB8
+ * score: 155 differing words
+ * frame: 0xC8
+ * relocations: 28
+ * first-mismatch: +0x20
+ * summary: 183/184 words; early scaling-pointer hoist swaps the s1/s2 carrier; flag lattice lacks a resident size owner
+ * PLATEAU-HANDOFF:func_80019AB8:end
  */
