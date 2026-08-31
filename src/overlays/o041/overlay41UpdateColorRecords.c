@@ -82,3 +82,13 @@ void func_overlay_041_F0000124_188745C(s32 amount) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41UpdateColorRecords/func_overlay_041_F0000124_188745C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_041_F0000124_188745C:start
+ * symbol: func_overlay_041_F0000124_188745C
+ * score: 83/98 words
+ * frame: 0x30
+ * relocations: 4
+ * first-mismatch: +0x30
+ * summary: 119 flags and ten fresh natural forms are nonexact; the color/snapshot web remains allocator-blocked and four static identities are unresolved
+ * PLATEAU-HANDOFF:func_overlay_041_F0000124_188745C:end
+ */
