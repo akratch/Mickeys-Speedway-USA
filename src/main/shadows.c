@@ -112,8 +112,8 @@ typedef struct ShadowTriangle {
 } ShadowTriangle;
 extern s32 func_80017660(void *arg0, s32 arg1, void *arg2, s32 arg3, s32 arg4);
 extern void func_80018544(void *arg0, void *arg1);
-extern s32 shadowBoxPolyOverlap(f32 arg0, f32 arg1, s32 arg2, s16 arg3,
-                                s32 arg4, s32 arg5, s32 arg6, void *arg7);
+extern s32 shadowBoxPolyOverlap(f32 arg0, f32 arg1, f32 arg2, f32 arg3,
+                                s32 arg4, void *arg5);
 
 /* PROVENANCE: adapted from JFG's public asm/nonmatchings/shadows/shadowInitBuffers.s; Mickey globals are authoritative.
  * The C body emits all 75 linked instruction words and the owning 0x50-byte
@@ -722,11 +722,11 @@ void func_80016890(void *arg0, void *arg1, void *arg2, f32 arg3, f32 arg4,
  * Mickey-only evidence.
  */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 337 differing words; first mismatch is at +0x0. */
-/* Target is 328 instructions/frame -320; candidate is 344 instructions/frame -280. */
-/* Remaining gap is structural: pointer/stack scheduling and frame shape; not permuter-ready. */
+/* Workbench verdict: structure-mismatch, 303 differing words; first mismatch is at +0x48. */
+/* Target is 328 instructions/frame -320; candidate is 323 instructions/frame -320. */
+/* Remaining gap is structural: five words and two relocations short, with allocation drift. */
 void func_80017140(void *arg0, s32 arg1, void *arg2, s32 arg3) {
-    u8 polygon[0x30];
+    u8 polygon[0x58];
     u8 *var_a3;
     u8 *temp_a3;
     u8 *temp_t1;
@@ -736,18 +736,16 @@ void func_80017140(void *arg0, s32 arg1, void *arg2, s32 arg3) {
     u8 *var_v1_2;
     u8 *var_v1_3;
     u8 *var_v1_4;
-    u8 *trackBase;
-    u8 *vertexBase;
     f32 pointHeight;
-    s16 temp_a1;
+    s32 temp_a1;
     s16 temp_v0_3;
     s16 temp_v1;
-    s16 var_a0_3;
-    s16 var_a1;
-    s16 var_a1_2;
-    s16 var_a2;
-    s16 var_ra;
-    s16 var_t0;
+    s32 var_a0_3;
+    s32 var_a1;
+    s32 var_a1_2;
+    s32 var_a2;
+    s32 var_ra;
+    s32 var_t0;
     s32 temp_s1;
     s32 temp_t9;
     s32 var_a0;
@@ -757,10 +755,11 @@ void func_80017140(void *arg0, s32 arg1, void *arg2, s32 arg3) {
     s32 var_t0_2;
     s32 var_t1;
     s32 var_v1;
-    s8 temp_v0_4;
+    s32 vertexOffset;
+    s32 surfaceId;
+    s32 temp_v0_4;
     u32 temp_a0;
     u32 temp_v0_2;
-    u32 *maskBase;
 
     var_t0 = *(s16 *) ((u8 *) arg2 + 0x24);
     var_t1 = 0;
@@ -769,30 +768,33 @@ void func_80017140(void *arg0, s32 arg1, void *arg2, s32 arg3) {
         do {
             temp_v0 = *(u8 **) ((u8 *) arg2 + 0xC) + sp7C;
             temp_a0 = *(u32 *) (temp_v0 + 0xC);
-            trackBase = *(u8 **) ((u8 *) arg2 + 0x0);
-            maskBase = *(u32 **) ((u8 *) arg2 + 0x10);
-            vertexBase = *(u8 **) ((u8 *) arg2 + 0x1C);
             if (!(temp_a0 & 0x08013880)) {
                 var_ra = *(s16 *) (temp_v0 + 0x8);
                 temp_a1 = *(s16 *) (temp_v0 + 0x18);
-                temp_s1 = (s32) (trackBase + (*(s16 *) (temp_v0 + 0x6) * 0xA));
+                surfaceId = (temp_a0 >> 24) & 7;
+                vertexOffset = *(s16 *) (temp_v0 + 0x6);
+                temp_s1 = (s32) (*(u8 **) ((u8 *) arg2 + 0x0) +
+                                  (((vertexOffset << 2) + vertexOffset) << 1));
                 if (var_ra < temp_a1) {
                     var_v1 = var_ra * 8;
                     var_a0 = var_ra * 4;
                     do {
-                        temp_t9 = *(u32 *) (*(u8 **) ((u8 *) arg2 + 0x18) + var_v1) * 4;
-                        temp_v0_2 = (*(u32 *) (maskBase + var_a0)) & arg3;
+                        temp_t9 = *(u16 *) (*(u8 **) ((u8 *) arg2 + 0x18) + var_v1) * 4;
+                        temp_v0_2 = *(u32 *)
+                            (*(u8 **) ((u8 *) arg2 + 0x10) + var_a0) & arg3;
                         if ((temp_v0_2 & 0xFFFF) &&
                             ((temp_v0_2 >> 0x10) != 0) &&
-                            (*(f32 *) (vertexBase + (temp_t9 * 4) + 0x4) > 0.5f)) {
+                            (*(f32 *) (*(u8 **) ((u8 *) arg2 + 0x1C) +
+                                       (temp_t9 * 4) + 0x4) > 0.5f)) {
                             var_a0_2 = 1;
                             temp_a3 = *(u8 **) ((u8 *) arg2 + 0x4) + (var_ra * 0x10);
                             var_v1_2 = temp_a3 + 1;
-                            var_a1 = *(s8 *) (temp_s1 + (*(u8 *) (temp_a3 + 1) * 0xA) + 0x2);
+                            var_a1 = *(s16 *)
+                                (temp_s1 + (*(u8 *) (temp_a3 + 1) * 0xA) + 0x2);
                             var_a2 = var_a1;
                             do {
                                 var_a0_2 += 1;
-                                temp_v0_3 = *(s8 *)
+                                temp_v0_3 = *(s16 *)
                                     (temp_s1 + (*(u8 *) (var_v1_2 + 1) * 0xA) + 0x2);
                                 if (temp_v0_3 < var_a1) {
                                     var_a1 = temp_v0_3;
@@ -805,13 +807,13 @@ void func_80017140(void *arg0, s32 arg1, void *arg2, s32 arg3) {
                                 var_v1_3 = temp_a3;
                                 if (var_a2 >= *(s16 *) ((u8 *) arg0 + 0x16)) {
                                     var_v0 = polygon + 0x10;
-                                    var_lo = *(u8 *) (var_v1_3 + 1) * 0xA;
+                                    var_lo = 0xA * *(u8 *) (var_v1_3 + 1);
                                     while (var_v0 != polygon + 0x30) {
                                         var_v0 += 0x10;
                                         var_v1_3 += 1;
                                         *(f32 *) (var_v0 - 0x20) =
                                             (f32) *(s16 *) (temp_s1 + var_lo);
-                                        *(s32 *) (var_v0 - 0x12) = -1;
+                                        *(s16 *) (var_v0 - 0x12) = -1;
                                         *(f32 *) (var_v0 - 0x18) =
                                             (f32) *(s16 *)
                                                 (temp_s1 + (*(u8 *) (var_v1_3 + 0x0) * 0xA) + 0x4);
@@ -819,19 +821,19 @@ void func_80017140(void *arg0, s32 arg1, void *arg2, s32 arg3) {
                                     }
                                     *(f32 *) (var_v0 - 0x10) =
                                         (f32) *(s16 *) (temp_s1 + var_lo);
-                                    *(s32 *) (var_v0 - 0x2) = -1;
+                                    *(s16 *) (var_v0 - 0x2) = -1;
                                     *(f32 *) (var_v0 - 0x8) =
                                         (f32) *(s16 *)
                                             (temp_s1 + (*(u8 *) (var_v1_3 + 1) * 0xA) + 0x4);
                                     if (shadowBoxPolyOverlap(
                                             *(f32 *) ((u8 *) arg0 + 0x40),
                                             *(f32 *) ((u8 *) arg0 + 0x44),
-                                            var_a0_2, var_a1,
-                                            *(s32 *) ((u8 *) arg0 + 0x48),
-                                            *(s32 *) ((u8 *) arg0 + 0x4C), 3,
+                                            *(f32 *) ((u8 *) arg0 + 0x48),
+                                            *(f32 *) ((u8 *) arg0 + 0x4C), 3,
                                             polygon) != 0) {
                                         *(u8 **) ((u8 *) arg0 + 0x4) =
-                                            vertexBase + (temp_t9 * 4);
+                                            *(u8 **) ((u8 *) arg2 + 0x1C) +
+                                            (temp_t9 * 4);
                                         if (*(f32 *) ((u8 *) arg0 + 0x24) > 0.0f) {
                                             func_80018544(arg0, polygon);
                                         }
@@ -889,10 +891,13 @@ loop_27:
                                                 } while (var_t0_2 != temp_v0_4);
                                             }
                                             *(u8 *) (temp_t2 + 0x0) = temp_v0_4;
-                                            *(s16 *) (temp_t2 + 0xA) = *(s32 *) ((u8 *) temp_v0 + 0x94);
+                                            *(s16 *) (temp_t2 + 0xA) = surfaceId;
                                             D_800CAF58 += 1;
-                                            D_800CB26C = 0;
-                                            D_800CB268 = *(s32 *) ((u8 *) temp_v0 + 0x94);
+                                            if ((D_800CB268 >= 0) &&
+                                                (surfaceId != D_800CB268)) {
+                                                D_800CB26C = 0;
+                                            }
+                                            D_800CB268 = surfaceId;
                                         }
                                     }
                                 }
@@ -1462,3 +1467,13 @@ void func_800180B4(ShadowQuery *query) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_800180B4.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_80017140:start
+ * symbol: func_80017140
+ * score: 303/328 words
+ * frame: 0x140
+ * relocations: 19
+ * first-mismatch: +0x48
+ * summary: Exact frame and 18-word prefix; candidate has 19/21 relocations (2 exact identities) and a five-word CFG/allocation deficit
+ * PLATEAU-HANDOFF:func_80017140:end
+ */
