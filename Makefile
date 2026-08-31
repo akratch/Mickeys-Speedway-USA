@@ -749,6 +749,12 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/eeplongread.c.o: OPT_FLAGS := -O1
 $(BUILD_DIR)/$(SRC_DIR)/libultra/eeplongread.c.o: MIPSISET := -mips2 -32
 $(BUILD_DIR)/$(SRC_DIR)/libultra/eeplongread.c.o: CFLAGS += -Wab,-r4300_mul
 
+# Mickey's EEPROM read object uses the SDK O1/MIPS II group with R4300
+# multiply-hazard scheduling.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eepread.c.o: OPT_FLAGS := -O1
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eepread.c.o: MIPSISET := -mips2 -32
+$(BUILD_DIR)/$(SRC_DIR)/libultra/eepread.c.o: CFLAGS += -Wab,-r4300_mul
+
 # Mickey's EEPROM probe uses the O1/MIPS II object recipe and Banjo-Kazooie's
 # VERSION_I selection; the later VERSION_L read-state reset is absent.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/eepprobe.c.o: OPT_FLAGS := -O1
