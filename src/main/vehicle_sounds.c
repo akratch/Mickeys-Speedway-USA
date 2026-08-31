@@ -34,7 +34,7 @@ typedef struct VehicleSoundProfile {
 typedef struct VehicleRacerState {
     /* 0x000 */ s8 playerIndex;
     /* 0x001 */ s8 characterId;
-    /* 0x002 */ s8 vehicleId;
+    /* 0x002 */ u8 vehicleId;
     /* 0x003 */ u8 pad003;
     /* 0x004 */ f32 speed;
     /* 0x008 */ u8 pad008[0xA0 - 0x008];
@@ -178,9 +178,11 @@ void func_800582A8(void) {
  * offsets, tables, control flow, constants and positional-audio calls decide
  * this body.
  *
- * Workbench p5: structure-mismatch; 758/762 candidate/target instructions, 699 differing words from +0x0, frame -0x110 vs -0x118.
- * No new safe lever: stock flags and pointer/lifetime/loop variants are exhausted; DKR organization remains provenance-only.
- * Remains: broad BSS/FP/register structure mismatch and 8-byte frame deficit.
+ * Fresh p10 workbench: 758/762 candidate/target instructions, 699 relocation-
+ * masked differences from +0x0, and frame 0x110 versus 0x118. Ten bounded
+ * type, ABI, statement-order and lifetime probes remain nonexact. The retained
+ * unsigned vehicle ID and pointer setup order reduce opcode mismatches without
+ * changing the positional score; DKR organization remains provenance-only.
  */
 void func_8005830C(s32 updateRate) {
     s32 racerCount;
@@ -189,7 +191,7 @@ void func_8005830C(s32 updateRate) {
     s32 cameraIndex;
     s32 scanIndex;
     s16 bestPriority;
-    s16 secondarySoundId;
+    s32 secondarySoundId;
     s32 volume;
     f32 speed;
     f32 minimumSpeed;
@@ -223,10 +225,10 @@ void func_8005830C(s32 updateRate) {
     engineIntensity = storedEngineIntensity;
     racerIndex = racerCount - 1;
     if (racerCount != 0) {
+        racerPtr = racers + racerIndex;
         volumeScale = storedVolumeScale;
         minimumSpeed = storedMinimumSpeed;
         maximumSpeed = storedMaximumSpeed;
-        racerPtr = racers + racerIndex;
         do {
             object = *racerPtr;
             racer = object->racer;
@@ -555,3 +557,13 @@ f32 func_80058EF4(f32 arg0) {
     }
     return result * (s32)2;
 }
+
+/* PLATEAU-HANDOFF:func_8005830C:start
+ * symbol: func_8005830C
+ * score: 699 differing words
+ * frame: 0x110
+ * relocations: 88
+ * first-mismatch: +0x0
+ * summary: Target is 762 words/frame 0x118; only 18 relocation tuples and 12 identities align after ten bounded type, ABI, order, and lifetime probes.
+ * PLATEAU-HANDOFF:func_8005830C:end
+ */
