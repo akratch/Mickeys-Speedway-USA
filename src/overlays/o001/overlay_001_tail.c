@@ -1747,6 +1747,9 @@ extern f32 overlay1WrapOffset(f32 first, f32 second);
 #ifdef NON_MATCHING
 s32 overlay1DispatchMode(void) {
     Overlay1ModeState *world;
+    Overlay1ModeObject *candidateObject;
+    Overlay1ModeState *angleState;
+    Overlay1ModeState *candidateState;
     Overlay1ModeObject *object;
     Overlay1ModeState *state;
     f32 difference;
@@ -1756,16 +1759,16 @@ s32 overlay1DispatchMode(void) {
         case 2:
             overlay1ModeAction2(D_1D9C, 1);
             WORLD->timer--;
-            world = WORLD;
-            if (world->timer == 0) {
-                world->mode = 0xFF;
+            if (WORLD->timer == 0) {
+                WORLD->mode = 0xFF;
                 WORLD->task = 0;
             }
             CASE_END;
         case 3:
             if (D_6C[WORLD->index] < overlay1ModeRandom(1, 100)) {
                 object = overlay1FindPreviousAngle(WORLD->angle);
-                if (object != 0) {
+                candidateObject = object;
+                if (candidateObject != 0) {
                     state = object->state;
                     if (WORLD->status[state->index] >= 3) {
                         overlay1ModeAction3(D_1D9C);
@@ -1779,8 +1782,9 @@ s32 overlay1DispatchMode(void) {
                 if (object != 0) {
                     state = object->state;
                     if (WORLD->status[state->index] >= 3) {
+                        angleState = object->state;
                         difference = overlay1WrapOffset(WORLD->angle,
-                                                        object->state->angle);
+                                                        angleState->angle);
                         if ((0.5f <= difference) && (difference <= 4.0f)) {
                             overlay1ModeAction4(D_1D9C);
                         }
@@ -1802,7 +1806,8 @@ s32 overlay1DispatchMode(void) {
         case 6:
             object = overlay1FindNextAngle(WORLD->angle);
             if (object != 0) {
-                state = object->state;
+                candidateState = object->state;
+                state = candidateState;
                 difference = overlay1WrapOffset(WORLD->angle, state->angle);
                 if ((difference <= 3.0f) &&
                     (WORLD->status[state->index] >= 3) &&
@@ -3351,4 +3356,14 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0x20
  * summary: ten forms exhausted; selector chain restored two words, but phase and pointer forms stayed flat; structural/register residual and 13 unresolved identities
  * PLATEAU-HANDOFF:overlay1TransitionState:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1DispatchMode:start
+ * symbol: overlay1DispatchMode
+ * score: 199/199 words
+ * frame: 0x28
+ * relocations: 61
+ * first-mismatch: +0x2C
+ * summary: Instruction-exact; linked promotion retains six words at the jump-table pair and four same-overlay calls.
+ * PLATEAU-HANDOFF:overlay1DispatchMode:end
  */
