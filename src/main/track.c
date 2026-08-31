@@ -456,12 +456,12 @@ u8 *func_80028F54(void);
 f32 camDistance(f32 x, f32 y, f32 z);
 u8 *levelGetLevel(void);
 void partDraw(Gfx **displayList, s32 arg1, s32 mode);
-void func_8000DFBC(u8 segment, s32 arg1, s32 arg2, s32 arg3);
+void func_8000DFBC(s32 segment, s32 arg1, s32 arg2, s32 arg3);
 s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records, TrackKeyRecord **matches);
 void func_8000F57C(s32 *resultCount, u8 *resultSegments);
 void func_8000FA2C(s32 *result, s32 arg1);
 void shadowGetBuffers(s32 mode, s32 *a, s32 *b, s32 *c);
-void func_800343F0(s32 mode, s32 segmentIndex);
+void func_800343F0();
 void texEnableModes(s32 mode);
 s32 getXZCompareMask(TrackBoundingBox *bounds, s32 x0, s32 z0, s32 x1,
                      s32 z1);
@@ -1773,57 +1773,57 @@ s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records,
 #ifdef NON_MATCHING
 /* PROVENANCE: JFG's public track.c supplies the resident track draw-loop
  * organization; Mickey's segment and display-list accesses are authoritative. */
-/* Workbench verdict: structure-mismatch, 382 differing words; first mismatch is at +0x0. */
-/* Target is 396 instructions/frame -112; candidate is 355 instructions/frame -120. */
-/* Remaining gap is structural: batch/display-list and object-dispatch loops differ; not permuter-ready. */
+/* Workbench verdict: structure-mismatch, 304 differing words; first mismatch is at +0x48. */
+/* Target is 396 instructions/frame -112; candidate is 398 instructions/frame -112. */
+/* Relocation counts are both 51; remaining batch/display-list scheduling gap is not permuter-ready. */
 struct TrackShadowObject;
 struct TrackShadowInstance;
-extern void func_800140CC(struct TrackShadowObject *object,
-                          struct TrackShadowInstance *instance);
+extern void func_800140CC();
+extern void overlay69DrawSortedGeometry(Gfx **, Mtx **, TrackVertex **, void *);
+extern void overlay88DrawSortedGeometry(Gfx **, Mtx **, TrackVertex **, void *);
+extern void overlay68DrawSortedEntries(Gfx **, Mtx **, TrackVertex **, void *);
+extern void overlay29DrawGroups(Gfx **, Mtx **, void *);
 
-void func_8000DFBC(u8 segmentArg, s32 arg1, s32 arg2, s32 arg3) {
-    /* Parameter types follow the top-level prototype the matched callers use. */
-    s32 arg0 = segmentArg;
+void func_8000DFBC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     TrackSegment *segment;
     TrackBatch *batch;
-    TrackBatch *batchEnd;
     Gfx *gfx;
     u8 *texture;
     u8 *object;
     u8 *objectChild;
-    u8 *item;
     u8 *vertex;
     u8 *triangle;
+    s32 groupIndex;
     s32 batchIndex;
-    s32 batchCount;
+    s16 batchCount;
     s32 itemIndex;
     s32 alpha;
     s32 mode;
     s32 vertexCount;
     s32 textureS;
     s32 vertexAddress;
-    s32 textured;
     s32 objectMode;
     s32 value;
     s16 objectType;
 
+    batchIndex = 0;
     segment = &D_800792E8->segments[arg0];
     batch = segment->batches;
-    batchCount = segment->batchCount;
-    batchIndex = 0;
+    groupIndex = 0;
     itemIndex = 0;
-    gfx = D_800C9520;
+    batchCount = segment->batchCount;
     if (batchCount <= 0 && arg2 <= 0) {
         return;
     }
     do {
         if ((batchIndex < batchCount) &&
             ((itemIndex >= arg2) ||
-             (batchIndex < ((u8 **) (u32) arg3)[itemIndex][2]))) {
-            batchEnd = batch;
-            if ((arg1 & (1 << batchIndex)) &&
-                (batchIndex == batch->unk1)) {
+             (batchIndex <
+              *(s16 *) (((u8 **) (u32) arg3)[itemIndex] + 2)))) {
+            if ((arg1 & (1 << groupIndex)) &&
+                (groupIndex == batch->unk1)) {
                 if (D_8007C854 != 0) {
+                    gfx = D_800C9520;
                     gfx->words.w0 = 0xFA000000;
                     value = D_8007C858 & 0xFF;
                     gfx->words.w1 = (value << 24) | (value << 16) |
@@ -1833,7 +1833,7 @@ void func_8000DFBC(u8 segmentArg, s32 arg1, s32 arg2, s32 arg3) {
                     batchCount = segment->batchCount;
                 }
                 if ((batchIndex < batchCount) &&
-                    (batchIndex == batch->unk1)) {
+                    (groupIndex == batch->unk1)) {
                     do {
                         mode = batch->flags;
                         if (!(mode & 0x800)) {
@@ -1841,8 +1841,9 @@ void func_8000DFBC(u8 segmentArg, s32 arg1, s32 arg2, s32 arg3) {
                             texture = NULL;
                             if (batch->textureIndex != 0xFF) {
                                 alpha = 1;
-                                texture = (u8 *) D_800792E8->textures +
-                                          (batch->textureIndex * 8);
+                                texture = (u8 *)
+                                    D_800792E8->textures[batch->textureIndex]
+                                        .texture;
                             }
                             textureS = batch->frame << 8;
                             vertex = (u8 *) segment->lightData +
@@ -1850,8 +1851,9 @@ void func_8000DFBC(u8 segmentArg, s32 arg1, s32 arg2, s32 arg3) {
                             triangle = (u8 *) segment->vertexData +
                                        (batch->v0 * 0x10);
                             if ((texture != NULL) &&
-                                (*(u32 *) (texture + 4) & 0x40) &&
+                                (*(s16 *) (texture + 4) & 0x40) &&
                                 ((mode & 0x30) != 0x20)) {
+                                gfx = D_800C9520;
                                 gfx->words.w0 = 0xFB000000;
                                 value = (textureS >> 8) & 0xFF;
                                 gfx->words.w1 = (value << 24) |
@@ -1860,6 +1862,7 @@ void func_8000DFBC(u8 segmentArg, s32 arg1, s32 arg2, s32 arg3) {
                                 gfx++;
                                 D_800C9520 = gfx;
                             } else {
+                                gfx = D_800C9520;
                                 gfx->words.w0 = 0xFB000000;
                                 gfx->words.w1 = -0x100;
                                 gfx++;
@@ -1870,16 +1873,16 @@ void func_8000DFBC(u8 segmentArg, s32 arg1, s32 arg2, s32 arg3) {
                             }
                             objectMode = mode & 0x4000;
                             if (objectMode != 0) {
-                                func_800343F0(2, batchIndex);
+                                func_800343F0(2);
                             }
                             func_800349A4(&D_800C9520, texture,
                                           mode | 2, textureS);
                             if (objectMode != 0) {
                                 texEnableModes(2);
                             }
-                            gfx = D_800C9520;
                             vertexAddress = (s32) vertex + 0x80000000;
                             vertexCount = batch->frame - batch->u0;
+                            gfx = D_800C9520;
                             gfx->words.w1 = vertexAddress;
                             gfx->words.w0 = (((vertexCount * 0xA) + 8) & 0xFFFF) |
                                              0x04000000 |
@@ -1903,7 +1906,7 @@ void func_8000DFBC(u8 segmentArg, s32 arg1, s32 arg2, s32 arg3) {
                             batchIndex++;
                         }
                     } while ((batchIndex < batchCount) &&
-                             (batch->unk1 == batchEnd->unk1));
+                             (batch->unk1 == groupIndex));
                     batchCount = segment->batchCount;
                 }
                 if (D_8007C854 != 0) {
@@ -1917,19 +1920,20 @@ void func_8000DFBC(u8 segmentArg, s32 arg1, s32 arg2, s32 arg3) {
                     D_800C9520 = gfx;
                 }
             } else if ((batchIndex < batchCount) &&
-                       (batch->unk1 == batchEnd->unk1)) {
+                       (batch->unk1 == groupIndex)) {
                 do {
                     batch = (TrackBatch *) ((u8 *) batch + 0x10);
                     batchIndex++;
                 } while ((batchIndex < batchCount) &&
-                         (batch->unk1 == batchEnd->unk1));
+                         (batch->unk1 == groupIndex));
             }
+            groupIndex++;
         } else {
-            item = ((u8 **) (u32) arg3)[itemIndex++];
-            object = *(u8 **) (item + 4);
+            object = *(u8 **)
+                (((u8 **) (u32) arg3)[itemIndex++] + 4);
             objectChild = *(u8 **) (object + 0x4C);
-            if ((objectChild != NULL) && (*(u16 *) (object + 0x8E) == 0)) {
-                if (*(u32 *) (objectChild + 0x10) & 8) {
+            if ((objectChild != NULL) && (*(u8 *) (object + 0x8E) == 0)) {
+                if (*(u8 *) (objectChild + 0x10) & 8) {
                     u8 *child = *(u8 **) (objectChild + 0x1C);
                     if (child != NULL) {
                         func_800140CC((struct TrackShadowObject *) object,
@@ -1937,7 +1941,8 @@ void func_8000DFBC(u8 segmentArg, s32 arg1, s32 arg2, s32 arg3) {
                     }
                 }
                 func_800140CC((struct TrackShadowObject *) object,
-                              (struct TrackShadowInstance *) objectChild);
+                              *(struct TrackShadowInstance **)
+                                  (object + 0x4C));
             }
             func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
                           (TrackSkyObject *) object);
@@ -1945,7 +1950,7 @@ void func_8000DFBC(u8 segmentArg, s32 arg1, s32 arg2, s32 arg3) {
             if (value != 0) {
                 func_80049518(value, &D_800C9520);
             }
-            if (*(u16 *) (object + 6) & 0x200) {
+            if (*(s16 *) (object + 6) & 0x200) {
                 objectType = *(s16 *) (object + 0x44);
                 switch (objectType) {
                 case 1:
@@ -1953,20 +1958,28 @@ void func_8000DFBC(u8 segmentArg, s32 arg1, s32 arg2, s32 arg3) {
                                   &D_800C9528, object);
                     break;
                 case 0x1D:
+                    overlay69DrawSortedGeometry(&D_800C9520, &D_800C9524,
+                                                &D_800C9528, object);
+                    break;
                 case 0x49:
+                    overlay88DrawSortedGeometry(&D_800C9520, &D_800C9524,
+                                                &D_800C9528, object);
+                    break;
                 case 0x3F:
-                    TrapDanglingJump(&D_800C9520, &D_800C9524,
-                                     &D_800C9528, object);
+                    overlay68DrawSortedEntries(&D_800C9520, &D_800C9524,
+                                               &D_800C9528, object);
                     break;
                 case 0x39:
-                case 0x3A:
                     TrapDanglingJump(&D_800C9520, &D_800C9524, object);
+                    break;
+                case 0x3A:
+                    overlay29DrawGroups(&D_800C9520, &D_800C9524, object);
                     break;
                 }
             }
         }
         batchCount = segment->batchCount;
-    } while (itemIndex < arg2);
+    } while ((batchIndex < batchCount) || (itemIndex < arg2));
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000DFBC.s")
@@ -5877,4 +5890,14 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x8
  * summary: Configured 321 words; no-unroll reaches 261 words and 229 differences. Add sized ownership, then assess a function-isolated no-unroll boundary.
  * PLATEAU-HANDOFF:func_8001357C:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000DFBC:start
+ * symbol: func_8000DFBC
+ * score: 304 differing words
+ * frame: 0x70
+ * relocations: 51
+ * first-mismatch: +0x48
+ * summary: Exact frame and relocation count; 2-word structural drift remains, and flag sweep lacks unique resident ownership metadata.
+ * PLATEAU-HANDOFF:func_8000DFBC:end
  */
