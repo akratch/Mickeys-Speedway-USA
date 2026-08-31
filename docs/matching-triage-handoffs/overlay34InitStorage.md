@@ -6,5 +6,5 @@
 - frame: 0x30
 - relocations: 8
 - first mismatch: +0x24
-- summary: All 119 configs were nonexact; one stack-home trace exposed no producer-emitted home evidence, so no natural declaration/scope/lifetime form was justified.
+- summary: Fresh V0 remains exact-sized at 46/50 relocation-normalized words with a 0x30 frame and four `sp+0x18` versus target `sp+0x1C` sites. All 119 flags and the retained stack-home trace remain nonexact. A later exact lexical-block precedent justified two bounded natural forms: phase-local scopes retained 50 words but regressed to 41/50 with a 0x40 frame, while branch-local countdowns emitted 49 words with a 0x38 frame and structural/register drift. No isolated legal scope lever remains; preserve V0 and resume only with new producer-emitted stack-home evidence.
 <!-- plateau-handoff:overlay34InitStorage:end -->
