@@ -195,6 +195,11 @@ void func_80006EA0(void *handle);
 s32 func_8000FAE0(f32 x, f32 y, f32 z);
 void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode);
 s32 TrapDanglingJump();
+#pragma weak charControlEffectSpawnTrap = TrapDanglingJump
+extern void *charControlEffectSpawnTrap(
+    ControlActor *actor, u8 kind, s16 angle, u8 index,
+    f32 x, f32 y, f32 z, f32 w,
+    u8 arg14, u8 arg15, u8 arg16, u8 arg17);
 void mainChangeLevel(s32 nextLevel, s32 nextCharacter, s32 nextAnimGroup,
                      s32 nextCamera, s32 fadeOut, s32 flags);
 s32 mainGetNextCharacter(void);
@@ -529,9 +534,9 @@ void controlPlayerReInit(ControlActor *actor, f32 x, f32 y, f32 z, s16 arg4, s16
     player->unk45C = saved45C;
     player->unk45D = saved45D;
 }
-/* Bounded plateau: exact 403-word geometry, 386 differing words, first mismatch +0x0. */
-/* Candidate frame is -0xB8 versus target -0xA8; candidate/target relocations are 41/38. */
-/* Split the synthetic effect-spawn callee so its typed direct call can recover the target register web. */
+/* Bounded plateau: 401/403 words, 386 differing words, first mismatch +0x0. */
+/* Candidate frame is -0xB8 versus target -0xA8; candidate/target relocations are 40/38. */
+/* The typed direct effect-spawn alias is proven; remaining particle/effect lifetimes miss the target register web. */
 /* PROVENANCE: JFG's corresponding character-control initialization role supplied the control-flow lead; fields and body are reconstructed from Mickey. */
 #ifdef NON_MATCHING
 void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode) {
@@ -617,9 +622,7 @@ void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode)
                 do {
                     if (effectOwner[0x134 / 4] == 0) {
                         effectOwner[0x134 / 4] =
-                            (void *) ((s32 (*)(void *, u8, s16, u8,
-                                              f32, f32, f32, f32,
-                                              u8, u8, u8, u8)) TrapDanglingJump)(
+                            charControlEffectSpawnTrap(
                                 actor, effect->kind, effect->angle, effect->index,
                                 effect->x, effect->y, effect->z, effect->w,
                                 effect->arg14, effect->arg15, effect->arg16,
@@ -650,8 +653,9 @@ void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode)
     particleCount = particleList->count;
     particle = particleList->entries;
     slot = (CharControlParticleSlot *) player->particles;
-    remaining = particleCount - 1;
-    if (particleCount != 0) {
+    remaining = particleCount;
+    if (remaining != 0) {
+        remaining--;
         do {
             if (slot->handle == 0) {
                 if (particle->index < characterData->count) {
@@ -676,8 +680,7 @@ void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode)
             particle++;
             slot++;
             particleSlotCount++;
-            remaining--;
-        } while (remaining != 0);
+        } while (remaining-- != 0);
     }
     if (particleSlotCount < 4) {
         do {
@@ -1988,8 +1991,8 @@ void controlClearPlayerSetup(void) {
  * symbol: func_8001C4C0
  * score: 386 differing words
  * frame: 0xB8
- * relocations: 41
+ * relocations: 40
  * first-mismatch: +0x0
- * summary: Split the synthetic effect-spawn callee identity and prototype to recover the direct call, saved-register web, and target frame.
+ * summary: Typed weak alias restores the direct call; candidate remains two words short with a 0x10 frame excess and two missing saved-register lifetimes.
  * PLATEAU-HANDOFF:func_8001C4C0:end
  */
