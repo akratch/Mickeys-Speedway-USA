@@ -1185,3 +1185,13 @@ u8 func_8004D5C0(s32 font) {
  * summary: Exact 46-word geometry and 9 identities; 119 flags plus natural forms stay at 10 differences. Recover an authentic local stack home for the target 0x30 frame.
  * PLATEAU-HANDOFF:func_8004BA8C:end
  */
+
+/* PLATEAU-HANDOFF:func_8004C690:start
+ * symbol: func_8004C690
+ * score: 105 differing words
+ * frame: 0x70
+ * relocations: 9
+ * first-mismatch: +0x0
+ * summary: V0 is 144/146 words, relocs 9/9 with 6 aligned. Prior flags and natural forms exhausted; next lever is new allocation or saved-header copy scheduling.
+ * PLATEAU-HANDOFF:func_8004C690:end
+ */
