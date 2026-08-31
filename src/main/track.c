@@ -3560,7 +3560,7 @@ typedef struct TrackCollisionSurface {
     f32 positionY;
     f32 positionZ;
     f32 positionDistance;
-    u32 flags;
+    s32 flags;
     u8 material;
 } TrackCollisionSurface;
 
@@ -3581,26 +3581,27 @@ typedef struct TrackCollisionRecord {
     u8 pad34[4];
     s32 value38;
     u8 value3C;
+    u8 value3D;
 } TrackCollisionRecord;
 
 s16 Arctanf(f32 x, f32 y);
 
-/* Workbench verdict: structure-mismatch, 232 differing words, first mismatch +0x0. */
-/* Candidate: 236/231 instructions with a -0xA0 frame versus target -0x98; five-instruction FP schedule residual remains. */
-/* Shape status: three surface branches, normalization, and collision-record flag writes are preserved, but it is not shape-exact. */
+/* Workbench verdict: structure-mismatch, 231 differing words, first mismatch +0x0. */
+/* Candidate: 236/231 instructions with a -0xA0 frame versus target -0x98. */
+/* Record bytes and cross products are authenticated; FP saved-register colouring remains unresolved. */
 void func_800115E4(s32 mode, TrackVec3f *position, TrackVec3f *offset,
                    f32 scale, TrackCollisionSurface *surface,
                    TrackCollisionRecord *record) {
+    f32 firstCrossX;
+    f32 firstCrossY;
+    f32 crossX;
+    f32 crossY;
+    f32 crossZ;
     f32 surfaceDistance;
     f32 surfaceX;
     f32 surfaceY;
     f32 surfaceZ;
-    f32 productX;
-    f32 productZ;
     f32 planeValue;
-    f32 crossX;
-    f32 crossY;
-    f32 crossZ;
     f32 crossLengthSquared;
     f32 crossLength;
     f32 distance;
@@ -3619,18 +3620,17 @@ void func_800115E4(s32 mode, TrackVec3f *position, TrackVec3f *offset,
     surfaceX = surface->x;
     surfaceY = surface->y;
     surfaceZ = surface->z;
-    productZ = position->f[2] * surfaceZ;
-    productX = surfaceX * position->f[0];
-    planeValue = (productZ + (productX + (surfaceY * position->f[1]))) +
-                 surfaceDistance;
+    planeValue = (position->f[2] * surfaceZ) +
+                 ((surfaceX * position->f[0]) +
+                  (surfaceY * position->f[1])) + surfaceDistance;
     if ((D_80081778 <= surfaceY) || ((surface->flags << 3) < 0)) {
-        crossX = offset->f[2] * surfaceY;
-        crossY = (surfaceZ * offset->f[0]) -
-                 (offset->f[2] * surfaceX);
+        firstCrossX = offset->f[2] * surfaceY;
+        firstCrossY = (surfaceZ * offset->f[0]) -
+                      (offset->f[2] * surfaceX);
         crossZ = -(offset->f[0] * surfaceY);
-        crossX = (crossY * surfaceZ) - (crossZ * surfaceY);
-        crossY = (crossZ * surfaceX) - (productZ * surfaceZ);
-        crossZ = (productZ * surfaceY) - (crossY * surfaceX);
+        crossX = (firstCrossY * surfaceZ) - (crossZ * surfaceY);
+        crossY = (crossZ * surfaceX) - (firstCrossX * surfaceZ);
+        crossZ = (firstCrossX * surfaceY) - (firstCrossY * surfaceX);
         crossLengthSquared = (crossX * crossX) +
                              (crossY * crossY) +
                              (crossZ * crossZ);
@@ -3644,13 +3644,14 @@ void func_800115E4(s32 mode, TrackVec3f *position, TrackVec3f *offset,
             position->f[2] = surface->positionZ +
                              (time * (crossZ / distance));
         } else {
-            position->f[1] = -((productZ + productX + surfaceDistance) /
-                               surfaceY) + D_80081780;
+            position->f[1] = -(((position->f[2] * surfaceZ) +
+                                (surfaceX * position->f[0]) +
+                                surfaceDistance) / surfaceY) + D_80081780;
         }
         record->pointY = surfaceX;
         record->pointZ = surfaceY;
         record->value0C = surfaceZ;
-        record->value3C |= 2;
+        record->value3D |= 2;
     } else if (surfaceY <= D_80081784) {
         distance = D_80081788 - planeValue;
         position->f[0] += distance * surfaceX;
@@ -3659,7 +3660,7 @@ void func_800115E4(s32 mode, TrackVec3f *position, TrackVec3f *offset,
         record->value1C = surfaceX;
         record->value20 = surfaceY;
         record->value24 = surfaceZ;
-        record->value3C |= 8;
+        record->value3D |= 8;
     } else {
         projectedX = position->f[0];
         projectedY = position->f[1];
@@ -3689,10 +3690,10 @@ void func_800115E4(s32 mode, TrackVec3f *position, TrackVec3f *offset,
         record->value10 = surfaceX;
         record->value14 = surfaceY;
         record->value18 = surfaceZ;
-        record->value3C |= 4;
+        record->value3D |= 4;
     }
     record->value38 = surface->flags;
-    record->value24 = surface->material;
+    record->value3C = surface->material;
     record->value28 = surfaceX;
     record->value2C = surfaceY;
     record->value30 = surfaceZ;
@@ -5860,4 +5861,14 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x0
  * summary: Direct target-lifetime form removes most structural gaps; original pointer scopes must prevent threshold-address hoisting and two extra saved GPRs.
  * PLATEAU-HANDOFF:func_80010654:end
+ */
+
+/* PLATEAU-HANDOFF:func_800115E4:start
+ * symbol: func_800115E4
+ * score: 231 differing words
+ * frame: -0xA0
+ * relocations: 17
+ * first-mismatch: +0x0
+ * summary: Mickey evidence fixes record bytes, signed flags, and two-stage cross products; FP saved-register colouring and five-word schedule drift remain.
+ * PLATEAU-HANDOFF:func_800115E4:end
  */
