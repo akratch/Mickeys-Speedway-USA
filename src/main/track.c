@@ -1613,7 +1613,7 @@ extern TrackRouteObject *func_800056F0(s32 index);
 s32 func_8000DB34(s32 count, u8 *indices, TrackRouteResult *results) {
     s32 heapCount;
     s32 mapIndex;
-    s32 lastIndex;
+    u32 lastIndex;
     s32 resultCount;
     s32 segmentIndex;
     s32 objectRadius;
@@ -1967,12 +1967,10 @@ void func_8000DFBC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
  * PROVENANCE: Mickey's m2c draft and resident track/particle call surfaces
  * reconstruct this draw/update coordinator; no external function body is adapted.
  */
-/* Workbench verdict: structure-mismatch, 284 differing words, first mismatch +0x0. */
-/* Candidate: 284/205 instructions with a -0x78 frame versus target -0xD8; stack-byte, call-signature, and pointer-register structure remain unresolved. */
-/* Shape status: coordinator call order and segment passes are reconstructed, but the candidate is not shape-exact. */
+/* Workbench verdict: structure-mismatch, 185 differing words, first mismatch +0x0. */
+/* Candidate: 209/205 instructions with a -0xE8 frame versus target -0xD8; all 56 relocations are present, with 14 offset/type and 9 identity sites aligned. */
+/* Shape status: the 128-byte segment list and nested dispatch are reconstructed; temporary-local stack layout and early loop scheduling remain unresolved. */
 void func_8000E5EC(s32 updateRate, s32 arg1) {
-    TrackData *track;
-    u8 segmentList;
     u8 *segment;
     s32 resultCount;
     s32 visibleCount;
@@ -1982,67 +1980,66 @@ void func_8000E5EC(s32 updateRate, s32 arg1) {
     s32 *visibility;
     s16 cameraSegment;
     s16 segmentCount;
-    s8 mode;
-    s32 *displayList;
+    u8 mode;
+    s32 *segmentFlags;
+    s32 displayList;
+    u8 segmentList[128];
 
-    track = D_800792E8;
     visibleCount = 1;
-    if (track->segmentCount >= 2) {
+    if (D_800792E8->segmentCount >= 2) {
         if (levelGetLevel()[0x106] == 0) {
-            func_8000FA2C(&visibleCount, &segmentList);
+            func_8000FA2C(&visibleCount, segmentList);
         } else {
-            func_8000F57C(&visibleCount, &segmentList);
+            func_8000F57C(&visibleCount, segmentList);
         }
     } else {
-        segmentList = 0;
+        segmentList[0] = 0;
     }
     if (D_80079260 == 0) {
         visibleCount = 0;
     }
     D_800C95B0[0] = -1;
     segmentIndex = 1;
-    if (track->segmentCount > 0) {
-        displayList = D_800C95B4;
+    if (D_800792E8->segmentCount > 0) {
+        segmentFlags = D_800C95B4;
         do {
-            *displayList++ = 0;
+            *segmentFlags++ = 0;
             segmentIndex++;
-        } while (track->segmentCount >= segmentIndex);
+        } while (D_800792E8->segmentCount >= segmentIndex);
     }
     if ((D_80079260 != 0) || (D_80079264 != 0)) {
         cameraSegment = camGetPtr()->segmentIndex;
-        segmentCount = track->segmentCount;
+        segmentCount = D_800792E8->segmentCount;
         if ((cameraSegment >= 0) && (cameraSegment < segmentCount) &&
             (D_8007926C == 0)) {
             lastIndex = visibleCount - 1;
-            segment = &segmentList + lastIndex;
+            segment = segmentList + lastIndex;
             if (visibleCount != 0) {
                 do {
                     mode = *segment--;
-                    visibility = track->visibility;
-                    D_800C95B0[mode] =
+                    visibility = D_800792E8->visibility;
+                    D_800C95B0[mode + 1] =
                         visibility[(cameraSegment * segmentCount) + mode];
-                    lastIndex--;
-                } while (lastIndex != 0);
+                } while (lastIndex-- != 0);
             }
         } else {
             lastIndex = visibleCount - 1;
             if (visibleCount != 0) {
-                segment = &segmentList + lastIndex;
+                segment = segmentList + lastIndex;
                 do {
                     mode = *segment--;
-                    D_800C95B0[mode] = -1;
-                    lastIndex--;
-                } while (lastIndex != 0);
+                    D_800C95B0[mode + 1] = -1;
+                } while (lastIndex-- != 0);
             }
         }
-        if (track->segmentCount < 2) {
+        if (D_800792E8->segmentCount < 2) {
             D_800C95B0[1] = -1;
         }
     }
     resultCount = 0;
-    displayList = D_800C9548;
+    displayList = (s32) D_800C9548;
     if (D_80079268 != 0) {
-        resultCount = func_8000DB34(visibleCount, &segmentList,
+        resultCount = func_8000DB34(visibleCount, segmentList,
                                     (TrackRouteResult *) displayList);
     }
     func_8000D978(0, arg1);
@@ -2053,17 +2050,16 @@ void func_8000E5EC(s32 updateRate, s32 arg1) {
     func_80034920(&D_800C9520);
     lastIndex = visibleCount - 1;
     if (visibleCount != 0) {
-        segment = &segmentList + lastIndex;
-        displayOffset = (resultCount * 8) + (s32) displayList;
+        segment = segmentList + lastIndex;
+        displayOffset = (resultCount * 8) + displayList;
         do {
-            mode = *segment;
-            func_8000DFBC(mode, D_800C95B0[mode],
-                          func_8000DDE4(mode, resultCount,
-                                        (s32) displayList, displayOffset),
+            func_8000DFBC(*segment, D_800C95B0[*segment + 1],
+                          func_8000DDE4(*segment, resultCount,
+                                        (TrackKeyRecord *) displayList,
+                                        (TrackKeyRecord **) displayOffset),
                           displayOffset);
             segment--;
-            lastIndex--;
-        } while (lastIndex != 0);
+        } while (lastIndex-- != 0);
     }
     if (runlinkIsModuleLoaded(0x22) != 0) {
         TrapDanglingJump(&D_800C9520, &D_800C9528);
@@ -5888,4 +5884,14 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x38
  * summary: Scalar fill removes double-unroll and the reverse scan is full-width; two-word/prologue drift remains, while flag sweep lacks a unique owner.
  * PLATEAU-HANDOFF:func_8000DB34:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000E5EC:start
+ * symbol: func_8000E5EC
+ * score: 185 differing words
+ * frame: 0xE8
+ * relocations: 56
+ * first-mismatch: +0x0
+ * summary: A 128-byte segment list and direct nested-dispatch loads leave four structural words and 16 stack bytes; flags need unique owner metadata.
+ * PLATEAU-HANDOFF:func_8000E5EC:end
  */
