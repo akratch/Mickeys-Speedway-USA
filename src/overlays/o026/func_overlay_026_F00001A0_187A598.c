@@ -324,3 +324,13 @@ void func_overlay_026_F00001A0_187A598(O26ObjectUpdate *object,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o026/func_overlay_026_F00001A0_187A598/func_overlay_026_F00001A0_187A598.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_026_F00001A0_187A598:start
+ * symbol: func_overlay_026_F00001A0_187A598
+ * score: 96/606 words
+ * frame: 0x98
+ * relocations: 32
+ * first-mismatch: +0x9C
+ * summary: Fresh V0 is 16 bytes short with exact frame; constant, FP-home, record-scope, zero-test, and compound-update families are exhausted.
+ * PLATEAU-HANDOFF:func_overlay_026_F00001A0_187A598:end
+ */
