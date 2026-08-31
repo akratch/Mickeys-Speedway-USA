@@ -140,9 +140,9 @@ void overlay100DrawMotion(O100Command **commandPtr, Overlay100Motion *motion) {
 /* PLATEAU-HANDOFF:overlay100DrawMotion:start
  * symbol: overlay100DrawMotion
  * score: 161 differing words
- * frame: 0xB0 (target 0xC0)
+ * frame: 0xB0
  * relocations: 7
  * first-mismatch: +0x0
- * summary: 82/243 words matched; 4/7 relocation offsets and types align, no identities resolve; next lever is source-authentic command/color lifetime evidence
+ * summary: New depth and projection term-order forms are compiler-flat; command and color lifetime blocker remains.
  * PLATEAU-HANDOFF:overlay100DrawMotion:end
  */
