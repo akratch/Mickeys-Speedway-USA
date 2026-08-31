@@ -158,6 +158,6 @@ void overlay58DrawSegmentStrip(f32 x0, f32 y0, f32 z0, f32 x1, f32 y1,
  * frame: 0x88
  * relocations: 8
  * first-mismatch: +0xC
- * summary: Negative-index cursor spelling fixes one immediate; broad allocator and command-schedule residual remains.
+ * summary: Term rotation regresses; operand reversal and explicit dereference are flat.
  * PLATEAU-HANDOFF:overlay58DrawSegmentStrip:end
  */
