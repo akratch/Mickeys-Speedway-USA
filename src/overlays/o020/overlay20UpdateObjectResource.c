@@ -70,11 +70,14 @@ extern f32 overlay20SqrtReloc(f32 value);
  * not an independent web with a separate source lever.
  * Direct field access removes the colored count but regresses to 73/98; prior
  * forced splitting is also known to grow the function to 100 words and frame
- * 0x78. With no natural strict gain, combination and the gain-gated permutation
- * batch are ineligible. Preserve this body and fallback until a new legal IDO
- * pool-to-temp web-formation mechanism exists. Linked equality and the exact
- * full ROM continue to prove the assembly fallback only. Pinned DKR v77/v80/JFG
- * and function-specific structural scans remain negative. */
+ * 0x78. The later exact comma-expression web-formation mechanism was tested on
+ * the short-circuited count assignment and compiled byte-identically to V0.
+ * Retail CFG requires that load after the negative-index branch, ruling out
+ * comma hoisting. With no natural strict gain, combination and the gain-gated
+ * permutation batch are ineligible. Preserve this body and fallback until a
+ * new legal IDO pool-to-temp web-formation mechanism exists. Linked equality
+ * and the exact full ROM continue to prove the assembly fallback only. Pinned
+ * DKR v77/v80/JFG and function-specific structural scans remain negative. */
 #ifdef NON_MATCHING
 void overlay20UpdateObjectResource(Overlay20Object *object,
                                    Overlay20Config *config) {
@@ -125,3 +128,13 @@ void overlay20UpdateObjectResource(Overlay20Object *object,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o020/overlay20UpdateObjectResource/func_overlay_020_F0000204_18767DC.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay20UpdateObjectResource:start
+ * symbol: overlay20UpdateObjectResource
+ * score: 90/98 words
+ * frame: 0x70
+ * relocations: 4
+ * first-mismatch: +0xB0
+ * summary: RHS comma web-formation is byte-flat; retail CFG requires post-branch count loading, leaving the eight-word pool-to-temp carrier residual.
+ * PLATEAU-HANDOFF:overlay20UpdateObjectResource:end
+ */

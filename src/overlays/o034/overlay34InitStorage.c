@@ -25,6 +25,14 @@ extern void *func_8002B280(s32 size, u32 colourTag);
  * natural declaration/scope/lifetime form. The trailing eight section-
  * alignment bytes remain outside target ownership. Park as W without dummy
  * volatile state, forced registers, or generic permutation.
+ *
+ * A later exact lexical-block precedent justified one bounded scope recheck.
+ * Giving the two allocation phases independent natural local scopes retained
+ * 50 words but regressed to 41/50 with a 0x40 frame. Moving only each loop's
+ * countdown into its consuming branch emitted 49 words with a 0x38 frame and
+ * a structural/register cascade. Neither changed the target's four-site
+ * stack-home mechanism in isolation, so the exact-sized 46/50 V0 remains the
+ * best policy-clean source.
  */
 #ifdef NON_MATCHING
 /* PLATEAU-HANDOFF
@@ -33,7 +41,7 @@ extern void *func_8002B280(s32 size, u32 colourTag);
  * frame: 0x30
  * relocations: 8
  * first-mismatch: +0x24
- * summary: All 119 configs were nonexact; one stack-home trace exposed no producer-emitted home evidence, so no natural declaration/scope/lifetime form was justified.
+ * summary: Fresh V0 remains exact-sized at 46/50 relocation-normalized words with a 0x30 frame and four `sp+0x18` versus target `sp+0x1C` sites. All 119 flags and the retained stack-home trace remain nonexact. A later exact lexical-block precedent justified two bounded natural forms: phase-local scopes retained 50 words but regressed to 41/50 with a 0x40 frame, while branch-local countdowns emitted 49 words with a 0x38 frame and structural/register drift. No isolated legal scope lever remains; preserve V0 and resume only with new producer-emitted stack-home evidence.
  */
 void overlay34InitStorage(s32 count) {
     s32 *word;

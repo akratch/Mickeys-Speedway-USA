@@ -33,9 +33,12 @@ extern void overlay68FreeProbeReloc(void *probe);
 /*
  * Bounded plateau (2026-08-30): a declaration-slot census reproduces the
  * exact 0x48-byte frame and all four call-crossing stack homes, improving the
- * configured candidate from 18 to 10 differing words. The remaining natural
- * cursor and comparison spellings were flat, all 119 flag modes were
- * nonexact, and the bounded batch found no admissible exact source.
+ * configured candidate from 18 to 10 differing words. A fidelity-gated UOPT
+ * trace (2026-08-31) authenticates 13 integer allocation decisions (11 color,
+ * two split). Moving the zero-cursor lifetime across the division or calls,
+ * and splitting the pointer carrier into two statements, all reproduce V0
+ * byte-for-byte. The residual remains the cursor CFG/temp web; all 119 flag
+ * modes and the earlier bounded batch remain exhausted.
  */
 #ifdef NON_MATCHING
 s32 overlay68CheckKind(s32 kind) {
@@ -113,6 +116,6 @@ s32 overlay68CheckKind(s32 kind) {
  * frame: 0x48
  * relocations: 9
  * first-mismatch: +0x2C
- * summary: Exact stack homes leave a cursor CFG/temp web; all nine candidate relocation identities remain unresolved
+ * summary: Trace: 13 integer decisions; three cursor forms equal V0; 9/9 offsets/types and 0/9 static identities.
  * PLATEAU-HANDOFF:overlay68CheckKind:end
  */

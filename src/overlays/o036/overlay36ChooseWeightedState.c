@@ -72,9 +72,15 @@ extern void func_overlay_036_F0000914_1883DCC(Overlay36Object *object,
                                               s32 arg1, s32 state,
                                               s32 enabled);
 
-/* Workbench p7: structure-mismatch; 170/170 instructions, -0x38 frame, 71 masked words, first +0x3C.
- * Lever: context lint removed undefined BLEND_SHAPE branches; shape 1 was identical and shape 2 added one instruction.
- * Remains: mode-branch staging, FP-pool web, ten alignment gaps, and relocation identities; GLOBAL_ASM stays canonical. */
+/* Fresh configured V0 remains exact-sized at 170 words with the exact 0x38
+ * frame, 99/170 positional words, and first mismatch +0x3C. The 33-record
+ * candidate and target relocation surfaces retain only 18 offset/type
+ * alignments and one resolved identity. A later exact independent-FP-term
+ * rotation and explicit-dereference precedent justified three bounded forms:
+ * rotating the initial value terms was byte-flat, explicit (*inner).strength
+ * emitted 169 words and regressed to 138 residuals, and combining both was
+ * byte-flat. Preserve V0 pending new mode-branch staging or FP-pool evidence;
+ * GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 void func_overlay_036_F0000A60_1883F18(Overlay36Object *object, s32 arg1,
                                        volatile s32 arg2,
@@ -162,7 +168,7 @@ void func_overlay_036_F0000A60_1883F18(Overlay36Object *object, s32 arg1,
  * score: 99/170 words
  * frame: 0x38
  * relocations: 33
- * first-mismatch: +0x24
- * summary: Exact geometry/frame; commuted blend proves exact FP lanes but adds one word; baseline remains best at 71 differences.
+ * first-mismatch: +0x3C
+ * summary: New FP-term rotation and its explicit-deref combination are flat; explicit deref alone regresses to 169 words/138 residuals; 18/33 sites align.
  * PLATEAU-HANDOFF:func_overlay_036_F0000A60_1883F18:end
  */

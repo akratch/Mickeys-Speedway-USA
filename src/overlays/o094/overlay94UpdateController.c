@@ -187,6 +187,6 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
  * frame: 0x70
  * relocations: 36
  * first-mismatch: +0x404
- * summary: exact stack and schedule; terminal negative-velocity GPR coloring remains
+ * summary: Fidelity-gated trace: proc0 has 22 integer decisions (12 color, 10 split); direct/s32/s16 carriers score 264/268/268; identities 12 resolved, 24 unresolved.
  * PLATEAU-HANDOFF:overlay94UpdateController:end
  */

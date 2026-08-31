@@ -77,3 +77,13 @@ void overlay20RemoveEntry(s32 owner) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o020/overlay20RemoveEntry/func_overlay_020_F0001018_18775F0.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay20RemoveEntry:start
+ * symbol: overlay20RemoveEntry
+ * score: 36/53 words
+ * frame: frameless
+ * relocations: 10
+ * first-mismatch: +0x4C
+ * summary: Dead entry-as-end carrier was exact-sized but flat at 17 register-only differences; preserve V0 pending a distinct temp-FIFO lever.
+ * PLATEAU-HANDOFF:overlay20RemoveEntry:end
+ */

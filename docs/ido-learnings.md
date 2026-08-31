@@ -81,9 +81,14 @@ bytes and disassembly never belong here.
   Address-taken local arrays and structs can retain the same
   declaration-relative placement even when preceding scalar and cursor locals
   are colored into registers, so moving an existing aggregate past those
-  declarations can change only its frame offset. Evidence: the exact resident
-  collision-handler cohort in `docs/resident.md`, plus the exact tile-command
-  builder and spawn-entry initializer in `docs/overlays.md`.
+  declarations can change only its frame offset. Producer traces can also show
+  that lexical pointer aliases receive automatic homes despite later coloring;
+  removing aliases that merely name direct array accesses may shrink the frame
+  and move a surviving address-taken scalar to its retail home. Apply that
+  narrower lever only when the direct accesses preserve evaluation and update
+  order. Evidence: the exact resident collision-handler cohort in
+  `docs/resident.md`, plus the exact tile-command builder, spawn-entry
+  initializer, and Overlay 98 accepted-entry collector in `docs/overlays.md`.
 - Expression association, signedness, and width affect IDO's internal values
   even when C semantics appear equivalent. Preserve the ABI and inferred data
   model; use typed rewrites as a diagnosed lever, not an arbitrary score nudge.
@@ -153,10 +158,14 @@ bytes and disassembly never belong here.
   polynomial evaluation. When a residual is confined to that evaluation,
   preserve the target's inferred association by moving the proved independent
   leading term to the end of the source sum; also test operand order on a
-  commutative scalar multiply. This lever applies only when the arithmetic
-  domain and evaluation order are semantically interchangeable, and it must be
-  rejected unless the configured object, relocations, linked range, and full
-  ROM are exact. Evidence: Overlay 41's exact curve sampler in
+  commutative scalar multiply. For an independent difference of products,
+  spelling `a*b-c*d` as `-(c*d)+(a*b)` can rotate one term without changing
+  the result; an explicit `(*pointer).field` may also preserve a remaining
+  operand-order choice that the arrow spelling does not. These levers apply
+  only when the arithmetic domain and evaluation order are proved
+  interchangeable, and they must be rejected unless the configured object,
+  relocations, linked range, and full ROM are exact. Evidence: Overlay 41's
+  exact curve sampler and Overlay 22's exact plane resolver in
   `docs/overlays.md`.
 
 ### Search fidelity and false floors

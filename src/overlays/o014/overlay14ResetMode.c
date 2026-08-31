@@ -16,25 +16,23 @@ extern s32 func_overlay_014_F0000578_186FE50(s32);
 /* PROVENANCE: Mickey-derived; pinned DKR v77/v80 and JFG scans found no exact
  * byte donor. A retained function-specific structural scan found no credible
  * near donor (best similarity 0.167).
- * Historical pre-current-alias full-TU/isolated C was measured at 45/56 raw and
- * 49/56 after runtime-relocation normalization, frame 0x30. No candidate object,
- * hash, report, or linked-C artifact survives. Raw sites were
- * +0x14/+0x18/+0x1C/+0x20/+0x24/+0x28/+0x3C/+0x88/+0x90/+0x98/+0xA4;
- * normalizing four output LO16 addends leaves one seven-site prologue schedule:
- * four address materializations and the s3/ra saves plus s3 = 1. Only after
- * runtime normalization was everything from +0x40 onward instruction-identical.
- * The shipped surface has 18 runtime records, not the extracted target object's
- * incomplete ten. Historical C was reported to carry 17 identities. Current
- * source repairs +0x54 to overlay14ReleaseOwner (+0x1B54), but is uncompiled,
- * so current score, frame, size, and all 18 emitted tuples are unknown; +0xB0
- * is a local JUMP to overlay14MoveCommandCursor (+0x578). Compile identity-
- * correct V0 as one of 119 configurations. If shape materially regresses, use
- * one pre-alias control in place of a later form. Trace once, try at most two
- * trace-selected natural s3/address-base lifetime forms, and combine only after
- * strict gains. Hard cap 122 deterministic builds plus one trace. Only after a
- * legal gain permit one annotated 20-minute/2,000-candidate batch; no second
- * batch. The owned +0x498..+0x578 / ROM 0x186FD70..0x186FE50 range has no
- * padding or export and has five local inbound JUMPs. */
+ * Fresh current-alias V0 is exact-sized at 49/56 normalized words (seven
+ * masked and eleven raw differences), frame 0x30. The target runtime surface
+ * authenticates 18 records. The candidate emits 18 static records and 17/18
+ * offset/type sites align because the four initial HI16 materializations are
+ * shifted by one instruction. Static resolution proves only 1/18 candidate
+ * identities (17 unresolved; linked-runtime alignment zero), so candidate
+ * identity proof remains pending. Everything from +0x40 onward is
+ * instruction-identical after relocation normalization.
+ * The complete 119-configuration flag lattice tied V0. A fidelity-gated IDO
+ * allocator trace found seven integer webs (v0 twice and s0..s4) and localized
+ * the residue to the saved-register/address-materialization schedule. An
+ * explicit command-type carrier compiled identically; an explicit D_EC pointer
+ * lifetime regressed to 55 words and frame 0x28. The two permitted natural
+ * probes are exhausted, so do not reopen without a new source-authentic
+ * scheduling mechanism. The owned +0x498..+0x578 / ROM
+ * 0x186FD70..0x186FE50 range has no padding or export and has five local inbound
+ * JUMPs. */
 #ifdef NON_MATCHING
 void overlay14ResetMode(void) {
     Overlay14Command *command;
@@ -58,3 +56,13 @@ void overlay14ResetMode(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14ResetMode/func_overlay_014_F0000498_186FD70.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay14ResetMode:start
+ * symbol: overlay14ResetMode
+ * score: 49/56 words
+ * frame: 0x30
+ * relocations: 18
+ * first-mismatch: +0x14
+ * summary: Fresh current-alias V0 has 7 masked/11 raw; flag lattice tied; trace proves schedule residue; candidate identity proof remains pending.
+ * PLATEAU-HANDOFF:overlay14ResetMode:end
+ */

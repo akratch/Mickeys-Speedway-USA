@@ -17,11 +17,14 @@ void overlay4InitializeObjectMotion(Overlay4InitObject *object,
 
 /*
  * Plateau: -O2 -mips2 -32 -Wab,-r4300_mul leaves eight instruction-word
- * differences.  The first is +0x44 (the mode temporary is v0 instead of
- * v1); the other five are one threshold/result register-web swap.  Declaring
- * the spawn packet before the three pointer locals gives its exact sp+0x4C
- * home.  All 11 relocation offsets/types agree; static preflight resolves 10
- * identities and leaves the overlay 36 call at +0x354 unresolved.
+ * differences.  The first non-relocation difference is +0x44 (the mode
+ * temporary is v0 instead of v1); the other five are one threshold/result
+ * register-web swap.  Declaring the spawn packet before the three pointer
+ * locals gives its exact sp+0x4C home.  All 11 relocation offsets/types agree;
+ * static preflight resolves 10 identities and leaves the overlay 36 call at
+ * +0x354 unresolved.  A fidelity-clean allocator trace finds zero-cost colour
+ * ties for the latter webs but cannot attribute them to source semantics; two
+ * trace-directed natural forms are byte-flat.
  */
 #ifdef NON_MATCHING
 void overlay4UpdateObjectMotion(Overlay4MotionObject *object, s32 updateRate) {
@@ -278,7 +281,7 @@ void overlay4FindSearchPosition(f32 *outX, f32 *outZ,
  * score: 222/230 words
  * frame: 0x60
  * relocations: 11
- * first-mismatch: +0x44
- * summary: two integer allocation webs remain; cross-overlay call identity unresolved statically
+ * first-mismatch: +0x3C
+ * summary: fidelity-clean allocator trace proves zero-cost v1/a0 ties but has no source-attributed webs; two natural carrier forms are flat
  * PLATEAU-HANDOFF:overlay4UpdateObjectMotion:end
  */

@@ -29,7 +29,7 @@ void overlay74HitReloc(void);
 void overlay74SoundReloc(u16 soundId, void **handle);
 void overlay74RewardReloc(s32 count);
 
-/* NON_MATCHING plateau (reproved 2026-08-29): policy-clean configured C is
+/* NON_MATCHING plateau (reproved 2026-08-31): policy-clean configured C is
  * exact-sized at 100 words with all eight required relocation offsets/types,
  * but differs in 39 relocation-masked words from +0x0 and uses a 0x70 frame
  * instead of the target's 0x60. The extra 16 non-save bytes shift the result
@@ -45,16 +45,21 @@ void overlay74RewardReloc(s32 count);
  * static call relocations. Exact pinned DKR v77/v80/JFG range scans found no
  * donor; no attributable near-match oracle survives.
  * Historical forced-color and permuter scores have no surviving attributable
- * variant objects and remain scheduling context only. The bounded clean-source
- * route is exhausted; linked equality proves the assembly fallback only. */
+ * variant objects and remain scheduling context only. A fresh bounded lexical-
+ * lifetime pass moved the result array into the outer conditional, moved the
+ * late count/flagBits/mask carriers into their use block, and combined both
+ * changes. All three probes were byte-flat at 61/100 exact positional words,
+ * with the same 0x70 frame, 39 residual words from +0x0, and all eight
+ * relocation offsets/types preserved. The bounded clean-source route is
+ * exhausted; linked equality proves the assembly fallback only. */
 #ifdef NON_MATCHING
 /* PLATEAU-HANDOFF
  * symbol: overlay74Update
- * score: 39 differing words
+ * score: 61/100 words
  * frame: 0x70
  * relocations: 8
  * first-mismatch: +0x0
- * summary: Target frame is 0x60; 16 extra non-save bytes shift the result array and cascade pool/temp assignments; flags and outer-OR order are exhausted.
+ * summary: Target frame is 0x60; outer-array, late-carrier, and combined lexical scopes are byte-flat, leaving the 16-byte frame/lifetime blocker.
  */
 void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
     Overlay74UpdateObject *results[13];

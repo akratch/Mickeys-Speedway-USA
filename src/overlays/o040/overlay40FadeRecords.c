@@ -49,20 +49,15 @@ extern s16 gOverlay40BlendOutput;
  * lane is exact. One allocator trace and the complete 119-flag lattice found
  * no exact object, with canonical -O2 -mips2 tied for best. The object emits
  * all ten runtime HI16/LO16 roles: D_800D6C4C(timer), D_800D6C52(current),
- * D_800D6C50(target), D_800D6C4E(duration), and D_800D6C54(output). Owned
- * Overlay 40 +0x690..+0x824 / ROM 0x1886F40..0x18870D4 excludes separate
+ * D_800D6C50(target), D_800D6C4E(duration), and D_800D6C54(output).
+ * The later exact comma-expression web-formation mechanism was re-proved in
+ * three bounded forms: independent grouping regressed to 93/101, chained
+ * grouping reproduced 98/101, and reversed grouping regressed to 83/101.
+ * Owned Overlay 40 +0x690..+0x824 / ROM 0x1886F40..0x18870D4 excludes separate
  * +0x824..+0x830 padding. ORT 1314 and resident runtime record 156 at
  * func_8000D978+0x130 authenticate the sole inbound trap site. Mickey-only;
  * exact pinned DKR v77/v80/JFG scans are negative. */
 #ifdef NON_MATCHING
-/* PLATEAU-HANDOFF
- * symbol: overlay40FadeRecords
- * score: 98/101 words
- * frame: 0x8
- * relocations: 10
- * first-mismatch: +0xC
- * summary: declaration-order and lexical-scope probes were flat; one v0/v1 globalcolor web remains
- */
 void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
                           s32 amount) {
     Overlay40FadeRecord *record;
@@ -123,3 +118,13 @@ void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o040/overlay40FadeRecords/func_overlay_040_F0000690_1886F40.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay40FadeRecords:start
+ * symbol: overlay40FadeRecords
+ * score: 98/101 words
+ * frame: 0x8
+ * relocations: 10
+ * first-mismatch: +0xC
+ * summary: comma/coalescing lever closed: independent 93/101, chained 98/101, reversed 83/101; baseline restored
+ * PLATEAU-HANDOFF:overlay40FadeRecords:end
+ */

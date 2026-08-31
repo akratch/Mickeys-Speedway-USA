@@ -21,19 +21,18 @@ void *overlay8GetIndexed(Overlay8IndexedObject *object) {
     return result;
 }
 
-/* Workbench p5: structure-mismatch; 508/527 candidate/target instructions, 477 words from +0x0.
- * Lever: constant-audit plus surface/query declaration order; surface order was neutral and a saved query alias enlarged the frame.
- * Remains: candidate frame is 24 bytes larger, with query-spill ownership and global-relocation cascades unresolved. */
+/* Workbench p6: structure-mismatch; 511/527 candidate/target instructions, 438 words from +0x2C.
+ * A six-entry surface buffer and direct bound globals restore the exact 0xA0 frame and improve
+ * relocation offset/type alignment from 23 to 32; pointer/index surface forms compile equivalently.
+ * Remains: 16 missing instructions and relocation records plus unresolved global identities. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0000058_185DDB0(O8P0058Owner *owner,
                                        s32 updateRate) {
     O8P0058State *state;
     f32 vector[3];
     s16 angles[3];
-    O8P0058Surface surfaces[8];
+    O8P0058Surface surfaces[6];
     O8P0058Surface *surface;
-    f32 minimum;
-    f32 maximum;
     f32 floorHeight;
     f32 update;
     f32 value;
@@ -87,19 +86,17 @@ void func_overlay_008_F0000058_185DDB0(O8P0058Owner *owner,
         }
     }
 
-    minimum = D_B0;
-    maximum = D_B4;
-    if (state->lower4 < minimum) {
-        state->lower4 = minimum;
+    if (state->lower4 < D_B0) {
+        state->lower4 = D_B0;
     }
-    if (maximum < state->lower4) {
-        state->lower4 = maximum;
+    if (D_B4 < state->lower4) {
+        state->lower4 = D_B4;
     }
-    if (state->upper8 < minimum) {
-        state->upper8 = minimum;
+    if (state->upper8 < D_B0) {
+        state->upper8 = D_B0;
     }
-    if (maximum < state->upper8) {
-        state->upper8 = maximum;
+    if (D_B4 < state->upper8) {
+        state->upper8 = D_B4;
     }
 
     o8P0058OrientReloc(owner, state);
@@ -120,15 +117,14 @@ void func_overlay_008_F0000058_185DDB0(O8P0058Owner *owner,
     state->surface68 = -32768.0f;
     if (count != 0) {
         index = count - 1;
-        surface = &surfaces[index];
         do {
+            surface = &surfaces[index];
             if ((surface->flags4 & 0x10000) != 0) {
                 state->surface68 = surface->height0;
             }
             if ((surface->flags4 & 0x08000000) != 0) {
                 floorHeight = surface->height0;
             }
-            surface--;
         } while (index-- != 0);
     }
 
@@ -929,14 +925,18 @@ void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
     }
 }
 
-/* NON_MATCHING p4 plateau: workbench structure-mismatch; exact-TU -Wo,-loopunroll,0 is 910 vs 898 instructions, 755 raw words different, frames -0xC8/-0x80, first +0x0.
- * Lever: word-sized selectedMode reduces alignment gaps; fourth-argument s32 and volatile probes regress, while prior query/lifetime/register levers remain closed.
- * Remains: 0x48-byte query/FP spill ownership and downstream temp cascade; GLOBAL_ASM remains canonical. */
+/* NON_MATCHING pipeline plateau: exact-TU -Wo,-loopunroll,0 is 910 vs 898
+ * instructions, 750 masked/751 raw words different, frames -0xC8/-0x80,
+ * first +0x0. A terrain-sample cursor gains four masked words; stack-overlay,
+ * initialization-order, block-lifetime, and alternate loop forms regress.
+ * Remains: 0x48-byte query/FP spill ownership, downstream temp cascade, and
+ * ambiguous runtime identity for the F49E8 call; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
                                       O8P34A0State *state, f32 limit,
                                       f32 update) {
     O8P34A0Query query;
+    f32 **sample;
     f32 selectedValue;
     f32 blend;
     f32 result;
@@ -1062,9 +1062,11 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
             if (sampleCount != 0) {
                 index = 0;
                 if (sampleCount > 0) {
+                    sample = query.samples0;
                     do {
-                        height = *query.samples0[index];
+                        height = **sample;
                         index++;
+                        sample++;
                     } while ((height >= owner->y10) &&
                              (index != sampleCount));
                     result = height;
@@ -1742,4 +1744,54 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * first-mismatch: +0x6C
  * summary: Exact geometry/frame and 48 relocation sites; flags and bounded permutation exhausted; first substantive allocator drift +0x428.
  * PLATEAU-HANDOFF:func_overlay_008_F0000894_185E5EC:end
+ */
+
+/* PLATEAU-HANDOFF:func_overlay_008_F0001000_185ED58:start
+ * symbol: func_overlay_008_F0001000_185ED58
+ * score: 159 differing words
+ * frame: -0x18
+ * relocations: 18
+ * first-mismatch: +0x8
+ * summary: Fresh V0 is one instruction short; authentic three-argument ABI retains the unused-a0 home, a3 state carrier, and rollover-join mismatch.
+ * PLATEAU-HANDOFF:func_overlay_008_F0001000_185ED58:end
+ */
+
+/* PLATEAU-HANDOFF:func_overlay_008_F000291C_1860674:start
+ * symbol: func_overlay_008_F000291C_1860674
+ * score: 56 differing words
+ * frame: -0x70
+ * relocations: 25
+ * first-mismatch: +0x0
+ * summary: Fresh exact geometry retains the 0x70/0x68 frame split and divergent FP pool; prior declaration, lifetime, constant, and flag probes are exhausted.
+ * PLATEAU-HANDOFF:func_overlay_008_F000291C_1860674:end
+ */
+
+/* PLATEAU-HANDOFF:func_overlay_008_F00042A8_1862000:start
+ * symbol: func_overlay_008_F00042A8_1862000
+ * score: 384 differing words
+ * frame: 0xA0
+ * relocations: 40
+ * first-mismatch: +0x44
+ * summary: Configured flags remain best; reconstruct FP lifetimes and named data identities to supply 17 words and 22 relocation records without changing the exact frame.
+ * PLATEAU-HANDOFF:func_overlay_008_F00042A8_1862000:end
+ */
+
+/* PLATEAU-HANDOFF:func_overlay_008_F0000058_185DDB0:start
+ * symbol: func_overlay_008_F0000058_185DDB0
+ * score: 438 differing words
+ * frame: 0xA0
+ * relocations: 86
+ * first-mismatch: +0x2C
+ * summary: Six surface entries and direct bounds restore the exact frame; recover the remaining eight global relocation pairs and 16 instructions before allocator work.
+ * PLATEAU-HANDOFF:func_overlay_008_F0000058_185DDB0:end
+ */
+
+/* PLATEAU-HANDOFF:func_overlay_008_F00034A0_18611F8:start
+ * symbol: func_overlay_008_F00034A0_18611F8
+ * score: 750 differing words
+ * frame: 0xC8
+ * relocations: 21
+ * first-mismatch: +0x0
+ * summary: Target frame 0x80; candidate relocation identity remains ambiguous; next lever is query and FP stack ownership.
+ * PLATEAU-HANDOFF:func_overlay_008_F00034A0_18611F8:end
  */

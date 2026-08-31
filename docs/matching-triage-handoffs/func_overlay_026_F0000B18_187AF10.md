@@ -2,9 +2,9 @@
 ### `func_overlay_026_F0000B18_187AF10` plateau handoff
 
 - source: `src/overlays/o026/func_overlay_026_F0000B18_187AF10.c`
-- score: 128/131 words
+- score: 129/131 words
 - frame: 0x78
 - relocations: 7
-- first mismatch: +0x2C
-- summary: FP multiply carrier and caller-spill home remain after bounded lifetime and temp-birth probes
+- first mismatch: +0x108
+- summary: Trace maps projectedX web54/f18 but cannot expose final homes; its declaration reorder regressed and left sp+0x40. Next: calibrated producer hook.
 <!-- plateau-handoff:func_overlay_026_F0000B18_187AF10:end -->

@@ -34,9 +34,10 @@ extern f32 D_18;
 extern f32 D_1C;
 extern f32 sqrtf(f32 value);
 
-/* Workbench p7: allocation-mismatch; 131/131 instructions, -0x78 frame, 3 masked/6 raw words, first +0x78.
- * Lever: an explicit source operand commute was compiler-canonicalized; prior spill-home/local-reuse forms remain eliminated.
- * Remains: one FP multiply encoding and the sqrt spill home +0x44 versus +0x40; GLOBAL_ASM stays canonical. */
+/* Workbench: 131/131 instructions, 0x78 frame, 2 masked/5 raw words,
+ * first substantive mismatch +0x108. Moving the first cross-product term
+ * last fixes its multiply encoding; rotating the squared-magnitude terms
+ * regresses structurally. The sqrt spill home remains +0x40 versus +0x44. */
 #ifdef NON_MATCHING
 void func_overlay_026_F0000B18_187AF10(
     s32 unused, O26ProjectionVec3f *out, O26ProjectionVec3f *direction,
@@ -59,8 +60,8 @@ void func_overlay_026_F0000B18_187AF10(
     planeConstant = plane->constant;
     if ((D_14 <= normalY) || (plane->flags & 0x10000000)) {
         crossX = direction->z * normalY;
-        crossY = (normalZ * direction->x) -
-                 (direction->z * normalX);
+        crossY = -(direction->z * normalX) +
+                 (normalZ * direction->x);
         crossZ = -(direction->x * normalY);
 
         projectedX = (crossY * normalZ) - (crossZ * normalY);
@@ -106,10 +107,10 @@ void func_overlay_026_F0000B18_187AF10(
 
 /* PLATEAU-HANDOFF:func_overlay_026_F0000B18_187AF10:start
  * symbol: func_overlay_026_F0000B18_187AF10
- * score: 128/131 words
+ * score: 129/131 words
  * frame: 0x78
  * relocations: 7
- * first-mismatch: +0x2C
- * summary: FP multiply carrier and caller-spill home remain after bounded lifetime and temp-birth probes
+ * first-mismatch: +0x108
+ * summary: Trace maps projectedX web54/f18 but cannot expose final homes; its declaration reorder regressed and left sp+0x40. Next: calibrated producer hook.
  * PLATEAU-HANDOFF:func_overlay_026_F0000B18_187AF10:end
  */

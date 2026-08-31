@@ -119,9 +119,17 @@ extern void overlay58EnsureResource(void);
  * Mickey-only reconstruction. The donor scan found no close permitted
  * skeleton, and skeleton_scan cannot yet address an assembly ownership range.
  *
- * Workbench p5: structure-mismatch; 826/829 candidate/target instructions, 724 differing words from +0x0, frame -0xA0 vs -0x88.
- * No new safe lever: prior ABI/prologue, branch-order, marker-lifetime, and geometry forms remain exhausted.
- * Remains: 24-byte non-save frame surplus and mixed schedule/register web.
+ * Workbench p6: structure-mismatch; 826/829 candidate/target instructions,
+ * 724 differing words from +0x0, frame -0x98 vs -0x88. Inlining the one-use
+ * advance predicate removed eight bytes of frame without changing the
+ * positional score; integer-promoting selection to s32 is byte-identical.
+ * Prior ABI/prologue, flags, branch-order, marker-lifetime, geometry, and
+ * split-path forms remain exhausted. The extra s8 web and 16-byte frame
+ * surplus need a new source-authentic lifetime or CFG mechanism. A bounded
+ * recheck using Overlay34's later exact conditional-start precedent was flat:
+ * branch-local `increment` retained 826 instructions, 724 differences, and
+ * the 0x98 frame. Branch-local progress regressed to 823/725, while scoping
+ * the early button/selection carriers regressed to 827/732; both kept 0x98.
  */
 #ifdef NON_MATCHING
 void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
@@ -133,9 +141,8 @@ void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
     s16 start;
     s16 end;
     s32 marker;
-    s16 selection;
+    s32 selection;
     s32 stage;
-    s32 advance;
     s32 buttons;
     s32 mode;
     f32 increment;
@@ -401,8 +408,7 @@ void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
 
             if (stage == D_6C) {
                 increment = D_120 * (f32)updateRate;
-                advance = D_2C0 < 1.0f;
-                if ((D_2BC == 0) & advance) {
+                if ((D_2BC == 0) & (D_2C0 < 1.0f)) {
                     if (D_30 == 3) {
                         amSndPlay(0x32B, &D_2BC, D_6C);
                     }
@@ -463,3 +469,13 @@ void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o058/func_overlay_058_F00005FC_18AF7E4/func_overlay_058_F00005FC_18AF7E4.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_058_F00005FC_18AF7E4:start
+ * symbol: func_overlay_058_F00005FC_18AF7E4
+ * score: 724 differing words
+ * frame: 0x98
+ * relocations: 267
+ * first-mismatch: +0x0
+ * summary: Three natural lexical forms were flat or regressed; the extra saved-register web and 16-byte frame surplus remain.
+ * PLATEAU-HANDOFF:func_overlay_058_F00005FC_18AF7E4:end
+ */

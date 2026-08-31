@@ -1870,6 +1870,17 @@ byte-identical.
 
 `overlay 19 +0x0D78..+0x0F58` (`overlay19ClassifyEdge`) — 480 bytes / 120 words. NON_MATCHING: bounded configured full-TU C is exact-sized and frameless at 110/120 raw/normalized words, first `+0x138`, with no relocations or owned padding. All 119 flags and three trace-supported natural forms are nonexact. Its sole inbound is the local jump from `overlay19FindAdjacent+0xD8`; exact linked bytes come from the assembly fallback and contribute **0 exact C bytes**.
 
+`overlay 22 +0x0A7C..+0x0D30` (`func_overlay_022_F0000A7C_1878B84`)
+contributes **692 exact C bytes / 173 words** with the retail `0x88` frame.
+Rotating the two independent negative cross-product terms, while retaining an
+explicit dereference for the remaining product, reproduces IDO's floating-point
+operand order without changing semantics. The configured instruction stream is
+exact. Its LOCAL HI16/LO16 pair at function `+0x2C/+0x30` addresses the module
+constant base, and its SYMBOL call at `+0x110` binds resident `sqrtf`; the
+metadata-only call rebind restores the shipped placeholder identity without
+altering an instruction. All three runtime records, the linked owned range,
+complete overlay, and full US ROM are byte-identical.
+
 `overlay 22 +0x0D30..+0x0E9C` (`func_overlay_022_F0000D30_1878E38`) — 364 bytes / 91 words. NON_MATCHING: identity-correct configured full-TU C has the exact `0x28` frame and 48/91 raw/runtime-normalized words, first `+0x10`; all 43 residual sites are register-only. The runtime contract is exact at all 12 offsets, types, identities, and addends: a LOCAL pair to count `+0xED0`, three LOCAL node-array pairs to `+0xEA0`, and SYMBOL calls to resident `partUpdateTriggers`, `func_80002FE0` twice, and `func_80006EA0`. The 119-row flag lattice is nonexact, one fidelity-clean allocator trace records 11 high-confidence integer webs, and three natural lifetime/loop forms produce no gain. ORT 1465 has seven resident inbounds from `func_80053868` (`+0x5F8/+0xCF0/+0xCFC`), `func_800557F8+0x158`, `func_80055D08+0x124`, `func_80055E50+0xF0`, and `func_800573C8+0x350`; Overlay 22 table-2 records 10 and 17 add local inbounds at module `+0x274/+0x5C4`. The function consumes object and flags in `a0/a1`; one local call also leaves an ignored count pointer in `a2`. The following `+0xE9C..+0xEA0` word is separately owned padding. Exact linked function/module/ROM evidence proves the assembly fallback only, so this owner contributes **0 exact C bytes**.
 
 `overlay 99 +0x02A0..+0x0638` (`overlay99ApplySegment`) — 920 bytes / 230 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a bijective private-representation rewrite, plus removal of a 16-byte compiler-private `.rodata` duplicate already covered by the retained runtime table); source kept as decomp-permuter input. The object covers 13 static and 27 runtime relocation roles.
@@ -1894,7 +1905,7 @@ byte-identical.
 
 `overlay 19 +0x01E0..+0x0A30` (`overlay19BuildPlanes`) — 2,128 bytes / 532 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a complete private-representation rewrite); source kept as decomp-permuter input. The retained relocation surface covers four calls. Every non-padding executable interval has C source, but `overlay19BuildPlanes`, `overlay19BuildAdjacency`, `overlay19ClassifyEdge`, and `overlay19BuildSpatialMasks` remain guarded `NON_MATCHING`; Overlay 19 is not exact-closed.
 
-`overlay 98`'s edge owners total **684 guarded NON_MATCHING bytes / 171 words**: `overlay98CollectAccepted` at `+0x0144..+0x0234` and `overlay98CheckObject` at `+0x0848..+0x0A04`. Their retired wrappers reached equality only through prohibited frame, schedule, CFG, and register-field instruction edits, so both contribute **0 exact C bytes**. The latter's final 12 zero bytes remain separately owned assembly padding.
+`overlay 98 +0x0144..+0x0234` (`overlay98CollectAccepted`) contributes **240 exact C bytes / 60 words**. A fidelity-gated IDO stack-home trace selected the natural declaration/lifetime form: removing two transient entry aliases and retaining the address-taken result as the third automatic reproduces the `0x50` frame. All six relocation sites and effective identities, the linked owner and complete overlay, and the full US ROM are exact. `overlay98CheckObject` at `+0x0848..+0x0A04` remains guarded `NON_MATCHING` and contributes 0 exact C bytes; its final 12 zero bytes remain separately owned assembly padding.
 
 `overlay 65 +0x0080..+0x0BC0` (`overlay65UpdateParticles`) — 2,880 bytes / 720 words. NON_MATCHING: retired 2026-08-24 per ADR 0002 (was made to match via a complete private-representation rewrite across the function); source kept as decomp-permuter input. The retained surface covers 36 static relocation records and all 64 runtime roles. Every non-padding executable interval has C source, but `overlay65UpdateParticles` and `func_overlay_065_F0000C38_18C4EA0` remain guarded `NON_MATCHING`; Overlay 65 is not exact-closed.
 

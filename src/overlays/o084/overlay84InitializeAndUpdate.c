@@ -100,11 +100,11 @@ void overlay84InitializeAndUpdate(Overlay84Object *object, s32 arg) {
             tilt = -initialNode->tilt;
             state->targetTilt = tilt;
             state->tilt = tilt;
-            state->nodeAngle = initialNode->angle;
+            state->nodeAngle = initialNode->angle,
+            state->height = state->targetHeight = initialNode->y;
             state->phase = 0;
             state->timer = 0;
             state->scale = 1.0f;
-            state->height = state->targetHeight = initialNode->y;
             state->x = initialNode->x;
             state->y = initialNode->y;
             state->z = initialNode->z;
@@ -129,3 +129,13 @@ void overlay84InitializeAndUpdate(Overlay84Object *object, s32 arg) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o084/overlay84InitializeAndUpdate/func_overlay_084_F0000048_18D0528.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay84InitializeAndUpdate:start
+ * symbol: overlay84InitializeAndUpdate
+ * score: 172/179 words
+ * frame: 0x58
+ * relocations: 5
+ * first-mismatch: +0x14
+ * summary: Fidelity-clean UOPT trace found 19 allocator webs but no stack-home ownership; add a calibrated producer hook.
+ * PLATEAU-HANDOFF:overlay84InitializeAndUpdate:end
+ */

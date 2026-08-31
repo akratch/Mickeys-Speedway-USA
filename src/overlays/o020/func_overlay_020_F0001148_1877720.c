@@ -37,9 +37,10 @@ extern f32 sqrtf(f32 value);
 extern f32 gOverlay20TailXLimit;
 extern f32 gOverlay20TailYLimit;
 
-/* Workbench p7: structure-mismatch, 207/205 instructions/frame -144, 178 masked (180 raw) words from +0x20.
- * Target-derived initialization reorder regresses to 203 instructions; prior mips3/r4300-mul and init/type/comparison/volatile/neighbor/lifetime/permuter levers remain best.
- * Register-class divergence begins in the grid-field load web; retain NON_MATCHING. */
+/* Workbench p8: structure-mismatch, 207/205 instructions/frame 0x90, 178 masked (180 raw) words from +0x20.
+ * Five bounded FP association/explicit-negation forms were nonexact; a z-first
+ * length association improves only the normalized diagnostic from 161 to 160.
+ * Register-class divergence still begins in the grid-field load web; retain NON_MATCHING. */
 #ifdef NON_MATCHING
 f32 func_overlay_020_F0001148_1877720(Overlay20TailGrid *grid, f32 x, f32 y,
     Overlay20TailVector *normal) {
@@ -112,8 +113,8 @@ f32 func_overlay_020_F0001148_1877720(Overlay20TailGrid *grid, f32 x, f32 y,
         normalZ = (baseValue - cornerValue) * cellWidth;
     }
 
-    length = sqrtf((normalX * normalX) + (normalY * normalY) +
-                   (normalZ * normalZ));
+    length = sqrtf((normalZ * normalZ) +
+                   ((normalX * normalX) + (normalY * normalY)));
     if ((length != 0.0f) && (normalY != 0.0f)) {
         normalX /= length;
         normalZ /= length;
@@ -136,9 +137,9 @@ f32 func_overlay_020_F0001148_1877720(Overlay20TailGrid *grid, f32 x, f32 y,
 /* PLATEAU-HANDOFF:func_overlay_020_F0001148_1877720:start
  * symbol: func_overlay_020_F0001148_1877720
  * score: 178 differing words
- * frame: -0x90
+ * frame: 0x90
  * relocations: 5
  * first-mismatch: +0x20
- * summary: Target is 207 words versus 205; four of five relocation offset/type sites align but static identities remain unresolved.
+ * summary: Five bounded FP association forms were nonexact; retained length order ties 178 masked words and improves normalized diagnostic 161 to 160.
  * PLATEAU-HANDOFF:func_overlay_020_F0001148_1877720:end
  */

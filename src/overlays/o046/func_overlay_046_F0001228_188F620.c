@@ -86,9 +86,10 @@ extern void func_800349A4(Overlay46DisplayCommand **commands, void *texture,
         O46_SHIFTL(alpha, 0, 8); \
 }
 
-/* Workbench p5: structure-mismatch; 437/461 candidate/target instructions, 415 words from +0x5C.
- * Lever: constant-audit plus direct-global, alias, and indexed-spark probes; each regressed the emitter shape.
- * Remains: 24 missing instructions, relocation differences, and the inner emitter CFG/register cascade. */
+/* Workbench p6: structure-mismatch; 437/461 candidate/target instructions, 415 words from +0x5C.
+ * V0 has the exact 0xF0 frame but is 96 bytes short; target/candidate relocation counts are 63/55.
+ * Constant, flag, direct-global, alias, emitter-shape, and indexed-spark probes are exhausted.
+ * Next lever: reconstruct the missing block/lifetime from Mickey call and relocation evidence. */
 #ifdef NON_MATCHING
 void func_overlay_046_F0001228_188F620(s32 updateRate) {
     s32 i;
@@ -278,3 +279,13 @@ void func_overlay_046_F0001228_188F620(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o046/func_overlay_046_F0001228_188F620/func_overlay_046_F0001228_188F620.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_046_F0001228_188F620:start
+ * symbol: func_overlay_046_F0001228_188F620
+ * score: 415 differing words
+ * frame: 0xF0
+ * relocations: 63
+ * first-mismatch: +0x5C
+ * summary: Candidate is 24 instructions short; reconstruct the missing block/lifetime from Mickey evidence after exhausted flags, constants, aliases, and emitter forms.
+ * PLATEAU-HANDOFF:func_overlay_046_F0001228_188F620:end
+ */

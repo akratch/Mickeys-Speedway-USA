@@ -71,9 +71,11 @@ extern void overlay46DrawParticleReloc(void *data, void *model,
                                        void *resource, s32 flags, s32 alpha);
 
 /* Pinned DKR v77/v80 and JFG skeleton scans found no close donor. */
-/* Workbench p4: structure-mismatch; 453/450 instructions, 363 positional words, first +0x0; frame 0xE0 vs target 0xC0.
- * Levers: prior constant/particle-base forms plus this run's step-lifetime/register probes; all retained the 32-byte frame excess or worsened structure.
- * Remains: switch-local FP/result stack allocation and overlay relocation identities. */
+/* Workbench: structure-mismatch; 453/450 instructions, 363 masked words,
+ * first +0x0; frame 0xE0 vs target 0xC0. Constants, flags, lifetimes,
+ * register order, and step probes remain exhausted. The later-proven FP term
+ * rotation is byte-flat in case 1, case 4, and combined forms. Remains:
+ * switch-local FP/result stack allocation and overlay relocation identities. */
 #ifdef NON_MATCHING
 s32 func_overlay_046_F0000874_188EC6C(s32 updateRate) {
     s32 result;
@@ -306,3 +308,13 @@ s32 func_overlay_046_F0000874_188EC6C(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o046/func_overlay_046_F0000874_188EC6C/func_overlay_046_F0000874_188EC6C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_046_F0000874_188EC6C:start
+ * symbol: func_overlay_046_F0000874_188EC6C
+ * score: 87/450 words
+ * frame: 0xE0
+ * relocations: 96
+ * first-mismatch: +0x0
+ * summary: Fresh V0 confirms 1,812-byte candidate, 32-byte frame excess, and broad allocation drift; later-proven FP term rotation is byte-flat in all three scoped forms.
+ * PLATEAU-HANDOFF:func_overlay_046_F0000874_188EC6C:end
+ */

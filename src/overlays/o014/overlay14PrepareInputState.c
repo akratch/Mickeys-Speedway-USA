@@ -1,22 +1,26 @@
 #include "PR/ultratypes.h"
 
-extern s32 gOverlay14InputFlag0;
-extern s32 gOverlay14InputFlag4;
-extern s32 gOverlay14InputFlag8;
-extern s32 gOverlay14PulseC;
-extern s32 gOverlay14Pulse10;
-extern s32 gOverlay14Pulse14;
-extern s32 gOverlay14Pulse18;
-extern s32 gOverlay14Timer1C;
-extern s32 gOverlay14Timer20;
+s32 gOverlay14InputFlag0;
+s32 gOverlay14InputFlag4;
+s32 gOverlay14InputFlag8;
+s32 gOverlay14PulseC;
+s32 gOverlay14Pulse10;
+s32 gOverlay14Pulse14;
+s32 gOverlay14Pulse18;
+s32 gOverlay14Timer1C;
+s32 gOverlay14Timer20;
 
 extern u16 joyGetPressed(s32 player);
 extern s8 joyGetStickX(s32 player);
 extern s8 joyGetStickY(s32 player);
 
-/* Plateau (batch 20): exact 0x20C; 65 words remain, first +0x34.
- * Four branch locals improved 78; pointer, axis, call, load, and 119 flag variants failed.
- * The 40-minute permuter's lower scores required invented wrappers and were rejected. */
+/* Plateau (batch 21): exact 0x20C and frame 0x20; 65 words remain, first +0xC.
+ * The nine BSS definitions reproduce offsets 0x0..0x20. A diagnostic surface
+ * synthesized from this candidate authenticates all 29 relocation identities;
+ * the guarded fallback remains fail-closed at 3/29 until the C can be promoted.
+ * Generic D-name spellings were flat and direct D definitions collided globally.
+ * Batch 20 exhausted branch, pointer, axis, call, load, flag, and permuter forms;
+ * allocator lifetime/UOPT tracing is the next untried code-generation lever. */
 #ifdef NON_MATCHING
 void overlay14PrepareInputState(s32 step) {
     s32 first;
@@ -106,7 +110,7 @@ void overlay14PrepareInputState(s32 step) {
  * score: 66/131 words
  * frame: 0x20
  * relocations: 29
- * first-mismatch: +0x34
- * summary: Exact geometry/opcodes; call identities repaired, but 65 allocator words and 26 data identities remain; next lever is UOPT trace or data-symbol binding.
+ * first-mismatch: +0xC
+ * summary: Nine owned BSS definitions enable a 29/29 diagnostic identity proof; 65 allocator words remain, with UOPT lifetime tracing as the next lever.
  * PLATEAU-HANDOFF:overlay14PrepareInputState:end
  */

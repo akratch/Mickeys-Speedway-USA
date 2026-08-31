@@ -6,5 +6,5 @@
 - frame: 0x48
 - relocations: 9
 - first mismatch: +0x2C
-- summary: Exact stack homes leave a cursor CFG/temp web; all nine candidate relocation identities remain unresolved
+- summary: Trace: 13 integer decisions; three cursor forms equal V0; 9/9 offsets/types and 0/9 static identities.
 <!-- plateau-handoff:overlay68CheckKind:end -->

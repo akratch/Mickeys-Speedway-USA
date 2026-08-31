@@ -6,17 +6,16 @@
 - frame: 0x88
 - relocations: 8
 - first mismatch: +0xC
-- summary: Negative-index cursor spelling fixes one immediate; broad allocator and command-schedule residual remains.
-- assignment base: `c586089df86a94384eccb45d88e4cbdc7dcbff26`
+- summary: Term rotation regresses; operand reversal and explicit dereference are flat.
+- assignment base: `9c62568e60deef2170043478e9473e5b42fd27b4`
 - owned range: overlay 58 `+0x4C04..+0x4F28`, 804 bytes / 201 words
-- baseline: 103 differing positional words / 98 of 201 words exact, first mismatch `+0xC`
-- retained score: 102 differing positional words / 99 of 201 words exact
-- frame proof: exact `0x88`
-- relocation proof: target and candidate each emit eight records, with 8/8 offsets and types aligned; all eight candidate identities remain unresolved, so preflight fails closed
-- mismatch proof: first mismatch is `+0xC`
-- attempts: ten coherent cursor, alias, color-carrier, declaration/lifetime, scalar-carrier, and command-store forms, followed by all 119 flag combinations; no generic permuter was run
-- retained improvement: address the first colored vertex as `vertices[-3]` from the advanced cursor, which corrects the dead-pointer advance immediate without changing the write order or semantics
-- residual: 102 positional words; workbench classifies the aligned view as 97 register, seven structural, one schedule, and one stack-offset constant site, with the global-cursor/color and floating-point pools still cyclically recolored
-- next action: reopen only with new evidence for the global-cursor/color web or floating-point pool ordering; do not repeat the completed source forms or flag lattice
-- JFG: no credible use location was found. The nearest cross-title skeleton is Conker at 0.048, no JFG function appears in the top ten, and no exact coddog window or source analogue supports a JFG ledger entry
+- fresh baseline: 99 of 201 words exact, 102 positional differences, first mismatch `+0xC`; exact `0x88` frame
+- relocation proof: target and candidate each emit eight records with 8/8 offsets and types aligned; all eight candidate static identities remain unresolved, so preflight fails closed
+- new mechanism evidence: the later exact Overlay 22 result rotates independent floating-point terms and uses one explicit `(*pointer).field` operand spelling; the Overlay 41 learning independently proves term rotation and commutative scalar-multiply order as valid IDO levers
+- bounded probes: rotating the distance sum from `dx, dy, dz` to `dy, dz, dx` regresses to 91 of 201 words and moves the first mismatch to `+0x4`; reversing both perpendicular scalar multiplies is byte-flat at 99 of 201; an explicit dereference at the first floating-point-derived vertex store is also byte-flat
+- exhausted prior work: ten cursor, alias, color-carrier, declaration/lifetime, scalar-carrier, and command-store forms plus all 119 flag combinations remain closed; no permutation was run because none of the three new probes produced a strict gain
+- retained source: the original negative-index cursor spelling remains best and fixes one dead-pointer advance immediate without changing write order or semantics
+- blocker: workbench still reports broad allocation mismatch, with the global-cursor/color and floating-point pools cyclically recolored; relocation identities also require resolution before any future promotion
+- next action: do not reopen the prior ten forms, flag lattice, or these three FP-order probes; require a new source-authentic lever for the global-cursor/color web or whole floating-point pool
+- donor check: no credible JFG use location exists; the nearest cross-title skeleton remains Conker at 0.048, with no exact coddog window or source analogue
 <!-- plateau-handoff:overlay58DrawSegmentStrip:end -->
