@@ -1546,10 +1546,13 @@ A later independent reproof of the public Overlay 98 contribution authenticated
 R_MIPS_26 resident `+0x241DC` at function `+0x2C`; LOCAL HI16/LO16 identities
 Overlay 98 `+0xAB4` (stored addend `+0x84`) at `+0x34/+0x38` and `+0xAB8`
 (stored addend `+0x88`) at `+0x4C/+0x50`; and the local JUMP to Overlay 98
-`+0x848` at `+0x74`. Its untouched C emits the same six offsets and types.
-Metadata-only identity rebinding still leaves only 48/60 linked words equal,
-with first mismatch `+0x0`; ORT 1322 and resident relocation 164 authenticate
-the inbound from `func_8000E5EC+0x190` (ROM call site `0xF7CC`).
+`+0x848` at `+0x74`. A later fidelity-gated IDO stack-home trace selected the
+natural carrier/lifetime form that emits the same six offsets/types and all
+60 instruction words with the retail `0x50` frame. Canonical promotion proves
+all six effective identities through the runtime table and linked ROM, plus
+the linked owner, complete overlay, and full-ROM identity. ORT 1322 and
+resident relocation 164 authenticate the inbound from
+`func_8000E5EC+0x190` (ROM call site `0xF7CC`).
 
 The same reproof authenticated `overlay98CheckObject` at `+0x848..+0xA04`.
 It owns six runtime tuples: R_MIPS_26 resident `+0x1312C` at `+0xA4`; LOCAL
