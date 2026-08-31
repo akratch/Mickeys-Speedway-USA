@@ -1743,3 +1743,13 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * summary: Exact geometry/frame and 48 relocation sites; flags and bounded permutation exhausted; first substantive allocator drift +0x428.
  * PLATEAU-HANDOFF:func_overlay_008_F0000894_185E5EC:end
  */
+
+/* PLATEAU-HANDOFF:func_overlay_008_F0001000_185ED58:start
+ * symbol: func_overlay_008_F0001000_185ED58
+ * score: 159 differing words
+ * frame: -0x18
+ * relocations: 18
+ * first-mismatch: +0x8
+ * summary: Fresh V0 is one instruction short; authentic three-argument ABI retains the unused-a0 home, a3 state carrier, and rollover-join mismatch.
+ * PLATEAU-HANDOFF:func_overlay_008_F0001000_185ED58:end
+ */
