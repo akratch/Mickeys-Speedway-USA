@@ -70,7 +70,7 @@ typedef struct Overlay75Object {
 } Overlay75Object;
 
 extern s32 gOverlay75SlotFlags[];
-extern f32 gOverlay75ThresholdReloc;
+extern f32 gOverlay75ThresholdReloc[];
 extern f32 overlay75Sin(s16 angle);
 extern f32 overlay75Cos(s16 angle);
 extern void overlay75MoveReloc(Overlay75Object *object, f32 x, f32 y, f32 z);
@@ -106,16 +106,13 @@ typedef struct Overlay75UpdateLocals {
 } Overlay75UpdateLocals;
 
 /*
- * Plateau (this run: the flag lattice plus nine structural candidates;
- * earlier work also ran a bounded 10-minute permuter batch): canonical
- * MIPS-II is exact-size with 19 differing words, first at +0x54.  Extending
- * the typed locals aggregate through the position, saved-entity, and model
- * pointer homes removed the extra stack slot and improved the prior 40-word
- * result; assigning the state pointer before the model moved the first
- * mismatch later.  All MIPS-II flag groups tie.  Moving the three local
- * initializations after the active-state test, either with a goto or a scoped
- * branch, changes the CFG, adds four bytes, and regresses to 284+ words.  The
- * remaining blocker is that prologue lifetime/scheduling boundary.
+ * Plateau: fresh V0 and all 119 flag configurations remain exact-sized at
+ * 304 words with a 0x58 frame and 19 differing words, first at +0x54.  The
+ * threshold's array-base spelling fixes its +4 addend and removes the sole
+ * raw-only relocation mismatch.  Nine natural scope, initializer, early-exit,
+ * declaration, and aggregate forms were flat or regressed; moving work-local
+ * initialization after the inactive exit adds one instruction and shifts the
+ * body.  The remaining blocker is the prologue lifetime/scheduling boundary.
  */
 #ifdef NON_MATCHING
 void overlay75UpdateMovingObject(Overlay75Object *object,
@@ -175,8 +172,8 @@ void overlay75UpdateMovingObject(Overlay75Object *object,
             } else {
                 locals.moved = 1;
             }
-            if (locals.previous < gOverlay75ThresholdReloc &&
-                gOverlay75ThresholdReloc <= object->transitionValue28) {
+            if (locals.previous < gOverlay75ThresholdReloc[1] &&
+                gOverlay75ThresholdReloc[1] <= object->transitionValue28) {
                 if (object->status48->alternateEvent61 != 0) {
                     locals.eventId = 0x1BC;
                 } else {
@@ -260,3 +257,13 @@ cache_position:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o075/overlay75UpdateMovingObject/func_overlay_075_F0000214_18CC17C.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay75UpdateMovingObject:start
+ * symbol: overlay75UpdateMovingObject
+ * score: 285/304 words
+ * frame: 0x58
+ * relocations: 20
+ * first-mismatch: +0x54
+ * summary: threshold +4 addend is fixed; prologue initializer lifetime and candidate relocation identities remain
+ * PLATEAU-HANDOFF:overlay75UpdateMovingObject:end
+ */
