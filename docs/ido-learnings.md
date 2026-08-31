@@ -153,10 +153,14 @@ bytes and disassembly never belong here.
   polynomial evaluation. When a residual is confined to that evaluation,
   preserve the target's inferred association by moving the proved independent
   leading term to the end of the source sum; also test operand order on a
-  commutative scalar multiply. This lever applies only when the arithmetic
-  domain and evaluation order are semantically interchangeable, and it must be
-  rejected unless the configured object, relocations, linked range, and full
-  ROM are exact. Evidence: Overlay 41's exact curve sampler in
+  commutative scalar multiply. For an independent difference of products,
+  spelling `a*b-c*d` as `-(c*d)+(a*b)` can rotate one term without changing
+  the result; an explicit `(*pointer).field` may also preserve a remaining
+  operand-order choice that the arrow spelling does not. These levers apply
+  only when the arithmetic domain and evaluation order are proved
+  interchangeable, and they must be rejected unless the configured object,
+  relocations, linked range, and full ROM are exact. Evidence: Overlay 41's
+  exact curve sampler and Overlay 22's exact plane resolver in
   `docs/overlays.md`.
 
 ### Search fidelity and false floors
