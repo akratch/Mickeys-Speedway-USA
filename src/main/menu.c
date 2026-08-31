@@ -319,12 +319,16 @@ void func_80038750(s32 language) {
     }
 }
 #ifdef NON_MATCHING
-/* Retained p6 was diagnostic: 85/86 instructions, frame 0x18, first +0x14,
- * with 66/85 positional target-word differences. Its empty address condition
- * was introduced only as an allocation lever and is removed; clean V0 is
- * uncompiled. Remaining work is the initial global-address allocation, later
- * loop webs, and relocation identities. Historical route exhaustion is
- * scheduling evidence only. */
+/* Fresh configured V0 is exact-size at 85 instructions with frame 0x18,
+ * 66/85 differing words, and first mismatch +0x14. The target/candidate own
+ * 33/34 relocations; eight offsets/types and five effective identities align.
+ * All 119 flag modes are nonexact. Block scopes, direct loop bounds, scalar
+ * global typing, donor-local result lifetimes, and line grouping were flat or
+ * regressed. A preceding-global pointer form reached 55 masked differences
+ * but uses unproved cross-object pointer arithmetic and is rejected, as is the
+ * historical empty condition. Resume with an authenticated aggregate BSS
+ * declaration or allocator-trace mechanism that separates the initial store
+ * and loop-base webs while delaying the later D_800D3498 address web. */
 /* PROVENANCE: compared with JFG's public src/menu.c::initFront, which retains assembly. */
 void func_80038878(void) {
     s32 *buffer;
@@ -1373,4 +1377,14 @@ void func_8003A590(void) {
  * first-mismatch: +0x14
  * summary: Exact geometry; volatile copy order helps, but the initial table-base temp allocation still cascades.
  * PLATEAU-HANDOFF:func_80039E34:end
+ */
+
+/* PLATEAU-HANDOFF:func_80038878:start
+ * symbol: func_80038878
+ * score: 66 differing words
+ * frame: 0x18
+ * relocations: 34
+ * first-mismatch: +0x14
+ * summary: Exact size and frame remain blocked by initial store and loop base web separation plus late address lifetime.
+ * PLATEAU-HANDOFF:func_80038878:end
  */
