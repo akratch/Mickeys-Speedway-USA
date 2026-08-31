@@ -187,9 +187,8 @@ extern f32 sqrtf(f32 value);
 extern void **func_8000572C(s32 *start, s32 *end);
 extern s32 func_8000FD68(s32 *result, s16 xMin, s16 zMin, s16 xMax,
                          s32 yMin, s32 yMax, s32 yMax2);
-extern void shadowBoundingBox(s16 angle, s32 count, f32 *points,
-                              f32 *xMin, f32 *zMin, f32 *xMax,
-                              f32 *zMax);
+extern void shadowBoundingBox(s32 count, f32 *points, f32 *xMin,
+                              f32 *zMin, f32 *xMax, f32 *zMax);
 extern void func_80016890(void *object, void *angles, void *surface,
                           f32 x, f32 y, f32 z, s16 type);
 extern void func_800180B4(ShadowQuery *query);
@@ -455,14 +454,15 @@ void shadowGenerate(s32 arg0, s32 arg1) {
 #endif
 #ifdef NON_MATCHING
 /*
- * PROVENANCE: Mickey's m2c polygon/query draft and the resident shadow
- * structures reconstruct this routine; no external function body is adapted.
+ * PROVENANCE: the query/polygon organization follows DKR's public
+ * src/tracks.c shadow pipeline and JFG's public func_8001DF5C assembly.
+ * Mickey's own body, offsets, branches, and relocation surface remain the
+ * authority for this candidate.
  */
 extern s32 func_8000FD68(s32 *result, s16 xMin, s16 zMin, s16 xMax,
                          s32 yMin, s32 yMax, s32 yMax2);
-extern void shadowBoundingBox(s16 angle, s32 count, f32 *points,
-                              f32 *xMin, f32 *zMin, f32 *xMax,
-                              f32 *zMax);
+extern void shadowBoundingBox(s32 count, f32 *points, f32 *xMin,
+                              f32 *zMin, f32 *xMax, f32 *zMax);
 extern void func_80017140(void *query, s32 mask, void *sector, s32 gridMask);
 extern s32 func_80017BCC(void *query, void *angles, void *surface);
 extern void func_80018654();
@@ -483,188 +483,191 @@ typedef struct Shadow168Angle {
 #define SH168_F32(p, o) (*(f32 *) ((u8 *) (p) + (o)))
 #define SH168_PTR(p, o) (*(void **) ((u8 *) (p) + (o)))
 
-/* Workbench verdict: structure-mismatch, 556 differing words, first mismatch +0x0. */
-/* Candidate is 509/556 instructions with frame -0x278 versus target -0x190; it is not shape-exact. */
-/* Remaining gap: 47 missing instructions, 232 excess frame bytes, and unresolved query/clipping relocations. */
+/* Workbench verdict: structure-mismatch, 553 differing words; first mismatch +0x4. */
+/* Candidate is 563/556 instructions with the exact 0x190-byte target frame. */
+/* Relocation count is exact at 48; allocation/CFG order and identities remain unresolved. */
 void func_80016890(void *arg0, void *arg1, void *arg2, f32 arg3, f32 arg4,
                    f32 arg5, s16 arg6) {
-    f32 points[8];
-    f32 bounds[4];
-    u8 query[0x50];
-    Shadow168Angle angles[16];
-    Shadow168Angle *anglePointers[16];
-    void *info;
-    void *geometry;
-    void *part;
-    void *partData;
-    void *matrix;
-    void *angle;
-    u8 *world;
-    u8 *sectors;
-    u8 *grid;
+    typedef struct Shadow168Query {
+        s32 surface0;
+        u8 pad4[4];
+        f32 x8;
+        f32 yC;
+        f32 z10;
+        s16 type14;
+        s16 lowerY16;
+        s16 upperY18;
+        u8 pad1A[2];
+        f32 scale1C;
+        f32 minimum20;
+        f32 height24;
+        f32 heightRange28;
+        f32 inverseScale2C;
+        f32 area30;
+        f32 halfX34;
+        f32 halfZ38;
+        f32 expanded3C;
+        f32 bounds40[4];
+    } Shadow168Query;
+
     s32 result[32];
-    s32 first;
-    s32 last;
+    void *matrix;
+    s32 value;
+    f32 radius;
+    f32 base;
+    f32 distance;
+    f32 sine;
+    f32 cosine;
+    f32 ratio;
+    f32 point0;
+    f32 point2;
+    f32 point4;
+    f32 point6;
+    f32 objectScale;
+    Shadow168Query query;
+    f32 points[8];
     s32 count;
     s32 i;
-    s32 j;
-    s32 k;
-    s32 angleCount;
     s32 active;
-    s32 value;
-    s16 lowerY;
-    s16 upperY;
-    s16 angleValue;
-    f32 scale;
-    f32 width;
-    f32 depth;
-    f32 center;
-    f32 x0;
-    f32 x1;
-    f32 z0;
-    f32 z1;
-    f32 trig;
-    f32 trig2;
 
     SH168_S16((u8 *) arg2 + (SH168_U8(arg2, 0x13) * 2), 0x14) =
         (s16) D_80079454;
-    lowerY = (s16) ((s32) SH168_S16(SH168_PTR(arg0, 0x40), 0x6C) +
-                    (s32) arg4);
-    upperY = (s16) ((s32) SH168_S16(SH168_PTR(arg0, 0x40), 0x6E) +
-                    (s32) arg4);
-    angleValue = arg6;
-    scale = 2.0f;
+    query.surface0 = SH168_S32(arg2, 8);
+    query.x8 = arg3;
+    query.yC = arg4;
+    query.z10 = arg5;
+    query.type14 = arg6;
+    query.lowerY16 = (s16) ((s32) SH168_S16(SH168_PTR(arg0, 0x40), 0x6C) +
+                            (s32) arg4);
+    query.upperY18 = (s16) ((s32) SH168_S16(SH168_PTR(arg0, 0x40), 0x6E) +
+                            (s32) arg4);
+    query.scale1C = 2.0f;
 
     if (SH168_S16(arg0, 0x44) != 1) {
-        center = SH168_F32(arg0, 0x30);
-        if (center < 0.0f) {
-            center = -center;
+        distance = SH168_F32(arg0, 0x30);
+        if (distance < 0.0f) {
+            distance = -distance;
         }
-        center -= 250.0f;
-        if (center < 0.0f) {
-            center = 0.0f;
+        distance -= 250.0f;
+        if (distance < 0.0f) {
+            distance = 0.0f;
         }
-        if (center > 1024.0f) {
-            center = 1024.0f;
+        if (distance > 1024.0f) {
+            distance = 1024.0f;
         }
-        scale += center * (f32) D_800817A4;
+        query.scale1C += distance * D_800817A4;
     }
 
-    width = SH168_F32(arg2, 0);
-    depth = width * 10.0f;
-    trig = 1.0f;
-    x0 = depth;
-    z0 = depth;
-    angleValue = 0;
+    radius = SH168_F32(arg2, 0);
+    base = radius * 10.0f;
+    query.halfX34 = base;
+    query.halfZ38 = base;
+    query.expanded3C = 1.0f;
     if (arg1 != NULL) {
-        trig2 = func_8002A8BC(SH168_S16(arg1, 2));
-        if (trig2 > 0.0f) {
-            f32 denominator = func_8002A8C0(SH168_S16(arg1, 2));
-            f32 ratio;
-            if (denominator != 0.0f) {
-                ratio = trig2 / denominator;
+        cosine = func_8002A8BC(SH168_S16(arg1, 2));
+        if (cosine > 0.0f) {
+            sine = func_8002A8C0(SH168_S16(arg1, 2));
+            if (sine != 0.0f) {
+                ratio = cosine / sine;
                 if (ratio > 2.0f) {
                     ratio = 2.0f;
                 }
             } else {
                 ratio = 2.0f;
             }
-            trig += (0.25f * ratio * (f32) SH168_U8(arg2, 0x12)) / x0;
+            query.expanded3C +=
+                (0.25f * ratio * (f32) SH168_U8(arg2, 0x12)) /
+                query.halfZ38;
         }
     }
-    trig = trig * x0;
-    x0 = depth;
-    z0 = 2.0f * depth * (width + trig);
+    query.expanded3C *= query.halfZ38;
+    query.area30 = 2.0f * base * (query.halfZ38 + query.expanded3C);
 
-    width = (f32) SH168_S16(SH168_PTR(arg0, 0x40), 0x6C) * 0.125f;
-    if (width < 0.0f) {
-        width = -width;
+    query.height24 =
+        (f32) SH168_S16(SH168_PTR(arg0, 0x40), 0x6C) * 0.125f;
+    if (query.height24 < 0.0f) {
+        query.height24 = -query.height24;
     }
-    depth = 7.0f * width;
-    points[0] = arg3;
-    points[1] = arg5;
-    points[2] = arg3;
-    points[3] = arg5;
-    points[4] = arg3;
-    points[5] = arg5;
-    points[6] = arg3;
-    points[7] = arg5;
+    query.heightRange28 = 7.0f * query.height24;
+    query.minimum20 = -32768.0f;
+    query.inverseScale2C = 144.0f / radius;
+
+    for (i = 0; i < 4; i++) {
+        points[i * 2] = arg3;
+        points[(i * 2) + 1] = arg5;
+    }
 
     if (arg1 != NULL) {
-        angleValue = func_8002A8C0(SH168_S16(arg1, 0));
-        trig = func_8002A8BC(SH168_S16(arg1, 0));
-        center = x0 * trig;
-        width = x0 * (f32) angleValue;
-        x1 = -center;
-        z1 = z0 * trig;
-        points[0] += x1 - width;
-        points[1] += (x0 * (f32) angleValue) - z1;
-        points[2] += center - width;
-        points[3] += -z1 - (x0 * (f32) angleValue);
-        points[4] += center + (trig * (f32) angleValue);
-        points[5] += (z0 * trig) - (x0 * (f32) angleValue);
-        points[6] += x1 + (trig * (f32) angleValue);
-        points[7] += z0 * trig + (x0 * (f32) angleValue);
+        sine = func_8002A8C0(SH168_S16(arg1, 0));
+        cosine = func_8002A8BC(SH168_S16(arg1, 0));
+        point0 = query.halfX34 * cosine;
+        point2 = query.halfZ38 * sine;
+        point4 = query.halfZ38 * cosine;
+        point6 = query.expanded3C * sine;
+        points[0] += -point0 - point2;
+        points[1] += (query.halfX34 * sine) - point4;
+        points[2] += point0 - point2;
+        points[3] += -point4 - (query.halfX34 * sine);
+        points[4] += point0 + point6;
+        points[5] += (query.expanded3C * cosine) - (query.halfX34 * sine);
+        points[6] += -point0 + point6;
+        points[7] += (query.expanded3C * cosine) + (query.halfX34 * sine);
     } else {
-        value = SH168_S32(arg2, 0x10) & 0x20;
-        x1 = SH168_F32(arg2, 4);
-        z1 = SH168_F32(arg2, 0);
-        if ((value != 0) || (x1 != z1)) {
+        value = SH168_U8(arg2, 0x10) & 0x20;
+        point2 = SH168_F32(arg2, 4);
+        point0 = SH168_F32(arg2, 0);
+        if ((value != 0) || (point2 != point0)) {
             if (value != 0) {
-                f32 objectScale = SH168_F32(arg0, 8);
+                objectScale = SH168_F32(arg0, 8);
                 matrix = SH168_PTR(SH168_PTR(arg0, 0x68), 0);
-                points[0] = z1 * ((f32) SH168_S16(matrix, 0x42) *
-                                  objectScale);
-                points[2] = x1 * ((f32) SH168_S16(matrix, 0x46) *
-                                  objectScale);
-                points[4] = z1 * ((f32) SH168_S16(matrix, 0x3C) *
-                                  objectScale);
-                points[6] = x1 * ((f32) SH168_S16(matrix, 0x40) *
-                                  objectScale);
+                point0 *= (f32) SH168_S16(matrix, 0x42) * objectScale;
+                point2 *= (f32) SH168_S16(matrix, 0x46) * objectScale;
+                point4 = SH168_F32(arg2, 0) *
+                         ((f32) SH168_S16(matrix, 0x3C) * objectScale);
+                point6 = SH168_F32(arg2, 4) *
+                         ((f32) SH168_S16(matrix, 0x40) * objectScale);
             } else {
-                points[0] = z1 * 10.0f;
-                points[2] = x1 * 10.0f;
-                points[4] = z1 * -10.0f;
-                points[6] = x1 * -10.0f;
+                point0 *= 10.0f;
+                point2 *= 10.0f;
+                point4 = SH168_F32(arg2, 0) * -10.0f;
+                point6 = SH168_F32(arg2, 4) * -10.0f;
             }
-            points[1] = points[0];
-            points[3] = points[2];
-            points[5] = points[4];
-            points[7] = points[6];
-            trig = func_8002A8C0((s16) x1);
-            center = func_8002A8BC((s16) x1);
-            x0 = (points[0] - points[4]) * 0.5f;
-            z0 = (points[2] - points[6]) * 0.5f;
-            points[0] += center;
-            points[1] += center;
-            points[2] += trig;
-            points[3] += trig;
-            points[4] += center;
-            points[5] += center;
-            points[6] += trig;
-            points[7] += trig;
+            sine = func_8002A8C0(SH168_S16(arg0, 0));
+            cosine = func_8002A8BC(SH168_S16(arg0, 0));
+            query.halfX34 = (point0 - point4) * 0.5f;
+            query.halfZ38 = (point2 - point6) * 0.5f;
+            query.expanded3C = query.halfZ38;
+            points[0] += (point0 * cosine) + (point2 * sine);
+            points[1] += (point2 * cosine) - (point0 * sine);
+            points[2] += (point4 * cosine) + (point2 * sine);
+            points[3] += (point2 * cosine) - (point4 * sine);
+            points[4] += (point4 * cosine) + (point6 * sine);
+            points[5] += (point6 * cosine) - (point4 * sine);
+            points[6] += (point0 * cosine) + (point6 * sine);
+            points[7] += (point6 * cosine) - (point0 * sine);
         } else {
-            points[0] += x0;
-            points[1] += z0;
-            points[2] -= x0;
-            points[3] += z0;
-            points[4] -= x0;
-            points[5] -= z0;
-            points[6] += x0;
-            points[7] -= z0;
+            points[0] += query.halfX34;
+            points[1] += query.halfZ38;
+            points[2] -= query.halfX34;
+            points[3] += query.halfZ38;
+            points[4] -= query.halfX34;
+            points[5] -= query.halfZ38;
+            points[6] += query.halfX34;
+            points[7] -= query.halfZ38;
         }
     }
 
     D_800CB270 = (points[6] + points[0] + points[2] + points[4]) * 0.25f;
     D_800CB274 = (points[7] + points[1] + points[3] + points[5]) * 0.25f;
-    shadowBoundingBox(angleValue, 4, points, &bounds[0], &bounds[1],
-                      &bounds[2], &bounds[3]);
-    count = func_8000FD68(result, (s16) (s32) bounds[0], lowerY,
-                          (s16) (s32) bounds[1], (s32) bounds[2], upperY,
-                          (s32) bounds[3]);
+    shadowBoundingBox(4, points, &query.bounds40[0], &query.bounds40[1],
+                      &query.bounds40[2], &query.bounds40[3]);
+    count = func_8000FD68(result, (s16) (s32) query.bounds40[0],
+                          query.lowerY16, (s16) (s32) query.bounds40[1],
+                          (s32) query.bounds40[2], query.upperY18,
+                          (s32) query.bounds40[3]);
     D_800CAF58 = 0;
     D_800C9D40 = 0;
-    for (i = 0; i < 32; i++) {
+    for (i = 0; i < 4; i++) {
         D_800C9F48[i] = 0;
     }
     D_800CB268 = -1;
@@ -672,44 +675,27 @@ void func_80016890(void *arg0, void *arg1, void *arg2, f32 arg3, f32 arg4,
     D_800CB264 = 0;
     for (i = 0; i < count; i++) {
         if (result[i] >= 0) {
-            world = (u8 *) (s32) D_800CB284;
-            sectors = *(u8 **) (world + 4);
-            grid = *(u8 **) (world + 8) + (result[i] * 0xC);
-            value = getXZCompareMask(grid, (s32) bounds[0],
-                                     (s32) bounds[1], (s32) bounds[2],
-                                     (s32) bounds[3]);
-            for (j = 0; j < 0x50; j++) {
-                query[j] = 0;
-            }
-            *(s16 *) (query + 0x16) = upperY;
-            *(s16 *) (query + 0x18) = lowerY;
-            *(f32 *) (query + 0x40) = D_800CB270;
-            *(f32 *) (query + 0x44) = D_800CB274;
-            *(s32 *) (query + 0x48) = (s32) bounds[0];
-            *(s32 *) (query + 0x4C) = (s32) bounds[1];
-            func_80017140(query, (s32) &points[0],
-                          sectors + (result[i] << 6) + 4, value);
+            value = getXZCompareMask(
+                *(u8 **) ((u8 *) (s32) D_800CB284 + 8) +
+                    (result[i] * 0xC),
+                (s32) query.bounds40[0], (s32) query.bounds40[1],
+                (s32) query.bounds40[2], (s32) query.bounds40[3]);
+            func_80017140(&query, (s32) &points[0],
+                          *(u8 **) ((u8 *) (s32) D_800CB284 + 4) +
+                              (result[i] << 6),
+                          value);
         }
     }
     active = 1;
     if (D_800CAF58 > 0) {
         func_80018654(D_800C9D40, D_800C9D48, D_800C9F48, D_800C9F58);
-        if (func_80017BCC(query, arg1, arg2) == 0) {
+        if (func_80017BCC(&query, arg1, arg2) == 0) {
             active = 0;
         }
     }
-    (void) scale;
-    (void) depth;
-    (void) anglePointers;
-    (void) angles;
-    (void) info;
-    (void) geometry;
-    (void) part;
-    (void) partData;
-    (void) k;
+    SH168_S16((u8 *) arg2 + (SH168_U8(arg2, 0x13) * 2), 0x18) =
+        (s16) D_80079454;
     if (active != 0) {
-        SH168_S16((u8 *) arg2 + (SH168_U8(arg2, 0x13) * 2), 0x18) =
-            (s16) D_80079454;
         SH168_U8(arg2, 0x13) = (u8) (SH168_U8(arg2, 0x13) + 1);
     }
 }
@@ -1468,4 +1454,14 @@ void func_800180B4(ShadowQuery *query) {
  * first-mismatch: +0x4
  * summary: Exact geometry and frame; recover original declaration lifetimes to align callee-saved integer and f30 allocation.
  * PLATEAU-HANDOFF:func_80017660:end
+ */
+
+/* PLATEAU-HANDOFF:func_80016890:start
+ * symbol: func_80016890
+ * score: 553 differing words
+ * frame: 0x190
+ * relocations: 48
+ * first-mismatch: +0x4
+ * summary: 563/556 words; exact frame and stack objects, 48/48 relocations. Next: typed arg2 and angle order after ownership metadata.
+ * PLATEAU-HANDOFF:func_80016890:end
  */
