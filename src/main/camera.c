@@ -1059,9 +1059,9 @@ void func_80022E80(CameraScaledTransform *transform) {
  * PROVENANCE: JFG's public src/camera.c identifies the camDoSprite role;
  * this substantially different body is reconstructed from Mickey-only data.
  *
- * Workbench plateau: structure-mismatch; 365/369 instructions, exact 0xB0 frame, 216 positional words, first +0x2C.
- * Levers: matrix-scale lifetime split corrected the FP pool; phase, mask, tail-idiom, and stack variants regressed.
- * Remaining: twelve-byte coordinate-home shift, four-instruction deficit, final Gfx schedule, and ten relocation shifts.
+ * Workbench plateau: structure-mismatch; 369/369 instructions, 0xB8 candidate versus 0xB0 target frame, 203 positional words, first +0x0.
+ * Levers: an explicit default-color else and gDPSetPrimColor were strict gains; the bounded permuter improved 7104 to 5720 without zero.
+ * Remaining: eight-byte frame excess, twenty-byte transformed-coordinate home shift, and 55/58 relocations with 53 exact identities.
  */
 void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
                    CameraSpriteAnchor *anchor, f32 *opacity,
@@ -1177,18 +1177,15 @@ void func_80022FD4(Gfx **dlist, Mtx **mtx, void *vertices,
             color = D_8007C85C;
         }
     } else {
-        color = 255;
         if (opacity != NULL) {
             color = *opacity * 255.0f;
+        } else {
+            color = 255;
         }
     }
 
     color &= 0xFF;
-    cmd = *dlist;
-    *dlist = cmd + 1;
-    cmd->words.w0 = 0xFA000000;
-    cmd->words.w1 = (color << 24) | (color << 16) | (color << 8) |
-                    (alpha & 0xFF);
+    gDPSetPrimColor((*dlist)++, 0, 0, color, color, color, alpha);
 
     cmd = *dlist;
     *dlist = cmd + 1;
@@ -1981,3 +1978,13 @@ f32 D_80079F48 = 1.0f;
 f32 D_80079F4C = 1.0f;
 f32 D_80079F50 = 0.0f;
 f32 D_80079F54 = 0.0f;
+
+/* PLATEAU-HANDOFF:func_80022FD4:start
+ * symbol: func_80022FD4
+ * score: 203/369 words
+ * frame: 0xB8
+ * relocations: 55
+ * first-mismatch: +0x0
+ * summary: Exact-sized macro candidate; frame +8, coordinate homes +20, 55/58 relocs with 53 identities; permuter 7104 to 5720, no zero.
+ * PLATEAU-HANDOFF:func_80022FD4:end
+ */
