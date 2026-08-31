@@ -136,6 +136,6 @@ void overlay84InitializeAndUpdate(Overlay84Object *object, s32 arg) {
  * frame: 0x58
  * relocations: 5
  * first-mismatch: +0x14
- * summary: Fidelity-clean UOPT trace found 19 allocator webs but no stack-home ownership; add a calibrated producer hook.
+ * summary: Whole-itable ladders prove both pointer aliases own homes, but removing either regresses or moves start/end away from retail.
  * PLATEAU-HANDOFF:overlay84InitializeAndUpdate:end
  */
