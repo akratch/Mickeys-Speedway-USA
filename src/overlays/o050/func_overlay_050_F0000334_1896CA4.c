@@ -701,3 +701,13 @@ loop_148:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o050/func_overlay_050_F0000334_1896CA4/func_overlay_050_F0000334_1896CA4.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_050_F0000334_1896CA4:start
+ * symbol: func_overlay_050_F0000334_1896CA4
+ * score: 31/1575 words
+ * frame: 0x1A0
+ * relocations: 315
+ * first-mismatch: +0x0
+ * summary: Fresh V0 is 12 bytes short with a 136-byte frame surplus; flag, context, constant, and first-call families are exhausted; 204 proxy identities remain.
+ * PLATEAU-HANDOFF:func_overlay_050_F0000334_1896CA4:end
+ */
