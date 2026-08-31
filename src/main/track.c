@@ -4675,11 +4675,10 @@ void func_800133FC(TrackVertex *arg0, TrackVertex *arg1,
  * no published donor body is used here.
  */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch; 315 differing words, first mismatch +0x0. */
-/* Target 260 instructions/frame -312; candidate 330 instructions/frame -304. */
-/* Remaining gap is collision-query stack/control-flow scheduling and sort-loop expansion; not shape-exact. */
+/* Workbench verdict: structure-mismatch; 289 differing words, first mismatch +0x8. */
+/* Target 260 instructions/frame -312; candidate 321 instructions/frame -312. */
+/* -Wo,-loopunroll,0 reaches 261 words; an isolated flag boundary is the next lever. */
 u32 func_8001357C(f32 arg0, f32 arg1, f32 *arg2, s32 arg3, void *arg4) {
-    s16 segmentIndices[24];
     s16 *segmentIndexPointer;
     TrackSegment *segment;
     TrackBatch *batch;
@@ -4693,13 +4692,13 @@ u32 func_8001357C(f32 arg0, f32 arg1, f32 *arg2, s32 arg3, void *arg4) {
     s32 x;
     s32 z;
     s32 segmentCount;
+    s16 segmentIndices[28];
     s32 segmentNumber;
-    s32 batchCount;
     s32 batchNumber;
     s32 vertexIndex;
     s32 compareMask;
     u32 batchFlags;
-    u32 resultCount;
+    s32 resultCount;
     u32 visibility;
     f32 height;
     f32 planeX;
@@ -4708,7 +4707,7 @@ u32 func_8001357C(f32 arg0, f32 arg1, f32 *arg2, s32 arg3, void *arg4) {
     f32 planeDistance;
     s32 outer;
     s32 inner;
-    volatile TrackIntersection *record;
+    TrackIntersection *record;
     f32 temporaryHeight;
     s32 temporaryFlags;
 
@@ -4729,33 +4728,27 @@ u32 func_8001357C(f32 arg0, f32 arg1, f32 *arg2, s32 arg3, void *arg4) {
             segment = &D_800792E8->segments[*segmentIndexPointer];
             segmentNumber++;
             segmentIndexPointer++;
-            batchCount = segment->batchCount;
             batch = segment->batches;
-            batchNumber = batchCount;
-            if (batchCount != 0) {
+            batchNumber = segment->batchCount;
+            batchNumber--;
+            if (segment->batchCount != 0) {
                 do {
                     batchFlags = batch->flags;
                     if (batchFlags & arg3) {
                         vertexIndex = batch->v0;
-                        triangle = (TrackTriangle *)
-                            ((u8 *) segment->vertexData + (batch->v0 * 0x10));
-                        vertex0 = (TrackVertex *)
-                            ((u8 *) segment->lightData + (batch->u0 * 0xA));
+                        triangle =
+                            (TrackTriangle *) segment->vertexData + batch->v0;
+                        vertex0 =
+                            (TrackVertex *) segment->lightData + batch->u0;
                         if (vertexIndex < batch[1].v0) {
                             do {
                                 visibility = segment->visibilityMasks[vertexIndex];
                                 visibility &= compareMask;
                                 if ((visibility >> 16) != 0 &&
                                     (visibility & 0xFFFF) != 0) {
-                                    vertex1 = (TrackVertex *)
-                                        ((u8 *) vertex0 +
-                                         (triangle->vertex0 * 0xA));
-                                    vertex2 = (TrackVertex *)
-                                        ((u8 *) vertex0 +
-                                         (triangle->vertex1 * 0xA));
-                                    vertex3 = (TrackVertex *)
-                                        ((u8 *) vertex0 +
-                                         (triangle->vertex2 * 0xA));
+                                    vertex1 = vertex0 + triangle->vertex0;
+                                    vertex2 = vertex0 + triangle->vertex1;
+                                    vertex3 = vertex0 + triangle->vertex2;
                                     if (mathXZInTri(x, z, vertex1, vertex2,
                                                     vertex3) != 0) {
                                         height = (f32) vertex1->y;
@@ -4802,33 +4795,24 @@ u32 func_8001357C(f32 arg0, f32 arg1, f32 *arg2, s32 arg3, void *arg4) {
                         }
                     }
                     batch++;
-                    batchNumber--;
-                } while (batchNumber != 0);
+                } while (batchNumber-- != 0);
             }
         } while (segmentNumber != segmentCount);
     }
     if (resultCount >= 2U) {
-        outer = (s32) resultCount - 2;
-        if (outer != 0) {
-            do {
-                record = (TrackIntersection *) arg4;
-                inner = outer + 1;
-                if (inner != 0) {
-                    do {
-                        if (record->height < (record + 1)->height) {
-                            temporaryHeight = record->height;
-                            temporaryFlags = record->flags;
-                            record->height = (record + 1)->height;
-                            (record + 1)->height = temporaryHeight;
-                            record->flags = (record + 1)->flags;
-                            (record + 1)->flags = temporaryFlags;
-                        }
-                        record++;
-                        inner--;
-                    } while (inner != 0);
+        for (outer = resultCount - 1; outer > 0; outer--) {
+            record = (TrackIntersection *) arg4;
+            for (inner = outer; inner > 0; inner--) {
+                if (record->height < (record + 1)->height) {
+                    temporaryHeight = record->height;
+                    temporaryFlags = record->flags;
+                    record->height = (record + 1)->height;
+                    (record + 1)->height = temporaryHeight;
+                    record->flags = (record + 1)->flags;
+                    (record + 1)->flags = temporaryFlags;
                 }
-                outer--;
-            } while (outer != 0);
+                record++;
+            }
         }
     }
     return resultCount;
@@ -5883,4 +5867,14 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0xC
  * summary: 211/208 words; exact frame. Only the first sqrtf relocation aligns. FP allocation and cross-product scheduling remain; flag sweep lacks a sized owner.
  * PLATEAU-HANDOFF:func_80012234:end
+ */
+
+/* PLATEAU-HANDOFF:func_8001357C:start
+ * symbol: func_8001357C
+ * score: 289 differing words
+ * frame: 0x138
+ * relocations: 8
+ * first-mismatch: +0x8
+ * summary: Configured 321 words; no-unroll reaches 261 words and 229 differences. Add sized ownership, then assess a function-isolated no-unroll boundary.
+ * PLATEAU-HANDOFF:func_8001357C:end
  */
