@@ -257,12 +257,11 @@ void func_800470B0(FxCone *cone, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
 #endif
 
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 176 differing words, first mismatch +0x4. */
-/* Candidate: 183/185 instructions with the target -0x180 frame; 57 structural words remain, so it is not shape-exact. */
-/* Shape status: extended cone-point and three vertex-table loops are preserved; structural gap remains in the setup/call schedule. */
+/* Workbench verdict: structure-mismatch, 175 differing words, first mismatch +0x4. */
+/* Candidate: 183/185 instructions with the target -0x180 frame; 64 structural words remain, so it is not shape-exact. */
+/* Shape status: scale invariants now use target-like f22/f24/f26; the extra s8/loop-limit web still shifts the setup. */
 void func_80047304(FxCone *cone, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
                    s16 arg5, f32 arg6, f32 arg7, f32 arg8) {
-    u8 work[0x98];
     u8 *point;
     u8 *vertex;
     FxCone *address;
@@ -277,15 +276,18 @@ void func_80047304(FxCone *cone, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
     s32 i;
     s32 j;
     s32 value;
+    u8 work[0x98];
 
     angle = arg8;
     *(f32 *) (work + 8) = -angle;
     point = work + 0xC;
     i = 0;
-    scaleZ = -(angle * D_80083DE4);
+    scaleX = arg6 * 4.0f;
+    scaleY = arg7 * 4.0f;
     *(f32 *) work = 0.0f;
     *(f32 *) (work + 4) = 0.0f;
-    do {
+    scaleZ = -(angle * D_80083DE4);
+    while (i < 8) {
         value = i << 0xD;
         sine = func_8002A8C0(value);
         cosine = func_8002A8BC(value);
@@ -294,24 +296,23 @@ void func_80047304(FxCone *cone, s16 arg1, s16 arg2, s16 arg3, s16 arg4,
         *(f32 *) (point - 0xC) = arg6 * sine;
         *(f32 *) (point - 4) = 0.0f;
         *(f32 *) (point + 0x5C) = scaleZ;
-        yScale = arg7 * 4.0f * cosine;
+        yScale = scaleY * cosine;
         *(f32 *) (point - 8) = arg7 * cosine;
-        scaleX = arg6 * 4.0f * sine;
-        *(f32 *) (point + 0x54) = 2.0f * scaleX;
+        *(f32 *) (point + 0x54) = 2.0f * (scaleX * sine);
         *(f32 *) (point + 0x58) = 2.0f * yScale;
-    } while (i < 8);
+    }
 
     base = cone;
     address = cone;
     j = 0;
     point = work;
-    do {
+    while (j < 8) {
         func_80048080(0x11, arg1, arg2, arg3, (s32) arg4, (s32) arg5,
                       (FxConePoint *) point, *(void **) ((u8 *) address + 8),
                       0xFF);
         j += 4;
         address = (FxCone *) ((u8 *) address + 4);
-    } while (j < 8);
+    }
 
     vertex = base->vertices;
     i = 1;
@@ -2579,4 +2580,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x0
  * summary: Exact geometry and VI stack homes; IDO keeps cursor/end in ra/s1 instead of t5/ra, adding one saved register.
  * PLATEAU-HANDOFF:func_8004A10C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80047304:start
+ * symbol: func_80047304
+ * score: 175 differing words
+ * frame: 0x180
+ * relocations: 5
+ * first-mismatch: +0x4
+ * summary: Scale invariants reach f22/f24/f26; candidate still hoists limit 8 into s3, shifting s16 arguments to s6/s7/s8 and the work base.
+ * PLATEAU-HANDOFF:func_80047304:end
  */
