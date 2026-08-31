@@ -49,7 +49,7 @@
     "overlay40UpdateEntries": {
       "source_commit": "f090b0a6bcec2f9c43f71019e29dc080db89d0b4",
       "ledger_commit": "f090b0a6bcec2f9c43f71019e29dc080db89d0b4",
-      "reason": "Authorize one calibrated fidelity-preserving UGEN scheduler dependency-edge trace for the two-word initialization/LO16 swap; source probes require an authenticated edge and must not repeat the exhausted flag, line, comma, declaration, or permutation families."
+      "reason": "Authorize one fidelity-preserving UGEN dependency-edge trace for the two-word initialization/LO16 swap; mutate source only from an authenticated edge and do not repeat flags, line, comma, declaration, or permutation families."
     },
     "overlay40FadeRecords": {
       "source_commit": "f89781dc9d81edc4a499fbe2838aca46c0b82d2b",
