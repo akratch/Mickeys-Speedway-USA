@@ -3711,9 +3711,9 @@ typedef struct TrackRayNodeExtended {
     TrackRayFace *planes;
 } TrackRayNodeExtended;
 
-/* Workbench verdict: structure-mismatch, 208 differing words, first mismatch +0x0. */
-/* Candidate: 214/215 instructions with a -0xD8 frame versus target -0xC8; one instruction/frame residual and FP schedule remain. */
-/* Shape status: encoded-node traversal, signed edge loop, interpolation, and hit stores are preserved, but it is not shape-exact. */
+/* Workbench verdict: structure-mismatch, 211 differing words, first mismatch +0x0. */
+/* Candidate: 217/215 instructions with a -0xE0 frame versus target -0xC8. */
+/* The two validity flags, edge cursor, adjusted offset, and repeated metadata lookup now follow the target; declaration and FP lifetimes remain. */
 s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
                   TrackRayPoint *offset, f32 scale, f32 planeOffset,
                   f32 threshold, TrackRayHit *hit) {
@@ -3732,10 +3732,13 @@ s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
     f32 pointY;
     f32 pointZ;
     f32 edgeValue;
+    f32 adjustedOffset;
+    u8 *edgeEntry;
     s32 encoded;
     s32 entryOffset;
     s32 segmentIndex;
     s32 edgeOffset;
+    s32 edgeValid;
     s32 valid;
     s32 sign;
     s32 edgeIndex;
@@ -3768,17 +3771,18 @@ s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
                     if (startValue >= 0.0f) {
                         ratio = (startValue / (startValue - endValue)) * scale;
                         if (ratio <= hit->ratio) {
+                            edgeOffset = 0;
+                            edgeValid = 1;
+                            edgeEntry = (u8 *) entry + edgeOffset;
                             pointX = ((offset->x * ratio) + start->x) -
                                      (planeOffset * planeX);
                             pointY = ((offset->y * ratio) + start->y) -
                                      (planeOffset * planeY);
                             pointZ = ((offset->z * ratio) + start->z) -
                                      (planeOffset * planeZ);
-                            valid = 1;
-                            edgeOffset = 0;
                             do {
+                                edge = *(u16 *) (edgeEntry + 2);
                                 edgeOffset += 2;
-                                edge = *(u16 *) ((u8 *) entry + edgeOffset);
                                 sign = edge & 0x8000;
                                 edgeIndex = edge ^ sign;
                                 edgeFace = (TrackRayFace *)
@@ -3791,25 +3795,26 @@ s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
                                     edgeValue = -edgeValue;
                                 }
                                 if (threshold < edgeValue) {
-                                    valid = 0;
+                                    edgeValid = 0;
                                 }
-                            } while ((edgeOffset < 6) && (valid != 0));
-                            if (valid != 0) {
+                                edgeEntry += 2;
+                            } while ((edgeOffset < 6) && (edgeValid != 0));
+                            if (edgeValid != 0) {
                                 hit->normalX = planeX;
                                 hit->normalY = planeY;
                                 hit->normalZ = planeZ;
                                 hit->distance = planeValue;
-                                hit->x = ((D_80081790 + planeOffset) * planeX) + pointX;
-                                hit->y = ((D_80081790 + planeOffset) * planeY) + pointY;
-                                hit->z = ((D_80081790 + planeOffset) * planeZ) + pointZ;
-                                {
-                                    TrackRayMeta *meta = (TrackRayMeta *)
-                                        ((u8 *) node->metadata +
-                                         (D_800C9D30[segmentIndex] * 0x10));
-                                    hit->faceData = meta->data;
-                                    hit->material = ((u8 *) D_800792E8->textures)[
-                                        (meta->material * 8) + 7];
-                                }
+                                adjustedOffset = D_80081790 + planeOffset;
+                                hit->x = (adjustedOffset * planeX) + pointX;
+                                hit->y = (adjustedOffset * planeY) + pointY;
+                                hit->z = (adjustedOffset * planeZ) + pointZ;
+                                hit->faceData = ((TrackRayMeta *)
+                                    ((u8 *) node->metadata +
+                                     (D_800C9D30[segmentIndex] * 0x10)))->data;
+                                hit->material = ((u8 *) D_800792E8->textures)[
+                                    (((TrackRayMeta *)
+                                      ((u8 *) node->metadata +
+                                       (D_800C9D30[segmentIndex] * 0x10)))->material * 8) + 7];
                                 hit->ratio = ratio;
                                 valid = 1;
                             }
@@ -5811,4 +5816,14 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x4
  * summary: Candidate is 130 versus 128 instructions with four shifted relocation sites. Next lever is packed-scroll delta lifetime and six halfword-load scheduling.
  * PLATEAU-HANDOFF:func_8000D1B8:end
+ */
+
+/* PLATEAU-HANDOFF:func_80011980:start
+ * symbol: func_80011980
+ * score: 211 differing words
+ * frame: -0xE0
+ * relocations: 12
+ * first-mismatch: +0x0
+ * summary: Target control flow is restored; original declaration and FP lifetimes are needed to remove the 0x18 frame and two-word excess.
+ * PLATEAU-HANDOFF:func_80011980:end
  */
