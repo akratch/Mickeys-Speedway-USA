@@ -1284,79 +1284,57 @@ void func_8000D1B8(void) {
  */
 #ifdef NON_MATCHING
 void func_8000D3B8(s32 lightCount, s32 copyData) {
-    s32 temp_lo;
-    s32 var_s2;
-    s32 var_s2_2;
-    s32 var_s7;
-    s32 var_v1;
-    s32 var_s0;
-    u8 *var_s1;
-    u8 temp_t5;
-    void *var_v0;
-    u8 *var_s3;
-    u8 *var_s4;
-    u8 *var_v1_2;
+    s32 index;
+    s32 copyFailed;
+    s32 byteCount;
+    u8 *source;
+    u8 *destination;
+    TrackSegment *segment;
+    TrackLightAllocation *allocation;
 
     D_800792FC = 0;
     D_800792F8 = lightCount;
-    var_s7 = 1;
-    var_v0 = func_8002B280(lightCount << 7, 0x91);
-    D_80079300 = var_v0;
-    if (var_v0 != NULL) {
-        var_v0 = (void *) D_800792F8;
-        var_s2 = D_800792F8 - 1;
-        if (D_800792F8 != 0) {
-            var_v1 = var_s2 << 7;
-            do {
-                var_v0 = (void *) var_s2;
-                *(f32 *) ((u8 *) D_80079300 + var_v1 + 0xC) = 0.0f;
-                var_v1 -= 0x80;
-                var_s2--;
-            } while (var_s2 != 0);
+    copyFailed = 1;
+    byteCount = lightCount * sizeof(TrackLight);
+    D_80079300 = func_8002B280(byteCount, 0x91);
+    if (D_80079300 != NULL) {
+        index = D_800792F8;
+        while (index--) {
+            D_80079300[index].radius = 0.0f;
         }
-        var_s7 = copyData;
+        copyFailed = copyData;
         if (copyData != 0) {
-            var_v0 = func_8002B280(D_800792E8->segmentCount * 8, 0x91);
-            var_s3 = var_v0;
-            if (var_v0 != NULL) {
-                var_s4 = (u8 *) D_800792E8->segments;
+            allocation = func_8002B280(
+                D_800792E8->segmentCount * sizeof(TrackLightAllocation), 0x91);
+            if (allocation != NULL) {
+                segment = D_800792E8->segments;
                 D_80079304 = 1;
-                D_80079308 = var_v0;
-                var_s2_2 = 0;
-                var_s7 = 0;
+                D_80079308 = allocation;
+                index = 0;
+                copyFailed = 0;
                 if (D_800792E8->segmentCount > 0) {
                     do {
-                        var_s1 = *(u8 **) var_s4;
-                        temp_lo = (*(s16 *) (var_s4 + 0x20)) * 10;
-                        *(u8 **) var_s3 = var_s1;
-                        var_v0 = func_8002B280(temp_lo, 0x91);
-                        *(void **) (var_s3 + 4) = var_v0;
-                        var_v1_2 = var_v0;
-                        if (var_v0 != NULL) {
-                            var_v0 = (void *) temp_lo;
-                            var_s0 = temp_lo - 1;
-                            if (temp_lo != 0) {
-                                do {
-                                    temp_t5 = *var_s1;
-                                    var_v0 = (void *) var_s0;
-                                    var_v1_2++;
-                                    var_s1++;
-                                    var_v1_2[-1] = temp_t5;
-                                    var_s0--;
-                                } while (var_s0 != 0);
+                        source = segment->lightData;
+                        byteCount = segment->lightBatchCount * 10;
+                        allocation->source = source;
+                        allocation->data = func_8002B280(byteCount, 0x91);
+                        destination = allocation->data;
+                        if (destination != NULL) {
+                            while (byteCount--) {
+                                *destination++ = *source++;
                             }
                         } else {
-                            var_s7 = 1;
+                            copyFailed = 1;
                         }
-                        var_s2_2++;
-                        var_s3 += 8;
-                        var_s4 += 0x40;
-                    } while (var_s2_2 < D_800792E8->segmentCount);
+                        index++;
+                        allocation++;
+                        segment++;
+                    } while (index < D_800792E8->segmentCount);
                 }
             }
         }
     }
-    if (var_s7 != 0) {
+    if (copyFailed != 0) {
         func_8000D570();
     }
 }
@@ -5884,4 +5862,14 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x48
  * summary: Fresh level-global reloads close nine of ten missing words; one instruction and the s0/s1 display-list/constant register cycle remain.
  * PLATEAU-HANDOFF:func_8000BDB4:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000D3B8:start
+ * symbol: func_8000D3B8
+ * score: 31 differing words
+ * frame: 0x38
+ * relocations: 16
+ * first-mismatch: +0x4
+ * summary: Best aligned comparison is 79/110; one missing pre-call size temporary shifts relocation sites, with the initial s0/s1 pool colors swapped.
+ * PLATEAU-HANDOFF:func_8000D3B8:end
  */
