@@ -725,11 +725,11 @@ void func_8005AF14(ModelRenderInstance *instance, ModelRenderContext *context,
         func_8002B040(matrixBase + 0x200, 0, 0x3F800000, 0,
                       &deltaX, &deltaY, &deltaZ);
         sine = func_8002A8C0(angle);
-        transform.rotation0 = yaw;
-        transform.rotation1 = pitch;
         transform.rotation2 = scaledAngle +
                                Arctanf(-((deltaX * func_8002A8BC(angle)) +
                                           (deltaZ * sine)), deltaY);
+        transform.rotation0 = yaw;
+        transform.rotation1 = pitch;
         transform.scale = model->transformScale;
         nodeData = (ModelRenderNodeData *) context->nodes;
         mtxf_transform_point((Matrix *) (matrixBase + 0x200), nodeData->x,
@@ -851,4 +851,14 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
  * first-mismatch: +0x38
  * summary: CFE removes the target a2 frame-pointer copy and changes the transition split; next lever is the source-authentic carrier lifetime or field type.
  * PLATEAU-HANDOFF:func_8005ABA8:end
+ */
+
+/* PLATEAU-HANDOFF:func_8005AF14:start
+ * symbol: func_8005AF14
+ * score: 377 differing words
+ * frame: 0x110
+ * relocations: 27
+ * first-mismatch: +0x0
+ * summary: Frame remains 0x110 versus target 0xF8; camera/matrix allocator structure remains unresolved after the full flag lattice.
+ * PLATEAU-HANDOFF:func_8005AF14:end
  */
