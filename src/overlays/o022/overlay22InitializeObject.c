@@ -22,13 +22,16 @@ extern void func_overlay_022_F0000D30_1878E38(void *, s32, s32 *);
 
 /* Configured remeasurement retains the exact 172-word/0x58-frame shape with
  * five instruction differences: objectPosition uses sp+0x28 instead of target
- * sp+0x30, and the D_A7C home/outgoing stores are reversed. Ten new bounded
+ * sp+0x30, and the D_A7C home/outgoing stores are reversed. Ten prior bounded
  * parameter reuse, typed-member, scoped-lifetime, address-taking, aggregate,
- * volatility, and register-class variants were neutral or regressions. All 21
- * relocation sites/types align; the generated call at +0x274 remains the one
- * unresolved candidate identity even though runtime ownership identifies
- * overlay 22 +0xD30. Preserve the assembly fallback pending a new stack-home
- * producer mechanism and static identity proof. */
+ * volatility, and register-class variants were neutral or regressions. A
+ * fidelity-clean allocator capture maps the sole procedure and all 17 colour
+ * decisions, but the current producer emits no virtual/final stack-home fields
+ * and attributes no web to a source semantic. A procedure-scoped ugen capture
+ * supplies candidate temp lifecycles only; there is no target-side producer
+ * trace to compare. All 21 relocation offsets/types and source/runtime roles
+ * are reconciled, while fail-closed static comparison remains incomplete.
+ * Preserve the assembly fallback pending a calibrated stack-home producer. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000000_1878108(void *object, void *init) {
     void *contact;
@@ -113,6 +116,6 @@ void func_overlay_022_F0000000_1878108(void *object, void *init) {
  * frame: 0x58
  * relocations: 21
  * first-mismatch: +0x70
- * summary: Five stack-home/store-order differences remain; one generated overlay call identity is unresolved statically
+ * summary: fidelity-clean stack-home trace exposes no producer offsets and ugen has no target comparison; no trace-directed source probe is justified
  * PLATEAU-HANDOFF:func_overlay_022_F0000000_1878108:end
  */
