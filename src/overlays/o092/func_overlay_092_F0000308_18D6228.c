@@ -65,9 +65,13 @@ extern s32 func_overlay_092_F0000068_18D5F88(void *owner, f32 *x, f32 *y,
                                              f32 *z, s32 *pathIndex);
 
 /* Exact DKR v77/v80 and JFG object scans found no donor for this overlay. */
-/* Workbench: structure-mismatch; 458 instructions/frame -112, 157 masked
- * words, first actionable mismatch +0x94 (4 opcode-order, 147 register rows).
- * Constant/owner/pointer/width/loop/FP forms are exhausted; postfix loop regressed, leaving call-delay and FP webs. */
+/* Fresh V0 is exact-sized at 458 instructions / 0x728 bytes with frame 0x70:
+ * 301/458 relocation-masked and 300/458 raw words match.  The first actionable
+ * mismatch remains +0x94 (four opcode-order sites and 147 register rows), with
+ * the 57-entry integer temporary lane exact.  All 33 runtime offsets/types
+ * align; 24 identities are proved and nine remain unresolved.  The prior
+ * constant/owner/pointer/width/loop/FP cap remains exhausted; postfix loop
+ * regressed, leaving the loop-sentinel allocation and downstream FP webs. */
 #ifdef NON_MATCHING
 void func_overlay_092_F0000308_18D6228(Overlay92Owner *owner,
                                        Overlay92UpdateConfig *config,
@@ -236,3 +240,13 @@ void func_overlay_092_F0000308_18D6228(Overlay92Owner *owner,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o092/func_overlay_092_F0000308_18D6228/func_overlay_092_F0000308_18D6228.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_092_F0000308_18D6228:start
+ * symbol: func_overlay_092_F0000308_18D6228
+ * score: 301/458 words
+ * frame: 0x70
+ * relocations: 33
+ * first-mismatch: +0x94
+ * summary: Fresh V0 is exact-sized; 33/33 offsets/types and 24/33 identities align. Prior cap remains exhausted; resume only with a new loop-sentinel/FP-web mechanism.
+ * PLATEAU-HANDOFF:func_overlay_092_F0000308_18D6228:end
+ */
