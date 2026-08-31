@@ -2354,6 +2354,7 @@ void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
     TrackSegment *segment;
     TrackBatch *batch;
     TrackTextureHeader *texture;
+    s32 specialFlags;
     s32 sp5C;
     s32 sp58;
     u32 vertexAddress;
@@ -2368,8 +2369,8 @@ void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
     s32 index;
 
     if (D_8007C854 != 0) {
-        color = D_8007C858 & 0xFF;
-        gDPSetPrimColor(D_800C9520++, 0, 0, color, color, color, 0xFF);
+        gDPSetPrimColor(D_800C9520++, 0, 0, D_8007C858 & 0xFF,
+                        D_8007C858 & 0xFF, D_8007C858 & 0xFF, 0xFF);
     }
 
     segment = &D_800792E8->segments[arg0];
@@ -2395,8 +2396,8 @@ void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
 
     batchCount = segment->batchCount;
     batch = segment->batches;
-    index = batchCount;
     if (batchCount != 0) {
+        index = batchCount - 1;
         do {
             if ((1 << batch->unk1) & arg1) {
                 textureFlags = batch->flags;
@@ -2407,12 +2408,12 @@ void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
                         hasTexture = 1;
                         texture = D_800792E8->textures[batch->textureIndex].texture;
                     }
-                    textureFrame = batch->frame << 8;
                     vertexAddress = (u32) segment->lightData +
                                     (batch->u0 * 0xA);
                     positionAddress = (u32) segment->vertexData +
                                       (batch->v0 * 0x10);
-                    if ((texture != NULL) && (texture->flags & 0x40) &&
+                    textureFrame = batch->frame << 8;
+                    if ((texture != NULL) && ((s16) texture->flags & 0x40) &&
                         ((textureFlags & 0x30) != 0x20)) {
                         color = (textureFrame >> 8) & 0xFF;
                         gDPSetEnvColor(D_800C9520++, color, color, color,
@@ -2423,7 +2424,8 @@ void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
                     if (!(textureFlags & 0x180)) {
                         textureFlags |= D_800C9544;
                     }
-                    if ((textureFlags & 0x20000) && (texture != NULL)) {
+                    specialFlags = textureFlags & 0x20000;
+                    if ((specialFlags != 0) && (texture != NULL)) {
                         func_80014ECC(texture, textureFrame, textureFlags);
                     } else {
                         func_800349A4(&D_800C9520, texture,
@@ -2437,14 +2439,13 @@ void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
                     positionAddress += 0x80000000;
                     TRACK_SP_POLYGON(D_800C9520++, positionAddress,
                                      positionCount, hasTexture);
-                    if (textureFlags & 0x20000) {
+                    if (specialFlags != 0) {
                         func_80034920(&D_800C9520);
                     }
                 }
             }
             batch++;
-            index--;
-        } while (index != 0);
+        } while (index--);
     }
     if (arg2 == 0x4000) {
         texEnableModes(2);
@@ -4186,8 +4187,8 @@ typedef struct TrackClipOutput {
     s16 segment;
 } TrackClipOutput;
 
-/* Workbench verdict: structure-mismatch, 157 differing words, first mismatch +0x0. */
-/* Candidate: 174/177 instructions with a -0x38 frame versus target -0x40; three instruction/frame-padding residuals remain. */
+/* Workbench verdict: structure-mismatch, 154 differing words, first mismatch +0x0. */
+/* Candidate: 175/177 instructions with a -0x38 frame versus target -0x40; two instruction/frame-allocation residuals remain. */
 /* Shape status: encoded-node traversal, three-corner bit scan, and 0x2C output stride are preserved, but it is not shape-exact. */
 void func_80012658(s32 flags) {
     TrackClipNode *node;
@@ -4213,62 +4214,58 @@ void func_80012658(s32 flags) {
         return;
     }
     D_800C9D28 = 1;
-    nodeIndex = 0;
-    if (D_800C9D3C > 0) {
-        do {
-            faceOffset = nodeIndex * 2;
-            encoded = D_800C9D2C[nodeIndex];
-            if (encoded > 0) {
-                node = (TrackClipNode *) (encoded | (s32) 0x80000000);
-            } else {
-                segmentIndex = D_800C9D34[nodeIndex];
-                faceIndex = D_800C9D30[nodeIndex];
-                face = (TrackClipFace *) ((u8 *) node->faces +
-                                          (segmentIndex * 0x10));
-                vertex = (TrackClipVertex *) ((u8 *) node->origin +
-                                              (*(s16 *) ((u8 *) node->indices +
-                                                         (faceIndex * 0x10) +
-                                                         6) * 0x0A));
-                corner = 0;
-                do {
-                    if (face->flags & (1 << corner)) {
-                        nextCorner = corner + 1;
-                        if (nextCorner >= 3) {
-                            nextCorner = 0;
-                        }
-                        output = (TrackClipOutput *) ((u8 *) D_800C9D20 +
-                                                      (D_800C9D24 * 0x2C));
-                        vertexIndex = (s16) (((u8 *) face)[corner + 1]);
-                        {
-                            TrackClipVertex *first = (TrackClipVertex *)
-                                ((u8 *) vertex + (vertexIndex * 0x0A));
-                            TrackClipVertex *second = (TrackClipVertex *)
-                                ((u8 *) vertex +
-                                 (((u8 *) face)[nextCorner + 1] * 0x0A));
-                            output->x0 = (f32) first->x;
-                            output->y0 = (f32) first->y;
-                            output->z0 = (f32) first->z;
-                            output->x1 = (f32) second->x;
-                            output->y1 = (f32) second->y;
-                            output->z1 = (f32) second->z;
-                            output->dx = output->x1 - output->x0;
-                            output->node = node;
-                            output->dy = output->y1 - output->y0;
-                            output->dz = output->z1 - output->z0;
-                            output->segment = D_800C9D30[nodeIndex];
-                        }
-                        outputIndex = D_800C9D24 + 1;
-                        D_800C9D24 = outputIndex;
-                        if (outputIndex >= *(s16 *) ((u8 *) D_800792EC + 0xF0)) {
-                            corner = 3;
-                            nodeIndex = D_800C9D3C;
-                        }
+    for (nodeIndex = 0; nodeIndex < D_800C9D3C; nodeIndex++) {
+        faceOffset = nodeIndex * 2;
+        encoded = D_800C9D2C[nodeIndex];
+        if (encoded > 0) {
+            node = (TrackClipNode *) (encoded | (s32) 0x80000000);
+        } else {
+            segmentIndex = D_800C9D34[nodeIndex];
+            faceIndex = D_800C9D30[nodeIndex];
+            face = (TrackClipFace *) ((u8 *) node->faces +
+                                      (segmentIndex * 0x10));
+            vertex = (TrackClipVertex *) ((u8 *) node->origin +
+                                          (*(s16 *) ((u8 *) node->indices +
+                                                     (faceIndex * 0x10) +
+                                                     6) * 0x0A));
+            corner = 0;
+            do {
+                if (face->flags & (1 << corner)) {
+                    nextCorner = corner + 1;
+                    output = (TrackClipOutput *) ((u8 *) D_800C9D20 +
+                                                  (D_800C9D24 * 0x2C));
+                    if (nextCorner >= 3) {
+                        nextCorner = 0;
                     }
-                    corner++;
-                } while (corner < 3);
-            }
-            nodeIndex++;
-        } while (nodeIndex < D_800C9D3C);
+                    vertexIndex = (s16) (((u8 *) face)[corner + 1]);
+                    {
+                        TrackClipVertex *first = (TrackClipVertex *)
+                            ((u8 *) vertex + (vertexIndex * 0x0A));
+                        TrackClipVertex *second = (TrackClipVertex *)
+                            ((u8 *) vertex +
+                             (((u8 *) face)[nextCorner + 1] * 0x0A));
+                        output->x0 = (f32) first->x;
+                        output->y0 = (f32) first->y;
+                        output->z0 = (f32) first->z;
+                        output->x1 = (f32) second->x;
+                        output->y1 = (f32) second->y;
+                        output->z1 = (f32) second->z;
+                        output->dx = output->x1 - output->x0;
+                        output->node = node;
+                        output->dy = output->y1 - output->y0;
+                        output->dz = output->z1 - output->z0;
+                        output->segment = D_800C9D30[nodeIndex];
+                    }
+                    outputIndex = D_800C9D24 + 1;
+                    D_800C9D24 = outputIndex;
+                    if (outputIndex >= *(s16 *) ((u8 *) D_800792EC + 0xF0)) {
+                        corner = 3;
+                        nodeIndex = D_800C9D3C;
+                    }
+                }
+                corner++;
+            } while (corner < 3);
+        }
     }
 }
 #else
@@ -5780,4 +5777,24 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x14
  * summary: Exact size/frame and all six identities; 41 words remain from saved-register cycling and stack/FP allocation after bounded source and batch attempts.
  * PLATEAU-HANDOFF:func_80010900:end
+ */
+
+/* PLATEAU-HANDOFF:func_80012658:start
+ * symbol: func_80012658
+ * score: 154 differing words
+ * frame: 0x38
+ * relocations: 18
+ * first-mismatch: +0x0
+ * summary: Output-address ordering and outer for-loop preserve all relocation identities; a two-word and eight-byte frame-allocation gap remains.
+ * PLATEAU-HANDOFF:func_80012658:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000F198:start
+ * symbol: func_8000F198
+ * score: 185 differing words
+ * frame: -0x58
+ * relocations: 21
+ * first-mismatch: +0x0
+ * summary: Exact 249-insn geometry. Target frame is 24 bytes larger and five relocation sites shift. Next lever is local lifetimes moving the counter s8 to s6.
+ * PLATEAU-HANDOFF:func_8000F198:end
  */

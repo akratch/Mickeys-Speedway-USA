@@ -95,8 +95,7 @@ typedef struct ShadowSector {
 
 typedef struct ShadowBlock {
     u8 pad0[6];
-    u8 vertexBase6;
-    u8 pad7;
+    s16 vertexBase6;
     s16 firstVertex8;
     u8 padA[2];
     u32 flagsC;
@@ -1350,18 +1349,18 @@ loop_29:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80017BCC.s")
 #endif
-/* Workbench verdict: structure-mismatch, 179 differing words, first mismatch +0x0. */
-/* Candidate: 204/206 instructions with the exact -0x90 frame; two instruction and relocation-position residuals remain. */
-/* Shape status: sector/block loops, three-vertex bounds test, and fade update are preserved, but the candidate is not shape-exact. */
+/* Workbench verdict: structure-mismatch, 159 differing words, first mismatch +0x34. */
+/* Candidate: exact 206-word geometry and -0x90 frame; 6/8 fallback-static relocation identities align. */
+/* Shape status: the vertex-base, face, mask, and three-point traversal is semantically reconstructed, but allocation and CFG still diverge broadly. */
 /* PROVENANCE: Mickey's m2c control-flow draft and resident shadow offsets supply this reconstruction; no external body is copied. */
 #ifdef NON_MATCHING
 void func_800180B4(ShadowQuery *query) {
-    ShadowQueryVolume *volume;
     ShadowWorld *world;
     ShadowSector *sector;
     ShadowBlock *block;
     ShadowTriangle *triangle;
-    ShadowTriangle *nextTriangle;
+    u8 *vertexBase;
+    u8 *triangleVertex;
     u32 flags;
     u32 maskWord;
     s32 y;
@@ -1374,18 +1373,18 @@ void func_800180B4(ShadowQuery *query) {
     s32 vertex;
     s32 vertexOffset;
     s32 triangleNumber;
-    s16 lowY;
-    s16 highY;
-    s16 currentY;
+    s32 firstPointOffset;
+    s32 lowY;
+    s32 highY;
+    s32 currentY;
     f32 *value;
     f32 oldValue;
     f32 targetValue;
     s32 done;
 
-    volume = query->volume40;
     y = (s32) query->y10;
-    yMax = y + volume->maxY6E;
-    yMin = y + volume->minY6C;
+    yMax = y + query->volume40->maxY6E;
+    yMin = y + query->volume40->minY6C;
     done = 0;
     sectorIndex = query->sector2E;
     if (sectorIndex != -1) {
@@ -1399,46 +1398,49 @@ void func_800180B4(ShadowQuery *query) {
         blockNumber = 0;
         sector = (ShadowSector *) ((u8 *) world->sectors4 + (sectorIndex << 6));
         blockOffset = 0;
-        block = sector->blocksC;
         if (sector->blockCount24 > 0) {
+            block = sector->blocksC;
             do {
                 flags = block->flagsC;
                 if ((flags & 0x08013880) == 0) {
+                    vertexBase = (u8 *) sector->vertices0 +
+                                 (block->vertexBase6 * 0xA);
                     vertex = block->firstVertex8;
                     vertexOffset = vertex * 4;
                     if ((vertex < block->lastVertex18) && (done == 0)) {
                         do {
                             maskWord = *(u32 *) ((u8 *) sector->masks10 + vertexOffset);
-                            if (((maskWord & mask) != 0) &&
+                            maskWord &= mask;
+                            if (((maskWord & 0xFFFF) != 0) &&
                                 ((maskWord >> 16) != 0)) {
                                 triangle = (ShadowTriangle *)
                                     ((u8 *) sector->triangles4 +
                                      (vertex * 0x10));
-                                nextTriangle = triangle + 1;
-                                lowY = *(s16 *) ((u8 *) sector->vertices0 +
-                                                 (triangle->vertex1 * 0xA) + 2);
+                                triangleVertex = &triangle->vertex1;
+                                firstPointOffset = *triangleVertex * 0xA;
+                                lowY = *(s16 *)
+                                    (vertexBase + firstPointOffset + 2);
                                 highY = lowY;
                                 triangleNumber = 1;
                                 do {
                                     triangleNumber++;
+                                    triangleVertex++;
                                     currentY = *(s16 *)
-                                        ((u8 *) sector->vertices0 +
-                                         (nextTriangle->vertex1 * 0xA) + 2);
+                                        (vertexBase +
+                                         (*triangleVertex * 0xA) + 2);
                                     if (currentY < lowY) {
                                         lowY = currentY;
                                     } else if (highY < currentY) {
                                         highY = currentY;
                                     }
-                                    nextTriangle++;
                                 } while (triangleNumber != 3);
                                 if ((highY >= yMin) && (yMax >= lowY) &&
                                     (mathXZInTri((s32) query->x0C,
                                                  (s32) query->z14,
-                                                 (u8 *) sector->vertices0 +
-                                                     (triangle->vertex1 * 0xA),
-                                                 (u8 *) sector->vertices0 +
+                                                 vertexBase + firstPointOffset,
+                                                 vertexBase +
                                                      (triangle->vertex2 * 0xA),
-                                                 (u8 *) sector->vertices0 +
+                                                 vertexBase +
                                                      (triangle->vertex3 * 0xA)) != 0)) {
                                     value = query->value50;
                                     oldValue = *value;
@@ -1476,4 +1478,14 @@ void func_800180B4(ShadowQuery *query) {
  * first-mismatch: +0x48
  * summary: Exact frame and 18-word prefix; candidate has 19/21 relocations (2 exact identities) and a five-word CFG/allocation deficit
  * PLATEAU-HANDOFF:func_80017140:end
+ */
+
+/* PLATEAU-HANDOFF:func_800180B4:start
+ * symbol: func_800180B4
+ * score: 159 differing words
+ * frame: 0x90
+ * relocations: 8
+ * first-mismatch: +0x34
+ * summary: Exact geometry; mixed CFG/allocation residual remains, with 6/8 fallback-static identities aligned.
+ * PLATEAU-HANDOFF:func_800180B4:end
  */

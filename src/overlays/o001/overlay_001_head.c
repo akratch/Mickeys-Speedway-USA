@@ -697,10 +697,10 @@ extern u8 gOverlay1RankBase;
 extern u8 gOverlay1RankLimit;
 extern u8 D_8[];
 
-/* Plateau (2026-08-24): the complete flag lattice ties at -O2 -mips2; the
- * candidate is 0x10 bytes short, differs in 114 of 148 words, and diverges
- * at +0x0.  The object/rank mapping loops need a structural rewrite before
- * register-order work can be meaningful. */
+/* Plateau reproof (2026-08-31): the complete flag lattice still selects
+ * -O2 -mips2. The retained candidate is 0xC bytes short, differs in 88 of
+ * 148 words, and first diverges at +0x0; source structure and allocation
+ * remain nonexact, and the consolidated relocation identities fail closed. */
 #ifdef NON_MATCHING
 void overlay1BuildObjectMappings(volatile s32 unused) {
     s32 count;
@@ -709,6 +709,7 @@ void overlay1BuildObjectMappings(volatile s32 unused) {
     Overlay1BuildObject *object;
     Overlay1BuildData *data;
     s32 remaining;
+    s32 innerStart;
     s32 inner;
     Overlay1BuildObject **innerCursor;
     Overlay1BuildObject *innerObject;
@@ -716,8 +717,8 @@ void overlay1BuildObjectMappings(volatile s32 unused) {
 
     base = overlay1GetBuildObjectsReloc(&count);
     if (gOverlay1BuildGate != 0) {
-        remaining = count - 1;
         if (count != 0) {
+            remaining = count - 1;
             outerCursor = base + remaining;
             do {
                 object = *outerCursor;
@@ -737,18 +738,20 @@ void overlay1BuildObjectMappings(volatile s32 unused) {
                 ((Overlay1BuildState *)D_1DA0)->word400 = 0;
                 *(s16 *)((u8 *)D_1DA0 + 0x3BA) = 0xFF;
                 *(f32 *)((u8 *)D_1DA0 + 0x3D0) = object->x;
+                innerStart = count - 1;
                 *(f32 *)((u8 *)D_1DA0 + 0x3D4) = object->y;
                 *(f32 *)((u8 *)D_1DA0 + 0x3D8) = object->x;
                 *(f32 *)((u8 *)D_1DA0 + 0x3DC) = object->y;
                 if (gOverlay1BuildGate == 1) {
                     func_overlay_001_F00019B8_184DD98(0);
+                    inner = 1;
                     ((Overlay1BuildState *)D_1DA0)->word404 = 0;
-                    ((Overlay1BuildState *)((u8 *)D_1DA0 + 4))->word404 = 0;
-                    ((Overlay1BuildState *)((u8 *)D_1DA0 + 4))->word408 = 0;
-                    ((Overlay1BuildState *)((u8 *)D_1DA0 + 4))->word40C = 0;
-                    ((Overlay1BuildState *)((u8 *)D_1DA0 + 4))->word410 = 0;
+                    ((Overlay1BuildState *)((s32 *)D_1DA0 + inner))->word404 = 0;
+                    ((Overlay1BuildState *)((s32 *)D_1DA0 + inner))->word408 = 0;
+                    ((Overlay1BuildState *)((s32 *)D_1DA0 + inner))->word40C = 0;
+                    ((Overlay1BuildState *)((s32 *)D_1DA0 + inner))->word410 = 0;
                 }
-                inner = count - 1;
+                inner = innerStart;
                 if (count != 0) {
                     innerCursor = base + inner;
                     do {
@@ -764,12 +767,6 @@ void overlay1BuildObjectMappings(volatile s32 unused) {
             } while (remaining--);
         }
     }
-}
-
-s32 overlay1BuildScheduleCarrier(s32 first, s32 second) {
-    first += 1;
-    first <<= 2;
-    return first + second;
 }
 
 #else
@@ -843,4 +840,14 @@ void overlay1CallReset(void) {
  * first-mismatch: +0x0C
  * summary: Exact instruction multiset remains schedule only after all flags and a bounded search rejected an inert best mutation
  * PLATEAU-HANDOFF:overlay1MeasureCurves:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1BuildObjectMappings:start
+ * symbol: overlay1BuildObjectMappings
+ * score: 88 differing words
+ * frame: 0x78
+ * relocations: 16
+ * first-mismatch: +0x0
+ * summary: 145/148-word size; target frame 0x70; structure/allocation remain after 119 flags, ten forms, and one bounded batch; identities unresolved
+ * PLATEAU-HANDOFF:overlay1BuildObjectMappings:end
  */

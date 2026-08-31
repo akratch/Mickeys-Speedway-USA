@@ -214,7 +214,7 @@ void func_800479D4(void *cone, s16 angle, f32 x, f32 y, s32 length);
 void partUpdateTriggers(void *object, s32 updateRate);
 void changeLightIntensity(void *light, u8 intensity);
 s32 func_8002A204(s16 angle);
-void camSetNo(s8 playerIndex, s32 cameraIndex, ControlCameraState **cameraState);
+void camSetNo();
 ControlCameraState *camGetPtr(void);
 s32 camGetMode(void);
 ControlCameraState *camGetListPtr(void);
@@ -790,9 +790,9 @@ void func_8001CB0C(ControlTransform *transform, ControlPlayer *player) {
  * assembly only; this body is reconstructed from Mickey's fields, calls,
  * and branch conditions. */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 367 differing words, first mismatch +0x0. */
-/* Candidate shape: 457 instructions/frame -0xB8 versus target 455/-0x80; 76 alignment gaps. */
-/* Remaining structural gap: 2 excess instructions and a 0x38-byte frame excess; not shape-exact. */
+/* Workbench verdict: structure-mismatch, 138 differing words, first mismatch +0x0. */
+/* Candidate shape: exact-sized at 455 instructions, frame -0xB8 versus target -0x80. */
+/* Remaining gap: 0x38-byte frame/home excess and the resulting FP register-web cascade. */
 void func_8001CB84(ControlActor *actor, s32 updateRate) {
     f32 temp_f0;
     f32 temp_f0_2;
@@ -819,14 +819,17 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
     ControlPlayer *player;
     ControlParticleEffect *effect;
     ControlParticleState *state;
+    CharControlLevelDescription *sp70;
+    CharControlSpawnSetup packetD0;
+    CharControlSpawnSetup packetD8;
+    s32 sp44;
+    s32 sp3C;
+    f32 sp7C;
+    f32 sp38;
 
     player = actor->player;
     player->unk3 = player->unk2;
     if (player->unkC8 != NULL) {
-        CharControlLevelDescription *sp70;
-        s32 sp44;
-        s32 sp3C;
-
         sp70 = ((CharControlLevelRequest *) player->unkC8)->description;
         highCharacter = sp70->characterHigh;
         character = sp70->characterLow;
@@ -849,7 +852,7 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
         if (player->unk1A5 == 0) {
             player->unk1A5 = 1;
             if (player->unk1A4 == 1) {
-                camSetNo(player->playerIndex, 0, &D_800CB300);
+                camSetNo(player->playerIndex);
                 func_800214AC();
             }
         }
@@ -857,7 +860,7 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
         if (player->unk1A6 <= 0) {
             player->unk1A6 = 0;
             if (player->unk1A4 == 1) {
-                camSetNo(player->playerIndex, 0, &D_800CB300);
+                camSetNo(player->playerIndex);
                 func_800214AC();
             }
         }
@@ -871,22 +874,19 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
             player->unk54 = 1.0f;
             if ((effect != NULL) && (effect->unk44 == 0x52)) {
                 state = effect->state;
-                *(u16 *) state &= 0xFFFD;
+                *(s16 *) state &= 0xFFFD;
                 effect = player->unk338;
                 effect->unk20 = (f32) effect->state->unk18;
                 player->unk338 = NULL;
             }
         }
     }
-    if (player->unk54 != player->unk50) {
+    if (player->unk50 != player->unk54) {
         func_8001F09C(player, updateRate);
     }
     actor->unk48->unk54 = 0.0f;
     particleState = player->unk158;
     if (particleState != 0) {
-        f32 sp7C;
-        f32 sp38;
-
         if (particleState & 0x8000) {
             temp_a0_2 = (s32) player->unkB4;
             if (temp_a0_2 != 0) {
@@ -894,7 +894,7 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
             }
             func_80002FE0(0x21, actor->x, actor->y, actor->z, 4,
                           (void **) &player->unkB4);
-            player->unk158 = (s16) (particleState & 0x7FFF);
+            player->unk158 = (s16) (player->unk158 & 0x7FFF);
         }
         temp_f2 = player->unk150;
         temp_f0 = (f32) updateRate;
@@ -979,8 +979,6 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
         if (player->unk16A <= 0) {
             player->unk16A = 0;
         } else if (player->unkD0 == NULL) {
-            CharControlSpawnSetup packetD0;
-
             packetD0.kind = 0xB8;
             packetD0.arg04 = 0;
             packetD0.arg06 = 0xE;
@@ -998,8 +996,6 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
     if (!(player->flags1A8 & 1)) {
         if ((player->unkD8 == NULL) &&
             (TrapDanglingJump((void *) player->playerIndex) != 0)) {
-            CharControlSpawnSetup packetD8;
-
             packetD8.kind = 0x14C;
             packetD8.arg02 = 0x10;
             packetD8.arg0B = 0;
@@ -1964,4 +1960,14 @@ void controlClearPlayerSetup(void) {
  * first-mismatch: +0x0
  * summary: Target 238w, frame 0xA0, 47 relocs; scalar identities and X/Z normalization are correct, but common-prefix sinking and FP/integer allocation remain.
  * PLATEAU-HANDOFF:func_8001EC44:end
+ */
+
+/* PLATEAU-HANDOFF:func_8001CB84:start
+ * symbol: func_8001CB84
+ * score: 317/455 words
+ * frame: 0xB8
+ * relocations: 41
+ * first-mismatch: +0x0
+ * summary: Exact geometry and relocation offset/type surface; reduce the 0x38 frame/home excess before addressing the FP register-web cascade.
+ * PLATEAU-HANDOFF:func_8001CB84:end
  */
