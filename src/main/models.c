@@ -837,7 +837,7 @@ typedef struct ModelGfxSource {
 struct ModelTextureUsage;
 void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
                    struct ModelTextureUsage *usage, s32 entryIndex,
-                   volatile u32 textureBase);
+                   u32 textureBase);
 
 /* Mickey-only reconstruction; JFG supplies the tier-B makeModelGfx role and TU position, but retains assembly. */
 /* PLATEAU (2026-08-31): workbench structure-mismatch; 249/342 words differ, first +0x0.
@@ -1048,12 +1048,12 @@ typedef struct ModelTextureUsage {
     ModelTextureUsageEntry *entries;
 } ModelTextureUsage;
 
-/* Workbench p7: structure-mismatch; 160/159 instructions, 156 words, first +0x0, frame -0x20 vs -0x10.
- * Levers: constant audit, context lint, scoped-cache/loop-local, direct-array, register-hint, and Gfx command forms; none changed the canonical shape.
- * Remains: retail three-save register/stack web versus the candidate six-save frame; GLOBAL_ASM stays canonical. */
+/* Workbench p13: structure-mismatch; 158/159 instructions, 143 words, first +0x0, frame -0x18 vs -0x10.
+ * A fidelity-valid 20-minute permuter sweep improved its weighted score from 2273 to 1549, then classified P_STUCK_FLAT.
+ * Remains: retail three-save register/stack web versus the candidate four-save frame; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
-                   ModelTextureUsage *usage, s32 entryIndex, volatile u32 textureBase) {
+                   ModelTextureUsage *usage, s32 entryIndex, u32 textureBase) {
     s16 *count;
     s16 currentCount;
     s32 bestCount;
@@ -1061,16 +1061,15 @@ void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
     s32 usageIndex;
     s32 textureIndex;
     s32 i;
-    s8 *slotOut;
-    s8 *textureId;
-    s8 *cache;
+    s8 *allTextureIds;
     s8 cachedId;
+    int new_var;
     s32 slot;
 
-    cache = D_800CB498;
+    allTextureIds = textureIds;
     i = 0;
     do {
-        cachedId = *cache;
+        cachedId = D_800CB498[i];
         count = &D_800CB49C[i];
         if (cachedId != -1) {
             (*count)--;
@@ -1083,7 +1082,9 @@ void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
                         if (cachedId == entry->textureIds[0] ||
                             cachedId == entry->textureIds[1] ||
                             cachedId == entry->textureIds[2]) {
-                            usageIndex = usage->entryCount;
+                            do {
+                                usageIndex = usage->entryCount;
+                            } while (0);
                         } else {
                             (*count)++;
                         }
@@ -1093,44 +1094,38 @@ void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
             }
         }
         i++;
-        cache++;
     } while (i != 3);
 
+    new_var = -1;
     textureIndex = 0;
-    slotOut = slots;
-    textureId = textureIds;
     do {
-        *slotOut = -1;
+        *slots = new_var;
         textureIndex++;
         i = 0;
-        if (*textureId != -1) {
-            cache = D_800CB498;
+        if (*textureIds != new_var) {
             do {
-                if (*cache == *textureId) {
-                    *slotOut = i + 1;
+                if (D_800CB498[i] == *textureIds) {
+                    *slots = i + 1;
                 }
                 i++;
-                cache++;
+                slot = i;
             } while (i < 3);
 
-            slot = -1;
+            slot = new_var;
             i = 0;
-            if (*slotOut == -1) {
-                cache = D_800CB498;
+            if (*slots == new_var) {
                 do {
-                    if (*cache == -1) { slot = i; } i++;
-                    cache++;
-                } while (i < 3 && slot == -1);
+                    if (D_800CB498[i] == new_var) { slot = i; } i++;
+                } while (i < 3 && slot == new_var);
 
-                if (slot == -1) {
-                    cache = D_800CB498;
+                if (slot == new_var) {
                     i = 0;
                     bestCount = 0;
                     do {
-                        cachedId = *cache;
-                        if (cachedId != textureIds[0] &&
-                            cachedId != textureIds[1] &&
-                            cachedId != textureIds[2]) {
+                        cachedId = D_800CB498[i];
+                        if (cachedId != allTextureIds[0] &&
+                            cachedId != allTextureIds[1] &&
+                            cachedId != allTextureIds[2]) {
                             count = &D_800CB49C[i];
                             currentCount = *count;
                             if (bestCount < currentCount) {
@@ -1139,19 +1134,18 @@ void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
                             }
                         }
                         i++;
-                        cache++;
                     } while (i != 3);
                 }
 
-                D_800CB498[slot] = *textureId;
+                D_800CB498[slot] = *textureIds;
                 D_800CB49C[slot] = 0;
-                *slotOut = slot + 1;
-                gSPMatrix((*displayList)++, ((*textureId << 6) + textureBase) & 0x0FFFFFFF,
-                          *slotOut | 0x80);
+                *slots = slot + 1;
+                gSPMatrix((*displayList)++, ((*textureIds << 6) + textureBase) & 0x0FFFFFFF,
+                          *slots | 0x80);
             }
         }
-        slotOut++;
-        textureId++;
+        slots++;
+        textureIds++;
     } while (textureIndex != 3);
 }
 #else
@@ -1394,4 +1388,14 @@ void func_8002109C(ModelPointOwner *owner) {
  * first-mismatch: +0x0
  * summary: Block-scoped s16 gains two words, but the 0xC0 frame and pool allocation diverge; next try a JFG-faithful saved-register/stack-home topology.
  * PLATEAU-HANDOFF:func_8002057C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80020B10:start
+ * symbol: func_80020B10
+ * score: 143/159 words
+ * frame: 0x18
+ * relocations: 12
+ * first-mismatch: +0x0
+ * summary: P_STUCK_FLAT after fidelity-valid 20m sweep; 0x18 four-save frame remains versus retail 0x10 three-save allocator web
+ * PLATEAU-HANDOFF:func_80020B10:end
  */
