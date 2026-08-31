@@ -32,6 +32,8 @@ extern f32 gO63LocalFloat;
 extern s32 gO63SavedTableWord;
 extern O63Config gO63Configs[];
 extern s16 gO63Chain;
+#pragma weak gO63ChainReload = gO63Chain
+extern s16 gO63ChainReload;
 extern s32 gO63State18C;
 extern s32 gO63State190;
 extern s32 gO63State194;
@@ -40,15 +42,12 @@ extern s32 gO63State19C;
 
 /* Pinned DKR v77/v80 and JFG donor scans classify overlay 63 as none. */
 /*
- * Plateau (8 structural attempts plus a bounded 10-minute permuter batch):
- * the baseline flag sweep produced an exact-size MIPS-I object with 31 words
- * differing at +0x8C, while canonical MIPS-II was four bytes short with 67
- * words differing at +0xC4.  Viewing the six-byte chain as raw s16 fields
- * gives an exact-size MIPS-II object with 22 positional words differing first
- * at +0xB8.  Separate base pointers, scalar/array/struct element types, local
- * zero materialization, and targeted volatile qualifiers did not recover the
- * target's initial chain reload; the permuter's pointer-snapshot winner
- * regressed to 67 words in the real full-TU flag sweep.
+ * Fresh maintenance plateau: a separate typed alias plus the address-preserving
+ * integer round trip restores the target's second chain relocation pair and
+ * reduces the configured 117-word candidate from 22 differences to one at
+ * +0x154.  Both frames are 0x30 and both relocation surfaces have 46 records.
+ * The remaining difference is the commutative loop-back comparison order; a
+ * bounded permuter found only an inert-expression spelling, which is rejected.
  */
 #ifdef NON_MATCHING
 void overlay63Initialize(void) {
@@ -71,7 +70,7 @@ void overlay63Initialize(void) {
     chain = &gO63Chain;
     config = gO63Configs;
     if (gO63Chain != -1) {
-        index = gO63Chain;
+        index = *(s16 *)(s32)&gO63ChainReload;
         do {
             config->resource = gO63TableReloc[index];
             config->value4 = chain[1];
@@ -102,3 +101,13 @@ void overlay63Initialize(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o063/overlay63Initialize/func_overlay_063_F0000000_18C2B88.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay63Initialize:start
+ * symbol: overlay63Initialize
+ * score: 1 differing words
+ * frame: 0x30
+ * relocations: 46
+ * first-mismatch: +0x154
+ * summary: Typed chain-reload alias restores exact geometry and relocation layout; only the commutative loop-back operand order remains.
+ * PLATEAU-HANDOFF:overlay63Initialize:end
+ */

@@ -1789,7 +1789,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o063/overlay63Release.c.o: POSTPROCESS = \
 # trailing-section trim metadata for these extracted functions.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o063/overlay63Initialize.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
-		func_overlay_063_F0000000_18C2B88=overlay63Initialize $@ && \
+		func_overlay_063_F0000000_18C2B88=overlay63Initialize \
+		--redefine-sym gO63ChainReload=gO63Chain $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1D4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o063/overlay63UpdateEffects.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
