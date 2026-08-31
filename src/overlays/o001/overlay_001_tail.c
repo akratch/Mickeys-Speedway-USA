@@ -13,18 +13,18 @@ extern O1GaugeTableEntry *overlay1GetGaugeTable(void);
 extern O1GaugeObject **overlay1GetGaugeObjects(s32 *count);
 extern s32 overlay1RandomRange(s32 minimum, s32 maximum);
 
-/* Plateau: exact 74 words/frame; best is 18 words different, first +0x1C.
- * Byte-form cursor plus named object/loopValue temporaries improve allocation;
- * count's stack home and the retained objects alias remain divergent. */
+/* Plateau: exact 74-word size and 0x60 frame; best is 16 words different,
+ * first actionable mismatch +0x30. The second-slot count declaration matches
+ * its target stack home; the first-loop count/object carrier web remains. */
 #ifdef NON_MATCHING
 void overlay1InitializeGaugeObjects(void) {
     O1GaugeTableEntry *table;
+    volatile s32 count;
     O1GaugeObject **objects;
     O1GaugeObject **firstCursor;
     O1GaugeObject **secondCursor;
     O1GaugeObject *object;
     O1GaugeState *state;
-    volatile s32 count;
     s32 initialIndex;
     s32 index;
     s32 loopValue;
@@ -3316,4 +3316,14 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0x50
  * summary: Masked residual 9 from +0x6C; fallback sites 10/10, LOCAL identities 0/10; ten semantic forms gave no strict gain
  * PLATEAU-HANDOFF:overlay1AllocateRecord:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1InitializeGaugeObjects:start
+ * symbol: overlay1InitializeGaugeObjects
+ * score: 58/74 words
+ * frame: 0x60
+ * relocations: 3
+ * first-mismatch: +0x1C
+ * summary: The reported +0x1C is an unresolved call identity; first instruction mismatch +0x30 is the count/object carrier after 119 flags and nine forms.
+ * PLATEAU-HANDOFF:overlay1InitializeGaugeObjects:end
  */
