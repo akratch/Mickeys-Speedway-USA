@@ -328,16 +328,17 @@ u32 levelGetGfxIndex(s32 arg0) {
 /* PROVENANCE: pinned JFG c82afff keeps levelInit assembly-only; later public
  * JFG 773e313/1a92d81 C provides structural and lifetime evidence only.
  * Mickey's call graph, fields, boundaries, and bytes remain decisive. */
-/* Retained pre-cleanup configured full-TU/isolated C is diagnostic 394/516
- * raw words, frame 0x80, first +0x238 in the resource-list selector carrier,
- * with all 110 static tuples exact (70 R_MIPS_26 plus 20 HI/LO pairs) and no
- * padding. Its unused volatile stackPad[2] is removed, and seven generic trap
- * identities now use their authenticated ABIs; clean V0 is uncompiled and its
- * score/frame are unknown. ORT 526 has sole caller func_80028564+0x5F8 and no
- * runtime/overlay/pointer inbound. Compile pad-free V0, typed-alias V1, and a
- * donor-supported separate s16 tune lifetime; trace once only if still
- * nonexact, then try at most one trace-supported natural form. */
+/* Fresh pad-free configured V0 is exactly 516 words, 389/516 positional,
+ * frame 0x78 versus target 0x80, with all 110 offsets/types and 102 stable
+ * identities. The eight typed trap aliases retain authenticated ABIs but stay
+ * fail-closed against the target TrapDanglingJump symbol. JFG's separate s16
+ * tune lifetime is a strict gain to 394/516. A fidelity-clean proc-8 allocator
+ * trace proves the first mechanism is the eight-byte frame deficit; extending
+ * the donor's meaningful lvlCount lifetime through setupLights is byte-flat.
+ * Preserve this pad-free basin. ORT 526 has sole caller func_80028564+0x5F8;
+ * do not restore the rejected volatile pad or repeat broad search. */
 void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
+    s16 tune;
     s32 lvlStart;
     u32 lvlSize;
     s32 lvlCount;
@@ -534,16 +535,16 @@ void levelInit(s32 lvlIdx, s32 arg1, s32 arg2, s32 arg3) {
     }
 
     for (off = 0; off < 3; off++) {
-        shouldPlay = 1;
+        tune = 1;
         if (D_800CF3C8->tunes[off] != -1) {
             for (j = 0; j < 3; j++) {
                 if (D_800CF3C8->tunes[off] == D_8007A0EC[j]) {
-                    shouldPlay = 0;
+                    tune = 0;
                 } else if (D_8007A0EC[j] == -1) {
                     freeSlot = j;
                 }
             }
-            if (shouldPlay) {
+            if (tune) {
                 amSndPlay(D_800CF3C8->tunes[off], &D_8007A0E0[freeSlot]);
                 D_8007A0EC[freeSlot] = D_800CF3C8->tunes[off];
             }
@@ -724,4 +725,14 @@ s32 levelInitRegionFlags(void) {
  * first-mismatch: +0x13C
  * summary: Fidelity-clean IDO 5.3 UGEN tracing improved the pointer-add block to three register-only words. Next lever: a natural mask -> pointer -> scale allocation order; flags and blind permutation are exhausted.
  * PLATEAU-HANDOFF:levelFreeAll:end
+ */
+
+/* PLATEAU-HANDOFF:levelInit:start
+ * symbol: levelInit
+ * score: 122 differing words
+ * frame: 0x78
+ * relocations: 110
+ * first-mismatch: +0x0
+ * summary: The donor tune lifetime gains five words and the allocator trace isolates a natural frame lifetime deficit while eight trap aliases remain unresolved
+ * PLATEAU-HANDOFF:levelInit:end
  */
