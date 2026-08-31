@@ -3245,18 +3245,17 @@ extern s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
                          f32 threshold, TrackRayHit *hit);
 extern s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3);
 
-/* Workbench verdict: structure-mismatch, 143 differing words, first mismatch +0x0. */
-/* Candidate is 145/147 instructions with the target -0xB8 frame; it is not shape-exact. */
-/* Remaining gap: structural FP/local-home scheduling; all five call sites are present. */
+/* Workbench verdict: structure-mismatch, 41/147 differing words, first mismatch +0x14. */
+/* Candidate size and -0xB8 frame are exact; all six relocation identities align. */
+/* Remaining gap: saved-register cycling plus local and FP-producer allocation. */
 s32 func_80010900(TrackVec3f *arg0, TrackVec3f *arg1, f32 arg2, s32 arg3,
                   void (*arg4)(void *, void *, f32 *, f32, void *, s32)) {
     TrackRayScratch scratch;
     s32 sp6C;
     s32 sp68;
     f32 temp_f0;
-    f32 temp_f18;
     f32 temp_f20;
-    f32 temp_f8;
+    f32 lengthSquared;
     s32 var_s2;
     s32 var_s4;
     s32 var_s7;
@@ -3268,26 +3267,25 @@ s32 func_80010900(TrackVec3f *arg0, TrackVec3f *arg1, f32 arg2, s32 arg3,
         var_s2 = 0;
         var_s4 = 0;
         scratch.direction.x = arg1->f[0] - arg0->f[0];
-        temp_f18 = arg1->f[1] - arg0->f[1];
-        scratch.direction.y = temp_f18;
-        temp_f8 = arg1->f[2] - arg0->f[2];
-        scratch.direction.z = temp_f8;
-        temp_f20 = (temp_f8 * temp_f8) +
+        scratch.direction.y = arg1->f[1] - arg0->f[1];
+        scratch.direction.z = arg1->f[2] - arg0->f[2];
+        temp_f20 = (scratch.direction.z * scratch.direction.z) +
                    ((scratch.direction.x * scratch.direction.x) +
-                    (temp_f18 * temp_f18));
-        if (temp_f20 > 0.0f) {
-            temp_f0 = sqrtf(temp_f20);
+                    (scratch.direction.y * scratch.direction.y));
+        lengthSquared = temp_f20;
+        if (lengthSquared > 0.0f) {
+            temp_f0 = sqrtf(lengthSquared);
             scratch.length = temp_f0;
-            scratch.direction.x /= scratch.length;
-            scratch.direction.y /= scratch.length;
-            scratch.direction.z /= scratch.length;
+            scratch.direction.x /= temp_f0;
+            scratch.direction.y /= temp_f0;
+            scratch.direction.z /= temp_f0;
             if (D_800C9D28 != 0) {
                 var_v0 = func_80011980(arg0, arg1, &scratch.direction,
-                                       scratch.length, arg2, 0.0f,
+                                       temp_f0, arg2, 0.0f,
                                        (TrackRayHit *) scratch.result);
             } else {
                 var_v0 = func_80011980(arg0, arg1, &scratch.direction,
-                                       scratch.length, arg2, arg2,
+                                       temp_f0, arg2, arg2,
                                        (TrackRayHit *) scratch.result);
             }
             if (D_800C9D28 != 0) {
@@ -3296,10 +3294,10 @@ s32 func_80010900(TrackVec3f *arg0, TrackVec3f *arg1, f32 arg2, s32 arg3,
                                        scratch.result);
             }
             if ((var_v0 | var_s4) != 0) {
-                sp68 = 1;
-                arg4(arg0, arg1, (f32 *) &scratch.direction, scratch.length,
+                arg4(arg0, arg1, (f32 *) &scratch.direction, temp_f0,
                      scratch.result, arg3);
                 var_s2 = 1;
+                sp68 = 1;
             }
             if (var_s2 != 0) {
                 var_s7 += 1;
@@ -5772,4 +5770,14 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x0
  * summary: Frame and local layout remain the primary blocker; retry explicit value lifetimes before allocator work
  * PLATEAU-HANDOFF:func_800140CC:end
+ */
+
+/* PLATEAU-HANDOFF:func_80010900:start
+ * symbol: func_80010900
+ * score: 106/147 words
+ * frame: 0xB8
+ * relocations: 6
+ * first-mismatch: +0x14
+ * summary: Exact size/frame and all six identities; 41 words remain from saved-register cycling and stack/FP allocation after bounded source and batch attempts.
+ * PLATEAU-HANDOFF:func_80010900:end
  */
