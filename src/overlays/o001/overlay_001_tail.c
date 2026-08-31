@@ -3096,11 +3096,18 @@ extern s16 overlay1AnchorX;
 extern s16 overlay1AnchorY;
 extern s32 gOverlay1PoolExhausted;
 
-/* DKR v77/v80 and JFG have no exact donor for this bounded path advance. */
-/* Plateau (2026-08-24): all -O2 -mips2 flag variants are exact-sized, but
- * 84 of 162 words differ and the first mismatch is +0x10.  The residual
- * crosses the allocator loop, endpoint update, and callback path, beyond a
- * bounded temporary-order search. */
+/* DKR v77/v80, JFG, and the five-reference skeleton scan found no credible
+ * donor for this bounded path advance. */
+/* Plateau (2026-08-31): the retained clean full-TU candidate is 163 versus
+ * 162 target words, with an exact 0x58 frame, 121 positional differences,
+ * and first mismatch +0x10. All 119 flags are nonexact; seven O2/MIPS-II
+ * rows tie. Removing the widened endpoint carrier is the only strict natural
+ * gain and leaves one extra result.x reload. The old 84-word diagnostic used
+ * a conflicting wide call prototype and never compiled as a full TU; an
+ * explicit call cast lowers indirectly and is inadmissible. Earlier guarded
+ * candidates shift this symbol +0xF8, so preflight also refuses static
+ * relocation ownership. Resume with an authentic call-prototype/TU-boundary
+ * model or allocator evidence for retaining result.x in the argument lane. */
 #ifdef NON_MATCHING
 s32 overlay1AdvancePath(Overlay1PathState *state) {
     s16 currentX;
@@ -3108,7 +3115,6 @@ s32 overlay1AdvancePath(Overlay1PathState *state) {
     Overlay1PathEntry *entry;
     Overlay1TraceResult result;
     Overlay1PathState *child;
-    register s32 nextX;
     u8 count;
 
     count = state->count;
@@ -3131,9 +3137,8 @@ s32 overlay1AdvancePath(Overlay1PathState *state) {
     }
 
     entry = overlay1GetEntry(result.secondary);
-    nextX = result.x;
-    if ((currentX != nextX) || (currentY != result.y)) {
-        overlay1AppendPathPoint(state, nextX, result.y,
+    if ((currentX != result.x) || (currentY != result.y)) {
+        overlay1AppendPathPoint(state, result.x, result.y,
                                 *((u8 *)&result + 5), result.secondary);
         if (result.changed != 0) {
             state->flags = (state->flags & ~3) |
@@ -3326,4 +3331,14 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0x1C
  * summary: The reported +0x1C is an unresolved call identity; first instruction mismatch +0x30 is the count/object carrier after 119 flags and nine forms.
  * PLATEAU-HANDOFF:overlay1InitializeGaugeObjects:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1AdvancePath:start
+ * symbol: overlay1AdvancePath
+ * score: 121/162 words
+ * frame: 0x58
+ * relocations: 22
+ * first-mismatch: +0x10
+ * summary: All 119 flags and bounded forms are nonexact; one result.x reload remains. Resume with an authentic wide-call/TU-boundary model or allocator evidence.
+ * PLATEAU-HANDOFF:overlay1AdvancePath:end
  */
