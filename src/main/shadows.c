@@ -1462,6 +1462,6 @@ void func_800180B4(ShadowQuery *query) {
  * frame: 0x190
  * relocations: 48
  * first-mismatch: +0x4
- * summary: 563/556 words; exact frame and stack objects, 48/48 relocations. Next: typed arg2 and angle order after ownership metadata.
+ * summary: 563/556; full 119-flag lattice retains O2/mips2 at 553 differences. JFG confirms the family; next lever is original arg2 type/lifetime.
  * PLATEAU-HANDOFF:func_80016890:end
  */
