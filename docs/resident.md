@@ -1455,7 +1455,7 @@ address-placeholder helper names are not imported.
 | `0x16C34` | `0x18` | `shadowChangeBuffer` | B name; exact C, 6 words, 2 relocs |
 | `0x16C4C` | `0x4C` | `shadowGetBuffers` | B name; exact C, 19 words, 8 relocs |
 | `0x16C98` | `0x7F8` | `shadowGenerate` | B |
-| `0x17490` | `0x8B0` | `func_80016890` | unresolved |
+| `0x17490` | `0x8B0` | `func_80016890` | D; `NON_MATCHING` resident fallback and adjacent `func_80017140` boundary establish `src/main/shadows.c.o` ownership under `-O2 -mips2 -32`; no match credit |
 | `0x17D40` | `0x520` | `func_80017140` | unresolved |
 | `0x18260` | `0x56C` | `func_80017660` | unresolved |
 | `0x187CC` | `0x4E8` | `func_80017BCC` | unresolved |
