@@ -6,5 +6,5 @@
 - frame: 0x8
 - relocations: 10
 - first mismatch: +0xC
-- summary: declaration-order and lexical-scope probes were flat; one v0/v1 globalcolor web remains
+- summary: comma/coalescing lever closed: independent 93/101, chained 98/101, reversed 83/101; baseline restored
 <!-- plateau-handoff:overlay40FadeRecords:end -->
