@@ -85,19 +85,23 @@ extern u32 gOverlay84InputFlags;
 extern s16 gOverlay84InputAxis;
 extern f32 gOverlay84BlendStep;
 
-extern void overlay84EmitAction();
-extern s16 overlay84AngleDifference(s16, s16);
-extern f32 overlay84Sin(s16);
-extern f32 overlay84Cos(s16);
-extern void overlay84SelectOutput(s32);
-extern Overlay84Output *overlay84GetOutput(void);
-extern s16 overlay84VerticalAngle(f32, f32, f32);
-extern s32 overlay84Atan2(f32, f32);
-extern s16 overlay84BlendAngle(s16, s16, f32);
+extern void amSndPlay(u16 soundId, void **handle);
+extern void overlay84AdvanceCurrent(s32 direction);
+extern s32 mathDiffAngle(s16 current, s16 target);
+extern f32 func_8002A8C0(s16 angle);
+extern f32 func_8002A8BC(s16 angle);
+extern void camSetNo(s32 camera);
+extern Overlay84Output *camGetPtr(void);
+extern s32 func_8000FAE0(f32 x, f32 y, f32 z);
+extern s32 Arctanf(f32 y, f32 x);
+extern s16 dAngle(s16 current, s16 target, f32 fraction);
 
-/* Workbench p5: structure-mismatch; 468/464 candidate/target instructions, 449 words from +0x3C.
- * Lever: constant-audit plus node-assignment and scale-scope order; both fresh guard forms regressed.
- * Remains: four extra instructions, relocation layout, and register/FP cascades after the first branch. */
+/* Fresh V0 remains 468/464 candidate/target instructions with the exact 0x70
+ * frame: 15/464 relocation-masked and 14/464 raw words match from +0x3C.
+ * Runtime and C each have 20 relocation records with the same type census,
+ * but the four-word drift shifts every site. Canonical callee identities make
+ * all 14 calls explicit without changing codegen. Prior node/scale, angle,
+ * stack-home, constant, guard, and flag mechanisms remain exhausted. */
 #ifdef NON_MATCHING
 void func_overlay_084_F0000314_18D07F4(Overlay84UpdateObject *object,
                                        Overlay84UpdateState *state,
@@ -127,7 +131,7 @@ void func_overlay_084_F0000314_18D07F4(Overlay84UpdateObject *object,
         } else if (state->inputLatch == 0 &&
                    (gOverlay84InputFlags & 0x9000) != 0 &&
                    state->marked == 0) {
-            overlay84EmitAction(0xC, 0);
+            amSndPlay(0xC, 0);
             state->inputLatch = 1;
         }
 
@@ -135,19 +139,19 @@ void func_overlay_084_F0000314_18D07F4(Overlay84UpdateObject *object,
             if (state->actionTimer > 0) {
                 state->actionTimer -= updateRate;
             } else if (gOverlay84InputAxis < -0x10 && state->marked == 0) {
-                overlay84EmitAction(1);
+                overlay84AdvanceCurrent(1);
                 state->actionTimer = 0x14;
                 state->blendTimer = 0xA;
                 state->action = 0;
                 state->blend = 0.0f;
-                overlay84EmitAction(0xF, 0);
+                amSndPlay(0xF, 0);
             } else if (gOverlay84InputAxis >= 0x11 && state->marked == 0) {
-                overlay84EmitAction(0);
+                overlay84AdvanceCurrent(0);
                 state->actionTimer = 0x14;
                 state->blendTimer = 0xA;
                 state->action = 0;
                 state->blend = 0.0f;
-                overlay84EmitAction(0xF, 0);
+                amSndPlay(0xF, 0);
             }
         }
 
@@ -174,7 +178,7 @@ adjust_target_angle:
             state->tilt += (s16)((state->targetTilt - state->tilt) * 0.125f);
             state->height += (state->targetHeight - state->height) * 0.125f;
             angleStep =
-                overlay84AngleDifference(currentAngle, targetAngle) >> 5;
+                mathDiffAngle(currentAngle, targetAngle) >> 5;
             if (angleStep == 0) {
                 currentAngle = targetAngle;
             } else {
@@ -201,9 +205,9 @@ adjust_target_angle:
             }
         }
 
-        baseX = overlay84Sin(state->angle) * scale->radius + object->x;
+        baseX = func_8002A8C0(state->angle) * scale->radius + object->x;
         baseY = state->height + object->y;
-        baseZ = overlay84Cos(state->angle) * scale->radius + object->z;
+        baseZ = func_8002A8BC(state->angle) * scale->radius + object->z;
         targetX = baseX + state->blend * (node->x - baseX);
         targetY = baseY + state->blend * (node->y - baseY);
         targetZ = baseZ + state->blend * (node->z - baseZ);
@@ -214,18 +218,17 @@ adjust_target_angle:
             state->z += (targetZ - state->z) * 0.125f;
         }
 
-        overlay84SelectOutput(0);
-        output = overlay84GetOutput();
+        camSetNo(0);
+        output = camGetPtr();
         output->x = state->x;
         output->y = state->y;
         output->z = state->z;
         output->verticalAngle =
-            overlay84VerticalAngle(output->x, output->y, output->z);
-        angleStep = -overlay84Atan2(object->x - output->x,
-                                    object->z - output->z);
-        angleStep = overlay84BlendAngle(angleStep, 0x8000 - node->angle,
-                                        state->blend);
-        state->outputAngle.word = overlay84BlendAngle(
+            func_8000FAE0(output->x, output->y, output->z);
+        angleStep = -Arctanf(object->x - output->x,
+                             object->z - output->z);
+        angleStep = dAngle(angleStep, 0x8000 - node->angle, state->blend);
+        state->outputAngle.word = dAngle(
             state->outputAngle.half.base, angleStep,
             1.0f - (f32)state->actionTimer / 20.0f);
         output->angle = state->outputAngle.word;
@@ -236,3 +239,13 @@ adjust_target_angle:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o084/func_overlay_084_F0000314_18D07F4/func_overlay_084_F0000314_18D07F4.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_084_F0000314_18D07F4:start
+ * symbol: func_overlay_084_F0000314_18D07F4
+ * score: 15/464 words
+ * frame: 0x70
+ * relocations: 20
+ * first-mismatch: +0x3C
+ * summary: Four extra instructions shift all 20 relocations; canonical names prove 14 call identities, while prior structural mechanisms remain exhausted.
+ * PLATEAU-HANDOFF:func_overlay_084_F0000314_18D07F4:end
+ */
