@@ -84,8 +84,13 @@ extern void overlay62DrawLabelReloc(Overlay62Gfx **commands, s32 *state,
  * trace leaves all 85 temp-lane assignments exact and first diverges at pool
  * slot 6. An explicit shared negation lifetime regresses to 297 words/frame
  * 0x90, while removing the `register` hint is byte-identical, so neither gives
- * the strict gain required for a batch. The candidate emits all 71 runtime
- * records (21 R26 and 25 HI/LO pairs; 43 SYMBOL/28 LOCAL) at exact offsets and
+ * the strict gain required for a batch. The later exact comma web-formation
+ * lever was tested in three bounded branch-result forms: red/blue grouping
+ * regressed to 286/294 words,
+ * reversed grouping changed the function to 293 words, and grouping intensity
+ * with both colors regressed to 285/294. The original source remains best.
+ * The candidate emits all 71 runtime records (21 R26 and 25 HI/LO pairs; 43
+ * SYMBOL/28 LOCAL) at exact offsets and
  * types. The identity comparator resolves 18/71 friendly aliases; the other 53
  * remain proxy-identity work and prohibit promotion. Owned +0xD4..+0x56C has
  * no target padding; release starts at +0x56C. ORT 1444 and sole inbound
@@ -197,3 +202,13 @@ void overlay62Update(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o062/overlay62Update/func_overlay_062_F00000D4_18C22F4.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay62Update:start
+ * symbol: overlay62Update
+ * score: 287/294 words
+ * frame: 0x88
+ * relocations: 71
+ * first-mismatch: +0x44
+ * summary: comma grouping closed: red/blue 286/294, reversed 293 words, intensity/colors 285/294; original 287/294 restored
+ * PLATEAU-HANDOFF:overlay62Update:end
+ */
