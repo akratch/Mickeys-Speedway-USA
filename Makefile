@@ -1133,6 +1133,11 @@ $(BUILD_DIR)/$(SRC_DIR)/main/rcpFast3d.c.o: POSTPROCESS = \
 # single-precision smoothing helpers; the flag lattice isolates this assembler
 # mode without changing the resident TU's O2/MIPS-II compiler output.
 $(BUILD_DIR)/$(SRC_DIR)/main/charControl.c.o: CFLAGS += -Wab,-r4300_mul
+# func_8001C4C0's effect-spawn dangling call needs its observed twelve-argument
+# prototype without changing the other shared TrapDanglingJump call sites.
+# Canonicalize only the undefined alias name; section contents are unchanged.
+$(BUILD_DIR)/$(SRC_DIR)/main/charControl.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym charControlEffectSpawnTrap=TrapDanglingJump $@
 
 # The positional-audio distance loops retain the R4300 multiply schedule;
 # the full flag lattice selects this mode for amPlayAudioMap.

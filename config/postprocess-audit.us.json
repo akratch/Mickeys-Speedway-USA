@@ -63,6 +63,20 @@
       "class": "metadata",
       "matched_c": null,
       "nonmatching": null,
+      "object": "build/src/main/charControl.c.o",
+      "offset": null,
+      "overlay": null,
+      "size": null,
+      "source": "src/main/charControl.c",
+      "tools": [
+        "objcopy"
+      ]
+    },
+    {
+      "c_owned": null,
+      "class": "metadata",
+      "matched_c": null,
+      "nonmatching": null,
       "object": "build/src/main/diRcp.c.o",
       "offset": null,
       "overlay": null,
@@ -8945,9 +8959,9 @@
   "summary": {
     "altered_bytes": 0,
     "by_class": {
-      "metadata": 623
+      "metadata": 624
     },
     "matched_c_bytes_with_postprocess": 107572,
-    "objects_with_postprocess": 623
+    "objects_with_postprocess": 624
   }
 }
