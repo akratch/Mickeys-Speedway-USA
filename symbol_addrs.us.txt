@@ -2261,6 +2261,7 @@ func_80010654 = 0x80010654; // type:func size:0x2AC tier-D ROM 0x11254 src/main/
 func_800115E4 = 0x800115E4; // type:func size:0x39C tier-D ROM 0x121E4 src/main/track.c.o NON_MATCHING resident fallback and adjacent func_80011980 boundary owner, no match credit
 trackSetFogOff = 0x800145A0; // type:func size:0x74   ROM 0x151a0  src/track.c.o  masked=2/29
 // donor-jfg-src/shadows_214A0.c.o
+func_80016890 = 0x80016890; // type:func size:0x8B0 tier-D ROM 0x17490 src/main/shadows.c.o -O2 -mips2 -32 NON_MATCHING resident fallback and adjacent func_80017140 boundary owner, no match credit
 func_80017660 = 0x80017660; // type:func size:0x56C tier-D ROM 0x18260 src/main/shadows.c.o NON_MATCHING resident fallback and adjacent func_80017BCC boundary owner, no match credit
 shadowBoxPolyOverlap = 0x800183F0; // type:func size:0xC4   ROM 0x18ff0  src/shadows_214A0.c.o  masked=0/49
 shadowBoundingBox = 0x800184B4; // type:func size:0x90   ROM 0x190b4  src/shadows_214A0.c.o  masked=0/36
