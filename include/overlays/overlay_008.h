@@ -8,6 +8,9 @@ typedef struct Overlay8IndexedObject {
     s8 index;
 } Overlay8IndexedObject;
 
+typedef struct O8P1294Owner O8P1294Owner;
+typedef struct O8P1294State O8P1294State;
+
 typedef struct O8Node {
     void *resource;
     u8 pad04[4];
@@ -916,7 +919,8 @@ extern void o8P0058CreateReloc(s32 kind, f32 x, f32 y, f32 z, s32 mode,
 
 extern void o8P0058BounceReloc(O8P0058State *state, s32 kind, f32 scale);
 
-extern void func_overlay_008_F0001294_185EFEC(void *owner, void *state,
+extern void func_overlay_008_F0001294_185EFEC(O8P1294Owner *owner,
+                                              O8P1294State *state,
                                               f32 update);
 
 extern void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,

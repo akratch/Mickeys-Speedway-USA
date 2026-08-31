@@ -509,7 +509,7 @@ f32 func_overlay_008_F0001000_185ED58(void *unused, O8PhaseState *state, f32 inp
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0001000_185ED58.s")
 #endif
 
-typedef struct O8P1294Owner {
+struct O8P1294Owner {
     u8 pad00[0x0C];
     f32 unkC;
     f32 unk10;
@@ -522,9 +522,9 @@ typedef struct O8P1294Owner {
     s8 unk3B;
     u8 pad3C[0x44];
     s32 unk80;
-} O8P1294Owner;
+};
 
-typedef struct O8P1294State {
+struct O8P1294State {
     u8 pad000[2];
     u8 unk2;
     u8 pad003;
@@ -589,7 +589,7 @@ typedef struct O8P1294State {
     u8 pad424[4];
     s32 unk428;
     s32 unk42C;
-} O8P1294State;
+};
 
 typedef struct O8P1294ColorTarget {
     u8 pad00[0x24];
@@ -607,26 +607,29 @@ extern f32 D_158, D_15C, D_160, D_164, D_168, D_16C, D_170, D_174;
 extern f32 D_178, D_17C, D_180, D_184, D_188, D_18C, D_190, D_194;
 extern s32 D_3E0[], D_420[], D_460[], D_4A0[];
 extern u8 D_4E0[];
-extern void func_overlay_008_F0000000_185DD58(void *resource, f32 x,
-                                               f32 y, f32 z);
+extern f32 gO8P1294MotionScalarReloc;
+extern u8 gO8P1294ImpactGateReloc;
+extern u8 gO8P1294ColorGateReloc;
+extern void controlSetRumble(void *player, s32 strength, f32 duration);
+extern s32 func_800299E8(s32 minimum, s32 maximum);
+extern void func_800031E8(void *handle);
+extern void func_80002FE0(s32 id, f32 x, f32 y, f32 z, s32 priority,
+                          void **handle);
+extern void func_800031C0(void *handle, f32 x, f32 y, f32 z);
+extern s32 func_8002A204(s16 angle);
+extern s32 mathDiffAngle(s16 current, s16 target);
 
-/* Direct reconstruction plateau: the typed control flow compiles to 1264
- * words in a 0x1B8 frame versus the 1259-word/0xB0-frame target. The full
- * flag lattice cannot close the structural/allocation gap; preserve this
- * guarded body as the semantic starting point for later type recovery. */
+/* Direct reconstruction plateau: authenticated callees, direct resource
+ * fields, and a signed speed carrier compile to 1256 words in a 0x180 frame
+ * versus the 1259-word/0xB0 target. Preserve the explicit single-load
+ * carriers while reducing the remaining m2c-derived automatic homes. */
 #ifdef NON_MATCHING
-void func_overlay_008_F0001294_185EFEC(void *ownerArg, void *stateArg, f32 update) {
-    O8P1294Owner *owner = ownerArg;
-    O8P1294State *state = stateArg;
+void func_overlay_008_F0001294_185EFEC(O8P1294Owner *owner,
+                                       O8P1294State *state, f32 update) {
     s32 sp9C;
-    s32 sp94;
     s32 sp8C;
     s32 sp88;
     s32 sp84;
-    s32 sp78;
-    f32 sp68;
-    f32 sp60;
-    void *sp44;
     f32 temp_f0;
     f32 temp_f0_10;
     f32 temp_f0_11;
@@ -700,22 +703,17 @@ void func_overlay_008_F0001294_185EFEC(void *ownerArg, void *stateArg, f32 updat
     u8 temp_v0_11;
     u8 temp_v0_3;
     u8 temp_v0_6;
-    u8 var_v1;
+    s32 var_v1;
     O8P0058Peer *temp_a0;
-    void *temp_a0_3;
-    void *temp_a0_7;
-    void *temp_a0_8;
-    void *temp_a0_9;
     u8 *temp_v0;
     O8P1294ColorTarget *temp_v0_12;
     O8P1294ColorTarget *temp_v0_13;
     u8 *temp_v0_7;
-    void *temp_v0_9;
     u8 *temp_v1_7;
     u8 *temp_v1_8;
     u8 *var_a0;
 
-    temp_v0 = (u8 *)o8P0058AcquireReloc((O8P0058State *)state);
+    temp_v0 = overlay8GetIndexed((Overlay8IndexedObject *)state);
     sp8C = 0;
     var_v1 = state->unk192;
     var_s3 = 0;
@@ -730,7 +728,8 @@ void func_overlay_008_F0001294_185EFEC(void *ownerArg, void *stateArg, f32 updat
     if (state->unk185 == 0) {
         temp_f0 = state->unk5C;
         if (temp_f0 != 0.0f) {
-            var_f2 = 1.0f - (temp_f0 * 0.5f * O8P1294_F32(temp_v0, 0xC));
+            var_f2 = 1.0f -
+                (temp_f0 * 0.5f * O8P1294_F32(temp_v0, 0xC));
             if (var_f2 < D_FC) {
                 var_f2 = D_100;
             }
@@ -757,17 +756,20 @@ void func_overlay_008_F0001294_185EFEC(void *ownerArg, void *stateArg, f32 updat
                 state->unk188 = 0.0f;
             }
         }
-        o8P0058EffectReloc((O8P0058State *)state, 0x32, 0.15f, &D_10);
+        controlSetRumble(state, 0x32, 0.15f);
     }
     temp_v0_3 = state->unk184;
-    if ((temp_v0_3 != 0) && (((s32) temp_v0_3 >= 2) || (temp_a1 = state->unk41C, ((temp_a1 & 0x4000) != 0)) || !(temp_a1 & 0x8000))) {
+    if ((temp_v0_3 != 0) && (((s32) temp_v0_3 >= 2) ||
+        (temp_a1 = state->unk41C, ((temp_a1 & 0x4000) != 0)) ||
+        !(temp_a1 & 0x8000))) {
         state->unk184 = 0U;
     }
     temp_f8 = (s32) update;
     sp9C = temp_f8 - 1;
     if (temp_f8 != 0) {
         do {
-            temp_f0_2 = o8P0058SampleReloc((O8P0058Owner *)owner, (O8P0058State *)state, D_10, update);
+            temp_f0_2 = func_overlay_008_F0001000_185ED58(
+                owner, (O8PhaseState *)state, D_10);
             var_f14 = temp_f0_2;
             if (D_104 < temp_f0_2) {
                 var_f14 = D_108;
@@ -785,7 +787,8 @@ void func_overlay_008_F0001294_185EFEC(void *ownerArg, void *stateArg, f32 updat
                 }
             }
             if ((var_v0 != 0) && (state->unk185 == 0)) {
-                state->unk4 = (f32) (state->unk4 + (O8P1294_F32(D_0, 0) * state->unk5C));
+                state->unk4 = (f32) (state->unk4 +
+                    (gO8P1294MotionScalarReloc * state->unk5C));
                 temp_f0_3 = O8P1294_F32(temp_v0, 0x1C);
                 if (temp_f0_3 < state->unk4) {
                     state->unk4 = temp_f0_3;
@@ -868,16 +871,16 @@ block_74:
                     state->unkE4 = (f32) (temp_f0_8 + D_144);
                 }
             } else if (temp_a1_3 & 0x8000) {
-                if ((state->unk184 != 0) || (temp_v0_6 = state->unk185, (temp_v0_6 == 1)) || (temp_v0_6 == 2)) {
+                if ((state->unk184 != 0) ||
+                    (temp_v0_6 = state->unk185, (temp_v0_6 == 1)) ||
+                    (temp_v0_6 == 2)) {
                     sp8C = 1;
-                    if (D_0[0] == 0) {
+                    if (gO8P1294ImpactGateReloc == 0) {
                         var_f2_5 = D_148;
                     } else {
                         var_f2_5 = 0.5f;
                     }
-                    sp68 = var_f2_5;
-                    sp60 = var_f14;
-                    o8P0058EffectReloc((O8P0058State *)state, 0x32, 0.15f, &sp68);
+                    controlSetRumble(state, 0x32, 0.15f);
                     var_f2_6 = var_f2_5;
                 } else {
                     if (state->unk4 > 0.0f) {
@@ -923,7 +926,8 @@ block_74:
                 }
             } else {
                 temp_f0_13 = O8P1294_F32(temp_v0, 0xC4);
-                if ((-temp_f0_13 < state->unk4) && (state->unk4 < temp_f0_13)) {
+                if ((-temp_f0_13 < state->unk4) &&
+                    (state->unk4 < temp_f0_13)) {
                     state->unk4 = 0.0f;
                 } else {
                     state->unk4 = (f32) (state->unk4 * D_15C);
@@ -931,7 +935,8 @@ block_74:
             }
             if ((state->unk18D == 0) && (state->unk158 == 0) && (state->unk349 != 0)) {
                 temp_f12 = state->unk4;
-                if ((D_160 < temp_f12) && (temp_f12 < D_164) && (o8P34A0RandomReloc(0, 0x7F) >= 0x73)) {
+                if ((D_160 < temp_f12) && (temp_f12 < D_164) &&
+                    (func_800299E8(0, 0x7F) >= 0x73)) {
                     owner->unk80 = (s32) (owner->unk80 | 0xC);
                 }
             }
@@ -947,17 +952,15 @@ block_74:
                     state->unk100 = 1;
                 }
                 if (state->unk100 != 0) {
-                    temp_v0_9 = &state->unkA8;
                     if (state->unkA2 == 0) {
                         owner->unk20 = (f32) (owner->unk20 + 3.0f);
                         state->unkA2 = 0xF;
                     }
-                    temp_a0_3 = state->unkA8;
-                    if (temp_a0_3 != NULL) {
-                        sp44 = temp_v0_9;
-                        o8P0058ReleaseReloc(temp_a0_3);
+                    if (state->unkA8 != NULL) {
+                        func_800031E8(state->unkA8);
                     }
-                    o8P0058CreateReloc(5, owner->unkC, owner->unk10, owner->unk14, 4, temp_v0_9);
+                    func_80002FE0(5, owner->unkC, owner->unk10,
+                                  owner->unk14, 4, &state->unkA8);
                 }
             }
             if (state->unk4 > -2.0f) {
@@ -1039,9 +1042,8 @@ block_74:
                     var_v1_3 = 1;
                 }
                 if (var_v1_3 != 0) {
-                    sp94 = var_a2_2;
-                    sp78 = var_v1_3;
-                    temp_t2 = ((s32)o8P34A0TrigAReloc((s16)(state->unk182 << 12)) * ((state->unk106 * 8) + 0x200)) >> 16;
+                    temp_t2 = (func_8002A204((s16)(state->unk182 << 12)) *
+                               ((state->unk106 * 8) + 0x200)) >> 16;
                     var_a0_2 = temp_t2;
                     if (var_v1_3 < 0) {
                         var_a0_2 = -temp_t2;
@@ -1049,7 +1051,7 @@ block_74:
                     var_a2_2 += var_a0_2;
                 }
             }
-            temp_v1_6 = o8P34A0ApproachReloc(state->unkFC, var_a2_2) >> 2;
+            temp_v1_6 = mathDiffAngle(state->unkFC, (s16)var_a2_2) >> 2;
             var_a2_3 = temp_v1_6;
             if (temp_v1_6 < -0x2EE) {
                 var_a2_3 = -0x2EE;
@@ -1073,7 +1075,7 @@ block_74:
                     state->unk106 = 0;
                 }
                 if (state->unk106 >= 0x3D) {
-                    o8P0058BounceReloc((O8P0058State *)state, 0x28, 0.15f);
+                    controlSetRumble(state, 0x28, 0.15f);
                 }
                 if (state->unk106 >= 0x5B) {
                     temp_t9 = state->unk100;
@@ -1113,23 +1115,23 @@ block_74:
         } while (sp9C != 0);
     }
     if ((state->unk41C & 0x4000) && (state->unk420 & 0x8000) && (state->unk4 == 0.0f)) {
-        temp_a0_7 = state->unkB8;
-        if (temp_a0_7 != NULL) {
-            o8P0058ReleaseReloc(temp_a0_7);
+        if (state->unkB8 != NULL) {
+            func_800031E8(state->unkB8);
         }
-        o8P0058CreateReloc(2, owner->unkC, owner->unk10, owner->unk14, 4, &state->unkB8);
+        func_80002FE0(2, owner->unkC, owner->unk10, owner->unk14, 4,
+                      &state->unkB8);
     }
     if ((state->unk349 != 0) && ((state->unk16E > 0) || (state->unk100 != 0) || (state->unk102 != 0) || (var_s3 & 0x30) || (owner->unk3B == 0x18) || ((state->unk41C & 0x4000) && (state->unk4 < 0.0f)))) {
-        temp_a0_8 = state->unkAC;
-        if (temp_a0_8 == NULL) {
-            o8P0058CreateReloc(3, owner->unkC, owner->unk10, owner->unk14, 1, &state->unkAC);
+        if (state->unkAC == NULL) {
+            func_80002FE0(3, owner->unkC, owner->unk10, owner->unk14, 1,
+                          &state->unkAC);
         } else {
-            func_overlay_008_F0000000_185DD58(temp_a0_8, owner->unkC, owner->unk10, owner->unk14);
+            func_800031C0(state->unkAC, owner->unkC, owner->unk10,
+                          owner->unk14);
         }
     } else {
-        temp_a0_9 = state->unkAC;
-        if (temp_a0_9 != NULL) {
-            o8P0058ReleaseReloc(temp_a0_9);
+        if (state->unkAC != NULL) {
+            func_800031E8(state->unkAC);
         }
     }
     var_a0_3 = 1;
@@ -1170,7 +1172,7 @@ block_74:
     }
     sp84 = 0;
     sp88 = 0;
-    if ((state->unk2 == 0) && (D_0[0] == 0)) {
+    if ((state->unk2 == 0) && (gO8P1294ColorGateReloc == 0)) {
         if (var_s3 & 0x10) {
             sp84 = 1;
         }
@@ -2493,10 +2495,10 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
 
 /* PLATEAU-HANDOFF:func_overlay_008_F0001294_185EFEC:start
  * symbol: func_overlay_008_F0001294_185EFEC
- * score: 1223 differing words
- * frame: 0x1B8
+ * score: 1030 differing words
+ * frame: 0x180
  * relocations: 137
  * first-mismatch: +0x0
- * summary: Typed 1264-word direct reconstruction is five words long; recover exact helper/global identities and reduce m2c-derived automatic homes before allocation work.
+ * summary: Typed 1256-word direct reconstruction is three words short; authenticated ABI/type fixes remove 193 differing words, but 0xD0 of excess automatic-home frame remains.
  * PLATEAU-HANDOFF:func_overlay_008_F0001294_185EFEC:end
  */
