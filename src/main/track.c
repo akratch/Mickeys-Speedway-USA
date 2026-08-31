@@ -1171,6 +1171,8 @@ void func_8000D1B8(void) {
     s32 var_t2;
     s32 var_t5;
     s32 var_v1;
+    s32 scrollU;
+    s32 scrollV;
     u16 temp_a0;
     u16 temp_v0;
     TrackTextureHeader *temp_v1;
@@ -1181,11 +1183,14 @@ void func_8000D1B8(void) {
     if (D_800792E8 != NULL) {
         var_s0 = (s32 *) D_800C9B50;
         if (D_80079314 != 0) {
-            var_s1 = D_80079314 - 1;
+            var_s1 = D_80079314;
             if (D_80079314 != 0) {
+                var_s1--;
                 do {
                     temp_t4 = *var_s0;
                     var_s0 += 1;
+                    scrollU = (s32) (temp_t4 << 8) >> 20;
+                    scrollV = (s32) (temp_t4 << 20) >> 20;
                     temp_t4_2 = (temp_t4 >> 24) & 0xFF;
                     temp_v1 = D_800792E8->textures[temp_t4_2].texture;
                     temp_t1 = D_800792E8->segmentCount;
@@ -1200,13 +1205,15 @@ void func_8000D1B8(void) {
                         temp_v0 = temp_v1->height;
                         var_t0 = (temp_v0 << 6) - 1;
                     }
-                    var_t5 = temp_t1 - 1;
+                    var_t5 = temp_t1;
                     if (temp_t1 != 0) {
+                        var_t5--;
                         do {
                             temp_t2 = var_t3->batchCount;
                             var_t1 = var_t3->batches;
-                            var_t2 = temp_t2 - 1;
+                            var_t2 = temp_t2;
                             if (temp_t2 != 0) {
+                                var_t2--;
                                 do {
                                     if (temp_t4_2 == var_t1[0]) {
                                         temp_s3 = *(s16 *) (var_t1 + 8);
@@ -1215,18 +1222,19 @@ void func_8000D1B8(void) {
                                         var_v0 =
                                             *(u8 **) ((u8 *) var_t3 + 4) +
                                             (temp_s3 * 0x10);
-                                        var_v1 = temp_v1_2 - 1;
+                                        var_v1 = temp_v1_2;
                                         if (temp_v1_2 != 0) {
+                                            var_v1--;
                                             do {
                                                 temp_s3_2 = *(s16 *) (var_v0 + 4);
                                                 temp_s4 = *(s16 *) (var_v0 + 6);
                                                 temp_s3_3 =
                                                     (temp_s3_2 +
-                                                     ((s32) (temp_t4 << 8) >> 20)) &
+                                                     scrollU) &
                                                     var_a3;
                                                 temp_s4_2 =
                                                     (temp_s4 +
-                                                     ((s32) (temp_t4 << 20) >> 20)) &
+                                                     scrollV) &
                                                     var_t0;
                                                 *(s16 *) (var_v0 + 4) = temp_s3_3;
                                                 *(s16 *) (var_v0 + 6) = temp_s4_2;
@@ -1247,20 +1255,16 @@ void func_8000D1B8(void) {
                                                            (*(s16 *) (var_v0 + 14) -
                                                             temp_s4));
                                                 var_v0 += 0x10;
-                                                var_v1 -= 1;
-                                            } while (var_v1 != 0);
+                                            } while (var_v1--);
                                         }
                                     }
                                     var_t1 += 0x10;
-                                    var_t2 -= 1;
-                                } while (var_t2 != 0);
+                                } while (var_t2--);
                             }
                             var_t3 = (TrackSegment *) ((u8 *) var_t3 + 0x40);
-                            var_t5 -= 1;
-                        } while (var_t5 != 0);
+                        } while (var_t5--);
                     }
-                    var_s1 -= 1;
-                } while (var_s1 != 0);
+                } while (var_s1--);
             }
         }
     }
@@ -5797,4 +5801,14 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x0
  * summary: Exact 249-insn geometry. Target frame is 24 bytes larger and five relocation sites shift. Next lever is local lifetimes moving the counter s8 to s6.
  * PLATEAU-HANDOFF:func_8000F198:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000D1B8:start
+ * symbol: func_8000D1B8
+ * score: 114 differing words
+ * frame: -0x28
+ * relocations: 8
+ * first-mismatch: +0x4
+ * summary: Candidate is 130 versus 128 instructions with four shifted relocation sites. Next lever is packed-scroll delta lifetime and six halfword-load scheduling.
+ * PLATEAU-HANDOFF:func_8000D1B8:end
  */
