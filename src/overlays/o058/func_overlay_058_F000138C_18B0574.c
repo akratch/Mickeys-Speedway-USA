@@ -75,9 +75,11 @@ typedef struct O58Unknown {
 #undef NULL
 #define NULL 0
 
-/* NON_MATCHING p4 plateau: workbench structure-mismatch; exact-TU candidate 3496 vs 3614 instructions, 3548 raw words different, frames -0x2F0/-0x138, first +0x0.
- * Levers: exact flag/context parity and constant audit; context lint is clean, but 2106 alignment gaps and 1123 relocation-symbol differences persist.
- * Remains: collapsed external relocation/type recovery and oversized local frame; GLOBAL_ASM remains canonical. */
+/* NON_MATCHING p6 plateau: workbench structure-mismatch; exact-TU candidate 3496 vs
+ * 3614 instructions, 3544 masked differences from +0x0, and frames 0x2F0/0x138.
+ * Target/candidate relocation counts are 1253/613 with only three stable identities;
+ * flags, context, constants, ABI, widths, cursors, and indexed structure forms are exhausted.
+ * Next lever: recover collapsed call/global identities and their source types before CFG work. */
 #ifdef NON_MATCHING
 extern O58Unknown *func_80028F54(void);
 extern void func_80036AB0(O58Unknown *state, s32 updateRate);
@@ -1493,3 +1495,13 @@ loop_370:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o058/func_overlay_058_F000138C_18B0574/func_overlay_058_F000138C_18B0574.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
+ * symbol: func_overlay_058_F000138C_18B0574
+ * score: 3544 differing words
+ * frame: 0x2F0
+ * relocations: 1253
+ * first-mismatch: +0x0
+ * summary: Candidate is 118 instructions short with 640 missing relocations; recover collapsed call/global identities and source types before CFG reconstruction.
+ * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
+ */
