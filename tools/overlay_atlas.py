@@ -1533,23 +1533,117 @@ def exact_c_index(atlas, state="atlas"):
     return index
 
 
+def _reviewed_mixed_repartition(atlas, owner, mixed, state):
+    """Recognize an exact whole owner deliberately narrowed to proven subranges."""
+    if owner["kind"] != "ownership_row" or mixed["kind"] != "mixed_tu_range":
+        return False
+    if owner["overlay"] != mixed["overlay"] or owner["source"] != mixed["source"]:
+        return False
+    if not (
+        owner["offset"] <= mixed["offset"]
+        and mixed["end_offset"] <= owner["end_offset"]
+    ):
+        return False
+    modules = atlas.get("modules", [])
+    module = next(
+        (
+            item
+            for item in modules
+            if isinstance(item, dict)
+            and _atlas_int(item.get("overlay"), "overlay", state) == owner["overlay"]
+        ),
+        None,
+    )
+    if module is None:
+        return False
+    for row in module.get("text_ownership", []):
+        if not isinstance(row, dict) or row.get("type") != "c":
+            continue
+        parsed = _exact_c_row(owner["overlay"], row, state)
+        if (
+            row.get("matched") is True
+            and row.get("nonmatching") is True
+            and parsed["offset"] == owner["offset"]
+            and parsed["end_offset"] == owner["end_offset"]
+            and parsed["source"] == owner["source"]
+        ):
+            return True
+    return False
+
+
+def _uncovered_exact_segments(row, blockers):
+    """Split one exact row into the physical byte ranges absent from blockers."""
+    cursor = row["offset"]
+    segments = []
+    for blocker in sorted(blockers, key=lambda item: item["offset"]):
+        if blocker["end_offset"] <= cursor:
+            continue
+        if blocker["offset"] >= row["end_offset"]:
+            break
+        if blocker["offset"] > cursor:
+            segments.append((cursor, min(blocker["offset"], row["end_offset"])))
+        cursor = max(cursor, blocker["end_offset"])
+        if cursor >= row["end_offset"]:
+            break
+    if cursor < row["end_offset"]:
+        segments.append((cursor, row["end_offset"]))
+    result = []
+    for start, end in segments:
+        segment = dict(row)
+        segment.update(
+            key=f"overlay:{row['overlay']}:text:{hx(start)}",
+            offset=start,
+            end_offset=end,
+            size=end - start,
+        )
+        result.append(segment)
+    return result
+
+
 def compare_exact_c_atlases(
     base_atlas, target_atlas, base_name="base", target_name="target"
 ):
     """Compute an auditable exact-C ownership transition between atlases."""
     base = exact_c_index(base_atlas, base_name)
     target = exact_c_index(target_atlas, target_name)
-    for key in sorted(base.keys() & target.keys()):
-        before = base[key]
-        after = target[key]
-        if before["end_offset"] != after["end_offset"]:
+    base_rows = list(base.values())
+    target_rows = list(target.values())
+    for before in base_rows:
+        for after in target_rows:
+            if before["overlay"] != after["overlay"]:
+                continue
+            if (
+                before["end_offset"] <= after["offset"]
+                or after["end_offset"] <= before["offset"]
+            ):
+                continue
+            if (
+                before["offset"] == after["offset"]
+                and before["end_offset"] == after["end_offset"]
+            ):
+                continue
+            if _reviewed_mixed_repartition(
+                target_atlas, before, after, target_name
+            ) or _reviewed_mixed_repartition(base_atlas, after, before, base_name):
+                continue
             raise AtlasDeltaError(
-                f"ambiguous identity overlay {key[0]} text+{hx(key[1])} has "
-                f"extent {hx(before['end_offset'])} in {base_name} and "
-                f"{hx(after['end_offset'])} in {target_name}"
+                f"ambiguous identity overlay {before['overlay']} "
+                f"text+{hx(before['offset'])} has extent "
+                f"{hx(before['end_offset'])} in {base_name} and overlapping "
+                f"text+{hx(after['offset'])}..{hx(after['end_offset'])} "
+                f"in {target_name}"
             )
-    promotions = [target[key] for key in sorted(target.keys() - base.keys())]
-    retractions = [base[key] for key in sorted(base.keys() - target.keys())]
+
+    promotions = []
+    for row in target_rows:
+        blockers = [item for item in base_rows if item["overlay"] == row["overlay"]]
+        promotions.extend(_uncovered_exact_segments(row, blockers))
+    retractions = []
+    for row in base_rows:
+        blockers = [item for item in target_rows if item["overlay"] == row["overlay"]]
+        retractions.extend(_uncovered_exact_segments(row, blockers))
+    promotions.sort(key=lambda row: (row["overlay"], row["offset"]))
+    retractions.sort(key=lambda row: (row["overlay"], row["offset"]))
     promoted_bytes = sum(row["size"] for row in promotions)
     retracted_bytes = sum(row["size"] for row in retractions)
     return {

@@ -147,6 +147,40 @@ class ExactCDeltaTests(unittest.TestCase):
         ):
             overlay_atlas.compare_exact_c_atlases(base, target)
 
+    def test_reviewed_whole_owner_to_mixed_ranges_reports_only_uncovered_bytes(self):
+        source = "overlays/o001/example"
+        base = atlas([module(1, [ownership(0, 0x40, exact=True, source=source)])])
+        container = ownership(0, 0x40, exact=False, source=source)
+        mixed = [
+            {
+                "offset": "0x0",
+                "end_offset": "0x10",
+                "size": "0x10",
+                "label": "firstExact",
+                "source": source,
+            },
+            {
+                "offset": "0x30",
+                "end_offset": "0x40",
+                "size": "0x10",
+                "label": "lastExact",
+                "source": source,
+            },
+        ]
+        target = atlas([module(1, [container], mixed)])
+
+        delta = overlay_atlas.compare_exact_c_atlases(base, target)
+
+        self.assertEqual(delta["promotions"], [])
+        self.assertEqual(
+            [
+                (row["offset"], row["end_offset"], row["size"])
+                for row in delta["retractions"]
+            ],
+            [(0x10, 0x30, 0x20)],
+        )
+        self.assertEqual(delta["totals"]["net_exact_c_bytes"], -0x20)
+
     def test_declared_total_must_match_exact_rows(self):
         state = atlas([module(1, [ownership(0, 8, exact=True)])])
         state["totals"]["matched_overlay_c_bytes"] = 12
