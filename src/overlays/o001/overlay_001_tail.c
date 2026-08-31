@@ -75,24 +75,23 @@ extern s32 D_1D8C;
 extern void overlay1GetRomlistInfoReloc(O1VariableRecord **records, s32 *length,
                                         s32 enabled);
 
-/* Retained pre-HEAD full-TU and isolated diagnostic C agree at 36/44 after
- * runtime normalization (34/44 against literal ROM), frame 0x38, first +0x1C.
- * Five sites are records/length stack homes and three are the conditional-store
- * lowering. That body used a dummy volatile, a false fourth call argument,
- * private D_1D8CRead, and a literal address write, so it is not a clean
- * baseline. They are removed below. Runtime requires seven records: a
- * three-argument GetRomlistInfo SYMBOL call and three LOCAL D_1D8C pairs.
- * Clean identity-correct V0 is uncompiled. Run and retain 119 flags, trace the
- * output homes/conditional store once, then try at most four natural scope,
- * owner-lifetime, symbolic-lvalue, and skip-edge forms; combine only strict
- * gains at most twice and batch only after a natural improvement. */
+/* Fresh configured V0 was exactly 44 words but differed at 21, with frame
+ * 0x30 versus target 0x38 and five of seven runtime records. A meaningful
+ * D_1D8C pointer lifetime plus declaration order recovers the exact frame and
+ * records/length homes at sp+0x34/sp+0x20, reducing the residual to eleven
+ * words from +0x28. All 119 flag modes are nonexact. The remaining two target
+ * LOCAL records and conditional-store shape require a separately materialized
+ * symbolic D_1D8C lvalue; volatile, union, scalar-snapshot, operand-order, and
+ * scope variants do not supply it naturally. Preserve this basin and do not
+ * restore the rejected dummy, false argument, private alias, or literal write. */
 #ifdef NON_MATCHING
 void overlay1AssignRecordIndex(s32 unused, O1RecordOwner *owner) {
     O1VariableRecord *records;
     O1VariableRecord *record;
-    s32 length;
+    s32 *recordIndex;
     s32 offset;
     s32 next;
+    s32 length;
     u8 size;
 
     if (owner->index == 0xFFFF) {
@@ -102,8 +101,9 @@ void overlay1AssignRecordIndex(s32 unused, O1RecordOwner *owner) {
         if (length > 0) {
             do {
                 if (record->type == 0xCA) {
+                    recordIndex = &D_1D8C;
                     next = record->index + 1;
-                    if (D_1D8C < next) D_1D8C = next;
+                    if (*recordIndex < next) D_1D8C = next;
                 }
                 size = record->size;
                 offset += size;
@@ -3377,4 +3377,14 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0x0
  * summary: Target 0x138 frame versus m2c 0x230; recover typed ABI/stack layout and canonical symbol ownership before further CFG work.
  * PLATEAU-HANDOFF:func_overlay_001_F000438C_185076C:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1AssignRecordIndex:start
+ * symbol: overlay1AssignRecordIndex
+ * score: 11 differing words
+ * frame: 0x38
+ * relocations: 5
+ * first-mismatch: +0x28
+ * summary: Exact geometry and frame with five of seven records and a conditional global store awaiting an authentic separate symbolic lvalue
+ * PLATEAU-HANDOFF:overlay1AssignRecordIndex:end
  */
