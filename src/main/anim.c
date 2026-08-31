@@ -2249,3 +2249,13 @@ void fmvInit(void) {
  * summary: Target is 229 words/frame 0x70; candidate is 226/frame 0x80; 1/8 relocation identities aligns; reopen only with a source-authentic frame lever.
  * PLATEAU-HANDOFF:func_80056DD8:end
  */
+
+/* PLATEAU-HANDOFF:func_8005776C:start
+ * symbol: func_8005776C
+ * score: 54/105 words
+ * frame: 0xC0
+ * relocations: 2
+ * first-mismatch: +0x24
+ * summary: Fidelity trace proves -Wab,-r4300_mul fixes the first 28 words and sqrtf site, but the sort cursor then hoists a stack base and leaves 106 words.
+ * PLATEAU-HANDOFF:func_8005776C:end
+ */
