@@ -22,40 +22,39 @@ class ResolveCommentHunksTests(unittest.TestCase):
             return remaining, path.read_text()
 
     def test_preserves_distinct_eof_plateau_blocks(self) -> None:
-        conflict = """int value;
-<<<<<<< HEAD
+        conflict = "int value;\n" + "<" * 7 + " HEAD\n" + """\
 /* PLATEAU-HANDOFF:first:start
  * score: 9/10 words
  * PLATEAU-HANDOFF:first:end
-=======
+""" + "=" * 7 + "\n" + """\
 /* PLATEAU-HANDOFF:second:start
  * score: 8/10 words
  * PLATEAU-HANDOFF:second:end
->>>>>>> lane/second
+""" + ">" * 7 + " lane/second\n" + """\
  */
 """
         remaining, resolved = self.resolve(conflict)
         self.assertEqual(remaining, 0)
-        self.assertNotIn("<<<<<<<", resolved)
+        self.assertNotIn("<" * 7, resolved)
         self.assertEqual(resolved.count("/* PLATEAU-HANDOFF:"), 2)
         self.assertEqual(resolved.count(" */"), 2)
         self.assertLess(resolved.index("first:start"), resolved.index("second:start"))
 
     def test_leaves_same_symbol_plateau_conflict_for_review(self) -> None:
-        conflict = """<<<<<<< HEAD
+        conflict = "<" * 7 + " HEAD\n" + """\
 /* PLATEAU-HANDOFF:same:start
  * score: 8/10 words
  * PLATEAU-HANDOFF:same:end
-=======
+""" + "=" * 7 + "\n" + """\
 /* PLATEAU-HANDOFF:same:start
  * score: 9/10 words
  * PLATEAU-HANDOFF:same:end
->>>>>>> lane/same
+""" + ">" * 7 + " lane/same\n" + """\
  */
 """
         remaining, resolved = self.resolve(conflict)
         self.assertEqual(remaining, 1)
-        self.assertIn("<<<<<<<", resolved)
+        self.assertIn("<" * 7, resolved)
 
 
 if __name__ == "__main__":
