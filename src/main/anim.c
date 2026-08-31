@@ -1113,153 +1113,253 @@ typedef struct AnimCollisionResult {
 #ifdef NON_MATCHING
 /* PROVENANCE: JFG's public hit/collision code supplies the capsule and
  * endpoint-overlap role; Mickey's collision-shape offsets are authoritative. */
-/* Workbench verdict: structure-mismatch, 368 differing words; first mismatch is at +0x0. */
-/* Target is 370 instructions/frame -216; candidate is 342 instructions/frame -184. */
-/* Remaining gap is structural: capsule discriminant expression and fallback CFG differ; not permuter-ready. */
+/* Workbench verdict: structure-mismatch, 365 differing words; first mismatch is at +0x0. */
+/* Target is 370 instructions/frame -216; candidate is 371 instructions/frame -392. */
+/* Remaining gap is frame/allocation: all three sqrtf identities resolve, but none has the target offset. */
 s32 func_80054B3C(s32 arg0, AnimCollisionShape *arg1,
                   s32 arg2, AnimCollisionShape *arg3,
                   AnimCollisionResult *arg4) {
-    f32 radius;
-    f32 radiusSquared;
-    f32 dx;
-    f32 dy;
-    f32 dz;
-    f32 aX;
-    f32 aY;
-    f32 aZ;
-    f32 bX;
-    f32 bY;
-    f32 bZ;
-    f32 pointX;
-    f32 pointY;
-    f32 pointZ;
-    f32 dot;
-    f32 lengthSquared;
-    f32 discriminant;
-    f32 root;
-    f32 denominator;
-    f32 fraction;
-    f32 secondFraction;
-    s32 result;
+    f32 spBC;
+    f32 spB8;
+    f32 spB4;
+    s32 sp98;
+    f32 sp94;
+    f32 sp90;
+    f32 sp8C;
+    f32 sp88;
+    f32 sp84;
+    f32 sp80;
+    f32 sp7C;
+    f32 sp78;
+    f32 sp74;
+    f32 sp58;
+    f32 sp54;
+    f32 sp4C;
+    f32 sp44;
+    f32 sp40;
+    f32 sp3C;
+    f32 sp38;
+    f32 sp34;
+    f32 sp30;
+    f32 sp2C;
+    f32 sp28;
+    AnimCollisionShape *first;
+    AnimVec3f *temp_a0;
+    AnimVec3f *temp_a0_2;
+    AnimVec3f *temp_a1;
+    AnimVec3f *temp_v0;
+    AnimVec3f *temp_v0_2;
+    AnimVec3f *temp_v1;
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f0_3;
+    f32 temp_f0_4;
+    f32 temp_f0_5;
+    f32 temp_f0_6;
+    f32 temp_f0_7;
+    f32 temp_f0_8;
+    f32 temp_f10;
+    f32 temp_f10_2;
+    f32 temp_f10_3;
+    f32 temp_f10_4;
+    f32 temp_f12;
+    f32 temp_f12_2;
+    f32 temp_f12_3;
+    f32 temp_f12_4;
+    f32 temp_f14;
+    f32 temp_f14_2;
+    f32 temp_f16;
+    f32 temp_f18;
+    f32 temp_f18_2;
+    f32 temp_f20;
+    f32 temp_f2;
+    f32 temp_f2_2;
+    f32 temp_f2_3;
+    f32 temp_f2_4;
+    f32 temp_f2_5;
+    f32 temp_f2_6;
+    f32 temp_f2_7;
+    f32 temp_f2_8;
+    f32 temp_f4;
+    f32 temp_f4_2;
+    f32 temp_f4_3;
+    f32 temp_f6;
+    f32 temp_f6_2;
+    f32 temp_f6_3;
+    f32 temp_f6_4;
+    f32 temp_f6_5;
+    f32 temp_f8;
+    f32 temp_f8_2;
+    f32 temp_f8_3;
+    f32 temp_f8_4;
+    f32 temp_f8_5;
+    f32 var_f12;
+    f32 var_f12_2;
+    s32 var_t0;
 
-    radius = arg1->radius + arg3->radius;
-    result = 0;
-    radiusSquared = radius * radius;
-    if ((arg1->flags & 2) || (arg3->flags & 2)) {
-        dx = arg3->position.x - arg1->position.x;
-        dy = arg3->position.y - arg1->position.y;
-        dz = arg3->position.z - arg1->position.z;
-        if (((dx * dx) + (dy * dy) + (dz * dz)) <= radiusSquared) {
+    temp_f20 = arg1->radius + arg3->radius;
+    var_t0 = 0;
+    first = arg1;
+    temp_v0 = &first->position;
+    temp_f20 *= temp_f20;
+    temp_a0 = &arg3->position;
+    if ((first->flags & 2) || (arg3->flags & 2)) {
+        temp_f0 = temp_a0->x - temp_v0->x;
+        temp_f2 = temp_a0->y - temp_v0->y;
+        temp_f12 = temp_a0->z - temp_v0->z;
+        if (((temp_f0 * temp_f0) + (temp_f2 * temp_f2) +
+             (temp_f12 * temp_f12)) <= temp_f20) {
             arg4->object = arg0;
             arg4->value = arg2;
             arg4->fraction = 0.0f;
             return 1;
         }
     }
-    aX = arg1->vector.x;
-    aY = arg1->vector.y;
-    aZ = arg1->vector.z;
-    bX = arg3->vector.x;
-    bY = arg3->vector.y;
-    bZ = arg3->vector.z;
-    lengthSquared = ((bX * bX) + (aX * aX) - (2.0f * aX * bX)) +
-                    ((aY * aY) - (2.0f * aY * bY) + (bY * bY)) +
-                    ((aZ * aZ) - (2.0f * aZ * bZ) + (bZ * bZ));
-    pointX = arg1->position.x;
-    pointY = arg1->position.y;
-    pointZ = arg1->position.z;
-    dot = 2.0f * pointZ;
-    denominator = 2.0f * pointX;
-    aX = 2.0f * pointX;
-    bX = arg3->position.x;
-    bY = arg3->position.y;
-    bZ = arg3->position.z;
-    dx = 2.0f * bX;
-    dy = 2.0f * pointY;
-    dz = 2.0f * bY;
-    aY = bY + pointY;
-    aZ = bZ + pointZ;
-    bY = 2.0f * bZ;
-    bZ = arg3->position.z;
-    aX = ((arg3->vector.z * denominator) +
-          (((aX * arg1->vector.x) - (aX * arg3->vector.x)) -
-           (denominator * arg1->vector.z)));
-    dot = aX +
-          (((aY * arg1->vector.y) - (aY * arg3->vector.y)) -
-           ((2.0f * pointX) * arg1->vector.y) +
-           ((2.0f * pointX) * arg3->vector.y) +
-           (((2.0f * pointY) * arg1->vector.z) -
-            ((2.0f * pointY) * arg3->vector.z)) -
-           (aY * arg1->vector.z) + (aY * arg3->vector.z));
-    lengthSquared = ((arg3->position.z * arg3->position.z) +
-                     ((2.0f * arg3->position.z * arg1->position.z) * -1.0f) +
-                     (arg1->position.z * arg1->position.z)) +
-                    ((arg1->position.x * arg1->position.x) -
-                     ((2.0f * arg1->position.x) * arg3->position.x) +
-                     (arg3->position.x * arg3->position.x)) +
-                    ((arg1->position.y * arg1->position.y) -
-                     ((2.0f * arg1->position.y) * arg3->position.y) +
-                     (arg3->position.y * arg3->position.y));
-    if (lengthSquared != 0.0f) {
-        discriminant = 4.0f * radiusSquared;
-        root = discriminant * (lengthSquared - radiusSquared);
-        dot = dot * dot;
-        if (root < dot) {
-            denominator = 2.0f * radiusSquared;
-            root = sqrtf(dot - root);
-            fraction = (-dot - root) / denominator;
-            if ((fraction >= 0.0f) && (fraction <= 1.0f)) {
-                discriminant = radiusSquared *
-                               (lengthSquared - (radiusSquared + 83.0f));
-                if (discriminant < dot) {
-                    secondFraction = (-dot - sqrtf(dot - discriminant)) /
-                                     denominator;
-                    result = 1;
-                    if (secondFraction > 1.0f) {
-                        secondFraction = 1.0f;
-                    } else if (secondFraction < 0.0f) {
-                        secondFraction = 0.0f;
+    temp_v1 = &first->vector;
+    temp_f2_2 = temp_v1->x;
+    temp_a1 = &arg3->vector;
+    temp_f16 = temp_a1->x;
+    temp_f12_2 = temp_v1->y;
+    temp_f18 = temp_a1->y;
+    temp_f0_2 = temp_v1->z;
+    temp_f14 = temp_a1->z;
+    temp_a0_2 = &arg3->position;
+    temp_v0_2 = &first->position;
+    temp_f8 = (temp_f14 * temp_f14) +
+              ((temp_f0_2 * temp_f0_2) -
+               (2.0f * temp_f0_2 * temp_f14)) +
+              (((temp_f2_2 * temp_f2_2) -
+                (2.0f * temp_f2_2 * temp_f16)) +
+               (temp_f16 * temp_f16) +
+               (((temp_f12_2 * temp_f12_2) -
+                 (2.0f * temp_f12_2 * temp_f18)) +
+                (temp_f18 * temp_f18)));
+    spBC = temp_f8;
+    sp94 = temp_a0_2->z;
+    temp_f6 = 2.0f * sp94;
+    sp54 = temp_f6;
+    temp_f10 = temp_v0_2->z;
+    sp28 = temp_f8;
+    sp2C = sp94;
+    sp90 = temp_f10;
+    temp_f8_2 = 2.0f * temp_f10;
+    sp8C = temp_f8_2;
+    temp_f4 = temp_v0_2->x;
+    sp30 = temp_f6;
+    sp34 = temp_f10;
+    sp88 = temp_f4;
+    temp_f6_2 = 2.0f * temp_f4;
+    sp84 = temp_f6_2;
+    temp_f10_2 = temp_a0_2->x;
+    sp38 = temp_f8_2;
+    sp3C = temp_f4;
+    sp80 = temp_f10_2;
+    temp_f8_3 = 2.0f * temp_f10_2;
+    sp4C = temp_f8_3;
+    temp_f4_2 = temp_v0_2->y;
+    sp40 = temp_f6_2;
+    sp7C = temp_f4_2;
+    temp_f6_3 = 2.0f * temp_f4_2;
+    sp78 = temp_f6_3;
+    temp_f6_4 = temp_a0_2->y;
+    sp44 = temp_f10_2;
+    sp74 = temp_f6_4;
+    temp_f6_5 = temp_f6_4 + sp74;
+    temp_f10_3 = sp38;
+    sp38 = temp_f8_3;
+    sp58 = temp_f6_5;
+    temp_f8_4 = sp30;
+    sp30 = temp_f4_2;
+    temp_f4_3 = sp40;
+    sp40 = temp_f10_3;
+    temp_f10_4 = sp38;
+    sp38 = (temp_f14 * temp_f8_4) +
+           (((temp_f10_3 * temp_f0_2) - (temp_f10_3 * temp_f14)) -
+            (temp_f8_4 * temp_f0_2));
+    spB8 = sp38 +
+           ((((temp_f4_3 * temp_f2_2) - (temp_f4_3 * temp_f16)) -
+             (temp_f10_4 * temp_f2_2)) +
+            (temp_f10_4 * temp_f16) +
+            ((((temp_f6_3 * temp_f12_2) - (temp_f6_3 * temp_f18)) -
+              (temp_f6_5 * temp_f12_2)) +
+             (temp_f6_5 * temp_f18)));
+    temp_f18_2 = (sp2C * sp2C) +
+                 ((sp34 * sp34) - (sp40 * sp2C)) +
+                 (((sp3C * sp3C) - (temp_f4_3 * sp44)) +
+                  (sp44 * sp44) +
+                  (((sp30 * sp30) - (sp78 * sp74)) + (sp74 * sp74)));
+    if (sp28 != 0.0f) {
+        temp_f2_3 = 4.0f * sp28;
+        temp_f0_3 = temp_f2_3 * (temp_f18_2 - temp_f20);
+        temp_f14_2 = spB8 * spB8;
+        if (temp_f0_3 < temp_f14_2) {
+            sp98 = 0;
+            sp90 = temp_f2_3;
+            sp94 = temp_f14_2;
+            spB4 = temp_f18_2;
+            temp_f0_4 = sqrtf(temp_f14_2 - temp_f0_3);
+            var_t0 = 0;
+            temp_f8_5 = -spB8;
+            sp88 = 2.0f * spBC;
+            temp_f2_4 = (temp_f8_5 - temp_f0_4) / sp88;
+            sp8C = temp_f8_5;
+            if ((temp_f2_4 >= 0.0f) && (temp_f2_4 <= 1.0f)) {
+                temp_f0_5 = sp90 *
+                            (temp_f18_2 - (temp_f20 + 83.0f));
+                if (temp_f0_5 < temp_f14_2) {
+                    temp_f2_5 = (sp8C - sqrtf(temp_f14_2 - temp_f0_5)) /
+                                sp88;
+                    var_t0 = 1;
+                    var_f12 = temp_f2_5;
+                    if (temp_f2_5 > 1.0f) {
+                        var_f12 = 1.0f;
+                    } else if (temp_f2_5 < 0.0f) {
+                        var_f12 = 0.0f;
                     }
                     arg4->object = arg0;
                     arg4->value = arg2;
-                    arg4->fraction = secondFraction;
+                    arg4->fraction = var_f12;
                 }
             } else {
-                dx = arg3->edge.x - arg1->edge.x;
-                dy = arg3->edge.y - arg1->edge.y;
-                dz = arg3->edge.z - arg1->edge.z;
-                if (((dx * dx) + (dy * dy) + (dz * dz)) <= radiusSquared) {
-                    discriminant = radiusSquared *
-                                   (lengthSquared - (radiusSquared + 83.0f));
-                    if (discriminant < dot) {
-                        secondFraction = (-dot - sqrtf(dot - discriminant)) /
-                                         denominator;
-                        result = 1;
-                        if (secondFraction > 1.0f) {
-                            secondFraction = 1.0f;
-                        } else if (secondFraction < 0.0f) {
-                            secondFraction = 0.0f;
+                temp_f0_6 = arg3->edge.x - first->edge.x;
+                temp_f2_6 = arg3->edge.y - first->edge.y;
+                temp_f12_3 = arg3->edge.z - first->edge.z;
+                if (((temp_f0_6 * temp_f0_6) +
+                     (temp_f2_6 * temp_f2_6) +
+                     (temp_f12_3 * temp_f12_3)) <= temp_f20) {
+                    temp_f0_7 = sp90 *
+                                (temp_f18_2 - (temp_f20 + 83.0f));
+                    if (temp_f0_7 < temp_f14_2) {
+                        temp_f2_7 =
+                            (sp8C - sqrtf(temp_f14_2 - temp_f0_7)) / sp88;
+                        var_t0 = 1;
+                        var_f12_2 = temp_f2_7;
+                        if (temp_f2_7 > 1.0f) {
+                            var_f12_2 = 1.0f;
+                        } else if (temp_f2_7 < 0.0f) {
+                            var_f12_2 = 0.0f;
                         }
                         arg4->object = arg0;
                         arg4->value = arg2;
-                        arg4->fraction = secondFraction;
+                        arg4->fraction = var_f12_2;
                     }
                 }
             }
         }
     }
-    if (result == 0) {
-        dx = arg3->edge.x - arg1->edge.x;
-        dy = arg3->edge.y - arg1->edge.y;
-        dz = arg3->edge.z - arg1->edge.z;
-        if (((dx * dx) + (dy * dy) + (dz * dz)) <= radiusSquared) {
+    if (var_t0 == 0) {
+        temp_f0_8 = arg3->edge.x - first->edge.x;
+        temp_f2_8 = arg3->edge.y - first->edge.y;
+        temp_f12_4 = arg3->edge.z - first->edge.z;
+        if (((temp_f0_8 * temp_f0_8) + (temp_f2_8 * temp_f2_8) +
+             (temp_f12_4 * temp_f12_4)) <= temp_f20) {
             arg4->object = arg0;
             arg4->value = arg2;
-            result = 1;
+            var_t0 = 1;
             arg4->fraction = 0.0f;
         }
     }
-    return result;
+    return var_t0;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80054B3C.s")
@@ -2128,4 +2228,14 @@ void fmvInit(void) {
  * first-mismatch: +0x34
  * summary: Ten natural forms leave the clear-loop bound web; fallback-static resolves 41/41 identities with 31 exact, and five endpoint/base LO16 pairs remain reversed.
  * PLATEAU-HANDOFF:func_80050BF4:end
+ */
+
+/* PLATEAU-HANDOFF:func_80054B3C:start
+ * symbol: func_80054B3C
+ * score: 365 differing words
+ * frame: 0x188
+ * relocations: 3
+ * first-mismatch: +0x0
+ * summary: typed m2c-faithful candidate is one instruction long; frame allocation remains 0x188 versus 0xD8 and all three sqrtf offsets are non-exact
+ * PLATEAU-HANDOFF:func_80054B3C:end
  */
