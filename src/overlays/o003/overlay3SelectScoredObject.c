@@ -68,3 +68,13 @@ Overlay3Object *overlay3SelectScoredObject(Overlay3Object *anchor, Overlay3Searc
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o003/overlay3SelectScoredObject/func_overlay_003_F00003B0_185A0E0.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay3SelectScoredObject:start
+ * symbol: overlay3SelectScoredObject
+ * score: 96/118 words
+ * frame: 0x80
+ * relocations: 5
+ * first-mismatch: +0x38
+ * summary: Exact-size V0 remains 22 differences with 5/5 relocation offsets/types; typed split loop-base alias regresses to 31 differences and frame 0x88.
+ * PLATEAU-HANDOFF:overlay3SelectScoredObject:end
+ */
