@@ -107,8 +107,8 @@ void func_8002AB78(MatrixTransform *trans, MtxF dest) {
 #endif
 #ifdef NON_MATCHING
 /* Workbench: structure-mismatch, 118 differing words, first mismatch +0x0. */
-/* Candidate shape: 119 instructions/frame -0x80 vs target 99/-0x8; not permuter-ready. */
-/* Remaining structural gap: IDO FP-register spills and saved argument pointers add 20 instructions. */
+/* Candidate shape: 119 instructions/frame -0x80 vs target 99/-0x8; six call relocations each. */
+/* The exact JFG donor is hand-written assembly. Its odd-register allocation is outside stock IDO. */
 /* PROVENANCE: adapted from Jet Force Gemini's public
  * asm/hasm/math_matrix.s matrix_XYZ_YPR_SCL; Mickey's field offsets and
  * helper call targets remain authoritative here. */
@@ -403,4 +403,14 @@ void func_8002B040(MtxF matrix, f32 arg1, f32 arg2, f32 arg3,
  * first-mismatch: +0x0
  * summary: Unique JFG hand-assembly donor; six call results live in odd caller-saved FP registers, which stock IDO cannot emit; retain fallback.
  * PLATEAU-HANDOFF:func_8002AB78:end
+ */
+
+/* PLATEAU-HANDOFF:func_8002AC84:start
+ * symbol: func_8002AC84
+ * score: 118 differing words
+ * frame: 0x80
+ * relocations: 6
+ * first-mismatch: +0x0
+ * summary: Target 99w/frame 0x8; 1/6 call identities aligns. Exact JFG donor is hand-written assembly; odd-FP subset is outside stock IDO/MIPSpro.
+ * PLATEAU-HANDOFF:func_8002AC84:end
  */
