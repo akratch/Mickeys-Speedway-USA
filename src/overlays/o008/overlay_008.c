@@ -509,7 +509,702 @@ f32 func_overlay_008_F0001000_185ED58(void *unused, O8PhaseState *state, f32 inp
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0001000_185ED58.s")
 #endif
 
+typedef struct O8P1294Owner {
+    u8 pad00[0x0C];
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    u8 pad18[8];
+    f32 unk20;
+    u8 pad24[4];
+    f32 unk28;
+    u8 pad2C[0x0F];
+    s8 unk3B;
+    u8 pad3C[0x44];
+    s32 unk80;
+} O8P1294Owner;
+
+typedef struct O8P1294State {
+    u8 pad000[2];
+    u8 unk2;
+    u8 pad003;
+    f32 unk4;
+    f32 unk8;
+    u8 pad00C[0x50];
+    f32 unk5C;
+    u8 pad060[0x42];
+    s16 unkA2;
+    u8 pad0A4[4];
+    void *unkA8;
+    void *unkAC;
+    u8 pad0B0[8];
+    void *unkB8;
+    u8 pad0BC[0x18];
+    O8P0058Peer *unkD4;
+    u8 pad0D8[8];
+    f32 unkE0;
+    f32 unkE4;
+    u8 pad0E8[8];
+    s16 unkF0;
+    u8 pad0F2[0x0A];
+    s16 unkFC;
+    s16 unkFE;
+    s16 unk100;
+    s16 unk102;
+    s16 unk104;
+    s16 unk106;
+    s16 unk108;
+    u8 pad10A[0x2A];
+    void *unk134;
+    void *unk138;
+    u8 pad13C[8];
+    s16 unk144;
+    s16 unk146;
+    f32 unk148;
+    u8 pad14C[0x0C];
+    s16 unk158;
+    u8 pad15A[0x14];
+    s8 unk16E;
+    u8 pad16F[0x13];
+    u8 unk182;
+    u8 pad183;
+    u8 unk184;
+    u8 unk185;
+    u8 pad186[2];
+    f32 unk188;
+    u8 pad18C;
+    s8 unk18D;
+    u8 pad18E[4];
+    u8 unk192;
+    u8 pad193[5];
+    u8 unk198;
+    u8 pad199[0x189];
+    u8 unk322;
+    u8 unk323;
+    u8 pad324[0x25];
+    u8 unk349;
+    u8 pad34A[0xD2];
+    u32 unk41C;
+    u32 unk420;
+    u8 pad424[4];
+    s32 unk428;
+    s32 unk42C;
+} O8P1294State;
+
+typedef struct O8P1294ColorTarget {
+    u8 pad00[0x24];
+    u8 color24[4];
+} O8P1294ColorTarget;
+
+#define O8P1294_F32(ptr, offset) (*(f32 *)((u8 *)(ptr) + (offset)))
+#define O8P1294_S32(ptr, offset) (*(s32 *)((u8 *)(ptr) + (offset)))
+
+extern u8 D_4[];
+extern f32 D_F8, D_FC, D_100, D_104, D_108, D_10C, D_110, D_114;
+extern f32 D_118, D_11C, D_120, D_124, D_128, D_12C, D_130, D_134;
+extern f32 D_138, D_13C, D_140, D_144, D_148, D_14C, D_150, D_154;
+extern f32 D_158, D_15C, D_160, D_164, D_168, D_16C, D_170, D_174;
+extern f32 D_178, D_17C, D_180, D_184, D_188, D_18C, D_190, D_194;
+extern s32 D_3E0[], D_420[], D_460[], D_4A0[];
+extern u8 D_4E0[];
+extern void func_overlay_008_F0000000_185DD58(void *resource, f32 x,
+                                               f32 y, f32 z);
+
+/* Direct reconstruction plateau: the typed control flow compiles to 1264
+ * words in a 0x1B8 frame versus the 1259-word/0xB0-frame target. The full
+ * flag lattice cannot close the structural/allocation gap; preserve this
+ * guarded body as the semantic starting point for later type recovery. */
+#ifdef NON_MATCHING
+void func_overlay_008_F0001294_185EFEC(void *ownerArg, void *stateArg, f32 update) {
+    O8P1294Owner *owner = ownerArg;
+    O8P1294State *state = stateArg;
+    s32 sp9C;
+    s32 sp94;
+    s32 sp8C;
+    s32 sp88;
+    s32 sp84;
+    s32 sp78;
+    f32 sp68;
+    f32 sp60;
+    void *sp44;
+    f32 temp_f0;
+    f32 temp_f0_10;
+    f32 temp_f0_11;
+    f32 temp_f0_12;
+    f32 temp_f0_13;
+    f32 temp_f0_14;
+    f32 temp_f0_2;
+    f32 temp_f0_3;
+    f32 temp_f0_4;
+    f32 temp_f0_5;
+    f32 temp_f0_6;
+    f32 temp_f0_7;
+    f32 temp_f0_8;
+    f32 temp_f0_9;
+    f32 temp_f12;
+    f32 temp_f12_2;
+    f32 temp_f12_3;
+    f32 temp_f14;
+    f32 var_f0;
+    f32 var_f0_2;
+    f32 var_f14;
+    f32 var_f2;
+    f32 var_f2_10;
+    f32 var_f2_11;
+    f32 var_f2_2;
+    f32 var_f2_3;
+    f32 var_f2_4;
+    f32 var_f2_5;
+    f32 var_f2_6;
+    f32 var_f2_7;
+    f32 var_f2_8;
+    f32 var_f2_9;
+    s16 temp_a1_4;
+    s16 temp_a1_5;
+    s16 temp_a1_6;
+    s16 temp_t9;
+    s16 temp_v0_10;
+    s16 temp_v0_4;
+    s16 temp_v0_5;
+    s16 temp_v0_8;
+    s16 temp_v1;
+    s16 temp_v1_4;
+    s16 temp_v1_5;
+    s32 temp_a0_2;
+    s32 temp_a0_4;
+    s32 temp_a0_5;
+    s32 temp_a0_6;
+    s32 temp_a1;
+    s32 temp_a1_2;
+    s32 temp_a1_3;
+    s32 temp_f18;
+    s32 temp_f4;
+    s32 temp_f8;
+    s32 temp_t2;
+    s32 temp_v1_2;
+    s32 temp_v1_3;
+    s32 temp_v1_6;
+    s32 var_a0_2;
+    s32 var_a0_3;
+    s32 var_a1;
+    s32 var_a2;
+    s32 var_a2_2;
+    s32 var_a2_3;
+    s32 var_s3;
+    s32 var_v0;
+    s32 var_v0_2;
+    s32 var_v1_2;
+    s32 var_v1_3;
+    s32 var_v1_4;
+    s8 temp_v0_2;
+    u8 temp_v0_11;
+    u8 temp_v0_3;
+    u8 temp_v0_6;
+    u8 var_v1;
+    O8P0058Peer *temp_a0;
+    void *temp_a0_3;
+    void *temp_a0_7;
+    void *temp_a0_8;
+    void *temp_a0_9;
+    u8 *temp_v0;
+    O8P1294ColorTarget *temp_v0_12;
+    O8P1294ColorTarget *temp_v0_13;
+    u8 *temp_v0_7;
+    void *temp_v0_9;
+    u8 *temp_v1_7;
+    u8 *temp_v1_8;
+    u8 *var_a0;
+
+    temp_v0 = (u8 *)o8P0058AcquireReloc((O8P0058State *)state);
+    sp8C = 0;
+    var_v1 = state->unk192;
+    var_s3 = 0;
+    if ((s32) var_v1 >= 0xB) {
+        var_v1 = 0xA;
+    }
+    D_10 = O8P1294_F32(temp_v0, 0x40) + ((f32) var_v1 * O8P1294_F32(temp_v0, 0x8));
+    temp_a0 = state->unkD4;
+    if (temp_a0 != NULL) {
+        D_10 *= 1.0f + (D_F8 * temp_a0->state64->blend14);
+    }
+    if (state->unk185 == 0) {
+        temp_f0 = state->unk5C;
+        if (temp_f0 != 0.0f) {
+            var_f2 = 1.0f - (temp_f0 * 0.5f * O8P1294_F32(temp_v0, 0xC));
+            if (var_f2 < D_FC) {
+                var_f2 = D_100;
+            }
+            D_10 *= var_f2;
+        }
+    }
+    temp_v1 = state->unk102;
+    if (temp_v1 != 0) {
+        temp_v0_2 = owner->unk3B;
+        if ((temp_v0_2 == 0x10) || (temp_v0_2 == 0xF)) {
+            var_f2_2 = owner->unk28 * 1.5f;
+            if (var_f2_2 > 1.0f) {
+                var_f2_2 = 1.0f;
+            }
+            if (temp_v1 > 0) {
+                var_f2_2 = -var_f2_2;
+            }
+            state->unk104 = (s16) (s32) (65536.0f * var_f2_2);
+            if (owner->unk28 == 1.0f) {
+                state->unk102 = 0;
+                state->unk104 = 0;
+            } else {
+                state->unk185 = 0U;
+                state->unk188 = 0.0f;
+            }
+        }
+        o8P0058EffectReloc((O8P0058State *)state, 0x32, 0.15f, &D_10);
+    }
+    temp_v0_3 = state->unk184;
+    if ((temp_v0_3 != 0) && (((s32) temp_v0_3 >= 2) || (temp_a1 = state->unk41C, ((temp_a1 & 0x4000) != 0)) || !(temp_a1 & 0x8000))) {
+        state->unk184 = 0U;
+    }
+    temp_f8 = (s32) update;
+    sp9C = temp_f8 - 1;
+    if (temp_f8 != 0) {
+        do {
+            temp_f0_2 = o8P0058SampleReloc((O8P0058Owner *)owner, (O8P0058State *)state, D_10, update);
+            var_f14 = temp_f0_2;
+            if (D_104 < temp_f0_2) {
+                var_f14 = D_108;
+            }
+            temp_a1_2 = state->unk41C;
+            temp_v1_2 = temp_a1_2 & 0x4000;
+            if ((temp_v1_2 == 0) && (state->unk5C > 0.0f) && (state->unk4 < -D_10)) {
+                var_v0 = 1;
+            } else if ((temp_v1_2 == 0) && (state->unk5C < 0.0f)) {
+                var_v0 = 1;
+            } else {
+                var_v0 = 0;
+                if (!(temp_a1_2 & 0xC000) && (state->unk5C > 0.0f)) {
+                    var_v0 = 1;
+                }
+            }
+            if ((var_v0 != 0) && (state->unk185 == 0)) {
+                state->unk4 = (f32) (state->unk4 + (O8P1294_F32(D_0, 0) * state->unk5C));
+                temp_f0_3 = O8P1294_F32(temp_v0, 0x1C);
+                if (temp_f0_3 < state->unk4) {
+                    state->unk4 = temp_f0_3;
+                }
+            }
+            if (state->unk102 != 0) {
+                temp_f0_4 = D_10C;
+                state->unk428 = 0;
+                state->unk42C = 0;
+                state->unk41C = 0;
+                state->unk420 = 0;
+                state->unk4 = (f32) (state->unk4 * temp_f0_4);
+                state->unk8 = (f32) (state->unk8 * temp_f0_4);
+            }
+            temp_f0_5 = state->unk148 - state->unk4;
+            var_f2_3 = temp_f0_5 * D_110;
+            if (var_f2_3 < D_114) {
+                var_f2_3 = D_118;
+            }
+            if (D_11C < var_f2_3) {
+                var_f2_3 = D_120;
+            }
+            temp_v0_4 = state->unk144;
+            state->unk144 = (s16) (temp_v0_4 + ((s32) ((s32) var_f2_3 - temp_v0_4) >> 3));
+            var_f2_4 = temp_f0_5 * D_124;
+            if (var_f2_4 < D_128) {
+                var_f2_4 = D_12C;
+            }
+            if (D_130 < var_f2_4) {
+                var_f2_4 = D_134;
+            }
+            temp_v0_5 = state->unk146;
+            temp_a1_3 = state->unk41C;
+            state->unk148 = state->unk4;
+            temp_v1_3 = temp_a1_3 & 0x4000;
+            state->unk146 = (s16) (temp_v0_5 + ((s32) ((s32) var_f2_4 - temp_v0_5) >> 3));
+            if ((temp_v1_3 != 0) && (temp_a1_3 & 0x10) && ((temp_a0_2 = state->unk428, ((temp_a0_2 < -0x1E) != 0)) || (temp_a0_2 >= 0x1F))) {
+                if (state->unk4 < -5.0f) {
+                    state->unk4 = (f32) (state->unk4 + D_138);
+                    if (state->unk4 > -5.0f) {
+                        state->unk4 = -5.0f;
+                    }
+                } else {
+                    state->unk4 = (f32) (state->unk4 - D_13C);
+                    if (state->unk4 < -5.0f) {
+                        state->unk4 = -5.0f;
+                    }
+                }
+                *(s16 *)D_4 = 1;
+                temp_f0_6 = state->unkE4;
+                var_s3 |= 0x3C;
+                if (temp_f0_6 < 1.0f) {
+                    state->unkE4 = (f32) (temp_f0_6 + D_140);
+                }
+            } else if (temp_v1_3 != 0) {
+                if (state->unk4 < -5.0f) {
+                    *(s32 *)D_4 = 1;
+                    var_s3 |= 0x3C;
+                }
+                if (state->unk4 < 0.0f) {
+                    state->unk4 = (f32) (state->unk4 + O8P1294_F32(temp_v0 + ((s32)-state->unk4 * 4), 0xC8));
+                    if ((state->unk4 > 0.0f) && (state->unk42C >= -0x1E)) {
+                        goto block_74;
+                    }
+                } else if (state->unk42C < -0x1E) {
+                    state->unk4 = (f32) (state->unk4 + O8P1294_F32(temp_v0 + ((s32)state->unk4 * 4), 0x20));
+                    temp_f0_7 = O8P1294_F32(temp_v0, 0x1C);
+                    if (temp_f0_7 < state->unk4) {
+                        state->unk4 = temp_f0_7;
+                    }
+                } else {
+                    state->unk4 = (f32) (state->unk4 - O8P1294_F32(temp_v0, 0xC8));
+                    if (state->unk4 <= 0.0f) {
+block_74:
+                        state->unk4 = 0.0f;
+                    }
+                }
+                temp_f0_8 = state->unkE4;
+                if (temp_f0_8 < 1.0f) {
+                    state->unkE4 = (f32) (temp_f0_8 + D_144);
+                }
+            } else if (temp_a1_3 & 0x8000) {
+                if ((state->unk184 != 0) || (temp_v0_6 = state->unk185, (temp_v0_6 == 1)) || (temp_v0_6 == 2)) {
+                    sp8C = 1;
+                    if (D_0[0] == 0) {
+                        var_f2_5 = D_148;
+                    } else {
+                        var_f2_5 = 0.5f;
+                    }
+                    sp68 = var_f2_5;
+                    sp60 = var_f14;
+                    o8P0058EffectReloc((O8P0058State *)state, 0x32, 0.15f, &sp68);
+                    var_f2_6 = var_f2_5;
+                } else {
+                    if (state->unk4 > 0.0f) {
+                        var_a0 = temp_v0 + 0xC8;
+                        var_v1_2 = (s32) state->unk4;
+                        var_f2_7 = state->unk4 - (f32) var_v1_2;
+                    } else {
+                        temp_f0_9 = -state->unk4;
+                        var_a0 = temp_v0 + 0x44;
+                        var_v1_2 = (s32) temp_f0_9;
+                        var_f2_7 = temp_f0_9 - (f32) var_v1_2;
+                    }
+                    temp_v0_7 = var_a0 + (var_v1_2 * 4);
+                    temp_f0_10 = O8P1294_F32(temp_v0_7, 0);
+                    var_f2_6 = ((O8P1294_F32(temp_v0_7, 4) - temp_f0_10) * var_f2_7) + temp_f0_10;
+                }
+                temp_f0_11 = -var_f14;
+                if (state->unk4 < temp_f0_11) {
+                    state->unk4 = (f32) (state->unk4 * D_14C);
+                    if (temp_f0_11 < state->unk4) {
+                        state->unk4 = temp_f0_11;
+                    }
+                    if (state->unk184 != 0) {
+                        state->unk184 = 2U;
+                    }
+                } else {
+                    state->unk4 = (f32) (state->unk4 - var_f2_6);
+                    if (state->unk4 < temp_f0_11) {
+                        state->unk4 = temp_f0_11;
+                        if (state->unk184 != 0) {
+                            state->unk184 = 2U;
+                        }
+                    } else if (D_150 <= var_f2_6) {
+                        if ((sp8C == 0) || (state->unk184 != 0)) {
+                            var_s3 |= 0xC;
+                        }
+                        var_s3 |= 0x30;
+                    }
+                }
+                temp_f0_12 = state->unkE4;
+                if (D_154 <= temp_f0_12) {
+                    state->unkE4 = (f32) (temp_f0_12 - D_158);
+                }
+            } else {
+                temp_f0_13 = O8P1294_F32(temp_v0, 0xC4);
+                if ((-temp_f0_13 < state->unk4) && (state->unk4 < temp_f0_13)) {
+                    state->unk4 = 0.0f;
+                } else {
+                    state->unk4 = (f32) (state->unk4 * D_15C);
+                }
+            }
+            if ((state->unk18D == 0) && (state->unk158 == 0) && (state->unk349 != 0)) {
+                temp_f12 = state->unk4;
+                if ((D_160 < temp_f12) && (temp_f12 < D_164) && (o8P34A0RandomReloc(0, 0x7F) >= 0x73)) {
+                    owner->unk80 = (s32) (owner->unk80 | 0xC);
+                }
+            }
+            temp_v0_8 = state->unkA2;
+            if (temp_v0_8 != 0) {
+                state->unkA2 = (s16) (temp_v0_8 - 1);
+            }
+            if ((state->unk41C & 0x10) && (state->unk100 == 0) && (state->unk4 < -3.0f)) {
+                if (state->unk428 < -0xF) {
+                    state->unk100 = -1;
+                }
+                if (state->unk428 >= 0x10) {
+                    state->unk100 = 1;
+                }
+                if (state->unk100 != 0) {
+                    temp_v0_9 = &state->unkA8;
+                    if (state->unkA2 == 0) {
+                        owner->unk20 = (f32) (owner->unk20 + 3.0f);
+                        state->unkA2 = 0xF;
+                    }
+                    temp_a0_3 = state->unkA8;
+                    if (temp_a0_3 != NULL) {
+                        sp44 = temp_v0_9;
+                        o8P0058ReleaseReloc(temp_a0_3);
+                    }
+                    o8P0058CreateReloc(5, owner->unkC, owner->unk10, owner->unk14, 4, temp_v0_9);
+                }
+            }
+            if (state->unk4 > -2.0f) {
+                state->unk100 = 0;
+            }
+            var_f2_8 = state->unk4;
+            temp_a0_4 = state->unk428;
+            if (state->unk4 < 0.0f) {
+                var_f2_8 = -var_f2_8;
+            }
+            if (var_f2_8 <= D_168) {
+                var_f2_9 = 0.0f;
+            } else {
+                var_f2_10 = var_f2_8 - D_16C;
+                if (D_170 < var_f2_10) {
+                    var_f2_10 = D_174;
+                }
+                if (state->unk100 != 0) {
+                    var_f2_9 = (var_f2_10 * 68.0f * 60.0f) / O8P1294_F32(temp_v0, 0x10);
+                } else {
+                    var_f2_9 = (var_f2_10 * 58.0f * 60.0f) / O8P1294_F32(temp_v0, 0x10);
+                }
+                if (state->unk4 > 0.0f) {
+                    var_f2_9 = -var_f2_9;
+                }
+            }
+            var_v0_2 = temp_a0_4;
+            if ((state->unk41C & 0x10) && (temp_a1_4 = state->unk100, var_a2 = 0x2710, (temp_a1_4 != 0))) {
+                if (temp_a0_4 >= 0x33) {
+                    var_v0_2 = 0x32;
+                } else if (var_v0_2 < -0x32) {
+                    var_v0_2 = -0x32;
+                }
+                if (((var_v0_2 > 0) && (temp_a1_4 > 0)) || ((var_v0_2 < 0) && (temp_a1_4 < 0))) {
+                    var_v0_2 = var_v0_2 >> 2;
+                }
+                var_v0_2 += temp_a1_4 * 0x3C;
+            } else {
+                state->unk100 = 0;
+                if (var_v0_2 >= 0x3D) {
+                    var_v0_2 = 0x3C;
+                } else if (var_v0_2 < -0x3C) {
+                    var_v0_2 = -0x3C;
+                }
+                var_a2 = (s32) O8P1294_S32(temp_v0, 0x14);
+            }
+            temp_v1_4 = state->unk108;
+            temp_f4 = (s32) (((f32) -var_v0_2 * O8P1294_F32(temp_v0, 0x10)) / 60.0f);
+            temp_f18 = (s32) ((f32) (temp_f4 - temp_v1_4) * D_178);
+            if (temp_f18 != 0) {
+                state->unk108 = (s16) (temp_v1_4 + temp_f18);
+            } else {
+                state->unk108 = (s16) temp_f4;
+            }
+            temp_f12_2 = state->unk4;
+            if ((temp_f12_2 > -10.0f) && (temp_f12_2 < 10.0f)) {
+                if (temp_f12_2 < 0.0f) {
+                    var_f0 = temp_f12_2 * D_17C;
+                } else {
+                    var_f0 = temp_f12_2 * D_180;
+                }
+                var_f0_2 = ((D_C - 1.0f) * var_f0) + 1.0f;
+            } else {
+                var_f0_2 = D_C;
+            }
+            temp_v1_5 = state->unk108;
+            state->unk4 = (f32) (temp_f12_2 * var_f0_2);
+            if ((temp_v1_5 < -var_a2) || (var_a2 < temp_v1_5)) {
+                state->unk4 = (f32) (state->unk4 * O8P1294_F32(temp_v0, 0x18));
+            }
+            state->unk182 = (u8) ((state->unk182 + 1) & 0xF);
+            var_a2_2 = (s32) ((f32) state->unk108 * var_f2_9);
+            if (var_a2_2 != 0) {
+                temp_a1_5 = state->unk100;
+                var_v1_3 = 0;
+                if ((temp_a1_5 < 0) || (var_a2_2 < -0x1400)) {
+                    var_v1_3 = -1;
+                } else if ((temp_a1_5 > 0) || (var_a2_2 >= 0x1401)) {
+                    var_v1_3 = 1;
+                }
+                if (var_v1_3 != 0) {
+                    sp94 = var_a2_2;
+                    sp78 = var_v1_3;
+                    temp_t2 = ((s32)o8P34A0TrigAReloc((s16)(state->unk182 << 12)) * ((state->unk106 * 8) + 0x200)) >> 16;
+                    var_a0_2 = temp_t2;
+                    if (var_v1_3 < 0) {
+                        var_a0_2 = -temp_t2;
+                    }
+                    var_a2_2 += var_a0_2;
+                }
+            }
+            temp_v1_6 = o8P34A0ApproachReloc(state->unkFC, var_a2_2) >> 2;
+            var_a2_3 = temp_v1_6;
+            if (temp_v1_6 < -0x2EE) {
+                var_a2_3 = -0x2EE;
+            } else if (temp_v1_6 >= 0x2EF) {
+                var_a2_3 = 0x2EE;
+            }
+            temp_a1_6 = state->unk100;
+            temp_v0_10 = state->unkFE;
+            temp_a0_5 = (temp_a1_6 << 0xD) - temp_v0_10;
+            var_v1_4 = temp_a0_5 >> 4;
+            state->unkFC = (s16) (state->unkFC + var_a2_3);
+            if (var_v1_4 == 0) {
+                var_v1_4 = temp_a0_5;
+            }
+            state->unkFE = (s16) (temp_v0_10 + var_v1_4);
+            if (temp_a1_6 != 0) {
+                temp_a0_6 = state->unk428;
+                if (((temp_a0_6 >= 0x1A) && (temp_a1_6 < 0)) || ((temp_a0_6 < -0x19) && (temp_a1_6 > 0))) {
+                    state->unk106 = (s16) (state->unk106 + 1);
+                } else {
+                    state->unk106 = 0;
+                }
+                if (state->unk106 >= 0x3D) {
+                    o8P0058BounceReloc((O8P0058State *)state, 0x28, 0.15f);
+                }
+                if (state->unk106 >= 0x5B) {
+                    temp_t9 = state->unk100;
+                    state->unk100 = 0;
+                    state->unk102 = (s16) -temp_t9;
+                }
+            } else {
+                state->unk106 = 0;
+            }
+            temp_f12_3 = state->unk4;
+            var_f2_11 = temp_f12_3;
+            if (temp_f12_3 < 0.0f) {
+                var_f2_11 = -var_f2_11;
+            }
+            if (var_f2_11 > 1.0f) {
+                var_f2_11 = 1.0f;
+            }
+            if (temp_f12_3 > 0.0f) {
+                var_f2_11 = -var_f2_11;
+            }
+            if (state->unk41C & 0x4000) {
+                if (state->unk100 != 0) {
+                    var_f2_11 *= 3.0f;
+                } else {
+                    var_f2_11 *= 1.0f + state->unkE4;
+                }
+            }
+            temp_f0_14 = state->unkE0;
+            state->unkF0 = (s16) (state->unkF0 + (s32) ((f32) state->unk108 * (var_f2_11 * D_8)));
+            state->unkE0 = (f32) (temp_f0_14 + (((D_184 * temp_f12_3) - temp_f0_14) * D_188));
+            state->unk8 = (f32) (state->unk8 * D_18C);
+            temp_f14 = state->unk8;
+            if ((D_190 < temp_f14) && (temp_f14 < D_194)) {
+                state->unk8 = 0.0f;
+            }
+            sp9C -= 1;
+        } while (sp9C != 0);
+    }
+    if ((state->unk41C & 0x4000) && (state->unk420 & 0x8000) && (state->unk4 == 0.0f)) {
+        temp_a0_7 = state->unkB8;
+        if (temp_a0_7 != NULL) {
+            o8P0058ReleaseReloc(temp_a0_7);
+        }
+        o8P0058CreateReloc(2, owner->unkC, owner->unk10, owner->unk14, 4, &state->unkB8);
+    }
+    if ((state->unk349 != 0) && ((state->unk16E > 0) || (state->unk100 != 0) || (state->unk102 != 0) || (var_s3 & 0x30) || (owner->unk3B == 0x18) || ((state->unk41C & 0x4000) && (state->unk4 < 0.0f)))) {
+        temp_a0_8 = state->unkAC;
+        if (temp_a0_8 == NULL) {
+            o8P0058CreateReloc(3, owner->unkC, owner->unk10, owner->unk14, 1, &state->unkAC);
+        } else {
+            func_overlay_008_F0000000_185DD58(temp_a0_8, owner->unkC, owner->unk10, owner->unk14);
+        }
+    } else {
+        temp_a0_9 = state->unkAC;
+        if (temp_a0_9 != NULL) {
+            o8P0058ReleaseReloc(temp_a0_9);
+        }
+    }
+    var_a0_3 = 1;
+    if ((state->unk2 != 0) || (state->unkD4 != NULL)) {
+        var_a1 = 1;
+    } else {
+        var_a0_3 = state->unk322 & 0xF;
+        var_a1 = state->unk323 & 0xF;
+    }
+    if (state->unk102 != 0) {
+        var_s3 |= 0x30;
+    } else if ((state->unk100 != 0) && (state->unk41C & 0x8000)) {
+        temp_v0_11 = state->unk349;
+        if (temp_v0_11 & 4) {
+            var_s3 |= 0x11;
+        }
+        if (temp_v0_11 & 8) {
+            var_s3 |= 0x22;
+        }
+    } else if (state->unk16E > 0) {
+        var_s3 |= 0x3C;
+    } else if ((state->unk198 != 0) && (state->unk41C & 0x8000)) {
+        var_s3 |= 0x33;
+    } else if (owner->unk3B == 0x18) {
+        var_s3 |= 3;
+    }
+    if (var_s3 & 1) {
+        owner->unk80 = (s32) (owner->unk80 | D_460[var_a0_3]);
+    }
+    if (var_s3 & 2) {
+        owner->unk80 = (s32) (owner->unk80 | D_4A0[var_a1]);
+    }
+    if (var_s3 & 4) {
+        owner->unk80 = (s32) (owner->unk80 | D_3E0[var_a0_3]);
+    }
+    if (var_s3 & 8) {
+        owner->unk80 = (s32) (owner->unk80 | D_420[var_a1]);
+    }
+    sp84 = 0;
+    sp88 = 0;
+    if ((state->unk2 == 0) && (D_0[0] == 0)) {
+        if (var_s3 & 0x10) {
+            sp84 = 1;
+        }
+        if (var_s3 & 0x20) {
+            sp88 = 1;
+        }
+    }
+    temp_v0_12 = state->unk134;
+    if ((temp_v0_12 != NULL) && (sp84 != 0) && (state->unk349 & 4)) {
+        temp_v1_7 = (var_a0_3 * 4) + D_4E0;
+        if (temp_v1_7[3] != 0) {
+            temp_v0_12->color24[4 - 4] = (u8) temp_v1_7[0];
+            temp_v0_12->color24[5 - 4] = (u8) temp_v1_7[1];
+            temp_v0_12->color24[6 - 4] = (u8) temp_v1_7[2];
+            temp_v0_12->color24[7 - 4] = (u8) temp_v1_7[3];
+            D_14 = 1;
+        }
+    }
+    temp_v0_13 = state->unk138;
+    if ((temp_v0_13 != NULL) && (sp88 != 0) && (state->unk349 & 8)) {
+        temp_v1_8 = (var_a1 * 4) + D_4E0;
+        if (temp_v1_8[3] != 0) {
+            temp_v0_13->color24[4 - 4] = (u8) temp_v1_8[0];
+            temp_v0_13->color24[5 - 4] = (u8) temp_v1_8[1];
+            temp_v0_13->color24[6 - 4] = (u8) temp_v1_8[2];
+            temp_v0_13->color24[7 - 4] = (u8) temp_v1_8[3];
+            D_18 = 1;
+        }
+    }
+}
+
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0001294_185EFEC.s")
+#endif
 
 /* Workbench p7 batch 12: structure-mismatch; exact 183 instructions/-0xD0 frame, 62 masked/63 raw words, first non-relocation +0xB8.
  * Levers: constant/stack census and tuning-base placement; inherited baseValue/register/aggregate/order/loop probes remain negative.
@@ -1794,4 +2489,14 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * first-mismatch: +0x0
  * summary: Target frame 0x80; candidate relocation identity remains ambiguous; next lever is query and FP stack ownership.
  * PLATEAU-HANDOFF:func_overlay_008_F00034A0_18611F8:end
+ */
+
+/* PLATEAU-HANDOFF:func_overlay_008_F0001294_185EFEC:start
+ * symbol: func_overlay_008_F0001294_185EFEC
+ * score: 1223 differing words
+ * frame: 0x1B8
+ * relocations: 137
+ * first-mismatch: +0x0
+ * summary: Typed 1264-word direct reconstruction is five words long; recover exact helper/global identities and reduce m2c-derived automatic homes before allocation work.
+ * PLATEAU-HANDOFF:func_overlay_008_F0001294_185EFEC:end
  */
