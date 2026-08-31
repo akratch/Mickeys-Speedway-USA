@@ -1879,15 +1879,14 @@ void func_8004A0F0(void) {
     D_800D6038[1] = 0;
     D_800D6040 = 0;
 }
-/* Workbench verdict: structure-mismatch, 155 differing words, first mismatch +0x0. */
-/* Candidate: 156/157 instructions with a -0x60 frame versus target -0x58; 29 structural words remain, so it is not shape-exact. */
-/* Shape status: nine-pixel glyph loop and VI/table relocation surface are preserved; stack/register gap remains. */
+/* Workbench verdict: structure-mismatch, 132 differing words, first mismatch +0x0. */
+/* Candidate: exact 157-instruction geometry with a -0x60 frame versus target -0x58; six structural words remain. */
+/* Shape status: VI stack homes are exact; the cursor/end web remains ra/s1 instead of target t5/ra. */
 /* PROVENANCE: JFG's corresponding routine is assembly-only; this body is reconstructed from Mickey's own m2c draft and headers. */
 #ifdef NON_MATCHING
 void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
-    s32 width;
-    s32 height;
     u32 *pattern;
+    u32 *patternEnd;
     u16 *pixel;
     s32 glyphValue;
     s32 colorMask;
@@ -1897,15 +1896,17 @@ void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
     s32 bit;
     s32 intensity;
     s32 oldPixel;
-    s32 maskedPixel;
     s32 value;
+    s32 width;
+    s32 height;
 
     glyphValue = glyph;
     viGetCurrentSize(&width, &height);
     colorMask = 0x7C0;
     shift = 6;
     pattern = D_8007D320;
-    pixel = (u16 *) ((u8 *) screen + ((((y * width) + x) * 2)));
+    patternEnd = (u32 *) D_8007D364;
+    pixel = ((u16 *) screen) + ((y * width) + x);
     if (arg4 != 0) {
         colorMask = 0xF800;
         shift = 0xB;
@@ -1921,12 +1922,12 @@ void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
                 intensity = 0x10;
             }
             oldPixel = *pixel;
-            maskedPixel = oldPixel & colorMask;
-            value = maskedPixel + (intensity << shift);
+            bit = oldPixel & colorMask;
+            value = bit + (intensity << shift);
             if ((~colorMask & value) != 0) {
                 value = colorMask;
             }
-            *pixel = (oldPixel ^ maskedPixel) | value;
+            *pixel = (oldPixel ^ bit) | value;
         }
         pixel++;
     loop_9:
@@ -1938,12 +1939,12 @@ void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
                 intensity = 0x10;
             }
             oldPixel = *pixel;
-            maskedPixel = oldPixel & colorMask;
-            value = maskedPixel + (intensity << shift);
+            bit = oldPixel & colorMask;
+            value = bit + (intensity << shift);
             if ((~colorMask & value) != 0) {
                 value = colorMask;
             }
-            *pixel = (oldPixel ^ maskedPixel) | value;
+            *pixel = (oldPixel ^ bit) | value;
         }
         bit = rowBits & 7;
         rowBits >>= 3;
@@ -1954,12 +1955,12 @@ void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
                 intensity = 0x10;
             }
             oldPixel = *pixel;
-            maskedPixel = oldPixel & colorMask;
-            value = maskedPixel + (intensity << shift);
+            bit = oldPixel & colorMask;
+            value = bit + (intensity << shift);
             if ((~colorMask & value) != 0) {
                 value = colorMask;
             }
-            *pixel = (oldPixel ^ maskedPixel) | value;
+            *pixel = (oldPixel ^ bit) | value;
         }
         bit = rowBits & 7;
         rowBits >>= 3;
@@ -1970,12 +1971,12 @@ void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
                 intensity = 0x10;
             }
             oldPixel = *pixel;
-            maskedPixel = oldPixel & colorMask;
-            value = maskedPixel + (intensity << shift);
+            bit = oldPixel & colorMask;
+            value = bit + (intensity << shift);
             if ((~colorMask & value) != 0) {
                 value = colorMask;
             }
-            *pixel = (oldPixel ^ maskedPixel) | value;
+            *pixel = (oldPixel ^ bit) | value;
         }
         bit = rowBits & 7;
         rowBits >>= 3;
@@ -1986,12 +1987,12 @@ void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
                 intensity = 0x10;
             }
             oldPixel = *pixel;
-            maskedPixel = oldPixel & colorMask;
-            value = maskedPixel + (intensity << shift);
+            bit = oldPixel & colorMask;
+            value = bit + (intensity << shift);
             if ((~colorMask & value) != 0) {
                 value = colorMask;
             }
-            *pixel = (oldPixel ^ maskedPixel) | value;
+            *pixel = (oldPixel ^ bit) | value;
         }
         column += 4;
         pixel++;
@@ -2000,7 +2001,7 @@ void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
         }
         pattern++;
         pixel += width - 9;
-    } while (pattern != (u32 *) D_8007D364);
+    } while (pattern != patternEnd);
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004A10C.s")
@@ -2568,4 +2569,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x20
  * summary: candidate 167/169; exact frame and FP lanes; count web is a3 versus target t0; 6/9 identities align
  * PLATEAU-HANDOFF:func_80049E4C:end
+ */
+
+/* PLATEAU-HANDOFF:func_8004A10C:start
+ * symbol: func_8004A10C
+ * score: 132 differing words
+ * frame: 0x60
+ * relocations: 5
+ * first-mismatch: +0x0
+ * summary: Exact geometry and VI stack homes; IDO keeps cursor/end in ra/s1 instead of t5/ra, adding one saved register.
+ * PLATEAU-HANDOFF:func_8004A10C:end
  */
