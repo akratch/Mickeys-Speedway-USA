@@ -7,6 +7,18 @@
       "decision_commit": "4df57fd49ef6720ac8da484d79609a8a3396e116",
       "reason": "Canonical review rejected the invented empty post-callback pointer condition; it is diagnostic codegen evidence, not promotable C."
     },
+    "63826f8ba379a1d5f4988c5d2864124d189822b1": {
+      "symbol": "func_800498FC",
+      "state": "rejected",
+      "decision_commit": "91364ccc925ac9f08fe550e94b596b9c7d888a2c",
+      "reason": "Fresh configured compilation retained the assembly fallback at a 91/100-word allocator plateau; the earlier structural claim is not byte-exact compiler output."
+    },
+    "f216764fbb384a642ce4a862db61e8b2c5508bef": {
+      "symbol": "func_8005AD64",
+      "state": "superseded",
+      "decision_commit": "ef626acfcc7f5b67a585d165353346668d825cd3",
+      "reason": "Canonical independently recreated and proved the same 108-word exact function, so this older lane commit has no remaining integration delta."
+    },
     "f3577040efdc58281874deedaf1a3a0a209d74f6": {
       "symbol": "func_overlay_045_F0000764_188CBBC",
       "state": "rejected",
