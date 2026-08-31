@@ -1365,46 +1365,43 @@ void func_80049000(FxWakeUpdateOwner *owner, s32 delta) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049000.s")
 #endif
-/* Workbench verdict: structure-mismatch, 177 differing words, first mismatch +0x0. */
-/* Candidate: 163/177 instructions with a -0x38 frame versus target -0x88; command-loop structural gap remains, so it is not shape-exact. */
-/* Shape status: display-list commands and chunk emission are reconstructed; target's live-variable/stack shape is unresolved. */
+/* Workbench verdict: structure-mismatch, 122 differing words, first mismatch +0x0. */
+/* Candidate: 176/177 instructions with a -0x50 frame versus target -0x88; the target's outer-index spill and saved-register web remain unresolved. */
+/* Shape status: the JFG-derived display-list command and chunk loops are reconstructed with the target's single relocation identity exact. */
 /* PROVENANCE: JFG's wakeDraw role supplies the display-list idiom; this body is reconstructed from Mickey's target offsets and FxGfx type. */
 #ifdef NON_MATCHING
 void wakeDraw(Wake *wake, FxGfx **dlist) {
+    s32 outerIndex;
     s32 alpha;
     s32 outerOffset;
-    s32 outerIndex;
-    s16 remaining;
-    s16 chunk;
+    s32 remaining;
+    s32 chunk;
+    s32 shiftedY;
+    s32 xStep;
+    s32 shiftedX;
+    s32 shiftedZ;
+    s32 zStep;
     s32 x;
     s32 y;
     s32 z;
-    s32 chunkWidth;
-    s32 texelWidth;
-    s32 command0;
+    u8 outerLimit;
     FxGfx *cmd;
     FxWakeSegment *segment;
 
     if ((s32) wake->value38 > 0) {
         func_800349A4(dlist, (s32) wake->linked, 0x1F,
                       (s32) wake->value34 << 8);
-        if ((((FxGfx *) wake->linked)->w1 & 0x40) != 0) {
+        if ((((FxWakeLinked *) wake->linked)->flags & 0x40) != 0) {
             alpha = wake->value34 & 0xFF;
         } else {
             alpha = 0xFF;
         }
-        cmd = *dlist;
-        *dlist = cmd + 1;
-        cmd->w0 = 0xFB000000;
-        alpha &= 0xFF;
-        cmd->w1 = (alpha << 24) | (alpha << 16) | (alpha << 8) | alpha;
-        cmd = *dlist;
-        *dlist = cmd + 1;
-        cmd->w1 = -1;
-        cmd->w0 = 0xFA000000;
+        FX_SET_ENV((*dlist)++, alpha, alpha, alpha, alpha);
+        FX_SET_PRIM((*dlist)++, 0xFF, 0xFF, 0xFF, 0xFF);
         outerIndex = 0;
-        outerOffset = 0;
-        if ((s32) wake->value38 > 0) {
+        outerLimit = wake->value38;
+        if ((s32) outerLimit > 0) {
+            outerOffset = 0;
             do {
                 segment = (FxWakeSegment *) ((u8 *) wake->vertices + outerOffset);
                 remaining = segment->length;
@@ -1413,10 +1410,6 @@ void wakeDraw(Wake *wake, FxGfx **dlist) {
                 z = segment->z;
                 if (remaining != 0) {
                     do {
-                        s32 shiftedX;
-                        s32 shiftedY;
-                        s32 shiftedZ;
-
                         shiftedX = x + 0x80000000;
                         if (remaining >= 0x11) {
                             remaining -= 0x10;
@@ -1425,43 +1418,25 @@ void wakeDraw(Wake *wake, FxGfx **dlist) {
                             chunk = remaining;
                             remaining = 0;
                         }
-                        chunkWidth = (chunk + 2) * 8;
-                        texelWidth = ((chunk + 2) * 0xA) + 8;
-                        cmd = *dlist;
-                        *dlist = cmd + 1;
-                        command0 = (((chunkWidth | (shiftedX & 6)) & 0xFF) << 16) |
-                                   0x04000000 | (texelWidth & 0xFFFF);
-                        cmd->w0 = command0;
-                        cmd->w1 = shiftedX;
-                        cmd = *dlist;
-                        *dlist = cmd + 1;
-                        chunkWidth = chunk * 0x10;
-                        cmd->w0 = (((((chunk - 1) * 0x10) | 1) & 0xFF) << 16) |
-                                   0x05000000 | (chunkWidth & 0xFFFF);
+                        xStep = chunk * 0xA;
+                        FX_VERTEX_JFG((*dlist)++, shiftedX, chunk + 2, 0);
+                        zStep = chunk * 0x10;
                         shiftedZ = z + 0x80000000;
-                        cmd->w1 = shiftedZ;
-                        x += chunk * 0xA;
+                        x += xStep;
+                        FX_POLYGON((*dlist)++, shiftedZ, chunk, 1);
                         if (y != 0) {
-                            cmd = *dlist;
                             shiftedY = y + 0x80000000;
-                            *dlist = cmd + 1;
-                            cmd->w0 = (((chunkWidth | (shiftedY & 6)) & 0xFF) << 16) |
-                                       0x04000000 | (texelWidth & 0xFFFF);
-                            cmd->w1 = shiftedY;
-                            cmd = *dlist;
-                            y += chunk * 0xA;
-                            *dlist = cmd + 1;
-                            cmd->w1 = shiftedZ;
-                            cmd->w0 = (((((chunk - 1) * 0x10) | 1) & 0xFF) << 16) |
-                                       0x05000000 | (chunkWidth & 0xFFFF);
+                            FX_VERTEX_JFG((*dlist)++, shiftedY, chunk + 2, 0);
+                            y += xStep;
+                            FX_POLYGON((*dlist)++, shiftedZ, chunk, 1);
                         }
-                        z += chunkWidth;
+                        z += zStep;
                     } while (remaining != 0);
-                    outerIndex = wake->value38;
+                    outerLimit = wake->value38;
                 }
                 outerIndex++;
                 outerOffset += 0x10;
-            } while (outerIndex < (s32) wake->value38);
+            } while (outerIndex < (s32) outerLimit);
         }
         if (alpha != 0xFF) {
             cmd = *dlist;
@@ -2619,4 +2594,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x0
  * summary: Configured compilation unrolls fixed vertex loops; the target-supported next lever is a function-isolated -Wo,-loopunroll,0 build boundary.
  * PLATEAU-HANDOFF:func_800475E8:end
+ */
+
+/* PLATEAU-HANDOFF:wakeDraw:start
+ * symbol: wakeDraw
+ * score: 122 differing words
+ * frame: 0x50
+ * relocations: 1
+ * first-mismatch: +0x0
+ * summary: 176/177-word JFG command CFG; exact call relocation. Blocked by outer-index spill/xStep allocation and 0x38 non-save-frame delta after 119 flag rows.
+ * PLATEAU-HANDOFF:wakeDraw:end
  */
