@@ -204,9 +204,12 @@ extern f32 overlay1MeasureChoice(f32 first, f32 second);
 
 #define CHOICE_WORLD ((O1ChoiceState *)D_1DA0)
 
-/* Workbench plateau: structure-mismatch; prior best 447/446 instructions, exact 0x90 frame, first +0xC; current target aliases overlay1ChoosePath.
- * Levers: constants, typed world/table access, count lifetime, declaration order, path width, and loop spelling; full-TU rebuild is separately blocked.
- * Remaining: establish the unique F0003750 symbol, repair unrelated tail-TU declarations, then rerun the valid candidate comparison. */
+/* Workbench plateau: 447/446 instructions, exact 0x90 frame, 360 masked
+ * differences, and first mismatch at +0xC.  The complete flag lattice found no
+ * exact form; an explicit reverse score cursor regressed to 448 instructions
+ * and 386 differences, while path storage and declaration-order variants were
+ * neutral.  The remaining mismatch is local lifetime/stack placement: target
+ * score and interpolation locals sit higher in the same frame. */
 #ifdef NON_MATCHING
 void func_overlay_001_F0003750_184FB30(f32 *outX, f32 *outZ) {
     O1ChoiceState *otherState;
@@ -3400,4 +3403,14 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0x50
  * summary: Two relocation offsets/types align; identities unresolved. -O2 -g3 gives 139 words/86 diffs but changes the TU prologue. Need a natural root-count preheader.
  * PLATEAU-HANDOFF:overlay1SolveAngleCandidates:end
+ */
+
+/* PLATEAU-HANDOFF:func_overlay_001_F0003750_184FB30:start
+ * symbol: func_overlay_001_F0003750_184FB30
+ * score: 86/446 words
+ * frame: 0x90
+ * relocations: 31
+ * first-mismatch: +0xC
+ * summary: All 119 flags nonexact; score cursor regressed. Recover the original local lifetimes that place target scores and interpolation locals higher in the 0x90 frame.
+ * PLATEAU-HANDOFF:func_overlay_001_F0003750_184FB30:end
  */
