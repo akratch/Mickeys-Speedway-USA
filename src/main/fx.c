@@ -1473,74 +1473,51 @@ void wakeDraw(Wake *wake, FxGfx **dlist) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeDraw.s")
 #endif
-/* Workbench: structure-mismatch, 125 differing words, first mismatch +0x0. */
-/* Structural gap: target 138 instructions/frame -0x20 versus candidate 131/-0x20; address multiplication is shortened. */
-/* Not shape-exact or permuter-ready; wake/display-list control flow and relocation calls are preserved. */
+/* Workbench: schedule-mismatch, 2/138 differing words, first mismatch +0x60. */
+/* Exact 138-word geometry/frame -0x20; one D_7D310 LO16 schedule slot remains. */
+/* All five relocation identities agree; the LO16 offset is nonexact. */
 #ifdef NON_MATCHING
-void func_80049518(void *arg0, void **arg1) {
+void func_80049518(WakeRipple *ripple, FxGfx **dlist) {
     s32 alpha;
-    s32 alphaValue;
-    s32 command0;
-    WakeRipple *ripple;
+    void *linked;
     FxGfx *cmd;
-    u8 *address;
 
-    ripple = (WakeRipple *)arg0;
     if (ripple != NULL) {
-        if (ripple->linked != NULL) {
+        if ((linked = ripple->linked) != NULL) {
             if (ripple->value76 != 0) {
-                func_800349A4((FxGfx **)arg1, (s32)ripple->linked, 0xF,
+                func_800349A4(dlist, (s32)linked, 0xF,
                               (s32)ripple->value78 << 8);
-                cmd = (FxGfx *)*arg1;
-                *arg1 = (void *)((u8 *)cmd + 8);
-                cmd->w0 = 0x07020010;
-                cmd->w1 = (u32)D_7D310;
-                if (ripple->wake == NULL) {
-                    alpha = 0xFF;
-                } else {
-                    alpha = 0xFF - ((s32)ripple->wake->value3C >> 1);
+                {
+                    FxGfx *textureCmd = (*dlist)++;
+                    textureCmd->w0 = 0x07020010;
+                    textureCmd->w1 = (u32)D_7D310;
                 }
-                cmd = (FxGfx *)*arg1;
-                *arg1 = (void *)((u8 *)cmd + 8);
+                if (ripple->wake != NULL) {
+                    alpha = 0xFF - ((s32)ripple->wake->value3C >> 1);
+                } else {
+                    alpha = 0xFF;
+                }
+                cmd = *dlist;
+                *dlist = cmd + 1;
                 cmd->w0 = 0xFA000000;
-                alphaValue = 0xFF;
-                command0 = 0xFB000000;
                 cmd->w1 = (((alpha * (s32)ripple->value76) >> 8) & 0xFF) | ~0xFF;
                 if ((((FxWakeLinked *)ripple->linked)->flags & 0x40) != 0) {
-                    alphaValue = ripple->value78 & 0xFF;
+                    alpha = ripple->value78 & 0xFF;
+                } else {
+                    alpha = 0xFF;
                 }
-                cmd = (FxGfx *)*arg1;
-                *arg1 = (void *)((u8 *)cmd + 8);
-                cmd->w1 = (alphaValue << 24) | (alphaValue << 16) |
-                           (alphaValue << 8) | alphaValue;
-                cmd->w0 = command0;
-                cmd = (FxGfx *)*arg1;
-                *arg1 = (void *)((u8 *)cmd + 8);
-                address = (u8 *)arg0 + (ripple->value74 * 0x28) + 0x80000020;
-                cmd->w0 = (((((s32)address & 6) | 0x20) & 0xFF) << 16) |
-                           0x04000030;
-                cmd->w1 = (u32)address;
-                cmd = (FxGfx *)*arg1;
-                *arg1 = (void *)((u8 *)cmd + 8);
-                cmd->w1 = (u32)ripple + 0x80000000;
-                cmd->w0 = 0x05110020;
-                func_80034920(arg1);
+                FX_SET_ENV((*dlist)++, alpha, alpha, alpha, alpha);
+                FX_VERTEX_JFG((*dlist)++, (u8 *)ripple +
+                              (ripple->value74 * 0x28) + 0x80000020, 4, 0);
+                FX_POLYGON((*dlist)++, (u8 *)ripple + 0x80000000, 2, 1);
+                func_80034920(dlist);
             }
             if (ripple->wake != NULL) {
-                wakeDraw(ripple->wake, arg1);
+                wakeDraw(ripple->wake, dlist);
             }
-            cmd = (FxGfx *)*arg1;
-            *arg1 = (void *)((u8 *)cmd + 8);
-            cmd->w1 = 0;
-            cmd->w0 = 0xE7000000;
-            cmd = (FxGfx *)*arg1;
-            *arg1 = (void *)((u8 *)cmd + 8);
-            cmd->w1 = -1;
-            cmd->w0 = 0xFA000000;
-            cmd = (FxGfx *)*arg1;
-            *arg1 = (void *)((u8 *)cmd + 8);
-            cmd->w1 = -1;
-            cmd->w0 = 0xFB000000;
+            FX_PIPE_SYNC((*dlist)++);
+            FX_SET_PRIM((*dlist)++, 0xFF, 0xFF, 0xFF, 0xFF);
+            FX_SET_ENV((*dlist)++, 0xFF, 0xFF, 0xFF, 0xFF);
         }
     }
 }
@@ -2590,4 +2567,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x4
  * summary: Scale invariants reach f22/f24/f26; candidate still hoists limit 8 into s3, shifting s16 arguments to s6/s7/s8 and the work base.
  * PLATEAU-HANDOFF:func_80047304:end
+ */
+
+/* PLATEAU-HANDOFF:func_80049518:start
+ * symbol: func_80049518
+ * score: 2/138 words
+ * frame: 0x20
+ * relocations: 5
+ * first-mismatch: +0x60
+ * summary: Exact geometry and registers; one LO16 schedule swap remains after 119 flags. Permuter zero used a prohibited inert wrapper; need authentic macro evidence.
+ * PLATEAU-HANDOFF:func_80049518:end
  */
