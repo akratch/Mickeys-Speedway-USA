@@ -815,3 +815,13 @@ void func_80046E00(void) {
  * summary: Exact geometry/frame; 62 register/structure words and two relocation identities remain after 10 forms, 119 flags, and one bounded batch.
  * PLATEAU-HANDOFF:render_epc_lock_up_display:end
  */
+
+/* PLATEAU-HANDOFF:func_80045D34:start
+ * symbol: func_80045D34
+ * score: 439 differing words
+ * frame: 0xB0
+ * relocations: 89
+ * first-mismatch: +0x0
+ * summary: Fresh V0 is 451/459 words, target frame 0xA8, relocs 89/89 with 34 candidate identities unresolved. Prior flags and natural forms are exhausted.
+ * PLATEAU-HANDOFF:func_80045D34:end
+ */
