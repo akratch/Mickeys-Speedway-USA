@@ -1998,3 +1998,13 @@ f32 D_80079F54 = 0.0f;
  * summary: 83/84 words, 12/13 relocs; 11 identities align. Prior flags/forms exhausted; next lever is authenticated same-TU data layout.
  * PLATEAU-HANDOFF:func_80024978:end
  */
+
+/* PLATEAU-HANDOFF:func_80023598:start
+ * symbol: func_80023598
+ * score: 263 differing words
+ * frame: 0xA0
+ * relocations: 32
+ * first-mismatch: +0x0
+ * summary: Fresh V0 is 286/284 words, target frame 0x90, relocs 32/32 with 6 identities aligned. Prior flags and ten natural source forms are exhausted.
+ * PLATEAU-HANDOFF:func_80023598:end
+ */
