@@ -2273,6 +2273,7 @@ _depth2Cents = 0x800042E4; // type:func size:0x50 ROM 0x4ee4 src/audio_manager_4
 // jfg:src/objects.c.o
 GetRomlistInfo = 0x8000BC88; // type:func size:0x28   ROM 0xc888  src/objects.c.o  masked=4/10
 // donor-jfg-src/track.c.o
+func_8000DB34 = 0x8000DB34; // type:func size:0x2B0 tier-D ROM 0xE734 src/main/track.c.o -O2 -mips2 -32 -Wab,-r4300_mul NON_MATCHING resident fallback and adjacent func_8000DDE4 boundary owner, no match credit
 func_8000DFBC = 0x8000DFBC; // type:func size:0x630 tier-D ROM 0xEBBC src/main/track.c.o -O2 -mips2 -32 -Wab,-r4300_mul NON_MATCHING resident fallback and adjacent func_8000E5EC boundary owner, no match credit
 func_80010654 = 0x80010654; // type:func size:0x2AC tier-D ROM 0x11254 src/main/track.c.o NON_MATCHING bounded plateau, resident fallback and adjacent-boundary owner
 func_800115E4 = 0x800115E4; // type:func size:0x39C tier-D ROM 0x121E4 src/main/track.c.o NON_MATCHING resident fallback and adjacent func_80011980 boundary owner, no match credit
