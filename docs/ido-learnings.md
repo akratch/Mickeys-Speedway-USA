@@ -81,9 +81,14 @@ bytes and disassembly never belong here.
   Address-taken local arrays and structs can retain the same
   declaration-relative placement even when preceding scalar and cursor locals
   are colored into registers, so moving an existing aggregate past those
-  declarations can change only its frame offset. Evidence: the exact resident
-  collision-handler cohort in `docs/resident.md`, plus the exact tile-command
-  builder and spawn-entry initializer in `docs/overlays.md`.
+  declarations can change only its frame offset. Producer traces can also show
+  that lexical pointer aliases receive automatic homes despite later coloring;
+  removing aliases that merely name direct array accesses may shrink the frame
+  and move a surviving address-taken scalar to its retail home. Apply that
+  narrower lever only when the direct accesses preserve evaluation and update
+  order. Evidence: the exact resident collision-handler cohort in
+  `docs/resident.md`, plus the exact tile-command builder, spawn-entry
+  initializer, and Overlay 98 accepted-entry collector in `docs/overlays.md`.
 - Expression association, signedness, and width affect IDO's internal values
   even when C semantics appear equivalent. Preserve the ABI and inferred data
   model; use typed rewrites as a diagnosed lever, not an arbitrary score nudge.
