@@ -11,6 +11,7 @@
  */
 
 #include "game/fx.h"
+#include "n_audio/mbi.h"
 
 typedef struct FxConePoint {
     f32 x;
@@ -74,7 +75,7 @@ extern void wakeUpdate(s32 update, f32 x, f32 height, f32 z, s32 angle,
                        s32 delta);
 extern f32 D_80083DE4;
 extern void mathOneFloatPY(void *source, f32 *result, s16 angle);
-extern void camSetScissor(FxGfx **dlist);
+extern void camSetScissor(Gfx **dlist);
 extern void func_80034920();
 extern void *func_8002B314(s32 size, s32 tag);
 extern u8 D_7D310[];
@@ -1814,103 +1815,62 @@ s32 func_80049B14(s16 delta) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049B14.s")
 #endif
-/* Workbench verdict: structure-mismatch, 159 differing words, first mismatch +0x8. */
-/* Candidate: 167/169 instructions with a -0x50 frame versus target -0x60; display-list structural gap remains, so it is not shape-exact. */
-/* Shape status: VI setup, table selection, per-record commands, and scissor calls are reconstructed. */
-/* PROVENANCE: Mickey's own target command words, globals, and m2c CFG supply this reconstruction. */
+/* Workbench verdict: structure-mismatch, 36 differing words, first mismatch +0x20. */
+/* Candidate: 167/169 instructions with the exact -0x60 frame and 6/9 relocation identities aligned. */
+/* Shape status: authentic GBI forms close the VI setup and per-record loop; count allocation remains structural. */
+/* PROVENANCE: Mickey's target commands, globals, and CFG supply this reconstruction; the GBI macros are project SDK headers. */
 #ifdef NON_MATCHING
-void func_80049E4C(FxGfx **dlist, s32 arg1) {
+#define FX_SET_SCREEN_RENDER(packet, mode) { \
+    Gfx *_g = (packet); \
+    _g->words.w0 = 0xEF002C0F; \
+    _g->words.w1 = (mode); \
+}
+void func_80049E4C(Gfx **dlist, s32 arg1) {
     s32 width;
     s32 height;
     s32 count;
     s32 remaining;
-    s32 u;
-    s32 v;
-    s32 color;
-    f32 widthFloat;
-    f32 heightFloat;
-    FxGfx *cmd;
-    u8 *table;
-    u8 *entry;
+    FxRecord *record;
 
     if (D_800D5F50 != 0) {
         viGetCurrentSize(&width, &height);
-        cmd = *dlist;
-        *dlist = cmd + 1;
-        cmd->w1 = 0;
-        cmd->w0 = 0xE7000000;
-        cmd = *dlist;
-        *dlist = cmd + 1;
-        cmd->w0 = 0xED000000;
-        widthFloat = (f32) width;
-        if (width < 0) {
-            widthFloat += 4294967296.0f;
-        }
-        heightFloat = (f32) height;
-        if (height < 0) {
-            heightFloat += 4294967296.0f;
-        }
-        u = (s32) (widthFloat * 4.0f) & 0xFFF;
-        v = (s32) (heightFloat * 4.0f) & 0xFFF;
-        cmd->w1 = (u << 12) | v;
-        cmd = *dlist;
-        *dlist = cmd + 1;
-        cmd->w0 = 0xB6000000;
-        cmd->w1 = 0x10001;
-        cmd = *dlist;
-        *dlist = cmd + 1;
-        cmd->w1 = 0xFFFDF6FB;
-        cmd->w0 = 0xFCFFFFFF;
+        gDPPipeSync((*dlist)++);
+        count = 1;
+        gDPSetScissor((*dlist)++, G_SC_NON_INTERLACE, 0, 0,
+                      (u32) width, (u32) height);
+        gSPClearGeometryMode((*dlist)++, G_ZBUFFER | G_FOG);
+        gDPSetCombineMode((*dlist)++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
         if (arg1 == 0) {
-            table = (u8 *) D_800D5F58;
+            record = D_800D5F58;
             count = 4;
         } else {
-            table = (u8 *) D_800D5FD8;
-            count = 1;
+            record = (FxRecord *) D_800D5FD8;
         }
         remaining = count - 1;
         if (count != 0) {
             do {
-                entry = table;
-                if (entry[1] != 0) {
-                    cmd = *dlist;
-                    *dlist = cmd + 1;
-                    if (entry[1] == 0xFF) {
-                        cmd->w1 = 0x0F0A4000;
+                if (record->status != 0) {
+                    if (record->status == 0xFF) {
+                        FX_SET_SCREEN_RENDER((*dlist)++, 0x0F0A4000);
                     } else {
-                        cmd->w1 = 0x504340;
+                        FX_SET_SCREEN_RENDER((*dlist)++, 0x00504340);
                     }
-                    cmd->w0 = 0xEF002C0F;
-                    cmd = *dlist;
-                    *dlist = cmd + 1;
-                    cmd->w0 = 0xFA000000;
-                    color = (entry[0x1A] << 24) | (entry[0x1B] << 16) |
-                            (entry[0x1C] << 8) | entry[1];
-                    cmd->w1 = color;
-                    cmd = *dlist;
-                    *dlist = cmd + 1;
-                    cmd->w0 = ((*(s32 *) (entry + 0xC) & 0x3FF) << 14) |
-                              0xF6000000 |
-                              ((*(s32 *) (entry + 0x10) & 0x3FF) * 4);
-                    cmd->w1 = ((*(s32 *) (entry + 4) & 0x3FF) << 14) |
-                              ((*(s32 *) (entry + 8) & 0x3FF) * 4);
-                    cmd = *dlist;
-                    *dlist = cmd + 1;
-                    cmd->w1 = 0;
-                    cmd->w0 = 0xE7000000;
+                    gDPSetPrimColor((*dlist)++, 0, 0, record->red,
+                                    record->green, record->blue, record->status);
+                    gDPFillRectangle((*dlist)++, record->value4, record->value8,
+                                     record->valueC, record->value10);
+                    gDPPipeSync((*dlist)++);
                 }
-                table += 0x20;
+                record++;
                 remaining--;
             } while (remaining != 0);
         }
-        func_80034920(dlist, table, dlist);
+        func_80034920(dlist);
         camSetScissor(dlist);
-        cmd = *dlist;
-        *dlist = cmd + 1;
-        cmd->w1 = -1;
-        cmd->w0 = 0xFA000000;
+        gDPSetPrimColor((*dlist)++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
     }
 }
+#undef FX_SET_SCREEN_RENDER
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049E4C.s")
 #endif
@@ -2598,4 +2558,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x44
  * summary: Exact size/frame; three shifted call sites and the first allocator web remain; next isolate the fixed-bound loop web.
  * PLATEAU-HANDOFF:func_800470B0:end
+ */
+
+/* PLATEAU-HANDOFF:func_80049E4C:start
+ * symbol: func_80049E4C
+ * score: 36 differing words
+ * frame: 0x60
+ * relocations: 9
+ * first-mismatch: +0x20
+ * summary: candidate 167/169; exact frame and FP lanes; count web is a3 versus target t0; 6/9 identities align
+ * PLATEAU-HANDOFF:func_80049E4C:end
  */
