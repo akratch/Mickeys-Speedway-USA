@@ -205,14 +205,15 @@ void *func_8002B4C0(MemoryPoolSlot *slots, s32 size) {
 /* PROVENANCE: adapted from JFG src/memory.c:mmAllocAtAddr. Mickey's globals,
  * pool/slot layouts, absent diagnostic calls, and linked bytes are authoritative. */
 /*
- * Retained pre-cleanup full-TU/isolated C is diagnostic 102/116 raw/normalized
- * words, frame 0x58, first +0xE0, with all 12 tuples exact. Its volatile pad
- * was an artificial stack-home aid and is restored to JFG's plain unused local;
- * clean V0 is uncompiled. Linked equality is fallback-only. ORT 547 has four
- * resident and five overlay calls plus one RevealReturnAddresses function
- * pointer. Retain clean V0, 119 flags, two natural carrier/guard forms and an
- * improving-only combination, then one trace-selected lifetime form. Hard cap:
- * 123 stock builds plus one trace; no generic batch.
+ * Fresh configured V0 is 102/116 raw words, 14 differing words (12 normalized),
+ * exact 0x58 frame and geometry, first +0xE0, with all 12 relocation tuples
+ * exact. The retained JFG-shaped source contains no artificial stack-home aid.
+ * Bounded direct-slot, cached-data carrier, nested/split-guard, and early-
+ * continue forms produced no strict gain; the natural cached-data forms
+ * regressed geometry and relocation offsets. Linked equality remains fallback-
+ * only. ORT 547 has four resident and five overlay calls plus one
+ * RevealReturnAddresses function pointer. Another attempt needs new evidence
+ * for the lower-bound branch/carrier lifetime and call-live stack home.
  */
 #ifdef NON_MATCHING
 void *func_8002B524(s32 size, u8 *address, u32 colourTag) {
@@ -539,3 +540,13 @@ u8 *align4(u8 *address) {
     }
     return address;
 }
+
+/* PLATEAU-HANDOFF:func_8002B524:start
+ * symbol: func_8002B524
+ * score: 14 differing words
+ * frame: 0x58
+ * relocations: 12
+ * first-mismatch: +0xE0
+ * summary: Exact geometry/frame/relocations; bounded carrier and guard forms left a lower-bound branch web plus one call-live stack home.
+ * PLATEAU-HANDOFF:func_8002B524:end
+ */
