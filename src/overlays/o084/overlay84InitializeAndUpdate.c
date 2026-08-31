@@ -136,6 +136,6 @@ void overlay84InitializeAndUpdate(Overlay84Object *object, s32 arg) {
  * frame: 0x58
  * relocations: 5
  * first-mismatch: +0x14
- * summary: Comma grouping closes structural and allocation differences. Seven stack-home offsets and three static identities remain.
+ * summary: Fidelity-clean UOPT trace found 19 allocator webs but no stack-home ownership; add a calibrated producer hook.
  * PLATEAU-HANDOFF:overlay84InitializeAndUpdate:end
  */
