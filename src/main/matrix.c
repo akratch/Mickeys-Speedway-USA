@@ -394,3 +394,13 @@ void func_8002B040(MtxF matrix, f32 arg1, f32 arg2, f32 arg3,
  * summary: Target retains six call results in odd caller-saved FP registers; stock IDO cannot emit this hand-assembly pattern.
  * PLATEAU-HANDOFF:func_8002AA50:end
  */
+
+/* PLATEAU-HANDOFF:func_8002AB78:start
+ * symbol: func_8002AB78
+ * score: 83 differing words
+ * frame: 0x48
+ * relocations: 6
+ * first-mismatch: +0x0
+ * summary: Unique JFG hand-assembly donor; six call results live in odd caller-saved FP registers, which stock IDO cannot emit; retain fallback.
+ * PLATEAU-HANDOFF:func_8002AB78:end
+ */
