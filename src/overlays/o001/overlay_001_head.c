@@ -207,7 +207,7 @@ typedef struct Overlay1PackedRecord {
     s16 value8;
     u8 group;
     u8 slot;
-    u8 link;
+    u16 link;
 } Overlay1PackedRecord;
 
 typedef struct Overlay1Point {
@@ -237,6 +237,11 @@ typedef struct Overlay1LargeRecord {
     u8 pad00[0x14];
     Overlay1Metric metrics[8];
 } Overlay1LargeRecord;
+
+typedef struct Overlay1MetricCursor {
+    u8 pad00[0x14];
+    Overlay1Metric metric;
+} Overlay1MetricCursor;
 
 extern void overlay1LoadPackedRecordsReloc(
     Overlay1PackedRecord **records, s32 *size, s32 resource);
@@ -293,10 +298,12 @@ extern f32 func_overlay_001_F0000F84_184D364(
     f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3,
     s32 scale);
 
-/* Plateau (2026-08-24): all 119 flag combinations preserve the same best
- * -O2 -mips2 shape.  It is 0x5C bytes short, differs in 470 of 572 words,
- * and first diverges at +0x34.  The missing scheduling/frame structure is
- * broader than a bounded temporary-order permutation. */
+/* Plateau reproof (2026-08-31): configured V0 remains 0x5C bytes short,
+ * differs in 470/572 masked positional words, and first diverges at +0x34.
+ * Correcting the packed link width and metric-window layout reduces aligned
+ * constant differences by eight, but local-data ownership still emits 114
+ * candidate relocations against the target's 32. Consolidate that owner
+ * before further source-level scheduling work. */
 #ifdef NON_MATCHING
 void overlay1LoadBuildRecords(void) {
     Overlay1PackedRecord *records;
@@ -516,10 +523,10 @@ void overlay1LoadBuildRecords(void) {
             Overlay1LargeRecord *sourceB;
             Overlay1LargeRecord *sourceC;
             Overlay1LargeRecord *large;
-            Overlay1Metric *metric;
-            Overlay1Metric *metricA;
-            Overlay1Metric *metricB;
-            Overlay1Metric *metricC;
+            Overlay1MetricCursor *metric;
+            Overlay1MetricCursor *metricA;
+            Overlay1MetricCursor *metricB;
+            Overlay1MetricCursor *metricC;
 
             gOverlay1ModeConstant = 1;
             D_1D5C = &D_1D58[D_1D8C - 1];
@@ -536,18 +543,18 @@ void overlay1LoadBuildRecords(void) {
                         sourceB = overlay1GetMetricSourceBReloc(sourceA);
                         sourceC = overlay1GetMetricSourceCReloc(large);
                         index = 7;
-                        metric = &large->metrics[7];
-                        metricA = &sourceA->metrics[7];
-                        metricB = &sourceB->metrics[7];
-                        metricC = &sourceC->metrics[7];
+                        metric = (Overlay1MetricCursor *)((u8 *)large + 0x70);
+                        metricA = (Overlay1MetricCursor *)((u8 *)sourceA + 0x70);
+                        metricB = (Overlay1MetricCursor *)((u8 *)sourceB + 0x70);
+                        metricC = (Overlay1MetricCursor *)((u8 *)sourceC + 0x70);
                         do {
                             score = func_overlay_001_F0000F84_184D364(
-                                metricC->x, metricC->y,
-                                metric->x, metric->y,
-                                metricA->x, metricA->y,
-                                metricB->x, metricB->y, 0x10);
-                            metric->score = score;
-                            if (metric->rank != 0) {
+                                metricC->metric.x, metricC->metric.y,
+                                metric->metric.x, metric->metric.y,
+                                metricA->metric.x, metricA->metric.y,
+                                metricB->metric.x, metricB->metric.y, 0x10);
+                            metric->metric.score = score;
+                            if (metric->metric.rank != 0) {
                                 if (maximum < score) {
                                     maximum = score;
                                 }
@@ -556,27 +563,27 @@ void overlay1LoadBuildRecords(void) {
                                 }
                             }
                             loopValue = index;
-                            metric--;
-                            metricA--;
-                            metricB--;
-                            metricC--;
+                            metric = (Overlay1MetricCursor *)((u8 *)metric - 0x10);
+                            metricA = (Overlay1MetricCursor *)((u8 *)metricA - 0x10);
+                            metricB = (Overlay1MetricCursor *)((u8 *)metricB - 0x10);
+                            metricC = (Overlay1MetricCursor *)((u8 *)metricC - 0x10);
                             index--;
                         } while (loopValue != 0);
                         if (maximum != minimum) {
                             scale = 51.0f / (maximum - minimum);
                             index = 7;
-                            metric = &large->metrics[7];
+                            metric = (Overlay1MetricCursor *)((u8 *)large + 0x70);
                             do {
-                                if (metric->rank != 0) {
-                                    metric->rank = (s8)(s32)(
-                                        (f32)metric->rank +
-                                        ((maximum - metric->score) * scale));
+                                if (metric->metric.rank != 0) {
+                                    metric->metric.rank = (s8)(s32)(
+                                        (f32)metric->metric.rank +
+                                        ((maximum - metric->metric.score) * scale));
                                     if (index == 3) {
-                                        metric->rank += 5;
+                                        metric->metric.rank += 5;
                                     }
                                 }
                                 loopValue = index;
-                                metric--;
+                                metric = (Overlay1MetricCursor *)((u8 *)metric - 0x10);
                                 index--;
                             } while (loopValue != 0);
                         }
@@ -850,4 +857,14 @@ void overlay1CallReset(void) {
  * first-mismatch: +0x0
  * summary: 145/148-word size; target frame 0x70; structure/allocation remain after 119 flags, ten forms, and one bounded batch; identities unresolved
  * PLATEAU-HANDOFF:overlay1BuildObjectMappings:end
+ */
+
+/* PLATEAU-HANDOFF:overlay1LoadBuildRecords:start
+ * symbol: overlay1LoadBuildRecords
+ * score: 470 differing words
+ * frame: 0xD8
+ * relocations: 114
+ * first-mismatch: +0x34
+ * summary: Exact frame; 23 words short. Local-data ownership creates 114 candidate versus 32 target relocations; consolidate the owner before further source matching.
+ * PLATEAU-HANDOFF:overlay1LoadBuildRecords:end
  */
