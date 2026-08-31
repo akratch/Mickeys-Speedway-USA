@@ -111,6 +111,6 @@ void func_overlay_026_F0000B18_187AF10(
  * frame: 0x78
  * relocations: 7
  * first-mismatch: +0x108
- * summary: FP term rotation fixed the multiply; squared-term rotation regressed structure/relocations; sqrt call spill home remains +0x40 versus +0x44
+ * summary: Four o022-style explicit-deref probes were flat or regressed; sqrt spill stays sp+0x40 vs target sp+0x44; next lever is UOPT spill-home tracing.
  * PLATEAU-HANDOFF:func_overlay_026_F0000B18_187AF10:end
  */
