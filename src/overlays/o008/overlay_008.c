@@ -1763,3 +1763,13 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * summary: Fresh exact geometry retains the 0x70/0x68 frame split and divergent FP pool; prior declaration, lifetime, constant, and flag probes are exhausted.
  * PLATEAU-HANDOFF:func_overlay_008_F000291C_1860674:end
  */
+
+/* PLATEAU-HANDOFF:func_overlay_008_F00042A8_1862000:start
+ * symbol: func_overlay_008_F00042A8_1862000
+ * score: 384 differing words
+ * frame: 0xA0
+ * relocations: 40
+ * first-mismatch: +0x44
+ * summary: Configured flags remain best; reconstruct FP lifetimes and named data identities to supply 17 words and 22 relocation records without changing the exact frame.
+ * PLATEAU-HANDOFF:func_overlay_008_F00042A8_1862000:end
+ */
