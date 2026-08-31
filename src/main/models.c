@@ -1420,3 +1420,13 @@ void func_8002109C(ModelPointOwner *owner) {
  * summary: P_STUCK_FLAT after fidelity-valid 20m sweep; 0x18 four-save frame remains versus retail 0x10 three-save allocator web
  * PLATEAU-HANDOFF:func_80020B10:end
  */
+
+/* PLATEAU-HANDOFF:func_80020E4C:start
+ * symbol: func_80020E4C
+ * score: 25 differing words
+ * frame: 0x40
+ * relocations: 13
+ * first-mismatch: +0xC
+ * summary: Fresh exact geometry and all 13 relocations; pointer/index variants were nonimproving, while flag and donor tools need unique owner metadata.
+ * PLATEAU-HANDOFF:func_80020E4C:end
+ */
