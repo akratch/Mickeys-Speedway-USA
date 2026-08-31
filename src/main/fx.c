@@ -770,18 +770,36 @@ done:
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048080.s")
 #endif
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 343 differing words; first mismatch is at +0x0. */
-/* Target is 351 instructions/frame -144; candidate is 288 instructions/frame -168. */
-/* Remaining gap is structural: allocator initialization/unrolled setup is abbreviated; not permuter-ready. */
-Wake *wakeAllocate(s8 wakeType, f32 wakeValue88, s32 wakeValue80,
-                   s32 wakeValue84, s16 wakeValue8C, f32 wakeValue8E) {
-    s32 arg0 = wakeType;
-    f32 arg1 = wakeValue88;
-    f32 arg2 = (f32) wakeValue80;
-    f32 arg5 = wakeValue8E;
-    s32 arg4 = wakeValue8C;
-    Wake *wake;
-    u8 *wakeBytes;
+typedef struct FxWakeAllocation {
+    u8 flags;
+    u8 segmentCount;
+    u8 state;
+    u8 textureIndex;
+    f32 value4;
+    s16 value8;
+    s16 textureStep;
+    f32 valueC;
+    u8 *vertices;
+    u8 *samples;
+    u8 *sampleBuffers[4];
+    u8 *vertexBuffers[2];
+    FxConeTextureInfo *linked;
+    s16 value34;
+    s16 value36;
+    u8 value38;
+    u8 value39;
+    u8 value3A;
+    u8 value3B;
+    s32 value3C;
+} FxWakeAllocation;
+
+/* Workbench verdict: structure-mismatch, 345 positional/203 normalized words; first mismatch is +0xC. */
+/* Candidate is 343/351 instructions with a -0x98 frame versus the target -0x90; all three call identities are present. */
+/* The allocation topology and unrolled initialization CFG are restored; four early stack homes and two moved blocks remain. */
+/* PROVENANCE: Mickey's own target accesses and caller ABI supply this reconstruction; JFG supplies only the published role/name. */
+Wake *wakeAllocate(s32 wakeType, f32 wakeValue88, f32 wakeValue80,
+                   f32 wakeValue84, s16 wakeValue8C, f32 wakeValue8E) {
+    FxWakeAllocation *wake;
     u8 *vertexArea;
     u8 *sampleArea;
     s32 frameCount;
@@ -795,89 +813,77 @@ Wake *wakeAllocate(s8 wakeType, f32 wakeValue88, s32 wakeValue80,
     s32 j;
     s32 size;
     s32 alpha;
+    s32 bufferCount;
 
-    frameCount = (s32) (arg1 * 60.0f);
+    frameCount = (s32) (wakeValue88 * 60.0f);
     segmentCount = (frameCount + 5) >> 1;
     groupCount = segmentCount * 2;
-    alpha = arg0 == 0 ? 4 : 2;
+    alpha = 2;
+    bufferCount = 2;
+    if (wakeType == 0) {
+        alpha = 4;
+    }
     segmentBytes = groupCount * 0xA;
     vertexBytes = segmentCount * 0x14;
     sampleBytes = segmentCount * 0x10;
     textureBytes = groupCount * 0x10;
-    size = (segmentCount * 0x24) + (alpha * segmentBytes) +
+    size = sampleBytes + vertexBytes + (alpha * segmentBytes) +
            (textureBytes * 2) + 0x40;
     wake = func_8002B314(size, 0x87);
     if (wake != NULL) {
-        wakeBytes = (u8 *) wake;
-        vertexArea = wakeBytes + 0x40;
-        sampleArea = vertexArea + (groupCount * 0x10);
-        *(u8 **) (wakeBytes + 0x10) = vertexArea + vertexBytes;
-        *(u8 **) (wakeBytes + 0x14) = sampleArea + sampleBytes;
-        for (i = 0; i < 2; i++) {
-            *(u8 **) (wakeBytes + 0x18 + (i * 4)) =
-                vertexArea + (i * vertexBytes);
+        vertexArea = (u8 *) wake + 0x40;
+        for (i = 0; i < bufferCount; i++) {
+            wake->vertexBuffers[i] = vertexArea + (i * textureBytes);
         }
-        for (i = 0; i < alpha; i++) {
-            *(u8 **) (wakeBytes + 0x8 + (i * 4)) =
-                sampleArea + (i * segmentBytes);
-        }
-        wake->vertices = vertexArea;
+        sampleArea = wake->vertexBuffers[1] + textureBytes;
+        wake->vertices = sampleArea;
+        wake->sampleBuffers[2] = NULL;
+        wake->sampleBuffers[3] = NULL;
+        sampleArea += sampleBytes;
         wake->samples = sampleArea;
-        wake->value4 = arg1;
-        wake->value8 = 0;
-        wake->valueC = arg2;
-        wake->flags = arg0 != 0;
-        wake->segmentCount = segmentCount;
-        wake->state = 0;
-        wake->textureIndex = (s8) frameCount;
-        wake->value34 = 0;
-        wake->value36 = 0;
-        wake->value38 = 0;
-        wake->value39 = 0;
-        wake->value3A = 0;
-        wake->value3B = 0;
-        wake->value3C = 0;
-        wake->linked = ((void *(*)(s32, s32, void *, s32)) func_80034448)(
-            arg4, segmentCount, sampleArea, groupCount);
-        if (wake->linked == NULL) {
-            mmFree(wake);
-            return NULL;
-        }
+        sampleArea += vertexBytes;
         for (i = 0; i < alpha; i++) {
-            u8 *samples = *(u8 **) (wakeBytes + 0x8 + (i * 4));
-            for (j = 0; j < groupCount; j++) {
-                u8 *sample = samples + (j * 0x14);
-                sample[0x6] = 0xFF;
-                sample[0x7] = 0xFF;
-                sample[0x8] = 0xFF;
-                sample[0x10] = 0xFF;
-                sample[0x11] = 0xFF;
-                sample[0x12] = 0xFF;
-                sample[0x1A] = 0xFF;
-                sample[0x1B] = 0xFF;
-                sample[0x1C] = 0xFF;
-                sample[0x24] = 0xFF;
-                sample[0x25] = 0xFF;
-                sample[0x26] = 0xFF;
-            }
+            wake->sampleBuffers[i] = sampleArea + (i * segmentBytes);
         }
-        for (i = 0; i < 2; i++) {
-            u8 *vertices = *(u8 **) (wakeBytes + 0x18 + (i * 4));
-            for (j = 0; j < groupCount; j++) {
-                *(u8 *) (vertices + (j * 0x10)) = 0x40;
-                *(u8 *) (vertices + (j * 0x10) + 0x10) = 0x40;
-                *(u8 *) (vertices + (j * 0x10) + 0x20) = 0x40;
-                *(u8 *) (vertices + (j * 0x10) + 0x30) = 0x40;
+        wake->linked = func_80034448(wakeValue8C);
+        if (wake->linked != NULL) {
+            wake->flags = wakeType != 0;
+            wake->state = 0;
+            wake->segmentCount = segmentCount;
+            wake->value8 = 0;
+            wake->value3C = 0;
+            wake->value4 = wakeValue80;
+            wake->textureIndex = (s8) frameCount;
+            wake->textureStep =
+                (s16) (((wake->linked->height - 1) << 8) /
+                       (u8) frameCount);
+            wake->valueC =
+                (wakeValue84 - wakeValue80) / (u8) frameCount;
+            for (i = 0; i < alpha; i++) {
+                for (j = 0; j < groupCount; j++) {
+                    wake->sampleBuffers[i][(j * 0xA) + 6] = 0xFF;
+                    wake->sampleBuffers[i][(j * 0xA) + 7] = 0xFF;
+                    wake->sampleBuffers[i][(j * 0xA) + 8] = 0xFF;
+                }
             }
+            for (i = 0; i < bufferCount; i++) {
+                for (j = 0; j < groupCount; j++) {
+                    wake->vertexBuffers[i][j * 0x10] = 0x40;
+                }
+            }
+            wake->value34 = 0;
+            wake->value38 = 0;
+            wake->value39 = 0;
+            wake->value3A = 0;
+            wake->value3B = 0;
+            wake->value36 =
+                (s16) ((wakeValue8E * 256.0f) / 60.0f);
+        } else {
+            mmFree(wake);
+            wake = NULL;
         }
-        wake->value34 = 0;
-        wake->value38 = 0;
-        wake->value39 = 0;
-        wake->value3A = 0;
-        wake->value3B = 0;
-        wake->value36 = (s16) ((arg5 * 256.0f) / 60.0f);
     }
-    return wake;
+    return (Wake *) wake;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeAllocate.s")
@@ -893,8 +899,8 @@ typedef struct FxRippleSource {
     f32 textureScale;
     s16 textureId;
     s16 wakeValue7E;
-    s32 wakeValue80;
-    s32 wakeValue84;
+    f32 wakeValue80;
+    f32 wakeValue84;
     f32 wakeValue88;
     s16 wakeValue8C;
     s16 wakeValue8E;
@@ -951,8 +957,8 @@ typedef struct FxRippleOutput {
 
 extern void func_8001357C(f32 valueC, f32 value14, void *output,
                           s32 value, s32 zero);
-extern Wake *wakeAllocate(s8 wakeType, f32 wakeValue88, s32 wakeValue80,
-                          s32 wakeValue84, s16 wakeValue8C,
+extern Wake *wakeAllocate(s32 wakeType, f32 wakeValue88, f32 wakeValue80,
+                          f32 wakeValue84, s16 wakeValue8C,
                           f32 wakeValue8E);
 
 s32 func_80048760(void *arg0, s32 arg1) {
@@ -2613,4 +2619,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x8
  * summary: Five-record post-decrement CFG and 32-bit delta/carry are restored; 207/206 words remain blocked on switch/carry allocation after 119 flag rows.
  * PLATEAU-HANDOFF:func_80049B14:end
+ */
+
+/* PLATEAU-HANDOFF:wakeAllocate:start
+ * symbol: wakeAllocate
+ * score: 345 differing words
+ * frame: 0x98
+ * relocations: 3
+ * first-mismatch: +0xC
+ * summary: 343/351 words, normalized 203, target frame 0x90. Buffer topology and loops are restored; early stack homes and two moved blocks remain.
+ * PLATEAU-HANDOFF:wakeAllocate:end
  */
