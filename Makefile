@@ -362,6 +362,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_run_logged.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_experiment_ledger.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_plateau_remeasure.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_resolve_comment_hunks.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_lane_cache.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_public_release.py
 

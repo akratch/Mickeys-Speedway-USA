@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Resolve merge-conflict hunks that carry no code.
+r"""Resolve merge-conflict hunks that carry no code.
 
   mickey.us.yaml   hunks whose both sides are `#` comment lines: take ours.
   *.c / *.h        hunks whose both sides are C comment lines only (plateau
@@ -11,6 +11,7 @@
 Any hunk with a code line on either side is left for a human. Usage: FILE...
 Exit 1 if any hunk is left.
 """
+from pathlib import Path
 import re, sys
 
 pat = re.compile(r"<<<<<<< [^\n]*\n(.*?)=======\n(.*?)>>>>>>> [^\n]*\n", re.S)
@@ -47,6 +48,22 @@ def c_comments(block):
     return not inside
 
 
+def open_plateau_name(block):
+    """Return the symbol for an EOF plateau block closed after the hunk."""
+    lines = [line.strip() for line in block.splitlines() if line.strip()]
+    if not lines:
+        return None
+    start = re.fullmatch(r"/\* PLATEAU-HANDOFF:([^:]+):start", lines[0])
+    if not start:
+        return None
+    name = start.group(1)
+    if lines[-1] != f"* PLATEAU-HANDOFF:{name}:end":
+        return None
+    if any("*/" in line for line in lines):
+        return None
+    return name
+
+
 def row_names(block):
     names = []
     for l in block.split("\n"):
@@ -60,7 +77,8 @@ def row_names(block):
 
 
 def resolve(path):
-    s = open(path).read()
+    source_path = Path(path)
+    s = source_path.read_text()
     left = 0
 
     def sub(m):
@@ -70,6 +88,14 @@ def resolve(path):
             if yaml_comments(ours) and yaml_comments(theirs):
                 return ours
         elif path.endswith((".c", ".h")):
+            ours_name = open_plateau_name(ours)
+            theirs_name = open_plateau_name(theirs)
+            if ours_name and theirs_name and ours_name != theirs_name:
+                # finalize_plateau appends blocks at EOF. When two lanes add
+                # different blocks, Git puts the common closing delimiter
+                # after the conflict hunk. Close ours here and let that shared
+                # delimiter close theirs.
+                return ours.rstrip("\n") + "\n */\n\n" + theirs
             if c_comments(ours) and c_comments(theirs):
                 return theirs
         elif path.endswith(".md"):
@@ -80,7 +106,7 @@ def resolve(path):
         return m.group(0)
 
     s = pat.sub(sub, s)
-    open(path, "w").write(s)
+    source_path.write_text(s)
     print(f"{path}: {'resolved' if left == 0 else f'{left} hunk(s) left'}")
     return left
 
