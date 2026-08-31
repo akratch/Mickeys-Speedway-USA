@@ -2634,6 +2634,7 @@ func_80055E50 = 0x80055E50; // type:func size:0x114  ROM 0x56a50  tier-D collisi
 func_80055F64 = 0x80055F64; // type:func size:0x16C  ROM 0x56b64  tier-D collision handler family, C-object+linked-ROM exact matched C
 func_800560D0 = 0x800560D0; // type:func size:0x1a4  ROM 0x56cd0  tier-D collision dual-advance normal helper, matched C
 func_80056274 = 0x80056274; // type:func size:0x140  ROM 0x56e74  tier-D collision bidirectional-normal helper, matched C
+func_8005716C = 0x8005716C; // type:func size:0x140 tier-D ROM 0x57D6C src/main/anim.c.o -O2 -mips2 -32 -Wo,-loopunroll,0 NON_MATCHING resident fallback and adjacent func_800572AC boundary owner, no match credit
 func_800572AC = 0x800572AC; // type:func size:0xA4   ROM 0x57eac  tier-D collision state-delta helper, matched C
 func_80057350 = 0x80057350; // type:func size:0x78   ROM 0x57f50  tier-D collision state-copy helper, matched C
 fmvInit = 0x80057910; // type:func size:0x5C   ROM 0x58510  src/fmvInit.c.o exact masked tier-A, matched C
