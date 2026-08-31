@@ -295,9 +295,10 @@ char *osScGetTaskType(s32 taskID) {
 void func_80030608(OSScTask *arg0) {
 }
 #ifdef NON_MATCHING
-/* Workbench p7: structure-mismatch; 194/192 instructions, target/candidate frames -0x98/-0x90, 148 raw words, first +0x0.
- * Lever: the home census confirms message +0x70/+0x78 and next-command +0x4C/+0x48; prior layout/permutation probes remain eliminated.
- * Remains: the 8-byte non-save frame gap and scheduler temp web; GLOBAL_ASM stays canonical. */
+/* Workbench: structure-mismatch; 193/192 instructions, target/candidate frames
+ * -0x98/-0x90, 113 raw and 112 relocation-masked differences, first +0x0.
+ * Direct second-command opcode addressing is the sole natural gain; six of
+ * thirteen relocation identities align. The frame and base/counter webs remain. */
 SchedGfx *func_80030610(OSSched *sc, s32 commandIndex,
                         SchedGfx *displayList, OSMesgQueue *queue,
                         u64 *dataStart) {
@@ -327,7 +328,7 @@ SchedGfx *func_80030610(OSSched *sc, s32 commandIndex,
         displayList->w1 = 0;
         displayList->w0 = 0xE9000000;
         (displayList + 1)->w1 = 0;
-        nextCommand->w0 = 0xB8000000;
+        (displayList + 1)->w0 = 0xB8000000;
 
         osWritebackDCacheAll();
         osSpTaskLoad(&sc->curRSPTask->list);
@@ -905,3 +906,13 @@ s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 availRCP) {
     }
     return avail;
 }
+
+/* PLATEAU-HANDOFF:func_80030610:start
+ * symbol: func_80030610
+ * score: 112/192 words
+ * frame: 0x90
+ * relocations: 13
+ * first-mismatch: +0x0
+ * summary: Direct second-command opcode addressing is the sole gain. Candidate is 193 words with 113 raw differences and six exact relocations; the frame gap remains.
+ * PLATEAU-HANDOFF:func_80030610:end
+ */
