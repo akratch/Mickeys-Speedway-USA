@@ -925,14 +925,18 @@ void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
     }
 }
 
-/* NON_MATCHING p4 plateau: workbench structure-mismatch; exact-TU -Wo,-loopunroll,0 is 910 vs 898 instructions, 755 raw words different, frames -0xC8/-0x80, first +0x0.
- * Lever: word-sized selectedMode reduces alignment gaps; fourth-argument s32 and volatile probes regress, while prior query/lifetime/register levers remain closed.
- * Remains: 0x48-byte query/FP spill ownership and downstream temp cascade; GLOBAL_ASM remains canonical. */
+/* NON_MATCHING pipeline plateau: exact-TU -Wo,-loopunroll,0 is 910 vs 898
+ * instructions, 750 masked/751 raw words different, frames -0xC8/-0x80,
+ * first +0x0. A terrain-sample cursor gains four masked words; stack-overlay,
+ * initialization-order, block-lifetime, and alternate loop forms regress.
+ * Remains: 0x48-byte query/FP spill ownership, downstream temp cascade, and
+ * ambiguous runtime identity for the F49E8 call; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
                                       O8P34A0State *state, f32 limit,
                                       f32 update) {
     O8P34A0Query query;
+    f32 **sample;
     f32 selectedValue;
     f32 blend;
     f32 result;
@@ -1058,9 +1062,11 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
             if (sampleCount != 0) {
                 index = 0;
                 if (sampleCount > 0) {
+                    sample = query.samples0;
                     do {
-                        height = *query.samples0[index];
+                        height = **sample;
                         index++;
+                        sample++;
                     } while ((height >= owner->y10) &&
                              (index != sampleCount));
                     result = height;
@@ -1778,4 +1784,14 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * first-mismatch: +0x2C
  * summary: Six surface entries and direct bounds restore the exact frame; recover the remaining eight global relocation pairs and 16 instructions before allocator work.
  * PLATEAU-HANDOFF:func_overlay_008_F0000058_185DDB0:end
+ */
+
+/* PLATEAU-HANDOFF:func_overlay_008_F00034A0_18611F8:start
+ * symbol: func_overlay_008_F00034A0_18611F8
+ * score: 750 differing words
+ * frame: 0xC8
+ * relocations: 21
+ * first-mismatch: +0x0
+ * summary: Target frame 0x80; candidate relocation identity remains ambiguous; next lever is query and FP stack ownership.
+ * PLATEAU-HANDOFF:func_overlay_008_F00034A0_18611F8:end
  */
