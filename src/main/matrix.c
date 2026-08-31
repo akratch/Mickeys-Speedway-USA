@@ -414,3 +414,13 @@ void func_8002B040(MtxF matrix, f32 arg1, f32 arg2, f32 arg3,
  * summary: Target 99w/frame 0x8; 1/6 call identities aligns. Exact JFG donor is hand-written assembly; odd-FP subset is outside stock IDO/MIPSpro.
  * PLATEAU-HANDOFF:func_8002AC84:end
  */
+
+/* PLATEAU-HANDOFF:func_8002AE10:start
+ * symbol: func_8002AE10
+ * score: 138 differing words
+ * frame: 0xA0
+ * relocations: 6
+ * first-mismatch: +0x0
+ * summary: JFG-identical hand assembly uses odd FP registers and frame 0x8. Reopen only for reservation-aware patched codegen or a proven matching C donor.
+ * PLATEAU-HANDOFF:func_8002AE10:end
+ */
