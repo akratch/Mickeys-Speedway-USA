@@ -80,3 +80,13 @@ s32 func_overlay_002_F0001364_185815C(f32 x1, f32 y1, f32 x2, f32 y2,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o002/func_overlay_002_F0001364_185815C/func_overlay_002_F0001364_185815C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_002_F0001364_185815C:start
+ * symbol: func_overlay_002_F0001364_185815C
+ * score: 64/189 words
+ * frame: 0x60
+ * relocations: 0
+ * first-mismatch: +0x8
+ * summary: Exact 756-byte geometry/frame; 125 words remain from initial FP-temp allocation. Flags, lifetime, order, and permutation are exhausted; seek new ABI evidence.
+ * PLATEAU-HANDOFF:func_overlay_002_F0001364_185815C:end
+ */
