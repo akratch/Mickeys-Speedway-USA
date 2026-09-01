@@ -2,9 +2,9 @@
 ### `overlay20RemoveEntry` plateau handoff
 
 - source: `src/overlays/o020/overlay20RemoveEntry.c`
-- score: 36/53 words
+- score: 39/53 words
 - frame: frameless
 - relocations: 10
-- first mismatch: +0x4C
-- summary: Dead entry-as-end carrier was exact-sized but flat at 17 register-only differences; preserve V0 pending a distinct temp-FIFO lever.
+- first mismatch: +0x5C
+- summary: Fidelity-clean FIFO trace exposes a missing decrement birth; the global-count form gains 3 words, but the compaction base remains one birth behind.
 <!-- plateau-handoff:overlay20RemoveEntry:end -->
