@@ -2253,6 +2253,7 @@ placeholders are never imported.
 | `0x800573C8` | `0x3A4` | no unique `hit.c` candidate | tier-D; before/after type pass: structure-mismatch, 203 words at 231 versus 233 instructions and exact `0x88` frame; lever pointer/FP phase, residual two folded pointer initializations |
 | `0x8005776C` | `0x1A4` | `hitPlayer` | tier-B; before/after type pass: mixed structural/register, 51 words at exact 105 instructions/`0xC0` frame; lever radius/call/register web, residual target workspace/register rotation |
 | `0x80057910` | `0x5C` + `0x4` pad | `fmvInit` | A; exact masked JFG skeleton and C donor, adopted name. Matched C: exact 92 executable B and relocation surface at `-O2 -mips2 -32`; trailing 4 B is compiler alignment padding and earns no function credit |
+| `0x80057970` | `0x50` | `osFlashReInit` | A; JFG `libultra/src/flash/flashreinit.c` body. Matched C: exact 80 B and 2/2 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
 
 No function in this block directly references a distinctive string. Its
 references into `0x80083FA8`–`0x80084218` are floating-point constants, so no
