@@ -69,8 +69,8 @@ symbol's full current source and handoff commit IDs plus a concise reason. The
 pin may also name the exact older handoff commit reported for
 `stale-structured-evidence`; this authorizes one fresh maintenance remeasurement
 without treating the old measurements as current. A
-missing structured handoff may use `ledger_commit: null` only for a pinned
-source plateau whose pin is also the latest target guard or evidence commit;
+missing structured handoff may use `ledger_commit: null` only when the pin is
+the latest target guard or evidence commit and descends from the source plateau;
 malformed, source-mismatched, or superseded evidence still fails closed.
 `lane_status.py` validates identity and ancestry after checking active lanes,
 and reports `base-only` only for that exact pair. The first subsequent source

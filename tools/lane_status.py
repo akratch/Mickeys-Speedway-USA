@@ -1238,9 +1238,9 @@ def assignment_status(
             authorized_source = reopen_authorization["source_commit"]
             authorized_ledger = reopen_authorization["ledger_commit"]
             if (
-                authorized_source == source_commit
-                and authorized_source == base_source_commit
+                authorized_source == base_source_commit
                 and authorized_ledger is None
+                and is_ancestor(source_commit, authorized_source)
             ):
                 return Assignment(
                     symbol, "base-only", path, source_commit, None, [],
