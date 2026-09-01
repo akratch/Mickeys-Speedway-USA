@@ -65,3 +65,13 @@ void overlay63UpdateSequence(s32 delta) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o063/overlay63UpdateSequence/func_overlay_063_F000077C_18C3304.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay63UpdateSequence:start
+ * symbol: overlay63UpdateSequence
+ * score: 102 differing words
+ * frame: 0x20
+ * relocations: 39
+ * first-mismatch: +0xC
+ * summary: V0: 106/107 words, frame 0x20 exact, 102 raw diffs, normalized distance 6. Relocs 39 each; 9 sites and 2 identities align. Prior five forms closed.
+ * PLATEAU-HANDOFF:overlay63UpdateSequence:end
+ */
