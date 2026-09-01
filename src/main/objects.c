@@ -42,7 +42,12 @@ typedef struct {
     Objects58C0Data *unk40;
 } Objects58C0Arg;
 
+extern s32 D_800C9470;
+extern s32 D_800C9474;
+extern s32 D_800C94A8;
+extern s32 D_800C94AC;
 extern s16 D_800C94B0;
+extern s16 D_800C94B2;
 extern s8 D_80078F88;
 extern s8 D_80079004;
 extern void **D_800C94F4;
@@ -62,7 +67,19 @@ extern void **D_800C9500;
 extern s32 D_800C9504;
 extern s32 piRomLoadSection(u32 assetIndex, u32 address, s32 assetOffset, s32 size);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004340.s")
+void func_80004340(void) {
+    D_800C9470 = 0;
+    D_800C9474 = 0;
+    D_800C9498 = 0;
+    D_800C949C = 0;
+    D_800C94A8 = 0;
+    D_800C94AC = 0;
+    D_800C94F0 = 0;
+    D_800C94F8 = 0;
+    D_800C9504 = 0;
+    D_800C94B0 = 0;
+    D_800C94B2 = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000439C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004454.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004590.s")
