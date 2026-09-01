@@ -66,6 +66,11 @@
       "ledger_commit": null,
       "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior selection/output lifetime and declaration-order forms remain closed; no body mutation, trace, flags, or permutation."
     },
+    "func_overlay_053_F0000240_189DBE8": {
+      "source_commit": "fadeb85368a5f27ea107c580d1c83febee5c3ba7",
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior flags, ownership, call/data identities, scaffold, and size-gap forms stay closed; no body mutation, trace, or permutation."
+    },
     "overlay65UpdateParticles": {
       "source_commit": "27d7731a7e0a4635055be8e495d692b88593a25d",
       "ledger_commit": null,
