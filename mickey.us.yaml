@@ -319,6 +319,7 @@ segments:
       - [0x58570, c, main/flash_58570]
       - [0x58810, c, libultra/osFlashClearStatus]
       - [0x5885C, c, main/flash_5885C]
+      - [0x58C0C, asm]
       - [0x58C10, asm]
       - [0x58E50, c, main/vehicle_sounds]
       - [0x59B90, c, main/osBootRamTest]
