@@ -141,6 +141,11 @@
       "ledger_commit": null,
       "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior constant, retained-node, root, and register forms remain closed; no body mutation, trace, or permutation."
     },
+    "func_overlay_101_F000AB4C_18E636C": {
+      "source_commit": "9b4af8356e951c51306df2764e0e62bfe627eafd",
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior opacity-scale, repeated-builder, FP, register, frame, and flag forms remain closed; no body mutation, trace, or permutation."
+    },
     "func_overlay_101_F00078F4_18E3114": {
       "source_commit": "99575a131bec4a433f2daf7b26a578020727dcb8",
       "ledger_commit": null,
