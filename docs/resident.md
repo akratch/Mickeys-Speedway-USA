@@ -2944,6 +2944,7 @@ The final column records owned object words and relocation coverage.
 | `scalevol` | `0x22C8` / `0x24` | **tier B**: JFG supplies the complete body and official name | Exact 9 object words; no relocations |
 | `func_800016EC` | `0x22EC` / `0x1C` | **tier B**: overlay 49 supplies mode-call context; no external name is asserted | Exact 7 object words and two data relocations |
 | `func_80001708` | `0x2308` / `0x38` | **tier B**: a resident caller pins the master-volume reset role; no external name is asserted | Exact 14 object words, two calls, and data relocation |
+| `func_80001A84` | `0x2684` / `0x11C` | **tier A:** DKR's public SGI `__amMain` body supplies the scheduler message-loop shape; Mickey's queue globals and message flow remain authoritative | Exact 71 object words and linked ROM bytes |
 | `func_80001BA0` | `0x27A0` / `0x24` | **tier B:** JFG supplies the `amGo` role and audio-manager order; the placeholder is retained | Exact 9 object words and linked ROM bytes |
 | `func_80001BC4` | `0x27C4` / `0x24` | **tier B:** JFG supplies the `amStop` role and audio-manager order; the placeholder is retained | Exact 9 object words and linked ROM bytes |
 | `func_80001BE8` | `0x27E8` / `0x0C` | **tier A:** Mickey-derived C body and linked ROM identity; placeholder retained because no external name is asserted | Exact 3 object words and linked ROM bytes |
