@@ -1442,3 +1442,13 @@ void func_8002109C(ModelPointOwner *owner) {
  * summary: Untouched V0 is 330/333 words; frame 0x88/0x78. Three relocations per side, none aligned. Prior allocation/layout and permutation forms remain closed.
  * PLATEAU-HANDOFF:func_8001FC50:end
  */
+
+/* PLATEAU-HANDOFF:func_8001F520:start
+ * symbol: func_8001F520
+ * score: 376 differing words
+ * frame: 0xB0
+ * relocations: 46
+ * first-mismatch: +0x8
+ * summary: Configured candidate is 387 versus 401 target words; cache and texture-loop CFG lifetimes remain structural.
+ * PLATEAU-HANDOFF:func_8001F520:end
+ */

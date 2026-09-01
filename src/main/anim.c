@@ -2719,3 +2719,13 @@ void fmvInit(void) {
  * summary: Candidate is 40 words short with 637 differences and the exact frame; both sides have 11 relocations, but only one site/identity aligns and two candidate identities are unresolved.
  * PLATEAU-HANDOFF:func_800563B4:end
  */
+
+/* PLATEAU-HANDOFF:func_800573C8:start
+ * symbol: func_800573C8
+ * score: 203 differing words
+ * frame: 0x88
+ * relocations: 3
+ * first-mismatch: +0x2C
+ * summary: Configured candidate is 231 versus 233 target words; folded AABB initialization remains the first structural split.
+ * PLATEAU-HANDOFF:func_800573C8:end
+ */
