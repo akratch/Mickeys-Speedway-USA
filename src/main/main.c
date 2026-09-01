@@ -1737,3 +1737,13 @@ void func_800293D0(void) {
  * summary: Fresh V0 reproduces the exhausted main loop plateau. Resume only with a new display command scheduling or allocator mechanism.
  * PLATEAU-HANDOFF:func_80026FB4:end
  */
+
+/* PLATEAU-HANDOFF:func_80028564:start
+ * symbol: func_80028564
+ * score: 426 differing words
+ * frame: 0x58
+ * relocations: 245
+ * first-mismatch: +0x4
+ * summary: V0: 492/489 words, exact 0x58 frame, 426 positional and 427 raw diffs. Relocs 245 versus 201; 59 sites and 25 identities align. Saved-register web persists.
+ * PLATEAU-HANDOFF:func_80028564:end
+ */
