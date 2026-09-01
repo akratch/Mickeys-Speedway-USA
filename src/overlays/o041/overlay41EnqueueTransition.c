@@ -96,3 +96,13 @@ void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41EnqueueTransition/func_overlay_041_F000195C_1888C94.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_041_F000195C_1888C94:start
+ * symbol: func_overlay_041_F000195C_1888C94
+ * score: 76/105 words
+ * frame: frameless
+ * relocations: 22
+ * first-mismatch: +0x8
+ * summary: Fresh V0 reproduces 29 masked differences and frameless geometry; 22 offsets/types align, but identities remain unresolved and the one-cursor web differs.
+ * PLATEAU-HANDOFF:func_overlay_041_F000195C_1888C94:end
+ */
