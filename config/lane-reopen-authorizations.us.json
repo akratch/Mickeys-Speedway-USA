@@ -156,6 +156,11 @@
       "ledger_commit": null,
       "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior video-local scoping and saved-register/stack-home forms remain closed; no body mutation, trace, or permutation."
     },
+    "func_8001FC50": {
+      "source_commit": "e53a148b3f9b8a6973df1a813a2bc6fc34d05f37",
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 geometry, frame, relocations, and first mismatch. Prior allocation/layout, stack-home, zero/copy-loop, loop-unroll, and bounded-permutation forms stay closed; no body mutation or trace."
+    },
     "func_overlay_055_F000031C_18A1E34": {
       "source_commit": "3c0a8dce98c35c10e7e5217411a916ecbf0b50ea",
       "ledger_commit": null,
