@@ -461,3 +461,13 @@ s32 overlay27Activate(O27Object *object) {
  * summary: Retained source-declaration ordering heals four raw words; reopen only with new update-rate-home or persistent-FP-pool evidence.
  * PLATEAU-HANDOFF:func_overlay_027_F0000064_187BA3C:end
  */
+
+/* PLATEAU-HANDOFF:func_overlay_027_F0000624_187BFFC:start
+ * symbol: func_overlay_027_F0000624_187BFFC
+ * score: 59/254 words
+ * frame: 0x98
+ * relocations: 15
+ * first-mismatch: +0x8
+ * summary: Fresh V0 is exact-sized; 15/15 relocation counts/types but ambiguous and shifted proxies close identity proof. Prior forms closed; body untouched.
+ * PLATEAU-HANDOFF:func_overlay_027_F0000624_187BFFC:end
+ */
