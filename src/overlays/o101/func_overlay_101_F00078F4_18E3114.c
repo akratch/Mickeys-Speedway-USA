@@ -224,3 +224,13 @@ void func_overlay_101_F00078F4_18E3114(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/func_overlay_101_F00078F4_18E3114/func_overlay_101_F00078F4_18E3114.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_101_F00078F4_18E3114:start
+ * symbol: func_overlay_101_F00078F4_18E3114
+ * score: 469/525 words
+ * frame: 0x40
+ * relocations: 61
+ * first-mismatch: +0x4
+ * summary: V0 is one word short (524/525; 472 raw differences), with broad structural/register and 55 relocation-symbol mismatches; prior forms stay closed.
+ * PLATEAU-HANDOFF:func_overlay_101_F00078F4_18E3114:end
+ */
