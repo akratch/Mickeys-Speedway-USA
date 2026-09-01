@@ -914,227 +914,180 @@ loop_27:
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80017140.s")
 #endif
 /*
- * PROVENANCE: the clipping/intersection organization follows JFG's public
- * shadow pipeline; Mickey's target assembly and resident buffers determine
- * every field binding and limit used here.
+ * PROVENANCE: adapted from Diddy Kong Racing's public matched
+ * src/tracks.c:func_8002FF6C. JFG's public assembly-only func_8001F288 is the
+ * closest sibling and corroborates the shared frame and control-flow shape.
+ * Mickey's target assembly, extra owner argument, globals, and output limits
+ * determine every local revision below.
  */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 368 differing words; first mismatch is at +0x0. */
-/* Target is 347 instructions/frame -344; candidate is 370 instructions/frame -448. */
-/* Remaining gap is structural: local-frame and clipping-loop shape; not permuter-ready. */
+typedef struct ShadowClipVertex {
+    f32 x;
+    f32 y;
+    f32 z;
+    s16 padC;
+    s16 edgeIndex;
+} ShadowClipVertex;
+
+typedef struct ShadowClipPlane {
+    f32 x;
+    f32 z;
+} ShadowClipPlane;
+
+typedef struct ShadowClipEdge {
+    f32 x;
+    f32 y;
+    f32 z;
+    void *owner;
+    f32 x0;
+    f32 z0;
+    f32 x1;
+    f32 z1;
+} ShadowClipEdge;
+
 s32 func_80017660(void *arg0, s32 arg1, void *arg2, s32 arg3, s32 arg4) {
-    u8 clipped[0x80];
-    u8 *temp_a0;
-    u8 *temp_a1;
-    u8 *temp_a2;
-    u8 *temp_a2_2;
-    u8 *temp_a3;
-    u8 *temp_t1;
-    u8 *temp_v0;
-    u8 *var_a0_2;
-    u8 *var_a0_3;
-    u8 *var_s0;
-    u8 *var_s2;
-    u8 *var_s6;
-    u8 *var_t1;
-    u8 *var_t1_2;
-    u8 *var_t1_3;
-    u8 *var_v0_2;
-    u8 *arg4Bytes;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f0_3;
+    ShadowClipVertex clipped[8];
     f32 temp_f12;
-    f32 temp_f12_2;
     f32 temp_f14;
-    f32 temp_f14_2;
     f32 temp_f16;
-    f32 temp_f20;
     f32 temp_f22;
     f32 temp_f24;
-    f32 temp_f28;
-    f32 temp_f28_2;
-    f32 temp_f2;
-    f32 temp_f2_2;
-    f32 temp_f30;
-    f32 temp_f30_2;
-    f32 temp_f30_3;
-    f32 var_f24;
-    s16 var_a0;
-    s16 var_t2;
-    s16 var_t7;
-    s16 var_t9;
-    s32 *temp_t3;
-    s32 temp_a3_2;
-    s32 temp_s7;
-    s32 temp_t4;
-    s32 temp_v1;
-    s32 temp_v1_2;
-    s32 var_s1;
-    s32 var_t0;
-    s32 var_t5;
+    f32 var_f2;
+    s32 edgeIndex;
+    s32 edgeOffset;
+    s32 edgeCount;
+    s32 outputCount;
+    s32 planeIndex;
+    s32 next;
     s32 var_v0;
-    s32 var_v0_3;
-    s32 var_v1;
-    s32 var_v1_2;
-    s32 var_v1_3;
+    s32 vertexCount;
+    ShadowClipVertex *output;
+    ShadowClipVertex *vertices;
+    ShadowClipVertex *swap;
+    ShadowClipEdge *edge;
+    ShadowClipEdge *edges;
 
-    var_s2 = (u8 *) arg2;
-    var_s0 = clipped;
-    var_s1 = arg1;
-    var_t5 = 0;
-    arg4Bytes = (u8 *) arg4;
-    if ((arg3 > 0) && (arg1 >= 3)) {
-        var_s6 = arg4Bytes;
-loop_3:
-        temp_s7 = var_t5 + 1;
-        var_v1 = temp_s7;
-        var_v0 = 0;
-        var_t0 = 0;
-        if (temp_s7 >= arg3) {
-            var_v1 = 0;
+    vertices = (ShadowClipVertex *) arg2;
+    output = clipped;
+    vertexCount = arg1;
+    planeIndex = 0;
+    edges = (ShadowClipEdge *) D_800C9F58;
+
+    while ((planeIndex < arg3) && (vertexCount >= 3)) {
+        next = planeIndex + 1;
+        if (next >= arg3) {
+            next = 0;
         }
-        temp_f14 = *(f32 *) (var_s6 + 0x0);
-        temp_a0 = arg4Bytes + (var_v1 * 8);
-        temp_f12 = *(f32 *) (temp_a0 + 0x0);
-        temp_f0 = *(f32 *) (temp_a0 + 0x4);
-        temp_f2 = *(f32 *) (var_s6 + 0x4);
-        var_t1 = var_s2;
-        temp_f20 = temp_f0 - temp_f2;
-        temp_f22 = -(temp_f12 - temp_f14);
-        if (temp_f14 < temp_f12) {
-            var_f24 = (temp_f2 * temp_f22) + (temp_f20 * temp_f14);
+
+        temp_f12 = ((ShadowClipPlane *) arg4)[next].z -
+                   ((ShadowClipPlane *) arg4)[planeIndex].z;
+        temp_f14 = -(((ShadowClipPlane *) arg4)[next].x -
+                     ((ShadowClipPlane *) arg4)[planeIndex].x);
+        if (((ShadowClipPlane *) arg4)[planeIndex].x <
+            ((ShadowClipPlane *) arg4)[next].x) {
+            var_f2 = (temp_f12 * ((ShadowClipPlane *) arg4)[planeIndex].x) +
+                     (((ShadowClipPlane *) arg4)[planeIndex].z * temp_f14);
+            var_f2 = -var_f2;
         } else {
-            var_f24 = (temp_f0 * temp_f22) + (temp_f20 * temp_f12);
+            var_f2 = (temp_f12 * ((ShadowClipPlane *) arg4)[next].x) +
+                     (((ShadowClipPlane *) arg4)[next].z * temp_f14);
+            var_f2 = -var_f2;
         }
-        temp_f24 = -var_f24;
-        if (var_s1 > 0) {
-loop_9:
-            temp_t4 = var_v0 + 1;
-            var_v1_2 = temp_t4;
-            if (temp_t4 >= var_s1) {
-                var_v1_2 = 0;
+
+        for (var_v0 = 0, outputCount = 0; var_v0 < vertexCount; var_v0++) {
+            next = var_v0 + 1;
+            if (next >= vertexCount) {
+                next = 0;
             }
-            temp_f0_2 = *(f32 *) (var_t1 + 0x8);
-            temp_f2_2 = *(f32 *) (var_t1 + 0x0);
-            temp_a3 = var_s2 + (var_v1_2 * 0x10);
-            temp_f28 = *(f32 *) (temp_a3 + 0x8);
-            temp_f12_2 = *(f32 *) (temp_a3 + 0x0);
-            temp_f14_2 = (temp_f0_2 * temp_f22) +
-                         (temp_f20 * temp_f2_2) + temp_f24;
-            temp_f16 = (temp_f28 * temp_f22) +
-                       (temp_f20 * temp_f12_2) + temp_f24;
-            if (((temp_f14_2 >= 0.0f) && (temp_f16 < 0.0f)) ||
-                ((temp_f14_2 < 0.0f) && (temp_f16 >= 0.0f))) {
-                temp_t3 = (s32 *) (D_800C9F48 + (var_t5 * 4));
-                var_v1_3 = *temp_t3;
-                var_a0 = var_t5 << 5;
-                var_t2 = -1;
-                var_v0_2 = D_800C9F58 + (var_a0 << 5);
-                temp_a2 = var_s0 + (var_t0 * 0x10);
-                if (var_v1_3 > 0) {
-loop_16:
-                    temp_f30 = *(f32 *) (var_v0_2 + 0x10);
-                    if (((temp_f30 == temp_f2_2) &&
-                         (*(f32 *) (var_v0_2 + 0x14) == temp_f0_2) &&
-                         (*(f32 *) (var_v0_2 + 0x18) == temp_f12_2) &&
-                         (*(f32 *) (var_v0_2 + 0x1C) == temp_f28)) ||
-                        ((var_v1_3 -= 1,
-                          (temp_f30 == temp_f12_2)) &&
-                         (*(f32 *) (var_v0_2 + 0x14) == temp_f28) &&
-                         (*(f32 *) (var_v0_2 + 0x18) == temp_f2_2) &&
-                         (*(f32 *) (var_v0_2 + 0x1C) == temp_f0_2))) {
-                        var_t2 = var_a0;
+            temp_f16 = (temp_f12 * vertices[var_v0].x) +
+                       (vertices[var_v0].z * temp_f14) + var_f2;
+            temp_f22 = (temp_f12 * vertices[next].x) +
+                       (vertices[next].z * temp_f14) + var_f2;
+            if (((temp_f16 >= 0.0f) && (temp_f22 < 0.0f)) ||
+                ((temp_f16 < 0.0f) && (temp_f22 >= 0.0f))) {
+                edgeCount = D_800C9F48[planeIndex];
+                edgeIndex = -1;
+                edgeOffset = planeIndex << 5;
+                edge = &edges[edgeOffset];
+                while ((edgeCount > 0) && (edgeIndex < 0)) {
+                    if ((edge->x0 == vertices[var_v0].x) &&
+                        (edge->z0 == vertices[var_v0].z) &&
+                        (edge->x1 == vertices[next].x) &&
+                        (edge->z1 == vertices[next].z)) {
+                        edgeIndex = edgeOffset;
                     } else {
-                        var_v0_2 += 0x20;
-                        var_a0 += 1;
-                        if (var_v1_3 > 0) {
-                            goto loop_16;
+                        edgeCount--;
+                        if ((edge->x0 == vertices[next].x) &&
+                            (edge->z0 == vertices[next].z) &&
+                            (edge->x1 == vertices[var_v0].x) &&
+                            (edge->z1 == vertices[var_v0].z)) {
+                            edgeIndex = edgeOffset;
+                        } else {
+                            edge++;
+                            edgeOffset++;
                         }
                     }
                 }
-                if (var_t2 >= 0) {
-                    *(s16 *) (temp_a2 + 0xE) = var_t2;
-                    var_t0 += 1;
-                    *(f32 *) (temp_a2 + 0x0) = *(f32 *) (var_v0_2 + 0x0);
-                    *(f32 *) (temp_a2 + 0x8) = *(f32 *) (var_v0_2 + 0x8);
-                    if (var_t0 >= 8) {
+                if (edgeIndex >= 0) {
+                    output[outputCount].edgeIndex = edgeIndex;
+                    output[outputCount].x = edge->x;
+                    output[outputCount].z = edge->z;
+                    outputCount++;
+                    if (outputCount >= 8) {
                         return 0;
                     }
-                    goto block_32;
+                } else {
+                    temp_f24 = temp_f16 / (temp_f16 - temp_f22);
+                    output[outputCount].x = vertices[var_v0].x +
+                        ((vertices[next].x - vertices[var_v0].x) * temp_f24);
+                    output[outputCount].z = vertices[var_v0].z +
+                        ((vertices[next].z - vertices[var_v0].z) * temp_f24);
+                    edge->x0 = vertices[var_v0].x;
+                    edge->z0 = vertices[var_v0].z;
+                    edge->x1 = vertices[next].x;
+                    edge->z1 = vertices[next].z;
+                    edge->x = output[outputCount].x;
+                    edge->z = output[outputCount].z;
+                    edge->owner = *(void **) ((u8 *) arg0 + 4);
+                    output[outputCount].edgeIndex = edgeOffset;
+                    outputCount++;
+                    if (outputCount >= 8) {
+                        return 0;
+                    }
+                    D_800C9F48[planeIndex]++;
                 }
-                var_t0 += 1;
-                temp_f28_2 = temp_f14_2 / (temp_f14_2 - temp_f16);
-                *(f32 *) (temp_a2 + 0x0) =
-                    (((temp_f12_2 - temp_f2_2) * temp_f28_2) + temp_f2_2);
-                temp_f0_3 = *(f32 *) (var_t1 + 0x8);
-                *(f32 *) (temp_a2 + 0x8) =
-                    (((*(f32 *) (temp_a3 + 0x8) - temp_f0_3) * temp_f28_2) +
-                     temp_f0_3);
-                *(f32 *) (var_v0_2 + 0x10) = *(f32 *) (var_t1 + 0x0);
-                *(f32 *) (var_v0_2 + 0x14) = *(f32 *) (var_t1 + 0x8);
-                *(f32 *) (var_v0_2 + 0x18) = *(f32 *) (temp_a3 + 0x0);
-                *(f32 *) (var_v0_2 + 0x1C) = *(f32 *) (temp_a3 + 0x8);
-                *(f32 *) (var_v0_2 + 0x0) = *(f32 *) (temp_a2 + 0x0);
-                *(f32 *) (var_v0_2 + 0x8) = *(f32 *) (temp_a2 + 0x8);
-                *(s32 *) (var_v0_2 + 0xC) = *(s32 *) ((u8 *) arg0 + 0x4);
-                *(s16 *) (temp_a2 + 0xE) = var_a0;
-                if (var_t0 >= 8) {
-                    return 0;
-                }
-                *temp_t3 += 1;
-                goto block_32;
             }
-block_32:
-            var_v0 = temp_t4;
-            if (temp_f16 <= 0.0f) {
-                temp_a2_2 = var_s0 + (var_t0 * 0x10);
-                *(s16 *) (temp_a2_2 + 0xE) = *(s16 *) (temp_a3 + 0xE);
-                var_t0 += 1;
-                *(f32 *) (temp_a2_2 + 0x0) = *(f32 *) (temp_a3 + 0x0);
-                *(f32 *) (temp_a2_2 + 0x8) = *(f32 *) (temp_a3 + 0x8);
-                if (var_t0 >= 8) {
+            if (temp_f22 <= 0) {
+                output[outputCount].edgeIndex = vertices[next].edgeIndex;
+                output[outputCount].x = vertices[next].x;
+                output[outputCount].z = vertices[next].z;
+                outputCount++;
+                if (outputCount >= 8) {
                     return 0;
                 }
             }
-            var_t1 += 0x10;
-            if (temp_t4 == var_s1) {
-                goto block_36;
-            }
-            goto loop_9;
         }
-block_36:
-        temp_v0 = var_s2;
-        var_s2 = var_s0;
-        var_s1 = var_t0;
-        var_t5 = temp_s7;
-        var_s6 += 8;
-        var_s0 = temp_v0;
-        if ((temp_s7 >= arg3) || (var_t0 < 3)) {
-            goto block_38;
-        }
-        goto loop_3;
+
+        vertexCount = outputCount;
+        planeIndex++;
+        swap = vertices;
+        vertices = output;
+        output = swap;
     }
-block_38:
-    if (var_s1 >= 3) {
-        if (var_s2 != (u8 *) arg2) {
-            var_v0_3 = 0;
-            if (var_s1 > 0) {
-                for (temp_a3_2 = var_s1; temp_a3_2 > 0; temp_a3_2--) {
-                    temp_a1 = (u8 *) arg2 + (var_v0_3 * 0x10);
-                    temp_a2 = var_s2 + (var_v0_3 * 0x10);
-                    *(f32 *) (temp_a1 + 0x0) = *(f32 *) (temp_a2 + 0x0);
-                    *(f32 *) (temp_a1 + 0x8) = *(f32 *) (temp_a2 + 0x8);
-                    *(s16 *) (temp_a1 + 0xE) = *(s16 *) (temp_a2 + 0xE);
-                    *(s32 *) (temp_a1 + 0x10) = *(s32 *) (temp_a2 + 0x10);
-                    var_v0_3 += 1;
-                }
+
+    if (vertexCount >= 3) {
+        if (vertices != (ShadowClipVertex *) arg2) {
+            for (var_v0 = 0; var_v0 < vertexCount; var_v0++) {
+                ((ShadowClipVertex *) arg2)[var_v0].x = vertices[var_v0].x;
+                ((ShadowClipVertex *) arg2)[var_v0].z = vertices[var_v0].z;
+                ((ShadowClipVertex *) arg2)[var_v0].edgeIndex =
+                    vertices[var_v0].edgeIndex;
             }
         }
     } else {
-        var_s1 = 0;
+        vertexCount = 0;
     }
-    return var_s1;
+    return vertexCount;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80017660.s")
@@ -1462,3 +1415,13 @@ void func_800180B4(ShadowQuery *query) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_800180B4.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_80017660:start
+ * symbol: func_80017660
+ * score: 288 differing words
+ * frame: 0x158
+ * relocations: 4
+ * first-mismatch: +0x90
+ * summary: 350-word candidate vs 347-word target; exact frame and 4/4 relocations. First allocator swap at +0x90; next test source shape under r4300_mul.
+ * PLATEAU-HANDOFF:func_80017660:end
+ */
