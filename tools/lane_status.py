@@ -4,6 +4,11 @@
 The report is a coordination hint. A commit message such as ``Match foo`` is
 shown as a *claim* until the integration lane repeats the project's exact
 object, relocation, linked-range, and ROM checks (ADR 0011).
+
+Both local lane branches and fetched Session B ``origin/lane/burn-b-*``
+remote-tracking refs participate.  Fetching the private origin therefore makes
+cross-machine ownership visible without materialising or reading a remote
+worker's worktree.
 """
 
 from __future__ import annotations
@@ -41,6 +46,10 @@ PLATEAU_BLOCK_RE = re.compile(
 )
 PLATEAU_SUBJECT_RE = re.compile(
     r"\b(?:plateaus?|park(?:ed|ing)?)\b", re.I
+)
+LANE_REF_PREFIXES = (
+    "refs/heads/lane/",
+    "refs/remotes/origin/lane/burn-b-*",
 )
 
 
@@ -706,13 +715,14 @@ class Assignment:
 def lane_refs(
     *, containing: str | None = None, unmerged_into: str | None = None
 ) -> list[tuple[str, str]]:
+    """Return committed local and fetched cross-machine lane tips."""
     rows = []
     args = ["for-each-ref", "--format=%(refname:short)%00%(objectname)"]
     if containing:
         args.append(f"--contains={containing}")
     if unmerged_into:
         args.append(f"--no-merged={unmerged_into}")
-    args.append("refs/heads/lane/")
+    args.extend(LANE_REF_PREFIXES)
     output = git(*args)
     for line in output.splitlines():
         branch, head = line.split("\0", 1)

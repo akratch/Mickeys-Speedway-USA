@@ -775,6 +775,10 @@ class LaneRefQueryTests(unittest.TestCase):
             )
         self.assertIn("--contains=source", git.call_args.args)
         self.assertIn("--no-merged=campaign/unchain", git.call_args.args)
+        self.assertIn("refs/heads/lane/", git.call_args.args)
+        self.assertIn(
+            "refs/remotes/origin/lane/burn-b-*", git.call_args.args,
+        )
 
     def test_equal_source_blob_skips_candidate_resolution(self) -> None:
         calls = []
