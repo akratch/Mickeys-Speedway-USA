@@ -1,5 +1,7 @@
 #include "PR/ultratypes.h"
 
+typedef struct AnimPathObject AnimPathObject;
+
 typedef struct {
     u8 pad[0x58];
     s32 unk58;
@@ -65,7 +67,10 @@ void **func_80005750(s32 *count) {
     *count = D_800C94F8;
     return D_800C94F4;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005768.s")
+void func_80005768(AnimPathObject *object) {
+    D_800C9500[D_800C9504] = object;
+    D_800C9504 += 1;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005798.s")
 void **func_80005808(s32 *count) {
     *count = D_800C9504;
