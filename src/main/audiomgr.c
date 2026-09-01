@@ -8,7 +8,9 @@ extern OSThread D_800C7A50;
 void func_80001BA0(void) {
     osStartThread(&D_800C7A50);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audiomgr/func_80001BC4.s")
+void func_80001BC4(void) {
+    osStopThread(&D_800C7A50);
+}
 extern s32 D_80078DEC;
 
 s32 func_80001BE8(void) {
