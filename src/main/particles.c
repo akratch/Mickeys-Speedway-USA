@@ -2342,6 +2342,6 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: frameless
  * relocations: 2
  * first-mismatch: +0x2C
- * summary: Fresh V0 is one word short with 101 positional differences; exact relocs, caller, and JFG donor expose no new lever.
+ * summary: Fresh reproof unchanged; the sole caller and JFG donor leave the initial address shift and pool web unresolved.
  * PLATEAU-HANDOFF:func_8004054C:end
  */
