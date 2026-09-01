@@ -396,6 +396,13 @@ class SymbolResolutionTests(unittest.TestCase):
 
 
 class GeometryAndWorkbenchTests(unittest.TestCase):
+    def test_func_80010b4c_metadata_agrees_with_preflight_boundary(self) -> None:
+        evidence = fp._optional_size_annotation("func_80010B4C", 0xA98)
+
+        self.assertEqual(
+            "symbol-size-annotation+preflight-owned-boundary", evidence
+        )
+
     def test_func_8001291c_metadata_agrees_with_preflight_boundary(self) -> None:
         evidence = fp._optional_size_annotation("func_8001291C", 0x890)
 
