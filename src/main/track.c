@@ -2078,9 +2078,9 @@ void func_8000E5EC(s32 updateRate, s32 arg1) {
  * declarations reconstruct this display-list pipeline; no external function
  * body is adapted. The raw offsets retain fields absent from the local types.
  */
-/* Workbench verdict: structure-mismatch, 536 differing words, first mismatch +0x0. */
-/* Candidate is 554/542 instructions with the target -0xF8 frame; it is not shape-exact. */
-/* Remaining gap: twelve excess instructions and unresolved command/object relocation scheduling. */
+/* Workbench verdict: structure-mismatch, 491 differing words, first mismatch +0x38. */
+/* Candidate is 558/542 instructions with the target -0xF8 frame and 114 relocations. */
+/* Remaining gap: reverse-pass lifetime scoping and display-list scheduling. */
 extern u8 D_80081560[];
 extern u8 D_80081570[];
 extern u8 D_80081580[];
@@ -2096,6 +2096,7 @@ extern u8 D_80081610[];
 extern void func_8000F198(s32 segment, s32 record, s32 mode);
 
 #define E920_U8(base, offset) (*(u8 *) ((u8 *) (base) + (offset)))
+#define E920_S8(base, offset) (*(s8 *) ((u8 *) (base) + (offset)))
 #define E920_S16(base, offset) (*(s16 *) ((u8 *) (base) + (offset)))
 #define E920_S32(base, offset) (*(s32 *) ((u8 *) (base) + (offset)))
 #define E920_PTR(base, offset) (*(void **) ((u8 *) (base) + (offset)))
@@ -2104,31 +2105,31 @@ extern void func_8000F198(s32 segment, s32 record, s32 mode);
 
 void func_8000E920(s32 arg0, s32 arg1) {
     s32 segmentCount;
+    s32 visibleCount;
     s32 segmentEnd;
     s32 selectedCount;
     s32 index;
     s32 reverseIndex;
     s16 modeCount;
-    s16 segment;
+    u8 segment;
     u8 segmentIds[0x70];
+    s32 *segmentFlags;
     void **selectedObjects;
     void *object;
     void *surface;
     void *childSurface;
-    u8 *level;
     s32 record;
 
     segmentCount = func_8000A244(&segmentEnd);
     selectedObjects = (void **) D_800C9548;
-    level = levelGetLevel();
     if (E920_S16(D_800792E8, 0x1A) >= 2) {
-        if (E920_U8(level, 0x106) == 0) {
-            func_8000FA2C(&arg0, (s32) &segmentIds[0]);
+        if (E920_U8(levelGetLevel(), 0x106) == 0) {
+            func_8000FA2C(&visibleCount, (s32) &segmentIds[0]);
         } else {
-            func_8000F57C(&arg0, &segmentIds[0]);
+            func_8000F57C(&visibleCount, &segmentIds[0]);
         }
     } else {
-        arg0 = 1;
+        visibleCount = 1;
         segmentIds[0] = 0;
     }
     func_8000A39C(segmentCount, segmentEnd - 1);
@@ -2136,11 +2137,18 @@ void func_8000E920(s32 arg0, s32 arg1) {
     func_80044BC8(D_800C9520, D_80081560, 0x58D);
     D_800C95B0[0] = -1;
     modeCount = E920_S16(D_800792E8, 0x1A);
-    for (index = 1; index < modeCount; index++) {
-        D_800C95B4[index * 4] = 0;
+    index = 1;
+    if (modeCount > 0) {
+        segmentFlags = D_800C95B4;
+        do {
+            *segmentFlags = 0;
+            modeCount = E920_S16(D_800792E8, 0x1A);
+            index++;
+            segmentFlags++;
+        } while (modeCount >= index);
     }
     if ((D_80079260 != 0) || (D_80079264 != 0)) {
-        for (reverseIndex = arg0 - 1; reverseIndex >= 0; reverseIndex--) {
+        for (reverseIndex = visibleCount - 1; reverseIndex >= 0; reverseIndex--) {
             segment = segmentIds[reverseIndex];
             E920_RECORD(segment) = -1;
             func_8000F198(segment, -1, 0x4000);
@@ -2153,16 +2161,17 @@ void func_8000E920(s32 arg0, s32 arg1) {
     func_8000D978(0, arg1);
     func_80044BC8(D_800C9520, D_80081570, 0x5A1);
     if (D_80079260 != 0) {
-        for (index = 0; index < arg0; index++) {
+        for (index = 0; index < visibleCount; index++) {
             segment = segmentIds[index];
             func_8000F198(segment, E920_RECORD(segment), 0);
         }
     }
+    index = segmentCount;
     if (D_80079268 == 0) {
-        segmentCount = segmentEnd;
+        index = segmentEnd;
     }
     selectedCount = 0;
-    for (index = segmentCount; index < segmentEnd; index++) {
+    for (; index < segmentEnd; index++) {
         object = func_800056F0(index);
         if ((object != NULL) &&
             (E920_RECORD(E920_S16(object, 0x2E)) != 0) &&
@@ -2170,14 +2179,14 @@ void func_8000E920(s32 arg0, s32 arg1) {
             selectedObjects[selectedCount++] = object;
         }
     }
-    if (E920_U8(D_800792EC, 0xF6) != 0) {
+    if (E920_S8(D_800792EC, 0xF6) != 0) {
         TrapDanglingJump(selectedCount, selectedObjects);
     }
     func_80044BC8(D_800C9520, D_80081580, 0x5D7);
     for (index = 0; index < selectedCount; index++) {
         object = selectedObjects[index];
-        if ((E920_U8(object, 0x58) != 0) &&
-            ((E920_U8(object, 6) & 0xC) == 0) &&
+        if ((E920_S32(object, 0x58) != 0) &&
+            ((E920_S16(object, 6) & 0xC) == 0) &&
             (E920_U8(object, 0x39) == 0xFF)) {
             func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
                           (TrackSkyObject *) object);
@@ -2188,24 +2197,26 @@ void func_8000E920(s32 arg0, s32 arg1) {
          reverseIndex--) {
         object = selectedObjects[reverseIndex];
         surface = E920_PTR(object, 0x4C);
-        if ((surface != NULL) && (E920_S16(object, 0x8E) == 0)) {
-            if ((E920_S32(surface, 0x10) & 8) != 0) {
+        if ((surface != NULL) && (E920_U8(object, 0x8E) == 0)) {
+            if ((E920_U8(surface, 0x10) & 8) != 0) {
                 childSurface = E920_PTR(surface, 0x1C);
                 if (childSurface != NULL) {
                     func_800140CC((struct TrackShadowObject *) object,
-                                  (struct TrackShadowInstance *) childSurface);
+                                  (struct TrackShadowInstance *) childSurface,
+                                  childSurface);
                 }
             }
             func_800140CC((struct TrackShadowObject *) object,
-                          (struct TrackShadowInstance *) surface);
+                          (struct TrackShadowInstance *)
+                              E920_PTR(object, 0x4C));
         }
     }
     func_80044BC8(D_800C9520, D_800815A0, 0x5F7);
     for (index = 0; index < selectedCount; index++) {
         object = selectedObjects[index];
-        if (((E920_U8(object, 6) & 0xC) == 0) &&
+        if (((E920_S16(object, 6) & 0xC) == 0) &&
             (E920_U8(object, 0x39) == 0xFF) &&
-            (E920_U8(object, 0x58) == 0)) {
+            (E920_S32(object, 0x58) == 0)) {
             func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
                           (TrackSkyObject *) object);
         }
@@ -2214,7 +2225,7 @@ void func_8000E920(s32 arg0, s32 arg1) {
     for (reverseIndex = selectedCount - 1; reverseIndex >= 0;
          reverseIndex--) {
         object = selectedObjects[reverseIndex];
-        if ((E920_U8(object, 6) & 8) != 0) {
+        if ((E920_S16(object, 6) & 8) != 0) {
             func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
                           (TrackSkyObject *) object);
         }
@@ -2222,11 +2233,11 @@ void func_8000E920(s32 arg0, s32 arg1) {
     if (runlinkIsModuleLoaded(0xC) != 0) {
         TrapDanglingJump((s32) &D_800C9520, &D_800C9524, &D_800C9528);
     }
-    if (E920_U8(D_800792EC, 0xF6) != 0) {
+    if (E920_S8(D_800792EC, 0xF6) != 0) {
         func_80044BC8(D_800C9520, D_800815C0, 0x61A);
         TrapDanglingJump((s32) &D_800C9520, &D_800C9524, &D_800C9528);
         if (D_80079260 != 0) {
-            for (reverseIndex = arg0 - 1; reverseIndex >= 0;
+            for (reverseIndex = visibleCount - 1; reverseIndex >= 0;
                  reverseIndex--) {
                 segment = segmentIds[reverseIndex];
                 func_8000F198(segment, E920_RECORD(segment), 0x8000);
@@ -2235,24 +2246,26 @@ void func_8000E920(s32 arg0, s32 arg1) {
                  reverseIndex--) {
                 object = selectedObjects[reverseIndex];
                 surface = E920_PTR(object, 0x4C);
-                if ((surface != NULL) && (E920_S16(object, 0x8E) != 0)) {
-                    if ((E920_S32(surface, 0x10) & 8) != 0) {
+                if ((surface != NULL) && (E920_U8(object, 0x8E) != 0)) {
+                    if ((E920_U8(surface, 0x10) & 8) != 0) {
                         childSurface = E920_PTR(surface, 0x1C);
                         if (childSurface != NULL) {
                             func_800140CC(
                                 (struct TrackShadowObject *) object,
-                                (struct TrackShadowInstance *) childSurface);
+                                (struct TrackShadowInstance *) childSurface,
+                                childSurface);
                         }
                     }
                     func_800140CC((struct TrackShadowObject *) object,
-                                  (struct TrackShadowInstance *) surface);
+                                  (struct TrackShadowInstance *)
+                                      E920_PTR(object, 0x4C));
                 }
             }
         }
     }
     func_80044BC8(D_800C9520, D_800815D0, 0x634);
     if (D_80079260 != 0) {
-        for (reverseIndex = arg0 - 1; reverseIndex >= 0; reverseIndex--) {
+        for (reverseIndex = visibleCount - 1; reverseIndex >= 0; reverseIndex--) {
             segment = segmentIds[reverseIndex];
             func_8000F198(segment, E920_RECORD(segment), 4);
         }
@@ -2276,24 +2289,32 @@ void func_8000E920(s32 arg0, s32 arg1) {
     for (reverseIndex = selectedCount - 1; reverseIndex >= 0;
          reverseIndex--) {
         object = selectedObjects[reverseIndex];
-        if (((E920_U8(object, 6) & 4) != 0) ||
+        if (((E920_S16(object, 6) & 4) != 0) ||
             ((s32) E920_U8(object, 0x39) < 0xFF)) {
             func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
                           (TrackSkyObject *) object);
         }
-        if ((E920_U8(object, 6) & 0x200) != 0) {
+        if ((E920_S16(object, 6) & 0x200) != 0) {
             switch (E920_S16(object, 0x44)) {
             case 1:
                 func_80009414(&D_800C9520, &D_800C9524, &D_800C9528,
                               (TrackSkyObject *) object);
                 break;
             case 0x1D:
+                TrapDanglingJump((s32) &D_800C9520, &D_800C9524,
+                                 &D_800C9528, object);
+                break;
             case 0x49:
+                TrapDanglingJump((s32) &D_800C9520, &D_800C9524,
+                                 &D_800C9528, object);
+                break;
             case 0x3F:
                 TrapDanglingJump((s32) &D_800C9520, &D_800C9524,
                                  &D_800C9528, object);
                 break;
             case 0x39:
+                TrapDanglingJump((s32) &D_800C9520, &D_800C9524, object);
+                break;
             case 0x3A:
                 TrapDanglingJump((s32) &D_800C9520, &D_800C9524, object);
                 break;
@@ -2308,6 +2329,7 @@ void func_8000E920(s32 arg0, s32 arg1) {
     func_80044BC8(D_800C9520, D_80081610, 0x680);
 }
 #undef E920_U8
+#undef E920_S8
 #undef E920_S16
 #undef E920_S32
 #undef E920_PTR
@@ -5907,4 +5929,14 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x60
  * summary: Exact geometry/frame and 21/21 relocation count; 19 identities align. Remaining allocator schedule needs procedure-scoped lifetime evidence.
  * PLATEAU-HANDOFF:func_8001398C:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000E920:start
+ * symbol: func_8000E920
+ * score: 491 differing words
+ * frame: 0xF8
+ * relocations: 114
+ * first-mismatch: +0x38
+ * summary: Recovered exact frame and relocation count plus target call identities and field widths; next lever is reverse-pass lifetime scoping.
+ * PLATEAU-HANDOFF:func_8000E920:end
  */
