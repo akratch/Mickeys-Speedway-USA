@@ -2432,7 +2432,7 @@ void func_8004AF68(void) {
  * frame: 0x30
  * relocations: 5
  * first-mismatch: +0xD0
- * summary: exact structure and relocation surface; all flags and six natural forms leave one four-web integer allocation bijection
+ * summary: Proc-scoped UGEN fidelity passed (proc 22: 25 GP/6 FP births), but target lifecycle and source semantics are unavailable; no natural edit is uniquely supported.
  * PLATEAU-HANDOFF:func_800498FC:end
  */
 
