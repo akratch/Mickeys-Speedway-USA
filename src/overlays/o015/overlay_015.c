@@ -505,6 +505,6 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0x58
  * relocations: 46
  * first-mismatch: +0x30
- * summary: Fresh V0 is +7 words with 84 masked differences; 46 candidate versus two target relocations remain identity-ambiguous.
+ * summary: Fresh reproof unchanged; no C caller or JFG rainMove identity resolves the 46-to-2 relocation mismatch.
  * PLATEAU-HANDOFF:overlay15UpdateMovingStars:end
  */
