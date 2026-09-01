@@ -3333,9 +3333,9 @@ s32 func_80010900(TrackVec3f *arg0, TrackVec3f *arg1, f32 arg2, s32 arg3,
  * helper declarations reconstruct this player-intersection loop; no external
  * function body is adapted. The record writes retain the assembly offsets.
  */
-/* Workbench verdict: structure-mismatch, 677 differing words, first mismatch +0x0. */
-/* Candidate is 644/678 instructions with the target -0x148 frame; it is not shape-exact. */
-/* Remaining gap: 34 missing instructions and unresolved unrolled-copy/record-call scheduling. */
+/* Workbench verdict: structure-mismatch, 668 differing words, first mismatch +0x0. */
+/* Candidate has the target 678-word geometry and nine relocations, with frame -0x158 versus -0x148. */
+/* Remaining gap: a 16-byte frame excess and unresolved FP/pointer allocation scheduling. */
 struct TrackCollisionSurface;
 struct TrackCollisionRecord;
 extern void func_800115E4(
@@ -3349,18 +3349,20 @@ extern void func_800115E4(
 
 s32 func_80010B4C(s32 arg0, void *arg1, f32 *arg2, f32 *arg3,
                   s32 arg4, void *arg5) {
+    TrackRayHit intersection;
     f32 relative[16];
     TrackRayPoint direction;
-    TrackRayHit intersection;
     u8 *start;
     u8 *end;
     u8 *record;
+    f32 *scalePtr;
     f32 lengthSquared;
     f32 length;
     f32 offsetX;
     f32 offsetY;
     f32 offsetZ;
     f32 minimumLength;
+    f32 scale;
     s32 minimumIndex;
     s32 count;
     s32 index;
@@ -3368,28 +3370,25 @@ s32 func_80010B4C(s32 arg0, void *arg1, f32 *arg2, f32 *arg3,
     s32 bit;
     s32 collisionMask;
     s32 resultMask;
+    s32 failureMask;
     s32 collision;
     s32 queryResult;
     s32 auxiliaryResult;
 
     if (arg5 != NULL) {
-        offsetX = B4C_F32(arg5, 0);
-        offsetY = B4C_F32(arg5, 4);
-        offsetZ = B4C_F32(arg5, 8);
         for (index = 0; index < arg0; index++) {
             relative[index * 3] =
-                ((f32 *) arg2)[index * 3] - offsetX;
+                ((f32 *) arg2)[index * 3] - B4C_F32(arg5, 0);
             relative[(index * 3) + 1] =
-                ((f32 *) arg2)[(index * 3) + 1] - offsetY;
+                ((f32 *) arg2)[(index * 3) + 1] - B4C_F32(arg5, 4);
             relative[(index * 3) + 2] =
-                ((f32 *) arg2)[(index * 3) + 2] - offsetZ;
+                ((f32 *) arg2)[(index * 3) + 2] - B4C_F32(arg5, 8);
         }
     }
-    count = 0;
     if (arg0 > 0) {
         for (index = 0; index < arg0; index++) {
             record = (u8 *) ((u32) arg4 + (index * 0x40));
-            B4C_U8(record, 0) = 0;
+            B4C_S32(record, 0) = 0;
             B4C_U8(record, 0x3D) = 0;
             B4C_F32(record, 4) = 0.0f;
             B4C_F32(record, 8) = 0.0f;
@@ -3404,80 +3403,77 @@ s32 func_80010B4C(s32 arg0, void *arg1, f32 *arg2, f32 *arg3,
             B4C_F32(record, 0x2C) = 0.0f;
             B4C_F32(record, 0x30) = 0.0f;
             B4C_F32(record, 0x34) = 32000.0f;
-            B4C_S32(record, 0x38) = 0;
             B4C_U8(record, 0x3C) = 0;
+            B4C_S32(record, 0x38) = 0;
         }
     }
     resultMask = 0;
     attempt = 0;
-    collisionMask = 0;
+    failureMask = 0;
     do {
         collisionMask = 0;
         bit = 1;
-        for (index = 0; index < arg0; index++) {
+        scalePtr = arg3;
+        for (index = 0; (index < arg0) && (failureMask == 0);
+             index++, scalePtr++) {
             start = (u8 *) arg1 + (index * 0xC);
             end = (u8 *) arg2 + (index * 0xC);
-            direction.x = B4C_F32(end, 0) - B4C_F32(start, 0);
-            direction.y = B4C_F32(end, 4) - B4C_F32(start, 4);
-            direction.z = B4C_F32(end, 8) - B4C_F32(start, 8);
-            lengthSquared = (direction.z * direction.z) +
-                            ((direction.x * direction.x) +
-                             (direction.y * direction.y));
-            collision = 0;
-            if (lengthSquared > 0.0f) {
-                length = sqrtf(lengthSquared);
-                direction.x /= length;
-                direction.y /= length;
-                direction.z /= length;
-                if (D_800C9D28 != 0) {
-                    queryResult = func_80011980(
-                        (TrackRayPoint *) start, (TrackRayPoint *) end,
-                        &direction, length, arg3[index], 0.0f,
-                        &intersection);
-                } else {
-                    queryResult = func_80011980(
-                        (TrackRayPoint *) start, (TrackRayPoint *) end,
-                        &direction, length, arg3[index], arg3[index],
-                        &intersection);
-                }
-                auxiliaryResult = 0;
-                if (D_800C9D28 != 0) {
-                    auxiliaryResult = func_80011CDC(
-                        start, (u8 *) &direction, arg3[index],
-                        (u8 *) &intersection);
-                }
-                if ((queryResult | auxiliaryResult) != 0) {
-                    record = (u8 *) ((u32) arg4 + (index * 0x40));
-                    func_800115E4(
-                        (s32) start, (TrackVec3f *) end, &direction, length,
-                        (struct TrackCollisionSurface *) &intersection,
-                        (struct TrackCollisionRecord *) record);
-                    B4C_F32(record, 0x34) = length;
-                    collision = 1;
-                    collisionMask |= bit;
-                }
-            }
-            if (collision != 0) {
-                count++;
-                if (count >= 0xB) {
-                    collisionMask = 0;
-                    collision = 0;
-                    resultMask |= 0x40000000;
-                    for (index = index; index < arg0; index++) {
-                        ((f32 *) arg2)[index * 3] =
-                            ((f32 *) arg1)[index * 3];
-                        ((f32 *) arg2)[(index * 3) + 1] =
-                            ((f32 *) arg1)[(index * 3) + 1];
-                        ((f32 *) arg2)[(index * 3) + 2] =
-                            ((f32 *) arg1)[(index * 3) + 2];
+            scale = *scalePtr;
+            count = 0;
+            do {
+                direction.x = B4C_F32(end, 0) - B4C_F32(start, 0);
+                direction.y = B4C_F32(end, 4) - B4C_F32(start, 4);
+                direction.z = B4C_F32(end, 8) - B4C_F32(start, 8);
+                lengthSquared = (direction.z * direction.z) +
+                                ((direction.x * direction.x) +
+                                 (direction.y * direction.y));
+                collision = 0;
+                if (lengthSquared > 0.0f) {
+                    length = sqrtf(lengthSquared);
+                    direction.x /= length;
+                    direction.y /= length;
+                    direction.z /= length;
+                    if (D_800C9D28 != 0) {
+                        queryResult = func_80011980(
+                            (TrackRayPoint *) start, (TrackRayPoint *) end,
+                            &direction, length, scale, 0.0f,
+                            &intersection);
+                    } else {
+                        queryResult = func_80011980(
+                            (TrackRayPoint *) start, (TrackRayPoint *) end,
+                            &direction, length, scale, scale,
+                            &intersection);
                     }
-                    break;
+                    auxiliaryResult = 0;
+                    if (D_800C9D28 != 0) {
+                        auxiliaryResult = func_80011CDC(
+                            start, (u8 *) &direction, scale,
+                            (u8 *) &intersection);
+                    }
+                    if ((queryResult | auxiliaryResult) != 0) {
+                        record = (u8 *) ((u32) arg4 + (index * 0x40));
+                        func_800115E4(
+                            (s32) start, (TrackVec3f *) end, &direction, length,
+                            (struct TrackCollisionSurface *) &intersection,
+                            (struct TrackCollisionRecord *) record);
+                        B4C_F32(record, 0x34) = length;
+                        collision = 1;
+                        collisionMask |= bit;
+                    }
                 }
-            }
+                if (collision != 0) {
+                    count++;
+                    if (count >= 0xB) {
+                        collisionMask = 0;
+                        collision = 0;
+                        failureMask |= 0x40000000;
+                    }
+                }
+            } while (collision != 0);
             bit <<= 1;
         }
         if (((collisionMask != 0) && (attempt >= 0xB)) ||
-            (resultMask != 0)) {
+            (failureMask != 0)) {
             for (index = 0; index < arg0; index++) {
                 ((f32 *) arg2)[index * 3] =
                     ((f32 *) arg1)[index * 3];
@@ -3486,9 +3482,12 @@ s32 func_80010B4C(s32 arg0, void *arg1, f32 *arg2, f32 *arg3,
                 ((f32 *) arg2)[(index * 3) + 2] =
                     ((f32 *) arg1)[(index * 3) + 2];
             }
-            collisionMask = 0;
+            resultMask = 0;
+            B4C_F32(arg5, 0) = B4C_F32(arg1, 0) - relative[0];
+            B4C_F32(arg5, 4) = B4C_F32(arg1, 4) - relative[1];
+            B4C_F32(arg5, 8) = B4C_F32(arg1, 8) - relative[2];
             if (attempt >= 0xB) {
-                resultMask |= 0x80000000;
+                failureMask |= 0x80000000;
             }
         } else if (collisionMask != 0) {
             minimumLength = 32000.0f;
@@ -3528,8 +3527,8 @@ s32 func_80010B4C(s32 arg0, void *arg1, f32 *arg2, f32 *arg3,
             }
         }
         attempt++;
-    } while ((collisionMask != 0) && ((resultMask & 0xC0000000) == 0));
-    return resultMask;
+    } while ((collisionMask != 0) && (failureMask == 0));
+    return resultMask | failureMask;
 }
 #undef B4C_U8
 #undef B4C_S32
@@ -5965,4 +5964,14 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x0
  * summary: Recovered target insertion, hit-cap, early-out, and distance CFG; next lever is declaration/lifetime layout for the 40-byte frame and one global pair.
  * PLATEAU-HANDOFF:func_8001291C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80010B4C:start
+ * symbol: func_80010B4C
+ * score: 668 differing words
+ * frame: 0x158
+ * relocations: 9
+ * first-mismatch: +0x0
+ * summary: Recovered exact geometry and target retry/failure CFG; next lever is original declaration/lifetime evidence for the 16-byte frame and FP web.
+ * PLATEAU-HANDOFF:func_80010B4C:end
  */
