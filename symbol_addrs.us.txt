@@ -2655,6 +2655,8 @@ osFlashReadStatus = 0x80057AB4; // type:func size:0x90 tier-A matched C, JFG lib
 osFlashReadId = 0x80057B44; // type:func size:0xCC tier-B matched C, JFG libultra/src/flash/flashreadid.c body, JFG object differs in TU scheduling and is 0xD4 bytes
 // jfg:libultra/src/flash/flashreadid.c.o
 osFlashClearStatus = 0x80057C10; // type:func size:0x4C tier-A exact C, JFG libultra/src/flash/flashreadid.c body
+// jfg:libultra/src/flash/flashallerase.c.o
+osFlashAllErase = 0x80057C5C; // type:func size:0xCC tier-B matched C, JFG libultra/src/flash/flashallerase.c body, JFG object is 0xD0 bytes with different TU scheduling
 // jfg:libultra/src/flash/flashsectorerase.c.o
 osFlashWriteBuffer = 0x80057DFC; // type:func size:0x88 tier-B matched C, JFG libultra/src/flash/flashsectorerase.c body, JFG object is 0x84 bytes
 // jfg:libultra/src/flash/flashreadarray.c.o
