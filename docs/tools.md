@@ -227,7 +227,8 @@ diagnostics; neither message authorizes relocation or ownership inference.
 
 One narrower case preserves otherwise-valid analysis evidence. When the
 candidate relocation surface is measurable but one or more static relocation
-names have no provable runtime identity, the report gains a small additive
+names have no provable runtime identity, including a name with multiple
+possible identities, the report gains a small additive
 `preflight` object. Its stable ingestion fields are `status` (`complete` or
 `partial`), `action` (`continue_matching`,
 `resolve_candidate_static_relocation_identities`,
@@ -235,7 +236,9 @@ names have no provable runtime identity, the report gains a small additive
 relocation `counts`, and bounded `diagnostics`. `complete` means evidence
 collection is complete, not that the function matches. Each unresolved
 diagnostic carries the candidate-relative offset and relocation type; it never
-supplies or guesses an identity. The existing `workbench` object still carries
+supplies or guesses an identity. An ambiguous name remains unresolved at every
+affected site; the tool never chooses among its candidates. The existing
+`workbench` object still carries
 target/candidate/matched word counts, frame sizes, verdict, and first mismatch.
 
 Partial status is explicitly non-exact. Normal proof mode prints the full
