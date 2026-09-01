@@ -246,3 +246,13 @@ void func_overlay_087_F0000128_18D3090(Overlay87MotionObject *object,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o087/func_overlay_087_F0000128_18D3090/func_overlay_087_F0000128_18D3090.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_087_F0000128_18D3090:start
+ * symbol: func_overlay_087_F0000128_18D3090
+ * score: 193 differing words
+ * frame: 0x68
+ * relocations: 38
+ * first-mismatch: +0x2C
+ * summary: Fresh V0 is four words short with 193 masked differences; frame is exact, but StraightFactor relocation provenance remains ambiguous.
+ * PLATEAU-HANDOFF:func_overlay_087_F0000128_18D3090:end
+ */
