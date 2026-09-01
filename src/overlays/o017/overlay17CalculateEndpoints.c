@@ -124,6 +124,6 @@ void overlay17CalculateEndpoints(
  * frame: 0x58
  * relocations: 3
  * first-mismatch: +0x24
- * summary: Fresh exact-size V0 retains 133 differences; frame is exact, but three call proxies remain unresolved and only one relocation offset aligns.
+ * summary: Fresh V0 retains 133 differences; call proxies have no exact sibling witness, zero identities resolve, and only one relocation site aligns.
  * PLATEAU-HANDOFF:overlay17CalculateEndpoints:end
  */
