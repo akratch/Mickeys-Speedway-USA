@@ -852,6 +852,164 @@ class OverlayDataIdentityTests(unittest.TestCase):
         self.assertEqual(set(), ambiguous)
 
 
+class RepeatedOverlayCallIdentityTests(unittest.TestCase):
+    FakeElf = OverlayDataIdentityTests.FakeElf
+
+    @staticmethod
+    def module(overlay=101):
+        return {
+            "overlay": overlay,
+            "identity": "overlay:%d" % overlay,
+            "synthetic_vma": "0xF0000000",
+        }
+
+    def candidate(self, *, sites=(0x3C, 0x6C), words=None,
+                  shndx=rs.SHN_UNDEF, extra_relocations=()):
+        size = max(sites + tuple(row[1] for row in extra_relocations)) + 4
+        text = bytearray(size)
+        for offset, word in (words or {}).items():
+            struct.pack_into(">I", text, offset, word)
+        return self.FakeElf(
+            Path("missing"), ["", ".text", ".data"],
+            [("overlay101BuildIntensityColorsReloc", 0, 0, 0, shndx)],
+            ([('.text', offset, rs.R_MIPS_26, 0) for offset in sites]
+             + list(extra_relocations)),
+            bytes(text))
+
+    @staticmethod
+    def target(sites=(0x3C, 0x6C), identities=None):
+        identities = identities or [(101, 0x2CE4)] * len(sites)
+        return [
+            rs.SurfaceRecord(offset, rs.R_MIPS_26, identity, 0)
+            for offset, identity in zip(sites, identities)
+        ]
+
+    def test_repeated_o101_proxy_resolves_one_same_overlay_base(self):
+        resolved, ambiguous = (
+            rs._runtime_correlated_overlay_r26_identities(
+                self.candidate(), self.module(), 0, 0x70, self.target()))
+
+        self.assertEqual(
+            {"overlay101BuildIntensityColorsReloc": (101, 0x2CE4)},
+            resolved)
+        self.assertEqual(set(), ambiguous)
+
+    def test_each_candidate_rel_addend_derives_same_base(self):
+        candidate = self.candidate(
+            words={0x3C: 1, 0x6C: 2})
+        target = self.target(
+            identities=[(101, 0x2CE8), (101, 0x2CEC)])
+
+        resolved, ambiguous = (
+            rs._runtime_correlated_overlay_r26_identities(
+                candidate, self.module(), 0, 0x70, target))
+
+        self.assertEqual((101, 0x2CE4),
+                         resolved["overlay101BuildIntensityColorsReloc"])
+        self.assertEqual(set(), ambiguous)
+
+    def test_single_site_is_not_an_independent_witness(self):
+        resolved, ambiguous = (
+            rs._runtime_correlated_overlay_r26_identities(
+                self.candidate(sites=(0x3C,)), self.module(), 0, 0x40,
+                self.target(sites=(0x3C,))))
+
+        self.assertEqual({}, resolved)
+        self.assertEqual(set(), ambiguous)
+
+    def test_conflicting_repeated_bases_are_ambiguous(self):
+        target = self.target(
+            identities=[(101, 0x2CE4), (101, 0x2CF0)])
+
+        resolved, ambiguous = (
+            rs._runtime_correlated_overlay_r26_identities(
+                self.candidate(), self.module(), 0, 0x70, target))
+
+        self.assertEqual({}, resolved)
+        self.assertIn("overlay101BuildIntensityColorsReloc", ambiguous)
+
+    def test_duplicate_runtime_shape_is_ambiguous(self):
+        target = self.target()
+        target.append(rs.SurfaceRecord(
+            0x3C, rs.R_MIPS_26, (101, 0x2CE4), 0))
+
+        resolved, ambiguous = (
+            rs._runtime_correlated_overlay_r26_identities(
+                self.candidate(), self.module(), 0, 0x70, target))
+
+        self.assertEqual({}, resolved)
+        self.assertIn("overlay101BuildIntensityColorsReloc", ambiguous)
+
+    def test_cross_overlay_runtime_tuple_is_ambiguous(self):
+        target = self.target(
+            identities=[(101, 0x2CE4), (102, 0x2CE4)])
+
+        resolved, ambiguous = (
+            rs._runtime_correlated_overlay_r26_identities(
+                self.candidate(), self.module(), 0, 0x70, target))
+
+        self.assertEqual({}, resolved)
+        self.assertIn("overlay101BuildIntensityColorsReloc", ambiguous)
+
+    def test_nonzero_runtime_call_addend_is_ambiguous(self):
+        target = self.target()
+        target[1] = rs.SurfaceRecord(
+            0x6C, rs.R_MIPS_26, (101, 0x2CE4), 4)
+
+        resolved, ambiguous = (
+            rs._runtime_correlated_overlay_r26_identities(
+                self.candidate(), self.module(), 0, 0x70, target))
+
+        self.assertEqual({}, resolved)
+        self.assertIn("overlay101BuildIntensityColorsReloc", ambiguous)
+
+    def test_defined_or_mixed_type_proxy_is_not_runtime_correlated(self):
+        defined, defined_ambiguous = (
+            rs._runtime_correlated_overlay_r26_identities(
+                self.candidate(shndx=2), self.module(), 0, 0x70,
+                self.target()))
+        mixed_candidate = self.candidate(
+            extra_relocations=((".text", 0x70, rs.R_MIPS_HI16, 0),))
+        mixed, mixed_ambiguous = (
+            rs._runtime_correlated_overlay_r26_identities(
+                mixed_candidate, self.module(), 0, 0x74, self.target()))
+
+        self.assertEqual(({}, set()), (defined, defined_ambiguous))
+        self.assertEqual(({}, set()), (mixed, mixed_ambiguous))
+
+    def test_missing_aligned_runtime_tuple_remains_unresolved(self):
+        resolved, ambiguous = (
+            rs._runtime_correlated_overlay_r26_identities(
+                self.candidate(), self.module(), 0, 0x70,
+                self.target(sites=(0x3C,))))
+
+        self.assertEqual({}, resolved)
+        self.assertEqual(set(), ambiguous)
+
+    def test_call_identity_pipeline_uses_repeated_runtime_witness(self):
+        candidate = self.candidate()
+        empty_target = self.FakeElf(Path("missing"), [""], [], [], b"")
+
+        resolved, ambiguous = rs._stable_overlay_call_identities(
+            Path("missing"), candidate, 101, empty_target, {}, 0, 0x70,
+            module=self.module(), target_records=self.target())
+
+        self.assertEqual(
+            {"overlay101BuildIntensityColorsReloc": (101, 0x2CE4)},
+            resolved)
+        self.assertEqual(set(), ambiguous)
+
+    def test_call_identity_pipeline_rejects_cross_overlay_owner(self):
+        candidate = self.candidate()
+        empty_target = self.FakeElf(Path("missing"), [""], [], [], b"")
+
+        with self.assertRaisesRegex(
+                rs.SurfaceComparisonError, "owner conflicts"):
+            rs._stable_overlay_call_identities(
+                Path("missing"), candidate, 100, empty_target, {}, 0, 0x70,
+                module=self.module(), target_records=self.target())
+
+
 class MatchedOverlayRelocationWitnessTests(unittest.TestCase):
     class FakeElf:
         def __init__(self, path, names, symbols=(), relocations=(), sections=None):
