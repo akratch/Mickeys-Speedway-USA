@@ -2970,6 +2970,7 @@ The final column records owned object words and relocation coverage.
 | `amStopOsc` | `0x4ECC` / `0x18` | **tier B**: JFG supplies the official name and exact oscillator-TU order; Mickey's own body returns the state to the free-list head | Exact 6 object words and both free-list relocation identities |
 | `_depth2Cents` | `0x4EE4` / `0x50` | existing **tier A** JFG byte identity, independently corroborated by BK's compiled object | IDO 5.3, `-O2 -mips2 -32 -Wab,-r4300_mul`; exact object words/relocations, with `0xC` target padding excluded |
 | `func_80006C40` | `0x6C40` / `0xC` | **tier D**: object-TU order and +0x58 field-store structure; placeholder retained | Exact 3 object words and no relocations under IDO 5.3 `-O2 -mips2 -32` |
+| `func_8000A6DC` | `0xA6DC` / `0xC` | **tier B**: `src/main/level.c` fixes the setter's existing `s32` call prototype; placeholder retained | Exact 3 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 | `func_80007844` | `0x7844` / `0x8` | **tier D**: object-TU order and empty-leaf structure; placeholder retained | Exact 2 object words and no relocations under IDO 5.3 `-O2 -mips2 -32` |
 
 Measured plateau:
