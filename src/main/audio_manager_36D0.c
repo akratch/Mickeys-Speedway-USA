@@ -743,6 +743,6 @@ s32 func_800038EC(u16 soundId, AudioVector3 *position,
  * frame: 0x48
  * relocations: 5
  * first-mismatch: +0x0
- * summary: Fresh exact-size V0 remains structural: target/candidate frames 0x30/0x48; 4/5 relocation sites align. Old forms, flags, and permutation stay closed.
+ * summary: Authorized V0 reproduced 41/94 words, frames 0x48/0x30, and 4/5 aligned relocations; donor search lacks a size owner. Body forms stay closed.
  * PLATEAU-HANDOFF:func_80003480:end
  */
