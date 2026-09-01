@@ -81,6 +81,11 @@
       "ledger_commit": null,
       "reason": "Fresh configured V0 plus structured finalize_plateau only for the exact 460-byte/115-word candidate, 34 masked differences, first +0xA0. Old source hypotheses, flags, permutation, and C-body mutation remain closed."
     },
+    "overlay13UpdateRecord": {
+      "source_commit": "69116ab2b237bad6bf9f858c0255f97ba1b6853d",
+      "ledger_commit": "69116ab2b237bad6bf9f858c0255f97ba1b6853d",
+      "reason": "Fresh configured V0 plus structured finalize_plateau only for the exact 644-byte/161-word candidate, 96 differences, first +0x20. Old source hypotheses, flags, permutation, and C-body mutation remain closed."
+    },
     "overlay3SelectScoredObject": {
       "source_commit": "5c5f8e0a24a1b9f78e1fdcaf10cea3f30d90fa57",
       "ledger_commit": null,
