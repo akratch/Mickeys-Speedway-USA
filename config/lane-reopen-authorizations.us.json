@@ -285,6 +285,11 @@
       "source_commit": "3bfc5f1ca95041cc46e2f3327c502d08869546cd",
       "ledger_commit": "51bb0f0dd66db2fb242c6d4628b1acb37457cd5e",
       "reason": "The source postdates its ledger; authorize runtime identity closure and one source-attributed allocator split-provenance trace for the eighteen-word residual; prior direct, s32, and s16 carriers remain closed."
+    },
+    "func_overlay_027_F0000624_187BFFC": {
+      "source_commit": "437c265c597d0c66f7ab3f666733741da58bd3ac",
+      "ledger_commit": "d4e06e150929868113c9b08caeaf1ce46581b3ea",
+      "reason": "Fresh exact-symbol evidence exposes ambiguous D_80000050 and shifted sites; authorize one configured maintenance reproof and identity refresh only, with body, old forms, flags, and permutation closed."
     }
   }
 }
