@@ -109,6 +109,6 @@ void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
  * frame: 0x80
  * relocations: 3
  * first-mismatch: +0x0
- * summary: Whole-itable frame ladder proves direct nearby/center access cannot remove the second aligned eight-byte quantum without allocation drift
+ * summary: Fresh V0 is exact-sized at 56/63 normalized words with identical register lanes and all three runtime identities exact; its 0x80 frame remains 0x10 above target. The pinned producer emits no authenticated final-home field, so the exhausted frame ladder has no new source lever.
  * PLATEAU-HANDOFF:func_overlay_036_F0000818_1883CD0:end
  */
