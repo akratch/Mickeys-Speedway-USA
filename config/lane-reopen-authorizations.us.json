@@ -76,6 +76,11 @@
       "ledger_commit": null,
       "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior typed-pointer and return-cursor forms, body mutation, flags, trace, and permutation stay closed."
     },
+    "func_overlay_035_F0000B40_1882820": {
+      "source_commit": "cf31ae1f270831b14b8aac75e72c25a74ae5258c",
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior flag, width, volatility, expression, and coordinate-spill forms remain closed; no body mutation, trace, or permutation."
+    },
     "func_overlay_101_F0002510_18DDD30": {
       "source_commit": "eef574733cf1faae7e09ca9ba759b6c1232945b2",
       "ledger_commit": null,
