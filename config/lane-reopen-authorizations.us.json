@@ -101,6 +101,11 @@
       "ledger_commit": null,
       "reason": "Configured exact-size stale remeasurement at 476 bytes with 22 masked differences."
     },
+    "overlay25UpdateEffect": {
+      "source_commit": "72efc7e5ab2a2de533c895a4b391092102121e7e",
+      "ledger_commit": "72efc7e5ab2a2de533c895a4b391092102121e7e",
+      "reason": "Procedure-scoped UGEN/source-semantic tooling authorizes one fidelity-gated stack-home/web capture and at most one uniquely trace-backed natural lifetime form. Close 119 flags, declaration/scope variants, fake guards, and permutation."
+    },
     "overlay63Initialize": {
       "source_commit": "c50629e2c475632523de8614099358c5ec17c17f",
       "ledger_commit": null,
