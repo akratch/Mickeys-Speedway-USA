@@ -262,3 +262,19 @@ for the bare pool as permuter input, and expensive models touch only the
 sweep's measured permuter-stuck list. `docs/epoch14-plan.md` carries the
 pools, phases, standing rules and exit criteria; lessons feed the workbench
 backlog with a spike per phase boundary.
+
+## Epoch 15 (2026-09-01): open the blocks nobody has a file for
+
+Epoch 14 exhausted the guarded queue more quickly than it created new source
+surfaces. Epoch 15 therefore opens the compiler-generated resident and overlay
+blocks which splat still exposes only as raw assembly: carve each block into a
+C translation unit of assembly stubs, prove that ownership-only move against
+the ROM, then let shape lanes produce exact or frame-exact candidates. Working
+splits are declared as such rather than promoted into false file-boundary
+claims.
+
+The fidelity-proven sweep becomes a standing pass over every guarded
+candidate, including old plateaus, while expensive models are narrowed to one
+attempt on a workbench-named lever at the smallest frame-exact residuals.
+`docs/epoch15-plan.md` records the remeasured resident/overlay census, routing,
+machine cap, three waves, and exit criteria.
