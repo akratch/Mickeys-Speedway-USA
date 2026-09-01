@@ -21,6 +21,11 @@
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
       "reason": "Tool f149a4a3209d977796d7bf5d1ef9a9cd4362561e: V0 plus exactly one proc UGEN lifecycle capture; at most one trace-backed natural web/coalescing form. Close flags, byte/symmetric conditions, permutation, fake carriers, volatile/padding."
     },
+    "func_80048760": {
+      "source_commit": "fbb50f0956e901ed959e8f6acd879533913dd5b9",
+      "ledger_commit": "fbb50f0956e901ed959e8f6acd879533913dd5b9",
+      "reason": "Fresh evidence reconciles post-plateau fx.c history at 484B/121w with 23 differences and four exact relocations. Authorize one current-context reproof; old flags, ten forms, permutation, fake carriers, volatile/padding stay closed."
+    },
     "func_8000E5EC": {
       "source_commit": "baafccf44c8c440209b7d3b3a75dc19ddad384cd",
       "ledger_commit": "baafccf44c8c440209b7d3b3a75dc19ddad384cd",
