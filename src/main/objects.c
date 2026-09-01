@@ -1,5 +1,10 @@
 #include "PR/ultratypes.h"
 
+typedef struct {
+    u8 pad[0x58];
+    s32 unk58;
+} Objects06C40;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004340.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000439C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004454.s")
@@ -28,7 +33,10 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800069C0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800069E8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006B04.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006C40.s")
+s32 func_80006C40(Objects06C40 *arg0, s32 arg1) {
+    arg0->unk58 = arg1;
+    return 0x13C;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006C4C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006EA0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006EE4.s")
