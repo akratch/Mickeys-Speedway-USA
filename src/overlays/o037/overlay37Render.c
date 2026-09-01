@@ -193,3 +193,13 @@ void overlay37RenderEffect(Overlay37Command **commands, void *renderContext,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o037/overlay37Render/func_overlay_037_F000019C_18857BC.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay37RenderEffect:start
+ * symbol: overlay37RenderEffect
+ * score: 75/214 words
+ * frame: 0x88
+ * relocations: 12
+ * first-mismatch: +0x0
+ * summary: Fresh V0 is 852B/213w versus 856B/214w: 139 diffs, frame 0x88 vs 0x98, and only 3/12 relocation identities align.
+ * PLATEAU-HANDOFF:overlay37RenderEffect:end
+ */
