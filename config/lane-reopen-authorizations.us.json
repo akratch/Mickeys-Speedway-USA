@@ -61,6 +61,11 @@
       "ledger_commit": null,
       "reason": "Configured exact-size stale remeasurement at 156 bytes and 39 words with 21 masked differences."
     },
+    "overlay37RenderEffect": {
+      "source_commit": "c31518f87c082ee43d0f886cc2f0bcb48ed50e59",
+      "ledger_commit": "c31518f87c082ee43d0f886cc2f0bcb48ed50e59",
+      "reason": "Fresh configured V0 plus structured finalize only for the 856-byte/214-word target and 852-byte/213-word candidate: 139 differences, first +0x0. Old hypotheses, flags, permutation, and body mutation remain closed."
+    },
     "func_overlay_029_F0000EE0_187E190": {
       "source_commit": "819c9f9a3b717545574dc318cd56d4797fbb2c20",
       "ledger_commit": null,
