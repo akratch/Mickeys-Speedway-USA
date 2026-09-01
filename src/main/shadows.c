@@ -912,169 +912,180 @@ loop_27:
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80017140.s")
 #endif
 /*
- * PROVENANCE: the clipping/intersection organization and typed polygon form
- * follow Diddy Kong Racing's public src/tracks.c:func_8002FF6C; JFG's public
- * assembly-only func_8001F288 supports the sibling relationship. Mickey's
- * target assembly and resident buffers determine every field binding and
- * limit used here.
+ * PROVENANCE: adapted from Diddy Kong Racing's public matched
+ * src/tracks.c:func_8002FF6C. JFG's public assembly-only func_8001F288 is the
+ * closest sibling and corroborates the shared frame and control-flow shape.
+ * Mickey's target assembly, extra owner argument, globals, and output limits
+ * determine every local revision below.
  */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 337 differing words; first mismatch is at +0x4. */
-/* Target and candidate are both 347 instructions with a 0x158-byte frame. */
-/* Remaining gap is the integer/FP allocation web and clipping-loop CFG; not permuter-ready. */
+typedef struct ShadowClipVertex {
+    f32 x;
+    f32 y;
+    f32 z;
+    s16 padC;
+    s16 edgeIndex;
+} ShadowClipVertex;
+
+typedef struct ShadowClipPlane {
+    f32 x;
+    f32 z;
+} ShadowClipPlane;
+
+typedef struct ShadowClipEdge {
+    f32 x;
+    f32 y;
+    f32 z;
+    void *owner;
+    f32 x0;
+    f32 z0;
+    f32 x1;
+    f32 z1;
+} ShadowClipEdge;
+
 s32 func_80017660(void *arg0, s32 arg1, void *arg2, s32 arg3, s32 arg4) {
-    typedef struct ClipVertex {
-        f32 x;
-        f32 y;
-        f32 z;
-        union {
-            f32 w;
-            struct {
-                s16 unkC;
-                s16 edge;
-            } s;
-        } value;
-    } ClipVertex;
-    typedef struct ClipEdge {
-        f32 x;
-        f32 y;
-        f32 z;
-        s32 owner;
-        f32 x0;
-        f32 z0;
-        f32 x1;
-        f32 z1;
-    } ClipEdge;
-    typedef struct ClipPlanePoint {
-        f32 x;
-        f32 z;
-    } ClipPlanePoint;
-
-    ClipVertex clipped[8];
-    ClipVertex *input;
-    ClipVertex *output;
-    ClipVertex *swap;
-    ClipEdge *edges;
-    ClipPlanePoint *planes;
-    f32 edgeZ;
-    f32 edgeX;
-    f32 currentSide;
-    f32 nextSide;
+    ShadowClipVertex clipped[8];
+    f32 temp_f12;
     f32 temp_f14;
-    f32 fraction;
-    s32 plane;
-    s32 nextPlane;
-    s32 current;
-    s32 next;
-    s32 outputCount;
-    s32 remaining;
+    f32 temp_f16;
+    f32 temp_f22;
+    f32 temp_f24;
+    f32 var_f2;
     s32 edgeIndex;
-    s32 foundEdge;
+    s32 edgeOffset;
+    s32 edgeCount;
+    s32 outputCount;
+    s32 planeIndex;
+    s32 next;
+    s32 var_v0;
+    s32 vertexCount;
+    ShadowClipVertex *output;
+    ShadowClipVertex *vertices;
+    ShadowClipVertex *swap;
+    ShadowClipEdge *edge;
+    ShadowClipEdge *edges;
 
-    input = (ClipVertex *) arg2;
+    vertices = (ShadowClipVertex *) arg2;
     output = clipped;
-    planes = (ClipPlanePoint *) arg4;
-    edges = (ClipEdge *) D_800C9F58;
+    vertexCount = arg1;
+    planeIndex = 0;
+    edges = (ShadowClipEdge *) D_800C9F58;
 
-    for (plane = 0; (plane < arg3) && (arg1 >= 3); plane++) {
-        nextPlane = plane + 1;
-        if (nextPlane >= arg3) {
-            nextPlane = 0;
+    while ((planeIndex < arg3) && (vertexCount >= 3)) {
+        next = planeIndex + 1;
+        if (next >= arg3) {
+            next = 0;
         }
 
-        edgeZ = planes[nextPlane].z - planes[plane].z;
-        edgeX = -(planes[nextPlane].x - planes[plane].x);
-        if (planes[plane].x < planes[nextPlane].x) {
-            temp_f14 = (edgeZ * planes[plane].x) + (planes[plane].z * edgeX);
+        temp_f12 = ((ShadowClipPlane *) arg4)[next].z -
+                   ((ShadowClipPlane *) arg4)[planeIndex].z;
+        temp_f14 = -(((ShadowClipPlane *) arg4)[next].x -
+                     ((ShadowClipPlane *) arg4)[planeIndex].x);
+        if (((ShadowClipPlane *) arg4)[planeIndex].x <
+            ((ShadowClipPlane *) arg4)[next].x) {
+            var_f2 = (temp_f12 * ((ShadowClipPlane *) arg4)[planeIndex].x) +
+                     (((ShadowClipPlane *) arg4)[planeIndex].z * temp_f14);
+            var_f2 = -var_f2;
         } else {
-            temp_f14 = (edgeZ * planes[nextPlane].x) + (planes[nextPlane].z * edgeX);
+            var_f2 = (temp_f12 * ((ShadowClipPlane *) arg4)[next].x) +
+                     (((ShadowClipPlane *) arg4)[next].z * temp_f14);
+            var_f2 = -var_f2;
         }
-        temp_f14 = -temp_f14;
 
-        outputCount = 0;
-        for (current = 0; current < arg1; current++) {
-            next = current + 1;
-            if (next >= arg1) {
+        for (var_v0 = 0, outputCount = 0; var_v0 < vertexCount; var_v0++) {
+            next = var_v0 + 1;
+            if (next >= vertexCount) {
                 next = 0;
             }
-            currentSide = (edgeZ * input[current].x) + (input[current].z * edgeX) + temp_f14;
-            nextSide = (edgeZ * input[next].x) + (input[next].z * edgeX) + temp_f14;
-
-            if (((currentSide >= 0.0f) && (nextSide < 0.0f)) ||
-                ((currentSide < 0.0f) && (nextSide >= 0.0f))) {
-                remaining = D_800C9F48[plane];
-                foundEdge = -1;
-                edgeIndex = plane << 5;
-                while ((remaining > 0) && (foundEdge < 0)) {
-                    if ((edges[edgeIndex].x0 == input[current].x) &&
-                        (edges[edgeIndex].z0 == input[current].z) &&
-                        (edges[edgeIndex].x1 == input[next].x) &&
-                        (edges[edgeIndex].z1 == input[next].z)) {
-                        foundEdge = edgeIndex;
-                    } else if ((edges[edgeIndex].x0 == input[next].x) &&
-                               (edges[edgeIndex].z0 == input[next].z) &&
-                               (edges[edgeIndex].x1 == input[current].x) &&
-                               (edges[edgeIndex].z1 == input[current].z)) {
-                        foundEdge = edgeIndex;
+            temp_f16 = (temp_f12 * vertices[var_v0].x) +
+                       (vertices[var_v0].z * temp_f14) + var_f2;
+            temp_f22 = (temp_f12 * vertices[next].x) +
+                       (vertices[next].z * temp_f14) + var_f2;
+            if (((temp_f16 >= 0.0f) && (temp_f22 < 0.0f)) ||
+                ((temp_f16 < 0.0f) && (temp_f22 >= 0.0f))) {
+                edgeCount = D_800C9F48[planeIndex];
+                edgeIndex = -1;
+                edgeOffset = planeIndex << 5;
+                edge = &edges[edgeOffset];
+                while ((edgeCount > 0) && (edgeIndex < 0)) {
+                    if ((edge->x0 == vertices[var_v0].x) &&
+                        (edge->z0 == vertices[var_v0].z) &&
+                        (edge->x1 == vertices[next].x) &&
+                        (edge->z1 == vertices[next].z)) {
+                        edgeIndex = edgeOffset;
                     } else {
-                        remaining--;
-                        edgeIndex++;
+                        edgeCount--;
+                        if ((edge->x0 == vertices[next].x) &&
+                            (edge->z0 == vertices[next].z) &&
+                            (edge->x1 == vertices[var_v0].x) &&
+                            (edge->z1 == vertices[var_v0].z)) {
+                            edgeIndex = edgeOffset;
+                        } else {
+                            edge++;
+                            edgeOffset++;
+                        }
                     }
                 }
-                if (foundEdge >= 0) {
-                    output[outputCount].value.s.edge = foundEdge;
-                    output[outputCount].x = edges[foundEdge].x;
-                    output[outputCount].z = edges[foundEdge].z;
+                if (edgeIndex >= 0) {
+                    output[outputCount].edgeIndex = edgeIndex;
+                    output[outputCount].x = edge->x;
+                    output[outputCount].z = edge->z;
                     outputCount++;
+                    if (outputCount >= 8) {
+                        return 0;
+                    }
                 } else {
-                    fraction = currentSide / (currentSide - nextSide);
-                    output[outputCount].x = input[current].x +
-                        ((input[next].x - input[current].x) * fraction);
-                    output[outputCount].z = input[current].z +
-                        ((input[next].z - input[current].z) * fraction);
-                    edges[edgeIndex].x0 = input[current].x;
-                    edges[edgeIndex].z0 = input[current].z;
-                    edges[edgeIndex].x1 = input[next].x;
-                    edges[edgeIndex].z1 = input[next].z;
-                    edges[edgeIndex].x = output[outputCount].x;
-                    edges[edgeIndex].z = output[outputCount].z;
-                    edges[edgeIndex].owner = *(s32 *) ((u8 *) arg0 + 4);
-                    output[outputCount].value.s.edge = edgeIndex;
-                    D_800C9F48[plane]++;
+                    temp_f24 = temp_f16 / (temp_f16 - temp_f22);
+                    output[outputCount].x = vertices[var_v0].x +
+                        ((vertices[next].x - vertices[var_v0].x) * temp_f24);
+                    output[outputCount].z = vertices[var_v0].z +
+                        ((vertices[next].z - vertices[var_v0].z) * temp_f24);
+                    edge->x0 = vertices[var_v0].x;
+                    edge->z0 = vertices[var_v0].z;
+                    edge->x1 = vertices[next].x;
+                    edge->z1 = vertices[next].z;
+                    edge->x = output[outputCount].x;
+                    edge->z = output[outputCount].z;
+                    edge->owner = *(void **) ((u8 *) arg0 + 4);
+                    output[outputCount].edgeIndex = edgeOffset;
                     outputCount++;
-                }
-                if (outputCount >= 8) {
-                    return 0;
+                    if (outputCount >= 8) {
+                        return 0;
+                    }
+                    D_800C9F48[planeIndex]++;
                 }
             }
-            if (nextSide <= 0.0f) {
-                output[outputCount].value.s.edge = input[next].value.s.edge;
-                output[outputCount].x = input[next].x;
-                output[outputCount].z = input[next].z;
+            if (temp_f22 <= 0) {
+                output[outputCount].edgeIndex = vertices[next].edgeIndex;
+                output[outputCount].x = vertices[next].x;
+                output[outputCount].z = vertices[next].z;
                 outputCount++;
                 if (outputCount >= 8) {
                     return 0;
                 }
             }
         }
-        arg1 = outputCount;
-        swap = input;
-        input = output;
+
+        vertexCount = outputCount;
+        planeIndex++;
+        swap = vertices;
+        vertices = output;
         output = swap;
     }
 
-    if (arg1 >= 3) {
-        if (input != (ClipVertex *) arg2) {
-            for (current = 0; current < arg1; current++) {
-                ((ClipVertex *) arg2)[current].x = input[current].x;
-                ((ClipVertex *) arg2)[current].z = input[current].z;
-                ((ClipVertex *) arg2)[current].value.s.edge = input[current].value.s.edge;
+    if (vertexCount >= 3) {
+        if (vertices != (ShadowClipVertex *) arg2) {
+            for (var_v0 = 0; var_v0 < vertexCount; var_v0++) {
+                ((ShadowClipVertex *) arg2)[var_v0].x = vertices[var_v0].x;
+                ((ShadowClipVertex *) arg2)[var_v0].z = vertices[var_v0].z;
+                ((ShadowClipVertex *) arg2)[var_v0].edgeIndex =
+                    vertices[var_v0].edgeIndex;
             }
         }
     } else {
-        arg1 = 0;
+        vertexCount = 0;
     }
-    return arg1;
+    return vertexCount;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80017660.s")
@@ -1448,11 +1459,11 @@ void func_800180B4(ShadowQuery *query) {
 
 /* PLATEAU-HANDOFF:func_80017660:start
  * symbol: func_80017660
- * score: 337 differing words
+ * score: 288 differing words
  * frame: 0x158
  * relocations: 4
- * first-mismatch: +0x4
- * summary: Exact geometry and frame; recover original declaration lifetimes to align callee-saved integer and f30 allocation.
+ * first-mismatch: +0x90
+ * summary: 350-word candidate vs 347-word target; exact frame and 4/4 relocations. First allocator swap at +0x90; next test source shape under r4300_mul.
  * PLATEAU-HANDOFF:func_80017660:end
  */
 
