@@ -102,6 +102,6 @@ void overlay13DrawActive(s32 arg0, s32 arg1, s32 arg2) {
  * frame: 0x180
  * relocations: 10
  * first-mismatch: +0x0
- * summary: Fresh V0 is one word short with 162 masked differences; frame is 0x180 versus 0x168, and only three of ten target relocation identities align.
+ * summary: Fresh V0 remains one word short with 162 masked differences; only three target identities align and displaced global proxies stay unresolved.
  * PLATEAU-HANDOFF:overlay13DrawActive:end
  */
