@@ -2278,6 +2278,7 @@ func_8000DFBC = 0x8000DFBC; // type:func size:0x630 tier-D ROM 0xEBBC src/main/t
 func_8000E5EC = 0x8000E5EC; // type:func size:0x334 tier-D ROM 0xF1EC src/main/track.c.o -O2 -mips2 -32 -Wab,-r4300_mul NON_MATCHING resident fallback and adjacent func_8000E920 boundary owner, no match credit
 func_80010654 = 0x80010654; // type:func size:0x2AC tier-D ROM 0x11254 src/main/track.c.o NON_MATCHING bounded plateau, resident fallback and adjacent-boundary owner
 func_800115E4 = 0x800115E4; // type:func size:0x39C tier-D ROM 0x121E4 src/main/track.c.o NON_MATCHING resident fallback and adjacent func_80011980 boundary owner, no match credit
+func_80011CDC = 0x80011CDC; // type:func size:0x558 tier-D ROM 0x128DC src/main/track.c.o -O2 -mips2 -32 -Wab,-r4300_mul NON_MATCHING resident fallback, linked ELF size, and adjacent func_80012234 boundary owner, no match credit
 func_8001357C = 0x8001357C; // type:func size:0x410 tier-D ROM 0x1417C src/main/track.c.o -O2 -mips2 -32 -Wab,-r4300_mul NON_MATCHING resident fallback and adjacent func_8001398C boundary owner, no match credit
 trackSetFogOff = 0x800145A0; // type:func size:0x74   ROM 0x151a0  src/track.c.o  masked=2/29
 // donor-jfg-src/shadows_214A0.c.o

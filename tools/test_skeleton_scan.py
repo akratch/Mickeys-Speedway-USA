@@ -191,5 +191,22 @@ class OverlayTargetResolutionTests(unittest.TestCase):
                 )
 
 
+class ResidentOwnerMetadataTests(unittest.TestCase):
+    def test_func_80011cdc_metadata_supplies_exact_resident_extent(self):
+        vram = 0x80011CDC
+        size = 0x558
+        rom_offset = skeleton_scan.resident_vram_to_rom(vram)
+        synthetic = bytes(rom_offset) + bytes([0xA5]) * size
+
+        with mock.patch.object(skeleton_scan, "load_rom", return_value=synthetic):
+            label, resolved = skeleton_scan.resolve_target_bytes(
+                "0x80011CDC", {}
+            )
+
+        self.assertEqual("vram:0x80011CDC", label)
+        self.assertEqual(size, len(resolved))
+        self.assertEqual(bytes([0xA5]) * size, resolved)
+
+
 if __name__ == "__main__":
     unittest.main()
