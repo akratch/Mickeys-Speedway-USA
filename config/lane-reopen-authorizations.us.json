@@ -101,6 +101,11 @@
       "ledger_commit": null,
       "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior clone-initializer, register/stack-count, and record-loop CFG forms remain closed; no body mutation, flags, trace, or permutation."
     },
+    "func_overlay_045_F0001158_188D5B0": {
+      "source_commit": "9b4af8356e951c51306df2764e0e62bfe627eafd",
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior scissor-width, frame, parameter, angle, operand, and flag forms remain closed; no body mutation, trace, or permutation."
+    },
     "func_overlay_011_F0000150_1868998": {
       "source_commit": "4c81938cb4c06f76d86768eef3a67c0ce6576117",
       "ledger_commit": null,
