@@ -250,7 +250,7 @@ segments:
       - [0x354A0, c, main/texLoadTextureAddr]
       - [0x354C8, c, main/textures_354C8]
       - [0x37650, c, main/initColourCycle]
-      - [0x37680, asm]
+      - [0x37680, c, main/frontend_37680]
       - [0x37D50, asm]
       # JFG's menu.c / Mickey's resident front-end menu code. The start is
       # setLanguage followed by initFront; the end is the function after
