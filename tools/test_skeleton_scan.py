@@ -222,6 +222,21 @@ class ResidentOwnerMetadataTests(unittest.TestCase):
         self.assertEqual(size, len(resolved))
         self.assertEqual(bytes([0x5A]) * size, resolved)
 
+    def test_func_8000e920_metadata_supplies_exact_resident_extent(self):
+        vram = 0x8000E920
+        size = 0x878
+        rom_offset = skeleton_scan.resident_vram_to_rom(vram)
+        synthetic = bytes(rom_offset) + bytes([0x3C]) * size
+
+        with mock.patch.object(skeleton_scan, "load_rom", return_value=synthetic):
+            label, resolved = skeleton_scan.resolve_target_bytes(
+                "0x8000E920", {}
+            )
+
+        self.assertEqual("vram:0x8000E920", label)
+        self.assertEqual(size, len(resolved))
+        self.assertEqual(bytes([0x3C]) * size, resolved)
+
 
 if __name__ == "__main__":
     unittest.main()
