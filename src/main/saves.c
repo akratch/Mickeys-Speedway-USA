@@ -1465,3 +1465,13 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
  * summary: 119 flags and 10 natural forms nonexact; retry mask homes at +0x40 instead of +0x48, shifting ugen temp FIFO; tail retains 14 opcode mismatches.
  * PLATEAU-HANDOFF:rumbleTick:end
  */
+
+/* PLATEAU-HANDOFF:packInit:start
+ * symbol: packInit
+ * score: 81/115 words
+ * frame: 0x60
+ * relocations: 20
+ * first-mismatch: +0xA0
+ * summary: Fresh exact-size V0 preserves 34 differences; 19/20 relocations are exact, with D_800D21C8 LO16 delayed from target +0xA0 to candidate +0xAC.
+ * PLATEAU-HANDOFF:packInit:end
+ */
