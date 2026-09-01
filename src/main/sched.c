@@ -916,3 +916,13 @@ s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 availRCP) {
  * summary: Direct second-command opcode addressing is the sole gain. Candidate is 193 words with 113 raw differences and six exact relocations; the frame gap remains.
  * PLATEAU-HANDOFF:func_80030610:end
  */
+
+/* PLATEAU-HANDOFF:__scHandleRetrace:start
+ * symbol: __scHandleRetrace
+ * score: 84 differing words
+ * frame: 0xE8
+ * relocations: 114
+ * first-mismatch: +0x3B4
+ * summary: Fresh V0 remains one word short with 84 differing target positions; relocation counts remain 114/109.
+ * PLATEAU-HANDOFF:__scHandleRetrace:end
+ */
