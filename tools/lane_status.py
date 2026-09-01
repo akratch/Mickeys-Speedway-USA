@@ -1224,18 +1224,29 @@ def assignment_status(
             "prose-needs-remeasurement",
         )
     if ledger_commit is None:
-        if (
-            reopen_authorization is not None
-            and reopen_authorization["source_commit"] == source_commit
-            and reopen_authorization["ledger_commit"] is None
-        ):
-            return Assignment(
-                symbol, "base-only", path, source_commit, None, [],
-                "source plateau without structured handoff is explicitly "
-                "reopened for one authenticated maintenance pass: "
-                f"{reopen_authorization['reason']}",
-                "authorized-reopen",
-            )
+        if reopen_authorization is not None:
+            authorized_source = reopen_authorization["source_commit"]
+            authorized_ledger = reopen_authorization["ledger_commit"]
+            if (
+                authorized_source == source_commit
+                and authorized_source == base_source_commit
+                and authorized_ledger is None
+            ):
+                return Assignment(
+                    symbol, "base-only", path, source_commit, None, [],
+                    "source plateau without structured handoff is explicitly "
+                    "reopened for one authenticated maintenance pass: "
+                    f"{reopen_authorization['reason']}",
+                    "authorized-reopen",
+                )
+            if authorized_ledger is None:
+                return Assignment(
+                    symbol, "stale-ledger", path, source_commit, None, [],
+                    "null-ledger reopen authorization is stale because the "
+                    "latest target guard or evidence commit no longer matches "
+                    "its pinned source commit",
+                    "reopen-authorization-stale",
+                )
         return Assignment(
             symbol, "stale-ledger", path, source_commit, None, [],
             "source plateau is missing exact-symbol handoff ledger evidence",

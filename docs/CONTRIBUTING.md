@@ -63,7 +63,8 @@ A genuinely new mechanism may reopen one current plateau through
 `config/lane-reopen-authorizations.us.json`. Each schema-v1 entry pins the
 symbol's full current source and handoff commit IDs plus a concise reason. A
 missing structured handoff may use `ledger_commit: null` only for a pinned
-source plateau; malformed or source-mismatched evidence still fails closed.
+source plateau whose pin is also the latest target guard or evidence commit;
+malformed, source-mismatched, or superseded evidence still fails closed.
 `lane_status.py` validates identity and ancestry after checking active lanes,
 and reports `base-only` only for that exact pair. The first subsequent source
 or handoff commit makes the authorization stale and the target exhausted again.

@@ -56,7 +56,9 @@ it lands, so coordination need not inspect another lane's in-flight files.
 - `tools/lane_status.py` provides the committed-ref view and labels its output
   as claims rather than proof. It never opens sibling worktree paths.
 - `config/lane-reopen-authorizations.us.json` records rare, reviewable
-  exceptions without making exhausted targets generally assignable.
+  exceptions without making exhausted targets generally assignable. A
+  null-ledger exception is valid only while its source pin remains the latest
+  exact target guard or evidence commit.
 - `tools/codex_lane.sh` accepts `--minutes`, exports the soft/hard deadlines,
   injects the handoff rule into the prompt, and records the runner exit status
   as before.
