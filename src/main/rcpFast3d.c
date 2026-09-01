@@ -495,143 +495,128 @@ void rcpInit(OSSched *scheduler) {
     osCreateMesgQueue(&D_800D2D08, D_800D2D20, 8);
 }
 #ifdef NON_MATCHING
-/* No external donor body was used; the command stream and field offsets are
- * reconstructed from Mickey's target assembly and local RCP idioms. */
-/* Workbench verdict: structure-mismatch; 290 differing words, first mismatch +0x0.
- * Target/candidate are both 327 instructions; frame -0x40 versus -0x70.
- * Six relocation identities agree; func_800348D4 is displaced by two words. */
+/* PROVENANCE -- the indexed texture loop is adapted from Diddy Kong Racing's
+ * public src/rcp_dkr.c:texrect_draw. Mickey's command stream, extra texture
+ * fields, and helper calls remain the controlling evidence. */
+/* Workbench verdict: structure-mismatch; 279 differing words, first mismatch +0x34.
+ * Target 327 instructions/frame -64; candidate 328 instructions/frame -64.
+ * Four of six relocation identities align. The target preserves an early
+ * zero-index web, but natural indexed forms grow the frame to 0x58. */
 void func_8002F618(RcpCommand **arg0, RcpTextureNode *arg1, s32 arg2,
                    s32 arg3, u8 arg4, u8 arg5, u8 arg6, u8 arg7) {
-    RcpCommand *dlist;
-    RcpCommand *lastCommand;
+    RcpTextureInfo *tex;
     RcpTextureInfo *alternate;
-    RcpTextureInfo *texture;
-    RcpTextureNode *node;
-    s32 x;
-    s32 y;
-    s32 right;
-    s32 bottom;
-    s32 s;
+    RcpCommand *dlist;
+    RcpCommand *lastCmd;
+    RcpTextureNode *element;
+    s32 i;
+    s32 uly;
+    s32 ulx;
+    s32 lry;
+    s32 lrx;
     s32 t;
-    s32 maxTexels;
+    s32 s;
+    s32 loadCount;
 
+    i = 0;
     if (arg1->texture != NULL) {
         dlist = *arg0;
         if (arg1->alternate != NULL) {
-            lastCommand = (RcpCommand *)D_8007A540;
+            lastCmd = (RcpCommand *)D_8007A540;
         } else {
-            lastCommand = (RcpCommand *)D_8007A4F8;
+            lastCmd = (RcpCommand *)D_8007A4F8;
         }
-        RCP_WRITE_COMMAND(dlist, 0x06000000, (u32)lastCommand);
-        RCP_WRITE_COMMAND(dlist, 0xFA000000,
-                          ((u32)arg4 << 24) | ((u32)arg5 << 16) |
-                              ((u32)arg6 << 8) | arg7);
-        texture = arg1->texture;
-        node = arg1;
+
+        RCP_DISPLAY_LIST(dlist++, lastCmd);
+        gDPSetPrimColor((Gfx *)dlist++, 0, 0, arg4, arg5, arg6, arg7);
+
         arg2 *= 4;
         arg3 *= 4;
-        if (texture != NULL) {
-            do {
-                x = (node->x * 4) + arg2;
-                y = (node->y * 4) + arg3;
-                right = (texture->width * 4) + x;
-                bottom = (texture->height * 4) + y;
-                if (right > 0) {
-                    s = 0;
-                    if (bottom > 0) {
-                        t = 0;
-                        if (x < 0) {
-                            s = -(x * 8);
-                            x = 0;
-                        }
-                        if (y < 0) {
-                            t = -(y * 8);
-                            y = 0;
-                        }
-                        alternate = node->alternate;
-                        if (alternate != NULL) {
-                            RCP_WRITE_COMMAND(
-                                dlist, 0xFD100000,
-                                (u32)((((s32)node->packedOffset >> 16) *
-                                       texture->tileRows) +
-                                      (s32)texture + 0x20));
-                            RCP_WRITE_COMMAND(dlist, 0xF5100000, 0x07020080);
-                            RCP_WRITE_COMMAND(dlist, 0xE6000000, 0);
-                            maxTexels = (texture->width * texture->height) - 1;
-                            if (maxTexels > 0x7FF) {
-                                maxTexels = 0x7FF;
-                            }
-                            RCP_WRITE_COMMAND(
-                                dlist, 0xF3000000,
-                                ((maxTexels & 0xFFF) << 12) | 0x07000000);
-                            RCP_WRITE_COMMAND(dlist, 0xE7000000, 0);
-                            RCP_WRITE_COMMAND(
-                                dlist,
-                                (((((texture->width * 2) + 7) >> 3) & 0x1FF)
-                                 << 9) |
-                                    0xF5100000,
-                                0x20080);
-                            RCP_WRITE_COMMAND(
-                                dlist, 0xF2000000,
-                                ((((texture->width - 1) * 4) & 0xFFF) << 12) |
-                                    (((texture->height - 1) * 4) & 0xFFF));
-                            RCP_WRITE_COMMAND(
-                                dlist, 0xFD900000,
-                                (u32)((((s32)node->packedOffset >> 16) *
-                                       alternate->tileRows) +
-                                      (s32)alternate + 0x20));
-                            RCP_WRITE_COMMAND(dlist, 0xF5900100, 0x07020080);
-                            RCP_WRITE_COMMAND(dlist, 0xE6000000, 0);
-                            maxTexels = (((s32)(alternate->width * alternate->height) +
-                                          3) >> 2) - 1;
-                            if (maxTexels > 0x7FF) {
-                                maxTexels = 0x7FF;
-                            }
-                            RCP_WRITE_COMMAND(
-                                dlist, 0xF3000000,
-                                ((maxTexels & 0xFFF) << 12) | 0x07000000);
-                            RCP_WRITE_COMMAND(dlist, 0xE7000000, 0);
-                            RCP_WRITE_COMMAND(
-                                dlist,
-                                ((((((s32)alternate->width >> 1) + 7) >> 3) &
-                                  0x1FF) << 9) |
-                                    0xF5800100,
-                                0x01020080);
-                            RCP_WRITE_COMMAND(
-                                dlist, 0xF2000000,
-                                ((((alternate->width - 1) * 4) & 0xFFF) << 12) |
-                                    0x01000000 |
-                                    (((alternate->height - 1) * 4) & 0xFFF));
-                        } else {
-                            RCP_WRITE_COMMAND(
-                                dlist, *texture->data,
-                                (u32)(func_800348D4(texture, node->packedOffset) +
-                                      0x80000000U));
-                            maxTexels = texture->count - 1;
-                            RCP_WRITE_COMMAND(
-                                dlist,
-                                ((maxTexels & 0xFF) << 16) | 0x07000000 |
-                                    ((maxTexels * 8) & 0xFFFF),
-                                (u32)texture->data + 0x80000008U);
-                        }
-                        RCP_WRITE_COMMAND(
-                            dlist, ((right & 0xFFF) << 12) | 0xE4000000 |
-                                         (bottom & 0xFFF),
-                            ((x & 0xFFF) << 12) | (y & 0xFFF));
-                        RCP_WRITE_COMMAND(dlist, 0xB3000000,
-                                          (s << 16) | (t & 0xFFFF));
-                        lastCommand = dlist;
-                        RCP_WRITE_COMMAND(dlist, 0xB2000000, 0x04000400);
-                    }
+        tex = arg1[i].texture;
+        element = &arg1[i];
+        while (tex != NULL) {
+            ulx = (element->x * 4) + arg2;
+            uly = (element->y * 4) + arg3;
+            lrx = (tex->width * 4) + ulx;
+            lry = (tex->height * 4) + uly;
+            if (lrx > 0 && lry > 0) {
+                s = 0;
+                t = 0;
+                if (ulx < 0) {
+                    s = -(ulx * 8);
+                    ulx = 0;
                 }
-                texture = node[1].texture;
-                node++;
-            } while (texture != NULL);
+                if (uly < 0) {
+                    t = -(uly * 8);
+                    uly = 0;
+                }
+
+                alternate = element->alternate;
+                if (alternate != NULL) {
+                    gDPSetTextureImage(
+                        (Gfx *)dlist++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1,
+                        ((((s32)element->packedOffset >> 16) * tex->tileRows) +
+                         (s32)tex + 0x20));
+                    gDPSetTile((Gfx *)dlist++, G_IM_FMT_RGBA, G_IM_SIZ_16b,
+                               0, 0, G_TX_LOADTILE, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                               8, G_TX_NOLOD, G_TX_NOMIRROR | G_TX_WRAP, 8,
+                               G_TX_NOLOD);
+                    gDPLoadSync((Gfx *)dlist++);
+                    gDPLoadBlock((Gfx *)dlist++, G_TX_LOADTILE, 0, 0,
+                                 (tex->width * tex->height) - 1, 0);
+                    gDPPipeSync((Gfx *)dlist++);
+                    gDPSetTile((Gfx *)dlist++, G_IM_FMT_RGBA, G_IM_SIZ_16b,
+                               ((tex->width * 2) + 7) >> 3, 0, G_TX_RENDERTILE,
+                               0, G_TX_NOMIRROR | G_TX_WRAP, 8, G_TX_NOLOD,
+                               G_TX_NOMIRROR | G_TX_WRAP, 8, G_TX_NOLOD);
+                    gDPSetTileSize((Gfx *)dlist++, G_TX_RENDERTILE, 0, 0,
+                                   (tex->width - 1) * 4,
+                                   (tex->height - 1) * 4);
+                    gDPSetTextureImage(
+                        (Gfx *)dlist++, G_IM_FMT_I, G_IM_SIZ_16b, 1,
+                        ((((s32)element->packedOffset >> 16) *
+                          alternate->tileRows) + (s32)alternate + 0x20));
+                    gDPSetTile((Gfx *)dlist++, G_IM_FMT_I, G_IM_SIZ_16b, 0,
+                               0x100, G_TX_LOADTILE, 0,
+                               G_TX_NOMIRROR | G_TX_WRAP, 8, G_TX_NOLOD,
+                               G_TX_NOMIRROR | G_TX_WRAP, 8, G_TX_NOLOD);
+                    gDPLoadSync((Gfx *)dlist++);
+                    gDPLoadBlock(
+                        (Gfx *)dlist++, G_TX_LOADTILE, 0, 0,
+                        (((s32)(alternate->width * alternate->height) + 3) >> 2) - 1,
+                        0);
+                    gDPPipeSync((Gfx *)dlist++);
+                    gDPSetTile((Gfx *)dlist++, G_IM_FMT_I, G_IM_SIZ_4b,
+                               (((s32)alternate->width >> 1) + 7) >> 3, 0x100,
+                               1, 0, G_TX_NOMIRROR | G_TX_WRAP, 8, G_TX_NOLOD,
+                               G_TX_NOMIRROR | G_TX_WRAP, 8, G_TX_NOLOD);
+                    gDPSetTileSize((Gfx *)dlist++, 1, 0, 0,
+                                   (alternate->width - 1) * 4,
+                                   (alternate->height - 1) * 4);
+                } else {
+                    dlist->w0 = *tex->data;
+                    dlist->w1 = (u32)(func_800348D4(
+                        tex, element->packedOffset) + 0x80000000U);
+                    dlist++;
+                    loadCount = tex->count - 1;
+                    dlist->w0 = (((loadCount & 0xFF) << 16) | 0x07000000 |
+                                 ((loadCount * 8) & 0xFFFF));
+                    dlist->w1 = (u32)tex->data + 0x80000008U;
+                    dlist++;
+                }
+
+                gSPTextureRectangle((Gfx *)dlist++, ulx, uly, lrx, lry,
+                                    G_TX_RENDERTILE, s, t, 1024, 1024);
+                lastCmd = dlist - 1;
+            }
+            element++;
+            tex = element->texture;
         }
-        RCP_WRITE_COMMAND(dlist, 0xE7000000, 0);
-        RCP_WRITE_COMMAND(dlist, 0xFA000000, -1);
+
+        gDPPipeSync((Gfx *)dlist++);
+        gDPSetPrimColor((Gfx *)dlist++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
         *arg0 = dlist;
-        func_80034910(lastCommand);
+        func_80034910(lastCmd);
     }
 }
 #else
@@ -821,10 +806,10 @@ void func_8002FB34(RcpCommand **arg0, RcpTextureNode *arg1, f32 arg2,
 
 /* PLATEAU-HANDOFF:func_8002F618:start
  * symbol: func_8002F618
- * score: 290/327 words
- * frame: 0x70
+ * score: 279/327 words
+ * frame: 0x40
  * relocations: 6
- * first-mismatch: +0x0
- * summary: Exact geometry but frame 0x70 vs 0x40 and 290 words remain after 119 flags; permuter improved only via inert wrapper. Need authentic command macro evidence.
+ * first-mismatch: +0x34
+ * summary: Candidate is 328 words with 4/6 exact relocation identities; next lever is the target zero-index web without indexed-form frame growth.
  * PLATEAU-HANDOFF:func_8002F618:end
  */
