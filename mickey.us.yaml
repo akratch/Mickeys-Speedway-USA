@@ -150,7 +150,7 @@ segments:
       - [0x30E0, asm]
       - [0x3100, c, main/audio_manager_36D0]
       - [0x45F0, c, main/audio_manager_4C50]
-      - [0x4F40, asm]
+      - [0x4F40, c, main/objects]
       # `track/track.c`: the first and last routines align with JFG's track TU,
       # 40 of 62 similarity-eligible functions place that TU in their top five,
       # two large routines reference all 14 resident `track/track.c` assert
