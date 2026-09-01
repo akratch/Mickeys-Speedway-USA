@@ -252,3 +252,13 @@ s32 func_overlay_035_F0000B40_1882820(register O35CollisionSegment *s) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o035/func_overlay_035_F0000B40_1882820/func_overlay_035_F0000B40_1882820.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_035_F0000B40_1882820:start
+ * symbol: func_overlay_035_F0000B40_1882820
+ * score: 486/528 words
+ * frame: 0x130
+ * relocations: 7
+ * first-mismatch: +0x4
+ * summary: V0 is 12 words short (516/528) with broad structural drift; relocation counts are 7/7 but only 2 stable identities align; prior probes stay closed.
+ * PLATEAU-HANDOFF:func_overlay_035_F0000B40_1882820:end
+ */
