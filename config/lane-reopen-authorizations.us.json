@@ -95,6 +95,11 @@
       "source_commit": "3c0a8dce98c35c10e7e5217411a916ecbf0b50ea",
       "ledger_commit": null,
       "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior object-count ABI and display/transition lifetime forms remain closed; no body mutation, trace, or permutation."
+    },
+    "func_overlay_101_F0008128_18E3948": {
+      "source_commit": "99575a131bec4a433f2daf7b26a578020727dcb8",
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior constant, node-lifetime, recompute, root, and pointer-owner forms remain closed; no body mutation, trace, or permutation."
     }
   }
 }
