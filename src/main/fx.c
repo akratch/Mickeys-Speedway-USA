@@ -1919,17 +1919,14 @@ void func_8004A0F0(void) {
     D_800D6038[1] = 0;
     D_800D6040 = 0;
 }
-/* Workbench verdict: structure-mismatch, 155 differing words, first mismatch +0x0. */
-/* Candidate: 156/157 instructions with a -0x60 frame versus target -0x58; 29 structural words remain, so it is not shape-exact. */
-/* Shape status: nine-pixel glyph loop and VI/table relocation surface are preserved; stack/register gap remains. */
+/* Workbench verdict: structure-mismatch, 153 differing words, first mismatch +0x0. */
+/* Candidate: 156/157 instructions with a -0x60 frame versus target -0x58; seven aligned structural words remain. */
+/* Shape status: VI homes and four relocation positions align; one saved-parameter web still cascades through the glyph loop. */
 /* PROVENANCE: JFG's corresponding routine is assembly-only; this body is reconstructed from Mickey's own m2c draft and headers. */
 #ifdef NON_MATCHING
 void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
-    s32 width;
-    s32 height;
     u32 *pattern;
     u16 *pixel;
-    s32 glyphValue;
     s32 colorMask;
     s32 shift;
     s32 column;
@@ -1939,13 +1936,17 @@ void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
     s32 oldPixel;
     s32 maskedPixel;
     s32 value;
+    s32 offset;
+    s32 width;
+    s32 height;
 
-    glyphValue = glyph;
     viGetCurrentSize(&width, &height);
     colorMask = 0x7C0;
     shift = 6;
     pattern = D_8007D320;
-    pixel = (u16 *) ((u8 *) screen + ((((y * width) + x) * 2)));
+    offset = y * width;
+    offset += x;
+    pixel = (u16 *) ((offset * 2) + (s32) screen);
     if (arg4 != 0) {
         colorMask = 0xF800;
         shift = 0xB;
@@ -1957,7 +1958,7 @@ void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
         bit = rowBits & 7;
         rowBits >>= 3;
         if (bit != 0) {
-            if (glyphValue & (1 << bit)) {
+            if (glyph & (1 << bit)) {
                 intensity = 0x10;
             }
             oldPixel = *pixel;
@@ -1974,7 +1975,7 @@ void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
         rowBits >>= 3;
         if (bit != 0) {
             intensity = 4;
-            if (glyphValue & (1 << bit)) {
+            if (glyph & (1 << bit)) {
                 intensity = 0x10;
             }
             oldPixel = *pixel;
@@ -1990,7 +1991,7 @@ void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
         pixel++;
         if (bit != 0) {
             intensity = 4;
-            if (glyphValue & (1 << bit)) {
+            if (glyph & (1 << bit)) {
                 intensity = 0x10;
             }
             oldPixel = *pixel;
@@ -2006,7 +2007,7 @@ void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
         pixel++;
         if (bit != 0) {
             intensity = 4;
-            if (glyphValue & (1 << bit)) {
+            if (glyph & (1 << bit)) {
                 intensity = 0x10;
             }
             oldPixel = *pixel;
@@ -2022,7 +2023,7 @@ void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
         pixel++;
         if (bit != 0) {
             intensity = 4;
-            if (glyphValue & (1 << bit)) {
+            if (glyph & (1 << bit)) {
                 intensity = 0x10;
             }
             oldPixel = *pixel;
@@ -2598,4 +2599,14 @@ void func_8004AF68(void) {
  * first-mismatch: +0x44
  * summary: Exact size/frame; three shifted call sites and the first allocator web remain; next isolate the fixed-bound loop web.
  * PLATEAU-HANDOFF:func_800470B0:end
+ */
+
+/* PLATEAU-HANDOFF:func_8004A10C:start
+ * symbol: func_8004A10C
+ * score: 153 differing words
+ * frame: 0x60
+ * relocations: 5
+ * first-mismatch: +0x0
+ * summary: target frame 0x58; one extra saved-parameter web cascades through the glyph loop; resume only with a new natural lifetime lever
+ * PLATEAU-HANDOFF:func_8004A10C:end
  */
