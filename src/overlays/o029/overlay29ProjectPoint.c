@@ -30,8 +30,8 @@ extern f32 gOverlay29MinimumYReloc;
 extern f32 overlay29SqrtReloc(f32 value);
 
 /* Fresh configured V0: allocation-mismatch, exact 484 bytes / 121 words; 29
- * relocation-masked words differ, first +0x0, frame -0x70 versus -0x68. All
- * three relocation offset/type sites align; the local HI16/LO16 identity is unresolved. */
+ * relocation-masked words differ, first +0x0, frame -0x70 versus -0x68. The
+ * static resolver proves all three relocation identities exactly. */
 #ifdef NON_MATCHING
 void func_overlay_029_F0000EE0_187E190(
     s32 unused, Vec3f *output, Vec3f *axis, f32 height,
@@ -100,6 +100,6 @@ void func_overlay_029_F0000EE0_187E190(
  * frame: 0x70
  * relocations: 3
  * first-mismatch: +0x0
- * summary: Fresh exact-size V0 retains 29 differences; all three relocation sites align, but the local HI16/LO16 identity remains unresolved.
+ * summary: New resolver proves 3/3 identities exact; remaining 29-word allocation/frame cascade names no unique natural lever.
  * PLATEAU-HANDOFF:func_overlay_029_F0000EE0_187E190:end
  */
