@@ -6,38 +6,35 @@
 - frame: 0xF8
 - relocations: 71
 - first mismatch: +0x16C
-- summary: Exact geometry/frame; preflight fails closed on ambiguous gO63RenderMatrixReloc identity. Fresh structured remeasurement only.
+- summary: Fresh V0 is stable; gO63RenderMatrixReloc has no independent runtime-identity witness, so preflight remains fail-closed and body unchanged.
 
-Fresh maintenance evidence on base
-`72463bb1cadfceb4f883a21e2af73cb9087c6458`:
+Authorized maintenance reproof on base
+`4b9fafd36510efce3321060bf07686a2c40dfac3`:
 
-- the fallback and adjacent owners uniquely bound overlay 63 `.text`
+- fallback and adjacent-owner evidence still uniquely bind overlay 63 `.text`
   `+0x1D4..+0x74C`, ROM `0x18C2D5C..0x18C32D4`: `0x578` / 1,400
-  executable bytes with no target padding. The ABI is `void (s32)`; export
-  table entry 1429 and resident relocation 286 authenticate the inbound call;
-- configured IDO 5.3 `-O2 -mips2 -32` emits an exact-size 350-word V0 with
-  211 positional matches, 139 relocation-masked / 142 raw differences and
-  first masked mismatch `+0x16C`. Target and candidate frames are both
-  `0xF8`;
-- workbench classifies 40 aligned structural, 12 schedule, 104 register, and
-  three constant residuals, with 14 insertions and 14 deletions. This is a
-  broad saved-register/address-materialization plateau, not a near-exact
-  relocation-only result;
-- the runtime target has 71 configured relocation records while the candidate
-  exposes 72 static relocation sites. `function_preflight.py` and the
-  structured workbench summary both fail closed because
-  `gO63RenderMatrixReloc` has ambiguous runtime identity in the consolidated
-  candidate owner. Scalar source-shape diagnostics remain usable, but exact
-  relocation identity is not proved;
-- the donor oracle is non-actionable: its best result is DKR
-  `audioStopThread` at only `0.0615` masked four-gram similarity. No permitted
-  source donor supports a replacement body;
-- the prior flag sweep, narrowed particle/count lifetime, one-past-end particle
-  pointer, and typed opacity-pointer scopes remain exhausted. This evidence
-  pass did not alter the function body or repeat those forms.
+  executable bytes, no target padding, ABI `void (s32)`;
+- configured IDO 5.3 `-O2 -mips2 -32` reproduces the exact 350-word
+  geometry, 211 positional matches, 139 relocation-masked / 142 raw
+  differences, first masked mismatch `+0x16C`, and equal target/candidate
+  frames of `0xF8`;
+- workbench again reports 40 aligned structural, 12 schedule, 104 register,
+  and three constant residuals with 14 insertions and 14 deletions. No body,
+  flag, historical source form, or permutation was attempted;
+- the target runtime surface contains 71 records; the candidate static surface
+  contains 72. Around the unresolved argument, the shipped target has a local
+  HI16/LO16 pair at `+0x3A4/+0x3B4` and a reserved-selector symbol pair at
+  `+0x3A8/+0x3B8`. The candidate names `gO63RenderMatrixReloc` at
+  `+0x3A8/+0x3BC`;
+- no tracked alias, unique candidate definition, overlay owner, or independent
+  stable-base witness binds `gO63RenderMatrixReloc` to that shipped symbol
+  identity. Inferring it solely from the target site or target identity would
+  be circular and could cross overlays sharing synthetic VMA;
+- `function_preflight.py` therefore exits fail-closed on the ambiguous runtime
+  identity. The scalar workbench comparison is valid for geometry and source
+  shape only; it is not exact relocation evidence.
 
-Next lever: first resolve the consolidated runtime identity for
-`gO63RenderMatrixReloc` without guessing across overlays. Until preflight is
-complete, a one-shot source pass may only remeasure and refresh this structured
-evidence; it must not claim exact relocations or mutate the body.
+Next lever: add a Mickey-authenticated alias/owner witness or a generic
+fail-closed resolver backed by independent candidate evidence. Until then,
+leave the C body unchanged and do not reopen this plateau.
 <!-- plateau-handoff:overlay63UpdateEffects:end -->
