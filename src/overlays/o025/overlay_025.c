@@ -219,3 +219,13 @@ void overlay25SetVectorFlags(s32 unused0, Overlay25Vector *out, s32 unused2,
     }
     state->flags |= 4;
 }
+
+/* PLATEAU-HANDOFF:overlay25UpdateEffect:start
+ * symbol: overlay25UpdateEffect
+ * score: 132/259 words
+ * frame: 0xC8
+ * relocations: 25
+ * first-mismatch: +0x0
+ * summary: Fresh exact-size V0 reproduces 132/259 words; frames are 0xC8/0xA0. 24/25 relocation sites align, but 23 identities remain unresolved.
+ * PLATEAU-HANDOFF:overlay25UpdateEffect:end
+ */
