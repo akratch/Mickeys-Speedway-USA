@@ -77,7 +77,19 @@ extern f32 overlay20SqrtReloc(f32 value);
  * permutation batch are ineligible. Preserve this body and fallback until a
  * new legal IDO pool-to-temp web-formation mechanism exists. Linked equality
  * and the exact full ROM continue to prove the assembly fallback only. Pinned
- * DKR v77/v80/JFG and function-specific structural scans remain negative. */
+ * DKR v77/v80/JFG and function-specific structural scans remain negative.
+ *
+ * A fidelity-gated FIFO/web-existence reproof (2026-09-01) binds the sole named
+ * Ucode procedure to allocator ordinal zero and reproduces stock .text, data,
+ * relocations, and symbols exactly. The integer pool is valid FIFO: source line
+ * 114 allocates t6, then the short-lived t7 and t8 webs, frees t6, and allocates
+ * t9, leaving t7 ahead of t6. At source line 120 the later call-argument webs
+ * therefore allocate t3, t4, t5, t7, then t6. This proves that the later t6/t7
+ * exchange is the downstream consequence of the owner-selection web's lifetime,
+ * not a second independent source lever. The producer trace has no target-side
+ * web or operand-dependency endpoint, so it cannot identify a new natural C
+ * spelling for the target's missing pool-to-temp transition. No source mutation
+ * is justified by this authorized trace; retain the existing stop rule. */
 #ifdef NON_MATCHING
 void overlay20UpdateObjectResource(Overlay20Object *object,
                                    Overlay20Config *config) {
@@ -135,6 +147,6 @@ void overlay20UpdateObjectResource(Overlay20Object *object,
  * frame: 0x70
  * relocations: 4
  * first-mismatch: +0xB0
- * summary: RHS comma web-formation is byte-flat; retail CFG requires post-branch count loading, leaving the eight-word pool-to-temp carrier residual.
+ * summary: Fidelity-gated FIFO proves the later t6/t7 swap is downstream of the owner-selection web; no target-side web endpoint exists to justify a new source form.
  * PLATEAU-HANDOFF:overlay20UpdateObjectResource:end
  */

@@ -197,3 +197,13 @@ void func_overlay_011_F00022E8_186AB30(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o011/func_overlay_011_F00022E8_186AB30/func_overlay_011_F00022E8_186AB30.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_011_F00022E8_186AB30:start
+ * symbol: func_overlay_011_F00022E8_186AB30
+ * score: 40/267 words
+ * frame: 0x40
+ * relocations: 79
+ * first-mismatch: +0x4
+ * summary: Fresh exact-size V0 has 231 raw/227 masked diffs, frame 0x40; candidate 79 vs target 39 text relocs, with call-proxy identity ambiguous.
+ * PLATEAU-HANDOFF:func_overlay_011_F00022E8_186AB30:end
+ */
