@@ -54,7 +54,25 @@ s32 osFlashWriteBuffer(OSIoMesg *mb, s32 priority, void *dramAddr,
     mb->size = 0x80;
     return osEPiStartDma(&D_800D7760, mb, OS_WRITE);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/flash_5885C/func_80057E84.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decompilation,
+ * libultra/src/flash/flashsectorerase.c:osFlashWriteArray. Mickey's symbol,
+ * linked bytes, and relocations remain authoritative. */
+s32 osFlashWriteArray(u32 page_num) {
+    s32 status;
+
+    osEPiWriteIo(&D_800D7760, D_800D7760.baseAddress | 0x10000,
+                 0xA5000000 | page_num);
+    do {
+        osEPiReadIo(&D_800D7760, D_800D7760.baseAddress, &status);
+    } while ((status & 1) == 1);
+    status = 0xFFFFFF;
+    osEPiReadIo(&D_800D7760, D_800D7760.baseAddress, &status);
+    osFlashClearStatus();
+    if ((status & 0xFF) == 4 || (status & 0xFF) == 0x44 || (status & 4) == 4) {
+        return 0;
+    }
+    return -1;
+}
 /* PROVENANCE: body adapted from Jet Force Gemini's public decompilation,
  * libultra/src/flash/flashreadarray.c:osFlashReadArray. Mickey's symbol,
  * linked bytes, and relocations remain authoritative. */
