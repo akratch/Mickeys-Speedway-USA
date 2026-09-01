@@ -336,10 +336,10 @@
       "ledger_commit": "2dddabd7855d4c7c9d52e9ba2978fae00d9f37cf",
       "reason": "Fresh exact-symbol evidence authenticates one-word size drift and 87-site surface; authorize one configured maintenance reproof and identity refresh only, with body, old forms, flags, and permutation closed."
     },
-    "func_8000DB34": {
-      "source_commit": "baafccf44c8c440209b7d3b3a75dc19ddad384cd",
-      "ledger_commit": "e5f85367b7db39bb564b79bb18c764bc5d9aa9de",
-      "reason": "Fresh configured V0 plus structured finalization only: the shared track.c source changed after the retained shard. Reproduce geometry, frame, and relocations; body, flags, trace, and permutation stay closed."
+    "shadowGenerate": {
+      "source_commit": "ec607303507128d7be360be54cd4625507701b29",
+      "ledger_commit": "b8a6108ff8e6cd571beb2c37877671a40a65f985",
+      "reason": "Fresh configured V0 plus structured finalization only: the shared shadows.c prototype changed after the retained shard. Reproduce geometry, frame, and relocations; body, flags, trace, and permutation stay closed."
     }
   }
 }
