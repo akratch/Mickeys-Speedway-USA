@@ -229,6 +229,43 @@ trace-disabled fidelity proof and calibration on both functions above. Until
 such a record exists, extending the receipt would only re-label inference as
 producer evidence and remains prohibited.
 
+### UOPT identity and home boundary
+
+A follow-up audit of the pinned UOPT producer found that the required composite
+hook is not yet available. The productized globalcolor profile directly walks
+the selected live range's interference list, so its `intf` endpoint is an
+authentic allocator constraint. Its `web=N` key, however, is a phase-local bit
+position, not a stable identity shared by live-range formation, both coloring
+phases, copy/coalescing, and UGEN. The earlier ICHAIN table/chain fields are
+also run-local IR identities and are not propagated into UGEN.
+
+The workbench's separate `CDX_SYMTAB` patch records the owning itable entry,
+but its home remains a top-of-frame `off` value. Converting that value to an SP
+home requires adding a separately measured frame size; it is not a
+producer-emitted final home. The current copy/coalescing reader likewise has no
+productized producer: its `COPYDEC` generator remains a hash-pinned research
+profile, and its documented alignment by LHS home plus assignment ordinal is a
+controlled-differential hypothesis rather than stable expression identity.
+Neither surface may be relabeled as the missing receipt capability.
+
+The pinned generated UOPT source exposes these structures only through
+revision-specific emulated-memory offsets. It has no typed field or propagated
+identity at which this repository can add an authentic composite record without
+first guessing from raw words. Consequently no new producer or receipt field
+was admitted. Re-running the `func_800498FC` and `func_80050E9C` calibrations
+would reproduce the same unavailable capability because the producer grammar,
+not either input function, is the limiting surface.
+
+The concrete next hook belongs in the workbench's source-hash-pinned UOPT
+instrumentation profile. It must assign a procedure-scoped identity when the
+live range is created, carry that identity through interference insertion and
+copy/coalescing, and emit virtual-home and final-home records at the actual
+assignment sites. If final layout occurs in UGEN, the identity must cross the
+pass stream explicitly rather than be rejoined by line, register, raw field, or
+ordinal. Productize that generator with its producer tests and disabled/enabled
+fidelity matrix first; only then should this receipt add fail-closed parsers and
+calibrate the composite records on both functions.
+
 ## Failure meanings
 
 - A count/order failure means the symbol-to-procedure join is unproved. Do not
