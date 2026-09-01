@@ -110,6 +110,6 @@ void overlay17AdvanceChain(Overlay17Chain *chain, s32 useAlpha) {
  * frame: 0x70
  * relocations: 1
  * first-mismatch: +0x18
- * summary: Fresh V0 confirms 51 differences and exact frame/relocation. Pre-call buffer-copy scheduling and the private allocation web remain; prior families stay closed.
+ * summary: Fresh V0 confirms 51 diffs and exact frame/reloc; pre-call buffer-copy schedule and private allocation web remain, with no schedule-only row.
  * PLATEAU-HANDOFF:overlay17AdvanceChain:end
  */

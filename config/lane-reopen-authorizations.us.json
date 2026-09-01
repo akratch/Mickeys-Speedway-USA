@@ -201,6 +201,26 @@
       "ledger_commit": "7de9ee0750830fb02dfd3d5abac5f1c7a7f4401f",
       "reason": "Fresh configured V0 plus structured finalize_plateau only for the exact 780-byte/195-word candidate, 71 masked differences, first +0x0. Old source hypotheses, flags, permutation, and C-body mutation remain closed."
     },
+    "overlay1AdvanceGauge": {
+      "source_commit": "dacd14bc561d1b610c5c17ff204d19ea97b8b365",
+      "ledger_commit": null,
+      "reason": "Fresh configured V0 and structured finalize only for the exact 168-byte/42-word candidate: 26 masked/raw differences, first +0x14. Prior source hypotheses, flags, permutation, and body mutation remain closed."
+    },
+    "overlay17AdvanceChain": {
+      "source_commit": "4cf79df6f6cd91e7bfaad2708d1795c420cf17f1",
+      "ledger_commit": "4cf79df6f6cd91e7bfaad2708d1795c420cf17f1",
+      "reason": "Fresh configured V0 and structured finalize only for the exact 588-byte/147-word candidate: 51 masked/raw differences, first +0x18. Prior source hypotheses, flags, permutation, and body mutation remain closed."
+    },
+    "func_overlay_029_F0000EE0_187E190": {
+      "source_commit": "819c9f9a3b717545574dc318cd56d4797fbb2c20",
+      "ledger_commit": "fda619c419f8444585de86e87c9e3eaa088b1975",
+      "reason": "Tool e9890238 proves 3/3 candidate relocation identities. Authorize fresh V0/preflight/evidence and one natural source form only if diagnosis names a unique non-relocation lever; flags, permutation, old forms, fake carriers stay closed."
+    },
+    "func_overlay_041_F000195C_1888C94": {
+      "source_commit": "26d47ab7147b62fa1e528eac0ff6f2ae5ae15921",
+      "ledger_commit": "9559c13091d074eb97a7a17079f5fcdb99e70324",
+      "reason": "Tool e9890238 proves 22/22 identities exact. Authorize fresh V0/preflight/evidence and one natural source form only if diagnosis names a unique non-relocation lever; old cursor/pointer/offset, flags, permutation, fake carriers stay closed."
+    },
     "func_80028FCC": {
       "source_commit": "f7d5ec548fc748a2edb46d9eebd80f43b8c3e3b3",
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
