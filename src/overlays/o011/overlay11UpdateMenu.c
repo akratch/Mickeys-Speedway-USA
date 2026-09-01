@@ -53,7 +53,7 @@ extern void func_800290AC(s32 arg0);
 extern void func_800291D8(s32 arg0);
 extern void func_800006BC(f32 arg0, s32 arg1);
 extern void func_overlay_045_F0001BF4_188E04C(void *handle, s32 value);
-extern void func_overlay_066_F0000000(void *arg0);
+extern void overlay66Select(s32 selection);
 
 /* Pinned exact-overlay DKR v77/v80 and JFG scans found no exact donor. */
 /*
@@ -69,33 +69,35 @@ extern void func_overlay_066_F0000000(void *arg0);
  * The historical +0x138/+0x140 v0/v1 pair remains, but the removed source's
  * 299/301 runtime-normalized score does not transfer to this clean body.
  *
- * The retained object has all 102 runtime sites at exact offsets and types.
- * The surface comparator resolves and agrees on 73 identities; 29 remain
- * unresolved. Separately, all 26 calls prove the 13 typed SYMBOL endpoints
- * and zero stored addends, plus the five local JUMPs. Generic D_* assignments
- * cannot prove object ownership for the overlay-local BSS identities, so no C
- * link or promotion is attempted. The exact linked range remains fallback
- * assembly only; do not revive dead frame arrays or repeat this bounded sweep.
+ * A 2026-09-01 identity pass names the Overlay 66 +0 call as overlay66Select,
+ * closing all 102 relocation offsets, types, identities, and addends. Moving
+ * the existing index and semantic locals to their natural declaration homes,
+ * while narrowing action to the input block, restores every target stack home
+ * and improves the candidate to 299/301 words. Only the two spill stores at
+ * +0x138/+0x140 remain reversed around the call. Four additional loop/scope
+ * forms and one five-minute gain-gated batch were nonexact. The exact linked
+ * range remains fallback assembly; do not revive dead frame arrays, the prior
+ * flag lattice, or the exhausted loop forms.
  */
 #ifdef NON_MATCHING
 /* PLATEAU-HANDOFF:overlay11UpdateMenu:start
  * symbol: overlay11UpdateMenu
- * score: 282/301 relocation-masked positional words
+ * score: 299/301 relocation-masked positional words
  * frame: 0x48
  * relocations: 102
- * first-mismatch: +0x1C
- * summary: exact extent/frame and call surface; nonexact code plus ambiguous object-scoped BSS identities require the retained ASM fallback
+ * first-mismatch: +0x138
+ * summary: exact extent/frame and 102/102 relocation identities; two spill stores remain reversed around one call
  * PLATEAU-HANDOFF:overlay11UpdateMenu:end
  */
 void overlay11UpdateMenu(s32 updateRate) {
-    O11Status *status;
-    s32 finish;
+    s32 index;
     s8 direction;
     s32 selection;
     O11Object *object;
     O11ObjectSub *sub;
+    O11Status *status;
+    s32 finish;
     volatile s32 *menuInput;
-    s32 action;
 
     status = func_80028F54();
     direction = D_0[D_1C4];
@@ -121,7 +123,6 @@ void overlay11UpdateMenu(s32 updateRate) {
 
     {
         void **handle;
-        s32 index;
         s16 value;
 
         handle = D_1CC;
@@ -136,11 +137,13 @@ void overlay11UpdateMenu(s32 updateRate) {
 
     menuInput = (s32 *)(D_menuBase + 0x1C4);
     if ((func_8002554C(D_1C4) & 0x8000) || *menuInput != 0) {
+        s32 action;
+
         finish = 0;
         selection = D_1BC;
         switch (selection) {
         case 1:
-            func_overlay_066_F0000000(0);
+            overlay66Select(0);
             func_800290AC(0);
             func_800291D8(0x1E);
             func_800006BC(0.5f, 0x7F);
