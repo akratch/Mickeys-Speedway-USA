@@ -336,10 +336,10 @@
       "ledger_commit": "2dddabd7855d4c7c9d52e9ba2978fae00d9f37cf",
       "reason": "Fresh exact-symbol evidence authenticates one-word size drift and 87-site surface; authorize one configured maintenance reproof and identity refresh only, with body, old forms, flags, and permutation closed."
     },
-    "runlinkFreeCode": {
-      "source_commit": "6004dc5dc3abb23a968b4493c08432d084b4a5d8",
-      "ledger_commit": null,
-      "reason": "Structured maintenance only: compile and remeasure the configured baseline, refresh exact-symbol geometry and relocation evidence, then finalize a current handoff. Body, flags, trace, and permutation stay closed."
+    "func_80049000": {
+      "source_commit": "2dd01a7c4a8da35803c392aa57057a2dfd5262fe",
+      "ledger_commit": "ecb7eb6c15ddf09c4e32b9aafe463cf44fd4ce41",
+      "reason": "Fresh configured V0 plus structured finalization only: the shared fx.c prototype changed after the retained shard. Reproduce geometry, frame, and relocations; body, flags, trace, and permutation stay closed."
     }
   }
 }
