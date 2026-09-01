@@ -280,6 +280,6 @@ void func_overlay_101_F000C144_18E7964(void) {
  * frame: 0x38
  * relocations: 30
  * first-mismatch: +0x10
- * summary: Exact-size V0 has 246 masked differences; target 30 versus candidate 39 relocations and ambiguous local identities; body untouched.
+ * summary: Fresh configured reproof remains exact-size with 246 masked differences; 39 candidate versus 30 target relocations and ambiguous order-count identity keep promotion closed.
  * PLATEAU-HANDOFF:func_overlay_101_F000C144_18E7964:end
  */
