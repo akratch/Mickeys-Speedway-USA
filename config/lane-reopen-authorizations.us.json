@@ -61,6 +61,11 @@
       "ledger_commit": null,
       "reason": "Configured exact-size stale remeasurement at 472 bytes with 22 masked differences."
     },
+    "overlay19BuildSpatialMasks": {
+      "source_commit": "0e3edf9e8347ce6114dc1a863771dad06546de36",
+      "ledger_commit": "0e3edf9e8347ce6114dc1a863771dad06546de36",
+      "reason": "Fresh configured V0 plus structured finalize_plateau only for the exact 908-byte/227-word candidate, 63 differences, first +0x58. Old source hypotheses, flags, permutation, and C-body mutation remain closed."
+    },
     "overlay17DrawStrip": {
       "source_commit": "40fe9ae8f6a8f67920391127d843ac5c74c5a0e3",
       "ledger_commit": null,
