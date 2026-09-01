@@ -8,6 +8,8 @@ typedef struct {
 extern s16 D_800C94B0;
 extern s8 D_80078F88;
 extern s8 D_80079004;
+extern void **D_800C94F4;
+extern s32 D_800C94F8;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004340.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000439C.s")
@@ -25,7 +27,10 @@ void func_8000485C(s8 arg0) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800056A4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800056F0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000572C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005750.s")
+void **func_80005750(s32 *count) {
+    *count = D_800C94F8;
+    return D_800C94F4;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005768.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005798.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005808.s")
