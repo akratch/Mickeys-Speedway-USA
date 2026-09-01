@@ -3818,9 +3818,10 @@ s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
 #ifdef NON_MATCHING
 /* PROVENANCE: JFG's public track.c supplies the ray/edge collision role;
  * this body uses Mickey's resident edge records and output layout. */
-/* Workbench verdict: structure-mismatch, 330 differing words; first mismatch is at +0x0. */
-/* Target is 342 instructions/frame -192; candidate is 331 instructions/frame -200. */
-/* Remaining gap is structural: edge/sphere fallback and hit metadata scheduling differ; not permuter-ready. */
+/* Workbench verdict: structure-mismatch, 327 differing words; first mismatch is at +0x0. */
+/* Target is 342 instructions/frame -192; candidate is 344 instructions/frame -208. */
+/* Named plane differences recover the target saved-register footprint; the
+ * texture-global hoist still spills the loop counter and shifts the CFG. */
 extern s32 func_80012234(TrackVec3f *point, TrackVec3f *direction,
                          TrackVec3f *origin, TrackVec3f *planeDirection,
                          f32 radius, f32 *minimum, f32 *maximum);
@@ -3828,7 +3829,6 @@ extern s32 func_80012234(TrackVec3f *point, TrackVec3f *direction,
 s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3) {
     u8 *record;
     u8 *metadata;
-    u8 *metadataEntry;
     f32 t;
     f32 tEnd;
     f32 pointX;
@@ -3837,9 +3837,13 @@ s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3) {
     f32 normalX;
     f32 normalY;
     f32 normalZ;
+    f32 differenceX;
+    f32 differenceY;
+    f32 differenceZ;
     f32 planeDistance;
     s32 recordIndex;
     s32 recordCount;
+    s32 recordOffset;
     s32 hit;
     s32 edgeHit;
     s32 metadataIndex;
@@ -3847,9 +3851,10 @@ s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3) {
     hit = 0;
     recordCount = 0;
     if (D_800C9D24 > 0) {
+        recordOffset = 0;
         do {
             edgeHit = 0;
-            record = (u8 *) D_800C9D20 + (recordCount * 0x2C);
+            record = (u8 *) D_800C9D20 + recordOffset;
             if ((func_80012234((TrackVec3f *) arg0, (TrackVec3f *) arg1,
                                (TrackVec3f *) record,
                                (TrackVec3f *) (record + 0x18),
@@ -3864,9 +3869,12 @@ s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3) {
                          *(f32 *) (arg0 + 4);
                 pointZ = (*(f32 *) (arg1 + 8) * t) +
                          *(f32 *) (arg0 + 8);
-                planeDistance = (((pointX - *(f32 *) (record + 0)) * normalX) +
-                                  ((pointY - *(f32 *) (record + 4)) * normalY) +
-                                  ((pointZ - *(f32 *) (record + 8)) * normalZ)) /
+                differenceX = pointX - *(f32 *) (record + 0);
+                differenceY = pointY - *(f32 *) (record + 4);
+                differenceZ = pointZ - *(f32 *) (record + 8);
+                planeDistance = ((differenceX * normalX) +
+                                  (differenceY * normalY) +
+                                  (differenceZ * normalZ)) /
                                  ((normalZ * normalZ) +
                                   ((normalX * normalX) + (normalY * normalY)));
                 if ((planeDistance >= 0.0f) && (planeDistance <= 1.0f)) {
@@ -3876,12 +3884,12 @@ s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3) {
                     hit = 1;
                     edgeHit = 1;
                     *(f32 *) (arg3 + 0) =
-                        (pointX - ((normalX * planeDistance) +
+                        (pointX - ((*(f32 *) (record + 0x18) * planeDistance) +
                                    *(f32 *) (record + 0))) / arg2;
-                    normalX = (pointZ - ((normalZ * planeDistance) +
+                    normalX = (pointZ - ((*(f32 *) (record + 0x20) * planeDistance) +
                                          *(f32 *) (record + 8))) / arg2;
                     *(f32 *) (arg3 + 4) =
-                        (pointY - ((normalY * planeDistance) +
+                        (pointY - ((*(f32 *) (record + 0x1C) * planeDistance) +
                                    *(f32 *) (record + 4))) / arg2;
                     *(f32 *) (arg3 + 8) = normalX;
                     *(f32 *) (arg3 + 0xC) =
@@ -3890,11 +3898,13 @@ s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3) {
                            (pointY * *(f32 *) (arg3 + 4))));
                     metadata = *(u8 **) (record + 0x24);
                     metadataIndex = *(s32 *) (record + 0x28);
-                    metadataEntry = *(u8 **) (metadata + 0xC) +
-                                    (metadataIndex * 0x10);
-                    *(s32 *) (arg3 + 0x20) = *(s32 *) (metadataEntry + 0xC);
-                    *(u8 *) (arg3 + 0x24) = *((u8 *) D_800792E8->textures +
-                                              (*(u8 *) metadataEntry * 8) + 7);
+                    *(s32 *) (arg3 + 0x20) = *(s32 *)
+                        (*(u8 **) (metadata + 0xC) +
+                         (metadataIndex * 0x10) + 0xC);
+                    *(u8 *) (arg3 + 0x24) = ((u8 *)
+                        &D_800792E8->textures[
+                            *(u8 *) (*(u8 **) (metadata + 0xC) +
+                                     (metadataIndex * 0x10))])[7];
                     *(f32 *) (arg3 + 0x1C) = t;
                 }
             }
@@ -3909,10 +3919,10 @@ s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3) {
                              *(f32 *) (arg0 + 0);
                     pointY = (*(f32 *) (arg1 + 4) * t) +
                              *(f32 *) (arg0 + 4);
-                    pointZ = (*(f32 *) (arg1 + 8) * t) +
-                             *(f32 *) (arg0 + 8);
                     *(f32 *) (arg3 + 0x10) = pointX;
                     *(f32 *) (arg3 + 0x14) = pointY;
+                    pointZ = (*(f32 *) (arg1 + 8) * t) +
+                             *(f32 *) (arg0 + 8);
                     *(f32 *) (arg3 + 0x18) = pointZ;
                     *(f32 *) (arg3 + 0) =
                         (pointX - *(f32 *) (record + 0)) / arg2;
@@ -3926,11 +3936,13 @@ s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3) {
                            (pointY * *(f32 *) (arg3 + 4))));
                     metadata = *(u8 **) (record + 0x24);
                     metadataIndex = *(s32 *) (record + 0x28);
-                    metadataEntry = *(u8 **) (metadata + 0xC) +
-                                    (metadataIndex * 0x10);
-                    *(s32 *) (arg3 + 0x20) = *(s32 *) (metadataEntry + 0xC);
-                    *(u8 *) (arg3 + 0x24) = *((u8 *) D_800792E8->textures +
-                                              (*(u8 *) metadataEntry * 8) + 7);
+                    *(s32 *) (arg3 + 0x20) = *(s32 *)
+                        (*(u8 **) (metadata + 0xC) +
+                         (metadataIndex * 0x10) + 0xC);
+                    *(u8 *) (arg3 + 0x24) = ((u8 *)
+                        &D_800792E8->textures[
+                            *(u8 *) (*(u8 **) (metadata + 0xC) +
+                                     (metadataIndex * 0x10))])[7];
                     *(f32 *) (arg3 + 0x1C) = t;
                 }
             }
@@ -3944,10 +3956,10 @@ s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3) {
                              *(f32 *) (arg0 + 0);
                     pointY = (*(f32 *) (arg1 + 4) * t) +
                              *(f32 *) (arg0 + 4);
-                    pointZ = (*(f32 *) (arg1 + 8) * t) +
-                             *(f32 *) (arg0 + 8);
                     *(f32 *) (arg3 + 0x10) = pointX;
                     *(f32 *) (arg3 + 0x14) = pointY;
+                    pointZ = (*(f32 *) (arg1 + 8) * t) +
+                             *(f32 *) (arg0 + 8);
                     *(f32 *) (arg3 + 0x18) = pointZ;
                     *(f32 *) (arg3 + 0) =
                         (pointX - *(f32 *) (record + 0xC)) / arg2;
@@ -3961,15 +3973,18 @@ s32 func_80011CDC(u8 *arg0, u8 *arg1, f32 arg2, u8 *arg3) {
                            (pointY * *(f32 *) (arg3 + 4))));
                     metadata = *(u8 **) (record + 0x24);
                     metadataIndex = *(s32 *) (record + 0x28);
-                    metadataEntry = *(u8 **) (metadata + 0xC) +
-                                    (metadataIndex * 0x10);
-                    *(s32 *) (arg3 + 0x20) = *(s32 *) (metadataEntry + 0xC);
-                    *(u8 *) (arg3 + 0x24) = *((u8 *) D_800792E8->textures +
-                                              (*(u8 *) metadataEntry * 8) + 7);
+                    *(s32 *) (arg3 + 0x20) = *(s32 *)
+                        (*(u8 **) (metadata + 0xC) +
+                         (metadataIndex * 0x10) + 0xC);
+                    *(u8 *) (arg3 + 0x24) = ((u8 *)
+                        &D_800792E8->textures[
+                            *(u8 *) (*(u8 **) (metadata + 0xC) +
+                                     (metadataIndex * 0x10))])[7];
                     *(f32 *) (arg3 + 0x1C) = t;
                 }
             }
             recordCount++;
+            recordOffset += 0x2C;
         } while (recordCount < D_800C9D24);
     }
     return hit;
@@ -5894,4 +5909,14 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x0
  * summary: 119 flags flat; fidelity-clean proc 23 has 34 integer decisions but no stack homes or source-attributed webs, so no lexical experiment is justified
  * PLATEAU-HANDOFF:func_8000E5EC:end
+ */
+
+/* PLATEAU-HANDOFF:func_80011CDC:start
+ * symbol: func_80011CDC
+ * score: 15/342 words
+ * frame: 0xD0
+ * relocations: 11
+ * first-mismatch: +0x0
+ * summary: Plane-difference locals improve 339 to 327 diffs and recover target saves; texture-global hoisting still spills the counter (344 vs 342 words, 11 vs 15 relocs).
+ * PLATEAU-HANDOFF:func_80011CDC:end
  */
