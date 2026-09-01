@@ -325,6 +325,11 @@
       "source_commit": "2dddabd7855d4c7c9d52e9ba2978fae00d9f37cf",
       "ledger_commit": "2dddabd7855d4c7c9d52e9ba2978fae00d9f37cf",
       "reason": "Fresh exact-symbol evidence authenticates one-word size drift and 87-site surface; authorize one configured maintenance reproof and identity refresh only, with body, old forms, flags, and permutation closed."
+    },
+    "func_overlay_011_F00022E8_186AB30": {
+      "source_commit": "ffe52cc803195595d6f59587ed72581721585db9",
+      "ledger_commit": "ffe52cc803195595d6f59587ed72581721585db9",
+      "reason": "Fresh V0 + structured finalize only: exact 1068B/267w, 231 raw/227 masked diffs, first +0x4, frame 0x40, 79 candidate/39 target text relocs. Body closed."
     }
   }
 }
