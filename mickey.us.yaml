@@ -258,7 +258,7 @@ segments:
       # "UNKNOWN TRACK" table. Both boundaries are function starts and are
       # 16-byte aligned. See docs/modules.md section 3.4.
       - [0x39350, c, main/menu]
-      - [0x3B1A0, asm]
+      - [0x3B1A0, c, main/menu_3B1A0]
       # JFG/DKR weather lineage: initWeather leads this run, the second
       # routine weather_clip_planes is already tier A, and the tier-A
       # particles reset at 0x3D5F0 independently fixes the upper boundary.
