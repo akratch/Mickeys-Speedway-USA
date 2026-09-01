@@ -345,6 +345,11 @@
       "source_commit": "fb4f108a7a9f8a40b8c9f5abe6121e04de317be8",
       "ledger_commit": null,
       "reason": "Structured maintenance only: reproduce the latest exact-size near-match and refresh configured geometry, frame, relocations, and first mismatch. Body, flags, trace, and permutation stay closed."
+    },
+    "func_overlay_101_F00063F8_18E1C18": {
+      "source_commit": "70bf91a27da5188f1ca6eae19f812a410b1cc80a",
+      "ledger_commit": null,
+      "reason": "Structured maintenance only: reproduce the configured exact-geometry baseline and refresh frame, relocation identities, and first mismatch. Prior forms, body mutation, flags, trace, and permutation stay closed."
     }
   }
 }
