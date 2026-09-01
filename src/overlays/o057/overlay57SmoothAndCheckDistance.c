@@ -102,6 +102,6 @@ void overlay57SmoothAndCheckDistance(s32 smoothingSteps) {
  * frame: 0x30
  * relocations: 24
  * first-mismatch: +0x24
- * summary: Fresh exact-size V0: 97 raw/92 masked diffs, first +0x24; exact 0x30 frame and 24/24 shape, with 18 identities exact and six unresolved.
+ * summary: Authorized V0 reproduced 800B, 97 raw/92 masked diffs, 24/24 relocation shape, 18 exact identities, and six unresolved calls.
  * PLATEAU-HANDOFF:overlay57SmoothAndCheckDistance:end
  */
