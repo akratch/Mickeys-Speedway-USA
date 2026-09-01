@@ -1427,6 +1427,6 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0x40
  * relocations: 13
  * first-mismatch: +0xC
- * summary: Fresh exact geometry and all 13 relocations; pointer/index variants were nonimproving, while flag and donor tools need unique owner metadata.
+ * summary: Fidelity-valid proc 16 trace: 17 integer decisions, 0 source-attributed webs, no stack homes, and mixed-TU temp evidence unavailable; no source edit justified.
  * PLATEAU-HANDOFF:func_80020E4C:end
  */
