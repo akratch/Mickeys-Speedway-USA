@@ -335,11 +335,6 @@
       "source_commit": "2dddabd7855d4c7c9d52e9ba2978fae00d9f37cf",
       "ledger_commit": "2dddabd7855d4c7c9d52e9ba2978fae00d9f37cf",
       "reason": "Fresh exact-symbol evidence authenticates one-word size drift and 87-site surface; authorize one configured maintenance reproof and identity refresh only, with body, old forms, flags, and permutation closed."
-    },
-    "func_overlay_101_F000571C_18E0F3C": {
-      "source_commit": "e818c2b3f29efabfd368c9ea7ddfb40d4886bac5",
-      "ledger_commit": null,
-      "reason": "Structured maintenance only: remeasure the configured exact-sized baseline and refresh geometry, frame, and relocation evidence. Body, flags, trace, and permutation stay closed."
     }
   }
 }

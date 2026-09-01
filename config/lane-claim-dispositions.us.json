@@ -78,6 +78,24 @@
       "state": "superseded",
       "decision_commit": "f7f4e7f64f4bd01738c98cd8fc5f106cffa80ec8",
       "reason": "This historical lane changed only the sibling runlinkInit plateau; current canonical independently remeasured and finalized runlinkInit, so it has no ProcessRelocationEntry delta."
+    },
+    "739daf2a166112e07bf7f06e8684fb4b4443b32a": {
+      "symbol": "overlay1ActivateObject",
+      "state": "superseded",
+      "decision_commit": "5335012b90a9c889dedcf2f645d91df5d7e1417b",
+      "reason": "This historical tip changes only sibling overlay1FindType5ByKey evidence; canonical has a newer current handoff, so the tip has no overlay1ActivateObject delta."
+    },
+    "31271bc0b9640a49c1216c0e657aa6897cbd33f9": {
+      "symbol": "overlay1ActivateObject",
+      "state": "superseded",
+      "decision_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "This coordination tip changes only sibling Overlay 1 and Overlay 73 handoffs already current in canonical; it has no overlay1ActivateObject delta."
+    },
+    "d549980a2a1d4414e6c22e2dbec538a146a5c498": {
+      "symbol": "overlay1ActivateObject",
+      "state": "superseded",
+      "decision_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "This historical tip changes only sibling overlay1FindPreviousUsable evidence already current in canonical; it has no overlay1ActivateObject delta."
     }
   }
 }
