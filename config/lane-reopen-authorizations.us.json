@@ -45,6 +45,11 @@
       "source_commit": "b9182476acdc389a6f9691e04488f947ad7e046b",
       "ledger_commit": null,
       "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior forms, body mutation, flags, trace, and permutation stay closed."
+    },
+    "overlay89UpdateStateAndParticles": {
+      "source_commit": "53f20114b3ef159b074a4b83fbb0cf4d8deab9a1",
+      "ledger_commit": null,
+      "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior forms, body mutation, flags, trace, and permutation stay closed."
     }
   }
 }
