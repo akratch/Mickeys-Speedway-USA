@@ -28,8 +28,8 @@
     },
     "func_overlay_029_F0000EE0_187E190": {
       "source_commit": "819c9f9a3b717545574dc318cd56d4797fbb2c20",
-      "ledger_commit": null,
-      "reason": "Fresh configured V0 plus structured finalize_plateau only for the exact 484-byte/121-word candidate, 29 masked differences, first +0x0. Old source hypotheses, flags, permutation, and C-body mutation remain closed."
+      "ledger_commit": "fda619c419f8444585de86e87c9e3eaa088b1975",
+      "reason": "Tool e9890238 proves 3/3 candidate relocation identities. Authorize fresh V0/preflight/evidence and one natural source form only if diagnosis names a unique non-relocation lever; flags, permutation, old forms, fake carriers stay closed."
     },
     "overlay33BuildDisplayList": {
       "source_commit": "baf2ea98b385393dcb675caeb980ceb199409e49",
