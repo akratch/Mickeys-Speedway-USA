@@ -230,3 +230,13 @@ void overlay89InitializeEffect(Overlay89Object *object,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o089/overlay89InitializeEffect/func_overlay_089_F0000270_18D44A0.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay89InitializeEffect:start
+ * symbol: overlay89InitializeEffect
+ * score: 147/205 words
+ * frame: 0x58
+ * relocations: 5
+ * first-mismatch: +0x40
+ * summary: Fresh exact-size V0 retains 58 differences; 5/5 relocation sites align, three identities resolve, and create/maintain proxies remain unresolved.
+ * PLATEAU-HANDOFF:overlay89InitializeEffect:end
+ */
