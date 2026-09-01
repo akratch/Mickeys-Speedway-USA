@@ -1,6 +1,11 @@
 {
   "schema_version": 1,
   "authorizations": {
+    "__scHandleRetrace": {
+      "source_commit": "f32319e90681748d0af125ade00f618df8042a4a",
+      "ledger_commit": "f32319e90681748d0af125ade00f618df8042a4a",
+      "reason": "Fresh configured V0 plus structured finalize_plateau only for the 409-word target/408-word candidate, 84 differences, first +0x3B4. Old source hypotheses, flags, permutation, and C-body mutation remain closed."
+    },
     "func_80003480": {
       "source_commit": "e4628a89827467289170f03de04393f8567098a5",
       "ledger_commit": "e4628a89827467289170f03de04393f8567098a5",
