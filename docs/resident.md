@@ -2261,8 +2261,9 @@ placeholders are never imported.
 | `0x8005776C` | `0x1A4` | `hitPlayer` | tier-B; before/after type pass: mixed structural/register, 51 words at exact 105 instructions/`0xC0` frame; lever radius/call/register web, residual target workspace/register rotation |
 | `0x80057910` | `0x5C` + `0x4` pad | `fmvInit` | A; exact masked JFG skeleton and C donor, adopted name. Matched C: exact 92 executable B and relocation surface at `-O2 -mips2 -32`; trailing 4 B is compiler alignment padding and earns no function credit |
 | `0x80057970` | `0x50` | `osFlashReInit` | A; JFG `libultra/src/flash/flashreinit.c` body. Matched C: exact 80 B and 2/2 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x800579C0` | `0xF4` | `osFlashInit` | B; JFG `libultra/src/flash/flashinit.c` name/body and flash-init call role; JFG built object is 0xF0 B with different TU scheduling. Matched C: exact 244 B and 16/16 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
 | `0x80057AB4` | `0x90` | `osFlashReadStatus` | A; JFG `libultra/src/flash/flashreadstatus.c` body. Matched C: exact 144 B and 6/6 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
-| `0x80057B44` | `0xCC` | `osFlashReadId` | A; JFG `libultra/src/flash/flashreadid.c` body. Matched C: exact 204 B and 21/21 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x80057B44` | `0xCC` | `osFlashReadId` | B; JFG `libultra/src/flash/flashreadid.c` name/body and flash-ID call role; JFG built object is 0xD4 B with different TU scheduling. Matched C: exact 204 B and 21/21 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
 
 No function in this block directly references a distinctive string. Its
 references into `0x80083FA8`–`0x80084218` are floating-point constants, so no
