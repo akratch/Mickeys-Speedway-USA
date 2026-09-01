@@ -65,7 +65,10 @@ different guard in the same translation unit never reserves the target. See
 
 A genuinely new mechanism may reopen one current plateau through
 `config/lane-reopen-authorizations.us.json`. Each schema-v1 entry pins the
-symbol's full current source and handoff commit IDs plus a concise reason. A
+symbol's full current source and handoff commit IDs plus a concise reason. The
+pin may also name the exact older handoff commit reported for
+`stale-structured-evidence`; this authorizes one fresh maintenance remeasurement
+without treating the old measurements as current. A
 missing structured handoff may use `ledger_commit: null` only for a pinned
 source plateau whose pin is also the latest target guard or evidence commit;
 malformed, source-mismatched, or superseded evidence still fails closed.
@@ -587,10 +590,12 @@ interrupted report without recompiling recorded identities, and repeated
   `already-integrated/exhausted` covers a base match or a current plateau, and
   `stale-ledger` means exact source identity or target-specific shard/legacy
   history is malformed, missing, source-mismatched, or older than the committed
-  plateau. A commit-pinned reopen authorization may return a current plateau to
-  `base-only` exactly once; malformed or nonancestor entries fail closed and
-  active lane ownership takes precedence. Complete ready-queue scans batch source identity and committed lane
-  path ownership, then inspect shared-ledger changes only for the exact symbol;
+  plateau. A commit-pinned reopen authorization may return a current plateau,
+  or the exact related source/older-ledger pair reported for stale structured
+  evidence, to `base-only` exactly once; malformed or unrelated entries fail
+  closed and active lane ownership takes precedence. Complete ready-queue scans
+  batch source identity and committed lane path ownership, then inspect
+  shared-ledger changes only for the exact symbol;
   the maintenance report classifies prose-only remeasurement separately from
   structured-evidence repair. The check reads Git objects,
   never another lane's worktree or index. Its ref query excludes branches

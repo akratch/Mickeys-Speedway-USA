@@ -1263,6 +1263,20 @@ def assignment_status(
             "prose-needs-remeasurement",
         )
     if not is_ancestor(source_commit, ledger_commit):
+        if reopen_authorization is not None:
+            authorized_source = reopen_authorization["source_commit"]
+            authorized_ledger = reopen_authorization["ledger_commit"]
+            if (
+                source_commit == authorized_source
+                and ledger_commit == authorized_ledger
+            ):
+                return Assignment(
+                    symbol, "base-only", path, source_commit, ledger_commit, [],
+                    "stale structured evidence is explicitly reopened for one "
+                    "authenticated maintenance pass: "
+                    f"{reopen_authorization['reason']}",
+                    "authorized-reopen",
+                )
         return Assignment(
             symbol, "stale-ledger", path, source_commit, ledger_commit, [],
             "triage evidence predates the committed source plateau",
@@ -1432,10 +1446,13 @@ def reopen_authorizations(base: str) -> dict[str, dict[str, str]]:
                     f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} "
                     f"ledger_commit {ledger_commit} is not an ancestor of {base}"
                 )
-            if not is_ancestor(source_commit, ledger_commit):
+            if not (
+                is_ancestor(source_commit, ledger_commit)
+                or is_ancestor(ledger_commit, source_commit)
+            ):
                 raise RuntimeError(
                     f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} "
-                    "ledger_commit does not descend from source_commit"
+                    "source_commit and ledger_commit are unrelated"
                 )
         reason = row["reason"]
         if (
