@@ -253,6 +253,6 @@ void func_overlay_087_F0000128_18D3090(Overlay87MotionObject *object,
  * frame: 0x68
  * relocations: 38
  * first-mismatch: +0x2C
- * summary: Fresh V0 is four words short with 193 masked differences; frame is exact, but StraightFactor relocation provenance remains ambiguous.
+ * summary: Fresh V0 remains four words short with 193 masked differences; StraightFactor has no independent witness and its runtime identity stays ambiguous.
  * PLATEAU-HANDOFF:func_overlay_087_F0000128_18D3090:end
  */
