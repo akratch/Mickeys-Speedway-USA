@@ -221,6 +221,11 @@
       "ledger_commit": "9559c13091d074eb97a7a17079f5fcdb99e70324",
       "reason": "Tool e9890238 proves 22/22 identities exact. Authorize fresh V0/preflight/evidence and one natural source form only if diagnosis names a unique non-relocation lever; old cursor/pointer/offset, flags, permutation, fake carriers stay closed."
     },
+    "overlay101BuildBorder": {
+      "source_commit": "c8a15f205a8847ebc6ebf7dc2c0aeb5f97574eb2",
+      "ledger_commit": null,
+      "reason": "Fresh V0 and structured finalize only for the exact 316-byte/79-word candidate: 38 masked/raw differences, first +0x44. Body mutation, old forms, flags, and permutation remain closed."
+    },
     "func_80028FCC": {
       "source_commit": "f7d5ec548fc748a2edb46d9eebd80f43b8c3e3b3",
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
