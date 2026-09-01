@@ -80,6 +80,11 @@
       "source_commit": "eef574733cf1faae7e09ca9ba759b6c1232945b2",
       "ledger_commit": null,
       "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior dimension, lifetime, clip, and flag forms remain closed; no body mutation or permutation."
+    },
+    "func_overlay_043_F0000BE4_188ABB4": {
+      "source_commit": "18fe33ff3f9046dcb0ce072634d94e7f1a20da67",
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior alpha-width, offset, statement-placement, gfx-update, and transform-lifetime forms remain closed; no body mutation or permutation."
     }
   }
 }
