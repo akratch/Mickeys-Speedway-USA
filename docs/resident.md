@@ -826,6 +826,7 @@ tier-A threshold, so the address label remains canonical.
 |---|---|
 | `func_80036A80` | 48 bytes under `-O2 -mips2 -32`; JFG `src/textures.c::resetColourCycle` body, all 12 instruction words and zero relocations exact. |
 | `func_80036C60` | 76 bytes under `-O2 -mips2 -32`; JFG `src/textures.c::resetMixCycle` body, all 19 instruction words and zero relocations exact. |
+| `func_80036CAC` | 292 bytes under `-O2 -mips2 -32`; JFG `src/textures.c::updateMixCycle` body, all 73 instruction words and zero relocations exact. |
 
 ### 3.9 `main/track`: ROM `0xC950`-`0x16140`
 

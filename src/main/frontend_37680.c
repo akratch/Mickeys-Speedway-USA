@@ -55,6 +55,36 @@ void func_80036C60(PulsatingLightData *data) {
         data->totalTime += data->frames[i].time;
     }
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37680/func_80036CAC.s")
+
+/* PROVENANCE: body adapted from Jet Force Gemini's public decompilation,
+ * src/textures.c:updateMixCycle. Mickey's layout and compiler output remain
+ * authoritative. */
+void func_80036CAC(PulsatingLightData *data, s32 timeDelta) {
+    s32 thisFrameIndex;
+    s32 nextFrameIndex;
+
+    if (data->numberFrames > 1) {
+        data->time += timeDelta;
+        while (data->time >= data->totalTime) {
+            data->time -= data->totalTime;
+        }
+        while (data->time >= data->frames[data->currentFrame].time) {
+            data->time -= data->frames[data->currentFrame].time;
+            data->currentFrame++;
+            if (data->currentFrame >= data->numberFrames) {
+                data->currentFrame = 0;
+            }
+        }
+        thisFrameIndex = data->currentFrame;
+        nextFrameIndex = thisFrameIndex + 1;
+        if (nextFrameIndex >= data->numberFrames) {
+            nextFrameIndex = 0;
+        }
+
+        data->outColorValue = data->frames[thisFrameIndex].value +
+                              ((data->frames[nextFrameIndex].value * data->time) /
+                               data->frames[thisFrameIndex].time);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37680/func_80036DD0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37680/func_80036F08.s")
