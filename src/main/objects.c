@@ -40,6 +40,8 @@ extern s32 D_800C9498;
 extern s32 D_800C949C;
 extern s32 D_800C94C0[];
 extern s32 D_800C94C8[];
+extern void **D_800C94EC;
+extern s32 D_800C94F0;
 extern void **D_800C9500;
 extern s32 D_800C9504;
 
@@ -101,7 +103,13 @@ s32 func_80006C40(Objects06C40 *arg0, s32 arg1) {
     return 0x13C;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006C4C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006EA0.s")
+void func_80006EA0(void *ptr) {
+    if (((u8 *) ptr)[0x91] == 0) {
+        ((u8 *) ptr)[0x91] = 1;
+        D_800C94EC[D_800C94F0] = ptr;
+        D_800C94F0 += 1;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006EE4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006FA0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80007118.s")
