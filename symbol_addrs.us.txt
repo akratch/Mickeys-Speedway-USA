@@ -2650,6 +2650,8 @@ osFlashReInit = 0x80057970; // type:func size:0x50 tier-A matched C, JFG libultr
 // jfg:libultra/src/flash/flashreadstatus.c.o
 osFlashReadStatus = 0x80057AB4; // type:func size:0x90 tier-A matched C, JFG libultra/src/flash/flashreadstatus.c body
 // jfg:libultra/src/flash/flashreadid.c.o
+osFlashReadId = 0x80057B44; // type:func size:0xCC tier-A matched C, JFG libultra/src/flash/flashreadid.c body
+// jfg:libultra/src/flash/flashreadid.c.o
 osFlashClearStatus = 0x80057C10; // type:func size:0x4C tier-A exact C, JFG libultra/src/flash/flashreadid.c body
 func_80058EF4 = 0x80058EF4; // type:func size:0x90   ROM 0x59af4  tier-D logarithm-series helper, matched C
 func_8005A948 = 0x8005A948; // type:func size:0x178 ROM 0x5b548 tier-B JFG models animation-loader role/callgraph NON_MATCHING
