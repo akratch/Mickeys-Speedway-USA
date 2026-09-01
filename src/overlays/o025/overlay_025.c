@@ -226,6 +226,6 @@ void overlay25SetVectorFlags(s32 unused0, Overlay25Vector *out, s32 unused2,
  * frame: 0xC8
  * relocations: 25
  * first-mismatch: +0x0
- * summary: Fresh exact-size V0 reproduces 132/259 words; frames are 0xC8/0xA0. 24/25 relocation sites align, but 23 identities remain unresolved.
+ * summary: Fidelity-clean proc-1 trace emits no source semantics or virtual/final stack homes; no natural lifetime edit is uniquely justified.
  * PLATEAU-HANDOFF:overlay25UpdateEffect:end
  */
