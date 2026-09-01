@@ -2472,7 +2472,7 @@ void func_8004AF68(void) {
  * frame: 0x48
  * relocations: 4
  * first-mismatch: +0x8
- * summary: Parameter-as-cursor and one named fill carrier leave 19 register-only words plus a four-word loop-init schedule; flags and ten coherent forms exhausted.
+ * summary: Fresh V0 reproduced 484B with 23 differences: 19 register-only and four schedule words; all four relocation identities are exact.
  * PLATEAU-HANDOFF:func_80048760:end
  */
 
