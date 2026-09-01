@@ -46,6 +46,11 @@
       "ledger_commit": null,
       "reason": "Configured exact-size stale remeasurement at 1328 bytes with 28 masked differences."
     },
+    "func_overlay_071_F0000870_18CA390": {
+      "source_commit": "6c0f96cb7f72b91e9e67fbbe90d74f5f3dc18621",
+      "ledger_commit": null,
+      "reason": "Exact sibling func_overlay_071_F0000278_18C9D98 proves declaration-order stack-home recovery. Authorize fresh V0/relocation proof and semantic-local ordering only; flags, permutation, command order, and volatile stackShape remain closed."
+    },
     "overlay57UpdateModeTrigger": {
       "source_commit": "32f9b737781d9a9d814faaa92f011ad48c462367",
       "ledger_commit": null,
