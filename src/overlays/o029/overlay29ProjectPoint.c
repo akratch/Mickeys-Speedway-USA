@@ -29,9 +29,9 @@ typedef struct Overlay29Owner {
 extern f32 gOverlay29MinimumYReloc;
 extern f32 overlay29SqrtReloc(f32 value);
 
-/* Workbench allocation-mismatch: 121/121 instructions, 29 normalized/30 raw words;
- * frame -0x70 versus -0x68, with 31 aligned residuals (17 constant, 10 register).
- * Delta lifetime/register-hint probes were neutral; FP-pool slot 10 remains. */
+/* Fresh configured V0: allocation-mismatch, exact 484 bytes / 121 words; 29
+ * relocation-masked words differ, first +0x0, frame -0x70 versus -0x68. All
+ * three relocation offset/type sites align; the local HI16/LO16 identity is unresolved. */
 #ifdef NON_MATCHING
 void func_overlay_029_F0000EE0_187E190(
     s32 unused, Vec3f *output, Vec3f *axis, f32 height,
