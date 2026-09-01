@@ -143,6 +143,27 @@ class LaneStatusAssignmentTests(unittest.TestCase):
         self.assertEqual(assignment["source_commit"], plateau_commit)
         self.assertEqual(assignment["ledger_commit"], plateau_commit)
 
+    def test_exact_stale_pair_authorizes_one_shot_remeasurement(self) -> None:
+        (self.repo / SHARD_PATH.parent).mkdir()
+        (self.repo / SHARD_PATH).write_text(shard(), encoding="utf-8")
+        shard_commit = self.commit("Add overlay43FilterImage plateau shard")
+        (self.repo / SOURCE_PATH).write_text(
+            candidate(plateau=True), encoding="utf-8",
+        )
+        source_commit = self.commit("Plateau overlay43FilterImage reproof")
+        self.authorize_reopen(
+            source_commit, shard_commit,
+            reason="fresh configured maintenance remeasurement",
+        )
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(assignment["state"], "base-only")
+        self.assertEqual(assignment["reason_code"], "authorized-reopen")
+        self.assertEqual(assignment["source_commit"], source_commit)
+        self.assertEqual(assignment["ledger_commit"], shard_commit)
+
     def test_reproof_commit_automatically_exhausts_authorization(self) -> None:
         plateau_commit = self.current_plateau()
         self.authorize_reopen(plateau_commit, plateau_commit)
