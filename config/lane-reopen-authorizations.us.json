@@ -21,6 +21,11 @@
       "ledger_commit": "baafccf44c8c440209b7d3b3a75dc19ddad384cd",
       "reason": "New unique resident owner metadata at 6328f663 unlocks the authenticated flag lattice and one source-backed stack-lifetime experiment; prior broad source churn remains closed."
     },
+    "joyRead": {
+      "source_commit": "cb1a10e7e26c98fe7ef0c8307afc65a69104cc87",
+      "ledger_commit": null,
+      "reason": "Fresh configured V0 and structured finalize only for the exact 636-byte/159-word candidate: 49 raw/48 masked differences, first +0x18. Prior hypotheses, flags, permutation, and body mutation remain closed."
+    },
     "overlay33PresentAndSwap": {
       "source_commit": "69a46cbc44bc8d2d58a9c9ba9a54f9ff6e416838",
       "ledger_commit": null,
