@@ -2416,7 +2416,7 @@ void fmvInit(void) {
  * frame: 0x20
  * relocations: 41
  * first-mismatch: +0x64
- * summary: Fidelity-clean UGEN trace locates one extra temp pop at the path-loop increment and comparison, while direct-control forms regress to 92 words and frame 0x28.
+ * summary: Authenticated UGEN markers map the target uniquely to ordinal 24 and isolate one condition-line temp birth; folded preincrement stays 84/90 and is neutral.
  * PLATEAU-HANDOFF:func_80050E9C:end
  */
 
