@@ -73,6 +73,6 @@ Overlay31PoolRecord *overlay31CreatePool(s32 count) {
  * frame: 0x30
  * relocations: 4
  * first-mismatch: +0x0
- * summary: 13 masked differences; target frame 0x38 and one allocator web remain; D_10 identity pair unresolved
+ * summary: Exact-sibling proxy proof left D_10 and the allocation call unresolved; no authenticated carrier/schedule lever, so source code stayed unchanged.
  * PLATEAU-HANDOFF:overlay31CreatePool:end
  */
