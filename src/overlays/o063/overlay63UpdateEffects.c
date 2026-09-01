@@ -224,6 +224,6 @@ void overlay63UpdateEffects(s32 updateRate) {
  * frame: 0xF8
  * relocations: 71
  * first-mismatch: +0x16C
- * summary: Exact geometry/frame; preflight fails closed on ambiguous gO63RenderMatrixReloc identity. Fresh structured remeasurement only.
+ * summary: Fresh V0 is stable; gO63RenderMatrixReloc has no independent runtime-identity witness, so preflight remains fail-closed and body unchanged.
  * PLATEAU-HANDOFF:overlay63UpdateEffects:end
  */
