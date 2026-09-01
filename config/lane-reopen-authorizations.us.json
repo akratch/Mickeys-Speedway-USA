@@ -186,6 +186,11 @@
       "ledger_commit": "4614f0f92b74ef37e43a4f6a96772e7f32bc0e4e",
       "reason": "Authorize runtime relocation-identity closure and one LO16 scheduling-dependence trace for the seventeen-word residual; the completed flag lattice remains closed."
     },
+    "overlay101DrawTransformed": {
+      "source_commit": "267722c2d019c7f76e76be2b1fae01474a66fc26",
+      "ledger_commit": null,
+      "reason": "Fresh configured V0 plus structured finalize_plateau only for the exact 664-byte/166-word candidate, 62 masked differences, first +0x7C. Old source hypotheses, flags, permutation, and C-body mutation remain closed."
+    },
     "overlay94UpdateController": {
       "source_commit": "3bfc5f1ca95041cc46e2f3327c502d08869546cd",
       "ledger_commit": "51bb0f0dd66db2fb242c6d4628b1acb37457cd5e",
