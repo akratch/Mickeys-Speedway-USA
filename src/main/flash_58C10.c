@@ -4,6 +4,9 @@ extern s32 D_8007A1CC;
 extern s32 D_800D789C;
 extern s32 D_800D78A4;
 extern s32 D_800D78AC;
+extern s32 D_800D7898;
+extern s32 D_800D78A0;
+extern s32 D_800D78A8;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/flash_58C10/func_80058010.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/flash_58C10/func_8005807C.s")
@@ -17,7 +20,12 @@ void func_800581D8(s32 arg0, s32 arg1, s32 arg2) {
     D_800D78A4 = arg1;
     D_800D78AC = arg2;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/flash_58C10/func_8005820C.s")
+void func_8005820C(s32 arg0, s32 arg1, s32 arg2) {
+    D_8007A1CC |= 0x01000000;
+    D_800D7898 = arg0;
+    D_800D78A0 = arg1;
+    D_800D78A8 = arg2;
+}
 
 extern s32 D_8007F7A0;
 
