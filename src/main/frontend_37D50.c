@@ -1,9 +1,13 @@
 #include "PR/ultratypes.h"
 
+extern s32 D_8007BEA8;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_80037150.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_800371BC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_80037414.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_80037658.s")
+void func_80037658(void) {
+    D_8007BEA8 = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_80037664.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_800376CC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_800378A4.s")
