@@ -72,6 +72,12 @@
       "state": "superseded",
       "decision_commit": "d3b667a52602f425d2b85631e35a2f9de309f71e",
       "reason": "The historical multi-file repair changed only sibling exact-promotion evidence in runlink.c; canonical independently integrated and proved that evidence, so it has no ProcessRelocationEntry delta."
+    },
+    "ddb048309eeec278e17f24d94882432ccafecfba": {
+      "symbol": "ProcessRelocationEntry",
+      "state": "superseded",
+      "decision_commit": "f7f4e7f64f4bd01738c98cd8fc5f106cffa80ec8",
+      "reason": "This historical lane changed only the sibling runlinkInit plateau; current canonical independently remeasured and finalized runlinkInit, so it has no ProcessRelocationEntry delta."
     }
   }
 }

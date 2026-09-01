@@ -336,10 +336,10 @@
       "ledger_commit": "2dddabd7855d4c7c9d52e9ba2978fae00d9f37cf",
       "reason": "Fresh exact-symbol evidence authenticates one-word size drift and 87-site surface; authorize one configured maintenance reproof and identity refresh only, with body, old forms, flags, and permutation closed."
     },
-    "runlinkInit": {
-      "source_commit": "9ace6b75cd813de1f0f6fce96de107312009c547",
+    "runlinkFreeCode": {
+      "source_commit": "6004dc5dc3abb23a968b4493c08432d084b4a5d8",
       "ledger_commit": null,
-      "reason": "Structured maintenance only: remeasure the configured 146/142-word geometry, 0x38/0x40 frames, and 64/62 relocations, then finalize a current exact-symbol handoff. Body, flags, trace, and permutation stay closed."
+      "reason": "Structured maintenance only: compile and remeasure the configured baseline, refresh exact-symbol geometry and relocation evidence, then finalize a current handoff. Body, flags, trace, and permutation stay closed."
     }
   }
 }
