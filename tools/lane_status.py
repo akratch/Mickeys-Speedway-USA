@@ -1237,8 +1237,13 @@ def assignment_status(
         if reopen_authorization is not None:
             authorized_source = reopen_authorization["source_commit"]
             authorized_ledger = reopen_authorization["ledger_commit"]
+            latest_authorizable_source = base_source_commit
+            if guard_count == 1:
+                latest_authorizable_source = (
+                    latest_path_commit(base, path) or base_source_commit
+                )
             if (
-                authorized_source == base_source_commit
+                authorized_source == latest_authorizable_source
                 and authorized_ledger is None
                 and is_ancestor(source_commit, authorized_source)
             ):

@@ -289,6 +289,26 @@ class LaneStatusAssignmentTests(unittest.TestCase):
         self.assertEqual(assignment["source_commit"], plateau_commit)
         self.assertIsNone(assignment["ledger_commit"])
 
+    def test_missing_ledger_single_guard_can_pin_latest_file_commit(self) -> None:
+        (self.repo / SOURCE_PATH).write_text(
+            candidate(plateau=True), encoding="utf-8",
+        )
+        plateau_commit = self.commit(f"Plateau {SYMBOL} prose maintenance")
+        (self.repo / SOURCE_PATH).write_text(
+            "extern int changed_prototype(void);\n" + candidate(plateau=True),
+            encoding="utf-8",
+        )
+        latest_commit = self.commit("Record generic batch source update")
+        self.authorize_reopen(latest_commit, None)
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(assignment["state"], "base-only")
+        self.assertEqual(assignment["reason_code"], "authorized-reopen")
+        self.assertEqual(assignment["source_commit"], plateau_commit)
+        self.assertIsNone(assignment["ledger_commit"])
+
     def test_current_evidence_repair_can_pin_missing_ledger_reopen(self) -> None:
         revised = candidate(plateau=True).replace(
             "void overlay43FilterImage(void) {\n}",
