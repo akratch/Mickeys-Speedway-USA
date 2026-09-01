@@ -2471,14 +2471,29 @@ jtbl_8008249C = 0x8008249C; // type:jtbl size:0x30 tier-A compiler-owned gameVi 
 // the mode changer calls the same routine to establish new buffer state.
 fb_swap = 0x80034150; // type:func size:0xE0 ROM 0x34D50 canonical C, linked byte-identical
 fb_memcpy = 0x80034230; // type:func size:0x30   ROM 0x34e30  src/gameVi.c.o  masked=0/12, canonical C is linked byte-identical
+func_80034260 = 0x80034260; // type:func size:0x190 ROM 0x34E60 tier-D frame-exact NON_MATCHING candidate, JFG src/textures.c-texInitTextures assembly donor
 func_800343F0 = 0x800343F0; // type:func size:0x18 ROM 0x34FF0 canonical C, linked byte-identical, JFG-src/textures.c-texDisableModes body, Mickey address label retained
 func_80034424 = 0x80034424; // type:func size:0x10 ROM 0x35024 canonical C, linked byte-identical, JFG-src/textures.c-texModelTextureLoad body, Mickey address label retained
+func_80034434 = 0x80034434; // type:func size:0x14 ROM 0x35034 tier-D frame-exact NON_MATCHING candidate, Mickey texture-state setter
+func_80034448 = 0x80034448; // type:func size:0x358 ROM 0x35048 tier-D frame-exact NON_MATCHING candidate, JFG src/textures.c-texLoadTexture assembly donor
+func_800347A0 = 0x800347A0; // type:func size:0xAC ROM 0x353A0 tier-D frame-exact NON_MATCHING candidate, JFG-src/textures.c-texFreeTexture body adapted to Mickey cache
+func_8003484C = 0x8003484C; // type:func size:0x54 ROM 0x3544C tier-D frame-exact NON_MATCHING candidate, JFG src/textures.c-texGetTextureNum assembly donor
 func_800348C8 = 0x800348C8; // type:func size:0xC ROM 0x354C8 canonical C, linked byte-identical, JFG-src/textures.c-setTexMemColour body, Mickey address label retained
 func_800348D4 = 0x800348D4; // type:func size:0x3C ROM 0x354D4 canonical C, linked byte-identical, JFG-src/textures.c-texFrame body adapted to Mickey fields, address label retained
 func_80034910 = 0x80034910; // type:func size:0x10 ROM 0x35510 canonical C, linked byte-identical, Mickey texture-state setter, address label retained
+func_80034920 = 0x80034920; // type:func size:0x84 ROM 0x35520 tier-D frame-exact NON_MATCHING candidate, JFG-src/textures.c-texDPInit state reset adapted to Mickey globals
+func_800349A4 = 0x800349A4; // type:func size:0x440 ROM 0x355A4 tier-D frame-exact NON_MATCHING candidate, JFG src/textures.c-texDPTextureX assembly donor
 func_80034DE4 = 0x80034DE4; // type:func size:0xC ROM 0x359E4 canonical C, linked byte-identical, JFG-src/textures.c-sprSetTextureFilter body, Mickey address label retained
 func_80034DF0 = 0x80034DF0; // type:func size:0x58 ROM 0x359F0 canonical C, linked byte-identical, JFG-src/textures.c-sprSetIA2ColOverride body, Mickey address label retained
 func_80034E48 = 0x80034E48; // type:func size:0xC ROM 0x35A48 canonical C, linked byte-identical, JFG-src/textures.c-sprClearIA2ColOverride body, Mickey address label retained
+func_80034E54 = 0x80034E54; // type:func size:0x74C ROM 0x35A54 tier-D frame-exact NON_MATCHING candidate, JFG src/textures.c-sprDPset assembly donor
+func_800355A0 = 0x800355A0; // type:func size:0x434 ROM 0x361A0 tier-D frame-exact NON_MATCHING candidate, JFG src/textures.c-texLoadSprite assembly donor
+func_800359D4 = 0x800359D4; // type:func size:0x108 ROM 0x365D4 tier-D frame-exact NON_MATCHING candidate, JFG-src/textures.c-texFreeSprite body adapted to Mickey cache
+func_80035ADC = 0x80035ADC; // type:func size:0x3AC ROM 0x370DC tier-D frame-exact NON_MATCHING candidate, JFG src/textures.c-func_800577D8 assembly donor
+func_80035E88 = 0x80035E88; // type:func size:0xC0 ROM 0x37A88 tier-D frame-exact NON_MATCHING candidate, JFG-src/textures.c-func_80057B8C body adapted to Mickey fields
+func_80035F48 = 0x80035F48; // type:func size:0x5FC ROM 0x37B48 tier-D frame-exact NON_MATCHING candidate, JFG-src/textures.c-func_80057C50 source shape plus Mickey target layout
+func_80036544 = 0x80036544; // type:func size:0x260 ROM 0x37144 tier-D frame-exact NON_MATCHING candidate, JFG src/textures.c-texAnimateSprite assembly donor
+func_800367A4 = 0x800367A4; // type:func size:0x44 ROM 0x373A4 tier-D frame-exact NON_MATCHING candidate, JFG src/textures.c-texAnimateTexSprite assembly donor
 func_800367E8 = 0x800367E8; // type:func size:0x268 ROM 0x373E8 canonical C, linked byte-identical, JFG-src/textures.c-texAnimateTexture body adapted to Mickey flags
 // jfg:src/textures.c.o
 initColourCycle = 0x80036A50; // type:func size:0x30 tier-A exact C, JFG src/textures.c body
