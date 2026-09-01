@@ -191,6 +191,11 @@
       "ledger_commit": "5ccabc676e0e8204fb9cd43233c3a11a3312bddb",
       "reason": "Fresh exact-symbol evidence pins current 744B/186w V0: 94 raw diffs, 10/8 relocs, allocator identity ambiguous. Authorize one current-context reproof; old signed-counter/field forms, flags, permutation, and body mutation stay closed."
     },
+    "func_overlay_031_F00002E8_187F808": {
+      "source_commit": "449783b2c845c64540ef1cdf80ba2ac60007f0e1",
+      "ledger_commit": "449783b2c845c64540ef1cdf80ba2ac60007f0e1",
+      "reason": "Fresh V0 plus structured current-context reproof only for 528B/132w target vs 532B/133w candidate, 123 diffs, first +0xC. Body, flags, old forms, and permutation remain closed."
+    },
     "overlay31CreatePool": {
       "source_commit": "91e28f2f344b197132c1c0bc4f986ea147c90dcd",
       "ledger_commit": "91e28f2f344b197132c1c0bc4f986ea147c90dcd",
