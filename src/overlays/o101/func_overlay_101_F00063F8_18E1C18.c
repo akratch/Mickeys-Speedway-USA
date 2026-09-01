@@ -242,3 +242,13 @@ void func_overlay_101_F00063F8_18E1C18(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/func_overlay_101_F00063F8_18E1C18/func_overlay_101_F00063F8_18E1C18.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_101_F00063F8_18E1C18:start
+ * symbol: func_overlay_101_F00063F8_18E1C18
+ * score: 84/380 words
+ * frame: 0x38
+ * relocations: 49
+ * first-mismatch: +0x2C
+ * summary: 296 masked/raw differences; 32 relocation sites and 14 identities align, with 25 candidate identities unresolved. Repeated-node allocation remains divergent.
+ * PLATEAU-HANDOFF:func_overlay_101_F00063F8_18E1C18:end
+ */
