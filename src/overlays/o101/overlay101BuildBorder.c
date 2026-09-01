@@ -18,9 +18,9 @@ void overlay101BuildIntensityColorsReloc(s32 intensity, s32 alpha, u32 *full,
 void overlay101BuilderCreateReloc(Overlay101Gfx **displayList, s32 count,
                                   Overlay101BorderRect *rects, s32 flags);
 
-/* Plateau: canonical is size/frame exact at 79 words/-136 but differs in 38 words; full lattice found no exact flags.
- * Volatile-record and boundary-local variants regress to 40--62 words; the 40-minute permuter improved 1020 to 515, not zero.
- * First mismatch +0x44; blocker is the geometry store schedule and its temporary-register web. */
+/* Plateau: configured C is size/frame exact at 79 words/-136 but differs in 38
+ * words; first non-relocation mismatch +0x44. All three relocation offset/type
+ * sites align; two local R_MIPS_26 identities remain unresolved. */
 #ifdef NON_MATCHING
 void overlay101BuildBorder(Overlay101Gfx **displayList, s32 x, s32 y,
                            s32 width, s32 height, s32 intensity, s32 alpha,
@@ -78,3 +78,13 @@ void overlay101BuildBorder(Overlay101Gfx **displayList, s32 x, s32 y,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101BuildBorder/func_overlay_101_F0002DC0_18DE5E0.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay101BuildBorder:start
+ * symbol: overlay101BuildBorder
+ * score: 41/79 words
+ * frame: 0x88
+ * relocations: 3
+ * first-mismatch: +0x44
+ * summary: Exact geometry/frame and 38 differences reproduce; all 3 sites align, but two local R_MIPS_26 identities remain unresolved.
+ * PLATEAU-HANDOFF:overlay101BuildBorder:end
+ */
