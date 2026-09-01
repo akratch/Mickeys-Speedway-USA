@@ -146,3 +146,13 @@ void func_overlay_029_F00010C4_187E374(Overlay29Object *objectArg, s32 mode) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o029/overlay29HandleEffects/func_overlay_029_F00010C4_187E374.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_029_F00010C4_187E374:start
+ * symbol: func_overlay_029_F00010C4_187E374
+ * score: 224/257 words
+ * frame: 0x48
+ * relocations: 22
+ * first-mismatch: +0x7C
+ * summary: Fresh V0 reproduces 33 masked differences; all 22 offsets/types align, but 19 static identities remain unresolved and the allocation web is unchanged.
+ * PLATEAU-HANDOFF:func_overlay_029_F00010C4_187E374:end
+ */
