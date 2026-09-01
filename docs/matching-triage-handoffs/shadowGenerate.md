@@ -3,8 +3,8 @@
 
 - source: `src/main/shadows.c`
 - score: 445 differing words
-- frame: -0x150
+- frame: 0x150
 - relocations: 63
 - first mismatch: +0xC
-- summary: Mickey-only reconstruction restored exact relocation count and near geometry; local lifetimes and object-kind branch spelling still control the register web.
+- summary: Fresh V0 is 520/510 words with 445 differences; frames 0x150/0x138. Both have 63 relocations; 29 sites and identities align. Prior mechanisms closed.
 <!-- plateau-handoff:shadowGenerate:end -->
