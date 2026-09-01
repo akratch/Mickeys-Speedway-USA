@@ -14,6 +14,27 @@ typedef struct ColourCycle {
     struct ColourCycle *unkC;
 } ColourCycle;
 
+typedef struct ColourCycleFrame8 {
+    s32 unk0;
+    s32 unk4;
+} ColourCycleFrame8;
+
+typedef struct ColourCycleEntry {
+    s32 unk0;
+    s32 unk4;
+    u8 unk8;
+    u8 unk9;
+    u8 unkA;
+    u8 unkB;
+    s32 unkC;
+} ColourCycleEntry;
+
+typedef struct ColourCycleTable {
+    s32 numberFrames;
+    s32 totalTime;
+    u8 frameData[1];
+} ColourCycleTable;
+
 /* PROVENANCE: body adapted from Jet Force Gemini's public decompilation,
  * src/textures.c:resetMixCycle. Mickey's layout and compiler output remain
  * authoritative. */
@@ -51,7 +72,71 @@ void func_80036A80(ColourCycle *cycle) {
     cycle->unkB = temp_v0->unkB;
 }
 
+#ifdef NON_MATCHING
+/* PROVENANCE: body adapted from Diddy Kong Racing's public decompilation,
+ * src/textures_sprites.c:update_colour_cycle. Mickey's table and ABI remain authoritative. */
+/* Workbench verdict: structure-mismatch, 113 differing words. */
+/* First mismatch: +0x0; target 108 instructions/0x28 frame, candidate 115/0x30. */
+/* Structural gap: pointed-table loop carriers and interpolation lifetimes remain unresolved. */
+void func_80036AB0(void *arg0, s32 updateRate) {
+    ColourCycle *cycle;
+    ColourCycleTable *table;
+    s32 temp;
+    s32 curIndex;
+    s32 nextIndex;
+    u32 next_red;
+    u32 cur_red;
+    u32 next_green;
+    u32 next_blue;
+    u32 next_alpha;
+    u32 cur_green;
+    u32 cur_blue;
+    u32 cur_alpha;
+    ColourCycleEntry *cur;
+    ColourCycleEntry *next;
+
+    cycle = (ColourCycle *) arg0;
+    table = (ColourCycleTable *) cycle->unkC;
+    if (table->numberFrames >= 2) {
+        cycle->unk4 += updateRate;
+        while (cycle->unk4 >= table->totalTime) {
+            cycle->unk4 -= table->totalTime;
+        }
+        while (cycle->unk4 >=
+               ((ColourCycleEntry *) ((u8 *) table + (cycle->unk0 << 3)))->unkC) {
+            cycle->unk4 -=
+                ((ColourCycleEntry *) ((u8 *) table + (cycle->unk0 << 3)))->unkC;
+            cycle->unk0++;
+            if (cycle->unk0 >= table->numberFrames) {
+                cycle->unk0 = 0;
+            }
+        }
+
+        curIndex = cycle->unk0;
+        nextIndex = curIndex + 1;
+        if (nextIndex >= table->numberFrames) {
+            nextIndex = 0;
+        }
+        cur = (ColourCycleEntry *) ((u8 *) table + (curIndex << 3));
+        temp = (cycle->unk4 << 16) / cur->unkC;
+        cur_red = cur->unk8;
+        cur_green = cur->unk9;
+        cur_blue = cur->unkA;
+        cur_alpha = cur->unkB;
+        next = (ColourCycleEntry *) ((u8 *) table + (nextIndex << 3));
+        next_red = next->unk8;
+        next_green = next->unk9;
+        next_blue = next->unkA;
+        next_alpha = next->unkB;
+        cycle->unk8 = (((next_red - cur_red) * temp) >> 16) + cur_red;
+        cycle->unk9 = (((next_green - cur_green) * temp) >> 16) + cur_green;
+        cycle->unkA = (((next_blue - cur_blue) * temp) >> 16) + cur_blue;
+        cycle->unkB = (((next_alpha - cur_alpha) * temp) >> 16) + cur_alpha;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37680/func_80036AB0.s")
+#endif
 
 void func_80036C60(PulsatingLightData *data) {
     s32 i;

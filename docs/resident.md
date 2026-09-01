@@ -829,6 +829,10 @@ tier-A threshold, so the address label remains canonical.
 | `func_80036CAC` | 292 bytes under `-O2 -mips2 -32`; JFG `src/textures.c::updateMixCycle` body, all 73 instruction words and zero relocations exact. |
 | `func_80036DD0` | 312 bytes under `-O2 -mips2 -32`; JFG `src/screen.c::screenLoad` body, all 78 instruction words and ten relocation identities exact. |
 
+| Candidate | Verdict |
+|---|---|
+| `func_80036AB0` | Evidence D DKR `src/textures_sprites.c::update_colour_cycle` adaptation; structure-mismatch, 113 differing words, first `+0x0`, target 108 instructions/0x28 frame versus candidate 115/0x30. |
+
 ### 3.9 `main/track`: ROM `0xC950`-`0x16140`
 
 This 0x97F0-byte, 66-function block is one resident translation unit. The
