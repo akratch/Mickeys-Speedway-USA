@@ -127,6 +127,6 @@ void overlay57EaseAndLatch(s32 updateRate) {
  * frame: 0x28
  * relocations: 36
  * first-mismatch: +0x2C
- * summary: Fresh exact-size V0: 101 raw/92 masked diffs, masked first +0x2C; 28/36 identities exact and eight resident calls unresolved.
+ * summary: Fresh e989 V0: allocation mismatch; 101 raw/92 masked, masked first +0x2C; 36/36 shape, 28 identities exact, eight unresolved.
  * PLATEAU-HANDOFF:overlay57EaseAndLatch:end
  */
