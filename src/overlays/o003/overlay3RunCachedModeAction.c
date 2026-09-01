@@ -56,3 +56,13 @@ s32 overlay3RunCachedModeAction(Overlay3Object *anchor, Overlay3Control *control
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o003/overlay3RunCachedModeAction/func_overlay_003_F00000B8_1859DE8.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay3RunCachedModeAction:start
+ * symbol: overlay3RunCachedModeAction
+ * score: 79/113 words
+ * frame: 0x58
+ * relocations: 15
+ * first-mismatch: +0x14
+ * summary: Fresh V0 is exact-size with 34 raw differences; unresolved proxies move raw first to +0x14, while the first nonrelocation mismatch remains +0x84.
+ * PLATEAU-HANDOFF:overlay3RunCachedModeAction:end
+ */
