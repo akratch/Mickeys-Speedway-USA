@@ -42,6 +42,11 @@ typedef struct {
     Objects58C0Data *unk40;
 } Objects58C0Arg;
 
+typedef struct {
+    u8 pad00[0x68];
+    s32 *unk68;
+} Objects08A20Arg;
+
 extern s32 D_800C9470;
 extern s32 D_800C9474;
 extern s32 D_800C94A8;
@@ -67,6 +72,10 @@ extern void **D_800C9500;
 extern s32 D_800C9504;
 extern s32 piRomLoadSection(u32 assetIndex, u32 address, s32 assetOffset, s32 size);
 extern f32 sqrtf(f32 value);
+extern s32 D_80079008[];
+extern s32 D_800790D0[];
+extern void func_8000831C(void *arg0, void *arg1, s32 arg2, void *arg3, s32 arg4,
+                          s32 arg5, s32 arg6, s32 arg7, f32 arg8, s32 arg9, s32 arg10);
 
 void func_80004340(void) {
     D_800C9470 = 0;
@@ -200,7 +209,9 @@ void func_80008118(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008128.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000831C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800084C4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008A20.s")
+void func_80008A20(Objects08A20Arg *arg0) {
+    func_8000831C(arg0, D_80079008, 0x14, D_800790D0, 0x18, *arg0->unk68, 2, 0, 1.0f, 0xFF, 0xFF);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008A8C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008B94.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009220.s")

@@ -2985,6 +2985,7 @@ The final column records owned object words and relocation coverage.
 | `func_800056F0` | `0x56F0` / `0x3C` | **tier B**: `src/main/track.c` fixes the signed index/route-list lookup interface; placeholder retained | Exact 15 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 | `func_80006EA0` | `0x6EA0` / `0x44` | **tier B**: resident callers in `src/main/anim.c` and `src/main/charControl.c` fix the object-registration interface; placeholder retained | Exact 17 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 | `func_80004340` | `0x4340` / `0x5C` | **tier D**: object-system reset role and the target's ordered word/halfword global clears; placeholder retained | Exact 23 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_80008A20` | `0x8A20` / `0x6C` | **tier D**: target-register ABI and +0x68 object-field dispatch into `func_8000831C`; placeholder retained | Exact 27 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 
 Measured plateau:
 
