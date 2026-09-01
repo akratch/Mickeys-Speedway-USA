@@ -34,7 +34,8 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006EE4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006FA0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80007118.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80007844.s")
+void func_80007844(void) {
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000784C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80007C68.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80007E40.s")
