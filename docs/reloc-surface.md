@@ -683,7 +683,7 @@ resident target (splat auto-name or `D_8…`), which is a superset of the 15
 | `overlay5InitializeAudio` | `resident-symbol-missing` | `text-differs` 22 |
 | `func_overlay_011_F0001E4C_186A694` | `resident-symbol-missing` | `schedule-divergence-at-site` |
 | `func_overlay_011_F00022E8_186AB30` | `resident-symbol-missing` | `schedule-divergence-at-site` |
-| `overlay11UpdateMenu` | `resident-symbol-missing` | bounded current C: 33 raw target-object differences, 19 after masking linker-filled fields; exact 102/102 offset/type surface, 73/102 resolved identities |
+| `overlay11UpdateMenu` | `resident-symbol-missing` | bounded current C: 16 raw target-object differences, two after masking linker-filled fields; exact 102/102 offset/type/identity surface |
 | `func_overlay_026_F0000D24_187B11C` | `resident-symbol-missing` | `text-differs` 39 |
 | `func_overlay_027_F0000064_187BA3C` | `resident-symbol-missing` | `schedule-divergence-at-site` |
 | `func_overlay_029_F00005C4_187D874` | `resident-symbol-missing` | `schedule-divergence-at-site` |
@@ -711,17 +711,14 @@ to `+0x2948`, plus `+0x25C/+0x41C` to `func_80005820`,
 `func_80028528`, and `+0x3DC` to `func_8003A754`. The function is unexported;
 its sole inbound is table-2 LOCAL JUMP record 68 at module `+0x930` from
 `func_overlay_011_F0000150_1868998+0x7E0`. The bounded current object is 301
-instructions with the exact `0x48` frame and no padding. It differs in 33 raw
-target-object words and 19 relocation-masked positional words, first `+0x1C`;
-the removed source's historical 299/301 normalized score is not current-body
-evidence. Mechanical surface comparison proves all 102 offsets/types and 73
-stable identities. Its 26 calls prove all 13 distinct typed SYMBOL endpoints
-with zero stored addends, and its five LOCAL JUMPs prove the three local text
-targets. The remaining 29 identities are unresolved, and generic `D_*` linker
-assignments do not establish object ownership for the BSS identities. The
-122-stock-build cap (V0, 119 flags, two natural forms) plus one allocator trace
-is exhausted; linked equality therefore remains fallback-only and no C
-promotion or candidate link is claimed.
+instructions with the exact `0x48` frame and no padding. It differs in 16 raw
+target-object words and two relocation-masked positional words at
+`+0x138/+0x140`, where the index and handle spill stores are reversed around a
+call. Mechanical surface comparison proves all 102 offsets, types, identities,
+and addends; naming the Overlay 66 `+0` endpoint as `overlay66Select` closes the
+last formerly ambiguous call. The prior 122-stock-build campaign plus four
+fresh loop/scope forms and one five-minute gain-gated batch are exhausted;
+linked equality remains fallback-only and no C promotion is claimed.
 
 Nine now carry an in-range word count and a linked-ROM oracle. Four are
 `schedule-divergence-at-site`, which is the honest answer and a codegen problem:

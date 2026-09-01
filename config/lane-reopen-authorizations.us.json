@@ -311,6 +311,11 @@
       "ledger_commit": "9b9e93964d8228e8f3f4ff5aaf1b3d1fc342467a",
       "reason": "Authorize one new fidelity-gated temp-ring/FIFO web-existence trace for the seventeen-word allocator residual; flags, narrow scope, independent cursors, and direct count-carrier reuse remain closed."
     },
+    "overlay11UpdateMenu": {
+      "source_commit": "7393797ad718d547f0c7ceb6a8fcb9b49d6228ca",
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "New partial relocation evidence proves 102/102 shape, resolves 101 identities, and isolates one BSS site; authorize identity closure plus bounded allocator diagnosis for the nineteen-word residual. Prior families stay closed."
+    },
     "overlay14CreateValue": {
       "source_commit": "4614f0f92b74ef37e43a4f6a96772e7f32bc0e4e",
       "ledger_commit": "4614f0f92b74ef37e43a4f6a96772e7f32bc0e4e",
