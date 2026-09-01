@@ -2973,6 +2973,7 @@ The final column records owned object words and relocation coverage.
 | `func_8000A6DC` | `0xA6DC` / `0xC` | **tier B**: `src/main/level.c` fixes the setter's existing `s32` call prototype; placeholder retained | Exact 3 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 | `func_8000485C` | `0x485C` / `0x10` | **tier D**: object-TU order and `s8` global-setter structure; placeholder retained | Exact 4 object words and no relocations under IDO 5.3 `-O2 -mips2 -32` |
 | `func_80008118` | `0x8118` / `0x10` | **tier D**: object-TU order and byte-global initializer structure; placeholder retained | Exact 4 object words and no relocations under IDO 5.3 `-O2 -mips2 -32` |
+| `func_80005750` | `0x5750` / `0x18` | **tier B**: resident callers agree on the count-output/list-return accessor role; placeholder retained | Exact 6 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 | `func_80007844` | `0x7844` / `0x8` | **tier D**: object-TU order and empty-leaf structure; placeholder retained | Exact 2 object words and no relocations under IDO 5.3 `-O2 -mips2 -32` |
 
 Measured plateau:
