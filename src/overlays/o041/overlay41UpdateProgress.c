@@ -89,3 +89,13 @@ void func_overlay_041_F0001298_18885D0(Overlay41Input *input,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41UpdateProgress/func_overlay_041_F0001298_18885D0.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_041_F0001298_18885D0:start
+ * symbol: func_overlay_041_F0001298_18885D0
+ * score: 81/115 words
+ * frame: 0x20
+ * relocations: 4
+ * first-mismatch: +0xE8
+ * summary: Fresh V0 retains 34 differences; masked first +0xE8, raw +0xA0 at an unresolved relocation; all 4 offsets/types align.
+ * PLATEAU-HANDOFF:func_overlay_041_F0001298_18885D0:end
+ */
