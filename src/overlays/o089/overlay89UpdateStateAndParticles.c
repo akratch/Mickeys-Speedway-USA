@@ -159,3 +159,13 @@ void overlay89UpdateStateAndParticles(Overlay89Object *object,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o089/overlay89UpdateStateAndParticles/func_overlay_089_F00005A4_18D47D4.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay89UpdateStateAndParticles:start
+ * symbol: overlay89UpdateStateAndParticles
+ * score: 98 differing words
+ * frame: 0x90
+ * relocations: 14
+ * first-mismatch: +0x0
+ * summary: Candidate is 137 words/frame 0x90 versus target 136/0x88, with 14 candidate versus 12 target text relocations. Preflight closes on the one-word overrun.
+ * PLATEAU-HANDOFF:overlay89UpdateStateAndParticles:end
+ */
