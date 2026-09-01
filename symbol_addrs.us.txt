@@ -2210,6 +2210,7 @@ func_80001668 = 0x80001668; // type:func size:0x30 ROM 0x2268 tier D (sound-volu
 scalevol = 0x800016C8; // type:func size:0x24 ROM 0x22c8 tier B (JFG body/order role)
 func_800016EC = 0x800016EC; // type:func size:0x1C ROM 0x22ec tier B (overlay caller and mode writes, name unproved)
 func_80001708 = 0x80001708; // type:func size:0x38 ROM 0x2308 tier B (resident caller and master-volume reset, name unproved)
+func_80001A84 = 0x80001A84; // type:func size:0x11C ROM 0x2684 tier-A matched C, C-object+linked-ROM-exact donor-dkr-src/audiomgr.c
 func_80001BA0 = 0x80001BA0; // type:func size:0x24 ROM 0x27a0 tier-A C-object+linked-ROM-exact name-unresolved
 func_80001BC4 = 0x80001BC4; // type:func size:0x24 ROM 0x27c4 tier-A C-object+linked-ROM-exact name-unresolved
 func_80001BE8 = 0x80001BE8; // type:func size:0xC ROM 0x27e8 tier-A C-object+linked-ROM-exact name-unresolved
