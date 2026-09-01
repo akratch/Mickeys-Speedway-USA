@@ -736,3 +736,13 @@ s32 func_800038EC(u16 soundId, AudioVector3 *position,
     }
     return volume;
 }
+
+/* PLATEAU-HANDOFF:func_80003480:start
+ * symbol: func_80003480
+ * score: 41/94 words
+ * frame: 0x48
+ * relocations: 5
+ * first-mismatch: +0x0
+ * summary: Fresh exact-size V0 remains structural: target/candidate frames 0x30/0x48; 4/5 relocation sites align. Old forms, flags, and permutation stay closed.
+ * PLATEAU-HANDOFF:func_80003480:end
+ */

@@ -2975,7 +2975,7 @@ Measured plateau:
 | Mickey routine | Best result | First mismatch | Remaining hypothesis |
 |---|---|---:|---|
 | `amTuneSetFadeScaled` | Exact 29-word instruction/opcode schedule, frame, and relocation surface; 7 register-only differences after the flag lattice and 10 source-shape attempts | function `+0x1C` | IDO 5.3 temporary-FIFO phase: the target and candidate assign the three initial address/index temporaries from different positions in the same ring. The candidate remains under `NON_MATCHING`; canonical output is still assembly-backed |
-| `func_80003480` | Best typed entry-update candidate is 93 instructions versus 94, with 62 differing words; its `0x40` frame remains larger than the target's `0x30` | function `+0x0` | IDO 5.3 web formation and spill placement remain unresolved in the final replacement path; JFG's ordered peer is assembly-only and retains a placeholder name; canonical output remains assembly-backed |
+| `func_80003480` | Fresh configured V0 is exact-size at 94 instructions, with 41/94 words matching; its `0x48` frame remains larger than the target's `0x30`, and 4/5 relocation sites align by offset, type, and identity | function `+0x0` | IDO 5.3 web formation and spill placement remain unresolved in the final replacement path; old source forms, flags, and permutation remain closed, and canonical output remains assembly-backed |
 | `func_80003760` | Evidence A exact C: all 25 words, frame, relocations, and linked ROM bytes match under `-Wo,-loopunroll,0` | none | Bounded permutation resolved the temp-FIFO allocation; the donor peer remains assembly-only role evidence |
 
 PROVENANCE: TU labels, order, and semantic roles derive from JFG's permitted
