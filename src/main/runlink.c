@@ -1341,3 +1341,13 @@ s32 runlinkGetAddressInfo(u32 address, s32 *moduleId, s32 *moduleAddress,
  * summary: Fresh V0 is 142/146 words with 64 differences and frames 0x40/0x38. Relocations are 62/64; 20 target identities remain unresolved. Prior families stay closed.
  * PLATEAU-HANDOFF:runlinkInit:end
  */
+
+/* PLATEAU-HANDOFF:runlinkFreeCode:start
+ * symbol: runlinkFreeCode
+ * score: 117 differing words
+ * frame: 0x68
+ * relocations: 32
+ * first-mismatch: +0x0
+ * summary: 184 target/183 candidate words, 117 differ; frames 0x58/0x68. Relocs 32 each; 28 offset-type, 27 identity align. Prior mechanisms closed.
+ * PLATEAU-HANDOFF:runlinkFreeCode:end
+ */
