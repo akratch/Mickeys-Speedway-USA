@@ -134,7 +134,7 @@ void func_overlay_070_F00000D8_18C92A0(O70Object *object, s32 ticks) {
  * score: 165/171 words
  * frame: 0x48
  * relocations: 12
- * first-mismatch: +0xC4
- * summary: Fidelity-gated allocator trace: proc0 has 10 integer decisions (8 color, 2 split); three natural carrier forms regress; 12 offsets/types, 0 identities.
+ * first-mismatch: +0x84
+ * summary: Fidelity-clean proc-0 trace leaves both split webs run-local/unattributed; no source-semantic or stack-home field exists to authorize a source edit.
  * PLATEAU-HANDOFF:func_overlay_070_F00000D8_18C92A0:end
  */
