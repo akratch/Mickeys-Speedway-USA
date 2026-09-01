@@ -96,6 +96,11 @@
       "ledger_commit": "91e28f2f344b197132c1c0bc4f986ea147c90dcd",
       "reason": "Tool b154a54f adds exact sibling proxy witnesses. Authorize one V0/relocation reproof and one source form only if it isolates a carrier/schedule lever; flags, broad declarations/permutation, fake carriers, volatile/padding stay closed."
     },
+    "overlay57Draw32A0": {
+      "source_commit": "2d37744cfa238e1ea5967f4947ce726a8bd63f01",
+      "ledger_commit": null,
+      "reason": "Fresh configured V0 and structured finalize only for the exact 832-byte/208-word candidate: 63 raw/60 masked differences, first +0x0. Prior hypotheses, flags, permutation, and body mutation remain closed."
+    },
     "overlay57UpdateModeTrigger": {
       "source_commit": "32f9b737781d9a9d814faaa92f011ad48c462367",
       "ledger_commit": null,
