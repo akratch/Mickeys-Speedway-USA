@@ -6,5 +6,5 @@
 - frame: 0x98
 - relocations: 13
 - first mismatch: +0x3C
-- summary: Exact-size V0 has 144 raw/143 masked differences; 13 candidate versus five target relocs remain identity-ambiguous.
+- summary: Fresh reproof unchanged; no caller, Conker donor, or proxy evidence resolves the 13-to-5 relocation mismatch.
 <!-- plateau-handoff:func_overlay_079_F0000FA0_18CDF40:end -->
