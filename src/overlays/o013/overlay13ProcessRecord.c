@@ -105,6 +105,6 @@ loop_fade:
  * frame: 0x20
  * relocations: 5
  * first-mismatch: +0x20
- * summary: Fresh target-named V0 retains 96 differences; the overlay13Prepare call identity remains unresolved despite exact relocation shape.
+ * summary: Authorized V0 reproduces 96 differences; current tooling still cannot authenticate the overlay13Prepare call proxy.
  * PLATEAU-HANDOFF:overlay13UpdateRecord:end
  */
