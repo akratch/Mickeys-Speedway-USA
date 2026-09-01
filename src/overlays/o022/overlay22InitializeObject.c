@@ -116,6 +116,6 @@ void func_overlay_022_F0000000_1878108(void *object, void *init) {
  * frame: 0x58
  * relocations: 21
  * first-mismatch: +0x70
- * summary: fidelity-clean stack-home trace exposes no producer offsets and ugen has no target comparison; no trace-directed source probe is justified
+ * summary: Fresh configured V0 is exact-sized at 167/172 words with a 0x58 frame and all 21 relocation offset/type sites aligned. The pinned producer still emits no authenticated virtual/final home or source-semantic field, so no trace-directed lifetime edit is justified.
  * PLATEAU-HANDOFF:func_overlay_022_F0000000_1878108:end
  */
