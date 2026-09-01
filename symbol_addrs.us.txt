@@ -2268,6 +2268,7 @@ forcelink = 0x80001698; // type:func size:0x30   ROM 0x2298  src/audio_manager_1
 // donor-bk-src/core1/code_1D00.c
 audioManager_DMAInitProc = 0x80002354; // type:func size:0x38 ROM 0x2f54 tier-A C-object+linked-ROM-exact donor-bk-src/core1/code_1D00.c
 func_800024E0 = 0x800024E0; // type:func size:0x0C ROM 0x30e0 tier-A matched C, C-object+linked-ROM-exact name-unresolved
+func_800024EC = 0x800024EC; // type:func size:0x14 ROM 0x30ec tier-A matched C, C-object+linked-ROM-exact name-unresolved
 // donor-jfg-src/audio_manager_4C50.c.o
 amVibratoInit = 0x800039F0; // type:func size:0x90 ROM 0x45f0 tier-A src/audio_manager_4C50.c.o masked=22/36
 amInitOsc = 0x80003A80; // type:func size:0x2D8 ROM 0x4680 tier-B (JFG name/order, PD oscillator-init body)
