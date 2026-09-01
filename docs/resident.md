@@ -2980,6 +2980,7 @@ The final column records owned object words and relocation coverage.
 | `func_800069C0` | `0x69C0` / `0x28` | **tier D**: nested object/data field offsets and output-record initialization; placeholder retained | Exact 10 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 | `func_80005808` | `0x5808` / `0x18` | **tier B**: resident callers agree on the second count-output/list-return accessor role; placeholder retained | Exact 6 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 | `func_80007844` | `0x7844` / `0x8` | **tier D**: object-TU order and empty-leaf structure; placeholder retained | Exact 2 object words and no relocations under IDO 5.3 `-O2 -mips2 -32` |
+| `func_800056F0` | `0x56F0` / `0x3C` | **tier B**: `src/main/track.c` fixes the signed index/route-list lookup interface; placeholder retained | Exact 15 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 
 Measured plateau:
 

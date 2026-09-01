@@ -57,7 +57,12 @@ void func_8000485C(s8 arg0) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004FE0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005548.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800056A4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800056F0.s")
+void *func_800056F0(s32 index) {
+    if ((index < 0) || (index >= D_800C9498)) {
+        return 0;
+    }
+    return D_800C9494[index];
+}
 void **func_8000572C(s32 *start, s32 *end) {
     *start = D_800C949C;
     *end = D_800C9498;
