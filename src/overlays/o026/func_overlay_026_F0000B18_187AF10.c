@@ -111,6 +111,6 @@ void func_overlay_026_F0000B18_187AF10(
  * frame: 0x78
  * relocations: 7
  * first-mismatch: +0x108
- * summary: Trace maps projectedX web54/f18 but cannot expose final homes; its declaration reorder regressed and left sp+0x40. Next: calibrated producer hook.
+ * summary: Fresh V0 is exact-sized at 129/131 normalized words with all seven runtime identities exact. The authorized final-home producer is absent from the pinned toolchain, so the sp+0x40 versus target sp+0x44 pair has no authenticated source lever.
  * PLATEAU-HANDOFF:func_overlay_026_F0000B18_187AF10:end
  */
