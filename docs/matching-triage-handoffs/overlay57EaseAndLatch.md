@@ -6,5 +6,5 @@
 - frame: 0x28
 - relocations: 36
 - first mismatch: +0x2C
-- summary: Fresh V0 confirms 92 masked differences, exact frame, and 36/36 relocation shape; 28 identities resolve and eight overlay calls remain unresolved.
+- summary: Fresh e989 V0: allocation mismatch; 101 raw/92 masked, masked first +0x2C; 36/36 shape, 28 identities exact, eight unresolved.
 <!-- plateau-handoff:overlay57EaseAndLatch:end -->

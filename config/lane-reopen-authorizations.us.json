@@ -221,6 +221,26 @@
       "ledger_commit": "9559c13091d074eb97a7a17079f5fcdb99e70324",
       "reason": "Tool e9890238 proves 22/22 identities exact. Authorize fresh V0/preflight/evidence and one natural source form only if diagnosis names a unique non-relocation lever; old cursor/pointer/offset, flags, permutation, fake carriers stay closed."
     },
+    "overlay101BuildBorder": {
+      "source_commit": "c8a15f205a8847ebc6ebf7dc2c0aeb5f97574eb2",
+      "ledger_commit": null,
+      "reason": "Fresh V0 and structured finalize only for the exact 316-byte/79-word candidate: 38 masked/raw differences, first +0x44. Body mutation, old forms, flags, and permutation remain closed."
+    },
+    "overlay101DrawTransformed": {
+      "source_commit": "267722c2d019c7f76e76be2b1fae01474a66fc26",
+      "ledger_commit": null,
+      "reason": "Fresh configured V0 plus structured finalize_plateau only for the exact 664-byte/166-word candidate, 62 masked differences, first +0x7C. Old source hypotheses, flags, permutation, and C-body mutation remain closed."
+    },
+    "overlay57Draw32A0": {
+      "source_commit": "2d37744cfa238e1ea5967f4947ce726a8bd63f01",
+      "ledger_commit": null,
+      "reason": "Fresh configured V0 and structured finalize only for the exact 832-byte/208-word candidate: 63 raw/60 masked differences, first +0x0. Prior hypotheses, flags, permutation, and body mutation remain closed."
+    },
+    "overlay57EaseAndLatch": {
+      "source_commit": "83c2ff225b7fd56ff0e71fd60d2d162ba0201c1d",
+      "ledger_commit": "83c2ff225b7fd56ff0e71fd60d2d162ba0201c1d",
+      "reason": "Fresh configured V0 and structured finalize only for the exact 884-byte/221-word candidate: 101 raw/92 masked differences, raw first +0x14 and masked first +0x2C. Prior source hypotheses, flags, permutation, and body mutation remain closed."
+    },
     "func_80028FCC": {
       "source_commit": "f7d5ec548fc748a2edb46d9eebd80f43b8c3e3b3",
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
