@@ -217,3 +217,13 @@ void overlay63UpdateEffects(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o063/overlay63UpdateEffects/func_overlay_063_F00001D4_18C2D5C.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay63UpdateEffects:start
+ * symbol: overlay63UpdateEffects
+ * score: 211/350 words
+ * frame: 0xF8
+ * relocations: 71
+ * first-mismatch: +0x16C
+ * summary: Exact geometry/frame; preflight fails closed on ambiguous gO63RenderMatrixReloc identity. Fresh structured remeasurement only.
+ * PLATEAU-HANDOFF:overlay63UpdateEffects:end
+ */
