@@ -48,8 +48,8 @@
     },
     "func_overlay_041_F000195C_1888C94": {
       "source_commit": "26d47ab7147b62fa1e528eac0ff6f2ae5ae15921",
-      "ledger_commit": null,
-      "reason": "Fresh V0 plus structured finalize_plateau only for the 420-byte/105-word candidate, 29 masked differences, first +0x8. Old cursor, pointer, offset, flag, and permutation variants and body mutation absent fresh evidence remain closed."
+      "ledger_commit": "9559c13091d074eb97a7a17079f5fcdb99e70324",
+      "reason": "Tool e9890238 proves 22/22 identities exact. Authorize fresh V0/preflight/evidence and one natural source form only if diagnosis names a unique non-relocation lever; old cursor/pointer/offset, flags, permutation, fake carriers stay closed."
     },
     "packInit": {
       "source_commit": "bf3e6b048487cbb249d5311817887ad2116d6316",
