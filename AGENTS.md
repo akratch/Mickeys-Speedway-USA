@@ -84,6 +84,9 @@ and never need a job ceiling to avoid stepping on each other
   budget follows work class and may grow as the queue hardens (ADR 0011).
 - Full two-phase `gmake verify` run against a SHARED worktree (not a lane) goes through `tools/with_verify_lock.sh`, now in `campaign/unchain`. A lane's own `gmake verify` needs no lock: each lane already has its own `build/`.
 
+Raw compiler-output `asm` blocks and standing permuter sweeps follow ADR 0016.
+Carve and ROM-prove the TU before decompiling a contained function.
+
 ### Three-session interactive crew
 
 For a persistent interactive crew, use one leader in `campaign/unchain` and
