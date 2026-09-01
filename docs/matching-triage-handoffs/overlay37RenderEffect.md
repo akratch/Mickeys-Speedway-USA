@@ -6,5 +6,5 @@
 - frame: 0x88
 - relocations: 12
 - first mismatch: +0x0
-- summary: Fresh V0 is 852B/213w versus 856B/214w: 139 diffs, frame 0x88 vs 0x98, and only 3/12 relocation identities align.
+- summary: Fresh reproof unchanged; sole caller, weak PD donor, and 3/12 aligned relocation identities expose no new source lever.
 <!-- plateau-handoff:overlay37RenderEffect:end -->
