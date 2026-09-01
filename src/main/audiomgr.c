@@ -1,8 +1,13 @@
 #include "PR/ultratypes.h"
+#include "PR/os_internal.h"
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audiomgr/func_80001740.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audiomgr/func_80001A84.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audiomgr/func_80001BA0.s")
+extern OSThread D_800C7A50;
+
+void func_80001BA0(void) {
+    osStartThread(&D_800C7A50);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audiomgr/func_80001BC4.s")
 extern s32 D_80078DEC;
 
