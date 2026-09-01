@@ -247,6 +247,14 @@ existing linked-ROM/runtime-table path proves exact effective identities; the
 promotion proof wrapper also independently rejects any preflight status other
 than `complete`.
 
+For same-overlay data proxies, preflight may resolve an otherwise anonymous
+name from a different canonical function only when that sibling is an exact,
+function-sized atlas owner with fresh object/link evidence, linked-ROM byte
+identity, and one unambiguous static/runtime relocation tuple. This adds the
+identity to the candidate record but never moves its offset: a schedule-shifted
+HI16/LO16 pair still fails the independent offset/type comparison. Conflicting
+or merely nonmatching sibling evidence remains unresolved.
+
 Promotion does not make the preflight unusable when splat removes the
 function's `asm/nonmatchings` fallback. With no fallback present, the resolver
 enters `post_promotion` mode only for one unconditional requested C definition
