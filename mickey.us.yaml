@@ -251,7 +251,7 @@ segments:
       - [0x354C8, c, main/textures_354C8]
       - [0x37650, c, main/initColourCycle]
       - [0x37680, c, main/frontend_37680]
-      - [0x37D50, asm]
+      - [0x37D50, c, main/frontend_37D50]
       # JFG's menu.c / Mickey's resident front-end menu code. The start is
       # setLanguage followed by initFront; the end is the function after
       # frontCharSelectSetQuitMode, where the code switches to the unrelated
