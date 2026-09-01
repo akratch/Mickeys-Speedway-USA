@@ -22,7 +22,25 @@ s32 osFlashAllErase(void) {
     }
     return -1;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/flash_5885C/func_80057D28.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decompilation,
+ * libultra/src/flash/flashsectorerase.c:osFlashSectorErase. Mickey's symbol,
+ * linked bytes, and relocations remain authoritative. */
+s32 osFlashSectorErase(u32 page_num) {
+    s32 status;
+
+    osEPiWriteIo(&D_800D7760, D_800D7760.baseAddress | 0x10000,
+                 0x4B000000 | page_num);
+    osEPiWriteIo(&D_800D7760, D_800D7760.baseAddress | 0x10000, 0x78000000);
+    do {
+        osEPiReadIo(&D_800D7760, D_800D7760.baseAddress, &status);
+    } while ((status & 2) == 2);
+    osEPiReadIo(&D_800D7760, D_800D7760.baseAddress, &status);
+    osFlashClearStatus();
+    if ((status & 0xFF) == 8 || (status & 0xFF) == 0x48 || (status & 8) == 8) {
+        return 0;
+    }
+    return -1;
+}
 /* PROVENANCE: body adapted from Jet Force Gemini's public decompilation,
  * libultra/src/flash/flashsectorerase.c:osFlashWriteBuffer. Mickey's symbol,
  * linked bytes, and relocations remain authoritative. */
