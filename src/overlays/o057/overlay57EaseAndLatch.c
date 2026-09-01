@@ -120,3 +120,13 @@ void overlay57EaseAndLatch(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57EaseAndLatch/func_overlay_057_F00028B4_18A64AC.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay57EaseAndLatch:start
+ * symbol: overlay57EaseAndLatch
+ * score: 129/221 words
+ * frame: 0x28
+ * relocations: 36
+ * first-mismatch: +0x2C
+ * summary: Fresh exact-size V0: 101 raw/92 masked diffs, masked first +0x2C; 28/36 identities exact and eight resident calls unresolved.
+ * PLATEAU-HANDOFF:overlay57EaseAndLatch:end
+ */
