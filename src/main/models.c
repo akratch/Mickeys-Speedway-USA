@@ -1173,14 +1173,6 @@ void func_80020B10(Gfx **displayList, s8 *textureIds, s8 *slots,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/models/func_80020B10.s")
 #endif
 #ifdef NON_MATCHING
-/* PLATEAU-HANDOFF
- * symbol: func_80020D8C
- * score: 31/48 words
- * frame: 0x8
- * relocations: 0
- * first-mismatch: +0x38
- * summary: ugen temp-FIFO phase; flags and four natural web-family forms exhausted without gain
- */
 typedef struct ModelFrameEntry {
     s16 frame;
     s16 nextFrame;
@@ -1429,4 +1421,14 @@ void func_8002109C(ModelPointOwner *owner) {
  * first-mismatch: +0xC
  * summary: Fidelity-valid proc 16 trace: 17 integer decisions, 0 source-attributed webs, no stack homes, and mixed-TU temp evidence unavailable; no source edit justified.
  * PLATEAU-HANDOFF:func_80020E4C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80020D8C:start
+ * symbol: func_80020D8C
+ * score: 31/48 words
+ * frame: 0x8
+ * relocations: 0
+ * first-mismatch: +0x38
+ * summary: ugen temp-FIFO phase; flags and four natural web-family forms exhausted without gain
+ * PLATEAU-HANDOFF:func_80020D8C:end
  */
