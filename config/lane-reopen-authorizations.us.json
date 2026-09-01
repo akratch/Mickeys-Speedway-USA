@@ -146,6 +146,11 @@
       "ledger_commit": null,
       "reason": "Exact sibling func_overlay_071_F0000278_18C9D98 proves declaration-order stack-home recovery. Authorize fresh V0/relocation proof and semantic-local ordering only; flags, permutation, command order, and volatile stackShape remain closed."
     },
+    "func_overlay_031_F0000000_187F520": {
+      "source_commit": "5ccabc676e0e8204fb9cd43233c3a11a3312bddb",
+      "ledger_commit": "5ccabc676e0e8204fb9cd43233c3a11a3312bddb",
+      "reason": "Fresh exact-symbol evidence pins current 744B/186w V0: 94 raw diffs, 10/8 relocs, allocator identity ambiguous. Authorize one current-context reproof; old signed-counter/field forms, flags, permutation, and body mutation stay closed."
+    },
     "overlay31CreatePool": {
       "source_commit": "91e28f2f344b197132c1c0bc4f986ea147c90dcd",
       "ledger_commit": "91e28f2f344b197132c1c0bc4f986ea147c90dcd",
