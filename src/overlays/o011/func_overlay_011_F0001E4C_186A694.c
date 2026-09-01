@@ -204,6 +204,6 @@ void func_overlay_011_F0001E4C_186A694(s32 updateRate) {
  * frame: 0x40
  * relocations: 87
  * first-mismatch: +0x10
- * summary: Fresh V0 is -1 word; 87/87 relocation counts/types but ambiguous local-call and shifted sites close identities. Old forms closed; body untouched.
+ * summary: Fresh V0 on 151b0d05 reproduces -1w and 87-site ambiguity; caller/donors unchanged, no new identity; body untouched.
  * PLATEAU-HANDOFF:func_overlay_011_F0001E4C_186A694:end
  */
