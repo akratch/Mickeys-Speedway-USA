@@ -52,12 +52,15 @@ extern s32 D_800C9498;
 extern s32 D_800C949C;
 extern u8 *D_800C9460;
 extern s32 D_800C9468;
+extern s32 *D_800C9458;
+extern s16 *D_800C94E0;
 extern s32 D_800C94C0[];
 extern s32 D_800C94C8[];
 extern void **D_800C94EC;
 extern s32 D_800C94F0;
 extern void **D_800C9500;
 extern s32 D_800C9504;
+extern s32 piRomLoadSection(u32 assetIndex, u32 address, s32 assetOffset, s32 size);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004340.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000439C.s")
@@ -120,7 +123,20 @@ s32 func_80005820(s32 arg0) {
     }
     return D_800C94F4[arg0];
 }
+/* Workbench verdict: allocation-mismatch; 8 differing words. */
+/* First mismatch: +0x1C. */
+/* Shape-exact candidate; stack-home/register allocation is reserved for the permuter. */
+#ifdef NON_MATCHING
+s16 func_80005868(s32 arg0) {
+    u8 buffer[0xC0];
+    s16 index = D_800C94E0[arg0];
+
+    piRomLoadSection(0x2D, (u32)buffer, D_800C9458[index], 0xC0);
+    return *(s16 *)(buffer + 0x1C);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005868.s")
+#endif
 s8 func_800058C0(Objects58C0Arg *arg0, s32 arg1) {
     if ((arg1 >= 4) || (arg0->unk40->unkD0[arg1] == 0.0f)) {
         return arg0->unk40->unk1E[0];
