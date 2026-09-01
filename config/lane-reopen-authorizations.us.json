@@ -91,6 +91,11 @@
       "ledger_commit": "4f1ac9d546e914ac35efb45ee551505f1e3e63ef",
       "reason": "Owner da1dee0c8183f5f1337da67bb7d535bf2fc62897 unlocks one fidelity-gated allocator trace for exception-loop/pool-slot-1/temp-slot-3 and at most one trace-backed source form; prior flags, pointer/index, cursor, and declaration stay closed."
     },
+    "func_800336A8": {
+      "source_commit": "7de9ee0750830fb02dfd3d5abac5f1c7a7f4401f",
+      "ledger_commit": "7de9ee0750830fb02dfd3d5abac5f1c7a7f4401f",
+      "reason": "Fresh configured V0 plus structured finalize_plateau only for the exact 780-byte/195-word candidate, 71 masked differences, first +0x0. Old source hypotheses, flags, permutation, and C-body mutation remain closed."
+    },
     "overlay1BendPathPoint": {
       "source_commit": "6fe1a4e341f5efd5ba9aa0ccd7562cdebec49fee",
       "ledger_commit": null,
