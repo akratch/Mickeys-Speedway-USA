@@ -3,6 +3,9 @@
 #include "PR/rcp.h"
 
 extern OSPiHandle D_800D7760;
+extern u32 D_800D7720[4];
+extern OSIoMesg D_800D7730;
+extern OSMesgQueue D_800D7748;
 
 /* PROVENANCE: body adapted from Jet Force Gemini's public decompilation,
  * libultra/src/flash/flashreinit.c. Mickey's handler symbol and output remain
@@ -34,4 +37,22 @@ void osFlashReadStatus(u8 *flash_status) {
     *flash_status = status & 0xFF;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/flash_58570/func_80057B44.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public decompilation,
+ * libultra/src/flash/flashreadid.c:osFlashReadId. Mickey's symbol, linked
+ * bytes, and relocations remain authoritative. */
+void osFlashReadId(s32 *flash_type, s32 *flash_maker) {
+    u8 tmp;
+
+    osFlashReadStatus(&tmp);
+    osEPiWriteIo(&D_800D7760, D_800D7760.baseAddress | 0x10000, 0xE1000000);
+    D_800D7730.hdr.pri = 0;
+    D_800D7730.hdr.retQueue = &D_800D7748;
+    D_800D7730.dramAddr = D_800D7720;
+    D_800D7730.devAddr = 0;
+    D_800D7730.size = 2 * sizeof(u32);
+    osWritebackDCache(D_800D7720, 0x10);
+    osEPiStartDma(&D_800D7760, &D_800D7730, OS_READ);
+    osRecvMesg(&D_800D7748, NULL, OS_MESG_BLOCK);
+    *flash_type = D_800D7720[0];
+    *flash_maker = D_800D7720[1];
+}
