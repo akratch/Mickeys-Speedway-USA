@@ -335,6 +335,11 @@
       "source_commit": "2dddabd7855d4c7c9d52e9ba2978fae00d9f37cf",
       "ledger_commit": "2dddabd7855d4c7c9d52e9ba2978fae00d9f37cf",
       "reason": "Fresh exact-symbol evidence authenticates one-word size drift and 87-site surface; authorize one configured maintenance reproof and identity refresh only, with body, old forms, flags, and permutation closed."
+    },
+    "func_overlay_101_F000C144_18E7964": {
+      "source_commit": "64f10118c15a4f667b001f34de4c6be7bcde7ea0",
+      "ledger_commit": "f517cd42a0356685ab2caefdc9e7ecfa6d39a9e7",
+      "reason": "Fresh evidence proves exact geometry but target 30 versus candidate 39 relocations with ambiguous local identities; authorize one configured reproof and identity refresh only. Body, old forms, flags, and permutation stay closed."
     }
   }
 }

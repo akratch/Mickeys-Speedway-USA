@@ -273,3 +273,13 @@ void func_overlay_101_F000C144_18E7964(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101TailC144/func_overlay_101_F000C144_18E7964.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_101_F000C144_18E7964:start
+ * symbol: func_overlay_101_F000C144_18E7964
+ * score: 115/361 words
+ * frame: 0x38
+ * relocations: 30
+ * first-mismatch: +0x10
+ * summary: Exact-size V0 has 246 masked differences; target 30 versus candidate 39 relocations and ambiguous local identities; body untouched.
+ * PLATEAU-HANDOFF:func_overlay_101_F000C144_18E7964:end
+ */
