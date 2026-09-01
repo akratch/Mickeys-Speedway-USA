@@ -4297,9 +4297,9 @@ void func_80012658(s32 flags) {
  * declarations reconstruct this query; no external function body is adapted.
  * Raw offsets retain the compact segment and polygon records.
  */
-/* Workbench verdict: structure-mismatch, 545 differing words, first mismatch +0x0. */
-/* Candidate is 517/548 instructions with frame -0x2A8 versus target -0x288; it is not shape-exact. */
-/* Remaining gap: 31 missing instructions, 32 excess frame bytes, and unresolved polygon/relocation scheduling. */
+/* Workbench verdict: structure-mismatch, 527 differing words, first mismatch +0x0. */
+/* Candidate is 543/548 instructions with frame -0x2B0 versus target -0x288. */
+/* Remaining gap: five missing instructions, 40 excess frame bytes, and two excess relocations. */
 extern s32 func_800131AC(TrackVec3f *origin, TrackVec3f *direction,
                          TrackVec3f *minimum, TrackVec3f *maximum,
                          f32 *nearClip, f32 *farClip);
@@ -4343,7 +4343,7 @@ s32 func_8001291C(f32 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
     f32 normalZ;
     f32 planeDistance;
     f32 edgeValue;
-    s32 segmentCount;
+    f32 temporaryTime;
     s32 segmentIndex;
     s32 hitCount;
     s32 insertIndex;
@@ -4356,7 +4356,7 @@ s32 func_8001291C(f32 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
     s32 inside;
     s32 hit;
     s32 bestFlags;
-    s32 bestTexture;
+    u8 bestTexture;
     s32 x0;
     s32 y0;
     s32 z0;
@@ -4366,18 +4366,22 @@ s32 func_8001291C(f32 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
     s32 edgeNumber;
     u16 edge;
     u16 edgeSign;
+    u8 temporaryY;
     u8 *segmentBytes;
     u8 *surfaceBytes;
+    void *temporarySegment;
+    s32 temporaryXZ;
 
-    track = D_800792E8;
     direction.f[0] = arg1[0] - arg0[0];
     direction.f[1] = arg1[1] - arg0[1];
     direction.f[2] = arg1[2] - arg0[2];
-    hitCount = 0;
-    segmentCount = E129_S16(track, 0x1A);
     if ((direction.f[0] != 0.0f) || (direction.f[1] != 0.0f) ||
         (direction.f[2] != 0.0f)) {
-        for (segmentIndex = 0; segmentIndex < segmentCount; segmentIndex++) {
+        track = D_800792E8;
+        hitCount = 0;
+        for (segmentIndex = 0;
+             segmentIndex < E129_S16(D_800792E8, 0x1A);
+             segmentIndex++) {
             bounds = track->segmentBounds + segmentIndex;
             minimum.f[0] = (f32) bounds->x1;
             minimum.f[1] = (f32) bounds->y1;
@@ -4416,23 +4420,33 @@ s32 func_8001291C(f32 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
                     z1 = z0;
                     z0 = temporary;
                 }
-                if (hitCount < 20) {
-                    insertIndex = hitCount;
-                    while ((insertIndex > 0) &&
-                           (nearClip < entryTimes[insertIndex - 1])) {
-                        entryTimes[insertIndex] = entryTimes[insertIndex - 1];
-                        segments[insertIndex] = segments[insertIndex - 1];
-                        xzMasks[insertIndex] = xzMasks[insertIndex - 1];
-                        yMasks[insertIndex] = yMasks[insertIndex - 1];
-                        insertIndex--;
-                    }
-                    entryTimes[insertIndex] = nearClip;
-                    segments[insertIndex] =
-                        (u8 *) track->segments + (segmentIndex * 0x40);
-                    xzMasks[insertIndex] = getXZCompareMask(
-                        bounds, x0, z0, x1, z1);
-                    yMasks[insertIndex] = getYCompareMask(bounds, y0, y1);
-                    hitCount++;
+                entryTimes[hitCount] = nearClip;
+                segments[hitCount] =
+                    (u8 *) D_800792E8->segments + (segmentIndex * 0x40);
+                xzMasks[hitCount] = getXZCompareMask(bounds, x0, z0, x1, z1);
+                yMasks[hitCount] = getYCompareMask(bounds, y0, y1);
+                insertIndex = hitCount;
+                while ((insertIndex > 0) &&
+                       (entryTimes[insertIndex] <
+                        entryTimes[insertIndex - 1])) {
+                    temporaryTime = entryTimes[insertIndex];
+                    temporarySegment = segments[insertIndex];
+                    temporaryXZ = xzMasks[insertIndex];
+                    temporaryY = yMasks[insertIndex];
+
+                    entryTimes[insertIndex] = entryTimes[insertIndex - 1];
+                    segments[insertIndex] = segments[insertIndex - 1];
+                    xzMasks[insertIndex] = xzMasks[insertIndex - 1];
+                    yMasks[insertIndex] = yMasks[insertIndex - 1];
+                    entryTimes[insertIndex - 1] = temporaryTime;
+                    segments[insertIndex - 1] = temporarySegment;
+                    xzMasks[insertIndex - 1] = temporaryXZ;
+                    yMasks[insertIndex - 1] = temporaryY;
+                    insertIndex--;
+                }
+                hitCount++;
+                if (hitCount >= 20) {
+                    segmentIndex = E129_S16(D_800792E8, 0x1A);
                 }
             }
         }
@@ -4443,10 +4457,9 @@ s32 func_8001291C(f32 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
     pointY = arg1[1];
     pointZ = arg1[2];
     arg3 |= 0x1080;
-    bestPlane = NULL;
-    bestFlags = 0;
-    bestTexture = 0;
-    for (segmentIndex = 0; segmentIndex < hitCount; segmentIndex++) {
+    for (segmentIndex = 0;
+         (segmentIndex < hitCount) && (hit == 0);
+         segmentIndex++) {
         segmentBytes = (u8 *) segments[segmentIndex];
         segment = segments[segmentIndex];
         surfaceBase = E129_PTR(segment, 0x1C);
@@ -4513,7 +4526,7 @@ s32 func_8001291C(f32 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
                                 bestPlane = plane;
                                 bestFlags = E129_S32(batchRecord, 0x0C);
                                 bestTexture = E129_U8(
-                                    track->textures,
+                                    D_800792E8->textures,
                                     (E129_U8(batchRecord, 0) * 8) + 7);
                                 hit = 1;
                             }
@@ -4533,10 +4546,13 @@ s32 func_8001291C(f32 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
         E129_F32(arg2, 0x14) = E129_F32(bestPlane, 4);
         E129_F32(arg2, 0x18) = E129_F32(bestPlane, 8);
         E129_F32(arg2, 0x1C) = E129_F32(bestPlane, 0xC);
+        direction.f[0] *= bestDistance;
+        direction.f[1] *= bestDistance;
+        direction.f[2] *= bestDistance;
         E129_F32(arg2, 0x20) = sqrtf(
             (direction.f[2] * direction.f[2]) +
             ((direction.f[0] * direction.f[0]) +
-             (direction.f[1] * direction.f[1]))) * bestDistance;
+             (direction.f[1] * direction.f[1])));
         E129_S32(arg2, 0x24) = bestFlags;
         E129_S32(arg2, 0x28) = bestTexture;
     } else {
@@ -5939,4 +5955,14 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x38
  * summary: Recovered exact frame and relocation count plus target call identities and field widths; next lever is reverse-pass lifetime scoping.
  * PLATEAU-HANDOFF:func_8000E920:end
+ */
+
+/* PLATEAU-HANDOFF:func_8001291C:start
+ * symbol: func_8001291C
+ * score: 527 differing words
+ * frame: 0x2B0
+ * relocations: 15
+ * first-mismatch: +0x0
+ * summary: Recovered target insertion, hit-cap, early-out, and distance CFG; next lever is declaration/lifetime layout for the 40-byte frame and one global pair.
+ * PLATEAU-HANDOFF:func_8001291C:end
  */
