@@ -66,3 +66,13 @@ void overlay83DrawStrip(Overlay83Command **displayList, Overlay83Strip *strip) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o083/overlay83DrawStrip/func_overlay_083_F0000850_18D0010.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay83DrawStrip:start
+ * symbol: overlay83DrawStrip
+ * score: 4/77 words
+ * frame: frameless
+ * relocations: 2
+ * first-mismatch: +0x4
+ * summary: Fresh exact-size V0 reproduced 4/77 positional words and 73 differences; two relocation sites align, but D_80000000 runtime identity is ambiguous.
+ * PLATEAU-HANDOFF:overlay83DrawStrip:end
+ */
