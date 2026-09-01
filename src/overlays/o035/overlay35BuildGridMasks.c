@@ -170,3 +170,13 @@ void func_overlay_035_F0000770_1882450(O35GridSource *source,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o035/overlay35BuildGridMasks/func_overlay_035_F0000770_1882450.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_035_F0000770_1882450:start
+ * symbol: func_overlay_035_F0000770_1882450
+ * score: 185/244 words
+ * frame: 0x88
+ * relocations: 0
+ * first-mismatch: +0x0
+ * summary: Fresh exact-size V0 retains 59 differences; candidate frame 0x88 versus target 0x80. Both relocation surfaces are empty and exact.
+ * PLATEAU-HANDOFF:func_overlay_035_F0000770_1882450:end
+ */
