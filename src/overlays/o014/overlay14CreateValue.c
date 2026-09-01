@@ -14,11 +14,16 @@ extern s32 gOverlay14SlotCountE8;
 
 extern s32 overlay14SelectKind(void);
 extern void *overlay14LoadRelocatedValue(s32 key, s32 kind);
-extern void *overlay14LoadAsset(s32 key, s32 kind);
+extern void *func_overlay_014_F00009F4_18702CC(s32 key, s32 kind);
 
-/* Plateau (batch 17): exact 0x180 size; 16 words differ, first at +0x18.
- * Declaration/selector lifetime changes removed 24 differences; flags tie.
- * Remaining mismatch is LO-load order plus pointer/key reload and spill order. */
+/* Plateau (scheduler trace reopen): exact 0x180 size and 0x28 frame;
+ * 82/96 relocation-aware words match. A fidelity-clean as1 -R capture proved
+ * that the initial slot/end address chains are independent and selected by
+ * source line. Keeping the assignment and loop label on one physical line
+ * closes the two low-half schedule words and their four data identities.
+ * All 15 relocation sites align and 14 identities resolve; only the selector
+ * call identity at +0xAC remains open. The residual begins in the chosen/slot
+ * pointer web after the active-slot load. */
 #ifdef NON_MATCHING
 void *overlay14CreateValue(s32 key, s32 alternate) {
     Overlay14ValueSlot *slot;
@@ -27,8 +32,7 @@ void *overlay14CreateValue(s32 key, s32 alternate) {
     Overlay14ValueSlot *volatile chosen;
     s32 kind;
 
-    slot = gOverlay14Slots28;
-scan_loop:
+    slot = gOverlay14Slots28; scan_loop:
     value = slot->value;
     if ((value != 0) && (slot->key == key)) {
         return value;
@@ -77,7 +81,7 @@ scan_loop:
     if (alternate != 1) {
         slot->value = overlay14LoadRelocatedValue(key, kind);
     } else {
-        slot->value = overlay14LoadAsset(key, kind);
+        slot->value = func_overlay_014_F00009F4_18702CC(key, kind);
     }
     value = slot->value;
     if (value != 0) {
@@ -93,10 +97,10 @@ scan_loop:
 
 /* PLATEAU-HANDOFF:overlay14CreateValue:start
  * symbol: overlay14CreateValue
- * score: 80/96 words
+ * score: 82/96 words
  * frame: 0x28
  * relocations: 15
- * first-mismatch: +0x18
- * summary: 16 masked/17 raw differences; LO16 order, pointer/key reload allocation, and 14 unresolved relocation identities remain; all flags tie.
+ * first-mismatch: +0x54
+ * summary: Line-tag scheduling closes the initial LO16 pair; 14 positional words and one selector-call identity remain.
  * PLATEAU-HANDOFF:overlay14CreateValue:end
  */
