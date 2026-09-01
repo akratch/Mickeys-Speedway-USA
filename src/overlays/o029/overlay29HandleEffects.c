@@ -69,9 +69,10 @@ extern void overlay29EmitReloc(s32 id, f32 x, f32 y, f32 z, s32 type, s32 arg);
         *(volatile s16 *) &record->value = 0xFF;                           \
     } while (0)
 
-/* Workbench: allocation-mismatch, exact-size at 257 words; 33 differ, first +0x50.
- * Moving the angle pair into the guarded block cut five words; declaration, alias,
- * aggregate, and array-size variants left angle/record homes and register webs. */
+/* Workbench: allocation-mismatch, exact-size at 1028 bytes / 257 words; 33
+ * relocation-masked words differ, first +0x7C. Moving the angle pair into the
+ * guarded block cut five words; declaration, alias, aggregate, and array-size
+ * variants left angle/record homes and register webs. */
 #ifdef NON_MATCHING
 void func_overlay_029_F00010C4_187E374(Overlay29Object *objectArg, s32 mode) {
     Overlay29Object *object;
