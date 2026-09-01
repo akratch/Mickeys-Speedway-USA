@@ -89,14 +89,21 @@ extern void overlay62DrawLabelReloc(Overlay62Gfx **commands, s32 *state,
  * regressed to 286/294 words,
  * reversed grouping changed the function to 293 words, and grouping intensity
  * with both colors regressed to 285/294. The original source remains best.
+ * A fidelity-clean native `as1 -R` scheduler capture then authenticated the
+ * color/intensity dependency DAG: intensity, alpha, screen-base, call setup,
+ * and the shared-negation color web enter as independent roots; only the real
+ * negation-to-red/blue data edges connect those color chains. Thus the trace
+ * exposes no missing natural C dependency beyond the already-tested comma
+ * forms, and does not authorize another source mutation.
  * The candidate emits all 71 runtime records (21 R26 and 25 HI/LO pairs; 43
  * SYMBOL/28 LOCAL) at exact offsets and
  * types. The identity comparator resolves 18/71 friendly aliases; the other 53
  * remain proxy-identity work and prohibit promotion. Owned +0xD4..+0x56C has
  * no target padding; release starts at +0x56C. ORT 1444 and sole inbound
  * func_80038E1C+0x3A4 are authenticated. Linked equality proves fallback only;
- * resume with a new natural pool/web-formation spelling and complete identity
- * mapping, not more flags, these two forms, or an ungated batch. */
+ * resume only with a new allocator/compiler mechanism or complete identity
+ * mapping, not more flags, comma forms, scheduler recaptures, or an ungated
+ * batch. */
 void overlay62Update(s32 updateRate) {
     s32 alpha;
     volatile s32 screenBase;
@@ -209,6 +216,6 @@ void overlay62Update(s32 updateRate) {
  * frame: 0x88
  * relocations: 71
  * first-mismatch: +0x44
- * summary: comma grouping closed: red/blue 286/294, reversed 293 words, intensity/colors 285/294; original 287/294 restored
+ * summary: native scheduler DAG exposes no new legal dependency beyond exhausted comma forms
  * PLATEAU-HANDOFF:overlay62Update:end
  */
