@@ -43,8 +43,6 @@ void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
     Overlay71DrawState *state;
     Overlay71Command *command;
     u16 flags;
-    /* This unused identity preserves the retail IDO allocation basin. */
-    volatile u32 stackShape;
 
     func_80032BF0(gOverlay71InitialResourceReloc, 2, 2);
     state = object->state;
@@ -126,3 +124,13 @@ void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o071/func_overlay_071_F0000870_18CA390/func_overlay_071_F0000870_18CA390.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_071_F0000870_18CA390:start
+ * symbol: func_overlay_071_F0000870_18CA390
+ * score: 149/182 words
+ * frame: 0x30
+ * relocations: 13
+ * first-mismatch: +0x24
+ * summary: State-first semantic local forms are flat; other rotations regress. Two candidate identities remain unresolved.
+ * PLATEAU-HANDOFF:func_overlay_071_F0000870_18CA390:end
+ */
