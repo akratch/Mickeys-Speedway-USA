@@ -106,6 +106,11 @@
       "ledger_commit": null,
       "reason": "Fresh V0 plus structured finalize_plateau only for the 420-byte/105-word candidate, 29 masked differences, first +0x8. Old cursor, pointer, offset, flag, and permutation variants and body mutation absent fresh evidence remain closed."
     },
+    "func_overlay_087_F0000128_18D3090": {
+      "source_commit": "1254c5cc937e7f1686fa27003dcfc96e7465027d",
+      "ledger_commit": "8d013f2216343adbb847cbca1fa27593e403b181",
+      "reason": "Fresh V0 plus structured finalize only: target 474 words, candidate 470, 193 masked differences from +0x2C. Old source, flags, permutation, and body mutation stay closed."
+    },
     "packInit": {
       "source_commit": "bf3e6b048487cbb249d5311817887ad2116d6316",
       "ledger_commit": null,
