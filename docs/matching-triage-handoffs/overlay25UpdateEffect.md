@@ -6,39 +6,46 @@
 - frame: 0xC8
 - relocations: 25
 - first mismatch: +0x0
-- summary: Fresh exact-size V0 reproduces 132/259 words; frames are 0xC8/0xA0. 24/25 relocation sites align, but 23 identities remain unresolved.
+- summary: Fidelity-clean proc-1 trace emits no source semantics or virtual/final stack homes; no natural lifetime edit is uniquely justified.
 
-Fresh maintenance evidence on base
-`3b2d4b9e3b8f6fdf3fbf7184258d341ef66edc7f`:
+Fresh authorized evidence on base
+`b9bb22f036d55f90cefcd46f00a0f71b79e8c8b4`:
 
-- the fallback and adjacent exact mixed-TU owner uniquely bound overlay 25
-  `.text` offset `0x17C..0x588`, ROM `0x1879E04..0x187A210`: `0x40C` /
-  1,036 executable bytes with no target padding before
-  `overlay25SetVectorFlags`;
-- the ABI is `void (Overlay25Object *, s32)`. ORT entry 1274 and resident
-  relocation 116 authenticate the sole inbound call from
-  `func_8000AEEC+0x274`; no cross-overlay inbound exists;
-- configured IDO 5.3 `-O2 -mips2 -32 -Wab,-r4300_mul` emits an exact-size
-  259-word V0 with 132 positional matches and 127 raw and masked differences
-  from entry. Its `0xC8` frame is 40 bytes larger than the target's `0xA0`;
-- workbench classifies 39 aligned structural, three schedule, 93 register, and
-  eight constant residuals, with 15 insertions and 15 deletions. The first
-  integer pool divergence is slot four; FP pool/temp divergence appears later;
-- target and candidate each expose 25 relocations and 24 sites align by offset
-  and type. Only two candidate identities resolve and align; the remaining 23
-  include overlay-local data pairs and resident/cross-overlay calls, so exact
-  relocation identity proof is incomplete;
-- the donor oracle's best size-compatible result is only `0.056` masked
-  four-gram similarity. Existing Mickey documentation also records no
-  corresponding DKR/JFG source or object match, so no credible donor applies;
-- the historical 119-flag lattice, declaration order, mutually exclusive
-  scopes, position/radius/object-array ordering, shared-constant form, and
-  bounded permuter are exhausted. The permuter's prior gain required a vacuous
-  guard and remains inadmissible.
+- the current guarded body and prior structured ledger are both pinned by
+  `72efc7e5ab2a2de533c895a4b391092102121e7e`; the body was not changed in
+  this pass;
+- fallback and adjacent-symbol evidence uniquely bound overlay 25 `.text`
+  `+0x17C..+0x588`, ROM `0x1879E04..0x187A210`, with no target padding before
+  `overlay25SetVectorFlags`. The ABI remains
+  `void (Overlay25Object *, s32)`; ORT entry 1274 and resident relocation 116
+  authenticate the sole inbound call from `func_8000AEEC+0x274`;
+- configured IDO 5.3 `-O2 -mips2 -32 -Wab,-r4300_mul` again emits exactly
+  1,036 bytes / 259 words, with 132 positional matches, 127 raw and masked
+  differences, and first mismatch `+0x0`. The candidate frame is `0xC8`
+  versus the target's `0xA0`;
+- target and candidate each expose 25 relocations. Twenty-four sites align by
+  offset and type, but only two candidate identities resolve and align; 23
+  identities remain unresolved, so relocation evidence remains partial;
+- the retained named Ucode stream and complete UOPT procedure index map this
+  symbol uniquely to procedure 1 of 3, with 34 allocator decisions. The
+  stock candidate object hash is
+  `63dd21e7251ec739dd69e8d7ff03b5446fbcb56d6c9eb4acbb5852c950e2eb55`;
+- the procedure-scoped capture passes `.text`, `.data`, `.rodata`, relocation,
+  and symbol fidelity against that stock object. It records 30 integer and 39
+  floating-point temporary births for procedure 1;
+- the producer capability audit reports zero direct `source_semantic`,
+  `virtual_offset`, or `final_offset` fields. Logical lines, itable symbols,
+  allocator ordinals, registers, and opaque words are not source attribution
+  or stack-home evidence, so the observed `0x28` frame excess cannot be tied
+  uniquely to a natural C lifetime;
+- no source experiment was authorized by the trace. The exhausted 119 flags,
+  declaration/scope/order variants, fake guards, and permutation were not
+  repeated. The donor oracle remains non-actionable (best size-compatible
+  similarity `0.056`, with no corresponding permitted DKR/JFG source).
 
-Next lever: tool `f149a4a3209d977796d7bf5d1ef9a9cd4362561e` adds
-procedure-scoped source-semantic UGEN evidence unavailable to the old plateau.
-Use one fidelity-gated stack-home/web capture and permit at most one natural
-lifetime form only if that trace uniquely attributes the `0x28` frame excess.
-Do not repeat flags, declaration/scope variants, fake guards, or permutation.
+Next lever: productize a hash-pinned compiler producer hook that carries an
+explicit source/expression identity into the selected allocator web and emits
+its virtual and final stack homes. Repeat this single fidelity-gated capture
+only after that producer surface exists; do not infer a lifetime from line or
+register order.
 <!-- plateau-handoff:overlay25UpdateEffect:end -->
