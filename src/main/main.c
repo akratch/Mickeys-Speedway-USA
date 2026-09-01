@@ -1714,7 +1714,7 @@ void func_800293D0(void) {
  * frame: 0x18
  * relocations: 3
  * first-mismatch: +0x1C
- * summary: shared-result form regressed to 25 words; target Boolean materialization remains structural
+ * summary: V0: 17/27 words, exact 0x18 frame, all 3 relocation identities exact. Residual is 8 structural and 4 register rows; shared-result form remains closed.
  * PLATEAU-HANDOFF:func_80028FCC:end
  */
 
