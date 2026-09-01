@@ -105,6 +105,6 @@ loop_fade:
  * frame: 0x20
  * relocations: 5
  * first-mismatch: +0x20
- * summary: Fresh exact-size V0 retains 96 differences; the overlay13Prepare call identity remains unresolved despite exact relocation shape.
+ * summary: Fresh target-named V0 retains 96 differences; the overlay13Prepare call identity remains unresolved despite exact relocation shape.
  * PLATEAU-HANDOFF:overlay13UpdateRecord:end
  */

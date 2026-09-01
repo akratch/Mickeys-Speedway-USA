@@ -6,7 +6,7 @@
 - frame: 0x20
 - relocations: 5
 - first mismatch: +0x20
-- summary: Fresh exact-size V0 retains 96 differences; the overlay13Prepare call identity remains unresolved despite exact relocation shape.
+- summary: Fresh target-named V0 retains 96 differences; the overlay13Prepare call identity remains unresolved despite exact relocation shape.
 
 - geometry: Target and configured C are both `0x284`/644 bytes/161 words with exact `0x20` frame; the owned Overlay 13 range is `+0x284..+0x508`, ROM `0x186ED9C..0x186F020`, immediately followed by `overlay13ProcessActive` with no padding.
 - ABI/flags: The configured candidate is `s16 *overlay13UpdateRecord(Overlay13Record *, s32)` under the overlay game-code `-O2 -mips2 -32` group and the canonical symbol-redefine/trim postprocess.
