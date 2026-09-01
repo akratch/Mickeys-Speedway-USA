@@ -47,6 +47,11 @@ typedef struct {
     s32 *unk68;
 } Objects08A20Arg;
 
+typedef struct {
+    u8 pad00[0x30];
+    f32 unk30;
+} Objects09F08Arg;
+
 extern s32 D_800C9470;
 extern s32 D_800C9474;
 extern s32 D_800C94A8;
@@ -55,6 +60,8 @@ extern s16 D_800C94B0;
 extern s16 D_800C94B2;
 extern s8 D_80078F88;
 extern s8 D_80079004;
+extern u8 D_8007BF0C;
+extern f32 D_80080F84;
 extern void **D_800C94F4;
 extern s32 D_800C94F8;
 extern void **D_800C9494;
@@ -218,7 +225,22 @@ void func_80008A20(Objects08A20Arg *arg0) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009414.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009AA8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009E78.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009F08.s")
+f32 func_80009F08(Objects09F08Arg *arg0) {
+    f32 temp_f0;
+    f32 var_f2;
+
+    var_f2 = 1.0f;
+    if (D_8007BF0C == 0) {
+        temp_f0 = arg0->unk30;
+        if (temp_f0 > 250.0f) {
+            var_f2 += (temp_f0 - 250.0f) * D_80080F84;
+            if (var_f2 > 2.0f) {
+                var_f2 = 2.0f;
+            }
+        }
+    }
+    return var_f2;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009F74.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A244.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A39C.s")
