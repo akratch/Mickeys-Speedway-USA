@@ -277,8 +277,9 @@ preflight also accepts a repeated-use proof. At least two distinct candidate
 sites must name the same undefined call-only proxy, every site must align with
 one unique shipped tuple for the authenticated owner overlay, and removing each
 candidate REL addend must independently produce the same base. Single-site,
-duplicate, missing, mixed-type, conflicting, and cross-overlay evidence stays
-unresolved or ambiguous. This route does not infer from the shared synthetic
+missing, mixed-type, resident, reserved-selector, and cross-overlay evidence
+stays unresolved; duplicate or conflicting same-overlay evidence is ambiguous.
+This route does not infer from the shared synthetic
 VMA and does not weaken the independent relocation-shape, linked-overlay, or
 full-ROM promotion gates.
 

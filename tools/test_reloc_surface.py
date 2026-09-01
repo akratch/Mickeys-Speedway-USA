@@ -940,7 +940,7 @@ class RepeatedOverlayCallIdentityTests(unittest.TestCase):
         self.assertEqual({}, resolved)
         self.assertIn("overlay101BuildIntensityColorsReloc", ambiguous)
 
-    def test_cross_overlay_runtime_tuple_is_ambiguous(self):
+    def test_cross_overlay_runtime_tuple_is_unresolved(self):
         target = self.target(
             identities=[(101, 0x2CE4), (102, 0x2CE4)])
 
@@ -949,7 +949,7 @@ class RepeatedOverlayCallIdentityTests(unittest.TestCase):
                 self.candidate(), self.module(), 0, 0x70, target))
 
         self.assertEqual({}, resolved)
-        self.assertIn("overlay101BuildIntensityColorsReloc", ambiguous)
+        self.assertEqual(set(), ambiguous)
 
     def test_nonzero_runtime_call_addend_is_ambiguous(self):
         target = self.target()
@@ -1008,6 +1008,61 @@ class RepeatedOverlayCallIdentityTests(unittest.TestCase):
             rs._stable_overlay_call_identities(
                 Path("missing"), candidate, 100, empty_target, {}, 0, 0x70,
                 module=self.module(), target_records=self.target())
+
+    def test_o101_draw_mixed_groups_resolve_local_and_leave_resident_partial(self):
+        symbols = [
+            ("overlay101SetScissor2Reloc", 0, 0, 0, rs.SHN_UNDEF),
+            ("overlay101SetTransformModeReloc", 0, 0, 0, rs.SHN_UNDEF),
+        ]
+        sites = [(0x1B8, 0), (0x1DC, 1), (0x22C, 1), (0x27C, 0)]
+        candidate = self.FakeElf(
+            Path("missing"), ["", ".text"], symbols,
+            [(".text", offset, rs.R_MIPS_26, index)
+             for offset, index in sites],
+            b"\0" * 0x280)
+        target = [
+            rs.SurfaceRecord(0x1B8, rs.R_MIPS_26, (101, 0x1F80), 0),
+            rs.SurfaceRecord(0x1DC, rs.R_MIPS_26, (0, 0x34994), 0),
+            rs.SurfaceRecord(0x22C, rs.R_MIPS_26, (0, 0x34994), 0),
+            rs.SurfaceRecord(0x27C, rs.R_MIPS_26, (101, 0x1F80), 0),
+        ]
+        empty_target = self.FakeElf(Path("missing"), [""], [], [], b"")
+
+        resolved, ambiguous = rs._stable_overlay_call_identities(
+            Path("missing"), candidate, 101, empty_target, {}, 0, 0x280,
+            module=self.module(), target_records=target)
+        records = rs._candidate_surface_records(
+            candidate, 0, 0x280, target, {}, {}, set(), 101,
+            resolved, ambiguous)
+
+        self.assertEqual(
+            {"overlay101SetScissor2Reloc": (101, 0x1F80)}, resolved)
+        self.assertEqual(set(), ambiguous)
+        self.assertEqual(2, sum(record.identity is not None for record in records))
+        self.assertEqual(2, sum(record.identity is None for record in records))
+
+    def test_o3_repeated_resident_proxy_remains_partial_not_ambiguous(self):
+        candidate = self.FakeElf(
+            Path("missing"), ["", ".text"],
+            [("overlay3RandomRangeReloc", 0, 0, 0, rs.SHN_UNDEF)],
+            [(".text", 0x11C, rs.R_MIPS_26, 0),
+             (".text", 0x15C, rs.R_MIPS_26, 0)],
+            b"\0" * 0x160)
+        target = [
+            rs.SurfaceRecord(0x11C, rs.R_MIPS_26, (0, 0x2952C), 0),
+            rs.SurfaceRecord(0x15C, rs.R_MIPS_26, (0, 0x2952C), 0),
+        ]
+
+        resolved, ambiguous = (
+            rs._runtime_correlated_overlay_r26_identities(
+                candidate, self.module(3), 0, 0x160, target))
+        records = rs._candidate_surface_records(
+            candidate, 0, 0x160, target, {}, {}, set(), 3,
+            resolved, ambiguous)
+
+        self.assertEqual({}, resolved)
+        self.assertEqual(set(), ambiguous)
+        self.assertTrue(all(record.identity is None for record in records))
 
 
 class MatchedOverlayRelocationWitnessTests(unittest.TestCase):

@@ -1899,6 +1899,7 @@ def _runtime_correlated_overlay_r26_identities(candidate_elf, module, start,
         proposed = set()
         incomplete = False
         conflicting = False
+        outside_owned_overlay = False
         for absolute_offset, relative_offset in unique_sites:
             targets = by_shape[(relative_offset, R_MIPS_26)]
             if len(targets) != 1:
@@ -1910,10 +1911,17 @@ def _runtime_correlated_overlay_r26_identities(candidate_elf, module, start,
             identity = target.identity
             if (not isinstance(identity, tuple) or len(identity) != 2
                     or not all(isinstance(value, int) for value in identity)
-                    or identity[0] != overlay or identity[1] < 0
-                    or target.link_addend != 0
+                    or not 0 <= identity[0] <= 0xFFF
+                    or identity[1] < 0 or target.link_addend != 0
                     or absolute_offset + 4 > len(object_text)):
                 conflicting = True
+                continue
+            if identity[0] != overlay:
+                # A consistent resident, reserved-selector, or other-overlay
+                # target is valid runtime evidence, but outside this narrowly
+                # owned same-overlay proof. Keep the proxy unresolved rather
+                # than poisoning unrelated admissible names in the function.
+                outside_owned_overlay = True
                 continue
             addend = stored_field(
                 object_text, absolute_offset, R_MIPS_26) << 2
@@ -1923,6 +1931,8 @@ def _runtime_correlated_overlay_r26_identities(candidate_elf, module, start,
                 continue
             proposed.add((overlay, base_offset))
 
+        if outside_owned_overlay:
+            continue
         if conflicting or len(proposed) > 1:
             ambiguous.add(name)
         elif not incomplete and len(proposed) == 1:

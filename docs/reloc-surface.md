@@ -123,9 +123,10 @@ independent candidate and shipped facts agree:
 - subtracting each candidate instruction's REL addend independently derives
   one identical nonnegative same-overlay base.
 
-A single use, a missing or duplicate target tuple, a repeated offset, a defined
-or mixed-relocation symbol, an out-of-range instruction, conflicting derived
-bases, or any cross-overlay selector fails closed. The proxy name and the
+A single use, a missing target tuple, a repeated offset, a defined or
+mixed-relocation symbol, or any resident, reserved, or cross-overlay selector
+remains unresolved. A duplicate target tuple, out-of-range instruction, or
+conflicting derived same-overlay bases is ambiguous and fails closed. The proxy name and the
 overlays' shared synthetic VMA are never identity evidence. Existing generated
 boundary and exact-sibling routes remain unchanged, and disagreement between
 an existing route and the repeated-use proof is ambiguous rather than ranked.
