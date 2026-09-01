@@ -73,6 +73,6 @@ void overlay83DrawStrip(Overlay83Command **displayList, Overlay83Strip *strip) {
  * frame: frameless
  * relocations: 2
  * first-mismatch: +0x4
- * summary: Fresh exact-size V0 reproduced 4/77 positional words and 73 differences; two relocation sites align, but D_80000000 runtime identity is ambiguous.
+ * summary: Authorized JFG packet-order form regressed from 73 to 74 differences and shifted both relocations; baseline remains best and donor has no C body.
  * PLATEAU-HANDOFF:overlay83DrawStrip:end
  */
