@@ -257,3 +257,13 @@ void overlay1AdvanceGauge(s32 amount) {
  * summary: Five raw positions (four masked) remain; ten directed variants missed both swaps. Next: source-authentic scheduler evidence and resolved local-data identity.
  * PLATEAU-HANDOFF:overlay1FindPreviousAngle:end
  */
+
+/* PLATEAU-HANDOFF:overlay1AdvanceGauge:start
+ * symbol: overlay1AdvanceGauge
+ * score: 16/42 words
+ * frame: 0x40
+ * relocations: 3
+ * first-mismatch: +0x14
+ * summary: Fresh exact-size V0: 26 diffs and exact 0x40 frame; candidate 3 vs target 1 reloc, with D_0 HI/LO runtime identity ambiguous.
+ * PLATEAU-HANDOFF:overlay1AdvanceGauge:end
+ */
