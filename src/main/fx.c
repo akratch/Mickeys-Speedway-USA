@@ -2498,11 +2498,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_80049000:start
  * symbol: func_80049000
- * score: 69/149 words
+ * score: 69 differing words
  * frame: 0x30
  * relocations: 2
  * first-mismatch: +0x0
- * summary: Target 0x38; calls exact. Recover local home/lifetimes. JFG src/fx.c wakeUpdateRipple is semantic scaffolding only; no public release without skeleton proof.
+ * summary: Fresh V0 remains 149 words with 69 differences; candidate frame 0x30 vs target 0x38; both call identities exact. Prior mechanisms closed.
  * PLATEAU-HANDOFF:func_80049000:end
  */
 
