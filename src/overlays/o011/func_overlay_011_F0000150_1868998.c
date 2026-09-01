@@ -240,3 +240,13 @@ void func_overlay_011_F0000150_1868998(O11Gfx **displayList, void **matrix,
 #endif
 
 #undef O11_WRITE_VERTEX
+
+/* PLATEAU-HANDOFF:func_overlay_011_F0000150_1868998:start
+ * symbol: func_overlay_011_F0000150_1868998
+ * score: 535/562 words
+ * frame: 0x190
+ * relocations: 73
+ * first-mismatch: +0x0
+ * summary: V0 is 30 words short (532/562; 538 raw), frame 0x190 vs 0x178; relocations are 73 vs 75 with 13 aligned sites and 5 identities.
+ * PLATEAU-HANDOFF:func_overlay_011_F0000150_1868998:end
+ */
