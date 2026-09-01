@@ -5,6 +5,8 @@ typedef struct {
     s32 unk58;
 } Objects06C40;
 
+extern s16 D_800C94B0;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004340.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000439C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004454.s")
@@ -64,7 +66,9 @@ void func_80007844(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A244.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A39C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A62C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A6DC.s")
+void func_8000A6DC(s32 arg0) {
+    D_800C94B0 = arg0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A6E8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A830.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000AA38.s")
