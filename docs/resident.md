@@ -2262,6 +2262,7 @@ placeholders are never imported.
 | `0x80057E84` | `0xD0` | `osFlashWriteArray` | B; JFG `libultra/src/flash/flashsectorerase.c` name/body and page-program role; JFG built object is 0xD4 B with different TU scheduling. Matched C: exact 208 B and 6/6 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
 | `0x80057DFC` | `0x88` | `osFlashWriteBuffer` | B; JFG `libultra/src/flash/flashsectorerase.c` name/body and DMA-write role; JFG built object is 0x84 B. Matched C: exact 136 B and 6/6 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
 | `0x80057F54` | `0xB4` + `0x8` pad | `osFlashReadArray` | B; JFG `libultra/src/flash/flashreadarray.c` name/body and read-DMA role; JFG built object is 0xB4 B. Matched C: exact 180 executable B and 11/11 relocation identities at `-O2 -mips2 -32`, linked ROM exact; following eight bytes are target padding |
+| `0x80058240` | `0x10` | `func_80058240` | D; returns the resident Transfer Pak pointer slot. Matched C: exact 16 B and 2/2 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
 
 No function in this block directly references a distinctive string. Its
 references into `0x80083FA8`–`0x80084218` are floating-point constants, so no
