@@ -166,3 +166,13 @@ Overlay17Chain *overlay17CreateChain(
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o017/overlay17CreateChain/func_overlay_017_F0000318_1873CD0.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay17CreateChain:start
+ * symbol: overlay17CreateChain
+ * score: 66/196 words
+ * frame: 0x88
+ * relocations: 7
+ * first-mismatch: +0x0
+ * summary: Fresh exact-size V0 retains 130 differences; candidate frame is 0x88 versus target 0x80 and two template identities remain unresolved.
+ * PLATEAU-HANDOFF:overlay17CreateChain:end
+ */
