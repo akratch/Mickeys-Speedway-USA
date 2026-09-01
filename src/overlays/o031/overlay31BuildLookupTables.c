@@ -166,6 +166,6 @@ void func_overlay_031_F0000000_187F520(void) {
  * frame: 0x40
  * relocations: 10
  * first-mismatch: +0x2C
- * summary: Fresh 744B/186w V0 has 94 raw diffs and 71 aligned residuals; candidate/target relocs are 10/8 with six aligned and allocator identity ambiguous.
+ * summary: Authorized V0 reproduced 94 raw diffs; JFG donor is GLOBAL_ASM and exact siblings map the allocator proxy to three targets, leaving no new lever.
  * PLATEAU-HANDOFF:func_overlay_031_F0000000_187F520:end
  */
