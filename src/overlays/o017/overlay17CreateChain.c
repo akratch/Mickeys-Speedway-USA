@@ -173,6 +173,6 @@ Overlay17Chain *overlay17CreateChain(
  * frame: 0x88
  * relocations: 7
  * first-mismatch: +0x0
- * summary: Fresh exact-size V0 retains 130 differences; candidate frame is 0x88 versus target 0x80 and two template identities remain unresolved.
+ * summary: Fresh V0 retains 130 differences; proxy evidence cannot authenticate the shifted template HI16/LO16 pair, leaving no new source lever.
  * PLATEAU-HANDOFF:overlay17CreateChain:end
  */
