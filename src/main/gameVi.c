@@ -475,3 +475,13 @@ void fb_memcpy(u8 *src, u8 *dest, s32 len) {
         *dest++ = *src++;
     }
 }
+
+/* PLATEAU-HANDOFF:func_800336A8:start
+ * symbol: func_800336A8
+ * score: 124/195 words
+ * frame: 0x28
+ * relocations: 77
+ * first-mismatch: +0x0
+ * summary: Fresh exact-size V0 retains 71 raw differences and 42 alignment gaps; target/candidate relocation counts remain 77/75.
+ * PLATEAU-HANDOFF:func_800336A8:end
+ */
