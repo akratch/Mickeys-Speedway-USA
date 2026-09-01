@@ -99,3 +99,13 @@ void overlay19BuildAdjacency(
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o019/overlay19BuildAdjacency/func_overlay_019_F0000A30_1875C88.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay19BuildAdjacency:start
+ * symbol: overlay19BuildAdjacency
+ * score: 82/123 words
+ * frame: 0x80
+ * relocations: 1
+ * first-mismatch: +0x7C
+ * summary: Fresh V0 reproduces exact geometry and 41 register-only differences; the sole +0x12C call relocation is exact to local +0xC1C.
+ * PLATEAU-HANDOFF:overlay19BuildAdjacency:end
+ */
