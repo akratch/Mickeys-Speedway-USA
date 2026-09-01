@@ -181,6 +181,11 @@
       "ledger_commit": null,
       "reason": "Exact sibling func_overlay_071_F0000278_18C9D98 proves declaration-order stack-home recovery. Authorize fresh V0/relocation proof and semantic-local ordering only; flags, permutation, command order, and volatile stackShape remain closed."
     },
+    "func_overlay_079_F0000FA0_18CDF40": {
+      "source_commit": "ad2efb2bbafa417a87b120fb05eeb22d7bc85632",
+      "ledger_commit": "ad2efb2bbafa417a87b120fb05eeb22d7bc85632",
+      "reason": "Fresh configured V0 plus structured finalize only for the exact 736-byte/184-word candidate: 144 raw/143 masked differences, first +0x3C. Old hypotheses, flags, permutation, and body mutation remain closed."
+    },
     "func_overlay_031_F0000000_187F520": {
       "source_commit": "5ccabc676e0e8204fb9cd43233c3a11a3312bddb",
       "ledger_commit": "5ccabc676e0e8204fb9cd43233c3a11a3312bddb",
