@@ -2996,6 +2996,7 @@ Measured plateau:
 | `func_8000BD0C` | Shape-exact 15-instruction candidate with 2 schedule-only differing words, identical instruction multiset, frameless, and no relocations | function `+0x2C` | Permuter-ready JFG `GetRangeSquared` adaptation; preserve the guarded candidate and resolve the late scheduling tie with the bounded search |
 | `func_800056A4` | Shape-exact 19-instruction candidate with 8 register-only differing words, frameless, and exact relocation layout | function `+0x24` | Permuter-ready fixed-address pointer-variable adaptation; target and candidate differ by one temp-FIFO phase |
 | `func_80005868` | Shape-exact 22-instruction candidate with 8 differing words, exact 0xE0 frame, and matching call/data relocation topology | function `+0x1C` | Guarded ROM-list loader; residual is target stack-home/temporary allocation around the halfword index and DMA buffer |
+| `func_8000BCB0` | Shape-exact 23-instruction candidate with 2 schedule-only differing words, frameless, and exact `sqrtf` call topology | function `+0x3C` | Permuter-ready JFG `GetRange` adaptation; preserve the guarded candidate and resolve the FP scheduling tie |
 
 PROVENANCE: TU labels, order, and semantic roles derive from JFG's permitted
 public decomp/objects. C retains Mickey-owned stubs and point-disclosed adapted
