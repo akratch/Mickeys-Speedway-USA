@@ -57,7 +57,7 @@
       "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior packet/lifetime forms, body mutation, flags, trace, and permutation stay closed."
     },
     "func_overlay_057_F00060F8_18A9CF0": {
-      "source_commit": "7945a263c705eda1dcc9f99e59b8d5ebdf104b33",
+      "source_commit": "5cae70c4df16bedadce1fcb1871f90d5c0f0a9f7",
       "ledger_commit": null,
       "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior forms, body mutation, flags, trace, and permutation stay closed."
     }
