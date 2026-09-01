@@ -314,3 +314,13 @@ void func_overlay_029_F00005C4_187D874(Overlay29TailObject *object,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o029/func_overlay_029_F00005C4_187D874/func_overlay_029_F00005C4_187D874.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_029_F00005C4_187D874:start
+ * symbol: func_overlay_029_F00005C4_187D874
+ * score: 438 differing words
+ * frame: 0xC0
+ * relocations: 43
+ * first-mismatch: +0x4
+ * summary: 582 versus 583 words; frames 0xC0 versus 0xC8; 438 raw diffs. Relocs 43 each but 7 sites and 1 identity align. Next: earliest constant, then init/FP lifetime.
+ * PLATEAU-HANDOFF:func_overlay_029_F00005C4_187D874:end
+ */
