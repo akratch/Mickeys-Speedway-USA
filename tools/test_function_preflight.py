@@ -396,6 +396,13 @@ class SymbolResolutionTests(unittest.TestCase):
 
 
 class GeometryAndWorkbenchTests(unittest.TestCase):
+    def test_func_8001398c_metadata_agrees_with_preflight_boundary(self) -> None:
+        evidence = fp._optional_size_annotation("func_8001398C", 0x528)
+
+        self.assertEqual(
+            "symbol-size-annotation+preflight-owned-boundary", evidence
+        )
+
     def test_equal_alias_geometries_are_one_unambiguous_range(self) -> None:
         class FakeElf:
             names = ["", ".text"]
