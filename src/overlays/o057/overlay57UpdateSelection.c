@@ -191,3 +191,13 @@ void overlay57UpdateSelection(s32 ignored) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57UpdateSelection/func_overlay_057_F00035E0_18A71D8.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay57UpdateSelection:start
+ * symbol: overlay57UpdateSelection
+ * score: 121/283 words
+ * frame: 0x48
+ * relocations: 89
+ * first-mismatch: +0x4C
+ * summary: Fresh exact-size V0 has 166 raw/162 masked diffs; frame 0x48; candidate 89 vs target 43 relocs, with local identities ambiguous.
+ * PLATEAU-HANDOFF:overlay57UpdateSelection:end
+ */
