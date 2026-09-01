@@ -37,8 +37,14 @@ extern void overlay68FreeProbeReloc(void *probe);
  * trace (2026-08-31) authenticates 13 integer allocation decisions (11 color,
  * two split). Moving the zero-cursor lifetime across the division or calls,
  * and splitting the pointer carrier into two statements, all reproduce V0
- * byte-for-byte. The residual remains the cursor CFG/temp web; all 119 flag
- * modes and the earlier bounded batch remain exhausted.
+ * byte-for-byte. A single hash-bound split-provenance capture (2026-09-01)
+ * identifies split webs 42 and 0, but the producer exposes no source-semantic
+ * or virtual/final stack-home fields, so it cannot select an admissible C
+ * change. The runtime table authenticates all nine target identities and the
+ * object aligns all nine offsets/types; four static identities resolve while
+ * five call proxies require an exact post-promotion linked proof. The residual
+ * remains the cursor CFG/temp web; all 119 flag modes and the earlier bounded
+ * batch remain exhausted.
  */
 #ifdef NON_MATCHING
 s32 overlay68CheckKind(s32 kind) {
@@ -116,6 +122,6 @@ s32 overlay68CheckKind(s32 kind) {
  * frame: 0x48
  * relocations: 9
  * first-mismatch: +0x2C
- * summary: Trace: 13 integer decisions; three cursor forms equal V0; 9/9 offsets/types and 0/9 static identities.
+ * summary: Split webs 42/0 lack source/home provenance; runtime target/shape 9/9, static identities 4/9, five proxies need exact linked promotion.
  * PLATEAU-HANDOFF:overlay68CheckKind:end
  */

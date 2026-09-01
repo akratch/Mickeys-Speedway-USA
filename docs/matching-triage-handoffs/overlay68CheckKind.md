@@ -6,5 +6,5 @@
 - frame: 0x48
 - relocations: 9
 - first mismatch: +0x2C
-- summary: Trace: 13 integer decisions; three cursor forms equal V0; 9/9 offsets/types and 0/9 static identities.
+- summary: Split webs 42/0 lack source/home provenance; runtime target/shape 9/9, static identities 4/9, five proxies need exact linked promotion.
 <!-- plateau-handoff:overlay68CheckKind:end -->
