@@ -340,6 +340,11 @@
       "source_commit": "2cab01382d405a261f334faee7194c57881738b0",
       "ledger_commit": null,
       "reason": "Structured maintenance only: remeasure the configured baseline after the latest target-specific source evidence and refresh geometry, frame, and relocations. Body, flags, trace, and permutation stay closed."
+    },
+    "overlay101BuildPresentationD": {
+      "source_commit": "fb4f108a7a9f8a40b8c9f5abe6121e04de317be8",
+      "ledger_commit": null,
+      "reason": "Structured maintenance only: reproduce the latest exact-size near-match and refresh configured geometry, frame, relocations, and first mismatch. Body, flags, trace, and permutation stay closed."
     }
   }
 }
