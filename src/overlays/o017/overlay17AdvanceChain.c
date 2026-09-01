@@ -110,6 +110,6 @@ void overlay17AdvanceChain(Overlay17Chain *chain, s32 useAlpha) {
  * frame: 0x70
  * relocations: 1
  * first-mismatch: +0x18
- * summary: Fresh exact-size V0: 51 masked/raw differences; exact frame and sole R_MIPS_26 identity; pre-call buffer-copy allocation web remains.
+ * summary: Fresh V0 confirms 51 diffs and exact frame/reloc; pre-call buffer-copy schedule and private allocation web remain, with no schedule-only row.
  * PLATEAU-HANDOFF:overlay17AdvanceChain:end
  */
