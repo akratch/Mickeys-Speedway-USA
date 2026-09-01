@@ -86,6 +86,11 @@
       "ledger_commit": null,
       "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior flags, do-while/base, float, typed-pointer, record-pool, writer, and frame forms stay closed; no body mutation, trace, or permutation."
     },
+    "func_overlay_079_F0000134_18CD0D4": {
+      "source_commit": "8e43fc68083971227d1d37f0e31967ca04f70f0b",
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior flags, branch, effect-range, shared-base, dispatch, FP/register, and ownership forms stay closed; no body mutation, trace, or permutation."
+    },
     "func_overlay_029_F00005C4_187D874": {
       "source_commit": "fd635cfd7b3c4f0a23a946776a1b3c99373b375f",
       "ledger_commit": null,
