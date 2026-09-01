@@ -2472,7 +2472,7 @@ void func_8004AF68(void) {
  * frame: 0x48
  * relocations: 4
  * first-mismatch: +0x8
- * summary: Fresh V0 reproduced 484B with 23 differences: 19 register-only and four schedule words; all four relocation identities are exact.
+ * summary: Authorized V0 reproduced 23 residual words; equal-size JFG wakeSetupRipple is GLOBAL_ASM-only, leaving no new lever beyond exhausted forms.
  * PLATEAU-HANDOFF:func_80048760:end
  */
 
