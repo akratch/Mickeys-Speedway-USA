@@ -191,6 +191,11 @@
       "ledger_commit": null,
       "reason": "Configured exact-size stale remeasurement at 428 bytes with 25 masked differences."
     },
+    "overlay1FindType47ByAngle": {
+      "source_commit": "329cb655dd483accfd8e8aa475c20674d2928af6",
+      "ledger_commit": "329cb655dd483accfd8e8aa475c20674d2928af6",
+      "reason": "New partial relocation evidence resolves five of six identities and isolates the last call as resident func_8000572C. Authorize configured reproof and identity closure only; body, flags, allocator forms, and permutation remain closed."
+    },
     "func_overlay_071_F0000278_18C9D98": {
       "source_commit": "67712101df31b12cbd5e7dc91317ce2ef2f4242e",
       "ledger_commit": null,
