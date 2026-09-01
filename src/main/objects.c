@@ -151,4 +151,21 @@ void GetRomlistInfo(s32 *romlist, s32 *size, s32 index) {
     *size = D_800C94C8[index];
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000BCB0.s")
+/* Workbench verdict: schedule-mismatch; 2 differing words. */
+/* First mismatch: +0x2C. */
+/* Shape-exact candidate; instruction ordering is reserved for the permuter. */
+#ifdef NON_MATCHING
+/* PROVENANCE: JFG, src/objects.c (GetRangeSquared); adapted to Mickey's symbol. */
+f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
+    f32 temp_f16;
+    f32 temp_f18;
+    f32 temp_f2;
+
+    temp_f2 = arg0 - arg3;
+    temp_f16 = arg1 - arg4;
+    temp_f18 = arg2 - arg5;
+    return (temp_f2 * temp_f2) + (temp_f16 * temp_f16) + (temp_f18 * temp_f18);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000BD0C.s")
+#endif
