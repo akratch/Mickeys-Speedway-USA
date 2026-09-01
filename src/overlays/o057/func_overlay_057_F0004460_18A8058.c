@@ -265,3 +265,13 @@ void func_overlay_057_F0004460_18A8058(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/func_overlay_057_F0004460_18A8058/func_overlay_057_F0004460_18A8058.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_057_F0004460_18A8058:start
+ * symbol: func_overlay_057_F0004460_18A8058
+ * score: 449/494 words
+ * frame: 0x58
+ * relocations: 179
+ * first-mismatch: +0x4
+ * summary: V0 is 36 words short (458/494; 450 raw differences); relocations are 179 vs 169 with 58 aligned sites and 7 identities; prior lifetime forms stay closed.
+ * PLATEAU-HANDOFF:func_overlay_057_F0004460_18A8058:end
+ */
