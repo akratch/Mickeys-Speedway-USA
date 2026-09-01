@@ -1,13 +1,97 @@
 #include "PR/ultratypes.h"
+#include "n_audio/gbi.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_800348C8.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_800348D4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80034910.s")
+/*
+ * PROVENANCE: the texture-TU order and direct helper bodies below were
+ * compared with Jet Force Gemini's public src/textures.c. Mickey's field
+ * offsets, globals, boundaries, and compiler output remain authoritative.
+ */
+
+extern s32 D_8007BD84;
+extern s32 D_8007BD88;
+extern s32 D_8007BD8C;
+extern s32 D_8007BD90;
+extern s32 D_800D3020;
+extern s32 D_800D3024;
+extern s32 D_800D3028;
+extern s32 D_800D302C;
+extern s32 D_800D3030;
+extern s32 D_800D3034;
+extern u8 D_800D3038;
+extern u8 D_800D3039;
+extern u8 D_800D303A;
+extern u8 D_800D303B;
+extern u8 D_800D303C;
+extern u8 D_800D303D;
+extern s32 D_8007BD9C;
+
+typedef struct TextureFrameHeader {
+    u8 pad00[0x0E];
+    u16 textureSize;
+    u16 numOfTextures;
+    u16 frameAdvanceDelay;
+    u8 pad14[0x0C];
+} TextureFrameHeader;
+
+extern u8 D_8007BDA0;
+extern s32 func_800299E8(s32 minimum, s32 maximum);
+
+void func_800348C8(s32 tagId) {
+    D_8007BD84 = tagId;
+}
+
+TextureFrameHeader *func_800348D4(TextureFrameHeader *arg0, s32 arg1) {
+    TextureFrameHeader *ret = arg0 + 1;
+    if ((arg1 > 0) && (arg1 < arg0->numOfTextures << 8)) {
+        ret = (TextureFrameHeader *)(((u8 *)arg0) +
+                                     ((arg1 >> 16) * arg0->textureSize)) + 1;
+    }
+    return ret;
+}
+
+void func_80034910(void) {
+    D_8007BD8C = 1;
+}
+
+#ifdef NON_MATCHING
+void func_80034920(Gfx **dlist) {
+    D_8007BD90 = 0;
+    D_800D3024 = 0;
+    D_800D3028 = 0;
+    D_800D3020 = 0;
+    D_800D302C = 0;
+    D_800D3030 = 1;
+    D_800D3034 = 1;
+    if (dlist != NULL) {
+        gDPPipeSync((*dlist)++);
+        gSPSetGeometryMode((*dlist)++, G_FOG | G_SHADING_SMOOTH | G_SHADE | G_ZBUFFER);
+    }
+    D_8007BD8C = 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80034920.s")
+#endif
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_800349A4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80034DE4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80034DF0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80034E48.s")
+
+void func_80034DE4(s32 value) {
+    D_8007BD88 = value;
+}
+
+void func_80034DF0(u8 red, u8 green, u8 blue, u8 alternateRed,
+                   u8 alternateGreen, u8 alternateBlue) {
+    D_800D3038 = red;
+    D_800D3039 = green;
+    D_800D303A = blue;
+    D_800D303B = alternateRed;
+    D_800D303C = alternateGreen;
+    D_800D303D = alternateBlue;
+    D_8007BD9C = 1;
+}
+
+void func_80034E48(void) {
+    D_8007BD9C = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80034E54.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_800355A0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_800359D4.s")
@@ -16,4 +100,83 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80035F48.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80036544.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_800367A4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_800367E8.s")
+
+/* JFG's texAnimateTexture body, with Mickey's four-bit flag relocation and
+ * random-number entry point retained as local target-specific evidence. */
+void func_800367E8(TextureFrameHeader *texture, u32 *triangleBatchInfoFlags,
+                   s32 *arg2, s32 updateRate) {
+    s32 breakVar;
+    u16 *frameAdvanceDelay;
+    u8 blink;
+    s32 arg2Temp = *arg2;
+    s32 flags = *triangleBatchInfoFlags;
+
+    if (flags & (1 << 21)) {
+        blink = D_8007BDA0;
+        if (!(flags & (1 << 22))) {
+            if (blink == 0) {
+                if (func_800299E8(0, 0x3FF) > 0x3EF) {
+                    flags &= ~(1 << 23);
+                    flags |= (1 << 22);
+                }
+            } else if (blink != 2) {
+                flags &= ~(1 << 23);
+                flags |= (1 << 22);
+            }
+        } else if (!(flags & (1 << 23))) {
+            arg2Temp += texture->frameAdvanceDelay * updateRate;
+            if (arg2Temp >= texture->numOfTextures) {
+                if (blink == 3) {
+                    arg2Temp = texture->numOfTextures - 1;
+                } else {
+                    arg2Temp = ((texture->numOfTextures * 2) - arg2Temp) - 1;
+                    if (arg2Temp < 0) {
+                        arg2Temp = 0;
+                        flags &= ~((1 << 23) | (1 << 22));
+                    } else {
+                        flags |= (1 << 23);
+                    }
+                }
+            }
+        } else {
+            arg2Temp -= texture->frameAdvanceDelay * updateRate;
+            if (arg2Temp < 0) {
+                arg2Temp = 0;
+                flags &= ~((1 << 23) | (1 << 22));
+            }
+        }
+        D_8007BDA0 = 0;
+    } else if (flags & (1 << 22)) {
+        if (!(flags & (1 << 23))) {
+            arg2Temp += texture->frameAdvanceDelay * updateRate;
+        } else {
+            frameAdvanceDelay = &texture->frameAdvanceDelay;
+            arg2Temp -= (*frameAdvanceDelay) * updateRate;
+        }
+        do {
+            breakVar = FALSE;
+            if (arg2Temp < 0) {
+                arg2Temp = -arg2Temp;
+                flags &= ~(1 << 23);
+                breakVar = TRUE;
+            }
+            if (arg2Temp >= texture->numOfTextures) {
+                arg2Temp = ((texture->numOfTextures * 2) - arg2Temp) - 1;
+                flags |= (1 << 23);
+                breakVar = TRUE;
+            }
+        } while (breakVar);
+    } else if (!(flags & (1 << 23))) {
+        arg2Temp += texture->frameAdvanceDelay * updateRate;
+        while (arg2Temp >= texture->numOfTextures) {
+            arg2Temp -= texture->numOfTextures;
+        }
+    } else {
+        arg2Temp -= texture->frameAdvanceDelay * updateRate;
+        while (arg2Temp < 0) {
+            arg2Temp += texture->numOfTextures;
+        }
+    }
+    *arg2 = arg2Temp;
+    *triangleBatchInfoFlags = flags;
+}

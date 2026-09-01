@@ -2471,6 +2471,15 @@ jtbl_8008249C = 0x8008249C; // type:jtbl size:0x30 tier-A compiler-owned gameVi 
 // the mode changer calls the same routine to establish new buffer state.
 fb_swap = 0x80034150; // type:func size:0xE0 ROM 0x34D50 canonical C, linked byte-identical
 fb_memcpy = 0x80034230; // type:func size:0x30   ROM 0x34e30  src/gameVi.c.o  masked=0/12, canonical C is linked byte-identical
+func_800343F0 = 0x800343F0; // type:func size:0x18 ROM 0x34FF0 canonical C, linked byte-identical, JFG-src/textures.c-texDisableModes body, Mickey address label retained
+func_80034424 = 0x80034424; // type:func size:0x10 ROM 0x35024 canonical C, linked byte-identical, JFG-src/textures.c-texModelTextureLoad body, Mickey address label retained
+func_800348C8 = 0x800348C8; // type:func size:0xC ROM 0x354C8 canonical C, linked byte-identical, JFG-src/textures.c-setTexMemColour body, Mickey address label retained
+func_800348D4 = 0x800348D4; // type:func size:0x3C ROM 0x354D4 canonical C, linked byte-identical, JFG-src/textures.c-texFrame body adapted to Mickey fields, address label retained
+func_80034910 = 0x80034910; // type:func size:0x10 ROM 0x35510 canonical C, linked byte-identical, Mickey texture-state setter, address label retained
+func_80034DE4 = 0x80034DE4; // type:func size:0xC ROM 0x359E4 canonical C, linked byte-identical, JFG-src/textures.c-sprSetTextureFilter body, Mickey address label retained
+func_80034DF0 = 0x80034DF0; // type:func size:0x58 ROM 0x359F0 canonical C, linked byte-identical, JFG-src/textures.c-sprSetIA2ColOverride body, Mickey address label retained
+func_80034E48 = 0x80034E48; // type:func size:0xC ROM 0x35A48 canonical C, linked byte-identical, JFG-src/textures.c-sprClearIA2ColOverride body, Mickey address label retained
+func_800367E8 = 0x800367E8; // type:func size:0x268 ROM 0x373E8 canonical C, linked byte-identical, JFG-src/textures.c-texAnimateTexture body adapted to Mickey flags
 // jfg:src/textures.c.o
 initColourCycle = 0x80036A50; // type:func size:0x30 tier-A exact C, JFG src/textures.c body
 // donor-jfg-src/menu.c.o
