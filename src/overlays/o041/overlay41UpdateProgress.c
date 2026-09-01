@@ -96,6 +96,6 @@ void func_overlay_041_F0001298_18885D0(Overlay41Input *input,
  * frame: 0x20
  * relocations: 4
  * first-mismatch: +0xE8
- * summary: Fresh V0 retains 34 differences; masked first +0xE8, raw +0xA0 at an unresolved relocation; all 4 offsets/types align.
+ * summary: V0 retains 34 differences; masked first +0xE8 (raw +0xA0). Identities are 0/4; e5564976 may resolve proxies after canonical integration.
  * PLATEAU-HANDOFF:func_overlay_041_F0001298_18885D0:end
  */
