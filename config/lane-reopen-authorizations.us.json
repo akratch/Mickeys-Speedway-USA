@@ -101,6 +101,11 @@
       "ledger_commit": null,
       "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior clone-initializer, register/stack-count, and record-loop CFG forms remain closed; no body mutation, flags, trace, or permutation."
     },
+    "func_overlay_047_F0000000_1890E18": {
+      "source_commit": "9b4af8356e951c51306df2764e0e62bfe627eafd",
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior flag-lattice, path-copy, addressing, and BSS-alias forms remain closed; no body mutation, trace, flags, or permutation."
+    },
     "func_80028564": {
       "source_commit": "1ae8e2311c291fba193441f16450eef926796c72",
       "ledger_commit": null,
