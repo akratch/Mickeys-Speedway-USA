@@ -38,7 +38,11 @@ and [`docs/adr/0010-commit-discipline.md`](adr/0010-commit-discipline.md).
 Lane isolation covers working state, not committed knowledge. A coordinator or
 read-only tool may inspect committed `refs/heads/lane/*` objects through Git's
 object database to avoid duplicate assignments and find newly matched siblings;
-it never reads a sibling worktree, index, process, or uncommitted file. Run
+it never reads a sibling worktree, index, process, or uncommitted file.
+`tools/lane_status.py` also includes fetched
+`refs/remotes/origin/lane/burn-b-*` tips, so cross-machine Session B ownership
+becomes visible after an ordinary private-origin fetch without materialising a
+remote worktree. Run
 `tools/lane_status.py --pending-only` for the fleet view or
 `tools/lane_status.py --symbol <name>` before assignment. Its rows are
 commit-message claims, not match evidence; integration repeats every normal
