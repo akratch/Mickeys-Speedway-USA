@@ -77,3 +77,13 @@ void overlay19BuildSpatialMasks(O19Context *context, O19Group *group, O19Output 
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o019/overlay19BuildSpatialMasks/func_overlay_019_F0000F58_18761B0.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay19BuildSpatialMasks:start
+ * symbol: overlay19BuildSpatialMasks
+ * score: 164/227 words
+ * frame: 0x80
+ * relocations: 0
+ * first-mismatch: +0x58
+ * summary: Fresh V0 is exact-sized at 164/227 words with exact 0x80 frame and zero relocations; the stale 66-word ranking overstates the current 63-word deficit.
+ * PLATEAU-HANDOFF:overlay19BuildSpatialMasks:end
+ */
