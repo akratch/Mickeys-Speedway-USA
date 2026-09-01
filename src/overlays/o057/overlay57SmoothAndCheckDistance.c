@@ -95,3 +95,13 @@ void overlay57SmoothAndCheckDistance(s32 smoothingSteps) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57SmoothAndCheckDistance/func_overlay_057_F0002C28_18A6820.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay57SmoothAndCheckDistance:start
+ * symbol: overlay57SmoothAndCheckDistance
+ * score: 108/200 words
+ * frame: 0x30
+ * relocations: 24
+ * first-mismatch: +0x24
+ * summary: Fresh exact-size V0: 97 raw/92 masked diffs, first +0x24; exact 0x30 frame and 24/24 shape, with 18 identities exact and six unresolved.
+ * PLATEAU-HANDOFF:overlay57SmoothAndCheckDistance:end
+ */
