@@ -986,3 +986,13 @@ block_165:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o047/func_overlay_047_F0000B30_1891948/func_overlay_047_F0000B30_1891948.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:start
+ * symbol: func_overlay_047_F0000B30_1891948
+ * score: 2701/2168 words
+ * frame: 0x320
+ * relocations: 197
+ * first-mismatch: +0x0
+ * summary: V0 is 2712/2168 words (+544), frame 0x320 vs 0x280, and overruns its 8672-byte owner by 2176 bytes; relocation identities are unavailable.
+ * PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:end
+ */

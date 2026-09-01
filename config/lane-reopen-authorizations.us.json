@@ -146,6 +146,11 @@
       "ledger_commit": null,
       "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior flag-lattice, path-copy, addressing, and BSS-alias forms remain closed; no body mutation, trace, flags, or permutation."
     },
+    "func_overlay_047_F0000B30_1891948": {
+      "source_commit": "8cbf5eca5c027675d5fb5dd1d92e87f1b61308f0",
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 geometry, frame, relocations, and first mismatch. Prior flags, constants, context, switch-table ownership, collapsed call/data, and scaffold/type forms stay closed; no body mutation, trace, or permutation."
+    },
     "func_80028564": {
       "source_commit": "1ae8e2311c291fba193441f16450eef926796c72",
       "ledger_commit": null,
