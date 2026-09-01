@@ -256,3 +256,13 @@ void func_overlay_101_F00069E8_18E2208(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/func_overlay_101_F00069E8_18E2208/func_overlay_101_F00069E8_18E2208.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_101_F00069E8_18E2208:start
+ * symbol: func_overlay_101_F00069E8_18E2208
+ * score: 840/963 words
+ * frame: 0x50
+ * relocations: 110
+ * first-mismatch: +0x2C
+ * summary: V0 is 967/963 words (+4), frame 0x50 exact, and overruns its 3852-byte owner by 16 bytes; relocation identities are unavailable.
+ * PLATEAU-HANDOFF:func_overlay_101_F00069E8_18E2208:end
+ */
