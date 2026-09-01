@@ -57,11 +57,14 @@ extern void func_8002B040(void *queryState, f32 x, f32 y, f32 z,
                           f32 *out0, f32 *out1, f32 *out2);
 extern s32 func_8002A910(f32 z, f32 x);
 
-/* Size-exact plateau after ten structural/lifetime forms: the ordinary
- * -O2/-mips2 build differs in 7 of 275 relocation-masked words, first at
- * +0x404. Branch-scoping the target and retaining a distinct negative-
- * velocity conversion carrier reproduce the retail stack and instruction
- * schedule; the residual is the terminal path's private GPR coloring. */
+/* Size-exact plateau after ten structural/lifetime forms: fresh configured
+ * V0 differs in 7 of 275 relocation-masked words, first at +0x404, with the
+ * retail 0x70 frame. All 36 runtime relocation records now agree by offset,
+ * type, and stable identity. A fidelity-gated capture reproduces 22 integer
+ * allocator decisions (12 color, 10 split) and ten FP decisions, but all 32
+ * webs remain run-local and source-unattributed because the producer emits no
+ * source_semantic field. Branch-scoping and the distinct negative-velocity
+ * conversion carrier remain best; direct, s32, and s16 carriers are closed. */
 #ifdef NON_MATCHING
 void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
     Overlay94State *state;
@@ -187,6 +190,6 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
  * frame: 0x70
  * relocations: 36
  * first-mismatch: +0x404
- * summary: Fidelity-gated trace: proc0 has 22 integer decisions (12 color, 10 split); direct/s32/s16 carriers score 264/268/268; identities 12 resolved, 24 unresolved.
+ * summary: Fresh V0 is 268/275 normalized with frame 0x70; all 36 runtime identities are exact. Fidelity-gated proc0 has 22 integer decisions (12 color, 10 split) plus 10 FP decisions, but all 32 webs lack producer source_semantic attribution; prior carrier forms remain closed.
  * PLATEAU-HANDOFF:overlay94UpdateController:end
  */
