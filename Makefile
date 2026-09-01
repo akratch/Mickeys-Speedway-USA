@@ -905,6 +905,10 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/vimgr.c.o: OPT_FLAGS := -O2
 # one zero instruction solely to align its standalone .text section to 0x10.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/osFlashClearStatus.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4C
+# The five-function flash block ends at the measured 0x3B4-byte boundary;
+# discard IDO's trailing section-alignment words before the next subsegment.
+$(BUILD_DIR)/$(SRC_DIR)/main/flash_5885C.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3B4
 $(BUILD_DIR)/$(SRC_DIR)/libultra/aisetnextbuf.c.o: CFLAGS += -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/sptask.c.o: CFLAGS += -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/vi.c.o: CFLAGS += -DRAREDIFFS
