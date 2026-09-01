@@ -197,6 +197,81 @@ class LaneStatusAssignmentTests(unittest.TestCase):
             report["assignment"]["state"], "already-integrated/exhausted",
         )
 
+    def test_missing_ledger_authorization_rejects_later_guard_change(self) -> None:
+        (self.repo / SOURCE_PATH).write_text(
+            candidate(plateau=True), encoding="utf-8",
+        )
+        (self.repo / "docs/matching-triage.md").write_text(
+            "| `unrelatedFunction` | current plateau |\n", encoding="utf-8",
+        )
+        source_commit = self.commit(f"Plateau {SYMBOL} prose maintenance")
+        self.authorize_reopen(source_commit, None)
+        (self.repo / SOURCE_PATH).write_text(
+            candidate(plateau=True).replace(
+                "void overlay43FilterImage(void) {\n}",
+                "void overlay43FilterImage(void) {\n    int refined;\n}",
+            ),
+            encoding="utf-8",
+        )
+        self.commit("Refine guarded candidate evidence")
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(assignment["state"], "stale-ledger")
+        self.assertEqual(
+            assignment["reason_code"], "reopen-authorization-stale",
+        )
+        self.assertEqual(assignment["source_commit"], source_commit)
+
+    def test_missing_ledger_authorization_allows_unrelated_tu_edit(self) -> None:
+        (self.repo / SOURCE_PATH).write_text(
+            candidate(plateau=True), encoding="utf-8",
+        )
+        (self.repo / "docs/matching-triage.md").write_text(
+            "| `unrelatedFunction` | current plateau |\n", encoding="utf-8",
+        )
+        source_commit = self.commit(f"Plateau {SYMBOL} prose maintenance")
+        self.authorize_reopen(source_commit, None)
+        unrelated = self.repo / "src/main/unrelated.c"
+        unrelated.parent.mkdir(parents=True, exist_ok=True)
+        unrelated.write_text("void unrelated(void) { }\n", encoding="utf-8")
+        self.commit("Update unrelated translation unit")
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(assignment["state"], "base-only")
+        self.assertEqual(assignment["reason_code"], "authorized-reopen")
+        self.assertEqual(assignment["source_commit"], source_commit)
+
+    def test_current_evidence_repair_can_pin_missing_ledger_reopen(self) -> None:
+        revised = candidate(plateau=True).replace(
+            "void overlay43FilterImage(void) {\n}",
+            "void overlay43FilterImage(void) {\n    int revised;\n}",
+        )
+        (self.repo / SOURCE_PATH).write_text(revised, encoding="utf-8")
+        (self.repo / "docs/matching-triage.md").write_text(
+            "| `unrelatedFunction` | current plateau |\n", encoding="utf-8",
+        )
+        self.commit("Refine guarded candidate evidence")
+        evidence_commit = self.commit_current_evidence(revised)
+        self.authorize_reopen(evidence_commit, None)
+
+        result, report = self.status()
+        assignment = report["assignment"]
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(assignment["state"], "base-only")
+        self.assertEqual(assignment["reason_code"], "authorized-reopen")
+        self.assertEqual(assignment["source_commit"], evidence_commit)
+
+    def commit_current_evidence(self, revised: str) -> str:
+        (self.repo / SOURCE_PATH).write_text(
+            revised.replace("score: 8/43 words", "score: 9/43 words"),
+            encoding="utf-8",
+        )
+        return self.commit(f"Plateau {SYMBOL} current evidence")
+
     def test_active_lane_precedes_valid_reopen_authorization(self) -> None:
         plateau_commit = self.current_plateau()
         self.authorize_reopen(plateau_commit, plateau_commit)
