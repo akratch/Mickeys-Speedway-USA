@@ -136,15 +136,15 @@ typedef struct Overlay1ScanObject {
     Overlay1ScanData *data;
 } Overlay1ScanObject;
 
-extern Overlay1ScanObject **overlay1GetAngleObjectsReloc(
-    s32 *start, s32 *end);
+extern void **func_8000572C(s32 *start, s32 *end);
 extern f32 overlay1WrapOffset(f32 first, f32 second);
 extern f32 gOverlay1ScanLimit;
 extern f32 gOverlay1PhaseScale;
 
 /* Plateau (batch 14): diagnostic -Wab,-r4300_mul is exact-size with 10 words, first at +0x08.
  * Dead-array reuse fixed 17 words; start a0/v1 and angle/scale f22/f24 webs remain.
- * Canonical flags are worse; the bounded 40-minute permuter found no zero. */
+ * Canonical flags are worse; the bounded 40-minute permuter found no zero.
+ * Direct func_8000572C naming now proves all six relocation identities. */
 #ifdef NON_MATCHING
 Overlay1ScanObject *overlay1FindType47ByAngle(f32 angle) {
     s32 start;
@@ -158,7 +158,7 @@ Overlay1ScanObject *overlay1FindType47ByAngle(f32 angle) {
     f32 scale;
     s32 index;
 
-    objects = overlay1GetAngleObjectsReloc(&start, &end);
+    objects = (Overlay1ScanObject **)func_8000572C(&start, &end);
     bestDifference = gOverlay1ScanLimit;
     best = NULL;
     index = start;
@@ -246,7 +246,6 @@ typedef struct Overlay1SearchRecord {
     s32 key;
 } Overlay1SearchRecord;
 
-extern Overlay1SearchRecord **func_8000572C(s32 *start, s32 *end);
 
 /* Pinned DKR v77/v80 and JFG scans found no exact-byte donor. Fresh configured
  * full-TU V0 is exact-sized at 39 words with frame 0x30, 22/39 positional
@@ -270,7 +269,7 @@ Overlay1SearchRecord *overlay1FindType5ByKey(const s8 *key) {
     Overlay1SearchRecord *record;
     Overlay1SearchRecord **cursor;
 
-    cursor = func_8000572C(&start, &end) + start;
+    cursor = (Overlay1SearchRecord **)func_8000572C(&start, &end) + start;
     if (start < end) {
         do {
             record = *cursor++;
@@ -507,6 +506,6 @@ s32 overlay1TestDirection(Overlay1Direction *direction, f32 x, f32 z) {
  * frame: 0x78
  * relocations: 6
  * first-mismatch: +0x8
- * summary: Diagnostic r4300_mul reaches 64/74; angle/scale and start allocation webs remain, with five static identities unresolved.
+ * summary: Diagnostic r4300_mul reaches 64/74; all six relocation identities are exact, while angle/scale and start allocation webs remain.
  * PLATEAU-HANDOFF:overlay1FindType47ByAngle:end
  */
