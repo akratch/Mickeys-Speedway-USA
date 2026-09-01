@@ -822,6 +822,10 @@ HI16/LO16 pair. JFG calls the store-only helper `viNoClear`, but no
 same-address Mickey caller pins that public name and the body is below the
 tier-A threshold, so the address label remains canonical.
 
+| Function | Exact result |
+|---|---|
+| `func_80036A80` | 48 bytes under `-O2 -mips2 -32`; JFG `src/textures.c::resetColourCycle` body, all 12 instruction words and zero relocations exact. |
+
 ### 3.9 `main/track`: ROM `0xC950`-`0x16140`
 
 This 0x97F0-byte, 66-function block is one resident translation unit. The
