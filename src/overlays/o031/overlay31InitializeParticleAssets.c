@@ -81,6 +81,6 @@ void func_overlay_031_F00002E8_187F808(void) {
  * frame: 0x30
  * relocations: 24
  * first-mismatch: +0xC
- * summary: Fresh V0 is +1 word; its 0x4 TU overrun closes relocation preflight. Current-context structured reproof only; body unchanged.
+ * summary: Fresh V0 on 0793a39c confirms the +1-word owner overrun; 24-site identity proof stays closed. Donors unchanged; body untouched.
  * PLATEAU-HANDOFF:func_overlay_031_F00002E8_187F808:end
  */
