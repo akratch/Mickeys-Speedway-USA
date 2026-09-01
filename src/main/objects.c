@@ -38,6 +38,8 @@ extern s32 D_800C94F8;
 extern void **D_800C9494;
 extern s32 D_800C9498;
 extern s32 D_800C949C;
+extern u8 *D_800C9460;
+extern s32 D_800C9468;
 extern s32 D_800C94C0[];
 extern s32 D_800C94C8[];
 extern void **D_800C94EC;
@@ -58,7 +60,21 @@ void func_8000485C(s8 arg0) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004C28.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004FE0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005548.s")
+/* Workbench verdict: allocation-mismatch (temp-FIFO phase); 8 differing words. */
+/* First mismatch: +0x24. */
+/* Shape-exact candidate; register allocation is reserved for the permuter. */
+#ifdef NON_MATCHING
+void *func_800056A4(s32 tableIndex) {
+    s32 **table = (s32 **)0x800C9464;
+
+    if ((tableIndex < 0) || (tableIndex >= D_800C9468)) {
+        return D_800C9460;
+    }
+    return D_800C9460 + ((*table)[tableIndex] * 4);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800056A4.s")
+#endif
 void *func_800056F0(s32 index) {
     if ((index < 0) || (index >= D_800C9498)) {
         return 0;

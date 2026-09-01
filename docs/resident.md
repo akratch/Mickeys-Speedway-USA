@@ -2992,6 +2992,7 @@ Measured plateau:
 | `func_80003480` | Fresh configured V0 is exact-size at 94 instructions, with 41/94 words matching; its `0x48` frame remains larger than the target's `0x30`, and 4/5 relocation sites align by offset, type, and identity | function `+0x0` | IDO 5.3 web formation and spill placement remain unresolved in the final replacement path; old source forms, flags, and permutation remain closed, and canonical output remains assembly-backed |
 | `func_80003760` | Evidence A exact C: all 25 words, frame, relocations, and linked ROM bytes match under `-Wo,-loopunroll,0` | none | Bounded permutation resolved the temp-FIFO allocation; the donor peer remains assembly-only role evidence |
 | `func_8000BD0C` | Shape-exact 15-instruction candidate with 2 schedule-only differing words, identical instruction multiset, frameless, and no relocations | function `+0x2C` | Permuter-ready JFG `GetRangeSquared` adaptation; preserve the guarded candidate and resolve the late scheduling tie with the bounded search |
+| `func_800056A4` | Shape-exact 19-instruction candidate with 8 register-only differing words, frameless, and exact relocation layout | function `+0x24` | Permuter-ready fixed-address pointer-variable adaptation; target and candidate differ by one temp-FIFO phase |
 
 PROVENANCE: TU labels, order, and semantic roles derive from JFG's permitted
 public decomp/objects. C retains Mickey-owned stubs and point-disclosed adapted
