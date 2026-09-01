@@ -111,3 +111,13 @@ void func_overlay_041_F0001464_188879C(Overlay41Input *input,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41ProcessEntry/func_overlay_041_F0001464_188879C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_041_F0001464_188879C:start
+ * symbol: func_overlay_041_F0001464_188879C
+ * score: 3/123 words
+ * frame: 0x48
+ * relocations: 5
+ * first-mismatch: +0x10
+ * summary: Fresh V0 is five words oversized with 120 target-word differences; frame is exact, but all five call sites are displaced and proxy identities lack witnesses.
+ * PLATEAU-HANDOFF:func_overlay_041_F0001464_188879C:end
+ */
