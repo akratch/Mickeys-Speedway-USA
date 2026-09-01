@@ -2506,6 +2506,7 @@ initColourCycle = 0x80036A50; // type:func size:0x30 tier-A exact C, JFG src/tex
 func_80036A80 = 0x80036A80; // type:func size:0x30 ROM 0x37680 tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/textures.c resetColourCycle body, linked exact=12/12
 func_80036C60 = 0x80036C60; // type:func size:0x4C ROM 0x37860 tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/textures.c resetMixCycle body, linked exact=19/19
 func_80036CAC = 0x80036CAC; // type:func size:0x124 ROM 0x378AC tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/textures.c updateMixCycle body, linked exact=73/73
+func_80036DD0 = 0x80036DD0; // type:func size:0x138 ROM 0x379D0 tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/screen.c screenLoad body, linked exact=78/78
 // donor-jfg-src/menu.c.o
 func_80038750 = 0x80038750; // type:func size:0x128 tier-A ROM 0x39350 IDO C exact, JFG src/menu.c structural oracle, allocator-trace-guided, owns jtbl at 0x83334
 func_80038878 = 0x80038878; // type:func size:0x154 tier-D ROM 0x39478 NON_MATCHING diagnostic p6 target 85/candidate 86 instructions, 66/85 positional differences, first +0x14, artificial empty address condition removed
