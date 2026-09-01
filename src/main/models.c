@@ -1432,3 +1432,13 @@ void func_8002109C(ModelPointOwner *owner) {
  * summary: ugen temp-FIFO phase; flags and four natural web-family forms exhausted without gain
  * PLATEAU-HANDOFF:func_80020D8C:end
  */
+
+/* PLATEAU-HANDOFF:func_8001FC50:start
+ * symbol: func_8001FC50
+ * score: 300 differing words
+ * frame: 0x88
+ * relocations: 3
+ * first-mismatch: +0x0
+ * summary: Untouched V0 is 330/333 words; frame 0x88/0x78. Three relocations per side, none aligned. Prior allocation/layout and permutation forms remain closed.
+ * PLATEAU-HANDOFF:func_8001FC50:end
+ */
