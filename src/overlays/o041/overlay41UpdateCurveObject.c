@@ -322,3 +322,13 @@ void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41UpdateCurveObject/func_overlay_041_F0000854_1887B8C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_041_F0000854_1887B8C:start
+ * symbol: func_overlay_041_F0000854_1887B8C
+ * score: 416/638 words
+ * frame: 0xE0
+ * relocations: 49
+ * first-mismatch: +0x78
+ * summary: Fresh exact-size V0 retains 225 raw and 222 masked differences; twelve candidate relocation identities remain unresolved.
+ * PLATEAU-HANDOFF:func_overlay_041_F0000854_1887B8C:end
+ */
