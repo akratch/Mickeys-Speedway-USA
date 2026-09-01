@@ -6,5 +6,5 @@
 - frame: 0x70
 - relocations: 4
 - first mismatch: +0xB0
-- summary: RHS comma web-formation is byte-flat; retail CFG requires post-branch count loading, leaving the eight-word pool-to-temp carrier residual.
+- summary: Fidelity-gated FIFO proves the later t6/t7 swap is downstream of the owner-selection web; no target-side web endpoint exists to justify a new source form.
 <!-- plateau-handoff:overlay20UpdateObjectResource:end -->
