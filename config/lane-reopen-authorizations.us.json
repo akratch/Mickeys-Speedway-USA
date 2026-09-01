@@ -90,6 +90,11 @@
       "source_commit": "1ae8e2311c291fba193441f16450eef926796c72",
       "ledger_commit": null,
       "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior video-local scoping and saved-register/stack-home forms remain closed; no body mutation, trace, or permutation."
+    },
+    "func_overlay_055_F000031C_18A1E34": {
+      "source_commit": "3c0a8dce98c35c10e7e5217411a916ecbf0b50ea",
+      "ledger_commit": null,
+      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior object-count ABI and display/transition lifetime forms remain closed; no body mutation, trace, or permutation."
     }
   }
 }
