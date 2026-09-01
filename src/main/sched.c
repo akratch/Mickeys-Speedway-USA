@@ -923,6 +923,6 @@ s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 availRCP) {
  * frame: 0xE8
  * relocations: 114
  * first-mismatch: +0x3B4
- * summary: Fresh V0 remains one word short with 84 differing target positions; relocation counts remain 114/109.
+ * summary: Authorized V0 reproduces the one-word deficit and 84 differences; relocation counts remain 114/109.
  * PLATEAU-HANDOFF:__scHandleRetrace:end
  */
