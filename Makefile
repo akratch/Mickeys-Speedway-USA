@@ -979,6 +979,15 @@ $(BUILD_DIR)/$(SRC_DIR)/main/texEnableModes.c.o: POSTPROCESS = \
 # IDO's two trailing section-alignment words.
 $(BUILD_DIR)/$(SRC_DIR)/main/texLoadTextureAddr.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x28
+# These three C subsegments are 4-byte-aligned resident slices inside the
+# original textures translation unit. IDO rounds each standalone .text
+# section to 0x10, so discard only the section padding after the exact slice.
+$(BUILD_DIR)/$(SRC_DIR)/main/textures_34E60.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1A8
+$(BUILD_DIR)/$(SRC_DIR)/main/textures_35024.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x47C
+$(BUILD_DIR)/$(SRC_DIR)/main/textures_354C8.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2188
 # Mickey's three maths objects are byte-identical to JFG's matching objects,
 # whose per-directory rule uses bare `-g` (no optimisation flag). The -O2
 # game default changes atan2f from 0x1F4 to 0x134 bytes, so keep this override

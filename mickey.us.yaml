@@ -244,11 +244,11 @@ segments:
       # measured trapDanglingJump TU and the texInitTextures-shaped function
       # that starts JFG's following textures.c TU at 0x34E60.
       - [0x34180, c, main/gameVi]
-      - [0x34E60, asm]
+      - [0x34E60, c, main/textures_34E60]
       - [0x35008, c, main/texEnableModes]
-      - [0x35024, asm]
+      - [0x35024, c, main/textures_35024]
       - [0x354A0, c, main/texLoadTextureAddr]
-      - [0x354C8, asm]
+      - [0x354C8, c, main/textures_354C8]
       - [0x37650, c, main/initColourCycle]
       - [0x37680, asm]
       - [0x37D50, asm]
