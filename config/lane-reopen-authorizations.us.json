@@ -56,6 +56,11 @@
       "ledger_commit": null,
       "reason": "Configured exact-size stale remeasurement at 472 bytes with 22 masked differences."
     },
+    "overlay19BuildAdjacency": {
+      "source_commit": "dedf7697ca206d89b0fba7fd85396c13cc076a57",
+      "ledger_commit": null,
+      "reason": "Fresh configured V0 plus structured finalize_plateau only for the exact 492-byte/123-word candidate, 41 masked differences, first +0x7C. Old source hypotheses, flags, permutation, and C-body mutation remain closed."
+    },
     "overlay17DrawStrip": {
       "source_commit": "40fe9ae8f6a8f67920391127d843ac5c74c5a0e3",
       "ledger_commit": null,
