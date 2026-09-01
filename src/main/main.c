@@ -1460,14 +1460,6 @@ s32 func_80028FB8(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 #ifdef NON_MATCHING
-/* PLATEAU-HANDOFF
- * symbol: func_80028FCC
- * score: 17/27 words
- * frame: 0x18
- * relocations: 3
- * first-mismatch: +0x1C
- * summary: shared-result form regressed to 25 words; target Boolean materialization remains structural
- */
 /*
  * PROVENANCE: JFG's pinned src/main.c::mainAnyoneHas remains GLOBAL_ASM and
  * supplies only an assembly/object structural analogue and TU-role comparison;
@@ -1715,6 +1707,16 @@ void func_800293D0(void) {
         }
     }
 }
+
+/* PLATEAU-HANDOFF:func_80028FCC:start
+ * symbol: func_80028FCC
+ * score: 17/27 words
+ * frame: 0x18
+ * relocations: 3
+ * first-mismatch: +0x1C
+ * summary: shared-result form regressed to 25 words; target Boolean materialization remains structural
+ * PLATEAU-HANDOFF:func_80028FCC:end
+ */
 
 /* PLATEAU-HANDOFF:func_80029274:start
  * symbol: func_80029274
