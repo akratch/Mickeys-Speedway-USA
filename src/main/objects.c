@@ -13,6 +13,8 @@ extern s32 D_800C94F8;
 extern void **D_800C9494;
 extern s32 D_800C9498;
 extern s32 D_800C949C;
+extern s32 D_800C94C0[];
+extern s32 D_800C94C8[];
 extern void **D_800C9500;
 extern s32 D_800C9504;
 
@@ -98,6 +100,9 @@ void func_8000A6DC(s32 arg0) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000AEEC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000B3CC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000BB84.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/GetRomlistInfo.s")
+void GetRomlistInfo(s32 *romlist, s32 *size, s32 index) {
+    *romlist = D_800C94C0[index];
+    *size = D_800C94C8[index];
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000BCB0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000BD0C.s")
