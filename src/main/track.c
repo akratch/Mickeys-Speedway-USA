@@ -5912,7 +5912,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x190
  * relocations: 6
  * first-mismatch: +0x38
- * summary: Scalar fill removes double-unroll and the reverse scan is full-width; two-word/prologue drift remains, while flag sweep lacks a unique owner.
+ * summary: Fresh V0 is 170/172 words with 146 differences; frame 0x190 exact. Both have 6 relocations but zero sites align. Prior mechanisms closed.
  * PLATEAU-HANDOFF:func_8000DB34:end
  */
 
