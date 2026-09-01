@@ -6,5 +6,5 @@
 - frame: 0x8
 - relocations: 10
 - first mismatch: +0xC
-- summary: comma/coalescing lever closed: independent 93/101, chained 98/101, reversed 83/101; baseline restored
+- summary: fidelity-clean COPYDEC ties the initial temp-copy edge to makelivranges; exhausted current-origin form leaves no natural probe
 <!-- plateau-handoff:overlay40FadeRecords:end -->

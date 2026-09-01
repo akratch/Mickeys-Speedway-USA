@@ -15,14 +15,15 @@ extern u32 gOverlay20ActiveBits;
  * donor. Configured C is 36/53 raw and runtime-normalized words, frameless,
  * first +0x4C, with exact 0xD4 ownership and all ten LOCAL relocation tuples
  * and identities. The caller passes an Overlay20RemoveOwner pointer in a0;
- * this guarded diagnostic retains the ABI-equivalent s32 parameter only so
- * IDO can reuse its carrier for the count. A pointer-typed local regresses to
- * 33 differences. All 119 flags are nonexact; a fidelity-clean proc-0 trace
- * records 13 caller-saved decisions. Narrowing newCount is flat, independent
- * compaction cursors regress to 19 differences, and reusing owner for the
- * decremented count is the retained one-word gain. No independent combination
- * or generic batch qualifies within the 122-build route. IDO's trailing 0xC
- * is section alignment, not target padding; fallback linkage alone is exact. */
+ * this guarded diagnostic retains the ABI-equivalent s32 parameter. A fresh
+ * fidelity-clean proc-0 UGEN trace proves a valid temporary FIFO with seven
+ * sequential births and no decrement-result birth in the old carrier-reuse
+ * form. Writing the decremented expression to the global count and reading it
+ * for compaction introduces the target's t7 carrier and improves the plateau
+ * from 36/53 to 39/53 words. Reordered, comma-grouped, and explicit-base
+ * compaction forms are flat or regress; the remaining base web stays a2 where
+ * the target needs the next FIFO birth at t9. All ten relocation identities
+ * remain exact. IDO's trailing 0xC is section alignment, not target padding. */
 #ifdef NON_MATCHING
 void overlay20RemoveEntry(s32 owner) {
     void *entry;
@@ -53,11 +54,10 @@ void overlay20RemoveEntry(s32 owner) {
     if (i >= owner) {
         return;
     }
-    owner--;
-    gOverlay20EntryCount = owner;
-    if (i < owner) {
+    gOverlay20EntryCount = owner - 1;
+    if (i < gOverlay20EntryCount) {
         cursor = &gOverlay20ShiftEntries[i];
-        end = &gOverlay20ShiftEntries[owner];
+        end = &gOverlay20ShiftEntries[gOverlay20EntryCount];
         do {
             *cursor = cursor[1];
             cursor++;
@@ -80,10 +80,10 @@ void overlay20RemoveEntry(s32 owner) {
 
 /* PLATEAU-HANDOFF:overlay20RemoveEntry:start
  * symbol: overlay20RemoveEntry
- * score: 36/53 words
+ * score: 39/53 words
  * frame: frameless
  * relocations: 10
- * first-mismatch: +0x4C
- * summary: Dead entry-as-end carrier was exact-sized but flat at 17 register-only differences; preserve V0 pending a distinct temp-FIFO lever.
+ * first-mismatch: +0x5C
+ * summary: Fidelity-clean FIFO trace exposes a missing decrement birth; the global-count form gains 3 words, but the compaction base remains one birth behind.
  * PLATEAU-HANDOFF:overlay20RemoveEntry:end
  */
