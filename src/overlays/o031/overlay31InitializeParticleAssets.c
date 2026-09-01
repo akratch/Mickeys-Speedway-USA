@@ -74,3 +74,13 @@ void func_overlay_031_F00002E8_187F808(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o031/overlay31InitializeParticleAssets/func_overlay_031_F00002E8_187F808.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_031_F00002E8_187F808:start
+ * symbol: func_overlay_031_F00002E8_187F808
+ * score: 9/132 words
+ * frame: 0x30
+ * relocations: 24
+ * first-mismatch: +0xC
+ * summary: Fresh V0 is +1 word; its 0x4 TU overrun closes relocation preflight. Current-context structured reproof only; body unchanged.
+ * PLATEAU-HANDOFF:func_overlay_031_F00002E8_187F808:end
+ */
