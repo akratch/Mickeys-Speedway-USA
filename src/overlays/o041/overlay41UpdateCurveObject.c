@@ -329,6 +329,6 @@ void func_overlay_041_F0000854_1887B8C(Overlay41Input *input, f32 amount,
  * frame: 0xE0
  * relocations: 49
  * first-mismatch: +0x78
- * summary: Fresh exact-size V0 retains 225 raw and 222 masked differences; twelve candidate relocation identities remain unresolved.
+ * summary: Authorized V0 remains 222 masked differences; current proxy tooling resolves none of the twelve rodata relocation records.
  * PLATEAU-HANDOFF:func_overlay_041_F0000854_1887B8C:end
  */
