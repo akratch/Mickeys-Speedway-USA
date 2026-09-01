@@ -1,6 +1,11 @@
 {
   "schema_version": 1,
   "authorizations": {
+    "func_80003480": {
+      "source_commit": "e4628a89827467289170f03de04393f8567098a5",
+      "ledger_commit": "e4628a89827467289170f03de04393f8567098a5",
+      "reason": "Fresh configured V0 plus structured finalize only for the exact 376-byte/94-word candidate, 53 masked differences, first +0x0. Old source forms, flags, permutation, and C-body mutation remain closed."
+    },
     "func_8001C4C0": {
       "source_commit": "6a60c8186b8a937876867e528a47d3942ed88e6e",
       "ledger_commit": "6a60c8186b8a937876867e528a47d3942ed88e6e",
