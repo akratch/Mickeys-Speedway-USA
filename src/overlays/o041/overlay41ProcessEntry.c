@@ -118,6 +118,6 @@ void func_overlay_041_F0001464_188879C(Overlay41Input *input,
  * frame: 0x48
  * relocations: 5
  * first-mismatch: +0x10
- * summary: Fresh V0 is five words oversized with 120 target-word differences; frame is exact, but all five call sites are displaced and proxy identities lack witnesses.
+ * summary: Fresh V0 remains five words oversized with 120 differences; displaced call proxies lack an exact witness, so no new mechanism is authenticated.
  * PLATEAU-HANDOFF:func_overlay_041_F0001464_188879C:end
  */
