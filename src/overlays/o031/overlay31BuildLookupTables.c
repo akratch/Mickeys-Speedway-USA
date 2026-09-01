@@ -159,3 +159,13 @@ void func_overlay_031_F0000000_187F520(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o031/overlay31BuildLookupTables/func_overlay_031_F0000000_187F520.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_031_F0000000_187F520:start
+ * symbol: func_overlay_031_F0000000_187F520
+ * score: 94 differing words
+ * frame: 0x40
+ * relocations: 10
+ * first-mismatch: +0x2C
+ * summary: Fresh 744B/186w V0 has 94 raw diffs and 71 aligned residuals; candidate/target relocs are 10/8 with six aligned and allocator identity ambiguous.
+ * PLATEAU-HANDOFF:func_overlay_031_F0000000_187F520:end
+ */
