@@ -304,3 +304,13 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
  * summary: late FP scheduling tie; JFG GetRangeSquared shape is exact and the bounded permuter is next
  * PLATEAU-HANDOFF:func_8000BD0C:end
  */
+
+/* PLATEAU-HANDOFF:func_800056A4:start
+ * symbol: func_800056A4
+ * score: 8 differing words
+ * frame: frameless
+ * relocations: 6
+ * first-mismatch: +0x24
+ * summary: fixed-address D_800C9464 pointer-variable form has exact shape and relocations; one temp-FIFO phase remains
+ * PLATEAU-HANDOFF:func_800056A4:end
+ */
