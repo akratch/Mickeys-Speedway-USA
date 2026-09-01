@@ -5,6 +5,29 @@ typedef struct {
     s32 unk58;
 } Objects06C40;
 
+typedef struct {
+    s16 unk0;
+    u8 pad02[2];
+    f32 unk4;
+} Objects69C0Out;
+
+typedef struct {
+    u8 pad00[0x2C];
+    f32 unk2C;
+} Objects69C0Deep;
+
+typedef struct {
+    u8 pad00[0xE0];
+    Objects69C0Deep *unkE0;
+} Objects69C0Mid;
+
+typedef struct {
+    u8 pad00[0x40];
+    Objects69C0Mid *unk40;
+    u8 pad44[0x34];
+    Objects69C0Out *unk78;
+} Objects69C0In;
+
 extern s16 D_800C94B0;
 extern s8 D_80078F88;
 extern s8 D_80079004;
@@ -55,7 +78,12 @@ void **func_80005808(s32 *count) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006448.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006534.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006868.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800069C0.s")
+s32 func_800069C0(Objects69C0In *arg0, Objects69C0Out *arg1) {
+    arg0->unk78 = arg1;
+    arg1->unk4 = arg0->unk40->unkE0->unk2C;
+    arg0->unk78->unk0 = 2;
+    return 0x2C;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800069E8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006B04.s")
 s32 func_80006C40(Objects06C40 *arg0, s32 arg1) {
