@@ -198,6 +198,6 @@ void overlay57UpdateSelection(s32 ignored) {
  * frame: 0x48
  * relocations: 89
  * first-mismatch: +0x4C
- * summary: Fresh exact-size V0 has 166 raw/162 masked diffs; frame 0x48; candidate 89 vs target 43 relocs, with local identities ambiguous.
+ * summary: Fresh reproof unchanged; no C caller, weak BK donor, and ambiguous 89-to-43 relocation surface expose no new source lever.
  * PLATEAU-HANDOFF:overlay57UpdateSelection:end
  */
