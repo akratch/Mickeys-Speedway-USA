@@ -30,6 +30,18 @@ typedef struct {
     Objects69C0Out *unk78;
 } Objects69C0In;
 
+typedef struct {
+    u8 pad00[0x1E];
+    s8 unk1E[4];
+    u8 pad22[0xAE];
+    f32 unkD0[4];
+} Objects58C0Data;
+
+typedef struct {
+    u8 pad00[0x40];
+    Objects58C0Data *unk40;
+} Objects58C0Arg;
+
 extern s16 D_800C94B0;
 extern s8 D_80078F88;
 extern s8 D_80079004;
@@ -109,7 +121,12 @@ s32 func_80005820(s32 arg0) {
     return D_800C94F4[arg0];
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005868.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800058C0.s")
+s8 func_800058C0(Objects58C0Arg *arg0, s32 arg1) {
+    if ((arg1 >= 4) || (arg0->unk40->unkD0[arg1] == 0.0f)) {
+        return arg0->unk40->unk1E[0];
+    }
+    return arg0->unk40->unk1E[arg1];
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000590C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006448.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006534.s")
