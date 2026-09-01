@@ -237,3 +237,13 @@ void overlay101BuildPresentationD(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/overlay101BuildPresentationD/func_overlay_101_F000A384_18E5BA4.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay101BuildPresentationD:start
+ * symbol: overlay101BuildPresentationD
+ * score: 50/206 words
+ * frame: 0x20
+ * relocations: 52
+ * first-mismatch: +0x10
+ * summary: 156 masked, 157 raw differences; 40 relocation sites and 29 identities align, 21 identities unresolved. Allocation/address scheduling diverges.
+ * PLATEAU-HANDOFF:overlay101BuildPresentationD:end
+ */
