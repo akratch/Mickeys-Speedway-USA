@@ -2886,7 +2886,7 @@ JFG audio-manager family covers 74; the remainder has separate lineage.
 | Mickey ROM range | Functions | Attribution and evidence | Canonical treatment |
 |---|---:|---|---|
 | `0x1050`-`0x2340` | 49 | JFG `audio_manager_1050.c`: **tier A** at `amTuneSetFadeScaled`, `amSndSetPan`, `forcelink`; **tier B** API order/calls. The aligned end precedes JFG's separate `audiomgr` initializer | `src/main/audio_manager_1050.c` |
-| `0x2340`-`0x3100` | 13 | JFG `audiomgr.c`; **tier B** allocator/queue/scheduler/DMA/frame-state calls; outside the assigned TUs | assembly; boundaries recorded |
+| `0x2340`-`0x3100` | 13 | JFG `audiomgr.c`; **tier B** allocator/queue/scheduler/DMA/frame-state calls; outside the assigned TUs | `src/main/audiomgr.c`, `src/main/audiomgr_30E0.c`; boundaries recorded |
 | `0x3100`-`0x45F0` | 20 | JFG `audio_manager_36D0.c`; **tier B** start allocator, 20-function order, positional setters, and terminal volume calculation. `audspat_jingle_off`/JFG `amAmbientPause` is a title-specific naming divergence | `src/main/audio_manager_36D0.c` |
 | `0x45F0`-`0x4F40` | 5 | JFG `audio_manager_4C50.c`; **tier A** endpoints (`amVibratoInit`, `_depth2Cents`), five-function order, and `0xC` terminal alignment | `src/main/audio_manager_4C50.c` |
 | `0x4F40`-`0xC950` | 65 | JFG `objects.c` lineage follows the oscillator TU; **tier A** `GetRomlistInfo`, but no whole-object match or promoted boundary | assembly |
@@ -2944,6 +2944,7 @@ The final column records owned object words and relocation coverage.
 | `scalevol` | `0x22C8` / `0x24` | **tier B**: JFG supplies the complete body and official name | Exact 9 object words; no relocations |
 | `func_800016EC` | `0x22EC` / `0x1C` | **tier B**: overlay 49 supplies mode-call context; no external name is asserted | Exact 7 object words and two data relocations |
 | `func_80001708` | `0x2308` / `0x38` | **tier B**: a resident caller pins the master-volume reset role; no external name is asserted | Exact 14 object words, two calls, and data relocation |
+| `func_80001BE8` | `0x27E8` / `0x0C` | **tier A:** Mickey-derived C body and linked ROM identity; placeholder retained because no external name is asserted | Exact 3 object words and linked ROM bytes |
 | `func_80002500` | `0x3100` / `0xC4` | **tier B**: JFG supplies the `amInitAudioMap` role and exact audio-manager order; Mickey's externally visible placeholder is retained, while its pool sizes, point stride, handle field, and body come from Mickey-only evidence | Exact 49 object words and all sound-table, allocator, point-pool, count, and reset-call relocation identities under `-Wab,-r4300_mul` |
 | `audspat_jingle_off` | `0x31C4` / `0x28` | existing **tier A** audio-spatial object identity; JFG's `amAmbientPause` supplies the complete body while Mickey's title-specific name remains authoritative | Exact 10 object words and both call/data relocations |
 | `amAmbientRestart` | `0x31EC` / `0xC` | **tier B**: JFG supplies the complete body and official name; the paired ambient-pause flag and exact audio-manager order agree | Exact 3 object words and data relocation identity |
