@@ -41,6 +41,11 @@
       "ledger_commit": null,
       "reason": "Fresh configured V0 and structured finalize only for the exact 636-byte/159-word candidate: 49 raw/48 masked differences, first +0x18. Prior hypotheses, flags, permutation, and body mutation remain closed."
     },
+    "overlay15UpdateMovingStars": {
+      "source_commit": "fcfaafd2789d637bd5ccafc5e72a831bc3bf69da",
+      "ledger_commit": "fcfaafd2789d637bd5ccafc5e72a831bc3bf69da",
+      "reason": "Fresh configured V0 plus structured finalize only for the 412-byte/103-word target and 440-byte/110-word candidate: 87 raw/84 masked differences, first +0x30. Old hypotheses, flags, permutation, and body mutation remain closed."
+    },
     "overlay33PresentAndSwap": {
       "source_commit": "69a46cbc44bc8d2d58a9c9ba9a54f9ff6e416838",
       "ledger_commit": null,

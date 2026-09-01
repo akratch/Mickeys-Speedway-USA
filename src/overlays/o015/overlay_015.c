@@ -498,3 +498,13 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * summary: Exact-size 247-word candidate; carrier reuse cut 230 to 120 differences, but allocator structure and two extra static records versus 14 target records remain.
  * PLATEAU-HANDOFF:overlay15InitStarsAndPalette:end
  */
+
+/* PLATEAU-HANDOFF:overlay15UpdateMovingStars:start
+ * symbol: overlay15UpdateMovingStars
+ * score: 19/103 words
+ * frame: 0x58
+ * relocations: 46
+ * first-mismatch: +0x30
+ * summary: Fresh V0 is +7 words with 84 masked differences; 46 candidate versus two target relocations remain identity-ambiguous.
+ * PLATEAU-HANDOFF:overlay15UpdateMovingStars:end
+ */
