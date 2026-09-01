@@ -320,6 +320,11 @@
       "source_commit": "437c265c597d0c66f7ab3f666733741da58bd3ac",
       "ledger_commit": "d4e06e150929868113c9b08caeaf1ce46581b3ea",
       "reason": "Fresh exact-symbol evidence exposes ambiguous D_80000050 and shifted sites; authorize one configured maintenance reproof and identity refresh only, with body, old forms, flags, and permutation closed."
+    },
+    "func_overlay_011_F0001E4C_186A694": {
+      "source_commit": "2dddabd7855d4c7c9d52e9ba2978fae00d9f37cf",
+      "ledger_commit": "2dddabd7855d4c7c9d52e9ba2978fae00d9f37cf",
+      "reason": "Fresh exact-symbol evidence authenticates one-word size drift and 87-site surface; authorize one configured maintenance reproof and identity refresh only, with body, old forms, flags, and permutation closed."
     }
   }
 }

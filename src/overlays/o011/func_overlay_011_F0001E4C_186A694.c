@@ -197,3 +197,13 @@ void func_overlay_011_F0001E4C_186A694(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o011/func_overlay_011_F0001E4C_186A694/func_overlay_011_F0001E4C_186A694.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_011_F0001E4C_186A694:start
+ * symbol: func_overlay_011_F0001E4C_186A694
+ * score: 109/295 words
+ * frame: 0x40
+ * relocations: 87
+ * first-mismatch: +0x10
+ * summary: Fresh V0 is -1 word; 87/87 relocation counts/types but ambiguous local-call and shifted sites close identities. Old forms closed; body untouched.
+ * PLATEAU-HANDOFF:func_overlay_011_F0001E4C_186A694:end
+ */
