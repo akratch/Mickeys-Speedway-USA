@@ -2335,3 +2335,13 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * summary: Target frame 0x168; two of four relocation identities align. Next: prove a natural triangle-count/loop lifetime; do not repeat 119 flags or ten forms.
  * PLATEAU-HANDOFF:func_80041530:end
  */
+
+/* PLATEAU-HANDOFF:func_8004054C:start
+ * symbol: func_8004054C
+ * score: 24/125 words
+ * frame: frameless
+ * relocations: 2
+ * first-mismatch: +0x2C
+ * summary: Fresh V0 is one word short with 101 positional differences; exact relocs, caller, and JFG donor expose no new lever.
+ * PLATEAU-HANDOFF:func_8004054C:end
+ */

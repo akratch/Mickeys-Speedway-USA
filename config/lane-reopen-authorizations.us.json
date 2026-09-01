@@ -16,6 +16,11 @@
       "ledger_commit": "6a60c8186b8a937876867e528a47d3942ed88e6e",
       "reason": "Authenticated TU-local typed weak alias plus objcopy redefine restores the direct R_MIPS_26 without changing global symbol policy."
     },
+    "func_8004054C": {
+      "source_commit": "55618278ea27ebb00d65e86cbd0cadde44d8bdbe",
+      "ledger_commit": "55618278ea27ebb00d65e86cbd0cadde44d8bdbe",
+      "reason": "Fresh configured V0 plus structured finalize only for the 500-byte/125-word target and 496-byte/124-word candidate: 101 differences, first +0x2C, two exact relocations. Old hypotheses, flags, permutation, and body mutation remain closed."
+    },
     "func_80050E9C": {
       "source_commit": "84268f6322a138cfca5d2a47c1142c98c79875d3",
       "ledger_commit": "84268f6322a138cfca5d2a47c1142c98c79875d3",
