@@ -10,6 +10,8 @@ extern s8 D_80078F88;
 extern s8 D_80079004;
 extern void **D_800C94F4;
 extern s32 D_800C94F8;
+extern void **D_800C9500;
+extern s32 D_800C9504;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004340.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000439C.s")
@@ -33,7 +35,10 @@ void **func_80005750(s32 *count) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005768.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005798.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005808.s")
+void **func_80005808(s32 *count) {
+    *count = D_800C9504;
+    return D_800C9500;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005820.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005868.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800058C0.s")
