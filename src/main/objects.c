@@ -294,3 +294,13 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000BD0C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_8000BD0C:start
+ * symbol: func_8000BD0C
+ * score: 2 differing words
+ * frame: frameless
+ * relocations: 0
+ * first-mismatch: +0x2C
+ * summary: late FP scheduling tie; JFG GetRangeSquared shape is exact and the bounded permuter is next
+ * PLATEAU-HANDOFF:func_8000BD0C:end
+ */
