@@ -136,6 +136,6 @@ void overlay84InitializeAndUpdate(Overlay84Object *object, s32 arg) {
  * frame: 0x58
  * relocations: 5
  * first-mismatch: +0x14
- * summary: Whole-itable ladders prove both pointer aliases own homes, but removing either regresses or moves start/end away from retail.
+ * summary: Fresh V0 is exact-sized at 172/179 normalized words with a 0x58 frame, exact register lanes, and all five relocation offset/type sites aligned. The pinned producer still emits no authenticated virtual/final home ownership, so the exhausted alias and frame ladders have no new source lever.
  * PLATEAU-HANDOFF:overlay84InitializeAndUpdate:end
  */
