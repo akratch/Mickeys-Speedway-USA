@@ -13,6 +13,23 @@ typedef struct ColourCycle {
     struct ColourCycle *unkC;
 } ColourCycle;
 
+/* PROVENANCE: body adapted from Jet Force Gemini's public decompilation,
+ * src/textures.c:resetMixCycle. Mickey's layout and compiler output remain
+ * authoritative. */
+typedef struct PulsatingLightDataFrame {
+    u16 value;
+    u16 time;
+} PulsatingLightDataFrame;
+
+typedef struct PulsatingLightData {
+    u16 numberFrames;
+    u16 currentFrame;
+    u16 time;
+    u16 totalTime;
+    s32 outColorValue;
+    PulsatingLightDataFrame frames[1];
+} PulsatingLightData;
+
 void func_80036A80(ColourCycle *cycle) {
     ColourCycle *temp_v0;
 
@@ -24,8 +41,20 @@ void func_80036A80(ColourCycle *cycle) {
     cycle->unkA = temp_v0->unkA;
     cycle->unkB = temp_v0->unkB;
 }
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37680/func_80036AB0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37680/func_80036C60.s")
+
+void func_80036C60(PulsatingLightData *data) {
+    s32 i;
+
+    data->currentFrame = 0;
+    data->time = 0;
+    data->totalTime = 0;
+    data->outColorValue = data->frames[0].value;
+    for (i = 0; i < data->numberFrames; i++) {
+        data->totalTime += data->frames[i].time;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37680/func_80036CAC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37680/func_80036DD0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37680/func_80036F08.s")
