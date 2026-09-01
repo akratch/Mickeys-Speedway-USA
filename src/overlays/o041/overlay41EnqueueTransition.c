@@ -25,9 +25,9 @@ extern u8 gOverlay41QueueEntries[];
 
 #define entry ((volatile u8 *)cursor)
 
-/* Workbench: mixed(structural:13, register:12, constant:3), exact 105 instructions/29 words, first +0x8.
- * Levers: cursor/+12 pointer and offset rewrites; all regressed, with the target's delayed cursor web intact.
- * Remains: target block order and one-cursor address routing. */
+/* Workbench: mixed(structural:13, register:12, constant:3), exact 105
+ * instructions with 29 differing words, first +0x8. Preflight proves all 22
+ * relocation identities exactly; target block order and one-cursor allocation remain. */
 #ifdef NON_MATCHING
 void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
                                        s32 value6, s32 value8, s32 value9,
@@ -103,6 +103,6 @@ void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
  * frame: frameless
  * relocations: 22
  * first-mismatch: +0x8
- * summary: Fresh V0 reproduces 29 masked differences and frameless geometry; 22 offsets/types align, but identities remain unresolved and the one-cursor web differs.
+ * summary: Resolver proves 22/22 identities exact; remaining one-cursor allocation/CFG residual names no unique natural lever.
  * PLATEAU-HANDOFF:func_overlay_041_F000195C_1888C94:end
  */
