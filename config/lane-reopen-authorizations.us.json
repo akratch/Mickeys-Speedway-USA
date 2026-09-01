@@ -136,6 +136,11 @@
       "ledger_commit": null,
       "reason": "Configured exact-size stale remeasurement at 468 bytes with 22 masked differences."
     },
+    "overlay63UpdateEffects": {
+      "source_commit": "e712ff95c9c0cf6ea30cb1c9c67d728eb49552b4",
+      "ledger_commit": "be59f86ccba20a496b2f457eb1a9db18a683ffbb",
+      "reason": "Fresh V0 and structured maintenance only; preflight is closed by ambiguous gO63RenderMatrixReloc runtime identity. No body mutation, flags, old forms, or permutation."
+    },
     "overlay89InitializeEffect": {
       "source_commit": "608e543109ef222f4066b95eea470ae00e0800ab",
       "ledger_commit": null,
