@@ -256,3 +256,13 @@ void overlay65UpdateParticles(O65Command **arg0, s32 *arg1,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o065/overlay65UpdateParticles/func_overlay_065_F0000080_18C42E8.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay65UpdateParticles:start
+ * symbol: overlay65UpdateParticles
+ * score: 689/720 words
+ * frame: 0xF8
+ * relocations: 64
+ * first-mismatch: +0xC
+ * summary: V0 is 710/720 words (-10), frame 0xF8 exact, first +0xC; relocation identities are blocked by overlay65Initialize canonical-owner conflict.
+ * PLATEAU-HANDOFF:overlay65UpdateParticles:end
+ */
