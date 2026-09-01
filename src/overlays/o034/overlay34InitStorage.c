@@ -43,7 +43,15 @@ extern void *func_8002B280(s32 size, u32 colourTag);
  * saves and reloads remained at sp+0x18, proving those mechanisms are
  * decoupled. Assignment-in-call optimized back to V0, while carrying a second
  * byte-count alias across each call reproduced the known 48-word structural
- * regression. A later-stage save-slot/UGEN trace is now required.
+ * regression.
+ *
+ * A fresh current-canonical reproof retains 45/50 raw and 46/50 relocation-
+ * normalized words with the exact 0x30 frame. The authorized final caller-
+ * save-slot capture cannot be produced by the pinned workbench: its supported
+ * globalcolor grammar emits no calibrated final_offset field, and the receipt
+ * contract explicitly forbids inferring one from raw words, source lines,
+ * registers, or ordinals. The missing final-home hook is therefore a shared
+ * tooling dependency, not permission for another source-form sweep.
  */
 #ifdef NON_MATCHING
 /* PLATEAU-HANDOFF
@@ -52,7 +60,7 @@ extern void *func_8002B280(s32 size, u32 colourTag);
  * frame: 0x30
  * relocations: 8
  * first-mismatch: +0x24
- * summary: Fresh V0 remains exact-sized at 46/50 relocation-normalized words with a 0x30 frame and four `sp+0x18` versus target `sp+0x1C` sites. A fidelity-gated whole-itable capture identifies abstract home -0x14 as the synthesized old-value carrier for `countdown--`, while the byte-size multiply/conversion web is colored to `a2`. Making that old value explicit moves `size` to -0x14 but leaves the emitted caller-save slot at sp+0x18, proving frontend home and final save-slot assignment are decoupled. Assignment-in-call returns V0; a second call-live byte-count alias regresses to 48 words. Preserve V0 and reopen only with later save-slot/UGEN producer evidence.
+ * summary: Fresh V0 is exact-sized at 45/50 raw and 46/50 relocation-normalized words with frame 0x30; four sites remain sp+0x18 versus target sp+0x1C. The pinned producer emits no calibrated final_offset and the receipt contract forbids inference, so the authorized final-save-slot mechanism requires new global tooling; prior source forms remain closed.
  */
 void overlay34InitStorage(s32 count) {
     s32 *word;
