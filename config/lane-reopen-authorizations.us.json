@@ -121,6 +121,11 @@
       "ledger_commit": "e70d0e4907bee5b88c82506dc776f9c35bbac480",
       "reason": "New structured evidence plus a 0.538 JFG skeleton donor authorizes one bounded donor-guided packet/lifetime pass. Prior alias/type/width/hoist forms, generic flags, synthetic temporaries, and ungated permutation stay closed."
     },
+    "overlay25UpdateEffect": {
+      "source_commit": "72efc7e5ab2a2de533c895a4b391092102121e7e",
+      "ledger_commit": "72efc7e5ab2a2de533c895a4b391092102121e7e",
+      "reason": "Procedure-scoped UGEN/source-semantic tooling authorizes one fidelity-gated stack-home/web capture and at most one uniquely trace-backed natural lifetime form. Close 119 flags, declaration/scope variants, fake guards, and permutation."
+    },
     "overlay63Initialize": {
       "source_commit": "c50629e2c475632523de8614099358c5ec17c17f",
       "ledger_commit": null,
