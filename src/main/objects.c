@@ -83,7 +83,15 @@ void **func_80005808(s32 *count) {
     *count = D_800C9504;
     return D_800C9500;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005820.s")
+s32 func_80005820(s32 arg0) {
+    if (D_800C94F8 == 0) {
+        return 0;
+    }
+    if ((arg0 < 0) || (arg0 >= D_800C94F8)) {
+        return 0;
+    }
+    return D_800C94F4[arg0];
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005868.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800058C0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000590C.s")
