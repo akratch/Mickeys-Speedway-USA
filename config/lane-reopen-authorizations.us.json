@@ -206,6 +206,11 @@
       "ledger_commit": null,
       "reason": "Fresh configured V0 and structured finalize only for the exact 168-byte/42-word candidate: 26 masked/raw differences, first +0x14. Prior source hypotheses, flags, permutation, and body mutation remain closed."
     },
+    "overlay17AdvanceChain": {
+      "source_commit": "4cf79df6f6cd91e7bfaad2708d1795c420cf17f1",
+      "ledger_commit": "4cf79df6f6cd91e7bfaad2708d1795c420cf17f1",
+      "reason": "Fresh configured V0 and structured finalize only for the exact 588-byte/147-word candidate: 51 masked/raw differences, first +0x18. Prior source hypotheses, flags, permutation, and body mutation remain closed."
+    },
     "func_80028FCC": {
       "source_commit": "f7d5ec548fc748a2edb46d9eebd80f43b8c3e3b3",
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
