@@ -216,6 +216,11 @@
       "ledger_commit": "e32167f26d88ed0bd162c9e653fe6803e6760e79",
       "reason": "Fresh configured V0 and structured finalize only for the exact 800-byte/200-word candidate: 97 raw/92 masked differences, first +0x24. Prior source hypotheses, flags, permutation, and body mutation remain closed."
     },
+    "overlay57UpdateSelection": {
+      "source_commit": "d809e5b0d6892748bc6d833ebf1dadabbdb75d3e",
+      "ledger_commit": "d809e5b0d6892748bc6d833ebf1dadabbdb75d3e",
+      "reason": "Fresh V0 + structured finalize only: exact 1132B/283w, 166 raw/162 masked diffs, first +0x4C, 89 candidate/43 target relocs. Body/flags/permutation closed."
+    },
     "overlay57UpdateModeTrigger": {
       "source_commit": "32f9b737781d9a9d814faaa92f011ad48c462367",
       "ledger_commit": null,
