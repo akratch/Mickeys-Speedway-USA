@@ -30,6 +30,18 @@
       "state": "rejected",
       "decision_commit": "a676f1c3af7591960d0abf46072d7f2953fcab58",
       "reason": "Canonical review rejected equality that required prohibited post-compile instruction-field externalization and restored the assembly fallback."
+    },
+    "c4b631359b84bf7e7186b12e9e73f75d60669adf": {
+      "symbol": "overlay17AdvanceChain",
+      "state": "superseded",
+      "decision_commit": "d0d9185fd2779c0167470742d822c2def98668c0",
+      "reason": "Current canonical independently reproduced the same 96/147-word plateau and committed a fresh exact-symbol handoff, so this older authorization tip has no remaining scheduling claim."
+    },
+    "a9edd45d58f595581056cca9672fabb0b093305d": {
+      "symbol": "overlay17AdvanceChain",
+      "state": "superseded",
+      "decision_commit": "d0d9185fd2779c0167470742d822c2def98668c0",
+      "reason": "Current canonical independently reproduced the same 96/147-word plateau and committed a fresh exact-symbol handoff, so this older terminal tip has no remaining integration delta."
     }
   }
 }
