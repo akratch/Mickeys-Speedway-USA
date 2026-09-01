@@ -2681,6 +2681,8 @@ func_80057350 = 0x80057350; // type:func size:0x78   ROM 0x57f50  tier-D collisi
 fmvInit = 0x80057910; // type:func size:0x5C   ROM 0x58510  src/fmvInit.c.o exact masked tier-A, matched C
 // jfg:libultra/src/flash/flashreinit.c.o
 osFlashReInit = 0x80057970; // type:func size:0x50 tier-A matched C, JFG libultra/src/flash/flashreinit.c body
+// jfg:libultra/src/flash/flashreadstatus.c.o
+osFlashReadStatus = 0x80057AB4; // type:func size:0x90 tier-A matched C, JFG libultra/src/flash/flashreadstatus.c body
 // jfg:libultra/src/flash/flashreadid.c.o
 osFlashClearStatus = 0x80057C10; // type:func size:0x4C tier-A exact C, JFG libultra/src/flash/flashreadid.c body
 func_80058EF4 = 0x80058EF4; // type:func size:0x90   ROM 0x59af4  tier-D logarithm-series helper, matched C
