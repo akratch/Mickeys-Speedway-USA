@@ -1290,6 +1290,16 @@ gOverlay52Objects = 0x00000000;
 /* overlay 52: overlay52CopyOffsetEntries.c.o */
 D_27C = 0x0000027c;
 
+/* overlay 52: overlay52TailB.c.o */
+D_150 = 0x00000150;
+D_1F0 = 0x000001f0;
+D_240 = 0x00000240;
+D_24C = 0x0000024c;
+D_314 = 0x00000314;
+D_4B0 = 0x000004b0;
+D_4D0 = 0x000004d0;
+D_4D2 = 0x000004d2;
+
 /* overlay 52: overlay52Cleanup.c.o */
 gOverlay52Resource = 0x000004cc;
 gOverlay52Slots = 0x000004a8;
@@ -1420,7 +1430,6 @@ overlay56ReleaseResourceReloc = 0xf0000000;
 /* overlay 57: func_overlay_057_F0000000_18A3BF8.c.o */
 D_130 = 0x00000130;
 D_134 = 0x00000134;
-D_150 = 0x00000150;
 D_17C = 0x0000017c;
 D_18C = 0x0000018c;
 D_1A8 = 0x000001a8;
