@@ -242,6 +242,42 @@ typedef struct {
 } Objects0831CCommand;
 
 typedef struct {
+    u8 pad00[3];
+    u8 unk3;
+    u8 pad04[0xA];
+    u16 unkE;
+    u16 unk10;
+    u8 pad12[0xE];
+} Objects07C68Texture;
+
+typedef struct {
+    s16 unk0;
+    s16 unk2;
+    s32 unk4;
+} Objects07C68Record;
+
+typedef struct {
+    u8 pad00[0x18];
+    void **unk18;
+    u8 pad1C[0x10];
+    u8 unk2C;
+} Objects07C68Source;
+
+typedef struct {
+    u8 pad00[0xA];
+    s16 unkA;
+    u8 pad0C[0x40];
+    Objects07C68Record *unk4C;
+    u8 pad50[0x40];
+    u8 unk90;
+} Objects07C68Object;
+
+typedef struct {
+    u8 pad00[0x50];
+    s16 *unk50;
+} Objects07C68Indexed;
+
+typedef struct {
     u16 unk0;
     s8 unk2;
     u8 unk3;
@@ -293,6 +329,7 @@ extern s32 D_80078F84;
 extern Objects04454Object *D_80078F20;
 extern s8 D_80078F88;
 extern s8 D_80079004;
+extern u8 D_8007BDA0;
 extern u8 D_8007BF0C;
 extern f32 D_80080F84;
 extern void **D_800C94F4;
@@ -322,6 +359,9 @@ extern void modFreeModel(void *resource);
 extern void func_800347A0(void *texture);
 extern void func_800359D4(void *sprite);
 extern void func_80009F74(TrackSkyObject *object);
+extern s32 func_800290A0(void);
+extern void func_800367E8(Objects07C68Texture *texture, void *flags, s32 *frame,
+                           s32 updateRate);
 extern s32 D_80079008[];
 extern s32 D_800790D0[];
 extern f32 D_80080D24;
@@ -1090,7 +1130,74 @@ void func_80006FA0(void) {
 void func_80007844(void) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000784C.s")
+/* Workbench verdict: allocation-mismatch; 42 differing words (76/118). */
+/* First mismatch: +0x7C; size, frame, and opcode schedule are exact. */
+/* Structural gap: none; register allocation and one stack-home constant are permuter-ready. */
+#ifdef NON_MATCHING
+void func_80007C68(Objects07C68Object *arg0, Objects07C68Source *arg1,
+                   Objects07C68Object *arg2, s32 arg3) {
+    s32 sp58;
+    s16 temp_lo;
+    s16 temp_v0_2;
+    s32 temp_t3;
+    s32 temp_v0;
+    s32 var_s3;
+    Objects07C68Record *var_s0;
+    s16 *var_s2;
+    Objects07C68Texture *texture;
+
+    if (func_800290A0() != 0) {
+        arg3 = 0;
+    }
+    var_s0 = arg2->unk4C;
+    if (var_s0 != NULL) {
+        var_s3 = 0;
+        var_s2 = ((Objects07C68Indexed *)((u8 *)arg2 + (arg2->unkA * 4)))->unk50;
+        if ((s32)arg1->unk2C > 0) {
+            do {
+                temp_v0 = var_s0->unk4;
+                texture = *(Objects07C68Texture **)((u8 *)arg1->unk18 +
+                                                     ((temp_v0 & 0xFF) * 8));
+                if (temp_v0 & 0x100000) {
+                    sp58 = (s32)var_s0->unk0;
+                    if (var_s0->unk4 & 0x200000) {
+                        D_8007BDA0 = arg0->unk90;
+                    }
+                    func_800367E8(texture, &var_s0->unk4, &sp58, arg3);
+                    var_s0->unk0 = (s16)sp58;
+                    if (var_s0->unk2 >= 0) {
+                        temp_t3 = sp58 + 0x100;
+                        sp58 = temp_t3;
+                        if (temp_t3 >= (s32)texture->unk10) {
+                            if (texture->unk3 & 2) {
+                                sp58 = 0;
+                            } else {
+                                sp58 -= 0x100;
+                            }
+                        }
+                        var_s0->unk2 = (s16)sp58;
+                    }
+                }
+                temp_v0_2 = var_s0->unk2;
+                if (temp_v0_2 >= 0) {
+                    var_s2 += 1;
+                    var_s2[-1] = (s16)((temp_v0_2 >> 8) * texture->unkE);
+                }
+                var_s3 += 1;
+                temp_lo = ((s16)var_s0->unk0 >> 8) * texture->unkE;
+                var_s2 += 1;
+                var_s0 += 1;
+                var_s2[-1] = temp_lo;
+            } while (var_s3 < (s32)arg1->unk2C);
+        }
+        if (arg0->unk90 == 1) {
+            arg0->unk90 = 2;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80007C68.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80007E40.s")
 /* Workbench verdict: structure-mismatch; 28 differing words (60/60). */
 /* First mismatch: +0x24; size and frame are exact, with a near-identical CFG. */
@@ -1687,4 +1794,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
  * first-mismatch: +0x0
  * summary: Late argument carriers and call scheduling remain structural after the display-list command translation.
  * PLATEAU-HANDOFF:func_8000831C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80007C68:start
+ * symbol: func_80007C68
+ * score: 42 differing words
+ * frame: 0x60
+ * relocations: 8
+ * first-mismatch: +0x7C
+ * summary: Opcode shape and frame are exact; remaining register allocation and one stack-home constant are permuter-ready.
+ * PLATEAU-HANDOFF:func_80007C68:end
  */
