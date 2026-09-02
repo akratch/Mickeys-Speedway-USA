@@ -413,3 +413,13 @@ void func_overlay_060_F0000334_18BA10C(s32 arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o060/overlay60Prefix/func_overlay_060_F0000334_18BA10C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_060_F0000334_18BA10C:start
+ * symbol: func_overlay_060_F0000334_18BA10C
+ * score: 871/2789 words
+ * frame: 0x198
+ * relocations: 838
+ * first-mismatch: +0x0
+ * summary: Linked promotion trial text-differs 2781 words; candidate is 1918 words short despite exact frame.
+ * PLATEAU-HANDOFF:func_overlay_060_F0000334_18BA10C:end
+ */
