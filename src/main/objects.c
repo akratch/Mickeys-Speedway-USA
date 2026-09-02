@@ -446,6 +446,18 @@ extern void func_80023A08(void **, s32, s32, s16 *, s32, s32, s32);
 extern f32 sqrtf(f32);
 extern f32 D_80080F80;
 
+typedef struct {
+    u8 pad00[0x1C];
+    s16 unk1C;
+} Objects0A830Data;
+
+typedef struct {
+    u8 pad00[0x40];
+    Objects0A830Data *unk40;
+    u8 pad44[0x20];
+    void *unk64;
+} Objects0A830Object;
+
 extern void *D_800C94D8[];
 extern s32 D_800C9470;
 extern s32 D_800C9474;
@@ -1847,7 +1859,82 @@ s32 func_8000A6E8(s32 arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A6E8.s")
 #endif
+/* Workbench verdict: allocation-mismatch; 7 differing words (130/130). */
+/* First mismatch: +0x10; frame and opcode schedule are exact. */
+/* Shape status: recovered switch control flow; jump-table relocation targets remain. */
+#ifdef NON_MATCHING
+s32 func_8000A830(Objects0A830Object *arg0, void *arg1) {
+    s32 size;
+    s32 type;
+
+    type = arg0->unk40->unk1C - 1;
+    switch (type) {
+        case 0: size = 0x460; break;
+        case 5: size = 0x18; break;
+        case 19: size = 0xC; break;
+        case 20: size = 0x10; break;
+        case 13: size = 0x30; break;
+        case 72: size = 0x54; break;
+        case 28: size = 0x54; break;
+        case 27: size = 0x1C; break;
+        case 35: size = 0xD0; break;
+        case 40: size = 0x30; break;
+        case 11: size = 0xE; break;
+        case 41: size = 8; break;
+        case 49: size = 0xCC; break;
+        case 42: size = 2; break;
+        case 43: size = 4; break;
+        case 32: size = 0xC; break;
+        case 45: size = 6; break;
+        case 46: size = 0xC; break;
+        case 47: size = 0xC; break;
+        case 48: size = 0xC; break;
+        case 52: size = 0xC; break;
+        case 53: size = 0x50; break;
+        case 54: size = 0x44; break;
+        case 55: size = 0; break;
+        case 56: size = 0xE4; break;
+        case 57: size = 0xD8; break;
+        case 58: size = 6; break;
+        case 59: size = 0x20; break;
+        case 62: size = 0x10; break;
+        case 63: size = 0x40; break;
+        case 64: size = 0x24; break;
+        case 65: size = 0x198; break;
+        case 66: size = 0x40; break;
+        case 67: size = 0x24; break;
+        case 68: size = 0x14; break;
+        case 69: size = 0x14; break;
+        case 70: size = 0x50; break;
+        case 71: size = 0x38; break;
+        case 73: size = 4; break;
+        case 79: size = 0x18; break;
+        case 74: size = 4; break;
+        case 75: size = 0x1C; break;
+        case 76: size = 4; break;
+        case 77: size = 0x44; break;
+        case 80: size = 0xC; break;
+        case 81: size = 0x18; break;
+        case 82: size = 8; break;
+        case 83: size = 0x38; break;
+        case 84: size = 0x9C; break;
+        case 85: size = 0x28; break;
+        case 86: size = 8; break;
+        case 87: size = 8; break;
+        case 88: size = 0x14; break;
+        case 89: size = 8; break;
+        case 90: size = 0x238; break;
+        case 91: size = 0xC0; break;
+        default: size = 0; break;
+    }
+    if (size != 0) {
+        arg0->unk64 = arg1;
+    }
+    return (size & -4) + 4;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A830.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000AA38.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000AEEC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000B3CC.s")
