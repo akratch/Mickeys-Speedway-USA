@@ -238,3 +238,13 @@ done:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu_3B1A0/func_8003A7D0.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_8003A5A0:start
+ * symbol: func_8003A5A0
+ * score: 19 differing words
+ * frame: unknown
+ * relocations: 22
+ * first-mismatch: +0x0
+ * summary: Lookup carrier allocation and absolute relocation web remain unresolved.
+ * PLATEAU-HANDOFF:func_8003A5A0:end
+ */
