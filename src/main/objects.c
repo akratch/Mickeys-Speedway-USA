@@ -324,3 +324,13 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
  * summary: target DMA buffer stack home is 8 bytes earlier; six register and two stack-offset words remain
  * PLATEAU-HANDOFF:func_80005868:end
  */
+
+/* PLATEAU-HANDOFF:func_8000BCB0:start
+ * symbol: func_8000BCB0
+ * score: 2 differing words
+ * frame: -0x18
+ * relocations: 1
+ * first-mismatch: +0x3C
+ * summary: late FP scheduling tie in the JFG GetRange adaptation; bounded permuter is next
+ * PLATEAU-HANDOFF:func_8000BCB0:end
+ */
