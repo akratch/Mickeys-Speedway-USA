@@ -674,14 +674,30 @@ extern void **D_800C94EC;
 extern s32 D_800C94F0;
 extern void **D_800C9500;
 extern s32 D_800C9504;
+extern s32 D_8007A1F4;
+extern s32 D_8007A1F8;
+extern s32 D_8007A1FC;
+extern u8 D_8007BEFC;
+extern u8 D_8007BF04;
+extern u8 D_8007BF10;
+extern void *D_80078F7C;
+extern s16 D_80078F8C[];
+extern s16 D_80078FA0[];
+extern s16 D_80078FB4[];
+extern s16 D_80078FC8[];
+extern s16 D_80078FDC[];
+extern s16 D_80078FF0[];
+extern s32 D_800C947C;
+extern s32 D_800C9480;
+extern s32 D_800C9484;
 extern s32 piRomLoadSection(u32 assetIndex, u32 address, s32 assetOffset, s32 size);
 extern s32 *piRomLoad(s32 assetIndex);
 extern s32 runlinkDownloadCode(s32 overlayIndex);
-extern void func_8000590C(s16 *romlist, s16 arg1, s32 offset, s16 arg3);
+extern void *func_8000590C();
 extern f32 sqrtf(f32 value);
 extern void func_80006FA0(void);
 extern void func_80007118();
-extern void TrapDanglingJump();
+extern s32 TrapDanglingJump();
 extern void mmFree(void *data);
 extern void modFreeModel(void *resource);
 extern void func_800347A0(void *texture);
@@ -691,6 +707,10 @@ extern void *func_8002B280(s32 size, s32 tag);
 extern void *func_8002B4C0(void *slots, s32 size);
 extern s32 mathRnd(s32 minimum, s32 maximum);
 extern void func_80009F74(void *object);
+extern u8 *levelGetLevel(void);
+extern s32 levelGetNumber(void);
+extern s32 controlGetPlayerSetup(s16 *arg0, s16 *arg1, s16 *arg2, s16 *arg3);
+extern void func_80058250(void);
 extern s32 camGetNo(void);
 extern Objects09F74Camera *camGetPtr(void);
 extern f32 camGetProjZ(f32 x, f32 y, f32 z);
@@ -1198,7 +1218,216 @@ void func_80004C28(s32 arg0, s32 arg1) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004C28.s")
 #endif
+typedef struct {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+    u8 pad0A[2];
+    s16 unkC;
+    s16 unkE;
+    u8 unk10;
+    u8 unk11;
+} Objects04FE0Packet;
+
+typedef struct {
+    u8 pad00[4];
+    u8 unk4;
+    u8 pad05;
+    s8 unk6;
+    u8 pad07[0x21];
+} Objects04FE0ModeRecord;
+
+typedef struct {
+    u8 pad00[4];
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+} Objects04FE0Source;
+
+typedef struct {
+    s16 unk0;
+    u8 pad02[0x3A];
+    void *unk3C;
+    u8 pad40[4];
+    s16 unk44;
+    u8 pad46[0x3E];
+    s32 unk84;
+    s32 unk88;
+} Objects04FE0Object;
+
+/* Workbench verdict: structure-mismatch; 337 differing words (347/346 instructions). */
+/* First mismatch: +0x64; target frame is 0x100, candidate frame is 0x128. */
+/* Structural gap: packet carriers and allocator call ABI leave a larger candidate frame. */
+#ifdef NON_MATCHING
+void func_80004FE0(s32 arg0) {
+    u8 *modeState;
+    u8 *level;
+    s32 playerCount;
+    s32 i;
+    s32 offset;
+    s32 slot;
+    s32 player;
+    s16 playerSetup0;
+    s16 playerSetup1;
+    s16 playerSetup2;
+    s16 playerSetup3;
+    Objects04FE0Object *category[6];
+    Objects04FE0Packet packets[6];
+    Objects04FE0Packet extraPacket;
+    Objects04FE0Packet specialPacket;
+    Objects04FE0ModeRecord *records;
+    Objects04FE0Object **objects;
+    Objects04FE0Object *object;
+    Objects04FE0Object *sourceObject;
+    Objects04FE0Source *source;
+    s32 flags;
+    u8 type;
+
+    modeState = func_80028F54();
+    level = levelGetLevel();
+    playerCount = func_800291FC();
+    D_800C94F8 = 0;
+    if ((level[0x83] != 1) && (level[0x83] != 2)) {
+        for (i = 0; i < 6; i++) {
+            category[i] = NULL;
+        }
+        objects = (Objects04FE0Object **)D_800C9494;
+        for (i = 0; i < D_800C9498; i++) {
+            object = objects[i];
+            if ((object->unk44 == 5) && (arg0 == object->unk88)) {
+                slot = object->unk84;
+                if ((slot >= 0) && (slot < 6)) {
+                    if (category[slot] == NULL) {
+                        category[slot] = object;
+                    }
+                } else {
+                    category[0] = object;
+                    category[2] = object;
+                    category[3] = object;
+                    category[4] = object;
+                    category[5] = object;
+                }
+            }
+        }
+        records = (Objects04FE0ModeRecord *)modeState;
+        for (player = 0; player < playerCount; player++) {
+            type = records[player].unk4;
+            if (type >= 0xA) {
+                type = 0;
+            }
+            if (D_8007BF10 != 0) {
+                packets[player].unk0 = D_80078FF0[type];
+            } else if (D_8007BF0C == 0) {
+                if (level[0x83] == 3) {
+                    packets[player].unk0 = D_80078FB4[type];
+                } else if (D_8007BF04 != 0) {
+                    packets[player].unk0 = D_80078FA0[type];
+                } else {
+                    packets[player].unk0 = D_80078F8C[type];
+                }
+            } else if (level[0x83] == 3) {
+                packets[player].unk0 = D_80078FDC[type];
+            } else {
+                packets[player].unk0 = D_80078FC8[type];
+            }
+            packets[player].unk2 = 0x12;
+            packets[player].unkC = 0;
+            packets[player].unk10 = player;
+            packets[player].unk11 = type;
+            if ((*modeState == 5) || (*modeState == 6)) {
+                slot = player;
+            } else if ((*modeState == 1) || (*modeState == 2)) {
+                slot = 0;
+            } else if (D_8007BF0C != 0) {
+                slot = (playerCount - records[player].unk6) - 1;
+            } else {
+                slot = records[player].unk6;
+            }
+            sourceObject = category[slot];
+            if (sourceObject != NULL) {
+                source = (Objects04FE0Source *)sourceObject->unk3C;
+                packets[player].unk4 = source->unk4;
+                packets[player].unk6 = source->unk6;
+                packets[player].unk8 = source->unk8;
+                packets[player].unkE = sourceObject->unk0;
+                category[slot] = NULL;
+            } else {
+                packets[player].unk4 = 0;
+                packets[player].unk6 = 0;
+                packets[player].unk8 = 0;
+                packets[player].unkE = 0;
+            }
+        }
+        controlGetPlayerSetup(&playerSetup0, &playerSetup1, &playerSetup2,
+                              &playerSetup3);
+        for (i = 0; i < 8; i++) {
+            D_800C94F4[i] = NULL;
+        }
+        for (player = 0, offset = 0; player < playerCount;
+             player++, offset += 4) {
+            object = (Objects04FE0Object *)func_8000590C(&packets[player], 1,
+                                                         offset);
+            D_800C94F4[player] = object;
+            if (object != NULL) {
+                object->unk3C = NULL;
+            }
+        }
+        D_800C94F8 = playerCount;
+        for (i = 0; i < playerCount - D_8007BEFC; i++) {
+            extraPacket.unk0 = 0x71;
+            extraPacket.unk4 = 0;
+            extraPacket.unk6 = 0;
+            extraPacket.unk8 = 0;
+            extraPacket.unk10 = i;
+            object = (Objects04FE0Object *)func_8000590C(&extraPacket, 1);
+            if (object != NULL) {
+                object->unk3C = NULL;
+            }
+        }
+        if (D_8007BF0C == 0) {
+            specialPacket.unk0 = 0x70;
+        } else {
+            specialPacket.unk0 = 0x77;
+        }
+        specialPacket.unk2 = 0xC;
+        specialPacket.unk4 = playerSetup0;
+        specialPacket.unk6 = playerSetup1;
+        specialPacket.unk8 = playerSetup2;
+        specialPacket.unkC = playerSetup3;
+        object = (Objects04FE0Object *)func_8000590C(&specialPacket, 1);
+        if (object != NULL) {
+            object->unk3C = NULL;
+            if (D_8007BF0C != 0) {
+                D_80078F7C = object;
+            }
+        }
+        if ((*modeState == 1) && (D_800C94F4[0] != NULL)) {
+            flags = *(s32 *)D_800D3128;
+            if ((flags & 0x80000) != 0) {
+                TrapDanglingJump(D_8007A1F4);
+            }
+            if ((flags & 0x100000) != 0) {
+                TrapDanglingJump(levelGetNumber());
+                TrapDanglingJump(D_8007A1F8);
+            }
+            D_8007A1FC = TrapDanglingJump(levelGetNumber());
+            TrapDanglingJump(); TrapDanglingJump(D_800C94F4[0]);
+        }
+        D_800C947C = 1;
+        D_800C9480 = 0x80;
+        D_800C9484 = 0;
+        D_80078F80 = 0;
+    }
+    runlinkDownloadCode(8);
+    runlinkDownloadCode(1);
+    TrapDanglingJump((s8)level[0x83]);
+    func_80058250();
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004FE0.s")
+#endif
 /* Workbench verdict: structure-mismatch; 81 raw differing words (85/87 instructions). */
 /* First mismatch: +0x18; frame is exact, but the target retains two setup instructions. */
 /* Structural gap: zero-index setup and register carriers remain unresolved. */
