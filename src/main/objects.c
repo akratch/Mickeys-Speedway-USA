@@ -369,6 +369,38 @@ typedef struct {
     s16 unk8;
 } Objects07E40Texture;
 
+typedef struct {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+    s16 unkA;
+} Objects08128Bounds;
+
+typedef struct {
+    u8 pad00[0x20];
+    s16 unk20;
+    s16 unk22;
+    s16 unk24;
+    s16 unk26;
+    s16 unk28;
+    s16 unk2A;
+} Objects08128Track;
+
+typedef struct {
+    u8 pad00[0x0C];
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    u8 pad18[0x16];
+    s16 unk2E;
+} Objects08128Object;
+
+extern Objects08128Track *trackGetTrack(void);
+extern Objects08128Bounds *func_8000FEEC(s32);
+extern s32 func_8000FAE0(f32, f32, f32);
+
 extern void *D_800C94D8[];
 extern s32 D_800C9470;
 extern s32 D_800C9474;
@@ -1399,10 +1431,57 @@ void func_80008028(s32 arg0) {
 void func_80008118(void) {
     D_80079004 = 1;
 }
+/* Workbench candidate: source-level movement and segment-bound checks. */
+#ifdef NON_MATCHING
+s32 func_80008128(Objects08128Object *arg0, f32 arg1, f32 arg2, f32 arg3) {
+    Objects08128Track *track;
+    Objects08128Bounds *bounds;
+    s32 x;
+    s32 y;
+    s32 z;
+    s32 result;
+
+    track = trackGetTrack();
+    x = (s32) (arg0->unkC + arg1);
+    result = 0;
+    y = (s32) (arg0->unk10 + arg2);
+    z = (s32) (arg0->unk14 + arg3);
+    if ((D_80079004 == 0) && (track != NULL) &&
+        ((x < (track->unk20 - 1000)) ||
+         (y < (track->unk24 - 1000)) ||
+         (z < (track->unk28 - 1000)) ||
+         ((track->unk22 + 1000) < x) ||
+         ((track->unk26 + 1000) < y) ||
+         ((track->unk2A + 1000) < z))) {
+        result = 1;
+    }
+    D_80079004 = 0;
+    if (result == 0) {
+        arg0->unkC += arg1;
+        arg0->unk10 += arg2;
+        arg0->unk14 += arg3;
+        if (track != NULL) {
+            bounds = func_8000FEEC(arg0->unk2E);
+            if ((bounds != NULL) &&
+                ((x < bounds->unk0) || (y < bounds->unk2) ||
+                 (z < bounds->unk4) || (bounds->unk6 < x) ||
+                 (bounds->unk8 < y) || (bounds->unkA < z))) {
+                bounds = NULL;
+            }
+            if (bounds == NULL) {
+                arg0->unk2E = func_8000FAE0(arg0->unkC, arg0->unk10,
+                                            arg0->unk14);
+            }
+        }
+    }
+    return result;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008128.s")
-/* Workbench verdict: structure-mismatch; 81 differing words (105/106). */
-/* First mismatch: +0x0; frame and command emission are substantially exact. */
-/* Structural gap: late argument carriers and call scheduling remain unresolved. */
+#endif
+/* Workbench verdict: structure-mismatch; 116 differing words (target 125, candidate 130). */
+/* First mismatch: +0x0; candidate frame 0x30 versus target frame 0x40. */
+/* Structural gap: callee-induced stack layout and late bound-check carriers differ. */
 #ifdef NON_MATCHING
 void func_8000831C(void *arg0, void *arg1, s32 arg2, void *arg3, s32 arg4,
                    s32 arg5, s32 arg6, s32 arg7, f32 arg8, s32 arg9, s32 arg10) {
