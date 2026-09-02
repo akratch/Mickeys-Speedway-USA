@@ -830,7 +830,7 @@ segments:
       - [0x184C3E0, c, overlay_001]
       - [0x184CB90, c, overlay_001_build]
       - [0x184CFB4, c, overlay_001_head]
-      - [0x184E158, asm, overlay_001_middle_c1a0]
+      - [0x184E158, c, func_overlay_001_F0001D78_184E158]
       - [0x184EB24, c, overlay_001_middle]
       - [0x184EF2C, asm, overlay_001_middle_c1b_a]
       - [0x184F958, c, overlay_001_tail]

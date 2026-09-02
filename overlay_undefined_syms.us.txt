@@ -56,6 +56,9 @@ overlay1ReleaseReloc = 0xf0000000;
 overlay1ResetReloc = 0xf0000000;
 sqrtf_o001Reloc = 0xf0000000;
 
+/* overlay 1: func_overlay_001_F0001D78_184E158.c.o */
+D_1DC8 = 0x00001dc8;
+
 /* overlay 1: overlay_001_middle.c.o */
 gOverlay1ModeObject = 0x00001da0;
 gOverlay1ModeSource = 0x00001d9c;
