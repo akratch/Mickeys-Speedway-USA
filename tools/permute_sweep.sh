@@ -39,6 +39,15 @@ if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
     exit 1
 fi
 base=$(git -C "$root" rev-parse campaign/unchain)
+# A previous pass may have committed matches on this lane that canonical has
+# not integrated yet; a hard reset would silently discard them (it did, for
+# func_80037AEC on 2026-09-02). Refuse until they are merged or cherry-picked.
+pending=$(git -C "$root" cherry campaign/unchain "lane/$lane" 2>/dev/null | grep -c '^+' || true)
+if [ "${pending:-0}" -gt 0 ]; then
+    echo "$0: lane/$lane has $pending unintegrated commit(s) (git cherry campaign/unchain lane/$lane); integrate them before resyncing." >&2
+    git -C "$root" log --format='  %h %s' "campaign/unchain..lane/$lane" >&2
+    exit 1
+fi
 echo "resync: lane/$lane -> campaign/unchain $base"
 git reset -q --hard "$base"
 # Untracked leftovers from an earlier sweep (permuter scratch dirs at the
