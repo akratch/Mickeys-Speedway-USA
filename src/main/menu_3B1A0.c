@@ -258,3 +258,13 @@ done:
  * summary: Scalar inner-loop carrier order remains structurally different.
  * PLATEAU-HANDOFF:func_8003A754:end
  */
+
+/* PLATEAU-HANDOFF:func_8003A7D0:start
+ * symbol: func_8003A7D0
+ * score: 37 differing words
+ * frame: frameless
+ * relocations: 0
+ * first-mismatch: +0x10
+ * summary: Count-carrier allocation and first-loop address formation remain unresolved.
+ * PLATEAU-HANDOFF:func_8003A7D0:end
+ */
