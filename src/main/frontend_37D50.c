@@ -685,3 +685,13 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
  * summary: Grid induction and record-store schedule remain structurally different.
  * PLATEAU-HANDOFF:func_800371BC:end
  */
+
+/* PLATEAU-HANDOFF:func_80037414:start
+ * symbol: func_80037414
+ * score: 59 differing words
+ * frame: 0x40
+ * relocations: 42
+ * first-mismatch: +0x10
+ * summary: VI transition semantics compile, but argument homes and carrier allocation remain structurally different.
+ * PLATEAU-HANDOFF:func_80037414:end
+ */
