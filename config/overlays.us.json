@@ -23,7 +23,7 @@
   "nonempty_modules": 106,
   "text_bytes": 469264,
   "matched_overlay_c_bytes": 124672,
-  "nonmatching_overlay_c_bytes": 299192,
+  "nonmatching_overlay_c_bytes": 308264,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 2348,
   "bss_bytes": 77680,
@@ -617,10 +617,10 @@
      "offset": "0x1D78",
      "end_offset": "0x2744",
      "size": "0x9CC",
-     "type": "asm",
-     "source": "overlays/o001/overlay_001_middle_c1a0",
-     "matched": false,
-     "nonmatching": false
+     "type": "c",
+     "source": "overlays/o001/func_overlay_001_F0001D78_184E158",
+     "matched": true,
+     "nonmatching": true
     },
     {
      "offset": "0x2744",
@@ -633,12 +633,21 @@
     },
     {
      "offset": "0x2B4C",
+     "end_offset": "0x3258",
+     "size": "0x70C",
+     "type": "c",
+     "source": "overlays/o001/func_overlay_001_F0002B4C_184EF2C",
+     "matched": true,
+     "nonmatching": true
+    },
+    {
+     "offset": "0x3258",
      "end_offset": "0x3578",
-     "size": "0xA2C",
-     "type": "asm",
-     "source": "overlays/o001/overlay_001_middle_c1b_a",
-     "matched": false,
-     "nonmatching": false
+     "size": "0x320",
+     "type": "c",
+     "source": "overlays/o001/func_overlay_001_F0003258_184F638",
+     "matched": true,
+     "nonmatching": true
     },
     {
      "offset": "0x3578",
@@ -12831,10 +12840,10 @@
      "offset": "0xB84",
      "end_offset": "0x1578",
      "size": "0x9F4",
-     "type": "asm",
-     "source": "overlays/o061/overlay_061_tail",
-     "matched": false,
-     "nonmatching": false
+     "type": "c",
+     "source": "overlays/o061/func_overlay_061_F0000B84_18BFF4C",
+     "matched": true,
+     "nonmatching": true
     },
     {
      "offset": "0x1578",
@@ -18770,10 +18779,10 @@
      "offset": "0xDDC",
      "end_offset": "0x1360",
      "size": "0x584",
-     "type": "asm",
-     "source": "overlays/o099/overlay_099_tail_c",
-     "matched": false,
-     "nonmatching": false
+     "type": "c",
+     "source": "overlays/o099/func_overlay_099_F0000DDC_18DA38C",
+     "matched": true,
+     "nonmatching": true
     }
    ],
    "bss_size": "0x0",

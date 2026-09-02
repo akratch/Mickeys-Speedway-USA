@@ -156,6 +156,17 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_head.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym overlay1SquareRoot=func_overlay_001_F0000000_184C3E0 $@ && \
 	$(OBJCOPY) --redefine-sym overlay1AngleFromIndex=func_overlay_001_F0000000_184C3E0 $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x11A4
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/func_overlay_001_F0001D78_184E158.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/func_overlay_001_F0001D78_184E158.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9CC
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/func_overlay_001_F0002B4C_184EF2C.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/func_overlay_001_F0002B4C_184EF2C.c.o: OPT_FLAGS := -O2 -Wo,-loopunroll,0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/func_overlay_001_F0002B4C_184EF2C.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x70C
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/func_overlay_001_F0003258_184F638.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/func_overlay_001_F0003258_184F638.c.o: OPT_FLAGS := -O2 -Wo,-loopunroll,0
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/func_overlay_001_F0003258_184F638.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x320
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_middle.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
 		--redefine-sym func_overlay_001_F0002744_184EB24=overlay1FindNextAngle \
@@ -1396,6 +1407,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ReadCharacter.c.o: MIPSISET := -m
 # extent is 0x170 bytes with no target padding.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/func_overlay_061_F0001648_18C0A10.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x170
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o061/func_overlay_061_F0000B84_18BFF4C.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9F4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay_085.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x29C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay_085.c.o: CFLAGS += -Wab,-r4300_mul
@@ -2170,6 +2183,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99RenderSegments.c.o: POSTPROCESS =
 	$(OBJCOPY) --redefine-sym \
 		func_overlay_099_F0000BA4_18DA154=overlay99RenderSegments $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x238
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o099/func_overlay_099_F0000DDC_18DA38C.c.o: CFLAGS += -Wo,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o099/func_overlay_099_F0000DDC_18DA38C.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x584
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o060/overlay60Initialize.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x334
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o060/overlay60ReleaseResources.c.o: POSTPROCESS = \
@@ -2615,6 +2631,9 @@ OVERLAY_TRIMMED_OBJECTS := \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_build.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_head.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/func_overlay_001_F0001D78_184E158.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/func_overlay_001_F0002B4C_184EF2C.c.o \
+    $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/func_overlay_001_F0003258_184F638.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_middle.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_tail.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_create.c.o \
@@ -2662,7 +2681,8 @@ OVERLAY_TRIMMED_OBJECTS += \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o061/func_overlay_061_F0001648_18C0A10.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61WriteCharacter.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ReadCharacter.c.o \
-    $(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ResetCounters.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o061/overlay61ResetCounters.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o061/func_overlay_061_F0000B84_18BFF4C.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68PayloadLimit.c.o
 OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o085/overlay_085.c.o \
@@ -2816,6 +2836,7 @@ OVERLAY_TRIMMED_OBJECTS += \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99BuildHeightGrid.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99RenderSortedEntries.c.o \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99RenderSegments.c.o \
+	$(BUILD_DIR)/$(SRC_DIR)/overlays/o099/func_overlay_099_F0000DDC_18DA38C.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o060/overlay60Initialize.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o060/overlay60ReleaseResources.c.o \
     $(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57ApplyValue.c.o \
