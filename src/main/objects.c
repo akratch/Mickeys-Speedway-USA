@@ -66,6 +66,47 @@ typedef struct {
 } Objects09F08Arg;
 
 typedef struct {
+    f32 x;
+    f32 y;
+    f32 z;
+} Objects0BB84Vec3;
+
+typedef struct {
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad0C[4];
+    f32 unk10;
+    f32 unk14;
+    f32 unk18;
+    f32 unk1C;
+} Objects0BB84Plane;
+
+typedef struct {
+    u8 pad00[8];
+    f32 x;
+    f32 y;
+    f32 z;
+} Objects0BB84Output;
+
+typedef struct {
+    u8 pad00[0x10];
+    f32 unk10;
+} Objects0BB84Depth;
+
+typedef struct {
+    u8 pad00[0xE0];
+    Objects0BB84Depth *unkE0;
+} Objects0BB84Node;
+
+typedef struct {
+    u8 pad00[0x40];
+    Objects0BB84Node *unk40;
+    u8 pad44[0x34];
+    Objects0BB84Output *unk78;
+} Objects0BB84Object;
+
+typedef struct {
     u8 pad00[0x40];
     Objects58C0Data *unk40;
     u8 pad44[0x24];
@@ -482,7 +523,49 @@ void func_8000A6DC(s32 arg0) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000AA38.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000AEEC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000B3CC.s")
+/* Workbench verdict: structure-mismatch; 61 differing words (65/65). */
+/* First mismatch: +0x0; target frame is 0x28, candidate frame is 0x30. */
+/* Structural gap: FP register/stack allocation and argument homes differ. */
+#ifdef NON_MATCHING
+void func_8000BB84(s32 arg0, Objects0BB84Vec3 *arg1, Objects0BB84Vec3 *arg2,
+                   f32 arg3, Objects0BB84Plane *arg4, Objects0BB84Object *arg5) {
+    f32 normalX;
+    f32 normalY;
+    f32 normalZ;
+    f32 inputX;
+    f32 inputY;
+    f32 inputZ;
+    f32 dot;
+    f32 factor;
+    f32 reflectedX;
+    f32 reflectedY;
+    f32 reflectedZ;
+    f32 scale;
+    Objects0BB84Output *output;
+
+    output = arg5->unk78;
+    normalX = arg4->x;
+    normalY = arg4->y;
+    normalZ = arg4->z;
+    inputX = arg2->x;
+    inputY = arg2->y;
+    inputZ = arg2->z;
+    dot = (normalX * inputX) + (normalY * inputY) + (normalZ * inputZ);
+    factor = 2.0f * -dot;
+    reflectedX = inputX + (factor * normalX);
+    reflectedY = inputY + (factor * normalY);
+    reflectedZ = inputZ + (factor * normalZ);
+    scale = (arg3 - arg4->unk1C) * arg5->unk40->unkE0->unk10;
+    arg1->x = arg4->unk10 + (scale * reflectedX);
+    arg1->y = arg4->unk14 + (scale * reflectedY);
+    arg1->z = arg4->unk18 + (scale * reflectedZ);
+    output->x = normalX;
+    output->y = normalY;
+    output->z = normalZ;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000BB84.s")
+#endif
 void GetRomlistInfo(s32 *romlist, s32 *size, s32 index) {
     *romlist = D_800C94C0[index];
     *size = D_800C94C8[index];
@@ -592,4 +675,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
  * first-mismatch: +0x24
  * summary: Near-identical control-flow shape and frame; CFE allocates outer object/offset and inner model-index carriers differently.
  * PLATEAU-HANDOFF:func_80008028:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000BB84:start
+ * symbol: func_8000BB84
+ * score: 4/65 words
+ * frame: 0x30
+ * relocations: 0
+ * first-mismatch: +0x0
+ * summary: Arithmetic/control-flow size is exact, but the target's 0x28 frame and FP register/stack allocation remain unresolved.
+ * PLATEAU-HANDOFF:func_8000BB84:end
  */
