@@ -172,7 +172,7 @@ typedef struct {
     u8 unkA6;
     u8 padA7;
     u8 *unkA8;
-    void **unkAC;
+    s32 *unkAC;
 } Objects04B04Object;
 
 typedef struct {
@@ -400,6 +400,51 @@ typedef struct {
 extern Objects08128Track *trackGetTrack(void);
 extern Objects08128Bounds *func_8000FEEC(s32);
 extern s32 func_8000FAE0(f32, f32, f32);
+
+typedef struct {
+    u8 pad00[0xA6];
+    u8 unkA6;
+    u8 padA7;
+    u8 *unkA8;
+    void **unkAC;
+} Objects09220Data;
+
+typedef struct {
+    u8 pad00[8];
+    f32 unk8;
+    u8 pad0C[0x34];
+    Objects09220Data *unk40;
+} Objects09220Object;
+
+typedef struct {
+    u8 pad00[0x26];
+    s16 unk26;
+    s16 unk28;
+    s16 unk2A;
+} Objects09220Source;
+
+typedef struct {
+    f32 pad00[2];
+    f32 unk8;
+    f32 pad0C[3];
+    f32 unk18;
+    f32 pad1C[3];
+    f32 unk28;
+} Objects09220Matrix;
+
+typedef struct {
+    u32 w0;
+    u32 w1;
+} Objects09220Gfx;
+
+extern void *camGetRotationMtx(void);
+extern void mathOneFloatPY(void *, f32 *);
+extern void mtxf_transform_point(void *, f32, f32, f32, f32 *, f32 *, f32 *);
+extern void func_80034DF0(u8, u8, u8, u8, u8, u8);
+extern void func_80034E48(void);
+extern void func_80023A08(void **, s32, s32, s16 *, s32, s32, s32);
+extern f32 sqrtf(f32);
+extern f32 D_80080F80;
 
 extern void *D_800C94D8[];
 extern s32 D_800C9470;
@@ -1560,7 +1605,63 @@ void func_80008A8C(Objects08A20Arg *arg0) {
     }
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008B94.s")
+/* Workbench verdict: structure-mismatch; 55 differing words (target/candidate 125/125). */
+/* First mismatch: +0x1C; frame 0x70 and instruction count are exact. */
+/* Shape status: control flow is complete; residuals are mostly register/constant allocation. */
+#ifdef NON_MATCHING
+void func_80009220(void **arg0, s32 arg1, s32 arg2, Objects09220Object *arg3,
+                   s32 arg4, Objects09220Source *arg5, s32 arg6) {
+    f32 direction[2];
+    f32 projection;
+    f32 scale;
+    f32 distance;
+    f32 transformedX;
+    f32 transformedY;
+    f32 transformedZ;
+    s16 rotation[3];
+    s32 alpha;
+    volatile f32 negativeOne;
+    volatile f32 frameZero;
+    volatile f32 frameScale;
+    Objects09220Matrix *matrix;
+    Objects09220Gfx *command;
+
+    if (arg3->unk40->unkA6 > 0) {
+        negativeOne = -1.0f;
+        mathOneFloatPY(arg3, direction);
+        matrix = camGetRotationMtx();
+        projection = (negativeOne * matrix->unk28) +
+                     ((matrix->unk8 * direction[0]) +
+                      (matrix->unk18 * direction[1]));
+        if (projection > 0.0f) {
+            distance = sqrtf(projection);
+            rotation[0] = 0;
+            rotation[1] = 0;
+            rotation[2] = 0;
+            frameZero = 0.0f;
+            scale = arg3->unk8 * distance * (f32) arg6 * D_80080F80;
+            frameScale = scale;
+            mtxf_transform_point((void *)arg4, (f32) arg5->unk26,
+                                 (f32) arg5->unk28, (f32) arg5->unk2A,
+                                 &transformedX, &transformedY, &transformedZ);
+            alpha = (s32) (distance * 320.0f);
+            if (alpha >= 0x100) {
+                alpha = 0xFF;
+            }
+            func_80034DF0(0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC0);
+            func_80023A08(arg0, arg1, arg2, rotation,
+                          *arg3->unk40->unkAC, 4, alpha);
+            func_80034E48();
+            command = *(Objects09220Gfx **)arg0;
+            *arg0 = (void *) (command + 1);
+            command->w1 = -0x100;
+            command->w0 = 0xFB000000;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009220.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009414.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009AA8.s")
 void func_80009E78(Gfx **displayList, Mtx **matrix, TrackVertex **vertices,
