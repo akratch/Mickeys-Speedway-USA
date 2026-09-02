@@ -1120,49 +1120,56 @@ void *func_8000486C(s32 arg0) {
 /* Workbench verdict: register-permutation; 14 differing words (59/73). */
 /* First mismatch: +0x4; size, frame, CFG, and relocation surface are exact. */
 /* Structural gap: none; global-color pool allocation is reserved for the permuter. */
-#ifdef NON_MATCHING
-void func_80004B04(s32 arg0) {
-    s32 temp_v0;
-    s32 var_s1;
-    s32 var_s2;
-    s32 var_s3;
-    u16 *temp_v1;
-    u16 temp_a1;
-    u16 temp_v0_2;
-    Objects04B04Object *temp_s0;
-
-    temp_v0 = arg0 * 2;
-    temp_v1 = (u16 *)((u8 *)D_800C948C + temp_v0);
-    temp_a1 = *temp_v1;
-    if (temp_a1 != 0) {
-        *temp_v1 = temp_a1 - 1;
-        if (*(u16 *)((u8 *)D_800C948C + temp_v0) == 0) {
-            var_s2 = 0;
-            temp_s0 = D_800C9488[arg0];
-            var_s3 = 0;
-            var_s1 = 0;
-            if (temp_s0->unkA6 > 0) {
-                do {
-                    temp_v0_2 = *(u16 *)(temp_s0->unkA8 + var_s3);
-                    if ((temp_v0_2 & 0xC000) == 0xC000) {
-                        func_800347A0(*(void **)((u8 *)temp_s0->unkAC + var_s1));
-                    } else if (temp_v0_2 & 0x8000) {
-                        func_800359D4(*(void **)((u8 *)temp_s0->unkAC + var_s1));
-                    } else {
-                        modFreeModel(*(void **)((u8 *)temp_s0->unkAC + var_s1));
-                    }
-                    var_s2 += 1;
-                    var_s3 += 2;
-                    var_s1 += 4;
-                } while (var_s2 < (s32)temp_s0->unkA6);
-            }
-            mmFree(temp_s0);
+void func_80004B04(s32 arg0)
+{
+  s32 temp_v0;
+  s32 var_s1;
+  s32 var_s2;
+  s32 var_s3;
+  u16 *temp_v1;
+  u16 temp_a1;
+  u16 temp_v0_2;
+  Objects04B04Object *temp_s0;
+  temp_v0 = arg0 * 2;
+  temp_v1 = (u16 *) (((u8 *) D_800C948C) + temp_v0);
+  temp_a1 = *temp_v1;
+  if (temp_a1)
+  {
+    *temp_v1 = temp_a1 - 1;
+    if ((*((u16 *) (((u8 *) D_800C948C) + temp_v0))) == 0)
+    {
+      var_s2 = 0;
+      temp_s0 = D_800C9488[arg0];
+      var_s3 = 0;
+      var_s1 = 0;
+      if (temp_s0->unkA6 > 0)
+      {
+        do
+        {
+          ;
+          if (((*((u16 *) (temp_s0->unkA8 + var_s3))) & 0xC000) == 0xC000)
+          {
+            func_800347A0(*((void **) (((u8 *) temp_s0->unkAC) + var_s1)));
+          }
+          else
+            if ((*((u16 *) (temp_s0->unkA8 + var_s3))) & 0x8000)
+          {
+            func_800359D4(*((void **) (((u8 *) temp_s0->unkAC) + var_s1)));
+          }
+          else
+          {
+            modFreeModel(*((void **) (((u8 *) temp_s0->unkAC) + var_s1)));
+          }
+          var_s2 += 1;
+          var_s3 += 2;
+          var_s1 += 4;
         }
+        while (var_s2 < ((s32) temp_s0->unkA6));
+      }
+      mmFree(temp_s0);
     }
+  }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004B04.s")
-#endif
 /* Workbench verdict: structure-mismatch; 234 differing words (target 238, candidate 242). */
 /* First mismatch: +0x0; target frame 0x48 versus candidate frame 0x68. */
 /* Structural gap: ROM table carrier setup adds four instructions and 0x20 bytes of stack. */
@@ -5722,15 +5729,6 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * PLATEAU-HANDOFF:func_800069E8:end
  */
 
-/* PLATEAU-HANDOFF:func_80004B04:start
- * symbol: func_80004B04
- * score: 59/73 words
- * frame: 0x30
- * relocations: 8
- * first-mismatch: +0x4
- * summary: Shape exact; global-color pool allocation remains for the permuter.
- * PLATEAU-HANDOFF:func_80004B04:end
- */
 
 /* PLATEAU-HANDOFF:func_80004454:start
  * symbol: func_80004454
