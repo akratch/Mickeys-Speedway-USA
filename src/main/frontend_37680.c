@@ -282,3 +282,13 @@ void func_80036F08(Gfx **dList, u8 *screenAddress, s32 arg2) {
     }
     func_80034920(dList);
 }
+
+/* PLATEAU-HANDOFF:func_80036AB0:start
+ * symbol: func_80036AB0
+ * score: 113 differing words
+ * frame: 0x30
+ * relocations: 0
+ * first-mismatch: +0x0
+ * summary: Adapted DKR colour-cycle body has target 0x28 versus candidate 0x30 frame and allocation shape gaps.
+ * PLATEAU-HANDOFF:func_80036AB0:end
+ */
