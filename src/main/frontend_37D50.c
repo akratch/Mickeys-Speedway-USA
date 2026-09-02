@@ -745,3 +745,13 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
  * summary: Display-list emission schedule, relocation web, and render-loop shape remain unresolved.
  * PLATEAU-HANDOFF:func_80037C74:end
  */
+
+/* PLATEAU-HANDOFF:func_80038190:start
+ * symbol: func_80038190
+ * score: 365 differing words
+ * frame: 0xE8
+ * relocations: 32
+ * first-mismatch: +0x0
+ * summary: Recovered compiler jump table compiles, but display-list emission, relocation web, and render-loop shape remain unresolved.
+ * PLATEAU-HANDOFF:func_80038190:end
+ */
