@@ -31,10 +31,18 @@ if ! git merge --no-commit --no-ff "$branch" >/dev/null 2>&1; then
     case "$f" in
       README.md|config/overlays.us.json|config/overlay-donors.us.json|config/postprocess-audit.us.json) git checkout --theirs "$f" && git add "$f" ;;
       docs/modules.md|docs/overlays.md) .venv/bin/python tools/resolve_modules_split.py || { echo "unresolved conflict: $f" >&2; exit 1; } ;;
-      mickey.us.yaml|docs/resident.md|*.c|*.h) .venv/bin/python tools/resolve_comment_hunks.py "$f" && git add "$f" || { echo "unresolved conflict: $f" >&2; exit 1; } ;;
-      *) echo "unresolved conflict: $f" >&2; exit 1 ;;
+      mickey.us.yaml|docs/resident.md|*.c|*.h) .venv/bin/python tools/resolve_comment_hunks.py "$f" && git add "$f" || echo "deferring $f to tools/resolve_lane_conflicts.py" ;;
+      *) echo "deferring $f to tools/resolve_lane_conflicts.py" ;;
     esac
   done
+fi
+# Whatever the per-file rules above left unresolved goes through the
+# hunk-level/three-way resolver (README theirs, Makefile keep-both, lane-owned
+# new files theirs, ledgers theirs-per-hunk when ours is a subset, everything
+# else three-way against the lane's merge-base). It never takes a shared
+# file whole.
+if git diff --name-only --diff-filter=U | grep -q .; then
+  .venv/bin/python tools/resolve_lane_conflicts.py "$branch" || { echo "unresolved conflicts remain; merge left in progress" >&2; exit 1; }
 fi
 if git grep -q '^<<<<<<< ' -- . ':!*.md'; then echo "conflict markers left in tracked files:" >&2; git grep -l '^<<<<<<< ' -- . >&2; exit 1; fi
 echo "== integration gates"
