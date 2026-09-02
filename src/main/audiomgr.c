@@ -79,7 +79,24 @@ s32 func_80001BE8(void) {
     return D_80078DEC;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audiomgr/func_80001BF4.s")
+/* Verdict: structure-mismatch; 9 differing sites of 21 instructions with an exact frame. */
+/* First mismatch: function offset +0x20; the target reloads the EFC address for its final store. */
+/* Gap: the target's direct EFC load/store lifetimes are not reproduced by this volatile declaration. */
+#ifdef NON_MATCHING
+extern volatile u32 D_80078DF0;
+extern volatile s32 D_80078EFC;
+
+void func_80002134(void) {
+    if ((osAiGetLength() >> 2) == 0) {
+        if (D_80078EFC == 0) {
+            D_80078DF0 |= 8;
+            D_80078EFC = 0;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audiomgr/func_80002134.s")
+#endif
 /* PROVENANCE: body adapted from Diddy Kong Racing's public decomp,
  * src/audiomgr.c::__amDMA; Mickey's DMA state and queue globals remain authoritative. */
 /* Verdict: operand-mismatch; 7 differing words of 115 with exact frame and schedule. */
