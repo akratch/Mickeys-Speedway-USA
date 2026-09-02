@@ -2099,7 +2099,7 @@ segments:
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
       - [0x18B9DD8, c, overlay60Initialize]
-      - [0x18BA10C, asm, overlay_060_prefix]
+      - [0x18BA10C, c, overlay60Prefix]
       - [0x18BCCA0, c, overlay60ReleaseResources]
       - [0x18BCD2C, c, func_overlay_060_F0002F54_18BCD2C]
       - [0x18BD0A4, c, overlay60DrawBorder]

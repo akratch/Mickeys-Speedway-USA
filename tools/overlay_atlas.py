@@ -969,7 +969,7 @@ TEXT_SUBSEGMENTS = {
     ],
     60: [
         (0x0000, "c", "overlay60Initialize"),
-        (0x0334, "asm", "overlay_060_prefix"),
+        (0x0334, "c", "overlay60Prefix"),
         (0x2EC8, "c", "overlay60ReleaseResources"),
         (0x2F54, "c", "func_overlay_060_F0002F54_18BCD2C"),
         (0x32CC, "c", "overlay60DrawBorder"),
