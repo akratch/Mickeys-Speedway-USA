@@ -39,7 +39,6 @@ extern Overlay40Object **gOverlay40Objects;
  * adjacent in emission order. Before the join, 44/46 words with the swap at
  * +0xC/+0x10; after it, all 46 words and all four relocation records compare
  * exact. Promotion out of NON_MATCHING is the remaining step. */
-#ifdef NON_MATCHING
 void overlay40UpdateEntries(s32 amount, s32 remaining) {
     Overlay40Entry *entry;
     s8 previous;
@@ -70,16 +69,4 @@ void overlay40UpdateEntries(s32 amount, s32 remaining) {
         entry++;
     } while (remaining--);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o040/overlay40UpdateEntries/func_overlay_040_F00000E8_1886998.s")
-#endif
 
-/* PLATEAU-HANDOFF:overlay40UpdateEntries:start
- * symbol: overlay40UpdateEntries
- * score: 46/46 words
- * frame: frameless
- * relocations: 4
- * first-mismatch: none
- * summary: Exact: joining the count initializer to the do-header line removes the lineno separation as1 ordered on; promotion out of NON_MATCHING remains.
- * PLATEAU-HANDOFF:overlay40UpdateEntries:end
- */
