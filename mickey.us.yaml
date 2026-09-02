@@ -632,7 +632,7 @@ segments:
       #
       #   1. RODATA ORDER FOLLOWS TEXT ORDER, EXACTLY. The pre-carve inventory
       #      covered 35 functions and forty-four tables. After devmgr's table
-      #      moved into C objects, the 17 jump tables still emitted in asm/
+      #      moved into C objects, the 16 jump tables still emitted in asm/
       #      remain monotonically increasing in text and table address -- ZERO
       #      INVERSIONS. They run from jtbl_80080D2C through jtbl_800841F4, so
       #      .rodata can continue to be carved TU by TU in text order.
@@ -656,6 +656,10 @@ segments:
       # `enddlabel` as a zero-size label directive, preserving the symbol-size
       # metadata instead of weakening asm_data_end_label for the whole tree.
       - [0x81590, rodata]
+      # func_80008A8C's 56-entry object-type switch table is emitted by the
+      # matching objects TU; the following float remains anonymous padding/data.
+      - [0x81A9C, .rodata, main/objects]
+      - [0x81B7C, rodata]
       # func_80019934's five-entry distance-mode switch table.
       - [0x823B4, .rodata, main/lights]
       - [0x823C8, rodata]

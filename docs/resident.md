@@ -3009,6 +3009,7 @@ The final column records owned object words and relocation coverage.
 | `func_80004340` | `0x4340` / `0x5C` | **tier D**: object-system reset role and the target's ordered word/halfword global clears; placeholder retained | Exact 23 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 | `func_8000439C` | `0x439C` / `0xB8` | **tier B**: `src/main/track.c` fixes the object teardown caller and JFG supplies the surrounding object-system order; Mickey's free-list and allocation globals remain authoritative | Exact 46 object words, all 21 relocation identities, and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32 -Wab,-r4300_mul` |
 | `func_80008A20` | `0x8A20` / `0x6C` | **tier D**: target-register ABI and +0x68 object-field dispatch into `func_8000831C`; placeholder retained | Exact 27 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_80008A8C` | `0x8A8C` / `0x108` | **tier D**: object-type switch, trap dispatch, and +0x44/+0x88 fields reconstructed from the target; placeholder retained | Exact 66 object words, compiler-owned switch table, and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32 -Wab,-r4300_mul` |
 | `func_80009F08` | `0x9F08` / `0x6C` | **tier D**: +0x30 f32 scale input, flag gate, 250.0/2.0 clamp, and target branch structure reconstructed from the object block; placeholder retained | Exact 27 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 
 Measured plateau:

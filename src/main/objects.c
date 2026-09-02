@@ -56,8 +56,12 @@ typedef struct {
 } Objects58C0Arg;
 
 typedef struct {
-    u8 pad00[0x68];
+    u8 pad00[0x44];
+    s16 unk44;
+    u8 pad46[0x22];
     s32 *unk68;
+    u8 pad6C[0x1C];
+    void *unk88;
 } Objects08A20Arg;
 
 typedef struct {
@@ -164,6 +168,7 @@ extern s32 piRomLoadSection(u32 assetIndex, u32 address, s32 assetOffset, s32 si
 extern f32 sqrtf(f32 value);
 extern void func_80006FA0(void);
 extern void func_80007118();
+extern void TrapDanglingJump();
 extern void mmFree(void *data);
 extern void modFreeModel(void *resource);
 extern void func_800347A0(void *texture);
@@ -463,7 +468,31 @@ void func_80008118(void) {
 void func_80008A20(Objects08A20Arg *arg0) {
     func_8000831C(arg0, D_80079008, 0x14, D_800790D0, 0x18, *arg0->unk68, 2, 0, 1.0f, 0xFF, 0xFF);
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008A8C.s")
+void func_80008A8C(Objects08A20Arg *arg0) {
+    switch (arg0->unk44) {
+        case 0x3D:
+            if (arg0->unk88 != NULL) {
+                TrapDanglingJump(arg0);
+            }
+            TrapDanglingJump(&D_800C94B4, arg0);
+            break;
+        case 0x24:
+            TrapDanglingJump(&D_800C94B4, &D_800C94B8, arg0);
+            break;
+        case 0x3B:
+            func_80008A20(arg0);
+            break;
+        case 0x41:
+            TrapDanglingJump(arg0, &D_800C94B4, &D_800C94B8, &D_800C94BC);
+            break;
+        case 0x55:
+            TrapDanglingJump(&D_800C94B4, &D_800C94B8, arg0);
+            break;
+        case 0x5B:
+            TrapDanglingJump(&D_800C94B4, &D_800C94B8, arg0);
+            break;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008B94.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009220.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009414.s")
