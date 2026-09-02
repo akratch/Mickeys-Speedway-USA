@@ -174,6 +174,17 @@ typedef struct {
     void **unkAC;
 } Objects04B04Object;
 
+typedef struct {
+    u8 pad00[0xC];
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    u8 pad18[0x2C];
+    s16 unk44;
+    u8 pad46[0x4B];
+    u8 unk91;
+} Objects04454Object;
+
 extern void *D_800C94D8[];
 extern s32 D_800C9470;
 extern s32 D_800C9474;
@@ -189,6 +200,7 @@ extern s16 D_800C9508[];
 extern s16 D_800C94B0;
 extern s16 D_800C94B2;
 extern s32 D_80078F84;
+extern Objects04454Object *D_80078F20;
 extern s8 D_80078F88;
 extern s8 D_80079004;
 extern u8 D_8007BF0C;
@@ -222,10 +234,13 @@ extern void func_800359D4(void *sprite);
 extern void func_80009F74(TrackSkyObject *object);
 extern s32 D_80079008[];
 extern s32 D_800790D0[];
+extern f32 D_80080D24;
 extern void func_8000831C(void *arg0, void *arg1, s32 arg2, void *arg3, s32 arg4,
                           s32 arg5, s32 arg6, s32 arg7, f32 arg8, s32 arg9, s32 arg10);
 extern s32 func_800291FC(void);
 extern s32 func_80034448(s16 resourceId, void *output);
+extern void **func_8000572C(s32 *start, s32 *end);
+extern f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5);
 
 void func_80004340(void) {
     D_800C9470 = 0;
@@ -265,7 +280,53 @@ void func_8000439C(void) {
     mmFree(D_800C94D8[1]);
     D_80078F84 = 0;
 }
+/* Workbench verdict: schedule/register-permutation; 6 differing words (73/79). */
+/* First mismatch: +0x50; size, frame, CFG, and relocation surface are exact. */
+/* Structural gap: none; late scheduling and register allocation are reserved for the permuter. */
+#ifdef NON_MATCHING
+void *func_80004454(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
+    volatile s32 frame_reserve[2];
+    s32 sp7C;
+    s32 sp78;
+    f32 temp_f0;
+    f32 var_f20;
+    s32 temp_v0;
+    s32 var_s1;
+    s32 var_v0;
+    u8 *var_s2;
+    Objects04454Object *temp_s0;
+    void *var_s4;
+
+    temp_v0 = (s32)func_8000572C(&sp7C, &sp78);
+    var_f20 = D_80080D24;
+    var_s4 = NULL;
+    if (sp7C < sp78) {
+        var_s1 = sp7C * 4;
+        var_s2 = (u8 *)temp_v0 + var_s1;
+        do {
+            temp_s0 = *(Objects04454Object **)var_s2;
+            if (temp_s0->unk91 != 0) {
+                var_v0 = sp78 * 4;
+            } else {
+                if ((temp_s0 != D_80078F20) && (arg3 == temp_s0->unk44)) {
+                    temp_f0 = func_8000BD0C(temp_s0->unkC, temp_s0->unk10,
+                                            temp_s0->unk14, arg0, arg1, arg2);
+                    if (temp_f0 < var_f20) {
+                        var_f20 = temp_f0;
+                        var_s4 = temp_s0;
+                    }
+                }
+                var_v0 = sp78 * 4;
+            }
+            var_s1 += 4;
+            var_s2 += 4;
+        } while (var_s1 < var_v0);
+    }
+    return var_s4;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004454.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004590.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000471C.s")
 void func_8000485C(s8 arg0) {
@@ -874,4 +935,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
  * first-mismatch: +0x4
  * summary: Shape exact; global-color pool allocation remains for the permuter.
  * PLATEAU-HANDOFF:func_80004B04:end
+ */
+
+/* PLATEAU-HANDOFF:func_80004454:start
+ * symbol: func_80004454
+ * score: 73/79 words
+ * frame: 0x88
+ * relocations: 6
+ * first-mismatch: +0x50
+ * summary: Shape exact; two late scheduling and four register-allocation words remain for the permuter.
+ * PLATEAU-HANDOFF:func_80004454:end
  */
