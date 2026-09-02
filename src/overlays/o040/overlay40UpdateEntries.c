@@ -22,19 +22,23 @@ typedef struct Overlay40Object {
 extern Overlay40Entry gOverlay40Entries[8];
 extern Overlay40Object **gOverlay40Objects;
 
-/* Plateau: exact 0xB8 extent and frameless CFG; 44/46 positional
- * words match, with the only residual at +0xC/+0x10: IDO schedules the loop
- * count before the gOverlay40Objects LO16 while the target completes that
- * address first. All 119 flag identities preserve or worsen the schedule.
- * A token-identical line-boundary probe left both words unchanged, ruling out
- * statement line ownership for this input. A bounded, gain-gated permutation
- * batch found the natural declaration order retained below; it improves the
- * byte-weighted diagnostic from 215 to 20 but preserves the same two-word
- * schedule residual. The direct shift remains required for the target's t7/t8
- * byte webs. The sole resident caller supplies amount in a0; remaining is
- * overwritten before use. Keep the assembly fallback until a new scheduler
- * mechanism closes the final swap and all four relocation tuples compare
- * exact. */
+/* THE JOINED LINE IS LOAD-BEARING. `remaining = 7; do {` shares one physical
+ * line deliberately; splitting it costs the match.
+ *
+ * IDO hoists the loop-invariant `gOverlay40Objects` address into the loop
+ * preheader and stamps the hoisted record with the *loop header's* source
+ * line, not the line of the statement that uses it. The count initializer and
+ * that address are independent -- no dependence edge orders them -- so as1's
+ * reorganizer separates them on its minimized `lineno` key, and any
+ * initializer written on an earlier line wins. Sharing the loop header's line
+ * removes the separation, and the later key then reproduces the target order.
+ *
+ * Measured with `decomp-workbench trace-emit` on an emit-provenance
+ * instrumented ugen (workbench improvement-backlog item #3(b)): block 0 emits
+ * the count at line 45 and the hoisted address at line 46, one line apart and
+ * adjacent in emission order. Before the join, 44/46 words with the swap at
+ * +0xC/+0x10; after it, all 46 words and all four relocation records compare
+ * exact. Promotion out of NON_MATCHING is the remaining step. */
 #ifdef NON_MATCHING
 void overlay40UpdateEntries(s32 amount, s32 remaining) {
     Overlay40Entry *entry;
@@ -42,8 +46,7 @@ void overlay40UpdateEntries(s32 amount, s32 remaining) {
     Overlay40Object *object;
 
     entry = gOverlay40Entries;
-    remaining = 7;
-    do {
+    remaining = 7; do {
         if (entry->state != -1) {
             if (entry->state < 8) {
                 entry->state++;
@@ -73,10 +76,10 @@ void overlay40UpdateEntries(s32 amount, s32 remaining) {
 
 /* PLATEAU-HANDOFF:overlay40UpdateEntries:start
  * symbol: overlay40UpdateEntries
- * score: 44/46 words
+ * score: 46/46 words
  * frame: frameless
  * relocations: 4
- * first-mismatch: +0xC
- * summary: A fidelity-gated native scheduler DAG proves the count initialization and object-table address completion are independent ready nodes selected by logical source line; no dependency edge authenticates a new source form.
+ * first-mismatch: none
+ * summary: Exact: joining the count initializer to the do-header line removes the lineno separation as1 ordered on; promotion out of NON_MATCHING remains.
  * PLATEAU-HANDOFF:overlay40UpdateEntries:end
  */
