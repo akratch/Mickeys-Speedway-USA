@@ -2295,3 +2295,13 @@ void controlClearPlayerSetup(void) {
  * summary: Fresh configured full-TU C is exact-sized at 36 words/0x90; the second-base FP web and final load/multiply schedule remain unresolved.
  * PLATEAU-HANDOFF:func_8001D880:end
  */
+
+/* PLATEAU-HANDOFF:func_8001DD70:start
+ * symbol: func_8001DD70
+ * score: 430 differing words
+ * frame: 0x2A0
+ * relocations: 23
+ * first-mismatch: +0x0
+ * summary: Instruction count is exact; candidate frame remains 0x38 bytes too large.
+ * PLATEAU-HANDOFF:func_8001DD70:end
+ */
