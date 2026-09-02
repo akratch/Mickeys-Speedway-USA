@@ -811,27 +811,12 @@ void frontPlayerScreenLimits(s32 player, s32 *left, s32 *top, s32 *right, s32 *b
     *bottom = limits[3];
     viConvertXY(right, bottom);
 }
-#ifdef NON_MATCHING
-/* PROVENANCE: JFG src/menu.c supplies the assembly skeleton; this body is Mickey-derived.
- * Workbench: canonical TU is 20/37 words; a no-loop-unroll sweep is word-exact but has 18 relocation identities differing.
- * Levers: flag lattice, scalar/unrolled labels, and BSS bindings; the needed TU-wide flag damages neighboring func_80038878. */
-void func_8003968C(void) {
-    D_800D31A0 = -1;
-    D_800D3198 = 0x14;
-    D_800D319C = 0xF;
-    D_800D31A4 = -1;
-    D_800D3199 = 0x14;
-    D_800D319D = 0xF;
-    D_800D31A8 = -1;
-    D_800D319A = 0x14;
-    D_800D319E = 0xF;
-    D_800D31AC = -1;
-    D_800D319B = 0x14;
-    D_800D319F = 0xF;
+void func_8003968C(void)
+{
+  int new_var;
+  int new_var2;
+ do { new_var2 = ((((1 & 0xFFFFFFFFFFFFFFFFu) & 0xFFFFFFFFFFFFFFFFu) & 0xFFFFFFFFFFFFFFFFu) & 0xFFFFFFFFFFFFFFFFu) & 0xFFFFFFFFFFFFFFFFu; D_800D31A0 = -(new_var2 & 0xFFFFFFFFFFFFFFFFu); D_800D3198 = 0x14; D_800D319C = 0xF; D_800D31A4 = -1; new_var = 0xF; D_800D3199 = 0x14; D_800D319D = new_var; if ((!new_var) && (!new_var)) { } D_800D31A8 = -1; D_800D319A = 0x14; D_800D319E = 0xF; D_800D31AC = -1; D_800D319B = 0x14; D_800D319F = new_var; } while (new_var * 0);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003968C.s")
-#endif
 void func_80039720(s32 updateRate) {
     s32 controller;
     s8 repeatXNegative;
@@ -1389,12 +1374,3 @@ void func_8003A590(void) {
  * PLATEAU-HANDOFF:func_80038878:end
  */
 
-/* PLATEAU-HANDOFF:func_8003968C:start
- * symbol: func_8003968C
- * score: 33 differing words
- * frame: frameless
- * relocations: 24
- * first-mismatch: +0x0
- * summary: Fresh scalar V0 is 28/37 words with relocs 24/24 and 5 identities aligned. Prior flags, arrays, aliases, casts, volatile, and loop forms are exhausted.
- * PLATEAU-HANDOFF:func_8003968C:end
- */
