@@ -1,10 +1,28 @@
 #include "PR/ultratypes.h"
+#include "game/memory.h"
 
 extern s32 D_8007BEA8;
 extern s32 D_8007BE90;
 extern s32 D_8007BEB8;
+extern s32 D_8007BE80;
+typedef struct FrontendBufferPointers {
+    void *unk0;
+    void *unk4;
+} FrontendBufferPointers;
+extern FrontendBufferPointers D_8007BE88;
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_80037150.s")
+void func_80037150(void) {
+    D_8007BEA8 = 0;
+    if (D_8007BE88.unk0 != NULL) {
+        mmFree(D_8007BE88.unk0);
+        D_8007BE88.unk0 = NULL;
+    }
+    if (D_8007BE88.unk4 != NULL) {
+        mmFree(D_8007BE88.unk4);
+        D_8007BE88.unk4 = NULL;
+    }
+    D_8007BE80 = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_800371BC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_80037414.s")
 void func_80037658(void) {
