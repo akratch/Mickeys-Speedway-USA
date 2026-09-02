@@ -2503,15 +2503,23 @@ func_80036CAC = 0x80036CAC; // type:func size:0x124 ROM 0x378AC tier-A, matched 
 func_80036DD0 = 0x80036DD0; // type:func size:0x138 ROM 0x379D0 tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/screen.c screenLoad body, linked exact=78/78
 func_80036F08 = 0x80036F08; // type:func size:0x240 ROM 0x37B08 tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/screen.c screenDraw body, linked exact=144/144, target boundary includes 0x8 bytes padding
 func_80037150 = 0x80037150; // type:func size:0x6C ROM 0x37D50 tier-A, matched C src/main/frontend_37D50.c -O2 -mips2 -32, buffer release body, linked exact=27/27
+func_800371BC = 0x800371BC; // type:func size:0x258 ROM 0x37DBC tier-D structure-mismatch candidate, target 150/candidate 159 words, grid initialization loops
+func_80037414 = 0x80037414; // type:func size:0x244 ROM 0x38014 tier-D structure-mismatch candidate, target 145/candidate 146 words, VI transition body
 func_80037658 = 0x80037658; // type:func size:0xC ROM 0x38258 tier-A, matched C src/main/frontend_37D50.c -O2 -mips2 -32, direct D_8007BEA8 clear, linked exact=3/3
 func_80037664 = 0x80037664; // type:func size:0x68 ROM 0x38264 tier-A, matched C src/main/frontend_37D50.c -O2 -mips2 -32, state predicate, linked exact=26/26
 func_80037A78 = 0x80037A78; // type:func size:0x74 ROM 0x38678 tier-A, matched C src/main/frontend_37D50.c -O2 -mips2 -32, frontend transition body, linked exact=29/29
+func_800376CC = 0x800376CC; // type:func size:0x1D8 ROM 0x382CC tier-D structure-mismatch candidate, target 118/candidate 119 words, state machine
 func_800378A4 = 0x800378A4; // type:func size:0x1D4 ROM 0x384A4 tier-D structure-mismatch candidate, target 117 instructions/candidate 112, radial gradient shape unresolved
 func_80037AEC = 0x80037AEC; // type:func size:0x108 ROM 0x386EC tier-D allocation-mismatch candidate, target/candidate 66 instructions, register allocation unresolved
 func_80037BF4 = 0x80037BF4; // type:func size:0x80 ROM 0x387F4 tier-D structure-mismatch candidate, target 32 instructions/candidate 31, interpolation multiply/call scheduling unresolved
+func_80037C74 = 0x80037C74; // type:func size:0x51C ROM 0x38874 tier-D structure-mismatch candidate, target 327/candidate 308 words, display-list body
+func_80038190 = 0x80038190; // type:func size:0x5C0 ROM 0x38D90 tier-D structure-mismatch candidate, target 368/candidate 342 words, recovered compiler jump table and display-list body
+func_8003A5A0 = 0x8003A5A0; // type:func size:0xE0 ROM 0x3B1A0 tier-D structure-mismatch candidate, target/candidate 56 words, lookup pointer web
 func_8003A680 = 0x8003A680; // type:func size:0x30 ROM 0x3B280 tier-A, matched C src/main/menu_3B1A0.c -O2 -mips2 -32, bounded character-buffer append body, linked exact=12/12
 func_8003A6B0 = 0x8003A6B0; // type:func size:0x50 ROM 0x3B2B0 tier-A, matched C src/main/menu_3B1A0.c -O2 -mips2 -32, character-code mapping body, linked exact=20/20
 func_8003A700 = 0x8003A700; // type:func size:0x54 ROM 0x3B300 tier-A, matched C src/main/menu_3B1A0.c -O2 -mips2 -32, inverse character-code mapping body, linked exact=21/21
+func_8003A754 = 0x8003A754; // type:func size:0x7C ROM 0x3B354 tier-D structure-mismatch candidate, 12 differing words, scalar reset loop
+func_8003A7D0 = 0x8003A7D0; // type:func size:0xB0 ROM 0x3B3D0 tier-D structure-mismatch candidate, 36 differing words, count accumulation loop
 // donor-jfg-src/menu.c.o
 func_80038750 = 0x80038750; // type:func size:0x128 tier-A ROM 0x39350 IDO C exact, JFG src/menu.c structural oracle, allocator-trace-guided, owns jtbl at 0x83334
 func_80038878 = 0x80038878; // type:func size:0x154 tier-D ROM 0x39478 NON_MATCHING diagnostic p6 target 85/candidate 86 instructions, 66/85 positional differences, first +0x14, artificial empty address condition removed

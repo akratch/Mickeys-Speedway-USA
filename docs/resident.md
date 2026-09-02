@@ -840,9 +840,17 @@ tier-A threshold, so the address label remains canonical.
 | Candidate | Verdict |
 |---|---|
 | `func_80036AB0` | Evidence D DKR `src/textures_sprites.c::update_colour_cycle` adaptation; structure-mismatch, 113 differing words, first `+0x0`, target 108 instructions/0x28 frame versus candidate 115/0x30. |
+| `func_8003A5A0` | Structure-mismatch, 19 differing words, first `+0x0`; target/candidate 56 words, with the lookup/end pointer carrier and relocation web unresolved. |
+| `func_8003A754` | Structure-mismatch, 12 differing words, first `+0x10`; target/candidate 31 words and 0x18-byte frames, with scalar inner-loop carriers unresolved. |
+| `func_8003A7D0` | Structure-mismatch, 36 differing words, first `+0x10`; target 43/candidate 41 words, with count-carrier and first-loop address formation unresolved. |
+| `func_800371BC` | Structure-mismatch, 148 differing words, first `+0x28`; target 150/candidate 159 words and 0x38-byte frames, with grid induction and record-store schedule unresolved. |
+| `func_80037414` | Structure-mismatch, 59 differing words, first `+0x10`; target 145/candidate 146 words, target frame 0x30 versus candidate 0x40. |
+| `func_800376CC` | Structure-mismatch, 95 differing words, first `+0x0`; target 118/candidate 119 words, target frame 0x18 versus candidate 0x20. |
 | `func_800378A4` | Structure-mismatch candidate: 103 differing words, first `+0x14`; target 117 instructions/0x68 frame versus candidate 112/0x68, with radial-gradient FP lifetimes and clamp/control-flow shape unresolved. |
 | `func_80037AEC` | Allocation-mismatch, 7 differing words, first `+0x54`; target/candidate 66 words and 0x40-byte frames, with only register allocation unresolved. |
 | `func_80037BF4` | Structure-mismatch, target 32 instructions/candidate 31 with a four-byte deficit; first mismatch `+0x40`, interpolation multiply/call scheduling shape unresolved. |
+| `func_80037C74` | Structure-mismatch, 324 differing words, first `+0x0`; target 327/candidate 308 words, with Gfx emission and render-loop shape unresolved. |
+| `func_80038190` | Structure-mismatch, 365 differing words, first `+0x0`; target 368/candidate 342 words and 0xE8-byte frames, with Gfx emission, relocation web, and render-loop shape unresolved. |
 
 ### 3.9 `main/track`: ROM `0xC950`-`0x16140`
 
