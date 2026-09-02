@@ -372,6 +372,7 @@ typedef struct {
 } Objects06C4CObject;
 
 extern void *func_8000486C(s32 arg0);
+extern void *func_80006C4C(s32 arg0);
 extern void *func_8001F520(s32 assetId, s32 flags);
 extern void *func_8002B314(s32 size, s32 tag);
 extern void *func_800355A0(s32 assetId, s32 flags);
@@ -425,6 +426,47 @@ typedef struct {
     u8 padB4[0x2C];
     s32 unkE0;
 } Objects0486CAsset;
+
+typedef struct {
+    u16 unk0;
+    s8 unk2;
+    u8 unk3;
+    s16 unk4;
+    u8 pad06[2];
+    s32 unk8;
+} Objects06534Record;
+
+typedef struct {
+    u8 pad00[0x23];
+    s8 unk23;
+    s8 unk24;
+    u8 pad25[0x13];
+    s32 *unk38;
+    s32 unk3C;
+    Objects06534Record *unk40;
+} Objects06534Data;
+
+typedef struct {
+    u8 pad00[8];
+    f32 unk8;
+    u8 pad0C[0x34];
+    Objects06534Data *unk40;
+    u8 pad44[0x18];
+    void *unk5C;
+    void *unk60;
+    u8 pad64[0x28];
+    s8 unk8C;
+} Objects06534Object;
+
+typedef struct {
+    void *unk0;
+    s8 unk4;
+    u8 unk5;
+    u8 pad06[2];
+    f32 unk8;
+    s32 unkC;
+    f32 unk10;
+} Objects06534Sprite;
 
 typedef struct {
     u8 unk0;
@@ -629,6 +671,7 @@ extern void func_800359D4(void *sprite);
 extern s32 func_8000A6E8(s32 arg0);
 extern void *func_8002B280(s32 size, s32 tag);
 extern void *func_8002B4C0(void *slots, s32 size);
+extern s32 mathRnd(s32 minimum, s32 maximum);
 extern void func_80009F74(void *object);
 extern s32 camGetNo(void);
 extern Objects09F74Camera *camGetPtr(void);
@@ -1203,7 +1246,99 @@ void func_80006448(void *arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006448.s")
 #endif
+/* Workbench verdict: structure-mismatch; 198 differing words (target 205, candidate 207). */
+/* First mismatch: +0x0; target frame 0x38 versus candidate 0x48. */
+/* Structural gap: resource-list carrier and cleanup control flow are complete; stack shape differs. */
+#ifdef NON_MATCHING
+s32 func_80006534(Objects06534Object *object) {
+    Objects06534Record *record;
+    Objects06534Sprite *sprite;
+    void *list;
+    void *loaded;
+    s32 failed;
+    s32 count;
+    s32 index;
+
+    list = NULL;
+    sprite = NULL;
+    failed = 0;
+    if ((object->unk40->unk23 > 0) && (object->unk40->unk23 < 0xA)) {
+        list = object->unk5C;
+        count = object->unk40->unk23;
+        *(s32 *)list = count;
+        for (index = 0; index < count; index++) {
+            loaded = func_80006C4C(object->unk40->unk38[index]);
+            if (loaded != NULL) {
+                *(f32 *)((u8 *)loaded + 8) *= object->unk8;
+            }
+            *(void **)((u8 *)list + (index * 4) + 4) = loaded;
+            if (loaded == NULL) {
+                failed = 1;
+            }
+        }
+        *(s32 *)((u8 *)list + 0x2C) = object->unk40->unk3C;
+    }
+
+    object->unk8C = object->unk40->unk24;
+    count = (u8)object->unk40->unk24;
+    if ((count > 0) && (object->unk40->unk24 < 0xA)) {
+        sprite = (Objects06534Sprite *)object->unk60;
+        record = object->unk40->unk40;
+        for (index = 0; index < count; index++, sprite++, record++) {
+            sprite->unk0 = func_800355A0(record->unk0, 1);
+            sprite->unk4 = record->unk2;
+            sprite->unkC = record->unk8;
+            sprite->unk8 = ((f32)record->unk4 / 500.0f) * object->unk8;
+            sprite->unk5 = record->unk3;
+            if (record->unk8 & 0x80000000) {
+                sprite->unk10 = (f32)mathRnd(0, *(u8 *)sprite->unk0);
+            } else if (record->unk8 & 0x40000000) {
+                sprite->unk10 = ((Objects06534Sprite *)object->unk60)[(record->unk8 >> 22) & 0x3F].unk10 +
+                                (f32)((record->unk8 >> 16) & 0x3F);
+            } else if (record->unk8 & 0x20000000) {
+                sprite->unk10 = ((Objects06534Sprite *)object->unk60)[(record->unk8 >> 22) & 0x3F].unk10 -
+                                (f32)((record->unk8 >> 16) & 0x3F);
+            }
+            if ((f32)*(u8 *)sprite->unk0 < sprite->unk10) {
+                sprite->unk10 -= (f32)*(u8 *)sprite->unk0;
+            } else if (sprite->unk10 < 0.0f) {
+                sprite->unk10 += (f32)*(u8 *)sprite->unk0;
+            }
+            if (sprite->unk0 == NULL) {
+                failed = 1;
+            }
+        }
+    }
+
+    if (failed != 0) {
+        if (list != NULL) {
+            count = *(s32 *)list;
+            for (index = 0; index < count; index++) {
+                loaded = *(void **)((u8 *)list + (index * 4) + 4);
+                if (loaded != NULL) {
+                    func_80006448(loaded);
+                    func_80004B04(*(s16 *)((u8 *)loaded + 0x2C));
+                    mmFree(loaded);
+                }
+            }
+            *(s32 *)((u8 *)list + 0x2C) = 0;
+        }
+        if (sprite != NULL) {
+            sprite = (Objects06534Sprite *)object->unk60;
+            for (index = 0; index < (u8)object->unk8C; index++) {
+                loaded = sprite->unk0;
+                if (loaded != NULL) {
+                    func_800359D4(loaded);
+                    sprite->unk0 = NULL;
+                }
+            }
+        }
+    }
+    return failed;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006534.s")
+#endif
 /* PROVENANCE: control-flow body adapted from Jet Force Gemini's public
  * src/objects.c func_80007494; Mickey's offsets, globals, and calls are authoritative. */
 /* Workbench verdict: allocation-mismatch; 1 differing word (85/86). */
