@@ -377,45 +377,46 @@ void func_80037A78(void) {
 /* Workbench verdict: allocation-mismatch, 7 differing words. */
 /* First mismatch: +0x54; target and candidate are 66 words with 0x40 frames. */
 /* Structural gap: only register allocation remains. */
-#ifdef NON_MATCHING
-void func_80037AEC(f32 arg0, s32 arg1) {
-    FrontendVertex *vertex;
-    s32 row;
-    s32 phase;
-
-    vertex = ((FrontendVertex **) &D_8007BE88)[D_8007BE84];
-    if (vertex != NULL) {
-        s32 contrast = 0xFF - ((s32) arg0 * 2);
-
-        phase = D_8007BEB4;
-        row = 0;
-        do {
-            s32 column = 0;
-            s32 angle = phase;
-
-            do {
-                f32 value = func_8002A8C0(angle) * arg0;
-                s32 integerValue;
-                s32 intensity;
-
-                column += 1;
-                angle += 0x2000;
-                vertex += 1;
-                integerValue = (s32) value;
-                vertex[-1].unk4 = (s16) (integerValue + 5);
-                intensity = (s32) (((integerValue * 2) + contrast) * arg1) >> 8;
-                vertex[-1].r = (s8) intensity;
-                vertex[-1].g = (s8) intensity;
-                vertex[-1].b = (s8) intensity;
-            } while (column != 0x11);
-            row += 1;
-            phase += 0x800;
-        } while (row != 0x11);
+void func_80037AEC(f32 arg0, s32 arg1)
+{
+  FrontendVertex *vertex;
+  s32 row;
+  s32 phase;
+  vertex = ((FrontendVertex **) (&D_8007BE88))[D_8007BE84];
+  if (vertex != ((void *) 0))
+  {
+    s32 contrast = 0xFF - (((s32) arg0) * 2);
+    phase = D_8007BEB4;
+    if (1)
+    {
+      row = 0;
+      do
+      {
+        s32 column = 0;
+        s32 angle = phase;
+        do
+        {
+          f32 value = func_8002A8C0(angle) * arg0;
+          s32 integerValue;
+          s32 intensity;
+          column += 1;
+          angle += 0x2000;
+          vertex += 1;
+          integerValue = (s32) value;
+          vertex[-1].unk4 = (s16) (integerValue + 5);
+          intensity = ((s32) (((integerValue * 2) + contrast) * arg1)) >> 8;
+          vertex[-1].r = (s8) intensity;
+          vertex[-1].g = (s8) intensity;
+          vertex[-1].b = (s8) (intensity & 0xFFFFFFFFFFFFFFFF);
+        }
+        while (column != 0x11);
+        row += 1;
+        phase += 0x800;
+      }
+      while (row != 0x11);
     }
+  }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_80037AEC.s")
-#endif
 /* Workbench verdict: structure-mismatch, with a four-byte size deficit. */
 /* First mismatch: +0x40; target multiplies before the call and has a nop delay slot. */
 /* Structural gap: the interpolation multiply/call scheduling shape is unresolved. */
@@ -716,15 +717,6 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
  * PLATEAU-HANDOFF:func_800378A4:end
  */
 
-/* PLATEAU-HANDOFF:func_80037AEC:start
- * symbol: func_80037AEC
- * score: 7 differing words
- * frame: 0x40
- * relocations: 7
- * first-mismatch: +0x54
- * summary: Shape-exact 66-word candidate; only register allocation differs and it is permuter-ready.
- * PLATEAU-HANDOFF:func_80037AEC:end
- */
 
 /* PLATEAU-HANDOFF:func_80037BF4:start
  * symbol: func_80037BF4
