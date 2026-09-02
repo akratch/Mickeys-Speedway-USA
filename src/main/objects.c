@@ -1,6 +1,14 @@
 #include "PR/ultratypes.h"
 
 typedef struct AnimPathObject AnimPathObject;
+typedef struct Gfx Gfx;
+typedef struct Mtx Mtx;
+typedef struct TrackVertex TrackVertex;
+
+typedef struct TrackSkyObject {
+    u8 pad00[6];
+    s16 flags;
+} TrackSkyObject;
 
 typedef struct {
     u8 pad[0x58];
@@ -56,6 +64,9 @@ extern s32 D_800C9470;
 extern s32 D_800C9474;
 extern s32 D_800C94A8;
 extern s32 D_800C94AC;
+extern s32 D_800C94B4;
+extern s32 D_800C94B8;
+extern s32 D_800C94BC;
 extern s16 D_800C94B0;
 extern s16 D_800C94B2;
 extern s8 D_80078F88;
@@ -79,6 +90,7 @@ extern void **D_800C9500;
 extern s32 D_800C9504;
 extern s32 piRomLoadSection(u32 assetIndex, u32 address, s32 assetOffset, s32 size);
 extern f32 sqrtf(f32 value);
+extern void func_80009F74(TrackSkyObject *object);
 extern s32 D_80079008[];
 extern s32 D_800790D0[];
 extern void func_8000831C(void *arg0, void *arg1, s32 arg2, void *arg3, s32 arg4,
@@ -235,7 +247,18 @@ void func_80008A20(Objects08A20Arg *arg0) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009220.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009414.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009AA8.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009E78.s")
+void func_80009E78(Gfx **displayList, Mtx **matrix, TrackVertex **vertices,
+                   TrackSkyObject *object) {
+    if ((object->flags & 0xC00) == 0) {
+        D_800C94B4 = (s32) *displayList;
+        D_800C94B8 = (s32) *matrix;
+        D_800C94BC = (s32) *vertices;
+        func_80009F74(object);
+        *displayList = (Gfx *) D_800C94B4;
+        *matrix = (Mtx *) D_800C94B8;
+        *vertices = (TrackVertex *) D_800C94BC;
+    }
+}
 f32 func_80009F08(Objects09F08Arg *arg0) {
     f32 temp_f0;
     f32 var_f2;
