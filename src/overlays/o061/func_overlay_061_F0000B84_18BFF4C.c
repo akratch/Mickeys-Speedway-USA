@@ -293,3 +293,13 @@ void func_overlay_061_F0000B84_18BFF4C(s32 arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o061/overlay_061_tail/func_overlay_061_F0000B84_18BFF4C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_061_F0000B84_18BFF4C:start
+ * symbol: func_overlay_061_F0000B84_18BFF4C
+ * score: 476 differing words
+ * frame: 0x78
+ * relocations: 264
+ * first-mismatch: +0x0
+ * summary: 621 candidate instructions versus 637 target; promotion trial stopped at schedule divergence among func_8002F618_o061Reloc and func_800367A4_o061Reloc
+ * PLATEAU-HANDOFF:func_overlay_061_F0000B84_18BFF4C:end
+ */
