@@ -85,66 +85,55 @@ extern f32 D_8;
  * resolved. Owned +0x0..+0x190 / ROM 0x18CAAC0..0x18CAC50 has no target
  * padding; the next assembly owner starts at +0x190. Ordinary full-TU/link
  * equality remains fallback-only and no linked C proof exists. */
-#ifdef NON_MATCHING
-void func_overlay_073_F0000000_18CAAC0(Overlay73Object *object,
-                                       Overlay73Header *header,
-                                       s32 preserveState) {
-    s32 i;
-    Overlay73State *state;
-    Overlay73Vertex *vertex;
-    s16 (*source)[3];
-
-    state = object->state;
-    if (preserveState == 0) {
-        object->value = 0.0f;
-        state->phase = 0;
-        state->counter = 0;
-        state->status = 0;
-        state->active = 0;
-        state->phaseLimit = 0x180;
-        state->timer = 0.0f;
-        vertex = state->vertices;
-        source = D_80;
-        i = 11;
-        do {
-            vertex->x = (*source)[0];
-            vertex->y = (*source)[1];
-            vertex->z = (*source)[2];
-            vertex->r = 0xFF;
-            vertex->g = 0xFF;
-            vertex->b = 0xFF;
-            vertex->a = 0xFF;
-            vertex++;
-            source++;
-        } while (i--);
-        state->vertexBank = 1;
+void func_overlay_073_F0000000_18CAAC0(Overlay73Object *object, Overlay73Header *header, s32 preserveState)
+{
+  s32 i;
+  Overlay73State *state;
+  Overlay73Vertex *vertex;
+  s16 (*source)[3];
+  state = object->state;
+  if (preserveState == 0)
+  {
+    object->value = 0.0f;
+    state->phase = 0;
+    state->counter = 0;
+    state->status = 0;
+    state->active = preserveState * 0;
+    state->phaseLimit = 0x180;
+    state->timer = 0.0f;
+    vertex = state->vertices;
+    source = D_80;
+    i = 11;
+    do
+    {
+      vertex->x = (*source)[0];
+      vertex->y = (*source)[1];
+      vertex->z = (*source)[2];
+      vertex->r = 0xFF;
+      vertex->g = 0xFF;
+      vertex->b = 0xFF;
+      vertex->a = 0xFF;
+      vertex++;
+      source++;
     }
-
-    i = header->resourceIndex;
-    if (i >= object->config->resourceCount) {
-        i = 0;
-    }
-    state->resource = object->resources[i];
-    state->x = header->x;
-    state->y = header->y;
-    state->z = header->z;
-    state->scale = header->scale;
-    object->outputScale = (f32)header->outputScale * D_0;
-    if (object->output != NULL) {
-        object->output[0] = object->outputScale * D_4;
-        object->output[1] = object->outputScale * D_8;
-    }
+    while (i--);
+    state->vertexBank = 1;
+  }
+  i = header->resourceIndex;
+  if (i >= object->config->resourceCount)
+  {
+    i = 0;
+  }
+  state->resource = object->resources[i];
+  state->x = header->x;
+  state->y = header->y;
+  state->z = header->z;
+  state->scale = header->scale;
+  object->outputScale = ((f32) header->outputScale) * D_0;
+  if (object->output != ((void *) 0))
+  {
+    object->output[0] = object->outputScale * D_4;
+    object->output[1] = object->outputScale * D_8;
+  }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o073/overlay73Initialize/func_overlay_073_F0000000_18CAAC0.s")
-#endif
 
-/* PLATEAU-HANDOFF:func_overlay_073_F0000000_18CAAC0:start
- * symbol: func_overlay_073_F0000000_18CAAC0
- * score: 92/100 words
- * frame: 0x8
- * relocations: 8
- * first-mismatch: +0x40
- * summary: 119 flags and an early-index lifetime form are exhausted; one equal-cost a2/a3 allocator web remains
- * PLATEAU-HANDOFF:func_overlay_073_F0000000_18CAAC0:end
- */
