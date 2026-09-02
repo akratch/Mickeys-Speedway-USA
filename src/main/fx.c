@@ -1457,54 +1457,16 @@ void wakeDraw(Wake *wake, FxGfx **dlist) {
 /* Workbench: schedule-mismatch, 2/138 differing words, first mismatch +0x60. */
 /* Exact 138-word geometry/frame -0x20; one D_7D310 LO16 schedule slot remains. */
 /* All five relocation identities agree; the LO16 offset is nonexact. */
-#ifdef NON_MATCHING
-void func_80049518(WakeRipple *ripple, FxGfx **dlist) {
-    s32 alpha;
-    void *linked;
-    FxGfx *cmd;
-
-    if (ripple != NULL) {
-        if ((linked = ripple->linked) != NULL) {
-            if (ripple->value76 != 0) {
-                func_800349A4(dlist, (s32)linked, 0xF,
-                              (s32)ripple->value78 << 8);
-                {
-                    FxGfx *textureCmd = (*dlist)++;
-                    textureCmd->w0 = 0x07020010;
-                    textureCmd->w1 = (u32)D_7D310;
-                }
-                if (ripple->wake != NULL) {
-                    alpha = 0xFF - ((s32)ripple->wake->value3C >> 1);
-                } else {
-                    alpha = 0xFF;
-                }
-                cmd = *dlist;
-                *dlist = cmd + 1;
-                cmd->w0 = 0xFA000000;
-                cmd->w1 = (((alpha * (s32)ripple->value76) >> 8) & 0xFF) | ~0xFF;
-                if ((((FxWakeLinked *)ripple->linked)->flags & 0x40) != 0) {
-                    alpha = ripple->value78 & 0xFF;
-                } else {
-                    alpha = 0xFF;
-                }
-                FX_SET_ENV((*dlist)++, alpha, alpha, alpha, alpha);
-                FX_VERTEX_JFG((*dlist)++, (u8 *)ripple +
-                              (ripple->value74 * 0x28) + 0x80000020, 4, 0);
-                FX_POLYGON((*dlist)++, (u8 *)ripple + 0x80000000, 2, 1);
-                func_80034920(dlist);
-            }
-            if (ripple->wake != NULL) {
-                wakeDraw(ripple->wake, dlist);
-            }
-            FX_PIPE_SYNC((*dlist)++);
-            FX_SET_PRIM((*dlist)++, 0xFF, 0xFF, 0xFF, 0xFF);
-            FX_SET_ENV((*dlist)++, 0xFF, 0xFF, 0xFF, 0xFF);
-        }
-    }
+void func_80049518(WakeRipple *ripple, FxGfx **dlist)
+{
+  s32 alpha;
+  void *linked;
+  FxGfx *cmd;
+  if (ripple != ((void *) 0))
+  {
+ do { if ((linked = ripple->linked) != ((void *) 0)) { if (ripple->value76 != 0) { func_800349A4(dlist, (s32) linked, 0xF, ((s32) ripple->value78) << 8); { FxGfx *textureCmd = (*dlist)++; textureCmd->w0 = 0x07020010; textureCmd->w1 = (u32) D_7D310; } if (ripple->wake != ((void *) 0)) { alpha = 0xFF - (((s32) ripple->wake->value3C) >> 1); } else { alpha = 0xFF; } cmd = *dlist; *dlist = cmd + 1; cmd->w0 = 0xFA000000; cmd->w1 = (((alpha * ((s32) ripple->value76)) >> 8) & 0xFF) | (~0xFF); if ((((FxWakeLinked *) ripple->linked)->flags & 0x40) != 0) { alpha = ripple->value78 & 0xFF; } else { alpha = 0xFF; } { FxGfx *_g = (FxGfx *) ((*dlist)++); _g->w0 = (u32) ((((u32) 0xFB) & ((1U << 8) - 1U)) << 24); _g->w1 = ((((u32) ((((u32) alpha) & ((1U << 8) - 1U)) << 24)) | ((u32) ((((u32) alpha) & ((1U << 8) - 1U)) << 16))) | ((u32) ((((u32) alpha) & ((1U << 8) - 1U)) << 8))) | ((u32) ((((u32) alpha) & ((1U << 8) - 1U)) << 0)); } ; { FxGfx *_g = (FxGfx *) ((*dlist)++); _g->w0 = (((u32) ((((u32) 4) & ((1U << 8) - 1U)) << 24)) | ((u32) ((((u32) (((4 << 3) | (((u32) ((((u8 *) ripple) + (ripple->value74 * 0x28)) + 0x80000020)) & 6)) | 0)) & ((1U << 8) - 1U)) << 16))) | ((u32) ((((u32) (((4 << 3) + (4 << 1)) + 8)) & ((1U << 16) - 1U)) << 0)); _g->w1 = (u32) ((((u8 *) ripple) + (ripple->value74 * 0x28)) + 0x80000020); } ; { FxGfx *_g = (FxGfx *) ((*dlist)++); _g->w0 = (((u32) ((((u32) (((2 - 1) << 4) | 1)) & ((1U << 8) - 1U)) << 16)) | ((u32) ((((u32) 5) & ((1U << 8) - 1U)) << 24))) | ((u32) ((((u32) (2 * 16)) & ((1U << 16) - 1U)) << 0)); _g->w1 = (u32) (((u8 *) ripple) + 0x80000000); } ; func_80034920(dlist); } if (ripple->wake != ((void *) 0)) { wakeDraw(ripple->wake, dlist); } { FxGfx *_g = (FxGfx *) ((*dlist)++); _g->w0 = (u32) ((((u32) 0xE7) & ((1U << 8) - 1U)) << 24); _g->w1 = 0; } ; { FxGfx *_g = (FxGfx *) ((*dlist)++); _g->w0 = (u32) ((((u32) 0xFA) & ((1U << 8) - 1U)) << 24); _g->w1 = ((((u32) ((((u32) 0xFF) & ((1U << 8) - 1U)) << 24)) | ((u32) ((((u32) 0xFF) & ((1U << 8) - 1U)) << 16))) | ((u32) ((((u32) 0xFF) & ((1U << 8) - 1U)) << 8))) | ((u32) ((((u32) 0xFF) & ((1U << 8) - 1U)) << 0)); } ; { FxGfx *_g = (FxGfx *) ((*dlist)++); _g->w0 = (u32) ((((u32) 0xFB) & ((1U << 8) - 1U)) << 24); _g->w1 = ((((u32) ((((u32) 0xFF) & ((1U << 8) - 1U)) << 24)) | ((u32) ((((u32) 0xFF) & ((1U << 8) - 1U)) << 16))) | ((u32) ((((u32) 0xFF) & ((1U << 8) - 1U)) << 8))) | ((u32) ((((u32) 0xFF) & ((1U << 8) - 1U)) << 0)); } ; } } while (0);
+  }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049518.s")
-#endif
 void fxInit(void) {
     FxRecord *record;
     s32 i;
