@@ -195,6 +195,16 @@ typedef struct {
 } Objects06868Object;
 
 typedef struct {
+    u8 pad00[0x14];
+    u16 unk14;
+} Objects0A244Header;
+
+typedef struct {
+    u8 pad00[0x40];
+    Objects0A244Header *unk40;
+} Objects0A244Object;
+
+typedef struct {
     u8 pad00[0xC];
     f32 unkC;
     f32 unk10;
@@ -962,7 +972,52 @@ f32 func_80009F08(Objects09F08Arg *arg0) {
     return var_f2;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009F74.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A244.s")
+/* PROVENANCE: partition loop adapted from Diddy Kong Racing's public
+ * src/objects.c get_first_active_object; Mickey's list and header offsets are authoritative. */
+s32 func_8000A244(s32 *arg0) {
+    s32 i;
+    s32 j;
+    s32 minIndex;
+    s32 maxIndex;
+    s32 breakLoop;
+    Objects0A244Object *tempObject;
+
+    *arg0 = D_800C9498;
+    if (D_800C94B2 != 0) {
+        return D_800C94B2;
+    }
+    i = D_800C949C;
+    j = D_800C9498 - 1;
+    minIndex = i;
+    maxIndex = j;
+    while (i <= j) {
+        breakLoop = 0;
+        while ((i <= maxIndex) && (breakLoop == 0)) {
+            if (((Objects0A244Object **)D_800C9494)[i]->unk40->unk14 & 1) {
+                i += 1;
+            } else {
+                breakLoop = -1;
+            }
+        }
+        breakLoop = 0;
+        while ((j >= minIndex) && (breakLoop == 0)) {
+            if (!(((Objects0A244Object **)D_800C9494)[j]->unk40->unk14 & 1)) {
+                j -= 1;
+            } else {
+                breakLoop = -1;
+            }
+        }
+        if (i < j) {
+            tempObject = ((Objects0A244Object **)D_800C9494)[i];
+            ((Objects0A244Object **)D_800C9494)[i] = ((Objects0A244Object **)D_800C9494)[j];
+            ((Objects0A244Object **)D_800C9494)[j] = tempObject;
+            i += 1;
+            j -= 1;
+        }
+    }
+    D_800C94B2 = i;
+    return i;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A39C.s")
 /* PROVENANCE: body adapted from Jet Force Gemini's public src/objects.c
  * setObjectViewNormal; Mickey's target globals and byte output are authoritative. */
