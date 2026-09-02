@@ -248,3 +248,13 @@ done:
  * summary: Lookup carrier allocation and absolute relocation web remain unresolved.
  * PLATEAU-HANDOFF:func_8003A5A0:end
  */
+
+/* PLATEAU-HANDOFF:func_8003A754:start
+ * symbol: func_8003A754
+ * score: 12 differing words
+ * frame: 0x18
+ * relocations: 1
+ * first-mismatch: +0x10
+ * summary: Scalar inner-loop carrier order remains structurally different.
+ * PLATEAU-HANDOFF:func_8003A754:end
+ */
