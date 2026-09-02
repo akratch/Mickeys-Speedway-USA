@@ -601,9 +601,11 @@ extern void mtxf_transform_point(void *, f32, f32, f32, f32 *, f32 *, f32 *);
 extern s32 func_800246B0(f32, f32, f32, f32 *, f32 *, u8);
 extern void func_80034DF0(u8, u8, u8, u8, u8, u8);
 extern void func_80034E48(void);
+extern void func_80023598(void **, void *, void *, void *, void *, s32);
 extern void func_80023A08(void **, s32, s32, s16 *, s32, s32, s32);
 extern f32 sqrtf(f32);
 extern f32 D_80080F80;
+extern f32 D_80080F7C;
 
 typedef struct {
     u8 pad00[0x1C];
@@ -714,6 +716,7 @@ extern void func_80058250(void);
 extern s32 camGetNo(void);
 extern Objects09F74Camera *camGetPtr(void);
 extern f32 camGetProjZ(f32 x, f32 y, f32 z);
+extern u8 *levelGetColourCycling(void);
 extern void func_80008B94(void *object);
 typedef struct Objects09AA8Object Objects09AA8Object;
 extern void func_80009AA8(Objects09AA8Object *object);
@@ -2852,7 +2855,263 @@ void func_80008A8C(Objects08A20Arg *arg0) {
             break;
     }
 }
+
+typedef struct {
+    u8 pad00[0x1E];
+    u8 unk1E;
+    u8 pad1F[0x11];
+    u8 unk30;
+} Objects08B94Data;
+
+typedef struct {
+    u8 pad00[6];
+    s16 unk6;
+    u8 unk8;
+    u8 unk9;
+    u8 unkA;
+    u8 unkB;
+    u8 unkC;
+    u8 unkD;
+} Objects08B94Resource;
+
+typedef struct {
+    f32 unk0;
+    u8 pad04;
+    u8 unk5;
+    u8 unk6;
+    u8 unk7;
+} Objects08B94Multiplier;
+
+typedef struct {
+    u8 pad00[0xD];
+    u8 unkD;
+} Objects08B94Palette;
+
+typedef struct {
+    u8 pad00[8];
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 pad0B[5];
+} Objects08B94Colour;
+
+typedef struct {
+    u8 pad00[0x64];
+    u8 *unk64;
+} Objects08B94Camera;
+
+typedef struct {
+    u8 pad00[4];
+    u8 unk4;
+    u8 unk5;
+    u8 unk6;
+    u8 unk7;
+    u8 unk8;
+    u8 unk9;
+    u8 pad0A[0xA];
+    Objects08B94Camera *unk14;
+    u8 unk18;
+    u8 unk19;
+    u8 unk1A;
+} Objects08B94Info;
+
+typedef struct {
+    u8 pad00[6];
+    s16 unk6;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    s32 unk14;
+    u8 pad18[0x21];
+    u8 unk39;
+    s8 unk3A;
+    u8 pad3B;
+    Objects08B94Palette *unk3C;
+    Objects08B94Data *unk40;
+    s16 unk44;
+    u8 pad46[0xA];
+    Objects08B94Multiplier *unk50;
+    u8 pad54[0x10];
+    Objects08B94Info *unk64;
+    Objects08B94Resource **unk68;
+} Objects08B94Object;
+
+/* The target uses the low byte of the computed alpha stack home here. */
+#ifdef NON_MATCHING
+void func_80008B94(void *arg0) {
+    Objects08B94Object *object;
+    Objects08B94Resource *resource;
+    Objects08B94Multiplier *multiplier;
+    Objects08B94Colour *colourA;
+    Objects08B94Colour *colourB;
+    Objects0831CCommand *command;
+    Objects08B94Camera *camera;
+    s32 flags;
+    s32 alpha;
+    s32 colourState;
+    s32 useColourState;
+    s32 useMultiplier;
+    s32 specialColour;
+    s32 savedAlpha;
+    s32 computedAlpha;
+    s32 extraGreen;
+    s32 extraBlue;
+    f32 savedScale;
+    volatile s32 frame_reserve[6];
+
+    object = (Objects08B94Object *)arg0;
+    if (object->unk44 == 0x45) {
+        TrapDanglingJump(&D_800C94B4, &D_800C94B8, &D_800C94BC, object);
+        return;
+    }
+
+    flags = object->unk6 & 6;
+    if (object->unk40->unk30 == 0) {
+        flags |= 8;
+    }
+    if (D_8007C854 != 0) {
+        colourState = D_8007C85C;
+        useColourState = colourState != 0xFF;
+    } else {
+        colourState = 0xFF;
+        useColourState = 0;
+    }
+    useMultiplier = 0;
+    if (object->unk8 < 0.0f) {
+        flags |= 0x8000;
+        object->unk8 = -object->unk8;
+    }
+
+    multiplier = object->unk50;
+    if (multiplier != NULL) {
+        useColourState = 1;
+        useMultiplier = 1;
+        colourState = (s32)((f32)colourState * multiplier->unk0);
+    }
+    alpha = object->unk39;
+    if (object->unk44 == 0x50) {
+        savedAlpha = alpha;
+        camera = object->unk64->unk14;
+        if (camGetNo() == (s32)(s8)camera->unk64[0]) {
+            alpha >>= 1;
+        }
+    }
+    if (alpha < 0xFF) {
+        useColourState = 1;
+        flags |= 4;
+    }
+
+    resource = object->unk68[(u8)object->unk3A];
+    specialColour = 0;
+    if (object->unk44 == 0x44) {
+        func_80034DF0(object->unk64->unk4, object->unk64->unk5,
+                      object->unk64->unk6, object->unk64->unk7,
+                      object->unk64->unk8, object->unk64->unk9);
+        specialColour = 1;
+    } else if (object->unk44 == 0x3C) {
+        func_80034DF0(0xFF, 0xFF, 0xFF, object->unk64->unk18,
+                      object->unk64->unk19, object->unk64->unk1A);
+        specialColour = 1;
+    } else if (object->unk44 == 0x20 && object->unk3C != NULL &&
+               (object->unk3C->unkD & 0x80) != 0) {
+        Objects08B94Colour *colours;
+        u8 paletteIndex;
+
+        colours = (Objects08B94Colour *)levelGetColourCycling();
+        paletteIndex = object->unk3C->unkD;
+        colourA = colours + (paletteIndex & 7);
+        colourB = colours + ((paletteIndex >> 3) & 7);
+        func_80034DF0(colourA->r, colourA->g, colourA->b,
+                      colourB->r, colourB->g, colourB->b);
+        specialColour = 1;
+    } else if (multiplier != NULL && resource != NULL &&
+               (resource->unk6 & 0x200) != 0) {
+        computedAlpha = (((s32)resource->unkB * multiplier->unk5) * colourState) >> 16;
+        extraGreen = (((s32)resource->unkC * multiplier->unk6) * colourState) >> 16;
+        extraBlue = (((s32)resource->unkD * multiplier->unk7) * colourState) >> 16;
+        func_80034DF0((u8)(((s32)resource->unk8 * colourState) >> 8),
+                      (u8)(((s32)resource->unk9 * colourState) >> 8),
+                      (u8)(((s32)resource->unkA * colourState) >> 8),
+                      (u8)computedAlpha, (u8)extraGreen, (u8)extraBlue);
+        specialColour = 1;
+    }
+
+    if (!specialColour && object->unk44 == 0x50) {
+        s32 red;
+        s32 green;
+        s32 blue;
+
+        camera = object->unk64->unk14;
+        TrapDanglingJump((s32)(s8)camera->unk64[1], &computedAlpha,
+                         &extraGreen, &extraBlue);
+        red = 0xFF;
+        green = 0xFF;
+        blue = 0xFF;
+        func_80034DF0(red, green, blue, (u8)computedAlpha,
+                      (u8)extraGreen, (u8)extraBlue);
+        specialColour = 1;
+        alpha = savedAlpha;
+    }
+
+    if (!specialColour && (useColourState || alpha < 0xFF)) {
+        command = (Objects0831CCommand *)D_800C94B4;
+        D_800C94B4 = (s32)(command + 1);
+        command->unk0 = 0xFA000000;
+        if (useColourState) {
+            u32 packedColour;
+
+            packedColour = ((colourState & 0xFF) << 24) |
+                           ((colourState & 0xFF) << 16) |
+                           ((colourState & 0xFF) << 8) |
+                           (alpha & 0xFF);
+            command->unk4 = packedColour;
+        } else {
+            command->unk4 = (u32)-1;
+        }
+    }
+    if (useMultiplier) {
+        command = (Objects0831CCommand *)D_800C94B4;
+        D_800C94B4 = (s32)(command + 1);
+        command->unk0 = 0xFB000000;
+        command->unk4 = ((u32)multiplier->unk5 << 24) |
+                        ((u32)multiplier->unk6 << 16) |
+                        ((u32)multiplier->unk7 << 8);
+    }
+
+    savedScale = object->unk8;
+    if (object->unk44 == 0x50) {
+        object->unk8 = 1.5f -
+                       (camGetProjZ(object->unkC, object->unk10, object->unk14) *
+                        D_80080F7C);
+    }
+    if (object->unk40->unk1E == 0) {
+        func_80023598((void **)&D_800C94B4, &D_800C94B8, &D_800C94BC,
+                      object, resource, alpha);
+    } else {
+        func_80023A08((void **)&D_800C94B4, (s32)&D_800C94B8,
+                      (s32)&D_800C94BC,
+                      (s16 *)object, resource, flags, alpha);
+    }
+    if (specialColour) {
+        func_80034E48();
+    }
+    if (useColourState) {
+        command = (Objects0831CCommand *)D_800C94B4;
+        D_800C94B4 = (s32)(command + 1);
+        command->unk0 = 0xFA000000;
+        command->unk4 = (u32)-1;
+    }
+    if (useMultiplier) {
+        command = (Objects0831CCommand *)D_800C94B4;
+        D_800C94B4 = (s32)(command + 1);
+        command->unk0 = 0xFB000000;
+        command->unk4 = (u32)-0x100;
+    }
+    object->unk8 = savedScale;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008B94.s")
+#endif
 /* Workbench verdict: structure-mismatch; 55 differing words (target/candidate 125/125). */
 /* First mismatch: +0x1C; frame 0x70 and instruction count are exact. */
 /* Shape status: control flow is complete; residuals are mostly register/constant allocation. */
