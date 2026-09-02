@@ -144,6 +144,83 @@ typedef struct {
 } Objects0BB84Object;
 
 typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    s32 unk14;
+    u8 pad18[4];
+    u16 unk1C;
+    u16 unk1E;
+    f32 unk20;
+    f32 unk24;
+    f32 unk28;
+} Objects0B3CCConfig;
+
+typedef struct {
+    f32 unk0;
+    u8 pad04[0x1A];
+    u16 unk1E;
+    u8 pad20[0x30];
+    f32 unk50;
+    u8 pad54[0x8C];
+    Objects0B3CCConfig *unkE0;
+} Objects0B3CCData;
+
+typedef struct {
+    s16 flags;
+    s16 unk2;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    f32 unk18;
+    f32 unk1C;
+    f32 unk20;
+    void *unk24;
+} Objects0B3CCState;
+
+typedef struct {
+    u8 pad00[2];
+    s16 unk2;
+    s16 unk4;
+    u8 pad06[6];
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    u8 pad18[4];
+    f32 unk1C;
+    f32 unk20;
+    f32 unk24;
+    u8 pad28[0x18];
+    Objects0B3CCData *unk40;
+    u8 pad44[0x34];
+    Objects0B3CCState *unk78;
+    u8 pad7C[4];
+    s32 unk80;
+} Objects0B3CCObject;
+
+extern void func_80002FE0(s32 id, f32 x, f32 y, f32 z, s32 priority,
+                          void **handle);
+extern void func_8000309C(void *handle, u8 volume);
+extern void trackMakePolylist(s32 count, Objects0BB84Vec3 *start,
+                              Objects0BB84Vec3 *end, f32 *radius, s32 arg4,
+                              s32 arg5);
+extern s32 func_80010900(Objects0BB84Vec3 *start, Objects0BB84Vec3 *end,
+                         f32 radius, s32 actor, void *callback);
+extern u32 func_8001357C(f32 arg0, f32 arg1, f32 *arg2, s32 arg3,
+                         void *arg4);
+extern void partUpdateTriggers(void *object, s32 updateRate);
+extern void func_8000BB84(s32 arg0, Objects0BB84Vec3 *arg1,
+                          Objects0BB84Vec3 *arg2, f32 arg3,
+                          Objects0BB84Plane *arg4, Objects0BB84Object *arg5);
+extern f32 D_8008152C;
+extern f32 D_80081530;
+extern f32 D_80081534;
+
+typedef struct {
     u8 pad00[0x40];
     Objects58C0Data *unk40;
     u8 pad44[0x24];
@@ -4581,7 +4658,182 @@ void func_8000AEEC(void *arg0, s32 arg1) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000AEEC.s")
 #endif
+/* Workbench verdict: structure-mismatch; 489 differing words (494/427). */
+/* First mismatch: +0x0; target frame 0x98, candidate frame 0x88. */
+/* Structural gap: candidate is 67 instructions short; collision-state control flow is complete. */
+#ifdef NON_MATCHING
+void func_8000B3CC(void *arg0, s32 arg1) {
+    Objects0B3CCObject *object;
+    Objects0B3CCData *data;
+    Objects0B3CCConfig *config;
+    Objects0B3CCState *state;
+    Objects0BB84Vec3 start;
+    Objects0BB84Vec3 end;
+    f32 radius;
+    f32 step;
+    f32 acceleration;
+    f32 damping;
+    f32 speed;
+    f32 dot;
+    f32 factor;
+    f32 volume;
+    f32 savedY;
+    s16 savedAngle2;
+    s16 savedAngle4;
+    u32 collision;
+    s32 bounced;
+
+    object = (Objects0B3CCObject *)arg0;
+    data = object->unk40;
+    state = object->unk78;
+    state->unk2 = 0;
+    if ((state->flags & 2) != 0) {
+        return;
+    }
+
+    step = (f32)arg1;
+    config = data->unkE0;
+    if ((state->flags & 1) != 0) {
+        acceleration = -config->unk8;
+        damping = config->unkC;
+    } else {
+        acceleration = -config->unk0;
+        damping = config->unk4;
+    }
+
+    start.x = object->unkC + config->unk20;
+    start.y = object->unk10 + config->unk24;
+    start.z = object->unk14 + config->unk28;
+    end.x = start.x + (object->unk1C * step) + state->unk1C;
+    end.z = start.z + (object->unk24 * step) + state->unk20;
+    end.y = start.y + (object->unk20 * step) +
+            (0.5f * acceleration * step * step);
+    radius = state->unk4;
+
+    trackMakePolylist(1, &start, &end, &radius, 0x10000, 0);
+    collision = (u32)func_80010900(&start, &end, radius, (s32)object,
+                                    (void *)func_8000BB84);
+    if ((collision >> 30) != 0) {
+        object->unk1C = 0.0f;
+        object->unk20 = 0.0f;
+        object->unk24 = 0.0f;
+        state->flags |= 2;
+        return;
+    }
+
+    func_80008128((Objects08128Object *)object, end.x - start.x,
+                  end.y - start.y, end.z - start.z);
+    object->unk20 += acceleration * step;
+    speed = sqrtf((object->unk1C * object->unk1C) +
+                  (object->unk20 * object->unk20) +
+                  (object->unk24 * object->unk24));
+    state->unk18 = speed;
+
+    if (((func_8001357C(object->unkC, object->unk14, &state->unk14,
+                        0x10000, NULL) & 0x10000) != 0) &&
+        ((end.y - radius) < state->unk14)) {
+        damping = config->unkC;
+        if ((state->flags & 1) == 0) {
+            state->flags |= 1;
+            if ((config->unk1C != 0) && (state->unk24 == NULL)) {
+                func_80002FE0(config->unk1C, object->unkC, object->unk10,
+                              object->unk14, 4, &state->unk24);
+                if (state->unk24 != NULL) {
+                    volume = state->unk18 * D_8008152C;
+                    if (volume > 1.0f) {
+                        volume = 1.0f;
+                    }
+                    func_8000309C(state->unk24,
+                                  (u8)((s32)(127.0f * volume) & 0xFF));
+                }
+            }
+            if (config->unk14 != 0) {
+                savedY = object->unk10;
+                savedAngle2 = object->unk2;
+                savedAngle4 = object->unk4;
+                object->unk2 = 0;
+                object->unk4 = 0;
+                object->unk10 = state->unk14;
+                object->unk80 = config->unk14;
+                partUpdateTriggers(object, arg1);
+                object->unk80 = 0;
+                object->unk10 = savedY;
+                object->unk2 = savedAngle2;
+                object->unk4 = savedAngle4;
+            }
+        }
+    } else {
+        state->flags &= ~1;
+    }
+
+    object->unk1C *= damping;
+    object->unk20 *= damping;
+    object->unk24 *= damping;
+    state->unk18 = sqrtf((object->unk1C * object->unk1C) +
+                         (object->unk20 * object->unk20) +
+                         (object->unk24 * object->unk24));
+
+    bounced = 0;
+    if ((collision << 2) != 0) {
+        state->unk2 = 1;
+        speed = state->unk18;
+        if ((config->unk10 == 0.0f) || (speed == 0.0f)) {
+            object->unk1C = 0.0f;
+            object->unk20 = 0.0f;
+            object->unk24 = 0.0f;
+            state->flags |= 2;
+        } else {
+            object->unk1C /= speed;
+            object->unk20 /= speed;
+            object->unk24 /= speed;
+            state->unk18 *= config->unk10;
+            dot = (state->unk8 * object->unk1C) +
+                  (state->unkC * object->unk20) +
+                  (state->unk10 * object->unk24);
+            factor = 2.0f * -dot;
+            object->unk1C = ((factor * state->unk8) + object->unk1C) *
+                            state->unk18;
+            object->unk20 = ((factor * state->unkC) + object->unk20) *
+                            state->unk18;
+            object->unk24 = ((factor * state->unk10) + object->unk24) *
+                            state->unk18;
+            speed = sqrtf((object->unk1C * object->unk1C) +
+                          (object->unk20 * object->unk20) +
+                          (object->unk24 * object->unk24));
+            if (speed < 1.0f) {
+                if (state->unkC < D_80081530) {
+                    object->unk1C = state->unk8;
+                    object->unk20 = state->unkC;
+                    object->unk24 = state->unk10;
+                } else {
+                    object->unk1C = 0.0f;
+                    object->unk20 = 0.0f;
+                    object->unk24 = 0.0f;
+                    state->unk18 = 0.0f;
+                    state->flags |= 2;
+                }
+            } else {
+                bounced = 1;
+            }
+        }
+        if ((bounced != 0) && (config->unk1E != 0) &&
+            ((state->flags & 1) == 0) && (state->unk24 == NULL)) {
+            func_80002FE0(config->unk1E, object->unkC, object->unk10,
+                          object->unk14, 4, &state->unk24);
+            if (state->unk24 != NULL) {
+                volume = state->unk18 * D_80081534;
+                if (volume > 1.0f) {
+                    volume = 1.0f;
+                }
+                func_8000309C(state->unk24,
+                              (u8)((s32)(127.0f * volume) & 0xFF));
+            }
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000B3CC.s")
+#endif
 /* Workbench verdict: structure-mismatch; 61 differing words (65/65). */
 /* First mismatch: +0x0; target frame is 0x28, candidate frame is 0x30. */
 /* Structural gap: FP register/stack allocation and argument homes differ. */
