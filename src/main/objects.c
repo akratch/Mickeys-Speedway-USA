@@ -345,6 +345,28 @@ extern void *func_8002B314(s32 size, s32 tag);
 extern void *func_800355A0(s32 assetId, s32 flags);
 
 typedef struct {
+    u8 pad00[6];
+    s16 unk6;
+    u8 pad08[4];
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    u8 pad18[0x18];
+    f32 unk30;
+} Objects0A39CObject;
+
+typedef struct {
+    f32 pad00[2];
+    f32 unk8;
+    f32 pad0C[3];
+    f32 unk18;
+    f32 pad1C[3];
+    f32 unk28;
+    f32 pad2C[3];
+    f32 unk38;
+} Objects0A39CMatrix;
+
+typedef struct {
     u8 unk0;
     u8 pad01[7];
     s16 unk8;
@@ -1895,7 +1917,118 @@ s32 func_8000A244(s32 *arg0) {
     D_800C94B2 = i;
     return i;
 }
+/* Workbench verdict: structure-mismatch; 158 differing words (164/164 instructions). */
+/* First mismatch: +0x0; candidate frame 0x60 versus target frame 0x58. */
+/* Shape status: update unrolling and early-exit sort are complete; residuals are structural/register. */
+#ifdef NON_MATCHING
+void func_8000A39C(s32 arg0, s32 arg1) {
+    Objects0A39CObject **objects;
+    Objects0A39CObject *object;
+    Objects0A39CObject *current;
+    Objects0A39CObject *next;
+    Objects0A39CMatrix *matrix;
+    f32 matrixX;
+    f32 matrixY;
+    f32 matrixZ;
+    f32 matrixW;
+    f32 currentDepth;
+    f32 nextDepth;
+    s32 difference;
+    s32 index;
+    s32 updateCount;
+    s32 remainder;
+    s32 passCount;
+    s32 swapped;
+
+    difference = arg1 - arg0;
+    if (difference > 0) {
+        objects = (Objects0A39CObject **)D_800C9494;
+        matrix = (Objects0A39CMatrix *)camGetRotationMtx();
+        matrixX = matrix->unk8;
+        matrixY = matrix->unk18;
+        matrixZ = matrix->unk28;
+        matrixW = matrix->unk38;
+
+        index = arg0;
+        updateCount = difference + 1;
+        remainder = updateCount & 3;
+        while (remainder != 0) {
+            object = objects[index];
+            if (object != NULL) {
+                object->unk30 = -((object->unkC * matrixX) +
+                                  (object->unk10 * matrixY) +
+                                  (object->unk14 * matrixZ) + matrixW);
+            }
+            index += 1;
+            remainder -= 1;
+            updateCount -= 1;
+        }
+        while (updateCount != 0) {
+            object = objects[index];
+            if (object != NULL) {
+                object->unk30 = -((object->unkC * matrixX) +
+                                  (object->unk10 * matrixY) +
+                                  (object->unk14 * matrixZ) + matrixW);
+            }
+            index += 1;
+            updateCount -= 1;
+            object = objects[index];
+            if (object != NULL) {
+                object->unk30 = -((object->unkC * matrixX) +
+                                  (object->unk10 * matrixY) +
+                                  (object->unk14 * matrixZ) + matrixW);
+            }
+            index += 1;
+            updateCount -= 1;
+            object = objects[index];
+            if (object != NULL) {
+                object->unk30 = -((object->unkC * matrixX) +
+                                  (object->unk10 * matrixY) +
+                                  (object->unk14 * matrixZ) + matrixW);
+            }
+            index += 1;
+            updateCount -= 1;
+            object = objects[index];
+            if (object != NULL) {
+                object->unk30 = -((object->unkC * matrixX) +
+                                  (object->unk10 * matrixY) +
+                                  (object->unk14 * matrixZ) + matrixW);
+            }
+            index += 1;
+            updateCount -= 1;
+        }
+
+        passCount = difference;
+        do {
+            current = objects[arg0];
+            currentDepth = current->unk30;
+            if (current->unk6 & 0x800) {
+                currentDepth += 32768.0f;
+            }
+            swapped = 0;
+            for (index = 1; index <= passCount; index += 1) {
+                next = objects[arg0 + index];
+                nextDepth = next->unk30;
+                if (next->unk6 & 0x800) {
+                    nextDepth += 32768.0f;
+                }
+                if (nextDepth < currentDepth) {
+                    objects[arg0 + index - 1] = next;
+                    swapped = 1;
+                } else {
+                    objects[arg0 + index - 1] = current;
+                    current = next;
+                    currentDepth = nextDepth;
+                }
+            }
+            objects[arg0 + passCount] = current;
+            passCount -= 1;
+        } while ((passCount != 0) && (swapped != 0));
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A39C.s")
+#endif
 /* PROVENANCE: body adapted from Jet Force Gemini's public src/objects.c
  * setObjectViewNormal; Mickey's target globals and byte output are authoritative. */
 void func_8000A62C(f32 x, f32 y, f32 z) {
