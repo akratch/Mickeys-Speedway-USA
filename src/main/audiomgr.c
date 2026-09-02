@@ -528,3 +528,13 @@ void func_8000238C(void) {
 
     D_80078DD4 = 0;
 }
+
+/* PLATEAU-HANDOFF:func_80001740:start
+ * symbol: func_80001740
+ * score: 203/209 instructions
+ * frame: -0x158
+ * relocations: 58
+ * first-mismatch: +0x0
+ * summary: Best DKR-derived initializer; 6 instructions short and 8-byte smaller frame after allocator, loop, and field-shape probes.
+ * PLATEAU-HANDOFF:func_80001740:end
+ */
