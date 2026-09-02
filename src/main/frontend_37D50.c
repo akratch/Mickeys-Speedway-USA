@@ -735,3 +735,13 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
  * summary: Target has one extra instruction; interpolation multiply and call scheduling remain structurally different.
  * PLATEAU-HANDOFF:func_80037BF4:end
  */
+
+/* PLATEAU-HANDOFF:func_80037C74:start
+ * symbol: func_80037C74
+ * score: 324 differing words
+ * frame: 0xF0
+ * relocations: 18
+ * first-mismatch: +0x0
+ * summary: Display-list emission schedule, relocation web, and render-loop shape remain unresolved.
+ * PLATEAU-HANDOFF:func_80037C74:end
+ */
