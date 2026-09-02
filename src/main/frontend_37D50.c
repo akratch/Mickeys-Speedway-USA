@@ -715,3 +715,13 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
  * summary: Radial-gradient induction, floating-point lifetimes, and clamp control flow remain unresolved.
  * PLATEAU-HANDOFF:func_800378A4:end
  */
+
+/* PLATEAU-HANDOFF:func_80037AEC:start
+ * symbol: func_80037AEC
+ * score: 7 differing words
+ * frame: 0x40
+ * relocations: 7
+ * first-mismatch: +0x54
+ * summary: Shape-exact 66-word candidate; only register allocation differs and it is permuter-ready.
+ * PLATEAU-HANDOFF:func_80037AEC:end
+ */
