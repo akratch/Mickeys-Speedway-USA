@@ -208,3 +208,13 @@ void func_overlay_099_F0000DDC_18DA38C(Gfx **displayList, Mtx **matrices,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o099/func_overlay_099_F0000DDC_18DA38C/func_overlay_099_F0000DDC_18DA38C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_099_F0000DDC_18DA38C:start
+ * symbol: func_overlay_099_F0000DDC_18DA38C
+ * score: 353 differing words
+ * frame: 0xF0
+ * relocations: 13
+ * first-mismatch: +0x0
+ * summary: 352 candidate instructions; linked text differs and setup/loop structure remains unresolved
+ * PLATEAU-HANDOFF:func_overlay_099_F0000DDC_18DA38C:end
+ */
