@@ -5788,15 +5788,6 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * PLATEAU-HANDOFF:func_80011980:end
  */
 
-/* PLATEAU-HANDOFF:func_80012574:start
- * symbol: func_80012574
- * score: 13 differing words
- * frame: 0x40
- * relocations: 1
- * first-mismatch: +0x0
- * summary: Globalcolor maps projection web 25 to f18 and square web 40 to f14; target swaps them at frame 0x48, while five natural forms and 119 flag cells stay flat.
- * PLATEAU-HANDOFF:func_80012574:end
- */
 
 /* PLATEAU-HANDOFF:func_80010654:start
  * symbol: func_80010654
