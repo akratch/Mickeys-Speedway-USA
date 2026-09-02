@@ -631,6 +631,10 @@ extern s32 *D_800C94A4;
 extern s32 D_800C94B4;
 extern s32 D_800C94B8;
 extern s32 D_800C94BC;
+extern s32 D_8007A210;
+extern void *D_8007A214;
+extern void *D_8007A218;
+extern s32 D_8007A21C;
 extern s16 D_800C9508[];
 extern s16 D_800C94B0;
 extern s16 D_800C94B2;
@@ -1940,6 +1944,16 @@ typedef struct {
 
 extern s32 runlinkIsModuleLoaded(s32 module);
 extern void func_8000AEEC(void *object, s32 updateRate);
+extern void func_8000B3CC(void *object, s32 updateRate);
+extern void spranimOnceControl(void *object, s32 updateRate);
+extern void spranimControl(void *object, s32 updateRate);
+extern void texscrollControl(void *object, s32 updateRate);
+extern void effectboxControl(void *object, s32 updateRate);
+extern void func_800148E0(void *object);
+extern void func_8001B798(void *object, s32 updateRate);
+extern void func_8001BB04(void *object, s32 updateRate);
+extern void func_8001BB10(void *object, s32 updateRate);
+extern void rangetriggerControl(void *object, s32 updateRate);
 extern void func_80007E40(Objects07E40Object *object, s32 updateRate);
 extern void func_80049000(void *object, s32 updateRate);
 extern void func_80036544(void *entry, s32 *mode, s32 animationId, void *state,
@@ -3446,7 +3460,240 @@ void func_8000AA38(Objects0AA38Object *arg0, void *arg1) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000AA38.s")
 #endif
+typedef struct {
+    u8 pad00[0x40];
+    u8 *unk40;
+    s16 unk44;
+    u8 pad46[0x32];
+    void *unk78;
+} Objects0AEECObject;
+
+/* Workbench verdict: allocation-mismatch; 65 differing words (312/312). */
+/* First mismatch: +0x44; opcode schedule and frame are exact. */
+/* Shape status: recovered control-type dispatch; only register allocation and jump-table naming remain. */
+#ifdef NON_MATCHING
+void func_8000AEEC(void *arg0, s32 arg1) {
+    Objects0AEECObject *object;
+    s32 type;
+
+    D_8007A210 = 3;
+    D_8007A21C = 1;
+    D_8007A214 = arg0;
+    object = (Objects0AEECObject *)arg0;
+    D_8007A218 = object->unk40 + 4;
+    type = object->unk44 - 3;
+    switch (type) {
+        case 0:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 31:
+            spranimOnceControl(object, arg1);
+            break;
+        case 29:
+            spranimControl(object, arg1);
+            break;
+        case 17:
+            texscrollControl(object, arg1);
+            break;
+        case 3:
+            effectboxControl(object, arg1);
+            break;
+        case 38:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 33:
+            TrapDanglingJump(object);
+            break;
+        case 39:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 5:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 4:
+            func_800148E0(object);
+            break;
+        case 26:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 70:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 25:
+            func_8001B798(object, arg1);
+            break;
+        case 19:
+        case 20:
+        case 21:
+        case 22:
+        case 23:
+        case 24:
+            func_8001BB04(object, arg1);
+            break;
+        case 76:
+            func_8001BB10(object, arg1);
+            break;
+        case 30:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 43:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 44:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 45:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 46:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 47:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 50:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 51:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 52:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 54:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 55:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 57:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 58:
+            TrapDanglingJump(object);
+            break;
+        case 60:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 61:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 62:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 63:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 64:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 65:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 66:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 68:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 69:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 71:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 72:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 73:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 74:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 75:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 77:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 78:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 79:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 80:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 81:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 82:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 83:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 84:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 85:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 86:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 15:
+            rangetriggerControl(object, arg1);
+            break;
+        case 87:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 88:
+            TrapDanglingJump(object, arg1);
+            break;
+        case 1:
+        case 2:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+        case 11:
+        case 12:
+        case 13:
+        case 14:
+        case 16:
+        case 18:
+        case 27:
+        case 28:
+        case 32:
+        case 34:
+        case 35:
+        case 36:
+        case 37:
+        case 40:
+        case 41:
+        case 42:
+        case 48:
+        case 49:
+        case 53:
+        case 56:
+        case 59:
+        case 67:
+            break;
+        default:
+            break;
+    }
+    if (object->unk78 != NULL) {
+        func_8000B3CC(object, arg1);
+    }
+    D_8007A21C = 4;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000AEEC.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000B3CC.s")
 /* Workbench verdict: structure-mismatch; 61 differing words (65/65). */
 /* First mismatch: +0x0; target frame is 0x28, candidate frame is 0x30. */
