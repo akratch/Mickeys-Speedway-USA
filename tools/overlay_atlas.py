@@ -1272,6 +1272,12 @@ MIXED_TU_EXACT_C_RANGES = {
             "func_overlay_009_F00009BC_1867034",
             "canonical mixed-TU object and linked bytes exact",
         ),
+        (
+            0x0F6C,
+            0x10A4,
+            "func_overlay_009_F0000F6C_18675E4",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
         (0x10A4, 0x10B4, "overlay9Ignore"),
     ],
     45: [
