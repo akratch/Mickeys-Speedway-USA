@@ -1118,6 +1118,12 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x0330, 0x0378, "overlay1GetRecord"),
         (0x0758, 0x07B0, "overlay1TestDirection"),
         (
+            0x0BD4,
+            0x0CA8,
+            "overlay1InitMotionScale",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
             0x0DF4,
             0x0F84,
             "overlay1ResolveMotionPoint",
@@ -1141,6 +1147,18 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x3F38, 0x3FD8, "overlay1RelativeAngles"),
         (0x5BA4, 0x5BC0, "overlay1InitTimedState"),
         (0x5BC0, 0x5BF4, "overlay1ConsumeTimer"),
+        (
+            0x5BF4,
+            0x5CD4,
+            "overlay1StartTimerCallbacks",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x5CD4,
+            0x5ECC,
+            "overlay1FindDirectionalObject",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
         (0x5ECC, 0x5ED4, "overlay1ReturnZero"),
         (
             0x6270,
@@ -1154,7 +1172,25 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x6788, 0x67C0, "overlay1CopyBytes"),
         (0x69A0, 0x6A14, "overlay1InitMotion"),
         (0x6B28, 0x6B6C, "overlay1InitRange"),
+        (
+            0x6B6C,
+            0x6CE8,
+            "overlay1SearchNearby",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
         (0x6CE8, 0x6D4C, "overlay1SelectMaskedMode"),
+        (
+            0x7130,
+            0x72A4,
+            "overlay1UpdateTransient",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x7344,
+            0x73A0,
+            "overlay1CloneRecord",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
         (
             0x73A0,
             0x7580,
@@ -1230,6 +1266,18 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x49E8, 0x4CF0, "overlay8UpdateMotionOutput"),
     ],
     9: [
+        (
+            0x09BC,
+            0x0CE4,
+            "func_overlay_009_F00009BC_1867034",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
+            0x0F6C,
+            0x10A4,
+            "func_overlay_009_F0000F6C_18675E4",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
         (0x10A4, 0x10B4, "overlay9Ignore"),
     ],
     45: [
