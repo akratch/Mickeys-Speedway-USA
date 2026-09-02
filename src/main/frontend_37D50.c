@@ -705,3 +705,13 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
  * summary: State-machine branch and carrier allocation remain structurally different.
  * PLATEAU-HANDOFF:func_800376CC:end
  */
+
+/* PLATEAU-HANDOFF:func_800378A4:start
+ * symbol: func_800378A4
+ * score: 103 differing words
+ * frame: 0x68
+ * relocations: 10
+ * first-mismatch: +0x14
+ * summary: Radial-gradient induction, floating-point lifetimes, and clamp control flow remain unresolved.
+ * PLATEAU-HANDOFF:func_800378A4:end
+ */
