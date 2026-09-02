@@ -1070,6 +1070,12 @@ $(BUILD_DIR)/$(SRC_DIR)/main/diprint.c.o: CFLAGS += -Wab,-r4300_mul
 # IDO's trailing four zero bytes follow the combined 0x38-byte input section.
 $(BUILD_DIR)/$(SRC_DIR)/main/sched.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x38
+# objects owns func_80008A8C's 56-entry table, three literal-pool floats and
+# func_8000A6E8's 88-entry table: 0x24C bytes, which IDO rounds up to 0x250
+# because the section carries switch tables. Discard only that trailing zero
+# word, so jtbl_800810E8 still starts at the address it has in the ROM.
+$(BUILD_DIR)/$(SRC_DIR)/main/objects.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x24C
 # JFG's source-level string migration reproduces diRcp's complete diagnostic
 # string block followed by the 0x100-byte switch-table span. The following
 # four zero bytes are output-section padding.
