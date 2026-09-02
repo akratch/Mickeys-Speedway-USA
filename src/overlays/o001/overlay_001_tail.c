@@ -2590,10 +2590,10 @@ typedef struct Overlay1TransientWorld {
 } Overlay1TransientWorld;
 
 extern f32 D_4;
-extern f32 D_188;
-extern f32 D_18C;
-extern f32 D_190;
-extern f32 D_194;
+extern f32 overlay1AimedScaleReloc;
+extern f32 overlay1AimedThresholdReloc;
+extern f32 overlay1AimedTrigReloc;
+extern f32 overlay1AimedVelocityYReloc;
 
 extern Overlay1TransientObject *func_overlay_036_F0000694_1883B4C(
     Overlay1TransientOwner *owner, Overlay1TransientWorld *world);
@@ -2647,7 +2647,7 @@ void overlay1UpdateAimedTransient(void) {
             state->active = 1;
             state->selector = 9;
             state->pad0A = 0;
-            object->scale = D_188;
+            object->scale = overlay1AimedScaleReloc;
             overlay1ReadSelection(D_1D9C, 9, &object->x, &object->y,
                                   &object->z);
             (*(Overlay1TransientWorld **)worldAddress)->object = object;
@@ -2660,7 +2660,8 @@ void overlay1UpdateAimedTransient(void) {
     }
 
     if ((world->mode == 0xD) && state->active &&
-        (D_18C <= ((Overlay1TransientOwner *)D_1D9C)->distance)) {
+        (overlay1AimedThresholdReloc <=
+         ((Overlay1TransientOwner *)D_1D9C)->distance)) {
         state->active = 0;
         state->mode = 0xC;
         if (source != 0) {
@@ -2697,11 +2698,11 @@ void overlay1UpdateAimedTransient(void) {
             object->velocityZ = func_8002A8BC(sourceAngle) * trig * 30.0f;
         } else {
             state->linkedIndex = -1;
-            trig = D_190;
+            trig = overlay1AimedTrigReloc;
             object->velocityX =
                 func_8002A8C0(((Overlay1TransientOwner *)D_1D9C)->angle) * trig *
                 -30.0f;
-            object->velocityY = D_194;
+            object->velocityY = overlay1AimedVelocityYReloc;
             object->velocityZ =
                 func_8002A8BC(((Overlay1TransientOwner *)D_1D9C)->angle) * trig *
                 -30.0f;
