@@ -837,6 +837,7 @@ tier-A threshold, so the address label remains canonical.
 | Candidate | Verdict |
 |---|---|
 | `func_80036AB0` | Evidence D DKR `src/textures_sprites.c::update_colour_cycle` adaptation; structure-mismatch, 113 differing words, first `+0x0`, target 108 instructions/0x28 frame versus candidate 115/0x30. |
+| `func_800378A4` | Structure-mismatch candidate: 103 differing words, first `+0x14`; target 117 instructions/0x68 frame versus candidate 112/0x68, with radial-gradient FP lifetimes and clamp/control-flow shape unresolved. |
 | `func_80037AEC` | Allocation-mismatch, 7 differing words, first `+0x54`; target/candidate 66 words and 0x40-byte frames, with only register allocation unresolved. |
 | `func_80037BF4` | Structure-mismatch, target 32 instructions/candidate 31 with a four-byte deficit; first mismatch `+0x40`, interpolation multiply/call scheduling shape unresolved. |
 

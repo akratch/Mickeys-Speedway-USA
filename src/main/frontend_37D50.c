@@ -23,8 +23,10 @@ typedef struct FrontendVertex {
 extern s32 D_8007BE84;
 extern s32 D_8007BEB0;
 extern s32 D_8007BEB4;
+extern f32 D_800826A0;
 extern void func_800378A4(f32 arg0, s32 arg1);
 extern f32 func_8002A8C0(s32 angle);
+extern f32 sqrtf(f32 value);
 extern void func_80037AEC(f32 arg0, s32 arg1);
 
 void func_80037150(void) {
@@ -55,7 +57,63 @@ s32 func_80037664(void) {
     return 2;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_800376CC.s")
+/* Workbench verdict: structure-mismatch, 103 differing words. */
+/* First mismatch: +0x14; target 117 instructions/candidate 112, both 0x68 frames. */
+/* Structural gap: radial-loop FP lifetimes and clamp/control-flow shape remain. */
+#ifdef NON_MATCHING
+void func_800378A4(f32 arg0, s32 arg1) {
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f0_3;
+    f32 var_f20;
+    s32 temp_s3;
+    s32 var_a0;
+    s32 var_s1;
+    s32 var_s6;
+    s32 var_v0;
+    FrontendVertex *var_s0;
+
+    var_a0 = (s32) arg0;
+    arg0 *= D_800826A0;
+    var_s0 = ((FrontendVertex **) &D_8007BE88)[D_8007BE84];
+    if (var_s0 != NULL) {
+        temp_s3 = 0xFF - var_a0;
+        var_s6 = 0;
+        do {
+            var_s1 = 0;
+            temp_f0 = (f32) (var_s6 - 8) * 15.0f;
+
+            do {
+                temp_f0_2 = (f32) (var_s1 - 8) * 20.0f;
+                temp_f0_3 = sqrtf((temp_f0_2 * temp_f0_2) +
+                                  (temp_f0 * temp_f0));
+                var_f20 = (200.0f - temp_f0_3) * arg0;
+                if (var_f20 < 0.0f) {
+                    var_f20 = 0.0f;
+                }
+                var_a0 = (s32) (func_8002A8C0(
+                    (s32) (temp_f0_3 * 1000.0f) + D_8007BEB4) * var_f20);
+                var_v0 = (s32) ((temp_s3 + var_a0) * arg1) >> 8;
+                if (var_v0 < 0) {
+                    var_v0 = 0;
+                }
+                if (var_v0 >= 0x100) {
+                    var_v0 = 0xFF;
+                }
+                var_s0->unk4 = (s16) (var_a0 + 5);
+                var_s0->r = (s8) var_v0;
+                var_s0->g = (s8) var_v0;
+                var_s0->b = (s8) var_v0;
+                var_s1 += 1;
+                var_s0 += 1;
+            } while (var_s1 != 0x11);
+            var_s6 += 1;
+        } while (var_s6 != 0x11);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_800378A4.s")
+#endif
 void func_80037A78(void) {
     D_8007BEB4 = 0x8000 - (D_8007BEB0 << 8);
     if (D_8007BEB0 < 0x200) {
