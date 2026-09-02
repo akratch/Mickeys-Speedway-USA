@@ -2126,7 +2126,7 @@ segments:
       - [0x18BF788, c, overlay61DrawEntry]
       - [0x18BFB8C, c, overlay61DrawList]
       - [0x18BFD30, c, overlay61InitResources]
-      - [0x18BFF4C, asm, overlay_061_tail]
+      - [0x18BFF4C, c, func_overlay_061_F0000B84_18BFF4C]
       - [0x18C0940, c, overlay61ReleaseResources]
       - [0x18C0A10, c, func_overlay_061_F0001648_18C0A10]
       - [0x18C0B80, c, overlay61WriteCharacter]

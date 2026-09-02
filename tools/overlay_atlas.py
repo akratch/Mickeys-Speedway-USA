@@ -525,7 +525,7 @@ TEXT_SUBSEGMENTS = {
         (0x3C0, "c", "overlay61DrawEntry"),
         (0x7C4, "c", "overlay61DrawList"),
         (0x968, "c", "overlay61InitResources"),
-        (0xB84, "asm", "overlay_061_tail"),
+        (0xB84, "c", "func_overlay_061_F0000B84_18BFF4C"),
         (0x1578, "c", "overlay61ReleaseResources"),
         (0x1648, "c", "func_overlay_061_F0001648_18C0A10"),
         (0x17B8, "c", "overlay61WriteCharacter"),
