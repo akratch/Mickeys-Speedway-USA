@@ -657,10 +657,14 @@ segments:
       # `enddlabel` as a zero-size label directive, preserving the symbol-size
       # metadata instead of weakening asm_data_end_label for the whole tree.
       - [0x81590, rodata]
-      # func_80008A8C's 56-entry object-type switch table is emitted by the
-      # matching objects TU; the following float remains anonymous padding/data.
+      # objects' second-pass rodata, in source order: func_80008A8C's 56-entry
+      # object-type switch table, the literal pool of func_80008B94,
+      # func_80009220 and func_80009F08, then func_8000A6E8's 88-entry table.
+      # IDO rounds a switch-table-bearing .rodata input section up to 16 bytes,
+      # so objects.c.o is trimmed back to this 0x24C before the link (see the
+      # trim_elf_section.py rule in the Makefile); jtbl_800810E8 follows here.
       - [0x81A9C, .rodata, main/objects]
-      - [0x81B7C, rodata]
+      - [0x81CE8, rodata]
       # func_80019934's five-entry distance-mode switch table.
       - [0x823B4, .rodata, main/lights]
       - [0x823C8, rodata]

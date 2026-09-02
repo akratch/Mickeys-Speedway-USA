@@ -331,7 +331,6 @@ extern s8 D_80078F88;
 extern s8 D_80079004;
 extern u8 D_8007BDA0;
 extern u8 D_8007BF0C;
-extern f32 D_80080F84;
 extern void **D_800C94F4;
 extern s32 D_800C94F8;
 extern void **D_800C9494;
@@ -1357,7 +1356,7 @@ f32 func_80009F08(Objects09F08Arg *arg0) {
     if (D_8007BF0C == 0) {
         temp_f0 = arg0->unk30;
         if (temp_f0 > 250.0f) {
-            var_f2 += (temp_f0 - 250.0f) * D_80080F84;
+            var_f2 += (temp_f0 - 250.0f) * 0.00134f;
             if (var_f2 > 2.0f) {
                 var_f2 = 2.0f;
             }
@@ -1432,94 +1431,126 @@ void func_8000A62C(f32 x, f32 y, f32 z) {
 void func_8000A6DC(s32 arg0) {
     D_800C94B0 = arg0;
 }
-/* Workbench verdict: structure-mismatch; 2 differing words (82/82). */
-/* First mismatch: +0x10; switch text is instruction-exact, but linked table placement is not. */
-/* Structural gap: canonical C switch table lands in anonymous .rodata rather than target late rodata. */
-#ifdef NON_MATCHING
 s32 func_8000A6E8(s32 arg0) {
+    s32 flags;
+
     switch (arg0) {
         case 1:
-            return 0xF01;
+            flags = 0xF01;
+            break;
         case 4:
-            return 0x301;
+            flags = 0x301;
+            break;
         case 3:
-            return 0xB01;
+            flags = 0xB01;
+            break;
         case 31:
-            return 0x1101;
+            flags = 0x1101;
+            break;
         case 24:
-            return 0x1301;
+            flags = 0x1301;
+            break;
         case 25:
-            return 0x1200;
+            flags = 0x1200;
+            break;
         case 26:
-            return 0xB01;
+            flags = 0xB01;
+            break;
         case 22:
         case 29:
         case 73:
         case 79:
-            return 0x301;
+            flags = 0x301;
+            break;
         case 23:
-            return 0x200;
+            flags = 0x200;
+            break;
         case 11:
         case 12:
         case 49:
-            return 0x200;
+            flags = 0x200;
+            break;
         case 33:
-            return 0x301;
+            flags = 0x301;
+            break;
         case 41:
-            return 0x1101;
+            flags = 0x1101;
+            break;
         case 53:
-            return 0x200;
+            flags = 0x200;
+            break;
         case 54:
-            return 0x101;
+            flags = 0x101;
+            break;
         case 55:
-            return 0x101;
+            flags = 0x101;
+            break;
         case 56:
-            return 0x101;
+            flags = 0x101;
+            break;
         case 57:
-            return 0xB01;
+            flags = 0xB01;
+            break;
         case 58:
-            return 0xA00;
+            flags = 0xA00;
+            break;
         case 60:
-            return 0x200;
+            flags = 0x200;
+            break;
         case 63:
-            return 0x101;
+            flags = 0x101;
+            break;
         case 64:
-            return 0xB01;
+            flags = 0xB01;
+            break;
         case 65:
-            return 0x301;
+            flags = 0x301;
+            break;
         case 67:
-            return 0xB01;
+            flags = 0xB01;
+            break;
         case 71:
-            return 0x101;
+            flags = 0x101;
+            break;
         case 72:
-            return 0x301;
+            flags = 0x301;
+            break;
         case 74:
-            return 0x301;
+            flags = 0x301;
+            break;
         case 75:
-            return 0x101;
+            flags = 0x101;
+            break;
         case 77:
-            return 0x101;
+            flags = 0x101;
+            break;
         case 78:
-            return 0x301;
+            flags = 0x301;
+            break;
         case 82:
-            return 0xB01;
+            flags = 0xB01;
+            break;
         case 84:
-            return 0x301;
+            flags = 0x301;
+            break;
         case 85:
-            return 0x200;
+            flags = 0x200;
+            break;
         case 86:
-            return 0x101;
+            flags = 0x101;
+            break;
         case 87:
-            return 0x301;
+            flags = 0x301;
+            break;
         case 88:
-            return 0x301;
+            flags = 0x301;
+            break;
         default:
-            return 0;
+            flags = 0;
+            break;
     }
+    return flags;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A6E8.s")
-#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A830.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000AA38.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000AEEC.s")
@@ -1710,15 +1741,6 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * PLATEAU-HANDOFF:func_8000471C:end
  */
 
-/* PLATEAU-HANDOFF:func_8000A6E8:start
- * symbol: func_8000A6E8
- * score: 2 differing words
- * frame: frameless
- * relocations: 3
- * first-mismatch: +0x10
- * summary: Switch text is 82/82 instructions with exact case constants; canonical C table placement remains unresolved after the linked promotion changed the ROM checksum.
- * PLATEAU-HANDOFF:func_8000A6E8:end
- */
 
 
 /* PLATEAU-HANDOFF:func_80005548:start
