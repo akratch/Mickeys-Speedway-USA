@@ -131,6 +131,41 @@ typedef struct {
     Objects08028Model **unk68;
 } Objects08028Object;
 
+typedef struct {
+    u8 pad00[0x1E];
+    s8 unk1E;
+    u8 pad1F[0x35];
+    f32 unk54;
+    f32 unk58;
+    u8 pad5C[5];
+    u8 unk61;
+    u8 unk62;
+    u8 unk63;
+    s16 unk64;
+    u16 unk66;
+} Objects069E8Source;
+
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    s32 unk8;
+    u16 unkC;
+    u16 unkE;
+    u8 unk10;
+    u8 unk11;
+    u8 unk12;
+    u8 unk13;
+    u8 pad14[8];
+    s32 unk1C;
+} Objects069E8Target;
+
+typedef struct {
+    u8 pad00[0x40];
+    Objects069E8Source *unk40;
+    u8 pad44[8];
+    Objects069E8Target *unk4C;
+} Objects069E8Object;
+
 extern void *D_800C94D8[];
 extern s32 D_800C9470;
 extern s32 D_800C9474;
@@ -154,6 +189,7 @@ extern void **D_800C9494;
 extern s32 D_800C9498;
 extern s32 D_800C949C;
 extern s32 D_800C94FC;
+extern s32 D_800C9490;
 extern u8 *D_800C9460;
 extern s32 D_800C9468;
 extern s32 *D_800C9458;
@@ -178,6 +214,8 @@ extern s32 D_80079008[];
 extern s32 D_800790D0[];
 extern void func_8000831C(void *arg0, void *arg1, s32 arg2, void *arg3, s32 arg4,
                           s32 arg5, s32 arg6, s32 arg7, f32 arg8, s32 arg9, s32 arg10);
+extern s32 func_800291FC(void);
+extern s32 func_80034448(s16 resourceId, void *output);
 
 void func_80004340(void) {
     D_800C9470 = 0;
@@ -353,7 +391,54 @@ s32 func_800069C0(Objects69C0In *arg0, Objects69C0Out *arg1) {
     arg0->unk78->unk0 = 2;
     return 0x2C;
 }
+/* Workbench verdict: allocation-mismatch; 19 differing words (52/71). */
+/* First mismatch: +0x8C; size, frame, CFG, and constants are exact. */
+/* Structural gap: none; pool/temp register allocation is reserved for the permuter. */
+#ifdef NON_MATCHING
+s32 func_800069E8(Objects069E8Object *arg0, Objects069E8Target *arg1) {
+    Objects069E8Source *source;
+    Objects069E8Source *source2;
+    s32 sp1C;
+    s32 temp_v0;
+    s32 temp_v0_2;
+
+    source2 = arg0->unk40;
+    source = source2;
+    arg0->unk4C = arg1;
+    arg1->unk0 = source2->unk54;
+    arg1->unk4 = source2->unk58;
+    arg1->unk10 = source2->unk61;
+    arg1->unk11 = source2->unk62;
+    arg1->unk12 = source2->unk63;
+    arg1->unk13 = 0;
+    arg1->unkC = 0;
+    arg1->unkE = source2->unk66;
+    sp1C = 0x20;
+    arg1->unk1C = 0;
+    if (func_800291FC() == 0) {
+        if (arg1->unk10 & 8) {
+            temp_v0 = ((s32)((u8 *)arg1 + 0x20) & ~3) + 4;
+            arg1->unk1C = temp_v0;
+            sp1C = (temp_v0 - (s32)arg1) + 0xBC;
+        }
+    } else {
+        arg1->unk10 = 5;
+        arg1->unk11 = 1;
+    }
+    if (arg0->unk40->unk1E == 0) {
+        arg1->unk10 |= 0x20;
+    }
+    temp_v0_2 = func_80034448(source->unk64, arg1);
+    arg1->unk8 = temp_v0_2;
+    if (temp_v0_2 == 0) {
+        return 0;
+    }
+    D_800C9490 = arg1->unk8;
+    return (sp1C & ~3) + 4;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800069E8.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006B04.s")
 s32 func_80006C40(Objects06C40 *arg0, s32 arg1) {
     arg0->unk58 = arg1;
@@ -714,4 +799,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
  * first-mismatch: +0x0
  * summary: Arithmetic/control-flow size is exact, but the target's 0x28 frame and FP register/stack allocation remain unresolved.
  * PLATEAU-HANDOFF:func_8000BB84:end
+ */
+
+/* PLATEAU-HANDOFF:func_800069E8:start
+ * symbol: func_800069E8
+ * score: 52/71 words
+ * frame: 0x28
+ * relocations: 4
+ * first-mismatch: +0x8C
+ * summary: Shape exact; uopt global-color and ugen temp-carrier allocation remain for the permuter.
+ * PLATEAU-HANDOFF:func_800069E8:end
  */
