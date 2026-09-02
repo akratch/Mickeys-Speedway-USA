@@ -2116,7 +2116,238 @@ void func_80006FA0(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006FA0.s")
 #endif
+extern void func_800031E8(void *object);
+extern void func_80005798(void *object);
+extern void func_8000D728(void *object);
+extern void camlightDelete(void *object);
+extern void partObjFreeTriggers(void *object);
+extern void partNullifyCircularParticleParents(void *object);
+extern void lightKillGlowingLight(void);
+extern void func_80048980(void *object);
+extern void func_8001C088(void *object);
+extern void killLight(void *light);
+extern void amSndStop(void *sound);
+extern void func_80046E70(void *object);
+
+/* Workbench candidate: object/resource teardown with the complete type switch. */
+#ifdef NON_MATCHING
+void func_80007118(void *arg0, s32 arg1) {
+    u8 *object;
+    u8 *data;
+    u8 *payload;
+    u8 *freePayload;
+    u8 *resource;
+    u8 *entry;
+    s32 *list;
+    s32 count;
+    s32 i;
+    s32 type;
+    void *value;
+
+    object = (u8 *)arg0;
+    data = *(u8 **)(object + 0x40);
+    type = *(s16 *)(object + 0x44);
+    payload = *(u8 **)(object + 0x64);
+    freePayload = payload;
+    if (type == 1) {
+        value = *(void **)(payload + 0xD0);
+        if (value != NULL && *(u8 *)((u8 *)value + 0x91) == 0) {
+            freePayload = (u8 *)(s32)func_80006EE4((s32)value);
+        }
+        value = *(void **)(freePayload + 0xD4);
+        if (value != NULL && *(u8 *)((u8 *)value + 0x91) == 0) {
+            func_80006EE4((s32)value);
+        }
+    }
+    D_8007A210 = 2;
+    D_8007A21C = 1;
+    D_8007A214 = object;
+    D_8007A218 = (s32)(data + 4);
+
+    list = *(s32 **)(object + 0x5C);
+    if (list != NULL) {
+        count = list[0];
+        for (i = 0; i < count; i++) {
+            entry = *(u8 **)((u8 *)list + 4 + (i * 4));
+            func_80006448(entry);
+            func_80004B04(*(s16 *)(entry + 0x2C));
+            mmFree(entry);
+        }
+    }
+    value = *(void **)(object + 0x60);
+    if (value != NULL) {
+        count = *(u8 *)(object + 0x8C);
+        for (i = 0; i < count; i++) {
+            func_800359D4(*(void **)((u8 *)value + (i * 0x14)));
+        }
+    }
+    value = *(void **)(object + 0x70);
+    if (value != NULL) {
+        count = *(s8 *)(data + 0x28);
+        for (i = 0; i < count; i++) {
+            killLight(*(void **)((u8 *)value + (i * 4)));
+        }
+    }
+    value = *(void **)(object + 0x74);
+    if (value != NULL) {
+        count = *(u8 *)(data + 0x29);
+        for (i = 0; i < count; i++) {
+            camlightDelete(*(void **)((u8 *)value + (i * 4)));
+        }
+    }
+    partObjFreeTriggers(object);
+
+    switch (type) {
+        case 1:
+            TrapDanglingJump(*(void **)(payload + 0x64));
+            break;
+        case 2:
+            func_800359D4(*(void **)(payload + 0x20));
+            break;
+        case 3:
+            func_800031E8(*(void **)(payload + 0x3C));
+            break;
+        case 4:
+        case 5:
+            TrapDanglingJump();
+            break;
+        case 6:
+            func_800031E8(*(void **)(payload + 0x3C));
+            break;
+        case 7:
+            value = *(void **)(payload + 0x20);
+            if (value != NULL) {
+                u8 *owner = *(u8 **)(*(void **)((u8 *)value + 0x64));
+                if (*(void **)(owner + 0xD4) == object) {
+                    *(void **)(owner + 0xD4) = NULL;
+                }
+            }
+            break;
+        case 8:
+            value = *(void **)(payload + 0x0);
+            if (value != NULL) {
+                u8 *owner = *(u8 **)(*(void **)((u8 *)value + 0x64));
+                if (*(void **)(owner + 0xD0) == object) {
+                    *(void **)(owner + 0xD0) = NULL;
+                }
+            }
+            func_800031E8(*(void **)(payload + 0x14));
+            break;
+        case 9:
+            value = *(void **)(payload + 0x10);
+            if (value != NULL) {
+                u8 *owner = *(u8 **)(*(void **)((u8 *)value + 0x64));
+                if (*(void **)(owner + 0xD8) == object) {
+                    *(void **)(owner + 0xD8) = NULL;
+                }
+            }
+            break;
+        case 10:
+            amSndStop(*(void **)(payload + 0x0));
+            break;
+        case 11:
+            func_800031E8(*(void **)(payload + 0x3C));
+            break;
+        case 12:
+            func_800031E8(*(void **)(payload + 0x18));
+            func_800031E8(*(void **)(payload + 0x1C));
+            func_800031E8(*(void **)(payload + 0x40));
+            break;
+        case 13:
+            func_800031E8(*(void **)(payload + 0x38));
+            break;
+        case 14:
+            D_80078F7C = NULL;
+            break;
+        case 15:
+            value = (void *)D_8007A1F4;
+            if (value != NULL && *(void **)value == object) {
+                *(void **)value = NULL;
+            }
+            break;
+        case 16:
+        case 17:
+            TrapDanglingJump(object);
+            break;
+        case 18:
+            func_8001C088(object);
+            break;
+        case 19:
+            killLight(*(void **)(payload + 0x64));
+            break;
+        case 20:
+            value = *(void **)(payload + 0x20);
+            if (value != NULL) {
+                killLight(value);
+            }
+            func_8000D728(*(void **)(payload + 0x2C));
+            break;
+        case 21:
+            camlightDelete(*(void **)(object + 0x84));
+            break;
+        case 22:
+            lightKillGlowingLight();
+            break;
+        case 23:
+            mmFree(*(void **)(payload + 4));
+            break;
+        case 24:
+            func_80005798(object);
+            value = *(void **)(object + 0x84);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            break;
+        case 25:
+            func_80005798(object);
+            break;
+        case 26:
+            value = *(void **)(object + 0x84);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            break;
+        case 27:
+            func_800031E8(*(void **)(payload + 0xA4));
+            func_800031E8(*(void **)(payload + 0xA8));
+            func_800031E8(*(void **)(payload + 0xAC));
+            func_800031E8(*(void **)(payload + 0xB0));
+            func_800031E8(*(void **)(payload + 0xB4));
+            func_800031E8(*(void **)(payload + 0xB8));
+            func_800031E8(*(void **)(payload + 0xBC));
+            func_800031E8(*(void **)(payload + 0xC0));
+            func_800031E8(*(void **)(payload + 0xC4));
+            break;
+        default:
+            break;
+    }
+
+    resource = *(u8 **)(object + 0x4C);
+    if (resource != NULL) {
+        if (*(void **)(resource + 0x1C) != NULL && ((*(u8 *)(data + 0x61) & 8) != 0)) {
+            TrapDanglingJump();
+        }
+        func_800347A0(*(void **)(resource + 8));
+    }
+    value = *(void **)(object + 0x54);
+    if (value != NULL) {
+        func_80048980(value);
+    }
+    value = *(void **)(object + 0x78);
+    if (value != NULL) {
+        func_800031E8(*(void **)((u8 *)value + 0x24));
+    }
+    if (*(u8 *)(object + 0x92) != 0) {
+        partNullifyCircularParticleParents(object);
+    }
+    func_80006448(object);
+    func_80004B04(*(s16 *)(object + 0x2C));
+    mmFree(object);
+    D_8007A21C = 4;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80007118.s")
+#endif
 void func_80007844(void) {
 }
 typedef struct {
