@@ -1241,15 +1241,6 @@ s16 dAngle(s16 arg0, s16 arg1, f32 arg2) {
     }
     return (s16) (arg0 + (s32) ((f32) var_v1 * arg2));
 }
-/* PLATEAU-HANDOFF
- * Fresh configured full-TU C is exact-sized at 36 words/0x90, frameless,
- * with 7/36 positional words equal and first mismatch +0x4; no relocations.
- * Thirteen bounded natural builds plus four fidelity-clean trace diagnostics
- * found no strict gain. Proc 21 shows the second-base FP web occupying the
- * target constant color, cascading the register map and final load/multiply
- * schedule. Preserve V0 and fallback; resume only with a source-authentic
- * pool-to-temp/web-formation mechanism.
- */
 /* PROVENANCE -- adapted from JFG's charControl controlMakeV implementation. */
 #ifdef NON_MATCHING
 f32 func_8001D880(f32 arg0, f32 arg1, f32 *table, f32 divisor) {
@@ -2293,4 +2284,14 @@ void controlClearPlayerSetup(void) {
  * first-mismatch: +0x0
  * summary: Typed weak alias restores the direct call; candidate remains two words short with a 0x10 frame excess and two missing saved-register lifetimes.
  * PLATEAU-HANDOFF:func_8001C4C0:end
+ */
+
+/* PLATEAU-HANDOFF:func_8001D880:start
+ * symbol: func_8001D880
+ * score: 7/36 words
+ * frame: frameless
+ * relocations: 0
+ * first-mismatch: +0x4
+ * summary: Fresh configured full-TU C is exact-sized at 36 words/0x90; the second-base FP web and final load/multiply schedule remain unresolved.
+ * PLATEAU-HANDOFF:func_8001D880:end
  */
