@@ -837,6 +837,7 @@ tier-A threshold, so the address label remains canonical.
 | Candidate | Verdict |
 |---|---|
 | `func_80036AB0` | Evidence D DKR `src/textures_sprites.c::update_colour_cycle` adaptation; structure-mismatch, 113 differing words, first `+0x0`, target 108 instructions/0x28 frame versus candidate 115/0x30. |
+| `func_80037BF4` | Structure-mismatch, target 32 instructions/candidate 31 with a four-byte deficit; first mismatch `+0x44`, interpolation multiply/call scheduling shape unresolved. |
 
 ### 3.9 `main/track`: ROM `0xC950`-`0x16140`
 
