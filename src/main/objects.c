@@ -314,3 +314,13 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
  * summary: fixed-address D_800C9464 pointer-variable form has exact shape and relocations; one temp-FIFO phase remains
  * PLATEAU-HANDOFF:func_800056A4:end
  */
+
+/* PLATEAU-HANDOFF:func_80005868:start
+ * symbol: func_80005868
+ * score: 8 differing words
+ * frame: -0xE0
+ * relocations: 5
+ * first-mismatch: +0x1C
+ * summary: target DMA buffer stack home is 8 bytes earlier; six register and two stack-offset words remain
+ * PLATEAU-HANDOFF:func_80005868:end
+ */
