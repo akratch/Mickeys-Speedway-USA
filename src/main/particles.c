@@ -2780,3 +2780,13 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * summary: Fresh reproof unchanged; the sole caller and JFG donor leave the initial address shift and pool web unresolved.
  * PLATEAU-HANDOFF:func_8004054C:end
  */
+
+/* PLATEAU-HANDOFF:func_8003D4FC:start
+ * symbol: func_8003D4FC
+ * score: 1037 differing words
+ * frame: 0x138
+ * relocations: 14
+ * first-mismatch: +0xC
+ * summary: Frame and relocation count are exact; two instruction words and the grouping CFG remain unresolved.
+ * PLATEAU-HANDOFF:func_8003D4FC:end
+ */
