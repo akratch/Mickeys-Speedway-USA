@@ -71,6 +71,38 @@ typedef struct {
 } Objects09F08Arg;
 
 typedef struct {
+    f32 unk0;
+    u8 pad04[0x1A];
+    s8 unk1E;
+    u8 pad1F[3];
+    s8 unk22;
+    u8 pad23[0xB1];
+    f32 unkD4;
+} Objects09F74Data;
+
+typedef struct {
+    u8 pad00[8];
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    u8 pad18[0x22];
+    s8 unk3A;
+    u8 pad3B[5];
+    Objects09F74Data *unk40;
+    s16 unk44;
+    u8 pad46[0x1E];
+    void *unk64;
+    u8 pad68[0x2B];
+    s8 unk93;
+} Objects09F74Object;
+
+typedef struct {
+    u8 pad00[0x4E];
+    u8 unk4E;
+} Objects09F74Camera;
+
+typedef struct {
     f32 x;
     f32 y;
     f32 z;
@@ -565,6 +597,7 @@ extern Objects04454Object *D_80078F20;
 extern s8 D_80078F88;
 extern s8 D_80079004;
 extern u8 D_8007BDA0;
+extern u8 D_8007BEF8;
 extern u8 D_8007BF0C;
 extern f32 D_80080F84;
 extern void **D_800C94F4;
@@ -596,7 +629,12 @@ extern void func_800359D4(void *sprite);
 extern s32 func_8000A6E8(s32 arg0);
 extern void *func_8002B280(s32 size, s32 tag);
 extern void *func_8002B4C0(void *slots, s32 size);
-extern void func_80009F74(TrackSkyObject *object);
+extern void func_80009F74(void *object);
+extern s32 camGetNo(void);
+extern Objects09F74Camera *camGetPtr(void);
+extern f32 camGetProjZ(f32 x, f32 y, f32 z);
+extern void func_80008B94(void *object);
+extern void func_80009AA8(void *object);
 extern s32 func_800290A0(void);
 extern void func_800367E8(Objects07C68Texture *texture, void *flags, s32 *frame,
                            s32 updateRate);
@@ -1983,7 +2021,101 @@ f32 func_80009F08(Objects09F08Arg *arg0) {
     }
     return var_f2;
 }
+/* Workbench verdict: structure-mismatch; 149 differing words (target 180, candidate 178). */
+/* First mismatch: +0x0; target frame 0x28 versus candidate 0x30. */
+/* Structural gap: dispatch control flow is complete, but two instructions and stack homes differ. */
+#ifdef NON_MATCHING
+void func_80009F74(void *arg0) {
+    Objects09F74Object *object;
+    Objects09F74Data *data;
+    Objects09F74Camera *camera;
+    f32 projection;
+    f32 threshold;
+    s32 variant;
+    s8 count;
+    s8 selector;
+
+    object = (Objects09F74Object *)arg0;
+    data = object->unk40;
+    if (data->unkD4 == 0.0f) {
+        object->unk93 = object->unk3A;
+    } else {
+        projection = -camGetProjZ(object->unkC, object->unk10, object->unk14);
+        variant = 0;
+        count = data->unk22;
+        if ((count > 0) && (data->unkD4 != 0.0f) &&
+            (data->unkD4 < projection)) {
+            do {
+                variant += 1;
+                if ((variant >= 3) || (variant >= count)) {
+                    break;
+                }
+                threshold = *(f32 *)((u8 *)data + (variant * 4) + 0xD4);
+                if ((threshold == 0.0f) || (threshold >= projection)) {
+                    break;
+                }
+            } while (1);
+        }
+        if ((object->unk44 == 1) && (D_8007BF0C != 0) &&
+            (variant == 0) && ((s32)D_8007BEF8 >= 3)) {
+            if (camGetNo() != *(s8 *)object->unk64) {
+                variant = 1;
+            }
+        }
+        object->unk93 = (s8)variant;
+    }
+
+    if ((object->unk44 == 1) || (object->unk44 == 0x3F)) {
+        camera = camGetPtr();
+        if (camera->unk4E >= 2) {
+            object->unk93 = 0;
+        } else if (object->unk44 == 0x3F) {
+            object->unk8 = func_80009F08((Objects09F08Arg *)object) *
+                           data->unk0;
+        } else {
+            *(f32 *)((u8 *)object->unk64 + 0x444) =
+                func_80009F08((Objects09F08Arg *)object) * object->unk8;
+        }
+    }
+
+    data = object->unk40;
+    if (data->unkD4 == 0.0f) {
+        selector = data->unk1E;
+        switch (selector) {
+        case 0:
+            func_80009AA8(object);
+            return;
+        case 1:
+            func_80008B94(object);
+            return;
+        case 2:
+            func_80008A8C((Objects08A20Arg *)object);
+            return;
+        }
+    } else {
+        variant = (u8)object->unk93;
+        selector = *(s8 *)((u8 *)data + variant + 0x1E);
+        switch (selector) {
+        case 0:
+            object->unk3A = (s8)variant;
+            func_80009AA8(object);
+            object->unk3A = 0;
+            return;
+        case 1:
+            object->unk3A = (s8)variant;
+            func_80008B94(object);
+            object->unk3A = 0;
+            return;
+        case 2:
+            object->unk3A = (s8)variant;
+            func_80008A8C((Objects08A20Arg *)object);
+            return;
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009F74.s")
+#endif
 /* PROVENANCE: partition loop adapted from Diddy Kong Racing's public
  * src/objects.c get_first_active_object; Mickey's list and header offsets are authoritative. */
 s32 func_8000A244(s32 *arg0) {
