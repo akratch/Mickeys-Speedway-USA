@@ -77,7 +77,6 @@ extern void o57ModeSubmitFinalReloc(void *object, void *state, f32 position,
  * the target resolves a shared base plus offset and the C object emits
  * per-symbol LO16 records), which is a symbol-layout question, not a
  * schedule one. */
-#ifdef NON_MATCHING
 void overlay57HandleModeInput(s32 updateRate) {
     s32 i;
     s32 outputIndex;
@@ -154,16 +153,4 @@ void overlay57HandleModeInput(s32 updateRate) {
                             (f32) ((gOverlay57Delay >> 5) + 0x104), 184.0f,
                             1.0f, 1.0f, -2, 3);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/overlay57HandleModeInput/func_overlay_057_F0004064_18A7C5C.s")
-#endif
 
-/* PLATEAU-HANDOFF:overlay57HandleModeInput:start
- * symbol: overlay57HandleModeInput
- * score: 213/217 words
- * frame: 0x58
- * relocations: 70
- * first-mismatch: +0x14
- * summary: Schedule residual closed by joining the index initializer to the do-header line; the four remaining words are relocation-surface, not schedule.
- * PLATEAU-HANDOFF:overlay57HandleModeInput:end
- */

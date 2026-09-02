@@ -34,7 +34,6 @@ extern s32 func_overlay_014_F0000578_186FE50(s32);
  * closure, not instruction scheduling. The owned +0x498..+0x578 / ROM
  * 0x186FD70..0x186FE50 range has no padding or export and has five local inbound
  * JUMPs. */
-#ifdef NON_MATCHING
 void overlay14ResetMode(void) { Overlay14Command *command; do {
         if (D_EC <= 0) return;
         D_EC--;
@@ -52,16 +51,4 @@ void overlay14ResetMode(void) { Overlay14Command *command; do {
         D_FC = command->value;
     } while (func_overlay_014_F0000578_186FE50(0) == 0);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o014/overlay14ResetMode/func_overlay_014_F0000498_186FD70.s")
-#endif
 
-/* PLATEAU-HANDOFF:overlay14ResetMode:start
- * symbol: overlay14ResetMode
- * score: 56/56 words
- * frame: 0x30
- * relocations: 18
- * first-mismatch: relocation +0x54
- * summary: Scheduler line-tie lever makes all 56 instructions exact; four raw addend words and relocation identity proof remain.
- * PLATEAU-HANDOFF:overlay14ResetMode:end
- */

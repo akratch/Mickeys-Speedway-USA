@@ -448,6 +448,10 @@ D_F8 = 0x000000f8;
 /* overlay 14: overlay14ResetMode.c.o */
 D_E4 = 0x000000e4;
 D_FC = 0x000000fc;
+gOverlay14ValueD8 = 0x000000d8;
+gOverlay14ValueDC = 0x000000dc;
+gOverlay14ValueE0 = 0x000000e0;
+gOverlay14ValueF8 = 0x000000f8;
 
 /* overlay 14: overlay14MoveCommandCursor.c.o */
 gOverlay14CommandHeader = 0x000000fc;
@@ -1595,10 +1599,36 @@ overlay57BeginQueryReloc = 0xf0000000;
 overlay57BeginStartReloc = 0xf0000000;
 
 /* overlay 57: overlay57HandleModeInput.c.o */
-D_11C = 0x0000011c;
-D_25C = 0x0000025c;
-D_36C = 0x0000036c;
-D_508 = 0x00000508;
+gO57ModeChoices = 0x00000000;
+gO57ModeChoicesEnd = 0x000000d0;
+gO57ModeExternalByte = 0x00000183;
+gO57ModeFinalArg0 = 0x00000000;
+gO57ModeFinalArg1 = 0x0000025c;
+gO57ModeFirstByte = 0x00000000;
+gO57ModeFourthByte = 0x00000000;
+gO57ModeInputFlags = 0x00000000;
+gO57ModeOutputs = 0x000001b8;
+gO57ModePrimaryIds = 0x00000134;
+gO57ModePrimaryValues = 0x0000017c;
+gO57ModeSecondByte = 0x00000000;
+gO57ModeSecondaryIds = 0x000001a0;
+gO57ModeShortValue = 0x00000000;
+gO57ModeSixthByte = 0x00000000;
+gO57ModeThirdByte = 0x00000000;
+gO57ModeValueTable = 0x0000036c;
+o57ModeApplyExternalByteReloc = 0xf0000000;
+o57ModeApplyPrimaryReloc = 0xf0000000;
+o57ModeApplySecondaryReloc = 0xf0000000;
+o57ModeApplyTableReloc = 0xf0000000;
+o57ModeBegin12Reloc = 0xf0000000;
+o57ModeBegin13Reloc = 0xf0000000;
+o57ModeEmitChoiceReloc = 0xf0000000;
+o57ModeFinishAlternateReloc = 0xf0000000;
+o57ModePrepareAlternateReloc = 0xf0000000;
+o57ModeSelectChoiceReloc = 0xf0000000;
+o57ModeSetAlternateReloc = 0xf0000000;
+o57ModeSubmitEnabledReloc = 0xf0000000;
+o57ModeSubmitFinalReloc = 0xf0000000;
 
 /* overlay 57: overlay57StartMode.c.o */
 overlay57CommitModeReloc = 0xf0006878;
@@ -1607,6 +1637,9 @@ overlay57StartFindResultReloc = 0xf0000000;
 overlay57StartObjectReloc = 0xf0000000;
 overlay57StartPrepareReloc = 0xf0000000;
 overlay57StartQueryReloc = 0xf0000000;
+
+/* overlay 57: func_overlay_057_F0004460_18A8058.c.o */
+D_36C = 0x0000036c;
 
 /* overlay 57: overlay57UpdateModeTrigger.c.o */
 D_168 = 0x00000168;
@@ -1617,6 +1650,9 @@ overlay57FinishReloc = 0xf0001020;
 overlay57PrepareReloc = 0xf0000000;
 overlay57QueryReloc = 0xf0000000;
 overlay57StartReloc = 0xf0000000;
+
+/* overlay 57: func_overlay_057_F00060F8_18A9CF0.c.o */
+D_11C = 0x0000011c;
 
 /* overlay 57: overlay57SetNodeValue.c.o */
 overlay57ConfigureNodeReloc = 0xf0000000;
