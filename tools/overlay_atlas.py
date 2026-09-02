@@ -1180,6 +1180,12 @@ MIXED_TU_EXACT_C_RANGES = {
         ),
         (0x6CE8, 0x6D4C, "overlay1SelectMaskedMode"),
         (
+            0x7130,
+            0x72A4,
+            "overlay1UpdateTransient",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
             0x73A0,
             0x7580,
             "overlay1UpdateValueCache",
