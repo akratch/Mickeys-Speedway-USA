@@ -10,6 +10,9 @@ typedef struct FrontendBufferPointers {
     void *unk4;
 } FrontendBufferPointers;
 extern FrontendBufferPointers D_8007BE88;
+extern s32 D_8007BEB0;
+extern s32 D_8007BEB4;
+extern void func_800378A4(f32 arg0, s32 arg1);
 
 void func_80037150(void) {
     D_8007BEA8 = 0;
@@ -40,7 +43,14 @@ s32 func_80037664(void) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_800376CC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_800378A4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_80037A78.s")
+void func_80037A78(void) {
+    D_8007BEB4 = 0x8000 - (D_8007BEB0 << 8);
+    if (D_8007BEB0 < 0x200) {
+        func_800378A4((f32) ((s32) D_8007BEB0 >> 3), 0x100);
+        return;
+    }
+    func_800378A4(64.0f, (s32) (0x400 - D_8007BEB0) >> 1);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_80037AEC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_80037BF4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_80037C74.s")
