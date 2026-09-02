@@ -37,6 +37,8 @@ void func_80034DF0(u8 red, u8 green, u8 blue, u8 alternateRed, u8 alternateGreen
 void func_80034E48(void);
 void func_800349A4(Gfx **dList, void *texture, s32 mode, s32 flags);
 void func_8003D4FC(void **dList, void **vertices, void *pool);
+f32 func_8002A8BC(s16 angle);
+f32 func_8002A8C0(s16 angle);
 s32 func_8003CE10(Gfx **dList, s32 arg1, void **vertices, CircularParticlePool *pool, s32 mode);
 void func_8003D25C(Gfx **dList, s32 arg1, void **vertices, CircularParticlePool *pool);
 void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
@@ -403,10 +405,443 @@ void func_8003D25C(Gfx **dList, s32 renderContext, void **vertices, CircularPart
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003D25C.s")
 #endif
-/* Before -> after: no C candidate for the 0x10B0-byte TU range -> unchanged.
- * Type lever: shared particle globals/types were reconciled without a C body.
- * Remains: GLOBAL_ASM is canonical. */
+typedef struct ParticleRenderDescriptor {
+    s16 rotation0;
+    s16 rotation1;
+    s16 rotation2;
+    s16 pad06;
+    f32 scale;
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[0x10];
+    f32 textureScale;
+    s16 type;
+    u8 pad2E[0x1E];
+    void *texture;
+    u32 flags;
+    u32 geometryFlags;
+    u8 pad58[0x0C];
+    s16 alphaWord;
+    u8 pad66[9];
+    u8 intensity;
+    u8 pad70;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 pad74[4];
+} ParticleRenderDescriptor;
+
+typedef struct ParticleRenderGroup {
+    u8 pad00[4];
+    s32 pointCount;
+    s32 updateRate;
+    s16 *points;
+    u8 pad10[4];
+    ParticleRenderDescriptor *entries;
+    s32 entryCount;
+    s32 active;
+    u8 pad20[0x0C];
+    s32 materialDefault;
+    s32 materialOpaque;
+    s32 materialTranslucent;
+} ParticleRenderGroup;
+
+/*
+ * PROVENANCE: the particle-buffer grouping and rotated-point idioms were
+ * cross-checked against Jet Force Gemini's public particles.c assembly;
+ * Mickey's descriptor fields, globals, thresholds, and call sequence remain
+ * authoritative for this reconstruction.
+ */
+/* Workbench: structure-mismatch, 1037 differing words, first mismatch +0xC. */
+/* Structural gap: target 1068 instructions/frame -0x138 versus candidate 1066/-0x138; the grouping CFG and relocation schedule remain unresolved. */
+/* Not shape-exact or permuter-ready; rotated-point generation and display-list grouping are represented. */
+#ifdef NON_MATCHING
+void func_8003D4FC(void **dListArg, void **verticesArg, void *poolArg) {
+    ParticleRenderGroup *group;
+    ParticleRenderDescriptor *entry;
+    ParticleRenderDescriptor *entries;
+    Gfx *displayList;
+    Gfx *command;
+    ParticleVertex *vertices;
+    ParticleVertex *vertexStart;
+    s16 *points;
+    s32 index;
+    s32 count;
+    s32 pointCount;
+    s32 updateRate;
+    s32 vertexCount;
+    s32 primitiveCount;
+    s32 colorAlpha;
+    s32 red;
+    s32 green;
+    s32 blue;
+    s32 material;
+    s32 vertexAddress;
+    s16 xInput;
+    s16 yInput;
+    s32 emitted;
+    f32 scale;
+    f32 previousScale;
+    f32 sine0;
+    f32 cosine0;
+    f32 sine1;
+    f32 cosine1;
+    f32 xScaled;
+    f32 yScaled;
+    f32 rotatedX;
+    f32 rotatedY;
+    f32 rotatedZ;
+    f32 pointX;
+    f32 pointY;
+    f32 pointZ;
+    void *texture;
+    void *previousTexture;
+    s16 currentAlpha;
+    u16 textureType;
+    volatile s32 framePad[6];
+
+    group = (ParticleRenderGroup *)poolArg;
+    currentAlpha = 0xFF;
+    previousTexture = NULL;
+    previousScale = 0.0f;
+    if ((group != NULL) && (group->active != 0)) {
+        index = 0;
+        displayList = (Gfx *)*dListArg;
+        vertices = (ParticleVertex *)*verticesArg;
+        entries = group->entries;
+        count = group->entryCount;
+        while ((index < count) && (entries->type == 0x80)) {
+            index++;
+            entries++;
+        }
+
+        updateRate = group->updateRate;
+        pointCount = group->pointCount;
+        func_800349A4(&displayList, NULL, 0x12, 0);
+        command = displayList++;
+        command->words.w1 = -1;
+        command->words.w0 = 0xFA000000;
+        material = group->materialDefault;
+
+        if (index < count) {
+            entry = entries;
+            texture = entry->texture;
+            scale = entry->textureScale;
+            vertexStart = vertices;
+            colorAlpha = ((s16)entry->alphaWord >> 8) & 0xFF;
+            vertexCount = 0;
+            primitiveCount = 0;
+            do {
+                if ((entry->type == 0x80) || (texture != entry->texture) ||
+                    (vertexCount + pointCount >= 0x18) ||
+                    (scale != entry->textureScale) ||
+                    (colorAlpha != (((s16)entry->alphaWord >> 8) & 0xFF))) {
+                    vertexAddress = (s32)vertexStart + 0x80000000;
+                    if (colorAlpha != currentAlpha) {
+                        command = displayList++;
+                        command->words.w1 = 0;
+                        command->words.w0 = 0xE7000000;
+                        command = displayList++;
+                        command->words.w0 = 0xFA000000;
+                        command->words.w1 = (colorAlpha & 0xFF) | ~0xFF;
+                        currentAlpha = colorAlpha;
+                    }
+                    if ((texture != previousTexture) || (scale != previousScale)) {
+                        previousScale = scale;
+                        previousTexture = texture;
+                        func_800349A4(&displayList, texture, 0x12,
+                                      (s32)(scale * 65536.0f));
+                    }
+                    if (texture != NULL) {
+                        textureType = *(u16 *)((u8 *)texture + 6);
+                        if (textureType == 0x20) {
+                            material = group->materialOpaque;
+                        } else if (textureType == 0x40) {
+                            material = group->materialDefault;
+                        } else {
+                            material = group->materialTranslucent;
+                        }
+                    }
+                    command = displayList++;
+                    command->words.w0 = (((vertexCount * 8 | (vertexAddress & 6)) & 0xFF) << 16) |
+                                         0x04000000 | (((vertexCount * 10) + 8) & 0xFFFF);
+                    command->words.w1 = vertexAddress;
+                    command = displayList++;
+                    command->words.w0 = (((((primitiveCount - 1) * 0x10) | 1) & 0xFF) << 16) |
+                                         0x05000000 | ((primitiveCount * 0x10) & 0xFFFF);
+                    command->words.w1 = material + 0x80000000;
+                    vertexCount = 0;
+                    primitiveCount = 0;
+                    while ((index < count) && (entry->type == 0x80)) {
+                        index++;
+                        entry++;
+                    }
+                    if (index < count) {
+                        texture = entry->texture;
+                        scale = entry->textureScale;
+                        vertexStart = vertices;
+                        colorAlpha = ((s16)entry->alphaWord >> 8) & 0xFF;
+                    }
+                } else {
+                    s32 geometryFlags;
+
+                    points = group->points;
+                    if (entry->flags & 0x800) {
+                        red = (entry->red * entry->intensity) >> 8;
+                        green = (entry->green * entry->intensity) >> 8;
+                        blue = (entry->blue * entry->intensity) >> 8;
+                    } else {
+                        red = entry->red;
+                        green = entry->green;
+                        blue = entry->blue;
+                    }
+                    colorAlpha = ((s16)entry->alphaWord >> 8);
+                    geometryFlags = entry->geometryFlags;
+                    if (geometryFlags & 1) {
+                        sine1 = func_8002A8BC(entry->rotation2);
+                        cosine1 = func_8002A8C0(entry->rotation2);
+                        sine0 = func_8002A8BC(entry->rotation0);
+                        cosine0 = func_8002A8C0(entry->rotation0);
+                        emitted = 0;
+                        if (pointCount > 0) {
+                            if (pointCount & 1) {
+                                xInput = points[0];
+                                yInput = points[1];
+                                points += 2;
+                                xScaled = (f32)xInput * entry->scale;
+                                yScaled = (f32)yInput * entry->scale;
+                                rotatedX = xScaled * sine0;
+                                rotatedY = yScaled * sine1;
+                                rotatedZ = -xScaled * cosine0;
+                                vertices->x = (s16)(s32)((rotatedX * sine1) - (yScaled * cosine1) + entry->x);
+                                vertices->y = (s16)(s32)((yScaled * sine1) + (rotatedX * cosine1) + entry->y);
+                                vertices->z = (s16)(s32)(rotatedZ + entry->z);
+                                vertices->red = red;
+                                vertices->green = green;
+                                vertices->blue = blue;
+                                vertices->alpha = colorAlpha;
+                                vertices++;
+                                emitted = 1;
+                            }
+                            while (emitted < pointCount) {
+                                xInput = points[0];
+                                yInput = points[1];
+                                points += 2;
+                                xScaled = (f32)xInput * entry->scale;
+                                yScaled = (f32)yInput * entry->scale;
+                                rotatedX = xScaled * sine0;
+                                rotatedY = yScaled * sine1;
+                                rotatedZ = -xScaled * cosine0;
+                                vertices->x = (s16)(s32)((rotatedX * sine1) - (yScaled * cosine1) + entry->x);
+                                vertices->y = (s16)(s32)((yScaled * sine1) + (rotatedX * cosine1) + entry->y);
+                                vertices->z = (s16)(s32)(rotatedZ + entry->z);
+                                vertices->red = red;
+                                vertices->green = green;
+                                vertices->blue = blue;
+                                vertices->alpha = colorAlpha;
+                                vertices++;
+
+                                xInput = points[0];
+                                yInput = points[1];
+                                points += 2;
+                                xScaled = (f32)xInput * entry->scale;
+                                yScaled = (f32)yInput * entry->scale;
+                                rotatedX = xScaled * sine0;
+                                rotatedY = yScaled * sine1;
+                                rotatedZ = -xScaled * cosine0;
+                                vertices->x = (s16)(s32)((rotatedX * sine1) - (yScaled * cosine1) + entry->x);
+                                vertices->y = (s16)(s32)((yScaled * sine1) + (rotatedX * cosine1) + entry->y);
+                                vertices->z = (s16)(s32)(rotatedZ + entry->z);
+                                vertices->red = red;
+                                vertices->green = green;
+                                vertices->blue = blue;
+                                vertices->alpha = colorAlpha;
+                                vertices++;
+                                emitted += 2;
+                            }
+                        }
+                    } else if (geometryFlags & 2) {
+                        sine1 = func_8002A8BC(entry->rotation1);
+                        cosine1 = func_8002A8C0(entry->rotation1);
+                        sine0 = func_8002A8BC(entry->rotation0);
+                        cosine0 = func_8002A8C0(entry->rotation0);
+                        emitted = 0;
+                        if (pointCount > 0) {
+                            if (pointCount & 1) {
+                                xInput = points[0];
+                                yInput = points[1];
+                                points += 2;
+                                xScaled = (f32)xInput * entry->scale;
+                                yScaled = (f32)yInput * entry->scale;
+                                rotatedX = -xScaled * cosine0;
+                                vertices->x = (s16)(s32)((xScaled * sine0) + entry->x);
+                                vertices->y = (s16)(s32)((yScaled * sine1) - (rotatedX * cosine1) + entry->y);
+                                vertices->z = (s16)(s32)((rotatedX * sine1) + (yScaled * cosine1) + entry->z);
+                                vertices->red = red;
+                                vertices->green = green;
+                                vertices->blue = blue;
+                                vertices->alpha = colorAlpha;
+                                vertices++;
+                                emitted = 1;
+                            }
+                            while (emitted < pointCount) {
+                                xInput = points[0];
+                                yInput = points[1];
+                                points += 2;
+                                xScaled = (f32)xInput * entry->scale;
+                                yScaled = (f32)yInput * entry->scale;
+                                rotatedX = -xScaled * cosine0;
+                                vertices->x = (s16)(s32)((xScaled * sine0) + entry->x);
+                                vertices->y = (s16)(s32)((yScaled * sine1) - (rotatedX * cosine1) + entry->y);
+                                vertices->z = (s16)(s32)((rotatedX * sine1) + (yScaled * cosine1) + entry->z);
+                                vertices->red = red;
+                                vertices->green = green;
+                                vertices->blue = blue;
+                                vertices->alpha = colorAlpha;
+                                vertices++;
+
+                                xInput = points[0];
+                                yInput = points[1];
+                                points += 2;
+                                xScaled = (f32)xInput * entry->scale;
+                                yScaled = (f32)yInput * entry->scale;
+                                rotatedX = -xScaled * cosine0;
+                                vertices->x = (s16)(s32)((xScaled * sine0) + entry->x);
+                                vertices->y = (s16)(s32)((yScaled * sine1) - (rotatedX * cosine1) + entry->y);
+                                vertices->z = (s16)(s32)((rotatedX * sine1) + (yScaled * cosine1) + entry->z);
+                                vertices->red = red;
+                                vertices->green = green;
+                                vertices->blue = blue;
+                                vertices->alpha = colorAlpha;
+                                vertices++;
+                                emitted += 2;
+                            }
+                        }
+                    } else if (geometryFlags & 4) {
+                        sine0 = func_8002A8BC(entry->rotation0);
+                        cosine0 = func_8002A8C0(entry->rotation0);
+                        emitted = 0;
+                        if (pointCount > 0) {
+                            if (pointCount & 1) {
+                                xInput = points[0];
+                                yInput = points[1];
+                                points += 2;
+                                xScaled = (f32)xInput * entry->scale;
+                                yScaled = (f32)yInput * entry->scale;
+                                vertices->x = (s16)(s32)((xScaled * sine0) + entry->x);
+                                vertices->y = (s16)(s32)(yScaled + entry->y);
+                                vertices->z = (s16)(s32)((-xScaled * cosine0) + entry->z);
+                                vertices->red = red;
+                                vertices->green = green;
+                                vertices->blue = blue;
+                                vertices->alpha = colorAlpha;
+                                vertices++;
+                                emitted = 1;
+                            }
+                            while (emitted < pointCount) {
+                                xInput = points[0];
+                                yInput = points[1];
+                                points += 2;
+                                xScaled = (f32)xInput * entry->scale;
+                                yScaled = (f32)yInput * entry->scale;
+                                vertices->x = (s16)(s32)((xScaled * sine0) + entry->x);
+                                vertices->y = (s16)(s32)(yScaled + entry->y);
+                                vertices->z = (s16)(s32)((-xScaled * cosine0) + entry->z);
+                                vertices->red = red;
+                                vertices->green = green;
+                                vertices->blue = blue;
+                                vertices->alpha = colorAlpha;
+                                vertices++;
+
+                                xInput = points[0];
+                                yInput = points[1];
+                                points += 2;
+                                xScaled = (f32)xInput * entry->scale;
+                                yScaled = (f32)yInput * entry->scale;
+                                vertices->x = (s16)(s32)((xScaled * sine0) + entry->x);
+                                vertices->y = (s16)(s32)(yScaled + entry->y);
+                                vertices->z = (s16)(s32)((-xScaled * cosine0) + entry->z);
+                                vertices->red = red;
+                                vertices->green = green;
+                                vertices->blue = blue;
+                                vertices->alpha = colorAlpha;
+                                vertices++;
+                                emitted += 2;
+                            }
+                        }
+                    } else {
+                        emitted = 0;
+                        while (emitted < pointCount) {
+                            pointX = (f32)points[0] * entry->scale;
+                            points += 2;
+                            pointY = (f32)points[-1] * entry->scale;
+                            pointZ = 0.0f;
+                            pointListRPY(1, (s16 *)entry, &pointX, &pointX);
+                            vertices->x = (s16)(s32)(pointX + entry->x);
+                            vertices->y = (s16)(s32)(pointY + entry->y);
+                            vertices->z = (s16)(s32)(pointZ + entry->z);
+                            vertices->red = red;
+                            vertices->green = green;
+                            vertices->blue = blue;
+                            vertices->alpha = colorAlpha;
+                            vertices++;
+                            emitted++;
+                        }
+                    }
+                    vertexCount += pointCount;
+                    primitiveCount += updateRate;
+                }
+                if (entry->type != 0x80 || (index >= count)) {
+                    index++;
+                    entry++;
+                }
+            } while (index < count);
+
+            if (primitiveCount != 0) {
+                vertexAddress = (s32)vertexStart + 0x80000000;
+                if (colorAlpha != currentAlpha) {
+                    command = displayList++;
+                    command->words.w1 = 0;
+                    command->words.w0 = 0xE7000000;
+                    command = displayList++;
+                    command->words.w0 = 0xFA000000;
+                    command->words.w1 = (colorAlpha & 0xFF) | ~0xFF;
+                }
+                if ((texture != previousTexture) || (scale != previousScale)) {
+                    func_800349A4(&displayList, texture, 0x12,
+                                  (s32)(scale * 65536.0f));
+                }
+                if (texture != NULL) {
+                    textureType = *(u16 *)((u8 *)texture + 6);
+                    if (textureType == 0x20) {
+                        material = group->materialOpaque;
+                    } else if (textureType == 0x40) {
+                        material = group->materialDefault;
+                    } else {
+                        material = group->materialTranslucent;
+                    }
+                }
+                command = displayList++;
+                command->words.w0 = (((vertexCount * 8 | (vertexAddress & 6)) & 0xFF) << 16) |
+                                     0x04000000 | (((vertexCount * 10) + 8) & 0xFFFF);
+                command->words.w1 = vertexAddress;
+                command = displayList++;
+                command->words.w0 = (((((primitiveCount - 1) * 0x10) | 1) & 0xFF) << 16) |
+                                     0x05000000 | ((primitiveCount * 0x10) & 0xFFFF);
+                command->words.w1 = material + 0x80000000;
+            }
+        }
+        command = displayList++;
+        command->words.w1 = 0;
+        command->words.w0 = 0xE7000000;
+        *dListArg = displayList;
+        *verticesArg = vertices;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003D4FC.s")
+#endif
 void partInitTrigger(ParticleTrigger *trigger, s32 type, s32 value) {
     ParticleConfig *config;
 
@@ -2344,4 +2779,14 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * first-mismatch: +0x2C
  * summary: Fresh reproof unchanged; the sole caller and JFG donor leave the initial address shift and pool web unresolved.
  * PLATEAU-HANDOFF:func_8004054C:end
+ */
+
+/* PLATEAU-HANDOFF:func_8003D4FC:start
+ * symbol: func_8003D4FC
+ * score: 1037 differing words
+ * frame: 0x138
+ * relocations: 14
+ * first-mismatch: +0xC
+ * summary: Frame and relocation count are exact; two instruction words and the grouping CFG remain unresolved.
+ * PLATEAU-HANDOFF:func_8003D4FC:end
  */
