@@ -548,3 +548,13 @@ void func_8000238C(void) {
  * summary: Best DKR-derived frame handler; manager/task-base allocation and cleanup/large-mode loops remain structurally displaced.
  * PLATEAU-HANDOFF:func_80001BF4:end
  */
+
+/* PLATEAU-HANDOFF:func_80002134:start
+ * symbol: func_80002134
+ * score: 9 differing words
+ * frame: -0x18
+ * relocations: 5
+ * first-mismatch: +0x20
+ * summary: Exact frame and instruction count; external volatile EFC spelling keeps the target direct-load/store lifetime unresolved.
+ * PLATEAU-HANDOFF:func_80002134:end
+ */
