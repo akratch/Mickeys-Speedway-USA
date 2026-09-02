@@ -29,7 +29,7 @@
     "overlay68CheckKind": {
       "source_commit": "90ee5c814ce688bae33efdcce6a2d568c9451e68",
       "ledger_commit": "90ee5c814ce688bae33efdcce6a2d568c9451e68",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay94UpdateController": {
       "source_commit": "3bfc5f1ca95041cc46e2f3327c502d08869546cd",
@@ -214,17 +214,17 @@
     "func_overlay_029_F0000EE0_187E190": {
       "source_commit": "424aa5f7694dc7cd5ca348fb289e0d818a438434",
       "ledger_commit": "424aa5f7694dc7cd5ca348fb289e0d818a438434",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "func_overlay_041_F000195C_1888C94": {
       "source_commit": "26d47ab7147b62fa1e528eac0ff6f2ae5ae15921",
       "ledger_commit": "b5a7903023f8ec2bd6c0d87c2f69e08cae920576",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay101BuildBorder": {
       "source_commit": "4d2e9aee576ec7952bf2d08398bbdbe33463f5d7",
       "ledger_commit": "4d2e9aee576ec7952bf2d08398bbdbe33463f5d7",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay101DrawTransformed": {
       "source_commit": "267722c2d019c7f76e76be2b1fae01474a66fc26",
@@ -249,157 +249,157 @@
     "func_overlay_043_F00010A8_188B078": {
       "source_commit": "6f5fe225d8013f75ebcfcde099073bac2db8da26",
       "ledger_commit": "6f5fe225d8013f75ebcfcde099073bac2db8da26",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay19ClassifyEdge": {
       "source_commit": "7cb5b62ac6a66b944906208d6eb05cef0ba7ba03",
       "ledger_commit": "7cb5b62ac6a66b944906208d6eb05cef0ba7ba03",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay31CreatePool": {
       "source_commit": "76e4e291acd58c4310eadab39c540d36ebaa6bdd",
       "ledger_commit": "056783bdef9ce8e515c94e0e1140967584618276",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay20RemoveEntry": {
       "source_commit": "e0429c682e4697af97bc099f02d721e21c6d6011",
       "ledger_commit": "e0429c682e4697af97bc099f02d721e21c6d6011",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay7AcquireEntry": {
       "source_commit": "7de2ffbcc24e67a50955ecb110d49d81d7c1a78a",
       "ledger_commit": "7de2ffbcc24e67a50955ecb110d49d81d7c1a78a",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay17DrawStrip": {
       "source_commit": "daa26e669ad13a0a80487268f2a82a17c52d1278",
       "ledger_commit": "daa26e669ad13a0a80487268f2a82a17c52d1278",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay3SelectScoredObject": {
       "source_commit": "e18fd3778e1f525cb2cd4bddc5f08c8164f44a8f",
       "ledger_commit": "e18fd3778e1f525cb2cd4bddc5f08c8164f44a8f",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay5InitializeAudio": {
       "source_commit": "15193f57a1499629b8008c161ea650f0b1fc017c",
       "ledger_commit": "77c64beae157604d707fdfb6d76f2bc451d55aea",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay96Unregister": {
       "source_commit": "ce466d055ccc805b7b9d37b61ad57c81c7eafb9b",
       "ledger_commit": "ce466d055ccc805b7b9d37b61ad57c81c7eafb9b",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay34CreateRecord": {
       "source_commit": "643bfdba2db311cf7057efff4a8c25fe29b53890",
       "ledger_commit": "643bfdba2db311cf7057efff4a8c25fe29b53890",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "func_overlay_029_F00010C4_187E374": {
       "source_commit": "f62d2d4701191c7457afbf4c35968b4f8e400a87",
       "ledger_commit": "4fbb92bfe6e44f0b4403dbd6ca77d2102b045fd7",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay98CheckObject": {
       "source_commit": "abd823b505991e7b06b58f10b16cbbceacbad9f8",
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "func_overlay_041_F0001298_18885D0": {
       "source_commit": "0bcc0cf2fcdce3ff2f97ae81ef7e755e72f50582",
       "ledger_commit": "0bcc0cf2fcdce3ff2f97ae81ef7e755e72f50582",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay60ReassignChoiceSlots": {
       "source_commit": "d5d84fc774b4cca0953cbffd03fdce77ff44a8f4",
       "ledger_commit": "d5d84fc774b4cca0953cbffd03fdce77ff44a8f4",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "func_overlay_026_F0000D24_187B11C": {
       "source_commit": "4e0a141a29e28de455e798ba590951f3e15b929a",
       "ledger_commit": "4e0a141a29e28de455e798ba590951f3e15b929a",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay2QueryNode": {
       "source_commit": "0eafd9ec192233d72f3cb5029adeb12ddc17f1bf",
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay59PrepareEntry": {
       "source_commit": "4a75e3348dc760509befffba716637270952d8d7",
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "func_overlay_047_F00009D0_18917E8": {
       "source_commit": "c0ebdf9880c888c5e843adbe6bed562bfe9875a3",
       "ledger_commit": "fe807d23978f5afe6dee6d583b719c84301e6618",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay15DrawRain": {
       "source_commit": "83fcf45907e83ba6fefe4b78856ba1ef21a784ff",
       "ledger_commit": "83fcf45907e83ba6fefe4b78856ba1ef21a784ff",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay14CreateValue": {
       "source_commit": "06bd677e76dc1f40edb36042ee1b79b806e03411",
       "ledger_commit": "06bd677e76dc1f40edb36042ee1b79b806e03411",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "func_overlay_041_F0000124_188745C": {
       "source_commit": "00b729b0399622d691177a3b19455505507deb83",
       "ledger_commit": "00b729b0399622d691177a3b19455505507deb83",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "func_overlay_029_F000042C_187D6DC": {
       "source_commit": "dd74c176a8ed7ee1966e038c180aa02cadb4994d",
       "ledger_commit": "a7ff12e88edd6ecbdcbe76d166a1c1571f62ad76",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay75UpdateMovingObject": {
       "source_commit": "1f405c79b2f363f0d3eb04128da8b98f487786b3",
       "ledger_commit": "1f405c79b2f363f0d3eb04128da8b98f487786b3",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay33PresentAndSwap": {
       "source_commit": "6733a6945ce7d1303a2c69908e5bc7c996a63194",
       "ledger_commit": "6733a6945ce7d1303a2c69908e5bc7c996a63194",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay57UpdateModeTrigger": {
       "source_commit": "afcd42a6b01f327755805cfce8504bb5acfd431d",
       "ledger_commit": "afcd42a6b01f327755805cfce8504bb5acfd431d",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "func_overlay_092_F0000068_18D5F88": {
       "source_commit": "82d35dd9da593db1737ff17f35f84ab1ee8a81f8",
       "ledger_commit": "eb3d13890ced757076d48d470bffdb8b0452db44",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay98CollectUniqueY": {
       "source_commit": "169fa6b7f187f9b06ad478054165e34287850c9b",
       "ledger_commit": "169fa6b7f187f9b06ad478054165e34287850c9b",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "func_overlay_071_F0000870_18CA390": {
       "source_commit": "70b693809422ac5fce8344f54519c1c0cf92d535",
       "ledger_commit": "70b693809422ac5fce8344f54519c1c0cf92d535",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay3RunCachedModeAction": {
       "source_commit": "20db1cc30a75f54622a00822ab458d2952eb5a3d",
       "ledger_commit": "a723c0fc5526b506555b71da152816b506095e8c",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay43FilterImage": {
       "source_commit": "ae8b5bd27221c8263de6ddaf12382fd7b5de57c1",
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay74Update": {
       "source_commit": "681bbf2ca97e35b571a3fc61abea419bcbb59c7a",
       "ledger_commit": "681bbf2ca97e35b571a3fc61abea419bcbb59c7a",
-      "reason": "Epoch 15 overlay near-shape pass (ADR 0016): the repaired promotion trial classes this candidate text-differs with zero out-of-range bytes and 9-40 in-range words; authorize one structural reshape pass using the trial as the oracle and the as1 line-order lever; allocator-only forms stay closed."
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     }
   }
 }
