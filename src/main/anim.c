@@ -4650,3 +4650,13 @@ void fmvInit(void) {
  * summary: Candidate is 58 instructions short with a 0x148 frame excess; collision-update CFG remains displaced.
  * PLATEAU-HANDOFF:func_80053868:end
  */
+
+/* PLATEAU-HANDOFF:func_800517E0:start
+ * symbol: func_800517E0
+ * score: 1789 differing words
+ * frame: 0x1B0
+ * relocations: 395
+ * first-mismatch: +0x0
+ * summary: Candidate is two instructions short with the exact frame; command dispatch and relocation layout remain unresolved.
+ * PLATEAU-HANDOFF:func_800517E0:end
+ */
