@@ -347,6 +347,7 @@ def trial_module(overlay=1):
                 "size": "0x20",
                 "section": ".rodata",
                 "source": "overlays/o001/example_tail",
+                "trial_function": "example_owner",
             }
         ],
     }
@@ -377,6 +378,22 @@ class TrialProjectionTests(unittest.TestCase):
         )
         self.assertIn("- [0x1854774, .rodata, example_tail]", carved)
         self.assertIn("subalign: 0x4", carved)
+
+    def test_a_named_trial_function_carves_only_its_owned_range(self):
+        carved = self.render(
+            trial_ownership=True,
+            trial_sources=frozenset({"example_tail"}),
+            trial_functions=frozenset({"example_owner"}),
+        )
+        self.assertIn("- [0x1854774, .rodata, example_tail]", carved)
+
+    def test_another_function_in_the_same_tu_carves_nothing(self):
+        uncarved = self.render(
+            trial_ownership=True,
+            trial_sources=frozenset({"example_tail"}),
+            trial_functions=frozenset({"other_function"}),
+        )
+        self.assertEqual(self.render(), uncarved)
 
     def test_each_raw_slice_gets_its_own_asset_name(self):
         carved = self.render(
@@ -410,6 +427,18 @@ class TrialProjectionTests(unittest.TestCase):
             )
         with mock.patch.dict(os.environ, {overlay_atlas.TRIAL_SOURCE_ENV: ""}):
             self.assertEqual(overlay_atlas.trial_sources(), frozenset())
+
+    def test_trial_functions_reads_the_environment(self):
+        with mock.patch.dict(
+            os.environ,
+            {overlay_atlas.TRIAL_FUNCTION_ENV: "example_owner other_function"},
+        ):
+            self.assertEqual(
+                overlay_atlas.trial_functions(),
+                frozenset({"example_owner", "other_function"}),
+            )
+        with mock.patch.dict(os.environ, {overlay_atlas.TRIAL_FUNCTION_ENV: ""}):
+            self.assertEqual(overlay_atlas.trial_functions(), frozenset())
 
 
 if __name__ == "__main__":

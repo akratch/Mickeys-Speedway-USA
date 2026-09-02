@@ -124,22 +124,26 @@ DATA_RODATA_OWNERSHIP = {
 # typed subsegment for the owning TU.  The four-byte subalignment below is
 # required for IDO's literal-pool and jump-table placement.
 FIXED_DATA_RODATA_OWNERSHIP = {
-    1: [(0x274, 0x294, "overlay_001_tail", ".rodata")],
-    7: [(0x934, 0x950, "overlay_007_tail", ".rodata")],
-    8: [(0x27C, 0x2AC, "overlay_008", ".rodata")],
-    9: [(0x390, 0x3E0, "overlay_009", ".rodata")],
+    # The fifth field identifies the guarded C definition that emits this
+    # range. Consolidated TUs also contain candidates whose promotion does not
+    # emit the owner's compiler data, so trial projection must be function-
+    # scoped rather than merely source-file-scoped.
+    1: [(0x274, 0x294, "overlay_001_tail", ".rodata", "overlay1DispatchMode")],
+    7: [(0x934, 0x950, "overlay_007_tail", ".rodata", "overlay7DispatchModes")],
+    8: [(0x27C, 0x2AC, "overlay_008", ".rodata", "func_overlay_008_F0004CF0_1862A48")],
+    9: [(0x390, 0x3E0, "overlay_009", ".rodata", "func_overlay_009_F0000CE4_186735C")],
     14: [
-        (0x158, 0x174, "overlay14LoadRelocatedValue", ".rodata"),
-        (0x174, 0x190, "func_overlay_014_F0001830_1871108", ".rodata"),
+        (0x158, 0x174, "overlay14LoadRelocatedValue", ".rodata", "overlay14LoadRelocatedValue"),
+        (0x174, 0x190, "func_overlay_014_F0001830_1871108", ".rodata", "func_overlay_014_F0001830_1871108"),
     ],
-    25: [(0x20, 0x40, "overlay_025", ".rodata")],
+    25: [(0x20, 0x40, "overlay_025", ".rodata", "overlay25UpdateEffect")],
     41: [
-        (0x0, 0x3C, "overlay41SampleCurve", ".rodata"),
-        (0x3C, 0x54, "overlay41UpdateCurveObject", ".rodata"),
+        (0x0, 0x3C, "overlay41SampleCurve", ".rodata", "func_overlay_041_F00002AC_18875E4"),
+        (0x3C, 0x54, "overlay41UpdateCurveObject", ".rodata", "func_overlay_041_F0000854_1887B8C"),
     ],
-    46: [(0x364, 0x378, "overlay46UpdateSequence", ".rodata")],
-    59: [(0x76C, 0x78C, "overlay59Advance", ".rodata")],
-    86: [(0x80, 0xA0, "func_overlay_086_F0000474_18D22AC", ".rodata")],
+    46: [(0x364, 0x378, "overlay46UpdateSequence", ".rodata", "func_overlay_046_F0000120_188E518")],
+    59: [(0x76C, 0x78C, "overlay59Advance", ".rodata", "overlay59Advance")],
+    86: [(0x80, 0xA0, "func_overlay_086_F0000474_18D22AC", ".rodata", "func_overlay_086_F0000474_18D22AC")],
 }
 
 # When a C owner's initialized input follows its text, IDO's measured .text
@@ -1833,9 +1837,13 @@ def data_rodata_ownership_rows(overlay, data_size, text_ownership):
         )
         previous_end = end
         previous_text_index = text_index
-    for start, end, source_name, section in FIXED_DATA_RODATA_OWNERSHIP.get(
-        overlay, []
-    ):
+    for fixed in FIXED_DATA_RODATA_OWNERSHIP.get(overlay, []):
+        if len(fixed) not in (4, 5):
+            raise ValueError(
+                f"invalid overlay {overlay} fixed data/rodata owner tuple"
+            )
+        start, end, source_name, section = fixed[:4]
+        trial_function = fixed[4] if len(fixed) == 5 else None
         if (
             start < 0
             or start >= end
@@ -1852,16 +1860,17 @@ def data_rodata_ownership_rows(overlay, data_size, text_ownership):
                 f"overlay {overlay} fixed data/rodata owner {source_name} "
                 "does not own a C text row"
             )
-        rows.append(
-            {
-                "offset": hx(start),
-                "end_offset": hx(end),
-                "size": hx(end - start),
-                "type": "c",
-                "section": section,
-                "source": f"overlays/o{overlay:03d}/{source_name}",
-            }
-        )
+        row = {
+            "offset": hx(start),
+            "end_offset": hx(end),
+            "size": hx(end - start),
+            "type": "c",
+            "section": section,
+            "source": f"overlays/o{overlay:03d}/{source_name}",
+        }
+        if trial_function is not None:
+            row["trial_function"] = trial_function
+        rows.append(row)
     return rows
 
 
@@ -2240,6 +2249,7 @@ def render_manifest(atlas):
 
 
 TRIAL_SOURCE_ENV = "PROMOTION_TRIAL_SOURCE"
+TRIAL_FUNCTION_ENV = "PROMOTION_TRIAL_FUNCTION"
 
 
 def trial_sources(cli=None):
@@ -2255,7 +2265,10 @@ def trial_sources(cli=None):
     So the projection carves nothing unless the trial names the TU it is
     promoting, by `--trial-source` or by PROMOTION_TRIAL_SOURCE (the env form
     exists because the build's own `overlay_atlas.py --check` has to agree with
-    the yaml the trial wrote). Values are source stems or bare basenames.
+    the yaml the trial wrote). Function-scoped trials additionally pass
+    `--trial-function` / PROMOTION_TRIAL_FUNCTION; a fixed row with a producer
+    function is carved only for that definition. Values are source stems or
+    bare basenames.
     """
     raw = list(cli or [])
     if not raw:
@@ -2265,7 +2278,20 @@ def trial_sources(cli=None):
     )
 
 
-def render_yaml_block(atlas, trial_ownership=False, trial_sources=frozenset()):
+def trial_functions(cli=None):
+    """C definitions whose compiler-owned data a trial may carve."""
+    raw = list(cli or [])
+    if not raw:
+        raw = re.split(r"[,\s]+", os.environ.get(TRIAL_FUNCTION_ENV, ""))
+    return frozenset(part for part in raw if part)
+
+
+def render_yaml_block(
+    atlas,
+    trial_ownership=False,
+    trial_sources=frozenset(),
+    trial_functions=frozenset(),
+):
     lines = [YAML_BEGIN]
     lines += [
         "  #",
@@ -2287,10 +2313,16 @@ def render_yaml_block(atlas, trial_ownership=False, trial_sources=frozenset()):
             continue
         ov = row["overlay"]
         name = f"overlay_{ov:03d}"
+        def fixed_data_matches_trial(part):
+            if "section" not in part:
+                return False
+            if trial_functions:
+                return part.get("trial_function") in trial_functions
+            return part["source"].rsplit("/", 1)[-1] in trial_sources
+
         carved = trial_ownership and any(
-            part["source"].rsplit("/", 1)[-1] in trial_sources
+            fixed_data_matches_trial(part)
             for part in row.get("data_rodata_ownership", [])
-            if "section" in part
         )
         lines += [
             "",
@@ -2339,8 +2371,7 @@ def render_yaml_block(atlas, trial_ownership=False, trial_sources=frozenset()):
         fixed_data = [
             part
             for part in owned_data
-            if "section" in part
-            and part["source"].rsplit("/", 1)[-1] in trial_sources
+            if fixed_data_matches_trial(part)
         ] if carved else []
         leading_data = [part for part in owned_data if "section" not in part]
         owned_end = (
@@ -2513,6 +2544,16 @@ def main():
         ),
     )
     parser.add_argument(
+        "--trial-function",
+        action="append",
+        metavar="FUNCTION",
+        help=(
+            "C definition whose compiler-owned data this trial emits; only "
+            "its fixed data/rodata ownership is carved (repeatable, defaults "
+            "to $PROMOTION_TRIAL_FUNCTION)"
+        ),
+    )
+    parser.add_argument(
         "--format",
         choices=("text", "json"),
         default="text",
@@ -2561,6 +2602,7 @@ def main():
             atlas,
             trial_ownership=trial_ownership,
             trial_sources=trial_sources(args.trial_source),
+            trial_functions=trial_functions(args.trial_function),
         ),
     )
 
