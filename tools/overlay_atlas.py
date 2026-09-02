@@ -1186,6 +1186,12 @@ MIXED_TU_EXACT_C_RANGES = {
             "canonical mixed-TU object and linked bytes exact",
         ),
         (
+            0x7344,
+            0x73A0,
+            "overlay1CloneRecord",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
+        (
             0x73A0,
             0x7580,
             "overlay1UpdateValueCache",
