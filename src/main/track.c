@@ -4106,67 +4106,39 @@ s32 func_80012234(TrackVec3f *point, TrackVec3f *direction,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80012234.s")
 #endif
-#ifdef NON_MATCHING
-/*
- * PROVENANCE: Jet Force Gemini's public `src/track.c` retains
- * `trackSphereIntersect` as assembly; its signature and collision role
- * supply structural context only. Mickey's vector layout, arithmetic, and
- * output pointers are reconstructed from the resident call sites and bytes.
- */
-/* Historical pre-cleanup configured full-TU C was measured at 50/57 raw and
- * relocation-normalized words, first +0x50, frame 0x48, with sqrtf at +0xA4.
- * No candidate object/hash survives. The body used dead sp1C/sp38 assignments
- * that only forced allocation; they are removed below, so clean V0's score,
- * size, frame, and relocation output are unknown. The stale isolated ranking
- * also omitted track.c's required -Wab,-r4300_mul. Five direct calls come from
- * func_80011CDC and func_800563B4; ORT 308 has no runtime/overlay/pointer
- * inbound. The owned 0x80012574..0x80012658 / ROM 0x13174..0x13258 range is 57
- * words with no padding. Compile clean configured V0; if shape regresses, run
- * one historical control or invalidate the baseline. Retain 119 configurations
- * including V0, trace once, try at most two trace-selected natural forms and an
- * improving-only combination. Cap 122 deterministic builds plus one trace,
- * with build 123 only for the regression control; permit one 20-minute/2,000-
- * candidate stack-aware batch only after a legal natural gain. Empty guards,
- * dead stack aids, forced registers, and stack-normalized scoring are rejected.
- */
-s32 func_80012574(TrackVec3f *origin, TrackVec3f *direction,
-                  TrackVec3f *center, f32 radius, f32 *minimum,
-                  f32 *maximum) {
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f12;
-    f32 temp_f14;
-    f32 temp_f16;
-    f32 temp_f18;
-    f32 temp_f2;
-    f32 temp_f2_2;
-    s32 var_v1;
-
-    temp_f0 = origin->f[0] - center->f[0];
-    temp_f2 = origin->f[1] - center->f[1];
-    var_v1 = FALSE;
-    temp_f12 = origin->f[2] - center->f[2];
-    temp_f14 = ((temp_f0 * direction->f[0]) +
-                (temp_f2 * direction->f[1])) +
-               (temp_f12 * direction->f[2]);
-    temp_f18 = temp_f14 * temp_f14;
-    temp_f16 = (((temp_f0 * temp_f0) + (temp_f2 * temp_f2)) +
-                (temp_f12 * temp_f12)) -
-               (radius * radius);
-    if (temp_f16 <= temp_f18) {
-        var_v1 = TRUE;
-    }
-    if (var_v1 != FALSE) {
-        temp_f0_2 = sqrtf(temp_f18 - temp_f16);
-        temp_f2_2 = -temp_f14;
-        *minimum = temp_f2_2 - temp_f0_2;
-        *maximum = temp_f2_2 + temp_f0_2;
-    }
-    return var_v1;
+s32 func_80012574(TrackVec3f *origin, TrackVec3f *direction, TrackVec3f *center, f32 radius, f32 *minimum, f32 *maximum)
+{
+  f32 temp_f0;
+  f32 temp_f0_2;
+  f32 temp_f12;
+  f32 temp_f14;
+  float new_var2;
+  f32 temp_f16;
+  f32 temp_f18;
+  f32 temp_f2;
+  f32 temp_f2_2;
+  f32 new_var;
+  s32 var_v1;
+  temp_f0 = origin->f[0] - center->f[0];
+  temp_f2 = origin->f[1] - center->f[1];
+  var_v1 = 0;
+  temp_f12 = origin->f[2] - center->f[2];
+  temp_f14 = ((temp_f0 * direction->f[0]) + (temp_f2 * direction->f[1])) + (temp_f12 * direction->f[2]);
+  new_var = temp_f14;
+  new_var2 = (((temp_f0 * temp_f0) + (temp_f2 * temp_f2)) + (temp_f12 * temp_f12)) - (radius * radius);
+  temp_f18 = new_var * new_var;
+  temp_f16 = new_var2;
+  if (temp_f16 <= temp_f18)
+  {
+    var_v1 = 1;
+  }
+  if (var_v1 != 0)
+  {
+    temp_f0_2 = sqrtf(temp_f18 - temp_f16);
+ do { temp_f2_2 = -new_var; *minimum = temp_f2_2 - temp_f0_2; *maximum = temp_f2_2 + temp_f0_2; } while (0);
+  }
+  return var_v1;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_80012574.s")
-#endif
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: Mickey's m2c draft, collision-node offsets, and output-record
