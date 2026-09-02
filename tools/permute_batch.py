@@ -1191,9 +1191,43 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int) -> tuple[b
         if wb.returncode != 0:
             return revert("wb_compare.sh --rom failed:\n" + wb.stdout[-4000:])
 
+        retire_plateau_handoff(item)
         return True, None
     except subprocess.TimeoutExpired as e:
         return revert(f"timed out: {e}")
+
+
+HANDOFF_DIR = ROOT / "docs" / "matching-triage-handoffs"
+# func -> repo-relative paths a promotion removed, for commit_match to stage.
+_RETIRED_HANDOFFS: dict[str, list[str]] = {}
+
+
+def retire_plateau_handoff(item: QueueItem) -> list[str]:
+    """Drop a promoted function's structured plateau handoff.
+
+    `gmake check-docs` (tools/plateau_handoff_audit.py) rejects a
+    PLATEAU-HANDOFF block or an exact-symbol shard for a function that is no
+    longer a guarded NON_MATCHING candidate, so a verified promotion has to
+    retire both: the EOF comment block in the function's own C file and
+    docs/matching-triage-handoffs/<func>.md. Comment-only edit; the ROM proof
+    that preceded it is unaffected. Returns the extra repo-relative paths the
+    match commit must stage (the deleted shard)."""
+    extra: list[str] = []
+    text = item.c_file.read_text()
+    block = re.compile(
+        r"\n?/\* PLATEAU-HANDOFF:" + re.escape(item.func) + r":start\n.*?"
+        r"\* PLATEAU-HANDOFF:" + re.escape(item.func) + r":end\n \*/\n",
+        re.S,
+    )
+    new_text, n = block.subn("\n", text)
+    if n:
+        item.c_file.write_text(new_text)
+    shard = HANDOFF_DIR / f"{item.func}.md"
+    if shard.is_file():
+        shard.unlink()
+        extra.append(str(shard.relative_to(ROOT)))
+    _RETIRED_HANDOFFS[item.func] = extra
+    return extra
 
 
 def _best(scratch: Path) -> tuple[Optional[Path], Optional[int]]:
@@ -1209,7 +1243,7 @@ def commit_match(item: QueueItem) -> Optional[str]:
     string, or None. Only the function's own C file is staged, so a batch
     never sweeps unrelated working-tree changes into a match commit."""
     with PROMOTE_LOCK:
-        paths = [item.rel_c_file]
+        paths = [item.rel_c_file, *_RETIRED_HANDOFFS.get(item.func, [])]
         if item.overlay is not None:
             paths.append("overlay_undefined_syms.us.txt")
             # An overlay promotion changes the module's ownership rows; the
