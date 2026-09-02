@@ -3477,7 +3477,254 @@ void func_80009220(void **arg0, s32 arg1, s32 arg2, Objects09220Object *arg3,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009220.s")
 #endif
+typedef struct {
+    f32 x;
+    f32 y;
+    f32 z;
+} Objects09414Vector;
+
+typedef struct {
+    u8 pad00[0xA];
+    s16 unkA;
+    u8 pad0C[0x34];
+    Objects09414Vector *unk40;
+    u8 pad44[0xC];
+    f32 unk50;
+    u8 pad54[0x104];
+    s16 unk158;
+} Objects09414Resource;
+
+typedef struct {
+    f32 unk0;
+    u8 pad04[0x1A];
+    s8 unk1E[4];
+} Objects09414Data;
+
+typedef struct {
+    void *unk0;
+    s8 unk4;
+    u8 pad05[3];
+    f32 unk8;
+    u8 pad0C[8];
+} Objects09414Entry;
+
+typedef struct {
+    u8 unk0;
+    u8 pad01;
+    s8 unk2;
+    u8 unk3;
+    u8 unk4;
+    u8 pad05[3];
+    void *unk8;
+} Objects09414StaticEntry;
+
+typedef struct {
+    s16 angle;
+    s16 frame;
+    u16 pad04;
+    u16 divisor;
+    f32 transformScale;
+    f32 matrixScale;
+    f32 x;
+    f32 y;
+    f32 z;
+    s32 frameCount;
+    void *spriteData;
+} Objects09414Sprite;
+
+typedef struct {
+    u32 w0;
+    u32 w1;
+} Objects09414Gfx;
+
+typedef struct {
+    u8 pad00[0x39];
+    u8 unk39;
+    u8 pad3A[6];
+    Objects09414Data *unk40;
+    u8 pad44[0xC];
+    f32 *unk50;
+    u8 pad54[0xC];
+    Objects09414Entry *unk60;
+    Objects09414Resource *unk64;
+    Objects09414Resource **unk68;
+    u8 pad6C[0x20];
+    u8 unk8C;
+    u8 pad8D[6];
+    u8 unk93;
+} Objects09414Object;
+
+extern void func_80022E80(void *transform);
+extern void func_80022FD4(void **displayList, s32 matrices, s32 vertices,
+                          void *transform, f32 *opacity,
+                          Objects09414Sprite *sprite, s32 flags, s32 alpha);
+extern void func_80047CD8(void **displayList, void *cone, s32 flags, u8 alpha);
+extern f32 func_80009F08(Objects09F08Arg *arg0);
+
+/* Workbench verdict: structure-mismatch; 411 differing words (421/378). */
+/* First mismatch: +0x0; target frame 0x198, candidate frame 0x1A0. */
+/* Structural gap: renderer control flow is complete; local sort/display layout is 43 instructions short. */
+#ifdef NON_MATCHING
+void func_80009414(void **arg0, s32 arg1, s32 arg2, void *arg3) {
+    Objects09414Object *object;
+    Objects09414Data *data;
+    Objects09414Resource *resource;
+    Objects09414Resource *root;
+    Objects09414StaticEntry *staticEntry;
+    Objects09414Entry *entry;
+    Objects09414Vector *vector;
+    Objects09414Sprite sprite;
+    Objects09414Gfx *command;
+    Objects09414Entry *entries[8];
+    void *cones[8];
+    u8 *textures[8];
+    f32 depths[8];
+    s16 sortIndex[8];
+    s16 kindOrEntry[8];
+    u16 alphas[8];
+    s32 *callbacks;
+    u8 *textureBase;
+    f32 inverseScale;
+    f32 temp;
+    s32 count;
+    s32 i;
+    s32 j;
+    s32 type;
+    s32 base;
+    s32 mode;
+    s16 swap;
+
+    object = (Objects09414Object *)arg3;
+    resource = object->unk64;
+    root = *object->unk68;
+    count = 0;
+
+    command = (Objects09414Gfx *)*arg0;
+    *arg0 = (void *)(command + 1);
+    command->w0 = 0xE7000000;
+    command->w1 = 0;
+    command = (Objects09414Gfx *)*arg0;
+    *arg0 = (void *)(command + 1);
+    command->w0 = 0xFB000000;
+    command->w1 = (u32)-0x100;
+
+    callbacks = (s32 *)((u8 *)resource + 0x134);
+    for (i = 0; i < 4; i++) {
+        if (callbacks[i] != 0) {
+            TrapDanglingJump(arg0, callbacks[i]);
+        }
+    }
+
+    data = object->unk40;
+    if (data->unk1E[object->unk93] == 0) {
+        for (i = 0; i < 4; i++) {
+            staticEntry = (Objects09414StaticEntry *)
+                ((u8 *)resource + 0x34C + (i * 0xC));
+            if ((staticEntry->unk4 != 0) && (staticEntry->unk8 != NULL)) {
+                vector = &root->unk40[staticEntry->unk2];
+                depths[count] = camGetProjZ(vector->x, vector->y, vector->z);
+                cones[count] = staticEntry->unk8;
+                base = *(s32 *)((u8 *)root + (root->unkA * 4) + 0xC);
+                textureBase = (u8 *)base;
+                textures[count] = textureBase + (staticEntry->unk3 << 6);
+                alphas[count] = staticEntry->unk4;
+                kindOrEntry[count] = staticEntry->unk0 | 0x80;
+                sortIndex[count] = count;
+                count += 1;
+            }
+        }
+
+        if ((resource->unk158 == 0) && (object->unk60 != NULL)) {
+            entry = object->unk60;
+            for (i = 0; (i < object->unk8C) && (i < 4); i++, entry++) {
+                vector = &root->unk40[entry->unk4];
+                depths[count] = camGetProjZ(vector->x, vector->y, vector->z);
+                entries[count] = entry;
+                kindOrEntry[count] = i;
+                sortIndex[count] = count;
+                count += 1;
+            }
+        }
+
+        for (i = count - 1; i > 0; i--) {
+            for (j = 0; j < i; j++) {
+                if (depths[sortIndex[j + 1]] < depths[sortIndex[j]]) {
+                    swap = sortIndex[j];
+                    sortIndex[j] = sortIndex[j + 1];
+                    sortIndex[j + 1] = swap;
+                }
+            }
+        }
+
+        func_80022E80((void *)((u8 *)resource + 0x43C));
+        temp = func_80009F08((Objects09F08Arg *)object);
+        inverseScale = temp / data->unk0;
+        for (i = 0; i < count; i++) {
+            j = sortIndex[i];
+            type = kindOrEntry[j];
+            if ((type & 0x80) != 0) {
+                type &= 0x7F;
+                if (type == 0) {
+                    mode = 0x206;
+                } else if (type == 1) {
+                    mode = 6;
+                } else if (type == 2) {
+                    mode = 0x16;
+                    func_80009220(arg0, arg1, arg2,
+                                  (Objects09220Object *)object,
+                                  (s32)textures[j],
+                                  (Objects09220Source *)cones[j],
+                                  alphas[j]);
+                } else {
+                    mode = 0x3333;
+                }
+                command = (Objects09414Gfx *)*arg0;
+                *arg0 = (void *)(command + 1);
+                command->w0 = 0x01810040;
+                command->w1 = (u32)textures[j] + 0x80000000;
+                func_80047CD8(arg0, cones[j], mode,
+                              (u8)alphas[j]);
+                command = (Objects09414Gfx *)*arg0;
+                *arg0 = (void *)(command + 1);
+                command->w0 = 0xBC00000A;
+                command->w1 = 0;
+            } else {
+                entry = entries[j];
+                sprite.angle = *(s16 *)((u8 *)resource + 0x10C +
+                                         (type * 2));
+                sprite.frame = *(s16 *)((u8 *)resource + 0x114 +
+                                         (type * 2));
+                sprite.divisor = 3;
+                sprite.transformScale = entry->unk8 * inverseScale;
+                sprite.matrixScale = resource->unk50;
+                vector = &root->unk40[entry->unk4];
+                sprite.x = vector->x;
+                sprite.y = *(f32 *)((u8 *)resource + 0x11C +
+                                    (type * 4)) + vector->y;
+                sprite.z = vector->z;
+                sprite.frameCount = 0x3333;
+                sprite.spriteData = entry->unk0;
+                func_80022FD4(arg0, arg1, arg2,
+                              (void *)((u8 *)resource + 0x43C), object->unk50,
+                              &sprite, 0xE, object->unk39);
+            }
+        }
+    }
+
+    callbacks = (s32 *)((u8 *)resource + 0xD0);
+    if (callbacks[0] != 0) {
+        TrapDanglingJump(arg0, arg1, callbacks[0]);
+    }
+    if (callbacks[1] != 0) {
+        TrapDanglingJump(arg0, arg1, arg2, callbacks[1]);
+    }
+    if (callbacks[2] != 0) {
+        TrapDanglingJump(arg0, arg1, callbacks[2]);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009414.s")
+#endif
 typedef struct {
     u8 pad00[0xD4];
     f32 unkD4;
