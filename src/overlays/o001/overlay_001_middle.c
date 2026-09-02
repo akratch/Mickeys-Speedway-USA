@@ -38,6 +38,7 @@ Overlay1AngleObject *overlay1FindNextAngle(f32 angle) {
     f32 difference;
     f32 bestDifference;
     s32 remaining;
+    s32 loopValue;
     objects = overlay1GetAngleObjectsReloc(&count);
     bestDifference = gOverlay1NextAngleLimit;
     best = (Overlay1AngleObject *)(count - count);
@@ -53,8 +54,9 @@ Overlay1AngleObject *overlay1FindNextAngle(f32 angle) {
                 bestDifference = difference;
                 best = object;
             }
+            loopValue = remaining--;
             cursor = (Overlay1AngleObject **)((u8 *)cursor - 4);
-        } while (remaining--);
+        } while (loopValue);
     }
     return best;
 }
@@ -93,6 +95,7 @@ Overlay1PreviousAngleObject *overlay1FindPreviousAngle(f32 angle) {
     f32 difference;
     f32 bestDifference;
     s32 remaining;
+    s32 loopValue;
 
     objects = overlay1GetAngleObjectsReloc(&count);
     bestDifference = gOverlay1PreviousAngleLimit;
@@ -110,8 +113,9 @@ Overlay1PreviousAngleObject *overlay1FindPreviousAngle(f32 angle) {
                 bestDifference = difference;
                 best = object;
             }
+            loopValue = remaining--;
             cursor = (Overlay1PreviousAngleObject **)((u8 *)cursor - 4);
-        } while (remaining--);
+        } while (loopValue);
     }
     return best;
 }
@@ -240,21 +244,21 @@ void overlay1AdvanceGauge(s32 amount) {
 
 /* PLATEAU-HANDOFF:overlay1FindNextAngle:start
  * symbol: overlay1FindNextAngle
- * score: 4/50 words
+ * score: 2/50 words
  * frame: 0x68
  * relocations: 4
- * first-mismatch: +0x38
- * summary: Five raw positions (four masked) remain; ten directed variants missed both swaps. Next: source-authentic scheduler evidence and resolved local-data identity.
+ * first-mismatch: +0x3C
+ * summary: Explicit post-decrement carrier closes the loop-tail order pair; two branch-delay order words remain and the candidate is not shape-exact.
  * PLATEAU-HANDOFF:overlay1FindNextAngle:end
  */
 
 /* PLATEAU-HANDOFF:overlay1FindPreviousAngle:start
  * symbol: overlay1FindPreviousAngle
- * score: 4/50 words
+ * score: 2/50 words
  * frame: 0x68
  * relocations: 4
- * first-mismatch: +0x38
- * summary: Five raw positions (four masked) remain; ten directed variants missed both swaps. Next: source-authentic scheduler evidence and resolved local-data identity.
+ * first-mismatch: +0x3C
+ * summary: Explicit post-decrement carrier closes the loop-tail order pair; two branch-delay order words remain and the candidate is not shape-exact.
  * PLATEAU-HANDOFF:overlay1FindPreviousAngle:end
  */
 
