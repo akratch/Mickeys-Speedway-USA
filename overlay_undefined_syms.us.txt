@@ -1353,6 +1353,14 @@ gOverlay54Objects = 0x00000000;
 gOverlay54Offsets = 0x00000198;
 overlay54QueryModeReloc = 0xf0000000;
 
+/* overlay 54: overlay54TailA.c.o */
+D_14C = 0x0000014c;
+D_248 = 0x00000248;
+D_2B4 = 0x000002b4;
+D_658 = 0x00000658;
+D_66C = 0x0000066c;
+D_66E = 0x0000066e;
+
 /* overlay 54: overlay54ReleaseResources.c.o */
 gOverlay54Current = 0x00000668;
 gOverlay54ResourceA = 0x00000000;
