@@ -307,7 +307,7 @@ segments:
       - [0x4EA60, asm, main/gzip_asm]
       - [0x4F4E0, asm]
       - [0x4FC30, asm, libultra/exceptasm]
-      - [0x505E0, asm]
+      - [0x505E0, c, libultra/createthread]
       - [0x506D0, asm]
       - [0x50820, asm, main/refractOutputAssembler]
       # Resident animation/collision sequence. Individual-function skeleton
