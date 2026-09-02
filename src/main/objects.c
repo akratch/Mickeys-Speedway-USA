@@ -655,11 +655,20 @@ extern s32 *D_800C9458;
 extern s16 *D_800C94E0;
 extern s32 D_800C94C0[];
 extern s32 D_800C94C8[];
+extern s32 D_800C94D0[];
+extern s32 D_800C94D4[];
+extern s32 D_800C9478;
+extern s32 D_80078F78;
+extern s32 D_800C94E8;
+extern u8 D_800D3128[];
 extern void **D_800C94EC;
 extern s32 D_800C94F0;
 extern void **D_800C9500;
 extern s32 D_800C9504;
 extern s32 piRomLoadSection(u32 assetIndex, u32 address, s32 assetOffset, s32 size);
+extern s32 *piRomLoad(s32 assetIndex);
+extern s32 runlinkDownloadCode(s32 overlayIndex);
+extern void func_8000590C(s16 *romlist, s16 arg1, s32 offset, s16 arg3);
 extern f32 sqrtf(f32 value);
 extern void func_80006FA0(void);
 extern void func_80007118();
@@ -1038,7 +1047,141 @@ void func_80004B04(s32 arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004B04.s")
 #endif
+/* Workbench verdict: structure-mismatch; 234 differing words (target 238, candidate 242). */
+/* First mismatch: +0x0; target frame 0x48 versus candidate frame 0x68. */
+/* Structural gap: ROM table carrier setup adds four instructions and 0x20 bytes of stack. */
+#ifdef NON_MATCHING
+void func_80004C28(s32 arg0, s32 arg1) {
+    void *heap;
+    s32 *romTable;
+    s32 *table;
+    s16 **currentSlot;
+    s32 *sizeSlot;
+    s32 *idSlot;
+    void **heapSlot;
+    s16 *current;
+    s32 start;
+    s32 size;
+    s32 tableCount;
+    s32 offset;
+    s32 indexOffset;
+    s32 shouldCall;
+    s16 type;
+    u8 recordSize;
+
+    heap = func_8002B280(0x3000, 0x8B);
+    indexOffset = arg1 * 4;
+    heapSlot = (void **)((u8 *)D_800C94D8 + indexOffset);
+    currentSlot = (s16 **)((u8 *)D_800C94C0 + indexOffset);
+    sizeSlot = (s32 *)((u8 *)D_800C94C8 + indexOffset);
+    idSlot = (s32 *)((u8 *)D_800C94D0 + indexOffset);
+    *heapSlot = heap;
+    *currentSlot = (s16 *)((u8 *)heap + 0x10);
+    *sizeSlot = 0;
+    *idSlot = arg0;
+
+    romTable = piRomLoad(0x1C);
+    table = romTable;
+    tableCount = 0;
+    if (*table != -1) {
+        do {
+            tableCount += 1;
+            table += 1;
+        } while (table[1] != -1);
+    }
+    tableCount -= 1;
+    if (arg0 >= tableCount) {
+        arg0 = 0;
+    }
+    table = &romTable[arg0];
+    start = table[0];
+    size = table[1] - start;
+    mmFree(romTable);
+    if (size == 0) {
+        return;
+    }
+
+    piRomLoadSection(0x1D, (u32)heap, start, size);
+    *currentSlot = (s16 *)((u8 *)*heapSlot + 0x10);
+    *sizeSlot = *(s32 *)heap;
+    D_800C94E8 = arg1;
+    if (idSlot == &D_800C94D4[0]) {
+        D_80078F78 = 1;
+        runlinkDownloadCode(8);
+        runlinkDownloadCode(1);
+        TrapDanglingJump();
+        D_80078F78 = 0;
+    }
+
+    offset = 0;
+    if (*sizeSlot > 0) {
+        do {
+            current = *currentSlot;
+            type = *current;
+            shouldCall = 1;
+            if (D_8007BF0C != 0) {
+                switch (type) {
+                case 0x1B:
+                    *current = 0xEA;
+                    break;
+                case 0x86:
+                    *current = 0xEB;
+                    break;
+                case 0x02:
+                case 0x16:
+                case 0x17:
+                case 0x76:
+                case 0x78:
+                case 0x7D:
+                case 0x104:
+                case 0x105:
+                case 0x107:
+                case 0x12C:
+                    if ((s32)D_8007BEF8 >= 3) {
+                        shouldCall = 0;
+                    }
+                    break;
+                case 0x106:
+                case 0x131:
+                case 0x132:
+                case 0x147:
+                    shouldCall = 0;
+                    break;
+                }
+            }
+            current = *currentSlot;
+            type = *current;
+            if ((type == 0x3F) && ((D_8007BF1C & 0x20) != 0)) {
+                shouldCall = 0;
+            }
+            if ((type == 1) || (type == 0x155) || (type == 0x156)) {
+                if (D_800D3128[0x12] >= 0x15) {
+                    *current = 0x156;
+                } else if ((*(u16 *)(D_800D3128 + 0x14) & 0x40) != 0) {
+                    *current = 0x155;
+                } else {
+                    *current = 1;
+                }
+                current = *currentSlot;
+            }
+            if (shouldCall != 0) {
+                func_8000590C(current, 1, offset, 0x155);
+                current = *currentSlot;
+            }
+            recordSize = *((u8 *)current + 2);
+            *currentSlot = (s16 *)((u8 *)current + recordSize);
+            offset += recordSize;
+        } while (offset < *sizeSlot);
+    }
+    *currentSlot = (s16 *)((u8 *)*heapSlot + 0x10);
+    if (D_800C9478 == 0) {
+        func_80006FA0();
+    }
+    D_800C9478 = 1;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004C28.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004FE0.s")
 /* Workbench verdict: structure-mismatch; 81 raw differing words (85/87 instructions). */
 /* First mismatch: +0x18; frame is exact, but the target retains two setup instructions. */
