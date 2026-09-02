@@ -2994,6 +2994,7 @@ The final column records owned object words and relocation coverage.
 | `func_80008118` | `0x8118` / `0x10` | **tier D**: object-TU order and byte-global initializer structure; placeholder retained | Exact 4 object words and no relocations under IDO 5.3 `-O2 -mips2 -32` |
 | `func_80005750` | `0x5750` / `0x18` | **tier B**: resident callers agree on the count-output/list-return accessor role; placeholder retained | Exact 6 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 | `func_80005768` | `0x5768` / `0x30` | **tier B**: `src/main/anim.c` supplies the typed `AnimPathObject *` append caller; placeholder retained | Exact 12 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_80005798` | `0x5798` / `0x70` | **tier D**: object-list removal loop and object-TU order; placeholder retained | Exact 28 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 | `func_8000572C` | `0x572C` / `0x24` | **tier B**: resident callers agree on the start/end/list accessor role; placeholder retained | Exact 9 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 | `GetRomlistInfo` | `0xBC88` / `0x28` | existing **tier A** JFG identification; indexed romlist-table accessor | Exact 10 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 | `func_800069C0` | `0x69C0` / `0x28` | **tier D**: nested object/data field offsets and output-record initialization; placeholder retained | Exact 10 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |

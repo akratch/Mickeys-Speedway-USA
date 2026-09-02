@@ -143,7 +143,18 @@ void func_80005768(AnimPathObject *object) {
     D_800C9500[D_800C9504] = object;
     D_800C9504 += 1;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005798.s")
+void func_80005798(void *object) {
+    s32 i;
+
+    if (D_800C9504 > 0) {
+        for (i = 0; i < D_800C9504; i++) {
+            if (D_800C9500[i] == object) {
+                D_800C9500[i] = D_800C9500[D_800C9504 - 1];
+            }
+        }
+        D_800C9504 -= 1;
+    }
+}
 void **func_80005808(s32 *count) {
     *count = D_800C9504;
     return D_800C9500;
