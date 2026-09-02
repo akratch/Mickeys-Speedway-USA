@@ -852,54 +852,56 @@ void func_80006448(void *arg0) {
 /* Workbench verdict: allocation-mismatch; 1 differing word (85/86). */
 /* First mismatch: +0x7C; size, frame, CFG, and call/relocation shape are exact. */
 /* Structural gap: none; s5/v1 comparison color is reserved for the permuter. */
-#ifdef NON_MATCHING
-s32 func_80006868(Objects06868Object *arg0, void *arg1) {
-    s32 temp_v0_2;
-    s32 temp_v1;
-    s32 temp_v1_2;
-    s32 var_s1;
-    s32 var_s3;
-    s8 var_v1;
-    Objects06868Entry *temp_a2;
-    Objects06868Data *temp_v0;
-    Objects06868Entry *var_s0;
-
-    temp_v0 = arg0->unk40;
-    arg0->unk6C = arg1;
-    var_v1 = temp_v0->unk25;
-    var_s3 = 0;
-    temp_a2 = temp_v0->unk44;
-    if (var_v1 <= 0) {
-        goto done;
+s32 func_80006868(Objects06868Object *arg0, void *arg1)
+{
+  s32 temp_v0_2;
+  s32 temp_v1;
+  s32 temp_v1_2;
+  s32 var_s1;
+  s32 var_s3;
+  s8 var_v1;
+  Objects06868Entry *temp_a2;
+  Objects06868Data *temp_v0;
+  Objects06868Entry *var_s0;
+  temp_v0 = arg0->unk40;
+  arg0->unk6C = arg1;
+  var_v1 = temp_v0->unk25;
+  var_s3 = 0;
+  temp_a2 = temp_v0->unk44;
+  if (var_v1 <= 0)
+  {
+    goto done;
+  }
+  var_s0 = temp_a2;
+  var_s1 = 0;
+  do
+  {
+    temp_v0_2 = var_s0->unk0;
+    temp_v1 = temp_v0_2 & 0xFFFF0000;
+    if (temp_v1 == 0xFFFF0000)
+    {
+      partInitTrigger(((u8 *) arg0->unk6C) + var_s1, (temp_v0_2 >> 8) & 0xFF, temp_v0_2 & 0xFF);
     }
-    var_s0 = temp_a2;
-    var_s1 = 0;
-    do {
-        temp_v0_2 = var_s0->unk0;
-        temp_v1 = temp_v0_2 & 0xFFFF0000;
-        if (temp_v1 == 0xFFFF0000) {
-            partInitTrigger((u8 *)arg0->unk6C + var_s1, (temp_v0_2 >> 8) & 0xFF,
-                            temp_v0_2 & 0xFF);
-        } else if (temp_v1 == 0xFFFE0000) {
-            partInitTriggerSPPos((u8 *)arg0->unk6C + var_s1, (temp_v0_2 >> 8) & 0xFF,
-                                 temp_v0_2 & 0xFF, var_s0->unk4 & 0xFF);
-        } else {
-            temp_v1_2 = var_s0->unk4;
-            partInitTriggerPos((u8 *)arg0->unk6C + var_s1, (temp_v0_2 >> 24) & 0xFF,
-                               (temp_v0_2 >> 16) & 0xFF, temp_v0_2 & 0xFFFF,
-                               (temp_v1_2 >> 16) & 0xFFFF, temp_v1_2 & 0xFFFF);
-        }
-        var_s3 += 1;
-        var_s1 += 0x24;
-        var_v1 = arg0->unk40->unk25;
-        var_s0 += 1;
-    } while (var_s3 < var_v1);
-done:
-    return ((var_v1 * 0x24) + 3) & ~3;
+    else
+      if ((temp_v0_2 & 0xFFFF0000) == 0xFFFE0000)
+    {
+      partInitTriggerSPPos(((u8 *) arg0->unk6C) + var_s1, (temp_v0_2 >> 8) & 0xFF, temp_v0_2 & 0xFF, var_s0->unk4 & 0xFF);
+    }
+    else
+    {
+      temp_v1_2 = var_s0->unk4;
+      partInitTriggerPos(((u8 *) arg0->unk6C) + var_s1, (temp_v0_2 >> 24) & 0xFF, (temp_v0_2 >> 16) & 0xFF, temp_v0_2 & 0xFFFF, (temp_v1_2 >> 16) & 0xFFFF, temp_v1_2 & 0xFFFF);
+    }
+    var_s3 += 1;
+    var_s1 += 0x24;
+    var_v1 = arg0->unk40->unk25;
+    var_s0 += 1;
+  }
+  while (var_s3 < var_v1);
+  done:
+  return ((var_v1 * 0x24) + 3) & (~3);
+
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006868.s")
-#endif
 s32 func_800069C0(Objects69C0In *arg0, Objects69C0Out *arg1) {
     arg0->unk78 = arg1;
     arg1->unk4 = arg0->unk40->unkE0->unk2C;
@@ -1718,15 +1720,6 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * PLATEAU-HANDOFF:func_8000A6E8:end
  */
 
-/* PLATEAU-HANDOFF:func_80006868:start
- * symbol: func_80006868
- * score: 1 differing words
- * frame: 0x38
- * relocations: 3
- * first-mismatch: +0x7C
- * summary: JFG-07494-derived switch/trigger initialization is 86/86 instructions with exact CFG and call surface; only bne s5/v1 versus v1/s5 allocation color remains.
- * PLATEAU-HANDOFF:func_80006868:end
- */
 
 /* PLATEAU-HANDOFF:func_80005548:start
  * symbol: func_80005548
