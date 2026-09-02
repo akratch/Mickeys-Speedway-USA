@@ -538,3 +538,13 @@ void func_8000238C(void) {
  * summary: Best DKR-derived initializer; 6 instructions short and 8-byte smaller frame after allocator, loop, and field-shape probes.
  * PLATEAU-HANDOFF:func_80001740:end
  */
+
+/* PLATEAU-HANDOFF:func_80001BF4:start
+ * symbol: func_80001BF4
+ * score: 372/336 instructions
+ * frame: -0x60
+ * relocations: 187
+ * first-mismatch: +0x0
+ * summary: Best DKR-derived frame handler; manager/task-base allocation and cleanup/large-mode loops remain structurally displaced.
+ * PLATEAU-HANDOFF:func_80001BF4:end
+ */
