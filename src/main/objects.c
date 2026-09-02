@@ -1,5 +1,9 @@
 #include "PR/ultratypes.h"
 
+/* This TU uses -Wab,-r4300_mul; target func_8000A62C requires its three
+ * R4300 multiply-hazard delay nops, and the flag is validated against the
+ * existing exact object-system functions by the full-ROM verify. */
+
 typedef struct AnimPathObject AnimPathObject;
 typedef struct Gfx Gfx;
 typedef struct Mtx Mtx;
@@ -67,6 +71,7 @@ extern s32 D_800C94AC;
 extern s32 D_800C94B4;
 extern s32 D_800C94B8;
 extern s32 D_800C94BC;
+extern s16 D_800C9508[];
 extern s16 D_800C94B0;
 extern s16 D_800C94B2;
 extern s8 D_80078F88;
@@ -278,7 +283,22 @@ f32 func_80009F08(Objects09F08Arg *arg0) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009F74.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A244.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A39C.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A62C.s")
+/* PROVENANCE: body adapted from Jet Force Gemini's public src/objects.c
+ * setObjectViewNormal; Mickey's target globals and byte output are authoritative. */
+void func_8000A62C(f32 x, f32 y, f32 z) {
+    f32 vecLength = sqrtf((x * x) + (y * y) + (z * z));
+    f32 normalizedLength;
+
+    if (vecLength != 0.0f) {
+        normalizedLength = -8192.0f / vecLength;
+        x *= normalizedLength;
+        y *= normalizedLength;
+        z *= normalizedLength;
+    }
+    D_800C9508[0] = x;
+    D_800C9508[1] = y;
+    D_800C9508[2] = z;
+}
 void func_8000A6DC(s32 arg0) {
     D_800C94B0 = arg0;
 }

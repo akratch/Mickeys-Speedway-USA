@@ -647,6 +647,10 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/xldtob.c.o: $(SRC_DIR)/libultra/xldtob.c $(H_FI
 # file's header comment, never guessed at.
 # ---------------------------------------------------------------------------
 
+# Mickey's object-system TU uses the R4300 multiply-hazard scheduler: target
+# func_8000A62C reproduces three delay nops only with this measured flag.
+$(BUILD_DIR)/$(SRC_DIR)/main/objects.c.o: CFLAGS += -Wab,-r4300_mul
+
 # libultra's libc string TU needs branch-likely instructions (bnel/beql), which
 # IDO only emits at -mips2; -mips1 produces a 0x90-byte .text instead of the
 # ROM's 0xA0. Consistent with how the DKR decomp builds its libultra tree.
