@@ -641,6 +641,7 @@ extern s8 D_80079004;
 extern u8 D_8007BDA0;
 extern u8 D_8007BEF8;
 extern u8 D_8007BF0C;
+extern s8 D_80079250;
 extern f32 D_80080F84;
 extern void **D_800C94F4;
 extern s32 D_800C94F8;
@@ -686,7 +687,8 @@ extern s32 camGetNo(void);
 extern Objects09F74Camera *camGetPtr(void);
 extern f32 camGetProjZ(f32 x, f32 y, f32 z);
 extern void func_80008B94(void *object);
-extern void func_80009AA8(void *object);
+typedef struct Objects09AA8Object Objects09AA8Object;
+extern void func_80009AA8(Objects09AA8Object *object);
 extern s32 func_800290A0(void);
 extern void func_800367E8(Objects07C68Texture *texture, void *flags, s32 *frame,
                            s32 updateRate);
@@ -701,9 +703,15 @@ typedef struct FxGfx FxGfx;
 extern void camPushModelMtx(Gfx **dlist, Mtx **mtx, CameraScaledTransform *transform,
                             f32 scale, f32 scaleY);
 extern void camPopModelMtx(Gfx **dlist);
+extern void camRestoreModelMtx(Gfx **dlist);
+extern void func_80034920(Gfx **dlist);
 extern void func_800349A4(FxGfx **dlist, s32 texture, s32 flags, s32 arg3);
 extern s32 func_800291FC(void);
 extern s32 func_80034448(s32 resourceId, void *output);
+extern void func_8005AF14(void *arg0, void *arg1, void *arg2);
+extern void func_80019AB8(void *arg0, void *arg1, s32 arg2, s32 arg3);
+extern void func_80007C68(Objects07C68Object *arg0, Objects07C68Source *arg1,
+                          Objects07C68Object *arg2, s32 arg3);
 extern void **func_8000572C(s32 *start, s32 *end);
 extern f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5);
 extern void partInitTrigger(ParticleTrigger *trigger, s32 type, s32 value);
@@ -2270,7 +2278,212 @@ void func_80009220(void **arg0, s32 arg1, s32 arg2, Objects09220Object *arg3,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009220.s")
 #endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009414.s")
+typedef struct {
+    u8 pad00[0xD4];
+    f32 unkD4;
+} Objects09AA8Data;
+
+typedef struct {
+    u8 pad00[0x11];
+    u8 unk11;
+    u8 pad12[0x3C];
+    s8 unk4E;
+    u8 pad4F[0x21];
+    s32 unk70;
+    u8 *unk78;
+} Objects09AA8Material;
+
+typedef struct {
+    void *unk0;
+    s32 unk4;
+    s16 unk8;
+    s16 unkA;
+    s32 unkC;
+    u8 pad10[0x40];
+    s32 unk50;
+} Objects09AA8Entry;
+
+typedef struct {
+    void *unk0;
+    u8 pad04[0x64];
+    s32 unk68;
+    s32 unk6C;
+} Objects09AA8Root;
+
+struct Objects09AA8Object {
+    u8 pad00[0x39];
+    u8 unk39;
+    s8 unk3A;
+    u8 pad3B[5];
+    Objects09AA8Data *unk40;
+    u8 pad44[0xC];
+    s32 unk50;
+    u8 pad54[0x14];
+    Objects09AA8Entry **unk68;
+    u8 pad6C[0x27];
+    s8 unk93;
+};
+
+typedef struct {
+    u32 w0;
+    u32 w1;
+} Objects09AA8Command;
+
+/* Workbench verdict: structure-mismatch; 268 differing words (target 244, candidate 269). */
+/* First mismatch: +0x0; target frame 0x60 versus candidate frame 0x68. */
+/* Structural gap: display-list pointer carrier adds 25 instructions and 0x08 bytes of stack. */
+#ifdef NON_MATCHING
+void func_80009AA8(Objects09AA8Object *object) {
+    Objects09AA8Entry *sp54;
+    s32 sp48;
+    s32 sp38;
+    s32 sp34;
+    s32 temp_t5;
+    s32 temp_v0;
+    s32 var_a0;
+    s32 var_a1;
+    s32 var_t2;
+    s32 var_t3;
+    s32 var_v0;
+    Objects09AA8Entry **temp_v1;
+    Objects09AA8Entry *temp_a1;
+    Objects09AA8Root *temp_s0;
+    Objects09AA8Material *temp_s1;
+    Objects09AA8Entry *var_s2;
+    Objects09AA8Command *command;
+    register s32 *displayList;
+
+    var_v0 = 0;
+    var_t2 = 0;
+    if (object->unk40->unkD4 != 0.0f) {
+        var_v0 = 1;
+    }
+    temp_v1 = object->unk68;
+    temp_a1 = temp_v1[(s32)object->unk3A];
+    sp54 = temp_a1;
+    if (var_v0 != 0) {
+        var_s2 = temp_v1[0];
+        sp38 = object->unk93;
+    } else {
+        var_s2 = temp_a1;
+        sp38 = 0;
+    }
+    temp_s1 = var_s2->unk0;
+    temp_s0 = (Objects09AA8Root *)sp54->unk0;
+    if (var_s2->unk8 != 0) {
+        if (temp_s1->unk4E != 0) {
+            sp34 = 0;
+            func_8005AF14(var_s2, temp_s1, object);
+            var_t2 = sp34;
+        } else if (temp_s1->unk11 != 0) {
+            var_s2->unkA = (s16)(var_s2->unkA ^ 1);
+        }
+        sp34 = var_t2;
+        func_80019AB8(object, var_s2, object->unk50,
+                      ((Objects09AA8Entry *)((u8 *)var_s2 +
+                                             (var_s2->unkA * 4)))->unkC);
+        if (temp_s1->unk11 != 0) {
+            sp34 = var_t2;
+            func_80007C68((Objects07C68Object *)object,
+                          (Objects07C68Source *)temp_s1,
+                          (Objects07C68Object *)var_s2, var_s2->unk8);
+        }
+        var_s2->unk8 = 0;
+    }
+    if (temp_s1->unk11 != 0) {
+        var_t2 = 1;
+    }
+    if ((sp38 != 0) && (sp54->unk8 != 0)) {
+        sp34 = var_t2;
+        func_80019AB8(object, sp54, object->unk50,
+                      ((Objects09AA8Entry *)((u8 *)var_s2 +
+                                             (var_s2->unkA * 4)))->unkC);
+        sp54->unk8 = 0;
+    }
+    if (object->unk39 == 0xFF) {
+        var_t3 = temp_s0->unk68;
+    } else {
+        var_t3 = temp_s0->unk6C;
+    }
+
+    displayList = (s32 *)&D_800C94B4;
+    command = (Objects09AA8Command *)*displayList;
+    *displayList = (s32)(command + 1);
+    command->w0 = 0xFA000000;
+    command->w1 = (u32)((s32)object->unk39 | ~0xFF);
+    if (temp_s1->unk4E == 0) {
+        sp34 = var_t2;
+        sp48 = var_t3;
+        camPushModelMtx((Gfx **)displayList, (Mtx **)&D_800C94B8,
+                        (CameraScaledTransform *)object, 1.0f, 0.0f);
+    }
+    command = (Objects09AA8Command *)*displayList;
+    *displayList = (s32)(command + 1);
+    command->w0 = (u32)((((u32)(((Objects09AA8Entry *)((u8 *)var_s2 +
+                                                        (var_s2->unkA * 4)))->unkC +
+                                0x80000000) & 0xFFFFFF)) | 0xBF000000);
+    command->w1 = (u32)(sp54->unk4 + 0x80000000);
+    if (var_t2 != 0) {
+        if (sp38 != 0) {
+            command = (Objects09AA8Command *)*displayList;
+            *displayList = (s32)(command + 1);
+            command->w0 = 0x02000050;
+            command->w1 = (u32)((u8 *)D_80078F20 + 8);
+        } else {
+            command = (Objects09AA8Command *)*displayList;
+            *displayList = (s32)(command + 1);
+            command->w0 = 0x02000050;
+            command->w1 = (u32)(((Objects09AA8Entry *)((u8 *)var_s2 +
+                                                       (var_s2->unkA * 4)))->unk50 +
+                                0x80000000);
+        }
+    }
+    temp_v0 = temp_s1->unk70;
+    if (temp_v0 != 0) {
+        var_a0 = 0;
+        if ((temp_v0 + 1) > 0) {
+            var_a1 = 0;
+            do {
+                if (var_t2 != 0) {
+                    command = (Objects09AA8Command *)*displayList;
+                    *displayList = (s32)(command + 1);
+                    command->w0 = 0x02000050;
+                    command->w1 = (u32)((u8 *)D_80078F20 + 8);
+                }
+                command = (Objects09AA8Command *)*displayList;
+                var_a0 += 1;
+                *displayList = (s32)(command + 1);
+                command->w0 = 0x06000000;
+                temp_t5 = *(s32 *)((u8 *)temp_s1->unk78 + var_a1);
+                var_a1 += 4;
+                command->w1 = (u32)(temp_t5 + 0x80000000);
+            } while (temp_s1->unk70 >= var_a0);
+        }
+    } else {
+        command = (Objects09AA8Command *)*displayList;
+        *displayList = (s32)(command + 1);
+        command->w0 = 0x06000000;
+        command->w1 = (u32)(var_t3 + 0x80000000);
+    }
+    command = (Objects09AA8Command *)*displayList;
+    *displayList = (s32)(command + 1);
+    command->w0 = 0xBF000000;
+    command->w1 = 0;
+    camRestoreModelMtx((Gfx **)displayList);
+    func_80034920((Gfx **)displayList);
+    command = (Objects09AA8Command *)*displayList;
+    *displayList = (s32)(command + 1);
+    command->w0 = 0xFA000000;
+    command->w1 = (u32)-1;
+    command = (Objects09AA8Command *)*displayList;
+    *displayList = (s32)(command + 1);
+    command->w0 = 0xFB000000;
+    command->w1 = (u32)-0x100;
+    D_80079250 = 0;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009AA8.s")
+#endif
 void func_80009E78(Gfx **displayList, Mtx **matrix, TrackVertex **vertices,
                    TrackSkyObject *object) {
     if ((object->flags & 0xC00) == 0) {
