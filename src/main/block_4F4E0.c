@@ -76,6 +76,7 @@ void func_8004E99C(void) {
 }
 
 extern s32 D_8007D648;
+extern void func_8004EC60(void);
 
 void func_8004E9EC(s32 arg0) {
     D_8007D648 = arg0;
@@ -124,7 +125,45 @@ void func_8004E9F8(void) {
     func_8004BFB0(6);
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/block_4F4E0/func_8004EC60.s")
+#ifdef NON_MATCHING
+void func_8004EDA8(s32 arg0) {
+    s16 var_a0;
+
+    if (D_8007D640 != 0) {
+        if (D_8007D648 == 0) {
+            D_800D6AC4 = 0;
+        }
+        var_a0 = D_800D6AC4;
+        if (var_a0 != 0) {
+            if (D_800D6ABA <= 0) {
+                D_800D6AB6 -= arg0 * D_800D6AB8;
+                if (D_800D6AB6 < 0) {
+                    D_800D6AB6 = 0;
+                    D_800D6AC4 = 0;
+                    func_8004BFD8(6);
+                    func_8004BF64(6);
+                    var_a0 = D_800D6AC4;
+                }
+            } else {
+                D_800D6AB6 += arg0 * D_800D6AB8;
+                if (D_800D6AB6 >= 0x101) {
+                    D_800D6AB6 = 0x100;
+                }
+                D_800D6ABA -= arg0;
+                if (D_800D6ABA <= 0) {
+                    func_8004EC60();
+                    var_a0 = D_800D6AC4;
+                }
+            }
+        }
+        if (var_a0 != 0) {
+            func_8004E9F8();
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/block_4F4E0/func_8004EDA8.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/block_4F4E0/func_8004EED0.s")
 s32 func_8004F020(void) {
     return 0;
