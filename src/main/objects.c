@@ -45,7 +45,8 @@ typedef struct {
 typedef struct {
     u8 pad00[0x1E];
     s8 unk1E[4];
-    u8 pad22[0xAE];
+    s8 unk22;
+    u8 pad23[0xAD];
     f32 unkD0[4];
 } Objects58C0Data;
 
@@ -63,6 +64,13 @@ typedef struct {
     u8 pad00[0x30];
     f32 unk30;
 } Objects09F08Arg;
+
+typedef struct {
+    u8 pad00[0x40];
+    Objects58C0Data *unk40;
+    u8 pad44[0x24];
+    s32 *unk68;
+} Objects06448Arg;
 
 extern void *D_800C94D8[];
 extern s32 D_800C9470;
@@ -102,6 +110,9 @@ extern f32 sqrtf(f32 value);
 extern void func_80006FA0(void);
 extern void func_80007118();
 extern void mmFree(void *data);
+extern void modFreeModel(void *resource);
+extern void func_800347A0(void *texture);
+extern void func_800359D4(void *sprite);
 extern void func_80009F74(TrackSkyObject *object);
 extern s32 D_80079008[];
 extern s32 D_800790D0[];
@@ -237,7 +248,43 @@ s8 func_800058C0(Objects58C0Arg *arg0, s32 arg1) {
     return arg0->unk40->unk1E[arg1];
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000590C.s")
+/* Workbench verdict: structure-mismatch; 27 differing words (59/59). */
+/* First mismatch: +0x1C; size, frame, and relocations are exact. */
+/* Structural gap: CFE s-register carriers and resource-load carrier differ. */
+#ifdef NON_MATCHING
+void func_80006448(void *arg0) {
+    s32 offset = 0;
+    s32 index = 0;
+    void *resource;
+    s8 type;
+
+    if (((Objects06448Arg *)arg0)->unk40->unk22 > 0) {
+        do {
+            type = func_800058C0((Objects58C0Arg *)arg0, index);
+            if (type == 0) {
+                resource = *(void **)((u8 *)((Objects06448Arg *)arg0)->unk68 + offset);
+                if (resource != 0) {
+                    modFreeModel(resource);
+                }
+            } else if (type == 2) {
+                resource = *(void **)((u8 *)((Objects06448Arg *)arg0)->unk68 + offset);
+                if (resource != 0) {
+                    func_800347A0(resource);
+                }
+            } else {
+                resource = *(void **)((u8 *)((Objects06448Arg *)arg0)->unk68 + offset);
+                if (resource != 0) {
+                    func_800359D4(resource);
+                }
+            }
+            index += 1;
+            offset += 4;
+        } while (index < ((Objects06448Arg *)arg0)->unk40->unk22);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006448.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006534.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006868.s")
 s32 func_800069C0(Objects69C0In *arg0, Objects69C0Out *arg1) {
@@ -464,4 +511,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
  * first-mismatch: +0x8
  * summary: One target direct global-pointer load and allocator shape remain unresolved after bounded source attempts.
  * PLATEAU-HANDOFF:func_80006EE4:end
+ */
+
+/* PLATEAU-HANDOFF:func_80006448:start
+ * symbol: func_80006448
+ * score: 32/59 words
+ * frame: 0x28
+ * relocations: 4
+ * first-mismatch: +0x1C
+ * summary: Shape and relocation surface are exact; CFE carrier allocation differs for the object, offset, and resource values.
+ * PLATEAU-HANDOFF:func_80006448:end
  */
