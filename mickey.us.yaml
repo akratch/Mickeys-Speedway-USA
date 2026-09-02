@@ -1911,7 +1911,7 @@ segments:
       - [0x189A670, c, overlay52Initialize]
       - [0x189AB60, c, overlay52PatchIndices]
       - [0x189ABB0, c, overlay52CopyOffsetEntries]
-      - [0x189ACAC, asm, overlay_052_tail_b]
+      - [0x189ACAC, c, overlay52TailB]
       - [0x189C708, c, overlay52Cleanup]
       - [0x189C798, asm, overlay_052_padding]
       - [0x189C7A0, bin, overlay_052_data_rodata]
@@ -1954,7 +1954,7 @@ segments:
       - [0x189F06C, c, overlay54PatchIndices]
       - [0x189F0BC, c, overlay54CopyOffsetRecords]
       - [0x189F1A4, c, overlay54GetOffsets]
-      - [0x189F24C, asm, overlay_054_tail_a]
+      - [0x189F24C, c, overlay54TailA]
       - [0x18A0B34, c, overlay54ReleaseResources]
       - [0x18A0B84, asm, overlay_054_padding]
       - [0x18A0B90, bin, overlay_054_data_rodata]
@@ -2104,7 +2104,7 @@ segments:
     symbol_name_format: $SEG_$VRAM_$ROM
     subsegments:
       - [0x18B9DD8, c, overlay60Initialize]
-      - [0x18BA10C, asm, overlay_060_prefix]
+      - [0x18BA10C, c, overlay60Prefix]
       - [0x18BCCA0, c, overlay60ReleaseResources]
       - [0x18BCD2C, c, func_overlay_060_F0002F54_18BCD2C]
       - [0x18BD0A4, c, overlay60DrawBorder]

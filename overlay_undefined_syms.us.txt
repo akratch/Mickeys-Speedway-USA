@@ -1301,6 +1301,16 @@ gOverlay52Objects = 0x00000000;
 /* overlay 52: overlay52CopyOffsetEntries.c.o */
 D_27C = 0x0000027c;
 
+/* overlay 52: overlay52TailB.c.o */
+D_150 = 0x00000150;
+D_1F0 = 0x000001f0;
+D_240 = 0x00000240;
+D_24C = 0x0000024c;
+D_314 = 0x00000314;
+D_4B0 = 0x000004b0;
+D_4D0 = 0x000004d0;
+D_4D2 = 0x000004d2;
+
 /* overlay 52: overlay52Cleanup.c.o */
 gOverlay52Resource = 0x000004cc;
 gOverlay52Slots = 0x000004a8;
@@ -1364,6 +1374,14 @@ gOverlay54Objects = 0x00000000;
 gOverlay54Offsets = 0x00000198;
 overlay54QueryModeReloc = 0xf0000000;
 
+/* overlay 54: overlay54TailA.c.o */
+D_14C = 0x0000014c;
+D_248 = 0x00000248;
+D_2B4 = 0x000002b4;
+D_658 = 0x00000658;
+D_66C = 0x0000066c;
+D_66E = 0x0000066e;
+
 /* overlay 54: overlay54ReleaseResources.c.o */
 gOverlay54Current = 0x00000668;
 gOverlay54ResourceA = 0x00000000;
@@ -1423,7 +1441,6 @@ overlay56ReleaseResourceReloc = 0xf0000000;
 /* overlay 57: func_overlay_057_F0000000_18A3BF8.c.o */
 D_130 = 0x00000130;
 D_134 = 0x00000134;
-D_150 = 0x00000150;
 D_17C = 0x0000017c;
 D_18C = 0x0000018c;
 D_1A8 = 0x000001a8;
@@ -1688,6 +1705,17 @@ overlay59FrameDrawReloc = 0xf0000000;
 overlay59FrameSetup0Reloc = 0xf0000000;
 overlay59FrameSetup1Reloc = 0xf0000000;
 
+/* overlay 60: overlay60Prefix.c.o */
+D_10C = 0x0000010c;
+D_158 = 0x00000158;
+D_164 = 0x00000164;
+D_178 = 0x00000178;
+D_1A4 = 0x000001a4;
+D_1B4 = 0x000001b4;
+D_1C8 = 0x000001c8;
+D_1D0 = 0x000001d0;
+D_800000B0 = 0x800000b0;
+
 /* overlay 60: overlay60ReleaseResources.c.o */
 gOverlay60OptionalResource = 0x00000174;
 gOverlay60PrimaryResource = 0x00000000;
@@ -1695,9 +1723,6 @@ gOverlay60Resources = 0x000000c8;
 gOverlay60ResourcesEnd = 0x000000d8;
 overlay60FinalizeReloc = 0xf0000000;
 overlay60ReleaseReloc = 0xf0000000;
-
-/* overlay 60: func_overlay_060_F0002F54_18BCD2C.c.o */
-D_800000B0 = 0x800000b0;
 
 /* overlay 60: overlay60DrawBorder.c.o */
 gOverlay60DisplayList = 0x00000000;
@@ -2412,8 +2437,6 @@ overlay101DrawMarkerReloc = 0xf0000000;
 overlay101DrawSlotReloc = 0xf0000000;
 
 /* overlay 101: func_overlay_101_F0003A58_18DF278.c.o */
-D_1C8 = 0x000001c8;
-D_1D0 = 0x000001d0;
 D_C64 = 0x00000c64;
 
 /* overlay 101: func_overlay_101_F000512C_18E094C.c.o */
