@@ -1147,6 +1147,12 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x3F38, 0x3FD8, "overlay1RelativeAngles"),
         (0x5BA4, 0x5BC0, "overlay1InitTimedState"),
         (0x5BC0, 0x5BF4, "overlay1ConsumeTimer"),
+        (
+            0x5BF4,
+            0x5CD4,
+            "overlay1StartTimerCallbacks",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
         (0x5ECC, 0x5ED4, "overlay1ReturnZero"),
         (
             0x6270,
