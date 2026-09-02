@@ -1,7 +1,15 @@
 #include "PR/ultratypes.h"
 
+extern u8 D_8007BF3C[];
+extern s32 D_8007BF44;
+
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu_3B1A0/func_8003A5A0.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu_3B1A0/func_8003A680.s")
+void func_8003A680(s32 arg0) {
+    if (D_8007BF44 < 8) {
+        D_8007BF3C[D_8007BF44] = arg0;
+        D_8007BF44 += 1;
+    }
+}
 s32 func_8003A6B0(u8 arg0) {
     s32 temp_t6 = arg0;
     s32 temp_v1 = temp_t6;
