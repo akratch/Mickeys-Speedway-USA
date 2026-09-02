@@ -311,6 +311,64 @@ typedef struct {
     u8 *unk74;
 } Objects06B04Output;
 
+typedef struct {
+    u8 unk0;
+    u8 pad01[7];
+    s16 unk8;
+    u8 pad0A[0x0E];
+    s16 unk18;
+} Objects07E40Group;
+
+typedef struct {
+    u8 pad00[4];
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+    s16 unkA;
+    s16 unkC;
+    s16 unkE;
+} Objects07E40Record;
+
+typedef struct {
+    u8 pad00[0x10];
+    u8 unk10;
+    u8 pad11[5];
+    s16 unk16;
+    u8 *unk18;
+    u8 pad1C[4];
+    u8 *unk20;
+    u8 *unk24;
+} Objects07E40Inner;
+
+typedef struct {
+    Objects07E40Inner *unk0;
+} Objects07E40Outer;
+
+typedef struct {
+    u8 pad00[0x22];
+    s8 unk22;
+    u8 pad23[0x7F];
+    u8 unkA2;
+    u8 unkA3;
+    s8 unkA4;
+    s8 unkA5;
+} Objects07E40Data;
+
+typedef struct {
+    u8 pad00[0x40];
+    Objects07E40Data *unk40;
+    u8 pad44[0x24];
+    Objects07E40Outer **unk68;
+} Objects07E40Object;
+
+typedef struct {
+    s16 pad00;
+    s16 pad02;
+    s16 pad04;
+    s16 unk6;
+    s16 unk8;
+} Objects07E40Texture;
+
 extern void *D_800C94D8[];
 extern s32 D_800C9470;
 extern s32 D_800C9474;
@@ -1198,7 +1256,98 @@ void func_80007C68(Objects07C68Object *arg0, Objects07C68Source *arg1,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80007C68.s")
 #endif
+/* Workbench verdict: structure-mismatch; 131 differing words (target 122, candidate 131). */
+/* First mismatch: +0x0; candidate frame 0x10 versus target frame 0x18. */
+/* Structural gap: texture/group/record carrier spelling does not preserve target register/frame shape. */
+#ifdef NON_MATCHING
+void func_80007E40(Objects07E40Object *arg0, s32 arg1) {
+    Objects07E40Object *object;
+    Objects07E40Data *temp_v0;
+    s16 temp_lo;
+    s16 temp_lo_2;
+    s16 temp_s3;
+    s16 temp_s3_2;
+    s16 temp_s3_3;
+    s16 temp_s3_4;
+    s16 var_s2;
+    s32 var_a3_2;
+    s32 var_t2;
+    s32 var_t4;
+    s8 var_t3;
+    u8 temp_t0;
+    u8 var_a3;
+    u8 var_t1;
+    Objects07E40Texture *temp_t4;
+    Objects07E40Record *temp_t5;
+    Objects07E40Inner *temp_v0_2;
+    u8 *var_s1;
+
+    object = arg0;
+    temp_v0 = arg0->unk40;
+    var_a3 = temp_v0->unkA3;
+    temp_lo = temp_v0->unkA4 * arg1;
+    temp_t0 = temp_v0->unkA2;
+    temp_lo_2 = temp_v0->unkA5 * arg1;
+    if ((var_a3 == 0xFF) || ((s32) var_a3 < temp_v0->unk22)) {
+        var_t3 = var_a3 + 1;
+        if (var_a3 == 0xFF) {
+            var_a3 = 0;
+            var_t3 = temp_v0->unk22;
+        }
+        var_t1 = var_a3;
+        if ((s32) var_a3 < var_t3) {
+            var_t2 = var_a3 * 4;
+            do {
+                var_t1 += 1;
+                temp_v0_2 = (*(object->unk68 + (var_t2 >> 2)))->unk0;
+                if ((s32) temp_t0 < (s32) temp_v0_2->unk10) {
+                    temp_t4 = *(Objects07E40Texture **)(temp_v0_2->unk18 + (temp_t0 * 8));
+                    var_a3_2 = 0;
+                    var_t4 = 0;
+                    if (temp_v0_2->unk16 > 0) {
+                        var_s1 = temp_v0_2->unk24;
+                        do {
+                            var_a3_2 += 1;
+                            if (temp_t0 == *(u8 *)var_s1) {
+                                var_s2 = *(s16 *)(var_s1 + 8);
+                                if (var_s2 < *(s16 *)(var_s1 + 0x18)) {
+                                    do {
+                                        temp_t5 = (Objects07E40Record *)
+                                            (temp_v0_2->unk20 + (var_s2 * 0x10));
+                                        if (temp_lo != 0) {
+                                            temp_s3 = temp_t5->unk4;
+                                            temp_t5->unk4 = (temp_s3 + temp_lo) &
+                                                ((s16) (temp_t4->unk6 << 5) - 1);
+                                            temp_s3_2 = temp_t5->unk4;
+                                            temp_t5->unk8 = temp_s3_2 + (temp_t5->unk8 - temp_s3);
+                                            temp_t5->unkC = temp_s3_2 + (temp_t5->unkC - temp_s3);
+                                        }
+                                        if (temp_lo_2 != 0) {
+                                            temp_s3_3 = temp_t5->unk6;
+                                            temp_t5->unk6 = (temp_s3_3 + temp_lo_2) &
+                                                ((s16) (temp_t4->unk8 << 5) - 1);
+                                            temp_s3_4 = temp_t5->unk6;
+                                            temp_t5->unkA = temp_s3_4 + (temp_t5->unkA - temp_s3_3);
+                                            temp_t5->unkE = temp_s3_4 + (temp_t5->unkE - temp_s3_3);
+                                        }
+                                        var_s2 += 1;
+                                        var_s1 = temp_v0_2->unk24 + var_t4;
+                                    } while (var_s2 < *(s16 *)(var_s1 + 0x18));
+                                }
+                            }
+                            var_t4 += 0x10;
+                            var_s1 += 0x10;
+                        } while (var_a3_2 < temp_v0_2->unk16);
+                    }
+                }
+                var_t2 += 4;
+            } while (var_t1 != var_t3);
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80007E40.s")
+#endif
 /* Workbench verdict: structure-mismatch; 28 differing words (60/60). */
 /* First mismatch: +0x24; size and frame are exact, with a near-identical CFG. */
 /* Structural gap: outer object/offset carriers and inner model-index allocation differ. */
