@@ -67,6 +67,18 @@ bytes and disassembly never belong here.
 
 ### Allocation and source shape
 
+- Instruction order inside a basic block is decided by `as1`'s list
+  scheduler, not by `ugen`, and among ready instructions it prefers the
+  lower source line stamped on each emitted record. A loop-invariant that
+  `ugen` hoists (a table or base address, a loop constant) carries the loop
+  header's line, so an initializer written on the line above the loop is
+  scheduled before the hoisted address even when the target executes it
+  after. Placing the initializer on the header line (`count = 7; do {`)
+  moves it behind the hoist. Evidence: `overlay40UpdateEntries` (44/46 to
+  exact) and the three scheduled words of `overlay57HandleModeInput`, both
+  found with the workbench's ugen emit-provenance trace on 2026-09-02. It
+  does not apply to register renames, to delay-slot fills chosen by latency
+  (`func_8001A154`'s `li -1`), or to relocation-surface differences.
 - The lexical start of a conditional block can be an allocation boundary for
   a loop-invariant expression. If IDO hoists an invariant value into a saved
   register, adding save/restore and move instructions, initialize the existing
