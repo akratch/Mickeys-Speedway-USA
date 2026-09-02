@@ -725,3 +725,13 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
  * summary: Shape-exact 66-word candidate; only register allocation differs and it is permuter-ready.
  * PLATEAU-HANDOFF:func_80037AEC:end
  */
+
+/* PLATEAU-HANDOFF:func_80037BF4:start
+ * symbol: func_80037BF4
+ * score: 17 differing words
+ * frame: 0x18
+ * relocations: 6
+ * first-mismatch: +0x40
+ * summary: Target has one extra instruction; interpolation multiply and call scheduling remain structurally different.
+ * PLATEAU-HANDOFF:func_80037BF4:end
+ */
