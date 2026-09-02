@@ -315,6 +315,10 @@ BINARY_ALLOWLIST: "set[str]" = set()
 # needs one.  If this set is not empty, the count belongs in the report.
 CONTENT_EXEMPTIONS: "dict[tuple[str, str], str]" = {
     (
+        "config/lane-reopen-authorizations.us.json",
+        "word-table",
+    ): "reopen pins are pairs of full Git commit ids per symbol (source and handoff commits), never ROM words; 80+ pins exceed the digest exemption cap",
+    (
         "Makefile",
         "word-table",
     ): "guarded normalization recipes contain asserted offsets and SHA-256 object hashes, not ROM words",
