@@ -417,7 +417,80 @@ void *func_80004454(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004454.s")
 #endif
+/* Workbench verdict: structure-mismatch; 96 differing words (99/104). */
+/* First mismatch: +0x0; target frame is 0x50, candidate frame is 0x58. */
+/* Structural gap: stack homes and four-at-a-time tail control flow remain unresolved. */
+#ifdef NON_MATCHING
+s32 func_80004590(s32 arg0) {
+    s32 sp4C;
+    s32 sp48;
+    s32 sp40;
+    s32 temp_s0;
+    s32 temp_t7;
+    s32 temp_v0;
+    s32 var_a2;
+    s32 var_a3;
+    s32 var_t1;
+    s32 var_a1;
+    Objects04454Object *object;
+    s32 var_a1_2;
+
+    temp_s0 = arg0 & 0xFF;
+    sp40 = 0;
+    temp_v0 = (s32)func_8000572C(&sp4C, &sp48);
+    var_a2 = sp40;
+    var_a3 = sp4C;
+    if (sp4C < sp48) {
+        temp_t7 = (sp48 - sp4C) & 3;
+        if (temp_t7 != 0) {
+            var_a1 = temp_v0 + (sp4C * 4);
+            do {
+                object = *(Objects04454Object **)var_a1;
+                var_a3 += 1;
+                if ((object->unk91 == 0) && (object != D_80078F20) &&
+                    (temp_s0 == object->unk44)) {
+                    var_a2 += 1;
+                }
+                var_a1 += 4;
+            } while ((temp_t7 + sp4C) != var_a3);
+            if (var_a3 != sp48) {
+                goto block_9;
+            }
+        } else {
+block_9:
+            var_t1 = var_a3 * 4;
+            var_a1_2 = temp_v0 + var_t1;
+            do {
+                object = *(Objects04454Object **)(var_a1_2 + 0);
+                var_t1 += 0x10;
+                if ((object->unk91 == 0) && (object != D_80078F20) &&
+                    (temp_s0 == object->unk44)) {
+                    var_a2 += 1;
+                }
+                object = *(Objects04454Object **)(var_a1_2 + 4);
+                if ((object->unk91 == 0) && (object != D_80078F20) &&
+                    (temp_s0 == object->unk44)) {
+                    var_a2 += 1;
+                }
+                object = *(Objects04454Object **)(var_a1_2 + 8);
+                if ((object->unk91 == 0) && (object != D_80078F20) &&
+                    (temp_s0 == object->unk44)) {
+                    var_a2 += 1;
+                }
+                object = *(Objects04454Object **)(var_a1_2 + 12);
+                if ((object->unk91 == 0) && (object != D_80078F20) &&
+                    (temp_s0 == object->unk44)) {
+                    var_a2 += 1;
+                }
+                var_a1_2 += 4;
+            } while (var_t1 != (sp48 * 4));
+        }
+    }
+    return var_a2;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004590.s")
+#endif
 /* Workbench verdict: schedule/register-permutation; 6 differing words (74/80). */
 /* First mismatch: +0x50; size, frame, CFG, and FP register shape are exact. */
 /* Structural gap: none; residual register/scheduling differences are permuter-ready. */
@@ -1533,4 +1606,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
  * first-mismatch: +0x0C
  * summary: Active-list carriers and loop register allocation remain structural after restoring the two-argument destroy call.
  * PLATEAU-HANDOFF:func_80006FA0:end
+ */
+
+/* PLATEAU-HANDOFF:func_80004590:start
+ * symbol: func_80004590
+ * score: 96 differing words
+ * frame: 0x58
+ * relocations: 5
+ * first-mismatch: +0x0
+ * summary: Stack homes and four-at-a-time tail control flow remain unresolved after the m2c translation.
+ * PLATEAU-HANDOFF:func_80004590:end
  */
