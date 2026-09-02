@@ -682,6 +682,11 @@ $(foreach f,$(LIBULTRA_O1_TUS),$(eval \
 $(foreach f,$(LIBULTRA_O1_TUS),$(eval \
 	$(BUILD_DIR)/$(SRC_DIR)/libultra/$(f).c.o: MIPSISET := -mips2 -32))
 
+# osCreateThread is an SDK C TU whose target schedule is MIPS-II-specific:
+# -mips1 leaves the cleanup-thread address materialization and epilogue in the
+# wrong order, while -mips2 reproduces all 58 target instruction words.
+$(BUILD_DIR)/$(SRC_DIR)/libultra/createthread.c.o: MIPSISET := -mips2 -32
+
 # This old SDK source uses `__GNUC__` as a version-path selector even when IDO
 # compiles it. JFG's matching object defines it for this TU only.
 $(BUILD_DIR)/$(SRC_DIR)/libultra/destroythread.c.o: CFLAGS += -D__GNUC__
@@ -909,6 +914,11 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/osFlashClearStatus.c.o: POSTPROCESS = \
 # discard IDO's trailing section-alignment words before the next subsegment.
 $(BUILD_DIR)/$(SRC_DIR)/main/flash_5885C.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3B4
+# The compiled five-function body plus IDO's natural trailing alignment ends
+# at 0x3B0; the final four target bytes are linker padding before the next
+# subsegment.
+$(BUILD_DIR)/$(SRC_DIR)/main/flash_5885C.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3B0
 $(BUILD_DIR)/$(SRC_DIR)/libultra/aisetnextbuf.c.o: CFLAGS += -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/sptask.c.o: CFLAGS += -DRAREDIFFS
 $(BUILD_DIR)/$(SRC_DIR)/libultra/vi.c.o: CFLAGS += -DRAREDIFFS

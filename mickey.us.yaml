@@ -305,10 +305,10 @@ segments:
       # functions; the byte-identity claim covers 0x4EA60-0x4F4D4 and the
       # remaining 0xC bytes to the next split are padding.
       - [0x4EA60, asm, main/gzip_asm]
-      - [0x4F4E0, asm]
+      - [0x4F4E0, c, main/block_4F4E0]
       - [0x4FC30, asm, libultra/exceptasm]
-      - [0x505E0, asm]
-      - [0x506D0, asm]
+      - [0x505E0, c, libultra/createthread]
+      - [0x506D0, c, main/block_506D0]
       - [0x50820, asm, main/refractOutputAssembler]
       # Resident animation/collision sequence. Individual-function skeleton
       # evidence ties the leading functions to JFG anim.c, the later functions
@@ -319,7 +319,8 @@ segments:
       - [0x58570, c, main/flash_58570]
       - [0x58810, c, libultra/osFlashClearStatus]
       - [0x5885C, c, main/flash_5885C]
-      - [0x58C10, asm]
+      - [0x58C0C, asm]
+      - [0x58C10, c, main/flash_58C10]
       - [0x58E50, c, main/vehicle_sounds]
       - [0x59B90, c, main/osBootRamTest]
       - [0x59BF0, asm]
@@ -398,7 +399,7 @@ segments:
       - [0x6EA30, c, libultra/pfschecker]
       # 0x40 bytes between the end of io/pfschecker.c and the corridor.
       # Matches nothing in any of the five reference builds. Unidentified.
-      - [0x6F3E0, asm]
+      - [0x6F3E0, c, libultra/block_6F3E0]
       # -----------------------------------------------------------------
       # libultra corridor: ROM 0x6F420 - 0x76D10 (VRAM 0x8006E820 - 0x80076110).
       #

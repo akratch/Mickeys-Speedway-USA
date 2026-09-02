@@ -52,7 +52,13 @@ the segment, carrying 194 function names.
 | `0x4BC40`–`0x4E1E0` | `0x8004B040` | `main/font` | A/D | JFG's `font.c`: six exact function anchors plus source-order and adjacent-function evidence establish the provisional C split; §3.4 |
 | `0x4E378` | `0x8004D778` | `byteswap32` | A | Compiler/link-exact C adapted from DKR `src/gzip.c` |
 | `0x4EA60`–`0x4F4D4` | `0x8004DE60` | `main/gzip_asm` | A | **Measured file boundary**: DKR's whole 0xA74 inflate core, in one piece |
-| `0x4FC30`–`0x505E0` | `0x8004F030` | `libultra/exceptasm` | A | **Measured file boundary**, 9 routines including `__osException` and `__osDispatchThread`; §4.2. `0x4FC20` before it is the **rejected** `io/leointerrupt` match, and `0x505E0`–`0x506D0` after it is a separate unknown |
+| `0x4F59C` | `0x8004E99C` | `func_8004E99C` | D | Matched C: exact 80 B and 11/11 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x4F5EC` | `0x8004E9EC` | `func_8004E9EC` | D | Matched C: exact 12 B and 2/2 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x4F5F8` | `0x8004E9F8` | `func_8004E9F8` | D | Matched C adapted from DKR: exact 616 B and 24/24 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x4F9A8` | `0x8004EDA8` | `func_8004EDA8` | D | Matched C: exact 296 B and 25/25 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x4FC20` | `0x8004F020` | `func_8004F020` | D | Matched C: exact 8 executable B and zero relocations at `-O2 -mips2 -32`, linked ROM exact; following 8 B are target padding |
+| `0x4FC30`–`0x505E0` | `0x8004F030` | `libultra/exceptasm` | A | **Measured file boundary**, 9 routines including `__osException` and `__osDispatchThread`; §4.2. `0x4FC20` before it is the **rejected** `io/leointerrupt` match, and `0x506D0`–`0x50820` after it is a separate unknown |
+| `0x505E0` | `0x8004F9E0` | `osCreateThread` | B; JFG `libultra/src/os/createthread.c` body, with Mickey's measured MIPS-II TU flag | Matched C: exact 232 executable B and 6/6 relocation identities at `-O2 -mips2 -32`; following 8 B are target padding |
 | `0x50820`–`0x50C00` | `0x8004FC20` | `main/refractOutputAssembler` | A | Measured file boundary (JFG) |
 | `0x58E50`–`0x59B90` | `0x80058250` | `main/vehicle_sounds` | B + D | Four-function positional racer-sound block. Calls the resident XYZ sound API to maintain engine handles and derives pitch/volume from racer speed and listener distance. No exact JFG skeleton hit; the name is descriptive and the existing splat boundary is not claimed as measured |
 | `0x59B90`–`0x59BF0` | `0x80058F90` | `main/osBootRamTest` | A | Measured file boundary and byte-exact C (JFG): both IPL3 6105 RAM checks compile to the complete 96-byte target object. |
@@ -2287,7 +2293,16 @@ placeholders are never imported.
 | `0x800579C0` | `0xF4` | `osFlashInit` | B; JFG `libultra/src/flash/flashinit.c` name/body and flash-init call role; JFG built object is 0xF0 B with different TU scheduling. Matched C: exact 244 B and 16/16 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
 | `0x80057AB4` | `0x90` | `osFlashReadStatus` | A; JFG `libultra/src/flash/flashreadstatus.c` body. Matched C: exact 144 B and 6/6 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
 | `0x80057B44` | `0xCC` | `osFlashReadId` | B; JFG `libultra/src/flash/flashreadid.c` name/body and flash-ID call role; JFG built object is 0xD4 B with different TU scheduling. Matched C: exact 204 B and 21/21 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x80057C5C` | `0xCC` | `osFlashAllErase` | B; JFG `libultra/src/flash/flashallerase.c` name/body and chip-erase role; JFG built object is 0xD0 B with different TU scheduling. Matched C: exact 204 B and 7/7 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x80057D28` | `0xD4` | `osFlashSectorErase` | B; JFG `libultra/src/flash/flashsectorerase.c` name/body and sector-erase role; JFG built object is 0xD8 B with different TU scheduling. Matched C: exact 212 B and 7/7 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x80057E84` | `0xD0` | `osFlashWriteArray` | B; JFG `libultra/src/flash/flashsectorerase.c` name/body and page-program role; JFG built object is 0xD4 B with different TU scheduling. Matched C: exact 208 B and 6/6 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
 | `0x80057DFC` | `0x88` | `osFlashWriteBuffer` | B; JFG `libultra/src/flash/flashsectorerase.c` name/body and DMA-write role; JFG built object is 0x84 B. Matched C: exact 136 B and 6/6 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x80057F54` | `0xB4` + `0x8` pad | `osFlashReadArray` | B; JFG `libultra/src/flash/flashreadarray.c` name/body and read-DMA role; JFG built object is 0xB4 B. Matched C: exact 180 executable B and 11/11 relocation identities at `-O2 -mips2 -32`, linked ROM exact; following eight bytes are target padding |
+| `0x80058010` | `0x6C` | `func_80058010` | D; initializes/checks the Transfer Pak connector and records presence. Matched C: exact 108 B and 12/12 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x800581BC` | `0x1C` | `func_800581BC` | D; sets the Transfer Pak save-action flag. Matched C: exact 28 B and 2/2 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x800581D8` | `0x34` | `func_800581D8` | D; records one Transfer Pak save-action state triple and sets its flag. Matched C: exact 52 B and 8/8 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x8005820C` | `0x34` | `func_8005820C` | D; records the other Transfer Pak save-action state triple and sets its flag. Matched C: exact 52 B and 8/8 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x80058240` | `0x10` | `func_80058240` | D; returns the resident Transfer Pak pointer slot. Matched C: exact 16 B and 2/2 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
 
 No function in this block directly references a distinctive string. Its
 references into `0x80083FA8`–`0x80084218` are floating-point constants, so no

@@ -2710,6 +2710,14 @@ osFlashReadId = 0x80057B44; // type:func size:0xCC tier-B matched C, JFG libultr
 osFlashClearStatus = 0x80057C10; // type:func size:0x4C tier-A exact C, JFG libultra/src/flash/flashreadid.c body
 // jfg:libultra/src/flash/flashsectorerase.c.o
 osFlashWriteBuffer = 0x80057DFC; // type:func size:0x88 tier-B matched C, JFG libultra/src/flash/flashsectorerase.c body, JFG object is 0x84 bytes
+// jfg:libultra/src/flash/flashallerase.c.o
+osFlashAllErase = 0x80057C5C; // type:func size:0xCC tier-B matched C, JFG libultra/src/flash/flashallerase.c body, JFG object is 0xD0 bytes with different TU scheduling
+// jfg:libultra/src/flash/flashsectorerase.c.o
+osFlashSectorErase = 0x80057D28; // type:func size:0xD4 tier-B matched C, JFG libultra/src/flash/flashsectorerase.c body, JFG object is 0xD8 bytes with different TU scheduling
+// jfg:libultra/src/flash/flashsectorerase.c.o
+osFlashWriteArray = 0x80057E84; // type:func size:0xD0 tier-B matched C, JFG libultra/src/flash/flashsectorerase.c body, JFG object is 0xD4 bytes with different TU scheduling
+// jfg:libultra/src/flash/flashreadarray.c.o
+osFlashReadArray = 0x80057F54; // type:func size:0xB4 tier-B matched C, JFG libultra/src/flash/flashreadarray.c body, JFG object is 0xB4 bytes, followed by 8 bytes of target padding
 func_80058EF4 = 0x80058EF4; // type:func size:0x90   ROM 0x59af4  tier-D logarithm-series helper, matched C
 func_8005A948 = 0x8005A948; // type:func size:0x178 ROM 0x5b548 tier-B JFG models animation-loader role/callgraph NON_MATCHING
 // donor-jfg-src/camera.c.o
