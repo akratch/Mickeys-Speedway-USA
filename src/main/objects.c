@@ -64,6 +64,7 @@ typedef struct {
     f32 unk30;
 } Objects09F08Arg;
 
+extern void *D_800C94D8[];
 extern s32 D_800C9470;
 extern s32 D_800C9474;
 extern s32 D_800C94A8;
@@ -74,6 +75,7 @@ extern s32 D_800C94BC;
 extern s16 D_800C9508[];
 extern s16 D_800C94B0;
 extern s16 D_800C94B2;
+extern s32 D_80078F84;
 extern s8 D_80078F88;
 extern s8 D_80079004;
 extern u8 D_8007BF0C;
@@ -83,6 +85,7 @@ extern s32 D_800C94F8;
 extern void **D_800C9494;
 extern s32 D_800C9498;
 extern s32 D_800C949C;
+extern s32 D_800C94FC;
 extern u8 *D_800C9460;
 extern s32 D_800C9468;
 extern s32 *D_800C9458;
@@ -95,6 +98,9 @@ extern void **D_800C9500;
 extern s32 D_800C9504;
 extern s32 piRomLoadSection(u32 assetIndex, u32 address, s32 assetOffset, s32 size);
 extern f32 sqrtf(f32 value);
+extern void func_80006FA0(void);
+extern void func_80007118(void *object, s32 arg1);
+extern void mmFree(void *data);
 extern void func_80009F74(TrackSkyObject *object);
 extern s32 D_80079008[];
 extern s32 D_800790D0[];
@@ -114,7 +120,31 @@ void func_80004340(void) {
     D_800C94B0 = 0;
     D_800C94B2 = 0;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000439C.s")
+void func_8000439C(void) {
+    s32 count;
+    s32 i;
+    s32 offset;
+
+    D_800C94FC = 0;
+    func_80006FA0();
+    count = D_800C9498;
+    i = 0;
+    offset = 0;
+    if (count > 0) {
+        do {
+            func_80007118(*(void **)((u8 *)D_800C9494 + offset), 1);
+            i += 1;
+            offset += 4;
+        } while (i != count);
+    }
+    D_800C94F0 = 0;
+    D_800C9498 = 0;
+    D_800C949C = 0;
+    func_80004340();
+    mmFree(D_800C94D8[0]);
+    mmFree(D_800C94D8[1]);
+    D_80078F84 = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004454.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004590.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000471C.s")
