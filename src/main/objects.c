@@ -185,6 +185,45 @@ typedef struct {
     u8 unk91;
 } Objects04454Object;
 
+typedef struct {
+    u8 pad00[0x1E];
+    s8 unk1E;
+} Objects06B04Source;
+
+typedef struct {
+    u16 unk0;
+    s8 unk2;
+    u8 unk3;
+    u16 unk4;
+    u16 unk6;
+    f32 unk8;
+} Objects06B04Entry;
+
+typedef struct {
+    u8 pad00[0x2F];
+    u8 unk2F;
+    u8 pad30[8];
+    u8 *unk38;
+} Objects06B04Asset;
+
+typedef struct {
+    u8 pad00[8];
+    f32 unk8;
+    u8 pad0C[0x34];
+    Objects06B04Source *unk40;
+    u8 pad44[4];
+    void *unk48;
+    u8 pad4C[0x1C];
+    Objects06B04Asset ***unk68;
+} Objects06B04Object;
+
+typedef struct {
+    u8 pad00[0xA];
+    s16 unkA;
+    u8 pad0C[0x68];
+    u8 *unk74;
+} Objects06B04Output;
+
 extern void *D_800C94D8[];
 extern s32 D_800C9470;
 extern s32 D_800C9474;
@@ -555,7 +594,66 @@ s32 func_800069E8(Objects069E8Object *arg0, Objects069E8Target *arg1) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800069E8.s")
 #endif
+/* Workbench verdict: structure-mismatch; 63 differing words (78 candidate / 79 target). */
+/* First mismatch: +0x20; both outputs are frameless and the candidate is one instruction shorter. */
+/* Structural gap: asset/count carrier and late loop register shape remain unresolved. */
+#ifdef NON_MATCHING
+s32 func_80006B04(Objects06B04Object *arg0, Objects06B04Output *arg1, volatile s32 arg2) {
+    s16 temp_t0;
+    s32 var_a3;
+    s32 var_t2;
+    s32 var_v1;
+    u8 temp_a3;
+    u8 temp_t4;
+    Objects06B04Asset *temp_a2;
+    u8 *temp_t9;
+    u8 *var_a1;
+    Objects06B04Output *output;
+
+    arg0->unk48 = arg1;
+    var_v1 = 0x7C;
+    if (arg0->unk40->unk1E == 0) {
+        temp_t9 = (u8 *)arg1 + 0x7C;
+        temp_a2 = **arg0->unk68;
+        output = arg1;
+        temp_a3 = temp_a2->unk2F;
+        if ((s32)temp_a3 > 0) {
+            output->unkA = temp_a3;
+            temp_t0 = output->unkA;
+            output->unk74 = temp_t9;
+            var_t2 = 0;
+            var_v1 = (temp_t0 * 0x34) + 0x7C;
+            if (temp_t0 > 0) {
+                var_a1 = temp_t9;
+                var_a3 = 0;
+                do {
+                    *(u16 *)var_a1 = 0;
+                    *(u16 *)(var_a1 + 2) = 0;
+                    *(u16 *)(var_a1 + 4) = 0;
+                    var_t2 += 1;
+                    var_a1 += 0x34;
+                    *(u16 *)(var_a1 - 0x2E) = *(u16 *)(temp_a2->unk38 + var_a3);
+                    *(s8 *)(var_a1 - 0x2C) = *(s8 *)(temp_a2->unk38 + var_a3 + 2);
+                    *(u16 *)(var_a1 - 0x2A) = 0;
+                    *(u8 *)(var_a1 - 0x2B) = *(u8 *)(temp_a2->unk38 + var_a3 + 3);
+                    *(f32 *)(var_a1 - 0x10) = *(f32 *)(temp_a2->unk38 + var_a3 + 8) * arg0->unk8;
+                    *(f32 *)(var_a1 - 0xC) = *(f32 *)(temp_a2->unk38 + var_a3 + 8) * arg0->unk8;
+                    *(u8 *)(var_a1 - 0x6) = (u8)*(u16 *)(temp_a2->unk38 + var_a3 + 4);
+                    temp_t4 = *(u8 *)(var_a1 - 0x4) | 0x80;
+                    *(u8 *)(var_a1 - 0x4) = temp_t4;
+                    *(u16 *)(var_a1 - 0x8) = 0;
+                    *(u8 *)(var_a1 - 0x4) = temp_t4 & 0xBF;
+                    *(u8 *)(var_a1 - 0x5) = (u8)*(u16 *)(temp_a2->unk38 + var_a3 + 6);
+                    var_a3 += 0xC;
+                } while (var_t2 < output->unkA);
+            }
+        }
+    }
+    return var_v1;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006B04.s")
+#endif
 s32 func_80006C40(Objects06C40 *arg0, s32 arg1) {
     arg0->unk58 = arg1;
     return 0x13C;
@@ -945,4 +1043,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
  * first-mismatch: +0x50
  * summary: Shape exact; two late scheduling and four register-allocation words remain for the permuter.
  * PLATEAU-HANDOFF:func_80004454:end
+ */
+
+/* PLATEAU-HANDOFF:func_80006B04:start
+ * symbol: func_80006B04
+ * score: 63 differing words
+ * frame: frameless
+ * relocations: 0
+ * first-mismatch: +0x20
+ * summary: Asset/count carrier and late loop register shape remain structural; next lever is a typed source record/output layout.
+ * PLATEAU-HANDOFF:func_80006B04:end
  */
