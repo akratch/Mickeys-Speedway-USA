@@ -1886,6 +1886,33 @@ gOverlay62Resource18 = 0x00000018;
 overlay62FinalizeReloc = 0xf0000000;
 overlay62ReleaseReloc = 0xf0000000;
 
+/* overlay 63: overlay63Initialize.c.o */
+gO63Chain = 0x00000050;
+gO63Configs = 0x00000010;
+gO63CreateResource = 0x00000000;
+gO63ExternalByteReloc = 0x00000000;
+gO63ExternalWordReloc = 0x00000000;
+gO63InitResource = 0x00000000;
+gO63LocalFloat = 0x00000008;
+gO63LocalResource = 0x00000000;
+gO63LocalWord = 0x00000004;
+gO63SavedTableWord = 0x00000030;
+gO63State18C = 0x0000018c;
+gO63State190 = 0x00000190;
+gO63State194 = 0x00000194;
+gO63State198 = 0x00000198;
+gO63State19C = 0x0000019c;
+gO63TableReloc = 0x00000000;
+o63AttachReloc = 0xf0000000;
+o63CreateReloc = 0xf0000000;
+o63InitAReloc = 0xf0000000;
+o63InitBReloc = 0xf0000000;
+o63InitCReloc = 0xf0000000;
+o63RandomReloc = 0xf0000000;
+o63ResetSlotReloc = 0xf0000000;
+o63SetColorReloc = 0xf0000000;
+o63SetModeReloc = 0xf0000000;
+
 /* overlay 63: overlay63UpdateEffects.c.o */
 D_190 = 0x00000190;
 D_194 = 0x00000194;

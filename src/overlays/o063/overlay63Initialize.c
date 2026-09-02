@@ -49,65 +49,56 @@ extern s32 gO63State19C;
  * The remaining difference is the commutative loop-back comparison order; a
  * bounded permuter found only an inert-expression spelling, which is rejected.
  */
-#ifdef NON_MATCHING
-void overlay63Initialize(void) {
-    s16 *chain;
-    O63Config *config;
-    s16 index;
-    s32 slot;
-
-    o63InitAReloc(0x16);
-    o63InitBReloc();
-    o63InitCReloc(gO63InitResource);
-    gO63SavedTableWord = (s32)gO63TableReloc[6];
-    o63SetModeReloc(3);
-    o63SetColorReloc(0xFF, 0xFF, 0xFF, 0, 0xFF);
-    gO63LocalResource = o63CreateReloc(gO63CreateResource, 0xA0, 0xC0, 0x204);
-    gO63LocalWord = 0;
-    gO63LocalFloat = 0.0f;
-    o63AttachReloc(gO63LocalResource, 0);
-
-    chain = &gO63Chain;
-    config = gO63Configs;
-    if (gO63Chain != -1) {
-        index = *(s16 *)(s32)&gO63ChainReload;
-        do {
-            config->resource = gO63TableReloc[index];
-            config->value4 = chain[1];
-            config->value6 = chain[2];
-            config->randomA = o63RandomReloc(0, 0x8000);
-            config->randomB = o63RandomReloc(0x600, 0xA00);
-            config->randomC = o63RandomReloc(0x100, 0x300);
-            if (o63RandomReloc(0, 1) == 0) {
-                config->randomC = -config->randomC;
-            }
-            index = chain[3];
-            chain += 3;
-            config++;
-        } while (index != -1);
+void overlay63Initialize(void)
+{
+  s16 *chain;
+  O63Config *config;
+  s16 index;
+  s32 slot;
+  o63InitAReloc(0x16);
+  o63InitBReloc();
+  o63InitCReloc(gO63InitResource);
+  gO63SavedTableWord = (s32) gO63TableReloc[6];
+  o63SetModeReloc(3);
+  o63SetColorReloc(0xFF, 0xFF, 0xFF, 0, 0xFF);
+  gO63LocalResource = o63CreateReloc(gO63CreateResource, 0xA0, 0xC0, 0x204);
+  gO63LocalWord = 0;
+  gO63LocalFloat = 0.0f;
+  o63AttachReloc(gO63LocalResource, 0);
+  chain = &gO63Chain;
+  config = gO63Configs;
+  if (gO63Chain != (-1))
+  {
+    index = *((s16 *) ((s32) (&gO63ChainReload)));
+    do
+    {
+      config->resource = gO63TableReloc[index];
+      config->value4 = chain[1];
+      config->value6 = chain[2];
+      config->randomA = o63RandomReloc(0, 0x8000);
+      config->randomB = o63RandomReloc(0x600, 0xA00);
+      config->randomC = o63RandomReloc(0x100, 0x300);
+      if (o63RandomReloc(0, 1) == 0)
+      {
+        config->randomC = -config->randomC;
+      }
+      index = chain[3];
+      chain += 3;
+      config++;
     }
+    while ((index ^ 0) != (-1));
+  }
+  gO63State18C = 0;
+  gO63State190 = 1;
+  gO63State194 = 0;
+  gO63State198 = 0;
+  gO63State19C = 0xF0;
+  for (slot = 0; slot < 4; slot++)
+  {
+    o63ResetSlotReloc(slot);
+  }
 
-    gO63State18C = 0;
-    gO63State190 = 1;
-    gO63State194 = 0;
-    gO63State198 = 0;
-    gO63State19C = 0xF0;
-    for (slot = 0; slot < 4; slot++) {
-        o63ResetSlotReloc(slot);
-    }
-    gO63ExternalWordReloc = 0;
-    gO63ExternalByteReloc = 0;
+  gO63ExternalWordReloc = 0;
+  gO63ExternalByteReloc = 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o063/overlay63Initialize/func_overlay_063_F0000000_18C2B88.s")
-#endif
 
-/* PLATEAU-HANDOFF:overlay63Initialize:start
- * symbol: overlay63Initialize
- * score: 1 differing words
- * frame: 0x30
- * relocations: 46
- * first-mismatch: +0x154
- * summary: Typed chain-reload alias restores exact geometry and relocation layout; only the commutative loop-back operand order remains.
- * PLATEAU-HANDOFF:overlay63Initialize:end
- */
