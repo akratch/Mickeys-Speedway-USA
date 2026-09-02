@@ -1676,7 +1676,466 @@ s8 func_800058C0(Objects58C0Arg *arg0, s32 arg1) {
     }
     return arg0->unk40->unk1E[arg1];
 }
+typedef struct {
+    s16 unk0;
+    u8 pad02[2];
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+} Objects0590CPacket;
+
+typedef struct {
+    f32 unk0;
+    u8 pad04[0x10];
+    u16 unk14;
+    u8 pad16[2];
+    s16 unk18;
+    s8 unk1A;
+    u8 pad1B[1];
+    s16 unk1C;
+    u8 pad1E[4];
+    s8 unk22;
+    s8 unk23;
+    s8 unk24;
+    s8 unk25;
+    u8 pad26[2];
+    s8 unk28;
+    u8 unk29;
+    u8 pad2A[6];
+    u8 unk30;
+    u8 pad31[3];
+    s32 *unk34;
+    u8 pad38[0x29];
+    u8 unk61;
+    u8 pad62[0x10];
+    s8 unk72;
+    u8 pad73[0x34];
+    u8 unkA7;
+    u8 padA8[0xC];
+    s16 unkB4;
+    s16 unkB6;
+    s16 unkB8;
+    u8 unkBA;
+    u8 unkBB;
+    f32 unkBC;
+    f32 unkC0;
+    f32 unkC4;
+    f32 unkC8;
+    s32 unkCC;
+    u8 padD0[0x10];
+    s32 unkE0;
+} Objects0590CAsset;
+
+typedef struct {
+    u8 pad00[0x30];
+    s32 unk30;
+} Objects0590CParticleList;
+
+typedef struct Objects0AA38Object Objects0AA38Object;
+
+typedef struct {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    s16 unk6;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    u8 pad18[0x14];
+    s16 unk2C;
+    s16 unk2E;
+    u8 pad30[4];
+    f32 unk34;
+    u8 pad38[1];
+    u8 unk39;
+    u8 pad3A[2];
+    void *unk3C;
+    Objects0590CAsset *unk40;
+    u8 pad44[2];
+    s16 unk46;
+    s32 unk48;
+    s32 unk4C;
+    s32 unk50;
+    s32 unk54;
+    s32 unk58;
+    s32 unk5C;
+    s32 unk60;
+    s32 unk64;
+    s32 *unk68;
+    s32 unk6C;
+    s32 unk70;
+    s32 unk74;
+    s32 unk78;
+    s32 unk7C;
+    u8 pad80[0xD];
+    u8 unk8D;
+    u8 pad8E[3];
+    u8 unk91;
+    u8 unk92;
+    u8 unk93;
+    s32 unk94[1];
+} Objects0590CObject;
+
+extern u8 *align4(u8 *address);
+extern void lightSetupLightSources(void *object);
+extern void lightSetupFlareSources(void *object);
+extern s32 func_8001A008(void *object, void *state);
+extern void modelSetModelFlags(s32 flags);
+extern s32 func_80048760(void *object, s32 state);
+extern void func_80053550(void *source, s32 kind, s32 mode, s16 rotationX,
+                           s16 rotationY, s16 rotationZ, f32 radius, f32 height,
+                           f32 arg8, f32 arg9, s32 collisionType, u16 flags);
+extern void func_8000AA38(Objects0AA38Object *object, void *arg1);
+extern void func_80006448(void *object);
+extern s32 func_80006534(Objects06534Object *object);
+extern s32 func_80006868(Objects06868Object *object, void *data);
+extern s32 func_800069C0(Objects69C0In *object, Objects69C0Out *data);
+extern s32 func_800069E8(Objects069E8Object *object, Objects069E8Target *data);
+extern s32 func_80006B04(Objects06B04Object *object, Objects06B04Output *data,
+                          volatile s32 arg2);
+extern s32 func_80006C40(Objects06C40 *object, s32 data);
+extern s32 func_8000A830(Objects0A830Object *object, void *data);
+
+/* Workbench verdict: structure-mismatch; 691 differing words (target 719, candidate 692). */
+/* First mismatch: +0x0; target frame 0x90, candidate frame 0xA8. */
+/* Structural gap: typed staging/relocation spelling and CFE register carriers remain. */
+#ifdef NON_MATCHING
+void *func_8000590C(void *arg0, s32 arg1) {
+    Objects0590CObject *object;
+    Objects0590CObject *newObject;
+    u8 *cursor;
+    u8 *aligned;
+    u8 *base;
+    u8 *relocated;
+    s32 index;
+    s32 offset;
+    s32 count;
+    s32 loadFlags;
+    s32 loadType;
+    s16 selected;
+    s32 size;
+    s32 words;
+    s32 copied;
+    s32 tail;
+    s32 copyOffset;
+    s32 copyEnd;
+    s32 resultSize;
+    void *result;
+    s8 failed;
+
+    D_8007A210 = 1;
+    D_8007A214 = NULL;
+    D_8007A218 = NULL;
+    D_8007A21C = 1;
+
+    if (arg1 & 2) {
+        selected = ((Objects0590CPacket *)arg0)->unk0;
+    } else {
+        selected = D_800C94E0[((Objects0590CPacket *)arg0)->unk0];
+    }
+    if ((selected < 0) || (selected >= D_800C945C)) {
+        D_8007A21C = 3;
+        return NULL;
+    }
+
+    count = D_800C9454 >> 2;
+    offset = 0;
+    index = 0;
+    if (count > 0) {
+        do {
+            index += 1;
+            *(s32 *)((u8 *)D_800C9450 + offset) = 0;
+            offset += 4;
+        } while (index < (D_800C9454 >> 2));
+    }
+    object = (Objects0590CObject *)D_800C9450;
+    D_8007A214 = object;
+    object->unk6 = 2;
+    object->unk40 = (Objects0590CAsset *)func_8000486C(selected);
+    if (object->unk40 == NULL) {
+        D_8007A21C = 2;
+        return NULL;
+    }
+    D_8007A218 = (u8 *)object->unk40 + 4;
+    object->unk6 = (s16)(object->unk6 | (object->unk40->unk14 & 0x124C));
+    object->unkC = (f32)((Objects0590CPacket *)arg0)->unk4;
+    object->unk10 = (f32)((Objects0590CPacket *)arg0)->unk6;
+    object->unk14 = (f32)((Objects0590CPacket *)arg0)->unk8;
+    object->unk2E = func_8000FAE0(object->unkC, object->unk10, object->unk14);
+    object->unk2C = selected;
+    object->unk46 = ((Objects0590CPacket *)arg0)->unk0;
+    object->unk3C = arg0;
+    object->unk8 = object->unk40->unk0;
+    object->unk39 = 0xFF;
+    object->unk34 = (f32)object->unk40->unk18 * object->unk8;
+    object->unk91 = 0;
+    object->unk93 = 0;
+    object->unk8D = object->unk40->unkA7;
+    loadFlags = func_8000A6E8(object->unk40->unk1C);
+    loadType = loadFlags & 3;
+    object->unk40->unk1A += 1;
+    object->unk68 = (s32 *)((u8 *)object + 0x94);
+    failed = 0;
+
+    for (index = 0; index < object->unk40->unk22; index++) {
+        s8 type = func_800058C0((Objects58C0Arg *)object, index);
+        offset = index * 4;
+        if (type == 2) {
+            object->unk68[index] = (s32)func_80034448(object->unk40->unk34[index], NULL);
+            if (object->unk68[index] == 0) {
+                failed = 1;
+            }
+        } else if (type == 0) {
+            if (object->unk40->unk30 != 0) {
+                modelSetModelFlags(0);
+            }
+            object->unk68[index] = (s32)func_8001F520(object->unk40->unk34[index], loadType);
+            if (object->unk68[index] == 0) {
+                failed = 1;
+            }
+            modelSetModelFlags(8);
+        } else if (type == 1) {
+            object->unk68[index] = (s32)func_800355A0(object->unk40->unk34[index], 0xA);
+            if (object->unk68[index] == 0) {
+                failed = 1;
+            }
+        } else {
+            object->unk68 = NULL;
+        }
+    }
+    if (failed != 0) {
+        func_80006448(object);
+        func_80004B04(selected);
+        D_8007A21C = 2;
+        return NULL;
+    }
+
+    cursor = (u8 *)object->unk68 + (object->unk40->unk22 * 4);
+    cursor += func_8000A830((Objects0A830Object *)object, cursor);
+    D_800C9490 = 0;
+    if (loadFlags & 0x100) {
+        cursor += func_8001A008(object, cursor);
+        object->unk50 = (s32)((u8 *)object->unk50);
+        *(u8 *)((u8 *)object->unk50 + 0xC) = *(u8 *)((u8 *)object->unk50 + 0x25);
+        *(u8 *)((u8 *)object->unk50 + 0xD) = *(u8 *)((u8 *)object->unk50 + 0x27);
+    }
+    resultSize = loadFlags & 0x200;
+    if ((resultSize != 0) && (object->unk40->unk61 != 0)) {
+        resultSize = func_800069E8((Objects069E8Object *)object,
+                                   (Objects069E8Target *)cursor);
+        cursor += resultSize;
+        if (resultSize == 0) {
+            func_80006448(object);
+            func_80004B04(selected);
+            D_8007A21C = 2;
+            return NULL;
+        }
+    }
+    if ((loadFlags & 0x400) && (object->unk40->unk72 != -1)) {
+        resultSize = func_80048760(object, (s32)cursor);
+        cursor += resultSize;
+        if (resultSize == 0) {
+            if (D_800C9490 != 0) {
+                func_800347A0(D_800C9490);
+            }
+            func_80006448(object);
+            func_80004B04(selected);
+            D_8007A21C = 2;
+            return NULL;
+        }
+    }
+    if (loadFlags & 0x800) {
+        cursor += func_80006B04((Objects06B04Object *)object,
+                                (Objects06B04Output *)cursor,
+                                ((Objects0590CPacket *)arg0)->unk0);
+    }
+    if (loadFlags & 0x1000) {
+        cursor += func_80006C40((Objects06C40 *)object, (s32)cursor);
+    }
+    if ((object->unk40->unk23 > 0) && (object->unk40->unk23 < 0xA)) {
+        object->unk5C = (s32)cursor;
+        aligned = align4(cursor + 0x34);
+        ((Objects0590CParticleList *)cursor)->unk30 = (s32)aligned;
+        cursor = aligned + (object->unk40->unk23 * 0x40);
+    }
+    if ((object->unk40->unk24 > 0) && (object->unk40->unk24 < 0xA)) {
+        aligned = align4(cursor);
+        object->unk60 = (s32)aligned;
+        cursor = aligned + (object->unk40->unk24 * 0x14);
+    }
+    if (object->unk40->unk25 > 0) {
+        cursor += func_80006868((Objects06868Object *)object, cursor);
+    }
+    if (object->unk40->unk28 > 0) {
+        object->unk70 = (s32)cursor;
+        cursor += object->unk40->unk28 * 4;
+    }
+    if (object->unk40->unk29 > 0) {
+        object->unk74 = (s32)cursor;
+        cursor += object->unk40->unk29 * 4;
+    }
+    if (object->unk40->unkE0 != 0) {
+        cursor += func_800069C0((Objects69C0In *)object,
+                                (Objects69C0Out *)cursor);
+    }
+    if (object->unk8D != 0) {
+        aligned = align4(cursor);
+        object->unk7C = (s32)aligned;
+        cursor = aligned + (object->unk40->unkA7 * 0x24);
+    }
+
+    size = (s32)(cursor - (u8 *)object);
+    if (size & 0xF) {
+        size = (size & ~0xF) + 0x10;
+    }
+    result = func_8002B4C0(D_800C94A0, size);
+    if ((result == NULL) && (D_80078F88 != 0)) {
+        result = func_8002B280(size, 0x8B);
+    }
+    if (result == NULL) {
+        if (D_800C9490 != 0) {
+            func_800347A0(D_800C9490);
+        }
+        func_80006448(object);
+        func_80004B04(selected);
+        D_8007A21C = 2;
+        return NULL;
+    }
+
+    newObject = (Objects0590CObject *)result;
+    words = size >> 2;
+    copied = 0;
+    if (words > 0) {
+        tail = words & 3;
+        if (tail != 0) {
+            copyOffset = 0;
+            do {
+                copied += 1;
+                copyOffset += 4;
+                *(s32 *)((u8 *)newObject + copyOffset - 4) =
+                    *(s32 *)((u8 *)D_800C9450 + copyOffset - 4);
+            } while (copied != tail);
+        }
+        if (copied != words) {
+            copyOffset = copied * 4;
+            copyEnd = words * 4;
+            do {
+                *(s32 *)((u8 *)newObject + copyOffset) =
+                    *(s32 *)((u8 *)D_800C9450 + copyOffset);
+                *(s32 *)((u8 *)newObject + copyOffset + 4) =
+                    *(s32 *)((u8 *)D_800C9450 + copyOffset + 4);
+                *(s32 *)((u8 *)newObject + copyOffset + 8) =
+                    *(s32 *)((u8 *)D_800C9450 + copyOffset + 8);
+                *(s32 *)((u8 *)newObject + copyOffset + 0xC) =
+                    *(s32 *)((u8 *)D_800C9450 + copyOffset + 0xC);
+                copyOffset += 0x10;
+            } while (copyOffset != copyEnd);
+        }
+    }
+    base = (u8 *)D_800C9450;
+    if (newObject->unk54 != 0) {
+        newObject->unk54 = (s32)(((u8 *)newObject + newObject->unk54) - base);
+    }
+    if (newObject->unk4C != 0) {
+        relocated = ((u8 *)newObject + newObject->unk4C) - base;
+        newObject->unk4C = (s32)relocated;
+        if (*(s32 *)(relocated + 0x1C) != 0) {
+            *(s32 *)(relocated + 0x1C) =
+                (s32)(((u8 *)newObject + *(s32 *)(relocated + 0x1C)) - base);
+        }
+    }
+    if (newObject->unk50 != 0) {
+        newObject->unk50 = (s32)(((u8 *)newObject + newObject->unk50) - base);
+    }
+    if (newObject->unk64 != 0) {
+        newObject->unk64 = (s32)(((u8 *)newObject + newObject->unk64) - base);
+    }
+    if (newObject->unk48 != 0) {
+        relocated = ((u8 *)newObject + newObject->unk48) - base;
+        newObject->unk48 = (s32)relocated;
+        if (*(s32 *)(relocated + 0x74) != 0) {
+            *(s32 *)(relocated + 0x74) =
+                (s32)(((u8 *)newObject + *(s32 *)(relocated + 0x74)) - base);
+        }
+    }
+    if (newObject->unk58 != 0) {
+        newObject->unk58 = (s32)(((u8 *)newObject + newObject->unk58) - base);
+    }
+    if (newObject->unk5C != 0) {
+        newObject->unk5C = (s32)(((u8 *)newObject + newObject->unk5C) - base);
+    }
+    if (newObject->unk60 != 0) {
+        newObject->unk60 = (s32)(((u8 *)newObject + newObject->unk60) - base);
+    }
+    if (newObject->unk7C != 0) {
+        newObject->unk7C = (s32)(((u8 *)newObject + newObject->unk7C) - base);
+    }
+    if (newObject->unk6C != 0) {
+        newObject->unk6C = (s32)(((u8 *)newObject + newObject->unk6C) - base);
+    }
+    if (newObject->unk40->unk28 > 0) {
+        newObject->unk70 = (s32)(((u8 *)newObject + newObject->unk70) - base);
+    }
+    if (newObject->unk40->unk29 > 0) {
+        newObject->unk74 = (s32)(((u8 *)newObject + newObject->unk74) - base);
+    }
+    if (newObject->unk40->unkE0 != 0) {
+        newObject->unk78 = (s32)(((u8 *)newObject + newObject->unk78) - base);
+    }
+    newObject->unk68 = (s32 *)((u8 *)newObject + 0x94);
+    if (arg1 & 1) {
+        D_800C9494[D_800C9498] = newObject;
+        D_800C9498 += 1;
+    } else {
+        D_800C94A4[D_800C94A8] = (s32)newObject;
+        D_800C94A8 += 1;
+    }
+    if (newObject->unk40->unk28 > 0) {
+        lightSetupLightSources(newObject);
+    }
+    if (newObject->unk40->unk29 > 0) {
+        lightSetupFlareSources(newObject);
+    }
+    func_8000AA38((Objects0AA38Object *)newObject, arg0);
+    if (newObject->unk58 != 0) {
+        TrapDanglingJump(newObject);
+    }
+    if (newObject->unk48 != 0) {
+        func_80053550(newObject, newObject->unk40->unkBA, newObject->unk40->unkBB,
+                      newObject->unk40->unkB4, newObject->unk40->unkB6,
+                      newObject->unk40->unkB8, newObject->unk40->unkBC,
+                      newObject->unk40->unkC0, newObject->unk40->unkC4,
+                      newObject->unk40->unkC8, newObject->unk40->unkCC, 1);
+    }
+    if (func_80006534((Objects06534Object *)newObject) != 0) {
+        if (D_800C9490 != 0) {
+            func_800347A0(D_800C9490);
+        }
+        func_80006448(newObject);
+        func_80004B04(selected);
+        mmFree(newObject);
+        if (arg1 & 1) {
+            D_800C9498 -= 1;
+        } else {
+            D_800C94A8 -= 1;
+        }
+        D_8007A21C = 2;
+        return NULL;
+    }
+    if ((loadFlags & 0x200) && (newObject->unk40->unk61 != 0)) {
+        relocated = (u8 *)(s32)newObject->unk4C;
+        if ((*(s32 *)(relocated + 0x1C) != 0) &&
+            ((*(u8 *)(relocated + 0x10) & 8) != 0)) {
+            TrapDanglingJump(newObject);
+        }
+    }
+    D_8007A21C = 4;
+    return newObject;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000590C.s")
+#endif
 /* Workbench verdict: structure-mismatch; 27 differing words (59/59). */
 /* First mismatch: +0x1C; size, frame, and relocations are exact. */
 /* Structural gap: CFE s-register carriers and resource-load carrier differ. */
@@ -4395,11 +4854,11 @@ s32 func_8000A830(Objects0A830Object *arg0, void *arg1) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A830.s")
 #endif
-typedef struct {
+struct Objects0AA38Object {
     u8 pad00[0x40];
     Objects0A830Data *unk40;
     s16 unk44;
-} Objects0AA38Object;
+};
 
 extern void func_8001C4C0(void *object, void *arg1, s32 mode);
 extern void spranimInit(void *object, void *arg1);
