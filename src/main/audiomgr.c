@@ -558,3 +558,13 @@ void func_8000238C(void) {
  * summary: Exact frame and instruction count; external volatile EFC spelling keeps the target direct-load/store lifetime unresolved.
  * PLATEAU-HANDOFF:func_80002134:end
  */
+
+/* PLATEAU-HANDOFF:func_80002188:start
+ * symbol: func_80002188
+ * score: 7 differing words
+ * frame: -0x50
+ * relocations: 22
+ * first-mismatch: +0x28
+ * summary: Exact 115-instruction opcode/register shape; seven stack-home operands remain for a bounded permuter sweep.
+ * PLATEAU-HANDOFF:func_80002188:end
+ */
