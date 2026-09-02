@@ -68,9 +68,17 @@ overlay1GetGaugeObjectsRaw = 0xf0000000;
 overlay1GlobalCallReloc = 0xf0000000;
 overlay1ReadModeReloc = 0xf0000000;
 
+/* overlay 1: func_overlay_001_F0002B4C_184EF2C.c.o */
+D_1BA8 = 0x00001ba8;
+D_1D74 = 0x00001d74;
+D_1DAC = 0x00001dac;
+D_1DB0 = 0x00001db0;
+D_1DB4 = 0x00001db4;
+D_1DC0 = 0x00001dc0;
+D_1DD4 = 0x00001dd4;
+
 /* overlay 1: overlay_001_tail.c.o */
 D_160 = 0x00000160;
-D_1BA8 = 0x00001ba8;
 D_1D60 = 0x00001d60;
 D_1D88 = 0x00001d88;
 D_1DA4 = 0x00001da4;
