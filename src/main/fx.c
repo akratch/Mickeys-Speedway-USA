@@ -2508,15 +2508,6 @@ void func_8004AF68(void) {
  * PLATEAU-HANDOFF:func_80047304:end
  */
 
-/* PLATEAU-HANDOFF:func_80049518:start
- * symbol: func_80049518
- * score: 2/138 words
- * frame: 0x20
- * relocations: 5
- * first-mismatch: +0x60
- * summary: Exact geometry and registers; one LO16 schedule swap remains after 119 flags. Permuter zero used a prohibited inert wrapper; need authentic macro evidence.
- * PLATEAU-HANDOFF:func_80049518:end
- */
 
 /* PLATEAU-HANDOFF:fxSPDPRipple:start
  * symbol: fxSPDPRipple
