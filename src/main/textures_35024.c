@@ -25,13 +25,11 @@ extern void mmFree(void *ptr);
 void func_80034424(u8 enabled) {
     D_8007BD94 = enabled;
 }
-#ifdef NON_MATCHING
-void func_80034434(s32 value) {
-    D_8007BD80 = value & 0xFF;
+void func_80034434(s32 value)
+{
+  s32 *new_var;
+  D_8007BD80 = (*(new_var = &value)) & 0xFF;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/textures_35024/func_80034434.s")
-#endif
 #ifdef NON_MATCHING
 /* Frame-exact source scaffold; the loader's cache and decompression path remains
  * on the canonical fallback until its full ABI is recovered. */
