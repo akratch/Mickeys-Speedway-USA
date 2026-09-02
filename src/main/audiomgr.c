@@ -237,7 +237,163 @@ extern s32 D_80078DEC;
 s32 func_80001BE8(void) {
     return D_80078DEC;
 }
+/* PROVENANCE: body adapted from Diddy Kong Racing's public decomp,
+ * src/audiomgr.c::__amHandleFrameMsg and __clearAudioDMA; Mickey's manager
+ * fields, schedule state, and task layout remain authoritative. */
+/* Verdict: structure-mismatch; 350 differing sites, 372 candidate vs 336 target instructions. */
+/* First mismatch: function offset +0x00; candidate frame -96 vs target -88. */
+/* Gap: manager/task-base and cleanup/large-mode loop shapes remain displaced. */
+#ifdef NON_MATCHING
+void func_80001BF4(void) {
+    register AudioManagerState *manager;
+    AudioManagerDMABuffer *dmaBase;
+    AudioManagerDMABuffer *dmaPtr;
+    Acmd *cmdList;
+    Acmd *cmdp;
+    u8 *work;
+    u8 *buffer;
+    u8 *audioPtr;
+    s32 samplesLeft;
+    s32 cmdLen;
+    s32 i;
+
+    func_8000238C();
+    manager = (AudioManagerState *)&D_800C7A50;
+    samplesLeft = D_A4500004 >> 2;
+    osAiSetNextBuffer(
+        manager->cmdLists[D_80078DCC],
+        manager->frameSamples[D_80078DCC] << 2);
+
+    if (D_80078DDC == 1) {
+        D_800C91DC += 2;
+        if (D_800C91DC >= 6) {
+            D_800C91DC = 6;
+            D_80078DE8 = 1;
+        } else {
+            D_80078DE8 = 0;
+        }
+    }
+
+    if (D_80078DE4 > 0) {
+        D_80078DE4--;
+        if (D_80078DE4 <= 0) {
+            mmFree(manager->largeBufferStart);
+            mmFree(manager->largeData[0]);
+            for (i = 0; i != 0x834; i += sizeof(AudioManagerDMABuffer)) {
+                dmaPtr = (AudioManagerDMABuffer *)((u8 *)D_80078DC0 + i);
+                if (D_800C7DF8.firstUsed == dmaPtr) {
+                    D_800C7DF8.firstUsed =
+                        (AudioManagerDMABuffer *)dmaPtr->node.next;
+                }
+                if (D_800C7DF8.firstFree == dmaPtr) {
+                    D_800C7DF8.firstFree =
+                        (AudioManagerDMABuffer *)dmaPtr->node.next;
+                }
+                alUnlink(&dmaPtr->node);
+            }
+            mmFree(D_80078DC0);
+            D_80078DC0 = NULL;
+        }
+    }
+
+    if (D_80078DE0 != D_80078DDC) {
+        D_80078DE8 = 0;
+        if (((D_80078DDC ^ 1) == 0) && (D_80078DC0 == NULL)) {
+            manager->largeBufferStart = func_8002B280(0x2C100, 0x82);
+            manager->largeBufferEnd =
+                (u8 *)manager->largeBufferStart + 0x16080;
+            work = func_8002B280(D_800C8644 * 0x48, 0x82);
+            for (i = 0; i < 2; i++) {
+                manager->cmdLists[i] = work;
+                manager->largeData[i] = work;
+                work += D_800C8644 * 0x18;
+            }
+            manager->bufferStart = manager->largeBufferStart;
+            manager->bufferEnd = manager->largeBufferEnd;
+            dmaBase = func_8002B280(0xDA34, 0x82);
+            D_80078DC0 = dmaBase;
+            if (D_800C7DF8.firstFree != NULL) {
+                alLink(&dmaBase->node, &D_800C7DF8.firstFree->node);
+            } else {
+                D_800C7DF8.firstFree = dmaBase;
+                dmaBase->node.next = NULL;
+                dmaBase->node.prev = NULL;
+            }
+            dmaPtr = dmaBase;
+            buffer = (u8 *)dmaBase + 0x834;
+            for (i = 0; i != 0x820; i += sizeof(AudioManagerDMABuffer)) {
+                alLink(&(dmaPtr + 1)->node, &dmaPtr->node);
+                dmaPtr->ptr = (char *)buffer;
+                dmaPtr++;
+                buffer += 0x200;
+            }
+            dmaPtr->ptr = (char *)buffer;
+            D_800C91DC = 1;
+        } else {
+            for (i = 0; i < 2; i++) {
+                manager->cmdLists[i] = manager->cmdListsAlt[i];
+            }
+            D_80078DE4 = 0xC;
+            manager->bufferStart = manager->altBufferStart;
+            manager->bufferEnd = manager->altBufferEnd;
+        }
+        D_80078DE0 = D_80078DDC;
+    }
+
+    if (D_80078DDC == 0) {
+        D_80078DEC = 2;
+    } else {
+        D_80078DEC = D_800C91DC * 2;
+    }
+
+    audioPtr = (u8 *)osVirtualToPhysical(
+        manager->cmdLists[D_80078DC8]);
+    if (((samplesLeft >= 0x159) != 0) && (D_80078DD8 != 0)) {
+        D_80078DD8 = 0;
+        manager->frameSamples[D_80078DC8] = D_800C8640;
+    } else {
+        D_80078DD8 = 1;
+        manager->frameSamples[D_80078DC8] = D_800C863C;
+    }
+    if (D_80078DDC == 1) {
+        manager->frameSamples[D_80078DC8] *= D_800C91DC;
+    }
+
+    cmdList = (Acmd *)((u8 **)&manager->bufferStart)[D_80078DC4];
+    cmdp = n_alAudioFrame(cmdList, &cmdLen, (s16 *)audioPtr,
+                          manager->frameSamples[D_80078DC4]);
+
+    manager->task.msgQ = &D_800C7D9C;
+    manager->task.taskID = 1;
+    manager->task.unk58 = -1;
+    manager->task.flags = 2;
+    manager->task.next = NULL;
+    manager->task.msg = NULL;
+    manager->task.unk5C = 0;
+    manager->task.unk60 = 0xFF;
+    manager->task.unk64 = 0;
+    manager->task.list.t.type = M_AUDTASK;
+    manager->task.list.t.flags = OS_TASK_DP_WAIT;
+    manager->task.list.t.ucode_boot = D_80077950;
+    manager->task.list.t.ucode_boot_size =
+        (u8 *)D_80077AD0 - (u8 *)D_80077950;
+    manager->task.list.t.ucode = D_80076110;
+    manager->task.list.t.ucode_data = D_80084B00;
+    manager->task.list.t.ucode_data_size = 0x800;
+    manager->task.list.t.data_ptr = (u64 *)cmdList;
+    manager->task.list.t.data_size = (cmdp - cmdList) * sizeof(Acmd);
+    manager->task.list.t.yield_data_ptr = NULL;
+    manager->task.list.t.yield_data_size = 0;
+
+    osSendMesg(osScGetCmdQ(D_800BFA30), (OSMesg)&D_800C7CE8, 0);
+    D_80078DC4 ^= 1;
+    D_80078DCC = D_80078DC8;
+    D_80078DC8 = (D_80078DC8 + 1) % 3;
+    D_80078DD0++;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audiomgr/func_80001BF4.s")
+#endif
 /* Verdict: structure-mismatch; 9 differing sites of 21 instructions with an exact frame. */
 /* First mismatch: function offset +0x20; the target reloads the EFC address for its final store. */
 /* Gap: the target's direct EFC load/store lifetimes are not reproduced by this volatile declaration. */
