@@ -473,3 +473,13 @@ void func_overlay_054_F00005AC_189F24C(s32 arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o054/overlay54TailA/func_overlay_054_F00005AC_189F24C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_054_F00005AC_189F24C:start
+ * symbol: func_overlay_054_F00005AC_189F24C
+ * score: 1564/1594 words
+ * frame: 0x138
+ * relocations: 269
+ * first-mismatch: +0x0
+ * summary: Linked promotion trial text-differs 1587 words; candidate is 30 words short despite exact frame.
+ * PLATEAU-HANDOFF:func_overlay_054_F00005AC_189F24C:end
+ */
