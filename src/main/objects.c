@@ -908,7 +908,94 @@ void func_8000A62C(f32 x, f32 y, f32 z) {
 void func_8000A6DC(s32 arg0) {
     D_800C94B0 = arg0;
 }
+/* Workbench verdict: structure-mismatch; 2 differing words (82/82). */
+/* First mismatch: +0x10; switch text is instruction-exact, but linked table placement is not. */
+/* Structural gap: canonical C switch table lands in anonymous .rodata rather than target late rodata. */
+#ifdef NON_MATCHING
+s32 func_8000A6E8(s32 arg0) {
+    switch (arg0) {
+        case 1:
+            return 0xF01;
+        case 4:
+            return 0x301;
+        case 3:
+            return 0xB01;
+        case 31:
+            return 0x1101;
+        case 24:
+            return 0x1301;
+        case 25:
+            return 0x1200;
+        case 26:
+            return 0xB01;
+        case 22:
+        case 29:
+        case 73:
+        case 79:
+            return 0x301;
+        case 23:
+            return 0x200;
+        case 11:
+        case 12:
+        case 49:
+            return 0x200;
+        case 33:
+            return 0x301;
+        case 41:
+            return 0x1101;
+        case 53:
+            return 0x200;
+        case 54:
+            return 0x101;
+        case 55:
+            return 0x101;
+        case 56:
+            return 0x101;
+        case 57:
+            return 0xB01;
+        case 58:
+            return 0xA00;
+        case 60:
+            return 0x200;
+        case 63:
+            return 0x101;
+        case 64:
+            return 0xB01;
+        case 65:
+            return 0x301;
+        case 67:
+            return 0xB01;
+        case 71:
+            return 0x101;
+        case 72:
+            return 0x301;
+        case 74:
+            return 0x301;
+        case 75:
+            return 0x101;
+        case 77:
+            return 0x101;
+        case 78:
+            return 0x301;
+        case 82:
+            return 0xB01;
+        case 84:
+            return 0x301;
+        case 85:
+            return 0x200;
+        case 86:
+            return 0x101;
+        case 87:
+            return 0x301;
+        case 88:
+            return 0x301;
+        default:
+            return 0;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A6E8.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A830.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000AA38.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000AEEC.s")
@@ -1125,4 +1212,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
  * first-mismatch: +0x50
  * summary: Shape-exact with six schedule/register residuals; ready for the bounded permuter.
  * PLATEAU-HANDOFF:func_8000471C:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000A6E8:start
+ * symbol: func_8000A6E8
+ * score: 2 differing words
+ * frame: frameless
+ * relocations: 3
+ * first-mismatch: +0x10
+ * summary: Switch text is 82/82 instructions with exact case constants; canonical C table placement remains unresolved after the linked promotion changed the ROM checksum.
+ * PLATEAU-HANDOFF:func_8000A6E8:end
  */
