@@ -237,6 +237,11 @@ typedef struct {
 } Objects06B04Source;
 
 typedef struct {
+    s32 unk0;
+    s32 unk4;
+} Objects0831CCommand;
+
+typedef struct {
     u16 unk0;
     s8 unk2;
     u8 unk3;
@@ -323,6 +328,12 @@ extern f32 D_80080D24;
 extern f32 D_80080D28;
 extern void func_8000831C(void *arg0, void *arg1, s32 arg2, void *arg3, s32 arg4,
                           s32 arg5, s32 arg6, s32 arg7, f32 arg8, s32 arg9, s32 arg10);
+typedef struct CameraScaledTransform CameraScaledTransform;
+typedef struct FxGfx FxGfx;
+extern void camPushModelMtx(Gfx **dlist, Mtx **mtx, CameraScaledTransform *transform,
+                            f32 scale, f32 scaleY);
+extern void camPopModelMtx(Gfx **dlist);
+extern void func_800349A4(FxGfx **dlist, s32 texture, s32 flags, s32 arg3);
 extern s32 func_800291FC(void);
 extern s32 func_80034448(s16 resourceId, void *output);
 extern void **func_8000572C(s32 *start, s32 *end);
@@ -1133,7 +1144,57 @@ void func_80008118(void) {
     D_80079004 = 1;
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008128.s")
+/* Workbench verdict: structure-mismatch; 81 differing words (105/106). */
+/* First mismatch: +0x0; frame and command emission are substantially exact. */
+/* Structural gap: late argument carriers and call scheduling remain unresolved. */
+#ifdef NON_MATCHING
+void func_8000831C(void *arg0, void *arg1, s32 arg2, void *arg3, s32 arg4,
+                   s32 arg5, s32 arg6, s32 arg7, f32 arg8, s32 arg9, s32 arg10) {
+    s32 sp24;
+    s32 temp_a1;
+    s32 temp_a2;
+    s32 temp_t3;
+    Objects0831CCommand *temp_v0;
+
+    sp24 = 0;
+    camPushModelMtx((Gfx **)&D_800C94B4, (Mtx **)&D_800C94B8,
+                    (CameraScaledTransform *)arg0, arg8, 0.0f);
+    if ((arg6 & 0x240) == 0) {
+        temp_v0 = (Objects0831CCommand *)D_800C94B4;
+        D_800C94B4 = (s32)(temp_v0 + 1);
+        temp_v0->unk0 = 0xFA000000;
+        temp_t3 = arg9 & 0xFF;
+        temp_v0->unk4 = (temp_t3 << 24) | (temp_t3 << 16) |
+                        (temp_t3 << 8) | (arg10 & 0xFF);
+        temp_v0 = (Objects0831CCommand *)D_800C94B4;
+        D_800C94B4 = (s32)(temp_v0 + 1);
+        temp_v0->unk4 = -0x100;
+        temp_v0->unk0 = 0xFB000000;
+    }
+    if (arg5 != 0) {
+        sp24 = 1;
+    }
+    if (arg10 < 0xFF) {
+        arg6 |= 4;
+    }
+    func_800349A4((FxGfx **)&D_800C94B4, arg5, arg6, arg7);
+    temp_v0 = (Objects0831CCommand *)D_800C94B4;
+    temp_a2 = (s32)arg1 + 0x80000000;
+    D_800C94B4 = (s32)(temp_v0 + 1);
+    temp_a1 = arg2 * 8;
+    temp_v0->unk0 = ((((temp_a1 | (temp_a2 & 6)) & 0xFF) << 16) |
+                     0x04000000 | (((arg2 * 0xA) + 8) & 0xFFFF));
+    temp_v0->unk4 = temp_a2;
+    temp_v0 = (Objects0831CCommand *)D_800C94B4;
+    D_800C94B4 = (s32)(temp_v0 + 1);
+    temp_v0->unk0 = (((((arg4 - 1) * 0x10) | sp24) & 0xFF) << 16) |
+                     0x05000000 | ((arg4 * 0x10) & 0xFFFF);
+    temp_v0->unk4 = (s32)arg3 + 0x80000000;
+    camPopModelMtx((Gfx **)&D_800C94B4);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000831C.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800084C4.s")
 void func_80008A20(Objects08A20Arg *arg0) {
     func_8000831C(arg0, D_80079008, 0x14, D_800790D0, 0x18, *arg0->unk68, 2, 0, 1.0f, 0xFF, 0xFF);
@@ -1616,4 +1677,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
  * first-mismatch: +0x0
  * summary: Stack homes and four-at-a-time tail control flow remain unresolved after the m2c translation.
  * PLATEAU-HANDOFF:func_80004590:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000831C:start
+ * symbol: func_8000831C
+ * score: 81 differing words
+ * frame: 0x28
+ * relocations: 13
+ * first-mismatch: +0x0
+ * summary: Late argument carriers and call scheduling remain structural after the display-list command translation.
+ * PLATEAU-HANDOFF:func_8000831C:end
  */
