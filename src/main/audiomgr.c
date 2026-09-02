@@ -80,7 +80,75 @@ s32 func_80001BE8(void) {
 }
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audiomgr/func_80001BF4.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audiomgr/func_80002134.s")
+/* PROVENANCE: body adapted from Diddy Kong Racing's public decomp,
+ * src/audiomgr.c::__amDMA; Mickey's DMA state and queue globals remain authoritative. */
+/* Verdict: operand-mismatch; 7 differing words of 115 with exact frame and schedule. */
+/* First mismatch: function offset +0x28; the remaining differences are stack spill offsets. */
+/* Gap: the target assigns different homes to delta, lastDmaPtr, and foundBuffer. */
+#ifdef NON_MATCHING
+s32 func_80002188(s32 addr, s32 len, void *state) {
+    void *foundBuffer;
+    s32 delta, addrEnd, buffEnd;
+    AudioManagerDMABuffer *dmaPtr, *lastDmaPtr;
+    s32 pad;
+
+    lastDmaPtr = NULL;
+    delta = addr & 1;
+    dmaPtr = D_800C7DF8.firstUsed;
+    addrEnd = addr + len;
+
+    while (dmaPtr != NULL) {
+        buffEnd = dmaPtr->startAddr + 0x200;
+        if (dmaPtr->startAddr > (u32) addr) {
+            break;
+        } else if (addrEnd <= buffEnd) {
+            dmaPtr->lastFrame = D_80078DD0;
+            foundBuffer = dmaPtr->ptr + addr - dmaPtr->startAddr;
+            return osVirtualToPhysical(foundBuffer);
+        }
+        lastDmaPtr = dmaPtr;
+        dmaPtr = (AudioManagerDMABuffer *) dmaPtr->node.next;
+    }
+
+    dmaPtr = D_800C7DF8.firstFree;
+    if (dmaPtr == NULL) {
+        D_80078DF0 |= 2;
+        if (lastDmaPtr == NULL) {
+            lastDmaPtr = D_800C7DF8.firstUsed;
+        }
+    }
+    if (dmaPtr == NULL) {
+        return osVirtualToPhysical(lastDmaPtr->ptr) + delta;
+    }
+
+    D_800C7DF8.firstFree = (AudioManagerDMABuffer *) dmaPtr->node.next;
+    alUnlink(&dmaPtr->node);
+
+    if (lastDmaPtr != NULL) {
+        alLink(&dmaPtr->node, &lastDmaPtr->node);
+    } else if (D_800C7DF8.firstUsed != NULL) {
+        lastDmaPtr = D_800C7DF8.firstUsed;
+        D_800C7DF8.firstUsed = dmaPtr;
+        dmaPtr->node.next = &lastDmaPtr->node;
+        dmaPtr->node.prev = NULL;
+        lastDmaPtr->node.prev = &dmaPtr->node;
+    } else {
+        D_800C7DF8.firstUsed = dmaPtr;
+        dmaPtr->node.next = NULL;
+        dmaPtr->node.prev = NULL;
+    }
+
+    foundBuffer = dmaPtr->ptr;
+    addr -= delta;
+    dmaPtr->startAddr = addr;
+    dmaPtr->lastFrame = D_80078DD0;
+    osPiStartDma(&D_800C8648[D_80078DD4++], OS_MESG_PRI_HIGH, OS_READ,
+                 addr, foundBuffer, 0x200, &D_800C9020);
+    return osVirtualToPhysical(foundBuffer) + delta;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audiomgr/func_80002188.s")
+#endif
 /* PROVENANCE: body adapted from Banjo-Kazooie's public decomp,
  * src/core1/code_1D00.c::audioManager_DMAInitProc. */
 ALDMAproc audioManager_DMAInitProc(void *state) {
