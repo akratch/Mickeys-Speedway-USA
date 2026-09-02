@@ -2999,9 +2999,13 @@ The final column records owned object words and relocation coverage.
 | `func_800069C0` | `0x69C0` / `0x28` | **tier D**: nested object/data field offsets and output-record initialization; placeholder retained | Exact 10 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 | `func_80005808` | `0x5808` / `0x18` | **tier B**: resident callers agree on the second count-output/list-return accessor role; placeholder retained | Exact 6 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 | `func_80005820` | `0x5820` / `0x48` | **tier B**: resident callers across memory, weather, menu, and overlays fix the count-checked object-list lookup interface; placeholder retained | Exact 18 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_800058C0` | `0x58C0` / `0x4C` | **tier D**: nested +0x40 data pointer, byte-stride status fields, and zero-valued f32 guard reconstructed from the target and object callers; placeholder retained | Exact 19 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 | `func_80007844` | `0x7844` / `0x8` | **tier D**: object-TU order and empty-leaf structure; placeholder retained | Exact 2 object words and no relocations under IDO 5.3 `-O2 -mips2 -32` |
 | `func_800056F0` | `0x56F0` / `0x3C` | **tier B**: `src/main/track.c` fixes the signed index/route-list lookup interface; placeholder retained | Exact 15 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 | `func_80006EA0` | `0x6EA0` / `0x44` | **tier B**: resident callers in `src/main/anim.c` and `src/main/charControl.c` fix the object-registration interface; placeholder retained | Exact 17 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_80004340` | `0x4340` / `0x5C` | **tier D**: object-system reset role and the target's ordered word/halfword global clears; placeholder retained | Exact 23 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_80008A20` | `0x8A20` / `0x6C` | **tier D**: target-register ABI and +0x68 object-field dispatch into `func_8000831C`; placeholder retained | Exact 27 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
+| `func_80009F08` | `0x9F08` / `0x6C` | **tier D**: +0x30 f32 scale input, flag gate, 250.0/2.0 clamp, and target branch structure reconstructed from the object block; placeholder retained | Exact 27 object words and linked ROM bytes under IDO 5.3 `-O2 -mips2 -32` |
 
 Measured plateau:
 
@@ -3011,6 +3015,9 @@ Measured plateau:
 | `func_80003480` | Fresh configured V0 is exact-size at 94 instructions, with 41/94 words matching; its `0x48` frame remains larger than the target's `0x30`, and 4/5 relocation sites align by offset, type, and identity | function `+0x0` | IDO 5.3 web formation and spill placement remain unresolved in the final replacement path; old source forms, flags, and permutation remain closed, and canonical output remains assembly-backed |
 | `func_80003760` | Evidence A exact C: all 25 words, frame, relocations, and linked ROM bytes match under `-Wo,-loopunroll,0` | none | Bounded permutation resolved the temp-FIFO allocation; the donor peer remains assembly-only role evidence |
 | `func_8000BD0C` | Shape-exact 15-instruction candidate with 2 schedule-only differing words, identical instruction multiset, frameless, and no relocations | function `+0x2C` | Permuter-ready JFG `GetRangeSquared` adaptation; preserve the guarded candidate and resolve the late scheduling tie with the bounded search |
+| `func_800056A4` | Shape-exact 19-instruction candidate with 8 register-only differing words, frameless, and exact relocation layout | function `+0x24` | Permuter-ready fixed-address pointer-variable adaptation; target and candidate differ by one temp-FIFO phase |
+| `func_80005868` | Shape-exact 22-instruction candidate with 8 differing words, exact 0xE0 frame, and matching call/data relocation topology | function `+0x1C` | Guarded ROM-list loader; residual is target stack-home/temporary allocation around the halfword index and DMA buffer |
+| `func_8000BCB0` | Shape-exact 23-instruction candidate with 2 schedule-only differing words, frameless, and exact `sqrtf` call topology | function `+0x3C` | Permuter-ready JFG `GetRange` adaptation; preserve the guarded candidate and resolve the FP scheduling tie |
 
 PROVENANCE: TU labels, order, and semantic roles derive from JFG's permitted
 public decomp/objects. C retains Mickey-owned stubs and point-disclosed adapted

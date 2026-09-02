@@ -30,22 +30,73 @@ typedef struct {
     Objects69C0Out *unk78;
 } Objects69C0In;
 
+typedef struct {
+    u8 pad00[0x1E];
+    s8 unk1E[4];
+    u8 pad22[0xAE];
+    f32 unkD0[4];
+} Objects58C0Data;
+
+typedef struct {
+    u8 pad00[0x40];
+    Objects58C0Data *unk40;
+} Objects58C0Arg;
+
+typedef struct {
+    u8 pad00[0x68];
+    s32 *unk68;
+} Objects08A20Arg;
+
+typedef struct {
+    u8 pad00[0x30];
+    f32 unk30;
+} Objects09F08Arg;
+
+extern s32 D_800C9470;
+extern s32 D_800C9474;
+extern s32 D_800C94A8;
+extern s32 D_800C94AC;
 extern s16 D_800C94B0;
+extern s16 D_800C94B2;
 extern s8 D_80078F88;
 extern s8 D_80079004;
+extern u8 D_8007BF0C;
+extern f32 D_80080F84;
 extern void **D_800C94F4;
 extern s32 D_800C94F8;
 extern void **D_800C9494;
 extern s32 D_800C9498;
 extern s32 D_800C949C;
+extern u8 *D_800C9460;
+extern s32 D_800C9468;
+extern s32 *D_800C9458;
+extern s16 *D_800C94E0;
 extern s32 D_800C94C0[];
 extern s32 D_800C94C8[];
 extern void **D_800C94EC;
 extern s32 D_800C94F0;
 extern void **D_800C9500;
 extern s32 D_800C9504;
+extern s32 piRomLoadSection(u32 assetIndex, u32 address, s32 assetOffset, s32 size);
+extern f32 sqrtf(f32 value);
+extern s32 D_80079008[];
+extern s32 D_800790D0[];
+extern void func_8000831C(void *arg0, void *arg1, s32 arg2, void *arg3, s32 arg4,
+                          s32 arg5, s32 arg6, s32 arg7, f32 arg8, s32 arg9, s32 arg10);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004340.s")
+void func_80004340(void) {
+    D_800C9470 = 0;
+    D_800C9474 = 0;
+    D_800C9498 = 0;
+    D_800C949C = 0;
+    D_800C94A8 = 0;
+    D_800C94AC = 0;
+    D_800C94F0 = 0;
+    D_800C94F8 = 0;
+    D_800C9504 = 0;
+    D_800C94B0 = 0;
+    D_800C94B2 = 0;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000439C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004454.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004590.s")
@@ -58,7 +109,21 @@ void func_8000485C(s8 arg0) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004C28.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004FE0.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005548.s")
+/* Workbench verdict: allocation-mismatch (temp-FIFO phase); 8 differing words. */
+/* First mismatch: +0x24. */
+/* Shape-exact candidate; register allocation is reserved for the permuter. */
+#ifdef NON_MATCHING
+void *func_800056A4(s32 tableIndex) {
+    s32 **table = (s32 **)0x800C9464;
+
+    if ((tableIndex < 0) || (tableIndex >= D_800C9468)) {
+        return D_800C9460;
+    }
+    return D_800C9460 + ((*table)[tableIndex] * 4);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800056A4.s")
+#endif
 void *func_800056F0(s32 index) {
     if ((index < 0) || (index >= D_800C9498)) {
         return 0;
@@ -92,8 +157,26 @@ s32 func_80005820(s32 arg0) {
     }
     return D_800C94F4[arg0];
 }
+/* Workbench verdict: allocation-mismatch; 8 differing words. */
+/* First mismatch: +0x1C. */
+/* Shape-exact candidate; stack-home/register allocation is reserved for the permuter. */
+#ifdef NON_MATCHING
+s16 func_80005868(s32 arg0) {
+    u8 buffer[0xC0];
+    s16 index = D_800C94E0[arg0];
+
+    piRomLoadSection(0x2D, (u32)buffer, D_800C9458[index], 0xC0);
+    return *(s16 *)(buffer + 0x1C);
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005868.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800058C0.s")
+#endif
+s8 func_800058C0(Objects58C0Arg *arg0, s32 arg1) {
+    if ((arg1 >= 4) || (arg0->unk40->unkD0[arg1] == 0.0f)) {
+        return arg0->unk40->unk1E[0];
+    }
+    return arg0->unk40->unk1E[arg1];
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000590C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006448.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006534.s")
@@ -133,14 +216,31 @@ void func_80008118(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008128.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000831C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800084C4.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008A20.s")
+void func_80008A20(Objects08A20Arg *arg0) {
+    func_8000831C(arg0, D_80079008, 0x14, D_800790D0, 0x18, *arg0->unk68, 2, 0, 1.0f, 0xFF, 0xFF);
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008A8C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008B94.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009220.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009414.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009AA8.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009E78.s")
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009F08.s")
+f32 func_80009F08(Objects09F08Arg *arg0) {
+    f32 temp_f0;
+    f32 var_f2;
+
+    var_f2 = 1.0f;
+    if (D_8007BF0C == 0) {
+        temp_f0 = arg0->unk30;
+        if (temp_f0 > 250.0f) {
+            var_f2 += (temp_f0 - 250.0f) * D_80080F84;
+            if (var_f2 > 2.0f) {
+                var_f2 = 2.0f;
+            }
+        }
+    }
+    return var_f2;
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009F74.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A244.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A39C.s")
@@ -158,7 +258,24 @@ void GetRomlistInfo(s32 *romlist, s32 *size, s32 index) {
     *romlist = D_800C94C0[index];
     *size = D_800C94C8[index];
 }
+/* Workbench verdict: schedule-mismatch; 2 differing words. */
+/* First mismatch: +0x3C. */
+/* Shape-exact candidate; FP scheduling is reserved for the permuter. */
+#ifdef NON_MATCHING
+/* PROVENANCE: JFG, src/objects.c (GetRange); adapted to Mickey's symbol. */
+f32 func_8000BCB0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
+    f32 temp_f0;
+    f32 temp_f16;
+    f32 temp_f2;
+
+    temp_f0 = arg0 - arg3;
+    temp_f2 = arg1 - arg4;
+    temp_f16 = arg2 - arg5;
+    return sqrtf((temp_f0 * temp_f0) + (temp_f2 * temp_f2) + (temp_f16 * temp_f16));
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000BCB0.s")
+#endif
 /* Workbench verdict: schedule-mismatch; 2 differing words. */
 /* First mismatch: +0x2C. */
 /* Shape-exact candidate; instruction ordering is reserved for the permuter. */
@@ -177,3 +294,43 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000BD0C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_8000BD0C:start
+ * symbol: func_8000BD0C
+ * score: 2 differing words
+ * frame: frameless
+ * relocations: 0
+ * first-mismatch: +0x2C
+ * summary: late FP scheduling tie; JFG GetRangeSquared shape is exact and the bounded permuter is next
+ * PLATEAU-HANDOFF:func_8000BD0C:end
+ */
+
+/* PLATEAU-HANDOFF:func_800056A4:start
+ * symbol: func_800056A4
+ * score: 8 differing words
+ * frame: frameless
+ * relocations: 6
+ * first-mismatch: +0x24
+ * summary: fixed-address D_800C9464 pointer-variable form has exact shape and relocations; one temp-FIFO phase remains
+ * PLATEAU-HANDOFF:func_800056A4:end
+ */
+
+/* PLATEAU-HANDOFF:func_80005868:start
+ * symbol: func_80005868
+ * score: 8 differing words
+ * frame: -0xE0
+ * relocations: 5
+ * first-mismatch: +0x1C
+ * summary: target DMA buffer stack home is 8 bytes earlier; six register and two stack-offset words remain
+ * PLATEAU-HANDOFF:func_80005868:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000BCB0:start
+ * symbol: func_8000BCB0
+ * score: 2 differing words
+ * frame: -0x18
+ * relocations: 1
+ * first-mismatch: +0x3C
+ * summary: late FP scheduling tie in the JFG GetRange adaptation; bounded permuter is next
+ * PLATEAU-HANDOFF:func_8000BCB0:end
+ */
