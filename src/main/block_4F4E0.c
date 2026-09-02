@@ -164,7 +164,50 @@ void func_8004EDA8(s32 arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/block_4F4E0/func_8004EDA8.s")
 #endif
+extern s32 frontGetLanguage(void);
+extern s32 piRomLoadSection(u32 assetIndex, u32 address, s32 assetOffset,
+                            s32 size);
+
+/* verdict: allocation-mismatch; 28 differing words; first mismatch +0xA8 */
+/* shape: exact 84 instructions and 0x20 frame; relocation ordering differs at two sites */
+/* canonical fallback retained until the compiler's temporary register coloring is closed */
+#ifdef NON_MATCHING
+void func_8004EED0(s32 arg0) {
+    s32 temp_v0;
+    s32 temp_v1;
+    s32 *temp_t0;
+
+    arg0 = arg0;
+    if ((D_8007D640 != 0) && (arg0 >= 0) && (arg0 < D_800D6AB4)) {
+        temp_v0 = frontGetLanguage();
+        switch (temp_v0) {
+        case 2:
+            arg0 += 2;
+            break;
+        case 1:
+            arg0 += 1;
+            break;
+        case 3:
+            arg0 += 3;
+            break;
+        case 5:
+            arg0 += 4;
+            break;
+        }
+        piRomLoadSection(5, D_800D6AB0, (arg0 & ~1) * 4, 0x10);
+        temp_t0 = (s32 *)(D_800D6AB0 + ((arg0 & 1) * 4));
+        temp_v1 = temp_t0[0];
+        piRomLoadSection(4, D_800D6AD8[D_800D6AE4],
+                         temp_v1 ^ (temp_v1 & 0xFF000000),
+                         (temp_t0[1] & 0xFFFFFF) - (temp_v1 & 0xFFFFFF));
+        D_800D6AE0 = (u8 *)D_800D6AD8[D_800D6AE4];
+        func_8004EC60();
+        D_800D6AE4 = (D_800D6AE4 + 1) & 1;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/block_4F4E0/func_8004EED0.s")
+#endif
 s32 func_8004F020(void) {
     return 0;
 }
