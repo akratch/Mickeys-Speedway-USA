@@ -54,6 +54,7 @@ the segment, carrying 194 function names.
 | `0x4EA60`–`0x4F4D4` | `0x8004DE60` | `main/gzip_asm` | A | **Measured file boundary**: DKR's whole 0xA74 inflate core, in one piece |
 | `0x4F59C` | `0x8004E99C` | `func_8004E99C` | D | Matched C: exact 80 B and 11/11 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
 | `0x4F5EC` | `0x8004E9EC` | `func_8004E9EC` | D | Matched C: exact 12 B and 2/2 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
+| `0x4F5F8` | `0x8004E9F8` | `func_8004E9F8` | D | Matched C adapted from DKR: exact 616 B and 24/24 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
 | `0x4FC20` | `0x8004F020` | `func_8004F020` | D | Matched C: exact 8 executable B and zero relocations at `-O2 -mips2 -32`, linked ROM exact; following 8 B are target padding |
 | `0x4FC30`–`0x505E0` | `0x8004F030` | `libultra/exceptasm` | A | **Measured file boundary**, 9 routines including `__osException` and `__osDispatchThread`; §4.2. `0x4FC20` before it is the **rejected** `io/leointerrupt` match, and `0x506D0`–`0x50820` after it is a separate unknown |
 | `0x505E0` | `0x8004F9E0` | `osCreateThread` | B; JFG `libultra/src/os/createthread.c` body, with Mickey's measured MIPS-II TU flag | Matched C: exact 232 executable B and 6/6 relocation identities at `-O2 -mips2 -32`; following 8 B are target padding |
