@@ -1,5 +1,11 @@
 #include "PR/ultratypes.h"
+#include "PR/os_gbpak.h"
 
+extern s32 func_8006A5A0(OSMesgQueue *queue, OSPfs *pfs, s32 channel);
+extern s32 func_8006AC60(OSPfs *pfs, s32 flag);
+extern OSMesgQueue *joyMessageQ(void);
+extern OSPfs D_800D7830;
+extern s8 D_8007F7A4;
 extern s32 D_8007A1CC;
 extern s32 D_800D789C;
 extern s32 D_800D78A4;
@@ -8,7 +14,17 @@ extern s32 D_800D7898;
 extern s32 D_800D78A0;
 extern s32 D_800D78A8;
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/flash_58C10/func_80058010.s")
+void func_80058010(void) {
+    u8 status[5];
+
+    if (func_8006A5A0(joyMessageQ(), &D_800D7830, 0) == 0) {
+        if (osGbpakCheckConnector(&D_800D7830, &status[3]) == 0) {
+            D_8007F7A4 = 1;
+            return;
+        }
+        func_8006AC60(&D_800D7830, 0);
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/flash_58C10/func_8005807C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/flash_58C10/func_800580F0.s")
 void func_800581BC(void) {
