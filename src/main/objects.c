@@ -3170,7 +3170,282 @@ s32 func_8000A830(Objects0A830Object *arg0, void *arg1) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A830.s")
 #endif
+typedef struct {
+    u8 pad00[0x40];
+    Objects0A830Data *unk40;
+    s16 unk44;
+} Objects0AA38Object;
+
+extern void func_8001C4C0(void *object, void *arg1, s32 mode);
+extern void spranimInit(void *object, void *arg1);
+extern void sprasjiInit(void *object, void *arg1);
+extern void func_8001A154(void *object);
+extern void func_8001BAE4(void *object, void *arg1);
+extern void func_8001BAF8(void *object, void *arg1);
+
+/* Workbench verdict: relocation-layout-mismatch; 0 differing words (301/301). */
+/* First mismatch: relocation metadata at +0x20; frame and opcode schedule are exact. */
+/* Structural gap: the generated switch table is anonymous .rodata rather than jtbl_80081258. */
+#ifdef NON_MATCHING
+void func_8000AA38(Objects0AA38Object *arg0, void *arg1) {
+    arg0->unk44 = arg0->unk40->unk1C;
+    switch (arg0->unk44 - 1) {
+        case 0:
+            func_8001C4C0(arg0, arg1, 1);
+            break;
+        case 1:
+        case 2:
+        case 3:
+            TrapDanglingJump();
+            break;
+        case 4:
+            TrapDanglingJump();
+            break;
+        case 5:
+            TrapDanglingJump();
+            break;
+        case 6:
+            TrapDanglingJump();
+            break;
+        case 7:
+            TrapDanglingJump();
+            break;
+        case 8:
+            TrapDanglingJump();
+            break;
+        case 9:
+            break;
+        case 10:
+            TrapDanglingJump();
+            break;
+        case 11:
+            TrapDanglingJump();
+            break;
+        case 12:
+            break;
+        case 13:
+            TrapDanglingJump();
+            break;
+        case 14:
+            TrapDanglingJump();
+            break;
+        case 15:
+            break;
+        case 16:
+            break;
+        case 17:
+            break;
+        case 18:
+            break;
+        case 19:
+            TrapDanglingJump();
+            break;
+        case 20:
+            TrapDanglingJump();
+            break;
+        case 21:
+            break;
+        case 22:
+            break;
+        case 23:
+        case 24:
+            func_8001BAE4(arg0, arg1);
+            break;
+        case 25:
+            func_8001BAF8(arg0, arg1);
+            break;
+        case 26:
+            break;
+        case 27:
+            TrapDanglingJump();
+            break;
+        case 28:
+            TrapDanglingJump();
+            break;
+        case 29:
+            TrapDanglingJump();
+            break;
+        case 30:
+            TrapDanglingJump();
+            break;
+        case 31:
+        case 33:
+            spranimInit(arg0, arg1);
+            break;
+        case 32:
+            TrapDanglingJump();
+            break;
+        case 34:
+            func_8001A154(arg0);
+            break;
+        case 35:
+            TrapDanglingJump();
+            break;
+        case 36:
+            break;
+        case 37:
+            break;
+        case 38:
+            break;
+        case 39:
+            break;
+        case 40:
+            TrapDanglingJump();
+            break;
+        case 41:
+            TrapDanglingJump();
+            break;
+        case 42:
+            TrapDanglingJump();
+            break;
+        case 43:
+            TrapDanglingJump();
+            break;
+        case 44:
+            TrapDanglingJump();
+            break;
+        case 45:
+            TrapDanglingJump();
+            break;
+        case 46:
+            TrapDanglingJump();
+            break;
+        case 47:
+            TrapDanglingJump();
+            break;
+        case 48:
+            TrapDanglingJump();
+            break;
+        case 49:
+            TrapDanglingJump();
+            break;
+        case 50:
+            TrapDanglingJump();
+            break;
+        case 51:
+            break;
+        case 52:
+            TrapDanglingJump();
+            break;
+        case 53:
+            TrapDanglingJump();
+            break;
+        case 54:
+            TrapDanglingJump();
+            break;
+        case 55:
+            break;
+        case 56:
+            TrapDanglingJump();
+            break;
+        case 57:
+            TrapDanglingJump();
+            break;
+        case 58:
+            sprasjiInit(arg0, arg1);
+            break;
+        case 59:
+            TrapDanglingJump();
+            break;
+        case 60:
+            TrapDanglingJump();
+            break;
+        case 61:
+            TrapDanglingJump();
+            break;
+        case 62:
+            TrapDanglingJump();
+            break;
+        case 63:
+            TrapDanglingJump();
+            break;
+        case 64:
+            TrapDanglingJump();
+            break;
+        case 65:
+            break;
+        case 66:
+            TrapDanglingJump();
+            break;
+        case 67:
+            TrapDanglingJump();
+            break;
+        case 68:
+            TrapDanglingJump();
+            break;
+        case 69:
+            TrapDanglingJump();
+            break;
+        case 70:
+            TrapDanglingJump();
+            break;
+        case 71:
+            TrapDanglingJump();
+            break;
+        case 72:
+            TrapDanglingJump();
+            break;
+        case 73:
+            TrapDanglingJump();
+            break;
+        case 74:
+            TrapDanglingJump();
+            break;
+        case 75:
+            TrapDanglingJump();
+            break;
+        case 76:
+            TrapDanglingJump();
+            break;
+        case 77:
+            TrapDanglingJump();
+            break;
+        case 78:
+            break;
+        case 79:
+            TrapDanglingJump();
+            break;
+        case 80:
+            TrapDanglingJump();
+            break;
+        case 81:
+            TrapDanglingJump();
+            break;
+        case 82:
+            TrapDanglingJump();
+            break;
+        case 83:
+            TrapDanglingJump();
+            break;
+        case 84:
+            TrapDanglingJump();
+            break;
+        case 85:
+            TrapDanglingJump();
+            break;
+        case 86:
+            TrapDanglingJump();
+            break;
+        case 87:
+            TrapDanglingJump();
+            break;
+        case 88:
+            TrapDanglingJump();
+            break;
+        case 89:
+            TrapDanglingJump();
+            break;
+        case 90:
+            TrapDanglingJump();
+            break;
+        case 91:
+            TrapDanglingJump();
+            break;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000AA38.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000AEEC.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000B3CC.s")
 /* Workbench verdict: structure-mismatch; 61 differing words (65/65). */
