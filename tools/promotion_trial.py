@@ -238,7 +238,8 @@ def tu_text_offset(item: pb.QueueItem) -> int:
 
 
 def build(jobs: int, full_log: bool = False,
-          source: Optional[str] = None) -> tuple[bool, str]:
+          source: Optional[str] = None,
+          function: Optional[str] = None) -> tuple[bool, str]:
     """One `gmake` pass with the POSTPROCESS guards in report-and-skip mode.
 
     PROMOTION_TRIAL turns every digest-guarded normalization into a marker line
@@ -253,6 +254,8 @@ def build(jobs: int, full_log: bool = False,
         # projection; without the same trial source it renders the carve-less
         # one and fails against the yaml the trial just wrote.
         env["PROMOTION_TRIAL_SOURCE"] = source
+    if function is not None:
+        env["PROMOTION_TRIAL_FUNCTION"] = function
     r = subprocess.run(["gmake", f"-j{jobs}", ROM_TARGET], cwd=ROOT, capture_output=True,
                        text=True, timeout=1800, env=env)
     log = r.stdout + r.stderr
@@ -436,7 +439,7 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
         if item.overlay is not None:
             trial_yaml = subprocess.run(
                 [sys.executable, str(ATLAS_TOOL), "--trial-projection",
-                 "--trial-source", source],
+                 "--trial-source", source, "--trial-function", item.func],
                 cwd=ROOT,
                 capture_output=True,
                 text=True,
@@ -449,13 +452,13 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
                 return t
             manifest_trial_changed = MANIFEST.read_text() != manifest_original
             yaml_trial_changed = YAML.read_text() != yaml_original
-        ok, log = build(jobs, source=source)
+        ok, log = build(jobs, source=source, function=item.func)
         if item.overlay is not None:
             # Compile is done either way; regenerate the surface against the
             # objects that now exist and relink. A candidate that already
             # linked is unaffected when the surface does not change.
             _sok, surface_log = synthesize_surface()
-            ok, log2 = build(jobs, source=source)
+            ok, log2 = build(jobs, source=source, function=item.func)
             link_log = log2
             log = log + log2
         if not ok:

@@ -1420,7 +1420,8 @@
      "size": "0x20",
      "type": "c",
      "section": ".rodata",
-     "source": "overlays/o001/overlay_001_tail"
+     "source": "overlays/o001/overlay_001_tail",
+     "trial_function": "overlay1DispatchMode"
     }
    ]
   },
@@ -2587,7 +2588,8 @@
      "size": "0x1C",
      "type": "c",
      "section": ".rodata",
-     "source": "overlays/o007/overlay_007_tail"
+     "source": "overlays/o007/overlay_007_tail",
+     "trial_function": "overlay7DispatchModes"
     }
    ]
   },
@@ -3020,7 +3022,8 @@
      "size": "0x30",
      "type": "c",
      "section": ".rodata",
-     "source": "overlays/o008/overlay_008"
+     "source": "overlays/o008/overlay_008",
+     "trial_function": "func_overlay_008_F0004CF0_1862A48"
     }
    ]
   },
@@ -3157,7 +3160,8 @@
      "size": "0x50",
      "type": "c",
      "section": ".rodata",
-     "source": "overlays/o009/overlay_009"
+     "source": "overlays/o009/overlay_009",
+     "trial_function": "func_overlay_009_F0000CE4_186735C"
     }
    ]
   },
@@ -4333,7 +4337,8 @@
      "size": "0x1C",
      "type": "c",
      "section": ".rodata",
-     "source": "overlays/o014/overlay14LoadRelocatedValue"
+     "source": "overlays/o014/overlay14LoadRelocatedValue",
+     "trial_function": "overlay14LoadRelocatedValue"
     },
     {
      "offset": "0x174",
@@ -4341,7 +4346,8 @@
      "size": "0x1C",
      "type": "c",
      "section": ".rodata",
-     "source": "overlays/o014/func_overlay_014_F0001830_1871108"
+     "source": "overlays/o014/func_overlay_014_F0001830_1871108",
+     "trial_function": "func_overlay_014_F0001830_1871108"
     }
    ]
   },
@@ -6199,7 +6205,8 @@
      "size": "0x20",
      "type": "c",
      "section": ".rodata",
-     "source": "overlays/o025/overlay_025"
+     "source": "overlays/o025/overlay_025",
+     "trial_function": "overlay25UpdateEffect"
     }
    ]
   },
@@ -9235,7 +9242,8 @@
      "size": "0x3C",
      "type": "c",
      "section": ".rodata",
-     "source": "overlays/o041/overlay41SampleCurve"
+     "source": "overlays/o041/overlay41SampleCurve",
+     "trial_function": "func_overlay_041_F00002AC_18875E4"
     },
     {
      "offset": "0x3C",
@@ -9243,7 +9251,8 @@
      "size": "0x18",
      "type": "c",
      "section": ".rodata",
-     "source": "overlays/o041/overlay41UpdateCurveObject"
+     "source": "overlays/o041/overlay41UpdateCurveObject",
+     "trial_function": "func_overlay_041_F0000854_1887B8C"
     }
    ]
   },
@@ -10130,7 +10139,8 @@
      "size": "0x14",
      "type": "c",
      "section": ".rodata",
-     "source": "overlays/o046/overlay46UpdateSequence"
+     "source": "overlays/o046/overlay46UpdateSequence",
+     "trial_function": "func_overlay_046_F0000120_188E518"
     }
    ]
   },
@@ -12612,7 +12622,8 @@
      "size": "0x20",
      "type": "c",
      "section": ".rodata",
-     "source": "overlays/o059/overlay59Advance"
+     "source": "overlays/o059/overlay59Advance",
+     "trial_function": "overlay59Advance"
     }
    ]
   },
@@ -16961,7 +16972,8 @@
      "size": "0x20",
      "type": "c",
      "section": ".rodata",
-     "source": "overlays/o086/func_overlay_086_F0000474_18D22AC"
+     "source": "overlays/o086/func_overlay_086_F0000474_18D22AC",
+     "trial_function": "func_overlay_086_F0000474_18D22AC"
     }
    ]
   },
