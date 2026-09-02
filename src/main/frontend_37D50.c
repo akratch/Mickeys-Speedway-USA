@@ -695,3 +695,13 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
  * summary: VI transition semantics compile, but argument homes and carrier allocation remain structurally different.
  * PLATEAU-HANDOFF:func_80037414:end
  */
+
+/* PLATEAU-HANDOFF:func_800376CC:start
+ * symbol: func_800376CC
+ * score: 95 differing words
+ * frame: 0x20
+ * relocations: 15
+ * first-mismatch: +0x0
+ * summary: State-machine branch and carrier allocation remain structurally different.
+ * PLATEAU-HANDOFF:func_800376CC:end
+ */
