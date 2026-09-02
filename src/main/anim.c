@@ -4640,3 +4640,13 @@ void fmvInit(void) {
  * summary: Configured candidate is 231 versus 233 target words; folded AABB initialization remains the first structural split.
  * PLATEAU-HANDOFF:func_800573C8:end
  */
+
+/* PLATEAU-HANDOFF:func_80053868:start
+ * symbol: func_80053868
+ * score: 1179 differing words
+ * frame: 0x240
+ * relocations: 61
+ * first-mismatch: +0x0
+ * summary: Candidate is 58 instructions short with a 0x148 frame excess; collision-update CFG remains displaced.
+ * PLATEAU-HANDOFF:func_80053868:end
+ */
