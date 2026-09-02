@@ -830,6 +830,7 @@ tier-A threshold, so the address label remains canonical.
 | `func_80036DD0` | 312 bytes under `-O2 -mips2 -32`; JFG `src/screen.c::screenLoad` body, all 78 instruction words and ten relocation identities exact. |
 | `func_80036F08` | 576 executable bytes plus 8-byte target padding under `-O2 -mips2 -32`; JFG `src/screen.c::screenDraw` body with Mickey command data, all 144 instruction words exact. |
 | `func_80037658` | 12 bytes under `-O2 -mips2 -32`; direct store-only body, all 3 instruction words and one HI16/LO16 relocation identity exact. |
+| `func_80037664` | 104 bytes under `-O2 -mips2 -32`; state predicate body, all 26 instruction words and eight relocation identities exact. |
 
 | Candidate | Verdict |
 |---|---|
