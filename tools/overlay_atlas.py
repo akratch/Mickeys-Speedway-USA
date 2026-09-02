@@ -2191,7 +2191,33 @@ def render_manifest(atlas):
     return json.dumps(atlas, indent=1) + "\n"
 
 
-def render_yaml_block(atlas, trial_ownership=False):
+TRIAL_SOURCE_ENV = "PROMOTION_TRIAL_SOURCE"
+
+
+def trial_sources(cli=None):
+    """Translation units whose fixed data/rodata ownership a trial may carve.
+
+    A carve is only correct while the owning TU actually emits those bytes,
+    which happens only when that TU's NON_MATCHING candidate is promoted. A
+    carve applied to any *other* trial leaves the range unclaimed: splat drops
+    the covered bytes from the module's raw `bin`, the module shrinks, and
+    every module behind it slides -- which is what made all 174 `text-differs`
+    rows report the whole remainder of the overlay region as out-of-range.
+
+    So the projection carves nothing unless the trial names the TU it is
+    promoting, by `--trial-source` or by PROMOTION_TRIAL_SOURCE (the env form
+    exists because the build's own `overlay_atlas.py --check` has to agree with
+    the yaml the trial wrote). Values are source stems or bare basenames.
+    """
+    raw = list(cli or [])
+    if not raw:
+        raw = re.split(r"[,\s]+", os.environ.get(TRIAL_SOURCE_ENV, ""))
+    return frozenset(
+        part.rsplit("/", 1)[-1] for part in raw if part
+    )
+
+
+def render_yaml_block(atlas, trial_ownership=False, trial_sources=frozenset()):
     lines = [YAML_BEGIN]
     lines += [
         "  #",
@@ -2213,6 +2239,11 @@ def render_yaml_block(atlas, trial_ownership=False):
             continue
         ov = row["overlay"]
         name = f"overlay_{ov:03d}"
+        carved = trial_ownership and any(
+            part["source"].rsplit("/", 1)[-1] in trial_sources
+            for part in row.get("data_rodata_ownership", [])
+            if "section" in part
+        )
         lines += [
             "",
             f"  - name: {name}",
@@ -2221,7 +2252,7 @@ def render_yaml_block(atlas, trial_ownership=False):
             f"    vram: {hx(SYNTHETIC_VMA)}",
             f"    bss_size: {row['bss_size']}",
             "    align: 0x8",
-            f"    subalign: {'0x4' if trial_ownership and ov in FIXED_DATA_RODATA_OWNERSHIP else '0x1'}",
+            f"    subalign: {'0x4' if carved else '0x1'}",
             f"    dir: overlays/o{ov:03d}",
             f"    exclusive_ram_id: {OVERLAY_RAM_CLASS}",
             "    symbol_name_format: $SEG_$VRAM_$ROM",
@@ -2257,14 +2288,35 @@ def render_yaml_block(atlas, trial_ownership=False):
             )
         data_row = row["sections"]["data_rodata"]
         data_size = int(data_row["size"], 16)
-        fixed_data = [part for part in owned_data if "section" in part]
-        if not trial_ownership:
-            fixed_data = []
+        fixed_data = [
+            part
+            for part in owned_data
+            if "section" in part
+            and part["source"].rsplit("/", 1)[-1] in trial_sources
+        ] if carved else []
         leading_data = [part for part in owned_data if "section" not in part]
         owned_end = (
             int(leading_data[-1]["end_offset"], 16) if leading_data else 0
         )
         if fixed_data:
+            # Every raw slice needs its own asset name. splat writes one file
+            # per `bin` row, so two rows sharing `{name}_data_rodata` write the
+            # same path and the later, shorter slice wins: overlay 1 lost
+            # 0x274 of its 0x2C0 data bytes that way, shrinking the module and
+            # sliding every module behind it. Only the first slice keeps the
+            # canonical name, so a projection with no carve is byte-identical
+            # to the tracked yaml.
+            emitted = 0
+
+            def raw_slice(offset):
+                nonlocal emitted
+                suffix = "" if emitted == 0 else f"_{offset:x}"
+                emitted += 1
+                lines.append(
+                    f"      - [{hx(int(data_row['start'], 16) + offset)}, "
+                    f"bin, {name}_data_rodata{suffix}]"
+                )
+
             cursor = owned_end
             for part in sorted(fixed_data, key=lambda item: int(item["offset"], 16)):
                 fixed_start = int(part["offset"], 16)
@@ -2275,20 +2327,14 @@ def render_yaml_block(atlas, trial_ownership=False):
                         "a leading C-owned range or another fixed range"
                     )
                 if cursor < fixed_start:
-                    lines.append(
-                        f"      - [{hx(int(data_row['start'], 16) + cursor)}, "
-                        f"bin, {name}_data_rodata]"
-                    )
+                    raw_slice(cursor)
                 lines.append(
                     f"      - [{hx(int(data_row['start'], 16) + fixed_start)}, "
                     f"{part['section']}, {part['source'].rsplit('/', 1)[1]}]"
                 )
                 cursor = fixed_end
             if cursor < data_size:
-                lines.append(
-                    f"      - [{hx(int(data_row['start'], 16) + cursor)}, "
-                    f"bin, {name}_data_rodata]"
-                )
+                raw_slice(cursor)
         elif owned_end < data_size:
             lines.append(
                 f"      - [{hx(int(data_row['start'], 16) + owned_end)}, "
@@ -2409,6 +2455,16 @@ def main():
     action.add_argument("--overlay", type=int)
     action.add_argument("--relocations", type=int, metavar="OVERLAY")
     parser.add_argument(
+        "--trial-source",
+        action="append",
+        metavar="STEM",
+        help=(
+            "translation unit being promoted by this trial; only its fixed "
+            "data/rodata ownership is carved out of the raw bin (repeatable, "
+            "defaults to $PROMOTION_TRIAL_SOURCE)"
+        ),
+    )
+    parser.add_argument(
         "--format",
         choices=("text", "json"),
         default="text",
@@ -2452,7 +2508,12 @@ def main():
         os.environ.get("PROMOTION_TRIAL", "") not in ("", "0")
     )
     generated_yaml = splice_yaml(
-        yaml_text, render_yaml_block(atlas, trial_ownership=trial_ownership)
+        yaml_text,
+        render_yaml_block(
+            atlas,
+            trial_ownership=trial_ownership,
+            trial_sources=trial_sources(args.trial_source),
+        ),
     )
 
     if args.trial_yaml:

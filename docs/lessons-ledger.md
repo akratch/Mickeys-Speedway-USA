@@ -5,6 +5,36 @@ Each entry: what was observed, what it cost, what changed because of it
 (tool, gate, rule, or prompt). Numbers are the values at the time; recompute
 before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
 
+## 2026-09-02
+
+- **A trial projection that is not scoped to the trial is not a projection of
+  the trial.** Every one of the 174 `text-differs` rows in the last
+  `--overlays-only` sweep reported about 528,000 out-of-range bytes -- the
+  whole overlay region behind overlay 1's data section -- and 168 of them named
+  the same first differing offset, `0x1854500`, whatever overlay the candidate
+  lived in. Nothing about the candidates was wrong. `overlay_atlas.py
+  --trial-projection` carved *every* entry in `FIXED_DATA_RODATA_OWNERSHIP`
+  into the yaml on every trial, and a carve is only correct while the owning TU
+  emits those bytes, which only that TU's own promotion does. For any other
+  trial the carved range was unclaimed and, worse, the raw remainder behind it
+  was emitted as a second `bin` row with the *same* asset name, so splat wrote
+  both slices to one file and the shorter one won: overlay 1 shipped 0x2c of
+  its 0x2C0 data bytes, the module shrank 0x290, and every module behind it
+  slid. Changed: the projection carves only the TU named by `--trial-source` /
+  `PROMOTION_TRIAL_SOURCE` (`promotion_trial.py` passes the TU it is
+  promoting), so a trial of an uncarved TU renders the tracked yaml byte for
+  byte and does not even re-split; each raw slice gets its own asset name, and
+  the trial deletes the trial-only `*_data_rodata_<offset>.bin` on restore. A
+  genuine module size change is now its own class, `rom-size`, carrying the
+  signed byte delta from the linked ELF and keeping `in_range_words`, so
+  "ownership carve needed" stops being spelled `text-differs`. Acceptance: a
+  matched overlay function re-wrapped as its own NON_MATCHING candidate
+  (`overlay63Initialize`) must trial `exact in=0 out=0`; it does, and the three
+  overlay 1 candidates that read as 528,726/528,700-byte disasters are
+  `text-differs` with 3, 4 and 4 in-range words and **zero** out of range.
+  Cost: one sweep's entire class mix. The tool's own soundness had never been
+  measured against a candidate whose quality was not in question.
+
 ## 2026-08-28
 
 - **A relocation surface must not assign a name the resident segment owns.**

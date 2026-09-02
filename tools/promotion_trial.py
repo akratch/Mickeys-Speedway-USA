@@ -19,6 +19,10 @@ Classes reported per function:
                  (data/bss layout or relocation-table collateral: an
                  ownership fix, not code work)
   text-differs   N words differ inside the function's range
+  rom-size       the promoted module is a different size than the ROM's, so
+                 everything behind it slid; the cause carries the signed byte
+                 delta and `in_range_words` still counts the function's own
+                 differing words. An ownership carve, not code work.
   build-error    the promoted tree did not build
 
 Run it in a lane, never in the canonical worktree: it rewrites source files
@@ -28,6 +32,27 @@ one at a time and rebuilds ~20 s per candidate.
                              [--resume] [--jobs 6]
 
 Results accumulate in build/promotion-trial.json and .txt.
+
+Acceptance procedure (needs a baserom, so no CI test can stand in for it).
+The trial's own soundness is checked with a candidate whose quality is not in
+question: an overlay function that is already matched.
+
+  1. pick a matched, single-function overlay TU, e.g.
+     src/overlays/o063/overlay63Initialize.c;
+  2. in a lane only, wrap its body as
+     `#ifdef NON_MATCHING <body> #else #pragma GLOBAL_ASM("...") #endif`,
+     naming the splat auto-name path
+     asm/nonmatchings/overlays/o063/overlay63Initialize/func_overlay_063_F0000000_18C2B88.s;
+  3. `tools/overlay_atlas.py --write` (the manifest records per-row
+     `nonmatching`) and `gmake extract`, so the fallback .s exists;
+  4. `tools/promotion_trial.py --function overlay63Initialize`.
+
+It MUST report `exact  in=0  out=0`. Anything else is a fault in the harness,
+not in a candidate: the tree it just built is the tree that verifies. Restore
+the file, the manifest and `gmake extract` afterwards.
+
+tests/test_overlay_atlas.py::TrialProjectionTests covers the part of that
+procedure a unit test can reach without ROM data.
 """
 
 from __future__ import annotations
@@ -194,6 +219,11 @@ def explain_in_range(item: pb.QueueItem, rng: tuple[int, int], tu_text_offset: i
     return out
 
 
+def trial_source(item: pb.QueueItem) -> str:
+    """The TU stem this trial promotes, e.g. overlays/o001/overlay_001_head."""
+    return str(item.c_file.relative_to(ROOT / "src")).removesuffix(".c")
+
+
 def tu_text_offset(item: pb.QueueItem) -> int:
     """Offset of this TU's .text within its module (its lowest ownership row)."""
     atlas = json.loads((ROOT / "config" / "overlays.us.json").read_text())
@@ -207,7 +237,8 @@ def tu_text_offset(item: pb.QueueItem) -> int:
     return 0
 
 
-def build(jobs: int, full_log: bool = False) -> tuple[bool, str]:
+def build(jobs: int, full_log: bool = False,
+          source: Optional[str] = None) -> tuple[bool, str]:
     """One `gmake` pass with the POSTPROCESS guards in report-and-skip mode.
 
     PROMOTION_TRIAL turns every digest-guarded normalization into a marker line
@@ -217,6 +248,11 @@ def build(jobs: int, full_log: bool = False) -> tuple[bool, str]:
     """
     wait_for_load("promotion build")
     env = dict(os.environ, PROMOTION_TRIAL="1")
+    if source is not None:
+        # The splat stamp's own `overlay_atlas.py --check` re-renders the
+        # projection; without the same trial source it renders the carve-less
+        # one and fails against the yaml the trial just wrote.
+        env["PROMOTION_TRIAL_SOURCE"] = source
     r = subprocess.run(["gmake", f"-j{jobs}", ROM_TARGET], cwd=ROOT, capture_output=True,
                        text=True, timeout=1800, env=env)
     log = r.stdout + r.stderr
@@ -339,6 +375,40 @@ def classify_failure(log: str, item, surface_log: str,
     return "build-error", "other"
 
 
+def module_size_delta(overlay: Optional[int]) -> Optional[int]:
+    """built module size - the ROM's, in bytes, or None if unknown.
+
+    A promoted candidate that emits its own .rodata/.data with no ownership
+    carve makes its module longer or shorter than the ROM's; the linker then
+    slides every module behind it and the byte compare reports the whole
+    remainder of the overlay region as out-of-range. That is an ownership
+    question, not a codegen one, so it gets its own class instead of being
+    folded into `text-differs`.
+    """
+    if overlay is None:
+        return None
+    elf = ROOT / "build" / "mickey.us.elf"
+    objdump = ROOT / "tools" / "binutils" / "mips64-elf-objdump"
+    if not elf.is_file() or not objdump.is_file():
+        return None
+    section = f".overlay_{overlay:03d}"
+    text = subprocess.run([str(objdump), "-h", str(elf)],
+                          capture_output=True, text=True).stdout
+    built = None
+    for line in text.splitlines():
+        tok = line.split()
+        if len(tok) >= 3 and tok[1] == section:
+            built = int(tok[2], 16)
+            break
+    if built is None:
+        return None
+    atlas = json.loads(MANIFEST.read_text())
+    for module in atlas["modules"]:
+        if module["overlay"] == overlay:
+            return built - int(module["rom"]["size"], 16)
+    return None
+
+
 def rom_diff_offsets() -> list[int]:
     a = ROM.read_bytes()
     b = BASEROM.read_bytes()
@@ -355,6 +425,7 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
         t.klass, t.error = "unknown", "could not locate the NON_MATCHING block"
         return t
     surface = LINK_SYMS.read_text()
+    source = trial_source(item)
     manifest_original = MANIFEST.read_text() if item.overlay is not None else None
     yaml_original = YAML.read_text() if item.overlay is not None else None
     manifest_trial_changed = False
@@ -364,7 +435,8 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
     try:
         if item.overlay is not None:
             trial_yaml = subprocess.run(
-                [sys.executable, str(ATLAS_TOOL), "--trial-projection"],
+                [sys.executable, str(ATLAS_TOOL), "--trial-projection",
+                 "--trial-source", source],
                 cwd=ROOT,
                 capture_output=True,
                 text=True,
@@ -377,13 +449,13 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
                 return t
             manifest_trial_changed = MANIFEST.read_text() != manifest_original
             yaml_trial_changed = YAML.read_text() != yaml_original
-        ok, log = build(jobs)
+        ok, log = build(jobs, source=source)
         if item.overlay is not None:
             # Compile is done either way; regenerate the surface against the
             # objects that now exist and relink. A candidate that already
             # linked is unaffected when the surface does not change.
             _sok, surface_log = synthesize_surface()
-            ok, log2 = build(jobs)
+            ok, log2 = build(jobs, source=source)
             link_log = log2
             log = log + log2
         if not ok:
@@ -415,6 +487,9 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
                 t.first_in_range = inside[0] if inside else None
                 t.first_out_of_range = outside[0] if outside else None
                 t.klass = "text-differs" if inside else "text-exact"
+                delta = module_size_delta(item.overlay)
+                if delta:
+                    t.klass, t.cause = "rom-size", f"module {delta:+d} bytes"
                 marker = MARKER_RE.findall(log)
                 if marker:
                     # A skipped normalization means the linked bytes are not a
@@ -422,6 +497,16 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
                     t.klass, t.cause = "text-size-differs", marker[0][0]
     finally:
         item.c_file.write_text(original)
+        # A carved projection makes splat write extra raw slices
+        # (`*_data_rodata_<offset>.bin`) that only that projection names. They
+        # are picked up by the Makefile's asset wildcard, so leaving one behind
+        # would add bytes to a later canonical link: delete them, and their
+        # objects, with the projection that asked for them.
+        for extra in ROOT.glob("assets/**/*_data_rodata_*.bin"):
+            extra.unlink()
+            obj = ROOT / "build" / extra.relative_to(ROOT).with_suffix(".bin.o")
+            if obj.is_file():
+                obj.unlink()
         projection_changed = False
         if manifest_original is not None and MANIFEST.read_text() != manifest_original:
             MANIFEST.write_text(manifest_original)
