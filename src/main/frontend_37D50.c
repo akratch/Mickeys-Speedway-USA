@@ -675,3 +675,13 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37D50/func_80038190.s")
 #endif
 #undef FRONTEND_EMIT
+
+/* PLATEAU-HANDOFF:func_800371BC:start
+ * symbol: func_800371BC
+ * score: 148 differing words
+ * frame: 0x38
+ * relocations: 13
+ * first-mismatch: +0x28
+ * summary: Grid induction and record-store schedule remain structurally different.
+ * PLATEAU-HANDOFF:func_800371BC:end
+ */
