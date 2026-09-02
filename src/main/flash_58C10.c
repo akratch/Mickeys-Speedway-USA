@@ -5,6 +5,8 @@ extern s32 func_8006A5A0(OSMesgQueue *queue, OSPfs *pfs, s32 channel);
 extern s32 func_8006AC60(OSPfs *pfs, s32 flag);
 extern OSMesgQueue *joyMessageQ(void);
 extern OSPfs D_800D7830;
+extern OSGbpakId D_800D77E0;
+extern OSGbpakId *D_8007F7A0;
 extern s8 D_8007F7A4;
 extern s32 D_8007A1CC;
 extern s32 D_800D789C;
@@ -25,7 +27,22 @@ void func_80058010(void) {
         func_8006AC60(&D_800D7830, 0);
     }
 }
+#ifdef NON_MATCHING
+void func_8005807C(void) {
+    u8 status;
+
+    if (D_8007F7A4 != 0) {
+        if (osGbpakReadId(&D_800D7830, &D_800D77E0, &status) == 0) {
+            D_8007F7A0 = &D_800D77E0;
+        } else {
+            D_8007F7A0 = NULL;
+        }
+        func_8006AC60(&D_800D7830, 0);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/flash_58C10/func_8005807C.s")
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/flash_58C10/func_800580F0.s")
 void func_800581BC(void) {
     D_8007A1CC |= 0x04000000;
@@ -43,8 +60,16 @@ void func_8005820C(s32 arg0, s32 arg1, s32 arg2) {
     D_800D78A8 = arg2;
 }
 
-extern s32 D_8007F7A0;
-
-s32 func_80058240(void) {
+OSGbpakId *func_80058240(void) {
     return D_8007F7A0;
 }
+
+/* PLATEAU-HANDOFF:func_8005807C:start
+ * symbol: func_8005807C
+ * score: 27/29 words
+ * frame: 0x20
+ * relocations: 16
+ * first-mismatch: +0x6C
+ * summary: C body is exact through 0x6C; target carries an unreferenced 8-byte duplicate-return tail that normal -O2 IDO does not emit.
+ * PLATEAU-HANDOFF:func_8005807C:end
+ */
