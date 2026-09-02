@@ -933,7 +933,1190 @@ void func_80051364(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80051364.s")
 #endif
+
+/*
+ * PROVENANCE: the command-interpreter role and switch organization are
+ * adapted from JFG's public animseqProcessCommandList assembly. Mickey's
+ * command widths, globals, object offsets, call targets, and body below are
+ * established independently from Mickey's ROM and remain authoritative.
+ */
+#ifdef NON_MATCHING
+struct AnimCommandSub;
+struct AnimCommandSubState;
+struct AnimCommandAnimation;
+struct AnimCommandFrameReference;
+
+typedef struct AnimCommandObject {
+    u8 pad0[6];
+    s16 flags6;
+    u8 pad8[4];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad18[4];
+    f32 velocityX;
+    f32 velocityY;
+    f32 velocityZ;
+    f32 animationValue;
+    u8 pad2C[0xD];
+    u8 state39;
+    s8 animationIndex;
+    u8 pad3B;
+    s32 unk3C;
+    u8 *model;
+    u8 pad44[8];
+    struct AnimCommandSub *sub;
+    u8 pad50[0x18];
+    struct AnimCommandAnimation **animations;
+    void **table70;
+    void **table74;
+    u8 pad78[8];
+    s32 flags80;
+    void *soundHandle;
+    s32 unk88;
+    u8 pad8C[4];
+    u8 unk90;
+} AnimCommandObject;
+
+typedef struct AnimCommandSub {
+    f32 unk0;
+    f32 unk4;
+    u8 pad8[8];
+    u8 type10;
+    s8 type11;
+    u8 pad12[8];
+    struct AnimCommandSubState *next1C;
+} AnimCommandSub;
+
+typedef struct AnimCommandSubState {
+    f32 unk0;
+    f32 unk4;
+    u8 pad8[8];
+    u8 type10;
+    s8 type11;
+    u8 pad12[0x9A];
+    f32 unkAC;
+    u8 padB0[0xA];
+    u8 unkBA;
+} AnimCommandSubState;
+
+typedef struct AnimCommandAnimationHeader {
+    u8 pad0[0x10];
+    u8 count10;
+    u8 pad11[7];
+    struct AnimCommandFrameReference **recordTable;
+} AnimCommandAnimationHeader;
+
+typedef struct AnimCommandFrameRecord {
+    u8 pad0[4];
+    s32 flags;
+} AnimCommandFrameRecord;
+
+typedef struct AnimCommandFrameReference {
+    u8 pad0[4];
+    s32 flags;
+    u8 pad8[0xA];
+    s16 speed12;
+} AnimCommandFrameReference;
+
+typedef struct AnimCommandAnimation {
+    AnimCommandAnimationHeader *header;
+    u8 pad4[0x48];
+    AnimCommandFrameRecord *records;
+} AnimCommandAnimation;
+
+typedef struct AnimCommandTrackEntry {
+    u8 pad0[0x12];
+    s16 speed12;
+} AnimCommandTrackEntry;
+
+typedef struct AnimCommandTrack {
+    AnimCommandTrackEntry **entries;
+    u8 pad4[0x14];
+    s16 count18;
+} AnimCommandTrack;
+
+extern u8 D_8007BF0C;
+extern f32 D_800841B4;
+extern f32 D_800841B8;
+extern f32 D_800841BC;
+extern f32 D_800841C0;
+extern f32 D_80083FB4;
+extern s16 D_800D6C4E;
+extern s16 D_800D6C50;
+
+void func_80000510(u8 sequenceId);
+void func_800005CC(f32 fade, s32 *rate, u8 volume);
+void amTuneResetFade(void);
+void amTuneSetVolume(u8 volume);
+void amAmbientPlay(u8 sequenceId);
+void amAmbientResetFade(void);
+void amAmbientSetFade(f32 fade, s32 *rate, u8 volume);
+void amAmbientSetVolume(u8 volume);
+void amSndPlay(u16 soundId, void **handle);
+void func_80002FE0(s32 id, f32 x, f32 y, f32 z, s32 priority,
+                   void **handle);
+void changeWeather(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
+                   s32 arg5);
+void func_80014BAC(s32 fogIndex, s32 red, s32 green, s32 blue, s32 near,
+                   s32 far, f32 timer);
+void func_8004EED0(u8 arg0);
+void func_8004E99C(s32 *rate);
+f32 func_8002A8BC(s16 angle);
+f32 func_8002A8C0(s16 angle);
+void camStartShake(s32 camNo, f32 attack, f32 sustain, f32 decay,
+                   s32 magnitude);
+void rumbleStart(s32 playerIndex, s32 strength, f32 duration);
+void *trackGetTrack(s32 *rate);
+void func_8005AD64(void *instance, s32 frame, s32 arg2, f32 value);
+void mainSyncNextLevel(s32 *rate);
+void func_80029084(s32 arg0, s32 arg1);
+u8 frontGetMode(s32 *rate);
+void mainChangeLevel(s32 nextLevel, s32 nextCharacter, s32 nextAnimGroup,
+                     s32 frontMode, s32 arg4, s32 arg5);
+void mainSetAnimGroup(s32 arg0);
+void joyDisable(s32 player);
+void joyEnable(s32 player);
+
+/* Workbench: structure-mismatch, 1789 differing words, first mismatch +0x0. */
+/* Candidate shape: 1806 instructions/frame -0x1B0; not shape-exact/permuter-ready. */
+/* Structural gap: command dispatch, local spills, and relocation layout remain. */
+void func_800517E0(void) {
+    AnimPath ** paths;
+    u8 *cursor;
+    u16 currentCommand;
+    u16 initialDuration;
+    u16 duration;
+    u8 opcode;
+    s32 pathIndex;
+    f32 commandTime;
+    f32 hundred;
+    f32 delta;
+    volatile f32 deltaScratch;
+    volatile f32 valueScratch;
+    f32 value;
+    f32 value2;
+    f32 factor;
+    f32 unit;
+    f32 scale;
+    f32 target;
+    f32 start;
+    f32 end;
+    f32 color;
+    f32 normalized;
+    s32 packed;
+    s32 packed2;
+    s32 high;
+    s32 low;
+    s32 high2;
+    s32 low2;
+    s32 targetValue;
+    s32 index;
+    s32 frame;
+    s32 timer;
+    s32 state;
+    s32 flagsValue;
+    s32 *updateRate;
+    s32 frameScale;
+    s16 signedValue;
+    AnimPath *path;
+    AnimPath * volatile pathScratch;
+    AnimCommandObject *object;
+    AnimCommandSub *sub;
+    AnimCommandSubState *next;
+    AnimCommandAnimation *animation;
+    AnimCommandAnimationHeader *header;
+    AnimCommandFrameRecord *record;
+    AnimCommandFrameReference *reference;
+    AnimCommandTrack *track;
+    AnimCommandTrackEntry *trackEntry;
+    void **soundSlot;
+    void *sound;
+    void *entry;
+    u8 type;
+    volatile u8 framePad[64];
+
+    framePad[0] = 0;
+    cursor = (u8 *) D_8007D69C;
+    paths = D_800D6B00;
+    if (cursor != NULL) {
+        currentCommand = *(u16 *) (cursor + 2);
+        if (currentCommand != 0x7F00) {
+            initialDuration = *(u16 *) cursor;
+            duration = initialDuration;
+            hundred = 100.0f;
+            commandTime = (f32) initialDuration;
+            commandTime /= hundred;
+            if ((commandTime < D_8007D6AC) && (D_8007D6A4 == 1)) {
+                scale = 60.0f;
+                factor = D_80083FB4;
+                frameScale = 6000;
+
+            command_loop:
+                opcode = (currentCommand >> 8) & 0xFF;
+                if (opcode >= 0x7F) {
+                    goto command_tail;
+                }
+                delta = D_8007D6AC - commandTime;
+                switch (opcode) {
+                    case 0:
+                        pathIndex = currentCommand & 0xFF;
+                        cursor += 4;
+                        animseqStartPath(pathIndex);
+                        deltaScratch = delta;
+                        TrapDanglingJump(paths[pathIndex],
+                                         *(s32 *) &deltaScratch,
+                                         0, 0);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        break;
+                    case 1:
+                        pathIndex = currentCommand & 0xFF;
+                        cursor += 4;
+                        animseqStopPath(pathIndex);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        break;
+                    case 2:
+                        pathIndex = currentCommand & 0xFF;
+                        path = paths[pathIndex];
+                        cursor += 4;
+                        if (path != NULL) {
+                            if (path->flags & 1) {
+                                func_8005055C(pathIndex);
+                                animseqStartPath(pathIndex);
+                                deltaScratch = delta;
+                                TrapDanglingJump(path,
+                                                 *(s32 *) &deltaScratch,
+                                                 0, 0);
+                            } else {
+                                func_8005055C(pathIndex);
+                            }
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        break;
+                    case 3:
+                        path = paths[currentCommand & 0xFF];
+                        cursor += 4;
+                        if (path != NULL) {
+                            path->flags |= 2;
+                            object = (AnimCommandObject *) path->unk8;
+                            if ((object != NULL) && (path->flags & 5)) {
+                                D_800D6B08[0] = (AnimCameraSource *) object;
+                            }
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 4:
+                        path = paths[currentCommand & 0xFF];
+                        cursor += 4;
+                        if (path != NULL) {
+                            path->flags &= ~2;
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 5:
+                        pathIndex = currentCommand & 0xFF;
+                        cursor += 4;
+                        animseqHoldPath(pathIndex);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 6:
+                        path = paths[currentCommand & 0xFF];
+                        packed = *(u16 *) (cursor + 4);
+                        cursor += 6;
+                        if (path != NULL) {
+                            path->unk15 = (s8) (packed >> 8);
+                            path->unk1 = packed & 0xFF;
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 7:
+                        path = paths[currentCommand & 0xFF];
+                        value = (f32) (*(u16 *) (cursor + 4));
+                        cursor += 6;
+                        if (path != NULL) {
+                            path->unk10 = value * D_800841B4;
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 8:
+                        path = paths[currentCommand & 0xFF];
+                        start = (f32) (*(u16 *) (cursor + 4));
+                        end = (f32) (*(u16 *) (cursor + 6));
+                        cursor += 8;
+                        if (path != NULL) {
+                            start *= factor;
+                            path->unk2A = (s16) (s32) (end * scale * factor);
+                            if (path->unk2A == 0) {
+                                path->unk2C = start;
+                            } else {
+                                path->unk30 =
+                                    (start - path->unk2C) /
+                                    (f32) path->unk2A;
+                            }
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 9:
+                        pathIndex = currentCommand & 0xFF;
+                        cursor += 4;
+                        animseqLockPath(pathIndex);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0xA:
+                        pathIndex = currentCommand & 0xFF;
+                        cursor += 4;
+                        animseqUnLockPath(pathIndex);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x20:
+                        packed = *(u16 *) (cursor + 4);
+                        cursor += 6;
+                        amSndPlay(packed, NULL);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x21:
+                        cursor += 4;
+                        func_80000510(currentCommand & 0xFF);
+                        amTuneResetFade();
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x22:
+                        duration = *(u16 *) (cursor + 4);
+                        value = (f32) duration;
+                        cursor += 6;
+                        func_800005CC(value / hundred - delta, &D_8007D6A4,
+                                      currentCommand & 0xFF);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x23:
+                        cursor += 4;
+                        amTuneSetVolume(currentCommand & 0xFF);
+                        amTuneResetFade();
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x24:
+                        cursor += 4;
+                        amAmbientPlay(currentCommand & 0xFF);
+                        amAmbientResetFade();
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x25:
+                        duration = *(u16 *) (cursor + 4);
+                        value = (f32) duration;
+                        cursor += 6;
+                        amAmbientSetFade(value / hundred - delta, &D_8007D6A4,
+                                         currentCommand & 0xFF);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x26:
+                        cursor += 4;
+                        amAmbientSetVolume(currentCommand & 0xFF);
+                        amAmbientResetFade();
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x27:
+                        pathIndex = currentCommand & 0xFF;
+                        soundSlot = &D_800D6B18[pathIndex];
+                        sound = *soundSlot;
+                        packed = *(u16 *) (cursor + 4);
+                        cursor += 6;
+                        if (sound != NULL) {
+                            amSndStop(sound);
+                            *soundSlot = NULL;
+                        }
+                        amSndPlay(packed, soundSlot);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x28:
+                        pathIndex = currentCommand & 0xFF;
+                        soundSlot = &D_800D6B18[pathIndex];
+                        sound = *soundSlot;
+                        cursor += 4;
+                        if (sound != NULL) {
+                            amSndStop(sound);
+                            *soundSlot = NULL;
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x29:
+                        path = paths[currentCommand & 0xFF];
+                        packed = *(u16 *) (cursor + 4);
+                        cursor += 6;
+                        if ((path != NULL) && (path->unk8 != NULL)) {
+                            object = (AnimCommandObject *) path->unk8;
+                            if (object->soundHandle != NULL) {
+                                func_800031E8(object->soundHandle);
+                                object->soundHandle = NULL;
+                            }
+                            func_80002FE0(packed & 0xFFFF, object->x,
+                                          object->y, object->z, 1,
+                                          &object->soundHandle);
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x2A:
+                        path = paths[currentCommand & 0xFF];
+                        cursor += 4;
+                        if ((path != NULL) && (path->unk8 != NULL)) {
+                            object = (AnimCommandObject *) path->unk8;
+                            if (object->soundHandle != NULL) {
+                                func_800031E8(object->soundHandle);
+                                object->soundHandle = NULL;
+                            }
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x2B:
+                        path = paths[currentCommand & 0xFF];
+                        packed = *(u16 *) (cursor + 4);
+                        cursor += 6;
+                        if (path != NULL) {
+                            path->unk28 = packed >> 8;
+                            path->unk29 = packed & 0xFF;
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x40:
+                        packed = *(u16 *) (cursor + 4);
+                        packed2 = *(u16 *) (cursor + 6);
+                        index = currentCommand & 0xFF;
+                        high = (packed >> 8) & 0xFF;
+                        low = packed & 0xFF;
+                        high2 = (packed2 >> 8) & 0xFF;
+                        low2 = packed2 & 0xFF;
+                        value = (f32) (*(u16 *) (cursor + 8));
+                        duration = *(u16 *) (cursor + 0xA);
+                        target = (f32) duration;
+                        cursor += 0xC;
+                        if ((index & 0xF) == 7) {
+                            packed = low != 0 ? 0 : 0xFF;
+                            TrapDanglingJump(high, high2, low2, packed,
+                                             (s32) (value * factor * scale));
+                        } else {
+                            color = target != D_800841B8 ?
+                                target / hundred : -1.0f;
+                            if (low != 0) {
+                                index |= 0x80;
+                            }
+                            normalized = value / hundred;
+                            func_800498FC(4, *(u32 *) &normalized,
+                                          *(u32 *) &color, high,
+                                          high2, low2, index);
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x41:
+                        cursor += 4;
+                        func_8004EED0(currentCommand & 0xFF);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x42:
+                        cursor += 4;
+                        func_8004E99C(&D_8007D6A4);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x43:
+                        duration = *(u16 *) (cursor + 4);
+                        value = (f32) duration;
+                        color = (f32) (currentCommand & 0xFF);
+                        color = (color / 255.0f) * D_800841BC;
+                        cursor += 6;
+                        changeWeather(0, 0, 0, (s32) color, 0xFFFF,
+                                      (s32) (value * scale * factor));
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x44:
+                        duration = *(u16 *) (cursor + 4);
+                        value = (f32) duration;
+                        signedValue = *(s16 *) (cursor + 6);
+                        packed = *(s16 *) (cursor + 8);
+                        packed2 = *(s16 *) (cursor + 0xA);
+                        cursor += 0xC;
+                        unit = 0.00390625f;
+                        changeWeather((s32) ((f32) signedValue * unit),
+                                      (s32) ((f32) packed * unit),
+                                      (s32) ((f32) packed2 * unit), 1, 1,
+                                      (s32) value);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x45:
+                        duration = *(u16 *) (cursor + 6);
+                        value = (f32) duration;
+                        packed = *(u16 *) (cursor + 4);
+                        packed2 = *(u16 *) (cursor + 8);
+                        index = *(u16 *) (cursor + 0xA);
+                        high = (packed >> 8) & 0xFF;
+                        low = packed & 0xFF;
+                        cursor += 0xC;
+                        func_80014BAC(0, currentCommand & 0xFF, high, low,
+                                      packed2, index, value / hundred - delta);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x46: {
+                        u16 raw8;
+                        u16 rawA;
+                        u16 rawC;
+                        u16 rawE;
+                        s16 raw4;
+                        s16 raw6;
+
+                        raw8 = *(u16 *) (cursor + 8);
+                        raw4 = *(s16 *) (cursor + 4);
+                        raw6 = *(s16 *) (cursor + 6);
+                        rawA = *(u16 *) (cursor + 0xA);
+                        rawC = *(u16 *) (cursor + 0xC);
+                        rawE = *(u16 *) (cursor + 0xE);
+                        index = currentCommand << 8;
+                        start = (f32) (raw8 & 0xFF);
+                        end = (f32) raw4;
+                        color = (f32) raw6;
+                        cursor += 0x10;
+                        value = func_8002A8C0(index) * end;
+                        value2 = func_8002A8BC(index) * end;
+                        low = rawE & 0xFF;
+                        TrapDanglingJump(
+                            index, value, color, *(s32 *) &value2,
+                            ((raw8 >> 8) & 0xFF) * 2,
+                            (rawA >> 8) & 0xFF, rawA & 0xFF,
+                            (rawC >> 8) & 0xFF, rawC & 0xFF,
+                            (rawE >> 8) & 0xFF, low,
+                            start / hundred);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    }
+                    case 0x47:
+                        duration = *(u16 *) (cursor + 4);
+                        value = (f32) duration;
+                        packed = *(u16 *) (cursor + 6);
+                        value2 = (f32) packed;
+                        if (packed < 0) {
+                            value2 += 4294967296.0f;
+                        }
+                        packed2 = *(u16 *) (cursor + 8);
+                        target = (f32) packed2;
+                        if (packed2 < 0) {
+                            target += 4294967296.0f;
+                        }
+                        cursor += 0xA;
+                        camStartShake(0, value / hundred, value2 / hundred,
+                                      target / hundred, currentCommand & 0xFF);
+                        if (D_8007BF0C == 0) {
+                            rumbleStart(0, 0x4B, 2.0f);
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x48:
+                        index = *(u16 *) (cursor + 4);
+                        frame = *(u16 *) (cursor + 6);
+                        cursor += 8;
+                        track = (AnimCommandTrack *) trackGetTrack(&D_8007D6A4);
+                        if ((track != NULL) && (index < track->count18)) {
+                            trackEntry = track->entries[index];
+                            if (trackEntry != NULL) {
+                                trackEntry->speed12 = (s16) ((frame << 8) /
+                                                               frameScale);
+                            }
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x49:
+                        index = *(u16 *) (cursor + 4);
+                        signedValue = *(s16 *) (cursor + 6);
+                        packed = *(s16 *) (cursor + 8);
+                        duration = *(u16 *) (cursor + 0xA);
+                        cursor += 0xC;
+                        entry = (u8 *) D_800D6B58 +
+                                ((currentCommand & 7) * 0x14);
+                        *(u8 *) ((u8 *) entry + 0) = index;
+                        *(s16 *) ((u8 *) entry + 2) =
+                            (s16) ((f32) duration * D_800841C0);
+                        timer = *(s16 *) ((u8 *) entry + 2);
+                        *(s32 *) ((u8 *) entry + 8) =
+                            ((s32) (((s32) signedValue << 16) / frameScale) -
+                             *(s32 *) ((u8 *) entry + 4)) / timer;
+                        *(s32 *) ((u8 *) entry + 0x10) =
+                            ((s32) (((s32) packed << 16) / frameScale) -
+                             *(s32 *) ((u8 *) entry + 0xC)) / timer;
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x4A:
+                        packed = *(u16 *) (cursor + 4);
+                        packed2 = *(u16 *) (cursor + 6);
+                        index = currentCommand & 0xFF;
+                        cursor += 8;
+                        if ((packed >> 8) != 0) {
+                            TrapDanglingJump(index, packed & 0xFF,
+                                             (packed2 >> 8) & 0xFF,
+                                             packed2 & 0xFF, packed >> 8);
+                        } else {
+                            TrapDanglingJump(index);
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x4B:
+                        duration = *(u16 *) (cursor + 4);
+                        value = (f32) duration;
+                        cursor += 6;
+                        timer = (s32) (value * scale * factor);
+                        D_800D6C4E = timer;
+                        D_800D6C4C = timer;
+                        D_800D6C50 = D_800D6C54;
+                        D_800D6C52 = currentCommand & 0xFF;
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x4C:
+                        packed = *(u16 *) (cursor + 4);
+                        packed2 = *(u16 *) (cursor + 6);
+                        timer = *(u16 *) (cursor + 8);
+                        frame = *(u16 *) (cursor + 0xA);
+                        duration = *(u16 *) (cursor + 0xC);
+                        cursor += 0xE;
+                        TrapDanglingJump(currentCommand & 0xFF,
+                                         (packed >> 8) & 0xFF, packed & 0xFF,
+                                         packed2 & 0xFF00,
+                                         (packed2 & 0xFF) << 8,
+                                         timer & 0xFF00, (timer & 0xFF) << 8,
+                                         frame, duration);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x4D:
+                        packed = *(u16 *) (cursor + 4);
+                        duration = *(u16 *) (cursor + 6);
+                        packed2 = *(u16 *) (cursor + 8);
+                        timer = *(u16 *) (cursor + 0xA);
+                        frame = *(u16 *) (cursor + 0xC);
+                        cursor += 0xE;
+                        TrapDanglingJump(packed, (s32) duration,
+                                         packed2, timer, frame >> 8,
+                                         frame & 0xFF, currentCommand & 0xFF);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x60:
+                        packed = *(u16 *) (cursor + 4);
+                        high = (packed >> 8) & 0xFF;
+                        low = packed & 0xFF;
+                        frame = *(u16 *) (cursor + 6);
+                        value = (f32) frame / 16384.0f;
+                        duration = *(u16 *) (cursor + 8);
+                        value2 = (f32) duration / 16384.0f;
+                        path = paths[currentCommand & 0xFF];
+                        cursor += 0xA;
+                        if ((path != NULL) && (path->unk8 != NULL)) {
+                            object = (AnimCommandObject *) path->unk8;
+                            valueScratch = value2;
+                            if (*(s8 *) (object->model + object->animationIndex +
+                                         0x1E) == 1) {
+                                object->animationValue = value;
+                            } else {
+                                pathScratch = path;
+                                func_8005AD64(object, high, -1, value);
+                                path = pathScratch;
+                            }
+                            path->unkC = valueScratch;
+                            path->unk14 = low;
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x61:
+                        path = paths[currentCommand & 0xFF];
+                        frame = *(u16 *) (cursor + 4);
+                        cursor += 6;
+                        if ((path != NULL) && (path->unk8 != NULL)) {
+                            object = (AnimCommandObject *) path->unk8;
+                            if (frame < *(s8 *) (object->model + 0x22)) {
+                                object->animationIndex = frame;
+                            }
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x62:
+                        packed = *(u16 *) (cursor + 4);
+                        packed2 = *(u16 *) (cursor + 6);
+                        target = ((packed << 16) | packed2);
+                        path = paths[currentCommand & 0xFF];
+                        cursor += 8;
+                        if ((path != NULL) && (path->unk8 != NULL)) {
+                            object = (AnimCommandObject *) path->unk8;
+                            object->flags80 |= (s32) target;
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x63:
+                        packed = *(u16 *) (cursor + 4);
+                        packed2 = *(u16 *) (cursor + 6);
+                        target = ((packed << 16) | packed2);
+                        path = paths[currentCommand & 0xFF];
+                        cursor += 8;
+                        if ((path != NULL) && (path->unk8 != NULL)) {
+                            object = (AnimCommandObject *) path->unk8;
+                            object->flags80 &= ~(s32) target;
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x64:
+                        path = paths[currentCommand & 0xFF];
+                        cursor += 4;
+                        if ((path != NULL) && (path->unk8 != NULL)) {
+                            object = (AnimCommandObject *) path->unk8;
+                            object->flags6 &= ~0x400;
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x65:
+                        path = paths[currentCommand & 0xFF];
+                        cursor += 4;
+                        if ((path != NULL) && (path->unk8 != NULL)) {
+                            object = (AnimCommandObject *) path->unk8;
+                            object->flags6 |= 0x400;
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x66:
+                        path = paths[currentCommand & 0xFF];
+                        frame = *(u16 *) (cursor + 4);
+                        cursor += 6;
+                        if ((path != NULL) && (path->unk8 != NULL)) {
+                            object = (AnimCommandObject *) path->unk8;
+                            object->unk88 = frame;
+                        } else {
+                            D_800D6C48 = frame;
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x67:
+                        path = paths[currentCommand & 0xFF];
+                        frame = *(u16 *) (cursor + 4);
+                        cursor += 6;
+                        if ((path != NULL) && (path->unk8 != NULL)) {
+                            object = (AnimCommandObject *) path->unk8;
+                            if (frame != 0) {
+                                object->flags6 |= 4;
+                            } else {
+                                object->flags6 &= ~4;
+                            }
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x68:
+                        path = paths[currentCommand & 0xFF];
+                        frame = *(u16 *) (cursor + 4);
+                        duration = *(u16 *) (cursor + 6);
+                        cursor += 8;
+                        if ((path != NULL) && (path->unk8 != NULL)) {
+                            object = (AnimCommandObject *) path->unk8;
+                            type = path->unk25;
+                            path->unk25 = frame;
+                            path->unk27 = 0;
+                            path->unk24 = type;
+                        path->unk26 = (s8) ((f32) duration /
+                                                hundred * scale);
+                            object->state39 = type;
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x6A:
+                        packed = *(u16 *) (cursor + 4);
+                        packed2 = *(u16 *) (cursor + 6);
+                        frame = *(u16 *) (cursor + 8);
+                        duration = *(u16 *) (cursor + 0xA);
+                        high = (packed >> 8) & 0xFF;
+                        low = packed & 0xFF;
+                        high2 = (packed2 >> 8) & 0xFF;
+                        low2 = packed2 & 0xFF;
+                        value = (f32) duration;
+                        path = paths[currentCommand & 0xFF];
+                        cursor += 0xC;
+                        if ((path != NULL) && (path->unk8 != NULL)) {
+                            object = (AnimCommandObject *) path->unk8;
+                            entry = object->table70;
+                            if ((entry != NULL) &&
+                                (high < *(s8 *) (object->model + 0x28))) {
+                                entry = *(void **)
+                                    ((u8 *) entry + high * 4);
+                                TrapDanglingJump(entry, low, high2, low2,
+                                                 frame, value, 1);
+                            }
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x6B:
+                        packed = *(u16 *) (cursor + 4);
+                        packed2 = *(u16 *) (cursor + 6);
+                        frame = *(u16 *) (cursor + 8);
+                        duration = *(u16 *) (cursor + 0xA);
+                        high = (packed >> 8) & 0xFF;
+                        low = packed & 0xFF;
+                        high2 = (packed2 >> 8) & 0xFF;
+                        low2 = packed2 & 0xFF;
+                        value = (f32) duration;
+                        path = paths[currentCommand & 0xFF];
+                        cursor += 0xC;
+                        if ((path != NULL) && (path->unk8 != NULL)) {
+                            object = (AnimCommandObject *) path->unk8;
+                            entry = object->table74;
+                            if ((entry != NULL) &&
+                                (high < *(u8 *) (object->model + 0x29))) {
+                                entry = *(void **)
+                                    ((u8 *) entry + high * 4);
+                                TrapDanglingJump(entry, low, high2, low2,
+                                                 frame, value, 0);
+                            }
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x6C:
+                        path = paths[currentCommand & 0xFF];
+                        type = *(u8 *) (cursor + 5);
+                        cursor += 6;
+                        if ((path != NULL) && (path->unk8 != NULL)) {
+                            ((AnimCommandObject *) path->unk8)->unk90 = type;
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x6D:
+                        type = *(u8 *) (cursor + 5);
+                        signedValue = *(s16 *) (cursor + 6);
+                        packed = *(s16 *) (cursor + 8);
+                        duration = *(u16 *) (cursor + 0xA);
+                        value = (f32) signedValue * 0.00390625f;
+                        value2 = (f32) packed * 0.00390625f;
+                        path = paths[currentCommand & 0xFF];
+                        cursor += 0xC;
+                        if ((path != NULL) && (path->unk8 != NULL)) {
+                            object = (AnimCommandObject *) path->unk8;
+                            sub = object->sub;
+                            if (sub != NULL) {
+                                switch (type) {
+                                    case 0:
+                                        sub->type10 = 0;
+                                        break;
+                                    case 1:
+                                        sub->type10 = 5;
+                                        sub->type11 = 1;
+                                        break;
+                                    case 2:
+                                    case 3:
+                                    case 4:
+                                        sub->type10 = 1;
+                                        sub->type11 = type - 1;
+                                        break;
+                                    case 5:
+                                    case 6:
+                                    case 7:
+                                    case 8:
+                                        sub->type10 = type == 5 ? 0xD : 9;
+                                        next = sub->next1C;
+                                        if ((next != NULL) &&
+                                            (next->type10 & 8)) {
+                                            next->unkBA = duration;
+                                            next->type11 = type == 5 ?
+                                                1 : type - 5;
+                                            if (duration == 0) {
+                                                next->unk0 = sub->unk0;
+                                                next->unk4 = sub->unk4;
+                                                next->unkAC =
+                                                    *(f32 *) (object->model + 0x5C);
+                                            } else if (duration == 2) {
+                                                next->unk0 = value;
+                                                next->unk4 = value;
+                                                next->unkAC = value2;
+                                            }
+                                        }
+                                        break;
+                                }
+                            }
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x6E:
+                        packed = *(u16 *) (cursor + 4);
+                        packed2 = *(u16 *) (cursor + 6);
+                        timer = *(u16 *) (cursor + 8);
+                        frame = *(u16 *) (cursor + 0xA);
+                        duration = *(u16 *) (cursor + 0xC);
+                        value = (f32) duration;
+                        path = paths[currentCommand & 0xFF];
+                        cursor += 0xE;
+                        if ((path != NULL) && (path->unk8 != NULL)) {
+                            TrapDanglingJump(path->unk8, (packed >> 8) & 0xFF,
+                                             packed & 0xFF, packed2, timer,
+                                             frame, (s32) (value * factor *
+                                                           scale));
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x6F:
+                        packed = *(u16 *) (cursor + 4);
+                        high = (packed >> 8) & 0xFF;
+                        low = packed & 0xFF;
+                        frame = *(u16 *) (cursor + 6);
+                        path = paths[currentCommand & 0xFF];
+                        cursor += 8;
+                        if ((path != NULL) && (path->unk8 != NULL)) {
+                            object = (AnimCommandObject *) path->unk8;
+                            if ((object->animationIndex >= 4) ||
+                                (*(f32 *) (object->model +
+                                           object->animationIndex * 4 + 0xD0) ==
+                                 0.0f)) {
+                                state = *(s8 *) (object->model + 0x1E);
+                            } else {
+                                state = *(s8 *) (object->model +
+                                                 object->animationIndex + 0x1E);
+                            }
+                            if (state == 1) {
+                                object->animationValue = high;
+                                path->unkC = (f32) frame / scale;
+                            } else if (state == 0) {
+                                animation = object->animations[
+                                    object->animationIndex];
+                                if (high < animation->header->count10) {
+                                    record = animation->records + high;
+                                    flagsValue = record->flags;
+                                    header = animation->header;
+                                    reference = *(AnimCommandFrameReference **)
+                                        ((u8 *) header->recordTable +
+                                         (flagsValue & 0xFF) * 8);
+                                    record->flags = flagsValue & 0xFF1FFFFF;
+                                    reference->flags = reference->flags &
+                                        0xFF1FFFFF;
+                                    reference->speed12 =
+                                        (s16) ((frame << 8) / frameScale);
+                                    if (low == 1) {
+                                        record->flags |= 0x800000;
+                                        reference->flags |= 0x800000;
+                                    } else if (low == 2) {
+                                        record->flags |= 0x400000;
+                                        reference->flags |= 0x400000;
+                                    }
+                                }
+                            }
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x74:
+                        cursor += 4;
+                        TrapDanglingJump(1);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x75:
+                        cursor += 4;
+                        TrapDanglingJump(0);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x76:
+                        cursor += 4;
+                        mainSyncNextLevel(&D_8007D6A4);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x78:
+                        packed = *(u16 *) (cursor + 4);
+                        cursor += 6;
+                        func_80029084(packed, currentCommand & 0xFF);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x79:
+                        value = (f32) (currentCommand & 0xFF);
+                        duration = *(u16 *) (cursor + 4);
+                        value2 = (f32) duration;
+                        cursor += 6;
+                        timer = (s32) (value2 * scale * factor);
+                        D_8007D6BC = timer;
+                        if (timer > 0) {
+                            D_8007D6B8 = (value - D_8007D6B4) /
+                                         (f32) timer;
+                        } else {
+                            D_8007D6B4 = value;
+                        }
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x7A:
+                        packed = *(u16 *) (cursor + 4);
+                        index = packed & 0xFFF;
+                        high = (currentCommand >> 4) & 0xF;
+                        low = (packed >> 12) & 0xF;
+                        cursor += 6;
+                        if (index == 0xFFF) {
+                            index = 0;
+                        }
+                        mainChangeLevel(index, high, low, frontGetMode(&D_8007D6A4), 1,
+                                         0);
+                        mainSetAnimGroup(currentCommand & 0xF);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x7B:
+                        D_8007D6A8 = ((s32) initialDuration * 0x3C) / 100;
+                        duration = *(u16 *) cursor;
+                        value = (f32) duration;
+                        cursor += 4;
+                        D_8007D6AC = value * factor;
+                        D_8007D6A4 = (s8) currentCommand;
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x7C:
+                        cursor += 4;
+                        joyDisable(currentCommand & 3);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x7D:
+                        cursor += 4;
+                        joyEnable(currentCommand & 3);
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    case 0x7E:
+                        D_8007D6A8 -= ((s32) initialDuration * 0x3C) / 100;
+                        duration = *(u16 *) cursor;
+                        value2 = (f32) duration;
+                        cursor = (u8 *) D_8007D698;
+                        D_8007D6AC = D_8007D6AC - value2 * factor;
+                        currentCommand = *(u16 *) (cursor + 2);
+                        updateRate = &D_8007D6A4;
+                        frameScale = 6000;
+                        goto command_tail;
+                    default:
+                        goto command_tail;
+                }
+
+command_tail:
+                updateRate = &D_8007D6A4;
+                if (currentCommand != 0x7F00) {
+                    duration = *(u16 *) cursor;
+                    commandTime = (f32) duration;
+                    commandTime /= hundred;
+                    if ((commandTime < D_8007D6AC) &&
+                        (*updateRate == 1)) {
+                        goto command_loop;
+                    }
+                }
+            }
+        }
+        D_8007D69C = (AnimStreamEntry *) cursor;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800517E0.s")
+#endif
 /*
  * PROVENANCE: JFG's public src/anim.c supplies the ordered animseqCamera
  * comparison; the body and local layouts are reconstructed from Mickey.
