@@ -352,3 +352,13 @@ void func_overlay_001_F0001D78_184E158(s32 index,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_middle_c1a0/func_overlay_001_F0001D78_184E158.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_001_F0001D78_184E158:start
+ * symbol: func_overlay_001_F0001D78_184E158
+ * score: 584 differing words
+ * frame: 0x80
+ * relocations: 185
+ * first-mismatch: +0x0
+ * summary: 599 candidate instructions versus 627 target; promotion trial stopped at relocation schedule divergence D_1D94
+ * PLATEAU-HANDOFF:func_overlay_001_F0001D78_184E158:end
+ */
