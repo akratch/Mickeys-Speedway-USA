@@ -399,7 +399,7 @@ segments:
       - [0x6EA30, c, libultra/pfschecker]
       # 0x40 bytes between the end of io/pfschecker.c and the corridor.
       # Matches nothing in any of the five reference builds. Unidentified.
-      - [0x6F3E0, asm]
+      - [0x6F3E0, c, libultra/block_6F3E0]
       # -----------------------------------------------------------------
       # libultra corridor: ROM 0x6F420 - 0x76D10 (VRAM 0x8006E820 - 0x80076110).
       #
