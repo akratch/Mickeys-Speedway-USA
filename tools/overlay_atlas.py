@@ -1266,6 +1266,12 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x49E8, 0x4CF0, "overlay8UpdateMotionOutput"),
     ],
     9: [
+        (
+            0x09BC,
+            0x0CE4,
+            "func_overlay_009_F00009BC_1867034",
+            "canonical mixed-TU object and linked bytes exact",
+        ),
         (0x10A4, 0x10B4, "overlay9Ignore"),
     ],
     45: [
