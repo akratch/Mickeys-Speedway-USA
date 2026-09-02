@@ -595,8 +595,10 @@ typedef struct {
 } Objects09220Gfx;
 
 extern void *camGetRotationMtx(void);
+extern void *camGetProjOrgMtx(void);
 extern void mathOneFloatPY(void *, f32 *);
 extern void mtxf_transform_point(void *, f32, f32, f32, f32 *, f32 *, f32 *);
+extern s32 func_800246B0(f32, f32, f32, f32 *, f32 *, u8);
 extern void func_80034DF0(u8, u8, u8, u8, u8, u8);
 extern void func_80034E48(void);
 extern void func_80023A08(void **, s32, s32, s16 *, s32, s32, s32);
@@ -2426,7 +2428,173 @@ void func_8000831C(void *arg0, void *arg1, s32 arg2, void *arg3, s32 arg4,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000831C.s")
 #endif
+typedef struct {
+    f32 x;
+    f32 y;
+    f32 z;
+} Objects084C4Point;
+
+typedef struct {
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
+} Objects084C4Vertex;
+
+typedef struct {
+    u32 w0;
+    u32 w1;
+} Objects084C4Gfx;
+
+/* Workbench verdict: structure-mismatch; 314 differing words (348/343 instructions). */
+/* First mismatch: +0x10; target frame is 0xB0, candidate frame is 0x98. */
+/* Structural gap: matrix/vertex carriers and late display-list command scheduling differ. */
+#ifdef NON_MATCHING
+void func_800084C4(Objects084C4Gfx **arg0, Objects084C4Vertex **arg1,
+                   s32 arg2, s32 arg3, Objects084C4Point *arg4,
+                   Objects084C4Point *arg5, f32 arg6, s32 arg7, s32 arg8,
+                   s32 arg9) {
+    f32 pointBX;
+    f32 pointBY;
+    f32 pointBZ;
+    f32 pointAX;
+    f32 pointAY;
+    f32 pointAZ;
+    f32 clippedBX;
+    f32 clippedBY;
+    f32 clippedBZ;
+    f32 clippedAX;
+    f32 clippedAY;
+    f32 clippedAZ;
+    f32 projectedBX;
+    f32 projectedBY;
+    f32 projectedAX;
+    f32 projectedAY;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaLengthSquared;
+    f32 scale;
+    void *rotationMatrix;
+    Objects084C4Gfx *displayList;
+    Objects084C4Vertex *vertices;
+    Objects084C4Vertex *output;
+    u32 segmentedVertices;
+    Objects084C4Gfx *command;
+
+    if ((arg4->x == arg5->x) && (arg4->y == arg5->y) &&
+        (arg4->z == arg5->z)) {
+        return;
+    }
+    rotationMatrix = camGetRotationMtx();
+    mtxf_transform_point(rotationMatrix, arg5->x, arg5->y, arg5->z,
+                         &pointBX, &pointBY, &pointBZ);
+    mtxf_transform_point(rotationMatrix, arg4->x, arg4->y, arg4->z,
+                         &pointAX, &pointAY, &pointAZ);
+    clippedBX = pointBX;
+    clippedBY = pointBY;
+    clippedBZ = pointBZ;
+    clippedAX = pointAX;
+    clippedAY = pointAY;
+    clippedAZ = pointAZ;
+    if ((pointBZ > -10.0f) && (pointAZ > -10.0f)) {
+        return;
+    }
+    if (pointBZ > -10.0f) {
+        clippedBZ = -10.0f;
+        scale = (-10.0f - pointBZ) / (pointAZ - pointBZ);
+        clippedBX = pointBX + ((pointAX - pointBX) * scale);
+        clippedBY = pointBY + ((pointAY - pointBY) * scale);
+    } else if (pointAZ > -10.0f) {
+        clippedAZ = -10.0f;
+        scale = (-10.0f - pointAZ) / (pointBZ - pointAZ);
+        clippedAX = pointAX + ((pointBX - pointAX) * scale);
+        clippedAY = pointAY + ((pointBY - pointAY) * scale);
+    }
+    displayList = *arg0;
+    vertices = *arg1;
+    output = vertices;
+    if (func_800246B0(clippedBX, clippedBY, clippedBZ,
+                      &projectedBX, &projectedBY, 0) != 0) {
+        if (func_800246B0(clippedAX, clippedAY, clippedAZ,
+                          &projectedAX, &projectedAY, 0) != 0) {
+            deltaX = projectedAX - projectedBX;
+            deltaY = projectedAY - projectedBY;
+            deltaLengthSquared = (deltaX * deltaX) + (deltaY * deltaY);
+            if (deltaLengthSquared > 0.0f) {
+                scale = arg6 / sqrtf(deltaLengthSquared);
+                deltaX *= scale;
+                deltaY *= scale;
+            }
+            command = displayList++;
+            command->w0 = 0x01010040;
+            command->w1 = (u32)camGetProjOrgMtx() + 0x80000000;
+            func_800349A4((FxGfx **)&displayList, arg2, arg9 | 6, 0);
+            command = displayList++;
+            command->w0 = 0xFA000000;
+            command->w1 = arg7;
+            command = displayList++;
+            command->w0 = 0xFB000000;
+            command->w1 = arg8;
+            segmentedVertices = (u32)vertices + 0x80000000;
+            command = displayList++;
+            command->w0 = 0x04000030 |
+                          (((segmentedVertices & 6) | 0x20) << 16);
+            command->w1 = segmentedVertices;
+            command = displayList++;
+            command->w0 = 0x05110020;
+            command->w1 = (u32)arg3 + 0x80000000;
+            command = displayList++;
+            command->w0 = 0xE7000000;
+            command->w1 = 0;
+            command = displayList++;
+            command->w0 = 0xFA000000;
+            command->w1 = (u32)-1;
+            command = displayList++;
+            command->w0 = 0xFB000000;
+            command->w1 = (u32)-1;
+            command = displayList++;
+            command->w0 = 0xBC00000A;
+            command->w1 = 0;
+            output[0].x = (s16)(pointBX + deltaY);
+            output[0].y = (s16)(pointBY + deltaX);
+            output[0].z = (s16)pointBZ;
+            output[0].r = 0xFF;
+            output[0].g = 0xFF;
+            output[0].b = 0xFF;
+            output[0].a = 0xFF;
+            output[1].x = (s16)(pointBX - deltaY);
+            output[1].y = (s16)(pointBY - deltaX);
+            output[1].z = (s16)pointBZ;
+            output[1].r = 0xFF;
+            output[1].g = 0xFF;
+            output[1].b = 0xFF;
+            output[1].a = 0xFF;
+            output[2].x = (s16)(pointAX + deltaY);
+            output[2].y = (s16)(pointAY + deltaX);
+            output[2].z = (s16)pointAZ;
+            output[2].r = 0xFF;
+            output[2].g = 0xFF;
+            output[2].b = 0xFF;
+            output[2].a = 0xFF;
+            output[3].x = (s16)(pointAX - deltaY);
+            output[3].y = (s16)(pointAY - deltaX);
+            output[3].z = (s16)pointAZ;
+            output[3].r = 0xFF;
+            output[3].g = 0xFF;
+            output[3].b = 0xFF;
+            output[3].a = 0xFF;
+            output += 4;
+        }
+    }
+    *arg0 = displayList;
+    *arg1 = output;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800084C4.s")
+#endif
 void func_80008A20(Objects08A20Arg *arg0) {
     func_8000831C(arg0, D_80079008, 0x14, D_800790D0, 0x18, *arg0->unk68, 2, 0, 1.0f, 0xFF, 0xFF);
 }
