@@ -72,6 +72,20 @@ typedef struct {
     s32 *unk68;
 } Objects06448Arg;
 
+typedef struct {
+    u8 pad00[8];
+    s16 unk8;
+    u8 pad0A[0x35];
+    u8 unk3F;
+} Objects08028Model;
+
+typedef struct {
+    u8 pad00[0x40];
+    Objects58C0Data *unk40;
+    u8 pad44[0x24];
+    Objects08028Model **unk68;
+} Objects08028Object;
+
 extern void *D_800C94D8[];
 extern s32 D_800C9470;
 extern s32 D_800C9474;
@@ -351,7 +365,54 @@ void func_80007844(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000784C.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80007C68.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80007E40.s")
+/* Workbench verdict: structure-mismatch; 28 differing words (60/60). */
+/* First mismatch: +0x24; size and frame are exact, with a near-identical CFG. */
+/* Structural gap: outer object/offset carriers and inner model-index allocation differ. */
+#ifdef NON_MATCHING
+void func_80008028(s32 arg0) {
+    s32 objectIndex;
+    Objects08028Object *object;
+    s32 objectOffset;
+    s32 modelIndex;
+    s32 updateModels;
+    Objects58C0Data *data;
+    Objects08028Model *model;
+    u8 modelReferences;
+
+    objectIndex = D_800C949C;
+    if (objectIndex < D_800C9498) {
+        objectOffset = objectIndex * 4;
+        do {
+            objectIndex += 1;
+            object = *(Objects08028Object **)((u8 *)D_800C9494 + objectOffset);
+            data = object->unk40;
+            if (data->unk1E[0] == 0) {
+                updateModels = 0;
+                if (data->unkD0[1] != 0.0f) {
+                    updateModels = 1;
+                }
+                if (data->unk22 > 0) {
+                    modelIndex = 0;
+                    do {
+                        if ((updateModels == 0) || (data->unk1E[modelIndex] == 0)) {
+                            model = object->unk68[modelIndex];
+                            modelReferences = model->unk3F;
+                            model->unk8 = arg0;
+                            if (modelReferences != 0) {
+                                model->unk3F = modelReferences - 1;
+                            }
+                        }
+                        modelIndex += 1;
+                    } while (modelIndex < object->unk40->unk22);
+                }
+            }
+            objectOffset += 4;
+        } while (objectIndex < D_800C9498);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008028.s")
+#endif
 void func_80008118(void) {
     D_80079004 = 1;
 }
@@ -521,4 +582,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
  * first-mismatch: +0x1C
  * summary: Shape and relocation surface are exact; CFE carrier allocation differs for the object, offset, and resource values.
  * PLATEAU-HANDOFF:func_80006448:end
+ */
+
+/* PLATEAU-HANDOFF:func_80008028:start
+ * symbol: func_80008028
+ * score: 32/60 words
+ * frame: 0x8
+ * relocations: 8
+ * first-mismatch: +0x24
+ * summary: Near-identical control-flow shape and frame; CFE allocates outer object/offset and inner model-index carriers differently.
+ * PLATEAU-HANDOFF:func_80008028:end
  */
