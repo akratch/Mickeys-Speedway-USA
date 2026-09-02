@@ -2509,6 +2509,7 @@ func_80037A78 = 0x80037A78; // type:func size:0x74 ROM 0x38678 tier-A, matched C
 func_800378A4 = 0x800378A4; // type:func size:0x1D4 ROM 0x384A4 tier-D structure-mismatch candidate, target 117 instructions/candidate 112, radial gradient shape unresolved
 func_80037AEC = 0x80037AEC; // type:func size:0x108 ROM 0x386EC tier-D allocation-mismatch candidate, target/candidate 66 instructions, register allocation unresolved
 func_80037BF4 = 0x80037BF4; // type:func size:0x80 ROM 0x387F4 tier-D structure-mismatch candidate, target 32 instructions/candidate 31, interpolation multiply/call scheduling unresolved
+func_8003A6B0 = 0x8003A6B0; // type:func size:0x50 ROM 0x3B2B0 tier-A, matched C src/main/menu_3B1A0.c -O2 -mips2 -32, character-code mapping body, linked exact=20/20
 // donor-jfg-src/menu.c.o
 func_80038750 = 0x80038750; // type:func size:0x128 tier-A ROM 0x39350 IDO C exact, JFG src/menu.c structural oracle, allocator-trace-guided, owns jtbl at 0x83334
 func_80038878 = 0x80038878; // type:func size:0x154 tier-D ROM 0x39478 NON_MATCHING diagnostic p6 target 85/candidate 86 instructions, 66/85 positional differences, first +0x14, artificial empty address condition removed
