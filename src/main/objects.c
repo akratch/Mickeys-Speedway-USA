@@ -186,6 +186,22 @@ typedef struct {
 } Objects04454Object;
 
 typedef struct {
+    u8 pad00[0x1B];
+    u8 unk1B;
+} Objects0471CData;
+
+typedef struct {
+    u8 pad00[0xC];
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    u8 pad18[0x28];
+    Objects0471CData *unk40;
+    u8 pad44[0x4D];
+    u8 unk91;
+} Objects0471CObject;
+
+typedef struct {
     u8 pad00[0x1E];
     s8 unk1E;
 } Objects06B04Source;
@@ -274,6 +290,7 @@ extern void func_80009F74(TrackSkyObject *object);
 extern s32 D_80079008[];
 extern s32 D_800790D0[];
 extern f32 D_80080D24;
+extern f32 D_80080D28;
 extern void func_8000831C(void *arg0, void *arg1, s32 arg2, void *arg3, s32 arg4,
                           s32 arg5, s32 arg6, s32 arg7, f32 arg8, s32 arg9, s32 arg10);
 extern s32 func_800291FC(void);
@@ -367,7 +384,52 @@ void *func_80004454(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004454.s")
 #endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004590.s")
+/* Workbench verdict: schedule/register-permutation; 6 differing words (74/80). */
+/* First mismatch: +0x50; size, frame, CFG, and FP register shape are exact. */
+/* Structural gap: none; residual register/scheduling differences are permuter-ready. */
+#ifdef NON_MATCHING
+void *func_8000471C(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
+    volatile s32 frame_reserve[2];
+    s32 sp7C;
+    s32 sp78;
+    f32 temp_f0;
+    f32 var_f20;
+    s32 temp_v0;
+    s32 var_s1;
+    s32 var_v0;
+    u8 *var_s2;
+    Objects0471CObject *temp_s0;
+    void *var_s4;
+
+    temp_v0 = (s32)func_8000572C(&sp7C, &sp78);
+    var_f20 = D_80080D28;
+    var_s4 = NULL;
+    if (sp7C < sp78) {
+        var_s1 = sp7C * 4;
+        var_s2 = (u8 *)temp_v0 + var_s1;
+        do {
+            temp_s0 = *(Objects0471CObject **)var_s2;
+            if (temp_s0->unk91 != 0) {
+                var_v0 = sp78 * 4;
+            } else {
+                if ((temp_s0 != (Objects0471CObject *)D_80078F20) && (arg3 == temp_s0->unk40->unk1B)) {
+                    temp_f0 = func_8000BD0C(temp_s0->unkC, temp_s0->unk10, temp_s0->unk14, arg0, arg1, arg2);
+                    if (temp_f0 < var_f20) {
+                        var_f20 = temp_f0;
+                        var_s4 = temp_s0;
+                    }
+                }
+                var_v0 = sp78 * 4;
+            }
+            var_s1 += 4;
+            var_s2 += 4;
+        } while (var_s1 < var_v0);
+    }
+    return var_s4;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000471C.s")
+#endif
 void func_8000485C(s8 arg0) {
     D_80078F88 = arg0;
 }
@@ -1053,4 +1115,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
  * first-mismatch: +0x20
  * summary: Asset/count carrier and late loop register shape remain structural; next lever is a typed source record/output layout.
  * PLATEAU-HANDOFF:func_80006B04:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000471C:start
+ * symbol: func_8000471C
+ * score: 6 differing words
+ * frame: 0x88
+ * relocations: 6
+ * first-mismatch: +0x50
+ * summary: Shape-exact with six schedule/register residuals; ready for the bounded permuter.
+ * PLATEAU-HANDOFF:func_8000471C:end
  */
