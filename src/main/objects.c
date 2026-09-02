@@ -312,6 +312,39 @@ typedef struct {
 } Objects06B04Output;
 
 typedef struct {
+    f32 unk0;
+    u8 pad04[0x10];
+    u16 unk14;
+    u8 pad16[6];
+    s16 unk1C;
+    u8 pad1E[4];
+    s8 unk22;
+    u8 pad23[0x11];
+    s32 *unk34;
+} Objects06C4CAsset;
+
+typedef struct {
+    u8 pad00[6];
+    s16 unk6;
+    f32 unk8;
+    u8 pad0C[0x20];
+    s16 unk2C;
+    u8 pad2E[0x12];
+    Objects06C4CAsset *unk40;
+    u8 pad44[2];
+    s16 unk46;
+    u8 pad48[0x20];
+    s32 *unk68;
+    u8 pad6C[0x28];
+    s32 unk94[1];
+} Objects06C4CObject;
+
+extern Objects06C4CAsset *func_8000486C(s32 arg0);
+extern void *func_8001F520(s32 assetId, s32 flags);
+extern void *func_8002B314(s32 size, s32 tag);
+extern void *func_800355A0(s32 assetId, s32 flags);
+
+typedef struct {
     u8 unk0;
     u8 pad01[7];
     s16 unk8;
@@ -463,6 +496,9 @@ extern s32 D_800C9470;
 extern s32 D_800C9474;
 extern s32 D_800C94A8;
 extern s32 D_800C94AC;
+extern s32 *D_800C9450;
+extern s32 D_800C9454;
+extern s32 D_800C945C;
 extern Objects04B04Object **D_800C9488;
 extern u16 *D_800C948C;
 extern s32 *D_800C94A4;
@@ -505,6 +541,7 @@ extern void mmFree(void *data);
 extern void modFreeModel(void *resource);
 extern void func_800347A0(void *texture);
 extern void func_800359D4(void *sprite);
+extern s32 func_8000A6E8(s32 arg0);
 extern void func_80009F74(TrackSkyObject *object);
 extern s32 func_800290A0(void);
 extern void func_800367E8(Objects07C68Texture *texture, void *flags, s32 *frame,
@@ -1165,7 +1202,114 @@ s32 func_80006C40(Objects06C40 *arg0, s32 arg1) {
     arg0->unk58 = arg1;
     return 0x13C;
 }
+/* Workbench verdict: structure-mismatch; 132 differing words (target 149, candidate 146). */
+/* First mismatch: +0x0; target frame 0x50 versus candidate frame 0x40. */
+/* Structural gap: allocator-result stack home and three target instructions remain. */
+#ifdef NON_MATCHING
+void *func_80006C4C(s32 arg0) {
+    Objects06C4CAsset *asset;
+    Objects06C4CObject *object;
+    Objects06C4CObject *newObject;
+    u8 *end;
+    s32 count;
+    s32 remaining;
+    s32 index;
+    s32 offset;
+    s32 loadType;
+    s32 failed;
+    s32 size;
+    s32 words;
+    s32 *source;
+    s32 *destination;
+    void *result;
+
+    if (arg0 >= D_800C945C) {
+        arg0 = 0;
+    }
+    asset = func_8000486C(arg0);
+    if (asset == NULL) {
+        return NULL;
+    }
+
+    object = (Objects06C4CObject *)D_800C9450;
+    end = (u8 *)object + 0x94 + (asset->unk22 * 4);
+    count = D_800C9454 >> 2;
+    if (count != 0) {
+        remaining = count - 1;
+        source = (s32 *)D_800C9450;
+        do {
+            *source = 0;
+            source += 1;
+            remaining -= 1;
+        } while (remaining != 0);
+    }
+
+    object->unk40 = asset;
+    object->unk6 = 2;
+    object->unk2C = (s16)arg0;
+    object->unk46 = (s16)arg0;
+    object->unk8 = asset->unk0;
+    object->unk6 = (s16)(object->unk6 | (asset->unk14 & 0x20C));
+    loadType = func_8000A6E8(asset->unk1C) & 3;
+    failed = 0;
+    index = 0;
+    offset = 0;
+    if (object->unk40->unk22 > 0) {
+        do {
+            object->unk68 = object->unk94;
+            if (func_800058C0((Objects58C0Arg *)object, index) == 0) {
+                *(s32 *)((u8 *)object->unk68 + offset) =
+                    (s32)func_8001F520(
+                        *(s32 *)((u8 *)object->unk40->unk34 + offset), loadType);
+            } else {
+                *(s32 *)((u8 *)object->unk68 + offset) =
+                    (s32)func_800355A0(
+                        *(s32 *)((u8 *)object->unk40->unk34 + offset), 0xA);
+            }
+            if (*(s32 *)((u8 *)object->unk68 + offset) == 0) {
+                failed = 1;
+            }
+            index += 1;
+            offset += 4;
+        } while (index < object->unk40->unk22);
+    }
+
+    result = NULL;
+    if (failed == 0) {
+        size = (s32)(end - (u8 *)object);
+        if (size & 0xF) {
+            size = (size + 0xF) & ~0xF;
+        }
+        result = func_8002B314(size, 0x8B);
+        if (result != NULL) {
+            newObject = (Objects06C4CObject *)result;
+            words = size >> 2;
+            source = (s32 *)D_800C9450;
+            destination = (s32 *)result;
+            if (words != 0) {
+                remaining = words - 1;
+                do {
+                    *destination = *source;
+                    destination += 1;
+                    source += 1;
+                    remaining -= 1;
+                } while (remaining != 0);
+            }
+            newObject->unk68 = newObject->unk94;
+        } else {
+            failed = 1;
+        }
+    }
+    if (failed != 0) {
+        func_80006448(object);
+        func_80004B04(arg0);
+        result = NULL;
+    }
+    return result;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006C4C.s")
+#endif
 void func_80006EA0(void *ptr) {
     if (((u8 *) ptr)[0x91] == 0) {
         ((u8 *) ptr)[0x91] = 1;
