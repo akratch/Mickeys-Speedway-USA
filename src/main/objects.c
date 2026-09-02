@@ -339,7 +339,7 @@ typedef struct {
     s32 unk94[1];
 } Objects06C4CObject;
 
-extern Objects06C4CAsset *func_8000486C(s32 arg0);
+extern void *func_8000486C(s32 arg0);
 extern void *func_8001F520(s32 assetId, s32 flags);
 extern void *func_8002B314(s32 size, s32 tag);
 extern void *func_800355A0(s32 assetId, s32 flags);
@@ -365,6 +365,34 @@ typedef struct {
     f32 pad2C[3];
     f32 unk38;
 } Objects0A39CMatrix;
+
+typedef struct {
+    s32 start;
+    s32 end;
+} Objects0486CTableEntry;
+
+typedef struct {
+    f32 unk0;
+    u8 pad04[0x18];
+    s16 unk1C;
+    u8 pad1E[0x16];
+    s32 unk34;
+    s32 unk38;
+    s32 unk3C;
+    s32 unk40;
+    s32 unk44;
+    u8 pad48[4];
+    s32 unk4C;
+    s32 unk50;
+    u8 pad54[0x52];
+    u8 unkA6;
+    u8 padA7;
+    s32 unkA8;
+    s32 unkAC;
+    s32 unkB0;
+    u8 padB4[0x2C];
+    s32 unkE0;
+} Objects0486CAsset;
 
 typedef struct {
     u8 unk0;
@@ -521,6 +549,8 @@ extern s32 D_800C94AC;
 extern s32 *D_800C9450;
 extern s32 D_800C9454;
 extern s32 D_800C945C;
+extern u16 D_8007BF1C;
+extern void *D_800C94A0;
 extern Objects04B04Object **D_800C9488;
 extern u16 *D_800C948C;
 extern s32 *D_800C94A4;
@@ -564,6 +594,8 @@ extern void modFreeModel(void *resource);
 extern void func_800347A0(void *texture);
 extern void func_800359D4(void *sprite);
 extern s32 func_8000A6E8(s32 arg0);
+extern void *func_8002B280(s32 size, s32 tag);
+extern void *func_8002B4C0(void *slots, s32 size);
 extern void func_80009F74(TrackSkyObject *object);
 extern s32 func_800290A0(void);
 extern void func_800367E8(Objects07C68Texture *texture, void *flags, s32 *frame,
@@ -581,7 +613,7 @@ extern void camPushModelMtx(Gfx **dlist, Mtx **mtx, CameraScaledTransform *trans
 extern void camPopModelMtx(Gfx **dlist);
 extern void func_800349A4(FxGfx **dlist, s32 texture, s32 flags, s32 arg3);
 extern s32 func_800291FC(void);
-extern s32 func_80034448(s16 resourceId, void *output);
+extern s32 func_80034448(s32 resourceId, void *output);
 extern void **func_8000572C(s32 *start, s32 *end);
 extern f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5);
 extern void partInitTrigger(ParticleTrigger *trigger, s32 type, s32 value);
@@ -797,7 +829,88 @@ void *func_8000471C(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
 void func_8000485C(s8 arg0) {
     D_80078F88 = arg0;
 }
+/* Workbench verdict: structure-mismatch; 146 differing words (target 166, candidate 168). */
+/* First mismatch: +0x0; target frame 0x48 versus candidate frame 0x58. */
+/* Structural gap: cache-index stack home and two extra call-path instructions remain. */
+#ifdef NON_MATCHING
+void *func_8000486C(s32 arg0) {
+    Objects0486CTableEntry *tableEntry;
+    Objects0486CAsset *asset;
+    u16 refValue;
+    u16 descriptor;
+    s32 assetStart;
+    s32 assetSize;
+    s32 relativeE0;
+    s32 index;
+    s32 descriptorOffset;
+    s32 resourceOffset;
+
+    refValue = D_800C948C[arg0];
+    if (refValue != 0) {
+        D_800C948C[arg0] = refValue + 1;
+        return ((Objects0486CAsset **)D_800C9488)[arg0];
+    }
+
+    tableEntry = &((Objects0486CTableEntry *)D_800C9458)[arg0];
+    assetStart = tableEntry->start;
+    assetSize = tableEntry->end - assetStart;
+    asset = (Objects0486CAsset *)func_8002B4C0(D_800C94A0, assetSize);
+    if ((asset == NULL) && (D_80078F88 != 0)) {
+        asset = (Objects0486CAsset *)func_8002B280(assetSize, 0x8B);
+    }
+    if (asset == NULL) {
+        return NULL;
+    }
+
+    piRomLoadSection(0x2D, (u32)asset, assetStart, assetSize);
+    relativeE0 = asset->unkE0;
+    asset->unk4C = (s32)((u8 *)asset + asset->unk4C);
+    asset->unk50 = (s32)((u8 *)asset + asset->unk50);
+    asset->unk44 = (s32)((u8 *)asset + asset->unk44);
+    asset->unkB0 = (s32)((u8 *)asset + asset->unkB0);
+    asset->unk38 = (s32)((u8 *)asset + asset->unk38);
+    asset->unk3C = (s32)((u8 *)asset + asset->unk3C);
+    asset->unk40 = (s32)((u8 *)asset + asset->unk40);
+    asset->unk34 = (s32)((u8 *)asset + asset->unk34);
+    asset->unkA8 = (s32)((u8 *)asset + asset->unkA8);
+    asset->unkAC = (s32)((u8 *)asset + asset->unkAC);
+    if (relativeE0 != 0) {
+        asset->unkE0 = (s32)((u8 *)asset + relativeE0);
+    }
+
+    index = 0;
+    descriptorOffset = 0;
+    resourceOffset = 0;
+    if (asset->unkA6 > 0) {
+        do {
+        descriptor = *(u16 *)((u8 *)asset->unkA8 + descriptorOffset);
+        if ((descriptor & 0xC000) == 0xC000) {
+            *(void **)((u8 *)asset->unkAC + resourceOffset) =
+                (void *)func_80034448(descriptor & 0x3FFF, 0);
+        } else if (descriptor & 0x8000) {
+            *(void **)((u8 *)asset->unkAC + resourceOffset) =
+                func_800355A0(descriptor & 0x3FFF, 1);
+        } else {
+            *(void **)((u8 *)asset->unkAC + resourceOffset) =
+                func_8001F520(descriptor, 0);
+        }
+        index += 1;
+        descriptorOffset += 2;
+        resourceOffset += 4;
+        } while (index < asset->unkA6);
+    }
+
+    if ((asset->unk1C == 1) && (D_8007BF1C & 8) &&
+        (*func_80028F54() != 1)) {
+        asset->unk0 *= 0.5f;
+    }
+    ((Objects0486CAsset **)D_800C9488)[arg0] = asset;
+    D_800C948C[arg0] = 1;
+    return asset;
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000486C.s")
+#endif
 /* Workbench verdict: register-permutation; 14 differing words (59/73). */
 /* First mismatch: +0x4; size, frame, CFG, and relocation surface are exact. */
 /* Structural gap: none; global-color pool allocation is reserved for the permuter. */
