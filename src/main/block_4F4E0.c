@@ -124,7 +124,69 @@ void func_8004E9F8(void) {
     }
     func_8004BFB0(6);
 }
+/* verdict: structure-mismatch; 79 differing words; first mismatch +0x8 */
+/* shape: 83 candidate instructions versus 82 target instructions; frame is 0x10 versus 0x8 */
+/* blocker: cursor/global-address lifetimes still produce extra saved-register setup */
+#ifdef NON_MATCHING
+void func_8004EC60(void) {
+    register s32 var_v0;
+    s32 sentinel;
+    register u8 *data;
+    register u8 next;
+
+    sentinel = 0xC;
+    data = D_800D6AE0;
+    D_800D6AC6 = 0;
+    D_800D6ABA = 0;
+    next = *data;
+    var_v0 = 0;
+    if (next != 0) {
+loop_2:
+        D_800D6AC8 = next - 1;
+        D_800D6AD0[D_800D6AC6] = (char *)data;
+        D_800D6AE0 = data + 8;
+        D_800D6ABA = data[7] * 6;
+        data += 8;
+        next = *data;
+        while (next != 0) {
+            if (next & 0x80) {
+                data += 2;
+            } else {
+                data += 1;
+            }
+            D_800D6AE0 = data;
+            next = *data;
+        }
+        D_800D6AC6 += 1;
+        data += 1;
+        if (D_800D6AC6 >= 2) {
+            var_v0 = 1;
+        }
+        D_800D6AE0 = data;
+        next = *data;
+        if (next == 0xA) {
+            data += 1;
+            D_800D6AE0 = data;
+            next = *data;
+        } else {
+            if (next == sentinel) {
+                data += 1;
+                D_800D6AE0 = data;
+                next = *data;
+                var_v0 = 1;
+            }
+        }
+        if ((next != 0) && (var_v0 == 0)) {
+            goto loop_2;
+        }
+    }
+    if (D_800D6AC6 > 0) {
+        D_800D6AC4 = 1;
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/block_4F4E0/func_8004EC60.s")
+#endif
 #ifdef NON_MATCHING
 void func_8004EDA8(s32 arg0) {
     s16 var_a0;
@@ -220,4 +282,14 @@ s32 func_8004F020(void) {
  * first-mismatch: +0x34
  * summary: Exact shape; residual ugen temp-ring allocation is permuter-ready; target registers rotate after the second temporary.
  * PLATEAU-HANDOFF:func_8004E8E0:end
+ */
+
+/* PLATEAU-HANDOFF:func_8004EC60:start
+ * symbol: func_8004EC60
+ * score: 79/82 words
+ * frame: 0x10
+ * relocations: 12
+ * first-mismatch: +0x8
+ * summary: Extra saved-register setup remains; next lever is direct global-address expression shape.
+ * PLATEAU-HANDOFF:func_8004EC60:end
  */
