@@ -92,4 +92,39 @@ ALDMAproc audioManager_DMAInitProc(void *state) {
     *(void **)state = &D_800C7DF8;
     return func_80002188;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audiomgr/func_8000238C.s")
+/* PROVENANCE: body adapted from Diddy Kong Racing's public decomp,
+ * src/audiomgr.c::__clearAudioDMA; Mickey's DMA state and queue globals remain authoritative. */
+void func_8000238C(void) {
+    u32 i;
+    OSIoMesg *iomsg = NULL;
+    AudioManagerDMABuffer *dmaPtr;
+    void *nextPtr;
+
+    for (i = 0; i < D_80078DD4; i++) {
+        if (osRecvMesg(&D_800C9020, (OSMesg *)&iomsg, OS_MESG_NOBLOCK) == -1) {
+            D_80078DF0 |= 4;
+        }
+    }
+
+    dmaPtr = D_800C7DF8.firstUsed;
+    while (dmaPtr != NULL) {
+        nextPtr = dmaPtr->node.next;
+        if (dmaPtr->lastFrame + 1 < D_80078DD0) {
+            if (D_800C7DF8.firstUsed == dmaPtr) {
+                D_800C7DF8.firstUsed =
+                    (AudioManagerDMABuffer *)dmaPtr->node.next;
+            }
+            alUnlink(&dmaPtr->node);
+            if (D_800C7DF8.firstFree != NULL) {
+                alLink(&dmaPtr->node, &D_800C7DF8.firstFree->node);
+            } else {
+                D_800C7DF8.firstFree = dmaPtr;
+                dmaPtr->node.next = NULL;
+                dmaPtr->node.prev = NULL;
+            }
+        }
+        dmaPtr = (AudioManagerDMABuffer *) nextPtr;
+    }
+
+    D_80078DD4 = 0;
+}
