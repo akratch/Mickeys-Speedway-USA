@@ -828,6 +828,29 @@ tier-A threshold, so the address label remains canonical.
 | `func_80036C60` | 76 bytes under `-O2 -mips2 -32`; JFG `src/textures.c::resetMixCycle` body, all 19 instruction words and zero relocations exact. |
 | `func_80036CAC` | 292 bytes under `-O2 -mips2 -32`; JFG `src/textures.c::updateMixCycle` body, all 73 instruction words and zero relocations exact. |
 | `func_80036DD0` | 312 bytes under `-O2 -mips2 -32`; JFG `src/screen.c::screenLoad` body, all 78 instruction words and ten relocation identities exact. |
+| `func_80036F08` | 576 executable bytes plus 8-byte target padding under `-O2 -mips2 -32`; JFG `src/screen.c::screenDraw` body with Mickey command data, all 144 instruction words exact. |
+| `func_80037150` | 108 bytes under `-O2 -mips2 -32`; buffer-release body, all 27 instruction words and its relocation surface exact. |
+| `func_80037658` | 12 bytes under `-O2 -mips2 -32`; direct store-only body, all 3 instruction words and one HI16/LO16 relocation identity exact. |
+| `func_80037664` | 104 bytes under `-O2 -mips2 -32`; state predicate body, all 26 instruction words and eight relocation identities exact. |
+| `func_80037A78` | 116 bytes under `-O2 -mips2 -32`; frontend transition body, all 29 instruction words and its relocation surface exact. |
+| `func_8003A680` | 48 bytes under `-O2 -mips2 -32`; bounded character-buffer append body, all 12 instruction words and four relocation identities exact. |
+| `func_8003A6B0` | 80 bytes under `-O2 -mips2 -32`; character-code mapping body, all 20 instruction words and zero relocations exact. |
+| `func_8003A700` | 84 bytes under `-O2 -mips2 -32`; inverse character-code mapping body, all 21 instruction words and zero relocations exact. |
+
+| Candidate | Verdict |
+|---|---|
+| `func_80036AB0` | Evidence D DKR `src/textures_sprites.c::update_colour_cycle` adaptation; structure-mismatch, 113 differing words, first `+0x0`, target 108 instructions/0x28 frame versus candidate 115/0x30. |
+| `func_8003A5A0` | Structure-mismatch, 19 differing words, first `+0x0`; target/candidate 56 words, with the lookup/end pointer carrier and relocation web unresolved. |
+| `func_8003A754` | Structure-mismatch, 12 differing words, first `+0x10`; target/candidate 31 words and 0x18-byte frames, with scalar inner-loop carriers unresolved. |
+| `func_8003A7D0` | Structure-mismatch, 36 differing words, first `+0x10`; target 43/candidate 41 words, with count-carrier and first-loop address formation unresolved. |
+| `func_800371BC` | Structure-mismatch, 148 differing words, first `+0x28`; target 150/candidate 159 words and 0x38-byte frames, with grid induction and record-store schedule unresolved. |
+| `func_80037414` | Structure-mismatch, 59 differing words, first `+0x10`; target 145/candidate 146 words, target frame 0x30 versus candidate 0x40. |
+| `func_800376CC` | Structure-mismatch, 95 differing words, first `+0x0`; target 118/candidate 119 words, target frame 0x18 versus candidate 0x20. |
+| `func_800378A4` | Structure-mismatch candidate: 103 differing words, first `+0x14`; target 117 instructions/0x68 frame versus candidate 112/0x68, with radial-gradient FP lifetimes and clamp/control-flow shape unresolved. |
+| `func_80037AEC` | Allocation-mismatch, 7 differing words, first `+0x54`; target/candidate 66 words and 0x40-byte frames, with only register allocation unresolved. |
+| `func_80037BF4` | Structure-mismatch, target 32 instructions/candidate 31 with a four-byte deficit; first mismatch `+0x40`, interpolation multiply/call scheduling shape unresolved. |
+| `func_80037C74` | Structure-mismatch, 324 differing words, first `+0x0`; target 327/candidate 308 words, with Gfx emission and render-loop shape unresolved. |
+| `func_80038190` | Structure-mismatch, 365 differing words, first `+0x0`; target 368/candidate 342 words and 0xE8-byte frames, with Gfx emission, relocation web, and render-loop shape unresolved. |
 
 ### 3.9 `main/track`: ROM `0xC950`-`0x16140`
 

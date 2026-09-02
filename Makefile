@@ -1122,6 +1122,8 @@ $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: POSTPROCESS = \
 # The menu initialization loops are scalar in the target; the flag lattice
 # selects the non-unrolled 85-instruction form for func_80038878.
 $(BUILD_DIR)/$(SRC_DIR)/main/menu.c.o: CFLAGS += -Wo,-loopunroll,0
+# The adjacent menu tail also retains its scalar record-reset loop.
+$(BUILD_DIR)/$(SRC_DIR)/main/menu_3B1A0.c.o: CFLAGS += -Wo,-loopunroll,0
 # func_80038750's five-entry language jump table (0x14) precedes the two
 # consecutive 0x4C-byte switch tables; IDO rounds the 0xAC input section up,
 # so discard only the trailing input-section padding before linking the next

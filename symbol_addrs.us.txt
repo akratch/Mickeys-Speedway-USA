@@ -2210,10 +2210,6 @@ func_80001668 = 0x80001668; // type:func size:0x30 ROM 0x2268 tier D (sound-volu
 scalevol = 0x800016C8; // type:func size:0x24 ROM 0x22c8 tier B (JFG body/order role)
 func_800016EC = 0x800016EC; // type:func size:0x1C ROM 0x22ec tier B (overlay caller and mode writes, name unproved)
 func_80001708 = 0x80001708; // type:func size:0x38 ROM 0x2308 tier B (resident caller and master-volume reset, name unproved)
-func_80001A84 = 0x80001A84; // type:func size:0x11C ROM 0x2684 tier-A matched C, C-object+linked-ROM-exact donor-dkr-src/audiomgr.c
-func_80001BA0 = 0x80001BA0; // type:func size:0x24 ROM 0x27a0 tier-A C-object+linked-ROM-exact name-unresolved
-func_80001BC4 = 0x80001BC4; // type:func size:0x24 ROM 0x27c4 tier-A C-object+linked-ROM-exact name-unresolved
-func_80001BE8 = 0x80001BE8; // type:func size:0xC ROM 0x27e8 tier-A C-object+linked-ROM-exact name-unresolved
 func_80002500 = 0x80002500; // type:func size:0xC4 ROM 0x3100 tier-B matched C (JFG initializer role/order, Mickey-only body)
 amAmbientRestart = 0x800025EC; // type:func size:0xC ROM 0x31ec tier-B (JFG body/order role)
 amResetAudioMap = 0x800025F8; // type:func size:0x170 ROM 0x31f8 tier-B matched C (JFG name/reset role/order, Mickey pool body)
@@ -2266,10 +2262,8 @@ func_800038EC = 0x800038EC; // type:func size:0xF8 ROM 0x44ec tier-B matched C (
 amTuneSetFadeScaled = 0x800006BC; // type:func size:0x74 tier-B role-order, ROM 0x12bc, matched C src/main/audio_manager_1050.c.o -O2 -mips2 -32, JFG src/audio_manager_1050.c name/order, linked exact=29/29
 amSndSetPan = 0x80001204; // type:func size:0x28   ROM 0x1e04  src/audio_manager_1050.c.o  masked=1/10
 forcelink = 0x80001698; // type:func size:0x30   ROM 0x2298  src/audio_manager_1050.c.o  masked=2/12
-// donor-bk-src/core1/code_1D00.c
-audioManager_DMAInitProc = 0x80002354; // type:func size:0x38 ROM 0x2f54 tier-A C-object+linked-ROM-exact donor-bk-src/core1/code_1D00.c
-func_800024E0 = 0x800024E0; // type:func size:0x0C ROM 0x30e0 tier-A matched C, C-object+linked-ROM-exact name-unresolved
-func_800024EC = 0x800024EC; // type:func size:0x14 ROM 0x30ec tier-A matched C, C-object+linked-ROM-exact name-unresolved
+// bk:us.v10/src/core1/code_1D00.c.o
+audioManager_DMAInitProc = 0x80002354; // type:func size:0x38   ROM 0x2f54  us.v10/src/core1/code_1D00.c.o  masked=6/14
 // donor-jfg-src/audio_manager_4C50.c.o
 amVibratoInit = 0x800039F0; // type:func size:0x90 ROM 0x45f0 tier-A src/audio_manager_4C50.c.o masked=22/36
 amInitOsc = 0x80003A80; // type:func size:0x2D8 ROM 0x4680 tier-B (JFG name/order, PD oscillator-init body)
@@ -2277,7 +2271,7 @@ amUpdateOsc = 0x80003D58; // type:func size:0x574 ROM 0x4958 tier-B (JFG name/or
 amStopOsc = 0x800042CC; // type:func size:0x18 ROM 0x4ecc tier-B (JFG name/order, Mickey-only body)
 _depth2Cents = 0x800042E4; // type:func size:0x50 ROM 0x4ee4 src/audio_manager_4C50.c.o masked=2/20, followed by 0xC target padding
 // jfg:src/objects.c.o
-GetRomlistInfo = 0x8000BC88; // type:func size:0x28 tier-A JFG byte identity, ROM 0xc888, matched C src/main/objects.c.o -O2 -mips2 -32, linked exact=10/10
+GetRomlistInfo = 0x8000BC88; // type:func size:0x28   ROM 0xc888  src/objects.c.o  masked=4/10
 // donor-jfg-src/track.c.o
 func_8000DB34 = 0x8000DB34; // type:func size:0x2B0 tier-D ROM 0xE734 src/main/track.c.o -O2 -mips2 -32 -Wab,-r4300_mul NON_MATCHING resident fallback and adjacent func_8000DDE4 boundary owner, no match credit
 func_8000DFBC = 0x8000DFBC; // type:func size:0x630 tier-D ROM 0xEBBC src/main/track.c.o -O2 -mips2 -32 -Wab,-r4300_mul NON_MATCHING resident fallback and adjacent func_8000E5EC boundary owner, no match credit
@@ -2507,6 +2501,25 @@ func_80036A80 = 0x80036A80; // type:func size:0x30 ROM 0x37680 tier-A, matched C
 func_80036C60 = 0x80036C60; // type:func size:0x4C ROM 0x37860 tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/textures.c resetMixCycle body, linked exact=19/19
 func_80036CAC = 0x80036CAC; // type:func size:0x124 ROM 0x378AC tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/textures.c updateMixCycle body, linked exact=73/73
 func_80036DD0 = 0x80036DD0; // type:func size:0x138 ROM 0x379D0 tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/screen.c screenLoad body, linked exact=78/78
+func_80036F08 = 0x80036F08; // type:func size:0x240 ROM 0x37B08 tier-A, matched C src/main/frontend_37680.c -O2 -mips2 -32, JFG src/screen.c screenDraw body, linked exact=144/144, target boundary includes 0x8 bytes padding
+func_80037150 = 0x80037150; // type:func size:0x6C ROM 0x37D50 tier-A, matched C src/main/frontend_37D50.c -O2 -mips2 -32, buffer release body, linked exact=27/27
+func_800371BC = 0x800371BC; // type:func size:0x258 ROM 0x37DBC tier-D structure-mismatch candidate, target 150/candidate 159 words, grid initialization loops
+func_80037414 = 0x80037414; // type:func size:0x244 ROM 0x38014 tier-D structure-mismatch candidate, target 145/candidate 146 words, VI transition body
+func_80037658 = 0x80037658; // type:func size:0xC ROM 0x38258 tier-A, matched C src/main/frontend_37D50.c -O2 -mips2 -32, direct D_8007BEA8 clear, linked exact=3/3
+func_80037664 = 0x80037664; // type:func size:0x68 ROM 0x38264 tier-A, matched C src/main/frontend_37D50.c -O2 -mips2 -32, state predicate, linked exact=26/26
+func_80037A78 = 0x80037A78; // type:func size:0x74 ROM 0x38678 tier-A, matched C src/main/frontend_37D50.c -O2 -mips2 -32, frontend transition body, linked exact=29/29
+func_800376CC = 0x800376CC; // type:func size:0x1D8 ROM 0x382CC tier-D structure-mismatch candidate, target 118/candidate 119 words, state machine
+func_800378A4 = 0x800378A4; // type:func size:0x1D4 ROM 0x384A4 tier-D structure-mismatch candidate, target 117 instructions/candidate 112, radial gradient shape unresolved
+func_80037AEC = 0x80037AEC; // type:func size:0x108 ROM 0x386EC tier-D allocation-mismatch candidate, target/candidate 66 instructions, register allocation unresolved
+func_80037BF4 = 0x80037BF4; // type:func size:0x80 ROM 0x387F4 tier-D structure-mismatch candidate, target 32 instructions/candidate 31, interpolation multiply/call scheduling unresolved
+func_80037C74 = 0x80037C74; // type:func size:0x51C ROM 0x38874 tier-D structure-mismatch candidate, target 327/candidate 308 words, display-list body
+func_80038190 = 0x80038190; // type:func size:0x5C0 ROM 0x38D90 tier-D structure-mismatch candidate, target 368/candidate 342 words, recovered compiler jump table and display-list body
+func_8003A5A0 = 0x8003A5A0; // type:func size:0xE0 ROM 0x3B1A0 tier-D structure-mismatch candidate, target/candidate 56 words, lookup pointer web
+func_8003A680 = 0x8003A680; // type:func size:0x30 ROM 0x3B280 tier-A, matched C src/main/menu_3B1A0.c -O2 -mips2 -32, bounded character-buffer append body, linked exact=12/12
+func_8003A6B0 = 0x8003A6B0; // type:func size:0x50 ROM 0x3B2B0 tier-A, matched C src/main/menu_3B1A0.c -O2 -mips2 -32, character-code mapping body, linked exact=20/20
+func_8003A700 = 0x8003A700; // type:func size:0x54 ROM 0x3B300 tier-A, matched C src/main/menu_3B1A0.c -O2 -mips2 -32, inverse character-code mapping body, linked exact=21/21
+func_8003A754 = 0x8003A754; // type:func size:0x7C ROM 0x3B354 tier-D structure-mismatch candidate, 12 differing words, scalar reset loop
+func_8003A7D0 = 0x8003A7D0; // type:func size:0xB0 ROM 0x3B3D0 tier-D structure-mismatch candidate, 36 differing words, count accumulation loop
 // donor-jfg-src/menu.c.o
 func_80038750 = 0x80038750; // type:func size:0x128 tier-A ROM 0x39350 IDO C exact, JFG src/menu.c structural oracle, allocator-trace-guided, owns jtbl at 0x83334
 func_80038878 = 0x80038878; // type:func size:0x154 tier-D ROM 0x39478 NON_MATCHING diagnostic p6 target 85/candidate 86 instructions, 66/85 positional differences, first +0x14, artificial empty address condition removed
@@ -2679,18 +2692,8 @@ func_8005716C = 0x8005716C; // type:func size:0x140 tier-D ROM 0x57D6C src/main/
 func_800572AC = 0x800572AC; // type:func size:0xA4   ROM 0x57eac  tier-D collision state-delta helper, matched C
 func_80057350 = 0x80057350; // type:func size:0x78   ROM 0x57f50  tier-D collision state-copy helper, matched C
 fmvInit = 0x80057910; // type:func size:0x5C   ROM 0x58510  src/fmvInit.c.o exact masked tier-A, matched C
-// jfg:libultra/src/flash/flashreinit.c.o
-osFlashReInit = 0x80057970; // type:func size:0x50 tier-A matched C, JFG libultra/src/flash/flashreinit.c body
-// jfg:libultra/src/flash/flashinit.c.o
-osFlashInit = 0x800579C0; // type:func size:0xF4 tier-B matched C, JFG libultra/src/flash/flashinit.c body, JFG object differs in TU scheduling and is 0xF0 bytes
-// jfg:libultra/src/flash/flashreadstatus.c.o
-osFlashReadStatus = 0x80057AB4; // type:func size:0x90 tier-A matched C, JFG libultra/src/flash/flashreadstatus.c body
-// jfg:libultra/src/flash/flashreadid.c.o
-osFlashReadId = 0x80057B44; // type:func size:0xCC tier-B matched C, JFG libultra/src/flash/flashreadid.c body, JFG object differs in TU scheduling and is 0xD4 bytes
 // jfg:libultra/src/flash/flashreadid.c.o
 osFlashClearStatus = 0x80057C10; // type:func size:0x4C tier-A exact C, JFG libultra/src/flash/flashreadid.c body
-// jfg:libultra/src/flash/flashsectorerase.c.o
-osFlashWriteBuffer = 0x80057DFC; // type:func size:0x88 tier-B matched C, JFG libultra/src/flash/flashsectorerase.c body, JFG object is 0x84 bytes
 func_80058EF4 = 0x80058EF4; // type:func size:0x90   ROM 0x59af4  tier-D logarithm-series helper, matched C
 func_8005A948 = 0x8005A948; // type:func size:0x178 ROM 0x5b548 tier-B JFG models animation-loader role/callgraph NON_MATCHING
 // donor-jfg-src/camera.c.o
