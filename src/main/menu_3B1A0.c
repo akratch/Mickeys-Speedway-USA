@@ -24,6 +24,20 @@ return_1C:
 return_default:
     return (temp_v1 - 0x41) & 0xFF;
 }
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu_3B1A0/func_8003A700.s")
+s32 func_8003A700(u8 arg0) {
+    s32 temp_t6 = arg0;
+    s32 temp_v1 = temp_t6;
+
+    switch (temp_t6) {
+    case 0x1A:
+        return 0x3F;
+    case 0x1B:
+        return 0x21;
+    case 0x1C:
+        return 0x2A;
+    default:
+        return (temp_v1 + 0x41) & 0xFF;
+    }
+}
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu_3B1A0/func_8003A754.s")
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu_3B1A0/func_8003A7D0.s")

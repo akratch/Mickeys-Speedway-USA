@@ -834,6 +834,7 @@ tier-A threshold, so the address label remains canonical.
 | `func_80037664` | 104 bytes under `-O2 -mips2 -32`; state predicate body, all 26 instruction words and eight relocation identities exact. |
 | `func_80037A78` | 116 bytes under `-O2 -mips2 -32`; frontend transition body, all 29 instruction words and its relocation surface exact. |
 | `func_8003A6B0` | 80 bytes under `-O2 -mips2 -32`; character-code mapping body, all 20 instruction words and zero relocations exact. |
+| `func_8003A700` | 84 bytes under `-O2 -mips2 -32`; inverse character-code mapping body, all 21 instruction words and zero relocations exact. |
 
 | Candidate | Verdict |
 |---|---|
