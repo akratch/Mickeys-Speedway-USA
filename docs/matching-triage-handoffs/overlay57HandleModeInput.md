@@ -2,9 +2,9 @@
 ### `overlay57HandleModeInput` plateau handoff
 
 - source: `src/overlays/o057/overlay57HandleModeInput.c`
-- score: 3/217 words
+- score: 213/217 words
 - frame: 0x58
 - relocations: 70
-- first mismatch: +0xE0
-- summary: Three masked (seven raw) differences remain at the loop initializer; next: source-authentic evidence for IDO's base-address scheduling.
+- first mismatch: +0x14
+- summary: Schedule residual closed by joining the index initializer to the do-header line; the four remaining words are relocation-surface, not schedule.
 <!-- plateau-handoff:overlay57HandleModeInput:end -->

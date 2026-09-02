@@ -56,13 +56,27 @@ extern void o57ModeSubmitFinalReloc(void *object, void *state, f32 position,
                                    s32 index, s32 mode);
 
 /* Overlay 57 text +0x4064..+0x43C8. */
-/* Plateau retry (2026-08-30): canonical -O2 -mips2 is exact-size at 0x364
- * with the exact 0x58 frame, three relocation-masked differences first at
- * +0xE0, and seven raw differences first at +0x14. Direct global conditions
- * preserve the input flag in v0 while a separate compacted output index fixes
- * the loop carriers. The remaining mismatch is the index-zero initializer
- * schedule; the 119-entry flag lattice and ten source variants did not move it
- * after both loop base addresses without regressing the candidate. */
+/* THE JOINED LINE IS LOAD-BEARING. `outputIndex = 0; do {` shares one physical
+ * line deliberately; splitting it costs the three-word schedule residual back.
+ *
+ * IDO hoists both loop base addresses into the loop preheader and stamps the
+ * hoisted records with the *loop header's* source line, not their use sites'.
+ * The index initializer and those two addresses are independent -- no
+ * dependence edge orders them -- so as1's reorganizer separates them on its
+ * minimized `lineno` key, and an initializer written on an earlier line wins.
+ * Sharing the loop header's line removes the separation. This is why the
+ * 119-entry flag lattice and ten source variants could not move it: the
+ * deciding key was never a flag or a statement order, it was the line number.
+ *
+ * Measured with `decomp-workbench trace-emit` on an emit-provenance
+ * instrumented ugen (workbench improvement-backlog item #3(b)): block 0 emits
+ * the initializers at lines 90 and 91 and both hoisted addresses at line 92.
+ * Canonical -O2 -mips2 stays exact-size at 0x364 with the exact 0x58 frame;
+ * the three relocation-masked differences at +0xE0..+0xE8 are gone. What
+ * remains is the pre-existing relocation-surface difference (four words where
+ * the target resolves a shared base plus offset and the C object emits
+ * per-symbol LO16 records), which is a symbol-layout question, not a
+ * schedule one. */
 #ifdef NON_MATCHING
 void overlay57HandleModeInput(s32 updateRate) {
     s32 i;
@@ -88,8 +102,7 @@ void overlay57HandleModeInput(s32 updateRate) {
         gO57ModeSixthByte = 0;
 
         i = 0;
-        outputIndex = 0;
-        do {
+        outputIndex = 0; do {
             enabled[i] = gO57ModeChoices[i].enabled;
             if (gO57ModeChoices[i].enabled != 0) {
                 gO57ModeOutputs[outputIndex].value =
@@ -147,10 +160,10 @@ void overlay57HandleModeInput(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:overlay57HandleModeInput:start
  * symbol: overlay57HandleModeInput
- * score: 3/217 words
+ * score: 213/217 words
  * frame: 0x58
  * relocations: 70
- * first-mismatch: +0xE0
- * summary: Three masked (seven raw) differences remain at the loop initializer; next: source-authentic evidence for IDO's base-address scheduling.
+ * first-mismatch: +0x14
+ * summary: Schedule residual closed by joining the index initializer to the do-header line; the four remaining words are relocation-surface, not schedule.
  * PLATEAU-HANDOFF:overlay57HandleModeInput:end
  */
