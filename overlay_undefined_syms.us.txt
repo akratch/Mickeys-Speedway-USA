@@ -2055,8 +2055,15 @@ D_FA0 = 0x00000fa0;
 /* overlay 79: overlay79FindNearby.c.o */
 overlay79GetEntriesReloc = 0xf0000000;
 
-/* overlay 79: overlay79UpdateTimers.c.o */
+/* overlay 79: func_overlay_079_F0001290_18CE230.c.o */
+gOverlay79CounterReloc = 0x00000014;
+gOverlay79FlagsReloc = 0x00000000;
+overlay79EmitAtReloc = 0xf0000000;
+overlay79EmitReloc = 0xf0000000;
 overlay79FinishReloc = 0xf0000000;
+overlay79RandomReloc = 0xf0000000;
+overlay79SpawnReloc = 0xf0000000;
+overlay79TriggerReloc = 0xf0000000;
 
 /* overlay 80: overlay80InitializeContact.c.o */
 gOverlay80Scale0 = 0x00000000;
