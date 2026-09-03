@@ -644,6 +644,12 @@ overlay20ReleaseTreeReloc = 0xf0000000;
 /* overlay 20: overlay20ReleaseHandle.c.o */
 overlay20ReleaseReloc = 0xf0000000;
 
+/* overlay 20: overlay20UpdateObjectResource.c.o */
+overlay20ConfigureResourceReloc = 0xf0000000;
+overlay20GetContextReloc = 0xf0000000;
+overlay20LookupReloc = 0xf0000000;
+overlay20SqrtReloc = 0xf0000000;
+
 /* overlay 20: overlay20DrawResource.c.o */
 overlay20DrawResourceReloc = 0xf0000000;
 
@@ -706,6 +712,9 @@ overlay25SinReloc = 0xf0000000;
 
 /* overlay 26: overlay26InitializeObject.c.o */
 D_B18 = 0x00000b18;
+
+/* overlay 26: func_overlay_026_F0000B18_187AF10.c.o */
+sqrtf_o026Reloc = 0xf0000000;
 
 /* overlay 27: overlay_027.c.o */
 D_100 = 0x00000100;
@@ -825,14 +834,17 @@ overlay33CallReloc = 0xf0000000;
 /* overlay 33: overlay33BuildDisplayList.c.o */
 D_1808 = 0x00001808;
 
+/* overlay 34: overlay34InitStorage.c.o */
+func_8002B280_o034Reloc = 0xf0000000;
+gOverlay34Count = 0x00000008;
+gOverlay34Pointers = 0x00000004;
+gOverlay34Records = 0x00000000;
+
 /* overlay 34: overlay34SetValue10.c.o */
 gOverlay34Value10 = 0x00000010;
 
 /* overlay 34: overlay34ResetStorage.c.o */
 gOverlay34ActiveCount = 0x0000000c;
-gOverlay34Count = 0x00000008;
-gOverlay34Pointers = 0x00000004;
-gOverlay34Records = 0x00000000;
 overlay34FreeReloc = 0xf0000000;
 overlay34RemoveRecordReloc = 0xf0000000;
 

@@ -1,16 +1,6 @@
 {
   "schema_version": 1,
   "authorizations": {
-    "overlay34InitStorage": {
-      "source_commit": "b03c4f84d593687b231276924f0cd07a5755f610",
-      "ledger_commit": "f6180acf7e12e80c6e8cda7942dc06f1668678bf",
-      "reason": "The source now postdates its structured evidence; authorize a fresh configured reproof plus a calibrated final caller-save-slot assignment trace for the four stack-offset residuals."
-    },
-    "func_overlay_026_F0000B18_187AF10": {
-      "source_commit": "babf17a43f1143a5289f84c7e6ff551a2025430b",
-      "ledger_commit": "61c1106606d62f2d863423e45ef5786bca2a646b",
-      "reason": "Authorize the handoff's untried calibrated producer-to-final-home hook for the two-word projectedX stack-home residual; do not repeat declaration reordering."
-    },
     "func_overlay_022_F0000000_1878108": {
       "source_commit": "fbb5a245b14301b58db7687fac6a4885eb40fb15",
       "ledger_commit": "1acf232ce024ab9c0b3f29437409c0640ec21aaf",
@@ -405,6 +395,10 @@
       "source_commit": "c0007c3b03995128b91f2ce06e95c690b33f8884",
       "ledger_commit": null,
       "reason": "Epoch 15 compiler-lever pass: as1 line-scheduler and declaration-order levers on ORDER residuals; trial is the oracle."
+    "overlay40FadeRecords": {
+      "source_commit": "f89781dc9d81edc4a499fbe2838aca46c0b82d2b",
+      "ledger_commit": "d255bc7f1e7339e2bb884ad2e7a2d6358119e927",
+      "reason": "Lever pass: v0/v1 coloring at +0xC/+0x10/+0x24 on the initial temp-copy edge. Authorize one CDX_FORCE coloring-reachability probe and a matching natural source form."
     }
   }
 }

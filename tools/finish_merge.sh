@@ -22,6 +22,10 @@ gmake -s check-nonmatching-builds || { echo "a candidate-bearing TU no longer co
 # Fresh extraction and build: stale objects and stale asm/ have masked real failures twice.
 gmake distclean >/dev/null 2>&1; gmake extract 2>&1 | tail -1
 gmake -j6 >/dev/null 2>&1 || true   # warm-up: the first parallel build after a re-split can race
+# A merge that changes overlay relocation surfaces needs the generated
+# overlay symbol block regenerated before the link can succeed.
+gmake overlay-syms 2>&1 | tail -1
+gmake -j6 >/dev/null 2>&1 || true
 out=$(tools/with_verify_lock.sh gmake -j6 verify 2>&1 | tail -1); echo "$out"
 case "$out" in OK*) ;; *) echo "verify FAILED; not committing" >&2; gmake -j6 2>&1 | grep -iE 'error|undefined ref|defined twice' | head -5 >&2; exit 1 ;; esac
 .venv/bin/python tools/fix_jumptable_claim.py | tail -1
