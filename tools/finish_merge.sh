@@ -29,7 +29,7 @@ gmake -j6 >/dev/null 2>&1 || true
 out=$(tools/with_verify_lock.sh gmake -j6 verify 2>&1 | tail -1); echo "$out"
 case "$out" in OK*) ;; *) echo "verify FAILED; not committing" >&2; gmake -j6 2>&1 | grep -iE 'error|undefined ref|defined twice' | head -5 >&2; exit 1 ;; esac
 .venv/bin/python tools/fix_jumptable_claim.py | tail -1
-gmake check-docs 2>&1 | tail -1
+gmake check-docs 2>&1 | tail -1 || { echo "check-docs failed; merge left uncommitted" >&2; exit 1; }
 gmake scoreboard 2>&1 | tail -1
 gmake overlay-atlas 2>&1 | tail -1
 git add -A README.md config/ mickey.us.yaml docs/modules.md docs/overlays.md symbol_addrs.us.txt src include Makefile mk
