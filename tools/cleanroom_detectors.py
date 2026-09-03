@@ -337,6 +337,10 @@ CONTENT_EXEMPTIONS: "dict[tuple[str, str], str]" = {
         "symbol_addrs.us.txt",
         "decoder-audit:hex-run",
     ): "canonical symbol map: thousands of explicit ROM/VRAM addresses by design; it remains fully subject to the clean-room word-table detector",
+    (
+        "src/libultra/n_csplayer.c",
+        "decoder-audit:dec-token",
+    ): "permitted libultra source carries a fixed-point timing lookup table with 43 eight/nine-digit decimal constants; the clean-room word-table detector remains active",
 }
 
 # 8. (The aggregate budget now lives with rule 4 -- it is measured on the

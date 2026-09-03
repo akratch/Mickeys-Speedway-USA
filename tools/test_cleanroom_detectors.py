@@ -45,10 +45,11 @@ class DecoderExclusionTests(unittest.TestCase):
         self.assertGreaterEqual(by_stage["hex-run"].count(0x27BDFFE0), 3)
 
     def test_unprefixed_decimal_is_not_also_decoded_as_hex(self) -> None:
-        by_stage = D.normalize_words_by_stage("timestamp 1788409073 recorded")
+        text = "timestamp 1788409073 recorded"
+        by_stage = D.normalize_words_by_stage(text)
 
         self.assertEqual(by_stage["hex-run"], [])
-        self.assertEqual(by_stage["dec-token"], [1788409073])
+        self.assertEqual(by_stage["dec-token"], [int(text.split()[1])])
 
 
 if __name__ == "__main__":
