@@ -63,14 +63,19 @@ extern void overlay84RefreshCurrent(Overlay84Object *, Overlay84State *, s32);
 extern void overlay84UpdateCurrent(Overlay84Object *, Overlay84State *, s32);
 extern void overlay84UpdateResource(Overlay84Object *, Overlay84State *, s32);
 
-#ifdef NON_MATCHING
+/* `start` and `end` are declared after `node` so their automatic homes land
+ * at sp+0x44/sp+0x40: IDO 5.3 hands out homes descending from the top of the
+ * frame in declaration order, and with them declared first they sat two words
+ * too high. `scratch` is the function's eight-byte aggregate automatic, kept
+ * at the end of the list so it stays below the temp region and holds the
+ * frame at 0x58. */
 void overlay84InitializeAndUpdate(Overlay84Object *object, s32 arg) {
     s32 i;
     Overlay84Node *initialNode;
-    s32 start;
-    s32 end;
     Overlay84Node **nodes;
     Overlay84Node *node;
+    s32 start;
+    s32 end;
     s16 tilt;
     Overlay84State *state;
     s32 scratch[2];
@@ -126,16 +131,3 @@ void overlay84InitializeAndUpdate(Overlay84Object *object, s32 arg) {
     }
     state->active = 1;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o084/overlay84InitializeAndUpdate/func_overlay_084_F0000048_18D0528.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay84InitializeAndUpdate:start
- * symbol: overlay84InitializeAndUpdate
- * score: 172/179 words
- * frame: 0x58
- * relocations: 5
- * first-mismatch: +0x14
- * summary: Fresh V0 is exact-sized at 172/179 normalized words with a 0x58 frame, exact register lanes, and all five relocation offset/type sites aligned. The pinned producer still emits no authenticated virtual/final home ownership, so the exhausted alias and frame ladders have no new source lever.
- * PLATEAU-HANDOFF:overlay84InitializeAndUpdate:end
- */
