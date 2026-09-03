@@ -390,6 +390,26 @@
       "source_commit": "681bbf2ca97e35b571a3fc61abea419bcbb59c7a",
       "ledger_commit": "681bbf2ca97e35b571a3fc61abea419bcbb59c7a",
       "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
+    },
+    "overlay11UpdateMenu": {
+      "source_commit": "3d238202f1514acb2ee74b24c43b873c18207103",
+      "ledger_commit": "3d238202f1514acb2ee74b24c43b873c18207103",
+      "reason": "Epoch 15 compiler-lever pass: as1 line-scheduler and declaration-order levers on ORDER residuals; trial is the oracle."
+    },
+    "overlay33InitializeBuffers": {
+      "source_commit": "527f8e7aedf9d38d19922909cc8e1668001c4714",
+      "ledger_commit": "527f8e7aedf9d38d19922909cc8e1668001c4714",
+      "reason": "Epoch 15 compiler-lever pass: as1 line-scheduler and declaration-order levers on ORDER residuals; trial is the oracle."
+    },
+    "overlay1ResolvePathPoint": {
+      "source_commit": "c0007c3b03995128b91f2ce06e95c690b33f8884",
+      "ledger_commit": null,
+      "reason": "Epoch 15 compiler-lever pass: as1 line-scheduler and declaration-order levers on ORDER residuals; trial is the oracle."
+    },
+    "func_overlay_014_F0000000_186F8D8": {
+      "source_commit": "8b98c20fa9a175a1ccd20c1235f17021be9bfafe",
+      "ledger_commit": null,
+      "reason": "Epoch 15 compiler-lever pass: as1 line-scheduler and declaration-order levers on ORDER residuals; trial is the oracle."
     }
   }
 }
