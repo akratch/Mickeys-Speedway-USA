@@ -2064,6 +2064,15 @@ overlay68FinishEntryPromoteReloc = 0xf0000000;
 /* overlay 68: overlay68InitializeObject.c.o */
 overlay68ConfigureReloc = 0xf0000000;
 
+/* overlay 70: func_overlay_070_F00000D8_18C92A0.c.o */
+gOverlay70HeightTableReloc = 0x00000000;
+gOverlay70PairTableReloc = 0x00000000;
+overlay70Apply = 0xf0000000;
+overlay70Cos = 0xf0000000;
+overlay70RandomRange = 0xf0000000;
+overlay70Reset = 0xf0000000;
+overlay70Sin = 0xf0000000;
+
 /* overlay 71: func_overlay_071_F0000000_18C9B20.c.o */
 gOverlay71Scale0 = 0x00000000;
 gOverlay71Scale1 = 0x00000004;
