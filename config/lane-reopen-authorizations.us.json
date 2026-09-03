@@ -1,6 +1,16 @@
 {
   "schema_version": 1,
   "authorizations": {
+    "overlay34InitStorage": {
+      "source_commit": "b03c4f84d593687b231276924f0cd07a5755f610",
+      "ledger_commit": "dd01a030949ced9bd057864e28a82ab92b332886",
+      "reason": "Lever pass: four-site sp+0x18 vs sp+0x1C stack-home residual. Authorize one address-taken-aggregate or extra-slot frame-layout lever; declaration reordering stays closed."
+    },
+    "func_overlay_026_F0000B18_187AF10": {
+      "source_commit": "babf17a43f1143a5289f84c7e6ff551a2025430b",
+      "ledger_commit": "40a610702ae87bd18c2f71729fef3262593e87e2",
+      "reason": "Lever pass: two-word projectedX stack-home residual. Authorize one address-taken aggregate or call-crossing temporary frame lever; declaration reordering stays closed."
+    },
     "func_overlay_022_F0000000_1878108": {
       "source_commit": "fbb5a245b14301b58db7687fac6a4885eb40fb15",
       "ledger_commit": "1acf232ce024ab9c0b3f29437409c0640ec21aaf",
@@ -395,10 +405,16 @@
       "source_commit": "c0007c3b03995128b91f2ce06e95c690b33f8884",
       "ledger_commit": null,
       "reason": "Epoch 15 compiler-lever pass: as1 line-scheduler and declaration-order levers on ORDER residuals; trial is the oracle."
+    },
     "overlay40FadeRecords": {
       "source_commit": "f89781dc9d81edc4a499fbe2838aca46c0b82d2b",
       "ledger_commit": "d255bc7f1e7339e2bb884ad2e7a2d6358119e927",
       "reason": "Lever pass: v0/v1 coloring at +0xC/+0x10/+0x24 on the initial temp-copy edge. Authorize one CDX_FORCE coloring-reachability probe and a matching natural source form."
+    },
+    "overlay20UpdateObjectResource": {
+      "source_commit": "4907fa86ddcfc497b53af55c7fd8f51dc255a4f1",
+      "ledger_commit": "045a1c41cf2f23a44873ad86c96b8eadf7ae9f6c",
+      "reason": "Lever pass: t6/t7 swap downstream of owner selection. Authorize one DKWB_UGEN_TRACE temp-ring check for a redundant-mask phantom pop and a matching natural source form."
     }
   }
 }
