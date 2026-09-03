@@ -540,11 +540,18 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
             YAML.write_text(yaml_original)
             projection_changed = True
         if projection_changed:
-            if yaml_trial_changed:
+            if yaml_trial_changed or manifest_trial_changed:
                 # A temporary ownership projection changes splat's ignored
                 # asset slices as well as the YAML.  Re-split the restored
                 # canonical YAML before the next trial; mtime resolution is
                 # too coarse to rely on the normal stamp prerequisite here.
+                #
+                # The manifest alone is enough to require it: `prune-asm`
+                # deletes the .s files the projection made C-owned, and a
+                # projection that moved only the manifest left five o001
+                # candidates reporting `compile-error` on a file that no
+                # longer existed -- and every candidate after them, because
+                # the missing .s belongs to a TU the whole link needs.
                 clean_env = dict(os.environ)
                 clean_env.pop("PROMOTION_TRIAL", None)
                 subprocess.run(
