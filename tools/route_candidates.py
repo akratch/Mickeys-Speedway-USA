@@ -41,8 +41,22 @@ def load(path):
         return json.load(fh)
 
 
-def route(trial, ranking, sweep_words, lever_words, sweep_done):
+def live_candidates():
+    """Names still guarded by `#ifdef NON_MATCHING` in src/ (the ranking and
+    the trial both outlive a promotion)."""
+    try:
+        sys.path.insert(0, os.path.join(ROOT, "tools"))
+        import permute_batch  # noqa: WPS433
+        return {item.func for item in permute_batch.discover_queue_from_source_scan()}
+    except Exception:  # pragma: no cover - the scan is a convenience filter
+        return None
+
+
+def route(trial, ranking, sweep_words, lever_words, sweep_done, live=None):
     rows = trial.get("results", trial) if isinstance(trial, dict) else trial
+    if live is not None:
+        rows = [r for r in rows if r["func"] in live]
+        ranking = {"functions": [r for r in ranking["functions"] if r["name"] in live]}
     ranking_rows = {r["name"]: r for r in ranking["functions"]}
     routes = {k: [] for k in ("sweep", "ownership", "lever", "reshape",
                               "compile-fix", "structural")}
@@ -125,13 +139,16 @@ def main():
     ap.add_argument("--sweep-words", type=int, default=40)
     ap.add_argument("--lever-words", type=int, default=8)
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--no-live-filter", action="store_true",
+                    help="keep rows whose function is no longer a guarded candidate")
     ap.add_argument("--write-excludes", metavar="DIR",
                     help="write sweep-exclude-resident.txt and sweep-exclude-overlay.txt")
     args = ap.parse_args()
     trial = load(args.trial) if os.path.exists(args.trial) else {"results": []}
     ranking = load(args.ranking)
     routes = route(trial, ranking, args.sweep_words, args.lever_words,
-                   sweep_done_names(args.sweep_summary))
+                   sweep_done_names(args.sweep_summary),
+                   live=None if args.no_live_filter else live_candidates())
     if args.write_excludes:
         os.makedirs(args.write_excludes, exist_ok=True)
         overlay_ex = [e["function"] for k in ("ownership", "reshape", "compile-fix")
