@@ -620,6 +620,12 @@ overlay20ReleaseTreeReloc = 0xf0000000;
 /* overlay 20: overlay20ReleaseHandle.c.o */
 overlay20ReleaseReloc = 0xf0000000;
 
+/* overlay 20: overlay20UpdateObjectResource.c.o */
+overlay20ConfigureResourceReloc = 0xf0000000;
+overlay20GetContextReloc = 0xf0000000;
+overlay20LookupReloc = 0xf0000000;
+overlay20SqrtReloc = 0xf0000000;
+
 /* overlay 20: overlay20DrawResource.c.o */
 overlay20DrawResourceReloc = 0xf0000000;
 
