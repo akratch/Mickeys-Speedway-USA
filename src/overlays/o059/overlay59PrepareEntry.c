@@ -33,52 +33,47 @@
  */
 
 typedef struct Overlay59Descriptor {
-    u32 first;
-    u32 second;
+    void *first;
+    void *second;
     u8 pad08[8];
 } Overlay59Descriptor;
 
 typedef struct Overlay59Entry {
     u8 pad00[0x20];
-    Overlay59Descriptor *owner;
+    void **owner;
     u32 handles[8];
 } Overlay59Entry;
 
 typedef struct Overlay59DescriptorGroup {
-    Overlay59Descriptor **descriptors;
+    void ***descriptors;
     u32 unused;
 } Overlay59DescriptorGroup;
 
 extern Overlay59DescriptorGroup gOverlay59DescriptorTables[];
 extern void overlay59PrepareReleaseReloc(Overlay59Entry *entry);
-extern u32 overlay59PrepareAcquireReloc(u32 value);
+extern u32 overlay59PrepareAcquireReloc(void *value);
 
 #ifdef NON_MATCHING
-/* PLATEAU-HANDOFF
- * symbol: overlay59PrepareEntry
- * score: 53/62 words
- * frame: 0x28
- * relocations: 6
- * first-mismatch: +0x54
- * summary: All 119 flags were nonexact; trace-supported carrier coalescing was flat, leaving one descriptor/call-argument carrier web.
- */
 s32 overlay59PrepareEntry(Overlay59Entry *entry, s32 tableIndex, s32 itemIndex) {
-    Overlay59Descriptor *descriptor;
-    u32 descriptorValue;
+    void **descriptor;
+    void *value;
     u32 handle;
     s32 count;
     s32 result;
 
-    descriptor = gOverlay59DescriptorTables[tableIndex].descriptors[itemIndex];
+    descriptor = ((Overlay59DescriptorGroup *)
+                  ((u8 *) gOverlay59DescriptorTables + 0x5A4))[tableIndex]
+                     .descriptors[itemIndex];
     result = 1;
     if (descriptor != entry->owner) {
         overlay59PrepareReleaseReloc(entry);
         entry->owner = descriptor;
         count = 0;
-        descriptorValue = descriptor->first;
-        if (descriptorValue != 0) {
+        value = *descriptor;
+        if (value != 0) {
             do {
-                handle = overlay59PrepareAcquireReloc(descriptorValue);
+                handle = (u32)value;
+                handle = overlay59PrepareAcquireReloc((void *)handle);
                 if (handle == 0) {
                     result = 0;
                 } else {
@@ -86,9 +81,10 @@ s32 overlay59PrepareEntry(Overlay59Entry *entry, s32 tableIndex, s32 itemIndex) 
                     count++;
                 }
 
-                descriptorValue = descriptor->second;
-                if (descriptorValue != 0) {
-                    handle = overlay59PrepareAcquireReloc(descriptorValue);
+                value = descriptor[1];
+                if (value != 0) {
+                    handle = (u32)value;
+                    handle = overlay59PrepareAcquireReloc((void *)handle);
                     if (handle == 0) {
                         result = 0;
                     } else {
@@ -96,9 +92,9 @@ s32 overlay59PrepareEntry(Overlay59Entry *entry, s32 tableIndex, s32 itemIndex) 
                         count++;
                     }
                 }
-                descriptor++;
-                descriptorValue = descriptor->first;
-            } while (descriptorValue != 0);
+                descriptor += 4;
+                value = *descriptor;
+            } while (value != 0);
         }
 
         if (result == 0) {
@@ -110,3 +106,13 @@ s32 overlay59PrepareEntry(Overlay59Entry *entry, s32 tableIndex, s32 itemIndex) 
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o059/overlay59PrepareEntry/func_overlay_059_F0000070_18B87C0.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay59PrepareEntry:start
+ * symbol: overlay59PrepareEntry
+ * score: 53/62 words
+ * frame: 0x28
+ * relocations: 6
+ * first-mismatch: +0x48
+ * summary: Exact-size pointer-carrier candidate retains 53/62 matched words; nine differences remain in the descriptor and call argument web.
+ * PLATEAU-HANDOFF:overlay59PrepareEntry:end
+ */
