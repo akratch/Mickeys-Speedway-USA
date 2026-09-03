@@ -202,9 +202,9 @@
       "reason": "Fresh configured V0 and structured finalize only for the exact 168-byte/42-word candidate: 26 masked/raw differences, first +0x14. Prior source hypotheses, flags, permutation, and body mutation remain closed."
     },
     "overlay17AdvanceChain": {
-      "source_commit": "4cf79df6f6cd91e7bfaad2708d1795c420cf17f1",
-      "ledger_commit": "4cf79df6f6cd91e7bfaad2708d1795c420cf17f1",
-      "reason": "Fresh configured V0 and structured finalize only for the exact 588-byte/147-word candidate: 51 masked/raw differences, first +0x18. Prior source hypotheses, flags, permutation, and body mutation remain closed."
+      "source_commit": "a9edd45d58f595581056cca9672fabb0b093305d",
+      "ledger_commit": "a9edd45d58f595581056cca9672fabb0b093305d",
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "func_overlay_029_F0000EE0_187E190": {
       "source_commit": "424aa5f7694dc7cd5ca348fb289e0d818a438434",
@@ -425,6 +425,46 @@
       "source_commit": "4e4a459d5ff43edbc88b3a3f60181a18e741efa9",
       "ledger_commit": "4e4a459d5ff43edbc88b3a3f60181a18e741efa9",
       "reason": "Workbench 0.8.0 lever-diagnosis field test: read the diagnose lever block for the eight-word residual and apply only the edit family it names."
+    },
+    "overlay19BuildAdjacency": {
+      "source_commit": "dedf7697ca206d89b0fba7fd85396c13cc076a57",
+      "ledger_commit": "bd5ef6c655ce41e89aaac280842f3adb78230f60",
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
+    },
+    "func_overlay_022_F0000D30_1878E38": {
+      "source_commit": "554bcd6e46d530d6c6c904669f73b2e0298df656",
+      "ledger_commit": "554bcd6e46d530d6c6c904669f73b2e0298df656",
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
+    },
+    "func_overlay_073_F0000D70_18CB830": {
+      "source_commit": "321d3a22d1d1e1eb296dcb317c57fe328dde23b3",
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
+    },
+    "overlay29DrawGroups": {
+      "source_commit": "60eaabe7159b28031287e5a1569c21f571ac1f57",
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
+    },
+    "overlay99RenderSortedEntries": {
+      "source_commit": "fc30a3cb6e07fe572a0b67c5e0352e827efe93d6",
+      "ledger_commit": "7de78a5a8e3db434b706fd9ba3399a0fddd7bfcb",
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
+    },
+    "overlay89InitializeEffect": {
+      "source_commit": "608e543109ef222f4066b95eea470ae00e0800ab",
+      "ledger_commit": "92ef79ac3de1e127fde547dc0f32634251b352bb",
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
+    },
+    "func_overlay_035_F0000770_1882450": {
+      "source_commit": "ae12fc4b820ece61fea5578c6e020fd8f6fe38f1",
+      "ledger_commit": "ae12fc4b820ece61fea5578c6e020fd8f6fe38f1",
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
+    },
+    "overlay2ClassifyBoundary": {
+      "source_commit": "3cf1caab461f215a71df5ea9bcc87a8d7f5481cb",
+      "ledger_commit": "3cf1caab461f215a71df5ea9bcc87a8d7f5481cb",
+      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     }
   }
 }
