@@ -244,7 +244,7 @@ void overlay1AdvanceGauge(s32 amount) {
 
 /* PLATEAU-HANDOFF:overlay1FindNextAngle:start
  * symbol: overlay1FindNextAngle
- * score: 2/50 words
+ * score: 2 differing words
  * frame: 0x68
  * relocations: 4
  * first-mismatch: +0x3C
@@ -254,7 +254,7 @@ void overlay1AdvanceGauge(s32 amount) {
 
 /* PLATEAU-HANDOFF:overlay1FindPreviousAngle:start
  * symbol: overlay1FindPreviousAngle
- * score: 2/50 words
+ * score: 2 differing words
  * frame: 0x68
  * relocations: 4
  * first-mismatch: +0x3C
@@ -264,7 +264,7 @@ void overlay1AdvanceGauge(s32 amount) {
 
 /* PLATEAU-HANDOFF:overlay1AdvanceGauge:start
  * symbol: overlay1AdvanceGauge
- * score: 16/42 words
+ * score: 26 differing words
  * frame: 0x40
  * relocations: 3
  * first-mismatch: +0x14
