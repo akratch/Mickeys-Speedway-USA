@@ -58,6 +58,8 @@ gmake -s check-nonmatching-builds || { echo "a candidate-bearing TU no longer co
 # Fresh extraction and build: stale objects and stale asm/ have masked real failures twice.
 gmake distclean >/dev/null 2>&1; gmake extract 2>&1 | tail -1
 low_gmake >/dev/null 2>&1 || true   # warm-up: the first parallel build after a re-split can race
+gmake overlay-syms 2>&1 | tail -1   # a merge that changes overlay relocation surfaces needs the generated symbol block before the link
+low_gmake >/dev/null 2>&1 || true
 out=$(tools/with_verify_lock.sh nice -n "$build_nice" gmake -j"$build_jobs" verify 2>&1 | tail -1); echo "$out"
 case "$out" in OK*) ;; *) echo "verify FAILED after merging $branch; merge left uncommitted (git merge --abort to drop it)" >&2; low_gmake 2>&1 | grep -iE 'error|undefined ref|defined twice' | head -5 >&2; exit 1 ;; esac
 gmake scoreboard 2>&1 | tail -1

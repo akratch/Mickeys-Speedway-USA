@@ -167,10 +167,7 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
                     state->velocity = 500;
                 }
             } else if (weight > 0.0f) {
-                s32 velocity;
-
-                velocity = (s32)(state->current * gO94Const24);
-                state->velocity = (s16)-velocity;
+                state->velocity = (s16)-(s32)(state->current * gO94Const24);
                 if (state->velocity >= -499) {
                     state->velocity = -500;
                 }
@@ -190,6 +187,6 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
  * frame: 0x70
  * relocations: 36
  * first-mismatch: +0x404
- * summary: Fresh V0 is 268/275 normalized with frame 0x70; all 36 runtime identities are exact. Fidelity-gated proc0 has 22 integer decisions (12 color, 10 split) plus 10 FP decisions, but all 32 webs lack producer source_semantic attribution; prior carrier forms remain closed.
+ * summary: Inlining the negative-velocity carrier makes the pool lane exact; the residual is now a two-pop temp-ring offset in the weight-positive branch.
  * PLATEAU-HANDOFF:overlay94UpdateController:end
  */

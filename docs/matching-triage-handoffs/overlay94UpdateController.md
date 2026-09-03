@@ -6,5 +6,5 @@
 - frame: 0x70
 - relocations: 36
 - first mismatch: +0x404
-- summary: Fresh V0 is 268/275 normalized with frame 0x70; all 36 runtime identities are exact. Fidelity-gated proc0 has 22 integer decisions (12 color, 10 split) plus 10 FP decisions, but all 32 webs lack producer source_semantic attribution; prior carrier forms remain closed.
+- summary: Inlining the negative-velocity carrier makes the pool lane exact; the residual is now a two-pop temp-ring offset in the weight-positive branch.
 <!-- plateau-handoff:overlay94UpdateController:end -->
