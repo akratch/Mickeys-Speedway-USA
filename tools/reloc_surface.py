@@ -33,6 +33,22 @@ equivalent objcopy spec).  It also cross-checks each site against the decoded
 module relocation table, which is what distinguishes a genuine relocation
 site from a literal the compiler must not relocate.
 
+A candidate whose schedule differs anywhere before a site moves that site, and
+then no offset in the table names it.  The table still records *which*
+relocations the function performs and in *what order* -- the runtime walks
+reloc1/reloc2 in offset order, and reordering instructions cannot reorder the
+references -- so `align_sites` matches the object's sites onto the module's
+records over the same text range by relocation type, in offset order.  The
+placement is accepted only when it is the *only* order-preserving one
+(`unique_order_preserving_embedding`); a differing multiset, a type the retail
+order cannot supply, or two ways to lay the sequence down is a refusal, because
+choosing between them would be inventing an addend.  An object whose sites all
+corroborate where they stand is not realigned at all.  Every alignment is
+reported (`/* ALIGNED obj: aligned/total site(s), N shifted */`) and the
+promotion trial records the counts per row, so a shifted site is never read as
+an exact one: the words it moved still count as differences, and the linked-ROM
+byte comparison remains the only proof that a candidate is right.
+
 Nothing ROM-derived is written: the baserom and the atlas are read at run
 time and only *addresses and symbol values already required by the link* are
 emitted.

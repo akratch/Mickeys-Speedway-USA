@@ -426,7 +426,9 @@ addend model.
    placeholder's own sites, so no consistent addend exists and the tool refuses
    rather than inventing one. It reports the conflicting values per symbol,
    which localizes the divergence. This is the model's stated precondition: the
-   addend is only readable where the schedule agrees.
+   addend is only readable where the schedule agrees. §4.1 narrows that
+   precondition from "the same offset" to "the same position in the shipped
+   order", which is what the table actually asserts.
 2. **Alias-block coupling** (`overlay1InterpolatePath`, `overlay1MeasureCurves`).
    `overlay_undefined_syms.us.txt` also carries 624 hand-written *alias* lines
    of the form `func_overlay_001_F0000CA8_184D088 = overlay1InterpolatePath;`
@@ -442,6 +444,47 @@ addend model.
    class the trial reports for `overlay27UpdateCoordinates` is now
    `schedule-divergence-at-site` -- but the generator still scans `.rel.text`
    only, so the limit stands.
+
+### 4.1 Order, not offset: aligning a shifted site
+
+The refusal above was stricter than the evidence requires. A site was
+corroborated only when the module's relocation table named its exact
+function-relative offset, so a candidate that is a handful of words off, but
+moves one `lui`/`addiu` pair by a slot, had no readable addend *anywhere* --
+even at the sites it did not move. The trial then reported `build-error`, and
+the routing read an unmeasurable row as structural.
+
+What the table asserts is stronger than a set of offsets. `runlinkDownloadCode`
+walks `reloc1`/`reloc2` in offset order and patches each site in turn (§1), so
+the table records which relocations a function performs *and in what order*.
+Instruction scheduling moves the sites; it cannot reorder the references
+themselves, because each one belongs to the expression that produced it.
+
+`align_sites` therefore matches an object's relocation sites onto the module's
+records over the same text range by relocation type, both sequences in offset
+order, and accepts the result only when it is the **only** order-preserving
+match -- decided by computing the leftmost and the rightmost embedding and
+requiring them to agree. Three things are refusals, not fallbacks:
+
+- a candidate type the retail order cannot supply, in that order;
+- more candidate sites than the range has records (a differing multiset);
+- two or more placements that both preserve order, where choosing one would be
+  inventing an addend.
+
+Two properties keep this from weakening any proof. An object whose sites all
+corroborate where they stand is not realigned at all, so the tracked surface is
+untouched: `gmake check-overlay-syms` reports it up to date, and `gmake verify`
+still prints `507341c0a40ca3e9a7cee969b396ee53facfb548`. And an accepted
+alignment is *reported*, never absorbed: the generator prints
+`/* ALIGNED <object>: <aligned>/<sites> site(s), <n> shifted */` and the trial
+row carries `aligned_sites`/`shifted_sites`, while `in_range_words` counts the
+words a shifted site moved exactly as the differences they are. The linked-ROM
+byte comparison remains the only proof that a candidate is right; the alignment
+only decides whether that comparison can be run at all.
+
+The acceptance test in the trial's docstring still holds under the aligner: a
+matched function re-wrapped as a candidate (`overlay63Initialize`) reports
+`exact in=0 out=0`, and its object needs no alignment.
 
 Two further limits are worth recording because they are invisible until they
 bite:
@@ -1633,6 +1676,74 @@ offset/type and the exact 111-word extent, but metadata-only rebinding and
 section trimming still leave only 78/111 linked words equal. It has no export;
 its sole inbound is the local JUMP from `overlay98CollectAccepted+0x74` at
 module offset `+0x1B8`.
+
+### 6.2 What the site alignment unlocks
+
+The 77 `schedule-divergence-at-site` rows re-measured, in lane
+`lane/reloc-sched`. Two measurements, because they answer different questions.
+
+**The surface, over all 77.** Each candidate's TU compiled with its
+`NON_MATCHING` body promoted, then valued by `synthesize()` (§4.1). No link, so
+no load gate:
+
+| outcome | count |
+|---|---:|
+| alignment accepted, and the object has no refusal left -- the surface values every symbol | 19 |
+| alignment accepted, refusals remain (two sites of one symbol demand different addends) | 2 |
+| no alignment needed; the refusals are per-symbol addend conflicts at corroborated sites | 2 |
+| alignment refused: no unique order-preserving match | 54 |
+
+The 21 accepted alignments move 466 sites off the offset the table names.
+
+**The linked-ROM trial**, `--resume --jobs 1`, the first 39 rows in queue order
+before the workstation load gate stalled the run; the remaining 38 are queued:
+
+| class | rows |
+|---|---:|
+| `build-error / schedule-divergence-at-site` | 22 |
+| `text-size-differs` | 9 |
+| `build-error / rom-size` | 4 |
+| `text-differs` | 3 |
+| `rom-size` | 1 |
+
+Nine of the 39 carried an alignment, and eight of those left the divergence
+class: `func_overlay_011_F00022E8_186AB30` (51 of 79 sites shifted),
+`func_overlay_012_F00003A8_186D628` (33/33), `func_overlay_014_F0001830_1871108`
+(13/14), `func_overlay_041_F0001464_188879C` (5/5) and `overlay19BuildPlanes`
+(3/4) to a size verdict -- an ownership carve, not code work -- and three to a
+word count: `func_overlay_027_F0000064_187BA3C` **62**,
+`func_overlay_031_F0000000_187F520` **94**, `func_overlay_029_F00005C4_187D874`
+**438**. `overlay19BuildPlanes` carries both, `rom-size` at 512 in-range words.
+
+The ninth, `overlay10Initialize`, aligns all 41 of its sites (26 shifted) and
+still refuses: three symbols whose *aligned* sites disagree about the addend.
+That is the §4.1 refusal working as intended -- the alignment made the sites
+readable and the readings then contradicted each other, which is real codegen
+divergence, not a missing offset.
+
+The other nine rows that left the class did so without any alignment; they are
+the harness fix in the same lane (a trial projection that moved only
+`config/overlays.us.json` never re-split, so `prune-asm`'s deletions stranded
+an `overlay_001_head` .s that the whole link needs).
+
+None of the 77 came out `exact` or `text-exact`: an unlocked row buys a number,
+not a promotion. What it changes is the routing -- `text-differs` with a word
+count goes to the permuter sweep or a lever, `rom-size` to the ownership carve,
+and only a row that still refuses is read as structural.
+
+**The 54 refusals.** All are the same shape: the candidate's relocation-type
+sequence does not embed uniquely into the module's record sequence over that
+TU's text range. Two causes, both honest. Either the candidate emits a
+relocation the shipped function does not perform, or omits one it does -- a
+differing multiset, which is a structural disagreement and not a scheduling
+one; or the sequence embeds two ways, which happens when the surplus records
+in the range have the same types as the sites being placed (a run of
+HI16/LO16 pairs with an unspelled intra-module reference among them). The
+second class is a limit of matching on type alone: the shipped table names a
+LOCAL record's section, not the symbol, so two `%hi` sites over the same
+section are indistinguishable to it. Narrowing them would need a per-record
+identity the table does not carry for LOCAL rows, so the tool refuses instead
+of choosing.
 
 ## 7. What is still hand-written
 
