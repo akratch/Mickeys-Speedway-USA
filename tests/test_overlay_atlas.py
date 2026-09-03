@@ -387,6 +387,19 @@ class TrialProjectionTests(unittest.TestCase):
         )
         self.assertIn("- [0x1854774, .rodata, example_tail]", carved)
 
+    def test_an_externalized_owner_keeps_the_retained_raw_slice(self):
+        module = trial_module()
+        module["data_rodata_ownership"][0]["externalized"] = True
+        projected = overlay_atlas.render_yaml_block(
+            {"modules": [module]},
+            trial_ownership=True,
+            trial_sources=frozenset({"example_tail"}),
+            trial_functions=frozenset({"example_owner"}),
+        )
+        self.assertNotIn(".rodata", projected)
+        self.assertIn("- [0x1854500, bin, overlay_001_data_rodata]", projected)
+        self.assertIn("subalign: 0x1", projected)
+
     def test_another_function_in_the_same_tu_carves_nothing(self):
         uncarved = self.render(
             trial_ownership=True,

@@ -1421,7 +1421,8 @@
      "type": "c",
      "section": ".rodata",
      "source": "overlays/o001/overlay_001_tail",
-     "trial_function": "overlay1DispatchMode"
+     "trial_function": "overlay1DispatchMode",
+     "externalized": true
     }
    ]
   },
