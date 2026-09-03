@@ -43,10 +43,9 @@ extern void camRestoreModelMtx(Gfx **);
 extern void func_80034920(Gfx **);
 
 #ifdef NON_MATCHING
-/* Plateau retry (2026-08-30): -O2/-mips2 is exact-sized at 81/129 positional
- * words (48 differ), first +0x50, with all three call identities exact. Ten
- * prior CFG/offset forms, five fresh forms, and the bounded permuter leave the
- * pre-loop statement/expression-order phase unresolved. */
+/* Workbench: structure-mismatch, 47 raw differences / 82 of 129 words match, first +0x4C.
+ * Instruction count/frame and all three relocation sites are exact; pre-loop setup retains 12 structural gaps.
+ * Remaining gap is scheduler/source statement order; this candidate is not permuter-ready. */
 void overlay29DrawGroups(Gfx **dl, s32 drawContext,
                          Overlay29Context *context) {
     Overlay29RenderState *render;
@@ -68,19 +67,19 @@ void overlay29DrawGroups(Gfx **dl, s32 drawContext,
     alphaMask = -0x100;
     fillCommand = 0xFB000000;
     if (render->enabled != 0) {
+        groupIndex = 3;
         gfx = *dl;
         *dl = gfx + 1;
-        gfx->w0 = 0xE7000000;
         gfx->w1 = 0;
+        gfx->w0 = 0xE7000000;
 
         gfx = *dl;
         nodeOffset = 0xC;
         *dl = gfx + 1;
         segmentBase = 0x80000000;
         triangleCommand = 0xBF000000;
-        gfx->w0 = fillCommand;
         gfx->w1 = alphaMask;
-        groupIndex = 3;
+        gfx->w0 = fillCommand;
 
         do {
             if (groupIndex == 3) {
@@ -143,10 +142,10 @@ void overlay29DrawGroups(Gfx **dl, s32 drawContext,
 
 /* PLATEAU-HANDOFF:overlay29DrawGroups:start
  * symbol: overlay29DrawGroups
- * score: 81/129 words
+ * score: 82/129 words
  * frame: 0x58
  * relocations: 3
- * first-mismatch: +0x50
- * summary: All 119 flags and five fresh CFG/address forms are nonexact; resume only with new source-authentic scheduler or expression-order evidence
+ * first-mismatch: +0x4C
+ * summary: 129 instructions/frame and all three relocation sites exact; pre-loop setup retains 12 structural gaps from source scheduling
  * PLATEAU-HANDOFF:overlay29DrawGroups:end
  */
