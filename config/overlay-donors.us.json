@@ -4,7 +4,6 @@
   "atlas": {
     "path": "config/overlays.us.json",
     "sha256": "746bc84dba1e996979bbe5bde0db579f2984fd0b0c9fe6450cd725b7d1d60872",
-    "sha256": "6b1607b5576f778c9ebe050424aafb0292d7167b97c99498ab2d5f3e55092645",
     "rom_sha1": "507341c0a40ca3e9a7cee969b396ee53facfb548",
     "modules": 107
   },
