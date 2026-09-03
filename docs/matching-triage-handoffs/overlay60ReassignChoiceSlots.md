@@ -2,9 +2,9 @@
 ### `overlay60ReassignChoiceSlots` plateau handoff
 
 - source: `src/overlays/o060/overlay60ReassignChoiceSlots.c`
-- score: 35 differing words
+- score: 18/53 words
 - frame: 0x20
 - relocations: 8
 - first mismatch: +0x4
-- summary: Exact geometry and frame; target 4 relocation sites versus candidate 8; 119 flags flat; only permuter gain skipped available index zero.
+- summary: Temps match 15/15. The sole defect is a hoisted available base costing one extra move. Folding walker and base into one pointer is disproved.
 <!-- plateau-handoff:overlay60ReassignChoiceSlots:end -->
