@@ -434,13 +434,34 @@ D_80000000 = 0x80000000;
 overlay13CallReloc = 0xf0000000;
 
 /* overlay 14: func_overlay_014_F0000000_186F8D8.c.o */
-D_128 = 0x00000128;
-D_E8 = 0x000000e8;
+gOverlay14AssetF0 = 0x000000f0;
+gOverlay14CommandCountEC = 0x000000ec;
+gOverlay14Context10C = 0x0000010c;
+gOverlay14Current104 = 0x00000104;
+gOverlay14CursorDC = 0x000000dc;
+gOverlay14Field114 = 0x00000114;
+gOverlay14Next108 = 0x00000108;
+gOverlay14OffsetsF4 = 0x000000f4;
+gOverlay14PendingModeD4 = 0x000000d4;
+gOverlay14PendingValueD0 = 0x000000d0;
+gOverlay14PointerE0 = 0x000000e0;
+gOverlay14ResultF8 = 0x000000f8;
+gOverlay14ResultFC = 0x000000fc;
+gOverlay14StateC0 = 0x000000c0;
+gOverlay14StateC4 = 0x000000c4;
+gOverlay14StateC8 = 0x000000c8;
+gOverlay14TransitionD8 = 0x000000d8;
+gOverlay14ValueCountE8 = 0x000000e8;
+gOverlay14ValueSlots28 = 0x00000028;
+gOverlay14ValueSlotsEnd128 = 0x00000128;
+overlay14FreeReloc = 0xf0000000;
+overlay14InitializeReloc = 0xf0000000;
 
 /* overlay 14: func_overlay_014_F000013C_186FA14.c.o */
 D_F0 = 0x000000f0;
 
 /* overlay 14: overlay14ApplyValues.c.o */
+D_128 = 0x00000128;
 D_C8 = 0x000000c8;
 D_EC = 0x000000ec;
 D_F8 = 0x000000f8;
@@ -455,6 +476,9 @@ gOverlay14ValueF8 = 0x000000f8;
 
 /* overlay 14: overlay14MoveCommandCursor.c.o */
 gOverlay14CommandHeader = 0x000000fc;
+
+/* overlay 14: overlay14CreateValue.c.o */
+D_E8 = 0x000000e8;
 
 /* overlay 14: func_overlay_014_F00009F4_18702CC.c.o */
 D_A4 = 0x000000a4;
