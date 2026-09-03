@@ -1,11 +1,6 @@
 {
   "schema_version": 1,
   "authorizations": {
-    "overlay34InitStorage": {
-      "source_commit": "b03c4f84d593687b231276924f0cd07a5755f610",
-      "ledger_commit": "dd01a030949ced9bd057864e28a82ab92b332886",
-      "reason": "Lever pass: four-site sp+0x18 vs sp+0x1C stack-home residual. Authorize one address-taken-aggregate or extra-slot frame-layout lever; declaration reordering stays closed."
-    },
     "func_overlay_026_F0000B18_187AF10": {
       "source_commit": "babf17a43f1143a5289f84c7e6ff551a2025430b",
       "ledger_commit": "40a610702ae87bd18c2f71729fef3262593e87e2",

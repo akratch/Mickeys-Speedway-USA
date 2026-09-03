@@ -801,14 +801,17 @@ overlay33CallReloc = 0xf0000000;
 /* overlay 33: overlay33BuildDisplayList.c.o */
 D_1808 = 0x00001808;
 
+/* overlay 34: overlay34InitStorage.c.o */
+func_8002B280_o034Reloc = 0xf0000000;
+gOverlay34Count = 0x00000008;
+gOverlay34Pointers = 0x00000004;
+gOverlay34Records = 0x00000000;
+
 /* overlay 34: overlay34SetValue10.c.o */
 gOverlay34Value10 = 0x00000010;
 
 /* overlay 34: overlay34ResetStorage.c.o */
 gOverlay34ActiveCount = 0x0000000c;
-gOverlay34Count = 0x00000008;
-gOverlay34Pointers = 0x00000004;
-gOverlay34Records = 0x00000000;
 overlay34FreeReloc = 0xf0000000;
 overlay34RemoveRecordReloc = 0xf0000000;
 
