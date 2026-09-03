@@ -32,9 +32,9 @@
       "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay94UpdateController": {
-      "source_commit": "3bfc5f1ca95041cc46e2f3327c502d08869546cd",
-      "ledger_commit": "51bb0f0dd66db2fb242c6d4628b1acb37457cd5e",
-      "reason": "The source postdates its ledger; authorize runtime identity closure and one source-attributed allocator split-provenance trace for the eighteen-word residual; prior direct, s32, and s16 carriers remain closed."
+      "source_commit": "51bb0f0dd66db2fb242c6d4628b1acb37457cd5e",
+      "ledger_commit": "b18a6627654299f7cb36f2a50217ba14e265a39e",
+      "reason": "Epoch 15 compiler-lever pass: refresh the stale pin and measure ugen temp-ring pop counts for the seven-word residual; prior direct, s32, and s16 carriers remain closed."
     },
     "func_overlay_101_F0005E08_18E1628": {
       "source_commit": "61ed283d6760fbfb6995f14e04ceb44addb4d142",
@@ -405,6 +405,21 @@
       "source_commit": "c0007c3b03995128b91f2ce06e95c690b33f8884",
       "ledger_commit": null,
       "reason": "Epoch 15 compiler-lever pass: as1 line-scheduler and declaration-order levers on ORDER residuals; trial is the oracle."
+    },
+    "func_overlay_070_F00000D8_18C92A0": {
+      "source_commit": "7abdea6bb41017c21d89970a7a8fe3d5af174d50",
+      "ledger_commit": "7abdea6bb41017c21d89970a7a8fe3d5af174d50",
+      "reason": "Epoch 15 compiler-lever pass: count ugen temp-ring pops and check hoisted-invariant birth order against as1 line order for the two split allocator webs, before accepting the unattributed verdict."
+    },
+    "overlay4UpdateObjectMotion": {
+      "source_commit": "04d879e6e074e11aae7f44e1e730a440a7666663",
+      "ledger_commit": "04d879e6e074e11aae7f44e1e730a440a7666663",
+      "reason": "Epoch 15 compiler-lever pass: identities are all exact, so measure ugen temp-ring pops and invariant birth order for the two tied allocator webs instead of re-running register-carrier shuffles."
+    },
+    "overlay62Update": {
+      "source_commit": "ac7120dcc2ecf7d725fa4e36130abc560d98c9d0",
+      "ledger_commit": "ac7120dcc2ecf7d725fa4e36130abc560d98c9d0",
+      "reason": "Epoch 15 compiler-lever pass: re-check the seven register residuals now that the BSS/data identity conflation is resolved, then measure temp-ring pops and birth order."
     }
   }
 }
