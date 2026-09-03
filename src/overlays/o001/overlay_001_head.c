@@ -831,7 +831,7 @@ void overlay1CallReset(void) {
 
 /* PLATEAU-HANDOFF:overlay1InterpolatePath:start
  * symbol: overlay1InterpolatePath
- * score: 81/83 words
+ * score: 3 differing words
  * frame: 0x68
  * relocations: 13
  * first-mismatch: +0x94
@@ -841,7 +841,7 @@ void overlay1CallReset(void) {
 
 /* PLATEAU-HANDOFF:overlay1MeasureCurves:start
  * symbol: overlay1MeasureCurves
- * score: 52/79 words
+ * score: 27 differing words
  * frame: 0x70
  * relocations: 5
  * first-mismatch: +0x0C

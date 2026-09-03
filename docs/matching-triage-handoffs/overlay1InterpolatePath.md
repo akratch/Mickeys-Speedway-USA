@@ -2,7 +2,7 @@
 ### `overlay1InterpolatePath` plateau handoff
 
 - source: `src/overlays/o001/overlay_001_head.c`
-- score: 81/83 words
+- score: 3 differing words
 - frame: 0x68
 - relocations: 13
 - first mismatch: +0x94
