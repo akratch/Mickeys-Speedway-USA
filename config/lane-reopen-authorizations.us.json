@@ -16,11 +16,6 @@
       "ledger_commit": "ba774d0bd64b41e5c2c79c0317823bf5bedf58bb",
       "reason": "Compiler-lever pass: five-word objectPosition home residual; try declared-local count changes and carrier reuse."
     },
-    "overlay84InitializeAndUpdate": {
-      "source_commit": "b0c448aff5baf9d50ba9dc476793ca112dfb3307",
-      "ledger_commit": "1c6dc54869a2896d76c961e3d0fb1147fc3403cf",
-      "reason": "Compiler-lever pass: seven-word start/end stack-home residual; try declared-local count changes and common-subexpression homes."
-    },
     "func_overlay_036_F0000818_1883CD0": {
       "source_commit": "68093ebf6f0fcf6b841a0f264e1384a6a8373393",
       "ledger_commit": "db1da501bf9f44750ffe1c56ba683e27edf53c83",
