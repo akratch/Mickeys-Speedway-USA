@@ -253,7 +253,7 @@
     },
     "overlay19ClassifyEdge": {
       "source_commit": "7cb5b62ac6a66b944906208d6eb05cef0ba7ba03",
-      "ledger_commit": "7cb5b62ac6a66b944906208d6eb05cef0ba7ba03",
+      "ledger_commit": null,
       "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay31CreatePool": {
@@ -283,7 +283,7 @@
     },
     "overlay5InitializeAudio": {
       "source_commit": "15193f57a1499629b8008c161ea650f0b1fc017c",
-      "ledger_commit": "77c64beae157604d707fdfb6d76f2bc451d55aea",
+      "ledger_commit": null,
       "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay96Unregister": {
@@ -298,7 +298,7 @@
     },
     "func_overlay_029_F00010C4_187E374": {
       "source_commit": "f62d2d4701191c7457afbf4c35968b4f8e400a87",
-      "ledger_commit": "4fbb92bfe6e44f0b4403dbd6ca77d2102b045fd7",
+      "ledger_commit": null,
       "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay98CheckObject": {
@@ -318,7 +318,7 @@
     },
     "func_overlay_026_F0000D24_187B11C": {
       "source_commit": "4e0a141a29e28de455e798ba590951f3e15b929a",
-      "ledger_commit": "4e0a141a29e28de455e798ba590951f3e15b929a",
+      "ledger_commit": null,
       "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay2QueryNode": {
@@ -328,7 +328,7 @@
     },
     "overlay59PrepareEntry": {
       "source_commit": "4a75e3348dc760509befffba716637270952d8d7",
-      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "ledger_commit": null,
       "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "func_overlay_047_F00009D0_18917E8": {
@@ -373,7 +373,7 @@
     },
     "func_overlay_092_F0000068_18D5F88": {
       "source_commit": "82d35dd9da593db1737ff17f35f84ab1ee8a81f8",
-      "ledger_commit": "eb3d13890ced757076d48d470bffdb8b0452db44",
+      "ledger_commit": null,
       "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay98CollectUniqueY": {
@@ -388,7 +388,7 @@
     },
     "overlay3RunCachedModeAction": {
       "source_commit": "20db1cc30a75f54622a00822ab458d2952eb5a3d",
-      "ledger_commit": "a723c0fc5526b506555b71da152816b506095e8c",
+      "ledger_commit": null,
       "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay43FilterImage": {
