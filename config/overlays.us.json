@@ -3162,7 +3162,8 @@
      "type": "c",
      "section": ".rodata",
      "source": "overlays/o009/overlay_009",
-     "trial_function": "func_overlay_009_F0000CE4_186735C"
+     "trial_function": "func_overlay_009_F0000CE4_186735C",
+     "externalized": true
     }
    ]
   },

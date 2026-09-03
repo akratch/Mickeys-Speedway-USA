@@ -134,7 +134,7 @@ FIXED_DATA_RODATA_OWNERSHIP = {
     1: [(0x274, 0x294, "overlay_001_tail", ".rodata", "overlay1DispatchMode", True)],
     7: [(0x934, 0x950, "overlay_007_tail", ".rodata", "overlay7DispatchModes")],
     8: [(0x27C, 0x2AC, "overlay_008", ".rodata", "func_overlay_008_F0004CF0_1862A48")],
-    9: [(0x390, 0x3E0, "overlay_009", ".rodata", "func_overlay_009_F0000CE4_186735C")],
+    9: [(0x390, 0x3E0, "overlay_009", ".rodata", "func_overlay_009_F0000CE4_186735C", True)],
     14: [
         (0x158, 0x174, "overlay14LoadRelocatedValue", ".rodata", "overlay14LoadRelocatedValue"),
         (0x174, 0x190, "func_overlay_014_F0001830_1871108", ".rodata", "func_overlay_014_F0001830_1871108"),
