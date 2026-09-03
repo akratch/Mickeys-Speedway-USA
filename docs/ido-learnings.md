@@ -87,6 +87,27 @@ bytes and disassembly never belong here.
   when the rejected path never observes the value and the ordinary object,
   relocations, linked owner, and ROM all remain exact. Evidence: Overlay 34's
   exact record updater in `docs/overlays.md`.
+- The NUMBER of declared locals, not only their order, sets where a
+  call-crossing value is homed: declared locals take descending homes from
+  the frame top in declaration order and compiler temporaries sit below
+  them, so removing a named local and letting a call-crossing common
+  subexpression stay a compiler temporary moves it one word lower
+  (`overlay34InitStorage`), reusing an existing local as the carrier drops
+  the declared count by one and lowers a later spill by one slot
+  (`func_overlay_026_F0000B18_187AF10`), and declaring a pair after the
+  local whose slots it must follow lands both on the retail homes
+  (`overlay84InitializeAndUpdate`). All three were exact on 2026-09-03.
+- ugen's integer temp ring is consumed one pop per compiler temporary, and
+  the `DKWB_UGEN_TRACE` pop sequence shows the count directly: reading a
+  struct field through a local costs a pop that a direct read does not, an
+  index scaled twice costs one more pop than an index scaled once (type the
+  table as pairs), and a pool-carried accumulate (`x = a; x += b * c;`)
+  changes a pop. Two pops off means two of these, and the fixes only work
+  together (`overlay20UpdateObjectResource`, `func_overlay_070_F00000D8`).
+- Hoisted loop-invariant addresses are materialized in ugen's birth order,
+  so a bound kept in a local born before the count global is issued first;
+  spelling the bound inline in the loop test hoists it after the count
+  (`func_overlay_014_F0000000_186F8D8`).
 - Declaration order can determine stack-home order for call-crossing locals.
   When the operation sequence is exact but spill offsets differ, reorder
   semantically independent declarations before inventing extra state.
