@@ -405,11 +405,6 @@
       "source_commit": "c0007c3b03995128b91f2ce06e95c690b33f8884",
       "ledger_commit": null,
       "reason": "Epoch 15 compiler-lever pass: as1 line-scheduler and declaration-order levers on ORDER residuals; trial is the oracle."
-    },
-    "func_overlay_014_F0000000_186F8D8": {
-      "source_commit": "8b98c20fa9a175a1ccd20c1235f17021be9bfafe",
-      "ledger_commit": null,
-      "reason": "Epoch 15 compiler-lever pass: as1 line-scheduler and declaration-order levers on ORDER residuals; trial is the oracle."
     }
   }
 }
