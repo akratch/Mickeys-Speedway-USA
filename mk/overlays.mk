@@ -175,6 +175,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_middle.c.o: POSTPROCESS = \
 		--redefine-sym func_overlay_001_F0002AA4_184EE84=overlay1AdvanceGauge $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x408
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_tail.c.o: CFLAGS += -Wab,-r4300_mul
+# The candidate's literal pool owns the atlas' fixed +0x274..+0x294 slice;
+# anchor it there after text normalization whenever this TU emits .rodata.
+# The fallback object has no such section, so the conditional keeps it intact.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_tail.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
 		--redefine-sym func_overlay_001_F0003578_184F958=overlay1InitializeGaugeObjects \
@@ -207,7 +210,13 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_tail.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_8000572C=func_overlay_001_F0000000_184C3E0 $@ && \
 	$(OBJCOPY) --redefine-sym func_80005820=func_overlay_001_F0000000_184C3E0 $@ && \
 	$(OBJCOPY) --redefine-sym overlay4RemoveObject=func_overlay_001_F0000000_184C3E0 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4664
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4664 && \
+	candidate_rodata_size=$$( $(OBJDUMP) -h $@ | awk '$$2 == ".rodata" { print $$3; exit }' ); \
+	if [ -n "$$candidate_rodata_size" ] && [ "$$candidate_rodata_size" != "00000000" ]; then \
+		$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
+			sha256:553c0965d61758fe6e8486169ca6ae3a1c4def4245d49c53bdb058142fa7fead 0x274 && \
+		$(OBJCOPY) --remove-section=.rel.rodata $@; \
+	fi
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_create.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_create.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym sqrtf=overlay1SqrtReloc $@ && \
@@ -2595,6 +2604,16 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: POSTPROCESS = \
 		func_overlay_059_F000036C_18B8ABC=overlay59Advance $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x418
 endif
+# The C candidate emits the six-entry pool owned by overlay +0x76C.  The
+# fallback assembly has no compiler-owned .rodata, so this conditional is a
+# no-op there and remains active if the candidate is later promoted.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: POSTPROCESS += \
+	&& candidate_rodata_size=$$( $(OBJDUMP) -h $@ | awk '$$2 == ".rodata" { print $$3; exit }' ); \
+	if [ -n "$$candidate_rodata_size" ] && [ "$$candidate_rodata_size" != "00000000" ]; then \
+		$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
+			sha256:bf604582e55225db52cddbe759d4fc113138cdfb8829e35610ac4f1b6d825f26 0x76c && \
+		$(OBJCOPY) --remove-section=.rel.rodata $@; \
+	fi
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59BuildList.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59AppendValue.c.o: POSTPROCESS = \
