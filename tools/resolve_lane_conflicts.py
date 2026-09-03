@@ -67,6 +67,15 @@ def main():
             text = open(path).read()
             open(path, "w").write(keep_both(text))
             how = "keep both"
+        elif path in ("config/overlays.us.json", "config/overlay-donors.us.json",
+                      "config/lane-reopen-authorizations.us.json",
+                      "overlay_undefined_syms.us.txt", "mk/overlay_aliases.generated.mk"):
+            # Generated or JSON artifacts: never merge by hunks (a keep-both
+            # hunk duplicated the atlas sha256 key and broke the pin file's
+            # JSON). Take the lane's copy; finish_merge regenerates the
+            # generated ones and JSON dictionaries are re-unioned by hand.
+            git("checkout", "--theirs", "--", path)
+            how = "theirs (generated/JSON)"
         elif code == "AA" or any(path.startswith(p) for p in own):
             git("checkout", "--theirs", "--", path)
             how = "theirs (lane-owned)"
