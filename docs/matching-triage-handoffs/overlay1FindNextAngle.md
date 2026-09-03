@@ -2,7 +2,7 @@
 ### `overlay1FindNextAngle` plateau handoff
 
 - source: `src/overlays/o001/overlay_001_middle.c`
-- score: 2/50 words
+- score: 2 differing words
 - frame: 0x68
 - relocations: 4
 - first mismatch: +0x3C

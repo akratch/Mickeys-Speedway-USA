@@ -2,7 +2,7 @@
 ### `overlay1MeasureCurves` plateau handoff
 
 - source: `src/overlays/o001/overlay_001_head.c`
-- score: 52/79 words
+- score: 27 differing words
 - frame: 0x70
 - relocations: 5
 - first mismatch: +0x0C

@@ -2,7 +2,7 @@
 ### `overlay1FindPreviousUsable` plateau handoff
 
 - source: `src/overlays/o001/overlay_001.c`
-- score: 14 differing words
+- score: 12 differing words
 - frame: frameless
 - relocations: 4
 - first mismatch: +0x4

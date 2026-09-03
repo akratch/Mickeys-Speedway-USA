@@ -2,7 +2,7 @@
 ### `overlay1AdvanceGauge` plateau handoff
 
 - source: `src/overlays/o001/overlay_001_middle.c`
-- score: 16/42 words
+- score: 26 differing words
 - frame: 0x40
 - relocations: 3
 - first mismatch: +0x14

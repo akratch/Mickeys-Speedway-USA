@@ -2,7 +2,7 @@
 ### `overlay1FindType47ByAngle` plateau handoff
 
 - source: `src/overlays/o001/overlay_001.c`
-- score: 56/74 words
+- score: 18 differing words
 - frame: 0x78
 - relocations: 6
 - first mismatch: +0x8

@@ -464,7 +464,7 @@ s32 overlay27Activate(O27Object *object) {
 
 /* PLATEAU-HANDOFF:func_overlay_027_F0000624_187BFFC:start
  * symbol: func_overlay_027_F0000624_187BFFC
- * score: 59/254 words
+ * score: 196 differing words
  * frame: 0x98
  * relocations: 15
  * first-mismatch: +0x8
