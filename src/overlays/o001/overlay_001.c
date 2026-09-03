@@ -492,7 +492,7 @@ s32 overlay1TestDirection(Overlay1Direction *direction, f32 x, f32 z) {
 
 /* PLATEAU-HANDOFF:overlay1FindPreviousUsable:start
  * symbol: overlay1FindPreviousUsable
- * score: 14 differing words
+ * score: 12 differing words
  * frame: frameless
  * relocations: 4
  * first-mismatch: +0x4
@@ -502,7 +502,7 @@ s32 overlay1TestDirection(Overlay1Direction *direction, f32 x, f32 z) {
 
 /* PLATEAU-HANDOFF:overlay1FindType47ByAngle:start
  * symbol: overlay1FindType47ByAngle
- * score: 56/74 words
+ * score: 18 differing words
  * frame: 0x78
  * relocations: 6
  * first-mismatch: +0x8
