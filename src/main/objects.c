@@ -1668,11 +1668,14 @@ s32 func_80005820(s32 arg0) {
 /* Shape-exact candidate; stack-home/register allocation is reserved for the permuter. */
 #ifdef NON_MATCHING
 s16 func_80005868(s32 arg0) {
+    s16 index;
+    s16 *entry;
     u8 buffer[0xC0];
-    s16 index = D_800C94E0[arg0];
 
+    index = D_800C94E0[arg0];
     piRomLoadSection(0x2D, (u32)buffer, D_800C9458[index], 0xC0);
-    return *(s16 *)(buffer + 0x1C);
+    entry = (s16 *)(buffer + 0x1C);
+    return *entry;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005868.s")
@@ -5670,11 +5673,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80005868:start
  * symbol: func_80005868
- * score: 8 differing words
+ * score: 6 differing words
  * frame: -0xE0
  * relocations: 5
  * first-mismatch: +0x1C
- * summary: target DMA buffer stack home is 8 bytes earlier; six register and two stack-offset words remain
+ * summary: Declaring the index carrier and an entry pointer before the DMA buffer puts the buffer on its retail home; six register words remain in one v0/temp web
  * PLATEAU-HANDOFF:func_80005868:end
  */
 
