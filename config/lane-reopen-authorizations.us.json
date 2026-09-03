@@ -13,18 +13,18 @@
     },
     "func_overlay_022_F0000000_1878108": {
       "source_commit": "fbb5a245b14301b58db7687fac6a4885eb40fb15",
-      "ledger_commit": "1acf232ce024ab9c0b3f29437409c0640ec21aaf",
-      "reason": "The source postdates the ledger; authorize one calibrated virtual-to-final stack-home producer trace for the five-word objectPosition home residual, with source mutation only when the trace names an authentic lifetime."
+      "ledger_commit": "ba774d0bd64b41e5c2c79c0317823bf5bedf58bb",
+      "reason": "Compiler-lever pass: five-word objectPosition home residual; try declared-local count changes and carrier reuse."
     },
     "overlay84InitializeAndUpdate": {
       "source_commit": "b0c448aff5baf9d50ba9dc476793ca112dfb3307",
-      "ledger_commit": "a36315bae4d78b05b6da7264ccb0901f6621e136",
-      "reason": "Authorize the handoff's untried calibrated virtual/final stack-home ownership hook for the seven-word start/end residual; padding locals, declaration shuffles, alias elimination, flags, and broad permutation remain closed."
+      "ledger_commit": "1c6dc54869a2896d76c961e3d0fb1147fc3403cf",
+      "reason": "Compiler-lever pass: seven-word start/end stack-home residual; try declared-local count changes and common-subexpression homes."
     },
     "func_overlay_036_F0000818_1883CD0": {
       "source_commit": "68093ebf6f0fcf6b841a0f264e1384a6a8373393",
-      "ledger_commit": "441a1f41d4a731af58b78a8be77ff4eeedfba553",
-      "reason": "The source postdates its ledger; authorize fresh exact-geometry reproof and one final frame-layout producer-home trace beyond the exhausted direct-access frame ladder."
+      "ledger_commit": "db1da501bf9f44750ffe1c56ba683e27edf53c83",
+      "reason": "Compiler-lever pass: frame-layout residual; try declared-local count changes and carrier reuse, not declaration reordering."
     },
     "overlay68CheckKind": {
       "source_commit": "90ee5c814ce688bae33efdcce6a2d568c9451e68",
@@ -405,6 +405,11 @@
       "source_commit": "c0007c3b03995128b91f2ce06e95c690b33f8884",
       "ledger_commit": null,
       "reason": "Epoch 15 compiler-lever pass: as1 line-scheduler and declaration-order levers on ORDER residuals; trial is the oracle."
+    },
+    "func_overlay_038_F0000000_1885D10": {
+      "source_commit": "4de9d969fb135ff26cfb85ecbb1a6d44569b2017",
+      "ledger_commit": "529db89c4f59d40feeeb2407963344525de2f858",
+      "reason": "Compiler-lever pass: address-folding residual; try a spelling that changes what uopt can fold, e.g. a sub-struct pointer local."
     }
   }
 }
