@@ -5,6 +5,6 @@
 - score: 53/62 words
 - frame: 0x28
 - relocations: 6
-- first mismatch: +0x54
-- summary: All 119 flags were nonexact; trace-supported carrier coalescing was flat, leaving one descriptor/call-argument carrier web.
+- first mismatch: +0x48
+- summary: Exact-size pointer-carrier candidate retains 53/62 matched words; nine differences remain in the descriptor and call argument web.
 <!-- plateau-handoff:overlay59PrepareEntry:end -->
