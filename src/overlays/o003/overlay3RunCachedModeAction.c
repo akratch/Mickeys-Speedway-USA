@@ -63,6 +63,6 @@ s32 overlay3RunCachedModeAction(Overlay3Object *anchor, Overlay3Control *control
  * frame: 0x58
  * relocations: 15
  * first-mismatch: +0x14
- * summary: Fresh V0 is exact-size with 34 raw differences; unresolved proxies move raw first to +0x14, while the first nonrelocation mismatch remains +0x84.
+ * summary: 113-instruction/frame exact; 34 raw words remain in structural call/branch shape; promotion in=34 out=0.
  * PLATEAU-HANDOFF:overlay3RunCachedModeAction:end
  */

@@ -80,14 +80,13 @@ void func_overlay_029_F00010C4_187E374(Overlay29Object *objectArg, s32 mode) {
     Overlay29State *state;
     s16 baseAngle;
     s16 verticalAngle;
+    s16 angles[2];
 
     object = objectArg;
     state = object->state;
     if ((mode & 1) != 0) {
         overlay29ResetReloc();
     } else if ((mode & 2) != 0) {
-        s16 angles[2];
-
         baseAngle = overlay29AngleReloc(state->direction.x, state->direction.z);
         verticalAngle = overlay29AngleReloc(
             overlay29SqrtReloc((state->direction.z * state->direction.z) +
@@ -153,6 +152,6 @@ void func_overlay_029_F00010C4_187E374(Overlay29Object *objectArg, s32 mode) {
  * frame: 0x48
  * relocations: 22
  * first-mismatch: +0x7C
- * summary: Fresh V0 reproduces 33 masked differences; all 22 offsets/types align, but 19 static identities remain unresolved and the allocation web is unchanged.
+ * summary: 257-word/frame exact; declaration-scope reshape unchanged, 33 raw words remain in allocation/call-carrier shape; promotion in=33 out=0.
  * PLATEAU-HANDOFF:func_overlay_029_F00010C4_187E374:end
  */

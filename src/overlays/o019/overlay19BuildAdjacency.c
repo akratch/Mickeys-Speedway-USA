@@ -1,8 +1,8 @@
 #include "overlays/overlay019.h"
 
-/* Plateau (batch 17): exact 0x1EC size; 41 words differ, first at +0x7C.
- * Edge-loop locals, statement order, register hints, and signedness tie or regress.
- * The blocker is the temporary-register web; flags tie and permuter setup failed. */
+/* Workbench: allocation-mismatch, 41 differing words; 123 instructions/frame 0x80 and opcode order exact.
+ * Relocation count and offset/type are exact; one object-only symbol alias remains masked.
+ * Remaining differences are register allocation in the temporary web; this candidate is permuter-ready. */
 #ifdef NON_MATCHING
 void overlay19BuildAdjacency(
     O19Context *context,
@@ -106,6 +106,6 @@ void overlay19BuildAdjacency(
  * frame: 0x80
  * relocations: 1
  * first-mismatch: +0x7C
- * summary: Fresh V0 reproduces exact geometry and 41 register-only differences; the sole +0x12C call relocation is exact to local +0xC1C.
+ * summary: 123 instructions, frame, opcode order, and relocation site exact; 41 register-only differences in the temporary web are permuter-ready
  * PLATEAU-HANDOFF:overlay19BuildAdjacency:end
  */

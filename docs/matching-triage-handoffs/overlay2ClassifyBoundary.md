@@ -5,6 +5,6 @@
 - score: 18/79 words
 - frame: frameless
 - relocations: 6
-- first mismatch: +0x14
-- summary: Fresh V0 is 320 vs 316 bytes; all six runtime LOCAL tuples are exact. Resume only with a new natural pointer/register-web mechanism; BSS-base was flat.
+- first mismatch: +0x4
+- summary: Target 79 versus candidate 80 instructions; D_34 sites align but D_30 adds two relocations and branch-likely structure remains
 <!-- plateau-handoff:overlay2ClassifyBoundary:end -->

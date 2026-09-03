@@ -6,5 +6,5 @@
 - frame: 0x70
 - relocations: 1
 - first mismatch: +0x18
-- summary: Fresh V0 confirms 51 diffs and exact frame/reloc; pre-call buffer-copy schedule and private allocation web remain, with no schedule-only row.
+- summary: 147 instructions/frame and relocation exact; pre-call buffer-copy scheduling remains structurally divergent
 <!-- plateau-handoff:overlay17AdvanceChain:end -->

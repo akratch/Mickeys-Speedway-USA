@@ -121,17 +121,9 @@ extern void *overlay89CreatePrimaryReloc(Overlay89Object *object,
 extern void overlay89MaintainReloc(Overlay89Object *object,
                                    Overlay89EffectState *state);
 
-/* DKR v77/v80 and JFG contain no exact donor for this initializer. */
-/*
- * Plateau retry (2026-08-25): -O2 -mips2 is exact size with 58 masked word
- * differences, first at +0x40. Assigning primaryHandle through state and
- * matching descriptor-store order improved the prior 94-word result, but the
- * target still preserves state in a caller-save slot across create and
- * maintain while this candidate reloads it. Lifetime splits and a cached
- * pointer regressed. A 10-minute permuter batch improved score 670 to 225 only
- * by combining that cache with an empty self-conjunction block, rejected as
- * scheduling scaffolding.
- */
+/* Workbench: structure-mismatch, 58 raw differences / 147 of 205 words match, first +0x40.
+ * Instruction count/frame and five relocation sites align; state lifetime and create/maintain proxy identities remain divergent.
+ * Candidate is not permuter-ready; the fallback remains canonical. */
 #ifdef NON_MATCHING
 void overlay89InitializeEffect(Overlay89Object *object,
                                Overlay89Init *init) {
@@ -237,6 +229,6 @@ void overlay89InitializeEffect(Overlay89Object *object,
  * frame: 0x58
  * relocations: 5
  * first-mismatch: +0x40
- * summary: Fresh exact-size V0 retains 58 differences; 5/5 relocation sites align, three identities resolve, and create/maintain proxies remain unresolved.
+ * summary: 205 instructions/frame and five relocation sites align; state lifetime and create/maintain proxy identities remain divergent
  * PLATEAU-HANDOFF:overlay89InitializeEffect:end
  */

@@ -43,7 +43,6 @@ void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
     Overlay71DrawState *state;
     Overlay71Command *command;
     u16 flags;
-
     func_80032BF0(gOverlay71InitialResourceReloc, 2, 2);
     state = object->state;
     if (state->active != 0) {
@@ -131,6 +130,6 @@ void func_overlay_071_F0000870_18CA390(Overlay71Command **commands,
  * frame: 0x30
  * relocations: 13
  * first-mismatch: +0x24
- * summary: State-first semantic local forms are flat; other rotations regress. Two candidate identities remain unresolved.
+ * summary: Frame and word geometry exact; 33 raw/masked differences remain in call-carrier and statement/schedule structure; promotion text-differs in=33 out=0.
  * PLATEAU-HANDOFF:func_overlay_071_F0000870_18CA390:end
  */

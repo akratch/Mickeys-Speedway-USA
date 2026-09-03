@@ -1,56 +1,52 @@
 #include "PR/ultratypes.h"
 
-extern s32 gOverlay2BoundaryAxis;
-extern f32 gOverlay2BoundaryValue;
+extern s32 D_30;
+extern f32 D_34;
 
-/* Workbench: structure-mismatch, 61 differing words, first semantic gap +0x14.
- * Branch-likely/FP CFG is target-shaped; the candidate is one word oversized.
- * Fresh V0 is frameless at 80 versus 79 words (320 versus 316 bytes), with
- * 18/79 relocation-masked and 17/79 raw words exact.  All six runtime LOCAL
- * tuples retain the BSS +0x30/+0x34 identities.  A natural BSS-base struct
- * spelling makes the first load target-shaped but leaves 61 masked differences
- * and adds no identity gain, so the pointer/register web remains the blocker. */
+/* Workbench: structure-mismatch, 61 relocation-masked / 62 raw differences, first +0x4.
+ * Target has 79 instructions versus candidate 80; D_34 sites align, while D_30 adds two relocation entries.
+ * Candidate is not permuter-ready; branch-likely and pointer/register structure remain divergent. */
 #ifdef NON_MATCHING
 s32 overlay2ClassifyBoundary(f32 x1, f32 y1, f32 x2, f32 y2, s32 *side1,
                              s32 *side2) {
     s32 first;
     s32 second;
 
-    if (gOverlay2BoundaryAxis == 0) {
+    if (D_30 == 0) {
         first = 0;
-        if (y1 < gOverlay2BoundaryValue) {
+        if (y1 < D_34) {
             first = 1;
         }
         *side1 = first;
         second = 0;
-        if (y2 < gOverlay2BoundaryValue) {
+        if (y2 < D_34) {
             second = 1;
         }
         *side2 = second;
-        if (y1 == gOverlay2BoundaryValue) {
+        if (y1 == D_34) {
             *side1 = second;
             return 1;
         }
-        if (y2 == gOverlay2BoundaryValue) {
+        if (y2 == D_34) {
             *side2 = *side1;
             return 1;
         }
     } else {
         first = 0;
-        if (x1 < gOverlay2BoundaryValue) {
+        if (x1 < D_34) {
             first = 1;
         }
         *side1 = first;
         second = 0;
-        if (x2 < gOverlay2BoundaryValue) {
+        if (x2 < D_34) {
             second = 1;
         }
         *side2 = second;
-        if (x1 == gOverlay2BoundaryValue) {
+        if (x1 == D_34) {
             *side1 = second;
             return 1;
         }
-        if (x2 == gOverlay2BoundaryValue) {
+        if (x2 == D_34) {
             *side2 = *side1;
         }
     }
@@ -65,7 +61,7 @@ s32 overlay2ClassifyBoundary(f32 x1, f32 y1, f32 x2, f32 y2, s32 *side1,
  * score: 18/79 words
  * frame: frameless
  * relocations: 6
- * first-mismatch: +0x14
- * summary: Fresh V0 is 320 vs 316 bytes; all six runtime LOCAL tuples are exact. Resume only with a new natural pointer/register-web mechanism; BSS-base was flat.
+ * first-mismatch: +0x4
+ * summary: Target 79 versus candidate 80 instructions; D_34 sites align but D_30 adds two relocations and branch-likely structure remains
  * PLATEAU-HANDOFF:overlay2ClassifyBoundary:end
  */

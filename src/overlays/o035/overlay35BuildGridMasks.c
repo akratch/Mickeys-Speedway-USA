@@ -27,9 +27,9 @@ typedef struct O35GridSource {
     s16 groupCount;
 } O35GridSource;
 
-/* Workbench mixed constant/structure/register residual: 59 positional words in the exact 244-word body, first +0x0.
- * Early group-field and declaration-order levers cut 61->59 words; outer-local and pointer-add order were neutral.
- * Remains: -0x88 versus -0x80 frame, pool slot 5/temp slot 47, and first/second-axis loop structure; asm stays canonical. */
+/* Workbench: structure-mismatch, 59 raw differences / 185 of 244 words match, first +0x0.
+ * Instruction count/frame 0x80 and empty relocation surface are exact; six loop-order gaps remain.
+ * Candidate is not permuter-ready; fallback remains canonical. */
 #ifdef NON_MATCHING
 void func_overlay_035_F0000770_1882450(O35GridSource *source,
                                         O35GridBounds *bounds) {
@@ -54,14 +54,10 @@ void func_overlay_035_F0000770_1882450(O35GridSource *source,
             flags = *(s32 *)(group + 0xC);
             vertex = startVertex;
             if (vertex < end) {
-                s32 maskOffset;
-                s32 masked;
 
-                maskOffset = vertex * 4;
-                masked = flags & 0x1080;
                 do {
-                    if ((masked != 0) && ((flags & 0x08010000) == 0)) {
-                        *(u32 *)((u8 *)source->masks + maskOffset) = 0;
+                    if (((flags & 0x1080) != 0) && ((flags & 0x08010000) == 0)) {
+                        *(u32 *)((u8 *)source->masks + vertex * 4) = 0;
                         source->zMasks[vertex] = 0;
                     } else {
                         O35Vertex *v;
@@ -138,7 +134,7 @@ void func_overlay_035_F0000770_1882450(O35GridSource *source,
                             bit *= 2;
                             x++;
                         } while (x < 16);
-                        *(u32 *)((u8 *)source->masks + maskOffset) = mask;
+                        *(u32 *)((u8 *)source->masks + vertex * 4) = mask;
 
                         bit = 1;
                         zMask = 0;
@@ -159,7 +155,6 @@ void func_overlay_035_F0000770_1882450(O35GridSource *source,
                         source->zMasks[vertex] = zMask;
                     }
                     vertex++;
-                    maskOffset += 4;
                 } while (vertex < end);
             }
             groupIndex++;
@@ -174,9 +169,9 @@ void func_overlay_035_F0000770_1882450(O35GridSource *source,
 /* PLATEAU-HANDOFF:func_overlay_035_F0000770_1882450:start
  * symbol: func_overlay_035_F0000770_1882450
  * score: 185/244 words
- * frame: 0x88
+ * frame: 0x80
  * relocations: 0
  * first-mismatch: +0x0
- * summary: Fresh exact-size V0 retains 59 differences; candidate frame 0x88 versus target 0x80. Both relocation surfaces are empty and exact.
+ * summary: 244 instructions and frame 0x80 exact with empty relocations; six loop-order gaps remain
  * PLATEAU-HANDOFF:func_overlay_035_F0000770_1882450:end
  */

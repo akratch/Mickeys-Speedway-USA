@@ -25,9 +25,9 @@ extern void func_80034554(Overlay73Command **commands, void *resource,
                          s32 mode, s32 flags);
 extern void func_800241BC(Overlay73Command **commands);
 
-/* Workbench: structure-mismatch, 47 differing words, first mismatch +0x1C.
- * Exact 78-instruction frame/CFG; packet arithmetic is reordered by IDO.
- * Structural gap: saved-list/address scheduling and register web remain. */
+/* Workbench: structure-mismatch, 47 raw differences / 31 of 78 words match, first +0x1C.
+ * Instruction count and frame are exact, but packet arithmetic has 22 opcode and 28 alignment gaps.
+ * Remaining structural gap: packet/address ordering; this candidate is not permuter-ready. */
 #ifdef NON_MATCHING
 void func_overlay_073_F0000D70_18CB830(Overlay73Command **commands,
                                        s32 context,
@@ -84,10 +84,10 @@ void func_overlay_073_F0000D70_18CB830(Overlay73Command **commands,
 
 /* PLATEAU-HANDOFF:func_overlay_073_F0000D70_18CB830:start
  * symbol: func_overlay_073_F0000D70_18CB830
- * score: 47 differing words
+ * score: 31/78 words
  * frame: 0x30
  * relocations: 5
  * first-mismatch: +0x1C
- * summary: 119 flags exhausted; next lever is a source-authentic packet/local-layout form that changes the stack-home and register-allocation web.
+ * summary: 78 instructions and frame exact, but packet/address ordering leaves 22 opcode and 28 alignment gaps
  * PLATEAU-HANDOFF:func_overlay_073_F0000D70_18CB830:end
  */
