@@ -455,6 +455,31 @@
       "source_commit": "3cf1caab461f215a71df5ea9bcc87a8d7f5481cb",
       "ledger_commit": "3cf1caab461f215a71df5ea9bcc87a8d7f5481cb",
       "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
+    },
+    "func_overlay_001_F0003750_184FB30": {
+      "source_commit": "ec6d6af03aea6f69a953a3a390ba3159f52aba28",
+      "ledger_commit": "ec6d6af03aea6f69a953a3a390ba3159f52aba28",
+      "reason": "Epoch 15 size-near pass: the linked trial reports zero in-range differences with a text size delta of a few words; authorize one structural pass on the missing or extra instruction."
+    },
+    "overlay1AdvancePath": {
+      "source_commit": "8efe454271d4aa186fa14621e74e7477968d1757",
+      "ledger_commit": "8efe454271d4aa186fa14621e74e7477968d1757",
+      "reason": "Epoch 15 size-near pass: the linked trial reports zero in-range differences with a text size delta of a few words; authorize one structural pass on the missing or extra instruction."
+    },
+    "overlay1HandleCachedMode": {
+      "source_commit": "46d923f436dfb639977673c4b0c79b9d741dbfd1",
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "Epoch 15 size-near pass: the linked trial reports zero in-range differences with a text size delta of a few words; authorize one structural pass on the missing or extra instruction."
+    },
+    "overlay1TransitionState": {
+      "source_commit": "73e881c7c01bf3d09e6f01023032c7ec65ceeed8",
+      "ledger_commit": "73e881c7c01bf3d09e6f01023032c7ec65ceeed8",
+      "reason": "Epoch 15 size-near pass: the linked trial reports zero in-range differences with a text size delta of a few words; authorize one structural pass on the missing or extra instruction."
+    },
+    "func_overlay_008_F0001294_185EFEC": {
+      "source_commit": "9d117a2716fedca6e7f25d985ec02ce28750613c",
+      "ledger_commit": "9d117a2716fedca6e7f25d985ec02ce28750613c",
+      "reason": "Epoch 15 size-near pass: the linked trial reports zero in-range differences with a text size delta of a few words; authorize one structural pass on the missing or extra instruction."
     }
   }
 }
