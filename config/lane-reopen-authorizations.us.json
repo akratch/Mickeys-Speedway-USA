@@ -405,6 +405,26 @@
       "source_commit": "4de9d969fb135ff26cfb85ecbb1a6d44569b2017",
       "ledger_commit": "529db89c4f59d40feeeb2407963344525de2f858",
       "reason": "Compiler-lever pass: address-folding residual; try a spelling that changes what uopt can fold, e.g. a sub-struct pointer local."
+    },
+    "debug_text_width": {
+      "source_commit": "bbb40479e395497402ee339b05a11ef52817ee3a",
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "Workbench 0.8.0 lever-diagnosis field test: read the diagnose lever block for the seven-word residual and apply only the edit family it names."
+    },
+    "func_8003A2C8": {
+      "source_commit": "40b6805403de13aad24d173e1a7c3159c074cb58",
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "Workbench 0.8.0 lever-diagnosis field test: read the diagnose lever block for the eight-word register-only residual and apply only the edit family it names."
+    },
+    "func_800056A4": {
+      "source_commit": "0e9ed05e2ed37ce29994e229f585b437b0bd789b",
+      "ledger_commit": "0e9ed05e2ed37ce29994e229f585b437b0bd789b",
+      "reason": "Workbench 0.8.0 lever-diagnosis field test: read the diagnose lever block for the eight-word register-only residual and apply only the edit family it names."
+    },
+    "func_80005868": {
+      "source_commit": "4e4a459d5ff43edbc88b3a3f60181a18e741efa9",
+      "ledger_commit": "4e4a459d5ff43edbc88b3a3f60181a18e741efa9",
+      "reason": "Workbench 0.8.0 lever-diagnosis field test: read the diagnose lever block for the eight-word residual and apply only the edit family it names."
     }
   }
 }
