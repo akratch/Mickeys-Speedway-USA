@@ -26,7 +26,7 @@ typedef struct Overlay29Owner {
     Overlay29PathState *state;
 } Overlay29Owner;
 
-extern f32 gOverlay29MinimumYReloc;
+extern u8 gOverlay29MinimumYReloc[];
 extern f32 overlay29SqrtReloc(f32 value);
 
 /* Fresh configured V0: allocation-mismatch, exact 484 bytes / 121 words; 29
@@ -54,7 +54,7 @@ void func_overlay_029_F0000EE0_187E190(
     dirX = transform->direction.x;
     dirZ = transform->direction.z;
     state = owner->state;
-    if ((gOverlay29MinimumYReloc <= dirY) ||
+    if ((*(f32 *)(gOverlay29MinimumYReloc + 0x14) <= dirY) ||
         ((transform->flags & 0x10000000) != 0)) {
         crossX = (axis->z * dirY) - (axis->y * dirZ);
         crossY = (axis->x * dirZ) - (axis->z * dirX);
@@ -100,6 +100,6 @@ void func_overlay_029_F0000EE0_187E190(
  * frame: 0x70
  * relocations: 3
  * first-mismatch: +0x0
- * summary: New resolver proves 3/3 identities exact; remaining 29-word allocation/frame cascade names no unique natural lever.
+ * summary: Typed local-data base fixes the +0x14 threshold load; the remaining frame-wide FP allocation cascade is not isolated.
  * PLATEAU-HANDOFF:func_overlay_029_F0000EE0_187E190:end
  */
