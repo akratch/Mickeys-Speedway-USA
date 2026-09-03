@@ -90,6 +90,10 @@ YAML = ROOT / "mickey.us.yaml"
 # A relocation the link cannot resolve is reported by ld as one of these.
 UNDEF_RE = re.compile(r"undefined reference to [`'\"]([A-Za-z_][A-Za-z0-9_]*)")
 MARKER_RE = re.compile(r"PROMOTION-TRIAL: ([^:]+): (.*)")
+# /* ALIGNED overlay_027.c.o: 47/47 site(s), 1 shifted */ -- the relocation
+# surface's own report that this object's sites were matched to the shipped
+# records by order rather than by identical offsets.
+ALIGNED_RE = re.compile(r"ALIGNED (\S+): (\d+)/(\d+) site\(s\), (\d+) shifted")
 TRUNC_RE = re.compile(r"relocation truncated to fit: (\S+)")
 # A splat auto-name in the resident address space: func_8002997C, D_80003634.
 RESIDENT_RE = re.compile(r"^(func|D)_8[0-9A-F]{7}$")
@@ -126,6 +130,8 @@ class Trial:
     first_in_range: Optional[int] = None
     first_out_of_range: Optional[int] = None
     seconds: float = 0.0
+    aligned_sites: int = 0
+    shifted_sites: int = 0
     error: Optional[str] = None
     cause: Optional[str] = None
     diffs: Optional[list] = None  # [(fn_offset, target_word, built_word, reloc)] for in-range words
@@ -378,6 +384,20 @@ def classify_failure(log: str, item, surface_log: str,
     return "build-error", "other"
 
 
+def alignment_counts(item, surface_log: str) -> tuple[int, int]:
+    """(aligned, shifted) sites the surface reported for this candidate's object.
+
+    Reported on every row the aligner touched, so a shifted site is never
+    silently read as an exact one: the words it moved still count as
+    differences in `in_range_words`, which the ROM comparison alone decides.
+    """
+    obj = item.c_file.name + ".o"
+    for name, aligned, _total, shifted in ALIGNED_RE.findall(surface_log):
+        if name == obj:
+            return int(aligned), int(shifted)
+    return 0, 0
+
+
 def module_size_delta(overlay: Optional[int]) -> Optional[int]:
     """built module size - the ROM's, in bytes, or None if unknown.
 
@@ -458,6 +478,8 @@ def run_trial(item: pb.QueueItem, rng: Optional[tuple[int, int]], jobs: int) -> 
             # objects that now exist and relink. A candidate that already
             # linked is unaffected when the surface does not change.
             _sok, surface_log = synthesize_surface()
+            t.aligned_sites, t.shifted_sites = alignment_counts(item,
+                                                                surface_log)
             ok, log2 = build(jobs, source=source, function=item.func)
             link_log = log2
             log = log + log2
@@ -581,7 +603,8 @@ def main(argv: list[str]) -> int:
             rng = ov.get(stem)
         t = run_trial(item, rng, args.jobs)
         results.append(t)
-        print(f"[{i}/{len(queue)}] {t.func:34} {t.klass:16} in={t.in_range_words:<4} out={t.out_of_range_bytes:<5} {t.cause or '':40} ({t.seconds:.0f}s)", flush=True)
+        align = f"aln={t.shifted_sites}/{t.aligned_sites} " if t.aligned_sites else ""
+        print(f"[{i}/{len(queue)}] {t.func:34} {t.klass:16} in={t.in_range_words:<4} out={t.out_of_range_bytes:<5} {align}{t.cause or '':40} ({t.seconds:.0f}s)", flush=True)
         write(results)
     write(results)
     wait_for_load("promotion cleanup build")
@@ -599,9 +622,10 @@ def write(results: list[Trial]) -> None:
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps({"generated_by": "tools/promotion_trial.py",
                                     "results": [dataclasses.asdict(r) for r in results]}, indent=2) + "\n")
-    lines = [f"{'function':34} {'class':16} {'in':>4} {'out':>6} {'ov':>4}  cause"]
+    lines = [f"{'function':34} {'class':16} {'in':>4} {'out':>6} {'ov':>4} {'shft/aln':>8}  cause"]
     for r in results:
-        lines.append(f"{r.func:34} {r.klass:16} {r.in_range_words:>4} {r.out_of_range_bytes:>6} {str(r.overlay):>4}  {r.cause or ''}")
+        align = f"{r.shifted_sites}/{r.aligned_sites}" if r.aligned_sites else ""
+        lines.append(f"{r.func:34} {r.klass:16} {r.in_range_words:>4} {r.out_of_range_bytes:>6} {str(r.overlay):>4} {align:>8}  {r.cause or ''}")
     counts: dict[str, int] = {}
     for r in results:
         counts[r.klass] = counts.get(r.klass, 0) + 1
