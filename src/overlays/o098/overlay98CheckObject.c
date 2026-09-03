@@ -37,8 +37,9 @@ extern s16 overlay98UniqueYReloc[];
  * f56d08c746f891f76c4b7bab8e3a2a4332894634. All retained measurements were
  * independently derived from Mickey's own source, object, relocation tables,
  * and retail bytes. */
-/* Natural C requires prohibited frame, CFG, schedule, and register-field
- * instruction edits to reproduce retail. Assembly remains canonical. */
+/* Workbench allocation-mismatch: 35 raw words; 111 instructions, frame 0xA8,
+ * and six relocation sites have exact shape. Register/operand allocation is
+ * the remaining permuter-ready residual; the assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 s32 overlay98CheckObject(O98Object *object, u8 *context, f32 *result) {
     Vec3f output;
@@ -46,6 +47,9 @@ s32 overlay98CheckObject(O98Object *object, u8 *context, f32 *result) {
     f32 adjustment;
     s32 index;
     s32 accepted;
+    s32 scratch[10];
+
+    (void)&scratch;
 
     accepted = 0;
     if (object->stateTable[object->stateIndex + 0x1E] == 0) {
@@ -84,10 +88,10 @@ s32 overlay98CheckObject(O98Object *object, u8 *context, f32 *result) {
 
 /* PLATEAU-HANDOFF:overlay98CheckObject:start
  * symbol: overlay98CheckObject
- * score: 78/111 linked words
- * frame: 0x80 (target 0xA8)
+ * score: 76/111 words
+ * frame: 0xA8
  * relocations: 6
- * first-mismatch: +0x0
- * summary: -Wab,-r4300_mul is the best of 119 flags and restores exact extent and relocation shape; 33 operand/register words and the frame remain wrong.
+ * first-mismatch: +0x38
+ * summary: frame and instruction/relocation shape exact; 35 raw words remain in register/operand allocation (permuter-ready)
  * PLATEAU-HANDOFF:overlay98CheckObject:end
  */
