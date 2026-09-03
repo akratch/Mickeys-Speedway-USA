@@ -122,16 +122,19 @@ DATA_RODATA_OWNERSHIP = {
 # DATA_RODATA_OWNERSHIP, these ranges may be interior to the raw range; the
 # YAML projection therefore emits the raw fragments on either side and a
 # typed subsegment for the owning TU.  The four-byte subalignment below is
-# required for IDO's literal-pool and jump-table placement.
+# required for IDO's literal-pool and jump-table placement.  A sixth tuple
+# field marks a pool whose candidate object is externalized back onto the
+# retained raw slice; that trial leaves the raw bytes in place rather than
+# carving them a second time.
 FIXED_DATA_RODATA_OWNERSHIP = {
     # The fifth field identifies the guarded C definition that emits this
     # range. Consolidated TUs also contain candidates whose promotion does not
     # emit the owner's compiler data, so trial projection must be function-
     # scoped rather than merely source-file-scoped.
-    1: [(0x274, 0x294, "overlay_001_tail", ".rodata", "overlay1DispatchMode")],
+    1: [(0x274, 0x294, "overlay_001_tail", ".rodata", "overlay1DispatchMode", True)],
     7: [(0x934, 0x950, "overlay_007_tail", ".rodata", "overlay7DispatchModes")],
     8: [(0x27C, 0x2AC, "overlay_008", ".rodata", "func_overlay_008_F0004CF0_1862A48")],
-    9: [(0x390, 0x3E0, "overlay_009", ".rodata", "func_overlay_009_F0000CE4_186735C")],
+    9: [(0x390, 0x3E0, "overlay_009", ".rodata", "func_overlay_009_F0000CE4_186735C", True)],
     14: [
         (0x158, 0x174, "overlay14LoadRelocatedValue", ".rodata", "overlay14LoadRelocatedValue"),
         (0x174, 0x190, "func_overlay_014_F0001830_1871108", ".rodata", "func_overlay_014_F0001830_1871108"),
@@ -142,7 +145,7 @@ FIXED_DATA_RODATA_OWNERSHIP = {
         (0x3C, 0x54, "overlay41UpdateCurveObject", ".rodata", "func_overlay_041_F0000854_1887B8C"),
     ],
     46: [(0x364, 0x378, "overlay46UpdateSequence", ".rodata", "func_overlay_046_F0000120_188E518")],
-    59: [(0x76C, 0x78C, "overlay59Advance", ".rodata", "overlay59Advance")],
+    59: [(0x76C, 0x78C, "overlay59Advance", ".rodata", "overlay59Advance", True)],
     86: [(0x80, 0xA0, "func_overlay_086_F0000474_18D22AC", ".rodata", "func_overlay_086_F0000474_18D22AC")],
 }
 
@@ -1838,12 +1841,17 @@ def data_rodata_ownership_rows(overlay, data_size, text_ownership):
         previous_end = end
         previous_text_index = text_index
     for fixed in FIXED_DATA_RODATA_OWNERSHIP.get(overlay, []):
-        if len(fixed) not in (4, 5):
+        if len(fixed) not in (4, 5, 6):
             raise ValueError(
                 f"invalid overlay {overlay} fixed data/rodata owner tuple"
             )
         start, end, source_name, section = fixed[:4]
-        trial_function = fixed[4] if len(fixed) == 5 else None
+        trial_function = fixed[4] if len(fixed) >= 5 else None
+        externalized = fixed[5] if len(fixed) == 6 else False
+        if not isinstance(externalized, bool):
+            raise ValueError(
+                f"invalid overlay {overlay} externalized ownership flag"
+            )
         if (
             start < 0
             or start >= end
@@ -1870,6 +1878,8 @@ def data_rodata_ownership_rows(overlay, data_size, text_ownership):
         }
         if trial_function is not None:
             row["trial_function"] = trial_function
+        if externalized:
+            row["externalized"] = True
         rows.append(row)
     return rows
 
@@ -2315,6 +2325,11 @@ def render_yaml_block(
         name = f"overlay_{ov:03d}"
         def fixed_data_matches_trial(part):
             if "section" not in part:
+                return False
+            if part.get("externalized"):
+                # The candidate POSTPROCESS removes its duplicate section and
+                # anchors references to this retained raw range.  Keeping the
+                # bin row avoids dropping the bytes before the link.
                 return False
             if trial_functions:
                 return part.get("trial_function") in trial_functions
