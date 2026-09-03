@@ -1,11 +1,6 @@
 {
   "schema_version": 1,
   "authorizations": {
-    "func_overlay_026_F0000B18_187AF10": {
-      "source_commit": "babf17a43f1143a5289f84c7e6ff551a2025430b",
-      "ledger_commit": "40a610702ae87bd18c2f71729fef3262593e87e2",
-      "reason": "Lever pass: two-word projectedX stack-home residual. Authorize one address-taken aggregate or call-crossing temporary frame lever; declaration reordering stays closed."
-    },
     "func_overlay_022_F0000000_1878108": {
       "source_commit": "fbb5a245b14301b58db7687fac6a4885eb40fb15",
       "ledger_commit": "1acf232ce024ab9c0b3f29437409c0640ec21aaf",
