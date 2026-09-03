@@ -195,8 +195,7 @@ void func_overlay_047_F00009D0_18917E8(void) {
     func_overlay_047_F0000000_1890E18(D_31C);
     func_overlay_047_F0000000_1890E18(D_320);
 
-    entry = &D_0_entries;
-    do {
+    entry = &D_0_entries; do {
         if (entry->handle != NULL) {
             func_overlay_047_F0000000_1890E18(entry->handle);
             entry->handle = NULL;
@@ -204,8 +203,7 @@ void func_overlay_047_F00009D0_18917E8(void) {
         entry++;
     } while (entry < &D_D0);
 
-    slot = &D_38C;
-    do {
+    slot = &D_38C; do {
         if (*slot != NULL) {
             func_overlay_047_F0000000_1890E18(*slot);
             *slot = NULL;
@@ -234,10 +232,10 @@ void func_overlay_047_F00009D0_18917E8(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_047_F00009D0_18917E8:start
  * symbol: func_overlay_047_F00009D0_18917E8
- * score: 78/88 words
+ * score: 82/88 words
  * frame: 0x20
  * relocations: 46
- * first-mismatch: +0x54
- * summary: Fallback proof: 20 identities resolved and 9 aligned; linked promotion aligned 34. Two diagnostic aliases fixed collisions but did not raise 34.
+ * first-mismatch: +0x58
+ * summary: Trial in=6 out=0 (was 10) after joining each cursor initializer onto its do-header line; pool lane identical, two invisible temp pops still missing
  * PLATEAU-HANDOFF:func_overlay_047_F00009D0_18917E8:end
  */
