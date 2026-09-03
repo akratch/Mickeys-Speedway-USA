@@ -26,27 +26,21 @@ typedef struct Overlay43Image {
  * relocation. Preserve the fallback; the next pass needs a source-faithful
  * temp-FIFO/web-coalescing lever, not more flags or generic permutation. */
 #ifdef NON_MATCHING
-/* PLATEAU-HANDOFF
- * symbol: overlay43FilterImage
- * score: 8/43 words
- * frame: frameless
- * relocations: 0
- * first-mismatch: +0x4
- * summary: All 119 flags were nonexact; trace and forced-color prove a remaining temp-FIFO and web-coalescing source blocker.
- */
 void overlay43FilterImage(Overlay43Image *image) {
     u8 *pixel;
     u32 *word;
     s32 row;
     s32 column;
     u16 sum;
+    u16 first;
 
     pixel = image->pixels;
     row = 0x3D;
     do {
         column = 0x3D;
         do {
-            sum = pixel[1] + pixel[0];
+            first = pixel[0];
+            sum = pixel[1] + first;
             sum += pixel[2];
             sum += pixel[0x40];
             sum += pixel[0x42];
@@ -69,3 +63,13 @@ void overlay43FilterImage(Overlay43Image *image) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o043/overlay43FilterImage/func_overlay_043_F0001378_188B348.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay43FilterImage:start
+ * symbol: overlay43FilterImage
+ * score: 10/43 words
+ * frame: frameless
+ * relocations: 0
+ * first-mismatch: +0x4
+ * summary: A named pixel[0] carrier moved that value into the pool and cut the trial from 35 to 33 words. The residual is one cyclic pool rotation.
+ * PLATEAU-HANDOFF:overlay43FilterImage:end
+ */
