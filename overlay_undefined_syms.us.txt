@@ -2243,6 +2243,11 @@ overlay83SubmitSetupReloc = 0xf0000000;
 /* overlay 84: overlay84InitState.c.o */
 gOverlay84Object = 0x00000000;
 
+/* overlay 84: overlay84InitializeAndUpdate.c.o */
+overlay84Atan2 = 0xf0000000;
+overlay84GetNodes = 0xf0000000;
+overlay84UpdateCurrent = 0xf0000314;
+
 /* overlay 84: overlay84UpdateResource.c.o */
 gOverlay84InputFlags = 0x00000000;
 overlay84ConfigureResource = 0xf0000000;
@@ -2255,7 +2260,6 @@ overlay84PrepareResource = 0xf0000000;
 /* overlay 84: overlay84AdvanceCurrent.c.o */
 gOverlay84ObjectRead = 0x00000000;
 gOverlay84ObjectWrite = 0x00000000;
-overlay84Atan2 = 0xf0000000;
 
 /* overlay 84: overlay84ActivateCurrent.c.o */
 overlay84LookupReloc = 0xf0000000;
