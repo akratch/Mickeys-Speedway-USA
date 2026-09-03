@@ -51,6 +51,7 @@ extern void overlay57AdvanceReloc(s32 updateRate);
 #ifdef NON_MATCHING
 void overlay57UpdateModeTrigger(s32 updateRate) {
     s32 trigger;
+    volatile s32 framePad[2];
 
     gOverlay57ModeFlag = 1;
 
@@ -115,10 +116,10 @@ void overlay57UpdateModeTrigger(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:overlay57UpdateModeTrigger:start
  * symbol: overlay57UpdateModeTrigger
- * score: 25 differing words
- * frame: 0x20
+ * score: 23/94 words
+ * frame: 0x28
  * relocations: 35
  * first-mismatch: +0x10
- * summary: Fresh V0 is 94 words with 25 masked differences, frame 0x20 vs 0x28, and 33/38 aligned relocs; natural index forms shrink to 89 words.
+ * summary: Two unused volatile frame words restore the target frame; 23 normalized differences remain in setup-state shape with three fewer candidate relocations.
  * PLATEAU-HANDOFF:overlay57UpdateModeTrigger:end
  */
