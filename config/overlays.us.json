@@ -12625,7 +12625,8 @@
      "type": "c",
      "section": ".rodata",
      "source": "overlays/o059/overlay59Advance",
-     "trial_function": "overlay59Advance"
+     "trial_function": "overlay59Advance",
+     "externalized": true
     }
    ]
   },

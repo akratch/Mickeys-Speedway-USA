@@ -145,7 +145,7 @@ FIXED_DATA_RODATA_OWNERSHIP = {
         (0x3C, 0x54, "overlay41UpdateCurveObject", ".rodata", "func_overlay_041_F0000854_1887B8C"),
     ],
     46: [(0x364, 0x378, "overlay46UpdateSequence", ".rodata", "func_overlay_046_F0000120_188E518")],
-    59: [(0x76C, 0x78C, "overlay59Advance", ".rodata", "overlay59Advance")],
+    59: [(0x76C, 0x78C, "overlay59Advance", ".rodata", "overlay59Advance", True)],
     86: [(0x80, 0xA0, "func_overlay_086_F0000474_18D22AC", ".rodata", "func_overlay_086_F0000474_18D22AC")],
 }
 
