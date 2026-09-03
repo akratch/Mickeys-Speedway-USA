@@ -2,7 +2,7 @@
 ### `func_overlay_027_F0000624_187BFFC` plateau handoff
 
 - source: `src/overlays/o027/overlay_027.c`
-- score: 59/254 words
+- score: 196 differing words
 - frame: 0x98
 - relocations: 15
 - first mismatch: +0x8
