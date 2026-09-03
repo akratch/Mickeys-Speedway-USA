@@ -203,8 +203,8 @@
     },
     "overlay17AdvanceChain": {
       "source_commit": "a9edd45d58f595581056cca9672fabb0b093305d",
-      "ledger_commit": "a9edd45d58f595581056cca9672fabb0b093305d",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
+      "ledger_commit": "b31a735f19fe41250a837d52bb218b1dbd009292",
+      "reason": "Epoch 15 reshape pass 2: trial text-differs, out=0, 41-80 words; one structural reshape with the trial as oracle and the 0.8.0 lever block."
     },
     "func_overlay_029_F0000EE0_187E190": {
       "source_commit": "424aa5f7694dc7cd5ca348fb289e0d818a438434",
@@ -427,19 +427,19 @@
       "reason": "Workbench 0.8.0 lever-diagnosis field test: read the diagnose lever block for the eight-word residual and apply only the edit family it names."
     },
     "overlay19BuildAdjacency": {
-      "source_commit": "dedf7697ca206d89b0fba7fd85396c13cc076a57",
-      "ledger_commit": "bd5ef6c655ce41e89aaac280842f3adb78230f60",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
+      "source_commit": "bd5ef6c655ce41e89aaac280842f3adb78230f60",
+      "ledger_commit": "6cf3af37d72497699502697bae8acd5e952bbd13",
+      "reason": "Epoch 15 reshape pass 2: trial text-differs, out=0, 41-80 words; one structural reshape with the trial as oracle and the 0.8.0 lever block."
     },
     "func_overlay_073_F0000D70_18CB830": {
-      "source_commit": "321d3a22d1d1e1eb296dcb317c57fe328dde23b3",
-      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
+      "source_commit": "a991cbcb5af49fbb6e852c42c0dd3ee68c2bedb9",
+      "ledger_commit": "8a1baa61c778513b83cfbd0640a5d9a3e91a8d76",
+      "reason": "Epoch 15 reshape pass 2: trial text-differs, out=0, 41-80 words; one structural reshape with the trial as oracle and the 0.8.0 lever block."
     },
     "overlay29DrawGroups": {
       "source_commit": "60eaabe7159b28031287e5a1569c21f571ac1f57",
-      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
+      "ledger_commit": "d520da266c7b8e243992b8b0ea06508f0bb6aea9",
+      "reason": "Epoch 15 reshape pass 2: trial text-differs, out=0, 41-80 words; one structural reshape with the trial as oracle and the 0.8.0 lever block."
     },
     "overlay89InitializeEffect": {
       "source_commit": "608e543109ef222f4066b95eea470ae00e0800ab",
@@ -480,6 +480,26 @@
       "source_commit": "9d117a2716fedca6e7f25d985ec02ce28750613c",
       "ledger_commit": "9d117a2716fedca6e7f25d985ec02ce28750613c",
       "reason": "Epoch 15 size-near pass: the linked trial reports zero in-range differences with a text size delta of a few words; authorize one structural pass on the missing or extra instruction."
+    },
+    "overlay1UpdateRangeFlags": {
+      "source_commit": "299c8b9e89b64f2df50db930566eed2aa0a61e3d",
+      "ledger_commit": "299c8b9e89b64f2df50db930566eed2aa0a61e3d",
+      "reason": "Epoch 15 reshape pass 2: trial text-differs, out=0, 41-80 words; one structural reshape with the trial as oracle and the 0.8.0 lever block."
+    },
+    "func_overlay_022_F0000D30_1878E38": {
+      "source_commit": "554bcd6e46d530d6c6c904669f73b2e0298df656",
+      "ledger_commit": null,
+      "reason": "Epoch 15 reshape pass 2: trial text-differs, out=0, 41-80 words; one structural reshape with the trial as oracle and the 0.8.0 lever block."
+    },
+    "func_overlay_008_F0000894_185E5EC": {
+      "source_commit": "83cd9adeef3ac2c004171aecf7ddab09a30513ea",
+      "ledger_commit": "83cd9adeef3ac2c004171aecf7ddab09a30513ea",
+      "reason": "Epoch 15 reshape pass 2: trial text-differs, out=0, 41-80 words; one structural reshape with the trial as oracle and the 0.8.0 lever block."
+    },
+    "overlay99RenderSortedEntries": {
+      "source_commit": "fc30a3cb6e07fe572a0b67c5e0352e827efe93d6",
+      "ledger_commit": null,
+      "reason": "Epoch 15 reshape pass 2: trial text-differs, out=0, 41-80 words; one structural reshape with the trial as oracle and the 0.8.0 lever block."
     }
   }
 }
