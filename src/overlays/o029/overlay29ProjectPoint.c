@@ -29,9 +29,14 @@ typedef struct Overlay29Owner {
 extern u8 gOverlay29MinimumYReloc[];
 extern f32 overlay29SqrtReloc(f32 value);
 
-/* Fresh configured V0: allocation-mismatch, exact 484 bytes / 121 words; 29
- * relocation-masked words differ, first +0x0, frame -0x70 versus -0x68. The
- * static resolver proves all three relocation identities exactly. */
+/* Reusing lengthSquared for the square root and final delta, as in the exact
+ * overlay 26 sibling, removes two declarations; placing it before the cross
+ * component declarations then recovers the target 0x68 frame and every stack
+ * home. The configured candidate is 118/121 words with all integer, FP-pool,
+ * and FP-temp lanes exact. Plain operand swaps and explicit dereference forms
+ * are byte-flat; compound/two-step forms regress, while the negated-difference
+ * form reaches the three target mul.s orders but rotates the axis-load FP web.
+ * All three relocation identities are statically exact. */
 #ifdef NON_MATCHING
 void func_overlay_029_F0000EE0_187E190(
     s32 unused, Vec3f *output, Vec3f *axis, f32 height,
@@ -40,15 +45,13 @@ void func_overlay_029_F0000EE0_187E190(
     f32 dirX;
     f32 dirY;
     f32 dirZ;
-    f32 crossX;
-    f32 crossY;
-    f32 crossZ;
     f32 projectedX;
     f32 projectedY;
     f32 projectedZ;
     f32 lengthSquared;
-    f32 length;
-    f32 delta;
+    f32 crossX;
+    f32 crossY;
+    f32 crossZ;
 
     dirY = transform->direction.y;
     dirX = transform->direction.x;
@@ -56,9 +59,9 @@ void func_overlay_029_F0000EE0_187E190(
     state = owner->state;
     if ((*(f32 *)(gOverlay29MinimumYReloc + 0x14) <= dirY) ||
         ((transform->flags & 0x10000000) != 0)) {
-        crossX = (axis->z * dirY) - (axis->y * dirZ);
-        crossY = (axis->x * dirZ) - (axis->z * dirX);
-        crossZ = (axis->y * dirX) - (axis->x * dirY);
+        crossX = (dirY * axis->z) - (axis->y * dirZ);
+        crossY = (dirZ * axis->x) - (axis->z * dirX);
+        crossZ = (dirX * axis->y) - (axis->x * dirY);
         projectedX = (crossY * dirZ) - (crossZ * dirY);
         projectedY = (crossZ * dirX) - (crossX * dirZ);
         projectedZ = (crossX * dirY) - (crossY * dirX);
@@ -66,14 +69,14 @@ void func_overlay_029_F0000EE0_187E190(
                         (projectedY * projectedY) +
                         (projectedZ * projectedZ);
         if (lengthSquared > 0.0f) {
-            length = overlay29SqrtReloc(lengthSquared);
-            projectedY /= length;
-            projectedX /= length;
-            projectedZ /= length;
-            delta = height - transform->height;
-            output->x = transform->position.x + (delta * projectedX);
-            output->y = transform->position.y + (delta * projectedY);
-            output->z = transform->position.z + (delta * projectedZ);
+            lengthSquared = overlay29SqrtReloc(lengthSquared);
+            projectedY /= lengthSquared;
+            projectedX /= lengthSquared;
+            projectedZ /= lengthSquared;
+            lengthSquared = height - transform->height;
+            output->x = transform->position.x + (lengthSquared * projectedX);
+            output->y = transform->position.y + (lengthSquared * projectedY);
+            output->z = transform->position.z + (lengthSquared * projectedZ);
         } else {
             output->x = transform->position.x;
             output->y = transform->position.y;
@@ -96,10 +99,10 @@ void func_overlay_029_F0000EE0_187E190(
 
 /* PLATEAU-HANDOFF:func_overlay_029_F0000EE0_187E190:start
  * symbol: func_overlay_029_F0000EE0_187E190
- * score: 92/121 words
- * frame: 0x70
+ * score: 118/121 words
+ * frame: 0x68
  * relocations: 3
- * first-mismatch: +0x0
- * summary: Typed local-data base fixes the +0x14 threshold load; the remaining frame-wide FP allocation cascade is not isolated.
+ * first-mismatch: +0x60
+ * summary: Dead-carrier reuse and declaration order cut 29 to 3 words with exact frame and lanes. Three cross-product mul.s operand orders remain after ten forms.
  * PLATEAU-HANDOFF:func_overlay_029_F0000EE0_187E190:end
  */
