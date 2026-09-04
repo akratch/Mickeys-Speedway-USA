@@ -78,6 +78,12 @@ extern void overlay66Select(s32 selection);
  * forms and one five-minute gain-gated batch were nonexact. The exact linked
  * range remains fallback assembly; do not revive dead frame arrays, the prior
  * flag lattice, or the exhausted loop forms.
+ *
+ * A 2026-09-04 scheduler pass exhausted ten additional declaration-order and
+ * physical-line variants without a gain. The trace-on object is byte-identical
+ * to the normal candidate; as1 assigns both spills to the call line with the
+ * same dependency and zero aftercycles, then ranks the handle spill first.
+ * Source-line scheduling and declaration order are exhausted for this pair.
  */
 #ifdef NON_MATCHING
 /* PLATEAU-HANDOFF:overlay11UpdateMenu:start
@@ -86,7 +92,7 @@ extern void overlay66Select(s32 selection);
  * frame: 0x48
  * relocations: 102
  * first-mismatch: +0x138
- * summary: exact extent/frame and 102/102 relocation identities; two spill stores remain reversed around one call
+ * summary: ten order/line forms were non-improving; as1 keeps the two call-line spill stores reversed
  * PLATEAU-HANDOFF:overlay11UpdateMenu:end
  */
 void overlay11UpdateMenu(s32 updateRate) {
