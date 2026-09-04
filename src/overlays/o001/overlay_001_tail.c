@@ -204,12 +204,11 @@ extern f32 overlay1MeasureChoice(f32 first, f32 second);
 
 #define CHOICE_WORLD ((O1ChoiceState *)D_1DA0)
 
-/* Workbench plateau: 447/446 instructions, exact 0x90 frame, 360 masked
- * differences, and first mismatch at +0xC.  The complete flag lattice found no
- * exact form; an explicit reverse score cursor regressed to 448 instructions
- * and 386 differences, while path storage and declaration-order variants were
- * neutral.  The remaining mismatch is local lifetime/stack placement: target
- * score and interpolation locals sit higher in the same frame. */
+/* Workbench plateau: 447/446 instructions, exact 0x90 frame, 341 masked/346 raw
+ * differences, and first mismatch at +0xC.  Removing the redundant path carrier
+ * changes only allocation and improves 19 positional words; the linked trial is
+ * still 12 bytes long.  Target score and interpolation locals sit higher in the
+ * same frame; the flag lattice and reverse score cursor remain eliminated. */
 #ifdef NON_MATCHING
 void func_overlay_001_F0003750_184FB30(f32 *outX, f32 *outZ) {
     O1ChoiceState *otherState;
@@ -225,7 +224,6 @@ void func_overlay_001_F0003750_184FB30(f32 *outX, f32 *outZ) {
     s32 loopValue;
     s32 step;
     s32 value;
-    register u8 path;
     f32 weight;
     f32 difference;
     f32 temporaryX;
@@ -250,8 +248,7 @@ void func_overlay_001_F0003750_184FB30(f32 *outX, f32 *outZ) {
 
     if (((O1ControlTable *)D_1D64)->flags & 1) {
         table = D_1D68;
-        path = CHOICE_WORLD->selector;
-        if (table->points[path].enabled == 0) {
+        if (table->points[CHOICE_WORLD->selector].enabled == 0) {
             i = 7;
             do {
                 if (table->points[i].enabled != 0 &&
@@ -261,15 +258,13 @@ void func_overlay_001_F0003750_184FB30(f32 *outX, f32 *outZ) {
                     CHOICE_WORLD->previousSelector = i;
                     CHOICE_WORLD->selector = i;
                     CHOICE_WORLD->transition = 0;
-                    path = CHOICE_WORLD->selector;
                     break;
                 }
                 loopValue = i;
                 i--;
             } while (loopValue != 0);
         }
-        path = CHOICE_WORLD->selector;
-        overlay1InterpolatePath(outX, outZ, path, 0.5f);
+        overlay1InterpolatePath(outX, outZ, CHOICE_WORLD->selector, 0.5f);
         return;
     }
 
@@ -3419,11 +3414,11 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_001_F0003750_184FB30:start
  * symbol: func_overlay_001_F0003750_184FB30
- * score: 86/446 words
+ * score: 105/446 words
  * frame: 0x90
  * relocations: 31
  * first-mismatch: +0xC
- * summary: All 119 flags nonexact; score cursor regressed. Recover the original local lifetimes that place target scores and interpolation locals higher in the 0x90 frame.
+ * summary: Direct selector loads remove the redundant path web and improve 360 to 341 masked differences without changing the 447/446 size. Linked trial has zero measured diffs but remains 12 bytes long.
  * PLATEAU-HANDOFF:func_overlay_001_F0003750_184FB30:end
  */
 
