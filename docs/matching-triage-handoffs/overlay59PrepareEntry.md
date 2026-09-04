@@ -6,5 +6,5 @@
 - frame: 0x28
 - relocations: 6
 - first mismatch: +0x48
-- summary: Exact-size pointer-carrier candidate retains 53/62 matched words; nine differences remain in the descriptor and call argument web.
+- summary: Merging value/handle into either u32 or pointer carrier is byte-identical. The target v0 load/call-delay web remains unavailable; baseline stays 53/62.
 <!-- plateau-handoff:overlay59PrepareEntry:end -->
