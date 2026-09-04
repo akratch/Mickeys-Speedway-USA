@@ -25,11 +25,11 @@
  * prove their identities. No linked candidate-C proof survives.
  * The s32 three-argument ABI is called only from four sites in
  * overlay59Advance at module +0x418/+0x590/+0x614/+0x66C; it is not exported
- * and has no resident or cross-overlay inbound. The retained function-specific
- * structural oracle is negative (best similarity 0.106, with no credible
- * donor). The fallback remains active. The next pass needs a different
- * source-faithful call-argument carrier/coalescing lever, not another flag
- * sweep or generic permutation batch.
+ * and has no resident or cross-overlay inbound. The retained structural oracle
+ * is negative (best similarity 0.106, with no credible donor). A 2026-09-04
+ * pass merged value and handle in both directions, retaining either the u32 or
+ * pointer carrier; both compile byte-identically and do not create the target
+ * v0 load/call-delay web. The fallback needs a different natural partition.
  */
 
 typedef struct Overlay59Descriptor {
@@ -113,6 +113,6 @@ s32 overlay59PrepareEntry(Overlay59Entry *entry, s32 tableIndex, s32 itemIndex) 
  * frame: 0x28
  * relocations: 6
  * first-mismatch: +0x48
- * summary: Exact-size pointer-carrier candidate retains 53/62 matched words; nine differences remain in the descriptor and call argument web.
+ * summary: Merging value/handle into either u32 or pointer carrier is byte-identical. The target v0 load/call-delay web remains unavailable; baseline stays 53/62.
  * PLATEAU-HANDOFF:overlay59PrepareEntry:end
  */
