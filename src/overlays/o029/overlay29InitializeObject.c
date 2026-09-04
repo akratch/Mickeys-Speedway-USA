@@ -67,7 +67,9 @@ extern void func_overlay_029_F000023C_187D4EC(void *, void *);
 /* Workbench: mixed structure/schedule/register; exact 102 words/-0x58 frame, 15 words, first +0x14.
  * All eight relocation offset/type/identity tuples now agree after correcting three resident callee names.
  * Typed/volatile/load/declaration/vector probes and a bounded permutation found no codegen improvement;
- * the target's early init/source-contact load ordering remains, so the assembly fallback stays canonical. */
+ * the target's early init/source-contact load ordering remains, so the assembly fallback stays canonical.
+ * A 2026-09-04 direct early-source placement retained the exact size and frame but regressed to 80/102
+ * words with 18 opcode differences; the authorized structural reshape is exhausted. */
 #ifdef NON_MATCHING
 void func_overlay_029_F000042C_187D6DC(Overlay29Object *object,
                                        Overlay29Init *init) {
@@ -123,6 +125,6 @@ void func_overlay_029_F000042C_187D6DC(Overlay29Object *object,
  * frame: 0x58
  * relocations: 8
  * first-mismatch: +0x14
- * summary: All eight identities align; early volatile init/source-contact load ordering remains after bounded producer, vector, and volatility probes.
+ * summary: direct early-source placement regressed to 80/102; the structural producer-order trial is exhausted
  * PLATEAU-HANDOFF:func_overlay_029_F000042C_187D6DC:end
  */
