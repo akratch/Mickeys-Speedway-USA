@@ -19,8 +19,11 @@ extern void overlay41SetColor(s32 handle, s32 red, s32 green, s32 blue);
 extern void overlay41SetAlpha(s32 handle, s32 alpha);
 
 /* Workbench: allocation-mismatch, exact 98/-48 shape, 15-word floor from +0x40.
- * Lever: constant/relocation audit after the direct-field spelling left the source schedule intact but not the color web.
- * Remains: 15 allocation, 5 constant, 2 schedule, and nine overlay-relocation residuals; assembly fallback stays canonical. */
+ * The target runtime surface and candidate both have four aligned records.
+ * Five absolute-address rows in the isolated target object are symbolic
+ * assembly artifacts: spelling them as C symbols grows the candidate to 99
+ * or 114 instructions. The retained literal path has zero opcode differences;
+ * the real residual is the 15-word color/snapshot register web. */
 #ifdef NON_MATCHING
 /* Ownership trial (2026-08-28): removed the TU's private 0x20-byte .data island;
  * linked promotion is text-differs with 98 in-range words, first at +0x0.
@@ -89,6 +92,6 @@ void func_overlay_041_F0000124_188745C(s32 amount) {
  * frame: 0x30
  * relocations: 4
  * first-mismatch: +0x30
- * summary: 119 flags and ten fresh natural forms are nonexact; the color/snapshot web remains allocator-blocked and four static identities are unresolved
+ * summary: Absolute-address reshape exhausted: symbolic C grows the function; exact-size baseline has zero opcode differences and a 15-word color/snapshot web.
  * PLATEAU-HANDOFF:func_overlay_041_F0000124_188745C:end
  */
