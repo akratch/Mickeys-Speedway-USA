@@ -53,23 +53,47 @@ void *func_80034448(s32 textureId) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_35024/func_80034448.s")
 #endif
 #ifdef NON_MATCHING
+/* PROVENANCE: control-flow and the two-word cache index are adapted from Jet
+ * Force Gemini's public src/textures.c::texFreeTexture; Mickey's raw cache
+ * layout, callers, and compiled bytes remain authoritative. Configured C now
+ * matches 41/43 words with the exact instruction, register, opcode, and
+ * seven-relocation shape. Only the symmetric frame adjustment differs: the
+ * candidate is 0x30 while the target is 0x28. Ten local ablations and
+ * scope/width/register
+ * variants either preserve that frame or destroy the exact topology. Candidate
+ * SHA-1 is a988205d2a34; preserve this form pending producer evidence for the
+ * unused automatic home that rounds the frame upward. */
 void func_800347A0(TextureHeader *tex) {
     s32 i;
+    s32 tableIndex;
+    s32 textureId;
 
     if (tex != NULL) {
         tex->numberOfInstances--;
         if (tex->numberOfInstances <= 0) {
             for (i = 0; i < D_800D2FE0; i++) {
-                if (tex == D_800D2FD8[i].texture) {
+                tableIndex = i << 1;
+                if (tex == ((TextureHeader **)D_800D2FD8)[tableIndex + 1]) {
+                    textureId = -1;
                     mmFree(tex);
-                    D_800D2FD8[i].id = -1;
-                    D_800D2FD8[i].texture = (TextureHeader *)-1;
+                    ((s32 *)D_800D2FD8)[tableIndex] = textureId;
+                    ((TextureHeader **)D_800D2FD8)[tableIndex + 1] =
+                        (TextureHeader *)textureId;
                     break;
                 }
             }
         }
     }
 }
+/* PLATEAU-HANDOFF:func_800347A0:start
+ * symbol: func_800347A0
+ * score: 41/43 words
+ * frame: 0x30 (target 0x28)
+ * relocations: 7
+ * first-mismatch: +0x0
+ * summary: JFG-shaped raw cache indexing fixes 25 words and every instruction/register/relocation; only the two symmetric frame-adjust immediates remain.
+ * PLATEAU-HANDOFF:func_800347A0:end
+ */
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_35024/func_800347A0.s")
 #endif
