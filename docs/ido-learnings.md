@@ -74,11 +74,14 @@ bytes and disassembly never belong here.
   header's line, so an initializer written on the line above the loop is
   scheduled before the hoisted address even when the target executes it
   after. Placing the initializer on the header line (`count = 7; do {`)
-  moves it behind the hoist. Evidence: `overlay40UpdateEntries` (44/46 to
-  exact) and the three scheduled words of `overlay57HandleModeInput`, both
-  found with the workbench's ugen emit-provenance trace on 2026-09-02. It
-  does not apply to register renames, to delay-slot fills chosen by latency
-  (`func_8001A154`'s `li -1`), or to relocation-surface differences.
+  moves it behind the hoist; conversely, splitting a loop-header initializer
+  onto the preceding line can move the initialization ahead of the branch and
+  leave the hoisted address as its delay-slot fill. Evidence:
+  `overlay40UpdateEntries` (44/46 to exact), the three scheduled words of
+  `overlay57HandleModeInput`, and the exact resident texture-table initializer.
+  The first two were found with the workbench's ugen emit-provenance trace on
+  2026-09-02. It does not apply to register renames, to delay-slot fills chosen
+  by latency (`func_8001A154`'s `li -1`), or to relocation-surface differences.
 - The lexical start of a conditional block can be an allocation boundary for
   a loop-invariant expression. If IDO hoists an invariant value into a saved
   register, adding save/restore and move instructions, initialize the existing
