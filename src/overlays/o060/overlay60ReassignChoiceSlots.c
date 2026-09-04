@@ -59,6 +59,6 @@ void overlay60ReassignChoiceSlots(void) {
  * frame: 0x20
  * relocations: 8
  * first-mismatch: +0x4
- * summary: Temps match 15/15. The sole defect is a hoisted available base costing one extra move. Folding walker and base into one pointer is disproved.
+ * summary: Fidelity-clean CDX maps the choice pointer to first p2 web w0; forcing its zero-cost v1 tie cuts 35 to 13 words, proving retail needs earlier web formation, not a priority change.
  * PLATEAU-HANDOFF:overlay60ReassignChoiceSlots:end
  */
