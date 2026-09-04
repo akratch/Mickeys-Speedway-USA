@@ -6,5 +6,5 @@
 - frame: 0x48
 - relocations: 102
 - first mismatch: +0x138
-- summary: exact extent/frame and 102/102 relocation identities; two spill stores remain reversed around one call
+- summary: ten order/line forms were non-improving; as1 keeps the two call-line spill stores reversed
 <!-- plateau-handoff:overlay11UpdateMenu:end -->
