@@ -43,9 +43,13 @@ extern void camRestoreModelMtx(Gfx **);
 extern void func_80034920(Gfx **);
 
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, 47 raw differences / 82 of 129 words match, first +0x4C.
- * Instruction count/frame and all three relocation sites are exact; pre-loop setup retains 12 structural gaps.
- * Remaining gap is scheduler/source statement order; this candidate is not permuter-ready. */
+/* Workbench: structure-mismatch, 47 raw differences / 82 of 129 words
+ * match, first +0x4C. Instruction count/frame and all three relocation
+ * identities are exact; pre-loop setup retains 12 structural gaps. The
+ * 2026-09-04 reshape named the E700 command beside the existing FB command
+ * before the enabled branch, but IDO folded it back to byte-identical output
+ * (SHA-1 031c8c9a3c86). The remaining gap is scheduler/source statement order;
+ * this candidate is not permuter-ready. */
 void overlay29DrawGroups(Gfx **dl, s32 drawContext,
                          Overlay29Context *context) {
     Overlay29RenderState *render;
@@ -146,6 +150,6 @@ void overlay29DrawGroups(Gfx **dl, s32 drawContext,
  * frame: 0x58
  * relocations: 3
  * first-mismatch: +0x4C
- * summary: 129 instructions/frame and all three relocation sites exact; pre-loop setup retains 12 structural gaps from source scheduling
+ * summary: Naming the pre-branch E700 command is byte-flat; exact 129-word/frame/relocation geometry still leaves 47 pre-loop scheduling differences.
  * PLATEAU-HANDOFF:overlay29DrawGroups:end
  */
