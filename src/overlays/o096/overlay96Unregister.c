@@ -44,7 +44,7 @@ void overlay96Unregister(s32 value) {
  * symbol: overlay96Unregister
  * score: 9/34 words
  * frame: frameless
- * relocations: 8 candidate / 6 target
+ * relocations: 8
  * first-mismatch: +0x0
  * summary: Retained-base reshape exhausted: direct globals prove the six-reloc shape but regress to 5/34 positional words; remaining blocker is the coupled count/index/input register web.
  * PLATEAU-HANDOFF:overlay96Unregister:end
