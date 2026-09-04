@@ -1539,7 +1539,11 @@ s32 func_8004989C(s32 index) {
 }
 /* Workbench: allocation-mismatch, 9 differing words, first mismatch +0xD0. */
 /* Candidate shape: exact 100 instructions/frame -0x30 and five relocation tuples. */
-/* Remaining gap: one four-web integer allocation bijection; structure is exact. */
+/* A fidelity-clean CDX pass disproves the earlier four-web-bijection diagnosis:
+ * the target has 15 pool/26 temp slots, while this C has 16/25. Reading
+ * record->value1E removes the extra pool web, but the best source-authentic
+ * schedule composition still regresses to 13 differences. The remaining
+ * mechanism is UGEN/as1 line order, not global colouring. */
 #ifdef NON_MATCHING
 extern s32 camGetMode(void);
 extern void func_80021FB0(s32 mode, s32 camNo, s32 *x1, s32 *y1,
@@ -2394,7 +2398,7 @@ void func_8004AF68(void) {
  * frame: 0x30
  * relocations: 5
  * first-mismatch: +0xD0
- * summary: Proc-scoped UGEN fidelity passed (proc 22: 25 GP/6 FP births), but target lifecycle and source semantics are unavailable; no natural edit is uniquely supported.
+ * summary: CDX proves a 15/16 pool-population mismatch, not a colour bijection; read-back closes the population but leaves a 13-word UGEN/as1 schedule plateau
  * PLATEAU-HANDOFF:func_800498FC:end
  */
 
