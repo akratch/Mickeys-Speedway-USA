@@ -224,6 +224,16 @@ bytes and disassembly never belong here.
   width, and both slot meanings are independently authenticated; require exact
   frame, relocations, linked bytes, and full ROM. Evidence: the exact resident
   `func_800359D4` sprite release.
+- A canceling pointer increment/decrement between two groups of stores can be
+  a zero-instruction allocation lever. IDO eliminates the net-zero arithmetic
+  but retains enough of the pointer lifetime split to change a two-web
+  caller-saved coloring; a bounded permuter found this after natural source
+  already had the exact opcode, frame, and relocation shapes. Use the form
+  only when the intermediate pointer is valid within the independently proved
+  array and no alias can observe it, disclose it as inert, and keep a cleanup
+  task for a natural equivalent. Require the ordinary project object, linked
+  range, and full ROM to remain exact. Evidence: the exact resident
+  `func_80035ADC` sprite-frame builder.
 
 ### Search fidelity and false floors
 
