@@ -110,9 +110,12 @@ typedef struct Overlay75UpdateLocals {
  * 304 words with a 0x58 frame and 19 differing words, first at +0x54.  The
  * threshold's array-base spelling fixes its +4 addend and removes the sole
  * raw-only relocation mismatch.  Nine natural scope, initializer, early-exit,
- * declaration, and aggregate forms were flat or regressed; moving work-local
- * initialization after the inactive exit adds one instruction and shifts the
- * body.  The remaining blocker is the prologue lifetime/scheduling boundary.
+ * declaration, and aggregate forms were flat or regressed.  A focused
+ * retained-initializer pass confirms that moving the three work locals behind
+ * the inactive exit emits 305 words: IDO selects a branch-likely and duplicates
+ * the cache-pointer load.  Split/order forms retain that extra instruction;
+ * an independent event local grows the frame to 0x60.  The remaining blocker
+ * is the prologue lifetime/scheduling boundary.
  */
 #ifdef NON_MATCHING
 void overlay75UpdateMovingObject(Overlay75Object *object,
@@ -264,6 +267,6 @@ cache_position:
  * frame: 0x58
  * relocations: 20
  * first-mismatch: +0x54
- * summary: threshold +4 addend is fixed; prologue initializer lifetime and candidate relocation identities remain
+ * summary: Retained-initializer reshape exhausted: after-exit forms add one branch-likely/cache load; exact-size 285/304 baseline remains best.
  * PLATEAU-HANDOFF:overlay75UpdateMovingObject:end
  */
