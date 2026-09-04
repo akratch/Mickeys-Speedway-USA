@@ -368,6 +368,15 @@ def build_recipe_for(c_file: Path) -> BuildRecipe:
         if obj not in line:
             continue
         if "objcopy" in line and "tools/ido/cc" not in line:
+            # A shell conditional in the recipe (`if [ ... ]; then <step>; fi`)
+            # applies its step only when the test holds; the scratch cannot
+            # evaluate that against the real object, and copying the fragment
+            # verbatim leaves a stray `fi` that breaks compile.sh (the
+            # overlay_001_tail scratch died on it). Record the whole
+            # conditional as not replicable instead.
+            if re.search(r"(^|[;&\s])if\s+\[", line) or re.search(r";\s*fi(\s|$)", line):
+                skipped.append(line.strip())
+                continue
             for seg in (s.strip() for s in line.split("&&")):
                 if not seg:
                     continue

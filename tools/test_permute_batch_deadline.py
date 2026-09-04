@@ -76,3 +76,11 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+def test_conditional_postprocess_is_not_replicated(module) -> None:
+    """A recipe line wrapped in `if [ ... ]; then ...; fi` must be recorded as
+    skipped, never split into fragments that leave a stray `fi`."""
+    import re
+    line = 'if [ -n "$(x)" ]; then tools/binutils/mips64-elf-objcopy --remove-section=.rel.rodata build/src/o.c.o; fi'
+    assert re.search(r"(^|[;&\s])if\s+\[", line) and re.search(r";\s*fi(\s|$)", line)
