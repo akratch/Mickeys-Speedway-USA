@@ -488,8 +488,8 @@
     },
     "func_overlay_022_F0000D30_1878E38": {
       "source_commit": "554bcd6e46d530d6c6c904669f73b2e0298df656",
-      "ledger_commit": null,
-      "reason": "Epoch 15 reshape pass 2: trial text-differs, out=0, 41-80 words; one structural reshape with the trial as oracle and the 0.8.0 lever block."
+      "ledger_commit": "554bcd6e46d530d6c6c904669f73b2e0298df656",
+      "reason": "Refresh stale authorization from lane_status JSON for one shape-only pass; prior candidate work remains closed."
     },
     "func_overlay_008_F0000894_185E5EC": {
       "source_commit": "83cd9adeef3ac2c004171aecf7ddab09a30513ea",
@@ -498,8 +498,8 @@
     },
     "overlay99RenderSortedEntries": {
       "source_commit": "fc30a3cb6e07fe572a0b67c5e0352e827efe93d6",
-      "ledger_commit": null,
-      "reason": "Epoch 15 reshape pass 2: trial text-differs, out=0, 41-80 words; one structural reshape with the trial as oracle and the 0.8.0 lever block."
+      "ledger_commit": "7de78a5a8e3db434b706fd9ba3399a0fddd7bfcb",
+      "reason": "Refresh stale authorization from lane_status JSON for one shape-only pass; prior candidate work remains closed."
     }
   }
 }
