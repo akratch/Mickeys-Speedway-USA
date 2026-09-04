@@ -4824,8 +4824,6 @@ s32 func_8000A6E8(s32 arg0) {
     }
     return flags;
 }
-#else
-#endif
 /* Workbench verdict: allocation-mismatch; 7 differing words (130/130). */
 /* First mismatch: +0x10; frame and opcode schedule are exact. */
 /* Shape status: recovered switch control flow; jump-table relocation targets remain. */
