@@ -505,6 +505,16 @@
       "source_commit": "04d879e6e074e11aae7f44e1e730a440a7666663",
       "ledger_commit": "04d879e6e074e11aae7f44e1e730a440a7666663",
       "reason": "Pool-rotation lever pass: CDX capture of the mode/timer v0 sharing and the config-field v1 webs; forced-colour reachability decides whether a source spelling reaches the target assignment."
+    },
+    "overlay40FadeRecords": {
+      "source_commit": "f89781dc9d81edc4a499fbe2838aca46c0b82d2b",
+      "ledger_commit": "d255bc7f1e7339e2bb884ad2e7a2d6358119e927",
+      "reason": "Compiler-lever pass: instrumented uopt CDX colouring capture for the three-word v0/v1 residual at the temp-copy edge; CDX was unavailable at the last attempt."
+    },
+    "func_800498FC": {
+      "source_commit": "40ff5592c3f465dbee5356a257797e83b8853acc",
+      "ledger_commit": "40ff5592c3f465dbee5356a257797e83b8853acc",
+      "reason": "Compiler-lever pass: instrumented uopt CDX colouring capture and CDX_FORCE reachability test for the nine-word four-web v0/a0 plus t3/t4/t5 register residual."
     }
   }
 }
