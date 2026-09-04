@@ -28,9 +28,11 @@ extern u8 D_0[];
 extern void func_80029FE4(Overlay43RotationInput *input, Vec3f *direction);
 extern void func_8002A82C(Overlay43MotionOutput *output);
 
-/* Plateau (remeasured): exact 55-word size/frame -0x38, 9 differing words;
- * comparison first +0x5C is call-symbol metadata and the first code-bit difference is +0x74.
- * The FP temp lane is exact; the FP pool f0/f2 swap and D_0 load schedule remain. */
+/* The configured candidate retains the exact 55-word/0x38-frame geometry and
+ * nine differing words; +0x5C is call metadata and the first code-bit mismatch
+ * is +0x74. Moving the D_24 carrier declaration behind the saved components
+ * in a 2026-09-04 structural pass shifts otherwise-exact homes and regresses
+ * to 19 words. Preserve the original FP pool order and assembly fallback. */
 #ifdef NON_MATCHING
 void func_overlay_043_F00010A8_188B078(Overlay43RotationInput *input,
                                       s32 owner,
@@ -75,6 +77,6 @@ void func_overlay_043_F00010A8_188B078(Overlay43RotationInput *input,
  * frame: 0x38
  * relocations: 4
  * first-mismatch: +0x5C
- * summary: Two call identities exact; FP pool f0/f2 swap and adjacent D_0 load schedule remain; first code-bit mismatch +0x74.
+ * summary: Moving the D_24 carrier behind saved components regresses 9 to 19 words by shifting exact homes. Preserve the original FP pool order.
  * PLATEAU-HANDOFF:func_overlay_043_F00010A8_188B078:end
  */
