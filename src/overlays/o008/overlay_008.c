@@ -601,7 +601,6 @@ typedef struct O8P1294ColorTarget {
 } O8P1294ColorTarget;
 
 #define O8P1294_F32(ptr, offset) (*(f32 *)((u8 *)(ptr) + (offset)))
-#define O8P1294_S32(ptr, offset) (*(s32 *)((u8 *)(ptr) + (offset)))
 
 extern u8 D_4[];
 extern f32 D_F8, D_FC, D_100, D_104, D_108, D_10C, D_110, D_114;
@@ -623,10 +622,11 @@ extern void func_800031C0(void *handle, f32 x, f32 y, f32 z);
 extern s32 func_8002A204(s16 angle);
 extern s32 mathDiffAngle(s16 current, s16 target);
 
-/* Direct reconstruction plateau: authenticated callees, direct resource
- * fields, and a signed speed carrier compile to 1256 words in a 0x180 frame
- * versus the 1259-word/0xB0 target. Preserve the explicit single-load
- * carriers while reducing the remaining m2c-derived automatic homes. */
+/* Direct reconstruction plateau: the tuning +0x14 f32 load/conversion restores
+ * the exact 1259-word size in a 0x180 frame versus the target's 0xB0. Reusing
+ * var_f0 cuts the direct-float alignment gaps from 244 to 48, but 1127 masked
+ * words differ and the linked overlay remains 24 bytes long. Reduce the
+ * remaining m2c-derived automatic homes without repeating field reads. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0001294_185EFEC(O8P1294Owner *owner,
                                        O8P1294State *state, f32 update) {
@@ -1009,7 +1009,8 @@ block_74:
                 } else if (var_v0_2 < -0x3C) {
                     var_v0_2 = -0x3C;
                 }
-                var_a2 = (s32) O8P1294_S32(temp_v0, 0x14);
+                var_f0 = O8P1294_F32(temp_v0, 0x14);
+                var_a2 = (s32) var_f0;
             }
             temp_v1_4 = state->unk108;
             temp_f4 = (s32) (((f32) -var_v0_2 * O8P1294_F32(temp_v0, 0x10)) / 60.0f);
@@ -2499,10 +2500,10 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
 
 /* PLATEAU-HANDOFF:func_overlay_008_F0001294_185EFEC:start
  * symbol: func_overlay_008_F0001294_185EFEC
- * score: 1030 differing words
+ * score: 1127 differing words
  * frame: 0x180
  * relocations: 137
  * first-mismatch: +0x0
- * summary: Typed 1256-word direct reconstruction is three words short; authenticated ABI/type fixes remove 193 differing words, but 0xD0 of excess automatic-home frame remains.
+ * summary: The authenticated +0x14 f32 conversion restores the exact 1259-word function size; an existing var_f0 carrier leaves 1127 masked differences and 48 alignment gaps. Frame remains 0x180 vs 0xB0; linked overlay is 24 bytes long.
  * PLATEAU-HANDOFF:func_overlay_008_F0001294_185EFEC:end
  */
