@@ -25,16 +25,16 @@ extern void func_80034554(Overlay73Command **commands, void *resource,
                          s32 mode, s32 flags);
 extern void func_800241BC(Overlay73Command **commands);
 
-/* Workbench: structure-mismatch, 47 raw differences / 31 of 78 words match, first +0x1C.
- * Instruction count and frame are exact, but packet arithmetic has 22 opcode and 28 alignment gaps.
- * Remaining structural gap: packet/address ordering; this candidate is not permuter-ready. */
+/* Workbench verdict=structure-mismatch; 41 raw/masked words differ in exact 78-word/0x30 frame, first +0x1C.
+ * Splitting 0x04000044 removes all alignment gaps and leaves two opcode-order mismatches; instruction/frame geometry is exact.
+ * Five relocation sites remain, with D_80000000 sites reordered; the residual structural gap is not yet permuter-ready. */
 #ifdef NON_MATCHING
 void func_overlay_073_F0000D70_18CB830(Overlay73Command **commands,
                                        s32 context,
                                        Overlay73DrawObject *object) {
     Overlay73Command *command;
-    Overlay73DrawState *state;
     u8 * volatile vertices;
+    Overlay73DrawState *state;
     u32 physicalVertices;
     s32 vertexBank;
     s32 vertexOffset;
@@ -57,13 +57,12 @@ void func_overlay_073_F0000D70_18CB830(Overlay73Command **commands,
 
         func_80034554(commands, state->resource, 0xE, 0);
 
-        physicalVertices = (u32)vertices + 0x80000000;
-
         command = *commands;
         *commands = command + 1;
+        physicalVertices = (u32)vertices + 0x80000000;
         command->w0 = (((((physicalVertices) & 6) | 0x30) & 0xFF)
                        << 16) |
-                      0x04000044;
+                      0x04000000 | 0x44;
         command->w1 = physicalVertices;
 
         command = *commands;
@@ -84,10 +83,10 @@ void func_overlay_073_F0000D70_18CB830(Overlay73Command **commands,
 
 /* PLATEAU-HANDOFF:func_overlay_073_F0000D70_18CB830:start
  * symbol: func_overlay_073_F0000D70_18CB830
- * score: 31/78 words
+ * score: 41 differing words
  * frame: 0x30
  * relocations: 5
  * first-mismatch: +0x1C
- * summary: 78 instructions and frame exact, but packet/address ordering leaves 22 opcode and 28 alignment gaps
+ * summary: Exact 78-instruction 0x30 frame with zero alignment gaps; two opcode-order mismatches and D_80000000 relocation ordering remain.
  * PLATEAU-HANDOFF:func_overlay_073_F0000D70_18CB830:end
  */

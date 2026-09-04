@@ -2217,12 +2217,15 @@ extern s32 overlay1GetAngleValueReloc(f32 dz, f32 dx);
 extern void overlay1ActivateObjectReloc(Overlay1RangeObject *object);
 extern void overlay1PlaySoundReloc(u8 soundId);
 
+/* Workbench verdict=allocation-mismatch; 31 raw/masked words differ in the exact 120-word/0x70 frame, first +0x34.
+ * Declaration order moves the count home to sp+0x68; instruction count, opcode order, and relocation sites are exact.
+ * Remaining register-only residual is permuter-ready; four relocation names remain overlay-local aliases. */
 #ifdef NON_MATCHING
 void overlay1UpdateRangeFlags(Overlay1RangeObject *object, void *unused) {
     Overlay1RangeConfig *config;
-    register s32 clearMask;
-    Overlay1RangeObject **objects;
     s32 count;
+    Overlay1RangeObject **objects;
+    register s32 clearMask;
 
     config = object->state;
     clearMask = ~8;
@@ -3308,11 +3311,11 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1UpdateRangeFlags:start
  * symbol: overlay1UpdateRangeFlags
- * score: 41 differing words
+ * score: 31 differing words
  * frame: 0x70
  * relocations: 4
  * first-mismatch: +0x34
- * summary: Inlining the two Y temporaries makes the frame exact; 31 register sites and four unresolved call identities remain after five natural forms; no permuter.
+ * summary: Exact 120-word frame and opcode order; 31 register-only words and four unresolved overlay-local call aliases remain.
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
 
