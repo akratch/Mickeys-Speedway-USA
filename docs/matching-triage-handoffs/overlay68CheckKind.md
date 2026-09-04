@@ -6,5 +6,5 @@
 - frame: 0x48
 - relocations: 9
 - first mismatch: +0x2C
-- summary: Split webs 42/0 lack source/home provenance; runtime target/shape 9/9, static identities 4/9, five proxies need exact linked promotion.
+- summary: The authorized byte-offset cursor reshape is byte-identical. Baseline stays 70/80; the target zero-shift/pointer-add CFG has no source-supported lever.
 <!-- plateau-handoff:overlay68CheckKind:end -->
