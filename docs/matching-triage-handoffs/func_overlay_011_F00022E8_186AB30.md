@@ -6,5 +6,5 @@
 - frame: 0x40
 - relocations: 79
 - first mismatch: +0x4
-- summary: Fresh exact-size V0 has 231 raw/227 masked diffs, frame 0x40; candidate 79 vs target 39 text relocs, with call-proxy identity ambiguous.
+- summary: Exact-size V0 remains 231 raw/227 masked diffs; cursor reuse fixes all three declared stack homes, while the saved-s0 web remains. Linked trial aligns 51/79 sites before a ROM-size stop.
 <!-- plateau-handoff:func_overlay_011_F00022E8_186AB30:end -->
