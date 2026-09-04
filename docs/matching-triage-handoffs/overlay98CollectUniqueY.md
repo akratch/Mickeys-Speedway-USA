@@ -6,5 +6,5 @@
 - frame: 0x10
 - relocations: 8
 - first mismatch: +0x68
-- summary: Exact geometry; array-address CSE leaves 32 positional differences and the candidate emits 6 versus 8 target relocations.
+- summary: Array-base reshape exhausted: natural index/scope/carrier forms miss geometry; exact-size baseline still CSEs three target roots into one.
 <!-- plateau-handoff:overlay98CollectUniqueY:end -->
