@@ -6,7 +6,7 @@
 - frame: 0x50
 - relocations: 13
 - first mismatch: +0x20
-- summary: ten forms exhausted; selector chain restored two words, but phase and pointer forms stayed flat; structural/register residual and 13 unresolved identities
+- summary: The size-near pointer-update probe is byte-flat; promotion trial in=0/out=0 is a schedule-divergence build error, not equality. Retain the 160-word structural plateau.
 - assignment base: `f8f3ec51a298dd0eddd0574a4313adbb1e39de9b`
 - identity: Overlay 1 export-table row 1340 at `+0x3FD8`; the fallback proves the owned `0x3B4`-byte range through the next function at `+0x438C`, with no target padding
 - ABI and flags: `void (Transform *, State *, s32)` under the tail TU's configured `-O2 -mips2 -32 -Wab,-r4300_mul`; target and retained frames are both `0x50`

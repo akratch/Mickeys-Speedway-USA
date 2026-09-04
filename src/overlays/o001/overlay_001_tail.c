@@ -541,10 +541,13 @@ extern void ext_o0_5a914(Transform *, s32, s32, s32);
 extern Spawned *local_414(s16, Spawned **);
 extern s16 local_c0(Spawned *);
 
-/* Plateau (2026-08-31): configured full-TU C is 236/237 words with 160 raw
+/* PLATEAU (2026-09-04): configured full-TU C is 236/237 words with 160 raw
  * and relocation-masked differences from +0x20; both frames are 0x50. An
  * asymmetric selector assignment restored the narrow index mask/shift. Phase
- * carrier, register-hint, and pointer-advance forms were flat or regressed. */
+ * carrier, register-hint, and pointer-advance forms were flat or regressed;
+ * folding the existing point update into its load is also byte-flat. The
+ * promotion trial's in=0/out=0 is a build-error classification caused by
+ * schedule-divergent global sites, not linked byte equality. */
 #ifdef NON_MATCHING
 void overlay1TransitionState(Transform *obj, State *state, s32 updateRate) {
     Spawned *sp3C;
@@ -3370,7 +3373,7 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * frame: 0x50
  * relocations: 13
  * first-mismatch: +0x20
- * summary: ten forms exhausted; selector chain restored two words, but phase and pointer forms stayed flat; structural/register residual and 13 unresolved identities
+ * summary: The size-near pointer-update probe is byte-flat; promotion trial in=0/out=0 is a schedule-divergence build error, not equality. Retain the 160-word structural plateau.
  * PLATEAU-HANDOFF:overlay1TransitionState:end
  */
 
