@@ -85,6 +85,6 @@ void overlay101BuildBorder(Overlay101Gfx **displayList, s32 x, s32 y,
  * frame: 0x88
  * relocations: 3
  * first-mismatch: +0x44
- * summary: Exact geometry/frame and 38 differences reproduce; all 3 sites align, but two local R_MIPS_26 identities remain unresolved.
+ * summary: Four geometry aliases regress to frame 0x90 and 61 differences; retain the 0x88-frame baseline.
  * PLATEAU-HANDOFF:overlay101BuildBorder:end
  */
