@@ -918,7 +918,7 @@ void diPrintfSetXY(u16 x, u16 y) {
  * frame: 0x138
  * relocations: 5
  * first-mismatch: +0x38
- * summary: one current-byte/classification web and newline lowering remain after 119 flags, one trace, and two flat/regressing natural forms
+ * summary: fresh diagnosis reports no known lever for the five-site current-byte web and two newline words, so the lever-only reopen has no authorized source edit
  */
 /* Fresh configured full-TU C under -O2 -mips2 -32 -Wab,-r4300_mul is
  * 59/66 raw/relocation-normalized words, frame 0x138, first +0x38, with all
@@ -927,9 +927,9 @@ void diPrintfSetXY(u16 x, u16 y) {
  * One allocator trace and workbench isolate a five-site current-byte v1/v0 web
  * plus the two-word branch-likely newline lowering. A separate classification
  * scalar regressed to 57/66 by gaining a stack home; an explicit newline-tail
- * jump was flat at 59/66, so they were not combined. ORT 862 is exported but
- * exhaustive resident, overlay, direct-jal, pointer, and source scans found no
- * caller. Ordinary 66/66 and linked equality remain GLOBAL_ASM fallback only. */
+ * jump was flat at 59/66, so they were not combined. ORT 862 has no caller.
+ * A 2026-09-04 diagnosis confirms prefix-exact@14 and the five-site web but
+ * reports no known lever; the lever-only test allows no mutation. */
 s32 debug_text_width(const char *format, ...) {
     s32 stringLength;
     s32 fontTexture;
