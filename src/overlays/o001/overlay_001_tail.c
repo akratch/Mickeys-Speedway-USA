@@ -1849,14 +1849,18 @@ extern s32 D_83E4;
 extern s32 overlay27CanUse(void *);
 extern s32 overlay3RunCachedModeAction(void *, W *);
 extern s32 overlay1DispatchMode(void);
+/* Workbench verdict: structure-mismatch, 23 differing words, first mismatch +0x0.
+ * Shape: one extra instruction (33/32) with an exact 0x18 frame; not shape-exact.
+ * Remaining gap: callback-clear control flow and unresolved relocation identities. */
 #ifdef NON_MATCHING
 s32 overlay1HandleCachedMode(void) {
     if (((W *)D_1DA0)->enabled == 0) goto clear;
-    if (overlay27CanUse(((W *)D_1DA0)->object) != 0) goto clear;
-    if (D_83E4 == 3) {
-        return overlay3RunCachedModeAction(D_1D9C, (W *)D_1DA0);
+    if (overlay27CanUse(((W *)D_1DA0)->object) == 0) {
+        if (D_83E4 == 3) {
+            return overlay3RunCachedModeAction(D_1D9C, (W *)D_1DA0);
+        }
+        return overlay1DispatchMode();
     }
-    return overlay1DispatchMode();
 clear:
     ((W *)D_1DA0)->state = 0;
     return 0;
@@ -3284,11 +3288,11 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1HandleCachedMode:start
  * symbol: overlay1HandleCachedMode
- * score: 24 differing words
+ * score: 23 differing words
  * frame: 0x18
- * relocations: 13
- * first-mismatch: +0x14
- * summary: 119 flags and ten coherent forms exhausted; shared-clear and return CFG stay two words long, with overlay1DispatchMode runtime identity ambiguous
+ * relocations: 11
+ * first-mismatch: +0x0
+ * summary: inverted callback condition removes one instruction; remaining gap is structural clear-flow and relocation identity
  * PLATEAU-HANDOFF:overlay1HandleCachedMode:end
  */
 

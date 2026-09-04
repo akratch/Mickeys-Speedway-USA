@@ -2,9 +2,9 @@
 ### `overlay1HandleCachedMode` plateau handoff
 
 - source: `src/overlays/o001/overlay_001_tail.c`
-- score: 24 differing words
+- score: 23 differing words
 - frame: 0x18
-- relocations: 13
-- first mismatch: +0x14
-- summary: 119 flags and ten coherent forms exhausted; shared-clear and return CFG stay two words long, with overlay1DispatchMode runtime identity ambiguous
+- relocations: 11
+- first mismatch: +0x0
+- summary: inverted callback condition removes one instruction; remaining gap is structural clear-flow and relocation identity
 <!-- plateau-handoff:overlay1HandleCachedMode:end -->
