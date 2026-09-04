@@ -11,25 +11,25 @@ extern s32 gOverlay20EntryCount;
 extern u8 gOverlay20MarkerEnd;
 extern u32 gOverlay20ActiveBits;
 
-/* Bounded plateau (2026-08-29): exact pinned DKR v77/v80/JFG scans found no
- * donor. Configured C is 36/53 raw and runtime-normalized words, frameless,
- * first +0x4C, with exact 0xD4 ownership and all ten LOCAL relocation tuples
- * and identities. The caller passes an Overlay20RemoveOwner pointer in a0;
- * this guarded diagnostic retains the ABI-equivalent s32 parameter. A fresh
- * fidelity-clean proc-0 UGEN trace proves a valid temporary FIFO with seven
- * sequential births and no decrement-result birth in the old carrier-reuse
- * form. Writing the decremented expression to the global count and reading it
- * for compaction introduces the target's t7 carrier and improves the plateau
- * from 36/53 to 39/53 words. Reordered, comma-grouped, and explicit-base
- * compaction forms are flat or regress; the remaining base web stays a2 where
- * the target needs the next FIFO birth at t9. All ten relocation identities
- * remain exact. IDO's trailing 0xC is section alignment, not target padding. */
+/* PROVENANCE: indexed search and list-compaction loops adapted from Diddy Kong
+ * Racing's published src/weather.c::lensflare_override_remove. Mickey's owner
+ * offset, arrays, marker cleanup, relocations, and target bytes remain
+ * authoritative. */
+/* Bounded plateau (2026-09-04): configured C is 47/53 words, frameless, with
+ * exact 0xD4 ownership and all ten relocation tuples and identities. The
+ * donor-style indexed compaction removes two pool webs and makes the 12-web
+ * temporary lane exact. The remaining six words are a two-web pool rotation:
+ * the target uses v0/a1 for the end/cursor pair while IDO chooses a1/a0.
+ * Fidelity-clean proc-0 tracing identifies an invisible v0 web that conflicts
+ * with the end web. A diagnostic split plus forced cursor color reaches the
+ * target pool assignments but introduces a stack frame, so it is not a valid
+ * promotion. Pointer-, index-, cursor-relative-, explicit-base-, register-,
+ * byte-offset-, and association variants were exhausted. IDO's trailing 0xC
+ * is section alignment, not target padding. */
 #ifdef NON_MATCHING
 void overlay20RemoveEntry(s32 owner) {
     void *entry;
     s32 i;
-    void **cursor;
-    void **end;
 
     entry = ((Overlay20RemoveOwner *)owner)->entry;
     if (entry == NULL) {
@@ -37,14 +37,12 @@ void overlay20RemoveEntry(s32 owner) {
     }
     owner = gOverlay20EntryCount;
     i = 0;
-    cursor = gOverlay20Entries;
     if (owner > 0) {
         do {
-            if (entry == *cursor) {
+            if (entry == gOverlay20Entries[i]) {
                 break;
             }
             i++;
-            cursor++;
             if (i < owner) {
                 continue;
             }
@@ -56,12 +54,10 @@ void overlay20RemoveEntry(s32 owner) {
     }
     gOverlay20EntryCount = owner - 1;
     if (i < gOverlay20EntryCount) {
-        cursor = &gOverlay20ShiftEntries[i];
-        end = &gOverlay20ShiftEntries[gOverlay20EntryCount];
         do {
-            *cursor = cursor[1];
-            cursor++;
-        } while (cursor < end);
+            gOverlay20ShiftEntries[i] = gOverlay20ShiftEntries[i + 1];
+            i++;
+        } while (i < gOverlay20EntryCount);
     }
 
     owner = (s32)&gOverlay20MarkerEnd;
@@ -80,10 +76,10 @@ void overlay20RemoveEntry(s32 owner) {
 
 /* PLATEAU-HANDOFF:overlay20RemoveEntry:start
  * symbol: overlay20RemoveEntry
- * score: 39/53 words
+ * score: 47/53 words
  * frame: frameless
  * relocations: 10
- * first-mismatch: +0x5C
- * summary: Fidelity-clean FIFO trace exposes a missing decrement birth; the global-count form gains 3 words, but the compaction base remains one birth behind.
+ * first-mismatch: +0x6C
+ * summary: Indexed compaction makes the temporary lane exact and cuts the deficit to six words; an invisible interfering web blocks the remaining two-web pool rotation.
  * PLATEAU-HANDOFF:overlay20RemoveEntry:end
  */
