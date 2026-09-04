@@ -2477,7 +2477,7 @@ jtbl_8008249C = 0x8008249C; // type:jtbl size:0x30 tier-A compiler-owned gameVi 
 // the mode changer calls the same routine to establish new buffer state.
 fb_swap = 0x80034150; // type:func size:0xE0 ROM 0x34D50 canonical C, linked byte-identical
 fb_memcpy = 0x80034230; // type:func size:0x30   ROM 0x34e30  src/gameVi.c.o  masked=0/12, canonical C is linked byte-identical
-func_80034260 = 0x80034260; // type:func size:0x190 ROM 0x34E60 tier-D frame-exact NON_MATCHING candidate, JFG src/textures.c-texInitTextures assembly donor
+func_80034260 = 0x80034260; // type:func size:0x190 ROM 0x34E60 tier-D matched C src/main/textures_34E60.c.o -O2 -mips2 -32, DKR/JFG texInitTextures body adapted to Mickey globals and sizes, linked exact=100/100
 func_800343F0 = 0x800343F0; // type:func size:0x18 ROM 0x34FF0 canonical C, linked byte-identical, JFG-src/textures.c-texDisableModes body, Mickey address label retained
 func_80034424 = 0x80034424; // type:func size:0x10 ROM 0x35024 canonical C, linked byte-identical, JFG-src/textures.c-texModelTextureLoad body, Mickey address label retained
 func_80034434 = 0x80034434; // type:func size:0x14 ROM 0x35034 tier-D frame-exact NON_MATCHING candidate, Mickey texture-state setter
