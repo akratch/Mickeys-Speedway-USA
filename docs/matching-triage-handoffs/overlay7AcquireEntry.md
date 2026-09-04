@@ -6,5 +6,5 @@
 - frame: 0x30
 - relocations: 13
 - first mismatch: +0x104
-- summary: Tail address-carrier web remains; inspect ugen statement boundaries before another source shape.
+- summary: explicit null-return reshape regressed to 74/96; tail-CFG structural trial is exhausted
 <!-- plateau-handoff:overlay7AcquireEntry:end -->
