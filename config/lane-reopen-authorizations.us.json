@@ -298,8 +298,8 @@
     },
     "overlay60ReassignChoiceSlots": {
       "source_commit": "d5d84fc774b4cca0953cbffd03fdce77ff44a8f4",
-      "ledger_commit": "d5d84fc774b4cca0953cbffd03fdce77ff44a8f4",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
+      "ledger_commit": "54184410c40af2219b18d87fe50a5652ede6759f",
+      "reason": "Pool-rotation lever pass: CDX colouring capture on the 35-word rotation attributed to one extra move; forced-colour reachability decides web numbering versus priority. No permutation."
     },
     "func_overlay_026_F0000D24_187B11C": {
       "source_commit": "4e0a141a29e28de455e798ba590951f3e15b929a",
@@ -377,9 +377,9 @@
       "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay43FilterImage": {
-      "source_commit": "ae8b5bd27221c8263de6ddaf12382fd7b5de57c1",
-      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
+      "source_commit": "5747fb0851511e182fef6e3b155fc4a3bb9c3d90",
+      "ledger_commit": "5747fb0851511e182fef6e3b155fc4a3bb9c3d90",
+      "reason": "Pool-rotation lever pass: instrumented uopt CDX p1/p2 colouring records plus forced-colour reachability on the row/column/first/scratch web rotation. No flag sweeps, no permutation."
     },
     "overlay74Update": {
       "source_commit": "681bbf2ca97e35b571a3fc61abea419bcbb59c7a",
@@ -500,6 +500,11 @@
       "source_commit": "fc30a3cb6e07fe572a0b67c5e0352e827efe93d6",
       "ledger_commit": null,
       "reason": "Epoch 15 reshape pass 2: trial text-differs, out=0, 41-80 words; one structural reshape with the trial as oracle and the 0.8.0 lever block."
+    },
+    "overlay4UpdateObjectMotion": {
+      "source_commit": "04d879e6e074e11aae7f44e1e730a440a7666663",
+      "ledger_commit": "04d879e6e074e11aae7f44e1e730a440a7666663",
+      "reason": "Pool-rotation lever pass: CDX capture of the mode/timer v0 sharing and the config-field v1 webs; forced-colour reachability decides whether a source spelling reaches the target assignment."
     }
   }
 }
