@@ -27,7 +27,9 @@ extern u8 gOverlay41QueueEntries[];
 
 /* Workbench: mixed(structural:13, register:12, constant:3), exact 105
  * instructions with 29 differing words, first +0x8. Preflight proves all 22
- * relocation identities exactly; target block order and one-cursor allocation remain. */
+ * relocation identities exactly; target block order and one-cursor allocation remain.
+ * A 2026-09-04 independent second test (removing the redundant else) was byte-flat,
+ * so that natural block-order reshape cannot delay the future-cursor web. */
 #ifdef NON_MATCHING
 void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
                                        s32 value6, s32 value8, s32 value9,
@@ -103,6 +105,6 @@ void func_overlay_041_F000195C_1888C94(s32 value2, s32 timer, s32 value4,
  * frame: frameless
  * relocations: 22
  * first-mismatch: +0x8
- * summary: Resolver proves 22/22 identities exact; remaining one-cursor allocation/CFG residual names no unique natural lever.
+ * summary: independent-if block-order reshape was byte-flat; the one-cursor allocation residual remains
  * PLATEAU-HANDOFF:func_overlay_041_F000195C_1888C94:end
  */
