@@ -160,7 +160,6 @@ void *func_800355A0(s32 spriteId, s32 flags) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_800355A0.s")
 #endif
-#ifdef NON_MATCHING
 typedef struct Sprite {
     s16 baseTextureId;
     s16 numberOfFrames;
@@ -170,13 +169,8 @@ typedef struct Sprite {
     TextureFrameHeader **frames;
 } Sprite;
 
-typedef struct SpriteCacheEntry {
-    s32 id;
-    Sprite *sprite;
-} SpriteCacheEntry;
-
 extern s32 D_800D3008;
-extern SpriteCacheEntry *D_800D2FFC;
+extern s32 *D_800D2FFC;
 extern void func_800347A0(TextureFrameHeader *texture);
 
 void func_800359D4(Sprite *sprite) {
@@ -187,22 +181,19 @@ void func_800359D4(Sprite *sprite) {
         sprite->numberOfInstances--;
         if (sprite->numberOfInstances <= 0) {
             for (i = 0; i < D_800D3008; i++) {
-                if (sprite == D_800D2FFC[i].sprite) {
+                if (sprite == (Sprite *)D_800D2FFC[(i << 1) + 1]) {
                     for (frame = 0; frame < sprite->numberOfFrames; frame++) {
                         func_800347A0(sprite->frames[frame]);
                     }
                     mmFree(sprite);
-                    D_800D2FFC[i].id = -1;
-                    D_800D2FFC[i].sprite = (Sprite *)-1;
+                    D_800D2FFC[i << 1] = -1;
+                    D_800D2FFC[(i << 1) + 1] = -1;
                     break;
                 }
             }
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_800359D4.s")
-#endif
 #ifdef NON_MATCHING
 /* JFG's func_800577D8 candidate retains the source-level table update shape;
  * the complete sprite-frame selection remains on the fallback body. */

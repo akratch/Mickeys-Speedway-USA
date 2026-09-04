@@ -211,6 +211,16 @@ bytes and disassembly never belong here.
   undeclared call), and reject it unless command semantics, relocations, linked
   bytes, and the full ROM remain exact. Evidence: the exact resident
   `func_80034920` display-list reset.
+- Typing an interleaved two-word cache as an array of structs can make IDO
+  strength-reduce an index loop into advancing entry and byte-offset pointers;
+  differently typed sentinel fields can also materialize separate copies of
+  the same `-1`. Keeping the externally proved storage as a flat word array and
+  spelling its ID/pointer slots as `(i << 1)` and `(i << 1) + 1` preserves the
+  index, emits the per-iteration `i << 3`, reuses that byte offset for cleanup,
+  and can share one sentinel carrier. Apply this only when allocation, element
+  width, and both slot meanings are independently authenticated; require exact
+  frame, relocations, linked bytes, and full ROM. Evidence: the exact resident
+  `func_800359D4` sprite release.
 
 ### Search fidelity and false floors
 
