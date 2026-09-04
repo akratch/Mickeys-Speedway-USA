@@ -1604,17 +1604,19 @@ void func_80005548(s32 arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005548.s")
 #endif
-/* Workbench verdict: allocation-mismatch (temp-FIFO phase); 8 differing words. */
+/* Workbench verdict: register-ring-only (pool-to-temp web); 2 differing words. */
 /* First mismatch: +0x24. */
-/* Shape-exact candidate; register allocation is reserved for the permuter. */
+/* Hoisting *table fixes the downstream ring; a reseeded bounded sweep was flat. */
 #ifdef NON_MATCHING
 void *func_800056A4(s32 tableIndex) {
+    s32 *entries;
     s32 **table = (s32 **)0x800C9464;
 
     if ((tableIndex < 0) || (tableIndex >= D_800C9468)) {
         return D_800C9460;
     }
-    return D_800C9460 + ((*table)[tableIndex] * 4);
+    entries = *table;
+    return D_800C9460 + (entries[tableIndex] * 4);
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800056A4.s")
@@ -5663,11 +5665,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_800056A4:start
  * symbol: func_800056A4
- * score: 8 differing words
+ * score: 17/19 words
  * frame: frameless
  * relocations: 6
  * first-mismatch: +0x24
- * summary: fixed-address D_800C9464 pointer-variable form has exact shape and relocations; one temp-FIFO phase remains
+ * summary: Hoisting *table fixes six register sites. One v1 versus t7 carrier web remains; a reseeded 10-minute permuter sweep was flat at score 10.
  * PLATEAU-HANDOFF:func_800056A4:end
  */
 
