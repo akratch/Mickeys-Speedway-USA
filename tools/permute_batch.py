@@ -1365,7 +1365,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
                    help="do not give an overlay target the module's own "
                         "relocation sites (the pre-annotation behaviour, kept "
                         "as an escape hatch and for before/after measurement)")
-    p.add_argument("--function", help="restrict to one function name")
+    p.add_argument("--function", action="append", default=None,
+                   help="restrict to these function names (repeatable)")
     p.add_argument(
         "--exclude-file",
         action="append",
@@ -1492,7 +1493,11 @@ def main(argv: list[str]) -> int:
     if args.overlays_only:
         queue = [it for it in queue if it.overlay is not None]
     if args.function is not None:
-        queue = [it for it in queue if it.func == args.function]
+        wanted = set(args.function)
+        queue = [it for it in queue if it.func in wanted]
+        missing = wanted - {it.func for it in queue}
+        if missing:
+            print(f"--function: not in the live queue: {', '.join(sorted(missing))}")
     try:
         excluded_names = read_excluded_functions(args.exclude_file)
     except ValueError as exc:
