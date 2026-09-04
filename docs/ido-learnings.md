@@ -200,6 +200,17 @@ bytes and disassembly never belong here.
   relocations, linked range, and full ROM are exact. Evidence: Overlay 41's
   exact curve sampler and Overlay 22's exact plane resolver in
   `docs/overlays.md`.
+- A display-list macro invoked with a postincremented cursor keeps its local
+  command pointer, cursor advance, and field writes on the invocation's source
+  line. IDO can then schedule the cursor advance before the writes and choose a
+  different order for the command-word stores and constant materializations.
+  Hand-expanding those operations across separate lines preserved the same
+  instruction multiset but not the schedule; delaying both cursor advances let
+  IDO coalesce two commands and removed three instructions. Use the native macro
+  only with its complete header context (`_SHIFTL` must be a macro, not an
+  undeclared call), and reject it unless command semantics, relocations, linked
+  bytes, and the full ROM remain exact. Evidence: the exact resident
+  `func_80034920` display-list reset.
 
 ### Search fidelity and false floors
 
