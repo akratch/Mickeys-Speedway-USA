@@ -50,10 +50,10 @@ extern void mathOneFloatPY(s16 *rotation, f32 *vector);
  * replay isolate an upstream operand wall: C folds direction to pool + 0x18,
  * while retail retains particle + 0x10. A fidelity-gated CFE/uopt boundary
  * capture now proves that CFE emits the particle-derived chain and uopt folds
- * it to the pool-derived chain. The implicated copy, association, and alias
- * controls are flat; bypassing the mandatory copy-propagation stage aborts a
- * later compiler invariant. Preserve the natural 0x60 source absent a
- * single-substitution trace or a source-authentic lifetime barrier. */
+ * it to the pool-derived chain. A 2026-09-04 pass tested stride-cursor, nested
+ * direction, particle-wrapper, pool-header, two-step, and type-erased pointer
+ * forms; all are byte-identical, so none breaks that reassociation. Preserve
+ * the natural 0x60 source absent a non-constant-offset lifetime barrier. */
 #ifdef NON_MATCHING
 void func_overlay_038_F0000000_1885D10(O38Object *object,
                                        O38Descriptor *descriptor)
@@ -93,6 +93,6 @@ void func_overlay_038_F0000000_1885D10(O38Object *object,
  * frame: 0x60
  * relocations: 7
  * first-mismatch: +0x48
- * summary: A fidelity-gated pass-boundary capture proves CFE emits particle + 0x10 and uopt folds it to pool + 0x18; targeted copy/association/alias controls are flat.
+ * summary: Six sub-struct, header, two-step, and type-erased pointer forms are byte-flat. Uopt still folds particle +0x10 to pool +0x18.
  * PLATEAU-HANDOFF:func_overlay_038_F0000000_1885D10:end
  */
