@@ -1330,13 +1330,13 @@ confirmed by the paired writes in the following setter. The adapted type has a
 point-of-use `PROVENANCE` note, and the default flags, object words, and linked
 ROM range are exact without post-processing.
 
-`func_8003A2C8` remains guarded and exact-sized. Provenance-tied configured
-full-TU and generated isolated clean V0 are byte-identical at 24/32 raw and
-relocation-normalized words, first `+0x0`, with no frame or padding. Both carry
+`func_8003A2C8` remains guarded and exact-sized. The configured full-TU
+alias-backed mode-byte candidate matches 31/32 raw and relocation-normalized
+words, first `+0x14`, with no frame or padding. It carries
 the target's six HI16/LO16 records at `+0x00/+0x04`, `+0x24/+0x28`, and
-`+0x3C/+0x40` for `D_8007C090` and `D_800D3128`. All eight differences are
-register-only sites in the address, normalized-mode, and narrowed-byte carrier
-webs; no opcode or relocation mismatch remains.
+`+0x3C/+0x40` for `D_8007C090` and `D_800D3128`. The complete pool and temp
+lanes match; only the equality branch reads the narrowed v0 carrier instead of
+the target's v1 carrier.
 
 Exactly 119 configurations were retained. Thirteen O2/MIPS-II rows tie clean
 V0 and every other viable family regresses. A second full-TU pass reproduced
@@ -1344,12 +1344,12 @@ that lattice and used an instrumented proc-20 build whose `.text`, `.data`,
 `.rodata`, symbols, and relocations all pass the stock-toolchain fidelity gate.
 The trace separates the full mode, narrowed byte, state address, and comparison
 carrier webs. All six declaration orders, direct-global access, and a narrow-
-first split assignment are byte-flat. Full-first association emits 31
-instructions with relocation-identity drift, while sharing the byte carrier for
-both tests regresses to 13/32. The older 27/32 ranking row was generated from
-three inert constant-expression aids and remains diagnostic rather than
-promotable. With no strict natural gain, no combination or permutation batch
-was authorized. ORT 606 exports the function;
+first split assignment are byte-flat. A bounded permuter pass exposed the
+natural address alias plus refreshed-byte lifetime, improving seven words; its
+reseeded pass moved score 10 to 5 without reaching zero. Splitting the repeated
+mask regresses to 27/32, and the remaining single branch word is classified as
+an unreachable uopt coalescing tie without a forced-colour oracle. ORT 606
+exports the function;
 authenticated callers remain `func_80027EC0+0x80`,
 `overlay46ReleaseState+0x70`, and
 `func_overlay_060_F0000334_18BA10C+0x1238`. Exact ordinary-object, linked-
@@ -1431,17 +1431,16 @@ data-relocation words, object words, and linked ROM range are exact without
 post-processing.
 
 `func_8003A2C8` remains guarded `NON_MATCHING` over ROM `0x3AEC8..0x3AF48`.
-Provenance-tied configured full-TU and generated isolated policy-clean C agree
-at 24/32 raw and relocation-normalized words, first `+0x0`, with no frame or
-padding and all six relocations exact. Thirteen O2/MIPS-II configurations tie
-in the freshly repeated 119-row lattice; the rest regress. A fidelity-gated
-proc-20 trace confirms distinct full-mode, narrowed-byte, state-address, and
-comparison-carrier webs. Six declaration orders, direct-global access, and a
-narrow-first split assignment are flat; full-first association loses one
-instruction and relocation identity, and a shared byte carrier regresses to
-13/32. The stale five-difference ranking came from policy-invalid inert
-constant expressions. No source-faithful form gained, so no combination or
-permutation batch followed.
+The configured alias-backed candidate matches 31/32 raw and relocation-
+normalized words, first `+0x14`, with no frame or padding and all six
+relocations exact. Its complete pool and temp lanes match; the lone difference
+is the equality branch reading v0 instead of the target's v1. A ten-minute
+bounded sweep improved score 60 to 10 and exposed the natural alias/refreshed-
+byte form; a reseeded ten-minute sweep reached score 5 but no zero. The clean
+score-5 spelling remains 31/32, while splitting the repeated mask regresses to
+27/32. Earlier flags, trace, declaration, direct-global, width, and shared-byte
+forms remain closed; the last word is an unreachable uopt coalescing tie until
+a forced-colour oracle becomes available.
 Ordinary and linked exact output remains assembly fallback only. ORT 606 and
 exactly three callers are authenticated: resident `func_80027EC0+0x80`, Overlay
 46 `overlay46ReleaseState+0x70`, and Overlay 60

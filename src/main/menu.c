@@ -1175,36 +1175,34 @@ s32 frontGetScreenMode(void) {
 
 
 
-/* Allocation plateau (reproved 2026-08-29): provenance-tied configured full-TU
- * and generated isolated C agree at 24/32 raw and relocation-normalized words,
- * first +0x0, exact 0x80-byte frameless shape without padding, and six exact
- * relocations. Thirteen O2/MIPS-II rows tie in the 119-configuration lattice;
- * every other viable family regresses. A fidelity-gated proc-20 allocator
- * trace confirms the full mode, narrowed byte, state address, and comparison
- * carrier as distinct webs. All six declaration orders, direct-global access,
- * and narrow-first split assignment are flat. Full-first association emits 31
- * instructions with relocation drift; sharing the byte carrier for both tests
- * regresses to 13/32. No natural gain qualified for combination or permutation.
- * The stale 27/32 ranking row came from inert constant-expression aids and is
- * diagnostic only. ORT 606 and its three callers remain authenticated. Linked
- * equality proves fallback only; JFG's ordered peer is role evidence, not donor C. */
+/* Allocation plateau (reproved 2026-09-04): the alias-backed modeBits lifetime
+ * is exact-sized and matches 31/32 words, with first mismatch +0x14, no frame or
+ * padding, and all six relocations exact. Its complete pool and temp lanes match;
+ * only the equality branch reads v0 where the target reads v1. A ten-minute
+ * bounded sweep improved score 60 to 10, and the reseeded sweep reached 5 but
+ * no zero; the clean score-5 source remains 31/32. Splitting the repeated mask
+ * regresses to 27/32. Earlier flags, declaration orders, direct-global, width,
+ * and shared-carrier forms remain closed. ORT 606 and its three callers remain
+ * authenticated. Linked equality proves fallback only; JFG's ordered peer is
+ * role evidence, not donor C. */
 /* PROVENANCE: ordered accessor-family role compared with JFG's assembly-backed
  * src/menu.c::frontSetScreenMode; mask, guard, and packed fields are Mickey-derived. */
 void func_8003A2C8(s32 screenMode) {
+    u8 *modeBitPtr;
     u8 *modeState;
-    s32 mode;
     u8 modeBits;
 
     modeState = &D_8007C090;
-    mode = (modeBits = screenMode & 3);
-    if (*modeState != mode) {
+    modeBitPtr = &modeBits;
+    if (*modeState != (modeBits = screenMode & 3)) {
         D_8007C090 = screenMode & 3;
-        if (modeBits & 1) {
+        if (*modeBitPtr & 1) {
             D_800D3128.bits.modeBit0 = 1;
         } else {
             D_800D3128.bits.modeBit0 = 0;
         }
-        if ((screenMode & 3) & 2) {
+        modeBits = screenMode & 3;
+        if (modeBits & 2) {
             D_800D3128.bits.modeBit1 = 1;
         } else {
             D_800D3128.bits.modeBit1 = 0;
@@ -1346,11 +1344,11 @@ void func_8003A590(void) {
 
 /* PLATEAU-HANDOFF:func_8003A2C8:start
  * symbol: func_8003A2C8
- * score: 24/32 words
+ * score: 31/32 words
  * frame: frameless
  * relocations: 6
- * first-mismatch: +0x0
- * summary: eight register-only sites remain after 119 flags and a second trace-led natural-form pass
+ * first-mismatch: +0x14
+ * summary: Alias-backed modeBits lifetime fixes seven sites; only the comparison uses v0 instead of target v1. A reseeded 10-minute sweep stopped at score 5.
  * PLATEAU-HANDOFF:func_8003A2C8:end
  */
 
@@ -1373,4 +1371,3 @@ void func_8003A590(void) {
  * summary: Exact size and frame remain blocked by initial store and loop base web separation plus late address lifetime.
  * PLATEAU-HANDOFF:func_80038878:end
  */
-
