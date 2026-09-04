@@ -53,6 +53,14 @@ extern s16 gOverlay40BlendOutput;
  * The later exact comma-expression web-formation mechanism was re-proved in
  * three bounded forms: independent grouping regressed to 93/101, chained
  * grouping reproduced 98/101, and reversed grouping regressed to 83/101.
+ * A subsequent fidelity-clean CDX capture maps 21 allocator decisions to p2;
+ * target and candidate have equal 27-slot pool lanes and exact 34-slot temp
+ * lanes. Forcing the long-lived output web from v0 to v1 regresses to 88/101,
+ * while the dependent forces are declined or reproduce the same object. The
+ * target therefore needs the initial load/copy definition in another web, not
+ * another colour. The current-origin copy spelling is cfe-canonical and
+ * regresses to 85/101, so both colour forcing and that partition lever are
+ * exhausted.
  * Owned Overlay 40 +0x690..+0x824 / ROM 0x1886F40..0x18870D4 excludes separate
  * +0x824..+0x830 padding. ORT 1314 and resident runtime record 156 at
  * func_8000D978+0x130 authenticate the sole inbound trap site. Mickey-only;
@@ -125,6 +133,6 @@ void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
  * frame: 0x8
  * relocations: 10
  * first-mismatch: +0xC
- * summary: fidelity-clean COPYDEC ties the initial temp-copy edge to makelivranges; exhausted current-origin form leaves no natural probe
+ * summary: CDX force proves the three-word load/copy residual is not colour-reachable; a different copy-web partition is required
  * PLATEAU-HANDOFF:overlay40FadeRecords:end
  */
