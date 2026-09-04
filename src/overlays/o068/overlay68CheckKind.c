@@ -43,8 +43,10 @@ extern void overlay68FreeProbeReloc(void *probe);
  * change. The runtime table authenticates all nine target identities and the
  * object aligns all nine offsets/types; four static identities resolve while
  * five call proxies require an exact post-promotion linked proof. The residual
- * remains the cursor CFG/temp web; all 119 flag modes and the earlier bounded
- * batch remain exhausted.
+ * remains the cursor CFG/temp web. A 2026-09-04 one-shot structural pass made
+ * the zero-index cursor's byte offset and scale explicit; IDO emitted the same
+ * object, so the target's retained shift/pointer-add CFG remains unreachable.
+ * All 119 flag modes and the earlier bounded batch remain exhausted.
  */
 #ifdef NON_MATCHING
 s32 overlay68CheckKind(s32 kind) {
@@ -122,6 +124,6 @@ s32 overlay68CheckKind(s32 kind) {
  * frame: 0x48
  * relocations: 9
  * first-mismatch: +0x2C
- * summary: Split webs 42/0 lack source/home provenance; runtime target/shape 9/9, static identities 4/9, five proxies need exact linked promotion.
+ * summary: The authorized byte-offset cursor reshape is byte-identical. Baseline stays 70/80; the target zero-shift/pointer-add CFG has no source-supported lever.
  * PLATEAU-HANDOFF:overlay68CheckKind:end
  */
