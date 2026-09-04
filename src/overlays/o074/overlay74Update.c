@@ -19,86 +19,77 @@ typedef struct Overlay74UpdateObject {
     Overlay74UpdateState *state;
 } Overlay74UpdateObject;
 
+typedef struct Overlay74HitState {
+    s8 strength;
+} Overlay74HitState;
+
+typedef struct Overlay74HitObject {
+    u8 pad00[0x10];
+    f32 y;
+    u8 pad14[0x50];
+    Overlay74HitState *state;
+} Overlay74HitObject;
+
 extern u32 gOverlay74Flags;
 
 /* Runtime identities: func_8005776C, func_800291B4, amSndPlay, func_8003A680.
  * Resident call surfaces authenticate these prototypes. */
 s32 overlay74QueryReloc(f32 x, f32 y, s32 z, f32 strength, s32 enabled,
-                        Overlay74UpdateObject **results);
+                        Overlay74HitObject **results);
 void overlay74HitReloc(void);
 void overlay74SoundReloc(u16 soundId, void **handle);
 void overlay74RewardReloc(s32 count);
 
-/* NON_MATCHING plateau (reproved 2026-08-31): policy-clean configured C is
- * exact-sized at 100 words with all eight required relocation offsets/types,
- * but differs in 39 relocation-masked words from +0x0 and uses a 0x70 frame
- * instead of the target's 0x60. The extra 16 non-save bytes shift the result
- * array and cascade through the integer pool/temp register assignments. All
- * 119 flag-lattice rows were attempted; the 53 supported configurations
- * compile, canonical -O2 -mips2 -32 is best, and the remaining rows are
- * rejected by the compiler/driver before code generation. Reversing the outer
- * OR at +0x124 is byte-identical to V0. The source keeps the authenticated
- * resident ABIs, natural 13-pointer hit array, and integer carriers. Its eight
- * offsets/types agree with the retained runtime records,
- * including both gOverlay74Flags pairs resolved through reserved selector
- * 0xFFF/addend 0x4D6E8 to D_800D3128; the assembled target retains only four
- * static call relocations. Exact pinned DKR v77/v80/JFG range scans found no
- * donor; no attributable near-match oracle survives.
- * Historical forced-color and permuter scores have no surviving attributable
- * variant objects and remain scheduling context only. A fresh bounded lexical-
- * lifetime pass moved the result array into the outer conditional, moved the
- * late count/flagBits/mask carriers into their use block, and combined both
- * changes. All three probes were byte-flat at 61/100 exact positional words,
- * with the same 0x70 frame, 39 residual words from +0x0, and all eight
- * relocation offsets/types preserved. The bounded clean-source route is
- * exhausted; linked equality proves the assembly fallback only. */
+/* NON_MATCHING plateau: Mickey's resident ABI evidence and a bounded producer-
+ * lifetime reconstruction recover the exact 100-word schedule, 0x60 frame,
+ * stack homes, and integer/FP register webs. The configured C is 99/100 words;
+ * its only ordinary difference is the commutative OR at +0x124. A linked
+ * promotion trial reports one in-range word and no outside differences. */
 #ifdef NON_MATCHING
 /* PLATEAU-HANDOFF
  * symbol: overlay74Update
- * score: 61/100 words
- * frame: 0x70
+ * score: 99/100 words
+ * frame: 0x60
  * relocations: 8
- * first-mismatch: +0x0
- * summary: Target frame is 0x60; outer-array, late-carrier, and combined lexical scopes are byte-flat, leaving the 16-byte frame/lifetime blocker.
+ * first-mismatch: +0x124
+ * summary: Exact frame and register webs; only the commutative OR operand order differs after bounded source forms.
  */
 void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
-    Overlay74UpdateObject *results[13];
-    Overlay74UpdateObject *hitObject;
+    Overlay74HitObject *results[13];
     f32 delta;
     Overlay74UpdateState *state;
-    s32 flagBits;
-    s32 count;
-    s32 mask;
+    Overlay74HitObject *hitObject;
 
     if (!(object->flags & 0x400)) {
         object->angle += amount << 8;
         state = object->state;
         if (overlay74QueryReloc(object->x, object->y, object->z,
-                                (f32)state->strength, 1, results) > 0) {
+                                (f32)state->strength, 1, results) != 0) {
             hitObject = results[0];
+            amount = (s32)hitObject->state;
             delta = hitObject->y - object->y;
-            if ((hitObject->state->strength == 0) &&
+            if ((((Overlay74HitState *)amount)->strength == 0) &&
                 ((f32)state->minimum < delta) &&
                 (delta < (f32)state->maximum)) {
                 object->flags |= 0x400;
                 *(u16 *)&gOverlay74Flags =
-                    (*(u16 *)&gOverlay74Flags & 0xF87F) |
                     ((((((gOverlay74Flags << 5) >> 28) |
-                        (1 << state->channel)) << 1) << 6) & 0x780);
+                        (1 << state->channel)) << 1) << 6) & 0x780) |
+                    (*(u16 *)&gOverlay74Flags & 0xF87F);
                 overlay74HitReloc();
                 overlay74SoundReloc(0x27C, 0);
 
-                count = 5;
-                flagBits = (gOverlay74Flags << 5) >> 28;
-                mask = 8;
+                object = (Overlay74UpdateObject *)5;
+                state = (Overlay74UpdateState *)((gOverlay74Flags << 5) >> 28);
+                hitObject = (Overlay74HitObject *)8;
                 do {
-                    if (flagBits & mask) {
-                        count++;
+                    if ((s32)state & (s32)hitObject) {
+                        object = (Overlay74UpdateObject *)((s32)object + 1);
                     }
-                    mask >>= 1;
-                } while (mask != 0);
-                if (count >= 6) {
-                    overlay74RewardReloc(count);
+                    hitObject = (Overlay74HitObject *)((s32)hitObject >> 1);
+                } while (hitObject != NULL);
+                if ((s32)object >= 6) {
+                    overlay74RewardReloc((s32)object);
                 }
             }
         }
