@@ -2487,7 +2487,7 @@ func_8003484C = 0x8003484C; // type:func size:0x54 ROM 0x3544C tier-D frame-exac
 func_800348C8 = 0x800348C8; // type:func size:0xC ROM 0x354C8 canonical C, linked byte-identical, JFG-src/textures.c-setTexMemColour body, Mickey address label retained
 func_800348D4 = 0x800348D4; // type:func size:0x3C ROM 0x354D4 canonical C, linked byte-identical, JFG-src/textures.c-texFrame body adapted to Mickey fields, address label retained
 func_80034910 = 0x80034910; // type:func size:0x10 ROM 0x35510 canonical C, linked byte-identical, Mickey texture-state setter, address label retained
-func_80034920 = 0x80034920; // type:func size:0x84 ROM 0x35520 tier-D frame-exact NON_MATCHING candidate, JFG-src/textures.c-texDPInit state reset adapted to Mickey globals
+func_80034920 = 0x80034920; // type:func size:0x84 ROM 0x35520 tier-D matched C src/main/textures_354C8.c.o -O2 -mips2 -32, JFG-src/textures.c-texDPInit body plus Mickey-authenticated G_FOG and null guard, linked exact=33/33
 func_800349A4 = 0x800349A4; // type:func size:0x440 ROM 0x355A4 tier-D frame-exact NON_MATCHING candidate, JFG src/textures.c-texDPTextureX assembly donor
 func_80034DE4 = 0x80034DE4; // type:func size:0xC ROM 0x359E4 canonical C, linked byte-identical, JFG-src/textures.c-sprSetTextureFilter body, Mickey address label retained
 func_80034DF0 = 0x80034DF0; // type:func size:0x58 ROM 0x359F0 canonical C, linked byte-identical, JFG-src/textures.c-sprSetIA2ColOverride body, Mickey address label retained

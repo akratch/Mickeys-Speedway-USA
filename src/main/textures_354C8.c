@@ -1,5 +1,5 @@
 #include "PR/ultratypes.h"
-#include "n_audio/gbi.h"
+#include "n_audio/mbi.h"
 
 /*
  * PROVENANCE: the texture-TU order and direct helper bodies below were
@@ -75,10 +75,7 @@ void func_80034910(void) {
     D_8007BD8C = 1;
 }
 
-#ifdef NON_MATCHING
 void func_80034920(Gfx **dlist) {
-    Gfx *cmd;
-
     D_8007BD90 = 0;
     D_800D3024 = 0;
     D_800D3028 = 0;
@@ -87,20 +84,11 @@ void func_80034920(Gfx **dlist) {
     D_800D3030 = 1;
     D_800D3034 = 1;
     if (dlist != NULL) {
-        cmd = *dlist;
-        cmd->words.w0 = 0xE7000000U;
-        cmd->words.w1 = 0;
-        *dlist = cmd + 1;
-        cmd = *dlist;
-        cmd->words.w0 = 0xB7000000U;
-        cmd->words.w1 = 0x00010205U;
-        *dlist = cmd + 1;
+        gDPPipeSync((*dlist)++);
+        gSPSetGeometryMode((*dlist)++, G_FOG | G_SHADING_SMOOTH | G_SHADE | G_ZBUFFER);
     }
     D_8007BD8C = 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80034920.s")
-#endif
 
 #ifdef NON_MATCHING
 /* JFG names this as texDPTextureX.  Keep the state transition visible while
