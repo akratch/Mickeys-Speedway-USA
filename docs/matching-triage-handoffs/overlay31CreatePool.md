@@ -6,5 +6,5 @@
 - frame: 0x30
 - relocations: 4
 - first mismatch: +0x0
-- summary: Exact siblings prove gOverlay31Configs only; opaque 0x40 data has no +0x10 owner/symbol, so D_10 remains unauthenticated; next lever is a canonical data split.
+- summary: Naming the final slot count is byte-identical; CFE erases it before frame layout. Baseline stays 37/50 with target frame 0x38 vs candidate 0x30.
 <!-- plateau-handoff:overlay31CreatePool:end -->

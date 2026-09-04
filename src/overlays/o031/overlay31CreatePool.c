@@ -23,6 +23,8 @@ extern void *D_10;
  * skeleton remains JFG overlay 26 +0xF1C (0.727), itself GLOBAL_ASM. Natural
  * size-local, prototype, declaration-order, cast, assignment, and indexed-loop
  * spellings did not close the allocator gap; fabricated dead webs were rejected.
+ * A 2026-09-04 one-shot final slot-count local is byte-identical, proving CFE
+ * erases that declaration before it can supply the missing frame quantum.
  */
 #ifdef NON_MATCHING
 Overlay31PoolRecord *overlay31CreatePool(s32 count) {
@@ -73,6 +75,6 @@ Overlay31PoolRecord *overlay31CreatePool(s32 count) {
  * frame: 0x30
  * relocations: 4
  * first-mismatch: +0x0
- * summary: Exact siblings prove gOverlay31Configs only; opaque 0x40 data has no +0x10 owner/symbol, so D_10 remains unauthenticated; next lever is a canonical data split.
+ * summary: Naming the final slot count is byte-identical; CFE erases it before frame layout. Baseline stays 37/50 with target frame 0x38 vs candidate 0x30.
  * PLATEAU-HANDOFF:overlay31CreatePool:end
  */
