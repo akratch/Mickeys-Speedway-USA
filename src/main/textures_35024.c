@@ -73,6 +73,16 @@ void func_800347A0(TextureHeader *tex) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_35024/func_800347A0.s")
 #endif
+/* Bounded full-TU reproof (2026-09-04): configured C is exact-sized and
+ * frameless at 11/21 words, first +0x8, with four resolved static relocation
+ * identities; three retain the target offset/type. The target keeps the
+ * texture argument in a0 and computes each cache entry in a2, while V0 copies
+ * the argument to a2 and uses a0 for the entry. Ten natural loop, declaration,
+ * parameter-type, and pointer-lifetime forms were tested. Direct indexing
+ * shrank to 19 instructions, explicit early exit grew to 23, a named cache
+ * base worsened allocation, and the remaining forms were byte-identical to V0
+ * (SHA-1 b7a49009e2a8). Preserve the fallback pending a new natural
+ * parameter-versus-entry allocation mechanism. */
 #ifdef NON_MATCHING
 s32 func_8003484C(void *texture) {
     s32 i = 0;
@@ -88,6 +98,15 @@ s32 func_8003484C(void *texture) {
     }
     return -1;
 }
+/* PLATEAU-HANDOFF:func_8003484C:start
+ * symbol: func_8003484C
+ * score: 11/21 words
+ * frame: frameless
+ * relocations: 4
+ * first-mismatch: +0x8
+ * summary: Ten natural forms leave the original exact-sized loop best; its texture argument and computed-entry register roles remain reversed.
+ * PLATEAU-HANDOFF:func_8003484C:end
+ */
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_35024/func_8003484C.s")
 #endif
