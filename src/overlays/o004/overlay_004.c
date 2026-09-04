@@ -34,7 +34,7 @@ void overlay4UpdateObjectMotion(Overlay4MotionObject *object, s32 updateRate) {
     Overlay4PositionOwner *positionOwner;
     Overlay4Spawned *spawned;
     Overlay4SpawnState *spawnState;
-    s32 delta;
+    s16 delta;
     s32 timer;
 
     motion = object->motion;
@@ -54,15 +54,15 @@ void overlay4UpdateObjectMotion(Overlay4MotionObject *object, s32 updateRate) {
         }
         break;
     case 1:
-        delta = (s16)func_8002AA0C(object->angle, motion->targetAngle);
+        delta = func_8002AA0C(object->angle, motion->targetAngle);
         if (delta <= config->threshold && delta >= -config->threshold) {
             motion->targetAngle = func_8002997C(-0x8000, 0x7FFF);
             motion->trigger = 1;
         } else {
-            delta = func_8002AA0C(object->angle, motion->targetAngle);
             motion->increment +=
-                func_80029274(delta, motion->increment,
-                              (f32)config->threshold);
+                func_80029274(func_8002AA0C(object->angle,
+                                            motion->targetAngle),
+                              motion->increment, (f32)config->threshold);
         }
         break;
     }
@@ -278,10 +278,10 @@ void overlay4FindSearchPosition(f32 *outX, f32 *outZ,
 
 /* PLATEAU-HANDOFF:overlay4UpdateObjectMotion:start
  * symbol: overlay4UpdateObjectMotion
- * score: 222/230 words
+ * score: 227/230 words
  * frame: 0x60
  * relocations: 11
  * first-mismatch: +0x44
- * summary: Linked proof closes all 11 runtime identities, including Overlay 36; pinned Ucode has no source semantic for the two tied allocator webs.
+ * summary: Typing delta s16 moves the truncation from an expression cast to a store, renumbering the tied pair and closing both threshold webs. The last three words are the switch selector, unreachable by colour.
  * PLATEAU-HANDOFF:overlay4UpdateObjectMotion:end
  */
