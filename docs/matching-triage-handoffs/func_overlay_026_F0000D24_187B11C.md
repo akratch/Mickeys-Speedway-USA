@@ -2,9 +2,9 @@
 ### `func_overlay_026_F0000D24_187B11C` plateau handoff
 
 - source: `src/overlays/o026/overlay26HandleEffects.c`
-- score: 230/269 words
-- frame: 0x48
+- score: 258/269 words
+- frame: target 0x48; candidate 0x50
 - relocations: 23
-- first mismatch: +0x24
-- summary: fidelity-clean proc-0 trace found 29 uopt decisions but no target stack-home evidence; reopen only for a natural stack-home mechanism
+- first mismatch: +0x0
+- summary: all body homes/registers exact; resume only with a natural eight-byte frame-accounting reduction that preserves the mode-carrier allocation shift
 <!-- plateau-handoff:func_overlay_026_F0000D24_187B11C:end -->
