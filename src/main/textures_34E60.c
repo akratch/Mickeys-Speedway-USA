@@ -8,7 +8,6 @@
 
 extern s32 D_8007BD90;
 
-#ifdef NON_MATCHING
 typedef struct TextureRomTable {
     s32 *first;
     s32 *second;
@@ -31,15 +30,7 @@ extern s32 D_800D3008;
 extern s32 *D_800D301C;
 
 void func_80034260(void) {
-    s32 *temp_v0;
-    s32 *var_v0;
-    s32 *var_v0_2;
-    s32 temp_t3;
-    s32 temp_t7;
-    s32 temp_t9;
-    s32 var_v1;
-    s32 var_v1_2;
-    s32 var_v1_3;
+    s32 i;
 
     D_800D2FD8 = func_8002B280(0x15E0, 0x90);
     D_800D2FDC = func_8002B280(0x280, 0x90);
@@ -47,47 +38,25 @@ void func_80034260(void) {
     D_800D2FF0 = 0;
     D_800D2FD0.first = piRomLoad(3);
     D_800D2FD0.second = piRomLoad(1);
-    var_v1 = 0;
-    if (D_800D2FD0.first != NULL && D_800D2FD0.first[0] != -1) {
-        var_v0 = D_800D2FD0.first;
-        do {
-            temp_t7 = *((s32 *)((u8 *)var_v0 + 4));
-            var_v1++;
-            var_v0 = (s32 *)((u8 *)var_v0 + 4);
-        } while (temp_t7 != -1);
+    i = 0;
+    for (; D_800D2FD0.first[i] != -1; i++) {
     }
-    D_800D2FE8[0] = var_v1 - 1;
-    var_v1_2 = 0;
-    var_v0_2 = D_800D2FD0.second;
-    if (D_800D2FD0.second != NULL && D_800D2FD0.second[0] != -1) {
-        do {
-            temp_t9 = *((s32 *)((u8 *)var_v0_2 + 4));
-            var_v1_2++;
-            var_v0_2 = (s32 *)((u8 *)var_v0_2 + 4);
-        } while (temp_t9 != -1);
+    D_800D2FE8[0] = --i;
+    for (i = 0; D_800D2FD0.second[i] != -1; i++) {
     }
-    D_800D2FE8[1] = var_v1_2 - 1;
+    D_800D2FE8[1] = --i;
     D_800D2FFC = func_8002B280(0x320, 0x90);
     D_800D3000 = func_8002B280(0x200, 0x90);
     D_800D3008 = 0;
-    temp_v0 = piRomLoad(0x16);
-    D_800D2FF8 = temp_v0;
+    D_800D2FF8 = piRomLoad(0x16);
     D_800D3004 = 0;
-    var_v1_3 = 0;
-    if (temp_v0 != NULL && temp_v0[0] != -1) {
-        do {
-            temp_t3 = var_v1_3 + 1;
-            D_800D3004 = temp_t3;
-            var_v1_3 = temp_t3;
-        } while (temp_v0[var_v1_3] != -1);
+    while (D_800D2FF8[D_800D3004] != -1) {
+        D_800D3004++;
     }
-    D_800D3004 = var_v1_3 - 1;
+    D_800D3004--;
     D_800D301C = func_8002B280(0x28, 0x90);
     D_800D2FF4 = 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/textures_34E60/func_80034260.s")
-#endif
 
 void func_800343F0(s32 flags) {
     D_8007BD90 |= flags;
