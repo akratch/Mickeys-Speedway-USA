@@ -53,11 +53,10 @@ extern void func_overlay_045_F0001BF4_188E04C(void *handle, s32 value);
 extern void func_overlay_066_F0000000(void *arg0);
 
 /* Workbench: structure-mismatch, exact 267 instructions/frame; 227 masked/231 raw words differ, first +0x4.
- * Indexed D_1CC access left the same saved-s0 cursor allocation; case scoping, lattice, and bounded permuter remain eliminated.
- * Remains: target keeps the cursor in a stack home without s0; candidate register/schedule webs still diverge. */
+ * Reusing menuInput as the D_1CC cursor moves status/index/sub to the target 0x2C/0x3C/0x34 stack homes.
+ * The linked trial aligns 51/79 relocation sites, then stops on ROM size; target still spills the cursor without s0. */
 #ifdef NON_MATCHING
 void func_overlay_011_F00022E8_186AB30(s32 updateRate) {
-    void **handle;
     s32 index;
     s8 direction;
     O11ObjectSub *sub;
@@ -88,9 +87,10 @@ void func_overlay_011_F00022E8_186AB30(s32 updateRate) {
         }
     }
 
-    for (handle = D_1CC, index = 1; index < 6; handle++, index++) {
+    for (menuInput = (volatile s32 *)D_1CC, index = 1; index < 6;
+         menuInput++, index++) {
         value = (index == D_1BC) ? D_1B8 : 0;
-        func_overlay_045_F0001BF4_188E04C(*handle, value);
+        func_overlay_045_F0001BF4_188E04C(*(void **)menuInput, value);
     }
 
     menuInput = (volatile s32 *)(D_menuBase + 0x1C4);
@@ -204,6 +204,6 @@ void func_overlay_011_F00022E8_186AB30(s32 updateRate) {
  * frame: 0x40
  * relocations: 79
  * first-mismatch: +0x4
- * summary: Fresh exact-size V0 has 231 raw/227 masked diffs, frame 0x40; candidate 79 vs target 39 text relocs, with call-proxy identity ambiguous.
+ * summary: Exact-size V0 remains 231 raw/227 masked diffs; cursor reuse fixes all three declared stack homes, while the saved-s0 web remains. Linked trial aligns 51/79 sites before a ROM-size stop.
  * PLATEAU-HANDOFF:func_overlay_011_F00022E8_186AB30:end
  */
