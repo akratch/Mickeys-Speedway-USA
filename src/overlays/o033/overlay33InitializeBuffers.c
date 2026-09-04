@@ -16,12 +16,12 @@ extern s32 overlay33InitializeBufferReloc(s32 *context, s32 *status, s32 mode);
 extern void overlay33AllocationFailedReloc(void);
 
 /*
- * Plateau (2026-08-30): using the preserved pre-alignment value for both the
- * test and mask improves the exact-sized 81-word, 0x38-frame body from 14 to
- * 6 relocation-masked differences. The first codegen mismatch is +0x74; the
- * remaining blocker is a store/branch/copy scheduling cluster and one
- * commutative addition order. All 25 fallback relocation sites align by
- * offset/type, but their LOCAL/data identities remain unauthenticated.
+ * Plateau (2026-09-04): the exact-sized 81-word, 0x38-frame candidate is
+ * 75/81 words with six relocation-masked differences. A fidelity-clean as1
+ * trace finds two line-key decisions, both in already-exact blocks; the
+ * store/branch/copy cluster is instead decided by besttime. Both relevant
+ * line joins and the addition commutation are byte-flat; declaration changes
+ * are flat/regressing, and all 25 relocation offsets/types align.
  */
 #ifdef NON_MATCHING
 void overlay33InitializeBuffers(void) {
@@ -75,6 +75,6 @@ void overlay33InitializeBuffers(void) {
  * frame: 0x38
  * relocations: 25
  * first-mismatch: +0x74
- * summary: Exact allocator lanes; six positional differences remain: store/branch/copy at +0x74 and one add order. Fallback has 25 sites, zero identities.
+ * summary: The two as1 line-key decisions are outside the residual. Both line joins and the operand swap are flat, while declaration order is flat or regressing.
  * PLATEAU-HANDOFF:overlay33InitializeBuffers:end
  */
