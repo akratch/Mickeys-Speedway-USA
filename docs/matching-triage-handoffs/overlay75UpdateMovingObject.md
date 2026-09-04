@@ -6,5 +6,5 @@
 - frame: 0x58
 - relocations: 20
 - first mismatch: +0x54
-- summary: threshold +4 addend is fixed; prologue initializer lifetime and candidate relocation identities remain
+- summary: Retained-initializer reshape exhausted: after-exit forms add one branch-likely/cache load; exact-size 285/304 baseline remains best.
 <!-- plateau-handoff:overlay75UpdateMovingObject:end -->
