@@ -63,23 +63,28 @@ extern void func_8003EDEC(O26ObjectD24 *object, s32 mode);
 extern void func_80002FE0(s32 id, f32 x, f32 y, f32 z,
                           s32 priority, s32 unused);
 
-/* PLATEAU (2026-08-26): workbench allocation-mismatch; 39/269 words differ, first +0x50.
- * Flag lattice, local declaration/order, aggregate/array, and scope probes left the 4-byte allocation web unchanged.
- * Exact size/frame remain; target locals sit one 4-byte slot higher and 23 relocation identities differ. */
+/* PLATEAU (2026-09-04): workbench operand-mismatch; 11/269 words differ, first +0x0.
+ * A mode carrier, scalar declaration order, and first angle-store order make every in-body
+ * stack home and register exact.  The candidate frame is 0x50 versus target 0x48; all
+ * residual words are the prologue/epilogue and incoming-mode home.  The 119-flag lattice
+ * is nonexact; removing the object alias cancels the home gain, while state removal and
+ * block-scoped effect cursors regress structurally. */
 #ifdef NON_MATCHING
 void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
     O26ObjectD24 *object;
     O26StateD24 *state;
+    s32 flags;
     O26EffectRecord *effect;
     O26Angles2 angles;
-    s16 elevation;
     s16 azimuth;
+    s16 elevation;
 
     object = objectArg;
     state = object->state;
-    if (mode & 1) {
+    flags = mode;
+    if (flags & 1) {
         func_80006EA0(object);
-    } else if (mode & 2) {
+    } else if (flags & 2) {
         azimuth = func_8002A910(state->sourceDirection.x,
                                state->sourceDirection.z);
         elevation = func_8002A910(
@@ -87,8 +92,8 @@ void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
                   (state->sourceDirection.x * state->sourceDirection.x)),
             state->sourceDirection.y);
 
-        angles.y = elevation + 0x3000;
         angles.x = azimuth;
+        angles.y = elevation + 0x3000;
         effect = &state->effects[0];
         effect->direction.x = 0.0f;
         effect->direction.y = 0.0f;
@@ -169,15 +174,15 @@ void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
         state->active30 = 1;
     }
 
-    if (mode & 4) {
+    if (flags & 4) {
         object->active80 |= 2;
         func_8003EDEC(object, 1);
     }
-    if (mode & 8) {
+    if (flags & 8) {
         func_80002FE0(0x278, object->position.x, object->position.y,
                       object->position.z, 4, 0);
     }
-    if (mode & 0x10) {
+    if (flags & 0x10) {
         func_80002FE0(0x27A, object->position.x, object->position.y,
                       object->position.z, 4, 0);
     }
@@ -190,10 +195,10 @@ void func_overlay_026_F0000D24_187B11C(O26ObjectD24 *objectArg, s32 mode) {
 
 /* PLATEAU-HANDOFF:func_overlay_026_F0000D24_187B11C:start
  * symbol: func_overlay_026_F0000D24_187B11C
- * score: 230/269 words
- * frame: 0x48
+ * score: 258/269 words
+ * frame: target 0x48; candidate 0x50
  * relocations: 23
- * first-mismatch: +0x24
- * summary: fidelity-clean proc-0 trace found 29 uopt decisions but no target stack-home evidence; reopen only for a natural stack-home mechanism
+ * first-mismatch: +0x0
+ * summary: all body homes/registers exact; resume only with a natural eight-byte frame-accounting reduction that preserves the mode-carrier allocation shift
  * PLATEAU-HANDOFF:func_overlay_026_F0000D24_187B11C:end
  */
