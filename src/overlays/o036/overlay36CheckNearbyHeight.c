@@ -43,7 +43,12 @@ extern Overlay36WorldState *gOverlay36WorldStateReloc;
  * allocation; direct center access remains 0x80 and changes FP allocation;
  * removing both still stops at 0x78 and combines both regressions. The second
  * aligned eight-byte quantum therefore needs a producer mechanism that keeps
- * the exact integer/FP web topology. The relocation synthesizer derives the
+ * the exact integer/FP web topology. A 2026-09-04 declared-local/carrier pass
+ * tested ten current-canonical forms: removing the state home, inlining one or
+ * both height bounds, direct nearby reads, and reusing the center as a bound.
+ * The reduced forms either remain at 0x80 or bottom out at 0x78 while adding
+ * structural/register drift; none reaches the target's 0x70 frame with the
+ * baseline's exact register lanes. The relocation synthesizer derives the
  * unresolved overlay-data pair consistently as LOCAL value 0x150; assembly
  * fallback stays canonical. */
 
@@ -109,6 +114,6 @@ void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
  * frame: 0x80
  * relocations: 3
  * first-mismatch: +0x0
- * summary: Fresh V0 is exact-sized at 56/63 normalized words with identical register lanes and all three runtime identities exact; its 0x80 frame remains 0x10 above target. The pinned producer emits no authenticated final-home field, so the exhausted frame ladder has no new source lever.
+ * summary: Ten declared-local and carrier forms cannot remove the second frame quantum without drift. The exact-lane baseline remains 0x80 versus target 0x70.
  * PLATEAU-HANDOFF:func_overlay_036_F0000818_1883CD0:end
  */
