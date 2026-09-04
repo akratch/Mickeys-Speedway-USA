@@ -20,9 +20,13 @@ extern void func_overlay_017_F0000000_18739B8(Overlay17Chain *chain,
                                                f32 *x0, f32 *y0, f32 *z0,
                                                f32 *x1, f32 *y1, f32 *z1);
 
-/* Workbench: structure-mismatch, 51 raw differences / 96 of 147 words match, first +0x18.
- * Instruction count, frame, and relocation are exact; pre-call buffer-copy scheduling remains divergent.
- * Candidate is not permuter-ready; the fallback remains canonical. */
+/* Workbench: structure-mismatch, 51 raw differences / 96 of 147 words match,
+ * first +0x18. Instruction count, frame, and the sole relocation are exact.
+ * The 2026-09-04 lever pass found the candidate pool lane one web longer than
+ * retail. Removing the short-lived newBuffer declaration and repeating the
+ * source-authentic `(u8)(oldBuffer ^ 1)` expression compiled byte-identically
+ * to this retained body, so that web is commoned before the missing decision.
+ * Pre-call buffer-copy scheduling remains divergent; the fallback is canonical. */
 #ifdef NON_MATCHING
 void overlay17AdvanceChain(Overlay17Chain *chain, s32 useAlpha) {
     u8 *writeCursor;
@@ -103,6 +107,6 @@ void overlay17AdvanceChain(Overlay17Chain *chain, s32 useAlpha) {
  * frame: 0x70
  * relocations: 1
  * first-mismatch: +0x18
- * summary: 147 instructions/frame and relocation exact; pre-call buffer-copy scheduling remains structurally divergent
+ * summary: Removing the named newBuffer web is byte-flat; exact 147-word/frame/relocation geometry still leaves 51 pre-call copy-schedule differences.
  * PLATEAU-HANDOFF:overlay17AdvanceChain:end
  */
