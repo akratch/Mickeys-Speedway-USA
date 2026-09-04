@@ -6,5 +6,5 @@
 - frame: 0x138
 - relocations: 5
 - first mismatch: +0x38
-- summary: one current-byte/classification web and newline lowering remain after 119 flags, one trace, and two flat/regressing natural forms
+- summary: fresh diagnosis reports no known lever for the five-site current-byte web and two newline words, so the lever-only reopen has no authorized source edit
 <!-- plateau-handoff:debug_text_width:end -->
