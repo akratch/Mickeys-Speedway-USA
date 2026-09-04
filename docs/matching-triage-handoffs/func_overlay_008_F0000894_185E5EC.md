@@ -6,5 +6,5 @@
 - frame: 0x70
 - relocations: 48
 - first mismatch: +0x6C
-- summary: Exact geometry/frame and 48 relocation sites; flags and bounded permutation exhausted; first substantive allocator drift +0x428.
+- summary: Linked trial proves 48 in-range/zero out-of-range words; ten 0.8.0-guided tail reshapes are nonexact, so resume only with a new temp-slot-54/pool-slot-64 web mechanism.
 <!-- plateau-handoff:func_overlay_008_F0000894_185E5EC:end -->

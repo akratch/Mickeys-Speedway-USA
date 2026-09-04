@@ -236,9 +236,13 @@ void func_overlay_008_F0000058_185DDB0(O8P0058Owner *owner,
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0000058_185DDB0.s")
 #endif
 
-/* Workbench verdict=allocation-mismatch; 48 masked/57 raw words differ in the exact 381-word/-0x70 frame, first register mismatch +0x428.
- * Flag lattice, arm ordering, widened mask, and the bounded -mips2 permuter were tried; context lint found no undefined guard.
- * Remains: exact FP lanes but GPR temp slot 54/pool slot 64 allocation and 46 overlay relocation identities. */
+/* PLATEAU (2026-09-04): allocation-mismatch; 48 masked/57 raw words differ in
+ * the exact 381-word/0x70 frame, with the first substantive mismatch at +0x428.
+ * A linked trial reports in=48/out=0, proving that nine raw-only differences are
+ * relocation addends.  The flag lattice, arm ordering, widened mask, bounded
+ * permuter, and ten direct/mixed/scoped/alias tail forms are nonexact; direct
+ * compound assignments regress to 56 masked differences.  The FP lanes remain
+ * exact; resume only with a new natural temp-slot-54/pool-slot-64 web mechanism. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0000894_185E5EC(O8Owner *owner, O8State *state,
                                        s32 updateRate) {
@@ -2439,7 +2443,7 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * frame: 0x70
  * relocations: 48
  * first-mismatch: +0x6C
- * summary: Exact geometry/frame and 48 relocation sites; flags and bounded permutation exhausted; first substantive allocator drift +0x428.
+ * summary: Linked trial proves 48 in-range/zero out-of-range words; ten 0.8.0-guided tail reshapes are nonexact, so resume only with a new temp-slot-54/pool-slot-64 web mechanism.
  * PLATEAU-HANDOFF:func_overlay_008_F0000894_185E5EC:end
  */
 
