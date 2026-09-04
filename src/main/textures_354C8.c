@@ -31,7 +31,7 @@ typedef struct TextureFrameHeader {
     u8 pad00[2];
     u8 format;
     u8 pad03;
-    u16 flags;
+    s16 flags;
     u16 width;
     u16 height;
     u8 pad0A[4];
@@ -229,10 +229,15 @@ void func_80035ADC(u8 *sprite, u8 *frame, s32 offset) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80035ADC.s")
 #endif
-#ifdef NON_MATCHING
+/* PROVENANCE: body adapted from Jet Force Gemini's public
+ * src/textures.c::func_80057B8C; Mickey's fields, calls, and compiled bytes
+ * remain authoritative. The donor's empty condition is retained because it
+ * advances IDO's temporary FIFO without emitting an instruction. */
 void func_80035E88(TextureFrameHeader *tex, Gfx *displayList) {
     Gfx *dlist = displayList;
 
+    if (tex) {
+    }
     tex->cmd = dlist;
     func_80035F48((u8 **)&dlist, (u8 *)tex, 0, 0);
     if (tex->unk1B < 2 && (tex->flags & 0x40)) {
@@ -245,9 +250,6 @@ void func_80035E88(TextureFrameHeader *tex, Gfx *displayList) {
     }
     tex->numberOfCommands = dlist - tex->cmd;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80035E88.s")
-#endif
 #ifdef NON_MATCHING
 /* The m2c reconstruction keeps the target's byte-oriented command cursor
  * and stack temporary layout.  The display-list command words are expressed
