@@ -3130,9 +3130,14 @@ extern s32 gOverlay1PoolExhausted;
  * gain and leaves one extra result.x reload. The old 84-word diagnostic used
  * a conflicting wide call prototype and never compiled as a full TU; an
  * explicit call cast lowers indirectly and is inadmissible. Earlier guarded
- * candidates shift this symbol +0xF8, so preflight also refuses static
- * relocation ownership. Resume with an authentic call-prototype/TU-boundary
- * model or allocator evidence for retaining result.x in the argument lane. */
+ * candidates currently shift this symbol +0xFC, so preflight refuses static
+ * relocation ownership. A later size-near pass re-proved the one-instruction
+ * surplus: narrow and wide carriers add two instructions, a ternary adds
+ * three, and operand, line, goto, and reused-local forms are flat. The callee
+ * target explicitly sign-extends its two s16 arguments, ruling out a shared
+ * wide prototype. Resume only with evidence for an original no-prototype/TU
+ * boundary, or allocator evidence for retaining result.x in the argument
+ * lane. */
 #ifdef NON_MATCHING
 s32 overlay1AdvancePath(Overlay1PathState *state) {
     s16 currentX;
@@ -3355,7 +3360,7 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * frame: 0x58
  * relocations: 22
  * first-mismatch: +0x10
- * summary: All 119 flags and bounded forms are nonexact; one result.x reload remains. Resume with an authentic wide-call/TU-boundary model or allocator evidence.
+ * summary: Size-near pass confirms one extra result.x reload; ten carrier/CFG/line forms are nonexact and the callee proves the s16 ABI
  * PLATEAU-HANDOFF:overlay1AdvancePath:end
  */
 
