@@ -22,16 +22,16 @@ extern void func_overlay_022_F0000D30_1878E38(void *, s32, s32 *);
 
 /* Configured remeasurement retains the exact 172-word/0x58-frame shape with
  * five instruction differences: objectPosition uses sp+0x28 instead of target
- * sp+0x30, and the D_A7C home/outgoing stores are reversed. Ten prior bounded
- * parameter reuse, typed-member, scoped-lifetime, address-taking, aggregate,
- * volatility, and register-class variants were neutral or regressions. A
- * fidelity-clean allocator capture maps the sole procedure and all 17 colour
- * decisions, but the current producer emits no virtual/final stack-home fields
- * and attributes no web to a source semantic. A procedure-scoped ugen capture
- * supplies candidate temp lifecycles only; there is no target-side producer
- * trace to compare. All 21 relocation offsets/types and source/runtime roles
- * are reconciled, while fail-closed static comparison remains incomplete.
- * Preserve the assembly fallback pending a calibrated stack-home producer. */
+ * sp+0x30, and the D_A7C home/outgoing stores are reversed. A 2026-09-04 pass
+ * tested ten declared-local and carrier forms. Reusing init or repeating the
+ * object-position expression moves it only to sp+0x2C and moves planes to
+ * sp+0x30, adding a sixth difference. Pairing the two carriers in an aggregate
+ * is byte-flat; offset/distance reuse moves four otherwise-exact homes, while a
+ * padded aggregate grows the frame to 0x60. Volatile parameter, plane reuse,
+ * union, and declaration-swap forms also regress. All 21 relocation offsets,
+ * types, and source/runtime roles remain reconciled, while fail-closed static
+ * comparison is incomplete. Preserve the assembly fallback pending a new
+ * authenticated stack-home mechanism. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000000_1878108(void *object, void *init) {
     void *contact;
@@ -116,6 +116,6 @@ void func_overlay_022_F0000000_1878108(void *object, void *init) {
  * frame: 0x58
  * relocations: 21
  * first-mismatch: +0x70
- * summary: Fresh configured V0 is exact-sized at 167/172 words with a 0x58 frame and all 21 relocation offset/type sites aligned. The pinned producer still emits no authenticated virtual/final home or source-semantic field, so no trace-directed lifetime edit is justified.
+ * summary: Ten declared-local/carrier forms cannot reach the retail home pair. Best remains 167/172: objectPosition sp+0x28 vs +0x30 and reversed D_A7C stores.
  * PLATEAU-HANDOFF:func_overlay_022_F0000000_1878108:end
  */
