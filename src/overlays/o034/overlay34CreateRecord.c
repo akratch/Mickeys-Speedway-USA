@@ -160,6 +160,6 @@ Overlay34Record *overlay34CreateRecord(Overlay34Input *input) {
  * frame: 0x28
  * relocations: 12
  * first-mismatch: +0x0
- * summary: A fidelity-gated whole-itable ladder confirms distinct record/current homes, but current-based testing is byte-flat; the eight-byte frame deficit remains.
+ * summary: Fresh linked baseline is text-differs in=30/out=0; an explicit resource local folds away, shortens to 124 words, and regresses linked output to in=109/out=1222.
  * PLATEAU-HANDOFF:overlay34CreateRecord:end
  */
