@@ -367,7 +367,11 @@ splices, rebuilds the object, regenerates the relocation surface
 (`gmake overlay-syms`, since a promoted body may reference placeholders whose
 values are synthesized from the objects), rebuilds, and accepts only on
 `gmake verify` -- byte-identical ROM -- followed by
-`tools/wb_compare.sh --rom`.
+`tools/promotion_proof.py <symbol> --json`. That wrapper requires complete
+post-promotion ownership, linked words/frame and exact relocation count,
+type/offset and effective identity. A linked-byte-only oracle is insufficient.
+Missing authoritative resident or overlay ownership fails closed; promotion
+does not invent symbol or ownership rows to pass the gate.
 
 The splice also regenerates `config/overlays.us.json`: a spliced candidate
 flips that TU's mechanically-derived `nonmatching` flag, and
@@ -397,7 +401,11 @@ are retained. A failed commit is retained at `refs/sweep-recovery/<id>`; recover
 undoes only this transaction's branch advance if it was already published.
 Foreign commits touching promotion paths are preserved for manual review,
 never reset. A hook that changes the private index's tree creates only recovery
-evidence, never a promoted result.
+evidence, never a promoted result. Before private staging, the runner compares
+origin and detached Git configuration without displaying its values. Different
+worktree-specific or conditional configuration fails closed rather than silently
+dropping signing, identity, filter or hook policy; use a reviewed manual commit
+workflow for such unsupported contexts.
 
 Before-images and any merge-conflict evidence remain in ignored
 `build/permuter/<function>/promotions/<id>/`; the search candidate stays in its

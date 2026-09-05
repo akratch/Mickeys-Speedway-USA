@@ -17,6 +17,7 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import permute_batch as batch
 import promotion_transaction as transaction
+import promotion_proof as proof
 
 
 class Fixture:
@@ -55,6 +56,20 @@ int fixture(void) { return 1; }
         self.real_capture = batch.bounded_capture
         self.after = None
         self.fail_return = None
+        self.proof_report = {
+            "schema": proof.REPORT_SCHEMA, "requested_symbol": "fixture",
+            "candidate_symbol": "fixture", "linked_symbol": "fixture",
+            "resolution_mode": "post_promotion", "preflight": {"status": "complete"},
+            "workbench": {"comparison_mode": "rom", "differing_words": 0,
+                          "target_words": 32, "candidate_words": 32,
+                          "first_mismatch": None, "verdict": "exact",
+                          "target_frame": 0, "candidate_frame": 0},
+            "relocation_comparison": {"target_record_count": 3, "candidate_record_count": 3,
+                                      "offset_type_exact": True,
+                                      "effective_identity_alignment_count": 3,
+                                      "effective_identity_exact": True,
+                                      "identity_proof_mode": "static"},
+        }
         self.stack.enter_context(patch.object(batch, "bounded_capture", side_effect=self.command))
 
     def __enter__(self):
@@ -91,6 +106,11 @@ int fixture(void) { return 1; }
             elif "scoreboard" in args:
                 self.write("README.md", "generated scoreboard\n")
             result = subprocess.CompletedProcess(args, 0, "OK fixture\n", "")
+            if "tools/promotion_proof.py" in args:
+                try:
+                    proof.validate_report("fixture", self.proof_report)
+                except proof.ProofError as error:
+                    result = subprocess.CompletedProcess(args, 1, str(error), "")
         if self.after:
             self.after(len(self.calls), args, deadline)
         if self.fail_return == len(self.calls):
@@ -392,12 +412,57 @@ class PromotionTests(unittest.TestCase):
 
     def test_configured_hooks_path_is_not_bypassed_by_detached_context(self):
         with Fixture() as fixture:
-            fixture.git("config", "extensions.worktreeConfig", "true")
-            fixture.git("config", "--worktree", "core.hooksPath", ".custom-hooks")
+            fixture.git("config", "core.hooksPath", ".custom-hooks")
             fixture.write(".custom-hooks/pre-commit", "#!/bin/sh\nexit 9\n").chmod(0o755)
             ok, error = fixture.promote()
             self.assertFalse(ok)
             fixture.assert_restored(self)
+
+    def test_worktree_and_conditional_commit_policy_fail_closed(self):
+        for scope in ("worktree", "onbranch", "gitdir"):
+            with self.subTest(scope=scope), Fixture() as fixture:
+                if scope == "worktree":
+                    fixture.git("config", "extensions.worktreeConfig", "true")
+                    fixture.git("config", "--worktree", "commit.gpgSign", "true")
+                else:
+                    policy = fixture.write(".git/origin-policy", "[commit]\n\tgpgSign = true\n")
+                    condition = ("onbranch:" + fixture.git("symbolic-ref", "--short", "HEAD")
+                                 if scope == "onbranch" else "gitdir:" + str((fixture.root / ".git").resolve()))
+                    fixture.git("config", f"includeIf.{condition}.path", str(policy))
+                self.assertEqual(fixture.git("config", "--get", "commit.gpgSign"), "true")
+                ok, error = fixture.promote()
+                self.assertFalse(ok)
+                self.assertIn("configuration differ", error)
+                self.assertFalse(any(args[0] == "git" and "commit" in args for args in fixture.calls))
+                fixture.assert_restored(self)
+
+    def test_full_proof_rejects_relocation_and_missing_ownership_surfaces(self):
+        mutations = (
+            ("identity", lambda row: row["relocation_comparison"].update(effective_identity_exact=False)),
+            ("count", lambda row: row["relocation_comparison"].update(candidate_record_count=2)),
+            ("type-offset", lambda row: row["relocation_comparison"].update(offset_type_exact=False)),
+            ("ownership", lambda row: row["preflight"].update(status="partial")),
+        )
+        for overlay in (None, 1):
+            for name, mutate in mutations:
+                with self.subTest(overlay=overlay, surface=name), Fixture() as fixture:
+                    fixture.item.overlay = overlay
+                    mutate(fixture.proof_report)
+                    ok, error = fixture.promote()
+                    self.assertFalse(ok)
+                    self.assertIn("promotion_proof.py", error)
+                    self.assertFalse(any(args[0] == "git" and "commit" in args for args in fixture.calls))
+                    fixture.assert_restored(self)
+
+    def test_full_proof_command_runs_after_verify_without_duplicate_canonical_build(self):
+        with Fixture() as fixture:
+            ok, error = fixture.promote()
+            self.assertTrue(ok, error)
+            commands = fixture.calls
+            target = (str(batch.PYTHON), "tools/promotion_proof.py", "fixture", "--json")
+            self.assertIn(target, commands)
+            self.assertLess(next(i for i, args in enumerate(commands) if "verify" in args), commands.index(target))
+            self.assertFalse(any(args[0] == "tools/wb_compare.sh" for args in commands))
 
     def test_public_run_prepared_apply_commit_path(self):
         with Fixture() as fixture:

@@ -62,8 +62,8 @@ at its real address, and byte-compared -- so:
      splice it into the real C file in place of the `#ifdef NON_MATCHING`
      wrapper, dropping the ifdef/else/pragma/endif;
   2. `gmake -jN` and `gmake verify` (byte-identical ROM rebuild);
-  3. `tools/wb_compare.sh --rom <symbol>` as the linked-range oracle, since
-     splat stops emitting a nonmatchings .s the moment the C matches;
+  3. `tools/promotion_proof.py <symbol> --json` for complete post-promotion
+     linked-range, frame and relocation count/type/offset/identity proof;
   4. regenerate and check derived metadata, scoreboard, docs and cleanroom;
      optionally commit through an isolated index. Failure rolls back owned
      source and derived changes; conflicting independent edits are preserved
@@ -1357,7 +1357,7 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
             run([str(PYTHON), "tools/refresh_atlas_digest.py"], outputs=[donors])
         run(["gmake", f"-j{jobs}"], cap=1800)
         run(["gmake", f"-j{jobs}", "verify"])
-        run(["tools/wb_compare.sh", "--rom", item.func], cap=300)
+        run([str(PYTHON), "tools/promotion_proof.py", item.func, "--json"], cap=300)
         run(["gmake", "scoreboard"], outputs=[readme])
         if item.overlay is not None:
             run(["gmake", "check-overlay-syms"])
@@ -1379,6 +1379,13 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
             (detached_git / "HEAD").write_text(initial_head + "\n")
             env = dict(os.environ, GIT_INDEX_FILE=str(evidence / "commit.index"),
                        GIT_DIR=str(detached_git), GIT_COMMON_DIR=common, GIT_WORK_TREE=str(ROOT))
+            # Detached HEAD changes conditional config evaluation and lacks
+            # the originating worktree's config.worktree. Never silently drop
+            # signing, identity, filters or policy consumed by hooks. Compare
+            # without printing configuration values, which may be sensitive.
+            if run(["git", "config", "--null", "--list"]) != run(
+                    ["git", "config", "--null", "--list"], env=env):
+                raise RuntimeError("origin and detached Git configuration differ; unsupported commit context")
             run(["git", "read-tree", initial_head], env=env)
             run(["git", "add", "-A", "--", *changed], env=env)
             run(["git", "diff", "--cached", "--check"], env=env)
