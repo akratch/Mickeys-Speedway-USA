@@ -437,6 +437,17 @@ every corroborated site. `permute_batch.py` calls it from
 `annotate_overlay_scratch()` right after `import.py`, for overlay functions
 only.
 
+Target coverage is derived from every authoritative runtime record inside
+the unique `glabel`/`endlabel` function extent, independently of the candidate
+schedule. Trailing addressed padding is preserved but is not owned function
+credit. Shared-HI standalone LO records are included. Without a corroborated
+candidate binding, a target-only `__ovtarget_...` name records runtime identity
+and stored value; it never invents a candidate symbol rename. Diagnostics
+separate target-site coverage from the legacy returned candidate-rename count.
+The assembled target must have exactly the owned runtime offset/type multiset
+and must reconstruct every owned ROM byte under diagnostic stored-value
+assignments. This zero-address link is target-integrity evidence, not a match.
+
 For each relocation the candidate's own base object carries inside the
 function, the site's object offset maps to a module offset; a site the
 module's `reloc1`/`reloc2` tables do **not** name is not a relocation site in
@@ -456,20 +467,32 @@ relocations; the candidate's placeholder symbols are renamed to the same
 names by `objcopy --redefine-sym` steps appended to the scratch's
 `compile.sh`, alongside the ones `replicate_objcopy` already writes there.
 
-Three properties are worth stating because they are what make this a
+These properties are worth stating because they are what make this a
 measurement rather than a fudge:
 
 - **It is not a relaxed scorer.** The canonical name comes from the ROM's
   own record, not from the candidate's symbol table, so a candidate that
   calls the *wrong* placeholder at a site still scores a penalty.
-- **A symbol whose sites disagree is left alone entirely.** If one site wants
+- **A candidate symbol whose sites disagree is not renamed.** If one site wants
   `__ovval_...` and another `__ovcall_...`, the symbol has no canonical
-  identity; annotating half its sites would make the target disagree with the
-  candidate at the other half, silently. Those are reported in
+  identity. Partially coincident geometry also cannot establish a whole-symbol
+  binding. Target coverage remains complete using runtime-only names; the
+  unresolved candidate correspondence is reported in
   `build/permuter/<fn>/annotation.txt`.
+- **Equal stored values do not merge different runtime identities.** If two
+  candidate externs would acquire one destination name despite differing
+  runtime operation or symbol identity, neither is renamed. Runtime-only
+  target annotations remain distinct, including shared-HI standalone LOs.
 - **Any failure falls back to the previous behaviour.** If the annotated `.s`
-  does not assemble, the unannotated target is restored and reassembled; the
-  run continues with the old, pessimistic score. `--no-overlay-annotate`
+  cannot be assembled/proved or its candidate refresh fails, all four owned
+  scratch files (`target.s`, `target.o`, `compile.sh`, `base.o`) are restored
+  byte-for-byte with their original modes and absent-file state, without
+  launching rollback subprocesses. Unique ignored `annotation-attempt-*`
+  directories retain before/failed artifacts and the original diagnostic.
+  Ordinary failures continue with the old, pessimistic score; timeout,
+  cancellation and interruption propagate after restoration. A filesystem
+  recovery error aborts and names the retained backups for manual review.
+  `--no-overlay-annotate`
   forces that path for before/after measurement.
 
 Nothing ROM-derived is written anywhere tracked: the rewritten `.s` lives in
