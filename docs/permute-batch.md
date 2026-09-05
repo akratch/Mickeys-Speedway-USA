@@ -218,17 +218,57 @@ window); `--load-threshold L` (default 9) waits for headroom before every
 permuter launch and promotion build; `--commit` (with `--apply`) commits each
 verified promotion as `Match <fn> (permuter)`, including its changed derived
 metadata and plateau retirement through an isolated index. The
-permuter is niced. `tools/permute_sweep.sh` wraps all of it: resync a lane to
-`campaign/unchain` by fast-forward, extract, warm build, verify, sweep, extract
-again so the scoreboard counts the promotions. A divergent lane is preserved
-for coordinator review; the wrapper no longer resets it or cleans away
-untracked files. Batch infrastructure, promotion and commit failures produce
+permuter is niced. Batch infrastructure, promotion and commit failures produce
 a nonzero exit status instead of being reported as successful searches.
+
+### Safe sweep wrapper
+
+`tools/permute_sweep.sh` requires an explicit mode and lane name. The old
+implicit-promotion invocation (`permute_sweep.sh LANE`) is rejected. Help,
+including `-h` or `--help` anywhere in the arguments, exits before directory
+resolution, Git calls, lane creation or builds. No arguments show help too.
+
+```sh
+# Report only: no candidate application or commits; no automatic extension.
+tools/permute_sweep.sh --report-only my-sweep -- \
+    --function myFunction --minutes 3 --extend-minutes 0 --max-total-minutes 10
+
+# Opt in explicitly to the linked-proof and function-sized commit workflow.
+tools/permute_sweep.sh --promote my-sweep -- --minutes 20
+```
+
+Batch arguments require the `--` separator. The production batch parser
+validates them before any Git call; forwarded `--apply`, `--commit`, `--list`
+and their accepted abbreviations are rejected. For queue listing, invoke
+`tools/permute_batch.py --list` directly. Report-only mode never adds application
+or commit flags; `--promote` adds both explicitly.
+
+Lane names are limited to 1-64 lowercase letters, digits, underscores and
+hyphens, with an initial letter or digit. Existing lanes must be registered
+linked worktrees in the same repository, at the expected path (including the
+normal `.noindex` alias), on exactly `lane/LANE`, with clean tracked state and
+no index lock. Detached heads, foreign repositories/paths, orphaned branch
+names, and divergent or unintegrated lane commits fail closed before resync.
+Git directory/index environment overrides are unsupported. A missing lane is
+created from the pinned integration commit; an existing lane only fast-forwards.
+These checks assume the operator exclusively owns the named lane; they are not
+a lock against a separate actor checking out another branch concurrently.
+
+Both modes extract, warm-build and verify the base before searching. Only
+promotion mode performs the final extraction/build/progress pass. Existing
+resource defaults remain two searches, four permuter threads each, six build
+jobs, a 20-minute search plus optional 20-minute descending extension, a
+six-minute flat stop, a 120-minute whole-batch cap and load threshold 13.
+Pass smaller caps explicitly when assigned. Prior scratch and uniquely named
+logs are retained; the wrapper never resets histories or cleans user files.
 
 Regression checks for these guarantees are
 `python3 tools/test_sweep_receipts.py`,
 `python3 tools/test_permute_batch_deadline.py` and
-`python3 tools/test_promotion_transaction.py`. They use disposable repositories,
+`python3 tools/test_promotion_transaction.py`. Wrapper CLI checks are
+`python3 tools/test_permute_sweep_cli.py`; they use the real argument parser
+and disposable Git worktrees with synthetic build/search subprocess stubs.
+These checks use disposable repositories,
 synthetic compiler settings and short-lived test subprocesses, without a ROM.
 
 ## Queue discovery
