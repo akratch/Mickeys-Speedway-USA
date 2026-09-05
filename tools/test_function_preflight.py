@@ -73,6 +73,7 @@ class SymbolResolutionTests(unittest.TestCase):
                     "gap": [ordinary_symbols[0], ("friendly", base + 0x20, 0x1C, 0x12, 1), ordinary_symbols[2]],
                     "overlap": ordinary_symbols + [("inside", base + 0x30, 4, 0x12, 1)],
                     "data": ordinary_symbols + [("data", base + 0x30, 4, 0x11, 1)],
+                    "data boundary": [ordinary_symbols[0], ordinary_symbols[1], ("data", base + 0x40, 0x20, 0x11, 1)],
                     "wrong section": [ordinary_symbols[0], ("friendly", base + 0x20, 0x20, 0x12, 2), ordinary_symbols[2]],
                     "not function": [ordinary_symbols[0], ("friendly", base + 0x20, 0x20, 0x11, 1), ordinary_symbols[2]],
                 }

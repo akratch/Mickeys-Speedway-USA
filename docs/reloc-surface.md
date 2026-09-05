@@ -12,7 +12,7 @@ authenticate an inner function without inventing a function-sized atlas row:
 the generated overlay/ROM identity must agree with a unique exact-C owner and
 the linked executable section's defined function geometry. Aliases must agree,
 the complete function must remain inside that owner, and its end must meet the
-next defined function/data boundary or the owner end without a gap or overlap.
+next defined function boundary or the owner end without a gap or overlap.
 The entire containing executable C range must also equal the baserom. This
 route does not grant matching credit or relax ordinary-source, freshness,
 function-byte, frame, or relocation count/type/offset/identity gates.

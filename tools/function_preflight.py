@@ -324,7 +324,8 @@ def _fully_matched_inner_geometry(
             continue
         if other_value < limit and value < other_value + max(other_size, 1):
             raise PreflightError("inner function overlaps another function/data symbol")
-        if value < other_value <= owner_limit and other_size > 0:
+        if (value < other_value <= owner_limit and other_size > 0
+                and (info & 0xF) == rs.STT_FUNC):
             following.append(other_value)
     if limit != min(following):
         raise PreflightError("inner function boundary leaves unauthenticated padding/gap")
