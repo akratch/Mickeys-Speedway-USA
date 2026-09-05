@@ -84,8 +84,10 @@ SHT_REL = 9
 SHN_UNDEF = 0
 
 R_MIPS_32, R_MIPS_26, R_MIPS_HI16, R_MIPS_LO16 = 2, 4, 5, 6
+R_MIPS_PC16 = 10
 TYPE_NAMES = {R_MIPS_32: "R_MIPS_32", R_MIPS_26: "R_MIPS_26",
-              R_MIPS_HI16: "R_MIPS_HI16", R_MIPS_LO16: "R_MIPS_LO16"}
+              R_MIPS_HI16: "R_MIPS_HI16", R_MIPS_LO16: "R_MIPS_LO16",
+              R_MIPS_PC16: "R_MIPS_PC16"}
 
 # func_overlay_018_F0000000_18745B8 -- the generated identity carries both the
 # synthetic VMA and the ROM address, so a module offset needs no extra table.
@@ -194,9 +196,22 @@ def stored_field(rom, site, rtype):
     word = struct.unpack_from(">I", rom, site)[0]
     if rtype == R_MIPS_26:
         return word & 0x03FFFFFF
-    if rtype in (R_MIPS_HI16, R_MIPS_LO16):
+    if rtype in (R_MIPS_HI16, R_MIPS_LO16, R_MIPS_PC16):
         return word & 0xFFFF
     return word
+
+
+def _pc16_branch_instruction(word):
+    """Recognize only MIPS conditional branches with a signed PC16 field."""
+    opcode = word >> 26
+    rt = (word >> 16) & 31
+    if opcode in (4, 5, 20, 21):  # BEQ/BNE and their likely forms.
+        return True
+    if opcode in (6, 7, 22, 23):
+        return rt == 0
+    if opcode == 1:  # REGIMM branch and branch-and-link families.
+        return rt in (0, 1, 2, 3, 16, 17, 18, 19)
+    return opcode == 17 and ((word >> 21) & 31) == 8 and rt in (0, 1, 2, 3)
 
 
 def _pairs(sites):
@@ -2513,6 +2528,14 @@ def _candidate_surface_records(elf, start, size, target, identities,
             addend = sext16(addend)
         elif rtype == R_MIPS_26:
             addend <<= 2
+        elif rtype == R_MIPS_PC16:
+            # REL stores the addend in instruction words, relative to P.
+            # Branch semantics use P+4, so the effective destination is
+            # S + sign_extend(field)*4 + 4. Ordinary local-label REL has -1.
+            instruction = struct.unpack_from(">I", obj_text, record["offset"])[0]
+            if not _pc16_branch_instruction(instruction):
+                raise SurfaceComparisonError("PC16 relocation is not on a supported branch instruction")
+            addend = (sext16(addend) << 2) + 4
         base_identity = None if identity_is_ambiguous else identities.get(name)
         if (not identity_is_ambiguous
                 and rtype == R_MIPS_26
@@ -2565,6 +2588,7 @@ def _resident_target_records(candidate_object, source, target_elf,
 
     symbols = target_object.symbols()
     shape = []
+    pc16_targets = {}
     seen_shape = collections.Counter()
     for _section, offset, rtype, symbol_index in target_object.relocations():
         if not object_start <= offset < object_start + object_size:
@@ -2576,6 +2600,18 @@ def _resident_target_records(candidate_object, source, target_elf,
             raise SurfaceComparisonError(
                 "resident target relocation has no symbol identity")
         relative = offset - object_start
+        if rtype == R_MIPS_PC16:
+            _name, label_value, _size, _info, label_section = symbols[symbol_index]
+            text_index, _ = target_object.section(object_section)
+            if label_section != text_index:
+                raise SurfaceComparisonError("resident PC16 target is not defined in the owned text section")
+            instruction = struct.unpack_from(">I", object_text, offset)[0]
+            if not _pc16_branch_instruction(instruction):
+                raise SurfaceComparisonError("resident PC16 relocation is not on a supported branch instruction")
+            destination = label_value + (sext16(instruction & 0xFFFF) << 2) + 4
+            if destination % 4 or not object_start <= destination < object_start + object_size:
+                raise SurfaceComparisonError("resident PC16 destination escapes the owned function or is unaligned")
+            pc16_targets[relative] = target_value + destination - object_start
         seen_shape[(relative, rtype)] += 1
         shape.append(SurfaceRecord(relative, rtype))
     duplicates = [key for key, count in seen_shape.items() if count > 1]
@@ -2644,6 +2680,17 @@ def _resident_target_records(candidate_object, source, target_elf,
             expected = address & 0xFFFF
         elif record.rtype == R_MIPS_32:
             expected = address & 0xFFFFFFFF
+        elif record.rtype == R_MIPS_PC16:
+            if address != pc16_targets[record.offset]:
+                raise SurfaceComparisonError("resident PC16 symbol identity disagrees with the owned function layout")
+            displacement = address - (target_value + record.offset + 4)
+            if displacement % 4 or not -(1 << 17) <= displacement < (1 << 17):
+                raise SurfaceComparisonError("resident PC16 displacement is unaligned or out of range")
+            expected = (displacement >> 2) & 0xFFFF
+            original_word = struct.unpack_from(">I", object_bytes, record.offset)[0]
+            linked_word = struct.unpack_from(">I", linked_bytes, record.offset)[0]
+            if (original_word ^ linked_word) & 0xFFFF0000:
+                raise SurfaceComparisonError("resident PC16 opcode/register bits disagree with linked target")
         else:
             raise SurfaceComparisonError(
                 "resident target uses unsupported static relocation type %d"
