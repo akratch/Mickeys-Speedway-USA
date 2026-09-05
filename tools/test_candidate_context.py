@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 """Synthetic-only prepared-context comparison regressions."""
+import json
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
 import unittest
 from unittest import mock
 
@@ -139,6 +144,39 @@ class ContextTests(unittest.TestCase):
         self.assertEqual(value["parser"], "pycparser")
         self.assertEqual(len(value["parser_sha256"]), 64)
         self.assertEqual(len(value["comparator_sha256"]), 64)
+
+    def test_parser_failure_is_never_equality(self):
+        with mock.patch.object(cc, "_surface", side_effect=ImportError("parser missing")):
+            self.assertEqual(self.compare(BASE)["status"], "unverifiable")
+
+    def test_cli_exit_codes_and_input_preservation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            baseline = Path(directory) / "baseline.c"
+            winner = Path(directory) / "winner.c"
+            baseline.write_bytes(BASE)
+            for source, code, verdict in ((BASE, 0, "unchanged"),
+                    (BASE.replace(b"extern void callee", b"extern int callee"), 1, "changed"),
+                    (b"not prepared C", 2, "unverifiable")):
+                with self.subTest(verdict=verdict):
+                    winner.write_bytes(source)
+                    result = subprocess.run([sys.executable, cc.__file__, str(baseline), str(winner),
+                                             "--symbol", "target"], capture_output=True, text=True)
+                    self.assertEqual(result.returncode, code, result.stderr)
+                    self.assertEqual(json.loads(result.stdout)["status"], verdict)
+                    self.assertEqual(baseline.read_bytes(), BASE)
+                    self.assertEqual(winner.read_bytes(), source)
+
+    def test_cli_rejects_symlinked_or_missing_inputs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            original = Path(directory) / "original.c"
+            original.write_bytes(BASE)
+            link = Path(directory) / "link.c"
+            link.symlink_to(original)
+            for path in (link, Path(directory) / "missing.c"):
+                result = subprocess.run([sys.executable, cc.__file__, str(original), str(path),
+                                         "--symbol", "target"], capture_output=True, text=True)
+                self.assertEqual(result.returncode, 2)
+                self.assertEqual(original.read_bytes(), BASE)
 
 
 if __name__ == "__main__":
