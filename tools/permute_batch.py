@@ -103,6 +103,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import reloc_surface  # noqa: E402
 import sweep_receipts  # noqa: E402
 import promotion_transaction  # noqa: E402
+_LOADED_IMPLEMENTATIONS = {
+    name: (Path(path), hashlib.sha256(Path(path).read_bytes()).hexdigest())
+    for name, path in (("runner", __file__), ("receipts", sweep_receipts.__file__),
+                       ("promotion", promotion_transaction.__file__),
+                       ("relocations", reloc_surface.__file__))
+}
 ATLAS_PATH = ROOT / "config" / "overlays.us.json"
 PERMUTER_DIR = ROOT / "tools" / "permuter"
 IMPORT_PY = PERMUTER_DIR / "import.py"
@@ -788,6 +794,7 @@ def sweep_tool_identity() -> dict:
         "python": sweep_receipts.file_digest(PYTHON.resolve()),
         "python_version": sys.version,
         "candidate_context": context_tool_identity(),
+        "loaded_modules": {name: value[1] for name, value in _LOADED_IMPLEMENTATIONS.items()},
     }
 
 
@@ -817,6 +824,9 @@ def checked_tool_identity() -> dict:
     """Loaded code cannot truthfully claim the identity of subsequently edited files."""
     global _PROCESS_TOOLS_PIN
     with _TOOL_IDENTITY_LOCK:
+        for name, (path, imported_digest) in _LOADED_IMPLEMENTATIONS.items():
+            if hashlib.sha256(path.read_bytes()).hexdigest() != imported_digest:
+                raise RuntimeError(f"loaded {name} implementation changed; restart the runner")
         current = sweep_tool_identity()
         digest = sweep_receipts.digest(current)
         if _PROCESS_TOOLS_PIN is None:
@@ -839,7 +849,8 @@ class PreparedBaseline:
     returncode: int
     recipe_json: bytes
     dependencies_json: bytes
-    capture_binding_json: bytes = b"{}"
+    capture_binding_json: bytes
+    prepared_inputs_json: bytes
 
 
 def source_dependencies(source: Path, arguments: tuple[str, ...], deadline=None) -> dict:
@@ -860,8 +871,10 @@ def source_dependencies(source: Path, arguments: tuple[str, ...], deadline=None)
     def walk(path, initial=False):
         nonlocal total_bytes
         remaining_timeout(deadline)
-        path = path.resolve()
-        relative = path.relative_to(ROOT.resolve()).as_posix()
+        # Do not resolve away a symlink before the owned read authenticates
+        # every lookup component. The spelling can affect nested includes and
+        # __FILE__ even when the ultimate file bytes are identical.
+        relative = path.relative_to(ROOT).as_posix()
         if path in visited:
             return
         visited.add(path)
@@ -874,18 +887,25 @@ def source_dependencies(source: Path, arguments: tuple[str, ...], deadline=None)
         text = data.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
         if re.search(r"\?\?[=/'()!<>-]", text):
             raise RuntimeError("cannot authenticate trigraph include freshness")
+        if re.search(r"\\[ \t\v\f]+\n", text):
+            raise RuntimeError("cannot authenticate dialect-dependent spaced include continuation")
         text = text.replace("\\\n", "")
         text = lexical.sub(lambda m: " " + "\n" * m.group().count("\n")
                            if m.group().startswith(("/*", "//")) else m.group(), text)
-        for match in re.finditer(r'^\s*#\s*include\s+([^\n]+)', text, re.MULTILINE):
+        if re.search(r"(?m)^\s*%:", text):
+            raise RuntimeError("cannot authenticate digraph include directive freshness")
+        for match in re.finditer(r'^\s*#\s*(include[A-Za-z_0-9]*)\b([^\n]*)', text, re.MULTILINE):
+            if match.group(1) != "include":
+                raise RuntimeError("unsupported include-family directive freshness")
             if "-nostdinc" not in arguments:
                 raise RuntimeError("implicit system include search is not authenticated")
-            spelling = match.group(1).strip()
-            literal = re.fullmatch(r'([<"])([^>"]+)[>"]', spelling)
+            spelling = match.group(2).strip()
+            literal = re.fullmatch(r'"([^"\n]+)"|<([^>\n]+)>', spelling)
             if literal is None:
                 raise RuntimeError("cannot authenticate macro include freshness")
-            quote, name = literal.groups()
-            search = ([path.parent] if quote == '"' else []) + directories
+            quoted, angled = literal.groups()
+            name = quoted if quoted is not None else angled
+            search = ([path.parent] if quoted is not None else []) + directories
             found = next((directory / name for directory in search if (directory / name).is_file()), None)
             if found is None:
                 records[f"missing:{relative}:{spelling}"] = "absent"
@@ -910,7 +930,8 @@ def captured_baseline(item: QueueItem, out_dir: Path, inputs: dict, deadline=Non
         metadata["object_sha256"], metadata["returncode"],
         json.dumps(context["recipe"], sort_keys=True).encode(),
         json.dumps(context["dependencies"], sort_keys=True).encode(),
-        json.dumps(binding, sort_keys=True).encode())
+        json.dumps(binding, sort_keys=True).encode(),
+        json.dumps(inputs, sort_keys=True).encode())
     validate_baseline(item, evidence, deadline)
     return evidence
 
@@ -918,6 +939,21 @@ def captured_baseline(item: QueueItem, out_dir: Path, inputs: dict, deadline=Non
 def validate_baseline(item: QueueItem, evidence: PreparedBaseline | None, deadline=None) -> None:
     if not isinstance(evidence, PreparedBaseline) or evidence.symbol != item.func:
         raise RuntimeError("missing authenticated prepared baseline for this symbol")
+    binding = json.loads(evidence.capture_binding_json)
+    inputs = json.loads(evidence.prepared_inputs_json)
+    context = inputs.get("context") if isinstance(inputs, dict) else None
+    if (not isinstance(binding, dict) or not isinstance(context, dict)
+            or binding.get("inputs_sha256") != sweep_receipts.digest(inputs)
+            or not isinstance(binding.get("run_id"), str)
+            or re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", binding["run_id"]) is None
+            or not isinstance(context.get("identity"), dict)
+            or context["identity"].get("symbol") != item.func
+            or context["identity"].get("source") != item.rel_c_file
+            or context.get("source") != evidence.canonical_source_sha256
+            or sweep_receipts.digest(context.get("tools")) != evidence.tools_sha256
+            or json.dumps(context.get("recipe"), sort_keys=True).encode() != evidence.recipe_json
+            or json.dumps(context.get("dependencies"), sort_keys=True).encode() != evidence.dependencies_json):
+        raise RuntimeError("prepared capture binding is missing or belongs to another context")
     if (type(evidence.returncode) is not int or evidence.returncode != 0 or not evidence.object
             or hashlib.sha256(evidence.source).hexdigest() != evidence.source_sha256
             or hashlib.sha256(evidence.object).hexdigest() != evidence.object_sha256):
@@ -966,6 +1002,7 @@ def retain_context(directory: Path, evidence: PreparedBaseline | None, winner: b
     if evidence is not None:
         (directory / "baseline.c").write_bytes(evidence.source)
         (directory / "baseline.o").write_bytes(evidence.object)
+        (directory / "prepared-inputs.json").write_bytes(evidence.prepared_inputs_json)
         sweep_receipts.atomic_json(directory / "capture.json", {
             "returncode": evidence.returncode, "source_sha256": evidence.source_sha256,
             "object_sha256": evidence.object_sha256,

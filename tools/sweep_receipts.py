@@ -262,6 +262,8 @@ class ReceiptStore:
         try:
             files = self.read_bundle(value["result"]["artifact_bundle"], inputs=value["inputs"])
             report = json.loads(files["context/report.json"])
+            if not isinstance(report, dict):
+                return False
             context = value["inputs"]["context"]
             if (report != value["result"].get("context_review")
                     or report.get("schema") != "mickey-prepared-context-review-v1"
@@ -275,6 +277,8 @@ class ReceiptStore:
                     or report.get("winner_source_sha256") != hashlib.sha256(files["context/winner.c"]).hexdigest()):
                 return False
             capture = json.loads(files["baseline/measurement.json"])
+            if not isinstance(capture, dict):
+                return False
             binding = report.get("capture_binding")
             if (not isinstance(binding, dict) or capture.get("binding") != binding
                     or binding.get("inputs_sha256") != digest(value["inputs"])

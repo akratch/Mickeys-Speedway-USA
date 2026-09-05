@@ -87,7 +87,9 @@ int fixture(void) { return 1; }
         self.evidence = batch.PreparedBaseline("fixture", self.inputs["context"]["source"],
             batch.sweep_receipts.digest(self.inputs["context"]["tools"]), captured, b"synthetic object",
             hashlib.sha256(captured).hexdigest(), hashlib.sha256(b"synthetic object").hexdigest(),
-            0, json.dumps(dataclasses.asdict(self.recipe), sort_keys=True).encode(), b"{}")
+            0, json.dumps(dataclasses.asdict(self.recipe), sort_keys=True).encode(), b"{}",
+            json.dumps({"inputs_sha256": batch.sweep_receipts.digest(self.inputs), "run_id": self.root.name}).encode(),
+            json.dumps(self.inputs, sort_keys=True).encode())
 
     def __enter__(self):
         return self
@@ -166,8 +168,36 @@ int fixture(void) { return 1; }
 
 
 class PromotionTests(unittest.TestCase):
+    def test_compact_include_header_edit_refuses_actual_promotion(self):
+        with Fixture() as fixture:
+            fixture.source.write_text('#include"outer.h"\n' + fixture.source.read_text())
+            header = fixture.write("src/outer.h", "typedef int value;\n")
+            recipe = dataclasses.replace(fixture.recipe, compiler_args=("-c", "-O2", "-nostdinc"))
+            with patch.object(batch, "build_recipe_for", return_value=recipe):
+                fixture.inputs["context"].update(
+                    source=hashlib.sha256(fixture.source.read_bytes()).hexdigest(),
+                    recipe=dataclasses.asdict(recipe),
+                    dependencies=batch.source_dependencies(fixture.source, recipe.compiler_args))
+                fixture.evidence = dataclasses.replace(fixture.evidence,
+                    canonical_source_sha256=hashlib.sha256(fixture.source.read_bytes()).hexdigest(),
+                    recipe_json=json.dumps(dataclasses.asdict(recipe), sort_keys=True).encode(),
+                    dependencies_json=json.dumps(batch.source_dependencies(fixture.source, recipe.compiler_args),
+                                                 sort_keys=True).encode(),
+                    capture_binding_json=json.dumps({"inputs_sha256": batch.sweep_receipts.digest(fixture.inputs),
+                                                     "run_id": fixture.root.name}).encode(),
+                    prepared_inputs_json=json.dumps(fixture.inputs, sort_keys=True).encode())
+                header.write_text("typedef long value;\n")
+                before = fixture.source.read_bytes()
+                ok, error = fixture.promote(commit=False)
+            self.assertFalse(ok)
+            self.assertIn("header context changed", error)
+            self.assertEqual(fixture.source.read_bytes(), before)
+            self.assertEqual(header.read_text(), "typedef long value;\n")
+            self.assertEqual(fixture.calls, [])
+
     def test_missing_changed_or_corrupt_context_rejects_before_canonical_write(self):
-        for fault in ("missing", "declaration", "signature", "corrupt", "source", "header"):
+        for fault in ("missing", "declaration", "signature", "corrupt", "source", "header",
+                      "missing binding", "foreign binding", "foreign symbol"):
             with self.subTest(fault=fault), Fixture() as fixture:
                 evidence = fixture.evidence
                 if fault == "missing":
@@ -180,6 +210,16 @@ class PromotionTests(unittest.TestCase):
                     evidence = dataclasses.replace(evidence, source_sha256="wrong")
                 elif fault == "source":
                     fixture.source.write_text(fixture.source.read_text() + "/* intervening edit */")
+                elif fault == "missing binding":
+                    evidence = dataclasses.replace(evidence, capture_binding_json=b"{}")
+                elif fault == "foreign binding":
+                    evidence = dataclasses.replace(evidence, capture_binding_json=b'{"inputs_sha256":"other","run_id":"other"}')
+                elif fault == "foreign symbol":
+                    inputs = json.loads(evidence.prepared_inputs_json)
+                    inputs["context"]["identity"]["symbol"] = "foreign"
+                    evidence = dataclasses.replace(evidence, prepared_inputs_json=json.dumps(inputs).encode(),
+                        capture_binding_json=json.dumps({"inputs_sha256": batch.sweep_receipts.digest(inputs),
+                                                         "run_id": "other"}).encode())
                 else:
                     evidence = dataclasses.replace(evidence, dependencies_json=b'{"gone.h":"old"}')
                 before = fixture.source.read_bytes()

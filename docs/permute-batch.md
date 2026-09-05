@@ -68,7 +68,7 @@ the runner never deletes them on retry.
 ### Durable search receipts
 
 `--resume` consults content-addressed receipts under
-`$(git rev-parse --git-common-dir)/mickey-sweep-receipts/v3/`. Successful
+`$(git rev-parse --git-common-dir)/mickey-sweep-receipts/v4/`. Successful
 search knowledge survives a lane's removal and is available to other lanes
 through this common directory. The old local summary remains a report and
 never decides whether a search can be skipped.
@@ -654,7 +654,8 @@ explicit evidence; omitting it fails closed. Promotion freezes winner bytes
 once and uses those same bytes for both comparison and body extraction. Under
 the promotion lock it rechecks the canonical TU hash, complete configured recipe,
 literal transitive header closure, and compiler/tool/parser identities. Macro
-includes, unsupported forced include options and out-of-tree dependencies fail
+includes, unsupported include directives/options, symlinked lookup paths and
+out-of-tree dependencies fail
 closed rather than claiming freshness. Declaration changes require independent
 target ABI review and an explicitly scoped source change followed by a new run.
 Tool and comparator identities are pinned for the process lifetime: editing

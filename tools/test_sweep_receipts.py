@@ -138,6 +138,20 @@ class ReceiptTests(unittest.TestCase):
             with self.subTest(fault=fault):
                 self.assertFalse(self.store.artifacts_valid({"inputs": self.inputs, "result": result}))
 
+    def test_null_and_list_context_or_capture_are_retryable_not_exceptions(self):
+        for member in ("context/report.json", "baseline/measurement.json"):
+            for malformed in (None, []):
+                artifacts = dict(self.artifacts)
+                result = copy.deepcopy(self.result)
+                artifacts[member] = json.dumps(malformed).encode()
+                if member == "context/report.json":
+                    result["context_review"] = malformed
+                result["artifact_bundle"] = self.store.save_bundle(artifacts, complete=True, inputs=self.inputs)
+                with self.subTest(member=member, malformed=malformed):
+                    key = self.record(result)
+                    self.assertIsNone(self.store.completed(key))
+                    self.assertFalse(self.store.descending(self.inputs["context"]))
+
     def test_missing_corrupt_and_symlink_bundles_reject_all_reuse(self):
         key = self.record()
         path = self.store.root / "bundles" / (self.result["artifact_bundle"] + ".zip")
@@ -320,11 +334,34 @@ class RecipeTests(unittest.TestCase):
                                ('#include "absent.h"\n', ()),
                                ("int fixture;", ("-include", "forced.h")),
                                ("int fixture;", ("-I-",)),
+                               ('#include_next "absent.h"\n', ("-nostdinc",)),
+                               ('%:include "absent.h"\n', ("-nostdinc",)),
+                               ('#include \\ \n"absent.h"\n', ("-nostdinc",)),
                                ("??=include HEADER\n", ("-nostdinc",))):
                 source.write_text(text)
                 with self.subTest(text=text, args=args), patch.object(batch, "ROOT", root):
                     with self.assertRaises(RuntimeError):
                         batch.source_dependencies(source, args)
+
+    def test_compact_includes_and_symlink_lookup_components(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "real").mkdir()
+            header = root / "real/outer.h"
+            header.write_text("typedef int value;\n")
+            source = root / "fixture.c"
+            args = ("-nostdinc", "-I", "real")
+            with patch.object(batch, "ROOT", root):
+                for spelling in ('"outer.h"', '<outer.h>'):
+                    source.write_text("#include" + spelling + "\n")
+                    self.assertIn("real/outer.h", batch.source_dependencies(source, args))
+                (root / "link").symlink_to(root / "real", target_is_directory=True)
+                with self.assertRaises(OSError):
+                    batch.source_dependencies(source, ("-nostdinc", "-I", "link"))
+                (root / "outer.h").symlink_to(header)
+                source.write_text('#include"outer.h"\n')
+                with self.assertRaises(OSError):
+                    batch.source_dependencies(source, args)
 
     def test_full_argument_tail_reaches_importer_settings(self):
         source, obj = "src/fixture.c", "build/src/fixture.c.o"
@@ -505,6 +542,14 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(first.context_review["status"], "unchanged")
         self.assertEqual(second.context_review, first.context_review)
         self.assertTrue(Path(first.scratch_path).exists())
+
+    def test_loaded_implementation_drift_before_first_run_refuses_preparation(self):
+        loaded = {"runner": (Path(batch.__file__), "not-the-imported-digest")}
+        with patch.object(batch, "_LOADED_IMPLEMENTATIONS", loaded), \
+             patch.object(batch, "run_import", side_effect=AssertionError("must not prepare")):
+            result = self.run_one()
+        self.assertFalse(result.ok)
+        self.assertIn("loaded runner implementation changed", result.error)
 
     def test_deleted_origin_scratch_retains_recoverable_source_and_object(self):
         first = self.run_one()
