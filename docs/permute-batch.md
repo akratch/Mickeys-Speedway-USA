@@ -390,7 +390,9 @@ the repository's objects, configuration and hooks. Its resulting tree, parent
 and message must equal the proved values before compare-and-swap publication
 to the exact lane branch captured at transaction start. A competing commit or
 branch switch fails closed. The real index's standard writer lock spans copying,
-comparison and atomic replacement, including recovery; unrelated staged entries
+comparison, branch verification, CAS publication and atomic index replacement,
+preventing normal checkout in that interval. Index recovery uses the same lock;
+unrelated staged entries
 are retained. A failed commit is retained at `refs/sweep-recovery/<id>`; recovery
 undoes only this transaction's branch advance if it was already published.
 Foreign commits touching promotion paths are preserved for manual review,

@@ -1308,18 +1308,24 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
             raise RuntimeError(f"rollback git {' '.join(args)} failed: {result.stderr[-1000:]}")
         return result.stdout.strip()
 
-    def synchronize_index(expected, target, command, unchanged=None):
+    def synchronize_index(expected, target, command, unchanged=None, publish=None, finalize=None):
         # Git's index.lock spans the comparison AND publication. Commands
         # update a separate copy, so errors leave the real index untouched.
         with promotion_transaction.locked_index(main_index) as copy:
             env = dict(os.environ, GIT_INDEX_FILE=str(copy))
             observed = command(["ls-files", "--stage", "--", *rel_paths], env=env)
             if observed == unchanged:
+                if publish is not None:
+                    publish()
                 return
             if observed != expected:
                 raise RuntimeError("concurrent promotion-path index edits preserved")
+            if publish is not None:
+                publish()
             command(["reset", "-q", target, "--",
                      *[str(path.relative_to(ROOT)) for path in journal.changed()]], env=env)
+            if finalize is not None:
+                finalize()
 
     try:
         initial_head = run(["git", "rev-parse", "HEAD"])
@@ -1392,11 +1398,22 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
                     or run(["git", "show", "-s", "--format=%P", candidate]) != initial_head
                     or run(["git", "show", "-s", "--format=%B", candidate]) != expected_message):
                 raise RuntimeError("hooked commit differs from the proved tree, parent or message")
-            if run(["git", "symbolic-ref", "HEAD"]) != initial_ref:
-                raise RuntimeError("checked-out branch changed during promotion")
-            run(["git", "update-ref", initial_ref, candidate, initial_head])
+            def publish():
+                # Normal checkout also requires this real index.lock. Hold it
+                # across the HEAD check, ref CAS and index reconciliation so
+                # a checkout cannot redirect the index to another branch.
+                if run(["git", "symbolic-ref", "HEAD"]) != initial_ref:
+                    raise RuntimeError("checked-out branch changed during promotion")
+                run(["git", "update-ref", initial_ref, candidate, initial_head])
+            def finalize():
+                remaining_timeout(deadline)
+                journal.check()
             synchronize_index(initial_index, candidate,
-                              lambda args, env: run(["git", *args], env=env))
+                              lambda args, env: run(["git", *args], env=env),
+                              publish=publish, finalize=finalize)
+            # Lock release is the committed transaction's completion point.
+            # A later checkout/cancel is new activity, not grounds to undo it.
+            return True, None
         remaining_timeout(deadline)
         journal.check()
         return True, None
@@ -1428,9 +1445,13 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
                             raise RuntimeError("foreign HEAD changed promotion paths; files and commits preserved for review")
                         reason += "; unrelated concurrent commit preserved"
                     else:
-                        cleanup_git(["update-ref", initial_ref, initial_head, current_head])
+                        def restore_ref():
+                            if cleanup_git(["symbolic-ref", "HEAD"]) != initial_ref:
+                                raise RuntimeError("branch changed before recovery; commit and index preserved")
+                            cleanup_git(["update-ref", initial_ref, initial_head, current_head])
                         try:
-                            synchronize_index(expected_index, initial_head, cleanup_git, unchanged=initial_index)
+                            synchronize_index(expected_index, initial_head, cleanup_git,
+                                              unchanged=initial_index, publish=restore_ref)
                         except Exception as index_error:
                             reason += f"; {index_error}"
             conflicts = journal.rollback(cleanup_deadline)

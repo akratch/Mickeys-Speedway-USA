@@ -317,6 +317,71 @@ class PromotionTests(unittest.TestCase):
             self.assertTrue(attempted)
             self.assertFalse((fixture.root / ".git/index.lock").exists())
 
+    def test_checkout_cannot_switch_branch_between_head_check_and_publication(self):
+        with Fixture() as fixture:
+            original_ref = fixture.git("symbolic-ref", "HEAD")
+            fixture.git("branch", "other", fixture.head)
+            attempted = False
+            def change(number, args, deadline):
+                nonlocal attempted
+                if (args == ["git", "symbolic-ref", "HEAD"]
+                        and (fixture.root / ".git/index.lock").exists()):
+                    attempted = True
+                    with self.assertRaises(subprocess.CalledProcessError):
+                        fixture.git("checkout", "-q", "other")
+                    self.assertEqual(fixture.git("symbolic-ref", "HEAD"), original_ref)
+            fixture.after = change
+            ok, error = fixture.promote()
+            self.assertTrue(ok, error)
+            self.assertTrue(attempted)
+            self.assertEqual(fixture.git("symbolic-ref", "HEAD"), original_ref)
+            self.assertEqual(fixture.git("rev-parse", "other"), fixture.head)
+            self.assertEqual(fixture.git("diff", "--cached", "--name-only"), "")
+
+    def test_checkout_after_locked_publication_does_not_roll_back_completed_commit(self):
+        with Fixture() as fixture:
+            original_ref = fixture.git("symbolic-ref", "HEAD")
+            fixture.git("branch", "other", fixture.head)
+            original = transaction.locked_index
+            @contextlib.contextmanager
+            def following_checkout(index):
+                with original(index) as temporary:
+                    yield temporary
+                fixture.git("checkout", "-q", "other")
+                batch.CANCEL_EVENT.set()
+            with patch.object(transaction, "locked_index", following_checkout):
+                ok, error = fixture.promote()
+            self.assertTrue(ok, error)
+            self.assertNotEqual(fixture.git("rev-parse", original_ref), fixture.head)
+            self.assertEqual(fixture.git("symbolic-ref", "HEAD"), "refs/heads/other")
+            self.assertEqual(fixture.git("rev-parse", "HEAD"), fixture.head)
+            self.assertEqual(fixture.git("diff", "--cached", "--name-only"), "")
+            self.assertEqual(fixture.source.read_bytes(), fixture.original[Path("src/fixture.c")])
+
+    def test_checkout_is_blocked_during_ref_and_index_recovery(self):
+        with Fixture() as fixture:
+            fixture.git("branch", "other", fixture.head)
+            original = transaction.locked_index
+            locks = 0
+            @contextlib.contextmanager
+            def guarded_recovery(index):
+                nonlocal locks
+                with original(index) as temporary:
+                    locks += 1
+                    if locks == 2:
+                        with self.assertRaises(subprocess.CalledProcessError):
+                            fixture.git("checkout", "-q", "other")
+                    yield temporary
+            def fail(number, args, deadline):
+                if args[:2] == ["git", "reset"]:
+                    raise RuntimeError("failure before index publication")
+            fixture.after = fail
+            with patch.object(transaction, "locked_index", guarded_recovery):
+                ok, error = fixture.promote()
+            self.assertFalse(ok)
+            self.assertEqual(locks, 2)
+            fixture.assert_restored(self)
+
     def test_existing_index_lock_is_preserved_and_owned_files_restore(self):
         with Fixture() as fixture:
             lock = fixture.write(".git/index.lock", "independent writer lock\n")
