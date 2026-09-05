@@ -1,20 +1,10 @@
 {
   "schema_version": 1,
   "authorizations": {
-    "func_80002188": {
-      "source_commit": "f0bb90d63eb9266a808af448a4346171f07991db",
-      "ledger_commit": "f0bb90d63eb9266a808af448a4346171f07991db",
-      "reason": "Authorize the handoff's untried bounded permuter sweep for seven stack-home operands; exact geometry, opcode/register shape, and all 22 relocation identities are already configured-current."
-    },
-    "func_80004454": {
-      "source_commit": "e1d7e96ab001cc3f57ef853ddbe62653016509b5",
-      "ledger_commit": "e1d7e96ab001cc3f57ef853ddbe62653016509b5",
-      "reason": "Authorize the handoff's bounded permuter sweep for two scheduling and four register-allocation residuals; geometry, frame, and all six relocation identities are configured-current."
-    },
-    "func_8000471C": {
-      "source_commit": "35bf1be358a75200a224f5d8c5e556bec5bda5a5",
-      "ledger_commit": "35bf1be358a75200a224f5d8c5e556bec5bda5a5",
-      "reason": "Authorize the handoff's bounded permuter sweep for two scheduling and four register-allocation residuals; geometry, frame, and all six relocation identities are configured-current."
+    "func_800347A0": {
+      "source_commit": "b67909e24fe248481ee63a92e951154885945e99",
+      "ledger_commit": "b67909e24fe248481ee63a92e951154885945e99",
+      "reason": "Authorize one bounded permuter sweep for the symmetric 0x30-versus-0x28 frame immediates; all 43 instructions, registers, opcodes, and seven relocation identities otherwise match."
     },
     "overlay34InitStorage": {
       "source_commit": "b03c4f84d593687b231276924f0cd07a5755f610",
