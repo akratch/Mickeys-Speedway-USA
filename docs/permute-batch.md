@@ -60,6 +60,10 @@ and `build/permuter/summary.txt` incrementally, one function at a time, so a
 killed batch still leaves a readable partial result. Each attempted import
 gets a fresh `build/permuter/<function>/runs/<run-id>/` directory; a retry does
 not overwrite an earlier candidate or its diagnostics.
+Any preexisting `nonmatchings/<function>` scratch is moved into that run as
+`preexisting-import-<id>`, and interrupted or failed imports are retained as
+`failed-import-<id>`. These directories may contain manual best candidates;
+the runner never deletes them on retry.
 
 ### Durable search receipts
 
@@ -74,8 +78,11 @@ Its key includes the function's source path, symbol, overlay, `.text` offset,
 and ROM offset; the original TU; actual preprocessed/pruned source, compile
 script, annotated target and scratch settings; the complete recovered IDO
 argument list; toolchain and permuter content hashes; and the search caps,
-thread count, annotation mode and forwarded arguments. Absolute lane and
-scratch paths are normalized. A changed header that changes preprocessed
+thread count, annotation mode and forwarded arguments. Source, target and
+settings are hashed byte-for-byte, including expanded path literals. Only
+known importer cwd and objcopy executable prefixes are normalized in the
+compile script. Different absolute path literals deliberately prevent reuse
+across lanes. A changed header that changes preprocessed
 source, compiler, target, setting, or source context therefore schedules a new
 search. Resident identities use their linked text address as the offset.
 
@@ -113,8 +120,11 @@ cap, and no further queue entries are scheduled. Parallel mode only keeps
 `--jobs` entries in flight instead of submitting the entire queue up front.
 The summary marks interrupted searches with `stopped_batch`, and `--resume`
 retries interrupted entries as well as entries the bounded pass did not
-reach. Preparation commands also observe the remaining batch time, and
-process-group cleanup includes child workers after a failed parent exits.
+reach. Preparation, promotion proofs and Git hooks also observe the remaining
+batch time. SIGINT/SIGTERM cancel scheduling and active commands. Process-group
+cleanup includes child workers after a failed parent exits; it allows up to
+15 seconds for TERM before KILL. A failed promotion then has a separate
+30-second recovery grace, without starting another full build.
 Set a larger positive
 outer cap deliberately for a longer attended pass; zero and negative values
 are rejected because this runner's purpose is bounded search.
@@ -128,7 +138,7 @@ TU. Three fidelity faults were found in `tools/permute.sh` on 2026-08-27
 
 | Fault | Effect before | Fix in `permute_batch.py` |
 |---|---|---|
-| importer default `-mips1`, static flag groups | searched the wrong ISA; per-file flags, defines, and includes dropped | `build_recipe_for()` reads the complete real IDO argument tail from `gmake -n <obj>`; batch searches reject unsupported wrappers and guessed fallback recipes |
+| importer default `-mips1`, static flag groups | searched the wrong ISA; per-file flags, defines, and includes dropped | `build_recipe_for()` reads the complete real IDO argument tail from `gmake -n -W <source> <obj>` without touching source timestamps; batch searches reject unsupported wrappers and guessed fallback recipes |
 | no post-compile `objcopy --redefine-sym` | track.c results never transferred | the TU's objcopy chain is appended to the scratch `compile.sh`, retargeted at `$OUTPUT`; digest-guarded `.py` passes are skipped and listed in `build/permuter/<fn>/recipe.txt` |
 | scorer normalises stack offsets | false 0 on a spill at the wrong slot | `--stack-diffs` is always passed |
 
@@ -143,7 +153,8 @@ after baseline preparation and carries report rows forward;
 a capped search was still descending (best result in the last third of the
 window); `--load-threshold L` (default 9) waits for headroom before every
 permuter launch and promotion build; `--commit` (with `--apply`) commits each
-verified promotion as `Match <fn> (permuter)`, staging only that C file. The
+verified promotion as `Match <fn> (permuter)`, including its changed derived
+metadata and plateau retirement through an isolated index. The
 permuter is niced. `tools/permute_sweep.sh` wraps all of it: resync a lane to
 `campaign/unchain` by fast-forward, extract, warm build, verify, sweep, extract
 again so the scoreboard counts the promotions. A divergent lane is preserved
@@ -152,8 +163,9 @@ untracked files. Batch infrastructure, promotion and commit failures produce
 a nonzero exit status instead of being reported as successful searches.
 
 Regression checks for these guarantees are
-`python3 tools/test_sweep_receipts.py` and
-`python3 tools/test_permute_batch_deadline.py`. They use disposable repositories,
+`python3 tools/test_sweep_receipts.py`,
+`python3 tools/test_permute_batch_deadline.py` and
+`python3 tools/test_promotion_transaction.py`. They use disposable repositories,
 synthetic compiler settings and short-lived test subprocesses, without a ROM.
 
 ## Queue discovery
@@ -355,24 +367,66 @@ splices, rebuilds the object, regenerates the relocation surface
 (`gmake overlay-syms`, since a promoted body may reference placeholders whose
 values are synthesized from the objects), rebuilds, and accepts only on
 `gmake verify` -- byte-identical ROM -- followed by
-`tools/wb_compare.sh --rom`.
+`tools/promotion_proof.py <symbol> --json`. That wrapper requires complete
+post-promotion ownership, linked words/frame and exact relocation count,
+type/offset and effective identity. A linked-byte-only oracle is insufficient.
+Missing authoritative resident or overlay ownership fails closed; promotion
+does not invent symbol or ownership rows to pass the gate.
 
 The splice also regenerates `config/overlays.us.json`: a spliced candidate
 flips that TU's mechanically-derived `nonmatching` flag, and
 `overlay_atlas.py --check` is a prerequisite of `build/.splat-stamp` and so of
 everything, which means a stale atlas kills the promotion build before it
-compiles anything. A rejected candidate has both the atlas and
-`overlay_undefined_syms.us.txt` restored along with its `.c` file.
+compiles anything. Promotion journals the target C, its plateau shard, atlas,
+YAML, generated overlay symbols, donor digest and README before the first
+write. Generator failures, timeouts and cancellation restore these owned
+changes. Independent subsequent source edits are retained with a reverse
+three-way merge; overlapping edits are left untouched and flagged for manual
+recovery. This relies on exclusive lane ownership during generators: a second
+writer modifying a generator's declared output while that generator runs cannot
+be distinguished from the generator itself. Do not run competing writers.
+
+The serialization lock spans splice, proofs, derived gates and optional
+commit. `--commit` refuses preexisting changes on promotion paths; unrelated
+staged and unstaged work is preserved. Its private index includes exactly the
+promotion delta. A normal hooked commit runs on an owned detached HEAD sharing
+the repository's objects, configuration and hooks. Its resulting tree, parent
+and message must equal the proved values before compare-and-swap publication
+to the exact lane branch captured at transaction start. A competing commit or
+branch switch fails closed. The real index's standard writer lock spans copying,
+comparison, branch verification, CAS publication and atomic index replacement,
+preventing normal checkout in that interval. Recovery holds the same lock from
+the selected-branch check through ref/index reconciliation and file rollback.
+A changed branch or unavailable recovery lock preserves files and backups for
+manual review, even if the new branch's committed source equals the candidate;
+unrelated staged entries
+are retained. A failed commit is retained at `refs/sweep-recovery/<id>`; recovery
+undoes only this transaction's branch advance if it was already published.
+Foreign commits touching promotion paths are preserved for manual review,
+never reset. A hook that changes the private index's tree creates only recovery
+evidence, never a promoted result. Before private staging, the runner compares
+origin and detached Git configuration without displaying its values. Different
+worktree-specific or conditional configuration fails closed rather than silently
+dropping signing, identity, filter or hook policy; use a reviewed manual commit
+workflow for such unsupported contexts.
+
+Before-images and any merge-conflict evidence remain in ignored
+`build/permuter/<function>/promotions/<id>/`; the search candidate stays in its
+original run directory. Failed promotion earns no credit and remains retryable.
+Build artifacts can be stale after rollback and should be rebuilt before use.
+Hard kill, storage failure, overlapping edits or recovery-grace expiry can
+require manual restoration from the retained evidence; automatic rollback is
+not a guarantee against those conditions.
 
 A score-0 overlay candidate can still fail `verify`. The module's data is
 placed by the runtime, not by this link, so a promotion can move a word the
 scratch never modelled: a datum landing at a different module offset, an
 alias the surface now resolves elsewhere, a digest-guarded POSTPROCESS pass
-the scratch could not replicate. When that happens the C file is reverted and
-the function stays a **candidate**, and the reported reason carries
-`tools/promotion_trial.py`'s own class for it
-(`text-differs` / `text-size-differs` / a named `build-error` cause) read
-from `build/promotion-trial.json`, or the command to produce it. "Scored 0
+the scratch could not replicate. When that happens rollback leaves the function
+a **candidate**, and the reported reason identifies the failed command and
+recovery evidence. `tools/promotion_trial.py --function <symbol>` can then
+classify it (`text-differs` / `text-size-differs` / a named `build-error` cause)
+in `build/promotion-trial.json`. "Scored 0
 but did not verify" is a trial result to route, not a failure to hide.
 
 ### Running the overlay pool

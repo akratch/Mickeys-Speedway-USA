@@ -62,12 +62,12 @@ at its real address, and byte-compared -- so:
      splice it into the real C file in place of the `#ifdef NON_MATCHING`
      wrapper, dropping the ifdef/else/pragma/endif;
   2. `gmake -jN` and `gmake verify` (byte-identical ROM rebuild);
-  3. `tools/wb_compare.sh --rom <symbol>` as the linked-range oracle, since
-     splat stops emitting a nonmatchings .s the moment the C matches;
-  4. only on both gates passing, leave the promoted source in place and
-     report it matched. Any failure reverts the C file to its prior text
-     and the function stays queued, reported as a zero-score permuter hit
-     that didn't survive promotion (recorded in the summary either way).
+  3. `tools/promotion_proof.py <symbol> --json` for complete post-promotion
+     linked-range, frame and relocation count/type/offset/identity proof;
+  4. regenerate and check derived metadata, scoreboard, docs and cleanroom;
+     optionally commit through an isolated index. Failure rolls back owned
+     source and derived changes; conflicting independent edits are preserved
+     with recovery evidence. An unsuccessful promotion never earns credit.
 
 This intentionally does not touch a POSTPROCESS Makefile rule automatically
 -- whether one is still needed after promotion is a per-function judgment
@@ -80,6 +80,7 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import contextlib
 import dataclasses
 import fcntl
 import json
@@ -100,6 +101,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import reloc_surface  # noqa: E402
 import sweep_receipts  # noqa: E402
+import promotion_transaction  # noqa: E402
 ATLAS_PATH = ROOT / "config" / "overlays.us.json"
 PERMUTER_DIR = ROOT / "tools" / "permuter"
 IMPORT_PY = PERMUTER_DIR / "import.py"
@@ -112,6 +114,7 @@ RANKING_PATH = ROOT / "config" / "nonmatching-ranking.us.json"
 BASEROM = ROOT / "baseroms" / f"mickey.us.z64"
 OBJCOPY = ROOT / "tools" / "binutils" / "mips64-elf-objcopy"
 DEFAULT_INTEGRATION_REF = "campaign/unchain"
+CANCEL_EVENT = threading.Event()
 
 
 # Flags that shape codegen and therefore must match the real per-file build
@@ -375,7 +378,7 @@ def build_recipe_for(c_file: Path, deadline: Optional[float] = None) -> BuildRec
     # flags during a long batch. A path-only cache hid those changes.
     obj = f"build/{c_file.relative_to(ROOT).as_posix()}.o"
     dry = bounded_capture(
-        ["gmake", "-n", "-W", c_file.relative_to(ROOT).as_posix(), obj], deadline,
+        ["gmake", "-n", "-W", c_file.relative_to(ROOT).as_posix(), obj], deadline, check=True,
     ).stdout
     flags: tuple[str, ...] = ()
     objcopy_steps: list[str] = []
@@ -704,25 +707,43 @@ class RunResult:
 
 
 def remaining_timeout(deadline: Optional[float], cap: float = 120) -> float:
+    if CANCEL_EVENT.is_set():
+        raise RuntimeError("batch cancelled")
     remaining = cap if deadline is None else min(cap, deadline - time.monotonic())
     if remaining <= 0:
         raise TimeoutError("whole-batch deadline reached")
     return remaining
 
 
-def bounded_capture(args: list[str], deadline: Optional[float], *, check: bool = False):
+def bounded_capture(args: list[str], deadline: Optional[float], *, check: bool = False,
+                    cap: float = 120, env: Optional[dict] = None):
     """Capture a preparation command and terminate its entire group on timeout."""
-    timeout = remaining_timeout(deadline)
+    timeout = remaining_timeout(deadline, cap)
+    end = time.monotonic() + timeout
     proc = subprocess.Popen(args, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                            text=True, start_new_session=True)
+                            text=True, start_new_session=True, env=env)
     finished = False
     try:
-        output, _ = proc.communicate(timeout=timeout)
+        while True:
+            if CANCEL_EVENT.is_set():
+                raise RuntimeError("batch cancelled")
+            remaining = end - time.monotonic()
+            if remaining <= 0:
+                raise subprocess.TimeoutExpired(args, timeout)
+            try:
+                output, _ = proc.communicate(timeout=min(1, remaining))
+                break
+            except subprocess.TimeoutExpired:
+                continue
         finished = True
     finally:
-        if not finished or proc.returncode:
-            stop_process_group(proc)
-            proc.communicate()
+        try:
+            if not finished or proc.returncode:
+                stop_process_group(proc)
+                proc.communicate()
+        finally:
+            if proc.stdout is not None:
+                proc.stdout.close()
     result = subprocess.CompletedProcess(args, proc.returncode, output, output)
     if check:
         result.check_returncode()
@@ -757,6 +778,7 @@ def sweep_tool_identity() -> dict:
         "permuter": sweep_receipts.tree_digest(PERMUTER_DIR, source_only=True),
         "runner": sweep_receipts.file_digest(Path(__file__)),
         "receipts": sweep_receipts.file_digest(Path(sweep_receipts.__file__)),
+        "promotion": sweep_receipts.file_digest(Path(promotion_transaction.__file__)),
         "python": sweep_receipts.file_digest(PYTHON.resolve()),
         "python_version": sys.version,
     }
@@ -768,8 +790,8 @@ def receipt_inputs(item: QueueItem, scratch: Path, settings: Path, target: Path,
 
     Preparing a resumed entry still preprocesses and compiles its baseline.
     That small cost proves its effective source and relocation annotation are
-    unchanged before skipping a much longer search. Absolute lane/scratch
-    paths are normalized so equal inputs share receipts across isolated lanes.
+    unchanged before skipping a much longer search. Source, target and settings
+    bytes are never rewritten for hashing: path literals can affect codegen.
     """
     if not recipe.from_dry_run or not recipe.compiler_args:
         raise RuntimeError("cannot identify a sweep with fallback compile flags")
@@ -782,13 +804,14 @@ def receipt_inputs(item: QueueItem, scratch: Path, settings: Path, target: Path,
     if offset < 0:
         raise ValueError("overlay target has an invalid synthetic address")
 
-    def normalized(path: Path) -> str:
+    def compile_digest(path: Path) -> str:
         text = path.read_text()
-        replacements = [(str(scratch), "<scratch>"), (str(scratch.parent), "<run>"),
-                        (str(ROOT / "nonmatchings" / item.func), "<import>"),
-                        (str(ROOT), "<repo>")]
-        for old, new in sorted(replacements, key=lambda pair: len(pair[0]), reverse=True):
-            text = text.replace(old, new)
+        # Only importer-generated cwd and our executable command prefixes are
+        # path plumbing. Never substitute inside source, -D values, shell
+        # strings, include arguments or arbitrary user commands.
+        text = text.replace("\ncd " + shlex.quote(str(ROOT)) + "\n", "\ncd .\n")
+        text = re.sub(r"(?m)^" + re.escape(str(ROOT / "tools/binutils/mips64-elf-objcopy")) + r"(?= )",
+                      "tools/binutils/mips64-elf-objcopy", text)
         return sweep_receipts.digest(text)
 
     context = {
@@ -796,9 +819,10 @@ def receipt_inputs(item: QueueItem, scratch: Path, settings: Path, target: Path,
                      "overlay": item.overlay, "section": ".text", "offset": offset,
                      "rom_offset": rom},
         "source": sweep_receipts.file_digest(item.c_file),
-        "prepared": {name: normalized(scratch / name)
+        "prepared": {name: compile_digest(scratch / name) if name == "compile.sh"
+                     else sweep_receipts.file_digest(scratch / name)
                      for name in ("base.c", "compile.sh", "target.s", "settings.toml")},
-        "settings": normalized(settings),
+        "settings": sweep_receipts.file_digest(settings),
         "recipe": json.loads(json.dumps(dataclasses.asdict(recipe))),
         "tools": sweep_tool_identity(),
     }
@@ -961,28 +985,29 @@ def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
 def run_import(item: QueueItem, out_dir: Path, settings_path: Path, target_asm: Path,
                batch_deadline: Optional[float] = None) -> Path:
     root_nonmatchings = ROOT / "nonmatchings" / item.func
-    if root_nonmatchings.exists():
-        shutil.rmtree(root_nonmatchings)
+    remaining_timeout(batch_deadline)
+    def preserve(path: Path, label: str):
+        if path.exists() or path.is_symlink():
+            path.rename(out_dir / f"{label}-{uuid.uuid4().hex}")
+    preserve(root_nonmatchings, "preexisting-import")
     log_path = out_dir / "import.log"
-    proc = bounded_capture(
-        [
-            str(PYTHON),
-            str(IMPORT_PY),
-            str(item.c_file),
-            str(target_asm),
-            "--settings",
-            str(settings_path),
-        ],
-        batch_deadline,
-    )
-    log_path.write_text(proc.stdout)
-    if proc.returncode != 0 or not root_nonmatchings.is_dir():
-        raise RuntimeError(
-            f"import.py failed for {item.func} (see {log_path.relative_to(ROOT)})"
+    try:
+        proc = bounded_capture(
+            [str(PYTHON), str(IMPORT_PY), str(item.c_file), str(target_asm),
+             "--settings", str(settings_path)], batch_deadline,
         )
+        log_path.write_text(proc.stdout)
+        if proc.returncode != 0 or not root_nonmatchings.is_dir():
+            raise RuntimeError(
+                f"import.py failed for {item.func} (see {log_path.relative_to(ROOT)})"
+            )
+    except BaseException as exc:
+        preserve(root_nonmatchings, "failed-import")
+        if not log_path.exists():
+            log_path.write_text(f"{type(exc).__name__}: {exc}\n")
+        raise
     scratch = out_dir / "scratch"
-    if scratch.exists():
-        shutil.rmtree(scratch)
+    preserve(scratch, "preexisting-scratch")
     shutil.move(str(root_nonmatchings), str(scratch))
     # Keep the empty parent directory. Removing it races another concurrent
     # import.py between its os.makedirs("nonmatchings") and per-function
@@ -1031,7 +1056,8 @@ def wait_for_headroom(
             return
         if waited == 0:
             print(f"[headroom] load {load:.1f} >= {threshold:.1f}; waiting {label}".rstrip())
-        time.sleep(remaining_timeout(batch_deadline, 15))
+        CANCEL_EVENT.wait(remaining_timeout(batch_deadline, 15))
+        remaining_timeout(batch_deadline)
         waited += 15
 
 
@@ -1094,11 +1120,13 @@ def run_permuter(
         stop_reason = None
         try:
             while True:
+                if CANCEL_EVENT.is_set():
+                    raise RuntimeError("batch cancelled")
                 now = time.monotonic()
                 wake_at = deadline
                 if flat_deadline is not None:
                     wake_at = min(wake_at, flat_deadline)
-                poll_seconds = max(0.05, min(20.0, wake_at - now))
+                poll_seconds = max(0.05, min(1.0, wake_at - now))
                 try:
                     returncode = proc.wait(timeout=poll_seconds)
                     break
@@ -1177,12 +1205,21 @@ def extract_function_text(source_text: str, func: str) -> str:
 PROMOTE_LOCK = threading.Lock()
 
 
-def promote(item: QueueItem, winning_source: Path, jobs: int) -> tuple[bool, Optional[str]]:
+def promote(item: QueueItem, winning_source: Path, jobs: int,
+            batch_deadline: Optional[float] = None, commit: bool = False) -> tuple[bool, Optional[str]]:
     """Splice the winning candidate into the real C file, rebuild, and
-    verify byte-identity. Reverts the C file on any failure. Returns
-    (promoted, error)."""
-    with PROMOTE_LOCK:
-        return _promote_locked(item, winning_source, jobs)
+    verify byte-identity. Roll back owned writes on failure, preserving
+    conflicting independent edits for recovery. Returns (promoted, error)."""
+    try:
+        while not PROMOTE_LOCK.acquire(timeout=remaining_timeout(batch_deadline, 0.25)):
+            pass
+        try:
+            remaining_timeout(batch_deadline)
+            return _promote_locked(item, winning_source, jobs, batch_deadline, commit)
+        finally:
+            PROMOTE_LOCK.release()
+    except Exception as exc:
+        return False, str(exc)
 
 
 TRIAL_JSON = ROOT / "build" / "promotion-trial.json"
@@ -1220,151 +1257,228 @@ def trial_explanation(func: str) -> Optional[str]:
     return None
 
 
-def _promote_locked(item: QueueItem, winning_source: Path, jobs: int) -> tuple[bool, Optional[str]]:
-    original = item.c_file.read_text()
-    candidate_text = winning_source.read_text()
-    try:
-        new_fn_text = extract_function_text(candidate_text, item.func)
-    except RuntimeError as e:
-        return False, str(e)
-
-    def replace_block(m: re.Match) -> str:
-        fn = FUNC_DEF_RE.search(m.group("body"))
-        if fn and fn.group("name") == item.func:
-            return new_fn_text
-        return m.group(0)
-
-    new_text, n = NON_MATCHING_BLOCK_RE.subn(replace_block, original)
-    if n == 0 or new_text == original:
-        return False, f"could not locate {item.func}'s NON_MATCHING block to replace"
-
-    item.c_file.write_text(new_text)
-    # Both are tracked generated artifacts a promotion regenerates; a reverted
-    # promotion must leave neither rewritten, or the next function's run starts
-    # from a dirty tree it did not cause.
-    regenerated = [ATLAS_PATH, ROOT / "overlay_undefined_syms.us.txt"]
-    before = {p: p.read_text() for p in regenerated if p.is_file()}
-    if item.overlay is not None:
-        # `gmake`'s own prerequisite chain runs `overlay_atlas.py --check`, and
-        # splicing a candidate flips that TU's mechanically-derived
-        # `nonmatching` flag -- so the atlas goes STALE and the build dies
-        # before it compiles anything. commit_match() already regenerates it
-        # after a promotion; a promotion cannot get that far without it.
-        subprocess.run(["gmake", "overlay-atlas-write"], cwd=ROOT,
-                       capture_output=True, timeout=900)
-        # A promoted overlay body may reference placeholder symbols whose
-        # values are generated from the objects (tools/reloc_surface.py);
-        # regenerate the block after compiling so the link can resolve them.
-        subprocess.run(["gmake", f"-j{jobs}", f"build/{item.rel_c_file}.o"], cwd=ROOT,
-                       capture_output=True, timeout=600)
-        subprocess.run(["gmake", "overlay-syms"], cwd=ROOT, capture_output=True, timeout=900)
-
-    def revert(reason: str) -> tuple[bool, str]:
-        item.c_file.write_text(original)
-        for path, text in before.items():
-            if path.is_file() and path.read_text() != text:
-                path.write_text(text)
-        # Best-effort: rebuild the tree back to the pre-splice state so a
-        # failed promotion doesn't leave build/ out of sync with the source
-        # for whatever runs next (another function's promotion, or the
-        # caller's own later `gmake verify`). Failure here is reported
-        # alongside the original reason, not swallowed.
-        try:
-            subprocess.run(
-                ["gmake", f"-j{jobs}"],
-                cwd=ROOT,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                timeout=1800,
-                check=False,
-            )
-        except subprocess.TimeoutExpired:
-            reason += "\n(also: rebuild-after-revert timed out; build/ may be stale)"
-        return False, reason
-
-    try:
-        build = subprocess.run(
-            ["gmake", f"-j{jobs}"],
-            cwd=ROOT,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            timeout=1800,
-        )
-        if build.returncode != 0:
-            return revert("gmake build failed:\n" + build.stdout[-4000:])
-
-        verify = subprocess.run(
-            ["gmake", "verify"],
-            cwd=ROOT,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            timeout=600,
-        )
-        if verify.returncode != 0:
-            # The linked ROM is the oracle, for overlays especially: a
-            # score-0 overlay candidate can still fail here for reasons the
-            # permuter scratch cannot see (data placement, an unreplicable
-            # POSTPROCESS pass). It stays a candidate, carrying the trial's
-            # own explanation rather than a bare build log.
-            reason = "gmake verify failed:\n" + verify.stdout[-4000:]
-            if item.overlay is not None:
-                trial = trial_explanation(item.func)
-                reason += ("\n(overlay candidate left queued; "
-                           + (trial or "run tools/promotion_trial.py --function "
-                                       f"{item.func} for the linked-ROM class")
-                           + ")")
-            return revert(reason)
-
-        wb = subprocess.run(
-            ["tools/wb_compare.sh", "--rom", item.func],
-            cwd=ROOT,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            timeout=300,
-        )
-        if wb.returncode != 0:
-            return revert("wb_compare.sh --rom failed:\n" + wb.stdout[-4000:])
-
-        retire_plateau_handoff(item)
-        return True, None
-    except subprocess.TimeoutExpired as e:
-        return revert(f"timed out: {e}")
-
-
 HANDOFF_DIR = ROOT / "docs" / "matching-triage-handoffs"
-# func -> repo-relative paths a promotion removed, for commit_match to stage.
-_RETIRED_HANDOFFS: dict[str, list[str]] = {}
 
 
-def retire_plateau_handoff(item: QueueItem) -> list[str]:
-    """Drop a promoted function's structured plateau handoff.
-
-    `gmake check-docs` (tools/plateau_handoff_audit.py) rejects a
-    PLATEAU-HANDOFF block or an exact-symbol shard for a function that is no
-    longer a guarded NON_MATCHING candidate, so a verified promotion has to
-    retire both: the EOF comment block in the function's own C file and
-    docs/matching-triage-handoffs/<func>.md. Comment-only edit; the ROM proof
-    that preceded it is unaffected. Returns the extra repo-relative paths the
-    match commit must stage (the deleted shard)."""
-    extra: list[str] = []
-    text = item.c_file.read_text()
-    block = re.compile(
-        r"\n?/\* PLATEAU-HANDOFF:" + re.escape(item.func) + r":start\n.*?"
-        r"\* PLATEAU-HANDOFF:" + re.escape(item.func) + r":end\n \*/\n",
-        re.S,
-    )
-    new_text, n = block.subn("\n", text)
-    if n:
-        item.c_file.write_text(new_text)
+def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
+                    deadline: Optional[float], commit: bool) -> tuple[bool, Optional[str]]:
+    source = item.c_file
     shard = HANDOFF_DIR / f"{item.func}.md"
-    if shard.is_file():
-        shard.unlink()
-        extra.append(str(shard.relative_to(ROOT)))
-    _RETIRED_HANDOFFS[item.func] = extra
-    return extra
+    atlas = ATLAS_PATH
+    yaml = ROOT / "mickey.us.yaml"
+    symbols = ROOT / "overlay_undefined_syms.us.txt"
+    donors = ROOT / "config/overlay-donors.us.json"
+    readme = ROOT / "README.md"
+    paths = [source, shard, atlas, yaml, symbols, donors, readme]
+    rel_paths = [str(path.relative_to(ROOT)) for path in paths]
+    evidence = BUILD_PERMUTER / item.func / "promotions" / uuid.uuid4().hex
+    journal = promotion_transaction.FileJournal(ROOT, paths, evidence)
+    initial_head = None
+    initial_ref = "HEAD"
+    initial_index = None
+    main_index = None
+    detached_git = None
+    expected_tree = None
+    expected_index = None
+    expected_message = None
+    cleanup_deadline = None
+
+    def run(args, *, outputs=(), env=None, cap=600):
+        remaining_timeout(deadline)
+        journal.check()
+        try:
+            result = bounded_capture(args, deadline, cap=cap, env=env)
+        finally:
+            # Capture partial generator writes even when timeout/cancellation
+            # interrupted the command. Other paths keep their owned snapshot.
+            journal.capture(list(outputs))
+        journal.check()
+        if result.returncode:
+            raise RuntimeError(f"{' '.join(args)} failed:\n{result.stdout[-3000:]}")
+        return result.stdout.strip()
+
+    def cleanup_git(args, env=None):
+        # Cleanup has a short independent grace; it must still run once the
+        # search deadline has expired or cancellation has been requested.
+        remaining = min(5, cleanup_deadline - time.monotonic())
+        if remaining <= 0:
+            raise TimeoutError("promotion cleanup grace expired")
+        result = subprocess.run(["git", *args], cwd=ROOT, capture_output=True,
+                                text=True, timeout=remaining, env=env)
+        if result.returncode:
+            raise RuntimeError(f"rollback git {' '.join(args)} failed: {result.stderr[-1000:]}")
+        return result.stdout.strip()
+
+    def synchronize_index(expected, target, command, unchanged=None, publish=None, finalize=None,
+                          locked_copy=None):
+        # Git's index.lock spans the comparison AND publication. Commands
+        # update a separate copy, so errors leave the real index untouched.
+        context = (contextlib.nullcontext(locked_copy) if locked_copy is not None
+                   else promotion_transaction.locked_index(main_index))
+        with context as copy:
+            env = dict(os.environ, GIT_INDEX_FILE=str(copy))
+            observed = command(["ls-files", "--stage", "--", *rel_paths], env=env)
+            if observed == unchanged:
+                if publish is not None:
+                    publish()
+                return
+            if observed != expected:
+                raise RuntimeError("concurrent promotion-path index edits preserved")
+            if publish is not None:
+                publish()
+            command(["reset", "-q", target, "--",
+                     *[str(path.relative_to(ROOT)) for path in journal.changed()]], env=env)
+            if finalize is not None:
+                finalize()
+
+    try:
+        initial_head = run(["git", "rev-parse", "HEAD"])
+        initial_ref = run(["git", "rev-parse", "--symbolic-full-name", "HEAD"])
+        main_index = Path(run(["git", "rev-parse", "--path-format=absolute", "--git-path", "index"]))
+        if commit and initial_ref == "HEAD":
+            raise RuntimeError("--commit requires an attached lane branch")
+        if Path(str(main_index) + ".lock").exists():
+            raise RuntimeError("existing index lock; refusing to mutate promotion source")
+        initial_index = run(["git", "ls-files", "--stage", "--", *rel_paths])
+        if commit and run(["git", "diff", "HEAD", "--name-only", "--", *rel_paths]):
+            raise RuntimeError("promotion paths already differ from HEAD; preserve them before --commit")
+        original = source.read_text()
+        function = extract_function_text(winning_source.read_text(), item.func)
+        block = next((block for block in iter_nonmatching_blocks(original)
+                      if block_function_name(original, block) == item.func), None)
+        if block is None:
+            raise RuntimeError(f"could not locate {item.func}'s NON_MATCHING block")
+        new_text = original[:block.start] + function + original[block.end:]
+        marker = re.compile(r"\n?/\* PLATEAU-HANDOFF:" + re.escape(item.func) +
+                            r":start\n.*?\* PLATEAU-HANDOFF:" + re.escape(item.func) +
+                            r":end\n \*/\n", re.S)
+        new_text = marker.sub("\n", new_text)
+        remaining_timeout(deadline)
+        journal.write(source, new_text.encode())
+        if shard.exists():
+            journal.write(shard, None)
+        if item.overlay is not None:
+            run(["gmake", "overlay-atlas-write"], outputs=[atlas, yaml])
+            run(["gmake", f"-j{jobs}", f"build/{item.rel_c_file}.o"])
+            run(["gmake", "overlay-syms"], outputs=[symbols])
+            run([str(PYTHON), "tools/refresh_atlas_digest.py"], outputs=[donors])
+        run(["gmake", f"-j{jobs}"], cap=1800)
+        run(["gmake", f"-j{jobs}", "verify"])
+        run([str(PYTHON), "tools/promotion_proof.py", item.func, "--json"], cap=300)
+        run(["gmake", "scoreboard"], outputs=[readme])
+        if item.overlay is not None:
+            run(["gmake", "check-overlay-syms"])
+            run(["gmake", "overlay-atlas"])
+        run(["gmake", "check-scoreboard"])
+        run(["gmake", "check-docs"])
+        run(["gmake", "cleanroom"])
+        if run(["git", "rev-parse", "HEAD"]) != initial_head:
+            raise RuntimeError("HEAD changed during promotion; manual review required")
+        if commit:
+            # A private index contains HEAD plus exactly this transaction's
+            # paths. Unrelated staged work never enters the match commit.
+            changed = [str(path.relative_to(ROOT)) for path in journal.changed()]
+            common = run(["git", "rev-parse", "--path-format=absolute", "--git-common-dir"])
+            hooks = run(["git", "rev-parse", "--path-format=absolute", "--git-path", "hooks"])
+            detached_git = evidence / "commit.git"
+            detached_git.mkdir()
+            (detached_git / "commondir").write_text(common + "\n")
+            (detached_git / "HEAD").write_text(initial_head + "\n")
+            env = dict(os.environ, GIT_INDEX_FILE=str(evidence / "commit.index"),
+                       GIT_DIR=str(detached_git), GIT_COMMON_DIR=common, GIT_WORK_TREE=str(ROOT))
+            # Detached HEAD changes conditional config evaluation and lacks
+            # the originating worktree's config.worktree. Never silently drop
+            # signing, identity, filters or policy consumed by hooks. Compare
+            # without printing configuration values, which may be sensitive.
+            if run(["git", "config", "--null", "--list"]) != run(
+                    ["git", "config", "--null", "--list"], env=env):
+                raise RuntimeError("origin and detached Git configuration differ; unsupported commit context")
+            run(["git", "read-tree", initial_head], env=env)
+            run(["git", "add", "-A", "--", *changed], env=env)
+            run(["git", "diff", "--cached", "--check"], env=env)
+            expected_tree = run(["git", "write-tree"], env=env)
+            expected_index = run(["git", "ls-files", "--stage", "--", *rel_paths], env=env)
+            if run(["git", "ls-files", "--stage", "--", *rel_paths]) != initial_index:
+                raise RuntimeError("promotion-path index entries changed concurrently")
+            message = (f"Match {item.func} (permuter)\n\n"
+                       "Untouched configured compiler output passed linked-range and ROM proof;\n"
+                       "derived symbols, scoreboard, documentation and cleanroom gates passed.")
+            expected_message = message
+            # Pin the effective hook directory as seen by the real worktree,
+            # including per-worktree or conditional configuration overrides.
+            run(["git", "-c", f"core.hooksPath={hooks}", "commit", "-q", "-m", message], env=env)
+            candidate = run(["git", "rev-parse", "HEAD"], env=env)
+            if (run(["git", "show", "-s", "--format=%T", candidate]) != expected_tree
+                    or run(["git", "show", "-s", "--format=%P", candidate]) != initial_head
+                    or run(["git", "show", "-s", "--format=%B", candidate]) != expected_message):
+                raise RuntimeError("hooked commit differs from the proved tree, parent or message")
+            def publish():
+                # Normal checkout also requires this real index.lock. Hold it
+                # across the HEAD check, ref CAS and index reconciliation so
+                # a checkout cannot redirect the index to another branch.
+                if run(["git", "symbolic-ref", "HEAD"]) != initial_ref:
+                    raise RuntimeError("checked-out branch changed during promotion")
+                run(["git", "update-ref", initial_ref, candidate, initial_head])
+            def finalize():
+                remaining_timeout(deadline)
+                journal.check()
+            synchronize_index(initial_index, candidate,
+                              lambda args, env: run(["git", *args], env=env),
+                              publish=publish, finalize=finalize)
+            # Lock release is the committed transaction's completion point.
+            # A later checkout/cancel is new activity, not grounds to undo it.
+            return True, None
+        remaining_timeout(deadline)
+        journal.check()
+        return True, None
+    except BaseException as exc:
+        reason = f"{type(exc).__name__}: {exc}"
+        cleanup_deadline = time.monotonic() + 30
+        try:
+            detached_tip = None
+            if detached_git is not None and (detached_git / "HEAD").exists():
+                detached_tip = cleanup_git(["--git-dir", str(detached_git), "rev-parse", "HEAD"])
+                if detached_tip != initial_head:
+                    recovery = f"refs/sweep-recovery/{uuid.uuid4().hex}"
+                    cleanup_git(["update-ref", recovery, detached_tip])
+                    reason += f"; failed promotion commit retained at {recovery}"
+            if journal.changed():
+                # Same bytes do not establish ownership after a checkout:
+                # another branch may commit exactly our candidate text. Hold
+                # checkout exclusion through branch/ref/index AND file recovery.
+                with promotion_transaction.locked_index(main_index) as recovery_index:
+                    if cleanup_git(["rev-parse", "--symbolic-full-name", "HEAD"]) != initial_ref:
+                        raise RuntimeError("selected branch changed; files and index preserved for manual recovery")
+                    current_head = cleanup_git(["rev-parse", initial_ref])
+                    if current_head != initial_head:
+                        # Undo only our exact detached candidate on the pinned
+                        # branch; never undo a foreign or concurrent commit.
+                        tree = cleanup_git(["show", "-s", "--format=%T", current_head])
+                        parents = cleanup_git(["show", "-s", "--format=%P", current_head])
+                        message = cleanup_git(["show", "-s", "--format=%B", current_head])
+                        if (current_head != detached_tip or expected_tree is None or tree != expected_tree
+                                or parents != initial_head or message != expected_message):
+                            changed = cleanup_git(["diff", initial_head, current_head,
+                                                   "--name-only", "--", *rel_paths])
+                            if changed:
+                                raise RuntimeError("foreign HEAD changed promotion paths; files and commits preserved for review")
+                            reason += "; unrelated concurrent commit preserved"
+                        else:
+                            def restore_ref():
+                                cleanup_git(["update-ref", initial_ref, initial_head, current_head])
+                            try:
+                                synchronize_index(expected_index, initial_head, cleanup_git,
+                                                  unchanged=initial_index, publish=restore_ref,
+                                                  locked_copy=recovery_index)
+                            except Exception as index_error:
+                                reason += f"; {index_error}"
+                    conflicts = journal.rollback(cleanup_deadline)
+                    if conflicts:
+                        reason += "; concurrent edits need manual rollback: " + ", ".join(conflicts)
+        except BaseException as rollback_error:
+            reason += f"; rollback needs review: {rollback_error}"
+        reason += f"; evidence: {evidence.relative_to(ROOT)}; build artifacts may need rebuilding"
+        return False, reason
 
 
 def _best(scratch: Path) -> tuple[Optional[Path], Optional[int]]:
@@ -1373,39 +1487,6 @@ def _best(scratch: Path) -> tuple[Optional[Path], Optional[int]]:
         return None, None
     score_file = best_dir / "score.txt"
     return best_dir, int(score_file.read_text().strip()) if score_file.is_file() else None
-
-
-def commit_match(item: QueueItem) -> Optional[str]:
-    """Commit a verified promotion on the current branch. Returns an error
-    string, or None. Only the function's own C file is staged, so a batch
-    never sweeps unrelated working-tree changes into a match commit."""
-    with PROMOTE_LOCK:
-        paths = [item.rel_c_file, *_RETIRED_HANDOFFS.get(item.func, [])]
-        if item.overlay is not None:
-            paths.append("overlay_undefined_syms.us.txt")
-            # An overlay promotion changes the module's ownership rows; the
-            # atlas (and its digest) must be regenerated or `gmake
-            # overlay-atlas` fails and the overlay bytes are never credited.
-            for cmd in (["gmake", "overlay-atlas-write"],
-                        [str(PYTHON), "tools/refresh_atlas_digest.py"]):
-                r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=600)
-                if r.returncode != 0:
-                    return f"{' '.join(cmd)} failed: " + (r.stdout + r.stderr)[-2000:]
-            paths += ["config/overlays.us.json", "config/overlay-donors.us.json", "mickey.us.yaml"]
-            paths = [p for p in paths if (ROOT / p).exists()]
-        add = subprocess.run(["git", "add", "--", *paths], cwd=ROOT, capture_output=True, text=True)
-        if add.returncode != 0:
-            return "git add failed: " + add.stderr[-2000:]
-        msg = (
-            f"Match {item.func} (permuter)\n\n"
-            f"Found by tools/permute_batch.py (real per-file flags, replicated objcopy,\n"
-            f"--stack-diffs); promoted only after gmake verify on the project build path.\n"
-            f"Form may be permuter-shaped; see docs/cleanup-queue.md policy."
-        )
-        c = subprocess.run(["git", "commit", "-q", "-m", msg], cwd=ROOT, capture_output=True, text=True)
-        if c.returncode != 0:
-            return "git commit failed: " + (c.stdout + c.stderr)[-3000:]
-    return None
 
 
 _IMPORT_LOCK = threading.Lock()
@@ -1437,8 +1518,12 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
         target_asm = prepare_target_asm(item, out_dir)
         # import.py uses nonmatchings/<symbol> internally, even when two TUs
         # happen to define the same symbol. Serialize only this short step.
-        with _IMPORT_LOCK:
+        while not _IMPORT_LOCK.acquire(timeout=remaining_timeout(batch_deadline, 0.25)):
+            pass
+        try:
             scratch = run_import(item, out_dir, settings_path, target_asm, batch_deadline)
+        finally:
+            _IMPORT_LOCK.release()
         result.scratch_path = str(scratch)
         replicate_objcopy(scratch, recipe, item.c_file, out_dir)
         if annotate_overlays:
@@ -1504,6 +1589,7 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
         result.ok = True
 
         best_dir, best_score = _best(scratch)
+        result.best_score = best_score
         # Score-trend extension: if the run hit the cap and its best result
         # landed in the final third of the window, the search was still
         # descending -- re-seed from the best candidate and run once more.
@@ -1524,6 +1610,7 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
                     "permuter-extend.log", batch_deadline=batch_deadline)
                 result.stopped_batch = extension_stopped_batch
                 best_dir, best_score = _best(scratch)
+                result.best_score = best_score
         # A base score of zero means the candidate already scores exact in the
         # scratch (only ownership/relocation can still fail verify): promote
         # it as-is instead of reporting "no improvement".
@@ -1539,11 +1626,10 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
                 else:
                     wait_for_headroom(
                         load_threshold, f"before promoting {item.func}", batch_deadline)
-                    promoted, err = promote(item, best_dir / "source.c", build_jobs)
+                    promoted, err = promote(item, best_dir / "source.c", build_jobs,
+                                            batch_deadline, commit=commit)
                     result.promoted = promoted
                     result.promote_error = err
-                    if promoted and commit:
-                        result.commit_error = commit_match(item)
     except Exception as e:  # noqa: BLE001 -- report, don't crash the batch
         result.ok = False
         result.error = str(e)
@@ -1654,8 +1740,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p.add_argument(
         "--commit",
         action="store_true",
-        help="with --apply: git-commit each verified promotion (only the function's C file "
-        "is staged) as 'Match <fn> (permuter)'",
+        help="with --apply: git-commit each verified promotion and its derived metadata "
+        "through an isolated index as 'Match <fn> (permuter)'",
     )
     p.add_argument(
         "--apply",
@@ -1699,7 +1785,18 @@ def main(argv: list[str]) -> int:
         except BlockingIOError:
             print("another permuter batch owns this worktree; use a disjoint lane", file=sys.stderr)
             return 2
-        return run_batch(argv)
+        previous_handlers = {}
+        CANCEL_EVENT.clear()
+        if threading.current_thread() is threading.main_thread():
+            for sig in (signal.SIGINT, signal.SIGTERM):
+                previous_handlers[sig] = signal.getsignal(sig)
+                signal.signal(sig, lambda _sig, _frame: CANCEL_EVENT.set())
+        try:
+            result = run_batch(argv)
+            return 130 if CANCEL_EVENT.is_set() else result
+        finally:
+            for sig, handler in previous_handlers.items():
+                signal.signal(sig, handler)
 
 
 def run_batch(argv: list[str]) -> int:
@@ -1863,7 +1960,7 @@ def run_batch(argv: list[str]) -> int:
 
     if jobs == 1:
         for it in queue:
-            if time.monotonic() >= batch_deadline:
+            if CANCEL_EVENT.is_set() or time.monotonic() >= batch_deadline:
                 break
             if args.limit is not None and attempted >= args.limit:
                 break
@@ -1884,7 +1981,7 @@ def run_batch(argv: list[str]) -> int:
 
             def submit_next() -> bool:
                 nonlocal scheduled
-                if time.monotonic() >= batch_deadline:
+                if CANCEL_EVENT.is_set() or time.monotonic() >= batch_deadline:
                     return False
                 # Reserve room for every in-flight preparation: each may
                 # become a real search once its receipt has been checked.

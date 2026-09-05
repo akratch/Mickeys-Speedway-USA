@@ -171,6 +171,52 @@ class RecipeTests(unittest.TestCase):
             self.assertIn("-DVALUE=2", second.compiler_args)
             self.assertEqual(source.stat().st_mtime_ns, mtime)
             self.assertEqual(command.call_args.args[0][:4], ["gmake", "-n", "-W", "src/fixture.c"])
+            self.assertTrue(command.call_args.kwargs["check"])
+
+    def test_failed_dry_run_rejects_usable_compiler_line(self):
+        with tempfile.TemporaryDirectory(prefix="failed-recipe-") as tmp:
+            root = Path(tmp)
+            source = root / "fixture.c"
+            source.write_text("int fixture(void);\n")
+            command = root / "gmake"
+            command.write_text("#!/bin/sh\necho 'tools/ido/cc -c -O2 -mips2 -o build/fixture.c.o fixture.c'\nexit 2\n")
+            command.chmod(0o755)
+            with patch.object(batch, "ROOT", root), patch.dict(os.environ, {"PATH": str(root) + os.pathsep + os.environ["PATH"]}):
+                with self.assertRaises(subprocess.CalledProcessError):
+                    batch.build_recipe_for(source)
+
+
+class ImportPreservationTests(unittest.TestCase):
+    def test_preexisting_and_failed_imports_survive_retry(self):
+        for fault in ("exit", "timeout", "cancel", "success"):
+            with self.subTest(fault=fault), tempfile.TemporaryDirectory(prefix="import-preserve-") as tmp:
+                root = Path(tmp)
+                source = root / "fixture.c"
+                source.write_text("int fixture(void);\n")
+                stale = root / "nonmatchings/fixture"
+                stale.mkdir(parents=True)
+                (stale / "manual-best.c").write_text("manual candidate\n")
+                output = root / "build/run"
+                output.mkdir(parents=True)
+                def importer(args, deadline):
+                    stale.mkdir()
+                    (stale / "candidate.c").write_text("new candidate\n")
+                    if fault == "timeout":
+                        raise subprocess.TimeoutExpired(args, 0)
+                    if fault == "cancel":
+                        raise KeyboardInterrupt()
+                    return subprocess.CompletedProcess(args, 0 if fault == "success" else 7, "diagnostic")
+                with patch.object(batch, "ROOT", root), patch.object(batch, "bounded_capture", side_effect=importer):
+                    item = batch.QueueItem("fixture", source)
+                    if fault == "success":
+                        batch.run_import(item, output, output / "settings", output / "target")
+                    else:
+                        with self.assertRaises((RuntimeError, subprocess.TimeoutExpired, KeyboardInterrupt)):
+                            batch.run_import(item, output, output / "settings", output / "target")
+                self.assertEqual(next(output.glob("preexisting-import-*/manual-best.c")).read_text(), "manual candidate\n")
+                pattern = "scratch/candidate.c" if fault == "success" else "failed-import-*/candidate.c"
+                self.assertEqual(next(output.glob(pattern)).read_text(), "new candidate\n")
+                self.assertFalse(stale.exists())
 
 
 class RunnerTests(unittest.TestCase):
@@ -216,7 +262,7 @@ class RunnerTests(unittest.TestCase):
         scratch = out_dir / "scratch"
         scratch.mkdir()
         (scratch / "base.c").write_text(item.c_file.read_text())
-        (scratch / "compile.sh").write_text(f"cd {self.root}\ncompiler {scratch}/base.c\n")
+        (scratch / "compile.sh").write_text(f'#!/bin/sh\ncd {self.root}\ncompiler "$INPUT"\n')
         (scratch / "settings.toml").write_text('compiler_type = "ido"\n')
         shutil.copy(target, scratch / "target.s")
         return scratch
@@ -234,6 +280,17 @@ class RunnerTests(unittest.TestCase):
         self.assertTrue(second.resumed, second.error)
         self.assertEqual(first.receipt_key, second.receipt_key)
         self.assertTrue(Path(first.scratch_path).exists())
+
+    def test_import_lock_wait_observes_total_deadline(self):
+        batch._IMPORT_LOCK.acquire()
+        start = time.monotonic()
+        try:
+            result = self.run_one(batch_deadline=time.monotonic() + 0.05)
+        finally:
+            batch._IMPORT_LOCK.release()
+        self.assertFalse(result.ok)
+        self.assertTrue(result.stopped_batch)
+        self.assertLess(time.monotonic() - start, 1)
 
     def test_identical_inputs_share_key_across_lane_paths(self):
         first = self.run_one()
@@ -274,6 +331,43 @@ class RunnerTests(unittest.TestCase):
         with patch.object(batch, "run_import", side_effect=changed_header):
             result = self.run_one(resume=True)
         self.assertNotEqual(result.receipt_key, previous.receipt_key)
+
+    def test_header_expanded_path_literals_do_not_alias_placeholder_text(self):
+        original = self.importer
+        literal = str(self.root)
+        def expanded(*args):
+            scratch = original(*args)
+            (scratch / "base.c").write_text('const char *header_value = ' + json.dumps(literal) + ';\n')
+            return scratch
+        with patch.object(batch, "run_import", side_effect=expanded):
+            first = self.run_one()
+            literal = "<repo>"
+            second = self.run_one(resume=True)
+        self.assertFalse(second.resumed)
+        self.assertNotEqual(first.receipt_key, second.receipt_key)
+
+    def test_extension_failure_retains_primary_best_scalar_and_artifact(self):
+        def primary(scratch, *args, **kwargs):
+            best = scratch / "output-10-1"
+            best.mkdir()
+            (best / "score.txt").write_text("10\n")
+            (best / "source.c").write_text("int fixture(void) { return 2; }\n")
+            return (20, 60, False, False)
+        count = 0
+        def search(*args, **kwargs):
+            nonlocal count
+            count += 1
+            if count == 1:
+                return primary(*args, **kwargs)
+            raise RuntimeError("extension failed")
+        with patch.object(batch, "run_permuter", side_effect=search):
+            result = self.run_one(extend_minutes=1)
+        self.assertFalse(result.ok)
+        self.assertEqual(result.best_score, 10)
+        self.assertIsNone(self.store.completed(result.receipt_key))
+        saved = json.loads((self.store.directory(result.receipt_key) / "best.json").read_text())
+        self.assertEqual(saved["score"], 10)
+        self.assertTrue((Path(result.scratch_path) / "output-10-1/source.c").is_file())
 
     def test_nonzero_process_exit_is_retryable_even_after_base_score(self):
         self.write("permuter/permuter.py", "print('base score = 20', flush=True)\nraise SystemExit(7)\n")
