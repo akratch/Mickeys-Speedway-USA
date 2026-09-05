@@ -35,13 +35,37 @@ class ReceiptTests(unittest.TestCase):
         self.root = Path(self.tmp.name)
         self.store = receipts.ReceiptStore(self.root / "store")
         self.inputs = {"schema": 1, "context": {"source": "fixture",
-                       "identity": {"overlay": 1, "section": ".text", "offset": 16}},
+                       "identity": {"symbol": "fixture", "overlay": 1, "section": ".text", "offset": 16},
+                       "tools": {"candidate_context": batch.context_tool_identity()}},
                        "search": {"minutes": 1}}
         self.result = {"func": "fixture", "ok": True, "base_score": 20,
                        "best_score": 10, "zero_found": False, "promoted": False}
         self.artifacts = {name: ("synthetic " + name).encode() for name in receipts.REQUIRED_ARTIFACTS}
+        baseline = b"int fixture(void) { return 1; }"
+        winner = b"int fixture(void) { return 2; }"
+        self.artifacts.update({"baseline/compiled.c": baseline, "context/baseline.c": baseline,
+                               "context/winner.c": winner, "best/source.c": winner})
+        import candidate_context
+        report = {"schema": "mickey-prepared-context-review-v1", "status": "unchanged",
+                  "symbol": "fixture", "canonical_source_sha256": "fixture",
+                  "baseline_source_sha256": hashlib.sha256(baseline).hexdigest(),
+                  "winner_source_sha256": hashlib.sha256(winner).hexdigest(),
+                  "comparator_identity": batch.context_tool_identity(),
+                  "comparison": candidate_context.compare_context(baseline, winner, "fixture"), "reason": None}
+        self.result["context_review"] = report
+        self.artifacts["context/report.json"] = json.dumps(report).encode()
+        self.artifacts["baseline/measurement.json"] = json.dumps({"returncode": 0,
+            "source_sha256": report["baseline_source_sha256"],
+            "object_sha256": hashlib.sha256(self.artifacts["baseline/compiled.o"]).hexdigest()}).encode()
         self.inputs["baseline_hashes"] = {name: hashlib.sha256(data).hexdigest()
-                                          for name, data in self.artifacts.items() if name.startswith("baseline/")}
+                                          for name, data in self.artifacts.items() if name.startswith("baseline/")
+                                          and name not in {"baseline/measurement.json"}}
+        binding = {"inputs_sha256": receipts.digest(self.inputs), "run_id": "synthetic-run"}
+        report["capture_binding"] = binding
+        self.artifacts["context/report.json"] = json.dumps(report).encode()
+        measurement = json.loads(self.artifacts["baseline/measurement.json"])
+        measurement["binding"] = binding
+        self.artifacts["baseline/measurement.json"] = json.dumps(measurement).encode()
         self.result["artifact_bundle"] = self.store.save_bundle(self.artifacts, complete=True, inputs=self.inputs)
 
     def tearDown(self):
@@ -91,6 +115,28 @@ class ReceiptTests(unittest.TestCase):
         path = self.store.directory(key) / "complete.json"
         path.write_text("{unfinished")
         self.assertIsNone(self.store.completed(key))
+
+    def test_missing_old_or_unbound_context_report_never_reuses(self):
+        for fault in ("missing", "schema", "status", "comparator", "winner", "inner"):
+            result = copy.deepcopy(self.result)
+            artifacts = dict(self.artifacts)
+            report = result["context_review"]
+            if fault == "missing":
+                result.pop("context_review")
+            elif fault == "schema":
+                report["schema"] = "old"
+            elif fault == "status":
+                report["status"] = "unverifiable"
+            elif fault == "comparator":
+                report["comparator_identity"] = {"old": True}
+            elif fault == "winner":
+                report["winner_source_sha256"] = "other"
+            else:
+                report["comparison"]["winner_sha256"] = "other"
+            artifacts["context/report.json"] = json.dumps(report).encode()
+            result["artifact_bundle"] = self.store.save_bundle(artifacts, complete=True, inputs=self.inputs)
+            with self.subTest(fault=fault):
+                self.assertFalse(self.store.artifacts_valid({"inputs": self.inputs, "result": result}))
 
     def test_missing_corrupt_and_symlink_bundles_reject_all_reuse(self):
         key = self.record()
@@ -192,7 +238,7 @@ class ReceiptTests(unittest.TestCase):
         files = {}
         for index, name in enumerate(sorted(receipts.REQUIRED_ARTIFACTS)):
             path = origin / str(index)
-            path.write_bytes(("synthetic " + name).encode())
+            path.write_bytes(self.artifacts[name])
             files[name] = receipts.owned_bytes(origin, path.name)
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
             keys = list(pool.map(lambda _: self.store.save_bundle(files, complete=True, inputs=self.inputs), range(8)))
@@ -238,6 +284,48 @@ class ReceiptTests(unittest.TestCase):
 
 
 class RecipeTests(unittest.TestCase):
+    def test_cached_comparator_cannot_claim_changed_on_disk_identity(self):
+        import candidate_context
+        with patch.object(batch, "_CONTEXT_IDENTITY_PIN", None), \
+             patch.object(candidate_context, "identity", side_effect=[{"version": 1}, {"version": 2}]):
+            self.assertEqual(batch.context_tool_identity(), {"version": 1})
+            with self.assertRaisesRegex(RuntimeError, "restart the runner"):
+                batch.context_tool_identity()
+
+    def test_dependency_closure_rechecks_shadowing_transitive_and_missing_headers(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name in ("early", "late"):
+                (root / name).mkdir()
+            source = root / "fixture.c"
+            source.write_text('#include "outer.h"\nint fixture(void) { return 1; }')
+            (root / "late/outer.h").write_text('#include "inner.h"\n')
+            args = ("-nostdinc", "-I", "early", "-I", "late")
+            with patch.object(batch, "ROOT", root):
+                first = batch.source_dependencies(source, args)
+                (root / "late/inner.h").write_text("typedef int value;\n")
+                second = batch.source_dependencies(source, args)
+                self.assertNotEqual(first, second)
+                (root / "early/outer.h").write_text('#include "inner.h"\n')
+                third = batch.source_dependencies(source, args)
+                self.assertNotEqual(second, third)
+                (root / "late/inner.h").write_text("typedef long value;\n")
+                self.assertNotEqual(third, batch.source_dependencies(source, args))
+
+    def test_unverifiable_include_forms_fail_closed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "fixture.c"
+            for text, args in (("#include HEADER\n", ("-nostdinc",)),
+                               ('#include "absent.h"\n', ()),
+                               ("int fixture;", ("-include", "forced.h")),
+                               ("int fixture;", ("-I-",)),
+                               ("??=include HEADER\n", ("-nostdinc",))):
+                source.write_text(text)
+                with self.subTest(text=text, args=args), patch.object(batch, "ROOT", root):
+                    with self.assertRaises(RuntimeError):
+                        batch.source_dependencies(source, args)
+
     def test_full_argument_tail_reaches_importer_settings(self):
         source, obj = "src/fixture.c", "build/src/fixture.c.o"
         line = (".venv/bin/python tools/asm-processor/build.py tools/ido/cc -- "
@@ -350,8 +438,11 @@ class RunnerTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory(prefix="sweep-runner-")
         self.root = Path(self.tmp.name)
         self.stack = contextlib.ExitStack()
+        self.stack.enter_context(patch.object(batch, "_PROCESS_TOOLS_PIN", None))
         self.store = receipts.ReceiptStore(self.root / "receipts")
         for name, value in (("ROOT", self.root), ("BUILD_PERMUTER", self.root / "build/permuter"),
+                            ("ATLAS_PATH", self.root / "config/overlays.us.json"),
+                            ("HANDOFF_DIR", self.root / "docs/matching-triage-handoffs"),
                             ("PERMUTER_DIR", self.root / "permuter"),
                             ("PERMUTER_PY", self.root / "permuter/permuter.py"),
                             ("PYTHON", Path(sys.executable))):
@@ -411,6 +502,8 @@ class RunnerTests(unittest.TestCase):
             second = self.run_one(resume=True)
         self.assertTrue(second.resumed, second.error)
         self.assertEqual(first.receipt_key, second.receipt_key)
+        self.assertEqual(first.context_review["status"], "unchanged")
+        self.assertEqual(second.context_review, first.context_review)
         self.assertTrue(Path(first.scratch_path).exists())
 
     def test_deleted_origin_scratch_retains_recoverable_source_and_object(self):
@@ -423,6 +516,95 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(saved["best/source.c"], saved["baseline/compiled.c"])
         self.assertNotEqual(saved["baseline/base.c"], saved["baseline/compiled.c"])
         self.assertNotEqual(saved["baseline/base.o"], saved["baseline/compiled.o"])
+        self.assertEqual(saved["context/baseline.c"], saved["baseline/compiled.c"])
+        self.assertEqual(json.loads(saved["context/report.json"]), first.context_review)
+
+    def test_zero_baseline_uses_actual_capture_not_importer(self):
+        self.write("permuter/permuter.py", SYNTHETIC_SEARCH_BASELINE + "print('base score = 0', flush=True)\n")
+        result = self.run_one()
+        self.assertTrue(result.ok, result.error)
+        self.assertTrue(result.zero_found)
+        saved = self.store.read_bundle(result.artifact_bundle)
+        self.assertNotEqual(saved["baseline/base.c"], saved["context/winner.c"])
+        self.assertEqual(saved["context/winner.c"], saved["baseline/compiled.c"])
+        self.assertEqual(result.context_review["status"], "unchanged")
+
+    def test_runner_changed_declaration_zero_blocks_apply_before_source_write(self):
+        original = self.item.c_file.read_bytes()
+        def search(scratch, *args, **kwargs):
+            self.improved(scratch, *args, **kwargs)
+            best = scratch / "output-0-1"
+            best.mkdir()
+            (best / "score.txt").write_text("0")
+            (best / "source.c").write_text("extern int added; int fixture(void) { return 2; }")
+            return 20, 1, False, False
+        with patch.object(batch, "run_permuter", side_effect=search):
+            result = batch.run_one(self.item, 1, 1, 1, True, [], load_threshold=0,
+                                   annotate_overlays=False, receipt_store=self.store)
+        self.assertTrue(result.zero_found)
+        self.assertFalse(result.promoted)
+        self.assertIn("context changed", result.promote_error)
+        self.assertEqual(self.item.c_file.read_bytes(), original)
+        self.assertEqual(result.context_review["status"], "changed")
+
+    def test_late_capture_replacement_cannot_replace_frozen_bundle_pair(self):
+        original = batch.retain_context
+        def retain(directory, evidence, winner, report):
+            original(directory, evidence, winner, report)
+            capture = directory.parent / "baseline-capture"
+            (capture / "compiled.c").write_text("int foreign(void) { return 9; }")
+            (capture / "compiled.o").write_bytes(b"foreign object")
+        with patch.object(batch, "retain_context", side_effect=retain):
+            result = self.run_one()
+        self.assertTrue(result.ok, result.error)
+        saved = self.store.read_bundle(result.artifact_bundle)
+        self.assertNotIn(b"foreign", saved["baseline/compiled.c"])
+        self.assertNotIn(b"foreign", saved["baseline/compiled.o"])
+        self.assertEqual(saved["baseline/compiled.c"], saved["context/baseline.c"])
+        self.assertIsNotNone(self.store.completed(result.receipt_key))
+
+    def test_extension_keeps_initial_context_even_when_seed_has_changed_declaration(self):
+        calls = 0
+        def search(scratch, *args, **kwargs):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                self.improved(scratch, *args, **kwargs)
+                (scratch / "output-10-1/source.c").write_text("extern int added; int fixture(void) { return 2; }\n")
+                return 20, 60, False, False
+            subprocess.run([sys.executable, "-c", SYNTHETIC_SEARCH_BASELINE, str(scratch)], check=True)
+            return 10, 1, False, False
+        with patch.object(batch, "run_permuter", side_effect=search):
+            result = self.run_one(extend_minutes=1)
+        self.assertTrue(result.ok, result.error)
+        self.assertTrue(result.extended)
+        self.assertEqual(result.context_review["status"], "changed")
+        saved = self.store.read_bundle(result.artifact_bundle)
+        self.assertNotIn(b"added", saved["context/baseline.c"])
+        self.assertIn(b"added", saved["context/winner.c"])
+        self.assertIsNotNone(self.store.completed(result.receipt_key))
+
+    def test_missing_failed_and_swapped_capture_cannot_be_checked(self):
+        for fault in ("missing", "failed", "swapped", "foreign run"):
+            def search(scratch, *args, **kwargs):
+                result = self.improved(scratch, *args, **kwargs)
+                capture = scratch.parent / "baseline-capture"
+                if fault == "missing":
+                    (capture / "capture.json").unlink()
+                elif fault in {"failed", "foreign run"}:
+                    metadata = json.loads((capture / "capture.json").read_text())
+                    if fault == "failed":
+                        metadata["returncode"] = 1
+                    else:
+                        metadata["binding"]["run_id"] = "another-valid-run"
+                    (capture / "capture.json").write_text(json.dumps(metadata))
+                else:
+                    (capture / "compiled.c").write_text("int different(void) { return 1; }")
+                return result
+            with self.subTest(fault=fault), patch.object(batch, "run_permuter", side_effect=search):
+                result = self.run_one()
+            self.assertEqual(result.context_review["status"], "unverifiable")
+            self.assertIsNone(self.store.completed(result.receipt_key))
 
     def test_missing_bundle_forces_real_runner_search_again(self):
         first = self.run_one()
@@ -606,6 +788,13 @@ class RunnerTests(unittest.TestCase):
         for path in ("src/fixture.c", "tools/ido/cc", "permuter/weights.toml"):
             target = self.root / path
             target.write_text((target.read_text() if target.exists() else "") + "\n")
+            if path != "src/fixture.c":
+                rejected = self.run_one(resume=True)
+                self.assertFalse(rejected.ok)
+                self.assertIn("restart the runner", rejected.error)
+                # A distinct process is needed after tool changes. Reset only
+                # the fixture's lifetime pin to model that fresh invocation.
+                batch._PROCESS_TOOLS_PIN = None
             result = self.run_one(resume=True)
             self.assertTrue(result.ok, result.error)
             self.assertFalse(result.resumed)
@@ -657,6 +846,10 @@ class RunnerTests(unittest.TestCase):
         saved = json.loads((self.store.directory(result.receipt_key) / "partial-best.json").read_text())
         self.assertEqual(saved["score"], 10)
         self.assertTrue((Path(result.scratch_path) / "output-10-1/source.c").is_file())
+        bundle = self.store.read_bundle(result.artifact_bundle, require_complete=False)
+        self.assertEqual(bundle["context/baseline.c"], bundle["baseline/compiled.c"])
+        self.assertEqual(bundle["context/winner.c"], bundle["best/source.c"])
+        self.assertEqual(result.context_review["status"], "unchanged")
 
     def test_nonzero_process_exit_is_retryable_even_after_base_score(self):
         self.write("permuter/permuter.py", "print('base score = 20', flush=True)\nraise SystemExit(7)\n")

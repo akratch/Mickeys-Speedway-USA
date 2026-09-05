@@ -21,7 +21,7 @@ import uuid
 import zipfile
 from pathlib import Path
 
-SCHEMA = 3
+SCHEMA = 4
 MAX_ARTIFACT_BYTES = 128 * 1024 * 1024  # Encoded ZIP, including metadata.
 MAX_PAYLOAD_BYTES = 120 * 1024 * 1024
 MAX_ARTIFACT_ENTRIES = 4096
@@ -30,7 +30,8 @@ REQUIRED_ARTIFACTS = {"baseline/base.c", "baseline/base.o", "baseline/compile.sh
                       "baseline/target.s", "baseline/settings.toml", "baseline/recipe.json",
                       "baseline/tu.c", "baseline/permuter_settings.toml",
                       "baseline/compiled.c", "baseline/compiled.o", "baseline/measurement.json",
-                      "best/source.c", "best/object.o"}
+                      "best/source.c", "best/object.o", "context/baseline.c",
+                      "context/winner.c", "context/report.json"}
 
 
 def owned_bytes(root: Path, relative: str, *, limit: int = MAX_ARTIFACT_BYTES,
@@ -259,7 +260,41 @@ class ReceiptStore:
 
     def artifacts_valid(self, value: dict) -> bool:
         try:
-            self.read_bundle(value["result"]["artifact_bundle"], inputs=value["inputs"])
+            files = self.read_bundle(value["result"]["artifact_bundle"], inputs=value["inputs"])
+            report = json.loads(files["context/report.json"])
+            context = value["inputs"]["context"]
+            if (report != value["result"].get("context_review")
+                    or report.get("schema") != "mickey-prepared-context-review-v1"
+                    or report.get("status") not in {"unchanged", "changed"}
+                    or report.get("symbol") != context["identity"]["symbol"]
+                    or report.get("canonical_source_sha256") != context["source"]
+                    or report.get("comparator_identity") != context["tools"]["candidate_context"]
+                    or files["context/baseline.c"] != files["baseline/compiled.c"]
+                    or files["context/winner.c"] != files["best/source.c"]
+                    or report.get("baseline_source_sha256") != hashlib.sha256(files["context/baseline.c"]).hexdigest()
+                    or report.get("winner_source_sha256") != hashlib.sha256(files["context/winner.c"]).hexdigest()):
+                return False
+            capture = json.loads(files["baseline/measurement.json"])
+            binding = report.get("capture_binding")
+            if (not isinstance(binding, dict) or capture.get("binding") != binding
+                    or binding.get("inputs_sha256") != digest(value["inputs"])
+                    or not isinstance(binding.get("run_id"), str) or not binding["run_id"]):
+                return False
+            comparison = report.get("comparison")
+            if (not isinstance(comparison, dict)
+                    or comparison.get("schema") != "mickey-candidate-context-v1"
+                    or comparison.get("status") != report["status"]
+                    or comparison.get("symbol") != report["symbol"]
+                    or comparison.get("baseline_sha256") != report["baseline_source_sha256"]
+                    or comparison.get("winner_sha256") != report["winner_source_sha256"]
+                    or not isinstance(comparison.get("changes"), list)
+                    or len(comparison["changes"]) > 32):
+                return False
+            if (type(capture.get("returncode")) is not int or capture["returncode"] != 0
+                    or capture.get("source_sha256") != report["baseline_source_sha256"]
+                    or capture.get("object_sha256") != hashlib.sha256(files["baseline/compiled.o"]).hexdigest()
+                    or not files["baseline/compiled.o"]):
+                return False
             return True
         except (OSError, ValueError, KeyError, TypeError, zipfile.BadZipFile):
             return False
@@ -297,7 +332,7 @@ class ReceiptStore:
         # Scalar JSON only references the separate ignored evidence bundle.
         scalar_fields = ("func", "c_file", "overlay", "ok", "base_score", "best_score",
                          "zero_found", "promoted", "seconds", "extended", "stopped_flat",
-                         "stopped_batch", "annotated_relocs", "scratch_path", "artifact_bundle")
+                         "stopped_batch", "annotated_relocs", "scratch_path", "artifact_bundle", "context_review")
         scalar = {k: result.get(k) for k in scalar_fields}
         for name in ("error", "promote_error", "commit_error"):
             scalar[name] = bool(result.get(name))

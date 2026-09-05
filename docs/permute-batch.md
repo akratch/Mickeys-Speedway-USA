@@ -638,17 +638,38 @@ commit), is a per-object judgment call this script does not make for you.
 Check the object's `POSTPROCESS` line by hand after a promotion and drop it
 if -- and only if -- the whole line was that one now-redundant rename.
 
-**Winning context is not automatically transferred or compared.** The public
-`promote(item, winning_source, ...)` interface receives a pruned/preprocessed
-winner but no authenticated original import context. Comparing that winner
-directly with raw canonical C would confuse ordinary preprocessing/pruning
-with a changed prototype or type; an extension can also replace scratch
-`base.c`, so that mutable file is not necessarily the original baseline.
-Review declaration/context changes independently against target ABI evidence
-before body-only transfer. A future detector needs to bind an immutable initial
-prepared baseline alongside the winner and compare parsed non-function context,
-without automatically adopting shared headers or declarations. Full-TU and ROM
-gates remain mandatory even when the scratch score is zero.
+**Winning declaration context must be checked before automatic transfer.**
+The first actual synchronous compiler input, `baseline-capture/compiled.c`,
+is frozen with its successful capture metadata, source/object digests and
+receipt/per-run identity. A valid capture copied from another run is rejected.
+Neither importer `base.c` nor an extension's replacement seed is that baseline.
+For an already-zero baseline, the captured compiler input itself is the winner.
+The parser compares all declaration context, including the target signature,
+while excluding only the target body. Changed, missing, stale, unsupported or
+unverifiable context blocks promotion before canonical writes, including
+`commit=False`. There is no bypass or automatic header/declaration adoption.
+
+The public `promote(..., evidence=PreparedBaseline(...))` contract requires this
+explicit evidence; omitting it fails closed. Promotion freezes winner bytes
+once and uses those same bytes for both comparison and body extraction. Under
+the promotion lock it rechecks the canonical TU hash, complete configured recipe,
+literal transitive header closure, and compiler/tool/parser identities. Macro
+includes, unsupported forced include options and out-of-tree dependencies fail
+closed rather than claiming freshness. Declaration changes require independent
+target ABI review and an explicitly scoped source change followed by a new run.
+Tool and comparator identities are pinned for the process lifetime: editing
+their files requires restarting the runner, so cached Python code cannot claim
+new on-disk implementation identities between functions or during resume.
+
+Every run retains `context-review/{baseline.c,winner.c,report.json}` and exposes
+the bounded report in `result.json`'s `context_review`. Promotion also retains
+that evidence in its own ignored directory. Durable receipt schema 4 bundles
+bind `context/{baseline.c,winner.c,report.json}` to the captured source/object,
+exact retained winner and comparator identity. Resume exposes the original
+checked report; missing, corrupt, older-schema or unverifiable context cannot
+suppress a fresh run. Failed and timed-out attempts remain retained but retryable.
+The comparison is conservative syntactic evidence, not semantic or match proof:
+full-TU, relocation, ownership and ROM gates remain mandatory even at score zero.
 
 ## Cost and match rate (measured)
 
