@@ -141,6 +141,15 @@ bytes and disassembly never belong here.
   standalone callee looks exact. Treat symbol binding, visible prototypes, and
   TU ownership as part of the compiler input. Evidence: the merged-TU blocker
   class in `docs/matching-triage.md`.
+- An ignored integer return is still part of IDO's allocation input. A caller
+  can retain a small register-selection mismatch when its declaration says
+  `void` but the callee returns an integer; restoring the authenticated return
+  type can close that mismatch without consuming the result. Review the
+  winning translation unit's declarations as well as its function body when
+  transferring a search result. This is an ABI correction, not permission to
+  vary return types for a better score: prove the callee's return behavior and
+  check every affected caller, configured object, relocation and linked ROM.
+  Evidence: Overlay 4's exact object-motion update and its scoped header.
 - Under O32, a single 64-bit integer argument occupies an aligned `a0`/`a1`
   pair. IDO materializes the two halves of a constant zero independently, so a
   target with two adjacent argument-register zero loads can indicate one
