@@ -335,6 +335,7 @@ class RecipeTests(unittest.TestCase):
                                ("int fixture;", ("-include", "forced.h")),
                                ("int fixture;", ("-I-",)),
                                ('#include_next "absent.h"\n', ("-nostdinc",)),
+                               ('#import "absent.h"\n', ("-nostdinc",)),
                                ('%:include "absent.h"\n', ("-nostdinc",)),
                                ('#include \\ \n"absent.h"\n', ("-nostdinc",)),
                                ("??=include HEADER\n", ("-nostdinc",))):

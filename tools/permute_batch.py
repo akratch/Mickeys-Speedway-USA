@@ -894,7 +894,7 @@ def source_dependencies(source: Path, arguments: tuple[str, ...], deadline=None)
                            if m.group().startswith(("/*", "//")) else m.group(), text)
         if re.search(r"(?m)^\s*%:", text):
             raise RuntimeError("cannot authenticate digraph include directive freshness")
-        for match in re.finditer(r'^\s*#\s*(include[A-Za-z_0-9]*)\b([^\n]*)', text, re.MULTILINE):
+        for match in re.finditer(r'^\s*#\s*(include[A-Za-z_0-9]*|import)\b([^\n]*)', text, re.MULTILINE):
             if match.group(1) != "include":
                 raise RuntimeError("unsupported include-family directive freshness")
             if "-nostdinc" not in arguments:
