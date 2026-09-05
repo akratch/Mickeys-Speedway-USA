@@ -7,6 +7,8 @@ import tempfile
 import time
 import unittest
 from unittest.mock import patch
+from contextlib import redirect_stdout
+from io import StringIO
 
 import function_probe as probe
 
@@ -14,9 +16,14 @@ import function_probe as probe
 class ProbeTests(unittest.TestCase):
     def evidence(self):
         preflight = {"schema": "mickey-function-evidence-preflight-v1", "owned_size": 16, "resolution_mode": "fallback",
-                     "preflight": {"status": "complete", "action": "continue_matching", "counts": {"target_relocations": 0}}}
+                     "preflight": {"status": "complete", "action": "continue_matching", "counts": {
+                         "target_relocations": 1, "candidate_static_relocations": 1,
+                         "candidate_identities_resolved": 1, "candidate_identities_unresolved": 0,
+                         "offset_type_aligned": 1, "stable_identities_aligned": 1,
+                         "effective_identities_aligned": 1}}}
         diagnosis = {"schema": "decomp-workbench-diagnosis-v3", "comparison": {
-            "exact": True, "target_instructions": 4, "candidate_instructions": 4, "words": 0},
+            "exact": True, "target_instructions": 4, "candidate_instructions": 4, "words": 0,
+            "relocation_metadata_mismatches": 0, "relocation_target_mismatches": 0},
             "view": {"instructions": "synthetic private evidence"},
             "lever": {"lever_class": "stack-home", "measurements": {"private": "not printed"}}}
         return preflight, diagnosis
@@ -33,6 +40,31 @@ class ProbeTests(unittest.TestCase):
         preflight["preflight"]["status"] = "partial"
         self.assertFalse(probe.compact(preflight, diagnosis)["candidate_for_linked_trial"])
 
+    def test_structural_exact_with_relocation_identity_substitution_fails(self):
+        for field in ("relocation_metadata_mismatches", "relocation_target_mismatches"):
+            with self.subTest(field=field):
+                preflight, diagnosis = self.evidence()
+                diagnosis["comparison"][field] = 1
+                self.assertFalse(probe.compact(preflight, diagnosis)["candidate_for_linked_trial"])
+                del diagnosis["comparison"][field]
+                self.assertFalse(probe.compact(preflight, diagnosis)["candidate_for_linked_trial"])
+
+    def test_unresolved_unaligned_or_missing_identity_counts_fail(self):
+        preflight, _ = self.evidence()
+        for field in preflight["preflight"]["counts"]:
+            with self.subTest(field=field):
+                preflight, diagnosis = self.evidence()
+                counts = preflight["preflight"]["counts"]
+                counts[field] += 1
+                self.assertFalse(probe.compact(preflight, diagnosis)["candidate_for_linked_trial"])
+                del counts[field]
+                self.assertFalse(probe.compact(preflight, diagnosis)["candidate_for_linked_trial"])
+
+    def test_explicit_empty_relocation_surfaces_can_pass(self):
+        preflight, diagnosis = self.evidence()
+        preflight["preflight"]["counts"] = dict.fromkeys(preflight["preflight"]["counts"], 0)
+        self.assertTrue(probe.compact(preflight, diagnosis)["candidate_for_linked_trial"])
+
     def test_already_promoted_source_needs_proof_not_guard_trial(self):
         preflight, diagnosis = self.evidence()
         preflight.update(resolution_mode="post_promotion")
@@ -40,6 +72,23 @@ class ProbeTests(unittest.TestCase):
         report = probe.compact(preflight, diagnosis)
         self.assertFalse(report["candidate_for_linked_trial"])
         self.assertEqual(report["next_action"], "run_promotion_proof")
+
+    def test_promoted_main_selects_rom_diagnosis_without_promotion(self):
+        preflight, diagnosis = self.evidence()
+        preflight.update(resolution_mode="post_promotion", source="src/example.c",
+                         target_symbol="example", candidate_symbol="example", linked_section=".main")
+        preflight["preflight"]["action"] = "run_promotion_proof"
+        calls = []
+        def phase(command, directory, label, deadline):
+            calls.append(command)
+            return {"status": "ok"}, preflight if label == "preflight" else diagnosis
+        with tempfile.TemporaryDirectory() as temporary, \
+             patch.object(probe, "ROOT", Path(temporary)), \
+             patch.object(probe, "run_phase", side_effect=phase), redirect_stdout(StringIO()) as output:
+            self.assertEqual(probe.main(["example", "--json"]), 0)
+        self.assertIn("--rom", calls[1])
+        self.assertIn("--no-build", calls[1])
+        self.assertFalse(json.loads(output.getvalue())["candidate_for_linked_trial"])
 
     def test_oversized_and_masked_only_results_never_pass(self):
         preflight, diagnosis = self.evidence()

@@ -21,6 +21,10 @@ relocation counts, the workbench's routing/lever class, and whether the
 evidence supports a **separate linked promotion trial**. Even that flag is
 only a recommendation, never matching credit. Partial relocation identities,
 missing evidence, non-exact comparison, or unequal extents cannot receive it.
+Structural `exact` alone is insufficient: comparison relocation metadata and
+target-identity mismatches must explicitly be zero, and preflight must report
+equal target/static counts with every identity resolved and aligned. Absent
+count fields fail closed, including for otherwise zero-score comparisons.
 The workbench's first divergent row includes its comparison evidence; do not
 mistake it for the flag sweep's relocation-masked first byte mismatch.
 
@@ -40,11 +44,18 @@ a partly failed lattice remains partial coverage. The probe exits nonzero for
 partial preflight, failed phases, or incomplete requested flag coverage.
 `--no-build` and `--flags` cannot be combined.
 
-Known limitation at this checkpoint: the standalone flag sweep still uses
-its existing generic define/include baseline, not the full per-TU compiler
-argument recipe. Treat that optional phase as exploratory until recipe
-fidelity is implemented and tested; it cannot establish configured-TU
-equivalence even when the masked score is zero.
+The standalone flag sweep preserves the full ordered per-TU compiler argument
+recipe while varying its explicitly declared lattice axes. Its cache binds
+source/header lines and compiler context; see [flag-sweep.md](flag-sweep.md).
+This remains an exploratory flag experiment, not configured-TU equivalence
+or a match proof even when the masked score is zero.
+
+Already-promoted functions use the ROM diagnosis route and never receive a
+guard-removal trial recommendation. This requires the preflight's existing
+authoritative ownership evidence: a resident symbol needs an explicit sized
+matched-C row, and its C definition must resolve unambiguously. A bare sized
+symbol or a compiler-renamed definition does not automatically supply that
+evidence. Such cases fail closed; the probe does not invent names or rows.
 
 The probe is diagnostic only: it never changes source, compiler policy,
 symbol names, or promotion guards. A proposed flag change still requires

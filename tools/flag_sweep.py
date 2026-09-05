@@ -56,6 +56,8 @@ import time
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
+import permute_batch as pb
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TOOLS_DIR = REPO_ROOT / "tools"
 BINUTILS = TOOLS_DIR / "binutils"
@@ -67,7 +69,7 @@ IDO_PHASES = TOOLS_DIR / "ido-phases.py"
 ASM_PROCESSOR_BUILD = TOOLS_DIR / "asm-processor" / "build.py"
 OBJDIFF_CLI = TOOLS_DIR / "objdiff" / "objdiff-cli"
 OVERLAY_ATLAS = REPO_ROOT / "config" / "overlays.us.json"
-CACHE_SCHEMA = 2
+CACHE_SCHEMA = 3
 
 
 def repo_cli_path(path: Path) -> Path:
@@ -84,35 +86,8 @@ def display_path(path: Path) -> str:
     except ValueError:
         return str(path)
 
-# The project's default C flags -- Makefile ~75-105. Kept in sync by hand;
-# if the Makefile's CFLAGS/ASFLAGS/DEFINES/INCLUDE_CFLAGS lines change, this
-# block needs the same edit. There is no included-Makefile trick available
-# here because the compile step drives asm-processor/IDO directly, the same
-# way the Makefile's own %.c.o rule does, not through `make`.
-DEFINES = [
-    "-D_LANGUAGE_C",
-    "-D_FINALROM",
-    "-DTARGET_N64",
-    "-DVERSION_us",
-    "-D_MIPS_SZLONG=32",
-]
-INCLUDE_CFLAGS = [
-    "-I",
-    ".",
-    "-I",
-    "include",
-    "-I",
-    "include/libc",
-    "-I",
-    "include/PR",
-    "-I",
-    "assets",
-]
-BASE_CFLAGS = (
-    ["-non_shared", "-G", "0", "-Xcpluscomm", "-fullwarn", "-woff", "649,838", "-nostdinc"]
-    + DEFINES
-    + INCLUDE_CFLAGS
-)
+# Target assembly and the diagnostic asm-processor wrapper use these explicit
+# assembler options. Compiler arguments come from the configured TU recipe.
 ASFLAGS = ["-march=vr4300", "-32", "-mabi=32", "-G0", "-I", "include"]
 ASM_PROC_ASFLAGS = ASFLAGS + ["include/asm_processor_prelude.inc"]
 
@@ -247,16 +222,79 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _include_dependencies(tu: Path) -> List[Path]:
+def lattice_base_arguments(recipe: pb.BuildRecipe) -> List[str]:
+    """Replace only the declared lattice axes; preserve other ordered inputs."""
+    if not recipe.from_dry_run or not recipe.compiler_args:
+        raise LookupError("no complete configured compiler recipe; refusing static fallback")
+    result = []
+    args = list(recipe.compiler_args)
+    index = 0
+    while index < len(args):
+        token = args[index]
+        if token == "-woff" and args[index + 1:index + 2] == ["835"]:
+            index += 2
+            continue
+        if not (re.fullmatch(r"-(?:O[0-3]?|g[0-3]?|mips[123]|32)", token)
+                or token == "-Wab,-r4300_mul"
+                or re.fullmatch(r"-Wo,-loopunroll,[024]", token)):
+            result.append(token)
+        index += 1
+    return result
+
+
+def configured_recipe(tu: Path) -> pb.BuildRecipe:
+    try:
+        recipe = pb.build_recipe_for(tu)
+        lattice_base_arguments(recipe)
+        return recipe
+    except (ValueError, OSError) as error:
+        raise LookupError(f"cannot recover configured TU recipe: {error}") from error
+
+
+def include_directories(args: Sequence[str]) -> List[Path]:
+    return [REPO_ROOT / (args[index + 1] if token == "-I" else token[2:])
+            for index, token in enumerate(args) if token.startswith("-I")]
+
+
+def assembly_dependencies(tu: Path) -> dict:
+    """Conservatively bind every GLOBAL_ASM input and literal nested include."""
+    pending = [REPO_ROOT / match.group("path")
+               for match in pb.GLOBAL_ASM_RE.finditer(tu.read_text())]
+    seen = {}
+    while pending:
+        path = pending.pop().resolve()
+        if str(path) in seen:
+            continue
+        seen[str(path)] = _sha256_file(path)
+        text = path.read_text()
+        if re.search(r'^\s*\.incbin\b', text, re.MULTILINE):
+            raise LookupError("binary assembly inputs are not supported by this cache")
+        for operand in re.findall(r'^\s*\.include\s+(.+)$', text, re.MULTILINE):
+            literal = re.fullmatch(r'"([^"]+)"\s*(?:#.*)?', operand)
+            if literal is None:
+                raise LookupError(f"cannot bind computed assembly input {operand!r}")
+            name = literal.group(1)
+            hits = [directory / name for directory in [path.parent, REPO_ROOT, *include_directories(ASFLAGS)]
+                    if (directory / name).is_file()]
+            if not hits:
+                raise LookupError(f"cannot resolve assembly include {name!r}")
+            pending.extend(hits)
+    return {display_path(Path(path)): digest for path, digest in sorted(seen.items())}
+
+
+def _include_dependencies(tu: Path, compiler_args: Sequence[str]) -> List[Path]:
     """Conservatively discover textual inputs reachable through #include.
 
-    The compiler runs with ``-nostdinc`` and the fixed search path above, so
+    The compiler runs with ``-nostdinc`` and the recovered search path, so
     recursively following literal includes captures the source-side inputs.
     Missing or computed includes fail closed because their actual dependency
     bytes cannot be bound into a reusable cache key.
     """
-    roots = [REPO_ROOT, REPO_ROOT / "include", REPO_ROOT / "include/libc",
-             REPO_ROOT / "include/PR", REPO_ROOT / "assets"]
+    if "-nostdinc" not in compiler_args or any(
+        token in {"-include", "-imacros", "-isystem", "-iquote"} for token in compiler_args
+    ):
+        raise LookupError("unsupported implicit/forced header search; cannot bind compile inputs")
+    roots = include_directories(compiler_args)
     pending = [tu.resolve()]
     seen: set[Path] = set()
     include_re = re.compile(r'^\s*#\s*include\s+(.+?)\s*$', re.MULTILINE)
@@ -277,7 +315,8 @@ def _include_dependencies(tu: Path) -> List[Path]:
                     f"cannot cache computed include {operand!r} in {display_path(path)}"
                 )
             name = literal.group(1)
-            candidates = [path.parent / name] + [root / name for root in roots]
+            candidates = ([path.parent / name] if operand.startswith('"') else [])
+            candidates += [root / name for root in roots]
             hit = next((candidate.resolve() for candidate in candidates
                         if candidate.is_file()), None)
             if hit is None:
@@ -310,20 +349,27 @@ def _tool_inputs() -> List[Tuple[str, Path]]:
         ):
             result.append((f"{label}/{path.relative_to(root).as_posix()}", path))
     result.append(("ido-phases.py", IDO_PHASES.resolve()))
+    result.extend((label, path) for label, path in (
+        ("flag_sweep.py", Path(__file__).resolve()),
+        ("permute_batch.py", Path(pb.__file__).resolve()),
+        ("python", Path(sys.executable).resolve()),
+        ("asm-prelude", REPO_ROOT / "include/asm_processor_prelude.inc"),
+    ))
     return result
 
 
 def compilation_cache_identity(
-    tu: Path, defines: Sequence[str], lattice: Sequence[Combo]
+    tu: Path, defines: Sequence[str], lattice: Sequence[Combo],
+    recipe: pb.BuildRecipe,
 ) -> Tuple[str, dict]:
     """Return a content-addressed compile key and its deterministic manifest.
 
-    Target assembly, the overlay atlas, the linked ELF and the baserom are
-    intentionally absent: they affect scoring geometry, never compilation.
+    Scoring-only target assembly, atlas, ELF and baserom are absent. Assembly
+    consumed by a TU's GLOBAL_ASM pragmas is a compiler input and is included.
     That separation is what makes an explicit rescore safe and useful.
     """
     source_inputs = []
-    for path in _include_dependencies(tu):
+    for path in _include_dependencies(tu, recipe.compiler_args):
         try:
             label = path.relative_to(REPO_ROOT).as_posix()
         except ValueError:
@@ -337,8 +383,10 @@ def compilation_cache_identity(
         "schema": CACHE_SCHEMA,
         "python": [sys.version_info.major, sys.version_info.minor],
         "tu": display_path(tu),
-        "defines": sorted(defines),
-        "base_cflags": BASE_CFLAGS,
+        "defines": list(defines),
+        "configured_compiler_args": list(recipe.compiler_args),
+        "base_cflags": lattice_base_arguments(recipe),
+        "assembly_inputs": assembly_dependencies(tu),
         "asm_proc_asflags": ASM_PROC_ASFLAGS,
         "lattice": [dataclasses.asdict(combo) for combo in lattice],
         "source_inputs": source_inputs,
@@ -406,6 +454,7 @@ def collect_compile_results(
     workers: int,
     *,
     rescore: bool,
+    compiler_args: Sequence[str] = (),
 ) -> Tuple[List[CompileResult], int]:
     """Load cached rows and compile only missing rows unless rescoring."""
     results: List[CompileResult] = []
@@ -426,7 +475,7 @@ def collect_compile_results(
     if missing:
         with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
             futures = {
-                pool.submit(compile_combo, tu, combo, cache_root / combo.id, defines): combo
+                pool.submit(compile_combo, tu, combo, cache_root / combo.id, defines, compiler_args): combo
                 for combo in missing
             }
             for future in concurrent.futures.as_completed(futures):
@@ -437,11 +486,13 @@ def collect_compile_results(
 
 
 def compile_combo(
-    tu: Path, combo: Combo, outdir: Path, defines: Sequence[str]
+    tu: Path, combo: Combo, outdir: Path, defines: Sequence[str],
+    compiler_args: Sequence[str],
 ) -> CompileResult:
     outdir.mkdir(parents=True, exist_ok=True)
     obj_path = outdir / "out.o"
     log_path = outdir / "compile.log"
+    obj_path.unlink(missing_ok=True)
 
     cc_tokens = (
         [sys.executable, str(IDO_PHASES)] if combo.use_ido_phases else [str(IDO_CC)]
@@ -451,13 +502,13 @@ def compile_combo(
         + cc_tokens
         + ["--", str(AS)]
         + ASM_PROC_ASFLAGS
-        + ["--", "-c"]
-        + BASE_CFLAGS
+        + ["--"]
+        + list(compiler_args)
         + [f"-D{d}" for d in defines]
         + list(combo.opt)
         + list(combo.isa)
         + list(combo.extra)
-        + ["-o", str(obj_path), str(tu)]
+        + ["-o", str(obj_path), display_path(tu)]
     )
 
     start = time.monotonic()
@@ -989,6 +1040,8 @@ def objdiff_match_percent(target_obj: Path, candidate_obj: Path, function: str) 
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("tu", type=Path, help="C translation unit to sweep")
+    p.add_argument("--recipe-tu", type=Path,
+                   help="explicit configured in-tree TU supplying context for an external candidate")
     p.add_argument("--function", required=True, help="symbol name in the compiled candidate object")
     p.add_argument(
         "--target-symbol",
@@ -1080,7 +1133,9 @@ def run_sweep(args, report_stream=None) -> int:
     workers = args.jobs or max(1, ncpu - 2)
 
     try:
-        cache_key, cache_manifest = compilation_cache_identity(tu, defines, lattice)
+        recipe_tu = repo_cli_path(args.recipe_tu) if args.recipe_tu else tu
+        recipe = configured_recipe(recipe_tu)
+        cache_key, cache_manifest = compilation_cache_identity(tu, defines, lattice, recipe)
     except LookupError as e:
         print(f"flag_sweep: {e}", file=sys.stderr)
         return 2
@@ -1117,8 +1172,18 @@ def run_sweep(args, report_stream=None) -> int:
     t0 = time.monotonic()
     try:
         results, compiled_count = collect_compile_results(
-            tu, lattice, sweep_root, defines, workers, rescore=args.rescore
+            tu, lattice, sweep_root, defines, workers, rescore=args.rescore,
+            compiler_args=lattice_base_arguments(recipe),
         )
+        try:
+            final_recipe = configured_recipe(recipe_tu)
+            final_key, _ = compilation_cache_identity(tu, defines, lattice, final_recipe)
+        except (LookupError, OSError):
+            final_key = None
+        if final_key != cache_key:
+            for combo in lattice:
+                _combo_result_path(sweep_root / combo.id).unlink(missing_ok=True)
+            raise LookupError("compiler context changed during sweep; cache receipts invalidated")
     except LookupError as e:
         print(f"flag_sweep: {e}", file=sys.stderr)
         return 2
