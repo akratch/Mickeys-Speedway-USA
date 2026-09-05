@@ -6,10 +6,15 @@
       "ledger_commit": "f0bb90d63eb9266a808af448a4346171f07991db",
       "reason": "Authorize the handoff's untried bounded permuter sweep for seven stack-home operands; exact geometry, opcode/register shape, and all 22 relocation identities are already configured-current."
     },
-    "func_8005807C": {
-      "source_commit": "2fe469bbad868cba383a15c672868048d19f72ae",
-      "ledger_commit": "2fe469bbad868cba383a15c672868048d19f72ae",
-      "reason": "Authorize one bounded permuter sweep over source-equivalent branch and return spellings for the target's unreferenced two-instruction duplicate epilogue; the first 27 words, frame, and all 16 relocation identities are exact."
+    "func_80004454": {
+      "source_commit": "e1d7e96ab001cc3f57ef853ddbe62653016509b5",
+      "ledger_commit": "e1d7e96ab001cc3f57ef853ddbe62653016509b5",
+      "reason": "Authorize the handoff's bounded permuter sweep for two scheduling and four register-allocation residuals; geometry, frame, and all six relocation identities are configured-current."
+    },
+    "func_8000471C": {
+      "source_commit": "35bf1be358a75200a224f5d8c5e556bec5bda5a5",
+      "ledger_commit": "35bf1be358a75200a224f5d8c5e556bec5bda5a5",
+      "reason": "Authorize the handoff's bounded permuter sweep for two scheduling and four register-allocation residuals; geometry, frame, and all six relocation identities are configured-current."
     },
     "overlay34InitStorage": {
       "source_commit": "b03c4f84d593687b231276924f0cd07a5755f610",
