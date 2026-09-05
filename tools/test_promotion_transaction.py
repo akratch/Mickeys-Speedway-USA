@@ -286,7 +286,68 @@ class PromotionTests(unittest.TestCase):
             self.assertIn("branch changed", error)
             self.assertEqual(fixture.git("rev-parse", original_ref), fixture.head)
             self.assertEqual(fixture.git("rev-parse", "other"), fixture.head)
+            self.assertIn("manual recovery", error)
+            self.assertIn("return 2", fixture.source.read_text())
+
+    def test_checkout_to_committed_winning_source_is_never_overwritten(self):
+        with Fixture() as fixture:
+            original_branch = fixture.git("symbolic-ref", "--short", "HEAD")
+            text = fixture.source.read_text()
+            block = next(batch.iter_nonmatching_blocks(text))
+            winning = text[:block.start] + batch.extract_function_text(fixture.winner.read_text(), "fixture") + text[block.end:]
+            fixture.git("checkout", "-qb", "already-winning")
+            fixture.source.write_text(winning)
+            fixture.git("add", "src/fixture.c")
+            fixture.git("commit", "-qm", "independently committed winning source")
+            foreign = fixture.git("rev-parse", "HEAD")
+            fixture.git("checkout", "-q", original_branch)
+            def change(number, args, deadline):
+                if args == ["git", "write-tree"]:
+                    fixture.git("add", "src/fixture.c")
+                    fixture.git("checkout", "-q", "already-winning")
+            fixture.after = change
+            ok, error = fixture.promote()
+            self.assertFalse(ok)
+            self.assertIn("selected branch changed", error)
+            self.assertEqual(fixture.git("rev-parse", "HEAD"), foreign)
+            self.assertEqual(fixture.source.read_text(), winning)
+            self.assertEqual(fixture.git("diff", "--name-only", "--", "src/fixture.c"), "")
+            self.assertEqual(fixture.git("diff", "--cached", "--name-only"), "")
+
+    def test_checkout_exclusion_remains_held_through_file_rollback(self):
+        with Fixture() as fixture:
+            fixture.git("branch", "other", fixture.head)
+            original = transaction.FileJournal.rollback
+            attempted = False
+            def rollback(journal, deadline=None):
+                nonlocal attempted
+                attempted = True
+                with self.assertRaises(subprocess.CalledProcessError):
+                    fixture.git("checkout", "-q", "other")
+                return original(journal, deadline)
+            def fail(number, args, deadline):
+                if "verify" in args:
+                    raise RuntimeError("synthetic proof failure")
+            fixture.after = fail
+            with patch.object(transaction.FileJournal, "rollback", rollback):
+                ok, error = fixture.promote()
+            self.assertFalse(ok)
+            self.assertTrue(attempted)
             fixture.assert_restored(self)
+
+    def test_busy_recovery_index_preserves_source_and_backups_for_review(self):
+        with Fixture() as fixture:
+            def fail(number, args, deadline):
+                if "verify" in args:
+                    fixture.write(".git/index.lock", "independent writer\n")
+                    raise RuntimeError("synthetic proof failure")
+            fixture.after = fail
+            ok, error = fixture.promote()
+            self.assertFalse(ok)
+            self.assertIn("rollback needs review", error)
+            self.assertIn("return 2", fixture.source.read_text())
+            self.assertEqual((fixture.root / ".git/index.lock").read_text(), "independent writer\n")
+            self.assertTrue(list((fixture.root / "build/permuter/fixture/promotions").glob("*/before/src/fixture.c")))
 
     def test_hook_private_index_mutation_is_recovery_only(self):
         with Fixture() as fixture:

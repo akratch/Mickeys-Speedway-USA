@@ -395,7 +395,10 @@ and message must equal the proved values before compare-and-swap publication
 to the exact lane branch captured at transaction start. A competing commit or
 branch switch fails closed. The real index's standard writer lock spans copying,
 comparison, branch verification, CAS publication and atomic index replacement,
-preventing normal checkout in that interval. Index recovery uses the same lock;
+preventing normal checkout in that interval. Recovery holds the same lock from
+the selected-branch check through ref/index reconciliation and file rollback.
+A changed branch or unavailable recovery lock preserves files and backups for
+manual review, even if the new branch's committed source equals the candidate;
 unrelated staged entries
 are retained. A failed commit is retained at `refs/sweep-recovery/<id>`; recovery
 undoes only this transaction's branch advance if it was already published.

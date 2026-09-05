@@ -80,6 +80,7 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import contextlib
 import dataclasses
 import fcntl
 import json
@@ -1308,10 +1309,13 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
             raise RuntimeError(f"rollback git {' '.join(args)} failed: {result.stderr[-1000:]}")
         return result.stdout.strip()
 
-    def synchronize_index(expected, target, command, unchanged=None, publish=None, finalize=None):
+    def synchronize_index(expected, target, command, unchanged=None, publish=None, finalize=None,
+                          locked_copy=None):
         # Git's index.lock spans the comparison AND publication. Commands
         # update a separate copy, so errors leave the real index untouched.
-        with promotion_transaction.locked_index(main_index) as copy:
+        context = (contextlib.nullcontext(locked_copy) if locked_copy is not None
+                   else promotion_transaction.locked_index(main_index))
+        with context as copy:
             env = dict(os.environ, GIT_INDEX_FILE=str(copy))
             observed = command(["ls-files", "--stage", "--", *rel_paths], env=env)
             if observed == unchanged:
@@ -1329,9 +1333,12 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
 
     try:
         initial_head = run(["git", "rev-parse", "HEAD"])
-        if commit:
-            initial_ref = run(["git", "symbolic-ref", "HEAD"])
-            main_index = Path(run(["git", "rev-parse", "--path-format=absolute", "--git-path", "index"]))
+        initial_ref = run(["git", "rev-parse", "--symbolic-full-name", "HEAD"])
+        main_index = Path(run(["git", "rev-parse", "--path-format=absolute", "--git-path", "index"]))
+        if commit and initial_ref == "HEAD":
+            raise RuntimeError("--commit requires an attached lane branch")
+        if Path(str(main_index) + ".lock").exists():
+            raise RuntimeError("existing index lock; refusing to mutate promotion source")
         initial_index = run(["git", "ls-files", "--stage", "--", *rel_paths])
         if commit and run(["git", "diff", "HEAD", "--name-only", "--", *rel_paths]):
             raise RuntimeError("promotion paths already differ from HEAD; preserve them before --commit")
@@ -1435,35 +1442,39 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
                     recovery = f"refs/sweep-recovery/{uuid.uuid4().hex}"
                     cleanup_git(["update-ref", recovery, detached_tip])
                     reason += f"; failed promotion commit retained at {recovery}"
-            if initial_head is not None:
-                current_head = cleanup_git(["rev-parse", initial_ref])
-                if current_head != initial_head:
-                    # Publication or index reconciliation can be interrupted.
-                    # Undo only our exact detached candidate on the pinned
-                    # branch; never undo a foreign or concurrent commit.
-                    tree = cleanup_git(["show", "-s", "--format=%T", current_head])
-                    parents = cleanup_git(["show", "-s", "--format=%P", current_head])
-                    message = cleanup_git(["show", "-s", "--format=%B", current_head])
-                    if (current_head != detached_tip or expected_tree is None or tree != expected_tree or parents != initial_head
-                            or message != expected_message):
-                        changed = cleanup_git(["diff", initial_head, current_head,
-                                               "--name-only", "--", *rel_paths])
-                        if changed:
-                            raise RuntimeError("foreign HEAD changed promotion paths; files and commits preserved for review")
-                        reason += "; unrelated concurrent commit preserved"
-                    else:
-                        def restore_ref():
-                            if cleanup_git(["symbolic-ref", "HEAD"]) != initial_ref:
-                                raise RuntimeError("branch changed before recovery; commit and index preserved")
-                            cleanup_git(["update-ref", initial_ref, initial_head, current_head])
-                        try:
-                            synchronize_index(expected_index, initial_head, cleanup_git,
-                                              unchanged=initial_index, publish=restore_ref)
-                        except Exception as index_error:
-                            reason += f"; {index_error}"
-            conflicts = journal.rollback(cleanup_deadline)
-            if conflicts:
-                reason += "; concurrent edits need manual rollback: " + ", ".join(conflicts)
+            if journal.changed():
+                # Same bytes do not establish ownership after a checkout:
+                # another branch may commit exactly our candidate text. Hold
+                # checkout exclusion through branch/ref/index AND file recovery.
+                with promotion_transaction.locked_index(main_index) as recovery_index:
+                    if cleanup_git(["rev-parse", "--symbolic-full-name", "HEAD"]) != initial_ref:
+                        raise RuntimeError("selected branch changed; files and index preserved for manual recovery")
+                    current_head = cleanup_git(["rev-parse", initial_ref])
+                    if current_head != initial_head:
+                        # Undo only our exact detached candidate on the pinned
+                        # branch; never undo a foreign or concurrent commit.
+                        tree = cleanup_git(["show", "-s", "--format=%T", current_head])
+                        parents = cleanup_git(["show", "-s", "--format=%P", current_head])
+                        message = cleanup_git(["show", "-s", "--format=%B", current_head])
+                        if (current_head != detached_tip or expected_tree is None or tree != expected_tree
+                                or parents != initial_head or message != expected_message):
+                            changed = cleanup_git(["diff", initial_head, current_head,
+                                                   "--name-only", "--", *rel_paths])
+                            if changed:
+                                raise RuntimeError("foreign HEAD changed promotion paths; files and commits preserved for review")
+                            reason += "; unrelated concurrent commit preserved"
+                        else:
+                            def restore_ref():
+                                cleanup_git(["update-ref", initial_ref, initial_head, current_head])
+                            try:
+                                synchronize_index(expected_index, initial_head, cleanup_git,
+                                                  unchanged=initial_index, publish=restore_ref,
+                                                  locked_copy=recovery_index)
+                            except Exception as index_error:
+                                reason += f"; {index_error}"
+                    conflicts = journal.rollback(cleanup_deadline)
+                    if conflicts:
+                        reason += "; concurrent edits need manual rollback: " + ", ".join(conflicts)
         except BaseException as rollback_error:
             reason += f"; rollback needs review: {rollback_error}"
         reason += f"; evidence: {evidence.relative_to(ROOT)}; build artifacts may need rebuilding"
