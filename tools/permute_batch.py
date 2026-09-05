@@ -83,6 +83,7 @@ import concurrent.futures
 import contextlib
 import dataclasses
 import fcntl
+import hashlib
 import json
 import os
 import re
@@ -704,6 +705,7 @@ class RunResult:
     busy: bool = False
     deep_skipped: bool = False
     scratch_path: Optional[str] = None
+    artifact_bundle: Optional[str] = None
 
 
 def remaining_timeout(deadline: Optional[float], cap: float = 120) -> float:
@@ -830,7 +832,15 @@ def receipt_inputs(item: QueueItem, scratch: Path, settings: Path, target: Path,
     # by annotation. The receipt never contains ROM bytes.
     if item.overlay is not None:
         context["rom"] = sweep_receipts.file_digest(BASEROM)
-    return {"schema": sweep_receipts.SCHEMA, "context": context, "search": search}
+    baseline_hashes = {"baseline/" + name: sweep_receipts.file_digest(scratch / name)
+                       for name in ("base.c", "base.o", "compile.sh", "target.s", "settings.toml")}
+    baseline_hashes.update({"baseline/tu.c": context["source"],
+                           "baseline/permuter_settings.toml": context["settings"],
+                           "baseline/recipe.json": hashlib.sha256(
+                               json.dumps(dataclasses.asdict(recipe), sort_keys=True).encode()).hexdigest()})
+    context["baseline_hashes"] = baseline_hashes
+    return {"schema": sweep_receipts.SCHEMA, "context": context, "search": search,
+            "baseline_hashes": baseline_hashes}
 
 
 def write_settings_toml(out_path: Path, flags: tuple[str, ...],
@@ -1158,7 +1168,7 @@ def run_permuter(
 def best_output_dir(scratch: Path) -> Optional[Path]:
     candidates = []
     for d in scratch.glob("output-*"):
-        if not d.is_dir():
+        if d.is_symlink() or not d.is_dir():
             continue
         parts = d.name.split("-")
         if len(parts) >= 2 and parts[1].lstrip("-").isdigit():
@@ -1490,11 +1500,131 @@ def _best(scratch: Path) -> tuple[Optional[Path], Optional[int]]:
     best_dir = best_output_dir(scratch)
     if best_dir is None:
         return None, None
-    score_file = best_dir / "score.txt"
-    return best_dir, int(score_file.read_text().strip()) if score_file.is_file() else None
+    score = sweep_receipts.owned_bytes(scratch, best_dir.name + "/score.txt")
+    return best_dir, int(score.decode().strip())
 
 
 _IMPORT_LOCK = threading.Lock()
+
+_CAPTURE_BASELINE = r'''
+import hashlib, json, os, stat, subprocess, sys, tempfile
+from pathlib import Path
+recipe, destination, *args = sys.argv[1:]
+if len(args) != 3 or args[1] != '-o':
+    raise RuntimeError('unsupported permuter compiler invocation')
+root = Path(destination)
+def read_temp(name):
+    path = Path(name)
+    if path.parent.resolve() != Path(tempfile.gettempdir()).resolve() or not path.name.startswith('permuter'):
+        raise RuntimeError('compiler input/output is not a permuter temporary file')
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(fd, 'rb') as stream:
+        info = os.fstat(stream.fileno())
+        if not stat.S_ISREG(info.st_mode) or info.st_size > 120 * 1024 * 1024:
+            raise RuntimeError('unsupported compiler temporary file')
+        return stream.read(120 * 1024 * 1024 + 1)
+source = read_temp(args[0])
+(root / 'compiled.c').write_bytes(source)
+code = subprocess.run(['bash', recipe, *args]).returncode
+obj = read_temp(args[2])
+(root / 'compiled.o').write_bytes(obj)
+if read_temp(args[0]) != source:
+    raise RuntimeError('baseline input changed during compiler invocation')
+(root / 'capture.json').write_text(json.dumps({'returncode': code,
+    'source_sha256': hashlib.sha256(source).hexdigest(),
+    'object_sha256': hashlib.sha256(obj).hexdigest()}))
+sys.exit(code if code else (0 if obj else 1))
+'''
+
+
+def install_baseline_capture(scratch: Path, out_dir: Path, baseline: dict) -> Path:
+    """Capture the first synchronous search compilation, not importer's different AST."""
+    capture = out_dir / "baseline-capture"
+    capture.mkdir(mode=0o700)
+    recipe = capture / "compile-original.sh"
+    recipe.write_bytes(baseline["baseline/compile.sh"])
+    helper = capture / "capture.py"
+    helper.write_text(_CAPTURE_BASELINE)
+    quote = shlex.quote
+    wrapper = ("#!/bin/sh\nif mkdir " + quote(str(capture / "claimed")) + " 2>/dev/null; then\n"
+               + "exec " + " ".join(map(quote, [str(PYTHON), str(helper), str(recipe), str(capture)]))
+               + ' "$@"\nelse\nexec bash ' + quote(str(recipe)) + ' "$@"\nfi\n')
+    (scratch / "compile.sh").write_text(wrapper)
+    (scratch / "compile.sh").chmod(0o755)
+    return capture
+
+
+def preserve_search_artifacts(store, out_dir, scratch, baseline, result, deadline, inputs):
+    """Save untouched compiler evidence, including retryable partial attempts."""
+    files = dict(baseline)
+    errors = []
+    try:
+        capture = out_dir / "baseline-capture"
+        metadata = json.loads(sweep_receipts.owned_bytes(capture, "capture.json"))
+        for name in ("compiled.c", "compiled.o"):
+            files["baseline/" + name] = sweep_receipts.owned_bytes(capture, name)
+        if (metadata["returncode"] != 0 or not files["baseline/compiled.o"]
+                or hashlib.sha256(files["baseline/compiled.c"]).hexdigest() != metadata["source_sha256"]
+                or hashlib.sha256(files["baseline/compiled.o"]).hexdigest() != metadata["object_sha256"]):
+            raise RuntimeError("actual search baseline capture is incomplete")
+        files["baseline/measurement.json"] = json.dumps({**metadata, "score": result.base_score,
+            "kind": "first synchronous permuter baseline; importer base.c/base.o are unpaired preparation artifacts"}).encode()
+    except Exception as error:
+        errors.append(str(error))
+    try:
+        best_dir, score = _best(scratch)
+        if best_dir is not None and (result.base_score is None or
+                                    score is not None and score < result.base_score):
+            source = sweep_receipts.owned_bytes(out_dir, (best_dir / "source.c").relative_to(out_dir).as_posix())
+            files["best/source.c"] = source
+            # The permuter retains source, score and diff, not an object.
+            # Compile exactly those bytes once through the saved full recipe.
+            compile_dir = out_dir / ("artifact-compile-" + uuid.uuid4().hex)
+            compile_dir.mkdir(mode=0o700)
+            candidate = compile_dir / "source.c"
+            obj = compile_dir / "object.o"
+            compile_script = compile_dir / "compile.sh"
+            candidate.write_bytes(source)
+            compile_script.write_bytes(files["baseline/compile.sh"])
+            # The importer's realpath-based recipe expects an existing output,
+            # exactly as its Compiler's NamedTemporaryFile provides.
+            obj.touch(exist_ok=False)
+            remaining_timeout(deadline)
+            command = bounded_capture(["bash", str(compile_script), str(candidate),
+                                       "-o", str(obj)], deadline, check=True)
+            (out_dir / "artifact-compile.log").write_text(command.stdout)
+            if sweep_receipts.owned_bytes(compile_dir, candidate.name) != source:
+                raise RuntimeError("saved best source changed during compilation")
+            files["best/object.o"] = sweep_receipts.owned_bytes(compile_dir, obj.name)
+            if not files["best/object.o"]:
+                raise RuntimeError("saved best compiler produced an empty object")
+            files["best/measurement.json"] = json.dumps({"search_score": score,
+                "kind": "unchanged saved source recompiled at a diagnostic path; not the original scored object",
+                "path_sensitive_equivalence_proved": False}).encode()
+        else:
+            files["best/source.c"] = files["baseline/compiled.c"]
+            files["best/object.o"] = files["baseline/compiled.o"]
+            files["best/measurement.json"] = files["baseline/measurement.json"]
+    except Exception as error:
+        errors.append(str(error))
+        output = getattr(error, "output", None)
+        if output:
+            (out_dir / "artifact-compile.log").write_bytes(output.encode() if isinstance(output, str) else output)
+    attempts, copy_errors = sweep_receipts.attempt_files(out_dir,
+        byte_budget=sweep_receipts.MAX_PAYLOAD_BYTES - sum(map(len, files.values())) - 65536,
+        entry_budget=sweep_receipts.MAX_ARTIFACT_ENTRIES - len(files) - 1,
+        deadline=time.monotonic() + 5)
+    files.update(attempts)
+    errors.extend(copy_errors)
+    complete = not errors and sweep_receipts.REQUIRED_ARTIFACTS <= files.keys()
+    if not complete:
+        result.ok = False
+        result.error = (result.error + "; " if result.error else "") + "artifact preservation incomplete: " + "; ".join(errors)
+        if deadline is not None and time.monotonic() >= deadline:
+            result.stopped_batch = True
+    files["artifact-status.json"] = json.dumps({"complete": complete, "errors": errors,
+                                                "search_error": result.error}).encode()
+    result.artifact_bundle = store.save_bundle(files, complete=complete, inputs=inputs)
 
 
 def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: int, apply: bool,
@@ -1510,6 +1640,9 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
     out_dir.mkdir(parents=True, exist_ok=True)
     result = RunResult(func=item.func, c_file=item.rel_c_file, overlay=item.overlay, ok=False)
     start = time.monotonic()
+    store = receipt_store or sweep_receipts.ReceiptStore.for_repo(ROOT)
+    baseline = {}
+    preservation_started = False
     try:
         remaining_timeout(batch_deadline)
         source_hash = sweep_receipts.file_digest(item.c_file)
@@ -1542,7 +1675,6 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
         if source_hash != inputs["context"]["source"]:
             raise RuntimeError("source changed during sweep preparation; retry against stable input")
         result.receipt_key = sweep_receipts.digest(inputs)
-        store = receipt_store or sweep_receipts.ReceiptStore.for_repo(ROOT)
         with store.claim(result.receipt_key) as acquired:
             if not acquired:
                 result.busy = True
@@ -1554,7 +1686,15 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
                 result.base_score = previous["result"]["base_score"]
                 result.best_score = previous["result"]["best_score"]
                 result.scratch_path = previous["result"].get("scratch_path")
+                result.artifact_bundle = previous["result"]["artifact_bundle"]
             else:
+                # Freeze baseline bytes before an extension replaces base.c.
+                for name in ("base.c", "base.o", "compile.sh", "target.s", "settings.toml"):
+                    baseline["baseline/" + name] = sweep_receipts.owned_bytes(scratch, name)
+                baseline["baseline/tu.c"] = sweep_receipts.owned_bytes(ROOT, item.rel_c_file)
+                baseline["baseline/recipe.json"] = json.dumps(dataclasses.asdict(recipe), sort_keys=True).encode()
+                baseline["baseline/permuter_settings.toml"] = sweep_receipts.owned_bytes(out_dir, settings_path.name)
+                install_baseline_capture(scratch, out_dir, baseline)
                 run_prepared(item, scratch, out_dir, result, minutes, permuter_threads,
                              build_jobs, apply, extra_args, load_threshold, extend_minutes,
                              commit, flat_minutes, batch_deadline)
@@ -1564,6 +1704,8 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
                 if not result.promoted and sweep_receipts.file_digest(item.c_file) != source_hash:
                     result.error = "source changed while searching; receipt is retryable"
                     result.ok = False
+                preservation_started = True
+                preserve_search_artifacts(store, out_dir, scratch, baseline, result, batch_deadline, inputs)
                 if sweep_tool_identity() != inputs["context"]["tools"]:
                     result.error = "tools changed while searching; receipt is retryable"
                     result.ok = False
@@ -1574,6 +1716,20 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
         result.error = str(e)
         if batch_deadline is not None and time.monotonic() >= batch_deadline:
             result.stopped_batch = True
+        # Even failures before identity preparation retain their actual files.
+        # They never enter the reusable context index.
+        try:
+            if preservation_started:
+                raise RuntimeError("preservation already attempted; refusing a second full scan")
+            files, errors = sweep_receipts.attempt_files(out_dir,
+                byte_budget=sweep_receipts.MAX_PAYLOAD_BYTES - sum(map(len, baseline.values())) - 65536,
+                deadline=time.monotonic() + 5)
+            failure_inputs = {"schema": sweep_receipts.SCHEMA,
+                              "context": {"unprepared_run": out_dir.name, "func": item.func}}
+            result.artifact_bundle = store.save_bundle({**baseline, **files}, complete=False, inputs=failure_inputs)
+            store.record(failure_inputs, dataclasses.asdict(result))
+        except Exception as preservation_error:
+            result.error += f"; durable preservation failed: {preservation_error}; local evidence: {out_dir}"
     result.seconds = time.monotonic() - start
     sweep_receipts.atomic_json(out_dir / "result.json", dataclasses.asdict(result))
     return result
