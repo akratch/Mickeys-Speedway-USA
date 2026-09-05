@@ -545,13 +545,17 @@ interrupted report without recompiling recorded identities, and repeated
   restoration, or extraction. This keeps duplicate source/build trees out of
   Spotlight without changing callers' lane paths.
 - **`tools/merge_lane.sh <name>`** integrates one lane back into the current
-  branch: it rebuilds the lane from clean and requires `verify`/`check-docs`
-  to pass there first, runs the clean-room range scan over the lane's
-  commits, merges `lane/<name>`, and resolves the two files that always
+  branch: it pins the lane's committed tip without touching the worker's
+  worktree, runs the clean-room range scan over that exact commit range,
+  merges the pinned tip, and resolves the generated files that commonly
   conflict by *regenerating* them instead of taking either side — the README
   scoreboard block and the overlay atlas — then re-runs
   `verify`/`check-docs`/`overlay-atlas`/`check-scoreboard` on the merged
-  result. It exits non-zero and leaves the merge in progress if anything else
+  result. Generated overlay symbols are checked before a transaction stages
+  only the reviewed generated delta, including recreated deleted outputs.
+  Unexpected tracked edits, preexisting untracked generated inputs, index
+  changes, and commit-hook failures stop rather than silently enter a commit.
+  It exits non-zero and leaves the merge in progress if anything else
   conflicts or a gate fails, rather than guessing a resolution. Set
   `MICKEY_BUILD_JOBS` and `MICKEY_BUILD_NICE` when local workstation policy
   requires a lower compiler concurrency or priority; the three-session crew

@@ -43,6 +43,7 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import contextlib
 import dataclasses
 import hashlib
 import json
@@ -1015,6 +1016,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         help="deprecated compatibility option; sweep artifacts are always retained",
     )
     p.add_argument("--objdiff", action="store_true", help="also print objdiff-cli's match %% for the top row, if installed")
+    p.add_argument("--json", action="store_true", help="emit scalar summary JSON; human logs go to stderr")
     p.add_argument(
         "--elf",
         type=Path,
@@ -1026,6 +1028,37 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
 
 def main(argv: Sequence[str]) -> int:
     args = parse_args(argv)
+    if args.json:
+        output = sys.stdout
+        with contextlib.redirect_stdout(sys.stderr):
+            return run_sweep(args, output)
+    return run_sweep(args)
+
+
+def summary_report(scored, failed, cache_key, compiled_count, total):
+    """Report search coverage separately from masked score and match proof."""
+    return {
+        "schema": "mickey-flag-sweep-summary-v1",
+        "cache_key": cache_key,
+        "total_combinations": total,
+        "compiled_combinations": compiled_count,
+        "scored_combinations": len(scored),
+        "failed_combinations": sorted(row[0].id for row in failed),
+        "complete": len(scored) == total and not failed,
+        "scope": "unlinked-relocation-masked-search-not-promotion-proof",
+        "promotion_proof_included": False,
+        "ranked": [{"combination": combo.id,
+                    "flags": combo.opt + combo.isa + combo.extra,
+                    "compiler": "ido-phases.py" if combo.use_ido_phases else "cc",
+                    "masked_exact": score.exact,
+                    "size_delta": score.size_delta,
+                    "differing_words": score.diff_words,
+                    "first_mismatch_offset": score.first_mismatch}
+                   for combo, score, _error, _elapsed in scored],
+    }
+
+
+def run_sweep(args, report_stream=None) -> int:
     tu = repo_cli_path(args.tu)
     if not tu.exists():
         print(f"flag_sweep: no such file: {tu}", file=sys.stderr)
@@ -1130,7 +1163,7 @@ def main(argv: Sequence[str]) -> int:
     if scored:
         best = scored[0][0]
         print()
-        print("Best flags (paste into the applicable Make policy override block):")
+        print("Best diagnostic flags (require target proof and consumer impact review before adoption):")
         cc_line = "CC := $(IDO_PHASES)" if best.use_ido_phases else ""
         if cc_line:
             print(f"  {cc_line}")
@@ -1162,8 +1195,10 @@ def main(argv: Sequence[str]) -> int:
         f"in {compile_elapsed:.1f}s ({workers} workers)"
     )
     print(f"cache: {sweep_root.relative_to(REPO_ROOT)}")
-
-    return 0
+    if report_stream is not None:
+        print(json.dumps(summary_report(scored, failed, cache_key, compiled_count, len(lattice)),
+                         indent=2, sort_keys=True), file=report_stream)
+    return 0 if scored else 1
 
 
 if __name__ == "__main__":

@@ -337,6 +337,9 @@ system-health:
 	$(HOST_PYTHON) $(TOOLS_DIR)/system_health.py $(SYSTEM_HEALTH_ARGS)
 
 check-tooling:
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_probe.py
+	$(PYTHON) $(TOOLS_DIR)/test_raw_asm_census.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_merge_transaction.py
 	$(HOST_PYTHON) tests/test_make_layout.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_check_match_regression.py
 	$(HOST_PYTHON) tests/test_flag_sweep.py
@@ -366,6 +369,11 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_resolve_comment_hunks.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_lane_cache.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_public_release.py
+
+# Ownership-only inventory; does not count padding/scaffolds as matched C.
+.PHONY: check-raw-asm
+check-raw-asm:
+	$(PYTHON) $(TOOLS_DIR)/raw_asm_census.py --check-overlays
 
 promotion-proof:
 	@test -n "$(SYMBOL)" || { echo "usage: gmake promotion-proof SYMBOL=name [PROMOTION_PROOF_ARGS='--canonical']"; exit 2; }
@@ -1011,12 +1019,6 @@ $(BUILD_DIR)/$(SRC_DIR)/main/textures_354C8.c.o: POSTPROCESS = \
 # trailing section-alignment word before the following 0x30BC TU.
 $(BUILD_DIR)/$(SRC_DIR)/main/audiomgr.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xD7C
-# Overlay 57's prefix owner ends at the measured 0xDCC-byte function boundary.
-# The assembly-backed C scaffold makes IDO/asm-processor round the standalone
-# .text section to 0xDD0, so discard only its trailing alignment word before
-# the following overlay57EaseAndLatch subsegment.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o057/func_overlay_057_F0001AE8_18A56E0.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDCC
 # Mickey's three maths objects are byte-identical to JFG's matching objects,
 # whose per-directory rule uses bare `-g` (no optimisation flag). The -O2
 # game default changes atan2f from 0x1F4 to 0x134 bytes, so keep this override

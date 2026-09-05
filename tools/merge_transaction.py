@@ -27,7 +27,7 @@ def git(*args: str) -> str:
 
 
 def paths(*args: str) -> set[str]:
-    data = subprocess.check_output(["git", *args, "-z"])
+    data = subprocess.check_output(["git", args[0], "-z", *args[1:]])
     return {os.fsdecode(p) for p in data.split(b"\0") if p}
 
 
@@ -39,6 +39,15 @@ def merge_identity() -> dict[str, str]:
 def require_clean() -> None:
     if git("status", "--porcelain", "--untracked-files=no"):
         raise ValueError("tracked changes present; preserve and commit them before merging")
+    if untracked_allowed(GENERATED):
+        raise ValueError("untracked generated paths present; preserve and review them before merging")
+
+
+def untracked_allowed(allowed: set[str]) -> set[str]:
+    # Do not exclude ignored files: a formerly tracked generated file may
+    # become ignored after the incoming commit deletes it. Query only the
+    # explicit reviewed paths, never the potentially huge build directories.
+    return paths("ls-files", "--others", "--", *sorted(allowed))
 
 
 def begin(state: Path) -> None:
@@ -51,6 +60,8 @@ def begin(state: Path) -> None:
     payload = {**identity, "index": git("write-tree"),
                "allowed": sorted(GENERATED | {p for p in merged
                    if p.startswith(("src/", "include/")) and p.endswith((".c", ".h"))})}
+    if untracked_allowed(set(payload["allowed"])):
+        raise ValueError("preexisting untracked generated input; review before integration gates")
     state.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(mode="w", dir=state.parent, delete=False) as stream:
         json.dump(payload, stream)
@@ -64,7 +75,7 @@ def stage(state: Path) -> None:
         raise ValueError("merge changed while gates ran; repeat integration gates")
     if git("write-tree") != payload["index"]:
         raise ValueError("index changed while gates ran; review and repeat integration gates")
-    dirty = paths("diff", "--name-only")
+    dirty = paths("diff", "--name-only") | untracked_allowed(set(payload["allowed"]))
     unexpected = dirty - set(payload["allowed"])
     if unexpected:
         raise ValueError("unexpected generated edits (preserved): " + ", ".join(sorted(unexpected)))
@@ -73,7 +84,9 @@ def stage(state: Path) -> None:
     expected = {p: git("hash-object", "--", p) if Path(p).is_file() else None
                 for p in dirty}
     if dirty:
-        subprocess.run(["git", "add", "-A", "--", *sorted(dirty)], check=True)
+        # -f is confined to reviewed generated paths, including outputs that
+        # became ignored when a lane removed their tracked predecessor.
+        subprocess.run(["git", "add", "-A", "-f", "--", *sorted(dirty)], check=True)
     for path, oid in expected.items():
         entry = git("ls-files", "--stage", "--", path)
         actual = entry.split()[1] if entry else None
