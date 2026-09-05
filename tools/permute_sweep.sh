@@ -9,7 +9,7 @@
 #
 # Default lane: permute-sweep (../mickey-lane-permute-sweep, branch
 # lane/permute-sweep). Creates it if missing. Steps:
-#   1. hard-reset the lane to campaign/unchain, gmake extract, warm build,
+#   1. fast-forward the lane to campaign/unchain, gmake extract, warm build,
 #      gmake verify (the sweep never starts from a non-verifying base);
 #   2. run permute_batch.py --apply --commit --order ranking --resume under
 #      the load gate, with the caps below unless overridden;
@@ -35,7 +35,7 @@ fi
 
 cd "$lane_dir"
 if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
-    echo "$0: $lane_dir has uncommitted tracked changes; refusing to reset it." >&2
+    echo "$0: $lane_dir has uncommitted tracked changes; refusing to resync it." >&2
     exit 1
 fi
 base=$(git -C "$root" rev-parse campaign/unchain)
@@ -45,14 +45,17 @@ base=$(git -C "$root" rev-parse campaign/unchain)
 pending=$(git -C "$root" cherry campaign/unchain "lane/$lane" 2>/dev/null | grep -c '^+' || true)
 if [ "${pending:-0}" -gt 0 ]; then
     echo "$0: lane/$lane has $pending unintegrated commit(s) (git cherry campaign/unchain lane/$lane); integrate them before resyncing." >&2
-    git -C "$root" log --format='  %h %s' "campaign/unchain..lane/$lane" >&2
+git -C "$root" log --format='  %h %s' "campaign/unchain..lane/$lane" >&2
     exit 1
 fi
 echo "resync: lane/$lane -> campaign/unchain $base"
-git reset -q --hard "$base"
-# Untracked leftovers from an earlier sweep (permuter scratch dirs at the
-# root, stale asm/) would otherwise shadow the fresh extract.
-git clean -qfd -e .venv -e baseroms -e tools/ido -e tools/binutils -e tools/objdiff -e tools/permuter -e .metadata_never_index
+git merge -q --ff-only "$base" || {
+    echo "$0: lane history cannot fast-forward; preserve it for coordinator review." >&2
+    exit 1
+}
+# Retain prior scratch candidates and user files. Every new attempt gets a
+# fresh run directory; successful scalar receipts survive in Git's common
+# directory even when a released lane is later removed.
 gmake extract >/dev/null
 gmake -j6 >/dev/null
 gmake -j6 >/dev/null   # second pass: the first parallel build after a re-split can race
@@ -61,6 +64,7 @@ gmake verify | tail -1
 log="build/permuter/sweep-$(date +%Y%m%d-%H%M).log"
 mkdir -p build/permuter
 echo "sweep log: $lane_dir/$log"
+echo "resume: exact source/tool/settings receipts in Git's common directory"
 .venv/bin/python -u tools/permute_batch.py \
     --apply --commit --order ranking --resume \
     --jobs 2 --permuter-threads 4 --build-jobs 6 \

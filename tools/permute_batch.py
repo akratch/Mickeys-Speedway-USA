@@ -81,6 +81,7 @@ from __future__ import annotations
 import argparse
 import concurrent.futures
 import dataclasses
+import fcntl
 import json
 import os
 import re
@@ -91,12 +92,14 @@ import subprocess
 import sys
 import threading
 import time
+import uuid
 from pathlib import Path
 from typing import Optional
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import reloc_surface  # noqa: E402
+import sweep_receipts  # noqa: E402
 ATLAS_PATH = ROOT / "config" / "overlays.us.json"
 PERMUTER_DIR = ROOT / "tools" / "permuter"
 IMPORT_PY = PERMUTER_DIR / "import.py"
@@ -330,36 +333,54 @@ _O2_G3_TUS = None
 class BuildRecipe:
     """What the project's real build does to one TU's object: the codegen
     flags on its cc line and any post-compile objcopy chain. Recovered from
-    `gmake -n <obj>` (the source is touched first: gmake prints nothing for
-    an up-to-date object, which is exactly the silent -mips1 false floor
+    `gmake -n -W <source> <obj>` (make treats the source as changed without
+    modifying its timestamp, avoiding the silent -mips1 false floor
     docs/matching-triage.md records)."""
 
     flags: tuple[str, ...]
     objcopy_steps: tuple[str, ...]  # shell fragments, real object path intact
     skipped_postproc: tuple[str, ...]  # digest-guarded passes not replicated
     from_dry_run: bool
+    compiler_args: tuple[str, ...] = ()  # complete IDO tail, excluding input/output
 
 
-_RECIPE_CACHE: dict[Path, BuildRecipe] = {}
-_RECIPE_LOCK = threading.Lock()
+def compiler_arguments(line: str, source: str, obj: str) -> tuple[str, ...]:
+    """Preserve every real IDO flag, define and include in its original order."""
+    words = shlex.split(line)
+    cc = words.index("tools/ido/cc")
+    wrapped = (cc == 2 and words[1] == "tools/asm-processor/build.py"
+               and Path(words[0]).name.startswith("python"))
+    if cc != 0 and not wrapped:
+        raise ValueError("unsupported compiler wrapper; cannot prove scratch command fidelity")
+    tail = words[cc + 1:]
+    if wrapped:
+        # asm-processor: cc -- assembler and its arguments -- IDO arguments.
+        if not tail or tail[0] != "--":
+            raise ValueError("unsupported asm-processor compiler command")
+        tail = tail[tail.index("--", 1) + 1:]
+    if any(token in {"&&", "||", ";", "|", ">", "2>"} or "$" in token for token in tail):
+        raise ValueError("unsupported shell syntax in IDO argument tail")
+    if source not in tail or "-o" not in tail:
+        raise ValueError("cannot identify IDO input/output arguments")
+    output_index = tail.index("-o")
+    if output_index + 1 >= len(tail) or tail[output_index + 1] != obj:
+        raise ValueError("unexpected IDO output path")
+    del tail[output_index:output_index + 2]
+    tail.remove(source)
+    return tuple(tail)
 
 
-def build_recipe_for(c_file: Path) -> BuildRecipe:
-    with _RECIPE_LOCK:
-        if c_file in _RECIPE_CACHE:
-            return _RECIPE_CACHE[c_file]
+def build_recipe_for(c_file: Path, deadline: Optional[float] = None) -> BuildRecipe:
+    # Re-read each time: promotions and operator edits can change per-file
+    # flags during a long batch. A path-only cache hid those changes.
     obj = f"build/{c_file.relative_to(ROOT).as_posix()}.o"
-    try:
-        os.utime(c_file, None)
-    except OSError:
-        pass
-    dry = subprocess.run(
-        ["gmake", "-n", obj], cwd=ROOT, stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL, text=True, timeout=120,
+    dry = bounded_capture(
+        ["gmake", "-n", "-W", c_file.relative_to(ROOT).as_posix(), obj], deadline,
     ).stdout
     flags: tuple[str, ...] = ()
     objcopy_steps: list[str] = []
     skipped: list[str] = []
+    compiler_args: tuple[str, ...] = ()
     # gmake echoes the recipe verbatim, so the cc command arrives as
     # "... tools/ido/cc -- <as> -- \" + a continuation line carrying the
     # flags and the object path. Join continuations before parsing.
@@ -390,8 +411,9 @@ def build_recipe_for(c_file: Path) -> BuildRecipe:
             found = CODEGEN_FLAG_RE.findall(line)
             if any(f.startswith("-mips") for f in found):
                 flags = tuple(dict.fromkeys(found))
+                compiler_args = compiler_arguments(line, c_file.relative_to(ROOT).as_posix(), obj)
     if flags:
-        recipe = BuildRecipe(flags, tuple(objcopy_steps), tuple(skipped), True)
+        recipe = BuildRecipe(flags, tuple(objcopy_steps), tuple(skipped), True, compiler_args)
     else:
         print(
             f"WARNING: could not recover real compile flags for {obj}; "
@@ -399,8 +421,6 @@ def build_recipe_for(c_file: Path) -> BuildRecipe:
             file=sys.stderr,
         )
         recipe = BuildRecipe(flag_group_for(c_file), tuple(objcopy_steps), tuple(skipped), False)
-    with _RECIPE_LOCK:
-        _RECIPE_CACHE[c_file] = recipe
     return recipe
 
 
@@ -676,20 +696,131 @@ class RunResult:
     stopped_batch: bool = False  # whole-batch deadline ended this search
     commit_error: Optional[str] = None
     annotated_relocs: int = 0  # overlay target sites given symbolic relocations
+    receipt_key: Optional[str] = None
+    resumed: bool = False
+    busy: bool = False
+    deep_skipped: bool = False
+    scratch_path: Optional[str] = None
 
 
-def write_settings_toml(out_path: Path, flags: tuple[str, ...]) -> None:
-    opt_mips = " ".join(flags)
-    compiler_command = (
-        f'tools/ido/cc {BASE_CC_ARGS} -DNON_MATCHING \\\n'
-        f'{INCLUDES} {opt_mips}'
-    )
+def remaining_timeout(deadline: Optional[float], cap: float = 120) -> float:
+    remaining = cap if deadline is None else min(cap, deadline - time.monotonic())
+    if remaining <= 0:
+        raise TimeoutError("whole-batch deadline reached")
+    return remaining
+
+
+def bounded_capture(args: list[str], deadline: Optional[float], *, check: bool = False):
+    """Capture a preparation command and terminate its entire group on timeout."""
+    timeout = remaining_timeout(deadline)
+    proc = subprocess.Popen(args, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                            text=True, start_new_session=True)
+    finished = False
+    try:
+        output, _ = proc.communicate(timeout=timeout)
+        finished = True
+    finally:
+        if not finished or proc.returncode:
+            stop_process_group(proc)
+            proc.communicate()
+    result = subprocess.CompletedProcess(args, proc.returncode, output, output)
+    if check:
+        result.check_returncode()
+    return result
+
+
+def stop_process_group(proc: subprocess.Popen) -> None:
+    """Stop only our launched session, including workers after parent failure."""
+    try:
+        os.killpg(proc.pid, signal.SIGTERM)
+    except ProcessLookupError:
+        proc.wait()
+        return
+    try:
+        proc.wait(timeout=15)
+    except subprocess.TimeoutExpired:
+        pass
+    finally:
+        # The parent can exit before a worker that ignores TERM. Reaping the
+        # parent alone is not evidence that its process group has stopped.
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        proc.wait()
+
+
+def sweep_tool_identity() -> dict:
+    return {
+        "ido": sweep_receipts.tree_digest(ROOT / "tools/ido"),
+        "binutils": sweep_receipts.tree_digest(ROOT / "tools/binutils"),
+        "permuter": sweep_receipts.tree_digest(PERMUTER_DIR, source_only=True),
+        "runner": sweep_receipts.file_digest(Path(__file__)),
+        "receipts": sweep_receipts.file_digest(Path(sweep_receipts.__file__)),
+        "python": sweep_receipts.file_digest(PYTHON.resolve()),
+        "python_version": sys.version,
+    }
+
+
+def receipt_inputs(item: QueueItem, scratch: Path, settings: Path, target: Path,
+                   recipe: BuildRecipe, search: dict) -> dict:
+    """Fingerprint the actual importer output, not guessed header dependencies.
+
+    Preparing a resumed entry still preprocesses and compiles its baseline.
+    That small cost proves its effective source and relocation annotation are
+    unchanged before skipping a much longer search. Absolute lane/scratch
+    paths are normalized so equal inputs share receipts across isolated lanes.
+    """
+    if not recipe.from_dry_run or not recipe.compiler_args:
+        raise RuntimeError("cannot identify a sweep with fallback compile flags")
+    raw = target.read_text()
+    addresses = re.findall(r"^\s*/\*\s*([0-9A-Fa-f]+)\s+([0-9A-Fa-f]{8})\s+", raw, re.MULTILINE)
+    if not addresses:
+        raise ValueError("target has no ROM/text address identity")
+    rom, vma = (int(value, 16) for value in addresses[0])
+    offset = vma - 0xF0000000 if item.overlay is not None else vma
+    if offset < 0:
+        raise ValueError("overlay target has an invalid synthetic address")
+
+    def normalized(path: Path) -> str:
+        text = path.read_text()
+        replacements = [(str(scratch), "<scratch>"), (str(scratch.parent), "<run>"),
+                        (str(ROOT / "nonmatchings" / item.func), "<import>"),
+                        (str(ROOT), "<repo>")]
+        for old, new in sorted(replacements, key=lambda pair: len(pair[0]), reverse=True):
+            text = text.replace(old, new)
+        return sweep_receipts.digest(text)
+
+    context = {
+        "identity": {"symbol": item.func, "source": item.rel_c_file,
+                     "overlay": item.overlay, "section": ".text", "offset": offset,
+                     "rom_offset": rom},
+        "source": sweep_receipts.file_digest(item.c_file),
+        "prepared": {name: normalized(scratch / name)
+                     for name in ("base.c", "compile.sh", "target.s", "settings.toml")},
+        "settings": normalized(settings),
+        "recipe": json.loads(json.dumps(dataclasses.asdict(recipe))),
+        "tools": sweep_tool_identity(),
+    }
+    # Whole-ROM hash is cheap here and also pins the relocation metadata read
+    # by annotation. The receipt never contains ROM bytes.
+    if item.overlay is not None:
+        context["rom"] = sweep_receipts.file_digest(BASEROM)
+    return {"schema": sweep_receipts.SCHEMA, "context": context, "search": search}
+
+
+def write_settings_toml(out_path: Path, flags: tuple[str, ...],
+                        recipe: Optional[BuildRecipe] = None) -> None:
+    # The optional legacy form remains available to standalone callers. The
+    # batch runner always passes its recovered complete recipe.
+    args = list(recipe.compiler_args) if recipe and recipe.compiler_args else [
+        *shlex.split(BASE_CC_ARGS), *shlex.split(INCLUDES), *flags]
+    compiler_command = shlex.join(["tools/ido/cc", *args, "-DNON_MATCHING"])
     text = (
         'compiler_type = "ido"\n'
-        'compiler_command = """\n'
-        f"{compiler_command}\n"
-        '"""\n'
+        f"compiler_command = {json.dumps(compiler_command)}\n"
         f'assembler_command = "{ASSEMBLER_COMMAND}"\n\n'
+        'objdump_command = "tools/binutils/mips64-elf-objdump -drz -m mips:4300"\n\n'
         f"{PRESERVE_MACROS}\n"
         "[decompme.compilers]\n"
         '"tools/ido/cc" = "ido5.3"\n'
@@ -738,7 +869,8 @@ def prepare_target_asm(item: QueueItem, out_dir: Path) -> Path:
     return target
 
 
-def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path) -> int:
+def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
+                             batch_deadline: Optional[float] = None) -> int:
     """Give an overlay function's permuter target the relocations the shipped
     module says are there, and rename the candidate's placeholders to match.
 
@@ -782,14 +914,14 @@ def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path) -> i
     target_s.write_text(text)
     # The annotated target must still assemble -- that is the check that the
     # rewritten operands are real assembler syntax, not just plausible text.
-    proc = subprocess.run(
+    proc = bounded_capture(
         shlex.split(ASSEMBLER_COMMAND) + [str(target_s), "-o", str(scratch / "target.o")],
-        cwd=ROOT, capture_output=True, text=True)
+        batch_deadline)
     if proc.returncode != 0:
         target_s.write_text(original)
-        subprocess.run(
+        bounded_capture(
             shlex.split(ASSEMBLER_COMMAND) + [str(target_s), "-o", str(scratch / "target.o")],
-            cwd=ROOT, capture_output=True, text=True)
+            batch_deadline, check=True)
         (out_dir / "annotation.txt").write_text(
             "not annotated: annotated target did not assemble\n" + proc.stderr)
         return 0
@@ -819,19 +951,20 @@ def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path) -> i
                 f.write(f'{OBJCOPY} {args} "$OUTPUT"\n')
         # Refresh base.o through the amended recipe so the scratch's own base
         # object carries the canonical names too.
-        subprocess.run(["bash", str(csh), str(scratch / "base.c"), "-o",
-                        str(base_o)], cwd=ROOT, capture_output=True, text=True)
+        bounded_capture(["bash", str(csh), str(scratch / "base.c"), "-o", str(base_o)],
+                        batch_deadline, check=True)
     (out_dir / "annotation.txt").write_text(
         "\n".join(notes + [f"{k} -> {v}" for k, v in sorted(renames.items())]) + "\n")
     return len(renames)
 
 
-def run_import(item: QueueItem, out_dir: Path, settings_path: Path, target_asm: Path) -> Path:
+def run_import(item: QueueItem, out_dir: Path, settings_path: Path, target_asm: Path,
+               batch_deadline: Optional[float] = None) -> Path:
     root_nonmatchings = ROOT / "nonmatchings" / item.func
     if root_nonmatchings.exists():
         shutil.rmtree(root_nonmatchings)
     log_path = out_dir / "import.log"
-    proc = subprocess.run(
+    proc = bounded_capture(
         [
             str(PYTHON),
             str(IMPORT_PY),
@@ -840,10 +973,7 @@ def run_import(item: QueueItem, out_dir: Path, settings_path: Path, target_asm: 
             "--settings",
             str(settings_path),
         ],
-        cwd=ROOT,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
+        batch_deadline,
     )
     log_path.write_text(proc.stdout)
     if proc.returncode != 0 or not root_nonmatchings.is_dir():
@@ -901,7 +1031,7 @@ def wait_for_headroom(
             return
         if waited == 0:
             print(f"[headroom] load {load:.1f} >= {threshold:.1f}; waiting {label}".rstrip())
-        time.sleep(15)
+        time.sleep(remaining_timeout(batch_deadline, 15))
         waited += 15
 
 
@@ -961,42 +1091,40 @@ def run_permuter(
         if batch_deadline is not None:
             deadline = min(deadline, batch_deadline)
         flat_deadline = time.monotonic() + flat_minutes * 60 if flat_minutes > 0 else None
-        returncode = None
-        while True:
-            now = time.monotonic()
-            wake_at = deadline
-            if flat_deadline is not None:
-                wake_at = min(wake_at, flat_deadline)
-            poll_seconds = max(0.05, min(20.0, wake_at - now))
-            try:
-                returncode = proc.wait(timeout=poll_seconds)
-                break
-            except subprocess.TimeoutExpired:
-                pass
-            now = time.monotonic()
-            if now >= deadline:
-                returncode = 126 if batch_deadline is not None and now >= batch_deadline else 124
-                break
-            if flat_deadline is not None and now >= flat_deadline:
-                if not _improved_over_base(scratch, out_dir / log_name):
-                    returncode = 125  # stopped flat
-                    break
-                flat_deadline = None
-        if returncode in (124, 125, 126):
-            try:
-                os.killpg(proc.pid, signal.SIGTERM)
-                proc.wait(timeout=15)
-            except (ProcessLookupError, subprocess.TimeoutExpired):
+        stop_reason = None
+        try:
+            while True:
+                now = time.monotonic()
+                wake_at = deadline
+                if flat_deadline is not None:
+                    wake_at = min(wake_at, flat_deadline)
+                poll_seconds = max(0.05, min(20.0, wake_at - now))
                 try:
-                    os.killpg(proc.pid, signal.SIGKILL)
-                except ProcessLookupError:
+                    returncode = proc.wait(timeout=poll_seconds)
+                    break
+                except subprocess.TimeoutExpired:
                     pass
-                proc.wait()
+                now = time.monotonic()
+                if now >= deadline:
+                    stop_reason = "batch" if batch_deadline is not None and now >= batch_deadline else "cap"
+                    break
+                if flat_deadline is not None and now >= flat_deadline:
+                    if not _improved_over_base(scratch, out_dir / log_name):
+                        stop_reason = "flat"
+                        break
+                    flat_deadline = None
+        finally:
+            # Cleanup also runs on Ctrl-C or an unexpected monitoring failure.
+            stop_process_group(proc)
     elapsed = time.monotonic() - start
     text = log_path.read_text(errors="replace")
     m = re.search(r"base score = (\d+)", text)
     base_score = int(m.group(1)) if m else None
-    return base_score, elapsed, returncode == 125, returncode == 126
+    if stop_reason is None and returncode != 0:
+        raise RuntimeError(f"permuter exited {returncode}; see {log_path}")
+    if base_score is None and stop_reason != "batch":
+        raise RuntimeError(f"permuter produced no base score; see {log_path}")
+    return base_score, elapsed, stop_reason == "flat", stop_reason == "batch"
 
 
 def best_output_dir(scratch: Path) -> Optional[Path]:
@@ -1280,26 +1408,92 @@ def commit_match(item: QueueItem) -> Optional[str]:
     return None
 
 
+_IMPORT_LOCK = threading.Lock()
+
+
 def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: int, apply: bool,
             extra_args: list[str], load_threshold: float = 0.0, extend_minutes: int = 0,
             commit: bool = False, flat_minutes: int = 0,
             annotate_overlays: bool = True,
-            batch_deadline: Optional[float] = None) -> RunResult:
-    out_dir = BUILD_PERMUTER / item.func
+            batch_deadline: Optional[float] = None, resume: bool = False,
+            receipt_store: Optional[sweep_receipts.ReceiptStore] = None,
+            deep: bool = False) -> RunResult:
+    # Keep every meaningful attempt. Reimporting must not erase an earlier
+    # best candidate, especially when a later run fails before scoring.
+    out_dir = BUILD_PERMUTER / item.func / "runs" / uuid.uuid4().hex
     out_dir.mkdir(parents=True, exist_ok=True)
     result = RunResult(func=item.func, c_file=item.rel_c_file, overlay=item.overlay, ok=False)
     start = time.monotonic()
     try:
-        recipe = build_recipe_for(item.c_file)
+        remaining_timeout(batch_deadline)
+        source_hash = sweep_receipts.file_digest(item.c_file)
+        recipe = build_recipe_for(item.c_file, batch_deadline)
+        if not recipe.from_dry_run or not recipe.compiler_args:
+            raise RuntimeError("no supported complete IDO recipe; refusing a guessed scratch command")
         result.flags = " ".join(recipe.flags)
         result.replicated_objcopy = len(recipe.objcopy_steps)
         settings_path = out_dir / "permuter_settings.toml"
-        write_settings_toml(settings_path, recipe.flags)
+        write_settings_toml(settings_path, recipe.flags, recipe=recipe)
         target_asm = prepare_target_asm(item, out_dir)
-        scratch = run_import(item, out_dir, settings_path, target_asm)
+        # import.py uses nonmatchings/<symbol> internally, even when two TUs
+        # happen to define the same symbol. Serialize only this short step.
+        with _IMPORT_LOCK:
+            scratch = run_import(item, out_dir, settings_path, target_asm, batch_deadline)
+        result.scratch_path = str(scratch)
         replicate_objcopy(scratch, recipe, item.c_file, out_dir)
         if annotate_overlays:
-            result.annotated_relocs = annotate_overlay_scratch(item, scratch, out_dir)
+            result.annotated_relocs = annotate_overlay_scratch(item, scratch, out_dir, batch_deadline)
+        inputs = receipt_inputs(item, scratch, settings_path, target_asm, recipe, {
+            "minutes": minutes, "threads": permuter_threads, "extra_args": extra_args,
+            "extend_minutes": extend_minutes, "flat_minutes": flat_minutes,
+            "annotate_overlays": annotate_overlays,
+            "mandatory_args": ["--stop-on-zero", "--quiet", "--stack-diffs"],
+        })
+        if source_hash != inputs["context"]["source"]:
+            raise RuntimeError("source changed during sweep preparation; retry against stable input")
+        result.receipt_key = sweep_receipts.digest(inputs)
+        store = receipt_store or sweep_receipts.ReceiptStore.for_repo(ROOT)
+        with store.claim(result.receipt_key) as acquired:
+            if not acquired:
+                result.busy = True
+            elif deep and not store.descending(inputs["context"]):
+                result.deep_skipped = True
+            elif resume and (previous := store.completed(result.receipt_key)) is not None:
+                result.resumed = True
+                result.ok = True
+                result.base_score = previous["result"]["base_score"]
+                result.best_score = previous["result"]["best_score"]
+                result.scratch_path = previous["result"].get("scratch_path")
+            else:
+                run_prepared(item, scratch, out_dir, result, minutes, permuter_threads,
+                             build_jobs, apply, extra_args, load_threshold, extend_minutes,
+                             commit, flat_minutes, batch_deadline)
+                # Concurrent promotion in another slot can change this TU.
+                # Such a search remains useful evidence, but cannot suppress
+                # a future run against the newly changed source.
+                if not result.promoted and sweep_receipts.file_digest(item.c_file) != source_hash:
+                    result.error = "source changed while searching; receipt is retryable"
+                    result.ok = False
+                if sweep_tool_identity() != inputs["context"]["tools"]:
+                    result.error = "tools changed while searching; receipt is retryable"
+                    result.ok = False
+                result.seconds = time.monotonic() - start
+                store.record(inputs, dataclasses.asdict(result))
+    except Exception as e:  # noqa: BLE001 -- report, don't crash the batch
+        result.ok = False
+        result.error = str(e)
+        if batch_deadline is not None and time.monotonic() >= batch_deadline:
+            result.stopped_batch = True
+    result.seconds = time.monotonic() - start
+    sweep_receipts.atomic_json(out_dir / "result.json", dataclasses.asdict(result))
+    return result
+
+
+def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResult,
+                 minutes: int, permuter_threads: int, build_jobs: int, apply: bool,
+                 extra_args: list[str], load_threshold: float, extend_minutes: int,
+                 commit: bool, flat_minutes: int, batch_deadline: Optional[float]) -> None:
+    try:
         wait_for_headroom(load_threshold, f"before permuting {item.func}", batch_deadline)
         base_score, elapsed, stopped_flat, stopped_batch = run_permuter(
             scratch, out_dir, minutes, permuter_threads, extra_args,
@@ -1351,9 +1545,10 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
                     if promoted and commit:
                         result.commit_error = commit_match(item)
     except Exception as e:  # noqa: BLE001 -- report, don't crash the batch
+        result.ok = False
         result.error = str(e)
-    result.seconds = time.monotonic() - start
-    return result
+        if batch_deadline is not None and time.monotonic() >= batch_deadline:
+            result.stopped_batch = True
 
 
 # --------------------------------------------------------------------------
@@ -1419,8 +1614,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p.add_argument(
         "--resume",
         action="store_true",
-        help="skip functions already present in build/permuter/summary.json (re-run only "
-        "what a previous batch did not reach)",
+        help="after preparing the baseline, skip completed searches with identical "
+        "source/compiler/permuter/settings receipts in Git's common directory",
     )
     p.add_argument(
         "--extend-minutes",
@@ -1471,9 +1666,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p.add_argument(
         "--deep",
         action="store_true",
-        help="second pass: run only functions whose previous summary row was descending but "
-        "not zero (0 < best < base), ignoring --resume for them; pair with a long --minutes "
-        "and --extend-minutes",
+        help="second pass: search only exact source/tool contexts with a durable "
+        "descending receipt (0 < best < base); pair with longer --minutes/--extend-minutes",
     )
     p.add_argument("--list", action="store_true", help="print the discovered queue and exit")
     p.add_argument(
@@ -1489,6 +1683,26 @@ def ncpu() -> int:
 
 
 def main(argv: list[str]) -> int:
+    # Separate worktrees remain independent. Two batches in this worktree
+    # would share importer scratch, generated objects and summary files.
+    if parse_args(argv).list:
+        return run_batch(argv)
+    lock_path = subprocess.check_output(
+        ["git", "rev-parse", "--git-path", "mickey-permute-batch.lock"],
+        cwd=ROOT, text=True).strip()
+    path = Path(lock_path)
+    if not path.is_absolute():
+        path = ROOT / path
+    with path.open("a") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            print("another permuter batch owns this worktree; use a disjoint lane", file=sys.stderr)
+            return 2
+        return run_batch(argv)
+
+
+def run_batch(argv: list[str]) -> int:
     args = parse_args(argv)
     extra_args = args.permuter_args
     if extra_args and extra_args[0] == "--":
@@ -1567,27 +1781,24 @@ def main(argv: list[str]) -> int:
         if unranked:
             print(f"note: {unranked} queued function(s) have no ranking row; they run last")
     prior = json.loads(SUMMARY_JSON.read_text()).get("results", []) if SUMMARY_JSON.is_file() else []
-    if args.deep:
-        descending = {r["func"] for r in prior
-                      if r.get("base_score") is not None and r.get("best_score") is not None
-                      and 0 < r["best_score"] < r["base_score"]}
-        queue = [it for it in queue if it.func in descending]
-        print(f"--deep: {len(queue)} descending-but-stuck function(s) selected from the summary")
-    elif args.resume and prior:
-        # A row that errored or never got a base score (import/compile fault)
-        # is not "done": the fault may have been fixed since.
-        done = {r["func"] for r in prior
-                if not r.get("error") and r.get("base_score") is not None}
-        before = len(queue)
-        queue = [it for it in queue if it.func not in done]
-        print(f"--resume: skipping {before - len(queue)} already-run function(s)")
-    if args.limit is not None:
+    if args.resume or args.deep:
+        print("receipt selection: checked after baseline preparation; local summary rows do not skip work")
+    if args.limit is not None and (args.list or not (args.resume or args.deep)):
         queue = queue[: args.limit]
     if args.commit and not args.apply:
         print("--commit requires --apply", file=sys.stderr)
         return 2
     if args.max_total_minutes <= 0:
         print("--max-total-minutes must be positive", file=sys.stderr)
+        return 2
+    if args.minutes <= 0 or args.extend_minutes < 0 or args.flat_minutes < 0:
+        print("--minutes must be positive; extension and flat caps cannot be negative", file=sys.stderr)
+        return 2
+    if args.jobs <= 0 or (args.permuter_threads is not None and args.permuter_threads <= 0):
+        print("search and thread counts must be positive", file=sys.stderr)
+        return 2
+    if args.limit is not None and args.limit <= 0:
+        print("--limit must be positive", file=sys.stderr)
         return 2
 
     if args.list:
@@ -1625,6 +1836,7 @@ def main(argv: list[str]) -> int:
 
     BUILD_PERMUTER.mkdir(parents=True, exist_ok=True)
     results: list[RunResult] = []
+    current_results: list[RunResult] = []
     if (args.resume or args.deep) and prior:
         # Carry the earlier results forward so summary.json stays the whole
         # sweep's record; a function about to be re-run keeps only its new row.
@@ -1644,16 +1856,25 @@ def main(argv: list[str]) -> int:
 
     batch_deadline = time.monotonic() + args.max_total_minutes * 60
     scheduled = 0
+    attempted = 0
+
+    def counts_against_limit(result: RunResult) -> bool:
+        return not (result.resumed or result.busy or result.deep_skipped)
 
     if jobs == 1:
         for it in queue:
             if time.monotonic() >= batch_deadline:
                 break
+            if args.limit is not None and attempted >= args.limit:
+                break
             scheduled += 1
             r = run_one(it, args.minutes, permuter_threads, args.build_jobs, args.apply, extra_args,
                         args.load_threshold, args.extend_minutes, args.commit, args.flat_minutes,
-                        not args.no_overlay_annotate, batch_deadline)
+                        not args.no_overlay_annotate, batch_deadline, args.resume,
+                        deep=args.deep)
             results.append(r)
+            current_results.append(r)
+            attempted += counts_against_limit(r)
             print_result(r)
             write_summary(results)
     else:
@@ -1665,6 +1886,10 @@ def main(argv: list[str]) -> int:
                 nonlocal scheduled
                 if time.monotonic() >= batch_deadline:
                     return False
+                # Reserve room for every in-flight preparation: each may
+                # become a real search once its receipt has been checked.
+                if args.limit is not None and attempted + len(futures) >= args.limit:
+                    return False
                 try:
                     item = next(queue_iter)
                 except StopIteration:
@@ -1672,7 +1897,8 @@ def main(argv: list[str]) -> int:
                 future = pool.submit(
                     run_one, item, args.minutes, permuter_threads, args.build_jobs, args.apply, extra_args,
                     args.load_threshold, args.extend_minutes, args.commit, args.flat_minutes,
-                    not args.no_overlay_annotate, batch_deadline,
+                    not args.no_overlay_annotate, batch_deadline, args.resume,
+                    deep=args.deep,
                 )
                 futures[future] = item
                 scheduled += 1
@@ -1688,27 +1914,36 @@ def main(argv: list[str]) -> int:
                     futures.pop(fut)
                     r = fut.result()
                     results.append(r)
+                    current_results.append(r)
+                    attempted += counts_against_limit(r)
                     print_result(r)
                     write_summary(results)
                     submit_next()
 
     if scheduled < len(queue):
+        reason = "search limit" if args.limit is not None and attempted >= args.limit else "batch cap"
         print(
-            f"batch cap: stopped after scheduling {scheduled}/{len(queue)} function(s); "
+            f"{reason}: stopped after preparing {scheduled}/{len(queue)} function(s); "
             "use --resume for the remainder"
         )
 
     write_summary(results, final=True)
     print(f"\nSummary written to {SUMMARY_JSON.relative_to(ROOT)} and {SUMMARY_TXT.relative_to(ROOT)}")
     print_table(results)
-    return 0
+    return 1 if any(r.error or r.promote_error or r.commit_error for r in current_results) else 0
 
 
 def print_result(r: RunResult) -> None:
     if r.error:
         print(f"[{r.func}] ERROR: {r.error}")
         return
-    if r.promoted:
+    if r.resumed:
+        status = "completed receipt (search skipped)"
+    elif r.busy:
+        status = "identical search active elsewhere (retry later)"
+    elif r.deep_skipped:
+        status = "no current descending receipt (deep search skipped)"
+    elif r.promoted:
         status = "MATCHED"
     elif r.zero_found:
         status = "zero-found"
@@ -1758,7 +1993,7 @@ def write_summary(results: list[RunResult], final: bool = False) -> None:
             "errored": sum(1 for r in results if r.error),
         },
     }
-    SUMMARY_JSON.write_text(json.dumps(payload, indent=2) + "\n")
+    sweep_receipts.atomic_json(SUMMARY_JSON, payload)
     lines = [
         f"{'function':<32} {'base':>6} {'best':>6}  {'zero':<5} {'matched':<8} {'time':>7}"
     ]

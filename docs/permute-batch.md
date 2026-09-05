@@ -57,7 +57,54 @@ promotion rebuilds).
 
 Every run (even a `--list`-free normal run) writes `build/permuter/summary.json`
 and `build/permuter/summary.txt` incrementally, one function at a time, so a
-killed batch still leaves a readable partial result.
+killed batch still leaves a readable partial result. Each attempted import
+gets a fresh `build/permuter/<function>/runs/<run-id>/` directory; a retry does
+not overwrite an earlier candidate or its diagnostics.
+
+### Durable search receipts
+
+`--resume` consults content-addressed receipts under
+`$(git rev-parse --git-common-dir)/mickey-sweep-receipts/v1/`. Successful
+search knowledge survives a lane's removal and is available to other lanes
+through this common directory. The old local summary remains a report and
+never decides whether a search can be skipped.
+
+Before looking up a receipt, the runner imports and compiles the baseline.
+Its key includes the function's source path, symbol, overlay, `.text` offset,
+and ROM offset; the original TU; actual preprocessed/pruned source, compile
+script, annotated target and scratch settings; the complete recovered IDO
+argument list; toolchain and permuter content hashes; and the search caps,
+thread count, annotation mode and forwarded arguments. Absolute lane and
+scratch paths are normalized. A changed header that changes preprocessed
+source, compiler, target, setting, or source context therefore schedules a new
+search. Resident identities use their linked text address as the offset.
+
+This preparation cost deliberately remains on resumed entries: it verifies
+the effective inputs instead of guessing which includes or preprocessing
+switches mattered. `--list --resume` only lists entries awaiting that check;
+it does not compile or promise that every displayed entry will be searched.
+In an executing resumed or deep batch, skipped receipts do not consume
+`--limit`; repeated limited passes therefore advance to unsearched entries.
+
+Each exact key has a nonblocking kernel lock. A duplicate active search is
+reported as busy and can be retried; a crashed process releases its lock.
+Completed and best scalar receipts are written atomically, with immutable
+per-attempt records. A separate worktree lock prevents two batches from
+sharing one lane's importer scratch or summary. No receipt stores source,
+target bytes, disassembly, or object contents, and none is tracked by Git.
+
+Only a successful bounded search is reusable. Import/compile faults, nonzero
+permuter exit, a missing base score, whole-batch interruption, failed promotion,
+and failed commit all remain retryable. A zero-score result without verified
+promotion remains retryable as well. The best scalar result and the path to
+its original scratch are retained when a subsequent attempt regresses or
+fails. A receipt records search completion, not matching credit: the ordinary
+relocation, linked-range, canonical-build and ROM gates still decide promotion.
+
+`--deep` selects contexts with a successful descending receipt under any
+previous caps, so longer follow-up searches still require current source and
+tool identities. `--resume` with the same caps skips completed searches; omit
+it to deliberately rerun the same inputs with a new random search.
 
 The queue also has a mandatory outer wall-clock bound: `--max-total-minutes`
 defaults to 120 minutes. At that deadline every active permuter process group
@@ -65,7 +112,10 @@ is terminated through the same TERM/KILL cleanup used by the per-function
 cap, and no further queue entries are scheduled. Parallel mode only keeps
 `--jobs` entries in flight instead of submitting the entire queue up front.
 The summary marks interrupted searches with `stopped_batch`, and `--resume`
-continues with entries the bounded pass did not reach. Set a larger positive
+retries interrupted entries as well as entries the bounded pass did not
+reach. Preparation commands also observe the remaining batch time, and
+process-group cleanup includes child workers after a failed parent exits.
+Set a larger positive
 outer cap deliberately for a longer attended pass; zero and negative values
 are rejected because this runner's purpose is bounded search.
 
@@ -78,7 +128,7 @@ TU. Three fidelity faults were found in `tools/permute.sh` on 2026-08-27
 
 | Fault | Effect before | Fix in `permute_batch.py` |
 |---|---|---|
-| importer default `-mips1`, static flag groups | searched the wrong ISA; per-file `-Wab,-r4300_mul` / `-Wo,-loopunroll,0` dropped | `build_recipe_for()` touches the source and reads the real cc line from `gmake -n <obj>` (falls back to the static group with a loud warning) |
+| importer default `-mips1`, static flag groups | searched the wrong ISA; per-file flags, defines, and includes dropped | `build_recipe_for()` reads the complete real IDO argument tail from `gmake -n <obj>`; batch searches reject unsupported wrappers and guessed fallback recipes |
 | no post-compile `objcopy --redefine-sym` | track.c results never transferred | the TU's objcopy chain is appended to the scratch `compile.sh`, retargeted at `$OUTPUT`; digest-guarded `.py` passes are skipped and listed in `build/permuter/<fn>/recipe.txt` |
 | scorer normalises stack offsets | false 0 on a spill at the wrong slot | `--stack-diffs` is always passed |
 
@@ -87,16 +137,24 @@ searches) predates all three fixes and is not evidence about the queue.
 
 Other runner behaviour added at the same time: `--order ranking` (default)
 runs the closest functions first by `config/nonmatching-ranking.us.json`
-`differing_words`; `--resume` skips functions already in
-`build/permuter/summary.json` and carries their rows forward;
+`differing_words`; `--resume` skips only identical completed search receipts
+after baseline preparation and carries report rows forward;
 `--extend-minutes N` re-seeds from the best candidate and runs once more when
 a capped search was still descending (best result in the last third of the
 window); `--load-threshold L` (default 9) waits for headroom before every
 permuter launch and promotion build; `--commit` (with `--apply`) commits each
 verified promotion as `Match <fn> (permuter)`, staging only that C file. The
 permuter is niced. `tools/permute_sweep.sh` wraps all of it: resync a lane to
-`campaign/unchain`, extract, warm build, verify, sweep, extract again so the
-scoreboard counts the promotions.
+`campaign/unchain` by fast-forward, extract, warm build, verify, sweep, extract
+again so the scoreboard counts the promotions. A divergent lane is preserved
+for coordinator review; the wrapper no longer resets it or cleans away
+untracked files. Batch infrastructure, promotion and commit failures produce
+a nonzero exit status instead of being reported as successful searches.
+
+Regression checks for these guarantees are
+`python3 tools/test_sweep_receipts.py` and
+`python3 tools/test_permute_batch_deadline.py`. They use disposable repositories,
+synthetic compiler settings and short-lived test subprocesses, without a ROM.
 
 ## Queue discovery
 
