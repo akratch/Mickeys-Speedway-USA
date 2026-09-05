@@ -105,6 +105,12 @@ class ContextTests(unittest.TestCase):
         winner = b"// hidden\rextern int added;\n" + baseline
         self.assertEqual(self.compare(winner, baseline)["status"], "changed")
 
+    def test_nonstandard_spaced_line_continuation_fails_closed(self):
+        baseline = b"extern int shared;\nint target(void) { return shared; }"
+        for whitespace in (b" ", b"\t", b" \t", b"\v", b"\f"):
+            winner = b"// hidden \\" + whitespace + b"\n" + baseline
+            self.assertEqual(self.compare(winner, baseline)["status"], "unverifiable")
+
     def test_string_literals_are_not_stripped_as_comments(self):
         baseline = b'char *note = "/* old */"; int target(void) { return 0; }'
         self.assertEqual(self.compare(baseline.replace(b"old", b"new"), baseline)["status"], "changed")

@@ -75,6 +75,8 @@ def _surface(source: bytes, symbol: str) -> tuple[list[dict], list[str]]:
     if re.search(r"\?\?[=/'()!<>-]", text):
         raise ContextError("trigraph-bearing prepared input requires preprocessing")
     text = text.replace("\r\n", "\n").replace("\r", "\n")
+    if re.search(r"\\[^\S\n]+\n", text):
+        raise ContextError("whitespace after continuation backslash is dialect-dependent")
     text = re.sub(r"\\\n", "", text)
     text = _strip_comments(text)
     without_literals = LEXICAL.sub(lambda match: " " if match.group().startswith(('"', "'"))
