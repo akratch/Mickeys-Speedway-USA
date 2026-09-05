@@ -32,9 +32,9 @@
       "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
     },
     "overlay94UpdateController": {
-      "source_commit": "3bfc5f1ca95041cc46e2f3327c502d08869546cd",
-      "ledger_commit": "51bb0f0dd66db2fb242c6d4628b1acb37457cd5e",
-      "reason": "The source postdates its ledger; authorize runtime identity closure and one source-attributed allocator split-provenance trace for the eighteen-word residual; prior direct, s32, and s16 carriers remain closed."
+      "source_commit": "8aaec155c9bb558c96500486c94563fac14b7068",
+      "ledger_commit": "8aaec155c9bb558c96500486c94563fac14b7068",
+      "reason": "ABI correction only: restore func_8005ABA8's authenticated integer return, as proved by Overlay 4. Preserve arguments and physical lines; measure full-TU/relocation impact. No carrier, CFG, frame, flag or permutation changes."
     },
     "func_overlay_101_F0005E08_18E1628": {
       "source_commit": "61ed283d6760fbfb6995f14e04ceb44addb4d142",
