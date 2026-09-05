@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 133044,
-  "nonmatching_overlay_c_bytes": 335576,
+  "matched_overlay_c_bytes": 133964,
+  "nonmatching_overlay_c_bytes": 334656,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 2348,
   "bss_bytes": 77680,
@@ -1921,7 +1921,7 @@
      "type": "c",
      "source": "overlays/o004/overlay_004",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0xCAC",
@@ -2016,65 +2016,7 @@
     "pilot_role": null,
     "exact_donor_match": null,
     "priority_rank": 63
-   },
-   "mixed_tu_exact_c_ranges": [
-    {
-     "offset": "0x0",
-     "end_offset": "0x138",
-     "size": "0x138",
-     "label": "overlay4InitializeObjectMotion",
-     "source": "overlays/o004/overlay_004",
-     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
-    },
-    {
-     "offset": "0x4D0",
-     "end_offset": "0x52C",
-     "size": "0x5C",
-     "label": "overlay4AttachObject",
-     "source": "overlays/o004/overlay_004",
-     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
-    },
-    {
-     "offset": "0x52C",
-     "end_offset": "0x5D0",
-     "size": "0xA4",
-     "label": "overlay4RemoveObject",
-     "source": "overlays/o004/overlay_004",
-     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
-    },
-    {
-     "offset": "0x5D0",
-     "end_offset": "0x710",
-     "size": "0x140",
-     "label": "overlay4UpdateGroupSpacing",
-     "source": "overlays/o004/overlay_004",
-     "evidence": "canonical mixed-TU object and linked bytes exact"
-    },
-    {
-     "offset": "0x710",
-     "end_offset": "0x734",
-     "size": "0x24",
-     "label": "overlay4GroupCount",
-     "source": "overlays/o004/overlay_004",
-     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
-    },
-    {
-     "offset": "0x734",
-     "end_offset": "0x8F4",
-     "size": "0x1C0",
-     "label": "overlay4FindCategory2Object",
-     "source": "overlays/o004/overlay_004",
-     "evidence": "canonical mixed-TU object and linked bytes exact"
-    },
-    {
-     "offset": "0x8F4",
-     "end_offset": "0xCAC",
-     "size": "0x3B8",
-     "label": "overlay4FindSearchPosition",
-     "source": "overlays/o004/overlay_004",
-     "evidence": "canonical mixed-TU object and linked bytes exact"
-    }
-   ]
+   }
   },
   {
    "overlay": 5,
