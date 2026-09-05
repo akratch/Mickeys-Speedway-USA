@@ -20,6 +20,16 @@ Reported subsegment bytes include alignment, unlike the scoreboard's
 function-owned executable bytes. Neither raw ownership nor a new C scaffold
 earns matching credit.
 
+An unclassified census row is a gap in this tool's ledger coverage, not
+necessarily an unexplored decompilation opportunity. Consult the settled
+odd-FP/handwritten exclusions in [modules.md](modules.md#62-odd-floating-point-registers-settled--those-files-stay-assembly),
+the YAML ownership comments and the function evidence in
+[resident.md](resident.md) before scheduling work. A reference object's exact
+assembly fallback is not evidence that a compiler can emit that body. Likewise,
+padding established by an adjacent function's boundary proof must not become
+a new tiny-function assignment. Keep these distinctions explicit rather than
+loosening the census gate or adding unproved matching credit to its ledger.
+
 The gate requires the local baserom and is separate from source-only
 `check-docs` and clean-room hooks. Synthetic census regressions run through
 `gmake check-tooling`. Matching and ROM proof remain governed by ADR 0001 and

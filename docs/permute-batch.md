@@ -401,19 +401,18 @@ matters for a `.c` file with more than one queued function in it (several
 of the lane `cx-nm-*` conversions batch multiple functions per overlay into
 one file).
 
-Flag group (`-mips1`/`-mips2`, `-O1`/`-O2`, `-g3`) is chosen per file from
-its path, mirroring `tools/permuter_settings.toml`'s own documented groups
-and the Makefile's per-directory `OPT_FLAGS`/`MIPSISET` overrides:
-`src/main/**` and `src/overlays/**` get `-O2 -mips2 -32` (this covers the
-whole current and expected queue, which is overlay conversions);
-`src/libultra/**` falls back to the `-O2 -mips1 -32` project default unless
-the file is in the Makefile's `LIBULTRA_O2_G3_TUS` list (parsed from the
-Makefile directly, not hand-copied), in which case it gets `-O2 -g3 -mips2
--32`. The `LIBULTRA_O1_MIPS2_TUS`-equivalent group and any `IDO_PHASES`
-uopt-only overrides are **not** auto-detected (no single Makefile variable
-enumerates them at the time of writing) -- a libultra function needing one
-of those groups needs a `--settings` override edited by hand until that gap
-is closed; see `tools/permuter_settings.toml`'s own header comment for how.
+The batch extracts the complete ordered IDO argument list from the actual
+object recipe using `gmake -n -W <source> <object>`. Per-TU defines, include
+ordering, ISA and optimization switches therefore come from the configured
+build, not a source-directory classifier. Legacy path-based helpers are not
+accepted as batch search evidence. An unsupported compiler wrapper is an
+operational failure requiring explicit recipe support, not permission to
+substitute plausible flags or claim that its phase overrides were searched.
+
+The standalone flag lattice uses that same configured context and changes
+only its declared axes. Failed combinations remain failures in its coverage
+report; a zero-score supported combination does not make a partially supported
+lattice complete. See [flag-sweep.md](flag-sweep.md).
 
 ## Promotion (`--apply`)
 
