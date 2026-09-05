@@ -357,6 +357,8 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_wb_compare.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_nm_ranking.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_permute_batch_deadline.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_sweep_receipts.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_promotion_transaction.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_finalize_plateau.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_crew_heartbeat.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_release_gate.py
