@@ -562,9 +562,9 @@ void func_8000238C(void) {
 /* PLATEAU-HANDOFF:func_80002188:start
  * symbol: func_80002188
  * score: 7 differing words
- * frame: -0x50
+ * frame: 0x50
  * relocations: 22
  * first-mismatch: +0x28
- * summary: Exact 115-instruction opcode/register shape; seven stack-home operands remain for a bounded permuter sweep.
+ * summary: Fresh remeasurement confirms exact 115-word geometry and 22 aligned relocation identities; seven stack-home operands await a bounded permuter sweep.
  * PLATEAU-HANDOFF:func_80002188:end
  */
