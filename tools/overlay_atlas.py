@@ -858,7 +858,7 @@ TEXT_SUBSEGMENTS = {
         (0x4460, "c", "func_overlay_057_F0004460_18A8058"),
         (0x4C18, "c", "overlay57UpdateModeTrigger"),
         (0x4D90, "c", "overlay57InitializeMode"),
-        (0x4E18, "asm", "overlay_057_middle_b"),
+        (0x4E18, "c", "func_overlay_057_F0004E18_18A8A10"),
         (0x60F8, "c", "func_overlay_057_F00060F8_18A9CF0"),
         (0x67DC, "c", "overlay57SetNodeValue"),
         (0x6878, "c", "overlay57ApplyTable"),
