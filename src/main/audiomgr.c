@@ -414,73 +414,80 @@ void func_80002134(void) {
 #endif
 /* PROVENANCE: body adapted from Diddy Kong Racing's public decomp,
  * src/audiomgr.c::__amDMA; Mickey's DMA state and queue globals remain authoritative. */
-/* Verdict: operand-mismatch; 7 differing words of 115 with exact frame and schedule. */
-/* First mismatch: function offset +0x28; the remaining differences are stack spill offsets. */
-/* Gap: the target assigns different homes to delta, lastDmaPtr, and foundBuffer. */
-#ifdef NON_MATCHING
-s32 func_80002188(s32 addr, s32 len, void *state) {
-    void *foundBuffer;
-    s32 delta, addrEnd, buffEnd;
-    AudioManagerDMABuffer *dmaPtr, *lastDmaPtr;
-    s32 pad;
-
-    lastDmaPtr = NULL;
-    delta = addr & 1;
-    dmaPtr = D_800C7DF8.firstUsed;
-    addrEnd = addr + len;
-
-    while (dmaPtr != NULL) {
-        buffEnd = dmaPtr->startAddr + 0x200;
-        if (dmaPtr->startAddr > (u32) addr) {
-            break;
-        } else if (addrEnd <= buffEnd) {
-            dmaPtr->lastFrame = D_80078DD0;
-            foundBuffer = dmaPtr->ptr + addr - dmaPtr->startAddr;
-            return osVirtualToPhysical(foundBuffer);
-        }
-        lastDmaPtr = dmaPtr;
-        dmaPtr = (AudioManagerDMABuffer *) dmaPtr->node.next;
+/* Configured IDO emits all 115 target instructions and 22 relocation records exactly. */
+s32 func_80002188(s32 addr, s32 len, void *state)
+{
+  s32 addrEnd;
+  AudioManagerDMABuffer *lastDmaPtr;
+  void *foundBuffer;
+  s32 delta;
+  s32 buffEnd;
+  AudioManagerDMABuffer *dmaPtr;
+  s32 pad;
+  lastDmaPtr = (void *) 0;
+  delta = addr & 1;
+  dmaPtr = D_800C7DF8.firstUsed;
+  addrEnd = addr + len;
+  while (dmaPtr != ((void *) 0))
+  {
+    buffEnd = dmaPtr->startAddr + 0x200;
+    if (dmaPtr->startAddr > ((u32) addr))
+    {
+      break;
     }
-
-    dmaPtr = D_800C7DF8.firstFree;
-    if (dmaPtr == NULL) {
-        D_80078DF0 |= 2;
-        if (lastDmaPtr == NULL) {
-            lastDmaPtr = D_800C7DF8.firstUsed;
-        }
+    else
+      if (addrEnd <= buffEnd)
+    {
+      dmaPtr->lastFrame = D_80078DD0;
+      foundBuffer = (dmaPtr->ptr + addr) - dmaPtr->startAddr;
+      return osVirtualToPhysical(foundBuffer);
     }
-    if (dmaPtr == NULL) {
-        return osVirtualToPhysical(lastDmaPtr->ptr) + delta;
+    lastDmaPtr = dmaPtr;
+    dmaPtr = (AudioManagerDMABuffer *) dmaPtr->node.next;
+  }
+
+  dmaPtr = D_800C7DF8.firstFree;
+  if (dmaPtr == ((void *) 0))
+  {
+    D_80078DF0 |= 2;
+    if (lastDmaPtr == ((void *) 0))
+    {
+      lastDmaPtr = D_800C7DF8.firstUsed;
     }
-
-    D_800C7DF8.firstFree = (AudioManagerDMABuffer *) dmaPtr->node.next;
-    alUnlink(&dmaPtr->node);
-
-    if (lastDmaPtr != NULL) {
-        alLink(&dmaPtr->node, &lastDmaPtr->node);
-    } else if (D_800C7DF8.firstUsed != NULL) {
-        lastDmaPtr = D_800C7DF8.firstUsed;
-        D_800C7DF8.firstUsed = dmaPtr;
-        dmaPtr->node.next = &lastDmaPtr->node;
-        dmaPtr->node.prev = NULL;
-        lastDmaPtr->node.prev = &dmaPtr->node;
-    } else {
-        D_800C7DF8.firstUsed = dmaPtr;
-        dmaPtr->node.next = NULL;
-        dmaPtr->node.prev = NULL;
-    }
-
-    foundBuffer = dmaPtr->ptr;
-    addr -= delta;
-    dmaPtr->startAddr = addr;
-    dmaPtr->lastFrame = D_80078DD0;
-    osPiStartDma(&D_800C8648[D_80078DD4++], OS_MESG_PRI_HIGH, OS_READ,
-                 addr, foundBuffer, 0x200, &D_800C9020);
-    return osVirtualToPhysical(foundBuffer) + delta;
+  }
+  if (dmaPtr == ((void *) 0))
+  {
+    return osVirtualToPhysical(lastDmaPtr->ptr) + delta;
+  }
+  D_800C7DF8.firstFree = (AudioManagerDMABuffer *) dmaPtr->node.next;
+  alUnlink(&dmaPtr->node);
+  if (lastDmaPtr != ((void *) 0))
+  {
+    alLink(&dmaPtr->node, &lastDmaPtr->node);
+  }
+  else
+    if (D_800C7DF8.firstUsed != ((void *) 0))
+  {
+    lastDmaPtr = D_800C7DF8.firstUsed;
+    D_800C7DF8.firstUsed = dmaPtr;
+    dmaPtr->node.next = &lastDmaPtr->node;
+    dmaPtr->node.prev = (void *) 0;
+    lastDmaPtr->node.prev = &dmaPtr->node;
+  }
+  else
+  {
+ if (0) { }
+    D_800C7DF8.firstUsed = dmaPtr;
+    dmaPtr->node.next = (void *) 0;
+    dmaPtr->node.prev = (void *) 0;
+  }
+  foundBuffer = dmaPtr->ptr;
+  addr -= delta;
+  dmaPtr->startAddr = addr;
+  dmaPtr->lastFrame = D_80078DD0;
+  osPiStartDma(&D_800C8648[D_80078DD4++], 1, 0, addr, foundBuffer, 0x200, &D_800C9020);
+  return osVirtualToPhysical(foundBuffer) + delta;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/audiomgr/func_80002188.s")
-#endif
 /* PROVENANCE: body adapted from Banjo-Kazooie's public decomp,
  * src/core1/code_1D00.c::audioManager_DMAInitProc. */
 ALDMAproc audioManager_DMAInitProc(void *state) {
@@ -557,14 +564,4 @@ void func_8000238C(void) {
  * first-mismatch: +0x20
  * summary: Exact frame and instruction count; external volatile EFC spelling keeps the target direct-load/store lifetime unresolved.
  * PLATEAU-HANDOFF:func_80002134:end
- */
-
-/* PLATEAU-HANDOFF:func_80002188:start
- * symbol: func_80002188
- * score: 7 differing words
- * frame: 0x50
- * relocations: 22
- * first-mismatch: +0x28
- * summary: Fresh remeasurement confirms exact 115-word geometry and 22 aligned relocation identities; seven stack-home operands await a bounded permuter sweep.
- * PLATEAU-HANDOFF:func_80002188:end
  */
