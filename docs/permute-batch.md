@@ -250,6 +250,12 @@ everything with current code. No archived foreign compile script is executed.
 Before searching, two separate strict `--debug` invocations compile and score
 the current canonical input and the saved seed without random search. Their
 captures and debug output stay in separate ignored run directories. The actual
+stage settings resolve only the generated local objdump executable to the same
+pinned repository tool, preserving its arguments and all other settings. Original
+settings and the explicit path mapping remain in the stage evidence. Failed debug
+commands retain merged output before reporting failure; timeout/cancel exceptions
+retain available partial output and an explicit failure marker.
+The actual
 canonical compiler input must equal the parent's baseline, and both the saved
 seed and its actual compiled input must pass the current declaration-context
 comparison. The new search captures its own baseline again; bytes and strict

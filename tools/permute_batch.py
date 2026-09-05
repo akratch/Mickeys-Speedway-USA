@@ -94,6 +94,7 @@ import subprocess
 import sys
 import threading
 import time
+import tomllib
 import uuid
 from pathlib import Path
 from typing import Optional
@@ -1844,6 +1845,29 @@ def seed_context_compatible(parent: dict, current: dict) -> bool:
     return old == new
 
 
+def seed_stage_settings(raw: bytes) -> tuple[bytes, dict]:
+    """Resolve only the generated local objdump executable for isolated cwd."""
+    text = raw.decode("utf-8")
+    settings = tomllib.loads(text)
+    configured = settings.get("objdump_command")
+    if not isinstance(configured, str):
+        raise RuntimeError("seed stage requires the configured local objdump command")
+    command = shlex.split(configured)
+    known = "tools/binutils/mips64-elf-objdump"
+    executable = ROOT / known
+    if not command or command[0] not in (known, str(executable)):
+        raise RuntimeError("seed stage objdump is not the pinned local tool")
+    effective = shlex.join([str(executable), *command[1:]])
+    pattern = r'(?m)^objdump_command[ \t]*=[ \t]*"(?:[^"\\\n]|\\.)*"[ \t]*(?:#[^\n]*)?$'
+    replaced, count = re.subn(pattern, lambda _: "objdump_command = " + json.dumps(effective), text)
+    if count != 1 or tomllib.loads(replaced) != {**settings, "objdump_command": effective}:
+        raise RuntimeError("unsupported generated seed-stage settings syntax")
+    return replaced.encode(), {"original": command, "effective": [str(executable), *command[1:]],
+        "original_settings_sha256": hashlib.sha256(raw).hexdigest(),
+        "effective_settings_sha256": hashlib.sha256(replaced.encode()).hexdigest(),
+        "executable_sha256": sweep_receipts.file_digest(executable)}
+
+
 def measure_seed_stage(item, directory, baseline, inputs, source, deadline):
     """Compile/strict-score once with this lane's recipe, never saved scripts."""
     directory.mkdir(mode=0o700)
@@ -1851,12 +1875,25 @@ def measure_seed_stage(item, directory, baseline, inputs, source, deadline):
     scratch.mkdir()
     for name in ("base.c", "compile.sh", "target.s", "target.o", "settings.toml"):
         (scratch / name).write_bytes(baseline["baseline/" + name])
+    settings, plumbing = seed_stage_settings(baseline["baseline/settings.toml"])
+    (directory / "settings-original.toml").write_bytes(baseline["baseline/settings.toml"])
+    (scratch / "settings.toml").write_bytes(settings)
+    sweep_receipts.atomic_json(directory / "settings-plumbing.json", plumbing)
     (scratch / "base.c").write_bytes(source)
     install_baseline_capture(scratch, directory, baseline, inputs)
     command = [str(PYTHON), "-u", str(PERMUTER_PY), *MANDATORY_PERMUTER_ARGS,
                "-j", "1", "--debug", str(scratch)]
-    output = bounded_capture(command, deadline, check=True, cwd=directory)
-    (directory / "debug.log").write_text(output.stdout)
+    try:
+        output = bounded_capture(command, deadline, cwd=directory)
+    except BaseException as error:
+        partial = getattr(error, "output", None) or getattr(error, "stdout", None) or ""
+        if isinstance(partial, bytes):
+            partial = partial.decode("utf-8", errors="replace")
+        (directory / "debug.log").write_text(
+            f"{partial}\n[seed stage failure] {type(error).__name__}: {error}\n")
+        raise
+    (directory / "debug.log").write_text(output.stdout + f"\n[seed stage exit] {output.returncode}\n")
+    output.check_returncode()
     scores = re.findall(r"base score = (\d+)", output.stdout)
     if len(scores) != 1:
         raise RuntimeError("compile-only seed stage did not report exactly one strict baseline score")
