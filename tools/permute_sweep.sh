@@ -1,79 +1,132 @@
 #!/usr/bin/env bash
-# Full-queue permuter sweep in a dedicated lane, resynced to the integration
-# branch first so every search runs against the source it will be promoted
-# into (docs/matching-triage.md: a permuter result is only valid against the
-# tree it searched -- a stale lane produced the func_80012574/func_80041CE4
-# "false ceilings").
-#
-#   tools/permute_sweep.sh [lane-name] [permute_batch.py args...]
-#
-# Default lane: permute-sweep (../mickey-lane-permute-sweep, branch
-# lane/permute-sweep). Creates it if missing. Steps:
-#   1. fast-forward the lane to campaign/unchain, gmake extract, warm build,
-#      gmake verify (the sweep never starts from a non-verifying base);
-#   2. run permute_batch.py --apply --commit --order ranking --resume under
-#      the load gate, with the caps below unless overridden;
-#   3. gmake extract (prunes the .s of every promoted function so the
-#      scoreboard counts them), then print progress.
-# Each verified promotion is its own commit on the lane branch; integrate
-# with tools/merge_lane.sh <lane-name> as usual.
-#
-# Machine safety: 2 concurrent searches x 4 permuter threads, promotions at
-# -j6, and every launch waits for load < 13 (a 4-thread search alone holds ~8; 14 cores). Raise only with
-# the workstation idle.
+# Explicit, ownership-checked wrapper around the bounded batch runner.
 set -euo pipefail
-cd "$(dirname "$0")/.."
-root=$PWD
 
-lane=${1:-permute-sweep}
-[ $# -gt 0 ] && shift
-lane_dir="$root/../mickey-lane-$lane"
-
-if [ ! -d "$lane_dir" ]; then
-    tools/new_lane.sh "$lane" --no-extract >/dev/null
-fi
-
-cd "$lane_dir"
-if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
-    echo "$0: $lane_dir has uncommitted tracked changes; refusing to resync it." >&2
-    exit 1
-fi
-base=$(git -C "$root" rev-parse campaign/unchain)
-# A previous pass may have committed matches on this lane that canonical has
-# not integrated yet; a hard reset would silently discard them (it did, for
-# func_80037AEC on 2026-09-02). Refuse until they are merged or cherry-picked.
-pending=$(git -C "$root" cherry campaign/unchain "lane/$lane" 2>/dev/null | grep -c '^+' || true)
-if [ "${pending:-0}" -gt 0 ]; then
-    echo "$0: lane/$lane has $pending unintegrated commit(s) (git cherry campaign/unchain lane/$lane); integrate them before resyncing." >&2
-git -C "$root" log --format='  %h %s' "campaign/unchain..lane/$lane" >&2
-    exit 1
-fi
-echo "resync: lane/$lane -> campaign/unchain $base"
-git merge -q --ff-only "$base" || {
-    echo "$0: lane history cannot fast-forward; preserve it for coordinator review." >&2
-    exit 1
+usage() {
+    printf '%s\n' \
+        'Usage: tools/permute_sweep.sh --report-only|--promote LANE [-- BATCH_ARGS...]' \
+        '' \
+        '  -h, --help    Help only: no Git calls, filesystem writes or builds.' \
+        '  --report-only Verify the base and search; never apply or commit candidates.' \
+        '  --promote     Explicitly enable verified --apply --commit promotions.' \
+        '' \
+        'LANE: 1-64 lowercase letters/digits/_/-, starting with a letter or digit.' \
+        'The lane is created if absent, or ownership-checked before fast-forward resync.' \
+        'Use only a lane you own exclusively; this wrapper does not arbitrate checkouts.' \
+        'Batch options require --. Forwarded --apply, --commit and --list are rejected.' \
+        'Defaults: jobs=2, threads=4, build-jobs=6, minutes=20, flat-minutes=6,' \
+        '          max-total-minutes=120, extend-minutes=20, load-threshold=13, resume.' \
+        'Example: tools/permute_sweep.sh --report-only my-sweep -- --function myFunction --minutes 3'
 }
-# Retain prior scratch candidates and user files. Every new attempt gets a
-# fresh run directory; successful scalar receipts survive in Git's common
-# directory even when a released lane is later removed.
+die() { printf 'permute-sweep: %s\n' "$*" >&2; exit 2; }
+
+# Help is recognized anywhere before resolving directories or invoking Git.
+for arg in "$@"; do
+    case "$arg" in -h|--help) usage; exit 0 ;; esac
+done
+if [ "$#" -eq 0 ]; then usage; exit 0; fi
+case "$1" in
+    --report-only) promote=0 ;;
+    --promote) promote=1 ;;
+    *) die 'choose --report-only or --promote explicitly (see --help)' ;;
+esac
+shift
+[ "$#" -gt 0 ] || die 'missing lane name'
+lane=$1; shift
+[[ "$lane" =~ ^[a-z0-9][a-z0-9_-]{0,63}$ ]] || die "invalid lane name: $lane"
+if [ "$#" -gt 0 ]; then
+    [ "$1" = -- ] || die 'batch arguments must follow --'
+    shift
+fi
+
+script_root=$(cd "$(dirname "$0")/.." && pwd -P)
+# Parse, do not run the batch. -B avoids bytecode writes. Parsing also catches
+# abbreviations such as --app and --comm: forwarded args cannot override mode.
+"$script_root/.venv/bin/python" -B -c '
+import sys
+sys.path.insert(0, sys.argv[1] + "/tools")
+import permute_batch
+args = permute_batch.parse_args(sys.argv[2:])
+if args.apply or args.commit or args.list:
+    sys.exit("permute-sweep: forwarded --apply/--commit/--list are forbidden; choose the wrapper mode")
+if args.max_total_minutes <= 0 or args.jobs <= 0 or args.minutes <= 0:
+    sys.exit("permute-sweep: jobs, minutes and total budget must be positive")
+' "$script_root" "$@"
+
+for name in GIT_DIR GIT_WORK_TREE GIT_COMMON_DIR GIT_INDEX_FILE; do
+    [ -z "${!name:-}" ] || die "$name overrides are unsupported"
+done
+common=$(git -C "$script_root" rev-parse --path-format=absolute --git-common-dir)
+[ "$(basename "$common")" = .git ] || die 'expected a non-bare common .git directory'
+root=$(cd "$(dirname "$common")" && pwd -P)
+common="$root/.git"
+base=$(git -C "$root" rev-parse --verify 'refs/heads/campaign/unchain^{commit}')
+lane_dir="$(dirname "$root")/mickey-lane-$lane"
+expected_branch="refs/heads/lane/$lane"
+
+check_owner() {
+    [ -d "$lane_dir" ] || die "lane path is not a directory: $lane_dir"
+    physical=$(cd "$lane_dir" && pwd -P)
+    case "$physical" in
+        "$lane_dir"|"$lane_dir.noindex") ;;
+        *) die "lane symlink points outside its expected path: $physical" ;;
+    esac
+    [ -f "$physical/.git" ] || die 'expected a linked worktree, not an ordinary directory/repository'
+    [ "$(git -C "$physical" rev-parse --show-toplevel)" = "$physical" ] || die 'wrong worktree root'
+    [ "$(git -C "$physical" rev-parse --path-format=absolute --git-common-dir)" = "$common" ] || die 'lane belongs to another repository'
+    [ "$(git -C "$physical" symbolic-ref -q HEAD)" = "$expected_branch" ] || die 'lane has an unexpected or detached branch'
+    admin=$(git -C "$physical" rev-parse --absolute-git-dir)
+    case "$admin" in "$common"/worktrees/*) ;; *) die 'unexpected worktree registration' ;; esac
+    [ "$(<"$admin/gitdir")" = "$physical/.git" ] || die 'worktree registration points elsewhere'
+    [ ! -e "$admin/index.lock" ] || die 'worktree index is busy; preserve it and retry later'
+    tracked_status=$(git -C "$physical" status --porcelain --untracked-files=no) || die 'cannot read lane status; refusing to resync'
+    [ -z "$tracked_status" ] || die 'lane has tracked changes; refusing to resync'
+}
+
+if [ -e "$lane_dir" ] || [ -L "$lane_dir" ]; then
+    check_owner
+else
+    [ ! -e "$lane_dir.noindex" ] && [ ! -L "$lane_dir.noindex" ] || die 'unmapped .noindex worktree already exists'
+    branch_status=0
+    git -C "$root" show-ref --verify --quiet "$expected_branch" || branch_status=$?
+    if [ "$branch_status" -eq 0 ]; then
+        die 'lane branch already exists without its expected worktree; preserve it for its owner'
+    fi
+    [ "$branch_status" -eq 1 ] || die 'cannot inspect lane branch; refusing to create a worktree'
+    "$script_root/tools/new_lane.sh" "$lane" --no-extract "$base" >/dev/null
+    check_owner
+fi
+
+# Preserve even cherry-equivalent divergent histories rather than reset them.
+git -C "$physical" merge-base --is-ancestor HEAD "$base" || die 'lane has unintegrated/divergent commits; preserve it for coordinator review'
+printf 'resync: lane/%s -> campaign/unchain %s\n' "$lane" "$base"
+git -C "$physical" merge -q --ff-only "$base"
+check_owner
+cd "$physical"
 gmake extract >/dev/null
 gmake -j6 >/dev/null
-gmake -j6 >/dev/null   # second pass: the first parallel build after a re-split can race
+gmake -j6 >/dev/null
 gmake verify | tail -1
 
-log="build/permuter/sweep-$(date +%Y%m%d-%H%M).log"
 mkdir -p build/permuter
-echo "sweep log: $lane_dir/$log"
-echo "resume: exact source/tool/settings receipts in Git's common directory"
+# Unique logs preserve sequential launches within the same minute.
+log=$(mktemp build/permuter/sweep.log.XXXXXXXX)
+# Keep the array nonempty for macOS system Bash 3.2 with nounset enabled.
+mode_args=(--order ranking --resume)
+if [ "$promote" -eq 1 ]; then mode_args+=(--apply --commit); fi
+printf 'sweep log: %s/%s\n' "$physical" "$log"
+printf 'promotion enabled: %s; exact-context receipts in Git common directory\n' "$promote"
 .venv/bin/python -u tools/permute_batch.py \
-    --apply --commit --order ranking --resume \
+    "${mode_args[@]}" \
     --jobs 2 --permuter-threads 4 --build-jobs 6 \
-    --minutes 20 --extend-minutes 20 --flat-minutes 6 --load-threshold 13 \
+    --minutes 20 --max-total-minutes 120 --extend-minutes 20 --flat-minutes 6 --load-threshold 13 \
     "$@" 2>&1 | tee "$log"
 
-gmake extract >/dev/null
-gmake -j6 >/dev/null
-gmake verify | tail -1
-.venv/bin/python tools/progress.py --version us | head -6
-echo "promotions on lane/$lane:"
-git log --oneline "$base..HEAD" | cat
+if [ "$promote" -eq 1 ]; then
+    gmake extract >/dev/null
+    gmake -j6 >/dev/null
+    gmake verify | tail -1
+    .venv/bin/python tools/progress.py --version us | head -6
+    printf 'promotions on lane/%s:\n' "$lane"
+    git log --oneline "$base..HEAD"
+fi
