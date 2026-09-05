@@ -267,6 +267,9 @@ class LaneStatusAssignmentTests(unittest.TestCase):
         self.assertEqual(assignment["source_commit"], source_commit)
 
     def test_missing_ledger_authorization_pins_later_target_evidence(self) -> None:
+        (self.repo / "docs/matching-triage.md").write_text(
+            "| `unrelatedFunction` | current plateau |\n", encoding="utf-8",
+        )
         (self.repo / SOURCE_PATH).write_text(
             candidate(plateau=True), encoding="utf-8",
         )
@@ -290,6 +293,9 @@ class LaneStatusAssignmentTests(unittest.TestCase):
         self.assertIsNone(assignment["ledger_commit"])
 
     def test_missing_ledger_single_guard_can_pin_latest_file_commit(self) -> None:
+        (self.repo / "docs/matching-triage.md").write_text(
+            "| `unrelatedFunction` | current plateau |\n", encoding="utf-8",
+        )
         (self.repo / SOURCE_PATH).write_text(
             candidate(plateau=True), encoding="utf-8",
         )
@@ -328,6 +334,17 @@ class LaneStatusAssignmentTests(unittest.TestCase):
         self.assertEqual(assignment["state"], "base-only")
         self.assertEqual(assignment["reason_code"], "authorized-reopen")
         self.assertEqual(assignment["source_commit"], evidence_commit)
+
+    def test_null_ledger_pin_cannot_ignore_preexisting_evidence(self) -> None:
+        # Unlike the missing-ledger fixtures, retain setUp's exact-symbol
+        # legacy row. A null pin must not erase that older evidence.
+        (self.repo / SOURCE_PATH).write_text(candidate(plateau=True), encoding="utf-8")
+        source_commit = self.commit(f"Plateau {SYMBOL} prose maintenance")
+        self.authorize_reopen(source_commit, None)
+        result, report = self.status()
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(report["assignment"]["reason_code"], "stale-structured-evidence")
+        self.assertIsNotNone(report["assignment"]["ledger_commit"])
 
     def commit_current_evidence(self, revised: str) -> str:
         (self.repo / SOURCE_PATH).write_text(

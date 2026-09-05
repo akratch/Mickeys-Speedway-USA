@@ -3048,3 +3048,10 @@ OVERLAY_TRIMMED_OBJECTS += \
 	$(BUILD_DIR)/$(SRC_DIR)/overlays/o057/overlay57UpdateModeTrigger.c.o
 
 $(OVERLAY_TRIMMED_OBJECTS): $(TOOLS_DIR)/trim_elf_section.py
+
+# Overlay 57's prefix owner ends at the measured 0xDCC-byte function boundary.
+# The assembly-backed C scaffold makes IDO/asm-processor round the standalone
+# .text section to 0xDD0, so discard only its trailing alignment word before
+# the following overlay57EaseAndLatch subsegment.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o057/func_overlay_057_F0001AE8_18A56E0.c.o: POSTPROCESS = \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xDCC
