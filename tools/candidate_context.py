@@ -24,6 +24,10 @@ MAX_DECLARATIONS = 4096
 MAX_CHANGES = 32
 MAX_SNIPPET = 512
 SYMBOL = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
+LOCATION_MACROS = {"__LINE__", "__FILE__", "__BASE_FILE__", "__FILE_NAME__",
+                   "__COUNTER__", "__DATE__", "__TIME__", "__TIMESTAMP__",
+                   "__INCLUDE_LEVEL__"}
+PRAGMA_OPERATORS = {"_Pragma", "__pragma"}
 # Literals precede comments, so comment-looking text inside a string survives.
 LEXICAL = re.compile(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|/\*.*?\*/|//[^\n]*', re.S)
 
@@ -65,7 +69,21 @@ def _surface(source: bytes, symbol: str) -> tuple[list[dict], list[str]]:
         raise ContextError("prepared source exceeds comparison byte limit")
     import pycparser
     from pycparser import c_ast, c_generator
-    text = _strip_comments(source.decode("utf-8"))
+    text = source.decode("utf-8")
+    # Translation phase 1/2 precedes comment recognition. Trigraph behavior
+    # depends on compiler mode; refuse it rather than apply the wrong dialect.
+    if re.search(r"\?\?[=/'()!<>-]", text):
+        raise ContextError("trigraph-bearing prepared input requires preprocessing")
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
+    text = re.sub(r"\\\n", "", text)
+    text = _strip_comments(text)
+    without_literals = LEXICAL.sub(lambda match: " " if match.group().startswith(('"', "'"))
+                                  else match.group(), text)
+    identifiers = set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", without_literals))
+    if LOCATION_MACROS.intersection(identifiers):
+        raise ContextError("location/time-dependent macros must be expanded in prepared input")
+    if PRAGMA_OPERATORS.intersection(identifiers):
+        raise ContextError("pragma operators require independent context review")
     # A fresh parser per input also prevents typedef state leaking between inputs.
     ast = pycparser.CParser().parse(text, filename="<prepared>")
     if len(ast.ext) > MAX_DECLARATIONS:
@@ -75,10 +93,20 @@ def _surface(source: bytes, symbol: str) -> tuple[list[dict], list[str]]:
     if len(targets) != 1:
         raise ContextError("prepared source must define the requested function exactly once")
     target = targets[0]
+    pending = [target.body]
+    body_nodes = 0
+    while pending:
+        node = pending.pop()
+        body_nodes += 1
+        if body_nodes > MAX_NODES:
+            raise ContextError("prepared body exceeds comparison structure limit")
+        if isinstance(node, c_ast.Pragma):
+            raise ContextError("target-body pragma cannot safely be excluded from context")
+        pending.extend(child for _name, child in node.children())
     # Exclude only the body: signature and old-style parameter declarations
     # remain compiler input, even though the body is allowed to vary.
     target.body = c_ast.Compound(block_items=[])
-    count = 0
+    count = body_nodes
 
     def normalize(node, depth=0):
         nonlocal count

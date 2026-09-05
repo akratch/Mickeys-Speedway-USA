@@ -64,6 +64,42 @@ class ContextTests(unittest.TestCase):
     def test_pragma_is_not_discarded(self):
         self.assertEqual(self.compare(b"#pragma pack(1)\n" + BASE)["status"], "changed")
 
+    def test_target_body_pragma_cannot_escape_context_comparison(self):
+        baseline = b"int target(void) { return 0; }\nstruct Later { char a; int b; };"
+        winner = baseline.replace(b"return 0;", b"\n#pragma pack(1)\nreturn 0;")
+        self.assertEqual(self.compare(winner, baseline)["status"], "unverifiable")
+        self.assertEqual(self.compare(winner, winner)["status"], "unverifiable")
+
+    def test_phase_two_splicing_precedes_line_comment_handling(self):
+        baseline = b"extern int shared;\nint target(void) { return 0; }"
+        for ending in (b"\n", b"\r\n"):
+            winner = b"// hidden \\" + ending + baseline
+            self.assertEqual(self.compare(winner, baseline)["status"], "changed")
+        self.assertEqual(self.compare(BASE.replace(b"extern void", b"extern \\\nvoid"))["status"], "unchanged")
+
+    def test_unexpanded_location_macros_fail_closed(self):
+        for name in cc.LOCATION_MACROS:
+            baseline = f"#line 1\nstatic int value = {name};\nint target(void) {{ return 0; }}".encode()
+            winner = baseline.replace(b"#line 1", b"#line 9")
+            self.assertEqual(self.compare(winner, baseline)["status"], "unverifiable")
+        literal = b'char *note = "__LINE__"; int target(void) { return 0; }'
+        self.assertEqual(self.compare(literal, literal)["status"], "unchanged")
+
+    def test_trigraph_splicing_fails_closed(self):
+        baseline = b"extern int shared;\nint target(void) { return 0; }"
+        self.assertEqual(self.compare(b"// hidden ??/\n" + baseline, baseline)["status"], "unverifiable")
+
+    def test_pragma_operators_are_not_hidden_as_body_calls(self):
+        for operator in cc.PRAGMA_OPERATORS:
+            baseline = b"int target(void) { return 0; }\nstruct Later { char a; int b; };"
+            winner = baseline.replace(b"return 0;", f'{operator}("pack(1)"); return 0;'.encode())
+            self.assertEqual(self.compare(winner, baseline)["status"], "unverifiable")
+
+    def test_lone_cr_ends_comment_before_context_declaration(self):
+        baseline = b"int target(void) { return 0; }\n"
+        winner = b"// hidden\rextern int added;\n" + baseline
+        self.assertEqual(self.compare(winner, baseline)["status"], "changed")
+
     def test_string_literals_are_not_stripped_as_comments(self):
         baseline = b'char *note = "/* old */"; int target(void) { return 0; }'
         self.assertEqual(self.compare(baseline.replace(b"old", b"new"), baseline)["status"], "changed")
