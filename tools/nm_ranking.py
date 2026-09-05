@@ -86,7 +86,7 @@ DEFAULT_DOC = ROOT / "docs" / "nm-ranking.md"
 DOC_BEGIN = "<!-- NM_RANKING_GENERATED_BEGIN -->"
 DOC_END = "<!-- NM_RANKING_GENERATED_END -->"
 SCHEMA_VERSION = 3
-SOURCE_CONTEXT_VERSION = 3
+SOURCE_CONTEXT_VERSION = 4
 SOURCE_CONTEXT_FIELD = "source_context_sha256"
 HEX_SHA256_RE = re.compile(r"[0-9a-f]{64}")
 BASE64URL_SHA256_RE = re.compile(r"[A-Za-z0-9_-]{43}")
@@ -445,6 +445,61 @@ class RankingDocumentError(ValueError):
     """The retained ranking cannot be consumed without guessing."""
 
 
+def ranking_coverage(
+    document: object,
+    live_keys: set[tuple[str, str]],
+    fresh_keys: set[tuple[str, str]],
+) -> dict[str, object]:
+    """Audit the complete queue before any ranking filters or scan limits.
+
+    Presence alone is insufficient: unresolved and source-unproven rows cannot
+    establish that an unexamined candidate would not outrank a selected row.
+    Identity lists make maintenance actionable without compiling anything.
+    """
+    validated = validate_ranking_document(document)
+    resolved = {_function_row_key(row) for row in validated["functions"]}
+    unresolved = {_unresolved_row_key(row) for row in validated["unresolved_functions"]}
+    retained = resolved | unresolved
+    missing = live_keys - retained
+    retired = retained - live_keys
+    stale = (resolved & live_keys) - fresh_keys
+    pending = unresolved & live_keys
+    return {
+        "complete": not (missing or retired or stale or pending),
+        "live": len(live_keys),
+        "retained": len(retained),
+        "fresh": len(resolved & live_keys & fresh_keys),
+        "missing": [list(key) for key in sorted(missing)],
+        "retired": [list(key) for key in sorted(retired)],
+        "stale": [list(key) for key in sorted(stale)],
+        "unresolved": [list(key) for key in sorted(pending)],
+    }
+
+
+def coverage_summary(coverage: dict[str, object]) -> str:
+    return " ".join(
+        f"{key}={len(value) if isinstance(value, list) else value}"
+        for key, value in coverage.items() if key != "complete"
+    )
+
+
+def source_coverage(
+    document: object, current_contexts: dict[tuple[str, str], str],
+    legacy_contexts: Optional[dict[tuple[str, str], str]] = None,
+) -> dict[str, object]:
+    """Compare all measured contexts with current selective-TU source."""
+    validated = validate_ranking_document(document)
+    fresh = set()
+    for row in validated["functions"]:
+        key = _function_row_key(row)
+        measured = normalize_source_context_digest(row.get(SOURCE_CONTEXT_FIELD))
+        if measured is None:
+            measured = normalize_source_context_digest((legacy_contexts or {}).get(key))
+        if measured is not None and measured == current_contexts.get(key):
+            fresh.add(key)
+    return ranking_coverage(validated, set(current_contexts), fresh)
+
+
 def strip_c_comments(text: str) -> str:
     """Remove comments while preserving strings and preprocessing structure."""
     output: list[str] = []
@@ -551,6 +606,7 @@ def current_source_contexts(
 ) -> dict[tuple[str, str], str]:
     """Compute current worktree evidence for an exact, duplicate-free queue."""
     source_cache: dict[str, str] = {}
+    build_contexts = configured_build_contexts(items)
     contexts: dict[tuple[str, str], str] = {}
     for item in items:
         key = (item.rel_c_file, item.func)
@@ -572,8 +628,145 @@ def current_source_contexts(
             raise RankingDocumentError(
                 f"cannot isolate one NON_MATCHING body for {key[0]}:{key[1]}"
             )
-        contexts[key] = digest
+        target = pb.find_asm_target(item)
+        if target is None or not (ROOT / target).is_file():
+            raise RankingDocumentError(f"missing extracted target for {item.func}; run gmake extract")
+        target_digest = hashlib.sha256((ROOT / target).read_bytes()).hexdigest()
+        contexts[key] = evidence_digest([digest, build_contexts[item.rel_c_file], target_digest])
     return contexts
+
+
+def evidence_digest(value: object) -> str:
+    raw = json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+    encoded = base64.urlsafe_b64encode(hashlib.sha256(raw).digest()).rstrip(b"=").decode()
+    return group_source_context(encoded)
+
+
+def include_directories(command: list[str]) -> list[pathlib.Path]:
+    directories: list[pathlib.Path] = []
+    for index, token in enumerate(command):
+        if token == "-I" and index + 1 < len(command):
+            directories.append(ROOT / command[index + 1])
+        elif token.startswith("-I") and len(token) > 2:
+            directories.append(ROOT / token[2:])
+    return list(dict.fromkeys(directories))
+
+
+def header_dependencies(
+    source: pathlib.Path, directories: list[pathlib.Path],
+    content_cache: Optional[dict[pathlib.Path, str]] = None,
+) -> dict[str, str]:
+    """Conservatively walk literal includes, including inactive branches.
+
+    Missing includes remain explicit search facts (some belong to inactive
+    SDK paths); adding such a file changes the digest. Macro includes fail
+    closed because a textual walk cannot establish their dependency closure.
+    """
+    visited: set[pathlib.Path] = set()
+    dependencies: dict[str, str] = {}
+    content_cache = content_cache if content_cache is not None else {}
+
+    def walk(path: pathlib.Path, *, initial: bool = False) -> None:
+        path = pathlib.Path(os.path.normpath(path.absolute()))
+        if path in visited:
+            return
+        visited.add(path)
+        if path not in content_cache:
+            content_cache[path] = strip_c_comments(path.read_text(encoding="utf-8"))
+        content = content_cache[path]
+        if not initial:
+            dependencies[path.relative_to(ROOT).as_posix()] = evidence_digest(content)
+        for match in re.finditer(r'^\s*#\s*include\s+([^\n]+)', content, re.MULTILINE):
+            spelling = match.group(1).strip()
+            literal = re.fullmatch(r'([<"])([^>"]+)[>"]', spelling)
+            if literal is None:
+                raise RankingDocumentError(f"cannot resolve macro include in {path.relative_to(ROOT)}")
+            quote, name = literal.groups()
+            search = ([path.parent] if quote == '"' else []) + directories
+            found = next((directory / name for directory in search if (directory / name).is_file()), None)
+            if found is None:
+                dependencies[f"missing:{path.relative_to(ROOT)}:{spelling}"] = "absent"
+            else:
+                walk(found)
+
+    walk(source, initial=True)
+    return dependencies
+
+
+def configured_tool_digest() -> str:
+    """Fingerprint compiler binaries and the code that prepares comparisons."""
+    paths = [ROOT / "tools" / name for name in (
+        "nm_ranking.py", "permute_batch.py", "ido-phases.py",
+        "permuter/import.py", "permuter/prelude.inc",
+        "binutils/mips64-elf-as", "binutils/mips64-elf-objdump",
+        "binutils/mips64-elf-objcopy",
+    )]
+    paths.extend(sorted((ROOT / "tools/ido").glob("*")))
+    paths.extend(sorted((ROOT / "tools/asm-processor").glob("*.py")))
+    paths.extend(sorted((ROOT / "tools/permuter/src").rglob("*.py")))
+    records = {}
+    for path in paths:
+        if not path.is_file():
+            raise RankingDocumentError(f"missing configured tool {path.relative_to(ROOT)}")
+        records[path.relative_to(ROOT).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
+    return evidence_digest(records)
+
+
+def configured_build_contexts(items: list["pb.QueueItem"]) -> dict[str, str]:
+    """Expand each TU recipe once and bind flags, tools, and header closure.
+
+    No source mtime is touched and no compiler runs. Recipe expansion is
+    repeated at publication so a cached measurement cannot conceal a flag or
+    header edit that overlaps compilation.
+    """
+    if not items:
+        return {}
+    tool_digest = configured_tool_digest()
+    unique = {item.rel_c_file: item for item in items}
+    commands = configured_compile_commands(list(unique.values()))
+    content_cache: dict[pathlib.Path, str] = {}
+    def context(item: "pb.QueueItem") -> tuple[str, str]:
+        command = commands[item.rel_c_file]
+        directories = include_directories(command + shlex.split(pb.INCLUDES))
+        headers = header_dependencies(item.c_file, directories, content_cache)
+        portable = [token.replace(str(ROOT), "<ROOT>") for token in command]
+        return item.rel_c_file, evidence_digest({
+            "command": portable, "headers": headers, "tools": tool_digest,
+            "isolated": [pb.BASE_CC_ARGS, pb.INCLUDES, pb.ASSEMBLER_COMMAND, pb.PRESERVE_MACROS],
+        })
+    return dict(map(context, unique.values()))
+
+
+def configured_compile_commands(items: list["pb.QueueItem"]) -> dict[str, list[str]]:
+    """Expand every distinct TU in one make invocation, with no mtime writes."""
+    sources = list(dict.fromkeys(item.rel_c_file for item in items))
+    arguments = ["gmake", "--no-print-directory", "-n", "NON_MATCHING=1"]
+    for source in sources:
+        arguments.extend(["-W", source])
+    arguments.extend(f"build_non_matching/{source}.o" for source in sources)
+    proc = subprocess.run(arguments, cwd=ROOT, capture_output=True, text=True, timeout=120)
+    if proc.returncode:
+        raise RankingDocumentError(proc.stderr.strip() or "cannot expand configured TU recipes")
+    wanted = set(sources)
+    commands: dict[str, list[str]] = {}
+    for line in proc.stdout.replace("\\\n", " ").splitlines():
+        if "tools/asm-processor/build.py" not in line:
+            continue
+        command = shlex.split(line)
+        matches = wanted.intersection(command)
+        if len(matches) != 1:
+            raise RankingDocumentError("configured recipe lacks one exact source identity")
+        source = matches.pop()
+        if source in commands:
+            raise RankingDocumentError(f"duplicate configured recipe for {source}")
+        try:
+            command[command.index("-o") + 1] = "build/nm_ranking/context.o"
+        except (ValueError, IndexError) as exc:
+            raise RankingDocumentError(f"configured recipe lacks output for {source}") from exc
+        commands[source] = command
+    if set(commands) != wanted:
+        raise RankingDocumentError(f"missing configured recipes: {sorted(wanted - set(commands))}")
+    return commands
 
 
 def blamed_source_lines(ref: str, path: str) -> list[tuple[str, str]]:
@@ -775,7 +968,7 @@ def validate_ranking_document(
             "source_context_version",
             minimum=1,
         )
-        if context_version not in (1, 2, SOURCE_CONTEXT_VERSION):
+        if context_version not in (1, 2, 3, SOURCE_CONTEXT_VERSION):
             raise RankingDocumentError(
                 f"source_context_version {context_version} is unsupported"
             )
@@ -1988,6 +2181,15 @@ def main() -> int:
                           "deferred rows remain explicitly unproven")
     maintenance_mode = ap.add_mutually_exclusive_group()
     maintenance_mode.add_argument(
+        "--check-freshness", action="store_true",
+        help="without compiling, fail if live identities or source contexts "
+             "differ from the complete retained ranking",
+    )
+    ap.add_argument(
+        "--json", action="store_true",
+        help="emit machine-readable coverage (requires --check-freshness)",
+    )
+    maintenance_mode.add_argument(
         "--prune-stale",
         action="store_true",
         help="without compiling, remove rows from --out whose exact file/symbol "
@@ -2007,6 +2209,31 @@ def main() -> int:
              "evidence (default HEAD)",
     )
     args = ap.parse_args()
+
+    if args.json and not args.check_freshness:
+        ap.error("--json requires --check-freshness")
+    if args.check_freshness:
+        if any((args.show_retained, args.write_doc, args.check_doc,
+                args.objdiff_report is not None, args.limit is not None,
+                args.top is not None, args.markdown, args.no_table)):
+            ap.error("--check-freshness cannot be combined with display, "
+                     "documentation, or compilation options")
+        try:
+            document = json.loads(args.out.read_text(encoding="utf-8"))
+            contexts = current_source_contexts(pb.discover_queue())
+            legacy = legacy_source_contexts(args.evidence_ref, args.out, document)
+            coverage = source_coverage(document, contexts, legacy)
+        except (OSError, json.JSONDecodeError, RankingDocumentError) as exc:
+            print(f"ranking freshness: {exc}", file=sys.stderr)
+            return 2
+        if args.json:
+            print(json.dumps(coverage, indent=2, sort_keys=True))
+        else:
+            print("ranking freshness: " + coverage_summary(coverage))
+        if not coverage["complete"]:
+            print("ranking freshness: run tools/nm_ranking.py --refresh-stale "
+                  "to measure all stale/new/unresolved rows", file=sys.stderr)
+        return 0 if coverage["complete"] else 1
 
     if args.jobs < 1:
         print("error: --jobs must be at least 1", file=sys.stderr)

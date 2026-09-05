@@ -38,7 +38,7 @@ DEFAULT_SCAN = MAX_SCAN
 MAX_TOP = 100
 MAX_JOBS = 16
 DEFAULT_JOBS = 4
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 ASSIGNABLE_STATE = "base-only"
 SKIPPED_STATES = (
     "dirty-worktree",
@@ -379,6 +379,7 @@ def _ranking_details(
 
 def ranking_freshness(
     base: str, ranking_path: str, document: object,
+    configured_contexts: dict[tuple[str, str], str] | None = None,
 ) -> FreshnessMap:
     """Prove each metric row was measured against the current source blob."""
     validated = nm_ranking.validate_ranking_document(document)
@@ -423,7 +424,10 @@ def ranking_freshness(
         for row in functions if isinstance(row, dict)
     }
     for key, commit in evidence_commits.items():
-        current = digest(base, key[0], key[1])
+        current = (
+            configured_contexts.get(key) if configured_contexts is not None
+            else digest(base, key[0], key[1])
+        )
         embedded = rows_by_key[key].get(nm_ranking.SOURCE_CONTEXT_FIELD)
         measured = (
             nm_ranking.normalize_source_context_digest(embedded)
@@ -530,6 +534,17 @@ def build_report(
     live = live_identities(live_items)
     dirty_paths = dirty_paths or set()
     live_keys = {(item.file, item.symbol) for item in live}
+    coverage = nm_ranking.ranking_coverage(
+        validated, live_keys,
+        {key for key, evidence in (freshness or {}).items() if evidence.fresh},
+    )
+    if selection in {"expected-yield", "high-confidence"} and not coverage["complete"]:
+        raise ReadyQueueError(
+            "complete current ranking required for " + selection + ": "
+            + nm_ranking.coverage_summary(coverage)
+            + "; run tools/nm_ranking.py --refresh-stale; use default selection "
+            "with --format maintenance to inspect incomplete evidence"
+        )
     live_paths_by_symbol: dict[str, set[str]] = {}
     for item in live:
         live_paths_by_symbol.setdefault(item.symbol, set()).add(item.file)
@@ -750,6 +765,7 @@ def build_report(
             "collect_maintenance": collect_maintenance,
         },
         "ranking_rows": len(functions),
+        "ranking_coverage": coverage,
         "focused_ranking_rows": len(focused_functions),
         "selected_ranking_rows": len(selected_rows),
         "unresolved_rows": len(unresolved),
@@ -767,6 +783,7 @@ def build_report(
                 or collect_maintenance and scanned < len(selected_rows)
             ),
             "ranking_exhausted": scanned == len(selected_rows),
+            "live_queue_complete": coverage["complete"] and scanned == len(functions),
             "maintenance_scan_complete": (
                 collect_maintenance and scanned == len(selected_rows)
             ),
@@ -836,7 +853,8 @@ def summary_line(report: dict[str, object]) -> str:
     return (
         f"ready={summary['ready']} scanned={report['scanned']}/"
         f"{report['limits']['scan']}{selection} skipped: {skip_text}; "
-        f"unresolved-ranking-rows={report['unresolved_rows']}"
+        f"unresolved-ranking-rows={report['unresolved_rows']}; "
+        f"coverage: {nm_ranking.coverage_summary(report['ranking_coverage'])}"
     )
 
 
@@ -887,6 +905,14 @@ def render_maintenance(report: dict[str, object]) -> str:
     maintenance = report["maintenance"]
     assert isinstance(maintenance, list)
     rows: list[list[str]] = []
+    coverage = report["ranking_coverage"]
+    for category in ("missing", "retired", "stale", "unresolved"):
+        for file_name, symbol in coverage[category]:
+            rows.append([
+                "—", "ranking-incomplete", "ranking-" + category, symbol,
+                file_name, "tools/nm_ranking.py --refresh-stale",
+                "complete live-queue coverage required before yield selection",
+            ])
     for raw in maintenance:
         assert isinstance(raw, dict)
         state = str(raw["state"])
@@ -987,9 +1013,12 @@ def main(argv: list[str] | None = None) -> int:
         ).strip()
         document = json.loads(args.ranking.read_text(encoding="utf-8"))
         ranking_name = portable_path(args.ranking)
-        freshness = ranking_freshness(args.base, ranking_name, document)
         dirty_paths = dirty_worktree_paths()
         live_items = permute_batch.discover_queue()
+        configured_contexts = nm_ranking.current_source_contexts(live_items)
+        freshness = ranking_freshness(
+            args.base, ranking_name, document, configured_contexts,
+        )
         identities = live_identities(live_items)
         context = lane_status.AssignmentContext.build(
             args.base, [identity.symbol for identity in identities],

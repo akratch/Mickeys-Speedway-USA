@@ -72,6 +72,116 @@ def queue_item(file_name: str, symbol: str) -> object:
     )
 
 
+class ConfiguredContextTests(unittest.TestCase):
+    def test_batched_recipe_expansion_preserves_per_file_flags(self):
+        items = [queue_item(f"src/main/{name}.c", name) for name in ("a", "b")]
+        lines = []
+        for item, flag in zip(items, ("-O2", "-O1")):
+            lines.append(f"python3 tools/asm-processor/build.py tools/ido/cc -- as -- {flag} "
+                         f"-o build_non_matching/{item.rel_c_file}.o {item.rel_c_file}")
+        response = mock.Mock(returncode=0, stdout="\n".join(lines), stderr="")
+        with mock.patch.object(ranking.subprocess, "run", return_value=response) as run:
+            commands = ranking.configured_compile_commands(items + items)
+            self.assertEqual(run.call_count, 1)
+            self.assertEqual(run.call_args.args[0].count("-W"), 2)
+            self.assertIn("-O2", commands[items[0].rel_c_file])
+            self.assertIn("-O1", commands[items[1].rel_c_file])
+            self.assertIn("build/nm_ranking/context.o", commands[items[0].rel_c_file])
+            response.stdout = lines[0]
+            with self.assertRaisesRegex(ranking.RankingDocumentError, "missing configured recipes"):
+                ranking.configured_compile_commands(items)
+
+    def test_transitive_headers_resolution_cycles_and_unrelated_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "nested").mkdir()
+            source = root / "candidate.c"
+            source.write_text('#include "direct.h"\n')
+            (root / "direct.h").write_text('#include "nested/indirect.h"\n')
+            indirect = root / "nested/indirect.h"
+            indirect.write_text('#include "../direct.h"\n#define WIDTH 4\n')
+            with mock.patch.object(ranking, "ROOT", root):
+                before = ranking.header_dependencies(source, [root])
+                self.assertEqual(set(before), {"direct.h", "nested/indirect.h"})
+                (root / "unrelated.h").write_text("#define OTHER 7\n")
+                self.assertEqual(before, ranking.header_dependencies(source, [root]))
+                indirect.write_text('#include "../direct.h"\n#define WIDTH 8\n')
+                self.assertNotEqual(before, ranking.header_dependencies(source, [root]))
+
+    def test_new_include_and_macro_include_fail_closed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "candidate.c"
+            source.write_text('#if 0\n#include "optional.h"\n#endif\n')
+            with mock.patch.object(ranking, "ROOT", root):
+                before = ranking.header_dependencies(source, [root])
+                (root / "optional.h").write_text("#define OPTIONAL 1\n")
+                self.assertNotEqual(before, ranking.header_dependencies(source, [root]))
+                source.write_text('#include HEADER_NAME\n')
+                with self.assertRaisesRegex(ranking.RankingDocumentError, "macro include"):
+                    ranking.header_dependencies(source, [root])
+
+    def test_recipe_and_tool_changes_invalidate_only_current_receipts(self):
+        item = queue_item("src/main/example.c", "example")
+        recipe = ["tools/ido/cc", "-O2", "-I", "include"]
+        with mock.patch.object(ranking, "configured_tool_digest", return_value="tool-a") as tool, \
+             mock.patch.object(ranking, "configured_compile_commands", return_value={item.rel_c_file: recipe}) as expand, \
+             mock.patch.object(ranking, "header_dependencies", return_value={"header.h": "h"}):
+            original = ranking.configured_build_contexts([item, item])
+            self.assertEqual(expand.call_count, 1)
+            self.assertEqual(original, ranking.configured_build_contexts([item]))
+            recipe[1] = "-O1"
+            self.assertNotEqual(original, ranking.configured_build_contexts([item]))
+            recipe[1] = "-O2"
+            tool.return_value = "tool-b"
+            self.assertNotEqual(original, ranking.configured_build_contexts([item]))
+
+
+class CoverageTests(unittest.TestCase):
+    def test_full_identity_audit_includes_missing_retired_and_unresolved(self):
+        good = ("src/main/good.c", "good")
+        stale = ("src/main/stale.c", "stale")
+        retired = ("src/main/retired.c", "retired")
+        new = ("src/main/new.c", "new")
+        pending = ("src/main/pending.c", "pending")
+        document = ranking_document(
+            [function_row(*key) for key in (good, stale, retired)],
+            [[list(pending), "compile failed"]],
+        )
+        report = ranking.ranking_coverage(document, {good, stale, new, pending}, {good})
+        self.assertFalse(report["complete"])
+        self.assertEqual(report["missing"], [list(new)])
+        self.assertEqual(report["retired"], [list(retired)])
+        self.assertEqual(report["stale"], [list(stale)])
+        self.assertEqual(report["unresolved"], [list(pending)])
+        self.assertEqual(report["fresh"], 1)
+
+    def test_matching_identity_cannot_hide_changed_body_or_declaration(self):
+        source = ('extern int value;\n#ifdef NON_MATCHING\n'
+                  'int target(void) { return value; }\n#else\n'
+                  '#pragma GLOBAL_ASM("asm/nonmatchings/target.s")\n#endif\n')
+        key = ("src/main/target.c", "target")
+        measured = ranking.source_context_digest(source, "target")
+        self.assertIsNotNone(measured)
+        row = function_row(*key)
+        row[ranking.SOURCE_CONTEXT_FIELD] = measured
+        document = ranking_document([row])
+        for changed in (source.replace("return value", "return value + 1"),
+                        source.replace("extern int", "extern short")):
+            with self.subTest(source=changed):
+                current = ranking.source_context_digest(changed, "target")
+                self.assertFalse(ranking.source_coverage(document, {key: current})["complete"])
+        commented = ranking.source_context_digest(source + "/* review note */\n", "target")
+        self.assertTrue(ranking.source_coverage(document, {key: commented})["complete"])
+
+    def test_unproven_legacy_row_requires_evidence(self):
+        key = ("src/main/legacy.c", "legacy")
+        digest = ranking.normalize_source_context_digest("a" * 64)
+        document = ranking_document([function_row(*key)])
+        self.assertFalse(ranking.source_coverage(document, {key: digest})["complete"])
+        self.assertTrue(ranking.source_coverage(document, {key: digest}, {key: digest})["complete"])
+
+
 class PruneStaleTests(unittest.TestCase):
     def test_prunes_only_nonlive_exact_identities_and_normalizes_counts(self) -> None:
         keep = ("src/main/keep.c", "keep")
