@@ -22,6 +22,72 @@ import crew  # noqa: E402
 
 
 class SymbolResolutionTests(unittest.TestCase):
+    def test_fully_matched_inner_function_requires_complete_container_evidence(self) -> None:
+        base = fp.rs.SYNTHETIC_VMA
+        ordinary_symbols = [
+            ("previous", base, 0x20, 0x12, 1),
+            ("friendly", base + 0x20, 0x20, 0x12, 1),
+            ("next", base + 0x40, 0x20, 0x12, 1),
+        ]
+        owner = {"offset": "0x0", "end_offset": "0x60", "size": "0x60",
+                 "type": "c", "matched": True, "nonmatching": False,
+                 "source": "overlays/o004/example"}
+        module = {"overlay": 4, "rom": {"start": "0x10"},
+                  "text_ownership": [owner]}
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "build").mkdir()
+            (root / "build/mickey.us.elf").touch()
+            (root / "baseroms").mkdir()
+            (root / "baseroms/mickey.us.z64").write_bytes(bytes(0x70))
+            source = root / "src/overlays/o004/example.c"
+            source.parent.mkdir(parents=True)
+            source.write_text("void friendly(void) {}\n")
+            alias = root / "aliases.txt"
+            generated = "func_overlay_004_F0000020_30"
+            alias.write_text(f"{generated} = friendly;\n")
+            atlas = root / "atlas.json"
+            atlas.write_text(json.dumps({"modules": [module]}))
+            elf = mock.Mock()
+            elf.section.return_value = (1, (0, 1, 6, base, 0, 0x60))
+            elf.section_bytes.return_value = bytes(0x60)
+            elf.symbols.return_value = ordinary_symbols
+            with mock.patch.object(fp.rs, "Elf", return_value=elf):
+                resolution = fp.resolve("friendly", root=root, alias_path=alias,
+                                        atlas_path=atlas, symbol_path=root / "unused")
+                self.assertEqual((base + 0x20, 0x20),
+                                 (resolution.expected_value, resolution.expected_size))
+                self.assertIn("whole-container ROM", resolution.identity_evidence)
+
+                cases = {
+                    "missing": [ordinary_symbols[0], ordinary_symbols[2]],
+                    "alias conflict": ordinary_symbols + [(generated, base + 0x20, 0x24, 0x12, 1)],
+                    "wrong start": [ordinary_symbols[0], ("friendly", base + 0x24, 0x1C, 0x12, 1), ordinary_symbols[2]],
+                    "overflow": [ordinary_symbols[0], ("friendly", base + 0x20, 0x44, 0x12, 1)],
+                    "gap": [ordinary_symbols[0], ("friendly", base + 0x20, 0x1C, 0x12, 1), ordinary_symbols[2]],
+                    "overlap": ordinary_symbols + [("inside", base + 0x30, 4, 0x12, 1)],
+                    "data": ordinary_symbols + [("data", base + 0x30, 4, 0x11, 1)],
+                    "wrong section": [ordinary_symbols[0], ("friendly", base + 0x20, 0x20, 0x12, 2), ordinary_symbols[2]],
+                    "not function": [ordinary_symbols[0], ("friendly", base + 0x20, 0x20, 0x11, 1), ordinary_symbols[2]],
+                }
+                for label, symbols in cases.items():
+                    with self.subTest(label=label):
+                        elf.symbols.return_value = symbols
+                        with self.assertRaises(fp.PreflightError):
+                            fp.resolve("friendly", root=root, alias_path=alias,
+                                       atlas_path=atlas, symbol_path=root / "unused")
+                elf.symbols.return_value = ordinary_symbols
+                elf.section_bytes.return_value = b"\x01" + bytes(0x5F)
+                with self.assertRaisesRegex(fp.PreflightError, "container is not linked-ROM exact"):
+                    fp.resolve("friendly", root=root, alias_path=alias,
+                               atlas_path=atlas, symbol_path=root / "unused")
+                elf.section_bytes.return_value = bytes(0x60)
+                module["text_ownership"].append(dict(owner))
+                atlas.write_text(json.dumps({"modules": [module]}))
+                with self.assertRaisesRegex(fp.PreflightError, "unambiguous atlas owner"):
+                    fp.resolve("friendly", root=root, alias_path=alias,
+                               atlas_path=atlas, symbol_path=root / "unused")
+
     def fixture(self, root: Path, alias_lines: str) -> Path:
         alias = root / "overlay_undefined_syms.us.txt"
         alias.write_text(alias_lines, encoding="utf-8")

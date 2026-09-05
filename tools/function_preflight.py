@@ -229,6 +229,12 @@ def _overlay_promotion_evidence(
             evidence.append((start, end, source_key, "mixed_tu_exact_c_ranges"))
 
     geometries = {(start, end, owner) for start, end, owner, _kind in evidence}
+    if not geometries:
+        inner = _fully_matched_inner_geometry(
+            module, overlay, offset, candidate_symbol, target_symbol, source_key, root
+        )
+        if inner is not None:
+            return inner
     if len(geometries) != 1:
         rendered = ", ".join(
             f"{owner}:+0x{start:X}..+0x{end:X}"
@@ -254,6 +260,79 @@ def _overlay_promotion_evidence(
                 end = following[0]
                 kinds += "+export boundary"
     return rs.SYNTHETIC_VMA + start, end - start, f"overlay atlas {kinds}"
+
+
+def _fully_matched_inner_geometry(
+    module: dict[str, object], overlay: int, offset: int, candidate: str,
+    target: str, source_key: str, root: Path,
+) -> tuple[int, int, str] | None:
+    """Authenticate an inner function after its last mixed-TU guard retires.
+
+    No boundary is inferred from a TU extent or the next exported entrypoint.
+    A linked function must fill its interval to the next function/owner end,
+    and the entire exact-C container must already equal the baserom.
+    """
+    owners = [
+        row for row in module.get("text_ownership", [])
+        if _hex_field(row, "offset", "text ownership row") <= offset
+        < _hex_field(row, "end_offset", "text ownership row")
+    ]
+    if len(owners) != 1:
+        raise PreflightError("inner function requires one unambiguous atlas owner")
+    owner = owners[0]
+    if not (owner.get("type") == "c" and owner.get("matched") is True
+            and owner.get("nonmatching") is False and owner.get("source") == source_key):
+        return None
+    start = _hex_field(owner, "offset", "exact C owner")
+    end = _hex_field(owner, "end_offset", "exact C owner")
+    if end - start != _hex_field(owner, "size", "exact C owner"):
+        raise PreflightError("exact C owner size/end fields disagree")
+    elf_path = root / "build/mickey.us.elf"
+    rom_path = root / "baseroms/mickey.us.z64"
+    if not elf_path.is_file() or not rom_path.is_file():
+        raise PreflightError("inner function requires linked ELF and baserom evidence")
+    elf = rs.Elf(elf_path)
+    section_name = f".overlay_{overlay:03d}"
+    section_index, section = elf.section(section_name)
+    if (section is None or section[1] != 1 or not section[2] & 4
+            or section[3] != rs.SYNTHETIC_VMA):
+        raise PreflightError("inner function has no correctly based overlay section")
+    symbols = elf.symbols()
+    named = [row for row in symbols if row[0] in {candidate, target}
+             and row[4] != rs.SHN_UNDEF]
+    if not named or any(row[4] != section_index or row[3] & 0xF != rs.STT_FUNC
+                        or row[2] <= 0 for row in named):
+        raise PreflightError("inner function lacks unambiguous defined STT_FUNC evidence")
+    geometries = {(row[1], row[2]) for row in named}
+    if len(geometries) != 1:
+        raise PreflightError("inner function aliases have conflicting geometry")
+    value, size = next(iter(geometries))
+    limit = value + size
+    owner_limit = rs.SYNTHETIC_VMA + end
+    if value != rs.SYNTHETIC_VMA + offset or size % 4 or offset % 4 or limit > owner_limit:
+        raise PreflightError("inner function geometry disagrees with its generated identity/owner")
+    following = [owner_limit]
+    for name, other_value, other_size, info, shndx in symbols:
+        if shndx != section_index or not name or (info & 0xF) not in {rs.STT_FUNC, rs.STT_OBJECT}:
+            continue
+        if name in {candidate, target}:
+            continue
+        if other_value < limit and value < other_value + max(other_size, 1):
+            raise PreflightError("inner function overlaps another function/data symbol")
+        if value < other_value <= owner_limit and other_size > 0:
+            following.append(other_value)
+    if limit != min(following):
+        raise PreflightError("inner function boundary leaves unauthenticated padding/gap")
+    rom_start = _hex_field(module["rom"], "start", "overlay ROM range")
+    if int(target.rsplit("_", 1)[1], 16) != rom_start + offset:
+        raise PreflightError("inner function generated ROM identity disagrees with atlas")
+    rom = rom_path.read_bytes()
+    section_bytes = elf.section_bytes(section_name)
+    if end > len(section_bytes) or rom_start + end > len(rom):
+        raise PreflightError("exact C owner exceeds linked/ROM extent")
+    if section_bytes[start:end] != rom[rom_start + start:rom_start + end]:
+        raise PreflightError("fully matched C container is not linked-ROM exact")
+    return value, size, "overlay atlas exact C container+linked STT_FUNC+whole-container ROM"
 
 
 def _resident_promotion_evidence(

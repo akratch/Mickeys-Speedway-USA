@@ -6,6 +6,17 @@ Implemented. Tool: `tools/reloc_surface.py`. Generated artifact:
 
 ## Function-sized relocation comparison
 
+After the last guarded function in a shared TU is promoted, the atlas replaces
+its mixed exact ranges with one fully matched C container. Preflight can still
+authenticate an inner function without inventing a function-sized atlas row:
+the generated overlay/ROM identity must agree with a unique exact-C owner and
+the linked executable section's defined function geometry. Aliases must agree,
+the complete function must remain inside that owner, and its end must meet the
+next defined function/data boundary or the owner end without a gap or overlap.
+The entire containing executable C range must also equal the baserom. This
+route does not grant matching credit or relax ordinary-source, freshness,
+function-byte, frame, or relocation count/type/offset/identity gates.
+
 Matching lanes can compare a full-TU candidate object's static relocations
 with the target function's authenticated relocation surface without rebuilding
 a second relocation decoder:
