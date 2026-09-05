@@ -56,6 +56,7 @@ int fixture(void) { return 1; }
         self.real_capture = batch.bounded_capture
         self.after = None
         self.fail_return = None
+        self.persistent_recipe = True
         self.proof_report = {
             "schema": proof.REPORT_SCHEMA, "requested_symbol": "fixture",
             "candidate_symbol": "fixture", "linked_symbol": "fixture",
@@ -101,11 +102,19 @@ int fixture(void) { return 1; }
                 self.write("mickey.us.yaml", "generated yaml\n")
             elif "overlay-syms" in args:
                 self.write("overlay_undefined_syms.us.txt", "generated symbols\n")
+                self.write("build/src/fixture.c.o", "generator-normalized exact object\n")
+            elif "build/src/fixture.c.o" in args:
+                self.write("build/src/fixture.c.o", "configured exact object\n"
+                           if self.persistent_recipe else "missing persistent rebind\n")
             elif "tools/refresh_atlas_digest.py" in args:
                 self.write("config/overlay-donors.us.json", "generated donor digest\n")
             elif "scoreboard" in args:
                 self.write("README.md", "generated scoreboard\n")
             result = subprocess.CompletedProcess(args, 0, "OK fixture\n", "")
+            if ("check-overlay-syms" in args
+                    and (self.root / "build/src/fixture.c.o").read_text()
+                    == "missing persistent rebind\n"):
+                result = subprocess.CompletedProcess(args, 1, "missing persistent rebind\n", "")
             if "tools/promotion_proof.py" in args:
                 try:
                     proof.validate_report("fixture", self.proof_report)
@@ -129,6 +138,93 @@ int fixture(void) { return 1; }
 
 
 class PromotionTests(unittest.TestCase):
+    def test_rebuild_failure_preserves_partial_object_and_generator_evidence(self):
+        with Fixture() as fixture:
+            builds = 0
+            def interrupt_rebuild(_number, args, _deadline):
+                nonlocal builds
+                if "build/src/fixture.c.o" in args:
+                    builds += 1
+                    if builds == 2:
+                        fixture.write("build/src/fixture.c.o", "partial compiler output\n")
+                        raise subprocess.TimeoutExpired(args, 0)
+            fixture.after = interrupt_rebuild
+            ok, error = fixture.promote()
+            self.assertFalse(ok)
+            self.assertIn("TimeoutExpired", error)
+            fixture.assert_restored(self)
+            evidence, = (fixture.root / "build/permuter/fixture/promotions").iterdir()
+            self.assertEqual((evidence / "after-symbol-generation.o").read_text(),
+                             "generator-normalized exact object\n")
+            self.assertEqual((evidence / "configured-rebuild.o").read_text(),
+                             "partial compiler output\n")
+
+    def test_missing_or_symlinked_generated_object_fails_before_rebuild(self):
+        for kind in ("missing", "symlink", "parent symlink", "directory", "fifo"):
+            with self.subTest(kind=kind), Fixture() as fixture:
+                outside = fixture.write("outside.o", "unrelated object\n")
+                def replace_generated(_number, args, _deadline):
+                    if "overlay-syms" in args:
+                        obj = fixture.root / "build/src/fixture.c.o"
+                        obj.unlink()
+                        if kind == "symlink":
+                            obj.symlink_to(outside)
+                        elif kind == "directory":
+                            obj.mkdir()
+                        elif kind == "fifo":
+                            os.mkfifo(obj)
+                        elif kind == "parent symlink":
+                            obj.parent.rmdir()
+                            other = fixture.root / "other-build"
+                            other.mkdir()
+                            (other / obj.name).write_text("unrelated object\n")
+                            obj.parent.symlink_to(other, target_is_directory=True)
+                fixture.after = replace_generated
+                ok, error = fixture.promote()
+                self.assertFalse(ok)
+                self.assertIn("promotion object is missing or has symlinked ownership", error)
+                fixture.assert_restored(self)
+                self.assertEqual(outside.read_text(), "unrelated object\n")
+
+    def test_generator_mutation_cannot_substitute_for_persistent_recipe(self):
+        with Fixture() as fixture:
+            fixture.persistent_recipe = False
+            fixture.write("unrelated.txt", "independent staged edit\n")
+            fixture.git("add", "unrelated.txt")
+            ok, error = fixture.promote()
+            self.assertFalse(ok)
+            self.assertIn("missing persistent rebind", error)
+            self.assertEqual(fixture.git("rev-parse", "HEAD"), fixture.head)
+            self.assertEqual(fixture.source.read_bytes(), fixture.original[Path("src/fixture.c")])
+            self.assertEqual(fixture.git("diff", "--cached", "--name-only"), "unrelated.txt")
+            self.assertEqual((fixture.root / "unrelated.txt").read_text(), "independent staged edit\n")
+            evidence, = (fixture.root / "build/permuter/fixture/promotions").iterdir()
+            self.assertEqual((evidence / "after-symbol-generation.o").read_text(),
+                             "generator-normalized exact object\n")
+            self.assertEqual((evidence / "configured-rebuild.o").read_text(),
+                             "missing persistent rebind\n")
+            self.assertTrue(fixture.winner.is_file())
+            self.assertFalse(any("verify" in call or "tools/promotion_proof.py" in call
+                                 for call in fixture.calls))
+
+    def test_persistent_recipe_is_rebuilt_before_proof_and_retained(self):
+        with Fixture() as fixture:
+            absent_on_rebuild = []
+            original_command = fixture.command
+            def command(args, deadline, **kwargs):
+                if "build/src/fixture.c.o" in args:
+                    absent_on_rebuild.append(not (fixture.root / "build/src/fixture.c.o").exists())
+                return original_command(args, deadline, **kwargs)
+            with patch.object(batch, "bounded_capture", side_effect=command):
+                ok, error = fixture.promote()
+            self.assertTrue(ok, error)
+            self.assertEqual(absent_on_rebuild, [True, True])
+            evidence, = (fixture.root / "build/permuter/fixture/promotions").iterdir()
+            self.assertEqual((evidence / "configured-rebuild.o").read_text(), "configured exact object\n")
+            checks = [i for i, call in enumerate(fixture.calls) if "check-overlay-syms" in call]
+            verify = next(i for i, call in enumerate(fixture.calls) if "verify" in call)
+            self.assertLess(checks[0], verify)
+
     def test_apply_without_commit_is_verified_and_unstaged(self):
         with Fixture() as fixture:
             ok, error = fixture.promote(commit=False)

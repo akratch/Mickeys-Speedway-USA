@@ -1376,6 +1376,32 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
             run(["gmake", f"-j{jobs}", f"build/{item.rel_c_file}.o"])
             run(["gmake", "overlay-syms"], outputs=[symbols])
             run([str(PYTHON), "tools/refresh_atlas_digest.py"], outputs=[donors])
+            # Generation may normalize a built object's symbol table. That
+            # transient object is not proof that the configured recipe can
+            # reproduce it. Retain it, then build the affected TU from an
+            # absent object and check the generated surface without mutation.
+            object_target = f"build/{item.rel_c_file}.o"
+            object_path = ROOT / object_target
+            if (not object_path.is_file() or object_path.is_symlink()
+                    or object_path.resolve() != ROOT.resolve() / object_target):
+                raise RuntimeError("promotion object is missing or has symlinked ownership")
+            remaining_timeout(deadline)
+            journal.check()
+            object_path.rename(evidence / "after-symbol-generation.o")
+            try:
+                run(["gmake", f"-j{jobs}", object_target])
+            finally:
+                # Keep partial rebuild evidence even after a failed compiler
+                # or expired/cancelled run. Never restore an exact-looking
+                # generator object over the configured result.
+                if (object_path.is_file() and not object_path.is_symlink()
+                        and object_path.resolve() == ROOT.resolve() / object_target):
+                    shutil.copy2(object_path, evidence / "configured-rebuild.o")
+            if (not object_path.is_file() or object_path.is_symlink()
+                    or object_path.resolve() != ROOT.resolve() / object_target
+                    or object_path.stat().st_size == 0):
+                raise RuntimeError("configured promotion rebuild produced no object")
+            run(["gmake", "check-overlay-syms"])
         run(["gmake", f"-j{jobs}"], cap=1800)
         run(["gmake", f"-j{jobs}", "verify"])
         # Resident C edits do not invalidate the split stamp. Remove the now
