@@ -74,11 +74,37 @@ class TestCliPaths(unittest.TestCase):
                 ]
             )
 
-        self.assertEqual(status, 0, stderr.getvalue())
+        self.assertEqual(status, 1, "a sweep with no scored candidate must fail")
         self.assertIn("target = asm:build/synthetic-flag-sweep/target.s", stdout.getvalue())
         assembled_path = assemble.call_args.args[0]
         self.assertTrue(assembled_path.is_absolute())
         self.assertEqual(assembled_path, (flag_sweep.REPO_ROOT / relative).resolve())
+
+
+class TestSummaryReport(unittest.TestCase):
+    def test_masked_zero_is_not_promotion_proof(self):
+        combo = flag_sweep.Combo("synthetic", (), ("-mips2",), ())
+        result = flag_sweep.summary_report([(combo, Score(True, 0, 0, None), "", 0)], [], "key", 1, 1)
+        self.assertTrue(result["complete"])
+        self.assertTrue(result["ranked"][0]["masked_exact"])
+        self.assertFalse(result["promotion_proof_included"])
+
+    def test_failed_combinations_make_coverage_partial(self):
+        combo = flag_sweep.Combo("failed", (), (), ())
+        result = flag_sweep.summary_report([], [(combo, None, "failure", 0)], "key", 1, 1)
+        self.assertFalse(result["complete"])
+        self.assertEqual(result["failed_combinations"], ["failed"])
+
+    def test_json_mode_separates_human_logs(self):
+        stdout, stderr = StringIO(), StringIO()
+        def run(args, report_stream):
+            print("human log")
+            print('{"schema":"synthetic"}', file=report_stream)
+            return 0
+        with patch.object(flag_sweep, "run_sweep", side_effect=run), redirect_stdout(stdout), redirect_stderr(stderr):
+            self.assertEqual(flag_sweep.main(["synthetic.c", "--function", "f", "--json"]), 0)
+        self.assertEqual(stdout.getvalue(), '{"schema":"synthetic"}\n')
+        self.assertEqual(stderr.getvalue(), 'human log\n')
 
 
 class TestOwnedTargetRange(unittest.TestCase):

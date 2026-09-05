@@ -337,6 +337,7 @@ system-health:
 	$(HOST_PYTHON) $(TOOLS_DIR)/system_health.py $(SYSTEM_HEALTH_ARGS)
 
 check-tooling:
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_probe.py
 	$(PYTHON) $(TOOLS_DIR)/test_raw_asm_census.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_merge_transaction.py
 	$(HOST_PYTHON) tests/test_make_layout.py
