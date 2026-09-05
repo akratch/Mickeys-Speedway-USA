@@ -235,6 +235,105 @@ class PromotionTests(unittest.TestCase):
                 if str(path) != "unrelated.txt":
                     self.assertEqual((fixture.root / path).read_bytes(), content)
 
+    def test_foreign_commit_after_private_tree_capture_is_not_reverted(self):
+        with Fixture() as fixture:
+            foreign = None
+            def change(number, args, deadline):
+                nonlocal foreign
+                if args == ["git", "write-tree"]:
+                    fixture.write("unrelated.txt", "foreign committed content\n")
+                    fixture.git("add", "unrelated.txt")
+                    fixture.git("commit", "-qm", "foreign publication")
+                    foreign = fixture.git("rev-parse", "HEAD")
+            fixture.after = change
+            ok, error = fixture.promote()
+            self.assertFalse(ok)
+            self.assertEqual(fixture.git("rev-parse", "HEAD"), foreign)
+            self.assertEqual(fixture.git("show", "HEAD:unrelated.txt"), "foreign committed content")
+            self.assertEqual(fixture.source.read_bytes(), fixture.original[Path("src/fixture.c")])
+            self.assertIn("refs/sweep-recovery/", error)
+
+    def test_branch_switch_does_not_publish_to_either_branch(self):
+        with Fixture() as fixture:
+            original_ref = fixture.git("symbolic-ref", "HEAD")
+            fixture.git("branch", "other", fixture.head)
+            def change(number, args, deadline):
+                if args == ["git", "write-tree"]:
+                    fixture.git("symbolic-ref", "HEAD", "refs/heads/other")
+            fixture.after = change
+            ok, error = fixture.promote()
+            self.assertFalse(ok)
+            self.assertIn("branch changed", error)
+            self.assertEqual(fixture.git("rev-parse", original_ref), fixture.head)
+            self.assertEqual(fixture.git("rev-parse", "other"), fixture.head)
+            fixture.assert_restored(self)
+
+    def test_hook_private_index_mutation_is_recovery_only(self):
+        with Fixture() as fixture:
+            blob_path = fixture.write("build/hook-blob", "unproved hooked index content\n")
+            blob = fixture.git("hash-object", "-w", str(blob_path))
+            fixture.write(".git/hooks/pre-commit", "#!/bin/sh\ngit update-index --add --cacheinfo "
+                          + f"100644,{blob},unrelated.txt\n").chmod(0o755)
+            ok, error = fixture.promote()
+            self.assertFalse(ok)
+            self.assertIn("differs from the proved tree", error)
+            self.assertIn("refs/sweep-recovery/", error)
+            fixture.assert_restored(self)
+
+    def test_owned_path_staged_before_index_lock_is_preserved(self):
+        with Fixture() as fixture:
+            blob_path = fixture.write("build/staged-blob", "independent staged source\n")
+            blob = fixture.git("hash-object", "-w", str(blob_path))
+            original = transaction.locked_index
+            count = 0
+            @contextlib.contextmanager
+            def competing(index):
+                nonlocal count
+                count += 1
+                if count == 1:
+                    fixture.git("update-index", "--add", "--cacheinfo", f"100644,{blob},src/fixture.c")
+                with original(index) as temporary:
+                    yield temporary
+            with patch.object(transaction, "locked_index", competing):
+                ok, error = fixture.promote()
+            self.assertFalse(ok)
+            self.assertIn("concurrent promotion-path index edits preserved", error)
+            self.assertEqual(fixture.git("rev-parse", "HEAD"), fixture.head)
+            self.assertEqual(fixture.git("show", ":src/fixture.c"), "independent staged source")
+            self.assertEqual(fixture.source.read_bytes(), fixture.original[Path("src/fixture.c")])
+
+    def test_main_index_lock_blocks_writer_between_comparison_and_reset(self):
+        with Fixture() as fixture:
+            attempted = False
+            def change(number, args, deadline):
+                nonlocal attempted
+                if args[:2] == ["git", "ls-files"] and (fixture.root / ".git/index.lock").exists():
+                    attempted = True
+                    with self.assertRaises(subprocess.CalledProcessError):
+                        fixture.git("add", "src/fixture.c")
+            fixture.after = change
+            ok, error = fixture.promote()
+            self.assertTrue(ok, error)
+            self.assertTrue(attempted)
+            self.assertFalse((fixture.root / ".git/index.lock").exists())
+
+    def test_existing_index_lock_is_preserved_and_owned_files_restore(self):
+        with Fixture() as fixture:
+            lock = fixture.write(".git/index.lock", "independent writer lock\n")
+            ok, error = fixture.promote()
+            self.assertFalse(ok)
+            self.assertEqual(lock.read_text(), "independent writer lock\n")
+            fixture.assert_restored(self)
+
+    def test_configured_hooks_path_is_not_bypassed_by_detached_context(self):
+        with Fixture() as fixture:
+            fixture.git("config", "extensions.worktreeConfig", "true")
+            fixture.git("config", "--worktree", "core.hooksPath", ".custom-hooks")
+            fixture.write(".custom-hooks/pre-commit", "#!/bin/sh\nexit 9\n").chmod(0o755)
+            ok, error = fixture.promote()
+            self.assertFalse(ok)
+            fixture.assert_restored(self)
+
     def test_public_run_prepared_apply_commit_path(self):
         with Fixture() as fixture:
             scratch = fixture.root / "build/scratch"

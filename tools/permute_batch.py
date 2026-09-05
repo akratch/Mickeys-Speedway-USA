@@ -1273,7 +1273,10 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
     evidence = BUILD_PERMUTER / item.func / "promotions" / uuid.uuid4().hex
     journal = promotion_transaction.FileJournal(ROOT, paths, evidence)
     initial_head = None
+    initial_ref = "HEAD"
     initial_index = None
+    main_index = None
+    detached_git = None
     expected_tree = None
     expected_index = None
     expected_message = None
@@ -1293,20 +1296,36 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
             raise RuntimeError(f"{' '.join(args)} failed:\n{result.stdout[-3000:]}")
         return result.stdout.strip()
 
-    def cleanup_git(args):
+    def cleanup_git(args, env=None):
         # Cleanup has a short independent grace; it must still run once the
         # search deadline has expired or cancellation has been requested.
         remaining = min(5, cleanup_deadline - time.monotonic())
         if remaining <= 0:
             raise TimeoutError("promotion cleanup grace expired")
         result = subprocess.run(["git", *args], cwd=ROOT, capture_output=True,
-                                text=True, timeout=remaining)
+                                text=True, timeout=remaining, env=env)
         if result.returncode:
             raise RuntimeError(f"rollback git {' '.join(args)} failed: {result.stderr[-1000:]}")
         return result.stdout.strip()
 
+    def synchronize_index(expected, target, command, unchanged=None):
+        # Git's index.lock spans the comparison AND publication. Commands
+        # update a separate copy, so errors leave the real index untouched.
+        with promotion_transaction.locked_index(main_index) as copy:
+            env = dict(os.environ, GIT_INDEX_FILE=str(copy))
+            observed = command(["ls-files", "--stage", "--", *rel_paths], env=env)
+            if observed == unchanged:
+                return
+            if observed != expected:
+                raise RuntimeError("concurrent promotion-path index edits preserved")
+            command(["reset", "-q", target, "--",
+                     *[str(path.relative_to(ROOT)) for path in journal.changed()]], env=env)
+
     try:
         initial_head = run(["git", "rev-parse", "HEAD"])
+        if commit:
+            initial_ref = run(["git", "symbolic-ref", "HEAD"])
+            main_index = Path(run(["git", "rev-parse", "--path-format=absolute", "--git-path", "index"]))
         initial_index = run(["git", "ls-files", "--stage", "--", *rel_paths])
         if commit and run(["git", "diff", "HEAD", "--name-only", "--", *rel_paths]):
             raise RuntimeError("promotion paths already differ from HEAD; preserve them before --commit")
@@ -1346,7 +1365,14 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
             # A private index contains HEAD plus exactly this transaction's
             # paths. Unrelated staged work never enters the match commit.
             changed = [str(path.relative_to(ROOT)) for path in journal.changed()]
-            env = dict(os.environ, GIT_INDEX_FILE=str(evidence / "commit.index"))
+            common = run(["git", "rev-parse", "--path-format=absolute", "--git-common-dir"])
+            hooks = run(["git", "rev-parse", "--path-format=absolute", "--git-path", "hooks"])
+            detached_git = evidence / "commit.git"
+            detached_git.mkdir()
+            (detached_git / "commondir").write_text(common + "\n")
+            (detached_git / "HEAD").write_text(initial_head + "\n")
+            env = dict(os.environ, GIT_INDEX_FILE=str(evidence / "commit.index"),
+                       GIT_DIR=str(detached_git), GIT_COMMON_DIR=common, GIT_WORK_TREE=str(ROOT))
             run(["git", "read-tree", initial_head], env=env)
             run(["git", "add", "-A", "--", *changed], env=env)
             run(["git", "diff", "--cached", "--check"], env=env)
@@ -1358,12 +1384,19 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
                        "Untouched configured compiler output passed linked-range and ROM proof;\n"
                        "derived symbols, scoreboard, documentation and cleanroom gates passed.")
             expected_message = message
-            run(["git", "commit", "-q", "-m", message], env=env)
-            # Update only our now-committed index entries, preserving all
-            # unrelated staging. The command is atomic under Git's index lock.
-            if run(["git", "ls-files", "--stage", "--", *rel_paths]) != initial_index:
-                raise RuntimeError("promotion-path index entries changed during commit")
-            run(["git", "reset", "-q", "HEAD", "--", *changed])
+            # Pin the effective hook directory as seen by the real worktree,
+            # including per-worktree or conditional configuration overrides.
+            run(["git", "-c", f"core.hooksPath={hooks}", "commit", "-q", "-m", message], env=env)
+            candidate = run(["git", "rev-parse", "HEAD"], env=env)
+            if (run(["git", "show", "-s", "--format=%T", candidate]) != expected_tree
+                    or run(["git", "show", "-s", "--format=%P", candidate]) != initial_head
+                    or run(["git", "show", "-s", "--format=%B", candidate]) != expected_message):
+                raise RuntimeError("hooked commit differs from the proved tree, parent or message")
+            if run(["git", "symbolic-ref", "HEAD"]) != initial_ref:
+                raise RuntimeError("checked-out branch changed during promotion")
+            run(["git", "update-ref", initial_ref, candidate, initial_head])
+            synchronize_index(initial_index, candidate,
+                              lambda args, env: run(["git", *args], env=env))
         remaining_timeout(deadline)
         journal.check()
         return True, None
@@ -1371,17 +1404,23 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
         reason = f"{type(exc).__name__}: {exc}"
         cleanup_deadline = time.monotonic() + 30
         try:
+            detached_tip = None
+            if detached_git is not None and (detached_git / "HEAD").exists():
+                detached_tip = cleanup_git(["--git-dir", str(detached_git), "rev-parse", "HEAD"])
+                if detached_tip != initial_head:
+                    recovery = f"refs/sweep-recovery/{uuid.uuid4().hex}"
+                    cleanup_git(["update-ref", recovery, detached_tip])
+                    reason += f"; failed promotion commit retained at {recovery}"
             if initial_head is not None:
-                current_head = cleanup_git(["rev-parse", "HEAD"])
+                current_head = cleanup_git(["rev-parse", initial_ref])
                 if current_head != initial_head:
-                    # Git can publish its commit before a slow post-commit
-                    # hook times out. Retain that exact commit, then CAS only
-                    # the ref this transaction advanced. Never undo a foreign
-                    # or concurrent commit.
+                    # Publication or index reconciliation can be interrupted.
+                    # Undo only our exact detached candidate on the pinned
+                    # branch; never undo a foreign or concurrent commit.
                     tree = cleanup_git(["show", "-s", "--format=%T", current_head])
                     parents = cleanup_git(["show", "-s", "--format=%P", current_head])
                     message = cleanup_git(["show", "-s", "--format=%B", current_head])
-                    if (expected_tree is None or tree != expected_tree or parents != initial_head
+                    if (current_head != detached_tip or expected_tree is None or tree != expected_tree or parents != initial_head
                             or message != expected_message):
                         changed = cleanup_git(["diff", initial_head, current_head,
                                                "--name-only", "--", *rel_paths])
@@ -1389,16 +1428,11 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
                             raise RuntimeError("foreign HEAD changed promotion paths; files and commits preserved for review")
                         reason += "; unrelated concurrent commit preserved"
                     else:
-                        recovery = f"refs/sweep-recovery/{uuid.uuid4().hex}"
-                        cleanup_git(["update-ref", recovery, current_head])
-                        cleanup_git(["update-ref", "HEAD", initial_head, current_head])
-                        reason += f"; timed-out commit retained at {recovery}"
-                        current_index = cleanup_git(["ls-files", "--stage", "--", *rel_paths])
-                        if current_index == expected_index:
-                            cleanup_git(["reset", "-q", "HEAD", "--",
-                                         *[str(path.relative_to(ROOT)) for path in journal.changed()]])
-                        elif current_index != initial_index:
-                            reason += "; concurrent promotion-path index edits preserved"
+                        cleanup_git(["update-ref", initial_ref, initial_head, current_head])
+                        try:
+                            synchronize_index(expected_index, initial_head, cleanup_git, unchanged=initial_index)
+                        except Exception as index_error:
+                            reason += f"; {index_error}"
             conflicts = journal.rollback(cleanup_deadline)
             if conflicts:
                 reason += "; concurrent edits need manual rollback: " + ", ".join(conflicts)

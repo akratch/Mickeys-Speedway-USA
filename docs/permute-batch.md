@@ -385,10 +385,17 @@ be distinguished from the generator itself. Do not run competing writers.
 The serialization lock spans splice, proofs, derived gates and optional
 commit. `--commit` refuses preexisting changes on promotion paths; unrelated
 staged and unstaged work is preserved. Its private index includes exactly the
-promotion delta, and hooks remain enabled. If a timed-out hook leaves the
-expected commit at HEAD, recovery retains it at `refs/sweep-recovery/<id>` and
-uses compare-and-swap to undo only that transaction's branch advance. Foreign
-commits touching promotion paths are preserved for manual review, never reset.
+promotion delta. A normal hooked commit runs on an owned detached HEAD sharing
+the repository's objects, configuration and hooks. Its resulting tree, parent
+and message must equal the proved values before compare-and-swap publication
+to the exact lane branch captured at transaction start. A competing commit or
+branch switch fails closed. The real index's standard writer lock spans copying,
+comparison and atomic replacement, including recovery; unrelated staged entries
+are retained. A failed commit is retained at `refs/sweep-recovery/<id>`; recovery
+undoes only this transaction's branch advance if it was already published.
+Foreign commits touching promotion paths are preserved for manual review,
+never reset. A hook that changes the private index's tree creates only recovery
+evidence, never a promoted result.
 
 Before-images and any merge-conflict evidence remain in ignored
 `build/permuter/<function>/promotions/<id>/`; the search candidate stays in its

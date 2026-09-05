@@ -3,10 +3,30 @@
 from __future__ import annotations
 
 import os
+import contextlib
 import subprocess
 import tempfile
 import time
 from pathlib import Path
+
+
+@contextlib.contextmanager
+def locked_index(index: Path):
+    """Compare/update a copied index while holding Git's real writer lock."""
+    lock = Path(str(index) + ".lock")
+    descriptor = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o666)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=index.parent, prefix="sweep-index-", delete=False) as stream:
+            temporary = Path(stream.name)
+            stream.write(index.read_bytes())
+        yield temporary
+        os.replace(temporary, index)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+        os.close(descriptor)
+        lock.unlink()
 
 
 def contents(path: Path) -> bytes | None:
