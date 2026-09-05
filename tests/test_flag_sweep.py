@@ -45,6 +45,9 @@ class TestCliPaths(unittest.TestCase):
         stderr = StringIO()
 
         with (
+            patch.object(flag_sweep, "configured_recipe", return_value=flag_sweep.pb.BuildRecipe(
+                (), (), (), True, ("-c", "-nostdinc"))),
+            patch.object(flag_sweep, "assembly_dependencies", return_value={}),
             patch.object(flag_sweep, "build_lattice", return_value=[combo]),
             patch.object(flag_sweep, "compile_combo", return_value=failed_compile),
             patch.object(
@@ -175,6 +178,89 @@ class TestOwnedTargetRange(unittest.TestCase):
 
 
 class TestCompileCache(unittest.TestCase):
+    def test_lattice_replaces_axes_but_preserves_ordered_context(self):
+        args = ("-c", "-DVALUE=1", "-I", "first", "-O2", "-g3", "-mips2",
+                "-32", "-Wab,-r4300_mul", "-Wo,-loopunroll,2", "-woff", "835",
+                "-DVALUE=2", "-Isecond", "-woff", "649,838", "-G", "0")
+        recipe = flag_sweep.pb.BuildRecipe((), (), (), True, args)
+        self.assertEqual(flag_sweep.lattice_base_arguments(recipe),
+                         ["-c", "-DVALUE=1", "-I", "first", "-DVALUE=2",
+                          "-Isecond", "-woff", "649,838", "-G", "0"])
+        with self.assertRaisesRegex(LookupError, "refusing static fallback"):
+            flag_sweep.lattice_base_arguments(flag_sweep.pb.BuildRecipe((), (), (), False))
+
+    def test_context_cache_binds_lines_define_order_and_include_search(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "candidate.c"
+            source.write_text('#include <choice.h>\nint value = __LINE__;\n')
+            for name in ("first", "second"):
+                (root / name).mkdir()
+                (root / name / "choice.h").write_text("#define CHOICE 1\n")
+            args = ("-c", "-nostdinc", "-I", str(root / "first"), "-I", str(root / "second"))
+            recipe = flag_sweep.pb.BuildRecipe((), (), (), True, args)
+            with patch.object(flag_sweep, "_tool_inputs", return_value=[]), \
+                 patch.object(flag_sweep, "assembly_dependencies", return_value={}):
+                def key(defines=("VALUE=1", "VALUE=2"), current=recipe):
+                    return flag_sweep.compilation_cache_identity(source, defines, [], current)[0]
+                original = key()
+                self.assertEqual(original, key())
+                self.assertNotEqual(original, key(("VALUE=2", "VALUE=1")))
+                swapped = flag_sweep.pb.BuildRecipe((), (), (), True,
+                    args[:3] + (args[5], args[4], args[3]))
+                self.assertNotEqual(original, key(current=swapped))
+                header = root / "first/choice.h"
+                header.write_text("\n#define CHOICE 1\n")
+                self.assertNotEqual(original, key())
+                header.write_text("#define CHOICE 1\n")
+                source.write_text('\n#include <choice.h>\nint value = __LINE__;\n')
+                self.assertNotEqual(original, key())
+
+    def test_compile_command_uses_configured_context_and_original_path(self):
+        combo = flag_sweep.Combo("test", ("-O1",), ("-mips2", "-32"), ())
+        args = ["-c", "-DVALUE=1", "-Ifirst", "-Isecond", "-nostdinc"]
+        with tempfile.TemporaryDirectory() as temporary:
+            outdir = Path(temporary)
+            def compile(command, **kwargs):
+                (outdir / "out.o").write_bytes(b"synthetic object")
+                import subprocess
+                return subprocess.CompletedProcess(command, 0, "", "")
+            with patch.object(flag_sweep.subprocess, "run", side_effect=compile) as run:
+                flag_sweep.compile_combo(flag_sweep.REPO_ROOT / "src/example.c", combo,
+                                         outdir, ["VALUE=2"], args)
+            command = run.call_args.args[0]
+            tail = command[command.index("--", command.index("--") + 1) + 1:]
+            self.assertEqual(tail[:len(args)], args)
+            self.assertEqual(tail[len(args):len(args) + 4], ["-DVALUE=2", "-O1", "-mips2", "-32"])
+            self.assertEqual(tail[-1], "src/example.c")
+
+    def test_tu_assembly_and_nested_include_changes_invalidate(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            source = root / "candidate.c"
+            source.write_text('#pragma GLOBAL_ASM("sibling.s")\n')
+            (root / "sibling.s").write_text('.include "nested.inc"\n')
+            nested = root / "nested.inc"
+            nested.write_text("# synthetic initial\n")
+            with patch.object(flag_sweep, "REPO_ROOT", root):
+                initial = flag_sweep.assembly_dependencies(source)
+                self.assertEqual(set(initial), {"sibling.s", "nested.inc"})
+                nested.write_text("# synthetic changed\n")
+                self.assertNotEqual(initial, flag_sweep.assembly_dependencies(source))
+
+    def test_angle_include_does_not_use_source_parent(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            source = root / "candidate.c"
+            source.write_text('#include <choice.h>\n')
+            (root / "choice.h").write_text("#error wrong search root\n")
+            headers = root / "headers"
+            headers.mkdir()
+            (headers / "choice.h").write_text("#define CHOICE 1\n")
+            self.assertEqual(set(flag_sweep._include_dependencies(source, ["-nostdinc", "-I", str(headers)])),
+                             {source, headers / "choice.h"})
+
+
     def test_rescore_reuses_complete_cache_without_compiling(self):
         combo = flag_sweep.Combo("cached", ("-O2",), ("-mips2", "-32"), ())
         with tempfile.TemporaryDirectory() as temporary:

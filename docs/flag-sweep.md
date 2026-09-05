@@ -44,19 +44,30 @@ at `-O3` (`ll.c`/`ldiv.c`'s). These are not crossed against `ISA_GROUP` /
 and both pin their own ISA — so add a row to `PHASE_VARIANTS` for a third one
 rather than folding it into the cross product.
 
-119 combos total. Each compiles through `asm-processor` exactly like the
-Makefile's `%.c.o` rule (`Makefile` ~415-424): same `CFLAGS`/`ASFLAGS`, same
-`asm_processor_prelude.inc`, same two-stage `asm-processor build.py <cc> --
-<as> -- <compile args>` shape. `BASE_CFLAGS`/`ASFLAGS` are copied by hand at
-the top of the script (there is no way to `include` the Makefile's variables
-into a driver script that calls IDO's phases directly) — if the Makefile's
-own values move, this file needs the matching edit.
+119 combos total. Each uses the configured TU's complete ordered compiler
+arguments recovered from the Makefile. The sweep replaces only the declared
+optimization/debug, ISA, multiply-hazard, loop-unroll, and `-woff 835` axes;
+other options, defines, and include search order remain intact. Extra
+`--define` options follow the configured arguments in their supplied order.
+The diagnostic wrapper uses explicit assembler options and
+`asm_processor_prelude.inc`; POSTPROCESS is not applied. This is a controlled
+flag experiment, not a claim that every lattice row is the canonical build.
+
+The original source path and lines are compiled without rewriting the TU.
+A scratch or external candidate requires `--recipe-tu` naming its configured
+in-tree context. Missing or unsupported recipes fail closed; no generic SDK
+flag group silently stands in for a real TU recipe.
 
 Compiles run in parallel (`ncpu - 2` workers by default, `--jobs` to
 override) into a content-addressed cache under
 `build/flag_sweep/cache/<compile-key>/<combo-id>/`, which is gitignored by
 the tree's blanket `build/` rule. Objects, logs, and failed-row records are
 retained by default; `--keep` remains only as a no-op compatibility option.
+Some lattice combinations are rejected by the installed asm-processor (for
+example, unsupported optimization/debug combinations). These retained failures
+are reported separately and never count as successfully scored combinations.
+A complete cache can therefore support compile-free reuse while search
+coverage remains partial.
 
 Relative translation-unit, `--target-asm`, and `--elf` paths are resolved
 against the repository root, independent of the caller's current directory.
@@ -147,12 +158,15 @@ a no-op if the binary isn't there.
 
 ## Reusing and rescoring the compile cache
 
-The compile key covers the TU and every recursively resolved literal include,
-the defines and complete flag lattice, Python's major/minor version, and the
-compiler, assembler, IDO phase driver, and asm-processor tool files. Computed
-or unresolved includes fail closed because their dependencies cannot be bound
-soundly. Target assembly, the atlas, linked ELF, and baserom are deliberately
-not compile inputs: they change scoring geometry, not the candidate objects.
+Cache version 3 covers the raw TU and recursively resolved literal headers,
+ordered configured compiler arguments and additional defines, complete flag
+lattice, and tool files including the interpreter and assembler prelude.
+Line-only edits invalidate it because `__LINE__` can affect output. Assembly
+consumed by the TU's `GLOBAL_ASM` pragmas and nested literal `.include` files
+is also bound. Computed/unresolved includes and unsupported implicit or forced
+header search fail closed. Scoring-only target assembly, atlas, linked ELF,
+and baserom are not compile inputs. Changed inputs across a sweep invalidate
+its receipts. Old cache versions cannot masquerade as current measurements.
 
 A normal invocation reuses every complete cache row and compiles only missing
 rows. To guarantee that no compiler process runs, add `--rescore`:
@@ -214,7 +228,7 @@ path outside the repo:
 
 ```
 .venv/bin/python tools/flag_sweep.py /path/to/contramread_demo.c \
-    --function __osContRamRead
+    --recipe-tu src/libultra/contramread.c --function __osContRamRead
 ```
 
 Top row: `-O2 -g3 -mips2 -32`, size delta -12 bytes (3 words short of the

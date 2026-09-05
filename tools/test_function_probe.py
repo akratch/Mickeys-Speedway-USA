@@ -7,6 +7,8 @@ import tempfile
 import time
 import unittest
 from unittest.mock import patch
+from contextlib import redirect_stdout
+from io import StringIO
 
 import function_probe as probe
 
@@ -40,6 +42,23 @@ class ProbeTests(unittest.TestCase):
         report = probe.compact(preflight, diagnosis)
         self.assertFalse(report["candidate_for_linked_trial"])
         self.assertEqual(report["next_action"], "run_promotion_proof")
+
+    def test_promoted_main_selects_rom_diagnosis_without_promotion(self):
+        preflight, diagnosis = self.evidence()
+        preflight.update(resolution_mode="post_promotion", source="src/example.c",
+                         target_symbol="example", candidate_symbol="example", linked_section=".main")
+        preflight["preflight"]["action"] = "run_promotion_proof"
+        calls = []
+        def phase(command, directory, label, deadline):
+            calls.append(command)
+            return {"status": "ok"}, preflight if label == "preflight" else diagnosis
+        with tempfile.TemporaryDirectory() as temporary, \
+             patch.object(probe, "ROOT", Path(temporary)), \
+             patch.object(probe, "run_phase", side_effect=phase), redirect_stdout(StringIO()) as output:
+            self.assertEqual(probe.main(["example", "--json"]), 0)
+        self.assertIn("--rom", calls[1])
+        self.assertIn("--no-build", calls[1])
+        self.assertFalse(json.loads(output.getvalue())["candidate_for_linked_trial"])
 
     def test_oversized_and_masked_only_results_never_pass(self):
         preflight, diagnosis = self.evidence()
