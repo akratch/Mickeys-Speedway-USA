@@ -1,6 +1,11 @@
 {
   "schema_version": 1,
   "authorizations": {
+    "func_80053868": {
+      "source_commit": "a9808a35c5743ce14aeb2c4c73d2b616b0068240",
+      "ledger_commit": "a9808a35c5743ce14aeb2c4c73d2b616b0068240",
+      "reason": "ABI correction only: restore mathOneFloatRPY's two-pointer prototype and drop unsupported constants at +0x1A8. Preserve lines; prove every TU consumer. No flags, frame rewrite, permutation or trap-alias edits."
+    },
     "overlay34InitStorage": {
       "source_commit": "b03c4f84d593687b231276924f0cd07a5755f610",
       "ledger_commit": "f6180acf7e12e80c6e8cda7942dc06f1668678bf",
