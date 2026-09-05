@@ -402,6 +402,11 @@ class RunnerTests(unittest.TestCase):
         first = self.run_one()
         self.assertTrue(first.ok, first.error)
         self.assertEqual(first.base_score, 20)
+        recorded = self.store.completed(first.receipt_key)
+        self.assertEqual(recorded["inputs"]["search"]["mandatory_args"],
+                         list(batch.MANDATORY_PERMUTER_ARGS))
+        self.assertIn("--no-ignore-branch-targets",
+                      recorded["inputs"]["search"]["mandatory_args"])
         with patch.object(batch, "run_permuter", side_effect=AssertionError("must skip search")):
             second = self.run_one(resume=True)
         self.assertTrue(second.resumed, second.error)

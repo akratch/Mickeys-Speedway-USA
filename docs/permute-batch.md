@@ -197,6 +197,14 @@ TU. Three fidelity faults were found in `tools/permute.sh` on 2026-08-27
 | no post-compile `objcopy --redefine-sym` | track.c results never transferred | the TU's objcopy chain is appended to the scratch `compile.sh`, retargeted at `$OUTPUT`; digest-guarded `.py` passes are skipped and listed in `build/permuter/<fn>/recipe.txt` |
 | scorer normalises stack offsets | false 0 on a spill at the wrong slot | `--stack-diffs` is always passed |
 
+Branch destinations are also mandatory scoring inputs. The vendor CLI defaults
+to ignoring them, even though its programmatic options default to checking
+them. The runner always passes `--no-ignore-branch-targets`, including extension
+runs, and records it in the search receipt. A current resident replay retained
+exact instruction count and frame but scored zero only while its one incorrect
+branch destination was ignored; strict scoring correctly retained a nonzero
+residual. Old relaxed searches do not establish strict-search completion.
+
 The 2026-08-25 farm result in "Cost and match rate" below (0 hits in 38
 searches) predates all three fixes and is not evidence about the queue.
 

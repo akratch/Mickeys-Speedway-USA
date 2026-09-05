@@ -112,6 +112,9 @@ BUILD_PERMUTER = ROOT / "build" / "permuter"
 SUMMARY_JSON = BUILD_PERMUTER / "summary.json"
 SUMMARY_TXT = BUILD_PERMUTER / "summary.txt"
 RANKING_PATH = ROOT / "config" / "nonmatching-ranking.us.json"
+MANDATORY_PERMUTER_ARGS = (
+    "--stop-on-zero", "--quiet", "--stack-diffs", "--no-ignore-branch-targets",
+)
 BASEROM = ROOT / "baseroms" / f"mickey.us.z64"
 OBJCOPY = ROOT / "tools" / "binutils" / "mips64-elf-objcopy"
 DEFAULT_INTEGRATION_REF = "campaign/unchain"
@@ -1093,22 +1096,19 @@ def run_permuter(
     into an unbounded campaign.
     """
     log_path = out_dir / log_name
-    # --stack-diffs is essential for a byte-identical rebuild: without it the
-    # scorer normalizes sp-relative offsets and reports a false 0 for a spill
-    # at the wrong slot (docs/matching-triage.md, func_80012574). nice keeps
-    # the search from starving integration builds.
+    # Both stack offsets and branch destinations are executable semantics.
+    # The vendor CLI ignores branch targets by default, unlike its Options
+    # dataclass: leaving that default would report false zeros for wrong CFG
+    # destinations. Keep these mandatory arguments bound into receipt inputs.
     args = [
         "nice", "-n", "15",
         str(PYTHON),
         str(PERMUTER_PY),
-        "--stop-on-zero",
-        "--quiet",
+        *MANDATORY_PERMUTER_ARGS,
         "-j",
         str(threads),
     ]
-    if "--stack-diffs" not in extra_args:
-        args.append("--stack-diffs")
-    args += [*extra_args, str(scratch)]
+    args += [*(arg for arg in extra_args if arg not in MANDATORY_PERMUTER_ARGS), str(scratch)]
     start = time.monotonic()
     with open(log_path, "w") as log_f:
         # permuter.py -j N forks worker processes; killing only the parent on
@@ -1674,7 +1674,7 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
             "minutes": minutes, "threads": permuter_threads, "extra_args": extra_args,
             "extend_minutes": extend_minutes, "flat_minutes": flat_minutes,
             "annotate_overlays": annotate_overlays,
-            "mandatory_args": ["--stop-on-zero", "--quiet", "--stack-diffs"],
+            "mandatory_args": list(MANDATORY_PERMUTER_ARGS),
         })
         if source_hash != inputs["context"]["source"]:
             raise RuntimeError("source changed during sweep preparation; retry against stable input")
