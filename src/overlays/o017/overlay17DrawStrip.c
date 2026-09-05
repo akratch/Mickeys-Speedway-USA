@@ -11,11 +11,11 @@ extern void overlay17PrepareStripReloc(G **, void *, s32, s32);
 #define SYNC(p) { G *m=(G *)(p); m->w1=0; m->w0=0xE7000000; }
 
 /*
- * Plateau: removing the final packet's unnecessary volatile qualifier gives
- * an exact-size 119-word candidate with 18 masked differences, first +0x0.
- * All 119 flag forms are nonexact.  The target frame is 0x38 versus 0x40;
- * the remaining source-supported lever is the pre-loop count/remaining/
- * previous lifetime that also accounts for the two structural rows.
+ * Plateau: spelling the final packet through the existing pair local gives
+ * an exact-size 119-word candidate with 16 masked differences, first +0x0.
+ * The linked promotion trial also has 16 differing words and no collateral.
+ * The target frame is 0x38 versus 0x40; reshaping packet-local lifetimes can
+ * recover the frame but destabilizes the otherwise-near-exact allocation.
  */
 #ifdef NON_MATCHING
 void overlay17DrawStrip(G **commands, Strip *strip) {
@@ -63,7 +63,9 @@ check_flush:
             previous=pair++;
         } while (remaining--);
     }
-    SYNC((*commands)++);
+    pair = (Pair *)(*commands)++;
+    ((G *)pair)->w1 = 0;
+    ((G *)pair)->w0 = 0xE7000000;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o017/overlay17DrawStrip/func_overlay_017_F00008B4_187426C.s")
@@ -71,10 +73,10 @@ check_flush:
 
 /* PLATEAU-HANDOFF:overlay17DrawStrip:start
  * symbol: overlay17DrawStrip
- * score: 101/119 words
+ * score: 103/119 words
  * frame: 0x40
  * relocations: 1
  * first-mismatch: +0x0
- * summary: Nonvolatile sync improves 20 to 18 differences. Recover the target 0x38 frame through authenticated pre-loop count, remaining, and previous lifetimes.
+ * summary: Reusing pair for the final sync improves 18 to 16 differences in both the object and linked overlay, with no out-of-range differences. The remaining blocker is the 0x38 target frame versus 0x40 candidate frame; packet-local consolidation recovers the frame but destabilizes allocation.
  * PLATEAU-HANDOFF:overlay17DrawStrip:end
  */
