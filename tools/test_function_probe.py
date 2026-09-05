@@ -16,9 +16,14 @@ import function_probe as probe
 class ProbeTests(unittest.TestCase):
     def evidence(self):
         preflight = {"schema": "mickey-function-evidence-preflight-v1", "owned_size": 16, "resolution_mode": "fallback",
-                     "preflight": {"status": "complete", "action": "continue_matching", "counts": {"target_relocations": 0}}}
+                     "preflight": {"status": "complete", "action": "continue_matching", "counts": {
+                         "target_relocations": 1, "candidate_static_relocations": 1,
+                         "candidate_identities_resolved": 1, "candidate_identities_unresolved": 0,
+                         "offset_type_aligned": 1, "stable_identities_aligned": 1,
+                         "effective_identities_aligned": 1}}}
         diagnosis = {"schema": "decomp-workbench-diagnosis-v3", "comparison": {
-            "exact": True, "target_instructions": 4, "candidate_instructions": 4, "words": 0},
+            "exact": True, "target_instructions": 4, "candidate_instructions": 4, "words": 0,
+            "relocation_metadata_mismatches": 0, "relocation_target_mismatches": 0},
             "view": {"instructions": "synthetic private evidence"},
             "lever": {"lever_class": "stack-home", "measurements": {"private": "not printed"}}}
         return preflight, diagnosis
@@ -34,6 +39,31 @@ class ProbeTests(unittest.TestCase):
         preflight, diagnosis = self.evidence()
         preflight["preflight"]["status"] = "partial"
         self.assertFalse(probe.compact(preflight, diagnosis)["candidate_for_linked_trial"])
+
+    def test_structural_exact_with_relocation_identity_substitution_fails(self):
+        for field in ("relocation_metadata_mismatches", "relocation_target_mismatches"):
+            with self.subTest(field=field):
+                preflight, diagnosis = self.evidence()
+                diagnosis["comparison"][field] = 1
+                self.assertFalse(probe.compact(preflight, diagnosis)["candidate_for_linked_trial"])
+                del diagnosis["comparison"][field]
+                self.assertFalse(probe.compact(preflight, diagnosis)["candidate_for_linked_trial"])
+
+    def test_unresolved_unaligned_or_missing_identity_counts_fail(self):
+        preflight, _ = self.evidence()
+        for field in preflight["preflight"]["counts"]:
+            with self.subTest(field=field):
+                preflight, diagnosis = self.evidence()
+                counts = preflight["preflight"]["counts"]
+                counts[field] += 1
+                self.assertFalse(probe.compact(preflight, diagnosis)["candidate_for_linked_trial"])
+                del counts[field]
+                self.assertFalse(probe.compact(preflight, diagnosis)["candidate_for_linked_trial"])
+
+    def test_explicit_empty_relocation_surfaces_can_pass(self):
+        preflight, diagnosis = self.evidence()
+        preflight["preflight"]["counts"] = dict.fromkeys(preflight["preflight"]["counts"], 0)
+        self.assertTrue(probe.compact(preflight, diagnosis)["candidate_for_linked_trial"])
 
     def test_already_promoted_source_needs_proof_not_guard_trial(self):
         preflight, diagnosis = self.evidence()

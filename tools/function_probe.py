@@ -87,9 +87,25 @@ def compact(preflight, diagnosis):
     complete = evidence.get("status") == "complete"
     target = scores.get("target_instructions")
     candidate = scores.get("candidate_instructions")
+    count_fields = (
+        "target_relocations", "candidate_static_relocations",
+        "candidate_identities_resolved", "candidate_identities_unresolved",
+        "offset_type_aligned", "stable_identities_aligned", "effective_identities_aligned",
+    )
+    counts_present = all(type(counts.get(key)) is int and counts[key] >= 0 for key in count_fields)
+    expected = counts.get("target_relocations")
+    identities_exact = (counts_present and counts["candidate_identities_unresolved"] == 0
+                        and all(counts[key] == expected for key in count_fields
+                                if key != "candidate_identities_unresolved"))
+    relocation_comparison_exact = all(
+        type(scores.get(key)) is int and scores[key] == 0
+        for key in ("relocation_metadata_mismatches", "relocation_target_mismatches")
+    )
     eligible = (complete and (preflight or {}).get("resolution_mode") == "fallback"
                 and scores.get("exact") is True and type(target) is int
-                and target > 0 and candidate == target and scores.get("words") == 0)
+                and target > 0 and type(candidate) is int and candidate == target
+                and type(scores.get("words")) is int and scores["words"] == 0
+                and identities_exact and relocation_comparison_exact)
     return {
         "preflight_status": evidence.get("status", "unavailable"),
         "owned_bytes": (preflight or {}).get("owned_size"),

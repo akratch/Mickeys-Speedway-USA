@@ -21,6 +21,10 @@ relocation counts, the workbench's routing/lever class, and whether the
 evidence supports a **separate linked promotion trial**. Even that flag is
 only a recommendation, never matching credit. Partial relocation identities,
 missing evidence, non-exact comparison, or unequal extents cannot receive it.
+Structural `exact` alone is insufficient: comparison relocation metadata and
+target-identity mismatches must explicitly be zero, and preflight must report
+equal target/static counts with every identity resolved and aligned. Absent
+count fields fail closed, including for otherwise zero-score comparisons.
 The workbench's first divergent row includes its comparison evidence; do not
 mistake it for the flag sweep's relocation-masked first byte mismatch.
 
