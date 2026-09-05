@@ -2173,7 +2173,7 @@ void func_80002FE0(s32 id, f32 x, f32 y, f32 z, s32 priority,
                    void **handle);
 u8 *func_80028F54(void);
 void rumbleStart(s32 playerIndex, s32 strength, f32 duration);
-void mathOneFloatRPY();
+void mathOneFloatRPY(ControlTransform *transform, f32 *output);
 
 /*
  * PROVENANCE: JFG's public asm/nonmatchings/hit/hitInitObjectHit.s supplies
@@ -2410,9 +2410,9 @@ void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
  * remain authoritative for this reconstruction.
  */
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, 1179 differing words, first mismatch +0x0. */
-/* Candidate shape: 1147 instructions/frame -0x240 versus target 1205/-0xF8. */
-/* Structural gap: 58 fewer instructions and 0x148 excess frame; not shape-exact. */
+/* Workbench: structure-mismatch, 1197 differing words, first mismatch +0x0. */
+/* Candidate shape: 1145 instructions/frame -0x240 versus target 1205/-0xF8. */
+/* Structural gap: 60 fewer instructions and 0x148 excess frame; not shape-exact. */
 void func_80053868(s32 arg0) {
 
     f32 spD4;
@@ -2569,7 +2569,7 @@ temp_f20 = (f32) arg0;
                             spCC = temp_v0_2->unkC;
                             spD0 = temp_v0_2->unk10;
                             spD4 = temp_v0_2->unk14;
-                            mathOneFloatRPY(temp_s6, &spCC, 2U, 1U);
+                            mathOneFloatRPY((ControlTransform *) temp_s6, &spCC);
                             temp_v0_2->unk24 = (f32) (temp_v0_2->unk24 + spCC);
                             temp_v0_2->unk28 = (f32) (temp_v0_2->unk28 + spD0);
                             temp_v0_2->unk2C = (f32) (temp_v0_2->unk2C + spD4);
@@ -4643,11 +4643,11 @@ void fmvInit(void) {
 
 /* PLATEAU-HANDOFF:func_80053868:start
  * symbol: func_80053868
- * score: 1179 differing words
+ * score: 1197 differing words
  * frame: 0x240
  * relocations: 61
  * first-mismatch: +0x0
- * summary: Candidate is 58 instructions short with a 0x148 frame excess; collision-update CFG remains displaced.
+ * summary: Corrected two-pointer call ABI; candidate is 60 instructions short with a 0x148 frame excess and displaced collision-update CFG.
  * PLATEAU-HANDOFF:func_80053868:end
  */
 
