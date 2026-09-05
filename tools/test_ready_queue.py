@@ -588,7 +588,7 @@ class ReadyQueueTests(unittest.TestCase):
         self.assertEqual({"src/main/a.c", "docs/a.md"}, paths)
         self.assertTrue(all(call[:3] == ["git", "-C", "/repo/main"] for call in calls))
 
-    def test_freshness_ignores_comments_and_other_candidate_bodies(self) -> None:
+    def test_freshness_covers_comments_and_other_candidate_bodies(self) -> None:
         old = """extern int shared;
 #ifdef NON_MATCHING
 void a(void) { shared++; }
@@ -623,7 +623,7 @@ void b(void) { shared += 2; }
             side_effect=lambda ref, _path: current if ref == "base" else old,
         ):
             freshness = rq.ranking_freshness("base", "ranking.json", doc)
-        self.assertTrue(freshness[("src/main/a.c", "a")].fresh)
+        self.assertFalse(freshness[("src/main/a.c", "a")].fresh)
 
     def test_freshness_covers_shared_declarations(self) -> None:
         old = """extern int shared;
