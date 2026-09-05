@@ -12,7 +12,7 @@ extern Overlay14ValueSlot gOverlay14SlotsEnd128[];
 extern void *gOverlay14SlotsActive2C;
 extern s32 gOverlay14SlotCountE8;
 
-extern s32 overlay14SelectKind(void);
+extern s32 frontGetLanguage(void);
 extern void *overlay14LoadRelocatedValue(s32 key, s32 kind);
 extern void *func_overlay_014_F00009F4_18702CC(s32 key, s32 kind);
 
@@ -21,8 +21,8 @@ extern void *func_overlay_014_F00009F4_18702CC(s32 key, s32 kind);
  * that the initial slot/end address chains are independent and selected by
  * source line. Keeping the assignment and loop label on one physical line
  * closes the two low-half schedule words and their four data identities.
- * All 15 relocation sites align and 14 identities resolve; only the selector
- * call identity at +0xAC remains open. The residual begins in the chosen/slot
+ * All 15 relocation sites and identities align after authenticating the
+ * resident language accessor at +0xAC. The residual begins in the chosen/slot
  * pointer web after the active-slot load. */
 #ifdef NON_MATCHING
 void *overlay14CreateValue(s32 key, s32 alternate) {
@@ -57,7 +57,7 @@ void *overlay14CreateValue(s32 key, s32 alternate) {
         return 0;
     }
     chosen = &gOverlay14ChosenSlots28[index];
-    kind = overlay14SelectKind();
+    kind = frontGetLanguage();
     slot = chosen;
 
     switch (kind) {
@@ -101,6 +101,6 @@ void *overlay14CreateValue(s32 key, s32 alternate) {
  * frame: 0x28
  * relocations: 15
  * first-mismatch: +0x54
- * summary: Line-tag scheduling closes the initial LO16 pair; 14 positional words and one selector-call identity remain.
+ * summary: Resident selector identity authenticated; all 15 relocations align, with 14 positional words remaining.
  * PLATEAU-HANDOFF:overlay14CreateValue:end
  */
