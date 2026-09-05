@@ -19,6 +19,14 @@ extern s32 D_800D3030;
 extern s32 D_800D3034;
 extern s32 D_800D3004;
 extern void *D_800D3000;
+extern s32 D_800D3008;
+extern s32 D_800D300C;
+extern s32 D_800D2FF4;
+extern s32 *D_800D2FF8;
+extern s32 *D_800D2FFC;
+extern struct SpriteVertex *D_800D3010;
+extern Gfx *D_800D3014;
+extern struct SpriteTriangle *D_800D3018;
 extern u8 D_800D3038;
 extern u8 D_800D3039;
 extern u8 D_800D303A;
@@ -51,6 +59,53 @@ typedef struct TextureFrameHeader {
     u8 unk1F;
 } TextureFrameHeader;
 
+typedef struct Sprite {
+    u8 numberOfFrames;
+    u8 spriteFlags;
+    s16 numberOfTextures;
+    s16 numberOfInstances;
+    s16 drawFlags;
+    u8 metadata[6];
+    u8 pad0E[2];
+    TextureFrameHeader **textures;
+    u8 *commandOffsets;
+    Gfx *frameDisplayLists[1];
+} Sprite;
+
+typedef struct SpriteAsset {
+    s16 baseTextureId;
+    s16 numberOfFrames;
+    s16 anchorX;
+    s16 anchorY;
+    u8 metadata[6];
+    s16 flags;
+    u8 pad10[4];
+    u8 frameTexOffsets[1];
+} SpriteAsset;
+
+typedef struct SpriteVertex {
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
+} SpriteVertex;
+
+typedef struct SpriteTriangle {
+    u8 flags;
+    u8 vi0;
+    u8 vi1;
+    u8 vi2;
+    s16 uv0U;
+    s16 uv0V;
+    s16 uv1U;
+    s16 uv1V;
+    s16 uv2U;
+    s16 uv2V;
+} SpriteTriangle;
+
 #ifdef NON_MATCHING
 #define TEXTURE_FIELD(expr, type_ptr, offset) (*(type_ptr)((u8 *)(expr) + (offset)))
 #endif
@@ -58,8 +113,15 @@ typedef struct TextureFrameHeader {
 extern u8 D_8007BDA0;
 extern s32 func_800299E8(s32 minimum, s32 maximum);
 extern void mmFree(void *ptr);
+extern void *func_8002B314(s32 size, u32 colourTag);
+extern u8 *align16(u8 *address);
+extern s32 piRomLoadSection(u32 assetIndex, u32 address, s32 assetOffset,
+                            s32 size);
+extern TextureFrameHeader *func_80034448(s32 textureId);
+extern void func_800347A0(TextureFrameHeader *texture);
 
 void func_80035F48(u8 **dlist, u8 *tex, s32 rtile, s32 tmem);
+void func_80035ADC(SpriteAsset *spriteAsset, Sprite *sprite, s32 frameId);
 
 void func_800348C8(s32 tagId) {
     D_8007BD84 = tagId;
@@ -149,65 +211,159 @@ void func_80034E54(Gfx **dlist, u8 *texture, s32 flags, f32 scale, u8 alpha) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80034E54.s")
 #endif
 #ifdef NON_MATCHING
-/* JFG's texLoadSprite is assembly-only; retain the cache lookup surface as a
- * frame-exact candidate while the asset/decompression path remains fallback. */
-void *func_800355A0(s32 spriteId, s32 flags) {
-    volatile u8 frame_pad[0x68];
+/* PROVENANCE: control-flow shape adapted from Diddy Kong Racing's public
+ * src/textures_sprites.c::tex_load_sprite and cross-checked against Jet Force
+ * Gemini's public texLoadSprite object. Mickey's allocation layout, fields,
+ * globals, calls, and compiler output remain authoritative. */
+Sprite *func_800355A0(s32 spriteId, s32 flags) {
+    Sprite *refSprite;
+    Sprite *newSprite;
+    s32 cacheNum;
+    SpriteAsset *spriteAsset;
+    TextureFrameHeader *texture;
+    s32 i;
+    s32 size;
+    s8 allocFailed;
+    s8 cacheFull;
+    s16 numTextures;
+    s32 arenaCount;
+    s32 triangleOffset;
+    s32 displayListOffset;
+    s32 textureOffset;
+    u8 *newBase;
+    s32 vertexOffset;
+    s32 commandOffset;
 
-    frame_pad[0] = (u8)flags;
+    D_800D300C = flags;
     if (spriteId < 0 || spriteId >= D_800D3004) {
         return NULL;
     }
-    return D_800D3000;
+
+    for (i = 0, cacheFull = 0; i < D_800D3008; i++) {
+        if (spriteId == D_800D2FFC[i << 1]) {
+            refSprite = (Sprite *)D_800D2FFC[(i << 1) + 1];
+            refSprite->numberOfInstances++;
+            return refSprite;
+        }
+    }
+
+    cacheNum = -1;
+    for (i = 0; i < D_800D3008; i++) {
+        if (newSprite) {
+        }
+        if (D_800D2FFC[i << 1] == -1) {
+            cacheNum = i;
+        }
+    }
+
+    if (cacheNum == -1) {
+        cacheFull = 1;
+        cacheNum = D_800D3008;
+        D_800D3008++;
+    }
+
+    size = D_800D2FF8[spriteId];
+    spriteAsset = D_800D3000;
+    piRomLoadSection(0x15, (u32)spriteAsset, size,
+                     D_800D2FF8[spriteId + 1] - size);
+
+    numTextures = spriteAsset->frameTexOffsets[spriteAsset->numberOfFrames];
+    arenaCount = numTextures;
+    if (numTextures < spriteAsset->numberOfFrames) {
+        arenaCount = spriteAsset->numberOfFrames;
+    }
+
+    triangleOffset =
+        (s32)align16((u8 *)(spriteAsset->numberOfFrames * 4 + 0x18));
+    displayListOffset = triangleOffset + ((arenaCount * 2) * 16);
+    textureOffset = displayListOffset + (arenaCount * 0x20) +
+                    (spriteAsset->numberOfFrames * sizeof(Gfx));
+    vertexOffset = textureOffset + (arenaCount * 4);
+    commandOffset = vertexOffset + (arenaCount * 40);
+    size = (s32)align16((u8 *)(commandOffset + (arenaCount * 2)));
+    newSprite = func_8002B314(size, 0x8E);
+    if (newSprite == NULL) {
+        if (cacheFull) {
+            D_800D3008--;
+        }
+        return NULL;
+    }
+
+    D_800D3018 = (SpriteTriangle *)((u8 *)newSprite + triangleOffset);
+    D_800D3014 = (Gfx *)((u8 *)newSprite + displayListOffset);
+    newBase = (u8 *)newSprite;
+    D_800D3010 = (SpriteVertex *)(newBase + vertexOffset);
+    newSprite->textures =
+        (TextureFrameHeader **)((u8 *)newSprite + textureOffset);
+    newSprite->commandOffsets = (u8 *)newSprite + commandOffset;
+
+    allocFailed = 0;
+    /* Defined allocator cue retained from the bounded permuter: this arena
+     * offset is dead after the pointer stores and is reused as zero. */
+    textureOffset = 0;
+    for (i = textureOffset; i < numTextures; i++) {
+        D_8007BD84 = 0x8E;
+        texture = func_80034448(spriteAsset->baseTextureId + i);
+        newSprite->textures[i] = texture;
+        if (newSprite->textures[i] == (void *)textureOffset) {
+            allocFailed = 1;
+        }
+        D_8007BD84 = 0x90;
+        D_800D2FF4 = 1;
+    }
+
+    D_800D2FF4 = textureOffset;
+    if (allocFailed) {
+        for (i = textureOffset; i < numTextures; i++) {
+            texture = newSprite->textures[i];
+            if (texture != (void *)textureOffset) {
+                func_800347A0(texture);
+            }
+        }
+        if (cacheFull) {
+            D_800D3008--;
+        }
+        mmFree(newSprite);
+        return (void *)textureOffset;
+    }
+
+    newSprite->numberOfTextures = numTextures;
+    newSprite->metadata[textureOffset] = spriteAsset->metadata[textureOffset];
+    newSprite->metadata[1] = spriteAsset->metadata[1];
+    newSprite->metadata[2] = spriteAsset->metadata[2];
+    newSprite->metadata[3] = spriteAsset->metadata[3];
+    newSprite->metadata[4] = spriteAsset->metadata[4];
+    newSprite->metadata[5] = spriteAsset->metadata[5];
+    newSprite->numberOfFrames = spriteAsset->numberOfFrames;
+    for (i = textureOffset; i < spriteAsset->numberOfFrames; i++) {
+        newSprite->frameDisplayLists[i] = D_800D3014;
+        func_80035ADC(spriteAsset, newSprite, i);
+        if (newSprite->drawFlags & 0x40) {
+            i = spriteAsset->numberOfFrames;
+        }
+    }
+    newSprite->drawFlags |= spriteAsset->flags & 0x600;
+
+    if (D_800D3008 >= 100) {
+        return (void *)textureOffset;
+    }
+    D_800D2FFC[cacheNum << 1] = spriteId;
+    D_800D2FFC[(cacheNum << 1) + 1] = (s32)newSprite;
+    newSprite->numberOfInstances = 1;
+    return newSprite;
 }
+/* PLATEAU-HANDOFF:func_800355A0:start
+ * symbol: func_800355A0
+ * score: 177 differing words; normalized distance 27
+ * frame: 0x70 (target 0x68)
+ * relocations: 44
+ * first-mismatch: +0x0
+ * summary: Complete DKR/JFG-derived sprite loader is 268 versus 269 instructions; 20/44 relocation sites align, and ten bounded forms plus a 20-minute permuter leave one extra declared-local web and an eight-byte frame excess.
+ * PLATEAU-HANDOFF:func_800355A0:end
+ */
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_800355A0.s")
 #endif
-typedef struct Sprite {
-    s16 baseTextureId;
-    s16 numberOfFrames;
-    s16 numberOfInstances;
-    s16 drawFlags;
-    u8 pad08[8];
-    TextureFrameHeader **textures;
-    u8 *commandOffsets;
-} Sprite;
-
-typedef struct SpriteAsset {
-    s16 baseTextureId;
-    s16 numberOfFrames;
-    s16 anchorX;
-    s16 anchorY;
-    u8 pad08[0xC];
-    u8 frameTexOffsets[1];
-} SpriteAsset;
-
-typedef struct SpriteVertex {
-    s16 x;
-    s16 y;
-    s16 z;
-    u8 r;
-    u8 g;
-    u8 b;
-    u8 a;
-} SpriteVertex;
-
-typedef struct SpriteTriangle {
-    u8 flags;
-    u8 vi0;
-    u8 vi1;
-    u8 vi2;
-    s16 uv0U;
-    s16 uv0V;
-    s16 uv1U;
-    s16 uv1V;
-    s16 uv2U;
-    s16 uv2V;
-} SpriteTriangle;
-
-extern s32 D_800D3008;
-extern s32 *D_800D2FFC;
-extern void func_800347A0(TextureFrameHeader *texture);
 
 void func_800359D4(Sprite *sprite) {
     s32 i;
@@ -218,7 +374,7 @@ void func_800359D4(Sprite *sprite) {
         if (sprite->numberOfInstances <= 0) {
             for (i = 0; i < D_800D3008; i++) {
                 if (sprite == (Sprite *)D_800D2FFC[(i << 1) + 1]) {
-                    for (frame = 0; frame < sprite->numberOfFrames; frame++) {
+                    for (frame = 0; frame < sprite->numberOfTextures; frame++) {
                         func_800347A0(sprite->textures[frame]);
                     }
                     mmFree(sprite);
@@ -230,10 +386,6 @@ void func_800359D4(Sprite *sprite) {
         }
     }
 }
-extern SpriteVertex *D_800D3010;
-extern Gfx *D_800D3014;
-extern SpriteTriangle *D_800D3018;
-
 #define SPRITE_PHYSICAL(address) ((u32)((u8 *)(address) - 0x80000000))
 #define SPRITE_DMA(packet, address, count)                                  \
     {                                                                       \
