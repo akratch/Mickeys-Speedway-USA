@@ -1,11 +1,6 @@
 {
   "schema_version": 1,
   "authorizations": {
-    "func_800347A0": {
-      "source_commit": "b67909e24fe248481ee63a92e951154885945e99",
-      "ledger_commit": "b67909e24fe248481ee63a92e951154885945e99",
-      "reason": "Authorize one bounded permuter sweep for the symmetric 0x30-versus-0x28 frame immediates; all 43 instructions, registers, opcodes, and seven relocation identities otherwise match."
-    },
     "overlay34InitStorage": {
       "source_commit": "b03c4f84d593687b231276924f0cd07a5755f610",
       "ledger_commit": "f6180acf7e12e80c6e8cda7942dc06f1668678bf",
