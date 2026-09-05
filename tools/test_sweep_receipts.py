@@ -428,6 +428,24 @@ class RunnerTests(unittest.TestCase):
         self.assertFalse(second.resumed)
         self.assertEqual(search.call_count, 1)
 
+    def test_importer_object_debug_path_churn_does_not_change_search_identity(self):
+        original = self.importer
+        count = 0
+        def importer(*args):
+            nonlocal count
+            scratch = original(*args)
+            count += 1
+            (scratch / "base.o").write_bytes(f"synthetic .mdebug preparation path {count}".encode())
+            return scratch
+        with patch.object(batch, "run_import", side_effect=importer):
+            first = self.run_one()
+            with patch.object(batch, "run_permuter", side_effect=AssertionError("must reuse identical inputs")):
+                second = self.run_one(resume=True)
+        self.assertTrue(second.resumed, second.error)
+        self.assertEqual(first.receipt_key, second.receipt_key)
+        saved = self.store.read_bundle(second.artifact_bundle)
+        self.assertEqual(saved["baseline/base.o"], b"synthetic .mdebug preparation path 1")
+
     def improved(self, scratch, *args, **kwargs):
         subprocess.run([sys.executable, "-c", SYNTHETIC_SEARCH_BASELINE, str(scratch)], check=True)
         best = scratch / "output-10-1"

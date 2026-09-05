@@ -833,7 +833,11 @@ def receipt_inputs(item: QueueItem, scratch: Path, settings: Path, target: Path,
     if item.overlay is not None:
         context["rom"] = sweep_receipts.file_digest(BASEROM)
     baseline_hashes = {"baseline/" + name: sweep_receipts.file_digest(scratch / name)
-                       for name in ("base.c", "base.o", "compile.sh", "target.s", "settings.toml")}
+                       for name in ("base.c", "compile.sh", "target.s", "settings.toml")}
+    # base.o is importer/annotation OUTPUT, not a search input. IDO embeds
+    # the unique preparation path in .mdebug, so hashing it prevents identical
+    # searches from resuming. It remains preserved and independently verified
+    # by the bundle's member hash; search source/recipe/target are pinned here.
     baseline_hashes.update({"baseline/tu.c": context["source"],
                            "baseline/permuter_settings.toml": context["settings"],
                            "baseline/recipe.json": hashlib.sha256(

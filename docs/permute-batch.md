@@ -80,8 +80,10 @@ script, annotated target and scratch settings; the complete recovered IDO
 argument list; toolchain and permuter content hashes; and the search caps,
 thread count, annotation mode and forwarded arguments. Source, target and
 settings are hashed byte-for-byte, including expanded path literals. The
-baseline evidence binding also hashes the raw saved compile script and importer
-object. Absolute script paths therefore conservatively separate lane keys,
+baseline evidence binding also hashes the raw saved compile script. The importer
+object is an output, not a search input: IDO's `.mdebug` embeds a unique
+preparation path, so that object is retained and bundle-verified without entering
+the search key. Absolute script paths therefore conservatively separate lane keys,
 even when known cwd prefixes normalize alike in the older command fingerprint.
 Durable evidence remains recoverable across lanes; cross-lane skip hit rate is
 deliberately secondary to exact input binding. A changed header that changes preprocessed
