@@ -11,9 +11,9 @@ extern s32 D_8007BD84;
 extern s32 D_8007BD88;
 extern s32 D_8007BD8C;
 extern s32 D_8007BD90;
-extern s32 D_800D3020;
-extern s32 D_800D3024;
-extern s32 D_800D3028;
+extern void *D_800D3020;
+extern u8 *D_800D3024;
+extern u8 *D_800D3028;
 extern s32 D_800D302C;
 extern s32 D_800D3030;
 extern s32 D_800D3034;
@@ -106,11 +106,22 @@ typedef struct SpriteTriangle {
     s16 uv2V;
 } SpriteTriangle;
 
+typedef struct TextureRenderSettings {
+    Gfx *upper;
+    Gfx *lower;
+    s32 mask;
+    s32 flags;
+} TextureRenderSettings;
+
 #ifdef NON_MATCHING
 #define TEXTURE_FIELD(expr, type_ptr, offset) (*(type_ptr)((u8 *)(expr) + (offset)))
 #endif
 
 extern u8 D_8007BDA0;
+extern TextureRenderSettings D_8007B680[];
+extern TextureRenderSettings D_8007B980[];
+extern u8 D_8007BD94;
+extern u8 D_8007BD98;
 extern s32 func_800299E8(s32 minimum, s32 maximum);
 extern void mmFree(void *ptr);
 extern void *func_8002B314(s32 size, u32 colourTag);
@@ -154,24 +165,177 @@ void func_80034920(Gfx **dlist) {
     }
     D_8007BD8C = 0;
 }
-
 #ifdef NON_MATCHING
-/* JFG names this as texDPTextureX.  Keep the state transition visible while
- * the display-list flag table is still being recovered. */
+/*
+ * PROVENANCE: Jet Force Gemini's public texDPTextureX establishes the related
+ * texture/render-state role.  This body's fields, tables, control flow, and
+ * display-list commands were reconstructed from Mickey's own function.
+ */
 void func_800349A4(Gfx **dlist, TextureFrameHeader *tex, s32 flags,
                    s32 frame) {
-    volatile u8 frame_pad[0x40];
+    TextureRenderSettings *settings;
+    Gfx *dl;
+    Gfx *textureCommands;
+    u8 *currentTexture;
+    u8 *nextTexture;
+    s32 oldBlockedFlags;
+    s32 numTextures;
+    s32 frameIndex;
+    s32 nextFrame;
+    s32 hasTexture;
+    s32 settingsIndex;
+    s32 tableFlags;
 
-    frame_pad[0] = (u8)frame;
-    if (tex != NULL) {
-        flags |= tex->flags;
-        if (dlist != NULL) {
-            (*dlist)->words.w1 = (u32)flags;
-            (*dlist)++;
-        }
+    if (D_8007BD8C != 0) {
+        oldBlockedFlags = D_8007BD90;
+        func_80034920(dlist);
+        D_8007BD90 = oldBlockedFlags;
     }
-    D_800D302C = flags;
+
+    hasTexture = 0;
+    dl = *dlist;
+    if (tex != NULL) {
+        numTextures = tex->numOfTextures >> 8;
+        frameIndex = frame >> 16;
+        if ((numTextures >= 2) && (frameIndex < numTextures) &&
+            (D_8007BD94 == 0)) {
+            currentTexture = ((u8 *)tex) + (frameIndex * tex->textureSize) +
+                             sizeof(TextureFrameHeader);
+            if ((tex->flags & 0x40) && (tex->unk1B < 2)) {
+                nextFrame = frameIndex + 1;
+                if (nextFrame >= numTextures) {
+                    nextFrame = numTextures - 1;
+                    if (tex->spriteFlags & 2) {
+                        nextFrame = 0;
+                    }
+                }
+                nextTexture = ((u8 *)tex) +
+                              (nextFrame * tex->textureSize) +
+                              sizeof(TextureFrameHeader);
+            } else {
+                nextTexture = currentTexture;
+            }
+        } else {
+            currentTexture = (u8 *)(tex + 1);
+            nextTexture = currentTexture;
+        }
+
+        flags |= tex->flags;
+        hasTexture = 1;
+        settings = D_8007B680;
+        if ((currentTexture != D_800D3024) ||
+            (nextTexture != D_800D3028)) {
+            D_800D3024 = currentTexture;
+            D_800D3028 = nextTexture;
+            textureCommands = tex->cmd;
+            dl->words.w0 = textureCommands->words.w0;
+            dl->words.w1 = (u32)currentTexture;
+            dl++;
+            textureCommands++;
+            if (tex->unk1B >= 2) {
+                dl->words.w0 = 0x06000000;
+                dl->words.w1 = (u32)textureCommands;
+                dl++;
+            } else {
+                dl->words.w0 = 0x07060030;
+                dl->words.w1 = (u32)textureCommands + 0x80000000;
+                dl++;
+                if ((tex->flags & 0x40) && (tex->unk1B < 2)) {
+                    dl->words.w0 = textureCommands[6].words.w0;
+                    dl->words.w1 = (u32)nextTexture;
+                    dl++;
+                    textureCommands += 7;
+                    dl->words.w0 = 0x07060030;
+                    dl->words.w1 = (u32)textureCommands + 0x80000000;
+                    dl++;
+                }
+            }
+        }
+    } else {
+        settings = D_8007B980;
+    }
+
+    if ((flags & 0x80) && (D_8007BD98 != 0)) {
+        flags = (flags & ~0x80) | 4;
+    }
+    flags &= ~D_8007BD90;
+    settingsIndex = (flags & 0x70) >> 4;
+    if (hasTexture != 0) {
+        if (tex->unk1B >= 2) {
+            settingsIndex += 0x20;
+            if (flags & 0x80) {
+                settingsIndex += 8;
+            }
+        } else if (flags & 0x80) {
+            settingsIndex += 8;
+        } else if (flags & 0x100) {
+            settingsIndex += 0x10;
+        } else if (flags & 0x200) {
+            settingsIndex += 0x18;
+        }
+    } else if (flags & 0x800) {
+        settingsIndex += 8;
+    }
+
+    settings += settingsIndex;
+    tableFlags = settings->flags | (flags & settings->mask);
+    if ((D_800D302C != ((settingsIndex << 8) | tableFlags)) ||
+        (D_800D3020 != settings)) {
+        D_800D302C = (settingsIndex << 8) | tableFlags;
+        D_800D3020 = settings;
+        gDPPipeSync(dl++);
+        if (tableFlags & 2) {
+            if (D_800D3030 == 0) {
+                gSPSetGeometryMode(dl++, G_ZBUFFER);
+            }
+            D_800D3030 = 1;
+        } else {
+            if (D_800D3030 != 0) {
+                gSPClearGeometryMode(dl++, G_ZBUFFER);
+            }
+            D_800D3030 = 0;
+        }
+        if (tableFlags & 8) {
+            if (D_800D3034 == 0) {
+                gSPSetGeometryMode(dl++, G_FOG);
+            }
+            D_800D3034 = 1;
+        } else {
+            if (D_800D3034 != 0) {
+                gSPClearGeometryMode(dl++, G_FOG);
+            }
+            D_800D3034 = 0;
+        }
+        dl->words.w0 = settings->upper[tableFlags >> 3].words.w0;
+        dl->words.w1 = settings->upper[tableFlags >> 3].words.w1;
+        dl++;
+        dl->words.w0 = settings->lower[tableFlags].words.w0;
+        dl->words.w1 = settings->lower[tableFlags].words.w1;
+        dl++;
+    }
+    *dlist = dl;
 }
+/* Bounded reproof (2026-09-05): this complete semantic reconstruction emits
+ * 274 instructions versus the exact 272-instruction / 0x440-byte owner, with
+ * 265 differing target-offset words, normalized edit distance 238, and first
+ * mismatch +0x8. The candidate frame is 0x30 versus target 0x40 and it emits
+ * 37 versus 39 text relocations. Thirty-one overlay callers authenticate the
+ * resident identity. Explicit word copies for both render-state table commands
+ * are the retained strict structural gain. All 119 flag identities and ten
+ * natural declaration, carrier, control-flow, and command-output forms are nonexact.
+ * A fidelity-clean allocator trace identifies flags as the missing s0 web;
+ * forcing that color is diagnostic only and disrupts the remaining topology.
+ * Preserve the fallback. Resume only with a source-authentic lifetime form
+ * that naturally carries flags in s0 while retaining the command structure. */
+/* PLATEAU-HANDOFF:func_800349A4:start
+ * symbol: func_800349A4
+ * score: 265 differing words
+ * frame: 0x30 (target 0x40)
+ * relocations: 37
+ * first-mismatch: +0x8
+ * summary: Complete semantic C emits 274 versus 272 instructions at normalized distance 238; all 119 flags and ten natural forms are nonexact, and a fidelity-clean trace isolates the missing saved-register flag web.
+ * PLATEAU-HANDOFF:func_800349A4:end
+ */
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_800349A4.s")
 #endif
