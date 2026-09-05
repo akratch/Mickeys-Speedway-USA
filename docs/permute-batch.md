@@ -221,6 +221,51 @@ metadata and plateau retirement through an isolated index. The
 permuter is niced. Batch infrastructure, promotion and commit failures produce
 a nonzero exit status instead of being reported as successful searches.
 
+### Continue an immutable receipt winner
+
+`--seed-receipt KEY --function SYMBOL` explicitly starts one new bounded search
+from a preserved improvement. It requires one function and `--jobs 1`; it cannot
+be combined with `--deep`, automatic extensions, or forwarded vendor arguments.
+Pass `--extend-minutes 0` explicitly, especially with the promotion wrapper's
+otherwise nonzero extension default.
+Ordinary unseeded runs and `--deep` selection retain their existing behavior.
+
+```sh
+tools/permute_sweep.sh --report-only continued-search -- \
+    --function myFunction --seed-receipt RECEIPT_SHA256 \
+    --jobs 1 --permuter-threads 2 --minutes 3 --max-total-minutes 10 \
+    --extend-minutes 0 --resume
+```
+
+The parent must be a complete, context-unchanged improvement with an intact
+content-addressed bundle. Its receipt, bundle digest, and frozen winner digest
+become part of both the new search identity and its context index. Source,
+ownership (including overlay/section/offset), headers, target, configured recipe,
+settings, and external compiler/permuter identities must agree. Only the raw
+generated compile-script lane directory is portable, and only when its existing
+normalized command digest still agrees. Earlier runner/comparator implementations
+are not proof: this process pins its own loaded implementation and revalidates
+everything with current code. No archived foreign compile script is executed.
+
+Before searching, two separate strict `--debug` invocations compile and score
+the current canonical input and the saved seed without random search. Their
+captures and debug output stay in separate ignored run directories. The actual
+canonical compiler input must equal the parent's baseline, and both the saved
+seed and its actual compiled input must pass the current declaration-context
+comparison. The new search captures its own baseline again; bytes and strict
+score must agree with the independently measured seed. A seed is input, never
+reused match proof. Zero still requires the usual full promotion gates against
+the fresh original canonical evidence and the actual seed/winner bytes.
+
+Result JSON distinguishes `original_base_score`, `seed_parent_score`,
+`seed_score`, and `search_gain`. `base_score` is the new search's measured seed
+baseline. A flat or regressing search retains the measured seed as best, not the
+original canonical body; original-to-seed progress is not new descending-search
+evidence. Validated successful seeded receipts support ordinary same-context
+`--resume`. Missing/corrupt parent or child bundles, incomplete captures,
+cancellation, and failed searches remain retryable and retain available evidence.
+As with other sweeps, hard-kill recovery is not guaranteed.
+
 ### Safe sweep wrapper
 
 `tools/permute_sweep.sh` requires an explicit mode and lane name. The old

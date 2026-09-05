@@ -716,6 +716,11 @@ class RunResult:
     scratch_path: Optional[str] = None
     artifact_bundle: Optional[str] = None
     context_review: Optional[dict] = None
+    original_base_score: Optional[int] = None
+    seed_score: Optional[int] = None
+    seed_parent_score: Optional[int] = None
+    seed_proof: Optional[dict] = None
+    search_gain: Optional[int] = None
 
 
 def remaining_timeout(deadline: Optional[float], cap: float = 120) -> float:
@@ -728,11 +733,11 @@ def remaining_timeout(deadline: Optional[float], cap: float = 120) -> float:
 
 
 def bounded_capture(args: list[str], deadline: Optional[float], *, check: bool = False,
-                    cap: float = 120, env: Optional[dict] = None):
+                    cap: float = 120, env: Optional[dict] = None, cwd: Optional[Path] = None):
     """Capture a preparation command and terminate its entire group on timeout."""
     timeout = remaining_timeout(deadline, cap)
     end = time.monotonic() + timeout
-    proc = subprocess.Popen(args, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+    proc = subprocess.Popen(args, cwd=ROOT if cwd is None else cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                             text=True, start_new_session=True, env=env)
     finished = False
     try:
@@ -1820,9 +1825,83 @@ def install_baseline_capture(scratch: Path, out_dir: Path, baseline: dict, input
     return capture
 
 
+def seed_context_compatible(parent: dict, current: dict) -> bool:
+    """Only generated lane cwd and prior runner implementation may differ.
+
+    Actual source/header/target/settings and external compiler/search tools remain
+    exact. Fresh local captures prove declaration context separately.
+    """
+    old = json.loads(json.dumps(parent))
+    new = json.loads(json.dumps(current))
+    implementations = {"runner", "receipts", "promotion", "candidate_context", "loaded_modules"}
+    for context in (old["context"], new["context"]):
+        context.pop("seed", None)
+        context["tools"] = {k: v for k, v in context["tools"].items() if k not in implementations}
+        context["baseline_hashes"].pop("baseline/compile.sh", None)
+    for value in (old, new):
+        value.pop("search", None)
+        value["baseline_hashes"].pop("baseline/compile.sh", None)
+    return old == new
+
+
+def measure_seed_stage(item, directory, baseline, inputs, source, deadline):
+    """Compile/strict-score once with this lane's recipe, never saved scripts."""
+    directory.mkdir(mode=0o700)
+    scratch = directory / "scratch"
+    scratch.mkdir()
+    for name in ("base.c", "compile.sh", "target.s", "target.o", "settings.toml"):
+        (scratch / name).write_bytes(baseline["baseline/" + name])
+    (scratch / "base.c").write_bytes(source)
+    install_baseline_capture(scratch, directory, baseline, inputs)
+    command = [str(PYTHON), "-u", str(PERMUTER_PY), *MANDATORY_PERMUTER_ARGS,
+               "-j", "1", "--debug", str(scratch)]
+    output = bounded_capture(command, deadline, check=True, cwd=directory)
+    (directory / "debug.log").write_text(output.stdout)
+    scores = re.findall(r"base score = (\d+)", output.stdout)
+    if len(scores) != 1:
+        raise RuntimeError("compile-only seed stage did not report exactly one strict baseline score")
+    return captured_baseline(item, directory, inputs, deadline), int(scores[0])
+
+
+def prepare_seed(item, out_dir, baseline, inputs, parent, source, result, deadline):
+    baseline.update({"seed/parent.json": json.dumps(parent, sort_keys=True).encode(),
+                     "seed/source.c": source})
+    if any(hashlib.sha256(baseline[name]).hexdigest() != expected
+           for name, expected in inputs["baseline_hashes"].items()):
+        raise RuntimeError("fresh preparation changed before seed measurement")
+    canonical, original_score = measure_seed_stage(item, out_dir / "canonical-measurement",
+        baseline, inputs, baseline["baseline/base.c"], deadline)
+    result.original_base_score = original_score
+    result.seed_parent_score = parent["result"]["best_score"]
+    if canonical.source_sha256 != parent["result"]["context_review"]["baseline_source_sha256"]:
+        raise RuntimeError("fresh actual canonical compiler input differs from parent baseline")
+    report = review_context(item, canonical, source, deadline)
+    if report["status"] != "unchanged":
+        retain_context(out_dir / "context-review", canonical, source, report)
+        result.context_review = report
+        raise RuntimeError("saved seed declarations differ from fresh actual canonical input")
+    seed, score = measure_seed_stage(item, out_dir / "seed-measurement", baseline,
+                                     inputs, source, deadline)
+    compiled_report = review_context(item, canonical, seed.source, deadline)
+    if compiled_report["status"] != "unchanged":
+        raise RuntimeError("compiled seed declarations differ from fresh canonical input")
+    result.seed_score = score
+    result.best_score = score
+    result.seed_proof = {"status": "pending-search", "seed": inputs["search"]["seed"],
+        "original_score": original_score, "seed_score": score,
+        "fresh_baseline_sha256": canonical.source_sha256,
+        "compiled_source_sha256": seed.source_sha256,
+        "compiled_object_sha256": seed.object_sha256,
+        "parent_comparison": report, "compiled_comparison": compiled_report}
+    baseline.update({"seed/compiled.c": seed.source, "seed/compiled.o": seed.object})
+    return canonical, seed
+
+
 def preserve_search_artifacts(store, out_dir, scratch, baseline, result, deadline, inputs):
     """Save untouched compiler evidence, including retryable partial attempts."""
     files = dict(baseline)
+    if result.seed_proof is not None:
+        files["seed/proof.json"] = json.dumps(result.seed_proof, sort_keys=True).encode()
     errors = []
     for name in ("baseline.c", "winner.c", "report.json"):
         try:
@@ -1840,14 +1919,15 @@ def preserve_search_artifacts(store, out_dir, scratch, baseline, result, deadlin
                 or hashlib.sha256(files["baseline/compiled.c"]).hexdigest() != metadata["source_sha256"]
                 or hashlib.sha256(files["baseline/compiled.o"]).hexdigest() != metadata["object_sha256"]):
             raise RuntimeError("actual search baseline capture is incomplete")
-        files["baseline/measurement.json"] = json.dumps({**metadata, "score": result.base_score,
+        files["baseline/measurement.json"] = json.dumps({**metadata, "score": (
+            result.original_base_score if result.seed_score is not None else result.base_score),
             "kind": "first synchronous permuter baseline; importer base.c/base.o are unpaired preparation artifacts"}).encode()
     except Exception as error:
         errors.append(str(error))
     try:
         best_dir, _ = _best(scratch)
         score = result.best_score
-        if score is not None and (result.base_score is None or score < result.base_score):
+        if score is not None and (result.seed_score is not None or result.base_score is None or score < result.base_score):
             source = files.get("context/winner.c") or sweep_receipts.owned_bytes(
                 out_dir, (best_dir / "source.c").relative_to(out_dir).as_posix())
             files["best/source.c"] = source
@@ -1907,7 +1987,7 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
             annotate_overlays: bool = True,
             batch_deadline: Optional[float] = None, resume: bool = False,
             receipt_store: Optional[sweep_receipts.ReceiptStore] = None,
-            deep: bool = False) -> RunResult:
+            deep: bool = False, seed_receipt: Optional[str] = None) -> RunResult:
     # Keep every meaningful attempt. Reimporting must not erase an earlier
     # best candidate, especially when a later run fails before scoring.
     out_dir = BUILD_PERMUTER / item.func / "runs" / uuid.uuid4().hex
@@ -1918,6 +1998,9 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
     baseline = {}
     preservation_started = False
     try:
+        if seed_receipt and (deep or extra_args or extend_minutes):
+            raise ValueError("receipt seeding does not accept --deep, extensions or forwarded permuter arguments")
+        parent, seed_source = store.seed_parent(seed_receipt) if seed_receipt else (None, None)
         remaining_timeout(batch_deadline)
         checked_tool_identity()
         source_hash = sweep_receipts.file_digest(item.c_file)
@@ -1953,6 +2036,16 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
         if initial_dependencies != inputs["context"]["dependencies"]:
             raise RuntimeError("headers changed during sweep preparation")
         checked_tool_identity()
+        if parent is not None:
+            if not seed_context_compatible(parent["inputs"], inputs):
+                raise RuntimeError("seed source, ownership, headers, recipe, target or external tools are stale")
+            seed_identity = {"receipt": seed_receipt,
+                             "bundle": parent["result"]["artifact_bundle"],
+                             "source_sha256": hashlib.sha256(seed_source).hexdigest(),
+                             "target_object_sha256": hashlib.sha256(
+                                 sweep_receipts.owned_bytes(scratch, "target.o")).hexdigest()}
+            inputs["search"]["seed"] = seed_identity
+            inputs["context"]["seed"] = seed_identity
         result.receipt_key = sweep_receipts.digest(inputs)
         with store.claim(result.receipt_key) as acquired:
             if not acquired:
@@ -1967,6 +2060,8 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
                 result.scratch_path = previous["result"].get("scratch_path")
                 result.artifact_bundle = previous["result"]["artifact_bundle"]
                 result.context_review = previous["result"]["context_review"]
+                for field in ("original_base_score", "seed_score", "seed_parent_score", "seed_proof", "search_gain"):
+                    setattr(result, field, previous["result"].get(field))
             else:
                 # Freeze baseline bytes before an extension replaces base.c.
                 for name in ("base.c", "base.o", "compile.sh", "target.s", "settings.toml"):
@@ -1974,10 +2069,17 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
                 baseline["baseline/tu.c"] = sweep_receipts.owned_bytes(ROOT, item.rel_c_file)
                 baseline["baseline/recipe.json"] = json.dumps(dataclasses.asdict(recipe), sort_keys=True).encode()
                 baseline["baseline/permuter_settings.toml"] = sweep_receipts.owned_bytes(out_dir, settings_path.name)
+                canonical = seed = None
+                if parent is not None:
+                    baseline["baseline/target.o"] = sweep_receipts.owned_bytes(scratch, "target.o")
+                    canonical, seed = prepare_seed(item, out_dir, baseline, inputs,
+                        parent, seed_source, result, batch_deadline)
+                    (scratch / "base.c").write_bytes(seed_source)
                 install_baseline_capture(scratch, out_dir, baseline, inputs)
                 run_prepared(item, scratch, out_dir, result, minutes, permuter_threads,
                              build_jobs, apply, extra_args, load_threshold, extend_minutes,
-                             commit, flat_minutes, batch_deadline, prepared_inputs=inputs)
+                             commit, flat_minutes, batch_deadline, prepared_inputs=inputs,
+                             canonical_evidence=canonical, seed_evidence=seed, seed_artifacts=baseline)
                 # Concurrent promotion in another slot can change this TU.
                 # Such a search remains useful evidence, but cannot suppress
                 # a future run against the newly changed source.
@@ -2019,10 +2121,16 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
                  minutes: int, permuter_threads: int, build_jobs: int, apply: bool,
                  extra_args: list[str], load_threshold: float, extend_minutes: int,
                  commit: bool, flat_minutes: int, batch_deadline: Optional[float], *,
-                 prepared_inputs: dict | None = None) -> None:
-    prepared = None
+                 prepared_inputs: dict | None = None,
+                 canonical_evidence: PreparedBaseline | None = None,
+                 seed_evidence: PreparedBaseline | None = None,
+                 seed_artifacts: dict | None = None) -> None:
+    prepared = canonical_evidence
     try:
         wait_for_headroom(load_threshold, f"before permuting {item.func}", batch_deadline)
+        if seed_evidence is not None and hashlib.sha256(sweep_receipts.owned_bytes(
+                scratch, "target.o")).hexdigest() != prepared_inputs["search"]["seed"]["target_object_sha256"]:
+            raise RuntimeError("seed target object changed before search")
         base_score, elapsed, stopped_flat, stopped_batch = run_permuter(
             scratch, out_dir, minutes, permuter_threads, extra_args,
             flat_minutes=flat_minutes, batch_deadline=batch_deadline)
@@ -2031,11 +2139,27 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
         result.stopped_batch = stopped_batch
         result.ok = True
         try:
-            prepared = captured_baseline(item, out_dir, prepared_inputs, batch_deadline)
+            search_capture = captured_baseline(item, out_dir, prepared_inputs, batch_deadline)
+            if seed_evidence is not None:
+                if (search_capture.source != seed_evidence.source or base_score != result.seed_score):
+                    raise RuntimeError("new search baseline differs from independently measured seed")
+                if hashlib.sha256(sweep_receipts.owned_bytes(scratch, "target.o")).hexdigest() != prepared_inputs["search"]["seed"]["target_object_sha256"]:
+                    raise RuntimeError("seed target object changed during search")
+                validate_baseline(item, prepared, batch_deadline)
+                seed_artifacts.update({"seed/search.c": search_capture.source,
+                                       "seed/search.o": search_capture.object})
+                result.seed_proof.update(status="validated", search_object_sha256=search_capture.object_sha256)
+            else:
+                prepared = search_capture
         except Exception as error:
+            if seed_evidence is not None:
+                raise
             result.promote_error = f"prepared baseline unverifiable: {error}" if apply else None
 
         best_dir, best_score = _best(scratch)
+        if seed_evidence is not None and (best_score is None or best_score >= base_score):
+            best_dir, best_score = scratch, base_score
+            (scratch / "source.c").write_bytes(seed_evidence.source)
         result.best_score = best_score
         # Score-trend extension: if the run hit the cap and its best result
         # landed in the final third of the window, the search was still
@@ -2064,10 +2188,12 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
         if base_score == 0 and best_dir is None:
             best_dir, best_score = scratch, 0
             if prepared is not None:
-                (scratch / "source.c").write_bytes(prepared.source)
+                (scratch / "source.c").write_bytes(seed_evidence.source if seed_evidence else prepared.source)
         result.best_score = best_score
+        if seed_evidence is not None:
+            result.search_gain = result.seed_score - best_score
         frozen_winner = (sweep_receipts.owned_bytes(best_dir, "source.c", limit=4 * 1024 * 1024)
-                         if best_dir is not None and (best_score == 0 or
+                         if best_dir is not None and (seed_evidence is not None or best_score == 0 or
                              best_score is not None and best_score < base_score)
                          and (best_dir / "source.c").exists()
                          else prepared.source if prepared is not None else b"")
@@ -2102,12 +2228,20 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
                 except Exception as error:
                     result.error = ((result.error + "; ") if result.error else "") + \
                         f"prepared baseline recovery unavailable: {error}"
-            frozen_winner = prepared.source if prepared is not None else b""
+            frozen_winner = seed_evidence.source if seed_evidence is not None else prepared.source if prepared is not None else b""
+            if seed_evidence is not None:
+                result.best_score = result.seed_score
             try:
                 best_dir, score = _best(scratch)
-                if score is not None:
+                if seed_evidence is not None:
+                    if best_dir is not None and score is not None and score < result.seed_score:
+                        # Freeze the source before changing its paired metric.
+                        # Failed/flat/regressing attempts remain separate files.
+                        frozen_winner = sweep_receipts.owned_bytes(best_dir, "source.c", limit=4 * 1024 * 1024)
+                        result.best_score = score
+                elif score is not None:
                     result.best_score = score
-                if best_dir is not None and score is not None and (result.base_score is None or score < result.base_score):
+                if seed_evidence is None and best_dir is not None and score is not None and (result.base_score is None or score < result.base_score):
                     frozen_winner = sweep_receipts.owned_bytes(best_dir, "source.c", limit=4 * 1024 * 1024)
             except (OSError, ValueError):
                 pass
@@ -2135,6 +2269,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
                         "as an escape hatch and for before/after measurement)")
     p.add_argument("--function", action="append", default=None,
                    help="restrict to these function names (repeatable)")
+    p.add_argument("--seed-receipt", help="continue one --function from a validated immutable receipt winner")
     p.add_argument(
         "--exclude-file",
         action="append",
@@ -2239,7 +2374,14 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         nargs=argparse.REMAINDER,
         help="extra args forwarded to permuter.py, after --",
     )
-    return p.parse_args(argv)
+    args = p.parse_args(argv)
+    if args.seed_receipt:
+        if not re.fullmatch(r"[0-9a-f]{64}", args.seed_receipt):
+            p.error("--seed-receipt requires a lowercase SHA256 receipt key")
+        if (not args.function or len(set(args.function)) != 1 or args.jobs != 1
+                or args.deep or args.permuter_args or args.extend_minutes):
+            p.error("--seed-receipt requires one --function, --jobs 1, no --deep, extension or forwarded arguments")
+    return args
 
 
 def ncpu() -> int:
@@ -2384,6 +2526,9 @@ def run_batch(argv: list[str]) -> int:
         if not queue:
             print("nothing to do.")
         return 0
+    if args.seed_receipt and len(queue) != 1:
+        print("--seed-receipt requires exactly one live filtered target", file=sys.stderr)
+        return 2
     if not queue:
         print("0 queued function(s):")
         print("nothing to do.")
@@ -2446,7 +2591,7 @@ def run_batch(argv: list[str]) -> int:
             r = run_one(it, args.minutes, permuter_threads, args.build_jobs, args.apply, extra_args,
                         args.load_threshold, args.extend_minutes, args.commit, args.flat_minutes,
                         not args.no_overlay_annotate, batch_deadline, args.resume,
-                        deep=args.deep)
+                        deep=args.deep, seed_receipt=args.seed_receipt)
             results.append(r)
             current_results.append(r)
             attempted += counts_against_limit(r)
@@ -2531,9 +2676,11 @@ def print_result(r: RunResult) -> None:
     annotated = (f" reloc-annotated={r.annotated_relocs}"
                  if r.annotated_relocs else "")
     context = f" context={r.context_review['status']}" if r.context_review else ""
+    seed = (f" original={r.original_base_score} seed={r.seed_score} new-gain={r.search_gain}"
+            if r.seed_score is not None else "")
     print(
         f"[{r.func}] base={r.base_score} best={r.best_score} "
-        f"{status}{annotated}{context} ({r.seconds:.0f}s)"
+        f"{status}{annotated}{context}{seed} ({r.seconds:.0f}s)"
     )
 
 
