@@ -158,16 +158,19 @@ class RecipeTests(unittest.TestCase):
             source = root / "src/fixture.c"
             source.parent.mkdir()
             source.write_text("int fixture(void);\n")
+            mtime = source.stat().st_mtime_ns
             def dry(value):
                 return subprocess.CompletedProcess([], 0, stdout=(
                     "tools/ido/cc -c -O2 -mips2 " + value +
                     " -o build/src/fixture.c.o src/fixture.c\n"))
             with patch.object(batch, "ROOT", root), \
-                 patch.object(batch.subprocess, "run", side_effect=[dry("-DVALUE=1"), dry("-DVALUE=2")]):
+                 patch.object(batch, "bounded_capture", side_effect=[dry("-DVALUE=1"), dry("-DVALUE=2")]) as command:
                 first = batch.build_recipe_for(source)
                 second = batch.build_recipe_for(source)
             self.assertIn("-DVALUE=1", first.compiler_args)
             self.assertIn("-DVALUE=2", second.compiler_args)
+            self.assertEqual(source.stat().st_mtime_ns, mtime)
+            self.assertEqual(command.call_args.args[0][:4], ["gmake", "-n", "-W", "src/fixture.c"])
 
 
 class RunnerTests(unittest.TestCase):

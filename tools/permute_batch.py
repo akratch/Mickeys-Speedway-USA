@@ -333,8 +333,8 @@ _O2_G3_TUS = None
 class BuildRecipe:
     """What the project's real build does to one TU's object: the codegen
     flags on its cc line and any post-compile objcopy chain. Recovered from
-    `gmake -n <obj>` (the source is touched first: gmake prints nothing for
-    an up-to-date object, which is exactly the silent -mips1 false floor
+    `gmake -n -W <source> <obj>` (make treats the source as changed without
+    modifying its timestamp, avoiding the silent -mips1 false floor
     docs/matching-triage.md records)."""
 
     flags: tuple[str, ...]
@@ -370,17 +370,12 @@ def compiler_arguments(line: str, source: str, obj: str) -> tuple[str, ...]:
     return tuple(tail)
 
 
-def build_recipe_for(c_file: Path) -> BuildRecipe:
+def build_recipe_for(c_file: Path, deadline: Optional[float] = None) -> BuildRecipe:
     # Re-read each time: promotions and operator edits can change per-file
     # flags during a long batch. A path-only cache hid those changes.
     obj = f"build/{c_file.relative_to(ROOT).as_posix()}.o"
-    try:
-        os.utime(c_file, None)
-    except OSError:
-        pass
-    dry = subprocess.run(
-        ["gmake", "-n", obj], cwd=ROOT, stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL, text=True, timeout=120,
+    dry = bounded_capture(
+        ["gmake", "-n", "-W", c_file.relative_to(ROOT).as_posix(), obj], deadline,
     ).stdout
     flags: tuple[str, ...] = ()
     objcopy_steps: list[str] = []
@@ -1432,7 +1427,7 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
     try:
         remaining_timeout(batch_deadline)
         source_hash = sweep_receipts.file_digest(item.c_file)
-        recipe = build_recipe_for(item.c_file)
+        recipe = build_recipe_for(item.c_file, batch_deadline)
         if not recipe.from_dry_run or not recipe.compiler_args:
             raise RuntimeError("no supported complete IDO recipe; refusing a guessed scratch command")
         result.flags = " ".join(recipe.flags)
