@@ -5735,11 +5735,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80004454:start
  * symbol: func_80004454
- * score: 73/79 words
+ * score: 6 differing words
  * frame: 0x88
  * relocations: 6
  * first-mismatch: +0x50
- * summary: Shape exact; two late scheduling and four register-allocation words remain for the permuter.
+ * summary: Fresh remeasurement confirms exact 79-word geometry, 0x88 frame, and six aligned relocation identities; six schedule/register words await the bounded permuter.
  * PLATEAU-HANDOFF:func_80004454:end
  */
 
@@ -5759,7 +5759,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x88
  * relocations: 6
  * first-mismatch: +0x50
- * summary: Shape-exact with six schedule/register residuals; ready for the bounded permuter.
+ * summary: Fresh remeasurement confirms exact 80-word geometry, 0x88 frame, and six aligned relocation identities; six schedule/register words await the bounded permuter.
  * PLATEAU-HANDOFF:func_8000471C:end
  */
 
