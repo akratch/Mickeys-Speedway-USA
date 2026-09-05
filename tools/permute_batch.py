@@ -1364,6 +1364,10 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
             run([str(PYTHON), "tools/refresh_atlas_digest.py"], outputs=[donors])
         run(["gmake", f"-j{jobs}"], cap=1800)
         run(["gmake", f"-j{jobs}", "verify"])
+        # Resident C edits do not invalidate the split stamp. Remove the now
+        # orphaned fallback through the normal lifecycle before post-promotion
+        # resolution; a retained .s would incorrectly select fallback mode.
+        run(["gmake", "prune-asm"])
         run([str(PYTHON), "tools/promotion_proof.py", item.func, "--json"], cap=300)
         run(["gmake", "scoreboard"], outputs=[readme])
         if item.overlay is not None:
@@ -1477,7 +1481,8 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
                         reason += "; concurrent edits need manual rollback: " + ", ".join(conflicts)
         except BaseException as rollback_error:
             reason += f"; rollback needs review: {rollback_error}"
-        reason += f"; evidence: {evidence.relative_to(ROOT)}; build artifacts may need rebuilding"
+        reason += (f"; evidence: {evidence.relative_to(ROOT)}; "
+                   "run gmake extract and rebuild before reusing restored fallback artifacts")
         return False, reason
 
 

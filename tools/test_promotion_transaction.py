@@ -522,7 +522,10 @@ class PromotionTests(unittest.TestCase):
             commands = fixture.calls
             target = (str(batch.PYTHON), "tools/promotion_proof.py", "fixture", "--json")
             self.assertIn(target, commands)
-            self.assertLess(next(i for i, args in enumerate(commands) if "verify" in args), commands.index(target))
+            prune = ("gmake", "prune-asm")
+            self.assertIn(prune, commands)
+            self.assertLess(next(i for i, args in enumerate(commands) if "verify" in args), commands.index(prune))
+            self.assertLess(commands.index(prune), commands.index(target))
             self.assertFalse(any(args[0] == "tools/wb_compare.sh" for args in commands))
 
     def test_public_run_prepared_apply_commit_path(self):

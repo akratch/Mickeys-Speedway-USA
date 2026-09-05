@@ -373,6 +373,14 @@ type/offset and effective identity. A linked-byte-only oracle is insufficient.
 Missing authoritative resident or overlay ownership fails closed; promotion
 does not invent symbol or ownership rows to pass the gate.
 
+Between ROM verification and post-promotion proof, `gmake prune-asm` removes
+the fallback that the promoted C no longer names. Resident source edits alone
+do not invalidate the split stamp; leaving that file behind makes preflight
+select fallback mode even after the C has linked exactly. This is ordinary
+extracted-file lifecycle management, not target-byte editing. If a later gate
+fails and source is restored, run `gmake extract` and rebuild before reusing
+the restored fallback's artifacts.
+
 The splice also regenerates `config/overlays.us.json`: a spliced candidate
 flips that TU's mechanically-derived `nonmatching` flag, and
 `overlay_atlas.py --check` is a prerequisite of `build/.splat-stamp` and so of
@@ -489,15 +497,16 @@ triggers:
 2. **Rebuild**: `gmake -j<build-jobs>`.
 3. **Verify**: `gmake verify` (byte-identical ROM rebuild against the
    pinned SHA1).
-4. **Linked-range check**: `tools/wb_compare.sh --rom <function>` -- the
-   `--rom` mode specifically, since splat stops emitting a function's
-   `asm/nonmatchings/**/*.s` the moment its C matches, so the ordinary
-   target-object comparison mode has nothing left to diff against.
+4. **Fallback lifecycle**: `gmake prune-asm` removes orphaned extracted
+   fallbacks after the compiled ROM has been proved exact.
+5. **Complete promoted-function proof**:
+   `tools/promotion_proof.py <function> --json` checks owned geometry, linked
+   words/frame and exact relocation count, offsets/types and effective identities.
 
-Any of the three failing reverts the `.c` file to its pre-splice text and
-reports the function as `zero-found` but not `promoted` -- still useful
-signal (the permuter found *an* exact-diff candidate; something else about
-the tree, or the extraction, didn't hold up), never left half-applied.
+Failure reports the function as `zero-found`, not `promoted`, and invokes the
+owned-file recovery described above. Conflicting edits or changed branches
+require manual recovery from retained before-images; they are not overwritten.
+Re-extract and rebuild after rollback if fallback artifacts were pruned.
 
 **What this does not do automatically**: remove a now-dead
 `POSTPROCESS = ... objcopy --redefine-sym func_overlay_...=<friendly>`
