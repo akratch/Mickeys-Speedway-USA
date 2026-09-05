@@ -10,10 +10,12 @@ import importlib.util
 import hashlib
 import json
 import os
+import shlex
 import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import tomllib
 import unittest
@@ -500,6 +502,7 @@ class RunnerTests(unittest.TestCase):
         self.write("src/fixture.c", "int fixture(void) { return 1; }\n")
         self.write("tools/ido/cc", "compiler fixture\n")
         self.write("tools/binutils/as", "assembler fixture\n")
+        self.write("tools/binutils/mips64-elf-objdump", "#!/bin/sh\nprintf '%s\\n' \"$@\"\n").chmod(0o755)
         self.write("permuter/permuter.py", SYNTHETIC_SEARCH_BASELINE + "print('base score = 20', flush=True)\n")
         self.item = batch.QueueItem("fixture", self.root / "src/fixture.c")
         recipe = batch.BuildRecipe(("-O2", "-mips2"), (), (), True, ("-c", "-O2", "-mips2"))
@@ -531,7 +534,8 @@ class RunnerTests(unittest.TestCase):
         (scratch / "base.c").write_text(item.c_file.read_text())
         (scratch / "base.o").write_bytes(b"synthetic baseline object")
         (scratch / "compile.sh").write_text(f'#!/bin/sh\ncd {self.root}\ncp "$1" "$3"\n')
-        (scratch / "settings.toml").write_text('compiler_type = "ido"\n')
+        (scratch / "settings.toml").write_text('compiler_type = "ido"\n'
+            'objdump_command = "tools/binutils/mips64-elf-objdump -drz -m mips:4300"\n')
         shutil.copy(target, scratch / "target.s")
         (scratch / "target.o").write_bytes(b"synthetic target object")
         return scratch
@@ -557,8 +561,8 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(second.context_review, first.context_review)
         self.assertTrue(Path(first.scratch_path).exists())
 
-    def seed_parent_run(self, seed_score=10, search_suffix=""):
-        self.write("permuter/permuter.py", SYNTHETIC_SEARCH_BASELINE + f'''
+    def seed_parent_run(self, seed_score=10, search_suffix="", debug_setup=""):
+        self.write("permuter/permuter.py", debug_setup + SYNTHETIC_SEARCH_BASELINE + f'''
 seeded = b"return 2" in (scratch / "base.c").read_bytes()
 print("base score =", {seed_score} if seeded else 20, flush=True)
 if "--debug" not in sys.argv and seeded:
@@ -569,6 +573,111 @@ if "--debug" not in sys.argv and seeded:
         self.assertTrue(parent.ok, parent.error)
         self.assertIsNotNone(self.store.completed(parent.receipt_key))
         return parent
+
+    def test_seed_debug_resolves_local_objdump_and_isolates_debug_outputs(self):
+        parent = self.seed_parent_run(debug_setup='''
+import sys, shlex, tomllib, subprocess
+from pathlib import Path
+if "--debug" in sys.argv:
+    settings = tomllib.loads((Path(sys.argv[-1]) / "settings.toml").read_text())
+    output = subprocess.check_output(shlex.split(settings["objdump_command"]), text=True)
+    assert output.splitlines() == ["-drz", "-m", "mips:4300"]
+    Path("debug_source.c").write_text("synthetic isolated debug source")
+    Path("debug_compiled_object.o").write_bytes(b"synthetic isolated debug object")
+''')
+        result = self.run_one(seed_receipt=parent.receipt_key)
+        self.assertTrue(result.ok, result.error)
+        out = Path(result.scratch_path).parent
+        for name in ("canonical-measurement", "seed-measurement"):
+            stage = out / name
+            self.assertTrue((stage / "debug_source.c").is_file())
+            self.assertTrue((stage / "debug_compiled_object.o").is_file())
+            original = tomllib.loads((stage / "settings-original.toml").read_text())
+            effective = tomllib.loads((stage / "scratch/settings.toml").read_text())
+            self.assertTrue(original["objdump_command"].startswith("tools/"))
+            self.assertEqual(shlex.split(effective["objdump_command"])[0],
+                             str(self.root / "tools/binutils/mips64-elf-objdump"))
+        self.assertFalse((self.root / "debug_source.c").exists())
+        self.assertIsNotNone(self.store.completed(result.receipt_key))
+
+    def test_failed_seed_debug_output_is_preserved_before_error(self):
+        parent = self.seed_parent_run(debug_setup='''
+import sys
+if "--debug" in sys.argv:
+    print("synthetic scorer failure stdout")
+    print("synthetic scorer failure stderr", file=sys.stderr)
+    raise SystemExit(7)
+''')
+        result = self.run_one(seed_receipt=parent.receipt_key)
+        self.assertFalse(result.ok)
+        output = (Path(result.scratch_path).parent / "canonical-measurement/debug.log").read_text()
+        self.assertIn("failure stdout", output)
+        self.assertIn("failure stderr", output)
+        files = self.store.read_bundle(result.artifact_bundle, require_complete=False)
+        self.assertIn("attempt/canonical-measurement/debug.log", files)
+        self.assertIsNotNone(self.store.completed(parent.receipt_key))
+
+    def test_seed_stage_rejects_foreign_objdump_and_preserves_arguments(self):
+        raw = b'compiler_type = "ido"\nobjdump_command = "tools/binutils/mips64-elf-objdump -drz -m mips:4300"\n'
+        effective, mapping = batch.seed_stage_settings(raw)
+        self.assertEqual(mapping["original"][1:], mapping["effective"][1:])
+        self.assertEqual(tomllib.loads(effective.decode())["compiler_type"], "ido")
+        with self.assertRaisesRegex(RuntimeError, "pinned local tool"):
+            batch.seed_stage_settings(raw.replace(b"tools/binutils/mips64-elf-objdump", b"/foreign/objdump"))
+
+    def test_seed_debug_timeout_and_cancel_leave_explicit_failure_log(self):
+        parent = self.seed_parent_run()
+        real = batch.bounded_capture
+        for error in (subprocess.TimeoutExpired(["synthetic-debug"], 1, output=b"partial debug output"),
+                      RuntimeError("batch cancelled")):
+            def command(*args, **kwargs):
+                if kwargs.get("cwd") is not None:
+                    raise error
+                return real(*args, **kwargs)
+            with self.subTest(error=type(error).__name__), patch.object(batch, "bounded_capture", side_effect=command):
+                result = self.run_one(seed_receipt=parent.receipt_key)
+            self.assertFalse(result.ok)
+            log = (Path(result.scratch_path).parent / "canonical-measurement/debug.log").read_text()
+            self.assertIn("[seed stage failure] " + type(error).__name__, log)
+            if isinstance(error, subprocess.TimeoutExpired):
+                self.assertIn("partial debug output", log)
+            self.assertIsNotNone(self.store.completed(parent.receipt_key))
+
+    def test_real_seed_debug_child_output_survives_timeout_and_cancel(self):
+        parent = self.seed_parent_run(debug_setup='''
+import os, sys, time
+from pathlib import Path
+if "--debug" in sys.argv:
+    Path("debug-child.pid").write_text(str(os.getpid()))
+    print("real debug stdout sentinel", flush=True)
+    print("real debug stderr sentinel", file=sys.stderr, flush=True)
+    time.sleep(30)
+''')
+        for cancelled in (False, True):
+            timer = threading.Timer(2, batch.CANCEL_EVENT.set) if cancelled else None
+            if timer is not None:
+                timer.start()
+            try:
+                result = self.run_one(seed_receipt=parent.receipt_key,
+                    batch_deadline=time.monotonic() + (8 if cancelled else 2))
+            finally:
+                if timer is not None:
+                    timer.cancel()
+                    timer.join()
+                batch.CANCEL_EVENT.clear()
+            with self.subTest(cancelled=cancelled):
+                self.assertFalse(result.ok)
+                stage = Path(result.scratch_path).parent / "canonical-measurement"
+                log = (stage / "debug.log").read_text()
+                self.assertIn("real debug stdout sentinel", log)
+                self.assertIn("real debug stderr sentinel", log)
+                self.assertIn("[seed stage failure]", log)
+                saved = self.store.read_bundle(result.artifact_bundle, require_complete=False)
+                self.assertIn(b"real debug stdout sentinel", saved["attempt/canonical-measurement/debug.log"])
+                pid = int((stage / "debug-child.pid").read_text())
+                with self.assertRaises(ProcessLookupError):
+                    os.kill(pid, 0)
+                self.assertIsNotNone(self.store.completed(parent.receipt_key))
 
     def test_seed_flat_preserves_body_and_validated_durable_resume(self):
         parent = self.seed_parent_run()
