@@ -1,0 +1,349 @@
+#!/usr/bin/env python3
+"""Exercise promotion failure boundaries with real Git and synthetic build gates."""
+from __future__ import annotations
+
+import contextlib
+import os
+import signal
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import permute_batch as batch
+import promotion_transaction as transaction
+
+
+class Fixture:
+    def __init__(self):
+        self.tmp = tempfile.TemporaryDirectory(prefix="promotion-transaction-")
+        self.root = Path(self.tmp.name)
+        self.stack = contextlib.ExitStack()
+        self.env = dict(os.environ, GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1")
+        self.stack.enter_context(patch.dict(os.environ, self.env))
+        self.git("init", "-q")
+        self.git("config", "user.name", "Fixture")
+        self.git("config", "user.email", "fixture@example.invalid")
+        self.source = self.write("src/fixture.c", """#ifdef NON_MATCHING
+int fixture(void) { return 1; }
+#else
+#pragma GLOBAL_ASM("fixture.s")
+#endif
+""" + "\n/* independent context */\n" * 15 + "int independent = 3;\n")
+        for name in ("config/overlays.us.json", "mickey.us.yaml", "overlay_undefined_syms.us.txt",
+                     "config/overlay-donors.us.json", "README.md", "docs/matching-triage-handoffs/fixture.md"):
+            self.write(name, "original " + name + "\n")
+        self.write("unrelated.txt", "original unrelated\n")
+        self.git("add", ".")
+        self.git("commit", "-qm", "fixture baseline")
+        self.head = self.git("rev-parse", "HEAD")
+        self.original = {p.relative_to(self.root): p.read_bytes() for p in self.root.rglob("*")
+                         if p.is_file() and ".git" not in p.parts}
+        self.winner = self.write("build/winner/source.c", "int fixture(void) { return 2; }\n")
+        self.item = batch.QueueItem("fixture", self.source, overlay=1)
+        for name, value in (("ROOT", self.root), ("ATLAS_PATH", self.root / "config/overlays.us.json"),
+                            ("HANDOFF_DIR", self.root / "docs/matching-triage-handoffs"),
+                            ("BUILD_PERMUTER", self.root / "build/permuter"), ("PYTHON", Path(sys.executable))):
+            self.stack.enter_context(patch.object(batch, name, value))
+        batch.CANCEL_EVENT.clear()
+        self.calls = []
+        self.real_capture = batch.bounded_capture
+        self.after = None
+        self.fail_return = None
+        self.stack.enter_context(patch.object(batch, "bounded_capture", side_effect=self.command))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        batch.CANCEL_EVENT.clear()
+        self.stack.close()
+        self.tmp.cleanup()
+
+    def git(self, *args):
+        return subprocess.check_output(["git", *args], cwd=self.root, env=self.env,
+                                       text=True, stderr=subprocess.PIPE).strip()
+
+    def write(self, name, text):
+        path = self.root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text)
+        return path
+
+    def command(self, args, deadline, **kwargs):
+        self.calls.append(tuple(args))
+        if args[0] == "git":
+            result = self.real_capture(args, deadline, **kwargs)
+        else:
+            batch.remaining_timeout(deadline)
+            if "overlay-atlas-write" in args:
+                self.write("config/overlays.us.json", "generated atlas\n")
+                self.write("mickey.us.yaml", "generated yaml\n")
+            elif "overlay-syms" in args:
+                self.write("overlay_undefined_syms.us.txt", "generated symbols\n")
+            elif "tools/refresh_atlas_digest.py" in args:
+                self.write("config/overlay-donors.us.json", "generated donor digest\n")
+            elif "scoreboard" in args:
+                self.write("README.md", "generated scoreboard\n")
+            result = subprocess.CompletedProcess(args, 0, "OK fixture\n", "")
+        if self.after:
+            self.after(len(self.calls), args, deadline)
+        if self.fail_return == len(self.calls):
+            result = subprocess.CompletedProcess(args, 7, "synthetic command failure\n", "")
+        return result
+
+    def promote(self, *, commit=True, seconds=15):
+        return batch.promote(self.item, self.winner, 1, time.monotonic() + seconds, commit=commit)
+
+    def assert_restored(self, case):
+        case.assertEqual(self.git("rev-parse", "HEAD"), self.head)
+        for path, content in self.original.items():
+            case.assertEqual((self.root / path).read_bytes(), content, str(path))
+        case.assertEqual(self.git("diff", "--cached", "--name-only"), "")
+        case.assertTrue(self.winner.exists())
+
+
+class PromotionTests(unittest.TestCase):
+    def test_apply_without_commit_is_verified_and_unstaged(self):
+        with Fixture() as fixture:
+            ok, error = fixture.promote(commit=False)
+            self.assertTrue(ok, error)
+            self.assertEqual(fixture.git("rev-parse", "HEAD"), fixture.head)
+            self.assertEqual(fixture.git("diff", "--cached", "--name-only"), "")
+            self.assertIn("return 2", fixture.source.read_text())
+
+    def test_success_commits_exact_paths_and_preserves_unrelated_staging(self):
+        with Fixture() as fixture:
+            fixture.write("unrelated.txt", "staged independent change\n")
+            fixture.git("add", "unrelated.txt")
+            result, error = fixture.promote()
+            self.assertTrue(result, error)
+            self.assertNotEqual(fixture.git("rev-parse", "HEAD"), fixture.head)
+            self.assertEqual(fixture.git("show", "HEAD:unrelated.txt"), "original unrelated")
+            self.assertEqual(fixture.git("diff", "--cached", "--name-only"), "unrelated.txt")
+            self.assertNotIn("NON_MATCHING", fixture.source.read_text())
+            self.assertIn("generated symbols", fixture.git("show", "HEAD:overlay_undefined_syms.us.txt"))
+            self.assertFalse((fixture.root / "docs/matching-triage-handoffs/fixture.md").exists())
+
+    def test_exception_after_every_command_restores_files_and_ref(self):
+        with Fixture() as reference:
+            ok, error = reference.promote()
+            self.assertTrue(ok, error)
+            count = len(reference.calls)
+        for boundary in range(1, count + 1):
+            with self.subTest(boundary=boundary), Fixture() as fixture:
+                def fail(number, args, deadline):
+                    if number == boundary:
+                        raise subprocess.TimeoutExpired(args, 0)
+                fixture.after = fail
+                ok, error = fixture.promote()
+                self.assertFalse(ok)
+                fixture.assert_restored(self)
+                self.assertIn("TimeoutExpired", error)
+
+    def test_cancellation_after_every_command_restores_files_and_ref(self):
+        with Fixture() as reference:
+            ok, error = reference.promote()
+            self.assertTrue(ok, error)
+            count = len(reference.calls)
+        for boundary in range(1, count + 1):
+            with self.subTest(boundary=boundary), Fixture() as fixture:
+                fixture.after = lambda number, args, deadline: batch.CANCEL_EVENT.set() if number == boundary else None
+                ok, error = fixture.promote()
+                self.assertFalse(ok)
+                fixture.assert_restored(self)
+                self.assertIn("cancelled", error)
+
+    def test_nonzero_exit_from_each_generator_and_proof_restores(self):
+        with Fixture() as reference:
+            ok, error = reference.promote()
+            self.assertTrue(ok, error)
+            boundaries = [i for i, args in enumerate(reference.calls, 1) if args[0] != "git"]
+        for boundary in boundaries:
+            with self.subTest(boundary=boundary), Fixture() as fixture:
+                fixture.fail_return = boundary
+                ok, error = fixture.promote()
+                self.assertFalse(ok)
+                fixture.assert_restored(self)
+                self.assertIn("synthetic command failure", error)
+
+    def test_exception_after_each_direct_file_mutation_restores(self):
+        original = transaction.FileJournal.write
+        for failure in (1, 2):
+            with self.subTest(mutation=failure), Fixture() as fixture:
+                count = 0
+                def write(journal, path, data):
+                    nonlocal count
+                    original(journal, path, data)
+                    count += 1
+                    if count == failure:
+                        raise KeyboardInterrupt()
+                with patch.object(transaction.FileJournal, "write", write):
+                    ok, error = fixture.promote()
+                self.assertFalse(ok)
+                fixture.assert_restored(self)
+
+    def test_precommit_hook_failure_restores(self):
+        with Fixture() as fixture:
+            fixture.write(".git/hooks/pre-commit", "#!/bin/sh\nexit 1\n").chmod(0o755)
+            ok, error = fixture.promote()
+            self.assertFalse(ok)
+            fixture.assert_restored(self)
+
+    def test_failed_commit_preserves_unrelated_staged_and_worktree_edits(self):
+        with Fixture() as fixture:
+            fixture.write("unrelated.txt", "independent staged edit\n")
+            fixture.git("add", "unrelated.txt")
+            fixture.write("unrelated.txt", "further independent unstaged edit\n")
+            fixture.write(".git/hooks/pre-commit", "#!/bin/sh\nexit 1\n").chmod(0o755)
+            ok, error = fixture.promote()
+            self.assertFalse(ok)
+            self.assertEqual(fixture.git("show", ":unrelated.txt"), "independent staged edit")
+            self.assertEqual((fixture.root / "unrelated.txt").read_text(), "further independent unstaged edit\n")
+            self.assertEqual(fixture.source.read_bytes(), fixture.original[Path("src/fixture.c")])
+
+    def test_preexisting_promotion_path_changes_refuse_commit_and_remain(self):
+        with Fixture() as fixture:
+            fixture.source.write_text(fixture.source.read_text().replace("independent = 3", "independent = 9"))
+            before = fixture.source.read_bytes()
+            ok, error = fixture.promote()
+            self.assertFalse(ok)
+            self.assertIn("already differ", error)
+            self.assertEqual(fixture.source.read_bytes(), before)
+
+    def test_unrelated_commit_during_proof_is_preserved_while_our_files_restore(self):
+        with Fixture() as fixture:
+            external_head = None
+            def change(number, args, deadline):
+                nonlocal external_head
+                if "verify" in args:
+                    fixture.write("unrelated.txt", "independent committed edit\n")
+                    fixture.git("add", "unrelated.txt")
+                    fixture.git("commit", "-qm", "independent commit")
+                    external_head = fixture.git("rev-parse", "HEAD")
+            fixture.after = change
+            ok, error = fixture.promote()
+            self.assertFalse(ok)
+            self.assertIn("unrelated concurrent commit preserved", error)
+            self.assertEqual(fixture.git("rev-parse", "HEAD"), external_head)
+            for path, content in fixture.original.items():
+                if str(path) != "unrelated.txt":
+                    self.assertEqual((fixture.root / path).read_bytes(), content)
+
+    def test_public_run_prepared_apply_commit_path(self):
+        with Fixture() as fixture:
+            scratch = fixture.root / "build/scratch"
+            fixture.write("build/scratch/base.c", fixture.winner.read_text())
+            result = batch.RunResult("fixture", "src/fixture.c", 1, False)
+            with patch.object(batch, "run_permuter", return_value=(0, 0, False, False)):
+                batch.run_prepared(fixture.item, scratch, scratch.parent, result, 1, 1, 1,
+                                   True, [], 0, 0, True, 0, time.monotonic() + 15)
+            self.assertTrue(result.promoted, result.promote_error)
+            self.assertTrue(result.zero_found)
+            self.assertIsNone(result.error)
+
+    def test_run_prepared_does_not_credit_failed_apply(self):
+        with Fixture() as fixture:
+            scratch = fixture.root / "build/scratch"
+            fixture.write("build/scratch/base.c", fixture.winner.read_text())
+            def fail(number, args, deadline):
+                if "verify" in args:
+                    raise RuntimeError("proof failed")
+            fixture.after = fail
+            result = batch.RunResult("fixture", "src/fixture.c", 1, False)
+            with patch.object(batch, "run_permuter", return_value=(0, 0, False, False)):
+                batch.run_prepared(fixture.item, scratch, scratch.parent, result, 1, 1, 1,
+                                   True, [], 0, 0, True, 0, time.monotonic() + 15)
+            self.assertFalse(result.promoted)
+            self.assertIn("proof failed", result.promote_error)
+            fixture.assert_restored(self)
+
+    def test_real_postcommit_timeout_retains_recovery_and_restores_head(self):
+        with Fixture() as fixture:
+            fixture.write(".git/hooks/post-commit", "#!/bin/sh\nsleep 20\n").chmod(0o755)
+            start = time.monotonic()
+            ok, error = fixture.promote(seconds=1)
+            self.assertFalse(ok)
+            self.assertLess(time.monotonic() - start, 4)
+            fixture.assert_restored(self)
+            self.assertIn("refs/sweep-recovery/", error)
+            self.assertTrue(fixture.git("for-each-ref", "--format=%(refname)", "refs/sweep-recovery/"))
+
+    def test_independent_source_edit_is_merged_during_rollback(self):
+        with Fixture() as fixture:
+            def change(number, args, deadline):
+                if "verify" in args:
+                    fixture.source.write_text(fixture.source.read_text().replace("independent = 3", "independent = 4"))
+                    raise RuntimeError("synthetic proof failure")
+            fixture.after = change
+            ok, error = fixture.promote()
+            self.assertFalse(ok)
+            expected = fixture.original[Path("src/fixture.c")].decode().replace("independent = 3", "independent = 4")
+            self.assertEqual(fixture.source.read_text(), expected, error)
+            self.assertEqual(fixture.git("rev-parse", "HEAD"), fixture.head)
+
+    def test_overlapping_source_edit_is_preserved_and_flagged(self):
+        with Fixture() as fixture:
+            def change(number, args, deadline):
+                if "verify" in args:
+                    fixture.source.write_text(fixture.source.read_text().replace("return 2", "return 77"))
+                    raise RuntimeError("synthetic proof failure")
+            fixture.after = change
+            ok, error = fixture.promote()
+            self.assertFalse(ok)
+            self.assertIn("return 77", fixture.source.read_text())
+            self.assertIn("manual rollback", error)
+
+    def test_expired_deadline_does_not_mutate_source(self):
+        with Fixture() as fixture:
+            ok, error = fixture.promote(seconds=-1)
+            self.assertFalse(ok)
+            fixture.assert_restored(self)
+
+    def test_cancellation_interrupts_promotion_lock_wait(self):
+        with Fixture() as fixture:
+            batch.PROMOTE_LOCK.acquire()
+            timer = threading.Timer(0.05, batch.CANCEL_EVENT.set)
+            timer.start()
+            start = time.monotonic()
+            try:
+                ok, error = fixture.promote(seconds=15)
+            finally:
+                batch.PROMOTE_LOCK.release()
+                timer.join()
+            self.assertFalse(ok)
+            self.assertIn("cancelled", error)
+            self.assertLess(time.monotonic() - start, 1)
+            fixture.assert_restored(self)
+
+    def test_signal_handler_cancels_cli_and_restores_previous_handler(self):
+        with Fixture() as fixture:
+            previous = signal.getsignal(signal.SIGTERM)
+            def cancel(_argv):
+                os.kill(os.getpid(), signal.SIGTERM)
+                return 0
+            with patch.object(batch, "run_batch", side_effect=cancel):
+                self.assertEqual(batch.main([]), 130)
+            self.assertEqual(signal.getsignal(signal.SIGTERM), previous)
+
+    def test_cancellation_interrupts_headroom_wait(self):
+        with Fixture():
+            timer = threading.Timer(0.05, batch.CANCEL_EVENT.set)
+            timer.start()
+            start = time.monotonic()
+            try:
+                with patch.object(batch.os, "getloadavg", return_value=(100, 100, 100)):
+                    with self.assertRaisesRegex(RuntimeError, "cancelled"):
+                        batch.wait_for_headroom(1, batch_deadline=time.monotonic() + 15)
+            finally:
+                timer.join()
+            self.assertLess(time.monotonic() - start, 1)
+
+
+if __name__ == "__main__":
+    unittest.main()
