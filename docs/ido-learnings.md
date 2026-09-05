@@ -212,6 +212,16 @@ bytes and disassembly never belong here.
   relocations, linked range, and full ROM are exact. Evidence: Overlay 41's
   exact curve sampler and Overlay 22's exact plane resolver in
   `docs/overlays.md`.
+- When otherwise exact single-precision code differs only in a multiply's
+  operand order, an identity product on an already-computed operand,
+  `(x * 1.0f) * y`, can change IDO's emitted operand order without adding an
+  instruction. This expression-shape effect is measured; the optimization
+  pass responsible is untraced. Treat it as a narrow source-spelling lever,
+  not a general floating-point equivalence rule: do not duplicate side effects
+  or volatile reads, assume exceptional-value behavior, or substitute a double
+  literal. Reject the form unless instruction count, frame, relocation
+  identities, linked bytes, and the full ROM remain exact. Evidence: the exact
+  Overlay 29 point-projection TU, `src/overlays/o029/overlay29ProjectPoint.c`.
 - A display-list macro invoked with a postincremented cursor keeps its local
   command pointer, cursor advance, and field writes on the invocation's source
   line. IDO can then schedule the cursor advance before the writes and choose a

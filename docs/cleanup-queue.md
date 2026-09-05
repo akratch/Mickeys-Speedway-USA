@@ -47,6 +47,7 @@ not a correctness gap.
 | `overlay1UpdateCountdown` | overlay 1 countdown update | impossible empty pointer/mask condition plus packed statement line | Retained C is 22/22 after relocation masking with seven records. First remove only the condition; independently unpack the three real statements, retaining exact bytes. |
 | `overlay80UpdateContact` | overlay 80 contact updater | redundant `new_var`, `new_var2`, and `new_var3` aliases | The aliases preserve IDO's shipped 180-word allocation and `0x80` frame. Seek natural declaration/lifetime spelling retaining all 20 relocation records. |
 | `func_80035ADC` | texture sprite-frame builder | canceling triangle-pointer increment/decrement | The pair preserves the exact triangle-cursor/tile-end register allocation. Seek a natural pointer-update spelling retaining 235 words, the `0x48` frame, and all 12 relocation records. |
+| `func_overlay_029_F0000EE0_187E190` | overlay 29 point projection | redundant single-precision identity multiply inside a cross product | The configured compiler removes the extra operation while retaining the exact multiply operand order. Seek a natural expression spelling retaining 121 words, the `0x68` frame, all three relocation identities, and the linked ROM bytes. |
 
 Add rows as ugly-but-verified matches land. When revisiting: reproduce the match
 with idiomatic C, `gmake verify`, then delete the row + the in-source comment.

@@ -29,14 +29,14 @@ typedef struct Overlay29Owner {
 extern u8 gOverlay29MinimumYReloc[];
 extern f32 overlay29SqrtReloc(f32 value);
 
-/* Reusing lengthSquared for the square root and final delta, as in the exact
- * overlay 26 sibling, removes two declarations; placing it before the cross
- * component declarations then recovers the target 0x68 frame and every stack
- * home. The configured candidate is 118/121 words with all integer, FP-pool,
- * and FP-temp lanes exact. Plain operand swaps and explicit dereference forms
- * are byte-flat; compound/two-step forms regress, while the negated-difference
- * form reaches the three target mul.s orders but rotates the axis-load FP web.
- * All three relocation identities are statically exact. */
+/* Exact configured IDO output: 121 words, a 0x68 frame, and all three
+ * static relocation identities. The linked owned range and full US ROM
+ * are byte-identical.
+ * Keep the apparently redundant single-precision multiply by 1.0f:
+ * in the proved context it changes one product's emitted operand order
+ * without adding an instruction. Its optimization-pass mechanism is
+ * untraced; this is not a general floating-point simplification rule.
+ * Retain this spelling until a naturalized form repeats the full proof. */
 void func_overlay_029_F0000EE0_187E190(s32 unused, Vec3f *output, Vec3f *axis, f32 height, Overlay29Transform *transform, Overlay29Owner *owner)
 {
   Overlay29PathState *state;
