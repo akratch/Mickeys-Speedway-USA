@@ -21,15 +21,20 @@ import uuid
 import zipfile
 from pathlib import Path
 
-SCHEMA = 2
-MAX_ARTIFACT_BYTES = 128 * 1024 * 1024
+SCHEMA = 3
+MAX_ARTIFACT_BYTES = 128 * 1024 * 1024  # Encoded ZIP, including metadata.
+MAX_PAYLOAD_BYTES = 120 * 1024 * 1024
+MAX_ARTIFACT_ENTRIES = 4096
+MAX_MEMBER_NAME = 512
 REQUIRED_ARTIFACTS = {"baseline/base.c", "baseline/base.o", "baseline/compile.sh",
                       "baseline/target.s", "baseline/settings.toml", "baseline/recipe.json",
                       "baseline/tu.c", "baseline/permuter_settings.toml",
+                      "baseline/compiled.c", "baseline/compiled.o", "baseline/measurement.json",
                       "best/source.c", "best/object.o"}
 
 
-def owned_bytes(root: Path, relative: str) -> bytes:
+def owned_bytes(root: Path, relative: str, *, limit: int = MAX_ARTIFACT_BYTES,
+                deadline: float | None = None) -> bytes:
     """Read only regular files below an owned directory, without following links."""
     parts = relative.split("/")
     if any(p in ("", ".", "..") for p in parts) or relative.startswith("/"):
@@ -44,31 +49,49 @@ def owned_bytes(root: Path, relative: str) -> bytes:
         with os.fdopen(file_fd, "rb") as stream:
             if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
                 raise ValueError("artifact is not a regular file")
-            data = stream.read(MAX_ARTIFACT_BYTES + 1)
-            if len(data) > MAX_ARTIFACT_BYTES:
+            if os.fstat(stream.fileno()).st_size > limit:
                 raise ValueError("artifact exceeds preservation byte cap")
-            return data
+            chunks, size = [], 0
+            while True:
+                if deadline is not None and time.monotonic() >= deadline:
+                    raise TimeoutError("artifact preservation deadline reached")
+                chunk = stream.read(min(1024 * 1024, limit - size + 1))
+                if not chunk:
+                    return b"".join(chunks)
+                size += len(chunk)
+                if size > limit:
+                    raise ValueError("artifact exceeds preservation byte cap")
+                chunks.append(chunk)
     finally:
         os.close(fd)
 
 
-def attempt_files(root: Path) -> tuple[dict[str, bytes], list[str]]:
+def attempt_files(root: Path, *, byte_budget: int = MAX_PAYLOAD_BYTES,
+                  entry_budget: int = MAX_ARTIFACT_ENTRIES,
+                  deadline: float | None = None) -> tuple[dict[str, bytes], list[str]]:
     files, errors = {}, []
-    total = 0
-    for directory, dirs, names in os.walk(root, followlinks=False):
-        for name in sorted(dirs + names):
-            path = Path(directory) / name
-            rel = path.relative_to(root).as_posix()
-            if name in dirs and not path.is_symlink():
-                continue
-            try:
-                data = owned_bytes(root, rel)
-                total += len(data)
-                if total > MAX_ARTIFACT_BYTES:
-                    raise ValueError("attempt exceeds preservation byte cap")
-                files["attempt/" + rel] = data
-            except (OSError, ValueError) as error:
-                errors.append(f"{rel}: {error}")
+    pending, entries = [root], 0
+    try:
+        while pending:
+            with os.scandir(pending.pop()) as children:
+                for child in children:
+                    if deadline is not None and time.monotonic() >= deadline:
+                        raise TimeoutError("artifact preservation deadline reached")
+                    entries += 1
+                    if entries > entry_budget or byte_budget <= 0:
+                        raise ValueError("artifact preservation entry/byte budget exhausted")
+                    path = Path(child.path)
+                    rel = path.relative_to(root).as_posix()
+                    if len(("attempt/" + rel).encode()) > MAX_MEMBER_NAME:
+                        raise ValueError("artifact member name exceeds metadata cap")
+                    if child.is_dir(follow_symlinks=False):
+                        pending.append(path)
+                        continue
+                    data = owned_bytes(root, rel, limit=byte_budget, deadline=deadline)
+                    byte_budget -= len(data)
+                    files["attempt/" + rel] = data
+    except (OSError, ValueError) as error:
+        errors.append(str(error))
     return files, errors
 
 
@@ -142,22 +165,32 @@ class ReceiptStore:
             raise ValueError("invalid receipt key")
         return self.root / key[:2] / key
 
-    def save_bundle(self, files: dict[str, bytes], *, complete: bool) -> str:
+    def save_bundle(self, files: dict[str, bytes], *, complete: bool, inputs: dict) -> str:
         """Immutable deterministic archive; never extract or execute archive paths."""
         if complete and not REQUIRED_ARTIFACTS <= files.keys():
             raise ValueError("incomplete artifact bundle")
-        if sum(map(len, files.values())) > MAX_ARTIFACT_BYTES:
+        if sum(map(len, files.values())) > MAX_PAYLOAD_BYTES or len(files) > MAX_ARTIFACT_ENTRIES:
             raise ValueError("bundle exceeds preservation byte cap")
-        manifest = {"schema": SCHEMA, "complete": complete, "files": {}}
+        manifest = {"schema": SCHEMA, "complete": complete, "files": {},
+                    "receipt_key": digest(inputs), "context_key": digest(inputs["context"]),
+                    "baseline_hashes": inputs.get("baseline_hashes", {})}
+        if complete and (not manifest["baseline_hashes"] or any(
+                name not in files or hashlib.sha256(files[name]).hexdigest() != expected
+                for name, expected in manifest["baseline_hashes"].items())):
+            raise ValueError("baseline input binding mismatch")
         output = io.BytesIO()
         with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_STORED) as archive:
             for name, data in sorted(files.items()):
                 if any(p in ("", ".", "..") for p in name.split("/")) or "\\" in name or name == "manifest.json":
                     raise ValueError("unsafe bundle member")
+                if len(name.encode()) > MAX_MEMBER_NAME:
+                    raise ValueError("bundle member name exceeds metadata cap")
                 manifest["files"][name] = {"size": len(data), "sha256": hashlib.sha256(data).hexdigest()}
                 archive.writestr(zipfile.ZipInfo(name), data)
             archive.writestr(zipfile.ZipInfo("manifest.json"), json.dumps(manifest, sort_keys=True).encode())
         data = output.getvalue()
+        if len(data) > MAX_ARTIFACT_BYTES:
+            raise ValueError("encoded bundle exceeds preservation byte cap")
         key = hashlib.sha256(data).hexdigest()
         directory = self.root / "bundles"
         directory.mkdir(parents=True, exist_ok=True)
@@ -185,19 +218,25 @@ class ReceiptStore:
                 temporary.unlink(missing_ok=True)
         return key
 
-    def read_bundle(self, key: str, *, require_complete: bool = True) -> dict[str, bytes]:
+    def read_bundle(self, key: str, *, require_complete: bool = True,
+                    inputs: dict | None = None) -> dict[str, bytes]:
         self.directory(key)  # Validate digest before constructing a filesystem path.
         data = owned_bytes(self.root / "bundles", key + ".zip")
         if hashlib.sha256(data).hexdigest() != key:
             raise ValueError("artifact bundle digest mismatch")
         with zipfile.ZipFile(io.BytesIO(data)) as archive:
-            if (sum(info.file_size for info in archive.infolist()) > MAX_ARTIFACT_BYTES
+            if (len(archive.infolist()) > MAX_ARTIFACT_ENTRIES + 1
+                    or sum(info.file_size for info in archive.infolist()) > MAX_ARTIFACT_BYTES
                     or any(info.compress_type != zipfile.ZIP_STORED for info in archive.infolist())):
                 raise ValueError("unsupported or oversized artifact archive")
             manifest = json.loads(archive.read("manifest.json"))
             if not isinstance(manifest, dict) or not isinstance(manifest.get("files"), dict):
                 raise ValueError("invalid artifact manifest")
             files = manifest["files"]
+            if inputs is not None and (manifest.get("receipt_key") != digest(inputs)
+                    or manifest.get("context_key") != digest(inputs["context"])
+                    or manifest.get("baseline_hashes") != inputs.get("baseline_hashes", {})):
+                raise ValueError("bundle belongs to different receipt inputs")
             if manifest.get("schema") != SCHEMA or (require_complete and
                     (manifest.get("complete") is not True or not REQUIRED_ARTIFACTS <= files.keys())):
                 raise ValueError("incomplete artifact bundle")
@@ -213,11 +252,14 @@ class ReceiptStore:
                 if len(content) != metadata["size"] or hashlib.sha256(content).hexdigest() != metadata["sha256"]:
                     raise ValueError("artifact member digest mismatch")
                 result[name] = content
+            for name, expected in manifest.get("baseline_hashes", {}).items():
+                if require_complete and (name not in result or hashlib.sha256(result[name]).hexdigest() != expected):
+                    raise ValueError("baseline input digest mismatch")
             return result
 
     def artifacts_valid(self, value: dict) -> bool:
         try:
-            self.read_bundle(value["result"]["artifact_bundle"])
+            self.read_bundle(value["result"]["artifact_bundle"], inputs=value["inputs"])
             return True
         except (OSError, ValueError, KeyError, TypeError, zipfile.BadZipFile):
             return False
@@ -282,9 +324,12 @@ class ReceiptStore:
                 atomic_json(context_path, value)
         scores = [scalar[k] for k in ("best_score", "base_score") if isinstance(scalar[k], int)]
         if scores:
-            best_path = directory / "best.json"
+            usable = reusable(scalar) and self.artifacts_valid(value)
+            best_path = directory / ("best.json" if usable else "partial-best.json")
             try:
                 previous = json.loads(best_path.read_text())
+                if usable and (not reusable(previous.get("result", {})) or not self.artifacts_valid(previous)):
+                    raise ValueError("previous usable-best artifacts unavailable")
                 previous_score = previous["score"]
             except (OSError, ValueError, KeyError):
                 previous_score = None
