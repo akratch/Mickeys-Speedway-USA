@@ -92,7 +92,7 @@ OSGbpakId *func_80058240(void) {
  * frame: 0x20
  * relocations: 16
  * first-mismatch: +0x6C
- * summary: C body is exact through 0x6C; target carries an unreferenced 8-byte duplicate-return tail that normal -O2 IDO does not emit.
+ * summary: Fresh remeasurement confirms 27/29 words, exact 0x20 frame, and 16 aligned relocation identities; only an unreferenced duplicate-return tail remains.
  * PLATEAU-HANDOFF:func_8005807C:end
  */
 
