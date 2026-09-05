@@ -22,6 +22,75 @@ import crew  # noqa: E402
 
 
 class SymbolResolutionTests(unittest.TestCase):
+    def test_rebuild_reauthenticates_inner_container_before_consumption(self) -> None:
+        base = fp.rs.SYNTHETIC_VMA
+        symbols = [
+            ("previous", base, 0x20, 0x12, 1),
+            ("friendly", base + 0x20, 0x20, 0x12, 1),
+            ("next", base + 0x40, 0x20, 0x12, 1),
+        ]
+        module = {"rom": {"start": "0x10"}, "text_ownership": [{
+            "offset": "0x0", "end_offset": "0x60", "size": "0x60",
+            "type": "c", "matched": True, "nonmatching": False,
+            "source": "overlays/o004/example",
+        }]}
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "build").mkdir()
+            (root / "build/mickey.us.elf").touch()
+            (root / "baseroms").mkdir()
+            (root / "baseroms/mickey.us.z64").write_bytes(bytes(0x70))
+            elf = mock.Mock()
+            resolution = mock.Mock()
+
+            def resolve(_symbol: str) -> object:
+                fp._fully_matched_inner_geometry(
+                    module, 4, 0x20, "friendly", "func_overlay_004_F0000020_30",
+                    "overlays/o004/example", root,
+                )
+                return resolution
+
+            for mode in ([], ["--resolve-rom"]):
+                for corruption in ("container", "section", "zero alias", "boundary"):
+                    with self.subTest(mode=mode, corruption=corruption):
+                        elf.section.return_value = (1, (0, 1, 6, base, 0, 0x60))
+                        elf.section_bytes.return_value = bytes(0x60)
+                        elf.symbols.return_value = symbols
+
+                        def rebuild(*_args: object) -> None:
+                            if corruption == "container":
+                                elf.section_bytes.return_value = b"\x01" + bytes(0x5F)
+                            elif corruption == "section":
+                                elf.symbols.return_value = [
+                                    symbols[0], ("friendly", base + 0x20, 0x20, 0x12, 2), symbols[2],
+                                ]
+                            elif corruption == "zero alias":
+                                elf.symbols.return_value = symbols + [
+                                    ("func_overlay_004_F0000020_30", base + 0x24, 0, 0x12, 1),
+                                ]
+                            else:
+                                elf.symbols.return_value = [
+                                    symbols[0], symbols[1], ("next", base + 0x44, 0x1C, 0x12, 1),
+                                ]
+
+                        with mock.patch.object(fp.rs, "Elf", return_value=elf), mock.patch.object(
+                            fp, "resolve", side_effect=resolve
+                        ) as resolve_call, mock.patch.object(
+                            fp, "_build", side_effect=rebuild
+                        ), mock.patch.object(
+                            fp, "_build_linked_boundary", side_effect=rebuild
+                        ), mock.patch.object(fp, "_require_fresh_linked_boundary"), mock.patch.object(
+                            fp, "require_fresh_evidence"
+                        ), mock.patch.object(fp, "collect") as collect, mock.patch.object(
+                            fp, "_linked_boundary"
+                        ) as boundary, contextlib.redirect_stderr(io.StringIO()):
+                            with self.assertRaises(SystemExit) as error:
+                                fp.main(["friendly", *mode])
+                        self.assertEqual(error.exception.code, 2)
+                        self.assertEqual(resolve_call.call_count, 2)
+                        collect.assert_not_called()
+                        boundary.assert_not_called()
+
     def test_fully_matched_inner_function_requires_complete_container_evidence(self) -> None:
         base = fp.rs.SYNTHETIC_VMA
         ordinary_symbols = [
@@ -1395,6 +1464,28 @@ class GeometryAndWorkbenchSummaryTests(unittest.TestCase):
 
 
 class FreshnessTests(unittest.TestCase):
+    def test_no_build_staleness_fails_without_rebuild_or_reauthentication(self) -> None:
+        for mode in ([], ["--resolve-rom"]):
+            with self.subTest(mode=mode), mock.patch.object(
+                fp, "resolve", return_value=mock.Mock()
+            ) as resolve, mock.patch.object(fp, "_build") as build, mock.patch.object(
+                fp, "_build_linked_boundary"
+            ) as build_boundary, mock.patch.object(
+                fp, "require_fresh_evidence", side_effect=fp.StaleEvidenceError("stale")
+            ), mock.patch.object(
+                fp, "_require_fresh_linked_boundary", side_effect=fp.StaleEvidenceError("stale")
+            ), mock.patch.object(fp, "collect") as collect, mock.patch.object(
+                fp, "_linked_boundary"
+            ) as boundary, contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as error:
+                    fp.main(["friendly", "--no-build", *mode])
+            self.assertEqual(error.exception.code, 2)
+            resolve.assert_called_once_with("friendly")
+            build.assert_not_called()
+            build_boundary.assert_not_called()
+            collect.assert_not_called()
+            boundary.assert_not_called()
+
     def resolution(self, root: Path) -> fp.Resolution:
         source = root / "src/example.c"
         source.parent.mkdir(parents=True)

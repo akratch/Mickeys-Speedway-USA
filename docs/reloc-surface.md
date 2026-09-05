@@ -14,6 +14,9 @@ the linked executable section's defined function geometry. Aliases must agree,
 the complete function must remain inside that owner, and its end must meet the
 next defined function boundary or the owner end without a gap or overlap.
 The entire containing executable C range must also equal the baserom. This
+authentication is repeated after a build before consuming the resolution;
+unchanged function value and size cannot preserve a pre-build container proof.
+With `--no-build`, existing freshness checks still fail closed. This
 route does not grant matching credit or relax ordinary-source, freshness,
 function-byte, frame, or relocation count/type/offset/identity gates.
 

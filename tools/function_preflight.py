@@ -2832,6 +2832,7 @@ def main(argv: list[str]) -> int:
                 )
             if not args.no_build:
                 _build_wb_evidence(resolution)
+                resolution = resolve(args.symbol)
             _require_fresh_wb_evidence(resolution)
             fields = (
                 resolution.target_symbol,
@@ -2849,6 +2850,11 @@ def main(argv: list[str]) -> int:
             if not args.no_build:
                 _build_linked_boundary()
             _require_fresh_linked_boundary()
+            if not args.no_build:
+                # Resolution can authenticate linked container bytes, aliases,
+                # and section boundaries. A rebuild invalidates that evidence
+                # even when the selected function keeps its value and size.
+                resolution = resolve(args.symbol)
             boundary = _linked_boundary(resolution)
             fields = (
                 str(boundary["linked_symbol"]),
@@ -2863,6 +2869,7 @@ def main(argv: list[str]) -> int:
             return 0
         if not args.no_build:
             _build(resolution)
+            resolution = resolve(args.symbol)
         require_fresh_evidence(resolution)
         report = collect(resolution)
     except (OSError, ValueError, rs.SurfaceComparisonError, PreflightError) as error:
