@@ -521,6 +521,7 @@ class RunnerTests(unittest.TestCase):
         (scratch / "compile.sh").write_text(f'#!/bin/sh\ncd {self.root}\ncp "$1" "$3"\n')
         (scratch / "settings.toml").write_text('compiler_type = "ido"\n')
         shutil.copy(target, scratch / "target.s")
+        (scratch / "target.o").write_bytes(b"synthetic target object")
         return scratch
 
     def run_one(self, **kwargs):
@@ -543,6 +544,158 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(first.context_review["status"], "unchanged")
         self.assertEqual(second.context_review, first.context_review)
         self.assertTrue(Path(first.scratch_path).exists())
+
+    def seed_parent_run(self, seed_score=10, search_suffix=""):
+        self.write("permuter/permuter.py", SYNTHETIC_SEARCH_BASELINE + f'''
+seeded = b"return 2" in (scratch / "base.c").read_bytes()
+print("base score =", {seed_score} if seeded else 20, flush=True)
+if "--debug" not in sys.argv and seeded:
+    {search_suffix or "pass"}
+''')
+        with patch.object(batch, "run_permuter", side_effect=self.improved):
+            parent = self.run_one()
+        self.assertTrue(parent.ok, parent.error)
+        self.assertIsNotNone(self.store.completed(parent.receipt_key))
+        return parent
+
+    def test_seed_flat_preserves_body_and_validated_durable_resume(self):
+        parent = self.seed_parent_run()
+        result = self.run_one(seed_receipt=parent.receipt_key)
+        self.assertTrue(result.ok, result.error)
+        self.assertEqual((result.original_base_score, result.seed_score, result.base_score,
+                          result.best_score, result.search_gain), (20, 10, 10, 10, 0))
+        saved = self.store.read_bundle(result.artifact_bundle)
+        self.assertIn(b"return 2", saved["best/source.c"])
+        self.assertIn(b"return 1", saved["baseline/compiled.c"])
+        self.assertEqual(saved["seed/search.c"], saved["seed/compiled.c"])
+        self.assertIsNotNone(self.store.completed(result.receipt_key))
+        self.assertNotEqual(parent.receipt_key, result.receipt_key)
+        with patch.object(batch, "measure_seed_stage", side_effect=AssertionError("resume must skip")):
+            resumed = self.run_one(seed_receipt=parent.receipt_key, resume=True)
+        self.assertTrue(resumed.resumed, resumed.error)
+        self.assertEqual(resumed.seed_score, 10)
+        complete = self.store.completed(result.receipt_key)
+        self.assertFalse(self.store.descending(complete["inputs"]["context"]))
+        altered = copy.deepcopy(complete)
+        altered["result"]["seed_proof"]["seed_score"] = 0
+        self.assertFalse(self.store.artifacts_valid(altered))
+
+    def test_seed_zero_promotes_actual_seed_with_original_evidence(self):
+        parent = self.seed_parent_run(seed_score=0)
+        with patch.object(batch, "promote", return_value=(True, None)) as promote:
+            result = batch.run_one(self.item, 1, 1, 1, True, [], annotate_overlays=False,
+                receipt_store=self.store, seed_receipt=parent.receipt_key)
+        self.assertTrue(result.ok, result.error)
+        self.assertTrue(result.zero_found)
+        self.assertTrue(result.promoted)
+        self.assertIn(b"return 2", promote.call_args.kwargs["winner_bytes"])
+        self.assertIn(b"return 1", promote.call_args.kwargs["evidence"].source)
+
+    def test_seed_search_failure_preserves_parent_and_is_retryable(self):
+        parent = self.seed_parent_run(search_suffix="raise SystemExit(7)")
+        result = self.run_one(seed_receipt=parent.receipt_key)
+        self.assertFalse(result.ok)
+        self.assertIn("exited 7", result.error)
+        self.assertIsNone(self.store.completed(result.receipt_key))
+        self.assertIsNotNone(self.store.completed(parent.receipt_key))
+        saved = self.store.read_bundle(result.artifact_bundle, require_complete=False)
+        self.assertIn(b"return 2", saved["best/source.c"])
+
+    def test_seed_parent_context_rejects_stale_source_before_debug(self):
+        parent = self.seed_parent_run()
+        self.item.c_file.write_text("int fixture(void) { return 3; }\n")
+        with patch.object(batch, "measure_seed_stage", side_effect=AssertionError("must not compile seed")):
+            result = self.run_one(seed_receipt=parent.receipt_key)
+        self.assertFalse(result.ok)
+        self.assertIn("stale", result.error)
+
+    def test_seed_regressing_search_retains_measured_seed(self):
+        parent = self.seed_parent_run()
+        def regression(scratch, *args, **kwargs):
+            subprocess.run([sys.executable, "-c", SYNTHETIC_SEARCH_BASELINE, str(scratch)], check=True)
+            best = scratch / "output-15-1"
+            best.mkdir()
+            (best / "score.txt").write_text("15")
+            (best / "source.c").write_text("int fixture(void) { return 3; }")
+            return 10, 1, False, False
+        with patch.object(batch, "run_permuter", side_effect=regression):
+            result = self.run_one(seed_receipt=parent.receipt_key)
+        self.assertTrue(result.ok, result.error)
+        self.assertEqual(result.best_score, 10)
+        files = self.store.read_bundle(result.artifact_bundle)
+        self.assertIn(b"return 2", files["best/source.c"])
+        self.assertTrue(any(b"return 3" in data for name, data in files.items() if name.endswith("source.c")))
+
+    def test_seed_cancellation_at_each_stage_preserves_parent_and_source(self):
+        parent = self.seed_parent_run()
+        original = self.item.c_file.read_bytes()
+        real = batch.measure_seed_stage
+        for stage in ("canonical-measurement", "seed-measurement", "search"):
+            def measure(item, directory, *args):
+                if directory.name == stage:
+                    raise TimeoutError("injected stage deadline")
+                return real(item, directory, *args)
+            search = patch.object(batch, "run_permuter", side_effect=TimeoutError("injected search deadline")) \
+                if stage == "search" else contextlib.nullcontext()
+            with self.subTest(stage=stage), patch.object(batch, "measure_seed_stage", side_effect=measure), search:
+                result = self.run_one(seed_receipt=parent.receipt_key)
+                self.assertFalse(result.ok)
+                self.assertIn("deadline", result.error)
+                self.assertIsNone(self.store.completed(result.receipt_key))
+                self.assertIsNotNone(self.store.completed(parent.receipt_key))
+                self.assertEqual(self.item.c_file.read_bytes(), original)
+                self.assertTrue(result.artifact_bundle)
+
+    def test_seed_search_capture_drift_cannot_promote(self):
+        parent = self.seed_parent_run()
+        def drift(scratch, *args, **kwargs):
+            (scratch / "base.c").write_text("int fixture(void) { return 99; }")
+            subprocess.run([sys.executable, "-c", SYNTHETIC_SEARCH_BASELINE, str(scratch)], check=True)
+            return 0, 1, False, False
+        with patch.object(batch, "run_permuter", side_effect=drift), patch.object(batch, "promote") as promote:
+            result = batch.run_one(self.item, 1, 1, 1, True, [], annotate_overlays=False,
+                receipt_store=self.store, seed_receipt=parent.receipt_key)
+        self.assertFalse(result.ok)
+        self.assertIn("differs from independently measured seed", result.error)
+        promote.assert_not_called()
+        self.assertIsNone(self.store.completed(result.receipt_key))
+
+    def test_seed_missing_parent_bundle_rejects_before_preparation(self):
+        parent = self.seed_parent_run()
+        with patch.object(self.store, "read_bundle", side_effect=ValueError("corrupt bundle")), \
+             patch.object(batch, "run_import", side_effect=AssertionError("must not prepare")):
+            result = self.run_one(seed_receipt=parent.receipt_key)
+        self.assertFalse(result.ok)
+        self.assertIn("missing, incomplete or corrupt", result.error)
+
+    def test_seed_context_portability_is_narrow(self):
+        parent = self.seed_parent_run()
+        old = self.store.completed(parent.receipt_key)["inputs"]
+        new = copy.deepcopy(old)
+        new["baseline_hashes"]["baseline/compile.sh"] = "different lane cwd"
+        new["context"]["baseline_hashes"]["baseline/compile.sh"] = "different lane cwd"
+        new["context"]["tools"]["runner"] = "new proof implementation"
+        self.assertTrue(batch.seed_context_compatible(old, new))
+        for path in (("context", "source"), ("context", "recipe"),
+                     ("context", "identity"), ("context", "dependencies"),
+                     ("context", "prepared")):
+            changed = copy.deepcopy(new)
+            changed[path[0]][path[1]] = "stale"
+            self.assertFalse(batch.seed_context_compatible(old, changed))
+        new["context"]["tools"]["ido"] = "different compiler"
+        self.assertFalse(batch.seed_context_compatible(old, new))
+
+    def test_seed_cli_rejects_ambiguous_modes_before_work(self):
+        key = "a" * 64
+        for extra in ([], ["--function", "a", "--function", "b"],
+                      ["--function", "a", "--jobs", "2"],
+                      ["--function", "a", "--deep"],
+                      ["--function", "a", "--extend-minutes", "1"],
+                      ["--function", "a", "--", "--debug"]):
+            with self.subTest(extra=extra), contextlib.redirect_stderr(__import__("io").StringIO()):
+                with self.assertRaises(SystemExit):
+                    batch.parse_args(["--seed-receipt", key, *extra])
+        self.assertEqual(batch.parse_args(["--seed-receipt", key, "--function", "a"]).seed_receipt, key)
 
     def test_loaded_implementation_drift_before_first_run_refuses_preparation(self):
         loaded = {"runner": (Path(batch.__file__), "not-the-imported-digest")}

@@ -166,6 +166,22 @@ class ReceiptStore:
             raise ValueError("invalid receipt key")
         return self.root / key[:2] / key
 
+    def seed_parent(self, key: str) -> tuple[dict, bytes]:
+        """Read a proven-complete improvement as input, never as match proof."""
+        self.directory(key)
+        value = self.completed(key)
+        if value is None:
+            raise ValueError("seed receipt is missing, incomplete or corrupt")
+        result = value["result"]
+        original = result.get("original_base_score") if result.get("seed_proof") else result.get("base_score")
+        if (result["context_review"]["status"] != "unchanged"
+                or type(result.get("best_score")) is not int
+                or type(original) is not int
+                or not 0 <= result["best_score"] < original):
+            raise ValueError("seed receipt has no context-unchanged measured improvement")
+        files = self.read_bundle(result["artifact_bundle"], inputs=value["inputs"])
+        return value, files["best/source.c"]
+
     def save_bundle(self, files: dict[str, bytes], *, complete: bool, inputs: dict) -> str:
         """Immutable deterministic archive; never extract or execute archive paths."""
         if complete and not REQUIRED_ARTIFACTS <= files.keys():
@@ -261,6 +277,63 @@ class ReceiptStore:
     def artifacts_valid(self, value: dict) -> bool:
         try:
             files = self.read_bundle(value["result"]["artifact_bundle"], inputs=value["inputs"])
+            seed = value["inputs"]["search"].get("seed")
+            if seed is not None:
+                proof = json.loads(files["seed/proof.json"])
+                parent = json.loads(files["seed/parent.json"])
+                if (not isinstance(seed, dict) or not isinstance(proof, dict)
+                        or not isinstance(parent, dict)
+                        or proof != value["result"].get("seed_proof")
+                        or proof.get("seed") != seed
+                        or value["inputs"]["context"].get("seed") != seed
+                        or seed.get("receipt") != parent.get("key")
+                        or digest(parent.get("inputs")) != seed["receipt"]
+                        or parent["result"]["artifact_bundle"] != seed.get("bundle")
+                        or parent["result"]["context_review"]["winner_source_sha256"] != seed.get("source_sha256")
+                        or parent["inputs"]["context"]["identity"] != value["inputs"]["context"]["identity"]
+                        or parent["result"]["best_score"] != value["result"].get("seed_parent_score")
+                        or hashlib.sha256(files["seed/source.c"]).hexdigest() != seed.get("source_sha256")
+                        or hashlib.sha256(files["baseline/target.o"]).hexdigest() != seed.get("target_object_sha256")
+                        or proof.get("status") != "validated"
+                        or type(proof.get("original_score")) is not int
+                        or type(proof.get("seed_score")) is not int
+                        or proof["seed_score"] != value["result"].get("seed_score")
+                        or proof["seed_score"] != value["result"].get("base_score")
+                        or value["result"].get("search_gain") != proof["seed_score"] - value["result"]["best_score"]
+                        or proof["original_score"] != value["result"].get("original_base_score")
+                        or proof.get("fresh_baseline_sha256") != hashlib.sha256(files["context/baseline.c"]).hexdigest()
+                        or hashlib.sha256(files["seed/compiled.c"]).hexdigest() != proof.get("compiled_source_sha256")
+                        or hashlib.sha256(files["seed/compiled.o"]).hexdigest() != proof.get("compiled_object_sha256")
+                        or not files["seed/compiled.o"]
+                        or files["seed/search.c"] != files["seed/compiled.c"]
+                        or hashlib.sha256(files["seed/search.o"]).hexdigest() != proof.get("search_object_sha256")
+                        or not files["seed/search.o"]):
+                    return False
+                parent_files = self.read_bundle(seed["bundle"], inputs=parent["inputs"])
+                if parent_files["best/source.c"] != files["seed/source.c"]:
+                    return False
+                for name, source in (("parent_comparison", files["seed/source.c"]),
+                                     ("compiled_comparison", files["seed/compiled.c"])):
+                    review = proof[name]
+                    if (not isinstance(review, dict) or review.get("status") != "unchanged"
+                            or review.get("schema") != "mickey-prepared-context-review-v1"
+                            or review.get("symbol") != value["inputs"]["context"]["identity"]["symbol"]
+                            or review.get("canonical_source_sha256") != value["inputs"]["context"]["source"]
+                            or review.get("comparator_identity") != value["inputs"]["context"]["tools"]["candidate_context"]
+                            or review.get("baseline_source_sha256") != proof["fresh_baseline_sha256"]
+                            or review.get("winner_source_sha256") != hashlib.sha256(source).hexdigest()
+                            or not isinstance(review.get("capture_binding"), dict)
+                            or review.get("capture_binding", {}).get("inputs_sha256") != digest(value["inputs"])):
+                        return False
+                    comparison = review.get("comparison")
+                    if (not isinstance(comparison, dict)
+                            or comparison.get("schema") != "mickey-candidate-context-v1"
+                            or comparison.get("status") != "unchanged"
+                            or comparison.get("symbol") != review["symbol"]
+                            or comparison.get("baseline_sha256") != review["baseline_source_sha256"]
+                            or comparison.get("winner_sha256") != review["winner_source_sha256"]
+                            or comparison.get("changes") != []):
+                        return False
             report = json.loads(files["context/report.json"])
             if not isinstance(report, dict):
                 return False
@@ -336,7 +409,8 @@ class ReceiptStore:
         # Scalar JSON only references the separate ignored evidence bundle.
         scalar_fields = ("func", "c_file", "overlay", "ok", "base_score", "best_score",
                          "zero_found", "promoted", "seconds", "extended", "stopped_flat",
-                         "stopped_batch", "annotated_relocs", "scratch_path", "artifact_bundle", "context_review")
+                         "stopped_batch", "annotated_relocs", "scratch_path", "artifact_bundle", "context_review",
+                         "original_base_score", "seed_score", "seed_parent_score", "seed_proof", "search_gain")
         scalar = {k: result.get(k) for k in scalar_fields}
         for name in ("error", "promote_error", "commit_error"):
             scalar[name] = bool(result.get(name))
