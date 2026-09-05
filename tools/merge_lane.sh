@@ -3,29 +3,27 @@
 #
 #   tools/merge_lane.sh <lane-name>
 #
-# Runs the lane's own gates from a clean build (verify, check-docs, clean-room
-# range scan), merges lane/<name>, resolves the two generated files that always
+# Reads the lane's committed tip without touching its worktree, merges it,
+# resolves generated files that conflict,
 # conflict by regenerating them (README scoreboard block, overlay atlas), then
 # re-runs verify/check-docs/overlay-atlas/check-scoreboard here. Exits non-zero
 # and leaves the merge in progress if anything else conflicts or a gate fails.
 set -euo pipefail
 name=${1:?lane name}
 root=$(git rev-parse --show-toplevel)
-lane=$(dirname "$root")/mickey-lane-$name
+cd "$root"
 branch=lane/$name
+tip=$(git rev-parse --verify "$branch^{commit}")
 build_jobs=${MICKEY_BUILD_JOBS:-6}
 build_nice=${MICKEY_BUILD_NICE:-15}
 case "$build_jobs" in ''|*[!0-9]*|0) echo "invalid MICKEY_BUILD_JOBS: $build_jobs" >&2; exit 2 ;; esac
 case "$build_nice" in ''|*[!0-9]*) echo "invalid MICKEY_BUILD_NICE: $build_nice" >&2; exit 2 ;; esac
 low_gmake() { nice -n "$build_nice" gmake -j"$build_jobs" "$@"; }
-echo "== lane gates ($lane)"
-lane_out=$(cd "$lane" && gmake clean >/dev/null && low_gmake >/dev/null 2>&1; low_gmake >/dev/null 2>&1; low_gmake verify 2>&1 | tail -1); echo "$lane_out"
-case "$lane_out" in OK*) ;; *) echo "lane $name does not verify from a clean build; not merging" >&2; exit 1 ;; esac
-(cd "$lane" && gmake check-docs 2>&1 | tail -1)
-tools/cleanroom_check.sh --range "HEAD..$branch" 2>&1 | tail -1
+.venv/bin/python tools/merge_transaction.py clean
+tools/cleanroom_check.sh --range "HEAD..$tip" 2>&1 | tail -1
 echo "== merge $branch"
 # --no-commit: the merge is committed only after every gate below passes.
-if ! git merge --no-commit --no-ff "$branch" >/dev/null 2>&1; then
+if ! git merge --no-commit --no-ff "$tip" >/dev/null 2>&1; then
   conflicts=$(git diff --name-only --diff-filter=U)
   for f in $conflicts; do
     case "$f" in
@@ -42,9 +40,15 @@ fi
 # else three-way against the lane's merge-base). It never takes a shared
 # file whole.
 if git diff --name-only --diff-filter=U | grep -q .; then
-  .venv/bin/python tools/resolve_lane_conflicts.py "$branch" || { echo "unresolved conflicts remain; merge left in progress" >&2; exit 1; }
+  .venv/bin/python tools/resolve_lane_conflicts.py "$tip" || { echo "unresolved conflicts remain; merge left in progress" >&2; exit 1; }
+fi
+if ! git rev-parse --verify MERGE_HEAD >/dev/null 2>&1; then
+  git merge-base --is-ancestor "$tip" HEAD || { echo "merge did not start" >&2; exit 1; }
+  echo "$branch is already integrated"
+  exit 0
 fi
 if git grep -q '^<<<<<<< ' -- . ':!*.md'; then echo "conflict markers left in tracked files:" >&2; git grep -l '^<<<<<<< ' -- . >&2; exit 1; fi
+.venv/bin/python tools/merge_transaction.py begin
 echo "== integration gates"
 gmake overlay-atlas-write >/dev/null 2>&1 || true
 .venv/bin/python tools/refresh_atlas_digest.py >/dev/null
@@ -66,10 +70,13 @@ gmake scoreboard 2>&1 | tail -1
 gmake overlay-atlas 2>&1 | tail -1
 .venv/bin/python tools/fix_jumptable_claim.py >/dev/null 2>&1 || true
 gmake check-docs 2>&1 | tail -1
-git add -A README.md config/ docs/modules.md docs/overlays.md mickey.us.yaml symbol_addrs.us.txt src include Makefile mk 2>/dev/null || true
+gmake check-overlay-syms 2>&1 | tail -1
+gmake check-scoreboard 2>&1 | tail -1
+gmake cleanroom 2>&1 | tail -1
+.venv/bin/python tools/merge_transaction.py stage
 git commit -q -m "Merge $branch into $(git rev-parse --abbrev-ref HEAD)
 
 Gates at merge time: verify byte-identical, check-docs, overlay-atlas,
-scoreboard regenerated." 2>&1 | grep -v exempt || true
-gmake check-scoreboard 2>&1 | tail -1
+overlay symbols checked, scoreboard regenerated."
+.venv/bin/python tools/merge_transaction.py clean
 git log --oneline -1
