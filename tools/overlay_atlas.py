@@ -598,7 +598,7 @@ TEXT_SUBSEGMENTS = {
     ],
     73: [
         (0x000, "c", "overlay73Initialize"),
-        (0x190, "asm", "overlay_073"),
+        (0x190, "c", "func_overlay_073_F0000190_18CAC50"),
         (0xD70, "c", "overlay73Draw"),
         (0xEA8, "asm", "overlay_073_padding"),
     ],
