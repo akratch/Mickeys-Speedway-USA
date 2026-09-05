@@ -11,14 +11,14 @@ from the original stub but have not been modernized or verified.
 <!-- SCOREBOARD_BEGIN -->
 ## Progress
 
-[![functions](https://img.shields.io/badge/functions_matched-1147_of_1461_(78.51%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-407048_of_944416_(43.10%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1385_adopted-blue)](#progress)
+[![functions](https://img.shields.io/badge/functions_matched-1147_of_1461_(78.51%25)-blue)](#progress) [![bytes](https://img.shields.io/badge/code_bytes_resolved-407048_of_944356_(43.10%25)-blue)](#progress) [![names](https://img.shields.io/badge/symbols_named-1385_adopted-blue)](#progress)
 
 ```
 functions     1147 / 1461    78.51%   matched to C, byte-identical
-.text bytes 256820 / 475152  54.05%   matched C in the resident segment
-verified asm  17184 / 475152   3.62%   original hand-written assembly (84 functions)
+.text bytes 256820 / 475092  54.06%   matched C in the resident segment
+verified asm  17184 / 475092   3.62%   original hand-written assembly (84 functions)
 overlay C   133044 / 469264  28.35%   matched C keyed by overlay and offset
-whole resolved 407048 / 944416  43.10%   resident C + verified asm + overlay C
+whole resolved 407048 / 944356  43.10%   resident C + verified asm + overlay C
 named         1249 / 1461    85.49%   functions carrying an adopted name
 symbols       1385                    adopted in symbol_addrs.us.txt
 ```
@@ -26,11 +26,11 @@ symbols       1385                    adopted in symbol_addrs.us.txt
 Five-line report in the Diddy Kong Racing convention, where `NON_MATCHING` and `NON_EQUIVALENT` bodies count as unmatched, exactly like extracted assembly:
 
 ```
-decompiled              389864 / 944416  (41.28%)
-handwritten asm          17184 / 944416  ( 1.82%)
-GLOBAL_ASM remaining    201792 / 944416  (21.37%)
-NON_MATCHING            335576 / 944416  (35.53%)
-NON_EQUIVALENT               0 / 944416  ( 0.00%)
+decompiled              389864 / 944356  (41.28%)
+handwritten asm          17184 / 944356  ( 1.82%)
+GLOBAL_ASM remaining    201732 / 944356  (21.36%)
+NON_MATCHING            335576 / 944356  (35.53%)
+NON_EQUIVALENT               0 / 944356  ( 0.00%)
 ```
 
 | Area | Functions | Matched to C | Named, still asm | Unnamed | Identified |
