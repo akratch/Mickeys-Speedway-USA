@@ -956,6 +956,47 @@ raise SystemExit(7)
         self.assertTrue(result.stopped_batch)
         self.assertIsNone(self.store.completed(result.receipt_key))
 
+    def test_capped_child_unflushed_baseline_print_is_retained(self):
+        self.write("permuter/permuter.py", "import time\nprint('base score = 20')\ntime.sleep(20)\n")
+        scratch = self.root / "scratch"
+        scratch.mkdir()
+        out_dir = self.root / "capped"
+        out_dir.mkdir()
+        start = time.monotonic()
+        score, elapsed, flat, stopped = batch.run_permuter(scratch, out_dir, 0.005, 1, [])
+        self.assertEqual(score, 20)
+        self.assertLess(time.monotonic() - start, 3)
+        self.assertFalse(flat)
+        self.assertFalse(stopped)
+        self.assertIn("base score = 20", (out_dir / "permuter.log").read_text())
+
+    def test_child_failure_after_successful_capture_retains_pair_and_best_without_apply(self):
+        original = self.item.c_file.read_bytes()
+        self.write("permuter/permuter.py", SYNTHETIC_SEARCH_BASELINE + '''
+best = scratch / "output-10-1"
+best.mkdir()
+(best / "score.txt").write_text("10")
+(best / "source.c").write_text("int fixture(void) { return 2; }\\n")
+raise SystemExit(7)
+''')
+        with patch.object(batch, "promote", side_effect=AssertionError("failed search must never promote")):
+            result = batch.run_one(self.item, 1, 1, 1, True, [], load_threshold=0,
+                                   annotate_overlays=False, receipt_store=self.store)
+        self.assertFalse(result.ok)
+        self.assertIn("permuter exited 7", result.error)
+        self.assertIsNone(result.base_score)  # Never invent the missing log measurement.
+        self.assertEqual(result.best_score, 10)  # This score exists in the saved output.
+        self.assertFalse(result.promoted)
+        self.assertEqual(result.context_review["status"], "unchanged")
+        self.assertEqual(self.item.c_file.read_bytes(), original)
+        saved = self.store.read_bundle(result.artifact_bundle)
+        self.assertEqual(saved["baseline/compiled.c"], saved["context/baseline.c"])
+        self.assertEqual(saved["baseline/compiled.o"], saved["baseline/compiled.c"])
+        self.assertEqual(saved["context/winner.c"], saved["best/source.c"])
+        self.assertIsNone(self.store.completed(result.receipt_key))
+        partial = json.loads((self.store.directory(result.receipt_key) / "partial-best.json").read_text())
+        self.assertFalse(self.store.descending(partial["inputs"]["context"]))
+
     def test_failed_later_search_preserves_prior_best_artifact(self):
         first = self.run_one()
         with patch.object(batch, "run_permuter", side_effect=RuntimeError("synthetic failure")):

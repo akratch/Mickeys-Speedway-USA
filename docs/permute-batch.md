@@ -669,6 +669,11 @@ bind `context/{baseline.c,winner.c,report.json}` to the captured source/object,
 exact retained winner and comparator identity. Resume exposes the original
 checked report; missing, corrupt, older-schema or unverifiable context cannot
 suppress a fresh run. Failed and timed-out attempts remain retained but retryable.
+The child Python interpreter runs unbuffered so stopping a quiet search at its
+cap does not discard its printed baseline score. If the child fails after a
+successful capture, the runner still authenticates and retains that first
+source/object pair and compares the saved best candidate. An absent baseline
+score remains unknown, and recovery never enables promotion or receipt reuse.
 The comparison is conservative syntactic evidence, not semantic or match proof:
 full-TU, relocation, ownership and ROM gates remain mandatory even at score zero.
 

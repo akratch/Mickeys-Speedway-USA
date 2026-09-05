@@ -1326,6 +1326,7 @@ def run_permuter(
     args = [
         "nice", "-n", "15",
         str(PYTHON),
+        "-u",  # A capped child must not lose its baseline score in a file buffer.
         str(PERMUTER_PY),
         *MANDATORY_PERMUTER_ARGS,
         "-j",
@@ -2092,9 +2093,20 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
             result.stopped_batch = True
     finally:
         if result.context_review is None:
+            if prepared is None:
+                try:
+                    # A child can fail after a successful synchronous compile
+                    # but before returning its score. Recover only authenticated
+                    # evidence; this never clears the failure or enables apply.
+                    prepared = captured_baseline(item, out_dir, prepared_inputs, batch_deadline)
+                except Exception as error:
+                    result.error = ((result.error + "; ") if result.error else "") + \
+                        f"prepared baseline recovery unavailable: {error}"
             frozen_winner = prepared.source if prepared is not None else b""
             try:
                 best_dir, score = _best(scratch)
+                if score is not None:
+                    result.best_score = score
                 if best_dir is not None and score is not None and (result.base_score is None or score < result.base_score):
                     frozen_winner = sweep_receipts.owned_bytes(best_dir, "source.c", limit=4 * 1024 * 1024)
             except (OSError, ValueError):
