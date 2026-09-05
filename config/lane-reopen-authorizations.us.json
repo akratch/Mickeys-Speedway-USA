@@ -1,6 +1,11 @@
 {
   "schema_version": 1,
   "authorizations": {
+    "func_80002188": {
+      "source_commit": "f0bb90d63eb9266a808af448a4346171f07991db",
+      "ledger_commit": "f0bb90d63eb9266a808af448a4346171f07991db",
+      "reason": "Authorize the handoff's untried bounded permuter sweep for seven stack-home operands; exact geometry, opcode/register shape, and all 22 relocation identities are already configured-current."
+    },
     "overlay34InitStorage": {
       "source_commit": "b03c4f84d593687b231276924f0cd07a5755f610",
       "ledger_commit": "f6180acf7e12e80c6e8cda7942dc06f1668678bf",
