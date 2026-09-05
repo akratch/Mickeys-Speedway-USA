@@ -217,11 +217,11 @@ void func_800347A0(TextureHeader *tex) {
 }
 /* PLATEAU-HANDOFF:func_800347A0:start
  * symbol: func_800347A0
- * score: 41/43 words
+ * score: 2 differing words
  * frame: 0x30 (target 0x28)
  * relocations: 7
  * first-mismatch: +0x0
- * summary: JFG-shaped raw cache indexing fixes 25 words and every instruction/register/relocation; only the two symmetric frame-adjust immediates remain.
+ * summary: Fresh remeasurement confirms exact 43-word geometry and seven aligned relocation identities; only symmetric 0x30-versus-0x28 frame immediates differ.
  * PLATEAU-HANDOFF:func_800347A0:end
  */
 #else
