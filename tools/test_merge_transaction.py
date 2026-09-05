@@ -79,6 +79,33 @@ class MergeTransactionTests(unittest.TestCase):
         self.run_command("git", "add", "owned.c")
         self.assertNotEqual(self.transaction("stage", check=False).returncode, 0)
 
+    def test_deleted_then_regenerated_path_is_staged_even_if_ignored(self):
+        # Model the incoming merge deleting this generated path, followed by
+        # its ordinary generator recreating the validated output.
+        self.run_command("git", "rm", "overlay_undefined_syms.us.txt")
+        self.write(".git/info/exclude", "overlay_undefined_syms.us.txt\n")
+        self.transaction("begin")
+        self.write("overlay_undefined_syms.us.txt", "regenerated after deletion\n")
+        self.transaction("stage")
+        self.run_command("git", "commit", "-qm", "validated merge")
+        self.assertEqual(self.run_command("git", "show", "HEAD:overlay_undefined_syms.us.txt").stdout,
+                         "regenerated after deletion\n")
+        self.transaction("clean")
+
+    def test_preexisting_untracked_generated_input_is_not_adopted(self):
+        self.run_command("git", "rm", "overlay_undefined_syms.us.txt")
+        self.write("overlay_undefined_syms.us.txt", "user work\n")
+        result = self.transaction("begin", check=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("preexisting untracked", result.stderr)
+        self.assertEqual((self.root / "overlay_undefined_syms.us.txt").read_text(), "user work\n")
+
+    def test_clean_rejects_untracked_generated_output(self):
+        self.run_command("git", "rm", "overlay_undefined_syms.us.txt")
+        self.run_command("git", "commit", "-qm", "synthetic deletion")
+        self.write("overlay_undefined_syms.us.txt", "uncommitted generated output\n")
+        self.assertNotEqual(self.transaction("clean", check=False).returncode, 0)
+
     def install_fake_gates(self):
         self.write(".venv/bin/python", "#!/bin/sh\nexec " + sys.executable + ' "$@"\n').chmod(0o755)
         shutil.copy(TOOLS / "merge_transaction.py", self.write("tools/merge_transaction.py", ""))
