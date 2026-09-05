@@ -15,6 +15,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import tomllib
 import unittest
@@ -641,6 +642,42 @@ if "--debug" in sys.argv:
             if isinstance(error, subprocess.TimeoutExpired):
                 self.assertIn("partial debug output", log)
             self.assertIsNotNone(self.store.completed(parent.receipt_key))
+
+    def test_real_seed_debug_child_output_survives_timeout_and_cancel(self):
+        parent = self.seed_parent_run(debug_setup='''
+import os, sys, time
+from pathlib import Path
+if "--debug" in sys.argv:
+    Path("debug-child.pid").write_text(str(os.getpid()))
+    print("real debug stdout sentinel", flush=True)
+    print("real debug stderr sentinel", file=sys.stderr, flush=True)
+    time.sleep(30)
+''')
+        for cancelled in (False, True):
+            timer = threading.Timer(2, batch.CANCEL_EVENT.set) if cancelled else None
+            if timer is not None:
+                timer.start()
+            try:
+                result = self.run_one(seed_receipt=parent.receipt_key,
+                    batch_deadline=time.monotonic() + (8 if cancelled else 2))
+            finally:
+                if timer is not None:
+                    timer.cancel()
+                    timer.join()
+                batch.CANCEL_EVENT.clear()
+            with self.subTest(cancelled=cancelled):
+                self.assertFalse(result.ok)
+                stage = Path(result.scratch_path).parent / "canonical-measurement"
+                log = (stage / "debug.log").read_text()
+                self.assertIn("real debug stdout sentinel", log)
+                self.assertIn("real debug stderr sentinel", log)
+                self.assertIn("[seed stage failure]", log)
+                saved = self.store.read_bundle(result.artifact_bundle, require_complete=False)
+                self.assertIn(b"real debug stdout sentinel", saved["attempt/canonical-measurement/debug.log"])
+                pid = int((stage / "debug-child.pid").read_text())
+                with self.assertRaises(ProcessLookupError):
+                    os.kill(pid, 0)
+                self.assertIsNotNone(self.store.completed(parent.receipt_key))
 
     def test_seed_flat_preserves_body_and_validated_durable_resume(self):
         parent = self.seed_parent_run()

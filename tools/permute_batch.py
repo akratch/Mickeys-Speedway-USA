@@ -741,6 +741,8 @@ def bounded_capture(args: list[str], deadline: Optional[float], *, check: bool =
     proc = subprocess.Popen(args, cwd=ROOT if cwd is None else cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                             text=True, start_new_session=True, env=env)
     finished = False
+    failure = None
+    partial_output = ""
     try:
         while True:
             if CANCEL_EVENT.is_set():
@@ -751,15 +753,24 @@ def bounded_capture(args: list[str], deadline: Optional[float], *, check: bool =
             try:
                 output, _ = proc.communicate(timeout=min(1, remaining))
                 break
-            except subprocess.TimeoutExpired:
+            except subprocess.TimeoutExpired as pending:
+                partial_output = pending.output or partial_output
                 continue
         finished = True
+    except BaseException as error:
+        failure = error
+        raise
     finally:
         try:
             if not finished or proc.returncode:
                 stop_process_group(proc)
-                proc.communicate()
+                drained, _ = proc.communicate()
+                partial_output = drained or partial_output
         finally:
+            if failure is not None:
+                # communicate() returns cumulative output: retain the final
+                # drain, not duplicated timeout snapshots, on the same error.
+                failure.output = partial_output
             if proc.stdout is not None:
                 proc.stdout.close()
     result = subprocess.CompletedProcess(args, proc.returncode, output, output)
