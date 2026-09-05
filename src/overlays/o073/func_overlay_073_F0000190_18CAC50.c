@@ -1,4 +1,4 @@
-/* Workbench: structure-mismatch, 755 differing words, first mismatch +0x00;
+/* Fresh current-base workbench: structure-mismatch, 755 differing words, first mismatch +0x00;
  * 766 vs 760 instructions with the exact 0x98 frame. The full 119-row flag
  * lattice was nonexact. The candidate has 48 text relocation sites versus 46
  * shipped records, so its +0x18 extent and relocation schedule must be closed
@@ -411,6 +411,6 @@ common:
  * frame: 0x98
  * relocations: 48
  * first-mismatch: +0x0
- * summary: Frame-exact 760/766 after 119 flag rows; promotion stops at relocation schedule divergence (48/46 sites), so close extent before allocator/permuter work.
+ * summary: Fresh current-base frame-exact 760/766 result; promotion stops at relocation schedule divergence (48/46 sites), so close extent before allocator/permuter work.
  * PLATEAU-HANDOFF:func_overlay_073_F0000190_18CAC50:end
  */
