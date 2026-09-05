@@ -14,7 +14,7 @@ usage() {
         'The lane is created if absent, or ownership-checked before fast-forward resync.' \
         'Use only a lane you own exclusively; this wrapper does not arbitrate checkouts.' \
         'Batch options require --. Forwarded --apply, --commit and --list are rejected.' \
-        'Defaults: jobs=2, threads=4, build-jobs=6, minutes=20, flat-minutes=6,' \
+        'Defaults: jobs=2, threads=4, build-jobs=machine cores, minutes=20, flat-minutes=6,' \
         '          max-total-minutes=120, extend-minutes=20, load-threshold=13, resume.' \
         'Example: tools/permute_sweep.sh --report-only my-sweep -- --function myFunction --minutes 3'
 }
@@ -42,16 +42,19 @@ fi
 script_root=$(cd "$(dirname "$0")/.." && pwd -P)
 # Parse, do not run the batch. -B avoids bytecode writes. Parsing also catches
 # abbreviations such as --app and --comm: forwarded args cannot override mode.
-"$script_root/.venv/bin/python" -B -c '
-import sys
+build_jobs=$("$script_root/.venv/bin/python" -B -c '
+import os, sys
 sys.path.insert(0, sys.argv[1] + "/tools")
 import permute_batch
-args = permute_batch.parse_args(sys.argv[2:])
+args = permute_batch.parse_args(["--build-jobs", str(os.cpu_count() or 1), *sys.argv[2:]])
 if args.apply or args.commit or args.list:
     sys.exit("permute-sweep: forwarded --apply/--commit/--list are forbidden; choose the wrapper mode")
 if args.max_total_minutes <= 0 or args.jobs <= 0 or args.minutes <= 0:
     sys.exit("permute-sweep: jobs, minutes and total budget must be positive")
-' "$script_root" "$@"
+if args.build_jobs <= 0:
+    sys.exit("permute-sweep: build-jobs must be positive")
+print(args.build_jobs)
+' "$script_root" "$@")
 
 for name in GIT_DIR GIT_WORK_TREE GIT_COMMON_DIR GIT_INDEX_FILE; do
     [ -z "${!name:-}" ] || die "$name overrides are unsupported"
@@ -103,10 +106,10 @@ printf 'resync: lane/%s -> campaign/unchain %s\n' "$lane" "$base"
 git -C "$physical" merge -q --ff-only "$base"
 check_owner
 cd "$physical"
-gmake extract >/dev/null
-gmake -j6 >/dev/null
-gmake -j6 >/dev/null
-gmake verify | tail -1
+gmake "-j$build_jobs" extract >/dev/null
+gmake "-j$build_jobs" >/dev/null
+gmake "-j$build_jobs" >/dev/null
+gmake "-j$build_jobs" verify | tail -1
 
 mkdir -p build/permuter
 # Unique logs preserve sequential launches within the same minute.
@@ -118,14 +121,14 @@ printf 'sweep log: %s/%s\n' "$physical" "$log"
 printf 'promotion enabled: %s; exact-context receipts in Git common directory\n' "$promote"
 .venv/bin/python -u tools/permute_batch.py \
     "${mode_args[@]}" \
-    --jobs 2 --permuter-threads 4 --build-jobs 6 \
+    --jobs 2 --permuter-threads 4 --build-jobs "$build_jobs" \
     --minutes 20 --max-total-minutes 120 --extend-minutes 20 --flat-minutes 6 --load-threshold 13 \
     "$@" 2>&1 | tee "$log"
 
 if [ "$promote" -eq 1 ]; then
-    gmake extract >/dev/null
-    gmake -j6 >/dev/null
-    gmake verify | tail -1
+    gmake "-j$build_jobs" extract >/dev/null
+    gmake "-j$build_jobs" >/dev/null
+    gmake "-j$build_jobs" verify | tail -1
     .venv/bin/python tools/progress.py --version us | head -6
     printf 'promotions on lane/%s:\n' "$lane"
     git log --oneline "$base..HEAD"

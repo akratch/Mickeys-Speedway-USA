@@ -307,11 +307,18 @@ a lock against a separate actor checking out another branch concurrently.
 
 Both modes extract, warm-build and verify the base before searching. Only
 promotion mode performs the final extraction/build/progress pass. Existing
-resource defaults remain two searches, four permuter threads each, six build
-jobs, a 20-minute search plus optional 20-minute descending extension, a
+resource defaults remain two searches, four permuter threads each, a
+20-minute search plus optional 20-minute descending extension, a
 six-minute flat stop, a 120-minute whole-batch cap and load threshold 13.
 Pass smaller caps explicitly when assigned. Prior scratch and uniquely named
 logs are retained; the wrapper never resets histories or cleans user files.
+
+The wrapper defaults build parallelism to the machine's logical core count
+(one if unavailable), following ADR 0004. An explicit positive `--build-jobs`
+overrides that default for every upfront/post-search extraction, build and
+verification, and is also forwarded to the batch runner for promotion builds.
+Repeated options use the last value, including `--build-jobs=N` spelling.
+This setting does not change search jobs, permuter threads or load/time caps.
 
 Regression checks for these guarantees are
 `python3 tools/test_sweep_receipts.py`,

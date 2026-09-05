@@ -26,6 +26,10 @@ if kind == "git":
     os.execv(os.environ["SWEEP_TEST_GIT"], ["git", *args])
 if kind == "python":
     if args[:1] == ["-B"]:
+        if "SWEEP_TEST_CPU_COUNT" in os.environ:
+            count = os.environ["SWEEP_TEST_CPU_COUNT"]
+            value = None if count == "None" else int(count)
+            args[2] = "import os; os.cpu_count = lambda: " + repr(value) + "\\n" + args[2]
         os.execv({python!r}, [{python!r}, *args])
     print("synthetic batch/progress output")
     sys.exit(int(os.environ.get("SWEEP_TEST_BATCH_EXIT", "0")))
@@ -146,9 +150,61 @@ class SweepCliTests(unittest.TestCase):
         self.assertNotIn("--apply", batch[0])
         self.assertNotIn("--commit", batch[0])
         self.assertEqual(batch[0][-4:], ["--function", "fixture", "--minutes", "3"])
+        jobs = "-j" + str(os.cpu_count() or 1)
         self.assertEqual([args for kind, args in self.events() if kind == "gmake"],
-                         [["extract"], ["-j6"], ["-j6"], ["verify"]])
+                         [[jobs, "extract"], [jobs], [jobs], [jobs, "verify"]])
         self.assertEqual(self.git("status", "--porcelain", repo=lane), "")
+
+    def assert_build_jobs(self, count, *, promoted=False):
+        builds = [args for kind, args in self.events() if kind == "gmake"]
+        jobs = "-j" + str(count)
+        expected = [[jobs, "extract"], [jobs], [jobs], [jobs, "verify"]]
+        if promoted:
+            expected += [[jobs, "extract"], [jobs], [jobs, "verify"]]
+        self.assertEqual(builds, expected)
+        batch = next(args for kind, args in self.events() if kind == "python" and args[:1] == ["-u"])
+        self.assertEqual(batch[batch.index("--build-jobs") + 1], str(count))
+        for flag, value in (("--jobs", "2"), ("--permuter-threads", "4"),
+                            ("--minutes", "20"), ("--flat-minutes", "6"),
+                            ("--max-total-minutes", "120"), ("--extend-minutes", "20"),
+                            ("--load-threshold", "13")):
+            self.assertEqual(batch[batch.index(flag) + 1], value)
+
+    def test_explicit_build_jobs_reach_every_build_and_runner(self):
+        forms = (("--build-jobs", "3"), ("--build-jobs=3",),
+                 ("--build-jobs", "8", "--build-jobs=3"),
+                 ("--build-jobs=8", "--build-jobs", "3"),
+                 ("--build-j", "3"))
+        for mode in ("--report-only", "--promote"):
+            for index, args in enumerate(forms):
+                with self.subTest(mode=mode, args=args):
+                    self.events_path.unlink(missing_ok=True)
+                    name = ("report" if mode == "--report-only" else "promote") + str(index)
+                    self.lane(name)
+                    result = self.run_cli(mode, name, "--", *args)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assert_build_jobs(3, promoted=mode == "--promote")
+
+    def test_machine_core_default_and_unavailable_fallback(self):
+        for value, expected in (("14", 14), ("None", 1)):
+            with self.subTest(cpu_count=value):
+                self.events_path.unlink(missing_ok=True)
+                self.lane("cpu" + value.lower())
+                result = self.run_cli("--report-only", "cpu" + value.lower(),
+                                      SWEEP_TEST_CPU_COUNT=value)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assert_build_jobs(expected)
+
+    def test_invalid_build_jobs_fail_before_git_or_build(self):
+        for args in (("--build-jobs", "0"), ("--build-jobs=-1",),
+                     ("--build-jobs", "invalid"), ("--build-jobs",),
+                     ("--build-jobs", "3", "--build-jobs=0")):
+            with self.subTest(args=args):
+                self.events_path.unlink(missing_ok=True)
+                result = self.run_cli("--report-only", "fresh", "--", *args)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertTrue(all(kind == "python" for kind, _ in self.events()))
+                self.assertFalse((self.top / "mickey-lane-fresh").exists())
 
     def test_explicit_promote_retains_proof_and_commit_workflow(self):
         self.lane()
