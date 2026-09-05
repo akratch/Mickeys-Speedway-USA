@@ -436,6 +436,20 @@ type/offset and effective identity. A linked-byte-only oracle is insufficient.
 Missing authoritative resident or overlay ownership fails closed; promotion
 does not invent symbol or ownership rows to pass the gate.
 
+An overlay symbol-generation pass can mutate an object by rebinding its symbol
+table. Promotion therefore retains that generated object as
+`promotions/<id>/after-symbol-generation.o`, removes exactly the affected TU
+object from its build path, and rebuilds it through the ordinary configured
+Make target. `check-overlay-syms` then checks the fresh object without mutation,
+before linking, ROM verification, or strict function proof. A missing persistent
+normalization recipe now fails even if the generator-mutated object was exact.
+The fresh or partial compiler output is retained as `configured-rebuild.o`,
+including on failure/cancellation; the generated object is never restored over
+it to make proof pass. Missing, nonregular, or symlinked object ownership fails
+closed. No other object's path is removed, and no build policy is adopted
+automatically. After rollback, the normal extract/rebuild requirement still
+applies to these now-stale ignored build artifacts.
+
 Between ROM verification and post-promotion proof, `gmake prune-asm` removes
 the fallback that the promoted C no longer names. Resident source edits alone
 do not invalidate the split stamp; leaving that file behind makes preflight
@@ -556,7 +570,9 @@ triggers:
    the *entire* `#ifdef NON_MATCHING ... #else ... #endif` block for that
    function with it, dropping the guard, the stale candidate, and the
    `#pragma GLOBAL_ASM` fallback.
-2. **Rebuild**: `gmake -j<build-jobs>`.
+2. **Rebuild**: for overlays, generate the symbol surface, retain and remove
+   exactly the affected object, rebuild its configured Make target, and run
+   read-only `check-overlay-syms`. Then `gmake -j<build-jobs>` rebuilds the ROM.
 3. **Verify**: `gmake verify` (byte-identical ROM rebuild against the
    pinned SHA1).
 4. **Fallback lifecycle**: `gmake prune-asm` removes orphaned extracted
@@ -581,6 +597,18 @@ symbol, a `trim_elf_section.py` step, per §"Makefile context" in the pilot
 commit), is a per-object judgment call this script does not make for you.
 Check the object's `POSTPROCESS` line by hand after a promotion and drop it
 if -- and only if -- the whole line was that one now-redundant rename.
+
+**Winning context is not automatically transferred or compared.** The public
+`promote(item, winning_source, ...)` interface receives a pruned/preprocessed
+winner but no authenticated original import context. Comparing that winner
+directly with raw canonical C would confuse ordinary preprocessing/pruning
+with a changed prototype or type; an extension can also replace scratch
+`base.c`, so that mutable file is not necessarily the original baseline.
+Review declaration/context changes independently against target ABI evidence
+before body-only transfer. A future detector needs to bind an immutable initial
+prepared baseline alongside the winner and compare parsed non-function context,
+without automatically adopting shared headers or declarations. Full-TU and ROM
+gates remain mandatory even when the scratch score is zero.
 
 ## Cost and match rate (measured)
 
