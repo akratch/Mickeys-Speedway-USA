@@ -460,7 +460,7 @@ relocations; the candidate's placeholder symbols are renamed to the same
 names by `objcopy --redefine-sym` steps appended to the scratch's
 `compile.sh`, alongside the ones `replicate_objcopy` already writes there.
 
-Three properties are worth stating because they are what make this a
+These properties are worth stating because they are what make this a
 measurement rather than a fudge:
 
 - **It is not a relaxed scorer.** The canonical name comes from the ROM's
@@ -472,9 +472,20 @@ measurement rather than a fudge:
   binding. Target coverage remains complete using runtime-only names; the
   unresolved candidate correspondence is reported in
   `build/permuter/<fn>/annotation.txt`.
+- **Equal stored values do not merge different runtime identities.** If two
+  candidate externs would acquire one destination name despite differing
+  runtime operation or symbol identity, neither is renamed. Runtime-only
+  target annotations remain distinct, including shared-HI standalone LOs.
 - **Any failure falls back to the previous behaviour.** If the annotated `.s`
-  does not assemble, the unannotated target is restored and reassembled; the
-  run continues with the old, pessimistic score. `--no-overlay-annotate`
+  cannot be assembled/proved or its candidate refresh fails, all four owned
+  scratch files (`target.s`, `target.o`, `compile.sh`, `base.o`) are restored
+  byte-for-byte with their original modes and absent-file state, without
+  launching rollback subprocesses. Unique ignored `annotation-attempt-*`
+  directories retain before/failed artifacts and the original diagnostic.
+  Ordinary failures continue with the old, pessimistic score; timeout,
+  cancellation and interruption propagate after restoration. A filesystem
+  recovery error aborts and names the retained backups for manual review.
+  `--no-overlay-annotate`
   forces that path for before/after measurement.
 
 Nothing ROM-derived is written anywhere tracked: the rewritten `.s` lives in

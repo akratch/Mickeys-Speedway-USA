@@ -1865,6 +1865,27 @@ class PermuterTargetCoverageTests(unittest.TestCase):
         self.assertIn("incomplete candidate", " ".join(notes))
         self.roundtrip(text, notes)
 
+    def test_equal_zero_bases_do_not_merge_distinct_runtime_identities(self):
+        source = ("glabel fixture\n"
+                  "lui $at,%hi(left+0x8000)\nlw $t0,%lo(left+0x8000)($at)\n"
+                  "lw $t1,%lo(left+0x8004)($at)\nlui $at,%hi(right+0x8008)\n"
+                  "lw $t2,%lo(right+0x8008)($at)\njal call_target\nnop\nendlabel fixture\n")
+        self.base = self.assemble("distinct", source)
+        same_text, same_renames, same_notes = self.annotate()
+        self.assertEqual(same_renames["left"], "__ovval_00000000")
+        self.assertEqual(same_renames["right"], "__ovval_00000000")
+        self.roundtrip(same_text, same_notes)
+        for changes in ({"symbol_index": 200}, {"op_name": "DATA", "op": 3}):
+            records = [dict(record) for record in self.records]
+            records[3].update(changes)
+            records[4].update(changes)
+            with self.subTest(changes=changes):
+                text, renames, notes = self.annotate(records=records)
+                self.assertNotIn("left", renames)
+                self.assertNotIn("right", renames)
+                self.assertIn("distinct runtime identities", " ".join(notes))
+                self.roundtrip(text, notes)
+
     def test_bad_word_operand_and_incomplete_pair_are_refused(self):
         with self.assertRaises(rs.AnnotationError):
             self.annotate(text=self.text.replace("lui $at, 1", "lui $v0, 1", 1))
@@ -1917,6 +1938,101 @@ class PermuterTargetCoverageTests(unittest.TestCase):
              mock.patch.object(pb, "bounded_capture") as capture:
             self.assertEqual(pb.annotate_overlay_scratch(item, self.root, self.root), 0)
             capture.assert_not_called()
+
+
+class AnnotationScratchTransactionTests(unittest.TestCase):
+    def exercise(self, phase, kind, missing_target=False, preservation_failure=False):
+        import permute_batch as pb
+        import time
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory(prefix="annotation-transaction-") as directory:
+            root = Path(directory)
+            scratch, output = root / "scratch", root / "output"
+            scratch.mkdir()
+            output.mkdir()
+            before = {"target.s": b"original target\r\n", "target.o": b"original target object",
+                      "compile.sh": b"original script without newline", "base.o": b"original base"}
+            if missing_target:
+                del before["target.o"]
+            for name, data in before.items():
+                (scratch / name).write_bytes(data)
+                (scratch / name).chmod(0o750 if name == "compile.sh" else 0o640)
+            (output / "annotation.txt").write_text("prior diagnostic\n")
+            rom = root / "rom"
+            rom.write_bytes(b"synthetic")
+            error = (subprocess.TimeoutExpired([phase], 1, output="partial sentinel") if kind == "timeout"
+                     else RuntimeError("batch cancelled") if kind == "cancel"
+                     else KeyboardInterrupt("interrupted sentinel") if kind == "interrupt"
+                     else subprocess.CalledProcessError(7, [phase], output="failure sentinel"))
+            calls = []
+            def fault():
+                if kind == "cancel":
+                    pb.CANCEL_EVENT.set()
+                raise error
+            def capture(command, deadline, **kwargs):
+                calls.append(command)
+                step = "refresh" if command[0] == "bash" else "assembly"
+                target = scratch / ("base.o" if step == "refresh" else "target.o")
+                target.write_bytes(b"failed attempt artifact")
+                target.chmod(0o600)
+                if step == phase:
+                    fault()
+                return subprocess.CompletedProcess(command, 0, "ok", "")
+            def proof(*args):
+                if phase == "proof":
+                    fault()
+            pb.CANCEL_EVENT.clear()
+            write_bytes = Path.write_bytes
+            def preserve(path, data):
+                if preservation_failure and path.name == "failed-target.o":
+                    raise OSError("synthetic evidence write failure")
+                return write_bytes(path, data)
+            try:
+                with mock.patch.object(pb, "BASEROM", rom), \
+                     mock.patch.object(pb, "find_asm_target", return_value=None), \
+                     mock.patch.object(pb.reloc_surface, "permuter_annotation", return_value=(
+                         "annotated target\n", {"old": "__ovval_00000000"}, [])), \
+                     mock.patch.object(pb, "bounded_capture", side_effect=capture), \
+                     mock.patch.object(pb, "validate_annotation_target", side_effect=proof), \
+                     mock.patch.object(Path, "write_bytes", preserve):
+                    if preservation_failure:
+                        with self.assertRaisesRegex(RuntimeError, "annotation recovery needs review"):
+                            pb.annotate_overlay_scratch(SimpleNamespace(overlay=1, func="fixture"), scratch, output)
+                    elif kind in {"timeout", "cancel", "interrupt"}:
+                        with self.assertRaises(type(error)) as caught:
+                            pb.annotate_overlay_scratch(SimpleNamespace(overlay=1, func="fixture"), scratch, output,
+                                                        time.monotonic() + 60)
+                        self.assertIs(caught.exception, error)
+                    else:
+                        self.assertEqual(pb.annotate_overlay_scratch(
+                            SimpleNamespace(overlay=1, func="fixture"), scratch, output, time.monotonic() + 60), 0)
+            finally:
+                pb.CANCEL_EVENT.clear()
+            for name, data in before.items():
+                self.assertEqual((scratch / name).read_bytes(), data)
+                self.assertEqual((scratch / name).stat().st_mode & 0o777, 0o750 if name == "compile.sh" else 0o640)
+            if missing_target:
+                self.assertFalse((scratch / "target.o").exists())
+            self.assertEqual(len(calls), 2 if phase == "refresh" else 1)
+            self.assertIn(str(error), (output / "annotation.txt").read_text())
+            attempt, = output.glob("annotation-attempt-*")
+            self.assertEqual((attempt / "before-annotation.txt").read_text(), "prior diagnostic\n")
+            if not preservation_failure:
+                self.assertEqual((attempt / "failed-target.o").read_bytes(), b"failed attempt artifact")
+            if kind == "timeout":
+                self.assertIn("partial sentinel", (attempt / "failure.txt").read_text())
+
+    def test_every_mutation_phase_restores_bytes_modes_and_exception(self):
+        for phase in ("assembly", "proof", "refresh"):
+            for kind in ("nonzero", "timeout", "cancel", "interrupt"):
+                with self.subTest(phase=phase, kind=kind):
+                    self.exercise(phase, kind)
+
+    def test_failed_annotation_restores_initial_absence(self):
+        self.exercise("proof", "nonzero", missing_target=True)
+
+    def test_evidence_write_failure_does_not_prevent_restoration(self):
+        self.exercise("refresh", "nonzero", preservation_failure=True)
 
 
 if __name__ == "__main__":

@@ -1312,6 +1312,13 @@ def permuter_annotation(target_s_text, base_o: Path, func_names, overlay: int,
                or targets[site["module_off"]][4] != identity for site in owned_sites):
             del renames[symbol]
             conflicts.append(symbol + ": incomplete candidate runtime correspondence; not renamed")
+    destination_identities = collections.defaultdict(set)
+    for symbol, destination in renames.items():
+        destination_identities[destination].add(next(iter(proposed[symbol]))[1])
+    for symbol, destination in list(renames.items()):
+        if len(destination_identities[destination]) > 1:
+            del renames[symbol]
+            conflicts.append(symbol + ": equal stored base has distinct runtime identities; not renamed")
     for symbol, base, have, where, _identity in proposals:
         if symbol not in renames:
             continue

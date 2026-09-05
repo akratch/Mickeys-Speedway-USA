@@ -1177,6 +1177,78 @@ def validate_annotation_target(target: Path, notes: list[str], out_dir: Path, de
 
 def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
                              batch_deadline: Optional[float] = None) -> int:
+    """Annotate owned scratch transactionally; retain evidence and never rebuild to undo."""
+    if item.overlay is None or not BASEROM.is_file():
+        return 0
+    paths = [scratch / name for name in ("target.s", "target.o", "compile.sh", "base.o")]
+    if not paths[0].is_file() or not paths[3].is_file():
+        return 0
+    remaining_timeout(batch_deadline)
+    snapshots = {}
+    for path in paths:
+        if path.is_symlink() or (path.exists() and not path.is_file()):
+            raise RuntimeError("annotation refuses non-regular scratch file: " + str(path))
+        snapshots[path] = (path.read_bytes(), path.stat().st_mode & 0o7777) if path.exists() else None
+    attempt = out_dir / ("annotation-attempt-" + uuid.uuid4().hex)
+    attempt.mkdir()
+    for path, saved in snapshots.items():
+        if saved is not None:
+            (attempt / ("before-" + path.name)).write_bytes(saved[0])
+    (attempt / "before.json").write_text(json.dumps({path.name: None if saved is None else {
+        "mode": saved[1], "sha256": hashlib.sha256(saved[0]).hexdigest()}
+        for path, saved in snapshots.items()}, sort_keys=True))
+    diagnostic = out_dir / "annotation.txt"
+    if diagnostic.is_file():
+        (attempt / "before-annotation.txt").write_bytes(diagnostic.read_bytes())
+    try:
+        result = _annotate_overlay_scratch(item, scratch, out_dir, batch_deadline)
+        remaining_timeout(batch_deadline)
+        return result
+    except BaseException as error:
+        details = ["not annotated: target proof failed or scratch preparation failed",
+                   type(error).__name__ + ": " + str(error)]
+        for field in ("output", "stderr"):
+            output = getattr(error, field, None)
+            if output:
+                details.append(field + ": " + (output.decode(errors="replace") if isinstance(output, bytes) else str(output)))
+        recovery_errors = []
+        # Evidence capture must not prevent restoration, even if its write fails.
+        for path, saved in snapshots.items():
+            try:
+                if path.is_file() and not path.is_symlink():
+                    (attempt / ("failed-" + path.name)).write_bytes(path.read_bytes())
+            except OSError as failure:
+                recovery_errors.append("evidence " + path.name + ": " + str(failure))
+            try:
+                if saved is None:
+                    if path.exists() or path.is_symlink():
+                        path.unlink()
+                else:
+                    temporary = path.with_name(".annotation-restore-" + uuid.uuid4().hex)
+                    temporary.write_bytes(saved[0])
+                    temporary.chmod(saved[1])
+                    os.replace(temporary, path)
+            except OSError as failure:
+                recovery_errors.append("restore " + path.name + ": " + str(failure))
+        details.extend(recovery_errors)
+        message = "\n".join(details) + "\n"
+        try:
+            (attempt / "failure.txt").write_text(message)
+            diagnostic.write_text(message + "evidence: " + str(attempt) + "\n")
+        except OSError as failure:
+            recovery_errors.append("diagnostic: " + str(failure))
+        if recovery_errors:
+            raise RuntimeError("annotation recovery needs review: " + str(attempt) + "; "
+                               + "; ".join(recovery_errors)) from error
+        if (not isinstance(error, Exception) or isinstance(error, (TimeoutError, subprocess.TimeoutExpired))
+                or CANCEL_EVENT.is_set()):
+            raise
+        remaining_timeout(batch_deadline)  # cancellation/deadline remain terminal after restoration
+        return 0
+
+
+def _annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
+                              batch_deadline: Optional[float] = None) -> int:
     """Give an overlay function's permuter target the relocations the shipped
     module says are there, and rename the candidate's placeholders to match.
 
@@ -1207,12 +1279,8 @@ def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
     if asm_rel:
         names.append(Path(asm_rel).stem)
     original = target_s.read_text(errors="replace")
-    try:
-        text, renames, notes = reloc_surface.permuter_annotation(
-            original, base_o, names, item.overlay, BASEROM.read_bytes())
-    except Exception as e:  # noqa: BLE001 -- annotation is best-effort
-        (out_dir / "annotation.txt").write_text(f"not annotated: {e}\n")
-        return 0
+    text, renames, notes = reloc_surface.permuter_annotation(
+        original, base_o, names, item.overlay, BASEROM.read_bytes())
     if text == original:
         (out_dir / "annotation.txt").write_text(
             "not annotated: no site the module relocation table names\n"
@@ -1221,25 +1289,10 @@ def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
     target_s.write_text(text)
     # The annotated target must still assemble -- that is the check that the
     # rewritten operands are real assembler syntax, not just plausible text.
-    proc = bounded_capture(
+    bounded_capture(
         shlex.split(ASSEMBLER_COMMAND) + [str(target_s), "-o", str(scratch / "target.o")],
-        batch_deadline)
-    if proc.returncode != 0:
-        target_s.write_text(original)
-        bounded_capture(
-            shlex.split(ASSEMBLER_COMMAND) + [str(target_s), "-o", str(scratch / "target.o")],
-            batch_deadline, check=True)
-        (out_dir / "annotation.txt").write_text(
-            "not annotated: annotated target did not assemble\n" + proc.stderr)
-        return 0
-    try:
-        validate_annotation_target(scratch / "target.o", notes, out_dir, batch_deadline)
-    except Exception as error:
-        target_s.write_text(original)
-        bounded_capture(shlex.split(ASSEMBLER_COMMAND) + [str(target_s), "-o", str(scratch / "target.o")],
-                        batch_deadline, check=True)
-        (out_dir / "annotation.txt").write_text("not annotated: target proof failed: " + str(error) + "\n")
-        return 0
+        batch_deadline, check=True)
+    validate_annotation_target(scratch / "target.o", notes, out_dir, batch_deadline)
     csh = scratch / "compile.sh"
     if csh.is_file() and renames:
         # objcopy refuses two --redefine-sym arguments that share a target
