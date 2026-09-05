@@ -8,6 +8,7 @@
  */
 
 extern s32 D_8007BD84;
+extern s32 D_8007BD80;
 extern s32 D_8007BD88;
 extern s32 D_8007BD8C;
 extern s32 D_8007BD90;
@@ -34,6 +35,7 @@ extern u8 D_800D303B;
 extern u8 D_800D303C;
 extern u8 D_800D303D;
 extern s32 D_8007BD9C;
+extern void func_8004ADE8();
 
 typedef struct TextureFrameHeader {
     u8 pad00[2];
@@ -112,6 +114,8 @@ typedef struct TextureRenderSettings {
     s32 mask;
     s32 flags;
 } TextureRenderSettings;
+
+extern TextureRenderSettings D_8007BA80[];
 
 #ifdef NON_MATCHING
 #define TEXTURE_FIELD(expr, type_ptr, offset) (*(type_ptr)((u8 *)(expr) + (offset)))
@@ -359,18 +363,206 @@ void func_80034E48(void) {
     D_8007BD9C = 0;
 }
 #ifdef NON_MATCHING
-/* JFG's sprDPset has the same five-argument ABI; this guarded candidate
- * reserves the target stack geometry until its flag-table path is recovered. */
-void func_80034E54(Gfx **dlist, u8 *texture, s32 flags, f32 scale, u8 alpha) {
-    volatile u8 frame_pad[0xB0];
+/* PROVENANCE: control-flow shape adapted from Jet Force Gemini's public
+ * asm/nonmatchings/textures/sprDPset.s. Mickey's fields, globals, calls, and
+ * compiler output remain authoritative. */
+void func_80034E54(Gfx **arg0, Sprite *arg1, s32 arg2, f32 arg3, u8 arg4) {
+    TextureRenderSettings *settings;
+    TextureFrameHeader *texture;
+    Sprite *sprite = arg1;
+    Gfx *dl;
+    Gfx *frameCommands;
+    f32 frame;
+    s32 frameIndex;
+    s32 settingsIndex;
+    s32 opacity;
+    s32 tableFlags;
+    s32 stateKey;
+    s32 restoreColor;
+    s32 frameCount;
+    s32 texturesPerFrame;
+    s32 nextFrame;
+    s32 currentTexture;
+    s32 nextTexture;
+    s32 i;
+    s32 j;
 
-    frame_pad[0] = alpha;
-    if (dlist != NULL && texture != NULL) {
-        (*dlist)->words.w0 = (u32)(flags | (s32)scale);
-        (*dlist)->words.w1 = (u32)(s32)texture;
-        (*dlist)++;
+    frameCount = sprite->numberOfFrames;
+    frame = arg3;
+    if ((f32)frameCount <= frame) {
+        frame -= (s32)(frame / frameCount) * frameCount;
+    } else if (frame < 0.0f) {
+        frame = 0.0f;
     }
+    frameIndex = (s32)frame;
+    arg2 |= sprite->drawFlags;
+    arg2 &= ~D_8007BD90;
+    dl = *arg0;
+    settingsIndex = 0;
+    switch (arg2 & 0xC000) {
+    case 0x4000:
+        settingsIndex = 0x10;
+        break;
+    case 0x8000:
+        settingsIndex = 0x20;
+        break;
+    }
+    if (arg2 & 0x40) {
+        settingsIndex |= 1;
+        opacity = (u8)((frame - frameIndex) * 255.0f);
+    } else {
+        opacity = 0xFF;
+    }
+    if (D_8007BD88 == 0) {
+        settingsIndex |= 2;
+    }
+    if (D_8007BD80 == 0) {
+        if (arg2 & 0x200) {
+            settingsIndex |= 4;
+            if (D_8007BD9C == 0) {
+                dl->words.w0 = 0xFA000000;
+                dl->words.w1 = (sprite->metadata[0] << 24) |
+                               (sprite->metadata[1] << 16) |
+                               (sprite->metadata[2] << 8) | arg4;
+                dl++;
+                dl->words.w0 = 0xFB000000;
+                dl->words.w1 = (sprite->metadata[3] << 24) |
+                               (sprite->metadata[4] << 16) |
+                               (sprite->metadata[5] << 8) | opacity;
+                dl++;
+            } else {
+                dl->words.w0 = 0xFA000000;
+                dl->words.w1 = (D_800D3038 << 24) | (D_800D3039 << 16) |
+                               (D_800D303A << 8) | arg4;
+                dl++;
+                dl->words.w0 = 0xFB000000;
+                dl->words.w1 = (D_800D303B << 24) | (D_800D303C << 16) |
+                               (D_800D303D << 8) | opacity;
+                dl++;
+            }
+        } else {
+            if (arg2 & 0x400) {
+                settingsIndex |= 8;
+                dl->words.w0 = 0xFA000000;
+                dl->words.w1 = (sprite->metadata[0] << 24) |
+                               (sprite->metadata[1] << 16) |
+                               (sprite->metadata[2] << 8) | arg4;
+                dl++;
+                dl->words.w0 = 0xFB000000;
+                dl->words.w1 = (opacity & 0xFF) | ~0xFF;
+                dl++;
+            } else if (arg2 & 0x40) {
+                dl->words.w0 = 0xFB000000;
+                dl->words.w1 = (opacity & 0xFF) | ~0xFF;
+                dl++;
+            }
+        }
+    }
+    settings = &D_8007BA80[settingsIndex];
+    tableFlags = settings->flags | (arg2 & settings->mask);
+    stateKey = (settingsIndex << 8) | tableFlags;
+    restoreColor = arg2 & 0x200;
+    if ((D_800D302C != stateKey) || (D_800D3020 != D_8007BA80)) {
+        D_800D302C = stateKey;
+        D_800D3020 = D_8007BA80;
+        dl->words.w0 = 0xE7000000;
+        dl->words.w1 = 0;
+        dl++;
+        if (tableFlags & 2) {
+            if (D_800D3030 == 0) {
+                dl->words.w0 = 0xB7000000;
+                dl->words.w1 = 1;
+                dl++;
+            }
+            D_800D3030 = 1;
+        } else {
+            if (D_800D3030 != 0) {
+                dl->words.w0 = 0xB6000000;
+                dl->words.w1 = 1;
+                dl++;
+            }
+            D_800D3030 = 0;
+        }
+        if (tableFlags & 8) {
+            if (D_800D3034 == 0) {
+                dl->words.w0 = 0xB7000000;
+                dl->words.w1 = 0x10000;
+                dl++;
+            }
+            D_800D3034 = 1;
+        } else {
+            if (D_800D3034 != 0) {
+                dl->words.w0 = 0xB6000000;
+                dl->words.w1 = 0x10000;
+                dl++;
+            }
+            D_800D3034 = 0;
+        }
+        dl->words.w0 = settings->upper[tableFlags >> 3].words.w0;
+        dl->words.w1 = settings->upper[tableFlags >> 3].words.w1;
+        dl++;
+        dl->words.w0 = settings->lower[tableFlags].words.w0;
+        dl->words.w1 = settings->lower[tableFlags].words.w1;
+        dl++;
+    }
+    D_800D3024 = 0;
+    D_800D3028 = 0;
+    texture = sprite->textures[0];
+    if (texture->pad1A != 0) {
+        func_8004ADE8(frame, texture->pad1A, texture, dl, arg2);
+    }
+    if (sprite->drawFlags & 0x40) {
+        nextFrame = frameIndex + 1;
+        frameCommands = sprite->frameDisplayLists[0];
+        texturesPerFrame = sprite->numberOfTextures / frameCount;
+        currentTexture = texturesPerFrame * frameIndex;
+        if (nextFrame >= frameCount) {
+            nextFrame--;
+            if (sprite->spriteFlags != 0) {
+                nextFrame = 0;
+            }
+        }
+        nextTexture = texturesPerFrame * nextFrame;
+        for (i = 0; i < texturesPerFrame; i++) {
+            texture = sprite->textures[currentTexture + i];
+            dl->words.w0 = 0x07070038;
+            dl->words.w1 = (u32)texture->cmd + 0x80000000;
+            dl++;
+            dl->words.w0 = 0x07070038;
+            dl->words.w1 = (u32)sprite->textures[nextTexture + i]->cmd +
+                           0x80000038;
+            dl++;
+            for (j = 0; j < sprite->commandOffsets[i]; j++) {
+                dl->words.w0 = frameCommands->words.w0;
+                dl->words.w1 = frameCommands->words.w1;
+                dl++;
+                frameCommands++;
+            }
+        }
+        dl->words.w0 = 0xE7000000;
+        dl->words.w1 = 0;
+        dl++;
+    } else {
+        dl->words.w0 = 0x06000000;
+        dl->words.w1 = (u32)sprite->frameDisplayLists[frameIndex];
+        dl++;
+    }
+    if (restoreColor != 0) {
+        dl->words.w0 = 0xFA000000;
+        dl->words.w1 = -1;
+        dl++;
+    }
+    *arg0 = dl;
 }
+/* PLATEAU-HANDOFF:func_80034E54:start
+ * symbol: func_80034E54
+ * score: 461 differing target-offset words
+ * frame: 0x80 (target 0xB0)
+ * relocations: 43
+ * first-mismatch: +0x0
+ * summary: Complete JFG-guided semantic C emits 459 versus 467 instructions; the retained tree improves the placeholder by five target-offset words, but it lacks the target's s1 carrier and 0x30 non-save frame bytes.
+ * PLATEAU-HANDOFF:func_80034E54:end
+ */
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80034E54.s")
 #endif
