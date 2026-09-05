@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 133964,
-  "nonmatching_overlay_c_bytes": 334656,
+  "matched_overlay_c_bytes": 134448,
+  "nonmatching_overlay_c_bytes": 334172,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 2348,
   "bss_bytes": 77680,
@@ -6776,7 +6776,7 @@
      "type": "c",
      "source": "overlays/o029/overlay29ProjectPoint",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x10C4",
