@@ -183,7 +183,7 @@ extern Overlay4SearchObject *func_overlay_004_F0000734_185ADAC(
     Overlay4SearchKey *key);
 extern void overlay4RuntimeCallReloc(Overlay4InitObject *object, s32 arg1,
                                      s32 arg2, f32 arg3);
-extern void func_8005ABA8(Overlay4MotionObject *object, f32 scale,
+extern s32 func_8005ABA8(Overlay4MotionObject *object, f32 scale,
                           f32 updateRate);
 extern s32 func_8002997C(s32 minimum, s32 maximum);
 extern s32 func_8002AA0C(s16 current, s16 target);

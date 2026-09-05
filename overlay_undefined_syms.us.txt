@@ -205,6 +205,14 @@ overlay3TouchObjectReloc = 0xf0000000;
 gOverlay3TouchEntries = 0x00000028;
 
 /* overlay 4: overlay_004.c.o */
+func_80004590_o004Reloc = 0xf0000000;
+func_8000590C_o004Reloc = 0xf0000000;
+func_80029274_o004Reloc = 0xf0000000;
+func_8002997C_o004Reloc = 0xf0000000;
+func_8002A8C0_o004Reloc = 0xf0000000;
+func_8002AA0C_o004Reloc = 0xf0000000;
+func_8005ABA8_o004Reloc = 0xf0000000;
+func_overlay_036_F00007B0 = 0xf0000000;
 gOverlay4Groups = 0x00000000;
 gOverlay4InitStatus = 0x00000000;
 gOverlay4SearchMaxDistance = 0x00000010;
@@ -2847,13 +2855,13 @@ func_overlay_003_F0000760_185A490 = overlay3UpdateTimedEntries;
 
 /* overlay 4: overlay_004.c.o */
 func_overlay_004_F0000000_185A678 = overlay4InitializeObjectMotion;
+func_overlay_004_F0000138_185A7B0 = overlay4UpdateObjectMotion;
 func_overlay_004_F00004D0_185AB48 = overlay4AttachObject;
 func_overlay_004_F000052C_185ABA4 = overlay4RemoveObject;
 func_overlay_004_F00005D0_185AC48 = overlay4UpdateGroupSpacing;
 func_overlay_004_F0000710_185AD88 = overlay4GroupCount;
 func_overlay_004_F0000734_185ADAC = overlay4FindCategory2Object;
 func_overlay_004_F00008F4_185AF6C = overlay4FindSearchPosition;
-func_overlay_004_F0000138_185A7B0 = overlay4UpdateObjectMotion;
 
 /* overlay 5: alSeqFileNew.c.o */
 func_overlay_005_F0000000_185B428 = alSeqFileNew;
