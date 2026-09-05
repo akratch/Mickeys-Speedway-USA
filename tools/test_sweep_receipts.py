@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+import concurrent.futures
 import copy
 import dataclasses
 import importlib.util
@@ -37,6 +38,8 @@ class ReceiptTests(unittest.TestCase):
                        "search": {"minutes": 1}}
         self.result = {"func": "fixture", "ok": True, "base_score": 20,
                        "best_score": 10, "zero_found": False, "promoted": False}
+        self.artifacts = {name: ("synthetic " + name).encode() for name in receipts.REQUIRED_ARTIFACTS}
+        self.result["artifact_bundle"] = self.store.save_bundle(self.artifacts, complete=True)
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -85,6 +88,64 @@ class ReceiptTests(unittest.TestCase):
         path = self.store.directory(key) / "complete.json"
         path.write_text("{unfinished")
         self.assertIsNone(self.store.completed(key))
+
+    def test_missing_corrupt_and_symlink_bundles_reject_all_reuse(self):
+        key = self.record()
+        path = self.store.root / "bundles" / (self.result["artifact_bundle"] + ".zip")
+        original = path.read_bytes()
+        for fault in ("missing", "corrupt", "symlink"):
+            with self.subTest(fault=fault):
+                path.unlink(missing_ok=True)
+                if fault == "corrupt":
+                    path.write_bytes(b"corrupt")
+                elif fault == "symlink":
+                    other = self.root / "foreign.zip"
+                    other.write_bytes(original)
+                    path.symlink_to(other)
+                self.assertIsNone(self.store.completed(key))
+                self.assertFalse(self.store.descending(self.inputs["context"]))
+        path.unlink()
+
+    def test_immutable_bundle_and_partial_attempt_preserve_best(self):
+        key = self.record()
+        partial = self.store.save_bundle({"best/source.c": b"partial"}, complete=False)
+        self.record({**self.result, "ok": False, "best_score": 15, "artifact_bundle": partial})
+        best = json.loads((self.store.directory(key) / "best.json").read_text())
+        self.assertEqual(self.store.read_bundle(best["result"]["artifact_bundle"]), self.artifacts)
+        self.assertEqual(self.store.read_bundle(partial, require_complete=False), {"best/source.c": b"partial"})
+        self.assertEqual(self.store.save_bundle(self.artifacts, complete=True), self.result["artifact_bundle"])
+        with self.assertRaises(ValueError):
+            self.store.save_bundle({"../escape": b"x"}, complete=False)
+
+    def test_owned_reads_reject_parent_symlink_and_special_files(self):
+        foreign = self.root / "foreign"
+        foreign.mkdir()
+        (foreign / "secret").write_text("not an artifact")
+        owned = self.root / "owned"
+        owned.mkdir()
+        (owned / "escape").symlink_to(foreign, target_is_directory=True)
+        with self.assertRaises(OSError):
+            receipts.owned_bytes(owned, "escape/secret")
+        files, errors = receipts.attempt_files(owned)
+        self.assertEqual(files, {})
+        self.assertTrue(errors)
+        with self.assertRaises(ValueError):
+            receipts.owned_bytes(owned, "../foreign/secret")
+
+    def test_deleted_origin_lane_and_concurrent_bundle_writers(self):
+        origin = self.root / "origin-lane"
+        origin.mkdir()
+        files = {}
+        for index, name in enumerate(sorted(receipts.REQUIRED_ARTIFACTS)):
+            path = origin / str(index)
+            path.write_bytes(("synthetic " + name).encode())
+            files[name] = receipts.owned_bytes(origin, path.name)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+            keys = list(pool.map(lambda _: self.store.save_bundle(files, complete=True), range(8)))
+        self.assertEqual(len(set(keys)), 1)
+        shutil.rmtree(origin)
+        self.assertFalse(origin.exists())
+        self.assertEqual(receipts.ReceiptStore(self.store.root).read_bundle(keys[0]), files)
 
     def test_cross_process_claim_and_crash_release(self):
         key = receipts.digest(self.inputs)
@@ -262,7 +323,8 @@ class RunnerTests(unittest.TestCase):
         scratch = out_dir / "scratch"
         scratch.mkdir()
         (scratch / "base.c").write_text(item.c_file.read_text())
-        (scratch / "compile.sh").write_text(f'#!/bin/sh\ncd {self.root}\ncompiler "$INPUT"\n')
+        (scratch / "base.o").write_bytes(b"synthetic baseline object")
+        (scratch / "compile.sh").write_text(f'#!/bin/sh\ncd {self.root}\ncp "$1" "$3"\n')
         (scratch / "settings.toml").write_text('compiler_type = "ido"\n')
         shutil.copy(target, scratch / "target.s")
         return scratch
@@ -280,6 +342,85 @@ class RunnerTests(unittest.TestCase):
         self.assertTrue(second.resumed, second.error)
         self.assertEqual(first.receipt_key, second.receipt_key)
         self.assertTrue(Path(first.scratch_path).exists())
+
+    def test_deleted_origin_scratch_retains_recoverable_source_and_object(self):
+        first = self.run_one()
+        shutil.rmtree(self.root / "build")
+        second = self.run_one(resume=True)
+        self.assertTrue(second.resumed, second.error)
+        saved = self.store.read_bundle(second.artifact_bundle)
+        self.assertEqual(saved["baseline/base.o"], b"synthetic baseline object")
+        self.assertEqual(saved["best/source.c"], self.item.c_file.read_bytes())
+
+    def test_missing_bundle_forces_real_runner_search_again(self):
+        first = self.run_one()
+        (self.store.root / "bundles" / (first.artifact_bundle + ".zip")).unlink()
+        with patch.object(batch, "run_permuter", wraps=batch.run_permuter) as search:
+            second = self.run_one(resume=True)
+        self.assertTrue(second.ok, second.error)
+        self.assertFalse(second.resumed)
+        self.assertEqual(search.call_count, 1)
+
+    def improved(self, scratch, *args, **kwargs):
+        best = scratch / "output-10-1"
+        best.mkdir()
+        (best / "score.txt").write_text("10\n")
+        (best / "source.c").write_text("int fixture(void) { return 2; }\n")
+        return 20, 1, False, False
+
+    def test_best_source_compiled_once_and_original_baseline_preserved(self):
+        with patch.object(batch, "run_permuter", side_effect=self.improved), \
+             patch.object(batch, "bounded_capture", wraps=batch.bounded_capture) as compile_call:
+            result = self.run_one()
+        self.assertTrue(result.ok, result.error)
+        self.assertEqual(compile_call.call_count, 1)
+        saved = self.store.read_bundle(result.artifact_bundle)
+        self.assertEqual(saved["best/source.c"], saved["best/object.o"])
+        self.assertNotEqual(saved["best/source.c"], saved["baseline/base.c"])
+        self.assertIn("baseline/recipe.json", saved)
+
+    def test_compile_failure_and_deadline_preserve_partial_best_retryably(self):
+        for error in (RuntimeError("compiler failed"), TimeoutError("deadline exhausted")):
+            with self.subTest(error=error), patch.object(batch, "run_permuter", side_effect=self.improved), \
+                 patch.object(batch, "bounded_capture", side_effect=error):
+                result = self.run_one()
+            self.assertFalse(result.ok)
+            self.assertIsNone(self.store.completed(result.receipt_key))
+            saved = self.store.read_bundle(result.artifact_bundle, require_complete=False)
+            self.assertIn("best/source.c", saved)
+            self.assertNotIn("best/object.o", saved)
+            self.assertIn("baseline/base.o", saved)
+
+    def test_actual_exhausted_deadline_never_launches_best_compilation(self):
+        def search(*args, **kwargs):
+            output = self.improved(*args, **kwargs)
+            time.sleep(0.06)
+            return output
+        with patch.object(batch, "run_permuter", side_effect=search), \
+             patch.object(batch, "bounded_capture", side_effect=AssertionError("must not launch")):
+            result = self.run_one(batch_deadline=time.monotonic() + 0.04)
+        self.assertFalse(result.ok)
+        self.assertIsNone(self.store.completed(result.receipt_key))
+        saved = self.store.read_bundle(result.artifact_bundle, require_complete=False)
+        self.assertIn("best/source.c", saved)
+        self.assertNotIn("best/object.o", saved)
+
+    def test_real_best_compiler_failure_retains_partial_output_and_log(self):
+        original = self.importer
+        def importer(*args):
+            scratch = original(*args)
+            (scratch / "compile.sh").write_text('#!/bin/sh\nprintf partial > "$3"\necho failure\nexit 7\n')
+            return scratch
+        with patch.object(batch, "run_import", side_effect=importer), \
+             patch.object(batch, "run_permuter", side_effect=self.improved):
+            result = self.run_one()
+        self.assertFalse(result.ok)
+        saved = self.store.read_bundle(result.artifact_bundle, require_complete=False)
+        partial = [value for name, value in saved.items()
+                   if name.startswith("attempt/artifact-compile-") and name.endswith("/object.o")]
+        self.assertEqual(partial, [b"partial"])
+        self.assertEqual(saved["attempt/artifact-compile.log"], b"failure\n")
+        self.assertNotIn("best/object.o", saved)
 
     def test_import_lock_wait_observes_total_deadline(self):
         batch._IMPORT_LOCK.acquire()
@@ -446,7 +587,7 @@ raise SystemExit(7)
         self.assertNotEqual(first.receipt_key, second.receipt_key)
 
     def test_deep_selection_uses_current_prepared_context(self):
-        with patch.object(batch, "_best", return_value=(None, 10)):
+        with patch.object(batch, "run_permuter", side_effect=self.improved):
             first = self.run_one()
         self.assertTrue(first.ok, first.error)
         second = self.run_one(deep=True)

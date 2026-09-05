@@ -68,7 +68,7 @@ the runner never deletes them on retry.
 ### Durable search receipts
 
 `--resume` consults content-addressed receipts under
-`$(git rev-parse --git-common-dir)/mickey-sweep-receipts/v1/`. Successful
+`$(git rev-parse --git-common-dir)/mickey-sweep-receipts/v2/`. Successful
 search knowledge survives a lane's removal and is available to other lanes
 through this common directory. The old local summary remains a report and
 never decides whether a search can be skipped.
@@ -97,15 +97,42 @@ Each exact key has a nonblocking kernel lock. A duplicate active search is
 reported as busy and can be retried; a crashed process releases its lock.
 Completed and best scalar receipts are written atomically, with immutable
 per-attempt records. A separate worktree lock prevents two batches from
-sharing one lane's importer scratch or summary. No receipt stores source,
-target bytes, disassembly, or object contents, and none is tracked by Git.
+sharing one lane's importer scratch or summary. Scalar receipts reference
+immutable SHA-256-addressed ZIP bundles in that same ignored common directory.
+Bundles retain the original prepared baseline source/object, original TU,
+target, complete recipe/settings, saved compile script, best source/object,
+and the attempt's local files (including failed/partial outputs and logs).
+None of these private artifacts is tracked by Git. Version 1 scalar-only
+receipts cannot suppress a new search.
+
+The permuter normally saves best source without its object. The runner compiles
+those unchanged bytes once through the saved compile script, under the remaining
+whole-batch deadline. This is evidence compilation, not instruction editing or
+promotion proof. Extensions cannot replace the archived original baseline.
+Compile failure, cancellation or deadline exhaustion preserves partial source
+evidence but leaves the search retryable. Preservation has a 128 MiB byte cap;
+storage faults or oversized attempts fail closed and retain the lane-local
+originals for manual recovery. Bounded filesystem preservation may continue
+after the search deadline; it launches no compiler after that deadline.
+
+Both resume and descending-context selection verify the bundle's content hash,
+manifest, required files and each member hash. Missing/corrupt bundles reject
+reuse. Writes publish atomically without replacing an existing bundle; concurrent
+identical writers converge on the same immutable content. Symlink and path-escape
+inputs are rejected, and archives are never automatically extracted or executed.
+For explicit recovery, `ReceiptStore.read_bundle(bundle_hash)` returns a verified
+mapping of relative names to bytes; `require_complete=False` permits inspection
+of partial evidence. Copy only selected entries to a new owned directory. Saved
+scripts retain their original context paths and are evidence, not portable
+executables: a fresh lane still prepares its current inputs before reuse.
 
 Only a successful bounded search is reusable. Import/compile faults, nonzero
 permuter exit, a missing base score, whole-batch interruption, failed promotion,
 and failed commit all remain retryable. A zero-score result without verified
-promotion remains retryable as well. The best scalar result and the path to
-its original scratch are retained when a subsequent attempt regresses or
-fails. A receipt records search completion, not matching credit: the ordinary
+promotion remains retryable as well. The best scalar result references its
+durable bundle; later regressing or failing attempts cannot overwrite that
+bundle. The scratch path remains diagnostic and is not needed to read preserved
+evidence after lane removal. A receipt records search completion, not matching credit: the ordinary
 relocation, linked-range, canonical-build and ROM gates still decide promotion.
 
 `--deep` selects contexts with a successful descending receipt under any
