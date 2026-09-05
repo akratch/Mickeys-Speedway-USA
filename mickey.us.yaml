@@ -2019,7 +2019,7 @@ segments:
       - [0x18A454C, c, overlay57UpdateInterface]
       - [0x18A4C18, c, func_overlay_057_F0001020_18A4C18]
       - [0x18A5570, c, overlay57ReleaseAll]
-      - [0x18A56E0, asm, overlay_057_prefix_a]
+      - [0x18A56E0, c, func_overlay_057_F0001AE8_18A56E0]
       - [0x18A64AC, c, overlay57EaseAndLatch]
       - [0x18A6820, c, overlay57SmoothAndCheckDistance]
       - [0x18A6B40, c, overlay57CheckDistance]
