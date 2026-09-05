@@ -428,6 +428,7 @@ class ReadyQueueTests(unittest.TestCase):
         self.assertEqual([value["symbol"] for value in report["ready"]], ["good"])
         self.assertEqual(report["selected_ranking_rows"], 1)
         self.assertEqual(report["ready"][0]["selection_class"], "high-confidence")
+        self.assertFalse(report["summary"]["live_queue_complete"])
 
     def test_broad_structural_selection_excludes_high_confidence_and_reproof(self) -> None:
         high = row("src/main/high.c", "high", 1)

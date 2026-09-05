@@ -783,7 +783,7 @@ def build_report(
                 or collect_maintenance and scanned < len(selected_rows)
             ),
             "ranking_exhausted": scanned == len(selected_rows),
-            "live_queue_complete": coverage["complete"] and scanned == len(selected_rows),
+            "live_queue_complete": coverage["complete"] and scanned == len(functions),
             "maintenance_scan_complete": (
                 collect_maintenance and scanned == len(selected_rows)
             ),
