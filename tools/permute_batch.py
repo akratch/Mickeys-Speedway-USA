@@ -1150,6 +1150,31 @@ def prepare_target_asm(item: QueueItem, out_dir: Path) -> Path:
     return target
 
 
+def validate_annotation_target(target: Path, notes: list[str], out_dir: Path, deadline=None):
+    """Prove target metadata and all owned words through an ordinary diagnostic link."""
+    reports = [json.loads(note[len("target-proof: "):]) for note in notes if note.startswith("target-proof: ")]
+    if len(reports) != 1:
+        raise RuntimeError("annotation lacks one complete target-proof description")
+    proof = reports[0]
+    elf = reloc_surface.Elf(target)
+    actual = sorted([[offset, kind] for _section, offset, kind, _symbol in elf.relocations()])
+    if actual != proof["records"]:
+        raise RuntimeError("assembled target static relocation coverage differs from runtime records")
+    linked = out_dir / ("annotation-proof-" + uuid.uuid4().hex + ".elf")
+    arguments = [str(ROOT / "tools/binutils/mips64-elf-ld"), "-m", "elf32ebmip",
+                 "-Ttext", "0", "-e", "0", "-o", str(linked), str(target)]
+    for name, value in sorted(proof["values"].items()):
+        if re.fullmatch(r"__ov[A-Za-z0-9_]+", name) is None or type(value) is not int:
+            raise RuntimeError("invalid diagnostic target stored-value assignment")
+        arguments.extend(["--defsym", f"{name}=0x{value:08X}"])
+    command = bounded_capture(arguments, deadline, check=True)
+    (out_dir / "annotation-proof.log").write_text(command.stdout)
+    actual = reloc_surface.Elf(linked).section_bytes(".text")[:proof["size"]]
+    expected = BASEROM.read_bytes()[proof["rom_start"]:proof["rom_start"] + proof["size"]]
+    if len(actual) != proof["size"] or actual != expected:
+        raise RuntimeError("annotated target operands do not reconstruct exact owned ROM bytes")
+
+
 def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
                              batch_deadline: Optional[float] = None) -> int:
     """Give an overlay function's permuter target the relocations the shipped
@@ -1166,7 +1191,8 @@ def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
     `permuter_annotation` for the derivation and docs/reloc-surface.md for the
     model it rests on.
 
-    Returns the number of placeholder symbols renamed (0 = nothing to do).
+    Returns the number of placeholder symbols renamed; zero can still mean
+    complete, independently proved target-only annotation.
     Any failure leaves the scratch exactly as import.py wrote it: an
     unannotated overlay run is the previous behaviour, not a broken one.
     """
@@ -1187,7 +1213,7 @@ def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
     except Exception as e:  # noqa: BLE001 -- annotation is best-effort
         (out_dir / "annotation.txt").write_text(f"not annotated: {e}\n")
         return 0
-    if not renames:
+    if text == original:
         (out_dir / "annotation.txt").write_text(
             "not annotated: no site the module relocation table names\n"
             + "\n".join(notes) + "\n")
@@ -1206,8 +1232,16 @@ def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
         (out_dir / "annotation.txt").write_text(
             "not annotated: annotated target did not assemble\n" + proc.stderr)
         return 0
+    try:
+        validate_annotation_target(scratch / "target.o", notes, out_dir, batch_deadline)
+    except Exception as error:
+        target_s.write_text(original)
+        bounded_capture(shlex.split(ASSEMBLER_COMMAND) + [str(target_s), "-o", str(scratch / "target.o")],
+                        batch_deadline, check=True)
+        (out_dir / "annotation.txt").write_text("not annotated: target proof failed: " + str(error) + "\n")
+        return 0
     csh = scratch / "compile.sh"
-    if csh.is_file():
+    if csh.is_file() and renames:
         # objcopy refuses two --redefine-sym arguments that share a target
         # name, so aliases of one link value (two externs the surface values
         # identically) go in successive invocations rather than one.

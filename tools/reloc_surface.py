@@ -1001,13 +1001,15 @@ def cmd_generate(argv):
 # (overlay + offset) outright; that is a *stable identity*, independent of any
 # name this tree happens to have chosen.  So:
 #
+#   * annotate every owned runtime site, pairing by runtime table order and
+#     retaining standalone LO records, even without any candidate relocations;
 #   * for each relocation the candidate's base object carries inside the
 #     function, map its object offset to a module offset and look the site up
 #     in the module's table.  A site the table does not name is not a
 #     relocation site in the shipped image and is left alone (section 2);
-#   * derive a canonical name for the *base symbol* from the record --
-#     `__ovsym_o<overlay>_<offset>` for a SYMBOL record, `__ovjmp_<offset>`
-#     for an intra-module JUMP, `__ovloc_<value>` for a LOCAL/DATA site whose
+#   * derive a corroborated candidate name for the *base symbol* --
+#     `__ovcall_o<overlay>_<offset>` for a SYMBOL call, `__ovjump_<offset>`
+#     for an intra-module JUMP, `__ovval_<value>` for a HI/LO site whose
 #     value the ROM spells at the site -- subtracting whatever addend the
 #     object already carries, exactly as `synthesize()` does;
 #   * rewrite the target .s line to reference that name symbolically, and
@@ -1025,7 +1027,7 @@ def cmd_generate(argv):
 
 # splat's disassembly line: `/* <rom> <vma> <word> */  mnemonic operands`.
 ASM_LINE_RE = re.compile(
-    r"^(?P<pre>\s*/\* [0-9A-Fa-f]+ (?P<vma>[0-9A-Fa-f]{8}) [0-9A-Fa-f]{8} \*/\s*)"
+    r"^(?P<pre>\s*/\* (?P<rom>[0-9A-Fa-f]+) (?P<vma>[0-9A-Fa-f]{8}) (?P<word>[0-9A-Fa-f]{8}) \*/\s*)"
     r"(?P<mnem>\S+)(?P<sp>\s*)(?P<ops>.*?)\s*$")
 _MEM_OPERAND_RE = re.compile(r"^(?P<disp>.*)\((?P<reg>\$\w+)\)$")
 
@@ -1050,14 +1052,118 @@ def _function_text_symbol(elf, names):
                           % ", ".join(names))
 
 
+def _annotation_identity(record):
+    op = record.get("op_name")
+    if op not in {"SYMBOL", "LOCAL", "JUMP", "DATA"}:
+        raise AnnotationError("unsupported runtime operation")
+    index = record.get("symbol_index")
+    if type(index) is not int or index < 0:
+        raise AnnotationError("malformed runtime symbol index")
+    target = ()
+    if op == "SYMBOL":
+        target = (record.get("target_overlay"), record.get("target_symbol_offset"))
+        if any(type(value) is not int or value < 0 for value in target):
+            raise AnnotationError("malformed runtime SYMBOL identity")
+    return (op, index, *target)
+
+
+def _annotation_register(value):
+    names = ("zero at v0 v1 a0 a1 a2 a3 t0 t1 t2 t3 t4 t5 t6 t7 "
+             "s0 s1 s2 s3 s4 s5 s6 s7 t8 t9 k0 k1 gp sp fp ra").split()
+    value = value.strip().removeprefix("$")
+    if value == "s8":
+        return 30
+    if value in names:
+        return names.index(value)
+    if value.startswith("f"):
+        value = value[1:]
+    if value.isdecimal() and 0 <= int(value) < 32:
+        return int(value)
+    raise AnnotationError("unsupported relocation register operand")
+
+
+def _annotation_operand(match, rtype):
+    """Validate opcode/register shape before replacing only its address field."""
+    word = int(match.group("word"), 16)
+    opcode, rt, rs = word >> 26, (word >> 16) & 31, (word >> 21) & 31
+    mnemonic = match.group("mnem")
+    fields = [field.strip() for field in match.group("ops").split(",")]
+    if rtype == R_MIPS_26:
+        if mnemonic not in {"j", "jal"} or opcode != {"j": 2, "jal": 3}[mnemonic] or len(fields) != 1:
+            raise AnnotationError("unsupported R_MIPS_26 operand/opcode")
+    elif rtype == R_MIPS_HI16:
+        if mnemonic != "lui" or opcode != 15 or rs or len(fields) != 2 or _annotation_register(fields[0]) != rt:
+            raise AnnotationError("unsupported HI16 operand/opcode")
+    elif rtype == R_MIPS_LO16:
+        memory = {"lb": 32, "lh": 33, "lwl": 34, "lw": 35, "lbu": 36,
+                  "lhu": 37, "lwr": 38, "sb": 40, "sh": 41, "swl": 42,
+                  "sw": 43, "swr": 46, "ll": 48, "lwc1": 49, "ldc1": 53,
+                  "sc": 56, "swc1": 57, "sdc1": 61}
+        if mnemonic in {"addi", "addiu"}:
+            valid = (opcode == {"addi": 8, "addiu": 9}[mnemonic] and len(fields) == 3
+                     and _annotation_register(fields[0]) == rt and _annotation_register(fields[1]) == rs)
+        else:
+            operand = _MEM_OPERAND_RE.match(fields[-1])
+            valid = (mnemonic in memory and opcode == memory[mnemonic] and len(fields) == 2
+                     and operand is not None and _annotation_register(fields[0]) == rt
+                     and _annotation_register(operand.group("reg")) == rs)
+        if not valid:
+            raise AnnotationError("unsupported LO16 operand/opcode")
+    else:
+        raise AnnotationError("unsupported owned runtime relocation type %s" % rtype)
+
+
+def _annotation_target_sites(records, line_of, lines, overlay, rom, text_start):
+    """Decode the runtime table's own HI/LO order, including standalone LOs."""
+    result, pairs = {}, set()
+    selected = [record for record in records if record["target_offset"] in line_of]
+    selected.sort(key=lambda record: (record["table"], record["index"]))
+    cursor = 0
+    while cursor < len(selected):
+        record = selected[cursor]
+        site, kind = record["target_offset"], record["mode"]
+        identity = _annotation_identity(record)
+        _annotation_operand(ASM_LINE_RE.match(lines[line_of[site]]), kind)
+        members = [(site, {R_MIPS_HI16: "hi", R_MIPS_LO16: "lo", R_MIPS_26: "26"}[kind])]
+        if kind == R_MIPS_HI16:
+            if cursor + 1 >= len(selected):
+                raise AnnotationError("incomplete target: runtime HI16 has no owned LO16")
+            low = selected[cursor + 1]
+            if low["mode"] != R_MIPS_LO16 or _annotation_identity(low) != identity:
+                raise AnnotationError("ambiguous target runtime HI16/LO16 identity")
+            lo_site = low["target_offset"]
+            _annotation_operand(ASM_LINE_RE.match(lines[line_of[lo_site]]), R_MIPS_LO16)
+            value = ((stored_field(rom, text_start + site, kind) << 16)
+                     + sext16(stored_field(rom, text_start + lo_site, R_MIPS_LO16))) & 0xFFFFFFFF
+            members.append((lo_site, "lo"))
+            pairs.add((site, lo_site))
+            cursor += 1
+        elif kind == R_MIPS_LO16:
+            value = sext16(stored_field(rom, text_start + site, kind)) & 0xFFFFFFFF
+        else:
+            value = stored_field(rom, text_start + site, kind) << 2
+        if kind == R_MIPS_26 and identity[0] == "SYMBOL" and value == 0:
+            name = "__ovcall_o%d_%X" % (record["target_overlay"], record["target_symbol_offset"])
+        elif kind == R_MIPS_26 and identity[0] == "JUMP":
+            name = "__ovjump_%06X" % value
+        elif kind in {R_MIPS_HI16, R_MIPS_LO16} and identity[0] in {"SYMBOL", "LOCAL", "DATA"}:
+            name = "__ovtarget_o%d_%s_v%08X" % (overlay, "_".join(str(x) for x in identity), value)
+        else:
+            raise AnnotationError("unsupported target runtime operation/type or call addend")
+        for offset, form in members:
+            result[offset] = (form, name, 0, value, identity)
+        cursor += 1
+    return result, pairs
+
+
 def permuter_annotation(target_s_text, base_o: Path, func_names, overlay: int,
                         rom: bytes, records=None):
     """Annotate a permuter target .s with the module's own relocation sites.
 
     Returns ``(annotated_text, renames, notes)``:
 
-      annotated_text  the .s with every corroborated site rewritten to a
-                      symbolic operand (unchanged if nothing corroborated);
+      annotated_text  the .s with every owned runtime site rewritten to a
+                      symbolic operand (unchanged if there are no records);
       renames         {candidate symbol: canonical name} to hand
                       `objcopy --redefine-sym`;
       notes           human-readable diagnostics (site/rename counts, and any
@@ -1066,25 +1172,59 @@ def permuter_annotation(target_s_text, base_o: Path, func_names, overlay: int,
     Raises AnnotationError when the inputs cannot be mapped at all.
     """
     lines = target_s_text.split("\n")
-    line_of = {}
+    starts = [i for i, line in enumerate(lines) if re.fullmatch(
+        r"\s*glabel\s+(?:" + "|".join(map(re.escape, func_names)) + r")\s*", line)]
+    ends = [i for i, line in enumerate(lines) if re.fullmatch(
+        r"\s*endlabel\s+(?:" + "|".join(map(re.escape, func_names)) + r")\s*", line)]
+    if len(starts) != 1 or len(ends) != 1 or starts[0] >= ends[0]:
+        raise AnnotationError("target lacks one unique symbol-owned glabel/endlabel range")
+    line_of, addresses = {}, set()
     for i, raw in enumerate(lines):
         m = ASM_LINE_RE.match(raw)
         if m:
-            line_of[int(m.group("vma"), 16) - SYNTHETIC_VMA] = i
+            offset = int(m.group("vma"), 16) - SYNTHETIC_VMA
+            if offset < 0 or offset % 4 or offset in addresses:
+                raise AnnotationError("duplicate or invalid addressed target offset")
+            addresses.add(offset)
+            if starts[0] < i < ends[0]:
+                line_of[offset] = i
     if not line_of:
         raise AnnotationError("no addressed instruction lines in the target .s")
     fn_start = min(line_of)
+    fn_end = max(line_of) + 4
+    if sorted(line_of) != list(range(fn_start, fn_end, 4)):
+        raise AnnotationError("target does not have one contiguous owned instruction range")
 
     mods = ot.build_modules(ot.read_headers(rom))
     if not 1 <= overlay <= len(mods):
         raise AnnotationError(f"overlay {overlay} is out of range")
     module = mods[overlay - 1]
+    if fn_end > module["text_size"]:
+        raise AnnotationError("addressed target exceeds module text ownership")
     if records is None:
         records = ot.read_module_relocations(rom, module, ot.read_rom_table(rom))
-    table = {}
+    table, seen = {}, set()
     for r in records:
+        offset = r.get("target_offset")
+        if (type(offset) is not int or offset < 0 or offset % 4
+                or offset + 4 > module["text_size"] + module["data_size"]):
+            raise AnnotationError("malformed or out-of-module runtime relocation site")
+        if offset in line_of:
+            if offset in seen:
+                raise AnnotationError("duplicate owned runtime relocation site")
+            if type(r.get("table")) is not int or type(r.get("index")) is not int:
+                raise AnnotationError("runtime record lacks authoritative table/index order")
+            seen.add(offset)
+            _annotation_identity(r)
         table.setdefault((r["target_offset"], r["mode"]), r)
     text_start = module["rom_start"]
+    for offset, index in line_of.items():
+        match = ASM_LINE_RE.match(lines[index])
+        if (int(match.group("rom"), 16) != text_start + offset
+                or text_start + offset + 4 > len(rom)
+                or int(match.group("word"), 16) != struct.unpack_from(">I", rom, text_start + offset)[0]):
+            raise AnnotationError("addressed target ROM/word evidence disagrees with owned ROM")
+    targets, target_pairs = _annotation_target_sites(records, line_of, lines, overlay, rom, text_start)
 
     elf = Elf(base_o)
     syms = elf.symbols()
@@ -1109,15 +1249,17 @@ def permuter_annotation(target_s_text, base_o: Path, func_names, overlay: int,
     # SYMBOL site stores immediate zero (docs/reloc-surface.md section 1), so
     # its value carries no identity at all and the record's own ROM-table
     # entry -- the callee's overlay and offset -- names it instead.
-    proposals, annotations = [], {}
+    proposals, annotations = [], {offset: row[:3] for offset, row in targets.items()}
     for hi, lo in _pairs(sites):
         anchor = hi or lo
         members = [s for s in (hi, lo) if s is not None]
         recs = [table.get((s["module_off"], s["type"])) for s in members]
-        if any(r is None for r in recs):
+        if any(r is None for r in recs) or any(s["module_off"] not in targets for s in members):
             continue  # not a relocation site in the shipped image
         rec = recs[0]
         if hi is not None and lo is not None:
+            if (hi["module_off"], lo["module_off"]) not in target_pairs:
+                continue  # target pairing is runtime-owned, never guessed from candidate order
             have = ((stored_field(obj_text, hi["obj_off"], R_MIPS_HI16) << 16)
                     + sext16(stored_field(obj_text, lo["obj_off"], R_MIPS_LO16)))
             full = ((stored_field(rom, text_start + hi["module_off"],
@@ -1144,32 +1286,61 @@ def permuter_annotation(target_s_text, base_o: Path, func_names, overlay: int,
             where = [(anchor["module_off"], "26")]
         else:
             continue  # a lone HI16/LO16 or an R_MIPS_32: nothing to pair with
-        proposals.append((anchor["symbol"], base, have, where))
+        proposals.append((anchor["symbol"], base, have, where, _annotation_identity(rec)))
 
     # Pass 2: a symbol whose sites do not agree on one name has no canonical
-    # identity, so none of its sites is annotated.  Renaming it either way
+    # candidate identity; its target sites retain runtime-only annotations.
+    # Renaming it either way
     # would make the target disagree with the candidate at the sites that
     # wanted the other name -- worse than leaving it alone, and silently so.
     proposed = collections.defaultdict(set)
-    for symbol, base, _have, _where in proposals:
-        proposed[symbol].add(base)
-    conflicts = ["%s: sites disagree (%s); left unannotated"
-                 % (symbol, ", ".join(sorted(names)))
+    for symbol, base, _have, _where, identity in proposals:
+        proposed[symbol].add((base, identity))
+    conflicts = ["%s: candidate identity ambiguous (%s); not renamed; target remains annotated"
+                 % (symbol, ", ".join(str(name) for name in sorted(names)))
                  for symbol, names in sorted(proposed.items()) if len(names) > 1]
-    renames = {symbol: next(iter(names))
+    renames = {symbol: next(iter(names))[0]
                for symbol, names in proposed.items() if len(names) == 1}
-    for symbol, base, have, where in proposals:
+    # One coincident pair cannot bind a symbol whose other sites have moved
+    # onto different runtime operations. Such a rename changes the whole
+    # candidate symbol, not just its corroborated pair.
+    for symbol in list(renames):
+        identity = next(iter(proposed[symbol]))[1]
+        owned_sites = [site for site in sites if site["symbol"] == symbol]
+        if any((site["module_off"], site["type"]) not in table
+               or site["module_off"] not in targets
+               or targets[site["module_off"]][4] != identity for site in owned_sites):
+            del renames[symbol]
+            conflicts.append(symbol + ": incomplete candidate runtime correspondence; not renamed")
+    for symbol, base, have, where, _identity in proposals:
         if symbol not in renames:
             continue
         for module_off, kind in where:
             annotations[module_off] = (kind, base, have)
+
+    # A shared-HI standalone LO does not establish a new candidate identity.
+    # It may reuse an already corroborated one only when runtime identity and
+    # the actual stored low field both agree with that existing base/addend.
+    for site in sites:
+        offset, symbol = site["module_off"], site["symbol"]
+        if site["type"] != R_MIPS_LO16 or offset not in targets or symbol not in renames:
+            continue
+        base, identity = next(iter(proposed[symbol]))
+        if not base.startswith("__ovval_") or identity != targets[offset][4] or targets[offset][0] != "lo":
+            continue
+        if annotations[offset][1] == base:
+            continue  # retain a paired LO's complete (not merely signed-low) addend
+        have = sext16(stored_field(obj_text, site["obj_off"], R_MIPS_LO16))
+        value = int(base[len("__ovval_"):], 16)
+        if (value + have) & 0xFFFF == targets[offset][3] & 0xFFFF:
+            annotations[offset] = ("lo", base, have)
 
     for module_off, (kind, base, have) in annotations.items():
         index = line_of.get(module_off)
         if index is None:
             continue
         m = ASM_LINE_RE.match(lines[index])
-        spelled = base if not have else "%s+0x%X" % (base, have)
+        spelled = base if not have else ("%s+0x%X" % (base, have) if have > 0 else "%s-0x%X" % (base, -have))
         if kind == "26":
             operands = spelled
         else:
@@ -1185,6 +1356,20 @@ def permuter_annotation(target_s_text, base_o: Path, func_names, overlay: int,
 
     notes = ["%d relocation sites annotated, %d placeholder symbols renamed"
              % (len(annotations), len(renames))]
+    notes.append("target coverage: %d/%d owned runtime records; candidate renames require independent corroboration"
+                 % (len(annotations), len(seen)))
+    values = {}
+    for offset, (_kind, base, have) in annotations.items():
+        value = (int(base[len("__ovval_"):], 16) if base.startswith("__ovval_")
+                 else (targets[offset][3] - have) & 0xFFFFFFFF)
+        if base in values and values[base] != value:
+            raise AnnotationError("ambiguous stored-value assignment for annotated target")
+        values[base] = value
+    notes.append("target-proof: " + json.dumps({"values": values,
+        "records": sorted([[offset - fn_start, {"26": R_MIPS_26, "hi": R_MIPS_HI16,
+                                                "lo": R_MIPS_LO16}[annotations[offset][0]]]
+                           for offset in annotations]),
+        "rom_start": text_start + fn_start, "size": fn_end - fn_start}, sort_keys=True))
     notes += conflicts
     return "\n".join(lines), renames, notes
 

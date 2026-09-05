@@ -8,6 +8,7 @@ import io
 import json
 import os
 import struct
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -1752,6 +1753,170 @@ class SiteAlignmentTests(unittest.TestCase):
         self.assertEqual(1, summary["sites"])
         self.assertEqual(1, summary["aligned"])
         self.assertEqual(0x14, sites[1]["table_off"])
+
+
+class PermuterTargetCoverageTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(prefix="annotation-synthetic-")
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.bin = rs.REPO / "tools/binutils"
+        self.prelude = (".set noreorder\n.set noat\n.text\n"
+            ".macro glabel name\n.globl \\name\n.type \\name,@function\n\\name:\n.endm\n"
+            ".macro endlabel name\n.size \\name,.-\\name\n.endm\n")
+        self.ops = ["lui $at, 1", "lw $t0, -32768($at)", "lw $t1, -32764($at)",
+                    "lui $at, 1", "lw $t2, -32760($at)", "jal 0", "nop"]
+        raw = self.assemble("raw", "glabel fixture\n" + "\n".join(self.ops) + "\nendlabel fixture\n")
+        self.words = rs.Elf(raw).section_bytes(".text")[:28]
+        self.rom = bytes(0x100) + self.words
+        self.text = "glabel fixture\n" + "\n".join(
+            f"/* {0x100+i*4:X} {rs.SYNTHETIC_VMA+i*4:08X} {struct.unpack_from('>I', self.words, i*4)[0]:08X} */ {op}"
+            for i, op in enumerate(self.ops)) + "\nendlabel fixture\n"
+        candidate = ["lui $at, %hi(known)", "lw $t0, %lo(known)($at)",
+                     "lw $t1, %lo(known+4)($at)", "lui $at, %hi(known+8)",
+                     "lw $t2, %lo(known+8)($at)", "jal call_target", "nop"]
+        self.base = self.assemble("base", "glabel fixture\n" + "\n".join(candidate) + "\nendlabel fixture\n")
+        self.records = [dict(table=1, index=i, target_offset=offset, mode=mode,
+                             op=0 if mode == 4 else 1, op_name="SYMBOL" if mode == 4 else "LOCAL",
+                             symbol_index=100, target_overlay=0, target_symbol_offset=64)
+                        for i, (offset, mode) in enumerate(((0,5),(4,6),(8,6),(12,5),(16,6),(20,4)))]
+        self.module = dict(overlay=1, rom_start=0x100, text_size=28, data_size=0)
+
+    def assemble(self, name, text):
+        source, obj = self.root / (name + ".s"), self.root / (name + ".o")
+        source.write_text(self.prelude + text)
+        subprocess.run([str(self.bin / "mips64-elf-as"), "-march=vr4300", "-32", "-o", str(obj), str(source)],
+                       check=True, capture_output=True)
+        return obj
+
+    def annotate(self, text=None, records=None, empty_candidate=False, shifted_candidate=False):
+        elf = rs.Elf(self.base)
+        if empty_candidate:
+            elf.relocations = lambda *args: []
+        elif shifted_candidate:
+            relocations = [(sec, 8 if off == 12 else off, kind, sym)
+                           for sec, off, kind, sym in elf.relocations()]
+            elf.relocations = lambda *args: relocations
+        with mock.patch.object(rs.ot, "read_headers", return_value=[]), \
+             mock.patch.object(rs.ot, "build_modules", return_value=[self.module]), \
+             mock.patch.object(rs, "Elf", return_value=elf):
+            return rs.permuter_annotation(self.text if text is None else text, self.base, ["fixture"], 1,
+                                         self.rom, self.records if records is None else records)
+
+    def roundtrip(self, text, notes):
+        obj = self.assemble("annotated", text)
+        proof = json.loads(next(note[len("target-proof: "):] for note in notes if note.startswith("target-proof: ")))
+        self.assertEqual(sorted((offset, mode) for _, offset, mode, _ in rs.Elf(obj).relocations()),
+                         sorted((r["target_offset"], r["mode"]) for r in self.records))
+        linked = self.root / "linked.elf"
+        args = [str(self.bin / "mips64-elf-ld"), "-m", "elf32ebmip", "-Ttext", "0", "-e", "0",
+                "-o", str(linked), str(obj)]
+        for name, value in proof["values"].items():
+            args.extend(["--defsym", f"{name}=0x{value:X}"])
+        subprocess.run(args, check=True, capture_output=True)
+        self.assertEqual(rs.Elf(linked).section_bytes(".text")[:28], self.words)
+        return obj
+
+    def test_complete_target_independent_of_candidate_with_signed_shared_low_roundtrip(self):
+        text, renames, notes = self.annotate(empty_candidate=True)
+        self.assertEqual(renames, {})
+        self.assertIn("6/6", notes[1])
+        self.assertIn(self.text.splitlines()[-2], text)
+        self.roundtrip(text, notes)
+
+    def test_proven_shared_low_candidate_renames_score_zero(self):
+        text, renames, notes = self.annotate()
+        self.assertEqual(renames["known"], "__ovval_00008000")
+        self.assertIn("%lo(__ovval_00008000+0x4)", text)
+        target = self.roundtrip(text, notes)
+        candidate = self.root / "renamed.o"
+        args = [str(self.bin / "mips64-elf-objcopy")]
+        args.extend(f"--redefine-sym={old}={new}" for old, new in renames.items())
+        subprocess.run([*args, str(self.base), str(candidate)], check=True, capture_output=True)
+        program = ("import sys;sys.path.insert(0,sys.argv[1]);from src.scorer import Scorer;"
+                   "print(Scorer(sys.argv[2],stack_differences=True,algorithm='difflib',debug_mode=False,"
+                   "ign_branch_targets=False,objdump_command=sys.argv[4]).score(sys.argv[3])[0])")
+        score = subprocess.check_output([str(rs.REPO / ".venv/bin/python"), "-c", program,
+            str(rs.REPO / "tools/permuter"), str(target), str(candidate),
+            str(self.bin / "mips64-elf-objdump") + " -drz -m mips:4300"], text=True)
+        self.assertEqual(score.strip(), "0")
+
+    def test_duplicate_address_record_and_out_of_owner_fail_closed(self):
+        with self.assertRaises(rs.AnnotationError):
+            self.annotate(text=self.text + self.text.splitlines()[1] + "\n")
+        for records in (self.records + [self.records[0]],
+                        [{**self.records[0], "target_offset": 32}, *self.records[1:]],
+                        [{**self.records[0], "mode": 2}, *self.records[1:]],
+                        [{**self.records[0], "target_offset": -4}, *self.records[1:]]):
+            with self.subTest(records=records), self.assertRaises(rs.AnnotationError):
+                self.annotate(records=records)
+
+    def test_conflicting_candidate_identity_does_not_hide_target_sites(self):
+        records = [dict(record) for record in self.records]
+        records[3]["symbol_index"] = records[4]["symbol_index"] = 200
+        text, renames, notes = self.annotate(records=records)
+        self.assertNotIn("known", renames)
+        self.assertIn("ambiguous", " ".join(notes))
+        self.roundtrip(text, notes)
+
+    def test_one_coincident_pair_cannot_bind_shifted_remaining_symbol_sites(self):
+        text, renames, notes = self.annotate(shifted_candidate=True)
+        self.assertNotIn("known", renames)
+        self.assertIn("incomplete candidate", " ".join(notes))
+        self.roundtrip(text, notes)
+
+    def test_bad_word_operand_and_incomplete_pair_are_refused(self):
+        with self.assertRaises(rs.AnnotationError):
+            self.annotate(text=self.text.replace("lui $at, 1", "lui $v0, 1", 1))
+        with self.assertRaises(rs.AnnotationError):
+            self.annotate(text=self.text.replace("3C010001", "3C010002", 1))
+        with self.assertRaises(rs.AnnotationError):
+            self.annotate(records=[self.records[0]])
+
+    def test_footer_padding_and_neighbor_records_are_not_owned(self):
+        self.module["text_size"] = 36
+        footer = "/* 11C F000001C 00000000 */ nop\n/* 120 F0000020 00000000 */ nop\n"
+        records = [*self.records, {**self.records[0], "target_offset": 28, "mode": 4, "index": 6}]
+        text, _, notes = self.annotate(text=self.text + footer, records=records)
+        self.assertTrue(text.endswith(footer))
+        self.assertIn("6/6", notes[1])
+        self.roundtrip(text, notes)
+
+    def test_caller_applies_target_only_and_proves_nonrelocation_words(self):
+        import permute_batch as pb
+        from types import SimpleNamespace
+        text, renames, notes = self.annotate(empty_candidate=True)
+        rom = self.root / "rom.bin"
+        rom.write_bytes(self.rom)
+        target = self.root / "target.s"
+        original = self.prelude + self.text
+        target.write_text(original)
+        compile_script = self.root / "compile.sh"
+        compile_script.write_text("manual recipe preserved\n")
+        item = SimpleNamespace(func="fixture", overlay=1)
+        with mock.patch.object(pb, "BASEROM", rom), \
+             mock.patch.object(pb, "find_asm_target", return_value=None), \
+             mock.patch.object(pb, "ASSEMBLER_COMMAND", str(self.bin / "mips64-elf-as") + " -march=vr4300 -32"), \
+             mock.patch.object(pb.reloc_surface, "permuter_annotation", return_value=(self.prelude + text, renames, notes)):
+            self.assertEqual(pb.annotate_overlay_scratch(item, self.root, self.root), 0)
+            self.assertIn("__ovtarget_", target.read_text())
+            self.assertEqual(compile_script.read_text(), "manual recipe preserved\n")
+        # ROM-correct comment tokens cannot hide an edited nonrelocation operand.
+        target.write_text(original)
+        bad = (self.prelude + text).replace("*/ nop", "*/ addiu $v0, $zero, 1")
+        with mock.patch.object(pb, "BASEROM", rom), \
+             mock.patch.object(pb, "find_asm_target", return_value=None), \
+             mock.patch.object(pb, "ASSEMBLER_COMMAND", str(self.bin / "mips64-elf-as") + " -march=vr4300 -32"), \
+             mock.patch.object(pb.reloc_surface, "permuter_annotation", return_value=(bad, renames, notes)):
+            self.assertEqual(pb.annotate_overlay_scratch(item, self.root, self.root), 0)
+            self.assertEqual(target.read_text(), original)
+            self.assertIn("target proof failed", (self.root / "annotation.txt").read_text())
+        with mock.patch.object(pb, "BASEROM", rom), \
+             mock.patch.object(pb, "find_asm_target", return_value=None), \
+             mock.patch.object(pb.reloc_surface, "permuter_annotation", return_value=(original, {}, [])), \
+             mock.patch.object(pb, "bounded_capture") as capture:
+            self.assertEqual(pb.annotate_overlay_scratch(item, self.root, self.root), 0)
+            capture.assert_not_called()
 
 
 if __name__ == "__main__":

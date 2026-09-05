@@ -430,6 +430,17 @@ every corroborated site. `permute_batch.py` calls it from
 `annotate_overlay_scratch()` right after `import.py`, for overlay functions
 only.
 
+Target coverage is derived from every authoritative runtime record inside
+the unique `glabel`/`endlabel` function extent, independently of the candidate
+schedule. Trailing addressed padding is preserved but is not owned function
+credit. Shared-HI standalone LO records are included. Without a corroborated
+candidate binding, a target-only `__ovtarget_...` name records runtime identity
+and stored value; it never invents a candidate symbol rename. Diagnostics
+separate target-site coverage from the legacy returned candidate-rename count.
+The assembled target must have exactly the owned runtime offset/type multiset
+and must reconstruct every owned ROM byte under diagnostic stored-value
+assignments. This zero-address link is target-integrity evidence, not a match.
+
 For each relocation the candidate's own base object carries inside the
 function, the site's object offset maps to a module offset; a site the
 module's `reloc1`/`reloc2` tables do **not** name is not a relocation site in
@@ -455,10 +466,11 @@ measurement rather than a fudge:
 - **It is not a relaxed scorer.** The canonical name comes from the ROM's
   own record, not from the candidate's symbol table, so a candidate that
   calls the *wrong* placeholder at a site still scores a penalty.
-- **A symbol whose sites disagree is left alone entirely.** If one site wants
+- **A candidate symbol whose sites disagree is not renamed.** If one site wants
   `__ovval_...` and another `__ovcall_...`, the symbol has no canonical
-  identity; annotating half its sites would make the target disagree with the
-  candidate at the other half, silently. Those are reported in
+  identity. Partially coincident geometry also cannot establish a whole-symbol
+  binding. Target coverage remains complete using runtime-only names; the
+  unresolved candidate correspondence is reported in
   `build/permuter/<fn>/annotation.txt`.
 - **Any failure falls back to the previous behaviour.** If the annotated `.s`
   does not assemble, the unannotated target is restored and reassembled; the
