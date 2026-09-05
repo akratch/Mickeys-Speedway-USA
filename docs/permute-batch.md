@@ -68,7 +68,7 @@ the runner never deletes them on retry.
 ### Durable search receipts
 
 `--resume` consults content-addressed receipts under
-`$(git rev-parse --git-common-dir)/mickey-sweep-receipts/v1/`. Successful
+`$(git rev-parse --git-common-dir)/mickey-sweep-receipts/v3/`. Successful
 search knowledge survives a lane's removal and is available to other lanes
 through this common directory. The old local summary remains a report and
 never decides whether a search can be skipped.
@@ -79,10 +79,14 @@ and ROM offset; the original TU; actual preprocessed/pruned source, compile
 script, annotated target and scratch settings; the complete recovered IDO
 argument list; toolchain and permuter content hashes; and the search caps,
 thread count, annotation mode and forwarded arguments. Source, target and
-settings are hashed byte-for-byte, including expanded path literals. Only
-known importer cwd and objcopy executable prefixes are normalized in the
-compile script. Different absolute path literals deliberately prevent reuse
-across lanes. A changed header that changes preprocessed
+settings are hashed byte-for-byte, including expanded path literals. The
+baseline evidence binding also hashes the raw saved compile script. The importer
+object is an output, not a search input: IDO's `.mdebug` embeds a unique
+preparation path, so that object is retained and bundle-verified without entering
+the search key. Absolute script paths therefore conservatively separate lane keys,
+even when known cwd prefixes normalize alike in the older command fingerprint.
+Durable evidence remains recoverable across lanes; cross-lane skip hit rate is
+deliberately secondary to exact input binding. A changed header that changes preprocessed
 source, compiler, target, setting, or source context therefore schedules a new
 search. Resident identities use their linked text address as the offset.
 
@@ -97,15 +101,66 @@ Each exact key has a nonblocking kernel lock. A duplicate active search is
 reported as busy and can be retried; a crashed process releases its lock.
 Completed and best scalar receipts are written atomically, with immutable
 per-attempt records. A separate worktree lock prevents two batches from
-sharing one lane's importer scratch or summary. No receipt stores source,
-target bytes, disassembly, or object contents, and none is tracked by Git.
+sharing one lane's importer scratch or summary. Scalar receipts reference
+immutable SHA-256-addressed ZIP bundles in that same ignored common directory.
+Bundles retain the original importer preparation files, original TU,
+target, complete recipe/settings, saved compile script, best source/object,
+and the attempt's local files (including failed/partial outputs and logs).
+None of these private artifacts is tracked by Git. Older scalar-only or
+unbound bundles cannot suppress a new search.
+
+The importer's `base.c` and `base.o` are explicitly **not claimed as a compiled
+pair**: import compiles different AST-rendered text with a line directive, and
+the final scratch recipe may add later postprocessing. An owned transparent
+compile wrapper captures the first actual synchronous search compilation's
+unchanged temporary input and output as `baseline/compiled.c` and `compiled.o`.
+It forwards the original compiler arguments to the final saved recipe, and the
+measurement record associates that pair with the search's first baseline score.
+Subsequent candidate and extension compilations cannot replace that capture.
+No vendor files are changed. This capture relies on the inspected permuter API
+(baseline construction precedes worker search and uses `permuter*` temporary
+files); unsupported or incomplete captures fail closed.
+
+The permuter normally saves best source without its object. The runner compiles
+those unchanged bytes once through the saved compile script, under the remaining
+whole-batch deadline. This is evidence compilation, not instruction editing or
+promotion proof. Its output path is precreated, as required by the importer's
+`realpath`-based script. Best-object metadata labels this as a diagnostic
+recompilation, not the original worker-scored object: path-sensitive behavior
+such as `__FILE__` has not been proved equivalent. Extensions cannot replace
+the archived original baseline.
+Compile failure, cancellation or deadline exhaustion preserves partial source
+evidence but leaves the search retryable. Preservation allows 120 MiB payload
+within a 128 MiB encoded archive, at most 4096 entries, and 512-byte member names;
+storage faults or oversized attempts fail closed and retain the lane-local
+originals for manual recovery. Bounded filesystem preservation may continue
+after the search deadline; its single directory scan has a five-second deadline
+and stops immediately on byte/entry exhaustion. A failed publication never
+starts a second full scan. It launches no compiler after the search deadline.
+Filesystem calls cannot be forcibly interrupted, and hard kill or power loss
+before atomic publication still has no durability guarantee.
+
+Both resume and descending-context selection verify the bundle's content hash,
+manifest, required files and each member hash. The manifest is bound to the
+exact receipt key, context, and baseline input hashes; substituting a valid
+bundle from another search also fails. Missing/corrupt bundles reject
+reuse. Writes publish atomically without replacing an existing bundle; concurrent
+identical writers converge on the same immutable content. Symlink and path-escape
+inputs are rejected, and archives are never automatically extracted or executed.
+For explicit recovery, `ReceiptStore.read_bundle(bundle_hash)` returns a verified
+mapping of relative names to bytes; `require_complete=False` permits inspection
+of partial evidence. Copy only selected entries to a new owned directory. Saved
+scripts retain their original context paths and are evidence, not portable
+executables: a fresh lane still prepares its current inputs before reuse.
 
 Only a successful bounded search is reusable. Import/compile faults, nonzero
 permuter exit, a missing base score, whole-batch interruption, failed promotion,
 and failed commit all remain retryable. A zero-score result without verified
-promotion remains retryable as well. The best scalar result and the path to
-its original scratch are retained when a subsequent attempt regresses or
-fails. A receipt records search completion, not matching credit: the ordinary
+promotion remains retryable as well. The best scalar result references its
+durable bundle in `best.json`; failed, partial or unavailable lower-score
+attempts are retained separately in `partial-best.json` and immutable attempt
+records, without replacing the usable-best pointer. The scratch path remains diagnostic and is not needed to read preserved
+evidence after lane removal. A receipt records search completion, not matching credit: the ordinary
 relocation, linked-range, canonical-build and ROM gates still decide promotion.
 
 `--deep` selects contexts with a successful descending receipt under any
