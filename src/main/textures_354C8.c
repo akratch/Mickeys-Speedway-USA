@@ -131,7 +131,7 @@ extern s32 piRomLoadSection(u32 assetIndex, u32 address, s32 assetOffset,
 extern TextureFrameHeader *func_80034448(s32 textureId);
 extern void func_800347A0(TextureFrameHeader *texture);
 
-void func_80035F48(u8 **dlist, u8 *tex, s32 rtile, s32 tmem);
+void func_80035F48(u8 **dlist, TextureFrameHeader *tex, s32 rtile, s32 tmem);
 void func_80035ADC(SpriteAsset *spriteAsset, Sprite *sprite, s32 frameId);
 
 void func_800348C8(s32 tagId) {
@@ -730,25 +730,26 @@ void func_80035E88(TextureFrameHeader *tex, Gfx *displayList) {
     if (tex) {
     }
     tex->cmd = dlist;
-    func_80035F48((u8 **)&dlist, (u8 *)tex, 0, 0);
+    func_80035F48((u8 **)&dlist, tex, 0, 0);
     if (tex->unk1B < 2 && (tex->flags & 0x40)) {
         if (!(tex->format & 0xF)) {
-            func_80035F48((u8 **)&dlist, (u8 *)tex, 1,
+            func_80035F48((u8 **)&dlist, tex, 1,
                           (0x1000 - tex->textureSize) >> 3);
         } else {
-            func_80035F48((u8 **)&dlist, (u8 *)tex, 1, 0x100);
+            func_80035F48((u8 **)&dlist, tex, 1, 0x100);
         }
     }
     tex->numberOfCommands = dlist - tex->cmd;
 }
 #ifdef NON_MATCHING
-/* The m2c reconstruction keeps the target's byte-oriented command cursor
- * and stack temporary layout.  The display-list command words are expressed
- * as normal C stores so this remains a source candidate rather than an
- * instruction-level transplant. */
+/* PROVENANCE: Jet Force Gemini's public src/textures.c:func_80057C50 provides
+ * the broad source structure; Mickey's headers, target assembly, and ROM bytes
+ * remain authoritative for this game's fields, control flow, and command words.
+ * The reconstruction keeps byte-oriented command cursors and expresses the
+ * command words as ordinary C stores rather than transplanted instructions. */
 #define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((u8 *)(expr) + (offset)))
-void func_80035F48(u8 **dlist, u8 *tex, s32 rtile, s32 tmem) {
-    volatile s64 frame_pad;
+void func_80035F48(u8 **dlist, TextureFrameHeader *tex, s32 rtile,
+                   s32 tmem) {
     s32 sp84;
     s32 sp80;
     s32 sp7C;
@@ -799,9 +800,6 @@ void func_80035F48(u8 **dlist, u8 *tex, s32 rtile, s32 tmem) {
     u8 *var_t0;
     u8 *var_t0_2;
 
-    (void)frame_pad;
-
-    var_a3 = tmem;
     temp_v1 = M2C_FIELD(tex, u8 *, 2);
     var_s0 = rtile;
     temp_t0 = *dlist;
@@ -866,6 +864,7 @@ void func_80035F48(u8 **dlist, u8 *tex, s32 rtile, s32 tmem) {
     }
     temp_a0 = M2C_FIELD(tex, u8 *, 0x1B);
     temp_t3 = (sp70 & 7) << 0x15;
+    var_a3 = tmem;
     if ((s32)temp_a0 >= 2) {
         var_v0_2 = 0;
         var_v1 = 0;
@@ -880,7 +879,7 @@ void func_80035F48(u8 **dlist, u8 *tex, s32 rtile, s32 tmem) {
         temp_t3_2 = (sp70 & 7) << 0x15;
         temp_t4 = (sp80 & 3) << 0x13;
         M2C_FIELD(temp_t0, s32 *, 0) = (s32)(temp_t3_2 | 0xFD000000 | temp_t4);
-        M2C_FIELD(temp_t0, void **, 4) = (void *)(tex + 0x80000020);
+        M2C_FIELD(temp_t0, void **, 4) = (void *)((u8 *)tex + 0x80000020);
         temp_t0_2 = temp_t0 + 8;
         temp_t6 = temp_t3_2 | 0xF5000000;
         sp10 = temp_t6;
@@ -933,7 +932,7 @@ void func_80035F48(u8 **dlist, u8 *tex, s32 rtile, s32 tmem) {
         temp_t0_7 = temp_t0 + 8;
         temp_a0_3 = var_a3 & 0x1FF;
         M2C_FIELD(temp_t0, s32 *, 0) = (s32)(temp_t3 | 0xFD000000 | temp_t9);
-        M2C_FIELD(temp_t0, void **, 4) = (void *)(tex + 0x80000020);
+        M2C_FIELD(temp_t0, void **, 4) = (void *)((u8 *)tex + 0x80000020);
         M2C_FIELD(temp_t0_7, s32 *, 0) = (s32)(temp_s1_2 | temp_t9 | temp_a0_3);
         temp_t0_8 = temp_t0_7 + 8;
         M2C_FIELD(temp_t0_7, s32 *, 4) = (s32)(((M2C_FIELD(tex, u8 *, 0x1E) & 3) << 0x12) | 0x07000000 | ((M2C_FIELD(tex, u8 *, 0x1F) & 0xF) << 0xE) | ((M2C_FIELD(tex, u8 *, 0x1C) & 3) << 8) | ((M2C_FIELD(tex, u8 *, 0x1D) & 0xF) * 0x10));
@@ -963,6 +962,15 @@ void func_80035F48(u8 **dlist, u8 *tex, s32 rtile, s32 tmem) {
     *dlist = var_t0_2 + 8;
 }
 #undef M2C_FIELD
+/* PLATEAU-HANDOFF:func_80035F48:start
+ * symbol: func_80035F48
+ * score: 369 differing words
+ * frame: 0x88 (target 0x90)
+ * relocations: 4
+ * first-mismatch: +0x4
+ * summary: Complete semantic C emits 362 versus 383 instructions; delaying the TMEM carrier improves positional differences by 14 words, but the texture pointer occupies s0 and displaces the target's rtile carrier.
+ * PLATEAU-HANDOFF:func_80035F48:end
+ */
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_354C8/func_80035F48.s")
 #endif
