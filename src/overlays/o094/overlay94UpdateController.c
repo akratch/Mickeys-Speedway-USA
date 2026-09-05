@@ -48,7 +48,7 @@ extern f32 gO94Const24;
 extern u32 func_800254FC(s32 selector);
 extern s32 func_8002565C(s32 selector);
 extern f32 func_8002A878(f32 amount, s32 updateRate);
-extern void func_8005ABA8(Overlay94Object *object, f32 current, f32 rate);
+extern s32 func_8005ABA8(Overlay94Object *object, f32 current, f32 rate);
 extern void func_8005AF14(Overlay94Entity *entity, s32 savedValue,
                           Overlay94Object *object);
 extern void func_80019AB8(Overlay94Object *object, Overlay94Entity *entity,
@@ -57,14 +57,14 @@ extern void func_8002B040(void *queryState, f32 x, f32 y, f32 z,
                           f32 *out0, f32 *out1, f32 *out2);
 extern s32 func_8002A910(f32 z, f32 x);
 
-/* Size-exact plateau after ten structural/lifetime forms: fresh configured
- * V0 differs in 7 of 275 relocation-masked words, first at +0x404, with the
- * retail 0x70 frame. All 36 runtime relocation records now agree by offset,
- * type, and stable identity. A fidelity-gated capture reproduces 22 integer
- * allocator decisions (12 color, 10 split) and ten FP decisions, but all 32
- * webs remain run-local and source-unattributed because the producer emits no
- * source_semantic field. Branch-scoping and the distinct negative-velocity
- * conversion carrier remain best; direct, s32, and s16 carriers are closed. */
+/* Size-exact plateau: the authenticated integer-return declaration correction
+ * leaves the configured candidate unchanged at 11 masked / 22 raw differing
+ * words out of 275, first at +0x1C, with the retail 0x70 frame. All 36 runtime
+ * relocation records agree by offset, type, and stable identity. The earlier
+ * seven-word report is historical, not this fresh configured comparison.
+ * Prior allocator webs remain run-local and source-unattributed because the
+ * producer emits no source_semantic field. No carrier, CFG, frame, flag, or
+ * permutation change is included; the existing matching plateau remains. */
 #ifdef NON_MATCHING
 void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
     Overlay94State *state;
@@ -183,10 +183,10 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
 
 /* PLATEAU-HANDOFF:overlay94UpdateController:start
  * symbol: overlay94UpdateController
- * score: 268/275 words
+ * score: 11 masked / 22 raw differing words
  * frame: 0x70
  * relocations: 36
- * first-mismatch: +0x404
- * summary: Inlining the negative-velocity carrier makes the pool lane exact; the residual is now a two-pop temp-ring offset in the weight-positive branch.
+ * first-mismatch: +0x1C
+ * summary: Authenticated integer-return correction leaves emitted code unchanged: 11 masked differences with exact size/frame and 36 aligned relocation identities.
  * PLATEAU-HANDOFF:overlay94UpdateController:end
  */
