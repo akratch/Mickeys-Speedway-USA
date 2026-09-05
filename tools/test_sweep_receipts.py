@@ -116,6 +116,18 @@ class ReceiptTests(unittest.TestCase):
         path.write_text("{unfinished")
         self.assertIsNone(self.store.completed(key))
 
+    def test_malformed_receipt_container_shapes_fail_closed(self):
+        valid = {"inputs": self.inputs, "result": self.result}
+        for malformed in (None, []):
+            with self.subTest(container="value", malformed=malformed):
+                self.assertFalse(self.store.artifacts_valid(malformed))
+            for field in ("inputs", "result", "search", "context"):
+                value = copy.deepcopy(valid)
+                container = value["inputs"] if field in ("search", "context") else value
+                container[field] = malformed
+                with self.subTest(container=field, malformed=malformed):
+                    self.assertFalse(self.store.artifacts_valid(value))
+
     def test_missing_old_or_unbound_context_report_never_reuses(self):
         for fault in ("missing", "schema", "status", "comparator", "winner", "inner"):
             result = copy.deepcopy(self.result)
@@ -625,6 +637,31 @@ if "--debug" not in sys.argv and seeded:
         files = self.store.read_bundle(result.artifact_bundle)
         self.assertIn(b"return 2", files["best/source.c"])
         self.assertTrue(any(b"return 3" in data for name, data in files.items() if name.endswith("source.c")))
+
+    def test_failed_seed_outputs_keep_best_source_and_score_paired(self):
+        parent = self.seed_parent_run()
+        for assigned in (False, True):
+            for score in (15, 10, 5):
+                def search(scratch, *args, **kwargs):
+                    subprocess.run([sys.executable, "-c", SYNTHETIC_SEARCH_BASELINE, str(scratch)], check=True)
+                    best = scratch / f"output-{score}-1"
+                    best.mkdir()
+                    (best / "score.txt").write_text(str(score))
+                    (best / "source.c").write_text("int fixture(void) { return 3; }")
+                    if not assigned:
+                        raise RuntimeError("injected permuter exit 7 before result assignment")
+                    return 11, 1, False, False  # assignment followed by seed-baseline proof failure
+                with self.subTest(assigned=assigned, score=score), \
+                     patch.object(batch, "run_permuter", side_effect=search):
+                    result = self.run_one(seed_receipt=parent.receipt_key)
+                    self.assertFalse(result.ok)
+                    self.assertEqual(result.best_score, min(10, score))
+                    files = self.store.read_bundle(result.artifact_bundle, require_complete=False)
+                    self.assertIn(b"return 3" if score < 10 else b"return 2", files["best/source.c"])
+                    self.assertTrue(any(b"return 3" in data for name, data in files.items()
+                                        if name.startswith("attempt/") and name.endswith("source.c")))
+                    self.assertIsNone(self.store.completed(result.receipt_key))
+                    self.assertIsNotNone(self.store.completed(parent.receipt_key))
 
     def test_seed_cancellation_at_each_stage_preserves_parent_and_source(self):
         parent = self.seed_parent_run()

@@ -275,6 +275,13 @@ class ReceiptStore:
             return result
 
     def artifacts_valid(self, value: dict) -> bool:
+        if not isinstance(value, dict):
+            return False
+        inputs = value.get("inputs")
+        if (not isinstance(inputs, dict) or not isinstance(value.get("result"), dict)
+                or not isinstance(inputs.get("search"), dict)
+                or not isinstance(inputs.get("context"), dict)):
+            return False
         try:
             files = self.read_bundle(value["result"]["artifact_bundle"], inputs=value["inputs"])
             seed = value["inputs"]["search"].get("seed")

@@ -2229,11 +2229,19 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
                     result.error = ((result.error + "; ") if result.error else "") + \
                         f"prepared baseline recovery unavailable: {error}"
             frozen_winner = seed_evidence.source if seed_evidence is not None else prepared.source if prepared is not None else b""
+            if seed_evidence is not None:
+                result.best_score = result.seed_score
             try:
                 best_dir, score = _best(scratch)
-                if score is not None:
+                if seed_evidence is not None:
+                    if best_dir is not None and score is not None and score < result.seed_score:
+                        # Freeze the source before changing its paired metric.
+                        # Failed/flat/regressing attempts remain separate files.
+                        frozen_winner = sweep_receipts.owned_bytes(best_dir, "source.c", limit=4 * 1024 * 1024)
+                        result.best_score = score
+                elif score is not None:
                     result.best_score = score
-                if best_dir is not None and score is not None and (result.base_score is None or score < result.base_score):
+                if seed_evidence is None and best_dir is not None and score is not None and (result.base_score is None or score < result.base_score):
                     frozen_winner = sweep_receipts.owned_bytes(best_dir, "source.c", limit=4 * 1024 * 1024)
             except (OSError, ValueError):
                 pass
