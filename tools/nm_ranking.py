@@ -5,23 +5,15 @@ first instead of triaging ~300 KB of queued functions by hand.
 
 Two independent sources feed the ranking:
 
-1. A per-function isolated compile-and-diff, the primary and always-on
-   source. For each function in tools/permute_batch.py's queue
-   (discover_queue(): every `#ifdef NON_MATCHING` block, atlas-backed or
-   source-scanned), this reuses that module's own machinery -- the same
-   settings.toml + asm-processor + IDO invocation the permuter itself runs
-   -- to produce two function-comparable objects: target.o (the
-   function's own asm/nonmatchings/**/<f>.s, assembled directly -- exactly
-   the ROM's bytes, splat's own disassembly of them) and base.o (normally
-   the `#ifdef NON_MATCHING` C body pruned to one function). If import
-   pruning cannot compile it, the tool selects only that candidate within
-   an untracked TU copy and reuses the Makefile-expanded raw compile command,
-   preserving static/rodata context and exact per-TU flags while skipping
-   POSTPROCESS. The comparison extracts only the named function's span and
-   normalizes its relocations, so it needs no linking -- which matters because a
-   whole-tree `gmake NON_MATCHING=1` build fails outright on any
-   POSTPROCESS-trimmed object whose queued function grew past the trimmed
-   (matched-size) target (see docs/nm-ranking.md's "Two build paths").
+1. A configured full-TU compile, the primary source. The tool expands the
+   actual NON_MATCHING=1 Makefile command, compiles the original source once
+   per TU, and redirects only the output object. Every compiler argument,
+   relative include, source filename, and source line remains intact.
+   POSTPROCESS is excluded. Each queued symbol is then compared against its
+   own extracted target assembly. No isolated import or historical declaration
+   substitute is accepted as a current-source measurement. Function spans
+   and relocation offsets are normalized inside their objects; linked ROM
+   verification remains a separate gate.
 
 2. objdiff-cli's per-function fuzzy_match_percent, read from a report
    generated over a real `gmake NON_MATCHING=1` build tree
@@ -86,7 +78,7 @@ DEFAULT_DOC = ROOT / "docs" / "nm-ranking.md"
 DOC_BEGIN = "<!-- NM_RANKING_GENERATED_BEGIN -->"
 DOC_END = "<!-- NM_RANKING_GENERATED_END -->"
 SCHEMA_VERSION = 3
-SOURCE_CONTEXT_VERSION = 4
+SOURCE_CONTEXT_VERSION = 5
 SOURCE_CONTEXT_FIELD = "source_context_sha256"
 HEX_SHA256_RE = re.compile(r"[0-9a-f]{64}")
 BASE64URL_SHA256_RE = re.compile(r"[A-Za-z0-9_-]{43}")
@@ -147,13 +139,18 @@ def func_symbol_span(objfile: pathlib.Path, func: str) -> Optional[tuple[int, in
 
 def text_bytes(objfile: pathlib.Path, start: int, size: int) -> bytes:
     """Raw bytes for one function's span within an object's .text."""
-    tmp = objfile.with_suffix(".text.bin")
-    subprocess.run(
-        [str(OBJCOPY), "-O", "binary", "--only-section=.text", str(objfile), str(tmp)],
-        capture_output=True, check=True,
-    )
-    raw = tmp.read_bytes()
-    tmp.unlink(missing_ok=True)
+    # Several queued symbols can now share one configured object and be
+    # scored concurrently. A deterministic sibling filename races readers.
+    with tempfile.NamedTemporaryFile(dir=objfile.parent, suffix=".text.bin", delete=False) as stream:
+        tmp = pathlib.Path(stream.name)
+    try:
+        subprocess.run(
+            [str(OBJCOPY), "-O", "binary", "--only-section=.text", str(objfile), str(tmp)],
+            capture_output=True, check=True,
+        )
+        raw = tmp.read_bytes()
+    finally:
+        tmp.unlink(missing_ok=True)
     return raw[start:start + size]
 
 
@@ -199,191 +196,34 @@ def assemble_target(target_asm: pathlib.Path, target_o: pathlib.Path) -> None:
         raise RuntimeError(proc.stderr.strip() or "target assembly failed")
 
 
-def make_tu_compile_command(
-    item: "pb.QueueItem", output: pathlib.Path,
-    source_override: Optional[pathlib.Path] = None,
-) -> list[str]:
-    """Return the Makefile-expanded raw compile command for one C TU.
+def compile_configured_tu(
+    source: str, command: list[str],
+) -> tuple[Optional[pathlib.Path], Optional[str]]:
+    """Run the fingerprinted command, redirecting only the object output.
 
-    ``gmake NON_MATCHING=1`` normally follows compilation with metadata
-    post-processing whose fixed-size trim can reject a larger candidate.
-    A dry run supplies the exact asm-processor/IDO command, including every
-    TU-specific C/optimizer/ISA flag; only its output path is redirected.
+    Keep the original source path: its quoted includes, __FILE__, __LINE__,
+    and full-TU context are compiler inputs. No source timestamps are touched.
+    Objects are refreshed once per TU per measurement pass; no old object is
+    accepted after a failed compiler invocation.
     """
-    rel_source = item.c_file.relative_to(ROOT).as_posix()
-    make_target = f"build_non_matching/{rel_source}.o"
-    proc = subprocess.run(
-        [
-            "gmake", "--no-print-directory", "-n", "-W", rel_source,
-            "NON_MATCHING=1", make_target,
-        ],
-        cwd=ROOT,
-        capture_output=True,
-        text=True,
-    )
-    if proc.returncode != 0:
-        raise RuntimeError(
-            proc.stderr.strip() or "could not expand the TU compile command"
-        )
-    logical_lines = proc.stdout.replace("\\\n", " ").splitlines()
-    candidates = [
-        line.strip()
-        for line in logical_lines
-        if "tools/asm-processor/build.py" in line and rel_source in line
-    ]
-    if len(candidates) != 1:
-        raise RuntimeError(
-            f"expected one Makefile compile command, found {len(candidates)}"
-        )
-    command = shlex.split(candidates[0])
-    try:
-        out_index = command.index("-o") + 1
-    except ValueError as exc:
-        raise RuntimeError("Makefile compile command has no -o argument") from exc
-    command[out_index] = str(output)
-    if source_override is not None:
-        try:
-            source_index = command.index(rel_source)
-        except ValueError as exc:
-            raise RuntimeError(
-                "Makefile compile command has no source argument"
-            ) from exc
-        command[source_index] = str(source_override)
-    return command
-
-
-def run_tu_compile(
-    item: "pb.QueueItem", output: pathlib.Path, log_path: pathlib.Path,
-    source_override: Optional[pathlib.Path] = None,
-) -> bool:
-    """Run one raw TU compile, retaining diagnostics only under build/."""
-    command = make_tu_compile_command(item, output, source_override)
-    proc = subprocess.run(
-        command, cwd=ROOT, capture_output=True, text=True
-    )
-    log_path.write_text((proc.stdout or "") + (proc.stderr or ""))
-    return proc.returncode == 0 and output.is_file()
-
-
-def normalized_body(body: str) -> str:
-    """Whitespace-insensitive identity check for tracked candidate C."""
-    return re.sub(r"\s+", "", body)
-
-
-def selective_isolation_source(
-    item: "pb.QueueItem", out_dir: pathlib.Path
-) -> pathlib.Path:
-    """Select only this candidate body; retain every other ASM fallback."""
-    source_text = item.c_file.read_text(errors="replace")
-    blocks = list(pb.iter_nonmatching_blocks(source_text))
-    targets = [
-        block
-        for block in blocks
-        if pb.block_function_name(source_text, block) == item.func
-    ]
-    if len(targets) != 1:
-        raise RuntimeError(
-            f"expected one NON_MATCHING body for {item.func}, found {len(targets)}"
-        )
-    target = targets[0]
-    isolated = source_text
-    for block in reversed(blocks):
-        replacement = block.body if block is target else block.fallback
-        isolated = isolated[:block.start] + replacement + isolated[block.end:]
-    source = out_dir / "selective-context.c"
-    source.write_text(isolated)
-    return source
-
-
-def historical_isolation_source(
-    item: "pb.QueueItem", out_dir: pathlib.Path
-) -> Optional[pathlib.Path]:
-    """Recover declaration context lost by a tracked TU consolidation.
-
-    Consolidation retained some candidate bodies verbatim but replaced their
-    private typed externs with a shared opaque declaration. Search only
-    deleted tracked C files in this TU's directory, and accept one only when
-    its parsed candidate body is identical to the current body. This is source
-    provenance already in this repository, never an assembly/ROM fallback.
-    """
-    current_text = item.c_file.read_text(errors="replace")
-    current_blocks = [
-        block
-        for block in pb.iter_nonmatching_blocks(current_text)
-        if pb.block_function_name(current_text, block) == item.func
-    ]
-    if len(current_blocks) != 1:
-        return None
-
-    rel_dir = item.c_file.parent.relative_to(ROOT).as_posix()
-    history = subprocess.run(
-        [
-            "git", "log", "--all", "--format=%H", "--diff-filter=D",
-            "--", rel_dir,
-        ],
-        cwd=ROOT,
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout.splitlines()
-    wanted = normalized_body(current_blocks[0].body)
-    for commit in history:
-        deleted = subprocess.run(
-            [
-                "git", "diff-tree", "--no-commit-id", "--name-only", "-r",
-                "--diff-filter=D", commit, "--", rel_dir,
-            ],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout.splitlines()
-        for rel_path in deleted:
-            shown = subprocess.run(
-                ["git", "show", f"{commit}^:{rel_path}"],
-                cwd=ROOT,
-                capture_output=True,
-                text=True,
-            )
-            if shown.returncode != 0:
-                continue
-            old_text = shown.stdout
-            for block in pb.iter_nonmatching_blocks(old_text):
-                if pb.block_function_name(old_text, block) != item.func:
-                    continue
-                if normalized_body(block.body) != wanted:
-                    continue
-                old_asm = pb.GLOBAL_ASM_RE.search(block.fallback)
-                current_asm = pb.GLOBAL_ASM_RE.search(current_blocks[0].fallback)
-                if old_asm is None or current_asm is None:
-                    continue
-                old_text = old_text.replace(
-                    old_asm.group("path"), current_asm.group("path"), 1
-                )
-                source = out_dir / "historical-context.c"
-                source.write_text(old_text)
-                return source
-    return None
-
-
-def compile_tu_fallback(
-    item: "pb.QueueItem", output: pathlib.Path, out_dir: pathlib.Path
-) -> None:
-    """Compile one selected body, then try verified historical context."""
-    selective = selective_isolation_source(item, out_dir)
-    if run_tu_compile(
-        item, output, out_dir / "selective-compile.log", selective
-    ):
-        return
+    output = WORK_DIR / "configured" / f"{source}.o"
+    output.parent.mkdir(parents=True, exist_ok=True)
     output.unlink(missing_ok=True)
-    historical = historical_isolation_source(item, out_dir)
-    if historical is not None and run_tu_compile(
-        item, output, out_dir / "historical-compile.log", historical
-    ):
-        return
-    raise RuntimeError(
-        f"raw TU isolation failed (see {out_dir.relative_to(ROOT)}/*compile.log)"
-    )
+    actual = list(command)
+    try:
+        actual[actual.index("-o") + 1] = str(output)
+        proc = subprocess.run(
+            actual, cwd=ROOT, capture_output=True, text=True, timeout=120,
+        )
+    except (OSError, ValueError, IndexError, subprocess.TimeoutExpired) as exc:
+        return None, f"configured TU compile failed for {source}: {exc}"
+    output.with_suffix(".compile.log").write_text(proc.stdout + proc.stderr)
+    if proc.returncode or not output.is_file():
+        return None, (
+            f"configured TU compile failed for {source}; "
+            f"see {output.with_suffix('.compile.log').relative_to(ROOT)}"
+        )
+    return output, None
 
 
 def words_of(data: bytes) -> list[int]:
@@ -553,11 +393,10 @@ def strip_c_comments(text: str) -> str:
 
 
 def source_context_digest(source_text: Optional[str], symbol: str) -> Optional[str]:
-    """Digest the exact selective-TU source that ``process_item`` compiles.
+    """Digest the complete original TU, preserving all line-sensitive input.
 
-    The selected candidate stays as C and every other queued body becomes its
-    assembly fallback. Comments are deliberately ignored; declarations,
-    macros, local data, and the selected body remain load-bearing evidence.
+    Blank/comment-only lines can change __LINE__ and IDO source-line metadata.
+    Sibling bodies also belong to the configured full-TU compilation context.
     """
     if source_text is None:
         return None
@@ -569,13 +408,7 @@ def source_context_digest(source_text: Optional[str], symbol: str) -> Optional[s
     ]
     if len(targets) != 1:
         return None
-    target = targets[0]
-    selected = source_text
-    for block in reversed(blocks):
-        replacement = block.body if block is target else block.fallback
-        selected = selected[:block.start] + replacement + selected[block.end:]
-    normalized = strip_c_comments(selected)
-    digest = hashlib.sha256(normalized.encode("utf-8")).digest()
+    digest = hashlib.sha256(source_text.encode("utf-8")).digest()
     encoded = base64.urlsafe_b64encode(digest).rstrip(b"=").decode("ascii")
     return group_source_context(encoded)
 
@@ -643,6 +476,13 @@ def evidence_digest(value: object) -> str:
 
 
 def include_directories(command: list[str]) -> list[pathlib.Path]:
+    # asm-processor's assembler arguments have their own -I search path.
+    # Only arguments after the second separator are passed to the compiler.
+    if any(token.endswith("tools/asm-processor/build.py") for token in command):
+        separators = [i for i, token in enumerate(command) if token == "--"]
+        if len(separators) != 2:
+            raise RankingDocumentError("configured asm-processor recipe lacks argument separators")
+        command = command[separators[1] + 1:]
     directories: list[pathlib.Path] = []
     for index, token in enumerate(command):
         if token == "-I" and index + 1 < len(command):
@@ -650,6 +490,23 @@ def include_directories(command: list[str]) -> list[pathlib.Path]:
         elif token.startswith("-I") and len(token) > 2:
             directories.append(ROOT / token[2:])
     return list(dict.fromkeys(directories))
+
+
+def command_file_inputs(
+    command: list[str], source: str, cache: dict[pathlib.Path, str],
+) -> dict[str, str]:
+    """Bind literal executable/script/prelude operands to their current bytes."""
+    inputs = {}
+    output_index = command.index("-o") + 1
+    for index, token in enumerate(command):
+        if index == output_index or token == source or token.startswith("-"):
+            continue
+        path = ROOT / token
+        if path.is_file():
+            if path not in cache:
+                cache[path] = hashlib.sha256(path.read_bytes()).hexdigest()
+            inputs[token.replace(str(ROOT), "<ROOT>")] = cache[path]
+    return inputs
 
 
 def header_dependencies(
@@ -672,11 +529,11 @@ def header_dependencies(
             return
         visited.add(path)
         if path not in content_cache:
-            content_cache[path] = strip_c_comments(path.read_text(encoding="utf-8"))
+            content_cache[path] = path.read_text(encoding="utf-8")
         content = content_cache[path]
         if not initial:
             dependencies[path.relative_to(ROOT).as_posix()] = evidence_digest(content)
-        for match in re.finditer(r'^\s*#\s*include\s+([^\n]+)', content, re.MULTILINE):
+        for match in re.finditer(r'^\s*#\s*include\s+([^\n]+)', strip_c_comments(content), re.MULTILINE):
             spelling = match.group(1).strip()
             literal = re.fullmatch(r'([<"])([^>"]+)[>"]', spelling)
             if literal is None:
@@ -712,6 +569,37 @@ def configured_tool_digest() -> str:
     return evidence_digest(records)
 
 
+def assembly_dependencies(source: pathlib.Path, command: list[str]) -> dict[str, str]:
+    """Bind all pragma inputs, including conservative inactive fallbacks.
+
+    Full-TU asm-processor compilation can consume other functions' assembly,
+    not just the selected target. Hash literal nested include candidates too;
+    unresolved includes fail closed instead of inventing an input closure.
+    """
+    separators = [i for i, token in enumerate(command) if token == "--"]
+    assembler = command[separators[0] + 1:separators[1]] if len(separators) == 2 else []
+    directories = [ROOT, *include_directories(assembler)]
+    dependencies: dict[str, str] = {}
+    visited: set[pathlib.Path] = set()
+    def walk(path: pathlib.Path) -> None:
+        path = pathlib.Path(os.path.normpath(path.absolute()))
+        if path in visited:
+            return
+        visited.add(path)
+        raw = path.read_bytes()
+        dependencies[path.relative_to(ROOT).as_posix()] = hashlib.sha256(raw).hexdigest()
+        for match in re.finditer(r'^\s*\.include\s+"([^"]+)"', raw.decode("utf-8"), re.MULTILINE):
+            found = [directory / match.group(1) for directory in [path.parent, *directories]
+                     if (directory / match.group(1)).is_file()]
+            if not found:
+                raise RankingDocumentError(f"missing assembly include from {path.relative_to(ROOT)}")
+            for included in found:
+                walk(included)
+    for match in pb.GLOBAL_ASM_RE.finditer(strip_c_comments(source.read_text(encoding="utf-8"))):
+        walk(ROOT / match.group("path"))
+    return dependencies
+
+
 def configured_build_contexts(items: list["pb.QueueItem"]) -> dict[str, str]:
     """Expand each TU recipe once and bind flags, tools, and header closure.
 
@@ -725,14 +613,18 @@ def configured_build_contexts(items: list["pb.QueueItem"]) -> dict[str, str]:
     unique = {item.rel_c_file: item for item in items}
     commands = configured_compile_commands(list(unique.values()))
     content_cache: dict[pathlib.Path, str] = {}
+    command_files: dict[pathlib.Path, str] = {}
     def context(item: "pb.QueueItem") -> tuple[str, str]:
         command = commands[item.rel_c_file]
-        directories = include_directories(command + shlex.split(pb.INCLUDES))
+        directories = include_directories(command)
         headers = header_dependencies(item.c_file, directories, content_cache)
+        assembly = assembly_dependencies(item.c_file, command)
         portable = [token.replace(str(ROOT), "<ROOT>") for token in command]
         return item.rel_c_file, evidence_digest({
             "command": portable, "headers": headers, "tools": tool_digest,
-            "isolated": [pb.BASE_CC_ARGS, pb.INCLUDES, pb.ASSEMBLER_COMMAND, pb.PRESERVE_MACROS],
+            "assembly": assembly,
+            "command_files": command_file_inputs(command, item.rel_c_file, command_files),
+            "target_assembler": pb.ASSEMBLER_COMMAND,
         })
     return dict(map(context, unique.values()))
 
@@ -968,7 +860,7 @@ def validate_ranking_document(
             "source_context_version",
             minimum=1,
         )
-        if context_version not in (1, 2, 3, SOURCE_CONTEXT_VERSION):
+        if context_version not in (1, 2, 3, 4, SOURCE_CONTEXT_VERSION):
             raise RankingDocumentError(
                 f"source_context_version {context_version} is unsupported"
             )
@@ -1590,8 +1482,18 @@ def process_items(
 ) -> tuple[list[FuncResult], list[tuple[tuple[str, str], str]]]:
     results: list[FuncResult] = []
     errors: list[tuple[tuple[str, str], str]] = []
+    commands = configured_compile_commands(queue)
     with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
-        for item, (result, error) in zip(queue, pool.map(process_item, queue)):
+        sources = list(commands)
+        compiled = dict(zip(sources, pool.map(
+            lambda source: compile_configured_tu(source, commands[source]), sources,
+        )))
+        def measure(item: "pb.QueueItem") -> tuple[Optional[FuncResult], Optional[str]]:
+            candidate, error = compiled[item.rel_c_file]
+            if candidate is None:
+                return None, error
+            return process_item(item, candidate)
+        for item, (result, error) in zip(queue, pool.map(measure, queue)):
             if result is not None:
                 results.append(result)
             if error is not None:
@@ -1661,7 +1563,7 @@ def render_ranking_markdown(document: object) -> str:
         + ("was supplied" if document["objdiff_report_used"] else "was not supplied")
         + f"; `objdiff_match_pct` covers **{coverage:,} / {resolved:,}** resolved rows.",
         "",
-        f"Persisted selective-TU source evidence covers **{context_coverage:,} / "
+        f"Persisted configured-TU input evidence covers **{context_coverage:,} / "
         f"{resolved:,}** resolved rows. Rows without it are retained legacy or "
         "bounded-refresh measurements and must be treated as requiring reproof.",
         "",
@@ -1925,42 +1827,20 @@ def classify(
     return ("other", *evidence)
 
 
-def process_item(item: "pb.QueueItem") -> tuple[Optional[FuncResult], Optional[str]]:
-    safe = re.sub(r"[^A-Za-z0-9_.-]", "_", item.func)
+def process_item(
+    item: "pb.QueueItem", base_o: pathlib.Path,
+) -> tuple[Optional[FuncResult], Optional[str]]:
+    """Compare one owned symbol from the already compiled configured TU."""
+    safe = item.func.replace("/", "_")
     out_dir = WORK_DIR / safe
     out_dir.mkdir(parents=True, exist_ok=True)
-    settings_path = out_dir / "settings.toml"
-    # Successful isolated imports must use the same Makefile-expanded recipe
-    # as the real TU. The static path-only flag group misses per-file
-    # overrides such as track.c's -Wab,-r4300_mul and can rank the wrong ISA
-    # result even though the fallback path below preserves the real command.
-    recipe = pb.build_recipe_for(item.c_file)
-    pb.write_settings_toml(settings_path, recipe.flags)
-    import_error: Optional[str] = None
-    scratch: Optional[pathlib.Path] = None
+    target_o = out_dir / "target.o"
     try:
         target_asm = pb.prepare_target_asm(item, out_dir)
-        scratch = pb.run_import(item, out_dir, settings_path, target_asm)
-    except Exception as e:  # noqa: BLE001 - reported per-function, not fatal
-        import_error = str(e)
-        try:
-            target_asm = pb.prepare_target_asm(item, out_dir)
-        except Exception as target_error:  # noqa: BLE001
-            return None, f"{item.func} ({item.rel_c_file}): {target_error}"
-
-    base_o = scratch / "base.o" if scratch is not None else out_dir / "base.o"
-    target_o = scratch / "target.o" if scratch is not None else out_dir / "target.o"
-    try:
-        if not target_o.is_file():
-            assemble_target(target_asm, target_o)
-        if not base_o.is_file():
-            base_o = out_dir / "base-tu.o"
-            base_o.unlink(missing_ok=True)
-            compile_tu_fallback(item, base_o, out_dir)
-    except Exception as e:  # noqa: BLE001 - reported per-function, not fatal
-        prefix = f"import failed ({import_error}); " if import_error else ""
-        return None, f"{item.func} ({item.rel_c_file}): {prefix}{e}"
-
+        target_o.unlink(missing_ok=True)
+        assemble_target(target_asm, target_o)
+    except Exception as exc:  # noqa: BLE001 - per-function failure is retained
+        return None, f"{item.func} ({item.rel_c_file}): {exc}"
     target_span = func_symbol_span(target_o, item.func)
     base_span = func_symbol_span(base_o, item.func)
     if target_span is None or base_span is None:
@@ -2139,7 +2019,7 @@ def main() -> int:
                           "vs expected/build/ (see docs/nm-ranking.md). Optional: supplies "
                           "objdiff_match_pct where available.")
     ap.add_argument("--jobs", type=int, default=8,
-                     help="parallel isolated compiles (default 8)")
+                     help="parallel configured TU compiles (default 8)")
     ap.add_argument("--out", type=pathlib.Path, default=DEFAULT_OUT,
                      help=f"where to write the ranking JSON (default {DEFAULT_OUT})")
     ap.add_argument(
@@ -2553,7 +2433,7 @@ def main() -> int:
     publish_ranking_document(args.out, out_doc, args.doc)
 
     print(f"{len(results)}/{len(queue)} queued functions resolved "
-          f"({len(errors)} could not be isolated-compiled)", file=sys.stderr)
+          f"({len(errors)} could not be measured from configured TUs)", file=sys.stderr)
     counts = Counter(r.category for r in results)
     print("category counts: " + ", ".join(f"{k}={v}" for k, v in sorted(counts.items())),
           file=sys.stderr)

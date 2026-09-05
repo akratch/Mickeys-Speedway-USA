@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import json
+import concurrent.futures
+import shutil
 from pathlib import Path
 import sys
 import tempfile
@@ -73,6 +75,111 @@ def queue_item(file_name: str, symbol: str) -> object:
 
 
 class ConfiguredContextTests(unittest.TestCase):
+    def test_assembler_include_paths_do_not_override_compiler_search_order(self):
+        command = ["python", "tools/asm-processor/build.py", "cc", "--",
+                   "as", "-I", "assembler-only", "--", "-I", ".", "-Iinclude"]
+        self.assertEqual(ranking.include_directories(command),
+                         [ranking.ROOT, ranking.ROOT / "include"])
+
+    def test_literal_command_input_changes_invalidate_its_receipt(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            prelude = root / "prelude.inc"
+            prelude.write_text("initial assembler prelude\n")
+            command = ["cc", "prelude.inc", "-o", "unused.o", "source.c"]
+            with mock.patch.object(ranking, "ROOT", root):
+                initial = ranking.command_file_inputs(command, "source.c", {})
+                prelude.write_text("changed assembler prelude\n")
+                self.assertNotEqual(initial, ranking.command_file_inputs(command, "source.c", {}))
+
+    def test_concurrent_symbol_extraction_uses_independent_temporaries(self):
+        with tempfile.TemporaryDirectory() as directory:
+            obj = Path(directory) / "shared.o"
+            destinations = []
+            def extract(command, **kwargs):
+                destination = Path(command[-1])
+                destinations.append(destination)
+                destination.write_bytes(b"synthetic text")
+            with mock.patch.object(ranking.subprocess, "run", side_effect=extract), \
+                 concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+                results = list(pool.map(lambda _: ranking.text_bytes(obj, 0, 9), range(2)))
+            self.assertEqual(results, [b"synthetic", b"synthetic"])
+            self.assertEqual(len(set(destinations)), 2)
+            self.assertTrue(all(not path.exists() for path in destinations))
+
+    def test_configured_compile_preserves_defines_include_order_and_source_location(self):
+        compiler = shutil.which("cc")
+        if compiler is None:
+            self.skipTest("host preprocessor unavailable")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name, value in (("first", 7), ("alternate", 11)):
+                (root / name).mkdir()
+                (root / name / "choice.h").write_text(f"#define CHOICE {value}\n")
+            source = root / "candidate.c"
+            source.write_text('#include <choice.h>\n#ifdef NON_MATCHING\n'
+                              'int target(void) { return PROBE + CHOICE + __LINE__; }\n'
+                              '#else\n#pragma GLOBAL_ASM("asm/target.s")\n#endif\n')
+            before = source.stat().st_mtime_ns
+            command = [compiler, "-E", "-P", "-x", "c", "-DNON_MATCHING",
+                       "-DPROBE=2", "-I", str(root / "first"),
+                       "-I", str(root / "alternate"), str(source), "-o", "unused.o"]
+            with mock.patch.object(ranking, "ROOT", root), \
+                 mock.patch.object(ranking, "WORK_DIR", root / "build"):
+                output, error = ranking.compile_configured_tu("candidate.c", command)
+                self.assertIsNone(error)
+                self.assertIn("return 2 + 7 + 3", output.read_text())
+                command[6] = "-DPROBE=5"
+                command[8], command[10] = command[10], command[8]
+                output, error = ranking.compile_configured_tu("candidate.c", command)
+                self.assertIsNone(error)
+                self.assertIn("return 5 + 11 + 3", output.read_text())
+            self.assertEqual(source.stat().st_mtime_ns, before)
+            self.assertFalse((root / "unused.o").exists())
+
+    def test_line_changes_invalidate_source_and_header_evidence(self):
+        source = ('#ifdef NON_MATCHING\nint target(void) { return __LINE__; }\n'
+                  '#else\n#pragma GLOBAL_ASM("asm/target.s")\n#endif\n')
+        self.assertNotEqual(ranking.source_context_digest(source, "target"),
+                            ranking.source_context_digest("\n" + source, "target"))
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "candidate.c").write_text('#include "value.h"\n')
+            header = root / "value.h"
+            header.write_text("enum { value = __LINE__ };\n")
+            with mock.patch.object(ranking, "ROOT", root):
+                initial = ranking.header_dependencies(root / "candidate.c", [root])
+                header.write_text("\nenum { value = __LINE__ };\n")
+                self.assertNotEqual(initial, ranking.header_dependencies(root / "candidate.c", [root]))
+
+    def test_failed_compile_does_not_reuse_a_previous_object(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            output = root / "configured/candidate.c.o"
+            output.parent.mkdir()
+            output.write_bytes(b"prior object")
+            with mock.patch.object(ranking, "ROOT", root), \
+                 mock.patch.object(ranking, "WORK_DIR", root), \
+                 mock.patch.object(ranking.subprocess, "run", return_value=mock.Mock(
+                     returncode=1, stdout="", stderr="compiler failure")):
+                measured, error = ranking.compile_configured_tu("candidate.c", ["cc", "-o", "unused.o"])
+            self.assertIsNone(measured)
+            self.assertIn("configured TU compile failed", error)
+            self.assertFalse(output.exists())
+
+    def test_shared_tu_compiles_once_without_import_or_historical_context(self):
+        items = [queue_item("src/main/shared.c", symbol) for symbol in ("first", "second")]
+        command = ["cc", "-DVALUE=7", "-Ialt", "-o", "unused.o", items[0].rel_c_file]
+        candidate = Path("configured.o")
+        with mock.patch.object(ranking, "configured_compile_commands", return_value={items[0].rel_c_file: command}), \
+             mock.patch.object(ranking, "compile_configured_tu", return_value=(candidate, None)) as compile_tu, \
+             mock.patch.object(ranking, "process_item", return_value=(None, None)) as measure, \
+             mock.patch.object(ranking.pb, "run_import", side_effect=AssertionError("unexpected import")):
+            ranking.process_items(items, 2)
+            compile_tu.assert_called_once_with(items[0].rel_c_file, command)
+            self.assertEqual(measure.call_count, 2)
+            self.assertTrue(all(call.args[1] == candidate for call in measure.call_args_list))
+
     def test_batched_recipe_expansion_preserves_per_file_flags(self):
         items = [queue_item(f"src/main/{name}.c", name) for name in ("a", "b")]
         lines = []
@@ -123,9 +230,10 @@ class ConfiguredContextTests(unittest.TestCase):
 
     def test_recipe_and_tool_changes_invalidate_only_current_receipts(self):
         item = queue_item("src/main/example.c", "example")
-        recipe = ["tools/ido/cc", "-O2", "-I", "include"]
+        recipe = ["tools/ido/cc", "-O2", "-I", "include", "-o", "unused.o"]
         with mock.patch.object(ranking, "configured_tool_digest", return_value="tool-a") as tool, \
              mock.patch.object(ranking, "configured_compile_commands", return_value={item.rel_c_file: recipe}) as expand, \
+             mock.patch.object(ranking, "assembly_dependencies", return_value={}), \
              mock.patch.object(ranking, "header_dependencies", return_value={"header.h": "h"}):
             original = ranking.configured_build_contexts([item, item])
             self.assertEqual(expand.call_count, 1)
@@ -135,6 +243,20 @@ class ConfiguredContextTests(unittest.TestCase):
             recipe[1] = "-O2"
             tool.return_value = "tool-b"
             self.assertNotEqual(original, ranking.configured_build_contexts([item]))
+
+    def test_sibling_assembly_and_nested_includes_are_fingerprinted(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "candidate.c"
+            source.write_text('#pragma GLOBAL_ASM("sibling.s")\n')
+            (root / "sibling.s").write_text('.include "definitions.inc"\n')
+            definitions = root / "definitions.inc"
+            definitions.write_text("# initial definitions\n")
+            with mock.patch.object(ranking, "ROOT", root):
+                initial = ranking.assembly_dependencies(source, [])
+                self.assertEqual(set(initial), {"sibling.s", "definitions.inc"})
+                definitions.write_text("# changed definitions\n")
+                self.assertNotEqual(initial, ranking.assembly_dependencies(source, []))
 
 
 class CoverageTests(unittest.TestCase):
@@ -172,7 +294,7 @@ class CoverageTests(unittest.TestCase):
                 current = ranking.source_context_digest(changed, "target")
                 self.assertFalse(ranking.source_coverage(document, {key: current})["complete"])
         commented = ranking.source_context_digest(source + "/* review note */\n", "target")
-        self.assertTrue(ranking.source_coverage(document, {key: commented})["complete"])
+        self.assertFalse(ranking.source_coverage(document, {key: commented})["complete"])
 
     def test_unproven_legacy_row_requires_evidence(self):
         key = ("src/main/legacy.c", "legacy")
@@ -454,7 +576,7 @@ void a(void) {}
             ranking.group_source_context("A" * 43),
         )
 
-    def test_ignores_comments_and_other_candidates_but_covers_shared_context(self) -> None:
+    def test_preserves_comments_and_other_candidates_and_shared_context(self) -> None:
         original = """extern int shared;
 #ifdef NON_MATCHING
 void a(void) { shared++; }
@@ -472,7 +594,7 @@ void b(void) { shared++; }
         ).replace("extern int", "/* note */\nextern int")
         changed_shared = original.replace("extern int shared", "extern short shared")
         baseline = ranking.source_context_digest(original, "a")
-        self.assertEqual(
+        self.assertNotEqual(
             baseline, ranking.source_context_digest(changed_other, "a")
         )
         self.assertNotEqual(
