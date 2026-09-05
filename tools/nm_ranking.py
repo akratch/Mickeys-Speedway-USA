@@ -445,6 +445,61 @@ class RankingDocumentError(ValueError):
     """The retained ranking cannot be consumed without guessing."""
 
 
+def ranking_coverage(
+    document: object,
+    live_keys: set[tuple[str, str]],
+    fresh_keys: set[tuple[str, str]],
+) -> dict[str, object]:
+    """Audit the complete queue before any ranking filters or scan limits.
+
+    Presence alone is insufficient: unresolved and source-unproven rows cannot
+    establish that an unexamined candidate would not outrank a selected row.
+    Identity lists make maintenance actionable without compiling anything.
+    """
+    validated = validate_ranking_document(document)
+    resolved = {_function_row_key(row) for row in validated["functions"]}
+    unresolved = {_unresolved_row_key(row) for row in validated["unresolved_functions"]}
+    retained = resolved | unresolved
+    missing = live_keys - retained
+    retired = retained - live_keys
+    stale = (resolved & live_keys) - fresh_keys
+    pending = unresolved & live_keys
+    return {
+        "complete": not (missing or retired or stale or pending),
+        "live": len(live_keys),
+        "retained": len(retained),
+        "fresh": len(resolved & live_keys & fresh_keys),
+        "missing": [list(key) for key in sorted(missing)],
+        "retired": [list(key) for key in sorted(retired)],
+        "stale": [list(key) for key in sorted(stale)],
+        "unresolved": [list(key) for key in sorted(pending)],
+    }
+
+
+def coverage_summary(coverage: dict[str, object]) -> str:
+    return " ".join(
+        f"{key}={len(value) if isinstance(value, list) else value}"
+        for key, value in coverage.items() if key != "complete"
+    )
+
+
+def source_coverage(
+    document: object, current_contexts: dict[tuple[str, str], str],
+    legacy_contexts: Optional[dict[tuple[str, str], str]] = None,
+) -> dict[str, object]:
+    """Compare all measured contexts with current selective-TU source."""
+    validated = validate_ranking_document(document)
+    fresh = set()
+    for row in validated["functions"]:
+        key = _function_row_key(row)
+        measured = normalize_source_context_digest(row.get(SOURCE_CONTEXT_FIELD))
+        if measured is None:
+            measured = normalize_source_context_digest((legacy_contexts or {}).get(key))
+        if measured is not None and measured == current_contexts.get(key):
+            fresh.add(key)
+    return ranking_coverage(validated, set(current_contexts), fresh)
+
+
 def strip_c_comments(text: str) -> str:
     """Remove comments while preserving strings and preprocessing structure."""
     output: list[str] = []
@@ -1988,6 +2043,15 @@ def main() -> int:
                           "deferred rows remain explicitly unproven")
     maintenance_mode = ap.add_mutually_exclusive_group()
     maintenance_mode.add_argument(
+        "--check-freshness", action="store_true",
+        help="without compiling, fail if live identities or source contexts "
+             "differ from the complete retained ranking",
+    )
+    ap.add_argument(
+        "--json", action="store_true",
+        help="emit machine-readable coverage (requires --check-freshness)",
+    )
+    maintenance_mode.add_argument(
         "--prune-stale",
         action="store_true",
         help="without compiling, remove rows from --out whose exact file/symbol "
@@ -2007,6 +2071,31 @@ def main() -> int:
              "evidence (default HEAD)",
     )
     args = ap.parse_args()
+
+    if args.json and not args.check_freshness:
+        ap.error("--json requires --check-freshness")
+    if args.check_freshness:
+        if any((args.show_retained, args.write_doc, args.check_doc,
+                args.objdiff_report is not None, args.limit is not None,
+                args.top is not None, args.markdown, args.no_table)):
+            ap.error("--check-freshness cannot be combined with display, "
+                     "documentation, or compilation options")
+        try:
+            document = json.loads(args.out.read_text(encoding="utf-8"))
+            contexts = current_source_contexts(pb.discover_queue())
+            legacy = legacy_source_contexts(args.evidence_ref, args.out, document)
+            coverage = source_coverage(document, contexts, legacy)
+        except (OSError, json.JSONDecodeError, RankingDocumentError) as exc:
+            print(f"ranking freshness: {exc}", file=sys.stderr)
+            return 2
+        if args.json:
+            print(json.dumps(coverage, indent=2, sort_keys=True))
+        else:
+            print("ranking freshness: " + coverage_summary(coverage))
+        if not coverage["complete"]:
+            print("ranking freshness: run tools/nm_ranking.py --refresh-stale "
+                  "to measure all stale/new/unresolved rows", file=sys.stderr)
+        return 0 if coverage["complete"] else 1
 
     if args.jobs < 1:
         print("error: --jobs must be at least 1", file=sys.stderr)

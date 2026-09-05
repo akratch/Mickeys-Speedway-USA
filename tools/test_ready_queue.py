@@ -141,6 +141,30 @@ class ReadyQueueTests(unittest.TestCase):
         )
         self.assertNotIn("already-integrated/exhausted  b", maintenance)
 
+    def test_yield_selection_audits_whole_queue_before_top_or_scan(self):
+        value = row("src/main/good.c", "good", 1)
+        key = ("src/main/good.c", "good")
+        freshness = {key: rq.RankingEvidence("measured", True)}
+        items = [Item(*key), Item("src/main/unranked.c", "unranked")]
+        states = {"good": assignment("good", key[0])}
+        for selection in ("expected-yield", "high-confidence"):
+            with self.subTest(selection=selection):
+                with self.assertRaisesRegex(rq.ReadyQueueError, "missing=1"):
+                    self.report([value], items, states, scan=1, top=1,
+                                selection=selection, freshness=freshness)
+        maintenance = self.report([value], items, states, scan=1, top=1,
+                                  freshness=freshness, collect_maintenance=True)
+        self.assertFalse(maintenance["summary"]["live_queue_complete"])
+        self.assertIn("src/main/unranked.c", rq.render_maintenance(maintenance))
+
+    def test_retired_identity_blocks_yield_claim_even_with_fresh_live_rows(self):
+        rows = [row("src/main/live.c", "live", 1), row("src/main/retired.c", "retired", 2)]
+        fresh = {(str(value["file"]), str(value["name"])): rq.RankingEvidence("m", True)
+                 for value in rows}
+        with self.assertRaisesRegex(rq.ReadyQueueError, "retired=1"):
+            self.report(rows, [Item("src/main/live.c", "live")], {},
+                        selection="expected-yield", freshness=fresh)
+
     def test_scan_and_top_are_hard_bounds(self) -> None:
         rows = [row(f"src/main/{name}.c", name, index) for index, name in enumerate("abcd", 1)]
         items = [Item(str(value["file"]), str(value["name"])) for value in rows]
@@ -394,10 +418,13 @@ class ReadyQueueTests(unittest.TestCase):
             )
             for value in rows if value is not unknown
         }
-        report = self.report(
-            rows, items, states, selection="high-confidence",
-            freshness=freshness,
-        )
+        with self.assertRaisesRegex(rq.ReadyQueueError, "stale=2"):
+            self.report(rows, items, states, selection="high-confidence",
+                        freshness=freshness)
+        rows = [value for value in rows if value not in (stale, unknown)]
+        items = [Item(str(value["file"]), str(value["name"])) for value in rows]
+        report = self.report(rows, items, states, selection="high-confidence",
+                             freshness=freshness)
         self.assertEqual([value["symbol"] for value in report["ready"]], ["good"])
         self.assertEqual(report["selected_ranking_rows"], 1)
         self.assertEqual(report["ready"][0]["selection_class"], "high-confidence")
@@ -681,7 +708,7 @@ void a(void) { shared++; }
         self.assertIn("yield", table)
         self.assertIn("high-confidence", table)
         self.assertIn("0.100", table)
-        self.assertEqual(report["schema_version"], 5)
+        self.assertEqual(report["schema_version"], 6)
         self.assertEqual(report["ready"][0]["residual_basis"], "relocation-masked")
 
     def test_duplicate_live_identity_fails_closed(self) -> None:

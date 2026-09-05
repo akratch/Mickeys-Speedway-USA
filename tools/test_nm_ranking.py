@@ -72,6 +72,51 @@ def queue_item(file_name: str, symbol: str) -> object:
     )
 
 
+class CoverageTests(unittest.TestCase):
+    def test_full_identity_audit_includes_missing_retired_and_unresolved(self):
+        good = ("src/main/good.c", "good")
+        stale = ("src/main/stale.c", "stale")
+        retired = ("src/main/retired.c", "retired")
+        new = ("src/main/new.c", "new")
+        pending = ("src/main/pending.c", "pending")
+        document = ranking_document(
+            [function_row(*key) for key in (good, stale, retired)],
+            [[list(pending), "compile failed"]],
+        )
+        report = ranking.ranking_coverage(document, {good, stale, new, pending}, {good})
+        self.assertFalse(report["complete"])
+        self.assertEqual(report["missing"], [list(new)])
+        self.assertEqual(report["retired"], [list(retired)])
+        self.assertEqual(report["stale"], [list(stale)])
+        self.assertEqual(report["unresolved"], [list(pending)])
+        self.assertEqual(report["fresh"], 1)
+
+    def test_matching_identity_cannot_hide_changed_body_or_declaration(self):
+        source = ('extern int value;\n#ifdef NON_MATCHING\n'
+                  'int target(void) { return value; }\n#else\n'
+                  '#pragma GLOBAL_ASM("asm/nonmatchings/target.s")\n#endif\n')
+        key = ("src/main/target.c", "target")
+        measured = ranking.source_context_digest(source, "target")
+        self.assertIsNotNone(measured)
+        row = function_row(*key)
+        row[ranking.SOURCE_CONTEXT_FIELD] = measured
+        document = ranking_document([row])
+        for changed in (source.replace("return value", "return value + 1"),
+                        source.replace("extern int", "extern short")):
+            with self.subTest(source=changed):
+                current = ranking.source_context_digest(changed, "target")
+                self.assertFalse(ranking.source_coverage(document, {key: current})["complete"])
+        commented = ranking.source_context_digest(source + "/* review note */\n", "target")
+        self.assertTrue(ranking.source_coverage(document, {key: commented})["complete"])
+
+    def test_unproven_legacy_row_requires_evidence(self):
+        key = ("src/main/legacy.c", "legacy")
+        digest = ranking.normalize_source_context_digest("a" * 64)
+        document = ranking_document([function_row(*key)])
+        self.assertFalse(ranking.source_coverage(document, {key: digest})["complete"])
+        self.assertTrue(ranking.source_coverage(document, {key: digest}, {key: digest})["complete"])
+
+
 class PruneStaleTests(unittest.TestCase):
     def test_prunes_only_nonlive_exact_identities_and_normalizes_counts(self) -> None:
         keep = ("src/main/keep.c", "keep")
