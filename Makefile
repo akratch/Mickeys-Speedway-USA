@@ -337,6 +337,8 @@ system-health:
 	$(HOST_PYTHON) $(TOOLS_DIR)/system_health.py $(SYSTEM_HEALTH_ARGS)
 
 check-tooling:
+	$(PYTHON) $(TOOLS_DIR)/test_raw_asm_census.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_merge_transaction.py
 	$(HOST_PYTHON) tests/test_make_layout.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_check_match_regression.py
 	$(HOST_PYTHON) tests/test_flag_sweep.py
@@ -366,6 +368,11 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_resolve_comment_hunks.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_lane_cache.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_public_release.py
+
+# Ownership-only inventory; does not count padding/scaffolds as matched C.
+.PHONY: check-raw-asm
+check-raw-asm:
+	$(PYTHON) $(TOOLS_DIR)/raw_asm_census.py --check-overlays
 
 promotion-proof:
 	@test -n "$(SYMBOL)" || { echo "usage: gmake promotion-proof SYMBOL=name [PROMOTION_PROOF_ARGS='--canonical']"; exit 2; }
