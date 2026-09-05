@@ -379,6 +379,7 @@ def _ranking_details(
 
 def ranking_freshness(
     base: str, ranking_path: str, document: object,
+    configured_contexts: dict[tuple[str, str], str] | None = None,
 ) -> FreshnessMap:
     """Prove each metric row was measured against the current source blob."""
     validated = nm_ranking.validate_ranking_document(document)
@@ -423,7 +424,10 @@ def ranking_freshness(
         for row in functions if isinstance(row, dict)
     }
     for key, commit in evidence_commits.items():
-        current = digest(base, key[0], key[1])
+        current = (
+            configured_contexts.get(key) if configured_contexts is not None
+            else digest(base, key[0], key[1])
+        )
         embedded = rows_by_key[key].get(nm_ranking.SOURCE_CONTEXT_FIELD)
         measured = (
             nm_ranking.normalize_source_context_digest(embedded)
@@ -1009,9 +1013,12 @@ def main(argv: list[str] | None = None) -> int:
         ).strip()
         document = json.loads(args.ranking.read_text(encoding="utf-8"))
         ranking_name = portable_path(args.ranking)
-        freshness = ranking_freshness(args.base, ranking_name, document)
         dirty_paths = dirty_worktree_paths()
         live_items = permute_batch.discover_queue()
+        configured_contexts = nm_ranking.current_source_contexts(live_items)
+        freshness = ranking_freshness(
+            args.base, ranking_name, document, configured_contexts,
+        )
         identities = live_identities(live_items)
         context = lane_status.AssignmentContext.build(
             args.base, [identity.symbol for identity in identities],

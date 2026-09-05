@@ -192,10 +192,23 @@ objdiff-cli, not ROM content.
 
 Before selecting by expected yield, audit the complete live queue with
 `tools/nm_ranking.py --check-freshness` (add `--json` for exact identity lists).
-This compile-free gate fails on missing, retired, unresolved, or source-stale
-rows. It compares the measured selective-TU source contexts, including local
-declarations and macros; comments do not invalidate a measurement. It is not
-a toolchain or transitive-header freshness guarantee.
+This gate runs no compiler and fails on missing, retired, unresolved, or stale
+rows. Context version 4 binds each measurement to its selective-TU source,
+expanded Makefile compile command, compiler and preparation-tool contents,
+transitive literal includes, and extracted target. It requires the configured
+tools and extracted assembly. Source/header comments are ignored. Inactive
+include branches are conservatively included, and macro includes fail closed.
+Missing literal includes in inactive SDK branches are recorded as absent; if a
+file appears at a searched location, the context changes. Unrelated headers
+outside the include closure do not invalidate a TU. Updating a tool invalidates
+all affected measurements, even when source text is unchanged.
+
+The retained ranking is the refresh cache: exact full-context matches skip
+compilation. Version 3 source-only rows need a one-time remeasurement. Both
+before and after a refresh, the tool recomputes commands, tools, headers,
+targets, and live source membership; changed inputs abort publication. Recipe
+expansion batches every distinct TU into one make dry run. Header parsing is
+shared within each context pass. Neither operation touches source timestamps.
 
 `tools/ready_queue.py --selection expected-yield` and `--selection
 high-confidence` require this complete source coverage before applying focus,
