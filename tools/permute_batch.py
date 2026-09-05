@@ -1452,6 +1452,23 @@ def extract_function_text(source_text: str, func: str) -> str:
     return source_text[start:end]
 
 
+def retire_plateau_marker(text: str, func: str) -> str:
+    """Remove owned metadata; trim only a newly exposed blank EOF suffix."""
+    marker = re.compile(r"^/\* PLATEAU-HANDOFF:" + re.escape(func) +
+                        r":start\n.*?\* PLATEAU-HANDOFF:" + re.escape(func) +
+                        r":end\n \*/(?:\n|\Z)", re.S | re.M)
+    for match in reversed(list(marker.finditer(text))):
+        prefix, suffix = text[:match.start()], text[match.end():]
+        if not suffix.strip(" \t\r\n"):
+            # The metadata made its preceding separator an interior blank
+            # line. Once retired, preserve the final content line and its
+            # newline, without introducing whitespace-only lines at EOF.
+            text = re.sub(r"\n(?:[ \t]*\n)*[ \t]*\Z", "\n", prefix)
+        else:
+            text = prefix + suffix
+    return text
+
+
 # A --jobs > 1 batch runs several functions' permuter searches concurrently,
 # but promotion (splice + `gmake` + `gmake verify`) mutates the one shared
 # working tree and build/ directory this lane owns -- two threads promoting
@@ -1615,10 +1632,7 @@ def _promote_locked(item: QueueItem, winner: bytes, jobs: int,
         if block is None:
             raise RuntimeError(f"could not locate {item.func}'s NON_MATCHING block")
         new_text = original[:block.start] + function + original[block.end:]
-        marker = re.compile(r"\n?/\* PLATEAU-HANDOFF:" + re.escape(item.func) +
-                            r":start\n.*?\* PLATEAU-HANDOFF:" + re.escape(item.func) +
-                            r":end\n \*/\n", re.S)
-        new_text = marker.sub("\n", new_text)
+        new_text = retire_plateau_marker(new_text, item.func)
         remaining_timeout(deadline)
         journal.write(source, new_text.encode())
         if shard.exists():

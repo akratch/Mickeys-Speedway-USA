@@ -168,6 +168,54 @@ int fixture(void) { return 1; }
 
 
 class PromotionTests(unittest.TestCase):
+    @staticmethod
+    def plateau_marker(symbol="fixture"):
+        return (f"/* PLATEAU-HANDOFF:{symbol}:start\n"
+                " * synthetic metadata\n"
+                f" * PLATEAU-HANDOFF:{symbol}:end\n */\n")
+
+    def test_retire_eof_marker_preserves_body_without_new_blank_eof(self):
+        body = "int fixture(void) {\n\n    return 2;\n}\n"
+        for separator in ("", "\n", "\n \t\n\n"):
+            for tail in ("", "\n", " \n\n"):
+                with self.subTest(separator=separator, tail=tail):
+                    text = body + separator + self.plateau_marker() + tail
+                    self.assertEqual(batch.retire_plateau_marker(text, "fixture"), body)
+        self.assertEqual(batch.retire_plateau_marker(body + self.plateau_marker().rstrip("\n"), "fixture"), body)
+
+    def test_retire_interior_marker_preserves_unrelated_tu_text(self):
+        prefix = "/* unrelated */\nint fixture(void) { return 2; }\n\n"
+        suffix = "\n/* keep spacing */\n\nint independent(void) { return 7; }\n\n"
+        self.assertEqual(batch.retire_plateau_marker(prefix + self.plateau_marker() + suffix, "fixture"),
+                         prefix + suffix)
+        other = self.plateau_marker("independent")
+        self.assertEqual(batch.retire_plateau_marker(prefix + self.plateau_marker() + "\n" + other, "fixture"),
+                         prefix + "\n" + other)
+        self.assertEqual(batch.retire_plateau_marker(prefix + other, "fixture"), prefix + other)
+
+    def test_eof_marker_promotion_passes_real_git_cached_diff_check(self):
+        with Fixture() as fixture:
+            fixture.source.write_text(fixture.source.read_text() + "\n" + self.plateau_marker())
+            fixture.git("add", "src/fixture.c")
+            fixture.git("commit", "-qm", "append synthetic plateau metadata")
+            fixture.inputs["context"]["source"] = hashlib.sha256(fixture.source.read_bytes()).hexdigest()
+            fixture.evidence = dataclasses.replace(fixture.evidence,
+                canonical_source_sha256=fixture.inputs["context"]["source"],
+                capture_binding_json=json.dumps({"inputs_sha256": batch.sweep_receipts.digest(fixture.inputs),
+                                                 "run_id": fixture.root.name}).encode(),
+                prepared_inputs_json=json.dumps(fixture.inputs, sort_keys=True).encode())
+            before = fixture.source.read_text()
+            ok, error = fixture.promote()
+            self.assertTrue(ok, error)
+            after = fixture.source.read_text()
+            self.assertIn("int fixture(void) { return 2; }", after)
+            self.assertTrue(after.endswith("int independent = 3;\n"))
+            self.assertNotIn("PLATEAU-HANDOFF:fixture", after)
+            self.assertIn(("\n/* independent context */\n" * 15), after)
+            self.assertNotEqual(after, before)
+            self.assertTrue(any(call[:4] == ("git", "diff", "--cached", "--check") for call in fixture.calls))
+            fixture.git("diff", "HEAD^", "HEAD", "--check")
+
     def test_compact_include_header_edit_refuses_actual_promotion(self):
         with Fixture() as fixture:
             fixture.source.write_text('#include"outer.h"\n' + fixture.source.read_text())
