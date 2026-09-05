@@ -360,6 +360,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_wb_compare.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_nm_ranking.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_permute_batch_deadline.py
+	$(PYTHON) $(TOOLS_DIR)/test_candidate_context.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_permute_sweep_cli.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_sweep_receipts.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_promotion_transaction.py
