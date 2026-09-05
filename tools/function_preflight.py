@@ -37,7 +37,8 @@ SYMBOLS = REPO / "symbol_addrs.us.txt"
 TARGET_ELF = REPO / "build" / "mickey.us.elf"
 VENV_PYTHON_TARGET = ".venv/bin/python"
 WB_COMPARE = TOOLS / "wb_compare.sh"
-TYPE_NAMES = {2: "R_MIPS_32", 4: "R_MIPS_26", 5: "R_MIPS_HI16", 6: "R_MIPS_LO16"}
+TYPE_NAMES = {2: "R_MIPS_32", 4: "R_MIPS_26", 5: "R_MIPS_HI16", 6: "R_MIPS_LO16",
+              10: "R_MIPS_PC16"}
 PARTIAL_EVIDENCE_EXIT = 1
 WB_SUMMARY_SCHEMA = "mickey-wb-summary-v1"
 WB_RELOCATION_SURFACE_MODES = {

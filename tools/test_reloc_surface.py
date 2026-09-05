@@ -1475,6 +1475,94 @@ class ResidentTargetRangeTests(unittest.TestCase):
             self.assertTrue(all(record.identity is not None for record in records))
             self.assertEqual(records[0].identity, records[1].identity)
 
+    def _pc16_fixture(self, repo, destination_offset=0x40, addend_words=-1):
+        candidate, target_path, target, linked, value, size = self._fixture(repo)
+        offset = 0x10
+        object_start = target.symbols()[0][1]
+        # A global auxiliary label causes GAS to retain PC16 with A=-4;
+        # the final branch still targets S, because the architectural PC is P+4.
+        word = (4 << 26) | (1 << 21)
+        object_data = bytearray(target._section_data)
+        struct.pack_into(">I", object_data, object_start + offset,
+                         word | (addend_words & 0xFFFF))
+        names = target.symbols() + [("local_case", object_start + destination_offset, 0, 18, 1)]
+        relocations = target.relocations() + [(".text", object_start + offset, rs.R_MIPS_PC16, len(names) - 1)]
+        target = self.FakeElf(target_path, ".text", 0, object_data, names, relocations)
+        effective_offset = destination_offset + addend_words * 4 + 4
+        linked_data = bytearray(linked._section_data)
+        struct.pack_into(">I", linked_data, value - linked._section_address + offset,
+                         word | (((effective_offset - offset - 4) // 4) & 0xFFFF))
+        linked = self.FakeElf(linked.path, ".main", linked._section_address, linked_data,
+                              linked.symbols() + [("local_case", value + destination_offset, 0, 18, 1)])
+        return candidate, target, linked, value, size, effective_offset
+
+    def _pc16_records(self, repo, fixture):
+        candidate, target, linked, value, size, _ = fixture
+        with mock.patch.object(rs, "REPO", repo), mock.patch.object(rs, "Elf", return_value=target):
+            return rs._resident_target_records(candidate, None, linked, "func_800498FC",
+                                                value, size, ".main", repo / "missing-values.txt")
+
+    def test_pc16_proves_forward_backward_and_nonzero_addend_without_dropping_tuple(self):
+        for destination, addend in ((0x40, -1), (0, -1), (0x40, 1)):
+            with self.subTest(destination=destination, addend=addend), tempfile.TemporaryDirectory() as td:
+                repo = Path(td)
+                fixture = self._pc16_fixture(repo, destination, addend)
+                records = self._pc16_records(repo, fixture)
+                self.assertEqual(len(records), 6)
+                branch = next(record for record in records if record.rtype == rs.R_MIPS_PC16)
+                self.assertEqual(branch.offset, 0x10)
+                self.assertEqual(branch.identity, (0, fixture[3] + fixture[5] - rs.ot.RESIDENT_VRAM_BASE))
+
+    def test_pc16_refuses_wrong_opcode_or_linked_displacement(self):
+        for bit, error in ((1 << 21, "opcode/register"), (1, "does not reproduce")):
+            with self.subTest(bit=bit), tempfile.TemporaryDirectory() as td:
+                repo = Path(td)
+                fixture = list(self._pc16_fixture(repo))
+                linked = fixture[2]
+                data = bytearray(linked._section_data)
+                offset = fixture[3] - linked._section_address + 0x10
+                word = struct.unpack_from(">I", data, offset)[0]
+                struct.pack_into(">I", data, offset, word ^ bit)
+                linked._section_data = bytes(data)
+                with self.assertRaisesRegex(rs.SurfaceComparisonError, error):
+                    self._pc16_records(repo, fixture)
+
+    def test_pc16_refuses_external_unaligned_and_out_of_function_destinations(self):
+        for kind in ("external", "unaligned", "outside"):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory() as td:
+                repo = Path(td)
+                fixture = self._pc16_fixture(repo)
+                target = fixture[1]
+                name, value, size, info, section = target._symbols[-1]
+                if kind == "external":
+                    section = rs.SHN_UNDEF
+                else:
+                    value += 1 if kind == "unaligned" else fixture[4]
+                target._symbols[-1] = (name, value, size, info, section)
+                with self.assertRaisesRegex(rs.SurfaceComparisonError, "resident PC16"):
+                    self._pc16_records(repo, fixture)
+
+    def test_pc16_refuses_symbol_address_inconsistent_with_local_layout(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            fixture = self._pc16_fixture(repo)
+            linked = fixture[2]
+            name, value, size, info, section = linked._symbols[-1]
+            linked._symbols[-1] = (name, value + 4, size, info, section)
+            with self.assertRaisesRegex(rs.SurfaceComparisonError, "symbol identity disagrees"):
+                self._pc16_records(repo, fixture)
+
+    def test_pc16_refuses_nonbranch_instruction(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            fixture = self._pc16_fixture(repo)
+            target = fixture[1]
+            data = bytearray(target._section_data)
+            struct.pack_into(">I", data, target.symbols()[0][1] + 0x10, 0)
+            target._section_data = bytes(data)
+            with self.assertRaisesRegex(rs.SurfaceComparisonError, "supported branch"):
+                self._pc16_records(repo, fixture)
+
     def test_conflicting_source_assertion_fails_closed(self):
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td)
