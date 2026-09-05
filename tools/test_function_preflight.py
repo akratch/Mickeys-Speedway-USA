@@ -58,10 +58,16 @@ class SymbolResolutionTests(unittest.TestCase):
                 self.assertEqual((base + 0x20, 0x20),
                                  (resolution.expected_value, resolution.expected_size))
                 self.assertIn("whole-container ROM", resolution.identity_evidence)
+                elf.symbols.return_value = ordinary_symbols + [(generated, base + 0x20, 0, 0x12, 1)]
+                alias_resolution = fp.resolve("friendly", root=root, alias_path=alias,
+                                              atlas_path=atlas, symbol_path=root / "unused")
+                self.assertEqual(resolution.expected_size, alias_resolution.expected_size)
 
                 cases = {
                     "missing": [ordinary_symbols[0], ordinary_symbols[2]],
                     "alias conflict": ordinary_symbols + [(generated, base + 0x20, 0x24, 0x12, 1)],
+                    "zero alias wrong start": ordinary_symbols + [(generated, base + 0x24, 0, 0x12, 1)],
+                    "zero candidate": [ordinary_symbols[0], ("friendly", base + 0x20, 0, 0x12, 1), ordinary_symbols[2]],
                     "wrong start": [ordinary_symbols[0], ("friendly", base + 0x24, 0x1C, 0x12, 1), ordinary_symbols[2]],
                     "overflow": [ordinary_symbols[0], ("friendly", base + 0x20, 0x44, 0x12, 1)],
                     "gap": [ordinary_symbols[0], ("friendly", base + 0x20, 0x1C, 0x12, 1), ordinary_symbols[2]],

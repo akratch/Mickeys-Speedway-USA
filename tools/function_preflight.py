@@ -300,13 +300,18 @@ def _fully_matched_inner_geometry(
     symbols = elf.symbols()
     named = [row for row in symbols if row[0] in {candidate, target}
              and row[4] != rs.SHN_UNDEF]
-    if not named or any(row[4] != section_index or row[3] & 0xF != rs.STT_FUNC
-                        or row[2] <= 0 for row in named):
+    if (not any(row[0] == candidate and row[2] > 0 for row in named)
+            or any(row[4] != section_index or row[3] & 0xF != rs.STT_FUNC
+                   or (row[2] <= 0 and row[0] != target) for row in named)):
         raise PreflightError("inner function lacks unambiguous defined STT_FUNC evidence")
-    geometries = {(row[1], row[2]) for row in named}
+    # Linker-script aliases retain STT_FUNC/address but commonly have size 0.
+    # They corroborate only the start; the actual C definition must own size.
+    geometries = {(row[1], row[2]) for row in named if row[2] > 0}
     if len(geometries) != 1:
         raise PreflightError("inner function aliases have conflicting geometry")
     value, size = next(iter(geometries))
+    if any(row[1] != value for row in named):
+        raise PreflightError("inner function aliases have conflicting starts")
     limit = value + size
     owner_limit = rs.SYNTHETIC_VMA + end
     if value != rs.SYNTHETIC_VMA + offset or size % 4 or offset % 4 or limit > owner_limit:
