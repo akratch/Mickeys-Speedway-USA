@@ -299,3 +299,13 @@ s32 func_8004F020(void) {
  * summary: Extra saved-register setup remains; next lever is direct global-address expression shape.
  * PLATEAU-HANDOFF:func_8004EC60:end
  */
+
+/* PLATEAU-HANDOFF:func_8004EED0:start
+ * symbol: func_8004EED0
+ * score: 56/84 words
+ * frame: 0x20
+ * relocations: 22
+ * first-mismatch: +0xA8
+ * summary: Exact 84-word opcode/frame shape; 28 register-only words and one shifted static tuple remain after the first ROM load; permuter 225->85 was nonexact.
+ * PLATEAU-HANDOFF:func_8004EED0:end
+ */
