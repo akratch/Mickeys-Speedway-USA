@@ -151,6 +151,15 @@ class ContextTests(unittest.TestCase):
         self.assertEqual(len(value["parser_sha256"]), 64)
         self.assertEqual(len(value["comparator_sha256"]), 64)
 
+    def test_import_time_identity_rejects_drift_before_first_identity_call(self):
+        imported = cc._disk_identity()
+        for field in ("comparator_sha256", "parser_sha256"):
+            with self.subTest(field=field), mock.patch.object(
+                    cc, "_disk_identity", return_value={**imported, field: "0" * 64}):
+                with self.assertRaisesRegex(RuntimeError, "restart the caller"):
+                    cc.identity()
+                self.assertEqual(self.compare(BASE)["status"], "unverifiable")
+
     def test_parser_failure_is_never_equality(self):
         with mock.patch.object(cc, "_surface", side_effect=ImportError("parser missing")):
             self.assertEqual(self.compare(BASE)["status"], "unverifiable")

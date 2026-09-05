@@ -36,8 +36,8 @@ def _sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def identity() -> dict:
-    """Fingerprint the comparator and actual parser, without import-time I/O."""
+def _disk_identity() -> dict:
+    """Fingerprint the comparator and parser sources currently on disk."""
     result = {"schema": SCHEMA, "comparator_sha256": _sha(Path(__file__).read_bytes())}
     try:
         import pycparser
@@ -49,6 +49,19 @@ def identity() -> dict:
     except (ImportError, OSError, AttributeError) as error:
         result.update(parser="unavailable", error=type(error).__name__)
     return result
+
+
+# Pin when these modules are loaded, not when a long-lived caller first asks
+# for an identity. Otherwise cached code could claim subsequently edited files.
+_LOADED_IDENTITY_DIGEST = _sha(json.dumps(_disk_identity(), sort_keys=True).encode())
+
+
+def identity() -> dict:
+    """Return identity only while the loaded implementation remains current."""
+    current = _disk_identity()
+    if _sha(json.dumps(current, sort_keys=True).encode()) != _LOADED_IDENTITY_DIGEST:
+        raise RuntimeError("loaded comparator/parser changed on disk; restart the caller")
+    return current
 
 
 class ContextError(ValueError):
@@ -150,6 +163,7 @@ def compare_context(baseline: bytes, winner: bytes, symbol: str) -> dict:
         report["reason"] = "invalid requested function name"
         return report
     try:
+        identity()
         old, old_text = _surface(baseline, symbol)
         new, new_text = _surface(winner, symbol)
         for field, value in (("baseline_context_sha256", old), ("winner_context_sha256", new)):
