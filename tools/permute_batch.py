@@ -103,6 +103,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import reloc_surface  # noqa: E402
 import sweep_receipts  # noqa: E402
 import promotion_transaction  # noqa: E402
+_LOADED_IMPLEMENTATIONS = {
+    name: (Path(path), hashlib.sha256(Path(path).read_bytes()).hexdigest())
+    for name, path in (("runner", __file__), ("receipts", sweep_receipts.__file__),
+                       ("promotion", promotion_transaction.__file__),
+                       ("relocations", reloc_surface.__file__))
+}
 ATLAS_PATH = ROOT / "config" / "overlays.us.json"
 PERMUTER_DIR = ROOT / "tools" / "permuter"
 IMPORT_PY = PERMUTER_DIR / "import.py"
@@ -709,6 +715,7 @@ class RunResult:
     deep_skipped: bool = False
     scratch_path: Optional[str] = None
     artifact_bundle: Optional[str] = None
+    context_review: Optional[dict] = None
 
 
 def remaining_timeout(deadline: Optional[float], cap: float = 120) -> float:
@@ -786,7 +793,222 @@ def sweep_tool_identity() -> dict:
         "promotion": sweep_receipts.file_digest(Path(promotion_transaction.__file__)),
         "python": sweep_receipts.file_digest(PYTHON.resolve()),
         "python_version": sys.version,
+        "candidate_context": context_tool_identity(),
+        "loaded_modules": {name: value[1] for name, value in _LOADED_IMPLEMENTATIONS.items()},
     }
+
+
+_CONTEXT_IDENTITY_LOCK = threading.Lock()
+_CONTEXT_IDENTITY_PIN = None
+_TOOL_IDENTITY_LOCK = threading.Lock()
+_PROCESS_TOOLS_PIN = None
+
+
+def context_tool_identity() -> dict:
+    global _CONTEXT_IDENTITY_PIN
+    with _CONTEXT_IDENTITY_LOCK:
+        try:
+            import candidate_context
+            current = candidate_context.identity()
+        except (ImportError, OSError) as error:
+            current = {"unavailable": type(error).__name__}
+        digest = sweep_receipts.digest(current)
+        if _CONTEXT_IDENTITY_PIN is None:
+            _CONTEXT_IDENTITY_PIN = digest
+        elif _CONTEXT_IDENTITY_PIN != digest:
+            raise RuntimeError("context comparator/parser changed in this process; restart the runner")
+        return current
+
+
+def checked_tool_identity() -> dict:
+    """Loaded code cannot truthfully claim the identity of subsequently edited files."""
+    global _PROCESS_TOOLS_PIN
+    with _TOOL_IDENTITY_LOCK:
+        for name, (path, imported_digest) in _LOADED_IMPLEMENTATIONS.items():
+            if hashlib.sha256(path.read_bytes()).hexdigest() != imported_digest:
+                raise RuntimeError(f"loaded {name} implementation changed; restart the runner")
+        current = sweep_tool_identity()
+        digest = sweep_receipts.digest(current)
+        if _PROCESS_TOOLS_PIN is None:
+            _PROCESS_TOOLS_PIN = digest
+        elif _PROCESS_TOOLS_PIN != digest:
+            raise RuntimeError("tools changed in this process; restart the runner")
+        return current
+
+
+@dataclasses.dataclass(frozen=True)
+class PreparedBaseline:
+    """Explicit immutable evidence from the first actual search compilation."""
+    symbol: str
+    canonical_source_sha256: str
+    tools_sha256: str
+    source: bytes
+    object: bytes
+    source_sha256: str
+    object_sha256: str
+    returncode: int
+    recipe_json: bytes
+    dependencies_json: bytes
+    capture_binding_json: bytes
+    prepared_inputs_json: bytes
+
+
+def source_dependencies(source: Path, arguments: tuple[str, ...], deadline=None) -> dict:
+    """Conservative literal include closure, with inactive/missing paths retained."""
+    directories = []
+    for index, argument in enumerate(arguments):
+        if argument == "-I-":
+            raise RuntimeError("unsupported split include search freshness")
+        elif argument == "-I" and index + 1 < len(arguments):
+            directories.append(ROOT / arguments[index + 1])
+        elif argument.startswith("-I") and len(argument) > 2:
+            directories.append(ROOT / argument[2:])
+        elif argument.startswith(("-include", "-imacros", "-isystem", "-iquote", "-idirafter", "-iprefix", "-iwithprefix")):
+            raise RuntimeError("unsupported forced/system include freshness")
+    records, visited = {}, set()
+    total_bytes = 0
+    lexical = re.compile(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|/\*.*?\*/|//[^\n]*', re.S)
+    def walk(path, initial=False):
+        nonlocal total_bytes
+        remaining_timeout(deadline)
+        # Do not resolve away a symlink before the owned read authenticates
+        # every lookup component. The spelling can affect nested includes and
+        # __FILE__ even when the ultimate file bytes are identical.
+        relative = path.relative_to(ROOT).as_posix()
+        if path in visited:
+            return
+        visited.add(path)
+        data = sweep_receipts.owned_bytes(ROOT.resolve(), relative, limit=4 * 1024 * 1024)
+        total_bytes += len(data)
+        if len(visited) > 4096 or total_bytes > 32 * 1024 * 1024:
+            raise RuntimeError("include freshness closure exceeds bounded limits")
+        if not initial:
+            records[relative] = hashlib.sha256(data).hexdigest()
+        text = data.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+        if re.search(r"\?\?[=/'()!<>-]", text):
+            raise RuntimeError("cannot authenticate trigraph include freshness")
+        if re.search(r"\\[ \t\v\f]+\n", text):
+            raise RuntimeError("cannot authenticate dialect-dependent spaced include continuation")
+        text = text.replace("\\\n", "")
+        text = lexical.sub(lambda m: " " + "\n" * m.group().count("\n")
+                           if m.group().startswith(("/*", "//")) else m.group(), text)
+        if re.search(r"(?m)^\s*%:", text):
+            raise RuntimeError("cannot authenticate digraph include directive freshness")
+        for match in re.finditer(r'^\s*#\s*(include[A-Za-z_0-9]*|import)\b([^\n]*)', text, re.MULTILINE):
+            if match.group(1) != "include":
+                raise RuntimeError("unsupported include-family directive freshness")
+            if "-nostdinc" not in arguments:
+                raise RuntimeError("implicit system include search is not authenticated")
+            spelling = match.group(2).strip()
+            literal = re.fullmatch(r'"([^"\n]+)"|<([^>\n]+)>', spelling)
+            if literal is None:
+                raise RuntimeError("cannot authenticate macro include freshness")
+            quoted, angled = literal.groups()
+            name = quoted if quoted is not None else angled
+            search = ([path.parent] if quoted is not None else []) + directories
+            found = next((directory / name for directory in search if (directory / name).is_file()), None)
+            if found is None:
+                records[f"missing:{relative}:{spelling}"] = "absent"
+            else:
+                walk(found)
+    walk(source, True)
+    return records
+
+
+def captured_baseline(item: QueueItem, out_dir: Path, inputs: dict, deadline=None) -> PreparedBaseline:
+    context = inputs["context"]
+    if context["identity"]["symbol"] != item.func or context["identity"]["source"] != item.rel_c_file:
+        raise RuntimeError("prepared baseline belongs to another symbol/source")
+    capture = out_dir / "baseline-capture"
+    metadata = json.loads(sweep_receipts.owned_bytes(capture, "capture.json"))
+    binding = {"inputs_sha256": sweep_receipts.digest(inputs), "run_id": out_dir.name}
+    if metadata.get("binding") != binding:
+        raise RuntimeError("actual compiler capture belongs to another prepared run")
+    evidence = PreparedBaseline(item.func, context["source"], sweep_receipts.digest(context["tools"]),
+        sweep_receipts.owned_bytes(capture, "compiled.c", limit=4 * 1024 * 1024),
+        sweep_receipts.owned_bytes(capture, "compiled.o"), metadata["source_sha256"],
+        metadata["object_sha256"], metadata["returncode"],
+        json.dumps(context["recipe"], sort_keys=True).encode(),
+        json.dumps(context["dependencies"], sort_keys=True).encode(),
+        json.dumps(binding, sort_keys=True).encode(),
+        json.dumps(inputs, sort_keys=True).encode())
+    validate_baseline(item, evidence, deadline)
+    return evidence
+
+
+def validate_baseline(item: QueueItem, evidence: PreparedBaseline | None, deadline=None) -> None:
+    if not isinstance(evidence, PreparedBaseline) or evidence.symbol != item.func:
+        raise RuntimeError("missing authenticated prepared baseline for this symbol")
+    binding = json.loads(evidence.capture_binding_json)
+    inputs = json.loads(evidence.prepared_inputs_json)
+    context = inputs.get("context") if isinstance(inputs, dict) else None
+    if (not isinstance(binding, dict) or not isinstance(context, dict)
+            or binding.get("inputs_sha256") != sweep_receipts.digest(inputs)
+            or not isinstance(binding.get("run_id"), str)
+            or re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", binding["run_id"]) is None
+            or not isinstance(context.get("identity"), dict)
+            or context["identity"].get("symbol") != item.func
+            or context["identity"].get("source") != item.rel_c_file
+            or context.get("source") != evidence.canonical_source_sha256
+            or sweep_receipts.digest(context.get("tools")) != evidence.tools_sha256
+            or json.dumps(context.get("recipe"), sort_keys=True).encode() != evidence.recipe_json
+            or json.dumps(context.get("dependencies"), sort_keys=True).encode() != evidence.dependencies_json):
+        raise RuntimeError("prepared capture binding is missing or belongs to another context")
+    if (type(evidence.returncode) is not int or evidence.returncode != 0 or not evidence.object
+            or hashlib.sha256(evidence.source).hexdigest() != evidence.source_sha256
+            or hashlib.sha256(evidence.object).hexdigest() != evidence.object_sha256):
+        raise RuntimeError("first actual compiler capture is unsuccessful or digest-mismatched")
+    if sweep_receipts.file_digest(item.c_file) != evidence.canonical_source_sha256:
+        raise RuntimeError("canonical TU changed since initial prepared baseline")
+    if sweep_receipts.digest(checked_tool_identity()) != evidence.tools_sha256:
+        raise RuntimeError("tools changed since initial prepared baseline")
+    remaining_timeout(deadline)
+    recipe = build_recipe_for(item.c_file, deadline)
+    if json.dumps(dataclasses.asdict(recipe), sort_keys=True).encode() != evidence.recipe_json:
+        raise RuntimeError("configured recipe changed since initial prepared baseline")
+    if json.dumps(source_dependencies(item.c_file, recipe.compiler_args, deadline), sort_keys=True).encode() != evidence.dependencies_json:
+        raise RuntimeError("header context changed since initial prepared baseline")
+
+
+def review_context(item: QueueItem, evidence: PreparedBaseline | None, winner: bytes, deadline=None) -> dict:
+    try:
+        comparator_identity = context_tool_identity()
+    except RuntimeError as error:
+        comparator_identity = {"unavailable": str(error)}
+    report = {"schema": "mickey-prepared-context-review-v1", "status": "unverifiable",
+              "symbol": item.func, "canonical_source_sha256": getattr(evidence, "canonical_source_sha256", None),
+              "baseline_source_sha256": hashlib.sha256(evidence.source).hexdigest() if evidence else None,
+              "winner_source_sha256": hashlib.sha256(winner).hexdigest(),
+              "capture_binding": json.loads(evidence.capture_binding_json) if evidence else None,
+              "comparator_identity": comparator_identity, "comparison": None, "reason": None}
+    try:
+        validate_baseline(item, evidence, deadline)
+        import candidate_context
+        comparison = candidate_context.compare_context(evidence.source, winner, item.func)
+        if (comparison.get("schema") != "mickey-candidate-context-v1"
+                or comparison.get("symbol") != item.func
+                or comparison.get("baseline_sha256") != report["baseline_source_sha256"]
+                or comparison.get("winner_sha256") != report["winner_source_sha256"]
+                or comparison.get("status") not in {"unchanged", "changed", "unverifiable"}):
+            raise RuntimeError("context comparator returned unbound or malformed evidence")
+        report.update(status=comparison["status"], comparison=comparison, reason=comparison.get("reason"))
+    except Exception as error:
+        report["reason"] = str(error)
+    return report
+
+
+def retain_context(directory: Path, evidence: PreparedBaseline | None, winner: bytes, report: dict) -> None:
+    directory.mkdir(parents=True, exist_ok=True)
+    if evidence is not None:
+        (directory / "baseline.c").write_bytes(evidence.source)
+        (directory / "baseline.o").write_bytes(evidence.object)
+        (directory / "prepared-inputs.json").write_bytes(evidence.prepared_inputs_json)
+        sweep_receipts.atomic_json(directory / "capture.json", {
+            "returncode": evidence.returncode, "source_sha256": evidence.source_sha256,
+            "object_sha256": evidence.object_sha256,
+            "binding": json.loads(evidence.capture_binding_json)})
+    (directory / "winner.c").write_bytes(winner)
+    sweep_receipts.atomic_json(directory / "report.json", report)
 
 
 def receipt_inputs(item: QueueItem, scratch: Path, settings: Path, target: Path,
@@ -830,6 +1052,7 @@ def receipt_inputs(item: QueueItem, scratch: Path, settings: Path, target: Path,
         "settings": sweep_receipts.file_digest(settings),
         "recipe": json.loads(json.dumps(dataclasses.asdict(recipe))),
         "tools": sweep_tool_identity(),
+        "dependencies": source_dependencies(item.c_file, recipe.compiler_args),
     }
     # Whole-ROM hash is cheap here and also pins the relocation metadata read
     # by annotation. The receipt never contains ROM bytes.
@@ -1103,6 +1326,7 @@ def run_permuter(
     args = [
         "nice", "-n", "15",
         str(PYTHON),
+        "-u",  # A capped child must not lose its baseline score in a file buffer.
         str(PERMUTER_PY),
         *MANDATORY_PERMUTER_ARGS,
         "-j",
@@ -1220,7 +1444,8 @@ PROMOTE_LOCK = threading.Lock()
 
 
 def promote(item: QueueItem, winning_source: Path, jobs: int,
-            batch_deadline: Optional[float] = None, commit: bool = False) -> tuple[bool, Optional[str]]:
+            batch_deadline: Optional[float] = None, commit: bool = False, *,
+            evidence: PreparedBaseline | None = None, winner_bytes: bytes | None = None) -> tuple[bool, Optional[str]]:
     """Splice the winning candidate into the real C file, rebuild, and
     verify byte-identity. Roll back owned writes on failure, preserving
     conflicting independent edits for recovery. Returns (promoted, error)."""
@@ -1229,7 +1454,11 @@ def promote(item: QueueItem, winning_source: Path, jobs: int,
             pass
         try:
             remaining_timeout(batch_deadline)
-            return _promote_locked(item, winning_source, jobs, batch_deadline, commit)
+            frozen = winner_bytes if winner_bytes is not None else sweep_receipts.owned_bytes(
+                winning_source.parent, winning_source.name, limit=4 * 1024 * 1024)
+            if not isinstance(frozen, bytes):
+                raise RuntimeError("winner must be immutable bytes")
+            return _promote_locked(item, frozen, jobs, batch_deadline, commit, evidence)
         finally:
             PROMOTE_LOCK.release()
     except Exception as exc:
@@ -1274,8 +1503,9 @@ def trial_explanation(func: str) -> Optional[str]:
 HANDOFF_DIR = ROOT / "docs" / "matching-triage-handoffs"
 
 
-def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
-                    deadline: Optional[float], commit: bool) -> tuple[bool, Optional[str]]:
+def _promote_locked(item: QueueItem, winner: bytes, jobs: int,
+                    deadline: Optional[float], commit: bool,
+                    prepared: PreparedBaseline | None = None) -> tuple[bool, Optional[str]]:
     source = item.c_file
     shard = HANDOFF_DIR / f"{item.func}.md"
     atlas = ATLAS_PATH
@@ -1286,6 +1516,10 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
     paths = [source, shard, atlas, yaml, symbols, donors, readme]
     rel_paths = [str(path.relative_to(ROOT)) for path in paths]
     evidence = BUILD_PERMUTER / item.func / "promotions" / uuid.uuid4().hex
+    review = review_context(item, prepared, winner, deadline)
+    retain_context(evidence / "context-review", prepared, winner, review)
+    if review["status"] != "unchanged":
+        return False, f"candidate declaration context {review['status']}: {review['reason']}; evidence: {evidence.relative_to(ROOT)}"
     journal = promotion_transaction.FileJournal(ROOT, paths, evidence)
     initial_head = None
     initial_ref = "HEAD"
@@ -1357,7 +1591,8 @@ def _promote_locked(item: QueueItem, winning_source: Path, jobs: int,
         if commit and run(["git", "diff", "HEAD", "--name-only", "--", *rel_paths]):
             raise RuntimeError("promotion paths already differ from HEAD; preserve them before --commit")
         original = source.read_text()
-        function = extract_function_text(winning_source.read_text(), item.func)
+        validate_baseline(item, prepared, deadline)
+        function = extract_function_text(winner.decode("utf-8"), item.func)
         block = next((block for block in iter_nonmatching_blocks(original)
                       if block_function_name(original, block) == item.func), None)
         if block is None:
@@ -1539,7 +1774,7 @@ _IMPORT_LOCK = threading.Lock()
 _CAPTURE_BASELINE = r'''
 import hashlib, json, os, stat, subprocess, sys, tempfile
 from pathlib import Path
-recipe, destination, *args = sys.argv[1:]
+recipe, destination, binding, *args = sys.argv[1:]
 if len(args) != 3 or args[1] != '-o':
     raise RuntimeError('unsupported permuter compiler invocation')
 root = Path(destination)
@@ -1560,14 +1795,14 @@ obj = read_temp(args[2])
 (root / 'compiled.o').write_bytes(obj)
 if read_temp(args[0]) != source:
     raise RuntimeError('baseline input changed during compiler invocation')
-(root / 'capture.json').write_text(json.dumps({'returncode': code,
+(root / 'capture.json').write_text(json.dumps({'returncode': code, 'binding': json.loads(binding),
     'source_sha256': hashlib.sha256(source).hexdigest(),
     'object_sha256': hashlib.sha256(obj).hexdigest()}))
 sys.exit(code if code else (0 if obj else 1))
 '''
 
 
-def install_baseline_capture(scratch: Path, out_dir: Path, baseline: dict) -> Path:
+def install_baseline_capture(scratch: Path, out_dir: Path, baseline: dict, inputs: dict) -> Path:
     """Capture the first synchronous search compilation, not importer's different AST."""
     capture = out_dir / "baseline-capture"
     capture.mkdir(mode=0o700)
@@ -1577,7 +1812,8 @@ def install_baseline_capture(scratch: Path, out_dir: Path, baseline: dict) -> Pa
     helper.write_text(_CAPTURE_BASELINE)
     quote = shlex.quote
     wrapper = ("#!/bin/sh\nif mkdir " + quote(str(capture / "claimed")) + " 2>/dev/null; then\n"
-               + "exec " + " ".join(map(quote, [str(PYTHON), str(helper), str(recipe), str(capture)]))
+               + "exec " + " ".join(map(quote, [str(PYTHON), str(helper), str(recipe), str(capture),
+                   json.dumps({"inputs_sha256": sweep_receipts.digest(inputs), "run_id": out_dir.name})]))
                + ' "$@"\nelse\nexec bash ' + quote(str(recipe)) + ' "$@"\nfi\n')
     (scratch / "compile.sh").write_text(wrapper)
     (scratch / "compile.sh").chmod(0o755)
@@ -1588,11 +1824,18 @@ def preserve_search_artifacts(store, out_dir, scratch, baseline, result, deadlin
     """Save untouched compiler evidence, including retryable partial attempts."""
     files = dict(baseline)
     errors = []
+    for name in ("baseline.c", "winner.c", "report.json"):
+        try:
+            files["context/" + name] = sweep_receipts.owned_bytes(out_dir, "context-review/" + name)
+        except Exception as error:
+            errors.append(f"context evidence {name}: {error}")
     try:
-        capture = out_dir / "baseline-capture"
+        # The original capture is retained among attempt files. Use the frozen
+        # source/object pair checked before promotion, not mutable late reads.
+        capture = out_dir / "context-review"
         metadata = json.loads(sweep_receipts.owned_bytes(capture, "capture.json"))
-        for name in ("compiled.c", "compiled.o"):
-            files["baseline/" + name] = sweep_receipts.owned_bytes(capture, name)
+        for name, frozen_name in (("compiled.c", "baseline.c"), ("compiled.o", "baseline.o")):
+            files["baseline/" + name] = sweep_receipts.owned_bytes(capture, frozen_name)
         if (metadata["returncode"] != 0 or not files["baseline/compiled.o"]
                 or hashlib.sha256(files["baseline/compiled.c"]).hexdigest() != metadata["source_sha256"]
                 or hashlib.sha256(files["baseline/compiled.o"]).hexdigest() != metadata["object_sha256"]):
@@ -1602,10 +1845,11 @@ def preserve_search_artifacts(store, out_dir, scratch, baseline, result, deadlin
     except Exception as error:
         errors.append(str(error))
     try:
-        best_dir, score = _best(scratch)
-        if best_dir is not None and (result.base_score is None or
-                                    score is not None and score < result.base_score):
-            source = sweep_receipts.owned_bytes(out_dir, (best_dir / "source.c").relative_to(out_dir).as_posix())
+        best_dir, _ = _best(scratch)
+        score = result.best_score
+        if score is not None and (result.base_score is None or score < result.base_score):
+            source = files.get("context/winner.c") or sweep_receipts.owned_bytes(
+                out_dir, (best_dir / "source.c").relative_to(out_dir).as_posix())
             files["best/source.c"] = source
             # The permuter retains source, score and diff, not an object.
             # Compile exactly those bytes once through the saved full recipe.
@@ -1675,10 +1919,12 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
     preservation_started = False
     try:
         remaining_timeout(batch_deadline)
+        checked_tool_identity()
         source_hash = sweep_receipts.file_digest(item.c_file)
         recipe = build_recipe_for(item.c_file, batch_deadline)
         if not recipe.from_dry_run or not recipe.compiler_args:
             raise RuntimeError("no supported complete IDO recipe; refusing a guessed scratch command")
+        initial_dependencies = source_dependencies(item.c_file, recipe.compiler_args, batch_deadline)
         result.flags = " ".join(recipe.flags)
         result.replicated_objcopy = len(recipe.objcopy_steps)
         settings_path = out_dir / "permuter_settings.toml"
@@ -1704,6 +1950,9 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
         })
         if source_hash != inputs["context"]["source"]:
             raise RuntimeError("source changed during sweep preparation; retry against stable input")
+        if initial_dependencies != inputs["context"]["dependencies"]:
+            raise RuntimeError("headers changed during sweep preparation")
+        checked_tool_identity()
         result.receipt_key = sweep_receipts.digest(inputs)
         with store.claim(result.receipt_key) as acquired:
             if not acquired:
@@ -1717,6 +1966,7 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
                 result.best_score = previous["result"]["best_score"]
                 result.scratch_path = previous["result"].get("scratch_path")
                 result.artifact_bundle = previous["result"]["artifact_bundle"]
+                result.context_review = previous["result"]["context_review"]
             else:
                 # Freeze baseline bytes before an extension replaces base.c.
                 for name in ("base.c", "base.o", "compile.sh", "target.s", "settings.toml"):
@@ -1724,10 +1974,10 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
                 baseline["baseline/tu.c"] = sweep_receipts.owned_bytes(ROOT, item.rel_c_file)
                 baseline["baseline/recipe.json"] = json.dumps(dataclasses.asdict(recipe), sort_keys=True).encode()
                 baseline["baseline/permuter_settings.toml"] = sweep_receipts.owned_bytes(out_dir, settings_path.name)
-                install_baseline_capture(scratch, out_dir, baseline)
+                install_baseline_capture(scratch, out_dir, baseline, inputs)
                 run_prepared(item, scratch, out_dir, result, minutes, permuter_threads,
                              build_jobs, apply, extra_args, load_threshold, extend_minutes,
-                             commit, flat_minutes, batch_deadline)
+                             commit, flat_minutes, batch_deadline, prepared_inputs=inputs)
                 # Concurrent promotion in another slot can change this TU.
                 # Such a search remains useful evidence, but cannot suppress
                 # a future run against the newly changed source.
@@ -1768,7 +2018,9 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
 def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResult,
                  minutes: int, permuter_threads: int, build_jobs: int, apply: bool,
                  extra_args: list[str], load_threshold: float, extend_minutes: int,
-                 commit: bool, flat_minutes: int, batch_deadline: Optional[float]) -> None:
+                 commit: bool, flat_minutes: int, batch_deadline: Optional[float], *,
+                 prepared_inputs: dict | None = None) -> None:
+    prepared = None
     try:
         wait_for_headroom(load_threshold, f"before permuting {item.func}", batch_deadline)
         base_score, elapsed, stopped_flat, stopped_batch = run_permuter(
@@ -1778,6 +2030,10 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
         result.stopped_flat = stopped_flat
         result.stopped_batch = stopped_batch
         result.ok = True
+        try:
+            prepared = captured_baseline(item, out_dir, prepared_inputs, batch_deadline)
+        except Exception as error:
+            result.promote_error = f"prepared baseline unverifiable: {error}" if apply else None
 
         best_dir, best_score = _best(scratch)
         result.best_score = best_score
@@ -1807,8 +2063,16 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
         # it as-is instead of reporting "no improvement".
         if base_score == 0 and best_dir is None:
             best_dir, best_score = scratch, 0
-            (scratch / "source.c").write_text((scratch / "base.c").read_text())
+            if prepared is not None:
+                (scratch / "source.c").write_bytes(prepared.source)
         result.best_score = best_score
+        frozen_winner = (sweep_receipts.owned_bytes(best_dir, "source.c", limit=4 * 1024 * 1024)
+                         if best_dir is not None and (best_score == 0 or
+                             best_score is not None and best_score < base_score)
+                         and (best_dir / "source.c").exists()
+                         else prepared.source if prepared is not None else b"")
+        result.context_review = review_context(item, prepared, frozen_winner, batch_deadline)
+        retain_context(out_dir / "context-review", prepared, frozen_winner, result.context_review)
         if best_score == 0 and best_dir is not None:
             result.zero_found = True
             if apply and not result.stopped_batch:
@@ -1818,7 +2082,8 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
                     wait_for_headroom(
                         load_threshold, f"before promoting {item.func}", batch_deadline)
                     promoted, err = promote(item, best_dir / "source.c", build_jobs,
-                                            batch_deadline, commit=commit)
+                                            batch_deadline, commit=commit, evidence=prepared,
+                                            winner_bytes=frozen_winner)
                     result.promoted = promoted
                     result.promote_error = err
     except Exception as e:  # noqa: BLE001 -- report, don't crash the batch
@@ -1826,6 +2091,28 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
         result.error = str(e)
         if batch_deadline is not None and time.monotonic() >= batch_deadline:
             result.stopped_batch = True
+    finally:
+        if result.context_review is None:
+            if prepared is None:
+                try:
+                    # A child can fail after a successful synchronous compile
+                    # but before returning its score. Recover only authenticated
+                    # evidence; this never clears the failure or enables apply.
+                    prepared = captured_baseline(item, out_dir, prepared_inputs, batch_deadline)
+                except Exception as error:
+                    result.error = ((result.error + "; ") if result.error else "") + \
+                        f"prepared baseline recovery unavailable: {error}"
+            frozen_winner = prepared.source if prepared is not None else b""
+            try:
+                best_dir, score = _best(scratch)
+                if score is not None:
+                    result.best_score = score
+                if best_dir is not None and score is not None and (result.base_score is None or score < result.base_score):
+                    frozen_winner = sweep_receipts.owned_bytes(best_dir, "source.c", limit=4 * 1024 * 1024)
+            except (OSError, ValueError):
+                pass
+            result.context_review = review_context(item, prepared, frozen_winner, batch_deadline)
+            retain_context(out_dir / "context-review", prepared, frozen_winner, result.context_review)
 
 
 # --------------------------------------------------------------------------
@@ -2243,9 +2530,10 @@ def print_result(r: RunResult) -> None:
         status = f"improved{' (extended)' if r.extended else ''}"
     annotated = (f" reloc-annotated={r.annotated_relocs}"
                  if r.annotated_relocs else "")
+    context = f" context={r.context_review['status']}" if r.context_review else ""
     print(
         f"[{r.func}] base={r.base_score} best={r.best_score} "
-        f"{status}{annotated} ({r.seconds:.0f}s)"
+        f"{status}{annotated}{context} ({r.seconds:.0f}s)"
     )
 
 

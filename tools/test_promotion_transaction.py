@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import contextlib
+import dataclasses
+import hashlib
+import json
 import os
 import signal
 import subprocess
@@ -72,6 +75,21 @@ int fixture(void) { return 1; }
                                       "identity_proof_mode": "static"},
         }
         self.stack.enter_context(patch.object(batch, "bounded_capture", side_effect=self.command))
+        self.recipe = batch.BuildRecipe(("-O2",), (), (), True, ("-c", "-O2"))
+        self.stack.enter_context(patch.object(batch, "build_recipe_for", return_value=self.recipe))
+        self.stack.enter_context(patch.object(batch, "sweep_tool_identity", return_value={
+            "fixture": "synthetic tools", "candidate_context": batch.context_tool_identity()}))
+        self.stack.enter_context(patch.object(batch, "_PROCESS_TOOLS_PIN", None))
+        self.inputs = {"context": {"identity": {"symbol": "fixture", "source": "src/fixture.c"},
+            "source": hashlib.sha256(self.source.read_bytes()).hexdigest(),
+            "tools": batch.sweep_tool_identity(), "recipe": dataclasses.asdict(self.recipe), "dependencies": {}}}
+        captured = b"int fixture(void) { return 1; }\n"
+        self.evidence = batch.PreparedBaseline("fixture", self.inputs["context"]["source"],
+            batch.sweep_receipts.digest(self.inputs["context"]["tools"]), captured, b"synthetic object",
+            hashlib.sha256(captured).hexdigest(), hashlib.sha256(b"synthetic object").hexdigest(),
+            0, json.dumps(dataclasses.asdict(self.recipe), sort_keys=True).encode(), b"{}",
+            json.dumps({"inputs_sha256": batch.sweep_receipts.digest(self.inputs), "run_id": self.root.name}).encode(),
+            json.dumps(self.inputs, sort_keys=True).encode())
 
     def __enter__(self):
         return self
@@ -127,7 +145,19 @@ int fixture(void) { return 1; }
         return result
 
     def promote(self, *, commit=True, seconds=15):
-        return batch.promote(self.item, self.winner, 1, time.monotonic() + seconds, commit=commit)
+        return batch.promote(self.item, self.winner, 1, time.monotonic() + seconds, commit=commit,
+                             evidence=self.evidence)
+
+    def capture(self, directory):
+        capture = directory / "baseline-capture"
+        capture.mkdir()
+        source = self.winner.read_bytes()
+        (capture / "compiled.c").write_bytes(source)
+        (capture / "compiled.o").write_bytes(b"synthetic object")
+        (capture / "capture.json").write_text(json.dumps({"returncode": 0,
+            "binding": {"inputs_sha256": batch.sweep_receipts.digest(self.inputs), "run_id": directory.name},
+            "source_sha256": hashlib.sha256(source).hexdigest(),
+            "object_sha256": hashlib.sha256(b"synthetic object").hexdigest()}))
 
     def assert_restored(self, case):
         case.assertEqual(self.git("rev-parse", "HEAD"), self.head)
@@ -138,6 +168,76 @@ int fixture(void) { return 1; }
 
 
 class PromotionTests(unittest.TestCase):
+    def test_compact_include_header_edit_refuses_actual_promotion(self):
+        with Fixture() as fixture:
+            fixture.source.write_text('#include"outer.h"\n' + fixture.source.read_text())
+            header = fixture.write("src/outer.h", "typedef int value;\n")
+            recipe = dataclasses.replace(fixture.recipe, compiler_args=("-c", "-O2", "-nostdinc"))
+            with patch.object(batch, "build_recipe_for", return_value=recipe):
+                fixture.inputs["context"].update(
+                    source=hashlib.sha256(fixture.source.read_bytes()).hexdigest(),
+                    recipe=dataclasses.asdict(recipe),
+                    dependencies=batch.source_dependencies(fixture.source, recipe.compiler_args))
+                fixture.evidence = dataclasses.replace(fixture.evidence,
+                    canonical_source_sha256=hashlib.sha256(fixture.source.read_bytes()).hexdigest(),
+                    recipe_json=json.dumps(dataclasses.asdict(recipe), sort_keys=True).encode(),
+                    dependencies_json=json.dumps(batch.source_dependencies(fixture.source, recipe.compiler_args),
+                                                 sort_keys=True).encode(),
+                    capture_binding_json=json.dumps({"inputs_sha256": batch.sweep_receipts.digest(fixture.inputs),
+                                                     "run_id": fixture.root.name}).encode(),
+                    prepared_inputs_json=json.dumps(fixture.inputs, sort_keys=True).encode())
+                header.write_text("typedef long value;\n")
+                before = fixture.source.read_bytes()
+                ok, error = fixture.promote(commit=False)
+            self.assertFalse(ok)
+            self.assertIn("header context changed", error)
+            self.assertEqual(fixture.source.read_bytes(), before)
+            self.assertEqual(header.read_text(), "typedef long value;\n")
+            self.assertEqual(fixture.calls, [])
+
+    def test_missing_changed_or_corrupt_context_rejects_before_canonical_write(self):
+        for fault in ("missing", "declaration", "signature", "corrupt", "source", "header",
+                      "missing binding", "foreign binding", "foreign symbol"):
+            with self.subTest(fault=fault), Fixture() as fixture:
+                evidence = fixture.evidence
+                if fault == "missing":
+                    evidence = None
+                elif fault == "declaration":
+                    fixture.winner.write_text("extern int outside; int fixture(void) { return 2; }")
+                elif fault == "signature":
+                    fixture.winner.write_text("void fixture(void) { }")
+                elif fault == "corrupt":
+                    evidence = dataclasses.replace(evidence, source_sha256="wrong")
+                elif fault == "source":
+                    fixture.source.write_text(fixture.source.read_text() + "/* intervening edit */")
+                elif fault == "missing binding":
+                    evidence = dataclasses.replace(evidence, capture_binding_json=b"{}")
+                elif fault == "foreign binding":
+                    evidence = dataclasses.replace(evidence, capture_binding_json=b'{"inputs_sha256":"other","run_id":"other"}')
+                elif fault == "foreign symbol":
+                    inputs = json.loads(evidence.prepared_inputs_json)
+                    inputs["context"]["identity"]["symbol"] = "foreign"
+                    evidence = dataclasses.replace(evidence, prepared_inputs_json=json.dumps(inputs).encode(),
+                        capture_binding_json=json.dumps({"inputs_sha256": batch.sweep_receipts.digest(inputs),
+                                                         "run_id": "other"}).encode())
+                else:
+                    evidence = dataclasses.replace(evidence, dependencies_json=b'{"gone.h":"old"}')
+                before = fixture.source.read_bytes()
+                ok, error = batch.promote(fixture.item, fixture.winner, 1, commit=False, evidence=evidence)
+                self.assertFalse(ok)
+                self.assertIn("context", error)
+                self.assertEqual(fixture.source.read_bytes(), before)
+                self.assertEqual(fixture.calls, [])
+
+    def test_frozen_winner_is_spliced_even_if_original_path_changes(self):
+        with Fixture() as fixture:
+            frozen = fixture.winner.read_bytes()
+            fixture.winner.write_text("void fixture(void) { }")
+            ok, error = batch.promote(fixture.item, fixture.winner, 1, commit=False,
+                                      evidence=fixture.evidence, winner_bytes=frozen)
+            self.assertTrue(ok, error)
+            self.assertIn("return 2", fixture.source.read_text())
+
     def test_rebuild_failure_preserves_partial_object_and_generator_evidence(self):
         with Fixture() as fixture:
             builds = 0
@@ -329,7 +429,7 @@ class PromotionTests(unittest.TestCase):
             before = fixture.source.read_bytes()
             ok, error = fixture.promote()
             self.assertFalse(ok)
-            self.assertIn("already differ", error)
+            self.assertIn("canonical TU changed", error)
             self.assertEqual(fixture.source.read_bytes(), before)
 
     def test_unrelated_commit_during_proof_is_preserved_while_our_files_restore(self):
@@ -628,10 +728,12 @@ class PromotionTests(unittest.TestCase):
         with Fixture() as fixture:
             scratch = fixture.root / "build/scratch"
             fixture.write("build/scratch/base.c", fixture.winner.read_text())
+            fixture.capture(scratch.parent)
             result = batch.RunResult("fixture", "src/fixture.c", 1, False)
             with patch.object(batch, "run_permuter", return_value=(0, 0, False, False)):
                 batch.run_prepared(fixture.item, scratch, scratch.parent, result, 1, 1, 1,
-                                   True, [], 0, 0, True, 0, time.monotonic() + 15)
+                                   True, [], 0, 0, True, 0, time.monotonic() + 15,
+                                   prepared_inputs=fixture.inputs)
             self.assertTrue(result.promoted, result.promote_error)
             self.assertTrue(result.zero_found)
             self.assertIsNone(result.error)
@@ -640,6 +742,7 @@ class PromotionTests(unittest.TestCase):
         with Fixture() as fixture:
             scratch = fixture.root / "build/scratch"
             fixture.write("build/scratch/base.c", fixture.winner.read_text())
+            fixture.capture(scratch.parent)
             def fail(number, args, deadline):
                 if "verify" in args:
                     raise RuntimeError("proof failed")
@@ -647,7 +750,8 @@ class PromotionTests(unittest.TestCase):
             result = batch.RunResult("fixture", "src/fixture.c", 1, False)
             with patch.object(batch, "run_permuter", return_value=(0, 0, False, False)):
                 batch.run_prepared(fixture.item, scratch, scratch.parent, result, 1, 1, 1,
-                                   True, [], 0, 0, True, 0, time.monotonic() + 15)
+                                   True, [], 0, 0, True, 0, time.monotonic() + 15,
+                                   prepared_inputs=fixture.inputs)
             self.assertFalse(result.promoted)
             self.assertIn("proof failed", result.promote_error)
             fixture.assert_restored(self)
