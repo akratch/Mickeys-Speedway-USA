@@ -513,6 +513,26 @@ class RunnerTests(unittest.TestCase):
         self.stack.enter_context(patch.object(batch, "prepare_target_asm", side_effect=self.target))
         self.stack.enter_context(patch.object(batch, "run_import", side_effect=self.importer))
         self.stack.enter_context(patch.object(batch, "annotate_overlay_scratch", return_value=0))
+        # These orchestration fixtures copy C as their synthetic object. Real
+        # parser/ELF fidelity is exercised separately in test_source_fidelity.
+        self.stack.enter_context(patch.object(batch, "prepare_seed_layout", side_effect=lambda item, directory, source, deadline:
+            (source, json.dumps({"contract": batch.SOURCE_GROUP_CONTRACT, "symbol": item.func,
+                                 "groups": [], "status": "ungrouped"}).encode())))
+        self.stack.enter_context(patch.object(batch, "prove_seed_emission", side_effect=self.synthetic_seed_fidelity))
+        self.stack.enter_context(patch.object(batch, "validate_seed_search", side_effect=lambda item, out, seed, capture, inputs, deadline:
+            {"contract": batch.SEED_FIDELITY_CONTRACT, "source_fidelity_exact": True,
+             "owned_bytes": 4, "relocation_count": 0, "identity_route": "raw-source-symbols-not-runtime-proof",
+             "inputs_sha256": receipts.digest(inputs), "measured_object_sha256": seed.object_sha256,
+             "search_object_sha256": capture.object_sha256}))
+
+    def synthetic_seed_fidelity(self, item, directory, baseline, inputs, source, seed, deadline):
+        return source, {"contract": batch.SEED_FIDELITY_CONTRACT, "source_fidelity_exact": True,
+            "owned_bytes": 4, "relocation_count": 0, "identity_route": "raw-source-symbols-not-runtime-proof",
+            "inputs_sha256": receipts.digest(inputs),
+            "original_source_sha256": hashlib.sha256(source).hexdigest(),
+            "original_object_sha256": hashlib.sha256(source).hexdigest(),
+            "emitted_source_sha256": seed.source_sha256, "emitted_object_sha256": seed.object_sha256,
+            "recipe_sha256": hashlib.sha256(baseline["baseline/compile.sh"]).hexdigest()}
 
     def tearDown(self):
         self.stack.close()
@@ -720,16 +740,75 @@ if "--debug" in sys.argv:
         altered["result"]["seed_proof"]["seed_score"] = 0
         self.assertFalse(self.store.artifacts_valid(altered))
 
-    def test_seed_zero_promotes_actual_seed_with_original_evidence(self):
+    def test_seed_unexpected_zero_refuses_before_search_or_promotion(self):
         parent = self.seed_parent_run(seed_score=0)
-        with patch.object(batch, "promote", return_value=(True, None)) as promote:
+        with patch.object(batch, "promote") as promote, patch.object(batch, "run_permuter") as search:
             result = batch.run_one(self.item, 1, 1, 1, True, [], annotate_overlays=False,
                 receipt_store=self.store, seed_receipt=parent.receipt_key)
-        self.assertTrue(result.ok, result.error)
-        self.assertTrue(result.zero_found)
-        self.assertTrue(result.promoted)
-        self.assertIn(b"return 2", promote.call_args.kwargs["winner_bytes"])
-        self.assertIn(b"return 1", promote.call_args.kwargs["evidence"].source)
+        self.assertFalse(result.ok)
+        self.assertIn("seed score differs", result.error)
+        search.assert_not_called()
+        promote.assert_not_called()
+
+    def test_seed_regression_and_same_score_fidelity_failure_never_search(self):
+        for score, error in ((130, None), (10, "seed emission changed owned instruction fields"),
+                             (10, "seed emission relocation identity is unproved")):
+            # Each changed synthetic vendor stands for a fresh runner process.
+            batch._PROCESS_TOOLS_PIN = None
+            parent = self.seed_parent_run(seed_score=score)
+            guard = patch.object(batch, "prove_seed_emission", side_effect=RuntimeError(error)) \
+                if error else contextlib.nullcontext()
+            with self.subTest(score=score, error=error), guard, patch.object(batch, "run_permuter") as search:
+                result = self.run_one(seed_receipt=parent.receipt_key)
+            self.assertFalse(result.ok)
+            self.assertIn(error or "seed score differs", result.error)
+            search.assert_not_called()
+            self.assertIsNone(self.store.completed(result.receipt_key))
+            self.assertIsNotNone(self.store.completed(parent.receipt_key))
+
+    def test_seed_durable_fidelity_missing_corrupt_or_mutated_evidence_rejected(self):
+        parent = self.seed_parent_run()
+        result = self.run_one(seed_receipt=parent.receipt_key)
+        complete = self.store.completed(result.receipt_key)
+        self.assertIsNotNone(complete)
+        files = self.store.read_bundle(result.artifact_bundle)
+        for name in ("seed/fidelity.json", "seed/search-fidelity.json", "seed/plan.json", "seed/prepared.c", "seed/original.o"):
+            for mutation in (None, b"null", b"different"):
+                changed = dict(files)
+                if mutation is None:
+                    del changed[name]
+                else:
+                    changed[name] = mutation
+                altered = copy.deepcopy(complete)
+                altered["result"]["artifact_bundle"] = self.store.save_bundle(
+                    changed, complete=True, inputs=complete["inputs"])
+                with self.subTest(name=name, mutation=mutation):
+                    self.assertFalse(self.store.artifacts_valid(altered))
+
+    def test_seed_same_score_search_object_failure_refuses_validation_and_promotion(self):
+        parent = self.seed_parent_run()
+        with patch.object(batch, "validate_seed_search", side_effect=RuntimeError("seed emission changed source relocation identity")) as check, \
+             patch.object(batch, "promote") as promote:
+            result = self.run_one(seed_receipt=parent.receipt_key)
+        self.assertFalse(result.ok)
+        self.assertIn("relocation identity", result.error)
+        check.assert_called_once()
+        promote.assert_not_called()
+        self.assertIsNone(self.store.completed(result.receipt_key))
+
+    def test_seed_prelaunch_prepared_source_replacement_refuses_search(self):
+        parent = self.seed_parent_run()
+        real = batch.run_prepared
+        def replace(item, scratch, *args, **kwargs):
+            (scratch / "base.c").write_bytes(b"int fixture(void) { return 99; }")
+            return real(item, scratch, *args, **kwargs)
+        with patch.object(batch, "run_prepared", side_effect=replace), \
+             patch.object(batch, "run_permuter") as search:
+            result = self.run_one(seed_receipt=parent.receipt_key)
+        self.assertFalse(result.ok)
+        self.assertIn("prepared seed source changed", result.error)
+        search.assert_not_called()
+        self.assertIsNone(self.store.completed(result.receipt_key))
 
     def test_seed_search_failure_preserves_parent_and_is_retryable(self):
         parent = self.seed_parent_run(search_suffix="raise SystemExit(7)")
