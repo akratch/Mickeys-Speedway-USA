@@ -116,7 +116,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007_tail.c.o: POSTPROCESS = \
 		--redefine-sym func_overlay_007_F0000894_185C71C=overlay7DispatchModes \
 		--redefine-sym func_overlay_007_F0000AA0_185C928=overlay7UpdateOwnerMode \
 		--redefine-sym func_overlay_007_F0000CCC_185CB54=overlay7DispatchSelection \
-		--redefine-sym func_overlay_007_F0000DBC_185CC44=overlay7CommitSelection $@ && \
+		--redefine-sym func_overlay_007_F0000DBC_185CC44=overlay7CommitSelection \
+		--redefine-sym amSndPlay=amSndPlay_o007Reloc \
+		--redefine-sym func_800031E8=func_800031E8_o007Reloc \
+		--redefine-sym mathRnd=mathRnd_o007Reloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
 		0x678:5:.bss 0x680:6:.bss \
 		0x674:5:.bss 0x67c:6:.bss \
