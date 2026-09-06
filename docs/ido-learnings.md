@@ -67,6 +67,19 @@ bytes and disassembly never belong here.
 
 ### Allocation and source shape
 
+- Reusing a masked index in an existing predicate can change its allocation
+  class, not merely its temporary demand order. In a controlled full-TU pair,
+  an equivalent predicate shared the low mask with a table access. Faithful
+  stock/trace-off/trace-on output and named procedure traces showed that the
+  shared value became colored across the branch, its separate body calculation
+  disappeared, and GP allocator-result events decreased. Switching only between byte
+  arithmetic and typed indexing still swapped the pointer/scale temporary roles
+  in both variants. Diagnose these two effects separately: tree order can be
+  controllable while cross-branch reuse destroys the target's instruction shape.
+  A predicate equivalence needs its complete input/path domain proved; do not
+  infer storage validity from a bounded index or add observable guards. This
+  negative control is not an exact-source recipe or target compiler trace.
+  Evidence: the predicate-demand controls in the `levelFreeAll` handoff shard.
 - A swap of two temporary-register roles need not be a FIFO phase error.
   Final scheduling can hide which expression requested each temporary first.
   Faithful stock/trace-off/trace-on controls and unchanged stock pass replay
