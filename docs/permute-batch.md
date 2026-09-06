@@ -296,7 +296,24 @@ The actual
 canonical compiler input must equal the parent's baseline, and both the saved
 seed and its actual compiled input must pass the current declaration-context
 comparison. The new search captures its own baseline again; bytes and strict
-score must agree with the independently measured seed. A seed is input, never
+score must agree with the independently measured seed. The measured seed must
+also reproduce its parent's score under the pinned external tools and target;
+even an unexpected zero refuses before search. Saved winner emission consumes
+sameline markers, so seed preparation reconstructs supported groups from the
+immutable seed's original coordinates and retains marker-bearing scratch source
+and its plan separately. Debug and search use the same frozen prepared bytes.
+Before search, a direct current-recipe compilation of the original seed must
+agree with actual debug emission in every owned instruction field and complete
+relocation identity correspondence, not merely score. Unsupported grouping is
+measured, not rejected solely by syntax. Unproved identities or changed inputs
+refuse. The original source/object, prepared source/plan, emitted capture and
+fidelity report are hash-bound into durable seeded receipts; older seeded
+receipts lacking this proof cannot masquerade as fidelity-checked completions.
+The actual search capture must also reproduce the independently measured seed's
+owned fields and relocation identities before validation or promotion. Its
+separate fidelity report is bound into the durable receipt; source/score
+agreement alone does not authenticate a search object.
+A seed is input, never
 reused match proof. Zero still requires the usual full promotion gates against
 the fresh original canonical evidence and the actual seed/winner bytes.
 
@@ -821,6 +838,18 @@ The parser compares all declaration context, including the target signature,
 while excluding only the target body. Changed, missing, stale, unsupported or
 unverifiable context blocks promotion before canonical writes, including
 `commit=False`. There is no bypass or automatic header/declaration adoption.
+
+Prepared vendor output may retain an unused macro-definition prelude. The
+comparator supports only leading, uniquely named definitions with no occurrence
+of their identifiers anywhere in the remaining C or pragma tokens. Every
+definition's ordered, phase-2/comment-normalized text remains part of the
+context hash and change report, including inactive token-pasting definitions.
+It does not expand macros: possible active uses, conditionals, includes, undef,
+redefinitions, late definitions and malformed or ambiguous preprocessing remain
+unverifiable. Macro-bearing inputs with multiline block comments also require
+preprocessing; the comparator does not infer their directive-line boundaries.
+This exception handles inert vendor scaffolding, not arbitrary
+unpreprocessed C or permission to adopt changed definitions.
 
 The public `promote(..., evidence=PreparedBaseline(...))` contract requires this
 explicit evidence; omitting it fails closed. Promotion freezes winner bytes

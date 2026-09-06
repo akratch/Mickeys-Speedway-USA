@@ -288,6 +288,49 @@ class ReceiptStore:
             if seed is not None:
                 proof = json.loads(files["seed/proof.json"])
                 parent = json.loads(files["seed/parent.json"])
+                fidelity = json.loads(files["seed/fidelity.json"])
+                search_fidelity = json.loads(files["seed/search-fidelity.json"])
+                plan = json.loads(files["seed/plan.json"])
+                if (not isinstance(seed, dict) or not isinstance(proof, dict)
+                        or not isinstance(fidelity, dict) or not isinstance(plan, dict)
+                        or not isinstance(search_fidelity, dict)
+                        or proof.get("search_fidelity") != search_fidelity
+                        or search_fidelity.get("contract") != "mickey-seed-emission-v1"
+                        or search_fidelity.get("source_fidelity_exact") is not True
+                        or search_fidelity.get("inputs_sha256") != digest(inputs)
+                        or search_fidelity.get("measured_object_sha256") != proof.get("compiled_object_sha256")
+                        or search_fidelity.get("search_object_sha256") != proof.get("search_object_sha256")
+                        or type(search_fidelity.get("owned_bytes")) is not int
+                        or search_fidelity.get("owned_bytes") != fidelity.get("owned_bytes")
+                        or type(search_fidelity.get("relocation_count")) is not int
+                        or search_fidelity.get("relocation_count") != fidelity.get("relocation_count")
+                        or search_fidelity.get("identity_route") not in (
+                            "runtime-identities", "raw-source-symbols-not-runtime-proof")
+                        or seed.get("preparation_contract") != "mickey-seed-emission-v1"
+                        or fidelity.get("contract") != seed["preparation_contract"]
+                        or proof.get("fidelity") != fidelity
+                        or fidelity.get("source_fidelity_exact") is not True
+                        or type(fidelity.get("owned_bytes")) is not int or fidelity["owned_bytes"] <= 0
+                        or type(fidelity.get("relocation_count")) is not int or fidelity["relocation_count"] < 0
+                        or fidelity.get("identity_route") not in (
+                            "runtime-identities", "raw-source-symbols-not-runtime-proof")
+                        or fidelity.get("inputs_sha256") != digest(inputs)
+                        or fidelity.get("original_source_sha256") != seed.get("source_sha256")
+                        or fidelity.get("original_object_sha256") != hashlib.sha256(files["seed/original.o"]).hexdigest()
+                        or not files["seed/original.o"]
+                        or fidelity.get("emitted_source_sha256") != proof.get("compiled_source_sha256")
+                        or fidelity.get("emitted_object_sha256") != proof.get("compiled_object_sha256")
+                        or fidelity.get("recipe_sha256") != hashlib.sha256(files["baseline/compile.sh"]).hexdigest()
+                        or seed.get("prepared_source_sha256") != hashlib.sha256(files["seed/prepared.c"]).hexdigest()
+                        or seed.get("plan_sha256") != hashlib.sha256(files["seed/plan.json"]).hexdigest()
+                        or plan.get("contract") != "original-coordinate-sameline-v1"
+                        or plan.get("symbol") != inputs["context"]["identity"]["symbol"]
+                        or not isinstance(plan.get("groups"), list)
+                        or not ((plan.get("status") == "ungrouped" and not plan["groups"])
+                            or (plan.get("status") == "preserved" and bool(plan["groups"]))
+                            or (plan.get("status") == "measurement-required" and not plan["groups"]
+                                and isinstance(plan.get("reason"), str) and bool(plan["reason"])))):
+                    return False
                 if (not isinstance(seed, dict) or not isinstance(proof, dict)
                         or not isinstance(parent, dict)
                         or proof != value["result"].get("seed_proof")
@@ -305,6 +348,7 @@ class ReceiptStore:
                         or type(proof.get("original_score")) is not int
                         or type(proof.get("seed_score")) is not int
                         or proof["seed_score"] != value["result"].get("seed_score")
+                        or proof["seed_score"] != value["result"].get("seed_parent_score")
                         or proof["seed_score"] != value["result"].get("base_score")
                         or value["result"].get("search_gain") != proof["seed_score"] - value["result"]["best_score"]
                         or proof["original_score"] != value["result"].get("original_base_score")

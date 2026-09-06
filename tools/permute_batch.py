@@ -2553,7 +2553,154 @@ def _grouped_baseline_fidelity(item, out_dir, scratch, inputs, deadline):
     validate_baseline(item, capture, deadline)
 
 
+SEED_FIDELITY_CONTRACT = "mickey-seed-emission-v1"
+
+
+def group_seed_source(source, symbol):
+    """Reconstruct consumed emission markers from immutable seed coordinates."""
+    sys.path.insert(0, str(PERMUTER_DIR))
+    from src import ast_util
+    from perm_pycparser import c_ast
+    text = source.decode("utf-8")
+    ast = ast_util.parse_c(text, from_import=True)
+    ast, plan = prepare_source_groups(ast, text, symbol, c_ast)
+    # Do NOT call to_c: that consumes sameline pragmas before Candidate reparses.
+    return ast_util.to_c_raw(ast).encode(), plan
+
+
+def prepare_seed_layout(item, directory, source, deadline):
+    directory.mkdir(mode=0o700)
+    original = directory / "original.c"
+    original.write_bytes(source)
+    command = ("import sys; from pathlib import Path; sys.path.insert(0,sys.argv[1]); "
+               "import permute_batch as p; d=Path(sys.argv[2]); "
+               "source=p.sweep_receipts.owned_bytes(d,'original.c'); "
+               "prepared,plan=p.group_seed_source(source,sys.argv[3]); "
+               "(d/'prepared.c').write_bytes(prepared); "
+               "p.sweep_receipts.atomic_json(d/'plan.json',plan)")
+    checked_tool_identity()
+    output = bounded_capture([str(PYTHON), "-c", command, str(ROOT / "tools"),
+                              str(directory), item.func], deadline)
+    (directory / "prepare.log").write_text(output.stdout)
+    output.check_returncode()
+    if sweep_receipts.owned_bytes(directory, "original.c") != source:
+        raise RuntimeError("immutable seed changed during layout preparation")
+    prepared = sweep_receipts.owned_bytes(directory, "prepared.c")
+    plan = sweep_receipts.owned_bytes(directory, "plan.json")
+    checked_tool_identity()
+    return prepared, plan
+
+
+def seed_object_fidelity(item, original, emitted):
+    """Source fidelity only: all owned fields and independent relocation identity."""
+    paths = (original, emitted)
+    fields = [normalized_owned_instructions(path, item.func) for path in paths]
+    if not fields[0] or fields[0] != fields[1]:
+        raise RuntimeError("seed emission changed owned instruction fields or geometry")
+    try:
+        records = [raw_source_relocations(path, item.func) for path in paths]
+        if records[0] != records[1]:
+            raise RuntimeError("seed emission changed source relocation identity")
+        count = len(records[0])
+        route = "raw-source-symbols-not-runtime-proof"
+    except RuntimeError as error:
+        # Defined symbols require independent runtime authority; equal synthetic
+        # values or section-relative spellings are not an identity witness.
+        reports = [reloc_surface.function_surface_comparison(item.func, path,
+            ROOT / "build/mickey.us.elf",
+            source=item.rel_c_file.removeprefix("src/").removesuffix(".c"),
+            overlay_hint=item.overlay) for path in paths]
+        if not all(r.get("offset_type_exact") is True
+                   and r.get("stable_identity_exact") is True for r in reports):
+            raise RuntimeError("seed emission relocation identity is unproved") from error
+        if reports[0]["candidate_record_count"] != reports[1]["candidate_record_count"]:
+            raise RuntimeError("seed emission relocation count differs")
+        count = reports[0]["candidate_record_count"]
+        route = "runtime-identities"
+    return {"owned_bytes": len(fields[0]), "relocation_count": count,
+            "identity_route": route, "source_fidelity_exact": True}
+
+
+def prove_seed_emission(item, directory, baseline, inputs, source, seed, deadline):
+    directory.mkdir(mode=0o700)
+    recipe = baseline["baseline/compile.sh"]
+    files = {"original.c": source, "compile.sh": recipe, "emitted.c": seed.source,
+             "emitted.o": seed.object}
+    for name, data in files.items():
+        (directory / name).write_bytes(data)
+    original = directory / "original.o"
+    original.touch(exist_ok=False)
+    authority_paths = (ROOT / "build/mickey.us.elf", BASEROM, ATLAS_PATH, reloc_surface.LINK_SYMS)
+    authority = {str(p): sweep_receipts.file_digest(p) for p in authority_paths}
+    validate_baseline(item, seed, deadline)
+    try:
+        output = bounded_capture(["bash", str(directory / "compile.sh"),
+            str(directory / "original.c"), "-o", str(original)], deadline)
+    except BaseException as error:
+        (directory / "compile.log").write_text(str(getattr(error, "output", "")) + "\n" + str(error))
+        raise
+    (directory / "compile.log").write_text(output.stdout)
+    output.check_returncode()
+    original_bytes = sweep_receipts.owned_bytes(directory, "original.o")
+    report = seed_object_fidelity(item, original, directory / "emitted.o")
+    if any(sweep_receipts.owned_bytes(directory, name) != data for name, data in files.items()):
+        raise RuntimeError("seed fidelity inputs changed during proof")
+    if sweep_receipts.owned_bytes(directory, "original.o") != original_bytes:
+        raise RuntimeError("seed original object changed during proof")
+    if authority != {str(p): sweep_receipts.file_digest(p) for p in authority_paths}:
+        raise RuntimeError("seed relocation authority changed during proof")
+    checked_tool_identity()
+    validate_baseline(item, seed, deadline)
+    report.update(contract=SEED_FIDELITY_CONTRACT,
+        inputs_sha256=sweep_receipts.digest(inputs),
+        original_source_sha256=hashlib.sha256(source).hexdigest(),
+        original_object_sha256=hashlib.sha256(original_bytes).hexdigest(),
+        emitted_source_sha256=seed.source_sha256, emitted_object_sha256=seed.object_sha256,
+        recipe_sha256=hashlib.sha256(recipe).hexdigest())
+    sweep_receipts.atomic_json(directory / "report.json", report)
+    return original_bytes, report
+
+
+def validate_seed_layout(item, baseline, inputs, source):
+    identity = inputs["search"]["seed"]
+    plan = json.loads(baseline["seed/plan.json"])
+    if (identity.get("preparation_contract") != SEED_FIDELITY_CONTRACT
+            or identity.get("source_sha256") != hashlib.sha256(source).hexdigest()
+            or identity.get("prepared_source_sha256") != hashlib.sha256(baseline["seed/prepared.c"]).hexdigest()
+            or identity.get("plan_sha256") != hashlib.sha256(baseline["seed/plan.json"]).hexdigest()
+            or not isinstance(plan, dict) or plan.get("contract") != SOURCE_GROUP_CONTRACT
+            or plan.get("symbol") != item.func or not isinstance(plan.get("groups"), list)
+            or not ((plan.get("status") == "ungrouped" and not plan["groups"])
+                or (plan.get("status") == "preserved" and bool(plan["groups"]))
+                or (plan.get("status") == "measurement-required" and not plan["groups"]
+                    and isinstance(plan.get("reason"), str) and bool(plan["reason"])))):
+        raise RuntimeError("seed layout evidence changed or is invalid")
+
+
+def validate_seed_search(item, out_dir, seed, capture, inputs, deadline):
+    directory = out_dir / "seed-search-fidelity"
+    directory.mkdir(mode=0o700)
+    frozen = {"measured.o": seed.object, "search.o": capture.object}
+    for name, data in frozen.items():
+        (directory / name).write_bytes(data)
+    authority_paths = (ROOT / "build/mickey.us.elf", BASEROM, ATLAS_PATH, reloc_surface.LINK_SYMS)
+    authority = {str(p): sweep_receipts.file_digest(p) for p in authority_paths}
+    validate_baseline(item, capture, deadline)
+    report = seed_object_fidelity(item, directory / "measured.o", directory / "search.o")
+    if any(sweep_receipts.owned_bytes(directory, name) != data for name, data in frozen.items()):
+        raise RuntimeError("seed search objects changed during comparison")
+    if authority != {str(p): sweep_receipts.file_digest(p) for p in authority_paths}:
+        raise RuntimeError("seed search relocation authority changed")
+    checked_tool_identity()
+    validate_baseline(item, capture, deadline)
+    report.update(contract=SEED_FIDELITY_CONTRACT, inputs_sha256=sweep_receipts.digest(inputs),
+                  measured_object_sha256=seed.object_sha256, search_object_sha256=capture.object_sha256)
+    sweep_receipts.atomic_json(directory / "report.json", report)
+    return report
+
+
 def prepare_seed(item, out_dir, baseline, inputs, parent, source, result, deadline):
+    validate_seed_layout(item, baseline, inputs, source)
     baseline.update({"seed/parent.json": json.dumps(parent, sort_keys=True).encode(),
                      "seed/source.c": source})
     if any(hashlib.sha256(baseline[name]).hexdigest() != expected
@@ -2570,20 +2717,30 @@ def prepare_seed(item, out_dir, baseline, inputs, parent, source, result, deadli
         retain_context(out_dir / "context-review", canonical, source, report)
         result.context_review = report
         raise RuntimeError("saved seed declarations differ from fresh actual canonical input")
+    prepared_source = baseline["seed/prepared.c"]
     seed, score = measure_seed_stage(item, out_dir / "seed-measurement", baseline,
-                                     inputs, source, deadline)
+                                     inputs, prepared_source, deadline)
+    # External scorer/target identities are pinned before accepting the parent.
+    # A regressed re-emission is not a fresh seed or permission to search.
+    if score != result.seed_parent_score:
+        raise RuntimeError("seed score differs from authenticated parent; refusing search")
+    original_object, fidelity = prove_seed_emission(item, out_dir / "seed-fidelity",
+        baseline, inputs, source, seed, deadline)
+    baseline.update({"seed/original.o": original_object,
+                     "seed/fidelity.json": json.dumps(fidelity, sort_keys=True).encode()})
     compiled_report = review_context(item, canonical, seed.source, deadline)
     if compiled_report["status"] != "unchanged":
         raise RuntimeError("compiled seed declarations differ from fresh canonical input")
     result.seed_score = score
     result.best_score = score
     result.seed_proof = {"status": "pending-search", "seed": inputs["search"]["seed"],
-        "original_score": original_score, "seed_score": score,
+        "original_score": original_score, "seed_score": score, "fidelity": fidelity,
         "fresh_baseline_sha256": canonical.source_sha256,
         "compiled_source_sha256": seed.source_sha256,
         "compiled_object_sha256": seed.object_sha256,
         "parent_comparison": report, "compiled_comparison": compiled_report}
     baseline.update({"seed/compiled.c": seed.source, "seed/compiled.o": seed.object})
+    validate_seed_layout(item, baseline, inputs, source)
     return canonical, seed
 
 
@@ -2732,9 +2889,15 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
         if parent is not None:
             if not seed_context_compatible(parent["inputs"], inputs):
                 raise RuntimeError("seed source, ownership, headers, recipe, target or external tools are stale")
+            prepared_seed, seed_plan = prepare_seed_layout(item, out_dir / "seed-layout",
+                                                         seed_source, batch_deadline)
+            baseline.update({"seed/prepared.c": prepared_seed, "seed/plan.json": seed_plan})
             seed_identity = {"receipt": seed_receipt,
                              "bundle": parent["result"]["artifact_bundle"],
                              "source_sha256": hashlib.sha256(seed_source).hexdigest(),
+                             "preparation_contract": SEED_FIDELITY_CONTRACT,
+                             "prepared_source_sha256": hashlib.sha256(prepared_seed).hexdigest(),
+                             "plan_sha256": hashlib.sha256(seed_plan).hexdigest(),
                              "target_object_sha256": hashlib.sha256(
                                  sweep_receipts.owned_bytes(scratch, "target.o")).hexdigest()}
             inputs["search"]["seed"] = seed_identity
@@ -2767,7 +2930,8 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
                     baseline["baseline/target.o"] = sweep_receipts.owned_bytes(scratch, "target.o")
                     canonical, seed = prepare_seed(item, out_dir, baseline, inputs,
                         parent, seed_source, result, batch_deadline)
-                    (scratch / "base.c").write_bytes(seed_source)
+                    validate_seed_layout(item, baseline, inputs, seed_source)
+                    (scratch / "base.c").write_bytes(baseline["seed/prepared.c"])
                 install_baseline_capture(scratch, out_dir, baseline, inputs)
                 run_prepared(item, scratch, out_dir, result, minutes, permuter_threads,
                              build_jobs, apply, extra_args, load_threshold, extend_minutes,
@@ -2820,6 +2984,8 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
                  seed_artifacts: dict | None = None) -> None:
     prepared = canonical_evidence
     try:
+        if seed_evidence is not None and sweep_receipts.owned_bytes(scratch, "base.c") != seed_artifacts["seed/prepared.c"]:
+            raise RuntimeError("prepared seed source changed before search")
         wait_for_headroom(load_threshold, f"before permuting {item.func}", batch_deadline)
         if seed_evidence is not None and hashlib.sha256(sweep_receipts.owned_bytes(
                 scratch, "target.o")).hexdigest() != prepared_inputs["search"]["seed"]["target_object_sha256"]:
@@ -2836,12 +3002,16 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
             if seed_evidence is not None:
                 if (search_capture.source != seed_evidence.source or base_score != result.seed_score):
                     raise RuntimeError("new search baseline differs from independently measured seed")
+                search_fidelity = validate_seed_search(item, out_dir, seed_evidence,
+                    search_capture, prepared_inputs, batch_deadline)
                 if hashlib.sha256(sweep_receipts.owned_bytes(scratch, "target.o")).hexdigest() != prepared_inputs["search"]["seed"]["target_object_sha256"]:
                     raise RuntimeError("seed target object changed during search")
                 validate_baseline(item, prepared, batch_deadline)
                 seed_artifacts.update({"seed/search.c": search_capture.source,
-                                       "seed/search.o": search_capture.object})
+                                       "seed/search.o": search_capture.object,
+                                       "seed/search-fidelity.json": json.dumps(search_fidelity, sort_keys=True).encode()})
                 result.seed_proof.update(status="validated", search_object_sha256=search_capture.object_sha256)
+                result.seed_proof["search_fidelity"] = search_fidelity
             else:
                 prepared = search_capture
         except Exception as error:
