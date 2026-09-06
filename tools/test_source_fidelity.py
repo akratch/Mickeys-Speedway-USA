@@ -19,6 +19,77 @@ from perm_pycparser import c_ast
 
 
 class SourceGroups(unittest.TestCase):
+    WIDE = ("void f(int *p, int n) {\n int i=0;\n do\n {\n"
+            " p[i]=701; i++; } while(i<n); i=702; do { p[i]=703; i++; } while(i<n); "
+            "i=704; do { p[i]=705; i++; } while(i<n); i=706; do {\n"
+            " p[i]=707;\n i++;\n } while(i<n);\n p[0]=708;\n}\n")
+
+    def test_wide_do_span_exact_line_and_live_ast_over_two_emissions(self):
+        from src.candidate import Candidate
+        from src.perm.perm import EvalState
+        import tomllib
+        weights = tomllib.loads((pb.PERMUTER_DIR / "default_weights.toml").read_text())["base"]
+        for source in (self.WIDE, self.WIDE.replace("\n", "\r\n")):
+            prepared, plan = pb.group_seed_source(source.encode(), "f")
+            self.assertEqual(plan["status"], "preserved")
+            self.assertTrue(any(g["control"] == "LexicallyBoundDoSpan" for g in plan["groups"]))
+            candidate = Candidate.from_source(prepared.decode(), EvalState(), "f", weights, 1)
+            emitted = candidate.get_source()
+            second, plan2 = pb.group_seed_source(emitted.encode(), "f")
+            self.assertEqual(plan2["status"], "preserved")
+            emitted2 = ast_util.to_c(Candidate._cached_shared_ast(second.decode(), "f")[2])
+            for text in (emitted, emitted2):
+                line = next(line for line in text.splitlines() if "701" in line)
+                self.assertTrue(all(str(value) in line for value in range(701,707)))
+                self.assertNotIn("707", line)
+                self.assertNotIn("708", line)
+                parsed = ast_util.parse_c(text)
+                function, _ = ast_util.extract_fn(parsed, "f")
+                baseline = ast_util.parse_c(source.replace("\r\n", "\n"))
+                original, _ = ast_util.extract_fn(baseline, "f")
+                self.assertEqual(ast_util.to_c_raw(function), ast_util.to_c_raw(original))
+            pending, found = [candidate.ast], []
+            while pending:
+                node = pending.pop()
+                self.assertFalse(isinstance(node,c_ast.Pragma) and "b64literal" in node.string)
+                if isinstance(node,c_ast.Constant) and node.value == "703":
+                    found.append(node)
+                pending.extend(child for _,child in node.children())
+            self.assertEqual(len(found),1)
+            found[0].value = "1703"
+            candidate._cache_source = None
+            self.assertIn("1703",candidate.get_source())
+
+    def test_wide_span_nested_scopes_literals_and_adjacent_bridges(self):
+        for source in (
+            self.WIDE.replace("do { p[i]=703;", "do { int x=i; p[x]=703;"),
+            self.WIDE.replace("i=704;", 'i=704+"};do{;"[0];'),
+            "#define UNUSED 1\n" + self.WIDE.replace("i=704;", "i=704; /* }; do { */"),
+            self.WIDE.replace("do { p[i]=703; i++; }", "do { }"),
+            self.WIDE.replace("p[i]=703; i++;", "p[i]=703; break;"),
+            self.WIDE.replace(" p[i]=707;", " p[i]=707; i++; } while(i<n); i=709; do {\n p[i]=710;"),
+        ):
+            with self.subTest(source=source):
+                _, plan, emitted = self.emit_seed(source.encode())
+                self.assertEqual(plan["status"],"preserved")
+                self.assertEqual(pb.group_seed_source(emitted,"f")[1]["status"],"preserved")
+
+    def test_wide_span_missing_token_or_slot_witness_keeps_original_ast(self):
+        for source in (
+            self.WIDE.replace("i=704;", "i=(704);"),
+            self.WIDE.replace("i=704;", "i=704;\n#line 99\n"),
+            self.WIDE.replace("p[i]=703;", "label: p[i]=703;"),
+            self.WIDE.replace("p[i]=703;", "if(n) { p[i]=703; }"),
+            self.WIDE.replace(" p[i]=707;", "#pragma _permuter sameline start\n p[i]=707;"),
+            self.WIDE.replace("i=704;", "i=704;\n i=\n704;"),
+        ):
+            ast = ast_util.parse_c(source)
+            before = ast_util.to_c_raw(ast)
+            result, plan = pb.prepare_source_groups(ast,source,"f",c_ast)
+            with self.subTest(source=source):
+                self.assertEqual(plan["status"],"measurement-required")
+                self.assertEqual(ast_util.to_c_raw(result),before)
+
     def test_do_tail_composite_preserves_exact_line_and_ast_twice(self):
         source = (b"void f(void) {\n int x=0;\n do {\n x++;\n"
                   b" } while(x<2); x=0; do { x++; x+=2; } while(x<4);\n x++;\n}\n")
@@ -65,7 +136,6 @@ class SourceGroups(unittest.TestCase):
             " } while(x<2); x=0; do { x++; } while(x<4\n );",
             " } while(x<2); x=0; do { do { x++; } while(x<3); } while(x<4);",
             " } while(x<2); label: x=0;",
-            " } while(x<2); do {\n x++;\n } while(x<4);",
             " } while(x<2); if(x) { x++; } else { x--; }",
         ):
             source = template % group

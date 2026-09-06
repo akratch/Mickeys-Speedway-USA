@@ -364,7 +364,7 @@ check-tooling:
 	$(PYTHON) $(TOOLS_DIR)/test_candidate_context.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_permute_sweep_cli.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_sweep_receipts.py
-	$(HOST_PYTHON) $(TOOLS_DIR)/test_source_fidelity.py
+	$(PYTHON) $(TOOLS_DIR)/test_source_fidelity.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_promotion_transaction.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_finalize_plateau.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_crew_heartbeat.py

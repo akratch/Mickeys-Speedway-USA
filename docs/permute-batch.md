@@ -309,6 +309,15 @@ condition punctuation and sibling boundaries before inserting carriage markers;
 all original AST nodes and scopes remain unchanged. Partial conditions/bodies,
 ambiguous inline nesting and unsupported controls retain the unchanged AST and
 require measurement rather than being silently joined.
+For wider spans crossing several `do` bodies, a narrow fallback requires exact
+whole-function lexical-token correspondence with the original searchable AST.
+Temporary statement-list slot markers bind physical line endpoints to AST
+boundaries without relying on the vendor's imprecise Compound columns. Real
+sameline markers then preserve the complete line across scopes; no body is
+replaced by opaque text. Missing/ambiguous endpoint witnesses, token mismatch,
+unsupported controls or directives retain the unchanged measurement fallback.
+This route requires a bridge between distinct multiline `do` bodies and keeps
+the existing compiled source/object/relocation fidelity requirements intact.
 Unused leading macro definitions in a saved compiler input use the existing
 vendor `latedefine` pragma carriage: grouping first uses the original physical C
 coordinates, and emission restores every ordered definition. The reviewed
