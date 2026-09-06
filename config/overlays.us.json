@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 135780,
-  "nonmatching_overlay_c_bytes": 332840,
+  "matched_overlay_c_bytes": 135936,
+  "nonmatching_overlay_c_bytes": 332684,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 2348,
   "bss_bytes": 77680,
@@ -1139,6 +1139,14 @@
      "label": "overlay1GetRecord",
      "source": "overlays/o001/overlay_001",
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x378",
+     "end_offset": "0x414",
+     "size": "0x9C",
+     "label": "overlay1FindType5ByKey",
+     "source": "overlays/o001/overlay_001",
+     "evidence": "canonical mixed-TU object, one runtime relocation, and linked ROM bytes exact"
     },
     {
      "offset": "0x758",
