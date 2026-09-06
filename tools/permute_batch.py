@@ -438,7 +438,8 @@ def build_recipe_for(c_file: Path, deadline: Optional[float] = None) -> BuildRec
     return recipe
 
 
-def replicate_objcopy(scratch: Path, recipe: BuildRecipe, c_file: Path, out_dir: Path) -> None:
+def replicate_objcopy(scratch: Path, recipe: BuildRecipe, c_file: Path, out_dir: Path,
+                      alias_history: Optional[list] = None) -> None:
     """Append the TU's post-compile objcopy chain to the scratch's compile.sh,
     retargeted at the scratch object, so the scratch object == the real
     per-TU object (workbench improvement-backlog #9). Records what was and
@@ -459,6 +460,43 @@ def replicate_objcopy(scratch: Path, recipe: BuildRecipe, c_file: Path, out_dir:
                     lines.append(f"skipped (does not name the object): {step}")
                     continue
                 remapped = mention.sub('"$OUTPUT"', step)
+                if alias_history is not None:
+                    words = shlex.split(remapped)
+                    if (not words or Path(words[0]).resolve() != OBJCOPY.resolve()
+                            or words[-1] != "$OUTPUT"
+                            or any(word in {"&&", "||", ";", "|"} for word in words)):
+                        raise RuntimeError("unsupported scratch objcopy alias invocation")
+                    remaining = words[1:-1]
+                    additions, removals = [], []
+                    while remaining:
+                        if remaining[0] == "--redefine-sym" and len(remaining) >= 2:
+                            remaining = remaining[2:]
+                        elif remaining[0].startswith("--redefine-sym="):
+                            remaining = remaining[1:]
+                        elif remaining[0] in {"--add-symbol", "--remove-section"} or remaining[0].startswith(("--add-symbol=", "--remove-section=")):
+                            option, separator, value = remaining[0].partition("=")
+                            if separator:
+                                remaining = remaining[1:]
+                            elif len(remaining) >= 2:
+                                value, remaining = remaining[1], remaining[2:]
+                            else:
+                                raise RuntimeError("missing scratch objcopy metadata argument")
+                            if option == "--add-symbol":
+                                match = re.fullmatch(r"([^=,]+)=(?:(\.[A-Za-z0-9_.$]+):)?(?:0[xX][0-9a-fA-F]+|[0-9]+),global", value)
+                                if match is None:
+                                    raise RuntimeError("unsupported scratch added symbol declaration")
+                                name, section = match.groups()
+                                reloc_surface.ri.canonicalize_redefine_aliases([(name, name)])
+                                additions.append((name, section))
+                            else:
+                                if not re.fullmatch(r"\.[A-Za-z0-9_.$]+", value):
+                                    raise RuntimeError("unsupported scratch removed section declaration")
+                                removals.append(value)
+                        else:
+                            raise RuntimeError("unsupported scratch objcopy alias operation")
+                    pairs = reloc_surface.ri.parse_objcopy_redefine_pairs(remapped)
+                    alias_history.append({"renames": tuple(pairs), "additions": tuple(additions),
+                                          "removals": tuple(removals)})
                 f.write(remapped + "\n")
                 lines.append(f"replicated: {remapped}")
     for s in recipe.skipped_postproc:
@@ -1175,8 +1213,62 @@ def validate_annotation_target(target: Path, notes: list[str], out_dir: Path, de
         raise RuntimeError("annotated target operands do not reconstruct exact owned ROM bytes")
 
 
+def annotation_aliases(renames: dict[str, str], alias_history, symbols,
+                       symbol_sections=None) -> dict[str, str]:
+    """Carry proved identities through simultaneous invocations in execution order."""
+    groups = [group if isinstance(group, dict) else {"renames": group, "additions": (), "removals": ()}
+              for group in alias_history]
+    pairs = [pair for group in groups for pair in group["renames"]]
+    closure = reloc_surface.ri.canonicalize_redefine_aliases(pairs)
+    if closure.cycles or any(
+            None in {renames.get(source) for source in sources}
+            or len({renames.get(source) for source in sources}) != 1
+            for _destination, sources in closure.conflicts):
+        raise RuntimeError("ambiguous scratch objcopy alias provenance")
+    current = {name: name for name in symbols if name}
+    sections = dict(symbol_sections or {})
+    def require_unambiguous(values):
+        origins = {}
+        for original, name in values.items():
+            origins.setdefault(name, []).append(original)
+        for originals in origins.values():
+            if len(originals) > 1:
+                identities = {renames.get(original) for original in originals}
+                if None in identities or len(identities) != 1:
+                    raise RuntimeError("scratch objcopy aliases merge unproved or distinct runtime identities")
+    for index, group in enumerate(groups):
+        mapping = dict(group["renames"])
+        if len(mapping) != len(group["renames"]):
+            raise RuntimeError("duplicate scratch objcopy source alias")
+        if group["removals"]:
+            if symbol_sections is None or any(section in {".text", ".rel.text"} for section in group["removals"]):
+                raise RuntimeError("cannot preserve owned annotation surface through section removal")
+            current = {original: name for original, name in current.items()
+                       if sections.get(original) not in group["removals"]}
+        current = {original: mapping.get(name, name) for original, name in current.items()}
+        # Objcopy appends new symbols after renaming the input symbols. Their
+        # scalar values do not authenticate a preexisting runtime identity.
+        for ordinal, (name, section) in enumerate(group["additions"]):
+            if section in group["removals"]:
+                raise RuntimeError("added symbol belongs to a removed section")
+            origin = ("added", index, ordinal, name)
+            current[origin], sections[origin] = name, section
+        require_unambiguous(current)
+    composed = {}
+    for original, destination in renames.items():
+        if original not in current:
+            raise RuntimeError("annotation rename lacks original candidate symbol")
+        name = current[original]
+        if name in composed and composed[name] != destination:
+            raise RuntimeError("scratch aliases collapse distinct runtime identities")
+        composed[name] = destination
+    require_unambiguous({original: composed.get(name, name) for original, name in current.items()})
+    return composed
+
+
 def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
-                             batch_deadline: Optional[float] = None) -> int:
+                             batch_deadline: Optional[float] = None,
+                             alias_history=()) -> int:
     """Annotate owned scratch transactionally; retain evidence and never rebuild to undo."""
     if item.overlay is None or not BASEROM.is_file():
         return 0
@@ -1201,7 +1293,7 @@ def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
     if diagnostic.is_file():
         (attempt / "before-annotation.txt").write_bytes(diagnostic.read_bytes())
     try:
-        result = _annotate_overlay_scratch(item, scratch, out_dir, batch_deadline)
+        result = _annotate_overlay_scratch(item, scratch, out_dir, batch_deadline, alias_history)
         remaining_timeout(batch_deadline)
         return result
     except BaseException as error:
@@ -1248,7 +1340,8 @@ def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
 
 
 def _annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
-                              batch_deadline: Optional[float] = None) -> int:
+                              batch_deadline: Optional[float] = None,
+                              alias_history=()) -> int:
     """Give an overlay function's permuter target the relocations the shipped
     module says are there, and rename the candidate's placeholders to match.
 
@@ -1281,6 +1374,12 @@ def _annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
     original = target_s.read_text(errors="replace")
     text, renames, notes = reloc_surface.permuter_annotation(
         original, base_o, names, item.overlay, BASEROM.read_bytes())
+    if alias_history and renames:
+        base_elf = reloc_surface.Elf(base_o)
+        renames = annotation_aliases(renames, alias_history,
+                                    [row[0] for row in base_elf.symbols()],
+                                    {row[0]: base_elf.names[row[4]] if 0 < row[4] < len(base_elf.names) else None
+                                     for row in base_elf.symbols()})
     if text == original:
         (out_dir / "annotation.txt").write_text(
             "not annotated: no site the module relocation table names\n"
@@ -2171,9 +2270,11 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
         finally:
             _IMPORT_LOCK.release()
         result.scratch_path = str(scratch)
-        replicate_objcopy(scratch, recipe, item.c_file, out_dir)
+        alias_history: list = []
+        replicate_objcopy(scratch, recipe, item.c_file, out_dir,
+                          alias_history if annotate_overlays and item.overlay is not None else None)
         if annotate_overlays:
-            result.annotated_relocs = annotate_overlay_scratch(item, scratch, out_dir, batch_deadline)
+            result.annotated_relocs = annotate_overlay_scratch(item, scratch, out_dir, batch_deadline, alias_history)
         inputs = receipt_inputs(item, scratch, settings_path, target_asm, recipe, {
             "minutes": minutes, "threads": permuter_threads, "extra_args": extra_args,
             "extend_minutes": extend_minutes, "flat_minutes": flat_minutes,
