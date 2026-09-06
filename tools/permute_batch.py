@@ -1068,6 +1068,17 @@ def retain_context(directory: Path, evidence: PreparedBaseline | None, winner: b
     sweep_receipts.atomic_json(directory / "report.json", report)
 
 
+def require_search_context(item, evidence, directory, deadline):
+    """Retain an authenticated self-comparison before spending random-search time."""
+    report = review_context(item, evidence, evidence.source, deadline)
+    retain_context(directory, evidence, evidence.source, report)
+    if report["status"] != "unchanged":
+        raise RuntimeError("baseline context readiness refused: " + str(report.get("reason")))
+    # review_context records errors; recheck outside its report boundary too.
+    validate_baseline(item, evidence, deadline)
+    return report
+
+
 def compile_script_digest(raw: bytes) -> str:
     """Normalize generated lane plumbing, never compiler arguments/literals."""
     text = raw.decode("utf-8")
@@ -2845,6 +2856,7 @@ def _grouped_baseline_fidelity(item, out_dir, scratch, inputs, deadline):
         raise RuntimeError("source grouping plan changed during fidelity measurement")
     checked_tool_identity()
     validate_baseline(item, capture, deadline)
+    return capture, score
 
 
 SEED_FIDELITY_CONTRACT = "mickey-seed-emission-v1"
@@ -3195,7 +3207,7 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
         if initial_dependencies != inputs["context"]["dependencies"]:
             raise RuntimeError("headers changed during sweep preparation")
         checked_tool_identity()
-        grouped_baseline_fidelity(item, out_dir, scratch, inputs, batch_deadline)
+        readiness = grouped_baseline_fidelity(item, out_dir, scratch, inputs, batch_deadline)
         if parent is not None:
             if not seed_context_compatible(parent["inputs"], inputs):
                 raise RuntimeError("seed source, ownership, headers, recipe, target or external tools are stale")
@@ -3233,23 +3245,29 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
                     setattr(result, field, previous["result"].get(field))
             else:
                 # Freeze baseline bytes before an extension replaces base.c.
-                for name in ("base.c", "base.o", "compile.sh", "target.s", "settings.toml"):
+                for name in ("base.c", "base.o", "compile.sh", "target.s", "target.o", "settings.toml"):
                     baseline["baseline/" + name] = sweep_receipts.owned_bytes(scratch, name)
                 baseline["baseline/tu.c"] = sweep_receipts.owned_bytes(ROOT, item.rel_c_file)
                 baseline["baseline/recipe.json"] = json.dumps(dataclasses.asdict(recipe), sort_keys=True).encode()
                 baseline["baseline/permuter_settings.toml"] = sweep_receipts.owned_bytes(out_dir, settings_path.name)
+                if any(hashlib.sha256(baseline[name]).hexdigest() != expected
+                       for name, expected in inputs["baseline_hashes"].items()):
+                    raise RuntimeError("prepared baseline changed before readiness measurement")
                 canonical = seed = None
                 if parent is not None:
-                    baseline["baseline/target.o"] = sweep_receipts.owned_bytes(scratch, "target.o")
                     canonical, seed = prepare_seed(item, out_dir, baseline, inputs,
                         parent, seed_source, result, batch_deadline)
                     validate_seed_layout(item, baseline, inputs, seed_source)
                     (scratch / "base.c").write_bytes(baseline["seed/prepared.c"])
                 install_baseline_capture(scratch, out_dir, baseline, inputs)
+                launch_inputs = {name: sweep_receipts.owned_bytes(scratch, name)
+                                 for name in ("base.c", "compile.sh", "target.s", "target.o", "settings.toml")}
                 run_prepared(item, scratch, out_dir, result, minutes, permuter_threads,
                              build_jobs, apply, extra_args, load_threshold, extend_minutes,
                              commit, flat_minutes, batch_deadline, prepared_inputs=inputs,
-                             canonical_evidence=canonical, seed_evidence=seed, seed_artifacts=baseline)
+                             canonical_evidence=canonical, seed_evidence=seed, seed_artifacts=baseline,
+                             readiness_evidence=readiness if parent is None else None,
+                             launch_inputs=launch_inputs)
                 # Concurrent promotion in another slot can change this TU.
                 # Such a search remains useful evidence, but cannot suppress
                 # a future run against the newly changed source.
@@ -3294,12 +3312,45 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
                  prepared_inputs: dict | None = None,
                  canonical_evidence: PreparedBaseline | None = None,
                  seed_evidence: PreparedBaseline | None = None,
-                 seed_artifacts: dict | None = None) -> None:
+                 seed_artifacts: dict | None = None,
+                 readiness_evidence: tuple[PreparedBaseline, int | None] | None = None,
+                 launch_inputs: dict[str, bytes] | None = None) -> None:
     prepared = canonical_evidence
     try:
         if seed_evidence is not None and sweep_receipts.owned_bytes(scratch, "base.c") != seed_artifacts["seed/prepared.c"]:
             raise RuntimeError("prepared seed source changed before search")
+        if seed_artifacts is not None:
+            expected_source = seed_artifacts["seed/prepared.c"] if seed_evidence is not None else seed_artifacts["baseline/base.c"]
+            if sweep_receipts.owned_bytes(scratch, "base.c") != expected_source:
+                raise RuntimeError("prepared baseline source changed before search")
+            for name in ("target.s", "target.o", "settings.toml"):
+                if "baseline/" + name in seed_artifacts and sweep_receipts.owned_bytes(scratch, name) != seed_artifacts["baseline/" + name]:
+                    raise RuntimeError("prepared baseline input changed before search: " + name)
+        # Keep the current launch files pinned across compile-only readiness and
+        # the potentially long load wait. The installed capture wrapper itself
+        # is part of this snapshot; archived/foreign scripts are never invoked.
+        launch_files = launch_inputs if launch_inputs is not None else {name: sweep_receipts.owned_bytes(scratch, name)
+                        for name in ("base.c", "compile.sh", "target.s", "target.o", "settings.toml")
+                        if (scratch / name).exists()}
+        if seed_evidence is not None:
+            require_search_context(item, prepared, out_dir / "baseline-readiness", batch_deadline)
+            require_search_context(item, seed_evidence, out_dir / "seed-readiness", batch_deadline)
+        else:
+            if readiness_evidence is None:
+                if seed_artifacts is not None:
+                    readiness_evidence = measure_seed_stage(item, out_dir / "baseline-measurement",
+                        seed_artifacts, prepared_inputs, seed_artifacts["baseline/base.c"], batch_deadline)
+                else:
+                    # Direct callers may already own an authenticated capture.
+                    readiness_evidence = (captured_baseline(item, out_dir, prepared_inputs, batch_deadline), None)
+            prepared = readiness_evidence[0]
+            require_search_context(item, prepared, out_dir / "baseline-readiness", batch_deadline)
         wait_for_headroom(load_threshold, f"before permuting {item.func}", batch_deadline)
+        validate_baseline(item, prepared, batch_deadline)
+        if seed_evidence is not None:
+            validate_baseline(item, seed_evidence, batch_deadline)
+        if any(sweep_receipts.owned_bytes(scratch, name) != data for name, data in launch_files.items()):
+            raise RuntimeError("prepared search input changed during baseline readiness")
         if seed_evidence is not None and hashlib.sha256(sweep_receipts.owned_bytes(
                 scratch, "target.o")).hexdigest() != prepared_inputs["search"]["seed"]["target_object_sha256"]:
             raise RuntimeError("seed target object changed before search")
@@ -3311,6 +3362,8 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
         result.stopped_batch = stopped_batch
         result.ok = True
         try:
+            if any(sweep_receipts.owned_bytes(scratch, name) != data for name, data in launch_files.items()):
+                raise RuntimeError("prepared search input changed during search")
             search_capture = captured_baseline(item, out_dir, prepared_inputs, batch_deadline)
             if seed_evidence is not None:
                 if (search_capture.source != seed_evidence.source or base_score != result.seed_score):
@@ -3326,11 +3379,14 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
                 result.seed_proof.update(status="validated", search_object_sha256=search_capture.object_sha256)
                 result.seed_proof["search_fidelity"] = search_fidelity
             else:
+                if (search_capture.source != readiness_evidence[0].source
+                        or readiness_evidence[1] is not None and base_score != readiness_evidence[1]):
+                    raise RuntimeError("actual search baseline differs from context readiness measurement")
                 prepared = search_capture
         except Exception as error:
-            if seed_evidence is not None:
-                raise
-            result.promote_error = f"prepared baseline unverifiable: {error}" if apply else None
+            if seed_evidence is None:
+                prepared = None
+            raise RuntimeError(f"prepared baseline unverifiable: {error}") from error
 
         best_dir, best_score = _best(scratch)
         if seed_evidence is not None and (best_score is None or best_score >= base_score):
@@ -3349,13 +3405,49 @@ def run_prepared(item: QueueItem, scratch: Path, out_dir: Path, result: RunResul
                 and elapsed >= minutes * 60 * 0.95):
             age = time.time() - best_dir.stat().st_mtime
             if age < minutes * 60 / 3:
-                result.extended = True
-                shutil.copy(best_dir / "source.c", scratch / "base.c")
+                if seed_artifacts is None:
+                    raise RuntimeError("extension requires frozen current preparation artifacts")
+                if any(sweep_receipts.owned_bytes(scratch, name) != data for name, data in launch_files.items()):
+                    raise RuntimeError("prepared search input changed before extension")
+                extension_source = sweep_receipts.owned_bytes(best_dir, "source.c")
+                extension_prepared, _ = prepare_seed_layout(item, out_dir / "extension-layout",
+                                                           extension_source, batch_deadline)
+                extension, extension_score = measure_seed_stage(item, out_dir / "extension-measurement",
+                    seed_artifacts, prepared_inputs, extension_prepared, batch_deadline)
+                extension_report = review_context(item, prepared, extension.source, batch_deadline)
+                retain_context(out_dir / "extension-readiness", prepared, extension.source, extension_report)
+                if extension_report["status"] != "unchanged":
+                    raise RuntimeError("extension context readiness refused: " + str(extension_report.get("reason")))
+                if extension_score != best_score:
+                    raise RuntimeError("extension emission score differs from saved winner")
+                prove_seed_emission(item, out_dir / "extension-fidelity", seed_artifacts,
+                    prepared_inputs, extension_source, extension, batch_deadline)
+                extension_dir = out_dir / "extension-search"
+                extension_dir.mkdir(mode=0o700)
+                (scratch / "base.c").write_bytes(extension_prepared)
+                install_baseline_capture(scratch, extension_dir, seed_artifacts, prepared_inputs)
+                # Carry the original target/settings expectations across the
+                # measurement as well; do not bless a drifted file by taking
+                # another mutable snapshot after that subprocess returns.
+                extension_files = {**launch_files, "base.c": extension_prepared,
+                                   "compile.sh": sweep_receipts.owned_bytes(scratch, "compile.sh")}
                 wait_for_headroom(load_threshold, f"before extending {item.func}", batch_deadline)
-                _, _, _, extension_stopped_batch = run_permuter(
-                    scratch, out_dir, extend_minutes, permuter_threads, extra_args,
+                validate_baseline(item, prepared, batch_deadline)
+                validate_baseline(item, extension, batch_deadline)
+                if any(sweep_receipts.owned_bytes(scratch, name) != data for name, data in extension_files.items()):
+                    raise RuntimeError("prepared extension input changed during readiness")
+                result.extended = True
+                actual_score, _, _, extension_stopped_batch = run_permuter(
+                    scratch, extension_dir, extend_minutes, permuter_threads, extra_args,
                     "permuter-extend.log", batch_deadline=batch_deadline)
                 result.stopped_batch = extension_stopped_batch
+                if any(sweep_receipts.owned_bytes(scratch, name) != data for name, data in extension_files.items()):
+                    raise RuntimeError("prepared extension input changed during search")
+                actual_extension = captured_baseline(item, extension_dir, prepared_inputs, batch_deadline)
+                if actual_extension.source != extension.source or actual_score != extension_score:
+                    raise RuntimeError("actual extension baseline differs from readiness measurement")
+                validate_seed_search(item, extension_dir, extension, actual_extension,
+                                     prepared_inputs, batch_deadline)
                 best_dir, best_score = _best(scratch)
                 result.best_score = best_score
         # A base score of zero means the candidate already scores exact in the

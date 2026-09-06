@@ -569,6 +569,93 @@ class RunnerTests(unittest.TestCase):
         return batch.run_one(self.item, 1, 1, 1, False, [], load_threshold=0,
                              annotate_overlays=False, receipt_store=self.store, **kwargs)
 
+    def search_fault_program(self, program):
+        return (SYNTHETIC_SEARCH_BASELINE + '\nif "--debug" in sys.argv:\n'
+                '    print("base score = 20", flush=True)\n    raise SystemExit(0)\n' + program)
+
+    def test_baseline_readiness_active_macro_refuses_before_random_search(self):
+        self.item.c_file.write_text("#define VALUE 1\nint fixture(void) { return VALUE; }\n")
+        with patch.object(batch, "run_permuter") as search:
+            result = self.run_one()
+        search.assert_not_called()
+        self.assertFalse(result.ok)
+        self.assertIn("baseline context readiness refused", result.error)
+        saved = self.store.read_bundle(result.artifact_bundle, require_complete=False)
+        prefix = "attempt/baseline-readiness/"
+        self.assertEqual(saved[prefix + "baseline.c"], saved[prefix + "baseline.o"])
+        self.assertEqual(json.loads(saved[prefix + "report.json"])["status"], "unverifiable")
+        self.assertIsNone(self.store.completed(result.receipt_key))
+
+    def test_baseline_readiness_valid_launch_and_seeded_capture_reuse(self):
+        parent = self.seed_parent_run()
+        with patch.object(batch, "measure_seed_stage", wraps=batch.measure_seed_stage) as measured, \
+             patch.object(batch, "run_permuter", wraps=batch.run_permuter) as search:
+            result = self.run_one(seed_receipt=parent.receipt_key)
+        self.assertTrue(result.ok, result.error)
+        self.assertEqual(search.call_count, 1)
+        self.assertEqual([call.args[1].name for call in measured.call_args_list],
+                         ["canonical-measurement", "seed-measurement"])
+        self.assertIsNotNone(self.store.completed(result.receipt_key))
+
+    def test_baseline_readiness_rechecks_wait_time_input_recipe_and_tool_drift(self):
+        real_recipe = batch.build_recipe_for.return_value
+        for fault in ("base.c", "target.o", "settings.toml", "recipe", "tool", "source"):
+            def mutate(*args):
+                scratch = next((self.root / "build/permuter/fixture/runs").glob("*/scratch"))
+                if fault == "recipe":
+                    batch.build_recipe_for.return_value = dataclasses.replace(real_recipe, flags=("-O1",))
+                elif fault == "tool":
+                    (self.root / "tools/ido/cc").write_text("changed compiler")
+                elif fault == "source":
+                    self.item.c_file.write_text("int fixture(void) { return 99; }\n")
+                else:
+                    (scratch / fault).write_bytes(b"changed input")
+            # Each iteration owns a fresh disposable runner, not another lane.
+            if fault != "base.c":
+                self.tearDown()
+                self.setUp()
+                real_recipe = batch.build_recipe_for.return_value
+            with self.subTest(fault=fault), patch.object(batch, "wait_for_headroom", side_effect=mutate), \
+                 patch.object(batch, "run_permuter") as search:
+                result = self.run_one()
+            self.assertFalse(result.ok, fault)
+            search.assert_not_called()
+
+    def test_baseline_readiness_score_drift_refuses_completion(self):
+        def search(*args, **kwargs):
+            self.improved(*args, **kwargs)
+            return 19, 1, False, False
+        with patch.object(batch, "run_permuter", side_effect=search):
+            result = self.run_one()
+        self.assertFalse(result.ok)
+        self.assertIn("differs from context readiness", result.error)
+        self.assertIsNone(self.store.completed(result.receipt_key))
+
+    def test_baseline_readiness_reuses_grouped_measurement(self):
+        def grouped(item, out, scratch, inputs, deadline):
+            baseline = {"baseline/" + name: (scratch / name).read_bytes()
+                        for name in ("base.c", "compile.sh", "target.s", "target.o", "settings.toml")}
+            return batch.measure_seed_stage(item, out / "grouped-measurement", baseline,
+                                            inputs, baseline["baseline/base.c"], deadline)
+        with patch.object(batch, "grouped_baseline_fidelity", side_effect=grouped), \
+             patch.object(batch, "measure_seed_stage", wraps=batch.measure_seed_stage) as measured:
+            result = self.run_one()
+        self.assertTrue(result.ok, result.error)
+        self.assertEqual(measured.call_count, 1)
+        self.assertEqual(measured.call_args.args[1].name, "grouped-measurement")
+
+    def test_baseline_installed_capture_wrapper_drift_refuses_before_search(self):
+        real = batch.run_prepared
+        def replace(item, scratch, *args, **kwargs):
+            (scratch / "compile.sh").write_bytes(b"changed installed recipe")
+            return real(item, scratch, *args, **kwargs)
+        with patch.object(batch, "run_prepared", side_effect=replace), \
+             patch.object(batch, "run_permuter") as search:
+            result = self.run_one()
+        self.assertFalse(result.ok)
+        self.assertIn("prepared search input changed", result.error)
+        search.assert_not_called()
+
     def test_real_search_then_resume_from_durable_receipt(self):
         first = self.run_one()
         self.assertTrue(first.ok, first.error)
@@ -601,6 +688,10 @@ class RunnerTests(unittest.TestCase):
             self.assertIsNotNone(self.store.completed(first.receipt_key))
 
     def seed_parent_run(self, seed_score=10, search_suffix="", debug_setup=""):
+        # Fault injection belongs to the seeded stages, not the parent's new
+        # independent readiness measurement.
+        debug_setup = debug_setup.replace('if "--debug" in sys.argv:',
+            'if "--debug" in sys.argv and "baseline-measurement" not in sys.argv[-1]:')
         self.write("permuter/permuter.py", debug_setup + SYNTHETIC_SEARCH_BASELINE + f'''
 seeded = b"return 2" in (scratch / "base.c").read_bytes()
 print("base score =", {seed_score} if seeded else 20, flush=True)
@@ -1120,7 +1211,7 @@ print("base score =", {score} if b"return 3" in text else 10 if b"return 2" in t
             result = batch.run_one(self.item, 1, 1, 1, True, [], annotate_overlays=False,
                 receipt_store=self.store, seed_receipt=parent.receipt_key)
         self.assertFalse(result.ok)
-        self.assertIn("differs from independently measured seed", result.error)
+        self.assertIn("prepared search input changed during search", result.error)
         promote.assert_not_called()
         self.assertIsNone(self.store.completed(result.receipt_key))
 
@@ -1214,6 +1305,8 @@ print("base score =", {score} if b"return 3" in text else 10 if b"return 2" in t
         original = batch.retain_context
         def retain(directory, evidence, winner, report):
             original(directory, evidence, winner, report)
+            if directory.name != "context-review":
+                return
             capture = directory.parent / "baseline-capture"
             (capture / "compiled.c").write_text("int foreign(void) { return 9; }")
             (capture / "compiled.o").write_bytes(b"foreign object")
@@ -1239,13 +1332,132 @@ print("base score =", {score} if b"return 3" in text else 10 if b"return 2" in t
             return 10, 1, False, False
         with patch.object(batch, "run_permuter", side_effect=search):
             result = self.run_one(extend_minutes=1)
-        self.assertTrue(result.ok, result.error)
-        self.assertTrue(result.extended)
+        self.assertFalse(result.ok)
+        self.assertIn("extension context readiness refused", result.error)
+        self.assertEqual(calls, 1)
+        self.assertFalse(result.extended)
         self.assertEqual(result.context_review["status"], "changed")
-        saved = self.store.read_bundle(result.artifact_bundle)
+        saved = self.store.read_bundle(result.artifact_bundle, require_complete=False)
         self.assertNotIn(b"added", saved["context/baseline.c"])
         self.assertIn(b"added", saved["context/winner.c"])
+        self.assertIsNone(self.store.completed(result.receipt_key))
+
+    def extension_program(self):
+        self.write("permuter/permuter.py", SYNTHETIC_SEARCH_BASELINE +
+            'print("base score =", 10 if b"return 2" in (scratch / "base.c").read_bytes() else 20, flush=True)\n')
+
+    def assert_extension_input_drift(self, name, during_measurement=False):
+        self.extension_program()
+        calls = waits = 0
+        def search(scratch, *args, **kwargs):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                self.improved(scratch, *args, **kwargs)
+                return 20, 60, False, False
+            return 10, 1, False, False
+        def mutate():
+            scratch = next((self.root / "build/permuter/fixture/runs").glob("*/scratch"))
+            if name == "cancel":
+                batch.CANCEL_EVENT.set()
+            else:
+                (scratch / name).write_bytes(b"changed extension input")
+        def wait(*args):
+            nonlocal waits
+            waits += 1
+            if waits == 2 and not during_measurement:
+                mutate()
+        real = batch.measure_seed_stage
+        def measured(*args, **kwargs):
+            result = real(*args, **kwargs)
+            if args[1].name == "extension-measurement" and during_measurement:
+                mutate()
+            return result
+        try:
+            with patch.object(batch, "run_permuter", side_effect=search), \
+                 patch.object(batch, "wait_for_headroom", side_effect=wait), \
+                 patch.object(batch, "measure_seed_stage", side_effect=measured):
+                result = self.run_one(extend_minutes=1)
+        finally:
+            batch.CANCEL_EVENT.clear()
+        self.assertEqual(calls, 1)
+        self.assertFalse(result.ok)
+        self.assertFalse(result.extended)
+        self.assertEqual(result.best_score, 10)
+        self.assertIsNone(self.store.completed(result.receipt_key))
+
+    def test_extension_second_wait_input_drift_refuses_launch(self):
+        self.assert_extension_input_drift("target.o")
+
+    def test_extension_second_wait_compiler_drift_refuses_launch(self):
+        self.assert_extension_input_drift("compile.sh")
+
+    def test_extension_measurement_target_drift_refuses_launch(self):
+        self.assert_extension_input_drift("target.o", during_measurement=True)
+
+    def test_extension_second_wait_cancel_preserves_best_without_launch(self):
+        self.assert_extension_input_drift("cancel")
+
+    def test_extension_actual_capture_source_or_score_drift_refuses_completion(self):
+        self.extension_program()
+        calls = 0
+        def search(scratch, *args, **kwargs):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                self.improved(scratch, *args, **kwargs)
+                return 20, 60, False, False
+            subprocess.run([sys.executable, "-c", SYNTHETIC_SEARCH_BASELINE, str(scratch)], check=True)
+            return 9, 1, False, False
+        with patch.object(batch, "run_permuter", side_effect=search):
+            result = self.run_one(extend_minutes=1)
+        self.assertEqual(calls, 2)
+        self.assertFalse(result.ok)
+        self.assertIn("extension baseline differs", result.error)
+        self.assertEqual(result.best_score, 10)
+        self.assertIsNone(self.store.completed(result.receipt_key))
+
+    def test_extension_fidelity_and_distinct_capture_preserve_original_baseline(self):
+        self.extension_program()
+        calls = 0
+        def search(scratch, *args, **kwargs):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                self.improved(scratch, *args, **kwargs)
+                return 20, 60, False, False
+            subprocess.run([sys.executable, "-c", SYNTHETIC_SEARCH_BASELINE, str(scratch)], check=True)
+            return 10, 1, False, False
+        with patch.object(batch, "run_permuter", side_effect=search), \
+             patch.object(batch, "prove_seed_emission", side_effect=self.synthetic_seed_fidelity) as original_proof, \
+             patch.object(batch, "validate_seed_search", wraps=batch.validate_seed_search) as search_proof:
+            result = self.run_one(extend_minutes=1)
+        self.assertTrue(result.ok, result.error)
+        self.assertTrue(result.extended)
+        original_proof.assert_called_once()
+        search_proof.assert_called_once()
+        saved = self.store.read_bundle(result.artifact_bundle)
+        self.assertIn(b"return 1", saved["context/baseline.c"])
+        self.assertIn(b"return 2", saved["attempt/extension-search/baseline-capture/compiled.c"])
+        first = json.loads(saved["attempt/baseline-capture/capture.json"])["binding"]
+        later = json.loads(saved["attempt/extension-search/baseline-capture/capture.json"])["binding"]
+        self.assertNotEqual(first["run_id"], later["run_id"])
         self.assertIsNotNone(self.store.completed(result.receipt_key))
+
+    def test_extension_same_score_emission_fidelity_failure_never_relaunches(self):
+        self.extension_program()
+        def search(scratch, *args, **kwargs):
+            self.improved(scratch, *args, **kwargs)
+            return 20, 60, False, False
+        with patch.object(batch, "run_permuter", side_effect=search) as random, \
+             patch.object(batch, "prove_seed_emission", side_effect=RuntimeError("wrong owned register or identity")):
+            result = self.run_one(extend_minutes=1)
+        random.assert_called_once()
+        self.assertFalse(result.ok)
+        self.assertFalse(result.extended)
+        self.assertIn("wrong owned register or identity", result.error)
+        self.assertEqual(result.best_score, 10)
+        self.assertIsNone(self.store.completed(result.receipt_key))
 
     def test_missing_failed_and_swapped_capture_cannot_be_checked(self):
         for fault in ("missing", "failed", "swapped", "foreign run"):
@@ -1309,7 +1521,7 @@ print("base score =", {score} if b"return 3" in text else 10 if b"return 2" in t
              patch.object(batch, "bounded_capture", wraps=batch.bounded_capture) as compile_call:
             result = self.run_one()
         self.assertTrue(result.ok, result.error)
-        self.assertEqual(compile_call.call_count, 1)
+        self.assertEqual(compile_call.call_count, 2)  # readiness plus winning source
         saved = self.store.read_bundle(result.artifact_bundle)
         self.assertEqual(saved["best/source.c"], saved["best/object.o"])
         self.assertNotEqual(saved["best/source.c"], saved["baseline/base.c"])
@@ -1342,6 +1554,8 @@ print("base score =", {score} if b"return 3" in text else 10 if b"return 2" in t
         vendor, python = project / "tools/permuter", project / ".venv/bin/python"
         if not (vendor / "src/compiler.py").is_file() or not python.exists():
             self.skipTest("optional local permuter checkout and venv unavailable")
+        self.write("permuter/permuter.py", SYNTHETIC_SEARCH_BASELINE.replace(
+            "synthetic-search", "actual-vendor") + "print('base score = 20', flush=True)\n")
         def search(scratch, *args, **kwargs):
             code = ('import sys,os;sys.path.insert(0,sys.argv[2]);'
                     'from src.compiler import Compiler;'
@@ -1358,9 +1572,11 @@ print("base score =", {score} if b"return 3" in text else 10 if b"return 2" in t
         self.assertEqual(saved["baseline/compiled.c"], saved["baseline/compiled.o"])
 
     def test_compile_failure_and_deadline_preserve_partial_best_retryably(self):
+        real = batch.bounded_capture
         for error in (RuntimeError("compiler failed"), TimeoutError("deadline exhausted")):
             with self.subTest(error=error), patch.object(batch, "run_permuter", side_effect=self.improved), \
-                 patch.object(batch, "bounded_capture", side_effect=error):
+                 patch.object(batch, "bounded_capture", side_effect=lambda *a, **k:
+                    real(*a, **k) if k.get("cwd") is not None else (_ for _ in ()).throw(error)):
                 result = self.run_one()
             self.assertFalse(result.ok)
             self.assertIsNone(self.store.completed(result.receipt_key))
@@ -1370,13 +1586,15 @@ print("base score =", {score} if b"return 3" in text else 10 if b"return 2" in t
             self.assertIn("baseline/base.o", saved)
 
     def test_actual_exhausted_deadline_never_launches_best_compilation(self):
+        real = batch.bounded_capture
         def search(*args, **kwargs):
             output = self.improved(*args, **kwargs)
-            time.sleep(0.06)
+            time.sleep(1.1)
             return output
         with patch.object(batch, "run_permuter", side_effect=search), \
-             patch.object(batch, "bounded_capture", side_effect=AssertionError("must not launch")):
-            result = self.run_one(batch_deadline=time.monotonic() + 0.04)
+             patch.object(batch, "bounded_capture", side_effect=lambda *a, **k:
+                real(*a, **k) if k.get("cwd") is not None else (_ for _ in ()).throw(AssertionError("must not launch"))):
+            result = self.run_one(batch_deadline=time.monotonic() + 1)
         self.assertFalse(result.ok)
         self.assertIsNone(self.store.completed(result.receipt_key))
         saved = self.store.read_bundle(result.artifact_bundle, require_complete=False)
@@ -1487,6 +1705,7 @@ print("base score =", {score} if b"return 3" in text else 10 if b"return 2" in t
         self.assertNotEqual(first.receipt_key, second.receipt_key)
 
     def test_extension_failure_retains_primary_best_scalar_and_artifact(self):
+        self.extension_program()
         def primary(scratch, *args, **kwargs):
             subprocess.run([sys.executable, "-c", SYNTHETIC_SEARCH_BASELINE, str(scratch)], check=True)
             best = scratch / "output-10-1"
@@ -1503,6 +1722,7 @@ print("base score =", {score} if b"return 3" in text else 10 if b"return 2" in t
             raise RuntimeError("extension failed")
         with patch.object(batch, "run_permuter", side_effect=search):
             result = self.run_one(extend_minutes=1)
+        self.assertEqual(count, 2)
         self.assertFalse(result.ok)
         self.assertEqual(result.best_score, 10)
         self.assertIsNone(self.store.completed(result.receipt_key))
@@ -1515,7 +1735,7 @@ print("base score =", {score} if b"return 3" in text else 10 if b"return 2" in t
         self.assertEqual(result.context_review["status"], "unchanged")
 
     def test_nonzero_process_exit_is_retryable_even_after_base_score(self):
-        self.write("permuter/permuter.py", "print('base score = 20', flush=True)\nraise SystemExit(7)\n")
+        self.write("permuter/permuter.py", self.search_fault_program("print('base score = 20', flush=True)\nraise SystemExit(7)\n"))
         for _ in range(2):
             result = self.run_one(resume=True)
             self.assertFalse(result.ok)
@@ -1524,13 +1744,13 @@ print("base score =", {score} if b"return 3" in text else 10 if b"return 2" in t
             self.assertIsNone(self.store.completed(result.receipt_key))
 
     def test_process_exit_124_is_failure_not_runner_cap(self):
-        self.write("permuter/permuter.py", "print('base score = 20', flush=True)\nraise SystemExit(124)\n")
+        self.write("permuter/permuter.py", self.search_fault_program("print('base score = 20', flush=True)\nraise SystemExit(124)\n"))
         result = self.run_one()
         self.assertFalse(result.ok)
         self.assertIn("exited 124", result.error)
 
     def test_failed_parent_does_not_leave_term_ignoring_worker(self):
-        self.write("permuter/permuter.py", """import os, signal, time
+        self.write("permuter/permuter.py", self.search_fault_program("""import os, signal, time
 read_fd, write_fd = os.pipe()
 worker = os.fork()
 if worker == 0:
@@ -1544,7 +1764,7 @@ os.read(read_fd, 1)
 print('worker =', worker, flush=True)
 print('base score = 20', flush=True)
 raise SystemExit(7)
-""")
+"""))
         result = self.run_one()
         self.assertFalse(result.ok)
         log = (Path(result.scratch_path).parent / "permuter.log").read_text()
@@ -1560,7 +1780,7 @@ raise SystemExit(7)
             time.sleep(0.02)
 
     def test_zero_exit_without_base_score_is_failure(self):
-        self.write("permuter/permuter.py", "print('no measurement')\n")
+        self.write("permuter/permuter.py", self.search_fault_program("print('no measurement')\n"))
         result = self.run_one()
         self.assertFalse(result.ok)
         self.assertIn("no base score", result.error)
@@ -1589,13 +1809,13 @@ raise SystemExit(7)
 
     def test_child_failure_after_successful_capture_retains_pair_and_best_without_apply(self):
         original = self.item.c_file.read_bytes()
-        self.write("permuter/permuter.py", SYNTHETIC_SEARCH_BASELINE + '''
+        self.write("permuter/permuter.py", self.search_fault_program('''
 best = scratch / "output-10-1"
 best.mkdir()
 (best / "score.txt").write_text("10")
 (best / "source.c").write_text("int fixture(void) { return 2; }\\n")
 raise SystemExit(7)
-''')
+'''))
         with patch.object(batch, "promote", side_effect=AssertionError("failed search must never promote")):
             result = batch.run_one(self.item, 1, 1, 1, True, [], load_threshold=0,
                                    annotate_overlays=False, receipt_store=self.store)
@@ -1663,7 +1883,7 @@ raise SystemExit(7)
         self.assertIsNone(self.store.completed(result.receipt_key))
 
     def test_batch_ignores_legacy_symbol_only_resume_and_returns_failure(self):
-        self.write("permuter/permuter.py", "print('base score = 20', flush=True)\nraise SystemExit(7)\n")
+        self.write("permuter/permuter.py", self.search_fault_program("print('base score = 20', flush=True)\nraise SystemExit(7)\n"))
         summary = self.write("build/permuter/summary.json", json.dumps({"results": [{
             "func": "fixture", "c_file": "src/fixture.c", "overlay": None,
             "ok": True, "base_score": 20}]}))
