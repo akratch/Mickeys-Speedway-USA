@@ -1829,17 +1829,28 @@ class PermuterTargetCoverageTests(unittest.TestCase):
         self.assertEqual(renames["known"], "__ovval_00008000")
         self.assertIn("%lo(__ovval_00008000+0x4)", text)
         target = self.roundtrip(text, notes)
+        self.assertEqual(self.renamed_score(target, renames), 0)
+
+    def renamed_score(self, target, renames):
         candidate = self.root / "renamed.o"
-        args = [str(self.bin / "mips64-elf-objcopy")]
-        args.extend(f"--redefine-sym={old}={new}" for old, new in renames.items())
-        subprocess.run([*args, str(self.base), str(candidate)], check=True, capture_output=True)
+        objcopy = str(self.bin / "mips64-elf-objcopy")
+        subprocess.run([objcopy, str(self.base), str(candidate)], check=True, capture_output=True)
+        # Production also separates duplicate destinations into successive
+        # objcopy invocations, preserving aliases of one runtime identity.
+        for old, new in renames.items():
+            subprocess.run([objcopy, f"--redefine-sym={old}={new}", str(candidate)],
+                           check=True, capture_output=True)
+        self.assertEqual(rs.Elf(candidate).section_bytes(".text"),
+                         rs.Elf(self.base).section_bytes(".text"))
+        self.assertEqual([(sec, off, kind) for sec, off, kind, _ in rs.Elf(candidate).relocations()],
+                         [(sec, off, kind) for sec, off, kind, _ in rs.Elf(self.base).relocations()])
         program = ("import sys;sys.path.insert(0,sys.argv[1]);from src.scorer import Scorer;"
                    "print(Scorer(sys.argv[2],stack_differences=True,algorithm='difflib',debug_mode=False,"
                    "ign_branch_targets=False,objdump_command=sys.argv[4]).score(sys.argv[3])[0])")
         score = subprocess.check_output([str(rs.REPO / ".venv/bin/python"), "-c", program,
             str(rs.REPO / "tools/permuter"), str(target), str(candidate),
             str(self.bin / "mips64-elf-objdump") + " -drz -m mips:4300"], text=True)
-        self.assertEqual(score.strip(), "0")
+        return int(score.strip())
 
     def test_duplicate_address_record_and_out_of_owner_fail_closed(self):
         with self.assertRaises(rs.AnnotationError):
@@ -1874,17 +1885,21 @@ class PermuterTargetCoverageTests(unittest.TestCase):
         same_text, same_renames, same_notes = self.annotate()
         self.assertEqual(same_renames["left"], "__ovval_00000000")
         self.assertEqual(same_renames["right"], "__ovval_00000000")
-        self.roundtrip(same_text, same_notes)
+        same_target = self.roundtrip(same_text, same_notes)
+        self.assertEqual(self.renamed_score(same_target, same_renames), 0)
         for changes in ({"symbol_index": 200}, {"op_name": "DATA", "op": 3}):
             records = [dict(record) for record in self.records]
             records[3].update(changes)
             records[4].update(changes)
             with self.subTest(changes=changes):
                 text, renames, notes = self.annotate(records=records)
-                self.assertNotIn("left", renames)
-                self.assertNotIn("right", renames)
-                self.assertIn("distinct runtime identities", " ".join(notes))
-                self.roundtrip(text, notes)
+                self.assertNotEqual(renames["left"], renames["right"])
+                self.assertNotIn(".", renames["left"] + renames["right"])
+                self.assertIn("%lo(" + renames["left"] + "-0x7FFC)", text)
+                target = self.roundtrip(text, notes)
+                self.assertEqual(self.renamed_score(target, renames), 0)
+                swapped = {**renames, "left": renames["right"], "right": renames["left"]}
+                self.assertGreater(self.renamed_score(target, swapped), 0)
 
     def test_bad_word_operand_and_incomplete_pair_are_refused(self):
         with self.assertRaises(rs.AnnotationError):
