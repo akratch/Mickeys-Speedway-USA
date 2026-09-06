@@ -13,6 +13,7 @@ import hashlib
 import io
 import json
 import os
+import re
 import subprocess
 import stat
 import tempfile
@@ -32,6 +33,53 @@ REQUIRED_ARTIFACTS = {"baseline/base.c", "baseline/base.o", "baseline/compile.sh
                       "baseline/compiled.c", "baseline/compiled.o", "baseline/measurement.json",
                       "best/source.c", "best/object.o", "context/baseline.c",
                       "context/winner.c", "context/report.json"}
+
+
+def seed_candidate_name(value: str) -> str:
+    """A vendor output identifier, never an arbitrary path or source input."""
+    if not isinstance(value, str) or re.fullmatch(r"output-(0|[1-9][0-9]{0,9})-([1-9][0-9]{0,9})", value) is None:
+        raise ValueError("seed candidate must be an output-SCORE-ORDINAL identifier")
+    return value
+
+
+def resolve_seed_candidate(parent: dict, files: dict[str, bytes], candidate: str) -> tuple[bytes, dict]:
+    """Resolve only already authenticated archive members; leave parent untouched.
+
+    The source/score pair is retained vendor evidence, not a retained worker
+    object or semantic approval. Fresh emission and actual-search proofs remain
+    mandatory. Reused by durable validation, not just the launch-side selector.
+    """
+    seed_candidate_name(candidate)
+    if (not isinstance(parent, dict) or not isinstance(parent.get("result"), dict)
+            or not isinstance(parent.get("inputs"), dict) or not isinstance(files, dict)):
+        raise ValueError("invalid alternate seed parent or archive shape")
+    result = parent["result"]
+    report = json.loads(files["context/report.json"])
+    original = result.get("original_base_score") if result.get("seed_proof") else result.get("base_score")
+    if (not isinstance(report, dict)
+            or parent.get("schema") != SCHEMA or parent.get("key") != digest(parent["inputs"])
+            or report != result.get("context_review") or report.get("status") != "unchanged"
+            or report.get("winner_source_sha256") != hashlib.sha256(files["best/source.c"]).hexdigest()
+            or report.get("baseline_source_sha256") != hashlib.sha256(files["baseline/compiled.c"]).hexdigest()
+            or type(original) is not int or type(result.get("best_score")) is not int
+            or not 0 <= result["best_score"] < original):
+        raise ValueError("alternate seed parent is not a context-unchanged measured improvement")
+    prefix = "attempt/scratch/" + candidate
+    source_member, score_member = prefix + "/source.c", prefix + "/score.txt"
+    source, score_bytes = files[source_member], files[score_member]
+    if (not source or len(source) > 4 * 1024 * 1024
+            or re.fullmatch(rb"(0|[1-9][0-9]{0,9})\n", score_bytes) is None):
+        raise ValueError("alternate seed source or paired score is invalid")
+    source.decode("utf-8")  # Reject malformed source before importer preparation.
+    score = int(score_bytes)
+    if score != int(candidate.split("-")[1]) or not 0 <= score < original:
+        raise ValueError("alternate seed score is unpaired or not a canonical improvement")
+    return source, {"schema": "mickey-seed-selection-v1", "candidate": candidate,
+        "receipt": parent["key"], "bundle": result["artifact_bundle"],
+        "parent_receipt_sha256": digest(parent),
+        "source_member": source_member, "source_sha256": hashlib.sha256(source).hexdigest(),
+        "score_member": score_member, "score_sha256": hashlib.sha256(score_bytes).hexdigest(),
+        "selected_score": score, "parent_best_score": result["best_score"]}
 
 
 def owned_bytes(root: Path, relative: str, *, limit: int = MAX_ARTIFACT_BYTES,
@@ -182,6 +230,17 @@ class ReceiptStore:
         files = self.read_bundle(result["artifact_bundle"], inputs=value["inputs"])
         return value, files["best/source.c"]
 
+    def select_seed(self, key: str, candidate: str | None = None) -> tuple[dict, bytes, dict | None]:
+        """Default behavior is unchanged; alternates carry independent evidence."""
+        if candidate is not None:
+            seed_candidate_name(candidate)
+        parent, source = self.seed_parent(key)
+        if candidate is None:
+            return parent, source, None
+        files = self.read_bundle(parent["result"]["artifact_bundle"], inputs=parent["inputs"])
+        source, selection = resolve_seed_candidate(parent, files, candidate)
+        return parent, source, selection
+
     def save_bundle(self, files: dict[str, bytes], *, complete: bool, inputs: dict) -> str:
         """Immutable deterministic archive; never extract or execute archive paths."""
         if complete and not REQUIRED_ARTIFACTS <= files.keys():
@@ -286,11 +345,31 @@ class ReceiptStore:
             files = self.read_bundle(value["result"]["artifact_bundle"], inputs=value["inputs"])
             seed = value["inputs"]["search"].get("seed")
             if seed is not None:
+                if not isinstance(seed, dict):
+                    return False
                 proof = json.loads(files["seed/proof.json"])
                 parent = json.loads(files["seed/parent.json"])
+                if (not isinstance(parent, dict) or not isinstance(parent.get("result"), dict)
+                        or not isinstance(parent.get("inputs"), dict)):
+                    return False
                 fidelity = json.loads(files["seed/fidelity.json"])
                 search_fidelity = json.loads(files["seed/search-fidelity.json"])
                 plan = json.loads(files["seed/plan.json"])
+                parent_files = self.read_bundle(seed["bundle"], inputs=parent["inputs"])
+                selection = seed.get("selection")
+                selected_source, selected_score = parent_files["best/source.c"], parent["result"]["best_score"]
+                if "selection" in seed:
+                    if (not isinstance(selection, dict)
+                            or type(selection.get("selected_score")) is not int
+                            or type(selection.get("parent_best_score")) is not int):
+                        return False
+                    selected_source, expected = resolve_seed_candidate(parent, parent_files, selection.get("candidate"))
+                    if selection != expected or json.loads(files["seed/selection.json"]) != expected:
+                        return False
+                    selected_score = expected["selected_score"]
+                elif ("seed/selection.json" in files
+                        or parent["result"]["context_review"]["winner_source_sha256"] != seed.get("source_sha256")):
+                    return False
                 if (not isinstance(seed, dict) or not isinstance(proof, dict)
                         or not isinstance(fidelity, dict) or not isinstance(plan, dict)
                         or not isinstance(search_fidelity, dict)
@@ -339,9 +418,8 @@ class ReceiptStore:
                         or seed.get("receipt") != parent.get("key")
                         or digest(parent.get("inputs")) != seed["receipt"]
                         or parent["result"]["artifact_bundle"] != seed.get("bundle")
-                        or parent["result"]["context_review"]["winner_source_sha256"] != seed.get("source_sha256")
                         or parent["inputs"]["context"]["identity"] != value["inputs"]["context"]["identity"]
-                        or parent["result"]["best_score"] != value["result"].get("seed_parent_score")
+                        or selected_score != value["result"].get("seed_parent_score")
                         or hashlib.sha256(files["seed/source.c"]).hexdigest() != seed.get("source_sha256")
                         or hashlib.sha256(files["baseline/target.o"]).hexdigest() != seed.get("target_object_sha256")
                         or proof.get("status") != "validated"
@@ -360,8 +438,7 @@ class ReceiptStore:
                         or hashlib.sha256(files["seed/search.o"]).hexdigest() != proof.get("search_object_sha256")
                         or not files["seed/search.o"]):
                     return False
-                parent_files = self.read_bundle(seed["bundle"], inputs=parent["inputs"])
-                if parent_files["best/source.c"] != files["seed/source.c"]:
+                if selected_source != files["seed/source.c"]:
                     return False
                 for name, source in (("parent_comparison", files["seed/source.c"]),
                                      ("compiled_comparison", files["seed/compiled.c"])):

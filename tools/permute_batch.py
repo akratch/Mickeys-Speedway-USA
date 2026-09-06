@@ -3015,7 +3015,8 @@ def prepare_seed(item, out_dir, baseline, inputs, parent, source, result, deadli
     canonical, original_score = measure_seed_stage(item, out_dir / "canonical-measurement",
         baseline, inputs, baseline["baseline/base.c"], deadline)
     result.original_base_score = original_score
-    result.seed_parent_score = parent["result"]["best_score"]
+    selection = inputs["search"]["seed"].get("selection")
+    result.seed_parent_score = selection["selected_score"] if selection is not None else parent["result"]["best_score"]
     if canonical.source_sha256 != parent["result"]["context_review"]["baseline_source_sha256"]:
         raise RuntimeError("fresh actual canonical compiler input differs from parent baseline")
     report = review_context(item, canonical, source, deadline)
@@ -3140,7 +3141,8 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
             annotate_overlays: bool = True,
             batch_deadline: Optional[float] = None, resume: bool = False,
             receipt_store: Optional[sweep_receipts.ReceiptStore] = None,
-            deep: bool = False, seed_receipt: Optional[str] = None) -> RunResult:
+            deep: bool = False, seed_receipt: Optional[str] = None,
+            seed_candidate: Optional[str] = None) -> RunResult:
     # Keep every meaningful attempt. Reimporting must not erase an earlier
     # best candidate, especially when a later run fails before scoring.
     out_dir = BUILD_PERMUTER / item.func / "runs" / uuid.uuid4().hex
@@ -3153,7 +3155,9 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
     try:
         if seed_receipt and (deep or extra_args or extend_minutes):
             raise ValueError("receipt seeding does not accept --deep, extensions or forwarded permuter arguments")
-        parent, seed_source = store.seed_parent(seed_receipt) if seed_receipt else (None, None)
+        if seed_candidate is not None and not seed_receipt:
+            raise ValueError("--seed-candidate requires --seed-receipt")
+        parent, seed_source, selection = store.select_seed(seed_receipt, seed_candidate) if seed_receipt else (None, None, None)
         remaining_timeout(batch_deadline)
         checked_tool_identity()
         source_hash = sweep_receipts.file_digest(item.c_file)
@@ -3206,6 +3210,9 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
                              "plan_sha256": hashlib.sha256(seed_plan).hexdigest(),
                              "target_object_sha256": hashlib.sha256(
                                  sweep_receipts.owned_bytes(scratch, "target.o")).hexdigest()}
+            if selection is not None:
+                seed_identity["selection"] = selection
+                baseline["seed/selection.json"] = json.dumps(selection, sort_keys=True).encode()
             inputs["search"]["seed"] = seed_identity
             inputs["context"]["seed"] = seed_identity
         result.receipt_key = sweep_receipts.digest(inputs)
@@ -3439,6 +3446,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p.add_argument("--function", action="append", default=None,
                    help="restrict to these function names (repeatable)")
     p.add_argument("--seed-receipt", help="continue one --function from a validated immutable receipt winner")
+    p.add_argument("--seed-candidate", type=sweep_receipts.seed_candidate_name,
+                   help="with --seed-receipt: select a retained output-SCORE-ORDINAL source/score pair, not the parent's best")
     p.add_argument(
         "--exclude-file",
         action="append",
@@ -3544,6 +3553,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="extra args forwarded to permuter.py, after --",
     )
     args = p.parse_args(argv)
+    if args.seed_candidate is not None and not args.seed_receipt:
+        p.error("--seed-candidate requires --seed-receipt")
     if args.seed_receipt:
         if not re.fullmatch(r"[0-9a-f]{64}", args.seed_receipt):
             p.error("--seed-receipt requires a lowercase SHA256 receipt key")
@@ -3760,7 +3771,8 @@ def run_batch(argv: list[str]) -> int:
             r = run_one(it, args.minutes, permuter_threads, args.build_jobs, args.apply, extra_args,
                         args.load_threshold, args.extend_minutes, args.commit, args.flat_minutes,
                         not args.no_overlay_annotate, batch_deadline, args.resume,
-                        deep=args.deep, seed_receipt=args.seed_receipt)
+                        deep=args.deep, seed_receipt=args.seed_receipt,
+                        seed_candidate=args.seed_candidate)
             results.append(r)
             current_results.append(r)
             attempted += counts_against_limit(r)
