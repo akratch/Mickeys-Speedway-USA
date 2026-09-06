@@ -66,7 +66,11 @@ different guard in the same translation unit never reserves the target. See
 A genuinely new mechanism may reopen one current plateau through
 `config/lane-reopen-authorizations.us.json`. Each schema-v1 entry pins the
 symbol's full current source and handoff commit IDs plus a concise reason. The
-pin may also name the exact older handoff commit reported for
+reason must be nonempty, at most 240 characters, and contain no newline or pipe.
+`gmake check-docs` first checks the worktree JSON structure via
+`tools/lane_status.py --check-reopen-schema`, without Git/history inspection.
+This schema-only check permits historical pins and never authorizes assignment.
+The pin may also name the exact older handoff commit reported for
 `stale-structured-evidence`; this authorizes one fresh maintenance remeasurement
 without treating the old measurements as current. A
 missing structured handoff may use `ledger_commit: null` only when the pin is

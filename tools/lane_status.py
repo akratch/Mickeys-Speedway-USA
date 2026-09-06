@@ -1384,32 +1384,30 @@ def claim_dispositions(base: str) -> dict[str, dict[str, str]]:
     return claims
 
 
-@lru_cache(maxsize=128)
-def reopen_authorizations(base: str) -> dict[str, dict[str, str]]:
-    """Load commit-pinned, one-shot authorizations for current plateaus."""
-    raw = git("show", f"{base}:{REOPEN_AUTHORIZATIONS_PATH}", check=False)
-    if not raw:
-        return {}
+def parse_reopen_authorizations(
+    raw: str, *, label: str,
+) -> dict[str, dict[str, str | None]]:
+    """Validate structure only; pins need not exist or authorize assignment."""
     try:
         document = json.loads(raw)
     except json.JSONDecodeError as error:
         raise RuntimeError(
-            f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {error}"
+            f"{label}: {error}"
         ) from error
     if not isinstance(document, dict) or set(document) != {
         "schema_version", "authorizations",
     }:
         raise RuntimeError(
-            f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: invalid top-level schema"
+            f"{label}: invalid top-level schema"
         )
-    if document["schema_version"] != 1:
+    if type(document["schema_version"]) is not int or document["schema_version"] != 1:
         raise RuntimeError(
-            f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: unsupported schema"
+            f"{label}: schema_version must be the integer 1"
         )
     authorizations = document["authorizations"]
     if not isinstance(authorizations, dict):
         raise RuntimeError(
-            f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: authorizations must be an object"
+            f"{label}: authorizations must be an object"
         )
     expected_fields = {"source_commit", "ledger_commit", "reason"}
     for symbol, row in authorizations.items():
@@ -1417,24 +1415,19 @@ def reopen_authorizations(base: str) -> dict[str, dict[str, str]]:
             r"[A-Za-z_][A-Za-z0-9_]*", symbol
         ):
             raise RuntimeError(
-                f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: invalid symbol {symbol!r}"
+                f"{label}: invalid symbol {symbol!r}"
             )
         if not isinstance(row, dict) or set(row) != expected_fields:
             raise RuntimeError(
-                f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} has invalid fields"
+                f"{label}: {symbol} has invalid fields"
             )
         source_commit = row["source_commit"]
         if not isinstance(source_commit, str) or not re.fullmatch(
             r"[0-9a-f]{40}", source_commit
         ):
             raise RuntimeError(
-                f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} needs a "
+                f"{label}: {symbol} needs a "
                 "full source_commit"
-            )
-        if not is_ancestor(source_commit, base):
-            raise RuntimeError(
-                f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} source_commit "
-                f"{source_commit} is not an ancestor of {base}"
             )
         ledger_commit = row["ledger_commit"]
         if ledger_commit is not None and (
@@ -1442,8 +1435,37 @@ def reopen_authorizations(base: str) -> dict[str, dict[str, str]]:
             or not re.fullmatch(r"[0-9a-f]{40}", ledger_commit)
         ):
             raise RuntimeError(
-                f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} needs a full "
+                f"{label}: {symbol} needs a full "
                 "ledger_commit or null"
+            )
+        reason = row["reason"]
+        if (
+            not isinstance(reason, str) or not reason.strip()
+            or len(reason) > 240 or "\n" in reason or "|" in reason
+        ):
+            raise RuntimeError(
+                f"{label}: {symbol} needs one nonempty reason of at most "
+                "240 characters, without newline or pipe"
+            )
+    return authorizations
+
+
+@lru_cache(maxsize=128)
+def reopen_authorizations(base: str) -> dict[str, dict[str, str | None]]:
+    """Load commit-pinned, one-shot authorizations for current plateaus."""
+    raw = git("show", f"{base}:{REOPEN_AUTHORIZATIONS_PATH}", check=False)
+    if not raw:
+        return {}
+    authorizations = parse_reopen_authorizations(
+        raw, label=f"{base}:{REOPEN_AUTHORIZATIONS_PATH}",
+    )
+    for symbol, row in authorizations.items():
+        source_commit = row["source_commit"]
+        ledger_commit = row["ledger_commit"]
+        if not is_ancestor(source_commit, base):
+            raise RuntimeError(
+                f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} source_commit "
+                f"{source_commit} is not an ancestor of {base}"
             )
         if ledger_commit is not None:
             if not is_ancestor(ledger_commit, base):
@@ -1459,15 +1481,6 @@ def reopen_authorizations(base: str) -> dict[str, dict[str, str]]:
                     f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} "
                     "source_commit and ledger_commit are unrelated"
                 )
-        reason = row["reason"]
-        if (
-            not isinstance(reason, str) or not reason.strip()
-            or len(reason) > 240 or "\n" in reason or "|" in reason
-        ):
-            raise RuntimeError(
-                f"{base}:{REOPEN_AUTHORIZATIONS_PATH}: {symbol} needs one "
-                "concise reason"
-            )
         source_path, identity_error = source_identity(source_commit, symbol)
         if identity_error or source_path is None:
             raise RuntimeError(
@@ -1614,7 +1627,25 @@ def main() -> int:
     parser.add_argument("--symbol", help="Show claims for one exact symbol")
     parser.add_argument("--pending-only", action="store_true")
     parser.add_argument("--json", action="store_true")
+    parser.add_argument(
+        "--check-reopen-schema", action="store_true",
+        help="check worktree reopen JSON structure only, without Git/history checks",
+    )
     args = parser.parse_args()
+
+    if args.check_reopen_schema:
+        if args.base is not None or args.symbol or args.pending_only or args.json:
+            parser.error("--check-reopen-schema cannot be combined with assignment options")
+        path = Path(REOPEN_AUTHORIZATIONS_PATH)
+        try:
+            rows = parse_reopen_authorizations(
+                path.read_text(encoding="utf-8"), label=str(path),
+            )
+        except (OSError, UnicodeError, RuntimeError) as error:
+            print(f"lane_status: {error}", file=sys.stderr)
+            return 2
+        print(f"reopen schema: OK ({len(rows)} entries; not assignment authorization)")
+        return 0
 
     try:
         if args.base is None:

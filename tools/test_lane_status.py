@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from contextlib import ExitStack, redirect_stderr, redirect_stdout
+import io
 import json
 from pathlib import Path
 import subprocess
@@ -51,6 +53,105 @@ def shard(*, source: str = SOURCE_PATH.as_posix(), symbol: str = SYMBOL) -> str:
             "35/43 words", "frameless", 0, "+0x4", "allocator web remains",
         ),
     )
+
+
+class ReopenSchemaTests(unittest.TestCase):
+    def document(self, **row_changes):
+        return {"schema_version": 1, "authorizations": {SYMBOL: {
+            "source_commit": "a" * 40, "ledger_commit": "b" * 40,
+            "reason": "new mechanism", **row_changes,
+        }}}
+
+    def parse(self, document):
+        return ls.parse_reopen_authorizations(json.dumps(document), label="worktree.json")
+
+    def test_reason_boundary_and_explicit_limit_diagnostic(self):
+        for size in (1, 239, 240):
+            with self.subTest(size=size):
+                self.assertEqual(self.parse(self.document(reason="x" * size))[SYMBOL]["reason"], "x" * size)
+        with self.assertRaisesRegex(RuntimeError, f"worktree.json: {SYMBOL}.*240"):
+            self.parse(self.document(reason="x" * 241))
+
+    def test_reason_rejects_wrong_types_empty_and_delimiters(self):
+        for reason in (None, True, 12, [], {}, "", " \t", "a\nb", "a|b"):
+            with self.subTest(reason=reason), self.assertRaisesRegex(RuntimeError, "240"):
+                self.parse(self.document(reason=reason))
+
+    def test_pins_require_full_lowercase_hashes_but_null_ledger_is_structural(self):
+        for field in ("source_commit", "ledger_commit"):
+            for value in (False, 1, [], {}, "", "a" * 39, "A" * 40, "g" * 40):
+                with self.subTest(field=field, value=value), self.assertRaisesRegex(RuntimeError, field):
+                    self.parse(self.document(**{field: value}))
+        with self.assertRaisesRegex(RuntimeError, "source_commit"):
+            self.parse(self.document(source_commit=None))
+        self.assertIsNone(self.parse(self.document(ledger_commit=None))[SYMBOL]["ledger_commit"])
+
+    def test_top_level_and_row_shapes_fail_closed(self):
+        documents = [None, [], {}, self.document() | {"extra": 1}]
+        for version in (None, True, 1.0, "1", 2):
+            documents.append(self.document() | {"schema_version": version})
+        for rows in (None, [], True, {"bad-symbol": {}}, {SYMBOL: None}, {SYMBOL: []}):
+            documents.append(self.document() | {"authorizations": rows})
+        for field in ("source_commit", "ledger_commit", "reason"):
+            document = self.document()
+            del document["authorizations"][SYMBOL][field]
+            documents.append(document)
+        documents.append(self.document(extra="unexpected"))
+        for document in documents:
+            with self.subTest(document=document), self.assertRaises(RuntimeError):
+                self.parse(document)
+        with self.assertRaisesRegex(RuntimeError, "worktree.json"):
+            ls.parse_reopen_authorizations("{", label="worktree.json")
+
+    def test_all_structure_checked_before_committed_history(self):
+        document = self.document()
+        document["authorizations"]["secondSymbol"] = dict(
+            document["authorizations"][SYMBOL], reason="x" * 241,
+        )
+        ls.reopen_authorizations.cache_clear()
+        try:
+            with mock.patch.object(ls, "git", return_value=json.dumps(document)), \
+                    mock.patch.object(ls, "is_ancestor", side_effect=AssertionError("history consulted")):
+                with self.assertRaisesRegex(RuntimeError, "secondSymbol.*240"):
+                    ls.reopen_authorizations("synthetic-base")
+        finally:
+            ls.reopen_authorizations.cache_clear()
+
+    def schema_cli(self, *, raw=None, error=None, extra=()):
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with ExitStack() as stack:
+            stack.enter_context(mock.patch.object(sys, "argv", [str(TOOL), "--check-reopen-schema", *extra]))
+            reader = stack.enter_context(mock.patch.object(Path, "read_text", return_value=raw, side_effect=error))
+            for name in ("git", "is_ancestor", "source_identity", "collect", "show_file"):
+                stack.enter_context(mock.patch.object(ls, name, side_effect=AssertionError(f"{name} consulted")))
+            stack.enter_context(mock.patch.object(ls.integration_base, "resolve", side_effect=AssertionError("base resolved")))
+            stack.enter_context(mock.patch.object(subprocess, "run", side_effect=AssertionError("subprocess launched")))
+            stack.enter_context(redirect_stdout(stdout))
+            stack.enter_context(redirect_stderr(stderr))
+            result = ls.main()
+        reader.assert_called_once_with(encoding="utf-8")
+        return result, stdout.getvalue(), stderr.getvalue()
+
+    def test_schema_cli_has_no_git_or_source_history_dependency(self):
+        code, stdout, stderr = self.schema_cli(raw=json.dumps(self.document(ledger_commit=None)))
+        self.assertEqual(code, 0, stderr)
+        self.assertIn("not assignment authorization", stdout)
+
+    def test_schema_cli_missing_invalid_and_unreadable_worktree_fail_closed(self):
+        for raw, error in (("{", None), (None, FileNotFoundError("missing worktree JSON")),
+                           (None, PermissionError("unreadable")),
+                           (None, UnicodeError("invalid UTF-8"))):
+            with self.subTest(raw=raw, error=error):
+                code, stdout, stderr = self.schema_cli(raw=raw, error=error)
+                self.assertEqual(code, 2)
+                self.assertEqual(stdout, "")
+                self.assertIn("lane_status:", stderr)
+
+    def test_schema_mode_rejects_assignment_options(self):
+        for extra in (("--base", "HEAD"), ("--symbol", SYMBOL), ("--json",), ("--pending-only",)):
+            with self.subTest(extra=extra), self.assertRaises(SystemExit) as raised:
+                self.schema_cli(extra=extra)
+            self.assertEqual(raised.exception.code, 2)
 
 
 class LaneStatusAssignmentTests(unittest.TestCase):
@@ -130,6 +231,29 @@ class LaneStatusAssignmentTests(unittest.TestCase):
         result, report = self.status()
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(report["assignment"]["state"], "base-only")
+
+    def test_schema_cli_reads_worktree_not_committed_authorization(self) -> None:
+        plateau = self.current_plateau()
+        self.authorize_reopen(plateau, plateau, reason="x" * 240)
+        path = self.repo / ls.REOPEN_AUTHORIZATIONS_PATH
+        document = json.loads(path.read_text(encoding="utf-8"))
+        document["authorizations"][SYMBOL]["reason"] += "x"
+        path.write_text(json.dumps(document), encoding="utf-8")
+        result = self.command(sys.executable, str(TOOL), "--check-reopen-schema", check=False)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("240", result.stderr)
+        committed, report = self.status()
+        self.assertEqual(committed.returncode, 0, committed.stderr)
+        self.assertEqual(report["assignment"]["reason_code"], "authorized-reopen")
+
+        self.commit("Synthetic malformed committed reason")
+        document["authorizations"][SYMBOL]["reason"] = "corrected worktree only"
+        path.write_text(json.dumps(document), encoding="utf-8")
+        result = self.command(sys.executable, str(TOOL), "--check-reopen-schema", check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        committed, report = self.status()
+        self.assertNotEqual(committed.returncode, 0)
+        self.assertNotEqual(report["assignment"]["state"], "base-only")
 
     def test_exact_current_pair_authorizes_one_shot_reopen(self) -> None:
         plateau_commit = self.current_plateau()
