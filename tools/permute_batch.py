@@ -108,7 +108,9 @@ _LOADED_IMPLEMENTATIONS = {
     name: (Path(path), hashlib.sha256(Path(path).read_bytes()).hexdigest())
     for name, path in (("runner", __file__), ("receipts", sweep_receipts.__file__),
                        ("promotion", promotion_transaction.__file__),
-                       ("relocations", reloc_surface.__file__))
+                       ("relocations", reloc_surface.__file__),
+                       ("relocation_identity", reloc_surface.ri.__file__),
+                       ("overlay_table", reloc_surface.ot.__file__))
 }
 ATLAS_PATH = ROOT / "config" / "overlays.us.json"
 PERMUTER_DIR = ROOT / "tools" / "permuter"
@@ -1066,6 +1068,15 @@ def retain_context(directory: Path, evidence: PreparedBaseline | None, winner: b
     sweep_receipts.atomic_json(directory / "report.json", report)
 
 
+def compile_script_digest(raw: bytes) -> str:
+    """Normalize generated lane plumbing, never compiler arguments/literals."""
+    text = raw.decode("utf-8")
+    text = text.replace("\ncd " + shlex.quote(str(ROOT)) + "\n", "\ncd .\n")
+    text = re.sub(r"(?m)^" + re.escape(str(ROOT / "tools/binutils/mips64-elf-objcopy")) + r"(?= )",
+                  "tools/binutils/mips64-elf-objcopy", text)
+    return sweep_receipts.digest(text)
+
+
 def receipt_inputs(item: QueueItem, scratch: Path, settings: Path, target: Path,
                    recipe: BuildRecipe, search: dict) -> dict:
     """Fingerprint the actual importer output, not guessed header dependencies.
@@ -1087,16 +1098,15 @@ def receipt_inputs(item: QueueItem, scratch: Path, settings: Path, target: Path,
         raise ValueError("overlay target has an invalid synthetic address")
 
     def compile_digest(path: Path) -> str:
-        text = path.read_text()
         # Only importer-generated cwd and our executable command prefixes are
         # path plumbing. Never substitute inside source, -D values, shell
         # strings, include arguments or arbitrary user commands.
-        text = text.replace("\ncd " + shlex.quote(str(ROOT)) + "\n", "\ncd .\n")
-        text = re.sub(r"(?m)^" + re.escape(str(ROOT / "tools/binutils/mips64-elf-objcopy")) + r"(?= )",
-                      "tools/binutils/mips64-elf-objcopy", text)
-        return sweep_receipts.digest(text)
+        return compile_script_digest(path.read_bytes())
 
     context = {
+        "preparation_contract": SOURCE_GROUP_CONTRACT,
+        "importer_recipe": compile_digest(scratch.parent / "importer-compile.sh"),
+        "source_group_plan": sweep_receipts.file_digest(scratch.parent / "source-groups.json"),
         "identity": {"symbol": item.func, "source": item.rel_c_file,
                      "overlay": item.overlay, "section": ".text", "offset": offset,
                      "rom_offset": rom},
@@ -1425,6 +1435,209 @@ def _annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
     return len(renames)
 
 
+SOURCE_GROUP_CONTRACT = "original-coordinate-sameline-v1"
+
+
+def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
+    """Retain supported original statement groups, before importer serialization.
+
+    Only an isolated importer calls this; vendor modules and canonical C are
+    never modified. Coordinates must identify one physical preprocessed line.
+    Unsupported same-line control shapes fail closed instead of being joined.
+    """
+    functions = [n for n in ast.ext if isinstance(n, nodes.FuncDef)
+                 and n.decl.name == symbol]
+    if len(functions) != 1:
+        raise ValueError("source grouping requires one selected function")
+    locations = {}
+    filename, logical = "<source>", 1
+    for physical, line in enumerate(source.splitlines(), 1):
+        directive = re.fullmatch(r'\s*#\s*(?:line\s+)?(\d+)(?:\s+"([^"\n]+)")?(?:\s+\d+)*\s*', line)
+        if directive:
+            logical = int(directive[1])
+            filename = directive[2] or filename
+            continue
+        locations.setdefault((filename, logical), []).append(physical)
+        logical += 1
+
+    def key(node):
+        coord = node.coord
+        if coord is None:
+            raise ValueError("source grouping has missing coordinates")
+        result = (coord.file, coord.line)
+        if len(locations.get(result, [])) != 1:
+            raise ValueError(f"source grouping has ambiguous line coordinates: {result!r}")
+        return result
+
+    def simple(node, line):
+        if not isinstance(node, (nodes.Assignment, nodes.FuncCall, nodes.UnaryOp,
+                                 nodes.Return, nodes.Break, nodes.Continue,
+                                 nodes.EmptyStatement)):
+            return False
+        def single(n):
+            if isinstance(n, (nodes.Typename, nodes.TypeDecl)) and (
+                    n.coord is None or n.coord.line == 0):
+                return bool(n.children()) and all(single(c) for _, c in n.children())
+            return key(n) == line and all(single(c) for _, c in n.children())
+        return single(node)
+
+    # Compound coordinates mark only the opening brace. Retain lexical closing
+    # lines too, so `} next_statement;` cannot disappear from group detection.
+    lexical = "\n".join("" if line.lstrip().startswith("#") else line
+                        for line in source.splitlines())
+    openings, closing, stack, statement_ends = {}, {}, [], {}
+    parentheses = 0
+    position, physical_line = 0, 1
+    token_re = re.compile(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|/\*.*?\*/|//[^\n]*|[{}();]', re.S)
+    for token in token_re.finditer(lexical):
+        physical_line += lexical.count("\n", position, token.start())
+        position = token.start()
+        if token[0] == "{":
+            openings.setdefault(physical_line, []).append(token.start())
+            stack.append(token.start())
+        elif token[0] == "}":
+            if not stack:
+                raise ValueError("ambiguous original compound boundary")
+            closing[stack.pop()] = physical_line
+        elif token[0] == "(":
+            parentheses += 1
+        elif token[0] == ")":
+            parentheses -= 1
+        elif token[0] == ";" and parentheses == 0:
+            column = token.start() - lexical.rfind("\n", 0, token.start())
+            statement_ends.setdefault(physical_line, []).append(column)
+
+    groups = []
+    def walk(node):
+        if isinstance(node, nodes.Pragma) and "_permuter" in node.string:
+            raise ValueError("preexisting permuter pragma in selected function")
+        # Groups spanning a control/label boundary are not sibling runs. Do
+        # not silently classify their original layout as ungrouped merely
+        # because the generator will move the child to a different line.
+        if isinstance(node, (nodes.If, nodes.For, nodes.While, nodes.DoWhile,
+                             nodes.Switch, nodes.Label)):
+            branches = ([node.iftrue, node.iffalse] if isinstance(node, nodes.If)
+                        else [node.stmt])
+            for branch in branches:
+                if (branch is not None and not isinstance(branch, nodes.Compound)
+                        and key(branch) == key(node)):
+                    raise ValueError("unsupported same-line unbraced control group")
+        if isinstance(node, (nodes.Case, nodes.Default)):
+            statements = node.stmts or []
+            if (statements and key(statements[0]) == key(node)) or any(
+                    key(a) == key(b) for a, b in zip(statements, statements[1:])):
+                raise ValueError("unsupported same-line case group")
+        for _, child in list(node.children()):
+            walk(child)
+        if not isinstance(node, nodes.Compound):
+            return
+        items = node.block_items or []
+        if items and key(items[0]) == key(node):
+            raise ValueError("unsupported same-line compound opener group")
+        for left, right in zip(items, items[1:]):
+            if key(left) != key(right):
+                # Parser children omit closing parentheses and semicolons.
+                # A preceding real terminator on the next statement's line
+                # proves an unpreserved endpoint group, regardless of AST kind.
+                if any(column < right.coord.column for column in
+                       statement_ends.get(locations[key(right)][0], [])):
+                    raise ValueError("same-line lexical statement endpoint requires measurement")
+                def lexical_lines(n):
+                    values = []
+                    if n.coord is not None and n.coord.line > 0:
+                        values.extend(locations.get(key(n), []))
+                    if isinstance(n, nodes.Compound):
+                        candidates = openings.get(locations[key(n)][0], [])
+                        if len(candidates) != 1 or candidates[0] not in closing:
+                            raise ValueError("ambiguous original compound boundary")
+                        values.append(closing[candidates[0]])
+                    for _, child in n.children():
+                        values.extend(lexical_lines(child))
+                    return values
+                if max(lexical_lines(left)) >= locations[key(right)][0]:
+                    raise ValueError("multiline statement overlaps next statement group")
+        output, i = [], 0
+        while i < len(items):
+            first = items[i]
+            line = key(first)
+            end = i + 1
+            while end < len(items) and key(items[end]) == line:
+                end += 1
+            if end == i + 1:
+                output.append(first)
+                i = end
+                continue
+            batch = items[i:end]
+            tail = batch[-1]
+            inner = None
+            if not all(simple(n, line) for n in batch):
+                if (not all(simple(n, line) for n in batch[:-1])
+                        or not isinstance(tail, (nodes.DoWhile, nodes.If))):
+                    raise ValueError("unsupported same-line statement group")
+                inner = tail.stmt if isinstance(tail, nodes.DoWhile) else tail.iftrue
+                if (not isinstance(inner, nodes.Compound) or key(inner) != line
+                        or not inner.block_items
+                        or key(inner.block_items[0]) == line):
+                    raise ValueError("unsupported same-line control body")
+                if isinstance(tail, nodes.If):
+                    def condition_same(n):
+                        return key(n) == line and all(condition_same(c) for _, c in n.children())
+                    if not condition_same(tail.cond):
+                        raise ValueError("multiline same-line condition")
+            start = nodes.Pragma("_permuter sameline start", coord=first.coord)
+            stop = nodes.Pragma("_permuter sameline end", coord=tail.coord)
+            output.extend([start, *batch])
+            if inner is None:
+                output.append(stop)
+            else:
+                inner.block_items.insert(0, stop)
+            groups.append({"line": line[1], "statements": len(batch),
+                           "control": type(tail).__name__ if inner else None})
+            i = end
+        node.block_items = output
+    walk(functions[0].body)
+    return {"contract": SOURCE_GROUP_CONTRACT, "symbol": symbol, "groups": groups}
+
+
+def grouped_import_main(symbol: str, plan_path: str, argv: list[str]) -> None:
+    """Process-local adapter using the vendor's existing sameline contract."""
+    import runpy
+    sys.path.insert(0, str(PERMUTER_DIR))
+    from src import ast_util
+    from perm_pycparser import c_ast
+    original = ast_util.parse_c
+    seen = []
+    def parse(source, from_import=False):
+        ast = original(source, from_import=from_import)
+        if from_import:
+            Path(plan_path).with_suffix(".preprocessed.c").write_text(source)
+            ast, plan = prepare_source_groups(ast, source, symbol, c_ast)
+            seen.append(plan)
+            if len(seen) != 1:
+                raise ValueError("multiple original importer parses")
+            sweep_receipts.atomic_json(Path(plan_path), seen[0])
+        return ast
+    ast_util.parse_c = parse
+    sys.argv = [str(IMPORT_PY), *argv]
+    runpy.run_path(str(IMPORT_PY), run_name="__main__")
+    if len(seen) != 1:
+        raise ValueError("importer did not expose original source coordinates")
+
+
+def prepare_source_groups(ast, source, symbol, nodes):
+    import copy
+    working = copy.deepcopy(ast)
+    try:
+        plan = preserve_source_groups(working, source, symbol, nodes)
+        plan["status"] = "preserved" if plan["groups"] else "ungrouped"
+        return working, plan
+    except ValueError as error:
+        # Unsupported syntax is not evidence of compiler divergence. Retain
+        # the original AST and demand an actual baseline measurement instead.
+        return ast, {"contract": SOURCE_GROUP_CONTRACT, "symbol": symbol,
+                     "status": "measurement-required", "reason": str(error), "groups": []}
+
+
 def run_import(item: QueueItem, out_dir: Path, settings_path: Path, target_asm: Path,
                batch_deadline: Optional[float] = None) -> Path:
     root_nonmatchings = ROOT / "nonmatchings" / item.func
@@ -1436,11 +1649,16 @@ def run_import(item: QueueItem, out_dir: Path, settings_path: Path, target_asm: 
     log_path = out_dir / "import.log"
     try:
         proc = bounded_capture(
-            [str(PYTHON), str(IMPORT_PY), str(item.c_file), str(target_asm),
-             "--settings", str(settings_path)], batch_deadline,
+            [str(PYTHON), "-c",
+             "import sys; sys.path.insert(0, sys.argv.pop(1)); "
+             "import permute_batch as p; "
+             "p.grouped_import_main(sys.argv[1], sys.argv[2], sys.argv[3:])",
+             str(ROOT / "tools"), item.func, str(out_dir / "source-groups.json"),
+             str(item.c_file), str(target_asm), "--settings", str(settings_path)], batch_deadline,
         )
         log_path.write_text(proc.stdout)
-        if proc.returncode != 0 or not root_nonmatchings.is_dir():
+        if (proc.returncode != 0 or not root_nonmatchings.is_dir()
+                or not (out_dir / "source-groups.json").is_file()):
             raise RuntimeError(
                 f"import.py failed for {item.func} (see {log_path.relative_to(ROOT)})"
             )
@@ -1452,6 +1670,7 @@ def run_import(item: QueueItem, out_dir: Path, settings_path: Path, target_asm: 
     scratch = out_dir / "scratch"
     preserve(scratch, "preexisting-scratch")
     shutil.move(str(root_nonmatchings), str(scratch))
+    (out_dir / "importer-compile.sh").write_bytes(sweep_receipts.owned_bytes(scratch, "compile.sh"))
     # Keep the empty parent directory. Removing it races another concurrent
     # import.py between its os.makedirs("nonmatchings") and per-function
     # os.mkdir calls, producing a sporadic FileNotFoundError at --jobs > 1.
@@ -2111,6 +2330,203 @@ def measure_seed_stage(item, directory, baseline, inputs, source, deadline):
     return captured_baseline(item, directory, inputs, deadline), int(scores[0])
 
 
+_FIDELITY_LOCK = threading.Lock()
+
+
+def normalized_owned_instructions(path, symbol):
+    """Address-field normalization only; callers separately prove identities."""
+    elf = reloc_surface.Elf(path)
+    start, size, _ = reloc_surface._unique_symbol(elf, symbol, require_text=True)
+    data = bytearray(elf.section_bytes(".text")[start:start + size])
+    if len(data) != size or size % 4:
+        raise RuntimeError("incomplete grouped baseline function bytes")
+    seen = set()
+    for _, offset, kind, _ in elf.relocations():
+        if not start <= offset < start + size:
+            continue
+        site = offset - start
+        masks = {4: 0xFC000000, 5: 0xFFFF0000, 6: 0xFFFF0000}
+        if kind not in masks or site % 4 or site in seen or site + 4 > size:
+            raise RuntimeError("unsupported grouped baseline relocation encoding")
+        seen.add(site)
+        word = int.from_bytes(data[site:site + 4], "big") & masks[kind]
+        data[site:site + 4] = word.to_bytes(4, "big")
+    return bytes(data)
+
+
+def raw_source_relocations(path, symbol):
+    """Original source-symbol correspondence, NOT a ROM/runtime identity proof.
+
+    Undefined/absolute unique symbols only. Defined/section-local symbols need
+    independently authenticated runtime identities or a future data adapter.
+    REL addends are decoded before address fields can be ignored.
+    """
+    elf = reloc_surface.Elf(path)
+    start, size, _ = reloc_surface._unique_symbol(elf, symbol, require_text=True)
+    symbols = elf.symbols()
+    names = [row[0] for row in symbols]
+    data = elf.section_bytes(".text")
+    raw, pending, addends = [], {}, {}
+    for _, offset, kind, index in elf.relocations():
+        if not start <= offset < start + size:
+            continue
+        if index >= len(symbols) or offset % 4 or offset + 4 > start + size:
+            raise RuntimeError("invalid source relocation geometry")
+        name, value, extent, info, section = symbols[index]
+        if (not name or names.count(name) != 1 or section not in (0, 0xFFF1)
+                or kind not in (4, 5, 6)):
+            raise RuntimeError("source relocation needs independent defined-symbol identity")
+        position = offset - start
+        if any(row[0] == position for row in raw):
+            raise RuntimeError("duplicate source relocation site")
+        field = int.from_bytes(data[offset:offset + 4], "big")
+        identity = (name, value, extent, info, section)
+        raw.append((position, kind, identity))
+        if kind == 4:
+            addends[position] = (field & 0x03FFFFFF) << 2
+        elif kind == 5:
+            pending.setdefault(index, []).append((position, field & 0xFFFF))
+        else:
+            low = reloc_surface.sext16(field & 0xFFFF)
+            highs = pending.pop(index, [])
+            values = {((high << 16) + low) & 0xFFFFFFFF for _, high in highs}
+            if len(values) > 1:
+                raise RuntimeError("ambiguous shared HI source relocation addend")
+            value = next(iter(values)) if values else low
+            addends[position] = value
+            for high_position, _ in highs:
+                addends[high_position] = value
+    if pending:
+        raise RuntimeError("unpaired HI source relocation")
+    return sorted((*row, addends[row[0]]) for row in raw)
+
+
+def grouped_baseline_fidelity(item, out_dir, scratch, inputs, deadline):
+    while not _FIDELITY_LOCK.acquire(timeout=remaining_timeout(deadline, 0.25)):
+        pass
+    try:
+        return _grouped_baseline_fidelity(item, out_dir, scratch, inputs, deadline)
+    finally:
+        _FIDELITY_LOCK.release()
+
+
+def _grouped_baseline_fidelity(item, out_dir, scratch, inputs, deadline):
+    """Prove the actual initial emitter against a freshly configured full TU.
+
+    Unsupported syntax requests measurement, not automatic refusal. Runtime
+    identities and raw original-source correspondence are distinct proof routes.
+    """
+    plan_path = out_dir / "source-groups.json"
+    if not plan_path.is_file() or plan_path.is_symlink():
+        raise RuntimeError("missing authenticated original source grouping plan")
+    plan_bytes = sweep_receipts.owned_bytes(out_dir, "source-groups.json")
+    plan_hash = hashlib.sha256(plan_bytes).hexdigest()
+    if inputs.get("context", {}).get("source_group_plan") != plan_hash:
+        raise RuntimeError("original source grouping plan changed since prepared inputs")
+    plan = json.loads(plan_bytes)
+    if (not isinstance(plan, dict) or plan.get("contract") != SOURCE_GROUP_CONTRACT
+            or plan.get("symbol") != item.func or not isinstance(plan.get("groups"), list)):
+        raise RuntimeError("invalid source grouping plan")
+    status = plan.get("status")
+    if not ((status == "ungrouped" and not plan["groups"])
+            or (status == "preserved" and bool(plan["groups"]))
+            or (status == "measurement-required" and not plan["groups"]
+                and isinstance(plan.get("reason"), str) and bool(plan["reason"]))):
+        raise RuntimeError("invalid source grouping status or inconsistent groups")
+    if status == "ungrouped":
+        return
+    directory = out_dir / "source-fidelity"
+    directory.mkdir()
+    target = ROOT / "build_non_matching" / (item.rel_c_file + ".o")
+    if target.resolve() != ROOT.resolve() / "build_non_matching" / (item.rel_c_file + ".o"):
+        raise RuntimeError("symlinked full-TU fidelity object path")
+    if target.exists() or target.is_symlink():
+        if (not target.is_file() or target.is_symlink()
+                or target.resolve() != ROOT / "build_non_matching" / (item.rel_c_file + ".o")):
+            raise RuntimeError("nonregular full-TU fidelity object")
+        target.rename(directory / "previous-full-tu.o")
+    try:
+        output = bounded_capture([str(PYTHON), "tools/function_preflight.py", item.func,
+                                  "--json", "--analysis-only"], deadline)
+    except BaseException as error:
+        partial = getattr(error, "output", None) or ""
+        if isinstance(partial, bytes):
+            partial = partial.decode("utf-8", errors="replace")
+        (directory / "preflight.log").write_text(
+            f"{partial}\n[fidelity preflight failure] {type(error).__name__}: {error}\n")
+        raise
+    (directory / "preflight.log").write_text(output.stdout)
+    output.check_returncode()
+    evidence = json.loads(output.stdout)
+    if evidence.get("candidate_object") != str(target.relative_to(ROOT)):
+        raise RuntimeError("grouped full-TU preflight is incomplete")
+    authority_paths = (ROOT / "build/mickey.us.elf", BASEROM, ATLAS_PATH,
+                       reloc_surface.LINK_SYMS)
+    authority = {str(path): sweep_receipts.file_digest(path) for path in authority_paths}
+    full = directory / "full-tu.o"
+    full.write_bytes(sweep_receipts.owned_bytes(ROOT, str(target.relative_to(ROOT))))
+    baseline = {"baseline/" + name: sweep_receipts.owned_bytes(scratch, name)
+                for name in ("base.c", "compile.sh", "target.s", "target.o", "settings.toml")}
+    capture, score = measure_seed_stage(item, directory / "emitted", baseline, inputs,
+                                       baseline["baseline/base.c"], deadline)
+    validate_baseline(item, capture, deadline)
+    emitted = directory / "emitted.o"
+    emitted.write_bytes(capture.object)
+    raw_script = sweep_receipts.owned_bytes(out_dir, "importer-compile.sh")
+    if compile_script_digest(raw_script) != inputs["context"]["importer_recipe"]:
+        raise RuntimeError("current importer recipe no longer matches prepared inputs")
+    raw_recipe = directory / "raw-compile.sh"
+    raw_recipe.write_bytes(raw_script)
+    raw_source = directory / "raw-emitted.c"
+    raw_source.write_bytes(capture.source)
+    raw_emitted = directory / "raw-emitted.o"
+    # The vendor script resolves OUTPUT before invoking IDO. Match its normal
+    # NamedTemporaryFile contract on hosts whose realpath requires existence.
+    raw_emitted.touch(exist_ok=False)
+    result = bounded_capture(["bash", str(raw_recipe), str(raw_source), "-o", str(raw_emitted)], deadline)
+    (directory / "raw-compile.log").write_text(result.stdout)
+    result.check_returncode()
+    if (raw_source.read_bytes() != capture.source or raw_recipe.read_bytes() != raw_script
+            or sweep_receipts.owned_bytes(out_dir, "importer-compile.sh") != raw_script):
+        raise RuntimeError("raw emitted input or current importer recipe changed")
+    if normalized_owned_instructions(raw_emitted, item.func) != normalized_owned_instructions(emitted, item.func):
+        raise RuntimeError("scratch postprocessing changed actual emitted instruction fields")
+    reports, normalized = [], []
+    for path in (full, raw_emitted):
+        try:
+            report = reloc_surface.function_surface_comparison(item.func, path,
+                ROOT / "build/mickey.us.elf", source=item.rel_c_file.removeprefix("src/").removesuffix(".c"),
+                overlay_hint=item.overlay, target_symbol=evidence["linked_symbol"])
+        except (reloc_surface.SurfaceComparisonError, ValueError, KeyError) as error:
+            report = {"status": "unresolved", "reason": str(error)}
+        reports.append(report)
+        sweep_receipts.atomic_json(directory / (path.stem + "-relocations.json"), report)
+        normalized.append(normalized_owned_instructions(path, item.func))
+    runtime_exact = all(report.get("offset_type_exact") is True
+                        and report.get("stable_identity_exact") is True for report in reports)
+    if not runtime_exact:
+        source_records = [raw_source_relocations(path, item.func) for path in (full, raw_emitted)]
+        sweep_receipts.atomic_json(directory / "source-relocations.json", source_records)
+        if source_records[0] != source_records[1]:
+            raise RuntimeError("actual emitted raw source-symbol relocation correspondence differs")
+    success = normalized[0] == normalized[1]
+    sweep_receipts.atomic_json(directory / "report.json", {
+        "contract": SOURCE_GROUP_CONTRACT, "source_fidelity_exact": success,
+        "identity_route": "runtime-identities" if runtime_exact else "raw-source-symbols-not-runtime-proof",
+        "exact": success,
+        "owned_bytes": len(normalized[0]), "strict_score": score,
+        "full_tu_sha256": sweep_receipts.file_digest(full),
+        "emitted_sha256": capture.object_sha256, "relocations": reports})
+    if not success:
+        raise RuntimeError("prepared source grouping does not reproduce configured full-TU instructions")
+    if authority != {str(path): sweep_receipts.file_digest(path) for path in authority_paths}:
+        raise RuntimeError("grouped baseline runtime authority changed during comparison")
+    if sweep_receipts.file_digest(plan_path) != plan_hash:
+        raise RuntimeError("source grouping plan changed during fidelity measurement")
+    checked_tool_identity()
+    validate_baseline(item, capture, deadline)
+
+
 def prepare_seed(item, out_dir, baseline, inputs, parent, source, result, deadline):
     baseline.update({"seed/parent.json": json.dumps(parent, sort_keys=True).encode(),
                      "seed/source.c": source})
@@ -2286,6 +2702,7 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
         if initial_dependencies != inputs["context"]["dependencies"]:
             raise RuntimeError("headers changed during sweep preparation")
         checked_tool_identity()
+        grouped_baseline_fidelity(item, out_dir, scratch, inputs, batch_deadline)
         if parent is not None:
             if not seed_context_compatible(parent["inputs"], inputs):
                 raise RuntimeError("seed source, ownership, headers, recipe, target or external tools are stale")

@@ -455,7 +455,9 @@ class ImportPreservationTests(unittest.TestCase):
                 output.mkdir(parents=True)
                 def importer(args, deadline):
                     stale.mkdir()
+                    (output / "source-groups.json").write_text("{}")
                     (stale / "candidate.c").write_text("new candidate\n")
+                    (stale / "compile.sh").write_text("#!/bin/sh\n")
                     if fault == "timeout":
                         raise subprocess.TimeoutExpired(args, 0)
                     if fault == "cancel":
@@ -531,9 +533,12 @@ class RunnerTests(unittest.TestCase):
     def importer(self, item, out_dir, settings, target, deadline):
         scratch = out_dir / "scratch"
         scratch.mkdir()
+        (out_dir / "source-groups.json").write_text(json.dumps({
+            "contract": batch.SOURCE_GROUP_CONTRACT, "symbol": item.func, "groups": [], "status": "ungrouped"}))
         (scratch / "base.c").write_text(item.c_file.read_text())
         (scratch / "base.o").write_bytes(b"synthetic baseline object")
         (scratch / "compile.sh").write_text(f'#!/bin/sh\ncd {self.root}\ncp "$1" "$3"\n')
+        (out_dir / "importer-compile.sh").write_bytes((scratch / "compile.sh").read_bytes())
         (scratch / "settings.toml").write_text('compiler_type = "ido"\n'
             'objdump_command = "tools/binutils/mips64-elf-objdump -drz -m mips:4300"\n')
         shutil.copy(target, scratch / "target.s")
@@ -560,6 +565,20 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(first.context_review["status"], "unchanged")
         self.assertEqual(second.context_review, first.context_review)
         self.assertTrue(Path(first.scratch_path).exists())
+
+    def test_fidelity_failure_precedes_search_and_completed_resume(self):
+        first = self.run_one()
+        self.assertTrue(first.ok, first.error)
+        for resume in (False, True):
+            with self.subTest(resume=resume), patch.object(batch, "grouped_baseline_fidelity",
+                    side_effect=RuntimeError("configured instruction fidelity failure")), patch.object(
+                    batch, "run_permuter", side_effect=AssertionError("must not search")):
+                failed = self.run_one(resume=resume)
+            self.assertFalse(failed.ok)
+            self.assertFalse(failed.resumed)
+            self.assertFalse(failed.promoted)
+            self.assertIn("instruction fidelity", failed.error)
+            self.assertIsNotNone(self.store.completed(first.receipt_key))
 
     def seed_parent_run(self, seed_score=10, search_suffix="", debug_setup=""):
         self.write("permuter/permuter.py", debug_setup + SYNTHETIC_SEARCH_BASELINE + f'''
