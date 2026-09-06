@@ -126,6 +126,91 @@ class ContextTests(unittest.TestCase):
             with self.subTest(winner=winner):
                 self.assertEqual(self.compare(winner)["status"], "unverifiable")
 
+    def test_inactive_macro_prelude_is_context_not_discarded(self):
+        prelude = b'#define UNUSED_JOIN(a,b) a ## b\n#define UNUSED_VALUE 7\n'
+        baseline = prelude + BASE
+        winner = baseline.replace(b"return p->count;", b"return p->count + 1;")
+        self.assertEqual(self.compare(winner, baseline)["status"], "unchanged")
+        changed = self.compare(winner.replace(b"UNUSED_VALUE 7", b"UNUSED_VALUE 8"), baseline)
+        self.assertEqual(changed["status"], "changed")
+        self.assertEqual(changed["changes"][0]["before"]["kind"], "MacroDefinition")
+        self.assertEqual(changed["changes"][0]["before"]["name"], "UNUSED_VALUE")
+        self.assertEqual(self.compare(BASE, baseline)["status"], "changed")
+        reversed_prelude = b'#define UNUSED_VALUE 7\n#define UNUSED_JOIN(a,b) a ## b\n'
+        self.assertEqual(self.compare(reversed_prelude + BASE, baseline)["status"], "changed")
+
+    def test_macro_continuations_comments_and_literals(self):
+        prelude = b'#define UNUSED(x) ((x) + \\\n 1)\n#define UNUSED_TEXT "/* not a comment */"\n'
+        baseline = prelude + BASE
+        collapsed = baseline.replace(b"\\\n", b"")
+        self.assertEqual(self.compare(collapsed, baseline)["status"], "unchanged")
+        changed_literal = baseline.replace(b"not a comment", b"different literal")
+        self.assertEqual(self.compare(changed_literal, baseline)["status"], "changed")
+        # Identifiers inside comments and strings do not activate a macro.
+        literal = b'#define UNUSED 1\nchar *note = "UNUSED"; /* UNUSED */\n' + BASE
+        self.assertEqual(self.compare(literal, literal)["status"], "unchanged")
+        # Phase two splices the line comment first: the declaration is hidden.
+        commented = b"// hidden \\\n#define UNUSED 1\n" + BASE
+        self.assertEqual(self.compare(commented, BASE)["status"], "unchanged")
+
+    def test_active_macro_uses_refuse_even_when_definition_is_identical(self):
+        for definition, use in ((b"#define VALUE 1\n", b"return VALUE;"),
+                                (b"#define CALL(x) (x)\n", b"return CALL(1);"),
+                                (b"#define JOIN(a,b) a ## b\n", b"return JOIN(1,2);")):
+            baseline = definition + b"int target(void) { " + use + b" }"
+            self.assertEqual(self.compare(baseline, baseline)["status"], "unverifiable")
+        for suffix in (b"#pragma VALUE\n", b"int VALUE;\n", b"struct S { int VALUE; };\n"):
+            baseline = b"#define VALUE 1\n" + suffix + BASE
+            self.assertEqual(self.compare(baseline, baseline)["status"], "unverifiable")
+
+    def test_conditional_include_undef_and_late_definitions_refuse(self):
+        for prefix in (b"#if 0\n#define UNUSED 1\n#endif\n",
+                       b"#ifdef FLAG\n#define UNUSED 1\n#endif\n",
+                       b"#define UNUSED 1\n#undef UNUSED\n",
+                       b'#include "header.h"\n', b'#import "header.h"\n',
+                       b"#define UNUSED 1\n#define UNUSED 1\n",
+                       b"#define UNUSED 1\n#define UNUSED 2\n",
+                       b"#define BAD(a,a) a\n", b"#define BAD(...) 1\n"):
+            baseline = prefix + BASE
+            with self.subTest(prefix=prefix):
+                self.assertEqual(self.compare(baseline, baseline)["status"], "unverifiable")
+        for source in (BASE + b"\n#define UNUSED 1\n",
+                       BASE.replace(b"return p->count;", b"\n#define UNUSED 1\nreturn p->count;"),
+                       b"#pragma pack(1)\n#define UNUSED 1\n" + BASE):
+            self.assertEqual(self.compare(source, source)["status"], "unverifiable")
+
+    def test_macro_prelude_cannot_hide_declaration_abi_change(self):
+        baseline = b"#define UNUSED_JOIN(a,b) a ## b\n" + BASE
+        self.assertEqual(self.compare(baseline.replace(b"extern void", b"extern int"), baseline)["status"], "changed")
+        # Comment-delimited tokens are distinct; spliced directive words are not.
+        active = b"#de\\\nfine VALUE 1\nint target(void) { return VALUE; }"
+        self.assertEqual(self.compare(active, active)["status"], "unverifiable")
+
+    def test_malformed_prelude_lexical_tokens_cannot_hide_context(self):
+        for prefix in (b"#define UNUSED /* unterminated\n",
+                       b'#define UNUSED "unterminated\n',
+                       b"#define UNUSED 'unterminated\n",
+                       b'#define UNUSED "unspliced\nnewline"\n'):
+            source = prefix + BASE
+            with self.subTest(prefix=prefix):
+                self.assertEqual(self.compare(source, source)["status"], "unverifiable")
+
+    def test_vertical_whitespace_does_not_end_macro_definition(self):
+        for separator in (b"\v", b"\f"):
+            baseline = b"#define UNUSED 1" + separator + b"int hidden;\n" + BASE
+            winner = baseline.replace(separator, b"\n")
+            self.assertEqual(self.compare(winner, baseline)["status"], "changed")
+
+    def test_multiline_macro_comments_require_preprocessing(self):
+        for prefix in (b"#define UNUSED 1 /*\n*/ + 2\n",
+                       b"#define UNUSED /*\n*/ 1\n",
+                       b"/* header\ncomment */\n#define UNUSED 1\n"):
+            source = prefix + BASE
+            self.assertEqual(self.compare(source, source)["status"], "unverifiable")
+        # The restriction is local to macro-bearing prepared input.
+        plain = b"/* header\ncomment */\n" + BASE
+        self.assertEqual(self.compare(plain, BASE)["status"], "unchanged")
+
     def test_no_typedef_state_leaks_between_inputs_or_calls(self):
         self.assertEqual(self.compare(BASE.replace(b"typedef int count_t;", b"count_t x;"))["status"], "unverifiable")
         self.assertEqual(self.compare(BASE)["status"], "unchanged")

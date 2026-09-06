@@ -19,6 +19,112 @@ from perm_pycparser import c_ast
 
 
 class SourceGroups(unittest.TestCase):
+    def test_saved_seed_reconstructs_consumed_markers_for_both_emissions(self):
+        source = b"void f(void) {\n int x;\n x=0; do {\n x++;\n } while(x<2);\n}\n"
+        prepared, plan = pb.group_seed_source(source, "f")
+        self.assertEqual(plan["status"], "preserved")
+        self.assertIn(b"#pragma _permuter sameline start", prepared)
+        def emit(raw):
+            # Candidate._cached_shared_ast/get_source's exact AST sequence,
+            # without importing optional search-only toml/randomizer modules.
+            ast = ast_util.parse_c(raw)
+            function, _ = ast_util.extract_fn(ast, "f")
+            ast_util.normalize_ast(function, ast)
+            return ast_util.to_c(ast)
+        emitted = emit(prepared.decode())
+        self.assertIn("x = 0; do {", emitted)
+        self.assertNotIn("_permuter", emitted)
+        second, _ = pb.group_seed_source(emitted.encode(), "f")
+        self.assertIn("x = 0; do {", emit(second.decode()))
+        self.assertNotIn("x = 0; do {", emit(emitted))
+
+    def test_seed_layout_hashes_and_unknown_plan_fail_closed(self):
+        source = b"void f(void) {\n return;\n}\n"
+        prepared, plan = pb.group_seed_source(source, "f")
+        raw_plan = json.dumps(plan).encode()
+        baseline = {"seed/prepared.c": prepared, "seed/plan.json": raw_plan}
+        identity = {"preparation_contract": pb.SEED_FIDELITY_CONTRACT,
+            "source_sha256": hashlib.sha256(source).hexdigest(),
+            "prepared_source_sha256": hashlib.sha256(prepared).hexdigest(),
+            "plan_sha256": hashlib.sha256(raw_plan).hexdigest()}
+        item = SimpleNamespace(func="f")
+        inputs = {"search": {"seed": identity}}
+        pb.validate_seed_layout(item, baseline, inputs, source)
+        for name in baseline:
+            changed = dict(baseline, **{name: baseline[name] + b" "})
+            with self.subTest(name=name), self.assertRaisesRegex(RuntimeError, "layout"):
+                pb.validate_seed_layout(item, changed, inputs, source)
+        plan["status"] = "unknown"
+        baseline["seed/plan.json"] = json.dumps(plan).encode()
+        identity["plan_sha256"] = hashlib.sha256(baseline["seed/plan.json"]).hexdigest()
+        with self.assertRaisesRegex(RuntimeError, "layout"):
+            pb.validate_seed_layout(item, baseline, inputs, source)
+
+    def test_actual_elf_seed_fidelity_checks_instructions_and_identity_not_score(self):
+        assembler = pb.ROOT / "tools/binutils/mips64-elf-as"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            objects = []
+            for index, (symbol, register) in enumerate((("one", "$2"), ("one", "$2"),
+                                                       ("two", "$2"), ("one", "$3"))):
+                source, obj = root / f"{index}.s", root / f"{index}.o"
+                source.write_text(f".set noreorder\n.text\n.globl f\n.ent f\nf:\n"
+                    f"lui {register},%hi({symbol})\naddiu {register},{register},%lo({symbol})\n"
+                    "jr $31\nnop\n.end f\n")
+                subprocess.run([str(assembler), "-32", "-o", str(obj), str(source)], check=True)
+                objects.append(obj)
+            item = SimpleNamespace(func="f", rel_c_file="src/fixture.c", overlay=None)
+            report = pb.seed_object_fidelity(item, objects[0], objects[1])
+            self.assertTrue(report["source_fidelity_exact"])
+            self.assertEqual(report["relocation_count"], 2)
+            with patch.object(pb.reloc_surface, "function_surface_comparison",
+                              return_value={"stable_identity_exact": False}):
+                with self.assertRaisesRegex(RuntimeError, "identity"):
+                    pb.seed_object_fidelity(item, objects[0], objects[2])
+            with self.assertRaisesRegex(RuntimeError, "instruction"):
+                pb.seed_object_fidelity(item, objects[0], objects[3])
+            # Exercise the real production capture-review seam with actual ELF
+            # objects. Both authenticated captures have identical C and score;
+            # only their owned object fields/identities differ.
+            source = b"void f(void) { return; }\n"
+            seed = SimpleNamespace(source=source, object=objects[0].read_bytes(),
+                object_sha256=hashlib.sha256(objects[0].read_bytes()).hexdigest())
+            authorities = [root / name for name in ("build/mickey.us.elf", "rom", "atlas", "links")]
+            for path in authorities:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(b"synthetic authority")
+            for index in (1, 2, 3):
+                out = root / f"run-{index}"
+                out.mkdir()
+                (out / "base.c").write_bytes(source)
+                (out / "target.o").write_bytes(b"target")
+                actual = SimpleNamespace(source=source, object=objects[index].read_bytes(),
+                    object_sha256=hashlib.sha256(objects[index].read_bytes()).hexdigest())
+                result = pb.RunResult(func="f", c_file="src/fixture.c", overlay=None, ok=False)
+                result.seed_score = 10
+                result.seed_proof = {"status": "pending-search"}
+                inputs = {"search": {"seed": {"target_object_sha256": hashlib.sha256(b"target").hexdigest()}}}
+                artifacts = {"seed/prepared.c": source}
+                with contextlib.ExitStack() as stack:
+                    for name, value in (("ROOT", root), ("BASEROM", authorities[1]), ("ATLAS_PATH", authorities[2])):
+                        stack.enter_context(patch.object(pb, name, value))
+                    stack.enter_context(patch.object(pb.reloc_surface, "LINK_SYMS", authorities[3]))
+                    stack.enter_context(patch.object(pb.reloc_surface, "function_surface_comparison", return_value={"stable_identity_exact": False}))
+                    for name in ("wait_for_headroom", "validate_baseline", "checked_tool_identity", "retain_context"):
+                        stack.enter_context(patch.object(pb, name))
+                    stack.enter_context(patch.object(pb, "run_permuter", return_value=(10, 0, False, False)))
+                    stack.enter_context(patch.object(pb, "captured_baseline", return_value=actual))
+                    stack.enter_context(patch.object(pb, "_best", return_value=(None, None)))
+                    stack.enter_context(patch.object(pb, "review_context", return_value={"status": "unchanged"}))
+                    promotion = stack.enter_context(patch.object(pb, "promote"))
+                    pb.run_prepared(item, out, out, result, 1, 1, 1, False, [], 0, 0, False, 0, None,
+                        prepared_inputs=inputs, canonical_evidence=seed, seed_evidence=seed, seed_artifacts=artifacts)
+                promotion.assert_not_called()
+                with self.subTest(search_object=index):
+                    self.assertEqual(result.ok, index == 1, result.error)
+                    self.assertEqual(result.seed_proof["status"] == "validated", index == 1)
+                    self.assertEqual("seed/search-fidelity.json" in artifacts, index == 1)
+
     def plan_inputs(self, directory):
         return {"context": {"source_group_plan": hashlib.sha256(
             (directory / "source-groups.json").read_bytes()).hexdigest()}}
