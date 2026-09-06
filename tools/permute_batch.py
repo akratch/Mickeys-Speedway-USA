@@ -1487,6 +1487,7 @@ def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
     lexical = "\n".join("" if line.lstrip().startswith("#") else line
                         for line in source.splitlines())
     openings, closing, stack, statement_ends = {}, {}, [], {}
+    closing_offsets = {}
     parentheses = 0
     position, physical_line = 0, 1
     token_re = re.compile(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|/\*.*?\*/|//[^\n]*|[{}();]', re.S)
@@ -1499,7 +1500,9 @@ def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
         elif token[0] == "}":
             if not stack:
                 raise ValueError("ambiguous original compound boundary")
-            closing[stack.pop()] = physical_line
+            opening = stack.pop()
+            closing[opening] = physical_line
+            closing_offsets[opening] = token.start()
         elif token[0] == "(":
             parentheses += 1
         elif token[0] == ")":
@@ -1509,6 +1512,20 @@ def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
             statement_ends.setdefault(physical_line, []).append(column)
 
     inline_compounds = set()
+    inline_do_controls = set()
+
+    def lexical_lines(n):
+        values = []
+        if n.coord is not None and n.coord.line > 0:
+            values.extend(locations.get(key(n), []))
+        if isinstance(n, nodes.Compound):
+            candidates = openings.get(locations[key(n)][0], [])
+            if len(candidates) != 1 or candidates[0] not in closing:
+                raise ValueError("ambiguous original compound boundary")
+            values.append(closing[candidates[0]])
+        for _, child in n.children():
+            values.extend(lexical_lines(child))
+        return values
 
     def whole_line_compound(node):
         line = key(node)
@@ -1524,10 +1541,81 @@ def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
     def groupable(node, line):
         return id(node) in inline_compounds or simple(node, line)
 
+    def do_tail_line(node):
+        """Prove the complete `} while (...);` punctuation is on one line."""
+        if not isinstance(node.stmt, nodes.Compound):
+            return None
+        candidates = openings.get(locations[key(node.stmt)][0], [])
+        if len(candidates) != 1 or candidates[0] not in closing_offsets:
+            return None
+        close = closing_offsets[candidates[0]]
+        tail = lexical[close + 1:]
+        prefix = re.match(r"[^\S\n]*while[^\S\n]*\(", tail)
+        if prefix is None:
+            return None
+        depth = 1
+        for token in token_re.finditer(tail, prefix.end()):
+            if token[0] == "(":
+                depth += 1
+            elif token[0] == ")":
+                depth -= 1
+                if depth == 0:
+                    end = re.match(r"[^\S\n]*;", tail[token.end():])
+                    if end is not None and "\n" not in tail[:token.end() + end.end()]:
+                        return closing[candidates[0]]
+                    return None
+        return None
+
+    def inline_do(node, line):
+        return (isinstance(node, nodes.DoWhile) and key(node) == line
+                and single_line(node.cond, line)
+                and do_tail_line(node) == locations[line][0]
+                and isinstance(node.stmt, nodes.Compound)
+                and key(node.stmt) == line and whole_line_compound(node.stmt))
+
+    def tail_composites(items):
+        """Recognize one physical do-tail plus complete following siblings."""
+        found, covered = {}, set()
+        i = 0
+        while i + 1 < len(items):
+            left = items[i]
+            if not isinstance(left, nodes.DoWhile) or not isinstance(left.stmt, nodes.Compound):
+                i += 1
+                continue
+            line = key(items[i + 1])
+            physical = locations[line][0]
+            body = left.stmt
+            candidates = openings.get(locations[key(body)][0], [])
+            if (key(left) == line or len(candidates) != 1
+                    or closing.get(candidates[0]) != physical
+                    or do_tail_line(left) != physical
+                    or not single_line(left.cond, line)
+                    or not body.block_items
+                    or max(value for child in body.block_items for value in lexical_lines(child)) >= physical):
+                i += 1
+                continue
+            end = i + 1
+            while end < len(items) and key(items[end]) == line:
+                node = items[end]
+                if not (simple(node, line) or inline_do(node, line)):
+                    raise ValueError("unsupported do-tail composite sibling")
+                if simple(node, line) and not any(column >= node.coord.column for column in
+                                                 statement_ends.get(physical, [])):
+                    raise ValueError("incomplete do-tail composite sibling endpoint")
+                if isinstance(node, nodes.DoWhile):
+                    inline_do_controls.add(id(node))
+                end += 1
+            found[i] = (end, line)
+            covered.update((id(a), id(b)) for a, b in zip(items[i:end], items[i + 1:end]))
+            i = end
+        return found, covered
+
     groups = []
     def walk(node, parent=None):
         if isinstance(node, nodes.Pragma) and "_permuter" in node.string:
             raise ValueError("preexisting permuter pragma in selected function")
+        if id(node) in inline_do_controls:
+            return
         # A macro-expanded standalone block may include declarations and its
         # closing brace on one physical line. Wrap the entire existing block
         # from its parent's statement list; its lexical scope stays intact.
@@ -1552,6 +1640,8 @@ def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
             if (statements and key(statements[0]) == key(node)) or any(
                     key(a) == key(b) for a, b in zip(statements, statements[1:])):
                 raise ValueError("unsupported same-line case group")
+        composites, composite_pairs = (tail_composites(node.block_items or [])
+                                       if isinstance(node, nodes.Compound) else ({}, set()))
         for _, child in list(node.children()):
             walk(child, node)
         if not isinstance(node, nodes.Compound):
@@ -1560,6 +1650,8 @@ def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
         if items and key(items[0]) == key(node):
             raise ValueError("unsupported same-line compound opener group")
         for left, right in zip(items, items[1:]):
+            if (id(left), id(right)) in composite_pairs:
+                continue
             if key(left) != key(right):
                 # Parser children omit closing parentheses and semicolons.
                 # A preceding real terminator on the next statement's line
@@ -1567,22 +1659,21 @@ def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
                 if any(column < right.coord.column for column in
                        statement_ends.get(locations[key(right)][0], [])):
                     raise ValueError("same-line lexical statement endpoint requires measurement")
-                def lexical_lines(n):
-                    values = []
-                    if n.coord is not None and n.coord.line > 0:
-                        values.extend(locations.get(key(n), []))
-                    if isinstance(n, nodes.Compound):
-                        candidates = openings.get(locations[key(n)][0], [])
-                        if len(candidates) != 1 or candidates[0] not in closing:
-                            raise ValueError("ambiguous original compound boundary")
-                        values.append(closing[candidates[0]])
-                    for _, child in n.children():
-                        values.extend(lexical_lines(child))
-                    return values
                 if max(lexical_lines(left)) >= locations[key(right)][0]:
                     raise ValueError("multiline statement overlaps next statement group")
         output, i = [], 0
         while i < len(items):
+            if i in composites:
+                end, line = composites[i]
+                # Enter immediately before the previous body's closing brace;
+                # the vendor then joins its while and all following siblings.
+                items[i].stmt.block_items.append(nodes.Pragma("_permuter sameline start", coord=items[i].cond.coord))
+                output.extend(items[i:end])
+                output.append(nodes.Pragma("_permuter sameline end", coord=items[end - 1].coord))
+                groups.append({"line": line[1], "statements": end - i,
+                               "control": "DoWhileTailComposite"})
+                i = end
+                continue
             first = items[i]
             line = key(first)
             end = i + 1

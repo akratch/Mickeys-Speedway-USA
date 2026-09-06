@@ -302,6 +302,13 @@ even an unexpected zero refuses before search. Saved winner emission consumes
 sameline markers, so seed preparation reconstructs supported groups from the
 immutable seed's original coordinates and retains marker-bearing scratch source
 and its plan separately. Debug and search use the same frozen prepared bytes.
+The grouping adapter also preserves a complete one-line composite consisting of
+a multiline `do` body's closing `} while (...);`, following simple statements
+and complete inline `do/while` siblings. It proves the physical closing brace,
+condition punctuation and sibling boundaries before inserting carriage markers;
+all original AST nodes and scopes remain unchanged. Partial conditions/bodies,
+ambiguous inline nesting and unsupported controls retain the unchanged AST and
+require measurement rather than being silently joined.
 Unused leading macro definitions in a saved compiler input use the existing
 vendor `latedefine` pragma carriage: grouping first uses the original physical C
 coordinates, and emission restores every ordered definition. The reviewed
