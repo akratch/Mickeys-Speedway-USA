@@ -5,6 +5,6 @@
 - score: 70/80 words
 - frame: 0x48
 - relocations: 9
-- first mismatch: +0x2C
-- summary: The authorized byte-offset cursor reshape is byte-identical. Baseline stays 70/80; the target zero-shift/pointer-add CFG has no source-supported lever.
+- first mismatch: +0x50
+- summary: Five ROM-proved resident ABI bindings preserve raw instructions and resolve all nine identities through scoped aliases. Ten normalized word differences remain; NON_MATCHING, no new exact C bytes.
 <!-- plateau-handoff:overlay68CheckKind:end -->

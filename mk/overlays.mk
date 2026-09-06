@@ -1916,7 +1916,12 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68ReleaseTertiary.c.o: POSTPROCESS 
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x34
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o068/overlay68CheckKind.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
-		func_overlay_068_F000146C_18C85CC=overlay68CheckKind $@ && \
+		func_overlay_068_F000146C_18C85CC=overlay68CheckKind \
+		--redefine-sym func_8002B280=overlay68AllocProbeReloc \
+		--redefine-sym piRomLoadSection=overlay68FillProbeReloc \
+		--redefine-sym func_800291C4=overlay68GetResidentEntriesReloc \
+		--redefine-sym levelGetBlurEffect=overlay68MapResidentIndexReloc \
+		--redefine-sym mmFree=overlay68FreeProbeReloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x140
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o002/overlay2Enable.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x20

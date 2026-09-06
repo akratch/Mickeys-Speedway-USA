@@ -23,12 +23,12 @@ extern const Overlay68KindPair gOverlay68KindMapInitial[];
 extern volatile const s8 gOverlay68KindMapLoop;
 
 /* The runtime relocation stream preserves these five distinct call roles. */
-extern Overlay68Probe *overlay68AllocProbeReloc(s32 size, s32 tag);
-extern void overlay68FillProbeReloc(s32 kind, Overlay68Probe *probe,
-                                    s32 totalBytes, s32 stride);
-extern Overlay68ResidentEntry *overlay68GetResidentEntriesReloc(void);
-extern s32 overlay68MapResidentIndexReloc(s32 kind);
-extern void overlay68FreeProbeReloc(void *probe);
+extern void *func_8002B280(s32 size, u32 colourTag);
+extern s32 piRomLoadSection(u32 assetIndex, u32 address,
+                                    s32 assetOffset, s32 size);
+extern u8 *func_800291C4(void);
+extern s32 levelGetBlurEffect(s32 kind);
+extern void mmFree(void *probe);
 
 /*
  * Bounded plateau (2026-08-30): a declaration-slot census reproduces the
@@ -40,13 +40,13 @@ extern void overlay68FreeProbeReloc(void *probe);
  * byte-for-byte. A single hash-bound split-provenance capture (2026-09-01)
  * identifies split webs 42 and 0, but the producer exposes no source-semantic
  * or virtual/final stack-home fields, so it cannot select an admissible C
- * change. The runtime table authenticates all nine target identities and the
- * object aligns all nine offsets/types; four static identities resolve while
- * five call proxies require an exact post-promotion linked proof. The residual
- * remains the cursor CFG/temp web. A 2026-09-04 one-shot structural pass made
- * the zero-index cursor's byte offset and scale explicit; IDO emitted the same
- * object, so the target's retained shift/pointer-add CFG remains unreachable.
- * All 119 flag modes and the earlier bounded batch remain exhausted.
+ * change. The 2026-09-06 binding repair authenticates five resident callee
+ * ABIs from ROM destinations and matched C. All nine static/runtime identities
+ * and offsets/types now align through the existing mixed per-TU alias chain.
+ * Raw instructions remain unchanged: 320 bytes, frame 0x48 and ten normalized
+ * word differences, first +0x50. The 2026-09-04 byte-offset cursor reshape was
+ * byte-identical; that negative result does not prove source unreachability.
+ * Earlier flag/batch history remains; this binding repair adds no match credit.
  */
 #ifdef NON_MATCHING
 s32 overlay68CheckKind(s32 kind) {
@@ -81,13 +81,13 @@ s32 overlay68CheckKind(s32 kind) {
     }
 
     if (amount != -1) {
-        probe = overlay68AllocProbeReloc(sizeof(*probe), 0x85);
+        probe = func_8002B280(sizeof(*probe), 0x85);
         if (probe != NULL) {
-            overlay68FillProbeReloc(0x3F, probe,
+            piRomLoadSection(0x3F, (u32)probe,
                                     amount * (s32)sizeof(*probe),
                                     sizeof(*probe));
-            entries = overlay68GetResidentEntriesReloc();
-            index = overlay68MapResidentIndexReloc(kind);
+            entries = (Overlay68ResidentEntry *)func_800291C4();
+            index = levelGetBlurEffect(kind);
             threshold = entries[index].thresholdNumerator / 5;
             cursorIndex = 0;
             valueCursor = (s16 *)probe + cursorIndex;
@@ -109,7 +109,7 @@ s32 overlay68CheckKind(s32 kind) {
                 result = 1;
             }
         }
-        overlay68FreeProbeReloc(probe);
+        mmFree(probe);
     }
 
     return result;
@@ -123,7 +123,7 @@ s32 overlay68CheckKind(s32 kind) {
  * score: 70/80 words
  * frame: 0x48
  * relocations: 9
- * first-mismatch: +0x2C
- * summary: The authorized byte-offset cursor reshape is byte-identical. Baseline stays 70/80; the target zero-shift/pointer-add CFG has no source-supported lever.
+ * first-mismatch: +0x50
+ * summary: Five ROM-proved resident ABI bindings preserve raw instructions and resolve all nine identities through scoped aliases. Ten normalized word differences remain; NON_MATCHING, no new exact C bytes.
  * PLATEAU-HANDOFF:overlay68CheckKind:end
  */
