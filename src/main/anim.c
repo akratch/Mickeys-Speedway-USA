@@ -467,73 +467,36 @@ void func_80050AD4(u8 pathIndex) {
  * globals, allocator call, data boundaries, and compiler output are
  * independently established from Mickey's ROM.
  *
- * Fresh bounded loop/type/lifetime pass: structure-mismatch, 87/87 words,
- * 15 differing words, first +0x34. Direct comparisons retain IDO's bound
- * register; a remaining-byte comparison removes it but selects a subtraction
- * branch and regresses. Five later endpoint/base address schedules remain.
+ * Matched ordinary C: 87 words, frame 0x18, and all 41 relocation identities.
+ * Retained-seed search preserved the declarations and complete loop bodies.
+ * Physical source grouping is code-generation-sensitive; keep it intact.
+ * Configured untouched output is checked against the owned linked ROM range.
  */
-#ifdef NON_MATCHING
-void func_80050BF4(void) {
-    s32 emptyIndex;
-    s32 offset;
-    u8 *cursor;
-
-    D_800D6B04 = piRomLoad(0x3D);
-    D_800D6B00 = func_8002B280(0x400, 0x81);
-    offset = 0;
-    do {
-        *(s32 *) ((u8 *) D_800D6B00 + offset) = 0;
-        offset += 4;
-    } while (offset < 0x400);
-
-    cursor = (u8 *) D_800D6B08;
-    do {
-        cursor += 4;
-        *(void **) (cursor - 4) = NULL;
-    } while ((u32) cursor < (u32) D_800D6B18);
-
-    cursor = (u8 *) D_800D6B18;
-    do {
-        cursor += 4;
-        *(void **) (cursor - 4) = NULL;
-    } while ((u32) cursor < (u32) D_800D6B58);
-
-    cursor = (u8 *) D_800D6B58;
-    do {
-        cursor += 0x14;
-        cursor[-0x14] = 0xFF;
-        *(s32 *) (cursor - 0x10) = 0;
-        *(s32 *) (cursor - 8) = 0;
-    } while ((u32) cursor < (u32) D_800D6BF8);
-
-    emptyIndex = -1;
-    cursor = D_800D6BF8;
-    do {
-        cursor += 8;
-        *(s8 *) (cursor - 8) = emptyIndex;
-    } while ((u32) cursor < (u32) D_800D6C38);
-
-    D_8007D6B0 = 0;
-    cursor = (u8 *) D_800D6C58;
-    do {
-        cursor += 0x40;
-        *(s32 *) (cursor - 0x40) = 0;
-        *(s32 *) (cursor - 0x30) = 0;
-        *(s32 *) (cursor - 0x20) = 0;
-        *(s32 *) (cursor - 0x10) = 0;
-    } while (cursor != (u8 *) D_800D6D18);
-
-    D_800D6C3E = 0;
-    D_800D6C44 = 0;
-    D_800D6C48 = 0;
-    D_800D6C52 = 0xFF;
-    D_800D6C54 = D_800D6C52;
-    D_800D6C4C = 0;
-    func_800534C0();
+void func_80050BF4(void)
+{
+  s32 emptyIndex;
+  s32 offset;
+  int new_var;
+  u8 *cursor;
+  D_800D6B04 = piRomLoad(0x3D);
+  D_800D6B00 = func_8002B280(0x400, 0x81);
+  offset = 0;
+  new_var = 4;
+  do
+  {
+ *((s32 *) (((u8 *) D_800D6B00) + offset)) = 0; offset += new_var; } while (offset < 0x400); cursor = (u8 *) D_800D6B08; do { cursor += new_var; *((void **) (cursor - new_var)) = (void *) 0; } while (((u32) cursor) < ((u32) D_800D6B18)); cursor = (u8 *) D_800D6B18; do { cursor = cursor + new_var; *((void **) (cursor - new_var)) = (void *) 0; } while (((u32) cursor) < ((u32) D_800D6B58)); cursor = (u8 *) D_800D6B58; do { cursor += 0x14; cursor[-0x14] = 0xFF; *((s32 *) (cursor - 0x10)) = 0; *((s32 *) (cursor - 8)) = 0; new_var += 0; } while (((u32) cursor) < ((u32) D_800D6BF8)); emptyIndex = -1; cursor = D_800D6BF8; do {
+    cursor += 8;
+    *((s8 *) (cursor - 8)) = emptyIndex;
+  }
+  while (((u32) cursor) < ((u32) D_800D6C38));
+  D_8007D6B0 = 0;
+ cursor = (u8 *) D_800D6C58; do { cursor += 0x40; *((s32 *) (cursor - 0x40)) = 0; *((s32 *) (cursor - 0x30)) = 0; *((s32 *) (cursor - 0x20)) = 0; *((s32 *) (cursor - 0x10)) = 0; } while (cursor != ((u8 *) D_800D6D18)); D_800D6C3E = 0; D_800D6C44 = 0;
+  D_800D6C48 = 0;
+  D_800D6C52 = 0xFF;
+  D_800D6C54 = D_800D6C52;
+  D_800D6C4C = 0;
+  func_800534C0();
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050BF4.s")
-#endif
 void func_80050D50(void) {
     void **entry = D_800D6B18, **end = D_800D6B58;
     do {
@@ -4542,15 +4505,6 @@ void fmvInit(void) {
  * PLATEAU-HANDOFF:func_80051364:end
  */
 
-/* PLATEAU-HANDOFF:func_80050BF4:start
- * symbol: func_80050BF4
- * score: 72/87 words
- * frame: 0x18
- * relocations: 41
- * first-mismatch: +0x34
- * summary: Ten natural forms leave the clear-loop bound web; fallback-static resolves 41/41 identities with 31 exact, and five endpoint/base LO16 pairs remain reversed.
- * PLATEAU-HANDOFF:func_80050BF4:end
- */
 
 /* PLATEAU-HANDOFF:func_80054B3C:start
  * symbol: func_80054B3C
