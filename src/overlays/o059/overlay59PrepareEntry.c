@@ -53,61 +53,67 @@ extern Overlay59DescriptorGroup gOverlay59DescriptorTables[];
 extern void overlay59PrepareReleaseReloc(Overlay59Entry *entry);
 extern void *func_80034448(s32 textureId);
 
-#ifdef NON_MATCHING
-s32 overlay59PrepareEntry(Overlay59Entry *entry, s32 tableIndex, s32 itemIndex) {
-    void **descriptor;
-    void *value;
-    u32 handle;
-    s32 count;
-    s32 result;
-
-    descriptor = ((Overlay59DescriptorGroup *)
-                  ((u8 *) gOverlay59DescriptorTables + 0x5A4))[tableIndex]
-                     .descriptors[itemIndex];
-    result = 1;
-    if (descriptor != entry->owner) {
-        overlay59PrepareReleaseReloc(entry);
-        entry->owner = descriptor;
-        count = 0;
+s32 overlay59PrepareEntry(Overlay59Entry *entry, s32 tableIndex, s32 itemIndex)
+{
+  int new_var;
+  void **descriptor;
+  void *value;
+  u32 handle;
+  s32 count;
+  s32 result;
+  descriptor = ((Overlay59DescriptorGroup *) (((u8 *) gOverlay59DescriptorTables) + 0x5A4))[tableIndex].descriptors[itemIndex];
+  result = 1;
+  if (descriptor != entry->owner)
+  {
+    overlay59PrepareReleaseReloc(entry);
+    entry->owner = descriptor;
+    count = 0;
+    value = *descriptor;
+    if (value != 0)
+    {
+      do
+      {
+        new_var = 0;
+        handle = ((u32) value) & 0xFFFFFFFF;
+        handle = (u32) func_80034448((s32) handle);
+        if (handle == 0)
+        {
+          result = 0;
+        }
+        else
+        {
+          entry->handles[count] = handle;
+          count++;
+        }
+        value = descriptor[1];
+        if (value != 0)
+        {
+          handle = ((u32) value) & 0xFFFFFFFFu;
+          handle = (u32) func_80034448((s32) handle);
+          if (handle == 0)
+          {
+            result = new_var;
+          }
+          else
+          {
+            entry->handles[count] = handle;
+            count++;
+          }
+        }
+        descriptor += 4;
         value = *descriptor;
-        if (value != 0) {
-            do {
-                handle = (u32)value;
-                handle = (u32)func_80034448((s32)handle);
-                if (handle == 0) {
-                    result = 0;
-                } else {
-                    entry->handles[count] = handle;
-                    count++;
-                }
-
-                value = descriptor[1];
-                if (value != 0) {
-                    handle = (u32)value;
-                    handle = (u32)func_80034448((s32)handle);
-                    if (handle == 0) {
-                        result = 0;
-                    } else {
-                        entry->handles[count] = handle;
-                        count++;
-                    }
-                }
-                descriptor += 4;
-                value = *descriptor;
-            } while (value != 0);
-        }
-
-        if (result == 0) {
-            overlay59PrepareReleaseReloc(entry);
-        }
+      }
+      while (value != 0);
     }
-    return result;
+    if (result == 0)
+    {
+      overlay59PrepareReleaseReloc(entry);
+    }
+  }
+  return result;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o059/overlay59PrepareEntry/func_overlay_059_F0000070_18B87C0.s")
-#endif
 
-/* Binding reproof (2026-09-06): the resident acquisition callee consumes an
+/* Prior binding reproof (2026-09-06): the resident acquisition callee consumes an
  * integer texture ID and returns a pointer handle. Explicit casts preserve
  * the existing N64 32-bit carriers. Raw and configured full-TU text remains
  * unchanged; all six relocation identities now agree with the ROM records.
@@ -116,12 +122,9 @@ s32 overlay59PrepareEntry(Overlay59Entry *entry, s32 tableIndex, s32 itemIndex) 
  * and the ordinary ROM proof continues to use the assembly fallback.
  */
 
-/* PLATEAU-HANDOFF:overlay59PrepareEntry:start
- * symbol: overlay59PrepareEntry
- * score: 53/62 words
- * frame: 0x28
- * relocations: 6
- * first-mismatch: +0x54
- * summary: Integer-ID acquisition binding repaired; all six runtime identities exact. Owned instructions unchanged; nine carrier-allocation words remain.
- * PLATEAU-HANDOFF:overlay59PrepareEntry:end
+/* Matching reproof (2026-09-06): the body above supersedes that plateau.
+ * Untouched configured compiler output owns all 248 bytes, with frame 40
+ * and all six relocation identities exact. The linked owned range and full
+ * ROM are byte-identical. The zero-valued local is used by the second
+ * acquisition-failure path; both masks preserve the N64 32-bit handle bits.
  */

@@ -1806,6 +1806,10 @@ overlay58LoadResourceReloc = 0xf0000000;
 /* overlay 59: overlay59Release.c.o */
 overlay59ReleaseReloc = 0xf0000000;
 
+/* overlay 59: overlay59PrepareEntry.c.o */
+func_80034448_o059Reloc = 0xf0000000;
+gOverlay59DescriptorTables = 0x00000000;
+
 /* overlay 59: overlay59ResetEntries.c.o */
 gOverlay59Entries = 0x00000000;
 gOverlay59EntriesEnd = 0x00000110;
