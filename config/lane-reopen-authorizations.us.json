@@ -1,6 +1,11 @@
 {
   "schema_version": 1,
   "authorizations": {
+    "func_80020D8C": {
+      "source_commit": "4fe9255a1e3cd2c6b94232648c9a8a5acf625cf7",
+      "ledger_commit": "9874fcd6510ae52ad2907ebf09cb8ec9aae5ac98",
+      "reason": "ADR0017 causal packet: isolate product staging versus constant-index carrier reuse behind authenticated initial-reservation change. Two initial variants, ten total maximum in 70 minutes; unchanged flags, ABI, calls; no random search."
+    },
     "levelFreeAll": {
       "source_commit": "fc81c03c647038cfb2ee78b3fb616d594631aa1a",
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
