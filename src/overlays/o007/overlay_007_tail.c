@@ -230,17 +230,17 @@ query:
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000CCC_185CB54.s")
 #endif
 
-/* Bounded reproof 2026-08-29: current configured full-TU C is 67/72 raw and
- * 69/72 after runtime relocation normalization, with exact 0x120 size, 0x30
- * frame, and first substantive mismatch +0xBC. The three residual sites at
- * +0xBC/+0xC4/+0xD4 are one post-mathRnd u16 conversion carrier. Runtime
- * metadata proves all 17 emitted offsets, types, and identities, including
- * the local JUMP at +0xF4 and four authenticated external calls. ORT 1345 and
- * all 17 resident/cross-overlay callers are authenticated. All 119 flag rows
- * were nonexact; the proc-3 trace places the candidate conversion in uopt pool
- * slot 20 while the target uses temp-FIFO slot 9. Explicit assignment and a
- * scoped u16 carrier both regressed to 68/72 normalized. The fallback remains
- * canonical; retry only after a new source route for this pool/temp decision.
+/* Exact ordinary C: the configured mixed-TU build and linked ROM prove all
+ * 72 owned words (288 bytes), with a 48-byte frame and no instruction edits.
+ * Fresh raw compiler output has all 17 runtime relocation offsets, types,
+ * and identities. The configured object retains 15 static records after
+ * two explicitly declared, runtime-owned BSS metadata filters.
+ * The removed HI/LO pair is at function offsets +0xF0/+0xF8, corresponding
+ * to TU offsets +0x618/+0x620. Both independently resolve to overlay 7's
+ * runtime identity +0x1BA0: original BSS base +0x1910 plus addend +0x290.
+ * The configured recipe changes relocation metadata, not instruction bytes.
+ * Absent-object rebuilding, owned linked bytes, and the full ROM are exact;
+ * neighboring functions and data remain unchanged by this function's C.
  */
 void overlay7CommitSelection(s32 selection)
 {
