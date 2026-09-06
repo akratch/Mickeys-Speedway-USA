@@ -887,6 +887,27 @@ Check the object's `POSTPROCESS` line by hand after a promotion and drop it
 if -- and only if -- the whole line was that one now-redundant rename.
 
 **Winning declaration context must be checked before automatic transfer.**
+Before a fresh random search, the runner first checks an authenticated actual
+compiler input against itself. It reuses the existing grouped-emitter or seeded
+measurements; an ungrouped unseeded input receives one isolated strict `--debug`
+measurement. `baseline-readiness/` retains the measured source, object and
+self-comparison even when unsupported syntax (including active macros) refuses
+the search. This is a readiness check, not preprocessing, semantic approval or
+match proof. No macro is stripped and there is no readiness bypass. Seeded
+searches also check their already measured seed, without another compilation.
+After any load wait, source/header/recipe/tool freshness and the frozen launch
+inputs are rechecked. The real search capture must still reproduce the measured
+source and strict score; successful readiness never substitutes for that capture.
+Extensions preserve the winning source's physical grouping, compile it with the
+current recipe, and prove original-to-emitted owned instructions and relocations
+before relaunch. Their context remains compared against the original baseline;
+the separate `extension-search/` capture must reproduce the measured source,
+strict score and object fidelity. That directory also retains the extension log.
+Both launches recheck their input snapshots after the load wait. Existing
+validated exact-context resume may skip a new search;
+failed readiness remains preserved but retryable. Time spent measuring readiness
+counts against the unchanged whole-batch deadline.
+
 The first actual synchronous compiler input, `baseline-capture/compiled.c`,
 is frozen with its successful capture metadata, source/object digests and
 receipt/per-run identity. A valid capture copied from another run is rejected.
