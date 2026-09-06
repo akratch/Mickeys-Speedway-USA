@@ -1,6 +1,11 @@
 {
   "schema_version": 1,
   "authorizations": {
+    "func_8002C69C": {
+      "source_commit": "ba791ca6e692dbe670334e6d88afd7c3bc72ac64",
+      "ledger_commit": "ba791ca6e692dbe670334e6d88afd7c3bc72ac64",
+      "reason": "Correct undefined signed shift using unsigned arithmetic and a five-bit count, grounded in Mickey callers and shift semantics. One correctness form only; no allocator, flag or manual matching variants."
+    },
     "overlay1InterpolatePath": {
       "source_commit": "9c0b27212ac4d2aa531d4d4d3a2eaee7af1b6f85",
       "ledger_commit": "71f3960b5aa2afb191a659f4f47393b980ef9dc5",
