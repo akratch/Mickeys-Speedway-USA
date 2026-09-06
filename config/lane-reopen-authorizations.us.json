@@ -1,6 +1,11 @@
 {
   "schema_version": 1,
   "authorizations": {
+    "levelFreeAll": {
+      "source_commit": "fc81c03c647038cfb2ee78b3fb616d594631aa1a",
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "ADR0017 causal packet: test predicate-driven low-mask reuse across the existing dispatch arm, not exhausted pointer casts or assignments. Faithful full-TU controls; at most ten variants in 70 minutes; unchanged flags, ABI and calls."
+    },
     "overlay1FindType5ByKey": {
       "source_commit": "5335012b90a9c889dedcf2f645d91df5d7e1417b",
       "ledger_commit": "09d3de7200c79672cbb0d7a625d1dc391e8ea2f1",
