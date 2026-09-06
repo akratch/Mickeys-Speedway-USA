@@ -143,11 +143,10 @@ def _inactive_macro_prelude(text: str) -> tuple[str, list[dict], list[str]]:
     return prepared, rows, snippets
 
 
-def _surface(source: bytes, symbol: str) -> tuple[list[dict], list[str]]:
+def _prepared_text(source: bytes) -> str:
+    """Apply the shared conservative prepared-input lexical checks."""
     if len(source) > MAX_SOURCE_BYTES:
         raise ContextError("prepared source exceeds comparison byte limit")
-    import pycparser
-    from pycparser import c_ast, c_generator
     text = source.decode("utf-8")
     # Translation phase 1/2 precedes comment recognition. Trigraph behavior
     # depends on compiler mode; refuse it rather than apply the wrong dialect.
@@ -174,6 +173,52 @@ def _surface(source: bytes, symbol: str) -> tuple[list[dict], list[str]]:
         raise ContextError("location/time-dependent macros must be expanded in prepared input")
     if PRAGMA_OPERATORS.intersection(identifiers):
         raise ContextError("pragma operators require independent context review")
+    return text
+
+
+def inactive_seed_prelude(source: bytes) -> tuple[str, list[str], list[dict]]:
+    """Blank validated definitions without moving physical C coordinates.
+
+    Definitions are returned separately for vendor latedefine AST carriage.
+    This is not preprocessing: every possible active macro use still refuses.
+    """
+    normalized = _prepared_text(source)
+    _body, rows, _snippets = _inactive_macro_prelude(normalized)
+    physical = source.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+    if not rows:
+        return physical, [], []
+    if re.search(r"(?m)^\s*#\s*(?:line\b|\d|pragma\s+_permuter\b)", normalized):
+        raise ContextError("seed macro source has line controls or reserved vendor pragmas")
+    chunks, definitions = [], []
+    for match in re.finditer(r"(?:[^\n]|(?<=\\)\n)*(?:\n|$)", physical):
+        chunk = match.group()
+        if not chunk:
+            continue
+        logical = re.sub(r"\\\n", "", chunk)
+        if re.match(r"\s*#\s*define\b", logical):
+            # Use the same comment-normalized logical text as context hashing,
+            # not the abbreviated human-readable snippets.
+            definition = re.sub(r"^\s*#\s*", "", _strip_comments(logical)).strip()
+            definitions.append(definition)
+            chunks.append(re.sub(r"[^\n]", " ", chunk))
+        else:
+            if "\\\n" in chunk:
+                raise ContextError("seed C continuations require coordinate-aware preprocessing")
+            # Keep physical columns as well as lines for source grouping.
+            chunks.append(LEXICAL.sub(lambda m: re.sub(r"[^\n]", " ", m.group())
+                                     if m.group().startswith(("/*", "//")) else m.group(), chunk))
+    # Independently validate the complete recovered definitions and their order.
+    recovered = "".join("#" + definition + "\n" for definition in definitions)
+    _, recovered_rows, _ = _inactive_macro_prelude(recovered)
+    if recovered_rows != rows:
+        raise ContextError("seed macro prelude recovery changed definition context")
+    return "".join(chunks), definitions, rows
+
+
+def _surface(source: bytes, symbol: str) -> tuple[list[dict], list[str]]:
+    import pycparser
+    from pycparser import c_ast, c_generator
+    text = _prepared_text(source)
     text, macro_rows, macro_snippets = _inactive_macro_prelude(text)
     # A fresh parser per input also prevents typedef state leaking between inputs.
     ast = pycparser.CParser().parse(text, filename="<prepared>")
