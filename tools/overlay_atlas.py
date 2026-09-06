@@ -1245,6 +1245,12 @@ MIXED_TU_EXACT_C_RANGES = {
         ),
         (0x228, 0x298, "overlay7CreateEntry"),
         (0x298, 0x324, "overlay7AppendEntry"),
+        (
+            0xDBC,
+            0xEDC,
+            "overlay7CommitSelection",
+            "canonical mixed-TU object, 17 runtime relocations with two declared metadata filters, and linked bytes exact",
+        ),
         (0xEDC, 0xF08, "overlay7FillValues"),
         (0xF08, 0xFB8, "overlay7InitPool"),
     ],

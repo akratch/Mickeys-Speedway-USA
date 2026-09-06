@@ -248,8 +248,14 @@ D_844 = 0x00000844;
 D_298 = 0x00000298;
 D_2A4 = 0x000002a4;
 D_4FC = 0x000004fc;
-D_8F4 = 0x000008f4;
+amSndPlay_o007Reloc = 0xf0000000;
+func_800031E8_o007Reloc = 0xf0000000;
+gOverlay7CommitArgument = 0x00000004;
+gOverlay7DispatchData = 0x00000000;
+gOverlay7DispatchModeReloc = 0x00000002;
+gOverlay7DispatchObject = 0x00000000;
 gOverlay7ValuesEnd = 0x000002aa;
+mathRnd_o007Reloc = 0xf0000000;
 
 /* overlay 8: overlay_008.c.o */
 D_10 = 0x00000010;
@@ -2901,12 +2907,12 @@ func_overlay_007_F0000298_185C120 = overlay7AppendEntry;
 func_overlay_007_F00000A8_185BF30 = overlay7AcquireEntry;
 
 /* overlay 7: overlay_007_tail.c.o */
+func_overlay_007_F0000DBC_185CC44 = overlay7CommitSelection;
 func_overlay_007_F0000EDC_185CD64 = overlay7FillValues;
 func_overlay_007_F0000F08_185CD90 = overlay7InitPool;
 func_overlay_007_F0000894_185C71C = overlay7DispatchModes;
 func_overlay_007_F0000AA0_185C928 = overlay7UpdateOwnerMode;
 func_overlay_007_F0000CCC_185CB54 = overlay7DispatchSelection;
-func_overlay_007_F0000DBC_185CC44 = overlay7CommitSelection;
 
 /* overlay 8: overlay_008.c.o */
 func_overlay_008_F0000000_185DD58 = overlay8Ignore;
