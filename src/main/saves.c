@@ -453,7 +453,10 @@ SavesBitWriter *func_8002C60C(s32 size, s32 clear) {
  * and signed reset-mask forms retain eleven differences and each introduce one
  * opcode mismatch, so neither gains and no combination is eligible. The old
  * 10/28 control was skipped because current V0 materially improves it. ORT 727
- * has five direct callers in func_8002C94C; fallback linkage remains exact. */
+ * has five direct callers in func_8002C94C; fallback linkage remains exact.
+ * The unsigned initial shift is defined for the writer's 1..32-bit count
+ * domain (observed direct counts: 4, 5, 18); zero remains a no-op. This
+ * correctness repair leaves configured full-TU compiler output unchanged. */
 void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
     s32 isSet;
     u32 nextBit;
@@ -465,7 +468,7 @@ void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
     u32 mask;
 
     if (bitCount != 0) {
-        bit = 1 << (bitCount + 0x1F);
+        bit = 1u << (bitCount - 1);
         do {
             mask = writer->mask;
             valueBit = value & bit;

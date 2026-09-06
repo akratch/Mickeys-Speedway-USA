@@ -1888,7 +1888,7 @@ The remaining lever is coordinated rodata ownership; assembly stays canonical.
 The still-unnamed bit writer `func_8002C69C` retains a Mickey-derived
 `NON_MATCHING` body. Fresh configured full-TU C is exact-sized and frameless at
 17/28 raw and normalized words, with eleven register-only differences from
-`+0x10`, no padding, and no relocations (candidate SHA-256
+`+0x10`, no padding, and no relocations (historical candidate SHA-256
 `e83f284ce9feecca2c1edc9024181320c777c70978009249393dd1374ca67b32`). All
 119 flag identities were attempted; 53 compile and thirteen O2/MIPS-II rows tie
 V0, while none is exact. A fidelity-clean procedure-11 allocator trace records
@@ -1903,7 +1903,11 @@ because current V0 materially improves it. ORT 727 has five direct calls in
 matched `func_8002C94C` and no runtime/overlay/pointer inbound. Resume only with
 a new natural web-existence/class-crossing mechanism; do not repeat the flag
 lattice, trace, reset-mask forms, historical control, or generic permutation.
-The assembly fallback remains canonical.
+The assembly fallback remains canonical. A subsequent source-correctness
+repair uses an unsigned initial bit and count-minus-one, defined for counts
+1..32 while preserving the zero-count no-op. The five authenticated direct
+calls use counts 4, 5 and 18. Configured full-TU text, relocations and data
+remain unchanged; this repair adds no matching credit.
 
 The 124-byte `func_8002C70C` is exact under canonical `-Wo,-loopunroll,0 -O2 -mips2 -32`; its 31 words and relocation-free linked range match.
 
