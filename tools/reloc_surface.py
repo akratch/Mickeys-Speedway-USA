@@ -1622,25 +1622,73 @@ def _atlas_hex(row, field, description):
     return int(value, 16)
 
 
+def _callee_build_dependencies(root, source_path, source_text):
+    """Conservative canonical dependency set for an identity-only read proof.
+
+    This does not build or create a compiler receipt. Literal header lookup
+    follows the canonical C rule (including asm-processor's source directory);
+    unsupported includes fail closed. Build policy and compiler/metadata tools
+    are timestamp prerequisites even where make's object rule omits them.
+    """
+    import permute_batch as batch
+    import subprocess
+    import time
+    root = Path(root)
+    if root.resolve() != batch.ROOT.resolve():
+        return None
+    try:
+        deadline = time.monotonic() + 5
+        recipe = batch.build_recipe_for(source_path, deadline=deadline)
+        if not recipe.from_dry_run or not recipe.compiler_args:
+            return None
+        # asm-processor appends the original source directory to the real
+        # compiler's -I list because its temporary C lives elsewhere.
+        includes = batch.source_dependencies(
+            source_path, recipe.compiler_args + ("-I", str(source_path.parent)), deadline)
+    except (OSError, RuntimeError, ValueError, subprocess.SubprocessError):
+        return None
+    if any(name.startswith("missing:") for name in includes):
+        return None
+    dependencies = set(path for path in (root / "include").rglob("*")
+                       if path.is_file())
+    dependencies.update(path for path in (root / "mk").rglob("*.mk") if path.is_file())
+    dependencies.update(path for path in (root / "config/normalizations").rglob("*.json")
+                        if path.is_file())
+    dependencies.update(path for path in (root / "tools/ido").rglob("*")
+                        if path.is_file())
+    dependencies.update(path for path in (root / "tools/asm-processor").glob("*.py")
+                        if path.is_file())
+    for relative in (
+            "Makefile", "build/.splat-stamp", "tools/binutils/mips64-elf-as",
+            "tools/binutils/mips64-elf-objcopy", "tools/normalize_elf_instructions.py",
+            "tools/filter_elf_relocations.py", "tools/trim_elf_section.py",
+            "tools/externalize_elf_section.py", "tools/rebind_elf_relocations.py",
+            "tools/set_elf_flags.py", "tools/render_overlay_aliases.py"):
+        path = root / relative
+        if path.is_file():
+            dependencies.add(path)
+    dependencies.update(root / name for name in includes)
+    return dependencies, (recipe, includes)
+
+
 def _canonical_overlay_call_boundary(atlas, source_overlay, generated_name,
                                      target_elf, root=None,
-                                     elf_loader=None):
-    """Authenticate one same-overlay generated call from canonical ownership.
+                                     elf_loader=None, rom=None):
+    """Authenticate generated calls from canonical ownership, never name shape.
 
     Generated overlay names are not identities merely because their linked
-    value lies under the shared synthetic VMA.  This narrow route requires the
-    encoded target to begin one unique atlas owner and requires that owner's
-    fresh canonical object to be one physically function-sized text section.
-    Contradictory canonical evidence is an error; absent, stale, broad-TU, and
-    cross-overlay evidence simply supplies no identity.
+    value lies under the shared synthetic VMA. The legacy same-overlay
+    owner-start route retains its physically trimmed owner boundary behavior.
+    Cross-overlay and interior C members additionally require an
+    ordinary definition, exact-C ownership, fresh object, bounded function
+    symbols, linked ROM equality and unchanged non-relocation instruction bits.
+    Contradictory evidence is an error; missing proof supplies no identity.
     """
     match = GEN_NAME_RE.fullmatch(generated_name)
-    if not match or source_overlay is None:
+    if not match:
         return None
     target_overlay = int(match.group(1))
     target_offset = int(match.group(2), 16)
-    if target_overlay != source_overlay:
-        return None
 
     modules = [
         module for module in atlas.get("modules", [])
@@ -1661,17 +1709,20 @@ def _canonical_overlay_call_boundary(atlas, source_overlay, generated_name,
             "overlay %d atlas synthetic VMA conflicts with canonical policy"
             % target_overlay)
     text = module.get("sections", {}).get("text")
-    rom = module.get("rom")
-    if not isinstance(text, dict) or not isinstance(rom, dict):
+    rom_row = module.get("rom")
+    if not isinstance(text, dict) or not isinstance(rom_row, dict):
         return None
     text_start = _atlas_hex(text, "start", "overlay text section")
     text_end = _atlas_hex(text, "end", "overlay text section")
     text_size = _atlas_hex(text, "size", "overlay text section")
-    rom_start = _atlas_hex(rom, "start", "overlay ROM row")
+    rom_start = _atlas_hex(rom_row, "start", "overlay ROM row")
     if text_start != rom_start or text_end - text_start != text_size:
         raise SurfaceComparisonError(
             "overlay %d atlas text ownership is internally inconsistent"
             % target_overlay)
+    if int(generated_name.rsplit("_", 1)[1], 16) != rom_start + target_offset:
+        raise SurfaceComparisonError(
+            "%s encoded ROM address conflicts with atlas ownership" % generated_name)
 
     covering = []
     for row in module.get("text_ownership", []):
@@ -1694,7 +1745,10 @@ def _canonical_overlay_call_boundary(atlas, source_overlay, generated_name,
         return None
     row, row_start, _row_end, row_size = covering[0]
     # Containment in a section or broad TU does not prove a function start.
-    if row_start != target_offset or row.get("type") != "c":
+    if row.get("type") != "c":
+        return None
+    strict_c = target_overlay != source_overlay or row_start != target_offset
+    if strict_c and rom is None:
         return None
 
     source = row.get("source")
@@ -1704,6 +1758,8 @@ def _canonical_overlay_call_boundary(atlas, source_overlay, generated_name,
     if source_rel.is_absolute() or ".." in source_rel.parts:
         raise SurfaceComparisonError(
             "%s has an unsafe atlas source path" % generated_name)
+    if strict_c and source_rel.parts[:2] != ("overlays", "o%03d" % target_overlay):
+        raise SurfaceComparisonError("generated callee source belongs to another overlay")
     root = REPO if root is None else Path(root)
     source_path = root / "src" / (source + ".c")
     object_path = root / "build" / "src" / (source + ".c.o")
@@ -1716,9 +1772,54 @@ def _canonical_overlay_call_boundary(atlas, source_overlay, generated_name,
     if (isinstance(target_path, Path) and target_path.is_file()
             and target_path.stat().st_mtime_ns < object_path.stat().st_mtime_ns):
         return None
+    if strict_c:
+        # Detect ordinary concurrent replacement while this proof is read.
+        # This is dependency freshness, not a reusable compiler-context receipt.
+        if not isinstance(target_path, Path) or not target_path.is_file():
+            return None
+        import proof_provenance as provenance
+        source_text = source_path.read_text().replace("\\\n", "")
+        dependency_proof = _callee_build_dependencies(root, source_path, source_text)
+        if dependency_proof is None:
+            return None
+        dependencies, _context = dependency_proof
+        proof_paths = [source_path, object_path, target_path, *dependencies]
+        def file_state(path):
+            stat = path.stat()
+            return stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns
+        before_files = {path: file_state(path) for path in proof_paths}
+        object_time = before_files[object_path][3]
+        if (before_files[source_path][3] > object_time
+                or before_files[target_path][3] < object_time
+                or any(before_files[path][3] > object_time for path in dependencies)):
+            return None
+        # target_elf was parsed by the caller before this helper. Pin its
+        # actual bytes, not merely whichever file now occupies its pathname.
+        if getattr(target_elf, "data", None) != target_path.read_bytes():
+            return None
+        object_bytes_before = object_path.read_bytes()
+        if source_path.read_text().replace("\\\n", "") != source_text:
+            return None
+        # This route proves an actual ordinary C definition, not a label in
+        # fallback assembly. Unknown conditional compilation is not evidence.
+        facts = provenance.source_facts(source_text, generated_name)
+        if len(facts.definitions) != 1 or facts.pragmas:
+            return None
+        depth = 0
+        for line in provenance._mask_c(source_text).splitlines()[:facts.definitions[0].line - 1]:
+            if re.match(r"^\s*#\s*(if|ifdef|ifndef)\b", line):
+                depth += 1
+            elif re.match(r"^\s*#\s*endif\b", line):
+                depth -= 1
+            if depth < 0:
+                return None
+        if depth:
+            return None
 
     loader = Elf if elf_loader is None else elf_loader
     canonical = loader(object_path)
+    if strict_c and getattr(canonical, "data", None) != object_bytes_before:
+        return None
     text_index, _text_header = canonical.section(".text")
     if text_index is None or len(canonical.section_bytes(".text")) != row_size:
         return None
@@ -1727,6 +1828,13 @@ def _canonical_overlay_call_boundary(atlas, source_overlay, generated_name,
         for name, value, size, info, shndx in canonical.symbols()
         if shndx == text_index and (info & 0xF) == STT_FUNC
     ]
+    if strict_c:
+        named = [row for row in canonical.symbols()
+                 if row[0] == generated_name and row[4] != SHN_UNDEF]
+        if len(named) > 1:
+            raise SurfaceComparisonError("generated callee has ambiguous canonical definitions")
+        if named and (named[0][4] != text_index or named[0][3] & 0xF != STT_FUNC):
+            return None
     definitions = [
         row for row in canonical_functions if row[0] == generated_name
     ]
@@ -1741,8 +1849,47 @@ def _canonical_overlay_call_boundary(atlas, source_overlay, generated_name,
         raise SurfaceComparisonError(
             "%s canonical object symbol conflicts with atlas boundary"
             % generated_name)
+    if strict_c:
+        object_end = object_value + object_symbol_size
+        if object_end > row_size:
+            raise SurfaceComparisonError("generated callee escapes canonical object ownership")
+        for name, value, size in canonical_functions:
+            if name == generated_name or (value, size) == (object_value, object_symbol_size):
+                continue
+            if size > 0 and value < object_end and object_value < value + size:
+                raise SurfaceComparisonError("generated callee has overlapping function boundaries")
+        exact_ranges = []
+        for exact in module.get("mixed_tu_exact_c_ranges", []):
+            if not isinstance(exact, dict):
+                raise SurfaceComparisonError("malformed mixed-TU exact ownership")
+            a = _atlas_hex(exact, "offset", "mixed-TU exact ownership")
+            b = _atlas_hex(exact, "end_offset", "mixed-TU exact ownership")
+            n = _atlas_hex(exact, "size", "mixed-TU exact ownership")
+            if b - a != n or not row_start <= a < b <= text_size:
+                # Other TUs have independent ownership, checked when used.
+                if exact.get("source") == source:
+                    raise SurfaceComparisonError("inconsistent mixed-TU exact ownership")
+            if a <= target_offset < b:
+                exact_ranges.append(exact)
+        if exact_ranges:
+            if len(exact_ranges) != 1:
+                raise SurfaceComparisonError("ambiguous mixed-TU exact ownership")
+            exact = exact_ranges[0]
+            if (exact.get("source") != source
+                    or _atlas_hex(exact, "offset", "exact owner") != target_offset
+                    or _atlas_hex(exact, "size", "exact owner") != object_symbol_size):
+                raise SurfaceComparisonError("generated callee conflicts with exact ownership")
+        elif row.get("matched") is not True or row.get("nonmatching") is not False:
+            return None
 
     linked = []
+    if strict_c:
+        named = [row for row in target_elf.symbols()
+                 if row[0] == generated_name and row[4] != SHN_UNDEF]
+        if len(named) > 1:
+            raise SurfaceComparisonError("generated callee has ambiguous linked definitions")
+        if named and (named[0][4] == SHN_ABS or named[0][3] & 0xF != STT_FUNC):
+            return None
     for name, value, size, info, shndx in target_elf.symbols():
         if (name == generated_name and shndx != SHN_UNDEF
                 and (info & 0xF) == STT_FUNC):
@@ -1760,6 +1907,48 @@ def _canonical_overlay_call_boundary(atlas, source_overlay, generated_name,
         raise SurfaceComparisonError(
             "%s linked symbol conflicts with canonical overlay ownership"
             % generated_name)
+    if strict_c:
+        section_index, section_header = target_elf.section(linked_section)
+        if section_index is None or not isinstance(section_header, tuple):
+            return None
+        if section_header[3] != SYNTHETIC_VMA:
+            raise SurfaceComparisonError("generated callee linked section has wrong base")
+        end = target_offset + object_symbol_size
+        linked_bytes = target_elf.section_bytes(linked_section)[target_offset:end]
+        retail_bytes = rom[rom_start + target_offset:rom_start + end]
+        if (len(linked_bytes) != object_symbol_size
+                or len(retail_bytes) != object_symbol_size
+                or linked_bytes != retail_bytes):
+            return None
+        # Relocation values differ before linking; instruction bits may not.
+        masks = {}
+        for _section, offset, rtype, _symbol in canonical.relocations():
+            if not object_value <= offset < object_end:
+                continue
+            if offset % 4 or offset + 4 > object_end or offset in masks:
+                raise SurfaceComparisonError("invalid generated callee relocation geometry")
+            mask = {R_MIPS_26: 0xFC000000, R_MIPS_HI16: 0xFFFF0000,
+                    R_MIPS_LO16: 0xFFFF0000, R_MIPS_PC16: 0xFFFF0000,
+                    R_MIPS_32: 0}.get(rtype)
+            if mask is None:
+                return None
+            masks[offset] = mask
+        if object_value % 4 or object_symbol_size % 4:
+            return None
+        object_text = canonical.section_bytes(".text")
+        for relative in range(0, object_symbol_size, 4):
+            offset = object_value + relative
+            raw_word = struct.unpack_from(">I", object_text, offset)[0]
+            linked_word = struct.unpack_from(">I", linked_bytes, relative)[0]
+            if (raw_word ^ linked_word) & masks.get(offset, 0xFFFFFFFF):
+                return None
+        try:
+            if any(file_state(path) != state for path, state in before_files.items()):
+                raise SurfaceComparisonError("generated callee proof inputs changed during inspection")
+            if _callee_build_dependencies(root, source_path, source_text) != dependency_proof:
+                raise SurfaceComparisonError("generated callee proof dependency set changed")
+        except OSError as error:
+            raise SurfaceComparisonError("generated callee proof input disappeared") from error
     return target_overlay, target_offset
 
 
@@ -1782,7 +1971,7 @@ def _stable_overlay_call_identities(path, candidate_elf, source_overlay,
             valid.add(original)
         identity = _canonical_overlay_call_boundary(
             atlas, source_overlay, original, target_elf,
-            root=root, elf_loader=elf_loader)
+            root=root, elf_loader=elf_loader, rom=rom)
         if identity is not None:
             proposed[original].add(identity)
 
@@ -2993,9 +3182,9 @@ def function_surface_comparison(symbol, candidate_object, target_elf_path,
         _stable_overlay_call_identities(
             values_path, candidate_elf, overlay, target_elf, atlas,
             candidate_start, candidate_size, candidate_redefine_aliases,
-            module=module_row, rom=rom, runtime_module=context["module"],
+            module=module_row if overlay is not None else None, rom=rom,
+            runtime_module=context.get("module"),
             target_records=target_records)
-        if overlay is not None else ({}, set())
     )
     if overlay is not None:
         overlay_data_identities, ambiguous_overlay_data = (
