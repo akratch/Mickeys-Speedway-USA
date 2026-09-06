@@ -38,8 +38,8 @@
     },
     "overlay68CheckKind": {
       "source_commit": "90ee5c814ce688bae33efdcce6a2d568c9451e68",
-      "ledger_commit": "90ee5c814ce688bae33efdcce6a2d568c9451e68",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
+      "ledger_commit": "3769fc8d1cd37566b5b2dd799b76cc3b9984a898",
+      "reason": "Binding repair only: five ROM-proved resident call ABIs and scoped mixed per-TU aliases. Preserve lines, 320-byte/frame72 code and all nine identities; retain NON_MATCHING. No allocation, flag or manual matching variants."
     },
     "overlay94UpdateController": {
       "source_commit": "8aaec155c9bb558c96500486c94563fac14b7068",
