@@ -86,14 +86,12 @@ typedef struct RcpGradientColour {
         cmd->w1 = (address); \
     }
 
-#ifdef NON_MATCHING
 #define RCP_SET_FILL_CYCLE(command) \
     { \
         RcpCommand *cycleCmd = (command); \
         cycleCmd->w0 = 0xEF30000F; \
         cycleCmd->w1 = 0; \
     }
-#endif
 
 extern u8 D_8007A3A0;
 extern u8 D_8007A3A4;
@@ -376,22 +374,6 @@ void func_8002EBE0(RcpCommand **dlist, s32 width, s32 height,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002EBE0.s")
 #endif
-#ifdef NON_MATCHING
-/* Fresh configured full-TU V0 is exact-sized and frameless at 103/107 words,
- * first +0x74, with four register-only fields: target t8/t9 versus candidate
- * t7/t8 at ugen temporary slots 9-10. Both D_800D2FAC relocation tuples are
- * exact. All 119 flag identities were attempted; seven O2/MIPS-II variants tie
- * V0 and none is exact. A fidelity-clean trace maps this symbol uniquely to
- * uopt procedure 6 with 29 integer and one FP decision; its mixed-TU ugen rows
- * cannot be auto-attributed, while source-line stamps locate the candidate
- * t7/t8 pops at the two aligned-coordinate assignments. Pointer-truth and
- * staged-alignedX1 forms are byte-identical to V0, so no strict-gain combination
- * or batch is eligible. ORT 765 and four callers remain authenticated; linked
- * equality is fallback-only. Preserve V0 and resume only with a new natural
- * preceding phantom-pop or web-existence mechanism. Do not repeat the flag
- * lattice, trace, these forms, a generic batch, or artificial allocation aids.
- * Raw allocator artifacts remain ignored under build/ and are not tracked.
- * The assembly fallback remains canonical. */
 /* PROVENANCE: command sequence adapted from DKR's public src/rcp_dkr.c:bgdraw_render. */
 void rcpClearZBuffer(RcpCommand **arg0, u32 arg1, u32 arg2, s32 arg3,
                      s32 arg4, s32 arg5, s32 arg6) {
@@ -401,10 +383,10 @@ void rcpClearZBuffer(RcpCommand **arg0, u32 arg1, u32 arg2, s32 arg3,
 
     if ((D_800D2FAC != 0) && (arg3 < arg5) && (arg4 < arg6)) {
         alignedX1 = arg3 & ~3;
+        dlist = *arg0;
         alignedX2 = (arg5 + 3) & ~3;
         arg3 = alignedX1;
         arg5 = alignedX2;
-        dlist = *arg0;
         RCP_PIPE_SYNC(dlist++);
         gDPSetScissor(dlist++, G_SC_NON_INTERLACE, 0, 0, arg1 - 1,
                       arg2 - 1);
@@ -417,9 +399,6 @@ void rcpClearZBuffer(RcpCommand **arg0, u32 arg1, u32 arg2, s32 arg3,
         *arg0 = dlist;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/rcpClearZBuffer.s")
-#endif
 /* PROVENANCE: display-list command spelling adapted from Diddy Kong Racing's
  * public decomp, src/rcp_dkr.c:bgdraw_render. Mickey's enable flag, helpers,
  * coordinates, and branch structure decide the implementation; JFG supplies
@@ -773,16 +752,6 @@ void func_8002FB34(RcpCommand **arg0, RcpTextureNode *arg1, f32 arg2,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/rcpFast3d/func_8002FB34.s")
 #endif
-
-/* PLATEAU-HANDOFF:rcpClearZBuffer:start
- * symbol: rcpClearZBuffer
- * score: 103/107 words
- * frame: frameless
- * relocations: 2
- * first-mismatch: +0x74
- * summary: ugen temp slots 9-10 are one FIFO pop early; 119 flags and two trace-supported forms are exhausted
- * PLATEAU-HANDOFF:rcpClearZBuffer:end
- */
 
 /* PLATEAU-HANDOFF:func_8002EBE0:start
  * symbol: func_8002EBE0

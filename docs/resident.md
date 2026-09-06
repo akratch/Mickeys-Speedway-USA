@@ -1828,24 +1828,20 @@ configured object ranges and the final linked ROM are byte-exact.
 | `rcpFast3d` | `0x2F400` | 0x2A0 | `-O2 -mips2 -32` | Mickey/JFG task construction; 168/168 instruction words and all relocations exact after metadata-only weak-alias rebinding, linked ROM exact |
 
 `rcpClearZBuffer` owns ROM `0x2FBDC..0x2FD88`, 107 words with no padding before
-`rcpClearScreen`. Fresh configured full-TU V0 is exact-sized and frameless at
-103/107 raw and normalized words, first `+0x74`. The four residual fields are
-one ugen temporary-phase difference: target `t8/t9` versus candidate `t7/t8`
-at temporary slots 9-10. Its HI16/LO16 pair at `+0x00/+0x04` exactly names
-resident BSS `D_800D2FAC`. All 119 flag identities are nonexact; seven
-O2/MIPS-II variants tie V0. A fidelity-clean trace maps this symbol uniquely to
-uopt procedure 6 and records 29 integer plus one FP decision. The current
-producer cannot attribute ugen rows automatically in this mixed TU, while its
-source-line stamps locate the candidate `t7/t8` pops at the two aligned-coordinate
-assignments. Pointer-truth and staged-`alignedX1` forms are byte-identical to
-V0, so no strict-gain combination or generic batch qualified. ORT 765 exports
-the function to Overlay 60 `+0x2194`, Overlay 91 `+0x518`, and Overlay 99
-`+0xC8C`; resident `rcpClearScreen+0x48` is the fourth caller. Exact linked
-range, resident image, and ROM evidence still use the assembly fallback. The
-retained structural scan finds JFG's assembly-only same-name function first at
-0.482 (472 versus 428 bytes), not a C donor. Preserve V0 and resume only with a
-new natural preceding phantom-pop or web-existence mechanism; do not repeat the
-lattice, trace, two flat forms, generic batch, or artificial allocation aids.
+`rcpClearScreen`. Tier A: untouched IDO `-O2 -mips2 -32` C is frameless and
+exact over all 428 owned bytes after linking at its real address. Loading the
+display-list cursor between the two aligned-coordinate assignments closes the
+register-allocation residual without changing guards, command order, or stores.
+The existing fill-cycle macro is available in the ordinary build with its
+replacement text unchanged. Actual IDO preprocessing confirms unchanged
+prepared context; raw compiler and configured full-TU output agree, as do all
+13 neighboring function ranges and the TU's data sections. Both relocations
+(`+0x00` HI16 and `+0x04` LO16) exactly identify resident BSS `D_800D2FAC`.
+The linked owned range and full ROM are byte-identical. JFG supplies the
+existing name and ordered TU correspondence, not a C body; the source retains
+its DKR command-sequence provenance. ORT 765 and the existing callers remain
+unchanged. Earlier nonexact attempts are retained in Git history and ignored
+diagnostic artifacts.
 
 `func_8002EBE0` retains a Mickey-derived `NON_MATCHING` eight-band gradient
 renderer after the 119-combination flag lattice and ten source-shape
