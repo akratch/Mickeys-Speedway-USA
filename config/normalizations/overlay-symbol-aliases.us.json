@@ -149,6 +149,22 @@
       "object": "overlays/o074/overlay74Update.c.o",
       "aliases": [
         {
+          "from": "func_8005776C",
+          "to": "overlay74QueryReloc"
+        },
+        {
+          "from": "func_800291B4",
+          "to": "overlay74HitReloc"
+        },
+        {
+          "from": "amSndPlay",
+          "to": "overlay74SoundReloc"
+        },
+        {
+          "from": "func_8003A680",
+          "to": "overlay74RewardReloc"
+        },
+        {
           "from": "func_overlay_074_F00000B8_18CBD58",
           "to": "overlay74Update"
         }

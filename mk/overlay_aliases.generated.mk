@@ -51,7 +51,12 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o065/overlay65UpdateParticles.c.o: POSTPROCESS 
 	$(OBJCOPY) --redefine-sym func_overlay_065_F0000080_18C42E8=overlay65UpdateParticles $@
 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o074/overlay74Update.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_074_F00000B8_18CBD58=overlay74Update $@
+	$(OBJCOPY) \
+		--redefine-sym amSndPlay=overlay74SoundReloc \
+		--redefine-sym func_800291B4=overlay74HitReloc \
+		--redefine-sym func_8003A680=overlay74RewardReloc \
+		--redefine-sym func_8005776C=overlay74QueryReloc \
+		--redefine-sym func_overlay_074_F00000B8_18CBD58=overlay74Update $@
 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o080/overlay80UpdateContact.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym func_overlay_080_F000011C_18CE9E4=overlay80UpdateContact $@

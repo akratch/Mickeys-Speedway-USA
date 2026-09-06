@@ -14,7 +14,7 @@ typedef struct Overlay74UpdateObject {
     u8 pad08[4];
     f32 x;
     f32 y;
-    s32 z;
+    f32 z;
     u8 pad18[0x4C];
     Overlay74UpdateState *state;
 } Overlay74UpdateObject;
@@ -33,12 +33,12 @@ typedef struct Overlay74HitObject {
 extern u32 gOverlay74Flags;
 
 /* Runtime identities: func_8005776C, func_800291B4, amSndPlay, func_8003A680.
- * Resident call surfaces authenticate these prototypes. */
-s32 overlay74QueryReloc(f32 x, f32 y, s32 z, f32 strength, s32 enabled,
+ * Resident ROM and matched callers authenticate the floating-point z ABI. */
+s32 func_8005776C(f32 x, f32 y, f32 z, f32 strength, s32 enabled,
                         Overlay74HitObject **results);
-void overlay74HitReloc(void);
-void overlay74SoundReloc(u16 soundId, void **handle);
-void overlay74RewardReloc(s32 count);
+void func_800291B4(void);
+void amSndPlay(u16 soundId, void **handle);
+void func_8003A680(s32 count);
 
 /* NON_MATCHING plateau: Mickey's resident ABI evidence and a bounded producer-
  * lifetime reconstruction recover the exact 100-word schedule, 0x60 frame,
@@ -52,7 +52,7 @@ void overlay74RewardReloc(s32 count);
  * frame: 0x60
  * relocations: 8
  * first-mismatch: +0x124
- * summary: Exact frame and register webs; only the commutative OR operand order differs after bounded source forms.
+ * summary: Exact frame and all eight runtime identities; only the commutative OR operand order differs after bounded source forms.
  */
 void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
     Overlay74HitObject *results[13];
@@ -63,7 +63,7 @@ void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
     if (!(object->flags & 0x400)) {
         object->angle += amount << 8;
         state = object->state;
-        if (overlay74QueryReloc(object->x, object->y, object->z,
+        if (func_8005776C(object->x, object->y, object->z,
                                 (f32)state->strength, 1, results) != 0) {
             hitObject = results[0];
             amount = (s32)hitObject->state;
@@ -76,8 +76,8 @@ void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
                     ((((((gOverlay74Flags << 5) >> 28) |
                         (1 << state->channel)) << 1) << 6) & 0x780) |
                     (*(u16 *)&gOverlay74Flags & 0xF87F);
-                overlay74HitReloc();
-                overlay74SoundReloc(0x27C, 0);
+                func_800291B4();
+                amSndPlay(0x27C, 0);
 
                 object = (Overlay74UpdateObject *)5;
                 state = (Overlay74UpdateState *)((gOverlay74Flags << 5) >> 28);
@@ -89,7 +89,7 @@ void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
                     hitObject = (Overlay74HitObject *)((s32)hitObject >> 1);
                 } while (hitObject != NULL);
                 if ((s32)object >= 6) {
-                    overlay74RewardReloc((s32)object);
+                    func_8003A680((s32)object);
                 }
             }
         }
