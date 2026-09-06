@@ -4,7 +4,7 @@
     "func_8002C69C": {
       "source_commit": "ba791ca6e692dbe670334e6d88afd7c3bc72ac64",
       "ledger_commit": "2f3b708ce79a3b56b1bbeacd9d2506500a17c7a7",
-      "reason": "Correct undefined signed shift using unsigned arithmetic and a five-bit count, grounded in Mickey callers and shift semantics. One correctness form only; no allocator, flag or manual matching variants."
+      "reason": "Correct the shift for the authenticated 32-bit writer domain: compare unsigned masked count with unsigned bitCount-minus-one (zero remains a no-op). Two correctness forms maximum; no allocator or flag variants."
     },
     "overlay1InterpolatePath": {
       "source_commit": "9c0b27212ac4d2aa531d4d4d3a2eaee7af1b6f85",
