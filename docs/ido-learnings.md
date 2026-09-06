@@ -67,6 +67,24 @@ bytes and disassembly never belong here.
 
 ### Allocation and source shape
 
+- A swap of two temporary-register roles need not be a FIFO phase error.
+  Final scheduling can hide which expression requested each temporary first.
+  Faithful stock/trace-off/trace-on controls and unchanged stock pass replay
+  showed identical FIFO initialization and return sequences, but different
+  expression-to-return assignments. Moving an unused cursor offset from a
+  call-result initializer into an existing nonempty-range arm put the bounds
+  demand before the index-scale demand in both pre- and post-optimization
+  streams and closed the register-only residual. Inspect demand order before
+  adding a phantom allocation or pursuing colored-register changes. Preserve
+  the unconditional helper call, output writes and all observable accesses;
+  postpone arithmetic only when it is unused on the excluded path and defined
+  on the retained path. This is not proof of the target's original source or
+  compiler trace, nor a claim that the intermediate streams differ only by
+  ordering. Exact output still depended on retained predicate grouping; an
+  unused declaration and equivalent relational spelling were independent flat
+  controls. Evidence: the matched record lookup in
+  `src/overlays/o001/overlay_001.c`, with its exact mixed-TU and linked-ROM range
+  recorded in the overlay atlas and remaining spelling in the cleanup queue.
 - Instruction order inside a basic block is decided by `as1`'s list
   scheduler, not by `ugen`, and among ready instructions it prefers the
   lower source line stamped on each emitted record. A loop-invariant that
