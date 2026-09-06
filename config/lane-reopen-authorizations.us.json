@@ -1,6 +1,11 @@
 {
   "schema_version": 1,
   "authorizations": {
+    "overlay1FindType5ByKey": {
+      "source_commit": "5335012b90a9c889dedcf2f645d91df5d7e1417b",
+      "ledger_commit": "09d3de7200c79672cbb0d7a625d1dc391e8ea2f1",
+      "reason": "ADR0017 causal packet: isolate unused declaration inventory, used type-predicate carrier and loop spelling in faithful four-word diagnostic. At most ten hypotheses in 70 minutes; unchanged flags, ABI and full-TU context; no generic sweep."
+    },
     "func_8002C69C": {
       "source_commit": "ba791ca6e692dbe670334e6d88afd7c3bc72ac64",
       "ledger_commit": "2f3b708ce79a3b56b1bbeacd9d2506500a17c7a7",
