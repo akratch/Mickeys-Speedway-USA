@@ -449,7 +449,9 @@ def augment_effective_identity(
             "effective_identity_alignment_count": effective_count,
             "effective_identity_exact": effective_count == target_count,
             "identity_proof_mode": (
-                "static"
+                "raw-static-with-declared-metadata-filters"
+                if linked_exact and result.get("declared_metadata_proof") is not None
+                else "static"
                 if result.get("stable_identity_exact") is True
                 else "static-plus-runtime-table-and-linked-rom"
                 if linked_exact

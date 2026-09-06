@@ -21,6 +21,7 @@ import dataclasses
 import hashlib
 import json
 import re
+import shlex
 import subprocess
 import sys
 import time
@@ -54,6 +55,7 @@ import proof_provenance as pp  # noqa: E402
 import postprocess_audit as pa  # noqa: E402
 import reloc_identity as ri  # noqa: E402
 import reloc_surface as rs  # noqa: E402
+_LOADED_FILTER_PROOF = pp.sha256_file(Path(__file__))
 
 
 class PreflightError(RuntimeError):
@@ -2197,6 +2199,13 @@ def _require_tracked_geometry(
         )
 
 
+def _original_static_surface(comparison):
+    """Keep configured counts literal; select explicitly authenticated raw evidence."""
+    if comparison.get("declared_metadata_proof") is not None:
+        return comparison["original_raw_comparison"]
+    return comparison
+
+
 def _require_static_relocation_evidence(
     resolution: Resolution, comparison: dict[str, object]
 ) -> None:
@@ -2209,6 +2218,7 @@ def _require_static_relocation_evidence(
     ROM oracle proves the final bytes. This is the same limitation reported by
     the post-promotion human/JSON output, not permission for a candidate lane.
     """
+    comparison = _original_static_surface(comparison)
     candidate_count = int(comparison["candidate_record_count"])
     resolved_count = int(comparison["candidate_identity_resolved_count"])
     if resolution.resolution_mode != "post_promotion":
@@ -2233,6 +2243,8 @@ def _preflight_evidence_status(
 ) -> dict[str, object]:
     """Summarize complete or partial evidence without inventing identities."""
 
+    configured_comparison = comparison
+    comparison = _original_static_surface(comparison)
     candidate_count = int(comparison["candidate_record_count"])
     resolved_count = int(comparison["candidate_identity_resolved_count"])
     target_count = int(comparison["target_record_count"])
@@ -2300,6 +2312,10 @@ def _preflight_evidence_status(
         "candidate_identities_unresolved": unresolved_count,
     }
     diagnostics: list[dict[str, object]] = []
+    if configured_comparison.get("declared_metadata_proof") is not None:
+        counts["candidate_static_relocations"] = configured_comparison["candidate_record_count"]
+        counts["original_raw_static_relocations"] = candidate_count
+        counts["declared_removed_relocations"] = len(configured_comparison["declared_metadata_proof"]["filtered"])
     if unresolved_count:
         diagnostics.append(
             {
@@ -2353,6 +2369,10 @@ def _augment_runtime_identity_evidence(
     resolution instead of either under-counting the proof or pretending the
     object names were more informative than they are.
     """
+    configured_comparison = comparison
+    comparison = dict(_original_static_surface(comparison))
+    if configured_comparison.get("declared_metadata_proof") is not None:
+        comparison["declared_metadata_proof"] = configured_comparison["declared_metadata_proof"]
     target_count = int(comparison["target_record_count"])
     linked_exact = (
         resolution.resolution_mode == "post_promotion"
@@ -2361,7 +2381,14 @@ def _augment_runtime_identity_evidence(
         and workbench.get("differing_words") == 0
         and workbench.get("target_words") == workbench.get("candidate_words")
     )
-    return ri.augment_effective_identity(comparison, linked_exact=linked_exact)
+    result = ri.augment_effective_identity(comparison, linked_exact=linked_exact)
+    if configured_comparison.get("declared_metadata_proof") is None:
+        return result
+    result.pop("declared_metadata_proof")
+    return dict(configured_comparison, original_raw_comparison=result,
+                identity_proof_mode=result["identity_proof_mode"],
+                effective_identity_exact=result["effective_identity_exact"],
+                effective_identity_alignment_count=result["effective_identity_alignment_count"])
 
 
 def _candidate_redefine_aliases(candidate_object: Path) -> dict[str, str]:
@@ -2515,6 +2542,67 @@ def _surface_error_diagnostic(
     return original
 
 
+def _declared_filter_comparison(resolution, comparison, context, records, target_elf, linked_name):
+    """Compose fresh raw proof with exact declared metadata removal, never missing guessed sites."""
+    if (resolution.resolution_mode != "post_promotion" or context["kind"] != "overlay"
+            or comparison.get("offset_type_exact") is True):
+        return comparison, None
+    command = pa.postprocess_commands(pa.run_make_database()).get(_relative(resolution.candidate_object), "")
+    if "filter_elf_relocations.py" not in command:
+        return comparison, None
+    if pp.sha256_file(Path(__file__)) != _LOADED_FILTER_PROOF:
+        raise PreflightError("loaded filter-proof integration changed")
+    try:
+        raw_path, plan, receipt, current_context = pp.capture_configured_raw(
+            REPO, resolution.source, resolution.candidate_object, TARGET_ELF, command)
+        raw, configured = rs.Elf(raw_path), rs.Elf(resolution.candidate_object)
+        accounting = pp.validate_metadata_objects(raw, configured, plan, resolution.candidate_symbol)
+        raw_comparison = rs.function_surface_comparison(
+            resolution.requested_symbol, raw_path, TARGET_ELF, rom_path=ROM, atlas_path=ATLAS,
+            values_path=ALIASES, candidate_symbol=resolution.candidate_symbol,
+            target_symbol=linked_name, source=resolution.translation_unit)
+        total = len(records)
+        removed = {(row["offset"], row["rtype"]) for row in accounting["filtered"]}
+        unresolved = {(row["offset"], row["rtype"]) for row in raw_comparison["candidate_identity_unresolved_records"]}
+        if (raw_comparison["candidate_record_count"] != total or not raw_comparison["offset_type_exact"]
+                or not unresolved <= removed or raw_comparison["stable_identity_alignment_count"] != total - len(unresolved)
+                or accounting["retained_count"] != comparison["candidate_record_count"]):
+            raise pp.MetadataProofError("raw compiler relocation surface is not exact outside declared filters")
+        if any(row["symbol"] != ".bss" or row["rtype"] not in (5, 6) for row in accounting["filtered"]):
+            raise pp.MetadataProofError("unsupported filtered runtime identity; only canonical BSS HI/LO is accounted")
+        overlay = context["overlay"]
+        module = ot.build_modules(ot.read_headers(ROM.read_bytes()))[overlay - 1]
+        identity = pp.linked_bss_base(raw, configured, target_elf, overlay,
+                                     module["text_size"] + module["data_size"], module["bss_size"])
+        bss_records = rs._candidate_surface_records(raw, accounting["start"], accounting["size"], records,
+                                                   {".bss": identity}, {}, set(), overlay)
+        expected = {(row.offset, row.rtype): row.identity for row in records}
+        proved = {(row.offset, row.rtype): row.identity for row in bss_records}
+        if any(proved.get(key) is None or proved.get(key) != expected.get(key) for key in removed):
+            raise pp.MetadataProofError("filtered BSS raw addend disagrees with canonical/runtime identity")
+        if receipt["inputs"] != current_context() or receipt["raw_sha256"] != pp.sha256_file(raw_path):
+            raise pp.MetadataProofError("raw proof inputs or object changed during validation")
+        receipt.update(accounting)
+        receipt["filtered_identities"] = [{"offset": offset, "rtype": kind, "identity": proved[(offset, kind)]}
+                                           for offset, kind in sorted(removed)]
+        receipt["source_selection"] = pp.classify_source_selection(
+            resolution.source.read_text(), candidate_symbol=resolution.candidate_symbol,
+            target_symbol=resolution.target_symbol,
+            defines={token[2:].split("=", 1)[0] for token in shlex.split(receipt["inputs"]["command"])
+                     if token.startswith("-D") and len(token) > 2})[0]
+        if receipt["source_selection"] != pp.ORDINARY_C:
+            raise pp.MetadataProofError("raw proof does not select ordinary C")
+        (REPO / receipt["directory"] / "proof.json").write_text(json.dumps(receipt, sort_keys=True, indent=2))
+        raw_comparison.update(candidate_identity_resolved_count=total,
+                              candidate_identity_unresolved_records=[], stable_identity_alignment_count=total,
+                              stable_identity_exact=True,
+                              candidate_surface_source="fresh-raw-before-declared-metadata")
+        return dict(comparison, original_raw_comparison=raw_comparison,
+                    declared_metadata_proof=receipt), (receipt, current_context)
+    except (pp.MetadataProofError, OSError, ValueError, RuntimeError) as error:
+        raise PreflightError("declared metadata accounting failed: " + str(error)) from error
+
+
 def collect(resolution: Resolution) -> dict[str, object]:
     for path, label in (
         (TARGET_ELF, "canonical linked ELF"),
@@ -2561,6 +2649,8 @@ def collect(resolution: Resolution) -> dict[str, object]:
                 error, resolution, atlas, target_value, target_size
             )
         ) from error
+    comparison, filter_binding = _declared_filter_comparison(
+        resolution, comparison, context, runtime_records, target_elf, linked_name)
     relocation_evidence = _relocation_evidence(
         resolution,
         context,
@@ -2573,6 +2663,12 @@ def collect(resolution: Resolution) -> dict[str, object]:
     )
     inbound = _inbound_references(context, rom)
     workbench = _workbench(resolution)
+    if filter_binding is not None:
+        receipt, current_context = filter_binding
+        if (pp.sha256_file(Path(__file__)) != _LOADED_FILTER_PROOF
+                or receipt["inputs"] != current_context()
+                or receipt["raw_sha256"] != pp.sha256_file(REPO / receipt["raw_object"])):
+            raise PreflightError("declared metadata proof became stale before linked comparison")
     comparison = _augment_runtime_identity_evidence(
         resolution, comparison, workbench
     )

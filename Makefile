@@ -348,6 +348,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_reloc_identity.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_reloc_surface.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_proof_provenance.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_metadata_filter_proof.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_history.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_preflight.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_canonical_candidate_guard.py

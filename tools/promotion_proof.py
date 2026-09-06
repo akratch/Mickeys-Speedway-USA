@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -130,6 +131,13 @@ def validate_report(symbol: str, report: dict[str, object]) -> dict[str, object]
     relocation = report.get("relocation_comparison")
     if not isinstance(relocation, dict):
         raise ProofError("preflight report lacks relocation comparison evidence")
+    configured_relocations = _integer(relocation.get("candidate_record_count"), "candidate_record_count")
+    metadata = relocation.get("declared_metadata_proof")
+    if metadata is not None:
+        original = relocation.get("original_raw_comparison")
+        if not isinstance(original, dict) or relocation.get("identity_proof_mode") != "raw-static-with-declared-metadata-filters":
+            raise ProofError("missing original raw relocation evidence")
+        relocation = dict(original, declared_metadata_proof=metadata)
     target_relocations = _integer(
         relocation.get("target_record_count"), "target_record_count"
     )
@@ -157,8 +165,47 @@ def validate_report(symbol: str, report: dict[str, object]) -> dict[str, object]
         )
 
     identity_mode = relocation.get("identity_proof_mode")
-    if identity_mode not in {"static", "static-plus-runtime-table-and-linked-rom"}:
+    if identity_mode not in {"static", "static-plus-runtime-table-and-linked-rom", "raw-static-with-declared-metadata-filters"}:
         raise ProofError(f"unexpected relocation identity proof mode: {identity_mode!r}")
+    metadata = relocation.get("declared_metadata_proof")
+    if identity_mode == "raw-static-with-declared-metadata-filters":
+        if not isinstance(metadata, dict) or metadata.get("schema") != "mickey-declared-metadata-proof-v1":
+            raise ProofError("missing declared metadata accounting receipt")
+        raw_count = _integer(metadata.get("raw_count"), "raw_count")
+        retained = _integer(metadata.get("retained_count"), "retained_count")
+        removed = metadata.get("filtered")
+        if (not isinstance(removed, list) or not removed or raw_count != target_relocations
+                or retained != configured_relocations
+                or retained + len(removed) != raw_count or metadata.get("source_selection") != "ordinary_c"):
+            raise ProofError("declared metadata accounting counts/source are inconsistent")
+        identities = metadata.get("filtered_identities")
+        if not isinstance(identities, list) or len(identities) != len(removed):
+            raise ProofError("missing independent filtered identities")
+        keys = []
+        for row in removed:
+            if (not isinstance(row, dict) or row.get("symbol") != ".bss"
+                    or type(row.get("offset")) is not int or row["offset"] < 0
+                    or row["offset"] % 4 or row["offset"] >= target_words * 4
+                    or row.get("rtype") not in (5, 6)):
+                raise ProofError("malformed declared filter site")
+            keys.append((row["offset"], row["rtype"]))
+        identity_keys = []
+        for row in identities:
+            identity = row.get("identity") if isinstance(row, dict) else None
+            if (not isinstance(identity, (list, tuple)) or len(identity) != 2
+                    or any(type(value) is not int or value < 0 for value in identity)):
+                raise ProofError("malformed independently proved filter identity")
+            identity_keys.append((row.get("offset"), row.get("rtype")))
+        if len(set(keys)) != len(keys) or sorted(keys) != sorted(identity_keys):
+            raise ProofError("filtered identity sites disagree with declared removals")
+        inputs = metadata.get("inputs")
+        if not isinstance(inputs, dict) or not inputs.get("command") or not inputs.get("postprocess"):
+            raise ProofError("missing fresh compiler/metadata binding")
+        for field in ("raw_sha256", "configured_sha256", "linked_sha256"):
+            if not isinstance(metadata.get(field), str) or not re.fullmatch(r"[0-9a-f]{64}", metadata[field]):
+                raise ProofError("missing fresh object binding")
+        if inputs.get("configured") != metadata["configured_sha256"] or inputs.get("linked") != metadata["linked_sha256"]:
+            raise ProofError("fresh configured/linked binding disagrees")
 
     candidate_symbol = report.get("candidate_symbol")
     linked_symbol = report.get("linked_symbol")
@@ -177,7 +224,9 @@ def validate_report(symbol: str, report: dict[str, object]) -> dict[str, object]
         "exact_words": target_words,
         "frame_size": target_frame,
         "exact_relocations": target_relocations,
+        "configured_relocations": configured_relocations,
         "identity_proof_mode": identity_mode,
+        "declared_metadata_proof": metadata,
         "canonical_commands": [],
         "verdict": "exact",
     }
