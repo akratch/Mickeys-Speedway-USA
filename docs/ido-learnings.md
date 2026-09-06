@@ -122,6 +122,18 @@ bytes and disassembly never belong here.
   so a bound kept in a local born before the count global is issued first;
   spelling the bound inline in the loop test hoists it after the count
   (`func_overlay_014_F0000000_186F8D8`).
+- An existing nonvolatile cursor load can affect a temporary-register residual
+  through source order alone. Moving the once-only load between two independent
+  coordinate assignments made stock full-TU IDO output exact without changing
+  command order or stores. For this symptom, consider moving the existing load
+  across pure local or by-value parameter assignments; preserve its guard and
+  reject crossings involving aliasing writes, calls, volatile access, or escaped
+  locals. Keep arithmetic and its defined-input domain unchanged, including
+  signed-overflow limits; do not add a read or broaden when it executes. This
+  proves source-order sensitivity, not a new internal ugen phase mechanism.
+  Require unchanged declarations and exact ordinary code, relocation identities,
+  linked bytes, and full ROM. Evidence: the exact resident clear-buffer closure
+  in `docs/resident.md`.
 - Declaration order can determine stack-home order for call-crossing locals.
   When the operation sequence is exact but spill offsets differ, reorder
   semantically independent declarations before inventing extra state.
