@@ -8,7 +8,12 @@ It inserts the vendor's existing `sameline` pragmas only in the selected
 function's scratch AST; both importer emission and initial candidate emission
 retain the grouping. Canonical source and the shared vendor checkout are not
 edited. Consecutive single-line simple statements and a simple statement before
-a same-line braced `do`/`if` opener are supported. Ambiguous coordinates,
+a same-line braced `do`/`if` opener are supported. A complete standalone block
+whose unique opening brace, declarations, simple statements and closing brace
+all occupy one physical preprocessed line is also preserved as one group.
+Markers surround the existing block; declaration scope and expressions are not
+rewritten. Partial compound openers, ambiguous multiple braces, and unsupported
+control-owned blocks still require measurement. Ambiguous coordinates,
 overlapping multiline statements, conflicting pragmas and unsupported grouped
 control shapes retain the unchanged original AST and request actual fidelity
 measurement rather than joining an entire function or guessing a mismatch.

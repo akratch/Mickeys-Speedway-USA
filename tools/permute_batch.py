@@ -1469,17 +1469,18 @@ def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
             raise ValueError(f"source grouping has ambiguous line coordinates: {result!r}")
         return result
 
+    def single_line(node, line):
+        if isinstance(node, (nodes.Typename, nodes.TypeDecl)) and (
+                node.coord is None or node.coord.line == 0):
+            return bool(node.children()) and all(single_line(c, line) for _, c in node.children())
+        return key(node) == line and all(single_line(c, line) for _, c in node.children())
+
     def simple(node, line):
         if not isinstance(node, (nodes.Assignment, nodes.FuncCall, nodes.UnaryOp,
                                  nodes.Return, nodes.Break, nodes.Continue,
                                  nodes.EmptyStatement)):
             return False
-        def single(n):
-            if isinstance(n, (nodes.Typename, nodes.TypeDecl)) and (
-                    n.coord is None or n.coord.line == 0):
-                return bool(n.children()) and all(single(c) for _, c in n.children())
-            return key(n) == line and all(single(c) for _, c in n.children())
-        return single(node)
+        return single_line(node, line)
 
     # Compound coordinates mark only the opening brace. Retain lexical closing
     # lines too, so `} next_statement;` cannot disappear from group detection.
@@ -1507,10 +1508,34 @@ def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
             column = token.start() - lexical.rfind("\n", 0, token.start())
             statement_ends.setdefault(physical_line, []).append(column)
 
+    inline_compounds = set()
+
+    def whole_line_compound(node):
+        line = key(node)
+        physical = locations[line][0]
+        # The vendor parser records compound column 1, not the brace column.
+        # Require a unique physical opener instead of inventing a column map.
+        candidates = openings.get(physical, [])
+        return (len(candidates) == 1 and closing.get(candidates[0]) == physical
+                and bool(node.block_items)
+                and all((simple(item, line) or isinstance(item, nodes.Decl)
+                         and single_line(item, line)) for item in node.block_items))
+
+    def groupable(node, line):
+        return id(node) in inline_compounds or simple(node, line)
+
     groups = []
-    def walk(node):
+    def walk(node, parent=None):
         if isinstance(node, nodes.Pragma) and "_permuter" in node.string:
             raise ValueError("preexisting permuter pragma in selected function")
+        # A macro-expanded standalone block may include declarations and its
+        # closing brace on one physical line. Wrap the entire existing block
+        # from its parent's statement list; its lexical scope stays intact.
+        # Partial openers and control-owned bodies still request measurement.
+        if (isinstance(node, nodes.Compound) and isinstance(parent, nodes.Compound)
+                and whole_line_compound(node)):
+            inline_compounds.add(id(node))
+            return
         # Groups spanning a control/label boundary are not sibling runs. Do
         # not silently classify their original layout as ungrouped merely
         # because the generator will move the child to a different line.
@@ -1528,7 +1553,7 @@ def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
                     key(a) == key(b) for a, b in zip(statements, statements[1:])):
                 raise ValueError("unsupported same-line case group")
         for _, child in list(node.children()):
-            walk(child)
+            walk(child, node)
         if not isinstance(node, nodes.Compound):
             return
         items = node.block_items or []
@@ -1563,15 +1588,15 @@ def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
             end = i + 1
             while end < len(items) and key(items[end]) == line:
                 end += 1
-            if end == i + 1:
+            if end == i + 1 and id(first) not in inline_compounds:
                 output.append(first)
                 i = end
                 continue
             batch = items[i:end]
             tail = batch[-1]
             inner = None
-            if not all(simple(n, line) for n in batch):
-                if (not all(simple(n, line) for n in batch[:-1])
+            if not all(groupable(n, line) for n in batch):
+                if (not all(groupable(n, line) for n in batch[:-1])
                         or not isinstance(tail, (nodes.DoWhile, nodes.If))):
                     raise ValueError("unsupported same-line statement group")
                 inner = tail.stmt if isinstance(tail, nodes.DoWhile) else tail.iftrue
@@ -1592,7 +1617,8 @@ def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
             else:
                 inner.block_items.insert(0, stop)
             groups.append({"line": line[1], "statements": len(batch),
-                           "control": type(tail).__name__ if inner else None})
+                           "control": (type(tail).__name__ if inner else
+                                       "Compound" if any(id(n) in inline_compounds for n in batch) else None)})
             i = end
         node.block_items = output
     walk(functions[0].body)
