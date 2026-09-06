@@ -1,5 +1,37 @@
 # tools/permute_batch.py: batch-running the permuter over the NON_MATCHING queue
 
+### Original source statement groups
+
+The importer adapter preserves supported same-line statement groups from the
+original preprocessed parser coordinates, before pruning or AST serialization.
+It inserts the vendor's existing `sameline` pragmas only in the selected
+function's scratch AST; both importer emission and initial candidate emission
+retain the grouping. Canonical source and the shared vendor checkout are not
+edited. Consecutive single-line simple statements and a simple statement before
+a same-line braced `do`/`if` opener are supported. Ambiguous coordinates,
+overlapping multiline statements, conflicting pragmas and unsupported grouped
+control shapes retain the unchanged original AST and request actual fidelity
+measurement rather than joining an entire function or guessing a mismatch.
+
+The preparation contract is explicitly included in receipt identity. A grouped
+target additionally runs a compile-only initial candidate emission
+before either search or receipt reuse. It must reproduce a freshly rebuilt
+full-TU function's complete instruction fields and exact relocation
+count/type/offset correspondence. The comparison uses authenticated runtime
+identities when available; otherwise it recompiles the exact initially emitted
+source through this run's original importer recipe, before scratch aliases, and
+compares unique undefined/absolute source symbols with their type, binding and
+decoded REL addends. This second route proves source fidelity, not target runtime
+identity or a match. Defined/section-local symbols without an independent
+identity witness remain unverifiable. Only relocation address fields are
+normalized; register fields are not. Both raw objects, the original-coordinate
+plan, compiler capture and comparison report remain under the ignored run
+directory and are retained with attempt artifacts. A failed gate never starts
+a search or promotes a candidate. Unsupported layout and overlay ownership
+therefore require measurement, not a blanket syntax-based refusal. Ungrouped
+targets do not incur this extra gate. Tool-key changes alone are not
+authorization to repeat a previously flat equivalent campaign.
+
 `docs/adr/0007-matching-tools.md` requires decomp-permuter to run only as a
 **bounded batch job**, never inside an agent's own reasoning loop. This tool
 is that job runner: it enumerates every queued `NON_MATCHING` function,
