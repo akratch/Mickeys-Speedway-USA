@@ -210,8 +210,12 @@ comparison, both the full-TU object and canonical linked ELF must be current
 according to Make's real dependency graph. Preflight also checks the root
 Makefile and checked-in policy/normalization fragments explicitly, because
 Make does not age an output merely because its recipe changed. Ordinary
-preflight refreshes missing or stale artifacts with separate low-priority,
-two-job split and target invocations. When recipe/policy timestamp drift is
+preflight refreshes missing or stale artifacts with separate low-priority
+split and target invocations. Their job count defaults to the machine's CPU
+count (one if unavailable), following ADR 0004. Set `MICKEY_BUILD_JOBS` to a
+positive decimal integer for an explicit workstation or crew limit; malformed
+values fail before a build starts. Both phases use the same resolved count.
+When recipe/policy timestamp drift is
 detected, the target phase uses Make's always-build mode so old objects cannot
 survive the changed recipe. `--no-build` instead fails closed with an
 actionable diagnosis. The command also fails when an alias, source, range, or
