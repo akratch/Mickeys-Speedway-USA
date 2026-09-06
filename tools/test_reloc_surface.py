@@ -2401,6 +2401,19 @@ class GeneratedCrossOverlayCIdentityTests(unittest.TestCase):
                 rs._stable_overlay_call_identities(root/'missing',caller,1,linked,
                     atlas,0,4,root=root,elf_loader=change_recipe,rom=bytes(0x140))
 
+    def test_newer_normalization_spec_invalidates_callee_object(self):
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td);args=self.fixture(root)
+            obj=args[5]
+            spec=root/'config/normalizations/callee.rebind.spec'
+            spec.parent.mkdir(parents=True)
+            spec.write_text('synthetic metadata dependency\n')
+            os.utime(spec,ns=(obj.stat().st_mtime_ns-2000000,)*2)
+            self.assertEqual({self.NAME:(8,16)},self.resolve(root,*args))
+            spec.write_text('changed synthetic metadata dependency\n')
+            os.utime(spec,ns=(obj.stat().st_mtime_ns+1000000,)*2)
+            self.assertEqual({},self.resolve(root,*args))
+
 
 if __name__ == "__main__":
     unittest.main()

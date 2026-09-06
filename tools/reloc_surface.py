@@ -1652,7 +1652,9 @@ def _callee_build_dependencies(root, source_path, source_text):
     dependencies = set(path for path in (root / "include").rglob("*")
                        if path.is_file())
     dependencies.update(path for path in (root / "mk").rglob("*.mk") if path.is_file())
-    dependencies.update(path for path in (root / "config/normalizations").rglob("*.json")
+    # Rebind/filter specs are build inputs too; their suffix is not uniformly
+    # JSON and editing them need not alter the expanded command string.
+    dependencies.update(path for path in (root / "config/normalizations").rglob("*")
                         if path.is_file())
     dependencies.update(path for path in (root / "tools/ido").rglob("*")
                         if path.is_file())
