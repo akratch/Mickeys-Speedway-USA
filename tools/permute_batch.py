@@ -2558,12 +2558,24 @@ SEED_FIDELITY_CONTRACT = "mickey-seed-emission-v1"
 
 def group_seed_source(source, symbol):
     """Reconstruct consumed emission markers from immutable seed coordinates."""
+    import candidate_context
     sys.path.insert(0, str(PERMUTER_DIR))
     from src import ast_util
     from perm_pycparser import c_ast
-    text = source.decode("utf-8")
+    text, definitions, macro_rows = candidate_context.inactive_seed_prelude(source)
     ast = ast_util.parse_c(text, from_import=True)
     ast, plan = prepare_source_groups(ast, text, symbol, c_ast)
+    if definitions:
+        # Add carriage only AFTER grouping at the original physical coordinates.
+        # Candidate reparses these pragmas; to_c restores the full definitions.
+        prelude = ("#pragma _permuter latedefine start\n"
+                   + "".join("#pragma _permuter " + value + "\n" for value in definitions)
+                   + "#pragma _permuter latedefine end\n")
+        ast.ext[:0] = ast_util.parse_c(prelude, from_import=True).ext
+        plan["inactive_macro_prelude"] = {
+            "source_sha256": hashlib.sha256(source).hexdigest(),
+            "definitions": macro_rows,
+        }
     # Do NOT call to_c: that consumes sameline pragmas before Candidate reparses.
     return ast_util.to_c_raw(ast).encode(), plan
 

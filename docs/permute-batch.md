@@ -302,6 +302,14 @@ even an unexpected zero refuses before search. Saved winner emission consumes
 sameline markers, so seed preparation reconstructs supported groups from the
 immutable seed's original coordinates and retains marker-bearing scratch source
 and its plan separately. Debug and search use the same frozen prepared bytes.
+Unused leading macro definitions in a saved compiler input use the existing
+vendor `latedefine` pragma carriage: grouping first uses the original physical C
+coordinates, and emission restores every ordered definition. The reviewed
+context validator rejects active uses, duplicate/late definitions, conditionals,
+includes and ambiguous preprocessing. Macro-bearing C continuations outside the
+prelude refuse rather than guess coordinates. The original source hash and full
+ordered definition hashes are retained in the already hash-bound seed plan;
+this does not relax the mandatory compiled source/object fidelity checks.
 Before search, a direct current-recipe compilation of the original seed must
 agree with actual debug emission in every owned instruction field and complete
 relocation identity correspondence, not merely score. Unsupported grouping is

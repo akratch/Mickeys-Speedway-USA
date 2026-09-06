@@ -19,6 +19,102 @@ from perm_pycparser import c_ast
 
 
 class SourceGroups(unittest.TestCase):
+    def emit_seed(self, source):
+        prepared, plan = pb.group_seed_source(source, "f")
+        ast = ast_util.parse_c(prepared.decode())
+        function, _ = ast_util.extract_fn(ast, "f")
+        ast_util.normalize_ast(function, ast)
+        return prepared, plan, ast_util.to_c(ast).encode()
+
+    def test_inactive_seed_macros_survive_vendor_parse_and_two_emissions(self):
+        import candidate_context as context
+        source = (b"#define JOIN(a,b) a ## b\n#define UNUSED 7\n"
+                  b"void f(void) {\n int x;\n x=0; do {\n x++;\n } while(x<2);\n}\n")
+        prepared, plan, emitted = self.emit_seed(source)
+        self.assertNotIn(b"#define", prepared)
+        self.assertIn(b"#pragma _permuter latedefine start", prepared)
+        self.assertEqual(plan["status"], "preserved")
+        self.assertEqual(plan["inactive_macro_prelude"]["source_sha256"], hashlib.sha256(source).hexdigest())
+        self.assertEqual(len(plan["inactive_macro_prelude"]["definitions"]), 2)
+        self.assertIn(b"x = 0; do {", emitted)
+        self.assertIn(b"#define JOIN(a,b) a ## b", emitted)
+        self.assertEqual(context.compare_context(source, emitted, "f")["status"], "unchanged")
+        _, _, second = self.emit_seed(emitted)
+        self.assertEqual(context.compare_context(emitted, second, "f")["status"], "unchanged")
+
+    def test_seed_macro_prelude_keeps_physical_group_coordinates(self):
+        import candidate_context as context
+        source = b"#define UNUSED(a) \\\n ((a)+1)\nvoid f(void) {\n int x;\n x=0; x++;\n}\n"
+        text, definitions, _ = context.inactive_seed_prelude(source)
+        self.assertEqual(text.count("\n"), source.count(b"\n"))
+        self.assertEqual(text.index("void"), source.index(b"void"))
+        self.assertEqual(definitions, ["define UNUSED(a)  ((a)+1)"])
+        _, plan, emitted = self.emit_seed(source)
+        self.assertEqual(plan["groups"][0]["line"], 5)
+        self.assertIn(b"x = 0; x++;", emitted)
+        self.assertEqual(context.compare_context(source, emitted, "f")["status"], "unchanged")
+
+    def test_inactive_seed_macro_comments_literals_and_line_endings(self):
+        import candidate_context as context
+        for newline in (b"\n", b"\r\n"):
+            source = newline.join((b'#define UNUSED /* note */ "x"',
+                b'void f(void) {', b' const char *s = "UNUSED // not a use";',
+                b' int x; /* UNUSED */ x=0; x++;', b'}', b''))
+            _, _, emitted = self.emit_seed(source)
+            self.assertEqual(context.compare_context(source, emitted, "f")["status"], "unchanged")
+
+    def test_seed_macro_vt_ff_do_not_create_directive_boundaries(self):
+        import candidate_context as context
+        for space in (b"\v", b"\f"):
+            source = b"#define UNUSED 1" + space + b" + 2\nvoid f(void) { return; }\n"
+            _, _, emitted = self.emit_seed(source)
+            self.assertEqual(context.compare_context(source, emitted, "f")["status"], "unchanged")
+            with self.assertRaises(Exception):
+                self.emit_seed(b"#define UNUSED 1" + space + b"int secret;\nvoid f(void) { UNUSED; }\n")
+
+    def test_seed_macro_unsafe_preprocessing_refuses_before_emission(self):
+        samples = [
+            b"#define M 1\nvoid f(void) { M; }\n",
+            b"int x;\n#define M 1\nvoid f(void) {}\n",
+            b"#define M 1\n#define M 1\nvoid f(void) {}\n",
+            b"#if 0\n#define M 1\n#endif\nvoid f(void) {}\n",
+            b"#define M 1\n#undef M\nvoid f(void) {}\n",
+            b"#define M 1\n#include \"x.h\"\nvoid f(void) {}\n",
+            b"void f(void) {\n#define M 1\n}\n",
+            b"#define M 1\n#pragma M\nvoid f(void) {}\n",
+            b"#define M 1 /* cross\nline */\nvoid f(void) {}\n",
+            b"#define M 1\nvoid f(void) { int x = __LINE__; }\n",
+            b"#define M 1\nvoid f(void) { \\\n return; }\n",
+            b"#define M 1\\ \nvoid f(void) {}\n",
+            b"#define M 1\n#line 50\nvoid f(void) {}\n",
+            b"#define M 1\n# 50 \"x.c\"\nvoid f(void) {}\n",
+            b"#define M 1\n#pragma _permuter latedefine start\nvoid f(void) {}\n",
+            b"#define M 1\n#pragma _permuter b64literal I2RlZmluZSBYIDE=\nvoid f(void) {}\n",
+        ]
+        for source in samples:
+            with self.subTest(source=source), self.assertRaises(Exception):
+                self.emit_seed(source)
+
+    def test_macro_seed_plan_and_definitions_remain_hash_bound(self):
+        source = b"#define UNUSED 1\nvoid f(void) { return; }\n"
+        prepared, plan = pb.group_seed_source(source, "f")
+        raw = json.dumps(plan).encode()
+        baseline = {"seed/prepared.c": prepared, "seed/plan.json": raw}
+        identity = {"preparation_contract": pb.SEED_FIDELITY_CONTRACT,
+            "source_sha256": hashlib.sha256(source).hexdigest(),
+            "prepared_source_sha256": hashlib.sha256(prepared).hexdigest(),
+            "plan_sha256": hashlib.sha256(raw).hexdigest()}
+        item = SimpleNamespace(func="f")
+        inputs = {"search": {"seed": identity}}
+        pb.validate_seed_layout(item, baseline, inputs, source)
+        plan["inactive_macro_prelude"]["definitions"][0]["sha256"] = "0" * 64
+        changed = dict(baseline, **{"seed/plan.json": json.dumps(plan).encode()})
+        with self.assertRaisesRegex(RuntimeError, "layout"):
+            pb.validate_seed_layout(item, changed, inputs, source)
+        changed = dict(baseline, **{"seed/prepared.c": prepared.replace(b"UNUSED 1", b"UNUSED 2")})
+        with self.assertRaisesRegex(RuntimeError, "layout"):
+            pb.validate_seed_layout(item, changed, inputs, source)
+
     def test_saved_seed_reconstructs_consumed_markers_for_both_emissions(self):
         source = b"void f(void) {\n int x;\n x=0; do {\n x++;\n } while(x<2);\n}\n"
         prepared, plan = pb.group_seed_source(source, "f")
