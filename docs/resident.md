@@ -679,10 +679,10 @@ part's cache comparison, so it was rejected.
 `func_80020D8C` owns ROM `0x2198C..0x21A4C`, 48 words with no padding before
 `func_80020E4C`. Policy-clean configured full-TU C has its exact 48-word body,
 frame `0x8`, and zero relocations, with 31/48 raw and normalized words matching
-and first mismatch `+0x38`. All seventeen residuals are ugen temp-FIFO register
-assignments. All 119 flag combinations were attempted; canonical `-O2 -mips2`
-ties for best, and a fidelity-clean ugen trace confirms the temporary allocation
-sequence. Natural texture-table, frame-count, single-loop-count, and staged-
+and first mismatch `+0x38`. All seventeen residuals are register fields;
+the earlier UGEN-only/FIFO attribution is withdrawn. All 119 flag combinations
+were attempted; canonical `-O2 -mips2` ties for best. Natural texture-table,
+frame-count, single-loop-count, and staged-
 multiply forms regressed to 51, 51, 122, and 50 instructions. None improved, so
 no combination or permutation batch was authorized. ORT 374 authenticates
 resident `func_8001BB10+0x60`, Overlay 57
@@ -692,6 +692,15 @@ for nine calls across four functions. The resident caller passes owner/context
 in `a3`, which the callee overwrites without consuming. Linked function, TU,
 and ROM equality proves fallback only; the guarded C remains the bounded
 plateau.
+The September 6 four-case carrier matrix reproduces the old retained
+12-word residual without a new gain. Only combined product staging and later
+constant-index reuse changes initial register reservation. Product-only keeps
+baseline initial membership and coloring but changes downstream allocation;
+constant-only is byte-identical to baseline. Meaningful-section, symbol and
+relocation fidelity passes for every stock/trace-off/trace-on control; no target
+compiler trace or complete dynamic FIFO proof exists. The per-symbol
+`docs/matching-triage-handoffs/func_80020D8C.md` records the source-bound
+evidence and stop condition. The canonical body remains unchanged.
 **Why most rows have no new `mickey.us.yaml` split.** §1's "measured file
 boundary" tier requires a whole-`.text` match; this pass only matched
 **Why the original scan added no `mickey.us.yaml` splits.** §1's "measured
