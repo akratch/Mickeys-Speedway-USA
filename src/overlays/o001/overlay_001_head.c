@@ -37,7 +37,7 @@ extern O1ControlTable *D_1D60;
 extern O1ControlTable *D_1D68;
 extern O1ControlTable *D_1D6C;
 extern u8 *overlay1NextPointer(u8 *pointer);
-extern f32 overlay1SplinePosReloc(f32 a, f32 b, f32 c, f32 d, f32 t);
+extern f32 splinePos(f32 a, f32 b, f32 c, f32 d, f32 t);
 
 /* Fresh configured plateau: exact 83-word size and 0x68 frame; 81/83 compiler
  * words agree after relocation masking. The only codegen residual is the saved
@@ -83,9 +83,9 @@ void overlay1InterpolatePath(f32 *outX, f32 *outZ, s32 path, f32 offset) {
     }
 
     fraction = position - (f32) originalWhole;
-    *outX = overlay1SplinePosReloc(point0->x, point1->x, point2->x,
+    *outX = splinePos(point0->x, point1->x, point2->x,
                                   point3->x, fraction);
-    *outZ = overlay1SplinePosReloc(point0->z, point1->z, point2->z,
+    *outZ = splinePos(point0->z, point1->z, point2->z,
                                   point3->z, fraction);
 }
 
@@ -831,11 +831,11 @@ void overlay1CallReset(void) {
 
 /* PLATEAU-HANDOFF:overlay1InterpolatePath:start
  * symbol: overlay1InterpolatePath
- * score: 3 differing words
+ * score: 81/83 words
  * frame: 0x68
  * relocations: 13
  * first-mismatch: +0x94
- * summary: Fresh V0 is 81/83; only the integral-position home remains at sp+0x38 versus sp+0x40; aggregate regresses and two expression forms are flat
+ * summary: ROM-proved splinePos binding restores all 13 identities with unchanged TU bytes; integral-position stack homes still differ at +0x94/+0xC4
  * PLATEAU-HANDOFF:overlay1InterpolatePath:end
  */
 

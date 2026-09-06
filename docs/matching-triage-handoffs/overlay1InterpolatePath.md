@@ -2,9 +2,9 @@
 ### `overlay1InterpolatePath` plateau handoff
 
 - source: `src/overlays/o001/overlay_001_head.c`
-- score: 3 differing words
+- score: 81/83 words
 - frame: 0x68
 - relocations: 13
 - first mismatch: +0x94
-- summary: Fresh V0 is 81/83; only the integral-position home remains at sp+0x38 versus sp+0x40; aggregate regresses and two expression forms are flat
+- summary: ROM-proved splinePos binding restores all 13 identities with unchanged TU bytes; integral-position stack homes still differ at +0x94/+0xC4
 <!-- plateau-handoff:overlay1InterpolatePath:end -->

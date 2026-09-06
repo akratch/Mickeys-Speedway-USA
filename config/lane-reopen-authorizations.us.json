@@ -1,6 +1,11 @@
 {
   "schema_version": 1,
   "authorizations": {
+    "overlay1InterpolatePath": {
+      "source_commit": "9c0b27212ac4d2aa531d4d4d3a2eaee7af1b6f85",
+      "ledger_commit": "71f3960b5aa2afb191a659f4f47393b980ef9dc5",
+      "reason": "Binding repair only: name the two ROM-proved splinePos calls with the existing five-float ABI. Preserve lines; prove unchanged full-TU bytes and all 13 identities; refresh evidence. No expression, frame, flag or manual matching variants."
+    },
     "overlay1DispatchMode": {
       "source_commit": "36b50ec043412f248ce0cf028eaba7d7433cfb03",
       "ledger_commit": "13e3864ed1845770d1f20d803cb5b646ba0f962b",
