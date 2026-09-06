@@ -372,7 +372,10 @@ overlay runtime records or authenticated resident static relocation tuples,
 and the current workbench score/first mismatch without printing instruction
 text, historical bodies, or ROM bytes. Both ordinary preflight and
 `wb_compare.sh` automatically refresh missing/stale evidence through separate
-low-priority two-job split and target phases; `--no-build` on either command
+low-priority split and target phases. Preflight defaults to the machine's CPU
+count (one if unavailable), following ADR 0004; a positive `MICKEY_BUILD_JOBS`
+overrides that default for explicit workstation or crew limits. Invalid values
+fail before a build starts. `--no-build` on either command
 instead requires all artifacts to be current and fails closed. A newer
 checked-in build recipe/policy forces the target dependency graph so Make's
 recipe-insensitive freshness rules cannot hide an old object. Sparse resident

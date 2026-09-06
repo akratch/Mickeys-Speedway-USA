@@ -1464,6 +1464,54 @@ class GeometryAndWorkbenchSummaryTests(unittest.TestCase):
 
 
 class FreshnessTests(unittest.TestCase):
+    def test_build_jobs_default_and_explicit_override_reach_both_phases(self) -> None:
+        for cpu_count, override, expected in (
+            (14, None, 14), (None, None, 1), (0, None, 1),
+            (14, "1", 1), (14, "2", 2), (2, "14", 14),
+        ):
+            with self.subTest(cpu_count=cpu_count, override=override):
+                environment = {} if override is None else {"MICKEY_BUILD_JOBS": override}
+                with tempfile.TemporaryDirectory() as directory:
+                    resolution = self.resolution(Path(directory))
+                    completed = subprocess.CompletedProcess([], 0, stdout="", stderr="")
+                    with mock.patch.dict(os.environ, environment, clear=True), mock.patch.object(
+                        fp.os, "cpu_count", return_value=cpu_count
+                    ), mock.patch.object(fp, "_newer_inputs", return_value=[]), mock.patch.object(
+                        fp, "_run", return_value=completed
+                    ) as run:
+                        fp._build_target(resolution.candidate_object, non_matching=True, label="candidate")
+                    commands = [call.args[0] for call in run.call_args_list]
+                    self.assertEqual(len(commands), 2)
+                    for command in commands:
+                        self.assertEqual(command[:5], ["nice", "-n", "10", "gmake", f"-j{expected}"])
+                        self.assertIn("NON_MATCHING=1", command)
+                    self.assertEqual(commands[0][-1], "build_non_matching/.splat-stamp")
+                    self.assertEqual(commands[1][-1], fp._relative(resolution.candidate_object))
+
+    def test_invalid_build_jobs_fail_before_any_build(self) -> None:
+        for value in ("", "0", "00", "-1", "+2", "1.5", " 2", "2 ", "2\n",
+                      "two", "2;echo no", "２", "9" * 5000):
+            with self.subTest(value=value[:20]), mock.patch.dict(
+                os.environ, {"MICKEY_BUILD_JOBS": value}
+            ), mock.patch.object(fp, "_run") as run, mock.patch.object(fp, "_newer_inputs") as newer:
+                with self.assertRaisesRegex(fp.PreflightError, "MICKEY_BUILD_JOBS"):
+                    fp._build_target(Path("build/example.o"), non_matching=False, label="candidate")
+                run.assert_not_called()
+                newer.assert_not_called()
+
+    def test_stale_make_hint_uses_resolved_build_jobs(self) -> None:
+        for override, expected in ((None, 14), ("2", 2)):
+            with self.subTest(override=override), tempfile.TemporaryDirectory() as directory:
+                resolution = self.resolution(Path(directory))
+                environment = {} if override is None else {"MICKEY_BUILD_JOBS": override}
+                completed = subprocess.CompletedProcess([], 1, stdout="", stderr="")
+                with mock.patch.dict(os.environ, environment, clear=True), mock.patch.object(
+                    fp.os, "cpu_count", return_value=14
+                ), mock.patch.object(fp, "_run", return_value=completed):
+                    with self.assertRaisesRegex(fp.StaleEvidenceError, f"gmake -j{expected} NON_MATCHING=1"):
+                        fp._require_fresh_target(resolution.candidate_object, label="candidate",
+                                                 non_matching=True, build_logic_inputs=())
+
     def test_no_build_staleness_fails_without_rebuild_or_reauthentication(self) -> None:
         for mode in ([], ["--resolve-rom"]):
             with self.subTest(mode=mode), mock.patch.object(

@@ -20,6 +20,7 @@ import copy
 import dataclasses
 import hashlib
 import json
+import os
 import re
 import shlex
 import subprocess
@@ -576,7 +577,7 @@ def _require_fresh_target(
         mode = " NON_MATCHING=1" if non_matching else ""
         raise StaleEvidenceError(
             f"stale {label} {_relative(target)} according to the Make dependency graph; "
-            f"run `nice -n 10 gmake -j2{mode} {_relative(target)}`"
+            f"run `nice -n 10 gmake -j{_build_jobs()}{mode} {_relative(target)}`"
         )
     detail = (query.stderr or query.stdout or "gmake -q failed").strip().splitlines()
     raise PreflightError(
@@ -674,10 +675,27 @@ def _require_fresh_wb_boundary(resolution: Resolution) -> None:
         )
 
 
+def _build_jobs() -> int:
+    """Use an explicit workstation override, otherwise ADR 0004's CPU count."""
+
+    value = os.environ.get("MICKEY_BUILD_JOBS")
+    if value is None:
+        return os.cpu_count() or 1
+    if not re.fullmatch(r"[0-9]+", value):
+        raise PreflightError("MICKEY_BUILD_JOBS must be a positive decimal integer")
+    try:
+        jobs = int(value)
+    except ValueError as error:
+        raise PreflightError("MICKEY_BUILD_JOBS must be a positive decimal integer") from error
+    if jobs <= 0:
+        raise PreflightError("MICKEY_BUILD_JOBS must be a positive decimal integer")
+    return jobs
+
+
 def _build_target(target: Path, *, non_matching: bool, label: str) -> None:
     """Run the Makefile's required split phase before one evidence target."""
 
-    command = ["nice", "-n", "10", "gmake", "-j2"]
+    command = ["nice", "-n", "10", "gmake", f"-j{_build_jobs()}"]
     if non_matching:
         command.append("NON_MATCHING=1")
     build_dir = "build_non_matching" if non_matching else "build"
