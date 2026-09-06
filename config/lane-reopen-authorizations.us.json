@@ -1,6 +1,11 @@
 {
   "schema_version": 1,
   "authorizations": {
+    "overlay1DispatchMode": {
+      "source_commit": "36b50ec043412f248ce0cf028eaba7d7433cfb03",
+      "ledger_commit": "36b50ec043412f248ce0cf028eaba7d7433cfb03",
+      "reason": "Binding repair only: authenticate eleven external call sites with existing resident/overlay definitions and executed aliases. Preserve all instruction bytes, arguments and lines; diagnose the table pair. No flags or permutation."
+    },
     "func_80053868": {
       "source_commit": "a9808a35c5743ce14aeb2c4c73d2b616b0068240",
       "ledger_commit": "a9808a35c5743ce14aeb2c4c73d2b616b0068240",
