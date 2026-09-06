@@ -19,6 +19,107 @@ from perm_pycparser import c_ast
 
 
 class SourceGroups(unittest.TestCase):
+    def test_standalone_inline_do_preserves_whole_line_and_live_ast_twice(self):
+        from src.candidate import Candidate
+        from src.perm.perm import EvalState
+        import tomllib
+        weights = tomllib.loads((pb.PERMUTER_DIR / "default_weights.toml").read_text())["base"]
+        source = ("void f(int *p, int n) {\n int x;\n p[1]=701;\n"
+                  " do { x = 0; p[0] = 703; x++; } while (0);\n p[2]=709;\n}\n")
+        for text in (source, source.replace("\n", "\r\n")):
+            with self.subTest(newlines=repr(text[:40])):
+                prepared, plan = pb.group_seed_source(text.encode(), "f")
+                self.assertEqual(plan["status"], "preserved")
+                self.assertEqual(plan["groups"], [{"line": 4, "statements": 1, "control": "DoWhile"}])
+                candidate = Candidate.from_source(prepared.decode(), EvalState(), "f", weights, 1)
+                emitted = candidate.get_source()
+                second, plan2 = pb.group_seed_source(emitted.encode(), "f")
+                self.assertEqual(plan2["status"], "preserved")
+                emitted2 = Candidate.from_source(second.decode(), EvalState(), "f", weights, 2).get_source()
+                for result in (emitted, emitted2):
+                    line = next(line for line in result.splitlines() if "703" in line)
+                    self.assertIn("do {", line)
+                    self.assertIn("} while (0);", line)
+                    self.assertNotIn("701", line)
+                    self.assertNotIn("709", line)
+                    self.assertEqual(ast_util.to_c_raw(ast_util.parse_c(result)),
+                                     ast_util.to_c_raw(ast_util.parse_c(source)))
+                pending, constants = [candidate.ast], []
+                while pending:
+                    node = pending.pop()
+                    self.assertFalse(isinstance(node, c_ast.Pragma) and "b64literal" in node.string)
+                    if isinstance(node, c_ast.Constant) and node.value == "703":
+                        constants.append(node)
+                    pending.extend(child for _, child in node.children())
+                self.assertEqual(len(constants), 1)
+                constants[0].value = "1703"
+                candidate._cache_source = None
+                self.assertIn("1703", candidate.get_source())
+
+    def test_standalone_inline_do_nested_statements_scopes_and_literal_braces(self):
+        for body in (
+            "int x = 0; { int x = 1; p[0] = x; } p[1] = x;",
+            "if (n) { p[0] = 1; } else { p[0] = 2; }",
+            "do { p[0]++; } while (n); p[1]++;",
+            "for (i = 0; i < n; i++) { p[i]++; }",
+            "if (n) { break; } p[0]++; continue;",
+            'puts("}; while (0); //"); p[0]++;',
+            "",
+        ):
+            source = f"void f(int *p, int n) {{\n int i;\n do {{ {body} }} while (0);\n p[2]++;\n}}\n"
+            with self.subTest(body=body):
+                _, plan, emitted = self.emit_seed(source.encode())
+                self.assertEqual(plan["status"], "preserved")
+                self.assertEqual(ast_util.to_c_raw(ast_util.parse_c(emitted.decode())),
+                                 ast_util.to_c_raw(ast_util.parse_c(source)))
+                _, plan2, emitted2 = self.emit_seed(emitted)
+                self.assertEqual(plan2["status"], "preserved")
+                self.assertEqual(ast_util.to_c_raw(ast_util.parse_c(emitted2.decode())),
+                                 ast_util.to_c_raw(ast_util.parse_c(source)))
+
+    def test_standalone_inline_do_comment_punctuation_does_not_select_braces(self):
+        source = 'void f(int *p) {\n do { p[0]++; /* } while(0); */ p[1]++; } while (0);\n}\n'
+        parsed_source = source.replace('/* } while(0); */', ' ' * len('/* } while(0); */'))
+        ast = ast_util.parse_c(parsed_source)
+        grouped, plan = pb.prepare_source_groups(ast, source, "f", c_ast)
+        self.assertEqual(plan["status"], "preserved")
+        emitted = ast_util.to_c(grouped)
+        self.assertIn('do { p[0]++; p[1]++; } while (0);', emitted)
+
+    def test_standalone_inline_do_unsupported_endpoints_keep_original_ast(self):
+        for statement in (
+            "do { p[0]++; } while (\n 0);",
+            "do { p[0]++;\n } while (0);",
+            "do { p[0]++; } while (0); p[1]++;",
+            "do { label: p[0]++; } while (0);",
+            "do { switch(n) { case 1: p[0]++; break; } } while (0);",
+            "do {\n#pragma _permuter sameline start\n p[0]++; } while (0);",
+        ):
+            source = f"void f(int *p, int n) {{\n {statement}\n}}\n"
+            ast = ast_util.parse_c(source)
+            before = ast_util.to_c_raw(ast)
+            result, plan = pb.prepare_source_groups(ast, source, "f", c_ast)
+            with self.subTest(statement=statement):
+                self.assertEqual(plan["status"], "measurement-required")
+                self.assertIs(result, ast)
+                self.assertEqual(ast_util.to_c_raw(result), before)
+
+    def test_standalone_inline_do_selected_function_and_exact_token_witness(self):
+        source = ("void g(int *p) { do { p[0] = 2; } while (0); }\n"
+                  "void f(int *p) {\n do { p[0] = 1; } while (0);\n}\n")
+        ast = ast_util.parse_c(source)
+        before_g = ast_util.to_c_raw(ast.ext[0])
+        grouped, plan = pb.prepare_source_groups(ast, source, "f", c_ast)
+        self.assertEqual(plan["status"], "preserved")
+        self.assertEqual(ast_util.to_c_raw(grouped.ext[0]), before_g)
+        for incompatible in (
+            source.replace("p[0] = 1", "p[0] = 3"),
+            source.replace("while (0);\n}", "while (0); } void h(void) {\n}"),
+        ):
+            result, plan = pb.prepare_source_groups(ast, incompatible, "f", c_ast)
+            self.assertEqual(plan["status"], "measurement-required")
+            self.assertIs(result, ast)
+
     WIDE = ("void f(int *p, int n) {\n int i=0;\n do\n {\n"
             " p[i]=701; i++; } while(i<n); i=702; do { p[i]=703; i++; } while(i<n); "
             "i=704; do { p[i]=705; i++; } while(i<n); i=706; do {\n"
