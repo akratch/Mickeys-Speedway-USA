@@ -121,6 +121,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007_tail.c.o: POSTPROCESS = \
 		--redefine-sym func_800031E8=func_800031E8_o007Reloc \
 		--redefine-sym mathRnd=mathRnd_o007Reloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
+		0x618:5:.bss 0x620:6:.bss \
 		0x678:5:.bss 0x680:6:.bss \
 		0x674:5:.bss 0x67c:6:.bss \
 		0x708:5:.bss 0x70c:6:.bss \

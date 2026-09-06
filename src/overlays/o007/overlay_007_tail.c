@@ -242,58 +242,56 @@ query:
  * scoped u16 carrier both regressed to 68/72 normalized. The fallback remains
  * canonical; retry only after a new source route for this pool/temp decision.
  */
-#ifdef NON_MATCHING
-/* PLATEAU-HANDOFF
- * symbol: overlay7CommitSelection
- * score: 69/72 words
- * frame: 0x30
- * relocations: 17
- * first-mismatch: +0xBC
- * summary: Unnamed post-mathRnd u16 conversion remains in the uopt pool instead of the target temp FIFO; flags and two natural forms are exhausted.
- */
-void overlay7CommitSelection(s32 selection) {
-    u16 value;
-    Overlay7Pair *pair;
-    s32 remaining;
+void overlay7CommitSelection(s32 selection)
+{
+  u16 value;
+  Overlay7Pair *pair;
+  s32 remaining;
+  if (gOverlay7DispatchModeReloc & 1)
+  {
+    switch (selection)
+    {
+      case 29:
+        value = 0xCF;
+        break;
 
-    if (gOverlay7DispatchModeReloc & 1) {
-        switch (selection) {
-        case 29:
-            value = 0xCF;
-            break;
-        case 30:
-            value = 0xF5;
-            break;
-        case 31:
-            value = 0x116;
-            break;
-        default:
-            value = ((Overlay7SelectionRow *)&gOverlay7DispatchData[0x754])
-                        [selection]
-                            .values[mathRnd(0, 2)];
-            break;
-        }
-        pair = (Overlay7Pair *)&gOverlay7DispatchData[0x8F4];
-        remaining = 11;
-        do {
-            if (pair->key == value) {
-                value += mathRnd(0, pair->value);
-                break;
-            }
-            pair++;
-        } while (remaining--);
-        if (value != 0) {
-            if (gOverlay7DispatchObject != 0) {
-                func_800031E8(gOverlay7DispatchObject);
-                overlay7ReleaseEntry(gOverlay7Selected);
-            }
-            amSndPlay(value, &gOverlay7CommitArgument);
-        }
+      case 30:
+        value = 0xF5;
+        break;
+
+      case 31:
+        value = 0x116;
+        break;
+
+      default:
+        value = ((Overlay7SelectionRow *) (&gOverlay7DispatchData[0x754]))[selection].values[mathRnd(0, 2)];
+        break;
+
     }
+
+    pair = (Overlay7Pair *) (&gOverlay7DispatchData[0x8F4]);
+    remaining = 11;
+    do
+    {
+      if (pair->key == value)
+      {
+        value += mathRnd(0, pair->value);
+        break;
+      }
+      pair++;
+    }
+    while (remaining--);
+    if (value)
+    {
+      if (gOverlay7DispatchObject != 0)
+      {
+        func_800031E8(gOverlay7DispatchObject);
+        overlay7ReleaseEntry(gOverlay7Selected);
+      }
+      amSndPlay(value, &gOverlay7CommitArgument);
+    }
+  }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000DBC_185CC44.s")
-#endif
 
 /* Pinned DKR v77/v80 and JFG object scans found no exact donor. Exact but
  * non-natural: the empty condition and dummy comma-expression operand are

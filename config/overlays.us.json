@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 134448,
-  "nonmatching_overlay_c_bytes": 334172,
+  "matched_overlay_c_bytes": 134736,
+  "nonmatching_overlay_c_bytes": 333884,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 2348,
   "bss_bytes": 77680,
@@ -2506,6 +2506,14 @@
      "label": "overlay7AppendEntry",
      "source": "overlays/o007/overlay_007",
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0xDBC",
+     "end_offset": "0xEDC",
+     "size": "0x120",
+     "label": "overlay7CommitSelection",
+     "source": "overlays/o007/overlay_007_tail",
+     "evidence": "canonical mixed-TU object, 17 runtime relocations with two declared metadata filters, and linked bytes exact"
     },
     {
      "offset": "0xEDC",
