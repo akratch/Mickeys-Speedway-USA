@@ -1720,7 +1720,7 @@ typedef struct Overlay1ModeObject {
     u8 pad00[0x64];
     Overlay1ModeState *state;
 } Overlay1ModeObject;
-
+struct Overlay8ActivationOwner; struct Overlay36Object; struct Overlay36TickSource; struct Overlay36EffectSource;
 #ifndef WORLD_GLOBAL_DECL
 #define WORLD_GLOBAL_DECL extern Overlay1ModeState *D_1DA0_array[];
 #define WORLD D_1DA0_array[0]
@@ -1730,27 +1730,27 @@ typedef struct Overlay1ModeObject {
 #endif
 WORLD_GLOBAL_DECL
 extern u8 D_6C[];
-extern void overlay1ModeAction2(void *object, s32 arg);
-extern s32 overlay1ModeRandom(s32 minimum, s32 maximum);
+extern void func_overlay_008_F0000F1C_185EC74(struct Overlay8ActivationOwner *object, s32 arg);
+extern s32 mathRnd(s32 minimum, s32 maximum);
 extern Overlay1ModeObject *overlay1FindPreviousAngle(f32 angle);
 extern Overlay1ModeObject *overlay1FindNextAngle(f32 angle);
-extern void overlay1ModeAction3(void *object);
-extern void overlay1ModeAction4(void *object);
-extern void overlay1ModeAction5(void *object);
-extern void overlay1ModeAction6(void *object);
-extern void overlay1ModeAction7(void *object);
-extern void overlay1ModeAction8(void *object);
-extern void overlay1ModeAction9(void *object);
+extern void overlay36SpawnDirectional(struct Overlay36Object *object);
+extern void overlay36SpawnLinked7F(struct Overlay36Object *object);
+extern void overlay36SpawnOffsetA9(struct Overlay36Object *object);
+extern void overlay36CallModeZero(void *object);
+extern void overlay36TickState(struct Overlay36TickSource *object);
+extern void overlay36UpdatePeers(struct Overlay36Object *object);
+extern void overlay36SpawnFinalEffect(struct Overlay36EffectSource *object);
 extern f32 overlay1WrapOffset(f32 first, f32 second);
 
-/* Plateau (2026-08-24): every -O2 -mips2 flag variant is retail-sized and
- * reaches the same first mismatch at +0x6C; 28 of 199 words remain, almost
- * entirely allocator choices across switch cases.  Nine declaration-order,
- * register-storage, and world-symbol spelling attempts did not improve the
- * best schedule; the unavailable local permuter is the next useful search. */
-/* Ownership trial (2026-08-28): fixed the TU's +0x274..+0x294 .rodata range;
- * linked promotion is text-differs with 30 in-range words, first at +0x2C.
- * Module growth is cleared; the remaining gap is codegen/register allocation. */
+/* Binding repair: all 199 relocation-masked words and the 0x28 frame remain
+ * exact. The existing callee definitions and shipped runtime records prove
+ * the eleven external calls; no argument, instruction or table entry changes.
+ * Automated identity proof covers 58/61 sites; the generated overlay-8 name
+ * and the table HI16/LO16 pair still need separate proof support. */
+/* All eight switch destinations agree relative to this function. The old
+ * anchored table externalization edits instruction fields and cannot support
+ * exact-C credit; preserve the fallback until ownership/linking are proved. */
 #ifdef NON_MATCHING
 s32 overlay1DispatchMode(void) {
     Overlay1ModeState *world;
@@ -1764,7 +1764,7 @@ s32 overlay1DispatchMode(void) {
     world = WORLD;
     switch (world->mode) {
         case 2:
-            overlay1ModeAction2(D_1D9C, 1);
+            func_overlay_008_F0000F1C_185EC74(D_1D9C, 1);
             WORLD->timer--;
             if (WORLD->timer == 0) {
                 WORLD->mode = 0xFF;
@@ -1772,19 +1772,19 @@ s32 overlay1DispatchMode(void) {
             }
             CASE_END;
         case 3:
-            if (D_6C[WORLD->index] < overlay1ModeRandom(1, 100)) {
+            if (D_6C[WORLD->index] < mathRnd(1, 100)) {
                 object = overlay1FindPreviousAngle(WORLD->angle);
                 candidateObject = object;
                 if (candidateObject != 0) {
                     state = object->state;
                     if (WORLD->status[state->index] >= 3) {
-                        overlay1ModeAction3(D_1D9C);
+                        overlay36SpawnDirectional(D_1D9C);
                     }
                 }
             }
             CASE_END;
         case 4:
-            if (D_6C[WORLD->index] < overlay1ModeRandom(1, 100)) {
+            if (D_6C[WORLD->index] < mathRnd(1, 100)) {
                 object = overlay1FindPreviousAngle(WORLD->angle);
                 if (object != 0) {
                     state = object->state;
@@ -1793,19 +1793,19 @@ s32 overlay1DispatchMode(void) {
                         difference = overlay1WrapOffset(WORLD->angle,
                                                         angleState->angle);
                         if ((0.5f <= difference) && (difference <= 4.0f)) {
-                            overlay1ModeAction4(D_1D9C);
+                            overlay36SpawnLinked7F(D_1D9C);
                         }
                     }
                 }
             }
             CASE_END;
         case 5:
-            if (D_6C[WORLD->index] < overlay1ModeRandom(1, 100)) {
+            if (D_6C[WORLD->index] < mathRnd(1, 100)) {
                 object = overlay1FindPreviousAngle(WORLD->angle);
                 if (object != 0) {
                     state = object->state;
                     if (WORLD->status[state->index] >= 3) {
-                        overlay1ModeAction5(D_1D9C);
+                        overlay36SpawnOffsetA9(D_1D9C);
                     }
                 }
             }
@@ -1819,18 +1819,18 @@ s32 overlay1DispatchMode(void) {
                 if ((difference <= 3.0f) &&
                     (WORLD->status[state->index] >= 3) &&
                     (state->group == WORLD->group)) {
-                    overlay1ModeAction6(D_1D9C);
+                    overlay36CallModeZero(D_1D9C);
                 }
             }
             CASE_END;
         case 7:
-            overlay1ModeAction7(D_1D9C);
+            overlay36TickState(D_1D9C);
             CASE_END;
         case 8:
-            overlay1ModeAction8(D_1D9C);
+            overlay36UpdatePeers(D_1D9C);
             CASE_END;
         case 9:
-            overlay1ModeAction9(D_1D9C);
+            overlay36SpawnFinalEffect(D_1D9C);
             CASE_END;
     }
     return 0;
@@ -3378,7 +3378,7 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * frame: 0x28
  * relocations: 61
  * first-mismatch: +0x2C
- * summary: Instruction-exact; linked promotion retains six words at the jump-table pair and four same-overlay calls.
+ * summary: All instruction bytes and eight table destinations retained; 58/61 identities proved. Remaining: table HI/LO and generated cross-overlay call +0x48. No exact credit.
  * PLATEAU-HANDOFF:overlay1DispatchMode:end
  */
 
