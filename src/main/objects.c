@@ -4923,76 +4923,15 @@ void func_8000AA38(Objects0AA38Object *arg0, void *arg1) {
         case 0:
             func_8001C4C0(arg0, arg1, 1);
             break;
-        case 1:
-        case 2:
-        case 3:
-            TrapDanglingJump();
-            break;
-        case 4:
-            TrapDanglingJump();
-            break;
-        case 5:
-            TrapDanglingJump();
-            break;
-        case 6:
-            TrapDanglingJump();
-            break;
-        case 7:
-            TrapDanglingJump();
-            break;
-        case 8:
-            TrapDanglingJump();
-            break;
-        case 9:
-            break;
-        case 10:
-            TrapDanglingJump();
-            break;
-        case 11:
-            TrapDanglingJump();
-            break;
-        case 12:
-            break;
-        case 13:
-            TrapDanglingJump();
-            break;
-        case 14:
-            TrapDanglingJump();
-            break;
-        case 15:
-            break;
-        case 16:
-            break;
-        case 17:
-            break;
-        case 18:
-            break;
-        case 19:
-            TrapDanglingJump();
-            break;
-        case 20:
-            TrapDanglingJump();
-            break;
-        case 21:
-            break;
-        case 22:
-            break;
-        case 23:
-        case 24:
-            func_8001BAE4(arg0, arg1);
-            break;
-        case 25:
-            func_8001BAF8(arg0, arg1);
-            break;
-        case 26:
-            break;
-        case 27:
-            TrapDanglingJump();
-            break;
         case 28:
             TrapDanglingJump();
             break;
-        case 29:
+        case 72:
+            TrapDanglingJump();
+            break;
+        case 1:
+        case 2:
+        case 3:
             TrapDanglingJump();
             break;
         case 30:
@@ -5002,7 +4941,31 @@ void func_8000AA38(Objects0AA38Object *arg0, void *arg1) {
         case 33:
             spranimInit(arg0, arg1);
             break;
-        case 32:
+        case 58:
+            sprasjiInit(arg0, arg1);
+            break;
+        case 19:
+            TrapDanglingJump();
+            break;
+        case 5:
+            TrapDanglingJump();
+            break;
+        case 4:
+            TrapDanglingJump();
+            break;
+        case 10:
+            TrapDanglingJump();
+            break;
+        case 11:
+            TrapDanglingJump();
+            break;
+        case 13:
+            TrapDanglingJump();
+            break;
+        case 14:
+            TrapDanglingJump();
+            break;
+        case 40:
             TrapDanglingJump();
             break;
         case 34:
@@ -5011,27 +4974,29 @@ void func_8000AA38(Objects0AA38Object *arg0, void *arg1) {
         case 35:
             TrapDanglingJump();
             break;
-        case 36:
-            break;
-        case 37:
-            break;
-        case 38:
-            break;
-        case 39:
-            break;
-        case 40:
+        case 8:
             TrapDanglingJump();
             break;
         case 41:
             TrapDanglingJump();
             break;
-        case 42:
+        case 7:
             TrapDanglingJump();
             break;
-        case 43:
+        case 6:
             TrapDanglingJump();
             break;
-        case 44:
+        case 27:
+            TrapDanglingJump();
+            break;
+        case 23:
+        case 24:
+            func_8001BAE4(arg0, arg1);
+            break;
+        case 25:
+            func_8001BAF8(arg0, arg1);
+            break;
+        case 32:
             TrapDanglingJump();
             break;
         case 45:
@@ -5052,7 +5017,17 @@ void func_8000AA38(Objects0AA38Object *arg0, void *arg1) {
         case 50:
             TrapDanglingJump();
             break;
-        case 51:
+        case 20:
+            TrapDanglingJump();
+            break;
+        case 42:
+            TrapDanglingJump();
+            break;
+        case 43:
+            TrapDanglingJump();
+            break;
+        case 44:
+            TrapDanglingJump();
             break;
         case 52:
             TrapDanglingJump();
@@ -5063,16 +5038,11 @@ void func_8000AA38(Objects0AA38Object *arg0, void *arg1) {
         case 54:
             TrapDanglingJump();
             break;
-        case 55:
-            break;
         case 56:
             TrapDanglingJump();
             break;
         case 57:
             TrapDanglingJump();
-            break;
-        case 58:
-            sprasjiInit(arg0, arg1);
             break;
         case 59:
             TrapDanglingJump();
@@ -5093,6 +5063,7 @@ void func_8000AA38(Objects0AA38Object *arg0, void *arg1) {
             TrapDanglingJump();
             break;
         case 65:
+            TrapDanglingJump(arg0, arg1);
             break;
         case 66:
             TrapDanglingJump();
@@ -5112,10 +5083,10 @@ void func_8000AA38(Objects0AA38Object *arg0, void *arg1) {
         case 71:
             TrapDanglingJump();
             break;
-        case 72:
+        case 73:
             TrapDanglingJump();
             break;
-        case 73:
+        case 79:
             TrapDanglingJump();
             break;
         case 74:
@@ -5128,11 +5099,6 @@ void func_8000AA38(Objects0AA38Object *arg0, void *arg1) {
             TrapDanglingJump();
             break;
         case 77:
-            TrapDanglingJump();
-            break;
-        case 78:
-            break;
-        case 79:
             TrapDanglingJump();
             break;
         case 80:
@@ -5170,6 +5136,40 @@ void func_8000AA38(Objects0AA38Object *arg0, void *arg1) {
             break;
         case 91:
             TrapDanglingJump();
+            break;
+        case 9:
+            break;
+        case 12:
+            break;
+        case 15:
+            break;
+        case 16:
+            break;
+        case 17:
+            break;
+        case 18:
+            break;
+        case 21:
+            break;
+        case 22:
+            break;
+        case 26:
+            break;
+        case 29:
+            break;
+        case 36:
+            break;
+        case 37:
+            break;
+        case 38:
+            break;
+        case 39:
+            break;
+        case 51:
+            break;
+        case 55:
+            break;
+        case 78:
             break;
     }
 }
