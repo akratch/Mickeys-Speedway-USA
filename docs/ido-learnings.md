@@ -80,7 +80,10 @@ bytes and disassembly never belong here.
   absent surviving instructions. A later source carrier can change early output
   while early expression records remain unchanged, so demand order is not the
   only explanation to test. Evidence and the withdrawn overclaim are recorded
-  in the `func_80020D8C` two-source handoff; workbench correction is pending.
+  in the `func_80020D8C` two-source handoff. Workbench commits `028a8eaf` and
+  `1da7f333` now separate possible colors, conditional per-input reservations,
+  and trace-directed ownership; independent review and real-input acceptance
+  preserve the scalar comparisons while withholding unsupported causal advice.
 - A traced free request is not necessarily a queue transition. In the pinned
   UGEN producer, FREE/FORCE_FREE entry hooks precede conditional mutation, and
   a successful free can append directly without invoking the separate ADD hook.
