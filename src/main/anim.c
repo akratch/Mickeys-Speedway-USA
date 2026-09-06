@@ -585,14 +585,9 @@ void func_80050DF0(s32 levelId) {
 /*
  * PROVENANCE: adapted from JFG's animseqFreeGroup assembly. Mickey's data
  * boundaries, calls, scheduling, and final compiler output remain authoritative.
- * Fresh bounded pass: statement-line grouping fixes all four end/base address
- * schedules and all 41 relocation identities, leaving an exact-sized 84/90
- * allocation plateau. The remaining path-loop comparison spends one temporary
- * that shifts the two later reset temporaries; an algebraic increment probe
- * removes that whole register ladder but adds one instruction. GLOBAL_ASM
- * remains canonical.
+ * Preserve the same-line cursor setup and the integer identity expressions:
+ * together they retain the stock compiler's exact temporary allocation.
  */
-#ifdef NON_MATCHING
 void func_80050E9C(void) {
     s32 emptyIndex;
     u8 *cursor;
@@ -615,7 +610,7 @@ void func_80050E9C(void) {
         do {
             func_800502CC((u8) pathIndex);
             pathIndex++;
-        } while ((pathIndex < 0x100) != 0);
+        } while ((pathIndex ^ 0) < 0x100);
 
         cursor = (u8 *) D_800D6B08; do {
             cursor += 4;
@@ -643,7 +638,7 @@ void func_80050E9C(void) {
             *(s32 *) (cursor - 0x10) = 0;
         } while (cursor != (u8 *) D_800D6D18);
 
-        D_800D6C3E = 0;
+        D_800D6C3E = (pathIndex < 0x100) * 0;
         D_800D6C44 = 0;
         D_800D6C48 = 0;
         D_800D6C52 = 0xFF;
@@ -653,10 +648,6 @@ void func_80050E9C(void) {
         func_800534C0();
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80050E9C.s")
-#endif
-
 /*
  * PROVENANCE: adapted from JFG's public animseqSetupGroup assembly. Mickey's
  * directory layout, level-header field, globals, and calls are authoritative.
@@ -4549,16 +4540,6 @@ void fmvInit(void) {
  * first-mismatch: +0x0
  * summary: Target is frame 0x40 with 47 relocations. Next isolate one source-authentic playback-state carrier lifetime without expanding the frame.
  * PLATEAU-HANDOFF:func_80051364:end
- */
-
-/* PLATEAU-HANDOFF:func_80050E9C:start
- * symbol: func_80050E9C
- * score: 84/90 words
- * frame: 0x20
- * relocations: 41
- * first-mismatch: +0x64
- * summary: Authenticated UGEN markers map the target uniquely to ordinal 24 and isolate one condition-line temp birth; folded preincrement stays 84/90 and is neutral.
- * PLATEAU-HANDOFF:func_80050E9C:end
  */
 
 /* PLATEAU-HANDOFF:func_80050BF4:start
