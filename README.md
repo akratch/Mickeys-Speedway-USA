@@ -28,8 +28,8 @@ Five-line report in the Diddy Kong Racing convention, where `NON_MATCHING` and `
 ```
 decompiled              394828 / 944356  (41.81%)
 handwritten asm          17184 / 944356  ( 1.82%)
-GLOBAL_ASM remaining    199660 / 944356  (21.14%)
-NON_MATCHING            332684 / 944356  (35.23%)
+GLOBAL_ASM remaining     11548 / 944356  ( 1.22%)
+NON_MATCHING            520796 / 944356  (55.15%)
 NON_EQUIVALENT               0 / 944356  ( 0.00%)
 ```
 

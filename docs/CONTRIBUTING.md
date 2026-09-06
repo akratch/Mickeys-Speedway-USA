@@ -356,6 +356,20 @@ post-compile step. See
 generated block is the current numbers; recompute rather than quoting them
 here.
 
+Resident `NON_MATCHING` bytes are classified from guarded C definitions and
+their exact assembly-fallback ELF identities, including renamed symbols and
+multiple functions in one guard. Declaration-only guards do not count. Missing,
+duplicate, overlapping or conflicting ownership refuses the report. This moves
+bytes between unmatched categories only: matched/resolved credit and the
+existing ELF function extents are unchanged.
+
+Overlay categories still use atlas TU ownership, with its explicit exact-C
+islands. They are not a function-by-function inventory of guarded bodies; a
+mixed TU may include a bare fallback in its nonmatching category. Neither
+`GLOBAL_ASM remaining` nor `NON_MATCHING` measures scratch-draft availability,
+semantic approval or experiment readiness. Use source/attempt inventories and
+the assignment gate for those questions.
+
 ### `gmake NON_MATCHING=1`: the compile-only escape hatch
 
 Every function ADR 0001/0002 demoted from "matched" to `NON_MATCHING` keeps
