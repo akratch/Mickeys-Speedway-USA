@@ -267,6 +267,20 @@ bytes and disassembly never belong here.
   undeclared call), and reject it unless command semantics, relocations, linked
   bytes, and the full ROM remain exact. Evidence: the exact resident
   `func_80034920` display-list reset.
+- Across consecutive clear loops, an unchanged parsed C tree can still emit a
+  different address-materialization schedule when physical line boundaries
+  change. A relevant span may begin inside one loop, cross its closing brace,
+  condition and intervening statements, and end at another loop's opening
+  brace. Preserve the complete span through candidate emission, not merely
+  adjacent assignments; retain every expression, statement and scope as
+  searchable C. Exact lexical/AST correspondence can establish the boundaries,
+  but only a fresh compile establishes source-carriage fidelity. The compiler
+  pass responsible for this measured sensitivity remains untraced. Ordinary
+  local pointer-assignment spellings can also affect the result; when spelling
+  and grouping change together, do not attribute the exact result to either
+  lever alone. Require unchanged semantics, exact owned bytes and relocation
+  identities, linked-range and full-ROM proofs. Evidence: the matched initialization
+  routine in `src/main/anim.c`.
 - Typing an interleaved two-word cache as an array of structs can make IDO
   strength-reduce an index loop into advancing entry and byte-offset pointers;
   differently typed sentinel fields can also materialize separate copies of
