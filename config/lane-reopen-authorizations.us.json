@@ -387,9 +387,9 @@
       "reason": "Pool-rotation lever pass: instrumented uopt CDX p1/p2 colouring records plus forced-colour reachability on the row/column/first/scratch web rotation. No flag sweeps, no permutation."
     },
     "overlay74Update": {
-      "source_commit": "681bbf2ca97e35b571a3fc61abea419bcbb59c7a",
-      "ledger_commit": "681bbf2ca97e35b571a3fc61abea419bcbb59c7a",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle."
+      "source_commit": "595daf5dd01bec3fe47182549cd410f77284dd24",
+      "ledger_commit": "595daf5dd01bec3fe47182549cd410f77284dd24",
+      "reason": "One ROM-proved ABI/binding repair: paired f32 z/query types and four source-used resident names renamed to existing proxies. Reprove unchanged words and all eight identities; no expression changes, flags, or repeat sweep."
     },
     "overlay11UpdateMenu": {
       "source_commit": "3d238202f1514acb2ee74b24c43b873c18207103",
