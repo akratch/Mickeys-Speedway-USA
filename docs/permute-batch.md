@@ -822,6 +822,18 @@ while excluding only the target body. Changed, missing, stale, unsupported or
 unverifiable context blocks promotion before canonical writes, including
 `commit=False`. There is no bypass or automatic header/declaration adoption.
 
+Prepared vendor output may retain an unused macro-definition prelude. The
+comparator supports only leading, uniquely named definitions with no occurrence
+of their identifiers anywhere in the remaining C or pragma tokens. Every
+definition's ordered, phase-2/comment-normalized text remains part of the
+context hash and change report, including inactive token-pasting definitions.
+It does not expand macros: possible active uses, conditionals, includes, undef,
+redefinitions, late definitions and malformed or ambiguous preprocessing remain
+unverifiable. Macro-bearing inputs with multiline block comments also require
+preprocessing; the comparator does not infer their directive-line boundaries.
+This exception handles inert vendor scaffolding, not arbitrary
+unpreprocessed C or permission to adopt changed definitions.
+
 The public `promote(..., evidence=PreparedBaseline(...))` contract requires this
 explicit evidence; omitting it fails closed. Promotion freezes winner bytes
 once and uses those same bytes for both comparison and body extraction. Under

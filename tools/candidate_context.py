@@ -77,6 +77,72 @@ def _strip_comments(text: str) -> str:
     return LEXICAL.sub(replace, text)
 
 
+def _inactive_macro_prelude(text: str) -> tuple[str, list[dict], list[str]]:
+    """Retain unused leading definitions as context, never guess expansion.
+
+    Prepared vendor input can carry unused graphics definitions, including
+    token pasting. Their exact phase-2/comment-normalized logical lines remain
+    ordered context evidence. Any possible use outside the prelude refuses the
+    route, as do conditional preprocessing and definitions after C has begun.
+    """
+    rows, snippets, names = [], [], set()
+    output = []
+    leading = True
+    # Only LF ends a preprocessing directive after CR normalization. Python's
+    # splitlines also splits vertical tabs/form feeds, which could incorrectly
+    # move a macro replacement token into the parsed declaration context.
+    for line in re.findall(r"[^\n]*\n|[^\n]+$", text):
+        # Ignore directive-looking text in literals, not actual directives.
+        visible = LEXICAL.sub(lambda match: " " if match.group().startswith(('"', "'"))
+                              else match.group(), line)
+        if not visible.strip():
+            output.append(line)
+            continue
+        if not re.match(r"\s*#", visible):
+            leading = False
+            output.append(line)
+            continue
+        if re.fullmatch(r'\s*#\s*(?:line\s+)?\d+(?:\s+"[^"\n]*")?(?:\s+\d+)*\s*', line):
+            output.append(line)
+            continue
+        definition = re.fullmatch(r"\s*#\s*define\s+([A-Za-z_][A-Za-z0-9_]*)([^\n]*)\n?", line)
+        if definition:
+            if not leading:
+                raise ContextError("macro definitions must be a leading prepared prelude")
+            name, replacement = definition.groups()
+            if name in names:
+                raise ContextError("duplicate or redefined prepared macro")
+            if replacement.startswith("("):
+                parameters = re.match(r"\(([^)]*)\)", replacement)
+                if parameters is None:
+                    raise ContextError("malformed prepared macro parameters")
+                arguments = [value.strip() for value in parameters[1].split(",")] if parameters[1].strip() else []
+                if any(not SYMBOL.fullmatch(value) for value in arguments) or len(set(arguments)) != len(arguments):
+                    raise ContextError("unsupported prepared macro parameters")
+            elif replacement and not replacement[0].isspace():
+                raise ContextError("malformed prepared macro definition")
+            names.add(name)
+            normalized = line.strip()
+            rows.append({"kind": "MacroDefinition", "name": name,
+                         "sha256": _sha(normalized.encode())})
+            snippets.append(normalized[:MAX_SNIPPET])
+            output.append("\n" if line.endswith("\n") else "")
+            continue
+        if re.match(r"\s*#\s*pragma\b", visible):
+            leading = False
+            output.append(line)
+            continue
+        raise ContextError("unsupported prepared preprocessing directive")
+    prepared = "".join(output)
+    without_literals = LEXICAL.sub(lambda match: " " if match.group().startswith(('"', "'"))
+                                  else match.group(), prepared)
+    if names.intersection(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", without_literals)):
+        raise ContextError("active prepared macro requires independent preprocessing/context review")
+    if len(rows) > MAX_DECLARATIONS:
+        raise ContextError("prepared macro prelude exceeds declaration limit")
+    return prepared, rows, snippets
+
+
 def _surface(source: bytes, symbol: str) -> tuple[list[dict], list[str]]:
     if len(source) > MAX_SOURCE_BYTES:
         raise ContextError("prepared source exceeds comparison byte limit")
@@ -91,17 +157,27 @@ def _surface(source: bytes, symbol: str) -> tuple[list[dict], list[str]]:
     if re.search(r"\\[^\S\n]+\n", text):
         raise ContextError("whitespace after continuation backslash is dialect-dependent")
     text = re.sub(r"\\\n", "", text)
+    multiline_comment = any(match.group().startswith("/*") and "\n" in match.group()
+                            for match in LEXICAL.finditer(text))
     text = _strip_comments(text)
+    if multiline_comment and re.search(r"(?m)^\s*#\s*define\b", text):
+        raise ContextError("multiline comments with macro definitions require preprocessing")
     without_literals = LEXICAL.sub(lambda match: " " if match.group().startswith(('"', "'"))
                                   else match.group(), text)
+    if "/*" in without_literals or '"' in without_literals or "'" in without_literals:
+        raise ContextError("unterminated prepared comment or literal")
+    if any("\n" in match.group() for match in LEXICAL.finditer(text)
+           if match.group().startswith(('"', "'"))):
+        raise ContextError("unspliced newline in prepared literal")
     identifiers = set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", without_literals))
     if LOCATION_MACROS.intersection(identifiers):
         raise ContextError("location/time-dependent macros must be expanded in prepared input")
     if PRAGMA_OPERATORS.intersection(identifiers):
         raise ContextError("pragma operators require independent context review")
+    text, macro_rows, macro_snippets = _inactive_macro_prelude(text)
     # A fresh parser per input also prevents typedef state leaking between inputs.
     ast = pycparser.CParser().parse(text, filename="<prepared>")
-    if len(ast.ext) > MAX_DECLARATIONS:
+    if len(ast.ext) + len(macro_rows) > MAX_DECLARATIONS:
         raise ContextError("prepared context exceeds declaration limit")
     targets = [node for node in ast.ext
                if isinstance(node, c_ast.FuncDef) and node.decl.name == symbol]
@@ -134,7 +210,7 @@ def _surface(source: bytes, symbol: str) -> tuple[list[dict], list[str]]:
                              for name, child in node.children()]}
 
     generator = c_generator.CGenerator()
-    rows, snippets = [], []
+    rows, snippets = list(macro_rows), list(macro_snippets)
     for node in ast.ext:
         name = getattr(node, "name", None)
         if isinstance(node, c_ast.FuncDef):
