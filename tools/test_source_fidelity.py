@@ -18,6 +18,130 @@ from src import ast_util
 from perm_pycparser import c_ast
 
 
+class IdoImportDialect(unittest.TestCase):
+    def test_explicit_type_operators_round_trip_without_evaluation(self):
+        types = ["int", "unsigned long long", "T", "const T *", "int[3]",
+                 "int (*)(T)", "struct S", "double"]
+        for operator in sorted(pb.IDO_IMPORT_TYPE_OPERATORS):
+            for operand in types:
+                source = ("typedef int T; struct S { int x; };\n"
+                          f"int helper(void) {{ return {operator}({operand}); }}\n")
+                with self.subTest(operator=operator, operand=operand), pb.ido_import_parser():
+                    ast = ast_util.parse_c(source)
+                    expression = ast.ext[-1].body.block_items[0].expr
+                    self.assertIsInstance(expression, c_ast.UnaryOp)
+                    self.assertEqual(expression.op, operator)
+                    self.assertIsInstance(expression.expr, c_ast.Typename)
+                    emitted = ast_util.to_c_raw(ast)
+                    self.assertIn(operator + "(", emitted)
+                    self.assertEqual(ast_util.to_c_raw(ast_util.parse_c(emitted)), emitted)
+
+    def test_type_shadowing_malformed_and_reserved_identifier_refuse(self):
+        sources = [
+            "int f(void) { return __builtin_classof(); }",
+            "int f(void) { return __builtin_classof(int, int); }",
+            "int f(int x) { return __builtin_alignof(x); }",
+            "typedef int T; int f(void) { int T; return __builtin_classof(T); }",
+            "int __builtin_classof;",
+            "int __builtin_alignof(int x);",
+        ]
+        for source in sources:
+            with self.subTest(source=source), pb.ido_import_parser():
+                with self.assertRaises(ast_util.CandidateConstructionFailure):
+                    ast_util.parse_c(source)
+
+    def test_ordinary_identifiers_strings_and_normal_operators_unchanged(self):
+        source = ('int __builtin_classof_value; char *s = "__builtin_alignof(int)"; '
+                  'int f(int x) { return sizeof(int) + -x + __builtin_classof_value; }')
+        expected = ast_util.to_c_raw(ast_util.parse_c(source))
+        with pb.ido_import_parser():
+            ast = ast_util.parse_c(source)
+            pb.reject_retained_ido_operators(ast)
+            self.assertEqual(ast_util.to_c_raw(ast), expected)
+
+    def test_normal_extraction_removes_helper_body_not_declarations(self):
+        source = ('typedef int T; int helper(T x) { return __builtin_classof(T); }\n'
+                  'int f(T x) { return helper(x); }')
+        with pb.ido_import_parser():
+            ast = ast_util.parse_c(source)
+            fn, _ = ast_util.extract_fn(ast, "f")
+            ast_util.prune_ast(fn, ast)
+            pb.reject_retained_ido_operators(ast)
+            emitted = ast_util.to_c_raw(ast)
+        self.assertIn("int helper(T x);", emitted)
+        self.assertIn("typedef int T;", emitted)
+        self.assertIn("return helper(x);", emitted)
+        self.assertNotIn("__builtin_classof", emitted)
+        ast_util.parse_c(emitted)
+
+    def test_retained_target_initializer_and_inline_helper_refuse(self):
+        sources = [
+            'int f(void) { return __builtin_alignof(int); }',
+            'int n = __builtin_alignof(int); int f(void) { return n; }',
+            'static inline int g(void) { return __builtin_classof(int); } int f(void) { return g(); }',
+        ]
+        for source in sources:
+            with self.subTest(source=source), pb.ido_import_parser():
+                ast = ast_util.parse_c(source)
+                fn, _ = ast_util.extract_fn(ast, "f")
+                ast_util.prune_ast(fn, ast)
+                with self.assertRaisesRegex(ValueError, "retained target/context"):
+                    pb.reject_retained_ido_operators(ast)
+
+    def test_coordinates_and_group_selection_survive_typed_helper(self):
+        source = ('#line 10 "actual.c"\n'
+                  'int helper(void) { return __builtin_classof(int); }\n'
+                  'void f(int *p) {\n p[0]=1; p[1]=2;\n}\n')
+        with pb.ido_import_parser():
+            ast = ast_util.parse_c(source)
+            helper = ast.ext[0]
+            self.assertEqual((helper.coord.file, helper.coord.line), ("actual.c", 10))
+            prepared, plan = pb.prepare_source_groups(ast, source, "f", c_ast)
+            self.assertEqual(plan["status"], "preserved")
+            self.assertEqual(plan["groups"][0]["line"], 12)
+            self.assertEqual(ast_util.to_c_raw(helper), ast_util.to_c_raw(prepared.ext[0]))
+
+    def test_adapter_and_import_hooks_restore_on_success_and_exception(self):
+        originals = (ast_util.CParser, ast_util.parse_c, ast_util.to_c, ast_util.to_c_raw, sys.argv)
+        from perm_pycparser.c_lexer import CLexer
+        keywords = dict(CLexer.keyword_map)
+        for fail in (False, True):
+            with tempfile.TemporaryDirectory() as tmp:
+                def importer(*args, **kwargs):
+                    ast = ast_util.parse_c('int helper(void) { return __builtin_classof(int); } '
+                                          'int f(void) { return 1; }', from_import=True)
+                    if fail:
+                        raise RuntimeError("fixture failure")
+                    fn, _ = ast_util.extract_fn(ast, "f")
+                    ast_util.prune_ast(fn, ast)
+                    self.assertNotIn("__builtin_classof", ast_util.to_c(ast))
+                with patch('runpy.run_path', side_effect=importer):
+                    if fail:
+                        with self.assertRaisesRegex(RuntimeError, "fixture failure"):
+                            pb.grouped_import_main('f', str(Path(tmp)/'plan.json'), [])
+                    else:
+                        pb.grouped_import_main('f', str(Path(tmp)/'plan.json'), [])
+            self.assertEqual((ast_util.CParser, ast_util.parse_c, ast_util.to_c,
+                              ast_util.to_c_raw, sys.argv), originals)
+            self.assertEqual(CLexer.keyword_map, keywords)
+        with self.assertRaises(ast_util.CandidateConstructionFailure):
+            ast_util.parse_c('int f(void) { return __builtin_classof(int); }')
+
+    def test_import_emission_refusal_restores_hooks(self):
+        original = (ast_util.CParser, ast_util.parse_c, ast_util.to_c, ast_util.to_c_raw, sys.argv)
+        for emission in ("to_c", "to_c_raw"):
+            with tempfile.TemporaryDirectory() as tmp:
+                def importer(*args, **kwargs):
+                    ast = ast_util.parse_c('int f(void) { return __builtin_alignof(int); }',
+                                           from_import=True)
+                    getattr(ast_util, emission)(ast)
+                with patch('runpy.run_path', side_effect=importer):
+                    with self.assertRaisesRegex(ValueError, "retained target/context"):
+                        pb.grouped_import_main('f', str(Path(tmp)/'plan.json'), [])
+            self.assertEqual((ast_util.CParser, ast_util.parse_c, ast_util.to_c,
+                              ast_util.to_c_raw, sys.argv), original)
+
+
 class SourceGroups(unittest.TestCase):
     def test_standalone_inline_do_preserves_whole_line_and_live_ast_twice(self):
         from src.candidate import Candidate

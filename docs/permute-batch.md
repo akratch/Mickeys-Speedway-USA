@@ -2,6 +2,20 @@
 
 ### Original source statement groups
 
+The importer-only parser adapter recognizes IDO's `__builtin_classof(type)`
+and `__builtin_alignof(type)` as explicit type-operand AST nodes. It retains
+their exact operator spelling and type, without evaluating them or replacing
+them with constants. This lets the normal importer parse a full TU whose
+unrelated varargs helper contains these operators before its usual function
+extraction/pruning. No helper is specially hidden or removed by the adapter.
+If either operator survives in the retained target, initializer, inline helper
+or other prepared context, import fails: the later candidate/context parsers
+are not extended. Parser and emission hooks are child-process-local and restored
+on success or failure; headers, vendor files and compiler inputs are not edited.
+The runner's existing source identity invalidates old receipts for this change.
+Actual emitted/full-TU instruction and relocation fidelity, not parser success,
+establishes whether an affected target is a faithful search input.
+
 The importer adapter preserves supported same-line statement groups from the
 original preprocessed parser coordinates, before pruning or AST serialization.
 It inserts the vendor's existing `sameline` pragmas only in the selected
