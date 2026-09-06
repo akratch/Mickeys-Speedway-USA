@@ -1197,9 +1197,9 @@ typedef struct ModelFrameInstance {
 /* Mickey-only reconstruction; JFG's modSetTextureFrame remains assembly. */
 /* Policy-clean configured full-TU C has the exact 48-word body, 0x8 frame,
  * and zero relocations, with 31/48 words matching and first mismatch +0x38.
- * All seventeen residuals are ugen temp-FIFO register assignments. All 119
- * flag combinations were attempted; canonical -O2 -mips2 ties for best. A
- * fidelity-clean ugen trace confirms the temporary allocation sequence.
+ * Seventeen register-field residuals remain; UGEN-only ownership is unproved.
+ * All 119 flag combinations were attempted; canonical -O2 -mips2 ties for best.
+ * Faithful traces show allocation results, not complete dynamic FIFO replay.
  * Natural texture-table, frame-count, single-loop-count, and staged-multiply
  * forms regressed to 51, 51, 122, and 50 instructions, so no combination or
  * batch was authorized. ORT 374 authenticates eight overlay calls across
@@ -1429,7 +1429,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0x8
  * relocations: 0
  * first-mismatch: +0x38
- * summary: ugen temp-FIFO phase; flags and four natural web-family forms exhausted without gain
+ * summary: register-field residuals; retained control changes initial reservation; complete dynamic FIFO unproved
  * PLATEAU-HANDOFF:func_80020D8C:end
  */
 
