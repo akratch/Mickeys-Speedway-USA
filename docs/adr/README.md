@@ -60,3 +60,4 @@ the ordinary way (a commit, a campaign entry), not by leaving the ADR
 | [0014](0014-pipelined-handoff-work.md) | Pipelined handoff work |
 | [0015](0015-verified-lane-bootstrap-cache.md) | Verified lane bootstrap cache |
 | [0016](0016-raw-asm-tu-pipeline-and-standing-sweep.md) | Raw-assembly TU pipeline and standing sweep |
+| [0017](0017-causal-exploration-and-risk-proportional-validation.md) | Causal exploration and risk-proportional validation |

@@ -10,6 +10,9 @@ ROM-derived content** — only the *spelling* is unnatural.
 
 This exception records already-proved exact C; it never authorizes adding an
 inert guard or operation to improve a non-exact candidate.
+ADR 0017 separately permits defined, labelled source-shaping diagnostics inside
+an authorized causal exploration packet. Those nonexact artifacts stay ignored;
+neither diagnostic permission nor this cleanup policy authorizes their adoption.
 
 A match here is DONE for scoreboard purposes; the cleanup is a quality follow-up,
 not a correctness gap.

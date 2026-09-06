@@ -82,6 +82,17 @@ malformed, source-mismatched, or superseded evidence still fails closed.
 and reports `base-only` only for that exact pair. The first subsequent source
 or handoff commit makes the authorization stale and the target exhausted again.
 
+[ADR 0017](adr/0017-causal-exploration-and-risk-proportional-validation.md)
+permits explicitly assigned, 60–90-minute causal exploration packets beyond
+ADR 0016's narrow residual cutoff. Each function still needs current committed
+reopen pins and a zero-exit assignment gate. Prove the actual baseline's
+self-context comparison and compiler fidelity before exploring, predict what
+each hypothesis should change, and preserve nonexact diagnostics only as ignored
+evidence. Defined inert source-shaping probes are diagnostic permission, not
+authority to adopt a nonexact body. All ordinary matching and landing gates
+remain mandatory; unchanged report-only work needs preservation and a clean
+state check rather than blanket closing rebuilds.
+
 Non-interactive workers also receive an explicit task budget. The launcher
 passes a soft deadline to the agent and tools, reserves five minutes for a
 handoff, and then interrupts the exact process it launched. Expiry preserves a

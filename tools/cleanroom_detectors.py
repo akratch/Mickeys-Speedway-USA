@@ -19,7 +19,7 @@ Input: one entry per line, tab-separated, four fields:
     path   the repo-relative path.  Last field, so a path containing a tab
            still survives the split.
 
-Content work is deduplicated by `ident`, which is what makes `--range` over
+Content work is deduplicated by `(ident, path)`, which makes `--range` over
 a long history cheap: a file that never changed is one blob no matter how
 many commits it appears in.  Path work is deduplicated by `path`.
 
@@ -305,6 +305,10 @@ BINARY_ALLOWLIST: "set[str]" = set()
 # every entry here is a permanent hole. If this set is not empty, the count and
 # each reason belong in the report.
 CONTENT_EXEMPTIONS: "dict[tuple[str, str], str]" = {
+    (
+        "config/lane-reopen-authorizations.us.json",
+        "aggregate-word-budget",
+    ): "schema-validated source/ledger Git pins only; non-pin content still contributes normally",
     (
         "config/lane-reopen-authorizations.us.json",
         "word-table",
@@ -1467,6 +1471,46 @@ def check_content(path, data):
         if spread >= AGGREGATE_SPREAD_FLOOR and word_rate >= AGGREGATE_RATE_FLOOR
         else 0
     )
+    # This exemption is not inherited from word-table exemptions. Only declared
+    # hash leaves in the one exact schema/path are accounted for; prose and all
+    # other content detectors remain live. Do not alter the generic normalizer.
+    aggregate_reason = CONTENT_EXEMPTIONS.get((path, "aggregate-word-budget"))
+    if aggregate_reason is not None:
+        try:
+            from lane_status import parse_reopen_authorizations
+
+            def unique_keys(pairs):
+                result = {}
+                for key, value in pairs:
+                    if key in result:
+                        raise ValueError(f"{path}: duplicate JSON key {key!r}")
+                    result[key] = value
+                return result
+
+            json.loads(text, object_pairs_hook=unique_keys)
+            rows = parse_reopen_authorizations(text, label=path)
+            # The parser returns a fresh document, not caller-owned state.
+            for row in rows.values():
+                row["source_commit"] = " " * len(row["source_commit"])
+                if row["ledger_commit"] is not None:
+                    row["ledger_commit"] = " " * len(row["ledger_commit"])
+            residual = json.dumps({"schema_version": 1, "authorizations": rows})
+            residual_values = normalize_words(residual)
+            residual_spread = len({(value >> 24) & 0xFF for value in residual_values})
+            metrics["aggregate_scored"] = (
+                len(residual_values)
+                if residual_spread >= AGGREGATE_SPREAD_FLOOR
+                and len(residual_values) * 1024.0 / size >= AGGREGATE_RATE_FLOOR
+                else 0
+            )
+            print(
+                f"cleanroom: exempt [aggregate-word-budget] {path} -- "
+                f"{aggregate_reason}; raw scored={metrics['scored']}, "
+                f"remaining scored={metrics['aggregate_scored']}",
+                file=sys.stderr,
+            )
+        except (ImportError, RuntimeError, ValueError, RecursionError) as error:
+            out.append(("reopen-authorization-schema", [str(error)]))
     if (
         len(values) >= WORD_TABLE_COUNT_LIMIT
         and spread >= WORD_TABLE_SPREAD_LIMIT
@@ -1630,21 +1674,21 @@ def main():
         for detector, lines in check_path(path):
             findings.add(detector, path, label, lines)
 
-    # Content rules: once per distinct source of bytes.  This dedup is why a
-    # full-history scan costs about the same as a single-commit scan.
+    # Content rules are path-sensitive (schemas and exemptions), even when two
+    # paths contain the same blob. Repeated history at the same path stays cheap.
     seen_idents = {}
     for kind, ident, label, path in entries:
         if kind == "link":
             continue
-        key = (kind, ident)
+        key = (kind, ident, path)
         if key not in seen_idents:
             seen_idents[key] = (label, path)
 
-    blob_shas = [ident for (kind, ident) in seen_idents if kind == "blob"]
+    blob_shas = {ident for (kind, ident, _path) in seen_idents if kind == "blob"}
     blobs = read_blobs(blob_shas)
 
     metrics_by_ident = {}
-    for (kind, ident), (label, path) in seen_idents.items():
+    for (kind, ident, path), (label, _path) in seen_idents.items():
         if kind == "blob":
             data = blobs.get(ident)
         else:
@@ -1656,7 +1700,7 @@ def main():
         if data is None:
             continue
         found, metrics = check_content(path, data)
-        metrics_by_ident[(kind, ident)] = metrics
+        metrics_by_ident[(kind, ident, path)] = metrics
         for detector, lines in found:
             findings.add(detector, path, label, lines)
 
@@ -1665,20 +1709,21 @@ def main():
     # per label -- one worktree, one index, or one commit's tree -- and NOT
     # across the whole scan, so that scanning more history does not accumulate
     # a total that eventually fails on its own.
-    totals = {}
-    counted = {}
-    for kind, ident, label, _path in entries:
+    contributions = {}
+    for kind, ident, label, path in entries:
         if kind == "link":
             continue
-        metrics = metrics_by_ident.get((kind, ident))
+        metrics = metrics_by_ident.get((kind, ident, path))
         if metrics is None:
             continue
-        # A blob appearing at two paths in one tree counts once.
-        seen = counted.setdefault(label, set())
-        if ident in seen:
-            continue
-        seen.add(ident)
-        totals[label] = totals.get(label, 0) + metrics["scored"]
+        # Count duplicate bytes once, but never let an exempt spelling suppress
+        # an identical blob at a foreign path, regardless of entry order.
+        unit = contributions.setdefault(label, {})
+        key = (kind, ident)
+        unit[key] = max(
+            unit.get(key, 0), metrics.get("aggregate_scored", metrics["scored"])
+        )
+    totals = {label: sum(unit.values()) for label, unit in contributions.items()}
 
     for label, total in sorted(totals.items()):
         if total >= AGGREGATE_WORD_BUDGET:
