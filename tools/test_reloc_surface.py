@@ -2177,5 +2177,243 @@ class AnnotationScratchTransactionTests(unittest.TestCase):
         self.exercise("refresh", "nonzero", preservation_failure=True)
 
 
+class GeneratedCrossOverlayCIdentityTests(unittest.TestCase):
+    NAME = "func_overlay_008_F0000010_110"
+
+    class Elf(FunctionSurfaceComparisonTests.BoundaryElf):
+        def section(self, name):
+            if name in self.names:
+                address = rs.SYNTHETIC_VMA if name.startswith('.overlay_') else 0
+                return self.names.index(name), (0, 1, 0, address, 0, len(self._text))
+            return None, None
+
+        def section_bytes(self, name):
+            return self._text if name in self.names else b''
+
+    def fixture(self, root):
+        import permute_batch as batch
+        self.enterContext(mock.patch.object(batch, 'ROOT', root))
+        self.recipe_mock = self.enterContext(mock.patch.object(
+            batch, 'build_recipe_for', return_value=batch.BuildRecipe(
+                ('-O2',), (), (), True, ('-nostdinc', '-I', 'include'))))
+        source = root / 'src/overlays/o008/mixed.c'
+        source.parent.mkdir(parents=True)
+        source.write_text('void %s(void) {}\n' % self.NAME)
+        obj = root / 'build/src/overlays/o008/mixed.c.o'
+        obj.parent.mkdir(parents=True)
+        obj.write_bytes(b'fixture')
+        linked_path = root / 'build/game.elf'
+        linked_path.write_bytes(b'fixture')
+        atlas = {'modules': [{
+            'overlay': 8, 'identity': 'overlay:8', 'synthetic_vma': '0xF0000000',
+            'rom': {'start': '0x100'},
+            'sections': {'text': {'start': '0x100', 'end': '0x140', 'size': '0x40'}},
+            'text_ownership': [{'offset': '0x0', 'end_offset': '0x40', 'size': '0x40',
+                                'type': 'c', 'source': 'overlays/o008/mixed',
+                                'matched': True, 'nonmatching': True}],
+            'mixed_tu_exact_c_ranges': [{'offset': '0x10', 'end_offset': '0x18',
+                'size': '0x8', 'source': 'overlays/o008/mixed', 'label': 'friendly'}],
+        }]}
+        canonical = self.Elf(path=obj, names=['', '.text'], text=bytes(64),
+            symbols=[(self.NAME, 16, 8, rs.STT_FUNC, 1), ('neighbor', 0, 8, rs.STT_FUNC, 1)])
+        linked = self.Elf(path=linked_path, names=['', '.overlay_008'], text=bytes(64),
+            symbols=[(self.NAME, rs.SYNTHETIC_VMA+16, 8, rs.STT_FUNC, 1)])
+        canonical.data = obj.read_bytes()
+        linked.data = linked_path.read_bytes()
+        caller = self.Elf(names=['', '.text'], text=bytes(4),
+            symbols=[(self.NAME,0,0,0,rs.SHN_UNDEF)],
+            relocations=[('.text',0,rs.R_MIPS_26,0)])
+        return atlas, canonical, linked, caller, source, obj
+
+    def resolve(self, root, atlas, canonical, linked, caller, source, obj, *, rom=None,
+                source_overlay=1):
+        return rs._stable_overlay_call_identities(root/'missing', caller, source_overlay,
+            linked, atlas, 0, 4, root=root, elf_loader=lambda _path:canonical,
+            rom=bytes(0x140) if rom is None else rom)[0]
+
+    def test_mixed_interior_c_cross_overlay_and_resident_call(self):
+        for origin in (1, 8, None):
+            with self.subTest(origin=origin), tempfile.TemporaryDirectory() as td:
+                root=Path(td); args=self.fixture(root)
+                self.assertEqual({self.NAME:(8,16)}, self.resolve(root,*args,source_overlay=origin))
+
+    def test_instruction_relocation_value_may_change_but_opcode_may_not(self):
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td); args=self.fixture(root); canonical=args[1]
+            canonical._relocations=[('.text',16,rs.R_MIPS_LO16,0)]
+            canonical._text=bytes(18)+b'\x00\x01'+bytes(44)
+            self.assertEqual({self.NAME:(8,16)},self.resolve(root,*args))
+            canonical._text=bytes(16)+b'\x01\x00\x00\x00'+bytes(44)
+            self.assertEqual({},self.resolve(root,*args))
+
+    def test_missing_or_unproved_evidence_is_unresolved(self):
+        for defect in ('definition','guard','conditional','spliced_conditional',
+                       'registry','object','stale','header','local_header','recipe',
+                       'compiler_wrapper','linked_stale','rom','rom_short','object_bytes',
+                       'parsed_linked','parsed_object'):
+            with self.subTest(defect=defect), tempfile.TemporaryDirectory() as td:
+                root=Path(td); args=self.fixture(root)
+                atlas,canonical,linked,caller,source,obj=args
+                rom=None
+                if defect=='definition':source.write_text('void another(void) {}')
+                elif defect=='guard':source.write_text('#ifdef NON_MATCHING\nvoid %s(void) {}\n#endif\n'%self.NAME)
+                elif defect=='conditional':source.write_text('#if 0\nvoid %s(void) {}\n#endif\n'%self.NAME)
+                elif defect=='spliced_conditional':source.write_text('#\\\nif 0\nvoid %s(void) {}\n#endif\n'%self.NAME)
+                elif defect=='registry':atlas['modules'][0]['mixed_tu_exact_c_ranges']=[]
+                elif defect=='object':obj.unlink()
+                elif defect=='stale':os.utime(source,ns=(obj.stat().st_mtime_ns+1000000,)*2)
+                elif defect=='header':
+                    p=root/'include/header.h';p.parent.mkdir();p.write_text('typedef int changed;')
+                    os.utime(p,ns=(obj.stat().st_mtime_ns+1000000,)*2)
+                elif defect=='local_header':
+                    source.write_text('#include "local.h"\nvoid %s(void) {}\n'%self.NAME)
+                    os.utime(source,ns=(obj.stat().st_mtime_ns-1000000,)*2)
+                    p=source.parent/'local.h';p.write_text('typedef int Changed;')
+                    os.utime(p,ns=(obj.stat().st_mtime_ns+1000000,)*2)
+                elif defect in ('recipe','compiler_wrapper'):
+                    p=root/('mk/overlays.mk' if defect=='recipe' else 'tools/asm-processor/build.py')
+                    p.parent.mkdir(parents=True);p.write_text('changed')
+                    os.utime(p,ns=(obj.stat().st_mtime_ns+1000000,)*2)
+                elif defect=='linked_stale':os.utime(linked.path,ns=(obj.stat().st_mtime_ns-1000000,)*2)
+                elif defect=='rom':rom=bytes(0x110)+b'\x01'+bytes(0x2f)
+                elif defect=='rom_short':rom=b''
+                elif defect=='object_bytes':canonical._text=bytes(16)+b'\x01'+bytes(47)
+                elif defect=='parsed_linked':linked.path.write_bytes(b'new file, old parsed ELF')
+                elif defect=='parsed_object':canonical.data=b'different parsed object'
+                # Definition/guard checks, not just newer-source rejection.
+                if defect in ('definition','guard','conditional','spliced_conditional'):
+                    os.utime(source,ns=(obj.stat().st_mtime_ns-1000000,)*2)
+                self.assertEqual({},self.resolve(root,*args,rom=rom))
+
+    def test_conflicting_boundary_evidence_raises(self):
+        for defect in ('rom_suffix','overlay_section','linked_value','linked_size',
+                       'duplicate_linked','duplicate_object','overlap','extent','offset',
+                       'owners','registry_overlap','registry_extent','source_overlay'):
+            with self.subTest(defect=defect), tempfile.TemporaryDirectory() as td:
+                root=Path(td); args=self.fixture(root)
+                atlas,canonical,linked,caller,source,obj=args
+                module=atlas['modules'][0]
+                if defect=='rom_suffix':caller._symbols=[(self.NAME[:-3]+'111',0,0,0,0)]
+                elif defect=='overlay_section':linked.names[1]='.overlay_009'
+                elif defect=='linked_value':linked._symbols=[(self.NAME,rs.SYNTHETIC_VMA+20,8,rs.STT_FUNC,1)]
+                elif defect=='linked_size':linked._symbols=[(self.NAME,rs.SYNTHETIC_VMA+16,12,rs.STT_FUNC,1)]
+                elif defect=='duplicate_linked':linked._symbols*=2
+                elif defect=='duplicate_object':canonical._symbols.append(canonical._symbols[0])
+                elif defect=='overlap':canonical._symbols.append(('bad',20,8,rs.STT_FUNC,1))
+                elif defect=='extent':canonical._symbols[0]=(self.NAME,16,64,rs.STT_FUNC,1)
+                elif defect=='offset':canonical._symbols[0]=(self.NAME,20,8,rs.STT_FUNC,1)
+                elif defect=='owners':module['text_ownership']*=2
+                elif defect=='registry_overlap':module['mixed_tu_exact_c_ranges']*=2
+                elif defect=='registry_extent':module['mixed_tu_exact_c_ranges'][0]['size']='0x4'
+                elif defect=='source_overlay':module['text_ownership'][0]['source']='overlays/o009/mixed'
+                with self.assertRaises(rs.SurfaceComparisonError):self.resolve(root,*args)
+
+    def test_nonfunction_or_abs_symbols_cannot_authenticate(self):
+        for which, bad_type, bad_section in (
+                ('canonical', 1, 1), ('linked', 1, 1),
+                ('canonical', rs.STT_FUNC, rs.SHN_ABS),
+                ('linked', rs.STT_FUNC, rs.SHN_ABS)):
+            with self.subTest(which=which, section=bad_section),tempfile.TemporaryDirectory() as td:
+                root=Path(td);args=self.fixture(root)
+                elf=args[1] if which=='canonical' else args[2]
+                n,v,s,info,idx=elf._symbols[0]
+                elf._symbols[0]=(n,v,s,bad_type,bad_section)
+                self.assertEqual({},self.resolve(root,*args))
+
+    def test_changed_source_during_object_read_fails_closed(self):
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td)
+            atlas,canonical,linked,caller,source,obj=self.fixture(root)
+            def mutate(_path):
+                source.write_text('void removed(void) {}\n')
+                return canonical
+            with self.assertRaisesRegex(rs.SurfaceComparisonError, 'inputs changed'):
+                rs._stable_overlay_call_identities(root/'missing',caller,1,linked,
+                    atlas,0,4,root=root,elf_loader=mutate,rom=bytes(0x140))
+
+    def test_snapshot_window_replacement_cannot_authenticate_old_inputs(self):
+        for replaced in ('source', 'linked'):
+            with self.subTest(replaced=replaced), tempfile.TemporaryDirectory() as td:
+                root=Path(td);args=self.fixture(root)
+                source,obj,linked=args[4],args[5],args[2]
+                original=Path.rglob
+                changed=False
+                def replace_before_snapshot(path, pattern):
+                    nonlocal changed
+                    if path == root/'include' and not changed:
+                        changed=True
+                        if replaced == 'source':
+                            source.write_text('void %s(void) { different_call(); }\n'%self.NAME)
+                            os.utime(source,ns=(obj.stat().st_mtime_ns-1000000,)*2)
+                        else:
+                            linked.path.write_bytes(b'new linked ELF at the old path')
+                    return original(path,pattern)
+                with mock.patch.object(Path,'rglob',replace_before_snapshot):
+                    self.assertEqual({},self.resolve(root,*args))
+                self.assertTrue(changed)
+
+    def test_old_source_local_include_is_supported_but_macro_include_is_not(self):
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td);args=self.fixture(root)
+            source,obj=args[4],args[5]
+            header=source.parent/'local.h';header.write_text('typedef int Local;\n')
+            os.utime(header,ns=(obj.stat().st_mtime_ns-2000000,)*2)
+            source.write_text('#include "local.h"\nvoid %s(void) {}\n'%self.NAME)
+            os.utime(source,ns=(obj.stat().st_mtime_ns-1000000,)*2)
+            self.assertEqual({self.NAME:(8,16)},self.resolve(root,*args))
+            source.write_text('#include UNKNOWN_HEADER\nvoid %s(void) {}\n'%self.NAME)
+            os.utime(source,ns=(obj.stat().st_mtime_ns-1000000,)*2)
+            self.assertEqual({},self.resolve(root,*args))
+
+    def test_outside_owner_is_unresolved(self):
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td);args=self.fixture(root)
+            args[3]._symbols=[('func_overlay_008_F0000040_140',0,0,0,0)]
+            self.assertEqual({},self.resolve(root,*args))
+
+    def test_actual_alternate_include_recipe_is_used(self):
+        import dataclasses
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td);args=self.fixture(root)
+            source,obj=args[4],args[5]
+            header=root/'alternate/header.h';header.parent.mkdir()
+            header.write_text('typedef int External;\n')
+            source.write_text('#include <header.h>\nvoid %s(void) {}\n'%self.NAME)
+            os.utime(source,ns=(obj.stat().st_mtime_ns-1000000,)*2)
+            os.utime(header,ns=(obj.stat().st_mtime_ns-2000000,)*2)
+            self.recipe_mock.return_value=dataclasses.replace(
+                self.recipe_mock.return_value,compiler_args=('-nostdinc','-I','alternate'))
+            self.assertEqual({self.NAME:(8,16)},self.resolve(root,*args))
+            os.utime(header,ns=(obj.stat().st_mtime_ns+1000000,)*2)
+            self.assertEqual({},self.resolve(root,*args))
+
+    def test_recipe_change_during_inspection_is_rejected(self):
+        import dataclasses
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td)
+            atlas,canonical,linked,caller,source,obj=self.fixture(root)
+            def change_recipe(_path):
+                self.recipe_mock.return_value=dataclasses.replace(
+                    self.recipe_mock.return_value,
+                    compiler_args=('-nostdinc','-DCHANGED','-I','include'))
+                return canonical
+            with self.assertRaisesRegex(rs.SurfaceComparisonError, 'dependency set changed'):
+                rs._stable_overlay_call_identities(root/'missing',caller,1,linked,
+                    atlas,0,4,root=root,elf_loader=change_recipe,rom=bytes(0x140))
+
+    def test_newer_normalization_spec_invalidates_callee_object(self):
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td);args=self.fixture(root)
+            obj=args[5]
+            spec=root/'config/normalizations/callee.rebind.spec'
+            spec.parent.mkdir(parents=True)
+            spec.write_text('synthetic metadata dependency\n')
+            os.utime(spec,ns=(obj.stat().st_mtime_ns-2000000,)*2)
+            self.assertEqual({self.NAME:(8,16)},self.resolve(root,*args))
+            spec.write_text('changed synthetic metadata dependency\n')
+            os.utime(spec,ns=(obj.stat().st_mtime_ns+1000000,)*2)
+            self.assertEqual({},self.resolve(root,*args))
+
+
 if __name__ == "__main__":
     unittest.main()
