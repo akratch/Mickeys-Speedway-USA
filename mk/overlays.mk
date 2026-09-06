@@ -179,9 +179,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_middle.c.o: POSTPROCESS = \
 		--redefine-sym func_overlay_001_F0002AA4_184EE84=overlay1AdvanceGauge $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x408
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_tail.c.o: CFLAGS += -Wab,-r4300_mul
-# The candidate's literal pool owns the atlas' fixed +0x274..+0x294 slice;
-# anchor it there after text normalization whenever this TU emits .rodata.
-# The fallback object has no such section, so the conditional keeps it intact.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_tail.c.o: config/normalizations/overlay1DispatchMode.rebind.spec
+# The eight-entry table retains its raw owner at initialized-data +0x274.
+# Its runtime LOCAL base is +0x110 into initialized data: bind the unchanged
+# compiler pair to stored addend +0x164, without editing instruction fields.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_tail.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
 		--redefine-sym func_overlay_001_F0003578_184F958=overlay1InitializeGaugeObjects \
@@ -205,6 +206,8 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_tail.c.o: POSTPROCESS = \
 		--redefine-sym overlay36TickState=overlay1ModeAction7 \
 		--redefine-sym overlay36UpdatePeers=overlay1ModeAction8 \
 		--redefine-sym overlay36SpawnFinalEffect=overlay1ModeAction9 \
+		--redefine-sym overlay1FindPreviousAngle=overlay1ModePreviousAngleReloc \
+		--redefine-sym overlay1FindNextAngle=overlay1ModeNextAngleReloc \
 		--redefine-sym func_overlay_001_F00061F0_18525D0=overlay1HandleCachedMode \
 		--redefine-sym func_overlay_001_F00064F8_18528D8=overlay1SolveAngleCandidates \
 		--redefine-sym func_overlay_001_F00067C0_1852BA0=overlay1UpdateRangeFlags \
@@ -225,8 +228,11 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_tail.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x4664 && \
 	candidate_rodata_size=$$( $(OBJDUMP) -h $@ | awk '$$2 == ".rodata" { print $$3; exit }' ); \
 	if [ -n "$$candidate_rodata_size" ] && [ "$$candidate_rodata_size" != "00000000" ]; then \
+		$(OBJCOPY) --add-symbol gOverlay1ModeTable=0x164,global $@ && \
+		$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+			@config/normalizations/overlay1DispatchMode.rebind.spec && \
 		$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
-			sha256:553c0965d61758fe6e8486169ca6ae3a1c4def4245d49c53bdb058142fa7fead 0x274 && \
+			sha256:553c0965d61758fe6e8486169ca6ae3a1c4def4245d49c53bdb058142fa7fead && \
 		$(OBJCOPY) --remove-section=.rel.rodata $@; \
 	fi
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o001/overlay_001_create.c.o: CFLAGS += -Wab,-r4300_mul

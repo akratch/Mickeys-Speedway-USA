@@ -1168,6 +1168,12 @@ MIXED_TU_EXACT_C_RANGES = {
         ),
         (0x5ECC, 0x5ED4, "overlay1ReturnZero"),
         (
+            0x5ED4,
+            0x61F0,
+            "overlay1DispatchMode",
+            "canonical mixed-TU object, 61 runtime relocations, and linked bytes exact",
+        ),
+        (
             0x6270,
             0x63CC,
             "overlay1ChooseModeObject",

@@ -2022,3 +2022,24 @@ to local `overlay1ActivateObject` (`+0x4B4`) and
 `func_8002A8C0`/`func_8002A8BC`. Overlay 92 calls the function at `+0x520`
 and `+0x958`. The owned range, complete overlay, and full ROM are
 byte-identical.
+
+`overlay 1 +0x5ED4..+0x61F0` (`overlay1DispatchMode`) contributes **796 exact
+C bytes / 199 words** (Tier A). The existing body compiles with the exact
+`0x28` frame; the remaining discrepancy was link metadata, not allocation or
+control flow. Its 61 raw and configured text relocation records agree with
+the shipped runtime table by count, offset, and type. Static source identities,
+the exact linked range, and the unchanged runtime table prove all 61
+effective identities, including the retained table pair and generated
+Overlay 8 call. The eleven external calls name canonical definitions with
+their existing ABI, while four local calls retain their original pre-loader
+addends through object-local aliases.
+
+The eight-entry switch table remains in its initialized-data owner at
+`+0x274`; its runtime LOCAL base lies at initialized-data `+0x110`, so the
+stored addend is `+0x164`. Two existing compiler relocation records are
+rebound to that anchor. All eight raw compiler table destinations agree
+relative to the function entry before the duplicate compiler section is
+externalized. Every retained instruction byte is untouched; only the TU's
+12 trailing zero alignment bytes are trimmed. There is no function-owned
+padding or new table credit. Both neighboring boundaries, the complete
+overlay, and full ROM remain byte-identical.
