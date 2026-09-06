@@ -67,6 +67,31 @@ bytes and disassembly never belong here.
 
 ### Allocation and source shape
 
+- Possible colorability is not per-function ownership. The workbench's static
+  IDO 5.3 temporary-only classification of integer t0 through t5 conflicts with
+  its own decoded color map and with a controlled Mickey function whose count
+  and next-frame values occupy colored t0 and t2. Do not use that profile as
+  proof that a target register is uncolorable or that UGEN alone owns a residual.
+  Bind actual role evidence separately to each compared input; missing target
+  evidence must remain missing. A FIFO replay over a subset chosen from observed
+  allocation returns proves only consistency with that subset, not that it is
+  the complete available pool. Check initialization and reservation semantics
+  independently, and never infer reservation merely from absent allocations or
+  absent surviving instructions. A later source carrier can change early output
+  while early expression records remain unchanged, so demand order is not the
+  only explanation to test. Evidence and the withdrawn overclaim are recorded
+  in the `func_80020D8C` two-source handoff; workbench correction is pending.
+- A traced free request is not necessarily a queue transition. In the pinned
+  UGEN producer, FREE/FORCE_FREE entry hooks precede conditional mutation, and
+  a successful free can append directly without invoking the separate ADD hook.
+  REMOVE is also conditional on membership; MOVE_END belongs to the used list,
+  not the free FIFO. Source-authenticated initial ADD/REMOVE records established
+  different initial membership in a controlled pair, but did not make its
+  entire dynamic queue history observable. Dropping requests and relying only
+  on ADD would lose real frees; treating every request as an append invents
+  others. Keep initialization proof separate from complete replay, and require
+  successful-transition evidence for the latter. The compiler-source binding
+  and limits are recorded in the `func_80020D8C` reservation audit.
 - Reusing a masked index in an existing predicate can change its allocation
   class, not merely its temporary demand order. In a controlled full-TU pair,
   an equivalent predicate shared the low mask with a table access. Faithful
