@@ -186,6 +186,13 @@ perimeter.
 
 ### What is actually load-bearing
 
+The exact `config/lane-reopen-authorizations.us.json` path has a reviewed
+aggregate-budget exemption for schema-validated source/ledger Git hash leaves.
+Its reasons and other non-pin content still contribute to the aggregate;
+malformed schemas fail closed. This does not extend other word-table exemptions
+to the aggregate. Identical bytes at a foreign path remain checked and contribute
+the maximum applicable score once per scan unit, regardless of entry order.
+
 The guarantees that do not depend on out-guessing an encoding are structural:
 
 1. **The path whitelist under `.decomp-workbench/`**: only
