@@ -86,6 +86,11 @@ and never need a job ceiling to avoid stepping on each other
 
 Raw compiler-output `asm` blocks and standing permuter sweeps follow ADR 0016.
 Carve and ROM-prove the TU before decompiling a contained function.
+An explicitly recorded causal exploration packet follows ADR 0017: one owned
+family anchor, 60–90 minutes, approximately ten source attempts, falsifiable
+hypotheses and a proved baseline feedback loop. Its source/handoff pins must
+still pass the ADR 0011 assignment gate. This packet can investigate structural
+or wider allocation deficits; it does not waive any matching acceptance proof.
 
 ### Three-session interactive crew
 
@@ -220,6 +225,10 @@ an equivalent coherent unit.
 5. Iterate with coherent hypotheses, preserving semantics, widths,
    signedness, and call order. Don't improve a score by inventing guards,
    merging unproved identities, or patching object bytes.
+   ADR 0017 separately permits labelled, defined and semantically inert
+   source-shaping diagnostics inside an authorized causal packet. Nonexact
+   diagnostics stay ignored; an exact inert spelling needs semantic review,
+   disclosure and the cleanup queue before normal promotion proofs.
 6. Stop at ~10 attempts without an exact match and record a plateau: best
    candidate, score, first mismatch, and what's blocking it
    (`docs/adr/0009-model-routing-and-agent-operation.md`).
