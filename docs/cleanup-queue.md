@@ -19,6 +19,7 @@ not a correctness gap.
 
 | Function | TU | Non-natural form | Notes for the cleaner pass |
 |---|---|---|---|
+| `overlay1FindType5ByKey` | overlay 1 record lookup | single-execution `do/while(0)` predicate block and packed cursor/loop line | The unused key local was removed without changing output. Replacing the predicate scaffold with an ordinary block regressed; retain the used Boolean and bounds-before-offset ordering while seeking natural grouping. |
 | `func_80046AA8` | diCpu | `do{}while(0)` around the setup block | The boundary forces IDO to close the setup as its own basic block before the blit loop. A cleaner equivalent (a real early computation dependency?) may exist. |
 | `func_800320F0` | runlink | four inert allocation aids: one `overlayCount` block and three `if (1) {}` blocks | The blocks preserve the exact long-lived-register allocation found by the bounded permuter. Seek a natural declaration/lifetime spelling with the same 101 words and 21 relocations. |
 | `runlinkUnloadOverlay` | runlink | `patchOperation ^ 0` comparison | The algebraically inert xor retains exact comparison operand allocation. Seek a direct comparison with the same bytes and relocation surface. |

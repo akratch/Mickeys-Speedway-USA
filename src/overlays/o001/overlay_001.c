@@ -247,47 +247,31 @@ typedef struct Overlay1SearchRecord {
 } Overlay1SearchRecord;
 
 
-/* Pinned DKR v77/v80 and JFG scans found no exact-byte donor. Fresh configured
- * full-TU V0 is exact-sized at 39 words with frame 0x30, 22/39 positional
- * words, and first substantive mismatch +0x1C. All 17 residual sites are
- * register-only and split into loop/cursor and key-comparison FIFOs. All 119
- * flag identities were attempted; 53 compiled/extracted and thirteen O2/MIPS
- * II-or-III rows tie V0. A fidelity-clean proc-11 uopt trace records six
- * integer-pool decisions; mixed-TU ugen temporary decisions are not safely
- * attributable. Explicit array/cursor splitting is byte-identical to V0, and
- * a scoped record-key carrier remains 17 positional words while introducing
- * two opcode/alignment discrepancies. Runtime table-1 record 1 proves the sole
- * +0x14 relocation's offset, type, and resident func_8000572C identity. ORT
- * 1485 exports this function and table-2 record 548 is its sole inbound. No
- * strict natural gain exists, so combination and batch routes are ineligible;
- * retain this fallback-backed plateau. */
-#ifdef NON_MATCHING
+/* Mickey-only reconstruction; the pinned DKR/JFG scans found no exact donor.
+ * Evaluate the bounds before offsetting the cursor: this orders IDO's initial
+ * temporary demands. The single-execution do/while and packed statement lines
+ * below are inert source-shaping forms retained for exact compiler output;
+ * see docs/cleanup-queue.md for the natural-spelling follow-up. */
 Overlay1SearchRecord *overlay1FindType5ByKey(const s8 *key) {
-    s32 start;
-    s32 end;
-    s32 wantedKey;
-    Overlay1SearchRecord *record;
-    Overlay1SearchRecord **cursor;
+  s32 start;
+  s32 end;
+  int typeMatches;
 
-    cursor = (Overlay1SearchRecord **)func_8000572C(&start, &end) + start;
-    if (start < end) {
-        do {
-            record = *cursor++;
-            start++;
-            if (record->type == 5) {
-                wantedKey = *key;
-                if (wantedKey == record->key) {
-                    return record;
-                }
-            }
-        } while (start < end);
+  Overlay1SearchRecord *record;
+  Overlay1SearchRecord **cursor;
+  cursor = ((Overlay1SearchRecord **) func_8000572C(&start, &end));
+  if (start < end)
+  {
+    cursor += start; do
+    {
+      record = *(cursor++);
+      start++;
+ do { typeMatches = record->type == 5; if (typeMatches) { ; if ((*key) == (*record).key) { return record; } } } while (0);
     }
-    return NULL;
+    while (end > start);
+  }
+  return (void *) 0;
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001/func_overlay_001_F0000378_184C758.s")
-#endif
 
 /* ---- overlay1FindPreviousUsable ---- */
 

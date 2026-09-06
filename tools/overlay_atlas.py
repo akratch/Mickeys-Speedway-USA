@@ -1123,6 +1123,12 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x0154, 0x01AC, "overlay1SignedOffset"),
         (0x02D4, 0x0330, "overlay1GetLinkedActive"),
         (0x0330, 0x0378, "overlay1GetRecord"),
+        (
+            0x0378,
+            0x0414,
+            "overlay1FindType5ByKey",
+            "canonical mixed-TU object, one runtime relocation, and linked ROM bytes exact",
+        ),
         (0x0758, 0x07B0, "overlay1TestDirection"),
         (
             0x0BD4,
