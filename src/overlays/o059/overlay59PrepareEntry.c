@@ -51,7 +51,7 @@ typedef struct Overlay59DescriptorGroup {
 
 extern Overlay59DescriptorGroup gOverlay59DescriptorTables[];
 extern void overlay59PrepareReleaseReloc(Overlay59Entry *entry);
-extern u32 overlay59PrepareAcquireReloc(void *value);
+extern void *func_80034448(s32 textureId);
 
 #ifdef NON_MATCHING
 s32 overlay59PrepareEntry(Overlay59Entry *entry, s32 tableIndex, s32 itemIndex) {
@@ -73,7 +73,7 @@ s32 overlay59PrepareEntry(Overlay59Entry *entry, s32 tableIndex, s32 itemIndex) 
         if (value != 0) {
             do {
                 handle = (u32)value;
-                handle = overlay59PrepareAcquireReloc((void *)handle);
+                handle = (u32)func_80034448((s32)handle);
                 if (handle == 0) {
                     result = 0;
                 } else {
@@ -84,7 +84,7 @@ s32 overlay59PrepareEntry(Overlay59Entry *entry, s32 tableIndex, s32 itemIndex) 
                 value = descriptor[1];
                 if (value != 0) {
                     handle = (u32)value;
-                    handle = overlay59PrepareAcquireReloc((void *)handle);
+                    handle = (u32)func_80034448((s32)handle);
                     if (handle == 0) {
                         result = 0;
                     } else {
@@ -107,12 +107,21 @@ s32 overlay59PrepareEntry(Overlay59Entry *entry, s32 tableIndex, s32 itemIndex) 
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o059/overlay59PrepareEntry/func_overlay_059_F0000070_18B87C0.s")
 #endif
 
+/* Binding reproof (2026-09-06): the resident acquisition callee consumes an
+ * integer texture ID and returns a pointer handle. Explicit casts preserve
+ * the existing N64 32-bit carriers. Raw and configured full-TU text remains
+ * unchanged; all six relocation identities now agree with the ROM records.
+ * The configured resident alias stays distinct from the local release call.
+ * This repairs binding evidence only: nine instruction words still differ,
+ * and the ordinary ROM proof continues to use the assembly fallback.
+ */
+
 /* PLATEAU-HANDOFF:overlay59PrepareEntry:start
  * symbol: overlay59PrepareEntry
  * score: 53/62 words
  * frame: 0x28
  * relocations: 6
- * first-mismatch: +0x48
- * summary: Merging value/handle into either u32 or pointer carrier is byte-identical. The target v0 load/call-delay web remains unavailable; baseline stays 53/62.
+ * first-mismatch: +0x54
+ * summary: Integer-ID acquisition binding repaired; all six runtime identities exact. Owned instructions unchanged; nine carrier-allocation words remain.
  * PLATEAU-HANDOFF:overlay59PrepareEntry:end
  */

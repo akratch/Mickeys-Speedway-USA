@@ -328,8 +328,8 @@
     },
     "overlay59PrepareEntry": {
       "source_commit": "4a75e3348dc760509befffba716637270952d8d7",
-      "ledger_commit": "5d0ffb92fe5c6d406cd9b1d2fa45054d5691111c",
-      "reason": "Compiler-lever pass ov8: nine-word residual is one call-argument carrier web (v0 vs a0); authorize merging the value and handle locals into one carrier."
+      "ledger_commit": "3c7b2ad42d5c8dd2375d6801850bbf0b5dd89457",
+      "reason": "Binding/ABI repair only: use the ROM-proved integer-ID texture callee, distinct from local release. Prove unchanged owned bytes and all six identities; refresh evidence. No allocation, flag or manual variants."
     },
     "func_overlay_047_F00009D0_18917E8": {
       "source_commit": "c0ebdf9880c888c5e843adbe6bed562bfe9875a3",
