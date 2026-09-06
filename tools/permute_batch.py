@@ -467,15 +467,36 @@ def replicate_objcopy(scratch: Path, recipe: BuildRecipe, c_file: Path, out_dir:
                             or any(word in {"&&", "||", ";", "|"} for word in words)):
                         raise RuntimeError("unsupported scratch objcopy alias invocation")
                     remaining = words[1:-1]
+                    additions, removals = [], []
                     while remaining:
                         if remaining[0] == "--redefine-sym" and len(remaining) >= 2:
                             remaining = remaining[2:]
                         elif remaining[0].startswith("--redefine-sym="):
                             remaining = remaining[1:]
+                        elif remaining[0] in {"--add-symbol", "--remove-section"} or remaining[0].startswith(("--add-symbol=", "--remove-section=")):
+                            option, separator, value = remaining[0].partition("=")
+                            if separator:
+                                remaining = remaining[1:]
+                            elif len(remaining) >= 2:
+                                value, remaining = remaining[1], remaining[2:]
+                            else:
+                                raise RuntimeError("missing scratch objcopy metadata argument")
+                            if option == "--add-symbol":
+                                match = re.fullmatch(r"([^=,]+)=(?:(\.[A-Za-z0-9_.$]+):)?(?:0[xX][0-9a-fA-F]+|[0-9]+),global", value)
+                                if match is None:
+                                    raise RuntimeError("unsupported scratch added symbol declaration")
+                                name, section = match.groups()
+                                reloc_surface.ri.canonicalize_redefine_aliases([(name, name)])
+                                additions.append((name, section))
+                            else:
+                                if not re.fullmatch(r"\.[A-Za-z0-9_.$]+", value):
+                                    raise RuntimeError("unsupported scratch removed section declaration")
+                                removals.append(value)
                         else:
                             raise RuntimeError("unsupported scratch objcopy alias operation")
                     pairs = reloc_surface.ri.parse_objcopy_redefine_pairs(remapped)
-                    alias_history.append(tuple(pairs))
+                    alias_history.append({"renames": tuple(pairs), "additions": tuple(additions),
+                                          "removals": tuple(removals)})
                 f.write(remapped + "\n")
                 lines.append(f"replicated: {remapped}")
     for s in recipe.skipped_postproc:
@@ -1192,9 +1213,12 @@ def validate_annotation_target(target: Path, notes: list[str], out_dir: Path, de
         raise RuntimeError("annotated target operands do not reconstruct exact owned ROM bytes")
 
 
-def annotation_aliases(renames: dict[str, str], alias_history, symbols) -> dict[str, str]:
+def annotation_aliases(renames: dict[str, str], alias_history, symbols,
+                       symbol_sections=None) -> dict[str, str]:
     """Carry proved identities through simultaneous invocations in execution order."""
-    pairs = [pair for group in alias_history for pair in group]
+    groups = [group if isinstance(group, dict) else {"renames": group, "additions": (), "removals": ()}
+              for group in alias_history]
+    pairs = [pair for group in groups for pair in group["renames"]]
     closure = reloc_surface.ri.canonicalize_redefine_aliases(pairs)
     if closure.cycles or any(
             None in {renames.get(source) for source in sources}
@@ -1202,17 +1226,34 @@ def annotation_aliases(renames: dict[str, str], alias_history, symbols) -> dict[
             for _destination, sources in closure.conflicts):
         raise RuntimeError("ambiguous scratch objcopy alias provenance")
     current = {name: name for name in symbols if name}
-    for group in alias_history:
-        mapping = dict(group)
-        if len(mapping) != len(group):
-            raise RuntimeError("duplicate scratch objcopy source alias")
-        current = {original: mapping.get(name, name) for original, name in current.items()}
-        for name in set(current.values()):
-            originals = [original for original, value in current.items() if value == name]
+    sections = dict(symbol_sections or {})
+    def require_unambiguous(values):
+        origins = {}
+        for original, name in values.items():
+            origins.setdefault(name, []).append(original)
+        for originals in origins.values():
             if len(originals) > 1:
                 identities = {renames.get(original) for original in originals}
                 if None in identities or len(identities) != 1:
                     raise RuntimeError("scratch objcopy aliases merge unproved or distinct runtime identities")
+    for index, group in enumerate(groups):
+        mapping = dict(group["renames"])
+        if len(mapping) != len(group["renames"]):
+            raise RuntimeError("duplicate scratch objcopy source alias")
+        if group["removals"]:
+            if symbol_sections is None or any(section in {".text", ".rel.text"} for section in group["removals"]):
+                raise RuntimeError("cannot preserve owned annotation surface through section removal")
+            current = {original: name for original, name in current.items()
+                       if sections.get(original) not in group["removals"]}
+        current = {original: mapping.get(name, name) for original, name in current.items()}
+        # Objcopy appends new symbols after renaming the input symbols. Their
+        # scalar values do not authenticate a preexisting runtime identity.
+        for ordinal, (name, section) in enumerate(group["additions"]):
+            if section in group["removals"]:
+                raise RuntimeError("added symbol belongs to a removed section")
+            origin = ("added", index, ordinal, name)
+            current[origin], sections[origin] = name, section
+        require_unambiguous(current)
     composed = {}
     for original, destination in renames.items():
         if original not in current:
@@ -1221,6 +1262,7 @@ def annotation_aliases(renames: dict[str, str], alias_history, symbols) -> dict[
         if name in composed and composed[name] != destination:
             raise RuntimeError("scratch aliases collapse distinct runtime identities")
         composed[name] = destination
+    require_unambiguous({original: composed.get(name, name) for original, name in current.items()})
     return composed
 
 
@@ -1333,8 +1375,11 @@ def _annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
     text, renames, notes = reloc_surface.permuter_annotation(
         original, base_o, names, item.overlay, BASEROM.read_bytes())
     if alias_history and renames:
+        base_elf = reloc_surface.Elf(base_o)
         renames = annotation_aliases(renames, alias_history,
-                                    [row[0] for row in reloc_surface.Elf(base_o).symbols()])
+                                    [row[0] for row in base_elf.symbols()],
+                                    {row[0]: base_elf.names[row[4]] if 0 < row[4] < len(base_elf.names) else None
+                                     for row in base_elf.symbols()})
     if text == original:
         (out_dir / "annotation.txt").write_text(
             "not annotated: no site the module relocation table names\n"

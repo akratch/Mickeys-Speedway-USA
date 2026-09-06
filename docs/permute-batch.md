@@ -473,6 +473,14 @@ and sequential across invocations. Already-proved same-runtime synonyms may
 share a final name; unproved or distinct identities may not. This prevents
 an earlier canonical alias from making a later annotation rename silently
 miss its symbol. The annotation transaction and target ROM proof are unchanged.
+Supported `--add-symbol` and exact `--remove-section` operations remain in
+their original invocation. Added symbols are tracked as new, unproved
+identities, not equated by their absolute value or section offset. Removed
+sections discard their defined symbols; they cannot transfer an old symbol's
+identity to a newly added spelling. Collisions through subsequent recipe or
+annotation renames fail closed, and removal of a required annotation symbol
+restores the original scratch transaction. Real objcopy fixtures cover mixed
+rename/add/removal ordering and unchanged text bytes.
 
 These properties are worth stating because they are what make this a
 measurement rather than a fudge:

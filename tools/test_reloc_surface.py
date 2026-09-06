@@ -1862,6 +1862,50 @@ class PermuterTargetCoverageTests(unittest.TestCase):
         self.assertEqual(rs.Elf(self.base).section_bytes(".text"), rs.Elf(original).section_bytes(".text"))
         self.assertEqual(self.renamed_score(self.root / "target.o", {}), 0)
 
+    def test_supported_add_remove_recipes_preserve_real_objcopy_semantics(self):
+        import permute_batch as pb
+        base = self.assemble("metadata-base", "glabel fixture\nnop\nendlabel fixture\n"
+                             ".data\n.globl disposable\ndisposable: .word 7\n")
+        script = self.root / "compile.sh"
+        script.write_text(f'#!/bin/sh\nset -e\nOUTPUT="$3"\ncp "{base}" "$OUTPUT"\n')
+        target = "build/src/f.c.o"
+        # Exact option spellings used by the O8/O31 recipes, with a mixed
+        # rename/add invocation to establish that the new symbol is NOT renamed.
+        recipe = pb.BuildRecipe((), (
+            f"{pb.OBJCOPY} --redefine-sym disposable=gone --add-symbol gOverlay8UpdateChannelConstants=0x1BC,global --add-symbol=disposable=0,global --remove-section=.data {target}",
+            f"{pb.OBJCOPY} --remove-section=.data --remove-section=.rel.data --remove-section=.gptab.data {target}",
+            f"{pb.OBJCOPY} --add-symbol fresh=.text:0,global --redefine-sym fresh=later {target}",
+        ), (), True)
+        history = []
+        with mock.patch.object(pb, "ROOT", self.root):
+            pb.replicate_objcopy(self.root, recipe, self.root / "src/f.c", self.root, history)
+        output = self.root / "metadata-output.o"
+        subprocess.run(["bash", str(script), "ignored.c", "-o", str(output)], check=True, capture_output=True)
+        old_elf, new_elf = rs.Elf(base), rs.Elf(output)
+        self.assertEqual(old_elf.section_bytes(".text"), new_elf.section_bytes(".text"))
+        names = {row[0] for row in new_elf.symbols()}
+        self.assertIn("disposable", names)
+        self.assertIn("fresh", names)
+        self.assertNotIn("gone", names)
+        self.assertNotIn("later", names)
+        self.assertIsNone(new_elf.section(".data")[0])
+        sections = {row[0]: old_elf.names[row[4]] if 0 < row[4] < len(old_elf.names) else None
+                    for row in old_elf.symbols()}
+        self.assertEqual(pb.annotation_aliases({"fixture": "proved"}, history,
+                         [row[0] for row in old_elf.symbols()], sections), {"fixture": "proved"})
+        with self.assertRaises(RuntimeError):
+            pb.annotation_aliases({"disposable": "proved"}, history,
+                                  [row[0] for row in old_elf.symbols()], sections)
+
+    def test_added_symbols_never_inherit_scalar_runtime_identity(self):
+        import permute_batch as pb
+        add = {"renames": (), "additions": (("extra", None),), "removals": ()}
+        for history, renames in (([add, (("a", "extra"),)], {"a": "X"}),
+                                 ([add], {"a": "extra"}),
+                                 ([{"renames": (), "additions": (("a", None),), "removals": ()}], {"a": "X"})):
+            with self.subTest(history=history), self.assertRaises(RuntimeError):
+                pb.annotation_aliases(renames, history, ["a"], {"a": None})
+
     def test_alias_invocations_are_simultaneous_and_ambiguity_fails_closed(self):
         import permute_batch as pb
         self.assertEqual(pb.annotation_aliases({"a": "X", "b": "Y"},
@@ -1896,6 +1940,23 @@ class PermuterTargetCoverageTests(unittest.TestCase):
                 self.root, self.root, alias_history=[[("known", "call_target")]]), 0)
         self.assertEqual(before, {name: (self.root / name).read_bytes() for name in names})
         self.assertIn("distinct runtime identities", (self.root / "annotation.txt").read_text())
+
+    def test_removed_symbol_refusal_restores_annotation_scratch(self):
+        import permute_batch as pb
+        from types import SimpleNamespace
+        (self.root / "target.s").write_text(self.prelude + self.text)
+        (self.root / "target.o").write_bytes(self.base.read_bytes())
+        (self.root / "compile.sh").write_text("unchanged compiler script\n")
+        names = ("target.s", "target.o", "compile.sh", "base.o")
+        before = {name: (self.root / name).read_bytes() for name in names}
+        rom = self.root / "rom.bin"; rom.write_bytes(self.rom)
+        history = [{"renames": (), "additions": (), "removals": (".bss",)}]
+        with mock.patch.object(pb, "BASEROM", rom), mock.patch.object(pb, "find_asm_target", return_value=None), \
+             mock.patch.object(pb.reloc_surface, "permuter_annotation", return_value=("changed target", {".bss": "proved"}, [])):
+            self.assertEqual(pb.annotate_overlay_scratch(SimpleNamespace(overlay=1, func="fixture"),
+                             self.root, self.root, alias_history=history), 0)
+        self.assertEqual(before, {name: (self.root / name).read_bytes() for name in names})
+        self.assertIn("original candidate symbol", (self.root / "annotation.txt").read_text())
 
     def renamed_score(self, target, renames):
         candidate = self.root / "renamed.o"
