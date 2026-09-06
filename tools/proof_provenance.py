@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import bisect
+import collections
 import dataclasses
 import hashlib
 import json
@@ -24,7 +25,177 @@ import re
 import shlex
 import subprocess
 import sys
+import tempfile
+import time
 from typing import Iterable, Sequence
+
+
+class MetadataProofError(RuntimeError):
+    """Declared metadata steps do not explain the configured object."""
+
+
+def metadata_filter_plan(command: str, target: str) -> list[tuple[str, object]]:
+    """Accept only ordered renames, exact text filters and a trailing text trim."""
+    # These are precisely the existing canonical Makefile substitutions, not
+    # arbitrary shell expansion or executable lookup.
+    for token, replacement in {"$(OBJCOPY)": "tools/binutils/mips64-elf-objcopy",
+                               "$(HOST_PYTHON)": ".venv/bin/python",
+                               "$(TOOLS_DIR)": "tools", "$@": target}.items():
+        command = command.replace(token, replacement)
+    plan = []
+    for segment in command.split("&&"):
+        words = shlex.split(segment)
+        if not words or any(token in {";", "|", "||", ">", "<"} or "$" in token for token in words):
+            raise MetadataProofError("unsupported metadata command syntax")
+        if words[0] == "tools/binutils/mips64-elf-objcopy" and words[-1] == target:
+            args, pairs = words[1:-1], []
+            while args:
+                if args[0] != "--redefine-sym" or len(args) < 2 or args[1].count("=") != 1:
+                    raise MetadataProofError("unsupported objcopy metadata operation")
+                old, new = args[1].split("=")
+                if not old or not new:
+                    raise MetadataProofError("empty rename identity")
+                pairs.append((old, new))
+                args = args[2:]
+            plan.append(("rename", pairs))
+        elif (len(words) >= 5 and pathlib.Path(words[0]).name.startswith("python")
+              and words[2:4] == [target, ".text"]):
+            if words[1] == "tools/filter_elf_relocations.py":
+                requests = []
+                for spec in words[4:]:
+                    try:
+                        offset, kind, name = spec.split(":", 2)
+                        row = (int(offset, 0), int(kind, 0), name)
+                    except ValueError as error:
+                        raise MetadataProofError("unsupported filter specification") from error
+                    if row[0] < 0 or row[0] % 4 or row[1] not in {4, 5, 6} or not row[2] or row in requests:
+                        raise MetadataProofError("invalid or duplicate filter specification")
+                    requests.append(row)
+                plan.append(("filter", requests))
+            elif words[1] == "tools/trim_elf_section.py" and len(words) == 5:
+                plan.append(("trim", int(words[4], 0)))
+            else:
+                raise MetadataProofError("unsupported metadata helper")
+        else:
+            raise MetadataProofError("unsupported ordered metadata operation")
+    import reloc_identity as ri
+    closure = ri.canonicalize_redefine_aliases([pair for operation, pairs in plan
+                                               if operation == "rename" for pair in pairs])
+    if closure.ambiguous or closure.cycles:
+        raise MetadataProofError("ambiguous metadata symbol rename identities")
+    return plan
+
+
+def validate_metadata_objects(raw, configured, plan, symbol: str) -> dict:
+    """Account for every text relocation and all allocated bytes, without editing either object."""
+    import reloc_surface as rs
+    def rows(elf):
+        syms = elf.symbols()
+        result = []
+        for section, offset, kind, index in elf.relocations(r".*"):
+            name, value, size, info, shndx = syms[index]
+            owner = elf.names[shndx] if shndx < len(elf.names) else shndx
+            result.append((section, offset, kind, name, value, size, info, owner))
+        return result
+    expected = rows(raw)
+    symbols = lambda elf: [(name, value, size, info, elf.names[index] if index < len(elf.names) else index)
+                           for name, value, size, info, index in elf.symbols()]
+    expected_symbols = symbols(raw)
+    removed = []
+    text = raw.section_bytes(".text")
+    start, size = rs._function_text_symbol(raw, [symbol])
+    if rs._function_text_symbol(configured, [symbol]) != (start, size):
+        raise MetadataProofError("metadata changed owned function geometry")
+    for operation, arguments in plan:
+        if operation == "rename":
+            for old, new in arguments:
+                expected = [row[:3] + (new if row[3] == old else row[3],) + row[4:] for row in expected]
+                expected_symbols = [(new if row[0] == old else row[0],) + row[1:] for row in expected_symbols]
+        elif operation == "filter":
+            for offset, kind, name in arguments:
+                matches = [row for row in expected if row[:4] == (".text", offset, kind, name)]
+                if len(matches) != 1:
+                    raise MetadataProofError("declared filter lacks exactly one raw relocation")
+                expected.remove(matches[0])
+                removed.append(matches[0])
+        elif operation == "trim":
+            if arguments < start + size or arguments > len(text) or any(text[arguments:]):
+                raise MetadataProofError("trim would remove owned instructions or nonzero bytes")
+            text_index = raw.section(".text")[0]
+            if any(index == text_index and info & 15 == 2 and value + extent > arguments
+                   for _name, value, extent, info, index in raw.symbols()):
+                raise MetadataProofError("trim would remove a neighboring function extent")
+            text = text[:arguments]
+        else:
+            raise MetadataProofError("unsupported metadata plan operation")
+    if text != configured.section_bytes(".text"):
+        raise MetadataProofError("raw/configured instruction bytes differ")
+    def allocated(elf):
+        result = {}
+        for name, header in zip(elf.names, elf.sh):
+            if not header[2] & 2:
+                continue
+            if name in result:
+                raise MetadataProofError("duplicate allocated section ownership")
+            result[name] = header
+        return result
+    raw_sections, configured_sections = allocated(raw), allocated(configured)
+    if set(raw_sections) != set(configured_sections):
+        raise MetadataProofError("allocated section ownership changed")
+    for name, header in raw_sections.items():
+        other = configured_sections[name]
+        if name == ".text":
+            if (header[1], header[2], header[3], header[8]) != (other[1], other[2], other[3], other[8]) or other[5] != len(text):
+                raise MetadataProofError("text section geometry changed outside declared trim")
+            continue
+        if (header[1], header[2], header[3], header[5], header[8]) != (other[1], other[2], other[3], other[5], other[8]):
+            raise MetadataProofError("allocated section geometry changed")
+        if header[1] != 8 and raw.section_bytes(name) != configured.section_bytes(name):
+            raise MetadataProofError("allocated data bytes changed")
+    if collections.Counter(expected) != collections.Counter(rows(configured)):
+        raise MetadataProofError("unlisted relocation removal, addition or retargeting")
+    if collections.Counter(expected_symbols) != collections.Counter(symbols(configured)):
+        raise MetadataProofError("unlisted symbol table change")
+    owned = [row for row in rows(raw) if row[0] == ".text" and start <= row[1] < start + size]
+    filtered = [row for row in removed if start <= row[1] < start + size]
+    if not filtered:
+        raise MetadataProofError("no declared filters belong to the requested function")
+    return {"raw_count": len(owned), "retained_count": len(owned) - len(filtered),
+            "filtered": [{"offset": row[1] - start, "rtype": row[2], "symbol": row[3]}
+                         for row in filtered], "start": start, "size": size}
+
+
+def linked_bss_base(raw, configured, linked, overlay: int, runtime_base: int, runtime_size=None) -> tuple[int, int]:
+    """Derive a TU BSS base from unique matching raw/configured/linked definitions."""
+    section = f".overlay_{overlay:03d}_bss"
+    matches = [(i, sh) for i, (name, sh) in enumerate(zip(linked.names, linked.sh)) if name == section]
+    if len(matches) != 1:
+        raise MetadataProofError("ambiguous linked BSS section ownership")
+    linked_index, header = matches[0]
+    if header[1] != 8 or not header[2] & 2 or (runtime_size is not None and header[5] > runtime_size):
+        raise MetadataProofError("linked BSS exceeds canonical runtime ownership")
+    raw_index, raw_header = raw.section(".bss")
+    configured_index, configured_header = configured.section(".bss")
+    if raw_index is None or configured_index is None or raw_header[5] != configured_header[5]:
+        raise MetadataProofError("missing or changed canonical BSS extent")
+    definitions = [row for row in raw.symbols() if row[4] == raw_index and row[0] and row[0] != ".bss"]
+    if not definitions:
+        raise MetadataProofError("raw BSS has no named canonical ownership witness")
+    bases = set()
+    for name, value, size, info, _section in definitions:
+        current = [row for row in configured.symbols() if row[0] == name and row[4] == configured_index]
+        # Absolute diagnostic aliases are not physical section definitions.
+        # Multiple real section owners remain ambiguous, even across overlays.
+        final = [row for row in linked.symbols() if row[0] == name and 0 < row[4] < len(linked.sh)]
+        if len(current) != 1 or len(final) != 1 or current[0][1:4] != (value, size, info) or final[0][2:] != (size, info, linked_index):
+            raise MetadataProofError("ambiguous or inconsistent canonical BSS symbol witness")
+        base = final[0][1] - header[3] - value
+        if base < 0 or base + raw_header[5] > header[5]:
+            raise MetadataProofError("raw BSS definition escapes linked section ownership")
+        bases.add(base)
+    if len(bases) != 1:
+        raise MetadataProofError("canonical BSS definitions disagree on section placement")
+    return overlay, runtime_base + next(iter(bases))
 
 
 ORDINARY_C = "ordinary_c"
@@ -74,6 +245,90 @@ def sha256_file(path: pathlib.Path) -> str:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+_LOADED_METADATA_PROOF = sha256_file(pathlib.Path(__file__))
+
+
+def capture_configured_raw(root, source, configured, linked, postprocess):
+    """Fresh reproduction only: never authenticate an externally supplied raw object."""
+    import permute_batch as batch
+    import sweep_receipts as receipts
+    if root.resolve() != batch.ROOT.resolve() or os.environ.get("PROMOTION_TRIAL", "") not in ("", "0"):
+        raise MetadataProofError("unsupported raw-proof root or relaxed trial environment")
+    target = configured.relative_to(root).as_posix()
+    deadline = time.monotonic() + 120
+    def recipe():
+        output = batch.bounded_capture(
+            ["gmake", "--no-print-directory", "-n", "-W", source.relative_to(root).as_posix(), target],
+            deadline, check=True).stdout.replace("\\\n", " ").splitlines()
+        compilers = [line.strip() for line in output if target in line and "tools/ido/cc" in line]
+        metadata = [line.strip() for line in output if target in line and "tools/filter_elf_relocations.py" in line]
+        if len(compilers) != 1 or len(metadata) != 1:
+            raise MetadataProofError("ambiguous expanded compiler/metadata recipe")
+        return compilers[0], metadata[0]
+    command, expanded_postprocess = recipe()
+    args = batch.compiler_arguments(command, source.relative_to(root).as_posix(), target)
+    words = shlex.split(command)
+    wrapped = len(words) > 1 and words[1] == "tools/asm-processor/build.py"
+    dependency_args = args + (("-I", str(source.parent)) if wrapped else ())
+    if words.count("-o") != 1:
+        raise MetadataProofError("ambiguous configured output argument")
+    plan = metadata_filter_plan(expanded_postprocess, target)
+    def context():
+        batch.checked_tool_identity()
+        if sha256_file(pathlib.Path(__file__)) != _LOADED_METADATA_PROOF:
+            raise MetadataProofError("loaded metadata proof implementation changed")
+        if recipe() != (command, expanded_postprocess):
+            raise MetadataProofError("configured compiler recipe changed during raw proof")
+        inputs = {"source": sha256_file(source), "configured": sha256_file(configured),
+                  "linked": sha256_file(linked), "command": command, "postprocess": expanded_postprocess,
+                  "dependencies": batch.source_dependencies(source, dependency_args, deadline),
+                  "wrapper_source_directory": receipts.tree_digest(source.parent) if wrapped else None,
+                  "include_tree": receipts.tree_digest(root / "include"),
+                  "tools": batch.sweep_tool_identity(),
+                  "asm_processor": receipts.tree_digest(root / "tools/asm-processor"),
+                  "makefiles": {p.relative_to(root).as_posix(): sha256_file(p)
+                                for p in [root / "Makefile", *sorted((root / "mk").glob("**/*.mk"))]},
+                  "proof": _LOADED_METADATA_PROOF,
+                  "target_inputs": {name: sha256_file(root / name) for name in
+                    ("baseroms/mickey.us.z64", "config/overlays.us.json",
+                     "overlay_undefined_syms.us.txt", "symbol_addrs.us.txt")},
+                  "metadata_tools": {name: sha256_file(root / name) for name in
+                    ("tools/filter_elf_relocations.py", "tools/trim_elf_section.py",
+                     "tools/binutils/mips64-elf-objcopy")}}
+        assembly = {}
+        for pragma in _all_pragmas(source.read_text()):
+            path = root / pragma.path
+            data = path.read_text()
+            # This bounded capture does not guess nested assembler dependency lookup.
+            for directive, name in re.findall(r'^\s*\.(include|incbin)\s+"([^"]+)"', data, re.M):
+                if directive == "include" and (root / "include" / name).is_file():
+                    continue  # entire canonical include tree is pinned above
+                raise MetadataProofError("unsupported nested assembly dependency in raw proof")
+            assembly[pragma.path] = sha256_file(path)
+        inputs["assembly"] = assembly
+        return inputs
+    before = context()
+    parent = root / "build/metadata-filter-proof"
+    parent.mkdir(parents=True, exist_ok=True)
+    directory = pathlib.Path(tempfile.mkdtemp(prefix="capture-", dir=parent))
+    raw = directory / "raw.o"
+    words[words.index("-o") + 1] = str(raw)
+    (directory / "inputs.json").write_text(json.dumps(before, sort_keys=True, indent=2))
+    try:
+        result = batch.bounded_capture(words, deadline, check=True)
+    except BaseException as failure:
+        (directory / "compile.log").write_text(str(getattr(failure, "output", "")) + "\n" + repr(failure))
+        raise
+    (directory / "compile.log").write_text(result.stdout)
+    if before != context():
+        raise MetadataProofError("source, input, recipe, object or tool changed during raw proof")
+    receipt = {"schema": "mickey-declared-metadata-proof-v1", "inputs": before,
+               "raw_object": raw.relative_to(root).as_posix(), "raw_sha256": sha256_file(raw),
+               "configured_sha256": sha256_file(configured),
+               "linked_sha256": sha256_file(linked), "directory": directory.relative_to(root).as_posix()}
+    return raw, plan, receipt, context
 
 
 def _mask_c(text: str) -> str:

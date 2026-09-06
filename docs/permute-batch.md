@@ -563,6 +563,40 @@ type/offset and effective identity. A linked-byte-only oracle is insufficient.
 Missing authoritative resident or overlay ownership fails closed; promotion
 does not invent symbol or ownership rows to pass the gate.
 
+Declared metadata-only relocation filters have a separate, conservative proof
+path. Preflight reproduces the current ordinary compiler/asm-processor command,
+changing only its output path into ignored `build/metadata-filter-proof/`.
+It binds source, literal include dependencies, assembly inputs, tool identities,
+the expanded compiler and postprocess recipes, and configured/linked object
+hashes before and after capture and again after linked comparison. No saved
+foreign raw object is accepted as a substitute for this fresh reproduction.
+
+Only ordered symbol renames, exact `.text` relocation filters, and zero-padding
+trims are understood. All allocated instruction/data bytes and every retained
+relocation must agree with that exact metadata account. The original raw
+relocation count, offsets/types and identities must still match every runtime
+record. Filtered BSS identities require unique raw/configured/canonical-linked
+named definitions and their actual section offsets plus raw REL addends;
+shared synthetic addresses or aligned target sites are not identity evidence.
+Unsupported or ambiguous cases remain refused. This path never edits instruction
+words, executes the metadata recipe on the raw proof object, or replaces the
+final linked ROM comparison.
+
+Reports keep the configured `candidate_record_count` literal and place the
+original surface in `original_raw_comparison`. The
+`raw-static-with-declared-metadata-filters` proof mode includes separate
+`raw_count`, `retained_count`, and exact removed-site/identity lists, with fresh
+input/object hashes and retained compile logs. Promotion output distinguishes
+`configured_relocations` from `exact_relocations`. This is metadata accounting,
+not new executable credit. A fresh raw capture may also run with `--no-build`:
+that option does not authorize trusting a missing or stale raw receipt.
+The include binding includes asm-processor's appended source-directory search
+root and conservatively hashes that directory. Previously parsed linked ELF,
+ROM and atlas bytes must agree with the fresh receipt, and proof dependency
+implementations are pinned when preflight loads them. Text-section geometry
+cannot change except for an explicitly accounted size trim; such a trim must
+remain beyond every function extent, including zero-filled neighboring bodies.
+
 An overlay symbol-generation pass can mutate an object by rebinding its symbol
 table. Promotion therefore retains that generated object as
 `promotions/<id>/after-symbol-generation.o`, removes exactly the affected TU
