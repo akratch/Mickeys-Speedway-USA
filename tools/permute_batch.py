@@ -1768,6 +1768,62 @@ def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
     return {"contract": SOURCE_GROUP_CONTRACT, "symbol": symbol, "groups": groups}
 
 
+IDO_IMPORT_TYPE_OPERATORS = frozenset({"__builtin_classof", "__builtin_alignof"})
+
+
+@contextlib.contextmanager
+def ido_import_parser():
+    """Parse IDO type operators without evaluating or hiding their operands.
+
+    Only the importer child uses this dialect. Normal extraction may remove
+    unrelated function bodies; retained operators require broader parser support
+    and are rejected before prepared source can reach the baseline compiler.
+    The existing grammar/table handles the same type-only production as alignof.
+    """
+    from src import ast_util
+    from perm_pycparser import c_ast
+    from perm_pycparser.c_lexer import CLexer
+    from perm_pycparser.c_parser import CParser
+
+    class TypeLexer(CLexer):
+        keyword_map = dict(CLexer.keyword_map, **{
+            name: "_ALIGNOF" for name in IDO_IMPORT_TYPE_OPERATORS})
+
+    class TypeParser(CParser):
+        def __init__(self):
+            super().__init__(lexer=TypeLexer)
+
+        def p_unary_expression_3(self, production):
+            if production[1] in IDO_IMPORT_TYPE_OPERATORS:
+                if len(production) != 5 or not isinstance(production[3], c_ast.Typename):
+                    raise ValueError("IDO import operator requires an explicit type operand")
+                production[0] = c_ast.UnaryOp(production[1], production[3],
+                                              self._token_coord(production, 1))
+            else:
+                super().p_unary_expression_3(production)
+
+    # Keep the vendor grammar and cached parse table exactly unchanged, while
+    # binding this one semantic action to the original operator spelling.
+    TypeParser.p_unary_expression_3.__doc__ = CParser.p_unary_expression_3.__doc__
+    original = ast_util.CParser
+    ast_util.CParser = TypeParser
+    try:
+        yield
+    finally:
+        ast_util.CParser = original
+
+
+def reject_retained_ido_operators(node):
+    """Never send importer-only syntax into unextended candidate/context parsers."""
+    from perm_pycparser import c_ast
+    pending = [node]
+    while pending:
+        current = pending.pop()
+        if isinstance(current, c_ast.UnaryOp) and current.op in IDO_IMPORT_TYPE_OPERATORS:
+            raise ValueError("IDO type operator survives in retained target/context")
+        pending.extend(child for _, child in current.children())
+
+
 def grouped_import_main(symbol: str, plan_path: str, argv: list[str]) -> None:
     """Process-local adapter using the vendor's existing sameline contract."""
     import runpy
@@ -1775,6 +1831,8 @@ def grouped_import_main(symbol: str, plan_path: str, argv: list[str]) -> None:
     from src import ast_util
     from perm_pycparser import c_ast
     original = ast_util.parse_c
+    original_to_c, original_to_c_raw = ast_util.to_c, ast_util.to_c_raw
+    original_argv = sys.argv
     seen = []
     def parse(source, from_import=False):
         ast = original(source, from_import=from_import)
@@ -1786,11 +1844,24 @@ def grouped_import_main(symbol: str, plan_path: str, argv: list[str]) -> None:
                 raise ValueError("multiple original importer parses")
             sweep_receipts.atomic_json(Path(plan_path), seen[0])
         return ast
-    ast_util.parse_c = parse
-    sys.argv = [str(IMPORT_PY), *argv]
-    runpy.run_path(str(IMPORT_PY), run_name="__main__")
-    if len(seen) != 1:
-        raise ValueError("importer did not expose original source coordinates")
+    def checked_emitter(emitter):
+        def emit(node, *args, **kwargs):
+            reject_retained_ido_operators(node)
+            return emitter(node, *args, **kwargs)
+        return emit
+    try:
+        ast_util.parse_c = parse
+        ast_util.to_c = checked_emitter(original_to_c)
+        ast_util.to_c_raw = checked_emitter(original_to_c_raw)
+        sys.argv = [str(IMPORT_PY), *argv]
+        with ido_import_parser():
+            runpy.run_path(str(IMPORT_PY), run_name="__main__")
+        if len(seen) != 1:
+            raise ValueError("importer did not expose original source coordinates")
+    finally:
+        ast_util.parse_c = original
+        ast_util.to_c, ast_util.to_c_raw = original_to_c, original_to_c_raw
+        sys.argv = original_argv
 
 
 def preserve_wide_do_spans(ast, source, symbol, nodes):
