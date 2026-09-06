@@ -19,6 +19,63 @@ from perm_pycparser import c_ast
 
 
 class SourceGroups(unittest.TestCase):
+    def test_do_tail_composite_preserves_exact_line_and_ast_twice(self):
+        source = (b"void f(void) {\n int x=0;\n do {\n x++;\n"
+                  b" } while(x<2); x=0; do { x++; x+=2; } while(x<4);\n x++;\n}\n")
+        import candidate_context as context
+        prepared, plan, emitted = self.emit_seed(source)
+        self.assertEqual(plan["status"], "preserved")
+        self.assertEqual(plan["groups"], [{"line": 5, "statements": 3,
+                                          "control": "DoWhileTailComposite"}])
+        expected = b" } while (x < 2); x = 0; do { x++; x += 2; } while (x < 4);"
+        self.assertIn(expected, emitted.splitlines())
+        # Strip only generated markers; every original semantic AST node stays.
+        from perm_pycparser import c_generator
+        baseline_ast = ast_util.parse_c(source.decode())
+        emitted_ast = ast_util.parse_c(emitted.decode())
+        generator = c_generator.CGenerator()
+        self.assertEqual(generator.visit(baseline_ast), generator.visit(emitted_ast))
+        self.assertEqual(context.compare_context(source, emitted, "f")["status"], "unchanged")
+        _, second_plan, second = self.emit_seed(emitted)
+        self.assertEqual(second_plan["status"], "preserved")
+        self.assertIn(expected, second.splitlines())
+        self.assertIn(b"_permuter sameline start", prepared)
+
+    def test_do_tail_composite_nested_and_adjacent_groups(self):
+        source = (b"void f(void) {\n int x=0;\n {\n do {\n x++; x+=2;\n"
+                  b" } while(x<2); x=0; do { x++; } while(x<4);\n"
+                  b" do {\n x++;\n } while(x<2); x=1;\n }\n}\n")
+        _, plan, emitted = self.emit_seed(source)
+        self.assertEqual(plan["status"], "preserved")
+        self.assertEqual(sum(g["control"] == "DoWhileTailComposite" for g in plan["groups"]), 2)
+        self.assertIn(b"x++; x += 2;", emitted)
+        self.assertIn(b"} while (x < 2); x = 1;", emitted)
+
+    def test_do_tail_composite_ignores_literal_punctuation(self):
+        source = (b"void f(void) {\n int x=0;\n do {\n x++;\n"
+                  b' } while(x<2); puts("};while(;)"); do { x++; } while(x<4);\n}\n')
+        _, plan, emitted = self.emit_seed(source)
+        self.assertEqual(plan["status"], "preserved")
+        self.assertIn(b'puts("};while(;)"); do {', emitted)
+
+    def test_do_tail_composite_partial_or_ambiguous_shapes_keep_original_ast(self):
+        template = "void f(void) {\n int x=0;\n do {\n x++;\n%s\n}\n"
+        for group in (
+            " } while(x<2\n ); x=0; do { x++; } while(x<4);",
+            " } while(x<2); x=0; do { x++; } while(x<4\n );",
+            " } while(x<2); x=0; do { do { x++; } while(x<3); } while(x<4);",
+            " } while(x<2); label: x=0;",
+            " } while(x<2); do {\n x++;\n } while(x<4);",
+            " } while(x<2); if(x) { x++; } else { x--; }",
+        ):
+            source = template % group
+            ast = ast_util.parse_c(source)
+            before = ast_util.to_c_raw(ast)
+            result, plan = pb.prepare_source_groups(ast, source, "f", c_ast)
+            with self.subTest(group=group):
+                self.assertEqual(plan["status"], "measurement-required")
+                self.assertEqual(ast_util.to_c_raw(result), before)
+
     def emit_seed(self, source):
         prepared, plan = pb.group_seed_source(source, "f")
         ast = ast_util.parse_c(prepared.decode())
