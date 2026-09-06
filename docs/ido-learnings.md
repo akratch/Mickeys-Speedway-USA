@@ -90,6 +90,17 @@ bytes and disassembly never belong here.
   when the rejected path never observes the value and the ordinary object,
   relocations, linked owner, and ROM all remain exact. Evidence: Overlay 34's
   exact record updater in `docs/overlays.md`.
+- Equivalent nonzero tests can affect register selection for an unsigned
+  halfword local. A controlled paired full-TU IDO 5.3 build with `-O2 -mips2`
+  changed only `if (value)` to `if (value != 0)`, preserving the input pathname,
+  every line break, declarations, and flags. Only register fields changed;
+  instruction geometry, frame, relocations, neighboring functions, and data
+  stayed identical. When a narrow condition is implicated in a small allocation
+  residual, isolate these natural spellings before changing unrelated locals.
+  This proves source-shape sensitivity, not which compiler phase causes it;
+  the effect is not established for other scalar widths, flags, or TU contexts.
+  Evidence: controlled paired compiler experiment, 2026-09-06. Matching still
+  requires the ordinary configured object and complete linked-ROM proof.
 - The NUMBER of declared locals, not only their order, sets where a
   call-crossing value is homed: declared locals take descending homes from
   the frame top in declaration order and compiler temporaries sit below
