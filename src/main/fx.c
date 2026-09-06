@@ -635,16 +635,8 @@ void func_800479D4(FxCone *cone, s16 height, f32 radius, f32 depth,
     _g->w1 = (u32)(address); \
 }
 
-#ifdef NON_MATCHING
-/* Current configured full-TU V0 is 226/234 raw/normalized words with exact
- * 0x3A8 extent, 0x68 frame, and four func_800349A4 relocation tuples; first
- * mismatch is +0x298. Five sites are the cone->mode web and three are the
- * segmentCount web. All 119 flag identities were attempted; seven O2/MIPS-II
- * rows tie at eight residual words. A proc-7 globalcolor trace leaves the temp
- * lane exact. A mode local grew to 236 words/frame 0x70 with tuple drift; a
- * scoped segmentCount local retained 234 words but moved to frame 0x70 and 35
- * raw differences. No strict gain unlocked a combination or batch. */
-/* Mickey-derived draft; JFG's corresponding fxDrawCone body is assembly-only. */
+/* Mickey-derived body; JFG's corresponding fxDrawCone body is assembly-only.
+ * The white-color block retains an unsigned XOR-zero allocation lever. */
 void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
     s32 hasTexture;
 
@@ -656,7 +648,8 @@ void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
             FX_SET_ENV((*dList)++, cone->envRed, cone->envGreen,
                        cone->envBlue, 0);
         } else {
-            FX_SET_PRIM((*dList)++, 0xFF, 0xFF, 0xFF, alpha);
+            /* Keep this display-list block on one line for IDO allocation. */
+            { FxGfx *_g = (FxGfx *)((*dList)++); _g->w0 = FX_SHIFTL(0xFA, 24, 8); _g->w1 = ((FX_SHIFTL(0xFF, 24, 8) | FX_SHIFTL(0xFF, 16, 8) | FX_SHIFTL(0xFF, 8, 8)) ^ 0) | FX_SHIFTL(alpha, 0, 8); };
             FX_SET_ENV((*dList)++, 0xFF, 0xFF, 0xFF, 0);
         }
 
@@ -665,7 +658,7 @@ void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
         } else {
             hasTexture = 0;
         }
-        if (cone->segmentCount == 0) {
+        if (!cone->segmentCount) {
             FX_VERTEX_JFG((*dList)++,
                           cone->addresses[cone->addressIndex] + 0x80000000,
                           17, 0);
@@ -692,9 +685,6 @@ void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
         FX_SET_ENV((*dList)++, 0xFF, 0xFF, 0xFF, 0);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80047CD8.s")
-#endif
 /* Workbench: structure-mismatch, 43 differing words, first mismatch +0x74. */
 /* Candidate shape: 88/89 instructions, exact -0x48 frame and four call relocations. */
 /* R4300 hazard mode reaches 89 words with 12 differences; load/register order remains. */
@@ -2381,16 +2371,6 @@ void func_8004AF68(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004AF68.s")
 #endif
-
-/* PLATEAU-HANDOFF:func_80047CD8:start
- * symbol: func_80047CD8
- * score: 226/234 words
- * frame: 0x68
- * relocations: 4
- * first-mismatch: +0x298
- * summary: all 119 flag identities and both natural web-local forms were nonexact; a globalcolor allocation outcome remains
- * PLATEAU-HANDOFF:func_80047CD8:end
- */
 
 /* PLATEAU-HANDOFF:func_800498FC:start
  * symbol: func_800498FC
