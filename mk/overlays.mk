@@ -2617,7 +2617,7 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59PrepareEntry.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		overlay59PrepareReleaseReloc=func_overlay_059_F0000000_18B8750 $@ && \
 	$(OBJCOPY) --redefine-sym \
-		overlay59PrepareAcquireReloc=func_overlay_059_F0000000_18B8750 $@ && \
+		func_80034448=func_80034448_o059Reloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xF8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59ResetEntries.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x6C

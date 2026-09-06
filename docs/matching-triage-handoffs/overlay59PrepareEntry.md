@@ -5,6 +5,6 @@
 - score: 53/62 words
 - frame: 0x28
 - relocations: 6
-- first mismatch: +0x48
-- summary: Merging value/handle into either u32 or pointer carrier is byte-identical. The target v0 load/call-delay web remains unavailable; baseline stays 53/62.
+- first mismatch: +0x54
+- summary: Integer-ID acquisition binding repaired; all six runtime identities exact. Owned instructions unchanged; nine carrier-allocation words remain.
 <!-- plateau-handoff:overlay59PrepareEntry:end -->
