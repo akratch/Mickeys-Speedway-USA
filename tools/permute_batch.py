@@ -1741,6 +1741,162 @@ def grouped_import_main(symbol: str, plan_path: str, argv: list[str]) -> None:
         raise ValueError("importer did not expose original source coordinates")
 
 
+def preserve_wide_do_spans(ast, source, symbol, nodes):
+    """Map original physical spans to live AST slots by exact lexical equality.
+
+    Compound columns are deliberately unused. A whole-function token witness
+    binds the generated AST's statement-list slots to the original source.
+    Only bridges between distinct multiline do bodies activate this fallback.
+    """
+    from perm_pycparser import c_generator
+    source = source.replace("\r\n", "\n").replace("\r", "\n")
+    if len(source) > 4 * 1024 * 1024:
+        raise ValueError("wide span source exceeds bound")
+    functions = [n for n in ast.ext if isinstance(n, nodes.FuncDef) and n.decl.name == symbol]
+    if len(functions) != 1:
+        raise ValueError("wide span requires one function")
+    function = functions[0]
+    pending, compounds, do_bodies = [function.body], [], set()
+    count = 0
+    while pending:
+        node = pending.pop()
+        count += 1
+        if count > 100000:
+            raise ValueError("wide span AST exceeds bound")
+        if isinstance(node, (nodes.Pragma, nodes.If, nodes.For, nodes.While,
+                             nodes.Switch, nodes.Label, nodes.Case, nodes.Default)):
+            raise ValueError("unsupported wide span control or pragma")
+        if isinstance(node, nodes.DoWhile):
+            if not isinstance(node.stmt, nodes.Compound):
+                raise ValueError("unsupported unbraced wide do body")
+            do_bodies.add(id(node.stmt))
+        if isinstance(node, nodes.Compound):
+            compounds.append(node)
+        pending.extend(child for _, child in node.children())
+
+    # Maximal operators matter: `+ +` must never match `++`. Literals and
+    # comments are single tokens, so their braces cannot identify AST slots.
+    token_re = re.compile(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|/\*.*?\*/|//[^\n]*'
+                          r'|[A-Za-z_][A-Za-z_0-9]*|(?:\d|\.\d)[A-Za-z_0-9.]*'
+                          r'|>>=|<<=|\.\.\.|->|\+\+|--|<<|>>|<=|>=|==|!=|&&|\|\||[+*/%&|^!-]='
+                          r'|[^\s]', re.S)
+
+    def tokens(text):
+        rows = []
+        physical, offset = 1, 0
+        for match in token_re.finditer(text):
+            physical += text.count("\n", offset, match.start())
+            offset = match.start()
+            value = match.group()
+            if value.startswith(("/*", "//")):
+                continue
+            rows.append((value, physical))
+            if len(rows) > 250000:
+                raise ValueError("wide span token count exceeds bound")
+        return rows
+
+    original = tokens(source)
+    generator = c_generator.CGenerator()
+    generated = tokens(generator.visit(function))
+    needle = [value for value, _ in generated]
+    # Linear exact subsequence matching, requiring one entire definition.
+    failure = [0] * len(needle)
+    j = 0
+    for i in range(1, len(needle)):
+        while j and needle[i] != needle[j]:
+            j = failure[j - 1]
+        if needle[i] == needle[j]:
+            j += 1
+        failure[i] = j
+    matches, j = [], 0
+    for i, (value, _) in enumerate(original):
+        while j and value != needle[j]:
+            j = failure[j - 1]
+        if value == needle[j]:
+            j += 1
+        if j == len(needle):
+            matches.append(i + 1 - j)
+            j = failure[j - 1]
+    if len(matches) != 1:
+        raise ValueError("wide span lacks unique whole-function lexical correspondence")
+    original = original[matches[0]:matches[0] + len(needle)]
+
+    saved, anchors, originally_empty = {}, {}, set()
+    for compound in compounds:
+        if compound.block_items is None:
+            originally_empty.add(id(compound))
+        items = list(compound.block_items or [])
+        saved[id(compound)] = items
+        marked = []
+        for index in range(len(items) + 1):
+            number = len(anchors)
+            anchors[number] = (compound, index)
+            marked.append(nodes.Pragma(f"_permuter source_slot_{number}"))
+            if index < len(items):
+                marked.append(items[index])
+        compound.block_items = marked
+    try:
+        marked = generator.visit(function)
+    finally:
+        for compound in compounds:
+            compound.block_items = None if id(compound) in originally_empty else saved[id(compound)]
+    # Count exact token boundaries on each side of the temporary slot markers.
+    pieces = re.split(r"(?m)^[ \t]*#pragma _permuter source_slot_(\d+)[ \t]*$", marked)
+    witnessed, positions = [], {}
+    for index, piece in enumerate(pieces):
+        if index % 2:
+            positions.setdefault(len(witnessed), []).append(int(piece))
+        else:
+            witnessed.extend(value for value, _ in tokens(piece))
+    if witnessed != needle or sum(map(len, positions.values())) != len(anchors):
+        raise ValueError("wide span probe changed searchable AST tokens")
+
+    root_start = next(pos for pos, ids in positions.items()
+                      if any(anchors[number] == (function.body, 0) for number in ids))
+    root_end = next(pos for pos, ids in positions.items()
+                    if any(anchors[number] == (function.body, len(saved[id(function.body)])) for number in ids))
+    spans, first = [], 0
+    while first < len(original):
+        end = first + 1
+        while end < len(original) and original[end][1] == original[first][1]:
+            end += 1
+        # Function signature/outer opening brace layout is not a body group.
+        if end > root_start and first < root_end and len({line for _, line in generated[first:end]}) > 1:
+            if len(positions.get(first, [])) != 1 or len(positions.get(end, [])) != 1:
+                raise ValueError("wide physical line lacks unique statement-list boundary slots")
+            spans.append((first, end, original[first][1], positions[first][0], positions[end][0]))
+        first = end
+    def bridge(span):
+        first, end, line, start_id, end_id = span
+        left, _ = anchors[start_id]
+        right, _ = anchors[end_id]
+        if left is right or id(left) not in do_bodies or id(right) not in do_bodies:
+            return False
+        left_slots = [pos for pos, ids in positions.items() for number in ids if anchors[number][0] is left]
+        right_slots = [pos for pos, ids in positions.items() for number in ids if anchors[number][0] is right]
+        # First body's opening precedes the span; last body's closing follows it.
+        return (original[min(left_slots) - 1][1] < line
+                and original[max(right_slots)][1] > line)
+    if not any(bridge(span) for span in spans):
+        raise ValueError("no supported wide multiline do-body bridge")
+    events = {}
+    for first, end, line, start_id, end_id in spans:
+        events.setdefault(start_id, []).append("start")
+        events.setdefault(end_id, []).append("end")
+    by_slot = {(id(compound), index): number for number, (compound, index) in anchors.items()}
+    for compound in compounds:
+        items, output = saved[id(compound)], []
+        for index in range(len(items) + 1):
+            for event in sorted(events.get(by_slot[id(compound), index], [])):
+                output.append(nodes.Pragma("_permuter sameline " + event))
+            if index < len(items):
+                output.append(items[index])
+        compound.block_items = None if not output and id(compound) in originally_empty else output
+    return {"contract": SOURCE_GROUP_CONTRACT, "symbol": symbol, "status": "preserved",
+            "groups": [{"line": line, "tokens": end - first, "control": "LexicallyBoundDoSpan"}
+                       for first, end, line, _, _ in spans]}
+
+
 def prepare_source_groups(ast, source, symbol, nodes):
     import copy
     working = copy.deepcopy(ast)
@@ -1749,6 +1905,12 @@ def prepare_source_groups(ast, source, symbol, nodes):
         plan["status"] = "preserved" if plan["groups"] else "ungrouped"
         return working, plan
     except ValueError as error:
+        try:
+            working = copy.deepcopy(ast)
+            plan = preserve_wide_do_spans(working, source, symbol, nodes)
+            return working, plan
+        except ValueError:
+            pass
         # Unsupported syntax is not evidence of compiler divergence. Retain
         # the original AST and demand an actual baseline measurement instead.
         return ast, {"contract": SOURCE_GROUP_CONTRACT, "symbol": symbol,
