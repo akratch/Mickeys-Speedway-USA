@@ -52,6 +52,43 @@ class SourceGroups(unittest.TestCase):
         self.assertIn("x = 0; do {\n", result)
         self.assertIn("x++; x--;", result)
 
+    def test_whole_line_standalone_compound_preserves_declarations_and_scope(self):
+        source = "void f(int *p) {\n { int *q = p++; *q = 1; *q += 2; };\n p++;\n}\n"
+        plan, raw, result = self.convert(source)
+        self.assertEqual(plan["groups"], [{"line": 2, "statements": 2, "control": "Compound"}])
+        self.assertIn("{ int *q = p++; *q = 1; *q += 2; } ;\n", result)
+        self.assertIn("\n  p++;", result)
+        # Markers only: deleting them restores the original declaration scope,
+        # statement ordering and every expression in the parser's AST.
+        ast = ast_util.parse_c(raw)
+        ast.ext[0].body.block_items = [n for n in ast.ext[0].body.block_items
+                                     if not isinstance(n, c_ast.Pragma)]
+        self.assertEqual(ast_util.to_c_raw(ast),
+                         ast_util.to_c_raw(ast_util.parse_c(source, from_import=True)))
+
+    def test_whole_line_compound_inside_multiline_control(self):
+        source = "void f(int *p) {\n if(p) {\n { int x = (int)*p; *p = x; }\n p++;\n }\n}\n"
+        _, _, result = self.convert(source)
+        self.assertIn("{ int x = (int) (*p); *p = x; }\n", result)
+        self.assertNotIn("if (p) { {", result)
+
+    def test_partial_or_ambiguous_compound_retains_original_for_measurement(self):
+        for body in ("{ int x;\n x=1;\n }", "{ int x; } { int y; }",
+                     "{ if(p) *p=1; }", "if(p) { *p=1; }"):
+            source = "void f(int *p) {\n " + body + "\n}\n"
+            original = ast_util.parse_c(source, from_import=True)
+            before = ast_util.to_c_raw(original)
+            result, plan = pb.prepare_source_groups(original, source, "f", c_ast)
+            with self.subTest(body=body):
+                self.assertEqual(plan["status"], "measurement-required")
+                self.assertIs(result, original)
+                self.assertEqual(ast_util.to_c_raw(result), before)
+
+    def test_compound_literal_braces_do_not_supply_a_fake_boundary(self):
+        source = 'void f(void) {\n { char *p = "}"; foo(p); }\n}\n'
+        _, _, result = self.convert(source)
+        self.assertIn('{ char *p = "}"; foo(p); }\n', result)
+
     def test_only_selected_function(self):
         plan, raw, _ = self.convert("void g(void) { int y; y=1; y++; }\nvoid f(void) {\n int x;\n x=1;\n x++;\n}\n")
         self.assertEqual(plan["groups"], [])
