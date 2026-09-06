@@ -176,6 +176,17 @@ bytes and disassembly never belong here.
   the measured `-O2 -mips2` basin: use it only when zero is semantically
   required, and reject it if instruction count, relocations, or linked bytes
   move. Evidence: Overlay 1's exact value-cache manager in `docs/overlays.md`.
+- Expression shape can affect allocation even when the changed subexpression
+  is constant. A bounded search paired unsigned XOR-zero around a complete
+  constant RGB packing group with an equivalent logical-negation zero test;
+  together they produced exact stock full-TU output. Unlike the value-read
+  example above, this XOR introduces no new live input. When transferring the
+  retained expression, preserve unsigned types, side effects, evaluation count,
+  and the one-line display-list macro block grouping. This proves the paired
+  result, not either change's individual cause, a precise compiler phase, or
+  recovered original source. Do not generalize to undefined expressions or
+  altered side effects; require exact owned bytes, relocation identities and
+  linked ROM. Evidence: the exact cone-drawing closure in `docs/resident.md`.
 - A source copy can decouple load order from FP coloring when two equal-cost
   webs tie. Load the first value through the local that must receive the first
   color, copy it to its lasting local, then overwrite the first local with the
