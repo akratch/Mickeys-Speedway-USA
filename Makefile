@@ -347,6 +347,7 @@ check-tooling:
 	$(HOST_PYTHON) tests/test_overlay_atlas.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_reloc_identity.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_reloc_surface.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_cleanroom_detectors.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_proof_provenance.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_metadata_filter_proof.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_history.py
