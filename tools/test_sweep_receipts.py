@@ -740,6 +740,226 @@ if "--debug" in sys.argv:
         altered["result"]["seed_proof"]["seed_score"] = 0
         self.assertFalse(self.store.artifacts_valid(altered))
 
+    def alternate_parent_run(self, score=15, source="int fixture(void) { return 3; }\n"):
+        self.write("permuter/permuter.py", SYNTHETIC_SEARCH_BASELINE + f'''
+text = (scratch / "base.c").read_bytes()
+print("base score =", {score} if b"return 3" in text else 10 if b"return 2" in text else 20, flush=True)
+''')
+        def outputs(scratch, *args, **kwargs):
+            result = self.improved(scratch, *args, **kwargs)
+            for ordinal in (1, 2):
+                directory = scratch / f"output-15-{ordinal}"
+                directory.mkdir()
+                (directory / "score.txt").write_text("15\n")
+                (directory / "source.c").write_text(source)
+            return result
+        with patch.object(batch, "run_permuter", side_effect=outputs):
+            parent = self.run_one()
+        self.assertTrue(parent.ok, parent.error)
+        return parent
+
+    def test_alternate_seed_preserves_parent_and_isolates_durable_resume(self):
+        parent = self.alternate_parent_run()
+        before = {p.relative_to(self.store.directory(parent.receipt_key)): p.read_bytes()
+                  for p in self.store.directory(parent.receipt_key).rglob("*.json")}
+        original, best = self.store.seed_parent(parent.receipt_key)
+        selected_parent, source, selection = self.store.select_seed(parent.receipt_key, "output-15-1")
+        self.assertEqual(original, selected_parent)
+        self.assertIn(b"return 2", best)
+        self.assertIn(b"return 3", source)
+        self.assertEqual((selection["selected_score"], selection["parent_best_score"]), (15, 10))
+        result = self.run_one(seed_receipt=parent.receipt_key, seed_candidate="output-15-1")
+        self.assertTrue(result.ok, result.error)
+        self.assertEqual((result.original_base_score, result.seed_parent_score, result.seed_score,
+                          result.best_score, result.search_gain), (20, 15, 15, 15, 0))
+        saved = self.store.read_bundle(result.artifact_bundle)
+        self.assertEqual(json.loads(saved["seed/parent.json"]), original)
+        self.assertEqual(json.loads(saved["seed/selection.json"]), selection)
+        self.assertEqual(saved["seed/source.c"], source)
+        self.assertIsNotNone(self.store.completed(result.receipt_key))
+        with patch.object(batch, "measure_seed_stage", side_effect=AssertionError("resume must skip")):
+            resumed = self.run_one(seed_receipt=parent.receipt_key, seed_candidate="output-15-1", resume=True)
+        self.assertTrue(resumed.resumed, resumed.error)
+        second = self.run_one(seed_receipt=parent.receipt_key, seed_candidate="output-15-2", resume=True)
+        self.assertTrue(second.ok, second.error)
+        self.assertFalse(second.resumed)
+        self.assertNotEqual(second.receipt_key, result.receipt_key)
+        default = self.run_one(seed_receipt=parent.receipt_key, resume=True)
+        self.assertTrue(default.ok, default.error)
+        self.assertEqual(default.seed_score, 10)
+        self.assertNotEqual(default.receipt_key, result.receipt_key)
+        after = {p.relative_to(self.store.directory(parent.receipt_key)): p.read_bytes()
+                 for p in self.store.directory(parent.receipt_key).rglob("*.json")}
+        self.assertEqual(before, after)
+
+    def test_alternate_selector_and_paired_archive_fail_closed(self):
+        parent = self.alternate_parent_run()
+        value = self.store.completed(parent.receipt_key)
+        files = self.store.read_bundle(parent.artifact_bundle)
+        for candidate in ("../output-15-1", "/output-15-1", "output-015-1", "output-15-0",
+                          "output-15-1/source.c", "output-15-1\n", "output-15-999", "output-99999999999-1"):
+            with self.subTest(candidate=candidate), self.assertRaises((ValueError, KeyError)):
+                self.store.select_seed(parent.receipt_key, candidate)
+        prefix = "attempt/scratch/output-15-1/"
+        for member, data in (("score.txt", None), ("source.c", None), ("source.c", b""),
+                ("source.c", b"\xff"), ("score.txt", b"10\n"), ("score.txt", b"True\n"),
+                ("score.txt", b"15.0\n"), ("score.txt", b"15\nextra"), ("score.txt", b" 15\n")):
+            altered = dict(files)
+            if data is None:
+                del altered[prefix + member]
+            else:
+                altered[prefix + member] = data
+            with self.subTest(member=member, data=data), self.assertRaises((ValueError, KeyError)):
+                receipts.resolve_seed_candidate(value, altered, "output-15-1")
+        altered = dict(files)
+        altered["attempt/scratch/output-20-1/source.c"] = b"int fixture(void) { return 3; }"
+        altered["attempt/scratch/output-20-1/score.txt"] = b"20\n"
+        with self.assertRaises(ValueError):
+            receipts.resolve_seed_candidate(value, altered, "output-20-1")
+        with patch.object(self.store, "read_bundle", side_effect=ValueError("corrupt or incomplete")):
+            with self.assertRaises(ValueError):
+                self.store.select_seed(parent.receipt_key, "output-15-1")
+
+    def test_alternate_durable_selection_and_parent_mutation_rejected(self):
+        parent = self.alternate_parent_run()
+        result = self.run_one(seed_receipt=parent.receipt_key, seed_candidate="output-15-1")
+        complete = self.store.completed(result.receipt_key)
+        self.assertIsNotNone(complete)
+        files = self.store.read_bundle(result.artifact_bundle)
+        for name in ("seed/selection.json", "seed/source.c", "seed/plan.json", "seed/prepared.c",
+                     "seed/fidelity.json", "seed/search-fidelity.json", "seed/original.o"):
+            for data in (None, b"null", b"different"):
+                changed = dict(files)
+                if data is None:
+                    del changed[name]
+                else:
+                    changed[name] = data
+                altered = copy.deepcopy(complete)
+                altered["result"]["artifact_bundle"] = self.store.save_bundle(changed, complete=True, inputs=complete["inputs"])
+                with self.subTest(name=name, data=data):
+                    self.assertFalse(self.store.artifacts_valid(altered))
+        for field, new in (("candidate", "output-15-2"), ("selected_score", 10),
+                           ("source_sha256", "0" * 64), ("score_member", "best/score.txt"),
+                           ("score_sha256", "0" * 64), ("parent_best_score", 15),
+                           ("schema", "unknown"), ("parent_receipt_sha256", "0" * 64)):
+            altered = copy.deepcopy(complete)
+            altered["inputs"]["search"]["seed"]["selection"][field] = new
+            self.assertFalse(self.store.artifacts_valid(altered), field)
+        changed = dict(files)
+        parent_copy = json.loads(changed["seed/parent.json"])
+        parent_copy["finished"] += 1
+        changed["seed/parent.json"] = json.dumps(parent_copy).encode()
+        altered = copy.deepcopy(complete)
+        altered["result"]["artifact_bundle"] = self.store.save_bundle(changed, complete=True, inputs=complete["inputs"])
+        self.assertFalse(self.store.artifacts_valid(altered))
+
+    def test_alternate_preparation_and_search_failures_keep_parent(self):
+        for score, error in ((0, None), (16, None), (15, "seed emission changed owned instruction fields"),
+                             (15, "seed emission relocation identity is unproved")):
+            batch._PROCESS_TOOLS_PIN = None
+            parent = self.alternate_parent_run(score=score)
+            original = self.store.completed(parent.receipt_key)
+            guard = patch.object(batch, "prove_seed_emission", side_effect=RuntimeError(error)) if error else contextlib.nullcontext()
+            with self.subTest(score=score, error=error), guard, patch.object(batch, "run_permuter") as search:
+                result = self.run_one(seed_receipt=parent.receipt_key, seed_candidate="output-15-1")
+            self.assertFalse(result.ok)
+            self.assertIn(error or "seed score differs", result.error)
+            search.assert_not_called()
+            self.assertEqual(self.store.completed(parent.receipt_key), original)
+            saved = self.store.read_bundle(result.artifact_bundle, require_complete=False)
+            self.assertIn("seed/selection.json", saved)
+
+    def test_alternate_stale_context_and_changed_declaration_never_search(self):
+        for stale in (False, True):
+            batch._PROCESS_TOOLS_PIN = None
+            parent = self.alternate_parent_run(source="extern int changed; int fixture(void) { return 3; }\n")
+            if stale:
+                self.item.c_file.write_text("int fixture(void) { return 4; }\n")
+            with patch.object(batch, "run_permuter") as search:
+                result = self.run_one(seed_receipt=parent.receipt_key, seed_candidate="output-15-1")
+            self.assertFalse(result.ok)
+            self.assertIn("stale" if stale else "declarations differ", result.error)
+            search.assert_not_called()
+
+    def test_alternate_cli_and_direct_api_require_parent(self):
+        with contextlib.redirect_stderr(__import__("io").StringIO()):
+            for args in (["--seed-candidate", "output-15-1"],
+                         ["--seed-receipt", "a" * 64, "--function", "fixture", "--seed-candidate", "../bad"]):
+                with self.assertRaises(SystemExit):
+                    batch.parse_args(args)
+        parsed = batch.parse_args(["--seed-receipt", "a" * 64, "--function", "fixture",
+                                   "--seed-candidate", "output-15-1"])
+        self.assertEqual(parsed.seed_candidate, "output-15-1")
+        with patch.object(batch, "run_import") as importer:
+            failed = self.run_one(seed_candidate="output-15-1")
+        self.assertIn("requires --seed-receipt", failed.error)
+        importer.assert_not_called()
+
+    def test_alternate_failed_or_cancelled_search_retains_selection_without_completion(self):
+        parent = self.alternate_parent_run()
+        before = self.store.completed(parent.receipt_key)
+        for error in (RuntimeError("child exited 7"), RuntimeError("cancelled")):
+            with self.subTest(error=str(error)), patch.object(batch, "run_permuter", side_effect=error), \
+                    patch.object(batch, "promote") as promote:
+                result = self.run_one(seed_receipt=parent.receipt_key, seed_candidate="output-15-1")
+            self.assertFalse(result.ok)
+            self.assertIn(str(error), result.error)
+            self.assertIsNone(self.store.completed(result.receipt_key))
+            self.assertEqual(self.store.completed(parent.receipt_key), before)
+            saved = self.store.read_bundle(result.artifact_bundle, require_complete=False)
+            self.assertEqual(json.loads(saved["seed/selection.json"])["candidate"], "output-15-1")
+            self.assertIn(b"return 3", saved["best/source.c"])
+            promote.assert_not_called()
+
+    def test_alternate_actual_capture_and_prelaunch_replacement_still_refuse(self):
+        parent = self.alternate_parent_run()
+        real = batch.run_prepared
+        def replace(item, scratch, *args, **kwargs):
+            (scratch / "base.c").write_text("int fixture(void) { return 99; }")
+            return real(item, scratch, *args, **kwargs)
+        with patch.object(batch, "run_prepared", side_effect=replace), patch.object(batch, "run_permuter") as search:
+            result = self.run_one(seed_receipt=parent.receipt_key, seed_candidate="output-15-1")
+        self.assertFalse(result.ok)
+        self.assertIn("prepared seed source changed", result.error)
+        search.assert_not_called()
+        with patch.object(batch, "validate_seed_search", side_effect=RuntimeError("search object relocation drift")), \
+                patch.object(batch, "promote") as promote:
+            result = self.run_one(seed_receipt=parent.receipt_key, seed_candidate="output-15-1")
+        self.assertFalse(result.ok)
+        self.assertIn("search object relocation drift", result.error)
+        self.assertIsNone(self.store.completed(result.receipt_key))
+        promote.assert_not_called()
+
+    def test_alternate_malformed_seed_parent_result_shapes_fail_closed(self):
+        parent = self.alternate_parent_run()
+        result = self.run_one(seed_receipt=parent.receipt_key, seed_candidate="output-15-1")
+        complete = self.store.completed(result.receipt_key)
+        self.assertIsNotNone(complete)
+        files = self.store.read_bundle(result.artifact_bundle)
+        for malformed in (None, [], "not-a-dict", 7):
+            for field in ("seed", "parent", "result"):
+                altered, changed = copy.deepcopy(complete), dict(files)
+                if field == "seed":
+                    altered["inputs"]["search"]["seed"] = malformed
+                elif field == "parent":
+                    changed["seed/parent.json"] = json.dumps(malformed).encode()
+                else:
+                    value = json.loads(changed["seed/parent.json"])
+                    value["result"] = malformed
+                    changed["seed/parent.json"] = json.dumps(value).encode()
+                altered["result"]["artifact_bundle"] = self.store.save_bundle(changed, complete=True, inputs=altered["inputs"])
+                with self.subTest(field=field, malformed=malformed):
+                    self.assertFalse(self.store.artifacts_valid(altered))
+            for value in (malformed, {"result": malformed, "inputs": {}}, {"result": {}, "inputs": malformed}):
+                with self.assertRaises(ValueError):
+                    receipts.resolve_seed_candidate(value, {}, "output-15-1")
+        parent_value = self.store.completed(parent.receipt_key)
+        parent_files = self.store.read_bundle(parent.artifact_bundle)
+        for malformed in (None, [], "not-a-dict", 7):
+            changed = {**parent_files, "context/report.json": json.dumps(malformed).encode()}
+            with self.assertRaises(ValueError):
+                receipts.resolve_seed_candidate(parent_value, changed, "output-15-1")
+
     def test_seed_unexpected_zero_refuses_before_search_or_promotion(self):
         parent = self.seed_parent_run(seed_score=0)
         with patch.object(batch, "promote") as promote, patch.object(batch, "run_permuter") as search:

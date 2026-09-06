@@ -275,6 +275,29 @@ Pass `--extend-minutes 0` explicitly, especially with the promotion wrapper's
 otherwise nonzero extension default.
 Ordinary unseeded runs and `--deep` selection retain their existing behavior.
 
+An explicitly reviewed alternate from the same immutable archive may be selected
+with `--seed-candidate output-SCORE-ORDINAL`, only alongside `--seed-receipt`.
+For example, `--seed-candidate output-50-1` resolves the exact archived source
+and its same-directory `score.txt`; it never accepts a filesystem path. This is
+useful when a parent's lowest-scoring body is inadmissible but another retained
+body has been source-reviewed. Selection itself is **not** semantic approval.
+The alternate must improve on the original canonical baseline, not necessarily
+on the parent's scalar best. Without this option, best-winner selection is
+unchanged, including existing receipts and resume behavior.
+
+The independent `mickey-seed-selection-v1` evidence records the exact parent
+receipt snapshot digest, receipt key, bundle digest, member names, source and
+score-file digests, selected score and original parent best score. It is retained
+as `seed/selection.json` and bound into the new context and search identities.
+The parent's receipt, winner, context report and best index are never rewritten.
+Durable validation re-resolves that exact member pair from the authenticated
+parent bundle; different selections cannot share a resume key. Missing,
+incomplete, corrupt or mismatched pairs refuse rather than falling back to best.
+Archives retain vendor source/score associations, not necessarily original
+worker objects. Fresh compile, context, prepared-source, actual-search and
+full-TU/runtime proof requirements remain unchanged; diagnostic object or
+worker-path uncertainty is not upgraded by selecting an alternate.
+
 ```sh
 tools/permute_sweep.sh --report-only continued-search -- \
     --function myFunction --seed-receipt RECEIPT_SHA256 \
@@ -305,7 +328,7 @@ canonical compiler input must equal the parent's baseline, and both the saved
 seed and its actual compiled input must pass the current declaration-context
 comparison. The new search captures its own baseline again; bytes and strict
 score must agree with the independently measured seed. The measured seed must
-also reproduce its parent's score under the pinned external tools and target;
+also reproduce its selected historical score under the pinned external tools and target;
 even an unexpected zero refuses before search. Saved winner emission consumes
 sameline markers, so seed preparation reconstructs supported groups from the
 immutable seed's original coordinates and retains marker-bearing scratch source
@@ -351,7 +374,10 @@ the fresh original canonical evidence and the actual seed/winner bytes.
 
 Result JSON distinguishes `original_base_score`, `seed_parent_score`,
 `seed_score`, and `search_gain`. `base_score` is the new search's measured seed
-baseline. A flat or regressing search retains the measured seed as best, not the
+baseline. `seed_parent_score` is the historical selected seed score (the parent
+best by default); alternate evidence separately retains `parent_best_score`.
+It does not claim the alternate was that parent's best.
+A flat or regressing search retains the measured seed as best, not the
 original canonical body; original-to-seed progress is not new descending-search
 evidence. Validated successful seeded receipts support ordinary same-context
 `--resume`. Missing/corrupt parent or child bundles, incomplete captures,
