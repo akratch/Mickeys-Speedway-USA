@@ -2243,7 +2243,7 @@ class GeneratedCrossOverlayCIdentityTests(unittest.TestCase):
             canonical._relocations=[('.text',16,rs.R_MIPS_LO16,0)]
             canonical._text=bytes(18)+b'\x00\x01'+bytes(44)
             self.assertEqual({self.NAME:(8,16)},self.resolve(root,*args))
-            canonical._text=bytes(16)+b'\x01\x00\x00\x00'+bytes(44)
+            canonical._text=bytes(16)+bytes((1,0,0,0))+bytes(44)
             self.assertEqual({},self.resolve(root,*args))
 
     def test_missing_or_unproved_evidence_is_unresolved(self):
