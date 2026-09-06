@@ -1831,6 +1831,72 @@ class PermuterTargetCoverageTests(unittest.TestCase):
         target = self.roundtrip(text, notes)
         self.assertEqual(self.renamed_score(target, renames), 0)
 
+    def test_scratch_annotation_composes_actual_ordered_recipe_aliases(self):
+        import permute_batch as pb
+        from types import SimpleNamespace
+        original = self.root / "original.o"
+        original.write_bytes(self.base.read_bytes())
+        (self.root / "base.c").write_text("synthetic compile input\n")
+        (self.root / "target.s").write_text(self.prelude + self.text)
+        script = self.root / "compile.sh"
+        script.write_text(f'#!/bin/sh\nset -e\nOUTPUT="$3"\ncp "{original}" "$OUTPUT"\n')
+        target_path = "build/src/f.c.o"
+        recipe = pb.BuildRecipe((), (
+            f"{pb.OBJCOPY} --redefine-sym known=middle --redefine-sym call_target=callReloc {target_path}",
+            f"{pb.OBJCOPY} --redefine-sym middle=last {target_path}",
+        ), (), True)
+        history = []
+        with mock.patch.object(pb, "ROOT", self.root):
+            pb.replicate_objcopy(self.root, recipe, self.root / "src/f.c", self.root, history)
+        text, renames, notes = self.annotate()
+        rom = self.root / "rom.bin"
+        rom.write_bytes(self.rom)
+        with mock.patch.object(pb, "BASEROM", rom), \
+             mock.patch.object(pb, "find_asm_target", return_value=None), \
+             mock.patch.object(pb, "ASSEMBLER_COMMAND", str(self.bin / "mips64-elf-as") + " -march=vr4300 -32"), \
+             mock.patch.object(pb.reloc_surface, "permuter_annotation", return_value=(self.prelude + text, renames, notes)):
+            self.assertEqual(pb.annotate_overlay_scratch(SimpleNamespace(overlay=1, func="fixture"),
+                             self.root, self.root, alias_history=history), 2)
+        self.assertIn(f'--redefine-sym last={renames["known"]}', script.read_text())
+        self.assertIn(f'--redefine-sym callReloc={renames["call_target"]}', script.read_text())
+        self.assertEqual(rs.Elf(self.base).section_bytes(".text"), rs.Elf(original).section_bytes(".text"))
+        self.assertEqual(self.renamed_score(self.root / "target.o", {}), 0)
+
+    def test_alias_invocations_are_simultaneous_and_ambiguity_fails_closed(self):
+        import permute_batch as pb
+        self.assertEqual(pb.annotation_aliases({"a": "X", "b": "Y"},
+            [[("a", "b"), ("b", "c")]], ["a", "b"]), {"b": "X", "c": "Y"})
+        self.assertEqual(pb.annotation_aliases({"a": "X"},
+            [[("a", "b")], [("b", "c")]], ["a"]), {"c": "X"})
+        self.assertEqual(pb.annotation_aliases({"a": "X", "b": "X"},
+            [[("a", "x")], [("b", "x")]], ["a", "b"]), {"x": "X"})
+        for history, symbols in (([[("a", "x"), ("b", "x")]], ["a", "b"]),
+                                 ([[("a", "b")]], ["a", "b"]),
+                                 ([[("a", "b")], [("b", "a")]], ["a"]),
+                                 ([[("a", "b"), ("a", "c")]], ["a"])):
+            with self.subTest(history=history), self.assertRaises(RuntimeError):
+                pb.annotation_aliases({"a": "X"}, history, symbols)
+
+    def test_alias_collision_restores_all_annotation_scratch_files(self):
+        import permute_batch as pb
+        from types import SimpleNamespace
+        text, renames, notes = self.annotate()
+        (self.root / "target.s").write_text(self.prelude + self.text)
+        (self.root / "target.o").write_bytes(self.base.read_bytes())
+        (self.root / "compile.sh").write_text("unchanged compiler script\n")
+        names = ("target.s", "target.o", "compile.sh", "base.o")
+        before = {name: (self.root / name).read_bytes() for name in names}
+        rom = self.root / "rom.bin"
+        rom.write_bytes(self.rom)
+        with mock.patch.object(pb, "BASEROM", rom), \
+             mock.patch.object(pb, "find_asm_target", return_value=None), \
+             mock.patch.object(pb, "bounded_capture", side_effect=AssertionError("must reject before compile")), \
+             mock.patch.object(pb.reloc_surface, "permuter_annotation", return_value=(self.prelude + text, renames, notes)):
+            self.assertEqual(pb.annotate_overlay_scratch(SimpleNamespace(overlay=1, func="fixture"),
+                self.root, self.root, alias_history=[[("known", "call_target")]]), 0)
+        self.assertEqual(before, {name: (self.root / name).read_bytes() for name in names})
+        self.assertIn("distinct runtime identities", (self.root / "annotation.txt").read_text())
+
     def renamed_score(self, target, renames):
         candidate = self.root / "renamed.o"
         objcopy = str(self.bin / "mips64-elf-objcopy")

@@ -438,7 +438,8 @@ def build_recipe_for(c_file: Path, deadline: Optional[float] = None) -> BuildRec
     return recipe
 
 
-def replicate_objcopy(scratch: Path, recipe: BuildRecipe, c_file: Path, out_dir: Path) -> None:
+def replicate_objcopy(scratch: Path, recipe: BuildRecipe, c_file: Path, out_dir: Path,
+                      alias_history: Optional[list] = None) -> None:
     """Append the TU's post-compile objcopy chain to the scratch's compile.sh,
     retargeted at the scratch object, so the scratch object == the real
     per-TU object (workbench improvement-backlog #9). Records what was and
@@ -459,6 +460,22 @@ def replicate_objcopy(scratch: Path, recipe: BuildRecipe, c_file: Path, out_dir:
                     lines.append(f"skipped (does not name the object): {step}")
                     continue
                 remapped = mention.sub('"$OUTPUT"', step)
+                if alias_history is not None:
+                    words = shlex.split(remapped)
+                    if (not words or Path(words[0]).resolve() != OBJCOPY.resolve()
+                            or words[-1] != "$OUTPUT"
+                            or any(word in {"&&", "||", ";", "|"} for word in words)):
+                        raise RuntimeError("unsupported scratch objcopy alias invocation")
+                    remaining = words[1:-1]
+                    while remaining:
+                        if remaining[0] == "--redefine-sym" and len(remaining) >= 2:
+                            remaining = remaining[2:]
+                        elif remaining[0].startswith("--redefine-sym="):
+                            remaining = remaining[1:]
+                        else:
+                            raise RuntimeError("unsupported scratch objcopy alias operation")
+                    pairs = reloc_surface.ri.parse_objcopy_redefine_pairs(remapped)
+                    alias_history.append(tuple(pairs))
                 f.write(remapped + "\n")
                 lines.append(f"replicated: {remapped}")
     for s in recipe.skipped_postproc:
@@ -1175,8 +1192,41 @@ def validate_annotation_target(target: Path, notes: list[str], out_dir: Path, de
         raise RuntimeError("annotated target operands do not reconstruct exact owned ROM bytes")
 
 
+def annotation_aliases(renames: dict[str, str], alias_history, symbols) -> dict[str, str]:
+    """Carry proved identities through simultaneous invocations in execution order."""
+    pairs = [pair for group in alias_history for pair in group]
+    closure = reloc_surface.ri.canonicalize_redefine_aliases(pairs)
+    if closure.cycles or any(
+            None in {renames.get(source) for source in sources}
+            or len({renames.get(source) for source in sources}) != 1
+            for _destination, sources in closure.conflicts):
+        raise RuntimeError("ambiguous scratch objcopy alias provenance")
+    current = {name: name for name in symbols if name}
+    for group in alias_history:
+        mapping = dict(group)
+        if len(mapping) != len(group):
+            raise RuntimeError("duplicate scratch objcopy source alias")
+        current = {original: mapping.get(name, name) for original, name in current.items()}
+        for name in set(current.values()):
+            originals = [original for original, value in current.items() if value == name]
+            if len(originals) > 1:
+                identities = {renames.get(original) for original in originals}
+                if None in identities or len(identities) != 1:
+                    raise RuntimeError("scratch objcopy aliases merge unproved or distinct runtime identities")
+    composed = {}
+    for original, destination in renames.items():
+        if original not in current:
+            raise RuntimeError("annotation rename lacks original candidate symbol")
+        name = current[original]
+        if name in composed and composed[name] != destination:
+            raise RuntimeError("scratch aliases collapse distinct runtime identities")
+        composed[name] = destination
+    return composed
+
+
 def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
-                             batch_deadline: Optional[float] = None) -> int:
+                             batch_deadline: Optional[float] = None,
+                             alias_history=()) -> int:
     """Annotate owned scratch transactionally; retain evidence and never rebuild to undo."""
     if item.overlay is None or not BASEROM.is_file():
         return 0
@@ -1201,7 +1251,7 @@ def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
     if diagnostic.is_file():
         (attempt / "before-annotation.txt").write_bytes(diagnostic.read_bytes())
     try:
-        result = _annotate_overlay_scratch(item, scratch, out_dir, batch_deadline)
+        result = _annotate_overlay_scratch(item, scratch, out_dir, batch_deadline, alias_history)
         remaining_timeout(batch_deadline)
         return result
     except BaseException as error:
@@ -1248,7 +1298,8 @@ def annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
 
 
 def _annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
-                              batch_deadline: Optional[float] = None) -> int:
+                              batch_deadline: Optional[float] = None,
+                              alias_history=()) -> int:
     """Give an overlay function's permuter target the relocations the shipped
     module says are there, and rename the candidate's placeholders to match.
 
@@ -1281,6 +1332,9 @@ def _annotate_overlay_scratch(item: QueueItem, scratch: Path, out_dir: Path,
     original = target_s.read_text(errors="replace")
     text, renames, notes = reloc_surface.permuter_annotation(
         original, base_o, names, item.overlay, BASEROM.read_bytes())
+    if alias_history and renames:
+        renames = annotation_aliases(renames, alias_history,
+                                    [row[0] for row in reloc_surface.Elf(base_o).symbols()])
     if text == original:
         (out_dir / "annotation.txt").write_text(
             "not annotated: no site the module relocation table names\n"
@@ -2171,9 +2225,11 @@ def run_one(item: QueueItem, minutes: int, permuter_threads: int, build_jobs: in
         finally:
             _IMPORT_LOCK.release()
         result.scratch_path = str(scratch)
-        replicate_objcopy(scratch, recipe, item.c_file, out_dir)
+        alias_history: list = []
+        replicate_objcopy(scratch, recipe, item.c_file, out_dir,
+                          alias_history if annotate_overlays and item.overlay is not None else None)
         if annotate_overlays:
-            result.annotated_relocs = annotate_overlay_scratch(item, scratch, out_dir, batch_deadline)
+            result.annotated_relocs = annotate_overlay_scratch(item, scratch, out_dir, batch_deadline, alias_history)
         inputs = receipt_inputs(item, scratch, settings_path, target_asm, recipe, {
             "minutes": minutes, "threads": permuter_threads, "extra_args": extra_args,
             "extend_minutes": extend_minutes, "flat_minutes": flat_minutes,

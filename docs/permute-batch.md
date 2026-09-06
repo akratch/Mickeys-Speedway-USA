@@ -466,6 +466,13 @@ The target `.s` copy is rewritten to spell those names symbolically
 relocations; the candidate's placeholder symbols are renamed to the same
 names by `objcopy --redefine-sym` steps appended to the scratch's
 `compile.sh`, alongside the ones `replicate_objcopy` already writes there.
+The runner retains the exact rename invocation groups it actually replicated
+and carries each corroborated original symbol through them before appending
+annotation aliases. Renames are simultaneous within one objcopy invocation
+and sequential across invocations. Already-proved same-runtime synonyms may
+share a final name; unproved or distinct identities may not. This prevents
+an earlier canonical alias from making a later annotation rename silently
+miss its symbol. The annotation transaction and target ROM proof are unchanged.
 
 These properties are worth stating because they are what make this a
 measurement rather than a fudge:
