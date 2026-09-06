@@ -584,6 +584,12 @@ input/object hashes and retained compile logs. Promotion output distinguishes
 `configured_relocations` from `exact_relocations`. This is metadata accounting,
 not new executable credit. A fresh raw capture may also run with `--no-build`:
 that option does not authorize trusting a missing or stale raw receipt.
+The include binding includes asm-processor's appended source-directory search
+root and conservatively hashes that directory. Previously parsed linked ELF,
+ROM and atlas bytes must agree with the fresh receipt, and proof dependency
+implementations are pinned when preflight loads them. Text-section geometry
+cannot change except for an explicitly accounted size trim; such a trim must
+remain beyond every function extent, including zero-filled neighboring bodies.
 
 An overlay symbol-generation pass can mutate an object by rebinding its symbol
 table. Promotion therefore retains that generated object as

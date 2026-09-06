@@ -121,18 +121,32 @@ def validate_metadata_objects(raw, configured, plan, symbol: str) -> dict:
         elif operation == "trim":
             if arguments < start + size or arguments > len(text) or any(text[arguments:]):
                 raise MetadataProofError("trim would remove owned instructions or nonzero bytes")
+            text_index = raw.section(".text")[0]
+            if any(index == text_index and info & 15 == 2 and value + extent > arguments
+                   for _name, value, extent, info, index in raw.symbols()):
+                raise MetadataProofError("trim would remove a neighboring function extent")
             text = text[:arguments]
         else:
             raise MetadataProofError("unsupported metadata plan operation")
     if text != configured.section_bytes(".text"):
         raise MetadataProofError("raw/configured instruction bytes differ")
-    allocated = lambda elf: {name: header for name, header in zip(elf.names, elf.sh) if header[2] & 2}
+    def allocated(elf):
+        result = {}
+        for name, header in zip(elf.names, elf.sh):
+            if not header[2] & 2:
+                continue
+            if name in result:
+                raise MetadataProofError("duplicate allocated section ownership")
+            result[name] = header
+        return result
     raw_sections, configured_sections = allocated(raw), allocated(configured)
     if set(raw_sections) != set(configured_sections):
         raise MetadataProofError("allocated section ownership changed")
     for name, header in raw_sections.items():
         other = configured_sections[name]
         if name == ".text":
+            if (header[1], header[2], header[3], header[8]) != (other[1], other[2], other[3], other[8]) or other[5] != len(text):
+                raise MetadataProofError("text section geometry changed outside declared trim")
             continue
         if (header[1], header[2], header[3], header[5], header[8]) != (other[1], other[2], other[3], other[5], other[8]):
             raise MetadataProofError("allocated section geometry changed")
@@ -256,6 +270,8 @@ def capture_configured_raw(root, source, configured, linked, postprocess):
     command, expanded_postprocess = recipe()
     args = batch.compiler_arguments(command, source.relative_to(root).as_posix(), target)
     words = shlex.split(command)
+    wrapped = len(words) > 1 and words[1] == "tools/asm-processor/build.py"
+    dependency_args = args + (("-I", str(source.parent)) if wrapped else ())
     if words.count("-o") != 1:
         raise MetadataProofError("ambiguous configured output argument")
     plan = metadata_filter_plan(expanded_postprocess, target)
@@ -267,7 +283,8 @@ def capture_configured_raw(root, source, configured, linked, postprocess):
             raise MetadataProofError("configured compiler recipe changed during raw proof")
         inputs = {"source": sha256_file(source), "configured": sha256_file(configured),
                   "linked": sha256_file(linked), "command": command, "postprocess": expanded_postprocess,
-                  "dependencies": batch.source_dependencies(source, args, deadline),
+                  "dependencies": batch.source_dependencies(source, dependency_args, deadline),
+                  "wrapper_source_directory": receipts.tree_digest(source.parent) if wrapped else None,
                   "include_tree": receipts.tree_digest(root / "include"),
                   "tools": batch.sweep_tool_identity(),
                   "asm_processor": receipts.tree_digest(root / "tools/asm-processor"),

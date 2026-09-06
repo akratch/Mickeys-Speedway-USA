@@ -132,6 +132,7 @@ def validate_report(symbol: str, report: dict[str, object]) -> dict[str, object]
     if not isinstance(relocation, dict):
         raise ProofError("preflight report lacks relocation comparison evidence")
     configured_relocations = _integer(relocation.get("candidate_record_count"), "candidate_record_count")
+    configured_target_relocations = _integer(relocation.get("target_record_count"), "target_record_count")
     metadata = relocation.get("declared_metadata_proof")
     if metadata is not None:
         original = relocation.get("original_raw_comparison")
@@ -141,6 +142,8 @@ def validate_report(symbol: str, report: dict[str, object]) -> dict[str, object]
     target_relocations = _integer(
         relocation.get("target_record_count"), "target_record_count"
     )
+    if target_relocations != configured_target_relocations:
+        raise ProofError("configured and original raw target counts disagree")
     candidate_relocations = _integer(
         relocation.get("candidate_record_count"), "candidate_record_count"
     )
@@ -186,14 +189,15 @@ def validate_report(symbol: str, report: dict[str, object]) -> dict[str, object]
             if (not isinstance(row, dict) or row.get("symbol") != ".bss"
                     or type(row.get("offset")) is not int or row["offset"] < 0
                     or row["offset"] % 4 or row["offset"] >= target_words * 4
-                    or row.get("rtype") not in (5, 6)):
+                    or type(row.get("rtype")) is not int or row["rtype"] not in (5, 6)):
                 raise ProofError("malformed declared filter site")
             keys.append((row["offset"], row["rtype"]))
         identity_keys = []
         for row in identities:
             identity = row.get("identity") if isinstance(row, dict) else None
             if (not isinstance(identity, (list, tuple)) or len(identity) != 2
-                    or any(type(value) is not int or value < 0 for value in identity)):
+                    or any(type(value) is not int or value < 0 for value in identity)
+                    or type(row.get("offset")) is not int or type(row.get("rtype")) is not int):
                 raise ProofError("malformed independently proved filter identity")
             identity_keys.append((row.get("offset"), row.get("rtype")))
         if len(set(keys)) != len(keys) or sorted(keys) != sorted(identity_keys):

@@ -56,6 +56,22 @@ import postprocess_audit as pa  # noqa: E402
 import reloc_identity as ri  # noqa: E402
 import reloc_surface as rs  # noqa: E402
 _LOADED_FILTER_PROOF = pp.sha256_file(Path(__file__))
+_LOADED_FILTER_IMPLEMENTATIONS = {str(Path(module.__file__)): pp.sha256_file(Path(module.__file__))
+                                  for module in (pp, ri, rs, ot)}
+
+
+def _check_filter_implementations():
+    if (pp.sha256_file(Path(__file__)) != _LOADED_FILTER_PROOF
+            or any(pp.sha256_file(Path(path)) != digest
+                   for path, digest in _LOADED_FILTER_IMPLEMENTATIONS.items())):
+        raise PreflightError("loaded filter-proof implementation changed")
+
+
+def _require_capture_snapshot(receipt, input_snapshot, linked_bytes):
+    if (receipt["linked_sha256"] != input_snapshot["linked"]
+            or hashlib.sha256(linked_bytes).hexdigest() != receipt["linked_sha256"]
+            or receipt["inputs"]["target_inputs"] != input_snapshot["target_inputs"]):
+        raise pp.MetadataProofError("previously parsed linked/runtime ownership changed before raw capture")
 
 
 class PreflightError(RuntimeError):
@@ -2542,7 +2558,7 @@ def _surface_error_diagnostic(
     return original
 
 
-def _declared_filter_comparison(resolution, comparison, context, records, target_elf, linked_name):
+def _declared_filter_comparison(resolution, comparison, context, records, target_elf, linked_name, input_snapshot):
     """Compose fresh raw proof with exact declared metadata removal, never missing guessed sites."""
     if (resolution.resolution_mode != "post_promotion" or context["kind"] != "overlay"
             or comparison.get("offset_type_exact") is True):
@@ -2550,11 +2566,13 @@ def _declared_filter_comparison(resolution, comparison, context, records, target
     command = pa.postprocess_commands(pa.run_make_database()).get(_relative(resolution.candidate_object), "")
     if "filter_elf_relocations.py" not in command:
         return comparison, None
-    if pp.sha256_file(Path(__file__)) != _LOADED_FILTER_PROOF:
-        raise PreflightError("loaded filter-proof integration changed")
+    _check_filter_implementations()
     try:
         raw_path, plan, receipt, current_context = pp.capture_configured_raw(
             REPO, resolution.source, resolution.candidate_object, TARGET_ELF, command)
+        _check_filter_implementations()
+        receipt["proof_implementations"] = dict(_LOADED_FILTER_IMPLEMENTATIONS)
+        _require_capture_snapshot(receipt, input_snapshot, target_elf.data)
         raw, configured = rs.Elf(raw_path), rs.Elf(resolution.candidate_object)
         accounting = pp.validate_metadata_objects(raw, configured, plan, resolution.candidate_symbol)
         raw_comparison = rs.function_surface_comparison(
@@ -2613,13 +2631,22 @@ def collect(resolution: Resolution) -> dict[str, object]:
         if not path.is_file():
             raise PreflightError(f"missing {label}: {_relative(path)}")
 
+    input_snapshot = {"linked": pp.sha256_file(TARGET_ELF),
+                      "target_inputs": {name: pp.sha256_file(REPO / name) for name in
+                        ("baseroms/mickey.us.z64", "config/overlays.us.json",
+                         "overlay_undefined_syms.us.txt", "symbol_addrs.us.txt")}}
     target_elf = rs.Elf(TARGET_ELF)
     linked_name, target_value, target_size, section = _symbol_geometry(
         target_elf, (resolution.candidate_symbol, resolution.target_symbol)
     )
     _require_tracked_geometry(resolution, target_value, target_size)
-    atlas = json.loads(ATLAS.read_text(encoding="utf-8"))
+    atlas_bytes = ATLAS.read_bytes()
+    atlas = json.loads(atlas_bytes)
     rom = ROM.read_bytes()
+    if (hashlib.sha256(target_elf.data).hexdigest() != input_snapshot["linked"]
+            or hashlib.sha256(atlas_bytes).hexdigest() != input_snapshot["target_inputs"]["config/overlays.us.json"]
+            or hashlib.sha256(rom).hexdigest() != input_snapshot["target_inputs"]["baseroms/mickey.us.z64"]):
+        raise PreflightError("linked/runtime ownership changed while loading proof inputs")
     context, runtime_records = _target_context(
         resolution, target_value, target_size, atlas, rom
     )
@@ -2650,7 +2677,7 @@ def collect(resolution: Resolution) -> dict[str, object]:
             )
         ) from error
     comparison, filter_binding = _declared_filter_comparison(
-        resolution, comparison, context, runtime_records, target_elf, linked_name)
+        resolution, comparison, context, runtime_records, target_elf, linked_name, input_snapshot)
     relocation_evidence = _relocation_evidence(
         resolution,
         context,
@@ -2665,6 +2692,7 @@ def collect(resolution: Resolution) -> dict[str, object]:
     workbench = _workbench(resolution)
     if filter_binding is not None:
         receipt, current_context = filter_binding
+        _check_filter_implementations()
         if (pp.sha256_file(Path(__file__)) != _LOADED_FILTER_PROOF
                 or receipt["inputs"] != current_context()
                 or receipt["raw_sha256"] != pp.sha256_file(REPO / receipt["raw_object"])):

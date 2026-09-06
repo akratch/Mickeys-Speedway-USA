@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Synthetic metadata accounting tests; no target-derived fixtures."""
 import copy
+import hashlib
 import re
 import sys
 import subprocess
@@ -79,6 +80,25 @@ class MetadataTests(unittest.TestCase):
             with self.assertRaises(pp.MetadataProofError):
                 pp.validate_metadata_objects(raw, self.configured, self.plan + [("trim", end)], "f")
 
+    def test_text_header_and_duplicate_section_changes(self):
+        for index in (1, 2, 3, 8):
+            bad = copy.deepcopy(self.configured)
+            header = list(bad.sh[1]); header[index] += 1; bad.sh[1] = tuple(header)
+            with self.subTest(index=index), self.assertRaises(pp.MetadataProofError):
+                pp.validate_metadata_objects(self.raw, bad, self.plan, "f")
+        bad = copy.deepcopy(self.configured)
+        bad.names.append(".text"); bad.sh.append(bad.sh[1])
+        with self.assertRaises(pp.MetadataProofError):
+            pp.validate_metadata_objects(self.raw, bad, self.plan, "f")
+
+    def test_trim_cannot_remove_zero_neighbor(self):
+        raw, configured = copy.deepcopy(self.raw), copy.deepcopy(self.configured)
+        raw.syms.append(("neighbor", 12, 4, 18, 1))
+        configured.syms.append(raw.syms[-1])
+        configured.text = configured.text[:12]
+        with self.assertRaisesRegex(pp.MetadataProofError, "neighboring"):
+            pp.validate_metadata_objects(raw, configured, self.plan + [("trim", 12)], "f")
+
     def test_bss_unique_named_witness(self):
         linked = copy.deepcopy(self.raw)
         linked.names[2] = ".overlay_003_bss"
@@ -111,10 +131,11 @@ class MetadataTests(unittest.TestCase):
 class CaptureTests(unittest.TestCase):
     def test_current_capture_and_changed_inputs(self):
         import permute_batch as batch
-        for mutation in (None, "source", "header", "configured", "linked", "tool", "recipe", "failure", "timeout", "cancel"):
+        for mutation in (None, "source", "header", "wrapper_header", "configured", "linked", "tool", "recipe", "failure", "timeout", "cancel"):
             with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary)
                 paths = {"source": root / "src/a.c", "header": root / "include/a.h",
+                         "wrapper_header": root / "src/local.h",
                          "configured": root / "build/src/a.c.o", "linked": root / "build/a.elf",
                          "tool": root / "tools/filter_elf_relocations.py"}
                 for path in [*paths.values(), root / "Makefile", root / "baseroms/mickey.us.z64",
@@ -123,9 +144,9 @@ class CaptureTests(unittest.TestCase):
                              root / "tools/binutils/mips64-elf-objcopy"]:
                     path.parent.mkdir(parents=True, exist_ok=True)
                     path.write_text("initial")
-                paths["source"].write_text('#include "a.h"\nvoid f(void) {}\n')
+                paths["source"].write_text('#include "a.h"\n#include <local.h>\nvoid f(void) {}\n')
                 target = "build/src/a.c.o"
-                compiler = f"tools/ido/cc -nostdinc -I include -c -o {target} src/a.c"
+                compiler = f".venv/bin/python tools/asm-processor/build.py tools/ido/cc -- tools/binutils/mips64-elf-as -- -nostdinc -I include -c -o {target} src/a.c"
                 postprocess = f".venv/bin/python tools/filter_elf_relocations.py {target} .text 0:5:.bss"
                 changed_recipe = False
                 def execute(argv, deadline, check):
@@ -162,6 +183,26 @@ class CaptureTests(unittest.TestCase):
 
 
 class ReportTests(unittest.TestCase):
+    def test_loaded_implementations_and_parsed_snapshot(self):
+        import function_preflight as fp
+        original = pp.sha256_file
+        for module in (fp.ri, fp.rs):
+            with mock.patch.object(pp, "sha256_file", side_effect=lambda path: "changed" if str(path) == module.__file__ else original(path)):
+                with self.assertRaises(fp.PreflightError):
+                    fp._check_filter_implementations()
+        linked = b"linked fixture"
+        digest = hashlib.sha256(linked).hexdigest()
+        snapshot = {"linked": digest, "target_inputs": {"rom": "original", "atlas": "original"}}
+        receipt = {"linked_sha256": digest, "inputs": {"target_inputs": snapshot["target_inputs"]}}
+        fp._require_capture_snapshot(receipt, snapshot, linked)
+        with self.assertRaises(pp.MetadataProofError):
+            fp._require_capture_snapshot(receipt, snapshot, b"older parsed ELF")
+        for field in ("rom", "atlas"):
+            changed = copy.deepcopy(receipt)
+            changed["inputs"]["target_inputs"][field] = "changed"
+            with self.assertRaises(pp.MetadataProofError):
+                fp._require_capture_snapshot(changed, snapshot, linked)
+
     def test_explicit_raw_counts_and_malformed_receipts(self):
         import promotion_proof as proof
         from test_promotion_proof import exact_report
@@ -182,6 +223,17 @@ class ReportTests(unittest.TestCase):
             altered = copy.deepcopy(report)
             altered["relocation_comparison"]["declared_metadata_proof"][key] = bad
             with self.subTest(key=key), self.assertRaises(proof.ProofError):
+                proof.validate_report("friendly", altered)
+        for mutation in ("outer_count", "floating_type", "floating_identity_offset"):
+            altered = copy.deepcopy(report)
+            relocation = altered["relocation_comparison"]
+            if mutation == "outer_count":
+                relocation["target_record_count"] = 4
+            elif mutation == "floating_type":
+                relocation["declared_metadata_proof"]["filtered"][0]["rtype"] = 5.0
+            else:
+                relocation["declared_metadata_proof"]["filtered_identities"][0]["offset"] = 0.0
+            with self.subTest(mutation=mutation), self.assertRaises(proof.ProofError):
                 proof.validate_report("friendly", altered)
 
 
