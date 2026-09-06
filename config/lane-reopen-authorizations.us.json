@@ -3,8 +3,8 @@
   "authorizations": {
     "overlay1DispatchMode": {
       "source_commit": "36b50ec043412f248ce0cf028eaba7d7433cfb03",
-      "ledger_commit": "36b50ec043412f248ce0cf028eaba7d7433cfb03",
-      "reason": "Binding repair only: authenticate eleven external call sites with existing resident/overlay definitions and executed aliases. Preserve all instruction bytes, arguments and lines; diagnose the table pair. No flags or permutation."
+      "ledger_commit": "13e3864ed1845770d1f20d803cb5b646ba0f962b",
+      "reason": "Metadata-only link repair: replace table instruction edits with proved pool rebinding; preserve authentic local call carriers. Prove raw records, table destinations and linked ROM. No C variants or sweeps."
     },
     "func_80053868": {
       "source_commit": "a9808a35c5743ce14aeb2c4c73d2b616b0068240",

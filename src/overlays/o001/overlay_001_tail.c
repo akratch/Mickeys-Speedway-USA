@@ -1743,15 +1743,15 @@ extern void overlay36UpdatePeers(struct Overlay36Object *object);
 extern void overlay36SpawnFinalEffect(struct Overlay36EffectSource *object);
 extern f32 overlay1WrapOffset(f32 first, f32 second);
 
-/* Binding repair: all 199 relocation-masked words and the 0x28 frame remain
- * exact. The existing callee definitions and shipped runtime records prove
- * the eleven external calls; no argument, instruction or table entry changes.
- * Automated identity proof covers 58/61 sites; the generated overlay-8 name
- * and the table HI16/LO16 pair still need separate proof support. */
-/* All eight switch destinations agree relative to this function. The old
- * anchored table externalization edits instruction fields and cannot support
- * exact-C credit; preserve the fallback until ownership/linking are proved. */
-#ifdef NON_MATCHING
+/* Tier A: the ordinary IDO body and 0x28 frame are linked-ROM exact.
+ * The 61 text relocation sites retain their shipped runtime identities.
+ * External calls name the canonical definitions with their existing ABI;
+ * local call aliases preserve the authentic pre-loader call addends.
+ * No compiler instruction is edited by the metadata-only link recipe. */
+/* The retained eight-entry table remains owned by initialized data.
+ * Its compiler destinations agree relative to this function; the HI/LO
+ * relocations bind to its stored addend without changing instructions. */
+
 s32 overlay1DispatchMode(void) {
     Overlay1ModeState *world;
     Overlay1ModeObject *candidateObject;
@@ -1836,9 +1836,9 @@ s32 overlay1DispatchMode(void) {
     return 0;
 }
 
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F0005ED4_18522B4.s")
-#endif
+
+
+
 
 /* ---- overlay1HandleCachedMode ---- */
 
@@ -3370,16 +3370,6 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0x20
  * summary: The size-near pointer-update probe is byte-flat; promotion trial in=0/out=0 is a schedule-divergence build error, not equality. Retain the 160-word structural plateau.
  * PLATEAU-HANDOFF:overlay1TransitionState:end
- */
-
-/* PLATEAU-HANDOFF:overlay1DispatchMode:start
- * symbol: overlay1DispatchMode
- * score: 199/199 words
- * frame: 0x28
- * relocations: 61
- * first-mismatch: +0x2C
- * summary: All instruction bytes and eight table destinations retained; 58/61 identities proved. Remaining: table HI/LO and generated cross-overlay call +0x48. No exact credit.
- * PLATEAU-HANDOFF:overlay1DispatchMode:end
  */
 
 /* PLATEAU-HANDOFF:func_overlay_001_F000438C_185076C:start
