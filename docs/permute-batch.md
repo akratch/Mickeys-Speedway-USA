@@ -456,7 +456,7 @@ tables do name gets a canonical, ROM-derived identity:
 
 | site | canonical name | why |
 |---|---|---|
-| `HI16`+`LO16` pair | `__ovval_<link value>` | the value `synthesize()` derives at that site -- the ROM's stored words minus the object's own addend. Two placeholders the surface values identically produce the same linked words, so they are the same symbol as far as the link is concerned |
+| `HI16`+`LO16` pair | `__ovval_<link value>` (runtime-qualified on collision) | the ROM's stored words minus the object's own addend; equal stored values alone do not establish equal runtime identity |
 | `R_MIPS_26`, `SYMBOL` record | `__ovcall_o<overlay>_<offset>` | the stored immediate is always zero and carries no identity, so the record's own `overlayRomTable` entry -- the callee's overlay and offset -- names it |
 | `R_MIPS_26`, `JUMP` record | `__ovjump_<module offset>` | an intra-module call; the stored immediate *is* the target's offset |
 
@@ -481,8 +481,14 @@ measurement rather than a fudge:
   `build/permuter/<fn>/annotation.txt`.
 - **Equal stored values do not merge different runtime identities.** If two
   candidate externs would acquire one destination name despite differing
-  runtime operation or symbol identity, neither is renamed. Runtime-only
-  target annotations remain distinct, including shared-HI standalone LOs.
+  runtime operation or symbol identity, their names receive distinct overlay,
+  operation and symbol-identity suffixes. Only already corroborated whole-symbol
+  proposals qualify; unproved bindings remain refused. Same-identity aliases
+  may share a name. Shared-HI standalone LOs reuse the resolved name and a
+  separately retained numeric stored base, also used by the target link proof.
+  Names contain no dots, which the vendor MIPS scorer treats as wildcard
+  symbols. Real assembler/linker/scorer tests require identical code with correct
+  qualified identities to score zero and swapped identities to remain nonzero.
 - **Any failure falls back to the previous behaviour.** If the annotated `.s`
   cannot be assembled/proved or its candidate refresh fails, all four owned
   scratch files (`target.s`, `target.o`, `compile.sh`, `base.o`) are restored

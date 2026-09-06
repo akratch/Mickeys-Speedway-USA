@@ -1241,11 +1241,9 @@ def permuter_annotation(target_s_text, base_o: Path, func_names, overlay: int,
         sites.append({"symbol": name, "obj_off": off, "type": rtype,
                       "module_off": fn_start + (off - fn_off)})
 
-    # Pass 1: name each corroborated site.  A HI16/LO16 pair is named by the
-    # link *value* the ROM spells at it -- `synthesize()`'s own quantity, and
-    # the only identity that is well defined: two placeholders the surface
-    # values identically produce the same linked words, whatever the record's
-    # operation says the runtime will add to them afterwards.  An `R_MIPS_26`
+    # Pass 1: name each corroborated site by its stored link base. Equal
+    # stored bases are not runtime identities: pass 2 qualifies collisions
+    # with the authoritative operation/index tuple before any rename. An `R_MIPS_26`
     # SYMBOL site stores immediate zero (docs/reloc-surface.md section 1), so
     # its value carries no identity at all and the record's own ROM-table
     # entry -- the callee's overlay and offset -- names it instead.
@@ -1266,7 +1264,8 @@ def permuter_annotation(target_s_text, base_o: Path, func_names, overlay: int,
                                   R_MIPS_HI16) << 16)
                     + sext16(stored_field(rom, text_start + lo["module_off"],
                                           R_MIPS_LO16)))
-            base = "__ovval_%08X" % ((full - have) & 0xFFFFFFFF)
+            value = (full - have) & 0xFFFFFFFF
+            base = "__ovval_%08X" % value
             where = [(hi["module_off"], "hi"), (lo["module_off"], "lo")]
         elif anchor["type"] == R_MIPS_26:
             # `jal sym` carries no addend the assembler can spell back, so a
@@ -1283,10 +1282,11 @@ def permuter_annotation(target_s_text, base_o: Path, func_names, overlay: int,
                                  R_MIPS_26) << 2)
             else:
                 continue
+            value = targets[anchor["module_off"]][3]
             where = [(anchor["module_off"], "26")]
         else:
             continue  # a lone HI16/LO16 or an R_MIPS_32: nothing to pair with
-        proposals.append((anchor["symbol"], base, have, where, _annotation_identity(rec)))
+        proposals.append((anchor["symbol"], base, have, where, _annotation_identity(rec), value))
 
     # Pass 2: a symbol whose sites do not agree on one name has no canonical
     # candidate identity; its target sites retain runtime-only annotations.
@@ -1294,7 +1294,7 @@ def permuter_annotation(target_s_text, base_o: Path, func_names, overlay: int,
     # would make the target disagree with the candidate at the sites that
     # wanted the other name -- worse than leaving it alone, and silently so.
     proposed = collections.defaultdict(set)
-    for symbol, base, _have, _where, identity in proposals:
+    for symbol, base, _have, _where, identity, _value in proposals:
         proposed[symbol].add((base, identity))
     conflicts = ["%s: candidate identity ambiguous (%s); not renamed; target remains annotated"
                  % (symbol, ", ".join(str(name) for name in sorted(names)))
@@ -1317,11 +1317,18 @@ def permuter_annotation(target_s_text, base_o: Path, func_names, overlay: int,
         destination_identities[destination].add(next(iter(proposed[symbol]))[1])
     for symbol, destination in list(renames.items()):
         if len(destination_identities[destination]) > 1:
-            del renames[symbol]
-            conflicts.append(symbol + ": equal stored base has distinct runtime identities; not renamed")
-    for symbol, base, have, where, _identity in proposals:
+            identity = next(iter(proposed[symbol]))[1]
+            # No dots: the vendor MIPS scorer treats dotted operands as
+            # generic symbols. Keep distinct runtime identities score-visible.
+            renames[symbol] = destination + "_o%d_" % overlay + "_".join(map(str, identity))
+    stored_bases = {}
+    for symbol, _base, have, where, _identity, value in proposals:
         if symbol not in renames:
             continue
+        base = renames[symbol]
+        if base in stored_bases and stored_bases[base] != value:
+            raise AnnotationError("ambiguous corroborated stored base")
+        stored_bases[base] = value
         for module_off, kind in where:
             annotations[module_off] = (kind, base, have)
 
@@ -1332,13 +1339,14 @@ def permuter_annotation(target_s_text, base_o: Path, func_names, overlay: int,
         offset, symbol = site["module_off"], site["symbol"]
         if site["type"] != R_MIPS_LO16 or offset not in targets or symbol not in renames:
             continue
-        base, identity = next(iter(proposed[symbol]))
+        _original_base, identity = next(iter(proposed[symbol]))
+        base = renames[symbol]
         if not base.startswith("__ovval_") or identity != targets[offset][4] or targets[offset][0] != "lo":
             continue
         if annotations[offset][1] == base:
             continue  # retain a paired LO's complete (not merely signed-low) addend
         have = sext16(stored_field(obj_text, site["obj_off"], R_MIPS_LO16))
-        value = int(base[len("__ovval_"):], 16)
+        value = stored_bases[base]
         if (value + have) & 0xFFFF == targets[offset][3] & 0xFFFF:
             annotations[offset] = ("lo", base, have)
 
@@ -1367,7 +1375,7 @@ def permuter_annotation(target_s_text, base_o: Path, func_names, overlay: int,
                  % (len(annotations), len(seen)))
     values = {}
     for offset, (_kind, base, have) in annotations.items():
-        value = (int(base[len("__ovval_"):], 16) if base.startswith("__ovval_")
+        value = (stored_bases[base] if base in stored_bases
                  else (targets[offset][3] - have) & 0xFFFFFFFF)
         if base in values and values[base] != value:
             raise AnnotationError("ambiguous stored-value assignment for annotated target")
