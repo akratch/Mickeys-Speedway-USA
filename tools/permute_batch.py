@@ -1513,8 +1513,42 @@ def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
 
     inline_compounds = set()
     inline_do_controls = set()
+    standalone_inline_do = set()
+
+    def whole_line_do(node):
+        """Bind a complete standalone do statement to one physical line.
+
+        Nested braces have no reliable parser columns. Compare every maximal
+        C token of the existing AST with the entire original physical line;
+        do not infer an opener or absorb a neighboring statement. Unsupported
+        spellings remain measurement-required, with the original AST intact.
+        """
+        if not isinstance(node.stmt, nodes.Compound):
+            return False
+        line = key(node)
+        if not single_line(node, line):
+            return False
+        pending = [node]
+        while pending:
+            current = pending.pop()
+            if isinstance(current, (nodes.Pragma, nodes.Label, nodes.Case,
+                                    nodes.Default, nodes.Switch)):
+                return False
+            pending.extend(child for _, child in current.children())
+        from perm_pycparser import c_generator
+        maximal = re.compile(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|/\*.*?\*/|//[^\n]*'
+                             r'|[A-Za-z_][A-Za-z_0-9]*|(?:\d|\.\d)[A-Za-z_0-9.]*'
+                             r'|>>=|<<=|\.\.\.|->|\+\+|--|<<|>>|<=|>=|==|!=|&&|\|\||[+*/%&|^!-]='
+                             r'|[^\s]', re.S)
+        def tokens(text):
+            return [m.group() for m in maximal.finditer(text)
+                    if not m.group().startswith(("/*", "//"))]
+        physical = source.splitlines()[locations[line][0] - 1]
+        return tokens(physical) == tokens(c_generator.CGenerator().visit(node))
 
     def lexical_lines(n):
+        if id(n) in standalone_inline_do:
+            return locations[key(n)]
         values = []
         if n.coord is not None and n.coord.line > 0:
             values.extend(locations.get(key(n), []))
@@ -1539,7 +1573,8 @@ def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
                          and single_line(item, line)) for item in node.block_items))
 
     def groupable(node, line):
-        return id(node) in inline_compounds or simple(node, line)
+        return (id(node) in inline_compounds or id(node) in standalone_inline_do
+                or simple(node, line))
 
     def do_tail_line(node):
         """Prove the complete `} while (...);` punctuation is on one line."""
@@ -1616,6 +1651,10 @@ def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
             raise ValueError("preexisting permuter pragma in selected function")
         if id(node) in inline_do_controls:
             return
+        if (isinstance(node, nodes.DoWhile) and isinstance(parent, nodes.Compound)
+                and whole_line_do(node)):
+            standalone_inline_do.add(id(node))
+            return
         # A macro-expanded standalone block may include declarations and its
         # closing brace on one physical line. Wrap the entire existing block
         # from its parent's statement list; its lexical scope stays intact.
@@ -1679,7 +1718,8 @@ def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
             end = i + 1
             while end < len(items) and key(items[end]) == line:
                 end += 1
-            if end == i + 1 and id(first) not in inline_compounds:
+            if (end == i + 1 and id(first) not in inline_compounds
+                    and id(first) not in standalone_inline_do):
                 output.append(first)
                 i = end
                 continue
@@ -1709,6 +1749,7 @@ def preserve_source_groups(ast, source: str, symbol: str, nodes) -> dict:
                 inner.block_items.insert(0, stop)
             groups.append({"line": line[1], "statements": len(batch),
                            "control": (type(tail).__name__ if inner else
+                                       "DoWhile" if any(id(n) in standalone_inline_do for n in batch) else
                                        "Compound" if any(id(n) in inline_compounds for n in batch) else None)})
             i = end
         node.block_items = output

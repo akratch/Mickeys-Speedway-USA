@@ -18,6 +18,14 @@ overlapping multiline statements, conflicting pragmas and unsupported grouped
 control shapes retain the unchanged original AST and request actual fidelity
 measurement rather than joining an entire function or guessing a mismatch.
 
+A standalone complete `do { ... } while (...);` on one physical line is also
+preserved, including nested statements and declaration scopes. Its full AST
+token sequence must equal that entire original line; braces are not selected
+from unreliable parser columns. Markers surround the existing searchable
+statement, not an opaque text replacement. Partial endpoints, neighboring
+statements on that line, labels/switches/pragmas and token mismatches retain
+the measurement-required fallback. This does not waive compiled seed fidelity.
+
 The preparation contract is explicitly included in receipt identity. A grouped
 target additionally runs a compile-only initial candidate emission
 before either search or receipt reuse. It must reproduce a freshly rebuilt
