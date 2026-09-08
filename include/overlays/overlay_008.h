@@ -588,11 +588,10 @@ typedef struct O8P34A0State {
 
 typedef struct O8P34A0Query {
     f32 **samples0;
-    u8 pad04[0x14];
-    s32 scratch18;
-    s32 scratch1C;
-    s32 scratch20;
-    s32 scratch24;
+    s32 scratch04;
+    s32 scratch08;
+    s32 scratch0C;
+    s32 scratch10;
 } O8P34A0Query;
 
 typedef struct Overlay8MotionRow {

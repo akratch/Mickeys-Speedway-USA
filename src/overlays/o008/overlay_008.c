@@ -1627,40 +1627,48 @@ void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
     }
 }
 
-/* NON_MATCHING: 899 vs 898 instructions, 599 masked/621 raw words different,
- * frames -0xA0/-0x80, first +0x0.  The call graph now aligns one-to-one across
- * all 21 call sites and every call-delimited region is within four words of
- * the target.  Remains: a 32-byte frame surplus whose three float homes the
- * target places inside the terrain-query aggregate, and the register web that
- * surplus drags with it; GLOBAL_ASM stays canonical. */
+/* NON_MATCHING: 895 vs 898 instructions, 556 masked/579 raw words different,
+ * frame -0x80 exact, 109/109 relocations with 53 offset/type pairs agreeing
+ * and 44 identities resolved, first mismatch +0x1C.  The call graph aligns
+ * one-to-one across all 21 call sites, and eight of the fifteen stack homes
+ * (the scratch quad, the mode/target/counter trio and every incoming-argument
+ * home) sit at the shipped offsets.
+ *
+ * The remaining six homes are four bytes high because the shipped frame wants
+ * one escaping four-byte pointer at +0x40 and a separate escaping four-word
+ * block at +0x58, with +0x44/+0x48/+0x4C serving as ordinary float homes
+ * between them.  Measured with this compiler: a single aggregate never lends
+ * its padding to a home, four plain scalars lose the -1 stores to dead-store
+ * elimination, and volatile scalars keep the stores but cost about 270 extra
+ * differing words.  Finding the construct that yields two escaping objects at
+ * that spacing is the next lever; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
                                       O8P34A0State *state, f32 limit,
                                       f32 update) {
-    O8P34A0Query query;
-    f32 **sample;
-    f32 selectedValue;
-    f32 blend;
-    f32 result;
-    f32 strength;
-    f32 delta;
-    f32 trigA;
-    f32 trigB;
-    f32 factor;
-    s16 outputAngle;
-    s32 selectedMode;
-    s8 ownerMode;
-    s32 sampleCount;
     s32 index;
+    s32 sampleCount;
     s32 target;
+    s32 selectedMode;
+    f32 trigB;
+    f32 delta;
+    O8P34A0Query query;
+    f32 blend;
+    f32 selectedValue;
+    f32 result;
+    f32 **sample;
+    f32 trigA;
+    f32 factor;
+    f32 strength;
+    s16 outputAngle;
+    s8 ownerMode;
     s32 steps;
-    s32 remaining;
 
     selectedMode = owner->mode3B;
-    query.scratch18 = -1;
-    query.scratch1C = -1;
-    query.scratch20 = -1;
-    query.scratch24 = -1;
+    query.scratch04 = -1;
+    query.scratch08 = -1;
+    query.scratch0C = -1;
+    query.scratch10 = -1;
     result = 0.0f;
     selectedValue = 0.0f;
     blend = 0.0f;
@@ -1872,11 +1880,11 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
     }
     steps = (s32)update;
     if (steps != 0) {
-        remaining = steps - 1;
+        index = steps - 1;
         do {
             state->angle110 +=
                 o8P34A0ApproachReloc(state->angle110, target) >> 2;
-        } while (remaining-- != 0);
+        } while (index-- != 0);
     }
     state->angle112 = state->angle110;
 
@@ -1898,18 +1906,19 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
                 outputAngle = (s16)(s32)((12288.0f / limit) *
                                          state->motion4);
             }
+            trigA = D_244;
             strength = -state->motion4 / limit;
             delta = (update / 60.0f) * strength * 25.0f;
             state->phase3EC += delta;
             state->phase3F0 += delta;
-            if (D_244 <= state->phase3EC) {
-                state->phase3EC -= D_244;
+            if (trigA <= state->phase3EC) {
+                state->phase3EC -= trigA;
             }
-            if (D_244 <= state->phase3F0) {
-                state->phase3F0 -= D_244;
+            if (trigA <= state->phase3F0) {
+                state->phase3F0 -= trigA;
             }
             trigA = o8P34A0TrigAReloc(
-                (s32)((state->phase3EC / D_244) * 65536.0f));
+                (s32)((state->phase3EC / trigA) * 65536.0f));
             trigB = o8P34A0TrigBReloc(
                 (s32)((state->phase3F0 / D_248) * 65536.0f));
             factor = strength * 4096.0f;
