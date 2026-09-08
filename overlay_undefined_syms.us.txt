@@ -2803,6 +2803,7 @@ func_overlay_001_F000280C_184EBEC = overlay1FindPreviousAngle;
 func_overlay_001_F0002AA4_184EE84 = overlay1AdvanceGauge;
 
 /* overlay 1: overlay_001_tail.c.o */
+func_overlay_001_F00036A0_184FA80 = overlay1AssignRecordIndex;
 func_overlay_001_F0003E48_1850228 = overlay1SubmitGlobals;
 func_overlay_001_F0003E74_1850254 = overlay1SubmitAll;
 func_overlay_001_F0003EB8_1850298 = overlay1AngleBetweenSamples;
@@ -2828,7 +2829,6 @@ func_overlay_001_F00072A4_1853684 = overlay1AllocateRecord;
 func_overlay_001_F0007344_1853724 = overlay1CloneRecord;
 func_overlay_001_F00073A0_1853780 = overlay1UpdateValueCache;
 func_overlay_001_F0003578_184F958 = overlay1InitializeGaugeObjects;
-func_overlay_001_F00036A0_184FA80 = overlay1AssignRecordIndex;
 func_overlay_001_F0003750_184FB30 = overlay1ChoosePath;
 func_overlay_001_F0003FD8_18503B8 = overlay1TransitionState;
 func_overlay_001_F000438C_185076C = overlay1UpdateObjectPhysics;

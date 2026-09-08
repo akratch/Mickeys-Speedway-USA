@@ -75,16 +75,9 @@ extern s32 D_1D8C;
 extern void overlay1GetRomlistInfoReloc(O1VariableRecord **records, s32 *length,
                                         s32 enabled);
 
-/* Fresh configured V0 was exactly 44 words but differed at 21, with frame
- * 0x30 versus target 0x38 and five of seven runtime records. A meaningful
- * D_1D8C pointer lifetime plus declaration order recovers the exact frame and
- * records/length homes at sp+0x34/sp+0x20, reducing the residual to eleven
- * words from +0x28. All 119 flag modes are nonexact. The remaining two target
- * LOCAL records and conditional-store shape require a separately materialized
- * symbolic D_1D8C lvalue; volatile, union, scalar-snapshot, operand-order, and
- * scope variants do not supply it naturally. Preserve this basin and do not
- * restore the rejected dummy, false argument, private alias, or literal write. */
-#ifdef NON_MATCHING
+/* newIndex is the decoded record value; next is the candidate global maximum.
+ * Keeping those roles distinct leaves a redundant assignment after optimization
+ * but preserves IDO's shipped allocation. See docs/cleanup-queue.md. */
 void overlay1AssignRecordIndex(s32 unused, O1RecordOwner *owner) {
     O1VariableRecord *records;
     O1VariableRecord *record;
@@ -95,6 +88,8 @@ void overlay1AssignRecordIndex(s32 unused, O1RecordOwner *owner) {
     u8 size;
 
     if (owner->index == 0xFFFF) {
+        s32 newIndex;
+
         overlay1GetRomlistInfoReloc(&records, &length, 1);
         offset = 0;
         record = records;
@@ -102,7 +97,8 @@ void overlay1AssignRecordIndex(s32 unused, O1RecordOwner *owner) {
             do {
                 if (record->type == 0xCA) {
                     recordIndex = &D_1D8C;
-                    next = record->index + 1;
+                    newIndex = record->index + 1;
+                    next = newIndex;
                     if (*recordIndex < next) D_1D8C = next;
                 }
                 size = record->size;
@@ -113,10 +109,6 @@ void overlay1AssignRecordIndex(s32 unused, O1RecordOwner *owner) {
         owner->index = (u16)D_1D8C;
     }
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F00036A0_184FA80.s")
-#endif
 
 /* ---- overlay1ChoosePath ---- */
 
@@ -3347,16 +3339,6 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0x24
  * summary: Structural reconstruction stalls after five no-information attempts; next needs evidence for FP/local homes and independent global bindings.
  * PLATEAU-HANDOFF:func_overlay_001_F000438C_185076C:end
- */
-
-/* PLATEAU-HANDOFF:overlay1AssignRecordIndex:start
- * symbol: overlay1AssignRecordIndex
- * score: 11 differing words
- * frame: 0x38
- * relocations: 5
- * first-mismatch: +0x28
- * summary: Exact geometry and frame with five of seven records and a conditional global store awaiting an authentic separate symbolic lvalue
- * PLATEAU-HANDOFF:overlay1AssignRecordIndex:end
  */
 
 /* PLATEAU-HANDOFF:overlay1SolveAngleCandidates:start
