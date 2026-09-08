@@ -1547,20 +1547,21 @@ typedef struct TrackRouteResult {
 } TrackRouteResult;
 
 extern s32 func_8000A244(s32 *resultCount);
-extern s32 func_8000A39C(s32 first, s32 last);
+extern void func_8000A39C(s32 first, s32 last);
 extern TrackRouteObject *func_800056F0(s32 index);
 
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 146 differing words, first mismatch +0x38. */
-/* Candidate: 170/172 instructions with the exact 0x190 frame and 6/6 relocations. */
-/* Scalar map fill and full-width reverse scan are restored; prologue/register scheduling remains. */
+/* Mickey m2c restores the inclusive reverse object range and signed count ABI. */
+/* Nonexact: 169/172 words, 144 differences, first +0x5C, exact 0x190 frame. */
+/* Six relocation records on each side; their offsets still differ. */
 s32 func_8000DB34(s32 count, u8 *indices, TrackRouteResult *results) {
     s32 heapCount;
     s32 mapIndex;
-    u32 lastIndex;
+    s32 lastIndex;
     s32 resultCount;
     s32 segmentIndex;
     s32 objectRadius;
+    s32 objectIndex;
     s32 minX;
     s32 minY;
     s32 minZ;
@@ -1589,9 +1590,10 @@ s32 func_8000DB34(s32 count, u8 *indices, TrackRouteResult *results) {
     func_8000A39C(heapCount, lastIndex - 1);
     resultCount = 0;
     if (heapCount < lastIndex) {
-        lastIndex--;
         do {
-            object = func_800056F0(lastIndex);
+            objectIndex = lastIndex - 1;
+            lastIndex = objectIndex;
+            object = func_800056F0(objectIndex);
             if ((object->segmentIndex != -1) &&
                 (map[object->segmentIndex] != 0xFF) &&
                 (func_800103D4(object) != 0)) {
@@ -1624,7 +1626,6 @@ s32 func_8000DB34(s32 count, u8 *indices, TrackRouteResult *results) {
                 results++;
                 resultCount++;
             }
-            lastIndex--;
         } while (heapCount < lastIndex);
     }
     return resultCount;
@@ -5795,11 +5796,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_8000DB34:start
  * symbol: func_8000DB34
- * score: 146 differing words
+ * score: 144 differing words
  * frame: 0x190
  * relocations: 6
- * first-mismatch: +0x38
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * first-mismatch: +0x5c
+ * summary: Correct inclusive object traversal improves to 144 differences, frame 0x190 exact. Next: map and traversal declaration evidence.
  * PLATEAU-HANDOFF:func_8000DB34:end
  */
 
