@@ -72,6 +72,27 @@ extern void overlay57InitializeMode(s32 updateRate);
 extern void func_overlay_057_F0004E18_18A8A10(s32 updateRate);
 extern void func_overlay_057_F00060F8_18A9CF0(s32 updateRate);
 
+/* Fresh workbench: structure-mismatch, 614 differing words, first mismatch
+ * +0x04; 850 words against 883 with the exact 0x38 frame and its counter
+ * spill slot. Dispatch order, the three distinct zero-valued globals, the
+ * five runtime-linked call identities, the accumulator sign and both clamp
+ * placements are all settled; the +0x4 residual is only the unresolved
+ * placeholder value in the guarded build.
+ *
+ * What remains is one callee-saved assignment. IDO gives the single saved
+ * register to the six-entry loop counter here, where the shipped body gives
+ * it to the +0xE0 descriptor base and spills the counter instead; with the
+ * base uncommoned, the four unrolled fade copies also keep a spare register
+ * and address their stores directly rather than through the assembler
+ * temporary. That accounts for the whole -33 word deficit, twenty of it the
+ * store addresses.
+ *
+ * Eliminated: the flag lattice (-O1/-O2, with and without -g3, -mips1/2/3,
+ * loop unroll 0/2/4/8, -Wab,-r4300_mul) leaves the configured -O2 -mips2
+ * strictly best; a separate pointer local for the +0xE0 base, `register`
+ * qualifiers, the direct array spelling and separate loop counters all leave
+ * the assignment unchanged. Local declaration order does matter and is the
+ * one that reproduces the frame and spill slot. */
 #ifdef NON_MATCHING
 void func_overlay_057_F0001AE8_18A56E0(s32 updateRate) {
     s32 limit;
@@ -334,3 +355,13 @@ void func_overlay_057_F0001AE8_18A56E0(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o057/func_overlay_057_F0001AE8_18A56E0/func_overlay_057_F0001AE8_18A56E0.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_057_F0001AE8_18A56E0:start
+ * symbol: func_overlay_057_F0001AE8_18A56E0
+ * score: 614/883 words
+ * frame: 0x38
+ * relocations: 325
+ * first-mismatch: +0x4
+ * summary: Structure exact at 850 of 883 words; the six-entry counter holds the saved register the +0xE0 base needs. Flag lattice and declaration order exhausted.
+ * PLATEAU-HANDOFF:func_overlay_057_F0001AE8_18A56E0:end
+ */
