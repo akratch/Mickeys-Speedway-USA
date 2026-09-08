@@ -2286,9 +2286,9 @@ void func_8000E920(s32 arg0, s32 arg1) {
  * routine and texture vocabulary, while this Mickey body follows its own
  * fields, call sites, and assembly-only command schedule. */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch; 228 differing words, first mismatch +0x0. */
-/* Target 249 instructions/frame -112; candidate 247 instructions/frame -88. */
-/* Remaining gap is stack layout and command scheduling; 24-byte frame excess remains, so it is not shape-exact. */
+/* Workbench verdict: structure-mismatch; 185 differing words, first mismatch +0x0. */
+/* Exact 249-word size; candidate frame 0x58 versus target 0x70, 18/21 relocation sites exact. */
+/* Unsigned batch flags preserve the recovered masks; the 24-byte frame deficit remains. */
 void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
     TrackSegment *segment;
     TrackBatch *batch;
@@ -2299,7 +2299,7 @@ void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
     u32 vertexAddress;
     u32 positionAddress;
     s32 textureFrame;
-    s32 textureFlags;
+    u32 textureFlags;
     s32 hasTexture;
     s32 vertexCount;
     s32 positionCount;
@@ -2338,7 +2338,7 @@ void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
     if (batchCount != 0) {
         index = batchCount - 1;
         do {
-            if ((1 << batch->unk1) & arg1) {
+            if ((1U << batch->unk1) & arg1) {
                 textureFlags = batch->flags;
                 if ((textureFlags & sp5C) && !(textureFlags & sp58)) {
                     texture = NULL;
@@ -5697,7 +5697,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x58
  * relocations: 21
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Unsigned batch flag types preserve 185 differences and exact249-word size; m2c adds no missing CFG. Next: counter and flag home evidence.
  * PLATEAU-HANDOFF:func_8000F198:end
  */
 
