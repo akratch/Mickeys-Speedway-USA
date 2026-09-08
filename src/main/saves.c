@@ -271,8 +271,6 @@ void rumbleTick(s32 updateRate) {
     s32 controllerMask;
     s32 previousState;
     s32 retryMask;
-    s32 bit;
-    u8 decrementedFlag;
 
     if (D_8007A2FC != 0) {
         osPfsIsPlug(D_800D21C0, &D_8007A300);
@@ -361,10 +359,9 @@ void rumbleTick(s32 updateRate) {
                         osMotorStop(&D_800D21C8[i]);
                         rumble->rumbleTime = 0;
                         rumble->timer = 0;
-                        decrementedFlag = rumble->flag - 1;
                         rumble->pad01 = 0;
-                        rumble->flag = decrementedFlag;
-                        if ((decrementedFlag & 0xFF) == 0) {
+                        rumble->flag--;
+                        if (rumble->flag == 0) {
                             rumble->state = 0;
                         }
                         break;
@@ -398,18 +395,15 @@ void rumbleTick(s32 updateRate) {
         } while (i != 4);
         retryMask &= D_8007A2E8;
         if (retryMask != 0) {
-            bit = D_8007A2EC;
-            controllerMask = 1 << (bit + 0x1F);
-            if (bit == 0) {
+            controllerMask = 1 << (D_8007A2EC + 0x1F);
+            if (D_8007A2EC == 0) {
                 osPfsIsPlug(D_800D21C0, &D_8007A300);
-                bit = D_8007A2EC;
             } else {
                 if (retryMask & controllerMask) {
                     func_8002BF54(controllerMask, controllerMask);
-                    bit = D_8007A2EC;
                 }
             }
-            D_8007A2EC = bit + 1;
+            D_8007A2EC = D_8007A2EC + 1;
         }
         if ((retryMask == 0) || (D_8007A2EC >= 5)) {
             D_8007A2EC = 0;
@@ -1456,11 +1450,11 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
 
 /* PLATEAU-HANDOFF:rumbleTick:start
  * symbol: rumbleTick
- * score: 279/343 words
+ * score: 336/343 words
  * frame: 0x58
  * relocations: 87
  * first-mismatch: +0xF4
- * summary: 119 flags and 10 natural forms nonexact; retry mask homes at +0x40 instead of +0x48, shifting ugen temp FIFO; tail retains 14 opcode mismatches.
+ * summary: JFG efd5abb reproof reaches exact opcode, registers and frame; seven words remain from retryMask home sp+0x40 vs target sp+0x48. Next: IDO local-home evidence.
  * PLATEAU-HANDOFF:rumbleTick:end
  */
 
