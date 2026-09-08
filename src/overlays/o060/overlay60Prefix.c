@@ -5,12 +5,12 @@
 #include "game/anim.h"
 #include "game/math.h"
 #include "game/gameVi.h"
+#include "n_audio/mbi.h"
 extern int sprintf(char *buffer, const char *format, ...);
 
 /* Tier B: the call sites and runtime relocation records identify these
  * resident interfaces. The local views below use Mickey's menu, save-record,
  * and RCP field layouts; unknown fields retain their offsets. */
-struct MenuCommand { u32 w0; u32 w1; };
 typedef struct RcpTextureInfo RcpTextureInfo;
 typedef struct RcpTextureNode {
     RcpTextureInfo *texture;
@@ -25,6 +25,11 @@ typedef struct SavesPackedEntry {
     u8 character;
 } SavesPackedEntry;
 typedef struct SavesSlot { SavesPackedEntry records[4]; } SavesSlot;
+typedef struct Overlay60Point {
+    s16 x;
+    s16 y;
+} Overlay60Point;
+
 typedef struct MenuSpawnInner {
     u8 pad00[8];
     s16 mode;
@@ -37,10 +42,10 @@ extern void func_80000510(u8 sequence);
 extern void func_800005CC(f32 fade, u8 volume);
 extern void func_8004B0A4(s32 font);
 extern void func_8004B0DC(s32 red, s32 green, s32 blue, s32 alpha);
-extern void func_8004B0F8(MenuCommand **commands, s32 x, s32 y, char *text, s32 flags);
-extern void func_8002F618(MenuCommand **commands, RcpTextureNode *texture,
+extern void func_8004B0F8(Gfx **commands, s32 x, s32 y, char *text, s32 flags);
+extern void func_8002F618(Gfx **commands, RcpTextureNode *texture,
                         s32 x, s32 y, s32 red, s32 green, s32 blue, s32 alpha);
-extern void func_8002FB34(MenuCommand **commands, RcpTextureNode *texture,
+extern void func_8002FB34(Gfx **commands, RcpTextureNode *texture,
                         f32 x, f32 y, f32 scaleX, f32 scaleY, s32 alpha, s32 flags);
 extern void func_800367A4(void *texture, s32 *state, s32 speed, f32 *frame, s32 ticks);
 extern void func_8003A520(s32 split);
@@ -52,20 +57,20 @@ extern MtxF *func_8002468C(void);
 extern void func_80029198(void);
 extern SavesSlot *func_800291C4(void);
 extern s32 levelGetBlurEffect(s32 level);
-extern void func_80034920(MenuCommand **commands);
-extern void func_800349A4(MenuCommand **commands, s32 arg1, s32 arg2, s32 arg3);
-extern void camStandardPersp(MenuCommand **commands, void **matrices);
-extern void camStandardOrtho(MenuCommand **commands, void **matrices);
-extern void rcpClearZBuffer(MenuCommand **commands, s32 width, s32 height,
+extern void func_80034920(Gfx **commands);
+extern void func_800349A4(Gfx **commands, s32 arg1, s32 arg2, s32 arg3);
+extern void camStandardPersp(Gfx **commands, Mtx **matrices);
+extern void camStandardOrtho(Gfx **commands, Mtx **matrices);
+extern void rcpClearZBuffer(Gfx **commands, s32 width, s32 height,
                            s32 left, s32 top, s32 right, s32 bottom);
 extern void func_8005AD64(ControlActor *object, s32 frame, s32 arg2, f32 value);
 extern s32 func_8005ABA8(ControlActor *object, f32 scale, f32 ticks);
 extern void func_80020D8C(MenuSpawnInner *model, s32 index, s32 frame);
-extern void func_80009E78(MenuCommand **commands, void **matrices,
+extern void func_80009E78(Gfx **commands, Mtx **matrices,
                         void **vertices, ControlActor *object);
 extern void *func_800355A0(s32 asset, s32 flags);
 extern void func_800359D4(void *sprite);
-extern void func_80023F84(MenuCommand **commands, void **matrices,
+extern void func_80023F84(Gfx **commands, Mtx **matrices,
                         void **vertices, void *transform, void *sprite,
                         s32 flags, s32 alpha);
 extern void mainChangeLevel(s32 level, s32 entrance, s32 cutscene,
@@ -117,8 +122,8 @@ extern u16 D_800D312E;
 extern u16 D_800D3130[];
 extern u8 D_800D313B;
 extern u16 D_800D313C;
-extern MenuCommand *D_800D3140;
-extern void *D_800D3144;
+extern Gfx *D_800D3140;
+extern Mtx *D_800D3144;
 extern void *D_800D3148;
 extern s32 D_800D31B4;
 extern s32 D_800D31B8;
@@ -138,8 +143,15 @@ extern ControlActor *gOverlay60Data0A8;
 extern char gOverlay60Data0C0[];
 extern char gOverlay60Data0C4[];
 extern ControlActor *gOverlay60Data0C8[];
-extern s16 gOverlay60Data0D8[];
-extern s16 gOverlay60Data0E8[];
+extern Overlay60Point gOverlay60Data0D8[];
+extern s16 gOverlay60Data0E8;
+extern s16 gOverlay60Data0EA;
+extern s16 gOverlay60Data0EC;
+extern s16 gOverlay60Data0EE;
+extern s16 gOverlay60Data0F0;
+extern s16 gOverlay60Data0F2;
+extern s16 gOverlay60Data0F4;
+extern s16 gOverlay60Data0F6;
 extern f32 gOverlay60Data0F8[];
 extern s32 gOverlay60Data10C[];
 extern s32 gOverlay60Data11C[];
@@ -177,7 +189,10 @@ extern s32 gOverlay60Data2AC;
 extern s32 gOverlay60Data2B0;
 extern s32 gOverlay60Data2B4;
 extern s32 gOverlay60Data2B8;
-extern u8 D_800000B0[];
+/* Tier B: this relocation denotes the local list at data +0xB0 with its
+ * physical-address bias. It is a link-bound address alias, not a resident
+ * global. Canonical relocation binding remains part of promotion proof. */
+extern Gfx gOverlay60PhysicalList0B0[];
 
 #define O60_TEXT(offset) D_8007C0B8[(offset) / 4]
 
@@ -194,7 +209,6 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
     s32 count;
     s32 value;
     s32 mode;
-    s32 oldDetail;
     s32 showArrows;
     s32 limit;
     s32 minutes;
@@ -205,23 +219,15 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
     s32 icon;
     s32 row;
     s32 y;
-    s8 enabled[16];
+    u8 enabled[16];
     char text[128];
     char glyph[2];
-    char *letter;
-    char **recordLabel;
-    s16 *recordY;
-    s16 *column;
-    s32 *mask;
-    s32 *shift;
     s8 *rank;
     SavesSlot *slots;
     SavesPackedEntry *record;
     MtxF *projection;
     AnimPath *path;
     MenuSpawnInner *model;
-    MenuCommand *command;
-    f32 elapsed;
     s32 left;
     s32 right;
 
@@ -482,14 +488,14 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                                 if (path != NULL) {
                                     path->flags |= 2;
                                 }
-                                gOverlay60Data0C8[0]->x = gOverlay60Data0E8[0];
-                                gOverlay60Data0C8[0]->y = gOverlay60Data0E8[1];
-                                gOverlay60Data0C8[1]->x = gOverlay60Data0E8[2];
-                                gOverlay60Data0C8[1]->y = gOverlay60Data0E8[3];
-                                gOverlay60Data0C8[2]->x = gOverlay60Data0E8[4];
-                                gOverlay60Data0C8[2]->y = gOverlay60Data0E8[5];
-                                gOverlay60Data0C8[3]->x = gOverlay60Data0E8[6];
-                                gOverlay60Data0C8[3]->y = gOverlay60Data0E8[7];
+                                gOverlay60Data0C8[0]->x = gOverlay60Data0E8;
+                                gOverlay60Data0C8[0]->y = gOverlay60Data0EA;
+                                gOverlay60Data0C8[1]->x = gOverlay60Data0EC;
+                                gOverlay60Data0C8[1]->y = gOverlay60Data0EE;
+                                gOverlay60Data0C8[2]->x = gOverlay60Data0F0;
+                                gOverlay60Data0C8[2]->y = gOverlay60Data0F2;
+                                gOverlay60Data0C8[3]->x = gOverlay60Data0F4;
+                                gOverlay60Data0C8[3]->y = gOverlay60Data0F6;
                                 (*projection)[0][0] *= 0.75f;
                             } else {
                                 animseqStopPath(3);
@@ -498,14 +504,14 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                                 if (path != NULL) {
                                     path->flags |= 2;
                                 }
-                                gOverlay60Data0C8[0]->x = gOverlay60Data0D8[0];
-                                gOverlay60Data0C8[0]->y = gOverlay60Data0D8[1];
-                                gOverlay60Data0C8[1]->x = gOverlay60Data0D8[2];
-                                gOverlay60Data0C8[1]->y = gOverlay60Data0D8[3];
-                                gOverlay60Data0C8[2]->x = gOverlay60Data0D8[4];
-                                gOverlay60Data0C8[2]->y = gOverlay60Data0D8[5];
-                                gOverlay60Data0C8[3]->x = gOverlay60Data0D8[6];
-                                gOverlay60Data0C8[3]->y = gOverlay60Data0D8[7];
+                                gOverlay60Data0C8[0]->x = gOverlay60Data0D8[0].x;
+                                gOverlay60Data0C8[0]->y = gOverlay60Data0D8[0].y;
+                                gOverlay60Data0C8[1]->x = gOverlay60Data0D8[1].x;
+                                gOverlay60Data0C8[1]->y = gOverlay60Data0D8[1].y;
+                                gOverlay60Data0C8[2]->x = gOverlay60Data0D8[2].x;
+                                gOverlay60Data0C8[2]->y = gOverlay60Data0D8[2].y;
+                                gOverlay60Data0C8[3]->x = gOverlay60Data0D8[3].x;
+                                gOverlay60Data0C8[3]->y = gOverlay60Data0D8[3].y;
                                 (*projection)[0][0] /= 0.75f;
                             }
                             gOverlay60Data158 = 2;
@@ -550,9 +556,8 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                 func_8003A2C8(mode);
                 break;
             case 7:
-                oldDetail = gOverlay60Data14C;
                 showArrows = 0;
-                if (oldDetail == 0) {
+                if (gOverlay60Data14C == 0) {
                     func_overlay_082_F00004C0_18CF640(gOverlay60Data0A8);
                     if (gOverlay60Data154 == 0 &&
                         func_overlay_082_F00004A4_18CF624(gOverlay60Data0A8) != 0) {
@@ -641,7 +646,7 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                             amSndPlay(0xF, NULL);
                         }
                         slots = func_800291C4();
-                        record = slots[levelGetBlurEffect(D_8007C0E8[gOverlay60Data150])].records;
+                        slots += levelGetBlurEffect(D_8007C0E8[gOverlay60Data150]);
                         func_8004B0A4(2);
                         func_8004B0DC(0, 0, 0, 0);
                         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -653,9 +658,8 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                                 81.0f, 115.0f, gOverlay60Data258, gOverlay60Data258, -2, 0);
                         }
                         fontColour(0xC0, 0xFF, 0, 0xFF, 0xFF);
-                        recordY = gOverlay60Data1D0;
-                        recordLabel = gOverlay60Data1A4;
-                        do {
+                        for (row = 0; row < 4; row++) {
+                            record = &slots->records[row];
                             func_overlay_056_F00000B8_18A2E30(record->time,
                                 &minutes, &seconds, &hundredths);
                             if (record->time == 0) {
@@ -671,23 +675,16 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                             }
                             gOverlay60Data060.texture = D_800D31C8[icon];
                             func_8004B0F8(&D_800D3140, gOverlay60Data1B4[0],
-                                *recordY, *recordLabel, 0xC);
+                                gOverlay60Data1D0[row], gOverlay60Data1A4[row], 0xC);
                             func_8002FB34(&D_800D3140, &gOverlay60Data060,
-                                gOverlay60Data1B4[1], *recordY, 0.5f, 0.5f, -1, 0);
-                            column = gOverlay60Data1B4;
-                            letter = text;
-                            do {
+                                gOverlay60Data1B4[1], gOverlay60Data1D0[row], 0.5f, 0.5f, -1, 0);
+                            for (i = 0; i < 11; i++) {
                                 glyph[1] = '\0';
-                                glyph[0] = *letter;
-                                func_8004B0F8(&D_800D3140, column[2], *recordY,
-                                    glyph, 0xC);
-                                column++;
-                                letter++;
-                            } while (column != gOverlay60Data1B4 + 11);
-                            recordLabel++;
-                            record++;
-                            recordY++;
-                        } while (recordLabel != gOverlay60Data1A4 + 4);
+                                glyph[0] = text[i];
+                                func_8004B0F8(&D_800D3140, gOverlay60Data1B4[i + 2],
+                                    gOverlay60Data1D0[row], glyph, 0xC);
+                            }
+                        }
                         showArrows = 1;
                         break;
                     case 1:
@@ -732,31 +729,25 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                         fontColour(0, 0xFF, 0xFF, 0xFF, gOverlay60Data2A4);
                         func_8004B0F8(&D_800D3140, 0x3C, 0xB9, O60_TEXT(0x240), 8);
                         func_800349A4(&D_800D3140, 0, 0, 0);
-                        command = D_800D3140++;
-                        command->w0 = 0x07020010;
-                        command->w1 = (u32)D_800000B0;
-                        command = D_800D3140++;
-                        command->w0 = 0xFA000000;
-                        command->w1 = 0x00FF0000 | (gOverlay60Data2A4 & 0xFF);
+                        gDma1p(D_800D3140++, 7, gOverlay60PhysicalList0B0, 0x10, 2);
+                        gDPSetPrimColor(D_800D3140++, 0, 0, 0, 255, 0,
+                                        gOverlay60Data2A4);
                         overlay60DrawBorder(0x39, 0x86, 0x82, 0x92);
                         overlay60DrawBorder(0x91, 0x74, 0xAF, 0x9D);
                         overlay60DrawLine(0x82, 0x8D, 0x91, 0x8D);
-                        command = D_800D3140++;
-                        command->w0 = 0xFA000000;
-                        command->w1 = 0xFF000000 | (gOverlay60Data2A4 & 0xFF);
+                        gDPSetPrimColor(D_800D3140++, 0, 0, 255, 0, 0,
+                                        gOverlay60Data2A4);
                         overlay60DrawBorder(0x39, 0x95, 0x82, 0xA1);
                         overlay60DrawBorder(0xB5, 0x74, 0xD4, 0x9D);
                         overlay60DrawLine(0xC7, 0x9E, 0xC7, 0xA2);
                         overlay60DrawLine(0x82, 0xA1, 0xC7, 0xA1);
-                        command = D_800D3140++;
-                        command->w0 = 0xFA000000;
-                        command->w1 = 0xFFFF0000 | (gOverlay60Data2A4 & 0xFF);
+                        gDPSetPrimColor(D_800D3140++, 0, 0, 255, 255, 0,
+                                        gOverlay60Data2A4);
                         overlay60DrawBorder(0x39, 0xA4, 0x82, 0xB0);
                         overlay60DrawBorder(0x91, 0xA6, 0xAF, 0xCF);
                         overlay60DrawLine(0x82, 0xAB, 0x91, 0xAB);
-                        command = D_800D3140++;
-                        command->w0 = 0xFA000000;
-                        command->w1 = 0x00FFFF00 | (gOverlay60Data2A4 & 0xFF);
+                        gDPSetPrimColor(D_800D3140++, 0, 0, 0, 255, 255,
+                                        gOverlay60Data2A4);
                         overlay60DrawBorder(0x39, 0xB3, 0x82, 0xBF);
                         overlay60DrawBorder(0xB5, 0xA6, 0xD4, 0xCF);
                         overlay60DrawLine(0xC5, 0xD0, 0xC5, 0xD3);
@@ -764,35 +755,28 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                         overlay60DrawLine(0x80, 0xC0, 0x80, 0xD3);
                         func_80034920(&D_800D3140);
                         rcpClearZBuffer(&D_800D3140, 0x140, 0xF0, 0x8C, 0x64, 0xD7, 0xC8);
-                        shift = gOverlay60Data11C;
-                        mask = gOverlay60Data10C;
-                        objects = gOverlay60Data0C8;
-                        elapsed = ticks;
-                        do {
-                            object = *objects;
+                        for (i = 0; i < 4; i++) {
+                            object = gOverlay60Data0C8[i];
                             mode = gOverlay60Data150;
                             if (mode != object->unk3A) {
                                 object->unk3A = mode;
-                                func_8005AD64(*objects, 0, 0, 0.0f);
+                                func_8005AD64(gOverlay60Data0C8[i], 0, 0, 0.0f);
                             }
                             mode = gOverlay60Data150;
-                            object = *objects;
+                            object = gOverlay60Data0C8[i];
                             object->unk8 = gOverlay60Data0F8[mode];
-                            model = (MenuSpawnInner *)(*objects)->unk68[gOverlay60Data150];
+                            model = (MenuSpawnInner *)(gOverlay60Data0C8[i])->unk68[gOverlay60Data150];
                             model->mode = ticks;
                             rank = gOverlay60Data12B + 1 +
-                                ((u32)(D_800D3130[gOverlay60Data150] & *mask) >> *shift);
+                                ((u32)(D_800D3130[gOverlay60Data150] & gOverlay60Data10C[i]) >> gOverlay60Data11C[i]);
                             func_80020D8C(model, 0, rank[-1] * 256);
-                            func_8005ABA8(*objects, 0.003f, elapsed);
+                            func_8005ABA8(gOverlay60Data0C8[i], 0.003f, ticks);
                             if (rank != gOverlay60Data12B + 1) {
-                                (*objects)->alpha = gOverlay60Data2A4;
+                                (gOverlay60Data0C8[i])->alpha = gOverlay60Data2A4;
                                 func_80009E78(&D_800D3140, &D_800D3144,
-                                    &D_800D3148, *objects);
+                                    &D_800D3148, gOverlay60Data0C8[i]);
                             }
-                            shift++;
-                            objects++;
-                            mask++;
-                        } while (shift != gOverlay60Data11C + 4);
+                        }
                         showArrows = 1;
                         break;
                     case 2:
@@ -839,15 +823,9 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                         }
                         if (gOverlay60Data174 != NULL) {
                             camStandardOrtho(&D_800D3140, &D_800D3144);
-                            command = D_800D3140++;
-                            command->w1 = 0;
-                            command->w0 = 0xE7000000;
-                            command = D_800D3140++;
-                            command->w1 = 0xFFFFFFFF;
-                            command->w0 = 0xFA000000;
-                            command = D_800D3140++;
-                            command->w1 = 0xFFFFFF00;
-                            command->w0 = 0xFB000000;
+                            gDPPipeSync(D_800D3140++);
+                            gDPSetPrimColor(D_800D3140++, 0, 0, 255, 255, 255, 255);
+                            gDPSetEnvColor(D_800D3140++, 255, 255, 255, 0);
                             func_80023F84(&D_800D3140, &D_800D3144, &D_800D3148,
                                 gOverlay60Data178, gOverlay60Data174, 0, 0xFF);
                             if (gOverlay60Data14C == 0) {
