@@ -6,5 +6,5 @@
 - frame: 0x80
 - relocations: 1
 - first mismatch: +0x7C
-- summary: 123 instructions, frame, opcode order, and relocation site exact; 41 register-only differences in the temporary web are permuter-ready
+- summary: Permuter batch 260 to 200, no zero; register allocation remains; retry with preserved artifacts.
 <!-- plateau-handoff:overlay19BuildAdjacency:end -->
