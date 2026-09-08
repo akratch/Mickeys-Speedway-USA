@@ -2,14 +2,14 @@
 ### `func_overlay_054_F00005AC_189F24C` plateau handoff
 
 - source: `src/overlays/o054/overlay54TailA.c`
-- score: 1414 differing words
+- score: 1415 differing words
 - frame: 0x158
 - relocations: 273
 - first mismatch: +0x0
-- summary: Active CFG checkpoint: 1588/1594 words; 59 ordered calls; first nine calls at exact offsets. Four extra height-store relocations remain.
-This is a committed reconstruction milestone in the active structural packet,
-not a final stall disposition. The guarded C is compiled, not object-exact or
-ROM-exact. The owned range is overlay 54 text `+0x5AC..+0x1E94`, ROM
+- summary: 1588/1594 words, 59 ordered calls; five flat ownership refinements. Next: trace peeled height-exit address sharing and shared state induction.
+Final disposition: reconstruction plateau after five consecutive refinements
+without new matching information. The guarded C is compiled, not object-exact
+or ROM-exact. The owned range is overlay 54 text `+0x5AC..+0x1E94`, ROM
 `0x189F24C..0x18A0B34`: 6,376 executable bytes, with no padding credit.
 
 The configured baseline reproduced 1,564 candidate words versus 1,594 target
@@ -27,8 +27,8 @@ object proves `overlay56SplitTime` at `+0xB8`. Resident callee definitions
 supply the argument types. No donor body or external reference source was
 adopted; the near-match oracle found only weak similarities.
 
-The reconstruction uses `ControlActor`, `ControlPlayer` and a runtime HUD
-record view, with typed reads for fields still inside the partial
+The reconstruction uses `ControlActor`, `ControlPlayer` and the project's
+`OverlayOffsetRecord`, with typed reads for fields still inside the partial
 player header's gaps. It restores the timer correction and level queries,
 eight-record digit spacing, the signed time-delta branch and its texture
 snapshots, the unsigned offscreen easing, the null-actor return, the separate
@@ -42,15 +42,19 @@ time-delta magnitude and reset X coordinate are 32-bit values in the target.
 In particular, narrowing the negated minimum halfword loses its positive
 magnitude. Those corrections are retained even though the old extent was exact.
 
-Attempt 65 has 1,588 words against 1,594, a 24-byte deficit, 1,417 raw and
-1,414 relocation-masked positional differences, first `+0`, and a `0x158`
+The retained attempt 81 has 1,588 words against 1,594, a 24-byte deficit,
+1,418 raw and 1,415 relocation-masked positional differences, first `+0`, and a `0x158`
 frame against `0x138`. Its 273 relocations have 67 exact
 position/type/identity tuples and 268 matching identity/type records when
 position is ignored. One alternate-pointer LO record is replaced by an extra
 HI record, and the two peeled height-loop exits each introduce an additional
 HI/LO pair. All 59 calls remain in target order, and the first nine call sites
-now have exact offsets. This geometry improvement is retained despite attempt
-61's lower masked residual of 1,395 at 1,584 words. Neither is object-exact.
+have exact offsets. The baseline size deficit is reduced by 96 bytes, from
+120 to 24; this earns no matching credit. Attempt 61 has the best valid masked
+positional score, 1,395 at 1,584 words, but lacks the later counter and accumulator
+recovery. Its artifact is preserved. The heartbeat may still rank attempt 7
+first because its ordering favors equal geometry; that superseded candidate
+contains the narrowing defect described above and is not the retained result.
 
 The actor-list result and walking cursor now have distinct source roles, as
 proved by the target's preserved returned base and later cursor initialization.
@@ -116,9 +120,60 @@ inferred template interior-array grouping and sign-record view variants do not
 recover the target's allocation and relocation structure. These negative
 results are retained with their predictions; unchanged inputs are not new
 work. Workbench still routes through `structure-mismatch`,
-`structure-buckets` and `constant-audit`. This is an active packet checkpoint,
-not a final five-attempt stall disposition. Attempt 65 is the most recent
-regional improvement; the authorized structural reconstruction continues.
+`structure-buckets` and `constant-audit`. The final proof still has a structural mismatch, so no promotion was attempted.
+
+Attempt 66 recovers the centisecond accumulator as two successive updates,
+matching the target's actual def-use sequence and removing the extra temporary
+from the combined draft expression. The workbench normalized distance falls
+from 1,151 to 426; this is supporting structural evidence, not a positional
+match score. Subsequent shared-byte-index variants add unwanted state-table
+address pairs. A separate digit-copy counter does not recover the target's
+retained initialization. Removing the explicit address casts from the first
+spacing bound regresses both its geometry and residual.
+
+The opening refinements establish a specific remaining tradeoff. Independently
+scoped float pairs recover the target's constant-register roles but enlarge the
+frame. Using the global height as the previous-value carrier removes the four
+extra height records, while the animation calls move 24 bytes early; that
+variant has 1,582 words, 1,514 masked differences and 269 relocations. A completed
+height accumulator has the same short geometry. A third named result leaves a
+copy at the loop merge; factoring a common consuming store collapses the peeled
+shape. These variants remain ignored evidence, not improvements to bank by
+cancelling unrelated region sizes.
+
+Attempt 76 identifies the shared record type through the exact producer and
+copy callees (Tier B): `overlay54PatchIndices` casts resolved resource pointers
+into signed words, and `overlay54CopyOffsetRecords` uses `OverlayOffsetRecord`.
+The retained source uses that type directly and follows the producer's explicit
+pointer-to-word conversion. Its field layout is unchanged. The first sign/digit
+buffer has ten records including its terminator, and the per-player row and
+state arrays have four entries, based on the owned storage extents and their
+initialization traversal. Template cursors are read-only views; the templates
+remain writable by their producer. Per-player pointer declarations now express
+their actual iteration lifetime. These types do not claim the original typedef
+spelling or repair the compiler's remaining allocation choices.
+
+Stopping evidence: attempts 77 through 81 are five consecutive refinements of
+the already tested type-ownership explanation: complete the first array extent,
+complete per-player extents, qualify the template cursor, scope HUD pointers,
+and scope actor/player/level pointers. All retain 1,588 words, 1,415 masked
+and 1,418 raw differences, the `0x158` frame, 273 relocations, 67 exact sites,
+268 identity/type records and the normalized distance of 426. Attempts 77 through
+80 have identical executable text to 76. Attempt 81 changes only stack-home
+displacements, without improving any of those measurements or recovering the
+missing target lifetime. They prove no new identity or eliminated mismatch
+mechanism. The last new type evidence is 76; the last substantive body recovery
+is the accumulator at 66, following the opening anchors at 65. This is the
+assignment's five-attempt stall, not an attempt cap or deadline exhaustion.
+
+Concrete next lever: pin the retained configured C/object and use a separately
+authorized compiler-causal packet to trace where the peeled height exits lose
+the shared address, and where the related mode/alpha accesses lose the target's
+common four-byte induction. Establish the producing compiler phase and require
+an unchanged trace-off baseline before proposing another source relationship.
+The remaining alternate-pointer HI/LO discrepancy must also be resolved before
+any exact claim. Declaration permutation, a flag lattice and a permuter are not
+substitutes for this missing causal evidence and were not used in this packet.
 
 Every source/object/score and the runtime identity audit are retained in ignored
 `build/whale5/`. The raw m2c output remains ignored and was used only as a draft.
@@ -126,7 +181,12 @@ The generated all-header context could not parse unrelated incomplete types;
 a narrowed project-header context produced the draft. The actual stock-
 preprocessed baseline passed the context comparator against itself.
 
-Validation: the configured NON_MATCHING full TU compiles. The rebuilt canonical
+Validation commands: `tools/wb_compare.sh --summary-json` for the owned symbol;
+`decomp-workbench diagnose` and the `structure-buckets`/`constant-audit` guides;
+the runtime relocation/call census; `gmake verify`;
+`gmake check-nonmatching-builds`; `gmake check-docs`; and `gmake cleanroom`.
+`tools/finalize_plateau.py` guards and records this final disposition.
+The configured NON_MATCHING full TU compiles. The rebuilt canonical
 fallback has unchanged text bytes and named relocations compared with the base.
 `gmake verify` fails both before and after this work because the base overlay 94
 controller fallback retains unresolved resident call names and truncated call
@@ -134,6 +194,13 @@ relocations; logs are retained in the ignored evidence directory. This packet
 does not alter that separately owned source or claim a passing full-ROM gate.
 All 243 guarded TUs pass `gmake check-nonmatching-builds`. The source-only
 clean-room and documentation gates pass after `tools/finalize_plateau.py`
-records the checkpoint.
+records the plateau. The final call census again proves all 59 identities in
+order. The full-ROM gate remains blocked by the unchanged base overlay 94
+link failure; no candidate linked-ROM proof or new matched bytes are claimed.
+
+Files changed: only `src/overlays/o054/overlay54TailA.c` and this symbol-owned
+handoff shard. Earlier reconstruction milestones are `18ce6969`, `4fb1d5c2`,
+`16242945`, and `ee5b33de`; the final function-sized commit banks the accumulator,
+shared types and measured plateau. No symbol-table or atlas match status changes.
 
 <!-- plateau-handoff:func_overlay_054_F00005AC_189F24C:end -->
