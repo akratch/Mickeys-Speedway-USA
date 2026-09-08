@@ -581,29 +581,59 @@
       "source_commit": "810b64542f79bba9c9e9f6fcb5e3e84bcd408eae"
     },
     "func_overlay_001_F0003750_184FB30": {
-      "ledger_commit": "ec6d6af03aea6f69a953a3a390ba3159f52aba28",
-      "reason": "Epoch 15 size-near pass: the linked trial reports zero in-range differences with a text size delta of a few words; authorize one structural pass on the missing or extra instruction.",
-      "source_commit": "ec6d6af03aea6f69a953a3a390ba3159f52aba28"
+      "ledger_commit": "985b2adb5d617899ddd3bb982afeb43d9265bc10",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "985b2adb5d617899ddd3bb982afeb43d9265bc10"
     },
     "func_overlay_001_F000438C_185076C": {
-      "ledger_commit": "8253dda4a76188df3d253afb4bad0d8b46d5044f",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "8253dda4a76188df3d253afb4bad0d8b46d5044f"
+      "ledger_commit": "821f7ac295d47b60206e97b47d58680dff69cc5e",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "821f7ac295d47b60206e97b47d58680dff69cc5e"
+    },
+    "func_overlay_008_F0000058_185DDB0": {
+      "ledger_commit": "2f294079865eef169175e26f5d41f267efabcfd2",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "2f294079865eef169175e26f5d41f267efabcfd2"
     },
     "func_overlay_008_F0000894_185E5EC": {
-      "ledger_commit": "83cd9adeef3ac2c004171aecf7ddab09a30513ea",
-      "reason": "Epoch 15 reshape pass 2: trial text-differs, out=0, 41-80 words; one structural reshape with the trial as oracle and the 0.8.0 lever block.",
-      "source_commit": "83cd9adeef3ac2c004171aecf7ddab09a30513ea"
+      "ledger_commit": "2727781413af7208b3af46011f6f8d98107a7aec",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "2727781413af7208b3af46011f6f8d98107a7aec"
+    },
+    "func_overlay_008_F0001000_185ED58": {
+      "ledger_commit": "d36a01818c47d21e31873ede19cdea54c060ff01",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "12f726fe91ba2c2e332a9b422ccb8252d5f47e29"
     },
     "func_overlay_008_F0001294_185EFEC": {
-      "ledger_commit": "2328ce0161f422ac00708fbdd0320c0e49ae6d51",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "9d117a2716fedca6e7f25d985ec02ce28750613c"
+      "ledger_commit": "c17180873454da47286ad8dd7a3f1a08adb64199",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "c17180873454da47286ad8dd7a3f1a08adb64199"
+    },
+    "func_overlay_008_F0002640_1860398": {
+      "ledger_commit": "9a0d039cc92284f03fe429ef4edd1a3f90e6b441",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "9a0d039cc92284f03fe429ef4edd1a3f90e6b441"
+    },
+    "func_overlay_008_F000291C_1860674": {
+      "ledger_commit": "77b2b2713de537f836ae95ae46840ff3b5c6374b",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "a1d4f1cf4ba697c250080c1b4c3c3b913bf471d4"
     },
     "func_overlay_008_F00034A0_18611F8": {
-      "ledger_commit": "7719af786e6bc11d64986de28a5c65db4945b451",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "7719af786e6bc11d64986de28a5c65db4945b451"
+      "ledger_commit": "4631915c47eaba4564aa28da2e833aa0eda28311",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "4631915c47eaba4564aa28da2e833aa0eda28311"
+    },
+    "func_overlay_008_F00042A8_1862000": {
+      "ledger_commit": "5e995cbeeb737527af555da27e8bdba214ece1da",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "5e995cbeeb737527af555da27e8bdba214ece1da"
+    },
+    "func_overlay_008_F0004CF0_1862A48": {
+      "ledger_commit": "255b9a2c43000dfccf062be2b55e90f7e4949bda",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "255b9a2c43000dfccf062be2b55e90f7e4949bda"
     },
     "func_overlay_009_F0000CE4_186735C": {
       "ledger_commit": "6a42b9d28ab568a9c61fca923ba83af2d5d88d68",
@@ -936,19 +966,34 @@
       "source_commit": "dacd14bc561d1b610c5c17ff204d19ea97b8b365"
     },
     "overlay1AdvancePath": {
-      "ledger_commit": "8efe454271d4aa186fa14621e74e7477968d1757",
-      "reason": "Epoch 15 size-near pass: the linked trial reports zero in-range differences with a text size delta of a few words; authorize one structural pass on the missing or extra instruction.",
-      "source_commit": "8efe454271d4aa186fa14621e74e7477968d1757"
+      "ledger_commit": "f5db03dd5a697bab199096b92d224042e293dd59",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "f5db03dd5a697bab199096b92d224042e293dd59"
     },
     "overlay1AllocateRecord": {
       "ledger_commit": "597daf7fed2b5fb0c7140e070a49e77d3664a894",
       "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
       "source_commit": "597daf7fed2b5fb0c7140e070a49e77d3664a894"
     },
+    "overlay1AppendPathPoint": {
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "7d381ba27b2e08a8baae631eb22e98f500aed013"
+    },
     "overlay1AssignRecordIndex": {
       "ledger_commit": "77b225b0482e44943bdfcdca9be9ddfcc3bd03c5",
       "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
       "source_commit": "77b225b0482e44943bdfcdca9be9ddfcc3bd03c5"
+    },
+    "overlay1BendPathPoint": {
+      "ledger_commit": "3d07e54c37b274ef67928384c33652f95999d057",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "3d07e54c37b274ef67928384c33652f95999d057"
+    },
+    "overlay1ConsumeNearbyPending": {
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "874fcf1766e3baf541ea1381cf5966eaadb792ff"
     },
     "overlay1DispatchMode": {
       "ledger_commit": "13e3864ed1845770d1f20d803cb5b646ba0f962b",
@@ -956,9 +1001,9 @@
       "source_commit": "36b50ec043412f248ce0cf028eaba7d7433cfb03"
     },
     "overlay1FindBestRecord": {
-      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "603e826a4382da40dacced247320dd341a08442c"
+      "ledger_commit": "7c77fbbc9b42223d8c609a79d373c90f41506d23",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "7c77fbbc9b42223d8c609a79d373c90f41506d23"
     },
     "overlay1FindNextAngle": {
       "ledger_commit": "374d8c42624ae11b846c92bb93e67643a2a2d15b",
@@ -981,9 +1026,14 @@
       "source_commit": "5335012b90a9c889dedcf2f645d91df5d7e1417b"
     },
     "overlay1HandleCachedMode": {
-      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "Epoch 15 size-near pass: the linked trial reports zero in-range differences with a text size delta of a few words; authorize one structural pass on the missing or extra instruction.",
+      "ledger_commit": "b995bafbc314eadd108d64dcf9d5888acd878850",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
       "source_commit": "46d923f436dfb639977673c4b0c79b9d741dbfd1"
+    },
+    "overlay1InitializeGaugeObjects": {
+      "ledger_commit": "040b35dd78333756015a5d35994c19d5102da262",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "040b35dd78333756015a5d35994c19d5102da262"
     },
     "overlay1InterpolatePath": {
       "ledger_commit": "c976bdc22e96d82b3cf1f19cf99626edc90f120b",
@@ -995,14 +1045,24 @@
       "reason": "Epoch 15 compiler-lever pass: as1 line-scheduler and declaration-order levers on ORDER residuals; trial is the oracle.",
       "source_commit": "c0007c3b03995128b91f2ce06e95c690b33f8884"
     },
+    "overlay1SolveAngleCandidates": {
+      "ledger_commit": "6f20d3ee0a624088285e8d9149c07588dc3ba45a",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "6f20d3ee0a624088285e8d9149c07588dc3ba45a"
+    },
     "overlay1TransitionState": {
-      "ledger_commit": "73e881c7c01bf3d09e6f01023032c7ec65ceeed8",
-      "reason": "Epoch 15 size-near pass: the linked trial reports zero in-range differences with a text size delta of a few words; authorize one structural pass on the missing or extra instruction.",
-      "source_commit": "73e881c7c01bf3d09e6f01023032c7ec65ceeed8"
+      "ledger_commit": "8b4f51cdcbdc468f5622bc353511de2c0abb3270",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "8b4f51cdcbdc468f5622bc353511de2c0abb3270"
+    },
+    "overlay1UpdateAimedTransient": {
+      "ledger_commit": "b7ee71677e01d718c031d5df5b1231810cd22e8c",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "source_commit": "b7ee71677e01d718c031d5df5b1231810cd22e8c"
     },
     "overlay1UpdateRangeFlags": {
-      "ledger_commit": "299c8b9e89b64f2df50db930566eed2aa0a61e3d",
-      "reason": "Epoch 15 reshape pass 2: trial text-differs, out=0, 41-80 words; one structural reshape with the trial as oracle and the 0.8.0 lever block.",
+      "ledger_commit": "5aa45face56d520943ba70709888e69b62951f05",
+      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
       "source_commit": "299c8b9e89b64f2df50db930566eed2aa0a61e3d"
     },
     "overlay20RemoveEntry": {
