@@ -5658,7 +5658,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: frameless
  * relocations: 6
  * first-mismatch: +0x3C
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: m2c confirms existing identities and CFG; zero new attempts. Next: dirty-flag and shared-count lifetime evidence.
  * PLATEAU-HANDOFF:func_8000D820:end
  */
 
