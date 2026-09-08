@@ -6,5 +6,5 @@
 - frame: 0x18
 - relocations: 3
 - first mismatch: +0x1C
-- summary: V0: 17/27 words, exact 0x18 frame, all 3 relocation identities exact. Residual is 8 structural and 4 register rows; shared-result form remains closed.
+- summary: JFG efd5abb still leaves mainAnyoneHas as GLOBAL_ASM; next lever is a later permitted donor C body.
 <!-- plateau-handoff:func_80028FCC:end -->
