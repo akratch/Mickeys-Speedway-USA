@@ -98,7 +98,7 @@ extern Overlay45ResourceDescriptor *o52_bss_4CC;
 extern s16 o52_bss_4D0;
 extern s16 o52_bss_4D2;
 extern Overlay52Entry o52_data_80[];
-extern Overlay52Entry o52_data_F0[8];
+extern Overlay52Entry o52_data_F0[9];
 extern Overlay52Entry o52_data_180[];
 extern s8 o52_data_240[2];
 extern s8 o52_data_244[];
@@ -122,8 +122,8 @@ extern s32 o52_data_320[2];
 extern void camStandardOrtho(MenuCommand **, void **);
 extern Overlay52Object **func_80005750(s32 *);
 extern Overlay52Level *levelGetLevel(void);
-extern void func_80036544(void *, s32 *, s32, f32 *, s32);
-extern u32 joyGetPressed(s32);
+extern s32 func_80036544(u8 *, s32 *, s32, f32 *, s32);
+extern u16 joyGetPressed(s32);
 extern void camSetNo(s32);
 extern void camSetScissor(MenuCommand **);
 extern void func_8002F618(MenuCommand **, Overlay52Entry *, s32, s32, u8, u8, u8, u8);
@@ -133,11 +133,11 @@ extern void func_80039E34(s32);
 extern void func_overlay_052_F0000540_189ABB0(Overlay52Entry *, Overlay52Entry *, s32, s32);
 extern s32 func_800290A0(void);
 extern s32 func_8003A7D0(Overlay52Object *);
-extern void amSndPlay(s32, s32 *);
+extern void amSndPlay(u16, void **);
 extern s32 mainGetMode(void);
 extern u8 *func_80028F54(void);
 extern void mainChangeCameras(s32);
-extern void func_800016EC(s32);
+extern void func_800016EC(u8);
 extern void func_80037414(s32, f32, f32, s32, s32, s32, s32);
 extern void mainChangeLevel(s32, s32, s32, s32, s32, s32);
 extern void func_800005CC(f32, u8);
@@ -172,6 +172,7 @@ void func_overlay_052_F000063C_189ACAC(s32 updateRate) {
     s32 alpha;
     s32 difference;
     s32 *slot;
+    f32 step;
 
     viGetCurrentSize(&width, (s32 *)&halfHeight);
     halfHeight >>= 1;
@@ -206,8 +207,37 @@ void func_overlay_052_F000063C_189ACAC(s32 updateRate) {
         o52_data_24C[0] = -12;
         o52_data_24C[1] = -120;
     }
-    if (D_800C947C == 0) {
-        for (i = 0; i < updateRate; i++) {
+    if (D_800C947C == 0 && updateRate > 0) {
+        i = 0;
+        value0 = updateRate & 3;
+        if (value0 != 0) {
+            step = (-11.0f - o52_bss_4B0) * 0.125f;
+            for (;;) {
+                i++;
+                if (i == value0) {
+                    break;
+                }
+                o52_bss_4B0 += step;
+                step = (-11.0f - o52_bss_4B0) * 0.125f;
+            }
+            o52_bss_4B0 += step;
+        }
+        if (i != updateRate) {
+            step = (-11.0f - o52_bss_4B0) * 0.125f;
+            for (;;) {
+                i += 4;
+                if (i == updateRate) {
+                    break;
+                }
+                o52_bss_4B0 += step;
+                o52_bss_4B0 += (-11.0f - o52_bss_4B0) * 0.125f;
+                o52_bss_4B0 += (-11.0f - o52_bss_4B0) * 0.125f;
+                o52_bss_4B0 += (-11.0f - o52_bss_4B0) * 0.125f;
+                step = (-11.0f - o52_bss_4B0) * 0.125f;
+            }
+            o52_bss_4B0 += step;
+            o52_bss_4B0 += (-11.0f - o52_bss_4B0) * 0.125f;
+            o52_bss_4B0 += (-11.0f - o52_bss_4B0) * 0.125f;
             o52_bss_4B0 += (-11.0f - o52_bss_4B0) * 0.125f;
         }
     }
@@ -365,7 +395,7 @@ void func_overlay_052_F000063C_189ACAC(s32 updateRate) {
                 D_800D3550[4].unkC = -44.0f;
                 D_800D3550[4].unk10 = o52_data_24C[player] - hudOffset + 92;
             }
-            D_800D3550[4].unk4 = (racer->time * -65536) / 300;
+            D_800D3550[4].unk4 = (s32)(0U - ((u32)racer->time << 16)) / 300;
             func_80039E34(4);
             func_8002F618(&D_800D3140, secondary, 0, hudOffset, 255, 255, 255, 255);
         }
@@ -544,3 +574,13 @@ void func_overlay_052_F000063C_189ACAC(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o052/overlay52TailB/func_overlay_052_F000063C_189ACAC.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_052_F000063C_189ACAC:start
+ * symbol: func_overlay_052_F000063C_189ACAC
+ * score: 1597 differing words
+ * frame: 0x118
+ * relocations: 310
+ * first-mismatch: +0x130
+ * summary: 6736/6748 bytes; 64 ordered calls; exact frame. Grouped recurrence recovered; next: prove remaining branch-latch and address-carrier differences.
+ * PLATEAU-HANDOFF:func_overlay_052_F000063C_189ACAC:end
+ */
