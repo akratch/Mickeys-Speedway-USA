@@ -2833,3 +2833,5 @@ func_80024ED8 = 0x80024ED8; // type:func size:0x144 ROM 0x25AD8 tier-D matched-C
 // Tier A: Mickey-only full-TU C, 301 linked words and 74 relocation identities.
 func_8000AA38 = 0x8000AA38; // type:func size:0x4B4 tier-A matched C object initializer dispatch with exact compiler table and metadata-only relocation binding
 func_8000A830 = 0x8000A830; // type:func size:0x208 tier-A matched C Mickey-only object-data sizing switch with exact compiler table
+func_8000AEEC = 0x8000AEEC; // type:func size:0x4E0 tier-A matched C Mickey-only object control dispatcher with exact compiler table and 69 relocation identities
+func_8000590C = 0x8000590C; // type:func size:0xB3C tier-D extracted resident boundary and call graph, NON_MATCHING staged object construction

@@ -815,7 +815,7 @@ extern void camRestoreModelMtx(Gfx **dlist);
 extern void func_80034920(Gfx **dlist);
 extern void func_800349A4(FxGfx **dlist, s32 texture, s32 flags, s32 arg3);
 extern s32 func_800291FC(void);
-extern s32 func_80034448(s32 resourceId, void *output);
+extern s32 func_80034448();
 extern void func_8005AF14(void *arg0, void *arg1, void *arg2);
 extern void func_80019AB8(void *arg0, void *arg1, s32 arg2, s32 arg3);
 extern void func_80007C68(Objects07C68Object *arg0, Objects07C68Source *arg1,
@@ -1809,57 +1809,51 @@ extern s32 func_80006B04(Objects06B04Object *object, Objects06B04Output *data,
 extern s32 func_80006C40(Objects06C40 *object, s32 data);
 extern s32 func_8000A830(Objects0A830Object *object, void *data);
 
-/* Workbench verdict: structure-mismatch; 691 differing words (target 719, candidate 692). */
-/* First mismatch: +0x0; target frame 0x90, candidate frame 0xA8. */
-/* Structural gap: typed staging/relocation spelling and CFE register carriers remain. */
+/* Workbench plateau: 538 differing words; target and candidate are 719 words. */
+/* First mismatch: +0x1B4; both frames are 0x90, both relocation counts are 99. */
+/* Remaining: header scheduling, saved-register lifetimes and nested fixup carriers. */
 #ifdef NON_MATCHING
 void *func_8000590C(void *arg0, s32 arg1) {
     Objects0590CObject *object;
     Objects0590CObject *newObject;
     u8 *cursor;
-    u8 *aligned;
-    u8 *base;
-    u8 *relocated;
-    s32 index;
-    s32 offset;
-    s32 count;
     s32 loadFlags;
     s32 loadType;
     s16 selected;
+    s32 packetId;
+    s32 index;
+    s32 offset;
     s32 size;
-    s32 words;
-    s32 copied;
-    s32 tail;
-    s32 copyOffset;
-    s32 copyEnd;
-    s32 resultSize;
-    void *result;
+    u8 *aligned;
     s8 failed;
+    u8 *relocated;
+    s32 resultSize;
+    Objects0590CAsset *asset;
 
     D_8007A210 = 1;
     D_8007A214 = NULL;
     D_8007A218 = NULL;
     D_8007A21C = 1;
 
+    packetId = ((Objects0590CPacket *)arg0)->unk0;
     if (arg1 & 2) {
-        selected = ((Objects0590CPacket *)arg0)->unk0;
+        selected = packetId;
     } else {
-        selected = D_800C94E0[((Objects0590CPacket *)arg0)->unk0];
+        selected = D_800C94E0[packetId];
     }
     if ((selected < 0) || (selected >= D_800C945C)) {
         D_8007A21C = 3;
         return NULL;
     }
 
-    count = D_800C9454 >> 2;
+    resultSize = 0;
     offset = 0;
-    index = 0;
-    if (count > 0) {
+    if ((D_800C9454 >> 2) > 0) {
         do {
-            index += 1;
+            resultSize += 1;
             *(s32 *)((u8 *)D_800C9450 + offset) = 0;
             offset += 4;
-        } while (index < (D_800C9454 >> 2));
+        } while (resultSize < (D_800C9454 >> 2));
     }
     object = (Objects0590CObject *)D_800C9450;
     D_8007A214 = object;
@@ -1875,30 +1869,31 @@ void *func_8000590C(void *arg0, s32 arg1) {
     object->unk10 = (f32)((Objects0590CPacket *)arg0)->unk6;
     object->unk14 = (f32)((Objects0590CPacket *)arg0)->unk8;
     object->unk2E = func_8000FAE0(object->unkC, object->unk10, object->unk14);
+    asset = object->unk40;
     object->unk2C = selected;
-    object->unk46 = ((Objects0590CPacket *)arg0)->unk0;
+    object->unk46 = packetId;
     object->unk3C = arg0;
-    object->unk8 = object->unk40->unk0;
+    object->unk8 = asset->unk0;
     object->unk39 = 0xFF;
-    object->unk34 = (f32)object->unk40->unk18 * object->unk8;
+    object->unk34 = (f32)asset->unk18 * object->unk8;
     object->unk91 = 0;
     object->unk93 = 0;
-    object->unk8D = object->unk40->unkA7;
-    loadFlags = func_8000A6E8(object->unk40->unk1C);
+    object->unk8D = asset->unkA7;
+    loadFlags = func_8000A6E8(asset->unk1C);
     loadType = loadFlags & 3;
     object->unk40->unk1A += 1;
     object->unk68 = (s32 *)((u8 *)object + 0x94);
     failed = 0;
 
     for (index = 0; index < object->unk40->unk22; index++) {
-        s8 type = func_800058C0((Objects58C0Arg *)object, index);
-        offset = index * 4;
-        if (type == 2) {
-            object->unk68[index] = (s32)func_80034448(object->unk40->unk34[index], NULL);
+        switch (func_800058C0((Objects58C0Arg *)object, index)) {
+        case 2:
+            object->unk68[index] = (s32)func_80034448(object->unk40->unk34[index]);
             if (object->unk68[index] == 0) {
                 failed = 1;
             }
-        } else if (type == 0) {
+            break;
+        case 0:
             if (object->unk40->unk30 != 0) {
                 modelSetModelFlags(0);
             }
@@ -1907,13 +1902,16 @@ void *func_8000590C(void *arg0, s32 arg1) {
                 failed = 1;
             }
             modelSetModelFlags(8);
-        } else if (type == 1) {
+            break;
+        case 1:
             object->unk68[index] = (s32)func_800355A0(object->unk40->unk34[index], 0xA);
             if (object->unk68[index] == 0) {
                 failed = 1;
             }
-        } else {
+            break;
+        default:
             object->unk68 = NULL;
+            break;
         }
     }
     if (failed != 0) {
@@ -1928,7 +1926,6 @@ void *func_8000590C(void *arg0, s32 arg1) {
     D_800C9490 = 0;
     if (loadFlags & 0x100) {
         cursor += func_8001A008(object, cursor);
-        object->unk50 = (s32)((u8 *)object->unk50);
         *(u8 *)((u8 *)object->unk50 + 0xC) = *(u8 *)((u8 *)object->unk50 + 0x25);
         *(u8 *)((u8 *)object->unk50 + 0xD) = *(u8 *)((u8 *)object->unk50 + 0x27);
     }
@@ -1968,7 +1965,7 @@ void *func_8000590C(void *arg0, s32 arg1) {
     if ((object->unk40->unk23 > 0) && (object->unk40->unk23 < 0xA)) {
         object->unk5C = (s32)cursor;
         aligned = align4(cursor + 0x34);
-        ((Objects0590CParticleList *)cursor)->unk30 = (s32)aligned;
+        ((Objects0590CParticleList *)object->unk5C)->unk30 = (s32)aligned;
         cursor = aligned + (object->unk40->unk23 * 0x40);
     }
     if ((object->unk40->unk24 > 0) && (object->unk40->unk24 < 0xA)) {
@@ -2001,132 +1998,129 @@ void *func_8000590C(void *arg0, s32 arg1) {
     if (size & 0xF) {
         size = (size & ~0xF) + 0x10;
     }
-    result = func_8002B4C0(D_800C94A0, size);
-    if ((result == NULL) && (D_80078F88 != 0)) {
-        result = func_8002B280(size, 0x8B);
+    newObject = object;
+    object = (Objects0590CObject *)func_8002B4C0(D_800C94A0, size);
+    if ((object == NULL) && (D_80078F88 != 0)) {
+        object = (Objects0590CObject *)func_8002B280(size, 0x8B);
     }
-    if (result == NULL) {
-        if (D_800C9490 != 0) {
-            func_800347A0(D_800C9490);
-        }
-        func_80006448(object);
-        func_80004B04(selected);
-        D_8007A21C = 2;
-        return NULL;
-    }
-
-    newObject = (Objects0590CObject *)result;
-    words = size >> 2;
-    copied = 0;
-    if (words > 0) {
-        tail = words & 3;
-        if (tail != 0) {
-            copyOffset = 0;
-            do {
-                copied += 1;
-                copyOffset += 4;
-                *(s32 *)((u8 *)newObject + copyOffset - 4) =
-                    *(s32 *)((u8 *)D_800C9450 + copyOffset - 4);
-            } while (copied != tail);
-        }
-        if (copied != words) {
-            copyOffset = copied * 4;
-            copyEnd = words * 4;
-            do {
-                *(s32 *)((u8 *)newObject + copyOffset) =
-                    *(s32 *)((u8 *)D_800C9450 + copyOffset);
-                *(s32 *)((u8 *)newObject + copyOffset + 4) =
-                    *(s32 *)((u8 *)D_800C9450 + copyOffset + 4);
-                *(s32 *)((u8 *)newObject + copyOffset + 8) =
-                    *(s32 *)((u8 *)D_800C9450 + copyOffset + 8);
-                *(s32 *)((u8 *)newObject + copyOffset + 0xC) =
-                    *(s32 *)((u8 *)D_800C9450 + copyOffset + 0xC);
-                copyOffset += 0x10;
-            } while (copyOffset != copyEnd);
-        }
-    }
-    base = (u8 *)D_800C9450;
-    if (newObject->unk54 != 0) {
-        newObject->unk54 = (s32)(((u8 *)newObject + newObject->unk54) - base);
-    }
-    if (newObject->unk4C != 0) {
-        relocated = ((u8 *)newObject + newObject->unk4C) - base;
-        newObject->unk4C = (s32)relocated;
-        if (*(s32 *)(relocated + 0x1C) != 0) {
-            *(s32 *)(relocated + 0x1C) =
-                (s32)(((u8 *)newObject + *(s32 *)(relocated + 0x1C)) - base);
-        }
-    }
-    if (newObject->unk50 != 0) {
-        newObject->unk50 = (s32)(((u8 *)newObject + newObject->unk50) - base);
-    }
-    if (newObject->unk64 != 0) {
-        newObject->unk64 = (s32)(((u8 *)newObject + newObject->unk64) - base);
-    }
-    if (newObject->unk48 != 0) {
-        relocated = ((u8 *)newObject + newObject->unk48) - base;
-        newObject->unk48 = (s32)relocated;
-        if (*(s32 *)(relocated + 0x74) != 0) {
-            *(s32 *)(relocated + 0x74) =
-                (s32)(((u8 *)newObject + *(s32 *)(relocated + 0x74)) - base);
-        }
-    }
-    if (newObject->unk58 != 0) {
-        newObject->unk58 = (s32)(((u8 *)newObject + newObject->unk58) - base);
-    }
-    if (newObject->unk5C != 0) {
-        newObject->unk5C = (s32)(((u8 *)newObject + newObject->unk5C) - base);
-    }
-    if (newObject->unk60 != 0) {
-        newObject->unk60 = (s32)(((u8 *)newObject + newObject->unk60) - base);
-    }
-    if (newObject->unk7C != 0) {
-        newObject->unk7C = (s32)(((u8 *)newObject + newObject->unk7C) - base);
-    }
-    if (newObject->unk6C != 0) {
-        newObject->unk6C = (s32)(((u8 *)newObject + newObject->unk6C) - base);
-    }
-    if (newObject->unk40->unk28 > 0) {
-        newObject->unk70 = (s32)(((u8 *)newObject + newObject->unk70) - base);
-    }
-    if (newObject->unk40->unk29 > 0) {
-        newObject->unk74 = (s32)(((u8 *)newObject + newObject->unk74) - base);
-    }
-    if (newObject->unk40->unkE0 != 0) {
-        newObject->unk78 = (s32)(((u8 *)newObject + newObject->unk78) - base);
-    }
-    newObject->unk68 = (s32 *)((u8 *)newObject + 0x94);
-    if (arg1 & 1) {
-        D_800C9494[D_800C9498] = newObject;
-        D_800C9498 += 1;
-    } else {
-        D_800C94A4[D_800C94A8] = (s32)newObject;
-        D_800C94A8 += 1;
-    }
-    if (newObject->unk40->unk28 > 0) {
-        lightSetupLightSources(newObject);
-    }
-    if (newObject->unk40->unk29 > 0) {
-        lightSetupFlareSources(newObject);
-    }
-    func_8000AA38((Objects0AA38Object *)newObject, arg0, 0);
-    if (newObject->unk58 != 0) {
-        TrapDanglingJump(newObject);
-    }
-    if (newObject->unk48 != 0) {
-        func_80053550(newObject, newObject->unk40->unkBA, newObject->unk40->unkBB,
-                      newObject->unk40->unkB4, newObject->unk40->unkB6,
-                      newObject->unk40->unkB8, newObject->unk40->unkBC,
-                      newObject->unk40->unkC0, newObject->unk40->unkC4,
-                      newObject->unk40->unkC8, newObject->unk40->unkCC, 1);
-    }
-    if (func_80006534((Objects06534Object *)newObject) != 0) {
+    if (object == NULL) {
         if (D_800C9490 != 0) {
             func_800347A0(D_800C9490);
         }
         func_80006448(newObject);
         func_80004B04(selected);
-        mmFree(newObject);
+        D_8007A21C = 2;
+        return NULL;
+    }
+
+    size >>= 2;
+    resultSize = 0;
+    if (size > 0) {
+        loadType = size & 3;
+        if (loadType != 0) {
+            offset = resultSize * 4;
+            aligned = (u8 *)object + offset;
+            do {
+                resultSize += 1;
+                aligned += 4;
+                *(s32 *)(aligned - 4) = *(s32 *)((u8 *)D_800C9450 + offset);
+                offset += 4;
+            } while (resultSize != loadType);
+        }
+        if (resultSize != size) {
+            offset = resultSize * 4;
+            aligned = (u8 *)object + offset;
+            do {
+                aligned += 0x10;
+                *(s32 *)(aligned - 0x10) = *(s32 *)((u8 *)D_800C9450 + offset);
+                *(s32 *)(aligned - 0xC) = *(s32 *)((u8 *)D_800C9450 + offset + 4);
+                *(s32 *)(aligned - 8) = *(s32 *)((u8 *)D_800C9450 + offset + 8);
+                *(s32 *)(aligned - 4) = *(s32 *)((u8 *)D_800C9450 + offset + 0xC);
+                offset += 0x10;
+            } while (offset != size * 4);
+        }
+    }
+    if (object->unk54 != 0) {
+        object->unk54 = (s32)((u32)object + (u32)object->unk54 - (u32)D_800C9450);
+    }
+    if (object->unk4C != 0) {
+        relocated = (u8 *)((u32)object + (u32)object->unk4C - (u32)D_800C9450);
+        object->unk4C = (s32)relocated;
+        if (*(s32 *)(relocated + 0x1C) != 0) {
+            *(s32 *)(relocated + 0x1C) =
+                (s32)((u32)object + *(u32 *)(relocated + 0x1C) - (u32)D_800C9450);
+        }
+    }
+    if (object->unk50 != 0) {
+        object->unk50 = (s32)((u32)object + (u32)object->unk50 - (u32)D_800C9450);
+    }
+    if (object->unk64 != 0) {
+        object->unk64 = (s32)((u32)object + (u32)object->unk64 - (u32)D_800C9450);
+    }
+    if (object->unk48 != 0) {
+        relocated = (u8 *)((u32)object + (u32)object->unk48 - (u32)D_800C9450);
+        object->unk48 = (s32)relocated;
+        if (*(s32 *)(relocated + 0x74) != 0) {
+            *(s32 *)(relocated + 0x74) =
+                (s32)((u32)object + *(u32 *)(relocated + 0x74) - (u32)D_800C9450);
+        }
+    }
+    if (object->unk58 != 0) {
+        object->unk58 = (s32)((u32)object + (u32)object->unk58 - (u32)D_800C9450);
+    }
+    if (object->unk5C != 0) {
+        object->unk5C = (s32)((u32)object + (u32)object->unk5C - (u32)D_800C9450);
+    }
+    if (object->unk60 != 0) {
+        object->unk60 = (s32)((u32)object + (u32)object->unk60 - (u32)D_800C9450);
+    }
+    if (object->unk7C != 0) {
+        object->unk7C = (s32)((u32)object + (u32)object->unk7C - (u32)D_800C9450);
+    }
+    if (object->unk6C != 0) {
+        object->unk6C = (s32)((u32)object + (u32)object->unk6C - (u32)D_800C9450);
+    }
+    if (object->unk40->unk28 > 0) {
+        object->unk70 = (s32)((u32)object + (u32)object->unk70 - (u32)D_800C9450);
+    }
+    if (object->unk40->unk29 > 0) {
+        object->unk74 = (s32)((u32)object + (u32)object->unk74 - (u32)D_800C9450);
+    }
+    if (object->unk40->unkE0 != 0) {
+        object->unk78 = (s32)((u32)object + (u32)object->unk78 - (u32)D_800C9450);
+    }
+    object->unk68 = (s32 *)((u8 *)object + 0x94);
+    if (arg1 & 1) {
+        D_800C9494[D_800C9498] = object;
+        D_800C9498 += 1;
+    } else {
+        D_800C94A4[D_800C94A8] = (s32)object;
+        D_800C94A8 += 1;
+    }
+    if (object->unk40->unk28 > 0) {
+        lightSetupLightSources(object);
+    }
+    if (object->unk40->unk29 > 0) {
+        lightSetupFlareSources(object);
+    }
+    func_8000AA38((Objects0AA38Object *)object, arg0, 0);
+    if (object->unk58 != 0) {
+        TrapDanglingJump(object);
+    }
+    if (object->unk48 != 0) {
+        func_80053550(object, object->unk40->unkBA, object->unk40->unkBB,
+                      object->unk40->unkB4, object->unk40->unkB6,
+                      object->unk40->unkB8, object->unk40->unkBC,
+                      object->unk40->unkC0, object->unk40->unkC4,
+                      object->unk40->unkC8, object->unk40->unkCC, 1);
+    }
+    if (func_80006534((Objects06534Object *)object) != 0) {
+        if (D_800C9490 != 0) {
+            func_800347A0(D_800C9490);
+        }
+        func_80006448(object);
+        func_80004B04(selected);
+        mmFree(object);
         if (arg1 & 1) {
             D_800C9498 -= 1;
         } else {
@@ -2135,15 +2129,15 @@ void *func_8000590C(void *arg0, s32 arg1) {
         D_8007A21C = 2;
         return NULL;
     }
-    if ((loadFlags & 0x200) && (newObject->unk40->unk61 != 0)) {
-        relocated = (u8 *)(s32)newObject->unk4C;
+    if ((loadFlags & 0x200) && (object->unk40->unk61 != 0)) {
+        relocated = (u8 *)(s32)object->unk4C;
         if ((*(s32 *)(relocated + 0x1C) != 0) &&
             ((*(u8 *)(relocated + 0x10) & 8) != 0)) {
-            TrapDanglingJump(newObject);
+            TrapDanglingJump(object);
         }
     }
     D_8007A21C = 4;
-    return newObject;
+    return object;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000590C.s")
@@ -5172,23 +5166,18 @@ typedef struct {
     void *unk78;
 } Objects0AEECObject;
 
-/* Workbench verdict: allocation-mismatch; 65 differing words (312/312). */
-/* First mismatch: +0x44; opcode schedule and frame are exact. */
-/* Shape status: recovered control-type dispatch; only register allocation and jump-table naming remain. */
-#ifdef NON_MATCHING
+/* Tier B: Mickey resident control-type switch and runtime overlay call sites. */
 void func_8000AEEC(void *arg0, s32 arg1) {
     Objects0AEECObject *object;
-    s32 type;
 
     D_8007A210 = 3;
     D_8007A21C = 1;
     D_8007A214 = arg0;
     object = (Objects0AEECObject *)arg0;
     D_8007A218 = object->unk40 + 4;
-    type = object->unk44 - 3;
-    switch (type) {
+    switch (object->unk44 - 3) {
         case 0:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 85 +0xC0. */
             break;
         case 31:
             spranimOnceControl(object, arg1);
@@ -5203,25 +5192,25 @@ void func_8000AEEC(void *arg0, s32 arg1) {
             effectboxControl(object, arg1);
             break;
         case 38:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 89 +0x5A4. */
             break;
         case 33:
-            TrapDanglingJump(object);
+            TrapDanglingJump(object); /* Overlay 71 +0x278. */
             break;
         case 39:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 83 +0x7DC. */
             break;
         case 5:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 93 +0x1C. */
             break;
         case 4:
             func_800148E0(object);
             break;
         case 26:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 69 +0x4C. */
             break;
         case 70:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 88 +0x4C. */
             break;
         case 25:
             func_8001B798(object, arg1);
@@ -5238,124 +5227,124 @@ void func_8000AEEC(void *arg0, s32 arg1) {
             func_8001BB10(object, arg1);
             break;
         case 30:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 36 +0x1D0. */
             break;
         case 43:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 1 +0x67C0. */
             break;
         case 44:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 1 +0x6A14. */
             break;
         case 45:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 1 +0x6B6C. */
             break;
         case 46:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 4 +0x138. */
             break;
         case 47:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 84 +0x48. */
             break;
         case 50:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 72 +0xB4. */
             break;
         case 51:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 90 +0xFC. */
             break;
         case 52:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 86 +0x474. */
             break;
         case 54:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 26 +0x1A0. */
             break;
         case 55:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 29 +0x5C4. */
             break;
         case 57:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 25 +0x17C. */
             break;
         case 58:
-            TrapDanglingJump(object);
+            TrapDanglingJump(object); /* Overlay 20 +0xE0C. */
             break;
         case 60:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 68 +0x96C. */
             break;
         case 61:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 22 +0x2B0. */
             break;
         case 62:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 23 +0x350. */
             break;
         case 63:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 28 +0x318. */
             break;
         case 64:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 75 +0x214. */
             break;
         case 65:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 27 +0x64. */
             break;
         case 66:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 24 +0x1C. */
             break;
         case 68:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 91 +0x4C. */
             break;
         case 69:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 87 +0x128. */
             break;
         case 71:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 74 +0xB8. */
             break;
         case 72:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 76 +0x38. */
             break;
         case 73:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 77 +0x130. */
             break;
         case 74:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 78 +0x70. */
             break;
         case 75:
-            TrapDanglingJump(object, arg1);
-            break;
-        case 77:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 79 +0x134. */
             break;
         case 78:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 80 +0x11C. */
             break;
         case 79:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 81 +0xCC. */
             break;
         case 80:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 81 +0x274. */
+            break;
+        case 77:
+            TrapDanglingJump(object, arg1); /* Overlay 70 +0xD8. */
             break;
         case 81:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 82 +0x40. */
             break;
         case 82:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 73 +0x190. */
             break;
         case 83:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 94 +0x110. */
             break;
         case 84:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 79 +0x1290. */
             break;
         case 85:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 79 +0x149C. */
             break;
         case 86:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 37 +0x88. */
             break;
         case 15:
             rangetriggerControl(object, arg1);
             break;
         case 87:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 95 +0xC. */
             break;
         case 88:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 38 +0x154. */
             break;
         case 1:
         case 2:
@@ -5395,9 +5384,6 @@ void func_8000AEEC(void *arg0, s32 arg1) {
     }
     D_8007A21C = 4;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000AEEC.s")
-#endif
 /* Workbench verdict: structure-mismatch; 489 differing words (494/427). */
 /* First mismatch: +0x0; target frame 0x98, candidate frame 0x88. */
 /* Structural gap: candidate is 67 instructions short; collision-state control flow is complete. */
@@ -5801,4 +5787,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x7C
  * summary: Opcode shape and frame are exact; remaining register allocation and one stack-home constant are permuter-ready.
  * PLATEAU-HANDOFF:func_80007C68:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000590C:start
+ * symbol: func_8000590C
+ * score: 538 differing words
+ * frame: 0x90
+ * relocations: 99
+ * first-mismatch: +0x1B4
+ * summary: Exact extent/frame; header scheduling and pointer/counter lifetimes remain. Next: trace header scheduling before further saved-register edits.
+ * PLATEAU-HANDOFF:func_8000590C:end
  */

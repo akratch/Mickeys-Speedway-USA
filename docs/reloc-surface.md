@@ -1726,6 +1726,27 @@ comparisons against the archived fallback tuples prove both relocation counts,
 types, offsets and effective identities; all 184 table destinations, both
 linked owned ranges, the complete shared rodata range and full ROM are exact.
 
+Resident `func_8000AEEC` owns 312 executable words at ROM
+`0xBAEC..0xBFCC`, without padding, and uses a 32-byte frame saving the object,
+update rate and return address. The two direct calls are
+`func_8000784C+0x188` and `+0x364`; there is no ORT export. Its 69 configured
+relocations reproduce every archived fallback offset/type and effective
+identity: 23 static identities plus 46 authenticated runtime overlay calls.
+The latter retain the resident trap encoding at their original patch sites.
+
+A direct signed-halfword-minus-three selector removes all 65 register-only
+residuals under the unchanged shared-TU flags. The full 119-row lattice was
+attempted, with 53 scored configurations and 66 retained tool rejections; none
+was exact. The compiler's default branch already reaches its exact destination;
+a site-bound PC16 record preserves its addend, and the existing named rodata
+base binds its table address pair. Raw and configured executable sections are
+identical. The fifth compiler table extends the shared input section to
+`0x690` bytes with no trailing alignment removal. Independent comparison of
+all 89 destinations exposed four erroneous draft case labels even though the
+linked function's instructions were exact: source case order 78, 79, 80, 77
+restores those runtime bindings. The owned linked range, all five tables and
+three floats, and the full ROM compare exactly.
+
 ### 6.2 What the site alignment unlocks
 
 The 77 `schedule-divergence-at-site` rows re-measured, in lane

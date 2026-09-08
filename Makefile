@@ -1097,9 +1097,9 @@ $(BUILD_DIR)/$(SRC_DIR)/main/diprint.c.o: CFLAGS += -Wab,-r4300_mul
 # IDO's trailing four zero bytes follow the combined 0x38-byte input section.
 $(BUILD_DIR)/$(SRC_DIR)/main/sched.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x38
-# objects owns four switch tables and three literal-pool floats. Trim only
-# IDO's final alignment word from their combined input section. Both default
-# branches are already resolved: site-bound PC16 records preserve their fields
+# objects owns five switch tables and three literal-pool floats in an exact
+# aligned input section. The three default branches are already resolved:
+# site-bound PC16 records preserve their fields
 # and the exact relocation identities of the assembled fallback functions.
 # Name the input rodata base so table identities remain unambiguous in the ELF.
 $(BUILD_DIR)/$(SRC_DIR)/main/objects.c.o: $(TOOLS_DIR)/add_elf_relocations.py \
@@ -1107,17 +1107,21 @@ $(BUILD_DIR)/$(SRC_DIR)/main/objects.c.o: $(TOOLS_DIR)/add_elf_relocations.py \
 $(BUILD_DIR)/$(SRC_DIR)/main/objects.c.o: POSTPROCESS = \
 	$(OBJCOPY) --add-symbol objectsSizeDefaultBranch=.text:0x6500,local \
 	    --add-symbol objectsInitDefaultBranch=.text:0x6718,local \
+	    --add-symbol objectsControlDefaultBranch=.text:0x6C00,local \
 	    --add-symbol objectsSwitchTablesBase=.rodata:0,global $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x52C && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x690 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
 	    0x6508:.rodata:objectsSwitchTablesBase \
 	    0x6510:.rodata:objectsSwitchTablesBase \
 	    0x6720:.rodata:objectsSwitchTablesBase \
-	    0x6728:.rodata:objectsSwitchTablesBase && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/add_elf_relocations.py $@ .text 0x6BAC \
-	    d22e3480bdc67231e317a2c8c6c0655617566c7363f008d5607d0719fe73ffa9 \
+	    0x6728:.rodata:objectsSwitchTablesBase \
+	    0x6C08:.rodata:objectsSwitchTablesBase \
+	    0x6C10:.rodata:objectsSwitchTablesBase && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/add_elf_relocations.py $@ .text 0x708C \
+	    6c03a9672ad886f802438a2184be3d83a5df4919464462a7a3003c95ab6a47cc \
 	    0x6500:PC16:objectsSizeDefaultBranch:0x76 \
-	    0x6718:PC16:objectsInitDefaultBranch:0x120
+	    0x6718:PC16:objectsInitDefaultBranch:0x120 \
+	    0x6C00:PC16:objectsControlDefaultBranch:0x114
 # JFG's source-level string migration reproduces diRcp's complete diagnostic
 # string block followed by the 0x100-byte switch-table span. The following
 # four zero bytes are output-section padding.
