@@ -356,6 +356,17 @@ bytes and disassembly never belong here.
   undeclared call), and reject it unless command semantics, relocations, linked
   bytes, and the full ROM remain exact. Evidence: the exact resident
   `func_80034920` display-list reset.
+- An inlined mask expression can preserve instruction count, frame and opcode
+  order while changing register operands throughout later display-list code.
+  Reusing an existing integer local for successive width and height masks,
+  as established by a permitted donor, removed that register residual without
+  adding instructions. The measured cause is the source carrier; no allocator
+  pass or temporary-pool mechanism was established by a trace. Apply this only
+  to proved disjoint lifetimes, with unchanged expression types, memory
+  accesses and arithmetic. It does not justify dead locals or an arbitrary
+  declaration search. Evidence: the exact resident track draw coordinator in
+  `docs/resident.md`, including its configured full-TU donor comparison and
+  linked/runtime relocation proof.
 - Across consecutive clear loops, an unchanged parsed C tree can still emit a
   different address-materialization schedule when physical line boundaries
   change. A relevant span may begin inside one loop, cross its closing brace,

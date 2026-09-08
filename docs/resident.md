@@ -907,6 +907,7 @@ Matched C in this TU:
 | Function | ROM | Bytes | Flags | Donor and verdict |
 |---|---:|---:|---|---|
 | `func_8000BD50` | `0xC950` | 0x64 | `-O2 -mips2 -32 -Wab,-r4300_mul` | JFG `trackUpdateFX` three-module structure at the established tier-D TU position, with Mickey's module IDs and unresolved calls; public name deliberately not adopted; 25/25 instruction words and all six call relocations exact, linked ROM exact |
+| `func_8000BDB4` | `0xC9B4` | 0x64C | `-O2 -mips2 -32 -Wab,-r4300_mul` | Tier A byte-identity: JFG `src/track.c:trackDraw` at `efd5abb` supplies the texture loop, display-list macros, camera loop and explicit sky-mask carriers. Mickey's revised branches, fields and call order remain authoritative. All 403 words, the 0x38 frame and 100 relocation offsets/types are exact; 93 identities resolve statically and seven through the unchanged resident runtime table plus exact linked ROM bytes. The owned range ends at ROM `0xD000`, with no padding credit. |
 | `func_8000C400` | `0xD000` | 0x140 | `-O2 -mips2 -32 -Wab,-r4300_mul` | JFG texture-animation loop at the established tier-D TU position, revised to Mickey's segment, batch, texture, and flag layout; donor placeholder deliberately not adopted; 80/80 instruction words and all five relocation records exact, linked ROM exact |
 | `func_8000C540` | `0xD140` | 0xA8 | `-O2 -mips2 -32 -Wab,-r4300_mul` | JFG `initSky` body structure at the established tier-D TU position, with Mickey's player-count guard and object layout; public name deliberately not adopted; 42/42 instruction words and all 11 relocation records exact, linked ROM exact |
 | `trackSkySet` | `0xD1E8` | 0xC | `-O2 -mips2 -32 -Wab,-r4300_mul` | JFG `src/track.c` body; tier B role and tier D TU position; 3/3 instruction words and relocation layout exact, linked ROM exact |
@@ -947,6 +948,24 @@ Matched C in this TU:
 | `func_80014DE4` | `0x159E4` | 0xC8 | `-O2 -mips2 -32 -Wab,-r4300_mul` | Mickey reconstruction; JFG supplies only tier-D transform-role context and no public name is adopted; 50/50 instruction words and relocation layout exact, linked ROM exact |
 | `func_80014EAC` | `0x15AAC` | 0x20 | `-O2 -mips2 -32 -Wab,-r4300_mul` | JFG `func_8001C550` is a tier-A 8/8-word TU donor, unique in the ROM; JFG placeholder not imported; linked ROM exact |
 | `func_80014ECC` | `0x15ACC` | 0x668 | `-O2 -mips2 -32 -Wab,-r4300_mul` | Mickey reconstruction using the SDK GBI display-list macros; JFG's assembly-only final `track.c.o` helper supplies tier-D TU-position and structural context, but its placeholder is deliberately not adopted; 410/410 instruction words and all 22 relocation records exact, linked ROM exact |
+
+The 2026-09-08 `func_8000BDB4` donor packet re-derived a configured full-TU
+baseline of 402 versus 403 words, frame `0x38`, 301 raw and masked differences,
+first `+0x48`, and 100 relocations with 51 stable identities aligned. Three
+source attempts produced successively 151, 1 and 0 differing words. JFG's
+texture loop and lexical display-list macro temporaries recovered exact
+geometry; reusing its explicit width/height mask carrier removed the remaining
+register differences; its unsigned scroll-enable flag agreed with Mickey's
+byte load. Mickey keeps its own early overlay dispatch, culling branches,
+camera-count thresholds and update-rate choices. The flag sweep initially
+failed closed on the missing sized owner and compiled no configurations;
+no flag change or permuter was used. The final sized symbol row, unguarded C,
+`tools/promotion_proof.py` receipt, extracted linked range and `gmake verify`
+prove 1,612 new executable bytes. Seven generic trap calls retain distinct
+retail runtime identities: Overlay 66 `+0x34` and `+0x40`, Overlay 71 `+0x7A8`,
+Overlay 100 `+0x318` and `+0x50C`, and Overlay 40 `+0x2E4` and `+0x534`.
+Source snapshots, objects and comparison receipts for all attempts remain in
+ignored lane evidence; the retired plateau is preserved in Git history.
 
 Current matching plateau:
 

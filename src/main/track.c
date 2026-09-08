@@ -397,7 +397,7 @@ extern s32 D_800C95B0[];
 extern s32 D_800C95B4[];
 extern s16 D_800D6C4C;
 extern s16 D_800D6C54;
-extern s8 D_80079274;
+extern u8 D_80079274;
 extern s32 D_80079278;
 extern s32 D_8007930C;
 extern void *D_80079310;
@@ -507,10 +507,9 @@ void func_8000BD50(s32 updateRate) {
 }
 /*
  * PROVENANCE: Mickey's m2c control-flow draft and the resident display-list,
- * camera, level, and weather declarations reconstruct this update routine;
- * no external function body is adapted.
+ * camera, level, and weather declarations establish this update routine's
+ * game-specific behavior. The donor adaptation is disclosed below.
  */
-#ifdef NON_MATCHING
 typedef struct TrackFrameTexture {
     u8 pad00[0x10];
     u16 unk10;
@@ -568,20 +567,19 @@ extern void shadowChangeBuffer();
 extern void shadowGenerate();
 extern void weather_clip_planes();
 
-/* Workbench verdict: structure-mismatch, 301 differing words, first mismatch +0x48. */
-/* Candidate is 402/403 instructions with the exact target -0x38 frame. */
-/* Remaining gap: one instruction plus the display-list/constant saved-register cycle. */
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public src/track.c,
+ * trackDraw at efd5abb1c79636e297b831f7c2d5bf47eac39c0c. The donor supplies
+ * the texture-update loop, display-list macro and camera-loop spelling.
+ * Mickey's ROM proves the ABI, revised fields, branches and call order;
+ * game-specific JFG paths are not imported.
+ */
 void func_8000BDB4(Gfx **arg0, Mtx **arg1, TrackVertex **arg2,
                    TrackTriangle **arg3, s32 arg4) {
-    TrackFrameTexture *texture;
-    Gfx *command;
     s32 temp_a0;
     s32 temp_s2;
-    s32 var_a0;
-    s32 var_s4;
+    s32 targetUpdateRate;
     s32 var_v0;
-    s8 temp_v0;
-    u16 temp_v1;
 
     temp_s2 = mainGetNumberOfCameras();
     camSetNo(0);
@@ -597,144 +595,105 @@ void func_8000BDB4(Gfx **arg0, Mtx **arg1, TrackVertex **arg2,
     D_800C9558 = 1;
     D_800C9538 = 0;
     if (func_800290A0() != 0) {
-        var_s4 = 0;
+        targetUpdateRate = 0;
     } else {
-        var_s4 = arg4;
+        targetUpdateRate = arg4;
     }
     if (D_800792F0 != NULL) {
-        texture = (TrackFrameTexture *) D_800792F0;
-        temp_v1 = texture->unk10;
-        var_v0 = D_800792F4 + (texture->unk12 * var_s4);
-        if (var_v0 >= (s32) temp_v1) {
-            do {
-                var_v0 -= temp_v1;
-            } while (var_v0 >= (s32) temp_v1);
+        var_v0 = D_800792F4;
+        var_v0 += ((TrackFrameTexture *) D_800792F0)->unk12 * targetUpdateRate;
+        while (var_v0 >= ((TrackFrameTexture *) D_800792F0)->unk10) {
+            var_v0 -= ((TrackFrameTexture *) D_800792F0)->unk10;
         }
         D_800792F4 = var_v0;
     }
     shadowGenerate(1, arg4);
-    levelUpdateColourCycling(var_s4);
+    levelUpdateColourCycling(targetUpdateRate);
     temp_a0 = *(s32 *) ((u8 *) D_800792EC + 0xC0);
     if (temp_a0 != -1) {
-        func_80036CAC(temp_a0, var_s4);
+        func_80036CAC(temp_a0, targetUpdateRate);
     }
     if (((TrackFrameLevel *) D_800792EC)->unk83 == 2) {
         D_80079260 = 0;
     } else {
         D_80079260 = 1;
     }
-    temp_v0 = ((TrackFrameLevel *) D_800792EC)->unk83;
-    if ((temp_v0 == 1) || (temp_v0 == 2) ||
+    if ((((TrackFrameLevel *) D_800792EC)->unk83 == 1) ||
+        (((TrackFrameLevel *) D_800792EC)->unk83 == 2) ||
         (((TrackFrameLevel *) D_800792EC)->unkD1 != 0)) {
         D_800C9544 = 1;
     }
     if (((TrackFrameLevel *) D_800792EC)->unk52 == 3) {
+        var_v0 = (((TrackFrameLevel *) D_800792EC)->unkB8->width << 9) - 1;
         ((TrackFrameLevel *) D_800792EC)->unkBC =
             (((TrackFrameLevel *) D_800792EC)->unkBC +
-             (((TrackFrameLevel *) D_800792EC)->unkB4 * var_s4)) &
-            ((((TrackFrameLevel *) D_800792EC)->unkB8->width << 9) - 1);
+             (((TrackFrameLevel *) D_800792EC)->unkB4 * targetUpdateRate)) & var_v0;
+        var_v0 = (((TrackFrameLevel *) D_800792EC)->unkB8->height << 9) - 1;
         ((TrackFrameLevel *) D_800792EC)->unkBE =
             (((TrackFrameLevel *) D_800792EC)->unkBE +
-             (((TrackFrameLevel *) D_800792EC)->unkB5 * var_s4)) &
-            ((((TrackFrameLevel *) D_800792EC)->unkB8->height << 9) - 1);
+             (((TrackFrameLevel *) D_800792EC)->unkB5 * targetUpdateRate)) & var_v0;
         func_800367E8(((TrackFrameLevel *) D_800792EC)->unkB8,
                       (u32 *) &D_800C9568,
-                      &D_800C9560, var_s4);
+                      &D_800C9560, targetUpdateRate);
     }
     func_80034920(&D_800C9520);
-    command = D_800C9520;
-    D_800C9520 = command + 1;
-    command->words.w1 = 0;
-    command->words.w0 = 0xBC000002;
+    gMoveWd(D_800C9520++, 2, 0, 0);
     if (levelInitRegionFlags() != 0) {
-        command = D_800C9520;
-        D_800C9520 = command + 1;
-        command->words.w1 = 0x2000;
-        command->words.w0 = 0xB6000000;
-        command = D_800C9520;
-        D_800C9520 = command + 1;
-        command->words.w1 = 0x1000;
-        command->words.w0 = 0xB7000000;
+        gSPClearGeometryMode(D_800C9520++, G_CULL_BACK);
+        gSPSetGeometryMode(D_800C9520++, G_CULL_FRONT);
     } else {
-        command = D_800C9520;
-        D_800C9520 = command + 1;
-        command->words.w1 = 0x1000;
-        command->words.w0 = 0xB6000000;
-        command = D_800C9520;
-        D_800C9520 = command + 1;
-        command->words.w1 = 0x2000;
-        command->words.w0 = 0xB7000000;
+        gSPClearGeometryMode(D_800C9520++, G_CULL_FRONT);
+        gSPSetGeometryMode(D_800C9520++, G_CULL_BACK);
     }
-    command = D_800C9520;
-    D_800C9520 = command + 1;
-    command->words.w1 = 0x64;
-    command->words.w0 = 0xF9000000;
-    command = D_800C9520;
-    D_800C9520 = command + 1;
-    command->words.w1 = -1;
-    command->words.w0 = 0xFA000000;
-    command = D_800C9520;
-    D_800C9520 = command + 1;
-    command->words.w1 = -0x100;
-    command->words.w0 = 0xFB000000;
+    gDPSetBlendColor(D_800C9520++, 0, 0, 0, 0x64);
+    gDPSetPrimColor(D_800C9520++, 0, 0, 255, 255, 255, 255);
+    gDPSetEnvColor(D_800C9520++, 255, 255, 255, 0);
     rainSetFog();
-    func_80014614(temp_s2, var_s4);
+    func_80014614(temp_s2, targetUpdateRate);
     if (*(s16 *) ((u8 *) D_800792E8 + 0x1E) > 0) {
-        func_8000C400(var_s4);
+        func_8000C400(targetUpdateRate);
     }
     if (D_80079274 != 0) {
-        TrapDanglingJump((void **) (s32) var_s4);
+        TrapDanglingJump((void **) (s32) targetUpdateRate);
     }
     if ((D_8007A128 != 0) && (temp_s2 == 1)) {
         camEnableUserView(0, 1);
         func_800219D0();
     }
-    D_800C9534 = 0;
-    var_a0 = 0;
-    if (temp_s2 > 0) {
-        do {
-            func_800147A4(var_a0);
-            command = D_800C9520;
-            D_800C9520 = command + 1;
-            command->words.w1 = 0;
-            command->words.w0 = 0xE7000000;
-            camSetNo(D_800C9534);
-            func_800221E8(&D_800C9520, &D_800C9524);
-            func_8000FF2C();
-            if (temp_s2 < 3) {
-                if (((TrackFrameLevel *) D_800792EC)->unk52 == 3) {
-                    func_8000C5F4();
-                } else if (D_800C9550 != 0) {
-                    func_8000CED0(arg4);
-                }
-                if (D_80079278 > 0) {
-                    if (D_800C9534 == 0) {
-                        TrapDanglingJump((void **) (s32) var_s4);
-                    }
-                    TrapDanglingJump(&D_800C9520);
-                }
-            } else {
-                temp_v0 = ((TrackFrameLevel *) D_800792EC)->unk52;
-                if ((temp_v0 != 4) && (temp_v0 != 5)) {
-                    func_8000CC78();
-                }
+    for (D_800C9534 = 0; D_800C9534 < temp_s2; D_800C9534++) {
+        func_800147A4(D_800C9534);
+        gDPPipeSync(D_800C9520++);
+        camSetNo(D_800C9534);
+        func_800221E8(&D_800C9520, &D_800C9524);
+        func_8000FF2C();
+        if (temp_s2 < 3) {
+            if (((TrackFrameLevel *) D_800792EC)->unk52 == 3) {
+                func_8000C5F4();
+            } else if (D_800C9550 != 0) {
+                func_8000CED0(arg4);
             }
-            func_80044BC8(D_800C9520, (char *) D_80081550, 0x26A);
-            command = D_800C9520;
-            D_800C9520 = command + 1;
-            command->words.w1 = 0;
-            command->words.w0 = 0xE7000000;
-            func_8000D018(temp_s2, arg4);
-            weather_clip_planes(-1, -0x200);
-            if ((((TrackFrameLevel *) D_800792EC)->unkA2 > 0) &&
-                (temp_s2 < 2)) {
-                doWeather(&D_800C9520, &D_800C9524,
-                          (void *) &D_800C9528, (void *) &D_800C952C,
-                          var_s4);
+            if (D_80079278 > 0) {
+                if (D_800C9534 == 0) {
+                    TrapDanglingJump((void **) (s32) targetUpdateRate);
+                }
+                TrapDanglingJump(&D_800C9520);
             }
-            var_a0 = D_800C9534 + 1;
-            D_800C9534 = var_a0;
-        } while (var_a0 < temp_s2);
+        } else {
+            if ((((TrackFrameLevel *) D_800792EC)->unk52 != 4) &&
+                (((TrackFrameLevel *) D_800792EC)->unk52 != 5)) {
+                func_8000CC78();
+            }
+        }
+        func_80044BC8(D_800C9520, (char *) D_80081550, 0x26A);
+        gDPPipeSync(D_800C9520++);
+        func_8000D018(temp_s2, arg4);
+        weather_clip_planes(-1, -0x200);
+        if ((((TrackFrameLevel *) D_800792EC)->unkA2 > 0) &&
+            (temp_s2 < 2)) {
+            doWeather(&D_800C9520, &D_800C9524,
+                      (void *) &D_800C9528, (void *) &D_800C952C,
+                      targetUpdateRate);
+        }
     }
     if (D_8007D6B0 > 0) {
         TrapDanglingJump(&D_800C9520);
@@ -744,34 +703,19 @@ void func_8000BDB4(Gfx **arg0, Mtx **arg1, TrackVertex **arg2,
         TrapDanglingJump(&D_800C9520);
     }
     if (levelInitRegionFlags() != 0) {
-        command = D_800C9520;
-        D_800C9520 = command + 1;
-        command->words.w1 = 0x1000;
-        command->words.w0 = 0xB6000000;
-        command = D_800C9520;
-        D_800C9520 = command + 1;
-        command->words.w1 = 0x2000;
-        command->words.w0 = 0xB7000000;
+        gSPClearGeometryMode(D_800C9520++, G_CULL_FRONT);
+        gSPSetGeometryMode(D_800C9520++, G_CULL_BACK);
     }
     func_80022D20(&D_800C9520);
     camDisableUserView(0, 1);
-    command = D_800C9520;
-    D_800C9520 = command + 1;
-    command->words.w1 = 0;
-    command->words.w0 = 0xE7000000;
-    command = D_800C9520;
-    D_800C9520 = command + 1;
-    command->words.w1 = 0;
-    command->words.w0 = 0xBC000002;
+    gDPPipeSync(D_800C9520++);
+    gMoveWd(D_800C9520++, 2, 0, 0);
     shadowChangeBuffer();
     *arg0 = D_800C9520;
     *arg1 = D_800C9524;
     *arg2 = D_800C9528;
     *arg3 = D_800C952C;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000BDB4.s")
-#endif
 /*
  * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
  * `func_800129AC_135AC`. Mickey proves the revised segment and texture layouts
@@ -5700,21 +5644,21 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_8000FAE0:start
  * symbol: func_8000FAE0
- * score: 42/62 words
+ * score: 20 differing words
  * frame: 0x10
  * relocations: 2
  * first-mismatch: +0x1C
- * summary: paired bound loads and a loop-condition carrier close the opcode schedule; 20 register-only words remain
+ * summary: JFG efd5abb trackGetBlock is still GLOBAL_ASM; 20 register-only words remain. Next: matched donor C; current WB routes register-role-audit.
  * PLATEAU-HANDOFF:func_8000FAE0:end
  */
 
 /* PLATEAU-HANDOFF:func_8000D820:start
  * symbol: func_8000D820
- * score: 65/86 words
+ * score: 65 differing words
  * frame: frameless
  * relocations: 6
  * first-mismatch: +0x3C
- * summary: Two-instruction structural residual; next inspect original declaration lifetimes and dirty/source cursor types.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_8000D820:end
  */
 
@@ -5724,7 +5668,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x98
  * relocations: 1
  * first-mismatch: +0x0
- * summary: Candidate is 99 words/frame 0x98 vs target 96/0xA0; sqrtf identity is exact but +0x8 late. Ten natural forms were nonexact; next needs original FP lifetimes.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_800133FC:end
  */
 
@@ -5734,17 +5678,17 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x90
  * relocations: 4
  * first-mismatch: +0x0
- * summary: Frame and local layout remain the primary blocker; retry explicit value lifetimes before allocator work
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_800140CC:end
  */
 
 /* PLATEAU-HANDOFF:func_80010900:start
  * symbol: func_80010900
- * score: 106/147 words
- * frame: 0xB8
+ * score: 41 differing words
+ * frame: 0xb8
  * relocations: 6
  * first-mismatch: +0x14
- * summary: Exact size/frame and all six identities; 41 words remain from saved-register cycling and stack/FP allocation after bounded source and batch attempts.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_80010900:end
  */
 
@@ -5754,37 +5698,37 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x38
  * relocations: 18
  * first-mismatch: +0x0
- * summary: Output-address ordering and outer for-loop preserve all relocation identities; a two-word and eight-byte frame-allocation gap remains.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_80012658:end
  */
 
 /* PLATEAU-HANDOFF:func_8000F198:start
  * symbol: func_8000F198
  * score: 185 differing words
- * frame: -0x58
+ * frame: 0x58
  * relocations: 21
  * first-mismatch: +0x0
- * summary: Exact 249-insn geometry. Target frame is 24 bytes larger and five relocation sites shift. Next lever is local lifetimes moving the counter s8 to s6.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_8000F198:end
  */
 
 /* PLATEAU-HANDOFF:func_8000D1B8:start
  * symbol: func_8000D1B8
  * score: 114 differing words
- * frame: -0x28
+ * frame: 0x28
  * relocations: 8
- * first-mismatch: +0x4
- * summary: Candidate is 130 versus 128 instructions with four shifted relocation sites. Next lever is packed-scroll delta lifetime and six halfword-load scheduling.
+ * first-mismatch: +0x38
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_8000D1B8:end
  */
 
 /* PLATEAU-HANDOFF:func_80011980:start
  * symbol: func_80011980
  * score: 211 differing words
- * frame: -0xE0
+ * frame: 0xe0
  * relocations: 12
  * first-mismatch: +0x0
- * summary: Target control flow is restored; original declaration and FP lifetimes are needed to remove the 0x18 frame and two-word excess.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_80011980:end
  */
 
@@ -5792,60 +5736,50 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 /* PLATEAU-HANDOFF:func_80010654:start
  * symbol: func_80010654
  * score: 162 differing words
- * frame: -0xA0
+ * frame: 0xa0
  * relocations: 8
  * first-mismatch: +0x0
- * summary: Direct target-lifetime form removes most structural gaps; original pointer scopes must prevent threshold-address hoisting and two extra saved GPRs.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_80010654:end
  */
 
 /* PLATEAU-HANDOFF:func_800115E4:start
  * symbol: func_800115E4
  * score: 231 differing words
- * frame: -0xA0
+ * frame: 0xa0
  * relocations: 17
  * first-mismatch: +0x0
- * summary: Mickey evidence fixes record bytes, signed flags, and two-stage cross products; FP saved-register colouring and five-word schedule drift remain.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_800115E4:end
- */
-
-/* PLATEAU-HANDOFF:func_8000BDB4:start
- * symbol: func_8000BDB4
- * score: 301 differing words
- * frame: -0x38
- * relocations: 100
- * first-mismatch: +0x48
- * summary: Fresh level-global reloads close nine of ten missing words; one instruction and the s0/s1 display-list/constant register cycle remain.
- * PLATEAU-HANDOFF:func_8000BDB4:end
  */
 
 /* PLATEAU-HANDOFF:func_8000D3B8:start
  * symbol: func_8000D3B8
- * score: 31 differing words
+ * score: 105 differing words
  * frame: 0x38
  * relocations: 16
  * first-mismatch: +0x4
- * summary: Best aligned comparison is 79/110; one missing pre-call size temporary shifts relocation sites, with the initial s0/s1 pool colors swapped.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_8000D3B8:end
  */
 
 /* PLATEAU-HANDOFF:func_800103D4:start
  * symbol: func_800103D4
- * score: 132 differing words
+ * score: 120 differing words
  * frame: 0x60
- * relocations: 20
+ * relocations: 12
  * first-mismatch: +0x0
- * summary: Best is 159/160 with 120 positional differences; saved-FP storage class and a target 20 versus candidate 12 relocation deficit remain.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_800103D4:end
  */
 
 /* PLATEAU-HANDOFF:func_80012234:start
  * symbol: func_80012234
- * score: 187/208 words
+ * score: 187 differing words
  * frame: 0x60
  * relocations: 3
  * first-mismatch: +0xC
- * summary: 211/208 words; exact frame. Only the first sqrtf relocation aligns. FP allocation and cross-product scheduling remain; flag sweep lacks a sized owner.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_80012234:end
  */
 
@@ -5855,7 +5789,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x138
  * relocations: 8
  * first-mismatch: +0x8
- * summary: Configured 321 words; no-unroll reaches 261 words and 229 differences. Add sized ownership, then assess a function-isolated no-unroll boundary.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_8001357C:end
  */
 
@@ -5865,7 +5799,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x70
  * relocations: 51
  * first-mismatch: +0x48
- * summary: Exact frame and relocation count; 2-word structural drift remains, and flag sweep lacks unique resident ownership metadata.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_8000DFBC:end
  */
 
@@ -5875,57 +5809,57 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x190
  * relocations: 6
  * first-mismatch: +0x38
- * summary: Fresh V0 is 170/172 words with 146 differences; frame 0x190 exact. Both have 6 relocations but zero sites align. Prior mechanisms closed.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_8000DB34:end
  */
 
 /* PLATEAU-HANDOFF:func_8000E5EC:start
  * symbol: func_8000E5EC
  * score: 185 differing words
- * frame: 0xE8
+ * frame: 0xe8
  * relocations: 56
  * first-mismatch: +0x0
- * summary: 119 flags flat; fidelity-clean proc 23 has 34 integer decisions but no stack homes or source-attributed webs, so no lexical experiment is justified
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_8000E5EC:end
  */
 
 /* PLATEAU-HANDOFF:func_80011CDC:start
  * symbol: func_80011CDC
- * score: 15/342 words
- * frame: 0xD0
+ * score: 327 differing words
+ * frame: 0xd0
  * relocations: 11
  * first-mismatch: +0x0
- * summary: Plane-difference locals improve 339 to 327 diffs and recover target saves; texture-global hoisting still spills the counter (344 vs 342 words, 11 vs 15 relocs).
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_80011CDC:end
  */
 
 /* PLATEAU-HANDOFF:func_8001398C:start
  * symbol: func_8001398C
- * score: 168/330 words
+ * score: 162 differing words
  * frame: 0x140
  * relocations: 21
  * first-mismatch: +0x60
- * summary: Exact geometry/frame and 21/21 relocation count; 19 identities align. Remaining allocator schedule needs procedure-scoped lifetime evidence.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_8001398C:end
  */
 
 /* PLATEAU-HANDOFF:func_8000E920:start
  * symbol: func_8000E920
  * score: 491 differing words
- * frame: 0xF8
+ * frame: 0xf8
  * relocations: 114
  * first-mismatch: +0x38
- * summary: Recovered exact frame and relocation count plus target call identities and field widths; next lever is reverse-pass lifetime scoping.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_8000E920:end
  */
 
 /* PLATEAU-HANDOFF:func_8001291C:start
  * symbol: func_8001291C
  * score: 527 differing words
- * frame: 0x2B0
+ * frame: 0x2b0
  * relocations: 15
  * first-mismatch: +0x0
- * summary: Recovered target insertion, hit-cap, early-out, and distance CFG; next lever is declaration/lifetime layout for the 40-byte frame and one global pair.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_8001291C:end
  */
 
@@ -5935,6 +5869,6 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x158
  * relocations: 9
  * first-mismatch: +0x0
- * summary: Recovered exact geometry and target retry/failure CFG; next lever is original declaration/lifetime evidence for the 16-byte frame and FP web.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_80010B4C:end
  */
