@@ -1614,19 +1614,17 @@ CircularParticle *func_8003FB98(ParticleEmitterObject *object, ParticleTrigger *
     return particle;
 }
 #ifdef NON_MATCHING
-/* Before -> after: size-mismatch, 124/125 instructions; 101 positional words differ
- * from +0x2C, while shift-tolerant diagnosis leaves 33 aligned words from +0x4C.
- * Type lever: unsigned free-bit pointer and pool aggregate; no scan-shape movement.
- * Remains: initial address shift, pool/temporary web, and one missing instruction. */
+/* Reopened m2c reconstruction: exact 125-word geometry with 56 positional
+ * differences from +0x7C. A unified word/particle index and compiler-owned
+ * indexed scans recover the missing address instruction and relocation surface.
+ * Remaining: the a2/a3 carrier assignment and reverse-mask materialization. */
 /* PROVENANCE: structure cross-checked against JFG
  * asm/nonmatchings/particles/func_80061948.s; body reconstructed from Mickey evidence. */
 CircularParticle *func_8004054C(s32 type, s32 direction) {
     CircularParticlePool *pool;
     CircularParticle *particle;
     u32 *freeBits;
-    u32 *wordPtr;
     s32 bits;
-    s32 particleIndex;
     s32 wordIndex;
     s32 bitIndex;
 
@@ -1645,44 +1643,37 @@ CircularParticle *func_8004054C(s32 type, s32 direction) {
             if (direction == -1) {
                 freeBits = pool->freeBits;
                 if (*freeBits == 0) {
-                    wordPtr = (u32 *)((u8 *)freeBits + (wordIndex << 2));
-                    if (pool->lastBitWord >= wordIndex) {
+                    bits = pool->lastBitWord;
+                    if (bits >= wordIndex) {
                         do {
                             wordIndex++;
-                            wordPtr++;
-                        } while (*wordPtr == 0 && wordIndex <= pool->lastBitWord);
+                        } while (freeBits[wordIndex] == 0 && wordIndex <= bits);
                     }
                 }
-                wordPtr = freeBits + wordIndex;
                 if (pool->lastBitWord < wordIndex) {
                     return NULL;
                 }
-                bits = *wordPtr;
+                bits = freeBits[wordIndex];
                 bitIndex = 0;
-                particleIndex = wordIndex << 5;
                 if (!(bits & 1)) {
                     do {
                         bitIndex++;
                     } while (!(bits & (1 << bitIndex)));
                 }
-                *wordPtr = bits & ~(1 << bitIndex);
-                particleIndex += bitIndex;
+                freeBits[wordIndex] = bits & ~(1U << bitIndex);
+                wordIndex = (wordIndex << 5) + bitIndex;
             } else {
                 wordIndex = pool->lastBitWord;
                 if (wordIndex > 0) {
-                    wordPtr = pool->freeBits;
-                    wordPtr = wordPtr + wordIndex;
-                    if (*wordPtr == 0) {
+                    freeBits = pool->freeBits;
+                    if (freeBits[wordIndex] == 0) {
                         do {
                             wordIndex--;
-                            wordPtr--;
-                        } while (wordIndex > 0 && *wordPtr == 0);
+                        } while (wordIndex > 0 && freeBits[wordIndex] == 0);
                     }
                 }
                 freeBits = pool->freeBits;
-                wordPtr = freeBits + wordIndex;
-                bits = *wordPtr;
-                particleIndex = wordIndex << 5;
+                bits = freeBits[wordIndex];
                 if (bits == 0) {
                     return NULL;
                 }
@@ -1692,14 +1683,13 @@ CircularParticle *func_8004054C(s32 type, s32 direction) {
                         bitIndex--;
                     } while (!(bits & (1 << bitIndex)));
                 }
-                bits &= ~(1 << bitIndex);
-                *wordPtr = bits;
-                particleIndex += bitIndex;
+                freeBits[wordIndex] = bits & ~(1U << bitIndex);
+                wordIndex = (wordIndex << 5) + bitIndex;
             }
-            if (particleIndex >= pool->count) {
+            if (wordIndex >= pool->count) {
                 return NULL;
             }
-            particle = &pool->particles[particleIndex];
+            particle = &pool->particles[wordIndex];
             particle->type = type;
             pool->activeCount++;
         }
@@ -1851,9 +1841,10 @@ s32 func_80040878(CircularParticle *particle, s32 updateRate) {
 done:
     return 0;
 }
-/* Workbench: structure-mismatch, exact 302 instructions; 160 words differ, first +0x0, frames 0x70/0x68.
- * Volatile trigger homing fixed the frame but added four instructions; width, register, and carrier levers remain eliminated.
- * Remains: target uses the entry-stack trigger home without a register carrier; temp/fp webs and local homes still diverge. */
+/* Reopened m2c reconstruction: exact 302 instructions and target 0x68 frame;
+ * 145 words differ from +0x30. Reusing scale after its last original-value use
+ * removes the spurious normalization-temp home. The entry trigger carrier and
+ * integer/FP allocation webs remain. */
 /* PROVENANCE: adapted from DKR src/particles.c:update_line_particle and
  * cross-checked against JFG's assembly-only sibling. */
 #ifdef NON_MATCHING
@@ -1865,7 +1856,6 @@ void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) 
     f32 scale;
     ParticleVec3f position;
     ParticleVec3f offset;
-    register f32 temp;
     s32 orientation;
     s32 pointCount;
     u8 entryIndex;
@@ -1943,26 +1933,27 @@ void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) 
                     offset.x = object->velocityX;
                     offset.y = object->velocityY;
                     offset.z = object->velocityZ;
-                    temp = (offset.z * offset.z) +
-                           ((offset.x * offset.x) + (offset.y * offset.y));
-                    if (temp < D_80082A70) {
-                        temp = 1.0f;
+                    if ((offset.z * offset.z) +
+                            ((offset.x * offset.x) + (offset.y * offset.y)) <
+                        D_80082A70) {
+                        scale = 1.0f;
                     } else {
-                        temp = scale / sqrtf(temp);
+                        scale = scale / sqrtf((offset.z * offset.z) +
+                                              ((offset.x * offset.x) + (offset.y * offset.y)));
                     }
-                    offset.x *= temp;
-                    offset.y *= temp;
-                    offset.z *= temp;
+                    offset.x *= scale;
+                    offset.y *= scale;
+                    offset.z *= scale;
                     switch (orientation) {
                         case 0:
-                            temp = offset.x;
+                            scale = offset.x;
                             offset.x = -offset.z;
-                            offset.z = temp;
+                            offset.z = scale;
                             break;
                         case 1:
-                            temp = offset.y;
+                            scale = offset.y;
                             offset.y = -offset.z;
-                            offset.z = temp;
+                            offset.z = scale;
                             break;
                     }
                 }
@@ -2135,12 +2126,12 @@ void func_80041388(ParticleModelEntry *entry, s32 updateRate) {
     }
 }
 #ifdef NON_MATCHING
-/* Fresh phase-5 plateau: configured C remains 457/456 words with 280 raw and
- * relocation-masked differences, first +0x0, frame 0x160 versus 0x168. The
- * 119-row flag lattice and ten natural declaration, array, cursor, table-index,
- * count-CFG, and loop-order forms found no strict gain. The next lever is the
- * source-faithful triangle-count/loop lifetime that produces the target stack
- * homes and shifts both vector arrays without an artificial local. */
+/* m2c structural plateau: candidate and target are both 456 words with frame
+ * 0x168 and all four relocation identities exact; 52 raw and relocation-masked
+ * words differ, first +0x4C, while the FP schedule is exact. Workbench verdict
+ * is structure-mismatch; lever 6 is to census the one value that gained a home.
+ * The remaining cause is the early table byte-count carrier and command-length
+ * / particle-cursor stack-home cycle, beyond this reconstruction packet. */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/
  * func_80062BFC.s; body reconstructed from Mickey evidence. */
 void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
@@ -2148,26 +2139,26 @@ void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
     ParticleVertex *vertices;
     ParticleVertex *vertexStart;
     CircularParticle *particle;
-    ParticleVec3f output[8];
-    ParticleVec3f input[8];
-    ParticleVec3f *outputPtr;
+    f32 output[8][3];
+    f32 input[8][3];
+    f32 *outputPtr;
     s32 particleIndex;
     s32 i;
     s32 triangleListIndex;
-    void *triangleLists[2];
-    CircularParticle **particlePtr;
     Gfx *command;
     s32 vertexCount;
-    s32 triangleCount;
     s32 vertexIndex;
-    volatile s32 vertexCommandCount;
-    volatile s32 vertexCommandLength;
+    s32 addressBase;
+    CircularParticle **particlePtr;
     u8 red;
     u8 green;
     u8 blue;
     u8 alpha;
 
     if (entry->particleCount >= 2) {
+        s32 triangleCount;
+        void *triangleLists[2];
+
         displayList = *(Gfx **)arg0;
         vertexCount = entry->vertexCount;
         vertices = *(ParticleVertex **)arg1;
@@ -2186,17 +2177,20 @@ void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
         particleIndex = 0;
         particlePtr = entry->particles;
         if (entry->particleCount > 0) {
+            s32 vertexCommandCount;
+            volatile s32 vertexCommandLength;
+
             vertexCommandLength = (vertexCount * 10) + 8;
             vertexCommandCount = vertexCount * 8;
             do {
                 particle = *particlePtr;
                 vertexStart = vertices;
-                outputPtr = output;
+                outputPtr = &output[0][0];
                 i = 0;
                 while (i < vertexCount) {
-                    input[i].x = entry->points[i].x * particle->scale;
-                    input[i].y = entry->points[i].y * particle->scale;
-                    input[i].z = entry->points[i].z * particle->scale;
+                    input[i][0] = entry->points[i].x * particle->scale;
+                    input[i][1] = entry->points[i].y * particle->scale;
+                    input[i][2] = entry->points[i].z * particle->scale;
                     i++;
                 }
 
@@ -2204,33 +2198,34 @@ void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
                 green = particle->green;
                 blue = particle->blue;
                 alpha = (particle->intensity >> 8) & 0xFF;
-                pointListRPY(vertexCount, (s16 *)particle, &input[0].x, &output[0].x);
+                pointListRPY(vertexCount, (s16 *)particle, &input[0][0], &output[0][0]);
+                addressBase = 0x80000000;
                 i = 0;
                 if (vertexCount > 0) {
                     do {
-                        vertices->x = outputPtr->x + particle->renderX;
-                        vertices->y = outputPtr->y + particle->renderY;
-                        vertices->z = outputPtr->z + particle->renderZ;
+                        vertices->x = outputPtr[0] + particle->renderX;
+                        vertices->y = outputPtr[1] + particle->renderY;
+                        vertices->z = outputPtr[2] + particle->renderZ;
                         vertices->red = red;
                         vertices->green = green;
                         vertices->blue = blue;
                         vertices->alpha = alpha;
+                        outputPtr += 3;
                         vertices++;
-                        outputPtr++;
                         i++;
                     } while (i < vertexCount);
                 }
 
                 command = displayList++;
                 command->words.w0 =
-                    (((vertexCommandCount | (((s32)vertexStart + 0x80000000) & 6)) & 0xFF) << 16) |
+                    ((vertexCommandCount | (((s32)vertexStart + addressBase) & 6)) & 0xFF) << 16 |
                     0x04000000 | ((vertexCommandLength | (vertexIndex << 9)) & 0xFFFF);
-                command->words.w1 = (s32)vertexStart + 0x80000000;
+                command->words.w1 = (s32)vertexStart + addressBase;
                 if (particleIndex > 0) {
                     command = displayList++;
-                    command->words.w0 = ((((((triangleCount - 1) * 16) | 1) & 0xFF) << 16) |
-                                         0x05000000 | ((triangleCount * 16) & 0xFFFF));
-                    command->words.w1 = (s32)triangleLists[triangleListIndex] + 0x80000000;
+                    command->words.w0 = ((((((triangleCount - 1) << 4) | 1) & 0xFF) << 16) |
+                                         0x05000000 | ((triangleCount << 4) & 0xFFFF));
+                    command->words.w1 = (s32)triangleLists[triangleListIndex] + addressBase;
                     triangleListIndex ^= 1;
                 }
                 if (vertexIndex == 0) {
@@ -2622,31 +2617,31 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
 
 /* PLATEAU-HANDOFF:func_80040B88:start
  * symbol: func_80040B88
- * score: 157 differing words
- * frame: 0x70
+ * score: 145 differing words
+ * frame: 0x68
  * relocations: 12
- * first-mismatch: +0x0
- * summary: Left-associated speed scale aligns two more relocation tuples; target frame 0x68 and the entry-trigger home/allocator web remain.
+ * first-mismatch: +0x30
+ * summary: m2c local ablation recovers the target frame; next lever is the entry-trigger carrier and integer/FP allocation web.
  * PLATEAU-HANDOFF:func_80040B88:end
  */
 
 /* PLATEAU-HANDOFF:func_80041530:start
  * symbol: func_80041530
- * score: 176/456 words
- * frame: 0x160
+ * score: 52 differing words
+ * frame: 0x168
  * relocations: 4
- * first-mismatch: +0x0
- * summary: Target frame 0x168; two of four relocation identities align. Next: prove a natural triangle-count/loop lifetime; do not repeat 119 flags or ten forms.
+ * first-mismatch: +0x4C
+ * summary: m2c recovered exact geometry and FP schedule; next lever is the table byte-count carrier and command-length and cursor home cycle.
  * PLATEAU-HANDOFF:func_80041530:end
  */
 
 /* PLATEAU-HANDOFF:func_8004054C:start
  * symbol: func_8004054C
- * score: 24/125 words
+ * score: 56 differing words
  * frame: frameless
  * relocations: 2
- * first-mismatch: +0x2C
- * summary: Fresh reproof unchanged; the sole caller and JFG donor leave the initial address shift and pool web unresolved.
+ * first-mismatch: +0x7C
+ * summary: m2c SSA identity and indexed scans recover exact 125-word geometry; next lever is the a2/a3 carrier web and reverse-mask placement.
  * PLATEAU-HANDOFF:func_8004054C:end
  */
 
