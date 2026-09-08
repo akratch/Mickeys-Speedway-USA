@@ -335,9 +335,9 @@ s32 func_8003CE10(Gfx **dList, s32 renderContext, void **vertices, CircularParti
     gDPSetEnvColor((*dList)++, 0xFF, 0xFF, 0xFF, 0);
     return ((u8 *)*vertices - (u8 *)firstVertex) / 10;
 }
-/* Workbench: allocation-mismatch, 70 differing words, size_delta 0; first mismatch +0x50.
- * Shape-exact/permuter-ready: target and candidate are 168 instructions with the exact frame; residual is register allocation.
- * Remaining allocation is for the permuter; assembly fallback stays canonical. */
+/* Workbench: allocation-mismatch, 68 differing words, size_delta 0; first mismatch +0x50.
+ * Target and candidate are 168 instructions with the exact frame and relocation surface.
+ * Forced-color-oracle lever 19 needs an authenticated globalcolor trace; assembly fallback stays canonical. */
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: structure cross-checked against JFG's assembly-only
@@ -2612,11 +2612,11 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
 
 /* PLATEAU-HANDOFF:func_8003D25C:start
  * symbol: func_8003D25C
- * score: 100/168 words
+ * score: 68 differing words
  * frame: 0xB8
  * relocations: 2
  * first-mismatch: +0x50
- * summary: JFG-backed alpha-field and native prim-color macro reduce the exact-sized candidate from 70 to 68 register-only differences; temp/pool allocation remains
+ * summary: Workbench allocation-mismatch; forced-color-oracle lever 19 needs an authenticated globalcolor trace; structure is already opcode/size exact (zero attempts).
  * PLATEAU-HANDOFF:func_8003D25C:end
  */
 
