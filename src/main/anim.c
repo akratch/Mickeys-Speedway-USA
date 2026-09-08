@@ -4048,9 +4048,11 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80056DD8.s")
 #endif
 #ifdef NON_MATCHING
-/* Type pass: the shared collision overlays are neutral. Plateau (near-miss p5): workbench mixed(constant:2, structural:2, register:15), 18 words at 80 instructions/frame -0x28.
- * Levers: scalar/vector aliases, stack-spill/aggregate forms, expression spelling, and flag lattice; all regressed or inert.
- * Remains: FP pool/temp phase and two constant sites; assembly fallback stays canonical. */
+/* PROVENANCE: JFG efd5abb's src/hit.c leaves hitGetInelasticVelocity as an
+ * assembly fallback; its 0.0484 masked similarity supplies no donor C body.
+ * Mickey's fields, behavior, and compiled bytes remain authoritative.
+ * Prior scalar/vector aliases, stack-spill/aggregate forms, expression
+ * spelling, and flag lattice attempts regressed or stayed inert. */
 void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
                    f32 timeStep) {
     HitCopyTarget *target;
@@ -4404,11 +4406,11 @@ void fmvInit(void) {
 
 /* PLATEAU-HANDOFF:func_8005716C:start
  * symbol: func_8005716C
- * score: 18 differing words
+ * score: 18/80 words
  * frame: -0x28
  * relocations: 2
  * first-mismatch: +0x54
- * summary: Add unique resident owner metadata to unlock flags; retained 18-word form is diagnostic only because its volatile/padding scaffolds are not promotable.
+ * summary: JFG efd5abb leaves hitGetInelasticVelocity assembly-only; zero new attempts. Next: a matched JFG donor C body for this reflection handler.
  * PLATEAU-HANDOFF:func_8005716C:end
  */
 
