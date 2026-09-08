@@ -532,7 +532,7 @@
     },
     "func_800517E0": {
       "ledger_commit": "b2c362ac3e463f7695e1657d8d8336b4785b1518",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "b2c362ac3e463f7695e1657d8d8336b4785b1518"
     },
     "func_80053868": {
@@ -716,14 +716,24 @@
       "source_commit": "9b4af8356e951c51306df2764e0e62bfe627eafd"
     },
     "func_overlay_047_F0000B30_1891948": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 geometry, frame, relocations, and first mismatch. Prior flags, constants, context, switch-table ownership, collapsed call/data, and scaffold/type forms stay closed; no body mutation, trace, or permutation.",
-      "source_commit": "8cbf5eca5c027675d5fb5dd1d92e87f1b61308f0"
+      "ledger_commit": "3413e74616baeb2fc1ed5e4495b6719742884581",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "3413e74616baeb2fc1ed5e4495b6719742884581"
+    },
+    "func_overlay_052_F000063C_189ACAC": {
+      "ledger_commit": "c663518b4552cdf3c97e714e12f79aa5dc52004f",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "c663518b4552cdf3c97e714e12f79aa5dc52004f"
     },
     "func_overlay_053_F0000240_189DBE8": {
       "ledger_commit": null,
       "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior flags, ownership, call/data identities, scaffold, and size-gap forms stay closed; no body mutation, trace, or permutation.",
       "source_commit": "fadeb85368a5f27ea107c580d1c83febee5c3ba7"
+    },
+    "func_overlay_054_F00005AC_189F24C": {
+      "ledger_commit": "64fc4e7613b2be0dae79fbefd0ff7638c1cfa2b8",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "64fc4e7613b2be0dae79fbefd0ff7638c1cfa2b8"
     },
     "func_overlay_055_F000031C_18A1E34": {
       "ledger_commit": null,
@@ -749,6 +759,11 @@
       "ledger_commit": "b18f6399a092d6df3cf2b08791577e3bbc602951",
       "reason": "Decompiler-assisted structural reconstruction: take an m2c draft from this game's own extracted assembly, recover call/global identities and types first, then rebuild the CFG. Prior plateau reached no CFG work.",
       "source_commit": "b18f6399a092d6df3cf2b08791577e3bbc602951"
+    },
+    "func_overlay_060_F0000334_18BA10C": {
+      "ledger_commit": "19c1e23113b763dda077d4c58ea12fd24b53abbf",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "19c1e23113b763dda077d4c58ea12fd24b53abbf"
     },
     "func_overlay_065_F0000C38_18C4EA0": {
       "ledger_commit": null,
