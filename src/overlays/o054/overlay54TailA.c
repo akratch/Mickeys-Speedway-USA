@@ -5,6 +5,16 @@
 #include "overlays/overlay_045.h"
 
 #ifdef NON_MATCHING
+/* Tier B: the renderer reads the first two words as texture pointers after
+ * overlay54PatchIndices resolves the template resource indices. */
+typedef struct O54HudRecord {
+    void *texture;
+    void *alternate;
+    s32 metadata;
+    s16 x;
+    s16 y;
+} O54HudRecord;
+
 /* Tier B: overlay 54's runtime records identify the resident calls and the
  * overlay 45/56 exports below. Their source declarations establish the ABI.
  * These externs retain overlay-specific linkage until the body is exact. */
@@ -19,10 +29,10 @@ extern void viGetCurrentSize_o054Reloc(u32 *width, u32 *height);
 extern s32 func_80036544_o054Reloc(void *resource, s32 *state,
     s32 animation, f32 *frame, s32 updateRate);
 extern void func_8002F618_o054Reloc(MenuCommand **dlist,
-    OverlayOffsetRecord *records, s32 x, s32 y, u8 red, u8 green,
+    O54HudRecord *records, s32 x, s32 y, u8 red, u8 green,
     u8 blue, u8 alpha);
 extern void func_8002FB34_o054Reloc(MenuCommand **dlist,
-    OverlayOffsetRecord *records, f32 x, f32 y, f32 scaleX, f32 scaleY,
+    O54HudRecord *records, f32 x, f32 y, f32 scaleX, f32 scaleY,
     s32 colour, s32 mode);
 extern u32 joyGetPressed_o054Reloc(s32 player);
 extern void func_80034920_o054Reloc(MenuCommand **dlist);
@@ -72,16 +82,16 @@ extern s32 o001_data_83E0_o054Reloc;
 
 /* Tier B: LOCAL records distinguish the initialized templates and state
  * from the writable HUD copies in BSS. Names retain their section offsets. */
-extern OverlayOffsetRecord o54Bss_0[];
-extern OverlayOffsetRecord o54Bss_10[];
-extern OverlayOffsetRecord o54Bss_90[];
-extern OverlayOffsetRecord o54Bss_A0[];
-extern OverlayOffsetRecord o54Bss_C0[];
-extern OverlayOffsetRecord o54Bss_140[];
-extern OverlayOffsetRecord o54Bss_1C0[];
-extern OverlayOffsetRecord o54Bss_280[];
-extern OverlayOffsetRecord o54Bss_340[];
-extern OverlayOffsetRecord o54Bss_5C0[];
+extern O54HudRecord o54Bss_0[];
+extern O54HudRecord o54Bss_10[];
+extern O54HudRecord o54Bss_90[];
+extern O54HudRecord o54Bss_A0[];
+extern O54HudRecord o54Bss_C0[];
+extern O54HudRecord o54Bss_140[];
+extern O54HudRecord o54Bss_1C0[];
+extern O54HudRecord o54Bss_280[];
+extern O54HudRecord o54Bss_340[];
+extern O54HudRecord o54Bss_5C0[];
 extern s16 o54Bss_640[];
 extern s16 o54Bss_648[];
 extern s8 o54Bss_654[];
@@ -93,18 +103,18 @@ extern s16 o54Bss_66C;
 extern s16 o54Bss_66E;
 extern s16 o54Data_78;
 extern s16 o54Data_88;
-extern OverlayOffsetRecord o54Data_CC[];
-extern OverlayOffsetRecord o54Data_FC[];
-extern OverlayOffsetRecord o54Data_12C[];
-extern OverlayOffsetRecord o54Data_14C[];
+extern O54HudRecord o54Data_CC[];
+extern O54HudRecord o54Data_FC[];
+extern O54HudRecord o54Data_12C[];
+extern O54HudRecord o54Data_14C[];
 extern s16 o54Data_18C[];
 extern s16 o54Data_190[];
 extern s16 o54Data_194[];
-extern OverlayOffsetRecord o54Data_1E8[];
-extern OverlayOffsetRecord o54Data_218[];
-extern OverlayOffsetRecord o54Data_248[];
-extern OverlayOffsetRecord o54Data_268[];
-extern OverlayOffsetRecord o54Data_278[];
+extern O54HudRecord o54Data_1E8[];
+extern O54HudRecord o54Data_218[];
+extern O54HudRecord o54Data_248[];
+extern O54HudRecord o54Data_268[];
+extern O54HudRecord o54Data_278[];
 extern s32 o54Data_298[];
 extern s32 o54Data_2A8;
 extern s32 o54Data_2AC;
@@ -131,7 +141,7 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
     s32 centiseconds;
     s32 hudY;
     f32 step;
-    OverlayOffsetRecord icon[2];
+    O54HudRecord icon[2];
     u32 width;
     u32 height;
     s32 i;
@@ -141,21 +151,21 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
     s32 visible;
     s32 side;
     s32 buttons;
-    s32 texture;
-    s32 alternate;
+    void *texture;
+    void *alternate;
     s16 enterX;
     s16 hiddenX;
     s16 leaveX;
-    s16 resetX;
-    s16 deltaTime;
+    s32 resetX;
+    s32 deltaTime;
     ControlActor **actors;
     ControlPlayer *player;
-    OverlayOffsetRecord *position;
-    OverlayOffsetRecord *lap;
-    OverlayOffsetRecord *lapCount;
-    OverlayOffsetRecord *timer;
-    OverlayOffsetRecord *src;
-    OverlayOffsetRecord *dst;
+    O54HudRecord *position;
+    O54HudRecord *lap;
+    O54HudRecord *lapCount;
+    O54HudRecord *timer;
+    O54HudRecord *src;
+    O54HudRecord *dst;
     s32 *displayMode;
     s32 *alpha;
     s8 *item;
@@ -197,9 +207,8 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
     o54Data_2B0++;
     o54Data_2B0 %= 10;
 
-    playerIndex = 0;
-    while (playerIndex < D_8007BEF4_o054Reloc) {
-        actor = actors[playerIndex];
+    for (playerIndex = 0; playerIndex < D_8007BEF4_o054Reloc; playerIndex++, actors++) {
+        actor = *actors;
         if (actor == NULL) {
             return;
         }
@@ -338,12 +347,12 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
                     x -= 7;
                     y -= 6;
                 }
-                icon[0].link = (s32) D_800D31C8_o054Reloc[*item];
-                icon[0].value = 0;
+                icon[0].texture = D_800D31C8_o054Reloc[*item];
+                icon[0].alternate = 0;
                 icon[0].metadata = 0;
                 icon[0].x = 0;
                 icon[0].y = 0;
-                icon[1].link = 0;
+                icon[1].texture = 0;
                 func_8002FB34_o054Reloc(&D_800D3140_o054Reloc,
                     icon, (f32) x, (f32) y, 0.66f, 0.66f, *alpha | ~255, 1);
                 if (*item != 53 && player->unk19B >= 2) {
@@ -427,25 +436,21 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
             }
             if (O54_TIME_DELTA(player) <= 0) {
                 o54Bss_0[0].metadata = 12 << 16;
-                texture = (s32) D_800D31C8_o054Reloc[20];
-                alternate = (s32) D_800D31C8_o054Reloc[21];
-                o54Bss_0[0].link = texture;
-                o54Bss_0[0].value = alternate;
+                o54Bss_0[0].texture = texture = D_800D31C8_o054Reloc[20];
+                o54Bss_0[0].alternate = alternate = D_800D31C8_o054Reloc[21];
                 deltaTime = -O54_TIME_DELTA(player);
-                for (dst = o54Bss_10; dst != o54Bss_90; dst++) {
-                    dst->link = texture;
-                    dst->value = alternate;
+                for (i = 1; i < 9; i++) {
+                    o54Bss_0[i].texture = texture;
+                    o54Bss_0[i].alternate = alternate;
                 }
             } else {
                 o54Bss_0[0].metadata = 13 << 16;
-                alternate = (s32) D_800D31C8_o054Reloc[21];
-                texture = (s32) D_800D31C8_o054Reloc[80];
-                o54Bss_0[0].value = alternate;
-                o54Bss_0[0].link = texture;
+                o54Bss_0[0].alternate = alternate = D_800D31C8_o054Reloc[21];
+                o54Bss_0[0].texture = texture = D_800D31C8_o054Reloc[80];
                 deltaTime = O54_TIME_DELTA(player);
-                for (dst = o54Bss_10; dst != o54Bss_90; dst++) {
-                    dst->link = texture;
-                    dst->value = alternate;
+                for (i = 1; i < 9; i++) {
+                    o54Bss_0[i].texture = texture;
+                    o54Bss_0[i].alternate = alternate;
                 }
             }
             overlay56SplitTime_o054Reloc(deltaTime, &minutes, &seconds, &centiseconds);
@@ -507,7 +512,6 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
                 break;
             }
         }
-        playerIndex++;
     }
     camSetNo_o054Reloc(0);
 }
@@ -517,10 +521,10 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_054_F00005AC_189F24C:start
  * symbol: func_overlay_054_F00005AC_189F24C
- * score: 1400 differing words
- * frame: 0x158
- * relocations: 281
+ * score: 1517 differing words
+ * frame: 0x150
+ * relocations: 263
  * first-mismatch: +0x0
- * summary: Checkpoint; packet continues. Exact size and 59 ordered calls. Target frame 0x138; 71/269 exact relocation sites. Easing/copy regions offset.
+ * summary: Active packet checkpoint: 1553/1594 words, 59 ordered calls, 21/269 exact relocation sites. Indexed copy kernel and actor cursor recovered.
  * PLATEAU-HANDOFF:func_overlay_054_F00005AC_189F24C:end
  */

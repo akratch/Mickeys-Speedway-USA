@@ -2,11 +2,11 @@
 ### `func_overlay_054_F00005AC_189F24C` plateau handoff
 
 - source: `src/overlays/o054/overlay54TailA.c`
-- score: 1400 differing words
-- frame: 0x158
-- relocations: 281
+- score: 1517 differing words
+- frame: 0x150
+- relocations: 263
 - first mismatch: +0x0
-- summary: Checkpoint; packet continues. Exact size and 59 ordered calls. Target frame 0x138; 71/269 exact relocation sites. Easing/copy regions offset.
+- summary: Active packet checkpoint: 1553/1594 words, 59 ordered calls, 21/269 exact relocation sites. Indexed copy kernel and actor cursor recovered.
 
 This is a committed reconstruction milestone in the active structural packet,
 not a final stall disposition. The guarded C is compiled, not object-exact or
@@ -28,24 +28,44 @@ object proves `overlay56SplitTime` at `+0xB8`. Resident callee definitions
 supply the argument types. No donor body or external reference source was
 adopted; the near-match oracle found only weak similarities.
 
-The reconstruction uses `ControlActor`, `ControlPlayer` and
-`OverlayOffsetRecord`, with typed reads for fields still inside the partial
+The reconstruction uses `ControlActor`, `ControlPlayer` and a runtime HUD
+record view, with typed reads for fields still inside the partial
 player header's gaps. It restores the timer correction and level queries,
 eight-record digit spacing, the signed time-delta branch and its texture
 snapshots, the unsigned offscreen easing, the null-actor return, the separate
 mode 3/4 transition arms, and the proved `0.66f` icon scale. The old volatile
 stack-padding write and invented per-frame display toggle are removed.
 
-Attempt 7 retains the exact 1,594-word extent with 1,402 raw and 1,400 masked
-positional differences, first `+0`, and a `0x158` frame. Its 281 relocations
-include 71 tuples with exact target offset, type and runtime identity; 266
-records overlap when position is ignored. The final 18 calls have exact target
-offsets. This does not prove the interior: the first easing region is short
-and the late copying region is long. Workbench still reports
-`structure-mismatch`; its constant-audit and structure-buckets levers apply.
-A named easing-step local did not recover the opening region's size, so that
-spelling alone is ruled out. Continue with the missing source-level loop and
-aggregate relationships rather than a flag or permutation search.
+Attempt 7 reached the exact 1,594-word extent with 1,400 masked positional
+differences, but that equality combined a short opening with an overlong copy
+loop. Further source review found two unnecessarily narrow temporaries: the
+time-delta magnitude and reset X coordinate are 32-bit values in the target.
+In particular, narrowing the negated minimum halfword loses its positive
+magnitude. Those corrections are retained even though the old extent was exact.
+
+Attempt 21 has 1,553 words against 1,594, a 164-byte deficit, 1,517 raw and
+masked positional differences, first `+0`, and a `0x150` frame against `0x138`.
+Its 263 relocations have 21 exact offset/type/identity tuples and 263 matching
+identity/type records when position is ignored. All 59 calls remain in target
+order. The four-record unrolled resource-copy kernel is recovered from an
+indexed eight-record loop; independent pointer bounds introduced remainder
+paths, while same-array pointer comparisons stayed scalar. The actor list now
+advances through a cursor as the target does, reducing aligned register
+residuals to 475 and structural residuals to 153. Those aligned counts are
+mechanism evidence, not match credit.
+
+The runtime HUD view treats the first two record words as resolved texture
+pointers and preserves the signed metadata field. Explicit pointer snapshots
+are necessary for the single-read copy pattern; copying through the first
+record's fields introduces reloads. Separating the sign and digit views, or
+making the sign a scalar aggregate, did not recover the remaining direct field
+references. An explicit guarded do-loop and a structured outer for-loop were
+unchanged; those spellings alone are ruled out. The workbench constant audit
+found no aligned non-stack differing immediate in attempt 14. Workbench still
+reports `structure-mismatch`; its structure-buckets and constant-audit levers
+remain the routing. The opening recurrence still lacks the target's peeling,
+and stack/first-record reference structure remains unresolved. The packet is
+active and has not reached its five-no-information stopping condition.
 
 Every source/object/score and the runtime identity audit are retained in ignored
 `build/whale5/`. The raw m2c output remains ignored and was used only as a draft.
@@ -59,7 +79,8 @@ fallback has unchanged text bytes and named relocations compared with the base.
 controller fallback retains unresolved resident call names and truncated call
 relocations; logs are retained in the ignored evidence directory. This packet
 does not alter that separately owned source or claim a passing full-ROM gate.
-The source-only clean-room and documentation gates run through
-`tools/finalize_plateau.py` before the checkpoint commit.
+All 243 guarded TUs pass `gmake check-nonmatching-builds`. The source-only
+clean-room and documentation gates pass after `tools/finalize_plateau.py`
+records the checkpoint.
 
 <!-- plateau-handoff:func_overlay_054_F00005AC_189F24C:end -->
