@@ -1524,7 +1524,7 @@ address-placeholder helper names are not imported.
 | `0x16C4C` | `0x4C` | `shadowGetBuffers` | B name; exact C, 19 words, 8 relocs |
 | `0x16C98` | `0x7F8` | `shadowGenerate` | B; `NON_MATCHING` candidate at 445 differing words, 520/510 instructions, frames `-0x150`/`-0x138` |
 | `0x17490` | `0x8B0` | `func_80016890` | D; `NON_MATCHING` resident fallback and adjacent `func_80017140` boundary establish `src/main/shadows.c.o` ownership under `-O2 -mips2 -32 -Wab,-r4300_mul`; candidate at 563 differing words, exact `-0x190` frame, first `+0x4`; its target carries eight FP multiply-hazard nops; no match credit |
-| `0x17D40` | `0x520` | `func_80017140` | D candidate: 303 differing words, 323/328 instructions, exact `-0x140` frame, first `+0x48` |
+| `0x17D40` | `0x520` | `func_80017140` | D candidate: 300 differing words, 325/328 instructions, exact `-0x140` frame with the polygon buffer at the target's own offset, first `+0x44` |
 | `0x18260` | `0x56C` | `func_80017660` | **A**; exact C, 347 words, 4 relocations under `-O2 -mips2 -32 -Wab,-r4300_mul`; the owned ROM range `0x18260`-`0x187CC` is byte-identical to the baserom |
 | `0x187CC` | `0x4E8` | `func_80017BCC` | D candidate: 270 differing words, 316/314 instructions, exact `-0x108` frame after deleting four decompiler-only locals, first `+0x4`; its target carries four FP multiply-hazard nops |
 | `0x18CB4` | `0x33C` | `func_800180B4` | Evidence D candidate: structure-mismatch, 206/206 instructions, 101 differing words, first `+0x34`, exact `-0x90` frame, every stack home and 7/8 relocation identities aligned; the one open mechanism is the sector index, which the target holds in a caller-saved register and spills across `getXZCompareMask` |
