@@ -1425,11 +1425,11 @@ void func_8002109C(ModelPointOwner *owner) {
 
 /* PLATEAU-HANDOFF:func_8001FC50:start
  * symbol: func_8001FC50
- * score: 300 differing words
- * frame: 0x88
+ * score: 299/333 words
+ * frame: 0x80
  * relocations: 3
  * first-mismatch: +0x0
- * summary: Untouched V0 is 330/333 words; frame 0x88/0x78. Three relocations per side, none aligned. Prior allocation/layout and permutation forms remain closed.
+ * summary: JFG size and cursor lifetimes cut the frame by 0x8; next lever is the target constant audit.
  * PLATEAU-HANDOFF:func_8001FC50:end
  */
 
