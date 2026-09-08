@@ -2439,26 +2439,19 @@ s32 func_80006C40(Objects06C40 *arg0, s32 arg1) {
     arg0->unk58 = arg1;
     return 0x13C;
 }
-/* Workbench verdict: structure-mismatch; 132 differing words (target 149, candidate 146). */
-/* First mismatch: +0x0; target frame 0x50 versus candidate frame 0x40. */
-/* Structural gap: allocator-result stack home and three target instructions remain. */
-#ifdef NON_MATCHING
 void *func_80006C4C(s32 arg0) {
     Objects06C4CAsset *asset;
     Objects06C4CObject *object;
-    Objects06C4CObject *newObject;
     u8 *end;
     s32 count;
-    s32 remaining;
     s32 index;
-    s32 offset;
     s32 loadType;
+    s32 spriteModel;
+    void *result;
     s32 failed;
     s32 size;
-    s32 words;
-    s32 *source;
     s32 *destination;
-    void *result;
+    s32 *source;
 
     if (arg0 >= D_800C945C) {
         arg0 = 0;
@@ -2469,16 +2462,13 @@ void *func_80006C4C(s32 arg0) {
     }
 
     object = (Objects06C4CObject *)D_800C9450;
-    end = (u8 *)object + 0x94 + (asset->unk22 * 4);
+    size = asset->unk22;
+    size = size * 4 + 0x94;
+    end = (u8 *)object + size;
     count = D_800C9454 >> 2;
-    if (count != 0) {
-        remaining = count - 1;
-        source = (s32 *)D_800C9450;
-        do {
-            *source = 0;
-            source += 1;
-            remaining -= 1;
-        } while (remaining != 0);
+    destination = (s32 *)D_800C9450;
+    while (count--) {
+        *destination++ = 0;
     }
 
     object->unk40 = asset;
@@ -2490,28 +2480,26 @@ void *func_80006C4C(s32 arg0) {
     loadType = func_8000A6E8(asset->unk1C) & 3;
     failed = 0;
     index = 0;
-    offset = 0;
     if (object->unk40->unk22 > 0) {
         do {
+            spriteModel = func_800058C0((Objects58C0Arg *)object, index);
             object->unk68 = object->unk94;
-            if (func_800058C0((Objects58C0Arg *)object, index) == 0) {
-                *(s32 *)((u8 *)object->unk68 + offset) =
+            if (spriteModel == 0) {
+                object->unk68[index] =
                     (s32)func_8001F520(
-                        *(s32 *)((u8 *)object->unk40->unk34 + offset), loadType);
+                        object->unk40->unk34[index], loadType);
             } else {
-                *(s32 *)((u8 *)object->unk68 + offset) =
+                object->unk68[index] =
                     (s32)func_800355A0(
-                        *(s32 *)((u8 *)object->unk40->unk34 + offset), 0xA);
+                        object->unk40->unk34[index], 0xA);
             }
-            if (*(s32 *)((u8 *)object->unk68 + offset) == 0) {
+            if (object->unk68[index] == 0) {
                 failed = 1;
             }
             index += 1;
-            offset += 4;
         } while (index < object->unk40->unk22);
     }
 
-    result = NULL;
     if (failed == 0) {
         size = (s32)(end - (u8 *)object);
         if (size & 0xF) {
@@ -2519,20 +2507,14 @@ void *func_80006C4C(s32 arg0) {
         }
         result = func_8002B314(size, 0x8B);
         if (result != NULL) {
-            newObject = (Objects06C4CObject *)result;
-            words = size >> 2;
+            count = size >> 2;
             source = (s32 *)D_800C9450;
             destination = (s32 *)result;
-            if (words != 0) {
-                remaining = words - 1;
-                do {
-                    *destination = *source;
-                    destination += 1;
-                    source += 1;
-                    remaining -= 1;
-                } while (remaining != 0);
+            while (count--) {
+                *destination++ = *source++;
             }
-            newObject->unk68 = newObject->unk94;
+            ((Objects06C4CObject *)result)->unk68 =
+                ((Objects06C4CObject *)result)->unk94;
         } else {
             failed = 1;
         }
@@ -2544,9 +2526,6 @@ void *func_80006C4C(s32 arg0) {
     }
     return result;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006C4C.s")
-#endif
 void func_80006EA0(void *ptr) {
     if (((u8 *) ptr)[0x91] == 0) {
         ((u8 *) ptr)[0x91] = 1;
