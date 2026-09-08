@@ -188,6 +188,16 @@ bytes and disassembly never belong here.
   (`func_overlay_026_F0000B18_187AF10`), and declaring a pair after the
   local whose slots it must follow lands both on the retail homes
   (`overlay84InitializeAndUpdate`). All three were exact on 2026-09-03.
+- A never-read scalar declaration may still displace compiler-created stack
+  homes even when its initializer is optimized away. When opcode, register,
+  frame, and relocation surfaces already agree and every residual is the same
+  one-word home displacement, remove only a local whose initializer is proved
+  defined and side-effect-free and whose value is never observed. In an exact
+  resident FX closure this moved three call-crossing homes by one word without
+  changing any other instruction. Recheck the ordinary object, complete
+  relocation identities, linked owned range, and full ROM; this lever does not
+  apply to locals whose initialization or lifetime is observable. Evidence:
+  the exact `func_8004ADE8` closure, 2026-09-08.
 - Removing one redundant input alias can disturb exact stack homes while
   removing two together recovers both the frame and the surviving homes.
   Declaration placement can expose the intermediate state: a correct frame
