@@ -52,6 +52,7 @@ the segment, carrying 194 function names.
 | `0x4BC40`–`0x4E1E0` | `0x8004B040` | `main/font` | A/D | JFG's `font.c`: six exact function anchors plus source-order and adjacent-function evidence establish the provisional C split; §3.4 |
 | `0x4E378` | `0x8004D778` | `byteswap32` | A | Compiler/link-exact C adapted from DKR `src/gzip.c` |
 | `0x4EA60`–`0x4F4D4` | `0x8004DE60` | `main/gzip_asm` | A | **Measured file boundary**: DKR's whole 0xA74 inflate core, in one piece |
+| `0x4F4E0` | `0x8004E8E0` | `func_8004E8E0` | D | Matched C adapted from DKR `src/game_text.c` `init_dialogue_text`: exact 188 B / 47 words, frame `0x18`, all 28 relocation identities exact, linked ROM exact |
 | `0x4F59C` | `0x8004E99C` | `func_8004E99C` | D | Matched C: exact 80 B and 11/11 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
 | `0x4F5EC` | `0x8004E9EC` | `func_8004E9EC` | D | Matched C: exact 12 B and 2/2 relocation identities at `-O2 -mips2 -32`, linked ROM exact |
 | `0x4F5F8` | `0x8004E9F8` | `func_8004E9F8` | D | Matched C adapted from DKR: exact 616 B and 24/24 relocation identities at `-O2 -mips2 -32`, linked ROM exact |

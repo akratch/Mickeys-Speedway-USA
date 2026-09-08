@@ -32,20 +32,13 @@ extern void fontWindowFontColour(s32 windowId, s32 red, s32 green, s32 blue,
                                  s32 alpha, s32 opacity);
 extern void func_8004BFB0(s32 windowId);
 
-/* verdict: register-ring-only; 12 differing words; first mismatch +0x34 */
-/* shape: exact 47 instructions and 0x18 frame; permuter-ready */
-/* canonical fallback retained until the temporary allocation closes */
-#ifdef NON_MATCHING
+/* PROVENANCE: adapted from Diddy Kong Racing's public decomp, src/game_text.c:
+ * init_dialogue_text; Mickey's globals, constants, calls, and bytes remain authoritative. */
 void func_8004E8E0(void) {
-    s32 temp_t9;
-    s32 temp_v0;
-
     D_800D6AB4 = (piRomGetFileSize(5) >> 2) - 2;
-    temp_v0 = func_8002B280(0x790, 0x8F);
-    temp_t9 = temp_v0 + 0x3C0;
-    D_800D6AD8[0] = temp_v0;
-    D_800D6AD8[1] = temp_t9;
-    D_800D6AB0 = temp_t9 + 0x3C0;
+    D_800D6AD8[0] = func_8002B280(0x790, 0x8F);
+    D_800D6AD8[1] = D_800D6AD8[0] + 0x3C0;
+    D_800D6AB0 = D_800D6AD8[1] + 0x3C0;
     D_800D6AE4 = 0;
     D_800D6AC4 = 0;
     D_800D6AB6 = 0;
@@ -57,9 +50,6 @@ void func_8004E8E0(void) {
     D_800D6AC2 = 0xDE;
     D_8007D640 = 1;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/block_4F4E0/func_8004E8E0.s")
-#endif
 
 extern void mmFree(void *ptr);
 extern void func_8004BFD8(s32 windowId);
@@ -279,16 +269,6 @@ void func_8004EED0(s32 arg0) {
 s32 func_8004F020(void) {
     return 0;
 }
-
-/* PLATEAU-HANDOFF:func_8004E8E0:start
- * symbol: func_8004E8E0
- * score: 35/47 words
- * frame: 0x18
- * relocations: 28
- * first-mismatch: +0x34
- * summary: Maintenance remeasurement preserves the exhausted candidate and fallback: 188 owned bytes without padding, exact 47-word shape and frame, twelve raw/normalized differences, and all 28 stable relocation identities. Fresh full-TU and actual emitted baseline agree at strict score 70; the allocation mismatch remains. No source change, search, or manual reopen.
- * PLATEAU-HANDOFF:func_8004E8E0:end
- */
 
 /* PLATEAU-HANDOFF:func_8004EC60:start
  * symbol: func_8004EC60
