@@ -904,76 +904,55 @@ void runlinkFlushModules(void) {
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from Jet Force Gemini's permitted published
- * src/runLink.c:runlinkInitialise. Mickey's ROM-block boundaries, resident
- * section anchors, packed header layout, and pending-load count determine the
- * final body.
+ * src/runLink.c:runlinkInitialise at upstream efd5abb. Mickey's ROM-block
+ * boundaries, resident section anchors, packed header layout, and pending-load
+ * count determine the final body.
  */
-/*
- * Plateau (2026-08-30): the owned resident range is 0x800328CC..0x80032B14
- * (146 instructions, no padding before runlinkSuspendCode). The configured
- * candidate remains 142 instructions with 64 positional differences, first
- * +0x8, and a 0x40 frame against the target's 0x38. mainInitGame+0x12C is the
- * sole direct caller; the void(void) ABI and absence of exports are exact.
- *
- * The target has 64 static relocation records against the candidate's 62.
- * It materializes D_80078D60 and D_80085A40 twice each and overlayCount three
- * times; the candidate shares each section anchor and materializes
- * overlayCount four times. All named static identities are authenticated, and
- * this resident initializer owns no runtime-overlay relocation records.
- *
- * A fidelity-clean proc-11 allocator receipt records 27 integer globalcolor
- * decisions (17 colored, 10 split), no FP decisions, and no attributable ugen
- * lane in this mixed TU. Thirteen fresh builds/controlled diagnostics covered
- * pointer, signed-size, separate-counter, local-slot, explicit-anchor and
- * volatile-pointer forms plus web-split causality probes; none improves the
- * natural baseline. The earlier 119-row lattice, seven source variants and
- * bounded permuter remain exhausted. Resume only with a source-authentic form
- * that retains the overlayCount address across the pending-load loop while
- * independently rematerializing the two adjacent section anchors.
- */
+extern u8 runlinkCodeEnd[];
+#pragma weak runlinkCodeEnd = D_80078D60
+extern u8 runlinkDataStart[];
+#pragma weak runlinkDataStart = D_80078D60
+extern u8 runlinkDataEnd[];
+#pragma weak runlinkDataEnd = D_80085A40
+extern u8 runlinkBssStart[];
+#pragma weak runlinkBssStart = D_80085A40
+
 void runlinkInit(void) {
-    u32 overlayTableSize;
-    u32 tableSize;
-    PendingOverlayLoad *pendingLoad;
     OverlayHeader *overlay;
+    s32 i;
 
-    overlayTableSize = D_184C3E0 - D_184B680;
-    overlayTable = func_8002B280(overlayTableSize + sizeof(OverlayHeader), 0x83);
-    romCopy((u32) D_184B680, (u32) (overlayTable + 1), overlayTableSize);
+    overlayTable = func_8002B280((u32) (D_184C3E0 - D_184B680) + sizeof(OverlayHeader), 0x83);
+    romCopy((u32) D_184B680, (u32) (overlayTable + 1), (u32) (D_184C3E0 - D_184B680));
 
-    tableSize = D_184B680 - D_1849730;
-    overlayRomTable = func_8002B280(tableSize, 0x83);
-    romCopy((u32) D_1849730, (u32) overlayRomTable, tableSize);
+    overlayRomTable = func_8002B280((u32) (D_184B680 - D_1849730), 0x83);
+    romCopy((u32) D_1849730, (u32) overlayRomTable, (u32) (D_184B680 - D_1849730));
 
-    tableSize = D_1849730 - D_1848B70;
-    mainRelocTable = func_8002B280(tableSize, 0x83);
-    romCopy((u32) D_1848B70, (u32) mainRelocTable, tableSize);
-    mainRelocTableCount = *(s32 *) mainRelocTable;
-    mainRelocTable = (RelocationEntry *) ((u8 *) mainRelocTable + sizeof(s32));
-    overlayCount = (overlayTableSize >> 5) + 1;
+    mainRelocTable = func_8002B280((u32) (D_1849730 - D_1848B70), 0x83);
+    romCopy((u32) D_1848B70, (u32) mainRelocTable, (u32) (D_1849730 - D_1848B70));
+    mainRelocTableCount = *(u32 *) mainRelocTable;
+    mainRelocTable = (RelocationEntry *) ((u8 *) mainRelocTable + 4);
+    overlayCount = ((u32) (D_184C3E0 - D_184B680) / sizeof(OverlayHeader)) + 1;
 
-    pendingLoad = &D_800D2E40;
-    tableSize = PENDING_OVERLAY_LOADS - 1;
-    do {
-        pendingLoad->overlayIndex = 0xFFB;
-        pendingLoad--;
-    } while (tableSize--);
+    i = PENDING_OVERLAY_LOADS;
+    while (i--) {
+        D_800D2DC8[i].overlayIndex = 0xFFB;
+    }
 
     linkSlotTable = func_8002B280(overlayCount * sizeof(LinkSlot), 0x83);
     _bzero(linkSlotTable, overlayCount * sizeof(LinkSlot));
 
     overlayTable->vramBase = (s32) func_80000450;
     overlayTable->romAddress = 0;
-    overlayTable->textSize = (s32) D_80078D60 - (s32) func_80000450;
-    overlayTable->dataSize = (s32) D_80085A40 - (s32) D_80078D60;
-    overlayTable->bssSize = (s32) D_800D8750 - (s32) D_80085A40;
+    overlayTable->textSize = (u32) runlinkCodeEnd - (u32) func_80000450;
+    overlayTable->dataSize = (u32) runlinkDataEnd - (u32) runlinkDataStart;
+    overlayTable->bssSize = (u32) D_800D8750 - (u32) runlinkBssStart;
     overlayTable->relocTableSize = mainRelocTableCount * sizeof(RelocTableEntry);
     overlayTable->relocTableSize2 = 0;
 
     overlay = overlayTable + 1;
-    tableSize = overlayCount - 1;
-    while (tableSize--) {
-        overlay->romAddress += (s32) D_184C3E0;
+    i = overlayCount - 1;
+    while (i--) {
+        overlay->romAddress = (s32) D_184C3E0 + overlay->romAddress;
         overlay++;
     }
 
@@ -1332,16 +1311,6 @@ s32 runlinkGetAddressInfo(u32 address, s32 *moduleId, s32 *moduleAddress,
     return 0;
 }
 
-/* PLATEAU-HANDOFF:runlinkInit:start
- * symbol: runlinkInit
- * score: 64 differing words
- * frame: 0x40
- * relocations: 64
- * first-mismatch: +0x8
- * summary: Fresh V0 is 142/146 words with 64 differences and frames 0x40/0x38. Relocations are 62/64; 20 target identities remain unresolved. Prior families stay closed.
- * PLATEAU-HANDOFF:runlinkInit:end
- */
-
 /* PLATEAU-HANDOFF:runlinkFreeCode:start
  * symbol: runlinkFreeCode
  * score: 117 differing words
@@ -1350,4 +1319,14 @@ s32 runlinkGetAddressInfo(u32 address, s32 *moduleId, s32 *moduleAddress,
  * first-mismatch: +0x0
  * summary: 184 target/183 candidate words, 117 differ; frames 0x58/0x68. Relocs 32 each; 28 offset-type, 27 identity align. Prior mechanisms closed.
  * PLATEAU-HANDOFF:runlinkFreeCode:end
+ */
+
+/* PLATEAU-HANDOFF:runlinkInit:start
+ * symbol: runlinkInit
+ * score: 0/146 words
+ * frame: 0x38
+ * relocations: 64
+ * first-mismatch: +0x1A0
+ * summary: JFG efd5abb is instruction-exact; verdict relocation-symbol-mismatch. End-pointer forms regress by seven stack homes or 22 registers.
+ * PLATEAU-HANDOFF:runlinkInit:end
  */
