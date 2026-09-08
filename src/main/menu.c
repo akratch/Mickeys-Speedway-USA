@@ -1348,7 +1348,7 @@ void func_8003A590(void) {
  * frame: frameless
  * relocations: 6
  * first-mismatch: +0x14
- * summary: Alias-backed modeBits lifetime fixes seven sites; only the comparison uses v0 instead of target v1. A reseeded 10-minute sweep stopped at score 5.
+ * summary: Flat 20-minute permuter search; next lever is an instrumented forced-color oracle covering p1 and p2.
  * PLATEAU-HANDOFF:func_8003A2C8:end
  */
 
