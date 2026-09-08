@@ -846,7 +846,7 @@ void func_8001F25C(void *state, s32 disabled);
 void func_overlay_008_F00049DC_1862734(s32 value);
 void func_8001D910(void *object, void *state);
 void func_80029F2C(s16 *angles, f32 *vector);
-s32 func_8001357C(f32 x, f32 z, f32 *height, u32 flags, void *surfaces);
+u32 func_8001357C(f32 x, f32 z, f32 *height, s32 flags, void *surfaces);
 void func_8001F14C(void *object, void *state);
 s32 func_overlay_002_F000123C_1858034(f32 x, f32 z, void *region);
 s32 func_8002A910(f32 x, f32 z);
@@ -874,14 +874,14 @@ void func_overlay_008_F0002EC0_1860C18(void *object, void *state, s32 update);
 void func_overlay_008_F0003018_1860D70(void *object, void *state, f32 scale, s32 update);
 void func_8003EDEC(void *object, s32 update);
 extern f32 D_4;
-extern s32 G_o1_83e4;
+extern s32 gOverlay1Mode;
 extern f32 G_rt_458c4;
 extern s32 G_rt_43a3c;
 extern u8 G_offd_31a4;
 extern void *D_1BA4;
 extern f32 LOCAL_DATA_4;
 extern s32 LOCAL_BSS_1D78;
-extern s32 LOCAL_BSS_1D94;
+extern s32 gOverlay1TimerStep;
 extern void *LOCAL_BSS_1BA4;
 extern void *LOCAL_BSS_1D9C;
 
@@ -925,7 +925,7 @@ void func_overlay_001_F000438C_185076C(O1PhysicsObject *object, s32 updateRate) 
     O1PhysicsState *state;
     s16 clampedAngle;
     s32 (*predicate)(void);
-    s32 surfaceCount;
+    u32 surfaceCount;
     s32 collision;
     s32 angleOffset;
     s32 keys;
@@ -939,7 +939,7 @@ void func_overlay_001_F000438C_185076C(O1PhysicsObject *object, s32 updateRate) 
     if (func_overlay_001_F00004B4_184C894(object) != 0) {
         tuning = func_overlay_008_F0000008_185DD60(state);
         G_rt_458c4 = *tuning;
-        if (G_o1_83e4 == 1) {
+        if (gOverlay1Mode == 1) {
             if ((G_rt_43a3c == 0) && (state->joypadDisabled == 0) && (state->spinTimer == 0) && !(state->flags1A8 & 8)) {
                 if (state->pathIndex != state->previousPathIndex) {
                     state->previousPathIndex = state->pathIndex;
@@ -962,7 +962,7 @@ block_13:
         if ((state->disabled18D != 0) || (state->field158 != 0) || (state->reset170 != 0) || (state->field3FA != 0)) {
             func_8001F25C(state, 1);
         }
-        D_1D94 = updateRate;
+        gOverlay1TimerStep = updateRate;
         D_4 = (f32) updateRate;
         speed = -state->forwardVelocity;
         func_overlay_008_F00049DC_1862734(NULL);
@@ -1076,7 +1076,7 @@ block_13:
         if (value < 0.0f) {
             work = -value;
         }
-        if (G_o1_83e4 == 1) {
+        if (gOverlay1Mode == 1) {
             if (work > 24576.0f) {
                 clampedAngle = 0x6000;
             } else {
@@ -1183,8 +1183,8 @@ block_13:
                 state->boostScale = 0.0f;
             }
         }
-        remaining = D_1D94;
-        if (remaining--) {
+        if (gOverlay1TimerStep != 0) {
+            remaining = gOverlay1TimerStep - 1;
             do {
                 value = func_overlay_008_F0001000_185ED58(object, state, limit);
                 limit = value;
@@ -1193,10 +1193,11 @@ block_13:
                     applySlope = 1;
                 } else if (((keys & 0x4000) == 0) && (state->slope < 0.0f)) {
                     applySlope = 1;
-                } else if (!(keys & 0xC000) && (state->slope > 0.0f)) {
-                    applySlope = 1;
                 } else {
                     applySlope = 0;
+                    if (!(keys & 0xC000) && (state->slope > 0.0f)) {
+                        applySlope = 1;
+                    }
                 }
                 if ((applySlope != 0) && (state->boostMode == 0)) {
                     state->forwardVelocity = (f32) (state->forwardVelocity + (G_rt_458c4 * state->slope));
@@ -1268,7 +1269,7 @@ block_160:
                             state->forwardVelocity = (-limit);
                         }
                     }
-                    if ((G_o1_83e4 == 1) && (G_offd_31a4 == 0) && (state->flags1A8 & 1) && (func_8002675C() == (s32)0x21) && (state->pathIndex == 0x2A) && (0.4f < state->progress398)) {
+                    if ((gOverlay1Mode == 1) && (G_offd_31a4 == 0) && (state->flags1A8 & 1) && (func_8002675C() == (s32)0x21) && (state->pathIndex == 0x2A) && (0.4f < state->progress398)) {
                         state->forwardVelocity = (f32) (state->forwardVelocity - 2.0f);
                     }
                 } else {
@@ -1333,7 +1334,7 @@ block_160:
         object->rotationX = (s16) (state->heading + state->spinAngle);
         heading = state->heading;
         if (state->joypadDisabled == 1) {
-            value = func_8002A878(0.8f, D_1D94);
+            value = func_8002A878(0.8f, gOverlay1TimerStep);
             value2 = state->forwardVelocity;
             if ((value2 < -0.5f) || (value2 > 0.5f)) {
                 state->forwardVelocity = (f32) (value2 * value);
@@ -1404,7 +1405,7 @@ block_160:
             func_80008128(object, 0.0f, 0.0f, 0.0f);
         }
         if (state->field166 != 0) {
-            if (G_o1_83e4 == 3) {
+            if (gOverlay1Mode == 3) {
                 state->reverseTimer = 0x78U;
                 state->field166 = 0;
             } else if (state->reset170 == 0) {
@@ -1415,7 +1416,7 @@ block_160:
         state->actualVelocityY = (f32) ((object->y - state->previousY) * inverseUpdate);
         state->actualVelocityZ = (object->z - state->previousZ) * inverseUpdate;
         if ((state->field16A == 0) && (collision != NULL)) {
-            value = func_8002A878(0.9f, D_1D94);
+            value = func_8002A878(0.9f, gOverlay1TimerStep);
             work = state->speedLimit;
             state->speedLimit = work + ((3.0f - work) * (1.0f - value));
             work = state->speedLimit;
@@ -1432,14 +1433,14 @@ block_160:
                 state->sideVelocity = work;
             }
         } else {
-            value = func_8002A878(0.825f, D_1D94);
+            value = func_8002A878(0.825f, gOverlay1TimerStep);
             work = state->speedLimit;
             state->speedLimit = work + ((25.0f - work) * (1.0f - value));
         }
         func_overlay_008_F00049A4_18626FC(state);
         state->outputScale = func_overlay_008_F00034A0_18611F8(object, state, limit, D_4);
         func_overlay_008_F00049B4_186270C(state);
-        func_8001D41C(object, state, D_1D94);
+        func_8001D41C(object, state, gOverlay1TimerStep);
         action = &gO1PhysicsActions[2];
         index = 2;
         do {
@@ -1457,11 +1458,11 @@ block_160:
         if (callback != NULL) {
             callback();
         }
-        func_overlay_008_F0003278_1860FD0(object, state, D_1D94);
-        func_8001D960(object, state, 0, 3, D_1D94);
-        func_overlay_008_F0002EC0_1860C18(object, state, D_1D94);
-        func_overlay_008_F0003018_1860D70(object, state, state->outputScale, D_1D94);
-        func_8003EDEC(object, D_1D94);
+        func_overlay_008_F0003278_1860FD0(object, state, gOverlay1TimerStep);
+        func_8001D960(object, state, 0, 3, gOverlay1TimerStep);
+        func_overlay_008_F0002EC0_1860C18(object, state, gOverlay1TimerStep);
+        func_overlay_008_F0003018_1860D70(object, state, state->outputScale, gOverlay1TimerStep);
+        func_8003EDEC(object, gOverlay1TimerStep);
         if ((state->field349 != 0) && (state->field16C == 1)) {
             state->field16C = 0U;
         }
@@ -3340,11 +3341,11 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_001_F000438C_185076C:start
  * symbol: func_overlay_001_F000438C_185076C
- * score: 1508 differing words
- * frame: 0x230
- * relocations: 65
- * first-mismatch: +0x0
- * summary: Target 0x138 frame versus m2c 0x230; recover typed ABI/stack layout and canonical symbol ownership before further CFG work.
+ * score: 1196 differing words
+ * frame: 0x138
+ * relocations: 184
+ * first-mismatch: +0x24
+ * summary: Structural reconstruction stalls after five no-information attempts; next needs evidence for FP/local homes and independent global bindings.
  * PLATEAU-HANDOFF:func_overlay_001_F000438C_185076C:end
  */
 
