@@ -2656,6 +2656,6 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x138
  * relocations: 14
  * first-mismatch: +0x2D0
- * summary: 995/1068 words; structure and all tuples exact. Scope stop at t1/t2 exchange; next is separately authorized register-role-audit.
+ * summary: 995/1068 words; 14 tuples exact. Five flat controls after faithful sweep. Next: complete UGEN queue-transition and emitted-row evidence.
  * PLATEAU-HANDOFF:func_8003D4FC:end
  */
