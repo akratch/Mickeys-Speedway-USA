@@ -987,12 +987,13 @@ block_9:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004590.s")
 #endif
-/* Workbench verdict: schedule/register-permutation; 6 differing words (74/80). */
-/* First mismatch: +0x50; size, frame, CFG, and FP register shape are exact. */
-/* Structural gap: none; residual register/scheduling differences are permuter-ready. */
+/* Workbench verdict: register-permutation; 3 differing words (77/80). */
+/* First mismatch: +0x50; frame 0x88 and all six relocation identities are exact. */
+/* Residual: initial list-index allocation shared with func_80004454. */
 #ifdef NON_MATCHING
 void *func_8000471C(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
-    volatile s32 frame_reserve[2];
+    f32 queryX;
+    f32 queryY;
     s32 sp7C;
     s32 sp78;
     f32 temp_f0;
@@ -1004,19 +1005,19 @@ void *func_8000471C(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     Objects0471CObject *temp_s0;
     void *var_s4;
 
+    queryX = arg0;
+    queryY = arg1;
     temp_v0 = (s32)func_8000572C(&sp7C, &sp78);
     var_f20 = D_80080D28;
     var_s4 = NULL;
     if (sp7C < sp78) {
-        var_s1 = sp7C * 4;
-        var_s2 = (u8 *)temp_v0 + var_s1;
-        do {
+        var_s1 = sp7C * 4; var_s2 = (u8 *)temp_v0 + var_s1; do {
             temp_s0 = *(Objects0471CObject **)var_s2;
             if (temp_s0->unk91 != 0) {
                 var_v0 = sp78 * 4;
             } else {
-                if ((temp_s0 != (Objects0471CObject *)D_80078F20) && (arg3 == temp_s0->unk40->unk1B)) {
-                    temp_f0 = func_8000BD0C(temp_s0->unkC, temp_s0->unk10, temp_s0->unk14, arg0, arg1, arg2);
+                if ((temp_s0 != (Objects0471CObject *)D_80078F20) && (temp_s0->unk40->unk1B == arg3)) {
+                    temp_f0 = func_8000BD0C(temp_s0->unkC, temp_s0->unk10, temp_s0->unk14, queryX, queryY, arg2);
                     if (temp_f0 < var_f20) {
                         var_f20 = temp_f0;
                         var_s4 = temp_s0;
@@ -5713,11 +5714,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_8000471C:start
  * symbol: func_8000471C
- * score: 6 differing words
+ * score: 3 differing words
  * frame: 0x88
  * relocations: 6
  * first-mismatch: +0x50
- * summary: Fresh remeasurement confirms exact 80-word geometry, 0x88 frame, and six aligned relocation identities; six schedule/register words await the bounded permuter.
+ * summary: Shared initial-index register-permutation; stock source remains nonexact. Resume only with new def-use evidence beyond the sibling forced-color oracle.
  * PLATEAU-HANDOFF:func_8000471C:end
  */
 
