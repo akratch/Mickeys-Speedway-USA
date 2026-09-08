@@ -1615,10 +1615,19 @@ CircularParticle *func_8003FB98(ParticleEmitterObject *object, ParticleTrigger *
     return particle;
 }
 #ifdef NON_MATCHING
-/* Reopened m2c reconstruction: exact 125-word geometry with 56 positional
- * differences from +0x7C. A unified word/particle index and compiler-owned
- * indexed scans recover the missing address instruction and relocation surface.
- * Remaining: the a2/a3 carrier assignment and reverse-mask materialization. */
+/* Exact 125-word geometry, frameless, both relocation identities exact; 42
+ * positional differences from +0x64.
+ *
+ * The forward scan's first probe is spelled freeBits[wordIndex], not
+ * *freeBits, even though wordIndex is provably zero there: the indexed form
+ * makes IDO strength-reduce one base pointer for the probe and the loop
+ * together, which is what puts the scan cursor and the word count in the
+ * target's two argument registers instead of exchanging them. The
+ * dereference spelling costs 14 words.
+ *
+ * Remaining: the descending scan materializes its shift base one instruction
+ * earlier than the target, and the colour pool diverges from the first probe
+ * onward. */
 /* PROVENANCE: structure cross-checked against JFG
  * asm/nonmatchings/particles/func_80061948.s; body reconstructed from Mickey evidence. */
 CircularParticle *func_8004054C(s32 type, s32 direction) {
@@ -1643,7 +1652,7 @@ CircularParticle *func_8004054C(s32 type, s32 direction) {
         } else {
             if (direction == -1) {
                 freeBits = pool->freeBits;
-                if (*freeBits == 0) {
+                if (freeBits[wordIndex] == 0) {
                     bits = pool->lastBitWord;
                     if (bits >= wordIndex) {
                         do {
@@ -2645,10 +2654,10 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
 
 /* PLATEAU-HANDOFF:func_8004054C:start
  * symbol: func_8004054C
- * score: 56 differing words
+ * score: 42 differing words
  * frame: frameless
  * relocations: 2
- * first-mismatch: +0x7C
- * summary: m2c SSA identity and indexed scans recover exact 125-word geometry; next lever is the a2/a3 carrier web and reverse-mask placement.
+ * first-mismatch: +0x64
+ * summary: spelling the forward scan's first probe as freeBits[wordIndex] rather than *freeBits closed the a2/a3 carrier web and 14 words. Remaining: the descending scan hoists the shift base one instruction early, and the pool lane diverges from +0x64. Commutative rewrites of the mask tests are flat -- IDO canonicalizes `and` operand order here.
  * PLATEAU-HANDOFF:func_8004054C:end
  */
