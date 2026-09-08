@@ -121,9 +121,9 @@ extern void overlay101Reset(void *value);
 extern u8 D_o101ResetData340[];
 extern s32 overlay101ByteLength(u8 *text);
 
-/* NON_MATCHING p4 plateau: workbench structure-mismatch; exact-TU candidate 1463 vs 1461 instructions, 1421 raw words different, exact -0x50 frame, first structural divergence +0x34.
- * Levers: exact flag/context parity and constant audit (5 sites), then macro line-assignment variants; context lint is clean.
- * Remains: node-builder macro structure/register cascade and 330 relocation-symbol differences; GLOBAL_ASM remains canonical. */
+/* NON_MATCHING reconstruction: retail relocation records establish four callees and distinguish the reset input from the node pool.
+ * The retained candidate has the target operation census plus one extra address-loading pair; the frame is exact.
+ * GLOBAL_ASM remains canonical. Detailed structural trials and stopping evidence are in the per-symbol handoff. */
 #ifdef NON_MATCHING
 void func_overlay_101_F0003A58_18DF278(void) {
     s32 index;
@@ -293,6 +293,6 @@ void func_overlay_101_F0003A58_18DF278(void) {
  * frame: 0x50
  * relocations: 201
  * first-mismatch: +0x34
- * summary: V0 is 1463/1461 words (+2), frame 0x50 exact, and overruns its 5844-byte owner by 8 bytes; relocation identities are unavailable.
+ * summary: Calls and reset input recovered; 1463/1461 words, 201/199 relocations. Five structural trials stalled; next: prove node-pool base liveness across loader.
  * PLATEAU-HANDOFF:func_overlay_101_F0003A58_18DF278:end
  */
