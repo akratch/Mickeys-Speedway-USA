@@ -1461,16 +1461,17 @@ s32 func_80028FB8(s32 arg0, s32 arg1, s32 arg2) {
 
 #ifdef NON_MATCHING
 /*
- * PROVENANCE: JFG's pinned src/main.c::mainAnyoneHas remains GLOBAL_ASM and
- * supplies only an assembly/object structural analogue and TU-role comparison;
- * no C body was adapted. Mickey establishes this boundary, ABI, calls, Boolean
- * normalization, and candidate body.
+ * PROVENANCE: Jet Force Gemini src/main.c::mainAnyoneHas at upstream commit
+ * efd5abb remains GLOBAL_ASM and supplies only an assembly/object structural
+ * analogue and TU-role comparison; no C body was adapted. Mickey establishes
+ * this boundary, ABI, calls, Boolean normalization, and candidate body.
  *
- * The shared-result/shared-epilogue probe regressed to 25 words and moved the
- * second and third calls, so it did not unlock another flag lattice or trace.
- * This retained early-return spelling is the best source-faithful form: exact
- * 108-byte size/frame 0x18 and calls at +0x14/+0x30/+0x4C. ORT 663 has no
- * authenticated caller.
+ * The authorized donor update advanced other shared-engine work but did not
+ * provide a new C spelling for this function. The prior shared-result probe
+ * regressed to 25 words and moved the second and third calls, so it did not
+ * unlock another flag lattice or trace. This retained early-return spelling
+ * is the best source-faithful form: exact 108-byte size/frame 0x18 and calls
+ * at +0x14/+0x30/+0x4C. ORT 663 has no authenticated caller.
  */
 s32 func_80028FCC(s32 arg0) {
     if (func_80028FB8(0, 0, arg0)) {
@@ -1714,7 +1715,7 @@ void func_800293D0(void) {
  * frame: 0x18
  * relocations: 3
  * first-mismatch: +0x1C
- * summary: V0: 17/27 words, exact 0x18 frame, all 3 relocation identities exact. Residual is 8 structural and 4 register rows; shared-result form remains closed.
+ * summary: JFG efd5abb still leaves mainAnyoneHas as GLOBAL_ASM; next lever is a later permitted donor C body.
  * PLATEAU-HANDOFF:func_80028FCC:end
  */
 
