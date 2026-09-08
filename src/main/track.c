@@ -5869,6 +5869,6 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x158
  * relocations: 9
  * first-mismatch: +0x0
- * summary: Recovered exact geometry and target retry/failure CFG; next lever is original declaration/lifetime evidence for the 16-byte frame and FP web.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_80010B4C:end
  */
