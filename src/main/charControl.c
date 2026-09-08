@@ -1267,21 +1267,21 @@ typedef struct ControlFlameParticle {
 /* Workbench verdict: register-only residual, 16 differing words, first mismatch +0x164. */
 /* Candidate: 220/220 instructions, frame -0x60 on both sides, all six relocations
  * at the target's own instruction indexes, and every stack displacement equal. */
-/* Three source facts recovered from the target and retained here:
+/* Four source facts recovered from the target:
  *  - the loop counter is ONE variable spilled to its own home each iteration,
  *    not an m2c sp5C/var_v0 pair; declaring it first is what puts its home at
  *    the target's displacement and keeps the frame at 0x60,
  *  - case 1 re-reads the particle's angle field rather than reading the value
  *    already in var_s6; that CSE is what makes IDO keep the loaded value in a
  *    caller-saved register and copy it into the saved one,
- *  - case 2 performs actor->unk80 |= arg2 AFTER the func_8002A204 call, which
- *    needs the call result named before the or.
- * Remaining gap: a ugen temp-ring phase difference. The first divergence is the
- * third speculative arg4 load in the mode dispatch, where the target takes t0
- * and this candidate takes t9; twelve small webs follow from it. */
+ *  - case 2 spells the scaled angle inline, exactly as case 3 does. Naming the
+ *    call result in a local made it a uopt-coloured web where the target pops a
+ *    ugen ring temp, and that one class crossing rotated twelve downstream webs,
+ *  - case 2 performs actor->unk80 |= arg2 AFTER the whole var_s6 product, so
+ *    the product's four ring temps are drawn before the or's two loads.
+ * The last two are one composition: neither alone is an improvement. */
 /* PROVENANCE: JFG's public controlUpdateJetFlames role and Mickey's m2c/assembly establish
  * the state-machine order; no external body is copied into this reconstruction. */
-#ifdef NON_MATCHING
 void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg3,
                    s32 arg4) {
     s32 var_v0;
@@ -1361,22 +1361,19 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                         }
                     }
                     break;
-                case 2: {
-                    s32 temp_t9;
-
+                case 2:
                     var_s0 += arg4 * 0x10;
                     if (var_s0 >= 0x100) {
                         var_s0 = 0xFF;
                     }
                     var_s3 += arg4 << 0xC;
-                    temp_t9 = func_8002A204((s16) (var_s3 << 8)) + 0x18000;
+                    var_s6 = (s32) ((func_8002A204((s16) (var_s3 << 8)) + 0x18000) *
+                                    ((s32) (var_s6 * var_s0) >> 8)) >> 0x10;
                     actor->unk80 |= arg2;
-                    var_s6 = (s32) (temp_t9 * ((s32) (var_s6 * var_s0) >> 8)) >> 0x10;
                     if (!(player->unk186 & var_s5)) {
                         var_s1->mode = 3;
                     }
                     break;
-                }
                 case 3:
                     var_s0 -= arg4 * 8;
                     if (var_s0 <= 0) {
@@ -1405,9 +1402,6 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
         var_v0++;
     } while (var_v0 != 4);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D960.s")
-#endif
 void func_8001DCD0(s16 rotation, ControlVector3 *vector, s16 *pitch, s16 *yaw) {
     f32 cosine;
     f32 pitchX;
@@ -2190,15 +2184,6 @@ void controlClearPlayerSetup(void) {
     D_80079BF8 = 0;
 }
 
-/* PLATEAU-HANDOFF:func_8001D960:start
- * symbol: func_8001D960
- * score: 16/220 words
- * frame: 0x60
- * relocations: 6
- * first-mismatch: +0x164
- * summary: Instruction count, frame, stack map and all six relocation indexes agree; residual is a ugen temp-ring phase (t0 versus t9 at the third speculative arg4 load)
- * PLATEAU-HANDOFF:func_8001D960:end
- */
 
 /* PLATEAU-HANDOFF:func_8001EC44:start
  * symbol: func_8001EC44
