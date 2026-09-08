@@ -5698,7 +5698,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x38
  * relocations: 18
  * first-mismatch: +0x0
- * summary: Output-address ordering and outer for-loop preserve all relocation identities; a two-word and eight-byte frame-allocation gap remains.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_80012658:end
  */
 
