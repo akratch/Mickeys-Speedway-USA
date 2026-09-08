@@ -1103,9 +1103,14 @@ s32 func_80017660(void *arg0, s32 arg1, void *arg2, s32 arg3, s32 arg4) {
  * resident buffer layouts determine the field bindings below.
  */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 271 differing words; first mismatch is at +0x0. */
-/* Target is 314 instructions/frame -0x108; candidate is 313 instructions/frame -0x120. */
-/* Remaining gap is the original FP declaration/lifetime and saved-register allocation; not permuter-ready. */
+/* Workbench verdict: structure-mismatch, 269 differing words; first mismatch is at +0x4. */
+/* Target is 314 instructions/frame -0x108; candidate is 313 instructions and now shares that frame. */
+/* The frame closed by deleting four m2c-only locals: the declared-local list
+ * sizes the frame in 8-byte steps, so merging var_v0_2/var_v1_2 into their
+ * originals and inlining the two subtraction temps removed the 0x18 excess.
+ * The remaining split is inside the frame: the candidate still colours one
+ * extra callee-saved FP web (it hoists 1.0f where the target hoists 0.0f),
+ * so its save area is 8 bytes larger and every stack home sits 8 low. */
 s32 func_80017BCC(void *arg0, void *arg1, void *arg2) {
     u32 projected[3];
     u8 *var_a0;
@@ -1114,16 +1119,12 @@ s32 func_80017BCC(void *arg0, void *arg1, void *arg2) {
     u8 *var_s6;
     u8 *var_t4;
     u8 *var_v0;
-    u8 *var_v0_2;
     u8 *temp_v0;
-    u8 *source;
     f32 spA8;
     f32 temp_f0;
     f32 temp_f12;
-    f32 temp_f12_2;
     f32 temp_f2;
     f32 temp_f2_2;
-    f32 temp_f2_3;
     f32 var_f0;
     f32 var_f0_2;
     f32 var_f12;
@@ -1140,7 +1141,6 @@ s32 func_80017BCC(void *arg0, void *arg1, void *arg2) {
     s32 var_t2;
     s32 var_t3;
     s32 var_v1;
-    s32 var_v1_2;
     s32 var_a0_2;
     s32 var_a1_2;
     s32 var_t5;
@@ -1247,44 +1247,42 @@ loop_21:
             if (var_t2 >= D_800CB278) {
                 return 0;
             }
-            temp_f12_2 = var_f0_2 - var_f18;
             var_a0 += 1;
-            temp_f2_3 = temp_f2_2 - var_f0;
             projected[var_v1] =
-                ((s32) (((temp_f2_3 * var_f16) +
-                         (temp_f12_2 * var_f14) + var_f28) * var_f24) &
+                ((s32) ((((temp_f2_2 - var_f0) * var_f16) +
+                         ((var_f0_2 - var_f18) * var_f14) + var_f28) * var_f24) &
                  0xFFFF) |
-                ((s32) (var_f22 * (((temp_f12_2 * var_f16) -
-                                    (temp_f2_3 * var_f14)) + var_f26)) <<
+                ((s32) (var_f22 * ((((var_f0_2 - var_f18) * var_f16) -
+                                    ((temp_f2_2 - var_f0) * var_f14)) + var_f26)) <<
                  0x10);
             var_v1 += 1;
             if (var_v1 < (s32) *(u8 *) (var_t4 + 0x0)) {
                 goto loop_21;
             }
         }
-        var_v1_2 = 1;
+        var_v1 = 1;
         if ((*(u8 *) (var_t4 + 0x0) - 1) >= 2) {
             var_a0_2 = var_t5 + 1;
             var_a1_2 = var_a0_2 + 1;
-            var_v0_2 = (u8 *) &projected[1];
+            var_v0 = (u8 *) &projected[1];
 loop_29:
             *(u8 *) (var_a3 + 0x0) = 0;
             *(u8 *) (var_a3 + 0x1) = var_a0_2;
             *(u8 *) (var_a3 + 0x2) = var_a1_2;
             *(u8 *) (var_a3 + 0x3) = var_t5;
             var_t3 += 1;
-            var_v1_2 += 1;
-            *(u32 *) (var_a3 + 0x4) = *(u32 *) (var_v0_2 + 0x0);
+            var_v1 += 1;
+            *(u32 *) (var_a3 + 0x4) = *(u32 *) (var_v0 + 0x0);
             var_a3 += 0x10;
-            *(u32 *) (var_a3 - 0x8) = *(u32 *) (var_v0_2 + 0x4);
+            *(u32 *) (var_a3 - 0x8) = *(u32 *) (var_v0 + 0x4);
             *(u32 *) (var_a3 - 0x4) = projected[0];
             if (var_t3 >= D_800CB27C) {
                 return 0;
             }
-            var_v0_2 += 4;
+            var_v0 += 4;
             var_a0_2 += 1;
             var_a1_2 += 1;
-            if (var_v1_2 < (*(u8 *) (var_t4 + 0x0) - 1)) {
+            if (var_v1 < (*(u8 *) (var_t4 + 0x0) - 1)) {
                 goto loop_29;
             }
         }
@@ -1455,11 +1453,11 @@ void func_800180B4(ShadowQuery *query) {
 
 /* PLATEAU-HANDOFF:func_80017BCC:start
  * symbol: func_80017BCC
- * score: 271 differing words
- * frame: -0x120
+ * score: 269 differing words
+ * frame: 0x108
  * relocations: 44
- * first-mismatch: +0x0
- * summary: Integer index widths recover near-exact geometry; original FP declarations and lifetimes must remove the extra saved pair and 0x18 frame.
+ * first-mismatch: +0x4
+ * summary: Frame now exact at 0x108 after deleting four m2c-only locals; residual is one extra callee-saved FP web that shifts every stack home by 8.
  * PLATEAU-HANDOFF:func_80017BCC:end
  */
 
