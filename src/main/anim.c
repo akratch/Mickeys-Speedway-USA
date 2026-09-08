@@ -998,6 +998,17 @@ typedef struct AnimCommandAnimation {
     AnimCommandFrameRecord *records;
 } AnimCommandAnimation;
 
+/* The scroll command fills the fields left opaque by AnimScrollReset. */
+typedef struct AnimCommandScroll {
+    u8 textureIndex;
+    u8 pad1;
+    s16 duration;
+    s32 x;
+    s32 stepX;
+    s32 y;
+    s32 stepY;
+} AnimCommandScroll;
+
 typedef struct AnimCommandTrackEntry {
     u8 pad0[0x12];
     s16 speed12;
@@ -1116,15 +1127,27 @@ void func_800517E0(void) {
     void *sound;
     void *entry;
     u8 type;
+    s32 motionAngle;
+    s32 motionCount;
+    s32 colorB0;
+    s32 colorB1;
+    s32 colorB2;
+    s32 colorA0;
+    s32 colorA1;
+    s32 packedField;
+    f32 motionDuration;
+    f32 radius;
+    f32 height;
+    f32 motionX;
+    f32 motionZ;
 
     cursor = D_8007D69C;
     paths = D_800D6B00;
     if (cursor != NULL) {
-        currentCommand = cursor->command;
         hundred = 100.0f;
         scale = 60.0f;
         factor = 0.01f;
-        while (currentCommand != 0x7F00 &&
+        while ((currentCommand = cursor->command) != 0x7F00 &&
                (commandTime = (f32) (commandDuration = cursor->duration) /
                               hundred) < D_8007D6AC && D_8007D6A4 == 1) {
             opcode = (currentCommand >> 8) & 0xFF;
@@ -1383,61 +1406,36 @@ void func_800517E0(void) {
                                   packed2, index, value / hundred - delta);
                     break;
                 case 0x46: {
-                    s32 motionAngle;
-                    s32 motionCount;
-                    s32 colorB0;
-                    s32 colorB1;
-                    s32 colorB2;
-                    s32 colorA0;
-                    s32 colorA1;
-                    s32 colorA2;
-                    s32 packedCount;
-                    s32 packedColorB;
-                    s32 packedColorA;
-                    s32 packedTail;
-                    f32 motionDuration;
-                    f32 radius;
-                    f32 height;
-                    f32 motionX;
-                    f32 motionZ;
 
-                    packedCount = *((u16 *) ((u8 *) cursor + 8));
+                    packedField = *((u16 *) ((u8 *) cursor + 8));
                     radius = *((s16 *) ((u8 *) cursor + 4));
                     height = *((s16 *) ((u8 *) cursor + 6));
-                    motionDuration = packedCount & 0xFF;
-                    packedColorB = *((u16 *) ((u8 *) cursor + 0xA));
-                    packedColorA = *((u16 *) ((u8 *) cursor + 0xC));
-                    packedTail = *((u16 *) ((u8 *) cursor + 0xE));
+                    motionDuration = packedField & 0xFF;
+                    motionCount = packedField >> 8;
+                    packedField = *((u16 *) ((u8 *) cursor + 0xA));
+                    colorB0 = packedField >> 8;
+                    colorB1 = packedField & 0xFF;
+                    packedField = *((u16 *) ((u8 *) cursor + 0xC));
+                    colorB2 = packedField >> 8;
+                    colorA0 = packedField & 0xFF;
+                    packedField = *((u16 *) ((u8 *) cursor + 0xE));
+                    colorA1 = packedField >> 8;
+                    packedField &= 0xFF;
                     motionAngle = currentCommand << 8;
-                    motionCount = packedCount >> 8;
-                    colorB0 = packedColorB >> 8;
-                    colorB1 = packedColorB & 0xFF;
-                    colorB2 = packedColorA >> 8;
-                    colorA0 = packedColorA & 0xFF;
-                    colorA1 = packedTail >> 8;
-                    colorA2 = packedTail & 0xFF;
                     cursor = (AnimStreamEntry *) ((u8 *) cursor + 0x10);
                     motionX = func_8002A8C0(motionAngle) * radius;
                     motionZ = func_8002A8BC(motionAngle) * radius;
                     animCommandMotionTrap(motionX, height, motionZ,
                                           motionCount * 2, colorB0, colorB1,
-                                          colorB2, colorA0, colorA1, colorA2,
+                                          colorB2, colorA0, colorA1, packedField,
                                           motionDuration / hundred);
                     break;
                 }
                 case 0x47:
-                    duration = *((u16 *) ((u8 *) cursor + 4));
-                    value = (f32) duration;
-                    packed = *((u16 *) ((u8 *) cursor + 6));
-                    value2 = (f32) packed;
-                    if (packed < 0) {
-                        value2 += 4294967296.0f;
-                    }
-                    packed2 = *((u16 *) ((u8 *) cursor + 8));
-                    target = (f32) packed2;
-                    if (packed2 < 0) {
-                        target += 4294967296.0f;
-                    }
+                    pathIndex = currentCommand & 0xFF;
+                    value = (f32) *((u16 *) ((u8 *) cursor + 4));
+                    value2 = (f32) *((u16 *) ((u8 *) cursor + 6));
+                    target = (f32) *((u16 *) ((u8 *) cursor + 8));
                     cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xA);
                     camStartShake(0, value / hundred, value2 / hundred,
                                   target / hundred, pathIndex);
@@ -1458,25 +1456,29 @@ void func_800517E0(void) {
                         }
                     }
                     break;
-                case 0x49:
+                case 0x49: {
+                    AnimCommandScroll *scroll;
+                    s32 scrollX;
+                    s32 scrollY;
+                    f32 scrollDuration;
+
                     index = *((u16 *) ((u8 *) cursor + 4));
-                    signedValue = *((s16 *) ((u8 *) cursor + 6));
-                    packed = *((s16 *) ((u8 *) cursor + 8));
-                    duration = *((u16 *) ((u8 *) cursor + 0xA));
+                    scrollX = *((s16 *) ((u8 *) cursor + 6));
+                    scrollY = *((s16 *) ((u8 *) cursor + 8));
+                    scrollDuration = *((u16 *) ((u8 *) cursor + 0xA));
+                    scrollX = (scrollX << 16) / 6000;
+                    scrollY = (scrollY << 16) / 6000;
                     cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xC);
-                    entry = (u8 *) D_800D6B58 +
-                            ((currentCommand & 7) * 0x14);
-                    *(u8 *) ((u8 *) entry + 0) = index;
-                    *(s16 *) ((u8 *) entry + 2) =
-                        (s16) ((f32) duration * (60.0f * 0.01f));
-                    timer = *(s16 *) ((u8 *) entry + 2);
-                    *(s32 *) ((u8 *) entry + 8) =
-                        ((s32) (((s32) signedValue << 16) / 6000) -
-                         *(s32 *) ((u8 *) entry + 4)) / timer;
-                    *(s32 *) ((u8 *) entry + 0x10) =
-                        ((s32) (((s32) packed << 16) / 6000) -
-                         *(s32 *) ((u8 *) entry + 0xC)) / timer;
+                    scroll = (AnimCommandScroll *)
+                        &D_800D6B58[currentCommand & 7];
+                    scroll->textureIndex = index;
+                    scroll->duration = (s16) (scrollDuration *
+                                               (60.0f * 0.01f));
+                    timer = scroll->duration;
+                    scroll->stepX = (scrollX - scroll->x) / timer;
+                    scroll->stepY = (scrollY - scroll->y) / timer;
                     break;
+                }
                 case 0x4A:
                     packed = *((u16 *) ((u8 *) cursor + 4));
                     packed2 = *((u16 *) ((u8 *) cursor + 6));
@@ -1879,8 +1881,7 @@ void func_800517E0(void) {
                 default:
                     break;
             }
-            currentCommand = cursor->command;
-        }
+            }
         D_8007D69C = cursor;
     }
 }
@@ -4404,10 +4405,10 @@ void fmvInit(void) {
 
 /* PLATEAU-HANDOFF:func_800517E0:start
  * symbol: func_800517E0
- * score: 1795 differing words
- * frame: 0x170
+ * score: 1786 differing words
+ * frame: 0x160
  * relocations: 245
  * first-mismatch: +0x0
- * summary: Intermediate reconstruction: 1722/1808 words; 57 calls and 245 external relocation records recovered; motion operand lifetimes remain.
+ * summary: Intermediate reconstruction: 1722/1808 words; all call/global inventory recovered; decoded motion spills and shared divisor remain.
  * PLATEAU-HANDOFF:func_800517E0:end
  */
