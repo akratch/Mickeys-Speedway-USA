@@ -1385,11 +1385,11 @@ void func_8002109C(ModelPointOwner *owner) {
 
 /* PLATEAU-HANDOFF:func_8002057C:start
  * symbol: func_8002057C
- * score: 249 differing words
+ * score: 249/342 words
  * frame: 0xC0
  * relocations: 21
  * first-mismatch: +0x0
- * summary: Block-scoped s16 gains two words, but the 0xC0 frame and pool allocation diverge; next try a JFG-faithful saved-register/stack-home topology.
+ * summary: JFG stack map is confirmed, but declaration, scope, and parameter forms were flat or regressed; matched donor C is needed.
  * PLATEAU-HANDOFF:func_8002057C:end
  */
 
