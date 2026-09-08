@@ -1,8 +1,8 @@
 #include "PR/ultratypes.h"
 
 typedef struct O50Glyph {
-    s32 texture;
-    s32 alternate;
+    void *texture;
+    void *alternate;
     s32 glyph;
     s16 x;
     s16 y;
@@ -123,7 +123,7 @@ extern void *D_800D3140;
 extern void *D_800D3144;
 extern s32 D_800C947C;
 extern s16 D_8007C180[];
-extern s32 D_800D31C8[];
+extern void *D_800D31C8[];
 extern O50MenuObject D_800D3550[];
 extern s32 D_8007C1B0;
 extern u16 D_8007BF1C;
@@ -133,7 +133,7 @@ extern s32 o50Overlay1StateReloc; /* overlay 1 +0x83E0 */
 /* Tier B: local data, read-only data, and BSS ownership from runtime records. */
 extern s8 o50Data320[];
 extern s8 o50Data330;
-extern s32 o50BssC4;
+extern void *o50BssC4;
 extern O50Glyph o50LapGlyphs[10];
 extern char o50SpeedText[];
 extern f32 o50ReverseScale;
@@ -157,26 +157,21 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
     s32 centiseconds;
     s32 hudY;
     s32 hudX;
-    s32 loadedItem;
     O50Glyph *glyphCursor;
     O50Glyph *templateCursor;
-    f32 stepY;
-    f32 deltaX;
-    s16 itemId;
+    s32 itemId;
     s16 remaining;
-    s32 glyphTexture;
-    s32 t6;
-    s32 t7;
-    s32 t8;
-    s32 t9;
+    void *glyphTexture;
     s32 remainder;
-    s32 glyphAlternate;
+    void *glyphAlternate;
     s32 i;
     s32 lapIndex;
-    s32 opacity;
     s32 var_v0_3;
     s32 targetAngle;
-    s8 lapCount;
+    s32 lapCount;
+    s32 *lapOffsets;
+    s32 *lapTimes;
+    s32 lapY;
 
     modeFlag = (u8 *)func_80028F54();
     if (arg0 != NULL) {
@@ -188,17 +183,17 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
                 if (D_C8 >= 0xF1) {
                     D_CA -= arg1 * 4;
                     if (D_CA < 0) {
-                        overlay45ReleaseDescriptor((void *) o50BssC4);
+                        overlay45ReleaseDescriptor(o50BssC4);
                         o50BssC4 = 0;
                     } else {
-                        overlay45SetMode((void *) o50BssC4, D_CA);
+                        overlay45SetMode(o50BssC4, D_CA);
                     }
                 } else {
                     D_CA += arg1 * 4;
                     if (D_CA >= 0x100) {
                         D_CA = 0xFF;
                     }
-                    overlay45SetMode((void *) o50BssC4, D_CA);
+                    overlay45SetMode(o50BssC4, D_CA);
                 }
             }
         }
@@ -207,51 +202,24 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
             if (arg1 > 0) {
                 remainder = arg1 & 3;
                 if (remainder != 0) {
-                    i = 1;
-                    deltaX = 0.0f - D_A8;
-                    stepY = (0.0f - D_A4) * 0.125f;
-                    if (remainder != 1) {
-                        do {
-                            i += 1;
-                            D_A4 += stepY;
-                            D_A8 += deltaX * 0.125f;
-                            stepY = (0.0f - D_A4) * 0.125f;
-                            deltaX = 0.0f - D_A8;
-                        } while (remainder != i);
-                    }
-                    D_A4 += stepY;
-                    D_A8 += deltaX * 0.125f;
-                    if (i != arg1) {
-                        goto block_16;
-                    }
-                } else {
-block_16:
-                    i = i + 4;
-                    deltaX = 0.0f - D_A8;
-                    stepY = (0.0f - D_A4) * 0.125f;
-                    if (i != arg1) {
-                        do {
-                            i += 4;
-                            D_A4 += stepY;
-                            D_A8 += deltaX * 0.125f;
-                            D_A4 += (0.0f - D_A4) * 0.125f;
-                            D_A8 += (0.0f - D_A8) * 0.125f;
-                            D_A4 += (0.0f - D_A4) * 0.125f;
-                            D_A8 += (0.0f - D_A8) * 0.125f;
-                            D_A4 += (0.0f - D_A4) * 0.125f;
-                            D_A8 += (0.0f - D_A8) * 0.125f;
-                            stepY = (0.0f - D_A4) * 0.125f;
-                            deltaX = 0.0f - D_A8;
-                        } while (i != arg1);
-                    }
-                    D_A4 += stepY;
-                    D_A8 += deltaX * 0.125f;
-                    D_A4 += (0.0f - D_A4) * 0.125f;
-                    D_A8 += (0.0f - D_A8) * 0.125f;
-                    D_A4 += (0.0f - D_A4) * 0.125f;
-                    D_A8 += (0.0f - D_A8) * 0.125f;
-                    D_A4 += (0.0f - D_A4) * 0.125f;
-                    D_A8 += (0.0f - D_A8) * 0.125f;
+                    do {
+                        i++;
+                        D_A4 += (0.0f - D_A4) * 0.125f;
+                        D_A8 += (0.0f - D_A8) * 0.125f;
+                    } while (i != remainder);
+                }
+                if (i != arg1) {
+                    do {
+                        i += 4;
+                        D_A4 += (0.0f - D_A4) * 0.125f;
+                        D_A8 += (0.0f - D_A8) * 0.125f;
+                        D_A4 += (0.0f - D_A4) * 0.125f;
+                        D_A8 += (0.0f - D_A8) * 0.125f;
+                        D_A4 += (0.0f - D_A4) * 0.125f;
+                        D_A8 += (0.0f - D_A8) * 0.125f;
+                        D_A4 += (0.0f - D_A4) * 0.125f;
+                        D_A8 += (0.0f - D_A8) * 0.125f;
+                    } while (i != arg1);
                 }
             }
         }
@@ -296,47 +264,35 @@ block_16:
         func_8002F618(&D_800D3140, D_2C0, 0,  hudY, 0xFF, 0xFF, 0xFF, 0xFF);
         func_80034920(&D_800D3140);
         if (racer->item != 0xFF) {
-            opacity = D_334 + (arg1 * 0x10);
-            D_334 = opacity;
-            if (opacity >= 0x100) {
-                opacity = 0xFF;
-                D_334 = 0xFF;
+            D_334 += arg1 * 16;
+            if (D_334 >= 256) {
+                D_334 = 255;
             }
         } else {
-            opacity = D_334 - (arg1 * 8);
-            D_334 = opacity;
-            if (opacity < 0) {
+            D_334 -= arg1 * 8;
+            if (D_334 < 0) {
                 D_334 = 0;
-                opacity = 0;
             }
         }
-        if (opacity > 0) {
+        if (D_334 > 0) {
             if (racer->itemState != 0) {
                 itemId = 0x35;
-                loadedItem = (s32) o50Data330;
+            } else if (racer->item != 0xFF) {
+                itemId = D_8007C180[racer->item];
             } else {
-                if (racer->item != 0xFF) {
-                    itemId = D_8007C180[racer->item];
-                    loadedItem = (s32) o50Data330;
-                } else {
-                    itemId = (s16) o50Data330;
-                    loadedItem = (s32) itemId;
-                }
+                itemId = o50Data330;
             }
-            if (itemId != loadedItem) {
-                if (loadedItem != -1) {
-
-                    freeFrontEndItem(loadedItem);
-                }
-                o50Data330 = (s8) itemId;
-                loadedItem = (s32) o50Data330;
+            if (itemId != o50Data330) {
                 if (o50Data330 != -1) {
-                    loadFrontEndItem((s32) o50Data330);
-                    loadedItem = (s32) o50Data330;
+                    freeFrontEndItem(o50Data330);
+                }
+                o50Data330 = itemId;
+                if (o50Data330 != -1) {
+                    loadFrontEndItem(o50Data330);
                 }
             }
-            if (loadedItem != -1) {
-                if (loadedItem == 0x35) {
+            if (o50Data330 != -1) {
+                if (o50Data330 == 0x35) {
                     itemGlyphs[0].x = 0x8A;
                     itemGlyphs[0].y = 0xF;
                 } else {
@@ -346,7 +302,7 @@ block_16:
                 itemGlyphs[0].glyph = 0;
                 itemGlyphs[0].alternate = 0;
                 itemGlyphs[1].texture = 0;
-                itemGlyphs[0].texture = D_800D31C8[loadedItem];
+                itemGlyphs[0].texture = D_800D31C8[o50Data330];
                 func_8002F618(&D_800D3140, itemGlyphs, 0, 0, 0xFF, 0xFF, 0xFF, D_334);
                 if (o50Data330 != 0x35) {
                     if ((s32) racer->itemCount >= 2) {
@@ -372,11 +328,8 @@ block_16:
                         i += 1;
                         D_21C += (s32) (0x800 - D_21C) >> 3;
                     } while (remainder != i);
-                    if (i != arg1) {
-                        goto block_62;
-                    }
-                } else {
-block_62:
+                }
+                if (i != arg1) {
                     do {
                         i += 4;
                         D_21C += (s32) (0x800 - D_21C) >> 3;
@@ -398,11 +351,8 @@ block_62:
                         i += 1;
                         D_21C += (s32) (0x1820 - D_21C) >> 3;
                     } while (remainder != i);
-                    if (i != arg1) {
-                        goto block_72;
-                    }
-                } else {
-block_72:
+                }
+                if (i != arg1) {
                     do {
                         i += 4;
                         D_21C += (s32) (0x1820 - D_21C) >> 3;
@@ -419,11 +369,10 @@ block_72:
             }
         }
         if (var_v0_3 != 0) {
-            t9 = (s16) D_21C >> 4;
-            D_1CC[0].x = (s16) t9;
-            D_1CC[1].x = (s16) t9;
-            D_1CC[2].x = (s16) t9;
-            D_1CC[3].x = (s16) t9;
+            D_1CC[0].x = (s16) (D_21C >> 4);
+            D_1CC[1].x = (s16) (D_21C >> 4);
+            D_1CC[2].x = (s16) (D_21C >> 4);
+            D_1CC[3].x = (s16) (D_21C >> 4);
             func_8002F618(&D_800D3140, D_1CC, 0, 0, 0xFF, 0xFF, 0xFF, 0xC0);
         }
         if (overlay59Interpolate(0, -0x18, 0xBE, 0x30, 0xBE, &sp10C, &sp108, 1) != 0) {
@@ -433,7 +382,7 @@ block_72:
             }
             overlay59DrawFrame(&D_800D3140, 0, sp10C, sp108);
         }
-        func_80036544((void *) D_800D31C8[0], &D_328, 0x14, &D_800D3550[1].frame, arg1);
+        func_80036544(D_800D31C8[0], &D_328, 0x14, &D_800D3550[1].frame, arg1);
         if (racer->laps < level->laps) {
             remaining = racer->differenceTimer;
             if (remaining >= arg1) {
@@ -453,27 +402,18 @@ block_72:
                             D_C0 += (s32) (0x550 - D_C0) >> 3;
                             D_BC += (s32) (0x830 - D_BC) >> 3;
                         } while (remainder != i);
-                        if (i != arg1) {
-                            goto block_93;
-                        }
-                    } else {
-block_93:
+                    }
+                    if (i != arg1) {
                         do {
                             i += 4;
-                            t9 = D_BC + ((s32) (0x830 - D_BC) >> 3);
-                            D_BC = t9;
-                            t6 = D_C0 + ((s32) (0x550 - D_C0) >> 3);
-                            t7 = t9 + ((s32) (0x830 - t9) >> 3);
-                            D_C0 = t6;
-                            t8 = t6 + ((s32) (0x550 - t6) >> 3);
-                            D_BC = t7;
-                            t9 = t7 + ((s32) (0x830 - t7) >> 3);
-                            D_C0 = t8;
-                            t6 = t8 + ((s32) (0x550 - t8) >> 3);
-                            D_BC = t9;
-                            D_C0 = t6;
-                            D_C0 = t6 + ((s32) (0x550 - t6) >> 3);
-                            D_BC = t9 + ((s32) (0x830 - t9) >> 3);
+                            D_BC += (0x830 - D_BC) >> 3;
+                            D_C0 += (0x550 - D_C0) >> 3;
+                            D_BC += (0x830 - D_BC) >> 3;
+                            D_C0 += (0x550 - D_C0) >> 3;
+                            D_BC += (0x830 - D_BC) >> 3;
+                            D_C0 += (0x550 - D_C0) >> 3;
+                            D_C0 += (0x550 - D_C0) >> 3;
+                            D_BC += (0x830 - D_BC) >> 3;
                         } while (i != arg1);
                     }
                 }
@@ -493,27 +433,18 @@ block_93:
                             D_C0 += (s32) (-0x140 - D_C0) >> 3;
                             D_BC += (s32) (0x1900 - D_BC) >> 3;
                         } while (remainder != i);
-                        if (i != arg1) {
-                            goto block_104;
-                        }
-                    } else {
-block_104:
+                    }
+                    if (i != arg1) {
                         do {
                             i += 4;
-                            t8 = D_BC + ((s32) (0x1900 - D_BC) >> 3);
-                            D_BC = t8;
-                            t9 = D_C0 + ((s32) (-0x140 - D_C0) >> 3);
-                            t6 = t8 + ((s32) (0x1900 - t8) >> 3);
-                            D_C0 = t9;
-                            t7 = t9 + ((s32) (-0x140 - t9) >> 3);
-                            D_BC = t6;
-                            t8 = t6 + ((s32) (0x1900 - t6) >> 3);
-                            D_C0 = t7;
-                            t9 = t7 + ((s32) (-0x140 - t7) >> 3);
-                            D_BC = t8;
-                            D_C0 = t9;
-                            D_C0 = t9 + ((s32) (-0x140 - t9) >> 3);
-                            D_BC = t8 + ((s32) (0x1900 - t8) >> 3);
+                            D_BC += (0x1900 - D_BC) >> 3;
+                            D_C0 += (-0x140 - D_C0) >> 3;
+                            D_BC += (0x1900 - D_BC) >> 3;
+                            D_C0 += (-0x140 - D_C0) >> 3;
+                            D_BC += (0x1900 - D_BC) >> 3;
+                            D_C0 += (-0x140 - D_C0) >> 3;
+                            D_C0 += (-0x140 - D_C0) >> 3;
+                            D_BC += (0x1900 - D_BC) >> 3;
                         } while (i != arg1);
                     }
                 }
@@ -603,7 +534,7 @@ block_104:
                 func_8004B0F8(&D_800D3140, 0x106, 0xBC, o50SpeedText, 0);
             } else {
                 func_8002F618(&D_800D3140, D_6C,  hudX, 0, 0xFF, 0xFF, 0xFF, 0xFF);
-                lapIndex = lapIndex;
+                i = 0;
                 remainder = arg1 & 3;
                 if (racer->speed < 0.0f) {
                     targetAngle = (s32) (16384.0f - (-racer->speed * o50ReverseScale));
@@ -614,27 +545,24 @@ block_104:
                     if (remainder != 0) {
                         do {
 
-                            lapIndex += 1;
+                            i += 1;
                             D_800D3550[0].angle = (s16) (D_800D3550[0].angle + ((s32) (targetAngle - D_800D3550[0].angle) >> 2));
-                        } while (remainder != lapIndex);
-                        if (lapIndex != arg1) {
-                            goto loop_138;
-                        }
-                    } else {
-                        do {
-loop_138:
-
-                            lapIndex += 4;
-                            D_800D3550[0].angle = (s16) (D_800D3550[0].angle + ((s32) (targetAngle - D_800D3550[0].angle) >> 2));
-
-                            D_800D3550[0].angle = (s16) (D_800D3550[0].angle + ((s32) (targetAngle - D_800D3550[0].angle) >> 2));
-
-                            D_800D3550[0].angle = (s16) (D_800D3550[0].angle + ((s32) (targetAngle - D_800D3550[0].angle) >> 2));
-
-                            D_800D3550[0].angle = (s16) (D_800D3550[0].angle + ((s32) (targetAngle - D_800D3550[0].angle) >> 2));
-                        } while (lapIndex != arg1);
+                        } while (remainder != i);
                     }
-                    lapIndex = 0;
+                    if (i != arg1) {
+                        do {
+
+                            i += 4;
+                            D_800D3550[0].angle = (s16) (D_800D3550[0].angle + ((s32) (targetAngle - D_800D3550[0].angle) >> 2));
+
+                            D_800D3550[0].angle = (s16) (D_800D3550[0].angle + ((s32) (targetAngle - D_800D3550[0].angle) >> 2));
+
+                            D_800D3550[0].angle = (s16) (D_800D3550[0].angle + ((s32) (targetAngle - D_800D3550[0].angle) >> 2));
+
+                            D_800D3550[0].angle = (s16) (D_800D3550[0].angle + ((s32) (targetAngle - D_800D3550[0].angle) >> 2));
+                        } while (i != arg1);
+                    }
+                    i = 0;
                 }
 
                 D_800D3550[0].y = -85.0f;
@@ -642,10 +570,13 @@ loop_138:
                 func_80034920(&D_800D3140);
                 D_8007C0BC = 0xFF;
                 func_80039E34(0);
-                lapIndex = lapIndex;
+                i = 0;
                 D_8007C0BC = 0xFF;
             }
         }
+        lapOffsets = D_B0;
+        lapTimes = racer->lapTimes;
+        lapY = 0x3C;
         lapCount = racer->laps;
         if (racer->finished != 0) {
             lapCount += 1;
@@ -657,31 +588,26 @@ loop_138:
                     remainder = arg1 & 3;
                     if (remainder != 0) {
                         do {
-                            t6 = D_B0[lapIndex];
                             i += 1;
-                            D_B0[lapIndex] = t6 + ((s32) -t6 >> 2);
+                            *lapOffsets += (-*lapOffsets) >> 2;
                         } while (remainder != i);
-                        if (i != arg1) {
-                            goto loop_148;
-                        }
-                    } else {
+                    }
+                    if (i != arg1) {
                         do {
-loop_148:
-                            t6 = D_B0[lapIndex];
                             i += 4;
-                            t9 = t6 + ((s32) -t6 >> 2);
-                            t8 = t9 + ((s32) -t9 >> 2);
-                            D_B0[lapIndex] = t9;
-                            t6 = t8 + ((s32) -t8 >> 2);
-                            D_B0[lapIndex] = t8;
-                            D_B0[lapIndex] = t6;
-                            D_B0[lapIndex] = t6 + ((s32) -t6 >> 2);
+                            *lapOffsets += (-*lapOffsets) >> 2;
+                            *lapOffsets += (-*lapOffsets) >> 2;
+                            *lapOffsets += (-*lapOffsets) >> 2;
+                            *lapOffsets += (-*lapOffsets) >> 2;
                         } while (i != arg1);
                     }
                 }
 
-                overlay50SubmitTimeGlyphs(lapIndex + 1, D_B0[lapIndex] + 0xD6, 0x3C + lapIndex * 10, racer->lapTimes[lapIndex]);
+                overlay50SubmitTimeGlyphs(lapIndex + 1, *lapOffsets + 0xD6, lapY, *lapTimes);
                 lapIndex++;
+                lapOffsets++;
+                lapTimes++;
+                lapY += 10;
             } while (lapIndex != lapCount);
         }
         if (lapCount > 0) {
