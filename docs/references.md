@@ -340,3 +340,35 @@ farm that matches the lock is a farm that mines to the same names.
 `tools/reference_build_digest.py` computes it, in stdlib Python off the ELF
 section headers, so it runs wherever a farm is and does not need a MIPS
 cross-toolchain to check one.
+
+## Auditing a Jet Force Gemini advance: count pragmas, not commits
+
+A donor-evidence reopen on 2026-09-08 justified itself by running
+`git log <old>..<new> -- src/<tu>.c` in the JFG checkout and treating a
+non-empty result as "this counterpart advanced". That is wrong, and it
+overstated the evidence for several translation units.
+
+The `c82afff..efd5abb` range in that repository is largely a **symbol rebase**:
+assembly placeholders were renamed from `func_<kioskVram>` to
+`func_<usVram>_<usRom>` with uniform per-file deltas. Every renamed pragma is a
+commit touching the file, so a commit count reports a rename wave as new
+matched work.
+
+Measured properly, by `#pragma GLOBAL_ASM` count at each end plus added C
+definitions, those four files gained nothing at all:
+
+| JFG file | GLOBAL_ASM at c82afff | at efd5abb | real gain |
+|---|---:|---:|---:|
+| `src/fx.c` | 74 | 74 | 0 |
+| `src/particles.c` | 42 | 42 | 0 |
+| `src/shadows.c` | 12 | 12 | 0 |
+| `src/anim.c` | 34 | 34 | 0 |
+
+The files that genuinely gained matched C in that range are `joy.c` and
+`runLink.c` and `subtitles.c` (each from all-assembly to fully matched),
+`weather.c` (3 C bodies to 19), `camera.c` and `level.c` (both to fully
+matched, and both already swept here).
+
+So: audit a donor advance with the pragma count and the added function
+definitions. A commit count is not evidence, and a reopen that cites one is
+citing a rename.
