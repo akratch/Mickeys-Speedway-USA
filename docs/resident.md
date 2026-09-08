@@ -3295,3 +3295,93 @@ stays canonical.
 `func_8005830C`: 758/762 words, 699 positional differences from `+0x0`, frame `0x110`/`0x118`.
 Workbench reports mixed constant/structure/register mismatch; the next lever is constant-audit.
 Its DKR organization/terminology provenance remains recorded at the body; assembly stays canonical.
+
+
+### `func_8003D4FC` structural reconstruction evidence
+
+The configured full-TU baseline reproduces 1,037 raw and relocation-masked
+differing words: 1,066 candidate words against 1,068 target words, an eight-byte
+deficit, frame `0x138`, first mismatch `+0xC`. This is compiled nonexact C;
+the guarded assembly remains canonical. The workbench compare verdict is
+`structure-mismatch`; diagnose routes the mixed residual through
+`constant-audit` before `structure-buckets`. Applicable levers are the
+constant/type audit and removal of duplicated source loops that fight IDO's
+own loop transforms. No flag or permutation search is part of this reopening.
+
+**Tier B, Mickey call and relocation evidence:** the target has fourteen
+`R_MIPS_26` calls and no global-data relocations. They name `func_800349A4`
+three times (initial material setup, batch flush, final flush),
+`func_8002A8BC` and `func_8002A8C0` five times each (two angle pairs for each
+of the first two geometry modes, one pair for the third), and `pointListRPY`
+once (the general rotation loop). The retained candidate has the same ordered
+call identities and count, but none of the call-site offsets match. That is
+call-graph agreement, not exact relocation-tuple agreement. Existing Mickey
+prototypes supply signed sixteen-bit angles, float returns, and the
+three-component input/output contract for `pointListRPY`.
+
+**Tier D, Mickey load/store and control-flow evidence:** the entry stride is
+`0x78`; the signed type discriminator is at `0x2C`, the signed alpha word at
+`0x64`, and the three colors and intensity are unsigned bytes. Batch alpha is
+a separate signed sixteen-bit local holding the masked high byte; vertex
+alpha is the signed shift result whose low byte is stored. The render-texture
+selector is an unsigned halfword at offset six, distinct from the existing
+`ParticleTexture.flags` field at offset four. The general rotation input is
+one contiguous three-float vector, not independent address-taken scalars.
+
+The draft and direct assembly review expose two retained-C correctness gaps:
+a flush must revisit the first live entry instead of consuming it, and the
+closing pipe sync belongs inside the nonempty-entry path. The entry count is
+reloaded after calls, whereas point and primitive counts are captured before
+initial material setup. These are structural reconstruction inputs, not
+allocator-only experiments.
+
+The fresh masked-skeleton oracle identifies JFG's existing placeholder sibling
+as nearest (4,956 bytes versus Mickey's 4,272); no new donor material or name
+was adopted. The generated m2c draft and scoped context stay ignored. The
+all-header context failed on unrelated incomplete types; a particle-only
+context generated successfully without changing project headers.
+
+The authorized reconstruction finished at attempt 18 with **995 of 1,068
+positional words exact**, 73 raw and relocation-masked differing words,
+first mismatch `+0x2D0`, exact 4,272-byte extent, exact frame `0x138`, and
+all fourteen offset/type/identity relocation tuples exact. Workbench `view`
+reports `register-permutation`: zero structural, schedule, or constant
+differences, with a consistent exchange of two integer temporary registers.
+This remains compiled `NON_MATCHING` C, with no new matching-byte credit.
+
+The meaningful reconstruction steps were separate batch/vertex alpha and a
+real three-float vector; flush-versus-consume control flow and post-call
+count reloads; equality-terminated point loops whose peeling and pipelining
+belong to IDO; direct signed-point conversions and the observed rotation
+expression trees; native GBI command scopes and DMA fields; local declaration
+layout recovered from observed stack homes; promoted texture-selector values;
+and batch initialization plus material-cache argument lifetimes. No artificial
+padding, inert local, flag lattice, permuter, allocator trace, or object edit
+was used. The retained source was rewritten in project idiom; the generated
+draft was not adopted verbatim.
+
+The baseline and all eighteen material attempts retain source, configured
+full-TU object, full comparison report, concise metrics, relocation surface,
+and rationale under ignored `build/wb/t2-3/attempt-*`. Attempt 7 first aligned
+all fourteen relocations; attempt 11 restored exact size and frame; attempt 12
+closed every stack offset; attempt 18 closed the remaining source schedule.
+The narrowed/intermediate alpha experiments and the sizeof-based DMA length
+regressed and are preserved as rejected evidence. Explicit cache assignments
+inside the material-call arguments reproduced the target's update schedule.
+
+**Stopping evidence:** this is a mechanism-scope handoff, not an attempt-cap
+or five-attempt-stall claim. The last attempt still improved the result, but
+it completed the authorized structural reconstruction and isolated a pure
+register exchange. Continuing into allocator or permutation work would replace
+the assignment's explicitly exclusive mechanism. The next concrete lever is
+a separately authorized `register-role-audit` of the first vertex-DMA command's
+integer temporary roles and expression evaluation order. Preserve the proven
+frame, field types, CFG, and all fourteen relocation tuples while investigating
+that residual; do not repeat the closed reconstruction or rejected type forms.
+
+Validation of this guarded result: the fresh configured full-TU comparison
+reproduced the attempt-18 metrics after source cleanup. `gmake verify` rebuilt
+the canonical tree and reproduced the expected US ROM SHA1. That ROM equality
+proves the assembly fallback and unchanged matched neighbors; it does not
+promote this nonexact candidate. The target's owned range remains resident
+ROM `0x3E0FC` through `0x3F1AC`, with no function padding credited.

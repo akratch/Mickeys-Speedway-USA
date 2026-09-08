@@ -36,7 +36,8 @@ void func_80023A08(Gfx **dList, s32 renderContext, void **vertices, CircularPart
 void func_80034DF0(u8 red, u8 green, u8 blue, u8 alternateRed, u8 alternateGreen, u8 alternateBlue);
 void func_80034E48(void);
 void func_800349A4(Gfx **dList, void *texture, s32 mode, s32 flags);
-void func_8003D4FC(void **dList, void **vertices, void *pool);
+struct ParticleRenderGroup;
+void func_8003D4FC(void **dList, void **vertices, struct ParticleRenderGroup *group);
 f32 func_8002A8BC(s16 angle);
 f32 func_8002A8C0(s16 angle);
 s32 func_8003CE10(Gfx **dList, s32 arg1, void **vertices, CircularParticlePool *pool, s32 mode);
@@ -453,139 +454,123 @@ typedef struct ParticleRenderGroup {
  * Mickey's descriptor fields, globals, thresholds, and call sequence remain
  * authoritative for this reconstruction.
  */
-/* Workbench: structure-mismatch, 1037 differing words, first mismatch +0xC. */
-/* Structural gap: target 1068 instructions/frame -0x138 versus candidate 1066/-0x138; the grouping CFG and relocation schedule remain unresolved. */
-/* Not shape-exact or permuter-ready; rotated-point generation and display-list grouping are represented. */
+/* Reconstructed from Mickey's call, field, and control-flow evidence.
+ * Configured full-TU C: 995/1068 words exact, frame 0x138, all 14 relocation
+ * tuples exact. Opcode schedule, stack homes, and rotation expressions agree;
+ * 73 register-only words retain a t1/t2 exchange beginning at +0x2D0.
+ * Native GBI scopes account for the frame without artificial padding. IDO
+ * owns the peeled point loops. See the resident reconstruction evidence. */
 #ifdef NON_MATCHING
-void func_8003D4FC(void **dListArg, void **verticesArg, void *poolArg) {
-    ParticleRenderGroup *group;
-    ParticleRenderDescriptor *entry;
-    ParticleRenderDescriptor *entries;
-    Gfx *displayList;
-    Gfx *command;
-    ParticleVertex *vertices;
-    ParticleVertex *vertexStart;
-    s16 *points;
-    s32 index;
-    s32 count;
-    s32 pointCount;
-    s32 updateRate;
+void func_8003D4FC(void **dListArg, void **verticesArg, ParticleRenderGroup *group) {
     s32 vertexCount;
     s32 primitiveCount;
-    s32 colorAlpha;
+    s32 index;
+    s32 scanIndex;
+    s32 emitted;
     s32 red;
     s32 green;
     s32 blue;
-    s32 material;
-    s32 vertexAddress;
-    s16 xInput;
-    s16 yInput;
-    s32 emitted;
-    f32 scale;
-    f32 previousScale;
-    f32 sine0;
-    f32 cosine0;
-    f32 sine1;
-    f32 cosine1;
+    s32 vertexAlpha;
+    s32 pointCount;
+    s32 updateRate;
     f32 xScaled;
     f32 yScaled;
-    f32 rotatedX;
-    f32 rotatedY;
     f32 rotatedZ;
-    f32 pointX;
-    f32 pointY;
-    f32 pointZ;
+    f32 sine1;
+    f32 cosine1;
+    f32 sine0;
+    f32 point[3];
+    f32 cosine0;
+    f32 scale;
+    s32 vertexAddress;
+    s32 textureType;
+    f32 previousScale;
+    ParticleRenderDescriptor *entry;
+    ParticleVertex *vertices;
+    s16 colorAlpha;
+    s16 currentAlpha;
+    Gfx *displayList;
     void *texture;
     void *previousTexture;
-    s16 currentAlpha;
-    u16 textureType;
-    volatile s32 framePad[6];
+    ParticleVertex *vertexStart;
+    s32 material;
+    s16 *points;
 
-    group = (ParticleRenderGroup *)poolArg;
     currentAlpha = 0xFF;
     previousTexture = NULL;
     previousScale = 0.0f;
     if ((group != NULL) && (group->active != 0)) {
-        index = 0;
+        scanIndex = 0;
         displayList = (Gfx *)*dListArg;
         vertices = (ParticleVertex *)*verticesArg;
-        entries = group->entries;
-        count = group->entryCount;
-        while ((index < count) && (entries->type == 0x80)) {
-            index++;
-            entries++;
+        entry = group->entries;
+        while ((scanIndex < group->entryCount) && (entry->type == 0x80)) {
+            scanIndex++;
+            entry++;
         }
 
         updateRate = group->updateRate;
         pointCount = group->pointCount;
         func_800349A4(&displayList, NULL, 0x12, 0);
-        command = displayList++;
-        command->words.w1 = -1;
-        command->words.w0 = 0xFA000000;
         material = group->materialDefault;
+        gDPSetPrimColor(displayList++, 0, 0, 255, 255, 255, 255);
 
-        if (index < count) {
-            entry = entries;
+        if (scanIndex < group->entryCount) {
+            index = scanIndex;
             texture = entry->texture;
             scale = entry->textureScale;
+            colorAlpha = (entry->alphaWord >> 8) & 0xFF;
             vertexStart = vertices;
-            colorAlpha = ((s16)entry->alphaWord >> 8) & 0xFF;
             vertexCount = 0;
             primitiveCount = 0;
-            do {
+            while (index < group->entryCount) {
                 if ((entry->type == 0x80) || (texture != entry->texture) ||
-                    (vertexCount + pointCount >= 0x18) ||
                     (scale != entry->textureScale) ||
-                    (colorAlpha != (((s16)entry->alphaWord >> 8) & 0xFF))) {
+                    (vertexCount + pointCount >= 0x18) ||
+                    (colorAlpha != ((entry->alphaWord >> 8) & 0xFF))) {
                     vertexAddress = (s32)vertexStart + 0x80000000;
                     if (colorAlpha != currentAlpha) {
-                        command = displayList++;
-                        command->words.w1 = 0;
-                        command->words.w0 = 0xE7000000;
-                        command = displayList++;
-                        command->words.w0 = 0xFA000000;
-                        command->words.w1 = (colorAlpha & 0xFF) | ~0xFF;
+                        gDPPipeSync(displayList++);
+                        gDPSetPrimColor(displayList++, 0, 0, 255, 255, 255, colorAlpha);
                         currentAlpha = colorAlpha;
                     }
                     if ((texture != previousTexture) || (scale != previousScale)) {
-                        previousScale = scale;
-                        previousTexture = texture;
-                        func_800349A4(&displayList, texture, 0x12,
-                                      (s32)(scale * 65536.0f));
+                        func_800349A4(&displayList, previousTexture = texture, 0x12,
+                                      (s32)((previousScale = scale) * 65536.0f));
                     }
                     if (texture != NULL) {
                         textureType = *(u16 *)((u8 *)texture + 6);
-                        if (textureType == 0x20) {
-                            material = group->materialOpaque;
-                        } else if (textureType == 0x40) {
-                            material = group->materialDefault;
+                        if (textureType != 0x20) {
+                            if (textureType != 0x40) {
+                                material = group->materialTranslucent;
+                            } else {
+                                material = group->materialDefault;
+                            }
                         } else {
-                            material = group->materialTranslucent;
+                            material = group->materialOpaque;
                         }
                     }
-                    command = displayList++;
-                    command->words.w0 = (((vertexCount * 8 | (vertexAddress & 6)) & 0xFF) << 16) |
-                                         0x04000000 | (((vertexCount * 10) + 8) & 0xFFFF);
-                    command->words.w1 = vertexAddress;
-                    command = displayList++;
-                    command->words.w0 = (((((primitiveCount - 1) * 0x10) | 1) & 0xFF) << 16) |
-                                         0x05000000 | ((primitiveCount * 0x10) & 0xFFFF);
-                    command->words.w1 = material + 0x80000000;
+                    gDma1p(displayList++, 4, vertexAddress,
+                            (vertexCount << 3) + (vertexCount << 1) + 8,
+                            (vertexCount << 3) | (vertexAddress & 6));
+                    gDma1p(displayList++, 5, material + 0x80000000,
+                            primitiveCount << 4, ((primitiveCount - 1) << 4) | 1);
                     vertexCount = 0;
                     primitiveCount = 0;
-                    while ((index < count) && (entry->type == 0x80)) {
+                    while ((index < group->entryCount) && (entry->type == 0x80)) {
                         index++;
                         entry++;
                     }
-                    if (index < count) {
+                    if (index < group->entryCount) {
                         texture = entry->texture;
                         scale = entry->textureScale;
+                        colorAlpha = (entry->alphaWord >> 8) & 0xFF;
                         vertexStart = vertices;
-                        colorAlpha = ((s16)entry->alphaWord >> 8) & 0xFF;
                     }
                 } else {
                     s32 geometryFlags;
 
+                    emitted = 0;
                     points = group->points;
                     if (entry->flags & 0x800) {
                         red = (entry->red * entry->intensity) >> 8;
@@ -596,217 +581,104 @@ void func_8003D4FC(void **dListArg, void **verticesArg, void *poolArg) {
                         green = entry->green;
                         blue = entry->blue;
                     }
-                    colorAlpha = ((s16)entry->alphaWord >> 8);
+                    vertexCount += pointCount;
                     geometryFlags = entry->geometryFlags;
+                    vertexAlpha = entry->alphaWord >> 8;
                     if (geometryFlags & 1) {
                         sine1 = func_8002A8BC(entry->rotation2);
                         cosine1 = func_8002A8C0(entry->rotation2);
                         sine0 = func_8002A8BC(entry->rotation0);
                         cosine0 = func_8002A8C0(entry->rotation0);
-                        emitted = 0;
                         if (pointCount > 0) {
-                            if (pointCount & 1) {
-                                xInput = points[0];
-                                yInput = points[1];
+                            do {
+                                xScaled = (f32)points[0] * entry->scale;
+                                yScaled = (f32)points[1] * entry->scale;
                                 points += 2;
-                                xScaled = (f32)xInput * entry->scale;
-                                yScaled = (f32)yInput * entry->scale;
-                                rotatedX = xScaled * sine0;
-                                rotatedY = yScaled * sine1;
                                 rotatedZ = -xScaled * cosine0;
-                                vertices->x = (s16)(s32)((rotatedX * sine1) - (yScaled * cosine1) + entry->x);
-                                vertices->y = (s16)(s32)((yScaled * sine1) + (rotatedX * cosine1) + entry->y);
-                                vertices->z = (s16)(s32)(rotatedZ + entry->z);
+                                xScaled *= sine0;
+                                vertices->x = (s16)(s32)((xScaled * sine1) - (yScaled * cosine1) + entry->x);
+                                vertices->y = (s16)(s32)((yScaled * sine1) + (xScaled * cosine1) + entry->y);
+                                vertices->z = (s16)(s32)(entry->z + rotatedZ);
                                 vertices->red = red;
                                 vertices->green = green;
                                 vertices->blue = blue;
-                                vertices->alpha = colorAlpha;
+                                vertices->alpha = vertexAlpha;
                                 vertices++;
-                                emitted = 1;
-                            }
-                            while (emitted < pointCount) {
-                                xInput = points[0];
-                                yInput = points[1];
-                                points += 2;
-                                xScaled = (f32)xInput * entry->scale;
-                                yScaled = (f32)yInput * entry->scale;
-                                rotatedX = xScaled * sine0;
-                                rotatedY = yScaled * sine1;
-                                rotatedZ = -xScaled * cosine0;
-                                vertices->x = (s16)(s32)((rotatedX * sine1) - (yScaled * cosine1) + entry->x);
-                                vertices->y = (s16)(s32)((yScaled * sine1) + (rotatedX * cosine1) + entry->y);
-                                vertices->z = (s16)(s32)(rotatedZ + entry->z);
-                                vertices->red = red;
-                                vertices->green = green;
-                                vertices->blue = blue;
-                                vertices->alpha = colorAlpha;
-                                vertices++;
-
-                                xInput = points[0];
-                                yInput = points[1];
-                                points += 2;
-                                xScaled = (f32)xInput * entry->scale;
-                                yScaled = (f32)yInput * entry->scale;
-                                rotatedX = xScaled * sine0;
-                                rotatedY = yScaled * sine1;
-                                rotatedZ = -xScaled * cosine0;
-                                vertices->x = (s16)(s32)((rotatedX * sine1) - (yScaled * cosine1) + entry->x);
-                                vertices->y = (s16)(s32)((yScaled * sine1) + (rotatedX * cosine1) + entry->y);
-                                vertices->z = (s16)(s32)(rotatedZ + entry->z);
-                                vertices->red = red;
-                                vertices->green = green;
-                                vertices->blue = blue;
-                                vertices->alpha = colorAlpha;
-                                vertices++;
-                                emitted += 2;
-                            }
+                                emitted++;
+                            } while (emitted != pointCount);
                         }
                     } else if (geometryFlags & 2) {
                         sine1 = func_8002A8BC(entry->rotation1);
                         cosine1 = func_8002A8C0(entry->rotation1);
                         sine0 = func_8002A8BC(entry->rotation0);
                         cosine0 = func_8002A8C0(entry->rotation0);
-                        emitted = 0;
                         if (pointCount > 0) {
-                            if (pointCount & 1) {
-                                xInput = points[0];
-                                yInput = points[1];
+                            do {
+                                xScaled = (f32)points[0] * entry->scale;
+                                yScaled = (f32)points[1] * entry->scale;
                                 points += 2;
-                                xScaled = (f32)xInput * entry->scale;
-                                yScaled = (f32)yInput * entry->scale;
-                                rotatedX = -xScaled * cosine0;
-                                vertices->x = (s16)(s32)((xScaled * sine0) + entry->x);
-                                vertices->y = (s16)(s32)((yScaled * sine1) - (rotatedX * cosine1) + entry->y);
-                                vertices->z = (s16)(s32)((rotatedX * sine1) + (yScaled * cosine1) + entry->z);
+                                rotatedZ = -xScaled * cosine0;
+                                xScaled *= sine0;
+                                vertices->x = (s16)(s32)(entry->x + xScaled);
+                                vertices->y = (s16)(s32)((yScaled * sine1) - (rotatedZ * cosine1) + entry->y);
+                                vertices->z = (s16)(s32)((rotatedZ * sine1) + (yScaled * cosine1) + entry->z);
                                 vertices->red = red;
                                 vertices->green = green;
                                 vertices->blue = blue;
-                                vertices->alpha = colorAlpha;
+                                vertices->alpha = vertexAlpha;
                                 vertices++;
-                                emitted = 1;
-                            }
-                            while (emitted < pointCount) {
-                                xInput = points[0];
-                                yInput = points[1];
-                                points += 2;
-                                xScaled = (f32)xInput * entry->scale;
-                                yScaled = (f32)yInput * entry->scale;
-                                rotatedX = -xScaled * cosine0;
-                                vertices->x = (s16)(s32)((xScaled * sine0) + entry->x);
-                                vertices->y = (s16)(s32)((yScaled * sine1) - (rotatedX * cosine1) + entry->y);
-                                vertices->z = (s16)(s32)((rotatedX * sine1) + (yScaled * cosine1) + entry->z);
-                                vertices->red = red;
-                                vertices->green = green;
-                                vertices->blue = blue;
-                                vertices->alpha = colorAlpha;
-                                vertices++;
-
-                                xInput = points[0];
-                                yInput = points[1];
-                                points += 2;
-                                xScaled = (f32)xInput * entry->scale;
-                                yScaled = (f32)yInput * entry->scale;
-                                rotatedX = -xScaled * cosine0;
-                                vertices->x = (s16)(s32)((xScaled * sine0) + entry->x);
-                                vertices->y = (s16)(s32)((yScaled * sine1) - (rotatedX * cosine1) + entry->y);
-                                vertices->z = (s16)(s32)((rotatedX * sine1) + (yScaled * cosine1) + entry->z);
-                                vertices->red = red;
-                                vertices->green = green;
-                                vertices->blue = blue;
-                                vertices->alpha = colorAlpha;
-                                vertices++;
-                                emitted += 2;
-                            }
+                                emitted++;
+                            } while (emitted != pointCount);
                         }
                     } else if (geometryFlags & 4) {
-                        sine0 = func_8002A8BC(entry->rotation0);
-                        cosine0 = func_8002A8C0(entry->rotation0);
-                        emitted = 0;
+                        sine1 = func_8002A8BC(entry->rotation0);
+                        cosine1 = func_8002A8C0(entry->rotation0);
                         if (pointCount > 0) {
-                            if (pointCount & 1) {
-                                xInput = points[0];
-                                yInput = points[1];
+                            do {
+                                xScaled = (f32)points[0] * entry->scale;
                                 points += 2;
-                                xScaled = (f32)xInput * entry->scale;
-                                yScaled = (f32)yInput * entry->scale;
-                                vertices->x = (s16)(s32)((xScaled * sine0) + entry->x);
-                                vertices->y = (s16)(s32)(yScaled + entry->y);
-                                vertices->z = (s16)(s32)((-xScaled * cosine0) + entry->z);
+                                vertices->x = (s16)(s32)((xScaled * sine1) + entry->x);
+                                vertices->y = (s16)(s32)((f32)points[-1] * entry->scale + entry->y);
+                                vertices->z = (s16)(s32)((-xScaled * cosine1) + entry->z);
                                 vertices->red = red;
                                 vertices->green = green;
                                 vertices->blue = blue;
-                                vertices->alpha = colorAlpha;
+                                vertices->alpha = vertexAlpha;
                                 vertices++;
-                                emitted = 1;
-                            }
-                            while (emitted < pointCount) {
-                                xInput = points[0];
-                                yInput = points[1];
-                                points += 2;
-                                xScaled = (f32)xInput * entry->scale;
-                                yScaled = (f32)yInput * entry->scale;
-                                vertices->x = (s16)(s32)((xScaled * sine0) + entry->x);
-                                vertices->y = (s16)(s32)(yScaled + entry->y);
-                                vertices->z = (s16)(s32)((-xScaled * cosine0) + entry->z);
-                                vertices->red = red;
-                                vertices->green = green;
-                                vertices->blue = blue;
-                                vertices->alpha = colorAlpha;
-                                vertices++;
-
-                                xInput = points[0];
-                                yInput = points[1];
-                                points += 2;
-                                xScaled = (f32)xInput * entry->scale;
-                                yScaled = (f32)yInput * entry->scale;
-                                vertices->x = (s16)(s32)((xScaled * sine0) + entry->x);
-                                vertices->y = (s16)(s32)(yScaled + entry->y);
-                                vertices->z = (s16)(s32)((-xScaled * cosine0) + entry->z);
-                                vertices->red = red;
-                                vertices->green = green;
-                                vertices->blue = blue;
-                                vertices->alpha = colorAlpha;
-                                vertices++;
-                                emitted += 2;
-                            }
+                                emitted++;
+                            } while (emitted != pointCount);
                         }
                     } else {
-                        emitted = 0;
-                        while (emitted < pointCount) {
-                            pointX = (f32)points[0] * entry->scale;
-                            points += 2;
-                            pointY = (f32)points[-1] * entry->scale;
-                            pointZ = 0.0f;
-                            pointListRPY(1, (s16 *)entry, &pointX, &pointX);
-                            vertices->x = (s16)(s32)(pointX + entry->x);
-                            vertices->y = (s16)(s32)(pointY + entry->y);
-                            vertices->z = (s16)(s32)(pointZ + entry->z);
-                            vertices->red = red;
-                            vertices->green = green;
-                            vertices->blue = blue;
-                            vertices->alpha = colorAlpha;
-                            vertices++;
-                            emitted++;
+                        if (pointCount > 0) {
+                            do {
+                                point[0] = (f32)points[0] * entry->scale;
+                                points += 2;
+                                point[1] = (f32)points[-1] * entry->scale;
+                                point[2] = 0.0f;
+                                pointListRPY(1, (s16 *)entry, &point[0], &point[0]);
+                                vertices->x = (s16)(s32)(point[0] + entry->x);
+                                vertices->y = (s16)(s32)(point[1] + entry->y);
+                                vertices->z = (s16)(s32)(point[2] + entry->z);
+                                vertices->red = red;
+                                vertices->green = green;
+                                vertices->blue = blue;
+                                vertices->alpha = vertexAlpha;
+                                vertices++;
+                                emitted++;
+                            } while (emitted != pointCount);
                         }
                     }
-                    vertexCount += pointCount;
+                    entry++;
+                    index++;
                     primitiveCount += updateRate;
                 }
-                if (entry->type != 0x80 || (index >= count)) {
-                    index++;
-                    entry++;
-                }
-            } while (index < count);
+            }
 
             if (primitiveCount != 0) {
                 vertexAddress = (s32)vertexStart + 0x80000000;
                 if (colorAlpha != currentAlpha) {
-                    command = displayList++;
-                    command->words.w1 = 0;
-                    command->words.w0 = 0xE7000000;
-                    command = displayList++;
-                    command->words.w0 = 0xFA000000;
-                    command->words.w1 = (colorAlpha & 0xFF) | ~0xFF;
+                    gDPPipeSync(displayList++);
+                    gDPSetPrimColor(displayList++, 0, 0, 255, 255, 255, colorAlpha);
                 }
                 if ((texture != previousTexture) || (scale != previousScale)) {
                     func_800349A4(&displayList, texture, 0x12,
@@ -814,27 +686,24 @@ void func_8003D4FC(void **dListArg, void **verticesArg, void *poolArg) {
                 }
                 if (texture != NULL) {
                     textureType = *(u16 *)((u8 *)texture + 6);
-                    if (textureType == 0x20) {
-                        material = group->materialOpaque;
-                    } else if (textureType == 0x40) {
-                        material = group->materialDefault;
+                    if (textureType != 0x20) {
+                        if (textureType != 0x40) {
+                            material = group->materialTranslucent;
+                        } else {
+                            material = group->materialDefault;
+                        }
                     } else {
-                        material = group->materialTranslucent;
+                        material = group->materialOpaque;
                     }
                 }
-                command = displayList++;
-                command->words.w0 = (((vertexCount * 8 | (vertexAddress & 6)) & 0xFF) << 16) |
-                                     0x04000000 | (((vertexCount * 10) + 8) & 0xFFFF);
-                command->words.w1 = vertexAddress;
-                command = displayList++;
-                command->words.w0 = (((((primitiveCount - 1) * 0x10) | 1) & 0xFF) << 16) |
-                                     0x05000000 | ((primitiveCount * 0x10) & 0xFFFF);
-                command->words.w1 = material + 0x80000000;
+                gDma1p(displayList++, 4, vertexAddress,
+                        (vertexCount << 3) + (vertexCount << 1) + 8,
+                        (vertexCount << 3) | (vertexAddress & 6));
+                gDma1p(displayList++, 5, material + 0x80000000,
+                        primitiveCount << 4, ((primitiveCount - 1) << 4) | 1);
             }
+            gDPPipeSync(displayList++);
         }
-        command = displayList++;
-        command->words.w1 = 0;
-        command->words.w0 = 0xE7000000;
         *dListArg = displayList;
         *verticesArg = vertices;
     }
@@ -2783,10 +2652,10 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
 
 /* PLATEAU-HANDOFF:func_8003D4FC:start
  * symbol: func_8003D4FC
- * score: 1037 differing words
+ * score: 73 differing words
  * frame: 0x138
  * relocations: 14
- * first-mismatch: +0xC
- * summary: Frame and relocation count are exact; two instruction words and the grouping CFG remain unresolved.
+ * first-mismatch: +0x2D0
+ * summary: 995/1068 words; structure and all tuples exact. Scope stop at t1/t2 exchange; next is separately authorized register-role-audit.
  * PLATEAU-HANDOFF:func_8003D4FC:end
  */
