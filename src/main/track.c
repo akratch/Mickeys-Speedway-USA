@@ -3658,7 +3658,7 @@ s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
                   TrackRayPoint *offset, f32 scale, f32 planeOffset,
                   f32 threshold, TrackRayHit *hit) {
     TrackRayNodeExtended *node;
-    TrackRayNodeExtended *entry;
+    u16 *entry;
     TrackRayFace *face;
     TrackRayFace *edgeFace;
     f32 planeX;
@@ -3673,7 +3673,7 @@ s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
     f32 pointZ;
     f32 edgeValue;
     f32 adjustedOffset;
-    u8 *edgeEntry;
+    u16 *edgeEntry;
     s32 encoded;
     s32 entryOffset;
     s32 segmentIndex;
@@ -3693,9 +3693,9 @@ s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
             if (encoded > 0) {
                 node = (TrackRayNodeExtended *) (encoded | (s32) 0x80000000);
             } else {
-                entry = (TrackRayNodeExtended *) encoded;
+                entry = (u16 *) encoded;
                 face = (TrackRayFace *) ((u8 *) node->planes +
-                                         (*(u16 *) entry * 0x10));
+                                         (*entry * 0x10));
                 planeX = face->x;
                 planeY = face->y;
                 planeZ = face->z;
@@ -3713,7 +3713,7 @@ s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
                         if (ratio <= hit->ratio) {
                             edgeOffset = 0;
                             edgeValid = 1;
-                            edgeEntry = (u8 *) entry + edgeOffset;
+                            edgeEntry = (u16 *) ((u8 *) entry + edgeOffset);
                             pointX = ((offset->x * ratio) + start->x) -
                                      (planeOffset * planeX);
                             pointY = ((offset->y * ratio) + start->y) -
@@ -3721,7 +3721,7 @@ s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
                             pointZ = ((offset->z * ratio) + start->z) -
                                      (planeOffset * planeZ);
                             do {
-                                edge = *(u16 *) (edgeEntry + 2);
+                                edge = edgeEntry[1];
                                 edgeOffset += 2;
                                 sign = edge & 0x8000;
                                 edgeIndex = edge ^ sign;
@@ -3737,7 +3737,7 @@ s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
                                 if (threshold < edgeValue) {
                                     edgeValid = 0;
                                 }
-                                edgeEntry += 2;
+                                edgeEntry++;
                             } while ((edgeOffset < 6) && (edgeValid != 0));
                             if (edgeValid != 0) {
                                 hit->normalX = planeX;
@@ -5719,7 +5719,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0xe0
  * relocations: 12
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Halfword record types preserve candidate bytes; 211 differences remain after five m2c forms. Next: source-attributed FP home evidence.
  * PLATEAU-HANDOFF:func_80011980:end
  */
 
