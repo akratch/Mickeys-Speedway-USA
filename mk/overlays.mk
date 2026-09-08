@@ -110,7 +110,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/func_overlay_007_F0000324_185C1AC.c.o: CFL
 # records are already owned by overlay 7's shipped runtime relocation table,
 # so retain their exact zero-base addends without static-link adjustment.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007_tail.c.o: \
-	$(TOOLS_DIR)/filter_elf_relocations.py
+	$(TOOLS_DIR)/filter_elf_relocations.py \
+	$(TOOLS_DIR)/rebind_elf_relocations.py \
+	$(TOOLS_DIR)/externalize_elf_section.py \
+	config/normalizations/overlay7DispatchModes.rebind.spec
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007_tail.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
 		--redefine-sym func_overlay_007_F0000894_185C71C=overlay7DispatchModes \
@@ -119,7 +122,10 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007_tail.c.o: POSTPROCESS = \
 		--redefine-sym func_overlay_007_F0000DBC_185CC44=overlay7CommitSelection \
 		--redefine-sym amSndPlay=amSndPlay_o007Reloc \
 		--redefine-sym func_800031E8=func_800031E8_o007Reloc \
-		--redefine-sym mathRnd=mathRnd_o007Reloc $@ && \
+		--redefine-sym mathRnd=mathRnd_o007Reloc \
+		--add-symbol gOverlay7ModeSwitchTableReloc=0x4,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		@config/normalizations/overlay7DispatchModes.rebind.spec && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .text \
 		0x618:5:.bss 0x620:6:.bss \
 		0x678:5:.bss 0x680:6:.bss \
@@ -127,6 +133,9 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o007/overlay_007_tail.c.o: POSTPROCESS = \
 		0x708:5:.bss 0x70c:6:.bss \
 		0x710:5:.bss 0x714:6:.bss \
 		0x718:5:.bss 0x720:6:.bss && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
+		sha256:1cd7d0d68f99c402f2e0618199e1d010a1e31ab4b0cf0346275aef9c7c86d829 && \
+	$(OBJCOPY) --remove-section=.rel.rodata $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x724
 # Overlay 1 has three C islands separated by owned assembly.  Mixed
 # -Wo,-loopunroll,4 / -Wab,-r4300_mul flag groups require five further

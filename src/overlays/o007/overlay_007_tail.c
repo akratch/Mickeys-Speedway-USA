@@ -15,29 +15,11 @@ typedef struct Overlay7SelectionRow {
 
 /* Overlay 7, ADR 0006 consolidation: C after the middle assembly island. */
 
-/* Bounded reproof 2026-08-29: the identity-correct masked spelling is 128/131
- * raw and 129/131 after runtime relocation normalization, with exact 0x20C
- * size, 0x20 frame, and first substantive mismatch +0x44. The two residual
- * sites at +0x44/+0x64 are one t4-versus-target-t3 flags carrier; the raw
- * +0xA4 switch-table LO16 addend normalizes away. Runtime metadata proves all
- * 23 text plus seven table offsets, types, and identities, including mathRnd
- * at +0x124/+0x1BC. Clean unmasked V0 regressed to 121/131. All 119 flag rows
- * were nonexact; a proc-0 trace found every uopt pool assignment exact and the
- * temp FIFO diverging only at slot 4. Two natural scalar/scope forms regressed
- * to 112/131 and shifted a relocation. ORT 1471 and all six callers are
- * authenticated. The TU's +0x934..+0x950 rodata ownership clears module
- * growth; the function owns +0x894..+0xAA0 with no padding. The fallback
- * remains canonical; retry only after a new natural temp-FIFO phase/reuse
- * spelling, not more flags, explicit carriers, or a generic batch. */
-#ifdef NON_MATCHING
-/* PLATEAU-HANDOFF
- * symbol: overlay7DispatchModes
- * score: 129/131 words
- * frame: 0x20
- * relocations: 30
- * first-mismatch: +0x44
- * summary: One flags-carrier temp uses t4 instead of target t3 at two sites; 119 flags and two trace-selected scalar/scope forms are exhausted.
- */
+/* Matching reproof 2026-09-08: extracting the unsigned flags sign bit through
+ * the right shift below restores the target temp-FIFO phase. Untouched IDO
+ * output owns all 0x20C bytes with the exact 0x20 frame and all 23 text plus
+ * seven switch-table runtime relocations. The linked owned range and full ROM
+ * are byte-identical. */
 void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) {
     Overlay7ModeState *firstState;
     Overlay7ModeState *secondState;
@@ -50,7 +32,7 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
                                         : gOverlay7PrimaryModes;
     record = &modes[firstState->index][secondState->index];
 
-    if ((s32)((gOverlay7DispatchFlagsReloc & 0x3FF) << 22) < 0) {
+    if ((gOverlay7DispatchFlagsReloc << 22) >> 31) {
         secondState->timer = 100;
         secondState->height += 5.0f;
         switch (record->mode) {
@@ -89,9 +71,6 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000894_185C71C.s")
-#endif
 
 /* Bounded reproof 2026-08-30: configured full-TU C remains exact-sized at
  * 139 words with the exact 0x30 frame and opcode schedule, but 81 register

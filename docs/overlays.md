@@ -2043,3 +2043,22 @@ externalized. Every retained instruction byte is untouched; only the TU's
 12 trailing zero alignment bytes are trimmed. There is no function-owned
 padding or new table credit. Both neighboring boundaries, the complete
 overlay, and full ROM remain byte-identical.
+
+`overlay 7 +0x0894..+0x0AA0` (`overlay7DispatchModes`) contributes **524 exact
+C bytes / 131 words**. Extracting the unsigned flags sign bit through a left
+shift followed by a right shift preserves the retail branch schedule and
+restores IDO's target temporary allocation. The configured object has the
+exact `0x20` frame and 23 text relocations; the unchanged runtime table and
+linked ROM prove every effective identity, including two calls to resident
+`mathRnd`, nine local calls to `overlay7CreateEntry`, four local calls to
+`overlay7AppendEntry`, the two mode arrays, the resident flags word, and the
+retained switch table.
+
+The seven-entry switch table remains in initialized data at module `+0x18F4`
+with stored LOCAL addend `+4`. Two existing compiler relocations bind to that
+addend by symbol index only. The compiler-private 32-byte table section is
+externalized behind an exact payload digest; no instruction field is edited
+and the retained table receives no new code credit. ORT 1471 and five resident
+calls plus Overlay 25 table-1 record 15 authenticate all six inbounds. The
+owned range has no padding; it, the complete overlay, and the full ROM are
+byte-identical.
