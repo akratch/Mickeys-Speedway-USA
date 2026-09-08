@@ -2417,18 +2417,18 @@ void func_8004AF68(void) {
  * score: 60 differing words
  * frame: 0x48
  * relocations: 6
- * first-mismatch: +0x68
- * summary: Declaration order fixed the flag stack home; one address-base instruction and register coloring remain after 10 source forms and 119 flags.
+ * first-mismatch: 0x68
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new allocation address-base/register topology evidence.
  * PLATEAU-HANDOFF:func_80046EC4:end
  */
 
 /* PLATEAU-HANDOFF:func_80048080:start
  * symbol: func_80048080
- * score: 46/89 words
+ * score: 43 differing words
  * frame: 0x48
  * relocations: 4
- * first-mismatch: +0x74
- * summary: Exact frame and four call tuples; configured build is one word short, while R4300 hazard mode is exact-sized at 77/89 words.
+ * first-mismatch: 0x74
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new transform-loop load/spill order evidence.
  * PLATEAU-HANDOFF:func_80048080:end
  */
 
@@ -2447,8 +2447,8 @@ void func_8004AF68(void) {
  * score: 90 differing words
  * frame: 0x168
  * relocations: 3
- * first-mismatch: +0x44
- * summary: Exact size/frame; three shifted call sites and the first allocator web remain; next isolate the fixed-bound loop web.
+ * first-mismatch: 0x44
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new fixed-bound loop carrier topology evidence.
  * PLATEAU-HANDOFF:func_800470B0:end
  */
 
@@ -2457,8 +2457,8 @@ void func_8004AF68(void) {
  * score: 36 differing words
  * frame: 0x60
  * relocations: 9
- * first-mismatch: +0x20
- * summary: candidate 167/169; exact frame and FP lanes; count web is a3 versus target t0; 6/9 identities align
+ * first-mismatch: 0x20
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new VI stack homes and count-carrier topology evidence.
  * PLATEAU-HANDOFF:func_80049E4C:end
  */
 
@@ -2467,8 +2467,8 @@ void func_8004AF68(void) {
  * score: 132 differing words
  * frame: 0x60
  * relocations: 5
- * first-mismatch: +0x0
- * summary: Exact geometry and VI stack homes; IDO keeps cursor/end in ra/s1 instead of t5/ra, adding one saved register.
+ * first-mismatch: 0x0
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new glyph cursor/end lifetimes evidence.
  * PLATEAU-HANDOFF:func_8004A10C:end
  */
 
@@ -2477,29 +2477,29 @@ void func_8004AF68(void) {
  * score: 175 differing words
  * frame: 0x180
  * relocations: 5
- * first-mismatch: +0x4
- * summary: Scale invariants reach f22/f24/f26; candidate still hoists limit 8 into s3, shifting s16 arguments to s6/s7/s8 and the work base.
+ * first-mismatch: 0x4
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new hoisted-bound and scale-invariant lifetimes evidence.
  * PLATEAU-HANDOFF:func_80047304:end
  */
 
 
 /* PLATEAU-HANDOFF:fxSPDPRipple:start
  * symbol: fxSPDPRipple
- * score: 224/232 words
- * frame: 0xA8
- * relocations: 18
- * first-mismatch: +0x8
- * summary: Removed two fake call args; candidate has 12 relocs versus 18 target. Flags and permutation did not solve saved-register and loop scheduling.
+ * score: 224 differing words
+ * frame: 0xa8
+ * relocations: 12
+ * first-mismatch: 0x8
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new missing relocations and command-loop topology evidence.
  * PLATEAU-HANDOFF:fxSPDPRipple:end
  */
 
 /* PLATEAU-HANDOFF:func_800479D4:start
  * symbol: func_800479D4
- * score: 167/193 words
+ * score: 167 differing words
  * frame: 0x148
  * relocations: 7
- * first-mismatch: +0x0
- * summary: Signed division/count and early factor webs cut deficit by 9 words; both have 7 relocs. Candidate frame is 8 bytes short and point array 24 bytes high.
+ * first-mismatch: 0x0
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new point-array home and frame-slot topology evidence.
  * PLATEAU-HANDOFF:func_800479D4:end
  */
 
@@ -2508,8 +2508,8 @@ void func_8004AF68(void) {
  * score: 123 differing words
  * frame: 0x30
  * relocations: 10
- * first-mismatch: +0x8
- * summary: Seven-word geometry and parameter lifetime/register allocation remain; next try a source-authentic stack-argument preload form.
+ * first-mismatch: 0x8
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new stack-argument preload topology evidence.
  * PLATEAU-HANDOFF:fxScreenEffect:end
  */
 
@@ -2518,8 +2518,8 @@ void func_8004AF68(void) {
  * score: 390 differing words
  * frame: 0x108
  * relocations: 6
- * first-mismatch: +0x0
- * summary: Configured compilation unrolls fixed vertex loops; the target-supported next lever is a function-isolated -Wo,-loopunroll,0 build boundary.
+ * first-mismatch: 0x0
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new vertex-loop source or proved build boundary evidence.
  * PLATEAU-HANDOFF:func_800475E8:end
  */
 
@@ -2528,8 +2528,8 @@ void func_8004AF68(void) {
  * score: 122 differing words
  * frame: 0x50
  * relocations: 1
- * first-mismatch: +0x0
- * summary: 176/177-word JFG command CFG; exact call relocation. Blocked by outer-index spill/xStep allocation and 0x38 non-save-frame delta after 119 flag rows.
+ * first-mismatch: 0x0
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new outer-index spill and xStep lifetime evidence.
  * PLATEAU-HANDOFF:wakeDraw:end
  */
 
@@ -2538,8 +2538,8 @@ void func_8004AF68(void) {
  * score: 154 differing words
  * frame: 0x18
  * relocations: 4
- * first-mismatch: +0x8
- * summary: Five-record post-decrement CFG and 32-bit delta/carry are restored; 207/206 words remain blocked on switch/carry allocation after 119 flag rows.
+ * first-mismatch: 0x8
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new switch/carry and countdown topology evidence.
  * PLATEAU-HANDOFF:func_80049B14:end
  */
 
@@ -2548,8 +2548,8 @@ void func_8004AF68(void) {
  * score: 345 differing words
  * frame: 0x98
  * relocations: 3
- * first-mismatch: +0xC
- * summary: 343/351 words, normalized 203, target frame 0x90. Buffer topology and loops are restored; early stack homes and two moved blocks remain.
+ * first-mismatch: 0xc
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new initialization homes and buffer-loop topology evidence.
  * PLATEAU-HANDOFF:wakeAllocate:end
  */
 
@@ -2558,7 +2558,7 @@ void func_8004AF68(void) {
  * score: 334 differing words
  * frame: 0x98
  * relocations: 2
- * first-mismatch: +0x0
- * summary: Float allocation and trig operand order recovered. Remaining two-word frame gap is counter lifetime allocation and the first trig relocation is one word late.
+ * first-mismatch: 0x0
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new counter lifetime and trig-call schedule evidence.
  * PLATEAU-HANDOFF:wakeUpdate:end
  */
