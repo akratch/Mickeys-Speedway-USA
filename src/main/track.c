@@ -5746,10 +5746,10 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 /* PLATEAU-HANDOFF:func_800115E4:start
  * symbol: func_800115E4
  * score: 231 differing words
- * frame: -0xA0
+ * frame: 0xa0
  * relocations: 17
  * first-mismatch: +0x0
- * summary: Mickey evidence fixes record bytes, signed flags, and two-stage cross products; FP saved-register colouring and five-word schedule drift remain.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_800115E4:end
  */
 
