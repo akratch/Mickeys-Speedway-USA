@@ -2495,11 +2495,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_800479D4:start
  * symbol: func_800479D4
- * score: 167/193 words
+ * score: 167 differing words
  * frame: 0x148
  * relocations: 7
- * first-mismatch: +0x0
- * summary: Signed division/count and early factor webs cut deficit by 9 words; both have 7 relocs. Candidate frame is 8 bytes short and point array 24 bytes high.
+ * first-mismatch: 0x0
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new point-array home and frame-slot topology evidence.
  * PLATEAU-HANDOFF:func_800479D4:end
  */
 
