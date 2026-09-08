@@ -164,3 +164,13 @@ void func_overlay_001_F0003258_184F638(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/func_overlay_001_F0003258_184F638/func_overlay_001_F0003258_184F638.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_001_F0003258_184F638:start
+ * symbol: func_overlay_001_F0003258_184F638
+ * score: 182 differing words
+ * frame: 0xF0
+ * relocations: 12
+ * first-mismatch: +0x0
+ * summary: Candidate is twelve instructions shorter with unresolved relocation identities; frame and source-shape allocation remain the blocker.
+ * PLATEAU-HANDOFF:func_overlay_001_F0003258_184F638:end
+ */
