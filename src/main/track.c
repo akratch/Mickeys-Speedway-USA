@@ -5654,11 +5654,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_8000D820:start
  * symbol: func_8000D820
- * score: 65/86 words
+ * score: 65 differing words
  * frame: frameless
  * relocations: 6
  * first-mismatch: +0x3C
- * summary: Two-instruction structural residual; next inspect original declaration lifetimes and dirty/source cursor types.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_8000D820:end
  */
 
