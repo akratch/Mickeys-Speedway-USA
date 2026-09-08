@@ -2667,250 +2667,168 @@ extern f32 D_8008420C;
 /* Workbench verdict: structure-mismatch, 365 differing words; first mismatch is at +0x0. */
 /* Target is 370 instructions/frame -216; candidate is 371 instructions/frame -392. */
 /* Remaining gap is frame/allocation: all three sqrtf identities resolve, but none has the target offset. */
+/*
+ * Swept-sphere intersection between two collision shapes, reconstructed from
+ * Mickey's own assembly. The quadratic's three coefficients are written out
+ * term by term because the target is: it never forms a difference vector, it
+ * squares and cross-multiplies the six coordinates and the six doubled
+ * coordinates directly.
+ *
+ * Plateau: 380 of 370 words, 374 differing from +0x8, frame 0xD8 -- the
+ * target's. The previous candidate was an untranslated m2c draft whose ~40
+ * single-use temporaries each reserved a stack home; that alone held the
+ * frame at 0x188, 176 bytes above the target. Inlining them and letting the
+ * dead coordinate carriers hold the later quadratic values reaches the exact
+ * frame. What is left is ten words of surplus code: the target keeps arg1 in
+ * a saved register and homes arg0, and it needs only one callee-saved
+ * floating-point register where this candidate needs two.
+ */
 s32 func_80054B3C(s32 arg0, AnimCollisionShape *arg1,
                   s32 arg2, AnimCollisionShape *arg3,
                   AnimCollisionResult *arg4) {
-    f32 spBC;
-    f32 spB8;
-    f32 spB4;
-    s32 sp98;
-    f32 sp94;
-    f32 sp90;
-    f32 sp8C;
-    f32 sp88;
-    f32 sp84;
-    f32 sp80;
-    f32 sp7C;
-    f32 sp78;
-    f32 sp74;
-    f32 sp58;
-    f32 sp54;
-    f32 sp4C;
-    f32 sp44;
-    f32 sp40;
-    f32 sp3C;
-    f32 sp38;
-    f32 sp34;
-    f32 sp30;
-    f32 sp2C;
-    f32 sp28;
-    AnimCollisionShape *first;
-    AnimVec3f *temp_a0;
-    AnimVec3f *temp_a0_2;
-    AnimVec3f *temp_a1;
-    AnimVec3f *temp_v0;
-    AnimVec3f *temp_v0_2;
-    AnimVec3f *temp_v1;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f0_3;
-    f32 temp_f0_4;
-    f32 temp_f0_5;
-    f32 temp_f0_6;
-    f32 temp_f0_7;
-    f32 temp_f0_8;
-    f32 temp_f10;
-    f32 temp_f10_2;
-    f32 temp_f10_3;
-    f32 temp_f10_4;
-    f32 temp_f12;
-    f32 temp_f12_2;
-    f32 temp_f12_3;
-    f32 temp_f12_4;
-    f32 temp_f14;
-    f32 temp_f14_2;
-    f32 temp_f16;
-    f32 temp_f18;
-    f32 temp_f18_2;
-    f32 temp_f20;
-    f32 temp_f2;
-    f32 temp_f2_2;
-    f32 temp_f2_3;
-    f32 temp_f2_4;
-    f32 temp_f2_5;
-    f32 temp_f2_6;
-    f32 temp_f2_7;
-    f32 temp_f2_8;
-    f32 temp_f4;
-    f32 temp_f4_2;
-    f32 temp_f4_3;
-    f32 temp_f6;
-    f32 temp_f6_2;
-    f32 temp_f6_3;
-    f32 temp_f6_4;
-    f32 temp_f6_5;
-    f32 temp_f8;
-    f32 temp_f8_2;
-    f32 temp_f8_3;
-    f32 temp_f8_4;
-    f32 temp_f8_5;
-    f32 var_f12;
-    f32 var_f12_2;
-    s32 var_t0;
+    AnimVec3f *firstPoint;
+    AnimVec3f *secondPoint;
+    f32 radiusSq;
+    f32 quadA;
+    f32 quadB;
+    f32 quadC;
+    f32 discriminant;
+    f32 fraction;
+    f32 stepX1;
+    f32 stepY1;
+    f32 stepZ1;
+    f32 stepX2;
+    f32 stepY2;
+    f32 stepZ2;
+    f32 x1;
+    f32 y1;
+    f32 z1;
+    f32 x2;
+    f32 y2;
+    f32 z2;
+    f32 twoX1;
+    f32 twoY1;
+    f32 twoZ1;
+    f32 twoX2;
+    f32 twoY2;
+    f32 twoZ2;
+    s32 hit;
 
-    temp_f20 = arg1->radius + arg3->radius;
-    var_t0 = 0;
-    first = arg1;
-    temp_v0 = &first->position;
-    temp_f20 *= temp_f20;
-    temp_a0 = &arg3->position;
-    if ((first->flags & 2) || (arg3->flags & 2)) {
-        temp_f0 = temp_a0->x - temp_v0->x;
-        temp_f2 = temp_a0->y - temp_v0->y;
-        temp_f12 = temp_a0->z - temp_v0->z;
-        if (((temp_f0 * temp_f0) + (temp_f2 * temp_f2) +
-             (temp_f12 * temp_f12)) <= temp_f20) {
+    radiusSq = arg1->radius + arg3->radius;
+    hit = 0;
+    firstPoint = &arg1->position;
+    radiusSq = radiusSq * radiusSq;
+    secondPoint = &arg3->position;
+    if ((arg1->flags & 2) || (arg3->flags & 2)) {
+        stepX1 = secondPoint->x - firstPoint->x;
+        stepY1 = secondPoint->y - firstPoint->y;
+        stepZ1 = secondPoint->z - firstPoint->z;
+        if (((stepX1 * stepX1) + (stepY1 * stepY1) + (stepZ1 * stepZ1)) <=
+            radiusSq) {
             arg4->object = arg0;
             arg4->value = arg2;
             arg4->fraction = 0.0f;
             return 1;
         }
     }
-    temp_v1 = &first->vector;
-    temp_f2_2 = temp_v1->x;
-    temp_a1 = &arg3->vector;
-    temp_f16 = temp_a1->x;
-    temp_f12_2 = temp_v1->y;
-    temp_f18 = temp_a1->y;
-    temp_f0_2 = temp_v1->z;
-    temp_f14 = temp_a1->z;
-    temp_a0_2 = &arg3->position;
-    temp_v0_2 = &first->position;
-    temp_f8 = (temp_f14 * temp_f14) +
-              ((temp_f0_2 * temp_f0_2) -
-               (2.0f * temp_f0_2 * temp_f14)) +
-              (((temp_f2_2 * temp_f2_2) -
-                (2.0f * temp_f2_2 * temp_f16)) +
-               (temp_f16 * temp_f16) +
-               (((temp_f12_2 * temp_f12_2) -
-                 (2.0f * temp_f12_2 * temp_f18)) +
-                (temp_f18 * temp_f18)));
-    spBC = temp_f8;
-    sp94 = temp_a0_2->z;
-    temp_f6 = 2.0f * sp94;
-    sp54 = temp_f6;
-    temp_f10 = temp_v0_2->z;
-    sp28 = temp_f8;
-    sp2C = sp94;
-    sp90 = temp_f10;
-    temp_f8_2 = 2.0f * temp_f10;
-    sp8C = temp_f8_2;
-    temp_f4 = temp_v0_2->x;
-    sp30 = temp_f6;
-    sp34 = temp_f10;
-    sp88 = temp_f4;
-    temp_f6_2 = 2.0f * temp_f4;
-    sp84 = temp_f6_2;
-    temp_f10_2 = temp_a0_2->x;
-    sp38 = temp_f8_2;
-    sp3C = temp_f4;
-    sp80 = temp_f10_2;
-    temp_f8_3 = 2.0f * temp_f10_2;
-    sp4C = temp_f8_3;
-    temp_f4_2 = temp_v0_2->y;
-    sp40 = temp_f6_2;
-    sp7C = temp_f4_2;
-    temp_f6_3 = 2.0f * temp_f4_2;
-    sp78 = temp_f6_3;
-    temp_f6_4 = temp_a0_2->y;
-    sp44 = temp_f10_2;
-    sp74 = temp_f6_4;
-    temp_f6_5 = temp_f6_4 + sp74;
-    temp_f10_3 = sp38;
-    sp38 = temp_f8_3;
-    sp58 = temp_f6_5;
-    temp_f8_4 = sp30;
-    sp30 = temp_f4_2;
-    temp_f4_3 = sp40;
-    sp40 = temp_f10_3;
-    temp_f10_4 = sp38;
-    sp38 = (temp_f14 * temp_f8_4) +
-           (((temp_f10_3 * temp_f0_2) - (temp_f10_3 * temp_f14)) -
-            (temp_f8_4 * temp_f0_2));
-    spB8 = sp38 +
-           ((((temp_f4_3 * temp_f2_2) - (temp_f4_3 * temp_f16)) -
-             (temp_f10_4 * temp_f2_2)) +
-            (temp_f10_4 * temp_f16) +
-            ((((temp_f6_3 * temp_f12_2) - (temp_f6_3 * temp_f18)) -
-              (temp_f6_5 * temp_f12_2)) +
-             (temp_f6_5 * temp_f18)));
-    temp_f18_2 = (sp2C * sp2C) +
-                 ((sp34 * sp34) - (sp40 * sp2C)) +
-                 (((sp3C * sp3C) - (temp_f4_3 * sp44)) +
-                  (sp44 * sp44) +
-                  (((sp30 * sp30) - (sp78 * sp74)) + (sp74 * sp74)));
-    if (sp28 != 0.0f) {
-        temp_f2_3 = 4.0f * sp28;
-        temp_f0_3 = temp_f2_3 * (temp_f18_2 - temp_f20);
-        temp_f14_2 = spB8 * spB8;
-        if (temp_f0_3 < temp_f14_2) {
-            sp98 = 0;
-            sp90 = temp_f2_3;
-            sp94 = temp_f14_2;
-            spB4 = temp_f18_2;
-            temp_f0_4 = sqrtf(temp_f14_2 - temp_f0_3);
-            var_t0 = 0;
-            temp_f8_5 = -spB8;
-            sp88 = 2.0f * spBC;
-            temp_f2_4 = (temp_f8_5 - temp_f0_4) / sp88;
-            sp8C = temp_f8_5;
-            if ((temp_f2_4 >= 0.0f) && (temp_f2_4 <= 1.0f)) {
-                temp_f0_5 = sp90 *
-                            (temp_f18_2 - (temp_f20 + 83.0f));
-                if (temp_f0_5 < temp_f14_2) {
-                    temp_f2_5 = (sp8C - sqrtf(temp_f14_2 - temp_f0_5)) /
-                                sp88;
-                    var_t0 = 1;
-                    var_f12 = temp_f2_5;
-                    if (temp_f2_5 > 1.0f) {
-                        var_f12 = 1.0f;
-                    } else if (temp_f2_5 < 0.0f) {
-                        var_f12 = 0.0f;
+    firstPoint = &arg1->vector;
+    stepX1 = firstPoint->x;
+    secondPoint = &arg3->vector;
+    stepX2 = secondPoint->x;
+    stepY1 = firstPoint->y;
+    stepY2 = secondPoint->y;
+    stepZ1 = firstPoint->z;
+    stepZ2 = secondPoint->z;
+    secondPoint = &arg3->position;
+    firstPoint = &arg1->position;
+    quadA = (stepZ2 * stepZ2) +
+            ((stepZ1 * stepZ1) - (2.0f * stepZ1 * stepZ2)) +
+            (((stepX1 * stepX1) - (2.0f * stepX1 * stepX2)) +
+             (stepX2 * stepX2) +
+             (((stepY1 * stepY1) - (2.0f * stepY1 * stepY2)) +
+              (stepY2 * stepY2)));
+    z2 = secondPoint->z;
+    twoZ2 = 2.0f * z2;
+    z1 = firstPoint->z;
+    twoZ1 = 2.0f * z1;
+    x1 = firstPoint->x;
+    twoX1 = 2.0f * x1;
+    x2 = secondPoint->x;
+    twoX2 = 2.0f * x2;
+    y1 = firstPoint->y;
+    twoY1 = 2.0f * y1;
+    y2 = secondPoint->y;
+    twoY2 = y2 + y2;
+    quadB = ((stepZ2 * twoZ2) +
+             (((twoZ1 * stepZ1) - (twoZ1 * stepZ2)) - (twoZ2 * stepZ1))) +
+            ((((twoX1 * stepX1) - (twoX1 * stepX2)) - (twoX2 * stepX1)) +
+             (twoX2 * stepX2) +
+             ((((twoY1 * stepY1) - (twoY1 * stepY2)) - (twoY2 * stepY1)) +
+              (twoY2 * stepY2)));
+    quadC = (z2 * z2) + ((z1 * z1) - (twoZ1 * z2)) +
+            (((x1 * x1) - (twoX1 * x2)) + (x2 * x2) +
+             (((y1 * y1) - (twoY1 * y2)) + (y2 * y2)));
+    if (quadA != 0.0f) {
+        twoZ2 = 4.0f * quadA;
+        discriminant = twoZ2 * (quadC - radiusSq);
+        twoX2 = quadB * quadB;
+        if (discriminant < twoX2) {
+            discriminant = sqrtf(twoX2 - discriminant);
+            hit = 0;
+            quadB = -quadB;
+            quadA = 2.0f * quadA;
+            fraction = (quadB - discriminant) / quadA;
+            if ((fraction >= 0.0f) && (fraction <= 1.0f)) {
+                discriminant = twoZ2 * (quadC - (radiusSq + 83.0f));
+                if (discriminant < twoX2) {
+                    fraction = (quadB - sqrtf(twoX2 - discriminant)) / quadA;
+                    hit = 1;
+                    if (fraction > 1.0f) {
+                        fraction = 1.0f;
+                    } else if (fraction < 0.0f) {
+                        fraction = 0.0f;
                     }
                     arg4->object = arg0;
                     arg4->value = arg2;
-                    arg4->fraction = var_f12;
+                    arg4->fraction = fraction;
                 }
             } else {
-                temp_f0_6 = arg3->edge.x - first->edge.x;
-                temp_f2_6 = arg3->edge.y - first->edge.y;
-                temp_f12_3 = arg3->edge.z - first->edge.z;
-                if (((temp_f0_6 * temp_f0_6) +
-                     (temp_f2_6 * temp_f2_6) +
-                     (temp_f12_3 * temp_f12_3)) <= temp_f20) {
-                    temp_f0_7 = sp90 *
-                                (temp_f18_2 - (temp_f20 + 83.0f));
-                    if (temp_f0_7 < temp_f14_2) {
-                        temp_f2_7 =
-                            (sp8C - sqrtf(temp_f14_2 - temp_f0_7)) / sp88;
-                        var_t0 = 1;
-                        var_f12_2 = temp_f2_7;
-                        if (temp_f2_7 > 1.0f) {
-                            var_f12_2 = 1.0f;
-                        } else if (temp_f2_7 < 0.0f) {
-                            var_f12_2 = 0.0f;
+                stepX1 = arg3->edge.x - arg1->edge.x;
+                stepY1 = arg3->edge.y - arg1->edge.y;
+                stepZ1 = arg3->edge.z - arg1->edge.z;
+                if (((stepX1 * stepX1) + (stepY1 * stepY1) +
+                     (stepZ1 * stepZ1)) <= radiusSq) {
+                    discriminant = twoZ2 * (quadC - (radiusSq + 83.0f));
+                    if (discriminant < twoX2) {
+                        fraction =
+                            (quadB - sqrtf(twoX2 - discriminant)) / quadA;
+                        hit = 1;
+                        if (fraction > 1.0f) {
+                            fraction = 1.0f;
+                        } else if (fraction < 0.0f) {
+                            fraction = 0.0f;
                         }
                         arg4->object = arg0;
                         arg4->value = arg2;
-                        arg4->fraction = var_f12_2;
+                        arg4->fraction = fraction;
                     }
                 }
             }
         }
     }
-    if (var_t0 == 0) {
-        temp_f0_8 = arg3->edge.x - first->edge.x;
-        temp_f2_8 = arg3->edge.y - first->edge.y;
-        temp_f12_4 = arg3->edge.z - first->edge.z;
-        if (((temp_f0_8 * temp_f0_8) + (temp_f2_8 * temp_f2_8) +
-             (temp_f12_4 * temp_f12_4)) <= temp_f20) {
+    if (hit == 0) {
+        stepX1 = arg3->edge.x - arg1->edge.x;
+        stepY1 = arg3->edge.y - arg1->edge.y;
+        stepZ1 = arg3->edge.z - arg1->edge.z;
+        if (((stepX1 * stepX1) + (stepY1 * stepY1) + (stepZ1 * stepZ1)) <=
+            radiusSq) {
             arg4->object = arg0;
             arg4->value = arg2;
-            var_t0 = 1;
+            hit = 1;
             arg4->fraction = 0.0f;
         }
     }
-    return var_t0;
+    return hit;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_80054B3C.s")
@@ -2962,6 +2880,15 @@ extern void mathOneFloatYPR(HitResolveRotation *rotation, AnimVec3f *vector);
  * Bare-pragma reconstruction from Mickey's collision response assembly.
  * The public JFG hit.c family supplies role context only; Mickey fixes every
  * field offset, call identity and arithmetic association below.
+ *
+ * Plateau: 431 of 445 words, 420 differing from +0x38, frame 0xB8 -- the
+ * target's. The frame came from carrier count, not from a spill: every
+ * declared f32 in this TU reserves a home whether or not it is
+ * register-coloured, so the six scalars whose live ranges end before the
+ * response tail carry the tail's own values instead of being declared twice.
+ * What remains is a real 14-word code deficit, not an allocation difference;
+ * audit the impulse and effect-position groups against the target before any
+ * further allocator reading.
  */
 #ifdef NON_MATCHING
 void func_80055104(HitCopyState *first, HitCopyState *second, f32 scale) {
@@ -2983,12 +2910,6 @@ void func_80055104(HitCopyState *first, HitCopyState *second, f32 scale) {
     f32 impulse;
     f32 firstScale;
     f32 secondScale;
-    f32 halfDistance;
-    f32 soundScale;
-    f32 volume;
-    f32 oldX;
-    f32 oldY;
-    f32 oldZ;
 
     firstVehicle = (HitResolveVehicle *) first->target;
     firstSource = first->source;
@@ -3035,30 +2956,30 @@ void func_80055104(HitCopyState *first, HitCopyState *second, f32 scale) {
     mathOneFloatYPR(&rotation, &rotated);
     secondVehicle->rotatedZ = rotated.z;
     secondVehicle->rotatedX = rotated.x;
-    oldY = first->position.y - firstSource->previous.y;
-    oldX = first->position.x - firstSource->previous.x;
-    oldZ = first->position.z - firstSource->previous.z;
+    secondScale = first->position.y - firstSource->previous.y;
+    firstScale = first->position.x - firstSource->previous.x;
+    impulse = first->position.z - firstSource->previous.z;
     firstSource->previous.x =
         (firstVehicle->velocity.x * scale) + firstSource->current.x;
     firstSource->previous.y =
         (firstVehicle->velocity.y * scale) + firstSource->current.y;
     firstSource->previous.z =
         (firstVehicle->velocity.z * scale) + firstSource->current.z;
-    first->position.x = firstSource->previous.x + oldX;
-    first->position.y = firstSource->previous.y + oldY;
-    first->position.z = firstSource->previous.z + oldZ;
-    oldY = second->position.y - secondSource->previous.y;
-    oldX = second->position.x - secondSource->previous.x;
-    oldZ = second->position.z - secondSource->previous.z;
+    first->position.x = firstSource->previous.x + firstScale;
+    first->position.y = firstSource->previous.y + secondScale;
+    first->position.z = firstSource->previous.z + impulse;
+    secondScale = second->position.y - secondSource->previous.y;
+    firstScale = second->position.x - secondSource->previous.x;
+    impulse = second->position.z - secondSource->previous.z;
     secondSource->previous.x =
         (secondVehicle->velocity.x * scale) + secondSource->current.x;
     secondSource->previous.y =
         (secondVehicle->velocity.y * scale) + secondSource->current.y;
     secondSource->previous.z =
         (secondVehicle->velocity.z * scale) + secondSource->current.z;
-    second->position.x = secondSource->previous.x + oldX;
-    second->position.y = secondSource->previous.y + oldY;
-    second->position.z = secondSource->previous.z + oldZ;
+    second->position.x = secondSource->previous.x + firstScale;
+    second->position.y = secondSource->previous.y + secondScale;
+    second->position.z = secondSource->previous.z + impulse;
 
     firstCollision = (void *) TrapDanglingJump(firstVehicle->collisionData);
     secondCollision = (void *) TrapDanglingJump(secondVehicle->collisionData);
@@ -3086,17 +3007,17 @@ void func_80055104(HitCopyState *first, HitCopyState *second, f32 scale) {
     firstVehicle->collisionTimer = 0x64;
     secondVehicle->collisionTimer = 0x64;
     if (relativeVelocity > 4.0f) {
-        halfDistance = distance * 0.5f;
+        distance = distance * 0.5f;
         effectPosition.x =
-            (direction.x * halfDistance) + firstSource->current.x;
+            (direction.x * distance) + firstSource->current.x;
         effectPosition.y =
-            (direction.y * halfDistance) + firstSource->current.y;
+            (direction.y * distance) + firstSource->current.y;
         effectPosition.z =
-            (direction.z * halfDistance) + firstSource->current.z;
-        soundScale = (f32) func_80001620(7);
-        volume = (relativeVelocity / 20.0f) * soundScale;
-        if (soundScale < volume) {
-            volume = soundScale;
+            (direction.z * distance) + firstSource->current.z;
+        firstMass = (f32) func_80001620(7);
+        secondMass = (relativeVelocity / 20.0f) * firstMass;
+        if (firstMass < secondMass) {
+            secondMass = firstMass;
         }
         if (firstVehicle->soundHandle != NULL) {
             func_800031E8(firstVehicle->soundHandle);
@@ -3104,7 +3025,7 @@ void func_80055104(HitCopyState *first, HitCopyState *second, f32 scale) {
         func_80002FE0(7, effectPosition.x, effectPosition.y,
                       effectPosition.z, 4,
                       &firstVehicle->soundHandle);
-        func_8000309C(firstVehicle->soundHandle, (u8) volume);
+        func_8000309C(firstVehicle->soundHandle, (u8) secondMass);
         if (!(firstVehicle->flags & 1)) {
             rumbleStart(firstVehicle->playerIndex, 0x32, 0.4f);
         }
@@ -3751,12 +3672,21 @@ f32 func_8002A8BC(s32 angle);
 f32 func_8002A8C0(s32 angle);
 
 /*
- * Plateau (2026-08-26, p5): workbench mixed, 229/226 instructions and 214 raw
- * differing words from +0x0; frames are 0x70/0x80, with 233 structural and 54
- * register rows. Prior flag, lifetime, spill, volatile, state-layout, and
- * permuter probes were exhausted; the compound-assignment operand-order probe
- * grew the candidate to 227 instructions and a 0x88 frame, then was reverted.
- * No frame-recovery lever with source evidence remains; retain NON_MATCHING.
+ * Plateau (p6): 229/228 instructions and 217 raw differing words from +0x24.
+ * The frame now matches the target's 0x70. The lever was carrier reuse, not a
+ * new spill: the target homes four fewer f32 locals than the previous
+ * candidate declared, and the two arms of this function are mutually
+ * exclusive, so the velocity triple and the magnitude scalar carry the
+ * previous-position triple and the plane dot product in the else arm. Every
+ * declared f32 reserves a home here whether or not it is register-coloured,
+ * which is why dropping four declarations moved the frame by 16 bytes while
+ * the instruction count barely changed.
+ *
+ * Next lever: the impulse block. The target materializes 1.0f into two FP
+ * registers from one `lui`, computes 1.0f/mass and (unk6C + 1.0f) side by
+ * side, and spills only the impulse; the candidate CSEs the constant into one
+ * register and spills the correction as well. Audit that statement group's
+ * evaluation order before anything else.
  */
 #ifdef NON_MATCHING
 void func_80056DD8(HitCopyState *first, HitCopyState *second,
@@ -3764,10 +3694,14 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
     HitCopyTarget *target;
     HitCopySource *firstSource;
     HitCopySource *secondSource;
-    f32 velocityX;
-    f32 velocityY;
-    f32 velocityZ;
-    f32 magnitude;
+    /* vectorX/Y/Z and scalar are shared by the two mutually exclusive arms:
+     * the velocity triple and its magnitude above, the previous-position
+     * triple and the plane dot product below. The target's 0x70 frame homes
+     * exactly this many f32 locals. */
+    f32 vectorX;
+    f32 vectorY;
+    f32 vectorZ;
+    f32 scalar;
     f32 impulse;
     f32 correction;
     f32 cosine;
@@ -3775,51 +3709,47 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
     f32 offsetX;
     f32 offsetY;
     f32 offsetZ;
-    f32 dot;
-    f32 previousX;
-    f32 previousY;
-    f32 previousZ;
     f32 displacement;
     volatile f32 retained;
 
     target = first->target;
-    velocityX = target->velocity.x;
-    velocityY = target->velocity.y;
-    velocityZ = target->velocity.z;
+    vectorX = target->velocity.x;
+    vectorY = target->velocity.y;
+    vectorZ = target->velocity.z;
     firstSource = first->source;
     secondSource = second->source;
-    if (((velocityZ * velocityZ) +
-         ((velocityX * velocityX) + (velocityY * velocityY))) > 25.0f) {
+    if (((vectorZ * vectorZ) +
+         ((vectorX * vectorX) + (vectorY * vectorY))) > 25.0f) {
         f32 mass;
 
         mass = ((HitCopyTarget *) TrapDanglingJump(target))->unk4;
-        velocityX = target->velocity.x;
-        velocityY = target->velocity.y;
-        velocityZ = target->velocity.z;
+        vectorX = target->velocity.x;
+        vectorY = target->velocity.y;
+        vectorZ = target->velocity.z;
         impulse = ((secondSource->unk6C + 1.0f) *
-                   ((normal->z * velocityZ) +
-                    ((velocityX * normal->x) +
-                     (velocityY * normal->y)))) / (1.0f / mass);
+                   ((normal->z * vectorZ) +
+                    ((vectorX * normal->x) +
+                     (vectorY * normal->y)))) / (1.0f / mass);
         correction = impulse / mass;
         retained = impulse;
-        target->velocity.x = velocityX - (correction * normal->x);
-        target->velocity.y = velocityY - (correction * normal->y);
-        target->velocity.z = velocityZ - (correction * normal->z);
-        magnitude = sqrtf((target->velocity.z * target->velocity.z) +
+        target->velocity.x = vectorX - (correction * normal->x);
+        target->velocity.y = vectorY - (correction * normal->y);
+        target->velocity.z = vectorZ - (correction * normal->z);
+        scalar = sqrtf((target->velocity.z * target->velocity.z) +
                           ((target->velocity.x * target->velocity.x) +
                            (target->velocity.y * target->velocity.y)));
-        target->magnitude80 = magnitude;
-        target->magnitude84 = magnitude;
-        target->direction.x = target->velocity.x / magnitude;
-        target->direction.y = target->velocity.y / magnitude;
-        target->direction.z = target->velocity.z / magnitude;
+        target->magnitude80 = scalar;
+        target->magnitude84 = scalar;
+        target->direction.x = target->velocity.x / scalar;
+        target->direction.y = target->velocity.y / scalar;
+        target->direction.z = target->velocity.z / scalar;
         target->unk181 = 1;
         target->unk4 = 0.0f;
         target->unk8 = 0.0f;
         target->unk88 = D_80084210;
         firstSource->unk63 = 1;
         secondSource->unk63 = 1;
-        secondSource->unk64 = magnitude;
+        secondSource->unk64 = scalar;
         cosine = -func_8002A8C0(*(s16 *) first);
         sine = -func_8002A8BC(*(s16 *) first);
         target->unk90 = (normal->z * cosine) - (normal->x * sine);
@@ -3837,23 +3767,23 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
         first->position.y = firstSource->previous.y + offsetY;
         first->position.z = firstSource->previous.z + offsetZ;
     } else {
-        dot = (normal->z * firstSource->current.z) +
+        scalar = (normal->z * firstSource->current.z) +
               ((firstSource->current.x * normal->x) +
                (firstSource->current.y * normal->y));
-        retained = -dot;
-        previousZ = firstSource->previous.z;
-        previousY = firstSource->previous.y;
-        previousX = firstSource->previous.x;
+        retained = -scalar;
+        vectorZ = firstSource->previous.z;
+        vectorY = firstSource->previous.y;
+        vectorX = firstSource->previous.x;
         displacement = D_80084214 -
-                       (((normal->z * previousZ) +
-                         ((normal->x * previousX) +
-                          (normal->y * previousY))) - dot);
-        offsetY = first->position.y - previousY;
-        offsetZ = first->position.z - previousZ;
-        offsetX = first->position.x - previousX;
-        firstSource->previous.x = previousX + (displacement * normal->x);
-        firstSource->previous.y = previousY + (displacement * normal->y);
-        firstSource->previous.z = previousZ + (displacement * normal->z);
+                       (((normal->z * vectorZ) +
+                         ((normal->x * vectorX) +
+                          (normal->y * vectorY))) - scalar);
+        offsetY = first->position.y - vectorY;
+        offsetZ = first->position.z - vectorZ;
+        offsetX = first->position.x - vectorX;
+        firstSource->previous.x = vectorX + (displacement * normal->x);
+        firstSource->previous.y = vectorY + (displacement * normal->y);
+        firstSource->previous.z = vectorZ + (displacement * normal->z);
         first->position.x = firstSource->previous.x + offsetX;
         first->position.y = firstSource->previous.y + offsetY;
         first->position.z = firstSource->previous.z + offsetZ;
@@ -3962,11 +3892,17 @@ void func_80057350(HitCopyState *state, void *unused, AnimVec3f *position,
 /*
  * Mickey-led overlap response reconstruction; the nearest external skeleton
  * is only 0.085 similar and supplies no usable donor body.
+ *
+ * Three levers took this from a 203-word structure mismatch to exact:
+ *   - the squared combined radius is its own statement, so IDO emits the
+ *     multiply next to the sum and schedules it against the deltas;
+ *   - the three-axis overlap test is a pre-tested `for`, not a `do`/`while`:
+ *     the bottom-tested form lets uopt fold the zero subscript into the two
+ *     strength-reduced base pointers and loses the two `addu` seeds;
+ *   - the overlap denominator is carried in a named local, which is what puts
+ *     it in a colour register rather than a block temp.
+ * The TU's `-Wab,-r4300_mul` selection is what settles the last two words.
  */
-/* Workbench p7: structure/size mismatch, 233/231 instructions/frame -136, 203 raw words from +0x2C.
- * Context is clean; prior pointer-base, radius-tree, scaled-zero, and flag probes leave target’s folded AABB initialization as the first structural split.
- * FP pool/temp and tail integer webs remain; retain NON_MATCHING. */
-#ifdef NON_MATCHING
 void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
                    HitOverlapState *trigger, HitOverlapVolume *volume) {
     volatile f32 stackPad;
@@ -3985,25 +3921,25 @@ void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
     intersects = 0;
     if (volume->shape == 0) {
         combinedRadius = other->radius + volume->radius;
-        deltaX = other->position.x;
-        deltaX = volume->position.x - deltaX;
+        combinedRadius = combinedRadius * combinedRadius;
+        deltaX = volume->position.x - other->position.x;
         deltaY = volume->position.y - other->position.y;
         deltaZ = volume->position.z - other->position.z;
         if (((deltaX * deltaX) + (deltaY * deltaY) + (deltaZ * deltaZ)) <
-            (combinedRadius * combinedRadius)) {
+            combinedRadius) {
             intersects = 1;
         }
     } else if (volume->shape == 1) {
         combinedRadius = other->radius + volume->radius;
+        combinedRadius = combinedRadius * combinedRadius;
         deltaX = volume->position.x - other->position.x;
         deltaY = (volume->position.y - volume->height) - other->position.y;
         deltaZ = volume->position.z - other->position.z;
         if (((deltaX * deltaX) + (deltaY * deltaY) + (deltaZ * deltaZ)) <
-            (combinedRadius * combinedRadius)) {
+            combinedRadius) {
             intersects = 1;
         }
     } else if (volume->shape == 2) {
-        index = 0;
         intersects = 1;
         firstMin[0] = other->position.x - other->radius;
         firstMin[1] = other->position.y - other->height;
@@ -4017,7 +3953,7 @@ void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
         secondMax[0] = volume->position.x + volume->radius;
         secondMax[1] = volume->position.y + volume->height;
         secondMax[2] = volume->position.z + volume->radius;
-        do {
+        for (index = 0; (index < 3) && (intersects != 0); index++) {
             if ((firstMin[index] < secondMin[index]) &&
                 (firstMax[index] < secondMin[index])) {
                 goto no_intersection;
@@ -4027,8 +3963,7 @@ void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
 no_intersection:
                 intersects = 0;
             }
-            index++;
-        } while ((index < 3) && (intersects != 0));
+        }
     }
     if (intersects != 0) {
         if (state->kind44 == 1) {
@@ -4037,11 +3972,11 @@ no_intersection:
                 vehicle->unk16A = 0;
             }
             if (volume->position.y < volume->unk1C) {
+                deltaX = (other->position.y - state->position.y) +
+                         other->height;
                 vehicle->overlap54 =
                     ((volume->position.y - volume->height) -
-                     state->position.y) /
-                    ((other->position.y - state->position.y) +
-                     other->height);
+                     state->position.y) / deltaX;
                 if (vehicle->overlap54 < 0.0f) {
                     vehicle->overlap54 = 0.0f;
                 }
@@ -4064,9 +3999,6 @@ no_intersection:
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800573C8.s")
-#endif
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from JFG's src/hit.c hitPlayer assembly. Mickey's ROM
@@ -4171,32 +4103,32 @@ void fmvInit(void) {
 
 /* PLATEAU-HANDOFF:func_80051364:start
  * symbol: func_80051364
- * score: 95/287 words
+ * score: 251 differing words
  * frame: 0x48
  * relocations: 51
  * first-mismatch: +0x0
- * summary: Target is frame 0x40 with 47 relocations. Next isolate one source-authentic playback-state carrier lifetime without expanding the frame.
+ * summary: Re-measured under the TU's -Wab,-r4300_mul selection; target is frame 0x40 with 47 relocations and the candidate materializes the playback-state and television-mode addresses four times where the target keeps each in one saved register.
  * PLATEAU-HANDOFF:func_80051364:end
  */
 
 
 /* PLATEAU-HANDOFF:func_80054B3C:start
  * symbol: func_80054B3C
- * score: 365 differing words
- * frame: 0x188
+ * score: 374 differing words
+ * frame: 0xD8
  * relocations: 3
- * first-mismatch: +0x0
- * summary: typed m2c-faithful candidate is one instruction long; frame allocation remains 0x188 versus 0xD8 and all three sqrtf offsets are non-exact
+ * first-mismatch: +0x8
+ * summary: Rewritten as ordinary C; the frame now matches the target's 0xD8 and the candidate is 380 of 370 words, so the residual is ten words of surplus code plus register roles rather than allocation.
  * PLATEAU-HANDOFF:func_80054B3C:end
  */
 
 /* PLATEAU-HANDOFF:func_80056DD8:start
  * symbol: func_80056DD8
- * score: 214 differing words
- * frame: 0x80
+ * score: 217 differing words
+ * frame: 0x70
  * relocations: 8
- * first-mismatch: +0x0
- * summary: Target is 229 words/frame 0x70; candidate is 226/frame 0x80; 1/8 relocation identities aligns; reopen only with a source-authentic frame lever.
+ * first-mismatch: +0x24
+ * summary: Frame now matches at 0x70 and the first six words are exact; candidate is 228 of 229 words and the impulse block's divide order is the next lever.
  * PLATEAU-HANDOFF:func_80056DD8:end
  */
 
@@ -4212,11 +4144,11 @@ void fmvInit(void) {
 
 /* PLATEAU-HANDOFF:func_80055104:start
  * symbol: func_80055104
- * score: 425 differing words
- * frame: 0xD0
+ * score: 420 differing words
+ * frame: 0xB8
  * relocations: 23
- * first-mismatch: +0x0
- * summary: Target 445 words and frame 0xB8; relocation identities agree, but stack lifetimes drift. Add resident size metadata to unlock donor and flag tools.
+ * first-mismatch: +0x38
+ * summary: Frame now matches at 0xB8 and the first fourteen words are exact; candidate is 431 of 445 words, so the deficit is real missing code rather than allocation.
  * PLATEAU-HANDOFF:func_80055104:end
  */
 
@@ -4232,22 +4164,12 @@ void fmvInit(void) {
 
 /* PLATEAU-HANDOFF:func_800563B4:start
  * symbol: func_800563B4
- * score: 12/649 words
+ * score: 637 differing words
  * frame: 0xD8
  * relocations: 11
  * first-mismatch: +0x1C
- * summary: Candidate is 40 words short with 637 differences and the exact frame; both sides have 11 relocations, but only one site/identity aligns and two candidate identities are unresolved.
+ * summary: Re-measured under the TU's -Wab,-r4300_mul selection and unchanged; candidate is 609 of 649 words with the exact frame, so the deficit is missing radius/vector work rather than allocation.
  * PLATEAU-HANDOFF:func_800563B4:end
- */
-
-/* PLATEAU-HANDOFF:func_800573C8:start
- * symbol: func_800573C8
- * score: 203 differing words
- * frame: 0x88
- * relocations: 3
- * first-mismatch: +0x2C
- * summary: Configured candidate is 231 versus 233 target words; folded AABB initialization remains the first structural split.
- * PLATEAU-HANDOFF:func_800573C8:end
  */
 
 /* PLATEAU-HANDOFF:func_80053868:start
