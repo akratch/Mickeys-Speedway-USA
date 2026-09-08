@@ -556,8 +556,18 @@ void controlPlayerReInit(ControlActor *actor, f32 x, f32 y, f32 z, s16 arg4, s16
     player->unk45D = saved45D;
 }
 /* Bounded plateau: 401/403 words, 386 differing words, first mismatch +0x0. */
-/* Candidate frame is -0xB8 versus target -0xA8; candidate/target relocations are 40/38. */
+/* Candidate frame is -0xB0 versus target -0xA8; candidate/target relocations are 40/38. */
 /* The typed direct effect-spawn alias is proven; remaining particle/effect lifetimes miss the target register web. */
+/* Frame split, measured: target 0x24 save + 0x84 non-save, candidate 0x1C save
+ * + 0x94 non-save. The two axes pull opposite ways -- the declaration census
+ * that closed func_8001CB84 and func_8001D960 removed 8 non-save bytes here
+ * (one redundant s8 copy of player->playerIndex, one redundant loop bound),
+ * but the target ALSO holds two more values in callee-saved registers than
+ * this candidate does, so the save area is 8 bytes short. Removing further
+ * declarations (pointIndex, effectCount, packetIndex, stateCursor) was flat.
+ * The `register` qualifiers previously carried here were no-ops: dropping them
+ * produced a byte-identical object, so the next lever is the uopt callee-saved
+ * tie-break, not more source-level pruning. */
 /* PROVENANCE: JFG's corresponding character-control initialization role supplied the control-flow lead; fields and body are reconstructed from Mickey. */
 #ifdef NON_MATCHING
 void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode) {
@@ -578,10 +588,8 @@ void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode)
     s32 effectSlot;
     s32 pointIndex;
     s32 particleCount;
-    register s32 remaining;
-    register s32 particleSlotCount;
+    s32 particleSlotCount;
     s32 packetIndex;
-    s8 playerIndex;
 
     player = actor->player;
     player->unk1B8 = 0x2000;
@@ -674,9 +682,8 @@ void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode)
     particleCount = particleList->count;
     particle = particleList->entries;
     slot = (CharControlParticleSlot *) player->particles;
-    remaining = particleCount;
-    if (remaining != 0) {
-        remaining--;
+    if (particleCount != 0) {
+        particleCount--;
         do {
             if (slot->handle == 0) {
                 if (particle->index < characterData->count) {
@@ -701,7 +708,7 @@ void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode)
             particle++;
             slot++;
             particleSlotCount++;
-        } while (remaining-- != 0);
+        } while (particleCount-- != 0);
     }
     if (particleSlotCount < 4) {
         do {
@@ -711,7 +718,6 @@ void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode)
         } while (particleSlotCount < 4);
     }
 
-    playerIndex = player->playerIndex;
     player->unk38 = actor->x;
     player->unk3C = actor->y;
     player->unk40 = actor->z;
@@ -731,8 +737,8 @@ void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode)
     player->unk187 = 0;
     player->unk188 = 0.0f;
     player->unk4C = actor->z;
-    if (playerIndex != -1) {
-        camSetNo(playerIndex, 0, &D_800CB300);
+    if (player->playerIndex != -1) {
+        camSetNo(player->playerIndex, 0, &D_800CB300);
         func_8001BE0C(actor, player);
     }
     player->unk16C = 0;
