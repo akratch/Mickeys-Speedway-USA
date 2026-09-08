@@ -1097,30 +1097,26 @@ $(BUILD_DIR)/$(SRC_DIR)/main/diprint.c.o: CFLAGS += -Wab,-r4300_mul
 # IDO's trailing four zero bytes follow the combined 0x38-byte input section.
 $(BUILD_DIR)/$(SRC_DIR)/main/sched.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x38
-# objects retains its first two switch tables and three literal-pool floats.
-# func_8000AA38's compiler-private 92-entry table duplicates jtbl_80081258:
-# its untouched REL addend is 0x24C, so the absolute base is table - 0x24C.
-# The digest guards only that duplicate table plus final alignment; its 92
-# R_MIPS_32 destinations were independently proved at real ROM addresses.
-# The default branch is already resolved by IDO. Its site label makes PC16
-# relocation a no-op while preserving the authenticated fallback tuple.
+# objects owns four switch tables and three literal-pool floats. Trim only
+# IDO's final alignment word from their combined input section. Both default
+# branches are already resolved: site-bound PC16 records preserve their fields
+# and the exact relocation identities of the assembled fallback functions.
+# Name the input rodata base so table identities remain unambiguous in the ELF.
 $(BUILD_DIR)/$(SRC_DIR)/main/objects.c.o: $(TOOLS_DIR)/add_elf_relocations.py \
-    $(TOOLS_DIR)/rebind_elf_relocations.py $(TOOLS_DIR)/filter_elf_relocations.py \
-    $(TOOLS_DIR)/trim_elf_section.py config/normalizations/objects-init-table.us.txt \
-    config/normalizations/objects-init-labels.us.txt
+    $(TOOLS_DIR)/trim_elf_section.py $(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/main/objects.c.o: POSTPROCESS = \
-	$(OBJCOPY) @config/normalizations/objects-init-labels.us.txt \
-	    --add-symbol objectsInitSwitchRelocBase=0x8008100C,global \
-	    --add-symbol objectsInitDefaultBranch=.text:0x6718,local $@ && \
+	$(OBJCOPY) --add-symbol objectsSizeDefaultBranch=.text:0x6500,local \
+	    --add-symbol objectsInitDefaultBranch=.text:0x6718,local \
+	    --add-symbol objectsSwitchTablesBase=.rodata:0,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x52C && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-	    0x6720:.rodata:objectsInitSwitchRelocBase \
-	    0x6728:.rodata:objectsInitSwitchRelocBase && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .rodata \
-	    @config/normalizations/objects-init-table.us.txt && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x24C \
-	    sha256:eb2ee274b851b35e0f07593a45cb66afd152cac08bf81f3c8ec6d98767740fe3 && \
+	    0x6508:.rodata:objectsSwitchTablesBase \
+	    0x6510:.rodata:objectsSwitchTablesBase \
+	    0x6720:.rodata:objectsSwitchTablesBase \
+	    0x6728:.rodata:objectsSwitchTablesBase && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/add_elf_relocations.py $@ .text 0x6BAC \
-	    665d10243b3e1aae031ac8725255f80269d00517456d230330be89904b582cab \
+	    d22e3480bdc67231e317a2c8c6c0655617566c7363f008d5607d0719fe73ffa9 \
+	    0x6500:PC16:objectsSizeDefaultBranch:0x76 \
 	    0x6718:PC16:objectsInitDefaultBranch:0x120
 # JFG's source-level string migration reproduces diRcp's complete diagnostic
 # string block followed by the 0x100-byte switch-table span. The following

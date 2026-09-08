@@ -1691,29 +1691,40 @@ section trimming still leave only 78/111 linked words equal. It has no export;
 its sole inbound is the local JUMP from `overlay98CollectAccepted+0x74` at
 module offset `+0x1B8`.
 
+Resident `func_8000A830` owns three exact configured records across its
+`0x208`-byte range: a PC16 default branch and the compiler-table HI16/LO16
+pair. It is frameless with no saved registers or outgoing calls. Its sole
+inbound is `func_8000590C+0x3BC`, passing the object and storage cursor and
+consuming the returned size. There is no ORT export or runtime inbound.
+The direct switch expression removes the named type carrier and reproduces
+all 130 instruction words under the existing shared-TU flags. The 119-row
+flag lattice attempted every configuration, scored 53 and retained 66 tool
+rejections; no row was exact before that source change.
+
 Resident `func_8000AA38` owns 74 exact configured records across its
-`0x4B4`-byte range: one PC16 default branch, a retained-table HI16/LO16
+`0x4B4`-byte range: one PC16 default branch, a compiler-table HI16/LO16
 pair, six resident calls and 65 runtime overlay calls. The runtime table
 identifies every overlay by module and offset; those calls intentionally
 share the resident `TrapDanglingJump` encoding. ORT 169 exports the dispatcher,
 and `func_8000590C+0x9D8` is its sole direct inbound, passing object, entry
-and zero preserve-state. No resident runtime or overlay SYMBOL inbound
-references that export. The source now forwards all three argument registers;
-the character-control case instead supplies its separately proved mode one.
+and zero preserve-state. No resident runtime, overlay SYMBOL or stored-pointer
+inbound references that export. The source forwards all three argument
+registers; the character-control case supplies its separately proved mode one.
 
-IDO resolves the default branch internally. A same-section symbol at that
-branch's own site permits an asserted PC16 record with its unchanged addend;
-ordinary linking preserves the displacement and reproduces the fallback's
-exact destination. All 71 local branch destinations are independently exact.
-The compiler's private table has addend `0x24C`, and all 92 destinations
-resolve to the retained table's real ROM addresses. Only those duplicate
-R_MIPS_32 records and the digest-checked trailing data are removed; the earlier
-`0x24C` rodata prefix stays compiler-owned. The two references bind to a
-retained-table base accounting for that original addend, and metadata labels
-preserve every retained table target. The configured and raw TU executable
-sections are identical. An independent comparison against the archived
-fallback's 74 tuples proves count, type, offset and effective identity; the
-linked owned range, retained table and full ROM are exact C.
+IDO resolves both default branches internally. Same-section symbols at the
+branch sites permit asserted PC16 records with unchanged addends; ordinary
+linking preserves each displacement and reproduces the respective fallback's
+exact destination. Both 92-entry compiler tables now occupy their original
+ROM positions in the shared `0x52C` rodata prefix, after the earlier tables
+and constants. Only the final zero alignment word is trimmed. This retires
+the first dispatcher's temporary retained-table labels, filters and absolute
+rebinding. A named symbol at the compiler input rodata section's zero offset
+binds both table address pairs without changing their addends; the linked ELF
+therefore exposes their actual section base without anonymous-section ambiguity.
+Configured and raw TU executable sections remain identical. Independent
+comparisons against the archived fallback tuples prove both relocation counts,
+types, offsets and effective identities; all 184 table destinations, both
+linked owned ranges, the complete shared rodata range and full ROM are exact.
 
 ### 6.2 What the site alignment unlocks
 

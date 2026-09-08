@@ -4824,16 +4824,11 @@ s32 func_8000A6E8(s32 arg0) {
     }
     return flags;
 }
-/* Workbench verdict: allocation-mismatch; 7 differing words (130/130). */
-/* First mismatch: +0x10; frame and opcode schedule are exact. */
-/* Shape status: recovered switch control flow; jump-table relocation targets remain. */
-#ifdef NON_MATCHING
+/* Tier A: Mickey-only switch destinations, field widths, and linked bytes. */
 s32 func_8000A830(Objects0A830Object *arg0, void *arg1) {
     s32 size;
-    s32 type;
 
-    type = arg0->unk40->unk1C - 1;
-    switch (type) {
+    switch (arg0->unk40->unk1C - 1) {
         case 0: size = 0x460; break;
         case 5: size = 0x18; break;
         case 19: size = 0xC; break;
@@ -4897,9 +4892,6 @@ s32 func_8000A830(Objects0A830Object *arg0, void *arg1) {
     }
     return (size & -4) + 4;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000A830.s")
-#endif
 struct Objects0AA38Object {
     u8 pad00[0x40];
     Objects0A830Data *unk40;
