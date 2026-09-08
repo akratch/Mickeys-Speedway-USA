@@ -49,6 +49,26 @@ bytes and disassembly never belong here.
   a focused mechanism probe; keep it only after every function in the shared
   TU, all relocations, and the linked image remain exact. Evidence: Overlay
   25's exact effect initializer in `docs/overlays.md`.
+- A per-TU flag adopted mid-iteration can be byte-inert by the time the source
+  lever lands, and loop unrolling is the common case. IDO's rotator peels a
+  loop head into the preheader when a separate start-value copy keeps the
+  counter live across it, and the unroller then emits a wide body plus a
+  runtime remainder prologue. Folding the start value into the counter itself
+  removes the peel, after which `-Wo,-loopunroll,0` has nothing left to
+  suppress. Re-test any flag adopted while the source was still wrong:
+  rebuild the TU with and without it and compare every function's `.text`
+  bytes symbol by symbol, in both the canonical and `-DNON_MATCHING` builds.
+  Object hashes are not the test; the driver embeds the asm-processor's
+  temporary preprocessed-file name, so two objects built from identical
+  inputs differ outside `.text`. Pair the test with a positive control that
+  drops a flag known to move that TU's codegen, so an all-identical result is
+  a measurement rather than a broken comparison. An inert flag may stay as
+  the recorded constraint, but it is not a fresh lever for the TU's other
+  unmatched functions and their residuals must not be attributed to it.
+  Evidence: overlay 8's translation unit, where all 21 functions compile to
+  identical `.text` with and without `-Wo,-loopunroll,0` and the ROM verifies
+  either way, while dropping `-Wab,-r4300_mul` as the control moves seven of
+  them.
 
 ### Retained data and relocations
 

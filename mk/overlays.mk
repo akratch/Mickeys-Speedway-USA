@@ -318,10 +318,18 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay_004.c.o: POSTPROCESS = \
 O8_OBJ := $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay_008.c.o
 $(O8_OBJ): config/normalizations/overlay8UpdateChannels.rebind.spec
 # -Wo,-loopunroll,0: the shipped +0x34A0 body walks its four-entry angle
-# array as a single rolled do-while, while the default -O2 unroller emits a
-# four-wide body plus a runtime remainder prologue.  The whole ROM still
-# rebuilds byte-identically with the flag, so no already-matched function in
-# this translation unit depends on unrolling.
+# array as a single rolled do-while, while the default -O2 unroller emitted a
+# four-wide body plus a runtime remainder prologue from the two-variable
+# counter form this file used to carry.  The whole ROM still rebuilds
+# byte-identically with the flag, so no already-matched function in this
+# translation unit depends on unrolling.
+#
+# Re-measured against the current source: the flag is now byte-inert.  Every
+# function in this unit compiles to identical .text with and without it, in
+# both the canonical and -DNON_MATCHING builds, because the single-counter
+# do-while spelling already denies the rotator its peel.  Keep it as the
+# recorded constraint; it is not a lever for this unit's other unmatched
+# functions.  See docs/ido-learnings.md.
 $(O8_OBJ): CFLAGS += -Wab,-r4300_mul -Wo,-loopunroll,0
 $(O8_OBJ): POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
