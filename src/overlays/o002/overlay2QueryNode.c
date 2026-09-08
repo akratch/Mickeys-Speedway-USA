@@ -148,6 +148,6 @@ s32 overlay2QueryNode(f32 x0, f32 y0, f32 x1, f32 y1,
  * frame: 0x68
  * relocations: 51
  * first-mismatch: +0x58
- * summary: V0 retains 52 raw and 40 masked differences with 22 opcode mismatches; 119 flags and nine natural forms exhausted. Next: leaf-loop and recursive CFG types.
+ * summary: V0 restored (52 raw/40 masked). Leaf-zero plus recursive OR shortened to 250 words and regressed to 164 raw/155 masked; trial in=155/out=2220.
  * PLATEAU-HANDOFF:overlay2QueryNode:end
  */
