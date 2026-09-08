@@ -1150,65 +1150,45 @@ void func_80004B04(s32 arg0)
     }
   }
 }
-/* Workbench verdict: structure-mismatch; 234 differing words (target 238, candidate 242). */
-/* First mismatch: +0x0; target frame 0x48 versus candidate frame 0x68. */
-/* Structural gap: ROM table carrier setup adds four instructions and 0x20 bytes of stack. */
 #ifdef NON_MATCHING
+/* PROVENANCE: ROM-table scan and direct array-carrier spelling informed by
+ * Diddy Kong Racing public src/objects.c track_spawn_objects. Mickey ROM
+ * controls its boundaries, globals, record format and spawn conditions. */
 void func_80004C28(s32 arg0, s32 arg1) {
-    void *heap;
-    s32 *romTable;
-    s32 *table;
-    s16 **currentSlot;
-    s32 *sizeSlot;
-    s32 *idSlot;
-    void **heapSlot;
-    s16 *current;
-    s32 start;
     s32 size;
-    s32 tableCount;
     s32 offset;
-    s32 indexOffset;
-    s32 shouldCall;
-    s16 type;
-    u8 recordSize;
+    s32 tableCount;
+    s32 *heap;
+    s16 *current;
+    s32 *romTable;
+    s32 start;
 
     heap = func_8002B280(0x3000, 0x8B);
-    indexOffset = arg1 * 4;
-    heapSlot = (void **)((u8 *)D_800C94D8 + indexOffset);
-    currentSlot = (s16 **)((u8 *)D_800C94C0 + indexOffset);
-    sizeSlot = (s32 *)((u8 *)D_800C94C8 + indexOffset);
-    idSlot = (s32 *)((u8 *)D_800C94D0 + indexOffset);
-    *heapSlot = heap;
-    *currentSlot = (s16 *)((u8 *)heap + 0x10);
-    *sizeSlot = 0;
-    *idSlot = arg0;
+    D_800C94D8[arg1] = heap;
+    D_800C94C0[arg1] = (s32)((u8 *)heap + 0x10);
+    D_800C94C8[arg1] = 0;
+    D_800C94D0[arg1] = arg0;
 
     romTable = piRomLoad(0x1C);
-    table = romTable;
-    tableCount = 0;
-    if (*table != -1) {
-        do {
-            tableCount += 1;
-            table += 1;
-        } while (table[1] != -1);
+    for (tableCount = 0; romTable[tableCount] != -1; tableCount++) {
     }
     tableCount -= 1;
     if (arg0 >= tableCount) {
         arg0 = 0;
     }
-    table = &romTable[arg0];
-    start = table[0];
-    size = table[1] - start;
+    start = romTable[arg0];
+    size = romTable[arg0 + 1] - start;
     mmFree(romTable);
     if (size == 0) {
         return;
     }
 
     piRomLoadSection(0x1D, (u32)heap, start, size);
-    *currentSlot = (s16 *)((u8 *)*heapSlot + 0x10);
-    *sizeSlot = *(s32 *)heap;
+    D_800C94C0[arg1] = (s32)((u8 *)D_800C94D8[arg1] + 0x10);
+    D_800C94C8[arg1] = *heap;
     D_800C94E8 = arg1;
-    if (idSlot == &D_800C94D4[0]) {
+    romTable = &D_800C94D0[arg1];
+    if (romTable == &D_800C94D4[0]) {
         D_80078F78 = 1;
         runlinkDownloadCode(8);
         runlinkDownloadCode(1);
@@ -1217,13 +1197,12 @@ void func_80004C28(s32 arg0, s32 arg1) {
     }
 
     offset = 0;
-    if (*sizeSlot > 0) {
+    if (D_800C94C8[arg1] > 0) {
         do {
-            current = *currentSlot;
-            type = *current;
-            shouldCall = 1;
+            tableCount = 1;
             if (D_8007BF0C != 0) {
-                switch (type) {
+                current = (s16 *)D_800C94C0[arg1];
+                switch (*current) {
                 case 0x1B:
                     *current = 0xEA;
                     break;
@@ -1241,42 +1220,43 @@ void func_80004C28(s32 arg0, s32 arg1) {
                 case 0x107:
                 case 0x12C:
                     if ((s32)D_8007BEF8 >= 3) {
-                        shouldCall = 0;
+                        tableCount = 0;
                     }
                     break;
                 case 0x106:
                 case 0x131:
                 case 0x132:
                 case 0x147:
-                    shouldCall = 0;
+                    tableCount = 0;
                     break;
                 }
             }
-            current = *currentSlot;
-            type = *current;
-            if ((type == 0x3F) && ((D_8007BF1C & 0x20) != 0)) {
-                shouldCall = 0;
+            current = (s16 *)D_800C94C0[arg1];
+            if ((*current == 0x3F) && ((D_8007BF1C & 0x20) != 0)) {
+                tableCount = 0;
             }
-            if ((type == 1) || (type == 0x155) || (type == 0x156)) {
+            if ((*current == 1) || (*current == 0x155) || (*current == 0x156)) {
                 if (D_800D3128[0x12] >= 0x15) {
                     *current = 0x156;
+                    current = (s16 *)D_800C94C0[arg1];
                 } else if ((*(u16 *)(D_800D3128 + 0x14) & 0x40) != 0) {
                     *current = 0x155;
+                    current = (s16 *)D_800C94C0[arg1];
                 } else {
                     *current = 1;
+                    current = (s16 *)D_800C94C0[arg1];
                 }
-                current = *currentSlot;
             }
-            if (shouldCall != 0) {
-                func_8000590C(current, 1, offset, 0x155);
-                current = *currentSlot;
+            if (tableCount != 0) {
+                func_8000590C(current, 1);
+                current = (s16 *)D_800C94C0[arg1];
             }
-            recordSize = *((u8 *)current + 2);
-            *currentSlot = (s16 *)((u8 *)current + recordSize);
-            offset += recordSize;
-        } while (offset < *sizeSlot);
+            tableCount = *((u8 *)current + 2);
+            D_800C94C0[arg1] = (s32)((u8 *)current + tableCount);
+            offset += tableCount;
+        } while (offset < D_800C94C8[arg1]);
     }
-    *currentSlot = (s16 *)((u8 *)*heapSlot + 0x10);
+    D_800C94C0[arg1] = (s32)((u8 *)D_800C94D8[arg1] + 0x10);
     if (D_800C9478 == 0) {
         func_80006FA0();
     }
@@ -5762,4 +5742,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x38
  * summary: Workbench allocation-mismatch: register-role-audit; exact instruction layout and relocations, next prove saved-register role competition.
  * PLATEAU-HANDOFF:func_80006534:end
+ */
+
+/* PLATEAU-HANDOFF:func_80004C28:start
+ * symbol: func_80004C28
+ * score: 7 differing words
+ * frame: 0x48
+ * relocations: 39
+ * first-mismatch: +0x5C
+ * summary: Workbench allocation-mismatch: register-role-audit. Next: isolate heap-spill line order and the short-lived record-length web.
+ * PLATEAU-HANDOFF:func_80004C28:end
  */
