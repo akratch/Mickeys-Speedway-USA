@@ -6,7 +6,16 @@
 - frame: 0xd0
 - relocations: 11
 - first mismatch: +0x0
-- summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+- summary: Mickey m2c reproduces existing edge/endpoint tests; no new structural identity. Next: source-proved texture-global and counter lifetimes.
+
+#### Mickey m2c structural audit, 2026-09-09
+
+- The assignment gate returned `base-only` for the authorized Mickey-only reconstruction mechanism. A fresh configured full-TU baseline and workbench diagnosis retain 344 candidate versus 342 target words, 327 differing words, first +0x0, candidate frame 0xd0 versus target 0xc0, and 11 candidate versus 15 target relocation records with 2 exact offset/type/identity records. Verdict `structure-mismatch`, playbook `constant-audit`.
+- The m2c draft reproduces the existing edge test followed by the two conditional endpoint tests, including the minimum-distance checks, normal/position output order, metadata lookup and texture-byte access. The record stride is 0x2c and the direction begins at record offset 0x18. Calls resolve to the existing `func_80012234` and `func_80012574` implementations. No missing branch, constant, call identity or field interpretation was exposed.
+- The draft's extra copies of the return flag around calls describe spills in the generated program; they are not evidence for new source locals. The named plane differences have already been tested in the committed prior plateau. No allocation rewrite, repeated flag lattice, or permuter trial was substituted for the authorized mechanism.
+- Stop evidence: zero new source attempts. The recovered data flow already exists in the guarded candidate; the remaining texture-global hoist, loop-counter spill and frame excess are the previously documented source-lifetime problem. Source and configured object are preserved with the fresh baseline under ignored `build/wb/tu-track/func_80011CDC/`.
+- Next concrete lever: source-attributed lifetimes explaining the unhoisted texture global and loop counter, authenticated against Mickey's ABI, under a new allocation/source-lifetime authorization. Preserve the existing plane-difference evidence.
+- Validation: configured full-TU `wb_compare.sh`, workbench `diagnose` and `guide constant-audit`, `tools/finalize_plateau.py`, and `gmake verify cleanroom check-docs`. The original `NON_MATCHING`/`GLOBAL_ASM` guard remains; zero matching bytes are claimed.
 
 #### Pinned donor audit, 2026-09-08
 
