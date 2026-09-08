@@ -1627,42 +1627,52 @@ void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
     }
 }
 
-/* NON_MATCHING pipeline plateau: exact-TU -Wo,-loopunroll,0 is 910 vs 898
- * instructions, 750 masked/751 raw words different, frames -0xC8/-0x80,
- * first +0x0. A terrain-sample cursor gains four masked words; stack-overlay,
- * initialization-order, block-lifetime, and alternate loop forms regress.
- * Remains: 0x48-byte query/FP spill ownership, downstream temp cascade, and
- * ambiguous runtime identity for the F49E8 call; GLOBAL_ASM stays canonical. */
+/* NON_MATCHING: 897 vs 898 instructions, 482 masked/506 raw words different,
+ * frame -0x80 exact, 107 of the shipped 109 relocations with 59 offset/type
+ * pairs agreeing and 50 identities resolved, first mismatch +0x1C.  Eighteen
+ * of the twenty-one call-delimited regions are exact; the three that are not
+ * are +1, +1 and -3 words.  Eight of the fifteen stack homes -- the scratch
+ * quad, the mode/target/counter trio and every incoming-argument home -- sit
+ * at the shipped offsets.
+ *
+ * Two things block the rest.  The six remaining homes are four bytes high
+ * because the shipped frame wants one escaping four-byte pointer at +0x40 and
+ * a separate escaping four-word block at +0x58, with +0x44/+0x48/+0x4C
+ * serving as ordinary float homes between them; measured with this compiler,
+ * a single aggregate never lends its padding to a home, four plain scalars
+ * lose the -1 stores to dead-store elimination, and volatile scalars keep the
+ * stores at a cost of roughly 270 extra differing words.  Separately, the
+ * shipped selector burst re-reads gOverlay8Buffer even straight after storing
+ * it, which is the whole of the -3 region and the two missing relocations;
+ * declaring the pointer volatile reproduces that shape but changes code this
+ * unit already matches, so it is not available.  GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
                                       O8P34A0State *state, f32 limit,
                                       f32 update) {
-    O8P34A0Query query;
-    f32 **sample;
-    f32 selectedValue;
-    f32 blend;
-    f32 result;
-    f32 height;
-    f32 strength;
-    f32 delta;
-    f32 trigA;
-    f32 trigB;
-    f32 factor;
-    f32 overrideValue;
-    s32 selectedMode;
-    s8 ownerMode;
-    s32 sampleCount;
     s32 index;
-    s32 start;
+    s32 sampleCount;
     s32 target;
+    s32 selectedMode;
+    f32 trigB;
+    f32 delta;
+    O8P34A0Query query;
+    f32 blend;
+    f32 selectedValue;
+    f32 result;
+    f32 **sample;
+    f32 trigA;
+    f32 factor;
+    f32 strength;
+    s16 outputAngle;
+    s8 ownerMode;
     s32 steps;
-    s32 remaining;
 
     selectedMode = owner->mode3B;
-    query.scratch18 = -1;
-    query.scratch1C = -1;
-    query.scratch20 = -1;
-    query.scratch24 = -1;
+    query.scratch04 = -1;
+    query.scratch08 = -1;
+    query.scratch0C = -1;
+    query.scratch10 = -1;
     result = 0.0f;
     selectedValue = 0.0f;
     blend = 0.0f;
@@ -1746,8 +1756,8 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
         } else if ((owner->mode3B == 0) &&
                    (o8P34A0RandomReloc(0, 0x3FF) >= 0x3FB)) {
             blend = 0.0f;
-            selectedValue = D_204;
             selectedMode = o8P34A0RandomReloc(0x11, 0x12);
+            selectedValue = D_204;
         }
     }
 
@@ -1766,12 +1776,11 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
                 if (sampleCount > 0) {
                     sample = query.samples0;
                     do {
-                        height = **sample;
+                        result = **sample;
                         index++;
                         sample++;
-                    } while ((height >= owner->y10) &&
+                    } while ((result >= owner->y10) &&
                              (index != sampleCount));
-                    result = height;
                 }
                 result = owner->y10 - result;
                 if (result > 40.0f) {
@@ -1819,12 +1828,14 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
         selectedValue = D_228;
         if ((state->value8C <= D_22C) || (D_230 <= state->value8C)) {
             selectedMode = 0x13;
+            ownerMode = owner->mode3B;
         } else if (state->value90 >= 0.0f) {
             selectedMode = 0x14;
+            ownerMode = owner->mode3B;
         } else {
             selectedMode = 0x15;
+            ownerMode = owner->mode3B;
         }
-        ownerMode = owner->mode3B;
     }
 
     if ((ownerMode == 0x18) && (owner->scale28 != 1.0f)) {
@@ -1855,12 +1866,12 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
         o8P34A0EventReloc(owner, 0x3C, selectedMode);
     }
 
-    start = 0;
+    index = 0;
     if (gOverlay8Value != 0) {
-        start = 2;
+        index = 2;
         o8P34A0StateEffectReloc(state, 0x28, 0.15f);
     }
-    for (index = start; index < 4; index++) {
+    for (; index < 4; index++) {
         state->angles114[index] +=
             (s32)(state->motion4 * update * D_240);
     }
@@ -1875,11 +1886,11 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
     }
     steps = (s32)update;
     if (steps != 0) {
-        remaining = steps - 1;
+        index = steps - 1;
         do {
             state->angle110 +=
                 o8P34A0ApproachReloc(state->angle110, target) >> 2;
-        } while (remaining-- != 0);
+        } while (index-- != 0);
     }
     state->angle112 = state->angle110;
 
@@ -1894,13 +1905,6 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
     func_overlay_008_F00049E8_1862740(owner, state, update);
 
     if (state->kind1 == 4) {
-        f32 strength;
-        f32 delta;
-        f32 trigA;
-        f32 trigB;
-        f32 factor;
-        s16 outputAngle;
-
         if ((state->motion4 < 0.0f) && (limit != 0.0f)) {
             if (state->motion4 < -limit) {
                 outputAngle = -0x3000;
@@ -1908,18 +1912,19 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
                 outputAngle = (s16)(s32)((12288.0f / limit) *
                                          state->motion4);
             }
+            trigA = D_244;
             strength = -state->motion4 / limit;
             delta = (update / 60.0f) * strength * 25.0f;
             state->phase3EC += delta;
             state->phase3F0 += delta;
-            if (D_244 <= state->phase3EC) {
-                state->phase3EC -= D_244;
+            if (trigA <= state->phase3EC) {
+                state->phase3EC -= trigA;
             }
-            if (D_244 <= state->phase3F0) {
-                state->phase3F0 -= D_244;
+            if (trigA <= state->phase3F0) {
+                state->phase3F0 -= trigA;
             }
             trigA = o8P34A0TrigAReloc(
-                (s32)((state->phase3EC / D_244) * 65536.0f));
+                (s32)((state->phase3EC / trigA) * 65536.0f));
             trigB = o8P34A0TrigBReloc(
                 (s32)((state->phase3F0 / D_248) * 65536.0f));
             factor = strength * 4096.0f;
@@ -1952,18 +1957,15 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
         *gOverlay8Buffer = state->output3F6;
         gOverlay8Buffer++;
     } else if (state->kind1 == 2) {
-        f32 strength;
-        f32 trigA;
-        f32 factor;
-
         if ((state->motion4 < 0.0f) && (limit != 0.0f)) {
+            factor = D_258;
             strength = -state->motion4 / limit;
             state->phase3EC += (update / 60.0f) * strength * 30.0f;
-            if (D_258 <= state->phase3EC) {
-                state->phase3EC -= D_258;
+            if (factor <= state->phase3EC) {
+                state->phase3EC -= factor;
             }
             trigA = o8P34A0TrigAReloc(
-                (s32)((state->phase3EC / D_258) * 65536.0f));
+                (s32)((state->phase3EC / factor) * 65536.0f));
             state->output3F4 = (s32)(8192.0f * strength * trigA);
         } else {
             factor = 1.0f - o8P34A0DecayReloc(D_25C, steps);
@@ -2490,11 +2492,11 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
 
 /* PLATEAU-HANDOFF:func_overlay_008_F00034A0_18611F8:start
  * symbol: func_overlay_008_F00034A0_18611F8
- * score: 750 differing words
- * frame: 0xC8
- * relocations: 21
- * first-mismatch: +0x0
- * summary: Target frame 0x80; candidate relocation identity remains ambiguous; next lever is query and FP stack ownership.
+ * score: 482/506 words
+ * frame: 0x80
+ * relocations: 107
+ * first-mismatch: +0x1C
+ * summary: 18 of 21 call regions and the 0x80 frame are exact; the rest needs an escaping-object pair no aggregate or scalar form yields, plus a conservative buffer reload
  * PLATEAU-HANDOFF:func_overlay_008_F00034A0_18611F8:end
  */
 
