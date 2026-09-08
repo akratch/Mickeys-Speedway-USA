@@ -98,10 +98,10 @@ OSGbpakId *func_80058240(void) {
 
 /* PLATEAU-HANDOFF:func_800580F0:start
  * symbol: func_800580F0
- * score: 49/51 words
+ * score: 42/51 words
  * frame: 0x30
  * relocations: 17
  * first-mismatch: +0xC
- * summary: IDO -O2 hoists D_800D7830 into s0; target reloads it at each call, so the frame and relocation surface differ.
+ * summary: IDO hoists D_800D7830 into s0 while the target reloads it at calls, leaving allocation and relocation differences.
  * PLATEAU-HANDOFF:func_800580F0:end
  */

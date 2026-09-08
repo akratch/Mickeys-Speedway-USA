@@ -295,8 +295,8 @@ s32 func_8004F020(void) {
  * score: 79/82 words
  * frame: 0x10
  * relocations: 12
- * first-mismatch: +0x8
- * summary: Extra saved-register setup remains; next lever is direct global-address expression shape.
+ * first-mismatch: +0x0
+ * summary: Candidate has an extra saved-register setup; next lever is direct global-address expression shape.
  * PLATEAU-HANDOFF:func_8004EC60:end
  */
 

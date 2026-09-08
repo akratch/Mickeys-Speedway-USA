@@ -347,3 +347,13 @@ s32 *func_overlay_001_F0002B4C_184EF2C(s32 *arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/func_overlay_001_F0002B4C_184EF2C/func_overlay_001_F0002B4C_184EF2C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_001_F0002B4C_184EF2C:start
+ * symbol: func_overlay_001_F0002B4C_184EF2C
+ * score: 433 differing words
+ * frame: 0xC8
+ * relocations: 63
+ * first-mismatch: +0x0
+ * summary: Candidate is four instructions shorter and unresolved relocation identities prevent a linked trial; schedule allocation remains the next lever.
+ * PLATEAU-HANDOFF:func_overlay_001_F0002B4C_184EF2C:end
+ */
