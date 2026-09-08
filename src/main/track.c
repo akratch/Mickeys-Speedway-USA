@@ -5789,7 +5789,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x138
  * relocations: 8
  * first-mismatch: +0x8
- * summary: Configured 321 words; no-unroll reaches 261 words and 229 differences. Add sized ownership, then assess a function-isolated no-unroll boundary.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_8001357C:end
  */
 
