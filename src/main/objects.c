@@ -2904,60 +2904,48 @@ extern void lightUpdateLights(s32 updateRate);
 extern void lightUpdateObjects(void);
 extern void amPlayAudioMap(void **objects, s32 count, s32 updateRate);
 
-/* Workbench verdict: structure-mismatch; 273 differing words (277/263). */
-/* First mismatch: +0x0; target frame 0x100 versus candidate frame 0x108. */
-/* Structural gap: object-list carrier, stack-home placement, and late-loop register shape remain unresolved. */
 #ifdef NON_MATCHING
 void func_8000784C(s32 arg0) {
-    void *pending[0x20];
     Objects0784CObject *object;
-    Objects0784CObject ** volatile *objectList;
-    s32 *objectCount;
-    Objects0784CData *data;
+    Objects0784COutput *output;
     Objects0784CAnimation *animation;
     Objects0784CEffect *effect;
-    Objects0784CEffect *effectEnd;
     s32 i;
+    s32 count;
     s32 objectOffset;
-    s32 objectEnd;
     s32 pendingCount;
-    s32 timer;
+    Objects0784CObject *pending[0x20];
 
-    objectList = (Objects0784CObject ** volatile *)&D_800C94F4;
-    objectCount = &D_800C94F8;
-    i = 0;
-    if (*objectCount > 0) {
-        objectOffset = 0;
+    count = 0;
+    if (D_800C94F8 > 0) {
         do {
-            object = *(Objects0784CObject **)((u8 *)*objectList + objectOffset);
-            object->unk64->unk38 = object->unkC;
-            object->unk64->unk3C =
-                (*(Objects0784CObject **)((u8 *)*objectList + objectOffset))->unk10;
-            object->unk64->unk40 =
-                (*(Objects0784CObject **)((u8 *)*objectList + objectOffset))->unk14;
-            object->unk64->unkF6 =
-                (*(Objects0784CObject **)((u8 *)*objectList + objectOffset))->unk0;
-            object->unk64->unkF8 =
-                (*(Objects0784CObject **)((u8 *)*objectList + objectOffset))->unk2;
-            object->unk64->unkFA =
-                (*(Objects0784CObject **)((u8 *)*objectList + objectOffset))->unk4;
-            i += 1;
-            objectOffset += 4;
-        } while (i < *objectCount);
+            output = ((Objects0784CObject *)D_800C94F4[count])->unk64;
+            output->unk38 = ((Objects0784CObject *)D_800C94F4[count])->unkC;
+            output->unk3C =
+                ((Objects0784CObject *)D_800C94F4[count])->unk10;
+            output->unk40 =
+                ((Objects0784CObject *)D_800C94F4[count])->unk14;
+            output->unkF6 =
+                ((Objects0784CObject *)D_800C94F4[count])->unk0;
+            output->unkF8 =
+                ((Objects0784CObject *)D_800C94F4[count])->unk2;
+            output->unkFA =
+                ((Objects0784CObject *)D_800C94F4[count])->unk4;
+            count += 1;
+        } while (count < D_800C94F8);
     }
 
-    objectList = (Objects0784CObject ** volatile *)&D_800C94F4;
 
     if (runlinkIsModuleLoaded(0x14) != 0) {
         TrapDanglingJump(arg0);
     }
 
+    count = D_800C9498;
+    objectOffset = D_800C949C;
     pendingCount = 0;
-    if (D_800C949C < D_800C9498) {
-        objectOffset = D_800C949C * 4;
-        objectEnd = D_800C9498 * 4;
+    if (objectOffset < count) {
         do {
-            object = *(Objects0784CObject **)((u8 *)D_800C9494 + objectOffset);
+            object = ((Objects0784CObject **)D_800C9494)[objectOffset];
             if ((object->unk44 == 7) || (object->unk44 == 0x1C) ||
                 (object->unk44 == 0x50) || (object->unk44 == 0x42)) {
                 if (pendingCount < 0x20) {
@@ -2966,8 +2954,7 @@ void func_8000784C(s32 arg0) {
                 }
             } else if (object->unk44 != 0xF) {
                 func_8000AEEC(object, arg0);
-                data = object->unk40;
-                if ((data->unk1E == 0) && (data->unkA2 != 0xFF)) {
+                if ((object->unk40->unk1E == 0) && (object->unk40->unkA2 != 0xFF)) {
                     func_80007E40((Objects07E40Object *)object, arg0);
                 }
                 if ((object->unk44 != 1) && (object->unk54 != NULL)) {
@@ -2977,25 +2964,17 @@ void func_8000784C(s32 arg0) {
                 if (animation != NULL) {
                     if (animation->unkE != 0) {
                         if (animation->unk8 != NULL) {
-                            timer = animation->unkC + (animation->unkE * arg0);
-                            animation->unkC = timer;
-                            if ((timer & 0xFFFF) >=
-                                ((u16 *)animation->unk8)[8]) {
-                                do {
-                                    timer = (timer & 0xFFFF) -
-                                        ((u16 *)animation->unk8)[8];
-                                    animation->unkC = timer;
-                                } while ((timer & 0xFFFF) >=
-                                         ((u16 *)animation->unk8)[8]);
+                            animation->unkC += (u32)animation->unkE * arg0;
+                            while (animation->unkC >= ((u16 *)animation->unk8)[8]) {
+                                animation->unkC -= ((u16 *)animation->unk8)[8];
                             }
                         }
                     }
                 }
-                effect = (Objects0784CEffect *)object->unk60;
-                if (effect != NULL) {
+                if (object->unk60 != NULL) {
+                    effect = object->unk60;
                     i = 0;
-                    effectEnd = effect + object->unk8C;
-                    while (effect < effectEnd) {
+                    while (i < object->unk8C) {
                         func_80036544(effect->unk0, &effect->unkC,
                                       effect->unk5, &effect->pad10,
                                       arg0);
@@ -3004,41 +2983,32 @@ void func_8000784C(s32 arg0) {
                     }
                 }
             }
-            objectOffset += 4;
-        } while (objectOffset < objectEnd);
+            objectOffset += 1;
+        } while (objectOffset < count);
     }
 
-    timer = D_80078F80 - arg0;
     if (D_80078F80 != 0) {
-        D_80078F80 = timer;
-        if (timer < 0) {
+        D_80078F80 -= arg0;
+        if (D_80078F80 < 0) {
             D_80078F80 = 0;
         }
     }
 
     i = 0;
-    objectOffset = 0;
-    if (D_800C94F8 > 0) {
-        do {
-            func_8001CB84((void *)(*objectList)[objectOffset >> 2], arg0);
-            i += 1;
-            objectOffset += 4;
-        } while (i < *objectCount);
+    for (objectOffset = 0; objectOffset < D_800C94F8; objectOffset++) {
+        func_8001CB84(D_800C94F4[objectOffset], arg0);
     }
     func_80053868(arg0);
-    i = 0;
-    objectOffset = 0;
-    if (D_800C94F8 > 0) {
-        do {
-            func_8001D2A0((void *)(*objectList)[objectOffset >> 2], arg0);
-            i += 1;
-            objectOffset += 4;
-        } while (i < *objectCount);
+    for (objectOffset = 0; objectOffset < D_800C94F8; objectOffset++) {
+        func_8001D2A0(D_800C94F4[objectOffset], arg0);
     }
-    objectOffset = 0;
-    while (objectOffset < pendingCount) {
-        func_8000AEEC(pending[objectOffset], arg0);
-        objectOffset += 1;
+    if (pendingCount > 0) {
+        objectOffset = (s32)pending;
+        do {
+            func_8000AEEC(*(Objects0784CObject **)objectOffset, arg0);
+            i++;
+            objectOffset += sizeof(void *);
+        } while (i != pendingCount);
     }
     lightUpdateLights(arg0);
     lightUpdateObjects();
@@ -5718,4 +5688,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x54
  * summary: Workbench allocation-mismatch: register-role-audit. Next: trace the selected-entry CSE color and known-zero call spill.
  * PLATEAU-HANDOFF:func_80009AA8:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000784C:start
+ * symbol: func_8000784C
+ * score: 2 differing words
+ * frame: 0x100
+ * relocations: 34
+ * first-mismatch: +0x170
+ * summary: Workbench operand-mismatch: constant-audit. Next: authenticate stack homes for the four-byte pending-array displacement.
+ * PLATEAU-HANDOFF:func_8000784C:end
  */
