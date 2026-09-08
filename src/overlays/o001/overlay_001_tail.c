@@ -2827,54 +2827,55 @@ void overlay1UpdateTransient(void) {
 /* ---- overlay1AllocateRecord ---- */
 
 
+typedef struct Overlay1PoolBits {
+    u8 high;
+    u8 group : 6;
+    u8 unused : 1;
+    u8 active : 1;
+} Overlay1PoolBits;
+
+typedef union Overlay1PoolFlags {
+    u16 value;
+    Overlay1PoolBits bits;
+} Overlay1PoolFlags;
+
 typedef struct Overlay1PoolRecord {
     u8 pad00[0xC0];
-    u16 flags;
+    Overlay1PoolFlags flags;
     u8 padC2[0xA];
 } Overlay1PoolRecord;
 
-extern Overlay1PoolRecord *gOverlay1PoolCursor;
-extern Overlay1PoolRecord gOverlay1PoolStart[];
-extern Overlay1PoolRecord gOverlay1PoolEnd[];
-extern s32 gOverlay1PoolGroup;
+extern Overlay1PoolRecord *D_218;
+extern Overlay1PoolRecord D_220[];
+extern Overlay1PoolRecord D_1BA0[];
+extern s32 D_1D88;
 extern s32 gOverlay1PoolExhausted;
+extern s32 D_1D84;
 
-/* Plateau (2026-08-30): the configured full-TU body is exact-sized at 40
- * words and frameless, with 9 relocation-masked differences from +0x6C (10
- * raw from +0x50). All 10 fallback-static relocation offset/type sites align,
- * but none of the same-overlay LOCAL/data identities authenticate. Ten fresh
- * semantic loop, predicate, declaration, and cursor-lifetime forms produced
- * no strict gain; the remaining code residual is the post-predicate ugen
- * temporary FIFO/register web. This candidate has no promoted-linked or
- * linked-ROM exact proof and remains behind NON_MATCHING. */
-#ifdef NON_MATCHING
+/* The redundant width mask is semantically inert for the u16 value; it
+ * preserves IDO's shipped temporary-FIFO phase. See docs/cleanup-queue.md. */
 Overlay1PoolRecord *overlay1AllocateRecord(void) {
     Overlay1PoolRecord *cursor;
     Overlay1PoolRecord *result;
 
-    cursor = gOverlay1PoolCursor;
+    cursor = D_218;
     result = cursor;
     do {
-        cursor = (gOverlay1PoolCursor = cursor + 1);
-        if (cursor >= gOverlay1PoolEnd) {
-            gOverlay1PoolCursor = gOverlay1PoolStart;
-            cursor = gOverlay1PoolStart;
+        cursor = (D_218 = cursor + 1);
+        if (cursor >= D_1BA0) {
+            D_218 = D_220;
+            cursor = D_220;
         }
         if (result == cursor) {
-            gOverlay1PoolExhausted = 1;
+            D_1D84 = 1;
             return 0;
         }
-    } while ((((u32)*((u8 *)cursor + 0xC1) >> 2) ==
-              gOverlay1PoolGroup) && ((cursor->flags & 1) == 0));
+    } while ((((u32)*((u8 *)cursor + 0xC1) >> 2) == D_1D88) &&
+             (((cursor->flags.value & 0xFFFF) & 1) == 0));
 
-    *((u8 *)result + 0xC1) = (*((u8 *)result + 0xC1) & 0xFF03) |
-                                (gOverlay1PoolGroup << 2);
+    result->flags.bits.group = D_1D88;
     return result;
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F00072A4_1853684.s")
-#endif
 
 /* ---- overlay1CloneRecord ---- */
 
@@ -3330,16 +3331,6 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * first-mismatch: +0x0
  * summary: O32 address carrier halves the raw residual; frame, early-load schedule, and five relocation offsets remain after ten forms and 119 flags; no permuter.
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
- */
-
-/* PLATEAU-HANDOFF:overlay1AllocateRecord:start
- * symbol: overlay1AllocateRecord
- * score: 31/40 words
- * frame: frameless
- * relocations: 10
- * first-mismatch: +0x50
- * summary: Masked residual 9 from +0x6C; fallback sites 10/10, LOCAL identities 0/10; ten semantic forms gave no strict gain
- * PLATEAU-HANDOFF:overlay1AllocateRecord:end
  */
 
 /* PLATEAU-HANDOFF:overlay1InitializeGaugeObjects:start

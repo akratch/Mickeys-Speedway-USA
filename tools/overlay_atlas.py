@@ -1205,6 +1205,12 @@ MIXED_TU_EXACT_C_RANGES = {
             "canonical mixed-TU object and linked bytes exact",
         ),
         (
+            0x72A4,
+            0x7344,
+            "overlay1AllocateRecord",
+            "canonical mixed-TU object, 10 runtime relocations, and linked bytes exact",
+        ),
+        (
             0x7344,
             0x73A0,
             "overlay1CloneRecord",
