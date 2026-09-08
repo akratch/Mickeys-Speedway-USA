@@ -2810,7 +2810,8 @@ typedef union Overlay1PoolFlags {
 typedef struct Overlay1PoolRecord {
     u8 pad00[0xC0];
     Overlay1PoolFlags flags;
-    u8 padC2[0xA];
+    u8 padC2[6];
+    u32 value;
 } Overlay1PoolRecord;
 
 extern Overlay1PoolRecord *D_218;
@@ -3174,63 +3175,40 @@ s32 overlay1AdvancePath(Overlay1PathState *state) {
 /* ---- overlay1FindBestRecord ---- */
 
 
-typedef struct Overlay1BestRecord {
-    u8 pad00[0xC0];
-    union {
-        u16 flags;
-        struct {
-            u8 high;
-            u8 type;
-        } bytes;
-    } header;
-    u8 padC2[6];
-    u32 value;
-} Overlay1BestRecord;
-
-extern Overlay1BestRecord gOverlay1BestRecords[32];
-extern s32 gOverlay1SelectedType;
-
 /* Mickey-only reconstruction; pinned DKR v77/v80 and JFG scans have no exact
- * byte donor. Bounded current-layout reproof preserves the exact 30-word,
- * frameless 18/30 basin: all twelve differences are one a1/a3 pool-register
- * exchange, while the temporary lane is exact. All 119 flag configurations
- * were attempted; seven O2/MIPS-II rows tie V0 and none is exact. A
- * fidelity-clean proc-38 allocator trace records ten caller-saved decisions.
- * The selectedType/value declaration swap, block-local value, and record/value
- * declaration-position forms are all byte-identical to V0, exhausting the
- * 122-form cap without a generic batch. Runtime records 884..887 prove both
- * HI16/LO16 pairs and distinct D_220/D_1D88 identities; local caller records
- * 889 and 895 are both in overlay1CreateRecord. Linked range/module/ROM
- * identity still proves fallback only. A historical exact claim rewrote the
- * twelve register fields after compilation and remains prohibited evidence.
- * ADR 0018 resume: five fresh source forms gave no better residual or causal
- * allocation result. Explicit countdown snapshot and unsigned selected-type
- * carrier are byte-flat; direct invariant global access, early value load,
- * and split acceptance branches regress. Preserve this best guarded body.
- * Next lever needs source evidence for different selected-type/value web
- * formation; do not repeat these forms or the prior exhausted routes.
- * Exact promotion must also share the record type with overlay1CreateRecord and
- * metadata-rebind distinct D_220 and D_1D88 identities; neither operation may
- * change candidate instruction fields. */
+ * byte donor. The configured best is the exact 30-word, frameless 28/30 basin,
+ * first mismatch +0x14. Instrumented uopt proves the original twelve-word
+ * register permutation is a caller-saved pool rotation; forced target colours
+ * reach instruction identity, and the direct D_1D88 loop form reaches those
+ * colours naturally. Its remaining two words are the independent D_1D88-load
+ * and countdown-li schedule. Five later natural ordering forms are flat or
+ * regress structurally, so the next lever requires separate emit-order
+ * evidence rather than more allocator forms. The retained value initializer
+ * is a defined, semantically inert ADR 0017 diagnostic and is not promoted;
+ * the assembly fallback remains active. The candidate now uses authentic
+ * D_220/D_1D88 identities and the tail TU's pool-record type, but exact
+ * promotion must still share that type with overlay1CreateRecord. Runtime
+ * records 884..887 prove both HI16/LO16 pairs; local caller records 889 and
+ * 895 are both in overlay1CreateRecord. A historical exact claim rewrote
+ * register fields after compilation and remains prohibited evidence. */
 #ifdef NON_MATCHING
-Overlay1BestRecord *overlay1FindBestRecord(void) {
-    Overlay1BestRecord *record;
-    Overlay1BestRecord *result;
+Overlay1PoolRecord *overlay1FindBestRecord(void) {
+    Overlay1PoolRecord *record;
+    Overlay1PoolRecord *result;
     u32 bestValue;
     register u32 value;
     s32 remaining;
-    register s32 selectedType;
 
-    record = gOverlay1BestRecords;
+    record = D_220;
     bestValue = (u32)-1;
     result = NULL;
-    selectedType = gOverlay1SelectedType;
+    value = 0;
     remaining = 31;
     do {
-        if (selectedType == ((u32)record->header.bytes.type >> 2)) {
+        if (D_1D88 == record->flags.bits.group) {
             value = record->value;
             if ((value == 0) ||
-                (((record->header.flags & 3) == 3) &&
+                (((record->flags.value & 3) == 3) &&
                  (value < bestValue))) {
                 bestValue = value;
                 result = record;
@@ -3247,11 +3225,11 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1FindBestRecord:start
  * symbol: overlay1FindBestRecord
- * score: 18/30 words
+ * score: 28/30 words
  * frame: frameless
  * relocations: 4
- * first-mismatch: +0x4
- * summary: Five fresh forms stalled at 12 differing words; pool-position needs new selected-type/value web-formation evidence; prior exhausted routes remain closed.
+ * first-mismatch: +0x14
+ * summary: structure-mismatch after pool-rotation: 2-word D_1D88 load/count schedule; five later forms flat; next: separate emit-order evidence, not allocator forms
  * PLATEAU-HANDOFF:overlay1FindBestRecord:end
  */
 
