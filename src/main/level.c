@@ -723,7 +723,7 @@ s32 levelInitRegionFlags(void) {
  * frame: 0x28
  * relocations: 36
  * first-mismatch: +0x13C
- * summary: Fidelity-clean IDO 5.3 UGEN tracing improved the pointer-add block to three register-only words. Next lever: a natural mask -> pointer -> scale allocation order; flags and blind permutation are exhausted.
+ * summary: JFG donor body is inapplicable; two indexed-address probes regressed. Retain 114/117. Next: authenticated forced-color oracle for the t3/t4 swap.
  * PLATEAU-HANDOFF:levelFreeAll:end
  */
 
