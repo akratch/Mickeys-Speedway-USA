@@ -1435,22 +1435,28 @@ void func_8001DCD0(s16 rotation, ControlVector3 *vector, s16 *pitch, s16 *yaw);
  * ground-hit and polygon-edge control family, but publish assembly only;
  * this body is reconstructed from Mickey's collision records and fields. */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 430 differing words, first mismatch +0x0. */
-/* Candidate shape: 533 instructions/frame -0x2A0 versus target 533/-0x268; 260 alignment gaps. */
-/* Remaining structural gap: a 0x38-byte frame excess despite an exact instruction count; not shape-exact. */
+/* Workbench verdict: structure-mismatch, 433 differing words, first mismatch +0x0. */
+/* Candidate shape: 533 instructions and frame -0x268, both exact; 260 alignment gaps. */
+/* The 0x38-byte frame excess this candidate used to carry was a declaration
+ * census, not an allocation problem: fourteen m2c-only carriers (the
+ * horizontal/vertical aliases of normalX/normalZ, the write-only spC0 and
+ * sp84 slots, the dead `remainder`, the rotation-clamp temporaries, the
+ * one-use scale factors, the sp8C alias of &player->unk2F0, the `dot`
+ * carrier and the two velocity carriers) sized the local block in 8-byte
+ * steps.  Removing them left the instruction count untouched and took the
+ * frame -0x2A0 -> -0x268.  The last pair costs +3 words, which is the price
+ * of reading actor->velocityX/Z directly; that is the next thing to buy back.
+ * Remaining gap: 260 alignment gaps and 238 opcode differences -- the block
+ * geometry inside the collision loop, not the frame. */
 s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
     s16 spA2;
     s16 spA0;
     s32 pointIndex;
-    s32 remainder;
-    s32 updateRateInt;
     u32 collisionMask;
     u32 bit;
     s32 collisionIndex;
     u8 *pointSource;
     u8 *pointDest;
-    s16 temp_v0_3;
-    s16 temp_v0_4;
     u32 temp_v0;
     f32 spD4;
     u8 points[0x30];
@@ -1463,46 +1469,33 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
         {
         f32 radius[4];
         u8 records[0x100];
-        void *sp8C;
         CharControlGroundRecord *record;
         u8 *player320;
         u8 *player324;
         f32 spE8;
         f32 spE4;
         f32 spE0;
-        f32 spC0;
         s16 spA8;
         s16 spA6;
         s16 spA4;
-        s32 sp84;
         f32 normalZ;
         f32 normalX;
-        f32 dot;
-        f32 vertical;
-        f32 horizontal;
         f32 directionX;
         f32 directionZ;
-        f32 temp_f0_2;
-        f32 temp_f0_3;
-        f32 temp_f0_4;
-        f32 temp_f12;
         f32 temp_f14;
-        f32 temp_f2_2;
         f32 var_f18;
         f32 var_f4;
         u8 temp_v0_2;
 
         pointIndex = 0;
-        remainder = spB8 & 3;
         while (pointIndex != spB8) {
             radius[pointIndex] = player->unk2B8[pointIndex].w;
             pointIndex += 1;
         }
-        sp8C = &player->unk2F0;
-        trackMakePolylist(spB8, (ControlVector3 *) sp8C, points, radius,
+        trackMakePolylist(spB8, (ControlVector3 *) &player->unk2F0, points, radius,
                           player->unk33C, 1);
         temp_v0 = (u32) func_80010B4C(
-            spB8, sp8C, points, radius, records, &actor->x, actor);
+            spB8, &player->unk2F0, points, radius, records, &actor->x, actor);
         spAC = 0;
         if ((temp_v0 >> 30) != 0) {
             actor->x = player->unk38;
@@ -1541,14 +1534,12 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
                         spE8 = -1.0f;
                         spA6 = 0;
                         spA8 = 0;
-                        sp84 = bit;
                         spA4 = actor->rotationX;
                         mathOneFloatRPY((ControlTransform *) &spA4, &spE0);
-                        temp_f0_2 = sqrtf((record->unk18 * record->unk18) +
-                                          (record->unk10 * record->unk10));
-                        spD4 = temp_f0_2;
-                        normalZ = record->unk18 / temp_f0_2;
-                        normalX = record->unk10 / temp_f0_2;
+                        spD4 = sqrtf((record->unk18 * record->unk18) +
+                                     (record->unk10 * record->unk10));
+                        normalZ = record->unk18 / spD4;
+                        normalX = record->unk10 / spD4;
                         player->unk90 = (normalZ * spE0) -
                                         (spE8 * normalX);
                         var_f18 = (spE8 * normalZ) +
@@ -1557,31 +1548,23 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
                         if (var_f18 < 0.0f) {
                             var_f18 = -var_f18;
                         }
-                        temp_f0_3 = actor->velocityX;
-                        temp_f2_2 = actor->velocityZ;
-                        horizontal = normalZ;
-                        vertical = normalX;
-                        spC0 = var_f18;
-                        temp_f0_4 = sqrtf((temp_f0_3 * temp_f0_3) +
-                                          (temp_f2_2 * temp_f2_2));
-                        if (temp_f0_4 > 0.0f) {
-                            directionX = temp_f0_3 / temp_f0_4;
-                            directionZ = temp_f2_2 / temp_f0_4;
+                        var_f4 = sqrtf((actor->velocityX * actor->velocityX) +
+                                       (actor->velocityZ * actor->velocityZ));
+                        if (var_f4 > 0.0f) {
+                            directionX = actor->velocityX / var_f4;
+                            directionZ = actor->velocityZ / var_f4;
                         }
                         temp_v0_2 = player->unk198;
-                        dot = (vertical * directionX) +
-                              (horizontal * directionZ);
-                        if ((temp_v0_2 == 0) && (temp_f0_4 > 8.0f) &&
-                            ((dot < D_80081850) ||
-                             (D_80081854 < dot))) {
-                            temp_f12 = 2.0f * -dot;
+                        if ((temp_v0_2 == 0) && (var_f4 > 8.0f) &&
+                            ((((normalX * directionX) + (normalZ * directionZ)) < D_80081850) ||
+                             (D_80081854 < ((normalX * directionX) + (normalZ * directionZ))))) {
                             player->unk78 = 0.0f;
-                            player->unk74 = (temp_f12 * vertical) +
+                            player->unk74 = ((2.0f * -((normalX * directionX) + (normalZ * directionZ))) * normalX) +
                                             directionX;
-                            player->unk7C = (temp_f12 * horizontal) +
+                            player->unk7C = ((2.0f * -((normalX * directionX) + (normalZ * directionZ))) * normalZ) +
                                             directionZ;
                             temp_f14 = ((D_80081858 * var_f18) + 0.5f) *
-                                       temp_f0_4;
+                                       var_f4;
                             player->unk80 = temp_f14;
                             player->unk84 = temp_f14;
                             player->unk181 = 1;
@@ -1664,27 +1647,24 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
         }
         pointSource = (u8 *) points;
         if (player->unk173 == 0) {
-            updateRateInt = (s32) updateRate;
             func_8001DCD0(actor->rotationX, (ControlVector3 *) &sp110,
                           &spA2, &spA0);
             actor->rotationZ = dAngle(
                 actor->rotationZ, spA2,
-                1.0f - Powerf(D_80081860, updateRateInt));
+                1.0f - Powerf(D_80081860, (s32) updateRate));
             actor->rotationY = dAngle(
                 actor->rotationY, spA0,
-                1.0f - Powerf(D_80081860, updateRateInt));
+                1.0f - Powerf(D_80081860, (s32) updateRate));
         }
     }
-    temp_v0_3 = actor->rotationZ;
-    if (temp_v0_3 >= 0x3001) {
+    if (actor->rotationZ >= 0x3001) {
         actor->rotationZ = 0x3000;
-    } else if (temp_v0_3 < -0x3000) {
+    } else if (actor->rotationZ < -0x3000) {
         actor->rotationZ = -0x3000;
     }
-    temp_v0_4 = actor->rotationY;
-    if (temp_v0_4 >= 0x3001) {
+    if (actor->rotationY >= 0x3001) {
         actor->rotationY = 0x3000;
-    } else if (temp_v0_4 < -0x3000) {
+    } else if (actor->rotationY < -0x3000) {
         actor->rotationY = -0x3000;
     }
     if (player->unk349 != 0) {
@@ -1693,7 +1673,6 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
     if (player->unk34A == 0) {
         player->unk198 = 0;
     }
-    remainder = spB8 & 3;
     pointIndex = 0;
     pointDest = (u8 *) &player->unk2F0;
     while (pointIndex != spB8) {
@@ -1754,8 +1733,6 @@ s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
     f32 temp_f2;
     f32 var_f14;
     f32 var_f8;
-    s16 temp_v0_3;
-    s16 temp_v0_4;
     u8 temp_v0_2;
     s32 *var_v1;
     s32 var_a2;
@@ -1907,16 +1884,14 @@ s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
             actor->rotationY, sp38,
             1.0f - Powerf(D_80081878, sp2C));
     }
-    temp_v0_3 = actor->rotationZ;
-    if (temp_v0_3 >= 0x3001) {
+    if (actor->rotationZ >= 0x3001) {
         actor->rotationZ = 0x3000;
-    } else if (temp_v0_3 < -0x3000) {
+    } else if (actor->rotationZ < -0x3000) {
         actor->rotationZ = -0x3000;
     }
-    temp_v0_4 = actor->rotationY;
-    if (temp_v0_4 >= 0x3001) {
+    if (actor->rotationY >= 0x3001) {
         actor->rotationY = 0x3000;
-    } else if (temp_v0_4 < -0x3000) {
+    } else if (actor->rotationY < -0x3000) {
         actor->rotationY = -0x3000;
     }
     if (player->unk349 != 0) {
@@ -2239,10 +2214,10 @@ void controlClearPlayerSetup(void) {
 
 /* PLATEAU-HANDOFF:func_8001DD70:start
  * symbol: func_8001DD70
- * score: 430 differing words
- * frame: 0x2A0
+ * score: 433 differing words
+ * frame: 0x268
  * relocations: 23
  * first-mismatch: +0x0
- * summary: Instruction count is exact; candidate frame remains 0x38 bytes too large.
+ * summary: Frame and instruction count are both exact now; the 0x38-byte excess was fourteen m2c-only declared carriers, and removing them also cut the alignment gaps 260 -> 86. Remaining: block geometry in the collision loop (238 opcode differences).
  * PLATEAU-HANDOFF:func_8001DD70:end
  */
