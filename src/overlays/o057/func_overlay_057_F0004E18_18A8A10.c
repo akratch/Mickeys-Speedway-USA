@@ -23,7 +23,8 @@ typedef struct O57MiddleChoice {
 } O57MiddleChoice;
 
 typedef struct O57MiddleOutput {
-    s32 value0;
+    u8 value0;
+    u8 pad01[3];
     u8 controller;
     u8 pad05[0x23];
 } O57MiddleOutput;
@@ -32,13 +33,16 @@ typedef union O57MiddleInput {
     s32 word;
     u32 uword;
     s16 half;
-    u8 bytes[0x520];
+    u8 bytes[4];
 } O57MiddleInput;
 
-typedef union O57MiddleFloatBits {
-    f32 value;
-    s32 bits;
-} O57MiddleFloatBits;
+typedef struct O57MiddleTextureNode {
+    void *texture;
+    void *alternate;
+    u32 packedOffset;
+    s16 x;
+    s16 y;
+} O57MiddleTextureNode;
 
 /* Tier B: calls and globals separated by overlay 57 runtime relocations.
  * Reserved data/BSS selectors remain separate from overlay-local storage. */
@@ -68,8 +72,8 @@ extern s32 gO57MiddleStopList[], gO57MiddlePathIndices[], gO57MiddlePathList[];
 extern O57MiddleOutput *gO57MiddleOutput;
 extern s32 gO57MiddlePanelPosition, gO57MiddleTransition, gO57MiddleCanLeave;
 extern s16 gO57MiddleColumns[], gO57MiddleColumnsEnd[];
-extern u8 gO57MiddleEmptyFormat[], gO57MiddleResultFormat[];
-extern u8 gO57MiddleCaption[], gO57MiddleBadge[];
+extern char gO57MiddleEmptyFormat[], gO57MiddleResultFormat[];
+extern O57MiddleTextureNode gO57MiddleCaption[], gO57MiddleBadge[];
 extern char *gO57MiddleLabels[];
 extern s16 gO57MiddleCharacterIds[];
 extern u8 gO57MiddlePathId;
@@ -81,39 +85,39 @@ typedef struct O57MiddleRenderParameters {
 } O57MiddleRenderParameters;
 extern O57MiddleRenderParameters gO57MiddleRenderParameters;
 
-extern void func_80000F94();
-extern void func_80005548();
-extern void func_80022A50();
-extern void func_80025444();
-extern s32 func_80025D60();
-extern void func_80028374();
-extern void func_80028528();
-extern void func_80028540();
-extern void func_80028D24();
-extern void func_800291B4();
-extern s32 func_800291C4();
-extern void func_8002F618();
-extern void func_8002FB34();
-extern void func_80039E34();
-extern void func_8003A680();
-extern s32 func_8003A700();
-extern void func_800429A4();
-extern void func_8004B0A4();
-extern void func_8004B0B8();
-extern void func_8004B0F8();
-extern void func_80050688();
-extern void func_80050704();
-extern void func_overlay_045_F0000314_188C76C();
-extern void func_overlay_056_F00000B8_18A2E30();
-extern void func_overlay_057_F0001020_18A4C18();
-extern void func_overlay_057_F00067DC_18AA3D4();
-extern s32 func_overlay_068_F000146C_18C85CC();
-extern s32 func_overlay_084_F0000C74_18D1154();
-extern void func_overlay_084_F0001060_18D1540();
-extern void func_overlay_084_F0001350_18D1830();
-extern void func_overlay_084_F0001398_18D1878();
+extern void func_80000F94(u16 soundId, void **handle);
+extern void func_80005548(u8 count);
+extern void func_80022A50(void **displayList, void **matrices);
+extern void func_80025444(s8 *players);
+extern s32 func_80025D60(s32 course);
+extern void func_80028374(s32 level, s32 character, s32 animation, s32 mode, s32 arg4, s32 arg5);
+extern void func_80028528(s32 group);
+extern void func_80028540(s32 cameras);
+extern void func_80028D24(s32 mode);
+extern void func_800291B4(void);
+extern O57MiddleRenderItem * func_800291C4(void);
+extern void func_8002F618(void **displayList, O57MiddleTextureNode *nodes, s32 x, s32 y, u8 r, u8 g, u8 b, u8 a);
+extern void func_8002FB34(void **displayList, O57MiddleTextureNode *nodes, f32 x, f32 y, f32 sx, f32 sy, s32 mode, s32 flags);
+extern void func_80039E34(s32 spacing);
+extern void func_8003A680(u8 character);
+extern s32 func_8003A700(u8 character);
+extern s32 func_800429A4(char *buffer, const char *format, ...);
+extern void func_8004B0A4(s32 font);
+extern void func_8004B0B8(s32 r, s32 g, s32 b, s32 a, s32 opacity);
+extern void func_8004B0F8(void **displayList, s32 x, s32 y, char *text, s32 align);
+extern void func_80050688(u8 path);
+extern void func_80050704(u8 path);
+extern void func_overlay_045_F0000314_188C76C(void *descriptor, s32 x, s32 y, s32 flags);
+extern void func_overlay_056_F00000B8_18A2E30(s32 time, s32 *first, s32 *second, s32 *third);
+extern void func_overlay_057_F0001020_18A4C18(s32 updateRate);
+extern void func_overlay_057_F00067DC_18AA3D4(s32 id, s32 argument, f32 value);
+extern s32 func_overlay_068_F000146C_18C85CC(s32 course);
+extern s32 func_overlay_084_F0000C74_18D1154(void);
+extern void func_overlay_084_F0001060_18D1540(s32 state);
+extern void func_overlay_084_F0001350_18D1830(void);
+extern void func_overlay_084_F0001398_18D1878(void);
 
-/* Identity-recovery candidate. ABI and CFG reconstruction remain in progress. */
+/* Typed reconstruction candidate; control-flow reconstruction remains in progress. */
 #ifdef NON_MATCHING
 void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
     s32 i;
@@ -132,17 +136,11 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
     s32 valueA;
     s32 valueB;
     s32 valueC;
-    O57MiddleFloatBits captionBits;
-    s8 sourceState[0x28];
+    s8 sourceState[4];
     u8 activePlayers[10];
-    s32 stackC8;
-    s16 stackC6;
-    s16 stackC4;
-    s32 stackC0;
-    s32 stackBC;
-    s32 stackB8;
-    u8 stackB0[2];
-    u8 renderState;
+    O57MiddleTextureNode textureNodes[2];
+    char stackB0[2];
+    char renderState[32];
     s32 stack80;
     s32 stack7C;
     s32 stack78;
@@ -152,7 +150,7 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
     O57MiddleRenderItem *renderItem;
     O57MiddleChoice *choice;
     s16 *color;
-    u8 *palette;
+    char *palette;
     u8 *active;
     s8 *source;
     s8 *activeInit;
@@ -204,7 +202,7 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                     gO57MiddleFade = 0;
                     gO57MiddleFadeDelay = 0x5A;
                     func_overlay_057_F00067DC_18AA3D4(
-                        0x2F, (gO57MiddleSelection / 6) + 5, 0x3C449BA6);
+                        0x2F, (gO57MiddleSelection / 6) + 5, 0.012f);
                 }
             } else if ((input >= 17) && (index < limit) &&
                        (gO57MiddleTransition == 0)) {
@@ -222,7 +220,7 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                     gO57MiddleFade = 0;
                     gO57MiddleFadeDelay = 0x3C;
                     func_overlay_057_F00067DC_18AA3D4(
-                        0x2F, gO57MiddleSelection / 6, 0x3C449BA6);
+                        0x2F, gO57MiddleSelection / 6, 0.012f);
                 }
             } else if ((gO57MiddleVertical < -16) && (index < (limit - 2)) &&
                        (gO57MiddleTransition == 0)) {
@@ -242,7 +240,7 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                     gO57MiddleFade = 0;
                     gO57MiddleFadeDelay = 0x3C;
                     func_overlay_057_F00067DC_18AA3D4(
-                        0x2F, currentGroup, 0x3C449BA6, currentGroup);
+                        0x2F, currentGroup, 0.012f);
                 }
             } else {
                 if ((gO57MiddleVertical >= 17) && (index >= 3) &&
@@ -263,8 +261,7 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                         gO57MiddleFade = 0;
                         gO57MiddleFadeDelay = 0x3C;
                         func_overlay_057_F00067DC_18AA3D4(
-                            0x2F, currentGroup + 5, 0x3C449BA6,
-                            currentGroup);
+                            0x2F, currentGroup + 5, 0.012f);
                     }
                 } else if ((gO57MiddleButtons & 0x2020) && (index >= 6) &&
                            (gO57MiddleTransition == 0)) {
@@ -281,7 +278,7 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                 gO57MiddleFade = 0;
                 gO57MiddleFadeDelay = 0x5A;
                 func_overlay_057_F00067DC_18AA3D4(
-                    0x2F, (gO57MiddleSelection / 6) + 5, 0x3C449BA6);
+                    0x2F, (gO57MiddleSelection / 6) + 5, 0.012f);
                 } else if ((gO57MiddleButtons & 0x10) && (remainder < state) &&
                            (gO57MiddleTransition == 0)) {
                 gO57MiddleMoving = 1;
@@ -297,7 +294,7 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                 gO57MiddleFade = 0;
                 gO57MiddleFadeDelay = 0x5A;
                 func_overlay_057_F00067DC_18AA3D4(
-                    0x2F, gO57MiddleSelection / 6, 0x3C449BA6);
+                    0x2F, gO57MiddleSelection / 6, 0.012f);
                 if (gO57MiddleSelection > state) {
                     gO57MiddleSelection = state;
                 }
@@ -311,7 +308,7 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                 func_80050704(gO57MiddlePathId);
                 gO57MiddleNextMode = 7;
                 func_overlay_057_F00067DC_18AA3D4(
-                    0x2F, 0, 0xBC449BA6);
+                    0x2F, 0, -0.012f);
                 gO57MiddleState188 = 0;
                 gO57MiddleMode = 0;
                 func_overlay_084_F0001060_18D1540(1);
@@ -323,7 +320,7 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                     func_80050688(index & 0xFF);
                     currentGroup = *list;
                     func_overlay_057_F00067DC_18AA3D4(
-                        currentGroup, gO57MiddlePathIndices[currentGroup], 0x3BE56042);
+                        currentGroup, gO57MiddlePathIndices[currentGroup], 0.007f);
                     index = list[1];
                     list++;
                     } while (index != -1);
@@ -431,14 +428,14 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                 if (renderItem->type == 0) {
                     valueA = 0x4A;
                     func_800429A4(
-                        &renderState, palette);
+                        renderState, palette);
                 } else {
                     valueB = func_8003A700(
-                                 renderItem->value04, palette) & 0xFF;
+                                 renderItem->value04) & 0xFF;
                     valueC = func_8003A700(
                                  renderItem->value05) & 0xFF;
                     func_800429A4(
-                        &renderState, gO57MiddleResultFormat, valueB, valueC,
+                        renderState, gO57MiddleResultFormat, valueB, valueC,
                         func_8003A700(
                             renderItem->value06),
                         stack80, stack7C, stack78);
@@ -449,17 +446,17 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                         &gO57MiddleDisplayList, value + 0x2E, row,
                         gO57MiddleLabels[i], 0);
                 }
-                stackBC = 0;
-                stackC6 = (s16) (row - 4);
-                stackC0 = 0;
-                stackC8 = 0;
-                stackB8 = gO57MiddleGraphics[valueA];
-                stackC4 = (s16) stack5C;
+                textureNodes[0].alternate = NULL;
+                textureNodes[0].y = (s16)(row - 4);
+                textureNodes[0].packedOffset = 0;
+                textureNodes[1].texture = NULL;
+                textureNodes[0].texture = gO57MiddleGraphics[valueA];
+                textureNodes[0].x = (s16)stack5C;
                 func_8002F618(
-                    &gO57MiddleDisplayList, &stackB8, 0, 0,
+                    &gO57MiddleDisplayList, textureNodes, 0, 0,
                     0xFF, 0xFF, 0xFF, 0xFF);
                 color = gO57MiddleColumns;
-                active = &renderState;
+                active = (u8 *)renderState;
                 do {
                     stackB0[1] = 0;
                     stackB0[0] = *active;
@@ -473,7 +470,7 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                     func_8004B0B8(
                         0xFF, 0x80, 0, 0xFF, 0xFF);
                     func_8004B0F8(
-                        &gO57MiddleDisplayList, (u8) stack64, row,
+                        &gO57MiddleDisplayList, stack64, row,
                         gO57MiddleText[0xD4 / 4], 4);
                     func_8004B0B8(
                         0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -483,10 +480,9 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                 row += 0x1B;
                 stack5C += 0x1B;
             } while (i != 4);
-            captionBits.value = (f32) (value + 0x2D);
             func_8002FB34(
-                &gO57MiddleDisplayList, gO57MiddleCaption, captionBits.bits,
-                0x43380000, 0x3F800000, 0x3F800000, -2, 3);
+                &gO57MiddleDisplayList, gO57MiddleCaption, (f32)(value + 0x2D),
+                184.0f, 1.0f, 1.0f, -2, 3);
         }
 
         if (gO57MiddleFadeDelay > 0) {
@@ -541,7 +537,7 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                     } while (output < &gO57MiddleOutput[6]);
                 }
                 func_80025444(
-                    sourceState, 0x28, activePlayers, &gO57MiddleFlags);
+                    sourceState);
                 func_80028D24(0);
                 func_80028540(gO57MiddlePlayerCount);
                 gO57MiddleData31E4 = 0;
@@ -602,10 +598,10 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:start
  * symbol: func_overlay_057_F0004E18_18A8A10
- * score: 1240 differing words
+ * score: 1236 differing words
  * frame: 0x140
- * relocations: 375
+ * relocations: 373
  * first-mismatch: +0x2C
- * summary: Identity checkpoint: 1276/1208 words, 1242 raw differences, 375/379 relocations. Recovered 65 call identities. ABI and CFG reconstruction continues.
+ * summary: Typed checkpoint: 1282/1208 words, 1239 raw differences, 373/379 relocations. Corrected byte/pointer output and renderer ABI. Next restore natural CFG.
  * PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:end
  */
