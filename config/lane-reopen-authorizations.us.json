@@ -396,9 +396,9 @@
       "source_commit": "1f51f9a0ddaaafedfa5d80553e34a7c648d57526"
     },
     "func_8003D4FC": {
-      "ledger_commit": "3b044793d83c20b56ea996dc186c78871083d4c0",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "3b044793d83c20b56ea996dc186c78871083d4c0"
+      "ledger_commit": "969adde71f114d7d94cd95d89064e4a548248135",
+      "reason": "Class changed: decompiler-assisted reconstruction closed this target's size deficit, so it is no longer size-mismatch. Work the remaining residual under the workbench-routed playbook; do not redo the reconstruction.",
+      "source_commit": "969adde71f114d7d94cd95d89064e4a548248135"
     },
     "func_8003F154": {
       "ledger_commit": "666d563a26c4986470ba0a085d3cfdd36d83042f",
@@ -831,9 +831,9 @@
       "source_commit": "61ed283d6760fbfb6995f14e04ceb44addb4d142"
     },
     "func_overlay_101_F00069E8_18E2208": {
-      "ledger_commit": "848be0fd257c67183ec5319cf38151c150028bde",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "848be0fd257c67183ec5319cf38151c150028bde"
+      "ledger_commit": "db5573bce8a28b26df8e4979e2801609058aa531",
+      "reason": "Class changed: decompiler-assisted reconstruction closed this target's size deficit, so it is no longer size-mismatch. Work the remaining residual under the workbench-routed playbook; do not redo the reconstruction.",
+      "source_commit": "db5573bce8a28b26df8e4979e2801609058aa531"
     },
     "func_overlay_101_F00078F4_18E3114": {
       "ledger_commit": null,
