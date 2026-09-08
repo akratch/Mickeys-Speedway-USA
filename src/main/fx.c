@@ -2447,8 +2447,8 @@ void func_8004AF68(void) {
  * score: 90 differing words
  * frame: 0x168
  * relocations: 3
- * first-mismatch: +0x44
- * summary: Exact size/frame; three shifted call sites and the first allocator web remain; next isolate the fixed-bound loop web.
+ * first-mismatch: 0x44
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new fixed-bound loop carrier topology evidence.
  * PLATEAU-HANDOFF:func_800470B0:end
  */
 
