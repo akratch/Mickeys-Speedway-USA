@@ -4,10 +4,12 @@
 #include "overlays/overlay_045.h"
 #include "overlays/overlay_056.h"
 
+typedef struct RcpTextureInfo RcpTextureInfo;
+
 /* Same 0x10-byte entry layout used by overlay52CopyOffsetEntries. */
 typedef struct Overlay52Entry {
-    void *resource;
-    void *alternate;
+    RcpTextureInfo *resource;
+    RcpTextureInfo *alternate;
     u32 value8;
     s16 x;
     s16 y;
@@ -169,7 +171,6 @@ void func_overlay_052_F000063C_189ACAC(s32 updateRate) {
     s32 active;
     s32 alpha;
     s32 difference;
-    Overlay52Entry *template;
     s32 *slot;
 
     viGetCurrentSize(&width, (s32 *)&halfHeight);
@@ -353,11 +354,11 @@ void func_overlay_052_F000063C_189ACAC(s32 updateRate) {
             digits[6].value8 = value0 << 16;
             digits[7].value8 = value1 << 16;
             for (i = 0; i < 8; i++) {
-                if (((s32)digits[i].value8 >> 16) == 1) {
+                if (((s32)o52_bss_200[player][i].value8 >> 16) == 1) {
                     if (i == 0 || i == 3 || i == 6) {
-                        digits[i].x++;
+                        o52_bss_200[player][i].x++;
                     } else {
-                        digits[i].x--;
+                        o52_bss_200[player][i].x--;
                     }
                 }
             }
@@ -470,18 +471,18 @@ void func_overlay_052_F000063C_189ACAC(s32 updateRate) {
                 o52_bss_160[0].resource = D_800D31C8[20];
                 o52_bss_160[0].alternate = D_800D31C8[21];
                 difference = -racer->timeDifference;
-                for (digits = o52_bss_160 + 1; digits != o52_bss_160 + 9; digits++) {
-                    digits->resource = D_800D31C8[20];
-                    digits->alternate = D_800D31C8[21];
+                for (i = 1; i < 9; i++) {
+                    o52_bss_160[i].resource = D_800D31C8[20];
+                    o52_bss_160[i].alternate = D_800D31C8[21];
                 }
             } else {
                 o52_bss_160[0].value8 = 13 << 16;
                 o52_bss_160[0].resource = D_800D31C8[80];
                 o52_bss_160[0].alternate = D_800D31C8[21];
                 difference = racer->timeDifference;
-                for (digits = o52_bss_160 + 1; digits != o52_bss_160 + 9; digits++) {
-                    digits->resource = D_800D31C8[80];
-                    digits->alternate = D_800D31C8[21];
+                for (i = 1; i < 9; i++) {
+                    o52_bss_160[i].resource = D_800D31C8[80];
+                    o52_bss_160[i].alternate = D_800D31C8[21];
                 }
             }
             overlay56SplitTime(difference, &minutes, &seconds, &hundredths);
@@ -492,15 +493,15 @@ void func_overlay_052_F000063C_189ACAC(s32 updateRate) {
             o52_bss_160[7].value8 = (hundredths / 10) << 16;
             o52_bss_160[8].value8 = (hundredths % 10) << 16;
             digits = o52_bss_160 + 1;
-            for (template = o52_data_F0; template != o52_data_F0 + 8; template++, digits++) {
+            for (secondary = o52_data_F0; secondary != o52_data_F0 + 8; secondary++, digits++) {
                 if (((s32)digits->value8 >> 16) == 1) {
-                    if (template == o52_data_F0 || template == o52_data_F0 + 3 || template == o52_data_F0 + 6) {
-                        digits->x = template->x + 1;
+                    if (secondary == o52_data_F0 || secondary == o52_data_F0 + 3 || secondary == o52_data_F0 + 6) {
+                        digits->x = secondary->x + 1;
                     } else {
-                        digits->x = template->x - 1;
+                        digits->x = secondary->x - 1;
                     }
                 } else {
-                    digits->x = template->x;
+                    digits->x = secondary->x;
                 }
             }
             func_8002F618(&D_800D3140, o52_bss_160,
