@@ -2,9 +2,138 @@
 ### `func_overlay_054_F00005AC_189F24C` plateau handoff
 
 - source: `src/overlays/o054/overlay54TailA.c`
-- score: 1564/1594 words
-- frame: 0x138
-- relocations: 269
+- score: 1414 differing words
+- frame: 0x158
+- relocations: 273
 - first mismatch: +0x0
-- summary: Linked promotion trial text-differs 1587 words; candidate is 30 words short despite exact frame.
+- summary: Active CFG checkpoint: 1588/1594 words; 59 ordered calls; first nine calls at exact offsets. Four extra height-store relocations remain.
+This is a committed reconstruction milestone in the active structural packet,
+not a final stall disposition. The guarded C is compiled, not object-exact or
+ROM-exact. The owned range is overlay 54 text `+0x5AC..+0x1E94`, ROM
+`0x189F24C..0x18A0B34`: 6,376 executable bytes, with no padding credit.
+
+The configured baseline reproduced 1,564 candidate words versus 1,594 target
+words, a 120-byte deficit, 1,545 raw and 1,544 relocation-masked differences,
+first `+0x10`, and equal `0x138` frames. Its candidate object has 240 static
+relocations and 48 call sites; the runtime target has 269 records and 59 calls.
+The old shard's 269 count described the target, not the candidate object.
+
+Mickey-only runtime records now distinguish all outbound call identities and
+the initialized data, BSS, resident-global and local constant surfaces. The
+compiled candidate has the target's complete 59-call sequence, including the
+four calls to `overlay54GetOffsets`. The overlay 45 object and atlas prove the
+release call at `+0x270` and `overlay45SetMode` at `+0x1BE0`; the overlay 56
+object proves `overlay56SplitTime` at `+0xB8`. Resident callee definitions
+supply the argument types. No donor body or external reference source was
+adopted; the near-match oracle found only weak similarities.
+
+The reconstruction uses `ControlActor`, `ControlPlayer` and a runtime HUD
+record view, with typed reads for fields still inside the partial
+player header's gaps. It restores the timer correction and level queries,
+eight-record digit spacing, the signed time-delta branch and its texture
+snapshots, the unsigned offscreen easing, the null-actor return, the separate
+mode 3/4 transition arms, and the proved `0.66f` icon scale. The old volatile
+stack-padding write and invented per-frame display toggle are removed.
+
+Attempt 7 reached the exact 1,594-word extent with 1,400 masked positional
+differences, but that equality combined a short opening with an overlong copy
+loop. Further source review found two unnecessarily narrow temporaries: the
+time-delta magnitude and reset X coordinate are 32-bit values in the target.
+In particular, narrowing the negated minimum halfword loses its positive
+magnitude. Those corrections are retained even though the old extent was exact.
+
+Attempt 65 has 1,588 words against 1,594, a 24-byte deficit, 1,417 raw and
+1,414 relocation-masked positional differences, first `+0`, and a `0x158`
+frame against `0x138`. Its 273 relocations have 67 exact
+position/type/identity tuples and 268 matching identity/type records when
+position is ignored. One alternate-pointer LO record is replaced by an extra
+HI record, and the two peeled height-loop exits each introduce an additional
+HI/LO pair. All 59 calls remain in target order, and the first nine call sites
+now have exact offsets. This geometry improvement is retained despite attempt
+61's lower masked residual of 1,395 at 1,584 words. Neither is object-exact.
+
+The actor-list result and walking cursor now have distinct source roles, as
+proved by the target's preserved returned base and later cursor initialization.
+Per-player HUD arrays use their actual two-, three- and ten-record row strides.
+The indexed eight-record resource copies produce the target's four-record
+kernel. Independent pointer bounds introduced remainder paths; same-array
+pointer comparisons stayed scalar. The signed time-delta and reset coordinate
+remain full-width values. A separate, authenticated relocation view of the
+first record's metadata recovers its direct global stores. The delta loads now
+precede the pointer stores as the target does. The resident interface audit
+corrects the button query to `u16`, the sound arguments to `u16` and `void **`,
+and the generic pointer and video-size output signatures; explicit caller
+casts retain the recovered object views and unsigned screen-size arithmetic.
+
+Attempt 24 reduced the aligned structural residual to 135 through the row
+and cursor reconstruction. Attempt 35 accounted for every one of the 269
+target identity/type records, with two additional HI records; its independent
+alternate-pointer alias cannot share the target's address load. Attempt 36
+had a lower positional residual of 1,477 masked words, but shifted digit-loop
+address anchors and lost identity agreement. Restoring the digit view's
+natural zero-based indices recovered those anchors. The metadata-only alias and target load order account for 268 of the 269
+identity/type records; the later peeled recurrence adds four extra records. The intermediate artifacts remain
+available; none is object-exact.
+
+The original opening animation call was 136 bytes early. Ordinary counted
+and guarded post-tested loops, a named damping step, an explicit prior-height
+snapshot, and division by eight did not recover the target's peeled recurrence.
+The initial explicit source batching was unrolled again into sixteen-update
+blocks. Countdown induction retained a descending loop. Scalar, adjacent-float
+aggregate, indexed state-tail aggregate and one-element array diagnostics did
+not recover the missing peeling; the unproved layout diagnostics remain ignored.
+A named scale constant left text unchanged but went into writable data under
+the stock compiler, so the exact `0.66f` literal remains the source spelling.
+
+Attempts 54 and 55 established a new CFG lever: an explicit backedge or a
+structured loop with an internal latch exit avoids the unwanted second unroll.
+Attempts 56 through 65 independently reconstruct the carried remainder and
+four-update domains using that lever. The current ordinary C carries the prior
+height and its damping step, uses a local remainder, and keeps the icon and
+screen coordinates in separate source roles. For an enabled positive update
+rate, the remainder performs exactly the low two-bit count, followed by the
+remaining four-update batches. Every delayed step is consumed exactly once;
+the counter stops before signed overflow. No padding update, dummy operation,
+new memory effect or compiler-flag change is used.
+
+Carrying only the product or the completed next height leaves the opening
+short. Carrying both prior height and product recovers its geometry; the common
+counter increment then aligns the animation and video-size calls exactly. The
+compiler still emits ordinary branches and product copies where the target
+uses branch-likely delay-slot adds, and it gives the final stores separate
+absolute address pairs. A local height pointer forwards away intermediate
+stores and regresses the opening by 224 bytes, so it is rejected. Distinct
+coordinate roles restore the target's update-rate and timer saved-register
+roles. Factoring the remainder exit, structured internal exits, and limiting
+the float pair's lexical scope do not further improve the current shape.
+
+A compact icon record plus termination pointer reduces the frame by eight
+bytes but does not prove the original local extent; it remains an ignored
+diagnostic. Guarding the whole player body on nonnull actors and reconstructing
+coordinate defaults do not improve the relevant CFG. The retained C keeps the
+ordinary early return and coordinate expressions. Explicit byte induction, separate typed state cursors,
+inferred template interior-array grouping and sign-record view variants do not
+recover the target's allocation and relocation structure. These negative
+results are retained with their predictions; unchanged inputs are not new
+work. Workbench still routes through `structure-mismatch`,
+`structure-buckets` and `constant-audit`. This is an active packet checkpoint,
+not a final five-attempt stall disposition. Attempt 65 is the most recent
+regional improvement; the authorized structural reconstruction continues.
+
+Every source/object/score and the runtime identity audit are retained in ignored
+`build/whale5/`. The raw m2c output remains ignored and was used only as a draft.
+The generated all-header context could not parse unrelated incomplete types;
+a narrowed project-header context produced the draft. The actual stock-
+preprocessed baseline passed the context comparator against itself.
+
+Validation: the configured NON_MATCHING full TU compiles. The rebuilt canonical
+fallback has unchanged text bytes and named relocations compared with the base.
+`gmake verify` fails both before and after this work because the base overlay 94
+controller fallback retains unresolved resident call names and truncated call
+relocations; logs are retained in the ignored evidence directory. This packet
+does not alter that separately owned source or claim a passing full-ROM gate.
+All 243 guarded TUs pass `gmake check-nonmatching-builds`. The source-only
+clean-room and documentation gates pass after `tools/finalize_plateau.py`
+records the checkpoint.
+
 <!-- plateau-handoff:func_overlay_054_F00005AC_189F24C:end -->
