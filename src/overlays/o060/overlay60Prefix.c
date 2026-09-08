@@ -112,11 +112,7 @@ typedef struct Overlay60SettingsBits {
     u32 field8 : 1;
     u32 lower : 8;
 } Overlay60SettingsBits;
-typedef union Overlay60Settings {
-    MenuScreenModeBits bits;
-    Overlay60SettingsBits flags;
-} Overlay60Settings;
-extern Overlay60Settings D_800D3128;
+extern Overlay60SettingsBits D_800D3128;
 extern u16 D_800D312C;
 extern u16 D_800D312E;
 extern u16 D_800D3130[];
@@ -144,14 +140,7 @@ extern char gOverlay60Data0C0[];
 extern char gOverlay60Data0C4[];
 extern ControlActor *gOverlay60Data0C8[];
 extern Overlay60Point gOverlay60Data0D8[];
-extern s16 gOverlay60Data0E8;
-extern s16 gOverlay60Data0EA;
-extern s16 gOverlay60Data0EC;
-extern s16 gOverlay60Data0EE;
-extern s16 gOverlay60Data0F0;
-extern s16 gOverlay60Data0F2;
-extern s16 gOverlay60Data0F4;
-extern s16 gOverlay60Data0F6;
+extern Overlay60Point gOverlay60Data0E8[];
 extern f32 gOverlay60Data0F8[];
 extern s32 gOverlay60Data10C[];
 extern s32 gOverlay60Data11C[];
@@ -204,11 +193,14 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
     s32 first;
     s32 end;
     ControlActor **objects;
+    ControlActor *menuObject;
     ControlActor *object;
     s32 i;
     s32 count;
     s32 value;
-    s32 mode;
+    s32 stereoMode;
+    s32 screenMode;
+    s32 previewMode;
     s32 showArrows;
     s32 limit;
     s32 minutes;
@@ -234,16 +226,16 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
     if (gOverlay60Data0A8 == NULL) {
         objects = func_8000572C(&first, &end);
         while (first < end) {
-            object = objects[first++];
-            if (object->kind == 0x54) {
-                gOverlay60Data0A8 = object;
+            menuObject = objects[first++];
+            if (menuObject->kind == 0x54) {
+                gOverlay60Data0A8 = menuObject;
                 first = end;
             }
         }
     }
     if (gOverlay60Data160 != 0) {
-        frontSetLanguage(D_800D3128.bits.language);
-        frontSetStereoMode(D_800D3128.bits.stereoMode);
+        frontSetLanguage(D_800D3128.language);
+        frontSetStereoMode(D_800D3128.stereoMode);
         frontSetSfxVolume(D_800D312C);
         frontSetBgmVolume(D_800D312E);
         gOverlay60Data160 = 0;
@@ -324,27 +316,27 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                     fontColour(0x64, 0xFF, 0x64, 0xFF, gOverlay60Data2A4);
                     if (func_overlay_082_F00004A4_18CF624(gOverlay60Data0A8) != 0 &&
                         D_800D31BC != 0) {
-                        D_800D3128.flags.field9 ^= 1;
+                        D_800D3128.field9 ^= 1;
                         amSndPlay(0xF, NULL);
                     }
                 } else {
                     fontColour(0, 0xBE, 0, 0xFF, gOverlay60Data2A4);
                 }
                 sprintf(text, gOverlay60Data1F0, O60_TEXT(0x254),
-                        gOverlay60Data298[D_800D3128.flags.field9]);
+                        gOverlay60Data298[D_800D3128.field9]);
                 func_8004B0F8(&D_800D3140, 0x91, 0x96, text, 0xC);
                 if (gOverlay60Data2B0 == 1) {
                     fontColour(0x64, 0xFF, 0x64, 0xFF, gOverlay60Data2A4);
                     if (func_overlay_082_F00004A4_18CF624(gOverlay60Data0A8) != 0 &&
                         D_800D31BC != 0) {
-                        D_800D3128.flags.field8 ^= 1;
+                        D_800D3128.field8 ^= 1;
                         amSndPlay(0xF, NULL);
                     }
                 } else {
                     fontColour(0, 0xBE, 0, 0xFF, gOverlay60Data2A4);
                 }
                 sprintf(text, gOverlay60Data1F8, O60_TEXT(0x258),
-                        gOverlay60Data298[D_800D3128.flags.field8]);
+                        gOverlay60Data298[D_800D3128.field8]);
                 func_8004B0F8(&D_800D3140, 0x91, 0xAA, text, 0xC);
                 break;
             case 2:
@@ -438,24 +430,24 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                 }
                 break;
             case 5:
-                mode = frontGetStereoMode();
+                stereoMode = frontGetStereoMode();
                 if (func_overlay_082_F00004A4_18CF624(gOverlay60Data0A8) != 0) {
                     if (D_800D31BC < 0) {
-                        mode--;
-                        if (mode < 0) {
-                            mode = 3;
+                        stereoMode--;
+                        if (stereoMode < 0) {
+                            stereoMode = 3;
                         }
                         amSndPlay(0xF, NULL);
                     } else if (D_800D31BC > 0) {
-                        mode++;
-                        if (mode >= 4) {
-                            mode = 0;
+                        stereoMode++;
+                        if (stereoMode >= 4) {
+                            stereoMode = 0;
                         }
                         amSndPlay(0xF, NULL);
                     }
                 }
-                frontSetStereoMode(mode);
-                if (mode == 3) {
+                frontSetStereoMode(stereoMode);
+                if (stereoMode == 3) {
                     func_8002F618(&D_800D3140, &gOverlay60Data020,
                                   0x68, 0x8C, 0, 0xFF, 0, gOverlay60Data2A4);
                     fontColour(0, 0xFF, 0, 0xFF, gOverlay60Data2A4);
@@ -464,11 +456,11 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                     func_8004B0F8(&D_800D3140, 0x91, 0xCD, O60_TEXT(0x2A0), 0xC);
                 } else {
                     fontColour(0, 0xFF, 0, 0xFF, gOverlay60Data2A4);
-                    func_8004B0F8(&D_800D3140, 0x91, 0x9B, gOverlay60Data288[mode], 0xC);
+                    func_8004B0F8(&D_800D3140, 0x91, 0x9B, gOverlay60Data288[stereoMode], 0xC);
                 }
                 break;
             case 6:
-                mode = frontGetScreenMode();
+                screenMode = frontGetScreenMode();
                 if (gOverlay60Data158 == 0 &&
                     func_overlay_082_F00004A4_18CF624(gOverlay60Data0A8) != 0 &&
                     D_800D31BC != 0) {
@@ -481,21 +473,17 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                         if (viDisplayingScreen0() == 0) {
                             projection = func_8002468C();
                             animseqStopPath(((u8 *)&gOverlay60Data2B8)[3]);
-                            if (mode == 0) {
+                            if (screenMode == 0) {
                                 animseqStopPath(2);
                                 animseqStartPath(3);
                                 path = func_800508B4(3);
                                 if (path != NULL) {
                                     path->flags |= 2;
                                 }
-                                gOverlay60Data0C8[0]->x = gOverlay60Data0E8;
-                                gOverlay60Data0C8[0]->y = gOverlay60Data0EA;
-                                gOverlay60Data0C8[1]->x = gOverlay60Data0EC;
-                                gOverlay60Data0C8[1]->y = gOverlay60Data0EE;
-                                gOverlay60Data0C8[2]->x = gOverlay60Data0F0;
-                                gOverlay60Data0C8[2]->y = gOverlay60Data0F2;
-                                gOverlay60Data0C8[3]->x = gOverlay60Data0F4;
-                                gOverlay60Data0C8[3]->y = gOverlay60Data0F6;
+                                for (i = 0; i < 4; i++) {
+                                    gOverlay60Data0C8[i]->x = gOverlay60Data0E8[i].x;
+                                    gOverlay60Data0C8[i]->y = gOverlay60Data0E8[i].y;
+                                }
                                 (*projection)[0][0] *= 0.75f;
                             } else {
                                 animseqStopPath(3);
@@ -504,33 +492,29 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                                 if (path != NULL) {
                                     path->flags |= 2;
                                 }
-                                gOverlay60Data0C8[0]->x = gOverlay60Data0D8[0].x;
-                                gOverlay60Data0C8[0]->y = gOverlay60Data0D8[0].y;
-                                gOverlay60Data0C8[1]->x = gOverlay60Data0D8[1].x;
-                                gOverlay60Data0C8[1]->y = gOverlay60Data0D8[1].y;
-                                gOverlay60Data0C8[2]->x = gOverlay60Data0D8[2].x;
-                                gOverlay60Data0C8[2]->y = gOverlay60Data0D8[2].y;
-                                gOverlay60Data0C8[3]->x = gOverlay60Data0D8[3].x;
-                                gOverlay60Data0C8[3]->y = gOverlay60Data0D8[3].y;
+                                for (i = 0; i < 4; i++) {
+                                    gOverlay60Data0C8[i]->x = gOverlay60Data0D8[i].x;
+                                    gOverlay60Data0C8[i]->y = gOverlay60Data0D8[i].y;
+                                }
                                 (*projection)[0][0] /= 0.75f;
                             }
                             gOverlay60Data158 = 2;
                         }
                     } else {
-                        if (mode == 0) {
-                            mode = 1;
+                        if (screenMode == 0) {
+                            screenMode = 1;
                         } else {
-                            mode = 0;
+                            screenMode = 0;
                         }
                         func_80033FE0();
                         D_800D2FC0 = 1;
-                        func_800336A8(mode);
+                        func_800336A8(screenMode);
                         func_80021504(60.0f, 1);
                         gOverlay60Data158 = 0;
                         func_overlay_082_F00004C0_18CF640(gOverlay60Data0A8);
                     }
                 }
-                if (mode == 1) {
+                if (screenMode == 1) {
                     fontColour(0x64, 0xFF, 0x64, 0xFF, gOverlay60Data2A4);
                     func_8004B0F8(&D_800D3140, 0x91, 0x91, O60_TEXT(0x1DC), 0xC);
                     value = frontGetWideAdjust();
@@ -553,7 +537,7 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                     fontColour(0x64, 0xFF, 0x64, 0xFF, gOverlay60Data2A4);
                     func_8004B0F8(&D_800D3140, 0x91, 0x9B, O60_TEXT(0x1E0), 0xC);
                 }
-                func_8003A2C8(mode);
+                func_8003A2C8(screenMode);
                 break;
             case 7:
                 showArrows = 0;
@@ -617,8 +601,8 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                         if (((D_800D3130[0] & 0x1C0) >> 6) >= 3 &&
                             ((D_800D3130[1] & 0x1C0) >> 6) >= 3 &&
                             ((D_800D3130[2] & 0x1C0) >> 6) >= 3) {
-                            if (D_800D3128.flags.field26_23 == 0xF) {
-                                if (D_800D3128.flags.field18) {
+                            if (D_800D3128.field26_23 == 0xF) {
+                                if (D_800D3128.field18) {
                                     limit = 0x15;
                                 } else {
                                     limit = 0x14;
@@ -690,12 +674,12 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                     case 1:
                         func_80034920(&D_800D3140);
                         camStandardPersp(&D_800D3140, &D_800D3144);
-                        mode = gOverlay60Data150;
-                        gOverlay60Data260[7] = D_8007C0B8[0x220 / 4 + mode];
+                        previewMode = gOverlay60Data150;
+                        gOverlay60Data260[7] = D_8007C0B8[0x220 / 4 + previewMode];
                         if (((D_800D3130[0] & 0x1C0) >> 6) >= 3 &&
                             ((D_800D3130[1] & 0x1C0) >> 6) >= 3 &&
                             ((D_800D3130[2] & 0x1C0) >> 6) >= 3) {
-                            if (D_800D3128.flags.field26_23 == 0xF) {
+                            if (D_800D3128.field26_23 == 0xF) {
                                 limit = 5;
                             } else {
                                 limit = 4;
@@ -707,19 +691,19 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                             gOverlay60Data14C = 0;
                             amSndPlay(0xD, NULL);
                         } else if (D_800D31BC < 0) {
-                            gOverlay60Data150 = mode - 1;
+                            gOverlay60Data150 = previewMode - 1;
                             if (gOverlay60Data150 < 0) {
                                 gOverlay60Data150 = limit - 1;
                             }
                             amSndPlay(0xF, NULL);
                         } else if (D_800D31BC > 0) {
-                            gOverlay60Data150 = mode + 1;
+                            gOverlay60Data150 = previewMode + 1;
                             if (gOverlay60Data150 >= limit) {
                                 gOverlay60Data150 = 0;
                             }
                             amSndPlay(0xF, NULL);
                         }
-                        gOverlay60Data130 = mode;
+                        gOverlay60Data130 = previewMode;
                         fontColour(0, 0xFF, 0, 0xFF, gOverlay60Data2A4);
                         func_8004B0F8(&D_800D3140, 0x3C, 0x8C, O60_TEXT(0x234), 8);
                         fontColour(0xFF, 0, 0, 0xFF, gOverlay60Data2A4);
@@ -757,14 +741,14 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                         rcpClearZBuffer(&D_800D3140, 0x140, 0xF0, 0x8C, 0x64, 0xD7, 0xC8);
                         for (i = 0; i < 4; i++) {
                             object = gOverlay60Data0C8[i];
-                            mode = gOverlay60Data150;
-                            if (mode != object->unk3A) {
-                                object->unk3A = mode;
+                            previewMode = gOverlay60Data150;
+                            if (previewMode != object->unk3A) {
+                                object->unk3A = previewMode;
                                 func_8005AD64(gOverlay60Data0C8[i], 0, 0, 0.0f);
                             }
-                            mode = gOverlay60Data150;
+                            previewMode = gOverlay60Data150;
                             object = gOverlay60Data0C8[i];
-                            object->unk8 = gOverlay60Data0F8[mode];
+                            object->unk8 = gOverlay60Data0F8[previewMode];
                             model = (MenuSpawnInner *)(gOverlay60Data0C8[i])->unk68[gOverlay60Data150];
                             model->mode = ticks;
                             rank = gOverlay60Data12B + 1 +
@@ -921,27 +905,27 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                     fontColour(0x64, 0xFF, 0x64, 0xFF, gOverlay60Data2A4);
                     if (func_overlay_082_F00004A4_18CF624(gOverlay60Data0A8) != 0 &&
                         D_800D31BC != 0) {
-                        D_800D3128.flags.field20 ^= 1;
+                        D_800D3128.field20 ^= 1;
                         amSndPlay(0xF, NULL);
                     }
                 } else {
                     fontColour(0, 0xBE, 0, 0xFF, gOverlay60Data2A4);
                 }
                 sprintf(text, gOverlay60Data220, O60_TEXT(0x1D4),
-                    gOverlay60Data298[D_800D3128.flags.field20]);
+                    gOverlay60Data298[D_800D3128.field20]);
                 func_8004B0F8(&D_800D3140, 0x91, 0x96, text, 0xC);
                 if (gOverlay60Data2B0 == 1) {
                     fontColour(0x64, 0xFF, 0x64, 0xFF, gOverlay60Data2A4);
                     if (func_overlay_082_F00004A4_18CF624(gOverlay60Data0A8) != 0 &&
                         D_800D31BC != 0) {
-                        D_800D3128.flags.field19 ^= 1;
+                        D_800D3128.field19 ^= 1;
                         amSndPlay(0xF, NULL);
                     }
                 } else {
                     fontColour(0, 0xBE, 0, 0xFF, gOverlay60Data2A4);
                 }
                 sprintf(text, gOverlay60Data228, O60_TEXT(0x1D8),
-                    gOverlay60Data298[D_800D3128.flags.field19]);
+                    gOverlay60Data298[D_800D3128.field19]);
                 func_8004B0F8(&D_800D3140, 0x91, 0xAA, text, 0xC);
                 break;
             case 9:
@@ -1009,3 +993,13 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o060/overlay60Prefix/func_overlay_060_F0000334_18BA10C.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_060_F0000334_18BA10C:start
+ * symbol: func_overlay_060_F0000334_18BA10C
+ * score: 2511 differing words
+ * frame: 0x198
+ * relocations: 864
+ * first-mismatch: +0x4
+ * summary: NON_MATCHING: 2786/2789 words and 244 calls recovered; global-address and stack context need a separately authorized causal packet.
+ * PLATEAU-HANDOFF:func_overlay_060_F0000334_18BA10C:end
+ */
