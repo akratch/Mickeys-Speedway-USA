@@ -5765,11 +5765,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_800103D4:start
  * symbol: func_800103D4
- * score: 132 differing words
+ * score: 120 differing words
  * frame: 0x60
- * relocations: 20
+ * relocations: 12
  * first-mismatch: +0x0
- * summary: Best is 159/160 with 120 positional differences; saved-FP storage class and a target 20 versus candidate 12 relocation deficit remain.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_800103D4:end
  */
 
