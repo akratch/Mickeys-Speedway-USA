@@ -745,6 +745,11 @@
       "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior forms, body mutation, flags, trace, and permutation stay closed.",
       "source_commit": "5cae70c4df16bedadce1fcb1871f90d5c0f0a9f7"
     },
+    "func_overlay_058_F000138C_18B0574": {
+      "ledger_commit": "b18f6399a092d6df3cf2b08791577e3bbc602951",
+      "reason": "Decompiler-assisted structural reconstruction: take an m2c draft from this game's own extracted assembly, recover call/global identities and types first, then rebuild the CFG. Prior plateau reached no CFG work.",
+      "source_commit": "b18f6399a092d6df3cf2b08791577e3bbc602951"
+    },
     "func_overlay_065_F0000C38_18C4EA0": {
       "ledger_commit": null,
       "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior flags, do-while/base, float, typed-pointer, record-pool, writer, and frame forms stay closed; no body mutation, trace, or permutation.",
