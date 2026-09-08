@@ -4120,15 +4120,15 @@ s32 func_8005776C(f32 x, f32 y, f32 z, f32 radius, s32 useXZ,
 
         remaining = found - 1;
         if (remaining > 0) {
+            distance = distances;
             do {
-                distance = distances;
                 lastDistance = &distance[remaining];
                 nearbyOffset = 0;
                 do {
-                    currentDistance = distance[0];
                     nearbyEntry = (HitCopyState **)
                         ((u8 *) nearby + nearbyOffset);
-                    if (distance[1] < currentDistance) {
+                    if (distance[1] < distance[0]) {
+                        currentDistance = distance[0];
                         player = nearbyEntry[0];
                         distance[0] = distance[1];
                         nearbyEntry[0] = nearbyEntry[1];
@@ -4202,11 +4202,11 @@ void fmvInit(void) {
 
 /* PLATEAU-HANDOFF:func_8005776C:start
  * symbol: func_8005776C
- * score: 54/105 words
+ * score: 47 differing words
  * frame: 0xC0
  * relocations: 2
  * first-mismatch: +0x24
- * summary: Fidelity trace proves -Wab,-r4300_mul fixes the first 28 words and sqrtf site, but the sort cursor then hoists a stack base and leaves 106 words.
+ * summary: Donor audit improved the residual to 47 words; next lever is authenticated outer sort cursor scheduling evidence.
  * PLATEAU-HANDOFF:func_8005776C:end
  */
 
