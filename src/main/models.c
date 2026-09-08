@@ -1194,7 +1194,9 @@ typedef struct ModelFrameInstance {
     u16 *outputs[1];
 } ModelFrameInstance;
 
-/* Mickey-only reconstruction; JFG's modSetTextureFrame remains assembly. */
+/* PROVENANCE: the authorized audit of JFG upstream efd5abb confirms that its
+ * corresponding modSetTextureFrame remains GLOBAL_ASM, so no donor C body is
+ * adopted here. This remains a Mickey-only reconstruction. */
 /* Policy-clean configured full-TU C has the exact 48-word body, 0x8 frame,
  * and zero relocations, with 31/48 words matching and first mismatch +0x38.
  * Seventeen register-field residuals remain; UGEN-only ownership is unproved.
@@ -1429,7 +1431,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0x8
  * relocations: 0
  * first-mismatch: +0x38
- * summary: register-field residuals; retained control changes initial reservation; complete dynamic FIFO unproved
+ * summary: JFG efd5abb still has GLOBAL_ASM; next lever is new register-ownership evidence or a matched donor C body.
  * PLATEAU-HANDOFF:func_80020D8C:end
  */
 
