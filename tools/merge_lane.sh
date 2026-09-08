@@ -24,10 +24,17 @@ tools/cleanroom_check.sh --range "HEAD..$tip" 2>&1 | tail -1
 echo "== merge $branch"
 # --no-commit: the merge is committed only after every gate below passes.
 if ! git merge --no-commit --no-ff "$tip" >/dev/null 2>&1; then
+regenerate_ranking_doc=0
   conflicts=$(git diff --name-only --diff-filter=U)
   for f in $conflicts; do
     case "$f" in
       README.md|config/overlays.us.json|config/overlay-donors.us.json|config/postprocess-audit.us.json) git checkout --theirs "$f" && git add "$f" ;;
+      # docs/nm-ranking.md is generated from config/nonmatching-ranking.us.json.
+      # Three-way merging it produces a document that matches neither side and
+      # fails `nm_ranking.py --check-doc` in the gates below, which is how two
+      # match integrations stalled before this rule existed. Regenerate it from
+      # the merged ranking instead of merging its text.
+      docs/nm-ranking.md) git checkout --theirs "$f" && git add "$f" && regenerate_ranking_doc=1 ;;
       docs/modules.md|docs/overlays.md) .venv/bin/python tools/resolve_modules_split.py || { echo "unresolved conflict: $f" >&2; exit 1; } ;;
       mickey.us.yaml|docs/resident.md|*.c|*.h) .venv/bin/python tools/resolve_comment_hunks.py "$f" && git add "$f" || echo "deferring $f to tools/resolve_lane_conflicts.py" ;;
       *) echo "deferring $f to tools/resolve_lane_conflicts.py" ;;
@@ -49,6 +56,11 @@ if ! git rev-parse --verify MERGE_HEAD >/dev/null 2>&1; then
 fi
 if git grep -q '^<<<<<<< ' -- . ':!*.md'; then echo "conflict markers left in tracked files:" >&2; git grep -l '^<<<<<<< ' -- . >&2; exit 1; fi
 .venv/bin/python tools/merge_transaction.py begin
+if [ "${regenerate_ranking_doc:-0}" = 1 ]; then
+  .venv/bin/python tools/nm_ranking.py --write-doc >/dev/null
+  git add docs/nm-ranking.md
+  echo "regenerated docs/nm-ranking.md from the merged ranking"
+fi
 echo "== integration gates"
 gmake overlay-atlas-write >/dev/null 2>&1 || true
 .venv/bin/python tools/refresh_atlas_digest.py >/dev/null
