@@ -874,7 +874,16 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o086/overlay86BuildTransform.c.o: POSTPROCESS =
 # NON_MATCHING fallback assembly supplies the retail body; restore the
 # friendly source symbol and retain the exact text extent when needed.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o094/overlay94UpdateController.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym func_overlay_094_F0000110_18D6CB0=overlay94UpdateController $@ && \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_094_F0000110_18D6CB0=overlay94UpdateController \
+		--redefine-sym func_80019AB8=func_80019AB8_o094Reloc \
+		--redefine-sym func_800254FC=func_800254FC_o094Reloc \
+		--redefine-sym func_8002565C=func_8002565C_o094Reloc \
+		--redefine-sym func_8002A878=func_8002A878_o094Reloc \
+		--redefine-sym func_8002A910=func_8002A910_o094Reloc \
+		--redefine-sym func_8002B040=func_8002B040_o094Reloc \
+		--redefine-sym func_8005ABA8=func_8005ABA8_o094Reloc \
+		--redefine-sym func_8005AF14=func_8005AF14_o094Reloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x44C
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o094/overlay94SetValue.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xC
