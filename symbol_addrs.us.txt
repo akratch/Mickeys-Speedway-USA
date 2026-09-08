@@ -2851,3 +2851,14 @@ func_80006C4C = 0x80006C4C; // type:func size:0x254 ROM 0x784C tier-A matched C 
 func_8000486C = 0x8000486C; // type:func size:0x298 ROM 0x546C tier-A matched C Mickey-only C-object+linked-ROM-exact, twenty-three relocation identities, name unresolved
 
 func_80006534 = 0x80006534; // type:func size:0x334 ROM 0x7134 tier-D NON_MATCHING resident fallback and adjacent func_80006868 boundary, no match credit
+
+// Queued objects TU assembly ownership: linked range and fallback extent agree.
+func_80004C28 = 0x80004c28; // type:func size:0x3b8 ROM 0x5828 tier-A assembly fallback extent verified against linked ROM range, NON_MATCHING C has no credit
+func_80009AA8 = 0x80009aa8; // type:func size:0x3d0 ROM 0xa6a8 tier-A assembly fallback extent verified against linked ROM range, NON_MATCHING C has no credit
+func_8000784C = 0x8000784c; // type:func size:0x41c ROM 0x844c tier-A assembly fallback extent verified against linked ROM range, NON_MATCHING C has no credit
+func_800084C4 = 0x800084c4; // type:func size:0x55c ROM 0x90c4 tier-A assembly fallback extent verified against linked ROM range, NON_MATCHING C has no credit
+func_80004FE0 = 0x80004fe0; // type:func size:0x568 ROM 0x5be0 tier-A assembly fallback extent verified against linked ROM range, NON_MATCHING C has no credit
+func_80008B94 = 0x80008b94; // type:func size:0x68c ROM 0x9794 tier-A assembly fallback extent verified against linked ROM range, NON_MATCHING C has no credit
+func_80009414 = 0x80009414; // type:func size:0x694 ROM 0xa014 tier-A assembly fallback extent verified against linked ROM range, NON_MATCHING C has no credit
+func_80007118 = 0x80007118; // type:func size:0x72c ROM 0x7d18 tier-A assembly fallback extent verified against linked ROM range, NON_MATCHING C has no credit
+func_8000B3CC = 0x8000b3cc; // type:func size:0x7b8 ROM 0xbfcc tier-A assembly fallback extent verified against linked ROM range, NON_MATCHING C has no credit
