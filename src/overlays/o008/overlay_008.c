@@ -2492,11 +2492,11 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
 
 /* PLATEAU-HANDOFF:func_overlay_008_F00034A0_18611F8:start
  * symbol: func_overlay_008_F00034A0_18611F8
- * score: 556/579 words
+ * score: 482/506 words
  * frame: 0x80
- * relocations: 109
+ * relocations: 107
  * first-mismatch: +0x1C
- * summary: Frame, relocations and 8 of 15 stack homes exact; the other 6 sit 4 bytes high, needing an escaping-object pair no aggregate or scalar form yields
+ * summary: 18 of 21 call regions and the 0x80 frame are exact; the rest needs an escaping-object pair no aggregate or scalar form yields, plus a conservative buffer reload
  * PLATEAU-HANDOFF:func_overlay_008_F00034A0_18611F8:end
  */
 
