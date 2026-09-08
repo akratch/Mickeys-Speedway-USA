@@ -5816,10 +5816,10 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 /* PLATEAU-HANDOFF:func_8000E5EC:start
  * symbol: func_8000E5EC
  * score: 185 differing words
- * frame: 0xE8
+ * frame: 0xe8
  * relocations: 56
  * first-mismatch: +0x0
- * summary: 119 flags flat; fidelity-clean proc 23 has 34 integer decisions but no stack homes or source-attributed webs, so no lexical experiment is justified
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_8000E5EC:end
  */
 
