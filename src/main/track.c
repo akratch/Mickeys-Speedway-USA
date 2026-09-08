@@ -5729,7 +5729,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0xa0
  * relocations: 8
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Mickey m2c cursor and plane lifetimes do not improve 162 differences. Next: evidence for threshold and FP home declarations.
  * PLATEAU-HANDOFF:func_80010654:end
  */
 
