@@ -266,10 +266,18 @@ void func_8005A770(void) {
  * Relocation normalization leaves seven positional sites. The ten relocation
  * identities agree as a multiset and nine tuples are exact; the second
  * piRomLoadSection call moves from target +0xBC to candidate +0xC0. Alignment
- * remains v1/sp+0x30 instead of s0/sp+0x34. The real-address linked V0 has
- * 94/106 raw and 99/106 relocation-normalized words. More than ten source forms
- * and all 119 flag groups exhausted the frame/carrier/schedule route. The
- * focused reproof is complete; park pending a new frame/carrier mechanism.
+ * originally remained v1/sp+0x30 instead of s0/sp+0x34. The stall-rule reopen
+ * de-declared the bounds pointer without changing the 96/106 score or 106-word
+ * extent, and this moves the spill to the target's sp+0x34 home. A stock
+ * `-Wo,-zdbug:2` listing identifies six memory-class scalar homes in this
+ * retained candidate. Reduced-local carrier maps reached frames 0x48 and 0x30
+ * but regressed to at best 88/106; de-declaring either shifted bound changed
+ * instruction geometry. The last five distinct carrier, expression, and one-
+ * local forms did not improve the retained residual. Workbench verdict remains
+ * `structure-mismatch`; its routed lever is `drop-a-declared-local`. Reopen
+ * only with target-correlated CFE temp birth-site evidence, not another
+ * ungrounded carrier permutation. The real-address linked V0 has 94/106 raw
+ * and 99/106 relocation-normalized words. The 119 flag groups remain exhausted.
  */
 #ifdef NON_MATCHING
 s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
@@ -279,12 +287,10 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
     s32 loadSize;
     s32 loaded;
     s32 inputOffset;
-    u16 *bounds;
 
     piRomLoadSection(0x28, (void *)D_800D7D00, (modelId & ~3) * 2, 0x10);
-    bounds = (u16 *)D_800D7D00 + (modelId & 3);
-    firstAnimation = bounds[0] >> 1;
-    lastAnimation = bounds[1] >> 1;
+    firstAnimation = ((u16 *)D_800D7D00 + (modelId & 3))[0] >> 1;
+    lastAnimation = ((u16 *)D_800D7D00 + (modelId & 3))[1] >> 1;
     model->animationCount = lastAnimation - firstAnimation;
     if (firstAnimation == lastAnimation) {
         return TRUE;
@@ -839,7 +845,7 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
  * frame: 0x50
  * relocations: 10
  * first-mismatch: +0x0
- * summary: 99/106 normalized; target frame 0x38; second loader tuple four bytes late; park for a new frame/carrier mechanism
+ * summary: structure-mismatch; bounds de-declaration fixes sp+0x34, reduced-local carriers stall; next capture target-correlated CFE temp birth-site evidence
  * PLATEAU-HANDOFF:func_8005A7A0:end
  */
 
