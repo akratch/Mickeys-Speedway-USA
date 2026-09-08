@@ -23,7 +23,8 @@ typedef struct O57MiddleChoice {
 } O57MiddleChoice;
 
 typedef struct O57MiddleOutput {
-    s32 value0;
+    u8 value0;
+    u8 pad01[3];
     u8 controller;
     u8 pad05[0x23];
 } O57MiddleOutput;
@@ -32,63 +33,91 @@ typedef union O57MiddleInput {
     s32 word;
     u32 uword;
     s16 half;
-    u8 bytes[0x520];
+    u8 bytes[4];
 } O57MiddleInput;
 
-typedef union O57MiddleFloatBits {
-    f32 value;
-    s32 bits;
-} O57MiddleFloatBits;
+typedef struct O57MiddleTextureNode {
+    void *texture;
+    void *alternate;
+    u32 packedOffset;
+    s16 x;
+    s16 y;
+} O57MiddleTextureNode;
 
-extern O57MiddleInput D_0;
-extern void *D_8[];
-extern void *D_80[];
-extern s32 D_104;
-extern f32 D_10C;
-extern f32 D_110;
-extern s32 D_11C;
-extern s32 D_118;
-extern s32 D_128;
-extern s32 D_130;
-extern s32 D_134;
-extern s32 D_138;
-extern s32 D_13C;
-extern s32 D_140;
-extern s32 D_144;
-extern s32 D_148;
-extern s32 D_160;
-extern s32 D_164;
-extern s32 D_188;
-extern s32 D_194;
-extern s32 D_198;
-extern s32 D_19C;
-extern O57MiddleInfo D_1A8;
-extern s32 D_1A0[];
-extern s32 D_17C[];
-extern O57MiddleOutput D_1B8[];
-extern s32 D_4FC;
-extern s32 D_50C;
-extern s16 D_528[];
-extern s16 D_53E[];
-extern u8 D_4C[];
-extern u8 D_58[];
-extern u8 D_25C[];
-extern u8 D_32C[];
-extern s16 D_36C[];
-extern u8 D_D0[];
-extern u8 D_183;
+/* Tier B: calls and globals separated by overlay 57 runtime relocations.
+ * Reserved data/BSS selectors remain separate from overlay-local storage. */
+extern O57MiddleInput gO57MiddleFlags;
+extern s16 gO57MiddleHorizontal, gO57MiddleVertical;
+extern s32 gO57MiddleButtons, gO57MiddlePlayerCount;
+extern s16 gO57MiddleCourseIds[], gO57MiddleCourseNames[];
+extern char **gO57MiddleText;
+extern void *gO57MiddleDisplayList, *gO57MiddleVertexList;
+extern void *gO57MiddleGraphics[];
+extern O57MiddleChoice gO57MiddleChoices[];
+extern s32 gO57MiddleData31E4, gO57MiddleData31E8, gO57MiddleData31EC;
+extern s32 gO57MiddleData31F0, gO57MiddleData31F4;
+extern u8 gO57MiddleData3198, gO57MiddleData31AC;
+extern s8 gO57MiddleData319C, gO57MiddleData31A4, gO57MiddleData31A8;
+extern u16 gO57MiddleData31B4, gO57MiddleData31B8;
+extern u8 gO57MiddleData3208, gO57MiddleData3214;
+extern void *gO57MiddleItems[];
+extern s32 gO57MiddleAlpha, gO57MiddlePreviousAlpha;
+extern s32 gO57MiddleMode, gO57MiddleNextMode, gO57MiddleMoving;
+extern s32 gO57MiddleFade, gO57MiddleFadeDelay;
+extern s32 gO57MiddleSelection, gO57MiddlePreviousSelection;
+extern s32 gO57MiddleState188, gO57MiddleState194;
+extern s32 gO57MiddleUnlocked198, gO57MiddleUnlocked19C;
+extern O57MiddleInfo gO57MiddleInfo;
+extern s32 gO57MiddleStopList[], gO57MiddlePathIndices[], gO57MiddlePathList[];
+extern O57MiddleOutput *gO57MiddleOutput;
+extern s32 gO57MiddlePanelPosition, gO57MiddleTransition, gO57MiddleCanLeave;
+extern s16 gO57MiddleColumns[], gO57MiddleColumnsEnd[];
+extern char gO57MiddleEmptyFormat[], gO57MiddleResultFormat[];
+extern O57MiddleTextureNode gO57MiddleCaption[], gO57MiddleBadge[];
+extern char *gO57MiddleLabels[];
+extern s16 gO57MiddleCharacterIds[];
+extern u8 gO57MiddlePathId;
 
-extern s32 func_overlay_057_F0000000_18A3BF8();
+typedef struct O57MiddleRenderParameters {
+    u8 pad00[0x10C];
+    f32 position;
+    f32 scale;
+} O57MiddleRenderParameters;
+extern O57MiddleRenderParameters gO57MiddleRenderParameters;
+
+extern void func_80000F94(u16 soundId, void **handle);
+extern void func_80005548(u8 count);
+extern void func_80022A50(void **displayList, void **matrices);
+extern void func_80025444(s8 *players);
+extern s32 func_80025D60(s32 course);
+extern void func_80028374(s32 level, s32 character, s32 animation, s32 mode, s32 arg4, s32 arg5);
+extern void func_80028528(s32 group);
+extern void func_80028540(s32 cameras);
+extern void func_80028D24(s32 mode);
+extern void func_800291B4(void);
+extern O57MiddleRenderItem * func_800291C4(void);
+extern void func_8002F618(void **displayList, O57MiddleTextureNode *nodes, s32 x, s32 y, u8 r, u8 g, u8 b, u8 a);
+extern void func_8002FB34(void **displayList, O57MiddleTextureNode *nodes, f32 x, f32 y, f32 sx, f32 sy, s32 mode, s32 flags);
+extern void func_80039E34(s32 spacing);
+extern void func_8003A680(u8 character);
+extern s32 func_8003A700(u8 character);
+extern s32 func_800429A4(char *buffer, const char *format, ...);
+extern void func_8004B0A4(s32 font);
+extern void func_8004B0B8(s32 r, s32 g, s32 b, s32 a, s32 opacity);
+extern void func_8004B0F8(void **displayList, s32 x, s32 y, char *text, s32 align);
+extern void func_80050688(u8 path);
+extern void func_80050704(u8 path);
+extern void func_overlay_045_F0000314_188C76C(void *descriptor, s32 x, s32 y, s32 flags);
+extern void func_overlay_056_F00000B8_18A2E30(s32 time, s32 *first, s32 *second, s32 *third);
 extern void func_overlay_057_F0001020_18A4C18(s32 updateRate);
-extern void func_overlay_057_F00067DC_18AA3D4();
+extern void func_overlay_057_F00067DC_18AA3D4(s32 id, s32 argument, f32 value);
+extern s32 func_overlay_068_F000146C_18C85CC(s32 course);
+extern s32 func_overlay_084_F0000C74_18D1154(void);
+extern void func_overlay_084_F0001060_18D1540(s32 state);
+extern void func_overlay_084_F0001350_18D1830(void);
+extern void func_overlay_084_F0001398_18D1878(void);
 
-/* Fresh workbench: structure-mismatch, 1169 differing words, first mismatch
- * +0x34; 1217 versus 1208 instructions with the exact 0x140 frame. Naming
- * the distinct D_198 and D_19C globals improves the prior 1187-word result.
- * All 119 flag rows are nonexact; the 1160-word flag minimum is 21
- * instructions short. Promotion stops at schedule divergence for D_183 and
- * D_188, and the configured candidate exceeds its owner by 36 bytes, so the
- * runtime relocation comparison correctly refuses it. */
+/* Typed reconstruction candidate; control-flow reconstruction remains in progress. */
 #ifdef NON_MATCHING
 void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
     s32 i;
@@ -99,7 +128,9 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
     s32 previousGroup;
     s32 currentGroup;
     s32 oldValue;
-    s32 value;
+    s32 nextSelection;
+    s32 panelX;
+    s32 characterId;
     s32 nextValue;
     s32 cursorValue;
     s32 outputIndex;
@@ -107,17 +138,11 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
     s32 valueA;
     s32 valueB;
     s32 valueC;
-    O57MiddleFloatBits captionBits;
-    s8 sourceState[0x28];
+    s8 sourceState[4];
     u8 activePlayers[10];
-    s32 stackC8;
-    s16 stackC6;
-    s16 stackC4;
-    s32 stackC0;
-    s32 stackBC;
-    s32 stackB8;
-    u8 stackB0[2];
-    u8 renderState;
+    O57MiddleTextureNode textureNodes[2];
+    char stackB0[2];
+    char renderState[32];
     s32 stack80;
     s32 stack7C;
     s32 stack78;
@@ -127,7 +152,7 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
     O57MiddleRenderItem *renderItem;
     O57MiddleChoice *choice;
     s16 *color;
-    u8 *palette;
+    char *palette;
     u8 *active;
     s8 *source;
     s8 *activeInit;
@@ -138,436 +163,374 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
     s8 choiceActive;
     s32 row;
 
-    if (func_overlay_057_F0000000_18A3BF8() == 0) {
-        if (D_11C != 7) {
-            D_11C = 2;
+    if (func_overlay_084_F0000C74_18D1154() == 0) {
+        if (gO57MiddleMode != 7) {
+            gO57MiddleMode = 2;
         }
 
-        limit = 0x14;
-        if ((D_0.uword << 13) >> 31) {
+        if ((gO57MiddleFlags.uword << 13) >> 31) {
+            limit = 0x14;
             state = 3;
-        } else {
+        } else if (gO57MiddleUnlocked19C != 0) {
             limit = 0x13;
-            if (D_19C != 0) {
-                state = 3;
-            } else {
-                state = 1;
-                limit = 0xB;
-                if (D_198 != 0) {
-                    limit = 0xF;
-                    state = 2;
-                }
-            }
+            state = 3;
+        } else if (gO57MiddleUnlocked198 != 0) {
+            limit = 0xF;
+            state = 2;
+        } else {
+            state = 1;
+            limit = 0xB;
         }
 
-        if (D_194 == 0) {
-            index = D_160;
-            input = D_0.half;
-            remainder = index / 6;
-            if ((input < -16) && (index > 0) && (D_50C == 0)) {
-                D_130 = 1;
-                func_overlay_057_F0000000_18A3BF8(
-                    D_80[index], 0xA0, 0x104, 0x104);
-                D_164 = D_160;
-                value = D_160 - 1;
-                D_160 = value;
-                func_overlay_057_F0000000_18A3BF8(
-                    D_80[value], -0xA0, 0xBE, 4);
-                *(s32 *) (void *)&D_10C = D_104;
-                D_104 = 0xFF;
-                if ((D_160 % 6) == 5) {
-                    D_13C = 0;
-                    D_140 = 0x5A;
+        if (gO57MiddleState194 == 0) {
+            currentGroup = gO57MiddleSelection / 6;
+            if ((gO57MiddleHorizontal < -16) && (gO57MiddleSelection > 0) && (gO57MiddleTransition == 0)) {
+                gO57MiddleMoving = 1;
+                func_overlay_045_F0000314_188C76C(
+                    gO57MiddleItems[gO57MiddleSelection], 0xA0, 0x104, 0x104);
+                gO57MiddlePreviousSelection = gO57MiddleSelection;
+                gO57MiddleSelection -= 1;
+                func_overlay_045_F0000314_188C76C(
+                    gO57MiddleItems[gO57MiddleSelection], -0xA0, 0xBE, 4);
+                gO57MiddlePreviousAlpha = gO57MiddleAlpha;
+                gO57MiddleAlpha = 0xFF;
+                if ((gO57MiddleSelection % 6) == 5) {
+                    gO57MiddleFade = 0;
+                    gO57MiddleFadeDelay = 0x5A;
                     func_overlay_057_F00067DC_18AA3D4(
-                        0x2F, (D_160 / 6) + 5, 0x3C449BA6);
+                        0x2F, (gO57MiddleSelection / 6) + 5, 0.012f);
                 }
-            } else if ((input >= 17) && (index < limit) &&
-                       (D_50C == 0)) {
-                D_130 = 1;
-                func_overlay_057_F0000000_18A3BF8(
-                    D_80[index], 0xA0, 0x104, 0x104);
-                D_164 = D_160;
-                value = D_160 + 1;
-                D_160 = value;
-                func_overlay_057_F0000000_18A3BF8(
-                    D_80[value], 0x1E0, 0xBE, 4);
-                *(s32 *) (void *)&D_10C = D_104;
-                D_104 = 0xFF;
-                if ((D_160 % 6) == 0) {
-                    D_13C = 0;
-                    D_140 = 0x3C;
+            } else if ((gO57MiddleHorizontal >= 17) && (gO57MiddleSelection < limit) &&
+                       (gO57MiddleTransition == 0)) {
+                gO57MiddleMoving = 1;
+                func_overlay_045_F0000314_188C76C(
+                    gO57MiddleItems[gO57MiddleSelection], 0xA0, 0x104, 0x104);
+                gO57MiddlePreviousSelection = gO57MiddleSelection;
+                gO57MiddleSelection += 1;
+                func_overlay_045_F0000314_188C76C(
+                    gO57MiddleItems[gO57MiddleSelection], 0x1E0, 0xBE, 4);
+                gO57MiddlePreviousAlpha = gO57MiddleAlpha;
+                gO57MiddleAlpha = 0xFF;
+                if ((gO57MiddleSelection % 6) == 0) {
+                    gO57MiddleFade = 0;
+                    gO57MiddleFadeDelay = 0x3C;
                     func_overlay_057_F00067DC_18AA3D4(
-                        0x2F, D_160 / 6, 0x3C449BA6);
+                        0x2F, gO57MiddleSelection / 6, 0.012f);
                 }
-            } else if ((input < -16) && (index < (limit - 2)) &&
-                       (D_50C == 0)) {
-                D_130 = 1;
-                func_overlay_057_F0000000_18A3BF8(
-                    D_80[index], 0xA0, 0x104, 0x104);
-                D_164 = D_160;
-                value = D_160 + 3;
-                previousGroup = D_160 / 6;
-                D_160 = value;
-                func_overlay_057_F0000000_18A3BF8(
-                    D_80[value], 0xA0, 0x104, 4);
-                *(s32 *) (void *)&D_10C = D_104;
-                D_104 = 0xFF;
-                currentGroup = D_160 / 6;
+            } else if ((gO57MiddleVertical < -16) && (gO57MiddleSelection < (limit - 2)) &&
+                       (gO57MiddleTransition == 0)) {
+                gO57MiddleMoving = 1;
+                func_overlay_045_F0000314_188C76C(
+                    gO57MiddleItems[gO57MiddleSelection], 0xA0, 0x104, 0x104);
+                gO57MiddlePreviousSelection = gO57MiddleSelection;
+                previousGroup = gO57MiddleSelection / 6;
+                gO57MiddleSelection += 3;
+                func_overlay_045_F0000314_188C76C(
+                    gO57MiddleItems[gO57MiddleSelection], 0xA0, 0x104, 4);
+                gO57MiddlePreviousAlpha = gO57MiddleAlpha;
+                gO57MiddleAlpha = 0xFF;
+                currentGroup = gO57MiddleSelection / 6;
                 if (previousGroup != currentGroup) {
-                    D_13C = 0;
-                    D_140 = 0x3C;
+                    gO57MiddleFade = 0;
+                    gO57MiddleFadeDelay = 0x3C;
                     func_overlay_057_F00067DC_18AA3D4(
-                        0x2F, currentGroup, 0x3C449BA6, currentGroup);
+                        0x2F, currentGroup, 0.012f);
                 }
-            } else {
-                if ((input >= 17) && (index >= 3) &&
-                    (D_50C == 0)) {
-                    D_130 = 1;
-                    func_overlay_057_F0000000_18A3BF8(
-                        D_80[index], 0xA0, 0x104, 0x104);
-                    D_164 = D_160;
-                    value = D_160 - 3;
-                    previousGroup = D_160 / 6;
-                    D_160 = value;
-                    func_overlay_057_F0000000_18A3BF8(
-                        D_80[value], 0xA0, 0x104, 4);
-                    *(s32 *) (void *)&D_10C = D_104;
-                    D_104 = 0xFF;
-                    currentGroup = D_160 / 6;
+            } else if ((gO57MiddleVertical >= 17) && (gO57MiddleSelection >= 3) &&
+                    (gO57MiddleTransition == 0)) {
+                    gO57MiddleMoving = 1;
+                    func_overlay_045_F0000314_188C76C(
+                        gO57MiddleItems[gO57MiddleSelection], 0xA0, 0x104, 0x104);
+                    gO57MiddlePreviousSelection = gO57MiddleSelection;
+                    previousGroup = gO57MiddleSelection / 6;
+                    gO57MiddleSelection -= 3;
+                    func_overlay_045_F0000314_188C76C(
+                        gO57MiddleItems[gO57MiddleSelection], 0xA0, 0x104, 4);
+                    gO57MiddlePreviousAlpha = gO57MiddleAlpha;
+                    gO57MiddleAlpha = 0xFF;
+                    currentGroup = gO57MiddleSelection / 6;
                     if (previousGroup != currentGroup) {
-                        D_13C = 0;
-                        D_140 = 0x3C;
+                        gO57MiddleFade = 0;
+                        gO57MiddleFadeDelay = 0x3C;
                         func_overlay_057_F00067DC_18AA3D4(
-                            0x2F, currentGroup + 5, 0x3C449BA6,
-                            currentGroup);
+                            0x2F, currentGroup + 5, 0.012f);
                     }
-                } else if ((D_0.word & 0x2020) && (index >= 6) &&
-                           (D_50C == 0)) {
-                D_130 = 1;
-                func_overlay_057_F0000000_18A3BF8(
-                    D_80[index], 0xA0, 0x104, 0x104);
-                oldValue = D_160;
-                D_164 = oldValue;
-                D_160 = oldValue - 6;
-                func_overlay_057_F0000000_18A3BF8(
-                    D_80[D_160], -0xA0, 0xBE, 4);
-                *(s32 *) (void *)&D_10C = D_104;
-                D_104 = 0xFF;
-                D_13C = 0;
-                D_140 = 0x5A;
+                } else if ((gO57MiddleButtons & 0x2020) && (gO57MiddleSelection >= 6) &&
+                           (gO57MiddleTransition == 0)) {
+                gO57MiddleMoving = 1;
+                func_overlay_045_F0000314_188C76C(
+                    gO57MiddleItems[gO57MiddleSelection], 0xA0, 0x104, 0x104);
+                oldValue = gO57MiddleSelection;
+                gO57MiddlePreviousSelection = oldValue;
+                gO57MiddleSelection = oldValue - 6;
+                func_overlay_045_F0000314_188C76C(
+                    gO57MiddleItems[gO57MiddleSelection], -0xA0, 0xBE, 4);
+                gO57MiddlePreviousAlpha = gO57MiddleAlpha;
+                gO57MiddleAlpha = 0xFF;
+                gO57MiddleFade = 0;
+                gO57MiddleFadeDelay = 0x5A;
                 func_overlay_057_F00067DC_18AA3D4(
-                    0x2F, (D_160 / 6) + 5, 0x3C449BA6);
-                } else if ((D_0.word & 0x10) && (remainder < state) &&
-                           (D_50C == 0)) {
-                D_130 = 1;
-                func_overlay_057_F0000000_18A3BF8(
-                    D_80[index], 0xA0, 0x104, 0x104);
-                oldValue = D_160;
-                D_164 = oldValue;
-                D_160 = oldValue + 6;
-                func_overlay_057_F0000000_18A3BF8(
-                    D_80[D_160], 0x1E0, 0xBE, 4);
-                *(s32 *) (void *)&D_10C = D_104;
-                D_104 = 0xFF;
-                D_13C = 0;
-                D_140 = 0x5A;
+                    0x2F, (gO57MiddleSelection / 6) + 5, 0.012f);
+                } else if ((gO57MiddleButtons & 0x10) && (currentGroup < state) &&
+                           (gO57MiddleTransition == 0)) {
+                gO57MiddleMoving = 1;
+                func_overlay_045_F0000314_188C76C(
+                    gO57MiddleItems[gO57MiddleSelection], 0xA0, 0x104, 0x104);
+                oldValue = gO57MiddleSelection;
+                gO57MiddlePreviousSelection = oldValue;
+                gO57MiddleSelection = oldValue + 6;
+                func_overlay_045_F0000314_188C76C(
+                    gO57MiddleItems[gO57MiddleSelection], 0x1E0, 0xBE, 4);
+                gO57MiddlePreviousAlpha = gO57MiddleAlpha;
+                gO57MiddleAlpha = 0xFF;
+                gO57MiddleFade = 0;
+                gO57MiddleFadeDelay = 0x5A;
                 func_overlay_057_F00067DC_18AA3D4(
-                    0x2F, D_160 / 6, 0x3C449BA6);
-                if (D_160 > state) {
-                    D_160 = state;
+                    0x2F, gO57MiddleSelection / 6, 0.012f);
+                if (gO57MiddleSelection > limit) {
+                    gO57MiddleSelection = limit;
                 }
                 }
-            }
 
-            if ((D_0.word & 0x4000) && (D_50C == 0) &&
-                (((s32 *) (void *)&D_0)[0x4CC / 4] != 0)) {
-                func_overlay_057_F0000000_18A3BF8(0xD, 0);
-                func_overlay_057_F0000000_18A3BF8();
-                func_overlay_057_F0000000_18A3BF8(D_183);
-                D_118 = 7;
+            if ((gO57MiddleButtons & 0x4000) && (gO57MiddleTransition == 0) &&
+                (gO57MiddleCanLeave != 0)) {
+                func_80000F94(0xD, 0);
+                func_overlay_084_F0001350_18D1830();
+                func_80050704(gO57MiddlePathId);
+                gO57MiddleNextMode = 7;
                 func_overlay_057_F00067DC_18AA3D4(
-                    0x2F, 0, 0xBC449BA6);
-                D_188 = 0;
-                D_11C = 0;
-                func_overlay_057_F0000000_18A3BF8(1);
+                    0x2F, 0, -0.012f);
+                gO57MiddleState188 = 0;
+                gO57MiddleMode = 0;
+                func_overlay_084_F0001060_18D1540(1);
 
-                list = &D_134;
+                list = gO57MiddlePathList;
                 index = *list;
                 if (index != -1) {
                     do {
-                    func_overlay_057_F0000000_18A3BF8(index & 0xFF);
+                    func_80050688(index & 0xFF);
                     currentGroup = *list;
                     func_overlay_057_F00067DC_18AA3D4(
-                        currentGroup, D_17C[currentGroup], 0x3BE56042);
+                        currentGroup, gO57MiddlePathIndices[currentGroup], 0.007f);
                     index = list[1];
                     list++;
                     } while (index != -1);
                 }
-                list = D_1A0;
+                list = gO57MiddleStopList;
                 index = *list;
                 if (index != -1) {
                     do {
-                        func_overlay_057_F0000000_18A3BF8(index & 0xFF);
+                        func_80050704(index & 0xFF);
                         index = list[1];
                         list++;
                     } while (index != -1);
                 }
             }
 
-            i = 0;
-            remainder = updateRate & 3;
-            if (updateRate > 0) {
-                if (remainder != 0) {
-                    do {
-                        i++;
-                        D_4FC += (-0x1400 - D_4FC) >> 2;
-                    } while (i != remainder);
-                }
-                while (i < updateRate) {
-                    i += 4;
-                    value = D_4FC + ((-0x1400 - D_4FC) >> 2);
-                    nextValue = value + ((-0x1400 - value) >> 2);
-                    cursorValue = nextValue + ((-0x1400 - nextValue) >> 2);
-                    D_4FC = value;
-                    D_4FC = nextValue;
-                    D_4FC = cursorValue;
-                    D_4FC = cursorValue +
-                            ((-0x1400 - cursorValue) >> 2);
+            for (i = 0; i < updateRate; i++) {
+                gO57MiddlePanelPosition += (-0x1400 - gO57MiddlePanelPosition) >> 2;
+            }
+        } else {
+            if (gO57MiddleState194 == 1) {
+                for (i = 0; i < updateRate; i++) {
+                    gO57MiddlePanelPosition += (-gO57MiddlePanelPosition) >> 2;
                 }
             }
-        } else if (D_194 == 1) {
-            i = 0;
-            remainder = updateRate & 3;
-            if (updateRate > 0) {
-                if (remainder != 0) {
-                    do {
-                        i++;
-                        D_4FC += (-D_4FC) >> 2;
-                    } while (i != remainder);
-                }
-                while (i < updateRate) {
-                    i += 4;
-                    value = D_4FC + ((-D_4FC) >> 2);
-                    nextValue = value + ((-value) >> 2);
-                    cursorValue = nextValue + ((-nextValue) >> 2);
-                    D_4FC = value;
-                    D_4FC = nextValue;
-                    D_4FC = cursorValue;
-                    D_4FC = cursorValue + ((-cursorValue) >> 2);
-                }
-            }
-            if ((D_0.word & 0x4000) && (D_50C == 0)) {
-                func_overlay_057_F0000000_18A3BF8(0xD, 0);
-                D_194 = 0;
-                D_11C = 2;
+            if ((gO57MiddleButtons & 0x4000) && (gO57MiddleTransition == 0)) {
+                func_80000F94(0xD, 0);
+                gO57MiddleState194 = 0;
+                gO57MiddleMode = 2;
             }
         }
 
         func_overlay_057_F0001020_18A4C18(updateRate);
-        if ((D_4FC >> 4) >= -0x135) {
+        if ((gO57MiddlePanelPosition >> 4) >= -0x135) {
             row = 0x51;
             renderItems = (O57MiddleRenderItem *)
-                ((u8 *) func_overlay_057_F0000000_18A3BF8() +
-                 ((s32) func_overlay_057_F0000000_18A3BF8(
-                      ((s16 *) (void *)&D_0)[D_160]) << 5));
-            func_overlay_057_F0000000_18A3BF8(0);
-            value = D_4FC >> 4;
-            D_10C = (f32) value;
-            D_110 = 7.0f;
-            func_overlay_057_F0000000_18A3BF8(0);
-            func_overlay_057_F0000000_18A3BF8(8);
-            func_overlay_057_F0000000_18A3BF8(
-                D_1A8.value08, D_1A8.value09, D_1A8.value0A,
+                ((u8 *) func_800291C4() +
+                 ((s32) func_80025D60(
+                      gO57MiddleCourseIds[gO57MiddleSelection]) << 5));
+            func_8004B0A4(0);
+            panelX = gO57MiddlePanelPosition >> 4;
+            gO57MiddleRenderParameters.position = (f32) panelX;
+            gO57MiddleRenderParameters.scale = 7.0f;
+            func_80022A50(&gO57MiddleDisplayList, &gO57MiddleVertexList);
+            func_80039E34(8);
+            func_8004B0B8(
+                gO57MiddleInfo.value08, gO57MiddleInfo.value09, gO57MiddleInfo.value0A,
                 0xFF, 0xFF);
-            valueA = value + 0xA0;
+            valueA = panelX + 0xA0;
             stack64 = valueA;
-            func_overlay_057_F0000000_18A3BF8(
-                0, valueA, 0x23,
-                ((s32 *) (void *)&D_0)[0x510 / 4 + D_160], 4);
-            func_overlay_057_F0000000_18A3BF8(0xFF, 0x80, 0, 0xFF, 0xFF);
-            func_overlay_057_F0000000_18A3BF8(
-                0, valueA, 0x37,
-                ((s32 *) (void *)&D_0)[0xD0 / 4], 4);
-            func_overlay_057_F0000000_18A3BF8(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-            if (func_overlay_057_F0000000_18A3BF8(
-                    ((s16 *) (void *)&D_0)[D_160]) != 0) {
-                    func_overlay_057_F0000000_18A3BF8(
-                        0, D_32C, value + 0x30,
+            func_8004B0F8(
+                &gO57MiddleDisplayList, valueA, 0x23,
+                gO57MiddleText[gO57MiddleCourseNames[gO57MiddleSelection]], 4);
+            func_8004B0B8(0xFF, 0x80, 0, 0xFF, 0xFF);
+            func_8004B0F8(
+                &gO57MiddleDisplayList, valueA, 0x37,
+                gO57MiddleText[0xD0 / 4], 4);
+            func_8004B0B8(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+            if (func_overlay_068_F000146C_18C85CC(
+                    gO57MiddleCourseIds[gO57MiddleSelection]) != 0) {
+                    func_8002F618(
+                        &gO57MiddleDisplayList, gO57MiddleBadge, panelX + 0x30,
                         0x26, 0xFF, 0xFF, 0xFF, 0xFF);
             }
 
             renderItem = renderItems;
-            stack5C = value + 0x56;
+            stack5C = panelX + 0x56;
             i = 0;
             do {
-                func_overlay_057_F0000000_18A3BF8(
+                func_overlay_056_F00000B8_18A2E30(
                     renderItem->type, &stack80, &stack7C, &stack78);
-                palette = D_4C;
+                palette = gO57MiddleEmptyFormat;
                 if (renderItem->type == 0) {
                     valueA = 0x4A;
-                    func_overlay_057_F0000000_18A3BF8(
-                        &renderState, palette);
+                    func_800429A4(
+                        renderState, palette);
                 } else {
-                    valueB = func_overlay_057_F0000000_18A3BF8(
-                                 renderItem->value04, palette) & 0xFF;
-                    valueC = func_overlay_057_F0000000_18A3BF8(
+                    valueB = func_8003A700(
+                                 renderItem->value04) & 0xFF;
+                    valueC = func_8003A700(
                                  renderItem->value05) & 0xFF;
-                    func_overlay_057_F0000000_18A3BF8(
-                        &renderState, D_58, valueB, valueC,
-                        func_overlay_057_F0000000_18A3BF8(
+                    func_800429A4(
+                        renderState, gO57MiddleResultFormat, valueB, valueC,
+                        func_8003A700(
                             renderItem->value06),
                         stack80, stack7C, stack78);
                     valueA = renderItem->value07 + 0x51;
                 }
                 if (i < 3) {
-                    func_overlay_057_F0000000_18A3BF8(
-                        0, value + 0x2E, row,
-                        ((s32 *) (void *)&D_0)[0x510 / 4 + i], 0);
+                    func_8004B0F8(
+                        &gO57MiddleDisplayList, panelX + 0x2E, row,
+                        gO57MiddleLabels[i], 0);
                 }
-                stackBC = 0;
-                stackC6 = (s16) (row - 4);
-                stackC0 = 0;
-                stackC8 = 0;
-                stackB8 = ((s32 *) (void *)&D_0)[valueA];
-                stackC4 = (s16) stack5C;
-                func_overlay_057_F0000000_18A3BF8(
-                    0, &stackB8, 0, 0,
+                textureNodes[0].alternate = NULL;
+                textureNodes[0].y = (s16)(row - 4);
+                textureNodes[0].packedOffset = 0;
+                textureNodes[1].texture = NULL;
+                textureNodes[0].texture = gO57MiddleGraphics[valueA];
+                textureNodes[0].x = (s16)stack5C;
+                func_8002F618(
+                    &gO57MiddleDisplayList, textureNodes, 0, 0,
                     0xFF, 0xFF, 0xFF, 0xFF);
-                color = D_528;
-                active = &renderState;
+                color = gO57MiddleColumns;
+                active = (u8 *)renderState;
                 do {
                     stackB0[1] = 0;
                     stackB0[0] = *active;
-                    func_overlay_057_F0000000_18A3BF8(
-                        0, *color + value, row, stackB0, 0);
+                    func_8004B0F8(
+                        &gO57MiddleDisplayList, *color + panelX, row, stackB0, 0);
                     color++;
                     active++;
-                } while (color != D_53E);
+                } while (color != gO57MiddleColumnsEnd);
                 if (i == 2) {
                     row += 0x1B;
-                    func_overlay_057_F0000000_18A3BF8(
+                    func_8004B0B8(
                         0xFF, 0x80, 0, 0xFF, 0xFF);
-                    func_overlay_057_F0000000_18A3BF8(
-                        0, (u8) stack64, row,
-                        ((s32 *) (void *)&D_0)[0xD4 / 4], 4);
-                    func_overlay_057_F0000000_18A3BF8(
+                    func_8004B0F8(
+                        &gO57MiddleDisplayList, stack64, row,
+                        gO57MiddleText[0xD4 / 4], 4);
+                    func_8004B0B8(
                         0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
                 }
                 i++;
                 renderItem++;
                 row += 0x1B;
-                stack5C += 0x1B;
             } while (i != 4);
-            captionBits.value = (f32) (value + 0x2D);
-            func_overlay_057_F0000000_18A3BF8(
-                0, D_25C, captionBits.bits,
-                0x43380000, 0x3F800000, 0x3F800000, -2, 3);
+            func_8002FB34(
+                &gO57MiddleDisplayList, gO57MiddleCaption, (f32)(panelX + 0x2D),
+                184.0f, 1.0f, 1.0f, -2, 3);
         }
 
-        if (D_140 > 0) {
-            D_140 -= updateRate;
+        if (gO57MiddleFadeDelay > 0) {
+            gO57MiddleFadeDelay -= updateRate;
         } else {
-            D_13C += updateRate * 4;
-            if (D_13C >= 0x100) {
-                D_13C = 0xFF;
+            gO57MiddleFade += updateRate * 4;
+            if (gO57MiddleFade >= 0x100) {
+                gO57MiddleFade = 0xFF;
             }
         }
 
-        if ((D_0.word & 0x9000) && (D_50C == 0)) {
-            func_overlay_057_F0000000_18A3BF8(0xC, 0);
-            if (D_0.word >= 2 || D_194 == 1) {
-                activeInit = (s8 *) &activePlayers[9];
-                i = 9;
-                do {
-                    *activeInit = 1;
-                    activeInit--;
-                    i--;
-                } while (i >= 0);
-                choice = (O57MiddleChoice *) (void *)&D_0;
-                source = &sourceState[0];
+        if ((gO57MiddleButtons & 0x9000) && (gO57MiddleTransition == 0)) {
+            func_80000F94(0xC, 0);
+            if (gO57MiddlePlayerCount >= 2 || gO57MiddleState194 == 1) {
+                for (i = 9; i >= 0; i--) {
+                    activePlayers[i] = 1;
+                }
+                choice = gO57MiddleChoices;
+                source = sourceState;
                 outputIndex = 0;
-                while ((u8 *) choice < D_D0) {
-                    choiceActive = choice->active;
-                    *source++ = choiceActive;
-                    if (choiceActive != 0) {
-                        value = D_36C[choice->tableIndex];
-                        D_1B8[outputIndex].controller = (u8) value;
-                        activePlayers[value] = 0;
+                do {
+                    *source = choice->active;
+                    if (choice->active != 0) {
+                        gO57MiddleOutput[outputIndex].controller =
+                            gO57MiddleCharacterIds[choice->tableIndex];
+                        activePlayers[gO57MiddleCharacterIds[choice->tableIndex]] = 0;
                         outputIndex++;
                     }
-                    choice = (O57MiddleChoice *) ((u8 *) choice + 0x34);
+                    choice++;
+                    source++;
+                } while (choice < &gO57MiddleChoices[4]);
+                i = 0;
+                for (outputIndex = gO57MiddlePlayerCount; outputIndex < 6; outputIndex++) {
+                    while (activePlayers[i] == 0) {
+                        i++;
+                    }
+                    gO57MiddleOutput[outputIndex].controller = i;
+                    i++;
                 }
-                activeCount = D_0.word;
-                rank = 0;
-                active = activePlayers;
-                if (activeCount < 6) {
-                    output = &D_1B8[activeCount];
-                    do {
-                        if (*active == 0) {
-                            do {
-                                rank++;
-                                active++;
-                            } while (*active == 0);
-                        }
-                        active++;
-                        output->controller = (u8) rank;
-                        output++;
-                        rank++;
-                    } while (output < &D_1B8[6]);
-                }
-                func_overlay_057_F0000000_18A3BF8(
-                    sourceState, 0x28, activePlayers, D_D0);
-                func_overlay_057_F0000000_18A3BF8(0);
-                func_overlay_057_F0000000_18A3BF8(D_0.word);
-                ((u8 *) (void *)&D_0)[1] = 0;
-                if (D_0.word == 1) {
-                    D_1B8[0].value0 = 1;
-                    if ((((u16 *) (void *)&D_0)[0] & 1) != 0) {
-                        ((u8 *) (void *)&D_0)[1] =
-                            ((u8 *) (void *)&D_0)[1] & 0xFE;
-                        func_overlay_057_F0000000_18A3BF8();
-                        func_overlay_057_F0000000_18A3BF8(0x14);
+                func_80025444(
+                    sourceState);
+                func_80028D24(0);
+                func_80028540(gO57MiddlePlayerCount);
+                gO57MiddleData31E4 = 0;
+                if (gO57MiddlePlayerCount == 1) {
+                    gO57MiddleOutput[0].value0 = 1;
+                    if ((gO57MiddleFlags.half & 1) != 0) {
+                        gO57MiddleFlags.bytes[1] &= 0xFE;
+                        func_800291B4();
+                        func_8003A680(0x14);
                     }
                 } else {
-                    D_1B8[0].value0 = 4;
+                    gO57MiddleOutput[0].value0 = 4;
                 }
-                state = D_0.word;
+                state = gO57MiddlePlayerCount;
                 if (((state == 2) || (state == 3)) &&
-                    ((u8) D_0.word != 0)) {
-                    ((u8 *) (void *)&D_0)[0] = (u8) (4 - state);
-                    ((u8 *) (void *)&D_0)[1] = 4;
+                    (gO57MiddleData3214 != 0)) {
+                    gO57MiddleData319C = (s8)(4 - state);
+                    gO57MiddleData3198 = 4;
                 } else {
-                    ((u8 *) (void *)&D_0)[0] = 0;
-                    ((u8 *) (void *)&D_0)[1] = (u8) state;
+                    gO57MiddleData319C = 0;
+                    gO57MiddleData3198 = (u8)state;
                 }
-                ((u8 *) (void *)&D_0)[0] = (u8) ((state < 2) ^ 1);
-                ((u8 *) (void *)&D_0)[1] = 2;
-                ((u16 *) (void *)&D_0)[0] = ((u16 *) (void *)&D_0)[0];
-                ((u8 *) (void *)&D_0)[1] = 0;
-                if (D_0.word > 0) {
-                    func_overlay_057_F0000000_18A3BF8(
-                        ((s16 *) (void *)&D_0)[D_160],
-                        D_36C[((s16 *) (void *)&D_0)[0x28 / 2]],
-                        0, 5, 1, 0);
-                    func_overlay_057_F0000000_18A3BF8(0x12, 0, 0, 0xF, 1, 0);
-                    func_overlay_057_F0000000_18A3BF8(1);
+                gO57MiddleData31AC = (u8)((state < 2) ^ 1);
+                gO57MiddleData31A4 = 2;
+                gO57MiddleData31B8 = gO57MiddleData31B4;
+                gO57MiddleData31A8 = 0;
+                if (gO57MiddleData31E4 > 0) {
+                    gO57MiddleData31E8 = gO57MiddleCourseIds[gO57MiddleSelection];
+                    gO57MiddleData31EC = gO57MiddleCharacterIds[gO57MiddleChoices[0].tableIndex];
+                    gO57MiddleData31F0 = 5;
+                    gO57MiddleData31F4 = 0;
+                    func_80028374(0x12, 0, 0, 0xF, 1, 0);
+                    func_80028528(1);
                 } else {
-                    func_overlay_057_F0000000_18A3BF8(
-                        ((s16 *) (void *)&D_0)[D_160],
-                        D_36C[((s16 *) (void *)&D_0)[0x28 / 2]],
+                    func_80028374(
+                        gO57MiddleCourseIds[gO57MiddleSelection],
+                        gO57MiddleCharacterIds[gO57MiddleChoices[0].tableIndex],
                         0, 5, 1, 0);
                 }
-                D_50C = 1;
-                func_overlay_057_F0000000_18A3BF8();
-                if (((u8) D_0.word == 0) ||
-                    (((u8) D_0.word != 0) && (((u8 *) (void *)&D_0)[1] != 0))) {
-                    func_overlay_057_F0000000_18A3BF8(D_0.word);
-                    if (((u8 *) (void *)&D_0)[1] != 0) {
-                        ((u8 *) (void *)&D_0)[1] = 0;
+                gO57MiddleTransition = 1;
+                func_overlay_084_F0001398_18D1878();
+                if ((gO57MiddleData31AC == 0) ||
+                    ((gO57MiddleData31AC != 0) && (gO57MiddleData3208 != 0))) {
+                    func_80005548(gO57MiddleData3198);
+                    if (gO57MiddleData3208 != 0) {
+                        gO57MiddleData3208 = 0;
                     }
                 }
             } else {
-                D_194 = 1;
+                gO57MiddleState194 = 1;
             }
         }
     }
@@ -578,10 +541,10 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:start
  * symbol: func_overlay_057_F0004E18_18A8A10
- * score: 1169 differing words
- * frame: 0x140
- * relocations: 304
- * first-mismatch: +0x34
- * summary: Frame-exact 1217/1208; distinct D_198/D_19C globals improve 1187 to 1169. Candidate is +36 bytes; promotion stops at D_183/D_188 schedule divergence.
+ * score: 663 differing words
+ * frame: 0x148
+ * relocations: 371
+ * first-mismatch: +0x0
+ * summary: CFG checkpoint: 1204/1208 words, 718 raw differences; 192/379 runtime sites exact. Restored navigation and player loops. Next sentinel loops and frame.
  * PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:end
  */
