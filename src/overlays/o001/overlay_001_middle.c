@@ -258,7 +258,7 @@ void overlay1AdvanceGauge(s32 amount) {
  * frame: 0x68
  * relocations: 4
  * first-mismatch: +0x3C
- * summary: Explicit post-decrement carrier closes the loop-tail order pair; two branch-delay order words remain and the candidate is not shape-exact.
+ * summary: structure-buckets exhausted; next lever is new branch-delay scheduling evidence.
  * PLATEAU-HANDOFF:overlay1FindPreviousAngle:end
  */
 
