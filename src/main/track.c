@@ -5769,8 +5769,8 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * score: 187 differing words
  * frame: 0x60
  * relocations: 3
- * first-mismatch: +0xC
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * first-mismatch: +0xc
+ * summary: Fresh Mickey m2c reproduces existing typed CFG; zero new attempts, 187 differences. Next: source-attributed FP lifetime evidence.
  * PLATEAU-HANDOFF:func_80012234:end
  */
 
