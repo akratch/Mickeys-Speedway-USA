@@ -1841,9 +1841,10 @@ s32 func_80040878(CircularParticle *particle, s32 updateRate) {
 done:
     return 0;
 }
-/* Workbench: structure-mismatch, exact 302 instructions; 160 words differ, first +0x0, frames 0x70/0x68.
- * Volatile trigger homing fixed the frame but added four instructions; width, register, and carrier levers remain eliminated.
- * Remains: target uses the entry-stack trigger home without a register carrier; temp/fp webs and local homes still diverge. */
+/* Reopened m2c reconstruction: exact 302 instructions and target 0x68 frame;
+ * 145 words differ from +0x30. Reusing scale after its last original-value use
+ * removes the spurious normalization-temp home. The entry trigger carrier and
+ * integer/FP allocation webs remain. */
 /* PROVENANCE: adapted from DKR src/particles.c:update_line_particle and
  * cross-checked against JFG's assembly-only sibling. */
 #ifdef NON_MATCHING
@@ -1855,7 +1856,6 @@ void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) 
     f32 scale;
     ParticleVec3f position;
     ParticleVec3f offset;
-    register f32 temp;
     s32 orientation;
     s32 pointCount;
     u8 entryIndex;
@@ -1933,26 +1933,27 @@ void func_80040B88(ParticleEmitterObject *object, ParticleTriggerSlot *trigger) 
                     offset.x = object->velocityX;
                     offset.y = object->velocityY;
                     offset.z = object->velocityZ;
-                    temp = (offset.z * offset.z) +
-                           ((offset.x * offset.x) + (offset.y * offset.y));
-                    if (temp < D_80082A70) {
-                        temp = 1.0f;
+                    if ((offset.z * offset.z) +
+                            ((offset.x * offset.x) + (offset.y * offset.y)) <
+                        D_80082A70) {
+                        scale = 1.0f;
                     } else {
-                        temp = scale / sqrtf(temp);
+                        scale = scale / sqrtf((offset.z * offset.z) +
+                                              ((offset.x * offset.x) + (offset.y * offset.y)));
                     }
-                    offset.x *= temp;
-                    offset.y *= temp;
-                    offset.z *= temp;
+                    offset.x *= scale;
+                    offset.y *= scale;
+                    offset.z *= scale;
                     switch (orientation) {
                         case 0:
-                            temp = offset.x;
+                            scale = offset.x;
                             offset.x = -offset.z;
-                            offset.z = temp;
+                            offset.z = scale;
                             break;
                         case 1:
-                            temp = offset.y;
+                            scale = offset.y;
                             offset.y = -offset.z;
-                            offset.z = temp;
+                            offset.z = scale;
                             break;
                     }
                 }
@@ -2612,11 +2613,11 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
 
 /* PLATEAU-HANDOFF:func_80040B88:start
  * symbol: func_80040B88
- * score: 157 differing words
- * frame: 0x70
+ * score: 145 differing words
+ * frame: 0x68
  * relocations: 12
- * first-mismatch: +0x0
- * summary: Left-associated speed scale aligns two more relocation tuples; target frame 0x68 and the entry-trigger home/allocator web remain.
+ * first-mismatch: +0x30
+ * summary: m2c local ablation recovers the target frame; next lever is the entry-trigger carrier and integer/FP allocation web.
  * PLATEAU-HANDOFF:func_80040B88:end
  */
 
