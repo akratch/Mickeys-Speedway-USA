@@ -912,14 +912,6 @@ void diPrintfSetXY(u16 x, u16 y) {
 }
 /* PROVENANCE: body adapted from DKR src/printf.c:debug_text_width. */
 #ifdef NON_MATCHING
-/* PLATEAU-HANDOFF
- * symbol: debug_text_width
- * score: 59/66 words
- * frame: 0x138
- * relocations: 5
- * first-mismatch: +0x38
- * summary: fresh diagnosis reports no known lever for the five-site current-byte web and two newline words, so the lever-only reopen has no authorized source edit
- */
 /* Fresh configured full-TU C under -O2 -mips2 -32 -Wab,-r4300_mul is
  * 59/66 raw/relocation-normalized words, frame 0x138, first +0x38, with all
  * five relocation tuples exact and no target padding. All 119 flag rows were
@@ -1165,3 +1157,13 @@ void debug_text_newline(void) {
     D_800D4A5C = D_800D4A6C;
     D_800D4A5E += 11;
 }
+
+/* PLATEAU-HANDOFF:debug_text_width:start
+ * symbol: debug_text_width
+ * score: 59/66 words
+ * frame: 0x138
+ * relocations: 5
+ * first-mismatch: +0x38
+ * summary: JFG donor-shaped source forms rebuilt flat at 59/66; next lever is an IDO UGEN scheduling or assembler selection trace.
+ * PLATEAU-HANDOFF:debug_text_width:end
+ */
