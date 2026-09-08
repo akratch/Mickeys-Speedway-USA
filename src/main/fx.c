@@ -2467,8 +2467,8 @@ void func_8004AF68(void) {
  * score: 132 differing words
  * frame: 0x60
  * relocations: 5
- * first-mismatch: +0x0
- * summary: Exact geometry and VI stack homes; IDO keeps cursor/end in ra/s1 instead of t5/ra, adding one saved register.
+ * first-mismatch: 0x0
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new glyph cursor/end lifetimes evidence.
  * PLATEAU-HANDOFF:func_8004A10C:end
  */
 
