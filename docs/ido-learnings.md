@@ -74,6 +74,21 @@ bytes and disassembly never belong here.
   authenticated. Evidence: Overlay 8's exact channel updater and Overlay 41's
   exact item spawner in `docs/overlays.md`.
 
+- A multiword counter update can have correct arithmetic but the wrong address
+  materialization when a donor's separate read and write names are collapsed
+  into one extern. Under the measured resident IDO settings, a TU-defined
+  destination and a separate extern read reproduce a different load/store
+  sequence. An extern destination, including a fixed-size array, still emits
+  an additional high-half address materialization for the second store.
+  A native weak read alias of the actual TU-defined object can preserve the
+  donor's spelling while binding both accesses to the same storage. Use this
+  only when the donor and target establish that identity: prove the linked
+  alias address, every relocation, initializer and owned data extent. Migrating
+  the real initializer may require trimming only compiler alignment padding;
+  a second allocated object or a masked instruction score is not a substitute
+  for proving shared storage and the full ROM. Evidence: the scheduler
+  retrace reconstruction in [the resident census](resident.md).
+
 ### Allocation and source shape
 
 - A declared local reserves a frame home whether or not it is register

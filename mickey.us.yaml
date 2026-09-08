@@ -568,6 +568,10 @@ segments:
       # emits the 0x10-byte .data input section, so the raw tail starts at F58.
       - [0x7AB48, .data, main/camera]
       - [0x7AB58, data]
+      # Scheduler retrace counter: an initialized u64 at its ROM-proved slot.
+      # The adjacent raw data resumes immediately after its eight owned bytes.
+      - [0x7B260, .data, main/sched]
+      - [0x7B268, data]
       # n_csplayer's 127-entry timing table followed by its zero flag. The
       # 0x200-byte object section and first address are fixed by the compiled
       # candidate and Mickey's own relocations.

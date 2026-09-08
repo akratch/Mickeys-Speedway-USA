@@ -1734,7 +1734,7 @@ remain authoritative for every body.
 | `0x2ECA0`–`0x2F0D0` | 1,072 | 7 | `main/pi` | **B:** the exact JFG function order `piInit`, four asset lookups/loaders, two accessors, `romCopy`; the last routine owns the `osPiStartDma` loop. |
 | `0x2F0D0`–`0x2F400` | 816 | 2 | `main/screen` | **B:** load/decompress followed by draw/VI calls, matching JFG's two-function `screen.c` order. |
 | `0x2F400`–`0x30CD0` | 6,352 | 14 | `main/rcpFast3d` | **A:** `rcpInit` and the existing border-colour routine are byte-identity anchors; masked skeletons also reproduce JFG's `rcpFast3d`/screen-colour shapes. **B:** queue/RCP calls and the ordered init helpers. |
-| `0x30CD0`–`0x323A0` | 5,840 | 21 | `main/sched` | **A:** the two queue accessors. **B:** the complete JFG scheduler call graph from `osCreateScheduler` through `__scSchedule`. **C:** `osScGetTaskType`'s seven task-name strings and `__scHandleRetrace`'s `"SP CRASHED"`/`"Version %s"`. |
+| `0x30CD0`–`0x323A0` | 5,840 | 21 | `main/sched` | **A:** the two queue accessors and the ROM-exact C reconstruction of `__scHandleRetrace`. **B:** the complete JFG scheduler call graph from `osCreateScheduler` through `__scSchedule`. **C:** `osScGetTaskType`'s seven task-name strings and `__scHandleRetrace`'s `"SP CRASHED"`/`"Version %s"`. |
 
 The function boundaries are the extracted labels cross-checked against the
 linked ELF's symbol sizes. All 86 functions were queried with
@@ -1750,7 +1750,7 @@ the A/B/C cells above carry that individual argument (`rumbleKill`: tier A;
 `piInit` and the rest of `main/pi`'s seven-function order: tier B; both
 `main/screen` functions: tier B; `rcpInit` and the border-colour routine:
 tier A, the remaining `main/rcpFast3d` functions: tier B; the two queue
-accessors and `osScGetTaskType`/`__scHandleRetrace`: tier A/A/C respectively,
+accessors and `osScGetTaskType`/`__scHandleRetrace`: tier A/A/A respectively,
 the rest of `main/sched`'s scheduler call graph: tier B). Every other
 function in these five TUs, without an individual argument beyond TU
 membership and order, is tier D. `symbol_addrs.us.txt` carries the resulting
@@ -1821,7 +1821,8 @@ no-op `func_80030608` (ROM `0x31208`–`0x31210`, 8 bytes), plus
 the still-unnamed scheduler helper `func_800304E0` (ROM `0x310E0`–
 `0x31180`, 160 bytes),
 `osScAddClient` (ROM `0x30E2C`–`0x30E88`, 92 bytes), `osScRemoveClient`
-(ROM `0x30E88`–`0x30F10`, 136 bytes), `__scHandleRSP` (ROM `0x31D4C`–
+(ROM `0x30E88`–`0x30F10`, 136 bytes), `__scHandleRetrace` (ROM
+`0x316E8`–`0x31D4C`, 1,636 bytes), `__scHandleRSP` (ROM `0x31D4C`–
 `0x31E74`, 296 bytes), `__scHandleRDP` (ROM `0x31E74`–`0x31EFC`, 136
 bytes), `__scTaskReady` (ROM `0x31EFC`–`0x31F4C`, 80 bytes),
 `__scTaskComplete` (ROM `0x31F4C`–`0x3204C`, 256 bytes),
@@ -1885,9 +1886,29 @@ prologue onward. A bounded permuter import selected MIPS I and was rejected as
 non-canonical; its pack-expression lead also failed when recompiled with the
 resident MIPS II flags. The assembly fallback remains canonical.
 
-`__scHandleRetrace`: workbench structure mismatch, 408/409 instructions/frame -232; 84 words differ from `+0x3B4`.
-Diagnostic counter/store scheduling, source-line grouping, and explicit narrowing did not improve the baseline.
-ClearRDPTask scheduling and u64 retrace-counter materialisation remain; assembly stays canonical.
+| Function | ROM | Bytes | Flags | Verdict |
+|---|---:|---:|---|---|
+| `__scHandleRetrace` | `0x316E8` | 1,636 | `-O2 -mips2 -32` | **A:** 409/409 owned words, 114/114 relocation offsets/types/identities, linked range and full ROM exact |
+
+`__scHandleRetrace` closes the previous 408-word, 84-difference plateau by
+re-deriving JFG's permitted `src/sched.c` body at upstream `efd5abb`.
+The donor's plain byte flag and polygon-overflow reset replace the earlier
+padded volatile diagnostic and explicit coordinate narrowing. Its separate
+counter read/write names reproduce the target's address materialization:
+`D_8007A660` owns its existing eight-byte, zero-initialized data slot, and
+`schedRetraceCounterRead` is a native weak alias of the same storage. The
+`.data` carve is exactly ROM `0x7B260..0x7B268`; only eight trailing bytes of
+compiler section padding are trimmed. The counter earns no executable credit.
+
+The original fallback object and configured C have all 114 relocation
+records at identical offsets with identical types and effective identities.
+Both frames are `0xE8`; the owned range ends exactly where `__scHandleRSP`
+begins, with no padding. Extracting that range from the linked ELF reproduces
+the same baserom offsets byte for byte, and `gmake verify` reproduces the full
+US ROM. All 21 scheduler function boundaries and the TU's BSS/rodata sizes
+remain unchanged. Raw compiler fidelity and prepared-input self-context
+checks pass. The earlier plateau and its source are retained in Git history;
+the five donor-mechanism attempts and their objects remain ignored evidence.
 
 The still-unnamed scheduler diagnostic `func_80030610` retains a Mickey-
 derived `NON_MATCHING` display-list bisection body after the 119-combination

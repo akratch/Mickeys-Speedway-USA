@@ -46,7 +46,7 @@ extern s32 D_8007A650;
 extern s32 D_8007A654;
 extern s8 D_8007A658;
 extern s32 D_8007A65C;
-extern u64 D_8007A660;
+u64 D_8007A660 = 0;
 extern char D_80082350[];
 extern char D_80082354[];
 extern char D_80082368[];
@@ -469,11 +469,12 @@ SchedGfx *func_80030910(OSSched *sc, s32 *arg1, s32 *arg2, s32 *arg3,
     diRcpPrintDL((SchedGfx *) startAddress, displayList, 0x50);
     return displayList;
 }
-#ifdef NON_MATCHING
-/* PROVENANCE: body adapted from Jet Force Gemini's public decomp, src/sched.c:__scHandleRetrace. */
-/* Workbench: structure-mismatch, 408/409 instructions/frame -232; 84 words from +0x3B4 with five alignment gaps.
- * Levers: diagnostic counter/store scheduling, source-line grouping, and explicit diagnosticY narrowing; no improvement.
- * Remains: clearRDPTask write scheduling and u64 retrace-counter materialisation; asm stays canonical. */
+/* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
+ * src/sched.c:__scHandleRetrace at efd5abb. Mickey's counter occupies the
+ * existing initialized data slot. The donor's separate read name is a weak
+ * alias of that same storage, preserving IDO's load/store materialization. */
+extern u64 schedRetraceCounterRead;
+#pragma weak schedRetraceCounterRead = D_8007A660
 void __scHandleRetrace(OSSched *sc) {
     OSScTask *rspTask = NULL;
     OSScClient *client;
@@ -481,13 +482,7 @@ void __scHandleRetrace(OSSched *sc) {
     OSScTask *sp = NULL;
     OSScTask *dp = NULL;
     u8 clearRSPTask = FALSE;
-    struct {
-        u8 pad[2];
-        union {
-            u8 normal;
-            volatile u8 write;
-        } value;
-    } clearRDPTask;
+    u8 clearRDPTask = FALSE;
     SchedGfx *spGfx;
     SchedGfx *dpGfx;
     s32 spC4;
@@ -509,9 +504,7 @@ void __scHandleRetrace(OSSched *sc) {
     SchedGfx *dlist;
     s32 yPos;
     s32 pad;
-    u16 diagnosticY;
 
-    clearRDPTask.value.normal = FALSE;
     if (sc->curRSPTask != NULL) {
         D_8007A650++;
     }
@@ -549,7 +542,7 @@ void __scHandleRetrace(OSSched *sc) {
             }
             D_800D2D44 = 0;
         }
-        clearRDPTask.value.normal = TRUE;
+        clearRDPTask = TRUE;
         sc->frameCount = 0;
         D_8007A654 = 0;
         __osSpSetStatus(0xAAAA82);
@@ -601,13 +594,11 @@ void __scHandleRetrace(OSSched *sc) {
             diPrintfSetXY(30, yPos);
             diPrintf(D_800823B8);
             yPos += 10;
+            clearRDPTask = FALSE;
         }
-        diagnosticY = yPos + 10;
-        clearRDPTask.value.write = FALSE;
-        clearRDPTask.value.write = TRUE;
         spGfx = NULL;
         dpGfx = NULL;
-        diPrintfSetXY(30, diagnosticY);
+        diPrintfSetXY(30, yPos + 10);
         diPrintf(D_800823CC, D_80082350);
         diPrintfAll(&dlist);
         __osSpSetStatus(0xAAAA82);
@@ -632,7 +623,7 @@ void __scHandleRetrace(OSSched *sc) {
     if (clearRSPTask) {
         sc->curRSPTask = NULL;
     }
-    if (clearRDPTask.value.normal) {
+    if (clearRDPTask) {
         sc->curRDPTask = NULL;
     }
 
@@ -645,7 +636,7 @@ void __scHandleRetrace(OSSched *sc) {
         __scExec(sc, sp, dp);
     }
 
-    D_8007A660++;
+    D_8007A660 = schedRetraceCounterRead + 1;
     sc->frameCount++;
     if ((sc->unkTask != NULL) && (sc->frameCount >= 2)) {
         unkTask = sc->unkTask;
@@ -675,9 +666,6 @@ void __scHandleRetrace(OSSched *sc) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/sched/__scHandleRetrace.s")
-#endif
 /* PROVENANCE: body adapted from Jet Force Gemini's public decomp,
  * src/sched.c:__scHandleRSP. */
 void __scHandleRSP(OSSched *sc) {
@@ -915,14 +903,4 @@ s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 availRCP) {
  * first-mismatch: +0x0
  * summary: Direct second-command opcode addressing is the sole gain. Candidate is 193 words with 113 raw differences and six exact relocations; the frame gap remains.
  * PLATEAU-HANDOFF:func_80030610:end
- */
-
-/* PLATEAU-HANDOFF:__scHandleRetrace:start
- * symbol: __scHandleRetrace
- * score: 84 differing words
- * frame: 0xE8
- * relocations: 114
- * first-mismatch: +0x3B4
- * summary: Authorized V0 reproduces the one-word deficit and 84 differences; relocation counts remain 114/109.
- * PLATEAU-HANDOFF:__scHandleRetrace:end
  */

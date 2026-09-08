@@ -1097,8 +1097,11 @@ $(BUILD_DIR)/$(SRC_DIR)/main/joy.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/main/diprint.c.o: CFLAGS += -Wab,-r4300_mul
 # The scheduler TU owns osScGetTaskType's table and __scSchedule's table;
 # IDO's trailing four zero bytes follow the combined 0x38-byte input section.
+# The initialized retrace counter owns eight data bytes; the remaining eight
+# are IDO's section alignment padding, not another variable.
 $(BUILD_DIR)/$(SRC_DIR)/main/sched.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x38
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x38 && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .data 0x8
 # objects owns five switch tables and three literal-pool floats in an exact
 # aligned input section. The three default branches are already resolved:
 # site-bound PC16 records preserve their fields
