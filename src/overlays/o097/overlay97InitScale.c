@@ -103,13 +103,13 @@ typedef struct Overlay97ScaleEntry {
  * remains canonical.
  */
 #ifdef NON_MATCHING
-/* PLATEAU-HANDOFF
- * symbol: overlay97InitScale
- * score: 143/144 words
- * frame: frameless
- * relocations: 0
- * first-mismatch: +0xD0
- * summary: Forced-color oracle or bounded permuter sweep; both bounds-derived carrier spellings regressed structurally.
+/* Plateau metadata is kept at EOF; preserve this comment's eight lines
+ * so IDO sees the candidate function at its measured physical source line.
+ *
+ * The metadata tool updates the EOF block without shifting the function.
+ * This function's one-word residual is sensitive to source layout.
+ *
+ * Keep this block line-stable while the candidate remains guarded.
  */
 void overlay97InitScale(Overlay97ScaleObject *object, void *entryArg) {
     f32 radius;
@@ -225,3 +225,13 @@ void overlay97InitScale(Overlay97ScaleObject *object, void *entryArg) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o097/overlay97InitScale/func_overlay_097_F0000508_18D83A0.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay97InitScale:start
+ * symbol: overlay97InitScale
+ * score: 143/144 words
+ * frame: frameless
+ * relocations: 0
+ * first-mismatch: +0xD0
+ * summary: Verdict register-permutation; lever unreachable. P_STUCK_FLAT and p2 force grid stayed nonexact. Next: source-semantic uopt address-fold attribution.
+ * PLATEAU-HANDOFF:overlay97InitScale:end
+ */

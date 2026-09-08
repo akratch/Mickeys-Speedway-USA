@@ -6,5 +6,5 @@
 - frame: frameless
 - relocations: 0
 - first mismatch: +0xD0
-- summary: Forced-color oracle or bounded permuter sweep; both bounds-derived carrier spellings regressed structurally.
+- summary: Verdict register-permutation; lever unreachable. P_STUCK_FLAT and p2 force grid stayed nonexact. Next: source-semantic uopt address-fold attribution.
 <!-- plateau-handoff:overlay97InitScale:end -->
