@@ -537,6 +537,23 @@ bytes and disassembly never belong here.
   range, and full ROM to remain exact. Evidence: the exact resident
   `func_80035ADC` sprite-frame builder.
 
+- Preserve authenticated array identity when reconstructing entry loops.
+  Under unchanged configured full-TU flags, direct integer indexing into a
+  bounded global entry array restored source-pointer hoisting and four-entry
+  unrolling that an advancing destination pointer did not produce. In the
+  same reconstruction, direct indexed digit stores preserved shared quotient
+  and remainder calculation without staging extra locals; mixed stores
+  through a less specific cursor had duplicated division work. These paired
+  builds prove sensitivity to the source's object/index representation. An
+  alias-analysis explanation is an inference, not a traced compiler cause.
+  Check actual element widths, array bounds, and read/write order before
+  applying the lever; do not change storage layout or invent a larger object.
+  Compare the affected loop or call interval as well as whole-function size,
+  because duplicated arithmetic can cancel a missing loop elsewhere.
+  Equal size or an equal relocation count still does not establish a match.
+  Evidence: the controlled reconstruction recorded in the
+  [overlay 52 HUD handoff](matching-triage-handoffs/func_overlay_052_F000063C_189ACAC.md).
+
 ### Search fidelity and false floors
 
 - A permuter zero is a hypothesis until the project pipeline verifies it.
