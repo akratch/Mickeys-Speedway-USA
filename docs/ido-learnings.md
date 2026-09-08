@@ -249,6 +249,17 @@ bytes and disassembly never belong here.
   Inspect every use of the shared local before treating a late swap as an
   isolated tie-break; this lever requires real, compatible pointer roles and
   does not justify new accesses or forced compiler output in canonical builds.
+- A one-local ablation can move temporary spill homes while leaving the frame
+  unchanged because the frame rounds to eight bytes. In a loader whose register
+  and instruction sequence already agreed, removing redundant aliases in pairs
+  reduced the frame while restoring every emitted spill offset. Direct repeated
+  array expressions preserved common-subexpression carriers without the named
+  locals; deriving one byte offset from another changed those carriers and
+  regressed allocation. Read frame extent and spill offsets separately, and
+  preserve independent index expressions when removing their aliases. This was
+  measured with stock full-TU IDO 5.3 builds and confirmed by linked-ROM identity;
+  it does not establish the same behavior for addressed locals or expressions
+  with intervening writes or calls.
 - A mixed integer/pointer sentinel can cost both a declared home and a second
   constant carrier even when the stored bits are identical. On a proved
   32-bit raw-word table, model each physical word with an integer/pointer
