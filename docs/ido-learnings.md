@@ -52,6 +52,15 @@ bytes and disassembly never belong here.
 
 ### Retained data and relocations
 
+- An exact internal branch can lack the assembler fallback's PC16 record
+  because IDO already resolved its displacement. Restore metadata only when
+  the existing displacement and destination are independently authenticated:
+  a same-section symbol at the branch site makes the link contribution zero.
+  Assert the opcode, unchanged addend, symbol position, in-range destination
+  and executable-prefix digest. This does not repair a wrong branch field or
+  establish identity from instruction equality alone; require the original
+  relocation tuples and linked owned-ROM comparison. Evidence: the resident
+  object switch promotions in `docs/reloc-surface.md`.
 - When a mixed translation unit emits the exact instruction fields but also
   creates a duplicate compiler-private literal pool, preserve the fields and
   rebind only their existing relocations to one absolute symbol for the
@@ -67,6 +76,15 @@ bytes and disassembly never belong here.
 
 ### Allocation and source shape
 
+- A small register-only switch residual can come from a named selector even
+  when both functions are frameless. Putting a single-use selector expression
+  directly in the switch removed its named carrier and restored exact output
+  under unchanged full-TU flags. Try this only after measuring the frame and
+  relocation surface, and preserve the expression's integer conversions and
+  evaluation count. The paired source result proves allocation sensitivity,
+  not which compiler phase caused it or a general rule for all switches.
+  Evidence: the exact object-data sizing switch in `docs/resident.md` and its
+  configured relocation and ROM proof in `docs/reloc-surface.md`.
 - Possible colorability is not per-function ownership. The workbench's static
   IDO 5.3 temporary-only classification of integer t0 through t5 conflicts with
   its own decoded color map and with a controlled Mickey function whose count
