@@ -3187,27 +3187,29 @@ void func_80007C68(Objects07C68Object *arg0, Objects07C68Source *arg1,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80007C68.s")
 #endif
-/* Workbench verdict: structure-mismatch; 131 differing words (target 122, candidate 131). */
-/* First mismatch: +0x0; candidate frame 0x10 versus target frame 0x18. */
-/* Structural gap: texture/group/record carrier spelling does not preserve target register/frame shape. */
+/* Workbench verdict: structure-mismatch; 92 differing words (122/122). */
+/* First mismatch: +0x18; extent and frame 0x18 are exact, with no relocations. */
+/* Blocker: pool/temp allocation and dimension-load/offset-initialization schedule. */
 #ifdef NON_MATCHING
 void func_80007E40(Objects07E40Object *arg0, s32 arg1) {
     Objects07E40Object *object;
+    Objects07E40Outer *model;
     Objects07E40Data *temp_v0;
+    s16 textureWidth;
+    s16 textureHeight;
     s16 temp_lo;
     s16 temp_lo_2;
     s16 temp_s3;
-    s16 temp_s3_2;
-    s16 temp_s3_3;
-    s16 temp_s3_4;
-    s16 var_s2;
+    s32 edge1;
+    s32 edge2;
+    s32 var_s2;
     s32 var_a3_2;
     s32 var_t2;
     s32 var_t4;
-    s8 var_t3;
-    u8 temp_t0;
-    u8 var_a3;
-    u8 var_t1;
+    s32 var_t3;
+    s32 temp_t0;
+    s32 var_a3;
+    s32 var_t1;
     Objects07E40Texture *temp_t4;
     Objects07E40Record *temp_t5;
     Objects07E40Inner *temp_v0_2;
@@ -3220,19 +3222,23 @@ void func_80007E40(Objects07E40Object *arg0, s32 arg1) {
     temp_t0 = temp_v0->unkA2;
     temp_lo_2 = temp_v0->unkA5 * arg1;
     if ((var_a3 == 0xFF) || ((s32) var_a3 < temp_v0->unk22)) {
-        var_t3 = var_a3 + 1;
         if (var_a3 == 0xFF) {
             var_a3 = 0;
             var_t3 = temp_v0->unk22;
+        } else {
+            var_t3 = var_a3 + 1;
         }
         var_t1 = var_a3;
         if ((s32) var_a3 < var_t3) {
             var_t2 = var_a3 * 4;
             do {
                 var_t1 += 1;
-                temp_v0_2 = (*(object->unk68 + (var_t2 >> 2)))->unk0;
+                model = *(Objects07E40Outer **)((u8 *)object->unk68 + var_t2);
+                temp_v0_2 = model->unk0;
                 if ((s32) temp_t0 < (s32) temp_v0_2->unk10) {
                     temp_t4 = *(Objects07E40Texture **)(temp_v0_2->unk18 + (temp_t0 * 8));
+                    textureWidth = temp_t4->unk6 << 5;
+                    textureHeight = temp_t4->unk8 << 5;
                     var_a3_2 = 0;
                     var_t4 = 0;
                     if (temp_v0_2->unk16 > 0) {
@@ -3243,23 +3249,26 @@ void func_80007E40(Objects07E40Object *arg0, s32 arg1) {
                                 var_s2 = *(s16 *)(var_s1 + 8);
                                 if (var_s2 < *(s16 *)(var_s1 + 0x18)) {
                                     do {
-                                        temp_t5 = (Objects07E40Record *)
-                                            (temp_v0_2->unk20 + (var_s2 * 0x10));
+                                        temp_t5 = (Objects07E40Record *)temp_v0_2->unk20 + var_s2;
                                         if (temp_lo != 0) {
                                             temp_s3 = temp_t5->unk4;
+                                            edge1 = temp_t5->unk8 - temp_s3;
+                                            edge2 = temp_t5->unkC - temp_s3;
                                             temp_t5->unk4 = (temp_s3 + temp_lo) &
-                                                ((s16) (temp_t4->unk6 << 5) - 1);
-                                            temp_s3_2 = temp_t5->unk4;
-                                            temp_t5->unk8 = temp_s3_2 + (temp_t5->unk8 - temp_s3);
-                                            temp_t5->unkC = temp_s3_2 + (temp_t5->unkC - temp_s3);
+                                                (textureWidth - 1);
+                                            temp_s3 = temp_t5->unk4;
+                                            temp_t5->unk8 = temp_s3 + edge1;
+                                            temp_t5->unkC = temp_s3 + edge2;
                                         }
                                         if (temp_lo_2 != 0) {
-                                            temp_s3_3 = temp_t5->unk6;
-                                            temp_t5->unk6 = (temp_s3_3 + temp_lo_2) &
-                                                ((s16) (temp_t4->unk8 << 5) - 1);
-                                            temp_s3_4 = temp_t5->unk6;
-                                            temp_t5->unkA = temp_s3_4 + (temp_t5->unkA - temp_s3_3);
-                                            temp_t5->unkE = temp_s3_4 + (temp_t5->unkE - temp_s3_3);
+                                            temp_s3 = temp_t5->unk6;
+                                            edge1 = temp_t5->unkA - temp_s3;
+                                            edge2 = temp_t5->unkE - temp_s3;
+                                            temp_t5->unk6 = (temp_s3 + temp_lo_2) &
+                                                (textureHeight - 1);
+                                            temp_s3 = temp_t5->unk6;
+                                            temp_t5->unkA = temp_s3 + edge1;
+                                            temp_t5->unkE = temp_s3 + edge2;
                                         }
                                         var_s2 += 1;
                                         var_s1 = temp_v0_2->unk24 + var_t4;
@@ -5782,4 +5791,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x1B4
  * summary: Exact extent/frame; header scheduling and pointer/counter lifetimes remain. Next: trace header scheduling before further saved-register edits.
  * PLATEAU-HANDOFF:func_8000590C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80007E40:start
+ * symbol: func_80007E40
+ * score: 92 differing words
+ * frame: 0x18
+ * relocations: 0
+ * first-mismatch: +0x18
+ * summary: Exact extent/frame; allocation and dimension-init schedule remain. Three flat variants; next: trace natural priority and carrier lifetimes.
+ * PLATEAU-HANDOFF:func_80007E40:end
  */
