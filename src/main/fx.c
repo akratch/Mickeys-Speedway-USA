@@ -2388,7 +2388,7 @@ void func_8004AF68(void) {
  * frame: 0x38
  * relocations: 14
  * first-mismatch: +0x10
- * summary: 52-word shape and 14 identities; 119 flags plus bounded source/permuter attempts leave saved-register order and four early LO16 sites
+ * summary: JFG efd5abb fxCpuTextureFlush remains assembly-only; structure-buckets has no proved lever. Need new pool-base and saved-register source evidence.
  * PLATEAU-HANDOFF:func_8004AF68:end
  */
 
