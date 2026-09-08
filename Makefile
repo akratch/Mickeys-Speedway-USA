@@ -679,6 +679,28 @@ $(BUILD_DIR)/$(SRC_DIR)/main/objects.c.o: CFLAGS += -Wab,-r4300_mul -Wo,-loopunr
 # four functions this TU already matches (gmake verify still passes).
 $(BUILD_DIR)/$(SRC_DIR)/main/shadows.c.o: CFLAGS += -Wab,-r4300_mul
 
+# Three more resident TUs on the same scheduler, kept on measurement rather
+# than on the signature alone.
+#
+# tools/mul_scheduler_scan.py finds the nop-separated adjacent multiply pair
+# in 51 of 51 TUs that have such a pair, which means the signature is
+# necessary but does NOT discriminate -- it cannot tell a unit that needs the
+# flag from one that does not. Setting it on the six resident TUs the scan
+# named and re-measuring the queue split them evenly: fx.c -15 masked words,
+# frontend_37D50.c -23 and block_506D0.c -27, against matrix.c +28,
+# models_5B300.c +13 and spranim.c +8. The three that regressed are not set.
+#
+# What the three below buy is a class change, which is the part that matters:
+# func_80048080 and func_80047304 (fx.c), func_80037BF4 (frontend_37D50.c)
+# and func_8004FAD0 (block_506D0.c) all crossed size-mismatch into a class
+# permutation can actually close.
+#
+# The safety property is the ROM: a flag disturbing any function these units
+# already match would break the byte-identical rebuild. `gmake verify` passes.
+$(BUILD_DIR)/$(SRC_DIR)/main/fx.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/main/frontend_37D50.c.o: CFLAGS += -Wab,-r4300_mul
+$(BUILD_DIR)/$(SRC_DIR)/main/block_506D0.c.o: CFLAGS += -Wab,-r4300_mul
+
 # libultra's libc string TU needs branch-likely instructions (bnel/beql), which
 # IDO only emits at -mips2; -mips1 produces a 0x90-byte .text instead of the
 # ROM's 0xA0. Consistent with how the DKR decomp builds its libultra tree.

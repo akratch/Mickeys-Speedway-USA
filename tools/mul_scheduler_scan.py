@@ -1,31 +1,39 @@
 #!/usr/bin/env python3
-"""Decide each TU's multiply-scheduler flag from the ROM's own bytes.
+"""Screen TUs for the multiply-scheduler flag using the ROM's own bytes.
 
 IDO under `-Wab,-r4300_mul` separates two adjacent single-precision
-multiplies with a scheduler nop. Without the flag it cannot emit one there
-at all. So the flag is not a thing to search for by compiling: it is
-*readable off the target*, before a line of source is written.
+multiplies with a scheduler nop. Two TU lanes found the flag was the missing
+fact on 2026-09-09 after each spending a day permuting against the wrong
+scheduler -- `src/main/anim.c`, where it settled a two-word tie about twenty
+source rewrites could not reach, and `src/main/shadows.c`, whose targets
+carry fourteen such nops.
 
-Two translation units reached that conclusion independently on 2026-09-09,
-each after a day of hand permutation against the wrong scheduler --
-`src/main/anim.c`, where the flag settled a two-word tie about twenty source
-rewrites could not reach, and `src/main/shadows.c`, whose targets carry
-fourteen such nops across three functions. Only one `src/main` TU carried
-the flag before today, so every other unit's candidates had never been
-measured against the right scheduler, and their plateaus record a defect
-that is partly the build's.
-
-This scan costs no compilation. It reads the disassembly splat already
-emits for unmatched functions and reports, per TU:
+WHAT THIS SCAN IS AND IS NOT. It reports, per TU:
 
     pairs   adjacent single-precision multiply pairs in the target
     nops    how many of those pairs are separated by a scheduler nop
 
-A TU with nops>0 needs the flag. A TU with pairs>0 and nops==0 must not
-have it. A TU with pairs==0 carries no evidence either way and is left
-alone. Disagreements with the Makefile are what the exit code reports.
+Every TU in this ROM that has such a pair shows the nop -- 51 of 51. So the
+signature is necessary and **not sufficient**: it cannot tell a unit that
+needs the flag from one that does not, and a TU appearing below is a
+*candidate to measure*, never a verdict. Measured honestly on the six
+resident TUs it named, setting the flag split them evenly: `fx.c` -15
+masked words, `frontend_37D50.c` -23 and `block_506D0.c` -27 against
+`matrix.c` +28, `models_5B300.c` +13 and `spranim.c` +8. Half were wrong.
 
-    python3 tools/mul_scheduler_scan.py              # disagreements only
+It is still worth running, because the three that improved carried four
+targets across `size-mismatch` into a class permutation can close, and
+because the alternative -- searching the flag lattice by compiling -- is
+orders of magnitude slower than reading the disassembly.
+
+THE ONLY WAY TO DECIDE A TU is to set the flag, confirm `gmake verify` still
+rebuilds the ROM byte-identically (which proves no already-matched function
+in the unit moved), then re-measure with
+`tools/nm_ranking.py --refresh-stale` and keep it only if the unit's masked
+words fall. `--write` alone republishes cached scores and will not show a
+flag edit; `--check-freshness` reports the rows a flag change invalidated.
+
+    python3 tools/mul_scheduler_scan.py              # candidates
     python3 tools/mul_scheduler_scan.py --all        # every TU with evidence
 
 CLEAN ROOM: `asm/` is splat output, gitignored and never committed. This
@@ -137,11 +145,14 @@ def main() -> int:
             agrees.append((tu, pairs, nops, has))
 
     if wants:
-        print(f"NEEDS {FLAG} -- target carries scheduler nops, build does not:")
+        print(
+            f"CANDIDATES for {FLAG} -- target carries scheduler nops, build\n"
+            f"does not. The signature does not discriminate; measure each one."
+        )
         for tu, pairs, nops in wants:
             print(f"  {tu:44s} {pairs:4d} pairs  {nops:4d} nops")
     if forbids:
-        print(f"\nMUST NOT have {FLAG} -- build sets it, target has no nop:")
+        print(f"\nCONTRADICTS {FLAG} -- build sets it, target has no nop:")
         for tu, pairs, nops in forbids:
             print(f"  {tu:44s} {pairs:4d} pairs  {nops:4d} nops")
     if args.all and agrees:
@@ -158,12 +169,12 @@ def main() -> int:
         return 0
     print(
         f"\n{len(wants) + len(forbids)} of {scanned} TU(s) with evidence "
-        f"disagree with the build.\nEach one's candidates were measured "
-        f"against the wrong scheduler, so its recorded\nplateaus overstate "
-        f"the source defect. Set the flag per TU in the Makefile,\nconfirm "
-        f"`gmake verify` still passes, then re-measure."
+        f"differ from the build.\nThat is a list to measure, not a defect: "
+        f"set the flag on one TU, confirm\n`gmake verify` still passes, then "
+        f"`nm_ranking.py --refresh-stale` and keep it\nonly if the unit's "
+        f"masked words fall. Half of the first six did not."
     )
-    return 1
+    return 0
 
 
 if __name__ == "__main__":
