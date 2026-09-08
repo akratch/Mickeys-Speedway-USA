@@ -1108,8 +1108,8 @@ void func_8000D1B8(void) {
     s16 temp_s4_2;
     s16 temp_t1;
     s16 temp_t2;
-    s32 *var_s0;
-    s32 temp_t4;
+    u32 *var_s0;
+    u32 temp_t4;
     s32 temp_t4_2;
     s32 temp_v1_2;
     s32 var_a3;
@@ -1128,7 +1128,7 @@ void func_8000D1B8(void) {
     u8 *var_v0;
 
     if (D_800792E8 != NULL) {
-        var_s0 = (s32 *) D_800C9B50;
+        var_s0 = D_800C9B50;
         if (D_80079314 != 0) {
             var_s1 = D_80079314;
             if (D_80079314 != 0) {
@@ -1138,7 +1138,7 @@ void func_8000D1B8(void) {
                     var_s0 += 1;
                     scrollU = (s32) (temp_t4 << 8) >> 20;
                     scrollV = (s32) (temp_t4 << 20) >> 20;
-                    temp_t4_2 = (temp_t4 >> 24) & 0xFF;
+                    temp_t4_2 = ((s32) temp_t4 >> 24) & 0xFF;
                     temp_v1 = D_800792E8->textures[temp_t4_2].texture;
                     temp_t1 = D_800792E8->segmentCount;
                     temp_a0 = temp_v1->width;
@@ -5718,7 +5718,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x28
  * relocations: 8
  * first-mismatch: +0x38
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Retain unsigned command decoding at 114 differences; structural forms plateau. Next: packed-delta and relative-UV lifetime evidence.
  * PLATEAU-HANDOFF:func_8000D1B8:end
  */
 
