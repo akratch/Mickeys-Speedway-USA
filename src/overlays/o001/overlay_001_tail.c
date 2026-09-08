@@ -682,99 +682,203 @@ void overlay1TransitionState(Transform *obj, State *state, s32 updateRate) {
 
 /* ---- overlay1UpdateObjectPhysics ---- */
 
-#include "tools/m2c/m2c_macros.h"
 #undef NULL
 #define NULL 0
-#undef M2C_BITWISE
-#define M2C_BITWISE(type, expr) ((type)(s32)(expr))
 
-struct _m2c_stack_func_overlay_001_F000438C_185076C {
-    /* 0x000 */ char pad0[0x4C];
-    /* 0x04C */ s16 sp4C;                           /* inferred */
-    /* 0x04E */ s16 sp4E;                           /* inferred */
-    /* 0x050 */ M2C_UNK *sp50;                      /* inferred */
-    /* 0x054 */ M2C_UNK *sp54;                      /* inferred */
-    /* 0x058 */ s32 *sp58;                          /* inferred */
-    /* 0x05C */ char pad5C[4];
-    /* 0x060 */ s32 sp60;                           /* inferred */
-    /* 0x064 */ char pad64[4];
-    /* 0x068 */ f32 sp68;                           /* inferred */
-    /* 0x06C */ char pad6C[0xE];                    /* maybe part of sp68[4]? */
-    /* 0x07A */ s16 sp7A;                           /* inferred */
-    /* 0x07C */ s16 sp7C;                           /* inferred */
-    /* 0x07E */ s16 sp7E;                           /* inferred */
-    /* 0x080 */ f32 sp80;                           /* inferred */
-    /* 0x084 */ char pad84[4];
-    /* 0x088 */ f32 sp88;                           /* inferred */
-    /* 0x08C */ f32 sp8C;                           /* inferred */
-    /* 0x090 */ f32 sp90;                           /* inferred */
-    /* 0x094 */ char pad94[4];
-    /* 0x098 */ f32 sp98;                           /* inferred */
-    /* 0x09C */ char pad9C[4];
-    /* 0x0A0 */ f32 spA0;                           /* inferred */
-    /* 0x0A4 */ f32 spA4;                           /* inferred */
-    /* 0x0A8 */ f32 spA8;                           /* inferred */
-    /* 0x0AC */ f32 spAC;                           /* inferred */
-    /* 0x0B0 */ char padB0[0x10];                   /* maybe part of spAC[5]? */
-    /* 0x0C0 */ s32 spC0;                           /* inferred */
-    /* 0x0C4 */ char padC4[0x10];                   /* maybe part of spC0[5]? */
-    /* 0x0D4 */ f32 *spD4;                          /* inferred */
-    /* 0x0D8 */ s16 *spD8;                          /* inferred */
-    /* 0x0DC */ s16 spDC;                           /* inferred */
-    /* 0x0DE */ s16 spDE;                           /* inferred */
-    /* 0x0E0 */ s16 spE0;                           /* inferred */
-    /* 0x0E2 */ char padE2[2];
-    /* 0x0E4 */ f32 spE4;                           /* inferred */
-    /* 0x0E8 */ f32 spE8;                           /* inferred */
-    /* 0x0EC */ f32 spEC;                           /* inferred */
-    /* 0x0F0 */ M2C_UNK spF0;                       /* inferred */
-    /* 0x0F0 */ char padF0[0x40];
-    /* 0x130 */ s32 *sp130;                         /* inferred */
-    /* 0x134 */ char pad134[4];
-};                                                  /* size = 0x138 */
+typedef struct O1PhysicsObject O1PhysicsObject;
+typedef struct O1PhysicsState O1PhysicsState;
 
-s32 func_overlay_001_F00004B4_184C894();            /* extern */
-s32 func_overlay_001_F0007D6C_185414C(s16, s16, s16, s16, s16 *, s16 *, void *); /* extern */
-f32 *ext_o8_8();
-void ext_o0_1ee0c();
-void ext_o8_49dc();
-void ext_o0_1d4c0();
-void ext_o0_29adc();
-s32 ext_o0_1312c(f32, f32, void *, u32, void *);
-void ext_o0_1ecfc();
-s32 ext_o2_123c(f32, f32, void *);
-s16 ext_o0_2a4c0(f32, f32);
-s16 ext_o0_2a5bc(s16, s16);
-void ext_o7_edc();
-f32 ext_o8_1000(void *, void *, f32);
-s32 ext_o0_2630c();
-void ext_o0_29598();
-f32 ext_o0_2a46c(s16);
-void ext_o0_2d98();
-void ext_o0_2b90();
-void ext_o0_2d70();
-f32 ext_o0_2a428(f32, s32);
-f32 ext_o0_2a470(s16);
-s32 *ext_o0_1e174(void *, void *, f32);
-s32 *ext_o0_1d920(void *, void *, f32);
-s32 ext_o0_7cd8(void *, f32, f32, f32);
-void ext_o8_49a4(f32, void *);
-f32 ext_o8_34a0(void *, void *, f32, f32);
-void ext_o8_49b4();
-void ext_o0_1cfcc();
-void ext_o8_3278();
-void ext_o0_1d510();
-void ext_o8_2ec0();
-void ext_o8_3018();
-void ext_o0_3e99c();
+/* Partial layouts established by Mickey's field accesses. */
+struct O1PhysicsObject {
+    s16 rotationX;
+    s16 rotationY;
+    s16 rotationZ;
+    u8 pad006[0x6];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad018[0x4];
+    f32 velocityX;
+    f32 velocityY;
+    f32 velocityZ;
+    f32 animationProgress;
+    u8 pad02C[0x2];
+    s16 positionTag;
+    u8 pad030[0xB];
+    s8 mode;
+    u8 pad03C[0x28];
+    O1PhysicsState * state;
+    u8 pad068[0x18];
+    s32 flags80;
+};
+struct O1PhysicsState {
+    u8 pad000[0x2];
+    u8 inSurface;
+    u8 surfaceKind;
+    f32 forwardVelocity;
+    f32 sideVelocity;
+    f32 speedLimit;
+    u8 pad010[0x4];
+    f32 field14;
+    u8 pad018[0x20];
+    f32 previousX;
+    f32 previousY;
+    f32 previousZ;
+    u8 pad044[0x18];
+    f32 slope;
+    f32 normalX;
+    f32 normalY;
+    f32 surfaceHeight;
+    f32 submergedHeight;
+    f32 outputScale;
+    f32 impulseX;
+    f32 impulseY;
+    f32 impulseZ;
+    f32 impulseInitial;
+    f32 impulseVelocity;
+    f32 impulseAcceleration;
+    u8 pad08C[0x8];
+    f32 actualVelocityX;
+    f32 actualVelocityY;
+    f32 actualVelocityZ;
+    u8 pad0A0[0x8];
+    void * soundA8;
+    void * soundAC;
+    u8 pad0B0[0x24];
+    O1PhysicsObject * linkedObject;
+    u8 pad0D8[0x18];
+    s16 heading;
+    u8 pad0F2[0xE];
+    s16 field100;
+    s16 spinTimer;
+    s16 spinAngle;
+    u8 pad106[0x2];
+    s16 steeringAngle;
+    u8 pad10A[0x4E];
+    s16 field158;
+    u8 pad15A[0xC];
+    s16 field166;
+    u8 pad168[0x2];
+    s16 field16A;
+    u8 field16C;
+    u8 pad16D[0x3];
+    u8 reset170;
+    u8 reverseTimer;
+    u8 pad172[0xF];
+    u8 impulseActive;
+    u8 pad182[0x1];
+    s8 field183;
+    u8 pad184[0x1];
+    u8 boostMode;
+    u8 pad186[0x1];
+    s8 field187;
+    f32 boostScale;
+    u8 pad18C[0x1];
+    s8 disabled18D;
+    u8 pad18E[0x4];
+    u8 level192;
+    u8 pad193[0x15];
+    u16 flags1A8;
+    u8 pad1AA[0x112];
+    s32 collisionMode;
+    u8 pad2C0[0x89];
+    u8 field349;
+    u8 pad34A[0x32];
+    s16 pathIndex;
+    u8 pad37E[0x3];
+    u8 pathMode;
+    u8 actionMode;
+    u8 pad383[0x15];
+    f32 progress398;
+    u8 pad39C[0x4];
+    f32 speedScale;
+    u8 pad3A4[0x18];
+    f32 targetX;
+    f32 targetZ;
+    u8 pad3C4[0x8];
+    s16 previousPathIndex;
+    s16 stuckTimer;
+    f32 pathStartX;
+    f32 pathStartZ;
+    f32 pathEndX;
+    f32 pathEndZ;
+    u8 pad3E0[0x1A];
+    s16 field3FA;
+    u8 pad3FC[0x20];
+    s32 controlKeys;
+    s32 controlDkeys;
+    u8 pad424[0x4];
+    s32 controlXjoy;
+    s32 controlYjoy;
+    u8 pad430[0x8];
+    s32 joypadDisabled;
+};
+
+typedef struct O1PhysicsSurface {
+    f32 height;
+    u32 flags;
+} O1PhysicsSurface;
+
+typedef struct O1PhysicsPathMode {
+    s32 (*test)(void);
+    void (*position)(f32 *x, f32 *z);
+    s16 (*heading)(f32 x, f32 z);
+    u16 mask;
+    u16 unused;
+} O1PhysicsPathMode;
+
+typedef struct O1PhysicsActionMode {
+    void (*test)(void);
+    void (*update)(void);
+    u16 mask;
+    u16 unused;
+} O1PhysicsActionMode;
+
+extern O1PhysicsPathMode gO1PhysicsPaths[4];
+extern O1PhysicsActionMode gO1PhysicsActions[6];
+
+/* Call identities come from the shipped overlay relocation table. */
+s32 func_overlay_001_F00004B4_184C894(void *object);
+s32 func_overlay_001_F0007D6C_185414C(s16, s16, s16, s16,
+                                     s16 *, s16 *, void *);
+f32 *ext_o8_8(void *state);
+void ext_o0_1ee0c(void *state, s32 disabled);
+void ext_o8_49dc(s32 value);
+void ext_o0_1d4c0(void *object, void *state);
+void ext_o0_29adc(s16 *angles, f32 *vector);
+s32 ext_o0_1312c(f32 x, f32 z, f32 *height, u32 flags, void *surfaces);
+void ext_o0_1ecfc(void *object, void *state);
+s32 ext_o2_123c(f32 x, f32 z, void *region);
+s16 ext_o0_2a4c0(f32 x, f32 z);
+s32 ext_o0_2a5bc(s16 first, s16 second);
+void ext_o7_edc(void);
+f32 ext_o8_1000(void *object, void *state, f32 limit);
+s32 ext_o0_2630c(void);
+s32 ext_o0_29598(s32 minimum, s32 maximum);
+f32 ext_o0_2a46c(s16 angle);
+void ext_o0_2d98(void *handle);
+void ext_o0_2b90(s32 id, f32 x, f32 y, f32 z, s32 priority, void **handle);
+void ext_o0_2d70(void *handle, f32 x, f32 y, f32 z);
+f32 ext_o0_2a428(f32 base, s32 exponent);
+f32 ext_o0_2a470(s16 angle);
+s32 ext_o0_1e174(void *object, void *state, f32 update);
+s32 ext_o0_1d920(void *object, void *state, f32 update);
+s32 ext_o0_7cd8(void *object, f32 x, f32 y, f32 z);
+void ext_o8_49a4(void *state);
+f32 ext_o8_34a0(void *object, void *state, f32 limit, f32 update);
+void ext_o8_49b4(void *unused);
+void ext_o0_1cfcc(void *object, void *state, s32 update);
+void ext_o8_3278(void *object, void *state, s32 update);
+void ext_o0_1d510(void *object, void *state, s32 mode, s32 kind, s32 update);
+void ext_o8_2ec0(void *object, void *state, s32 update);
+void ext_o8_3018(void *object, void *state, f32 scale, s32 update);
+void ext_o0_3e99c(void *object, s32 update);
 extern f32 D_4;
-extern M2C_UNK D_8C;
-extern M2C_UNK D_D4;
 extern s32 G_o1_83e4;
 extern f32 G_rt_458c4;
 extern s32 G_rt_43a3c;
 extern u8 G_offd_31a4;
-extern u8 LOCAL_BSS[];
+extern void *D_1BA4;
 extern f32 LOCAL_DATA_4;
 extern s32 LOCAL_BSS_1D78;
 extern s32 LOCAL_BSS_1D94;
@@ -807,691 +911,618 @@ extern f32 LOCAL_RODATA_154;
 extern f32 LOCAL_RODATA_158;
 extern f32 LOCAL_RODATA_15C;
 
-typedef struct HitRecord {
-    f32 value;
-    u32 flags;
-} HitRecord;
-
-/* NON_MATCHING plateau: fresh full-TU V0 remains a structure mismatch at
- * 1600 versus 1542 words, with 1510 raw/1508 relocation-masked differences
- * from +0x0. The m2c locals produce a 0x230 frame versus the target's 0x138;
- * recover the typed ABI/stack layout before further source-shape work. */
+/* Typed reconstruction remains NON_MATCHING. The object/state and callback
+ * layouts follow Mickey's runtime identities and access widths. Local
+ * lifetime cleanup reduces the frame; remaining CFG and allocation work
+ * is measured separately in the function handoff. */
 #ifdef NON_MATCHING
-void func_overlay_001_F000438C_185076C(f32 *arg0, s32 arg1) {
-    f32 *sp130;
-    HitRecord spF0[8];
-    f32 spEC;
-    f32 spE8;
-    f32 spE4;
-    s16 spE0;
-    s16 spDE;
-    s16 spDC;
-    f32 spD8;
-    f32 spD4;
-    s32 spC0;
-    f32 spAC;
-    f32 spA8;
-    f32 spA4;
-    f32 spA0;
-    f32 sp98;
-    f32 sp90;
-    f32 sp8C;
-    f32 sp88;
-    f32 sp80;
-    s16 sp7E;
-    s16 sp7C;
-    s16 sp7A;
-    f32 sp68;
-    s32 sp60;
-    s32 *sp58;
-    M2C_UNK *sp54;
-    M2C_UNK *sp50;
-    s16 sp4E;
-    s16 sp4C;
-    M2C_UNK (*temp_a0_4)(M2C_UNK, M2C_UNK *);
-    M2C_UNK (*temp_v0_15)(u8, M2C_UNK *);
-    M2C_UNK *var_a0_2;
-    M2C_UNK *var_a1;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f0_3;
-    f32 temp_f0_4;
-    f32 temp_f0_5;
-    f32 temp_f0_6;
-    f32 temp_f0_7;
-    f32 temp_f0_8;
-    f32 temp_f10_2;
-    f32 temp_f12;
-    f32 temp_f12_3;
-    f32 temp_f12_4;
-    f32 temp_f12_5;
-    f32 temp_f12_6;
-    f32 temp_f12_7;
-    f32 temp_f12_8;
-    f32 temp_f14_2;
-    f32 temp_f14_3;
-    f32 temp_f16;
-    f32 temp_f18;
-    f32 temp_cos;
-    f32 temp_f2;
-    f32 temp_f2_2;
-    f32 temp_f2_3;
-    f32 temp_f2_4;
-    f32 temp_f2_5;
-    f32 temp_f2_6;
-    f32 temp_f2_7;
-    f32 temp_f2_8;
-    f32 temp_f8_2;
-    f32 var_f0;
-    f32 var_f14;
-    f32 var_f14_2;
-    f32 var_f14_3;
-    f32 var_f14_4;
-    f32 var_f14_5;
-    f32 var_f14_6;
-    f32 var_f16;
-    f32 var_f2;
-    f32 var_f2_2;
-    s16 *temp_a0;
-    s16 *temp_a0_2;
-    s16 *temp_a0_3;
-    s16 *temp_a2;
-    s16 *temp_s0;
-    s16 temp_v0_14;
-    s16 temp_v0_2;
-    s16 temp_v1;
-    s16 var_v0_2;
-    s16 var_v0_3;
-    s16 var_v0_4;
-    s16 var_v0_5;
-    s32 (*temp_v0_4)(M2C_UNK *);
-    f32 *temp_v0;
-    s32 *temp_v0_12;
-    s32 temp_v0_3;
-    s32 *var_v0_7;
-    s32 temp_f10;
-    s32 temp_f12_2;
-    s32 temp_f14;
-    s32 temp_f8;
-    s32 temp_t6;
-    s32 temp_v0_10;
-    s32 temp_v0_13;
-    s32 temp_v0_9;
-    s32 temp_v1_2;
-    s32 temp_v1_3;
-    s32 var_a0;
-    s32 var_v0_6;
-    s32 var_v1_2;
-    s32 var_v1_3;
-    s32 var_v1_4;
-    s32 var_v1_5;
-    s8 temp_v0_8;
-    u8 temp_a0_5;
-    u8 temp_v0_11;
-    u8 temp_v0_6;
-    u8 var_v0;
-    void *temp_v0_5;
-    void *temp_v0_7;
-    HitRecord *var_v1;
+void func_overlay_001_F000438C_185076C(O1PhysicsObject *object, s32 updateRate) {
+    f32 *tuning;
+    O1PhysicsSurface surfaces[8];
+    f32 normal[3];
+    s16 angles[3];
+    f32 targetX;
+    f32 targetZ;
+    s32 remaining;
+    f32 limit;
+    f32 velocityX;
+    f32 inverseUpdate;
+    f32 deltaY;
+    f32 impulseX;
+    f32 impulseY;
+    f32 impulseZ;
+    f32 scale;
+    s16 heading;
+    s16 targetHeading;
+    s16 pathHeading;
+    f32 speed;
+    s16 resolvedX;
+    s16 resolvedZ;
+    void (*actionTest)(void);
+    void (*actionUpdate)(void);
+    O1PhysicsPathMode *path;
+    O1PhysicsActionMode *action;
+    f32 value;
+    f32 travelZ;
+    f32 work;
+    f32 deltaX;
+    f32 verticalVelocity;
+    f32 negativeSpeedLimit;
+    f32 negativeLimit;
+    f32 deltaZ;
+    f32 cosine;
+    f32 value2;
+    f32 inverse;
+    f32 ceiling;
+    f32 acceleration;
+    f32 fraction;
+    f32 velocityZ;
+    f32 angleMagnitude;
+    void *sound;
+    void *region;
+    O1PhysicsState *state;
+    s16 clampedAngle;
+    s32 (*pathTest)(void);
+    f32 *sample;
+    s32 surfaceCount;
+    s32 collision;
+    s32 angleOffset;
+    s32 mode;
+    s32 keys;
+    s32 surfaceIndex;
+    s32 applySlope;
+    s32 pathIndex;
+    s32 sampleIndex;
+    s32 steering;
+    s32 actionIndex;
+    u8 level;
+    O1PhysicsObject *cachedObject;
+    O1PhysicsObject *linkedObject;
+    O1PhysicsSurface *surface;
 
-    temp_s0 = M2C_FIELD(arg0, s16 **, 0x64);
-    if (func_overlay_001_F00004B4_184C894() != 0) {
-        temp_v0 = ext_o8_8(temp_s0);
-        sp130 = temp_v0;
-        temp_t6 = G_o1_83e4;
-        G_rt_458c4 = *temp_v0;
-        if (temp_t6 == 1) {
-            if ((G_rt_43a3c == 0) && (M2C_FIELD(temp_s0, s32 *, 0x438) == 0) && (M2C_FIELD(temp_s0, s16 *, 0x102) == 0) && !(M2C_FIELD(temp_s0, u16 *, 0x1A8) & 8)) {
-                temp_v0_2 = M2C_FIELD(temp_s0, s16 *, 0x37C);
-                if (temp_v0_2 != M2C_FIELD(temp_s0, s16 *, 0x3CC)) {
-                    M2C_FIELD(temp_s0, s16 *, 0x3CC) = temp_v0_2;
-                    M2C_FIELD(temp_s0, s16 *, 0x3CE) = 0;
+    state = object->state;
+    if (func_overlay_001_F00004B4_184C894(object) != 0) {
+        tuning = ext_o8_8(state);
+        mode = G_o1_83e4;
+        G_rt_458c4 = *tuning;
+        if (mode == 1) {
+            if ((G_rt_43a3c == 0) && (state->joypadDisabled == 0) && (state->spinTimer == 0) && !(state->flags1A8 & 8)) {
+                if (state->pathIndex != state->previousPathIndex) {
+                    state->previousPathIndex = state->pathIndex;
+                    state->stuckTimer = 0;
                 } else {
-                    M2C_FIELD(temp_s0, s16 *, 0x3CE) = (s16) (M2C_FIELD(temp_s0, s16 *, 0x3CE) + arg1);
+                    state->stuckTimer = (s16) (state->stuckTimer + updateRate);
                 }
-                if ((f32) M2C_FIELD(temp_s0, s16 *, 0x3CE) > 360.0f) {
-                    if (M2C_FIELD(temp_s0, u8 *, 0x170) == 0) {
-                        M2C_FIELD(temp_s0, u8 *, 0x170) = 1U;
+                if ((f32) state->stuckTimer > 360.0f) {
+                    if (state->reset170 == 0) {
+                        state->reset170 = 1U;
                     }
                     goto block_13;
                 }
             } else {
 block_13:
-                M2C_FIELD(temp_s0, s16 *, 0x3CE) = 0;
+                state->stuckTimer = 0;
             }
         }
-        M2C_FIELD(temp_s0, f32 *, 0x70) = 0.0f;
-        if ((M2C_FIELD(temp_s0, s8 *, 0x18D) != 0) || (M2C_FIELD(temp_s0, s16 *, 0x158) != 0) || (M2C_FIELD(temp_s0, u8 *, 0x170) != 0) || (M2C_FIELD(temp_s0, s16 *, 0x3FA) != 0)) {
-            ext_o0_1ee0c(temp_s0, (f32 *)1);
+        state->outputScale = 0.0f;
+        if ((state->disabled18D != 0) || (state->field158 != 0) || (state->reset170 != 0) || (state->field3FA != 0)) {
+            ext_o0_1ee0c(state, 1);
         }
-        LOCAL_BSS_1D94 = arg1;
-        LOCAL_DATA_4 = (f32) arg1;
-        sp68 = -M2C_FIELD(temp_s0, f32 *, 4);
+        D_1D94 = updateRate;
+        D_4 = (f32) updateRate;
+        speed = -state->forwardVelocity;
         ext_o8_49dc(NULL);
-        temp_f0 = LOCAL_RODATA_F8;
-        M2C_FIELD(arg0, s32 *, 0x80) = 0;
-        M2C_FIELD(temp_s0, s32 *, 0x428) = 0;
-        M2C_FIELD(temp_s0, s32 *, 0x42C) = 0;
-        M2C_FIELD(temp_s0, s32 *, 0x41C) = 0;
-        M2C_FIELD(temp_s0, s32 *, 0x420) = 0;
-        if (M2C_FIELD(temp_s0, f32 *, 4) < temp_f0) {
-            M2C_FIELD(temp_s0, f32 *, 4) = temp_f0;
+        value = LOCAL_RODATA_F8;
+        object->flags80 = 0;
+        state->controlXjoy = 0;
+        state->controlYjoy = 0;
+        state->controlKeys = 0;
+        state->controlDkeys = 0;
+        if (state->forwardVelocity < value) {
+            state->forwardVelocity = value;
         }
-        temp_f12 = LOCAL_RODATA_FC;
-        if (temp_f12 < M2C_FIELD(temp_s0, f32 *, 4)) {
-            M2C_FIELD(temp_s0, f32 *, 4) = temp_f12;
+        work = LOCAL_RODATA_FC;
+        if (work < state->forwardVelocity) {
+            state->forwardVelocity = work;
         }
-        if (M2C_FIELD(temp_s0, f32 *, 8) < temp_f0) {
-            M2C_FIELD(temp_s0, f32 *, 8) = temp_f0;
+        if (state->sideVelocity < value) {
+            state->sideVelocity = value;
         }
-        if (temp_f12 < M2C_FIELD(temp_s0, f32 *, 8)) {
-            M2C_FIELD(temp_s0, f32 *, 8) = temp_f12;
+        if (work < state->sideVelocity) {
+            state->sideVelocity = work;
         }
-        ext_o0_1d4c0(arg0, temp_s0);
-        spDC = -M2C_FIELD(temp_s0, s16 *, 0xF0);
-        spDE = -M2C_FIELD(arg0, s16 *, 2);
-        spEC = 0.0f;
-        spE4 = 0.0f;
-        spE0 = -M2C_FIELD(arg0, s16 *, 4);
-        spE8 = -1.0f;
-        ext_o0_29adc(&spDC, &spE4);
-        M2C_FIELD(temp_s0, f32 *, 0x60) = spE4;
-        M2C_FIELD(temp_s0, f32 *, 0x64) = spE8;
-        M2C_FIELD(temp_s0, f32 *, 0x5C) = spEC;
-        temp_v0_3 = ext_o0_1312c(M2C_FIELD(arg0, f32 *, 0xC), M2C_FIELD(arg0, f32 *, 0x14), NULL, 0x08010000, spF0);
-        var_f0 = -32768.0f;
-        var_a0 = temp_v0_3 - 1;
-        M2C_FIELD(temp_s0, f32 *, 0x68) = -32768.0f;
-        if (temp_v0_3 != NULL) {
-            var_v1 = &spF0[var_a0];
+        ext_o0_1d4c0(object, state);
+        angles[0] = -state->heading;
+        angles[1] = -object->rotationY;
+        normal[2] = 0.0f;
+        normal[0] = 0.0f;
+        angles[2] = -object->rotationZ;
+        normal[1] = -1.0f;
+        ext_o0_29adc(angles, normal);
+        state->normalX = normal[0];
+        state->normalY = normal[1];
+        state->slope = normal[2];
+        surfaceCount = ext_o0_1312c(object->x, object->z, NULL, 0x08010000, surfaces);
+        ceiling = -32768.0f;
+        surfaceIndex = surfaceCount - 1;
+        state->surfaceHeight = -32768.0f;
+        if (surfaceCount != NULL) {
+            surface = &surfaces[surfaceIndex];
             do {
-                if (M2C_FIELD(var_v1, s32 *, 4) & 0x10000) {
-                    M2C_FIELD(temp_s0, f32 *, 0x68) = (f32) M2C_FIELD(var_v1, f32 *, 0);
+                if (surface->flags & 0x10000) {
+                    state->surfaceHeight = (f32) surface->height;
                 }
-                if (M2C_FIELD(var_v1, s32 *, 4) & 0x08000000) {
-                    var_f0 = M2C_FIELD(var_v1, f32 *, 0);
+                if (surface->flags & 0x08000000) {
+                    ceiling = surface->height;
                 }
-                var_v1 -= 1;
-                var_a0 -= 1;
-            } while (var_a0 != 0);
+                surface -= 1;
+                surfaceIndex -= 1;
+            } while (surfaceIndex != 0);
         }
-        temp_f2 = M2C_FIELD(temp_s0, f32 *, 0x68);
-        if (M2C_FIELD(arg0, f32 *, 0x10) < temp_f2) {
-            M2C_FIELD(temp_s0, u8 *, 2) = 1U;
-            M2C_FIELD(temp_s0, f32 *, 0x6C) = temp_f2;
+        value2 = state->surfaceHeight;
+        if (object->y < value2) {
+            state->inSurface = 1U;
+            state->submergedHeight = value2;
         } else {
-            M2C_FIELD(temp_s0, u8 *, 2) = 0U;
-            M2C_FIELD(temp_s0, f32 *, 0x6C) = 0.0f;
+            state->inSurface = 0U;
+            state->submergedHeight = 0.0f;
         }
-        if (M2C_FIELD(arg0, f32 *, 0x10) < var_f0) {
-            if (M2C_FIELD(temp_s0, u8 *, 0x170) == 0) {
-                M2C_FIELD(temp_s0, u8 *, 0x170) = 1U;
+        if (object->y < ceiling) {
+            if (state->reset170 == 0) {
+                state->reset170 = 1U;
             }
-            if ((M2C_FIELD(temp_s0, u8 *, 2) != 0) && (M2C_FIELD(temp_s0, u8 *, 3) != 1)) {
-                ext_o0_1ecfc((s16 *) arg0, (f32 *) temp_s0);
+            if ((state->inSurface != 0) && (state->surfaceKind != 1)) {
+                ext_o0_1ecfc(object, state);
             }
         }
-        var_v0 = M2C_FIELD(temp_s0, u8 *, 0x192);
-        if ((s32) var_v0 >= 0xB) {
-            var_v0 = 0xA;
+        level = state->level192;
+        if ((s32) level >= 0xB) {
+            level = 0xA;
         }
-        var_a0_2 = &D_8C;
-        var_v1_2 = 1;
-        spAC = (M2C_FIELD(sp130, f32 *, 0x40) + ((f32) var_v0 * M2C_FIELD(sp130, f32 *, 8))) * M2C_FIELD(temp_s0, f32 *, 0x3A0);
+        path = &gO1PhysicsPaths[1];
+        pathIndex = 1;
+        limit = (tuning[16] + ((f32) level * tuning[2])) * state->speedScale;
         do {
-            temp_v0_4 = M2C_FIELD(var_a0_2, s32 (**)(M2C_UNK *), 0);
-            if ((temp_v0_4 != NULL) && (M2C_FIELD(var_a0_2, u16 *, 0xC) & (1 << M2C_FIELD(temp_s0, u8 *, 0x381)))) {
-                sp60 = var_v1_2;
-                sp54 = var_a0_2;
-                if (temp_v0_4(var_a0_2) != 0) {
-                    M2C_FIELD(temp_s0, u8 *, 0x381) = (u8) var_v1_2;
+            pathTest = path->test;
+            if ((pathTest != NULL) && (path->mask & (1 << state->pathMode))) {
+
+                if (pathTest() != 0) {
+                    state->pathMode = (u8) pathIndex;
                 }
             }
-            var_v1_2 += 1;
-            var_a0_2 += 0x10;
-        } while (var_v1_2 != 4);
-        M2C_FIELD(LOCAL_BSS + (M2C_FIELD(temp_s0, u8 *, 0x381) * 0x10), M2C_UNK (**)(f32 *, f32 *), 0x80)(&spD8, &spD4);
-        temp_a2 = (s16 *) LOCAL_BSS_1BA4;
-        if (temp_a2 != NULL) {
-            temp_v0_5 = LOCAL_BSS_1D9C;
-            if (ext_o2_123c(M2C_FIELD(temp_v0_5, f32 *, 0xC), M2C_FIELD(temp_v0_5, f32 *, 0x14), temp_a2) != NULL) {
-                temp_v0_5 = D_1D9C;
-                M2C_FIELD(D_1DA0, f32 *, 0x3D0) = M2C_FIELD(temp_v0_5, f32 *, 0xC);
-                M2C_FIELD(D_1DA0, f32 *, 0x3D4) = M2C_FIELD(temp_v0_5, f32 *, 0x14);
+            pathIndex += 1;
+            path++;
+        } while (pathIndex != 4);
+        gO1PhysicsPaths[state->pathMode].position(&targetX, &targetZ);
+        region = D_1BA4;
+        if (region != NULL) {
+            cachedObject = D_1D9C;
+            if (ext_o2_123c(cachedObject->x, cachedObject->z, region) != NULL) {
+                cachedObject = D_1D9C;
+                ((O1PhysicsState *)D_1DA0)->pathStartX = cachedObject->x;
+                ((O1PhysicsState *)D_1DA0)->pathStartZ = cachedObject->z;
             }
-            if (ext_o2_123c(spD8, spD4, LOCAL_BSS_1BA4) != NULL) {
-                M2C_FIELD(D_1DA0, f32 *, 0x3D8) = spD8;
-                M2C_FIELD(D_1DA0, f32 *, 0x3DC) = spD4;
+            if (ext_o2_123c(targetX, targetZ, D_1BA4) != NULL) {
+                ((O1PhysicsState *)D_1DA0)->pathEndX = targetX;
+                ((O1PhysicsState *)D_1DA0)->pathEndZ = targetZ;
             }
-            temp_f14 = (s32) M2C_FIELD(D_1DA0, f32 *, 0x3D8);
-            temp_f12_2 = (s32) M2C_FIELD(D_1DA0, f32 *, 0x3DC);
             func_overlay_001_F0007D6C_185414C(
-                (s16)temp_f12_2, (s16)temp_f14,
-                (s16)(s32)M2C_FIELD(D_1DA0, f32 *, 0x3D0),
-                (s16)(s32)M2C_FIELD(D_1DA0, f32 *, 0x3D4),
-                &sp4E, &sp4C, D_1D9C);
-            spD8 = (f32) sp4E;
-            spD4 = (f32) sp4C;
+                (s16)(s32)((O1PhysicsState *)D_1DA0)->pathStartX,
+                (s16)(s32)((O1PhysicsState *)D_1DA0)->pathStartZ,
+                (s16)(s32) ((O1PhysicsState *)D_1DA0)->pathEndX, (s16)(s32) ((O1PhysicsState *)D_1DA0)->pathEndZ,
+                &resolvedX, &resolvedZ, D_1D9C);
+            targetX = (f32) resolvedX;
+            targetZ = (f32) resolvedZ;
         }
-        sp7C = ext_o0_2a4c0(spD8 - M2C_FIELD(arg0, f32 *, 0xC), spD4 - M2C_FIELD(arg0, f32 *, 0x14)) + 0x8000;
-        sp7A = M2C_FIELD(LOCAL_BSS + (M2C_FIELD(temp_s0, u8 *, 0x381) * 0x10), s16 (**)(f32, f32), 0x84)(spD8, spD4);
-        M2C_FIELD(temp_s0, f32 *, 0x3BC) = spD8;
-        M2C_FIELD(temp_s0, f32 *, 0x3C0) = spD4;
-        temp_f0_2 = (f32) ext_o0_2a5bc(M2C_FIELD(arg0, s16 *, 0), sp7C) * LOCAL_RODATA_100;
-        var_f2 = temp_f0_2;
-        M2C_FIELD(temp_s0, s32 *, 0x428) = (s32) (temp_f0_2 * LOCAL_RODATA_104);
-        if (temp_f0_2 < 0.0f) {
-            var_f2 = -temp_f0_2;
+        targetHeading = ext_o0_2a4c0(targetX - object->x, targetZ - object->z) + 0x8000;
+        pathHeading = gO1PhysicsPaths[state->pathMode].heading(targetX, targetZ);
+        state->targetX = targetX;
+        state->targetZ = targetZ;
+        value = (f32) ext_o0_2a5bc(object->rotationX, targetHeading) * LOCAL_RODATA_100;
+        angleMagnitude = value;
+        state->controlXjoy = (s32) (value * LOCAL_RODATA_104);
+        if (value < 0.0f) {
+            angleMagnitude = -value;
         }
         if (G_o1_83e4 == 1) {
-            if (var_f2 > 24576.0f) {
-                var_v0_2 = 0x6000;
+            if (angleMagnitude > 24576.0f) {
+                clampedAngle = 0x6000;
             } else {
-                var_v0_2 = (s16) (s32) var_f2;
+                clampedAngle = (s16) (s32) angleMagnitude;
             }
-            temp_f8 = (s32) (var_f2 - 8192.0f);
-            if (sp68 < (25.0f - ((f32) var_v0_2 * 0.0009765625f))) {
-                M2C_FIELD(temp_s0, s32 *, 0x41C) = (s32) (M2C_FIELD(temp_s0, s32 *, 0x41C) | 0x8000);
+            angleOffset = (s32) (angleMagnitude - 8192.0f);
+            if (speed < (25.0f - ((f32) clampedAngle * 0.0009765625f))) {
+                state->controlKeys = (s32) (state->controlKeys | 0x8000);
             }
-            var_v0_3 = (s16) temp_f8;
-            if ((s16) temp_f8 < 0) {
-                var_v0_3 = (s16) temp_f8 * -1;
+            clampedAngle = (s16) angleOffset;
+            if ((s16) angleOffset < 0) {
+                clampedAngle = (s16) angleOffset * -1;
             }
-            if (((f32) var_v0_3 * LOCAL_RODATA_108) < sp68) {
-                M2C_FIELD(temp_s0, s32 *, 0x41C) = (s32) (M2C_FIELD(temp_s0, s32 *, 0x41C) | 0x4000);
+            if (((f32) clampedAngle * LOCAL_RODATA_108) < speed) {
+                state->controlKeys = (s32) (state->controlKeys | 0x4000);
             }
-            temp_f0_3 = (f32) ext_o0_2a5bc(sp7C, sp7A);
-            var_f2_2 = temp_f0_3;
-            if (temp_f0_3 < 0.0f) {
-                var_f2_2 = -temp_f0_3;
+            value = (f32) ext_o0_2a5bc(targetHeading, pathHeading);
+            angleMagnitude = value;
+            if (value < 0.0f) {
+                angleMagnitude = -value;
             }
-            if ((var_f2_2 * LOCAL_RODATA_10C) < sp68) {
-                M2C_FIELD(temp_s0, s32 *, 0x41C) = (s32) (M2C_FIELD(temp_s0, s32 *, 0x41C) | 0x4000);
+            if ((angleMagnitude * LOCAL_RODATA_10C) < speed) {
+                state->controlKeys = (s32) (state->controlKeys | 0x4000);
             }
         } else {
-            if (var_f2 > 16384.0f) {
-                var_v0_4 = 0x4000;
+            if (angleMagnitude > 16384.0f) {
+                clampedAngle = 0x4000;
             } else {
-                var_v0_4 = (s16) (s32) var_f2;
+                clampedAngle = (s16) (s32) angleMagnitude;
             }
-            temp_f10 = (s32) (var_f2 - 16384.0f);
-            if (sp68 < (25.0f - ((f32) var_v0_4 * 0.0014648438f))) {
-                M2C_FIELD(temp_s0, s32 *, 0x41C) = (s32) (M2C_FIELD(temp_s0, s32 *, 0x41C) | 0x8000);
+            angleOffset = (s32) (angleMagnitude - 16384.0f);
+            if (speed < (25.0f - ((f32) clampedAngle * 0.0014648438f))) {
+                state->controlKeys = (s32) (state->controlKeys | 0x8000);
             }
-            var_v0_5 = (s16) temp_f10;
-            if ((s16) temp_f10 < 0) {
-                var_v0_5 = (s16) temp_f10 * -1;
+            clampedAngle = (s16) angleOffset;
+            if ((s16) angleOffset < 0) {
+                clampedAngle = (s16) angleOffset * -1;
             }
-            if (((f32) var_v0_5 * 0.006713867f) < sp68) {
-                M2C_FIELD(temp_s0, s32 *, 0x41C) = (s32) (M2C_FIELD(temp_s0, s32 *, 0x41C) | 0x4000);
+            if (((f32) clampedAngle * 0.006713867f) < speed) {
+                state->controlKeys = (s32) (state->controlKeys | 0x4000);
             }
-            if (sp68 < LOCAL_RODATA_110) {
-                M2C_FIELD(temp_s0, s32 *, 0x41C) = (s32) (M2C_FIELD(temp_s0, s32 *, 0x41C) | 0x8000);
+            if (speed < LOCAL_RODATA_110) {
+                state->controlKeys = (s32) (state->controlKeys | 0x8000);
             }
-            temp_v0_6 = M2C_FIELD(temp_s0, u8 *, 0x171);
-            if (temp_v0_6 != 0) {
-                if (arg1 < (s32) temp_v0_6) {
-                    M2C_FIELD(temp_s0, u8 *, 0x171) = (u8) (temp_v0_6 - arg1);
+            if (state->reverseTimer != 0) {
+                if (updateRate < (s32) state->reverseTimer) {
+                    state->reverseTimer = (u8) (state->reverseTimer - updateRate);
                 } else {
-                    M2C_FIELD(temp_s0, u8 *, 0x171) = 0U;
+                    state->reverseTimer = 0U;
                 }
-                M2C_FIELD(temp_s0, s32 *, 0x42C) = -0x64;
-                M2C_FIELD(temp_s0, s32 *, 0x41C) = 0x4000;
+                state->controlYjoy = -0x64;
+                state->controlKeys = 0x4000;
             }
         }
         if (G_rt_43a3c != 0) {
-            M2C_FIELD(temp_s0, s32 *, 0x41C) = 0x4000;
-            M2C_FIELD(arg0, f32 *, 0x1C) = 0.0f;
-            M2C_FIELD(arg0, f32 *, 0x20) = 0.0f;
-            M2C_FIELD(arg0, f32 *, 0x24) = 0.0f;
-            M2C_FIELD(temp_s0, f32 *, 4) = 0.0f;
+            state->controlKeys = 0x4000;
+            object->velocityX = 0.0f;
+            object->velocityY = 0.0f;
+            object->velocityZ = 0.0f;
+            state->forwardVelocity = 0.0f;
         }
         if ((LOCAL_BSS_1D78 != 0) && (G_rt_43a3c == 0)) {
-            M2C_FIELD(temp_s0, s8 *, 0x183) = 1;
-            M2C_FIELD(temp_s0, u8 *, 0x185) = 2U;
-            M2C_FIELD(temp_s0, s8 *, 0x187) = 6;
-            M2C_FIELD(temp_s0, f32 *, 0x188) = 1.0f;
+            state->field183 = 1;
+            state->boostMode = 2U;
+            state->field187 = 6;
+            state->boostScale = 1.0f;
         }
         if (G_rt_43a3c != 0) {
             ext_o7_edc();
         }
-        if (M2C_FIELD(temp_s0, s32 *, 0x438) != 0) {
-            M2C_FIELD(temp_s0, s32 *, 0x428) = 0;
-            M2C_FIELD(temp_s0, s32 *, 0x42C) = 0;
-            M2C_FIELD(temp_s0, s32 *, 0x41C) = 0;
-            M2C_FIELD(temp_s0, s32 *, 0x420) = 0;
+        if (state->joypadDisabled != 0) {
+            state->controlXjoy = 0;
+            state->controlYjoy = 0;
+            state->controlKeys = 0;
+            state->controlDkeys = 0;
         }
-        temp_v0_7 = M2C_FIELD(temp_s0, void **, 0xD4);
-        if (temp_v0_7 != NULL) {
-            spAC *= 1.0f + (LOCAL_RODATA_114 * M2C_FIELD(M2C_FIELD(temp_v0_7, void **, 0x64), f32 *, 0x14));
+        linkedObject = state->linkedObject;
+        if (linkedObject != NULL) {
+            limit *= 1.0f + (LOCAL_RODATA_114 * linkedObject->state->field14);
         }
-        if (M2C_FIELD(temp_s0, u8 *, 0x185) == 0) {
-            temp_f0_4 = M2C_FIELD(temp_s0, f32 *, 0x5C);
-            if (temp_f0_4 != 0.0f) {
-                var_f14 = 1.0f - (temp_f0_4 * 0.5f * M2C_FIELD(sp130, f32 *, 0xC));
-                if (var_f14 < LOCAL_RODATA_118) {
-                    var_f14 = LOCAL_RODATA_11C;
+        if (state->boostMode == 0) {
+            value = state->slope;
+            if (value != 0.0f) {
+                scale = 1.0f - (value * 0.5f * tuning[3]);
+                if (scale < LOCAL_RODATA_118) {
+                    scale = LOCAL_RODATA_11C;
                 }
-                spAC *= var_f14;
+                limit *= scale;
             }
         }
-        temp_v1 = M2C_FIELD(temp_s0, s16 *, 0x102);
-        if ((temp_v1 != 0) && ((temp_v0_8 = M2C_FIELD(arg0, s8 *, 0x3B), (temp_v0_8 == 0x10)) || (temp_v0_8 == 0xF))) {
-            var_f14_2 = M2C_FIELD(arg0, f32 *, 0x28) * 1.5f;
-            if (var_f14_2 > 1.0f) {
-                var_f14_2 = 1.0f;
+        if ((state->spinTimer != 0) && ((object->mode == 0x10) || (object->mode == 0xF))) {
+            scale = object->animationProgress * 1.5f;
+            if (scale > 1.0f) {
+                scale = 1.0f;
             }
-            if (temp_v1 > 0) {
-                var_f14_2 = -var_f14_2;
+            if (state->spinTimer > 0) {
+                scale = -scale;
             }
-            M2C_FIELD(temp_s0, s16 *, 0x104) = (s16) (s32) (65536.0f * var_f14_2);
-            if (M2C_FIELD(arg0, f32 *, 0x28) == 1.0f) {
-                M2C_FIELD(temp_s0, s16 *, 0x102) = 0;
-                M2C_FIELD(temp_s0, s16 *, 0x104) = 0;
+            state->spinAngle = (s16) (s32) (65536.0f * scale);
+            if (object->animationProgress == 1.0f) {
+                state->spinTimer = 0;
+                state->spinAngle = 0;
             } else {
-                M2C_FIELD(temp_s0, u8 *, 0x185) = 0U;
-                M2C_FIELD(temp_s0, f32 *, 0x188) = 0.0f;
+                state->boostMode = 0U;
+                state->boostScale = 0.0f;
             }
         }
-        temp_v1_2 = LOCAL_BSS_1D94;
-        if (temp_v1_2 != 0) {
-            spC0 = temp_v1_2 - 1;
+        if (D_1D94 != 0) {
+            remaining = D_1D94 - 1;
             do {
-                temp_f0_5 = ext_o8_1000(arg0, temp_s0, spAC);
-                spAC = temp_f0_5;
-                temp_v0_9 = M2C_FIELD(temp_s0, s32 *, 0x41C);
-                temp_v1_3 = temp_v0_9 & 0x4000;
-                if ((temp_v1_3 == 0) && (M2C_FIELD(temp_s0, f32 *, 0x5C) > 0.0f) && (M2C_FIELD(temp_s0, f32 *, 4) < -temp_f0_5)) {
-                    var_v0_6 = 1;
-                } else if ((temp_v1_3 == 0) && (M2C_FIELD(temp_s0, f32 *, 0x5C) < 0.0f)) {
-                    var_v0_6 = 1;
+                value = ext_o8_1000(object, state, limit);
+                limit = value;
+                keys = state->controlKeys;
+                if (((keys & 0x4000) == 0) && (state->slope > 0.0f) && (state->forwardVelocity < -value)) {
+                    applySlope = 1;
+                } else if (((keys & 0x4000) == 0) && (state->slope < 0.0f)) {
+                    applySlope = 1;
                 } else {
-                    var_v0_6 = 0;
-                    if (!(temp_v0_9 & 0xC000) && (M2C_FIELD(temp_s0, f32 *, 0x5C) > 0.0f)) {
-                        var_v0_6 = 1;
+                    applySlope = 0;
+                    if (!(keys & 0xC000) && (state->slope > 0.0f)) {
+                        applySlope = 1;
                     }
                 }
-                if ((var_v0_6 != 0) && (M2C_FIELD(temp_s0, u8 *, 0x185) == 0)) {
-                    M2C_FIELD(temp_s0, f32 *, 4) = (f32) (M2C_FIELD(temp_s0, f32 *, 4) + (G_rt_458c4 * M2C_FIELD(temp_s0, f32 *, 0x5C)));
-                    temp_f2_2 = M2C_FIELD(sp130, f32 *, 0x1C);
-                    if (temp_f2_2 < M2C_FIELD(temp_s0, f32 *, 4)) {
-                        M2C_FIELD(temp_s0, f32 *, 4) = temp_f2_2;
+                if ((applySlope != 0) && (state->boostMode == 0)) {
+                    state->forwardVelocity = (f32) (state->forwardVelocity + (G_rt_458c4 * state->slope));
+                    value2 = tuning[7];
+                    if (value2 < state->forwardVelocity) {
+                        state->forwardVelocity = value2;
                     }
                 }
-                if (M2C_FIELD(temp_s0, s16 *, 0x102) != 0) {
-                    temp_f2_3 = LOCAL_RODATA_120;
-                    M2C_FIELD(temp_s0, s32 *, 0x428) = 0;
-                    M2C_FIELD(temp_s0, s32 *, 0x42C) = 0;
-                    M2C_FIELD(temp_s0, s32 *, 0x41C) = 0;
-                    M2C_FIELD(temp_s0, s32 *, 0x420) = 0;
-                    M2C_FIELD(temp_s0, f32 *, 4) = (f32) (M2C_FIELD(temp_s0, f32 *, 4) * temp_f2_3);
-                    M2C_FIELD(temp_s0, f32 *, 8) = (f32) (M2C_FIELD(temp_s0, f32 *, 8) * temp_f2_3);
+                if (state->spinTimer != 0) {
+                    value2 = LOCAL_RODATA_120;
+                    state->controlXjoy = 0;
+                    state->controlYjoy = 0;
+                    state->controlKeys = 0;
+                    state->controlDkeys = 0;
+                    state->forwardVelocity = (f32) (state->forwardVelocity * value2);
+                    state->sideVelocity = (f32) (state->sideVelocity * value2);
                 }
-                temp_v0_10 = M2C_FIELD(temp_s0, s32 *, 0x41C);
-                M2C_FIELD(temp_s0, s16 *, 0x100) = 0;
-                if (temp_v0_10 & 0x4000) {
-                    if (M2C_FIELD(temp_s0, f32 *, 4) < -5.0f) {
-                        ext_o8_49dc((s16 *)1);
+                keys = state->controlKeys;
+                state->field100 = 0;
+                if (keys & 0x4000) {
+                    if (state->forwardVelocity < -5.0f) {
+                        ext_o8_49dc(1);
                     }
-                    if (M2C_FIELD(temp_s0, f32 *, 4) < 0.0f) {
-                        M2C_FIELD(temp_s0, f32 *, 4) = (f32) (M2C_FIELD(temp_s0, f32 *, 4) + M2C_FIELD(&sp130[(s32) -M2C_FIELD(temp_s0, f32 *, 4)], f32 *, 0xC8));
-                        if ((M2C_FIELD(temp_s0, f32 *, 4) > 0.0f) && (M2C_FIELD(temp_s0, s32 *, 0x42C) >= -0x1E)) {
-                            M2C_FIELD(temp_s0, f32 *, 4) = 0.0f;
+                    if (state->forwardVelocity < 0.0f) {
+                        state->forwardVelocity = (f32) (state->forwardVelocity + tuning[(s32) -state->forwardVelocity + 50]);
+                        if ((state->forwardVelocity > 0.0f) && (state->controlYjoy >= -0x1E)) {
+                            state->forwardVelocity = 0.0f;
                         }
-                    } else if (M2C_FIELD(temp_s0, s32 *, 0x42C) < -0x1E) {
-                        M2C_FIELD(temp_s0, f32 *, 4) = (f32) (M2C_FIELD(temp_s0, f32 *, 4) + M2C_FIELD(&sp130[(s32) M2C_FIELD(temp_s0, f32 *, 4)], f32 *, 0x20));
-                        if (M2C_FIELD(temp_s0, f32 *, 4) > 6.0f) {
-                            M2C_FIELD(temp_s0, f32 *, 4) = 6.0f;
+                    } else if (state->controlYjoy < -0x1E) {
+                        state->forwardVelocity = (f32) (state->forwardVelocity + tuning[(s32) state->forwardVelocity + 8]);
+                        if (state->forwardVelocity > 6.0f) {
+                            state->forwardVelocity = 6.0f;
                         }
                     } else {
-                        M2C_FIELD(temp_s0, f32 *, 4) = (f32) (M2C_FIELD(temp_s0, f32 *, 4) - M2C_FIELD(sp130, f32 *, 0xC8));
-                        if (M2C_FIELD(temp_s0, f32 *, 4) <= 0.0f) {
-                            M2C_FIELD(temp_s0, f32 *, 4) = 0.0f;
+                        state->forwardVelocity = (f32) (state->forwardVelocity - tuning[50]);
+                        if (state->forwardVelocity <= 0.0f) {
+                            state->forwardVelocity = 0.0f;
                         }
                     }
-                } else if (temp_v0_10 & 0x8000) {
-                    temp_v0_11 = M2C_FIELD(temp_s0, u8 *, 0x185);
-                    temp_f16 = -temp_f0_5;
-                    if ((temp_v0_11 == 1) || (temp_v0_11 == 2)) {
+                } else if (keys & 0x8000) {
+                    negativeLimit = -value;
+                    if ((state->boostMode == 1) || (state->boostMode == 2)) {
                         if (G_offd_31a4 == 0) {
-                            var_f14_3 = LOCAL_RODATA_124;
+                            acceleration = LOCAL_RODATA_124;
                         } else {
-                            var_f14_3 = 0.5f;
+                            acceleration = 0.5f;
                         }
                     } else {
-                        temp_f2_4 = M2C_FIELD(temp_s0, f32 *, 4);
-                        if (temp_f2_4 > 0.0f) {
-                            var_v1_3 = (s32) temp_f2_4;
-                            var_f14_4 = temp_f2_4 - (f32) var_v1_3;
+                        value2 = state->forwardVelocity;
+                        if (value2 > 0.0f) {
+                            sampleIndex = (s32) value2;
+                            fraction = value2 - (f32) sampleIndex;
                         } else {
-                            temp_f12_3 = -temp_f2_4;
-                            var_v1_3 = (s32) temp_f12_3;
-                            var_f14_4 = temp_f12_3 - (f32) var_v1_3;
+                            work = -value2;
+                            sampleIndex = (s32) work;
+                            fraction = work - (f32) sampleIndex;
                         }
-                        temp_v0_12 = &sp130[var_v1_3];
-                        temp_f12_4 = M2C_FIELD(temp_v0_12, f32 *, 0x44);
-                        var_f14_3 = ((M2C_FIELD(temp_v0_12, f32 *, 0x48) - temp_f12_4) * var_f14_4) + temp_f12_4;
+                        sample = &tuning[sampleIndex];
+                        work = sample[17];
+                        acceleration = ((sample[18] - work) * fraction) + work;
                     }
-                    if (M2C_FIELD(temp_s0, f32 *, 4) < temp_f16) {
-                        M2C_FIELD(temp_s0, f32 *, 4) = (f32) (M2C_FIELD(temp_s0, f32 *, 4) * LOCAL_RODATA_128);
-                        if (temp_f16 < M2C_FIELD(temp_s0, f32 *, 4)) {
+                    if (state->forwardVelocity < negativeLimit) {
+                        state->forwardVelocity = (f32) (state->forwardVelocity * LOCAL_RODATA_128);
+                        if (negativeLimit < state->forwardVelocity) {
                             goto block_160;
                         }
                     } else {
-                        M2C_FIELD(temp_s0, f32 *, 4) = (f32) (M2C_FIELD(temp_s0, f32 *, 4) - (var_f14_3 * M2C_FIELD(temp_s0, f32 *, 0x3A0)));
-                        if (M2C_FIELD(temp_s0, f32 *, 4) < temp_f16) {
+                        state->forwardVelocity = (f32) (state->forwardVelocity - (acceleration * state->speedScale));
+                        if (state->forwardVelocity < negativeLimit) {
 block_160:
-                            M2C_FIELD(temp_s0, f32 *, 4) = temp_f16;
+                            state->forwardVelocity = negativeLimit;
                         }
                     }
-                    if ((G_o1_83e4 == 1) && (G_offd_31a4 == 0) && (M2C_FIELD(temp_s0, u16 *, 0x1A8) & 1) && (ext_o0_2630c() == (s32)0x21) && (M2C_FIELD(temp_s0, s16 *, 0x37C) == 0x2A) && (LOCAL_RODATA_12C < M2C_FIELD(temp_s0, f32 *, 0x398))) {
-                        M2C_FIELD(temp_s0, f32 *, 4) = (f32) (M2C_FIELD(temp_s0, f32 *, 4) - 2.0f);
+                    if ((G_o1_83e4 == 1) && (G_offd_31a4 == 0) && (state->flags1A8 & 1) && (ext_o0_2630c() == (s32)0x21) && (state->pathIndex == 0x2A) && (LOCAL_RODATA_12C < state->progress398)) {
+                        state->forwardVelocity = (f32) (state->forwardVelocity - 2.0f);
                     }
                 } else {
-                    temp_f2_5 = M2C_FIELD(temp_s0, f32 *, 4);
-                    if ((LOCAL_RODATA_130 < temp_f2_5) && (temp_f2_5 < LOCAL_RODATA_134)) {
-                        M2C_FIELD(temp_s0, f32 *, 4) = 0.0f;
+                    value2 = state->forwardVelocity;
+                    if ((LOCAL_RODATA_130 < value2) && (value2 < LOCAL_RODATA_134)) {
+                        state->forwardVelocity = 0.0f;
                     } else {
-                        M2C_FIELD(temp_s0, f32 *, 4) = (f32) (temp_f2_5 * LOCAL_RODATA_138);
+                        state->forwardVelocity = (f32) (value2 * LOCAL_RODATA_138);
                     }
                 }
-                if ((LOCAL_RODATA_13C < M2C_FIELD(temp_s0, f32 *, 4)) && (M2C_FIELD(temp_s0, f32 *, 4) < LOCAL_RODATA_140)) {
-                    ext_o0_29598(NULL, (f32 *)0x7F);
+                if ((LOCAL_RODATA_13C < state->forwardVelocity) && (state->forwardVelocity < LOCAL_RODATA_140)) {
+                    ext_o0_29598(0, 127);
                 }
-                temp_v0_13 = M2C_FIELD(temp_s0, s32 *, 0x428);
-                if (temp_v0_13 >= 0x42) {
-                    var_v1_4 = -0x1F4;
-                } else if (temp_v0_13 < -0x41) {
-                    var_v1_4 = 0x1F4;
+                if (state->controlXjoy >= 0x42) {
+                    steering = -0x1F4;
+                } else if (state->controlXjoy < -0x41) {
+                    steering = 0x1F4;
                 } else {
-                    var_v1_4 = (s32) (temp_v0_13 * -0x1F4) / 65;
+                    steering = (s32) (state->controlXjoy * -0x1F4) / 65;
                 }
-                temp_v0_14 = M2C_FIELD(temp_s0, s16 *, 0x108);
-                var_f14_5 = -2.0f - M2C_FIELD(temp_s0, f32 *, 4);
-                M2C_FIELD(temp_s0, s16 *, 0x108) = (s16) (temp_v0_14 + ((s32) (var_v1_4 - temp_v0_14) >> 1));
-                if (var_f14_5 > 0.0f) {
-                    var_f14_6 = (ext_o0_2a46c((s16) (s32) (var_f14_5 * LOCAL_RODATA_144)) * 0.25f) + 0.75f;
+                work = -2.0f - state->forwardVelocity;
+                state->steeringAngle = (s16) (state->steeringAngle + ((s32) (steering - state->steeringAngle) >> 1));
+                if (work > 0.0f) {
+                    scale = (ext_o0_2a46c((s16) (s32) (work * LOCAL_RODATA_144)) * 0.25f) + 0.75f;
                 } else {
-                    if (var_f14_5 < 0.0f) {
-                        var_f14_5 = -var_f14_5;
+                    if (work < 0.0f) {
+                        work = -work;
                     }
-                    if (var_f14_5 > 2.0f) {
-                        var_f14_5 = 2.0f;
+                    if (work > 2.0f) {
+                        work = 2.0f;
                     }
-                    var_f14_6 = (ext_o0_2a46c((s16) (s32) (var_f14_5 * 16384.0f)) + 1.0f) * 0.5f;
+                    scale = (ext_o0_2a46c((s16) (s32) (work * 16384.0f)) + 1.0f) * 0.5f;
                 }
-                if (M2C_FIELD(temp_s0, f32 *, 4) > 0.0f) {
-                    var_f14_6 = -var_f14_6;
+                if (state->forwardVelocity > 0.0f) {
+                    scale = -scale;
                 }
-                M2C_FIELD(temp_s0, s16 *, 0xF0) = (s16) (s32) ((f32) M2C_FIELD(temp_s0, s16 *, 0xF0) + ((f32) M2C_FIELD(temp_s0, s16 *, 0x108) * var_f14_6));
-                M2C_FIELD(temp_s0, f32 *, 8) = (f32) (M2C_FIELD(temp_s0, f32 *, 8) * LOCAL_RODATA_148);
-                temp_f2_6 = M2C_FIELD(temp_s0, f32 *, 8);
-                if ((LOCAL_RODATA_14C < temp_f2_6) && (temp_f2_6 < LOCAL_RODATA_150)) {
-                    M2C_FIELD(temp_s0, f32 *, 8) = 0.0f;
+                state->heading = (s16) (s32) ((f32) state->heading + ((f32) state->steeringAngle * scale));
+                state->sideVelocity = (f32) (state->sideVelocity * LOCAL_RODATA_148);
+                value2 = state->sideVelocity;
+                if ((LOCAL_RODATA_14C < value2) && (value2 < LOCAL_RODATA_150)) {
+                    state->sideVelocity = 0.0f;
                 }
-                spC0 -= 1;
-            } while (spC0 != 0);
+                remaining -= 1;
+            } while (remaining != 0);
         }
-        if (M2C_FIELD(temp_s0, s32 *, 0x420) & 0x2000) {
-            temp_a0 = M2C_FIELD(temp_s0, s16 **, 0xA8);
-            if (temp_a0 != NULL) {
-                ext_o0_2d98(temp_a0);
+        if (state->controlDkeys & 0x2000) {
+            sound = state->soundA8;
+            if (sound != NULL) {
+                ext_o0_2d98(sound);
             }
-            ext_o0_2b90(4, M2C_FIELD(arg0, u32 *, 0xC), M2C_FIELD(arg0, u32 *, 0x10), M2C_FIELD(arg0, u32 *, 0x14), 4, temp_s0 + 0xA8);
+            ext_o0_2b90(4, object->x, object->y, object->z, 4, &state->soundA8);
         }
-        if ((M2C_FIELD(temp_s0, s32 *, 0x41C) & 0x4000) && (M2C_FIELD(temp_s0, f32 *, 4) < 0.0f)) {
-            temp_a0_2 = M2C_FIELD(temp_s0, s16 **, 0xAC);
-            if (temp_a0_2 == NULL) {
-                ext_o0_2b90(3, M2C_FIELD(arg0, u32 *, 0xC), M2C_FIELD(arg0, u32 *, 0x10), M2C_FIELD(arg0, u32 *, 0x14), 1, temp_s0 + 0xAC);
+        if ((state->controlKeys & 0x4000) && (state->forwardVelocity < 0.0f)) {
+            sound = state->soundAC;
+            if (sound == NULL) {
+                ext_o0_2b90(3, object->x, object->y, object->z, 1, &state->soundAC);
             } else {
-                ext_o0_2d70(temp_a0_2, M2C_FIELD(arg0, u32 *, 0xC), M2C_FIELD(arg0, u32 *, 0x10), M2C_FIELD(arg0, u32 *, 0x14));
+                ext_o0_2d70(sound, object->x, object->y, object->z);
             }
         }
-        temp_a0_3 = M2C_FIELD(temp_s0, s16 **, 0xAC);
-        if (temp_a0_3 != NULL) {
-            ext_o0_2d98(temp_a0_3);
+        sound = state->soundAC;
+        if (sound != NULL) {
+            ext_o0_2d98(sound);
         }
-        M2C_FIELD(arg0, s16 *, 0) = (s16) (M2C_FIELD(temp_s0, s16 *, 0xF0) + M2C_FIELD(temp_s0, s16 *, 0x104));
-        sp7E = M2C_FIELD(temp_s0, s16 *, 0xF0);
-        if (M2C_FIELD(temp_s0, s32 *, 0x438) == 1) {
-            temp_f0_6 = ext_o0_2a428(LOCAL_RODATA_154, LOCAL_BSS_1D94);
-            temp_f2_7 = M2C_FIELD(temp_s0, f32 *, 4);
-            if ((temp_f2_7 < -0.5f) || (temp_f2_7 > 0.5f)) {
-                M2C_FIELD(temp_s0, f32 *, 4) = (f32) (temp_f2_7 * temp_f0_6);
+        object->rotationX = (s16) (state->heading + state->spinAngle);
+        heading = state->heading;
+        if (state->joypadDisabled == 1) {
+            value = ext_o0_2a428(LOCAL_RODATA_154, D_1D94);
+            value2 = state->forwardVelocity;
+            if ((value2 < -0.5f) || (value2 > 0.5f)) {
+                state->forwardVelocity = (f32) (value2 * value);
             } else {
-                M2C_FIELD(temp_s0, f32 *, 4) = 0.0f;
+                state->forwardVelocity = 0.0f;
             }
-            temp_f2_8 = M2C_FIELD(temp_s0, f32 *, 8);
-            if ((temp_f2_8 < -0.5f) || (temp_f2_8 > 0.5f)) {
-                M2C_FIELD(temp_s0, f32 *, 8) = (f32) (temp_f2_8 * temp_f0_6);
+            value2 = state->sideVelocity;
+            if ((value2 < -0.5f) || (value2 > 0.5f)) {
+                state->sideVelocity = (f32) (value2 * value);
             } else {
-                M2C_FIELD(temp_s0, f32 *, 8) = 0.0f;
+                state->sideVelocity = 0.0f;
             }
         }
-        if (M2C_FIELD(temp_s0, u8 *, 0x181) != 0) {
-            temp_f0_7 = (M2C_FIELD(temp_s0, f32 *, 0x84) * D_4) + (0.5f * M2C_FIELD(temp_s0, f32 *, 0x88) * D_4 * D_4);
-            sp90 = M2C_FIELD(temp_s0, f32 *, 0x74) * temp_f0_7;
-            sp8C = M2C_FIELD(temp_s0, f32 *, 0x78) * temp_f0_7;
-            sp88 = M2C_FIELD(temp_s0, f32 *, 0x7C) * temp_f0_7;
-            if (temp_f0_7 < 0.0f) {
-                M2C_FIELD(temp_s0, f32 *, 0x84) = 0.0f;
-                M2C_FIELD(temp_s0, f32 *, 0x88) = 0.0f;
-                M2C_FIELD(temp_s0, u8 *, 0x181) = 0U;
-                if (!(M2C_FIELD(temp_s0, s32 *, 0x41C) & 0x8000)) {
-                    M2C_FIELD(temp_s0, f32 *, 4) = 0.0f;
-                    M2C_FIELD(temp_s0, f32 *, 8) = 0.0f;
+        if (state->impulseActive != 0) {
+            value = (state->impulseVelocity * D_4) + (0.5f * state->impulseAcceleration * D_4 * D_4);
+            impulseX = state->impulseX * value;
+            impulseY = state->impulseY * value;
+            impulseZ = state->impulseZ * value;
+            if (value < 0.0f) {
+                state->impulseVelocity = 0.0f;
+                state->impulseAcceleration = 0.0f;
+                state->impulseActive = 0U;
+                if (!(state->controlKeys & 0x8000)) {
+                    state->forwardVelocity = 0.0f;
+                    state->sideVelocity = 0.0f;
                 }
             }
-            temp_f0_8 = M2C_FIELD(temp_s0, f32 *, 0x84);
-            sp80 = 1.0f - (temp_f0_8 / M2C_FIELD(temp_s0, f32 *, 0x80));
-            M2C_FIELD(temp_s0, f32 *, 0x84) = (f32) (temp_f0_8 + (M2C_FIELD(temp_s0, f32 *, 0x88) * D_4));
-            spA8 = ext_o0_2a470(sp7E) * M2C_FIELD(temp_s0, f32 *, 4) * sp80;
-            var_f16 = ext_o0_2a46c(sp7E) * M2C_FIELD(temp_s0, f32 *, 4) * sp80;
+            value = state->impulseVelocity;
+            scale = 1.0f - (value / state->impulseInitial);
+            state->impulseVelocity = (f32) (value + (state->impulseAcceleration * D_4));
+            velocityX = ext_o0_2a470(heading) * state->forwardVelocity * scale;
+            velocityZ = ext_o0_2a46c(heading) * state->forwardVelocity * scale;
         } else {
-            sp90 = 0.0f;
-            sp8C = 0.0f;
-            sp88 = 0.0f;
-            spA8 = ext_o0_2a470(sp7E) * M2C_FIELD(temp_s0, f32 *, 4);
-            var_f16 = ext_o0_2a46c(sp7E) * M2C_FIELD(temp_s0, f32 *, 4);
+            impulseX = 0.0f;
+            impulseY = 0.0f;
+            impulseZ = 0.0f;
+            velocityX = ext_o0_2a470(heading) * state->forwardVelocity;
+            velocityZ = ext_o0_2a46c(heading) * state->forwardVelocity;
         }
-        spA4 = var_f16;
-        spA8 += M2C_FIELD(temp_s0, f32 *, 8) * ext_o0_2a46c(sp7E);
-        temp_cos = ext_o0_2a470(sp7E);
-        temp_f14_2 = M2C_FIELD(arg0, f32 *, 0x20);
-        temp_f12_5 = (spA8 * D_4) + sp90;
-        temp_f10_2 = (var_f16 - (M2C_FIELD(temp_s0, f32 *, 8) * temp_cos)) * D_4;
-        sp98 = ((temp_f14_2 * D_4) - (0.5f * G_rt_458c4 * D_4 * D_4)) + sp8C;
-        temp_f8_2 = 1.0f / D_4;
-        temp_f18 = temp_f10_2 + sp88;
-        spA0 = temp_f8_2;
-        M2C_FIELD(arg0, f32 *, 0x1C) = (f32) (temp_f12_5 * temp_f8_2);
-        M2C_FIELD(arg0, f32 *, 0x20) = (f32) (temp_f14_2 - (G_rt_458c4 * D_4));
-        M2C_FIELD(arg0, f32 *, 0xC) += temp_f12_5;
-        M2C_FIELD(arg0, f32 *, 0x24) = (f32) (temp_f18 * spA0);
-        M2C_FIELD(arg0, f32 *, 0x10) = (f32) (M2C_FIELD(arg0, f32 *, 0x10) + sp98);
-        M2C_FIELD(arg0, f32 *, 0x14) += temp_f18;
-        if (M2C_FIELD(temp_s0, s32 *, 0x2BC) == 1) {
-            var_v0_7 = ext_o0_1e174(arg0, temp_s0, D_4);
+
+        velocityX += state->sideVelocity * ext_o0_2a46c(heading);
+        cosine = ext_o0_2a470(heading);
+        verticalVelocity = object->velocityY;
+        deltaX = (velocityX * D_4) + impulseX;
+        travelZ = (velocityZ - (state->sideVelocity * cosine)) * D_4;
+        deltaY = ((verticalVelocity * D_4) - (0.5f * G_rt_458c4 * D_4 * D_4)) + impulseY;
+        inverse = 1.0f / D_4;
+        deltaZ = travelZ + impulseZ;
+        inverseUpdate = inverse;
+        object->velocityX = (f32) (deltaX * inverse);
+        object->velocityY = (f32) (verticalVelocity - (G_rt_458c4 * D_4));
+        object->x += deltaX;
+        object->velocityZ = (f32) (deltaZ * inverseUpdate);
+        object->y = (f32) (object->y + deltaY);
+        object->z += deltaZ;
+        if (state->collisionMode == 1) {
+            collision = ext_o0_1e174(object, state, D_4);
         } else {
-            var_v0_7 = ext_o0_1d920(arg0, temp_s0, D_4);
+            collision = ext_o0_1d920(object, state, D_4);
         }
-        sp58 = var_v0_7;
-        if ((ext_o0_7cd8(arg0, 0.0f, 0.0f, 0.0f) != NULL) || (M2C_FIELD(arg0, s16 *, 0x2E) == -1)) {
-            if (M2C_FIELD(temp_s0, u8 *, 0x170) == 0) {
-                M2C_FIELD(temp_s0, u8 *, 0x170) = 1U;
+
+        if ((ext_o0_7cd8(object, 0.0f, 0.0f, 0.0f) != NULL) || (object->positionTag == -1)) {
+            if (state->reset170 == 0) {
+                state->reset170 = 1U;
             }
-            M2C_FIELD(arg0, f32 *, 0xC) = M2C_FIELD(temp_s0, f32 *, 0x38);
-            M2C_FIELD(arg0, f32 *, 0x10) = (f32) M2C_FIELD(temp_s0, f32 *, 0x3C);
-            M2C_FIELD(arg0, f32 *, 0x14) = M2C_FIELD(temp_s0, f32 *, 0x40);
-            sp58 = var_v0_7;
-            ext_o0_7cd8(arg0, 0.0f, 0.0f, 0.0f);
+            object->x = state->previousX;
+            object->y = (f32) state->previousY;
+            object->z = state->previousZ;
+
+            ext_o0_7cd8(object, 0.0f, 0.0f, 0.0f);
         }
-        if (M2C_FIELD(temp_s0, s16 *, 0x166) != 0) {
+        if (state->field166 != 0) {
             if (G_o1_83e4 == 3) {
-                M2C_FIELD(temp_s0, u8 *, 0x171) = 0x78U;
-                M2C_FIELD(temp_s0, s16 *, 0x166) = 0;
-            } else if (M2C_FIELD(temp_s0, u8 *, 0x170) == 0) {
-                M2C_FIELD(temp_s0, u8 *, 0x170) = 1U;
+                state->reverseTimer = 0x78U;
+                state->field166 = 0;
+            } else if (state->reset170 == 0) {
+                state->reset170 = 1U;
             }
         }
-        M2C_FIELD(temp_s0, f32 *, 0x94) = (M2C_FIELD(arg0, f32 *, 0xC) - M2C_FIELD(temp_s0, f32 *, 0x38)) * spA0;
-        M2C_FIELD(temp_s0, f32 *, 0x98) = (f32) ((M2C_FIELD(arg0, f32 *, 0x10) - M2C_FIELD(temp_s0, f32 *, 0x3C)) * spA0);
-        M2C_FIELD(temp_s0, f32 *, 0x9C) = (M2C_FIELD(arg0, f32 *, 0x14) - M2C_FIELD(temp_s0, f32 *, 0x40)) * spA0;
-        if ((M2C_FIELD(temp_s0, s16 *, 0x16A) == 0) && (var_v0_7 != NULL)) {
-            temp_f12_6 = M2C_FIELD(temp_s0, f32 *, 0xC);
-            M2C_FIELD(temp_s0, f32 *, 0xC) = (f32) (temp_f12_6 + ((3.0f - temp_f12_6) * (1.0f - ext_o0_2a428(LOCAL_RODATA_158, LOCAL_BSS_1D94))));
-            temp_f12_7 = M2C_FIELD(temp_s0, f32 *, 0xC);
-            temp_f14_3 = -temp_f12_7;
-            if (M2C_FIELD(temp_s0, f32 *, 4) < temp_f14_3) {
-                M2C_FIELD(temp_s0, f32 *, 4) = temp_f14_3;
+        state->actualVelocityX = (object->x - state->previousX) * inverseUpdate;
+        state->actualVelocityY = (f32) ((object->y - state->previousY) * inverseUpdate);
+        state->actualVelocityZ = (object->z - state->previousZ) * inverseUpdate;
+        if ((state->field16A == 0) && (collision != NULL)) {
+            work = state->speedLimit;
+            state->speedLimit = (f32) (work + ((3.0f - work) * (1.0f - ext_o0_2a428(LOCAL_RODATA_158, D_1D94))));
+            work = state->speedLimit;
+            negativeSpeedLimit = -work;
+            if (state->forwardVelocity < negativeSpeedLimit) {
+                state->forwardVelocity = negativeSpeedLimit;
             }
-            if (temp_f12_7 < M2C_FIELD(temp_s0, f32 *, 4)) {
-                M2C_FIELD(temp_s0, f32 *, 4) = temp_f12_7;
+            if (work < state->forwardVelocity) {
+                state->forwardVelocity = work;
             }
-            if (M2C_FIELD(temp_s0, f32 *, 8) < temp_f14_3) {
-                M2C_FIELD(temp_s0, f32 *, 8) = temp_f14_3;
+            if (state->sideVelocity < negativeSpeedLimit) {
+                state->sideVelocity = negativeSpeedLimit;
             }
-            if (temp_f12_7 < M2C_FIELD(temp_s0, f32 *, 8)) {
-                M2C_FIELD(temp_s0, f32 *, 8) = temp_f12_7;
+            if (work < state->sideVelocity) {
+                state->sideVelocity = work;
             }
         } else {
-            temp_f12_8 = M2C_FIELD(temp_s0, f32 *, 0xC);
-            M2C_FIELD(temp_s0, f32 *, 0xC) = (f32) (temp_f12_8 + ((25.0f - temp_f12_8) * (1.0f - ext_o0_2a428(LOCAL_RODATA_15C, LOCAL_BSS_1D94))));
+            work = state->speedLimit;
+            state->speedLimit = (f32) (work + ((25.0f - work) * (1.0f - ext_o0_2a428(LOCAL_RODATA_15C, D_1D94))));
         }
-        ext_o8_49a4(M2C_FIELD(temp_s0, f32 *, 0xC), temp_s0);
-        M2C_FIELD(temp_s0, f32 *, 0x70) = ext_o8_34a0(arg0, temp_s0, spAC, LOCAL_DATA_4);
-        ext_o8_49b4(temp_s0);
-        ext_o0_1cfcc((s16 *) arg0, (f32 *) temp_s0, (s16 *) LOCAL_BSS_1D94);
-        var_a1 = &D_D4;
-        var_v1_5 = 2;
+        ext_o8_49a4(state);
+        state->outputScale = ext_o8_34a0(object, state, limit, D_4);
+        ext_o8_49b4(state);
+        ext_o0_1cfcc(object, state, D_1D94);
+        action = &gO1PhysicsActions[2];
+        actionIndex = 2;
         do {
-            if (var_v1_5 != M2C_FIELD(temp_s0, u8 *, 0x382)) {
-                temp_a0_4 = M2C_FIELD(var_a1, M2C_UNK (**)(M2C_UNK, M2C_UNK *), 0);
-                if ((temp_a0_4 != NULL) && (M2C_FIELD(var_a1, u16 *, 8) & (1 << M2C_FIELD(temp_s0, u8 *, 0x382)))) {
-                    sp60 = var_v1_5;
-                    sp50 = var_a1;
-                    temp_a0_4(temp_a0_4, var_a1);
+            if (actionIndex != state->actionMode) {
+                actionTest = action->test;
+                if ((actionTest != NULL) && (action->mask & (1 << state->actionMode))) {
+
+                    actionTest();
                 }
             }
-            var_v1_5 += 1;
-            var_a1 += 0xC;
-            temp_a0_5 = M2C_FIELD(temp_s0, u8 *, 0x382);
-        } while (var_v1_5 != 6);
-        temp_v0_15 = M2C_FIELD(LOCAL_BSS + (temp_a0_5 * 0xC), M2C_UNK (**)(u8, M2C_UNK *), 0xC0);
-        if (temp_v0_15 != NULL) {
-            temp_v0_15(temp_a0_5, var_a1);
+            actionIndex += 1;
+            action++;
+        } while (actionIndex != 6);
+        actionUpdate = gO1PhysicsActions[state->actionMode].update;
+        if (actionUpdate != NULL) {
+            actionUpdate();
         }
-        ext_o8_3278((s16 *) arg0, (f32 *) temp_s0, (s16 *) LOCAL_BSS_1D94);
-        ext_o0_1d510((s16 *) arg0, (f32 *) temp_s0, NULL, (f32 *)3, (M2C_UNK *) LOCAL_BSS_1D94);
-        ext_o8_2ec0((s16 *) arg0, (f32 *) temp_s0, (s16 *) LOCAL_BSS_1D94);
-        ext_o8_3018(arg0, temp_s0, M2C_FIELD(temp_s0, u32 *, 0x70), LOCAL_BSS_1D94);
-        ext_o0_3e99c((s16 *) arg0, (f32 *) LOCAL_BSS_1D94);
-        if ((M2C_FIELD(temp_s0, u8 *, 0x349) != 0) && (M2C_FIELD(temp_s0, u8 *, 0x16C) == 1)) {
-            M2C_FIELD(temp_s0, u8 *, 0x16C) = 0U;
+        ext_o8_3278(object, state, D_1D94);
+        ext_o0_1d510(object, state, 0, 3, D_1D94);
+        ext_o8_2ec0(object, state, D_1D94);
+        ext_o8_3018(object, state, state->outputScale, D_1D94);
+        ext_o0_3e99c(object, D_1D94);
+        if ((state->field349 != 0) && (state->field16C == 1)) {
+            state->field16C = 0U;
         }
     }
 }
-
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F000438C_185076C.s")
 #endif
