@@ -724,9 +724,13 @@ void func_80016890(void *arg0, void *arg1, void *arg2, f32 arg3, f32 arg4,
 #ifdef NON_MATCHING
 /* Workbench verdict: structure-mismatch, 303 differing words; first mismatch is at +0x48. */
 /* Target is 328 instructions/frame -320; candidate is 323 instructions/frame -320. */
-/* Remaining gap is structural: five words and two relocations short, with allocation drift. */
+/* The polygon buffer now sits at the target's own frame offset: ten declared
+ * scalar words precede it, which is what places an array inside IDO's local
+ * block. Remaining gap is allocation: the target spends a callee-saved
+ * register on the scaled edge index and re-materializes the polygon address
+ * at each call, where this candidate hoists the polygon address and the
+ * literal 3 instead, leaving the edge index in a caller-saved register. */
 void func_80017140(void *arg0, s32 arg1, void *arg2, s32 arg3) {
-    u8 polygon[0x58];
     u8 *var_a3;
     u8 *temp_a3;
     u8 *temp_t1;
@@ -737,6 +741,7 @@ void func_80017140(void *arg0, s32 arg1, void *arg2, s32 arg3) {
     u8 *var_v1_3;
     u8 *var_v1_4;
     f32 pointHeight;
+    u8 polygon[0x58];
     s32 temp_a1;
     s16 temp_v0_3;
     s16 temp_v1;
