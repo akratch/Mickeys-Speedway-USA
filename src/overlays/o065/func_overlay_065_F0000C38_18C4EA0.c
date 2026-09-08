@@ -62,26 +62,27 @@ extern void func_800349A4(Gfx **commands, s32 texture,
 extern void func_overlay_065_F0001A14_18C5C7C(f32 x, f32 y, f32 z);
 
 /*
- * Workbench: structure-mismatch (mixed), 311/887 positional words differ; target/candidate are 887 instructions, first +0x0, frame deficit 8 bytes.
- * Levers: MIPS-II flags, target do-while/D_0 record base, float conversion, and typed-pointer probes; target record pool versus candidate temp remains.
- * Remaining: 157 register / 92 structural residuals and target unrolled-writer/stack-frame allocation drift; no exact C codegen.
+ * Tier D (target CFG): render each trail active at entry, including its final
+ * update below the floor. The spawn's last random call precedes camera Y/Z
+ * loads; preserve that sequencing across the call.
  */
 #ifdef NON_MATCHING
 void func_overlay_065_F0000C38_18C4EA0(Gfx **commandPtr,
                                        Mtx **matrixPtr, s32 updateRate) {
+    s32 recordIndex;
+    s32 updateIndex;
+    s32 pointIndex;
     f32 randomX;
     f32 randomZ;
     f32 sinAngle;
     f32 cosAngle;
     f32 spawnX;
-    Gfx *commands;
+    f32 spawnY;
     f32 spawnZ;
-    Mtx *matrices;
-    s32 recordIndex;
-    s32 updateIndex;
-    s32 pointIndex;
     Overlay65TrailCamera *camera;
     Overlay65TrailRecord *record;
+    Gfx *commands;
+    Mtx *matrices;
 
     commands = *commandPtr;
     matrices = *matrixPtr;
@@ -98,10 +99,11 @@ void func_overlay_065_F0000C38_18C4EA0(Gfx **commandPtr,
         cosAngle = func_8002A8C0(camera->angle);
         spawnX = (camera->x + (randomX * sinAngle)) -
                  (randomZ * cosAngle);
+        spawnY = (f32)mathRnd(-100, -50) + camera->y;
         spawnZ = camera->z + (randomZ * sinAngle) +
                  (randomX * cosAngle);
         func_overlay_065_F0001A14_18C5C7C(
-            spawnX, camera->y + mathRnd(-100, -50), spawnZ);
+            spawnX, spawnY, spawnZ);
         D_1900 = 1;
     }
 
@@ -138,33 +140,37 @@ void func_overlay_065_F0000C38_18C4EA0(Gfx **commandPtr,
                 }
             }
 
-            if (O65_RECORD(record)->active != 0) {
-                ((u32 *)commands)[0] = 0x040000BCU |
-                    (((((u32)D_2988 + 0x80000000U) & 6U) | 0x90U) << 16);
-                ((u32 *)commands)[1] = (u32)D_2988 + 0x80000000U;
-                commands++;
-                ((u32 *)commands)[0] = 0x05F10100U;
-                ((u32 *)commands)[1] = (u32)D_800000C0;
-                commands++;
+            {
+                u32 *packet = (u32 *)commands++;
 
-                for (pointIndex = 0; pointIndex < 9; pointIndex++) {
-                    D_2988->x = O65_RECORD(record)->x[pointIndex] - 3.0f;
-                    D_2988->y = O65_RECORD(record)->y[pointIndex];
-                    D_2988->z = O65_RECORD(record)->z[pointIndex] - 3.0f;
-                    D_2988->red = O65_RECORD(record)->red;
-                    D_2988->green = O65_RECORD(record)->green;
-                    D_2988->blue = O65_RECORD(record)->blue;
-                    D_2988->alpha = 0xFF;
-                    D_2988++;
-                    D_2988->x = O65_RECORD(record)->x[pointIndex] + 3.0f;
-                    D_2988->y = O65_RECORD(record)->y[pointIndex];
-                    D_2988->z = O65_RECORD(record)->z[pointIndex] + 3.0f;
-                    D_2988->red = O65_RECORD(record)->red;
-                    D_2988->green = O65_RECORD(record)->green;
-                    D_2988->blue = O65_RECORD(record)->blue;
-                    D_2988->alpha = 0xFF;
-                    D_2988++;
-                }
+                packet[0] = ((((((u32)D_2988 + 0x80000000U) & 6U) |
+                               0x90U) & 0xFFU) << 16) | 0x04000000U | 0xBCU;
+                packet[1] = (u32)D_2988 + 0x80000000U;
+            }
+            {
+                u32 *packet = (u32 *)commands++;
+
+                packet[0] = 0x05F10100U;
+                packet[1] = (u32)D_800000C0;
+            }
+
+            for (pointIndex = 0; pointIndex < 9; pointIndex++) {
+                D_2988->x = O65_RECORD(record)->x[pointIndex] - 3.0f;
+                D_2988->y = O65_RECORD(record)->y[pointIndex];
+                D_2988->z = O65_RECORD(record)->z[pointIndex] - 3.0f;
+                D_2988->red = O65_RECORD(record)->red;
+                D_2988->green = O65_RECORD(record)->green;
+                D_2988->blue = O65_RECORD(record)->blue;
+                D_2988->alpha = 0xFF;
+                D_2988++;
+                D_2988->x = O65_RECORD(record)->x[pointIndex] + 3.0f;
+                D_2988->y = O65_RECORD(record)->y[pointIndex];
+                D_2988->z = O65_RECORD(record)->z[pointIndex] + 3.0f;
+                D_2988->red = O65_RECORD(record)->red;
+                D_2988->green = O65_RECORD(record)->green;
+                D_2988->blue = O65_RECORD(record)->blue;
+                D_2988->alpha = 0xFF;
+                D_2988++;
             }
         }
         recordIndex++;
@@ -180,9 +186,9 @@ void func_overlay_065_F0000C38_18C4EA0(Gfx **commandPtr,
 /* PLATEAU-HANDOFF:func_overlay_065_F0000C38_18C4EA0:start
  * symbol: func_overlay_065_F0000C38_18C4EA0
  * score: 824/887 words
- * frame: 0x78
+ * frame: 0x80
  * relocations: 24
- * first-mismatch: +0x0
- * summary: V0 is 865/887 words (-22), frame 0x78 vs 0x80, first +0x0; relocation identities are blocked by overlay65Initialize canonical-owner conflict.
+ * first-mismatch: +0x30
+ * summary: Recovered types/CFG and frame; configured MIPS-I cannot emit target MIPS-II operations. Next: target-local ISA parity review and initializer identity repair.
  * PLATEAU-HANDOFF:func_overlay_065_F0000C38_18C4EA0:end
  */
