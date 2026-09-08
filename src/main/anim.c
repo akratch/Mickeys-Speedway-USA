@@ -2239,28 +2239,18 @@ struct Func538Shape {
     s16 unk0;
     s16 unk2;
     s16 unk4;
-    u8 unk6;
-    u8 pad7[2];
+    u16 unk6;
+    u8 pad8;
     u8 unk9;
     u8 padA[2];
     f32 unkC;
     f32 unk10;
     f32 unk14;
-    f32 unk18;
-    f32 unk1C;
-    f32 unk20;
-    f32 unk24;
-    f32 unk28;
-    f32 unk2C;
-    f32 unk30;
-    f32 unk34;
-    f32 unk38;
-    f32 unk3C;
-    f32 unk40;
-    f32 unk44;
-    f32 unk48;
-    f32 unk4C;
-    f32 unk50;
+    f32 previous[3];
+    f32 position[3];
+    f32 displacement[3];
+    f32 minimum[3];
+    f32 maximum[3];
     f32 unk54;
     f32 unk58;
     f32 unk5C;
@@ -2302,15 +2292,10 @@ struct Func538Object {
 };
 
 struct Func538Pair {
-    Func538Object *unk0;
-    Func538Object *unk4;
-    f32 unk8;
-    u8 padC[0x14];
-    f32 unk20;
-    u8 pad24[0x14];
-    f32 unk38;
-    u8 pad3C[0x14];
-    f32 unk50;
+    Func538Object *first;
+    Func538Object *second;
+    f32 fraction;
+    AnimVec3f normal;
 };
 
 typedef struct AnimCollisionShape {
@@ -2335,12 +2320,11 @@ typedef struct AnimCollisionResult {
 
 extern Func538Object *D_800D6D60[0x100];
 extern Func538Object *D_800D7160[0x100];
-extern u8 D_800D7560[];
+extern Func538Pair D_800D7560[];
 
-#define FUNC538_PAIR(index) ((Func538Pair *)((u8 *)D_800D7560 + ((index) * 0x18)))
-#define FUNC538_LOAD(list, offset) (*((Func538Object **)((u8 *)(list) + (offset))))
+#define FUNC538_PAIR(index) (&D_800D7560[index])
 
-extern Func538Object **func_8000572C();
+extern Func538Object **func_8000572C(s32 *start, s32 *end);
 s32 func_80054B3C(s32 arg0, AnimCollisionShape *arg1,
                   s32 arg2, AnimCollisionShape *arg3,
                   AnimCollisionResult *arg4);
@@ -2364,615 +2348,487 @@ void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
  * remain authoritative for this reconstruction.
  */
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, 1197 differing words, first mismatch +0x0. */
-/* Candidate shape: 1145 instructions/frame -0x240 versus target 1205/-0xF8. */
-/* Structural gap: 60 fewer instructions and 0x148 excess frame; not shape-exact. */
-void func_80053868(s32 arg0) {
+/* NON_MATCHING: collision-update reconstruction; Mickey-only field/ABI audit. */
+void func_80053868(s32 updateRate) {
+    f32 offset[3];
+    s32 firstIndex;
+    s32 objectCount;
+    s32 fixedCount;
+    s32 movingCount;
+    s32 iteration;
+    f32 updateTime;
+    f32 remainingTime;
+    f32 fraction;
+    f32 low;
+    f32 high;
+    f32 extent;
+    f32 heightExtent;
+    f32 z;
+    s32 i;
+    s32 j;
+    s32 axis;
+    s32 pairCount;
+    s32 pairIndex;
+    s32 overlaps;
+    s32 remainder;
+    s32 result;
+    s16 firstKind;
+    s16 secondKind;
+    u8 kind;
+    Func538Object **objects;
+    Func538Object **objectCursor;
+    Func538Object **otherCursor;
+    Func538Object **movingCursor;
+    Func538Object **movingStart;
+    Func538Object **listEnd;
+    Func538Object *firstObject;
+    Func538Object *secondObject;
+    Func538Shape *firstShape;
+    Func538Shape *secondShape;
+    Func538Vertex *vertex;
+    Func538Pair *pairCursor;
+    Func538Pair *selectedPair;
 
-    f32 spD4;
-    f32 spD0;
-    f32 spCC;
-    s32 spB0;
-    s32 spAC;
-    s32 spA8;
-    s32 spA4;
-    s32 sp9C;
-    s32 sp94;
-    s32 sp7C;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f0_3;
-    f32 temp_f0_4;
-    f32 temp_f0_5;
-    f32 temp_f0_6;
-    f32 temp_f0_7;
-    f32 temp_f0_8;
-    f32 temp_f0_9;
-    f32 temp_f12;
-    f32 temp_f12_2;
-    f32 temp_f12_3;
-    f32 temp_f12_4;
-    f32 temp_f14;
-    f32 temp_f20;
-    f32 temp_f2;
-    f32 temp_f2_2;
-    f32 temp_f2_3;
-    f32 temp_f2_4;
-    f32 temp_f2_5;
-    f32 temp_f4;
-    f32 temp_f4_2;
-    f32 temp_f6;
-    f32 temp_f6_2;
-    f32 var_f20;
-    f32 var_f22;
-    s16 temp_a0_4;
-    s16 temp_v0_7;
-    s16 temp_v1_2;
-    s32 temp_a0_2;
-    s32 temp_a0_3;
-    s32 temp_a0_5;
-    s32 temp_t6;
-    s32 temp_t8;
-    s32 temp_v0_6;
-    s32 var_a0;
-    s32 var_a0_2;
-    s32 var_a1;
-    s32 var_a1_2;
-    s32 var_a1_3;
-    s32 var_fp;
-    s32 var_fp_2;
-    s32 var_fp_3;
-    s32 var_fp_4;
-    s32 var_s2;
-    s32 var_s2_2;
-    s32 var_s2_3;
-    s32 var_s2_4;
-    s32 var_s4;
-    u8 temp_a0;
-    u8 temp_v0_4;
-    u8 temp_v0_5;
-
-
-    Func538Object **temp_s7;
-    Func538Object **temp_v0_9;
-    Func538Object **temp_v1;
-    Func538Object **var_s0;
-    Func538Object **var_s3;
-    Func538Object **var_s3_2;
-    Func538Object **var_s7;
-    Func538Object **var_s7_2;
-    Func538Object **var_s7_3;
-    Func538Object **var_s7_4;
-    Func538Object **var_s7_5;
-    Func538Object **var_s7_6;
-    Func538Shape *temp_s0;
-    Func538Shape *temp_s0_2;
-    Func538Shape *temp_s1;
-    Func538Shape *temp_s1_2;
-    Func538Shape *temp_s1_3;
-    Func538Shape *temp_s1_4;
-    Func538Shape *temp_s1_5;
-    Func538Shape *temp_s1_6;
-    Func538Shape *temp_s1_7;
-    Func538Shape *temp_s1_8;
-    Func538Shape *temp_s1_9;
-    Func538Shape *temp_s1_10;
-    Func538Shape *temp_s1_11;
-    Func538Shape *temp_s1_12;
-    Func538Shape *temp_s1_13;
-    Func538Shape *temp_s1_14;
-    Func538Shape *temp_s1_15;
-    Func538Shape *temp_s1_16;
-    Func538Shape *temp_s1_17;
-    Func538Shape *temp_s1_18;
-    Func538Shape *temp_s1_19;
-    Func538Object *temp_s5;
-    Func538Object *temp_s5_2;
-    Func538Object *temp_s5_3;
-    Func538Object *temp_s6;
-    Func538Object *temp_s6_2;
-    Func538Object *temp_s6_3;
-    Func538Object *temp_s6_4;
-    Func538Shape *temp_v0_2;
-    Func538Vertex *temp_v0_3;
-    Func538Pair *temp_v0_8;
-    Func538Shape *var_s1;
-    Func538Object *var_s6;
-    Func538Object *var_s6_2;
-    Func538Object *var_s6_3;
-    Func538Shape *var_v0;
-    Func538Shape *var_v0_2;
-    Func538Shape *var_v0_3;
-    Func538Shape *var_v0_4;
-    Func538Pair *var_v0_5;
-    Func538Pair *var_v0_6;
-    Func538Shape *var_v1;
-    Func538Shape *var_v1_2;
-    Func538Object **temp_v0;
-
-temp_f20 = (f32) arg0;
-    var_f22 = temp_f20;
-            temp_v0 = func_8000572C(&spB0, &spAC, arg0);
-    spA8 = 0;
-    spA4 = 0;
-    var_fp = spB0;
-    if (spB0 < spAC) {
-        var_s0 = (Func538Object **)((u8 *)temp_v0 + (spB0 * 4));
+    updateTime = (f32) updateRate;
+    remainingTime = updateTime;
+    objects = func_8000572C(&firstIndex, &objectCount);
+    fixedCount = 0;
+    movingCount = 0;
+    i = firstIndex;
+    if (firstIndex < objectCount) {
+        objectCursor = &objects[firstIndex];
         do {
-            temp_s6 = *var_s0;
-            temp_v0_2 = temp_s6->unk48;
-            if ((temp_s6->unk91 == 0) && (temp_v0_2 != NULL)) {
-                temp_a0 = temp_v0_2->unk9;
-                if ((temp_a0 == 2) || (temp_a0 == 1)) {
-                    if (temp_v0_2->unk60 != -1) {
-                        temp_v0_2->unk18 = (f32) temp_v0_2->unk24;
-                        temp_v0_2->unk1C = (f32) temp_v0_2->unk28;
-                        temp_v0_3 = (*((Func538Model **)((u8 *)temp_s6->unk68 + (temp_s6->unk3A * 4))))->unk40 + (temp_v0_2->unk60 * 0xC);
-                        temp_v0_2->unk20 = (f32) temp_v0_2->unk2C;
-                        temp_v0_2->unk24 = (f32) temp_v0_3->unk0;
-                        temp_v0_2->unk28 = (f32) temp_v0_3->unk4;
-                        temp_v0_2->unk2C = (f32) temp_v0_3->unk8;
+            firstObject = *objectCursor;
+            firstShape = firstObject->unk48;
+            if ((firstObject->unk91 == 0) && (firstShape != NULL)) {
+                kind = firstShape->unk9;
+                if ((kind == 2) || (kind == 1)) {
+                    if (firstShape->unk60 != -1) {
+                        firstShape->previous[0] = firstShape->position[0];
+                        firstShape->previous[1] = firstShape->position[1];
+                        vertex = firstObject->unk68[firstObject->unk3A]->unk40 + firstShape->unk60;
+                        firstShape->previous[2] = firstShape->position[2];
+                        firstShape->position[0] = vertex->unk0;
+                        firstShape->position[1] = vertex->unk4;
+                        firstShape->position[2] = vertex->unk8;
                     } else {
-                        temp_v0_2->unk18 = (f32) temp_v0_2->unk24;
-                        temp_v0_2->unk1C = (f32) temp_v0_2->unk28;
-                        temp_v0_2->unk20 = (f32) temp_v0_2->unk2C;
-                        temp_v0_2->unk24 = (f32) temp_s6->unkC;
-                        temp_v0_2->unk28 = (f32) temp_s6->unk10;
-                        temp_v0_2->unk2C = (f32) temp_s6->unk14;
-                        if ((temp_v0_2->unk0 | temp_v0_2->unk2 | temp_v0_2->unk4) != 0) {
-                            spCC = temp_v0_2->unkC;
-                            spD0 = temp_v0_2->unk10;
-                            spD4 = temp_v0_2->unk14;
-                            mathOneFloatRPY((ControlTransform *) temp_s6, &spCC);
-                            temp_v0_2->unk24 = (f32) (temp_v0_2->unk24 + spCC);
-                            temp_v0_2->unk28 = (f32) (temp_v0_2->unk28 + spD0);
-                            temp_v0_2->unk2C = (f32) (temp_v0_2->unk2C + spD4);
+                        firstShape->previous[0] = firstShape->position[0];
+                        firstShape->previous[1] = firstShape->position[1];
+                        firstShape->previous[2] = firstShape->position[2];
+                        firstShape->position[0] = firstObject->unkC;
+                        firstShape->position[1] = firstObject->unk10;
+                        firstShape->position[2] = firstObject->unk14;
+                        if ((firstShape->unk0 | firstShape->unk2 | firstShape->unk4) != 0) {
+                            offset[0] = firstShape->unkC;
+                            offset[1] = firstShape->unk10;
+                            offset[2] = firstShape->unk14;
+                            mathOneFloatRPY((ControlTransform *) firstObject, &offset[0]);
+                            firstShape->position[0] += offset[0];
+                            firstShape->position[1] += offset[1];
+                            firstShape->position[2] += offset[2];
                         }
-                        temp_v0_2->unk28 = (f32) (temp_v0_2->unk28 + temp_v0_2->unk54);
+                        firstShape->position[1] += firstShape->unk54;
                     }
-                    temp_v0_4 = temp_v0_2->unk9;
-                    if (temp_v0_4 == 2) {
-                        var_s2 = 0;
-                        var_v0 = temp_v0_2;
-                        temp_f12 = temp_v0_2->unk58 + 5.0f;
-                        do {
-                            temp_f0 = var_v0->unk18;
-                            temp_f2 = var_v0->unk24;
-                            if (temp_f0 < temp_f2) {
-                                var_v0->unk3C = temp_f0;
-                                var_v0->unk48 = temp_f2;
+                    kind = firstShape->unk9;
+                    if (kind == 2) {
+                        extent = firstShape->unk58 + 5.0f;
+                        for (axis = 0; axis < 3; axis++) {
+                            low = firstShape->previous[axis];
+                            high = firstShape->position[axis];
+                            if (low < high) {
+                                firstShape->minimum[axis] = low;
+                                firstShape->maximum[axis] = high;
                             } else {
-                                var_v0->unk3C = temp_f2;
-                                var_v0->unk48 = temp_f0;
+                                firstShape->minimum[axis] = high;
+                                firstShape->maximum[axis] = low;
                             }
-                            temp_f6 = var_v0->unk48;
-                            var_s2 += 1;
-                            temp_f4 = var_v0->unk3C - temp_f12;
-                            var_v0 = (Func538Shape *)((u8 *)var_v0 + 4);
-                            var_v0->unk38 = temp_f4;
-                            var_v0->unk44 = (f32) (temp_f6 + temp_f12);
-                        } while (var_s2 != 3);
-                    } else if (temp_v0_4 == 1) {
-                        temp_f0_2 = temp_v0_2->unk24;
-                        temp_f14 = temp_v0_2->unk2C;
-                        temp_f12_2 = temp_v0_2->unk58 + 5.0f;
-                        temp_f2_2 = temp_v0_2->unk28;
-                        temp_v0_2->unk3C = (f32) (temp_f0_2 - temp_f12_2);
-                        temp_v0_2->unk48 = (f32) (temp_f0_2 + temp_f12_2);
-                        temp_v0_2->unk44 = (f32) (temp_f14 - temp_f12_2);
-                        temp_f12_3 = temp_v0_2->unk5C + 5.0f;
-                        temp_v0_2->unk50 = (f32) (temp_f14 + temp_f12_2);
-                        temp_v0_2->unk40 = (f32) (temp_f2_2 - temp_f12_3);
-                        temp_v0_2->unk4C = (f32) (temp_f2_2 + temp_f12_3);
+                            firstShape->minimum[axis] -= extent;
+                            firstShape->maximum[axis] += extent;
+                        }
+                    } else if (kind == 1) {
+                        low = firstShape->position[0];
+                        z = firstShape->position[2];
+                        extent = firstShape->unk58 + 5.0f;
+                        high = firstShape->position[1];
+                        firstShape->minimum[0] = (low - extent);
+                        firstShape->maximum[0] = (low + extent);
+                        firstShape->minimum[2] = (z - extent);
+                        heightExtent = firstShape->unk5C + 5.0f;
+                        firstShape->maximum[2] = (z + extent);
+                        firstShape->minimum[1] = (high - heightExtent);
+                        firstShape->maximum[1] = (high + heightExtent);
                     }
                 }
-                if (temp_v0_2->unk6 & 1) {
-                    temp_v0_5 = temp_v0_2->unk9;
-                    if (((temp_v0_5 == 0) || (temp_v0_5 == 1)) && (spA8 < 0x100)) {
-                        D_800D6D60[spA8] = temp_s6;
-                        spA8 += 1;
-                    } else if ((temp_v0_5 == 2) && (spA4 < 0x100)) {
-                        D_800D7160[spA4] = temp_s6;
-                        spA4 += 1;
+                if (firstShape->unk6 & 1) {
+                    kind = firstShape->unk9;
+                    if (((kind == 0) || (kind == 1)) && (fixedCount < 0x100)) {
+                        D_800D6D60[fixedCount] = firstObject;
+                        fixedCount += 1;
+                    } else if ((kind == 2) && (movingCount < 0x100)) {
+                        D_800D7160[movingCount] = firstObject;
+                        movingCount += 1;
                     }
                 }
-                temp_v0_2->unk61 = 0;
-                temp_v0_2->unk62 = 0;
-                temp_v0_2->unk63 = 0;
-                temp_v0_2->unk64 = 0.0f;
+                firstShape->unk61 = 0;
+                firstShape->unk62 = 0;
+                firstShape->unk63 = 0;
+                firstShape->unk64 = 0.0f;
             }
-            var_fp += 1;
-            var_s0 = (Func538Object **)((u8 *)var_s0 + 4);
-        } while (var_fp < spAC);
+            i += 1;
+            objectCursor++;
+        } while (i < objectCount);
     }
-    sp94 = 0;
-    if (temp_f20 > 0.0f) {
-        do {
-            var_f20 = 1.0f;
-            var_s4 = 0;
-            var_fp_2 = 0;
-            var_a1 = -1;
-            if (spA4 > 0) {
-            var_s7 = D_800D7160;
-                do {
-                    var_s2_2 = 0;
-                    var_v0_2 = (*var_s7)->unk48;
-                    var_v0_2->unk30 = (f32) (var_v0_2->unk24 - var_v0_2->unk18);
-                    var_v0_2->unk34 = (f32) (var_v0_2->unk28 - var_v0_2->unk1C);
-                    temp_f12_4 = var_v0_2->unk58 + 5.0f;
-                    var_v0_2->unk38 = (f32) (var_v0_2->unk2C - var_v0_2->unk20);
-loop_35:
-                    temp_f0_3 = var_v0_2->unk18;
-                    temp_f2_3 = var_v0_2->unk24;
-                    if (temp_f0_3 < temp_f2_3) {
-                        var_v0_2->unk3C = temp_f0_3;
-                        var_v0_2->unk48 = temp_f2_3;
+    iteration = 0;
+    while (remainingTime > 0.0f) {
+        fraction = 1.0f;
+        pairCount = 0;
+        i = 0;
+        pairIndex = -1;
+        if (movingCount > 0) {
+            movingCursor = D_800D7160;
+            do {
+                firstShape = (*movingCursor)->unk48;
+                firstShape->displacement[0] = firstShape->position[0] - firstShape->previous[0];
+                firstShape->displacement[1] = firstShape->position[1] - firstShape->previous[1];
+                firstShape->displacement[2] = firstShape->position[2] - firstShape->previous[2];
+                extent = firstShape->unk58 + 5.0f;
+                for (axis = 0; axis < 3; axis++) {
+                    low = firstShape->previous[axis];
+                    high = firstShape->position[axis];
+                    if (low < high) {
+                        firstShape->minimum[axis] = low;
+                        firstShape->maximum[axis] = high;
                     } else {
-                        var_v0_2->unk3C = temp_f2_3;
-                        var_v0_2->unk48 = temp_f0_3;
+                        firstShape->minimum[axis] = high;
+                        firstShape->maximum[axis] = low;
                     }
-                    temp_f6_2 = var_v0_2->unk48;
-                    var_s2_2 += 1;
-                    temp_f4_2 = var_v0_2->unk3C - temp_f12_4;
-                    var_v0_2 = (Func538Shape *)((u8 *)var_v0_2 + 4);
-                    var_v0_2->unk38 = temp_f4_2;
-                    var_v0_2->unk44 = (f32) (temp_f6_2 + temp_f12_4);
-                    if (var_s2_2 != 3) {
-                        goto loop_35;
-                    }
-                    var_fp_2 += 1;
-                    var_s7 = (Func538Object **)((u8 *)var_s7 + 4);
-                } while (var_fp_2 != spA4);
-                var_fp_2 = 0;
-            }
-            var_s7_2 = D_800D7160;
-            if (spA4 > 0) {
-                do {
-                    temp_s6_2 = *var_s7_2;
-                    var_s2_3 = 0;
-                    temp_s1 = temp_s6_2->unk48;
-                    sp9C = var_a1;
-                    if (spA8 > 0) {
-                        var_s3 = D_800D6D60;
-                        sp9C = var_a1;
-                        do {
-                            temp_s5 = *var_s3;
-                            temp_s0 = temp_s5->unk48;
-                            if ((temp_s1->unk6 & 1) && (temp_s0->unk6 & 1) && (temp_s5 != temp_s1->unk70)) {
-                                var_a0 = 0 * 4;
-                                var_a1_2 = 1;
-                                var_v0_3 = (Func538Shape *)((u8 *)temp_s1 + var_a0);
-                                if (temp_s6_2 != temp_s0->unk70) {
-                                    var_v1 = (Func538Shape *)((u8 *)temp_s0 + var_a0);
-loop_49:
-                                    temp_f2_4 = var_v0_3->unk3C;
-                                    temp_f0_4 = var_v1->unk3C;
-                                    var_a0 += 4;
-                                    if ((temp_f2_4 < temp_f0_4) && (var_v0_3->unk48 < temp_f0_4)) {
-                                        goto block_54;
+                    firstShape->minimum[axis] -= extent;
+                    firstShape->maximum[axis] += extent;
+                }
+                i += 1;
+                movingCursor++;
+            } while (i < movingCount);
+            i = 0;
+        }
+        movingCursor = D_800D7160;
+        if (movingCount > 0) {
+            do {
+                firstObject = *movingCursor;
+                j = 0;
+                firstShape = firstObject->unk48;
+                if (fixedCount > 0) {
+                    otherCursor = D_800D6D60;
+                    do {
+                        secondObject = *otherCursor;
+                        secondShape = secondObject->unk48;
+                        if ((firstShape->unk6 & 1) && (secondShape->unk6 & 1) && (secondObject != firstShape->unk70)) {
+                            if (firstObject != secondShape->unk70) {
+                                axis = 0;
+                                overlaps = 1;
+                                do {
+                                    high = firstShape->minimum[axis];
+                                    low = secondShape->minimum[axis];
+                                    if ((high < low) && (firstShape->maximum[axis] < low)) {
+                                        overlaps = 0;
+                                    } else {
+                                        low = secondShape->maximum[axis];
+                                        if ((low < high) && (low < firstShape->maximum[axis])) {
+                                            overlaps = 0;
+                                        }
                                     }
-                                    temp_f0_5 = var_v1->unk48;
-                                    if ((temp_f0_5 < temp_f2_4) && (temp_f0_5 < var_v0_3->unk48)) {
-block_54:
-                                        var_a1_2 = 0;
-                                    }
-                                    var_v0_3 = (Func538Shape *)((u8 *)var_v0_3 + 4);
-                                    var_v1 = (Func538Shape *)((u8 *)var_v1 + 4);
-                                    if ((var_a0 < 0xC) && (var_a1_2 != 0)) {
-                                        goto loop_49;
-                                    }
-                                    if (var_a1_2 != 0) {
-                                        temp_v0_6 = func_800563B4((s32) temp_s6_2, temp_s1, (s32) temp_s5, temp_s0, FUNC538_PAIR(var_s4));
-                                        if ((temp_v0_6 == 0) && (temp_s0->unk9 == 1)) {
-                                            func_800573C8(temp_s6_2, temp_s1, temp_s5, temp_s0);
-                                        } else if (temp_v0_6 == 1) {
-                                            if (var_s4 < 0xF) {
-                                                var_s4 += 1;
-                                            }
-                                        } else if (temp_v0_6 == 2) {
-                                            temp_v0_7 = temp_s6_2->unk44;
-                                            if (temp_v0_7 == 0x40) {
-                                                TrapDanglingJump(temp_s6_2, 1);
-                                            } else if (temp_v0_7 == 0x39) {
-                                                TrapDanglingJump(temp_s6_2, 5);
-                                            } else if (temp_v0_7 == 0x3A) {
-                                                TrapDanglingJump(temp_s6_2, 5);
-                                            }
+                                    axis++;
+                                } while ((axis < 3) && overlaps);
+                                if (overlaps != 0) {
+                                    result = func_800563B4((s32) firstObject, (AnimCollisionShape *) firstShape, (s32) secondObject, (AnimCollisionShape *) secondShape, (AnimCollisionResult *) FUNC538_PAIR(pairCount));
+                                    if ((result == 0) && (secondShape->unk9 == 1)) {
+                                        func_800573C8((HitOverlapState *) firstObject, (HitOverlapVolume *) firstShape, (HitOverlapState *) secondObject, (HitOverlapVolume *) secondShape);
+                                    } else if (result == 1) {
+                                        if (pairCount < 0xF) {
+                                            pairCount += 1;
+                                        }
+                                    } else if (result == 2) {
+                                        firstKind = firstObject->unk44;
+                                        if (firstKind == 0x40) {
+                                            TrapDanglingJump(firstObject, 1);
+                                        } else if (firstKind == 0x39) {
+                                            TrapDanglingJump(firstObject, 5);
+                                        } else if (firstKind == 0x3A) {
+                                            TrapDanglingJump(firstObject, 5);
                                         }
                                     }
                                 }
                             }
-                            var_s2_3 += 1;
-                            var_s3 = (Func538Object **)((u8 *)var_s3 + 4);
-                        } while (var_s2_3 != spA8);
-                    }
-                    temp_t6 = var_fp_2 + 1;
-                    var_a1 = sp9C;
-                    sp7C = temp_t6;
-                    var_s2_4 = temp_t6;
-                    if (temp_t6 < spA4) {
-                        var_s3_2 = &D_800D7160[temp_t6];
-                        do {
-                            temp_s5_2 = *var_s3_2;
-                            temp_s0_2 = temp_s5_2->unk48;
-                            if ((temp_s1->unk6 & 1) && (temp_s0_2->unk6 & 1) && (temp_s5_2 != temp_s1->unk70)) {
-                                var_a0_2 = 0 * 4;
-                                var_a1_3 = 1;
-                                var_v0_4 = (Func538Shape *)((u8 *)temp_s1 + var_a0_2);
-                                if (temp_s6_2 != temp_s0_2->unk70) {
-                                    var_v1_2 = (Func538Shape *)((u8 *)temp_s0_2 + var_a0_2);
-loop_80:
-                                    temp_f2_5 = var_v0_4->unk3C;
-                                    temp_f0_6 = var_v1_2->unk3C;
-                                    var_a0_2 += 4;
-                                    if ((temp_f2_5 < temp_f0_6) && (var_v0_4->unk48 < temp_f0_6)) {
-                                        goto block_85;
+                        }
+                        j += 1;
+                        otherCursor++;
+                    } while (j < fixedCount);
+                }
+                j = i + 1;
+                if (j < movingCount) {
+                    otherCursor = &D_800D7160[j];
+                    do {
+                        secondObject = *otherCursor;
+                        secondShape = secondObject->unk48;
+                        if ((firstShape->unk6 & 1) && (secondShape->unk6 & 1) && (secondObject != firstShape->unk70)) {
+                            if (firstObject != secondShape->unk70) {
+                                axis = 0;
+                                overlaps = 1;
+                                do {
+                                    high = firstShape->minimum[axis];
+                                    low = secondShape->minimum[axis];
+                                    if ((high < low) && (firstShape->maximum[axis] < low)) {
+                                        overlaps = 0;
+                                    } else {
+                                        low = secondShape->maximum[axis];
+                                        if ((low < high) && (low < firstShape->maximum[axis])) {
+                                            overlaps = 0;
+                                        }
                                     }
-                                    temp_f0_7 = var_v1_2->unk48;
-                                    if ((temp_f0_7 < temp_f2_5) && (temp_f0_7 < var_v0_4->unk48)) {
-block_85:
-                                        var_a1_3 = 0;
-                                    }
-                                    var_v0_4 = (Func538Shape *)((u8 *)var_v0_4 + 4);
-                                    var_v1_2 = (Func538Shape *)((u8 *)var_v1_2 + 4);
-                                    if ((var_a0_2 < 0xC) && (var_a1_3 != 0)) {
-                                        goto loop_80;
-                                    }
-                                    if ((var_a1_3 != 0) && (func_80054B3C((s32) temp_s6_2, temp_s1, (s32) temp_s5_2, temp_s0_2, FUNC538_PAIR(var_s4)) != 0) && (var_s4 < 0xF)) {
-                                        var_s4 += 1;
-                                    }
+                                    axis++;
+                                } while ((axis < 3) && overlaps);
+                                if ((overlaps != 0) && (func_80054B3C((s32) firstObject, (AnimCollisionShape *) firstShape, (s32) secondObject, (AnimCollisionShape *) secondShape, (AnimCollisionResult *) FUNC538_PAIR(pairCount)) != 0) && (pairCount < 0xF)) {
+                                    pairCount += 1;
                                 }
                             }
-                            var_s2_4 += 1;
-                            var_s3_2 = (Func538Object **)((u8 *)var_s3_2 + 4);
-                        } while (var_s2_4 != spA4);
-                        var_a1 = sp9C;
+                        }
+                        j += 1;
+                        otherCursor++;
+                    } while (j < movingCount);
+                }
+                i++;
+                movingCursor++;
+            } while (i < movingCount);
+            i = 0;
+        }
+        if (pairCount > 0) {
+            remainder = pairCount & 3;
+            if (remainder != 0) {
+                pairCursor = FUNC538_PAIR(i);
+                do {
+                    low = pairCursor->fraction;
+                    if (low <= fraction) {
+                        fraction = low;
+                        pairIndex = i;
                     }
-                    var_fp_2 = sp7C;
-                    var_s7_2 = (Func538Object **)((u8 *)var_s7_2 + 4);
-                } while (var_fp_2 != spA4);
-                var_fp_2 = 0;
+                    i += 1;
+                    pairCursor++;
+                } while (i < remainder);
             }
-            if (var_s4 > 0) {
-                temp_a0_2 = var_s4 & 3;
-                if (temp_a0_2 != 0) {
-                    var_v0_5 = FUNC538_PAIR(var_fp_2);
-                    do {
-                        temp_f0_8 = var_v0_5->unk8;
-                        if (temp_f0_8 <= var_f20) {
-                            var_f20 = temp_f0_8;
-                            var_a1 = var_fp_2;
-                        }
-                        var_fp_2 += 1;
-                        var_v0_5 = (Func538Pair *)((u8 *)var_v0_5 + 0x18);
-                    } while (temp_a0_2 != var_fp_2);
-                    if (var_fp_2 != var_s4) {
-                        goto block_103;
+            if (i < pairCount) {
+                pairCursor = FUNC538_PAIR(i);
+                do {
+                    low = pairCursor->fraction;
+                    if (low <= fraction) {
+                        fraction = low;
+                        pairIndex = i;
                     }
-                } else {
-block_103:
-                    var_v0_6 = FUNC538_PAIR(var_fp_2);
-                    do {
-                        temp_f0_9 = var_v0_6->unk8;
-                        if (temp_f0_9 <= var_f20) {
-                            var_f20 = temp_f0_9;
-                            var_a1 = var_fp_2;
-                        }
-                        if (var_v0_6->unk20 <= var_f20) {
-                            var_f20 = var_v0_6->unk20;
-                            var_a1 = var_fp_2 + 1;
-                        }
-                        if (var_v0_6->unk38 <= var_f20) {
-                            var_f20 = var_v0_6->unk38;
-                            var_a1 = var_fp_2 + 2;
-                        }
-                        if (var_v0_6->unk50 <= var_f20) {
-                            var_f20 = var_v0_6->unk50;
-                            var_a1 = var_fp_2 + 3;
-                        }
-                        var_fp_2 += 4;
-                        var_v0_6 = (Func538Pair *)((u8 *)var_v0_6 + 0x60);
-                    } while (var_fp_2 != var_s4);
+                    if (pairCursor[1].fraction <= fraction) {
+                        fraction = pairCursor[1].fraction;
+                        pairIndex = i + 1;
+                    }
+                    if (pairCursor[2].fraction <= fraction) {
+                        fraction = pairCursor[2].fraction;
+                        pairIndex = i + 2;
+                    }
+                    if (pairCursor[3].fraction <= fraction) {
+                        fraction = pairCursor[3].fraction;
+                        pairIndex = i + 3;
+                    }
+                    i += 4;
+                    pairCursor += 4;
+                } while (i < pairCount);
+            }
+        }
+        if (pairIndex != -1) {
+            selectedPair = FUNC538_PAIR(pairIndex);
+            i = 0;
+            remainder = movingCount & 3;
+            remainingTime *= 1.0f - selectedPair->fraction;
+            if (movingCount > 0) {
+                if (remainder != 0) {
+                    movingCursor = &D_800D7160[i];
+                    i++;
+                    firstObject = *movingCursor;
+                    if (i < remainder) {
+                        do {
+                            firstShape = firstObject->unk48;
+                            i += 1;
+                            movingCursor++;
+                            firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                            firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                            firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                            firstObject = *movingCursor;
+                        } while (i < remainder);
+                    }
+                    firstShape = firstObject->unk48;
+                    firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                    firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                    firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                }
+                if (i < movingCount) {
+                    listEnd = &D_800D7160[movingCount];
+                    movingCursor = &D_800D7160[i + 4];
+                    firstObject = movingCursor[-4];
+                    if (movingCursor != listEnd) {
+                        do {
+                            firstShape = firstObject->unk48;
+                            movingCursor += 4;
+                            firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                            firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                            firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                            firstShape = movingCursor[-7]->unk48;
+                            firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                            firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                            firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                            firstShape = movingCursor[-6]->unk48;
+                            firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                            firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                            firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                            firstShape = movingCursor[-5]->unk48;
+                            firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                            firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                            firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                            firstObject = movingCursor[-4];
+                        } while (movingCursor != listEnd);
+                    }
+                    firstShape = firstObject->unk48;
+                    firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                    firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                    firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                    firstShape = movingCursor[-3]->unk48;
+                    firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                    firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                    firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                    firstShape = movingCursor[-2]->unk48;
+                    firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                    firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                    firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
+                    firstShape = movingCursor[-1]->unk48;
+                    firstShape->previous[0] += firstShape->displacement[0] * selectedPair->fraction;
+                    firstShape->previous[1] += firstShape->displacement[1] * selectedPair->fraction;
+                    firstShape->previous[2] += firstShape->displacement[2] * selectedPair->fraction;
                 }
             }
-            if (var_a1 != -1) {
-                temp_v0_8 = FUNC538_PAIR(var_a1);
-                var_fp_3 = 0;
-                temp_a0_3 = spA4 & 3;
-                var_f22 *= 1.0f - temp_v0_8->unk8;
-                if (spA4 > 0) {
-                    if (temp_a0_3 != 0) {
-                        var_s7_3 = &D_800D7160[0];
-                        var_fp_3 = 1;
-                        var_s6 = *var_s7_3;
-                        if (temp_a0_3 != 1) {
+            firstObject = selectedPair->first;
+            secondObject = selectedPair->second;
+            firstKind = firstObject->unk44;
+            secondKind = secondObject->unk44;
+            if ((firstKind == 1) && (secondKind == 1)) {
+                func_80055104((HitCopyState *) firstObject, (HitCopyState *) secondObject, remainingTime);
+            } else if ((firstKind == 0x40) && (secondKind == 0x40)) {
+                TrapDanglingJump(firstObject, 1);
+                TrapDanglingJump(secondObject, 2);
+            } else if ((firstKind == 0x39) && (secondKind == 0x39)) {
+                func_800560D0((HitCopyState *) firstObject, (HitCopyState *) secondObject, remainingTime);
+            } else if ((firstKind == 0x3A) && (secondKind == 0x3A)) {
+                func_80056274((HitCopyState *) firstObject, (HitCopyState *) secondObject, remainingTime);
+            } else if ((firstKind == 1) && (secondKind == 0x40)) {
+                func_800557F8((HitCopyState *) firstObject, (HitCopyState *) secondObject, remainingTime);
+            } else if ((firstKind == 0x40) && (secondKind == 1)) {
+                func_800557F8((HitCopyState *) secondObject, (HitCopyState *) firstObject, remainingTime);
+            } else if ((firstKind == 1) && (secondKind == 0x39)) {
+                func_80055970((HitCopyState *) firstObject, (HitCopyState *) secondObject, remainingTime);
+            } else if ((firstKind == 0x39) && (secondKind == 1)) {
+                func_80055970((HitCopyState *) secondObject, (HitCopyState *) firstObject, remainingTime);
+            } else if ((firstKind == 1) && (secondKind == 0x3A)) {
+                func_80055B24((HitCopyState *) firstObject, (HitCopyState *) secondObject, remainingTime);
+            } else if ((firstKind == 0x3A) && (secondKind == 1)) {
+                func_80055B24((HitCopyState *) secondObject, (HitCopyState *) firstObject, remainingTime);
+            } else if ((firstKind == 0x40) && (secondKind == 0x39)) {
+                func_80055D08((HitCopyState *) firstObject, (HitCopyState *) secondObject, remainingTime);
+            } else if ((firstKind == 0x39) && (secondKind == 0x40)) {
+                func_80055D08((HitCopyState *) secondObject, (HitCopyState *) firstObject, remainingTime);
+            } else if ((firstKind == 0x40) && (secondKind == 0x3A)) {
+                func_80055E50((HitCopyState *) firstObject, (HitCopyState *) secondObject, remainingTime);
+            } else if ((firstKind == 0x3A) && (secondKind == 0x40)) {
+                func_80055E50((HitCopyState *) secondObject, (HitCopyState *) firstObject, remainingTime);
+            } else if ((firstKind == 0x39) && (secondKind == 0x3A)) {
+                func_80055F64((HitCopyState *) firstObject, (HitCopyState *) secondObject, remainingTime);
+            } else if ((firstKind == 0x3A) && (secondKind == 0x39)) {
+                func_80055F64((HitCopyState *) secondObject, (HitCopyState *) firstObject, remainingTime);
+            } else if ((firstKind == 1) && ((secondKind == 3) || (secondKind == 0x43) || (secondKind == 0x52))) {
+                func_80056DD8((HitCopyState *) firstObject, (HitCopyState *) secondObject, &selectedPair->normal, remainingTime);
+            } else if ((firstKind == 0x40) && ((secondKind == 3) || (secondKind == 0x43) || (secondKind == 0x52))) {
+                func_8005716C((HitCopyState *) firstObject, (HitCopyState *) secondObject, &selectedPair->normal, remainingTime);
+            } else if ((firstKind == 0x39) && ((secondKind == 3) || (secondKind == 0x43) || (secondKind == 0x52))) {
+                func_800572AC((HitCopyState *) firstObject, (HitCopyState *) secondObject, &selectedPair->normal, remainingTime);
+            } else if ((firstKind == 0x3A) && ((secondKind == 3) || (secondKind == 0x43) || (secondKind == 0x52))) {
+                func_80057350((HitCopyState *) firstObject, (HitCopyState *) secondObject, &selectedPair->normal, remainingTime);
+            }
+            iteration++;
+            if (iteration >= 0xB) {
+                i = 0;
+                if (movingCount > 0) {
+                    remainder = movingCount & 3;
+                    if (remainder != 0) {
+                        movingCursor = &D_800D7160[i];
+                        i++;
+                        firstObject = *movingCursor;
+                        if (i < remainder) {
                             do {
-                                temp_s1_2 = var_s6->unk48;
-                                var_fp_3 += 1;
-                                var_s7_3 = (Func538Object **)((u8 *)var_s7_3 + 4);
-                                temp_s1_2->unk18 = (f32) (temp_s1_2->unk18 + (temp_s1_2->unk30 * temp_v0_8->unk8));
-                                temp_s1_2->unk1C = (f32) (temp_s1_2->unk1C + (temp_s1_2->unk34 * temp_v0_8->unk8));
-                                temp_s1_2->unk20 = (f32) (temp_s1_2->unk20 + (temp_s1_2->unk38 * temp_v0_8->unk8));
-                                var_s6 = *var_s7_3;
-                            } while (temp_a0_3 != var_fp_3);
+                                firstShape = firstObject->unk48;
+                                i += 1;
+                                movingCursor++;
+                                firstShape->position[0] = firstShape->previous[0];
+                                firstShape->position[1] = firstShape->previous[1];
+                                firstShape->position[2] = firstShape->previous[2];
+                                firstObject = *movingCursor;
+                            } while (i < remainder);
                         }
-                        temp_s1_3 = var_s6->unk48;
-                        temp_s1_3->unk18 = (f32) (temp_s1_3->unk18 + (temp_s1_3->unk30 * temp_v0_8->unk8));
-                        temp_s1_3->unk1C = (f32) (temp_s1_3->unk1C + (temp_s1_3->unk34 * temp_v0_8->unk8));
-                        temp_s1_3->unk20 = (f32) (temp_s1_3->unk20 + (temp_s1_3->unk38 * temp_v0_8->unk8));
-                        if (var_fp_3 != spA4) {
-                            goto block_120;
-                        }
-                    } else {
-block_120:
-                        temp_v1 = &D_800D7160[spA4];
-                        var_s7_4 = (Func538Object **)((u8 *)&D_800D7160[var_fp_3] + 0x10);
-                        var_s6_2 = FUNC538_LOAD(var_s7_4, -0x10);
-                        if (var_s7_4 != temp_v1) {
+                        firstShape = firstObject->unk48;
+                        firstShape->position[0] = firstShape->previous[0];
+                        firstShape->position[1] = firstShape->previous[1];
+                        firstShape->position[2] = firstShape->previous[2];
+                    }
+                    if (i < movingCount) {
+                        listEnd = &D_800D7160[movingCount];
+                        movingStart = &D_800D7160[i];
+                        movingCursor = movingStart + 4;
+                        firstShape = (*movingStart)->unk48;
+                        if (movingCursor != listEnd) {
                             do {
-                                temp_s1_4 = var_s6_2->unk48;
-                                var_s7_4 = (Func538Object **)((u8 *)var_s7_4 + 0x10);
-                                temp_s1_4->unk18 = (f32) (temp_s1_4->unk18 + (temp_s1_4->unk30 * temp_v0_8->unk8));
-                                temp_s1_4->unk1C = (f32) (temp_s1_4->unk1C + (temp_s1_4->unk34 * temp_v0_8->unk8));
-                                temp_s1_4->unk20 = (f32) (temp_s1_4->unk20 + (temp_s1_4->unk38 * temp_v0_8->unk8));
-                                temp_s1_5 = FUNC538_LOAD(var_s7_4, -0x1C)->unk48;
-                                temp_s1_5->unk18 = (f32) (temp_s1_5->unk18 + (temp_s1_5->unk30 * temp_v0_8->unk8));
-                                temp_s1_5->unk1C = (f32) (temp_s1_5->unk1C + (temp_s1_5->unk34 * temp_v0_8->unk8));
-                                temp_s1_5->unk20 = (f32) (temp_s1_5->unk20 + (temp_s1_5->unk38 * temp_v0_8->unk8));
-                                temp_s1_6 = FUNC538_LOAD(var_s7_4, -0x18)->unk48;
-                                temp_s1_6->unk18 = (f32) (temp_s1_6->unk18 + (temp_s1_6->unk30 * temp_v0_8->unk8));
-                                temp_s1_6->unk1C = (f32) (temp_s1_6->unk1C + (temp_s1_6->unk34 * temp_v0_8->unk8));
-                                temp_s1_6->unk20 = (f32) (temp_s1_6->unk20 + (temp_s1_6->unk38 * temp_v0_8->unk8));
-                                temp_s1_7 = FUNC538_LOAD(var_s7_4, -0x14)->unk48;
-                                temp_s1_7->unk18 = (f32) (temp_s1_7->unk18 + (temp_s1_7->unk30 * temp_v0_8->unk8));
-                                temp_s1_7->unk1C = (f32) (temp_s1_7->unk1C + (temp_s1_7->unk34 * temp_v0_8->unk8));
-                                temp_s1_7->unk20 = (f32) (temp_s1_7->unk20 + (temp_s1_7->unk38 * temp_v0_8->unk8));
-                                var_s6_2 = FUNC538_LOAD(var_s7_4, -0x10);
-                            } while (var_s7_4 != temp_v1);
+                                firstShape->position[0] = firstShape->previous[0];
+                                firstShape->position[1] = firstShape->previous[1];
+                                firstShape->position[2] = firstShape->previous[2];
+                                firstObject = movingCursor[-3];
+                                movingCursor += 4;
+                                firstShape = firstObject->unk48;
+                                firstShape->position[0] = firstShape->previous[0];
+                                firstShape->position[1] = firstShape->previous[1];
+                                firstShape->position[2] = firstShape->previous[2];
+                                firstShape = movingCursor[-6]->unk48;
+                                firstShape->position[0] = firstShape->previous[0];
+                                firstShape->position[1] = firstShape->previous[1];
+                                firstShape->position[2] = firstShape->previous[2];
+                                firstShape = movingCursor[-5]->unk48;
+                                firstShape->position[0] = firstShape->previous[0];
+                                firstShape->position[1] = firstShape->previous[1];
+                                firstShape->position[2] = firstShape->previous[2];
+                                firstShape = movingCursor[-4]->unk48;
+                            } while (movingCursor != listEnd);
                         }
-                        temp_s1_8 = var_s6_2->unk48;
-                        temp_s1_8->unk18 = (f32) (temp_s1_8->unk18 + (temp_s1_8->unk30 * temp_v0_8->unk8));
-                        temp_s1_8->unk1C = (f32) (temp_s1_8->unk1C + (temp_s1_8->unk34 * temp_v0_8->unk8));
-                        temp_s1_8->unk20 = (f32) (temp_s1_8->unk20 + (temp_s1_8->unk38 * temp_v0_8->unk8));
-                        temp_s1_9 = FUNC538_LOAD(var_s7_4, -0xC)->unk48;
-                        temp_s1_9->unk18 = (f32) (temp_s1_9->unk18 + (temp_s1_9->unk30 * temp_v0_8->unk8));
-                        temp_s1_9->unk1C = (f32) (temp_s1_9->unk1C + (temp_s1_9->unk34 * temp_v0_8->unk8));
-                        temp_s1_9->unk20 = (f32) (temp_s1_9->unk20 + (temp_s1_9->unk38 * temp_v0_8->unk8));
-                        temp_s1_10 = FUNC538_LOAD(var_s7_4, -0x8)->unk48;
-                        temp_s1_10->unk18 = (f32) (temp_s1_10->unk18 + (temp_s1_10->unk30 * temp_v0_8->unk8));
-                        temp_s1_10->unk1C = (f32) (temp_s1_10->unk1C + (temp_s1_10->unk34 * temp_v0_8->unk8));
-                        temp_s1_10->unk20 = (f32) (temp_s1_10->unk20 + (temp_s1_10->unk38 * temp_v0_8->unk8));
-                        temp_s1_11 = FUNC538_LOAD(var_s7_4, -0x4)->unk48;
-                        temp_s1_11->unk18 = (f32) (temp_s1_11->unk18 + (temp_s1_11->unk30 * temp_v0_8->unk8));
-                        temp_s1_11->unk1C = (f32) (temp_s1_11->unk1C + (temp_s1_11->unk34 * temp_v0_8->unk8));
-                        temp_s1_11->unk20 = (f32) (temp_s1_11->unk20 + (temp_s1_11->unk38 * temp_v0_8->unk8));
+                        firstShape->position[0] = firstShape->previous[0];
+                        firstShape->position[1] = firstShape->previous[1];
+                        firstShape->position[2] = firstShape->previous[2];
+                        firstShape = movingCursor[-3]->unk48;
+                        firstShape->position[0] = firstShape->previous[0];
+                        firstShape->position[1] = firstShape->previous[1];
+                        firstShape->position[2] = firstShape->previous[2];
+                        firstShape = movingCursor[-2]->unk48;
+                        firstShape->position[0] = firstShape->previous[0];
+                        firstShape->position[1] = firstShape->previous[1];
+                        firstShape->position[2] = firstShape->previous[2];
+                        firstShape = movingCursor[-1]->unk48;
+                        firstShape->position[0] = firstShape->previous[0];
+                        firstShape->position[1] = firstShape->previous[1];
+                        firstShape->position[2] = firstShape->previous[2];
                     }
                 }
-                temp_s6_3 = temp_v0_8->unk0;
-                temp_s5_3 = temp_v0_8->unk4;
-                temp_a0_4 = temp_s6_3->unk44;
-                temp_v1_2 = temp_s5_3->unk44;
-                if ((temp_a0_4 == 1) && (temp_v1_2 == 1)) {
-                    func_80055104(temp_s6_3, temp_s5_3, var_f22);
-                } else if ((temp_a0_4 == 0x40) && (temp_v1_2 == 0x40)) {
-                    TrapDanglingJump(temp_s6_3, 1);
-                    TrapDanglingJump(temp_s5_3, 2);
-                } else if ((temp_a0_4 == 0x39) && (temp_v1_2 == 0x39)) {
-                    func_800560D0(temp_s6_3, temp_s5_3, var_f22);
-                } else if ((temp_a0_4 == 0x3A) && (temp_v1_2 == 0x3A)) {
-                    func_80056274(temp_s6_3, temp_s5_3, var_f22);
-                } else if ((temp_a0_4 == 1) && (temp_v1_2 == 0x40)) {
-                    func_800557F8(temp_s6_3, temp_s5_3, var_f22);
-                } else if ((temp_a0_4 == 0x40) && (temp_v1_2 == 1)) {
-                    func_800557F8(temp_s5_3, temp_s6_3, var_f22);
-                } else if ((temp_a0_4 == 1) && (temp_v1_2 == 0x39)) {
-                    func_80055970(temp_s6_3, temp_s5_3, var_f22);
-                } else if ((temp_a0_4 == 0x39) && (temp_v1_2 == 1)) {
-                    func_80055970(temp_s5_3, temp_s6_3, var_f22);
-                } else if ((temp_a0_4 == 1) && (temp_v1_2 == 0x3A)) {
-                    func_80055B24(temp_s6_3, temp_s5_3, var_f22);
-                } else if ((temp_a0_4 == 0x3A) && (temp_v1_2 == 1)) {
-                    func_80055B24(temp_s5_3, temp_s6_3, var_f22);
-                } else if ((temp_a0_4 == 0x40) && (temp_v1_2 == 0x39)) {
-                    func_80055D08(temp_s6_3, temp_s5_3, var_f22);
-                } else if ((temp_a0_4 == 0x39) && (temp_v1_2 == 0x40)) {
-                    func_80055D08(temp_s5_3, temp_s6_3, var_f22);
-                } else if ((temp_a0_4 == 0x40) && (temp_v1_2 == 0x3A)) {
-                    func_80055E50(temp_s6_3, temp_s5_3, var_f22);
-                } else if ((temp_a0_4 == 0x3A) && (temp_v1_2 == 0x40)) {
-                    func_80055E50(temp_s5_3, temp_s6_3, var_f22);
-                } else if ((temp_a0_4 == 0x39) && (temp_v1_2 == 0x3A)) {
-                    func_80055F64(temp_s6_3, temp_s5_3, var_f22);
-                } else if ((temp_a0_4 == 0x3A) && (temp_v1_2 == 0x39)) {
-                    func_80055F64(temp_s5_3, temp_s6_3, var_f22);
-                } else if ((temp_a0_4 == 1) && ((temp_v1_2 == 3) || (temp_v1_2 == 0x43) || (temp_v1_2 == 0x52))) {
-                    func_80056DD8(temp_s6_3, temp_s5_3, ((void *)((u8 *)temp_v0_8 + 0xC)), var_f22);
-                } else if ((temp_a0_4 == 0x40) && ((temp_v1_2 == 3) || (temp_v1_2 == 0x43) || (temp_v1_2 == 0x52))) {
-                    func_8005716C(temp_s6_3, temp_s5_3, ((void *)((u8 *)temp_v0_8 + 0xC)), var_f22);
-                } else if ((temp_a0_4 == 0x39) && ((temp_v1_2 == 3) || (temp_v1_2 == 0x43) || (temp_v1_2 == 0x52))) {
-                    func_800572AC(temp_s6_3, temp_s5_3, ((void *)((u8 *)temp_v0_8 + 0xC)), var_f22);
-                } else if ((temp_a0_4 == 0x3A) && ((temp_v1_2 == 3) || (temp_v1_2 == 0x43) || (temp_v1_2 == 0x52))) {
-                    func_80057350(temp_s6_3, temp_s5_3, ((void *)((u8 *)temp_v0_8 + 0xC)), var_f22);
-                }
-                temp_t8 = sp94 + 1;
-                sp94 = temp_t8;
-                if (temp_t8 >= 0xB) {
-                    var_fp_4 = 0;
-                    if (spA4 > 0) {
-                        temp_a0_5 = spA4 & 3;
-                        if (temp_a0_5 != 0) {
-                            var_s7_5 = &D_800D7160[0];
-                            var_fp_4 = 1;
-                            var_s6_3 = *var_s7_5;
-                            if (temp_a0_5 != 1) {
-                                do {
-                                    temp_s1_12 = var_s6_3->unk48;
-                                    var_fp_4 += 1;
-                                    var_s7_5 = (Func538Object **)((u8 *)var_s7_5 + 4);
-                                    temp_s1_12->unk24 = (f32) temp_s1_12->unk18;
-                                    temp_s1_12->unk28 = (f32) temp_s1_12->unk1C;
-                                    temp_s1_12->unk2C = (f32) temp_s1_12->unk20;
-                                    var_s6_3 = *var_s7_5;
-                                } while (temp_a0_5 != var_fp_4);
-                            }
-                            temp_s1_13 = var_s6_3->unk48;
-                            temp_s1_13->unk24 = (f32) temp_s1_13->unk18;
-                            temp_s1_13->unk28 = (f32) temp_s1_13->unk1C;
-                            temp_s1_13->unk2C = (f32) temp_s1_13->unk20;
-                            if (var_fp_4 != spA4) {
-                                goto block_199;
-                            }
-                        } else {
-block_199:
-                            temp_v0_9 = &D_800D7160[spA4];
-                            temp_s7 = &D_800D7160[var_fp_4];
-                            var_s7_6 = (Func538Object **)((u8 *)temp_s7 + 0x10);
-                            var_s1 = (*temp_s7)->unk48;
-                            if (var_s7_6 != temp_v0_9) {
-                                do {
-                                    var_s1->unk24 = (f32) var_s1->unk18;
-                                    var_s1->unk28 = (f32) var_s1->unk1C;
-                                    var_s1->unk2C = (f32) var_s1->unk20;
-                                    temp_s6_4 = FUNC538_LOAD(var_s7_6, -0xC);
-                                    var_s7_6 = (Func538Object **)((u8 *)var_s7_6 + 0x10);
-                                    temp_s1_14 = temp_s6_4->unk48;
-                                    temp_s1_14->unk24 = (f32) temp_s1_14->unk18;
-                                    temp_s1_14->unk28 = (f32) temp_s1_14->unk1C;
-                                    temp_s1_14->unk2C = (f32) temp_s1_14->unk20;
-                                    temp_s1_15 = FUNC538_LOAD(var_s7_6, -0x18)->unk48;
-                                    temp_s1_15->unk24 = (f32) temp_s1_15->unk18;
-                                    temp_s1_15->unk28 = (f32) temp_s1_15->unk1C;
-                                    temp_s1_15->unk2C = (f32) temp_s1_15->unk20;
-                                    temp_s1_16 = FUNC538_LOAD(var_s7_6, -0x14)->unk48;
-                                    temp_s1_16->unk24 = (f32) temp_s1_16->unk18;
-                                    temp_s1_16->unk28 = (f32) temp_s1_16->unk1C;
-                                    temp_s1_16->unk2C = (f32) temp_s1_16->unk20;
-                                    var_s1 = FUNC538_LOAD(var_s7_6, -0x10)->unk48;
-                                } while (var_s7_6 != temp_v0_9);
-                            }
-                            var_s1->unk24 = (f32) var_s1->unk18;
-                            var_s1->unk28 = (f32) var_s1->unk1C;
-                            var_s1->unk2C = (f32) var_s1->unk20;
-                            temp_s1_17 = FUNC538_LOAD(var_s7_6, -0xC)->unk48;
-                            temp_s1_17->unk24 = (f32) temp_s1_17->unk18;
-                            temp_s1_17->unk28 = (f32) temp_s1_17->unk1C;
-                            temp_s1_17->unk2C = (f32) temp_s1_17->unk20;
-                            temp_s1_18 = FUNC538_LOAD(var_s7_6, -0x8)->unk48;
-                            temp_s1_18->unk24 = (f32) temp_s1_18->unk18;
-                            temp_s1_18->unk28 = (f32) temp_s1_18->unk1C;
-                            temp_s1_18->unk2C = (f32) temp_s1_18->unk20;
-                            temp_s1_19 = FUNC538_LOAD(var_s7_6, -0x4)->unk48;
-                            temp_s1_19->unk24 = (f32) temp_s1_19->unk18;
-                            temp_s1_19->unk28 = (f32) temp_s1_19->unk1C;
-                            temp_s1_19->unk2C = (f32) temp_s1_19->unk20;
-                        }
-                    }
-                    var_f22 = 0.0f;
-                }
-            } else {
-                var_f22 = 0.0f;
+                remainingTime = 0.0f;
             }
-        } while (var_f22 > 0.0f);
+        } else {
+            remainingTime = 0.0f;
+        }
     }
 }
 #else
@@ -4578,11 +4434,11 @@ void fmvInit(void) {
 
 /* PLATEAU-HANDOFF:func_80053868:start
  * symbol: func_80053868
- * score: 1197 differing words
- * frame: 0x240
- * relocations: 61
+ * score: 1165 differing words
+ * frame: 0x110
+ * relocations: 59
  * first-mismatch: +0x0
- * summary: Corrected two-pointer call ABI; candidate is 60 instructions short with a 0x148 frame excess and displaced collision-update CFG.
+ * summary: 1166 raw; 67 words short, frame +24 bytes. Next: separately authorized callback-constant-hoisting/context investigation; no match credit.
  * PLATEAU-HANDOFF:func_80053868:end
  */
 
