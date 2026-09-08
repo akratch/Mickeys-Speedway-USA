@@ -2508,8 +2508,8 @@ void func_8004AF68(void) {
  * score: 123 differing words
  * frame: 0x30
  * relocations: 10
- * first-mismatch: +0x8
- * summary: Seven-word geometry and parameter lifetime/register allocation remain; next try a source-authentic stack-argument preload form.
+ * first-mismatch: 0x8
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new stack-argument preload topology evidence.
  * PLATEAU-HANDOFF:fxScreenEffect:end
  */
 
