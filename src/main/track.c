@@ -460,7 +460,7 @@ void func_8000DFBC(s32 segment, s32 arg1, s32 arg2, s32 arg3);
 s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records, TrackKeyRecord **matches);
 void func_8000F57C(s32 *resultCount, u8 *resultSegments);
 void func_8000FA2C(s32 *result, s32 arg1);
-void shadowGetBuffers(s32 mode, s32 *a, s32 *b, s32 *c);
+void shadowGetBuffers(s32 mode, void **a, void **b, void **c);
 void func_800343F0();
 void texEnableModes(s32 mode);
 s32 getXZCompareMask(TrackBoundingBox *bounds, s32 x0, s32 z0, s32 x1,
@@ -5044,14 +5044,12 @@ typedef struct TrackShadowInstance {
     s16 endIndex;
 } TrackShadowInstance;
 
-typedef struct TrackShadowBuffer {
+/* Adjacent eight-byte descriptors supply the next index and vertex boundaries. */
+typedef struct TrackShadowBatch {
     void *texture;
-    s16 u0;
-    s16 height;
-    u8 pad08[4];
-    s16 v0;
-    s16 length;
-} TrackShadowBuffer;
+    s16 firstIndex;
+    s16 firstVertex;
+} TrackShadowBatch;
 
 typedef struct TrackShadowMaterial {
     u8 pad00[0x18];
@@ -5067,19 +5065,19 @@ void func_800140CC(TrackShadowObject *object, TrackShadowInstance *instance) {
     s32 loopIndex;
     s32 closeTexture;
     s32 closeCombiner;
-    s32 commandBuffer;
-    s32 indexBuffer;
-    s32 vertexBuffer;
+    void *commandBuffer;
+    void *indexBuffer;
+    void *vertexBuffer;
     s32 shadowCount;
     s32 alphaValue;
     s32 commandMode;
     s32 textureSpan;
     s32 indexSpan;
-    s32 vertexAddress;
-    s32 indexAddress;
+    u32 vertexAddress;
+    u32 indexAddress;
     s16 shadowIndex;
     TrackShadowInstance *current;
-    u8 *shadow;
+    TrackShadowBatch *shadow;
     u8 active;
     TrackShadowMaterial *material;
     Gfx *command;
@@ -5094,10 +5092,10 @@ void func_800140CC(TrackShadowObject *object, TrackShadowInstance *instance) {
             do {
                 shadowIndex = current->shadowIndex;
                 if (shadowIndex != -1) {
-                    shadow = (u8 *) (commandBuffer + (shadowIndex * 8));
+                    shadow = (TrackShadowBatch *) commandBuffer + shadowIndex;
                     shadowCount = (s32) object->alpha *
-                                  *(u8 *) (vertexBuffer +
-                                  (*(s16 *) (shadow + 6) * 0x0A) + 9);
+                                  *(u8 *) ((u8 *) vertexBuffer +
+                                  (shadow->firstVertex * 0x0A) + 9);
                     shadowCount >>= 8;
                     if (shadowCount > 0) {
                         commandMode = 0x0E;
@@ -5111,9 +5109,9 @@ void func_800140CC(TrackShadowObject *object, TrackShadowInstance *instance) {
                             commandMode = 0x20E;
                             D_800C9520 = command + 1;
                             command->words.w0 = 0xFB000000;
-                            command->words.w1 = (material->red << 24) |
-                                                (material->green << 16) |
-                                                (material->blue << 8);
+                            command->words.w1 = ((u32) material->red << 24) |
+                                                ((u32) material->green << 16) |
+                                                ((u32) material->blue << 8);
                             closeTexture = 1;
                             closeCombiner = 1;
                         } else {
@@ -5135,16 +5133,16 @@ void func_800140CC(TrackShadowObject *object, TrackShadowInstance *instance) {
                         }
                         shadowIndex = current->shadowIndex;
                         while (shadowIndex < current->endIndex) {
-                            func_800349A4(&D_800C9520, *(void **) shadow,
+                            func_800349A4(&D_800C9520, shadow->texture,
                                           commandMode,
                                           instance->textureScale << 8);
                             command = D_800C9520;
                             D_800C9520 = command + 1;
-                            textureSpan = *(s16 *) (shadow + 0xE) -
-                                          *(s16 *) (shadow + 6);
-                            vertexAddress = vertexBuffer +
-                                            (*(s16 *) (shadow + 6) * 10) +
-                                            (s32) 0x80000000;
+                            textureSpan = shadow[1].firstVertex -
+                                          shadow->firstVertex;
+                            vertexAddress = (u32) vertexBuffer +
+                                            (shadow->firstVertex * 10) +
+                                            0x80000000U;
                             command->words.w0 = (((((textureSpan * 8) |
                                                    (vertexAddress & 6)) & 0xFF) << 16) |
                                                  0x04000000 |
@@ -5152,17 +5150,17 @@ void func_800140CC(TrackShadowObject *object, TrackShadowInstance *instance) {
                             command->words.w1 = vertexAddress;
                             command = D_800C9520;
                             D_800C9520 = command + 1;
-                            indexSpan = *(s16 *) (shadow + 0xC) -
-                                        *(s16 *) (shadow + 4);
-                            indexAddress = (*(s16 *) (shadow + 4) * 16) +
-                                           indexBuffer + (s32) 0x80000000;
+                            indexSpan = shadow[1].firstIndex -
+                                        shadow->firstIndex;
+                            indexAddress = (shadow->firstIndex * 16) +
+                                           (u32) indexBuffer + 0x80000000U;
                             command->words.w1 = indexAddress;
                             command->words.w0 = ((((((indexSpan - 1) * 16) |
                                                    1) & 0xFF) << 16) |
                                                  0x05000000 |
                                                  ((indexSpan * 16) & 0xFFFF));
                             shadowIndex++;
-                            shadow += 8;
+                            shadow++;
                         }
                         if (closeTexture != 0) {
                             command = D_800C9520;
@@ -5669,7 +5667,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x90
  * relocations: 4
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Recovered shadow buffer ABI and eight-byte records; 187 differences remain. Next: source evidence for flag and pointer stack homes.
  * PLATEAU-HANDOFF:func_800140CC:end
  */
 
