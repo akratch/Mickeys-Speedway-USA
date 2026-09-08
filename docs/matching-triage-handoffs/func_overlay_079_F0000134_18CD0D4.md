@@ -2,9 +2,9 @@
 ### `func_overlay_079_F0000134_18CD0D4` plateau handoff
 
 - source: `src/overlays/o079/func_overlay_079_F0000134_18CD0D4.c`
-- score: 848/882 words
+- score: 574/882 words
 - frame: 0xB8
 - relocations: 88
-- first mismatch: +0x4
-- summary: V0 is 870/882 words (-12), frame 0xB8 exact; 88/88 relocations, 11 offset/type and 2 stable identities align, with 30 candidate identities unresolved.
+- first mismatch: +0x58
+- summary: 883 vs 882 instructions, frame exact, all 88 relocations match by count/type/callee count; residual is one delay-slot spill and a one-step register-ring phase
 <!-- plateau-handoff:func_overlay_079_F0000134_18CD0D4:end -->
