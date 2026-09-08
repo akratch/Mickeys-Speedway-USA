@@ -6,5 +6,5 @@
 - frame: 0x138
 - relocations: 5
 - first mismatch: +0x38
-- summary: fresh diagnosis reports no known lever for the five-site current-byte web and two newline words, so the lever-only reopen has no authorized source edit
+- summary: JFG donor-shaped source forms rebuilt flat at 59/66; next lever is an IDO UGEN scheduling or assembler selection trace.
 <!-- plateau-handoff:debug_text_width:end -->
