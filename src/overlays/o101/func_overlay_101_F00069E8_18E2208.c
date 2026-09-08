@@ -107,8 +107,10 @@ extern void overlay101Reset(void *value);
  * Mickey-local reconstruction from this overlay's extracted function and
  * the typed node builders immediately before and after it. The pinned DKR
  * v77/v80 and JFG overlay scans report no donor for overlay 101.
- * Configured full-TU measurement after reconstruction: 963/963 words,
- * 644 raw / 641 relocation-masked differences, first +0x2C; frame 0x50.
+ * Configured full-TU residual measurement: 963/963 words,
+ * 617 raw / 614 relocation-masked differences, first +0x88; frame 0x50.
+ * The initial group line ties and selected expanded builders preserve the
+ * reconstructed statement tokens while retaining the closer stock schedule.
  * The runtime table owns 110 relocations; the extracted assembly object
  * retains only 78 text relocations; its placeholders are not promotion proof.
  */
@@ -203,20 +205,20 @@ void func_overlay_101_F00069E8_18E2208(void) {
     gOverlay101OrderEntries[1 + group].child = node24;                         \
     D_1D0 = index + 1
 
-    gOverlay101OrderEntries[1 + 0].mode = 4;
-    gOverlay101OrderEntries[1 + 0].value12 = 0x140;
-    gOverlay101OrderEntries[1 + 0].value14 = 0xF0;
-    gOverlay101OrderEntries[1 + 0].data18 = &D_CC8;
-    gOverlay101OrderEntries[1 + 0].color16 = 0xFF;
-    gOverlay101OrderEntries[1 + 0].color17 = 0xFF;
-    gOverlay101OrderEntries[1 + 0].x = 0;
-    gOverlay101OrderEntries[1 + 0].width = 0;
-    gOverlay101OrderEntries[1 + 0].y = 0;
-    gOverlay101OrderEntries[1 + 0].height = 0;
-    gOverlay101OrderEntries[1 + 0].childType = 0;
-    gOverlay101OrderEntries[1 + 0].child = 0;
-    orderIndex = gOverlay101OrderCount;
-    gOverlay101Order[orderIndex] = &D_1C;
+    gOverlay101OrderEntries[1 + 0].mode = 4; \
+    gOverlay101OrderEntries[1 + 0].value12 = 0x140; \
+    gOverlay101OrderEntries[1 + 0].value14 = 0xF0; \
+    gOverlay101OrderEntries[1 + 0].data18 = &D_CC8; \
+    gOverlay101OrderEntries[1 + 0].color16 = 0xFF; \
+    gOverlay101OrderEntries[1 + 0].color17 = 0xFF; \
+    gOverlay101OrderEntries[1 + 0].x = 0; \
+    gOverlay101OrderEntries[1 + 0].width = 0; \
+    gOverlay101OrderEntries[1 + 0].y = 0; \
+    gOverlay101OrderEntries[1 + 0].height = 0; \
+    gOverlay101OrderEntries[1 + 0].childType = 0; \
+    gOverlay101OrderEntries[1 + 0].child = 0; \
+    orderIndex = gOverlay101OrderCount; \
+    gOverlay101Order[orderIndex] = &D_1C; \
     gOverlay101OrderCount = orderIndex + 1;
 
     ADD_NODE32(0, 0xF2, 0x14E, 1.0f, 0, 0xFF, 0x91);
@@ -232,24 +234,139 @@ void func_overlay_101_F00069E8_18E2208(void) {
     ADD_NODE32(0, 0xA0, commonY, 5.0f, 0, 0, 0x94);
 
     INIT_GROUP(1, 0x20, 0x18, 0x30, 0x10, 0xE0, 0xC0, dataC8, D_38);
-    ADD_NODE20(1, 0xC, 0xE, 0xD);
-    ADD_TEXT(1, textCC, 0x70, 0xA8);
+    index = gOverlay101Resource20Count;
+    node20 = &gOverlay101Resources20[index];
+    node20->x = (0xC);
+    node20->y = (0xE);
+    node20->scale = 1.0f;
+    handle = func_80036DD0(0xD);
+    index = gOverlay101Resource20Count;
+    node20 = &gOverlay101Resources20[index];
+    node20->previousType = gOverlay101OrderEntries[1 + 1].childType;
+    node20->previous = gOverlay101OrderEntries[1 + 1].child;
+    node20->handle = handle;
+    gOverlay101OrderEntries[1 + 1].childType = 1;
+    gOverlay101OrderEntries[1 + 1].child = node20;
+    gOverlay101Resource20Count = index + 1;
+    index = D_1D0;
+    node24 = &D_540[index];
+    node24->x = (0x70);
+    node24->y = (0xA8);
+    length = overlay101ByteLength(D_INPUT.textCC);
+    index = D_1D0;
+    node24 = &D_540[index];
+    node24->length = (u8)length;
+    node24->opacity =
+        (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1);
+    node24->mode = 2;
+    node24->color0 = 0xFF;
+    node24->color1 = 0xFF;
+    node24->color2 = 0xFF;
+    node24->color3 = 0xFF;
+    node24->kind = 4;
+    node24->text = D_INPUT.textCC;
+    node24->previousType = gOverlay101OrderEntries[1 + 1].childType;
+    node24->previous = gOverlay101OrderEntries[1 + 1].child;
+    gOverlay101OrderEntries[1 + 1].childType = 3;
+    gOverlay101OrderEntries[1 + 1].child = node24;
+    D_1D0 = index + 1;
     ADD_TEXT(1, textD0, 0x70, 0xB2);
 
     INIT_GROUP(2, 0x20, 0x40, 0x62, 0x18, 0x7C, 0x84, dataD4, D_54);
-    ADD_NODE20(2, 0x16, 0x1E, 0x10);
+    index = gOverlay101Resource20Count;
+    node20 = &gOverlay101Resources20[index];
+    node20->x = (0x16);
+    node20->y = (0x1E);
+    node20->scale = 1.0f;
+    handle = func_80036DD0(0x10);
+    index = gOverlay101Resource20Count;
+    node20 = &gOverlay101Resources20[index];
+    node20->previousType = gOverlay101OrderEntries[1 + 2].childType;
+    node20->previous = gOverlay101OrderEntries[1 + 2].child;
+    node20->handle = handle;
+    gOverlay101OrderEntries[1 + 2].childType = 1;
+    gOverlay101OrderEntries[1 + 2].child = node20;
+    gOverlay101Resource20Count = index + 1;
 
     INIT_GROUP(3, 0x20, 0x68, 0x40, 0xA0, 0xC0, 0x26, dataD8, D_70);
-    ADD_TEXT(3, textDC, 0x60, 0xE);
+    index = D_1D0;
+    node24 = &D_540[index];
+    node24->x = (0x60);
+    node24->y = (0xE);
+    length = overlay101ByteLength(D_INPUT.textDC);
+    index = D_1D0;
+    node24 = &D_540[index];
+    node24->length = (u8)length;
+    node24->opacity =
+        (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1);
+    node24->mode = 2;
+    node24->color0 = 0xFF;
+    node24->color1 = 0xFF;
+    node24->color2 = 0xFF;
+    node24->color3 = 0xFF;
+    node24->kind = 4;
+    node24->text = D_INPUT.textDC;
+    node24->previousType = gOverlay101OrderEntries[1 + 3].childType;
+    node24->previous = gOverlay101OrderEntries[1 + 3].child;
+    gOverlay101OrderEntries[1 + 3].childType = 3;
+    gOverlay101OrderEntries[1 + 3].child = node24;
+    D_1D0 = index + 1;
     ADD_TEXT(3, textE0, 0x60, 0x18);
 
     INIT_GROUP(4, 0x20, 0x90, 0x2F, 0x10, 0xE2, 0xC0, dataE4, D_8C);
-    ADD_NODE20(4, 0xD, 0xE, 0x14);
-    ADD_TEXT(4, textE8, 0x71, 0xA8);
+    index = gOverlay101Resource20Count;
+    node20 = &gOverlay101Resources20[index];
+    node20->x = (0xD);
+    node20->y = (0xE);
+    node20->scale = 1.0f;
+    handle = func_80036DD0(0x14);
+    index = gOverlay101Resource20Count;
+    node20 = &gOverlay101Resources20[index];
+    node20->previousType = gOverlay101OrderEntries[1 + 4].childType;
+    node20->previous = gOverlay101OrderEntries[1 + 4].child;
+    node20->handle = handle;
+    gOverlay101OrderEntries[1 + 4].childType = 1;
+    gOverlay101OrderEntries[1 + 4].child = node20;
+    gOverlay101Resource20Count = index + 1;
+    index = D_1D0;
+    node24 = &D_540[index];
+    node24->x = (0x71);
+    node24->y = (0xA8);
+    length = overlay101ByteLength(D_INPUT.textE8);
+    index = D_1D0;
+    node24 = &D_540[index];
+    node24->length = (u8)length;
+    node24->opacity =
+        (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1);
+    node24->mode = 2;
+    node24->color0 = 0xFF;
+    node24->color1 = 0xFF;
+    node24->color2 = 0xFF;
+    node24->color3 = 0xFF;
+    node24->kind = 4;
+    node24->text = D_INPUT.textE8;
+    node24->previousType = gOverlay101OrderEntries[1 + 4].childType;
+    node24->previous = gOverlay101OrderEntries[1 + 4].child;
+    gOverlay101OrderEntries[1 + 4].childType = 3;
+    gOverlay101OrderEntries[1 + 4].child = node24;
+    D_1D0 = index + 1;
     ADD_TEXT(4, textEC, 0x71, 0xB2);
 
     INIT_GROUP(5, 0x90, -0x50, 0x30, 0x30, 0xE0, 0x8C, dataF0, D_A8);
-    ADD_NODE20(5, 0xC, 0x12, 0xC);
+    index = gOverlay101Resource20Count;
+    node20 = &gOverlay101Resources20[index];
+    node20->x = (0xC);
+    node20->y = (0x12);
+    node20->scale = 1.0f;
+    handle = func_80036DD0(0xC);
+    index = gOverlay101Resource20Count;
+    node20 = &gOverlay101Resources20[index];
+    node20->previousType = gOverlay101OrderEntries[1 + 5].childType;
+    node20->previous = gOverlay101OrderEntries[1 + 5].child;
+    node20->handle = handle;
+    gOverlay101OrderEntries[1 + 5].childType = 1;
+    gOverlay101OrderEntries[1 + 5].child = node20;
+    gOverlay101Resource20Count = index + 1;
     ADD_TEXT(5, textF4, 0x70, 0x7B);
 
     overlay101Reset(&D_1D2C);
@@ -265,10 +382,10 @@ void func_overlay_101_F00069E8_18E2208(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_101_F00069E8_18E2208:start
  * symbol: func_overlay_101_F00069E8_18E2208
- * score: 641/963 words
+ * score: 614/963 words
  * frame: 0x50
  * relocations: 110
- * first-mismatch: +0x2C
- * summary: 963 words, 644 raw/641 masked; five stalled attempts. Next: authorized causal trace of setup-count/coordinate register lifetimes.
+ * first-mismatch: +0x88
+ * summary: 963 words, 617 raw/614 masked; five stalled attempts. Next: trace first setup-count temp formation while preserving insertion-index and coordinate lifetimes.
  * PLATEAU-HANDOFF:func_overlay_101_F00069E8_18E2208:end
  */
