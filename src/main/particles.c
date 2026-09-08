@@ -1116,9 +1116,12 @@ void func_8003EF80(ParticleObject *object, ParticleTriggerSlot *trigger) {
     }
 }
 #ifdef NON_MATCHING
-/* Workbench: mixed schedule/allocation plateau, 21 differing words, size_delta 0; first mismatch +0x20C.
+/* Workbench: pure FP-allocation plateau, 17 differing words, size_delta 0; first mismatch +0x20C.
  * Target and candidate are 297 instructions with the exact 0x58 frame and 16 relocation identities.
- * The integer temp lane is exact; 19 float-register words and one two-load schedule swap remain.
+ * Every integer lane is exact and the schedule is exact; the residual is one fp-pool
+ * position, first visible where the emission direction's zero and its -value3C load
+ * exchange roles. The sum of squares is spelled y-first because the target's two
+ * component loads are scheduled that way; x-first costs four more words.
  * PROVENANCE: structure cross-checked against JFG's assembly-only asm/nonmatchings/particles/func_80060400.s sibling; body reconstructed from Mickey evidence. */
 void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, ParticleTriggerSlot *trigger,
                    ParticleConfig *config) {
@@ -1218,7 +1221,7 @@ void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, Parti
                     (u8 *)resource->matrices[resource->matrixTableIndex] +
                         ((header->transformIndices[pointIndex].matrixIndex << 5) << 1),
                     offset, offset, header);
-                scale = (offset[0] * offset[0]) + (offset[1] * offset[1]);
+                scale = (offset[1] * offset[1]) + (offset[0] * offset[0]);
                 magnitude = sqrtf(scale + (offset[2] * offset[2]));
                 if (magnitude == 0.0f) {
                     scale = speed;
@@ -2124,38 +2127,44 @@ void func_80041388(ParticleModelEntry *entry, s32 updateRate) {
     }
 }
 #ifdef NON_MATCHING
-/* m2c structural plateau: candidate and target are both 456 words with frame
- * 0x168 and all four relocation identities exact; 52 raw and relocation-masked
- * words differ, first +0x4C, while the FP schedule is exact. Workbench verdict
- * is structure-mismatch; lever 6 is to census the one value that gained a home.
- * The remaining cause is the early table byte-count carrier and command-length
- * / particle-cursor stack-home cycle, beyond this reconstruction packet. */
+/* Structural plateau: candidate and target are both 456 words with frame
+ * 0x168 and all four relocation identities exact; 36 raw and relocation-masked
+ * words differ, first +0x4C, while the FP schedule is exact.
+ *
+ * The declaration list below is a frame census, not a style choice. The
+ * per-particle cursor, the two display-list command scalars and the triangle
+ * list pair are declared where the target's own stack homes put them: moving
+ * the cursor out of the outer list is what puts both point arrays at their
+ * observed displacements, and placing the list pair two slots below the
+ * triangle count reproduces the eight-byte hole the target leaves between
+ * them. Nine of the twelve homes now agree. `volatile` on the command length
+ * is load-bearing -- without it IDO moves the whole frame to 0x170. What
+ * remains is the command length's own home and the cursor's. */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/
  * func_80062BFC.s; body reconstructed from Mickey evidence. */
 void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
     Gfx *displayList;
     ParticleVertex *vertices;
     ParticleVertex *vertexStart;
-    CircularParticle *particle;
     f32 output[8][3];
     f32 input[8][3];
     f32 *outputPtr;
     s32 particleIndex;
     s32 i;
     s32 triangleListIndex;
-    Gfx *command;
-    s32 vertexCount;
-    s32 vertexIndex;
-    s32 addressBase;
-    CircularParticle **particlePtr;
-    u8 red;
-    u8 green;
-    u8 blue;
-    u8 alpha;
 
     if (entry->particleCount >= 2) {
         s32 triangleCount;
+        Gfx *command;
+        s32 vertexCount;
         void *triangleLists[2];
+        s32 vertexIndex;
+        s32 addressBase;
+        CircularParticle **particlePtr;
+        u8 red;
+        u8 green;
+        u8 blue;
+        u8 alpha;
 
         displayList = *(Gfx **)arg0;
         vertexCount = entry->vertexCount;
@@ -2177,6 +2186,7 @@ void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
         if (entry->particleCount > 0) {
             s32 vertexCommandCount;
             volatile s32 vertexCommandLength;
+            CircularParticle *particle;
 
             vertexCommandLength = (vertexCount * 10) + 8;
             vertexCommandCount = vertexCount * 8;
@@ -2595,11 +2605,11 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
 
 /* PLATEAU-HANDOFF:func_8003F154:start
  * symbol: func_8003F154
- * score: 21 differing words
+ * score: 17 differing words
  * frame: 0x58
  * relocations: 16
  * first-mismatch: +0x20C
- * summary: m2c source/type surface exhausted; next: authorize FP web trace on the 26-word schedule-exact accumulator variant.
+ * summary: the two-load schedule swap is closed by writing the sum of squares y-first; 17 FP-allocation words remain, all one fp-pool position, first at the emission-direction zero. Permuter base 95 with the best neighbour 85.
  * PLATEAU-HANDOFF:func_8003F154:end
  */
 
@@ -2625,11 +2635,11 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
 
 /* PLATEAU-HANDOFF:func_80041530:start
  * symbol: func_80041530
- * score: 52 differing words
+ * score: 36 differing words
  * frame: 0x168
  * relocations: 4
  * first-mismatch: +0x4C
- * summary: m2c recovered exact geometry and FP schedule; next lever is the table byte-count carrier and command-length and cursor home cycle.
+ * summary: declaration census closed nine of twelve stack homes; the volatile command-length home and the walking particle pointer's home remain, and volatile is load-bearing (dropping it moves the frame to 0x170).
  * PLATEAU-HANDOFF:func_80041530:end
  */
 
