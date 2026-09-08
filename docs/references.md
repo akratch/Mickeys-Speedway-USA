@@ -372,3 +372,37 @@ matched, and both already swept here).
 So: audit a donor advance with the pragma count and the added function
 definitions. A commit count is not evidence, and a reopen that cites one is
 citing a rename.
+
+### The stronger check: does the counterpart contain any C at all?
+
+Auditing the *advance* still assumes there is something to advance from. On
+the same day, a sweep of all 83 donor-citing reopen authorizations found 20 of
+them — every one in `src/main/fx.c` — pointing at a counterpart that has never
+had a single C body in it. JFG's `src/fx.c` is 156 lines, of which 74 are
+`GLOBAL_ASM` pragmas and **zero** are function bodies. `src/spranim.c` is the
+same shape: 90 lines, 43 pragmas, no bodies. So is every one of JFG's 315
+overlay translation units.
+
+A lane handed "re-derive from that donor" for one of those spends its budget
+proving a negative before it can start. One did, and reported back that "the
+JFG donor lever is empty here" as a finding.
+
+The cheap discriminator is a count of lines that are exactly `}` in column
+zero. A function body closes that way; an aggregate initializer closes `};`
+and does not. Against known files it is exact — `camera.c` 58 bodies / 0
+pragmas, `level.c` 26 / 0, `joy.c` 19 / 0, against `fx.c` 0 / 74.
+
+`tools/check_donor_claims.py` runs this over every donor-citing authorization
+and is wired into `gmake check-docs`. It reports per translation unit rather
+than per symbol: whether *this specific function* has a donor body needs a
+symbol correspondence the tool does not have, but whether the file it would
+come from contains any C at all is enough to catch the whole failure class.
+The reference farm lives outside the repository, so a clone without it skips
+the check rather than failing, as `check-fixtures` does without a baserom.
+
+Run it with `--list` for the inverse and more useful view — where the donor
+lever is *strong*. `camera.c`, `saves.c` (42 bodies), `level.c`, `font.c`,
+`gameVi.c`, `memory.c`, `sched.c`, `runlink.c`, `joy.c`, `weather.c` and
+`diprint.c` are all counterparts that are fully or nearly fully matched
+upstream. Those are where a donor lane is worth opening; `anim.c` (3 bodies
+against 34 pragmas), `audiomgr.c` and `rcpFast3d.c` (2 each) are not.

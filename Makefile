@@ -359,6 +359,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_allocator_trace_receipt.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_integration_base.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_lane_status.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_check_donor_claims.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_ready_queue.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_skeleton_scan.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_wb_compare.py
@@ -526,6 +527,7 @@ check-reference-builds:
 # failed) before `gmake extract`.
 check-docs:
 	$(HOST_PYTHON) $(TOOLS_DIR)/lane_status.py --check-reopen-schema
+	$(HOST_PYTHON) $(TOOLS_DIR)/check_donor_claims.py
 	$(PYTHON) $(TOOLS_DIR)/check_derived_numbers.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/overlay_donor_scan.py --check
 	$(HOST_PYTHON) $(TOOLS_DIR)/postprocess_audit.py --check-redefines

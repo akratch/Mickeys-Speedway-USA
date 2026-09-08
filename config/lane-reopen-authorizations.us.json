@@ -432,77 +432,77 @@
     },
     "func_80046EC4": {
       "ledger_commit": "6ce89d6b0446cd198c7fe1fccd76aa3abce45d34",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta 4 bytes the candidate is not the same function; no permutation closes it.",
       "source_commit": "6ce89d6b0446cd198c7fe1fccd76aa3abce45d34"
     },
     "func_800470B0": {
       "ledger_commit": "180402ea551ba8d38ab9ada72691c8062841dc5d",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: ADR 0018 stall rule. Delta 0 at 90 masked words is a schedule or structure defect; the prior closure used the retired attempt cap.",
       "source_commit": "180402ea551ba8d38ab9ada72691c8062841dc5d"
     },
     "func_80047304": {
       "ledger_commit": "0b13a198a61e8ecb86b2f1ac47c071a1f7170e02",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta -8 bytes the candidate is not the same function; no permutation closes it.",
       "source_commit": "0b13a198a61e8ecb86b2f1ac47c071a1f7170e02"
     },
     "func_800475E8": {
       "ledger_commit": "4148117e75732616187df3c000fd371085a987f8",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta 780 bytes the candidate is not the same function; no permutation closes it.",
       "source_commit": "4148117e75732616187df3c000fd371085a987f8"
     },
     "func_800479D4": {
       "ledger_commit": "e63b9cfe9f6db54c37c9600a325ba5c2895ab58e",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta -20 bytes the candidate is not the same function; no permutation closes it.",
       "source_commit": "e63b9cfe9f6db54c37c9600a325ba5c2895ab58e"
     },
     "func_80048080": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta -4 bytes the candidate is not the same function; no permutation closes it.",
       "source_commit": "5d6fd5bd76609b67b27103dd3e701ee88320e9e8"
     },
     "func_80048760": {
       "ledger_commit": "130c1c1cc1a6cccad9144428a3c6517b5c6c3890",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: ADR 0018 stall rule. Delta 0 at 23 masked words is a schedule or structure defect; the prior closure used the retired attempt cap.",
       "source_commit": "130c1c1cc1a6cccad9144428a3c6517b5c6c3890"
     },
     "func_80049000": {
       "ledger_commit": "307dbacfc6f37241054b9656a9c577b1aa1c6bb4",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: ADR 0018 stall rule. Delta 0 at 69 masked words is a schedule or structure defect; the prior closure used the retired attempt cap.",
       "source_commit": "307dbacfc6f37241054b9656a9c577b1aa1c6bb4"
     },
     "func_800498FC": {
       "ledger_commit": "e211ce6135a076ba8f08a28404299182ffc7a42d",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: register-only at 9 masked words, delta 0, routes to the forced-colour oracle and permuter. Neither was tried.",
       "source_commit": "e211ce6135a076ba8f08a28404299182ffc7a42d"
     },
     "func_80049B14": {
       "ledger_commit": "63f87fdf63f2d2aa5c4c86d18312513e74e983c5",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta 4 bytes the candidate is not the same function; no permutation closes it.",
       "source_commit": "63f87fdf63f2d2aa5c4c86d18312513e74e983c5"
     },
     "func_80049E4C": {
       "ledger_commit": "2d273f4be3e49ddcd8ce35dda94704d7b09d3d64",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta -8 bytes the candidate is not the same function; no permutation closes it.",
       "source_commit": "2d273f4be3e49ddcd8ce35dda94704d7b09d3d64"
     },
     "func_8004A10C": {
       "ledger_commit": "9477af4a9ce70bb31f420ba6f6dc8d46c6bf8f5c",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: ADR 0018 stall rule. Delta 0 at 132 masked words is a schedule or structure defect; the prior closure used the retired attempt cap.",
       "source_commit": "9477af4a9ce70bb31f420ba6f6dc8d46c6bf8f5c"
     },
     "func_8004ACC4": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: ADR 0018 stall rule. Delta 0 at 14 masked words is a schedule or structure defect; the prior closure used the retired attempt cap.",
       "source_commit": "ec8167ac2760843df13185267c490f62541771e6"
     },
     "func_8004ADE8": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: ADR 0018 stall rule. Delta 0 at ? masked words is a schedule or structure defect; the prior closure used the retired attempt cap.",
       "source_commit": "b3d6581927dbe28c24c967ab1fb2e1adedaeba2a"
     },
     "func_8004AF68": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: ADR 0018 stall rule. Delta 0 at 26 masked words is a schedule or structure defect; the prior closure used the retired attempt cap.",
       "source_commit": "deb2a1693f7ac84b8b0546b1a7b70d2522fdd59d"
     },
     "func_8004B1DC": {
@@ -897,12 +897,12 @@
     },
     "fxSPDPRipple": {
       "ledger_commit": "6ee2ed938728a995fed3fa91f76b6414c3b808bb",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta 8 bytes the candidate is not the same function; no permutation closes it.",
       "source_commit": "6ee2ed938728a995fed3fa91f76b6414c3b808bb"
     },
     "fxScreenEffect": {
       "ledger_commit": "09ed75fd0f91e85822b9130730e675a808f6758e",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta -28 bytes the candidate is not the same function; no permutation closes it.",
       "source_commit": "09ed75fd0f91e85822b9130730e675a808f6758e"
     },
     "joyRead": {
@@ -1287,17 +1287,17 @@
     },
     "wakeAllocate": {
       "ledger_commit": "8c82689ebebd6ebe9b27f180aefa19479e90cc4f",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta -32 bytes the candidate is not the same function; no permutation closes it.",
       "source_commit": "8c82689ebebd6ebe9b27f180aefa19479e90cc4f"
     },
     "wakeDraw": {
       "ledger_commit": "d04d8e9e2aa4fabc02a1b7f9885af595ffd19c24",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta -4 bytes the candidate is not the same function; no permutation closes it.",
       "source_commit": "d04d8e9e2aa4fabc02a1b7f9885af595ffd19c24"
     },
     "wakeUpdate": {
       "ledger_commit": "2dd01a7c4a8da35803c392aa57057a2dfd5262fe",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta -8 bytes the candidate is not the same function; no permutation closes it.",
       "source_commit": "2dd01a7c4a8da35803c392aa57057a2dfd5262fe"
     }
   },
