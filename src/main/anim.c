@@ -2239,8 +2239,8 @@ struct Func538Shape {
     s16 unk0;
     s16 unk2;
     s16 unk4;
-    u8 unk6;
-    u8 pad7[2];
+    u16 unk6;
+    u8 pad8;
     u8 unk9;
     u8 padA[2];
     f32 unkC;
@@ -2364,14 +2364,10 @@ void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
  * remain authoritative for this reconstruction.
  */
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, 1197 differing words, first mismatch +0x0. */
-/* Candidate shape: 1145 instructions/frame -0x240 versus target 1205/-0xF8. */
-/* Structural gap: 60 fewer instructions and 0x148 excess frame; not shape-exact. */
+/* NON_MATCHING: collision-update reconstruction; Mickey-only field/ABI audit. */
 void func_80053868(s32 arg0) {
 
-    f32 spD4;
-    f32 spD0;
-    f32 spCC;
+    f32 offset[3];
     s32 spB0;
     s32 spAC;
     s32 spA8;
@@ -2507,7 +2503,7 @@ temp_f20 = (f32) arg0;
                     if (temp_v0_2->unk60 != -1) {
                         temp_v0_2->unk18 = (f32) temp_v0_2->unk24;
                         temp_v0_2->unk1C = (f32) temp_v0_2->unk28;
-                        temp_v0_3 = (*((Func538Model **)((u8 *)temp_s6->unk68 + (temp_s6->unk3A * 4))))->unk40 + (temp_v0_2->unk60 * 0xC);
+                        temp_v0_3 = (*((Func538Model **)((u8 *)temp_s6->unk68 + (temp_s6->unk3A * 4))))->unk40 + temp_v0_2->unk60;
                         temp_v0_2->unk20 = (f32) temp_v0_2->unk2C;
                         temp_v0_2->unk24 = (f32) temp_v0_3->unk0;
                         temp_v0_2->unk28 = (f32) temp_v0_3->unk4;
@@ -2520,13 +2516,13 @@ temp_f20 = (f32) arg0;
                         temp_v0_2->unk28 = (f32) temp_s6->unk10;
                         temp_v0_2->unk2C = (f32) temp_s6->unk14;
                         if ((temp_v0_2->unk0 | temp_v0_2->unk2 | temp_v0_2->unk4) != 0) {
-                            spCC = temp_v0_2->unkC;
-                            spD0 = temp_v0_2->unk10;
-                            spD4 = temp_v0_2->unk14;
-                            mathOneFloatRPY((ControlTransform *) temp_s6, &spCC);
-                            temp_v0_2->unk24 = (f32) (temp_v0_2->unk24 + spCC);
-                            temp_v0_2->unk28 = (f32) (temp_v0_2->unk28 + spD0);
-                            temp_v0_2->unk2C = (f32) (temp_v0_2->unk2C + spD4);
+                            offset[0] = temp_v0_2->unkC;
+                            offset[1] = temp_v0_2->unk10;
+                            offset[2] = temp_v0_2->unk14;
+                            mathOneFloatRPY((ControlTransform *) temp_s6, &offset[0]);
+                            temp_v0_2->unk24 = (f32) (temp_v0_2->unk24 + offset[0]);
+                            temp_v0_2->unk28 = (f32) (temp_v0_2->unk28 + offset[1]);
+                            temp_v0_2->unk2C = (f32) (temp_v0_2->unk2C + offset[2]);
                         }
                         temp_v0_2->unk28 = (f32) (temp_v0_2->unk28 + temp_v0_2->unk54);
                     }
