@@ -47,6 +47,14 @@ extern f32 D_297C;
 extern Overlay65TrailVertex *D_2988;
 extern u8 D_800000C0[];
 
+/*
+ * Tier B: Overlay 65 runtime SYMBOL records distinguish the camera getter,
+ * active-camera setter, view setup, random range, sine, cosine and render-state
+ * calls below; their zero-offset assembly carrier is not a shared callee.
+ * The spawn call is a same-overlay JUMP to the adjacent record initializer.
+ * LOCAL records bind D_1900, D_2978, D_297C and D_2988 to BSS, D_214 and
+ * the triangle command address to data. The record pool starts at BSS zero.
+ */
 extern Overlay65TrailCamera *func_80021970(s32 index);
 extern void camSetNo(s32 index);
 extern void func_800221E8(void **commands, s32 *cursor);
