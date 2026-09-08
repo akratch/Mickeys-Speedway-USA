@@ -94,16 +94,33 @@ extern void overlay62DrawLabelReloc(Overlay62Gfx **commands, s32 *state,
  * and the shared-negation color web enter as independent roots; only the real
  * negation-to-red/blue data edges connect those color chains. Thus the trace
  * exposes no missing natural C dependency beyond the already-tested comma
- * forms, and does not authorize another source mutation.
+ * forms.
+ *
+ * The ADR 0018 reopen re-proved V0 and closed the remaining source-reachable
+ * pool/AST space without a strict gain. All 718 new scalar declaration orders
+ * retained seven normalized register differences. The 119 first-branch, 358
+ * semantically valid second-branch, and 719 fallback-branch result-order cells
+ * either tied V0 or regressed. Assignment direction, integer widths, call
+ * conversions, constant operand order, addend order, and shift/multiply forms
+ * likewise tied or regressed; materialized masking and an explicit 220x tree
+ * changed the frame or opcode structure. The original source therefore remains
+ * the best promotable candidate. Workbench verdict is `allocation-mismatch`.
+ * A phase-complete forced-color oracle is not yet measurable: the focused
+ * allocator trace assigns two split decisions the same `p1:w10` identity, and
+ * `oracle plan` correctly rejects the ambiguous grid. The next compiler lever
+ * is unique split-web identities, followed by a complete p1/p2 oracle plan and
+ * sweep; do not filter the duplicate or infer an exhaustive force result from
+ * the earlier two-web p1 probes.
+ *
  * The candidate emits all 71 runtime records (21 R26 and 25 HI/LO pairs; 43
  * SYMBOL/28 LOCAL) at exact offsets and
  * types. The identity comparator resolves 18/71 friendly aliases; the other 53
  * remain proxy-identity work and prohibit promotion. Owned +0xD4..+0x56C has
  * no target padding; release starts at +0x56C. ORT 1444 and sole inbound
  * func_80038E1C+0x3A4 are authenticated. Linked equality proves fallback only;
- * resume only with a new allocator/compiler mechanism or complete identity
- * mapping, not more flags, comma forms, scheduler recaptures, or an ungated
- * batch. */
+ * resume with the split-web oracle lever or complete identity mapping, not more
+ * flags, declarations, statement orders, scalar widths, arithmetic AST forms,
+ * comma forms, scheduler recaptures, or an ungated batch. */
 void overlay62Update(s32 updateRate) {
     s32 alpha;
     volatile s32 screenBase;
@@ -216,6 +233,6 @@ void overlay62Update(s32 updateRate) {
  * frame: 0x88
  * relocations: 71
  * first-mismatch: +0x44
- * summary: pool slot 6 allocation residual; alias probe regressed and dead-read probe was flat; next: new authenticated web-formation lever or identity mapping
+ * summary: verdict=allocation-mismatch; lever=unique split-web IDs for a phase-complete p1/p2 forced-color oracle
  * PLATEAU-HANDOFF:overlay62Update:end
  */
