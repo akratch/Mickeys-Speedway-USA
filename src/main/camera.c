@@ -2005,6 +2005,6 @@ f32 D_80079F54 = 0.0f;
  * frame: 0xA0
  * relocations: 32
  * first-mismatch: +0x0
- * summary: Fresh V0 is 286/284 words, target frame 0x90, relocs 32/32 with 6 identities aligned. Prior flags and ten natural source forms are exhausted.
+ * summary: JFG efd5abb adds no counterpart for Mickey's high-level sprite path beyond the donor already exhausted here; next lever is Mickey-authenticated source context.
  * PLATEAU-HANDOFF:func_80023598:end
  */
