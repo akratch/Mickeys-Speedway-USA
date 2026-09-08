@@ -21,6 +21,11 @@ typedef struct TextureHeader {
     u8 pad04[0x1C];
 } TextureHeader;
 
+typedef union TextureCacheWord {
+    s32 id;
+    TextureHeader *texture;
+} TextureCacheWord;
+
 typedef struct TempTextureHeader {
     TextureHeader header;
     u32 uncompressedSize;
@@ -182,51 +187,29 @@ TextureHeader *func_80034448(s32 textureId) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/textures_35024/func_80034448.s")
 #endif
-#ifdef NON_MATCHING
-/* PROVENANCE: control-flow and the two-word cache index are adapted from Jet
- * Force Gemini's public src/textures.c::texFreeTexture; Mickey's raw cache
- * layout, callers, and compiled bytes remain authoritative. Configured C now
- * matches 41/43 words with the exact instruction, register, opcode, and
- * seven-relocation shape. Only the symmetric frame adjustment differs: the
- * candidate is 0x30 while the target is 0x28. Ten local ablations and
- * scope/width/register
- * variants either preserve that frame or destroy the exact topology. Candidate
- * SHA-1 is a988205d2a34; preserve this form pending producer evidence for the
- * unused automatic home that rounds the frame upward. */
+/* PROVENANCE: control flow is adapted from Jet Force Gemini's public
+ * src/textures.c::texFreeTexture. Mickey's raw two-word cache layout, callers,
+ * and exact compiled bytes remain authoritative. */
 void func_800347A0(TextureHeader *tex) {
     s32 i;
-    s32 tableIndex;
-    s32 textureId;
 
     if (tex != NULL) {
         tex->numberOfInstances--;
         if (tex->numberOfInstances <= 0) {
             for (i = 0; i < D_800D2FE0; i++) {
-                tableIndex = i << 1;
-                if (tex == ((TextureHeader **)D_800D2FD8)[tableIndex + 1]) {
-                    textureId = -1;
+                if (tex == ((TextureCacheWord *)D_800D2FD8)[(i << 1) + 1]
+                               .texture) {
                     mmFree(tex);
-                    ((s32 *)D_800D2FD8)[tableIndex] = textureId;
-                    ((TextureHeader **)D_800D2FD8)[tableIndex + 1] =
-                        (TextureHeader *)textureId;
+                    tex = (TextureHeader *) -1;
+                    ((TextureCacheWord *)D_800D2FD8)[i << 1].texture = tex;
+                    ((TextureCacheWord *)D_800D2FD8)[(i << 1) + 1].texture =
+                        tex;
                     break;
                 }
             }
         }
     }
 }
-/* PLATEAU-HANDOFF:func_800347A0:start
- * symbol: func_800347A0
- * score: 2 differing words
- * frame: 0x30 (target 0x28)
- * relocations: 7
- * first-mismatch: +0x0
- * summary: Fresh remeasurement confirms exact 43-word geometry and seven aligned relocation identities; only symmetric 0x30-versus-0x28 frame immediates differ.
- * PLATEAU-HANDOFF:func_800347A0:end
- */
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/textures_35024/func_800347A0.s")
-#endif
 /* Bounded full-TU reproof (2026-09-04): configured C is exact-sized and
  * frameless at 11/21 words, first +0x8, with four resolved static relocation
  * identities; three retain the target offset/type. The target keeps the
