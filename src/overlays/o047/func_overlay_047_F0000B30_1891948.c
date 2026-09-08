@@ -682,3 +682,13 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o047/func_overlay_047_F0000B30_1891948/func_overlay_047_F0000B30_1891948.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:start
+ * symbol: func_overlay_047_F0000B30_1891948
+ * score: 1972/2168 words
+ * frame: 0x280
+ * relocations: 318
+ * first-mismatch: +0x4
+ * summary: Size/frame exact; 83 ordered calls, 318/321 text relocations. Five CFG probes stalled. Next: structure-buckets lever 6 spill-slot census.
+ * PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:end
+ */
