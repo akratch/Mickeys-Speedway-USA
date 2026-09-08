@@ -3886,7 +3886,7 @@ typedef struct {
     u8 unk0;
     u8 pad01;
     s8 unk2;
-    u8 unk3;
+    s8 unk3;
     u8 unk4;
     u8 pad05[3];
     void *unk8;
@@ -3935,72 +3935,66 @@ extern void func_80022FD4(void **displayList, s32 matrices, s32 vertices,
 extern void func_80047CD8(void **displayList, void *cone, s32 flags, u8 alpha);
 extern f32 func_80009F08(Objects09F08Arg *arg0);
 
-/* Workbench verdict: structure-mismatch; 411 differing words (421/378). */
-/* First mismatch: +0x0; target frame 0x198, candidate frame 0x1A0. */
-/* Structural gap: renderer control flow is complete; local sort/display layout is 43 instructions short. */
 #ifdef NON_MATCHING
 void func_80009414(void **arg0, s32 arg1, s32 arg2, void *arg3) {
-    Objects09414Object *object;
+    s32 i;
+    s32 j;
+    s32 count;
+    s32 type;
+    s32 base;
+    s32 swap;
+    s32 mode;
+    s16 sortIndex[8];
+    s16 alphas[8];
+    s16 kindOrEntry[8];
+    f32 inverseScale;
+    Objects09414Sprite sprite;
+    u8 *textures[8];
+    f32 depths[8];
+    void *cone;
+    void *cones[8];
+    Objects09414Resource *root;
     Objects09414Data *data;
     Objects09414Resource *resource;
-    Objects09414Resource *root;
+    Objects09414Object *object;
+    Objects09414Gfx *command;
+    Objects09414Entry *entries[8];
     Objects09414StaticEntry *staticEntry;
     Objects09414Entry *entry;
     Objects09414Vector *vector;
-    Objects09414Sprite sprite;
-    Objects09414Gfx *command;
-    Objects09414Entry *entries[8];
-    void *cones[8];
-    u8 *textures[8];
-    f32 depths[8];
-    s16 sortIndex[8];
-    s16 kindOrEntry[8];
-    u16 alphas[8];
-    s32 *callbacks;
-    u8 *textureBase;
-    f32 inverseScale;
-    f32 temp;
-    s32 count;
-    s32 i;
-    s32 j;
-    s32 type;
-    s32 base;
-    s32 mode;
-    s16 swap;
 
     object = (Objects09414Object *)arg3;
     resource = object->unk64;
     root = *object->unk68;
-    count = 0;
 
     command = (Objects09414Gfx *)*arg0;
     *arg0 = (void *)(command + 1);
-    command->w0 = 0xE7000000;
     command->w1 = 0;
+    command->w0 = 0xE7000000;
     command = (Objects09414Gfx *)*arg0;
     *arg0 = (void *)(command + 1);
-    command->w0 = 0xFB000000;
     command->w1 = (u32)-0x100;
+    command->w0 = 0xFB000000;
 
-    callbacks = (s32 *)((u8 *)resource + 0x134);
-    for (i = 0; i < 4; i++) {
-        if (callbacks[i] != 0) {
-            TrapDanglingJump(arg0, callbacks[i]);
+    for (i = 0; i < 16; i += 4) {
+        if (*(s32 *)((u8 *)resource + 0x134 + i) != 0) {
+            TrapDanglingJump(arg0, *(s32 *)((u8 *)resource + 0x134 + i));
         }
     }
 
     data = object->unk40;
     if (data->unk1E[object->unk93] == 0) {
+        count = 0;
         for (i = 0; i < 4; i++) {
             staticEntry = (Objects09414StaticEntry *)
                 ((u8 *)resource + 0x34C + (i * 0xC));
             if ((staticEntry->unk4 != 0) && (staticEntry->unk8 != NULL)) {
+                cone = staticEntry->unk8;
                 vector = &root->unk40[staticEntry->unk2];
                 depths[count] = camGetProjZ(vector->x, vector->y, vector->z);
-                cones[count] = staticEntry->unk8;
+                cones[count] = cone;
                 base = *(s32 *)((u8 *)root + (root->unkA * 4) + 0xC);
-                textureBase = (u8 *)base;
-                textures[count] = textureBase + (staticEntry->unk3 << 6);
+                textures[count] = (u8 *)base + (staticEntry->unk3 << 6);
                 alphas[count] = staticEntry->unk4;
                 kindOrEntry[count] = staticEntry->unk0 | 0x80;
                 sortIndex[count] = count;
@@ -4010,7 +4004,7 @@ void func_80009414(void **arg0, s32 arg1, s32 arg2, void *arg3) {
 
         if ((resource->unk158 == 0) && (object->unk60 != NULL)) {
             entry = object->unk60;
-            for (i = 0; (i < object->unk8C) && (i < 4); i++, entry++) {
+            for (i = 0; (i < object->unk8C) && (i != 4); i++, entry++) {
                 vector = &root->unk40[entry->unk4];
                 depths[count] = camGetProjZ(vector->x, vector->y, vector->z);
                 entries[count] = entry;
@@ -4020,80 +4014,95 @@ void func_80009414(void **arg0, s32 arg1, s32 arg2, void *arg3) {
             }
         }
 
-        for (i = count - 1; i > 0; i--) {
-            for (j = 0; j < i; j++) {
-                if (depths[sortIndex[j + 1]] < depths[sortIndex[j]]) {
-                    swap = sortIndex[j];
-                    sortIndex[j] = sortIndex[j + 1];
-                    sortIndex[j + 1] = swap;
+        if (count > 0) {
+            for (i = count - 1; i > 0; i--) {
+                j = 0;
+                if (i & 1) {
+                    if (depths[sortIndex[j + 1]] < depths[sortIndex[j]]) {
+                        swap = sortIndex[j];
+                        sortIndex[j] = sortIndex[j + 1];
+                        sortIndex[j + 1] = swap;
+                    }
+                    j = 1;
+                }
+                for (; j != i; j += 2) {
+                    if (depths[sortIndex[j + 1]] < depths[sortIndex[j]]) {
+                        swap = sortIndex[j];
+                        sortIndex[j] = sortIndex[j + 1];
+                        sortIndex[j + 1] = swap;
+                    }
+                    if (depths[sortIndex[j + 2]] < depths[sortIndex[j + 1]]) {
+                        swap = sortIndex[j + 1];
+                        sortIndex[j + 1] = sortIndex[j + 2];
+                        sortIndex[j + 2] = swap;
+                    }
                 }
             }
-        }
 
-        func_80022E80((void *)((u8 *)resource + 0x43C));
-        temp = func_80009F08((Objects09F08Arg *)object);
-        inverseScale = temp / data->unk0;
-        for (i = 0; i < count; i++) {
-            j = sortIndex[i];
-            type = kindOrEntry[j];
-            if ((type & 0x80) != 0) {
-                type &= 0x7F;
-                if (type == 0) {
-                    mode = 0x206;
-                } else if (type == 1) {
-                    mode = 6;
-                } else if (type == 2) {
-                    mode = 0x16;
-                    func_80009220(arg0, arg1, arg2,
-                                  (Objects09220Object *)object,
-                                  (s32)textures[j],
-                                  (Objects09220Source *)cones[j],
-                                  alphas[j]);
-                } else {
+            func_80022E80((void *)((u8 *)resource + 0x43C));
+            inverseScale = func_80009F08((Objects09F08Arg *)object) / object->unk40->unk0;
+            sprite.divisor = 3;
+            sprite.frameCount = 0x3333;
+            for (i = 0; i < count; i++) {
+                j = sortIndex[i];
+                type = kindOrEntry[j];
+                if ((type & 0x80) != 0) {
+                    type &= 0x7F;
+                    if (type == 0) {
+                        mode = 0x206;
+                    } else if (type == 1) {
+                        mode = 6;
+                    } else if (type == 2) {
+                        mode = 0x16;
+                        func_80009220(arg0, arg1, arg2,
+                                      (Objects09220Object *)object,
+                                      (s32)textures[j],
+                                      (Objects09220Source *)cones[j],
+                                      alphas[j]);
+                    } else {
+                        /* Baseline placeholder: default-mode lifetime remains unproved. */
                     mode = 0x3333;
+                    }
+                    command = (Objects09414Gfx *)*arg0;
+                    *arg0 = (void *)(command + 1);
+                    command->w0 = 0x01810040;
+                    command->w1 = (u32)textures[j] + 0x80000000;
+                    func_80047CD8(arg0, cones[j], mode,
+                                  (u8)alphas[j]);
+                    command = (Objects09414Gfx *)*arg0;
+                    *arg0 = (void *)(command + 1);
+                    command->w0 = 0xBC00000A;
+                    command->w1 = 0;
+                } else {
+                    entry = entries[j];
+                    sprite.angle = *(s16 *)((u8 *)resource + 0x10C +
+                                             (type * 2));
+                    sprite.frame = *(s16 *)((u8 *)resource + 0x114 +
+                                             (type * 2));
+                    sprite.transformScale = entry->unk8 * inverseScale;
+                    sprite.matrixScale = resource->unk50;
+                    vector = &root->unk40[entry->unk4];
+                    sprite.x = vector->x;
+                    sprite.y = *(f32 *)((u8 *)resource + 0x11C +
+                                        (type * 4)) + vector->y;
+                    sprite.z = vector->z;
+                    sprite.spriteData = entry->unk0;
+                    func_80022FD4(arg0, arg1, arg2,
+                                  (void *)((u8 *)resource + 0x43C), object->unk50,
+                                  &sprite, 0xE, object->unk39);
                 }
-                command = (Objects09414Gfx *)*arg0;
-                *arg0 = (void *)(command + 1);
-                command->w0 = 0x01810040;
-                command->w1 = (u32)textures[j] + 0x80000000;
-                func_80047CD8(arg0, cones[j], mode,
-                              (u8)alphas[j]);
-                command = (Objects09414Gfx *)*arg0;
-                *arg0 = (void *)(command + 1);
-                command->w0 = 0xBC00000A;
-                command->w1 = 0;
-            } else {
-                entry = entries[j];
-                sprite.angle = *(s16 *)((u8 *)resource + 0x10C +
-                                         (type * 2));
-                sprite.frame = *(s16 *)((u8 *)resource + 0x114 +
-                                         (type * 2));
-                sprite.divisor = 3;
-                sprite.transformScale = entry->unk8 * inverseScale;
-                sprite.matrixScale = resource->unk50;
-                vector = &root->unk40[entry->unk4];
-                sprite.x = vector->x;
-                sprite.y = *(f32 *)((u8 *)resource + 0x11C +
-                                    (type * 4)) + vector->y;
-                sprite.z = vector->z;
-                sprite.frameCount = 0x3333;
-                sprite.spriteData = entry->unk0;
-                func_80022FD4(arg0, arg1, arg2,
-                              (void *)((u8 *)resource + 0x43C), object->unk50,
-                              &sprite, 0xE, object->unk39);
             }
         }
-    }
 
-    callbacks = (s32 *)((u8 *)resource + 0xD0);
-    if (callbacks[0] != 0) {
-        TrapDanglingJump(arg0, arg1, callbacks[0]);
-    }
-    if (callbacks[1] != 0) {
-        TrapDanglingJump(arg0, arg1, arg2, callbacks[1]);
-    }
-    if (callbacks[2] != 0) {
-        TrapDanglingJump(arg0, arg1, callbacks[2]);
+        if (*(s32 *)((u8 *)resource + 0xD0) != 0) {
+            TrapDanglingJump(arg0, arg1, *(s32 *)((u8 *)resource + 0xD0));
+        }
+        if (*(s32 *)((u8 *)resource + 0xD4) != 0) {
+            TrapDanglingJump(arg0, arg1, arg2, *(s32 *)((u8 *)resource + 0xD4));
+        }
+        if (*(s32 *)((u8 *)resource + 0xD8) != 0) {
+            TrapDanglingJump(arg0, arg1, *(s32 *)((u8 *)resource + 0xD8));
+        }
     }
 }
 #else
@@ -5725,4 +5734,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0xA8
  * summary: Workbench structure-mismatch: structure-buckets. Next: authenticate the optional multiplier home transfer and remaining floating-point allocation.
  * PLATEAU-HANDOFF:func_80008B94:end
+ */
+
+/* PLATEAU-HANDOFF:func_80009414:start
+ * symbol: func_80009414
+ * score: 388 differing words
+ * frame: 0x198
+ * relocations: 11
+ * first-mismatch: +0x40
+ * summary: Workbench structure-mismatch: structure-buckets. Next: authenticate the default-mode lifetime and sort-prefix source before further scheduling work.
+ * PLATEAU-HANDOFF:func_80009414:end
  */
