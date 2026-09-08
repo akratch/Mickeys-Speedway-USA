@@ -1698,7 +1698,7 @@ the candidates remain preserved behind `NON_MATCHING`.
 | `0x3BB10` | `0x120` | `snow_init` | B/D name; exact C, 72 words, 8 relocs |
 | `0x3BC30` | `0x1EC` | `changeWeather` | B/D name; exact C, 123 words, 5 relocs |
 | `0x3BE1C` | `0x2A4` | `doWeather` | B/D name; exact C, 169 words, 61 relocs |
-| `0x3C0C0` | `0x238` | `snow_render` | B/D |
+| `0x3C0C0` | `0x238` | `snow_render` | B/D name; exact C, 142 words, 18 relocs; linked ROM proved |
 | `0x3C2F8` | `0xEC` | `rain_init` | B/D; plateau, 59 words exact, one reloc identity at `+0xA0` |
 | `0x3C3E4` | `0x84` | `free_rain_memory` | B/D; plateau, 33 words exact, one reloc identity at `+0x68` |
 | `0x3C468` | `0x104` | `rain_set` | B/D name; exact C, 65 words, 18 relocs |
@@ -1712,6 +1712,16 @@ the candidates remain preserved behind `NON_MATCHING`.
 | `0x3D174` | `0x1FC` | `snow_vertices` | B/D; odd-FP handwritten asm |
 | `0x3D370` | `0x9C` | `func_8003C770` | D; Mickey-only reconstruction, exact C, 39 words, 15 relocs |
 | `0x3D40C` | `0x1E4` | `func_8003C80C` | `NON_MATCHING` diagnostic draft; 106 positional words differ, first `+0x14`, target/candidate 118/117 instructions. Its unused eight-byte frame pad is removed; clean shape/frame are uncompiled, with structural/register gaps remaining. |
+
+`snow_render` now reproduces all **568 bytes / 142 words** at ROM
+`0x3C0C0`–`0x3C2F8`, with the exact `0x58` frame and all 18 static relocation
+identities. The JFG donor's typed texture access, early returns and scoped
+command expansions remove the prior size/frame gap; Mickey's pre-call caches
+and decrementing loop remain required by its ROM. The final matrix command
+preserves the donor macro's shared statement line. The canonical linked owned
+range and full US ROM both compare exactly. See the
+[resolved handoff](matching-triage-handoffs/snow_render.md) for the measured
+attempts and provenance.
 
 There are no string references. `snow_vertices` is the range's only function
 using odd single-precision FP registers; it and extractor-marked
