@@ -1,13 +1,13 @@
 {
   "schema_version": 3,
   "source_context_version": 5,
-  "queue_size": 427,
-  "resolved": 427,
+  "queue_size": 426,
+  "resolved": 426,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
-  "source_context_coverage": 427,
-  "relocation_masked_coverage": 427,
+  "source_context_coverage": 426,
+  "relocation_masked_coverage": 426,
   "functions": [
     {
       "name": "func_8003A2C8",
@@ -3458,21 +3458,6 @@
       "size_delta": 16,
       "category": "size-mismatch",
       "source_context_sha256": "9Hcj.CgtR.wjT-.DPBk.iTzs.E-Kd.32WB.n87s.tVwU.s9Lc.l-I"
-    },
-    {
-      "name": "overlay1HandleCachedMode",
-      "file": "src/overlays/o001/overlay_001_tail.c",
-      "overlay": 1,
-      "tu": "overlays/o001",
-      "size_bytes": 128,
-      "objdiff_match_pct": null,
-      "differing_words": 24,
-      "first_mismatch_offset": 4,
-      "relocation_masked_differing_words": 23,
-      "relocation_masked_first_mismatch_offset": 20,
-      "size_delta": 4,
-      "category": "size-mismatch",
-      "source_context_sha256": "JzAu.6uiF.s6j0.AIry.AWm9.YMpv.l0LR.8Rg3.7RM-.B3o7.3og"
     },
     {
       "name": "overlay15MoveStars",

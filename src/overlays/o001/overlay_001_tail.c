@@ -1815,26 +1815,24 @@ extern s32 D_83E4;
 extern s32 overlay27CanUse(void *);
 extern s32 overlay3RunCachedModeAction(void *, W *);
 extern s32 overlay1DispatchMode(void);
-/* Workbench verdict: structure-mismatch, 23 differing words, first mismatch +0x0.
- * Shape: one extra instruction (33/32) with an exact 0x18 frame; not shape-exact.
- * Remaining gap: callback-clear control flow and unresolved relocation identities. */
-#ifdef NON_MATCHING
+/* The clear path is the fall-through of both tests, so the short-circuit `||`
+ * is what puts it there: IDO branches to the "then" block when the first
+ * disjunct holds and past it when the second fails, which is exactly the
+ * target's `beqzl enabled -> clear` / `beqz canUse -> dispatch` pair. Written
+ * with the dispatch as the "then" instead, the clear block lands after the
+ * dispatch block and costs one extra branch to reach the epilogue. The
+ * world pointer is re-read after the call because it is caller-saved. */
 s32 overlay1HandleCachedMode(void) {
-    if (((W *)D_1DA0)->enabled == 0) goto clear;
-    if (overlay27CanUse(((W *)D_1DA0)->object) == 0) {
-        if (D_83E4 == 3) {
-            return overlay3RunCachedModeAction(D_1D9C, (W *)D_1DA0);
-        }
-        return overlay1DispatchMode();
+    if ((((W *)D_1DA0)->enabled == 0) ||
+        (overlay27CanUse(((W *)D_1DA0)->object) != 0)) {
+        ((W *)D_1DA0)->state = 0;
+        return 0;
     }
-clear:
-    ((W *)D_1DA0)->state = 0;
-    return 0;
+    if (D_83E4 == 3) {
+        return overlay3RunCachedModeAction(D_1D9C, (W *)D_1DA0);
+    }
+    return overlay1DispatchMode();
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F00061F0_18525D0.s")
-#endif
 
 /* ---- overlay1ChooseModeObject ---- */
 
@@ -3243,15 +3241,6 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  */
 
 
-/* PLATEAU-HANDOFF:overlay1HandleCachedMode:start
- * symbol: overlay1HandleCachedMode
- * score: 23 differing words
- * frame: 0x18
- * relocations: 11
- * first-mismatch: +0x0
- * summary: inverted callback condition removes one instruction; remaining gap is structural clear-flow and relocation identity
- * PLATEAU-HANDOFF:overlay1HandleCachedMode:end
- */
 
 /* PLATEAU-HANDOFF:overlay1ConsumeNearbyPending:start
  * symbol: overlay1ConsumeNearbyPending
