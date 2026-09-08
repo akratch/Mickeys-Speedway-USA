@@ -835,7 +835,7 @@ void overlay1CallReset(void) {
  * frame: 0x68
  * relocations: 13
  * first-mismatch: +0x94
- * summary: ROM-proved splinePos binding restores all 13 identities with unchanged TU bytes; integral-position stack homes still differ at +0x94/+0xC4
+ * summary: stack-home: three carrier and birth-order forms were byte-flat; next capture authenticated spill-owner identity for the preserved integer
  * PLATEAU-HANDOFF:overlay1InterpolatePath:end
  */
 
