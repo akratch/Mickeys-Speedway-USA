@@ -1267,11 +1267,12 @@ void func_80004C28(s32 arg0, s32 arg1) {
 #endif
 typedef struct {
     s16 unk0;
-    s16 unk2;
+    u8 unk2;
+    u8 pad03;
     s16 unk4;
     s16 unk6;
     s16 unk8;
-    u8 pad0A[2];
+    s16 unkA;
     s16 unkC;
     s16 unkE;
     u8 unk10;
@@ -1279,7 +1280,8 @@ typedef struct {
 } Objects04FE0Packet;
 
 typedef struct {
-    u8 pad00[4];
+    u8 unk0;
+    u8 pad01[3];
     u8 unk4;
     u8 pad05;
     s8 unk6;
@@ -1304,45 +1306,54 @@ typedef struct {
     s32 unk88;
 } Objects04FE0Object;
 
-/* Workbench verdict: structure-mismatch; 337 differing words (347/346 instructions). */
-/* First mismatch: +0x64; target frame is 0x100, candidate frame is 0x128. */
-/* Structural gap: packet carriers and allocator call ABI leave a larger candidate frame. */
+typedef struct {
+    s16 unk0;
+    u8 unk2;
+    u8 pad03;
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+    u8 unkA;
+    u8 pad0B;
+} Objects04FE0ExtraPacket;
+
+typedef struct {
+    s16 unk0;
+    u8 unk2;
+    u8 pad03;
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+    s16 unkA;
+} Objects04FE0SpecialPacket;
+
 #ifdef NON_MATCHING
 void func_80004FE0(s32 arg0) {
-    u8 *modeState;
-    u8 *level;
-    s32 playerCount;
     s32 i;
     s32 offset;
+    s32 playerCount;
     s32 slot;
-    s32 player;
-    s16 playerSetup0;
-    s16 playerSetup1;
-    s16 playerSetup2;
-    s16 playerSetup3;
-    Objects04FE0Object *category[6];
+    s32 type;
     Objects04FE0Packet packets[6];
-    Objects04FE0Packet extraPacket;
-    Objects04FE0Packet specialPacket;
+    Objects04FE0Object *category[6];
+    Objects04FE0SpecialPacket specialPacket;
+    Objects04FE0ExtraPacket extraPacket;
+    Objects04FE0ModeRecord *modeState;
     Objects04FE0ModeRecord *records;
-    Objects04FE0Object **objects;
     Objects04FE0Object *object;
-    Objects04FE0Object *sourceObject;
     Objects04FE0Source *source;
-    s32 flags;
-    u8 type;
+    s8 *level;
 
     modeState = func_80028F54();
-    level = levelGetLevel();
+    level = (s8 *)levelGetLevel();
     playerCount = func_800291FC();
     D_800C94F8 = 0;
-    if ((level[0x83] != 1) && (level[0x83] != 2)) {
+    if ((level[0x83] != 1) && (level[0x83] != 2) && (playerCount > 0)) {
         for (i = 0; i < 6; i++) {
             category[i] = NULL;
         }
-        objects = (Objects04FE0Object **)D_800C9494;
-        for (i = 0; i < D_800C9498; i++) {
-            object = objects[i];
+        for (offset = 0; offset < D_800C9498; offset++) {
+            object = (Objects04FE0Object *)D_800C9494[offset];
             if ((object->unk44 == 5) && (arg0 == object->unk88)) {
                 slot = object->unk84;
                 if ((slot >= 0) && (slot < 6)) {
@@ -1351,72 +1362,73 @@ void func_80004FE0(s32 arg0) {
                     }
                 } else {
                     category[0] = object;
-                    category[2] = object;
-                    category[3] = object;
-                    category[4] = object;
-                    category[5] = object;
+                    category[1] = object;
+                    for (type = 2; type < 6; type += 4) {
+                        category[type + 1] = object;
+                        category[type + 2] = object;
+                        category[type + 3] = object;
+                        category[type] = object;
+                    }
                 }
             }
         }
-        records = (Objects04FE0ModeRecord *)modeState;
-        for (player = 0; player < playerCount; player++) {
-            type = records[player].unk4;
+        for (i = 0, records = modeState; i < playerCount; i++, records++) {
+            type = records->unk4;
             if (type >= 0xA) {
                 type = 0;
             }
             if (D_8007BF10 != 0) {
-                packets[player].unk0 = D_80078FF0[type];
+                packets[i].unk0 = D_80078FF0[type];
             } else if (D_8007BF0C == 0) {
                 if (level[0x83] == 3) {
-                    packets[player].unk0 = D_80078FB4[type];
+                    packets[i].unk0 = D_80078FB4[type];
                 } else if (D_8007BF04 != 0) {
-                    packets[player].unk0 = D_80078FA0[type];
+                    packets[i].unk0 = D_80078FA0[type];
                 } else {
-                    packets[player].unk0 = D_80078F8C[type];
+                    packets[i].unk0 = D_80078F8C[type];
                 }
             } else if (level[0x83] == 3) {
-                packets[player].unk0 = D_80078FDC[type];
+                packets[i].unk0 = D_80078FDC[type];
             } else {
-                packets[player].unk0 = D_80078FC8[type];
+                packets[i].unk0 = D_80078FC8[type];
             }
-            packets[player].unk2 = 0x12;
-            packets[player].unkC = 0;
-            packets[player].unk10 = player;
-            packets[player].unk11 = type;
-            if ((*modeState == 5) || (*modeState == 6)) {
-                slot = player;
-            } else if ((*modeState == 1) || (*modeState == 2)) {
+            packets[i].unk2 = 0x12;
+            packets[i].unkA = 0;
+            packets[i].unkC = 0;
+            packets[i].unk10 = i;
+            packets[i].unk11 = type;
+            if ((modeState->unk0 == 5) || (modeState->unk0 == 6)) {
+                slot = i;
+            } else if ((modeState->unk0 == 1) || (modeState->unk0 == 2)) {
                 slot = 0;
             } else if (D_8007BF0C != 0) {
-                slot = (playerCount - records[player].unk6) - 1;
+                slot = (playerCount - records->unk6) - 1;
             } else {
-                slot = records[player].unk6;
+                slot = records->unk6;
             }
-            sourceObject = category[slot];
-            if (sourceObject != NULL) {
-                source = (Objects04FE0Source *)sourceObject->unk3C;
-                packets[player].unk4 = source->unk4;
-                packets[player].unk6 = source->unk6;
-                packets[player].unk8 = source->unk8;
-                packets[player].unkE = sourceObject->unk0;
+            object = category[slot];
+            if (object != NULL) {
+                source = (Objects04FE0Source *)object->unk3C;
+                packets[i].unk4 = source->unk4;
+                packets[i].unk6 = source->unk6;
+                packets[i].unk8 = source->unk8;
+                packets[i].unkE = object->unk0;
                 category[slot] = NULL;
             } else {
-                packets[player].unk4 = 0;
-                packets[player].unk6 = 0;
-                packets[player].unk8 = 0;
-                packets[player].unkE = 0;
+                packets[i].unk4 = 0;
+                packets[i].unk6 = 0;
+                packets[i].unk8 = 0;
+                packets[i].unkE = 0;
             }
         }
-        controlGetPlayerSetup(&playerSetup0, &playerSetup1, &playerSetup2,
-                              &playerSetup3);
-        for (i = 0; i < 8; i++) {
-            D_800C94F4[i] = NULL;
+        controlGetPlayerSetup(&packets[0].unk4, &packets[0].unk6,
+                              &packets[0].unk8, &packets[0].unkE);
+        for (offset = 0; offset < 8; offset++) {
+            D_800C94F4[offset] = NULL;
         }
-        for (player = 0, offset = 0; player < playerCount;
-             player++, offset += 4) {
-            object = (Objects04FE0Object *)func_8000590C(&packets[player], 1,
-                                                         offset);
-            D_800C94F4[player] = object;
+        for (i = 0, offset = 0; i < playerCount; i++, offset += 4) {
+            object = (Objects04FE0Object *)func_8000590C(&packets[i], 1);
+            *(void **)((u8 *)D_800C94F4 + offset) = object;
             if (object != NULL) {
                 object->unk3C = NULL;
             }
@@ -1427,7 +1439,7 @@ void func_80004FE0(s32 arg0) {
             extraPacket.unk4 = 0;
             extraPacket.unk6 = 0;
             extraPacket.unk8 = 0;
-            extraPacket.unk10 = i;
+            extraPacket.unkA = i;
             object = (Objects04FE0Object *)func_8000590C(&extraPacket, 1);
             if (object != NULL) {
                 object->unk3C = NULL;
@@ -1439,10 +1451,10 @@ void func_80004FE0(s32 arg0) {
             specialPacket.unk0 = 0x77;
         }
         specialPacket.unk2 = 0xC;
-        specialPacket.unk4 = playerSetup0;
-        specialPacket.unk6 = playerSetup1;
-        specialPacket.unk8 = playerSetup2;
-        specialPacket.unkC = playerSetup3;
+        specialPacket.unk4 = packets[0].unk4;
+        specialPacket.unk6 = packets[0].unk6;
+        specialPacket.unk8 = packets[0].unk8;
+        specialPacket.unkA = packets[0].unkE;
         object = (Objects04FE0Object *)func_8000590C(&specialPacket, 1);
         if (object != NULL) {
             object->unk3C = NULL;
@@ -1450,12 +1462,11 @@ void func_80004FE0(s32 arg0) {
                 D_80078F7C = object;
             }
         }
-        if ((*modeState == 1) && (D_800C94F4[0] != NULL)) {
-            flags = *(s32 *)D_800D3128;
-            if ((flags & 0x80000) != 0) {
+        if ((modeState->unk0 == 1) && (D_800C94F4[0] != NULL)) {
+            if ((*(s32 *)D_800D3128 & 0x80000) != 0) {
                 TrapDanglingJump(D_8007A1F4);
             }
-            if ((flags & 0x100000) != 0) {
+            if ((*(s32 *)D_800D3128 & 0x100000) != 0) {
                 TrapDanglingJump(levelGetNumber());
                 TrapDanglingJump(D_8007A1F8);
             }
@@ -5683,4 +5694,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x2C8
  * summary: Workbench structure-mismatch: structure-buckets. Next: resolve the extra texture-flag argument move and shared physical-address constant.
  * PLATEAU-HANDOFF:func_800084C4:end
+ */
+
+/* PLATEAU-HANDOFF:func_80004FE0:start
+ * symbol: func_80004FE0
+ * score: 189 differing words
+ * frame: 0x100
+ * relocations: 83
+ * first-mismatch: +0x38
+ * summary: Workbench structure-mismatch: structure-buckets. Next: resolve category-fill unrolling and packet/index carriers with the frame held exact.
+ * PLATEAU-HANDOFF:func_80004FE0:end
  */
