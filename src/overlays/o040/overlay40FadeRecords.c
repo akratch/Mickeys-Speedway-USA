@@ -133,6 +133,6 @@ void overlay40FadeRecords(register s32 *enabled, Overlay40FadeContext *context,
  * frame: 0x8
  * relocations: 10
  * first-mismatch: +0xC
- * summary: CDX force proves the three-word load/copy residual is not colour-reachable; a different copy-web partition is required
+ * summary: Permuter register-allocation sweep was flat in the scratch basin; next lever is a fidelity-clean p2 forced-color/permuter search for the copy-web partition.
  * PLATEAU-HANDOFF:overlay40FadeRecords:end
  */
