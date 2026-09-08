@@ -262,11 +262,11 @@ void func_overlay_052_F000063C_189ACAC(s32 updateRate) {
             *slot = -1;
         }
     }
-    for (player = 0; player < 2; player++) {
-        if (desiredItems[player] != -1) {
-            o52_bss_4A8[player] = desiredItems[player];
-            if (D_800D31C8[desiredItems[player]] == NULL) {
-                loadFrontEndItem(desiredItems[player]);
+    for (i = 0; i < 2; i++) {
+        if (desiredItems[i] != -1) {
+            o52_bss_4A8[i] = desiredItems[i];
+            if (D_800D31C8[desiredItems[i]] == NULL) {
+                loadFrontEndItem(desiredItems[i]);
             }
         }
     }
@@ -308,17 +308,17 @@ void func_overlay_052_F000063C_189ACAC(s32 updateRate) {
                 digits[1].x--;
             }
             func_8002F618(&D_800D3140, digits, 0, hudOffset, 255, 255, 255, 255);
-            mode = racer->lap + 1;
+            value0 = racer->lap + 1;
             if (racer->value45C != 0) {
-                mode++;
+                value0++;
             }
-            if (mode >= 4) {
-                mode = 3;
+            if (value0 >= 4) {
+                value0 = 3;
             }
-            if (mode <= 0) {
-                mode = 1;
+            if (value0 <= 0) {
+                value0 = 1;
             }
-            secondary[1].value8 = mode << 16;
+            secondary[1].value8 = value0 << 16;
             func_8002F618(&D_800D3140, secondary, 0, hudOffset, 255, 255, 255, 255);
             func_80034920(&D_800D3140);
             if (split != 0) {
@@ -341,18 +341,12 @@ void func_overlay_052_F000063C_189ACAC(s32 updateRate) {
                 hundredths = hundredths - hundredths % 10 + o52_data_31C;
             }
             func_overlay_052_F0000540_189ABB0(o52_data_180, digits, player, 3);
-            value0 = minutes / 10;
-            value1 = minutes % 10;
-            digits[0].value8 = value0 << 16;
-            digits[1].value8 = value1 << 16;
-            value0 = seconds / 10;
-            value1 = seconds % 10;
-            digits[3].value8 = value0 << 16;
-            digits[4].value8 = value1 << 16;
-            value0 = hundredths / 10;
-            value1 = hundredths % 10;
-            digits[6].value8 = value0 << 16;
-            digits[7].value8 = value1 << 16;
+            o52_bss_200[player][0].value8 = (minutes / 10) << 16;
+            o52_bss_200[player][1].value8 = (minutes % 10) << 16;
+            o52_bss_200[player][3].value8 = (seconds / 10) << 16;
+            o52_bss_200[player][4].value8 = (seconds % 10) << 16;
+            o52_bss_200[player][6].value8 = (hundredths / 10) << 16;
+            o52_bss_200[player][7].value8 = (hundredths % 10) << 16;
             for (i = 0; i < 8; i++) {
                 if (((s32)o52_bss_200[player][i].value8 >> 16) == 1) {
                     if (i == 0 || i == 3 || i == 6) {
@@ -397,11 +391,13 @@ void func_overlay_052_F000063C_189ACAC(s32 updateRate) {
             icon[0].resource = D_800D31C8[o52_bss_4A8[player]];
             func_8002F618(&D_800D3140, icon, 0, 0, 255, 255, 255, o52_data_320[player]);
             if (o52_bss_4A8[player] != 53 && racer->itemCount >= 2) {
+                value2 = icon[0].x;
+                active = icon[0].y;
                 o52_data_2F4[0].value8 = racer->itemCount << 16;
                 alpha = (o52_data_320[player] - (o52_data_320[player] >> 1)) & 255;
-                func_8002F618(&D_800D3140, o52_data_2F4, icon[0].x + 28, icon[0].y + 27, 0, 0, 0, alpha);
-                func_8002F618(&D_800D3140, o52_data_2F4, icon[0].x + 30, icon[0].y + 29, 0, 0, 0, alpha);
-                func_8002F618(&D_800D3140, o52_data_2F4, icon[0].x + 29, icon[0].y + 28, 255, 255, 255, 255);
+                func_8002F618(&D_800D3140, o52_data_2F4, value2 + 28, active + 27, 0, 0, 0, alpha);
+                func_8002F618(&D_800D3140, o52_data_2F4, value2 + 30, active + 29, 0, 0, 0, alpha);
+                func_8002F618(&D_800D3140, o52_data_2F4, value2 + 29, active + 28, 255, 255, 255, 255);
             }
         }
         if (split != 0) {
@@ -492,16 +488,15 @@ void func_overlay_052_F000063C_189ACAC(s32 updateRate) {
             o52_bss_160[5].value8 = (seconds % 10) << 16;
             o52_bss_160[7].value8 = (hundredths / 10) << 16;
             o52_bss_160[8].value8 = (hundredths % 10) << 16;
-            digits = o52_bss_160 + 1;
-            for (secondary = o52_data_F0; secondary != o52_data_F0 + 8; secondary++, digits++) {
-                if (((s32)digits->value8 >> 16) == 1) {
-                    if (secondary == o52_data_F0 || secondary == o52_data_F0 + 3 || secondary == o52_data_F0 + 6) {
-                        digits->x = secondary->x + 1;
+            for (i = 0; i < 8; i++) {
+                if (((s32)o52_bss_160[i + 1].value8 >> 16) == 1) {
+                    if (i == 0 || i == 3 || i == 6) {
+                        o52_bss_160[i + 1].x = o52_data_F0[i].x + 1;
                     } else {
-                        digits->x = secondary->x - 1;
+                        o52_bss_160[i + 1].x = o52_data_F0[i].x - 1;
                     }
                 } else {
-                    digits->x = secondary->x;
+                    o52_bss_160[i + 1].x = o52_data_F0[i].x;
                 }
             }
             func_8002F618(&D_800D3140, o52_bss_160,
