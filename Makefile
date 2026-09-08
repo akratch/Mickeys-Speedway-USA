@@ -670,6 +670,13 @@ $(BUILD_DIR)/$(SRC_DIR)/libultra/xldtob.c.o: $(SRC_DIR)/libultra/xldtob.c $(H_FI
 # setting alongside func_8000A62C's three delay nops.
 $(BUILD_DIR)/$(SRC_DIR)/main/objects.c.o: CFLAGS += -Wab,-r4300_mul -Wo,-loopunroll,0
 
+# The shadow TU needs the same scheduler. The target bytes of two of its
+# unmatched functions carry the FP multiply-hazard nop between adjacent
+# mul.s instructions that only this flag emits, and adding it reproduces
+# that nop at the same instruction index without disturbing any of the
+# four functions this TU already matches (gmake verify still passes).
+$(BUILD_DIR)/$(SRC_DIR)/main/shadows.c.o: CFLAGS += -Wab,-r4300_mul
+
 # libultra's libc string TU needs branch-likely instructions (bnel/beql), which
 # IDO only emits at -mips2; -mips1 produces a 0x90-byte .text instead of the
 # ROM's 0xA0. Consistent with how the DKR decomp builds its libultra tree.
