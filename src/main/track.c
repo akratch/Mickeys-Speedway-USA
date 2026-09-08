@@ -5668,7 +5668,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x98
  * relocations: 1
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: m2c coordinate types do not close the structure; baseline retained. Next: original FP and integer-coordinate lifetimes.
  * PLATEAU-HANDOFF:func_800133FC:end
  */
 
