@@ -76,6 +76,28 @@ bytes and disassembly never belong here.
 
 ### Allocation and source shape
 
+- A command-pointer load followed by a separate cursor update can produce a
+  different allocation from `command = (*cursor)++`, even when both advance
+  by exactly one command. Paired full-TU traces showed the post-increment form
+  create an additional interfering web in p1; the stock command instructions
+  then used the required color. The resulting two-store scheduling residual
+  closed by placing the independent header and payload assignments on one
+  physical source line. Preserve the pointer type, increment size, evaluation
+  count, and complete command writes. A forced color alone changed the store
+  order and was not exact, so remeasure the whole sequence after changing
+  allocation. This is a measured source-form lever, not a rule that every late
+  return-register mismatch comes from a callee prototype. Evidence: the exact
+  resident sprite-segment renderer in `docs/resident.md`.
+- Correct frame size does not prove the source's stack objects. A callee that
+  reads and writes a full vector, or consumes a transform with a later frame
+  field, can expose a draft's undersized arrays and disconnected locals.
+  Reconstruct those aggregates from the callee's authenticated accesses before
+  tuning homes or colors; separate volatile scalars are not a substitute for
+  the object actually passed. Reusing a consumed input parameter for a later
+  result can then remove a surplus home when the target stores that result in
+  the parameter's caller home. Prove that no subsequent path needs the input
+  value, and validate every read field and aggregate extent. Evidence: the
+  exact resident sprite-segment renderer in `docs/resident.md`.
 - When a table index local adds an unwanted colored value before a call,
   carry the final table result into the call instead. A nested lookup assigned
   before argument setup can leave the intermediate index temporary while the
