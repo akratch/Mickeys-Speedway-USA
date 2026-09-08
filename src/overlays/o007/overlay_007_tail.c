@@ -30,14 +30,6 @@ typedef struct Overlay7SelectionRow {
  * remains canonical; retry only after a new natural temp-FIFO phase/reuse
  * spelling, not more flags, explicit carriers, or a generic batch. */
 #ifdef NON_MATCHING
-/* PLATEAU-HANDOFF
- * symbol: overlay7DispatchModes
- * score: 129/131 words
- * frame: 0x20
- * relocations: 30
- * first-mismatch: +0x44
- * summary: One flags-carrier temp uses t4 instead of target t3 at two sites; 119 flags and two trace-selected scalar/scope forms are exhausted.
- */
 void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) {
     Overlay7ModeState *firstState;
     Overlay7ModeState *secondState;
@@ -103,14 +95,6 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
  * The baseline remains best. Resume only with new allocator evidence that
  * moves the loop index/bound from a0/t0 to v1/a3 without changing schedule. */
 #ifdef NON_MATCHING
-/* PLATEAU-HANDOFF
- * symbol: overlay7UpdateOwnerMode
- * score: 58/139 words
- * frame: 0x30
- * relocations: 23
- * first-mismatch: +0x10
- * summary: Exact opcode schedule; 81 register words remain after 119 flags and ten source-faithful forms, with no donor-quality analogue.
- */
 void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
     Overlay7CheckState *state;
     s32 failed;
@@ -187,14 +171,6 @@ void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
  * temp-coalescing mechanism, not more flags, explicit locals, or a generic
  * permutation batch. */
 #ifdef NON_MATCHING
-/* PLATEAU-HANDOFF
- * symbol: overlay7DispatchSelection
- * score: 58/60 words
- * frame: 0x20
- * relocations: 13
- * first-mismatch: +0x4
- * summary: Unnamed flags-load temp does not coalesce with the later selection-offset temp; 119 flags and two trace-selected scalar/scope forms are exhausted.
- */
 void overlay7DispatchSelection(Overlay7DispatchOwner *owner, s32 selection) {
     Overlay7DispatchState *state;
     u16 *override;
@@ -326,3 +302,13 @@ void overlay7InitPool(void) {
     gOverlay7ActiveTail = 0;
     gOverlay7Selected = 0;
 }
+
+/* PLATEAU-HANDOFF:overlay7DispatchSelection:start
+ * symbol: overlay7DispatchSelection
+ * score: 58/60 words
+ * frame: 0x20
+ * relocations: 13
+ * first-mismatch: +0x4
+ * summary: Three natural temp-FIFO probes were flat; next lever is an instrumented UGEN free-list trace for the t6 reuse decision.
+ * PLATEAU-HANDOFF:overlay7DispatchSelection:end
+ */
