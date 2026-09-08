@@ -4621,9 +4621,9 @@ void func_800133FC(TrackVertex *arg0, TrackVertex *arg1,
  * no published donor body is used here.
  */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch; 289 differing words, first mismatch +0x8. */
-/* Target 260 instructions/frame -312; candidate 321 instructions/frame -312. */
-/* -Wo,-loopunroll,0 reaches 261 words; an isolated flag boundary is the next lever. */
+/* Workbench verdict: structure-mismatch; 189 differing words, first mismatch +0x8. */
+/* Exact 260-word size and 0x138 frame, 7/8 relocation sites exact under configured flags. */
+/* Mickey m2c recovers the compact post-decrement sort and post-call batch flag reload. */
 u32 func_8001357C(f32 arg0, f32 arg1, f32 *arg2, s32 arg3, void *arg4) {
     s16 *segmentIndexPointer;
     TrackSegment *segment;
@@ -4644,13 +4644,10 @@ u32 func_8001357C(f32 arg0, f32 arg1, f32 *arg2, s32 arg3, void *arg4) {
     s32 vertexIndex;
     s32 compareMask;
     u32 batchFlags;
-    s32 resultCount;
+    u32 resultCount;
     u32 visibility;
     f32 height;
-    f32 planeX;
-    f32 planeY;
-    f32 planeZ;
-    f32 planeDistance;
+    TrackPlane computedPlane;
     s32 outer;
     s32 inner;
     TrackIntersection *record;
@@ -4700,12 +4697,13 @@ u32 func_8001357C(f32 arg0, f32 arg1, f32 *arg2, s32 arg3, void *arg4) {
                                         height = (f32) vertex1->y;
                                         if (vertex1->y != vertex2->y ||
                                             vertex1->y != vertex3->y) {
-                                            if (batchFlags & 0x1080) {
+                                            if (batch->flags & 0x1080) {
                                                 func_800133FC(
                                                     vertex1, vertex2, vertex3,
-                                                    &planeX, &planeY, &planeZ,
-                                                    &planeDistance);
-                                                plane = (TrackPlane *) &planeX;
+                                                    &computedPlane.x, &computedPlane.y,
+                                                    &computedPlane.z,
+                                                    &computedPlane.distance);
+                                                plane = &computedPlane;
                                             } else {
                                                 plane = segment->surfaces +
                                                     (segment->surfaceIndices[
@@ -4746,19 +4744,25 @@ u32 func_8001357C(f32 arg0, f32 arg1, f32 *arg2, s32 arg3, void *arg4) {
         } while (segmentNumber != segmentCount);
     }
     if (resultCount >= 2U) {
-        for (outer = resultCount - 1; outer > 0; outer--) {
-            record = (TrackIntersection *) arg4;
-            for (inner = outer; inner > 0; inner--) {
-                if (record->height < (record + 1)->height) {
-                    temporaryHeight = record->height;
-                    temporaryFlags = record->flags;
-                    record->height = (record + 1)->height;
-                    (record + 1)->height = temporaryHeight;
-                    record->flags = (record + 1)->flags;
-                    (record + 1)->flags = temporaryFlags;
+        outer = resultCount - 2;
+        if (resultCount - 1 != 0) {
+            do {
+                record = (TrackIntersection *) arg4;
+                inner = outer;
+                if (outer + 1 != 0) {
+                    do {
+                        if (record->height < (record + 1)->height) {
+                            temporaryHeight = record->height;
+                            temporaryFlags = (record + 1)->flags;
+                            record->height = (record + 1)->height;
+                            (record + 1)->height = temporaryHeight;
+                            (record + 1)->flags = record->flags;
+                            record->flags = temporaryFlags;
+                        }
+                        record++;
+                    } while (inner-- != 0);
                 }
-                record++;
-            }
+            } while (outer-- != 0);
         }
     }
     return resultCount;
@@ -5774,11 +5778,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_8001357C:start
  * symbol: func_8001357C
- * score: 289 differing words
+ * score: 189 differing words
  * frame: 0x138
  * relocations: 8
  * first-mismatch: +0x8
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Mickey m2c sort and flag reload recover exact260-word size/frame and improve 289 to189 differences. Next: early call/home lifetime evidence.
  * PLATEAU-HANDOFF:func_8001357C:end
  */
 
