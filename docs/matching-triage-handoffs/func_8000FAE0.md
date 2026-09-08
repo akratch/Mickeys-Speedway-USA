@@ -6,7 +6,7 @@
 - frame: 0x10
 - relocations: 2
 - first mismatch: +0x1C
-- summary: Pinned donor source has no matching C body; declaration probe flat and loop probe regressed; next lever is an authenticated donor C body.
+- summary: Pinned donor source has no matching C body; declaration probe flat and loop probe regressed; next lever is an authenticated donor C body
 
 - Reopen audit (2026-09-08): the local Jet Force Gemini checkout is exactly
   `efd5abb1c79636e297b831f7c2d5bf47eac39c0c`, with an unchanged tracked
