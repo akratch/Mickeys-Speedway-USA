@@ -5172,23 +5172,18 @@ typedef struct {
     void *unk78;
 } Objects0AEECObject;
 
-/* Workbench verdict: allocation-mismatch; 65 differing words (312/312). */
-/* First mismatch: +0x44; opcode schedule and frame are exact. */
-/* Shape status: recovered control-type dispatch; only register allocation and jump-table naming remain. */
-#ifdef NON_MATCHING
+/* Tier B: Mickey resident control-type switch and runtime overlay call sites. */
 void func_8000AEEC(void *arg0, s32 arg1) {
     Objects0AEECObject *object;
-    s32 type;
 
     D_8007A210 = 3;
     D_8007A21C = 1;
     D_8007A214 = arg0;
     object = (Objects0AEECObject *)arg0;
     D_8007A218 = object->unk40 + 4;
-    type = object->unk44 - 3;
-    switch (type) {
+    switch (object->unk44 - 3) {
         case 0:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 85 +0xC0. */
             break;
         case 31:
             spranimOnceControl(object, arg1);
@@ -5203,25 +5198,25 @@ void func_8000AEEC(void *arg0, s32 arg1) {
             effectboxControl(object, arg1);
             break;
         case 38:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 89 +0x5A4. */
             break;
         case 33:
-            TrapDanglingJump(object);
+            TrapDanglingJump(object); /* Overlay 71 +0x278. */
             break;
         case 39:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 83 +0x7DC. */
             break;
         case 5:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 93 +0x1C. */
             break;
         case 4:
             func_800148E0(object);
             break;
         case 26:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 69 +0x4C. */
             break;
         case 70:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 88 +0x4C. */
             break;
         case 25:
             func_8001B798(object, arg1);
@@ -5238,124 +5233,124 @@ void func_8000AEEC(void *arg0, s32 arg1) {
             func_8001BB10(object, arg1);
             break;
         case 30:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 36 +0x1D0. */
             break;
         case 43:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 1 +0x67C0. */
             break;
         case 44:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 1 +0x6A14. */
             break;
         case 45:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 1 +0x6B6C. */
             break;
         case 46:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 4 +0x138. */
             break;
         case 47:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 84 +0x48. */
             break;
         case 50:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 72 +0xB4. */
             break;
         case 51:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 90 +0xFC. */
             break;
         case 52:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 86 +0x474. */
             break;
         case 54:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 26 +0x1A0. */
             break;
         case 55:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 29 +0x5C4. */
             break;
         case 57:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 25 +0x17C. */
             break;
         case 58:
-            TrapDanglingJump(object);
+            TrapDanglingJump(object); /* Overlay 20 +0xE0C. */
             break;
         case 60:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 68 +0x96C. */
             break;
         case 61:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 22 +0x2B0. */
             break;
         case 62:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 23 +0x350. */
             break;
         case 63:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 28 +0x318. */
             break;
         case 64:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 75 +0x214. */
             break;
         case 65:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 27 +0x64. */
             break;
         case 66:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 24 +0x1C. */
             break;
         case 68:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 91 +0x4C. */
             break;
         case 69:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 87 +0x128. */
             break;
         case 71:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 74 +0xB8. */
             break;
         case 72:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 76 +0x38. */
             break;
         case 73:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 77 +0x130. */
             break;
         case 74:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 78 +0x70. */
             break;
         case 75:
-            TrapDanglingJump(object, arg1);
-            break;
-        case 77:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 79 +0x134. */
             break;
         case 78:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 80 +0x11C. */
             break;
         case 79:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 81 +0xCC. */
             break;
         case 80:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 81 +0x274. */
+            break;
+        case 77:
+            TrapDanglingJump(object, arg1); /* Overlay 70 +0xD8. */
             break;
         case 81:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 82 +0x40. */
             break;
         case 82:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 73 +0x190. */
             break;
         case 83:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 94 +0x110. */
             break;
         case 84:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 79 +0x1290. */
             break;
         case 85:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 79 +0x149C. */
             break;
         case 86:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 37 +0x88. */
             break;
         case 15:
             rangetriggerControl(object, arg1);
             break;
         case 87:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 95 +0xC. */
             break;
         case 88:
-            TrapDanglingJump(object, arg1);
+            TrapDanglingJump(object, arg1); /* Overlay 38 +0x154. */
             break;
         case 1:
         case 2:
@@ -5395,9 +5390,6 @@ void func_8000AEEC(void *arg0, s32 arg1) {
     }
     D_8007A21C = 4;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000AEEC.s")
-#endif
 /* Workbench verdict: structure-mismatch; 489 differing words (494/427). */
 /* First mismatch: +0x0; target frame 0x98, candidate frame 0x88. */
 /* Structural gap: candidate is 67 instructions short; collision-state control flow is complete. */
