@@ -1,34 +1,59 @@
 {
   "authorizations": {
+    "__scHandleRetrace": {
+      "ledger_commit": "ac504a4d1fdf064c180b5198b0e388cbdb0ce3ac",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "ac504a4d1fdf064c180b5198b0e388cbdb0ce3ac"
+    },
     "debug_text_width": {
       "ledger_commit": "86dd80f4aee8bf53ac92cfb4af94331cadc2f768",
       "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
       "source_commit": "bbb40479e395497402ee339b05a11ef52817ee3a"
     },
+    "func_80001740": {
+      "ledger_commit": "c7546d550af3c57aad34949e51594dc2ee18ea08",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "c7546d550af3c57aad34949e51594dc2ee18ea08"
+    },
+    "func_80001BF4": {
+      "ledger_commit": "3b49cd47d65f8182d7587ce95d86ac49955cc52d",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "3b49cd47d65f8182d7587ce95d86ac49955cc52d"
+    },
     "func_80002134": {
       "ledger_commit": "e88c5c13313040f20706aca88fddc574cf9cf6b5",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "e88c5c13313040f20706aca88fddc574cf9cf6b5"
+    },
+    "func_80003480": {
+      "ledger_commit": "ead530b9d74b00134296017406869616909bb7b9",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "e4628a89827467289170f03de04393f8567098a5"
     },
     "func_80004454": {
       "ledger_commit": "e1d7e96ab001cc3f57ef853ddbe62653016509b5",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "e1d7e96ab001cc3f57ef853ddbe62653016509b5"
     },
     "func_8000471C": {
       "ledger_commit": "35bf1be358a75200a224f5d8c5e556bec5bda5a5",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "35bf1be358a75200a224f5d8c5e556bec5bda5a5"
     },
     "func_800056A4": {
-      "ledger_commit": "60b1217adb13fd8818148dc338ce068b757468d5",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "0e9ed05e2ed37ce29994e229f585b437b0bd789b"
+      "ledger_commit": "2a0c83ced98816be28f62b8290064cc7b042375f",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "2a0c83ced98816be28f62b8290064cc7b042375f"
     },
     "func_80005868": {
       "ledger_commit": "c1855a9c48a29d11f54484b08229d6c7ccdbc125",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "4e4a459d5ff43edbc88b3a3f60181a18e741efa9"
+    },
+    "func_8000590C": {
+      "ledger_commit": "9ed2816de406c530dadd71d5198da04d848e9c30",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "9ed2816de406c530dadd71d5198da04d848e9c30"
     },
     "func_8000BDB4": {
       "ledger_commit": "1ac4ce096402051df01ff721968235046df1e373",
@@ -57,22 +82,22 @@
     },
     "func_8000DFBC": {
       "ledger_commit": "ac7a60ff07572a39241b8df3de5c66edef0afe21",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "ac7a60ff07572a39241b8df3de5c66edef0afe21"
     },
     "func_8000E5EC": {
       "ledger_commit": "d65da754705537338f7bd5f42f470784623bece8",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "baafccf44c8c440209b7d3b3a75dc19ddad384cd"
     },
     "func_8000E920": {
       "ledger_commit": "7092916e8b5c1ade4054776d492f3f935e65e9e8",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "7092916e8b5c1ade4054776d492f3f935e65e9e8"
     },
     "func_8000F198": {
       "ledger_commit": "a5ed875fe3065a9e5e7277f64308811b39d55e64",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "a5ed875fe3065a9e5e7277f64308811b39d55e64"
     },
     "func_8000FAE0": {
@@ -97,27 +122,27 @@
     },
     "func_80010B4C": {
       "ledger_commit": "2e3e23f52d6c3c3bb827280d938f3f4df3077ba2",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "2e3e23f52d6c3c3bb827280d938f3f4df3077ba2"
     },
     "func_800115E4": {
       "ledger_commit": "5eab206a8b839b1400963d28db8d056dc8562b80",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "5eab206a8b839b1400963d28db8d056dc8562b80"
     },
     "func_80011980": {
       "ledger_commit": "330a58c555fb88bc113e0a8d1d64779f31e0b51b",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "330a58c555fb88bc113e0a8d1d64779f31e0b51b"
     },
     "func_80011CDC": {
       "ledger_commit": "4d35e5dc67b5d502b22019c5c05e79e4479afff7",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "4d35e5dc67b5d502b22019c5c05e79e4479afff7"
     },
     "func_80012234": {
       "ledger_commit": "57d42e0c006d39518d5e91384d62fb56d6f831d2",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "57d42e0c006d39518d5e91384d62fb56d6f831d2"
     },
     "func_80012658": {
@@ -127,7 +152,7 @@
     },
     "func_8001291C": {
       "ledger_commit": "568a8d6a37fe8036ffb847e58b704d352e91f4fc",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "568a8d6a37fe8036ffb847e58b704d352e91f4fc"
     },
     "func_800133FC": {
@@ -137,28 +162,123 @@
     },
     "func_8001357C": {
       "ledger_commit": "dd9cecc6b878a95871afd5c3589f24dca92d9985",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "dd9cecc6b878a95871afd5c3589f24dca92d9985"
     },
     "func_8001398C": {
       "ledger_commit": "939b2bc8331c0813c2784bead124f8281f5575ff",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "939b2bc8331c0813c2784bead124f8281f5575ff"
     },
     "func_800140CC": {
       "ledger_commit": "646958bb1186c91b2fb7dcb8899f97a6ea266dac",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "646958bb1186c91b2fb7dcb8899f97a6ea266dac"
     },
+    "func_80016890": {
+      "ledger_commit": "0aea596a6c649bacd030c7e9167ca2236accca0e",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "8b4dcb05207206d28a2d803c548c266f4c578c45"
+    },
+    "func_80017140": {
+      "ledger_commit": "8ae108e3e707ad2a1000623656da5474b2da3d91",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "8ae108e3e707ad2a1000623656da5474b2da3d91"
+    },
+    "func_80017660": {
+      "ledger_commit": "1099abe8b529d7d4fcdbb1966fc009e1b15671cb",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "1099abe8b529d7d4fcdbb1966fc009e1b15671cb"
+    },
+    "func_80017BCC": {
+      "ledger_commit": "8508607a0426420ec3052901195c5abe8c02605a",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "8508607a0426420ec3052901195c5abe8c02605a"
+    },
+    "func_800180B4": {
+      "ledger_commit": "e0ae1839c2e27acaf1b182508ea1588af04f5aaa",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "e0ae1839c2e27acaf1b182508ea1588af04f5aaa"
+    },
+    "func_80018F08": {
+      "ledger_commit": "02326b78b1d1ba50b38b3e33ac097e18e496ea33",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "02326b78b1d1ba50b38b3e33ac097e18e496ea33"
+    },
+    "func_8001953C": {
+      "ledger_commit": "d09352cdaa9a476ab208fd6965e169db3d64bdce",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "d09352cdaa9a476ab208fd6965e169db3d64bdce"
+    },
+    "func_80019AB8": {
+      "ledger_commit": "173cab235f4fe1cf595964b0070f612463d896ae",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "173cab235f4fe1cf595964b0070f612463d896ae"
+    },
+    "func_8001C4C0": {
+      "ledger_commit": "e5e1131387b1c271cb7ed97433912a36ed8e0f84",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "e5e1131387b1c271cb7ed97433912a36ed8e0f84"
+    },
+    "func_8001CB84": {
+      "ledger_commit": "19f1f38fe953750c9768ee64a865439a6483950f",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "19f1f38fe953750c9768ee64a865439a6483950f"
+    },
+    "func_8001D880": {
+      "ledger_commit": "6018f92ab53ef13f26480d8331dfed972641fef5",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "6018f92ab53ef13f26480d8331dfed972641fef5"
+    },
+    "func_8001D960": {
+      "ledger_commit": "0d16456858452f970d7d40bba889d1c8ac032e13",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "0d16456858452f970d7d40bba889d1c8ac032e13"
+    },
+    "func_8001DD70": {
+      "ledger_commit": "53044477cdaceea811dd82a33c337ba4b5389fed",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "53044477cdaceea811dd82a33c337ba4b5389fed"
+    },
+    "func_8001E5C4": {
+      "ledger_commit": "7d552f6b24771fb6f8092b889123a021a88ece64",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "7d552f6b24771fb6f8092b889123a021a88ece64"
+    },
+    "func_8001EC44": {
+      "ledger_commit": "4fa02a80b6472f216afd857ba080218aa104a691",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "4fa02a80b6472f216afd857ba080218aa104a691"
+    },
+    "func_8001F520": {
+      "ledger_commit": "62f00e31b69c0c265796eacebdd5baa55bcd0dc4",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "62f00e31b69c0c265796eacebdd5baa55bcd0dc4"
+    },
     "func_8001FC50": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 geometry, frame, relocations, and first mismatch. Prior allocation/layout, stack-home, zero/copy-loop, loop-unroll, and bounded-permutation forms stay closed; no body mutation or trace.",
-      "source_commit": "e53a148b3f9b8a6973df1a813a2bc6fc34d05f37"
+      "ledger_commit": "033a67ecd5ad29f1ab82896ea65422d71e4d951c",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "033a67ecd5ad29f1ab82896ea65422d71e4d951c"
+    },
+    "func_8002057C": {
+      "ledger_commit": "9b5dec60ca25b44d84c3bde60fb9184bd26826e8",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "9b5dec60ca25b44d84c3bde60fb9184bd26826e8"
+    },
+    "func_80020B10": {
+      "ledger_commit": "2f4f02c301752fe28ba6d4b1f9429c3e022262e8",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "2f4f02c301752fe28ba6d4b1f9429c3e022262e8"
     },
     "func_80020D8C": {
-      "ledger_commit": "9874fcd6510ae52ad2907ebf09cb8ec9aae5ac98",
-      "reason": "ADR0017 causal packet: isolate product staging versus constant-index carrier reuse behind authenticated initial-reservation change. Two initial variants, ten total maximum in 70 minutes; unchanged flags, ABI, calls; no random search.",
+      "ledger_commit": "a37fd40f5b1db4c0585b55cbfa70291b445d8efc",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "4fe9255a1e3cd2c6b94232648c9a8a5acf625cf7"
+    },
+    "func_80020E4C": {
+      "ledger_commit": "625f07c1af20fdf556884799b774feaee7e24c65",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "625f07c1af20fdf556884799b774feaee7e24c65"
     },
     "func_80022FD4": {
       "ledger_commit": "745859aa4c33ccecf77a12fbed9e93f0e3543dcb",
@@ -175,30 +295,65 @@
       "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
       "source_commit": "89522668e6d277f4a2321cbb82e841fcf3cf2bf7"
     },
+    "func_80026FB4": {
+      "ledger_commit": "1832e6b4c0ad5b7dd76183f03aae60b074e1cfcd",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "1832e6b4c0ad5b7dd76183f03aae60b074e1cfcd"
+    },
     "func_80028564": {
-      "ledger_commit": null,
-      "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior video-local scoping and saved-register/stack-home forms remain closed; no body mutation, trace, or permutation.",
-      "source_commit": "1ae8e2311c291fba193441f16450eef926796c72"
+      "ledger_commit": "d8322f2d624c58a165a8589e185b2858363b44ff",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "d8322f2d624c58a165a8589e185b2858363b44ff"
     },
     "func_80028FCC": {
       "ledger_commit": "1fb999859fc254b9858c97ee3b970c7345c192f7",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "1fb999859fc254b9858c97ee3b970c7345c192f7"
     },
+    "func_80029274": {
+      "ledger_commit": "2eaf3ca56c29644ae5c9411176e5d7d36eaa26ad",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "2eaf3ca56c29644ae5c9411176e5d7d36eaa26ad"
+    },
+    "func_8002B524": {
+      "ledger_commit": "8b092737090ba855bbdbdf4014cdd60ffb26adb6",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "8b092737090ba855bbdbdf4014cdd60ffb26adb6"
+    },
     "func_8002C69C": {
-      "ledger_commit": "7b7e99d1cb98defcc967bdb5f0e9ffb2ea06d765",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "ba791ca6e692dbe670334e6d88afd7c3bc72ac64"
+      "ledger_commit": "ebc107b51d17aad2bf9df4d27371772bc12a64bd",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "ebc107b51d17aad2bf9df4d27371772bc12a64bd"
     },
     "func_8002CF6C": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "1b96f112f2199fcb40a371ebf53cf82a0fdfab39"
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "ebc107b51d17aad2bf9df4d27371772bc12a64bd"
+    },
+    "func_8002EBE0": {
+      "ledger_commit": "525cc87414cf6a43c0305a56a63015509c9cedd3",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "525cc87414cf6a43c0305a56a63015509c9cedd3"
+    },
+    "func_8002F618": {
+      "ledger_commit": "018e1e3feaaa3e9ee6c5ead38e2fe9772efd656b",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "018e1e3feaaa3e9ee6c5ead38e2fe9772efd656b"
+    },
+    "func_8002FB34": {
+      "ledger_commit": "babca388fb412e0e57a59447c7ec286e261a8ed2",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "babca388fb412e0e57a59447c7ec286e261a8ed2"
+    },
+    "func_80030610": {
+      "ledger_commit": "8670cc224837981eb318fdd0f86d6b139c4d06e9",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "8670cc224837981eb318fdd0f86d6b139c4d06e9"
     },
     "func_800336A8": {
-      "ledger_commit": "7de9ee0750830fb02dfd3d5abac5f1c7a7f4401f",
-      "reason": "Fresh configured V0 plus structured finalize_plateau only for the exact 780-byte/195-word candidate, 71 masked differences, first +0x0. Old source hypotheses, flags, permutation, and C-body mutation remain closed.",
-      "source_commit": "7de9ee0750830fb02dfd3d5abac5f1c7a7f4401f"
+      "ledger_commit": "bfd6d07a61c4ce33e4b8069ccf92d49054398980",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "bfd6d07a61c4ce33e4b8069ccf92d49054398980"
     },
     "func_800347A0": {
       "ledger_commit": "b67909e24fe248481ee63a92e951154885945e99",
@@ -210,40 +365,215 @@
       "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
       "source_commit": "f9cda7baf831e6b73a789d9799f4ad9bac5e3b76"
     },
+    "func_80038878": {
+      "ledger_commit": "f6250d56ba0062f3f018697cad839e1c05b425b3",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "f6250d56ba0062f3f018697cad839e1c05b425b3"
+    },
+    "func_80038E1C": {
+      "ledger_commit": "801b66f4676838484e9cc1d43ef398d5e0c5fb9e",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "801b66f4676838484e9cc1d43ef398d5e0c5fb9e"
+    },
+    "func_80039E34": {
+      "ledger_commit": "60d4fe8eecd3b126dbd33b2ed2e73e7a7517dba2",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "60d4fe8eecd3b126dbd33b2ed2e73e7a7517dba2"
+    },
     "func_8003A2C8": {
-      "ledger_commit": "696646466e7923a59727b06ee983abc0ab524883",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "40b6805403de13aad24d173e1a7c3159c074cb58"
+      "ledger_commit": "e5ae629cf5265e33e885b7c82932ee89bb963172",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "e5ae629cf5265e33e885b7c82932ee89bb963172"
     },
     "func_8003A754": {
       "ledger_commit": "249d01ebccf98aacff8ebbcae504de5fa630a2aa",
       "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
       "source_commit": "249d01ebccf98aacff8ebbcae504de5fa630a2aa"
     },
+    "func_8003D25C": {
+      "ledger_commit": "1f51f9a0ddaaafedfa5d80553e34a7c648d57526",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "1f51f9a0ddaaafedfa5d80553e34a7c648d57526"
+    },
+    "func_8003D4FC": {
+      "ledger_commit": "3b044793d83c20b56ea996dc186c78871083d4c0",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "3b044793d83c20b56ea996dc186c78871083d4c0"
+    },
+    "func_8003F154": {
+      "ledger_commit": "666d563a26c4986470ba0a085d3cfdd36d83042f",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "666d563a26c4986470ba0a085d3cfdd36d83042f"
+    },
+    "func_8004054C": {
+      "ledger_commit": "d0691bc25c501f1d82afbc41b34f34ae8212cc6a",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "d0691bc25c501f1d82afbc41b34f34ae8212cc6a"
+    },
+    "func_80040B88": {
+      "ledger_commit": "f3eb3733c6ffaa78cbf7b2356a960af90b9fb292",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "f3eb3733c6ffaa78cbf7b2356a960af90b9fb292"
+    },
+    "func_80041530": {
+      "ledger_commit": "d6b0c363364a2d6cb346818f7d8365a24864d71a",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "d6b0c363364a2d6cb346818f7d8365a24864d71a"
+    },
+    "func_80045D34": {
+      "ledger_commit": "3661bf85a437a529bb2655df05e8e0dd59f9ca40",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "3661bf85a437a529bb2655df05e8e0dd59f9ca40"
+    },
+    "func_80046BCC": {
+      "ledger_commit": "325e5520791dd5b3014bc251c19138ee7a30901d",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "325e5520791dd5b3014bc251c19138ee7a30901d"
+    },
+    "func_80046EC4": {
+      "ledger_commit": "6ce89d6b0446cd198c7fe1fccd76aa3abce45d34",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "6ce89d6b0446cd198c7fe1fccd76aa3abce45d34"
+    },
+    "func_800470B0": {
+      "ledger_commit": "180402ea551ba8d38ab9ada72691c8062841dc5d",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "180402ea551ba8d38ab9ada72691c8062841dc5d"
+    },
+    "func_80047304": {
+      "ledger_commit": "0b13a198a61e8ecb86b2f1ac47c071a1f7170e02",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "0b13a198a61e8ecb86b2f1ac47c071a1f7170e02"
+    },
+    "func_800475E8": {
+      "ledger_commit": "4148117e75732616187df3c000fd371085a987f8",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "4148117e75732616187df3c000fd371085a987f8"
+    },
+    "func_800479D4": {
+      "ledger_commit": "e63b9cfe9f6db54c37c9600a325ba5c2895ab58e",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "e63b9cfe9f6db54c37c9600a325ba5c2895ab58e"
+    },
+    "func_80048080": {
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "5d6fd5bd76609b67b27103dd3e701ee88320e9e8"
+    },
+    "func_80048760": {
+      "ledger_commit": "130c1c1cc1a6cccad9144428a3c6517b5c6c3890",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "130c1c1cc1a6cccad9144428a3c6517b5c6c3890"
+    },
+    "func_80049000": {
+      "ledger_commit": "307dbacfc6f37241054b9656a9c577b1aa1c6bb4",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "307dbacfc6f37241054b9656a9c577b1aa1c6bb4"
+    },
     "func_800498FC": {
       "ledger_commit": "e211ce6135a076ba8f08a28404299182ffc7a42d",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "e211ce6135a076ba8f08a28404299182ffc7a42d"
+    },
+    "func_80049B14": {
+      "ledger_commit": "63f87fdf63f2d2aa5c4c86d18312513e74e983c5",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "63f87fdf63f2d2aa5c4c86d18312513e74e983c5"
+    },
+    "func_80049E4C": {
+      "ledger_commit": "2d273f4be3e49ddcd8ce35dda94704d7b09d3d64",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "2d273f4be3e49ddcd8ce35dda94704d7b09d3d64"
+    },
+    "func_8004A10C": {
+      "ledger_commit": "9477af4a9ce70bb31f420ba6f6dc8d46c6bf8f5c",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "9477af4a9ce70bb31f420ba6f6dc8d46c6bf8f5c"
+    },
+    "func_8004ACC4": {
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "ec8167ac2760843df13185267c490f62541771e6"
     },
     "func_8004ADE8": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "b3d6581927dbe28c24c967ab1fb2e1adedaeba2a"
+    },
+    "func_8004AF68": {
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "deb2a1693f7ac84b8b0546b1a7b70d2522fdd59d"
+    },
+    "func_8004B1DC": {
+      "ledger_commit": "b92ba51284e9c10f2b4947ce0aa6c8ccb8ec0f2f",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "b92ba51284e9c10f2b4947ce0aa6c8ccb8ec0f2f"
     },
     "func_8004BA8C": {
       "ledger_commit": "b2b7195e3730f67aee379d6cb01cc79cd5564a4b",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "b2b7195e3730f67aee379d6cb01cc79cd5564a4b"
+    },
+    "func_8004C690": {
+      "ledger_commit": "1d10f3d96bcce24a5dd295de5f5bf46e950660d1",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "1d10f3d96bcce24a5dd295de5f5bf46e950660d1"
     },
     "func_8004E8E0": {
       "ledger_commit": "647e6c7b46190583db2475cc7bf008e500e3c916",
       "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
       "source_commit": "647e6c7b46190583db2475cc7bf008e500e3c916"
     },
+    "func_80051364": {
+      "ledger_commit": "e39c665934647ee79903e791dfff5076b97c6d86",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "e39c665934647ee79903e791dfff5076b97c6d86"
+    },
+    "func_800517E0": {
+      "ledger_commit": "b2c362ac3e463f7695e1657d8d8336b4785b1518",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "b2c362ac3e463f7695e1657d8d8336b4785b1518"
+    },
     "func_80053868": {
-      "ledger_commit": "a9808a35c5743ce14aeb2c4c73d2b616b0068240",
-      "reason": "ABI correction only: restore mathOneFloatRPY's two-pointer prototype and drop unsupported constants at +0x1A8. Preserve lines; prove every TU consumer. No flags, frame rewrite, permutation or trap-alias edits.",
+      "ledger_commit": "d8f39e979712fb9d673abfc5813b5ad7666731d8",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "a9808a35c5743ce14aeb2c4c73d2b616b0068240"
+    },
+    "func_80054B3C": {
+      "ledger_commit": "27bd1f96a80808c7ade6c752863ed7d46977dd61",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "27bd1f96a80808c7ade6c752863ed7d46977dd61"
+    },
+    "func_80055104": {
+      "ledger_commit": "f21a19319d226cb131c72504f4f32c7c610ab43b",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "f21a19319d226cb131c72504f4f32c7c610ab43b"
+    },
+    "func_800563B4": {
+      "ledger_commit": "b97d647cadd4e96939e6c7b99d9c853e80cb9da9",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "61cf3e29a9cafb15ce767d3f0abb6fb59008a19e"
+    },
+    "func_80056DD8": {
+      "ledger_commit": "f29ffe945f62c04131c694e535878765dabb027d",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "f29ffe945f62c04131c694e535878765dabb027d"
+    },
+    "func_8005716C": {
+      "ledger_commit": "2b40571bb35df7bae4534627e1dd2d4e3a487d8b",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "2b40571bb35df7bae4534627e1dd2d4e3a487d8b"
+    },
+    "func_800573C8": {
+      "ledger_commit": "62f00e31b69c0c265796eacebdd5baa55bcd0dc4",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "a6c5f03d43d3252a3b6bcc2f108780f99ff17c2f"
+    },
+    "func_8005776C": {
+      "ledger_commit": "d721c54c6f4dba35ad2ffdfe4c5975b46d9efbb5",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "d721c54c6f4dba35ad2ffdfe4c5975b46d9efbb5"
     },
     "func_8005A7A0": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
@@ -495,14 +825,29 @@
       "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior forms, body mutation, flags, trace, and permutation stay closed.",
       "source_commit": "b9182476acdc389a6f9691e04488f947ad7e046b"
     },
+    "fxSPDPRipple": {
+      "ledger_commit": "6ee2ed938728a995fed3fa91f76b6414c3b808bb",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "6ee2ed938728a995fed3fa91f76b6414c3b808bb"
+    },
+    "fxScreenEffect": {
+      "ledger_commit": "09ed75fd0f91e85822b9130730e675a808f6758e",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "09ed75fd0f91e85822b9130730e675a808f6758e"
+    },
+    "joyRead": {
+      "ledger_commit": "37f0ab2215e30f7bbacd04617531b247a8846db3",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "37f0ab2215e30f7bbacd04617531b247a8846db3"
+    },
     "levelFreeAll": {
-      "ledger_commit": "a39c9adf53bcff42c393e1c8f4466fac5b17a757",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "fc81c03c647038cfb2ee78b3fb616d594631aa1a"
+      "ledger_commit": "0370d1a451b78e33823e87f4d8152bc5821472e1",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "0370d1a451b78e33823e87f4d8152bc5821472e1"
     },
     "levelInit": {
       "ledger_commit": "a40abe2bb96fc19a688a022bd6b503da477fcb16",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "a40abe2bb96fc19a688a022bd6b503da477fcb16"
     },
     "overlay101BuildBorder": {
@@ -802,23 +1147,58 @@
     },
     "packInit": {
       "ledger_commit": "cf77612c2b53872f0e680c2013bf46be3ef49891",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "cf77612c2b53872f0e680c2013bf46be3ef49891"
+    },
+    "rain_render_splashes": {
+      "ledger_commit": "97307c144d1eb2c478b01f7c066ec6177b6fcd20",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "97307c144d1eb2c478b01f7c066ec6177b6fcd20"
+    },
+    "render_epc_lock_up_display": {
+      "ledger_commit": "d67fad46c36b355ab4516a8c23a6ebd618048575",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "d67fad46c36b355ab4516a8c23a6ebd618048575"
     },
     "rumbleTick": {
       "ledger_commit": "813004a2aa4cbacdc74f50a8c13306771fdd06bc",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "813004a2aa4cbacdc74f50a8c13306771fdd06bc"
     },
     "runlinkFreeCode": {
       "ledger_commit": "2e5e61b694337403b44856af043a43da2fc6e5e9",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "2e5e61b694337403b44856af043a43da2fc6e5e9"
     },
     "runlinkInit": {
       "ledger_commit": "f7f4e7f64f4bd01738c98cd8fc5f106cffa80ec8",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "f7f4e7f64f4bd01738c98cd8fc5f106cffa80ec8"
+    },
+    "shadowGenerate": {
+      "ledger_commit": "662a3124339d7a605f4e3985f19c9021064f4961",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "662a3124339d7a605f4e3985f19c9021064f4961"
+    },
+    "snow_render": {
+      "ledger_commit": "4a19eaf4143fd79a7053188c64f8656016aae2cf",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "4a19eaf4143fd79a7053188c64f8656016aae2cf"
+    },
+    "wakeAllocate": {
+      "ledger_commit": "8c82689ebebd6ebe9b27f180aefa19479e90cc4f",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "8c82689ebebd6ebe9b27f180aefa19479e90cc4f"
+    },
+    "wakeDraw": {
+      "ledger_commit": "d04d8e9e2aa4fabc02a1b7f9885af595ffd19c24",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "d04d8e9e2aa4fabc02a1b7f9885af595ffd19c24"
+    },
+    "wakeUpdate": {
+      "ledger_commit": "2dd01a7c4a8da35803c392aa57057a2dfd5262fe",
+      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "source_commit": "2dd01a7c4a8da35803c392aa57057a2dfd5262fe"
     }
   },
   "schema_version": 1
