@@ -1383,29 +1383,46 @@ void func_800517E0(void) {
                                   packed2, index, value / hundred - delta);
                     break;
                 case 0x46: {
+                    s32 motionAngle;
+                    s32 motionCount;
+                    s32 colorB0;
+                    s32 colorB1;
+                    s32 colorB2;
+                    s32 colorA0;
+                    s32 colorA1;
+                    s32 colorA2;
+                    s32 packedCount;
+                    s32 packedColorB;
+                    s32 packedColorA;
+                    s32 packedTail;
+                    f32 motionDuration;
+                    f32 radius;
+                    f32 height;
+                    f32 motionX;
+                    f32 motionZ;
 
-                    packed = *((u16 *) ((u8 *) cursor + 8));
-                    value2 = *((s16 *) ((u8 *) cursor + 4));
-                    target = *((s16 *) ((u8 *) cursor + 6));
-                    value = packed & 0xFF;
-                    packed2 = *((u16 *) ((u8 *) cursor + 0xA));
-                    flagsValue = *((u16 *) ((u8 *) cursor + 0xC));
-                    state = *((u16 *) ((u8 *) cursor + 0xE));
-                    index = currentCommand << 8;
-                    high = packed >> 8;
-                    low = packed2 >> 8;
-                    high2 = packed2 & 0xFF;
-                    low2 = flagsValue >> 8;
-                    frame = flagsValue & 0xFF;
-                    timer = state >> 8;
-                    targetValue = state & 0xFF;
+                    packedCount = *((u16 *) ((u8 *) cursor + 8));
+                    radius = *((s16 *) ((u8 *) cursor + 4));
+                    height = *((s16 *) ((u8 *) cursor + 6));
+                    motionDuration = packedCount & 0xFF;
+                    packedColorB = *((u16 *) ((u8 *) cursor + 0xA));
+                    packedColorA = *((u16 *) ((u8 *) cursor + 0xC));
+                    packedTail = *((u16 *) ((u8 *) cursor + 0xE));
+                    motionAngle = currentCommand << 8;
+                    motionCount = packedCount >> 8;
+                    colorB0 = packedColorB >> 8;
+                    colorB1 = packedColorB & 0xFF;
+                    colorB2 = packedColorA >> 8;
+                    colorA0 = packedColorA & 0xFF;
+                    colorA1 = packedTail >> 8;
+                    colorA2 = packedTail & 0xFF;
                     cursor = (AnimStreamEntry *) ((u8 *) cursor + 0x10);
-                    start = func_8002A8C0(index) * value2;
-                    end = func_8002A8BC(index) * value2;
-                    animCommandMotionTrap(start, target, end,
-                                          high * 2, low, high2,
-                                          low2, frame, timer, targetValue,
-                                          value / hundred);
+                    motionX = func_8002A8C0(motionAngle) * radius;
+                    motionZ = func_8002A8BC(motionAngle) * radius;
+                    animCommandMotionTrap(motionX, height, motionZ,
+                                          motionCount * 2, colorB0, colorB1,
+                                          colorB2, colorA0, colorA1, colorA2,
+                                          motionDuration / hundred);
                     break;
                 }
                 case 0x47:
