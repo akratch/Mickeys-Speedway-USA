@@ -1256,6 +1256,9 @@ typedef struct ModelCacheEntry {
     ObjectModel *model;
 } ModelCacheEntry;
 
+/* PROVENANCE: the authorized audit of JFG upstream efd5abb confirms that its
+ * corresponding modSuspendModelTextures remains GLOBAL_ASM, so no donor C
+ * body is adopted here. This remains a Mickey-only reconstruction. */
 /* Workbench: structure-mismatch, exact 113 instructions/frame -64; 25 words from +0xC.
  * Levers: explicit byte-scaled indexing is best; declaration/order and pointer-cursor probes did not improve it.
  * Remains: exception-loop shape plus pool slot 1/temp slot 3; asm stays canonical. */
@@ -1421,7 +1424,7 @@ void func_8002109C(ModelPointOwner *owner) {
  * frame: 0x40
  * relocations: 13
  * first-mismatch: +0xC
- * summary: Fidelity-valid proc 16 trace: 17 integer decisions, 0 source-attributed webs, no stack homes, and mixed-TU temp evidence unavailable; no source edit justified.
+ * summary: JFG efd5abb still has GLOBAL_ASM; next lever is a matched donor C body with original declaration/lifetime shape.
  * PLATEAU-HANDOFF:func_80020E4C:end
  */
 
