@@ -722,8 +722,8 @@ void func_80016890(void *arg0, void *arg1, void *arg2, f32 arg3, f32 arg4,
  * Mickey-only evidence.
  */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 303 differing words; first mismatch is at +0x48. */
-/* Target is 328 instructions/frame -320; candidate is 323 instructions/frame -320. */
+/* Workbench verdict: structure-mismatch, 300 differing words; first mismatch is at +0x44. */
+/* Target is 328 instructions/frame -320; candidate is 325 instructions/frame -320. */
 /* The polygon buffer now sits at the target's own frame offset: ten declared
  * scalar words precede it, which is what places an array inside IDO's local
  * block. Remaining gap is allocation: the target spends a callee-saved
@@ -811,7 +811,8 @@ void func_80017140(void *arg0, s32 arg1, void *arg2, s32 arg3) {
                             if (*(s16 *) ((u8 *) arg0 + 0x18) >= var_a1) {
                                 var_v1_3 = temp_a3;
                                 if (var_a2 >= *(s16 *) ((u8 *) arg0 + 0x16)) {
-                                    var_v0 = polygon + 0x10;
+                                    var_v0 = polygon;
+                                    var_v0 += 0x10;
                                     var_lo = 0xA * *(u8 *) (var_v1_3 + 1);
                                     while (var_v0 != polygon + 0x30) {
                                         var_v0 += 0x10;
@@ -1430,11 +1431,11 @@ void func_800180B4(ShadowQuery *query) {
 
 /* PLATEAU-HANDOFF:func_80017140:start
  * symbol: func_80017140
- * score: 303/328 words
+ * score: 300 differing words
  * frame: 0x140
- * relocations: 19
- * first-mismatch: +0x48
- * summary: Exact frame and 18-word prefix; candidate has 19/21 relocations (2 exact identities) and a five-word CFG/allocation deficit
+ * relocations: 21
+ * first-mismatch: +0x44
+ * summary: Polygon buffer and its fill loop now match the target's frame offset and entry shape; residual is allocation, chiefly the scaled edge index.
  * PLATEAU-HANDOFF:func_80017140:end
  */
 
