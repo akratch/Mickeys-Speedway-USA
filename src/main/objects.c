@@ -4144,6 +4144,7 @@ typedef struct {
     s8 unk4E;
     u8 pad4F[0x21];
     s32 unk70;
+    u8 pad74[4];
     u8 *unk78;
 } Objects09AA8Material;
 
@@ -4175,37 +4176,33 @@ struct Objects09AA8Object {
     u8 pad54[0x14];
     Objects09AA8Entry **unk68;
     u8 pad6C[0x27];
-    s8 unk93;
+    u8 unk93;
 };
 
-typedef struct {
-    u32 w0;
-    u32 w1;
+typedef union {
+    struct {
+        unsigned int w0;
+        unsigned int w1;
+    } words;
+    unsigned long long force_alignment;
 } Objects09AA8Command;
 
-/* Workbench verdict: structure-mismatch; 268 differing words (target 244, candidate 269). */
-/* First mismatch: +0x0; target frame 0x60 versus candidate frame 0x68. */
-/* Structural gap: display-list pointer carrier adds 25 instructions and 0x08 bytes of stack. */
 #ifdef NON_MATCHING
+extern u8 D_78F28[];
+
 void func_80009AA8(Objects09AA8Object *object) {
-    Objects09AA8Entry *sp54;
-    s32 sp48;
-    s32 sp38;
-    s32 sp34;
-    s32 temp_t5;
-    s32 temp_v0;
-    s32 var_a0;
-    s32 var_a1;
-    s32 var_t2;
-    s32 var_t3;
     s32 var_v0;
     Objects09AA8Entry **temp_v1;
     Objects09AA8Entry *temp_a1;
-    Objects09AA8Root *temp_s0;
-    Objects09AA8Material *temp_s1;
     Objects09AA8Entry *var_s2;
+    Objects09AA8Material *temp_s1;
+    u32 var_t3;
+    void *temp_s0;
+    s32 var_a0;
+    s32 var_a1;
+    s32 sp38;
+    s32 var_t2;
     Objects09AA8Command *command;
-    register s32 *displayList;
 
     var_v0 = 0;
     var_t2 = 0;
@@ -4214,30 +4211,28 @@ void func_80009AA8(Objects09AA8Object *object) {
     }
     temp_v1 = object->unk68;
     temp_a1 = temp_v1[(s32)object->unk3A];
-    sp54 = temp_a1;
     if (var_v0 != 0) {
         var_s2 = temp_v1[0];
         sp38 = object->unk93;
     } else {
-        var_s2 = temp_a1;
+        var_s2 = temp_v1[(s32)object->unk3A];
         sp38 = 0;
     }
     temp_s1 = var_s2->unk0;
-    temp_s0 = (Objects09AA8Root *)sp54->unk0;
+    temp_s0 = (Objects09AA8Root *)temp_a1->unk0;
     if (var_s2->unk8 != 0) {
         if (temp_s1->unk4E != 0) {
-            sp34 = 0;
+
             func_8005AF14(var_s2, temp_s1, object);
-            var_t2 = sp34;
         } else if (temp_s1->unk11 != 0) {
             var_s2->unkA = (s16)(var_s2->unkA ^ 1);
         }
-        sp34 = var_t2;
+
         func_80019AB8(object, var_s2, object->unk50,
                       ((Objects09AA8Entry *)((u8 *)var_s2 +
                                              (var_s2->unkA * 4)))->unkC);
         if (temp_s1->unk11 != 0) {
-            sp34 = var_t2;
+
             func_80007C68((Objects07C68Object *)object,
                           (Objects07C68Source *)temp_s1,
                           (Objects07C68Object *)var_s2, var_s2->unk8);
@@ -4247,92 +4242,53 @@ void func_80009AA8(Objects09AA8Object *object) {
     if (temp_s1->unk11 != 0) {
         var_t2 = 1;
     }
-    if ((sp38 != 0) && (sp54->unk8 != 0)) {
-        sp34 = var_t2;
-        func_80019AB8(object, sp54, object->unk50,
+    if ((sp38 != 0) && (temp_a1->unk8 != 0)) {
+
+        func_80019AB8(object, temp_a1, object->unk50,
                       ((Objects09AA8Entry *)((u8 *)var_s2 +
                                              (var_s2->unkA * 4)))->unkC);
-        sp54->unk8 = 0;
+        temp_a1->unk8 = 0;
     }
     if (object->unk39 == 0xFF) {
-        var_t3 = temp_s0->unk68;
+        var_t3 = ((Objects09AA8Root *)temp_s0)->unk68;
     } else {
-        var_t3 = temp_s0->unk6C;
+        var_t3 = ((Objects09AA8Root *)temp_s0)->unk6C;
     }
 
-    displayList = (s32 *)&D_800C94B4;
-    command = (Objects09AA8Command *)*displayList;
-    *displayList = (s32)(command + 1);
-    command->w0 = 0xFA000000;
-    command->w1 = (u32)((s32)object->unk39 | ~0xFF);
+    command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = 0xFA000000; command->words.w1 = ((255U << 24) | (255U << 16) | (255U << 8) | ((unsigned int)object->unk39 & 255U));
     if (temp_s1->unk4E == 0) {
-        sp34 = var_t2;
-        sp48 = var_t3;
-        camPushModelMtx((Gfx **)displayList, (Mtx **)&D_800C94B8,
+
+        camPushModelMtx((Gfx **)&D_800C94B4, (Mtx **)&D_800C94B8,
                         (CameraScaledTransform *)object, 1.0f, 0.0f);
     }
-    command = (Objects09AA8Command *)*displayList;
-    *displayList = (s32)(command + 1);
-    command->w0 = (u32)((((u32)(((Objects09AA8Entry *)((u8 *)var_s2 +
-                                                        (var_s2->unkA * 4)))->unkC +
-                                0x80000000) & 0xFFFFFF)) | 0xBF000000);
-    command->w1 = (u32)(sp54->unk4 + 0x80000000);
+    command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = (u32)((((u32)(((Objects09AA8Entry *)((u8 *)var_s2 + (var_s2->unkA * 4)))->unkC + 0x80000000) & 0xFFFFFF)) | 0xBF000000); command->words.w1 = (u32)(temp_a1->unk4 + 0x80000000);
     if (var_t2 != 0) {
         if (sp38 != 0) {
-            command = (Objects09AA8Command *)*displayList;
-            *displayList = (s32)(command + 1);
-            command->w0 = 0x02000050;
-            command->w1 = (u32)((u8 *)D_80078F20 + 8);
+            command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = 0x02000050; command->words.w1 = (u32)D_78F28;
         } else {
-            command = (Objects09AA8Command *)*displayList;
-            *displayList = (s32)(command + 1);
-            command->w0 = 0x02000050;
-            command->w1 = (u32)(((Objects09AA8Entry *)((u8 *)var_s2 +
-                                                       (var_s2->unkA * 4)))->unk50 +
-                                0x80000000);
+            command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = 0x02000050; command->words.w1 = (u32)(((Objects09AA8Entry *)((u8 *)var_s2 + (var_s2->unkA * 4)))->unk50 + 0x80000000);
         }
     }
-    temp_v0 = temp_s1->unk70;
-    if (temp_v0 != 0) {
+    if (temp_s1->unk70 != 0) {
         var_a0 = 0;
-        if ((temp_v0 + 1) > 0) {
+        if ((temp_s1->unk70 + 1) > 0) {
             var_a1 = 0;
             do {
                 if (var_t2 != 0) {
-                    command = (Objects09AA8Command *)*displayList;
-                    *displayList = (s32)(command + 1);
-                    command->w0 = 0x02000050;
-                    command->w1 = (u32)((u8 *)D_80078F20 + 8);
+                    command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = 0x02000050; command->words.w1 = (u32)D_78F28;
                 }
-                command = (Objects09AA8Command *)*displayList;
-                var_a0 += 1;
-                *displayList = (s32)(command + 1);
-                command->w0 = 0x06000000;
-                temp_t5 = *(s32 *)((u8 *)temp_s1->unk78 + var_a1);
+                command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; var_a0 += 1; command->words.w0 = 0x06000000; command->words.w1 = (u32)(*(s32 *)((u8 *)temp_s1->unk78 + var_a1) + 0x80000000);
                 var_a1 += 4;
-                command->w1 = (u32)(temp_t5 + 0x80000000);
             } while (temp_s1->unk70 >= var_a0);
         }
     } else {
-        command = (Objects09AA8Command *)*displayList;
-        *displayList = (s32)(command + 1);
-        command->w0 = 0x06000000;
-        command->w1 = (u32)(var_t3 + 0x80000000);
+        command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = 0x06000000; command->words.w1 = (u32)(var_t3 + 0x80000000);
     }
-    command = (Objects09AA8Command *)*displayList;
-    *displayList = (s32)(command + 1);
-    command->w0 = 0xBF000000;
-    command->w1 = 0;
-    camRestoreModelMtx((Gfx **)displayList);
-    func_80034920((Gfx **)displayList);
-    command = (Objects09AA8Command *)*displayList;
-    *displayList = (s32)(command + 1);
-    command->w0 = 0xFA000000;
-    command->w1 = (u32)-1;
-    command = (Objects09AA8Command *)*displayList;
-    *displayList = (s32)(command + 1);
-    command->w0 = 0xFB000000;
-    command->w1 = (u32)-0x100;
+    command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = 0xBF000000; command->words.w1 = 0;
+    camRestoreModelMtx((Gfx **)&D_800C94B4);
+    func_80034920((Gfx **)&D_800C94B4);
+    command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = 0xFA000000; command->words.w1 = (u32)-1;
+    command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = 0xFB000000; command->words.w1 = (u32)-0x100;
     D_80079250 = 0;
 }
 #else
@@ -5752,4 +5708,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x5C
  * summary: Workbench allocation-mismatch: register-role-audit. Next: isolate heap-spill line order and the short-lived record-length web.
  * PLATEAU-HANDOFF:func_80004C28:end
+ */
+
+/* PLATEAU-HANDOFF:func_80009AA8:start
+ * symbol: func_80009AA8
+ * score: 4 differing words
+ * frame: 0x60
+ * relocations: 17
+ * first-mismatch: +0x54
+ * summary: Workbench allocation-mismatch: register-role-audit. Next: trace the selected-entry CSE color and known-zero call spill.
+ * PLATEAU-HANDOFF:func_80009AA8:end
  */
