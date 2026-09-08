@@ -713,6 +713,7 @@ gzip_inflate_dynamic = 0x8004DF64; // type:func size:0x418   ROM 0x4eb64  hasm/g
 gzip_inflate_fixed = 0x8004E37C; // type:func size:0x158   ROM 0x4ef7c  hasm/gzip_asm.s.o  masked=11/86
 gzip_inflate_stored = 0x8004E4D4; // type:func size:0x10C   ROM 0x4f0d4  hasm/gzip_asm.s.o  masked=16/67
 gzip_inflate_codes = 0x8004E5E0; // type:func size:0x2F4   ROM 0x4f1e0  hasm/gzip_asm.s.o  masked=20/189
+func_8004E8E0 = 0x8004E8E0; // type:func size:0xBC ROM 0x4f4e0 tier-D matched C, DKR src/game_text.c init_dialogue_text donor, linked exact=47/47
 
 // audio_spatial.c -- 7 unmasked words of 10; it clears the adoption threshold
 // by one word and is the thinnest row in this block. Treat accordingly.

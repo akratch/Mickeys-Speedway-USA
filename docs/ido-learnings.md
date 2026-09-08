@@ -301,6 +301,16 @@ bytes and disassembly never belong here.
   table as pairs), and a pool-carried accumulate (`x = a; x += b * c;`)
   changes a pop. Two pops off means two of these, and the fixes only work
   together (`overlay20UpdateObjectResource`, `func_overlay_070_F00000D8`).
+- A named common-subexpression carrier can consume an otherwise invisible
+  ugen temporary even when optimization leaves the same instruction shape.
+  In an exact initializer, spelling a just-written pointer chain as
+  `array[0] = call(); array[1] = array[0] + size; end = array[1] + size;`
+  instead of carrying the call and first addition through locals aligned the
+  later integer temporary ring without changing the frame or relocation
+  surface. Use this only when no intervening call, volatile access, or
+  aliasing write can change the read-back values; require exact configured
+  code and linked-ROM proof. Evidence: the exact `func_8004E8E0` closure in
+  `docs/resident.md`, 2026-09-08.
 - A known-zero byte read can survive as allocator state after its value folds
   away. In an exact release routine, writing zero to a status byte and then
   assigning `status | 1` in the next conditional emitted the same constant
