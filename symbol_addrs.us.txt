@@ -2839,3 +2839,4 @@ func_8000590C = 0x8000590C; // type:func size:0xB3C tier-D extracted resident bo
 func_80009220 = 0x80009220; // type:func size:0x1F4 ROM 0x9E20 tier-A matched C Mickey-only C-object+linked-ROM-exact, nine relocation identities, name unresolved
 func_80008128 = 0x80008128; // type:func size:0x1F4 ROM 0x8D28 tier-A matched C Mickey-only C-object+linked-ROM-exact, five relocation identities, name unresolved
 func_80006C4C = 0x80006C4C; // type:func size:0x254 ROM 0x784C tier-A matched C Mickey-only C-object+linked-ROM-exact, sixteen relocation identities, name unresolved
+func_8000486C = 0x8000486C; // type:func size:0x298 ROM 0x546C tier-A matched C Mickey-only C-object+linked-ROM-exact, twenty-three relocation identities, name unresolved
