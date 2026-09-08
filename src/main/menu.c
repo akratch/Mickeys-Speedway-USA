@@ -1185,8 +1185,9 @@ s32 frontGetScreenMode(void) {
  * and shared-carrier forms remain closed. ORT 606 and its three callers remain
  * authenticated. Linked equality proves fallback only; JFG's ordered peer is
  * role evidence, not donor C. */
-/* PROVENANCE: ordered accessor-family role compared with JFG's assembly-backed
- * src/menu.c::frontSetScreenMode; mask, guard, and packed fields are Mickey-derived. */
+/* PROVENANCE: ordered accessor-family role rechecked against JFG efd5abb's
+ * assembly-backed src/menu.c::frontSetScreenMode; mask, guard, and packed fields
+ * are Mickey-derived. */
 void func_8003A2C8(s32 screenMode) {
     u8 *modeBitPtr;
     u8 *modeState;
@@ -1348,7 +1349,7 @@ void func_8003A590(void) {
  * frame: frameless
  * relocations: 6
  * first-mismatch: +0x14
- * summary: Flat 20-minute permuter search; next lever is an instrumented forced-color oracle covering p1 and p2.
+ * summary: JFG efd5abb leaves frontSetScreenMode assembly-only; no new donor C reaches the v1/v0 tie, so resume with a p1/p2 forced-color oracle.
  * PLATEAU-HANDOFF:func_8003A2C8:end
  */
 
