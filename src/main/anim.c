@@ -2962,6 +2962,15 @@ extern void mathOneFloatYPR(HitResolveRotation *rotation, AnimVec3f *vector);
  * Bare-pragma reconstruction from Mickey's collision response assembly.
  * The public JFG hit.c family supplies role context only; Mickey fixes every
  * field offset, call identity and arithmetic association below.
+ *
+ * Plateau: 431 of 445 words, 420 differing from +0x38, frame 0xB8 -- the
+ * target's. The frame came from carrier count, not from a spill: every
+ * declared f32 in this TU reserves a home whether or not it is
+ * register-coloured, so the six scalars whose live ranges end before the
+ * response tail carry the tail's own values instead of being declared twice.
+ * What remains is a real 14-word code deficit, not an allocation difference;
+ * audit the impulse and effect-position groups against the target before any
+ * further allocator reading.
  */
 #ifdef NON_MATCHING
 void func_80055104(HitCopyState *first, HitCopyState *second, f32 scale) {
@@ -2983,12 +2992,6 @@ void func_80055104(HitCopyState *first, HitCopyState *second, f32 scale) {
     f32 impulse;
     f32 firstScale;
     f32 secondScale;
-    f32 halfDistance;
-    f32 soundScale;
-    f32 volume;
-    f32 oldX;
-    f32 oldY;
-    f32 oldZ;
 
     firstVehicle = (HitResolveVehicle *) first->target;
     firstSource = first->source;
@@ -3035,30 +3038,30 @@ void func_80055104(HitCopyState *first, HitCopyState *second, f32 scale) {
     mathOneFloatYPR(&rotation, &rotated);
     secondVehicle->rotatedZ = rotated.z;
     secondVehicle->rotatedX = rotated.x;
-    oldY = first->position.y - firstSource->previous.y;
-    oldX = first->position.x - firstSource->previous.x;
-    oldZ = first->position.z - firstSource->previous.z;
+    secondScale = first->position.y - firstSource->previous.y;
+    firstScale = first->position.x - firstSource->previous.x;
+    impulse = first->position.z - firstSource->previous.z;
     firstSource->previous.x =
         (firstVehicle->velocity.x * scale) + firstSource->current.x;
     firstSource->previous.y =
         (firstVehicle->velocity.y * scale) + firstSource->current.y;
     firstSource->previous.z =
         (firstVehicle->velocity.z * scale) + firstSource->current.z;
-    first->position.x = firstSource->previous.x + oldX;
-    first->position.y = firstSource->previous.y + oldY;
-    first->position.z = firstSource->previous.z + oldZ;
-    oldY = second->position.y - secondSource->previous.y;
-    oldX = second->position.x - secondSource->previous.x;
-    oldZ = second->position.z - secondSource->previous.z;
+    first->position.x = firstSource->previous.x + firstScale;
+    first->position.y = firstSource->previous.y + secondScale;
+    first->position.z = firstSource->previous.z + impulse;
+    secondScale = second->position.y - secondSource->previous.y;
+    firstScale = second->position.x - secondSource->previous.x;
+    impulse = second->position.z - secondSource->previous.z;
     secondSource->previous.x =
         (secondVehicle->velocity.x * scale) + secondSource->current.x;
     secondSource->previous.y =
         (secondVehicle->velocity.y * scale) + secondSource->current.y;
     secondSource->previous.z =
         (secondVehicle->velocity.z * scale) + secondSource->current.z;
-    second->position.x = secondSource->previous.x + oldX;
-    second->position.y = secondSource->previous.y + oldY;
-    second->position.z = secondSource->previous.z + oldZ;
+    second->position.x = secondSource->previous.x + firstScale;
+    second->position.y = secondSource->previous.y + secondScale;
+    second->position.z = secondSource->previous.z + impulse;
 
     firstCollision = (void *) TrapDanglingJump(firstVehicle->collisionData);
     secondCollision = (void *) TrapDanglingJump(secondVehicle->collisionData);
@@ -3086,17 +3089,17 @@ void func_80055104(HitCopyState *first, HitCopyState *second, f32 scale) {
     firstVehicle->collisionTimer = 0x64;
     secondVehicle->collisionTimer = 0x64;
     if (relativeVelocity > 4.0f) {
-        halfDistance = distance * 0.5f;
+        distance = distance * 0.5f;
         effectPosition.x =
-            (direction.x * halfDistance) + firstSource->current.x;
+            (direction.x * distance) + firstSource->current.x;
         effectPosition.y =
-            (direction.y * halfDistance) + firstSource->current.y;
+            (direction.y * distance) + firstSource->current.y;
         effectPosition.z =
-            (direction.z * halfDistance) + firstSource->current.z;
-        soundScale = (f32) func_80001620(7);
-        volume = (relativeVelocity / 20.0f) * soundScale;
-        if (soundScale < volume) {
-            volume = soundScale;
+            (direction.z * distance) + firstSource->current.z;
+        firstMass = (f32) func_80001620(7);
+        secondMass = (relativeVelocity / 20.0f) * firstMass;
+        if (firstMass < secondMass) {
+            secondMass = firstMass;
         }
         if (firstVehicle->soundHandle != NULL) {
             func_800031E8(firstVehicle->soundHandle);
@@ -3104,7 +3107,7 @@ void func_80055104(HitCopyState *first, HitCopyState *second, f32 scale) {
         func_80002FE0(7, effectPosition.x, effectPosition.y,
                       effectPosition.z, 4,
                       &firstVehicle->soundHandle);
-        func_8000309C(firstVehicle->soundHandle, (u8) volume);
+        func_8000309C(firstVehicle->soundHandle, (u8) secondMass);
         if (!(firstVehicle->flags & 1)) {
             rumbleStart(firstVehicle->playerIndex, 0x32, 0.4f);
         }
@@ -4182,22 +4185,22 @@ void fmvInit(void) {
 
 /* PLATEAU-HANDOFF:func_80051364:start
  * symbol: func_80051364
- * score: 95/287 words
+ * score: 251 differing words
  * frame: 0x48
  * relocations: 51
  * first-mismatch: +0x0
- * summary: Target is frame 0x40 with 47 relocations. Next isolate one source-authentic playback-state carrier lifetime without expanding the frame.
+ * summary: Re-measured under the TU's -Wab,-r4300_mul selection; target is frame 0x40 with 47 relocations and the candidate materializes the playback-state and television-mode addresses four times where the target keeps each in one saved register.
  * PLATEAU-HANDOFF:func_80051364:end
  */
 
 
 /* PLATEAU-HANDOFF:func_80054B3C:start
  * symbol: func_80054B3C
- * score: 365 differing words
+ * score: 370 differing words
  * frame: 0x188
  * relocations: 3
  * first-mismatch: +0x0
- * summary: typed m2c-faithful candidate is one instruction long; frame allocation remains 0x188 versus 0xD8 and all three sqrtf offsets are non-exact
+ * summary: Re-measured under the TU's -Wab,-r4300_mul selection; the committed body is still m2c-shaped and its declared temporaries alone hold the frame 176 bytes above the target's 0xD8, so rewriting it as ordinary C is the prerequisite for any allocator reading.
  * PLATEAU-HANDOFF:func_80054B3C:end
  */
 
@@ -4223,11 +4226,11 @@ void fmvInit(void) {
 
 /* PLATEAU-HANDOFF:func_80055104:start
  * symbol: func_80055104
- * score: 425 differing words
- * frame: 0xD0
+ * score: 420 differing words
+ * frame: 0xB8
  * relocations: 23
- * first-mismatch: +0x0
- * summary: Target 445 words and frame 0xB8; relocation identities agree, but stack lifetimes drift. Add resident size metadata to unlock donor and flag tools.
+ * first-mismatch: +0x38
+ * summary: Frame now matches at 0xB8 and the first fourteen words are exact; candidate is 431 of 445 words, so the deficit is real missing code rather than allocation.
  * PLATEAU-HANDOFF:func_80055104:end
  */
 
@@ -4243,11 +4246,11 @@ void fmvInit(void) {
 
 /* PLATEAU-HANDOFF:func_800563B4:start
  * symbol: func_800563B4
- * score: 12/649 words
+ * score: 637 differing words
  * frame: 0xD8
  * relocations: 11
  * first-mismatch: +0x1C
- * summary: Candidate is 40 words short with 637 differences and the exact frame; both sides have 11 relocations, but only one site/identity aligns and two candidate identities are unresolved.
+ * summary: Re-measured under the TU's -Wab,-r4300_mul selection and unchanged; candidate is 609 of 649 words with the exact frame, so the deficit is missing radius/vector work rather than allocation.
  * PLATEAU-HANDOFF:func_800563B4:end
  */
 
