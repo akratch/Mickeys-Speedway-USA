@@ -1,4 +1,5 @@
 #include "PR/ultratypes.h"
+#include "n_audio/gbi.h"
 
 typedef struct Overlay65TrailRecord {
     f32 x[9];
@@ -32,11 +33,6 @@ typedef struct Overlay65TrailCamera {
     f32 z;
 } Overlay65TrailCamera;
 
-typedef struct Overlay65TrailCommand {
-    u32 w0;
-    u32 w1;
-} Overlay65TrailCommand;
-
 #define O65_RECORD(base) ((Overlay65TrailRecord *)(base))
 
 extern u8 D_0[];
@@ -57,11 +53,11 @@ extern u8 D_800000C0[];
  */
 extern Overlay65TrailCamera *func_80021970(s32 index);
 extern void camSetNo(s32 index);
-extern void func_800221E8(void **commands, s32 *cursor);
+extern void func_800221E8(Gfx **commands, Mtx **matrices);
 extern s32 mathRnd(s32 lower, s32 upper);
 extern f32 func_8002A8BC(s32 angle);
 extern f32 func_8002A8C0(s32 angle);
-extern void func_800349A4(void **commands, void *texture,
+extern void func_800349A4(Gfx **commands, s32 texture,
                           s32 flags, s32 parameter);
 extern void func_overlay_065_F0001A14_18C5C7C(f32 x, f32 y, f32 z);
 
@@ -71,16 +67,16 @@ extern void func_overlay_065_F0001A14_18C5C7C(f32 x, f32 y, f32 z);
  * Remaining: 157 register / 92 structural residuals and target unrolled-writer/stack-frame allocation drift; no exact C codegen.
  */
 #ifdef NON_MATCHING
-void func_overlay_065_F0000C38_18C4EA0(void **commandPtr,
-                                       s32 *cursorPtr, s32 updateRate) {
+void func_overlay_065_F0000C38_18C4EA0(Gfx **commandPtr,
+                                       Mtx **matrixPtr, s32 updateRate) {
     f32 randomX;
     f32 randomZ;
     f32 sinAngle;
     f32 cosAngle;
     f32 spawnX;
-    void *commands;
+    Gfx *commands;
     f32 spawnZ;
-    s32 cursor;
+    Mtx *matrices;
     s32 recordIndex;
     s32 updateIndex;
     s32 pointIndex;
@@ -88,10 +84,10 @@ void func_overlay_065_F0000C38_18C4EA0(void **commandPtr,
     Overlay65TrailRecord *record;
 
     commands = *commandPtr;
-    cursor = *cursorPtr;
+    matrices = *matrixPtr;
     camera = func_80021970(0);
     camSetNo(0);
-    func_800221E8(&commands, &cursor);
+    func_800221E8(&commands, &matrices);
 
     if (D_1900 > 0) {
         D_1900 -= updateRate;
@@ -109,7 +105,7 @@ void func_overlay_065_F0000C38_18C4EA0(void **commandPtr,
         D_1900 = 1;
     }
 
-    func_800349A4(&commands, NULL, 1, 0);
+    func_800349A4(&commands, 0, 1, 0);
     record = O65_RECORD(D_0);
     recordIndex = 0;
     do {
@@ -146,10 +142,10 @@ void func_overlay_065_F0000C38_18C4EA0(void **commandPtr,
                 ((u32 *)commands)[0] = 0x040000BCU |
                     (((((u32)D_2988 + 0x80000000U) & 6U) | 0x90U) << 16);
                 ((u32 *)commands)[1] = (u32)D_2988 + 0x80000000U;
-                commands = (u8 *)commands + 8;
+                commands++;
                 ((u32 *)commands)[0] = 0x05F10100U;
                 ((u32 *)commands)[1] = (u32)D_800000C0;
-                commands = (u8 *)commands + 8;
+                commands++;
 
                 for (pointIndex = 0; pointIndex < 9; pointIndex++) {
                     D_2988->x = O65_RECORD(record)->x[pointIndex] - 3.0f;
@@ -175,7 +171,7 @@ void func_overlay_065_F0000C38_18C4EA0(void **commandPtr,
         record++;
     } while (recordIndex != 50);
     *commandPtr = commands;
-    *cursorPtr = cursor;
+    *matrixPtr = matrices;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o065/func_overlay_065_F0000C38_18C4EA0/func_overlay_065_F0000C38_18C4EA0.s")
