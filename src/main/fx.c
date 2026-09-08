@@ -2558,7 +2558,7 @@ void func_8004AF68(void) {
  * score: 334 differing words
  * frame: 0x98
  * relocations: 2
- * first-mismatch: +0x0
- * summary: Float allocation and trig operand order recovered. Remaining two-word frame gap is counter lifetime allocation and the first trig relocation is one word late.
+ * first-mismatch: 0x0
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new counter lifetime and trig-call schedule evidence.
  * PLATEAU-HANDOFF:wakeUpdate:end
  */
