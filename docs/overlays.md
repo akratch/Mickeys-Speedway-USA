@@ -87,9 +87,18 @@ save/restore pair, while the target caller-saves that value around
 untried family is the documented pool-position levers 8-13, not another flag
 or branch-shape permutation.
 
-`runlinkFreeCode` remains `NON_MATCHING`: 117 words differ, 183/184 instructions, frame -104 versus -88, first `+0x0`.
-Levers covered cached base, declaration/register, relocation lifetime, flags, and bounded permutation variants.
-Remaining: frame/home excess, relocation bindings, and patch-loop schedule.
+`runlinkFreeCode` (`0x80032338..0x80032618`, ROM `0x32F38..0x33218`)
+is matched C (tier A): all 184 instruction words (736 bytes), the `0x58`
+frame, and all 32 static relocation offsets, types, and identities are exact
+under `-O2 -mips2 -32`. The linked owned range is byte-identical to Mickey's
+ROM, with no padding credited. It cancels a pending allocation or frees the
+loaded overlay, clears its link slot, and patches references in every other
+loaded module. PROVENANCE: adapted from Jet Force Gemini's published
+`src/runLink.c:runlinkFreeCode` at `efd5abb`; Mickey's packed records and
+resident section anchors decide the layout. The donor's cached loaded base,
+explicit patch address, and counted pending scan close the former size/frame
+residual. Unsigned N64 base-address sums close the remaining four operand
+register differences; pointer-addition commutation alone was flat.
 
 `tier-B runlinkResumeCode`: 6 stack operands remain, first `+0x0`; 250 instructions, opcode schedule, registers, and relocations are exact.
 Workbench frame-layout; stack-home levers 26/32, frame-local variants, flag lattice, and bounded permutation did not alter the frame.
