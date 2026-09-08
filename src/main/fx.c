@@ -2417,8 +2417,8 @@ void func_8004AF68(void) {
  * score: 60 differing words
  * frame: 0x48
  * relocations: 6
- * first-mismatch: +0x68
- * summary: Declaration order fixed the flag stack home; one address-base instruction and register coloring remain after 10 source forms and 119 flags.
+ * first-mismatch: 0x68
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new allocation address-base/register topology evidence.
  * PLATEAU-HANDOFF:func_80046EC4:end
  */
 
