@@ -5,6 +5,6 @@
 - score: 18/39 words
 - frame: 0x18
 - relocations: 18
-- first mismatch: +0x10
-- summary: Exact opcode/size and 18 relocation sites; builder identity now resolves. Next lever is authenticated temp-FIFO phase evidence, not more source permutation.
+- first mismatch: +0x8
+- summary: Candidate trace proves seven temp births. rcpFast3d fixes all 18 relocation identities; 21 masked differences remain without target temp events.
 <!-- plateau-handoff:overlay33PresentAndSwap:end -->
