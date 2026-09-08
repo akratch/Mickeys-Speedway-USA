@@ -61,143 +61,143 @@
       "source_commit": "1ac4ce096402051df01ff721968235046df1e373"
     },
     "func_8000D1B8": {
-      "ledger_commit": "cb1705807a5199c3eff90d06a8d680a09818eef7",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "cb1705807a5199c3eff90d06a8d680a09818eef7"
+      "ledger_commit": "f641e88c5099706c01b668ae3bd7a390cb979d0e",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "f641e88c5099706c01b668ae3bd7a390cb979d0e"
     },
     "func_8000D3B8": {
-      "ledger_commit": "81f2e96056a51705101e6a5285b37720fb8875a9",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "81f2e96056a51705101e6a5285b37720fb8875a9"
+      "ledger_commit": "e73a5403711cdf7594cdd24888ba2aa137ed0273",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "e73a5403711cdf7594cdd24888ba2aa137ed0273"
     },
     "func_8000D820": {
-      "ledger_commit": "d3104af21c9737a33734fedd5e772c6ef000e082",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "d3104af21c9737a33734fedd5e772c6ef000e082"
+      "ledger_commit": "a03afce307b231b73b7ac0a97a719b0cf4f5b1da",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "a03afce307b231b73b7ac0a97a719b0cf4f5b1da"
     },
     "func_8000DB34": {
-      "ledger_commit": "5042c64da1b1c3b87bb563db2a6f0b22e0d7dbc2",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "5042c64da1b1c3b87bb563db2a6f0b22e0d7dbc2"
+      "ledger_commit": "73cedbc79d64198693feecf70510756161276f53",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "73cedbc79d64198693feecf70510756161276f53"
     },
     "func_8000DFBC": {
-      "ledger_commit": "ac7a60ff07572a39241b8df3de5c66edef0afe21",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "ac7a60ff07572a39241b8df3de5c66edef0afe21"
+      "ledger_commit": "f61f64ede060e35eac6b32381e742d31d345081e",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "f61f64ede060e35eac6b32381e742d31d345081e"
     },
     "func_8000E5EC": {
-      "ledger_commit": "d65da754705537338f7bd5f42f470784623bece8",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "baafccf44c8c440209b7d3b3a75dc19ddad384cd"
+      "ledger_commit": "593b47f787db89b7ab6a91670c4a22b008a23c54",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "593b47f787db89b7ab6a91670c4a22b008a23c54"
     },
     "func_8000E920": {
-      "ledger_commit": "7092916e8b5c1ade4054776d492f3f935e65e9e8",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "7092916e8b5c1ade4054776d492f3f935e65e9e8"
+      "ledger_commit": "f57beb0874304308fbc321ec5f6d1547a2c11db2",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "f57beb0874304308fbc321ec5f6d1547a2c11db2"
     },
     "func_8000F198": {
-      "ledger_commit": "a5ed875fe3065a9e5e7277f64308811b39d55e64",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "a5ed875fe3065a9e5e7277f64308811b39d55e64"
+      "ledger_commit": "0a7c6b05843a5cfca9a8e8a889460759a3906871",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "0a7c6b05843a5cfca9a8e8a889460759a3906871"
     },
     "func_8000FAE0": {
-      "ledger_commit": "ce927e087eef27ec3fc5b4afc4c5c7720f9ba63e",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "ce927e087eef27ec3fc5b4afc4c5c7720f9ba63e"
+      "ledger_commit": "e1427b8d7bdfe3b79eab3743fc23d44984e93d9f",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "e1427b8d7bdfe3b79eab3743fc23d44984e93d9f"
     },
     "func_800103D4": {
-      "ledger_commit": "65b7042c5a80fe3e1b896e976f80b138c5e8ac4d",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "65b7042c5a80fe3e1b896e976f80b138c5e8ac4d"
+      "ledger_commit": "117874f2a7619be42e73762b97e5f2f6f3d6d704",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "117874f2a7619be42e73762b97e5f2f6f3d6d704"
     },
     "func_80010654": {
-      "ledger_commit": "db41125f37dc78e1dccd76ffedb19a56e62cac5f",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "db41125f37dc78e1dccd76ffedb19a56e62cac5f"
+      "ledger_commit": "4c36a3677d7e29f206fc886e688e4cece33e00c4",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "4c36a3677d7e29f206fc886e688e4cece33e00c4"
     },
     "func_80010900": {
-      "ledger_commit": "68bd40f4c8c71a2585a0da0e7fb15e72768c0500",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "68bd40f4c8c71a2585a0da0e7fb15e72768c0500"
+      "ledger_commit": "801e30d996f1d5c9f33abd1552987e195fbdbba7",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "801e30d996f1d5c9f33abd1552987e195fbdbba7"
     },
     "func_80010B4C": {
-      "ledger_commit": "2e3e23f52d6c3c3bb827280d938f3f4df3077ba2",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "2e3e23f52d6c3c3bb827280d938f3f4df3077ba2"
+      "ledger_commit": "496a67adfd6eb50e3fcf2bebefd29ca0df6f2e9e",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "496a67adfd6eb50e3fcf2bebefd29ca0df6f2e9e"
     },
     "func_800115E4": {
-      "ledger_commit": "5eab206a8b839b1400963d28db8d056dc8562b80",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "5eab206a8b839b1400963d28db8d056dc8562b80"
+      "ledger_commit": "158e2b8ee1d8075967cb36113203ccd80d7e0c12",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "158e2b8ee1d8075967cb36113203ccd80d7e0c12"
     },
     "func_80011980": {
-      "ledger_commit": "330a58c555fb88bc113e0a8d1d64779f31e0b51b",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "330a58c555fb88bc113e0a8d1d64779f31e0b51b"
+      "ledger_commit": "bf5bb8e2ed1d486b9a4b1a3504ae2ad81d6b191a",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "bf5bb8e2ed1d486b9a4b1a3504ae2ad81d6b191a"
     },
     "func_80011CDC": {
-      "ledger_commit": "4d35e5dc67b5d502b22019c5c05e79e4479afff7",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "4d35e5dc67b5d502b22019c5c05e79e4479afff7"
+      "ledger_commit": "d1a3295707e62325d748ef846c202a7266d33565",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "d1a3295707e62325d748ef846c202a7266d33565"
     },
     "func_80012234": {
-      "ledger_commit": "57d42e0c006d39518d5e91384d62fb56d6f831d2",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "57d42e0c006d39518d5e91384d62fb56d6f831d2"
+      "ledger_commit": "8e79e86985f9bb6bb51bdc17d7c9fbc9729f12ba",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "8e79e86985f9bb6bb51bdc17d7c9fbc9729f12ba"
     },
     "func_80012658": {
-      "ledger_commit": "50e42c9b87cb4b3fa507814668e656f3da88d3c6",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "50e42c9b87cb4b3fa507814668e656f3da88d3c6"
+      "ledger_commit": "82c2980b389535d0a5de6b5b3c3446c6243d762a",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "82c2980b389535d0a5de6b5b3c3446c6243d762a"
     },
     "func_8001291C": {
-      "ledger_commit": "568a8d6a37fe8036ffb847e58b704d352e91f4fc",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "568a8d6a37fe8036ffb847e58b704d352e91f4fc"
+      "ledger_commit": "c86d082ce091a6953c1eb9f4cf4e6ca6da98ad90",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "c86d082ce091a6953c1eb9f4cf4e6ca6da98ad90"
     },
     "func_800133FC": {
-      "ledger_commit": "cb992a8901ee09f55a1d294220ac57dca46f8e03",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "cb992a8901ee09f55a1d294220ac57dca46f8e03"
+      "ledger_commit": "91523ea05edb773a364ca83d8d3b074b7bdfc4d6",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "91523ea05edb773a364ca83d8d3b074b7bdfc4d6"
     },
     "func_8001357C": {
-      "ledger_commit": "dd9cecc6b878a95871afd5c3589f24dca92d9985",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "dd9cecc6b878a95871afd5c3589f24dca92d9985"
+      "ledger_commit": "73e888e3adb70c8464386de9eb8cf93387668edb",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "73e888e3adb70c8464386de9eb8cf93387668edb"
     },
     "func_8001398C": {
-      "ledger_commit": "939b2bc8331c0813c2784bead124f8281f5575ff",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "939b2bc8331c0813c2784bead124f8281f5575ff"
+      "ledger_commit": "e33a098744dd00bfafa0ee964858d1c10c3491a8",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "e33a098744dd00bfafa0ee964858d1c10c3491a8"
     },
     "func_800140CC": {
-      "ledger_commit": "646958bb1186c91b2fb7dcb8899f97a6ea266dac",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "646958bb1186c91b2fb7dcb8899f97a6ea266dac"
+      "ledger_commit": "994dfb4563be568f6795f4f96ffbf306f0beaa54",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "source_commit": "994dfb4563be568f6795f4f96ffbf306f0beaa54"
     },
     "func_80016890": {
       "ledger_commit": "0aea596a6c649bacd030c7e9167ca2236accca0e",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "8b4dcb05207206d28a2d803c548c266f4c578c45"
     },
     "func_80017140": {
       "ledger_commit": "8ae108e3e707ad2a1000623656da5474b2da3d91",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "8ae108e3e707ad2a1000623656da5474b2da3d91"
     },
     "func_80017660": {
       "ledger_commit": "1099abe8b529d7d4fcdbb1966fc009e1b15671cb",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "1099abe8b529d7d4fcdbb1966fc009e1b15671cb"
     },
     "func_80017BCC": {
       "ledger_commit": "8508607a0426420ec3052901195c5abe8c02605a",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "8508607a0426420ec3052901195c5abe8c02605a"
     },
     "func_800180B4": {
       "ledger_commit": "e0ae1839c2e27acaf1b182508ea1588af04f5aaa",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "e0ae1839c2e27acaf1b182508ea1588af04f5aaa"
     },
     "func_80018F08": {
@@ -217,37 +217,37 @@
     },
     "func_8001C4C0": {
       "ledger_commit": "e5e1131387b1c271cb7ed97433912a36ed8e0f84",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "e5e1131387b1c271cb7ed97433912a36ed8e0f84"
     },
     "func_8001CB84": {
       "ledger_commit": "19f1f38fe953750c9768ee64a865439a6483950f",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "19f1f38fe953750c9768ee64a865439a6483950f"
     },
     "func_8001D880": {
       "ledger_commit": "6018f92ab53ef13f26480d8331dfed972641fef5",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "6018f92ab53ef13f26480d8331dfed972641fef5"
     },
     "func_8001D960": {
       "ledger_commit": "0d16456858452f970d7d40bba889d1c8ac032e13",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "0d16456858452f970d7d40bba889d1c8ac032e13"
     },
     "func_8001DD70": {
       "ledger_commit": "53044477cdaceea811dd82a33c337ba4b5389fed",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "53044477cdaceea811dd82a33c337ba4b5389fed"
     },
     "func_8001E5C4": {
       "ledger_commit": "7d552f6b24771fb6f8092b889123a021a88ece64",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "7d552f6b24771fb6f8092b889123a021a88ece64"
     },
     "func_8001EC44": {
       "ledger_commit": "4fa02a80b6472f216afd857ba080218aa104a691",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "4fa02a80b6472f216afd857ba080218aa104a691"
     },
     "func_8001F520": {
@@ -392,7 +392,7 @@
     },
     "func_8003D25C": {
       "ledger_commit": "1f51f9a0ddaaafedfa5d80553e34a7c648d57526",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "1f51f9a0ddaaafedfa5d80553e34a7c648d57526"
     },
     "func_8003D4FC": {
@@ -402,22 +402,22 @@
     },
     "func_8003F154": {
       "ledger_commit": "666d563a26c4986470ba0a085d3cfdd36d83042f",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "666d563a26c4986470ba0a085d3cfdd36d83042f"
     },
     "func_8004054C": {
       "ledger_commit": "d0691bc25c501f1d82afbc41b34f34ae8212cc6a",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "d0691bc25c501f1d82afbc41b34f34ae8212cc6a"
     },
     "func_80040B88": {
       "ledger_commit": "f3eb3733c6ffaa78cbf7b2356a960af90b9fb292",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "f3eb3733c6ffaa78cbf7b2356a960af90b9fb292"
     },
     "func_80041530": {
       "ledger_commit": "d6b0c363364a2d6cb346818f7d8365a24864d71a",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "d6b0c363364a2d6cb346818f7d8365a24864d71a"
     },
     "func_80045D34": {
@@ -1217,7 +1217,7 @@
     },
     "shadowGenerate": {
       "ledger_commit": "662a3124339d7a605f4e3985f19c9021064f4961",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
       "source_commit": "662a3124339d7a605f4e3985f19c9021064f4961"
     },
     "snow_render": {
