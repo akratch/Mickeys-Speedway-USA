@@ -480,7 +480,7 @@ s32 overlay1TestDirection(Overlay1Direction *direction, f32 x, f32 z) {
  * frame: frameless
  * relocations: 4
  * first-mismatch: +0x4
- * summary: 119 flags and ten coherent forms exhausted; next lever is a source-faithful lifetime form retaining both preheader copies and the temporary-register lane.
+ * summary: structure-mismatch; lever none-known. Raw/masked 14/12, masked first +0x14; attempts 9-13 stalled. Next: fidelity-pinned CFE copy/coalescing trace.
  * PLATEAU-HANDOFF:overlay1FindPreviousUsable:end
  */
 
