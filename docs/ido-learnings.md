@@ -554,6 +554,19 @@ bytes and disassembly never belong here.
   Evidence: the controlled reconstruction recorded in the
   [overlay 52 HUD handoff](matching-triage-handoffs/func_overlay_052_F000063C_189ACAC.md).
 
+- A large unrolled tail can depend on the source loop's control form even
+  when the configured TU flags stay fixed. Paired full-TU builds of a counted
+  `for` sort and its reconstructed guarded post-decrement form recovered the
+  compact loop; an earlier no-unroll diagnostic independently localized the
+  same expansion. Reconstruct whether each branch tests the value before or
+  after decrement, including zero-count entry guards, from the target before
+  changing C. This proves source-control sensitivity; identifying the exact
+  unroller pass remains an inference without a phase trace. Do not add guards
+  merely to change compilation, assume all post-decrement loops avoid
+  unrolling, or treat equal size as a match. Preserve zero/one-iteration
+  behavior and the order of paired record writes. Evidence: the controlled
+  [height-query reconstruction](matching-triage-handoffs/func_8001357C.md).
+
 ### Search fidelity and false floors
 
 - A permuter zero is a hypothesis until the project pipeline verifies it.
