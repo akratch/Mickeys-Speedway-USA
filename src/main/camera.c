@@ -1995,7 +1995,7 @@ f32 D_80079F54 = 0.0f;
  * frame: 0x30
  * relocations: 13
  * first-mismatch: +0x8
- * summary: 83/84 words, 12/13 relocs; 11 identities align. Prior flags/forms exhausted; next lever is authenticated same-TU data layout.
+ * summary: JFG efd5abb body is unchanged from exhausted 24d61fe; next lever is Mickey-authenticated original matrix declaration/layout evidence.
  * PLATEAU-HANDOFF:func_80024978:end
  */
 
