@@ -228,6 +228,18 @@ bytes and disassembly never belong here.
   intervening call or aliasing write and the zero value is proved; verify the
   configured words, relocation identities, linked range, and full ROM.
   Evidence: Overlay 47's exact release routine, 2026-09-08.
+- A block-local clamp carrier can restore stack-home placement before a later
+  narrowing conversion fixes a temp-ring phase. In an exact paired result, a
+  scoped word local used for the clamp value moved four existing homes without
+  changing frame size, while placing a proved in-range `s16` conversion inside
+  the following negate rotated seven terminal temporary registers without
+  adding an instruction. Treat these as separate levers: use the carrier only
+  for a real value with the same lifetime, and use the inner conversion only
+  after proving that every reachable operand already fits the narrow type.
+  Out-of-range or otherwise implementation-dependent conversions are not
+  interchangeable. Require exact configured code, relocation identities,
+  linked bytes, and full ROM. Evidence: the exact
+  `overlay94UpdateController` promotion.
 - Hoisted loop-invariant addresses are materialized in ugen's birth order,
   so a bound kept in a local born before the count global is issued first;
   spelling the bound inline in the loop test hoists it after the count

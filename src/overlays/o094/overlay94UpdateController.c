@@ -57,15 +57,6 @@ extern void func_8002B040(void *queryState, f32 x, f32 y, f32 z,
                           f32 *out0, f32 *out1, f32 *out2);
 extern s32 func_8002A910(f32 z, f32 x);
 
-/* Size-exact plateau: the authenticated integer-return declaration correction
- * leaves the configured candidate unchanged at 11 masked / 22 raw differing
- * words out of 275, first at +0x1C, with the retail 0x70 frame. All 36 runtime
- * relocation records agree by offset, type, and stable identity. The earlier
- * seven-word report is historical, not this fresh configured comparison.
- * Prior allocator webs remain run-local and source-unattributed because the
- * producer emits no source_semantic field. No carrier, CFG, frame, flag, or
- * permutation change is included; the existing matching plateau remains. */
-#ifdef NON_MATCHING
 void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
     Overlay94State *state;
     Overlay94Entity *entity;
@@ -167,9 +158,13 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
                     state->velocity = 500;
                 }
             } else if (weight > 0.0f) {
-                state->velocity = (s16)-(s32)(state->current * gO94Const24);
+                s32 minimumVelocity;
+
+                state->velocity =
+                    (s16)-(s32)(s16)(state->current * gO94Const24);
                 if (state->velocity >= -499) {
-                    state->velocity = -500;
+                    minimumVelocity = -500;
+                    state->velocity = minimumVelocity;
                 }
             }
         }
@@ -177,16 +172,3 @@ void overlay94UpdateController(Overlay94Object *object, s32 updateRate) {
 
     state->angle = angle;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o094/overlay94UpdateController/func_overlay_094_F0000110_18D6CB0.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay94UpdateController:start
- * symbol: overlay94UpdateController
- * score: 11 masked / 22 raw differing words
- * frame: 0x70
- * relocations: 36
- * first-mismatch: +0x1C
- * summary: Authenticated integer-return correction leaves emitted code unchanged: 11 masked differences with exact size/frame and 36 aligned relocation identities.
- * PLATEAU-HANDOFF:overlay94UpdateController:end
- */
