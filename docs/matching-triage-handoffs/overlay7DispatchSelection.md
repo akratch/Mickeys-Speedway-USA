@@ -6,5 +6,5 @@
 - frame: 0x20
 - relocations: 13
 - first mismatch: +0x4
-- summary: Unnamed flags-load temp does not coalesce with the later selection-offset temp; 119 flags and two trace-selected scalar/scope forms are exhausted.
+- summary: Three natural temp-FIFO probes were flat; next lever is an instrumented UGEN free-list trace for the t6 reuse decision.
 <!-- plateau-handoff:overlay7DispatchSelection:end -->
