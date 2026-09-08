@@ -75,6 +75,7 @@ extern void func_overlay_057_F00060F8_18A9CF0(s32 updateRate);
 #ifdef NON_MATCHING
 void func_overlay_057_F0001AE8_18A56E0(s32 updateRate) {
     s32 limit;
+    s32 value;
     s32 count;
     Overlay45ResourceDescriptor **cursor;
 
@@ -308,13 +309,17 @@ void func_overlay_057_F0001AE8_18A56E0(s32 updateRate) {
 
     if (gOverlay57ModeFlag != 0) {
         for (count = 0; count < updateRate; count++) {
-            D_134 += (0x3DE00 - D_134) >> 4;
-            D_138 += (0x3E800 - D_138) >> 4;
+            value = D_134;
+            D_134 = value + ((0x3DE00 - value) >> 4);
+            value = D_138;
+            D_138 = value + ((0x3E800 - value) >> 4);
         }
     } else {
         for (count = 0; count < updateRate; count++) {
-            D_134 += (0x3FA00 - D_134) >> 6;
-            D_138 += (0x3FF00 - D_138) >> 6;
+            value = D_134;
+            D_134 = value + ((0x3FA00 - value) >> 6);
+            value = D_138;
+            D_138 = value + ((0x3FF00 - value) >> 6);
         }
     }
 
