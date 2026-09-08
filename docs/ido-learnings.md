@@ -49,6 +49,19 @@ bytes and disassembly never belong here.
   a focused mechanism probe; keep it only after every function in the shared
   TU, all relocations, and the linked image remain exact. Evidence: Overlay
   25's exact effect initializer in `docs/overlays.md`.
+- That same flag is decidable from the target bytes *before* any source work,
+  and the test is cheap: disassemble each unmatched function's own fallback
+  and count the scheduler nops that sit between two adjacent single-precision
+  multiplies. A translation unit compiled without the flag cannot emit one at
+  all, so a nonzero count anywhere in the unit settles the question for the
+  whole object. Read the whole unit, not one function: functions with no
+  adjacent FP multiply pair are silent either way, and a unit's already-matched
+  functions can be silent too -- a passing `gmake verify` after adding the flag
+  is therefore consistency evidence, never proof. Expect candidates that were
+  shaped against the wrong scheduler to score slightly worse once it is
+  corrected; that is the candidates being wrong, not the flag. Evidence: the
+  shadow TU in `docs/resident.md`, where three unmatched functions carry eight,
+  four and two such nops.
 
 ### Retained data and relocations
 
@@ -76,6 +89,58 @@ bytes and disassembly never belong here.
 
 ### Allocation and source shape
 
+- The declared-local list is a frame instrument with two independent effects,
+  and both are measurable in one build. Its length sizes the local block in
+  8-byte steps, so a frame that is N bytes too large is N/4 declarations too
+  many and a deleted decompiler-only temporary is worth exactly one step. Its
+  *order* then fixes where each spilled local lives: homes descend from the top
+  of the local block in declaration order, so the k-th declaration owns
+  `frame_top - 4k`. Census the target's stack displacements first, decide which
+  source variable each one holds, and order the declaration list so those
+  variables land on the measured offsets; every remaining declaration is free
+  to sit anywhere. Limits: only spilled locals reveal a home, so the census
+  constrains a subset of the list, and locals past the block's capacity get no
+  home at all while still counting toward the length. A local that the body
+  never reads still reserves its slot, which makes the length adjustable
+  independently of the code -- useful as a probe, not as a finished body.
+  Evidence: the shadow-projection query in `docs/resident.md`, where five
+  homes and the frame were closed by reordering alone.
+- Referencing a global twice makes IDO materialize its address once into a
+  colored register and load through it; referencing it once folds the address
+  into the load itself. When the target forms an address and then loads from
+  offset zero through it, and especially when it reloads through that same
+  register after a call, the source spelled the global at both sites rather
+  than caching the loaded value in a local. Caching it in a local instead keeps
+  the *value* live across the call and both shortens the address's live range
+  and adds a local; spelling the global twice reproduces the reload the target
+  performs. Limits: this is about the address web, not aliasing -- IDO reloads
+  the value after a call in both spellings.
+- A value that only one deep path consumes is sunk to that path even when the
+  source computes it early, which keeps its inputs alive across everything in
+  between. Hoisting the statement in the source does not stop it, and neither
+  does splitting it across two locals. Two spellings do: assigning the result
+  back to the variable that produced it, or reading the underlying memory field
+  directly at both the test and the computation instead of through a local. The
+  second is the one to reach for when the target's own shape shows the
+  computation up at the test, filling a branch delay slot that the sunk form
+  leaves as a taken-branch reload. Limits: the memory-read spelling only works
+  when the field is genuinely re-readable at both points.
+- Two spellings of the same element address compile differently and the target
+  says which one the source used. Pointer arithmetic over a struct whose size
+  is not a power of two strength-reduces to a shift/add chain against the
+  element count; an indexed access to the same struct multiplies by a stride
+  the loop hoists into a register. A candidate that computes every offset by an
+  explicit byte multiply gets the register form everywhere and cannot produce
+  the shift chain, so declare the element type and let the two spellings
+  separate. The same distinction decides whether an address is common-subex-
+  pressed with a nearby load's address: a load's address is lowered in a later
+  phase than an ordinary expression, so writing the argument as an indexed
+  element rather than reusing the offset variable keeps them apart.
+- Statement order, not declaration order, drives which web is colored first
+  inside a block. Moving an assignment ahead of its neighbours changes the
+  register both of them receive; permuting the declaration list does not. Use
+  the declaration list for homes and statement order for colors, and do not
+  spend attempts permuting declarations to chase a register.
 - A command-pointer load followed by a separate cursor update can produce a
   different allocation from `command = (*cursor)++`, even when both advance
   by exactly one command. Paired full-TU traces showed the post-increment form

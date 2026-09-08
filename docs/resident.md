@@ -1522,12 +1522,19 @@ address-placeholder helper names are not imported.
 | `0x16BBC` | `0x78` | `shadowFreeBuffers` | B name; JFG-adapted exact C, 30 words, 15 relocs under O2/mips2 |
 | `0x16C34` | `0x18` | `shadowChangeBuffer` | B name; exact C, 6 words, 2 relocs |
 | `0x16C4C` | `0x4C` | `shadowGetBuffers` | B name; exact C, 19 words, 8 relocs |
-| `0x16C98` | `0x7F8` | `shadowGenerate` | B |
-| `0x17490` | `0x8B0` | `func_80016890` | D; `NON_MATCHING` resident fallback and adjacent `func_80017140` boundary establish `src/main/shadows.c.o` ownership under `-O2 -mips2 -32`; no match credit |
-| `0x17D40` | `0x520` | `func_80017140` | unresolved |
-| `0x18260` | `0x56C` | `func_80017660` | unresolved |
-| `0x187CC` | `0x4E8` | `func_80017BCC` | unresolved |
-| `0x18CB4` | `0x33C` | `func_800180B4` | Evidence D candidate: structure-mismatch, 204/206 instructions, 179 differing words, first `+0x0`, exact `-0x90` frame, and 12 relocation-symbol sites differ; sector/block and triangle visibility structure is reconstructed but not exact |
+| `0x16C98` | `0x7F8` | `shadowGenerate` | B; `NON_MATCHING` candidate at 445 differing words, 520/510 instructions, frames `-0x150`/`-0x138` |
+| `0x17490` | `0x8B0` | `func_80016890` | D; `NON_MATCHING` resident fallback and adjacent `func_80017140` boundary establish `src/main/shadows.c.o` ownership under `-O2 -mips2 -32 -Wab,-r4300_mul`; candidate at 563 differing words, exact `-0x190` frame, first `+0x4`; its target carries eight FP multiply-hazard nops; no match credit |
+| `0x17D40` | `0x520` | `func_80017140` | D candidate: 303 differing words, 323/328 instructions, exact `-0x140` frame, first `+0x48` |
+| `0x18260` | `0x56C` | `func_80017660` | D candidate: 268 differing words, 352/347 instructions, exact `-0x158` frame, first `+0x90`, 4/4 relocations; its target carries two FP multiply-hazard nops and the corrected scheduler reproduces the first at the same index |
+| `0x187CC` | `0x4E8` | `func_80017BCC` | D candidate: 270 differing words, 316/314 instructions, exact `-0x108` frame after deleting four decompiler-only locals, first `+0x4`; its target carries four FP multiply-hazard nops |
+| `0x18CB4` | `0x33C` | `func_800180B4` | Evidence D candidate: structure-mismatch, 206/206 instructions, 101 differing words, first `+0x34`, exact `-0x90` frame, every stack home and 7/8 relocation identities aligned; the one open mechanism is the sector index, which the target holds in a caller-saved register and spills across `getXZCompareMask` |
+
+`src/main/shadows.c` compiles with `-Wab,-r4300_mul`. Three of its unmatched
+functions carry, in the ROM's own bytes, the scheduler nop IDO emits only under
+that flag between two adjacent single-precision multiplies; the four functions
+the TU already matches contain no such pair and are insensitive, so the ROM
+rebuild is consistent either way and the target bytes are the deciding
+evidence.
 
 There are no string references in either TU. The only resident-tail anchors
 are `D_800817A0` and `D_800817A4`, both floating-point constants. Of the four
