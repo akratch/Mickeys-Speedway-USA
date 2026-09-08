@@ -64,8 +64,20 @@ gmake distclean >/dev/null 2>&1; gmake extract 2>&1 | tail -1
 low_gmake >/dev/null 2>&1 || true   # warm-up: the first parallel build after a re-split can race
 gmake overlay-syms 2>&1 | tail -1   # a merge that changes overlay relocation surfaces needs the generated symbol block before the link
 low_gmake >/dev/null 2>&1 || true
-out=$(tools/with_verify_lock.sh nice -n "$build_nice" gmake -j"$build_jobs" verify 2>&1 | tail -1); echo "$out"
-case "$out" in OK*) ;; *) echo "verify FAILED after merging $branch; merge left uncommitted (git merge --abort to drop it)" >&2; low_gmake 2>&1 | grep -iE 'error|undefined ref|defined twice' | head -5 >&2; exit 1 ;; esac
+# See finish_merge.sh: `set -e` + `pipefail` would abort at this assignment
+# when verify fails, suppressing the diagnostic the case below exists to give.
+verify_log=$(mktemp -t mickey-merge-verify)
+set +e
+tools/with_verify_lock.sh nice -n "$build_nice" gmake -j"$build_jobs" verify >"$verify_log" 2>&1
+set -e
+out=$(tail -1 "$verify_log"); echo "$out"
+case "$out" in
+  OK*) rm -f "$verify_log" ;;
+  *) echo "verify FAILED after merging $branch; merge left uncommitted (git merge --abort to drop it)" >&2
+     grep -iE 'error|undefined ref|defined twice|unreviewed|truncated|refus' "$verify_log" | head -8 >&2
+     echo "full log: $verify_log" >&2
+     exit 1 ;;
+esac
 gmake scoreboard 2>&1 | tail -1
 gmake overlay-atlas 2>&1 | tail -1
 .venv/bin/python tools/fix_jumptable_claim.py >/dev/null 2>&1 || true

@@ -28,8 +28,21 @@ gmake -j6 >/dev/null 2>&1 || true   # warm-up: the first parallel build after a 
 # overlay symbol block regenerated before the link can succeed.
 gmake overlay-syms 2>&1 | tail -1
 gmake -j6 >/dev/null 2>&1 || true
-out=$(tools/with_verify_lock.sh gmake -j6 verify 2>&1 | tail -1); echo "$out"
-case "$out" in OK*) ;; *) echo "verify FAILED; not committing" >&2; gmake -j6 2>&1 | grep -iE 'error|undefined ref|defined twice' | head -5 >&2; exit 1 ;; esac
+# `set -e` with `pipefail` would abort at this assignment when verify fails,
+# before the case below can report why -- a failure then surfaced only as a
+# bare exit status. Keep the whole log and read the reason out of it.
+verify_log=$(mktemp -t mickey-finish-verify)
+set +e
+tools/with_verify_lock.sh gmake -j6 verify >"$verify_log" 2>&1
+set -e
+out=$(tail -1 "$verify_log"); echo "$out"
+case "$out" in
+  OK*) rm -f "$verify_log" ;;
+  *) echo "verify FAILED; not committing" >&2
+     grep -iE 'error|undefined ref|defined twice|unreviewed|truncated|refus' "$verify_log" | head -8 >&2
+     echo "full log: $verify_log" >&2
+     exit 1 ;;
+esac
 .venv/bin/python tools/fix_jumptable_claim.py | tail -1
 gmake check-docs 2>&1 | tail -1 || { echo "check-docs failed; merge left uncommitted" >&2; exit 1; }
 gmake scoreboard 2>&1 | tail -1
