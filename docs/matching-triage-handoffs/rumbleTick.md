@@ -2,9 +2,9 @@
 ### `rumbleTick` plateau handoff
 
 - source: `src/main/saves.c`
-- score: 279/343 words
+- score: 336/343 words
 - frame: 0x58
 - relocations: 87
 - first mismatch: +0xF4
-- summary: 119 flags and 10 natural forms nonexact; retry mask homes at +0x40 instead of +0x48, shifting ugen temp FIFO; tail retains 14 opcode mismatches.
+- summary: JFG efd5abb reproof reaches exact opcode, registers and frame; seven words remain from retryMask home sp+0x40 vs target sp+0x48. Next: IDO local-home evidence.
 <!-- plateau-handoff:rumbleTick:end -->
