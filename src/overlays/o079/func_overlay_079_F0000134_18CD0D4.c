@@ -55,14 +55,15 @@ struct Overlay79Object {
 
 typedef struct Overlay79SpawnDesc {
     /* 0x00 */ s16 objectId;
-    /* 0x02 */ s8 count;
-    /* 0x03 */ s8 flags;
+    /* 0x02 */ u8 kind;
+    /* 0x03 */ u8 flags;
     /* 0x04 */ s16 x;
     /* 0x06 */ s16 y;
     /* 0x08 */ s16 z;
-    u8 pad0A[2];
+    /* 0x0A */ s16 angle;
     /* 0x0C */ Overlay79Object *parent;
     /* 0x10 */ f32 scale;
+    u8 pad14[4];
 } Overlay79SpawnDesc;
 
 /*
@@ -135,6 +136,42 @@ extern void trackMakePolylist(s32 mode, Overlay79Vector *start,
 extern s32 func_80010900(Overlay79Vector *start, Overlay79Vector *end,
                          f32 height, Overlay79Object *object, void *callback);
 
+/*
+ * Plateau (2026-09-08).  The body below is the shipped relocation surface's
+ * own structure: 883 candidate instructions against 882, frame 0xB8 exact,
+ * 574/882 positional words, first differing word +0x58.  The candidate's 88
+ * static relocations match the module's 88 shipped records in count and type
+ * histogram (58 R_MIPS_26, 15 HI16, 15 LO16) and in per-callee multiplicity;
+ * 79/88 also agree by offset, and the nine that do not all sit past +0xBC0
+ * and are displaced by exactly one instruction.
+ *
+ * Two residuals remain, both allocator-phase rather than structural:
+ *
+ *   1. One extra instruction.  At the displacement call the target retires
+ *      the third component's spill in the branch delay slot; the candidate
+ *      emits it ahead of the branch and pads the slot.  Every source spelling
+ *      of that statement group tried (assign all three, assign two and pass
+ *      the third as an expression, reorder the assignments, or drop the
+ *      locals and let common-subexpression elimination re-derive them) gives
+ *      the identical object, so the choice is made below the C level.
+ *
+ *   2. A one-step phase offset in both register rings.  The integer ring
+ *      first diverges at +0x58 and every later integer difference is the
+ *      single uniform rotation of that one step; the FP ring rotates over
+ *      five registers from the mode-0 block onward.  The stack-home census is
+ *      otherwise exact: every frame slot the target uses is used at the same
+ *      offset here except the race-state flag, which sits one word high
+ *      because IDO reserves one more spill word for this body than for the
+ *      target's.
+ *
+ * Next lever: find the source shape that makes IDO reserve one fewer spill
+ * word (which lands the last frame slot and, with it, the integer ring
+ * phase).  Ruled out with measurement: the flag lattice (-O1/-O2 x
+ * -mips1/-mips2 x -g3 all give 874 instructions and frame 0xB8, i.e. flat),
+ * bitfield spellings of the race-state test, hoisting the flag word into a
+ * local, splitting the test into nested ifs, and every displacement-call
+ * spelling above.
+ */
 #ifdef NON_MATCHING
 void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
                                        s32 updateRate) {
@@ -264,8 +301,8 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
             mathOneFloatRPY(object, &forward);
             dx = state->targetX - object->x;
             dz = state->targetZ - object->z;
-            if (((forward.z * dz) + (dx * forward.x) < 0.0f) ||
-                (state->collisionFlags & 4)) {
+            dot = (forward.z * dz) + (dx * forward.x);
+            if ((dot < 0.0f) || (state->collisionFlags & 4)) {
                 state->mode = 1;
             } else if (state->target != NULL) {
                 dx = object->x - state->target->x;
@@ -277,8 +314,8 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
                 mathOneFloatRPY(object, &forward);
                 dx = state->target->x - object->x;
                 dz = state->target->z - object->z;
-                if ((distance < 50.0f) &&
-                    (O79_TARGET_DOT < ((forward.z * dz) + (dx * forward.x)))) {
+                dot = (forward.z * dz) + (dx * forward.x);
+                if ((distance < 50.0f) && (O79_TARGET_DOT < dot)) {
                     state->mode = 1;
                 }
             }
@@ -360,7 +397,7 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
                        (state->previousHeight < O79_LAUNCH_HEIGHT) &&
                        (O79_LAUNCH_HEIGHT <= object->floorHeight)) {
                 desc.objectId = 0x144;
-                desc.count = 0x14;
+                desc.kind = 0x14;
                 desc.flags = 0;
                 desc.x = (func_8002A8C0(object->angle) * 18.0f) + object->x;
                 desc.y = object->y;
@@ -438,3 +475,13 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o079/func_overlay_079_F0000134_18CD0D4/func_overlay_079_F0000134_18CD0D4.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_079_F0000134_18CD0D4:start
+ * symbol: func_overlay_079_F0000134_18CD0D4
+ * score: 574/882 words
+ * frame: 0xB8
+ * relocations: 88
+ * first-mismatch: +0x58
+ * summary: 883 vs 882 instructions, frame exact, all 88 relocations match by count/type/callee count; residual is one delay-slot spill and a one-step register-ring phase
+ * PLATEAU-HANDOFF:func_overlay_079_F0000134_18CD0D4:end
+ */
