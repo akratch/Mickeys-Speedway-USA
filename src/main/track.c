@@ -4773,7 +4773,7 @@ u32 func_8001357C(f32 arg0, f32 arg1, f32 *arg2, s32 arg3, void *arg4) {
 #ifdef NON_MATCHING
 /* PROVENANCE: JFG's public track.c retains this collision collector as
  * assembly; Mickey's segment, batch, plane and hit-list accesses are used. */
-/* Workbench verdict: structure-mismatch, 162 differing words; first mismatch is at +0x60. */
+/* Workbench verdict: structure-mismatch, 163 differing words; first mismatch is at +0x60. */
 /* Target and candidate are both 330 instructions with frame -320 and 21 relocations. */
 /* Remaining gap is allocator scheduling; 19 relocation identities align. */
 s32 func_8001398C(f32 arg0, f32 arg1, s32 arg2, void **arg3) {
@@ -4794,8 +4794,8 @@ s32 func_8001398C(f32 arg0, f32 arg1, s32 arg2, void **arg3) {
     s32 batchNumber;
     s32 triangleIndex;
     s32 compareMask;
-    s32 batchFlags;
-    s32 textureFlag;
+    u32 batchFlags;
+    s8 textureFlag;
     s32 resultCount;
     s32 orderIndex;
     s32 orderCount;
@@ -4838,7 +4838,7 @@ s32 func_8001398C(f32 arg0, f32 arg1, s32 arg2, void **arg3) {
                 firstTriangle = batch->v0;
                 textureOffset = batch->u0;
                 lastTriangle = batch[1].v0;
-                if ((batchFlags << 15) < 0) {
+                if (batchFlags & 0x10000) {
                     textureFlag = 1;
                 } else {
                     textureFlag = ((s8 *)
@@ -5828,11 +5828,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_8001398C:start
  * symbol: func_8001398C
- * score: 162 differing words
+ * score: 163 differing words
  * frame: 0x140
  * relocations: 21
  * first-mismatch: +0x60
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Mickey m2c audit retains defined flag/material types; hoisted sorting bound suppresses required unrolling. Next: source-proved query lifetimes.
  * PLATEAU-HANDOFF:func_8001398C:end
  */
 
