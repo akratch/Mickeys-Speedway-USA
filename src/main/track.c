@@ -5668,7 +5668,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x98
  * relocations: 1
  * first-mismatch: +0x0
- * summary: Candidate is 99 words/frame 0x98 vs target 96/0xA0; sqrtf identity is exact but +0x8 late. Ten natural forms were nonexact; next needs original FP lifetimes.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_800133FC:end
  */
 
