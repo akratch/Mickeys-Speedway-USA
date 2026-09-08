@@ -2538,8 +2538,8 @@ void func_8004AF68(void) {
  * score: 154 differing words
  * frame: 0x18
  * relocations: 4
- * first-mismatch: +0x8
- * summary: Five-record post-decrement CFG and 32-bit delta/carry are restored; 207/206 words remain blocked on switch/carry allocation after 119 flag rows.
+ * first-mismatch: 0x8
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new switch/carry and countdown topology evidence.
  * PLATEAU-HANDOFF:func_80049B14:end
  */
 
