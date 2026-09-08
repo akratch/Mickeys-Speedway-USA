@@ -216,6 +216,6 @@ void overlay62Update(s32 updateRate) {
  * frame: 0x88
  * relocations: 71
  * first-mismatch: +0x44
- * summary: native scheduler DAG exposes no new legal dependency beyond exhausted comma forms
+ * summary: pool slot 6 allocation residual; alias probe regressed and dead-read probe was flat; next: new authenticated web-formation lever or identity mapping
  * PLATEAU-HANDOFF:overlay62Update:end
  */
