@@ -2457,8 +2457,8 @@ void func_8004AF68(void) {
  * score: 36 differing words
  * frame: 0x60
  * relocations: 9
- * first-mismatch: +0x20
- * summary: candidate 167/169; exact frame and FP lanes; count web is a3 versus target t0; 6/9 identities align
+ * first-mismatch: 0x20
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new VI stack homes and count-carrier topology evidence.
  * PLATEAU-HANDOFF:func_80049E4C:end
  */
 
