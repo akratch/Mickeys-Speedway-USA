@@ -67,6 +67,11 @@ gmake overlay-atlas-write >/dev/null 2>&1 || true
 gmake extract 2>&1 | tail -1
 .venv/bin/python tools/fix_stale_externs.py | tail -1
 .venv/bin/python tools/nm_ranking.py --write-doc >/dev/null
+# Plateau shards are projected from the source markers. A batch that lands
+# several lanes can leave one shard behind its marker, which fails
+# check-docs below after the merges are already committed. Reconcile first;
+# --write only projects fields already present in tracked source markers.
+.venv/bin/python tools/plateau_handoff_audit.py --write | tail -1
 .venv/bin/python tools/check_match_regression.py HEAD \
   || { echo "a matched function regressed to GLOBAL_ASM; recover with git reset --hard $base" >&2; exit 1; }
 .venv/bin/python tools/check_duplicate_bodies.py \
