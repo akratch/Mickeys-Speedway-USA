@@ -518,15 +518,21 @@ typedef struct {
 } Objects06534Data;
 
 typedef struct {
+    s32 count;
+    void *entries[10];
+    s32 unk2C;
+} Objects06534List;
+
+typedef struct {
     u8 pad00[8];
     f32 unk8;
     u8 pad0C[0x34];
     Objects06534Data *unk40;
     u8 pad44[0x18];
-    void *unk5C;
+    Objects06534List *unk5C;
     void *unk60;
     u8 pad64[0x28];
-    s8 unk8C;
+    u8 unk8C;
 } Objects06534Object;
 
 typedef struct {
@@ -2146,63 +2152,63 @@ void func_80006448(void *arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006448.s")
 #endif
-/* Workbench verdict: structure-mismatch; 198 differing words (target 205, candidate 207). */
-/* First mismatch: +0x0; target frame 0x38 versus candidate 0x48. */
-/* Structural gap: resource-list carrier and cleanup control flow are complete; stack shape differs. */
 #ifdef NON_MATCHING
 s32 func_80006534(Objects06534Object *object) {
     Objects06534Record *record;
+    s32 count;
     Objects06534Sprite *sprite;
-    void *list;
+    Objects06534List *list;
     void *loaded;
     s32 failed;
-    s32 count;
     s32 index;
+    s32 reference;
+    s32 frameOffset;
+    u32 flags;
 
     list = NULL;
     sprite = NULL;
     failed = 0;
     if ((object->unk40->unk23 > 0) && (object->unk40->unk23 < 0xA)) {
         list = object->unk5C;
-        count = object->unk40->unk23;
-        *(s32 *)list = count;
-        for (index = 0; index < count; index++) {
+        list->count = object->unk40->unk23;
+        for (index = 0; index < list->count; index++) {
             loaded = func_80006C4C(object->unk40->unk38[index]);
             if (loaded != NULL) {
                 *(f32 *)((u8 *)loaded + 8) *= object->unk8;
             }
-            *(void **)((u8 *)list + (index * 4) + 4) = loaded;
+            list->entries[index] = loaded;
             if (loaded == NULL) {
                 failed = 1;
             }
         }
-        *(s32 *)((u8 *)list + 0x2C) = object->unk40->unk3C;
+        list->unk2C = object->unk40->unk3C;
     }
 
     object->unk8C = object->unk40->unk24;
-    count = (u8)object->unk40->unk24;
-    if ((count > 0) && (object->unk40->unk24 < 0xA)) {
+    if ((object->unk8C > 0) && (object->unk40->unk24 < 0xA)) {
         sprite = (Objects06534Sprite *)object->unk60;
         record = object->unk40->unk40;
-        for (index = 0; index < count; index++, sprite++, record++) {
+        for (index = 0; index < object->unk8C; index++, sprite++, record++) {
             sprite->unk0 = func_800355A0(record->unk0, 1);
             sprite->unk4 = record->unk2;
-            sprite->unkC = record->unk8;
+            flags = record->unk8;
+            reference = ((u32)record->unk8 >> 22) & 0x3F;
+            frameOffset = ((u32)record->unk8 >> 16) & 0x3F;
+            sprite->unkC = flags;
             sprite->unk8 = ((f32)record->unk4 / 500.0f) * object->unk8;
             sprite->unk5 = record->unk3;
-            if (record->unk8 & 0x80000000) {
-                sprite->unk10 = (f32)mathRnd(0, *(u8 *)sprite->unk0);
-            } else if (record->unk8 & 0x40000000) {
-                sprite->unk10 = ((Objects06534Sprite *)object->unk60)[(record->unk8 >> 22) & 0x3F].unk10 +
-                                (f32)((record->unk8 >> 16) & 0x3F);
-            } else if (record->unk8 & 0x20000000) {
-                sprite->unk10 = ((Objects06534Sprite *)object->unk60)[(record->unk8 >> 22) & 0x3F].unk10 -
-                                (f32)((record->unk8 >> 16) & 0x3F);
+            count = *(u8 *)sprite->unk0;
+            if (flags & 0x80000000) {
+                sprite->unk10 = (f32)mathRnd(0, count);
+            } else if (flags & 0x40000000) {
+                sprite->unk10 = ((Objects06534Sprite *)object->unk60)[reference].unk10 + (f32)frameOffset;
+            } else if (flags & 0x20000000) {
+                sprite->unk10 = ((Objects06534Sprite *)object->unk60)[reference].unk10 - (f32)frameOffset;
             }
-            if ((f32)*(u8 *)sprite->unk0 < sprite->unk10) {
-                sprite->unk10 -= (f32)*(u8 *)sprite->unk0;
+            if ((f32)count < sprite->unk10) {
+                sprite->unk10 -= (f32)count;
             } else if (sprite->unk10 < 0.0f) {
-                sprite->unk10 += (f32)*(u8 *)sprite->unk0;
+                sprite->unk10 += (f32)count;
             }
             if (sprite->unk0 == NULL) {
                 failed = 1;
@@ -2212,23 +2218,21 @@ s32 func_80006534(Objects06534Object *object) {
 
     if (failed != 0) {
         if (list != NULL) {
-            count = *(s32 *)list;
-            for (index = 0; index < count; index++) {
-                loaded = *(void **)((u8 *)list + (index * 4) + 4);
+            for (index = 0; index < list->count; index++) {
+                loaded = list->entries[index];
                 if (loaded != NULL) {
                     func_80006448(loaded);
                     func_80004B04(*(s16 *)((u8 *)loaded + 0x2C));
                     mmFree(loaded);
                 }
             }
-            *(s32 *)((u8 *)list + 0x2C) = 0;
+            list->unk2C = 0;
         }
         if (sprite != NULL) {
             sprite = (Objects06534Sprite *)object->unk60;
-            for (index = 0; index < (u8)object->unk8C; index++) {
-                loaded = sprite->unk0;
-                if (loaded != NULL) {
-                    func_800359D4(loaded);
+            for (index = 0; index < object->unk8C; index++) {
+                if (sprite->unk0 != NULL) {
+                    func_800359D4(sprite->unk0);
                     sprite->unk0 = NULL;
                 }
             }
@@ -5748,4 +5752,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x4
  * summary: Extra saved start-index lifetime and counter placement remain; trace caller-cost producers and recover a full-width lifetime split.
  * PLATEAU-HANDOFF:func_8000A39C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80006534:start
+ * symbol: func_80006534
+ * score: 63 differing words
+ * frame: 0x38
+ * relocations: 7
+ * first-mismatch: +0x38
+ * summary: Workbench allocation-mismatch: register-role-audit; exact instruction layout and relocations, next prove saved-register role competition.
+ * PLATEAU-HANDOFF:func_80006534:end
  */
