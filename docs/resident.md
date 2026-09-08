@@ -3294,3 +3294,48 @@ stays canonical.
 `func_8005830C`: 758/762 words, 699 positional differences from `+0x0`, frame `0x110`/`0x118`.
 Workbench reports mixed constant/structure/register mismatch; the next lever is constant-audit.
 Its DKR organization/terminology provenance remains recorded at the body; assembly stays canonical.
+
+
+### `func_8003D4FC` structural reconstruction evidence
+
+The configured full-TU baseline reproduces 1,037 raw and relocation-masked
+differing words: 1,066 candidate words against 1,068 target words, an eight-byte
+deficit, frame `0x138`, first mismatch `+0xC`. This is compiled nonexact C;
+the guarded assembly remains canonical. The workbench compare verdict is
+`structure-mismatch`; diagnose routes the mixed residual through
+`constant-audit` before `structure-buckets`. Applicable levers are the
+constant/type audit and removal of duplicated source loops that fight IDO's
+own loop transforms. No flag or permutation search is part of this reopening.
+
+**Tier B, Mickey call and relocation evidence:** the target has fourteen
+`R_MIPS_26` calls and no global-data relocations. They name `func_800349A4`
+three times (initial material setup, batch flush, final flush),
+`func_8002A8BC` and `func_8002A8C0` five times each (two angle pairs for each
+of the first two geometry modes, one pair for the third), and `pointListRPY`
+once (the general rotation loop). The retained candidate has the same ordered
+call identities and count, but none of the call-site offsets match. That is
+call-graph agreement, not exact relocation-tuple agreement. Existing Mickey
+prototypes supply signed sixteen-bit angles, float returns, and the
+three-component input/output contract for `pointListRPY`.
+
+**Tier D, Mickey load/store and control-flow evidence:** the entry stride is
+`0x78`; the signed type discriminator is at `0x2C`, the signed alpha word at
+`0x64`, and the three colors and intensity are unsigned bytes. Batch alpha is
+a separate signed sixteen-bit local holding the masked high byte; vertex
+alpha is the signed shift result whose low byte is stored. The render-texture
+selector is an unsigned halfword at offset six, distinct from the existing
+`ParticleTexture.flags` field at offset four. The general rotation input is
+one contiguous three-float vector, not independent address-taken scalars.
+
+The draft and direct assembly review expose two retained-C correctness gaps:
+a flush must revisit the first live entry instead of consuming it, and the
+closing pipe sync belongs inside the nonempty-entry path. The entry count is
+reloaded after calls, whereas point and primitive counts are captured before
+initial material setup. These are structural reconstruction inputs, not
+allocator-only experiments.
+
+The fresh masked-skeleton oracle identifies JFG's existing placeholder sibling
+as nearest (4,956 bytes versus Mickey's 4,272); no new donor material or name
+was adopted. The generated m2c draft and scoped context stay ignored. The
+all-header context failed on unrelated incomplete types; a particle-only
+context generated successfully without changing project headers.
