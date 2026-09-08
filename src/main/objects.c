@@ -4524,113 +4524,119 @@ s32 func_8000A244(s32 *arg0) {
     D_800C94B2 = i;
     return i;
 }
-/* Workbench verdict: structure-mismatch; 158 differing words (164/164 instructions). */
-/* First mismatch: +0x0; candidate frame 0x60 versus target frame 0x58. */
-/* Shape status: update unrolling and early-exit sort are complete; residuals are structural/register. */
+/* Workbench verdict: structure-mismatch; 37 differing words (target 164, candidate 165). */
+/* First mismatch: +0x4; frame is 0x58, with an extra saved-register lifetime. */
+/* Structural gap: entry/counter scheduling and two of three exact relocation identities. */
 #ifdef NON_MATCHING
 void func_8000A39C(s32 arg0, s32 arg1) {
-    Objects0A39CObject **objects;
-    Objects0A39CObject *object;
+    s32 passCount;
     Objects0A39CObject *current;
     Objects0A39CObject *next;
     Objects0A39CMatrix *matrix;
     f32 matrixX;
     f32 matrixY;
+    Objects0A39CObject **objects;
+    s32 sortOffset;
     f32 matrixZ;
     f32 matrixW;
     f32 currentDepth;
     f32 nextDepth;
     s32 difference;
-    s32 index;
     s32 updateCount;
     s32 remainder;
-    s32 passCount;
-    s32 swapped;
+    s32 sorted;
 
-    difference = arg1 - arg0;
+    difference = arg0;
+    difference = arg1 - difference;
     if (difference > 0) {
-        objects = (Objects0A39CObject **)D_800C9494;
+        passCount = difference;
         matrix = (Objects0A39CMatrix *)camGetRotationMtx();
         matrixX = matrix->unk8;
         matrixY = matrix->unk18;
         matrixZ = matrix->unk28;
         matrixW = matrix->unk38;
+        arg0 *= 4;
+        objects = (Objects0A39CObject **)(arg0 + (u8 *)D_800C9494);
 
-        index = arg0;
-        updateCount = difference + 1;
-        remainder = updateCount & 3;
-        while (remainder != 0) {
-            object = objects[index];
-            if (object != NULL) {
-                object->unk30 = -((object->unkC * matrixX) +
-                                  (object->unk10 * matrixY) +
-                                  (object->unk14 * matrixZ) + matrixW);
+        difference += 1;
+        sortOffset = arg0;
+        updateCount = difference;
+        if (difference != 0) {
+            remainder = -(difference & 3);
+            difference = remainder + difference;
+            if (remainder != 0) {
+                do {
+                    current = *objects++;
+                    updateCount -= 1;
+                    if (current != NULL) {
+                        current->unk30 = -((current->unkC * matrixX) +
+                                          (current->unk10 * matrixY) +
+                                          (current->unk14 * matrixZ) + matrixW);
+                    }
+                } while (difference != updateCount);
+                if (updateCount == 0) {
+                    goto sort_objects;
+                }
             }
-            index += 1;
-            remainder -= 1;
-            updateCount -= 1;
-        }
-        while (updateCount != 0) {
-            object = objects[index];
-            if (object != NULL) {
-                object->unk30 = -((object->unkC * matrixX) +
-                                  (object->unk10 * matrixY) +
-                                  (object->unk14 * matrixZ) + matrixW);
+            {
+                do {
+                    current = *objects++;
+                    updateCount -= 4;
+                    if (current != NULL) {
+                        current->unk30 = -((current->unkC * matrixX) +
+                                          (current->unk10 * matrixY) +
+                                          (current->unk14 * matrixZ) + matrixW);
+                    }
+                    current = *objects++;
+                    if (current != NULL) {
+                        current->unk30 = -((current->unkC * matrixX) +
+                                          (current->unk10 * matrixY) +
+                                          (current->unk14 * matrixZ) + matrixW);
+                    }
+                    current = *objects++;
+                    if (current != NULL) {
+                        current->unk30 = -((current->unkC * matrixX) +
+                                          (current->unk10 * matrixY) +
+                                          (current->unk14 * matrixZ) + matrixW);
+                    }
+                    current = *objects++;
+                    if (current != NULL) {
+                        current->unk30 = -((current->unkC * matrixX) +
+                                          (current->unk10 * matrixY) +
+                                          (current->unk14 * matrixZ) + matrixW);
+                    }
+                } while (updateCount != 0);
             }
-            index += 1;
-            updateCount -= 1;
-            object = objects[index];
-            if (object != NULL) {
-                object->unk30 = -((object->unkC * matrixX) +
-                                  (object->unk10 * matrixY) +
-                                  (object->unk14 * matrixZ) + matrixW);
-            }
-            index += 1;
-            updateCount -= 1;
-            object = objects[index];
-            if (object != NULL) {
-                object->unk30 = -((object->unkC * matrixX) +
-                                  (object->unk10 * matrixY) +
-                                  (object->unk14 * matrixZ) + matrixW);
-            }
-            index += 1;
-            updateCount -= 1;
-            object = objects[index];
-            if (object != NULL) {
-                object->unk30 = -((object->unkC * matrixX) +
-                                  (object->unk10 * matrixY) +
-                                  (object->unk14 * matrixZ) + matrixW);
-            }
-            index += 1;
-            updateCount -= 1;
         }
 
-        passCount = difference;
+sort_objects:
         do {
-            current = objects[arg0];
+            objects = (Objects0A39CObject **)(sortOffset + (u8 *)D_800C9494);
+            updateCount = passCount;
+            passCount -= 1;
+            current = objects[0];
+            sorted = 1;
             currentDepth = current->unk30;
             if (current->unk6 & 0x800) {
                 currentDepth += 32768.0f;
             }
-            swapped = 0;
-            for (index = 1; index <= passCount; index += 1) {
-                next = objects[arg0 + index];
+            while (updateCount--) {
+                next = objects[1];
                 nextDepth = next->unk30;
                 if (next->unk6 & 0x800) {
                     nextDepth += 32768.0f;
                 }
                 if (nextDepth < currentDepth) {
-                    objects[arg0 + index - 1] = next;
-                    swapped = 1;
+                    *objects++ = next;
+                    sorted = 0;
                 } else {
-                    objects[arg0 + index - 1] = current;
+                    *objects++ = current;
                     current = next;
                     currentDepth = nextDepth;
                 }
             }
-            objects[arg0 + passCount] = current;
-            passCount -= 1;
-        } while ((passCount != 0) && (swapped != 0));
+            *objects = current;
+        } while ((passCount != 0) && (sorted == 0));
     }
 }
 #else
@@ -5754,4 +5760,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x18
  * summary: Exact extent/frame; allocation and dimension-init schedule remain. Three flat variants; next: trace natural priority and carrier lifetimes.
  * PLATEAU-HANDOFF:func_80007E40:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000A39C:start
+ * symbol: func_8000A39C
+ * score: 37 differing words
+ * frame: 0x58
+ * relocations: 3
+ * first-mismatch: +0x4
+ * summary: Extra saved start-index lifetime and counter placement remain; trace caller-cost producers and recover a full-width lifetime split.
+ * PLATEAU-HANDOFF:func_8000A39C:end
  */
