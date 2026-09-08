@@ -5846,10 +5846,10 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 /* PLATEAU-HANDOFF:func_8000E920:start
  * symbol: func_8000E920
  * score: 491 differing words
- * frame: 0xF8
+ * frame: 0xf8
  * relocations: 114
  * first-mismatch: +0x38
- * summary: Recovered exact frame and relocation count plus target call identities and field widths; next lever is reverse-pass lifetime scoping.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_8000E920:end
  */
 
