@@ -53,7 +53,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `func_8004A380` | `src/main/fx.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_8004ACC4` | `src/main/fx.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8004AF68` | `src/main/fx.c` | none | — | No ownership change; continue source/codegen work. |
-| `func_800336A8` | `src/main/gameVi.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_800336A8` | `src/main/gameVi.c` | matched | — | Promoted to exact C with the JFG direct-read and empty-statement spelling; see resident §3.8. |
 | `func_800339B4` | `src/main/gameVi.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80034094` | `src/main/gameVi.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_8005BA40` | `src/main/gsSnd.c` | matched | — | Promoted to exact C; no ownership work remains. |

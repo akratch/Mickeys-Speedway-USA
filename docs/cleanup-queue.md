@@ -54,6 +54,7 @@ not a correctness gap.
 | `func_overlay_029_F0000EE0_187E190` | overlay 29 point projection | redundant single-precision identity multiply inside a cross product | The configured compiler removes the extra operation while retaining the exact multiply operand order. Seek a natural expression spelling retaining 121 words, the `0x68` frame, all three relocation identities, and the linked ROM bytes. |
 | `overlay1AllocateRecord` | overlay 1 record allocator | redundant `0xFFFF` mask on a `u16` flags read | The width mask preserves the target temporary-FIFO phase. Seek a natural flags-read spelling retaining 40 words and all 10 runtime relocation records. |
 | `overlay1AssignRecordIndex` | overlay 1 variable-record scan | redundant `newIndex` to `next` assignment | The two names preserve distinct decoded-record and candidate-maximum roles while steering IDO's exact allocation. Seek one natural carrier retaining 44 words, the `0x38` frame, and all seven runtime relocation records. |
+| `func_800336A8` | gameVi mode changer | donor empty `if (1) {}` before the non-widescreen framebuffer assignment | The constant-only empty statement has no side effects and preserves exact IDO allocation with direct triple-buffer global reads. Seek natural grouping retaining 195 words, the `0x28` frame, all 77 relocation identities, and linked ROM bytes. |
 
 Add rows as ugly-but-verified matches land. When revisiting: reproduce the match
 with idiomatic C, `gmake verify`, then delete the row + the in-source comment.

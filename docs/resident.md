@@ -757,6 +757,26 @@ byte-identical.
 body emits all 16 instruction words and its HI16, LO16 and call relocations
 exactly under the resident flags.
 
+`func_800336A8` is canonical C at tier A (Mickey byte identity), retaining its
+address label. The owned range is ROM `0x342A8`–`0x345B4`, VRAM
+`0x800336A8`–`0x800339B4`: 780 executable bytes, no padding before
+`func_800339B4`, and a `0x28` frame. The configured full TU emits all 195 words
+and all 77 static relocation records exactly, including offset, type and
+identity; the linked owned range and full ROM are byte-identical.
+
+**PROVENANCE:** the mode body follows Jet Force Gemini's public
+`src/gameVi.c:viChangeMode` at `efd5abb`. Mickey's extra PAL subcase,
+allocation constants and final state writes remain ROM-derived. The reopened
+baseline had 71 differing words and 75 candidate relocations against 77.
+Removing its cached triple-buffer local alone regressed to 110 differing words
+and 196 words, despite restoring the relocation count. Adding the donor's
+empty `if (1) {}` immediately before the non-widescreen framebuffer assignment
+then made the entire function exact. The empty statement evaluates only a
+constant and has no memory access or side effect; its spelling is disclosed
+in source and recorded in the cleanup queue. The triple-buffer flag is read
+again after the conditional allocation, as Mickey's relocation surface requires.
+No flag or post-compile instruction change was used.
+
 The placeholder-retaining `func_80034018` is canonical C. JFG's public decomp
 provides the framebuffer-fill body but not a descriptive function name, so
 §1.5 keeps Mickey's address label. All 31 instruction words and its two
@@ -2222,12 +2242,11 @@ remains under `NON_MATCHING` and asm remains canonical.
 No function in either range uses an odd single-precision floating-point
 register. None is therefore classified as handwritten assembly by §6.2's
 criterion.
-`func_800336A8`: workbench structure mismatch, exact 195 instructions/frame -40; 71 raw words with 42 alignment gaps.
-Pointer carriers, a fake source boundary, and the existing flag lattice did not improve the JFG-derived candidate.
-Early global-carrier allocation around conditional third-framebuffer setup remains; the candidate stays under `NON_MATCHING`.
+`func_800336A8` is now exact canonical C; see the tier-A proof in §3.8.
 
 | Function | Exact result |
 |---|---|
+| `func_800336A8` | Tier A: 780 executable bytes, 195 exact words, `0x28` frame, all 77 static relocation identities exact, no padding before `func_800339B4`; linked ROM `0x342A8`–`0x345B4` and full ROM exact. JFG `src/gameVi.c:viChangeMode` donor pair, with Mickey-specific paths retained (§3.8). |
 | `func_80034094` | 188 bytes under `-O2 -mips2 -32`; JFG `src/gameVi.c::viGetOsViMode` body, all 47 instruction words exact, with its 48-byte compiler-owned switch table in `main/gameVi` `.rodata`. |
 | `src/saves.c.o`, `src/rcpFast3d.c.o`, `src/track.c.o`, `src/textures.c.o`, `src/diCpu.c.o`, `src/objects.c.o`, `libultra/src/flash/flashreadid.c.o`, `us.v10/src/core1/code_1D00.c.o` (BK) | 1 each | single points | Isolated identifications, no span to claim |
 
