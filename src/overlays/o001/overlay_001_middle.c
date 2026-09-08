@@ -244,11 +244,11 @@ void overlay1AdvanceGauge(s32 amount) {
 
 /* PLATEAU-HANDOFF:overlay1FindNextAngle:start
  * symbol: overlay1FindNextAngle
- * score: 2 differing words
+ * score: 2/50 words
  * frame: 0x68
  * relocations: 4
  * first-mismatch: +0x3C
- * summary: Explicit post-decrement carrier closes the loop-tail order pair; two branch-delay order words remain and the candidate is not shape-exact.
+ * summary: structure-mismatch/constant-audit; as1 besttime fixes branch first. Three CFG forms stayed 2/50. Next: ADR 0017 inert init grouping, then runtime reloc proof.
  * PLATEAU-HANDOFF:overlay1FindNextAngle:end
  */
 
