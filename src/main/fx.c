@@ -2528,8 +2528,8 @@ void func_8004AF68(void) {
  * score: 122 differing words
  * frame: 0x50
  * relocations: 1
- * first-mismatch: +0x0
- * summary: 176/177-word JFG command CFG; exact call relocation. Blocked by outer-index spill/xStep allocation and 0x38 non-save-frame delta after 119 flag rows.
+ * first-mismatch: 0x0
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new outer-index spill and xStep lifetime evidence.
  * PLATEAU-HANDOFF:wakeDraw:end
  */
 
