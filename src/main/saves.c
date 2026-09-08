@@ -803,14 +803,6 @@ void func_8002CF0C(void *globalFlags) {
     }
 }
 #ifdef NON_MATCHING
-/* PLATEAU-HANDOFF
- * symbol: func_8002CF6C
- * score: 11/88 words
- * frame: 0x48
- * relocations: 11
- * first-mismatch: +0x8
- * summary: lexical saved-state scope restores the frame, but buffer coloring leaves an 85-word structural mismatch and shifted relocation offsets
- */
 /* Policy-clean configured V0 is 85/88 instructions, 10/88 positional words,
  * frame 0x30, first +0x0. All 11 relocation identities are present, but their
  * offsets drift with the shorter body. The complete 119-configuration lattice
@@ -1477,4 +1469,24 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
  * first-mismatch: +0xA0
  * summary: Fresh exact-size V0 preserves 34 differences; 19/20 relocations are exact, with D_800D21C8 LO16 delayed from target +0xA0 to candidate +0xAC.
  * PLATEAU-HANDOFF:packInit:end
+ */
+
+/* PLATEAU-HANDOFF:func_8002CF6C:start
+ * symbol: func_8002CF6C
+ * score: 11/88 words
+ * frame: 0x48
+ * relocations: 11
+ * first-mismatch: +0x8
+ * summary: lexical saved-state scope restores the frame, but buffer coloring leaves an 85-word structural mismatch and shifted relocation offsets
+ * PLATEAU-HANDOFF:func_8002CF6C:end
+ */
+
+/* PLATEAU-HANDOFF:func_8002C69C:start
+ * symbol: func_8002C69C
+ * score: 17/28 words
+ * frame: frameless
+ * relocations: 0
+ * first-mismatch: +0x10
+ * summary: Workbench verdict register-permutation; authorized JFG src/saves.c has no bit-writer body. Next lever is an authenticated matching donor counterpart.
+ * PLATEAU-HANDOFF:func_8002C69C:end
  */
