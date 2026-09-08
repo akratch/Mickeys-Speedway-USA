@@ -1627,12 +1627,12 @@ void overlay8ScaleOutputs(void *unused, Overlay8ScaleState *state,
     }
 }
 
-/* NON_MATCHING pipeline plateau: exact-TU -Wo,-loopunroll,0 is 910 vs 898
- * instructions, 750 masked/751 raw words different, frames -0xC8/-0x80,
- * first +0x0. A terrain-sample cursor gains four masked words; stack-overlay,
- * initialization-order, block-lifetime, and alternate loop forms regress.
- * Remains: 0x48-byte query/FP spill ownership, downstream temp cascade, and
- * ambiguous runtime identity for the F49E8 call; GLOBAL_ASM stays canonical. */
+/* NON_MATCHING: 899 vs 898 instructions, 599 masked/621 raw words different,
+ * frames -0xA0/-0x80, first +0x0.  The call graph now aligns one-to-one across
+ * all 21 call sites and every call-delimited region is within four words of
+ * the target.  Remains: a 32-byte frame surplus whose three float homes the
+ * target places inside the terrain-query aggregate, and the register web that
+ * surplus drags with it; GLOBAL_ASM stays canonical. */
 #ifdef NON_MATCHING
 f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
                                       O8P34A0State *state, f32 limit,
@@ -1642,18 +1642,16 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
     f32 selectedValue;
     f32 blend;
     f32 result;
-    f32 height;
     f32 strength;
     f32 delta;
     f32 trigA;
     f32 trigB;
     f32 factor;
-    f32 overrideValue;
+    s16 outputAngle;
     s32 selectedMode;
     s8 ownerMode;
     s32 sampleCount;
     s32 index;
-    s32 start;
     s32 target;
     s32 steps;
     s32 remaining;
@@ -1746,8 +1744,8 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
         } else if ((owner->mode3B == 0) &&
                    (o8P34A0RandomReloc(0, 0x3FF) >= 0x3FB)) {
             blend = 0.0f;
-            selectedValue = D_204;
             selectedMode = o8P34A0RandomReloc(0x11, 0x12);
+            selectedValue = D_204;
         }
     }
 
@@ -1766,12 +1764,11 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
                 if (sampleCount > 0) {
                     sample = query.samples0;
                     do {
-                        height = **sample;
+                        result = **sample;
                         index++;
                         sample++;
-                    } while ((height >= owner->y10) &&
+                    } while ((result >= owner->y10) &&
                              (index != sampleCount));
-                    result = height;
                 }
                 result = owner->y10 - result;
                 if (result > 40.0f) {
@@ -1855,12 +1852,12 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
         o8P34A0EventReloc(owner, 0x3C, selectedMode);
     }
 
-    start = 0;
+    index = 0;
     if (gOverlay8Value != 0) {
-        start = 2;
+        index = 2;
         o8P34A0StateEffectReloc(state, 0x28, 0.15f);
     }
-    for (index = start; index < 4; index++) {
+    for (; index < 4; index++) {
         state->angles114[index] +=
             (s32)(state->motion4 * update * D_240);
     }
@@ -1894,13 +1891,6 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
     func_overlay_008_F00049E8_1862740(owner, state, update);
 
     if (state->kind1 == 4) {
-        f32 strength;
-        f32 delta;
-        f32 trigA;
-        f32 trigB;
-        f32 factor;
-        s16 outputAngle;
-
         if ((state->motion4 < 0.0f) && (limit != 0.0f)) {
             if (state->motion4 < -limit) {
                 outputAngle = -0x3000;
@@ -1952,10 +1942,6 @@ f32 func_overlay_008_F00034A0_18611F8(O8P34A0Owner *owner,
         *gOverlay8Buffer = state->output3F6;
         gOverlay8Buffer++;
     } else if (state->kind1 == 2) {
-        f32 strength;
-        f32 trigA;
-        f32 factor;
-
         if ((state->motion4 < 0.0f) && (limit != 0.0f)) {
             strength = -state->motion4 / limit;
             state->phase3EC += (update / 60.0f) * strength * 30.0f;

@@ -308,7 +308,12 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o004/overlay_004.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xCAC
 O8_OBJ := $(BUILD_DIR)/$(SRC_DIR)/overlays/o008/overlay_008.c.o
 $(O8_OBJ): config/normalizations/overlay8UpdateChannels.rebind.spec
-$(O8_OBJ): CFLAGS += -Wab,-r4300_mul
+# -Wo,-loopunroll,0: the shipped +0x34A0 body walks its four-entry angle
+# array as a single rolled do-while, while the default -O2 unroller emits a
+# four-wide body plus a runtime remainder prologue.  The whole ROM still
+# rebuilds byte-identically with the flag, so no already-matched function in
+# this translation unit depends on unrolling.
+$(O8_OBJ): CFLAGS += -Wab,-r4300_mul -Wo,-loopunroll,0
 $(O8_OBJ): POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym \
 		gO8P34A0ScaleReloc=D_0 $@ && \
