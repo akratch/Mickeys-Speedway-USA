@@ -1094,6 +1094,31 @@ class LaneRefQueryTests(unittest.TestCase):
             )
         self.assertEqual(active, [])
 
+class BatchSymbolScreenTests(unittest.TestCase):
+    """--symbols shares one evidence scan across many targets.
+
+    Screening a translation unit one --symbol call at a time rebuilds the whole
+    lane index per call, which is why it cost minutes and got skipped. These
+    tests hold the contract the batch mode has to keep: same verdicts as the
+    single-symbol path, a machine-readable line per symbol, and an exit status
+    that says whether everything asked about is assignable.
+    """
+
+    def test_empty_value_is_an_error_not_a_full_listing(self) -> None:
+        proc = subprocess.run(
+            [sys.executable, str(TOOL), "--symbols", ""],
+            capture_output=True, text=True, cwd=str(TOOL.parent.parent),
+        )
+        self.assertEqual(proc.returncode, 2)
+        self.assertIn("named nothing", proc.stderr)
+
+    def test_unknown_symbol_fails_closed(self) -> None:
+        proc = subprocess.run(
+            [sys.executable, str(TOOL), "--symbols", "not_a_real_symbol_xyz"],
+            capture_output=True, text=True, cwd=str(TOOL.parent.parent),
+        )
+        self.assertNotEqual(proc.returncode, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1625,6 +1625,18 @@ def main() -> int:
         help="canonical Git ref (default: freshest linear integration ref)",
     )
     parser.add_argument("--symbol", help="Show claims for one exact symbol")
+    parser.add_argument(
+        "--symbols",
+        help=(
+            "Screen many symbols under ONE shared evidence scan: a comma-"
+            "separated list, or '-' to read one symbol per line from stdin. "
+            "Prints 'verdict<TAB>symbol<TAB>source' per line. Exits 0 if every "
+            "symbol is base-only, 1 otherwise. Per-symbol --symbol calls each "
+            "rebuild the whole lane index, which is why screening a translation "
+            "unit that way costs minutes; this shares one index across all of "
+            "them."
+        ),
+    )
     parser.add_argument("--pending-only", action="store_true")
     parser.add_argument("--json", action="store_true")
     parser.add_argument(
@@ -1646,6 +1658,39 @@ def main() -> int:
             return 2
         print(f"reopen schema: OK ({len(rows)} entries; not assignment authorization)")
         return 0
+
+    if args.symbols is not None:
+        if args.symbols.strip() == "-":
+            wanted = [line.strip() for line in sys.stdin if line.strip()]
+        else:
+            wanted = [name.strip() for name in args.symbols.split(",") if name.strip()]
+        if not wanted:
+            print("lane_status: --symbols named nothing", file=sys.stderr)
+            return 2
+        try:
+            if args.base is None:
+                args.base = integration_base.resolve(Path.cwd())
+            context = AssignmentContext.build(
+                args.base, wanted, jobs=getattr(args, "jobs", 4))
+        except RuntimeError as error:
+            print(f"lane_status: {error}", file=sys.stderr)
+            return 2
+        results = []
+        for name in wanted:
+            try:
+                results.append(context.classify(args.base, name))
+            except RuntimeError as error:
+                print(f"lane_status: {name}: {error}", file=sys.stderr)
+                return 2
+        if args.json:
+            print(json.dumps(
+                {"base": args.base,
+                 "assignments": [asdict(item) for item in results]},
+                indent=2, sort_keys=True))
+        else:
+            for item in results:
+                print(f"{item.state}\t{item.symbol}\t{item.source_path or ''}")
+        return 0 if all(item.state == "base-only" for item in results) else 1
 
     try:
         if args.base is None:
