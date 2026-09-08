@@ -1,871 +1,755 @@
 #include "PR/ultratypes.h"
 
-typedef struct O58Unknown {
-    s32 unk0;
-    u8 unk4;
-    u8 unk5;
-    u8 unk6;
-    u8 unk7;
-    s32 unk8;
-    u8 unkC[0xA];
-    u8 unk16;
-    u8 pad17[5];
-    u8 unk1C;
-    u8 unk1D;
-    u8 unk1E;
-    u8 pad1F[3];
-    s16 unk22;
-    s32 unk24;
-    u8 pad28[8];
-    s32 unk30;
-    u8 pad34[0x24];
-    s32 unk58;
-    u8 pad5C[0xC];
-    s32 unk68;
-    u8 pad6C[0xC];
-    s32 unk78;
-    u8 pad7C[4];
-    s32 unk80;
-    u8 pad84[0x18];
-    s32 unk9C;
-    s32 unkA0;
-    s32 unkA4;
-    s32 unkA8;
-    s32 unkAC;
-    s32 unkB0;
-    s32 unkB4;
-    s32 unkB8;
-    s32 unkBC;
-    s32 unkC0;
-    s32 unkC4;
-    s32 unkC8;
-    s32 unkCC;
-    s32 unkD0;
-    s32 unkD4;
-    u8 padD8[0x6C];
-    s32 unk144;
-    u8 pad148[0x68];
-    s32 unk1B0;
-    u8 pad1B4[4];
-    s32 unk1B8;
-    s32 unk1BC;
-    u8 pad1C0[0x7C];
-    s32 unk23C;
-    u8 pad240[6];
-    s16 unk246;
-    u8 pad248[0xA];
-    s16 unk252;
-    u8 pad254[0xA];
-    s16 unk25E;
-    u8 pad260[0xA];
-    s16 unk26A;
-    u8 pad26C[0xC];
-    s32 unk278;
-    u8 pad27C[0x50];
-    s32 unk2CC;
-    s32 unk2D0;
-    s32 unk2D4;
-    s32 unk1;
-    s32 unk2;
-    s32 unk3;
-    s32 unk9;
-    s32 unkA;
-} O58Unknown;
-
-#undef NULL
-#define NULL 0
-
-/* NON_MATCHING p6 plateau: workbench structure-mismatch; exact-TU candidate 3496 vs
- * 3614 instructions, 3544 masked differences from +0x0, and frames 0x2F0/0x138.
- * Target/candidate relocation counts are 1253/613 with only three stable identities;
- * flags, context, constants, ABI, widths, cursors, and indexed structure forms are exhausted.
- * Next lever: recover collapsed call/global identities and their source types before CFG work. */
+/* NON_MATCHING structural reconstruction from Mickey's runtime relocations.
+ * Resident identities use the ROM-table exports and reserved section bases;
+ * D_o058 names identify byte offsets in overlay 58, including its BSS.
+ * The guarded body retains the target call graph and typed data accesses.
+ */
 #ifdef NON_MATCHING
-extern O58Unknown *func_80028F54(void);
-extern void func_80036AB0(O58Unknown *state, s32 updateRate);
-extern void func_8004B0A4(s32 value);
-O58Unknown *overlay58ExternalReloc(); /* provisional external relocation */
-extern s32 D_108[];
-extern O58Unknown *D_18;
-extern O58Unknown *D_180;
-extern u8 *D_23C;
-extern O58Unknown *D_278;
-extern s32 D_28;
-extern s16 D_290;
-extern s16 D_296;
-extern s16 D_2A6;
-extern s32 D_2B8;
-extern s32 D_2C;
-extern O58Unknown D_34;
-extern s32 D_3C;
-extern s32 D_40;
-extern s32 D_44;
-extern s32 D_48;
-extern s32 D_4C;
-extern s32 D_50;
-extern s32 D_54;
-extern s32 D_58;
-extern s32 D_60;
-extern s32 D_64;
-extern s32 D_6C;
-extern s32 D_70;
-extern s32 D_74;
-extern O58Unknown *D_78[];
-extern O58Unknown *D_7C;
-extern O58Unknown *D_80;
-extern O58Unknown *D_84;
-extern O58Unknown *D_88;
-extern O58Unknown *D_8C;
-extern u8 *D_90;
-extern O58Unknown *D_94;
-extern O58Unknown *D_98;
-extern O58Unknown *D_A0;
-extern O58Unknown *D_A4;
-extern s32 D_A8[];
-extern O58Unknown *D_B0;
-extern O58Unknown *D_B4;
-extern O58Unknown *D_BC;
-extern O58Unknown *D_C0;
-extern O58Unknown *D_C4;
-extern O58Unknown *D_C8;
-extern O58Unknown *D_D4;
-extern s32 D_D8;
-extern s32 D_DC;
-extern O58Unknown D_E8;
-extern O58Unknown *D_F8;
+#include "game/anim.h"
+#include "game/menu.h"
+#include "game/font.h"
+#include "overlays/overlay_056.h"
+
+struct MenuCommand { u32 w0; u32 w1; };
+typedef struct RcpTextureInfo RcpTextureInfo;
+typedef struct RcpTextureNode {
+    RcpTextureInfo *texture;
+    RcpTextureInfo *alternate;
+    u32 packedOffset;
+    s16 x;
+    s16 y;
+} RcpTextureNode;
+
+typedef struct Overlay58RaceEntry {
+    u8 character;
+    u8 variant;
+    u8 variantCopy;
+    u8 gap;
+    s32 value;
+    s32 lapTimes[3];
+    u8 pad14[8];
+    u8 counters[6];
+    u16 rank;
+    u8 flags[4];
+} Overlay58RaceEntry;
+
+typedef struct Overlay58RaceState {
+    u8 mode;
+    u8 active;
+    u8 player;
+    u8 countdown;
+    Overlay58RaceEntry entries[6];
+} Overlay58RaceState;
+
+typedef struct SavesPackedEntry {
+    s32 value;
+    u8 name[3];
+    u8 character;
+} SavesPackedEntry;
+
+typedef struct SavesSlot {
+    SavesPackedEntry records[4];
+} SavesSlot;
+
+typedef struct ColourCycle {
+    s32 frame;
+    s32 time;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+    struct ColourCycle *table;
+} ColourCycle;
+
+typedef union Overlay58AnimationState {
+    s32 word;
+    u8 bytes[4];
+} Overlay58AnimationState;
+
+typedef struct Overlay58LanguageText {
+    char *text[182];
+} Overlay58LanguageText;
+
+extern Overlay58RaceState *func_80028F54(void);
+extern void func_80036AB0(void *cycle, s32 updateRate);
+extern void func_8004B0A4(s32 font);
+extern void func_8004B0F8(MenuCommand **displayList, s32 x, s32 y, char *text, s32 flags);
+extern void func_8002F618(MenuCommand **displayList, RcpTextureNode *node, s32 x, s32 y, u8 red, u8 green, u8 blue, u8 alpha);
+extern void func_8005055C(s32 pathIndex);
+extern s32 sprintf(char *buffer, const char *format, ...);
+extern void amSndPlay(u16 sound, void **handle);
+extern void mainChangeCameras(s32 mode);
+extern void joyCreateMap(s8 *activePlayers);
+extern void mainChangeLevel(s32 nextLevel, s32 nextCharacter, s32 nextAnimGroup, s32 nextMenu, s32 arg4, s32 arg5);
+extern void mainSetAnimGroup(s32 group);
+extern void func_8003A754(void);
+extern char *func_8003A5A0(s32 value);
+extern SavesSlot *func_800291C4(void);
+extern s32 levelGetBlurEffect(s32 level);
+extern s32 func_8003A6B0(u8 index);
+extern void func_80029120(u32 flags);
+extern void func_8002917C(void);
+extern s32 func_8003A700(u8 index);
+
+extern u8 D_8007BEF8;
+extern u8 D_8007BEFC;
+extern u8 D_8007BF0C;
+extern s32 D_8007BF44;
+extern s32 D_8007C1A0;
+extern Overlay58LanguageText *D_8007C0B8;
+extern MenuCommand *D_800D3140;
+extern s32 D_800D31B8;
+extern s16 D_800D31BC;
+extern s16 D_800D31BE;
+extern u8 D_800D31C4[4];
+extern RcpTextureInfo *D_800D31C8[];
+extern s16 D_8007C0C0[4][4];
+
+extern s32 D_o058_5E50[6];
+extern char *D_o058_5E68[4];
+extern Overlay58AnimationState D_o058_5E84;
+extern Overlay58RaceEntry *D_o058_5EC8[6];
+extern Overlay58RaceEntry *D_o058_5EE0[6];
+extern s32 D_o058_5EF8[6];
+extern s32 D_o058_5F10[6];
+extern ColourCycle D_o058_5F38;
+extern s32 D_o058_5B28[6];
+extern char *D_o058_5C5C[3];
+extern s16 D_o058_5C68[6];
+extern s16 D_o058_5C74[6];
+extern s16 D_o058_5C80[6];
+extern s16 D_o058_5C8C[6];
+extern char *D_o058_5C98[6];
+extern s16 D_o058_5CB0[12];
+
+
+extern u16 D_8007BF1C;
+extern s32 D_8007BF48;
+extern s32 D_8007BF4C;
+extern s32 D_8007BF50;
+extern s32 D_8007BF54;
+extern u8 D_8007BF74;
+extern s32 D_8007C1B4;
+extern s16 D_800D304E;
+extern RcpTextureNode D_o058_5BA0[];
+extern s32 D_o058_5CD8;
+extern char D_o058_5D2C[];
+extern char D_o058_5D30[];
+extern char D_o058_5D34[];
+extern char D_o058_5D38[];
+extern char D_o058_5D3C[];
+extern char D_o058_5D44[];
+extern char D_o058_5D48[];
+extern char D_o058_5D50[];
+extern char D_o058_5D54[];
+extern char D_o058_5D5C[];
+extern char D_o058_5D60[];
+extern char D_o058_5D64[];
+extern char D_o058_5D68[];
+extern char D_o058_5D6C[];
+extern char D_o058_5D70[];
+extern char D_o058_5D74[];
+extern char D_o058_5D78[];
+extern char D_o058_5D7C[];
+extern char D_o058_5D84[];
+extern char D_o058_5D88[];
+extern char D_o058_5D90[];
+extern char D_o058_5D94[];
+extern char D_o058_5D98[];
+extern char D_o058_5DA0[];
+extern char D_o058_5DA4[];
+extern char D_o058_5DAC[];
+extern char D_o058_5DB0[];
+extern char D_o058_5DB4[];
+extern char D_o058_5DB8[];
+extern char D_o058_5DC4[];
+extern s32 D_o058_5E78;
+extern s32 D_o058_5E7C;
+extern s32 D_o058_5E80;
+extern s32 D_o058_5E88;
+extern s32 D_o058_5E8C;
+extern s32 D_o058_5E90;
+extern s32 D_o058_5E94;
+extern s32 D_o058_5E98;
+extern s32 D_o058_5E9C;
+extern s32 D_o058_5EA0;
+extern s32 D_o058_5EA4;
+extern s32 D_o058_5EA8;
+extern s32 D_o058_5EAC;
+extern s32 D_o058_5EB0;
+extern s32 D_o058_5EB4;
+extern s32 D_o058_5EC0;
+extern s32 D_o058_5EC4;
+extern s32 D_o058_5F28;
+extern s32 D_o058_5F2C;
+extern s32 D_o058_5F30;
+
+extern s8 D_o058_5F48[4];
 
 void func_overlay_058_F000138C_18B0574(s32 arg0) {
-    s32 sp124;                                      /* compiler-managed */
-    O58Unknown *sp10C;
-    O58Unknown *sp108;
-    O58Unknown *sp104;
-    O58Unknown *sp100;
-    s32 spF8;
-    O58Unknown *spEC;
-    O58Unknown *spE8;
-    s32 spE4;
-    s8 spD9;
-    u8 spD8;
-    O58Unknown *spC0;
-    O58Unknown *spB8;
-    s32 sp88;
-    s16 sp86;
-    s16 sp84;
-    s32 sp80;
-    s32 sp7C;
-    O58Unknown *sp78;
-    O58Unknown *sp64;
-    s32 var_s0_11;
-    O58Unknown *sp;
-    s32 *var_s0_3;
-    O58Unknown **var_s0_4;
-    s32 var_s0_5;
-    s32 var_s0_6;
-    O58Unknown **var_s1;
-    O58Unknown **var_s1_10;
-    O58Unknown **var_s1_5;
-    O58Unknown **var_s1_9;
-    O58Unknown **var_s2;
-    O58Unknown **var_s2_2;
-    s32 *var_s3;
-    s32 *var_s3_2;
-    s32 *var_s3_3;
-    O58Unknown **var_v0_2;
-    s32 temp_a0;
-    O58Unknown *temp_s0;
-    s32 temp_s1;
-    O58Unknown *temp_s1_2;
-    O58Unknown *temp_s1_3;
-    O58Unknown *temp_s4;
-    O58Unknown *temp_s4_2;
-    O58Unknown *temp_s4_3;
-    O58Unknown *temp_t1;
-    O58Unknown *temp_t3_2;
-    O58Unknown *temp_t3_3;
-    O58Unknown *temp_t4_4;
-    O58Unknown *temp_t6;
-    O58Unknown *temp_t6_2;
-    O58Unknown *temp_t6_6;
-    O58Unknown *temp_t7;
-    O58Unknown *temp_t7_3;
-    O58Unknown *temp_t7_6;
-    O58Unknown *temp_t8_3;
-    O58Unknown *temp_t8_4;
-    O58Unknown *temp_t8_5;
-    O58Unknown *temp_t8_6;
-    s32 temp_t9;
-    O58Unknown *temp_t9_6;
-    O58Unknown *temp_v0_11;
-    O58Unknown *temp_v0_12;
-    O58Unknown *temp_v0_14;
-    O58Unknown *temp_v0_15;
-    O58Unknown *temp_v0_16;
-    s32 temp_v0_17;
-    O58Unknown *temp_v0_19;
-    O58Unknown *temp_v0_21;
-    O58Unknown *temp_v0_22;
-    O58Unknown *temp_v0_23;
-    O58Unknown *temp_v0_24;
-    O58Unknown *temp_v0_3;
-    O58Unknown *temp_v0_6;
-    O58Unknown *temp_v0_7;
-    O58Unknown *temp_v0_8;
-    O58Unknown *var_a0;
-    O58Unknown *var_s0_9;
-    O58Unknown *var_s2_3;
-    O58Unknown *var_s4_4;
-    O58Unknown *var_s4_5;
-    s32 var_s7_8;
-    O58Unknown *var_v0;
-    s16 *var_s0_14;
-    s16 temp_s2;
-    s16 temp_s5;
-    s16 temp_s5_2;
-    s16 temp_v1_3;
-    s16 var_v0_4;
-    s16 var_v1;
-    s16 var_v1_3;
-    s32 *var_s0_2;
-    s32 temp_s0_2;
-    s32 temp_s1_4;
-    s32 temp_t1_2;
-    s32 temp_t1_3;
-    s32 temp_t2;
-    s32 temp_t2_2;
-    s32 temp_t2_3;
-    s32 temp_t3;
-    s32 temp_t4;
-    s32 temp_t4_2;
-    s32 temp_t4_3;
-    s32 temp_t4_5;
-    s32 temp_t4_6;
-    s32 temp_t5;
-    s32 temp_t5_2;
-    s32 temp_t6_3;
-    s32 temp_t6_4;
-    s32 temp_t6_5;
-    s32 temp_t7_2;
-    s32 temp_t7_4;
-    s32 temp_t7_5;
-    s32 temp_t8;
-    s32 temp_t8_2;
-    s32 temp_t8_7;
-    s32 temp_t9_2;
-    s32 temp_t9_3;
-    s32 temp_t9_4;
-    s32 temp_t9_5;
-    s32 temp_v0_2;
-    s32 temp_v0_5;
-    O58Unknown *temp_v1;
-    O58Unknown *temp_v1_2;
-    s32 var_a1;
-    s32 var_a1_2;
-    s32 var_a1_3;
-    s32 var_s0_10;
-    s32 var_s0_13;
-    s32 var_s0_8;
-    s32 var_s1_2;
-    s32 var_s1_4;
-    s32 var_s1_6;
-    s32 var_s1_7;
-    s32 var_s1_8;
-    s32 var_s2_6;
-    s32 var_s6;
-    s32 var_s7;
-    s32 var_s7_10;
-    s32 var_s7_11;
-    s32 var_s7_12;
-    s32 var_s7_13;
-    s32 var_s7_2;
-    s32 var_s7_3;
-    s32 var_s7_4;
-    s32 var_s7_5;
-    s32 var_s7_6;
-    s32 var_s7_7;
-    s32 var_s7_9;
-    s32 var_v1_2;
-    s32 var_v1_4;
-    u8 **var_s2_4;
-    u8 **var_s2_5;
-    O58Unknown **var_s4;
-    O58Unknown **var_s4_2;
-    O58Unknown **var_s4_3;
-    u8 *var_s0_12;
-    u8 *var_v0_3;
-    u8 temp_a2;
-    u8 temp_v0;
-    u8 temp_v0_10;
-    u8 temp_v0_13;
-    u8 temp_v0_4;
-    u8 temp_v0_9;
-    O58Unknown *temp_s2_2;
-    void *temp_s2_3;
-    s32 temp_t1_4;
-    O58Unknown *temp_v0_18;
-    u8 *temp_v0_20;
-    u8 *var_s0;
-    s32 var_s0_7;
-    O58Unknown *var_s1_3;
+    RcpTextureNode nodes[4];
+    char text[24];
+    char character[2];
+    s32 x;
+    s32 seconds;
+    s32 minutes;
+    s32 centiseconds;
+    s32 rowY;
+    s32 rowHeight;
+    s32 savedX;
+    s32 savedPosition;
+    s32 savedOffset;
+    Overlay58RaceState *state;
+    SavesPackedEntry *record;
+    AnimPath *path;
+    Overlay58RaceEntry **orderCursor;
+    RcpTextureInfo **textureCursor;
+    SavesSlot *saves;
+    SavesSlot *slot;
+    s16 *characterX;
+    s32 columnStep;
+    s32 portraitX;
+    s32 *pointsCursor;
+    s32 *rankCursor;
+    s32 letter0;
+    s32 pointsTotal;
+    s32 letter1;
+    s32 textY;
+    s32 delta;
+    s32 countdownX;
+    s32 columnX;
+    s32 portraitIndex;
+    s32 opponent;
+    s32 i;
+    s32 highlighted;
+    s32 columnCount;
+    s32 erase;
+    char **textCursor;
+    char *characterCursor;
+    u8 *erasedCharacter;
+    u8 *nameCursor;
 
-    spB8 = func_80028F54();
-    func_80036AB0(&D_E8, arg0);
+    state = func_80028F54();
+    func_80036AB0(&D_o058_5F38, arg0);
     func_8004B0A4(0);
-    temp_a0 = *(s32 *)0x44;
-    if ((temp_a0 != 1) && (temp_a0 != 2)) {
-
-    } else if ((*(s32 *)0) == -1) {
-        temp_v0 = (u8) (*(s32 *)0);
-        if ((s32) temp_v0 > 0) {
-            var_s3 = &D_A8;
-            var_s0 = NULL;
-            do {
-                temp_t9 = *var_s3;
-                var_s3 += 4;
-                var_s0 += 4;
-                ((s32 *)var_s0)[-1] = D_108[(s32) temp_t9];
-            } while ((u32) var_s3 < (u32) &(&D_A8)[temp_v0]);
-        }
+    if (((D_o058_5E94 == 1) || (D_o058_5E94 == 2)) &&
+        (D_o058_5E50[0] == -1) && (D_8007BEF8 > 0)) {
+        rankCursor = D_o058_5EF8;
+        pointsCursor = D_o058_5E50;
+        do {
+            *pointsCursor = D_o058_5B28[*rankCursor];
+            rankCursor += 1;
+            pointsCursor += 1;
+        } while ((u32) rankCursor < (u32) &D_o058_5EF8[D_8007BEF8]);
     }
-    temp_v1 = (O58Unknown *)((s32) (*(s32 *)0) * 2);
-    temp_s2 = temp_v1->unk252;
-    spF8 = (s32) temp_v1->unk246;
-    switch (temp_a0) {
+
+    rowY = D_o058_5C74[D_8007BEF8 - 1];
+    rowHeight = (s32) D_o058_5C68[D_8007BEF8 - 1];
+    switch (D_o058_5E94) {
     case 1:
-        var_s7 = 0;
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0x80, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        overlay58ExternalReloc(NULL, *(O58Unknown **)0x48 + *(s32 *)0x54 + 0xA0, (O58Unknown *)0x1E, (*(O58Unknown **)0)->unk9C, (O58Unknown *)4);
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        var_v0 = D_48;
-        sp124 = (s32) (var_v0 + D_58);
-        sp100 = (O58Unknown *) temp_s2;
-        if ((s32) (u8) (*(s32 *)0) > 0) {
-            var_s2 = &D_78;
-            var_s3_2 = &D_A8;
+        i = 0;
+        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+        func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA4 + 0xA0, 0x1E, D_8007C0B8->text[0x27], 4);
+        fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+        x = D_o058_5E98 + D_o058_5EA8;
+        if ((s32) D_8007BEF8 > 0) {
+            orderCursor = D_o058_5EC8;
+            rankCursor = D_o058_5EF8;
             do {
-                temp_v0_2 = -sp124;
-                sp7C = 0;
-                sp84 = temp_v0_2 + 0x4E;
-                sp86 = (s16) (sp100 - 4);
-                sp80 = 0;
-                sp88 = 0;
-                sp124 = temp_v0_2;
-                sp78 = ((O58Unknown *)(((*var_s2)->unk0 * 4)))->unk144;
-                overlay58ExternalReloc(NULL, &sp78, NULL, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-                overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-                overlay58ExternalReloc(NULL, sp124 + 0x28, sp100, ((O58Unknown *)((s32) *var_s3_2 * 4))->unk278, NULL);
-                if (((*(s32 *)0) == 1) && ((spB8 + 4) == *var_s2)) {
-                    overlay58ExternalReloc((O58Unknown *) D_E8.unk8, (O58Unknown **) D_E8.unk9, (O58Unknown *) D_E8.unkA, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+                x = -x;
+                nodes[0].alternate = NULL;
+                nodes[0].x = x + 0x4E;
+                nodes[0].y = rowY - 4;
+                nodes[0].packedOffset = 0;
+                nodes[1].texture = 0;
+                nodes[0].texture = D_800D31C8[0x51 + (*orderCursor)->character];
+                func_8002F618(&D_800D3140, &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
+                fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+                func_8004B0F8(&D_800D3140, x + 0x28, rowY, D_o058_5C98[*rankCursor], 0);
+                if ((D_8007C1A0 == 1) && (state->entries == *orderCursor)) {
+                    fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
                 } else {
-                    overlay58ExternalReloc(NULL, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+                    fontColour(0, 0xFF, 0xFF, 0xFF, 0xFF);
                 }
-                overlay58ExternalReloc(NULL, sp124 + 0x71, sp100, ((O58Unknown *)((*(s32 *)0) + ((*var_s2)->unk0 * 4)))->unk68, NULL);
-                if (spB8->unk0 == 5) {
-                    if (var_s7 == 0) {
-                        overlay58ExternalReloc((*var_s2)->unk4, &sp108, &sp10C, &sp104);
+                func_8004B0F8(&D_800D3140, x + 0x71, rowY, D_8007C0B8->text[(*orderCursor)->character + 0x1A], 0);
+                if (state->mode == 5) {
+                    if (i == 0) {
+                        overlay56SplitTime((*orderCursor)->value, &minutes, &seconds, &centiseconds);
                     } else {
-                        overlay58ExternalReloc(D_78[0]->unk4 - (*var_s2)->unk4, &sp108, &sp10C, &sp104);
+                        overlay56SplitTime((*D_o058_5EC8)->value - (*orderCursor)->value, &minutes, &seconds, &centiseconds);
                     }
-                } else if (var_s7 == 0) {
-                    overlay58ExternalReloc((*var_s2)->unk4, &sp108, &sp10C, &sp104);
+                } else if (i == 0) {
+                    overlay56SplitTime((*orderCursor)->value, &minutes, &seconds, &centiseconds);
                 } else {
-                    overlay58ExternalReloc((*var_s2)->unk4 - D_78[0]->unk4, &sp108, &sp10C, &sp104);
+                    overlay56SplitTime((*orderCursor)->value - (*D_o058_5EC8)->value, &minutes, &seconds, &centiseconds);
                 }
-                overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-                temp_s4 = sp100 + *(s32 *)0x5C;
-                if ((var_s7 == 0) || (sp108 != NULL)) {
-                    overlay58ExternalReloc(&spC0, &D_3C, sp108);
-                    overlay58ExternalReloc(NULL, sp124 + 0xDC, temp_s4, &spC0, (O58Unknown *)1);
-                    overlay58ExternalReloc(NULL, sp124 + 0xDF, temp_s4, &D_40, NULL);
+                fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
+                textY = rowY + D_o058_5EAC;
+                if ((i == 0) || (minutes != 0)) {
+                    sprintf(&text[0], D_o058_5D2C, minutes);
+                    func_8004B0F8(&D_800D3140, x + 0xDC, textY, &text[0], 1);
+                    func_8004B0F8(&D_800D3140, x + 0xDF, textY, D_o058_5D30, 0);
                 }
-                if (var_s7 != 0) {
-                    if (spB8->unk0 == 5) {
-                        overlay58ExternalReloc(NULL, sp124 + 0xBA, temp_s4, &D_44, NULL);
+                if (i != 0) {
+                    if (state->mode == 5) {
+                        func_8004B0F8(&D_800D3140, x + 0xBA, textY, D_o058_5D34, 0);
                     } else {
-                        overlay58ExternalReloc(NULL, sp124 + 0xBA, temp_s4, &D_48, NULL);
+                        func_8004B0F8(&D_800D3140, x + 0xBA, textY, D_o058_5D38, 0);
                     }
                 }
-                overlay58ExternalReloc(&spC0, &D_4C, sp10C);
-                overlay58ExternalReloc(NULL, sp124 + 0xE6, temp_s4, &spC0, NULL);
-                overlay58ExternalReloc(NULL, sp124 + 0xFD, temp_s4, &D_54, NULL);
-                overlay58ExternalReloc(&spC0, &D_58, sp104);
-                overlay58ExternalReloc(NULL, sp124 + 0x104, temp_s4, &spC0, NULL);
-                var_s7 += 1;
-                var_s3_2 += 4;
-                var_s2 += 4;
-                sp100 += spF8;
-            } while (var_s7 < (s32) (u8) (*(s32 *)0));
-            var_v0 = *(s32 *)0x48;
+                sprintf(&text[0], D_o058_5D3C, seconds);
+                func_8004B0F8(&D_800D3140, x + 0xE6, textY, &text[0], 0);
+                func_8004B0F8(&D_800D3140, x + 0xFD, textY, D_o058_5D44, 0);
+                sprintf(&text[0], D_o058_5D48, centiseconds);
+                func_8004B0F8(&D_800D3140, x + 0x104, textY, &text[0], 0);
+                i += 1;
+                rankCursor += 1;
+                orderCursor += 1;
+                rowY += rowHeight;
+            } while (i < (s32) D_8007BEF8);
         }
-        temp_t9_2 = ((s32) arg0 * 0x10) - arg0;
-        temp_t7 = var_v0 - temp_t9_2;
-        D_48 = temp_t7;
-        if ((s32) temp_t7 < 0) {
-            temp_v0_3 = D_60;
-            D_48 = NULL;
-            if ((temp_v0_3 == NULL) && ((s32) (*(s32 *)0) & 0x9000)) {
-                if ((*(s32 *)0x74 >= 4) && ((u8) (*(s32 *)0) == 0)) {
-                    if (spB8->unk3 == 0) {
-                        D_60 = (s32)(5);
+        delta = arg0 * 0xF;
+        D_o058_5E98 = D_o058_5E98 - delta;
+        if (D_o058_5E98 < 0) {
+            D_o058_5E98 = 0;
+            if ((D_o058_5EB0 == 0) && (D_800D31B8 & 0x9000)) {
+                if ((D_o058_5EC4 >= 4) && (D_8007BF0C == 0)) {
+                    if (state->countdown == 0) {
+                        D_o058_5EB0 = 5;
                     } else {
-                        D_60 = (s32)(6);
+                        D_o058_5EB0 = 6;
                     }
                 } else {
-                    (*(s32 *)0) = -1;
-                    D_60 = (s32)(2);
+                    *D_o058_5E50 = -1;
+                    D_o058_5EB0 = 2;
                 }
-                overlay58ExternalReloc((O58Unknown *)0xC, NULL, &D_58);
+                amSndPlay(0xCU, NULL);
             }
-            if (temp_v0_3 != NULL) {
-                D_54 += temp_t9_2;
-                if ((temp_v0_3 == (O58Unknown *)5) || (temp_v0_3 == (O58Unknown *)6)) {
-                    temp_t6 = D_58 + temp_t9_2;
-                    D_58 = temp_t6;
-                    if ((s32) temp_t6 >= 0x141) {
-                        *(s32 *)0x44 = temp_v0_3;
-                        overlay58ExternalReloc((O58Unknown *)0x1FA, NULL, &D_58);
+            if (D_o058_5EB0 != 0) {
+                D_o058_5EA4 += delta;
+                if ((D_o058_5EB0 == 5) || (D_o058_5EB0 == 6)) {
+                    D_o058_5EA8 = D_o058_5EA8 + delta;
+                    if (D_o058_5EA8 >= 0x141) {
+                        D_o058_5E94 = D_o058_5EB0;
+                        amSndPlay(0x1FAU, NULL);
                         return;
                     }
                 } else {
-                    temp_t9_3 = *(s32 *)0x5C + temp_t9_2;
-                    *(s32 *)0x5C = temp_t9_3;
-                    if ((temp_t9_3 >= 0xB5) && ((s32) D_54 >= 0x141)) {
-                        *(s32 *)0x4C = 0x6E;
-                        *(s32 *)0x44 = temp_v0_3;
-                        overlay58ExternalReloc((O58Unknown *)0x1FA, NULL, &D_58);
-                        D_60 = NULL;
-                        D_64 = (s32)(0x4B);
-                        *(s32 *)0x50 = 0;
+                    D_o058_5EAC = D_o058_5EAC + delta;
+
+                    if ((D_o058_5EAC >= 0xB5) && (D_o058_5EA4 >= 0x141)) {
+                        D_o058_5E9C = 0x6E;
+                        D_o058_5E94 = D_o058_5EB0;
+                        amSndPlay(0x1FAU, NULL);
+                        D_o058_5EB0 = 0;
+                        D_o058_5EB4 = 0x4B;
+                        D_o058_5EA0 = 0;
                         return;
                     }
                 }
             }
-        } else {
-        default:
-            return;
         }
         break;
     case 2:
-        var_s7_2 = 0;
-        if ((s32) (*(s32 *)0) > 0) {
-            temp_t8 = D_64 - arg0;
-            D_64 = (s32)( temp_t8);
-            if (temp_t8 < 0) {
-                D_64 = (s32)(0xF);
-                overlay58ExternalReloc((O58Unknown *)0x1B, NULL);
-                temp_v0_4 = (u8) (*(s32 *)0);
-                if ((s32) temp_v0_4 > 0) {
-                    var_s0_2 = NULL;
+        i = 0;
+        if (*D_o058_5E50 > 0) {
+            D_o058_5EB4 = D_o058_5EB4 - arg0;
+            if (D_o058_5EB4 < 0) {
+                D_o058_5EB4 = 0xF;
+                amSndPlay(0x1BU, NULL);
+                if ((s32) D_8007BEF8 > 0) {
+                    pointsCursor = D_o058_5E50;
                     do {
-                        temp_v0_5 = *var_s0_2;
-                        if (temp_v0_5 > 0) {
-                            *var_s0_2 = temp_v0_5 - 1;
+
+                        if (*pointsCursor > 0) {
+                            *pointsCursor = *pointsCursor - 1;
                         }
-                        var_s0_2 += 4;
-                    } while ((u32) var_s0_2 < (u32) (temp_v0_4 * 4));
-                    var_s7_2 = 0;
+                        pointsCursor += 1;
+                    } while ((u32) pointsCursor < (u32) &D_o058_5E50[D_8007BEF8]);
+                    i = 0;
                 }
             }
         }
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0x80, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        overlay58ExternalReloc(NULL, *(s32 *)0x48 + *(s32 *)0x50 + *(s32 *)0x54 + 0xA0, (O58Unknown *)0x1E, (*(O58Unknown **)0)->unkA0, (O58Unknown *)4);
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        spEC = D_48;
-        spE4 = D_50;
-        if ((s32) (u8) (*(s32 *)0) > 0) {
-            var_s2_2 = &D_78;
-            var_s3_3 = &D_A8;
-            var_s0_3 = NULL;
-            sp100 = (O58Unknown *) temp_s2;
-            do {
-                temp_t8_2 = -(s32) D_48;
-                temp_t9_4 = -D_50;
-                D_48 = (O58Unknown *) temp_t8_2;
-                D_50 = temp_t9_4;
-                sp78 = ((O58Unknown *)(((*var_s2_2)->unk0 * 4)))->unk144;
-                sp7C = 0;
-                sp84 = temp_t8_2 + temp_t9_4 + 0x4E;
-                sp86 = (s16) (sp100 - 4);
-                sp80 = 0;
-                sp88 = 0;
-                overlay58ExternalReloc(NULL, &sp78, NULL, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-                overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-                overlay58ExternalReloc(NULL, *(s32 *)0x48 + *(s32 *)0x50 + 0x28, sp100, ((O58Unknown *)((s32) *var_s3_3 * 4))->unk278, NULL);
-                if (((*(s32 *)0) == 1) && ((spB8 + 4) == *var_s2_2)) {
-                    overlay58ExternalReloc((O58Unknown *) *(u8 *)0xF0, (O58Unknown **) *(u8 *)0xF1, (O58Unknown *) *(u8 *)0xF2, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+        func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA0 + D_o058_5EA4 + 0xA0, 0x1E, D_8007C0B8->text[0x28], 4);
+        fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+        savedX = D_o058_5E98;
+        savedOffset = D_o058_5EA0;
+        if ((s32) D_8007BEF8 > 0) {
+            orderCursor = D_o058_5EC8;
+            rankCursor = D_o058_5EF8;
+            pointsCursor = D_o058_5E50;
+                do {
+                D_o058_5E98 = -D_o058_5E98;
+                D_o058_5EA0 = -D_o058_5EA0;
+
+                nodes[0].texture = D_800D31C8[0x51 + (*orderCursor)->character];
+                nodes[0].alternate = NULL;
+                nodes[0].x = D_o058_5E98 + D_o058_5EA0 + 0x4E;
+                nodes[0].y = rowY - 4;
+                nodes[0].packedOffset = 0;
+                nodes[1].texture = 0;
+                func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
+                fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA0 + 0x28, rowY, D_o058_5C98[*rankCursor], 0);
+                if ((D_8007C1A0 == 1) && (state->entries == *orderCursor)) {
+                    fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
                 } else {
-                    overlay58ExternalReloc(NULL, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+                    fontColour(0, 0xFF, 0xFF, 0xFF, 0xFF);
                 }
-                overlay58ExternalReloc(NULL, *(s32 *)0x48 + *(s32 *)0x50 + 0x71, sp100, ((O58Unknown *)((*(s32 *)0) + ((*var_s2_2)->unk0 * 4)))->unk68, NULL);
-                temp_s1 = (*var_s2_2)->unk22 - *var_s0_3;
-                overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-                overlay58ExternalReloc(&spC0, &D_60, temp_s1);
-                overlay58ExternalReloc(NULL, *(s32 *)0x48 + *(s32 *)0x4C + *(s32 *)0x50 + 0xBE, sp100, &spC0, NULL);
-                overlay58ExternalReloc(&spC0, &D_64, *var_s0_3);
-                overlay58ExternalReloc(NULL, *(s32 *)0x48 + *(s32 *)0x4C + *(s32 *)0x50 + 0xEB, sp100, &spC0, NULL);
-                overlay58ExternalReloc(NULL, *(s32 *)0x48 + *(s32 *)0x4C + *(s32 *)0x50 + 0x113, sp100, &D_6C, NULL);
-                var_s7_2 += 1;
-                var_s0_3 += 4;
-                var_s3_3 += 4;
-                var_s2_2 += 4;
-                sp100 += spF8;
-            } while (var_s7_2 < (s32) (u8) (*(s32 *)0));
+                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA0 + 0x71, rowY, D_8007C0B8->text[(*orderCursor)->character + 0x1A], 0);
+                pointsTotal = (*orderCursor)->rank - *pointsCursor;
+                fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
+                sprintf(&text[0], D_o058_5D50, pointsTotal);
+                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + D_o058_5EA0 + 0xBE, rowY, &text[0], 0);
+                sprintf(&text[0], D_o058_5D54, *pointsCursor);
+                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + D_o058_5EA0 + 0xEB, rowY, &text[0], 0);
+                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + D_o058_5EA0 + 0x113, rowY, D_o058_5D5C, 0);
+                i += 1;
+                pointsCursor += 1;
+                rankCursor += 1;
+                orderCursor += 1;
+                rowY += rowHeight;
+            } while (i < (s32) D_8007BEF8);
         }
-        D_48 = spEC;
-        D_50 = spE4;
-        temp_t2 = ((s32) arg0 * 0x10) - arg0;
-        *(s32 *)0x4C = (s32) (*(s32 *)0x4C - temp_t2);
-        temp_t5 = D_50 - temp_t2;
-        temp_t6_2 = D_54 - temp_t2;
-        D_50 = temp_t5;
-        D_54 = temp_t6_2;
-        if ((*(s32 *)0x4C < 0) && (temp_t5 < 0) && ((s32) temp_t6_2 < 0)) {
-            if (D_60 == NULL) {
-                temp_v0_6 = (*(s32 *)0);
-                if ((s32) temp_v0_6 & 0x9000) {
-                    D_60 = (s32)(3);
-                    overlay58ExternalReloc((O58Unknown *)0xC, NULL, &D_54);
-                } else if (((s32) temp_v0_6 & 0x4000) && (spB8->unk0 != 5)) {
-                    D_60 = (s32)(1);
-                    overlay58ExternalReloc((O58Unknown *)0xD, NULL, &D_54);
+        D_o058_5E98 = savedX;
+        D_o058_5EA0 = savedOffset;
+        delta = arg0 * 0xF;
+        D_o058_5E9C -= delta;
+        D_o058_5EA0 = D_o058_5EA0 - delta;
+        D_o058_5EA4 = D_o058_5EA4 - delta;
+
+        if ((D_o058_5E9C < 0) && (D_o058_5EA0 < 0) && (D_o058_5EA4 < 0)) {
+            if (D_o058_5EB0 == 0) {
+                if (D_800D31B8 & 0x9000) {
+                    D_o058_5EB0 = 3;
+                    amSndPlay(0xCU, NULL);
+                } else if ((D_800D31B8 & 0x4000) && (state->mode != 5)) {
+                    D_o058_5EB0 = 1;
+                    amSndPlay(0xDU, NULL);
                 }
             } else {
-                temp_t8_3 = D_48 + temp_t2;
-                D_48 = temp_t8_3;
-                if ((s32) temp_t8_3 >= 0x141) {
-                    *(s32 *)0x5C = 0;
-                    *(s32 *)0x44 = (O58Unknown *) D_60;
-                    overlay58ExternalReloc((O58Unknown *)0x1FA, NULL, &D_54);
-                    D_60 = NULL;
-                    *(s32 *)0x54 = 0;
+                D_o058_5E98 = D_o058_5E98 + delta;
+                if (D_o058_5E98 >= 0x141) {
+                    D_o058_5EAC = 0;
+                    D_o058_5E94 = D_o058_5EB0;
+                    amSndPlay(0x1FAU, NULL);
+                    D_o058_5EB0 = 0;
+                    D_o058_5EA4 = 0;
                 }
             }
         }
-        if (*(s32 *)0x4C < 0) {
-            *(s32 *)0x4C = 0;
+        if (D_o058_5E9C < 0) {
+            D_o058_5E9C = 0;
         }
-        if (D_50 < 0) {
-            D_50 = 0;
+        if (D_o058_5EA0 < 0) {
+            D_o058_5EA0 = 0;
         }
-        if ((s32) D_54 < 0) {
-            D_54 = NULL;
+        if (D_o058_5EA4 < 0) {
+            D_o058_5EA4 = 0;
             return;
         }
         break;
     case 3:
-        var_s7_3 = 0;
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0x80, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        overlay58ExternalReloc(NULL, *(s32 *)0x48 + *(s32 *)0x4C + 0xA0, (O58Unknown *)0x1E, (*(O58Unknown **)0)->unkA4, (O58Unknown *)4);
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        spEC = D_48;
-        spE8 = D_4C;
-        if ((s32) (u8) (*(s32 *)0) > 0) {
-            sp100 = (O58Unknown *) temp_s2;
-            var_s0_4 = &D_C0;
-            var_s4 = &D_90;
+        i = 0;
+        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+        func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0xA0, 0x1E, D_8007C0B8->text[0x29], 4);
+        fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+        savedX = D_o058_5E98;
+        savedPosition = D_o058_5E9C;
+        if ((s32) D_8007BEF8 > 0) {
+                pointsCursor = D_o058_5F10;
+            orderCursor = D_o058_5EE0;
             do {
-                temp_t7_2 = -(s32) D_48;
-                temp_t3 = -(s32) D_4C;
-                D_48 = (O58Unknown *) temp_t7_2;
-                D_4C = (O58Unknown *) temp_t3;
-                sp78 = ((O58Unknown *)(((*var_s4)->unk0 * 4)))->unk144;
-                sp7C = 0;
-                sp84 = temp_t7_2 + temp_t3 + 0x4E;
-                sp86 = (s16) (sp100 - 4);
-                sp80 = 0;
-                sp88 = 0;
-                overlay58ExternalReloc(NULL, &sp78, NULL, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-                overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-                overlay58ExternalReloc(NULL, *(s32 *)0x48 + *(s32 *)0x4C + 0x28, sp100, ((O58Unknown *)((s32) *var_s0_4 * 4))->unk278, NULL);
-                if (((*(s32 *)0) == 1) && ((spB8 + 4) == *var_s4)) {
-                    overlay58ExternalReloc((O58Unknown *) *(s32 *)0xF0, (O58Unknown **) *(s32 *)0xF1, (O58Unknown *) *(s32 *)0xF2, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+                D_o058_5E98 = -D_o058_5E98;
+                D_o058_5E9C = -D_o058_5E9C;
+
+                nodes[0].texture = D_800D31C8[0x51 + (*orderCursor)->character];
+                nodes[0].alternate = NULL;
+                nodes[0].x = D_o058_5E98 + D_o058_5E9C + 0x4E;
+                nodes[0].y = rowY - 4;
+                nodes[0].packedOffset = 0;
+                nodes[1].texture = 0;
+                func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
+                fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0x28, rowY, D_o058_5C98[*pointsCursor], 0);
+                if ((D_8007C1A0 == 1) && (state->entries == *orderCursor)) {
+                    fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
                 } else {
-                    overlay58ExternalReloc(NULL, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+                    fontColour(0, 0xFF, 0xFF, 0xFF, 0xFF);
                 }
-                overlay58ExternalReloc(NULL, *(s32 *)0x48 + *(s32 *)0x4C + 0x71, sp100, ((O58Unknown *)((*(s32 *)0) + ((*var_s4)->unk0 * 4)))->unk68, NULL);
-                overlay58ExternalReloc(&spC0, &D_70, (O58Unknown *) (*var_s4)->unk22);
-                overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-                overlay58ExternalReloc(NULL, *(s32 *)0x48 + *(s32 *)0x4C + 0x28, sp100, &spC0, NULL);
-                if ((*var_s4)->unk22 == 1) {
-                    overlay58ExternalReloc(NULL, *(s32 *)0x48 + *(s32 *)0x4C + 0x104, sp100, &D_74, NULL);
+                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0x71, rowY, D_8007C0B8->text[(*orderCursor)->character + 0x1A], 0);
+                sprintf(&text[0], D_o058_5D60, (*orderCursor)->rank);
+                fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
+                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0xD2, rowY, &text[0], 0);
+                if ((*orderCursor)->rank == 1) {
+                    func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0x104, rowY, D_o058_5D64, 0);
                 } else {
-                    overlay58ExternalReloc(NULL, *(s32 *)0x48 + *(s32 *)0x4C + 0x104, sp100, &D_78, NULL);
+                    func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0x104, rowY, D_o058_5D68, 0);
                 }
-                var_s7_3 += 1;
-                var_s4 += 4;
-                var_s0_4 += 4;
-                sp100 += spF8;
-            } while (var_s7_3 < (s32) (u8) (*(s32 *)0));
+                i += 1;
+                orderCursor += 1;
+                pointsCursor += 1;
+                rowY += rowHeight;
+            } while (i < (s32) D_8007BEF8);
         }
-        temp_t6_3 = ((s32) arg0 * 0x10) - arg0;
-        D_48 = spEC;
-        temp_t1 = spEC - temp_t6_3;
-        D_48 = temp_t1;
-        D_4C = spE8;
-        if ((s32) temp_t1 < 0) {
-            D_48 = NULL;
-            if (D_60 == NULL) {
-                temp_v0_7 = (*(s32 *)0);
-                if ((s32) temp_v0_7 & 0x9000) {
-                    if (spB8->unk0 == 0) {
-                        D_60 = (s32)(4);
+        delta = arg0 * 0xF;
+        D_o058_5E98 = savedX;
+        D_o058_5E98 = savedX - delta;
+
+        D_o058_5E9C = savedPosition;
+        if (D_o058_5E98 < 0) {
+            D_o058_5E98 = 0;
+            if (D_o058_5EB0 == 0) {
+                if (D_800D31B8 & 0x9000) {
+                    if (state->mode == 0) {
+                        D_o058_5EB0 = 4;
                     } else {
-                        D_60 = (s32)(0xC);
+                        D_o058_5EB0 = 0xC;
                     }
-                    overlay58ExternalReloc((O58Unknown *)0xC, NULL, &D_4C);
+                    amSndPlay(0xCU, NULL);
                     return;
                 }
-                if ((s32) temp_v0_7 & 0x4000) {
-                    D_60 = (s32)(2);
-                    (*(s32 *)0) = -1;
-                    overlay58ExternalReloc((O58Unknown *)0xD, NULL, &D_4C);
+                if (D_800D31B8 & 0x4000) {
+                    D_o058_5EB0 = 2;
+                    *D_o058_5E50 = -1;
+                    amSndPlay(0xDU, NULL);
                     return;
                 }
             } else {
-                temp_t7_3 = D_4C + temp_t6_3;
-                D_4C = temp_t7_3;
-                if ((s32) temp_t7_3 >= 0x141) {
-                    if (D_60 == 4) {
-                        overlay58ExternalReloc((O58Unknown *) D_34.unk3);
-                        D_34.unk0 = 1;
-                        temp_v0_8 = overlay58ExternalReloc((O58Unknown *) D_34.unk3);
-                        if (temp_v0_8 != NULL) {
-                            overlay58ExternalReloc((O58Unknown *) D_34.unk3);
-                            overlay58ExternalReloc((O58Unknown *) D_34.unk3);
-                            temp_v0_8->unk16 = (u8) (temp_v0_8->unk16 | 2);
+                D_o058_5E9C = D_o058_5E9C + delta;
+                if (D_o058_5E9C >= 0x141) {
+                    if (D_o058_5EB0 == 4) {
+                        animseqStopPath(D_o058_5E84.bytes[3]);
+                        D_o058_5E84.word = 1;
+                        path = func_800508B4(D_o058_5E84.bytes[3]);
+                        if (path != NULL) {
+                            func_8005055C(D_o058_5E84.bytes[3]);
+                            animseqStartPath(D_o058_5E84.bytes[3]);
+                            path->flags |= 2;
                         }
-                        *(s32 *)0x30 = 2;
-                        *(s32 *)0x38 = 0x50;
+                        D_o058_5E80 = 2;
+                        D_o058_5E88 = 0x50;
                         return;
                     }
-                    *(s32 *)0x44 = (O58Unknown *) D_60;
-                    overlay58ExternalReloc((O58Unknown *)0x1FA, NULL, &D_4C);
-                    D_60 = NULL;
-                    *(s32 *)0x4C = 0;
-                    *(s32 *)0x50 = 0x140;
+                    D_o058_5E94 = D_o058_5EB0;
+                    amSndPlay(0x1FAU, NULL);
+                    D_o058_5EB0 = 0;
+                    D_o058_5E9C = 0;
+                    D_o058_5EA0 = 0x140;
                     return;
                 }
             }
         }
         break;
     case 12:
-        var_s7_4 = 0;
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0x80, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        overlay58ExternalReloc(NULL, *(s32 *)0x4C + *(s32 *)0x50 + 0xA0, (O58Unknown *)0x1E, (*(O58Unknown **)0)->unk1B8, (O58Unknown *)4);
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        temp_v0_9 = (u8) (*(s32 *)0);
-        temp_v1_2 = (O58Unknown *)((s32) temp_v0_9 * 2);
-        var_a1 = D_50;
-        temp_s5 = temp_v1_2->unk26A;
-        var_s0_5 = temp_v1_2->unk25E + *(s32 *)0x4C + var_a1;
-        if ((s32) temp_v0_9 > 0) {
-            var_s1 = &D_278;
+        i = 0;
+        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+        func_8004B0F8(&D_800D3140, D_o058_5E9C + D_o058_5EA0 + 0xA0, 0x1E, D_8007C0B8->text[0x6E], 4);
+        fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+
+
+        columnStep = D_o058_5C8C[D_8007BEF8 - 1];
+        columnX = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
+        if ((s32) D_8007BEF8 > 0) {
+            textCursor = D_o058_5C98;
             do {
-                overlay58ExternalReloc(NULL, var_s0_5, (O58Unknown *)0x37, *var_s1, (O58Unknown *)4);
-                var_s7_4 += 1;
-                var_s1 += 4;
-                var_s0_5 += temp_s5;
-            } while (var_s7_4 < (s32) (u8) (*(s32 *)0));
-            var_a1 = *(s32 *)0x50;
-            var_s7_4 = 0;
+                func_8004B0F8(&D_800D3140, columnX, 0x37, *textCursor, 4);
+                i += 1;
+                textCursor += 1;
+                columnX += columnStep;
+            } while (i < (s32) D_8007BEF8);
+            i = 0;
         }
-        spE8 = (O58Unknown *) *(s32 *)0x4C;
-        spE4 = var_a1;
-        sp100 = (O58Unknown *) temp_s2;
-        if ((s32) (u8) (*(s32 *)0) > 0) {
-            var_s4_2 = &D_90;
+        savedPosition = D_o058_5E9C;
+        savedOffset = D_o058_5EA0;
+        if ((s32) D_8007BEF8 > 0) {
+            orderCursor = D_o058_5EE0;
             do {
-                temp_t2_2 = -(s32) D_4C;
-                temp_t9_5 = -D_50;
-                D_4C = (O58Unknown *) temp_t2_2;
-                D_50 = temp_t9_5;
-                sp78 = ((O58Unknown *)((s32) (*var_s4_2)->unk0 * 4))->unk144;
-                sp7C = 0;
-                sp84 = temp_t2_2 + temp_t9_5 + 0x28;
-                sp86 = (s16) (sp100 + 0x12);
-                sp80 = 0;
-                sp88 = 0;
-                var_s1_2 = 0;
-                overlay58ExternalReloc(NULL, &sp78, NULL, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-                overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-                temp_v0_10 = (u8) (*(s32 *)0);
-                var_s0_6 = ((O58Unknown *)((s32) temp_v0_10 * 2))->unk25E + *(s32 *)0x4C + *(s32 *)0x50;
-                if ((s32) temp_v0_10 > 0) {
+                D_o058_5E9C = -D_o058_5E9C;
+                D_o058_5EA0 = -D_o058_5EA0;
+
+                nodes[0].texture = D_800D31C8[0x51 + (*orderCursor)->character];
+                nodes[0].alternate = NULL;
+                nodes[0].x = D_o058_5E9C + D_o058_5EA0 + 0x28;
+                nodes[0].y = rowY + 0x12;
+                nodes[0].packedOffset = 0;
+                nodes[1].texture = 0;
+                opponent = 0;
+                func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
+                fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
+
+                columnX = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
+                if ((s32) D_8007BEF8 > 0) {
                     do {
-                        overlay58ExternalReloc(&spC0, &D_7C, (O58Unknown *) (*var_s4_2)[var_s1_2].unk1C);
-                        overlay58ExternalReloc(NULL, var_s0_6, sp100 + 0x16, &spC0, (O58Unknown *)4);
-                        var_s1_2 += 1;
-                        var_s0_6 += temp_s5;
-                    } while (var_s1_2 < (s32) (u8) (*(s32 *)0));
+                        sprintf(&text[0], D_o058_5D6C, (*orderCursor)->counters[opponent]);
+                        func_8004B0F8(&D_800D3140, columnX, rowY + 0x16, &text[0], 4);
+                        opponent += 1;
+                        columnX += columnStep;
+                    } while (opponent < (s32) D_8007BEF8);
                 }
-                var_s7_4 += 1;
-                var_s4_2 += 4;
-                sp100 += spF8;
-            } while (var_s7_4 < (s32) (u8) (*(s32 *)0));
+                i += 1;
+                orderCursor += 1;
+                rowY += rowHeight;
+            } while (i < (s32) D_8007BEF8);
         }
-        temp_t4 = ((s32) arg0 * 0x10) - arg0;
-        D_50 = spE4;
-        temp_t6_4 = spE4 - temp_t4;
-        D_50 = temp_t6_4;
-        D_4C = spE8;
-        if (temp_t6_4 < 0) {
-            *(s32 *)0x50 = 0;
-            if (D_60 == NULL) {
-                temp_v0_11 = (*(s32 *)0);
-                if ((s32) temp_v0_11 & 0x9000) {
-                    if (spB8->unk0 == 3) {
-                        D_60 = (s32)(4);
+        delta = arg0 * 0xF;
+        D_o058_5EA0 = savedOffset;
+        D_o058_5EA0 = savedOffset - delta;
+
+        D_o058_5E9C = savedPosition;
+        if (D_o058_5EA0 < 0) {
+            D_o058_5EA0 = 0;
+            if (D_o058_5EB0 == 0) {
+                if (D_800D31B8 & 0x9000) {
+                    if (state->mode == 3) {
+                        D_o058_5EB0 = 4;
                     } else {
-                        D_60 = (s32)(7);
+                        D_o058_5EB0 = 7;
                     }
-                    overlay58ExternalReloc((O58Unknown *)0xC, NULL);
+                    amSndPlay(0xCU, NULL);
                     return;
                 }
-                if ((s32) temp_v0_11 & 0x4000) {
-                    D_60 = (s32)(3);
-                    (*(s32 *)0) = -1;
-                    overlay58ExternalReloc((O58Unknown *)0xD, NULL);
+                if (D_800D31B8 & 0x4000) {
+                    D_o058_5EB0 = 3;
+                    *D_o058_5E50 = -1;
+                    amSndPlay(0xDU, NULL);
                     return;
                 }
             } else {
-                temp_t8_4 = D_4C + temp_t4;
-                D_4C = temp_t8_4;
-                if ((s32) temp_t8_4 >= 0x141) {
-                    if (D_60 == 4) {
-                        overlay58ExternalReloc((O58Unknown *) D_34.unk3);
-                        D_34.unk0 = 1;
-                        temp_v0_12 = overlay58ExternalReloc((O58Unknown *) D_34.unk3);
-                        if (temp_v0_12 != NULL) {
-                            overlay58ExternalReloc((O58Unknown *) D_34.unk3);
-                            overlay58ExternalReloc((O58Unknown *) D_34.unk3);
-                            temp_v0_12->unk16 = (u8) (temp_v0_12->unk16 | 2);
+                D_o058_5E9C = D_o058_5E9C + delta;
+                if (D_o058_5E9C >= 0x141) {
+                    if (D_o058_5EB0 == 4) {
+                        animseqStopPath(D_o058_5E84.bytes[3]);
+                        D_o058_5E84.word = 1;
+                        path = func_800508B4(D_o058_5E84.bytes[3]);
+                        if (path != NULL) {
+                            func_8005055C(D_o058_5E84.bytes[3]);
+                            animseqStartPath(D_o058_5E84.bytes[3]);
+                            path->flags |= 2;
                         }
-                        *(s32 *)0x30 = 2;
-                        *(s32 *)0x38 = 0x50;
+                        D_o058_5E80 = 2;
+                        D_o058_5E88 = 0x50;
                         return;
                     }
-                    *(s32 *)0x44 = (O58Unknown *) D_60;
-                    overlay58ExternalReloc((O58Unknown *)0x1FA, NULL);
-                    D_60 = NULL;
-                    *(s32 *)0x48 = (s32)(0x140);
-                    *(s32 *)0x4C = 0;
-                    *(s32 *)0x50 = (s32) (O58Unknown *)0x140;
+                    D_o058_5E94 = D_o058_5EB0;
+                    amSndPlay(0x1FAU, NULL);
+                    D_o058_5EB0 = 0;
+                    D_o058_5E98 = 0x140;
+                    D_o058_5E9C = 0;
+                    D_o058_5EA0 = 0x140;
                     return;
                 }
             }
         }
         break;
     case 13:
-        var_s7_5 = 0;
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0x80, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        overlay58ExternalReloc(NULL, *(s32 *)0x4C + *(s32 *)0x50 + 0xA0, (O58Unknown *)0x1E, (*(O58Unknown **)0)->unk1BC, (O58Unknown *)4);
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        temp_v0_13 = (u8) (*(s32 *)0);
-        if (temp_v0_13 == 4) {
-            var_s6 = 4;
+        i = 0;
+        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+        func_8004B0F8(&D_800D3140, D_o058_5E9C + D_o058_5EA0 + 0xA0, 0x1E, D_8007C0B8->text[0x6F], 4);
+        fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+
+        if (D_8007BEF8 == 4) {
+            columnCount = 4;
         } else {
-            var_s6 = temp_v0_13 + 1;
+            columnCount = D_8007BEF8 + 1;
         }
-        var_a0 = D_4C;
-        var_a1_2 = D_50;
-        temp_s5_2 = ((O58Unknown *)((s32) var_s6 * 2))->unk26A;
-        var_s0_7 = ((O58Unknown *)((s32) temp_v0_13 * 2))->unk25E + var_a0 + var_a1_2;
-        if (var_s6 > 0) {
-            var_s1_3 = NULL;
+
+        columnStep = D_o058_5C8C[columnCount - 1];
+        portraitX = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
+        if (columnCount > 0) {
+            textureCursor = D_800D31C8;
             do {
-                sp7C = 0;
-                sp84 = (s16) var_s0_7;
-                sp86 = 0x37;
-                sp80 = 0;
-                sp88 = 0;
-                sp78 = var_s1_3->unk144;
-                overlay58ExternalReloc(NULL, &sp78, NULL, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-                var_s7_5 += 1;
-                var_s1_3 += 4;
-                var_s0_7 += temp_s5_2;
-            } while (var_s7_5 != var_s6);
-            var_a0 = (O58Unknown *) *(s32 *)0x4C;
-            var_a1_2 = *(s32 *)0x50;
-            var_s7_5 = 0;
+                nodes[0].alternate = NULL;
+                nodes[0].x = portraitX;
+                nodes[0].y = 0x37;
+                nodes[0].packedOffset = 0;
+                nodes[1].texture = 0;
+                nodes[0].texture = textureCursor[0x51];
+                func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
+                i += 1;
+                textureCursor += 1;
+                portraitX += columnStep;
+            } while (i != columnCount);
+            i = 0;
         }
-        spE8 = var_a0;
-        spE4 = var_a1_2;
-        sp100 = (O58Unknown *) temp_s2;
-        if ((s32) (u8) (*(s32 *)0) > 0) {
-            var_s4_3 = &D_90;
+        savedPosition = D_o058_5E9C;
+        savedOffset = D_o058_5EA0;
+        if ((s32) D_8007BEF8 > 0) {
+            orderCursor = D_o058_5EE0;
             do {
-                temp_t4_2 = -(s32) D_4C;
-                temp_t6_5 = -D_50;
-                D_4C = (O58Unknown *) temp_t4_2;
-                D_50 = temp_t6_5;
-                sp78 = ((O58Unknown *)((s32) (*var_s4_3)->unk0 * 4))->unk144;
-                sp7C = 0;
-                sp84 = temp_t4_2 + temp_t6_5 + 0x28;
-                sp86 = (s16) (sp100 + 0x12);
-                sp80 = 0;
-                sp88 = 0;
-                var_s1_4 = 0;
-                overlay58ExternalReloc(NULL, &sp78, NULL, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-                overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-                var_s0_8 = ((O58Unknown *)((u8) (*(s32 *)0) * 2))->unk25E + *(s32 *)0x4C + *(s32 *)0x50;
-                if (var_s6 > 0) {
+                D_o058_5E9C = -D_o058_5E9C;
+                D_o058_5EA0 = -D_o058_5EA0;
+
+                nodes[0].texture = D_800D31C8[0x51 + (*orderCursor)->character];
+                nodes[0].alternate = NULL;
+                nodes[0].x = D_o058_5E9C + D_o058_5EA0 + 0x28;
+                nodes[0].y = rowY + 0x12;
+                nodes[0].packedOffset = 0;
+                nodes[1].texture = 0;
+                opponent = 0;
+                func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
+                fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
+
+                columnX = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
+                if (columnCount > 0) {
                     do {
-                        overlay58ExternalReloc(&spC0, &D_80, (O58Unknown *) (*var_s4_3)[var_s1_4].unk24);
-                        overlay58ExternalReloc(NULL, var_s0_8 + 8, sp100 + 0x16, &spC0, (O58Unknown *)4);
-                        var_s1_4 += 1;
-                        var_s0_8 += temp_s5_2;
-                    } while (var_s1_4 != var_s6);
+                        sprintf(&text[0], D_o058_5D70, (*orderCursor)->flags[opponent]);
+                        func_8004B0F8(&D_800D3140, columnX + 8, rowY + 0x16, &text[0], 4);
+                        opponent += 1;
+                        columnX += columnStep;
+                    } while (opponent != columnCount);
                 }
-                var_s7_5 += 1;
-                var_s4_3 += 4;
-                sp100 += spF8;
-            } while (var_s7_5 < (s32) (u8) (*(s32 *)0));
+                i += 1;
+                orderCursor += 1;
+                rowY += rowHeight;
+            } while (i < (s32) D_8007BEF8);
         }
-        temp_t1_2 = ((s32) arg0 * 0x10) - arg0;
-        D_50 = spE4;
-        temp_t7_4 = spE4 - temp_t1_2;
-        D_50 = temp_t7_4;
-        D_4C = spE8;
-        if (temp_t7_4 < 0) {
-            D_50 = 0;
-            if (D_60 == NULL) {
-                temp_v0_14 = (*(s32 *)0);
-                if ((s32) temp_v0_14 & 0x9000) {
-                    if (spB8->unk0 == 3) {
-                        D_60 = (s32)(4);
+        delta = arg0 * 0xF;
+        D_o058_5EA0 = savedOffset;
+        D_o058_5EA0 = savedOffset - delta;
+
+        D_o058_5E9C = savedPosition;
+        if (D_o058_5EA0 < 0) {
+            D_o058_5EA0 = 0;
+            if (D_o058_5EB0 == 0) {
+                if (D_800D31B8 & 0x9000) {
+                    if (state->mode == 3) {
+                        D_o058_5EB0 = 4;
                     } else {
-                        D_60 = (s32)(7);
+                        D_o058_5EB0 = 7;
                     }
-                    overlay58ExternalReloc((O58Unknown *)0xC, NULL, &D_4C);
+                    amSndPlay(0xCU, NULL);
                     return;
                 }
-                if ((s32) temp_v0_14 & 0x4000) {
-                    D_60 = (s32)(0xC);
-                    (*(s32 *)0) = -1;
-                    overlay58ExternalReloc((O58Unknown *)0xD, NULL, &D_4C);
+                if (D_800D31B8 & 0x4000) {
+                    D_o058_5EB0 = 0xC;
+                    *D_o058_5E50 = -1;
+                    amSndPlay(0xDU, NULL);
                     return;
                 }
             } else {
-                temp_t9_6 = D_4C + temp_t1_2;
-                D_4C = temp_t9_6;
-                if ((s32) temp_t9_6 >= 0x141) {
-                    if (D_60 == 4) {
-                        overlay58ExternalReloc((O58Unknown *) D_34.unk3);
-                        D_34.unk0 = 1;
-                        temp_v0_15 = overlay58ExternalReloc((O58Unknown *) D_34.unk3);
-                        if (temp_v0_15 != NULL) {
-                            overlay58ExternalReloc((O58Unknown *) D_34.unk3);
-                            overlay58ExternalReloc((O58Unknown *) D_34.unk3);
-                            temp_v0_15->unk16 = (u8) (temp_v0_15->unk16 | 2);
+                D_o058_5E9C = D_o058_5E9C + delta;
+                if (D_o058_5E9C >= 0x141) {
+                    if (D_o058_5EB0 == 4) {
+                        animseqStopPath(D_o058_5E84.bytes[3]);
+                        D_o058_5E84.word = 1;
+                        path = func_800508B4(D_o058_5E84.bytes[3]);
+                        if (path != NULL) {
+                            func_8005055C(D_o058_5E84.bytes[3]);
+                            animseqStartPath(D_o058_5E84.bytes[3]);
+                            path->flags |= 2;
                         }
-                        *(s32 *)0x30 = 2;
-                        *(s32 *)0x38 = 0x50;
+                        D_o058_5E80 = 2;
+                        D_o058_5E88 = 0x50;
                         return;
                     }
-                    *(s32 *)0x44 = (O58Unknown *) D_60;
-                    overlay58ExternalReloc((O58Unknown *)0x1FA, NULL, &D_4C);
-                    D_60 = NULL;
-                    *(s32 *)0x4C = 0;
-                    *(s32 *)0x50 = 0x140;
+                    D_o058_5E94 = D_o058_5EB0;
+                    amSndPlay(0x1FAU, NULL);
+                    D_o058_5EB0 = 0;
+                    D_o058_5E9C = 0;
+                    D_o058_5EA0 = 0x140;
                     return;
                 }
             }
@@ -873,624 +757,588 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         break;
     case 7:
     case 11:
-        var_s7_6 = 0;
-        if (D_60 == NULL) {
-            temp_v1_3 = (s16) (*(s32 *)0);
-            if ((temp_v1_3 >= 0x11) && (D_D8 > 0)) {
-                D_D8 -= 1;
-                overlay58ExternalReloc((O58Unknown *)0xF, NULL);
-            } else if ((temp_v1_3 < -0x10) && (D_D8 < 3)) {
-                D_D8 += 1;
-                overlay58ExternalReloc((O58Unknown *)0xF, NULL);
+        i = 0;
+        if (D_o058_5EB0 == 0) {
+            if ((D_800D31BE >= 0x11) && (D_o058_5F28 > 0)) {
+                D_o058_5F28 -= 1;
+                amSndPlay(0xFU, NULL);
+            } else if ((D_800D31BE < -0x10) && (D_o058_5F28 < 3)) {
+                D_o058_5F28 += 1;
+                amSndPlay(0xFU, NULL);
             }
         }
-        sp124 = *(s32 *)0x4C + *(s32 *)0x50;
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0x80, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        if (*(s32 *)0x44 == 7) {
-            if ((*(s32 *)0) == 1) {
-                overlay58ExternalReloc(NULL, sp124 + 0xA0, (O58Unknown *)0x1E, (*(O58Unknown **)0)->unk2D4, (O58Unknown *)4);
+        x = D_o058_5E9C + D_o058_5EA0;
+        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+        if (D_o058_5E94 == 7) {
+            if (D_8007C1A0 == 1) {
+                func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, D_8007C0B8->text[0xB5], 4);
             } else {
-                overlay58ExternalReloc(NULL, sp124 + 0xA0, (O58Unknown *)0x1E, (*(O58Unknown **)0)->unkA8, (O58Unknown *)4);
+                func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, D_8007C0B8->text[0x2A], 4);
             }
         } else {
-            overlay58ExternalReloc(NULL, sp124 + 0xA0, (O58Unknown *)0x1E, (*(O58Unknown **)0)->unkAC, (O58Unknown *)4);
+            func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, D_8007C0B8->text[0x2B], 4);
         }
-        var_s1_5 = &D_18;
-        var_s0_9 = (O58Unknown *)0x50;
+        textCursor = D_o058_5E68;
+        textY = 0x50;
         do {
-            if (var_s7_6 == D_D8) {
-                overlay58ExternalReloc((O58Unknown *) D_E8.unk8, (O58Unknown **) D_E8.unk9, (O58Unknown *) D_E8.unkA, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+            if (i == D_o058_5F28) {
+                fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
             } else {
-                overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+                fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
             }
-            overlay58ExternalReloc(NULL, 0xA0 - sp124, var_s0_9, *var_s1_5, (O58Unknown *)4);
-            var_s7_6 += 1;
-            var_s0_9 += 0x1E;
-            var_s1_5 += 4;
-            sp124 = -sp124;
-        } while (var_s7_6 < 4);
-        temp_t4_3 = ((s32) arg0 * 0x10) - arg0;
-        var_a1_3 = *(s32 *)0x50 - temp_t4_3;
-        *(s32 *)0x50 = var_a1_3;
-        if (var_a1_3 < 0) {
-            if (D_60 == NULL) {
-                temp_v0_16 = (*(s32 *)0);
-                if ((s32) temp_v0_16 & 0x9000) {
-                    D_60 = (s32)(4);
-                    overlay58ExternalReloc((O58Unknown *)0xC, NULL);
-                    var_a1_3 = *(s32 *)0x50;
-                } else if ((s32) temp_v0_16 & 0x4000) {
-                    if (*(s32 *)0x44 == 7) {
-                        D_60 = (s32)(0xC);
+            func_8004B0F8(&D_800D3140, 0xA0 - x, textY, *textCursor, 4);
+            i += 1;
+            textY += 0x1E;
+            textCursor += 1;
+            x = -x;
+        } while (i < 4);
+        delta = arg0 * 0xF;
+        D_o058_5EA0 = D_o058_5EA0 - delta;
+
+        if (D_o058_5EA0 < 0) {
+            if (D_o058_5EB0 == 0) {
+                if (D_800D31B8 & 0x9000) {
+                    D_o058_5EB0 = 4;
+                    amSndPlay(0xCU, NULL);
+
+                } else if (D_800D31B8 & 0x4000) {
+                    if (D_o058_5E94 == 7) {
+                        D_o058_5EB0 = 0xC;
                     } else {
-                        D_60 = (s32)(0xA);
+                        D_o058_5EB0 = 0xA;
                     }
-                    overlay58ExternalReloc((O58Unknown *)0xD, NULL);
-                    var_a1_3 = *(s32 *)0x50;
+                    amSndPlay(0xDU, NULL);
+
                 }
             } else {
-                temp_t4_4 = D_4C + temp_t4_3;
-                D_4C = temp_t4_4;
-                if ((s32) temp_t4_4 >= 0x141) {
-                    if (D_60 == 4) {
-                        switch (D_D8) {             /* switch 1; irregular */
-                        case 0:                     /* switch 1 */
-                            overlay58ExternalReloc((*(s32 *)0), (O58Unknown **) var_a1_3);
-                            overlay58ExternalReloc(&D_F8);
-                            temp_v0_17 = (*(s32 *)0);
-                            if (((temp_v0_17 == 2) || (temp_v0_17 == 3)) && ((u8) (*(s32 *)0) != 0)) {
-                                (*(s32 *)0) = (s8) (4 - temp_v0_17);
-                                (*(s32 *)0) = 4;
-                            } else if ((temp_v0_17 == 1) && (spB8->unk0 == 5)) {
-                                (*(s32 *)0) = 3;
-                                (*(s32 *)0) = 4;
+                D_o058_5E9C = D_o058_5E9C + delta;
+                if (D_o058_5E9C >= 0x141) {
+                    if (D_o058_5EB0 == 4) {
+                        switch (D_o058_5F28) {
+                        case 0:
+                            mainChangeCameras(D_8007C1A0);
+                            joyCreateMap(D_o058_5F48);
+                            if (((D_8007C1A0 == 2) || (D_8007C1A0 == 3)) && (D_8007BF74 != 0)) {
+                                D_8007BEFC = 4 - D_8007C1A0;
+                                D_8007BEF8 = 4;
+                            } else if ((D_8007C1A0 == 1) && (state->mode == 5)) {
+                                D_8007BEFC = 3;
+                                D_8007BEF8 = 4;
                             } else {
-                                (*(s32 *)0) = 0;
-                                (*(s32 *)0) = (s8) temp_v0_17;
+                                D_8007BEFC = 0;
+                                D_8007BEF8 = (u8) D_8007C1A0;
                             }
-                            spB8->unk8 = NULL;
-                            spB8->unk30 = 0;
-                            temp_v0_18 = spB8 + (2 * 0x28);
-                            temp_v0_18->unk30 = 0;
-                            temp_v0_18->unk58 = 0;
-                            temp_v0_18->unk80 = 0;
-                            temp_v0_18->unk8 = 0;
-                            if (D_DC != 0) {
-                                overlay58ExternalReloc((O58Unknown *) (s16) (*(s32 *)0), NULL, NULL, (O58Unknown *)5, (O58Unknown *)1, NULL);
-                                D_DC = 0;
+                            state->entries[0].value = 0;
+                            state->entries[1].value = 0;
+
+                            state->entries[3].value = 0;
+                            state->entries[4].value = 0;
+                            state->entries[5].value = 0;
+                            state->entries[2].value = 0;
+                            if (D_o058_5F2C != 0) {
+                                mainChangeLevel((s32) D_800D304E, 0, 0, 5, 1, 0);
+                                D_o058_5F2C = 0;
                             }
-                            var_a1_3 = *(s32 *)0x50;
+
                             break;
-                        case 1:                     /* switch 1 */
-                            if (D_DC != 0) {
-                                overlay58ExternalReloc((O58Unknown *)0x1D, NULL, NULL, (O58Unknown *)0xB, (O58Unknown *)1, NULL);
-                                D_DC = 0;
-                                var_a1_3 = *(s32 *)0x50;
+                        case 1:
+                            if (D_o058_5F2C != 0) {
+                                mainChangeLevel(0x1D, 0, 0, 0xB, 1, 0);
+                                D_o058_5F2C = 0;
+
                             }
                             break;
-                        case 2:                     /* switch 1 */
-                            if (D_DC != 0) {
-                                if (spB8->unk0 == 5) {
-                                    overlay58ExternalReloc((O58Unknown *)0xC, NULL, NULL, (O58Unknown *)0x12, (O58Unknown *)1, NULL);
+                        case 2:
+                            if (D_o058_5F2C != 0) {
+                                if (state->mode == 5) {
+                                    mainChangeLevel(0xC, 0, 0, 0x12, 1, 0);
                                 } else {
-                                    overlay58ExternalReloc((O58Unknown *)0xC, NULL, NULL, (O58Unknown *)0x11, (O58Unknown *)1, NULL);
+                                    mainChangeLevel(0xC, 0, 0, 0x11, 1, 0);
                                 }
-                                D_DC = 0;
-                                var_a1_3 = *(s32 *)0x50;
+                                D_o058_5F2C = 0;
+
                             }
                             break;
-                        case 3:                     /* switch 1 */
-                            if (D_DC != 0) {
-                                overlay58ExternalReloc((O58Unknown *)0xC, NULL, NULL, (O58Unknown *)0xC, (O58Unknown *)1, NULL);
-                                D_DC = 0;
-                                var_a1_3 = *(s32 *)0x50;
+                        case 3:
+                            if (D_o058_5F2C != 0) {
+                                mainChangeLevel(0xC, 0, 0, 0xC, 1, 0);
+                                D_o058_5F2C = 0;
+
                             }
                             break;
                         }
                     } else {
-                        *(s32 *)0x5C = 0;
-                        *(s32 *)0x44 = (O58Unknown *) D_60;
-                        overlay58ExternalReloc((O58Unknown *)0x1FA, NULL);
-                        D_60 = NULL;
-                        *(s32 *)0x48 = (s32)(0x140);
-                        *(s32 *)0x4C = 0;
-                        *(s32 *)0x50 = (s32) (O58Unknown *)0x140;
-                        var_a1_3 = *(s32 *)0x50;
-                        *(s32 *)0x58 = 0;
+                        D_o058_5EAC = 0;
+                        D_o058_5E94 = D_o058_5EB0;
+                        amSndPlay(0x1FAU, NULL);
+                        D_o058_5EB0 = 0;
+                        D_o058_5E98 = 0x140;
+                        D_o058_5E9C = 0;
+                        D_o058_5EA0 = 0x140;
+
+                        D_o058_5EA8 = 0;
                     }
                 }
             }
         }
-        if (var_a1_3 < 0) {
-            *(s32 *)0x50 = 0;
+        if (D_o058_5EA0 < 0) {
+            D_o058_5EA0 = 0;
             return;
         }
         break;
     case 5:
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        overlay58ExternalReloc(NULL, *(s32 *)0x58 + 0xA0, (O58Unknown *)0x50, (*(O58Unknown **)0)->unkB0, (O58Unknown *)4);
-        *(s32 *)0x58 = (s32) -*(s32 *)0x58;
-        overlay58ExternalReloc((O58Unknown *)0xFF, NULL, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        overlay58ExternalReloc(NULL, *(s32 *)0x58 + 0xA0, (O58Unknown *)0x8C, (*(O58Unknown **)0)->unkB4, (O58Unknown *)4);
-        temp_t2_3 = -*(s32 *)0x58;
-        *(s32 *)0x58 = temp_t2_3;
-        temp_t5_2 = temp_t2_3 - (((s32) arg0 * 0x10) - arg0);
-        *(s32 *)0x58 = temp_t5_2;
-        if (temp_t5_2 < 0) {
-            if ((s32) (*(s32 *)0) & 0x9000) {
-                overlay58ExternalReloc();
-                if (((s32) (*(s32 *)0) > 0) && (spB8->unk0 == 0)) {
-                    (*(s32 *)0) = -1;
-                    if (D_DC != 0) {
-                        overlay58ExternalReloc((O58Unknown *)0x12, NULL, NULL, (O58Unknown *)0xF, (O58Unknown *)1, NULL);
-                        D_DC = 0;
+        fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
+        func_8004B0F8(&D_800D3140, D_o058_5EA8 + 0xA0, 0x50, D_8007C0B8->text[0x2C], 4);
+        D_o058_5EA8 = -D_o058_5EA8;
+        fontColour(0xFF, 0, 0, 0xFF, 0xFF);
+        func_8004B0F8(&D_800D3140, D_o058_5EA8 + 0xA0, 0x8C, D_8007C0B8->text[0x2D], 4);
+        D_o058_5EA8 = -D_o058_5EA8;
+
+        D_o058_5EA8 = D_o058_5EA8 - (arg0 * 0xF);
+        if (D_o058_5EA8 < 0) {
+            if (D_800D31B8 & 0x9000) {
+                func_8003A754();
+                if ((D_8007BF44 > 0) && (state->mode == 0)) {
+                    D_8007BF48 = -1;
+                    if (D_o058_5F2C != 0) {
+                        mainChangeLevel(0x12, 0, 0, 0xF, 1, 0);
+                        D_o058_5F2C = 0;
                     }
-                    overlay58ExternalReloc((O58Unknown *)1);
-                } else if (D_DC != 0) {
-                    overlay58ExternalReloc((O58Unknown *)0xC, NULL, NULL, (O58Unknown *)0xC, (O58Unknown *)1, NULL);
-                    D_DC = 0;
+                    mainSetAnimGroup(1);
+                } else if (D_o058_5F2C != 0) {
+                    mainChangeLevel(0xC, 0, 0, 0xC, 1, 0);
+                    D_o058_5F2C = 0;
                 }
             }
-            *(s32 *)0x58 = 0;
+            D_o058_5EA8 = 0;
             return;
         }
         break;
     case 6:
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        overlay58ExternalReloc(NULL, *(s32 *)0x58 + 0xA0, (O58Unknown *)0x50, (*(O58Unknown **)0)->unkB0, (O58Unknown *)4);
-        D_58 = (O58Unknown *) -(s32) D_58;
-        if (spB8->unk1 == 0) {
-            overlay58ExternalReloc(NULL, (O58Unknown **)0xFF, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-            overlay58ExternalReloc(NULL, *(s32 *)0x58 + 0xA0, (O58Unknown *)0x8C, (*(O58Unknown **)0)->unk1B0, (O58Unknown *)4);
-            D_58 = (O58Unknown *) -(s32) D_58;
+        fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
+        func_8004B0F8(&D_800D3140, D_o058_5EA8 + 0xA0, 0x50, D_8007C0B8->text[0x2C], 4);
+        D_o058_5EA8 = -D_o058_5EA8;
+        if (state->active == 0) {
+            fontColour(0, 0xFF, 0, 0xFF, 0xFF);
+            func_8004B0F8(&D_800D3140, D_o058_5EA8 + 0xA0, 0x8C, D_8007C0B8->text[0x6C], 4);
+            D_o058_5EA8 = -D_o058_5EA8;
         } else {
-            var_s7_7 = 0;
-            if ((u16) (*(s32 *)0) & 0x100) {
-                overlay58ExternalReloc(&spC0, (*(O58Unknown **)0)->unk2CC);
-                var_s0_10 = 0x6C;
+            i = 0;
+            if (D_8007BF1C & 0x100) {
+                sprintf(&text[0], D_8007C0B8->text[0xB3]);
+                countdownX = 0x6C;
             } else {
-                temp_a2 = spB8->unk3;
-                if (temp_a2 == 1) {
-                    overlay58ExternalReloc(&spC0, (*(O58Unknown **)0)->unkB8, (O58Unknown *) temp_a2);
-                    var_s0_10 = 0x94;
+
+                if (state->countdown == 1) {
+                    sprintf(&text[0], D_8007C0B8->text[0x2E], state->countdown);
+                    countdownX = 0x94;
                 } else {
-                    overlay58ExternalReloc(&spC0, (*(O58Unknown **)0)->unkBC, (O58Unknown *) temp_a2);
-                    var_s0_10 = 0x80;
+                    sprintf(&text[0], D_8007C0B8->text[0x2F], state->countdown);
+                    countdownX = 0x80;
                 }
             }
-            overlay58ExternalReloc(NULL, (O58Unknown **)0xFF, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-            overlay58ExternalReloc(NULL, *(s32 *)0x58 + 0xA0, (O58Unknown *)0x8C, &spC0, (O58Unknown *)4);
-            temp_t1_3 = -(s32) D_58;
-            D_58 = (O58Unknown *) temp_t1_3;
-            var_v0_2 = &sp78;
-            if ((s32) spB8->unk3 > 0) {
-                var_v1 = var_s0_10 + temp_t1_3;
+            fontColour(0, 0xFF, 0, 0xFF, 0xFF);
+            func_8004B0F8(&D_800D3140, D_o058_5EA8 + 0xA0, 0x8C, &text[0], 4);
+            D_o058_5EA8 = -D_o058_5EA8;
+
+            if ((s32) state->countdown > 0) {
+                portraitX = countdownX + D_o058_5EA8;
                 do {
-                    var_s7_7 += 1;
-                    var_v0_2 += 0x10;
-                    ((s32 *)var_v0_2)[-3] = 0;
-                    ((s32 *)var_v0_2)[-1] = var_v1;
-                    *((s16 *)var_v0_2 - 1) = 0xAA;
-                    ((s32 *)var_v0_2)[-2] = 0;
-                    ((s32 *)var_v0_2)[-4] = (s32) ((O58Unknown *)((s32) spB8->unk4 * 4))->unk144;
-                    var_v1 += 0x28;
-                } while (var_s7_7 < (s32) spB8->unk3);
+                    nodes[i].alternate = 0;
+                    nodes[i].x = portraitX;
+                    nodes[i].y = 0xAA;
+                    nodes[i].packedOffset = 0;
+                    nodes[i].texture = (RcpTextureInfo *) D_800D31C8[0x51 + state->entries[0].character];
+                    portraitX += 0x28;
+                    i += 1;
+                } while (i < (s32) state->countdown);
             }
-            (sp + (var_s7_7 * 0x10))->unk78 = 0;
-            overlay58ExternalReloc(NULL, &sp78, NULL, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+            nodes[i].texture = 0;
+            func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
         }
-        temp_t7_5 = D_58 - (((s32) arg0 * 0x10) - arg0);
-        D_58 = temp_t7_5;
-        if (temp_t7_5 < 0) {
-            if ((s32) (*(s32 *)0) & 0x9000) {
-                if (((s32) (*(s32 *)0) > 0) && (spB8->unk0 == 0)) {
-                    (*(s32 *)0) = 6;
-                    (*(s32 *)0) = 5;
-                    overlay58ExternalReloc(&D_F8);
-                    (*(s32 *)0) = (O58Unknown *) *(s16 *)((spB8->unk2 * 8) + (spB8->unk1 * 2));
-                    (*(s32 *)0) = (O58Unknown *) spB8->unk4;
-                    (*(s32 *)0) = 5;
-                    (*(s32 *)0) = NULL;
-                    overlay58ExternalReloc((O58Unknown *)0x12, NULL, NULL, (O58Unknown *)0xF, (O58Unknown *)1, NULL);
-                    overlay58ExternalReloc((O58Unknown *)1);
+        D_o058_5EA8 = D_o058_5EA8 - (arg0 * 0xF);
+        if (D_o058_5EA8 < 0) {
+            if (D_800D31B8 & 0x9000) {
+                if ((D_8007BF44 > 0) && (state->mode == 0)) {
+                    D_8007BEF8 = 6;
+                    D_8007BEFC = 5;
+                    joyCreateMap(D_o058_5F48);
+                    D_8007BF48 = (s32) D_8007C0C0[state->player][state->active];
+                    D_8007BF4C = (s32) state->entries[0].character;
+                    D_8007BF50 = 5;
+                    D_8007BF54 = 0;
+                    mainChangeLevel(0x12, 0, 0, 0xF, 1, 0);
+                    mainSetAnimGroup(1);
                 } else {
-                    *(s32 *)0x70 = 1;
+                    D_o058_5EC0 = 1;
                 }
             }
-            D_58 = 0;
+            D_o058_5EA8 = 0;
             return;
         }
         break;
     case 8:
-        sp124 = *(s32 *)0x48 + *(s32 *)0x58;
-        var_s7_8 = NULL;
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0x80, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        overlay58ExternalReloc(NULL, sp124 + 0xA0, (O58Unknown *)0x1E, overlay58ExternalReloc((O58Unknown *) (s16) (*(s32 *)0)), (O58Unknown *)4);
-        sp124 = -(s32) sp124;
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        overlay58ExternalReloc(NULL, sp124 + 0xA0, (O58Unknown *)0x39, (*(O58Unknown **)0)->unk9C, (O58Unknown *)4);
-        var_v1_2 = D_2B8;
-        if (var_v1_2 != 0) {
-            if ((var_v1_2 >= 2) && (sp124 == 0)) {
-                overlay58ExternalReloc((O58Unknown *)0x27C, NULL);
-                var_v1_2 = 1;
-                D_2B8 = 1;
+        x = D_o058_5E98 + D_o058_5EA8;
+        i = 0;
+        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+        func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, func_8003A5A0((s32) D_800D304E), 4);
+        x = -x;
+        fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+        func_8004B0F8(&D_800D3140, x + 0xA0, 0x39, D_8007C0B8->text[0x27], 4);
+
+        if (D_o058_5CD8 != 0) {
+            if ((D_o058_5CD8 >= 2) && (x == 0)) {
+                amSndPlay(0x27CU, NULL);
+                D_o058_5CD8 = 1;
             }
-            if (var_v1_2 == 1) {
-                overlay58ExternalReloc(NULL, &D_180, sp124 + 0x30, (O58Unknown *)0x24, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+            if (D_o058_5CD8 == 1) {
+                func_8002F618(&D_800D3140, D_o058_5BA0, x + 0x30, 0x24, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
             }
         }
-        var_s1_6 = 0;
-        var_s2_3 = spB8;
         do {
-            sp124 = -sp124;
-            temp_s4_2 = *(s32 *)0x5C + var_s1_6 + 0x5B;
-            if (var_s7_8 == *(s32 *)0x3C) {
-                overlay58ExternalReloc((O58Unknown *) *(s32 *)0xF0, (O58Unknown **) *(s32 *)0xF1, (O58Unknown *) *(s32 *)0xF2, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+            x = -x;
+            textY = D_o058_5EAC + i * 0x1B + 0x5B;
+            if (i == D_o058_5E8C) {
+                fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
             } else {
-                overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+                fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
             }
-            temp_s0 = var_s7_8 + 1;
-            overlay58ExternalReloc(&spC0, (*(O58Unknown **)0)->unkC0, temp_s0);
-            overlay58ExternalReloc(NULL, sp124 + 0x82, temp_s4_2, &spC0, (O58Unknown *)1);
-            overlay58ExternalReloc(var_s2_3->unkC, &sp108, &sp10C, &sp104);
-            if (var_s7_8 != *(s32 *)0x3C) {
-                overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+            sprintf(&text[0], D_8007C0B8->text[0x30], i + 1);
+            func_8004B0F8(&D_800D3140, x + 0x82, textY, &text[0], 1);
+            overlay56SplitTime(state->entries[0].lapTimes[i], &minutes, &seconds, &centiseconds);
+            if (i != D_o058_5E8C) {
+                fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
             }
-            overlay58ExternalReloc(&spC0, &D_84, sp108);
-            overlay58ExternalReloc(NULL, sp124 + 0xB4, temp_s4_2, &spC0, (O58Unknown *)1);
-            overlay58ExternalReloc(NULL, sp124 + 0xB7, temp_s4_2, &D_88, NULL);
-            overlay58ExternalReloc(&spC0, &D_8C, sp10C);
-            overlay58ExternalReloc(NULL, sp124 + 0xBE, temp_s4_2, &spC0, NULL);
-            overlay58ExternalReloc(NULL, sp124 + 0xD5, temp_s4_2, &D_94, NULL);
-            overlay58ExternalReloc(&spC0, &D_98, sp104);
-            overlay58ExternalReloc(NULL, sp124 + 0xDC, temp_s4_2, &spC0, NULL);
-            var_s7_8 = temp_s0;
-            var_s1_6 += 0x1B;
-            var_s2_3 += 4;
-        } while (temp_s0 != (O58Unknown *)3);
-        sp124 = -sp124;
-        temp_s4_3 = temp_s4_2 + 0x2C;
-        if (*(s32 *)0x40 != -1) {
-            overlay58ExternalReloc((O58Unknown *) *(s32 *)0xF0, (O58Unknown **) *(s32 *)0xF1, (O58Unknown *) *(s32 *)0xF2, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+            sprintf(&text[0], D_o058_5D74, minutes);
+            func_8004B0F8(&D_800D3140, x + 0xB4, textY, &text[0], 1);
+            func_8004B0F8(&D_800D3140, x + 0xB7, textY, D_o058_5D78, 0);
+            sprintf(&text[0], D_o058_5D7C, seconds);
+            func_8004B0F8(&D_800D3140, x + 0xBE, textY, &text[0], 0);
+            func_8004B0F8(&D_800D3140, x + 0xD5, textY, D_o058_5D84, 0);
+            sprintf(&text[0], D_o058_5D88, centiseconds);
+            func_8004B0F8(&D_800D3140, x + 0xDC, textY, &text[0], 0);
+            i += 1;
+        } while (i != 3);
+        x = -x;
+        textY = textY + 0x2C;
+        if (D_o058_5E90 != -1) {
+            fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
         } else {
-            overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+            fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         }
-        overlay58ExternalReloc(NULL, sp124 + 0x82, temp_s4_3, (*(O58Unknown **)0)->unkC4, (O58Unknown *)1);
-        overlay58ExternalReloc(spB8->unk8, &sp108, &sp10C, &sp104);
-        if (*(s32 *)0x40 == -1) {
-            overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+        func_8004B0F8(&D_800D3140, x + 0x82, textY, D_8007C0B8->text[0x31], 1);
+        overlay56SplitTime(state->entries[0].value, &minutes, &seconds, &centiseconds);
+        if (D_o058_5E90 == -1) {
+            fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
         }
-        overlay58ExternalReloc(&spC0, &D_A0, sp108);
-        overlay58ExternalReloc(NULL, sp124 + 0xB4, temp_s4_3, &spC0, (O58Unknown *)1);
-        overlay58ExternalReloc(NULL, sp124 + 0xB7, temp_s4_3, &D_A4, NULL);
-        overlay58ExternalReloc(&spC0, &D_A8, sp10C);
-        overlay58ExternalReloc(NULL, sp124 + 0xBE, temp_s4_3, &spC0, NULL);
-        overlay58ExternalReloc(NULL, sp124 + 0xD5, temp_s4_3, &D_B0, NULL);
-        overlay58ExternalReloc(&spC0, &D_B4, sp104);
-        overlay58ExternalReloc(NULL, sp124 + 0xDC, temp_s4_3, &spC0, NULL);
-        temp_t4_5 = ((s32) arg0 * 0x10) - arg0;
-        temp_t8_5 = D_48 - temp_t4_5;
-        D_48 = temp_t8_5;
-        if ((s32) temp_t8_5 < 0) {
-            temp_v0_19 = D_60;
-            D_48 = NULL;
-            if ((temp_v0_19 == NULL) && ((s32) (*(s32 *)0) & 0x9000)) {
-                if ((*(s32 *)0x3C != -1) || (*(s32 *)0x40 != -1)) {
-                    D_60 = (s32)(9);
+        sprintf(&text[0], D_o058_5D90, minutes);
+        func_8004B0F8(&D_800D3140, x + 0xB4, textY, &text[0], 1);
+        func_8004B0F8(&D_800D3140, x + 0xB7, textY, D_o058_5D94, 0);
+        sprintf(&text[0], D_o058_5D98, seconds);
+        func_8004B0F8(&D_800D3140, x + 0xBE, textY, &text[0], 0);
+        func_8004B0F8(&D_800D3140, x + 0xD5, textY, D_o058_5DA0, 0);
+        sprintf(&text[0], D_o058_5DA4, centiseconds);
+        func_8004B0F8(&D_800D3140, x + 0xDC, textY, &text[0], 0);
+        delta = arg0 * 0xF;
+        D_o058_5E98 = D_o058_5E98 - delta;
+        if (D_o058_5E98 < 0) {
+            D_o058_5E98 = 0;
+            if ((D_o058_5EB0 == 0) && (D_800D31B8 & 0x9000)) {
+                if ((D_o058_5E8C != -1) || (D_o058_5E90 != -1)) {
+                    D_o058_5EB0 = 9;
                 } else {
-                    D_60 = (s32)(0xA);
+                    D_o058_5EB0 = 0xA;
                 }
-                overlay58ExternalReloc((O58Unknown *)0xC, NULL);
+                amSndPlay(0xCU, NULL);
             }
-            if (temp_v0_19 != NULL) {
-                temp_t3_2 = D_58 + temp_t4_5;
-                D_58 = temp_t3_2;
-                if ((s32) temp_t3_2 >= 0x141) {
-                    D_58 = NULL;
-                    D_48 = 0x140;
-                    *(s32 *)0x44 = temp_v0_19;
-                    D_60 = NULL;
-                    overlay58ExternalReloc((O58Unknown *)0x1FA, NULL, (O58Unknown *)0x140, &D_58);
+            if (D_o058_5EB0 != 0) {
+                D_o058_5EA8 = D_o058_5EA8 + delta;
+                if (D_o058_5EA8 >= 0x141) {
+                    D_o058_5EA8 = 0;
+                    D_o058_5E98 = 0x140;
+                    D_o058_5E94 = D_o058_5EB0;
+                    D_o058_5EB0 = 0;
+                    amSndPlay(0x1FAU, NULL);
                     return;
                 }
             }
         }
         break;
     case 9:
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0x80, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        temp_v0_20 = *(s32 *)0x48 + *(s32 *)0x58;
-        sp124 = temp_v0_20;
-        overlay58ExternalReloc(NULL, temp_v0_20 + 0xA0, (O58Unknown *)0x1E, (*(O58Unknown **)0)->unkC8, (O58Unknown *)4);
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        temp_t4_6 = ((s32) arg0 * 0x10) - arg0;
-        temp_t8_6 = *(s32 *)0x48 - temp_t4_6;
-        *(s32 *)0x48 = temp_t8_6;
-        if ((s32) temp_t8_6 < 0) {
-            *(s32 *)0x48 = NULL;
-            if (D_60 == NULL) {
-                temp_v0_21 = (*(s32 *)0);
-                var_s7_9 = 0;
-                if ((s32) temp_v0_21 & 0x4000) {
-                    var_s7_9 = 1;
-                } else if ((s32) temp_v0_21 & 0x9000) {
-                    if ((D_28 == 2) && (D_2C == 9)) {
-                        var_s7_9 = 1;
-                    } else {
-                        temp_v0_22 = (*(s32 *)0);
-                        if ((temp_v0_22 == (O58Unknown *)3) || (D_28 == 3)) {
-                            if (D_28 == 3) {
-                                overlay58ExternalReloc((O58Unknown *)0xC, NULL);
-                                D_60 = (s32)(0xA);
-                                temp_s1_2 = overlay58ExternalReloc();
-                                temp_s2_2 = temp_s1_2 + (((s32) overlay58ExternalReloc((O58Unknown *) (s16) (*(s32 *)0)) << 5));
-                                if (*(s32 *)0x3C != -1) {
-                                    temp_s2_2->unk1C = overlay58ExternalReloc((O58Unknown *) (u8) (*(s32 *)0));
-                                    temp_s2_2->unk1D = overlay58ExternalReloc((O58Unknown *) *(u8 *)1);
-                                    temp_s2_2->unk1E = overlay58ExternalReloc((O58Unknown *) *(u8 *)2);
-                                }
-                                if (*(s32 *)0x40 != -1) {
-                                    (temp_s2_2 + (*(s32 *)0x40 * 8))->unk4 = overlay58ExternalReloc((O58Unknown *) (u8) (*(s32 *)0));
-                                    (temp_s2_2 + (*(s32 *)0x40 * 8))->unk5 = overlay58ExternalReloc((O58Unknown *) *(s32 *)1);
-                                    (temp_s2_2 + (*(s32 *)0x40 * 8))->unk6 = overlay58ExternalReloc((O58Unknown *) *(s32 *)2);
-                                }
-                                overlay58ExternalReloc(overlay58ExternalReloc((O58Unknown *) (s16) (*(s32 *)0)));
-                                if (*(s32 *)0xE0 != 0) {
-                                    overlay58ExternalReloc();
-                                }
-                            } else {
-                                overlay58ExternalReloc((O58Unknown *)0xE, NULL);
+        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+        x = D_o058_5E98 + D_o058_5EA8;
+        func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, D_8007C0B8->text[0x32], 4);
+        fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+        delta = arg0 * 0xF;
+        D_o058_5E98 = D_o058_5E98 - delta;
+        if (D_o058_5E98 < 0) {
+            D_o058_5E98 = 0;
+            if (D_o058_5EB0 == 0) {
+                erase = 0;
+                if (D_800D31B8 & 0x4000) {
+                    erase = 1;
+                } else if (D_800D31B8 & 0x9000) {
+                    if ((D_o058_5E78 == 2) && (D_o058_5E7C == 9)) {
+                        erase = 1;
+                    } else if ((D_8007C1B4 == 3) || (D_o058_5E78 == 3)) {
+                        if (D_o058_5E78 == 3) {
+                            amSndPlay(0xCU, NULL);
+                            D_o058_5EB0 = 0xA;
+                            saves = func_800291C4();
+                            slot = &saves[levelGetBlurEffect(D_800D304E)];
+                            if (D_o058_5E8C != -1) {
+                                slot->records[3].name[0] = func_8003A6B0(D_800D31C4[0]);
+                                slot->records[3].name[1] = func_8003A6B0(D_800D31C4[1]);
+                                slot->records[3].name[2] = func_8003A6B0(D_800D31C4[2]);
+                            }
+                            if (D_o058_5E90 != -1) {
+                                slot->records[D_o058_5E90].name[0] = func_8003A6B0(D_800D31C4[0]);
+                                slot->records[D_o058_5E90].name[1] = func_8003A6B0(D_800D31C4[1]);
+                                slot->records[D_o058_5E90].name[2] = func_8003A6B0(D_800D31C4[2]);
+                            }
+                            func_80029120(levelGetBlurEffect(D_800D304E));
+                            if (D_o058_5F30 != 0) {
+                                func_8002917C();
                             }
                         } else {
-                            temp_v0_22->unk0 = (u8) *(u8 *)(((O58Unknown *)((s32) D_28 * 4))->unk23C + D_2C);
-                            if (temp_v0_22 == (O58Unknown *)2) {
-                                D_28 = 3;
-                            }
-                            (*(s32 *)0) = (O58Unknown *) (temp_v0_22 + 1);
-                            overlay58ExternalReloc((O58Unknown *)0xC, NULL);
+                            amSndPlay(0xEU, NULL);
                         }
+                    } else {
+                        D_800D31C4[D_8007C1B4] = (u8) D_o058_5C5C[D_o058_5E78][D_o058_5E7C];
+                        if (D_8007C1B4 == 2) {
+                            D_o058_5E78 = 3;
+                        }
+                        D_8007C1B4 += 1;
+                        amSndPlay(0xCU, NULL);
                     }
                 }
-                if (var_s7_9 != 0) {
-                    temp_v0_23 = (*(s32 *)0);
-                    if (temp_v0_23 == NULL) {
-                        overlay58ExternalReloc((O58Unknown *)0xE, NULL, NULL);
+                if (erase != 0) {
+                    if (D_8007C1B4 == 0) {
+                        amSndPlay(0xEU, NULL);
                     } else {
-                        temp_v0_23->unk0 = 0x20U;
-                        (*(s32 *)0) = temp_v0_23 - 1;
-                        var_s2_4 = &D_23C;
-                        var_s1_7 = 0;
+                        D_800D31C4[D_8007C1B4] = 0x20;
+                        erasedCharacter = &D_800D31C4[D_8007C1B4 - 1];
+                        D_8007C1B4 -= 1;
+                        textCursor = D_o058_5C5C;
+                        i = 0;
                         do {
-                            var_s7_10 = 0;
-                            var_v0_3 = *var_s2_4;
-loop_305:
-                            if (*var_v0_3 == *((u8 *)temp_v0_23 - 1)) {
-                                D_28 = var_s1_7;
-                                D_2C = var_s7_10;
-                            }
-                            var_s7_10 += 1;
-                            var_v0_3 += 1;
-                            if (var_s7_10 != 0xA) {
-                                goto loop_305;
-                            }
-                            var_s1_7 += 1;
-                            var_s2_4 += 4;
-                        } while (var_s1_7 != 3);
-                        overlay58ExternalReloc((O58Unknown *)0xD, NULL, NULL);
+                            opponent = 0;
+                            characterCursor = *textCursor;
+                            do {
+                                if ((u8) *characterCursor == *erasedCharacter) {
+                                    D_o058_5E78 = i;
+                                    D_o058_5E7C = opponent;
+                                }
+                                opponent += 1;
+                                characterCursor += 1;
+                            } while (opponent != 0xA);
+                            i += 1;
+                            textCursor += 1;
+                        } while (i != 3);
+                        amSndPlay(0xDU, NULL);
                     }
                 }
-                var_v1_3 = (s16) (*(s32 *)0);
-                if (var_v1_3 >= 0x11) {
-                    if (D_28 == 0) {
-                        overlay58ExternalReloc((O58Unknown *)0xE, NULL);
+
+                if (D_800D31BE >= 0x11) {
+                    if (D_o058_5E78 == 0) {
+                        amSndPlay(0xEU, NULL);
                     } else {
-                        overlay58ExternalReloc((O58Unknown *)0xF, NULL);
-                        D_28 -= 1;
+                        amSndPlay(0xFU, NULL);
+                        D_o058_5E78 -= 1;
                     }
-                    var_v1_3 = (*(s32 *)0);
+
                 }
-                if (var_v1_3 < -0x10) {
-                    if ((D_28 == 3) || (D_28 == 3)) {
-                        overlay58ExternalReloc((O58Unknown *)0xE, NULL);
+                if (D_800D31BE < -0x10) {
+                    if ((D_o058_5E78 == 3) || (D_o058_5E78 == 3)) {
+                        amSndPlay(0xEU, NULL);
                     } else {
-                        overlay58ExternalReloc((O58Unknown *)0xF, NULL);
-                        D_28 += 1;
+                        amSndPlay(0xFU, NULL);
+                        D_o058_5E78 += 1;
                     }
                 }
-                var_v0_4 = (s16) (*(s32 *)0);
-                if (var_v0_4 < -0x10) {
-                    if ((D_2C == 0) || (D_28 == 3)) {
-                        overlay58ExternalReloc((O58Unknown *)0xE, NULL);
+
+                if (D_800D31BC < -0x10) {
+                    if ((D_o058_5E7C == 0) || (D_o058_5E78 == 3)) {
+                        amSndPlay(0xEU, NULL);
                     } else {
-                        overlay58ExternalReloc((O58Unknown *)0xF, NULL);
-                        D_2C -= 1;
+                        amSndPlay(0xFU, NULL);
+                        D_o058_5E7C -= 1;
                     }
-                    var_v0_4 = (*(s32 *)0);
+
                 }
-                if (var_v0_4 >= 0x11) {
-                    if ((D_2C == 9) || (D_28 == 3)) {
-                        overlay58ExternalReloc((O58Unknown *)0xE, NULL);
+                if (D_800D31BC >= 0x11) {
+                    if ((D_o058_5E7C == 9) || (D_o058_5E78 == 3)) {
+                        amSndPlay(0xEU, NULL);
                     } else {
-                        overlay58ExternalReloc((O58Unknown *)0xF, NULL);
-                        D_2C += 1;
+                        amSndPlay(0xFU, NULL);
+                        D_o058_5E7C += 1;
                     }
                 }
             }
-            if (D_60 != NULL) {
-                temp_t7_6 = D_58 + temp_t4_6;
-                D_58 = temp_t7_6;
-                if ((s32) temp_t7_6 >= 0x141) {
-                    D_58 = NULL;
-                    *(s32 *)0x48 = (s32)(0x140);
-                    *(s32 *)0x44 = (O58Unknown *) D_60;
-                    D_60 = NULL;
-                    overlay58ExternalReloc((O58Unknown *)0x1FA, NULL, (O58Unknown *)0x140);
+            if (D_o058_5EB0 != 0) {
+                D_o058_5EA8 = D_o058_5EA8 + delta;
+                if (D_o058_5EA8 >= 0x141) {
+                    D_o058_5EA8 = 0;
+                    D_o058_5E98 = 0x140;
+                    D_o058_5E94 = D_o058_5EB0;
+                    D_o058_5EB0 = 0;
+                    amSndPlay(0x1FAU, NULL);
                 }
             }
         }
-        var_s4_4 = (O58Unknown *)0x78;
-        var_s2_5 = &D_23C;
-        var_s1_8 = 0;
+        textY = 0x78;
+        textCursor = D_o058_5C5C;
+        i = 0;
         do {
-            temp_t1_4 = sp124;
-            var_s7_11 = 0;
-            sp124 = -(s32) temp_t1_4;
-            var_s0_11 = 0x34 - temp_t1_4;
-loop_336:
-            overlay58ExternalReloc(&spC0, &D_BC, (O58Unknown *) (*var_s2_5)[var_s7_11]);
-            if ((var_s7_11 == D_2C) && (var_s1_8 == D_28)) {
-                overlay58ExternalReloc((O58Unknown *) D_E8.unk8, (O58Unknown **) D_E8.unk9, (O58Unknown *) D_E8.unkA, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-            } else {
-                overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-            }
-            overlay58ExternalReloc(NULL, var_s0_11, var_s4_4, &spC0, (O58Unknown *)4);
-            var_s7_11 += 1;
-            var_s0_11 += 0x18;
-            if (var_s7_11 < 0xA) {
-                goto loop_336;
-            }
-            var_s1_8 += 1;
-            var_s2_5 += 4;
-            var_s4_4 += 0x1B;
-        } while (var_s1_8 < 3);
-        sp124 = -sp124;
-        if (D_28 == 3) {
-            overlay58ExternalReloc((O58Unknown *) *(s32 *)0xF0, (O58Unknown **) *(s32 *)0xF1, (O58Unknown *) *(s32 *)0xF2, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        } else {
-            overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        }
-        overlay58ExternalReloc(NULL, sp124 + 0xA0, var_s4_4, (*(O58Unknown **)0)->unkCC, (O58Unknown *)4);
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        var_s7_12 = 0;
-        var_s1_9 = sp124 + 0x78;
-        if ((s32) (*(s32 *)0) > 0) {
-            var_s0_12 = NULL;
+            opponent = 0;
+            x = -x;
+            columnX = 0x34 + x;
             do {
-                overlay58ExternalReloc(&spC0, &D_C0, (O58Unknown *) *var_s0_12);
-                overlay58ExternalReloc(NULL, var_s1_9, (O58Unknown *)0x50, &spC0, (O58Unknown *)4);
-                var_s7_12 += 1;
-                var_s0_12 += 1;
-                var_s1_9 += 0x1E;
-            } while (var_s7_12 < (s32) (*(s32 *)0));
+                sprintf(&text[0], D_o058_5DAC, (u8) (*textCursor)[opponent]);
+                if ((opponent == D_o058_5E7C) && (i == D_o058_5E78)) {
+                    fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
+                } else {
+                    fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+                }
+                func_8004B0F8(&D_800D3140, columnX, textY, &text[0], 4);
+                opponent += 1;
+                columnX += 0x18;
+            } while (opponent < 0xA);
+            i += 1;
+            textCursor += 1;
+            textY += 0x1B;
+        } while (i < 3);
+        x = -x;
+        if (D_o058_5E78 == 3) {
+            fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
+        } else {
+            fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         }
-        if (((*(s32 *)0) != 3) && (D_28 != 3)) {
-            overlay58ExternalReloc(&spC0, &D_C4, (O58Unknown *) *(u8 *)(((O58Unknown *)((s32) D_28 * 4))->unk23C + D_2C));
-            overlay58ExternalReloc((O58Unknown *) *(s32 *)0xF0, (O58Unknown **) *(s32 *)0xF1, (O58Unknown *) *(s32 *)0xF2, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-            overlay58ExternalReloc(NULL, var_s1_9, (O58Unknown *)0x50, &spC0, (O58Unknown *)4);
+        func_8004B0F8(&D_800D3140, x + 0xA0, textY, D_8007C0B8->text[0x33], 4);
+        fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+
+        i = 0;
+        columnX = x + 0x78;
+        if (D_8007C1B4 > 0) {
+            nameCursor = D_800D31C4;
+            do {
+                sprintf(&text[0], D_o058_5DB0, *nameCursor);
+                func_8004B0F8(&D_800D3140, columnX, 0x50, &text[0], 4);
+                i += 1;
+                nameCursor += 1;
+                columnX += 0x1E;
+            } while (i < D_8007C1B4);
+        }
+        if ((D_8007C1B4 != 3) && (D_o058_5E78 != 3)) {
+            sprintf(&text[0], D_o058_5DB4, (u8) D_o058_5C5C[D_o058_5E78][D_o058_5E7C]);
+            fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
+            func_8004B0F8(&D_800D3140, columnX, 0x50, &text[0], 4);
             return;
         }
         break;
     case 10:
-        sp124 = *(s32 *)0x48 + *(s32 *)0x58;
-        var_s7_13 = 0;
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0x80, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        overlay58ExternalReloc(NULL, sp124 + 0xA0, (O58Unknown *)0x1E, overlay58ExternalReloc((O58Unknown *) (s16) (*(s32 *)0)), (O58Unknown *)4);
-        sp124 = -(s32) sp124;
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        overlay58ExternalReloc(NULL, sp124 + 0xA0, (O58Unknown *)0x39, (*(O58Unknown **)0)->unkD0, (O58Unknown *)4);
-        overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-        temp_s1_3 = overlay58ExternalReloc();
-        var_v1_4 = D_2B8;
-        temp_s2_3 = temp_s1_3 + (((s32) overlay58ExternalReloc((O58Unknown *) (s16) (*(s32 *)0)) << 5));
-        if (var_v1_4 != 0) {
-            if ((var_v1_4 >= 2) && (sp124 == 0)) {
-                overlay58ExternalReloc((O58Unknown *)0x27C, NULL);
-                var_v1_4 = 1;
-                D_2B8 = 1;
+        x = D_o058_5E98 + D_o058_5EA8;
+        i = 0;
+        fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
+        func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, func_8003A5A0((s32) D_800D304E), 4);
+        x = -x;
+        fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+        func_8004B0F8(&D_800D3140, x + 0xA0, 0x39, D_8007C0B8->text[0x34], 4);
+        fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+        saves = func_800291C4();
+        slot = &saves[levelGetBlurEffect(D_800D304E)];
+
+        if (D_o058_5CD8 != 0) {
+            if ((D_o058_5CD8 >= 2) && (x == 0)) {
+                amSndPlay(0x27CU, NULL);
+                D_o058_5CD8 = 1;
             }
-            if (var_v1_4 == 1) {
-                overlay58ExternalReloc(NULL, &D_180, sp124 + 0x30, (O58Unknown *)0x24, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+            if (D_o058_5CD8 == 1) {
+                func_8002F618(&D_800D3140, D_o058_5BA0, x + 0x30, 0x24, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
             }
         }
-        var_s4_5 = (O58Unknown *)0x5B;
-        sp64 = temp_s2_3;
+        textY = 0x5B;
+        record = slot->records;
         do {
-            sp124 = -sp124;
-            overlay58ExternalReloc(sp64->unk0, &sp108, &sp10C, &sp104);
-            if (sp64->unk0 == NULL) {
-                var_s0_13 = 0x4A;
-                overlay58ExternalReloc(&spC0, &D_C8);
+            x = -x;
+            overlay56SplitTime(record->value, &minutes, &seconds, &centiseconds);
+            if (record->value == 0) {
+                portraitIndex = 0x4A;
+                sprintf(&text[0], D_o058_5DB8);
             } else {
-                temp_s0_2 = ((s32) overlay58ExternalReloc((O58Unknown *) sp64->unk4, &D_C8)) & 0xFF;
-                temp_s1_4 = ((s32) overlay58ExternalReloc((O58Unknown *) sp64->unk5)) & 0xFF;
-                overlay58ExternalReloc(&spC0, &D_D4, (O58Unknown *) temp_s0_2, (O58Unknown *) temp_s1_4, overlay58ExternalReloc((O58Unknown *) sp64->unk6), sp108, sp10C, sp104);
-                var_s0_13 = sp64->unk7 + 0x51;
+                letter0 = func_8003A700(record->name[0]) & 0xFF;
+                letter1 = func_8003A700(record->name[1]) & 0xFF;
+                sprintf(&text[0], D_o058_5DC4, letter0, letter1, func_8003A700(record->name[2]), minutes, seconds, centiseconds);
+                portraitIndex = record->character + 0x51;
             }
-            var_s2_6 = var_s7_13 == *(s32 *)0x40;
-            if (var_s2_6 == 0) {
-                var_s2_6 = var_s7_13 == 3;
-                if (var_s2_6 != 0) {
-                    var_s2_6 = (*(s32 *)0x3C + 1) != 0;
-                }
-            }
-            if (var_s2_6 != 0) {
-                overlay58ExternalReloc((O58Unknown *) D_E8.unk8, (O58Unknown **) D_E8.unk9, (O58Unknown *) D_E8.unkA, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+            highlighted = (i == D_o058_5E90) ||
+                       ((i == 3) && (D_o058_5E8C != -1));
+            if (highlighted != 0) {
+                fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
             } else {
-                overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+                fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
             }
-            if (var_s7_13 < 3) {
-                overlay58ExternalReloc(NULL, sp124 + 0x28, var_s4_5, ((O58Unknown *)((s32) var_s7_13 * 4))->unk278, NULL);
+            if (i < 3) {
+                func_8004B0F8(&D_800D3140, x + 0x28, textY, D_o058_5C98[i], 0);
             }
-            sp7C = 0;
-            sp84 = sp124 + 0x58;
-            sp86 = (s16) (var_s4_5 - 4);
-            sp80 = 0;
-            sp88 = 0;
-            sp78 = *(O58Unknown **)(var_s0_13 * 4);
-            overlay58ExternalReloc(NULL, &sp78, NULL, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-            var_s0_14 = &D_290;
-            var_s1_10 = &spC0;
-loop_370:
-            if (var_s2_6 == 0) {
-                if (var_s0_14 == &D_290) {
-                    overlay58ExternalReloc(NULL, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
+            nodes[0].alternate = NULL;
+            nodes[0].x = x + 0x58;
+            nodes[0].y = textY - 4;
+            nodes[0].packedOffset = 0;
+            nodes[1].texture = 0;
+            nodes[0].texture = D_800D31C8[portraitIndex];
+            func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
+            characterX = D_o058_5CB0;
+            characterCursor = &text[0];
+            do {
+                if (highlighted == 0) {
+                    if (characterX == D_o058_5CB0) {
+                        fontColour(0, 0xFF, 0xFF, 0xFF, 0xFF);
+                    }
+                    if (characterX == &D_o058_5CB0[3]) {
+                        fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
+                    }
                 }
-                if (var_s0_14 == &D_296) {
-                    overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, NULL, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-                }
+                character[1] = 0;
+                character[0] = (s8) (u8) *characterCursor;
+                func_8004B0F8(&D_800D3140, *characterX + x, textY, &character[0], 0);
+                characterX += 1;
+                characterCursor += 1;
+            } while (characterX != &D_o058_5CB0[11]);
+            if (i == 2) {
+                textY += 0x1B;
+                fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+                func_8004B0F8(&D_800D3140, x + 0xA0, textY, D_8007C0B8->text[0x35], 4);
             }
-            spD9 = 0;
-            spD8 = *var_s1_10;
-            overlay58ExternalReloc(NULL, *var_s0_14 + sp124, var_s4_5, (O58Unknown *) &spD8, NULL);
-            var_s0_14 += 2;
-            var_s1_10 += 1;
-            if (var_s0_14 != &D_2A6) {
-                goto loop_370;
+            i += 1;
+            record += 1;
+            textY += 0x1B;
+        } while (i != 4);
+        delta = arg0 * 0xF;
+        D_o058_5E98 = D_o058_5E98 - delta;
+        if (D_o058_5E98 < 0) {
+            D_o058_5E98 = 0;
+            if ((D_o058_5EB0 == 0) && (D_800D31B8 & 0x9000)) {
+                D_o058_5EB0 = 0xB;
+                amSndPlay(0xCU, NULL);
             }
-            if (var_s7_13 == 2) {
-                var_s4_5 += 0x1B;
-                overlay58ExternalReloc((O58Unknown *)0xFF, (O58Unknown **)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF, (O58Unknown *)0xFF);
-                overlay58ExternalReloc(NULL, sp124 + 0xA0, var_s4_5, (*(O58Unknown **)0)->unkD4, (O58Unknown *)4);
-            }
-            var_s7_13 += 1;
-            sp64 += 8;
-            var_s4_5 += 0x1B;
-        } while (var_s7_13 != 4);
-        temp_t8_7 = ((s32) arg0 * 0x10) - arg0;
-        temp_t6_6 = D_48 - temp_t8_7;
-        D_48 = temp_t6_6;
-        if ((s32) temp_t6_6 < 0) {
-            temp_v0_24 = D_60;
-            D_48 = NULL;
-            if ((temp_v0_24 == NULL) && ((s32) (*(s32 *)0) & 0x9000)) {
-                D_60 = (s32)(0xB);
-                overlay58ExternalReloc((O58Unknown *)0xC, NULL);
-            }
-            if (temp_v0_24 != NULL) {
-                temp_t3_3 = D_58 + temp_t8_7;
-                D_58 = temp_t3_3;
-                if ((s32) temp_t3_3 >= 0x141) {
-                    *(s32 *)0x44 = temp_v0_24;
-                    *(s32 *)0x4C = 0;
-                    *(s32 *)0x50 = 0x140;
-                    D_60 = NULL;
-                    overlay58ExternalReloc((O58Unknown *)0x1FA, NULL, (O58Unknown *) 0x140);
+            if (D_o058_5EB0 != 0) {
+                D_o058_5EA8 = D_o058_5EA8 + delta;
+                if (D_o058_5EA8 >= 0x141) {
+                    D_o058_5E94 = D_o058_5EB0;
+                    D_o058_5E9C = 0;
+                    D_o058_5EA0 = 0x140;
+                    D_o058_5EB0 = 0;
+                    amSndPlay(0x1FAU, NULL);
                 }
             }
         }
         break;
+    default:
+        break;
     }
 }
+
 
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o058/func_overlay_058_F000138C_18B0574/func_overlay_058_F000138C_18B0574.s")
@@ -1498,10 +1346,10 @@ loop_370:
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 3544 differing words
- * frame: 0x2F0
- * relocations: 1253
+ * score: 3693 differing words
+ * frame: 0x158
+ * relocations: 1285
  * first-mismatch: +0x0
- * summary: Candidate is 118 instructions short with 640 missing relocations; recover collapsed call/global identities and source types before CFG reconstruction.
+ * summary: 244 calls recovered; configured mips1 excludes 38 target branch-likely opcodes. Next: authorized ISA-context review on reconstructed C.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
