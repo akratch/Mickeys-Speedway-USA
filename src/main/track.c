@@ -5689,7 +5689,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x38
  * relocations: 18
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Mickey m2c face and endpoint reconstruction stays above 154 differences. All 18 relocation sites align. Next: persistent node home evidence.
  * PLATEAU-HANDOFF:func_80012658:end
  */
 
