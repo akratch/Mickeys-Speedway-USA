@@ -1711,7 +1711,7 @@ void func_8000DFBC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     TrackSegment *segment;
     TrackBatch *batch;
     Gfx *gfx;
-    u8 *texture;
+    TrackTextureHeader *texture;
     u8 *object;
     u8 *objectChild;
     u8 *vertex;
@@ -1721,12 +1721,12 @@ void func_8000DFBC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s16 batchCount;
     s32 itemIndex;
     s32 alpha;
-    s32 mode;
+    u32 mode;
     s32 vertexCount;
     s32 textureS;
-    s32 vertexAddress;
+    u32 vertexAddress;
     s32 objectMode;
-    s32 value;
+    u32 value;
     s16 objectType;
 
     batchIndex = 0;
@@ -1743,7 +1743,7 @@ void func_8000DFBC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
             ((itemIndex >= arg2) ||
              (batchIndex <
               *(s16 *) (((u8 **) (u32) arg3)[itemIndex] + 2)))) {
-            if ((arg1 & (1 << groupIndex)) &&
+            if ((arg1 & (1U << groupIndex)) &&
                 (groupIndex == batch->unk1)) {
                 if (D_8007C854 != 0) {
                     gfx = D_800C9520;
@@ -1764,7 +1764,7 @@ void func_8000DFBC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
                             texture = NULL;
                             if (batch->textureIndex != 0xFF) {
                                 alpha = 1;
-                                texture = (u8 *)
+                                texture =
                                     D_800792E8->textures[batch->textureIndex]
                                         .texture;
                             }
@@ -1774,7 +1774,7 @@ void func_8000DFBC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
                             triangle = (u8 *) segment->vertexData +
                                        (batch->v0 * 0x10);
                             if ((texture != NULL) &&
-                                (*(s16 *) (texture + 4) & 0x40) &&
+                                ((s16) texture->flags & 0x40) &&
                                 ((mode & 0x30) != 0x20)) {
                                 gfx = D_800C9520;
                                 gfx->words.w0 = 0xFB000000;
@@ -1803,8 +1803,8 @@ void func_8000DFBC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
                             if (objectMode != 0) {
                                 texEnableModes(2);
                             }
-                            vertexAddress = (s32) vertex + 0x80000000;
-                            vertexCount = batch->frame - batch->u0;
+                            vertexAddress = (u32) vertex + 0x80000000U;
+                            vertexCount = batch[1].u0 - batch->u0;
                             gfx = D_800C9520;
                             gfx->words.w1 = vertexAddress;
                             gfx->words.w0 = (((vertexCount * 0xA) + 8) & 0xFFFF) |
@@ -1813,7 +1813,7 @@ void func_8000DFBC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
                                                 (vertexAddress & 6)) & 0xFF) << 16);
                             gfx++;
                             D_800C9520 = gfx;
-                            gfx->words.w1 = (s32) triangle + 0x80000000;
+                            gfx->words.w1 = (u32) triangle + 0x80000000U;
                             vertexCount = batch[1].v0 - batch->v0;
                             gfx->words.w0 = ((vertexCount * 0x10) & 0xFFFF) |
                                              0x05000000 |
@@ -5792,7 +5792,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x70
  * relocations: 51
  * first-mismatch: +0x48
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Correct next-batch vertex boundary and unsigned command types; five m2c structural follow-ups fail to improve. Next: batch/display-list lifetimes.
  * PLATEAU-HANDOFF:func_8000DFBC:end
  */
 
