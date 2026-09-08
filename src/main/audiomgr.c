@@ -394,6 +394,8 @@ void func_80001BF4(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/audiomgr/func_80001BF4.s")
 #endif
+/* PROVENANCE: control-flow and audio-completion intent cross-checked against Jet Force Gemini's
+ * public src/audiomgr.c::__amHandleDoneMsg; Mickey's ROM-derived globals remain authoritative. */
 /* Verdict: structure-mismatch; 9 differing sites of 21 instructions with an exact frame. */
 /* First mismatch: function offset +0x20; the target reloads the EFC address for its final store. */
 /* Gap: the target's direct EFC load/store lifetimes are not reproduced by this volatile declaration. */
@@ -562,6 +564,6 @@ void func_8000238C(void) {
  * frame: -0x18
  * relocations: 5
  * first-mismatch: +0x20
- * summary: Exact frame and instruction count; external volatile EFC spelling keeps the target direct-load/store lifetime unresolved.
+ * summary: JFG donor rederivation leaves a structure mismatch with exact frame and instruction count; next lever is the TU declaration that makes IDO reload D_80078EFC
  * PLATEAU-HANDOFF:func_80002134:end
  */
