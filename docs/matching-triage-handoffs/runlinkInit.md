@@ -2,9 +2,9 @@
 ### `runlinkInit` plateau handoff
 
 - source: `src/main/runlink.c`
-- score: 64 differing words
-- frame: 0x40
+- score: 0/146 words
+- frame: 0x38
 - relocations: 64
-- first mismatch: +0x8
-- summary: Fresh V0 is 142/146 words with 64 differences and frames 0x40/0x38. Relocations are 62/64; 20 target identities remain unresolved. Prior families stay closed.
+- first mismatch: +0x1A0
+- summary: JFG efd5abb is instruction-exact; verdict relocation-symbol-mismatch. End-pointer forms regress by seven stack homes or 22 registers.
 <!-- plateau-handoff:runlinkInit:end -->
