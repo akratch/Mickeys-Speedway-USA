@@ -2284,7 +2284,7 @@ void controlClearPlayerSetup(void) {
  * frame: frameless
  * relocations: 0
  * first-mismatch: +0x4
- * summary: Fresh configured full-TU C is exact-sized at 36 words/0x90; the second-base FP web and final load/multiply schedule remain unresolved.
+ * summary: 2 structural and 28 register differences; m2c reconstruction regressed geometry. Next: source-authentic base-pool-to-temp web formation.
  * PLATEAU-HANDOFF:func_8001D880:end
  */
 
