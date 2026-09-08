@@ -3339,3 +3339,48 @@ as nearest (4,956 bytes versus Mickey's 4,272); no new donor material or name
 was adopted. The generated m2c draft and scoped context stay ignored. The
 all-header context failed on unrelated incomplete types; a particle-only
 context generated successfully without changing project headers.
+
+The authorized reconstruction finished at attempt 18 with **995 of 1,068
+positional words exact**, 73 raw and relocation-masked differing words,
+first mismatch `+0x2D0`, exact 4,272-byte extent, exact frame `0x138`, and
+all fourteen offset/type/identity relocation tuples exact. Workbench `view`
+reports `register-permutation`: zero structural, schedule, or constant
+differences, with a consistent exchange of two integer temporary registers.
+This remains compiled `NON_MATCHING` C, with no new matching-byte credit.
+
+The meaningful reconstruction steps were separate batch/vertex alpha and a
+real three-float vector; flush-versus-consume control flow and post-call
+count reloads; equality-terminated point loops whose peeling and pipelining
+belong to IDO; direct signed-point conversions and the observed rotation
+expression trees; native GBI command scopes and DMA fields; local declaration
+layout recovered from observed stack homes; promoted texture-selector values;
+and batch initialization plus material-cache argument lifetimes. No artificial
+padding, inert local, flag lattice, permuter, allocator trace, or object edit
+was used. The retained source was rewritten in project idiom; the generated
+draft was not adopted verbatim.
+
+The baseline and all eighteen material attempts retain source, configured
+full-TU object, full comparison report, concise metrics, relocation surface,
+and rationale under ignored `build/wb/t2-3/attempt-*`. Attempt 7 first aligned
+all fourteen relocations; attempt 11 restored exact size and frame; attempt 12
+closed every stack offset; attempt 18 closed the remaining source schedule.
+The narrowed/intermediate alpha experiments and the sizeof-based DMA length
+regressed and are preserved as rejected evidence. Explicit cache assignments
+inside the material-call arguments reproduced the target's update schedule.
+
+**Stopping evidence:** this is a mechanism-scope handoff, not an attempt-cap
+or five-attempt-stall claim. The last attempt still improved the result, but
+it completed the authorized structural reconstruction and isolated a pure
+register exchange. Continuing into allocator or permutation work would replace
+the assignment's explicitly exclusive mechanism. The next concrete lever is
+a separately authorized `register-role-audit` of the first vertex-DMA command's
+integer temporary roles and expression evaluation order. Preserve the proven
+frame, field types, CFG, and all fourteen relocation tuples while investigating
+that residual; do not repeat the closed reconstruction or rejected type forms.
+
+Validation of this guarded result: the fresh configured full-TU comparison
+reproduced the attempt-18 metrics after source cleanup. `gmake verify` rebuilt
+the canonical tree and reproduced the expected US ROM SHA1. That ROM equality
+proves the assembly fallback and unchanged matched neighbors; it does not
+promote this nonexact candidate. The target's owned range remains resident
+ROM `0x3E0FC` through `0x3F1AC`, with no function padding credited.
