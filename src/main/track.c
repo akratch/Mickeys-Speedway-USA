@@ -5715,10 +5715,10 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 /* PLATEAU-HANDOFF:func_8000D1B8:start
  * symbol: func_8000D1B8
  * score: 114 differing words
- * frame: -0x28
+ * frame: 0x28
  * relocations: 8
- * first-mismatch: +0x4
- * summary: Candidate is 130 versus 128 instructions with four shifted relocation sites. Next lever is packed-scroll delta lifetime and six halfword-load scheduling.
+ * first-mismatch: +0x38
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_8000D1B8:end
  */
 
