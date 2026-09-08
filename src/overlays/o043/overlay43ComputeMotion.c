@@ -76,7 +76,7 @@ void func_overlay_043_F00010A8_188B078(Overlay43RotationInput *input,
  * score: 46/55 words
  * frame: 0x38
  * relocations: 4
- * first-mismatch: +0x5C
- * summary: Moving the D_24 carrier behind saved components regresses 9 to 19 words by shifting exact homes. Preserve the original FP pool order.
+ * first-mismatch: +0x74
+ * summary: Five structure probes stalled; next lever is flag and context parity review.
  * PLATEAU-HANDOFF:func_overlay_043_F00010A8_188B078:end
  */
