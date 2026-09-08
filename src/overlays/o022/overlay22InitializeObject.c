@@ -22,16 +22,17 @@ extern void func_overlay_022_F0000D30_1878E38(void *, s32, s32 *);
 
 /* Configured remeasurement retains the exact 172-word/0x58-frame shape with
  * five instruction differences: objectPosition uses sp+0x28 instead of target
- * sp+0x30, and the D_A7C home/outgoing stores are reversed. A 2026-09-04 pass
- * tested ten declared-local and carrier forms. Reusing init or repeating the
- * object-position expression moves it only to sp+0x2C and moves planes to
- * sp+0x30, adding a sixth difference. Pairing the two carriers in an aggregate
- * is byte-flat; offset/distance reuse moves four otherwise-exact homes, while a
- * padded aggregate grows the frame to 0x60. Volatile parameter, plane reuse,
- * union, and declaration-swap forms also regress. All 21 relocation offsets,
- * types, and source/runtime roles remain reconciled, while fail-closed static
- * comparison is incomplete. Preserve the assembly fallback pending a new
- * authenticated stack-home mechanism. */
+ * sp+0x30, and the D_A7C home/outgoing stores are reversed. The prior ten
+ * declared-local/carrier forms remain exhausted. Stock IDO's itable listing
+ * now identifies objectPosition's declared home at the target offset; CFE
+ * instead copy-propagates the pointer expression, whose surviving value spills
+ * at sp+0x28. A byte-array spelling and a source-line tie are flat. Ordered
+ * three- and five-member aggregates regress, while a late D_0 carrier grows
+ * the frame to 0x60. Volatile and address-exposed copy-propagation barriers,
+ * each composed with the source-line tie, add one instruction and trigger a
+ * structural cascade. All 21 candidate relocations remain present. Preserve
+ * the assembly fallback pending an instruction-neutral copy-propagation
+ * barrier or authenticated original declaration shape. */
 #ifdef NON_MATCHING
 void func_overlay_022_F0000000_1878108(void *object, void *init) {
     void *contact;
@@ -115,7 +116,7 @@ void func_overlay_022_F0000000_1878108(void *object, void *init) {
  * score: 167/172 words
  * frame: 0x58
  * relocations: 21
- * first-mismatch: +0x70
- * summary: Ten declared-local/carrier forms cannot reach the retail home pair. Best remains 167/172: objectPosition sp+0x28 vs +0x30 and reversed D_A7C stores.
+ * first-mismatch: +0xCC
+ * summary: Workbench mixed(constant:3,schedule:11), lever stack-home; stock itable isolates copy propagation, but legal barriers add one instruction; attempts 5-7 stalled.
  * PLATEAU-HANDOFF:func_overlay_022_F0000000_1878108:end
  */
