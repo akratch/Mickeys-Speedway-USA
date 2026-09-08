@@ -44,7 +44,7 @@ extern void func_8002FB34(MenuCommand **commands, RcpTextureNode *texture,
                         f32 x, f32 y, f32 scaleX, f32 scaleY, s32 alpha, s32 flags);
 extern void func_800367A4(void *texture, s32 *state, s32 speed, f32 *frame, s32 ticks);
 extern void func_8003A520(s32 split);
-extern u8 func_8003A700(u8 initial);
+extern s32 func_8003A700(u8 initial);
 extern void func_800336A8(s32 screenMode);
 extern void func_80033FE0(void);
 extern void func_80021504(f32 fov, s32 force);
@@ -58,7 +58,7 @@ extern void camStandardPersp(MenuCommand **commands, void **matrices);
 extern void camStandardOrtho(MenuCommand **commands, void **matrices);
 extern void rcpClearZBuffer(MenuCommand **commands, s32 width, s32 height,
                            s32 left, s32 top, s32 right, s32 bottom);
-extern void func_8005AD64(ControlActor *object, s32 arg1, s32 arg2, s32 arg3);
+extern void func_8005AD64(ControlActor *object, s32 frame, s32 arg2, f32 value);
 extern s32 func_8005ABA8(ControlActor *object, f32 scale, f32 ticks);
 extern void func_80020D8C(MenuSpawnInner *model, s32 index, s32 frame);
 extern void func_80009E78(MenuCommand **commands, void **matrices,
@@ -91,7 +91,27 @@ extern char **D_8007C0B8;
 extern s16 D_8007C0E8[];
 extern s16 D_8007C11C[];
 extern s32 D_800D2FC0;
-extern MenuScreenModeState D_800D3128;
+/* Tier B/D: the shared menu view names language and stereo mode. The
+ * remaining fields below are identified by their bit positions: their reads
+ * and byte-preserving writes belong to the same resident settings word. */
+typedef struct Overlay60SettingsBits {
+    u32 upper : 5;
+    u32 field26_23 : 4;
+    u32 stereoMode : 2;
+    u32 field20 : 1;
+    u32 field19 : 1;
+    u32 field18 : 1;
+    u32 gap17_16 : 2;
+    u32 language : 6;
+    u32 field9 : 1;
+    u32 field8 : 1;
+    u32 lower : 8;
+} Overlay60SettingsBits;
+typedef union Overlay60Settings {
+    MenuScreenModeBits bits;
+    Overlay60SettingsBits flags;
+} Overlay60Settings;
+extern Overlay60Settings D_800D3128;
 extern u16 D_800D312C;
 extern u16 D_800D312E;
 extern u16 D_800D3130[];
@@ -159,9 +179,6 @@ extern s32 gOverlay60Data2B4;
 extern s32 gOverlay60Data2B8;
 extern u8 D_800000B0[];
 
-/* Tier D: these are byte views of fields not named by MenuScreenModeBits. */
-#define O60_SETTINGS_WORD (*(u32 *)&D_800D3128)
-#define O60_SETTINGS_BYTE(n) (((u8 *)&D_800D3128)[n])
 #define O60_TEXT(offset) D_8007C0B8[(offset) / 4]
 
 /* Tier B/D: menu update and drawing reconstructed from Mickey's call graph,
@@ -187,7 +204,7 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
     s32 initial1;
     s32 icon;
     s32 row;
-    s16 y;
+    s32 y;
     s8 enabled[16];
     char text[128];
     char glyph[2];
@@ -301,29 +318,27 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                     fontColour(0x64, 0xFF, 0x64, 0xFF, gOverlay60Data2A4);
                     if (func_overlay_082_F00004A4_18CF624(gOverlay60Data0A8) != 0 &&
                         D_800D31BC != 0) {
-                        O60_SETTINGS_BYTE(2) = (O60_SETTINGS_BYTE(2) & ~2) |
-                            ((((O60_SETTINGS_WORD >> 9) & 1) ^ 1) << 1);
+                        D_800D3128.flags.field9 ^= 1;
                         amSndPlay(0xF, NULL);
                     }
                 } else {
                     fontColour(0, 0xBE, 0, 0xFF, gOverlay60Data2A4);
                 }
                 sprintf(text, gOverlay60Data1F0, O60_TEXT(0x254),
-                        gOverlay60Data298[(O60_SETTINGS_WORD >> 9) & 1]);
+                        gOverlay60Data298[D_800D3128.flags.field9]);
                 func_8004B0F8(&D_800D3140, 0x91, 0x96, text, 0xC);
                 if (gOverlay60Data2B0 == 1) {
                     fontColour(0x64, 0xFF, 0x64, 0xFF, gOverlay60Data2A4);
                     if (func_overlay_082_F00004A4_18CF624(gOverlay60Data0A8) != 0 &&
                         D_800D31BC != 0) {
-                        O60_SETTINGS_BYTE(2) = (O60_SETTINGS_BYTE(2) & ~1) |
-                            ((O60_SETTINGS_BYTE(2) ^ 1) & 1);
+                        D_800D3128.flags.field8 ^= 1;
                         amSndPlay(0xF, NULL);
                     }
                 } else {
                     fontColour(0, 0xBE, 0, 0xFF, gOverlay60Data2A4);
                 }
                 sprintf(text, gOverlay60Data1F8, O60_TEXT(0x258),
-                        gOverlay60Data298[O60_SETTINGS_BYTE(2) & 1]);
+                        gOverlay60Data298[D_800D3128.flags.field8]);
                 func_8004B0F8(&D_800D3140, 0x91, 0xAA, text, 0xC);
                 break;
             case 2:
@@ -597,8 +612,8 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                         if (((D_800D3130[0] & 0x1C0) >> 6) >= 3 &&
                             ((D_800D3130[1] & 0x1C0) >> 6) >= 3 &&
                             ((D_800D3130[2] & 0x1C0) >> 6) >= 3) {
-                            if (((O60_SETTINGS_WORD >> 23) & 0xF) == 0xF) {
-                                if (O60_SETTINGS_WORD & 0x40000) {
+                            if (D_800D3128.flags.field26_23 == 0xF) {
+                                if (D_800D3128.flags.field18) {
                                     limit = 0x15;
                                 } else {
                                     limit = 0x14;
@@ -683,7 +698,7 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                         if (((D_800D3130[0] & 0x1C0) >> 6) >= 3 &&
                             ((D_800D3130[1] & 0x1C0) >> 6) >= 3 &&
                             ((D_800D3130[2] & 0x1C0) >> 6) >= 3) {
-                            if (((O60_SETTINGS_WORD >> 23) & 0xF) == 0xF) {
+                            if (D_800D3128.flags.field26_23 == 0xF) {
                                 limit = 5;
                             } else {
                                 limit = 4;
@@ -758,16 +773,18 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                             mode = gOverlay60Data150;
                             if (mode != object->unk3A) {
                                 object->unk3A = mode;
-                                func_8005AD64(*objects, 0, 0, 0);
+                                func_8005AD64(*objects, 0, 0, 0.0f);
                             }
-                            (*objects)->unk8 = gOverlay60Data0F8[mode];
+                            mode = gOverlay60Data150;
+                            object = *objects;
+                            object->unk8 = gOverlay60Data0F8[mode];
                             model = (MenuSpawnInner *)(*objects)->unk68[gOverlay60Data150];
                             model->mode = ticks;
-                            rank = gOverlay60Data12B +
-                                ((D_800D3130[gOverlay60Data150] & *mask) >> *shift);
-                            func_80020D8C(model, 0, *rank * 256);
+                            rank = gOverlay60Data12B + 1 +
+                                ((u32)(D_800D3130[gOverlay60Data150] & *mask) >> *shift);
+                            func_80020D8C(model, 0, rank[-1] * 256);
                             func_8005ABA8(*objects, 0.003f, elapsed);
-                            if (rank != gOverlay60Data12B) {
+                            if (rank != gOverlay60Data12B + 1) {
                                 (*objects)->alpha = gOverlay60Data2A4;
                                 func_80009E78(&D_800D3140, &D_800D3144,
                                     &D_800D3148, *objects);
@@ -816,7 +833,7 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                                 amSndPlay(0xF, NULL);
                             }
                         }
-                        if (oldDetail != 0 && gOverlay60Data174 == NULL) {
+                        if (gOverlay60Data14C != 0 && gOverlay60Data174 == NULL) {
                             gOverlay60Data174 = func_800355A0(
                                 gOverlay60Data168[gOverlay60Data150], 0);
                         }
@@ -838,12 +855,11 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                                 gOverlay60Data174 = NULL;
                             }
                         }
-                        if (D_800D313B & 1) { showArrows = 1; }
-                        if (D_800D313B & 2) { showArrows++; }
-                        if (D_800D313B & 4) { showArrows++; }
-                        if (D_800D313B & 8) { showArrows++; }
-                        if (D_800D313B & 0x10) { showArrows++; }
-                        if (D_800D313B & 0x20) { showArrows++; }
+                        for (i = 0; i < 6; i++) {
+                            if (D_800D313B & (1 << i)) {
+                                showArrows++;
+                            }
+                        }
                         if (showArrows < 2) { showArrows = 0; }
                         break;
                     case 3:
@@ -927,29 +943,27 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                     fontColour(0x64, 0xFF, 0x64, 0xFF, gOverlay60Data2A4);
                     if (func_overlay_082_F00004A4_18CF624(gOverlay60Data0A8) != 0 &&
                         D_800D31BC != 0) {
-                        O60_SETTINGS_BYTE(1) = (O60_SETTINGS_BYTE(1) & ~0x10) |
-                            ((((O60_SETTINGS_WORD >> 20) & 1) ^ 1) << 4);
+                        D_800D3128.flags.field20 ^= 1;
                         amSndPlay(0xF, NULL);
                     }
                 } else {
                     fontColour(0, 0xBE, 0, 0xFF, gOverlay60Data2A4);
                 }
                 sprintf(text, gOverlay60Data220, O60_TEXT(0x1D4),
-                    gOverlay60Data298[(O60_SETTINGS_WORD >> 20) & 1]);
+                    gOverlay60Data298[D_800D3128.flags.field20]);
                 func_8004B0F8(&D_800D3140, 0x91, 0x96, text, 0xC);
                 if (gOverlay60Data2B0 == 1) {
                     fontColour(0x64, 0xFF, 0x64, 0xFF, gOverlay60Data2A4);
                     if (func_overlay_082_F00004A4_18CF624(gOverlay60Data0A8) != 0 &&
                         D_800D31BC != 0) {
-                        O60_SETTINGS_BYTE(1) = (O60_SETTINGS_BYTE(1) & ~8) |
-                            ((((O60_SETTINGS_WORD >> 19) & 1) ^ 1) << 3);
+                        D_800D3128.flags.field19 ^= 1;
                         amSndPlay(0xF, NULL);
                     }
                 } else {
                     fontColour(0, 0xBE, 0, 0xFF, gOverlay60Data2A4);
                 }
                 sprintf(text, gOverlay60Data228, O60_TEXT(0x1D8),
-                    gOverlay60Data298[(O60_SETTINGS_WORD >> 19) & 1]);
+                    gOverlay60Data298[D_800D3128.flags.field19]);
                 func_8004B0F8(&D_800D3140, 0x91, 0xAA, text, 0xC);
                 break;
             case 9:
@@ -1010,7 +1024,7 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
             amSndPlay(0xD, NULL);
         }
         fontColour(0, 0xFF, 0, 0xFF, gOverlay60Data2A0);
-        func_8004B0F8(&D_800D3140, 0x91, (s16)gOverlay60Data2A8,
+        func_8004B0F8(&D_800D3140, 0x91, gOverlay60Data2A8,
             gOverlay60Data260[panel], 0xC);
     }
 }
