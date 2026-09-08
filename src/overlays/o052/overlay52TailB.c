@@ -1,260 +1,314 @@
 #include "PR/ultratypes.h"
+#include "game/menu.h"
+#include "game/gameVi.h"
+#include "overlays/overlay_045.h"
+#include "overlays/overlay_056.h"
 
-#define O52_S8(base, offset) (*(s8 *)((u8 *)(base) + (offset)))
-#define O52_U8(base, offset) (*(u8 *)((u8 *)(base) + (offset)))
-#define O52_S16(base, offset) (*(s16 *)((u8 *)(base) + (offset)))
-#define O52_U16(base, offset) (*(u16 *)((u8 *)(base) + (offset)))
-#define O52_S32(base, offset) (*(s32 *)((u8 *)(base) + (offset)))
-#define O52_U32(base, offset) (*(u32 *)((u8 *)(base) + (offset)))
-#define O52_F32(base, offset) (*(f32 *)((u8 *)(base) + (offset)))
-#define O52_PTR(base, offset) (*(u8 **)((u8 *)(base) + (offset)))
+/* Same 0x10-byte entry layout used by overlay52CopyOffsetEntries. */
+typedef struct Overlay52Entry {
+    void *resource;
+    void *alternate;
+    u32 value8;
+    s16 x;
+    s16 y;
+} Overlay52Entry;
 
-extern s32 func_overlay_052_F0000000_189A670();
-extern void func_overlay_052_F0000540_189ABB0();
+/* Partial racer layout, from this overlay's accesses and Mickey's vehicle code. */
+typedef struct Overlay52Racer {
+    s8 playerIndex;
+    u8 pad001[0x192 - 1];
+    u8 value192;
+    u8 pad193[7];
+    u8 item;
+    u8 itemCount;
+    s32 value19C;
+    u8 pad1A0[8];
+    u16 flags;
+    u8 pad1AA[0x383 - 0x1AA];
+    s8 lap;
+    u8 pad384;
+    u8 position;
+    u8 pad386[2];
+    u8 value388;
+    u8 pad389[0x3BA - 0x389];
+    s16 value3BA;
+    u8 pad3BC[0x400 - 0x3BC];
+    s32 time;
+    u8 pad404[0x454 - 0x404];
+    s16 timeDifference;
+    s16 timeDifferenceTimer;
+    u8 pad458[4];
+    u8 value45C;
+} Overlay52Racer;
 
-extern u8 D_0[];
-extern u8 D_8[];
-extern u8 D_24C[];
-extern u8 D_2F4[];
-extern u8 D_314[];
-extern u8 D_320[];
-extern u8 D_328[];
-extern u8 D_340[];
-extern u8 D_4A0[];
-extern u8 D_4A8[];
-extern u8 D_4B4[];
-extern u8 D_4B8[];
-extern u8 D_4C4[];
-extern u8 D_4C8[];
-extern u8 D_480[];
-extern volatile s32 D_4CC;
-extern s16 D_4D0;
-extern s16 D_4D2;
-extern f32 D_4B0;
-extern u8 D_50[];
-extern u8 D_54[];
-extern u8 D_58[];
-extern u8 D_60[];
-extern u8 D_80[];
-extern u8 D_A0[];
-extern u8 D_100[];
-extern u8 D_140[];
-extern u8 D_160[];
-extern u8 D_170[];
-extern u8 D_180[];
-extern u8 D_200[];
-extern u8 D_240[];
-extern u8 D_F0[];
+typedef struct Overlay52Object {
+    u8 pad00[0x64];
+    Overlay52Racer *racer;
+} Overlay52Object;
 
-/* promotion_trial: text-differs, 1686 words differ in-range; first mismatch +0x0. */
-/* Preflight shape: target/candidate frame 0x118/0x118; candidate is 1568 of 1687 words. */
-/* Structural gap remains: 119 candidate words are short; linked ROM text differs throughout. */
+typedef struct Overlay52Level {
+    u8 pad00[0x86];
+    s8 laps;
+} Overlay52Level;
+
+/* Same 0x20-byte record used by menu.c's MenuCurrentObject. */
+typedef struct MenuCurrentObject {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    s16 index;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    f32 unk18;
+    s8 pad1C[4];
+} MenuCurrentObject;
+
+extern MenuCommand *D_800D3140;
+extern void *D_800D3144;
+extern void *D_800D31C8[];
+extern MenuCurrentObject D_800D3550[];
+extern s16 D_8007C180[];
+extern s32 D_8007C1B0;
+extern s32 D_800C947C;
+extern s32 ext_o1_83e0;
+
+/* Section-qualified names prevent the extracted data/BSS zero bases aliasing. */
+extern Overlay52Entry o52_bss_0[2][3];
+extern Overlay52Entry o52_bss_60[2][2];
+extern Overlay52Entry o52_bss_A0[2][3];
+extern Overlay52Entry o52_bss_100[2][3];
+extern Overlay52Entry o52_bss_160[10];
+extern Overlay52Entry o52_bss_200[2][10];
+extern Overlay52Entry o52_bss_340[2][10];
+extern Overlay52Entry o52_bss_480[2];
+extern s16 o52_bss_4A0[2];
+extern s32 o52_bss_4A8[2];
+extern f32 o52_bss_4B0;
+extern s16 o52_bss_4B4[2];
+extern s16 o52_bss_4B8[2];
+extern s16 o52_bss_4BC[2];
+extern s16 o52_bss_4C0[2];
+extern s16 o52_bss_4C4[2];
+extern s16 o52_bss_4C8[2];
+extern Overlay45ResourceDescriptor *o52_bss_4CC;
+extern s16 o52_bss_4D0;
+extern s16 o52_bss_4D2;
+extern Overlay52Entry o52_data_80[];
+extern Overlay52Entry o52_data_F0[8];
+extern Overlay52Entry o52_data_180[];
+extern s8 o52_data_240[2];
+extern s8 o52_data_244[];
+extern s16 o52_data_24C[2];
+extern s16 o52_data_254[2];
+extern s16 o52_data_258[2];
+extern s16 o52_data_25C[2];
+extern s16 o52_data_260[2];
+extern s16 o52_data_264[2];
+extern s16 o52_data_268[2];
+extern s16 o52_data_26C[2];
+extern s16 o52_data_270[2];
+extern s16 o52_data_274[2];
+extern s16 o52_data_278[2];
+extern Overlay52Entry o52_data_2F4[];
+extern s32 o52_data_314;
+extern s32 o52_data_318;
+extern s8 o52_data_31C;
+extern s32 o52_data_320[2];
+
+extern void camStandardOrtho(MenuCommand **, void **);
+extern Overlay52Object **func_80005750(s32 *);
+extern Overlay52Level *levelGetLevel(void);
+extern void func_80036544(void *, s32 *, s32, f32 *, s32);
+extern u32 joyGetPressed(s32);
+extern void camSetNo(s32);
+extern void camSetScissor(MenuCommand **);
+extern void func_8002F618(MenuCommand **, Overlay52Entry *, s32, s32, u8, u8, u8, u8);
+extern void func_80034920(MenuCommand **);
+extern void func_80034DE4(s32);
+extern void func_80039E34(s32);
+extern void func_overlay_052_F0000540_189ABB0(Overlay52Entry *, Overlay52Entry *, s32, s32);
+extern s32 func_800290A0(void);
+extern s32 func_8003A7D0(Overlay52Object *);
+extern void amSndPlay(s32, s32 *);
+extern s32 mainGetMode(void);
+extern u8 *func_80028F54(void);
+extern void mainChangeCameras(s32);
+extern void func_800016EC(s32);
+extern void func_80037414(s32, f32, f32, s32, s32, s32, s32);
+extern void mainChangeLevel(s32, s32, s32, s32, s32, s32);
+extern void func_800005CC(f32, u8);
+
+/* Reconstructed from Mickey's call/global relocation identities and field accesses. */
 #ifdef NON_MATCHING
-void func_overlay_052_F000063C_189ACAC(s32 arg0) {
+void func_overlay_052_F000063C_189ACAC(s32 updateRate) {
     s32 i;
-    s32 j;
-    s32 k;
-    s32 state;
+    s32 buttons;
+    s32 player;
+    s32 desiredItems[2];
     s32 mode;
-    s32 flags;
-    s32 value;
+    s32 split;
+    Overlay52Object **racers;
+    Overlay52Level *level;
+    Overlay52Object *object;
+    Overlay52Racer *racer;
+    Overlay52Entry *digits;
+    s32 racerCount;
+    Overlay52Entry *secondary;
+    s32 minutes;
+    s32 seconds;
+    s32 hundredths;
+    s32 hudOffset;
+    Overlay52Entry icon[2];
+    s32 width;
+    u32 halfHeight;
+    s32 value0;
+    s32 value1;
     s32 value2;
-    s32 timer;
     s32 active;
-    s32 choice;
-    s32 drawState;
-    s32 spAC;
-    s32 spA8;
-    s32 spFC;
-    s32 spF4;
-    s32 spD0;
-    s32 spDC;
-    s32 spD8;
-    s32 spD4;
-    s32 sp104[2];
-    s32 scratch;
-    s32 glyph;
-    s32 x;
-    s32 y;
-    s32 z;
-    u8 *object;
-    u8 *record;
-    u8 *small;
-    u8 *medium;
-    u8 *large;
-    u8 *screen;
-    u8 **objects;
-    f32 step;
-    f32 floatValue;
-    objects = (u8 **)(u32)func_overlay_052_F0000000_189A670(&spAC, &spA8);
-    spA8 >>= 1;
-    spFC = func_overlay_052_F0000000_189A670();
-    state = func_overlay_052_F0000000_189A670() & 1;
-    func_overlay_052_F0000000_189A670(0, 0);
+    s32 alpha;
+    s32 difference;
+    Overlay52Entry *template;
+    s32 *slot;
 
-    if (D_4CC != 0) {
-        D_4D0 += arg0;
-        if (D_4D0 >= 0x3D) {
-            if (D_4D0 >= 0xF1) {
-                D_4D2 -= arg0 * 4;
-                if (D_4D2 < 0) {
-                    func_overlay_052_F0000000_189A670(D_4CC, D_4D2);
-                    D_4CC = 0;
+    viGetCurrentSize(&width, (s32 *)&halfHeight);
+    halfHeight >>= 1;
+    split = frontGet2PlayerSplit();
+    mode = frontGetScreenMode() & 1;
+    camStandardOrtho(&D_800D3140, &D_800D3144);
+    if (o52_bss_4CC != 0) {
+        o52_bss_4D0 += updateRate;
+        if (o52_bss_4D0 >= 61) {
+            if (o52_bss_4D0 >= 241) {
+                o52_bss_4D2 -= updateRate * 4;
+                if (o52_bss_4D2 < 0) {
+                    overlay45ReleaseDescriptor(o52_bss_4CC);
+                    o52_bss_4CC = 0;
                 } else {
-                    func_overlay_052_F0000000_189A670(D_4CC, D_4D2);
+                    overlay45SetMode(o52_bss_4CC, o52_bss_4D2);
                 }
             } else {
-                D_4D2 += arg0 * 4;
-                if (D_4D2 >= 0x100) {
-                    D_4D2 = 0xFF;
+                o52_bss_4D2 += updateRate * 4;
+                if (o52_bss_4D2 >= 256) {
+                    o52_bss_4D2 = 255;
                 }
-                func_overlay_052_F0000000_189A670(D_4CC, D_4D2);
+                overlay45SetMode(o52_bss_4CC, o52_bss_4D2);
             }
         }
     }
-
-    screen = (u8 *)(u32)func_overlay_052_F0000000_189A670(&spF4);
-    if (state != 0) {
-        O52_S16(D_24C, 0) = 0;
-        O52_S16(D_24C, 2) = -0x78;
+    racers = func_80005750(&racerCount);
+    if (mode != 0) {
+        o52_data_24C[0] = 0;
+        o52_data_24C[1] = -120;
     } else {
-        O52_S16(D_24C, 0) = -0xC;
-        O52_S16(D_24C, 2) = -0x78;
+        o52_data_24C[0] = -12;
+        o52_data_24C[1] = -120;
     }
-
-    if (O52_S32(D_0, 0) == 0 && arg0 > 0) {
-        i = 0;
-        j = arg0 & 3;
-        if (j != 0) {
-            i = 1;
-            step = (-11.0f - D_4B0) * 0.125f;
-            while (i != j) {
-                i++;
-                D_4B0 += step;
-                step = (-11.0f - D_4B0) * 0.125f;
-            }
-            D_4B0 += step;
-        }
-        if (i != arg0) {
-            i += 4;
-            step = (-11.0f - D_4B0) * 0.125f;
-            while (i != arg0) {
-                i += 4;
-                D_4B0 += step;
-                D_4B0 += (-11.0f - D_4B0) * 0.125f;
-                D_4B0 += (-11.0f - D_4B0) * 0.125f;
-                D_4B0 += (-11.0f - D_4B0) * 0.125f;
-                step = (-11.0f - D_4B0) * 0.125f;
-            }
-            D_4B0 += step;
-            D_4B0 += (-11.0f - D_4B0) * 0.125f;
-            D_4B0 += (-11.0f - D_4B0) * 0.125f;
-            D_4B0 += (-11.0f - D_4B0) * 0.125f;
+    if (D_800C947C == 0) {
+        for (i = 0; i < updateRate; i++) {
+            o52_bss_4B0 += (-11.0f - o52_bss_4B0) * 0.125f;
         }
     }
+    func_80036544(D_800D31C8[2], &o52_data_314, 20, &D_800D3550[2].unk18, updateRate);
+    func_80036544(D_800D31C8[40], &o52_data_314, 20, &D_800D3550[1].unk18, updateRate);
+    hudOffset = (s32)o52_bss_4B0;
+    level = levelGetLevel();
+    o52_data_31C++;
+    o52_data_31C %= 10;
+    desiredItems[0] = -1;
+    desiredItems[1] = -1;
 
-    func_overlay_052_F0000000_189A670(O52_PTR(D_8, 0), D_314, 0x14,
-                                       D_58, arg0);
-    func_overlay_052_F0000000_189A670(O52_PTR(D_A0, 0), D_314, 0x14,
-                                       D_58, arg0);
-    spD0 = (s32)D_4B0;
-    spF4 = func_overlay_052_F0000000_189A670();
-    O52_S8(D_0, 0x31C)++;
-    O52_S8(D_0, 0x31C) = (s8)(O52_S8(D_0, 0x31C) % 10);
-    sp104[0] = -1;
-    sp104[1] = -1;
-
-    for (i = 0; i < 2; i++) {
-        object = objects != NULL ? objects[i] : NULL;
+    for (player = 0; player < 2; player++) {
+        object = racers[player];
         if (object == NULL) {
-            continue;
+            return;
         }
-        record = O52_PTR(object, 0x64);
-        value = O52_S32(D_320, i * 4);
-        if (O52_U8(record, 0x19A) != 0xFF) {
-            value += arg0 * 0x10;
-            if (value >= 0x100) {
-                value = 0xFF;
+        racer = object->racer;
+        if (racer->item != 255) {
+            o52_data_320[player] += updateRate * 16;
+            if (o52_data_320[player] >= 256) {
+                o52_data_320[player] = 255;
             }
         } else {
-            value -= arg0 * 8;
-            if (value < 0) {
-                value = 0;
+            o52_data_320[player] -= updateRate * 8;
+            if (o52_data_320[player] < 0) {
+                o52_data_320[player] = 0;
             }
         }
-        O52_S32(D_320, i * 4) = value;
-        if (value > 0) {
-            if (O52_U8(record, 0x19C) != 0) {
-                sp104[i] = 0x35;
-            } else if (O52_U8(record, 0x19A) != 0xFF) {
-                sp104[i] = O52_S16(D_4A8, O52_U8(record, 0x19A) * 2);
+        if (o52_data_320[player] > 0) {
+            if (racer->value19C != 0) {
+                desiredItems[player] = 53;
+            } else if (racer->item != 255) {
+                desiredItems[player] = D_8007C180[racer->item];
             } else {
-                sp104[i] = O52_S32(D_4A8, i * 4);
+                desiredItems[player] = o52_bss_4A8[player];
             }
-            if (sp104[i] != O52_S32(D_4A8, i * 4)) {
-                if (O52_S32(D_4A8, i * 4) != -1) {
-                    func_overlay_052_F0000000_189A670(O52_S32(D_4A8, i * 4),
-                                                       &D_320[i * 4], 0xFF);
+            if (desiredItems[player] != o52_bss_4A8[player]) {
+                if (o52_bss_4A8[player] != -1) {
+                    freeFrontEndItem(o52_bss_4A8[player]);
                 }
-                O52_S32(D_4A8, i * 4) = sp104[i];
-                if (sp104[i] != -1) {
-                    func_overlay_052_F0000000_189A670(sp104[i], &D_320[i * 4]);
+                o52_bss_4A8[player] = desiredItems[player];
+                if (desiredItems[player] != -1) {
+                    loadFrontEndItem(desiredItems[player]);
                 }
             }
         }
     }
-
-    for (i = 0; i < 2; i++) {
-        if (sp104[i] != -1) {
-            func_overlay_052_F0000000_189A670(sp104[i]);
-            O52_S32(D_4A8, i * 4) = -1;
+    for (slot = o52_bss_4A8; slot < o52_bss_4A8 + 2; slot++) {
+        if (*slot != -1 && *slot != desiredItems[0] && *slot != desiredItems[1]) {
+            freeFrontEndItem(*slot);
+            *slot = -1;
+        }
+    }
+    for (player = 0; player < 2; player++) {
+        if (desiredItems[player] != -1) {
+            o52_bss_4A8[player] = desiredItems[player];
+            if (D_800D31C8[desiredItems[player]] == NULL) {
+                loadFrontEndItem(desiredItems[player]);
+            }
         }
     }
 
-    for (i = 0; i < 2; i++) {
-        object = objects != NULL ? objects[i] : NULL;
+    for (player = 0; player < 2; player++) {
+        object = racers[player];
         if (object == NULL) {
-            continue;
+            return;
         }
-        record = O52_PTR(object, 0x64);
-        small = D_240 + i * 4;
-        medium = D_A0 + i * 0x30;
-        large = D_200 + i * 0xA0;
-        choice = i * 2;
-        if (func_overlay_052_F0000000_189A670(i) & 2) {
-            O52_S8(small, 0) ^= 1;
+        digits = o52_bss_0[player];
+        if (joyGetPressed(player) & 2) {
+            o52_data_240[player] ^= 1;
         }
-        func_overlay_052_F0000000_189A670(i);
-        func_overlay_052_F0000000_189A670(0);
-        if (O52_U8(record, 0x3BA) != 0xFF) {
-            O52_S32(small, 8) = O52_U8(record, 0x3BA) << 16;
-            O52_S32(small, 0x18) = O52_S16(record, 0x3BA + 0x244) << 16;
+        racer = object->racer;
+        camSetNo(player);
+        camSetScissor(&D_800D3140);
+        if (racer->value3BA != 255) {
+            digits[0].value8 = racer->value3BA << 16;
+            digits[1].value8 = o52_data_244[racer->value3BA] << 16;
         } else {
-            O52_S32(small, 8) = O52_U8(record, 0x385) << 16;
-            O52_S32(small, 0x18) = O52_S16(record, 0x385 + 0x244) << 16;
+            digits[0].value8 = racer->position << 16;
+            digits[1].value8 = o52_data_244[racer->position] << 16;
         }
-        if (O52_U32(record, 0x1A8) & 8) {
-            func_overlay_052_F0000000_189A670(0, D_60 + i * 0x20, 0,
-                                               spD0, 0xFF, 0xFF, 0xFF, 0xFF);
+        if (racer->flags & 8) {
+            func_8002F618(&D_800D3140, o52_bss_60[player], 0, hudOffset, 255, 255, 255, 255);
         } else {
-            func_overlay_052_F0000000_189A670(0, small, 0, spD0,
-                                               0xFF, 0xFF, 0xFF, 0xFF);
+            func_8002F618(&D_800D3140, digits, 0, hudOffset, 255, 255, 255, 255);
         }
-
-        if (O52_S8(small, 0) != 0) {
-            func_overlay_052_F0000540_189ABB0(D_80, medium, i, 1);
-            O52_S32(medium, 8) = (O52_S16(record, 0x192) / 10) << 16;
-            O52_S32(medium, 0x18) = (O52_S16(record, 0x192) % 10) << 16;
-            if ((O52_S32(medium, 8) >> 16) == 1) {
-                O52_S16(medium, 0xC)++;
+        if (o52_data_240[player] != 0) {
+            digits = o52_bss_A0[player];
+            secondary = o52_bss_100[player];
+            func_overlay_052_F0000540_189ABB0(o52_data_80, digits, player, 1);
+            digits[0].value8 = (racer->value192 / 10) << 16;
+            digits[1].value8 = (racer->value192 % 10) << 16;
+            if (((s32)digits[0].value8 >> 16) == 1) {
+                digits[0].x++;
             }
-            if ((O52_S32(medium, 0x18) >> 16) == 1) {
-                O52_S16(medium, 0x1C)--;
+            if (((s32)digits[1].value8 >> 16) == 1) {
+                digits[1].x--;
             }
-            func_overlay_052_F0000000_189A670(0, medium, 0, spD0,
-                                               0xFF, 0xFF, 0xFF, 0xFF);
-            mode = O52_U8(record, 0x383) + 1;
-            if (O52_U8(record, 0x45C) != 0) {
+            func_8002F618(&D_800D3140, digits, 0, hudOffset, 255, 255, 255, 255);
+            mode = racer->lap + 1;
+            if (racer->value45C != 0) {
                 mode++;
             }
             if (mode >= 4) {
@@ -263,219 +317,234 @@ void func_overlay_052_F000063C_189ACAC(s32 arg0) {
             if (mode <= 0) {
                 mode = 1;
             }
-            O52_S32(D_100 + i * 0x30, 0x18) = mode << 16;
-            func_overlay_052_F0000000_189A670(0, D_100 + i * 0x30, 0, spD0,
-                                               0xFF, 0xFF, 0xFF, 0xFF);
-            func_overlay_052_F0000000_189A670(0);
-            if (spFC != 0) {
-                O52_F32(D_24C, 0x2C) = (f32)O52_S16(record, 0x254);
-                O52_F32(D_24C, 0x30) = (f32)(0x47 - spD0);
+            secondary[1].value8 = mode << 16;
+            func_8002F618(&D_800D3140, secondary, 0, hudOffset, 255, 255, 255, 255);
+            func_80034920(&D_800D3140);
+            if (split != 0) {
+                D_800D3550[1].unkC = o52_data_254[racer->playerIndex];
+                D_800D3550[1].unk10 = 71 - hudOffset;
             } else {
-                O52_F32(D_24C, 0x2C) = -55.0f;
-                O52_F32(D_24C, 0x30) = (f32)(O52_S16(record, 0x24C) - spD0 + 0x53);
+                D_800D3550[1].unkC = -55.0f;
+                D_800D3550[1].unk10 = o52_data_24C[player] - hudOffset + 83;
             }
-            func_overlay_052_F0000000_189A670(0);
-            func_overlay_052_F0000000_189A670(1);
-            func_overlay_052_F0000000_189A670(1);
-            func_overlay_052_F0000000_189A670(0);
+            func_80034DE4(0);
+            func_80039E34(1);
+            func_80034DE4(1);
+            func_80034920(&D_800D3140);
         } else {
-            large = D_200 + i * 0xA0;
-            func_overlay_052_F0000000_189A670(O52_PTR(record, 0x400), &spDC,
-                                               &spD8, &spD4);
-            if (O52_S32(D_0, 0) == 0 && screen != NULL &&
-                O52_S8(screen, 0x86) != O52_S8(record, 0x383) &&
-                func_overlay_052_F0000000_189A670() == 0 &&
-                func_overlay_052_F0000000_189A670(object) != O52_S32(record, 0x400)) {
-                spD4 = spD4 - spD4 % 10 + O52_S8(D_0, 0x31C);
+            digits = o52_bss_200[player];
+            secondary = o52_bss_340[player];
+            overlay56SplitTime(racer->time, &minutes, &seconds, &hundredths);
+            if (D_800C947C == 0 && level->laps != racer->lap &&
+                func_800290A0() == 0 && func_8003A7D0(object) != racer->time) {
+                hundredths = hundredths - hundredths % 10 + o52_data_31C;
             }
-            func_overlay_052_F0000540_189ABB0(D_180, large, i, 3);
-            O52_S32(large, 8) = (spDC / 10) << 16;
-            O52_S32(large, 0x18) = (spDC % 10) << 16;
-            O52_S32(large, 0x38) = (spD8 / 10) << 16;
-            O52_S32(large, 0x48) = (spD8 % 10) << 16;
-            O52_S32(large, 0x68) = (spD4 / 10) << 16;
-            O52_S32(large, 0x78) = (spD4 % 10) << 16;
-            for (j = 0; j < 8; j++) {
-                if ((O52_S32(large, j * 0x10 + 8) >> 16) == 1) {
-                    if (j == 0 || j == 3 || j == 6) {
-                        O52_S16(large, j * 0x10 + 0xC)++;
+            func_overlay_052_F0000540_189ABB0(o52_data_180, digits, player, 3);
+            value0 = minutes / 10;
+            value1 = minutes % 10;
+            digits[0].value8 = value0 << 16;
+            digits[1].value8 = value1 << 16;
+            value0 = seconds / 10;
+            value1 = seconds % 10;
+            digits[3].value8 = value0 << 16;
+            digits[4].value8 = value1 << 16;
+            value0 = hundredths / 10;
+            value1 = hundredths % 10;
+            digits[6].value8 = value0 << 16;
+            digits[7].value8 = value1 << 16;
+            for (i = 0; i < 8; i++) {
+                if (((s32)digits[i].value8 >> 16) == 1) {
+                    if (i == 0 || i == 3 || i == 6) {
+                        digits[i].x++;
                     } else {
-                        O52_S16(large, j * 0x10 + 0xC)--;
+                        digits[i].x--;
                     }
                 }
             }
-            func_overlay_052_F0000000_189A670(0, large, 0, spD0,
-                                               0xFF, 0xFF, 0xFF, 0xFF);
-            func_overlay_052_F0000000_189A670(0);
-            if (spFC != 0) {
-                O52_F32(D_24C, 0x8C) = (f32)O52_S16(record, 0x260);
-                O52_F32(D_24C, 0x90) = (f32)(0x50 - spD0);
+            func_8002F618(&D_800D3140, digits, 0, hudOffset, 255, 255, 255, 255);
+            func_80034920(&D_800D3140);
+            if (split != 0) {
+                D_800D3550[4].unkC = o52_data_260[player];
+                D_800D3550[4].unk10 = 80 - hudOffset;
             } else {
-                O52_F32(D_24C, 0x8C) = -44.0f;
-                O52_F32(D_24C, 0x90) = (f32)(O52_S16(record, 0x24C) - spD0 + 0x5C);
+                D_800D3550[4].unkC = -44.0f;
+                D_800D3550[4].unk10 = o52_data_24C[player] - hudOffset + 92;
             }
-            O52_S16(D_24C, 0x84) = (s16)((-O52_S32(record, 0x400) * 0x10000) / 300);
-            func_overlay_052_F0000000_189A670(4);
-            func_overlay_052_F0000000_189A670(0, D_340 + i * 0xA0, 0, spD0,
-                                               0xFF, 0xFF, 0xFF, 0xFF);
+            D_800D3550[4].unk4 = (racer->time * -65536) / 300;
+            func_80039E34(4);
+            func_8002F618(&D_800D3140, secondary, 0, hudOffset, 255, 255, 255, 255);
         }
-
-        value = O52_S32(D_320, i * 4);
-        if (value > 0 && O52_S32(D_4A8, i * 4) != -1) {
-            glyph = O52_S32(D_4A8, i * 4);
-            O52_S32(D_2F4, 8) = O52_U8(record, 0x19B) << 16;
-            flags = (value - (value >> 1)) & 0xFF;
-            func_overlay_052_F0000000_189A670(0, D_2F4, 0, 0,
-                                               0, 0, 0, flags);
-            if (glyph != 0x35 && O52_U8(record, 0x19B) >= 2) {
-                func_overlay_052_F0000000_189A670(0, D_2F4, 0x1C, 0x35,
-                                                   0, 0, 0, flags);
-                func_overlay_052_F0000000_189A670(0, D_2F4, 0x1E, 0x36,
-                                                   0, 0, 0, flags);
-                func_overlay_052_F0000000_189A670(0, D_2F4, 0x1D, 0x35,
-                                                   0xFF, 0xFF, 0xFF, 0xFF);
+        if (o52_data_320[player] > 0 && o52_bss_4A8[player] != -1) {
+            if (split != 0) {
+                if (o52_bss_4A8[player] == 53) {
+                    icon[0].y = 180;
+                    icon[0].x = o52_data_258[player];
+                } else {
+                    icon[0].y = 186;
+                    icon[0].x = o52_data_25C[player];
+                }
+            } else if (o52_bss_4A8[player] == 53) {
+                icon[0].x = 25;
+                icon[0].y = 62 - o52_data_24C[player];
+            } else {
+                icon[0].x = 31;
+                icon[0].y = 68 - o52_data_24C[player];
+            }
+            icon[0].value8 = 0;
+            icon[0].alternate = NULL;
+            icon[1].resource = NULL;
+            icon[0].resource = D_800D31C8[o52_bss_4A8[player]];
+            func_8002F618(&D_800D3140, icon, 0, 0, 255, 255, 255, o52_data_320[player]);
+            if (o52_bss_4A8[player] != 53 && racer->itemCount >= 2) {
+                o52_data_2F4[0].value8 = racer->itemCount << 16;
+                alpha = (o52_data_320[player] - (o52_data_320[player] >> 1)) & 255;
+                func_8002F618(&D_800D3140, o52_data_2F4, icon[0].x + 28, icon[0].y + 27, 0, 0, 0, alpha);
+                func_8002F618(&D_800D3140, o52_data_2F4, icon[0].x + 30, icon[0].y + 29, 0, 0, 0, alpha);
+                func_8002F618(&D_800D3140, o52_data_2F4, icon[0].x + 29, icon[0].y + 28, 255, 255, 255, 255);
             }
         }
-
-        if (spFC != 0) {
-            x = O52_S16(record, 0x264);
-            y = O52_S16(record, 0x26C);
-            z = O52_S16(record, 0x268);
+        if (split != 0) {
+            value0 = o52_data_264[player];
+            value1 = o52_data_268[player];
+            value2 = o52_data_26C[player];
         } else {
-            x = O52_S16(record, 0x270);
-            y = O52_S16(record, 0x278);
-            z = O52_S16(record, 0x274);
+            value0 = o52_data_270[player];
+            value1 = o52_data_274[player];
+            value2 = o52_data_278[player];
         }
-        active = 0;
-        if (O52_U8(record, 0x388) != 0) {
+        if (racer->value388 != 0) {
             active = 1;
-            for (j = 0; j < arg0; j++) {
-                O52_S16(D_4A0, i * 2) += (x - O52_S16(D_4A0, i * 2)) >> 3;
+            for (i = 0; i < updateRate; i++) {
+                o52_bss_4A0[player] += (value0 - o52_bss_4A0[player]) >> 3;
             }
-        } else if (z != O52_S16(D_4A0, i * 2)) {
-            for (j = 0; j < arg0; j++) {
-                O52_S16(D_4A0, i * 2) += (y - O52_S16(D_4A0, i * 2)) >> 3;
+        } else if (value1 != o52_bss_4A0[player]) {
+            for (i = 0; i < updateRate; i++) {
+                o52_bss_4A0[player] += (value2 - o52_bss_4A0[player]) >> 3;
             }
-            if ((y >> 6) == (O52_S16(D_4A0, i * 2) >> 6)) {
-                O52_S16(D_4A0, i * 2) = z;
+            if ((value2 >> 6) == (o52_bss_4A0[player] >> 6)) {
+                o52_bss_4A0[player] = value1;
+                active = 0;
             } else {
                 active = 1;
             }
-        }
-        if (active != 0) {
-            O52_S16(D_480, 0xC) = O52_S16(D_4A0, i * 2) >> 4;
-            O52_S16(D_480, 0xE) = spFC != 0 ? 0x3C : (i == 0 ? 0x28 : 0xA0);
-            func_overlay_052_F0000000_189A670(0, D_480, 0, 0,
-                                               0xFF, 0xFF, 0xFF, 0xC0);
-        }
-
-        timer = O52_S16(record, 0x456);
-        if (O52_U8(record, 0x383) < (screen != NULL ? O52_U8(screen, 0x86) : 0)) {
-            if (timer >= arg0) {
-                timer -= arg0;
-                O52_S16(record, 0x456) = timer;
-                for (j = 0; j < arg0; j++) {
-                    O52_S16(D_4B4, O52_U8(record, 0) * 2) +=
-                        (O52_S16(D_4C4, O52_U8(record, 0) * 2) -
-                         O52_S16(D_4B4, O52_U8(record, 0) * 2)) >> 3;
-                    O52_S16(D_4B8, O52_U8(record, 0) * 2) +=
-                        (O52_S16(D_4C8, O52_U8(record, 0) * 2) -
-                         O52_S16(D_4B8, O52_U8(record, 0) * 2)) >> 3;
-                }
-            } else {
-                if (timer != -1 && O52_S16(record, 0x454) < 0) {
-                    scratch = 0;
-                    func_overlay_052_F0000000_189A670(0x1F9, 0);
-                    timer = -1;
-                    O52_S16(record, 0x456) = -1;
-                }
-                for (j = 0; j < arg0; j++) {
-                    O52_S16(D_4B4, O52_U8(record, 0) * 2) +=
-                        (0x1900 - O52_S16(D_4B4, O52_U8(record, 0) * 2)) >> 3;
-                    O52_S16(D_4B8, O52_U8(record, 0) * 2) +=
-                        ((spA8 * O52_U8(record, 0) * 0x10 -
-                          O52_S16(D_4B8, O52_U8(record, 0) * 2) - 0x140) >> 3);
-                }
-                if (O52_S16(D_4B4, O52_U8(record, 0) * 2) >= 0x1861) {
-                    O52_S16(D_4B4, O52_U8(record, 0) * 2) =
-                        O52_S16(D_4C4, O52_U8(record, 0) * 2);
-                    O52_S16(D_4B8, O52_U8(record, 0) * 2) =
-                        O52_S16(D_4C8, O52_U8(record, 0) * 2);
-                }
-            }
-        }
-
-        if (O52_S16(record, 0x454) <= 0) {
-            O52_S32(D_160, 8) = 0xC0000;
-            O52_S32(D_160, 0) = O52_S32(D_50, 0);
-            O52_S32(D_160, 4) = O52_S32(D_54, 0);
-            for (j = 0; j < 8; j++) {
-                O52_S32(D_170 + j * 0x10, 0) = O52_S32(D_50, 0);
-                O52_S32(D_170 + j * 0x10, 4) = O52_S32(D_54, 0);
-            }
-            value2 = -O52_S16(record, 0x454);
         } else {
-            O52_S32(D_160, 8) = 0xD0000;
-            O52_S32(D_160, 0) = O52_S32(D_140, 0);
-            O52_S32(D_160, 4) = O52_S32(D_54, 0);
-            for (j = 0; j < 8; j++) {
-                O52_S32(D_170 + j * 0x10, 0) = O52_S32(D_140, 0);
-                O52_S32(D_170 + j * 0x10, 4) = O52_S32(D_54, 0);
-            }
-            value2 = O52_S16(record, 0x454);
+            active = 0;
         }
-        func_overlay_052_F0000000_189A670(value2, &spDC, &spD8, &spD4);
-        O52_S32(D_160, 0x18) = (spDC / 10) << 16;
-        O52_S32(D_160, 0x28) = (spDC % 10) << 16;
-        O52_S32(D_160, 0x48) = (spD8 / 10) << 16;
-        O52_S32(D_160, 0x58) = (spD8 % 10) << 16;
-        O52_S32(D_160, 0x78) = (spD4 / 10) << 16;
-        O52_S32(D_160, 0x88) = (spD4 % 10) << 16;
-        for (j = 0; j < 8; j++) {
-            if ((O52_S32(D_170 + j * 0x10, 8) >> 16) == 1) {
-                O52_S16(D_170 + j * 0x10, 0xC) =
-                    O52_S16(D_F0 + j * 0x10, 0xC) +
-                    ((j == 0 || j == 3 || j == 6) ? 1 : -1);
+        if (active) {
+            o52_bss_480[0].x = o52_bss_4A0[player] >> 4;
+            if (split != 0) {
+                o52_bss_480[0].y = 60;
+            } else if (player == 0) {
+                o52_bss_480[0].y = 40;
             } else {
-                O52_S16(D_170 + j * 0x10, 0xC) = O52_S16(D_F0 + j * 0x10, 0xC);
+                o52_bss_480[0].y = 160;
             }
+            func_8002F618(&D_800D3140, o52_bss_480, 0, 0, 255, 255, 255, 192);
         }
-        func_overlay_052_F0000000_189A670(0, D_160,
-                                           O52_S16(D_4B4, O52_U8(record, 0) * 2) >> 4,
-                                           O52_S16(D_4B8, O52_U8(record, 0) * 2) >> 4,
-                                           0xFF, 0xFF, 0xFF, 0xFE);
-
-        if (func_overlay_052_F0000000_189A670(i) & 1) {
-            O52_S8(D_240, i) ^= 1;
+        if (racer->lap < level->laps) {
+            if (racer->timeDifferenceTimer >= updateRate) {
+                racer->timeDifferenceTimer -= updateRate;
+                for (i = 0; i < updateRate; i++) {
+                    o52_bss_4B4[racer->playerIndex] +=
+                        (o52_bss_4C4[racer->playerIndex] - o52_bss_4B4[racer->playerIndex]) >> 3;
+                    o52_bss_4B8[racer->playerIndex] +=
+                        (o52_bss_4C8[racer->playerIndex] - o52_bss_4B8[racer->playerIndex]) >> 3;
+                }
+            } else if (o52_bss_4B4[racer->playerIndex] != o52_bss_4BC[racer->playerIndex]) {
+                if (racer->timeDifferenceTimer != -1 && racer->timeDifference < 0) {
+                    amSndPlay(505, NULL);
+                    racer->timeDifferenceTimer = -1;
+                }
+                for (i = 0; i < updateRate; i++) {
+                    o52_bss_4B4[racer->playerIndex] += (6400 - o52_bss_4B4[racer->playerIndex]) >> 3;
+                    o52_bss_4B8[racer->playerIndex] +=
+                        (halfHeight * racer->playerIndex * 16 - o52_bss_4B8[racer->playerIndex] - 320) >> 3;
+                }
+                if (o52_bss_4B4[racer->playerIndex] >= 6241) {
+                    o52_bss_4B4[racer->playerIndex] = o52_bss_4BC[racer->playerIndex];
+                    o52_bss_4B8[racer->playerIndex] = o52_bss_4C0[racer->playerIndex];
+                }
+            }
+            if (racer->timeDifference <= 0) {
+                o52_bss_160[0].value8 = 12 << 16;
+                o52_bss_160[0].resource = D_800D31C8[20];
+                o52_bss_160[0].alternate = D_800D31C8[21];
+                difference = -racer->timeDifference;
+                for (digits = o52_bss_160 + 1; digits != o52_bss_160 + 9; digits++) {
+                    digits->resource = D_800D31C8[20];
+                    digits->alternate = D_800D31C8[21];
+                }
+            } else {
+                o52_bss_160[0].value8 = 13 << 16;
+                o52_bss_160[0].resource = D_800D31C8[80];
+                o52_bss_160[0].alternate = D_800D31C8[21];
+                difference = racer->timeDifference;
+                for (digits = o52_bss_160 + 1; digits != o52_bss_160 + 9; digits++) {
+                    digits->resource = D_800D31C8[80];
+                    digits->alternate = D_800D31C8[21];
+                }
+            }
+            overlay56SplitTime(difference, &minutes, &seconds, &hundredths);
+            o52_bss_160[1].value8 = (minutes / 10) << 16;
+            o52_bss_160[2].value8 = (minutes % 10) << 16;
+            o52_bss_160[4].value8 = (seconds / 10) << 16;
+            o52_bss_160[5].value8 = (seconds % 10) << 16;
+            o52_bss_160[7].value8 = (hundredths / 10) << 16;
+            o52_bss_160[8].value8 = (hundredths % 10) << 16;
+            digits = o52_bss_160 + 1;
+            for (template = o52_data_F0; template != o52_data_F0 + 8; template++, digits++) {
+                if (((s32)digits->value8 >> 16) == 1) {
+                    if (template == o52_data_F0 || template == o52_data_F0 + 3 || template == o52_data_F0 + 6) {
+                        digits->x = template->x + 1;
+                    } else {
+                        digits->x = template->x - 1;
+                    }
+                } else {
+                    digits->x = template->x;
+                }
+            }
+            func_8002F618(&D_800D3140, o52_bss_160,
+                         o52_bss_4B4[racer->playerIndex] >> 4,
+                         o52_bss_4B8[racer->playerIndex] >> 4, 255, 255, 255, 254);
         }
-        drawState = func_overlay_052_F0000000_189A670();
-        if (drawState == 0) {
-            flags = func_overlay_052_F0000000_189A670() & 0xFFFF;
-            value = func_overlay_052_F0000000_189A670(1);
-            if (((value | flags) & 0x9000) && O52_S32(D_0, 0x318) == 0) {
-                func_overlay_052_F0000000_189A670(1);
-                func_overlay_052_F0000000_189A670(1);
-                func_overlay_052_F0000000_189A670(0);
-                func_overlay_052_F0000000_189A670(2, 0x40800000, 0xBF800000,
-                                                   0, 0, 0, 0);
-                func_overlay_052_F0000000_189A670(0x12, 0, 0, 7, 1, 1);
-                func_overlay_052_F0000000_189A670(0x40400000, 0);
-                O52_S32(D_0, 0x318) = 1;
+        if (joyGetPressed(player) & 1) {
+            D_8007C1B0 ^= 1;
+        }
+        if (mainGetMode() == 0) {
+            switch (*func_80028F54()) {
+                case 3:
+                    if (ext_o1_83e0 == 0) {
+                        buttons = joyGetPressed(0) & 65535;
+                        if (((joyGetPressed(1) | buttons) & 0x9000) && o52_data_318 == 0) {
+                            mainChangeCameras(1);
+                            func_800016EC(1);
+                            func_8003A590();
+                            func_80037414(2, 4.0f, -1.0f, 0, 0, 0, 0);
+                            mainChangeLevel(18, 0, 0, 7, 1, 1);
+                            func_800005CC(3.0f, 0);
+                            o52_data_318 = 1;
+                        }
+                    }
+                    break;
+                case 4:
+                    if (ext_o1_83e0 == 0) {
+                        buttons = joyGetPressed(0) & 65535;
+                        if (((joyGetPressed(1) | buttons) & 0x9000) && o52_data_318 == 0) {
+                            mainChangeCameras(1);
+                            func_800016EC(1);
+                            func_8003A590();
+                            func_80037414(2, 4.0f, -1.0f, 0, 0, 0, 0);
+                            mainChangeLevel(18, 0, 0, 7, 1, 1);
+                            func_800005CC(3.0f, 0);
+                            o52_data_318 = 1;
+                        }
+                    }
+                    break;
             }
         }
     }
-    func_overlay_052_F0000000_189A670(0);
+    camSetNo(0);
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o052/overlay52TailB/func_overlay_052_F000063C_189ACAC.s")
 #endif
-
-/* PLATEAU-HANDOFF:func_overlay_052_F000063C_189ACAC:start
- * symbol: func_overlay_052_F000063C_189ACAC
- * score: 1568/1687 words
- * frame: 0x118
- * relocations: 314
- * first-mismatch: +0x0
- * summary: Linked promotion trial text-differs 1686 words; candidate is 119 words short despite exact frame.
- * PLATEAU-HANDOFF:func_overlay_052_F000063C_189ACAC:end
- */
