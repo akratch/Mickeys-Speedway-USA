@@ -2,12 +2,11 @@
 ### `func_overlay_054_F00005AC_189F24C` plateau handoff
 
 - source: `src/overlays/o054/overlay54TailA.c`
-- score: 1517 differing words
-- frame: 0x150
-- relocations: 263
+- score: 1503 differing words
+- frame: 0x158
+- relocations: 269
 - first mismatch: +0x0
-- summary: Active packet checkpoint: 1553/1594 words, 59 ordered calls, 21/269 exact relocation sites. Indexed copy kernel and actor cursor recovered.
-
+- summary: Active reconstruction checkpoint: 1556/1594 words; 59 ordered calls; 268/269 relocation identity/type records, 22 exact sites. No match credit.
 This is a committed reconstruction milestone in the active structural packet,
 not a final stall disposition. The guarded C is compiled, not object-exact or
 ROM-exact. The owned range is overlay 54 text `+0x5AC..+0x1E94`, ROM
@@ -43,29 +42,61 @@ time-delta magnitude and reset X coordinate are 32-bit values in the target.
 In particular, narrowing the negated minimum halfword loses its positive
 magnitude. Those corrections are retained even though the old extent was exact.
 
-Attempt 21 has 1,553 words against 1,594, a 164-byte deficit, 1,517 raw and
-masked positional differences, first `+0`, and a `0x150` frame against `0x138`.
-Its 263 relocations have 21 exact offset/type/identity tuples and 263 matching
-identity/type records when position is ignored. All 59 calls remain in target
-order. The four-record unrolled resource-copy kernel is recovered from an
-indexed eight-record loop; independent pointer bounds introduced remainder
-paths, while same-array pointer comparisons stayed scalar. The actor list now
-advances through a cursor as the target does, reducing aligned register
-residuals to 475 and structural residuals to 153. Those aligned counts are
-mechanism evidence, not match credit.
+Attempt 44 has 1,556 words against 1,594, a 152-byte deficit, 1,504 raw and
+1,503 relocation-masked positional differences, first `+0`, and a `0x158`
+frame against `0x138`. Its 269 relocations have 22 exact
+position/type/identity tuples and 268 matching identity/type records when
+position is ignored. One alternate-pointer LO record is replaced by an extra
+HI record. Equal counts are not a complete relocation match. All 59 calls
+remain in target order. The candidate is retained for its reconstructed
+interfaces and field identities, rather than its positional score alone.
 
-The runtime HUD view treats the first two record words as resolved texture
-pointers and preserves the signed metadata field. Explicit pointer snapshots
-are necessary for the single-read copy pattern; copying through the first
-record's fields introduces reloads. Separating the sign and digit views, or
-making the sign a scalar aggregate, did not recover the remaining direct field
-references. An explicit guarded do-loop and a structured outer for-loop were
-unchanged; those spellings alone are ruled out. The workbench constant audit
-found no aligned non-stack differing immediate in attempt 14. Workbench still
-reports `structure-mismatch`; its structure-buckets and constant-audit levers
-remain the routing. The opening recurrence still lacks the target's peeling,
-and stack/first-record reference structure remains unresolved. The packet is
-active and has not reached its five-no-information stopping condition.
+The actor-list result and walking cursor now have distinct source roles, as
+proved by the target's preserved returned base and later cursor initialization.
+Per-player HUD arrays use their actual two-, three- and ten-record row strides.
+The indexed eight-record resource copies produce the target's four-record
+kernel. Independent pointer bounds introduced remainder paths; same-array
+pointer comparisons stayed scalar. The signed time-delta and reset coordinate
+remain full-width values. A separate, authenticated relocation view of the
+first record's metadata recovers its direct global stores. The delta loads now
+precede the pointer stores as the target does. The resident interface audit
+corrects the button query to `u16`, the sound arguments to `u16` and `void **`,
+and the generic pointer and video-size output signatures; explicit caller
+casts retain the recovered object views and unsigned screen-size arithmetic.
+
+Attempt 24 reduced the aligned structural residual to 135 through the row
+and cursor reconstruction. Attempt 35 accounted for every one of the 269
+target identity/type records, with two additional HI records; its independent
+alternate-pointer alias cannot share the target's address load. Attempt 36
+had a lower positional residual of 1,477 masked words, but shifted digit-loop
+address anchors and lost identity agreement. Restoring the digit view's
+natural zero-based indices recovered those anchors. The current metadata-only
+alias and target load order retain the exact total relocation count while
+leaving one type/identity discrepancy. The intermediate artifacts remain
+available; none is object-exact.
+
+The opening animation call is still 136 bytes early. Ordinary counted and
+guarded post-tested loops, a named damping step, an explicit prior-height
+snapshot, and division by eight do not recover the target's peeled recurrence.
+A carried-step loop instead uses a rate-minus-one remainder. Explicit source
+batching is unrolled again into sixteen-update blocks. Countdown induction
+retains a descending loop. Scalar, adjacent-float aggregate and one-element
+array declaration diagnostics do not recover the missing peeling. The
+aggregate and array diagnostics remain ignored; no unproved layout is adopted.
+A named scale constant leaves text unchanged but goes into writable data under
+the stock compiler, so the exact `0.66f` literal remains the source spelling.
+
+A compact icon record plus termination pointer reduces the frame by eight
+bytes but does not prove the original local extent; it remains an ignored
+diagnostic. Guarding the whole player body on nonnull actors and reconstructing
+coordinate defaults do not improve the relevant CFG. The retained C keeps the
+ordinary early return and coordinate expressions. Explicit byte induction,
+inferred template interior-array grouping and sign-record view variants do not
+recover the target's allocation and relocation structure. These negative
+results are retained with their predictions; unchanged inputs are not new
+work. Workbench still routes through `structure-mismatch`,
+`structure-buckets` and `constant-audit`. This is an active packet checkpoint,
+not a final five-attempt stall disposition.
 
 Every source/object/score and the runtime identity audit are retained in ignored
 `build/whale5/`. The raw m2c output remains ignored and was used only as a draft.

@@ -21,12 +21,12 @@ typedef struct O54HudRecord {
 extern void camStandardOrtho_o054Reloc(MenuCommand **dlist, Mtx **matrix);
 extern void camSetNo_o054Reloc(s32 camera);
 extern void camSetScissor_o054Reloc(MenuCommand **dlist);
-extern ControlActor **func_80005750_o054Reloc(s32 *count);
+extern void **func_80005750_o054Reloc(s32 *count);
 extern u8 *levelGetLevel_o054Reloc(void);
 extern s32 func_800290A0_o054Reloc(void);
 extern s32 func_8003A7D0_o054Reloc(ControlActor *actor);
-extern void viGetCurrentSize_o054Reloc(u32 *width, u32 *height);
-extern s32 func_80036544_o054Reloc(void *resource, s32 *state,
+extern void viGetCurrentSize_o054Reloc(s32 *width, s32 *height);
+extern s32 func_80036544_o054Reloc(u8 *resource, s32 *state,
     s32 animation, f32 *frame, s32 updateRate);
 extern void func_8002F618_o054Reloc(MenuCommand **dlist,
     O54HudRecord *records, s32 x, s32 y, u8 red, u8 green,
@@ -34,13 +34,13 @@ extern void func_8002F618_o054Reloc(MenuCommand **dlist,
 extern void func_8002FB34_o054Reloc(MenuCommand **dlist,
     O54HudRecord *records, f32 x, f32 y, f32 scaleX, f32 scaleY,
     s32 colour, s32 mode);
-extern u32 joyGetPressed_o054Reloc(s32 player);
+extern u16 joyGetPressed_o054Reloc(s32 player);
 extern void func_80034920_o054Reloc(MenuCommand **dlist);
 extern void func_80034DE4_o054Reloc(s32 mode);
 extern void func_80039E34_o054Reloc(s32 index);
 extern s32 frontGetScreenMode_o054Reloc(void);
 extern s32 mainGetMode_o054Reloc(void);
-extern u8 *func_80028F54_o054Reloc(void);
+extern void *func_80028F54_o054Reloc(void);
 extern void mainChangeCameras_o054Reloc(s32 cameras);
 extern void func_800016EC_o054Reloc(u8 mode);
 extern void func_8003A590_o054Reloc(void);
@@ -49,7 +49,7 @@ extern void func_80037414_o054Reloc(s32 kind, f32 duration, f32 delay,
 extern void mainChangeLevel_o054Reloc(s32 level, s32 character,
     s32 animation, s32 mode, s32 arg4, s32 arg5);
 extern void func_800005CC_o054Reloc(f32 fade, u8 volume);
-extern void amSndPlay_o054Reloc(s32 sound, s32 *handle);
+extern void amSndPlay_o054Reloc(u16 sound, void **handle);
 extern void overlay45ReleaseDescriptor_o054Reloc(Overlay45ResourceDescriptor *descriptor);
 extern void overlay45SetMode_o054Reloc(Overlay45ResourceDescriptor *descriptor, s32 value);
 extern void overlay56SplitTime_o054Reloc(s32 time, s32 *minutes,
@@ -83,15 +83,16 @@ extern s32 o001_data_83E0_o054Reloc;
 /* Tier B: LOCAL records distinguish the initialized templates and state
  * from the writable HUD copies in BSS. Names retain their section offsets. */
 extern O54HudRecord o54Bss_0[];
+extern s32 o54Bss_8;
 extern O54HudRecord o54Bss_10[];
 extern O54HudRecord o54Bss_90[];
 extern O54HudRecord o54Bss_A0[];
-extern O54HudRecord o54Bss_C0[];
-extern O54HudRecord o54Bss_140[];
-extern O54HudRecord o54Bss_1C0[];
-extern O54HudRecord o54Bss_280[];
-extern O54HudRecord o54Bss_340[];
-extern O54HudRecord o54Bss_5C0[];
+extern O54HudRecord o54Bss_C0[][2];
+extern O54HudRecord o54Bss_140[][2];
+extern O54HudRecord o54Bss_1C0[][3];
+extern O54HudRecord o54Bss_280[][3];
+extern O54HudRecord o54Bss_340[][10];
+extern O54HudRecord o54Bss_5C0[][2];
 extern s16 o54Bss_640[];
 extern s16 o54Bss_648[];
 extern s8 o54Bss_654[];
@@ -159,6 +160,7 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
     s32 resetX;
     s32 deltaTime;
     ControlActor **actors;
+    ControlActor **actorCursor;
     ControlPlayer *player;
     O54HudRecord *position;
     O54HudRecord *lap;
@@ -191,7 +193,7 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
             }
         }
     }
-    actors = func_80005750_o054Reloc(&actorCount);
+    actors = (ControlActor **) func_80005750_o054Reloc(&actorCount);
     if (D_800C947C_o054Reloc == 0) {
         for (i = 0; i < updateRate; i++) {
             step = (-11.0f - o54Bss_658) * 0.125f;
@@ -203,20 +205,21 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
     func_80036544_o054Reloc(D_800D31C8_o054Reloc[40], &o54Data_2A8,
         20, &D_800D3550_o054Reloc[1].frame, updateRate);
     hudY = (s32) o54Bss_658;
-    viGetCurrentSize_o054Reloc(&width, &height);
+    viGetCurrentSize_o054Reloc((s32 *) &width, (s32 *) &height);
     o54Data_2B0++;
     o54Data_2B0 %= 10;
 
-    for (playerIndex = 0; playerIndex < D_8007BEF4_o054Reloc; playerIndex++, actors++) {
-        actor = *actors;
+    actorCursor = actors;
+    for (playerIndex = 0; playerIndex < D_8007BEF4_o054Reloc; playerIndex++, actorCursor++) {
+        actor = *actorCursor;
         if (actor == NULL) {
             return;
         }
         player = actor->player;
-        position = &o54Bss_C0[playerIndex * 2];
-        lap = &o54Bss_1C0[playerIndex * 3];
-        lapCount = &o54Bss_280[playerIndex * 3];
-        timer = &o54Bss_340[playerIndex * 10];
+        position = o54Bss_C0[playerIndex];
+        lap = o54Bss_1C0[playerIndex];
+        lapCount = o54Bss_280[playerIndex];
+        timer = o54Bss_340[playerIndex];
         displayMode = &o54Data_298[playerIndex];
         alpha = &o54Data_2B4[playerIndex];
         item = &o54Bss_654[playerIndex];
@@ -283,7 +286,7 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
         } while ((u32) src < (u32) o54Data_14C);
         if (player->flags1A8 & 8) {
             func_8002F618_o054Reloc(&D_800D3140_o054Reloc,
-                &o54Bss_140[playerIndex * 2], 0, hudY, 255, 255, 255, 255);
+                o54Bss_140[playerIndex], 0, hudY, 255, 255, 255, 255);
         } else {
             func_8002F618_o054Reloc(&D_800D3140_o054Reloc,
                 position, 0, hudY, 255, 255, 255, 255);
@@ -315,7 +318,7 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
             D_800D3550_o054Reloc[4].rotationZ = (s32) ((u32) O54_TIME(player) * (u32) -65536) / 300;
             func_80039E34_o054Reloc(4);
             func_8002F618_o054Reloc(&D_800D3140_o054Reloc,
-                &o54Bss_5C0[playerIndex * 2], 0, hudY, 255, 255, 255, 255);
+                o54Bss_5C0[playerIndex], 0, hudY, 255, 255, 255, 255);
             break;
         }
         if (player->unk19A != 255) {
@@ -435,19 +438,22 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
                 }
             }
             if (O54_TIME_DELTA(player) <= 0) {
-                o54Bss_0[0].metadata = 12 << 16;
-                o54Bss_0[0].texture = texture = D_800D31C8_o054Reloc[20];
-                o54Bss_0[0].alternate = alternate = D_800D31C8_o054Reloc[21];
+                o54Bss_8 = 12 << 16;
+                texture = D_800D31C8_o054Reloc[20];
                 deltaTime = -O54_TIME_DELTA(player);
+                o54Bss_0[0].texture = texture;
+                o54Bss_0[0].alternate = alternate = D_800D31C8_o054Reloc[21];
                 for (i = 1; i < 9; i++) {
                     o54Bss_0[i].texture = texture;
                     o54Bss_0[i].alternate = alternate;
                 }
             } else {
-                o54Bss_0[0].metadata = 13 << 16;
-                o54Bss_0[0].alternate = alternate = D_800D31C8_o054Reloc[21];
-                o54Bss_0[0].texture = texture = D_800D31C8_o054Reloc[80];
+                o54Bss_8 = 13 << 16;
+                alternate = D_800D31C8_o054Reloc[21];
+                texture = D_800D31C8_o054Reloc[80];
                 deltaTime = O54_TIME_DELTA(player);
+                o54Bss_0[0].alternate = alternate;
+                o54Bss_0[0].texture = texture;
                 for (i = 1; i < 9; i++) {
                     o54Bss_0[i].texture = texture;
                     o54Bss_0[i].alternate = alternate;
@@ -487,7 +493,7 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
             for (i = 0; i < D_8007BEF4_o054Reloc; i++) {
                 buttons |= joyGetPressed_o054Reloc(i) & 0x9000;
             }
-            switch (*func_80028F54_o054Reloc()) {
+            switch (*(u8 *) func_80028F54_o054Reloc()) {
             case 3:
                 if (o001_data_83E0_o054Reloc == 0 && buttons != 0 && o54Data_2AC == 0) {
                     mainChangeCameras_o054Reloc(1);
@@ -521,10 +527,10 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_054_F00005AC_189F24C:start
  * symbol: func_overlay_054_F00005AC_189F24C
- * score: 1517 differing words
- * frame: 0x150
- * relocations: 263
+ * score: 1503 differing words
+ * frame: 0x158
+ * relocations: 269
  * first-mismatch: +0x0
- * summary: Active packet checkpoint: 1553/1594 words, 59 ordered calls, 21/269 exact relocation sites. Indexed copy kernel and actor cursor recovered.
+ * summary: Active reconstruction checkpoint: 1556/1594 words; 59 ordered calls; 268/269 relocation identity/type records, 22 exact sites. No match credit.
  * PLATEAU-HANDOFF:func_overlay_054_F00005AC_189F24C:end
  */
