@@ -397,7 +397,7 @@ extern s32 D_800C95B0[];
 extern s32 D_800C95B4[];
 extern s16 D_800D6C4C;
 extern s16 D_800D6C54;
-extern s8 D_80079274;
+extern u8 D_80079274;
 extern s32 D_80079278;
 extern s32 D_8007930C;
 extern void *D_80079310;
@@ -507,10 +507,9 @@ void func_8000BD50(s32 updateRate) {
 }
 /*
  * PROVENANCE: Mickey's m2c control-flow draft and the resident display-list,
- * camera, level, and weather declarations reconstruct this update routine;
- * no external function body is adapted.
+ * camera, level, and weather declarations establish this update routine's
+ * game-specific behavior. The donor adaptation is disclosed below.
  */
-#ifdef NON_MATCHING
 typedef struct TrackFrameTexture {
     u8 pad00[0x10];
     u16 unk10;
@@ -568,20 +567,19 @@ extern void shadowChangeBuffer();
 extern void shadowGenerate();
 extern void weather_clip_planes();
 
-/* Workbench verdict: structure-mismatch, 301 differing words, first mismatch +0x48. */
-/* Candidate is 402/403 instructions with the exact target -0x38 frame. */
-/* Remaining gap: one instruction plus the display-list/constant saved-register cycle. */
+/*
+ * PROVENANCE: adapted from Jet Force Gemini's public src/track.c,
+ * trackDraw at efd5abb1c79636e297b831f7c2d5bf47eac39c0c. The donor supplies
+ * the texture-update loop, display-list macro and camera-loop spelling.
+ * Mickey's ROM proves the ABI, revised fields, branches and call order;
+ * game-specific JFG paths are not imported.
+ */
 void func_8000BDB4(Gfx **arg0, Mtx **arg1, TrackVertex **arg2,
                    TrackTriangle **arg3, s32 arg4) {
-    TrackFrameTexture *texture;
-    Gfx *command;
     s32 temp_a0;
     s32 temp_s2;
-    s32 var_a0;
-    s32 var_s4;
+    s32 targetUpdateRate;
     s32 var_v0;
-    s8 temp_v0;
-    u16 temp_v1;
 
     temp_s2 = mainGetNumberOfCameras();
     camSetNo(0);
@@ -597,144 +595,105 @@ void func_8000BDB4(Gfx **arg0, Mtx **arg1, TrackVertex **arg2,
     D_800C9558 = 1;
     D_800C9538 = 0;
     if (func_800290A0() != 0) {
-        var_s4 = 0;
+        targetUpdateRate = 0;
     } else {
-        var_s4 = arg4;
+        targetUpdateRate = arg4;
     }
     if (D_800792F0 != NULL) {
-        texture = (TrackFrameTexture *) D_800792F0;
-        temp_v1 = texture->unk10;
-        var_v0 = D_800792F4 + (texture->unk12 * var_s4);
-        if (var_v0 >= (s32) temp_v1) {
-            do {
-                var_v0 -= temp_v1;
-            } while (var_v0 >= (s32) temp_v1);
+        var_v0 = D_800792F4;
+        var_v0 += ((TrackFrameTexture *) D_800792F0)->unk12 * targetUpdateRate;
+        while (var_v0 >= ((TrackFrameTexture *) D_800792F0)->unk10) {
+            var_v0 -= ((TrackFrameTexture *) D_800792F0)->unk10;
         }
         D_800792F4 = var_v0;
     }
     shadowGenerate(1, arg4);
-    levelUpdateColourCycling(var_s4);
+    levelUpdateColourCycling(targetUpdateRate);
     temp_a0 = *(s32 *) ((u8 *) D_800792EC + 0xC0);
     if (temp_a0 != -1) {
-        func_80036CAC(temp_a0, var_s4);
+        func_80036CAC(temp_a0, targetUpdateRate);
     }
     if (((TrackFrameLevel *) D_800792EC)->unk83 == 2) {
         D_80079260 = 0;
     } else {
         D_80079260 = 1;
     }
-    temp_v0 = ((TrackFrameLevel *) D_800792EC)->unk83;
-    if ((temp_v0 == 1) || (temp_v0 == 2) ||
+    if ((((TrackFrameLevel *) D_800792EC)->unk83 == 1) ||
+        (((TrackFrameLevel *) D_800792EC)->unk83 == 2) ||
         (((TrackFrameLevel *) D_800792EC)->unkD1 != 0)) {
         D_800C9544 = 1;
     }
     if (((TrackFrameLevel *) D_800792EC)->unk52 == 3) {
+        var_v0 = (((TrackFrameLevel *) D_800792EC)->unkB8->width << 9) - 1;
         ((TrackFrameLevel *) D_800792EC)->unkBC =
             (((TrackFrameLevel *) D_800792EC)->unkBC +
-             (((TrackFrameLevel *) D_800792EC)->unkB4 * var_s4)) &
-            ((((TrackFrameLevel *) D_800792EC)->unkB8->width << 9) - 1);
+             (((TrackFrameLevel *) D_800792EC)->unkB4 * targetUpdateRate)) & var_v0;
+        var_v0 = (((TrackFrameLevel *) D_800792EC)->unkB8->height << 9) - 1;
         ((TrackFrameLevel *) D_800792EC)->unkBE =
             (((TrackFrameLevel *) D_800792EC)->unkBE +
-             (((TrackFrameLevel *) D_800792EC)->unkB5 * var_s4)) &
-            ((((TrackFrameLevel *) D_800792EC)->unkB8->height << 9) - 1);
+             (((TrackFrameLevel *) D_800792EC)->unkB5 * targetUpdateRate)) & var_v0;
         func_800367E8(((TrackFrameLevel *) D_800792EC)->unkB8,
                       (u32 *) &D_800C9568,
-                      &D_800C9560, var_s4);
+                      &D_800C9560, targetUpdateRate);
     }
     func_80034920(&D_800C9520);
-    command = D_800C9520;
-    D_800C9520 = command + 1;
-    command->words.w1 = 0;
-    command->words.w0 = 0xBC000002;
+    gMoveWd(D_800C9520++, 2, 0, 0);
     if (levelInitRegionFlags() != 0) {
-        command = D_800C9520;
-        D_800C9520 = command + 1;
-        command->words.w1 = 0x2000;
-        command->words.w0 = 0xB6000000;
-        command = D_800C9520;
-        D_800C9520 = command + 1;
-        command->words.w1 = 0x1000;
-        command->words.w0 = 0xB7000000;
+        gSPClearGeometryMode(D_800C9520++, G_CULL_BACK);
+        gSPSetGeometryMode(D_800C9520++, G_CULL_FRONT);
     } else {
-        command = D_800C9520;
-        D_800C9520 = command + 1;
-        command->words.w1 = 0x1000;
-        command->words.w0 = 0xB6000000;
-        command = D_800C9520;
-        D_800C9520 = command + 1;
-        command->words.w1 = 0x2000;
-        command->words.w0 = 0xB7000000;
+        gSPClearGeometryMode(D_800C9520++, G_CULL_FRONT);
+        gSPSetGeometryMode(D_800C9520++, G_CULL_BACK);
     }
-    command = D_800C9520;
-    D_800C9520 = command + 1;
-    command->words.w1 = 0x64;
-    command->words.w0 = 0xF9000000;
-    command = D_800C9520;
-    D_800C9520 = command + 1;
-    command->words.w1 = -1;
-    command->words.w0 = 0xFA000000;
-    command = D_800C9520;
-    D_800C9520 = command + 1;
-    command->words.w1 = -0x100;
-    command->words.w0 = 0xFB000000;
+    gDPSetBlendColor(D_800C9520++, 0, 0, 0, 0x64);
+    gDPSetPrimColor(D_800C9520++, 0, 0, 255, 255, 255, 255);
+    gDPSetEnvColor(D_800C9520++, 255, 255, 255, 0);
     rainSetFog();
-    func_80014614(temp_s2, var_s4);
+    func_80014614(temp_s2, targetUpdateRate);
     if (*(s16 *) ((u8 *) D_800792E8 + 0x1E) > 0) {
-        func_8000C400(var_s4);
+        func_8000C400(targetUpdateRate);
     }
     if (D_80079274 != 0) {
-        TrapDanglingJump((void **) (s32) var_s4);
+        TrapDanglingJump((void **) (s32) targetUpdateRate);
     }
     if ((D_8007A128 != 0) && (temp_s2 == 1)) {
         camEnableUserView(0, 1);
         func_800219D0();
     }
-    D_800C9534 = 0;
-    var_a0 = 0;
-    if (temp_s2 > 0) {
-        do {
-            func_800147A4(var_a0);
-            command = D_800C9520;
-            D_800C9520 = command + 1;
-            command->words.w1 = 0;
-            command->words.w0 = 0xE7000000;
-            camSetNo(D_800C9534);
-            func_800221E8(&D_800C9520, &D_800C9524);
-            func_8000FF2C();
-            if (temp_s2 < 3) {
-                if (((TrackFrameLevel *) D_800792EC)->unk52 == 3) {
-                    func_8000C5F4();
-                } else if (D_800C9550 != 0) {
-                    func_8000CED0(arg4);
-                }
-                if (D_80079278 > 0) {
-                    if (D_800C9534 == 0) {
-                        TrapDanglingJump((void **) (s32) var_s4);
-                    }
-                    TrapDanglingJump(&D_800C9520);
-                }
-            } else {
-                temp_v0 = ((TrackFrameLevel *) D_800792EC)->unk52;
-                if ((temp_v0 != 4) && (temp_v0 != 5)) {
-                    func_8000CC78();
-                }
+    for (D_800C9534 = 0; D_800C9534 < temp_s2; D_800C9534++) {
+        func_800147A4(D_800C9534);
+        gDPPipeSync(D_800C9520++);
+        camSetNo(D_800C9534);
+        func_800221E8(&D_800C9520, &D_800C9524);
+        func_8000FF2C();
+        if (temp_s2 < 3) {
+            if (((TrackFrameLevel *) D_800792EC)->unk52 == 3) {
+                func_8000C5F4();
+            } else if (D_800C9550 != 0) {
+                func_8000CED0(arg4);
             }
-            func_80044BC8(D_800C9520, (char *) D_80081550, 0x26A);
-            command = D_800C9520;
-            D_800C9520 = command + 1;
-            command->words.w1 = 0;
-            command->words.w0 = 0xE7000000;
-            func_8000D018(temp_s2, arg4);
-            weather_clip_planes(-1, -0x200);
-            if ((((TrackFrameLevel *) D_800792EC)->unkA2 > 0) &&
-                (temp_s2 < 2)) {
-                doWeather(&D_800C9520, &D_800C9524,
-                          (void *) &D_800C9528, (void *) &D_800C952C,
-                          var_s4);
+            if (D_80079278 > 0) {
+                if (D_800C9534 == 0) {
+                    TrapDanglingJump((void **) (s32) targetUpdateRate);
+                }
+                TrapDanglingJump(&D_800C9520);
             }
-            var_a0 = D_800C9534 + 1;
-            D_800C9534 = var_a0;
-        } while (var_a0 < temp_s2);
+        } else {
+            if ((((TrackFrameLevel *) D_800792EC)->unk52 != 4) &&
+                (((TrackFrameLevel *) D_800792EC)->unk52 != 5)) {
+                func_8000CC78();
+            }
+        }
+        func_80044BC8(D_800C9520, (char *) D_80081550, 0x26A);
+        gDPPipeSync(D_800C9520++);
+        func_8000D018(temp_s2, arg4);
+        weather_clip_planes(-1, -0x200);
+        if ((((TrackFrameLevel *) D_800792EC)->unkA2 > 0) &&
+            (temp_s2 < 2)) {
+            doWeather(&D_800C9520, &D_800C9524,
+                      (void *) &D_800C9528, (void *) &D_800C952C,
+                      targetUpdateRate);
+        }
     }
     if (D_8007D6B0 > 0) {
         TrapDanglingJump(&D_800C9520);
@@ -744,34 +703,19 @@ void func_8000BDB4(Gfx **arg0, Mtx **arg1, TrackVertex **arg2,
         TrapDanglingJump(&D_800C9520);
     }
     if (levelInitRegionFlags() != 0) {
-        command = D_800C9520;
-        D_800C9520 = command + 1;
-        command->words.w1 = 0x1000;
-        command->words.w0 = 0xB6000000;
-        command = D_800C9520;
-        D_800C9520 = command + 1;
-        command->words.w1 = 0x2000;
-        command->words.w0 = 0xB7000000;
+        gSPClearGeometryMode(D_800C9520++, G_CULL_FRONT);
+        gSPSetGeometryMode(D_800C9520++, G_CULL_BACK);
     }
     func_80022D20(&D_800C9520);
     camDisableUserView(0, 1);
-    command = D_800C9520;
-    D_800C9520 = command + 1;
-    command->words.w1 = 0;
-    command->words.w0 = 0xE7000000;
-    command = D_800C9520;
-    D_800C9520 = command + 1;
-    command->words.w1 = 0;
-    command->words.w0 = 0xBC000002;
+    gDPPipeSync(D_800C9520++);
+    gMoveWd(D_800C9520++, 2, 0, 0);
     shadowChangeBuffer();
     *arg0 = D_800C9520;
     *arg1 = D_800C9524;
     *arg2 = D_800C9528;
     *arg3 = D_800C952C;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000BDB4.s")
-#endif
 /*
  * PROVENANCE: adapted from Jet Force Gemini's public `src/track.c`, function
  * `func_800129AC_135AC`. Mickey proves the revised segment and texture layouts
@@ -5807,16 +5751,6 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x0
  * summary: Mickey evidence fixes record bytes, signed flags, and two-stage cross products; FP saved-register colouring and five-word schedule drift remain.
  * PLATEAU-HANDOFF:func_800115E4:end
- */
-
-/* PLATEAU-HANDOFF:func_8000BDB4:start
- * symbol: func_8000BDB4
- * score: 301 differing words
- * frame: -0x38
- * relocations: 100
- * first-mismatch: +0x48
- * summary: Fresh level-global reloads close nine of ten missing words; one instruction and the s0/s1 display-list/constant register cycle remain.
- * PLATEAU-HANDOFF:func_8000BDB4:end
  */
 
 /* PLATEAU-HANDOFF:func_8000D3B8:start
