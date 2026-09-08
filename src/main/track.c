@@ -5725,10 +5725,10 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 /* PLATEAU-HANDOFF:func_80011980:start
  * symbol: func_80011980
  * score: 211 differing words
- * frame: -0xE0
+ * frame: 0xe0
  * relocations: 12
  * first-mismatch: +0x0
- * summary: Target control flow is restored; original declaration and FP lifetimes are needed to remove the 0x18 frame and two-word excess.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_80011980:end
  */
 
