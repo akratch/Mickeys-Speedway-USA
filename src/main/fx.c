@@ -2548,8 +2548,8 @@ void func_8004AF68(void) {
  * score: 345 differing words
  * frame: 0x98
  * relocations: 3
- * first-mismatch: +0xC
- * summary: 343/351 words, normalized 203, target frame 0x90. Buffer topology and loops are restored; early stack homes and two moved blocks remain.
+ * first-mismatch: 0xc
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new initialization homes and buffer-loop topology evidence.
  * PLATEAU-HANDOFF:wakeAllocate:end
  */
 
