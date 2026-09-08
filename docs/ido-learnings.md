@@ -188,6 +188,18 @@ bytes and disassembly never belong here.
   (`func_overlay_026_F0000B18_187AF10`), and declaring a pair after the
   local whose slots it must follow lands both on the retail homes
   (`overlay84InitializeAndUpdate`). All three were exact on 2026-09-03.
+- A mixed integer/pointer sentinel can cost both a declared home and a second
+  constant carrier even when the stored bits are identical. On a proved
+  32-bit raw-word table, model each physical word with an integer/pointer
+  union, reuse a pointer parameter only after its original value is dead, and
+  write both sentinel words through the same pointer member. IDO then keeps one
+  typed constant web; combining that with repeated scaled indexing can remove
+  the named index and sentinel homes together, reducing the frame by one
+  eight-byte quantum while retaining the call-crossing spill. This is valid
+  only when the word and pointer widths and all-ones representation are proved,
+  the original pointer has no later use, and the ordinary object, complete
+  relocation surface, linked owned range, and full ROM are exact. Evidence:
+  the exact `func_800347A0` closure, 2026-09-08.
 - ugen's integer temp ring is consumed one pop per compiler temporary, and
   the `DKWB_UGEN_TRACE` pop sequence shows the count directly: reading a
   struct field through a local costs a pop that a direct read does not, an
