@@ -1343,3 +1343,13 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o058/func_overlay_058_F000138C_18B0574/func_overlay_058_F000138C_18B0574.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
+ * symbol: func_overlay_058_F000138C_18B0574
+ * score: 3693 differing words
+ * frame: 0x158
+ * relocations: 1285
+ * first-mismatch: +0x0
+ * summary: 244 calls recovered; configured mips1 excludes 38 target branch-likely opcodes. Next: authorized ISA-context review on reconstructed C.
+ * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
+ */
