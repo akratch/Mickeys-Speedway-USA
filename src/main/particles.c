@@ -1614,19 +1614,17 @@ CircularParticle *func_8003FB98(ParticleEmitterObject *object, ParticleTrigger *
     return particle;
 }
 #ifdef NON_MATCHING
-/* Before -> after: size-mismatch, 124/125 instructions; 101 positional words differ
- * from +0x2C, while shift-tolerant diagnosis leaves 33 aligned words from +0x4C.
- * Type lever: unsigned free-bit pointer and pool aggregate; no scan-shape movement.
- * Remains: initial address shift, pool/temporary web, and one missing instruction. */
+/* Reopened m2c reconstruction: exact 125-word geometry with 56 positional
+ * differences from +0x7C. A unified word/particle index and compiler-owned
+ * indexed scans recover the missing address instruction and relocation surface.
+ * Remaining: the a2/a3 carrier assignment and reverse-mask materialization. */
 /* PROVENANCE: structure cross-checked against JFG
  * asm/nonmatchings/particles/func_80061948.s; body reconstructed from Mickey evidence. */
 CircularParticle *func_8004054C(s32 type, s32 direction) {
     CircularParticlePool *pool;
     CircularParticle *particle;
     u32 *freeBits;
-    u32 *wordPtr;
     s32 bits;
-    s32 particleIndex;
     s32 wordIndex;
     s32 bitIndex;
 
@@ -1645,44 +1643,37 @@ CircularParticle *func_8004054C(s32 type, s32 direction) {
             if (direction == -1) {
                 freeBits = pool->freeBits;
                 if (*freeBits == 0) {
-                    wordPtr = (u32 *)((u8 *)freeBits + (wordIndex << 2));
-                    if (pool->lastBitWord >= wordIndex) {
+                    bits = pool->lastBitWord;
+                    if (bits >= wordIndex) {
                         do {
                             wordIndex++;
-                            wordPtr++;
-                        } while (*wordPtr == 0 && wordIndex <= pool->lastBitWord);
+                        } while (freeBits[wordIndex] == 0 && wordIndex <= bits);
                     }
                 }
-                wordPtr = freeBits + wordIndex;
                 if (pool->lastBitWord < wordIndex) {
                     return NULL;
                 }
-                bits = *wordPtr;
+                bits = freeBits[wordIndex];
                 bitIndex = 0;
-                particleIndex = wordIndex << 5;
                 if (!(bits & 1)) {
                     do {
                         bitIndex++;
                     } while (!(bits & (1 << bitIndex)));
                 }
-                *wordPtr = bits & ~(1 << bitIndex);
-                particleIndex += bitIndex;
+                freeBits[wordIndex] = bits & ~(1U << bitIndex);
+                wordIndex = (wordIndex << 5) + bitIndex;
             } else {
                 wordIndex = pool->lastBitWord;
                 if (wordIndex > 0) {
-                    wordPtr = pool->freeBits;
-                    wordPtr = wordPtr + wordIndex;
-                    if (*wordPtr == 0) {
+                    freeBits = pool->freeBits;
+                    if (freeBits[wordIndex] == 0) {
                         do {
                             wordIndex--;
-                            wordPtr--;
-                        } while (wordIndex > 0 && *wordPtr == 0);
+                        } while (wordIndex > 0 && freeBits[wordIndex] == 0);
                     }
                 }
                 freeBits = pool->freeBits;
-                wordPtr = freeBits + wordIndex;
-                bits = *wordPtr;
-                particleIndex = wordIndex << 5;
+                bits = freeBits[wordIndex];
                 if (bits == 0) {
                     return NULL;
                 }
@@ -1692,14 +1683,13 @@ CircularParticle *func_8004054C(s32 type, s32 direction) {
                         bitIndex--;
                     } while (!(bits & (1 << bitIndex)));
                 }
-                bits &= ~(1 << bitIndex);
-                *wordPtr = bits;
-                particleIndex += bitIndex;
+                freeBits[wordIndex] = bits & ~(1U << bitIndex);
+                wordIndex = (wordIndex << 5) + bitIndex;
             }
-            if (particleIndex >= pool->count) {
+            if (wordIndex >= pool->count) {
                 return NULL;
             }
-            particle = &pool->particles[particleIndex];
+            particle = &pool->particles[wordIndex];
             particle->type = type;
             pool->activeCount++;
         }
@@ -2642,11 +2632,11 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
 
 /* PLATEAU-HANDOFF:func_8004054C:start
  * symbol: func_8004054C
- * score: 24/125 words
+ * score: 56 differing words
  * frame: frameless
  * relocations: 2
- * first-mismatch: +0x2C
- * summary: Fresh reproof unchanged; the sole caller and JFG donor leave the initial address shift and pool web unresolved.
+ * first-mismatch: +0x7C
+ * summary: m2c SSA identity and indexed scans recover exact 125-word geometry; next lever is the a2/a3 carrier web and reverse-mask placement.
  * PLATEAU-HANDOFF:func_8004054C:end
  */
 
