@@ -2388,27 +2388,27 @@ void func_8004AF68(void) {
  * frame: 0x38
  * relocations: 14
  * first-mismatch: +0x10
- * summary: 52-word shape and 14 identities; 119 flags plus bounded source/permuter attempts leave saved-register order and four early LO16 sites
+ * summary: JFG efd5abb fxCpuTextureFlush remains assembly-only; structure-buckets has no proved lever. Need new pool-base and saved-register source evidence.
  * PLATEAU-HANDOFF:func_8004AF68:end
  */
 
 /* PLATEAU-HANDOFF:func_8004ACC4:start
  * symbol: func_8004ACC4
- * score: 14/28 words
+ * score: 14 differing words
  * frame: frameless
  * relocations: 12
  * first-mismatch: +0x14
- * summary: Five callback/trap identity sites and four counter/address webs remain; 119 flags and ten coherent forms exhausted; needs new source evidence.
+ * summary: JFG efd5abb counterpart remains assembly-only; structure-buckets has no proved lever. Resume with new callback/trap source; configured 14/28 retained.
  * PLATEAU-HANDOFF:func_8004ACC4:end
  */
 
 /* PLATEAU-HANDOFF:func_80048760:start
  * symbol: func_80048760
- * score: 98/121 words
+ * score: 23 differing words
  * frame: 0x48
  * relocations: 4
  * first-mismatch: +0x8
- * summary: Authorized V0 reproduced 23 residual words; equal-size JFG wakeSetupRipple is GLOBAL_ASM-only, leaving no new lever beyond exhausted forms.
+ * summary: JFG efd5abb wakeSetupRipple remains assembly-only; 23/121 words differ. Next lever: new donor initialization source/line topology; prior forms exhausted.
  * PLATEAU-HANDOFF:func_80048760:end
  */
 
