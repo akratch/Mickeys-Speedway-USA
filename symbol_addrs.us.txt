@@ -2281,6 +2281,7 @@ amUpdateOsc = 0x80003D58; // type:func size:0x574 ROM 0x4958 tier-B (JFG name/or
 amStopOsc = 0x800042CC; // type:func size:0x18 ROM 0x4ecc tier-B (JFG name/order, Mickey-only body)
 _depth2Cents = 0x800042E4; // type:func size:0x50 ROM 0x4ee4 src/audio_manager_4C50.c.o masked=2/20, followed by 0xC target padding
 // jfg:src/objects.c.o
+func_80005868 = 0x80005868; // type:func size:0x58 ROM 0x6468 tier-A matched C Mickey-only C-object+linked-ROM-exact, five relocation identities, name unresolved
 GetRomlistInfo = 0x8000BC88; // type:func size:0x28 tier-A JFG byte identity, ROM 0xc888, matched C src/main/objects.c.o -O2 -mips2 -32, linked exact=10/10
 // donor-jfg-src/track.c.o
 func_8000DB34 = 0x8000DB34; // type:func size:0x2B0 tier-D ROM 0xE734 src/main/track.c.o -O2 -mips2 -32 -Wab,-r4300_mul NON_MATCHING resident fallback and adjacent func_8000DDE4 boundary owner, no match credit
@@ -2842,3 +2843,7 @@ func_8000590C = 0x8000590C; // type:func size:0xB3C tier-D extracted resident bo
 
 // Overlay 26 text identity; synthetic VMA is scoped by segment and ROM.
 func_overlay_026_F0000D24_187B11C = 0xF0000D24; // type:func size:0x434 rom:0x187B11C segment:overlay_026 tier-A matched C, 269 linked words and 23 runtime relocation identities
+func_80009220 = 0x80009220; // type:func size:0x1F4 ROM 0x9E20 tier-A matched C Mickey-only C-object+linked-ROM-exact, nine relocation identities, name unresolved
+func_80008128 = 0x80008128; // type:func size:0x1F4 ROM 0x8D28 tier-A matched C Mickey-only C-object+linked-ROM-exact, five relocation identities, name unresolved
+func_80006C4C = 0x80006C4C; // type:func size:0x254 ROM 0x784C tier-A matched C Mickey-only C-object+linked-ROM-exact, sixteen relocation identities, name unresolved
+func_8000486C = 0x8000486C; // type:func size:0x298 ROM 0x546C tier-A matched C Mickey-only C-object+linked-ROM-exact, twenty-three relocation identities, name unresolved

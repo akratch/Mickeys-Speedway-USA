@@ -76,6 +76,38 @@ bytes and disassembly never belong here.
 
 ### Allocation and source shape
 
+- A command-pointer load followed by a separate cursor update can produce a
+  different allocation from `command = (*cursor)++`, even when both advance
+  by exactly one command. Paired full-TU traces showed the post-increment form
+  create an additional interfering web in p1; the stock command instructions
+  then used the required color. The resulting two-store scheduling residual
+  closed by placing the independent header and payload assignments on one
+  physical source line. Preserve the pointer type, increment size, evaluation
+  count, and complete command writes. A forced color alone changed the store
+  order and was not exact, so remeasure the whole sequence after changing
+  allocation. This is a measured source-form lever, not a rule that every late
+  return-register mismatch comes from a callee prototype. Evidence: the exact
+  resident sprite-segment renderer in `docs/resident.md`.
+- Correct frame size does not prove the source's stack objects. A callee that
+  reads and writes a full vector, or consumes a transform with a later frame
+  field, can expose a draft's undersized arrays and disconnected locals.
+  Reconstruct those aggregates from the callee's authenticated accesses before
+  tuning homes or colors; separate volatile scalars are not a substitute for
+  the object actually passed. Reusing a consumed input parameter for a later
+  result can then remove a surplus home when the target stores that result in
+  the parameter's caller home. Prove that no subsequent path needs the input
+  value, and validate every read field and aggregate extent. Evidence: the
+  exact resident sprite-segment renderer in `docs/resident.md`.
+- When a table index local adds an unwanted colored value before a call,
+  carry the final table result into the call instead. A nested lookup assigned
+  before argument setup can leave the intermediate index temporary while the
+  result takes its call-argument register at zero measured color cost. Paired
+  full-TU traces with stock-output fidelity confirmed this in the exact resident
+  ROM-section DMA helper recorded in `docs/resident.md`. Preserve signed index
+  widening, lookup order, and evaluation count. Directly nesting the lookup in
+  the call or overwriting the incoming parameter can instead add a spill or
+  store; neither is equivalent as an allocation experiment. This is a carrier
+  placement lever, not proof of a target register's allocator role from its name.
 - A small register-only switch residual can come from a named selector even
   when both functions are frameless. Putting a single-use selector expression
   directly in the switch removed its named carrier and restored exact output
@@ -210,6 +242,46 @@ bytes and disassembly never belong here.
   ordinary compiler bytes, relocation identities and linked-ROM proof.
   Evidence: the Overlay 26 effect-handler closure in `docs/overlays.md`,
   2026-09-08.
+- Used scalar copies can recover an omitted declared stack region without
+  retaining the memory traffic of an array. For a movement operation that
+  consumes each displacement twice, separate float copies preserved the
+  instruction and register sequence while enlarging the frame; an equivalent
+  three-element array retained extra loads/stores. Once the frame agreed,
+  moving a used bound declaration before the call-crossing coordinates placed
+  their homes. Distinguish frame extent from home position and measure them
+  separately. This is a source-level layout observation under stock IDO 5.3
+  `-O2 -mips2`, supported by configured object and linked-ROM identity; it does
+  not justify unused padding or new volatile accesses.
+- Declaration position can shrink the emitted frame without reducing the
+  declaration count. Moving a spilled return pointer earlier recovered both
+  the frame and its home while later declarations remained in the source.
+  Distinguish the front end's reserved offsets from the final frame: declaration
+  count alone is not a lower bound after optimization. Measure actual stack
+  accesses and frame extent before deleting useful locals. This was proved
+  with a paired stock full-TU IDO 5.3 build and subsequent linked-ROM identity;
+  the available web-detail trace covered only part of the frame and did not
+  establish which pass removed the unused tail region.
+- A register swap confined to a later loop can come from a local shared with
+  an earlier loop. In a clear-then-copy routine, using the copy source as the
+  clearing cursor joined both lifetimes into the higher-priority pointer web.
+  A forced color merely moved the residual into the clear loop. Reusing the
+  destination for both writing phases instead left the read source local to
+  copying and made stock output exact. Paired fidelity-proved p1 traces kept
+  the same two priority levels but exchanged which source home occupied each.
+  Inspect every use of the shared local before treating a late swap as an
+  isolated tie-break; this lever requires real, compatible pointer roles and
+  does not justify new accesses or forced compiler output in canonical builds.
+- A one-local ablation can move temporary spill homes while leaving the frame
+  unchanged because the frame rounds to eight bytes. In a loader whose register
+  and instruction sequence already agreed, removing redundant aliases in pairs
+  reduced the frame while restoring every emitted spill offset. Direct repeated
+  array expressions preserved common-subexpression carriers without the named
+  locals; deriving one byte offset from another changed those carriers and
+  regressed allocation. Read frame extent and spill offsets separately, and
+  preserve independent index expressions when removing their aliases. This was
+  measured with stock full-TU IDO 5.3 builds and confirmed by linked-ROM identity;
+  it does not establish the same behavior for addressed locals or expressions
+  with intervening writes or calls.
 - A mixed integer/pointer sentinel can cost both a declared home and a second
   constant carrier even when the stored bits are identical. On a proved
   32-bit raw-word table, model each physical word with an integer/pointer

@@ -477,11 +477,6 @@ typedef struct {
 } Objects0A39CMatrix;
 
 typedef struct {
-    s32 start;
-    s32 end;
-} Objects0486CTableEntry;
-
-typedef struct {
     f32 unk0;
     u8 pad04[0x18];
     s16 unk1C;
@@ -681,7 +676,6 @@ extern void func_80034E48(void);
 extern void func_80023598(void **, void *, void *, void *, void *, s32);
 extern void func_80023A08(void **, s32, s32, s16 *, s32, s32, s32);
 extern f32 sqrtf(f32);
-extern f32 D_80080F80;
 extern f32 D_80080F7C;
 
 typedef struct {
@@ -865,12 +859,13 @@ void func_8000439C(void) {
     mmFree(D_800C94D8[1]);
     D_80078F84 = 0;
 }
-/* Workbench verdict: schedule/register-permutation; 6 differing words (73/79). */
-/* First mismatch: +0x50; size, frame, CFG, and relocation surface are exact. */
-/* Structural gap: none; late scheduling and register allocation are reserved for the permuter. */
+/* Workbench verdict: register-permutation; 3 differing words (76/79). */
+/* First mismatch: +0x50; frame 0x88 and all six relocation identities are exact. */
+/* Residual: initial list-index allocation; forced-color output is diagnostic only. */
 #ifdef NON_MATCHING
 void *func_80004454(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
-    volatile s32 frame_reserve[2];
+    f32 queryX;
+    f32 queryY;
     s32 sp7C;
     s32 sp78;
     f32 temp_f0;
@@ -882,20 +877,20 @@ void *func_80004454(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     Objects04454Object *temp_s0;
     void *var_s4;
 
+    queryX = arg0;
+    queryY = arg1;
     temp_v0 = (s32)func_8000572C(&sp7C, &sp78);
     var_f20 = D_80080D24;
     var_s4 = NULL;
     if (sp7C < sp78) {
-        var_s1 = sp7C * 4;
-        var_s2 = (u8 *)temp_v0 + var_s1;
-        do {
+        var_s1 = sp7C * 4; var_s2 = (u8 *)temp_v0 + var_s1; do {
             temp_s0 = *(Objects04454Object **)var_s2;
             if (temp_s0->unk91 != 0) {
                 var_v0 = sp78 * 4;
             } else {
-                if ((temp_s0 != D_80078F20) && (arg3 == temp_s0->unk44)) {
+                if ((temp_s0 != D_80078F20) && (temp_s0->unk44 == arg3)) {
                     temp_f0 = func_8000BD0C(temp_s0->unkC, temp_s0->unk10,
-                                            temp_s0->unk14, arg0, arg1, arg2);
+                                            temp_s0->unk14, queryX, queryY, arg2);
                     if (temp_f0 < var_f20) {
                         var_f20 = temp_f0;
                         var_s4 = temp_s0;
@@ -986,12 +981,13 @@ block_9:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004590.s")
 #endif
-/* Workbench verdict: schedule/register-permutation; 6 differing words (74/80). */
-/* First mismatch: +0x50; size, frame, CFG, and FP register shape are exact. */
-/* Structural gap: none; residual register/scheduling differences are permuter-ready. */
+/* Workbench verdict: register-permutation; 3 differing words (77/80). */
+/* First mismatch: +0x50; frame 0x88 and all six relocation identities are exact. */
+/* Residual: initial list-index allocation shared with func_80004454. */
 #ifdef NON_MATCHING
 void *func_8000471C(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
-    volatile s32 frame_reserve[2];
+    f32 queryX;
+    f32 queryY;
     s32 sp7C;
     s32 sp78;
     f32 temp_f0;
@@ -1003,19 +999,19 @@ void *func_8000471C(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     Objects0471CObject *temp_s0;
     void *var_s4;
 
+    queryX = arg0;
+    queryY = arg1;
     temp_v0 = (s32)func_8000572C(&sp7C, &sp78);
     var_f20 = D_80080D28;
     var_s4 = NULL;
     if (sp7C < sp78) {
-        var_s1 = sp7C * 4;
-        var_s2 = (u8 *)temp_v0 + var_s1;
-        do {
+        var_s1 = sp7C * 4; var_s2 = (u8 *)temp_v0 + var_s1; do {
             temp_s0 = *(Objects0471CObject **)var_s2;
             if (temp_s0->unk91 != 0) {
                 var_v0 = sp78 * 4;
             } else {
-                if ((temp_s0 != (Objects0471CObject *)D_80078F20) && (arg3 == temp_s0->unk40->unk1B)) {
-                    temp_f0 = func_8000BD0C(temp_s0->unkC, temp_s0->unk10, temp_s0->unk14, arg0, arg1, arg2);
+                if ((temp_s0 != (Objects0471CObject *)D_80078F20) && (temp_s0->unk40->unk1B == arg3)) {
+                    temp_f0 = func_8000BD0C(temp_s0->unkC, temp_s0->unk10, temp_s0->unk14, queryX, queryY, arg2);
                     if (temp_f0 < var_f20) {
                         var_f20 = temp_f0;
                         var_s4 = temp_s0;
@@ -1035,88 +1031,67 @@ void *func_8000471C(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
 void func_8000485C(s8 arg0) {
     D_80078F88 = arg0;
 }
-/* Workbench verdict: structure-mismatch; 146 differing words (target 166, candidate 168). */
-/* First mismatch: +0x0; target frame 0x48 versus candidate frame 0x58. */
-/* Structural gap: cache-index stack home and two extra call-path instructions remain. */
-#ifdef NON_MATCHING
 void *func_8000486C(s32 arg0) {
-    Objects0486CTableEntry *tableEntry;
     Objects0486CAsset *asset;
-    u16 refValue;
-    u16 descriptor;
     s32 assetStart;
     s32 assetSize;
-    s32 relativeE0;
     s32 index;
-    s32 descriptorOffset;
-    s32 resourceOffset;
 
-    refValue = D_800C948C[arg0];
-    if (refValue != 0) {
-        D_800C948C[arg0] = refValue + 1;
+    if (*(u16 *)((u8 *)D_800C948C + arg0 * 2) != 0) {
+        *(u16 *)((u8 *)D_800C948C + arg0 * 2) += 1;
         return ((Objects0486CAsset **)D_800C9488)[arg0];
     }
 
-    tableEntry = &((Objects0486CTableEntry *)D_800C9458)[arg0];
-    assetStart = tableEntry->start;
-    assetSize = tableEntry->end - assetStart;
+    assetStart = ((s32 *)((u8 *)D_800C9458 + arg0 * 4))[0];
+    assetSize = ((s32 *)((u8 *)D_800C9458 + arg0 * 4))[1] - assetStart;
     asset = (Objects0486CAsset *)func_8002B4C0(D_800C94A0, assetSize);
     if ((asset == NULL) && (D_80078F88 != 0)) {
         asset = (Objects0486CAsset *)func_8002B280(assetSize, 0x8B);
     }
-    if (asset == NULL) {
+    if (asset != NULL) {
+        piRomLoadSection(0x2D, (u32)asset, assetStart, assetSize);
+        asset->unk4C = (s32)((u8 *)asset + asset->unk4C);
+        asset->unk50 = (s32)((u8 *)asset + asset->unk50);
+        asset->unk44 = (s32)((u8 *)asset + asset->unk44);
+        asset->unkB0 = (s32)((u8 *)asset + asset->unkB0);
+        asset->unk38 = (s32)((u8 *)asset + asset->unk38);
+        asset->unk3C = (s32)((u8 *)asset + asset->unk3C);
+        asset->unk40 = (s32)((u8 *)asset + asset->unk40);
+        asset->unk34 = (s32)((u8 *)asset + asset->unk34);
+        asset->unkA8 = (s32)((u8 *)asset + asset->unkA8);
+        asset->unkAC = (s32)((u8 *)asset + asset->unkAC);
+        if (asset->unkE0 != 0) {
+            asset->unkE0 = (s32)((u8 *)asset + asset->unkE0);
+        }
+
+        index = 0;
+        if (asset->unkA6 > 0) {
+            do {
+                if ((((u16 *)asset->unkA8)[index] & 0xC000) == 0xC000) {
+                    ((void **)asset->unkAC)[index] =
+                        (void *)func_80034448(((u16 *)asset->unkA8)[index] & 0x3FFF);
+                } else if (((u16 *)asset->unkA8)[index] & 0x8000) {
+                    ((void **)asset->unkAC)[index] =
+                        func_800355A0(((u16 *)asset->unkA8)[index] & 0x3FFF, 1);
+                } else {
+                    ((void **)asset->unkAC)[index] =
+                        func_8001F520(((u16 *)asset->unkA8)[index], 0);
+                }
+                index += 1;
+            } while (index < asset->unkA6);
+        }
+
+        if ((asset->unk1C == 1) && (D_8007BF1C & 8) &&
+            (*func_80028F54() != 1)) {
+            asset->unk0 *= 0.5f;
+        }
+        *(Objects0486CAsset **)((u8 *)D_800C9488 + arg0 * 4) = asset;
+        *(u16 *)((u8 *)D_800C948C + arg0 * 2) = 1;
+    } else {
         return NULL;
     }
-
-    piRomLoadSection(0x2D, (u32)asset, assetStart, assetSize);
-    relativeE0 = asset->unkE0;
-    asset->unk4C = (s32)((u8 *)asset + asset->unk4C);
-    asset->unk50 = (s32)((u8 *)asset + asset->unk50);
-    asset->unk44 = (s32)((u8 *)asset + asset->unk44);
-    asset->unkB0 = (s32)((u8 *)asset + asset->unkB0);
-    asset->unk38 = (s32)((u8 *)asset + asset->unk38);
-    asset->unk3C = (s32)((u8 *)asset + asset->unk3C);
-    asset->unk40 = (s32)((u8 *)asset + asset->unk40);
-    asset->unk34 = (s32)((u8 *)asset + asset->unk34);
-    asset->unkA8 = (s32)((u8 *)asset + asset->unkA8);
-    asset->unkAC = (s32)((u8 *)asset + asset->unkAC);
-    if (relativeE0 != 0) {
-        asset->unkE0 = (s32)((u8 *)asset + relativeE0);
-    }
-
-    index = 0;
-    descriptorOffset = 0;
-    resourceOffset = 0;
-    if (asset->unkA6 > 0) {
-        do {
-        descriptor = *(u16 *)((u8 *)asset->unkA8 + descriptorOffset);
-        if ((descriptor & 0xC000) == 0xC000) {
-            *(void **)((u8 *)asset->unkAC + resourceOffset) =
-                (void *)func_80034448(descriptor & 0x3FFF, 0);
-        } else if (descriptor & 0x8000) {
-            *(void **)((u8 *)asset->unkAC + resourceOffset) =
-                func_800355A0(descriptor & 0x3FFF, 1);
-        } else {
-            *(void **)((u8 *)asset->unkAC + resourceOffset) =
-                func_8001F520(descriptor, 0);
-        }
-        index += 1;
-        descriptorOffset += 2;
-        resourceOffset += 4;
-        } while (index < asset->unkA6);
-    }
-
-    if ((asset->unk1C == 1) && (D_8007BF1C & 8) &&
-        (*func_80028F54() != 1)) {
-        asset->unk0 *= 0.5f;
-    }
-    ((Objects0486CAsset **)D_800C9488)[arg0] = asset;
-    D_800C948C[arg0] = 1;
     return asset;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000486C.s")
-#endif
 /* Workbench verdict: register-permutation; 14 differing words (59/73). */
 /* First mismatch: +0x4; size, frame, CFG, and relocation surface are exact. */
 /* Structural gap: none; global-color pool allocation is reserved for the permuter. */
@@ -1665,23 +1640,16 @@ s32 func_80005820(s32 arg0) {
     }
     return D_800C94F4[arg0];
 }
-/* Workbench verdict: allocation-mismatch; 8 differing words. */
-/* First mismatch: +0x1C. */
-/* Shape-exact candidate; stack-home/register allocation is reserved for the permuter. */
-#ifdef NON_MATCHING
 s16 func_80005868(s32 arg0) {
-    s16 index;
+    s32 assetOffset;
     s16 *entry;
     u8 buffer[0xC0];
 
-    index = D_800C94E0[arg0];
-    piRomLoadSection(0x2D, (u32)buffer, D_800C9458[index], 0xC0);
+    assetOffset = D_800C9458[D_800C94E0[arg0]];
+    piRomLoadSection(0x2D, (u32)buffer, assetOffset, 0xC0);
     entry = (s16 *)(buffer + 0x1C);
     return *entry;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005868.s")
-#endif
 s8 func_800058C0(Objects58C0Arg *arg0, s32 arg1) {
     if ((arg1 >= 4) || (arg0->unk40->unkD0[arg1] == 0.0f)) {
         return arg0->unk40->unk1E[0];
@@ -2445,26 +2413,19 @@ s32 func_80006C40(Objects06C40 *arg0, s32 arg1) {
     arg0->unk58 = arg1;
     return 0x13C;
 }
-/* Workbench verdict: structure-mismatch; 132 differing words (target 149, candidate 146). */
-/* First mismatch: +0x0; target frame 0x50 versus candidate frame 0x40. */
-/* Structural gap: allocator-result stack home and three target instructions remain. */
-#ifdef NON_MATCHING
 void *func_80006C4C(s32 arg0) {
     Objects06C4CAsset *asset;
     Objects06C4CObject *object;
-    Objects06C4CObject *newObject;
     u8 *end;
     s32 count;
-    s32 remaining;
     s32 index;
-    s32 offset;
     s32 loadType;
+    s32 spriteModel;
+    void *result;
     s32 failed;
     s32 size;
-    s32 words;
-    s32 *source;
     s32 *destination;
-    void *result;
+    s32 *source;
 
     if (arg0 >= D_800C945C) {
         arg0 = 0;
@@ -2475,16 +2436,13 @@ void *func_80006C4C(s32 arg0) {
     }
 
     object = (Objects06C4CObject *)D_800C9450;
-    end = (u8 *)object + 0x94 + (asset->unk22 * 4);
+    size = asset->unk22;
+    size = size * 4 + 0x94;
+    end = (u8 *)object + size;
     count = D_800C9454 >> 2;
-    if (count != 0) {
-        remaining = count - 1;
-        source = (s32 *)D_800C9450;
-        do {
-            *source = 0;
-            source += 1;
-            remaining -= 1;
-        } while (remaining != 0);
+    destination = (s32 *)D_800C9450;
+    while (count--) {
+        *destination++ = 0;
     }
 
     object->unk40 = asset;
@@ -2496,28 +2454,26 @@ void *func_80006C4C(s32 arg0) {
     loadType = func_8000A6E8(asset->unk1C) & 3;
     failed = 0;
     index = 0;
-    offset = 0;
     if (object->unk40->unk22 > 0) {
         do {
+            spriteModel = func_800058C0((Objects58C0Arg *)object, index);
             object->unk68 = object->unk94;
-            if (func_800058C0((Objects58C0Arg *)object, index) == 0) {
-                *(s32 *)((u8 *)object->unk68 + offset) =
+            if (spriteModel == 0) {
+                object->unk68[index] =
                     (s32)func_8001F520(
-                        *(s32 *)((u8 *)object->unk40->unk34 + offset), loadType);
+                        object->unk40->unk34[index], loadType);
             } else {
-                *(s32 *)((u8 *)object->unk68 + offset) =
+                object->unk68[index] =
                     (s32)func_800355A0(
-                        *(s32 *)((u8 *)object->unk40->unk34 + offset), 0xA);
+                        object->unk40->unk34[index], 0xA);
             }
-            if (*(s32 *)((u8 *)object->unk68 + offset) == 0) {
+            if (object->unk68[index] == 0) {
                 failed = 1;
             }
             index += 1;
-            offset += 4;
         } while (index < object->unk40->unk22);
     }
 
-    result = NULL;
     if (failed == 0) {
         size = (s32)(end - (u8 *)object);
         if (size & 0xF) {
@@ -2525,20 +2481,14 @@ void *func_80006C4C(s32 arg0) {
         }
         result = func_8002B314(size, 0x8B);
         if (result != NULL) {
-            newObject = (Objects06C4CObject *)result;
-            words = size >> 2;
+            count = size >> 2;
             source = (s32 *)D_800C9450;
             destination = (s32 *)result;
-            if (words != 0) {
-                remaining = words - 1;
-                do {
-                    *destination = *source;
-                    destination += 1;
-                    source += 1;
-                    remaining -= 1;
-                } while (remaining != 0);
+            while (count--) {
+                *destination++ = *source++;
             }
-            newObject->unk68 = newObject->unk94;
+            ((Objects06C4CObject *)result)->unk68 =
+                ((Objects06C4CObject *)result)->unk94;
         } else {
             failed = 1;
         }
@@ -2550,9 +2500,6 @@ void *func_80006C4C(s32 arg0) {
     }
     return result;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006C4C.s")
-#endif
 void func_80006EA0(void *ptr) {
     if (((u8 *) ptr)[0x91] == 0) {
         ((u8 *) ptr)[0x91] = 1;
@@ -3193,27 +3140,29 @@ void func_80007C68(Objects07C68Object *arg0, Objects07C68Source *arg1,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80007C68.s")
 #endif
-/* Workbench verdict: structure-mismatch; 131 differing words (target 122, candidate 131). */
-/* First mismatch: +0x0; candidate frame 0x10 versus target frame 0x18. */
-/* Structural gap: texture/group/record carrier spelling does not preserve target register/frame shape. */
+/* Workbench verdict: structure-mismatch; 92 differing words (122/122). */
+/* First mismatch: +0x18; extent and frame 0x18 are exact, with no relocations. */
+/* Blocker: pool/temp allocation and dimension-load/offset-initialization schedule. */
 #ifdef NON_MATCHING
 void func_80007E40(Objects07E40Object *arg0, s32 arg1) {
     Objects07E40Object *object;
+    Objects07E40Outer *model;
     Objects07E40Data *temp_v0;
+    s16 textureWidth;
+    s16 textureHeight;
     s16 temp_lo;
     s16 temp_lo_2;
     s16 temp_s3;
-    s16 temp_s3_2;
-    s16 temp_s3_3;
-    s16 temp_s3_4;
-    s16 var_s2;
+    s32 edge1;
+    s32 edge2;
+    s32 var_s2;
     s32 var_a3_2;
     s32 var_t2;
     s32 var_t4;
-    s8 var_t3;
-    u8 temp_t0;
-    u8 var_a3;
-    u8 var_t1;
+    s32 var_t3;
+    s32 temp_t0;
+    s32 var_a3;
+    s32 var_t1;
     Objects07E40Texture *temp_t4;
     Objects07E40Record *temp_t5;
     Objects07E40Inner *temp_v0_2;
@@ -3226,19 +3175,23 @@ void func_80007E40(Objects07E40Object *arg0, s32 arg1) {
     temp_t0 = temp_v0->unkA2;
     temp_lo_2 = temp_v0->unkA5 * arg1;
     if ((var_a3 == 0xFF) || ((s32) var_a3 < temp_v0->unk22)) {
-        var_t3 = var_a3 + 1;
         if (var_a3 == 0xFF) {
             var_a3 = 0;
             var_t3 = temp_v0->unk22;
+        } else {
+            var_t3 = var_a3 + 1;
         }
         var_t1 = var_a3;
         if ((s32) var_a3 < var_t3) {
             var_t2 = var_a3 * 4;
             do {
                 var_t1 += 1;
-                temp_v0_2 = (*(object->unk68 + (var_t2 >> 2)))->unk0;
+                model = *(Objects07E40Outer **)((u8 *)object->unk68 + var_t2);
+                temp_v0_2 = model->unk0;
                 if ((s32) temp_t0 < (s32) temp_v0_2->unk10) {
                     temp_t4 = *(Objects07E40Texture **)(temp_v0_2->unk18 + (temp_t0 * 8));
+                    textureWidth = temp_t4->unk6 << 5;
+                    textureHeight = temp_t4->unk8 << 5;
                     var_a3_2 = 0;
                     var_t4 = 0;
                     if (temp_v0_2->unk16 > 0) {
@@ -3249,23 +3202,26 @@ void func_80007E40(Objects07E40Object *arg0, s32 arg1) {
                                 var_s2 = *(s16 *)(var_s1 + 8);
                                 if (var_s2 < *(s16 *)(var_s1 + 0x18)) {
                                     do {
-                                        temp_t5 = (Objects07E40Record *)
-                                            (temp_v0_2->unk20 + (var_s2 * 0x10));
+                                        temp_t5 = (Objects07E40Record *)temp_v0_2->unk20 + var_s2;
                                         if (temp_lo != 0) {
                                             temp_s3 = temp_t5->unk4;
+                                            edge1 = temp_t5->unk8 - temp_s3;
+                                            edge2 = temp_t5->unkC - temp_s3;
                                             temp_t5->unk4 = (temp_s3 + temp_lo) &
-                                                ((s16) (temp_t4->unk6 << 5) - 1);
-                                            temp_s3_2 = temp_t5->unk4;
-                                            temp_t5->unk8 = temp_s3_2 + (temp_t5->unk8 - temp_s3);
-                                            temp_t5->unkC = temp_s3_2 + (temp_t5->unkC - temp_s3);
+                                                (textureWidth - 1);
+                                            temp_s3 = temp_t5->unk4;
+                                            temp_t5->unk8 = temp_s3 + edge1;
+                                            temp_t5->unkC = temp_s3 + edge2;
                                         }
                                         if (temp_lo_2 != 0) {
-                                            temp_s3_3 = temp_t5->unk6;
-                                            temp_t5->unk6 = (temp_s3_3 + temp_lo_2) &
-                                                ((s16) (temp_t4->unk8 << 5) - 1);
-                                            temp_s3_4 = temp_t5->unk6;
-                                            temp_t5->unkA = temp_s3_4 + (temp_t5->unkA - temp_s3_3);
-                                            temp_t5->unkE = temp_s3_4 + (temp_t5->unkE - temp_s3_3);
+                                            temp_s3 = temp_t5->unk6;
+                                            edge1 = temp_t5->unkA - temp_s3;
+                                            edge2 = temp_t5->unkE - temp_s3;
+                                            temp_t5->unk6 = (temp_s3 + temp_lo_2) &
+                                                (textureHeight - 1);
+                                            temp_s3 = temp_t5->unk6;
+                                            temp_t5->unkA = temp_s3 + edge1;
+                                            temp_t5->unkE = temp_s3 + edge2;
                                         }
                                         var_s2 += 1;
                                         var_s1 = temp_v0_2->unk24 + var_t4;
@@ -3336,35 +3292,49 @@ void func_80008028(s32 arg0) {
 void func_80008118(void) {
     D_80079004 = 1;
 }
-/* Workbench candidate: source-level movement and segment-bound checks. */
-#ifdef NON_MATCHING
 s32 func_80008128(Objects08128Object *arg0, f32 arg1, f32 arg2, f32 arg3) {
     Objects08128Track *track;
     Objects08128Bounds *bounds;
+    f32 deltaX;
+    f32 deltaY;
+    f32 deltaZ;
+    s32 minX;
     s32 x;
     s32 y;
     s32 z;
     s32 result;
+    s32 minY;
+    s32 minZ;
+    s32 maxX;
+    s32 maxY;
+    s32 maxZ;
 
     track = trackGetTrack();
-    x = (s32) (arg0->unkC + arg1);
+    deltaX = arg1;
+    deltaY = arg2;
+    deltaZ = arg3;
+    x = (s32) (arg0->unkC + deltaX);
     result = 0;
-    y = (s32) (arg0->unk10 + arg2);
-    z = (s32) (arg0->unk14 + arg3);
-    if ((D_80079004 == 0) && (track != NULL) &&
-        ((x < (track->unk20 - 1000)) ||
-         (y < (track->unk24 - 1000)) ||
-         (z < (track->unk28 - 1000)) ||
-         ((track->unk22 + 1000) < x) ||
-         ((track->unk26 + 1000) < y) ||
-         ((track->unk2A + 1000) < z))) {
-        result = 1;
+    y = (s32) (arg0->unk10 + deltaY);
+    z = (s32) (arg0->unk14 + deltaZ);
+    if ((D_80079004 == 0) && (track != NULL)) {
+        minX = track->unk20 - 1000;
+        minY = track->unk24 - 1000;
+        minZ = track->unk28 - 1000;
+        maxX = track->unk22 + 1000;
+        maxY = track->unk26 + 1000;
+        maxZ = track->unk2A + 1000;
+        if ((x < minX) || (y < minY) ||
+            (z < minZ) || (maxX < x) ||
+            (maxY < y) || (maxZ < z)) {
+            result = 1;
+        }
     }
     D_80079004 = 0;
     if (result == 0) {
-        arg0->unkC += arg1;
-        arg0->unk10 += arg2;
-        arg0->unk14 += arg3;
+        arg0->unkC += deltaX;
+        arg0->unk10 += deltaY;
+        arg0->unk14 += deltaZ;
         if (track != NULL) {
             bounds = func_8000FEEC(arg0->unk2E);
             if ((bounds != NULL) &&
@@ -3381,12 +3351,6 @@ s32 func_80008128(Objects08128Object *arg0, f32 arg1, f32 arg2, f32 arg3) {
     }
     return result;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008128.s")
-#endif
-/* Workbench verdict: structure-mismatch; 116 differing words (target 125, candidate 130). */
-/* First mismatch: +0x0; candidate frame 0x30 versus target frame 0x40. */
-/* Structural gap: callee-induced stack layout and late bound-check carriers differ. */
 #ifdef NON_MATCHING
 void func_8000831C(void *arg0, void *arg1, s32 arg2, void *arg3, s32 arg4,
                    s32 arg5, s32 arg6, s32 arg7, f32 arg8, s32 arg9, s32 arg10) {
@@ -3887,63 +3851,56 @@ void func_80008B94(void *arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008B94.s")
 #endif
-/* Workbench verdict: structure-mismatch; 55 differing words (target/candidate 125/125). */
-/* First mismatch: +0x1C; frame 0x70 and instruction count are exact. */
-/* Shape status: control flow is complete; residuals are mostly register/constant allocation. */
-#ifdef NON_MATCHING
+/* The sprite renderer reads the transform and frame from this segment layout. */
 void func_80009220(void **arg0, s32 arg1, s32 arg2, Objects09220Object *arg3,
                    s32 arg4, Objects09220Source *arg5, s32 arg6) {
-    f32 direction[2];
-    f32 projection;
-    f32 scale;
     f32 distance;
-    f32 transformedX;
-    f32 transformedY;
-    f32 transformedZ;
-    s16 rotation[3];
-    s32 alpha;
-    volatile f32 negativeOne;
-    volatile f32 frameZero;
-    volatile f32 frameScale;
+    f32 direction[3];
+    struct {
+        s16 yRotation;
+        s16 xRotation;
+        s16 zRotation;
+        u8 pad06[2];
+        f32 scale;
+        f32 x;
+        f32 y;
+        f32 z;
+        u8 pad18[0x10];
+        f32 frame;
+    } segment;
     Objects09220Matrix *matrix;
     Objects09220Gfx *command;
 
     if (arg3->unk40->unkA6 > 0) {
-        negativeOne = -1.0f;
+        direction[2] = -1.0f;
         mathOneFloatPY(arg3, direction);
         matrix = camGetRotationMtx();
-        projection = (negativeOne * matrix->unk28) +
-                     ((matrix->unk8 * direction[0]) +
-                      (matrix->unk18 * direction[1]));
-        if (projection > 0.0f) {
-            distance = sqrtf(projection);
-            rotation[0] = 0;
-            rotation[1] = 0;
-            rotation[2] = 0;
-            frameZero = 0.0f;
-            scale = arg3->unk8 * distance * (f32) arg6 * D_80080F80;
-            frameScale = scale;
-            mtxf_transform_point((void *)arg4, (f32) arg5->unk26,
-                                 (f32) arg5->unk28, (f32) arg5->unk2A,
-                                 &transformedX, &transformedY, &transformedZ);
-            alpha = (s32) (distance * 320.0f);
-            if (alpha >= 0x100) {
-                alpha = 0xFF;
+        distance = ((matrix->unk8 * direction[0]) +
+                    (matrix->unk18 * direction[1])) +
+                   (direction[2] * matrix->unk28);
+        if (distance > 0.0f) {
+            distance = sqrtf(distance);
+            segment.yRotation = 0;
+            segment.xRotation = 0;
+            segment.zRotation = 0;
+            segment.frame = 0.0f;
+            segment.scale = arg3->unk8 * distance * (f32)arg6 * 0.0225f;
+            mtxf_transform_point((void *)arg4, (f32)arg5->unk26,
+                                 (f32)arg5->unk28, (f32)arg5->unk2A,
+                                 &segment.x, &segment.y, &segment.z);
+            arg6 = (s32)(distance * 320.0f);
+            if (arg6 >= 0x100) {
+                arg6 = 0xFF;
             }
             func_80034DF0(0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC0);
-            func_80023A08(arg0, arg1, arg2, rotation,
-                          *arg3->unk40->unkAC, 4, alpha);
+            func_80023A08(arg0, arg1, arg2, (s16 *)&segment,
+                          *arg3->unk40->unkAC, 4, arg6);
             func_80034E48();
-            command = *(Objects09220Gfx **)arg0;
-            *arg0 = (void *) (command + 1);
-            command->w1 = -0x100;
-            command->w0 = 0xFB000000;
+            command = (*(Objects09220Gfx **)arg0)++;
+            command->w0 = 0xFB000000; command->w1 = -0x100;
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009220.s")
-#endif
 typedef struct {
     f32 x;
     f32 y;
@@ -4567,113 +4524,119 @@ s32 func_8000A244(s32 *arg0) {
     D_800C94B2 = i;
     return i;
 }
-/* Workbench verdict: structure-mismatch; 158 differing words (164/164 instructions). */
-/* First mismatch: +0x0; candidate frame 0x60 versus target frame 0x58. */
-/* Shape status: update unrolling and early-exit sort are complete; residuals are structural/register. */
+/* Workbench verdict: structure-mismatch; 37 differing words (target 164, candidate 165). */
+/* First mismatch: +0x4; frame is 0x58, with an extra saved-register lifetime. */
+/* Structural gap: entry/counter scheduling and two of three exact relocation identities. */
 #ifdef NON_MATCHING
 void func_8000A39C(s32 arg0, s32 arg1) {
-    Objects0A39CObject **objects;
-    Objects0A39CObject *object;
+    s32 passCount;
     Objects0A39CObject *current;
     Objects0A39CObject *next;
     Objects0A39CMatrix *matrix;
     f32 matrixX;
     f32 matrixY;
+    Objects0A39CObject **objects;
+    s32 sortOffset;
     f32 matrixZ;
     f32 matrixW;
     f32 currentDepth;
     f32 nextDepth;
     s32 difference;
-    s32 index;
     s32 updateCount;
     s32 remainder;
-    s32 passCount;
-    s32 swapped;
+    s32 sorted;
 
-    difference = arg1 - arg0;
+    difference = arg0;
+    difference = arg1 - difference;
     if (difference > 0) {
-        objects = (Objects0A39CObject **)D_800C9494;
+        passCount = difference;
         matrix = (Objects0A39CMatrix *)camGetRotationMtx();
         matrixX = matrix->unk8;
         matrixY = matrix->unk18;
         matrixZ = matrix->unk28;
         matrixW = matrix->unk38;
+        arg0 *= 4;
+        objects = (Objects0A39CObject **)(arg0 + (u8 *)D_800C9494);
 
-        index = arg0;
-        updateCount = difference + 1;
-        remainder = updateCount & 3;
-        while (remainder != 0) {
-            object = objects[index];
-            if (object != NULL) {
-                object->unk30 = -((object->unkC * matrixX) +
-                                  (object->unk10 * matrixY) +
-                                  (object->unk14 * matrixZ) + matrixW);
+        difference += 1;
+        sortOffset = arg0;
+        updateCount = difference;
+        if (difference != 0) {
+            remainder = -(difference & 3);
+            difference = remainder + difference;
+            if (remainder != 0) {
+                do {
+                    current = *objects++;
+                    updateCount -= 1;
+                    if (current != NULL) {
+                        current->unk30 = -((current->unkC * matrixX) +
+                                          (current->unk10 * matrixY) +
+                                          (current->unk14 * matrixZ) + matrixW);
+                    }
+                } while (difference != updateCount);
+                if (updateCount == 0) {
+                    goto sort_objects;
+                }
             }
-            index += 1;
-            remainder -= 1;
-            updateCount -= 1;
-        }
-        while (updateCount != 0) {
-            object = objects[index];
-            if (object != NULL) {
-                object->unk30 = -((object->unkC * matrixX) +
-                                  (object->unk10 * matrixY) +
-                                  (object->unk14 * matrixZ) + matrixW);
+            {
+                do {
+                    current = *objects++;
+                    updateCount -= 4;
+                    if (current != NULL) {
+                        current->unk30 = -((current->unkC * matrixX) +
+                                          (current->unk10 * matrixY) +
+                                          (current->unk14 * matrixZ) + matrixW);
+                    }
+                    current = *objects++;
+                    if (current != NULL) {
+                        current->unk30 = -((current->unkC * matrixX) +
+                                          (current->unk10 * matrixY) +
+                                          (current->unk14 * matrixZ) + matrixW);
+                    }
+                    current = *objects++;
+                    if (current != NULL) {
+                        current->unk30 = -((current->unkC * matrixX) +
+                                          (current->unk10 * matrixY) +
+                                          (current->unk14 * matrixZ) + matrixW);
+                    }
+                    current = *objects++;
+                    if (current != NULL) {
+                        current->unk30 = -((current->unkC * matrixX) +
+                                          (current->unk10 * matrixY) +
+                                          (current->unk14 * matrixZ) + matrixW);
+                    }
+                } while (updateCount != 0);
             }
-            index += 1;
-            updateCount -= 1;
-            object = objects[index];
-            if (object != NULL) {
-                object->unk30 = -((object->unkC * matrixX) +
-                                  (object->unk10 * matrixY) +
-                                  (object->unk14 * matrixZ) + matrixW);
-            }
-            index += 1;
-            updateCount -= 1;
-            object = objects[index];
-            if (object != NULL) {
-                object->unk30 = -((object->unkC * matrixX) +
-                                  (object->unk10 * matrixY) +
-                                  (object->unk14 * matrixZ) + matrixW);
-            }
-            index += 1;
-            updateCount -= 1;
-            object = objects[index];
-            if (object != NULL) {
-                object->unk30 = -((object->unkC * matrixX) +
-                                  (object->unk10 * matrixY) +
-                                  (object->unk14 * matrixZ) + matrixW);
-            }
-            index += 1;
-            updateCount -= 1;
         }
 
-        passCount = difference;
+sort_objects:
         do {
-            current = objects[arg0];
+            objects = (Objects0A39CObject **)(sortOffset + (u8 *)D_800C9494);
+            updateCount = passCount;
+            passCount -= 1;
+            current = objects[0];
+            sorted = 1;
             currentDepth = current->unk30;
             if (current->unk6 & 0x800) {
                 currentDepth += 32768.0f;
             }
-            swapped = 0;
-            for (index = 1; index <= passCount; index += 1) {
-                next = objects[arg0 + index];
+            while (updateCount--) {
+                next = objects[1];
                 nextDepth = next->unk30;
                 if (next->unk6 & 0x800) {
                     nextDepth += 32768.0f;
                 }
                 if (nextDepth < currentDepth) {
-                    objects[arg0 + index - 1] = next;
-                    swapped = 1;
+                    *objects++ = next;
+                    sorted = 0;
                 } else {
-                    objects[arg0 + index - 1] = current;
+                    *objects++ = current;
                     current = next;
                     currentDepth = nextDepth;
                 }
             }
-            objects[arg0 + passCount] = current;
-            passCount -= 1;
-        } while ((passCount != 0) && (swapped != 0));
+            *objects = current;
+        } while ((passCount != 0) && (sorted == 0));
     }
 }
 #else
@@ -5645,16 +5608,6 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * PLATEAU-HANDOFF:func_800056A4:end
  */
 
-/* PLATEAU-HANDOFF:func_80005868:start
- * symbol: func_80005868
- * score: 6 differing words
- * frame: -0xE0
- * relocations: 5
- * first-mismatch: +0x1C
- * summary: Declaring the index carrier and an entry pointer before the DMA buffer puts the buffer on its retail home; six register words remain in one v0/temp web
- * PLATEAU-HANDOFF:func_80005868:end
- */
-
 
 /* PLATEAU-HANDOFF:func_80006EE4:start
  * symbol: func_80006EE4
@@ -5709,11 +5662,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80004454:start
  * symbol: func_80004454
- * score: 6 differing words
+ * score: 3 differing words
  * frame: 0x88
  * relocations: 6
  * first-mismatch: +0x50
- * summary: Fresh remeasurement confirms exact 79-word geometry, 0x88 frame, and six aligned relocation identities; six schedule/register words await the bounded permuter.
+ * summary: Register-permutation after line grouping; forced color is diagnostic exact. Resume only with new evidence for the initial-index allocation lever.
  * PLATEAU-HANDOFF:func_80004454:end
  */
 
@@ -5729,11 +5682,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_8000471C:start
  * symbol: func_8000471C
- * score: 6 differing words
+ * score: 3 differing words
  * frame: 0x88
  * relocations: 6
  * first-mismatch: +0x50
- * summary: Fresh remeasurement confirms exact 80-word geometry, 0x88 frame, and six aligned relocation identities; six schedule/register words await the bounded permuter.
+ * summary: Shared initial-index register-permutation; stock source remains nonexact. Resume only with new def-use evidence beyond the sibling forced-color oracle.
  * PLATEAU-HANDOFF:func_8000471C:end
  */
 
@@ -5797,4 +5750,24 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x1B4
  * summary: Exact extent/frame; header scheduling and pointer/counter lifetimes remain. Next: trace header scheduling before further saved-register edits.
  * PLATEAU-HANDOFF:func_8000590C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80007E40:start
+ * symbol: func_80007E40
+ * score: 92 differing words
+ * frame: 0x18
+ * relocations: 0
+ * first-mismatch: +0x18
+ * summary: Exact extent/frame; allocation and dimension-init schedule remain. Three flat variants; next: trace natural priority and carrier lifetimes.
+ * PLATEAU-HANDOFF:func_80007E40:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000A39C:start
+ * symbol: func_8000A39C
+ * score: 37 differing words
+ * frame: 0x58
+ * relocations: 3
+ * first-mismatch: +0x4
+ * summary: Extra saved start-index lifetime and counter placement remain; trace caller-cost producers and recover a full-width lifetime split.
+ * PLATEAU-HANDOFF:func_8000A39C:end
  */
