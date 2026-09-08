@@ -29,7 +29,11 @@ typedef struct Overlay7SelectionRow {
  * growth; the function owns +0x894..+0xAA0 with no padding. The fallback
  * remains canonical; retry only after a new natural temp-FIFO phase/reuse
  * spelling, not more flags, explicit carriers, or a generic batch. */
-#ifdef NON_MATCHING
+/* Matching reproof 2026-09-08: extracting the unsigned flags sign bit through
+ * the right shift below restores the target temp-FIFO phase. Untouched IDO
+ * output owns all 0x20C bytes with the exact 0x20 frame and all 23 text plus
+ * seven switch-table runtime relocations. The linked owned range and full ROM
+ * are byte-identical. */
 void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) {
     Overlay7ModeState *firstState;
     Overlay7ModeState *secondState;
@@ -42,7 +46,7 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
                                         : gOverlay7PrimaryModes;
     record = &modes[firstState->index][secondState->index];
 
-    if ((s32)((gOverlay7DispatchFlagsReloc & 0x3FF) << 22) < 0) {
+    if ((gOverlay7DispatchFlagsReloc << 22) >> 31) {
         secondState->timer = 100;
         secondState->height += 5.0f;
         switch (record->mode) {
@@ -81,9 +85,6 @@ void overlay7DispatchModes(Overlay7ModeOwner *first, Overlay7ModeOwner *second) 
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000894_185C71C.s")
-#endif
 
 /* Bounded reproof 2026-08-30: configured full-TU C remains exact-sized at
  * 139 words with the exact 0x30 frame and opcode schedule, but 81 register

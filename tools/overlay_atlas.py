@@ -1264,6 +1264,12 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x228, 0x298, "overlay7CreateEntry"),
         (0x298, 0x324, "overlay7AppendEntry"),
         (
+            0x894,
+            0xAA0,
+            "overlay7DispatchModes",
+            "canonical mixed-TU object, 23 text plus seven switch-table runtime relocations, and linked bytes exact",
+        ),
+        (
             0xDBC,
             0xEDC,
             "overlay7CommitSelection",

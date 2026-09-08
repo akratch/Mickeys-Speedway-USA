@@ -108,6 +108,16 @@ bytes and disassembly never belong here.
   the call or overwriting the incoming parameter can instead add a spill or
   store; neither is equivalent as an allocation experiment. This is a carrier
   placement lever, not proof of a target register's allocator role from its name.
+- When a masked unsigned bit controls a branch, spelling the test as an
+  unsigned left shift followed by a right shift can change UGEN's temporary
+  phase even when optimization folds the final right shift out of the branch
+  schedule. In one exact switch dispatcher, this natural bit extraction kept
+  every opcode and relocation site fixed while repairing a shared temporary
+  carrier. Apply it only when the source object's unsigned width and selected
+  bit are proved; a signed shift, wider type, or value-consuming expression is
+  not equivalent. Require exact configured words, frame, relocations, linked
+  owner, and full ROM. Evidence: Overlay 7's exact mode dispatcher in
+  `docs/overlays.md`.
 - A small register-only switch residual can come from a named selector even
   when both functions are frameless. Putting a single-use selector expression
   directly in the switch removed its named carrier and restored exact output
