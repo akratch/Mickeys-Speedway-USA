@@ -820,20 +820,17 @@ void func_8001CB0C(ControlTransform *transform, ControlPlayer *player) {
  * controlSquashCheckPost-adjacent character-control routine, but publishes
  * assembly only; this body is reconstructed from Mickey's fields, calls,
  * and branch conditions. */
-#ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 53 differing words, first mismatch +0x1B4. */
-/* Candidate shape: 455 instructions, frame -0x80, and every stack displacement,
- * relocation offset/type and integer register now agrees with the target. */
-/* Remaining gap: one floating-point pool rotation.  The target colours the
- * long-lived 0.0f carrier $f18 and the int-to-float staging register $f4; this
- * candidate colours them $f16 and $f18, and every later FP name follows that
- * one-slot shift.  It also costs the single opcode block at +0x3CC, where the
- * target can materialise 30.0f before the branch because its $f0 is free. */
 /* Frame law used here (see docs/ido-learnings.md): declared locals occupy the
  * TOP of the local region in declaration order, first-declared highest; every
  * value written as an expression instead of a named local is homed in the
  * compiler-temp region below them.  sp7C/sp70/character keep their m2c names
  * because those are the target's own displacements. */
+/* var_f12 is ONE scratch float reused twice, and that is what closed this
+ * function.  Naming the ballistic step keeps it in a coloured web where the
+ * inline expression spent floating-point ring temps, which cost 40 register
+ * words; declaring a *new* local for it instead of reusing var_f12 pushed
+ * every compiler temp 4 bytes down the frame and cost 25 displacement words.
+ * Both halves are needed: 53 -> 39 -> 0. */
 void func_8001CB84(ControlActor *actor, s32 updateRate) {
     f32 sp7C;
     f32 var_f12;
@@ -904,9 +901,9 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
                           &player->unkB4);
             player->unk158 = (s16) (player->unk158 & 0x7FFF);
         }
-        player->unk154 = player->unk154 +
-                         ((player->unk150 * (f32) updateRate) -
-                          (0.5f * D_800CB304 * (f32) updateRate * (f32) updateRate));
+        var_f12 = (player->unk150 * (f32) updateRate) -
+                  (0.5f * D_800CB304 * (f32) updateRate * (f32) updateRate);
+        player->unk154 = player->unk154 + var_f12;
         player->unk150 = player->unk150 - (D_800CB304 * (f32) updateRate);
         if (player->unk154 < 0.0f) {
             player->unk154 = -player->unk154;
@@ -1035,9 +1032,6 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
         func_800031C0(player->unkA4, actor->x, actor->y, actor->z);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001CB84.s")
-#endif
 /*
  * Workbench: structure-mismatch, 96/95 instructions, 40 raw/9 normalized differences, first +0xE0; frame exact.
  * Levers tried: prior flags/commutative/volatile/prototype forms plus fresh pointer scope, lvalue, and typed-stride forms.
@@ -1220,19 +1214,36 @@ f32 func_8001D880(f32 arg0, f32 arg1, f32 *table, f32 divisor) {
     f32 base;
     f32 value;
     s32 index;
-    f32 *entry;
 
     arg1 *= 10.0f;
     index = (s32) arg1;
-    entry = table + index;
-    base = entry[0];
-    value = ((entry[1] - base) * (arg1 - (f32) index)) + base;
+    base = table[index];
+    value = ((table[index + 1] - base) * (arg1 - (f32) index)) + base;
     arg0 *= 10.0f;
     index = (s32) arg0;
-    entry = table + index;
-    base = entry[0];
-    return (value - (base + ((entry[1] - base) * (arg0 - (f32) index)))) / divisor;
+    base = table[index];
+    return (value - (base + ((table[index + 1] - base) * (arg0 - (f32) index)))) / divisor;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D880.s")
 #endif
@@ -2195,16 +2206,6 @@ void controlClearPlayerSetup(void) {
  * PLATEAU-HANDOFF:func_8001EC44:end
  */
 
-/* PLATEAU-HANDOFF:func_8001CB84:start
- * symbol: func_8001CB84
- * score: 53/455 words
- * frame: 0x80
- * relocations: 41
- * first-mismatch: +0x1B4
- * summary: Frame, stack map, relocation surface and all integer registers agree; residual is one floating-point pool rotation
- * PLATEAU-HANDOFF:func_8001CB84:end
- */
-
 /* PLATEAU-HANDOFF:func_8001E5C4:start
  * symbol: func_8001E5C4
  * score: 410/416 words
@@ -2228,11 +2229,11 @@ void controlClearPlayerSetup(void) {
 
 /* PLATEAU-HANDOFF:func_8001D880:start
  * symbol: func_8001D880
- * score: 7/36 words
+ * score: 29/36 words
  * frame: frameless
  * relocations: 0
  * first-mismatch: +0x4
- * summary: 2 structural and 28 register differences; m2c reconstruction regressed geometry. Next: source-authentic base-pool-to-temp web formation.
+ * summary: Indexing the table closed the address operand order (a2,t7 both sides); the residual is one uopt colour rotation, not a spelling. Sixteen web-formation and declaration forms were byte-flat at 29.
  * PLATEAU-HANDOFF:func_8001D880:end
  */
 
