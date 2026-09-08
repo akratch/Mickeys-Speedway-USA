@@ -2404,11 +2404,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_80048760:start
  * symbol: func_80048760
- * score: 98/121 words
+ * score: 23 differing words
  * frame: 0x48
  * relocations: 4
  * first-mismatch: +0x8
- * summary: Authorized V0 reproduced 23 residual words; equal-size JFG wakeSetupRipple is GLOBAL_ASM-only, leaving no new lever beyond exhausted forms.
+ * summary: JFG efd5abb wakeSetupRipple remains assembly-only; 23/121 words differ. Next lever: new donor initialization source/line topology; prior forms exhausted.
  * PLATEAU-HANDOFF:func_80048760:end
  */
 
