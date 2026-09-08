@@ -1487,6 +1487,6 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
  * frame: frameless
  * relocations: 0
  * first-mismatch: +0x10
- * summary: Workbench verdict register-permutation; authorized JFG src/saves.c has no bit-writer body. Next lever is an authenticated matching donor counterpart.
+ * summary: JFG donor exhausted
  * PLATEAU-HANDOFF:func_8002C69C:end
  */
