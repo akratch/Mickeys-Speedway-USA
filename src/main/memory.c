@@ -547,6 +547,6 @@ u8 *align4(u8 *address) {
  * frame: 0x58
  * relocations: 12
  * first-mismatch: +0xE0
- * summary: Exact geometry/frame/relocations; bounded carrier and guard forms left a lower-bound branch web plus one call-live stack home.
+ * summary: Verdict mixed(constant:2, structural:2, register:10); lever stack-home. JFG body is identical at c82affff and efd5abb; zero attempts.
  * PLATEAU-HANDOFF:func_8002B524:end
  */
