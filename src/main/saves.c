@@ -456,7 +456,10 @@ SavesBitWriter *func_8002C60C(s32 size, s32 clear) {
  * has five direct callers in func_8002C94C; fallback linkage remains exact.
  * The unsigned initial shift is defined for the writer's 1..32-bit count
  * domain (observed direct counts: 4, 5, 18); zero remains a no-op. This
- * correctness repair leaves configured full-TU compiler output unchanged. */
+ * correctness repair leaves configured full-TU compiler output unchanged. The
+ * authorized JFG efd5abb audit found no matching writer body; its analogous
+ * anim reader does not resolve this register permutation. Next lever is an
+ * authenticated writer donor or ownership trace. */
 void func_8002C69C(SavesBitWriter *writer, s32 value, s32 bitCount) {
     s32 isSet;
     u32 nextBit;
@@ -1487,6 +1490,6 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
  * frame: frameless
  * relocations: 0
  * first-mismatch: +0x10
- * summary: JFG donor exhausted
+ * summary: JFG efd5abb writer counterpart absent next lever authenticated writer donor or ownership trace
  * PLATEAU-HANDOFF:func_8002C69C:end
  */
