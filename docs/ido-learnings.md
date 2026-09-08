@@ -230,6 +230,25 @@ bytes and disassembly never belong here.
   separately. This is a source-level layout observation under stock IDO 5.3
   `-O2 -mips2`, supported by configured object and linked-ROM identity; it does
   not justify unused padding or new volatile accesses.
+- Declaration position can shrink the emitted frame without reducing the
+  declaration count. Moving a spilled return pointer earlier recovered both
+  the frame and its home while later declarations remained in the source.
+  Distinguish the front end's reserved offsets from the final frame: declaration
+  count alone is not a lower bound after optimization. Measure actual stack
+  accesses and frame extent before deleting useful locals. This was proved
+  with a paired stock full-TU IDO 5.3 build and subsequent linked-ROM identity;
+  the available web-detail trace covered only part of the frame and did not
+  establish which pass removed the unused tail region.
+- A register swap confined to a later loop can come from a local shared with
+  an earlier loop. In a clear-then-copy routine, using the copy source as the
+  clearing cursor joined both lifetimes into the higher-priority pointer web.
+  A forced color merely moved the residual into the clear loop. Reusing the
+  destination for both writing phases instead left the read source local to
+  copying and made stock output exact. Paired fidelity-proved p1 traces kept
+  the same two priority levels but exchanged which source home occupied each.
+  Inspect every use of the shared local before treating a late swap as an
+  isolated tie-break; this lever requires real, compatible pointer roles and
+  does not justify new accesses or forced compiler output in canonical builds.
 - A mixed integer/pointer sentinel can cost both a declared home and a second
   constant carrier even when the stored bits are identical. On a proved
   32-bit raw-word table, model each physical word with an integer/pointer
