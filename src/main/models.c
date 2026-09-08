@@ -1435,10 +1435,10 @@ void func_8002109C(ModelPointOwner *owner) {
 
 /* PLATEAU-HANDOFF:func_8001F520:start
  * symbol: func_8001F520
- * score: 376 differing words
- * frame: 0xB0
+ * score: 365/401 words
+ * frame: 0x88
  * relocations: 46
  * first-mismatch: +0x8
- * summary: Configured candidate is 387 versus 401 target words; cache and texture-loop CFG lifetimes remain structural.
+ * summary: JFG count reloads and carrier reuse removed five words and 0x28 frame bytes; the remaining pool web needs source provenance.
  * PLATEAU-HANDOFF:func_8001F520:end
  */
