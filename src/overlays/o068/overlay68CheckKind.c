@@ -124,6 +124,6 @@ s32 overlay68CheckKind(s32 kind) {
  * frame: 0x48
  * relocations: 9
  * first-mismatch: +0x50
- * summary: Five ROM-proved resident ABI bindings preserve raw instructions and resolve all nine identities through scoped aliases. Ten normalized word differences remain; NON_MATCHING, no new exact C bytes.
+ * summary: Workbench verdict structure-mismatch, lever none-known; five fresh source spellings were byte-flat. Next capture a stock-fidelity UGEN ring/line-order trace.
  * PLATEAU-HANDOFF:overlay68CheckKind:end
  */
