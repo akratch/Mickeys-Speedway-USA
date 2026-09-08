@@ -2607,39 +2607,30 @@ extern void func_8000D728(void *object);
 extern void camlightDelete(void *object);
 extern void partObjFreeTriggers(void *object);
 extern void partNullifyCircularParticleParents(void *object);
-extern void lightKillGlowingLight(void);
+extern s32 lightKillGlowingLight();
 extern void func_80048980(void *object);
 extern void func_8001C088(void *object);
 extern void killLight(void *light);
 extern void amSndStop(void *sound);
 extern void func_80046E70(void *object);
 
-/* Workbench candidate: object/resource teardown with the complete type switch. */
 #ifdef NON_MATCHING
-void func_80007118(void *arg0, s32 arg1) {
-    u8 *object;
-    u8 *data;
-    u8 *payload;
-    u8 *freePayload;
-    u8 *resource;
-    u8 *entry;
-    s32 *list;
-    s32 count;
+void func_80007118(u8 *object, s32 arg1) {
     s32 i;
-    s32 type;
+    s32 offset;
+    u8 *entry;
+    u8 *payload;
     void *value;
+    u8 *linkedPayload;
+    u8 *owner;
 
-    object = (u8 *)arg0;
-    data = *(u8 **)(object + 0x40);
-    type = *(s16 *)(object + 0x44);
-    payload = *(u8 **)(object + 0x64);
-    freePayload = payload;
-    if (type == 1) {
+    if (*(s16 *)(object + 0x44) == 1) {
+        payload = *(u8 **)(object + 0x64);
         value = *(void **)(payload + 0xD0);
         if (value != NULL && *(u8 *)((u8 *)value + 0x91) == 0) {
-            freePayload = (u8 *)(s32)func_80006EE4((s32)value);
+            func_80006EE4((s32)value);
         }
-        value = *(void **)(freePayload + 0xD4);
+        value = *(void **)(payload + 0xD4);
         if (value != NULL && *(u8 *)((u8 *)value + 0x91) == 0) {
             func_80006EE4((s32)value);
         }
@@ -2647,172 +2638,272 @@ void func_80007118(void *arg0, s32 arg1) {
     D_8007A210 = 2;
     D_8007A21C = 1;
     D_8007A214 = object;
-    D_8007A218 = (s32)(data + 4);
+    D_8007A218 = (s32)(*(u8 **)(object + 0x40) + 4);
 
-    list = *(s32 **)(object + 0x5C);
-    if (list != NULL) {
-        count = list[0];
-        for (i = 0; i < count; i++) {
-            entry = *(u8 **)((u8 *)list + 4 + (i * 4));
+    if (*(void **)(object + 0x5C) != NULL) {
+        for (i = 0, offset = 0; i < **(s32 **)(object + 0x5C); i++, offset += 4) {
+            entry = *(u8 **)(*(u8 **)(object + 0x5C) + 4 + offset);
             func_80006448(entry);
             func_80004B04(*(s16 *)(entry + 0x2C));
             mmFree(entry);
         }
     }
-    value = *(void **)(object + 0x60);
-    if (value != NULL) {
-        count = *(u8 *)(object + 0x8C);
-        for (i = 0; i < count; i++) {
-            func_800359D4(*(void **)((u8 *)value + (i * 0x14)));
-        }
-    }
-    value = *(void **)(object + 0x70);
-    if (value != NULL) {
-        count = *(s8 *)(data + 0x28);
-        for (i = 0; i < count; i++) {
-            killLight(*(void **)((u8 *)value + (i * 4)));
-        }
-    }
-    value = *(void **)(object + 0x74);
-    if (value != NULL) {
-        count = *(u8 *)(data + 0x29);
-        for (i = 0; i < count; i++) {
-            camlightDelete(*(void **)((u8 *)value + (i * 4)));
+    if (*(void **)(object + 0x60) != NULL) {
+        for (i = 0, offset = 0; i < *(u8 *)(object + 0x8C); i++, offset += 0x14) {
+            func_800359D4(*(void **)(*(u8 **)(object + 0x60) + offset));
         }
     }
     partObjFreeTriggers(object);
+    if (*(void **)(object + 0x70) != NULL) {
+        for (i = 0, offset = 0; i < *(s8 *)(*(u8 **)(object + 0x40) + 0x28); i++, offset += 4) {
+            killLight(*(void **)(*(u8 **)(object + 0x70) + offset));
+        }
+    }
+    if (*(void **)(object + 0x74) != NULL) {
+        for (i = 0, offset = 0; i < *(u8 *)(*(u8 **)(object + 0x40) + 0x29); i++, offset += 4) {
+            camlightDelete(*(void **)(*(u8 **)(object + 0x74) + offset));
+        }
+    }
 
-    switch (type) {
-        case 1:
-            TrapDanglingJump(*(void **)(payload + 0x64));
+    switch (*(s16 *)(object + 0x44)) {
+        case 92:
+            payload = *(u8 **)(object + 0x64);
+            TrapDanglingJump(payload);
             break;
-        case 2:
+        case 65:
+            payload = *(u8 **)(object + 0x64);
             func_800359D4(*(void **)(payload + 0x20));
             break;
-        case 3:
-            func_800031E8(*(void **)(payload + 0x3C));
+        case 67:
+            payload = *(u8 **)(object + 0x64);
+            value = *(void **)(payload + 0x3C);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
             break;
-        case 4:
-        case 5:
+        case 72:
             TrapDanglingJump();
             break;
-        case 6:
-            func_800031E8(*(void **)(payload + 0x3C));
+        case 76:
+            TrapDanglingJump();
             break;
-        case 7:
-            value = *(void **)(payload + 0x20);
+        case 78:
+            payload = *(u8 **)(object + 0x64);
+            value = *(void **)(payload + 0x3C);
             if (value != NULL) {
-                u8 *owner = *(u8 **)(*(void **)((u8 *)value + 0x64));
+                func_800031E8(value);
+            }
+            break;
+        case 68:
+            linkedPayload = *(u8 **)(object + 0x64);
+            value = *(void **)(linkedPayload + 0x18);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(linkedPayload + 0x1C);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(linkedPayload + 0x20);
+            if (value != NULL) {
+                owner = *(u8 **)((u8 *)value + 0x64);
                 if (*(void **)(owner + 0xD4) == object) {
                     *(void **)(owner + 0xD4) = NULL;
                 }
             }
             break;
-        case 8:
+        case 66:
+            payload = *(u8 **)(object + 0x64);
             value = *(void **)(payload + 0x0);
             if (value != NULL) {
-                u8 *owner = *(u8 **)(*(void **)((u8 *)value + 0x64));
+                owner = *(u8 **)((u8 *)value + 0x64);
                 if (*(void **)(owner + 0xD0) == object) {
                     *(void **)(owner + 0xD0) = NULL;
                 }
             }
-            func_800031E8(*(void **)(payload + 0x14));
+            value = *(void **)(payload + 0x14);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
             break;
-        case 9:
+        case 89:
+            payload = *(u8 **)(object + 0x64);
             value = *(void **)(payload + 0x10);
             if (value != NULL) {
-                u8 *owner = *(u8 **)(*(void **)((u8 *)value + 0x64));
+                owner = *(u8 **)((u8 *)value + 0x64);
                 if (*(void **)(owner + 0xD8) == object) {
                     *(void **)(owner + 0xD8) = NULL;
                 }
             }
             break;
-        case 10:
-            amSndStop(*(void **)(payload + 0x0));
+        case 90:
+            payload = *(u8 **)(object + 0x64);
+            value = *(void **)(payload + 0x0);
+            if (value != NULL) {
+                amSndStop(value);
+            }
             break;
-        case 11:
-            func_800031E8(*(void **)(payload + 0x3C));
+        case 64:
+            payload = *(u8 **)(object + 0x64);
+            value = *(void **)(payload + 0x3C);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
             break;
-        case 12:
-            func_800031E8(*(void **)(payload + 0x18));
-            func_800031E8(*(void **)(payload + 0x1C));
-            func_800031E8(*(void **)(payload + 0x40));
+        case 55:
+            linkedPayload = *(u8 **)(object + 0x64);
+            value = *(void **)(linkedPayload + 0x18);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(linkedPayload + 0x40);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
             break;
-        case 13:
-            func_800031E8(*(void **)(payload + 0x38));
+        case 54:
+            payload = *(u8 **)(object + 0x64);
+            value = *(void **)(payload + 0x38);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
             break;
-        case 14:
+        case 71:
             D_80078F7C = NULL;
             break;
-        case 15:
+        case 63:
             value = (void *)D_8007A1F4;
             if (value != NULL && *(void **)value == object) {
                 *(void **)value = NULL;
             }
             break;
-        case 16:
-        case 17:
+        case 61:
             TrapDanglingJump(object);
             break;
-        case 18:
+        case 62:
+            TrapDanglingJump(object);
+            break;
+        case 14:
             func_8001C088(object);
             break;
-        case 19:
-            killLight(*(void **)(payload + 0x64));
+        case 15:
+            payload = *(u8 **)(object + 0x64);
+            killLight(payload);
             break;
-        case 20:
-            value = *(void **)(payload + 0x20);
+        case 41:
+            linkedPayload = *(u8 **)(object + 0x64);
+            value = *(void **)(linkedPayload + 0x20);
             if (value != NULL) {
                 killLight(value);
             }
-            func_8000D728(*(void **)(payload + 0x2C));
+            value = *(void **)(linkedPayload + 0x2C);
+            if (value != NULL) {
+                func_8000D728(value);
+            }
             break;
-        case 21:
-            camlightDelete(*(void **)(object + 0x84));
+        case 9:
+            value = *(void **)(object + 0x84);
+            if (value != NULL) {
+                camlightDelete(value);
+            }
+            break;
+        case 35:
+            lightKillGlowingLight(*(void **)(object + 0x64));
+            break;
+        case 42:
+            payload = *(u8 **)(object + 0x64);
+            value = *(void **)(payload + 4);
+            if (value != NULL) {
+                mmFree(value);
+            }
+            break;
+        case 29:
+            func_80005798(object);
+            value = *(void **)(object + 0x84);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            break;
+        case 73:
+            func_80005798(object);
             break;
         case 22:
-            lightKillGlowingLight();
-            break;
         case 23:
-            mmFree(*(void **)(payload + 4));
-            break;
         case 24:
-            func_80005798(object);
-            value = *(void **)(object + 0x84);
-            if (value != NULL) {
-                func_800031E8(value);
-            }
-            break;
         case 25:
-            func_80005798(object);
-            break;
         case 26:
+        case 27:
+        case 79:
             value = *(void **)(object + 0x84);
             if (value != NULL) {
                 func_800031E8(value);
             }
             break;
-        case 27:
-            func_800031E8(*(void **)(payload + 0xA4));
-            func_800031E8(*(void **)(payload + 0xA8));
-            func_800031E8(*(void **)(payload + 0xAC));
-            func_800031E8(*(void **)(payload + 0xB0));
-            func_800031E8(*(void **)(payload + 0xB4));
-            func_800031E8(*(void **)(payload + 0xB8));
-            func_800031E8(*(void **)(payload + 0xBC));
-            func_800031E8(*(void **)(payload + 0xC0));
-            func_800031E8(*(void **)(payload + 0xC4));
+        case 1:
+            payload = *(u8 **)(object + 0x64);
+            value = *(void **)(payload + 0xA4);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(payload + 0xA8);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(payload + 0xAC);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(payload + 0xB0);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(payload + 0xB4);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(payload + 0xB8);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(payload + 0xBC);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(payload + 0xC0);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(payload + 0xC4);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            for (i = 0; i < 0x10; i += 4) {
+                value = *(void **)(payload + 0x134 + i);
+                if (value != NULL) {
+                    TrapDanglingJump(value);
+                }
+            }
+            for (i = 0; i != 0x30; i += 0xC) {
+                value = *(void **)(payload + 0x354 + i);
+                if (value != NULL) {
+                    func_80046E70(value);
+                }
+            }
             break;
         default:
             break;
     }
 
-    resource = *(u8 **)(object + 0x4C);
-    if (resource != NULL) {
-        if (*(void **)(resource + 0x1C) != NULL && ((*(u8 *)(data + 0x61) & 8) != 0)) {
-            TrapDanglingJump();
+    payload = *(u8 **)(object + 0x4C);
+    if (payload != NULL) {
+        if (*(void **)(payload + 0x1C) != NULL && ((*(u8 *)(*(u8 **)(object + 0x40) + 0x61) & 8) != 0)) {
+            TrapDanglingJump(*(void **)(payload + 0x1C));
+            payload = *(u8 **)(object + 0x4C);
         }
-        func_800347A0(*(void **)(resource + 8));
+        value = *(void **)(payload + 8);
+        if (value != NULL) {
+            func_800347A0(value);
+        }
     }
     value = *(void **)(object + 0x54);
     if (value != NULL) {
@@ -2820,7 +2911,10 @@ void func_80007118(void *arg0, s32 arg1) {
     }
     value = *(void **)(object + 0x78);
     if (value != NULL) {
-        func_800031E8(*(void **)((u8 *)value + 0x24));
+        value = *(void **)((u8 *)value + 0x24);
+        if (value != NULL) {
+            func_800031E8(value);
+        }
     }
     if (*(u8 *)(object + 0x92) != 0) {
         partNullifyCircularParticleParents(object);
@@ -5744,4 +5838,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x40
  * summary: Workbench structure-mismatch: structure-buckets. Next: authenticate the default-mode lifetime and sort-prefix source before further scheduling work.
  * PLATEAU-HANDOFF:func_80009414:end
+ */
+
+/* PLATEAU-HANDOFF:func_80007118:start
+ * symbol: func_80007118
+ * score: 181 differing words
+ * frame: 0x38
+ * relocations: 71
+ * first-mismatch: +0x2C
+ * summary: Workbench structure-mismatch: register-role. Next: authenticate model-pointer coloring and callback lifetimes; resolve owned local-branch relocations.
+ * PLATEAU-HANDOFF:func_80007118:end
  */
