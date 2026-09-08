@@ -822,13 +822,13 @@ typedef struct O1PhysicsSurface {
 typedef struct O1PhysicsPathMode {
     s32 (*test)(void);
     void (*position)(f32 *x, f32 *z);
-    s16 (*heading)(f32 x, f32 z);
+    s32 (*heading)(f32 x, f32 z);
     u16 mask;
     u16 unused;
 } O1PhysicsPathMode;
 
 typedef struct O1PhysicsActionMode {
-    void (*test)(void);
+    s32 (*test)(void);
     void (*update)(void);
     u16 mask;
     u16 unused;
@@ -924,7 +924,7 @@ void func_overlay_001_F000438C_185076C(O1PhysicsObject *object, s32 updateRate) 
     f32 velocityZ;
     O1PhysicsState *state;
     s16 clampedAngle;
-    s32 (*pathTest)(void);
+    s32 (*predicate)(void);
     s32 surfaceCount;
     s32 collision;
     s32 angleOffset;
@@ -1036,10 +1036,10 @@ block_13:
         index = 1;
         limit = (tuning[16] + ((f32) level * tuning[2])) * state->speedScale;
         do {
-            pathTest = path->test;
-            if ((pathTest != NULL) && (path->mask & (1 << state->pathMode))) {
+            predicate = path->test;
+            if ((predicate != NULL) && (path->mask & (1 << state->pathMode))) {
 
-                if (pathTest() != 0) {
+                if (predicate() != 0) {
                     state->pathMode = (u8) index;
                 }
             }
@@ -1183,8 +1183,8 @@ block_13:
                 state->boostScale = 0.0f;
             }
         }
-        if (D_1D94 != 0) {
-            remaining = D_1D94 - 1;
+        remaining = D_1D94;
+        if (remaining--) {
             do {
                 value = func_overlay_008_F0001000_185ED58(object, state, limit);
                 limit = value;
@@ -1193,11 +1193,10 @@ block_13:
                     applySlope = 1;
                 } else if (((keys & 0x4000) == 0) && (state->slope < 0.0f)) {
                     applySlope = 1;
+                } else if (!(keys & 0xC000) && (state->slope > 0.0f)) {
+                    applySlope = 1;
                 } else {
                     applySlope = 0;
-                    if (!(keys & 0xC000) && (state->slope > 0.0f)) {
-                        applySlope = 1;
-                    }
                 }
                 if ((applySlope != 0) && (state->boostMode == 0)) {
                     state->forwardVelocity = (f32) (state->forwardVelocity + (G_rt_458c4 * state->slope));
@@ -1288,12 +1287,13 @@ block_160:
                 } else if (state->controlXjoy < -0x41) {
                     steering = 0x1F4;
                 } else {
-                    steering = (s32) (state->controlXjoy * -0x1F4) / 65;
+                    steering = -state->controlXjoy;
+                    steering = (steering * 500) / 65;
                 }
                 work = -2.0f - state->forwardVelocity;
                 state->steeringAngle = (s16) (state->steeringAngle + ((s32) (steering - state->steeringAngle) >> 1));
                 if (work > 0.0f) {
-                    scale = (func_8002A8BC((s16) (s32) (work * 1310.72f)) * 0.25f) + 0.75f;
+                    scale = (func_8002A8BC((s32) (work * 1310.72f)) * 0.25f) + 0.75f;
                 } else {
                     if (work < 0.0f) {
                         work = -work;
@@ -1301,7 +1301,7 @@ block_160:
                     if (work > 2.0f) {
                         work = 2.0f;
                     }
-                    scale = (func_8002A8BC((s16) (s32) (work * 16384.0f)) + 1.0f) * 0.5f;
+                    scale = (func_8002A8BC((s32) (work * 16384.0f)) + 1.0f) * 0.5f;
                 }
                 if (state->forwardVelocity > 0.0f) {
                     scale = -scale;
@@ -1376,10 +1376,11 @@ block_160:
 
         velocityX += state->sideVelocity * func_8002A8BC(heading);
         value = func_8002A8C0(heading);
+        velocityZ -= state->sideVelocity * value;
         deltaX = (velocityX * D_4) + impulseX;
         deltaY = ((object->velocityY * D_4) - (0.5f * G_rt_458c4 * D_4 * D_4)) + impulseY;
         inverseUpdate = 1.0f / D_4;
-        deltaZ = ((velocityZ - (state->sideVelocity * value)) * D_4) + impulseZ;
+        deltaZ = (velocityZ * D_4) + impulseZ;
         object->velocityX = (f32) (deltaX * inverseUpdate);
         object->velocityY = (f32) (object->velocityY - (G_rt_458c4 * D_4));
         object->x += deltaX;
@@ -1414,8 +1415,9 @@ block_160:
         state->actualVelocityY = (f32) ((object->y - state->previousY) * inverseUpdate);
         state->actualVelocityZ = (object->z - state->previousZ) * inverseUpdate;
         if ((state->field16A == 0) && (collision != NULL)) {
+            value = func_8002A878(0.9f, D_1D94);
             work = state->speedLimit;
-            state->speedLimit = (f32) (work + ((3.0f - work) * (1.0f - func_8002A878(0.9f, D_1D94))));
+            state->speedLimit = work + ((3.0f - work) * (1.0f - value));
             work = state->speedLimit;
             if (state->forwardVelocity < (-work)) {
                 state->forwardVelocity = (-work);
@@ -1430,8 +1432,9 @@ block_160:
                 state->sideVelocity = work;
             }
         } else {
+            value = func_8002A878(0.825f, D_1D94);
             work = state->speedLimit;
-            state->speedLimit = (f32) (work + ((25.0f - work) * (1.0f - func_8002A878(0.825f, D_1D94))));
+            state->speedLimit = work + ((25.0f - work) * (1.0f - value));
         }
         func_overlay_008_F00049A4_18626FC(state);
         state->outputScale = func_overlay_008_F00034A0_18611F8(object, state, limit, D_4);
@@ -1441,10 +1444,10 @@ block_160:
         index = 2;
         do {
             if (index != state->actionMode) {
-                callback = action->test;
-                if ((callback != NULL) && (action->mask & (1 << state->actionMode))) {
+                predicate = action->test;
+                if ((predicate != NULL) && (action->mask & (1 << state->actionMode))) {
 
-                    callback();
+                    predicate();
                 }
             }
             index += 1;
