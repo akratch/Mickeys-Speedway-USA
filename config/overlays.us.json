@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 138464,
-  "nonmatching_overlay_c_bytes": 330156,
+  "matched_overlay_c_bytes": 138624,
+  "nonmatching_overlay_c_bytes": 329996,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 2348,
   "bss_bytes": 77680,
@@ -1387,6 +1387,14 @@
      "label": "overlay1UpdateTransient",
      "source": "overlays/o001/overlay_001_tail",
      "evidence": "canonical mixed-TU object and linked bytes exact"
+    },
+    {
+     "offset": "0x72A4",
+     "end_offset": "0x7344",
+     "size": "0xA0",
+     "label": "overlay1AllocateRecord",
+     "source": "overlays/o001/overlay_001_tail",
+     "evidence": "canonical mixed-TU object, 10 runtime relocations, and linked bytes exact"
     },
     {
      "offset": "0x7344",
