@@ -2606,7 +2606,7 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x58
  * relocations: 16
  * first-mismatch: +0x20C
- * summary: 276/297 words align; integer temp lane closed, leaving FP allocation and one two-load schedule swap after bounded flag and permuter searches.
+ * summary: m2c source/type surface exhausted; next: authorize FP web trace on the 26-word schedule-exact accumulator variant.
  * PLATEAU-HANDOFF:func_8003F154:end
  */
 
