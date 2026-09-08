@@ -40,20 +40,10 @@ void func_800291B4(void);
 void amSndPlay(u16 soundId, void **handle);
 void func_8003A680(s32 count);
 
-/* NON_MATCHING plateau: Mickey's resident ABI evidence and a bounded producer-
- * lifetime reconstruction recover the exact 100-word schedule, 0x60 frame,
- * stack homes, and integer/FP register webs. The configured C is 99/100 words;
- * its only ordinary difference is the commutative OR at +0x124. A linked
- * promotion trial reports one in-range word and no outside differences. */
+/* NON_MATCHING plateau: configured C is 99/100 words with a 0x60 frame and
+ * eight relocations; the sole residual is the commutative OR at +0x124. All
+ * register lanes match; CFE spelling owns the residual. */
 #ifdef NON_MATCHING
-/* PLATEAU-HANDOFF
- * symbol: overlay74Update
- * score: 99/100 words
- * frame: 0x60
- * relocations: 8
- * first-mismatch: +0x124
- * summary: Exact frame and all eight runtime identities; only the commutative OR operand order differs after bounded source forms.
- */
 void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
     Overlay74HitObject *results[13];
     f32 delta;
@@ -99,3 +89,13 @@ void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o074/overlay74Update/func_overlay_074_F00000B8_18CBD58.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay74Update:start
+ * symbol: overlay74Update
+ * score: 99/100 words
+ * frame: 0x60
+ * relocations: 8
+ * first-mismatch: +0x124
+ * summary: All register lanes match; CFE spelling owns the OR residual. Next lever: a new C spelling reversing OR without operand swap or named carrier.
+ * PLATEAU-HANDOFF:overlay74Update:end
+ */
