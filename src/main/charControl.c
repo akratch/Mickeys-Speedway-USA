@@ -1258,52 +1258,50 @@ typedef struct ControlFlameParticle {
     s16 value24;
 } ControlFlameParticle;
 
-/* Workbench verdict: structure-mismatch, 176 differing words, first mismatch +0x0. */
-/* Candidate: 221/220 instructions with a -0x70 frame versus target -0x60; three instruction/stack and state-machine residuals remain. */
-/* Shape status: four-slot state machine, signed phase/intensity arithmetic, and cone calls are reconstructed, but it is not shape-exact. */
+/* Workbench verdict: register-only residual, 16 differing words, first mismatch +0x164. */
+/* Candidate: 220/220 instructions, frame -0x60 on both sides, all six relocations
+ * at the target's own instruction indexes, and every stack displacement equal. */
+/* Three source facts recovered from the target and retained here:
+ *  - the loop counter is ONE variable spilled to its own home each iteration,
+ *    not an m2c sp5C/var_v0 pair; declaring it first is what puts its home at
+ *    the target's displacement and keeps the frame at 0x60,
+ *  - case 1 re-reads the particle's angle field rather than reading the value
+ *    already in var_s6; that CSE is what makes IDO keep the loaded value in a
+ *    caller-saved register and copy it into the saved one,
+ *  - case 2 performs actor->unk80 |= arg2 AFTER the func_8002A204 call, which
+ *    needs the call result named before the or.
+ * Remaining gap: a ugen temp-ring phase difference. The first divergence is the
+ * third speculative arg4 load in the mode dispatch, where the target takes t0
+ * and this candidate takes t9; twelve small webs follow from it. */
 /* PROVENANCE: JFG's public controlUpdateJetFlames role and Mickey's m2c/assembly establish
  * the state-machine order; no external body is copied into this reconstruction. */
 #ifdef NON_MATCHING
 void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg3,
                    s32 arg4) {
-    s32 sp5C;
-    f32 var_f20;
-    f32 var_f22;
-    s16 temp_v1;
-    s32 var_s3;
-    s32 var_s6;
-    s32 *temp_v0;
-    s32 temp_a0;
-    s32 temp_s2;
-    s32 temp_t7;
-    s32 temp_t9;
-    s32 var_s5;
     s32 var_v0;
-    s32 var_s0;
-    u8 temp_v0_2;
     ControlFlameSlot *var_s1;
     void *temp_s7;
+    s32 var_s5;
+    s32 var_s0;
+    s32 var_s3;
+    s32 var_s6;
+    f32 var_f20;
+    f32 var_f22;
 
     var_v0 = 0;
     var_s5 = 1;
     var_s1 = (ControlFlameSlot *) ((u8 *) player + 0x34C);
     do {
         temp_s7 = var_s1->particle;
-        sp5C = var_v0;
         if (temp_s7 != NULL) {
-            temp_v1 = *(s16 *) ((u8 *) temp_s7 + 0x24);
+            var_s6 = *(s16 *) ((u8 *) temp_s7 + 0x24);
             var_s0 = var_s1->intensity;
             var_s3 = var_s1->phase;
             var_f20 = *(f32 *) ((u8 *) temp_s7 + 0x18);
             var_f22 = *(f32 *) ((u8 *) temp_s7 + 0x1C);
-            var_s6 = temp_v1;
             if (var_s1->state == 2) {
-                s32 updateRate;
-
-                updateRate = arg4;
-                temp_t7 = updateRate << 5;
                 if (var_s1->mode == 0) {
-                    var_s0 -= temp_t7;
+                    var_s0 -= arg4 << 5;
                     if (var_s0 < 0) {
                         var_s0 = 0;
                     }
@@ -1312,7 +1310,7 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                         var_s1->mode = 2;
                     }
                 } else {
-                    var_s0 += temp_t7;
+                    var_s0 += arg4 << 5;
                     if (var_s0 >= 0x100) {
                         var_s0 = 0xFF;
                     }
@@ -1323,19 +1321,21 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                 }
                 var_f20 *= (f32) var_s0 / 255.0f;
                 var_f22 *= (f32) var_s0 / 255.0f;
-                temp_v0 = actor->unk70;
-                if (temp_v0 != NULL) {
-                    temp_a0 = *temp_v0;
+                if (actor->unk70 != NULL) {
+                    s32 temp_a0;
+
+                    temp_a0 = *actor->unk70;
                     if (temp_a0 != 0) {
                         changeLightIntensity((void *) temp_a0, var_s0);
                     }
                 }
             } else {
-                temp_v0_2 = var_s1->mode;
-                switch (temp_v0_2) {
+                switch (var_s1->mode) {
                 case 0:
                     var_s0 = 0;
                     if (player->unk186 & var_s5) {
+                        s32 temp_s2;
+
                         temp_s2 = actor->unk80;
                         actor->unk80 = arg3;
                         partUpdateTriggers(actor, 2);
@@ -1343,12 +1343,9 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                         var_s1->mode = 1;
                     }
                     break;
-                case 1: {
-                    s32 updateRate;
-
-                    updateRate = arg4;
-                    var_s0 += updateRate << 5;
-                    var_s6 = (s32) (temp_v1 * var_s0) >> 7;
+                case 1:
+                    var_s0 += arg4 << 5;
+                    var_s6 = (s32) (*(s16 *) ((u8 *) temp_s7 + 0x24) * var_s0) >> 7;
                     if (var_s0 >= 0x100) {
                         var_s0 = 0xFF;
                         if (player->unk186 & var_s5) {
@@ -1358,16 +1355,14 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                         }
                     }
                     break;
-                }
                 case 2: {
-                    s32 updateRate;
+                    s32 temp_t9;
 
-                    updateRate = arg4;
-                    var_s0 += updateRate * 0x10;
+                    var_s0 += arg4 * 0x10;
                     if (var_s0 >= 0x100) {
                         var_s0 = 0xFF;
                     }
-                    var_s3 += updateRate << 0xC;
+                    var_s3 += arg4 << 0xC;
                     temp_t9 = func_8002A204((s16) (var_s3 << 8)) + 0x18000;
                     actor->unk80 |= arg2;
                     var_s6 = (s32) (temp_t9 * ((s32) (var_s6 * var_s0) >> 8)) >> 0x10;
@@ -1376,24 +1371,20 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                     }
                     break;
                 }
-                case 3: {
-                    s32 updateRate;
-
-                    updateRate = arg4;
-                    var_s0 -= updateRate * 8;
+                case 3:
+                    var_s0 -= arg4 * 8;
                     if (var_s0 <= 0) {
                         var_s0 = 0;
                         var_s1->mode = 0;
                     } else {
-                        var_s3 += updateRate << 0xC;
+                        var_s3 += arg4 << 0xC;
                         var_s6 = (s32) ((func_8002A204((s16) (var_s3 << 8)) + 0x18000) *
-                                       ((s32) (var_s6 * var_s0) >> 8)) >> 0x10;
+                                        ((s32) (var_s6 * var_s0) >> 8)) >> 0x10;
                         if (player->unk186 & var_s5) {
                             var_s1->mode = 2;
                         }
                     }
                     break;
-                }
                 }
             }
             var_s1->intensity = var_s0;
@@ -1403,9 +1394,9 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                 func_800479D4(temp_s7, var_s6, var_f20, var_f22, var_s1->intensity);
             }
         }
-        var_v0 = sp5C + 1;
         var_s5 *= 2;
         var_s1++;
+        var_v0++;
     } while (var_v0 != 4);
 }
 #else
@@ -2195,11 +2186,11 @@ void controlClearPlayerSetup(void) {
 
 /* PLATEAU-HANDOFF:func_8001D960:start
  * symbol: func_8001D960
- * score: 176 differing words
- * frame: 0x70
+ * score: 16/220 words
+ * frame: 0x60
  * relocations: 6
- * first-mismatch: +0x0
- * summary: one word long; fifth-argument promotion rotates saved-register roles and adds 0x10 non-save frame
+ * first-mismatch: +0x164
+ * summary: Instruction count, frame, stack map and all six relocation indexes agree; residual is a ugen temp-ring phase (t0 versus t9 at the third speculative arg4 load)
  * PLATEAU-HANDOFF:func_8001D960:end
  */
 
