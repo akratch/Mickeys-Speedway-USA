@@ -3962,11 +3962,17 @@ void func_80057350(HitCopyState *state, void *unused, AnimVec3f *position,
 /*
  * Mickey-led overlap response reconstruction; the nearest external skeleton
  * is only 0.085 similar and supplies no usable donor body.
+ *
+ * Three levers took this from a 203-word structure mismatch to exact:
+ *   - the squared combined radius is its own statement, so IDO emits the
+ *     multiply next to the sum and schedules it against the deltas;
+ *   - the three-axis overlap test is a pre-tested `for`, not a `do`/`while`:
+ *     the bottom-tested form lets uopt fold the zero subscript into the two
+ *     strength-reduced base pointers and loses the two `addu` seeds;
+ *   - the overlap denominator is carried in a named local, which is what puts
+ *     it in a colour register rather than a block temp.
+ * The TU's `-Wab,-r4300_mul` selection is what settles the last two words.
  */
-/* Workbench p7: structure/size mismatch, 233/231 instructions/frame -136, 203 raw words from +0x2C.
- * Context is clean; prior pointer-base, radius-tree, scaled-zero, and flag probes leave target’s folded AABB initialization as the first structural split.
- * FP pool/temp and tail integer webs remain; retain NON_MATCHING. */
-#ifdef NON_MATCHING
 void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
                    HitOverlapState *trigger, HitOverlapVolume *volume) {
     volatile f32 stackPad;
@@ -3985,25 +3991,25 @@ void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
     intersects = 0;
     if (volume->shape == 0) {
         combinedRadius = other->radius + volume->radius;
-        deltaX = other->position.x;
-        deltaX = volume->position.x - deltaX;
+        combinedRadius = combinedRadius * combinedRadius;
+        deltaX = volume->position.x - other->position.x;
         deltaY = volume->position.y - other->position.y;
         deltaZ = volume->position.z - other->position.z;
         if (((deltaX * deltaX) + (deltaY * deltaY) + (deltaZ * deltaZ)) <
-            (combinedRadius * combinedRadius)) {
+            combinedRadius) {
             intersects = 1;
         }
     } else if (volume->shape == 1) {
         combinedRadius = other->radius + volume->radius;
+        combinedRadius = combinedRadius * combinedRadius;
         deltaX = volume->position.x - other->position.x;
         deltaY = (volume->position.y - volume->height) - other->position.y;
         deltaZ = volume->position.z - other->position.z;
         if (((deltaX * deltaX) + (deltaY * deltaY) + (deltaZ * deltaZ)) <
-            (combinedRadius * combinedRadius)) {
+            combinedRadius) {
             intersects = 1;
         }
     } else if (volume->shape == 2) {
-        index = 0;
         intersects = 1;
         firstMin[0] = other->position.x - other->radius;
         firstMin[1] = other->position.y - other->height;
@@ -4017,7 +4023,7 @@ void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
         secondMax[0] = volume->position.x + volume->radius;
         secondMax[1] = volume->position.y + volume->height;
         secondMax[2] = volume->position.z + volume->radius;
-        do {
+        for (index = 0; (index < 3) && (intersects != 0); index++) {
             if ((firstMin[index] < secondMin[index]) &&
                 (firstMax[index] < secondMin[index])) {
                 goto no_intersection;
@@ -4027,8 +4033,7 @@ void func_800573C8(HitOverlapState *state, HitOverlapVolume *other,
 no_intersection:
                 intersects = 0;
             }
-            index++;
-        } while ((index < 3) && (intersects != 0));
+        }
     }
     if (intersects != 0) {
         if (state->kind44 == 1) {
@@ -4037,11 +4042,11 @@ no_intersection:
                 vehicle->unk16A = 0;
             }
             if (volume->position.y < volume->unk1C) {
+                deltaX = (other->position.y - state->position.y) +
+                         other->height;
                 vehicle->overlap54 =
                     ((volume->position.y - volume->height) -
-                     state->position.y) /
-                    ((other->position.y - state->position.y) +
-                     other->height);
+                     state->position.y) / deltaX;
                 if (vehicle->overlap54 < 0.0f) {
                     vehicle->overlap54 = 0.0f;
                 }
@@ -4064,9 +4069,6 @@ no_intersection:
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/anim/func_800573C8.s")
-#endif
 #ifdef NON_MATCHING
 /*
  * PROVENANCE: adapted from JFG's src/hit.c hitPlayer assembly. Mickey's ROM
@@ -4238,16 +4240,6 @@ void fmvInit(void) {
  * first-mismatch: +0x1C
  * summary: Candidate is 40 words short with 637 differences and the exact frame; both sides have 11 relocations, but only one site/identity aligns and two candidate identities are unresolved.
  * PLATEAU-HANDOFF:func_800563B4:end
- */
-
-/* PLATEAU-HANDOFF:func_800573C8:start
- * symbol: func_800573C8
- * score: 203 differing words
- * frame: 0x88
- * relocations: 3
- * first-mismatch: +0x2C
- * summary: Configured candidate is 231 versus 233 target words; folded AABB initialization remains the first structural split.
- * PLATEAU-HANDOFF:func_800573C8:end
  */
 
 /* PLATEAU-HANDOFF:func_80053868:start

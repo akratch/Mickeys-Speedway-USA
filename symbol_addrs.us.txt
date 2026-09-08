@@ -2709,7 +2709,7 @@ func_80056DD8 = 0x80056DD8; // type:func size:0x394 ROM 0x579d8 tier-D src/main/
 func_8005716C = 0x8005716C; // type:func size:0x140 tier-D ROM 0x57D6C src/main/anim.c.o -O2 -mips2 -32 -Wo,-loopunroll,0 NON_MATCHING resident fallback and adjacent func_800572AC boundary owner, no match credit
 func_800572AC = 0x800572AC; // type:func size:0xA4   ROM 0x57eac  tier-D collision state-delta helper, matched C
 func_80057350 = 0x80057350; // type:func size:0x78   ROM 0x57f50  tier-D collision state-copy helper, matched C
-func_800573C8 = 0x800573C8; // type:func size:0x3A4 ROM 0x57fc8 tier-D src/main/anim.c.o -O2 -mips2 -32 -Wo,-loopunroll,0 NON_MATCHING resident fallback, boundary from adjacent resident glabel with padding=0, no match credit
+func_800573C8 = 0x800573C8; // type:func size:0x3A4 ROM 0x57fc8 tier-A matched C src/main/anim.c.o -O2 -mips2 -32 -Wo,-loopunroll,0 -Wab,-r4300_mul, linked ROM byte-identical over 932 owned bytes, frame 0x88, 3 exact relocation identities
 fmvInit = 0x80057910; // type:func size:0x5C   ROM 0x58510  src/fmvInit.c.o exact masked tier-A, matched C
 // jfg:libultra/src/flash/flashreinit.c.o
 osFlashReInit = 0x80057970; // type:func size:0x50 tier-A matched C, JFG libultra/src/flash/flashreinit.c body

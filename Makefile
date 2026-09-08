@@ -1178,7 +1178,12 @@ $(BUILD_DIR)/$(SRC_DIR)/main/models_5B300.c.o: CFLAGS += -Wo,-loopunroll,0
 # The resident animation TU's reset loops use IDO's non-unrolled form. The
 # canonical setting otherwise expands the 0x40-byte light-record reset by four;
 # the flag lattice selects this setting before any source permutation.
-$(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: CFLAGS += -Wo,-loopunroll,0
+# -Wab,-r4300_mul is the same lattice's selection for func_800573C8: with it
+# the configured full-TU object is instruction-word identical to the target
+# over all 233 words, and without it two scheduler-tied words at +0xDC differ
+# under every source spelling tried. Impact review: the whole ROM still
+# rebuilds byte-identically, so no already-matched function in this TU moves.
+$(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: CFLAGS += -Wo,-loopunroll,0 -Wab,-r4300_mul
 # The path reset trap needs a typed alias to preserve its f32 argument.
 # Canonicalize only the undefined symbol name; section contents are unchanged.
 # func_800508D4's 0.01f literal owns one word of the anim literal pool; the
