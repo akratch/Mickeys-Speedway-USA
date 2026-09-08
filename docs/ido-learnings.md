@@ -76,6 +76,16 @@ bytes and disassembly never belong here.
 
 ### Allocation and source shape
 
+- When a table index local adds an unwanted colored value before a call,
+  carry the final table result into the call instead. A nested lookup assigned
+  before argument setup can leave the intermediate index temporary while the
+  result takes its call-argument register at zero measured color cost. Paired
+  full-TU traces with stock-output fidelity confirmed this in the exact resident
+  ROM-section DMA helper recorded in `docs/resident.md`. Preserve signed index
+  widening, lookup order, and evaluation count. Directly nesting the lookup in
+  the call or overwriting the incoming parameter can instead add a spill or
+  store; neither is equivalent as an allocation experiment. This is a carrier
+  placement lever, not proof of a target register's allocator role from its name.
 - A small register-only switch residual can come from a named selector even
   when both functions are frameless. Putting a single-use selector expression
   directly in the switch removed its named carrier and restored exact output
