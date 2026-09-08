@@ -1565,6 +1565,10 @@ void func_800498FC(s32 index, f32 value16, f32 value18, s32 red, s32 green,
     record->red = red;
     record->green = green;
     record->blue = blue;
+    /* PROVENANCE: Jet Force Gemini public decomp efd5abb, src/fx.c's
+     * setupClearScreen exact scratch fDplg, was consulted. Its pointer/global
+     * body is not an ABI/CFG donor; its empty flag-field condition is flat for
+     * this scalar argument, so no JFG body is adapted. Mickey is authoritative. */
     record->value1D = flags & 0xFF3F;
     record->value1E = flags & 0x80;
     record->value1F = flags & 0x40;
@@ -2378,7 +2382,7 @@ void func_8004AF68(void) {
  * frame: 0x30
  * relocations: 5
  * first-mismatch: +0xD0
- * summary: CDX proves a 15/16 pool-population mismatch, not a colour bijection; read-back closes the population but leaves a 13-word UGEN/as1 schedule plateau
+ * summary: JFG empty flag-field condition is scalar-flat; lvalue forms regress structurally. Next lever: source-authentic UGEN line separation.
  * PLATEAU-HANDOFF:func_800498FC:end
  */
 
