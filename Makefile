@@ -1102,6 +1102,7 @@ $(BUILD_DIR)/$(SRC_DIR)/main/sched.c.o: POSTPROCESS = \
 # site-bound PC16 records preserve their fields
 # and the exact relocation identities of the assembled fallback functions.
 # Name the input rodata base so table identities remain unambiguous in the ELF.
+# func_80009220's compiler-owned float literal uses the same proved input base.
 $(BUILD_DIR)/$(SRC_DIR)/main/objects.c.o: $(TOOLS_DIR)/add_elf_relocations.py \
     $(TOOLS_DIR)/trim_elf_section.py $(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/main/objects.c.o: POSTPROCESS = \
@@ -1111,6 +1112,8 @@ $(BUILD_DIR)/$(SRC_DIR)/main/objects.c.o: POSTPROCESS = \
 	    --add-symbol objectsSwitchTablesBase=.rodata:0,global $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x690 && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+	    0x4F94:.rodata:objectsSwitchTablesBase \
+	    0x4F9C:.rodata:objectsSwitchTablesBase \
 	    0x6508:.rodata:objectsSwitchTablesBase \
 	    0x6510:.rodata:objectsSwitchTablesBase \
 	    0x6720:.rodata:objectsSwitchTablesBase \
@@ -1118,7 +1121,7 @@ $(BUILD_DIR)/$(SRC_DIR)/main/objects.c.o: POSTPROCESS = \
 	    0x6C08:.rodata:objectsSwitchTablesBase \
 	    0x6C10:.rodata:objectsSwitchTablesBase && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/add_elf_relocations.py $@ .text 0x708C \
-	    6c03a9672ad886f802438a2184be3d83a5df4919464462a7a3003c95ab6a47cc \
+	    cccc4da202772adbaa772df53e43341ad5868e9f736bc2ca6143afb9d3a25eee \
 	    0x6500:PC16:objectsSizeDefaultBranch:0x76 \
 	    0x6718:PC16:objectsInitDefaultBranch:0x120 \
 	    0x6C00:PC16:objectsControlDefaultBranch:0x114

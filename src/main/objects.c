@@ -681,7 +681,6 @@ extern void func_80034E48(void);
 extern void func_80023598(void **, void *, void *, void *, void *, s32);
 extern void func_80023A08(void **, s32, s32, s16 *, s32, s32, s32);
 extern f32 sqrtf(f32);
-extern f32 D_80080F80;
 extern f32 D_80080F7C;
 
 typedef struct {
@@ -3882,63 +3881,56 @@ void func_80008B94(void *arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80008B94.s")
 #endif
-/* Workbench verdict: structure-mismatch; 55 differing words (target/candidate 125/125). */
-/* First mismatch: +0x1C; frame 0x70 and instruction count are exact. */
-/* Shape status: control flow is complete; residuals are mostly register/constant allocation. */
-#ifdef NON_MATCHING
+/* The sprite renderer reads the transform and frame from this segment layout. */
 void func_80009220(void **arg0, s32 arg1, s32 arg2, Objects09220Object *arg3,
                    s32 arg4, Objects09220Source *arg5, s32 arg6) {
-    f32 direction[2];
-    f32 projection;
-    f32 scale;
     f32 distance;
-    f32 transformedX;
-    f32 transformedY;
-    f32 transformedZ;
-    s16 rotation[3];
-    s32 alpha;
-    volatile f32 negativeOne;
-    volatile f32 frameZero;
-    volatile f32 frameScale;
+    f32 direction[3];
+    struct {
+        s16 yRotation;
+        s16 xRotation;
+        s16 zRotation;
+        u8 pad06[2];
+        f32 scale;
+        f32 x;
+        f32 y;
+        f32 z;
+        u8 pad18[0x10];
+        f32 frame;
+    } segment;
     Objects09220Matrix *matrix;
     Objects09220Gfx *command;
 
     if (arg3->unk40->unkA6 > 0) {
-        negativeOne = -1.0f;
+        direction[2] = -1.0f;
         mathOneFloatPY(arg3, direction);
         matrix = camGetRotationMtx();
-        projection = (negativeOne * matrix->unk28) +
-                     ((matrix->unk8 * direction[0]) +
-                      (matrix->unk18 * direction[1]));
-        if (projection > 0.0f) {
-            distance = sqrtf(projection);
-            rotation[0] = 0;
-            rotation[1] = 0;
-            rotation[2] = 0;
-            frameZero = 0.0f;
-            scale = arg3->unk8 * distance * (f32) arg6 * D_80080F80;
-            frameScale = scale;
-            mtxf_transform_point((void *)arg4, (f32) arg5->unk26,
-                                 (f32) arg5->unk28, (f32) arg5->unk2A,
-                                 &transformedX, &transformedY, &transformedZ);
-            alpha = (s32) (distance * 320.0f);
-            if (alpha >= 0x100) {
-                alpha = 0xFF;
+        distance = ((matrix->unk8 * direction[0]) +
+                    (matrix->unk18 * direction[1])) +
+                   (direction[2] * matrix->unk28);
+        if (distance > 0.0f) {
+            distance = sqrtf(distance);
+            segment.yRotation = 0;
+            segment.xRotation = 0;
+            segment.zRotation = 0;
+            segment.frame = 0.0f;
+            segment.scale = arg3->unk8 * distance * (f32)arg6 * 0.0225f;
+            mtxf_transform_point((void *)arg4, (f32)arg5->unk26,
+                                 (f32)arg5->unk28, (f32)arg5->unk2A,
+                                 &segment.x, &segment.y, &segment.z);
+            arg6 = (s32)(distance * 320.0f);
+            if (arg6 >= 0x100) {
+                arg6 = 0xFF;
             }
             func_80034DF0(0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC0);
-            func_80023A08(arg0, arg1, arg2, rotation,
-                          *arg3->unk40->unkAC, 4, alpha);
+            func_80023A08(arg0, arg1, arg2, (s16 *)&segment,
+                          *arg3->unk40->unkAC, 4, arg6);
             func_80034E48();
-            command = *(Objects09220Gfx **)arg0;
-            *arg0 = (void *) (command + 1);
-            command->w1 = -0x100;
-            command->w0 = 0xFB000000;
+            command = (*(Objects09220Gfx **)arg0)++;
+            command->w0 = 0xFB000000; command->w1 = -0x100;
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009220.s")
-#endif
 typedef struct {
     f32 x;
     f32 y;
