@@ -2293,20 +2293,19 @@ s32 func_8004AD34(void) {
     }
     D_800D60A8 = 0;
 }
-/* Workbench verdict: operand-mismatch, 87/96 words, first mismatch +0x60. */
-/* Candidate shape: exact 96 instructions/frame -0x40 and 15 relocations. */
-/* Remaining gap: nine stack-home displacements; opcode and register lanes agree. */
-#ifdef NON_MATCHING
 extern void *func_8002B280(s32 size, s32 tag);
 
+/*
+ * PROVENANCE: the source topology is informed by Jet Force Gemini's public
+ * src/fx.c::fxCpuTextureRequired placeholder and its retail-derived assembly;
+ * Mickey's target establishes all types, expressions, and final codegen.
+ */
 void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
     s8 *first;
     s32 i;
     s8 *second;
-    s32 offset;
 
     index--;
-    offset = index * 4;
     D_800D60A8 |= 1 << index;
     D_800D6098[index] = (s32)texture;
     if (D_800D60B0[index] == 0) {
@@ -2333,9 +2332,6 @@ void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ADE8.s")
-#endif
 /* Workbench: structure-mismatch, 26 differing words, first mismatch +0x10. */
 /* Candidate shape: exact 52 instructions/frame -0x38; 10/14 relocation tuples align. */
 /* Remaining gap: saved-register order, four early LO16 sites, and loop-delay schedule. */
@@ -2384,16 +2380,6 @@ void func_8004AF68(void) {
  * first-mismatch: +0xD0
  * summary: JFG empty flag-field condition is scalar-flat; lvalue forms regress structurally. Next lever: source-authentic UGEN line separation.
  * PLATEAU-HANDOFF:func_800498FC:end
- */
-
-/* PLATEAU-HANDOFF:func_8004ADE8:start
- * symbol: func_8004ADE8
- * score: 87/96 words
- * frame: 0x40
- * relocations: 15
- * first-mismatch: +0x60
- * summary: all 119 flags and bounded source forms are nonexact; nine stack-home displacements remain while opcode/register lanes agree
- * PLATEAU-HANDOFF:func_8004ADE8:end
  */
 
 /* PLATEAU-HANDOFF:func_8004AF68:start
