@@ -67,6 +67,6 @@ void func_8004FAD0(MtxF mf, u16 *perspNorm, f32 fovy, f32 aspect,
  * frame: 0x38
  * relocations: 4
  * first-mismatch: +0x44
- * summary: Best candidate has exact frame and register lanes; helper-result spill home and one pipeline gap remain after bounded source-shape sweep.
+ * summary: Exact frame and relocation count remain, but helper-result spill home and one pipeline gap differ.
  * PLATEAU-HANDOFF:func_8004FAD0:end
  */
