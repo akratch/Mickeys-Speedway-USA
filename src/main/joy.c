@@ -126,6 +126,9 @@ s32 joyInit(void) {
 /*
  * PROVENANCE: body structure adapted from Jet Force Gemini src/joy.c::joyRead;
  * Mickey's save-flag calls and byte identity are decisive.
+ * The authorized re-audit at JFG upstream efd5abb found this body unchanged
+ * from c82affff's src/controller.c; its header split adds no Mickey-relevant
+ * joyRead prototype that this translation unit did not already carry.
  *
  * Plateau: six loop/storage/type hypotheses preserve the target's 159
  * instructions, 636-byte boundary and -0x38 frame. The first mismatch is
@@ -349,6 +352,6 @@ s32 joyCharVal(void) {
  * frame: 0x38
  * relocations: 6
  * first-mismatch: +0x18
- * summary: Fresh V0 retains 49 raw/48 masked differences and exact 0x38 frame; all 6 relocation offsets/types align, but all 6 identities mismatch.
+ * summary: Verdict mixed(constant/structural/register); lever none-known. JFG efd5abb leaves joyRead unchanged; next: donor with new declaration/lifetime evidence.
  * PLATEAU-HANDOFF:joyRead:end
  */
