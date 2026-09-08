@@ -2233,11 +2233,11 @@ void controlClearPlayerSetup(void) {
 
 /* PLATEAU-HANDOFF:func_8001C4C0:start
  * symbol: func_8001C4C0
- * score: 386 differing words
- * frame: 0xB8
+ * score: 386/403 words
+ * frame: 0xB0
  * relocations: 40
  * first-mismatch: +0x0
- * summary: Typed weak alias restores the direct call; candidate remains two words short with a 0x10 frame excess and two missing saved-register lifetimes.
+ * summary: Declaration census removed 8 non-save frame bytes; the target holds two more callee-saved values so the save area is 8 bytes short
  * PLATEAU-HANDOFF:func_8001C4C0:end
  */
 
