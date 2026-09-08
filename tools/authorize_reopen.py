@@ -38,9 +38,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 REPO = Path(__file__).resolve().parent.parent
 AUTHORIZATIONS = REPO / "config" / "lane-reopen-authorizations.us.json"
@@ -139,6 +141,36 @@ def validate(reason: str, symbol: str) -> None:
         raise RuntimeError(f"{symbol}: reason may not contain a newline or '|'")
 
 
+def entry_is_valid(symbol: str, source_commit: str, ledger_commit: str | None) -> str | None:
+    """Return why lane_status would reject this pin pair, or None if it holds.
+
+    The authorization file is validated as a whole: `reopen_authorizations`
+    raises on the FIRST bad entry and every other authorization in the file
+    goes inert with it. One entry whose ledger commit carries no handoff for
+    its source path silently disarmed 48 armed authorizations on 2026-09-09.
+
+    These are the same checks `reopen_authorizations` makes, called through
+    lane_status's own functions rather than reimplemented, so the two cannot
+    drift apart.
+    """
+    sys.path.insert(0, str(REPO / "tools"))
+    import lane_status
+
+    source_path, identity_error = lane_status.source_identity(source_commit, symbol)
+    if identity_error or source_path is None:
+        return identity_error or "source commit identifies no single definition"
+    if ledger_commit is None:
+        return None
+    shard_text = lane_status.show_file(ledger_commit, lane_status.shard_path(symbol))
+    try:
+        shard_source = lane_status.validated_shard_source(shard_text, symbol)
+    except RuntimeError as error:
+        return f"ledger commit has invalid handoff evidence: {error}"
+    if shard_source != source_path:
+        return "ledger commit does not identify the authorized source path"
+    return None
+
+
 def write(symbols: list[str], reason: str | None, dry_run: bool) -> int:
     document = json.loads(AUTHORIZATIONS.read_text())
     authorizations = document["authorizations"]
@@ -157,9 +189,19 @@ def write(symbols: list[str], reason: str | None, dry_run: bool) -> int:
         if source_commit is None:
             refused.append((symbol, "classifier reports no source commit to pin"))
             continue
+        ledger_commit = assignment.get("ledger_commit")
+        invalid = entry_is_valid(symbol, source_commit, ledger_commit)
+        if invalid is not None:
+            # Write it with no ledger pin rather than poisoning the file; if
+            # that will not validate either, refuse the symbol outright.
+            if entry_is_valid(symbol, source_commit, None) is None:
+                ledger_commit = None
+            else:
+                refused.append((symbol, invalid))
+                continue
         text = reason if reason is not None else reason_for(symbol, rows)
         validate(text, symbol)
-        planned.append((symbol, source_commit, assignment.get("ledger_commit"), text))
+        planned.append((symbol, source_commit, ledger_commit, text))
 
     for symbol, why in refused:
         print(f"refused  {symbol}: {why}", file=sys.stderr)

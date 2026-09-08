@@ -215,11 +215,6 @@
       "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "173cab235f4fe1cf595964b0070f612463d896ae"
     },
-    "func_8001BBB4": {
-      "ledger_commit": "770063553502c681e61f13366a408c249df4e797",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 38 masked words is a schedule or structure defect the permuter can still move.",
-      "source_commit": "770063553502c681e61f13366a408c249df4e797"
-    },
     "func_8001C4C0": {
       "ledger_commit": "3cdeab1fbe5777639145324b1510612e87260444",
       "reason": "ADR 0018 stall rule, and at delta -8 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
@@ -405,11 +400,6 @@
       "reason": "Class is register-only at 73 masked words, delta 0: routes to the forced-colour oracle and the permuter, mechanisms the recorded attempts did not use.",
       "source_commit": "f22d0874fb58fbff3b8b841176a82a17cb9e430e"
     },
-    "func_8003E8D8": {
-      "ledger_commit": "0e3de63667a5d632384abba03c845ba0d1dfa148",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 1 masked words is a schedule or structure defect the permuter can still move.",
-      "source_commit": "0e3de63667a5d632384abba03c845ba0d1dfa148"
-    },
     "func_8003F154": {
       "ledger_commit": "b4e283b76abe453f4cc15ebf555e21b1fc541fbe",
       "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 21 masked words is a schedule or structure defect the permuter can still move.",
@@ -429,11 +419,6 @@
       "ledger_commit": "1ea6adeee3de47c9916d08a54476ffb203c30d8f",
       "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 52 masked words is a schedule or structure defect the permuter can still move.",
       "source_commit": "1ea6adeee3de47c9916d08a54476ffb203c30d8f"
-    },
-    "func_80041CE4": {
-      "ledger_commit": "690806f1ee058922a5052ec880bca5b5064a6193",
-      "reason": "Class is register-only at 27 masked words, delta 0: routes to the forced-colour oracle and the permuter, mechanisms the recorded attempts did not use.",
-      "source_commit": "690806f1ee058922a5052ec880bca5b5064a6193"
     },
     "func_80045D34": {
       "ledger_commit": "3661bf85a437a529bb2655df05e8e0dd59f9ca40",
