@@ -2590,7 +2590,16 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o035/func_overlay_035_F0000B40_1882820.c.o: POS
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x840
 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26HandleEffects.c.o: CFLAGS += -Wab,-r4300_mul
+# Stored overlay call carriers are zero; keep each resident identity in its
+# own declared alias without changing compiler-emitted instruction words.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/overlay26HandleEffects.c.o: POSTPROCESS = \
+	$(OBJCOPY) --redefine-sym func_80006EA0=func_80006EA0_o026Reloc \
+		--redefine-sym func_8002A910=func_8002A910_o026Reloc \
+		--redefine-sym sqrtf=sqrtf_o026Reloc \
+		--redefine-sym func_80029FE4=func_80029FE4_o026Reloc \
+		--redefine-sym func_8002997C=func_8002997C_o026Reloc \
+		--redefine-sym func_8003EDEC=func_8003EDEC_o026Reloc \
+		--redefine-sym func_80002FE0=func_80002FE0_o026Reloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x434
 
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o026/func_overlay_026_F00001A0_187A598.c.o: CFLAGS += -Wab,-r4300_mul

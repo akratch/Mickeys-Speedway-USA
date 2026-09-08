@@ -2043,3 +2043,58 @@ externalized. Every retained instruction byte is untouched; only the TU's
 12 trailing zero alignment bytes are trimmed. There is no function-owned
 padding or new table credit. Both neighboring boundaries, the complete
 overlay, and full ROM remain byte-identical.
+
+### Overlay 26 effect-handler closure (2026-09-08)
+
+`func_overlay_026_F0000D24_187B11C` in
+`src/overlays/o026/overlay26HandleEffects.c` is now unconditional exact C.
+The former plateau shard is retired; its prior evidence remains in Git history.
+
+Tier A: Overlay 26 text `+0xD24..+0x1158`, ROM
+`0x187B11C..0x187B550`, is 1,076 executable bytes with no owned padding.
+The complete linked overlay and the extracted owned range equal the baserom.
+The configured function retains all 269 compiler instruction words unchanged;
+the existing trim removes only 12 zero section-alignment bytes. All 23 static
+relocation offsets, types and runtime identities are exact. Declared per-object
+symbol aliases preserve the stored call operands without moving resident symbols.
+
+The configured baseline reproduced 11 raw and masked differences, frame
+`0x50` versus target `0x48`, and identical register lanes. Workbench reported
+`operand-mismatch`, with the `stack-home` lever overriding the generic
+`constant-audit` routing for compiler-derived frame offsets. The earlier flag
+lattice and single-alias/scope regressions were not rerun unchanged.
+
+| Attempt | Natural source hypothesis | Words / raw differences | Frame |
+|---|---|---|---|
+| 1 | Register-qualified mode carrier | 269 / 11 | 0x50 |
+| 2 | Byte mode carrier; only low five bits are observed | 270 / 267 | 0x50 |
+| 3 | Explicit floating-point result for the nested square root | 269 / 11 | 0x50 |
+| 4 | Replace the effect cursor with direct member accesses | 249 / 242 | 0x48 |
+| 5 | Replace the object alias with the explicit square-root result | 269 / 38 | 0x48 |
+| 6 | Remove the object alias and declare the mode carrier last | 269 / 19 | 0x48 |
+| 7 | Remove the remaining redundant mode carrier | 269 / 0 | 0x48 |
+
+Attempt 3 supplied changed evidence for the combined alias experiment; attempt
+5 retained the register lanes and established displaced homes in the correct
+frame. Attempt 6 corrected every named home, leaving two compiler temporary
+homes displaced by one word. Attempt 7 corrected those remaining homes without
+changing the frame. The final source uses the original parameters directly:
+neither alias was modified or escaped, so widths, evaluation order, calls and
+memory accesses remain unchanged. No diagnostic padding or inert operation is
+retained. Exactness ended the packet; no stall or attempt-count cap was used.
+
+Evidence is retained under ignored `build/wb/effects-attempts/`, together with
+the baseline diagnosis, runtime relocation comparison, promotion proof and
+linked owned-range byte comparison. Baseline prepared-input self-comparison
+passed. The instrumented baseline also passed section/relocation/symbol
+fidelity, but its missing frame-home records supplied no additional conclusion.
+
+Validation: `gmake verify`, `tools/promotion_proof.py`, linked-range `cmp`,
+`gmake check-overlay-syms`, `gmake cleanroom`, `gmake check-docs` and
+`gmake check-scoreboard`. The full donor rescan cannot reproduce the pinned
+JFG checkout: local revision `efd5abb1c796` differs from required
+`c82affffe8f1`. No donor source was adopted. The existing atlas-digest refresh
+updates ownership metadata only; the committed donor results are unchanged.
+
+Next action: integrate the exact function commit and its compiler-learning
+follow-up through the private campaign branch, then repeat integration gates.
