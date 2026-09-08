@@ -154,7 +154,7 @@ void func_8004B13C(Gfx **displayList, s32 windowId, s32 xpos, s32 ypos,
 }
 
 /* Workbench plateau: structure-mismatch, 548/556 instructions, exact 0x80 frame,
- * 465 positional differences (466 raw), first target divergence +0x54. Restoring
+ * 465 positional differences (466 raw), first raw mismatch +0x30. Restoring
  * GBI colour, sync, and fill macros closes 44 sites; register/CFG drift remains. */
 #ifdef NON_MATCHING
 /*
@@ -162,6 +162,10 @@ void func_8004B13C(Gfx **displayList, s32 windowId, s32 xpos, s32 ypos,
  * Racing's permitted published render_text_string body. Mickey's own
  * instructions, m2c draft, fields, control bytes, and display-list words
  * determine this candidate.
+ * Jet Force Gemini src/font.c::func_8006FD98_70998 was audited at efd5abb:
+ * its NON_EQUIVALENT body is unchanged from c82affff::func_80070518 after
+ * five symbol renames. It supplies no new spelling for the exhausted GBI,
+ * scissor, or texture forms; no donor body change is adopted by this audit.
  */
 void func_8004B1DC(Gfx **displayList, DialogueBoxBackground *window,
                    char *text, s32 alignmentFlags) {
@@ -1170,9 +1174,9 @@ u8 func_8004D5C0(s32 font) {
  * symbol: func_8004B1DC
  * score: 465 differing words
  * frame: 0x80
- * relocations: 42
- * first-mismatch: +0x54
- * summary: GBI macros reduce the size deficit to eight words; the remaining setup and glyph command webs are structural/register allocation
+ * relocations: 48
+ * first-mismatch: +0x30
+ * summary: JFG donor body unchanged after symbol renames; structure residual retained; reopen requires new setup or glyph-command evidence
  * PLATEAU-HANDOFF:func_8004B1DC:end
  */
 
