@@ -141,8 +141,6 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
     s32 seconds;
     s32 centiseconds;
     s32 hudY;
-    f32 step;
-    O54HudRecord icon[2];
     u32 width;
     u32 height;
     s32 i;
@@ -150,7 +148,6 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
     s32 x;
     s32 y;
     s32 visible;
-    s32 side;
     s32 buttons;
     void *texture;
     void *alternate;
@@ -195,9 +192,54 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
     }
     actors = (ControlActor **) func_80005750_o054Reloc(&actorCount);
     if (D_800C947C_o054Reloc == 0) {
-        for (i = 0; i < updateRate; i++) {
-            step = (-11.0f - o54Bss_658) * 0.125f;
-            o54Bss_658 += step;
+        f32 step;
+        f32 priorHeight;
+
+        i = 0;
+        if (updateRate > 0) {
+            s32 remainder;
+
+            remainder = updateRate & 3;
+            if (remainder != 0) {
+                i++;
+                priorHeight = o54Bss_658;
+                step = (-11.0f - priorHeight) * 0.125f;
+                if (i != remainder) {
+                    while (1) {
+                        i++;
+                        o54Bss_658 = priorHeight + step;
+                        priorHeight = o54Bss_658;
+                        step = (-11.0f - priorHeight) * 0.125f;
+                        if (i == remainder) {
+                            break;
+                        }
+                    }
+                }
+                o54Bss_658 = priorHeight + step;
+            }
+            if (i != updateRate) {
+                i += 4;
+                priorHeight = o54Bss_658;
+                step = (-11.0f - priorHeight) * 0.125f;
+                if (i != updateRate) {
+                    while (1) {
+                        i += 4;
+                        o54Bss_658 = priorHeight + step;
+                        o54Bss_658 += (-11.0f - o54Bss_658) * 0.125f;
+                        o54Bss_658 += (-11.0f - o54Bss_658) * 0.125f;
+                        o54Bss_658 += (-11.0f - o54Bss_658) * 0.125f;
+                        priorHeight = o54Bss_658;
+                        step = (-11.0f - priorHeight) * 0.125f;
+                        if (i == updateRate) {
+                            break;
+                        }
+                    }
+                }
+                o54Bss_658 = priorHeight + step;
+                o54Bss_658 += (-11.0f - o54Bss_658) * 0.125f;
+                o54Bss_658 += (-11.0f - o54Bss_658) * 0.125f;
+                o54Bss_658 += (-11.0f - o54Bss_658) * 0.125f;
+            }
         }
     }
     func_80036544_o054Reloc(D_800D31C8_o054Reloc[2], &o54Data_2A8,
@@ -350,14 +392,18 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
                     x -= 7;
                     y -= 6;
                 }
-                icon[0].texture = D_800D31C8_o054Reloc[*item];
-                icon[0].alternate = 0;
-                icon[0].metadata = 0;
-                icon[0].x = 0;
-                icon[0].y = 0;
-                icon[1].texture = 0;
-                func_8002FB34_o054Reloc(&D_800D3140_o054Reloc,
-                    icon, (f32) x, (f32) y, 0.66f, 0.66f, *alpha | ~255, 1);
+                {
+                    O54HudRecord icon[2];
+
+                    icon[0].texture = D_800D31C8_o054Reloc[*item];
+                    icon[0].alternate = 0;
+                    icon[0].metadata = 0;
+                    icon[0].x = 0;
+                    icon[0].y = 0;
+                    icon[1].texture = 0;
+                    func_8002FB34_o054Reloc(&D_800D3140_o054Reloc,
+                        icon, (f32) x, (f32) y, 0.66f, 0.66f, *alpha | ~255, 1);
+                }
                 if (*item != 53 && player->unk19B >= 2) {
                     o54Data_278[0].metadata = player->unk19B << 16;
                     func_8002F618_o054Reloc(&D_800D3140_o054Reloc, o54Data_278,
@@ -371,10 +417,10 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
         } else {
             *item = -1;
         }
-        side = playerIndex & 1;
-        enterX = o54Data_18C[side];
-        hiddenX = o54Data_190[side];
-        leaveX = o54Data_194[side];
+        x = playerIndex & 1;
+        enterX = o54Data_18C[x];
+        hiddenX = o54Data_190[x];
+        leaveX = o54Data_194[x];
         if (player->unk388 != 0) {
             for (i = 0; i < updateRate; i++) {
                 o54Bss_660[playerIndex] += (enterX - o54Bss_660[playerIndex]) >> 3;
@@ -403,7 +449,7 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
             func_8002F618_o054Reloc(&D_800D3140_o054Reloc, o54Bss_A0,
                 0, 0, 255, 255, 255, 192);
         }
-        x = side ? 2560 : 256;
+        x = x ? 2560 : 256;
         if (frontGetScreenMode_o054Reloc() == 1) {
             screenY = (height >> 1) * ((player->playerIndex >> 1) * 16);
         } else {
@@ -527,10 +573,10 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_054_F00005AC_189F24C:start
  * symbol: func_overlay_054_F00005AC_189F24C
- * score: 1503 differing words
+ * score: 1414 differing words
  * frame: 0x158
- * relocations: 269
+ * relocations: 273
  * first-mismatch: +0x0
- * summary: Active reconstruction checkpoint: 1556/1594 words; 59 ordered calls; 268/269 relocation identity/type records, 22 exact sites. No match credit.
+ * summary: Active CFG checkpoint: 1588/1594 words; 59 ordered calls; first nine calls at exact offsets. Four extra height-store relocations remain.
  * PLATEAU-HANDOFF:func_overlay_054_F00005AC_189F24C:end
  */
