@@ -5809,7 +5809,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x190
  * relocations: 6
  * first-mismatch: +0x38
- * summary: Fresh V0 is 170/172 words with 146 differences; frame 0x190 exact. Both have 6 relocations but zero sites align. Prior mechanisms closed.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_8000DB34:end
  */
 
