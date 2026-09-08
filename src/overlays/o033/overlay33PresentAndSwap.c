@@ -8,23 +8,23 @@ extern void *gOverlay33ActiveBuffer;
 extern s32 gOverlay33Ready;
 
 extern void overlay33BuildDisplayList(void);
-extern void overlay33SubmitReloc(void *commands, void *displayList, s32 mode,
-                                 void *buffer);
+extern s32 rcpFast3d(u64 *dataStart, u64 *dataEnd, s32 taskType,
+                     void *framebuffer);
 
 /* Plateau: the exact-size, opcode-identical 39-word body retains 21 masked
- * differences, first +0x10, in two independent allocator lanes.  The runtime
- * surface has 18 exact offset/type sites; D_8 and the +0x19C builder are now
- * named from authenticated Overlay 33 identities.  Block-local state,
- * signedness, offset lifetime, register, and split-XOR forms were neutral. */
+ * differences, first +0x8.  A fidelity-clean trace authenticates seven
+ * candidate temp births, but target-side temp events remain unavailable.
+ * Naming the s32 rcpFast3d call proves all 18 relocation identities without
+ * changing the residual allocation shape. */
 #ifdef NON_MATCHING
 void overlay33PresentAndSwap(void) {
     s32 index;
 
     overlay33BuildDisplayList();
     index = gOverlay33BufferIndex;
-    overlay33SubmitReloc(&D_8[index][0],
-                         gOverlay33DisplayLists[index], 4,
-                         gOverlay33BufferRefs[index]);
+    rcpFast3d((u64 *)&D_8[index][0],
+              (u64 *)gOverlay33DisplayLists[index], 4,
+              gOverlay33BufferRefs[index]);
     index = gOverlay33BufferIndex ^ 1;
     gOverlay33BufferIndex = index;
     gOverlay33ActiveBuffer = gOverlay33BufferRefs[index];
@@ -39,7 +39,7 @@ void overlay33PresentAndSwap(void) {
  * score: 18/39 words
  * frame: 0x18
  * relocations: 18
- * first-mismatch: +0x10
- * summary: Exact opcode/size and 18 relocation sites; builder identity now resolves. Next lever is authenticated temp-FIFO phase evidence, not more source permutation.
+ * first-mismatch: +0x8
+ * summary: Candidate trace proves seven temp births. rcpFast3d fixes all 18 relocation identities; 21 masked differences remain without target temp events.
  * PLATEAU-HANDOFF:overlay33PresentAndSwap:end
  */
