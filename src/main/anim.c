@@ -1027,11 +1027,6 @@ extern void animCommandSlotTrap(void *object, s32 red, s32 green, s32 blue,
                                s32 alpha, f32 duration, s32 alternateColors);
 
 extern u8 D_8007BF0C;
-extern f32 D_800841B4;
-extern f32 D_800841B8;
-extern f32 D_800841BC;
-extern f32 D_800841C0;
-extern f32 D_80083FB4;
 extern s16 D_800D6C4E;
 extern s16 D_800D6C50;
 
@@ -1073,8 +1068,8 @@ void joyEnable(s32 player);
 /* NON_MATCHING: Mickey-led call/type reconstruction. Shared loop carriers
  * and handler dataflow still differ; see the symbol-owned handoff. */
 void func_800517E0(void) {
-    AnimPath ** paths;
-    u8 *cursor;
+    AnimPath **paths;
+    AnimStreamEntry *cursor;
     u16 currentCommand;
     u16 commandDuration;
     u16 duration;
@@ -1122,37 +1117,33 @@ void func_800517E0(void) {
     void *entry;
     u8 type;
 
-    cursor = (u8 *) D_8007D69C;
+    cursor = D_8007D69C;
     paths = D_800D6B00;
     if (cursor != NULL) {
-        currentCommand = *(u16 *) (cursor + 2);
+        currentCommand = cursor->command;
         hundred = 100.0f;
         scale = 60.0f;
         factor = 0.01f;
         while (currentCommand != 0x7F00 &&
-               (commandTime = (f32) (commandDuration = *(u16 *) cursor) /
+               (commandTime = (f32) (commandDuration = cursor->duration) /
                               hundred) < D_8007D6AC && D_8007D6A4 == 1) {
             opcode = (currentCommand >> 8) & 0xFF;
+            pathIndex = currentCommand & 0xFF;
             delta = D_8007D6AC - commandTime;
             switch (opcode) {
                 case 0: {
-                    pathIndex = currentCommand & 0xFF;
-                    cursor += 4;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     animseqStartPath(pathIndex);
                     animResetTrap(paths[pathIndex], delta, 0, 0);
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 }
                 case 1:
-                    pathIndex = currentCommand & 0xFF;
-                    cursor += 4;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     animseqStopPath(pathIndex);
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 2: {
-                    pathIndex = currentCommand & 0xFF;
                     path = paths[pathIndex];
-                    cursor += 4;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     if (path != NULL) {
                         if (path->flags & 1) {
                             func_8005055C(pathIndex);
@@ -1162,12 +1153,11 @@ void func_800517E0(void) {
                             func_8005055C(pathIndex);
                         }
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 }
                 case 3:
-                    path = paths[currentCommand & 0xFF];
-                    cursor += 4;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     if (path != NULL) {
                         path->flags |= 2;
                         object = (AnimCommandObject *) path->unk8;
@@ -1175,46 +1165,40 @@ void func_800517E0(void) {
                             D_800D6B08[0] = (AnimCameraSource *) object;
                         }
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 4:
-                    path = paths[currentCommand & 0xFF];
-                    cursor += 4;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     if (path != NULL) {
                         path->flags &= ~2;
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 5:
-                    pathIndex = currentCommand & 0xFF;
-                    cursor += 4;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     animseqHoldPath(pathIndex);
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 6:
-                    path = paths[currentCommand & 0xFF];
-                    packed = *(u16 *) (cursor + 4);
-                    cursor += 6;
+                    path = paths[pathIndex];
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
                     if (path != NULL) {
                         path->unk15 = (s8) (packed >> 8);
                         path->unk1 = packed & 0xFF;
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 7:
-                    path = paths[currentCommand & 0xFF];
-                    value = (f32) (*(u16 *) (cursor + 4));
-                    cursor += 6;
+                    path = paths[pathIndex];
+                    value = (f32) (*((u16 *) ((u8 *) cursor + 4))) * 0.001f;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
                     if (path != NULL) {
-                        path->unk10 = value * D_800841B4;
+                        path->unk10 = value;
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 8:
-                    path = paths[currentCommand & 0xFF];
-                    start = (f32) (*(u16 *) (cursor + 4));
-                    end = (f32) (*(u16 *) (cursor + 6));
-                    cursor += 8;
+                    path = paths[pathIndex];
+                    start = (f32) (*((u16 *) ((u8 *) cursor + 4)));
+                    end = (f32) (*((u16 *) ((u8 *) cursor + 6)));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 8);
                     if (path != NULL) {
                         start *= factor;
                         path->unk2A = (s16) (s32) (end * scale * factor);
@@ -1226,94 +1210,78 @@ void func_800517E0(void) {
                                 (f32) path->unk2A;
                         }
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 9:
-                    pathIndex = currentCommand & 0xFF;
-                    cursor += 4;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     animseqLockPath(pathIndex);
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0xA:
-                    pathIndex = currentCommand & 0xFF;
-                    cursor += 4;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     animseqUnLockPath(pathIndex);
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x20:
-                    packed = *(u16 *) (cursor + 4);
-                    cursor += 6;
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
                     amSndPlay(packed, NULL);
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x21:
-                    cursor += 4;
-                    func_80000510(currentCommand & 0xFF);
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    func_80000510(pathIndex);
                     amTuneResetFade();
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x22:
-                    duration = *(u16 *) (cursor + 4);
+                    duration = *((u16 *) ((u8 *) cursor + 4));
                     value = (f32) duration;
-                    cursor += 6;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
                     func_800005CC(value / hundred - delta,
-                                  currentCommand & 0xFF);
-                    currentCommand = *(u16 *) (cursor + 2);
+                                  pathIndex);
                     break;
                 case 0x23:
-                    cursor += 4;
-                    amTuneSetVolume(currentCommand & 0xFF);
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    amTuneSetVolume(pathIndex);
                     amTuneResetFade();
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x24:
-                    cursor += 4;
-                    amAmbientPlay(currentCommand & 0xFF);
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    amAmbientPlay(pathIndex);
                     amAmbientResetFade();
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x25:
-                    duration = *(u16 *) (cursor + 4);
+                    duration = *((u16 *) ((u8 *) cursor + 4));
                     value = (f32) duration;
-                    cursor += 6;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
                     amAmbientSetFade(value / hundred - delta,
-                                     currentCommand & 0xFF);
-                    currentCommand = *(u16 *) (cursor + 2);
+                                     pathIndex);
                     break;
                 case 0x26:
-                    cursor += 4;
-                    amAmbientSetVolume(currentCommand & 0xFF);
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    amAmbientSetVolume(pathIndex);
                     amAmbientResetFade();
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x27:
-                    pathIndex = currentCommand & 0xFF;
                     soundSlot = &D_800D6B18[pathIndex];
                     sound = *soundSlot;
-                    packed = *(u16 *) (cursor + 4);
-                    cursor += 6;
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
                     if (sound != NULL) {
                         amSndStop(sound);
                         *soundSlot = NULL;
                     }
                     amSndPlay(packed, soundSlot);
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x28:
-                    pathIndex = currentCommand & 0xFF;
                     soundSlot = &D_800D6B18[pathIndex];
                     sound = *soundSlot;
-                    cursor += 4;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     if (sound != NULL) {
                         amSndStop(sound);
                         *soundSlot = NULL;
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x29:
-                    path = paths[currentCommand & 0xFF];
-                    packed = *(u16 *) (cursor + 4);
-                    cursor += 6;
+                    path = paths[pathIndex];
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
                     if ((path != NULL) && (path->unk8 != NULL)) {
                         object = (AnimCommandObject *) path->unk8;
                         if (object->soundHandle != NULL) {
@@ -1324,11 +1292,10 @@ void func_800517E0(void) {
                                       object->y, object->z, 1,
                                       &object->soundHandle);
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x2A:
-                    path = paths[currentCommand & 0xFF];
-                    cursor += 4;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     if ((path != NULL) && (path->unk8 != NULL)) {
                         object = (AnimCommandObject *) path->unk8;
                         if (object->soundHandle != NULL) {
@@ -1336,36 +1303,34 @@ void func_800517E0(void) {
                             object->soundHandle = NULL;
                         }
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x2B:
-                    path = paths[currentCommand & 0xFF];
-                    packed = *(u16 *) (cursor + 4);
-                    cursor += 6;
+                    path = paths[pathIndex];
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
                     if (path != NULL) {
                         path->unk28 = packed >> 8;
                         path->unk29 = packed & 0xFF;
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x40:
-                    packed = *(u16 *) (cursor + 4);
-                    packed2 = *(u16 *) (cursor + 6);
-                    index = currentCommand & 0xFF;
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    packed2 = *((u16 *) ((u8 *) cursor + 6));
+                    index = pathIndex;
                     high = (packed >> 8) & 0xFF;
                     low = packed & 0xFF;
                     high2 = (packed2 >> 8) & 0xFF;
                     low2 = packed2 & 0xFF;
-                    value = (f32) (*(u16 *) (cursor + 8));
-                    duration = *(u16 *) (cursor + 0xA);
+                    value = (f32) (*((u16 *) ((u8 *) cursor + 8)));
+                    duration = *((u16 *) ((u8 *) cursor + 0xA));
                     target = (f32) duration;
-                    cursor += 0xC;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xC);
                     if ((index & 0xF) == 7) {
                         packed = low != 0 ? 0 : 0xFF;
                         TrapDanglingJump(high, high2, low2, packed,
                                          (s32) (value * factor * scale));
                     } else {
-                        color = target != D_800841B8 ?
+                        color = target != 65535.0f ?
                             target / hundred : -1.0f;
                         if (low != 0) {
                             index |= 0x80;
@@ -1374,124 +1339,99 @@ void func_800517E0(void) {
                         func_800498FC(4, normalized, color, high,
                                       high2, low2, index);
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x41:
-                    cursor += 4;
-                    func_8004EED0(currentCommand & 0xFF);
-                    currentCommand = *(u16 *) (cursor + 2);
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
+                    func_8004EED0(pathIndex);
                     break;
                 case 0x42:
-                    cursor += 4;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     func_8004E99C();
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x43:
-                    duration = *(u16 *) (cursor + 4);
+                    duration = *((u16 *) ((u8 *) cursor + 4));
                     value = (f32) duration;
-                    color = (f32) (currentCommand & 0xFF);
-                    color = (color / 255.0f) * D_800841BC;
-                    cursor += 6;
+                    color = (f32) (pathIndex);
+                    color = (color / 255.0f) * 65535.0f;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
                     changeWeather(0, 0, 0, (s32) color, 0xFFFF,
                                   (s32) (value * factor * scale));
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x44:
-                    duration = *(u16 *) (cursor + 4);
+                    duration = *((u16 *) ((u8 *) cursor + 4));
                     value = (f32) duration;
-                    signedValue = *(s16 *) (cursor + 6);
-                    packed = *(s16 *) (cursor + 8);
-                    packed2 = *(s16 *) (cursor + 0xA);
-                    cursor += 0xC;
+                    signedValue = *((s16 *) ((u8 *) cursor + 6));
+                    packed = *((s16 *) ((u8 *) cursor + 8));
+                    packed2 = *((s16 *) ((u8 *) cursor + 0xA));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xC);
                     unit = 0.00390625f;
                     changeWeather((s32) ((f32) signedValue * unit),
                                   (s32) ((f32) packed * unit),
                                   (s32) ((f32) packed2 * unit), 1, 1,
                                   (s32) value);
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x45:
-                    duration = *(u16 *) (cursor + 6);
+                    duration = *((u16 *) ((u8 *) cursor + 6));
                     value = (f32) duration;
-                    packed = *(u16 *) (cursor + 4);
-                    packed2 = *(u16 *) (cursor + 8);
-                    index = *(u16 *) (cursor + 0xA);
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    packed2 = *((u16 *) ((u8 *) cursor + 8));
+                    index = *((u16 *) ((u8 *) cursor + 0xA));
                     high = (packed >> 8) & 0xFF;
                     low = packed & 0xFF;
-                    cursor += 0xC;
-                    func_80014BAC(0, currentCommand & 0xFF, high, low,
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xC);
+                    func_80014BAC(0, pathIndex, high, low,
                                   packed2, index, value / hundred - delta);
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x46: {
-                    s32 motionAngle;
-                    s32 motionCount;
-                    s32 colorB0;
-                    s32 colorB1;
-                    s32 colorB2;
-                    s32 colorA0;
-                    s32 colorA1;
-                    s32 colorA2;
-                    s32 packedCount;
-                    s32 packedColorB;
-                    s32 packedColorA;
-                    s32 packedTail;
-                    f32 motionDuration;
-                    f32 radius;
-                    f32 height;
-                    f32 motionX;
-                    f32 motionZ;
 
-                    packedCount = *(u16 *) (cursor + 8);
-                    radius = *(s16 *) (cursor + 4);
-                    height = *(s16 *) (cursor + 6);
-                    motionDuration = packedCount & 0xFF;
-                    packedColorB = *(u16 *) (cursor + 0xA);
-                    packedColorA = *(u16 *) (cursor + 0xC);
-                    packedTail = *(u16 *) (cursor + 0xE);
-                    motionAngle = currentCommand << 8;
-                    motionCount = packedCount >> 8;
-                    colorB0 = packedColorB >> 8;
-                    colorB1 = packedColorB & 0xFF;
-                    colorB2 = packedColorA >> 8;
-                    colorA0 = packedColorA & 0xFF;
-                    colorA1 = packedTail >> 8;
-                    colorA2 = packedTail & 0xFF;
-                    cursor += 0x10;
-                    motionX = func_8002A8C0(motionAngle) * radius;
-                    motionZ = func_8002A8BC(motionAngle) * radius;
-                    animCommandMotionTrap(motionX, height, motionZ,
-                                          motionCount * 2, colorB0, colorB1,
-                                          colorB2, colorA0, colorA1, colorA2,
-                                          motionDuration / hundred);
-                    currentCommand = *(u16 *) (cursor + 2);
+                    packed = *((u16 *) ((u8 *) cursor + 8));
+                    value2 = *((s16 *) ((u8 *) cursor + 4));
+                    target = *((s16 *) ((u8 *) cursor + 6));
+                    value = packed & 0xFF;
+                    packed2 = *((u16 *) ((u8 *) cursor + 0xA));
+                    flagsValue = *((u16 *) ((u8 *) cursor + 0xC));
+                    state = *((u16 *) ((u8 *) cursor + 0xE));
+                    index = currentCommand << 8;
+                    high = packed >> 8;
+                    low = packed2 >> 8;
+                    high2 = packed2 & 0xFF;
+                    low2 = flagsValue >> 8;
+                    frame = flagsValue & 0xFF;
+                    timer = state >> 8;
+                    targetValue = state & 0xFF;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0x10);
+                    start = func_8002A8C0(index) * value2;
+                    end = func_8002A8BC(index) * value2;
+                    animCommandMotionTrap(start, target, end,
+                                          high * 2, low, high2,
+                                          low2, frame, timer, targetValue,
+                                          value / hundred);
                     break;
                 }
                 case 0x47:
-                    duration = *(u16 *) (cursor + 4);
+                    duration = *((u16 *) ((u8 *) cursor + 4));
                     value = (f32) duration;
-                    packed = *(u16 *) (cursor + 6);
+                    packed = *((u16 *) ((u8 *) cursor + 6));
                     value2 = (f32) packed;
                     if (packed < 0) {
                         value2 += 4294967296.0f;
                     }
-                    packed2 = *(u16 *) (cursor + 8);
+                    packed2 = *((u16 *) ((u8 *) cursor + 8));
                     target = (f32) packed2;
                     if (packed2 < 0) {
                         target += 4294967296.0f;
                     }
-                    cursor += 0xA;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xA);
                     camStartShake(0, value / hundred, value2 / hundred,
-                                  target / hundred, currentCommand & 0xFF);
+                                  target / hundred, pathIndex);
                     if (D_8007BF0C == 0) {
                         rumbleStart(0, 0x4B, 2.0f);
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x48:
-                    index = *(u16 *) (cursor + 4);
-                    frame = *(u16 *) (cursor + 6);
-                    cursor += 8;
+                    index = *((u16 *) ((u8 *) cursor + 4));
+                    frame = *((u16 *) ((u8 *) cursor + 6));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 8);
                     track = (AnimCommandTrack *) trackGetTrack();
                     if ((track != NULL) && (index < track->count18)) {
                         trackEntry = track->entries[index].texture;
@@ -1500,19 +1440,18 @@ void func_800517E0(void) {
                                                            6000);
                         }
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x49:
-                    index = *(u16 *) (cursor + 4);
-                    signedValue = *(s16 *) (cursor + 6);
-                    packed = *(s16 *) (cursor + 8);
-                    duration = *(u16 *) (cursor + 0xA);
-                    cursor += 0xC;
+                    index = *((u16 *) ((u8 *) cursor + 4));
+                    signedValue = *((s16 *) ((u8 *) cursor + 6));
+                    packed = *((s16 *) ((u8 *) cursor + 8));
+                    duration = *((u16 *) ((u8 *) cursor + 0xA));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xC);
                     entry = (u8 *) D_800D6B58 +
                             ((currentCommand & 7) * 0x14);
                     *(u8 *) ((u8 *) entry + 0) = index;
                     *(s16 *) ((u8 *) entry + 2) =
-                        (s16) ((f32) duration * D_800841C0);
+                        (s16) ((f32) duration * (60.0f * 0.01f));
                     timer = *(s16 *) ((u8 *) entry + 2);
                     *(s32 *) ((u8 *) entry + 8) =
                         ((s32) (((s32) signedValue << 16) / 6000) -
@@ -1520,13 +1459,12 @@ void func_800517E0(void) {
                     *(s32 *) ((u8 *) entry + 0x10) =
                         ((s32) (((s32) packed << 16) / 6000) -
                          *(s32 *) ((u8 *) entry + 0xC)) / timer;
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x4A:
-                    packed = *(u16 *) (cursor + 4);
-                    packed2 = *(u16 *) (cursor + 6);
-                    index = currentCommand & 0xFF;
-                    cursor += 8;
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    packed2 = *((u16 *) ((u8 *) cursor + 6));
+                    index = pathIndex;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 8);
                     if ((packed >> 8) != 0) {
                         TrapDanglingJump(index, packed & 0xFF,
                                          (packed2 >> 8) & 0xFF,
@@ -1534,57 +1472,53 @@ void func_800517E0(void) {
                     } else {
                         TrapDanglingJump(index);
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x4B:
-                    duration = *(u16 *) (cursor + 4);
+                    duration = *((u16 *) ((u8 *) cursor + 4));
                     value = (f32) duration;
-                    cursor += 6;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
                     timer = (s32) (value * scale * factor);
                     D_800D6C4E = timer;
                     D_800D6C4C = timer;
                     D_800D6C50 = D_800D6C54;
-                    D_800D6C52 = currentCommand & 0xFF;
-                    currentCommand = *(u16 *) (cursor + 2);
+                    D_800D6C52 = pathIndex;
                     break;
                 case 0x4C:
-                    packed = *(u16 *) (cursor + 4);
-                    packed2 = *(u16 *) (cursor + 6);
-                    timer = *(u16 *) (cursor + 8);
-                    frame = *(u16 *) (cursor + 0xA);
-                    duration = *(u16 *) (cursor + 0xC);
-                    cursor += 0xE;
-                    TrapDanglingJump(currentCommand & 0xFF,
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    packed2 = *((u16 *) ((u8 *) cursor + 6));
+                    timer = *((u16 *) ((u8 *) cursor + 8));
+                    frame = *((u16 *) ((u8 *) cursor + 0xA));
+                    duration = *((u16 *) ((u8 *) cursor + 0xC));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xE);
+                    TrapDanglingJump(pathIndex,
                                      (packed >> 8) & 0xFF, packed & 0xFF,
                                      packed2 & 0xFF00,
                                      (packed2 & 0xFF) << 8,
                                      timer & 0xFF00, (timer & 0xFF) << 8,
                                      frame, duration);
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x4D:
-                    packed = *(u16 *) (cursor + 4);
-                    duration = *(u16 *) (cursor + 6);
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    duration = *((u16 *) ((u8 *) cursor + 6));
                     value = (f32) duration;
-                    packed2 = *(u16 *) (cursor + 8);
-                    timer = *(u16 *) (cursor + 0xA);
-                    frame = *(u16 *) (cursor + 0xC);
-                    cursor += 0xE;
+                    packed2 = *((u16 *) ((u8 *) cursor + 8));
+                    timer = *((u16 *) ((u8 *) cursor + 0xA));
+                    frame = *((u16 *) ((u8 *) cursor + 0xC));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xE);
                     TrapDanglingJump(packed, (s32) value,
                                      packed2, timer, frame >> 8,
-                                     frame & 0xFF, currentCommand & 0xFF);
-                    currentCommand = *(u16 *) (cursor + 2);
+                                     frame & 0xFF, pathIndex);
                     break;
                 case 0x60:
-                    packed = *(u16 *) (cursor + 4);
+                    packed = *((u16 *) ((u8 *) cursor + 4));
                     high = (packed >> 8) & 0xFF;
                     low = packed & 0xFF;
-                    frame = *(u16 *) (cursor + 6);
+                    frame = *((u16 *) ((u8 *) cursor + 6));
                     value = (f32) frame / 16384.0f;
-                    duration = *(u16 *) (cursor + 8);
+                    duration = *((u16 *) ((u8 *) cursor + 8));
                     value2 = (f32) duration / 16384.0f;
-                    path = paths[currentCommand & 0xFF];
-                    cursor += 0xA;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xA);
                     if ((path != NULL) && (path->unk8 != NULL)) {
                         object = (AnimCommandObject *) path->unk8;
                         if (object->model->animationKinds[object->animationIndex] == 1) {
@@ -1595,66 +1529,60 @@ void func_800517E0(void) {
                         path->unkC = value2;
                         path->unk14 = low;
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x61:
-                    path = paths[currentCommand & 0xFF];
-                    frame = *(u16 *) (cursor + 4);
-                    cursor += 6;
+                    path = paths[pathIndex];
+                    frame = *((u16 *) ((u8 *) cursor + 4));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
                     if ((path != NULL) && (path->unk8 != NULL)) {
                         object = (AnimCommandObject *) path->unk8;
                         if (frame < object->model->animationCount) {
                             object->animationIndex = frame;
                         }
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x62:
-                    packed = *(u16 *) (cursor + 4);
-                    packed2 = *(u16 *) (cursor + 6);
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    packed2 = *((u16 *) ((u8 *) cursor + 6));
                     objectFlags = ((u32) packed << 16) | (u32) packed2;
-                    path = paths[currentCommand & 0xFF];
-                    cursor += 8;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 8);
                     if ((path != NULL) && (path->unk8 != NULL)) {
                         object = (AnimCommandObject *) path->unk8;
                         object->flags80 |= objectFlags;
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x63:
-                    packed = *(u16 *) (cursor + 4);
-                    packed2 = *(u16 *) (cursor + 6);
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    packed2 = *((u16 *) ((u8 *) cursor + 6));
                     objectFlags = ((u32) packed << 16) | (u32) packed2;
-                    path = paths[currentCommand & 0xFF];
-                    cursor += 8;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 8);
                     if ((path != NULL) && (path->unk8 != NULL)) {
                         object = (AnimCommandObject *) path->unk8;
                         object->flags80 &= ~objectFlags;
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x64:
-                    path = paths[currentCommand & 0xFF];
-                    cursor += 4;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     if ((path != NULL) && (path->unk8 != NULL)) {
                         object = (AnimCommandObject *) path->unk8;
                         object->flags6 &= ~0x400;
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x65:
-                    path = paths[currentCommand & 0xFF];
-                    cursor += 4;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     if ((path != NULL) && (path->unk8 != NULL)) {
                         object = (AnimCommandObject *) path->unk8;
                         object->flags6 |= 0x400;
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x66:
-                    path = paths[currentCommand & 0xFF];
-                    frame = *(u16 *) (cursor + 4);
-                    cursor += 6;
+                    path = paths[pathIndex];
+                    frame = *((u16 *) ((u8 *) cursor + 4));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
                     if (path != NULL) {
                         object = (AnimCommandObject *) path->unk8;
                         if (object != NULL) {
@@ -1663,12 +1591,11 @@ void func_800517E0(void) {
                     } else {
                         D_800D6C48 = frame;
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x67:
-                    path = paths[currentCommand & 0xFF];
-                    frame = *(u16 *) (cursor + 4);
-                    cursor += 6;
+                    path = paths[pathIndex];
+                    frame = *((u16 *) ((u8 *) cursor + 4));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
                     if ((path != NULL) && (path->unk8 != NULL)) {
                         object = (AnimCommandObject *) path->unk8;
                         if (frame != 0) {
@@ -1677,37 +1604,35 @@ void func_800517E0(void) {
                             object->flags6 &= ~4;
                         }
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x68:
-                    path = paths[currentCommand & 0xFF];
-                    frame = *(u16 *) (cursor + 4);
-                    duration = *(u16 *) (cursor + 6);
-                    cursor += 8;
+                    path = paths[pathIndex];
+                    frame = *((u16 *) ((u8 *) cursor + 4));
+                    duration = *((u16 *) ((u8 *) cursor + 6));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 8);
                     if ((path != NULL) && (path->unk8 != NULL)) {
                         object = (AnimCommandObject *) path->unk8;
                         type = path->unk25;
                         path->unk25 = frame;
                         path->unk27 = 0;
                         path->unk24 = type;
-                    path->unk26 = (s8) ((f32) duration /
+                        path->unk26 = (s8) ((f32) duration /
                                             hundred * scale);
                         object->state39 = type;
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x6A: {
-                    packed = *(u16 *) (cursor + 4);
-                    packed2 = *(u16 *) (cursor + 6);
-                    frame = *(u16 *) (cursor + 8);
-                    duration = *(u16 *) (cursor + 0xA);
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    packed2 = *((u16 *) ((u8 *) cursor + 6));
+                    frame = *((u16 *) ((u8 *) cursor + 8));
+                    duration = *((u16 *) ((u8 *) cursor + 0xA));
                     high = (packed >> 8) & 0xFF;
                     low = packed & 0xFF;
                     high2 = (packed2 >> 8) & 0xFF;
                     low2 = packed2 & 0xFF;
                     value = (f32) duration;
-                    path = paths[currentCommand & 0xFF];
-                    cursor += 0xC;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xC);
                     if ((path != NULL) && (path->unk8 != NULL)) {
                         object = (AnimCommandObject *) path->unk8;
                         entry = object->table70;
@@ -1719,21 +1644,20 @@ void func_800517E0(void) {
                                 entry, low, high2, low2, frame, value, 1);
                         }
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 }
                 case 0x6B: {
-                    packed = *(u16 *) (cursor + 4);
-                    packed2 = *(u16 *) (cursor + 6);
-                    frame = *(u16 *) (cursor + 8);
-                    duration = *(u16 *) (cursor + 0xA);
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    packed2 = *((u16 *) ((u8 *) cursor + 6));
+                    frame = *((u16 *) ((u8 *) cursor + 8));
+                    duration = *((u16 *) ((u8 *) cursor + 0xA));
                     high = (packed >> 8) & 0xFF;
                     low = packed & 0xFF;
                     high2 = (packed2 >> 8) & 0xFF;
                     low2 = packed2 & 0xFF;
                     value = (f32) duration;
-                    path = paths[currentCommand & 0xFF];
-                    cursor += 0xC;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xC);
                     if ((path != NULL) && (path->unk8 != NULL)) {
                         object = (AnimCommandObject *) path->unk8;
                         entry = object->table74;
@@ -1745,27 +1669,25 @@ void func_800517E0(void) {
                                 entry, low, high2, low2, frame, value, 0);
                         }
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 }
                 case 0x6C:
-                    path = paths[currentCommand & 0xFF];
-                    type = *(u8 *) (cursor + 5);
-                    cursor += 6;
+                    path = paths[pathIndex];
+                    type = *((u8 *) cursor + 5);
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
                     if ((path != NULL) && (path->unk8 != NULL)) {
                         ((AnimCommandObject *) path->unk8)->unk90 = type;
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x6D:
-                    type = *(u8 *) (cursor + 5);
-                    signedValue = *(s16 *) (cursor + 6);
-                    packed = *(s16 *) (cursor + 8);
-                    duration = *(u16 *) (cursor + 0xA);
+                    type = *((u8 *) cursor + 5);
+                    signedValue = *((s16 *) ((u8 *) cursor + 6));
+                    packed = *((s16 *) ((u8 *) cursor + 8));
+                    duration = *((u16 *) ((u8 *) cursor + 0xA));
                     value = (f32) signedValue * 0.00390625f;
                     value2 = (f32) packed * 0.00390625f;
-                    path = paths[currentCommand & 0xFF];
-                    cursor += 0xC;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xC);
                     if ((path != NULL) && (path->unk8 != NULL)) {
                         object = (AnimCommandObject *) path->unk8;
                         sub = object->sub;
@@ -1810,32 +1732,30 @@ void func_800517E0(void) {
                             }
                         }
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x6E:
-                    packed = *(u16 *) (cursor + 4);
-                    packed2 = *(u16 *) (cursor + 6);
-                    timer = *(u16 *) (cursor + 8);
-                    frame = *(u16 *) (cursor + 0xA);
-                    duration = *(u16 *) (cursor + 0xC);
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    packed2 = *((u16 *) ((u8 *) cursor + 6));
+                    timer = *((u16 *) ((u8 *) cursor + 8));
+                    frame = *((u16 *) ((u8 *) cursor + 0xA));
+                    duration = *((u16 *) ((u8 *) cursor + 0xC));
                     value = (f32) duration;
-                    path = paths[currentCommand & 0xFF];
-                    cursor += 0xE;
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xE);
                     if ((path != NULL) && (path->unk8 != NULL)) {
                         TrapDanglingJump(path->unk8, (packed >> 8) & 0xFF,
                                          packed & 0xFF, packed2, timer,
                                          frame, (s32) (value * factor *
                                                        scale));
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x6F:
-                    packed = *(u16 *) (cursor + 4);
+                    packed = *((u16 *) ((u8 *) cursor + 4));
                     high = (packed >> 8) & 0xFF;
                     low = packed & 0xFF;
-                    frame = *(u16 *) (cursor + 6);
-                    path = paths[currentCommand & 0xFF];
-                    cursor += 8;
+                    frame = *((u16 *) ((u8 *) cursor + 6));
+                    path = paths[pathIndex];
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 8);
                     if ((path != NULL) && (path->unk8 != NULL)) {
                         object = (AnimCommandObject *) path->unk8;
                         if ((object->animationIndex >= 4) ||
@@ -1871,34 +1791,29 @@ void func_800517E0(void) {
                             }
                         }
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x74:
-                    cursor += 4;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     TrapDanglingJump(1);
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x75:
-                    cursor += 4;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     TrapDanglingJump(0);
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x76:
-                    cursor += 4;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     mainSyncNextLevel();
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x78:
-                    packed = *(u16 *) (cursor + 4);
-                    cursor += 6;
-                    func_80029084(packed, currentCommand & 0xFF);
-                    currentCommand = *(u16 *) (cursor + 2);
+                    packed = *((u16 *) ((u8 *) cursor + 4));
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
+                    func_80029084(packed, pathIndex);
                     break;
                 case 0x79:
-                    value = (f32) (currentCommand & 0xFF);
-                    duration = *(u16 *) (cursor + 4);
+                    value = (f32) (pathIndex);
+                    duration = *((u16 *) ((u8 *) cursor + 4));
                     value2 = (f32) duration;
-                    cursor += 6;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
                     timer = (s32) (value2 * scale * factor);
                     D_8007D6BC = timer;
                     if (timer > 0) {
@@ -1907,55 +1822,49 @@ void func_800517E0(void) {
                     } else {
                         D_8007D6B4 = value;
                     }
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x7A:
-                    packed = *(u16 *) (cursor + 4);
+                    packed = *((u16 *) ((u8 *) cursor + 4));
                     index = packed & 0xFFF;
                     high = (currentCommand >> 4) & 0xF;
                     low = (packed >> 12) & 0xF;
-                    cursor += 6;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 6);
                     if (index == 0xFFF) {
                         index = 0;
                     }
                     mainChangeLevel(index, high, low, frontGetMode(), 1,
                                      0);
                     mainSetAnimGroup(currentCommand & 0xF);
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x7B:
                     D_8007D6A8 = ((s32) commandDuration * 0x3C) / 100;
-                    duration = *(u16 *) cursor;
+                    duration = cursor->duration;
                     value = (f32) duration;
-                    cursor += 4;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     D_8007D6AC = value * factor;
-                    D_8007D6A4 = (s8) *(u16 *) (cursor - 2);
-                    currentCommand = *(u16 *) (cursor + 2);
+                    D_8007D6A4 = (s8) *((u16 *) ((u8 *) cursor - 2));
                     break;
                 case 0x7C:
-                    cursor += 4;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     joyDisable(currentCommand & 3);
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x7D:
-                    cursor += 4;
+                    cursor = (AnimStreamEntry *) ((u8 *) cursor + 4);
                     joyEnable(currentCommand & 3);
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 case 0x7E:
                     D_8007D6A8 -= ((s32) commandDuration * 0x3C) / 100;
-                    duration = *(u16 *) cursor;
+                    duration = cursor->duration;
                     value2 = (f32) duration;
-                    cursor = (u8 *) D_8007D698;
+                    cursor = D_8007D698;
                     D_8007D6AC = D_8007D6AC - value2 * factor;
-                    currentCommand = *(u16 *) (cursor + 2);
                     break;
                 default:
                     break;
             }
-
+            currentCommand = cursor->command;
         }
-        D_8007D69C = (AnimStreamEntry *) cursor;
+        D_8007D69C = cursor;
     }
 }
 #else
@@ -4478,10 +4387,10 @@ void fmvInit(void) {
 
 /* PLATEAU-HANDOFF:func_800517E0:start
  * symbol: func_800517E0
- * score: 1797 differing words
+ * score: 1795 differing words
  * frame: 0x170
- * relocations: 127
+ * relocations: 245
  * first-mismatch: +0x0
- * summary: Intermediate ABI/type reconstruction: 1668/1808 words; all 57 calls recovered; shared loop carriers remain. Investigation continues.
+ * summary: Intermediate reconstruction: 1722/1808 words; 57 calls and 245 external relocation records recovered; motion operand lifetimes remain.
  * PLATEAU-HANDOFF:func_800517E0:end
  */
