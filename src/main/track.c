@@ -5736,10 +5736,10 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 /* PLATEAU-HANDOFF:func_80010654:start
  * symbol: func_80010654
  * score: 162 differing words
- * frame: -0xA0
+ * frame: 0xa0
  * relocations: 8
  * first-mismatch: +0x0
- * summary: Direct target-lifetime form removes most structural gaps; original pointer scopes must prevent threshold-address hoisting and two extra saved GPRs.
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_80010654:end
  */
 
