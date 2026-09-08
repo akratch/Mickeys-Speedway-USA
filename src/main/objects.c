@@ -73,11 +73,10 @@ typedef struct {
 typedef struct {
     f32 unk0;
     u8 pad04[0x1A];
-    s8 unk1E;
-    u8 pad1F[3];
+    s8 unk1E[4];
     s8 unk22;
     u8 pad23[0xB1];
-    f32 unkD4;
+    f32 unkD4[3];
 } Objects09F74Data;
 
 typedef struct {
@@ -94,7 +93,7 @@ typedef struct {
     u8 pad46[0x1E];
     void *unk64;
     u8 pad68[0x2B];
-    s8 unk93;
+    u8 unk93;
 } Objects09F74Object;
 
 typedef struct {
@@ -779,7 +778,7 @@ extern s32 func_8000A6E8(s32 arg0);
 extern void *func_8002B280(s32 size, s32 tag);
 extern void *func_8002B4C0(void *slots, s32 size);
 extern s32 mathRnd(s32 minimum, s32 maximum);
-extern void func_80009F74(void *object);
+extern void func_80009F74(Objects09F74Object *object);
 extern u8 *levelGetLevel(void);
 extern s32 levelGetNumber(void);
 extern s32 controlGetPlayerSetup(s16 *arg0, s16 *arg1, s16 *arg2, s16 *arg3);
@@ -4383,44 +4382,28 @@ f32 func_80009F08(Objects09F08Arg *arg0) {
     }
     return var_f2;
 }
-/* Workbench verdict: structure-mismatch; 149 differing words (target 180, candidate 178). */
-/* First mismatch: +0x0; target frame 0x28 versus candidate 0x30. */
-/* Structural gap: dispatch control flow is complete, but two instructions and stack homes differ. */
-#ifdef NON_MATCHING
-void func_80009F74(void *arg0) {
-    Objects09F74Object *object;
-    Objects09F74Data *data;
-    Objects09F74Camera *camera;
-    f32 projection;
-    f32 threshold;
+/* Mickey-only distance-tier selection and object-renderer dispatch. */
+void func_80009F74(Objects09F74Object *object) {
     s32 variant;
-    s8 count;
-    s8 selector;
+    Objects09F74Data *data;
+    s8 *racer;
+    f32 projection;
 
-    object = (Objects09F74Object *)arg0;
-    data = object->unk40;
-    if (data->unkD4 == 0.0f) {
+    if (object->unk40->unkD4[0] == 0.0f) {
         object->unk93 = object->unk3A;
     } else {
         projection = -camGetProjZ(object->unkC, object->unk10, object->unk14);
+        data = object->unk40;
         variant = 0;
-        count = data->unk22;
-        if ((count > 0) && (data->unkD4 != 0.0f) &&
-            (data->unkD4 < projection)) {
-            do {
-                variant += 1;
-                if ((variant >= 3) || (variant >= count)) {
-                    break;
-                }
-                threshold = *(f32 *)((u8 *)data + (variant * 4) + 0xD4);
-                if ((threshold == 0.0f) || (threshold >= projection)) {
-                    break;
-                }
-            } while (1);
+        while ((variant < 3) && (variant < data->unk22) &&
+               (data->unkD4[variant] != 0.0f) &&
+               (data->unkD4[variant] < projection)) {
+            variant++;
         }
         if ((object->unk44 == 1) && (D_8007BF0C != 0) &&
             (variant == 0) && ((s32)D_8007BEF8 >= 3)) {
-            if (camGetNo() != *(s8 *)object->unk64) {
+            racer = object->unk64;
+            if (camGetNo() != *racer) {
                 variant = 1;
             }
         }
@@ -4428,12 +4411,11 @@ void func_80009F74(void *arg0) {
     }
 
     if ((object->unk44 == 1) || (object->unk44 == 0x3F)) {
-        camera = camGetPtr();
-        if (camera->unk4E >= 2) {
+        if (camGetPtr()->unk4E >= 2) {
             object->unk93 = 0;
         } else if (object->unk44 == 0x3F) {
             object->unk8 = func_80009F08((Objects09F08Arg *)object) *
-                           data->unk0;
+                           object->unk40->unk0;
         } else {
             *(f32 *)((u8 *)object->unk64 + 0x444) =
                 func_80009F08((Objects09F08Arg *)object) * object->unk8;
@@ -4441,9 +4423,9 @@ void func_80009F74(void *arg0) {
     }
 
     data = object->unk40;
-    if (data->unkD4 == 0.0f) {
-        selector = data->unk1E;
-        switch (selector) {
+    if (data->unkD4[0] == 0.0f) {
+        variant = data->unk1E[0];
+        switch (variant) {
         case 0:
             func_80009AA8(object);
             return;
@@ -4455,29 +4437,25 @@ void func_80009F74(void *arg0) {
             return;
         }
     } else {
-        variant = (u8)object->unk93;
-        selector = *(s8 *)((u8 *)data + variant + 0x1E);
-        switch (selector) {
+        variant = data->unk1E[object->unk93];
+        switch (variant) {
         case 0:
-            object->unk3A = (s8)variant;
+            object->unk3A = object->unk93;
             func_80009AA8(object);
             object->unk3A = 0;
             return;
         case 1:
-            object->unk3A = (s8)variant;
+            object->unk3A = object->unk93;
             func_80008B94(object);
             object->unk3A = 0;
             return;
         case 2:
-            object->unk3A = (s8)variant;
+            object->unk3A = object->unk93;
             func_80008A8C((Objects08A20Arg *)object);
             return;
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009F74.s")
-#endif
 /* PROVENANCE: partition loop adapted from Diddy Kong Racing's public
  * src/objects.c get_first_active_object; Mickey's list and header offsets are authoritative. */
 s32 func_8000A244(s32 *arg0) {
