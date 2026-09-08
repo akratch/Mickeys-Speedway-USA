@@ -2340,7 +2340,7 @@ extern u8 D_800D7560[];
 #define FUNC538_PAIR(index) ((Func538Pair *)((u8 *)D_800D7560 + ((index) * 0x18)))
 #define FUNC538_LOAD(list, offset) (*((Func538Object **)((u8 *)(list) + (offset))))
 
-extern Func538Object **func_8000572C();
+extern Func538Object **func_8000572C(s32 *start, s32 *end);
 s32 func_80054B3C(s32 arg0, AnimCollisionShape *arg1,
                   s32 arg2, AnimCollisionShape *arg3,
                   AnimCollisionResult *arg4);
@@ -2492,7 +2492,7 @@ void func_80053868(s32 arg0) {
 
 temp_f20 = (f32) arg0;
     var_f22 = temp_f20;
-            temp_v0 = func_8000572C(&spB0, &spAC, arg0);
+    temp_v0 = func_8000572C(&spB0, &spAC);
     spA8 = 0;
     spA4 = 0;
     var_fp = spB0;
