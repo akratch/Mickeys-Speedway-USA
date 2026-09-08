@@ -5648,7 +5648,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x10
  * relocations: 2
  * first-mismatch: +0x1C
- * summary: Pinned donor source has no matching C body; declaration probe flat and loop probe regressed; next lever is an authenticated donor C body
+ * summary: Pinned donor source has no matching C body; declaration probe flat and loop probe regressed; next lever is an authenticated donor C body.
  * PLATEAU-HANDOFF:func_8000FAE0:end
  */
 

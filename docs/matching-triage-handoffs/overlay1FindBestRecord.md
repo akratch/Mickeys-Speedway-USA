@@ -5,8 +5,8 @@
 - score: 28/30 words
 - frame: frameless
 - relocations: 4
-- first mismatch: +0x4
-- summary: Five fresh forms stalled at 12 differing words; pool-position needs new selected-type/value web-formation evidence; prior exhausted routes remain closed.
+- first mismatch: +0x14
+- summary: structure-mismatch after pool-rotation: 2-word D_1D88 load/count schedule; five later forms flat; next: separate emit-order evidence, not allocator forms
 
 #### ADR 0018 resume at the assigned base
 

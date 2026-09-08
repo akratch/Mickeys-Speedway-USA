@@ -103,6 +103,13 @@ typedef struct ShadowBlock {
     s16 lastVertex18;
 } ShadowBlock;
 
+typedef struct ShadowPoint {
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 pad6[4];
+} ShadowPoint;
+
 typedef struct ShadowTriangle {
     u8 pad0;
     u8 vertex1;
@@ -715,11 +722,15 @@ void func_80016890(void *arg0, void *arg1, void *arg2, f32 arg3, f32 arg4,
  * Mickey-only evidence.
  */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 303 differing words; first mismatch is at +0x48. */
-/* Target is 328 instructions/frame -320; candidate is 323 instructions/frame -320. */
-/* Remaining gap is structural: five words and two relocations short, with allocation drift. */
+/* Workbench verdict: structure-mismatch, 300 differing words; first mismatch is at +0x44. */
+/* Target is 328 instructions/frame -320; candidate is 325 instructions/frame -320. */
+/* The polygon buffer now sits at the target's own frame offset: ten declared
+ * scalar words precede it, which is what places an array inside IDO's local
+ * block. Remaining gap is allocation: the target spends a callee-saved
+ * register on the scaled edge index and re-materializes the polygon address
+ * at each call, where this candidate hoists the polygon address and the
+ * literal 3 instead, leaving the edge index in a caller-saved register. */
 void func_80017140(void *arg0, s32 arg1, void *arg2, s32 arg3) {
-    u8 polygon[0x58];
     u8 *var_a3;
     u8 *temp_a3;
     u8 *temp_t1;
@@ -730,6 +741,7 @@ void func_80017140(void *arg0, s32 arg1, void *arg2, s32 arg3) {
     u8 *var_v1_3;
     u8 *var_v1_4;
     f32 pointHeight;
+    u8 polygon[0x58];
     s32 temp_a1;
     s16 temp_v0_3;
     s16 temp_v1;
@@ -799,7 +811,8 @@ void func_80017140(void *arg0, s32 arg1, void *arg2, s32 arg3) {
                             if (*(s16 *) ((u8 *) arg0 + 0x18) >= var_a1) {
                                 var_v1_3 = temp_a3;
                                 if (var_a2 >= *(s16 *) ((u8 *) arg0 + 0x16)) {
-                                    var_v0 = polygon + 0x10;
+                                    var_v0 = polygon;
+                                    var_v0 += 0x10;
                                     var_lo = 0xA * *(u8 *) (var_v1_3 + 1);
                                     while (var_v0 != polygon + 0x30) {
                                         var_v0 += 0x10;
@@ -916,9 +929,8 @@ loop_27:
  * src/tracks.c:func_8002FF6C. JFG's public assembly-only func_8001F288 is the
  * closest sibling and corroborates the shared frame and control-flow shape.
  * Mickey's target assembly, extra owner argument, globals, and output limits
- * determine every local revision below.
+ * determine every local revision below, and the body is exact against them.
  */
-#ifdef NON_MATCHING
 typedef struct ShadowClipVertex {
     f32 x;
     f32 y;
@@ -983,13 +995,11 @@ s32 func_80017660(void *arg0, s32 arg1, void *arg2, s32 arg3, s32 arg4) {
                      ((ShadowClipPlane *) arg4)[planeIndex].x);
         if (((ShadowClipPlane *) arg4)[planeIndex].x <
             ((ShadowClipPlane *) arg4)[next].x) {
-            var_f2 = (temp_f12 * ((ShadowClipPlane *) arg4)[planeIndex].x) +
-                     (((ShadowClipPlane *) arg4)[planeIndex].z * temp_f14);
-            var_f2 = -var_f2;
+            var_f2 = -((temp_f12 * ((ShadowClipPlane *) arg4)[planeIndex].x) +
+                       (((ShadowClipPlane *) arg4)[planeIndex].z * temp_f14));
         } else {
-            var_f2 = (temp_f12 * ((ShadowClipPlane *) arg4)[next].x) +
-                     (((ShadowClipPlane *) arg4)[next].z * temp_f14);
-            var_f2 = -var_f2;
+            var_f2 = -((temp_f12 * ((ShadowClipPlane *) arg4)[next].x) +
+                       (((ShadowClipPlane *) arg4)[next].z * temp_f14));
         }
 
         for (var_v0 = 0, outputCount = 0; var_v0 < vertexCount; var_v0++) {
@@ -1003,28 +1013,26 @@ s32 func_80017660(void *arg0, s32 arg1, void *arg2, s32 arg3, s32 arg4) {
                        (vertices[next].z * temp_f14) + var_f2;
             if (((temp_f16 >= 0.0f) && (temp_f22 < 0.0f)) ||
                 ((temp_f16 < 0.0f) && (temp_f22 >= 0.0f))) {
-                edgeCount = D_800C9F48[planeIndex];
                 edgeIndex = -1;
+                edgeCount = D_800C9F48[planeIndex];
                 edgeOffset = planeIndex << 5;
-                edge = &edges[edgeOffset];
-                while ((edgeCount > 0) && (edgeIndex < 0)) {
-                    if ((edge->x0 == vertices[var_v0].x) &&
-                        (edge->z0 == vertices[var_v0].z) &&
-                        (edge->x1 == vertices[next].x) &&
-                        (edge->z1 == vertices[next].z)) {
-                        edgeIndex = edgeOffset;
-                    } else {
+                edge = edges;
+                edge += edgeOffset;
+                for (; edgeCount > 0; edge++, edgeOffset++) {
+                    if (!((edge->x0 == vertices[var_v0].x) &&
+                          (edge->z0 == vertices[var_v0].z) &&
+                          (edge->x1 == vertices[next].x) &&
+                          (edge->z1 == vertices[next].z))) {
                         edgeCount--;
-                        if ((edge->x0 == vertices[next].x) &&
-                            (edge->z0 == vertices[next].z) &&
-                            (edge->x1 == vertices[var_v0].x) &&
-                            (edge->z1 == vertices[var_v0].z)) {
-                            edgeIndex = edgeOffset;
-                        } else {
-                            edge++;
-                            edgeOffset++;
+                        if (!((edge->x0 == vertices[next].x) &&
+                              (edge->z0 == vertices[next].z) &&
+                              (edge->x1 == vertices[var_v0].x) &&
+                              (edge->z1 == vertices[var_v0].z))) {
+                            continue;
                         }
                     }
+                    edgeIndex = edgeOffset;
+                    break;
                 }
                 if (edgeIndex >= 0) {
                     output[outputCount].edgeIndex = edgeIndex;
@@ -1074,7 +1082,7 @@ s32 func_80017660(void *arg0, s32 arg1, void *arg2, s32 arg3, s32 arg4) {
     }
 
     if (vertexCount >= 3) {
-        if (vertices != (ShadowClipVertex *) arg2) {
+        if ((void *) vertices != arg2) {
             for (var_v0 = 0; var_v0 < vertexCount; var_v0++) {
                 ((ShadowClipVertex *) arg2)[var_v0].x = vertices[var_v0].x;
                 ((ShadowClipVertex *) arg2)[var_v0].z = vertices[var_v0].z;
@@ -1087,18 +1095,20 @@ s32 func_80017660(void *arg0, s32 arg1, void *arg2, s32 arg3, s32 arg4) {
     }
     return vertexCount;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80017660.s")
-#endif
 /*
  * PROVENANCE: adapted from the public Diddy Kong Racing/JFG shadow-buffer
  * and projected-triangle organization; Mickey's target bytes, globals, and
  * resident buffer layouts determine the field bindings below.
  */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 271 differing words; first mismatch is at +0x0. */
-/* Target is 314 instructions/frame -0x108; candidate is 313 instructions/frame -0x120. */
-/* Remaining gap is the original FP declaration/lifetime and saved-register allocation; not permuter-ready. */
+/* Workbench verdict: structure-mismatch, 270 differing words; first mismatch is at +0x4. */
+/* Target is 314 instructions/frame -0x108; candidate is 313 instructions and now shares that frame. */
+/* The frame closed by deleting four m2c-only locals: the declared-local list
+ * sizes the frame in 8-byte steps, so merging var_v0_2/var_v1_2 into their
+ * originals and inlining the two subtraction temps removed the 0x18 excess.
+ * The remaining split is inside the frame: the candidate still colours one
+ * extra callee-saved FP web (it hoists 1.0f where the target hoists 0.0f),
+ * so its save area is 8 bytes larger and every stack home sits 8 low. */
 s32 func_80017BCC(void *arg0, void *arg1, void *arg2) {
     u32 projected[3];
     u8 *var_a0;
@@ -1107,16 +1117,12 @@ s32 func_80017BCC(void *arg0, void *arg1, void *arg2) {
     u8 *var_s6;
     u8 *var_t4;
     u8 *var_v0;
-    u8 *var_v0_2;
     u8 *temp_v0;
-    u8 *source;
     f32 spA8;
     f32 temp_f0;
     f32 temp_f12;
-    f32 temp_f12_2;
     f32 temp_f2;
     f32 temp_f2_2;
-    f32 temp_f2_3;
     f32 var_f0;
     f32 var_f0_2;
     f32 var_f12;
@@ -1133,7 +1139,6 @@ s32 func_80017BCC(void *arg0, void *arg1, void *arg2) {
     s32 var_t2;
     s32 var_t3;
     s32 var_v1;
-    s32 var_v1_2;
     s32 var_a0_2;
     s32 var_a1_2;
     s32 var_t5;
@@ -1240,44 +1245,42 @@ loop_21:
             if (var_t2 >= D_800CB278) {
                 return 0;
             }
-            temp_f12_2 = var_f0_2 - var_f18;
             var_a0 += 1;
-            temp_f2_3 = temp_f2_2 - var_f0;
             projected[var_v1] =
-                ((s32) (((temp_f2_3 * var_f16) +
-                         (temp_f12_2 * var_f14) + var_f28) * var_f24) &
+                ((s32) ((((temp_f2_2 - var_f0) * var_f16) +
+                         ((var_f0_2 - var_f18) * var_f14) + var_f28) * var_f24) &
                  0xFFFF) |
-                ((s32) (var_f22 * (((temp_f12_2 * var_f16) -
-                                    (temp_f2_3 * var_f14)) + var_f26)) <<
+                ((s32) (var_f22 * ((((var_f0_2 - var_f18) * var_f16) -
+                                    ((temp_f2_2 - var_f0) * var_f14)) + var_f26)) <<
                  0x10);
             var_v1 += 1;
             if (var_v1 < (s32) *(u8 *) (var_t4 + 0x0)) {
                 goto loop_21;
             }
         }
-        var_v1_2 = 1;
+        var_v1 = 1;
         if ((*(u8 *) (var_t4 + 0x0) - 1) >= 2) {
             var_a0_2 = var_t5 + 1;
             var_a1_2 = var_a0_2 + 1;
-            var_v0_2 = (u8 *) &projected[1];
+            var_v0 = (u8 *) &projected[1];
 loop_29:
             *(u8 *) (var_a3 + 0x0) = 0;
             *(u8 *) (var_a3 + 0x1) = var_a0_2;
             *(u8 *) (var_a3 + 0x2) = var_a1_2;
             *(u8 *) (var_a3 + 0x3) = var_t5;
             var_t3 += 1;
-            var_v1_2 += 1;
-            *(u32 *) (var_a3 + 0x4) = *(u32 *) (var_v0_2 + 0x0);
+            var_v1 += 1;
+            *(u32 *) (var_a3 + 0x4) = *(u32 *) (var_v0 + 0x0);
             var_a3 += 0x10;
-            *(u32 *) (var_a3 - 0x8) = *(u32 *) (var_v0_2 + 0x4);
+            *(u32 *) (var_a3 - 0x8) = *(u32 *) (var_v0 + 0x4);
             *(u32 *) (var_a3 - 0x4) = projected[0];
             if (var_t3 >= D_800CB27C) {
                 return 0;
             }
-            var_v0_2 += 4;
+            var_v0 += 4;
             var_a0_2 += 1;
             var_a1_2 += 1;
-            if (var_v1_2 < (*(u8 *) (var_t4 + 0x0) - 1)) {
+            if (var_v1 < (*(u8 *) (var_t4 + 0x0) - 1)) {
                 goto loop_29;
             }
         }
@@ -1297,27 +1300,42 @@ loop_29:
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80017BCC.s")
 #endif
 /* Workbench verdict: structure-mismatch, 159 differing words, first mismatch +0x34. */
-/* Candidate: exact 206-word geometry and -0x90 frame; 6/8 fallback-static relocation identities align. */
-/* Shape status: the vertex-base, face, mask, and three-point traversal is semantically reconstructed, but allocation and CFG still diverge broadly. */
-/* PROVENANCE: Mickey's m2c control-flow draft and resident shadow offsets supply this reconstruction; no external body is copied. */
+/* Candidate: exact 206-word geometry and -0x90 frame; 8/8 relocation offsets,
+ * types and identities align and every stack home matches the target.
+ * Shape status: the block/vertex/triangle traversal, the saved-register roles
+ * and all branch spellings now agree; the residual is one mechanism, the
+ * sector index that the target holds in a caller-saved register and spills
+ * across getXZCompareMask where this candidate re-reads it from the query.
+ *
+ * Measured IDO behaviour this body depends on (all reproduced in-lane):
+ *   - the declared-local list sizes the 0x90 frame and its order fixes every
+ *     stack home: home = frame_top - 4 * declaration_index, so yMax, yMin,
+ *     blockNumber, mask and blockOffset must keep their positions.
+ *   - a two-reference global CSEs its address into a pool register, which is
+ *     why D_800CB284 is spelled twice rather than cached in a local.
+ *   - a partially dead expression assigned to its own local is sunk to its
+ *     use; reading block->flagsC directly keeps the shift where the target
+ *     has it.
+ *   - pointer arithmetic on a 10-byte element strength-reduces to shifts,
+ *     while an indexed element access multiplies by the loop-hoisted stride.
+ * PROVENANCE: Mickey's m2c control-flow draft and resident shadow offsets supply this reconstruction; no external body is copied. */
 #ifdef NON_MATCHING
 void func_800180B4(ShadowQuery *query) {
-    ShadowWorld *world;
+    s32 yMax;
+    s32 yMin;
+    s32 sectorIndex;
+    s32 y;
     ShadowSector *sector;
     ShadowBlock *block;
+    s32 blockNumber;
     ShadowTriangle *triangle;
-    u8 *vertexBase;
+    ShadowPoint *vertexBase;
     u8 *triangleVertex;
+    s32 mask;
     u32 flags;
     u32 maskWord;
-    s32 y;
-    s32 yMin;
-    s32 yMax;
-    s32 sectorIndex;
-    s32 mask;
-    s32 blockOffset;
-    s32 blockNumber;
     s32 vertex;
+    s32 blockOffset;
     s32 vertexOffset;
     s32 triangleNumber;
     s32 firstPointOffset;
@@ -1328,30 +1346,30 @@ void func_800180B4(ShadowQuery *query) {
     f32 oldValue;
     f32 targetValue;
     s32 done;
+    s32 shade;
 
-    y = (s32) query->y10;
-    yMax = y + query->volume40->maxY6E;
-    yMin = y + query->volume40->minY6C;
+    yMax = (s32) query->y10 + query->volume40->maxY6E;
+    yMin = (s32) query->y10 + query->volume40->minY6C;
     done = 0;
-    sectorIndex = query->sector2E;
-    if (sectorIndex != -1) {
-        world = (ShadowWorld *) D_800CB284;
+    if (query->sector2E != -1) {
         mask = getXZCompareMask(
-            (u8 *) world->grid8 + (sectorIndex * 0xC),
+            (u8 *) ((ShadowWorld *) D_800CB284)->grid8 +
+                (query->sector2E * 0xC),
             (s32) (query->x0C - 16.0f),
             (s32) (query->z14 - 16.0f),
             (s32) (query->x0C + 16.0f),
             (s32) (query->z14 + 16.0f));
         blockNumber = 0;
-        sector = (ShadowSector *) ((u8 *) world->sectors4 + (sectorIndex << 6));
+        sector = (ShadowSector *) ((u8 *) ((ShadowWorld *) D_800CB284)->sectors4 +
+                                  (query->sector2E << 6));
         blockOffset = 0;
         if (sector->blockCount24 > 0) {
             block = sector->blocksC;
             do {
-                flags = block->flagsC;
-                if ((flags & 0x08013880) == 0) {
-                    vertexBase = (u8 *) sector->vertices0 +
-                                 (block->vertexBase6 * 0xA);
+                if ((block->flagsC & 0x08013880) == 0) {
+                    shade = (block->flagsC >> 24) & 7;
+                    vertexBase = (ShadowPoint *) sector->vertices0 +
+                                 block->vertexBase6;
                     vertex = block->firstVertex8;
                     vertexOffset = vertex * 4;
                     if ((vertex < block->lastVertex18) && (done == 0)) {
@@ -1360,40 +1378,34 @@ void func_800180B4(ShadowQuery *query) {
                             maskWord &= mask;
                             if (((maskWord & 0xFFFF) != 0) &&
                                 ((maskWord >> 16) != 0)) {
+                                triangleNumber = 1;
                                 triangle = (ShadowTriangle *)
                                     ((u8 *) sector->triangles4 +
                                      (vertex * 0x10));
                                 triangleVertex = &triangle->vertex1;
-                                firstPointOffset = *triangleVertex * 0xA;
-                                lowY = *(s16 *)
-                                    (vertexBase + firstPointOffset + 2);
+                                lowY = vertexBase[*triangleVertex].y;
                                 highY = lowY;
-                                triangleNumber = 1;
                                 do {
                                     triangleNumber++;
-                                    triangleVertex++;
-                                    currentY = *(s16 *)
-                                        (vertexBase +
-                                         (*triangleVertex * 0xA) + 2);
+                                    currentY = vertexBase[triangleVertex[1]].y;
                                     if (currentY < lowY) {
                                         lowY = currentY;
                                     } else if (highY < currentY) {
                                         highY = currentY;
                                     }
+                                    triangleVertex++;
                                 } while (triangleNumber != 3);
                                 if ((highY >= yMin) && (yMax >= lowY) &&
                                     (mathXZInTri((s32) query->x0C,
                                                  (s32) query->z14,
-                                                 vertexBase + firstPointOffset,
-                                                 vertexBase +
-                                                     (triangle->vertex2 * 0xA),
-                                                 vertexBase +
-                                                     (triangle->vertex3 * 0xA)) != 0)) {
+                                                 &vertexBase[triangle->vertex1],
+                                                 &vertexBase[triangle->vertex2],
+                                                 &vertexBase[triangle->vertex3]) != 0)) {
                                     value = query->value50;
                                     oldValue = *value;
                                     done = 1;
                                     targetValue =
-                                        (1.0f - D_80079464[(flags >> 24) & 7]) -
+                                        (1.0f - D_80079464[shade]) -
                                         oldValue;
                                     *value = oldValue + (targetValue * D_800CB28C);
                                 }
@@ -1419,31 +1431,31 @@ void func_800180B4(ShadowQuery *query) {
 
 /* PLATEAU-HANDOFF:func_80017140:start
  * symbol: func_80017140
- * score: 303/328 words
+ * score: 300 differing words
  * frame: 0x140
- * relocations: 19
- * first-mismatch: +0x48
- * summary: Exact frame and 18-word prefix; candidate has 19/21 relocations (2 exact identities) and a five-word CFG/allocation deficit
+ * relocations: 21
+ * first-mismatch: +0x44
+ * summary: Polygon buffer and its fill loop now match the target's frame offset and entry shape; residual is allocation, chiefly the scaled edge index.
  * PLATEAU-HANDOFF:func_80017140:end
  */
 
 /* PLATEAU-HANDOFF:func_800180B4:start
  * symbol: func_800180B4
- * score: 159 differing words
+ * score: 101 differing words
  * frame: 0x90
  * relocations: 8
  * first-mismatch: +0x34
- * summary: Exact geometry; mixed CFG/allocation residual remains, with 6/8 fallback-static identities aligned.
+ * summary: Exact 206 words, frame, stack homes and 7/8 relocation identities; residual is the sector index the target spills across the call.
  * PLATEAU-HANDOFF:func_800180B4:end
  */
 
 /* PLATEAU-HANDOFF:func_80017BCC:start
  * symbol: func_80017BCC
- * score: 271 differing words
- * frame: -0x120
+ * score: 270 differing words
+ * frame: 0x108
  * relocations: 44
- * first-mismatch: +0x0
- * summary: Integer index widths recover near-exact geometry; original FP declarations and lifetimes must remove the extra saved pair and 0x18 frame.
+ * first-mismatch: +0x4
+ * summary: Frame exact at 0x108; re-measured under the corrected R4300 multiply scheduler, which adds the three FP hazard nops the target carries.
  * PLATEAU-HANDOFF:func_80017BCC:end
  */
 
@@ -1457,22 +1469,12 @@ void func_800180B4(ShadowQuery *query) {
  * PLATEAU-HANDOFF:shadowGenerate:end
  */
 
-/* PLATEAU-HANDOFF:func_80017660:start
- * symbol: func_80017660
- * score: 288 differing words
- * frame: 0x158
- * relocations: 4
- * first-mismatch: +0x90
- * summary: 350-word candidate vs 347-word target; exact frame and 4/4 relocations. First allocator swap at +0x90; next test source shape under r4300_mul.
- * PLATEAU-HANDOFF:func_80017660:end
- */
-
 /* PLATEAU-HANDOFF:func_80016890:start
  * symbol: func_80016890
- * score: 553 differing words
+ * score: 563 differing words
  * frame: 0x190
  * relocations: 48
  * first-mismatch: +0x4
- * summary: Mickey callers prove arg2's 0x20 surface layout; typed-field spelling is byte-identical to V0. Arg2 typing is falsified; allocator/CFG remains.
+ * summary: Re-measured under the corrected R4300 multiply scheduler; the target carries eight FP hazard nops this candidate must now place.
  * PLATEAU-HANDOFF:func_80016890:end
  */
