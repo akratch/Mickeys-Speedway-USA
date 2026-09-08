@@ -29,6 +29,7 @@ extern u32 gOverlay20ActiveBits;
 #ifdef NON_MATCHING
 void overlay20RemoveEntry(s32 owner) {
     void *entry;
+    s32 new_var;
     s32 i;
 
     entry = ((Overlay20RemoveOwner *)owner)->entry;
@@ -54,10 +55,11 @@ void overlay20RemoveEntry(s32 owner) {
     }
     gOverlay20EntryCount = owner - 1;
     if (i < gOverlay20EntryCount) {
+        new_var = gOverlay20EntryCount;
         do {
             gOverlay20ShiftEntries[i] = gOverlay20ShiftEntries[i + 1];
             i++;
-        } while (i < gOverlay20EntryCount);
+        } while (i < new_var);
     }
 
     owner = (s32)&gOverlay20MarkerEnd;
@@ -76,10 +78,10 @@ void overlay20RemoveEntry(s32 owner) {
 
 /* PLATEAU-HANDOFF:overlay20RemoveEntry:start
  * symbol: overlay20RemoveEntry
- * score: 47/53 words
+ * score: 51/53 words
  * frame: frameless
  * relocations: 10
  * first-mismatch: +0x6C
- * summary: Indexed compaction makes the temporary lane exact and cuts the deficit to six words; an invisible interfering web blocks the remaining two-web pool rotation.
+ * summary: new_var improves 47/53 to 51/53; final v0-a2 pool tie is flat; next lever is instrumented uopt forced-color oracle
  * PLATEAU-HANDOFF:overlay20RemoveEntry:end
  */
