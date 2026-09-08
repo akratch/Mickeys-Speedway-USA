@@ -16,6 +16,6 @@ void func_8006E7E0(void) {
  * frame: frameless
  * relocations: 0
  * first-mismatch: +0x0
- * summary: Target labels one zero word and leaves 0x3c bytes as padding; empty C emits jr/nop, confirming this is a hole rather than a compiler-generated function.
+ * summary: Empty C emits two instructions while the target is a one-word hole with padding; this remains unrepresentable as generated C.
  * PLATEAU-HANDOFF:func_8006E7E0:end
  */
