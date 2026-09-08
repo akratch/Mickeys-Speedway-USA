@@ -2429,6 +2429,7 @@ rcpInit = 0x8002F560; // type:func size:0xB8 ROM 0x30160 tier-A donor-jfg-src/rc
 // tier B (JFG): resident startup passes the scheduler here immediately before
 // continuing through the PI/RCP initialization sequence.
 viInit = 0x80033580; // type:func size:0x128 ROM 0x34180 canonical C, linked byte-identical
+func_800336A8 = 0x800336A8; // type:func size:0x30C ROM 0x342A8 tier-A matched C, 195 exact words and 77 exact static relocation identities, JFG viChangeMode body with Mickey PAL and epilogue paths
 // JFG's viReset candidate is NON_MATCHING, so section 1.5 keeps this address
 // label; the original asm remains canonical.
 func_800339B4 = 0x800339B4; // type:func size:0xC8 ROM 0x345B4 NON_MATCHING candidate
