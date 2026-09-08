@@ -3,7 +3,39 @@
 #define M2C_FIELD(expr, type_ptr, offset) \
     (*(type_ptr)((u8 *)(expr) + (offset)))
 
-s32 o50UnresolvedCallReloc(); /* extern */
+/* Tier B: callee identities decoded from overlay 50 runtime exports.
+ * Arguments and return types are repaired in the next reconstruction step. */
+s32 func_80028F54(); /* 0:+0x28B04 */
+s32 camStandardOrtho(); /* 0:+0x22600 */
+s32 overlay45ReleaseDescriptor(); /* 45:+0x270 */
+s32 overlay45SetMode(); /* 45:+0x1BE0 */
+s32 overlay56SplitTime(); /* 56:+0xB8 */
+s32 levelGetLevel(); /* 0:+0x2634C */
+s32 func_800290A0(); /* 0:+0x28C50 */
+s32 func_8003A7D0(); /* 0:+0x3A380 */
+s32 func_8002F618(); /* 0:+0x2F1C8 */
+s32 func_80034920(); /* 0:+0x344D0 */
+s32 func_80039E34(); /* 0:+0x399E4 */
+s32 freeFrontEndItem(); /* 0:+0x3964C */
+s32 loadFrontEndItem(); /* 0:+0x39794 */
+s32 overlay59Interpolate(); /* 59:+0x784 */
+s32 overlay59BuildList(); /* 59:+0x84C */
+s32 overlay59DrawFrame(); /* 59:+0x8EC */
+s32 func_80036544(); /* 0:+0x360F4 */
+s32 amSndPlay(); /* 0:+0xB44 */
+s32 joyGetPressed(); /* 0:+0x250FC */
+s32 func_8004A4B0(); /* 0:+0x4A060 */
+s32 func_8004B0A4(); /* 0:+0x4AC54 */
+s32 func_8004B0DC(); /* 0:+0x4AC8C */
+s32 fontColour(); /* 0:+0x4AC68 */
+s32 func_8004B0F8(); /* 0:+0x4ACA8 */
+s32 mainGetMode(); /* 0:+0x288C8 */
+s32 func_800016EC(); /* 0:+0x129C */
+s32 func_8003A590(); /* 0:+0x3A140 */
+s32 func_80037414(); /* 0:+0x36FC4 */
+s32 mainChangeLevel(); /* 0:+0x27F24 */
+s32 func_800005CC(); /* 0:+0x17C */
+
 void overlay50SubmitTimeGlyphs(s32, s32, s32, s32); /* extern */
 extern u8 D_10[];
 extern u8 D_12C[];
@@ -140,10 +172,10 @@ void func_overlay_050_F0000334_1896CA4(void *arg0, s32 arg1) {
     u8 temp_v1;
     u8 *var_t0;
 
-    sp80 = (u8 *)o50UnresolvedCallReloc();
+    sp80 = (u8 *)func_80028F54();
     if (arg0 != NULL) {
         sp84 = M2C_FIELD(arg0, void **, 0x64);
-        o50UnresolvedCallReloc(0, 0);
+        camStandardOrtho(0, 0);
         temp_a0 = *(s32 *)0xC4;
         if (temp_a0 != 0) {
             D_C8 += arg1;
@@ -151,17 +183,17 @@ void func_overlay_050_F0000334_1896CA4(void *arg0, s32 arg1) {
                 if (D_C8 >= 0xF1) {
                     D_CA -= arg1 * 4;
                     if (D_CA < 0) {
-                        o50UnresolvedCallReloc(temp_a0, D_CA);
+                        overlay45ReleaseDescriptor(temp_a0, D_CA);
                         *(s32 *)0xC4 = 0;
                     } else {
-                        o50UnresolvedCallReloc(temp_a0, D_CA);
+                        overlay45SetMode(temp_a0, D_CA);
                     }
                 } else {
                     D_CA += arg1 * 4;
                     if (D_CA >= 0x100) {
                         D_CA = 0xFF;
                     }
-                    o50UnresolvedCallReloc(temp_a0, D_CA);
+                    overlay45SetMode(temp_a0, D_CA);
                 }
             }
         }
@@ -230,10 +262,10 @@ block_16:
             *(s32 *)0xB4 = (s32) (M2C_FIELD(sp84, u8 *, 0x385) << 0x10);
             *(s32 *)0xC4 = (s32) (M2C_FIELD(M2C_FIELD(sp84, u8 *, 0x385), s8 *, 0x320) << 0x10);
         }
-        o50UnresolvedCallReloc(M2C_FIELD(sp84, s32 *, 0x400), (s16) &sp74, &sp70, &sp6C);
-        temp_v0_2 = (u8 *)o50UnresolvedCallReloc();
+        overlay56SplitTime(M2C_FIELD(sp84, s32 *, 0x400), (s16) &sp74, &sp70, &sp6C);
+        temp_v0_2 = (u8 *)levelGetLevel();
         sp88 = temp_v0_2;
-        if ((o50UnresolvedGlobalReloc == 0) && (M2C_FIELD(temp_v0_2, s8 *, 0x86) != M2C_FIELD(sp84, s8 *, 0x383)) && (o50UnresolvedCallReloc() == 0) && (o50UnresolvedCallReloc((s32) arg0) != M2C_FIELD(sp84, s32 *, 0x400))) {
+        if ((o50UnresolvedGlobalReloc == 0) && (M2C_FIELD(temp_v0_2, s8 *, 0x86) != M2C_FIELD(sp84, s8 *, 0x383)) && (func_800290A0() == 0) && (func_8003A7D0((s32) arg0) != M2C_FIELD(sp84, s32 *, 0x400))) {
             temp_v0_3 = D_32C;
             D_32C = temp_v0_3 + 1;
             sp6C = (sp6C - (sp6C % 10)) + temp_v0_3;
@@ -245,23 +277,23 @@ block_16:
         M2C_FIELD(&D_12C, s32 *, 0x48) = (s32) ((sp70 % 10) << 0x10);
         M2C_FIELD(&D_12C, s32 *, 0x68) = (s32) ((sp6C / 10) << 0x10);
         M2C_FIELD(&D_12C, s32 *, 0x78) = (s32) ((sp6C % 10) << 0x10);
-        o50UnresolvedCallReloc(0, (s16) &D_12C, NULL, (s32 *) sp68, 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xFF);
-        o50UnresolvedCallReloc(0, (s16) &D_FC, NULL, (s32 *) sp68, 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xFF);
+        func_8002F618(0, (s16) &D_12C, NULL, (s32 *) sp68, 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xFF);
+        func_8002F618(0, (s16) &D_FC, NULL, (s32 *) sp68, 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xFF);
         if (*sp80 != 1) {
             if (M2C_FIELD(sp84, u16 *, 0x1A8) & 8) {
-                o50UnresolvedCallReloc(0, (s16) &D_DC, NULL, (s32 *) sp68, 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xFF);
+                func_8002F618(0, (s16) &D_DC, NULL, (s32 *) sp68, 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xFF);
             } else {
-                o50UnresolvedCallReloc(0, (s16) &D_AC, NULL, (s32 *) sp68, 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xFF);
+                func_8002F618(0, (s16) &D_AC, NULL, (s32 *) sp68, 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xFF);
             }
         }
-        o50UnresolvedCallReloc(0);
+        func_80034920(0);
         *(f32 *)0x90 = (f32) (0x54 - sp68);
         *(f32 *)0x84 = (s16) ((s32) (M2C_FIELD(sp84, s32 *, 0x400) * -0x10000) / 300);
-        o50UnresolvedCallReloc(4);
+        func_80039E34(4);
         *(f32 *)0x30 = (f32) (0x43 - sp68);
-        o50UnresolvedCallReloc(1);
-        o50UnresolvedCallReloc(0, (s16) &D_2C0, NULL, (s32 *) sp68, 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xFF);
-        o50UnresolvedCallReloc(0);
+        func_80039E34(1);
+        func_8002F618(0, (s16) &D_2C0, NULL, (s32 *) sp68, 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xFF);
+        func_80034920(0);
         if (M2C_FIELD(sp84, u8 *, 0x19A) != 0xFF) {
             var_v0 = D_334 + (arg1 * 0x10);
             D_334 = var_v0;
@@ -294,13 +326,13 @@ block_16:
             if (var_v0_2 != sp38) {
                 if (sp38 != -1) {
                     sp100 = (s32) var_v0_2;
-                    o50UnresolvedCallReloc(sp38);
+                    freeFrontEndItem(sp38);
                 }
                 *(s8 *)0x330 = (s8) var_v0_2;
                 temp_t7 = *(s8 *)0x330;
                 sp38 = (s32) temp_t7;
                 if (temp_t7 != -1) {
-                    o50UnresolvedCallReloc((s32) temp_t7);
+                    loadFrontEndItem((s32) temp_t7);
                     sp38 = (s32) *(s8 *)0x330;
                 }
             }
@@ -316,21 +348,21 @@ block_16:
                 sp90 = 0;
                 sp9C = 0;
                 sp8C = o50UnresolvedS32TableReloc[sp38];
-                o50UnresolvedCallReloc(0, (s16) &sp8C, NULL, NULL, 0xFF, (s32 **)0xFF, (s32 **)0xFF, D_334);
+                func_8002F618(0, (s16) &sp8C, NULL, NULL, 0xFF, (s32 **)0xFF, (s32 **)0xFF, D_334);
                 if (*(s8 *)0x330 != 0x35) {
                     temp_v0_4 = M2C_FIELD(sp84, u8 *, 0x19B);
                     if ((s32) temp_v0_4 >= 2) {
                         M2C_FIELD(&D_300, s32 *, 8) = (s32) (temp_v0_4 << 0x10);
-                        o50UnresolvedCallReloc(0, (s16) &D_300, (s32 *)0xAB, (s32 *)0x2E, 0, NULL, NULL, D_334);
-                        o50UnresolvedCallReloc(0, (s16) &D_300, (s32 *)0xAC, (s32 *)0x30, 0, NULL, NULL, D_334);
-                        o50UnresolvedCallReloc(0, (s16) &D_300, (s32 *)0xAC, (s32 *)0x2F, 0xFF, (s32 **)0xFF, (s32 **)0xFF, D_334);
+                        func_8002F618(0, (s16) &D_300, (s32 *)0xAB, (s32 *)0x2E, 0, NULL, NULL, D_334);
+                        func_8002F618(0, (s16) &D_300, (s32 *)0xAC, (s32 *)0x30, 0, NULL, NULL, D_334);
+                        func_8002F618(0, (s16) &D_300, (s32 *)0xAC, (s32 *)0x2F, 0xFF, (s32 **)0xFF, (s32 **)0xFF, D_334);
                     }
                 }
             }
         } else {
             temp_a0_3 = *(s8 *)0x330;
             if (temp_a0_3 != -1) {
-                o50UnresolvedCallReloc((s32) temp_a0_3);
+                freeFrontEndItem((s32) temp_a0_3);
                 *(s8 *)0x330 = -1;
             }
         }
@@ -395,23 +427,23 @@ block_72:
             M2C_FIELD(&D_1CC, s16 *, 0x1C) = (s16) temp_t9;
             M2C_FIELD(&D_1CC, s16 *, 0x2C) = (s16) temp_t9;
             M2C_FIELD(&D_1CC, s16 *, 0x3C) = (s16) temp_t9;
-            o50UnresolvedCallReloc(0, (s16) &D_1CC, NULL, NULL, 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xC0);
+            func_8002F618(0, (s16) &D_1CC, NULL, NULL, 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xC0);
         }
-        if (o50UnresolvedCallReloc(0, -0x18, (s32 *)0xBE, (s32 *)0x30, 0xBE, &sp10C, &sp108, 1) != 0) {
-            o50UnresolvedCallReloc(0, (s16) &spAC);
+        if (overlay59Interpolate(0, -0x18, (s32 *)0xBE, (s32 *)0x30, 0xBE, &sp10C, &sp108, 1) != 0) {
+            overlay59BuildList(0, (s16) &spAC);
             if (spAC != 0) {
-                o50UnresolvedCallReloc(0, (s16) &spAC, sp10C, sp108, 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xFF);
+                func_8002F618(0, (s16) &spAC, sp10C, sp108, 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xFF);
             }
-            o50UnresolvedCallReloc(0, 0, sp10C, sp108);
+            overlay59DrawFrame(0, 0, sp10C, sp108);
         }
-        o50UnresolvedCallReloc(o50UnresolvedGlobalReloc, (s16) &D_328, (s32 *)0x14, &D_38, arg1);
+        func_80036544(o50UnresolvedGlobalReloc, (s16) &D_328, (s32 *)0x14, &D_38, arg1);
         if (M2C_FIELD(sp84, s8 *, 0x383) < M2C_FIELD(sp88, s8 *, 0x86)) {
             var_v0_4 = M2C_FIELD(sp84, s16 *, 0x456);
             if (var_v0_4 >= arg1) {
                 var_t1_5 = 0;
                 if ((var_v0_4 == 0xB4) && (M2C_FIELD(sp84, s16 *, 0x454) >= 0)) {
                     sp114 = 0;
-                    o50UnresolvedCallReloc(0x1F8, 0);
+                    amSndPlay(0x1F8, 0);
                     var_t1_5 = 0;
                     var_v0_4 = M2C_FIELD(sp84, s16 *, 0x456);
                 }
@@ -452,7 +484,7 @@ block_93:
                 var_t1_6 = 0;
                 if (var_v0_4 != -1) {
                     sp114 = 0;
-                    o50UnresolvedCallReloc(0x1F9, 0);
+                    amSndPlay(0x1F9, 0);
                     var_t1_6 = 0;
                     M2C_FIELD(sp84, s16 *, 0x456) = -1;
                 }
@@ -532,7 +564,7 @@ block_104:
                     M2C_FIELD(var_v0_6, s32 *, -0x3C) = temp_v1_3;
                 } while (var_v0_6 != D_90);
             }
-            o50UnresolvedCallReloc(sp7C, (s16) &sp74, &sp70, &sp6C);
+            overlay56SplitTime(sp7C, (s16) &sp74, &sp70, &sp6C);
             *(s32 *)0x18 = (sp74 / 10) << 0x10;
             *(s32 *)0x28 = (sp74 % 10) << 0x10;
             *(s32 *)0x48 = (sp70 / 10) << 0x10;
@@ -554,11 +586,11 @@ block_104:
                 var_v1 += 0x10;
                 var_v0_7 += 0x10;
             } while (var_v1 != D_2B0);
-            o50UnresolvedCallReloc(0, 0, (s32 *) ((s32) D_BC >> 4), (s32 *) ((s32) D_C0 >> 4), 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xFF);
+            func_8002F618(0, 0, (s32 *) ((s32) D_BC >> 4), (s32 *) ((s32) D_C0 >> 4), 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xFF);
         }
         sp114 = 0;
         var_t1_7 = sp114;
-        if (o50UnresolvedCallReloc(0) & 1) {
+        if (joyGetPressed(0) & 1) {
             o50UnresolvedGlobalReloc ^= 1;
         }
         if (o50UnresolvedGlobalReloc != 0) {
@@ -567,13 +599,13 @@ block_104:
                 if (var_a2 < 0) {
                     var_a2 = -var_a2;
                 }
-                o50UnresolvedCallReloc(0xE6, 0xB4, (s32 *) var_a2, (s32 *)3, 0);
-                o50UnresolvedCallReloc(2);
-                o50UnresolvedCallReloc(0, 0, NULL, NULL);
-                o50UnresolvedCallReloc(0x40, 0xFF, (s32 *)0x40, (s32 *)0xFF, 0xE0);
-                o50UnresolvedCallReloc(0, 0x106, (s32 *)0xBC, NULL, 0);
+                func_8004A4B0(0xE6, 0xB4, (s32 *) var_a2, (s32 *)3, 0);
+                func_8004B0A4(2);
+                func_8004B0DC(0, 0, NULL, NULL);
+                fontColour(0x40, 0xFF, (s32 *)0x40, (s32 *)0xFF, 0xE0);
+                func_8004B0F8(0, 0x106, (s32 *)0xBC, NULL, 0);
             } else {
-                o50UnresolvedCallReloc(0, (s16) &D_6C, (s32 *) sp64, NULL, 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xFF);
+                func_8002F618(0, (s16) &D_6C, (s32 *) sp64, NULL, 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xFF);
                 temp_f0 = M2C_FIELD(sp84, f32 *, 4);
                 var_t1_8 = var_t1_7;
                 temp_v0_9 = arg1 & 3;
@@ -611,9 +643,9 @@ loop_138:
                 sp114 = var_t1_8;
                 *(f32 *)0x10 = -85.0f;
                 *(f32 *)0xC = (f32) (sp64 + 0x77);
-                o50UnresolvedCallReloc(0);
+                func_80034920(0);
                 o50UnresolvedGlobalReloc = 0xFF;
-                o50UnresolvedCallReloc(0);
+                func_80039E34(0);
                 var_t1_7 = var_t1_8;
                 o50UnresolvedGlobalReloc = 0xFF;
             }
@@ -668,29 +700,29 @@ loop_148:
             } while (var_t1_7 != var_t2);
         }
         if (var_t2 > 0) {
-            o50UnresolvedCallReloc(0, (s16) &D_2E0, *(s32 **)0xB0, NULL, 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xFF);
+            func_8002F618(0, (s16) &D_2E0, *(s32 **)0xB0, NULL, 0xFF, (s32 **)0xFF, (s32 **)0xFF, 0xFF);
         }
-        if (o50UnresolvedCallReloc() == 0) {
+        if (mainGetMode() == 0) {
             temp_v0_18 = *sp80;
             switch (temp_v0_18) {                   /* irregular */
             case 0:
-                if ((o50UnresolvedGlobalReloc == 0) && (o50UnresolvedCallReloc(0) & 0x9000) && (D_33C == 0)) {
-                    o50UnresolvedCallReloc(1);
-                    o50UnresolvedCallReloc();
-                    o50UnresolvedCallReloc(2, 0x40800000, (s32 *)0xBF800000, NULL, 0, NULL, NULL);
-                    o50UnresolvedCallReloc(0x12, 0, NULL, (s32 *)7, 1, (s32 **)1);
-                    o50UnresolvedCallReloc(0x40400000, 0);
+                if ((o50UnresolvedGlobalReloc == 0) && (joyGetPressed(0) & 0x9000) && (D_33C == 0)) {
+                    func_800016EC(1);
+                    func_8003A590();
+                    func_80037414(2, 0x40800000, (s32 *)0xBF800000, NULL, 0, NULL, NULL);
+                    mainChangeLevel(0x12, 0, NULL, (s32 *)7, 1, (s32 **)1);
+                    func_800005CC(0x40400000, 0);
                     D_33C = 1;
                     return;
                 }
                 break;
             case 1:
-                if ((o50UnresolvedGlobalReloc == 0) && (o50UnresolvedCallReloc(0) & 0x9000) && (D_33C == 0)) {
-                    o50UnresolvedCallReloc(1);
-                    o50UnresolvedCallReloc();
-                    o50UnresolvedCallReloc(2, 0x40800000, (s32 *)0xBF800000, NULL, 0, NULL, NULL);
-                    o50UnresolvedCallReloc(0x12, 0, NULL, (s32 *)7, 1, NULL);
-                    o50UnresolvedCallReloc(0x40400000, 0);
+                if ((o50UnresolvedGlobalReloc == 0) && (joyGetPressed(0) & 0x9000) && (D_33C == 0)) {
+                    func_800016EC(1);
+                    func_8003A590();
+                    func_80037414(2, 0x40800000, (s32 *)0xBF800000, NULL, 0, NULL, NULL);
+                    mainChangeLevel(0x12, 0, NULL, (s32 *)7, 1, NULL);
+                    func_800005CC(0x40400000, 0);
                     D_33C = 1;
                 }
                 break;
