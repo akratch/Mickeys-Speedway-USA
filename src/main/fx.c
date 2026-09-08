@@ -1291,7 +1291,10 @@ void wakeUpdate(Wake *wake, f32 arg1, f32 arg2, f32 arg3, s16 angle, s32 arg5) {
 /* Workbench verdict: structure-mismatch, 69 differing words, first mismatch +0x0. */
 /* Candidate: 149/149 instructions with a -0x30 frame versus target -0x38; both call relocations are exact. */
 /* Next lever: recover the declaration/home that expands the frame and changes the mode/height lifetime schedule. */
-/* PROVENANCE: JFG names the corresponding routine wakeUpdateRipple; this Mickey body uses only Mickey target offsets and calls. */
+/* PROVENANCE: Jet Force Gemini public decomp src/fx.c at efd5abb1c79636e297b831f7c2d5bf47eac39c0c
+ * still leaves wakeUpdateRipple assembly-only; src/fx.h adds no ripple source
+ * context. JFG supplies only the role/name; this retained body uses Mickey's
+ * target offsets and calls. No new donor body was available or adopted. */
 #ifdef NON_MATCHING
 void func_80049000(FxWakeUpdateOwner *owner, s32 delta) {
     FxWakeRippleData *ripple;
@@ -2438,7 +2441,7 @@ void func_8004AF68(void) {
  * frame: 0x30
  * relocations: 2
  * first-mismatch: +0x0
- * summary: Fresh V0 remains 149 words with 69 differences; candidate frame 0x30 vs target 0x38; both call identities exact. Prior mechanisms closed.
+ * summary: JFG efd5abb wakeUpdateRipple remains assembly-only; zero new attempts. Next: authenticated ripple declarations/homes for the stack-home lever.
  * PLATEAU-HANDOFF:func_80049000:end
  */
 
