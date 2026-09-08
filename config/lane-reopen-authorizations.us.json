@@ -715,11 +715,6 @@
       "reason": "Maintenance only: reproduce V0 and refresh geometry, frame, relocations, and first mismatch. Prior flag-lattice, path-copy, addressing, and BSS-alias forms remain closed; no body mutation, trace, flags, or permutation.",
       "source_commit": "9b4af8356e951c51306df2764e0e62bfe627eafd"
     },
-    "func_overlay_047_F00009D0_18917E8": {
-      "ledger_commit": "04f74abd15c1ad086e1340bbc30c4ba30046b106",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "fe807d23978f5afe6dee6d583b719c84301e6618"
-    },
     "func_overlay_047_F0000B30_1891948": {
       "ledger_commit": null,
       "reason": "Maintenance only: reproduce V0 geometry, frame, relocations, and first mismatch. Prior flags, constants, context, switch-table ownership, collapsed call/data, and scaffold/type forms stay closed; no body mutation, trace, or permutation.",

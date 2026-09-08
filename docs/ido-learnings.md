@@ -207,6 +207,15 @@ bytes and disassembly never belong here.
   table as pairs), and a pool-carried accumulate (`x = a; x += b * c;`)
   changes a pop. Two pops off means two of these, and the fixes only work
   together (`overlay20UpdateObjectResource`, `func_overlay_070_F00000D8`).
+- A known-zero byte read can survive as allocator state after its value folds
+  away. In an exact release routine, writing zero to a status byte and then
+  assigning `status | 1` in the next conditional emitted the same constant
+  value as literal `1`, but kept one otherwise invisible UGEN temp-ring pop
+  and selected the unsigned OR-immediate form. That one pop aligned the whole
+  following flag chain. Apply this only when the store-to-read path has no
+  intervening call or aliasing write and the zero value is proved; verify the
+  configured words, relocation identities, linked range, and full ROM.
+  Evidence: Overlay 47's exact release routine, 2026-09-08.
 - Hoisted loop-invariant addresses are materialized in ugen's birth order,
   so a bound kept in a local born before the count global is issued first;
   spelling the bound inline in the loop test hoists it after the count
