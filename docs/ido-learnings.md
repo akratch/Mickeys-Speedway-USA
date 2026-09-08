@@ -220,6 +220,16 @@ bytes and disassembly never belong here.
   (`func_overlay_026_F0000B18_187AF10`), and declaring a pair after the
   local whose slots it must follow lands both on the retail homes
   (`overlay84InitializeAndUpdate`). All three were exact on 2026-09-03.
+- Used scalar copies can recover an omitted declared stack region without
+  retaining the memory traffic of an array. For a movement operation that
+  consumes each displacement twice, separate float copies preserved the
+  instruction and register sequence while enlarging the frame; an equivalent
+  three-element array retained extra loads/stores. Once the frame agreed,
+  moving a used bound declaration before the call-crossing coordinates placed
+  their homes. Distinguish frame extent from home position and measure them
+  separately. This is a source-level layout observation under stock IDO 5.3
+  `-O2 -mips2`, supported by configured object and linked-ROM identity; it does
+  not justify unused padding or new volatile accesses.
 - A mixed integer/pointer sentinel can cost both a declared home and a second
   constant carrier even when the stored bits are identical. On a proved
   32-bit raw-word table, model each physical word with an integer/pointer
