@@ -865,12 +865,13 @@ void func_8000439C(void) {
     mmFree(D_800C94D8[1]);
     D_80078F84 = 0;
 }
-/* Workbench verdict: schedule/register-permutation; 6 differing words (73/79). */
-/* First mismatch: +0x50; size, frame, CFG, and relocation surface are exact. */
-/* Structural gap: none; late scheduling and register allocation are reserved for the permuter. */
+/* Workbench verdict: register-permutation; 3 differing words (76/79). */
+/* First mismatch: +0x50; frame 0x88 and all six relocation identities are exact. */
+/* Residual: initial list-index allocation; forced-color output is diagnostic only. */
 #ifdef NON_MATCHING
 void *func_80004454(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
-    volatile s32 frame_reserve[2];
+    f32 queryX;
+    f32 queryY;
     s32 sp7C;
     s32 sp78;
     f32 temp_f0;
@@ -882,20 +883,20 @@ void *func_80004454(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     Objects04454Object *temp_s0;
     void *var_s4;
 
+    queryX = arg0;
+    queryY = arg1;
     temp_v0 = (s32)func_8000572C(&sp7C, &sp78);
     var_f20 = D_80080D24;
     var_s4 = NULL;
     if (sp7C < sp78) {
-        var_s1 = sp7C * 4;
-        var_s2 = (u8 *)temp_v0 + var_s1;
-        do {
+        var_s1 = sp7C * 4; var_s2 = (u8 *)temp_v0 + var_s1; do {
             temp_s0 = *(Objects04454Object **)var_s2;
             if (temp_s0->unk91 != 0) {
                 var_v0 = sp78 * 4;
             } else {
-                if ((temp_s0 != D_80078F20) && (arg3 == temp_s0->unk44)) {
+                if ((temp_s0 != D_80078F20) && (temp_s0->unk44 == arg3)) {
                     temp_f0 = func_8000BD0C(temp_s0->unkC, temp_s0->unk10,
-                                            temp_s0->unk14, arg0, arg1, arg2);
+                                            temp_s0->unk14, queryX, queryY, arg2);
                     if (temp_f0 < var_f20) {
                         var_f20 = temp_f0;
                         var_s4 = temp_s0;
@@ -5692,11 +5693,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80004454:start
  * symbol: func_80004454
- * score: 6 differing words
+ * score: 3 differing words
  * frame: 0x88
  * relocations: 6
  * first-mismatch: +0x50
- * summary: Fresh remeasurement confirms exact 79-word geometry, 0x88 frame, and six aligned relocation identities; six schedule/register words await the bounded permuter.
+ * summary: Register-permutation after line grouping; forced color is diagnostic exact. Resume only with new evidence for the initial-index allocation lever.
  * PLATEAU-HANDOFF:func_80004454:end
  */
 
