@@ -475,7 +475,7 @@ void overlay15DrawRain(void *framebuffer, s32 width, s32 height,
  * frame: 0x40
  * relocations: 17
  * first-mismatch: +0x74
- * summary: Exact-size C retains 13 word differences; LOCAL BSS grouping leaves 14 candidate records versus 17 retail records.
+ * summary: Extern XY/Z split emitted 16/17 records and regressed to 55 words/24 masked differences; next lever is a locally defined BSS pair plus scalar.
  * PLATEAU-HANDOFF:overlay15DrawRain:end
  */
 
