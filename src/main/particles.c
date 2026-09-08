@@ -455,12 +455,12 @@ typedef struct ParticleRenderGroup {
  * authoritative for this reconstruction.
  */
 /* Reconstructed from Mickey's call, field, and control-flow evidence.
- * Configured full-TU C: 995/1068 words exact, frame 0x138, all 14 relocation
- * tuples exact. Opcode schedule, stack homes, and rotation expressions agree;
- * 73 register-only words retain a t1/t2 exchange beginning at +0x2D0.
- * Native GBI scopes account for the frame without artificial padding. IDO
- * owns the peeled point loops. See the resident reconstruction evidence. */
-#ifdef NON_MATCHING
+ * Matches: 1068/1068 words, frame 0x138, all 14 relocation tuples exact.
+ * The texture/scale carry-over is written as three statements -- the call,
+ * then the two carrier assignments. Folding either assignment into the call's
+ * argument list (the m2c spelling) costs 73 register-only words from +0x2D0:
+ * the embedded assignment keeps one extra value live across the call and
+ * rotates ugen's integer temp ring by one for the rest of the function. */
 void func_8003D4FC(void **dListArg, void **verticesArg, ParticleRenderGroup *group) {
     s32 vertexCount;
     s32 primitiveCount;
@@ -535,8 +535,9 @@ void func_8003D4FC(void **dListArg, void **verticesArg, ParticleRenderGroup *gro
                         currentAlpha = colorAlpha;
                     }
                     if ((texture != previousTexture) || (scale != previousScale)) {
-                        func_800349A4(&displayList, previousTexture = texture, 0x12,
-                                      (s32)((previousScale = scale) * 65536.0f));
+                        func_800349A4(&displayList, texture, 0x12, (s32)(scale * 65536.0f));
+                        previousTexture = texture;
+                        previousScale = scale;
                     }
                     if (texture != NULL) {
                         textureType = *(u16 *)((u8 *)texture + 6);
@@ -708,9 +709,6 @@ void func_8003D4FC(void **dListArg, void **verticesArg, ParticleRenderGroup *gro
         *verticesArg = vertices;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003D4FC.s")
-#endif
 void partInitTrigger(ParticleTrigger *trigger, s32 type, s32 value) {
     ParticleConfig *config;
 
@@ -2643,14 +2641,4 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * first-mismatch: +0x7C
  * summary: m2c SSA identity and indexed scans recover exact 125-word geometry; next lever is the a2/a3 carrier web and reverse-mask placement.
  * PLATEAU-HANDOFF:func_8004054C:end
- */
-
-/* PLATEAU-HANDOFF:func_8003D4FC:start
- * symbol: func_8003D4FC
- * score: 73 differing words
- * frame: 0x138
- * relocations: 14
- * first-mismatch: +0x2D0
- * summary: 995/1068 words; 14 tuples exact. Five flat controls after faithful sweep. Next: complete UGEN queue-transition and emitted-row evidence.
- * PLATEAU-HANDOFF:func_8003D4FC:end
  */
