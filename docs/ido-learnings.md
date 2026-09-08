@@ -76,6 +76,52 @@ bytes and disassembly never belong here.
 
 ### Allocation and source shape
 
+- A declared local reserves a frame home whether or not it is register
+  coloured, and the declared block is laid out at the TOP of the local region
+  in declaration order, first-declared highest, with the compiler's own
+  temporaries below it. Two consequences are levers. First, a decompiler draft
+  that names every intermediate pays frame for each name, so an oversized frame
+  is a declaration census before it is an allocation problem: rewriting an
+  intermediate as an expression moves that value into the compiler-temp region,
+  which is where the target usually keeps it. Second, once the declaration
+  count is right, declaration ORDER decides which displacement each surviving
+  home takes, and a value the target homes at a particular offset pins its
+  position in the list; a sweep over orders moved one function's frame across
+  three different sizes with a byte-identical body. Limits: this is a frame and
+  home lever, not a colour lever. It does not apply where the frame difference
+  is in the callee-saved half, and where a local is promoted into a callee-saved
+  register its save slot is its home, so the census does not shrink the frame.
+  Evidence: the character-control candidates in `docs/matching-triage-handoffs/`, one
+  of which reached an exact frame, exact instruction count and an identical
+  stack map from a 0x38-byte excess.
+
+- Repeating a memory read that a named local already holds is not a wasted
+  instruction: it is how the target keeps the loaded value in a caller-saved
+  carrier while the named local takes the callee-saved one. Where a draft
+  assigns a field to a variable and later reuses that variable, and the target
+  instead shows the field loaded into a scratch register and copied into the
+  saved register, spell the later use as the field access again. The values are
+  identical, so the optimiser folds the second access into the first as a common
+  subexpression, but the two source references keep two live carriers and
+  produce the copy. Limits: the two references must be provably the same value
+  with no intervening store to that address; and prefer this over adding a
+  second declared local, which pays a frame home and can push a stack-passed
+  parameter into a callee-saved register it does not occupy in the target.
+  Evidence: the character-control jet-flame candidate in
+  `docs/matching-triage-handoffs/`, where this recovered the single missing
+  instruction that had been shifting every later relocation by one index.
+
+- A stack-passed fifth argument that the target re-reads from its incoming home
+  at every use is a register-pressure readout, not a spelling to force. Adding
+  declarations to such a function can flip the argument into a callee-saved
+  register and displace a value the target keeps there, growing the frame and
+  the residual together. Read the argument's home traffic in the target first,
+  then keep the candidate's declaration count at or below the level that leaves
+  the argument in memory. Limits: this diagnoses the pressure, it does not set
+  it; volatility and other qualifiers on the parameter are not a policy-clean
+  substitute. Evidence: the character-control jet-flame candidate in
+  `docs/matching-triage-handoffs/`.
+
 - A command-pointer load followed by a separate cursor update can produce a
   different allocation from `command = (*cursor)++`, even when both advance
   by exactly one command. Paired full-TU traces showed the post-increment form

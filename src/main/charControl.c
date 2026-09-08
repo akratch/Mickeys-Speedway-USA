@@ -141,7 +141,8 @@ typedef struct CharControlLevelRequest {
 
 typedef struct CharControlSpawnSetup {
     s16 kind;
-    s16 arg02;
+    s8 arg02;
+    s8 arg03;
     s16 arg04;
     s16 arg06;
     s16 arg08;
@@ -555,8 +556,18 @@ void controlPlayerReInit(ControlActor *actor, f32 x, f32 y, f32 z, s16 arg4, s16
     player->unk45D = saved45D;
 }
 /* Bounded plateau: 401/403 words, 386 differing words, first mismatch +0x0. */
-/* Candidate frame is -0xB8 versus target -0xA8; candidate/target relocations are 40/38. */
+/* Candidate frame is -0xB0 versus target -0xA8; candidate/target relocations are 40/38. */
 /* The typed direct effect-spawn alias is proven; remaining particle/effect lifetimes miss the target register web. */
+/* Frame split, measured: target 0x24 save + 0x84 non-save, candidate 0x1C save
+ * + 0x94 non-save. The two axes pull opposite ways -- the declaration census
+ * that closed func_8001CB84 and func_8001D960 removed 8 non-save bytes here
+ * (one redundant s8 copy of player->playerIndex, one redundant loop bound),
+ * but the target ALSO holds two more values in callee-saved registers than
+ * this candidate does, so the save area is 8 bytes short. Removing further
+ * declarations (pointIndex, effectCount, packetIndex, stateCursor) was flat.
+ * The `register` qualifiers previously carried here were no-ops: dropping them
+ * produced a byte-identical object, so the next lever is the uopt callee-saved
+ * tie-break, not more source-level pruning. */
 /* PROVENANCE: JFG's corresponding character-control initialization role supplied the control-flow lead; fields and body are reconstructed from Mickey. */
 #ifdef NON_MATCHING
 void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode) {
@@ -577,10 +588,8 @@ void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode)
     s32 effectSlot;
     s32 pointIndex;
     s32 particleCount;
-    register s32 remaining;
-    register s32 particleSlotCount;
+    s32 particleSlotCount;
     s32 packetIndex;
-    s8 playerIndex;
 
     player = actor->player;
     player->unk1B8 = 0x2000;
@@ -673,9 +682,8 @@ void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode)
     particleCount = particleList->count;
     particle = particleList->entries;
     slot = (CharControlParticleSlot *) player->particles;
-    remaining = particleCount;
-    if (remaining != 0) {
-        remaining--;
+    if (particleCount != 0) {
+        particleCount--;
         do {
             if (slot->handle == 0) {
                 if (particle->index < characterData->count) {
@@ -700,7 +708,7 @@ void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode)
             particle++;
             slot++;
             particleSlotCount++;
-        } while (remaining-- != 0);
+        } while (particleCount-- != 0);
     }
     if (particleSlotCount < 4) {
         do {
@@ -710,7 +718,6 @@ void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode)
         } while (particleSlotCount < 4);
     }
 
-    playerIndex = player->playerIndex;
     player->unk38 = actor->x;
     player->unk3C = actor->y;
     player->unk40 = actor->z;
@@ -730,8 +737,8 @@ void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode)
     player->unk187 = 0;
     player->unk188 = 0.0f;
     player->unk4C = actor->z;
-    if (playerIndex != -1) {
-        camSetNo(playerIndex, 0, &D_800CB300);
+    if (player->playerIndex != -1) {
+        camSetNo(player->playerIndex, 0, &D_800CB300);
         func_8001BE0C(actor, player);
     }
     player->unk16C = 0;
@@ -814,60 +821,43 @@ void func_8001CB0C(ControlTransform *transform, ControlPlayer *player) {
  * assembly only; this body is reconstructed from Mickey's fields, calls,
  * and branch conditions. */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 138 differing words, first mismatch +0x0. */
-/* Candidate shape: exact-sized at 455 instructions, frame -0xB8 versus target -0x80. */
-/* Remaining gap: 0x38-byte frame/home excess and the resulting FP register-web cascade. */
+/* Workbench verdict: structure-mismatch, 53 differing words, first mismatch +0x1B4. */
+/* Candidate shape: 455 instructions, frame -0x80, and every stack displacement,
+ * relocation offset/type and integer register now agrees with the target. */
+/* Remaining gap: one floating-point pool rotation.  The target colours the
+ * long-lived 0.0f carrier $f18 and the int-to-float staging register $f4; this
+ * candidate colours them $f16 and $f18, and every later FP name follows that
+ * one-slot shift.  It also costs the single opcode block at +0x3CC, where the
+ * target can materialise 30.0f before the branch because its $f0 is free. */
+/* Frame law used here (see docs/ido-learnings.md): declared locals occupy the
+ * TOP of the local region in declaration order, first-declared highest; every
+ * value written as an expression instead of a named local is homed in the
+ * compiler-temp region below them.  sp7C/sp70/character keep their m2c names
+ * because those are the target's own displacements. */
 void func_8001CB84(ControlActor *actor, s32 updateRate) {
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f14;
-    f32 temp_f2;
-    f32 temp_f2_2;
+    f32 sp7C;
     f32 var_f12;
-    s16 particleState;
-    s16 bounceState;
-    s16 temp_v0_5;
-    s16 temp_v0_6;
-    s16 temp_v0_8;
-    s16 temp_v0_9;
-    s8 temp_a0;
-    s8 temp_v0_2;
-    s8 temp_v0_7;
-    u8 highCharacter;
-    s32 character;
-    u8 temp_v0_12;
-    s32 temp_v1_3;
-    s32 temp_a0_2;
-    s32 temp_a0_3;
-    s32 temp_a0_4;
-    ControlPlayer *player;
-    ControlParticleEffect *effect;
-    ControlParticleState *state;
+    f32 temp_f2_2;
     CharControlLevelDescription *sp70;
+    ControlPlayer *player;
     CharControlSpawnSetup packetD0;
     CharControlSpawnSetup packetD8;
-    s32 sp44;
-    s32 sp3C;
-    f32 sp7C;
-    f32 sp38;
+    s32 temp_v1_3;
+    s32 character;
 
     player = actor->player;
     player->unk3 = player->unk2;
     if (player->unkC8 != NULL) {
         sp70 = ((CharControlLevelRequest *) player->unkC8)->description;
-        highCharacter = sp70->characterHigh;
         character = sp70->characterLow;
-        if (highCharacter != 0xFF) {
-            character |= highCharacter << 8;
+        if (sp70->characterHigh != 0xFF) {
+            character |= sp70->characterHigh << 8;
         }
-        sp44 = character;
-        sp3C = mainGetNextCharacter();
-        mainChangeLevel(sp44, sp3C,
+        mainChangeLevel(character, mainGetNextCharacter(),
                         sp70->nextLevel, frontGetMode(),
                         sp70->camera, 0);
-        temp_a0 = sp70->animGroup;
-        if (temp_a0 != -1) {
-            mainSetAnimGroup(temp_a0);
+        if (sp70->animGroup != -1) {
+            mainSetAnimGroup(sp70->animGroup);
         }
         func_80006EA0(player->unkC8);
         player->unkC8 = NULL;
@@ -889,18 +879,14 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
             }
         }
     }
-    temp_v0_2 = player->unk18D;
-    if (temp_v0_2 != 0) {
-        player->unk18D = (s8) (temp_v0_2 - updateRate);
+    if (player->unk18D != 0) {
+        player->unk18D = (s8) (player->unk18D - updateRate);
         if (player->unk18D <= 0) {
-            effect = player->unk338;
             player->unk18D = 0;
             player->unk54 = 1.0f;
-            if ((effect != NULL) && (effect->unk44 == 0x52)) {
-                state = effect->state;
-                *(s16 *) state &= 0xFFFD;
-                effect = player->unk338;
-                effect->unk20 = (f32) effect->state->unk18;
+            if ((player->unk338 != NULL) && (player->unk338->unk44 == 0x52)) {
+                *(s16 *) player->unk338->state &= 0xFFFD;
+                player->unk338->unk20 = (f32) player->unk338->state->unk18;
                 player->unk338 = NULL;
             }
         }
@@ -909,50 +895,42 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
         func_8001F09C(player, updateRate);
     }
     actor->unk48->unk54 = 0.0f;
-    particleState = player->unk158;
-    if (particleState != 0) {
-        if (particleState & 0x8000) {
-            temp_a0_2 = (s32) player->unkB4;
-            if (temp_a0_2 != 0) {
-                func_800031E8((void *) temp_a0_2);
+    if (player->unk158 != 0) {
+        if (player->unk158 & 0x8000) {
+            if (player->unkB4 != NULL) {
+                func_800031E8(player->unkB4);
             }
             func_80002FE0(0x21, actor->x, actor->y, actor->z, 4,
-                          (void **) &player->unkB4);
+                          &player->unkB4);
             player->unk158 = (s16) (player->unk158 & 0x7FFF);
         }
-        temp_f2 = player->unk150;
-        temp_f0 = (f32) updateRate;
         player->unk154 = player->unk154 +
-                         ((temp_f2 * temp_f0) -
-                          (0.5f * D_800CB304 * temp_f0 * temp_f0));
-        temp_f14 = player->unk154;
-        player->unk150 = temp_f2 - (D_800CB304 * temp_f0);
-        if (temp_f14 < 0.0f) {
-            player->unk154 = -temp_f14;
+                         ((player->unk150 * (f32) updateRate) -
+                          (0.5f * D_800CB304 * (f32) updateRate * (f32) updateRate));
+        player->unk150 = player->unk150 - (D_800CB304 * (f32) updateRate);
+        if (player->unk154 < 0.0f) {
+            player->unk154 = -player->unk154;
             player->unk158 = (s16) (player->unk158 - 1);
             player->unk150 = -player->unk150 * 0.5f;
         }
-        bounceState = player->unk158;
-        if ((bounceState >= 2) ||
-            ((bounceState == 1) && (player->unk150 > 0.0f))) {
+        if ((player->unk158 >= 2) ||
+            ((player->unk158 == 1) && (player->unk150 > 0.0f))) {
             player->unk160 = (s16) (player->unk160 + player->unk15A * updateRate);
             player->unk164 = (s16) (player->unk164 + player->unk15E * updateRate);
             player->unk162 = (s16) (player->unk162 + player->unk15C * updateRate);
-        } else if (bounceState == 1) {
-            temp_f0_2 = Powerf(D_80081848, updateRate);
-            sp7C = temp_f0_2;
-            player->unk160 = dAngle(player->unk160, 0, temp_f0_2);
+        } else if (player->unk158 == 1) {
+            sp7C = Powerf(D_80081848, updateRate);
+            player->unk160 = dAngle(player->unk160, 0, sp7C);
             player->unk164 = dAngle(player->unk164, 0, sp7C);
             player->unk162 = dAngle(player->unk162, 0, sp7C);
-        } else if (bounceState == 0) {
+        } else if (player->unk158 == 0) {
             player->unk160 = 0;
             player->unk164 = 0;
             player->unk162 = 0;
             player->unk154 = 0.0f;
             player->unk150 = 0.0f;
         }
-        sp38 = func_8002A8BC(player->unk162);
-        temp_f2_2 = func_8002A8BC(player->unk164) * sp38;
+        temp_f2_2 = func_8002A8BC(player->unk162) * func_8002A8BC(player->unk164);
         if (temp_f2_2 < 0.0f) {
             var_f12 = 0.0f;
         } else {
@@ -975,9 +953,8 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
         }
     } else {
         if (player->unk191 == 0) {
-            temp_v0_7 = player->unk1;
-            if ((temp_v0_7 == 0) || (temp_v0_7 == 1) ||
-                (temp_v0_7 == 2) || (temp_v0_7 == 3)) {
+            if ((player->unk1 == 0) || (player->unk1 == 1) ||
+                (player->unk1 == 2) || (player->unk1 == 3)) {
                 TrapDanglingJump(actor, updateRate);
             } else {
                 TrapDanglingJump(actor, updateRate);
@@ -985,9 +962,8 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
         }
         TrapDanglingJump(actor, updateRate);
     }
-    temp_v0_8 = player->unk168;
-    if ((temp_v0_8 != 0) && (player->unk3FA == 0)) {
-        player->unk168 = (s16) (temp_v0_8 - updateRate);
+    if ((player->unk168 != 0) && (player->unk3FA == 0)) {
+        player->unk168 = (s16) (player->unk168 - updateRate);
         if (player->unk168 < 0) {
             player->unk168 = 0;
         }
@@ -997,9 +973,8 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
             player->unk190 = 0xFF;
         }
     }
-    temp_v0_9 = player->unk16A;
-    if (temp_v0_9 != 0) {
-        player->unk16A = (s16) (temp_v0_9 - updateRate);
+    if (player->unk16A != 0) {
+        player->unk16A = (s16) (player->unk16A - updateRate);
         if (player->unk16A <= 0) {
             player->unk16A = 0;
         } else if (player->unkD0 == NULL) {
@@ -1022,7 +997,7 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
             (TrapDanglingJump((void *) player->playerIndex) != 0)) {
             packetD8.kind = 0x14C;
             packetD8.arg02 = 0x10;
-            packetD8.arg0B = 0;
+            packetD8.arg03 = 0;
             packetD8.arg04 = 0;
             packetD8.arg06 = 0xE;
             packetD8.arg08 = 7;
@@ -1039,13 +1014,11 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
     }
     controlDisableJoypad(player, 0);
     if (player->unk3FA != 0) {
-        temp_v0_12 = player->unk190;
-        if ((s32) temp_v0_12 > 0) {
-            temp_v1_3 = temp_v0_12 - (updateRate * 4);
+        if ((s32) player->unk190 > 0) {
+            temp_v1_3 = player->unk190 - (updateRate * 4);
             if (temp_v1_3 <= 0) {
-                temp_a0_3 = (s32) player->unkAC;
-                if (temp_a0_3 != 0) {
-                    func_800031E8((void *) temp_a0_3);
+                if (player->unkAC != NULL) {
+                    func_800031E8(player->unkAC);
                     actor->unk80 = 0;
                 }
                 player->unk191 = 1;
@@ -1058,9 +1031,8 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
             }
         }
     }
-    temp_a0_4 = (s32) player->unkA4;
-    if (temp_a0_4 != 0) {
-        func_800031C0((void *) temp_a0_4, actor->x, actor->y, actor->z);
+    if (player->unkA4 != NULL) {
+        func_800031C0(player->unkA4, actor->x, actor->y, actor->z);
     }
 }
 #else
@@ -1292,52 +1264,50 @@ typedef struct ControlFlameParticle {
     s16 value24;
 } ControlFlameParticle;
 
-/* Workbench verdict: structure-mismatch, 176 differing words, first mismatch +0x0. */
-/* Candidate: 221/220 instructions with a -0x70 frame versus target -0x60; three instruction/stack and state-machine residuals remain. */
-/* Shape status: four-slot state machine, signed phase/intensity arithmetic, and cone calls are reconstructed, but it is not shape-exact. */
+/* Workbench verdict: register-only residual, 16 differing words, first mismatch +0x164. */
+/* Candidate: 220/220 instructions, frame -0x60 on both sides, all six relocations
+ * at the target's own instruction indexes, and every stack displacement equal. */
+/* Three source facts recovered from the target and retained here:
+ *  - the loop counter is ONE variable spilled to its own home each iteration,
+ *    not an m2c sp5C/var_v0 pair; declaring it first is what puts its home at
+ *    the target's displacement and keeps the frame at 0x60,
+ *  - case 1 re-reads the particle's angle field rather than reading the value
+ *    already in var_s6; that CSE is what makes IDO keep the loaded value in a
+ *    caller-saved register and copy it into the saved one,
+ *  - case 2 performs actor->unk80 |= arg2 AFTER the func_8002A204 call, which
+ *    needs the call result named before the or.
+ * Remaining gap: a ugen temp-ring phase difference. The first divergence is the
+ * third speculative arg4 load in the mode dispatch, where the target takes t0
+ * and this candidate takes t9; twelve small webs follow from it. */
 /* PROVENANCE: JFG's public controlUpdateJetFlames role and Mickey's m2c/assembly establish
  * the state-machine order; no external body is copied into this reconstruction. */
 #ifdef NON_MATCHING
 void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg3,
                    s32 arg4) {
-    s32 sp5C;
-    f32 var_f20;
-    f32 var_f22;
-    s16 temp_v1;
-    s32 var_s3;
-    s32 var_s6;
-    s32 *temp_v0;
-    s32 temp_a0;
-    s32 temp_s2;
-    s32 temp_t7;
-    s32 temp_t9;
-    s32 var_s5;
     s32 var_v0;
-    s32 var_s0;
-    u8 temp_v0_2;
     ControlFlameSlot *var_s1;
     void *temp_s7;
+    s32 var_s5;
+    s32 var_s0;
+    s32 var_s3;
+    s32 var_s6;
+    f32 var_f20;
+    f32 var_f22;
 
     var_v0 = 0;
     var_s5 = 1;
     var_s1 = (ControlFlameSlot *) ((u8 *) player + 0x34C);
     do {
         temp_s7 = var_s1->particle;
-        sp5C = var_v0;
         if (temp_s7 != NULL) {
-            temp_v1 = *(s16 *) ((u8 *) temp_s7 + 0x24);
+            var_s6 = *(s16 *) ((u8 *) temp_s7 + 0x24);
             var_s0 = var_s1->intensity;
             var_s3 = var_s1->phase;
             var_f20 = *(f32 *) ((u8 *) temp_s7 + 0x18);
             var_f22 = *(f32 *) ((u8 *) temp_s7 + 0x1C);
-            var_s6 = temp_v1;
             if (var_s1->state == 2) {
-                s32 updateRate;
-
-                updateRate = arg4;
-                temp_t7 = updateRate << 5;
                 if (var_s1->mode == 0) {
-                    var_s0 -= temp_t7;
+                    var_s0 -= arg4 << 5;
                     if (var_s0 < 0) {
                         var_s0 = 0;
                     }
@@ -1346,7 +1316,7 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                         var_s1->mode = 2;
                     }
                 } else {
-                    var_s0 += temp_t7;
+                    var_s0 += arg4 << 5;
                     if (var_s0 >= 0x100) {
                         var_s0 = 0xFF;
                     }
@@ -1357,19 +1327,21 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                 }
                 var_f20 *= (f32) var_s0 / 255.0f;
                 var_f22 *= (f32) var_s0 / 255.0f;
-                temp_v0 = actor->unk70;
-                if (temp_v0 != NULL) {
-                    temp_a0 = *temp_v0;
+                if (actor->unk70 != NULL) {
+                    s32 temp_a0;
+
+                    temp_a0 = *actor->unk70;
                     if (temp_a0 != 0) {
                         changeLightIntensity((void *) temp_a0, var_s0);
                     }
                 }
             } else {
-                temp_v0_2 = var_s1->mode;
-                switch (temp_v0_2) {
+                switch (var_s1->mode) {
                 case 0:
                     var_s0 = 0;
                     if (player->unk186 & var_s5) {
+                        s32 temp_s2;
+
                         temp_s2 = actor->unk80;
                         actor->unk80 = arg3;
                         partUpdateTriggers(actor, 2);
@@ -1377,12 +1349,9 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                         var_s1->mode = 1;
                     }
                     break;
-                case 1: {
-                    s32 updateRate;
-
-                    updateRate = arg4;
-                    var_s0 += updateRate << 5;
-                    var_s6 = (s32) (temp_v1 * var_s0) >> 7;
+                case 1:
+                    var_s0 += arg4 << 5;
+                    var_s6 = (s32) (*(s16 *) ((u8 *) temp_s7 + 0x24) * var_s0) >> 7;
                     if (var_s0 >= 0x100) {
                         var_s0 = 0xFF;
                         if (player->unk186 & var_s5) {
@@ -1392,16 +1361,14 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                         }
                     }
                     break;
-                }
                 case 2: {
-                    s32 updateRate;
+                    s32 temp_t9;
 
-                    updateRate = arg4;
-                    var_s0 += updateRate * 0x10;
+                    var_s0 += arg4 * 0x10;
                     if (var_s0 >= 0x100) {
                         var_s0 = 0xFF;
                     }
-                    var_s3 += updateRate << 0xC;
+                    var_s3 += arg4 << 0xC;
                     temp_t9 = func_8002A204((s16) (var_s3 << 8)) + 0x18000;
                     actor->unk80 |= arg2;
                     var_s6 = (s32) (temp_t9 * ((s32) (var_s6 * var_s0) >> 8)) >> 0x10;
@@ -1410,24 +1377,20 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                     }
                     break;
                 }
-                case 3: {
-                    s32 updateRate;
-
-                    updateRate = arg4;
-                    var_s0 -= updateRate * 8;
+                case 3:
+                    var_s0 -= arg4 * 8;
                     if (var_s0 <= 0) {
                         var_s0 = 0;
                         var_s1->mode = 0;
                     } else {
-                        var_s3 += updateRate << 0xC;
+                        var_s3 += arg4 << 0xC;
                         var_s6 = (s32) ((func_8002A204((s16) (var_s3 << 8)) + 0x18000) *
-                                       ((s32) (var_s6 * var_s0) >> 8)) >> 0x10;
+                                        ((s32) (var_s6 * var_s0) >> 8)) >> 0x10;
                         if (player->unk186 & var_s5) {
                             var_s1->mode = 2;
                         }
                     }
                     break;
-                }
                 }
             }
             var_s1->intensity = var_s0;
@@ -1437,9 +1400,9 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                 func_800479D4(temp_s7, var_s6, var_f20, var_f22, var_s1->intensity);
             }
         }
-        var_v0 = sp5C + 1;
         var_s5 *= 2;
         var_s1++;
+        var_v0++;
     } while (var_v0 != 4);
 }
 #else
@@ -2229,11 +2192,11 @@ void controlClearPlayerSetup(void) {
 
 /* PLATEAU-HANDOFF:func_8001D960:start
  * symbol: func_8001D960
- * score: 176 differing words
- * frame: 0x70
+ * score: 16/220 words
+ * frame: 0x60
  * relocations: 6
- * first-mismatch: +0x0
- * summary: one word long; fifth-argument promotion rotates saved-register roles and adds 0x10 non-save frame
+ * first-mismatch: +0x164
+ * summary: Instruction count, frame, stack map and all six relocation indexes agree; residual is a ugen temp-ring phase (t0 versus t9 at the third speculative arg4 load)
  * PLATEAU-HANDOFF:func_8001D960:end
  */
 
@@ -2249,11 +2212,11 @@ void controlClearPlayerSetup(void) {
 
 /* PLATEAU-HANDOFF:func_8001CB84:start
  * symbol: func_8001CB84
- * score: 317/455 words
- * frame: 0xB8
+ * score: 53/455 words
+ * frame: 0x80
  * relocations: 41
- * first-mismatch: +0x0
- * summary: Exact geometry and relocation offset/type surface; reduce the 0x38 frame/home excess before addressing the FP register-web cascade.
+ * first-mismatch: +0x1B4
+ * summary: Frame, stack map, relocation surface and all integer registers agree; residual is one floating-point pool rotation
  * PLATEAU-HANDOFF:func_8001CB84:end
  */
 
@@ -2270,11 +2233,11 @@ void controlClearPlayerSetup(void) {
 
 /* PLATEAU-HANDOFF:func_8001C4C0:start
  * symbol: func_8001C4C0
- * score: 386 differing words
- * frame: 0xB8
+ * score: 386/403 words
+ * frame: 0xB0
  * relocations: 40
  * first-mismatch: +0x0
- * summary: Typed weak alias restores the direct call; candidate remains two words short with a 0x10 frame excess and two missing saved-register lifetimes.
+ * summary: Declaration census removed 8 non-save frame bytes; the target holds two more callee-saved values so the save area is 8 bytes short
  * PLATEAU-HANDOFF:func_8001C4C0:end
  */
 
