@@ -2868,12 +2868,12 @@ next_plane:
     } while (planeCount--);
     return TRUE;
 }
-/* Workbench verdict: structure-mismatch, 120 positional and 132 aligned
- * differing words, first mismatch +0x0. */
-/* Candidate: 159/160 instructions with a -0x60 frame versus target -0x38;
+/* Workbench verdict: structure-mismatch, 158 raw/masked differing words;
+ * first mismatch +0x0. Corrected Mickey jump-table dispatch remains nonexact. */
+/* Candidate: 156/160 instructions with a -0x60 frame versus target -0x38;
  * target/candidate static relocations are 20/12. */
-/* Shape status: switch semantics, fade direction, and the bottom-tested plane
- * loop are reconstructed; the saved-FP declaration web remains unresolved. */
+/* Shape status: both jump tables and all seven no-op kinds are reconstructed;
+ * the saved-FP declaration web remains unresolved. */
 /* PROVENANCE: JFG's assembly-only object-alpha routine supplies the role and switch family;
  * Mickey's jump tables, fields, globals, and arithmetic are authoritative here. */
 #ifdef NON_MATCHING
@@ -2901,96 +2901,86 @@ s32 func_800103D4(void *object) {
     visible = 1;
     gameMode = func_80028F54();
     kind = *(s16 *) ((u8 *) object + 0x44);
-    if (kind < 30) {
-        switch (kind) {
-        case 1:
-            state = *(void **) ((u8 *) object + 0x64);
-            *(u8 *) ((u8 *) object + 0x39) = *(u8 *) ((u8 *) state + 0xF);
-            break;
-        case 3:
-            state = *(void **) ((u8 *) object + 0x64);
-            *(u8 *) ((u8 *) object + 0x39) = (s32) *(f32 *) ((u8 *) state + 0x18);
-            break;
-        case 17:
-            break;
-        case 18:
-            state = *(void **) ((u8 *) object + 0x64);
-            *(u8 *) ((u8 *) object + 0x39) = *(u8 *) ((u8 *) state + 2);
-            break;
-        case 26:
-            state = *(void **) ((u8 *) object + 0x64);
-            *(u8 *) ((u8 *) object + 0x39) = *(u32 *) ((u8 *) state + 4);
-            break;
-        case 2:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 14:
-        case 15:
-        case 16:
-        case 19:
-        case 20:
-        case 21:
-        case 22:
-        case 23:
-        case 24:
-        case 25:
-        case 27:
-        case 28:
-        case 29:
-        default:
+    switch (kind) {
+    case 65:
+        state = *(void **) ((u8 *) object + 0x64);
+        *(u8 *) ((u8 *) object + 0x39) = (s32) *(f32 *) ((u8 *) state + 0x18);
+        break;
+    case 63:
+        state = *(void **) ((u8 *) object + 0x64);
+        *(u8 *) ((u8 *) object + 0x39) = *(u8 *) ((u8 *) state + 0xF);
+        break;
+    case 1:
+        state = *(void **) ((u8 *) object + 0x64);
+        if (*gameMode == 5) {
+            *(u8 *) ((u8 *) object + 0x39) = *(u8 *) ((u8 *) state + 0x190);
+        } else if (((*(u16 *) ((u8 *) state + 0x1A8) & 1) == 0) ||
+                   (*(u8 *) ((u8 *) state + 0x170) == 0)) {
             *(u8 *) ((u8 *) object + 0x39) = 0xFF;
-            break;
         }
-    } else {
-        switch (kind) {
-        case 63:
-            state = *(void **) ((u8 *) object + 0x64);
-            if (*gameMode == 5) {
-                *(u8 *) ((u8 *) object + 0x39) =
-                    *(u8 *) ((u8 *) state + 0x190);
-            } else if (((*(u16 *) ((u8 *) state + 0x1A8) & 1) == 0) ||
-                       (*(u8 *) ((u8 *) state + 0x170) == 0)) {
-                *(u8 *) ((u8 *) object + 0x39) = 0xFF;
-            }
-            break;
-        case 84:
-        case 85:
-        case 86:
-            break;
-        case 64:
-        case 65:
-        case 66:
-        case 67:
-        case 68:
-        case 69:
-        case 70:
-        case 71:
-        case 72:
-        case 73:
-        case 74:
-        case 75:
-        case 76:
-        case 77:
-        case 78:
-        case 79:
-        case 80:
-        case 81:
-        case 82:
-        case 83:
-        case 87:
-        case 88:
-        default:
-            *(u8 *) ((u8 *) object + 0x39) = 0xFF;
-            break;
-        }
+        break;
+    case 80:
+        state = *(void **) ((u8 *) object + 0x64);
+        *(u8 *) ((u8 *) object + 0x39) = *(u8 *) ((u8 *) state + 2);
+        break;
+    case 88:
+        state = *(void **) ((u8 *) object + 0x64);
+        *(u8 *) ((u8 *) object + 0x39) = *(u32 *) ((u8 *) state + 4);
+        break;
+    case 22:
+    case 23:
+    case 24:
+    case 25:
+    case 26:
+    case 29:
+    case 79:
+        break;
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+    case 15:
+    case 16:
+    case 17:
+    case 18:
+    case 19:
+    case 20:
+    case 21:
+    case 27:
+    case 28:
+    case 64:
+    case 66:
+    case 67:
+    case 68:
+    case 69:
+    case 70:
+    case 71:
+    case 72:
+    case 73:
+    case 74:
+    case 75:
+    case 76:
+    case 77:
+    case 78:
+    case 81:
+    case 82:
+    case 83:
+    case 84:
+    case 85:
+    case 86:
+    case 87:
+    default:
+        *(u8 *) ((u8 *) object + 0x39) = 0xFF;
+        break;
     }
     if (*(u8 *) ((u8 *) object + 0x39) == 0) {
         return 0;
@@ -5765,11 +5755,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_800103D4:start
  * symbol: func_800103D4
- * score: 120 differing words
+ * score: 158 differing words
  * frame: 0x60
  * relocations: 12
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Correct Mickey object-kind dispatch retained at 158 differences; frame and relocation deficits remain. Next: saved-FP lifetime evidence.
  * PLATEAU-HANDOFF:func_800103D4:end
  */
 
