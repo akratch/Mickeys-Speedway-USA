@@ -188,6 +188,18 @@ bytes and disassembly never belong here.
   (`func_overlay_026_F0000B18_187AF10`), and declaring a pair after the
   local whose slots it must follow lands both on the retail homes
   (`overlay84InitializeAndUpdate`). All three were exact on 2026-09-03.
+- Removing one redundant input alias can disturb exact stack homes while
+  removing two together recovers both the frame and the surviving homes.
+  Declaration placement can expose the intermediate state: a correct frame
+  and named locals, with only compiler temporaries displaced by one word.
+  Removing the remaining alias can then move those temporaries without
+  changing the rounded frame size. A regressing single-alias deletion does
+  not rule out that paired change when new frame and home measurements
+  support it. Apply only to aliases that are never modified or escaped;
+  preserve the parameter types, call order and memory accesses, and require
+  ordinary compiler bytes, relocation identities and linked-ROM proof.
+  Evidence: the Overlay 26 effect-handler closure in `docs/overlays.md`,
+  2026-09-08.
 - A mixed integer/pointer sentinel can cost both a declared home and a second
   constant carrier even when the stored bits are identical. On a proved
   32-bit raw-word table, model each physical word with an integer/pointer
