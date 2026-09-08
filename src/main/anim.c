@@ -1406,7 +1406,6 @@ void func_800517E0(void) {
                                   packed2, index, value / hundred - delta);
                     break;
                 case 0x46: {
-
                     packedField = *((u16 *) ((u8 *) cursor + 8));
                     radius = *((s16 *) ((u8 *) cursor + 4));
                     height = *((s16 *) ((u8 *) cursor + 6));
@@ -1466,13 +1465,13 @@ void func_800517E0(void) {
                     scrollX = *((s16 *) ((u8 *) cursor + 6));
                     scrollY = *((s16 *) ((u8 *) cursor + 8));
                     scrollDuration = *((u16 *) ((u8 *) cursor + 0xA));
-                    scrollX = (scrollX << 16) / 6000;
-                    scrollY = (scrollY << 16) / 6000;
+                    scrollX = (s32) ((u32) scrollX << 16) / 6000;
+                    scrollY = (s32) ((u32) scrollY << 16) / 6000;
                     cursor = (AnimStreamEntry *) ((u8 *) cursor + 0xC);
                     scroll = (AnimCommandScroll *)
                         &D_800D6B58[currentCommand & 7];
                     scroll->textureIndex = index;
-                    scroll->duration = (s16) (scrollDuration *
+                    scroll->duration = (s16) (s32) (scrollDuration *
                                                (60.0f * 0.01f));
                     timer = scroll->duration;
                     scroll->stepX = (scrollX - scroll->x) / timer;
@@ -1635,7 +1634,7 @@ void func_800517E0(void) {
                         path->unk25 = frame;
                         path->unk27 = 0;
                         path->unk24 = type;
-                        path->unk26 = (s8) ((f32) duration /
+                        path->unk26 = (u8) (s32) ((f32) duration /
                                             hundred * scale);
                         object->state39 = type;
                     }
@@ -1881,7 +1880,7 @@ void func_800517E0(void) {
                 default:
                     break;
             }
-            }
+        }
         D_8007D69C = cursor;
     }
 }
@@ -4409,6 +4408,6 @@ void fmvInit(void) {
  * frame: 0x160
  * relocations: 245
  * first-mismatch: +0x0
- * summary: Intermediate reconstruction: 1722/1808 words; all call/global inventory recovered; decoded motion spills and shared divisor remain.
+ * summary: Structural plateau: 1722/1808 words; call identities recovered; next prove the shared divisor and path-table allocation cause.
  * PLATEAU-HANDOFF:func_800517E0:end
  */
