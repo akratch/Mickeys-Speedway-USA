@@ -75,6 +75,6 @@ void overlay33InitializeBuffers(void) {
  * frame: 0x38
  * relocations: 25
  * first-mismatch: +0x74
- * summary: The two as1 line-key decisions are outside the residual. Both line joins and the operand swap are flat, while declaration order is flat or regressing.
+ * summary: verdict=structure-mismatch; lever=none-known; stalled 3/3. Next: forward as1 besttime model tied to ugen emission order.
  * PLATEAU-HANDOFF:overlay33InitializeBuffers:end
  */
