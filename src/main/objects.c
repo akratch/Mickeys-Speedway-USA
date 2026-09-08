@@ -1665,23 +1665,16 @@ s32 func_80005820(s32 arg0) {
     }
     return D_800C94F4[arg0];
 }
-/* Workbench verdict: allocation-mismatch; 8 differing words. */
-/* First mismatch: +0x1C. */
-/* Shape-exact candidate; stack-home/register allocation is reserved for the permuter. */
-#ifdef NON_MATCHING
 s16 func_80005868(s32 arg0) {
-    s16 index;
+    s32 assetOffset;
     s16 *entry;
     u8 buffer[0xC0];
 
-    index = D_800C94E0[arg0];
-    piRomLoadSection(0x2D, (u32)buffer, D_800C9458[index], 0xC0);
+    assetOffset = D_800C9458[D_800C94E0[arg0]];
+    piRomLoadSection(0x2D, (u32)buffer, assetOffset, 0xC0);
     entry = (s16 *)(buffer + 0x1C);
     return *entry;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005868.s")
-#endif
 s8 func_800058C0(Objects58C0Arg *arg0, s32 arg1) {
     if ((arg1 >= 4) || (arg0->unk40->unkD0[arg1] == 0.0f)) {
         return arg0->unk40->unk1E[0];
@@ -5643,16 +5636,6 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x24
  * summary: CDX p2 web 15 is v1; forced split is nonexact; next lever is authenticated UGEN temp-FIFO trace for the t7 carrier.
  * PLATEAU-HANDOFF:func_800056A4:end
- */
-
-/* PLATEAU-HANDOFF:func_80005868:start
- * symbol: func_80005868
- * score: 6 differing words
- * frame: -0xE0
- * relocations: 5
- * first-mismatch: +0x1C
- * summary: Declaring the index carrier and an entry pointer before the DMA buffer puts the buffer on its retail home; six register words remain in one v0/temp web
- * PLATEAU-HANDOFF:func_80005868:end
  */
 
 
