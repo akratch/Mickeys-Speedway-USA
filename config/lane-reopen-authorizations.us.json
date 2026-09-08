@@ -771,14 +771,14 @@
       "source_commit": "9b4af8356e951c51306df2764e0e62bfe627eafd"
     },
     "func_overlay_047_F0000B30_1891948": {
-      "ledger_commit": "3413e74616baeb2fc1ed5e4495b6719742884581",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "3413e74616baeb2fc1ed5e4495b6719742884581"
+      "ledger_commit": "24fc54120dc50eff386aa99f8ec03bbea150aef6",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 1972 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "24fc54120dc50eff386aa99f8ec03bbea150aef6"
     },
     "func_overlay_050_F0000334_1896CA4": {
-      "ledger_commit": "eef468b544163f070970889aedde01e4dd5e0549",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "eef468b544163f070970889aedde01e4dd5e0549"
+      "ledger_commit": "1b36bc60a591a3fff743d62eb8a37d7045c3ab75",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 1422 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "052774c2e1e6b6ba375f84db34aa43bd03b8f56b"
     },
     "func_overlay_052_F000063C_189ACAC": {
       "ledger_commit": "c663518b4552cdf3c97e714e12f79aa5dc52004f",
@@ -826,14 +826,14 @@
       "source_commit": "5cae70c4df16bedadce1fcb1871f90d5c0f0a9f7"
     },
     "func_overlay_058_F000138C_18B0574": {
-      "ledger_commit": "b18f6399a092d6df3cf2b08791577e3bbc602951",
-      "reason": "Decompiler-assisted structural reconstruction: take an m2c draft from this game's own extracted assembly, recover call/global identities and types first, then rebuild the CFG. Prior plateau reached no CFG work.",
-      "source_commit": "b18f6399a092d6df3cf2b08791577e3bbc602951"
+      "ledger_commit": "738555080219d8f3add0eef9c97b05b9aa9fe271",
+      "reason": "ADR 0018 stall rule, and at delta 532 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "738555080219d8f3add0eef9c97b05b9aa9fe271"
     },
     "func_overlay_060_F0000334_18BA10C": {
-      "ledger_commit": "19c1e23113b763dda077d4c58ea12fd24b53abbf",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "19c1e23113b763dda077d4c58ea12fd24b53abbf"
+      "ledger_commit": "42ce9566377ba1adacb14c7a615043d7d7eba75b",
+      "reason": "ADR 0018 stall rule, and at delta -12 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "42ce9566377ba1adacb14c7a615043d7d7eba75b"
     },
     "func_overlay_065_F0000C38_18C4EA0": {
       "ledger_commit": "554ca5b60eec5c9eeafc8fefcccaa639bd4db9bd",
@@ -876,9 +876,9 @@
       "source_commit": "61ed283d6760fbfb6995f14e04ceb44addb4d142"
     },
     "func_overlay_101_F00069E8_18E2208": {
-      "ledger_commit": "db5573bce8a28b26df8e4979e2801609058aa531",
-      "reason": "Class changed: decompiler-assisted reconstruction closed this target's size deficit, so it is no longer size-mismatch. Work the remaining residual under the workbench-routed playbook; do not redo the reconstruction.",
-      "source_commit": "db5573bce8a28b26df8e4979e2801609058aa531"
+      "ledger_commit": "a4631d740b40c7f6904d0150e1189e442ed42556",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 614 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "a4631d740b40c7f6904d0150e1189e442ed42556"
     },
     "func_overlay_101_F00078F4_18E3114": {
       "ledger_commit": null,
