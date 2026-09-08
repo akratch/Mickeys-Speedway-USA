@@ -5700,11 +5700,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_8000FAE0:start
  * symbol: func_8000FAE0
- * score: 42/62 words
+ * score: 20 differing words
  * frame: 0x10
  * relocations: 2
  * first-mismatch: +0x1C
- * summary: paired bound loads and a loop-condition carrier close the opcode schedule; 20 register-only words remain
+ * summary: JFG efd5abb trackGetBlock is still GLOBAL_ASM; 20 register-only words remain. Next: matched donor C; current WB routes register-role-audit.
  * PLATEAU-HANDOFF:func_8000FAE0:end
  */
 
