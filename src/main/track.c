@@ -5759,7 +5759,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x38
  * relocations: 16
  * first-mismatch: +0x4
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Five m2c carrier forms leave the residual flat or regress size; baseline restored. Next: initial pool-size expression and lifetime evidence.
  * PLATEAU-HANDOFF:func_8000D3B8:end
  */
 
