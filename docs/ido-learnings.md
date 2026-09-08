@@ -572,8 +572,15 @@ bytes and disassembly never belong here.
   IDO coalesce two commands and removed three instructions. Use the native macro
   only with its complete header context (`_SHIFTL` must be a macro, not an
   undeclared call), and reject it unless command semantics, relocations, linked
-  bytes, and the full ROM remain exact. Evidence: the exact resident
-  `func_80034920` display-list reset.
+  bytes, and the full ROM remain exact. A donor adaptation also showed why
+  reversing the C stores to copy the target's final store order can be the
+  wrong lever: it changed the address/constant temporary order. Retaining the
+  donor's expression order with the two stores on one physical line produced
+  the exact schedule. Statement order and line grouping must therefore be
+  reviewed together; this does not identify the responsible compiler pass or
+  justify arbitrary line reflow elsewhere. Evidence: the exact resident
+  `func_80034920` display-list reset and the
+  [snow renderer donor re-derivation](matching-triage-handoffs/snow_render.md).
 - An inlined mask expression can preserve instruction count, frame and opcode
   order while changing register operands throughout later display-list code.
   Reusing an existing integer local for successive width and height masks,
