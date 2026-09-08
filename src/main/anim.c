@@ -3751,12 +3751,21 @@ f32 func_8002A8BC(s32 angle);
 f32 func_8002A8C0(s32 angle);
 
 /*
- * Plateau (2026-08-26, p5): workbench mixed, 229/226 instructions and 214 raw
- * differing words from +0x0; frames are 0x70/0x80, with 233 structural and 54
- * register rows. Prior flag, lifetime, spill, volatile, state-layout, and
- * permuter probes were exhausted; the compound-assignment operand-order probe
- * grew the candidate to 227 instructions and a 0x88 frame, then was reverted.
- * No frame-recovery lever with source evidence remains; retain NON_MATCHING.
+ * Plateau (p6): 229/228 instructions and 217 raw differing words from +0x24.
+ * The frame now matches the target's 0x70. The lever was carrier reuse, not a
+ * new spill: the target homes four fewer f32 locals than the previous
+ * candidate declared, and the two arms of this function are mutually
+ * exclusive, so the velocity triple and the magnitude scalar carry the
+ * previous-position triple and the plane dot product in the else arm. Every
+ * declared f32 reserves a home here whether or not it is register-coloured,
+ * which is why dropping four declarations moved the frame by 16 bytes while
+ * the instruction count barely changed.
+ *
+ * Next lever: the impulse block. The target materializes 1.0f into two FP
+ * registers from one `lui`, computes 1.0f/mass and (unk6C + 1.0f) side by
+ * side, and spills only the impulse; the candidate CSEs the constant into one
+ * register and spills the correction as well. Audit that statement group's
+ * evaluation order before anything else.
  */
 #ifdef NON_MATCHING
 void func_80056DD8(HitCopyState *first, HitCopyState *second,
@@ -3764,10 +3773,14 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
     HitCopyTarget *target;
     HitCopySource *firstSource;
     HitCopySource *secondSource;
-    f32 velocityX;
-    f32 velocityY;
-    f32 velocityZ;
-    f32 magnitude;
+    /* vectorX/Y/Z and scalar are shared by the two mutually exclusive arms:
+     * the velocity triple and its magnitude above, the previous-position
+     * triple and the plane dot product below. The target's 0x70 frame homes
+     * exactly this many f32 locals. */
+    f32 vectorX;
+    f32 vectorY;
+    f32 vectorZ;
+    f32 scalar;
     f32 impulse;
     f32 correction;
     f32 cosine;
@@ -3775,51 +3788,47 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
     f32 offsetX;
     f32 offsetY;
     f32 offsetZ;
-    f32 dot;
-    f32 previousX;
-    f32 previousY;
-    f32 previousZ;
     f32 displacement;
     volatile f32 retained;
 
     target = first->target;
-    velocityX = target->velocity.x;
-    velocityY = target->velocity.y;
-    velocityZ = target->velocity.z;
+    vectorX = target->velocity.x;
+    vectorY = target->velocity.y;
+    vectorZ = target->velocity.z;
     firstSource = first->source;
     secondSource = second->source;
-    if (((velocityZ * velocityZ) +
-         ((velocityX * velocityX) + (velocityY * velocityY))) > 25.0f) {
+    if (((vectorZ * vectorZ) +
+         ((vectorX * vectorX) + (vectorY * vectorY))) > 25.0f) {
         f32 mass;
 
         mass = ((HitCopyTarget *) TrapDanglingJump(target))->unk4;
-        velocityX = target->velocity.x;
-        velocityY = target->velocity.y;
-        velocityZ = target->velocity.z;
+        vectorX = target->velocity.x;
+        vectorY = target->velocity.y;
+        vectorZ = target->velocity.z;
         impulse = ((secondSource->unk6C + 1.0f) *
-                   ((normal->z * velocityZ) +
-                    ((velocityX * normal->x) +
-                     (velocityY * normal->y)))) / (1.0f / mass);
+                   ((normal->z * vectorZ) +
+                    ((vectorX * normal->x) +
+                     (vectorY * normal->y)))) / (1.0f / mass);
         correction = impulse / mass;
         retained = impulse;
-        target->velocity.x = velocityX - (correction * normal->x);
-        target->velocity.y = velocityY - (correction * normal->y);
-        target->velocity.z = velocityZ - (correction * normal->z);
-        magnitude = sqrtf((target->velocity.z * target->velocity.z) +
+        target->velocity.x = vectorX - (correction * normal->x);
+        target->velocity.y = vectorY - (correction * normal->y);
+        target->velocity.z = vectorZ - (correction * normal->z);
+        scalar = sqrtf((target->velocity.z * target->velocity.z) +
                           ((target->velocity.x * target->velocity.x) +
                            (target->velocity.y * target->velocity.y)));
-        target->magnitude80 = magnitude;
-        target->magnitude84 = magnitude;
-        target->direction.x = target->velocity.x / magnitude;
-        target->direction.y = target->velocity.y / magnitude;
-        target->direction.z = target->velocity.z / magnitude;
+        target->magnitude80 = scalar;
+        target->magnitude84 = scalar;
+        target->direction.x = target->velocity.x / scalar;
+        target->direction.y = target->velocity.y / scalar;
+        target->direction.z = target->velocity.z / scalar;
         target->unk181 = 1;
         target->unk4 = 0.0f;
         target->unk8 = 0.0f;
         target->unk88 = D_80084210;
         firstSource->unk63 = 1;
         secondSource->unk63 = 1;
-        secondSource->unk64 = magnitude;
+        secondSource->unk64 = scalar;
         cosine = -func_8002A8C0(*(s16 *) first);
         sine = -func_8002A8BC(*(s16 *) first);
         target->unk90 = (normal->z * cosine) - (normal->x * sine);
@@ -3837,23 +3846,23 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
         first->position.y = firstSource->previous.y + offsetY;
         first->position.z = firstSource->previous.z + offsetZ;
     } else {
-        dot = (normal->z * firstSource->current.z) +
+        scalar = (normal->z * firstSource->current.z) +
               ((firstSource->current.x * normal->x) +
                (firstSource->current.y * normal->y));
-        retained = -dot;
-        previousZ = firstSource->previous.z;
-        previousY = firstSource->previous.y;
-        previousX = firstSource->previous.x;
+        retained = -scalar;
+        vectorZ = firstSource->previous.z;
+        vectorY = firstSource->previous.y;
+        vectorX = firstSource->previous.x;
         displacement = D_80084214 -
-                       (((normal->z * previousZ) +
-                         ((normal->x * previousX) +
-                          (normal->y * previousY))) - dot);
-        offsetY = first->position.y - previousY;
-        offsetZ = first->position.z - previousZ;
-        offsetX = first->position.x - previousX;
-        firstSource->previous.x = previousX + (displacement * normal->x);
-        firstSource->previous.y = previousY + (displacement * normal->y);
-        firstSource->previous.z = previousZ + (displacement * normal->z);
+                       (((normal->z * vectorZ) +
+                         ((normal->x * vectorX) +
+                          (normal->y * vectorY))) - scalar);
+        offsetY = first->position.y - vectorY;
+        offsetZ = first->position.z - vectorZ;
+        offsetX = first->position.x - vectorX;
+        firstSource->previous.x = vectorX + (displacement * normal->x);
+        firstSource->previous.y = vectorY + (displacement * normal->y);
+        firstSource->previous.z = vectorZ + (displacement * normal->z);
         first->position.x = firstSource->previous.x + offsetX;
         first->position.y = firstSource->previous.y + offsetY;
         first->position.z = firstSource->previous.z + offsetZ;
@@ -4194,11 +4203,11 @@ void fmvInit(void) {
 
 /* PLATEAU-HANDOFF:func_80056DD8:start
  * symbol: func_80056DD8
- * score: 214 differing words
- * frame: 0x80
+ * score: 217 differing words
+ * frame: 0x70
  * relocations: 8
- * first-mismatch: +0x0
- * summary: Target is 229 words/frame 0x70; candidate is 226/frame 0x80; 1/8 relocation identities aligns; reopen only with a source-authentic frame lever.
+ * first-mismatch: +0x24
+ * summary: Frame now matches at 0x70 and the first six words are exact; candidate is 228 of 229 words and the impulse block's divide order is the next lever.
  * PLATEAU-HANDOFF:func_80056DD8:end
  */
 
