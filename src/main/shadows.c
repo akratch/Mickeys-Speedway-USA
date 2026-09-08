@@ -1483,10 +1483,10 @@ void func_800180B4(ShadowQuery *query) {
 
 /* PLATEAU-HANDOFF:func_80016890:start
  * symbol: func_80016890
- * score: 553 differing words
+ * score: 563 differing words
  * frame: 0x190
  * relocations: 48
  * first-mismatch: +0x4
- * summary: Mickey callers prove arg2's 0x20 surface layout; typed-field spelling is byte-identical to V0. Arg2 typing is falsified; allocator/CFG remains.
+ * summary: Re-measured under the corrected R4300 multiply scheduler; the target carries eight FP hazard nops this candidate must now place.
  * PLATEAU-HANDOFF:func_80016890:end
  */
