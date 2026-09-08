@@ -1597,9 +1597,11 @@ u8 func_80029240(s32 index) {
  * Remains: the arg1-to-FP move schedule cascades into swapped FP webs; no TU-wide flag promotion is justified.
  */
 #ifdef NON_MATCHING
-/* PROVENANCE: structural comparison uses Jet Force Gemini
- * src/overlays/o3/overlay_3.c::GetSmoothAcceleration; JFG retains assembly,
- * so this body is reconstructed from Mickey-only control-flow evidence. */
+/* PROVENANCE: structural comparison uses Jet Force Gemini's public decomp,
+ * src/overlays/o3/overlay_3.c::GetSmoothAcceleration. Rechecked at upstream
+ * efd5abb1c79636e297b831f7c2d5bf47eac39c0c, JFG retains assembly, so no body
+ * was adapted from that revision. This body is reconstructed from Mickey-only
+ * control-flow evidence, and Mickey byte identity remains decisive. */
 f32 func_80029274(s32 arg0, f32 arg1, f32 arg2) {
     f32 temp_f0;
     f32 temp_f16;
@@ -1725,7 +1727,7 @@ void func_800293D0(void) {
  * frame: 0x10
  * relocations: 0
  * first-mismatch: +0x8
- * summary: Fresh V0 reproduces exhausted exact geometry; do not repeat 119 flags or 17 source forms; next lever is authenticated delayed arg1-to-FP move evidence.
+ * summary: JFG efd5abb keeps donor assembly-only; verdict structure-mismatch, lever authenticated matched donor C or source-lifetime evidence.
  * PLATEAU-HANDOFF:func_80029274:end
  */
 
