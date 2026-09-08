@@ -2424,11 +2424,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_80048080:start
  * symbol: func_80048080
- * score: 46/89 words
+ * score: 43 differing words
  * frame: 0x48
  * relocations: 4
- * first-mismatch: +0x74
- * summary: Exact frame and four call tuples; configured build is one word short, while R4300 hazard mode is exact-sized at 77/89 words.
+ * first-mismatch: 0x74
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new transform-loop load/spill order evidence.
  * PLATEAU-HANDOFF:func_80048080:end
  */
 
