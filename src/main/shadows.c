@@ -1103,7 +1103,7 @@ s32 func_80017660(void *arg0, s32 arg1, void *arg2, s32 arg3, s32 arg4) {
  * resident buffer layouts determine the field bindings below.
  */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 269 differing words; first mismatch is at +0x4. */
+/* Workbench verdict: structure-mismatch, 270 differing words; first mismatch is at +0x4. */
 /* Target is 314 instructions/frame -0x108; candidate is 313 instructions and now shares that frame. */
 /* The frame closed by deleting four m2c-only locals: the declared-local list
  * sizes the frame in 8-byte steps, so merging var_v0_2/var_v1_2 into their
@@ -1473,11 +1473,11 @@ void func_800180B4(ShadowQuery *query) {
 
 /* PLATEAU-HANDOFF:func_80017660:start
  * symbol: func_80017660
- * score: 288 differing words
+ * score: 268 differing words
  * frame: 0x158
  * relocations: 4
  * first-mismatch: +0x90
- * summary: 350-word candidate vs 347-word target; exact frame and 4/4 relocations. First allocator swap at +0x90; next test source shape under r4300_mul.
+ * summary: Corrected R4300 multiply scheduler reproduces the target's FP hazard nop; residual is now register naming plus one branch spelling.
  * PLATEAU-HANDOFF:func_80017660:end
  */
 
