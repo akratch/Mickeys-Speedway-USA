@@ -448,6 +448,17 @@ bytes and disassembly never belong here.
   pointer-plus-integer to match their evaluation order; reject the lever if any
   other word, relocation, or linked byte moves. Evidence: the exact Huffman
   table builder in `docs/resident.md`.
+- IDO can normalize both orders of pointer-plus-byte-offset addition to the
+  same temporary demand order. If the final address addition matches but its
+  base-load and offset-shift producers exchange temporaries, an unsigned
+  address sum can retain a different operand order: cast the base to the
+  target's pointer-width unsigned integer, add the byte offset, then cast
+  back. This is a measured source lever, not proof of allocator-pass ownership.
+  Apply it only to established raw addresses on the 32-bit N64 ABI, with the
+  same accesses and address result; it is not a portable pointer-arithmetic
+  rewrite. Require exact instruction words, relocation identities, linked
+  bytes, and the full ROM. Evidence: the runtime overlay unload-reference
+  patcher in `docs/overlays.md`.
 - When a computed magnitude is immediately tested and then inverted, assigning
   it through the eventual scale local before the test can preserve IDO's
   floating-point carrier web. Testing one local and assigning the reciprocal to
