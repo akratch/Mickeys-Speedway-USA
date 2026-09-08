@@ -923,9 +923,8 @@ loop_27:
  * src/tracks.c:func_8002FF6C. JFG's public assembly-only func_8001F288 is the
  * closest sibling and corroborates the shared frame and control-flow shape.
  * Mickey's target assembly, extra owner argument, globals, and output limits
- * determine every local revision below.
+ * determine every local revision below, and the body is exact against them.
  */
-#ifdef NON_MATCHING
 typedef struct ShadowClipVertex {
     f32 x;
     f32 y;
@@ -990,13 +989,11 @@ s32 func_80017660(void *arg0, s32 arg1, void *arg2, s32 arg3, s32 arg4) {
                      ((ShadowClipPlane *) arg4)[planeIndex].x);
         if (((ShadowClipPlane *) arg4)[planeIndex].x <
             ((ShadowClipPlane *) arg4)[next].x) {
-            var_f2 = (temp_f12 * ((ShadowClipPlane *) arg4)[planeIndex].x) +
-                     (((ShadowClipPlane *) arg4)[planeIndex].z * temp_f14);
-            var_f2 = -var_f2;
+            var_f2 = -((temp_f12 * ((ShadowClipPlane *) arg4)[planeIndex].x) +
+                       (((ShadowClipPlane *) arg4)[planeIndex].z * temp_f14));
         } else {
-            var_f2 = (temp_f12 * ((ShadowClipPlane *) arg4)[next].x) +
-                     (((ShadowClipPlane *) arg4)[next].z * temp_f14);
-            var_f2 = -var_f2;
+            var_f2 = -((temp_f12 * ((ShadowClipPlane *) arg4)[next].x) +
+                       (((ShadowClipPlane *) arg4)[next].z * temp_f14));
         }
 
         for (var_v0 = 0, outputCount = 0; var_v0 < vertexCount; var_v0++) {
@@ -1010,28 +1007,26 @@ s32 func_80017660(void *arg0, s32 arg1, void *arg2, s32 arg3, s32 arg4) {
                        (vertices[next].z * temp_f14) + var_f2;
             if (((temp_f16 >= 0.0f) && (temp_f22 < 0.0f)) ||
                 ((temp_f16 < 0.0f) && (temp_f22 >= 0.0f))) {
-                edgeCount = D_800C9F48[planeIndex];
                 edgeIndex = -1;
+                edgeCount = D_800C9F48[planeIndex];
                 edgeOffset = planeIndex << 5;
-                edge = &edges[edgeOffset];
-                while ((edgeCount > 0) && (edgeIndex < 0)) {
-                    if ((edge->x0 == vertices[var_v0].x) &&
-                        (edge->z0 == vertices[var_v0].z) &&
-                        (edge->x1 == vertices[next].x) &&
-                        (edge->z1 == vertices[next].z)) {
-                        edgeIndex = edgeOffset;
-                    } else {
+                edge = edges;
+                edge += edgeOffset;
+                for (; edgeCount > 0; edge++, edgeOffset++) {
+                    if (!((edge->x0 == vertices[var_v0].x) &&
+                          (edge->z0 == vertices[var_v0].z) &&
+                          (edge->x1 == vertices[next].x) &&
+                          (edge->z1 == vertices[next].z))) {
                         edgeCount--;
-                        if ((edge->x0 == vertices[next].x) &&
-                            (edge->z0 == vertices[next].z) &&
-                            (edge->x1 == vertices[var_v0].x) &&
-                            (edge->z1 == vertices[var_v0].z)) {
-                            edgeIndex = edgeOffset;
-                        } else {
-                            edge++;
-                            edgeOffset++;
+                        if (!((edge->x0 == vertices[next].x) &&
+                              (edge->z0 == vertices[next].z) &&
+                              (edge->x1 == vertices[var_v0].x) &&
+                              (edge->z1 == vertices[var_v0].z))) {
+                            continue;
                         }
                     }
+                    edgeIndex = edgeOffset;
+                    break;
                 }
                 if (edgeIndex >= 0) {
                     output[outputCount].edgeIndex = edgeIndex;
@@ -1081,7 +1076,7 @@ s32 func_80017660(void *arg0, s32 arg1, void *arg2, s32 arg3, s32 arg4) {
     }
 
     if (vertexCount >= 3) {
-        if (vertices != (ShadowClipVertex *) arg2) {
+        if ((void *) vertices != arg2) {
             for (var_v0 = 0; var_v0 < vertexCount; var_v0++) {
                 ((ShadowClipVertex *) arg2)[var_v0].x = vertices[var_v0].x;
                 ((ShadowClipVertex *) arg2)[var_v0].z = vertices[var_v0].z;
@@ -1094,9 +1089,6 @@ s32 func_80017660(void *arg0, s32 arg1, void *arg2, s32 arg3, s32 arg4) {
     }
     return vertexCount;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80017660.s")
-#endif
 /*
  * PROVENANCE: adapted from the public Diddy Kong Racing/JFG shadow-buffer
  * and projected-triangle organization; Mickey's target bytes, globals, and
@@ -1469,16 +1461,6 @@ void func_800180B4(ShadowQuery *query) {
  * first-mismatch: +0xC
  * summary: Fresh V0 is 520/510 words with 445 differences; frames 0x150/0x138. Both have 63 relocations; 29 sites and identities align. Prior mechanisms closed.
  * PLATEAU-HANDOFF:shadowGenerate:end
- */
-
-/* PLATEAU-HANDOFF:func_80017660:start
- * symbol: func_80017660
- * score: 268 differing words
- * frame: 0x158
- * relocations: 4
- * first-mismatch: +0x90
- * summary: Corrected R4300 multiply scheduler reproduces the target's FP hazard nop; residual is now register naming plus one branch spelling.
- * PLATEAU-HANDOFF:func_80017660:end
  */
 
 /* PLATEAU-HANDOFF:func_80016890:start
