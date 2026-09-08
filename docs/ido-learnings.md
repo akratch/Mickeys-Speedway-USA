@@ -76,6 +76,17 @@ bytes and disassembly never belong here.
 
 ### Allocation and source shape
 
+- Donor local lifetimes and empty statement boundaries can be coupled. In a
+  configured full-TU comparison, restoring a global re-read across a conditional
+  call corrected the relocation count but worsened geometry and register
+  allocation. Restoring the same donor's empty statement boundary then made
+  bytes and relocation identities exact. When an authorized donor supplies
+  both forms, test the pair before treating the first edit's regression as
+  evidence against the complete donor spelling. This proves source-form
+  sensitivity, not which compiler phase owns it; an empty constant statement
+  does not impose a runtime memory barrier. Preserve the game's call/read order,
+  disclose any retained inert form, and require full linked proof. Evidence:
+  the resident video mode changer in [resident §3.8](resident.md#38-gamevi-rom-0x341800x34e60).
 - A command-pointer load followed by a separate cursor update can produce a
   different allocation from `command = (*cursor)++`, even when both advance
   by exactly one command. Paired full-TU traces showed the post-increment form
