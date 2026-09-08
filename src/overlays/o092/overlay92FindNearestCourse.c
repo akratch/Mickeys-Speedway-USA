@@ -136,6 +136,6 @@ s32 func_overlay_092_F0000068_18D5F88(O92Racer *racer, f32 *outX,
  * frame: 0x90
  * relocations: 7
  * first-mismatch: +0x4
- * summary: Post-plateau Overlay22 explicit-dereference precedent was flat in three isolated forms; V0 remains 142/168 pending new pool-color evidence.
+ * summary: Fidelity-clean allocator/UGEN trace found no source-semantic, home, or target-chronology selector; resumption bar tested and not met.
  * PLATEAU-HANDOFF:func_overlay_092_F0000068_18D5F88:end
  */
