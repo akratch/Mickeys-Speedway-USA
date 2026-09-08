@@ -1,13 +1,13 @@
 {
   "schema_version": 3,
   "source_context_version": 5,
-  "queue_size": 445,
-  "resolved": 445,
+  "queue_size": 444,
+  "resolved": 444,
   "unresolved": 0,
   "objdiff_report_used": false,
   "objdiff_match_pct_coverage": 0,
-  "source_context_coverage": 445,
-  "relocation_masked_coverage": 445,
+  "source_context_coverage": 444,
+  "relocation_masked_coverage": 444,
   "functions": [
     {
       "name": "func_8003A2C8",
@@ -773,21 +773,6 @@
       "size_delta": 0,
       "category": "other",
       "source_context_sha256": "ccKW.FxXE.mG2K.23de.iFjG.tMnI.beVC.LEak.fBHQ.AQkh.-SQ"
-    },
-    {
-      "name": "func_overlay_026_F0000D24_187B11C",
-      "file": "src/overlays/o026/overlay26HandleEffects.c",
-      "overlay": 26,
-      "tu": "overlays/o026",
-      "size_bytes": 1076,
-      "objdiff_match_pct": null,
-      "differing_words": 11,
-      "first_mismatch_offset": 0,
-      "relocation_masked_differing_words": 11,
-      "relocation_masked_first_mismatch_offset": 0,
-      "size_delta": 0,
-      "category": "other",
-      "source_context_sha256": "xgiY.aGM-.neX6.01RR.NzMW.tHQG.-wjI.eTTz.wO7H.vXIX.xzA"
     },
     {
       "name": "overlay94UpdateController",
