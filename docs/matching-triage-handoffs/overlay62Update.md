@@ -6,5 +6,5 @@
 - frame: 0x88
 - relocations: 71
 - first mismatch: +0x44
-- summary: native scheduler DAG exposes no new legal dependency beyond exhausted comma forms
+- summary: verdict=allocation-mismatch; lever=unique split-web IDs for a phase-complete p1/p2 forced-color oracle
 <!-- plateau-handoff:overlay62Update:end -->
