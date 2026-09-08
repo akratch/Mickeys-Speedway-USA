@@ -2126,12 +2126,12 @@ void func_80041388(ParticleModelEntry *entry, s32 updateRate) {
     }
 }
 #ifdef NON_MATCHING
-/* Fresh phase-5 plateau: configured C remains 457/456 words with 280 raw and
- * relocation-masked differences, first +0x0, frame 0x160 versus 0x168. The
- * 119-row flag lattice and ten natural declaration, array, cursor, table-index,
- * count-CFG, and loop-order forms found no strict gain. The next lever is the
- * source-faithful triangle-count/loop lifetime that produces the target stack
- * homes and shifts both vector arrays without an artificial local. */
+/* m2c structural plateau: candidate and target are both 456 words with frame
+ * 0x168 and all four relocation identities exact; 52 raw and relocation-masked
+ * words differ, first +0x4C, while the FP schedule is exact. Workbench verdict
+ * is structure-mismatch; lever 6 is to census the one value that gained a home.
+ * The remaining cause is the early table byte-count carrier and command-length
+ * / particle-cursor stack-home cycle, beyond this reconstruction packet. */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/
  * func_80062BFC.s; body reconstructed from Mickey evidence. */
 void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
@@ -2139,26 +2139,26 @@ void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
     ParticleVertex *vertices;
     ParticleVertex *vertexStart;
     CircularParticle *particle;
-    ParticleVec3f output[8];
-    ParticleVec3f input[8];
-    ParticleVec3f *outputPtr;
+    f32 output[8][3];
+    f32 input[8][3];
+    f32 *outputPtr;
     s32 particleIndex;
     s32 i;
     s32 triangleListIndex;
-    void *triangleLists[2];
-    CircularParticle **particlePtr;
     Gfx *command;
     s32 vertexCount;
-    s32 triangleCount;
     s32 vertexIndex;
-    volatile s32 vertexCommandCount;
-    volatile s32 vertexCommandLength;
+    s32 addressBase;
+    CircularParticle **particlePtr;
     u8 red;
     u8 green;
     u8 blue;
     u8 alpha;
 
     if (entry->particleCount >= 2) {
+        s32 triangleCount;
+        void *triangleLists[2];
+
         displayList = *(Gfx **)arg0;
         vertexCount = entry->vertexCount;
         vertices = *(ParticleVertex **)arg1;
@@ -2177,17 +2177,20 @@ void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
         particleIndex = 0;
         particlePtr = entry->particles;
         if (entry->particleCount > 0) {
+            s32 vertexCommandCount;
+            volatile s32 vertexCommandLength;
+
             vertexCommandLength = (vertexCount * 10) + 8;
             vertexCommandCount = vertexCount * 8;
             do {
                 particle = *particlePtr;
                 vertexStart = vertices;
-                outputPtr = output;
+                outputPtr = &output[0][0];
                 i = 0;
                 while (i < vertexCount) {
-                    input[i].x = entry->points[i].x * particle->scale;
-                    input[i].y = entry->points[i].y * particle->scale;
-                    input[i].z = entry->points[i].z * particle->scale;
+                    input[i][0] = entry->points[i].x * particle->scale;
+                    input[i][1] = entry->points[i].y * particle->scale;
+                    input[i][2] = entry->points[i].z * particle->scale;
                     i++;
                 }
 
@@ -2195,33 +2198,34 @@ void func_80041530(s32 arg0, s32 arg1, ParticleModelEntry *entry) {
                 green = particle->green;
                 blue = particle->blue;
                 alpha = (particle->intensity >> 8) & 0xFF;
-                pointListRPY(vertexCount, (s16 *)particle, &input[0].x, &output[0].x);
+                pointListRPY(vertexCount, (s16 *)particle, &input[0][0], &output[0][0]);
+                addressBase = 0x80000000;
                 i = 0;
                 if (vertexCount > 0) {
                     do {
-                        vertices->x = outputPtr->x + particle->renderX;
-                        vertices->y = outputPtr->y + particle->renderY;
-                        vertices->z = outputPtr->z + particle->renderZ;
+                        vertices->x = outputPtr[0] + particle->renderX;
+                        vertices->y = outputPtr[1] + particle->renderY;
+                        vertices->z = outputPtr[2] + particle->renderZ;
                         vertices->red = red;
                         vertices->green = green;
                         vertices->blue = blue;
                         vertices->alpha = alpha;
+                        outputPtr += 3;
                         vertices++;
-                        outputPtr++;
                         i++;
                     } while (i < vertexCount);
                 }
 
                 command = displayList++;
                 command->words.w0 =
-                    (((vertexCommandCount | (((s32)vertexStart + 0x80000000) & 6)) & 0xFF) << 16) |
+                    ((vertexCommandCount | (((s32)vertexStart + addressBase) & 6)) & 0xFF) << 16 |
                     0x04000000 | ((vertexCommandLength | (vertexIndex << 9)) & 0xFFFF);
-                command->words.w1 = (s32)vertexStart + 0x80000000;
+                command->words.w1 = (s32)vertexStart + addressBase;
                 if (particleIndex > 0) {
                     command = displayList++;
-                    command->words.w0 = ((((((triangleCount - 1) * 16) | 1) & 0xFF) << 16) |
-                                         0x05000000 | ((triangleCount * 16) & 0xFFFF));
-                    command->words.w1 = (s32)triangleLists[triangleListIndex] + 0x80000000;
+                    command->words.w0 = ((((((triangleCount - 1) << 4) | 1) & 0xFF) << 16) |
+                                         0x05000000 | ((triangleCount << 4) & 0xFFFF));
+                    command->words.w1 = (s32)triangleLists[triangleListIndex] + addressBase;
                     triangleListIndex ^= 1;
                 }
                 if (vertexIndex == 0) {
@@ -2623,11 +2627,11 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
 
 /* PLATEAU-HANDOFF:func_80041530:start
  * symbol: func_80041530
- * score: 176/456 words
- * frame: 0x160
+ * score: 52 differing words
+ * frame: 0x168
  * relocations: 4
- * first-mismatch: +0x0
- * summary: Target frame 0x168; two of four relocation identities align. Next: prove a natural triangle-count/loop lifetime; do not repeat 119 flags or ten forms.
+ * first-mismatch: +0x4C
+ * summary: m2c recovered exact geometry and FP schedule; next lever is the table byte-count carrier and command-length and cursor home cycle.
  * PLATEAU-HANDOFF:func_80041530:end
  */
 
