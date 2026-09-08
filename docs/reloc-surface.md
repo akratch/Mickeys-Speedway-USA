@@ -1691,6 +1691,30 @@ section trimming still leave only 78/111 linked words equal. It has no export;
 its sole inbound is the local JUMP from `overlay98CollectAccepted+0x74` at
 module offset `+0x1B8`.
 
+Resident `func_8000AA38` owns 74 exact configured records across its
+`0x4B4`-byte range: one PC16 default branch, a retained-table HI16/LO16
+pair, six resident calls and 65 runtime overlay calls. The runtime table
+identifies every overlay by module and offset; those calls intentionally
+share the resident `TrapDanglingJump` encoding. ORT 169 exports the dispatcher,
+and `func_8000590C+0x9D8` is its sole direct inbound, passing object, entry
+and zero preserve-state. No resident runtime or overlay SYMBOL inbound
+references that export. The source now forwards all three argument registers;
+the character-control case instead supplies its separately proved mode one.
+
+IDO resolves the default branch internally. A same-section symbol at that
+branch's own site permits an asserted PC16 record with its unchanged addend;
+ordinary linking preserves the displacement and reproduces the fallback's
+exact destination. All 71 local branch destinations are independently exact.
+The compiler's private table has addend `0x24C`, and all 92 destinations
+resolve to the retained table's real ROM addresses. Only those duplicate
+R_MIPS_32 records and the digest-checked trailing data are removed; the earlier
+`0x24C` rodata prefix stays compiler-owned. The two references bind to a
+retained-table base accounting for that original addend, and metadata labels
+preserve every retained table target. The configured and raw TU executable
+sections are identical. An independent comparison against the archived
+fallback's 74 tuples proves count, type, offset and effective identity; the
+linked owned range, retained table and full ROM are exact C.
+
 ### 6.2 What the site alignment unlocks
 
 The 77 `schedule-divergence-at-site` rows re-measured, in lane

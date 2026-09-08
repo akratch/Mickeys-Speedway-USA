@@ -351,6 +351,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_cleanroom_detectors.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_proof_provenance.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_metadata_filter_proof.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_elf_metadata_contracts.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_history.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_function_preflight.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_canonical_candidate_guard.py
@@ -1096,12 +1097,31 @@ $(BUILD_DIR)/$(SRC_DIR)/main/diprint.c.o: CFLAGS += -Wab,-r4300_mul
 # IDO's trailing four zero bytes follow the combined 0x38-byte input section.
 $(BUILD_DIR)/$(SRC_DIR)/main/sched.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x38
-# objects owns func_80008A8C's 56-entry table, three literal-pool floats and
-# func_8000A6E8's 88-entry table: 0x24C bytes, which IDO rounds up to 0x250
-# because the section carries switch tables. Discard only that trailing zero
-# word, so jtbl_800810E8 still starts at the address it has in the ROM.
+# objects retains its first two switch tables and three literal-pool floats.
+# func_8000AA38's compiler-private 92-entry table duplicates jtbl_80081258:
+# its untouched REL addend is 0x24C, so the absolute base is table - 0x24C.
+# The digest guards only that duplicate table plus final alignment; its 92
+# R_MIPS_32 destinations were independently proved at real ROM addresses.
+# The default branch is already resolved by IDO. Its site label makes PC16
+# relocation a no-op while preserving the authenticated fallback tuple.
+$(BUILD_DIR)/$(SRC_DIR)/main/objects.c.o: $(TOOLS_DIR)/add_elf_relocations.py \
+    $(TOOLS_DIR)/rebind_elf_relocations.py $(TOOLS_DIR)/filter_elf_relocations.py \
+    $(TOOLS_DIR)/trim_elf_section.py config/normalizations/objects-init-table.us.txt \
+    config/normalizations/objects-init-labels.us.txt
 $(BUILD_DIR)/$(SRC_DIR)/main/objects.c.o: POSTPROCESS = \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x24C
+	$(OBJCOPY) @config/normalizations/objects-init-labels.us.txt \
+	    --add-symbol objectsInitSwitchRelocBase=0x8008100C,global \
+	    --add-symbol objectsInitDefaultBranch=.text:0x6718,local $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+	    0x6720:.rodata:objectsInitSwitchRelocBase \
+	    0x6728:.rodata:objectsInitSwitchRelocBase && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/filter_elf_relocations.py $@ .rodata \
+	    @config/normalizations/objects-init-table.us.txt && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0x24C \
+	    sha256:eb2ee274b851b35e0f07593a45cb66afd152cac08bf81f3c8ec6d98767740fe3 && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/add_elf_relocations.py $@ .text 0x6BAC \
+	    665d10243b3e1aae031ac8725255f80269d00517456d230330be89904b582cab \
+	    0x6718:PC16:objectsInitDefaultBranch:0x120
 # JFG's source-level string migration reproduces diRcp's complete diagnostic
 # string block followed by the 0x100-byte switch-table span. The following
 # four zero bytes are output-section padding.

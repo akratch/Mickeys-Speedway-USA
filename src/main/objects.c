@@ -1798,7 +1798,7 @@ extern s32 func_80048760(void *object, s32 state);
 extern void func_80053550(void *source, s32 kind, s32 mode, s16 rotationX,
                            s16 rotationY, s16 rotationZ, f32 radius, f32 height,
                            f32 arg8, f32 arg9, s32 collisionType, u16 flags);
-extern void func_8000AA38(Objects0AA38Object *object, void *arg1);
+extern void func_8000AA38(Objects0AA38Object *object, void *arg1, s32 preserveState);
 extern void func_80006448(void *object);
 extern s32 func_80006534(Objects06534Object *object);
 extern s32 func_80006868(Objects06868Object *object, void *data);
@@ -2109,7 +2109,7 @@ void *func_8000590C(void *arg0, s32 arg1) {
     if (newObject->unk40->unk29 > 0) {
         lightSetupFlareSources(newObject);
     }
-    func_8000AA38((Objects0AA38Object *)newObject, arg0);
+    func_8000AA38((Objects0AA38Object *)newObject, arg0, 0);
     if (newObject->unk58 != 0) {
         TrapDanglingJump(newObject);
     }
@@ -4913,29 +4913,28 @@ extern void func_8001A154(void *object);
 extern void func_8001BAE4(void *object, void *arg1);
 extern void func_8001BAF8(void *object, void *arg1);
 
-/* Workbench verdict: relocation-layout-mismatch; 0 differing words (301/301). */
-/* First mismatch: relocation metadata at +0x20; frame and opcode schedule are exact. */
-/* Structural gap: the generated switch table is anonymous .rodata rather than jtbl_80081258. */
-#ifdef NON_MATCHING
-void func_8000AA38(Objects0AA38Object *arg0, void *arg1) {
+/* Tier B: Mickey's resident loader records identify each overlay export.
+ * The dispatch ABI forwards object, entry, and preserveState. Each call
+ * retains the resident trap that the runtime loader patches at that site. */
+void func_8000AA38(Objects0AA38Object *arg0, void *arg1, s32 preserveState) {
     arg0->unk44 = arg0->unk40->unk1C;
     switch (arg0->unk44 - 1) {
         case 0:
             func_8001C4C0(arg0, arg1, 1);
             break;
         case 28:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 69 +0x0. */
             break;
         case 72:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 88 +0x0. */
             break;
         case 1:
         case 2:
         case 3:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 85 +0x0. */
             break;
         case 30:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 97 +0x508. */
             break;
         case 31:
         case 33:
@@ -4945,49 +4944,49 @@ void func_8000AA38(Objects0AA38Object *arg0, void *arg1) {
             sprasjiInit(arg0, arg1);
             break;
         case 19:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 97 +0x36C. */
             break;
         case 5:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 97 +0x0. */
             break;
         case 4:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 97 +0x14C. */
             break;
         case 10:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 97 +0x130. */
             break;
         case 11:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 92 +0x0. */
             break;
         case 13:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 97 +0x748. */
             break;
         case 14:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 97 +0x3F4. */
             break;
         case 40:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 89 +0x270. */
             break;
         case 34:
             func_8001A154(arg0);
             break;
         case 35:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 71 +0x0. */
             break;
         case 8:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 97 +0x420. */
             break;
         case 41:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 83 +0x53C. */
             break;
         case 7:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 93 +0x0. */
             break;
         case 6:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 97 +0x1A8. */
             break;
         case 27:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 97 +0x944. */
             break;
         case 23:
         case 24:
@@ -4997,145 +4996,145 @@ void func_8000AA38(Objects0AA38Object *arg0, void *arg1) {
             func_8001BAF8(arg0, arg1);
             break;
         case 32:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 36 +0x0. */
             break;
         case 45:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 1 +0x6788. */
             break;
         case 46:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 1 +0x69A0. */
             break;
         case 47:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 1 +0x6B28. */
             break;
         case 48:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 4 +0x0. */
             break;
         case 49:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 84 +0x0. */
             break;
         case 50:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 84 +0xDBC. */
             break;
         case 20:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 97 +0x1E8. */
             break;
         case 42:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 2 +0x1DF8. */
             break;
         case 43:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 2 +0x2528. */
             break;
         case 44:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 1 +0x36A0. */
             break;
         case 52:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 72 +0x0. */
             break;
         case 53:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 90 +0x0. */
             break;
         case 54:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 86 +0x444. */
             break;
         case 56:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 26 +0x0. */
             break;
         case 57:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 29 +0x42C. */
             break;
         case 59:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 25 +0x0. */
             break;
         case 60:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 20 +0x204. */
             break;
         case 61:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 20 +0xF78. */
             break;
         case 62:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 68 +0x8E0. */
             break;
         case 63:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 22 +0x0. */
             break;
         case 64:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 23 +0x208. */
             break;
         case 65:
-            TrapDanglingJump(arg0, arg1);
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 28 +0x1B8. */
             break;
         case 66:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 75 +0x0. */
             break;
         case 67:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 27 +0x0. */
             break;
         case 68:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 24 +0x0. */
             break;
         case 69:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 21 +0x0. */
             break;
         case 70:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 91 +0x0. */
             break;
         case 71:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 87 +0x0. */
             break;
         case 73:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 74 +0x0. */
             break;
         case 79:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 70 +0x0. */
             break;
         case 74:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 76 +0x0. */
             break;
         case 75:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 77 +0x0. */
             break;
         case 76:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 78 +0x0. */
             break;
         case 77:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 79 +0x0. */
             break;
         case 80:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 80 +0x0. */
             break;
         case 81:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 81 +0x0. */
             break;
         case 82:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 81 +0x240. */
             break;
         case 83:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 82 +0x0. */
             break;
         case 84:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 73 +0x0. */
             break;
         case 85:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 94 +0x0. */
             break;
         case 86:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 79 +0x1280. */
             break;
         case 87:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 79 +0x147C. */
             break;
         case 88:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 37 +0x0. */
             break;
         case 89:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 95 +0x0. */
             break;
         case 90:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 38 +0x0. */
             break;
         case 91:
-            TrapDanglingJump();
+            TrapDanglingJump(arg0, arg1, preserveState); /* Overlay 96 +0xF8. */
             break;
         case 9:
             break;
@@ -5173,9 +5172,6 @@ void func_8000AA38(Objects0AA38Object *arg0, void *arg1) {
             break;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000AA38.s")
-#endif
 typedef struct {
     u8 pad00[0x40];
     u8 *unk40;
