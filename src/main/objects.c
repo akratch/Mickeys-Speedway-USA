@@ -5641,7 +5641,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: frameless
  * relocations: 6
  * first-mismatch: +0x24
- * summary: Hoisting *table fixes six register sites. One v1 versus t7 carrier web remains; a reseeded 10-minute permuter sweep was flat at score 10.
+ * summary: CDX p2 web 15 is v1; forced split is nonexact; next lever is authenticated UGEN temp-FIFO trace for the t7 carrier.
  * PLATEAU-HANDOFF:func_800056A4:end
  */
 
