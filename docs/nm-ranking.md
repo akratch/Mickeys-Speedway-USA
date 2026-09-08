@@ -274,18 +274,19 @@ Relocation-masked mismatch evidence covers **446 / 446** resolved rows. The raw 
 | `register-only` | 18 | 4.0% |
 | `schedule-only` | 1 | 0.2% |
 | `other` | 208 | 46.6% |
-| `size-mismatch` | 219 | 49.1% |
+| `reloc-mismatch` | 1 | 0.2% |
+| `size-mismatch` | 218 | 48.9% |
 
 ### Differing-word thresholds
 
 | Threshold | Count |
 |---|---:|
-| raw `differing_words <= 5` | 15 |
-| relocation-masked `differing_words <= 5` | 18 |
-| raw `differing_words <= 10` | 41 |
-| relocation-masked `differing_words <= 10` | 43 |
-| raw `differing_words <= 20` | 72 |
-| relocation-masked `differing_words <= 20` | 74 |
+| raw `differing_words <= 5` | 17 |
+| relocation-masked `differing_words <= 5` | 20 |
+| raw `differing_words <= 10` | 42 |
+| relocation-masked `differing_words <= 10` | 44 |
+| raw `differing_words <= 20` | 73 |
+| relocation-masked `differing_words <= 20` | 75 |
 
 ### Complete ranked queue
 
@@ -298,10 +299,10 @@ units remain distinct.
 | 1 | `src/main/menu.c` | `func_8003A2C8` | `main` | `register-only` | 128 | 1 | 1 | 20 | 20 | 0 | — |
 | 2 | `src/overlays/o074/overlay74Update.c` | `overlay74Update` | `o074` | `register-only` | 400 | 1 | 1 | 292 | 292 | 0 | — |
 | 3 | `src/main/objects.c` | `func_800056A4` | `main` | `register-only` | 76 | 2 | 2 | 36 | 36 | 0 | — |
-| 4 | `src/main/level.c` | `levelFreeAll` | `main` | `register-only` | 468 | 3 | 3 | 316 | 316 | 0 | — |
-| 5 | `src/overlays/o040/overlay40FadeRecords.c` | `overlay40FadeRecords` | `o040` | `register-only` | 404 | 3 | 3 | 12 | 12 | 0 | — |
-| 6 | `src/main/objects.c` | `func_80005868` | `main` | `register-only` | 88 | 6 | 6 | 28 | 28 | 0 | — |
-| 7 | `src/overlays/o020/overlay20RemoveEntry.c` | `overlay20RemoveEntry` | `o020` | `register-only` | 212 | 6 | 6 | 108 | 108 | 0 | — |
+| 4 | `src/overlays/o020/overlay20RemoveEntry.c` | `overlay20RemoveEntry` | `o020` | `register-only` | 212 | 2 | 2 | 108 | 108 | 0 | — |
+| 5 | `src/main/level.c` | `levelFreeAll` | `main` | `register-only` | 468 | 3 | 3 | 316 | 316 | 0 | — |
+| 6 | `src/overlays/o040/overlay40FadeRecords.c` | `overlay40FadeRecords` | `o040` | `register-only` | 404 | 3 | 3 | 12 | 12 | 0 | — |
+| 7 | `src/main/objects.c` | `func_80005868` | `main` | `register-only` | 88 | 6 | 6 | 28 | 28 | 0 | — |
 | 8 | `src/main/fx.c` | `func_800498FC` | `main` | `register-only` | 400 | 9 | 9 | 208 | 208 | 0 | — |
 | 9 | `src/overlays/o019/overlay19ClassifyEdge.c` | `overlay19ClassifyEdge` | `o019` | `register-only` | 480 | 10 | 10 | 312 | 312 | 0 | — |
 | 10 | `src/main/saves.c` | `func_8002C69C` | `main` | `register-only` | 112 | 11 | 11 | 16 | 16 | 0 | — |
@@ -522,28 +523,28 @@ units remain distinct.
 | 225 | `src/main/objects.c` | `func_8000590C` | `main` | `other` | 2,876 | 538 | 538 | 436 | 436 | 0 | — |
 | 226 | `src/main/track.c` | `func_80010B4C` | `main` | `other` | 2,712 | 668 | 668 | 0 | 0 | 0 | — |
 | 227 | `src/overlays/o008/overlay_008.c` | `func_overlay_008_F0001294_185EFEC` | `o008` | `other` | 5,036 | 1,129 | 1,127 | 0 | 0 | 0 | — |
-| 228 | `src/libultra/block_6F3E0.c` | `func_8006E7E0` | `libultra` | `size-mismatch` | 4 | 2 | 2 | 0 | 0 | 4 | — |
-| 229 | `src/main/flash_58C10.c` | `func_8005807C` | `main` | `size-mismatch` | 116 | 2 | 2 | 108 | 108 | -8 | — |
-| 230 | `src/main/frontend_37D50.c` | `func_80037BF4` | `main` | `size-mismatch` | 128 | 17 | 17 | 36 | 36 | -4 | — |
-| 231 | `src/main/vehicle_sounds.c` | `func_80058250` | `main` | `size-mismatch` | 88 | 19 | 19 | 0 | 0 | 16 | — |
-| 232 | `src/overlays/o001/overlay_001_tail.c` | `overlay1HandleCachedMode` | `o001` | `size-mismatch` | 128 | 24 | 23 | 4 | 20 | 4 | — |
-| 233 | `src/main/block_506D0.c` | `func_8004FAD0` | `main` | `size-mismatch` | 336 | 29 | 29 | 68 | 68 | -4 | — |
-| 234 | `src/overlays/o015/overlay_015.c` | `overlay15MoveStars` | `o015` | `size-mismatch` | 216 | 33 | 30 | 48 | 48 | 16 | — |
-| 235 | `src/main/matrix.c` | `func_8002B040` | `main` | `size-mismatch` | 136 | 34 | 34 | 0 | 0 | 4 | — |
-| 236 | `src/main/fx.c` | `func_80049E4C` | `main` | `size-mismatch` | 676 | 36 | 36 | 24 | 24 | -8 | — |
-| 237 | `src/main/menu_3B1A0.c` | `func_8003A7D0` | `main` | `size-mismatch` | 176 | 37 | 37 | 16 | 16 | -12 | — |
-| 238 | `src/main/objects.c` | `func_80006EE4` | `main` | `size-mismatch` | 188 | 40 | 40 | 8 | 8 | -4 | — |
-| 239 | `src/overlays/o034/overlay34RemoveRecord.c` | `overlay34RemoveRecord` | `o034` | `size-mismatch` | 176 | 42 | 41 | 0 | 0 | -8 | — |
-| 240 | `src/main/flash_58C10.c` | `func_800580F0` | `main` | `size-mismatch` | 204 | 42 | 42 | 12 | 12 | -8 | — |
-| 241 | `src/main/fx.c` | `func_80048080` | `main` | `size-mismatch` | 356 | 43 | 43 | 116 | 116 | -4 | — |
-| 242 | `src/main/lights.c` | `func_80019DE8` | `main` | `size-mismatch` | 252 | 45 | 45 | 68 | 68 | 4 | — |
-| 243 | `src/overlays/o048/overlay48InitializeState.c` | `overlay48InitializeState` | `o048` | `size-mismatch` | 228 | 47 | 47 | 0 | 0 | -16 | — |
-| 244 | `src/main/frontend_37D50.c` | `func_80037414` | `main` | `size-mismatch` | 580 | 59 | 59 | 16 | 16 | 4 | — |
-| 245 | `src/main/fx.c` | `func_80046EC4` | `main` | `size-mismatch` | 440 | 60 | 60 | 104 | 104 | 4 | — |
-| 246 | `src/overlays/o002/overlay2ClassifyBoundary.c` | `overlay2ClassifyBoundary` | `o002` | `size-mismatch` | 316 | 62 | 61 | 4 | 20 | 4 | — |
-| 247 | `src/main/memory.c` | `func_8002B7AC` | `main` | `size-mismatch` | 252 | 62 | 62 | 4 | 4 | -4 | — |
-| 248 | `src/main/objects.c` | `func_80006B04` | `main` | `size-mismatch` | 316 | 63 | 63 | 20 | 20 | -4 | — |
-| 249 | `src/main/runlink.c` | `runlinkInit` | `main` | `size-mismatch` | 584 | 64 | 64 | 8 | 8 | -16 | — |
+| 228 | `src/main/runlink.c` | `runlinkInit` | `main` | `reloc-mismatch` | 584 | 1 | 0 | 276 | — | 0 | — |
+| 229 | `src/libultra/block_6F3E0.c` | `func_8006E7E0` | `libultra` | `size-mismatch` | 4 | 2 | 2 | 0 | 0 | 4 | — |
+| 230 | `src/main/flash_58C10.c` | `func_8005807C` | `main` | `size-mismatch` | 116 | 2 | 2 | 108 | 108 | -8 | — |
+| 231 | `src/main/frontend_37D50.c` | `func_80037BF4` | `main` | `size-mismatch` | 128 | 17 | 17 | 36 | 36 | -4 | — |
+| 232 | `src/main/vehicle_sounds.c` | `func_80058250` | `main` | `size-mismatch` | 88 | 19 | 19 | 0 | 0 | 16 | — |
+| 233 | `src/overlays/o001/overlay_001_tail.c` | `overlay1HandleCachedMode` | `o001` | `size-mismatch` | 128 | 24 | 23 | 4 | 20 | 4 | — |
+| 234 | `src/main/block_506D0.c` | `func_8004FAD0` | `main` | `size-mismatch` | 336 | 29 | 29 | 68 | 68 | -4 | — |
+| 235 | `src/overlays/o015/overlay_015.c` | `overlay15MoveStars` | `o015` | `size-mismatch` | 216 | 33 | 30 | 48 | 48 | 16 | — |
+| 236 | `src/main/matrix.c` | `func_8002B040` | `main` | `size-mismatch` | 136 | 34 | 34 | 0 | 0 | 4 | — |
+| 237 | `src/main/fx.c` | `func_80049E4C` | `main` | `size-mismatch` | 676 | 36 | 36 | 24 | 24 | -8 | — |
+| 238 | `src/main/menu_3B1A0.c` | `func_8003A7D0` | `main` | `size-mismatch` | 176 | 37 | 37 | 16 | 16 | -12 | — |
+| 239 | `src/main/objects.c` | `func_80006EE4` | `main` | `size-mismatch` | 188 | 40 | 40 | 8 | 8 | -4 | — |
+| 240 | `src/overlays/o034/overlay34RemoveRecord.c` | `overlay34RemoveRecord` | `o034` | `size-mismatch` | 176 | 42 | 41 | 0 | 0 | -8 | — |
+| 241 | `src/main/flash_58C10.c` | `func_800580F0` | `main` | `size-mismatch` | 204 | 42 | 42 | 12 | 12 | -8 | — |
+| 242 | `src/main/fx.c` | `func_80048080` | `main` | `size-mismatch` | 356 | 43 | 43 | 116 | 116 | -4 | — |
+| 243 | `src/main/lights.c` | `func_80019DE8` | `main` | `size-mismatch` | 252 | 45 | 45 | 68 | 68 | 4 | — |
+| 244 | `src/overlays/o048/overlay48InitializeState.c` | `overlay48InitializeState` | `o048` | `size-mismatch` | 228 | 47 | 47 | 0 | 0 | -16 | — |
+| 245 | `src/main/frontend_37D50.c` | `func_80037414` | `main` | `size-mismatch` | 580 | 59 | 59 | 16 | 16 | 4 | — |
+| 246 | `src/main/fx.c` | `func_80046EC4` | `main` | `size-mismatch` | 440 | 60 | 60 | 104 | 104 | 4 | — |
+| 247 | `src/overlays/o002/overlay2ClassifyBoundary.c` | `overlay2ClassifyBoundary` | `o002` | `size-mismatch` | 316 | 62 | 61 | 4 | 20 | 4 | — |
+| 248 | `src/main/memory.c` | `func_8002B7AC` | `main` | `size-mismatch` | 252 | 62 | 62 | 4 | 4 | -4 | — |
+| 249 | `src/main/objects.c` | `func_80006B04` | `main` | `size-mismatch` | 316 | 63 | 63 | 20 | 20 | -4 | — |
 | 250 | `src/main/track.c` | `func_8000D820` | `main` | `size-mismatch` | 344 | 65 | 65 | 52 | 52 | -8 | — |
 | 251 | `src/main/camera.c` | `func_80024978` | `main` | `size-mismatch` | 332 | 67 | 66 | 8 | 8 | 4 | — |
 | 252 | `src/main/saves.c` | `func_8002CF6C` | `main` | `size-mismatch` | 352 | 77 | 77 | 8 | 8 | -12 | — |
