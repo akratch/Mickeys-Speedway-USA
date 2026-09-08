@@ -572,7 +572,7 @@ func_800304E0 = 0x800304E0; // type:func size:0xA0 ROM 0x310e0 tier-D boundary-e
 func_80030608 = 0x80030608; // type:func size:0x8 ROM 0x31208 tier-A C-object+linked-ROM-exact name-unresolved
 func_80030610 = 0x80030610; // type:func size:0x300 ROM 0x31210 tier-D NON_MATCHING plateau, 194/192 words, first +0x5C
 func_80030910 = 0x80030910; // type:func size:0x1D8 ROM 0x31510 tier-D boundary-extracted
-__scHandleRetrace = 0x80030AE8; // type:func size:0x664 ROM 0x316e8 tier-B donor-jfg-src/sched.c scheduler-callgraph+order
+__scHandleRetrace = 0x80030AE8; // type:func size:0x664 ROM 0x316e8 tier-A matched C-object+linked-ROM-exact donor-jfg-src/sched.c
 __scHandleRSP = 0x8003114C; // type:func size:0x128 ROM 0x31d4c tier-B donor-jfg-src/sched.c scheduler-callgraph+order matched-C
 __scHandleRDP = 0x80031274; // type:func size:0x88 ROM 0x31e74 tier-B donor-jfg-src/sched.c scheduler-callgraph+order matched-C
 __scTaskReady = 0x800312FC; // type:func size:0x50 ROM 0x31efc tier-B donor-jfg-src/sched.c scheduler-callgraph+order matched-C
@@ -2848,3 +2848,5 @@ func_80009220 = 0x80009220; // type:func size:0x1F4 ROM 0x9E20 tier-A matched C 
 func_80008128 = 0x80008128; // type:func size:0x1F4 ROM 0x8D28 tier-A matched C Mickey-only C-object+linked-ROM-exact, five relocation identities, name unresolved
 func_80006C4C = 0x80006C4C; // type:func size:0x254 ROM 0x784C tier-A matched C Mickey-only C-object+linked-ROM-exact, sixteen relocation identities, name unresolved
 func_8000486C = 0x8000486C; // type:func size:0x298 ROM 0x546C tier-A matched C Mickey-only C-object+linked-ROM-exact, twenty-three relocation identities, name unresolved
+
+D_8007A660 = 0x8007A660; // type:u64 size:0x8 tier-A compiler-owned scheduler counter, linked-ROM-exact
