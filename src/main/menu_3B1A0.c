@@ -251,11 +251,11 @@ done:
 
 /* PLATEAU-HANDOFF:func_8003A754:start
  * symbol: func_8003A754
- * score: 12 differing words
+ * score: 12/31 words
  * frame: 0x18
  * relocations: 1
  * first-mismatch: +0x10
- * summary: Scalar inner-loop carrier order remains structurally different.
+ * summary: Trace isolates ugen line-order; next lever is authentic call-result C that schedules t0 before a3 without #line or inert scaffolding.
  * PLATEAU-HANDOFF:func_8003A754:end
  */
 
