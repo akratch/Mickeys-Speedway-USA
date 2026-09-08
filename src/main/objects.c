@@ -3368,19 +3368,19 @@ typedef struct {
     u8 a;
 } Objects084C4Vertex;
 
-typedef struct {
-    u32 w0;
-    u32 w1;
+typedef union {
+    struct {
+        unsigned int w0;
+        unsigned int w1;
+    } words;
+    unsigned long long force_alignment;
 } Objects084C4Gfx;
 
-/* Workbench verdict: structure-mismatch; 314 differing words (348/343 instructions). */
-/* First mismatch: +0x10; target frame is 0xB0, candidate frame is 0x98. */
-/* Structural gap: matrix/vertex carriers and late display-list command scheduling differ. */
 #ifdef NON_MATCHING
 void func_800084C4(Objects084C4Gfx **arg0, Objects084C4Vertex **arg1,
                    s32 arg2, s32 arg3, Objects084C4Point *arg4,
                    Objects084C4Point *arg5, f32 arg6, s32 arg7, s32 arg8,
-                   s32 arg9) {
+                   u32 arg9) {
     f32 pointBX;
     f32 pointBY;
     f32 pointBZ;
@@ -3397,19 +3397,15 @@ void func_800084C4(Objects084C4Gfx **arg0, Objects084C4Vertex **arg1,
     f32 projectedBY;
     f32 projectedAX;
     f32 projectedAY;
+    f32 deltaLengthSquared;
     f32 deltaX;
     f32 deltaY;
-    f32 deltaLengthSquared;
-    f32 scale;
     void *rotationMatrix;
     Objects084C4Gfx *displayList;
     Objects084C4Vertex *vertices;
-    Objects084C4Vertex *output;
-    u32 segmentedVertices;
-    Objects084C4Gfx *command;
 
-    if ((arg4->x == arg5->x) && (arg4->y == arg5->y) &&
-        (arg4->z == arg5->z)) {
+    if ((arg5->x == arg4->x) && (arg5->y == arg4->y) &&
+        (arg5->z == arg4->z)) {
         return;
     }
     rotationMatrix = camGetRotationMtx();
@@ -3417,29 +3413,28 @@ void func_800084C4(Objects084C4Gfx **arg0, Objects084C4Vertex **arg1,
                          &pointBX, &pointBY, &pointBZ);
     mtxf_transform_point(rotationMatrix, arg4->x, arg4->y, arg4->z,
                          &pointAX, &pointAY, &pointAZ);
+    if ((pointBZ > -10.0f) && (pointAZ > -10.0f)) {
+        return;
+    }
     clippedBX = pointBX;
     clippedBY = pointBY;
     clippedBZ = pointBZ;
     clippedAX = pointAX;
     clippedAY = pointAY;
     clippedAZ = pointAZ;
-    if ((pointBZ > -10.0f) && (pointAZ > -10.0f)) {
-        return;
-    }
     if (pointBZ > -10.0f) {
         clippedBZ = -10.0f;
-        scale = (-10.0f - pointBZ) / (pointAZ - pointBZ);
-        clippedBX = pointBX + ((pointAX - pointBX) * scale);
-        clippedBY = pointBY + ((pointAY - pointBY) * scale);
+        deltaLengthSquared = (-10.0f - pointBZ) / (pointAZ - pointBZ);
+        clippedBX += (pointAX - pointBX) * deltaLengthSquared;
+        clippedBY += (pointAY - pointBY) * deltaLengthSquared;
     } else if (pointAZ > -10.0f) {
         clippedAZ = -10.0f;
-        scale = (-10.0f - pointAZ) / (pointBZ - pointAZ);
-        clippedAX = pointAX + ((pointBX - pointAX) * scale);
-        clippedAY = pointAY + ((pointBY - pointAY) * scale);
+        deltaLengthSquared = (-10.0f - pointAZ) / (pointBZ - pointAZ);
+        clippedAX += (pointBX - pointAX) * deltaLengthSquared;
+        clippedAY += (pointBY - pointAY) * deltaLengthSquared;
     }
     displayList = *arg0;
     vertices = *arg1;
-    output = vertices;
     if (func_800246B0(clippedBX, clippedBY, clippedBZ,
                       &projectedBX, &projectedBY, 0) != 0) {
         if (func_800246B0(clippedAX, clippedAY, clippedAZ,
@@ -3448,73 +3443,53 @@ void func_800084C4(Objects084C4Gfx **arg0, Objects084C4Vertex **arg1,
             deltaY = projectedAY - projectedBY;
             deltaLengthSquared = (deltaX * deltaX) + (deltaY * deltaY);
             if (deltaLengthSquared > 0.0f) {
-                scale = arg6 / sqrtf(deltaLengthSquared);
-                deltaX *= scale;
-                deltaY *= scale;
+                deltaLengthSquared = arg6 / sqrtf(deltaLengthSquared);
+                deltaX *= deltaLengthSquared;
+                deltaY *= deltaLengthSquared;
             }
-            command = displayList++;
-            command->w0 = 0x01010040;
-            command->w1 = (u32)camGetProjOrgMtx() + 0x80000000;
+            { Objects084C4Gfx *command = displayList++; command->words.w0 = 0x01010040; command->words.w1 = (unsigned int)camGetProjOrgMtx() - 0x80000000U; }
             func_800349A4((FxGfx **)&displayList, arg2, arg9 | 6, 0);
-            command = displayList++;
-            command->w0 = 0xFA000000;
-            command->w1 = arg7;
-            command = displayList++;
-            command->w0 = 0xFB000000;
-            command->w1 = arg8;
-            segmentedVertices = (u32)vertices + 0x80000000;
-            command = displayList++;
-            command->w0 = 0x04000030 |
-                          (((segmentedVertices & 6) | 0x20) << 16);
-            command->w1 = segmentedVertices;
-            command = displayList++;
-            command->w0 = 0x05110020;
-            command->w1 = (u32)arg3 + 0x80000000;
-            command = displayList++;
-            command->w0 = 0xE7000000;
-            command->w1 = 0;
-            command = displayList++;
-            command->w0 = 0xFA000000;
-            command->w1 = (u32)-1;
-            command = displayList++;
-            command->w0 = 0xFB000000;
-            command->w1 = (u32)-1;
-            command = displayList++;
-            command->w0 = 0xBC00000A;
-            command->w1 = 0;
-            output[0].x = (s16)(pointBX + deltaY);
-            output[0].y = (s16)(pointBY + deltaX);
-            output[0].z = (s16)pointBZ;
-            output[0].r = 0xFF;
-            output[0].g = 0xFF;
-            output[0].b = 0xFF;
-            output[0].a = 0xFF;
-            output[1].x = (s16)(pointBX - deltaY);
-            output[1].y = (s16)(pointBY - deltaX);
-            output[1].z = (s16)pointBZ;
-            output[1].r = 0xFF;
-            output[1].g = 0xFF;
-            output[1].b = 0xFF;
-            output[1].a = 0xFF;
-            output[2].x = (s16)(pointAX + deltaY);
-            output[2].y = (s16)(pointAY + deltaX);
-            output[2].z = (s16)pointAZ;
-            output[2].r = 0xFF;
-            output[2].g = 0xFF;
-            output[2].b = 0xFF;
-            output[2].a = 0xFF;
-            output[3].x = (s16)(pointAX - deltaY);
-            output[3].y = (s16)(pointAY - deltaX);
-            output[3].z = (s16)pointAZ;
-            output[3].r = 0xFF;
-            output[3].g = 0xFF;
-            output[3].b = 0xFF;
-            output[3].a = 0xFF;
-            output += 4;
+            { Objects084C4Gfx *command = displayList++; command->words.w0 = 0xFA000000; command->words.w1 = arg7; }
+            { Objects084C4Gfx *command = displayList++; command->words.w0 = 0xFB000000; command->words.w1 = arg8; }
+            { Objects084C4Gfx *command = displayList++; command->words.w0 = 0x04000000U | (((unsigned int)((((unsigned int)vertices - 0x80000000U) & 6U) | 0x20U) & 0xFFU) << 16) | 0x30U; command->words.w1 = ((unsigned int)vertices - 0x80000000U); }
+            { Objects084C4Gfx *command = displayList++; command->words.w0 = 0x05110020; command->words.w1 = (unsigned int)arg3 - 0x80000000U; }
+            { Objects084C4Gfx *command = displayList++; command->words.w0 = 0xE7000000; command->words.w1 = 0; }
+            { Objects084C4Gfx *command = displayList++; command->words.w0 = 0xFA000000; command->words.w1 = (u32)-1; }
+            { Objects084C4Gfx *command = displayList++; command->words.w0 = 0xFB000000; command->words.w1 = (u32)-1; }
+            { Objects084C4Gfx *command = displayList++; command->words.w0 = 0xBC00000A; command->words.w1 = 0; }
+            vertices[0].x = (s16)(pointBX + deltaY);
+            vertices[0].y = (s16)(pointBY + deltaX);
+            vertices[0].z = (s16)pointBZ;
+            vertices[0].r = 0xFF;
+            vertices[0].g = 0xFF;
+            vertices[0].b = 0xFF;
+            vertices[0].a = 0xFF;
+            vertices[1].x = (s16)(pointBX - deltaY);
+            vertices[1].y = (s16)(pointBY - deltaX);
+            vertices[1].z = (s16)pointBZ;
+            vertices[1].r = 0xFF;
+            vertices[1].g = 0xFF;
+            vertices[1].b = 0xFF;
+            vertices[1].a = 0xFF;
+            vertices[2].x = (s16)(pointAX + deltaY);
+            vertices[2].y = (s16)(pointAY + deltaX);
+            vertices[2].z = (s16)pointAZ;
+            vertices[2].r = 0xFF;
+            vertices[2].g = 0xFF;
+            vertices[2].b = 0xFF;
+            vertices[2].a = 0xFF;
+            vertices[3].x = (s16)(pointAX - deltaY);
+            vertices[3].y = (s16)(pointAY - deltaX);
+            vertices[3].z = (s16)pointAZ;
+            vertices[3].r = 0xFF;
+            vertices[3].g = 0xFF;
+            vertices[3].b = 0xFF;
+            vertices[3].a = 0xFF;
+            vertices += 4;
         }
     }
     *arg0 = displayList;
-    *arg1 = output;
+    *arg1 = vertices;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800084C4.s")
@@ -5698,4 +5673,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x170
  * summary: Workbench operand-mismatch: constant-audit. Next: authenticate stack homes for the four-byte pending-array displacement.
  * PLATEAU-HANDOFF:func_8000784C:end
+ */
+
+/* PLATEAU-HANDOFF:func_800084C4:start
+ * symbol: func_800084C4
+ * score: 168 differing words
+ * frame: 0xB0
+ * relocations: 8
+ * first-mismatch: +0x2C8
+ * summary: Workbench structure-mismatch: structure-buckets. Next: resolve the extra texture-flag argument move and shared physical-address constant.
+ * PLATEAU-HANDOFF:func_800084C4:end
  */
