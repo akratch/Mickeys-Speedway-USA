@@ -5825,11 +5825,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_80011CDC:start
  * symbol: func_80011CDC
- * score: 15/342 words
- * frame: 0xD0
+ * score: 327 differing words
+ * frame: 0xd0
  * relocations: 11
  * first-mismatch: +0x0
- * summary: Plane-difference locals improve 339 to 327 diffs and recover target saves; texture-global hoisting still spills the counter (344 vs 342 words, 11 vs 15 relocs).
+ * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
  * PLATEAU-HANDOFF:func_80011CDC:end
  */
 
