@@ -3203,8 +3203,13 @@ extern s32 gOverlay1SelectedType;
  * 889 and 895 are both in overlay1CreateRecord. Linked range/module/ROM
  * identity still proves fallback only. A historical exact claim rewrote the
  * twelve register fields after compilation and remains prohibited evidence.
- * Resume only with a new natural allocator-order mechanism. Exact promotion
- * must also share the record type with overlay1CreateRecord and
+ * ADR 0018 resume: five fresh source forms gave no better residual or causal
+ * allocation result. Explicit countdown snapshot and unsigned selected-type
+ * carrier are byte-flat; direct invariant global access, early value load,
+ * and split acceptance branches regress. Preserve this best guarded body.
+ * Next lever needs source evidence for different selected-type/value web
+ * formation; do not repeat these forms or the prior exhausted routes.
+ * Exact promotion must also share the record type with overlay1CreateRecord and
  * metadata-rebind distinct D_220 and D_1D88 identities; neither operation may
  * change candidate instruction fields. */
 #ifdef NON_MATCHING
@@ -3246,7 +3251,7 @@ Overlay1BestRecord *overlay1FindBestRecord(void) {
  * frame: frameless
  * relocations: 4
  * first-mismatch: +0x4
- * summary: 119 flags and three natural declaration/scope forms are exhausted; one a1/a3 allocator bijection remains
+ * summary: Five fresh forms stalled at 12 differing words; pool-position needs new selected-type/value web-formation evidence; prior exhausted routes remain closed.
  * PLATEAU-HANDOFF:overlay1FindBestRecord:end
  */
 
