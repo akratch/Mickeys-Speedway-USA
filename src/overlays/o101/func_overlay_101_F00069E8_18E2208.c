@@ -16,11 +16,6 @@ typedef struct O101RootGroup {
     void *data18;
 } O101RootGroup;
 
-typedef struct O101Root69E8 {
-    u8 pad00[0x1C];
-    O101RootGroup groups[6];
-} O101Root69E8;
-
 typedef struct O101Node32_69E8 {
     s32 previousType;
     void *previous;
@@ -80,7 +75,7 @@ typedef struct O101Inputs69E8 {
  * siblings identify the order records, order list, resource arrays and
  * their three counters. The text-node pool and input block are separate
  * objects; equal encoded addends never establish an alias. */
-extern O101Root69E8 gOverlay101OrderEntries;
+extern O101RootGroup gOverlay101OrderEntries[];
 extern O101Inputs69E8 D_INPUT;
 extern O101RootGroup D_1C;
 extern O101RootGroup D_38;
@@ -112,10 +107,10 @@ extern void overlay101Reset(void *value);
  * Mickey-local reconstruction from this overlay's extracted function and
  * the typed node builders immediately before and after it. The pinned DKR
  * v77/v80 and JFG overlay scans report no donor for overlay 101.
- * Configured full-TU measurement after call recovery: 963/963 words,
- * 693 raw / 690 relocation-masked differences, first +0x2C; frame 0x50.
+ * Configured full-TU measurement after reconstruction: 963/963 words,
+ * 644 raw / 641 relocation-masked differences, first +0x2C; frame 0x50.
  * The runtime table owns 110 relocations; the extracted assembly object
- * retains only 79, so its placeholder identities are not promotion proof.
+ * retains only 78 text relocations; its placeholders are not promotion proof.
  */
 #ifdef NON_MATCHING
 void func_overlay_101_F00069E8_18E2208(void) {
@@ -128,98 +123,98 @@ void func_overlay_101_F00069E8_18E2208(void) {
     O101Node24_69E8 *node24;
     O101Node32_69E8 *node32;
 
-#define INIT_GROUP(group, px, pwidth, py, pheight, value0, value1, input,    \
-                   owner)                                                    \
-    gOverlay101OrderEntries.groups[group].x = (px);                                              \
-    gOverlay101OrderEntries.groups[group].width = (pwidth);                                      \
-    gOverlay101OrderEntries.groups[group].y = (py);                                              \
-    gOverlay101OrderEntries.groups[group].height = (pheight);                                    \
-    gOverlay101OrderEntries.groups[group].value12 = (value0);                                    \
-    gOverlay101OrderEntries.groups[group].value14 = (value1);                                    \
-    gOverlay101OrderEntries.groups[group].mode = 0;                                              \
-    gOverlay101OrderEntries.groups[group].color16 = 0xFF;                                        \
-    gOverlay101OrderEntries.groups[group].color17 = 0xFF;                                        \
-    gOverlay101OrderEntries.groups[group].childType = 0;                                         \
-    gOverlay101OrderEntries.groups[group].child = 0;                                             \
-    gOverlay101OrderEntries.groups[group].data18 = D_INPUT.input;                                \
-    orderIndex = gOverlay101OrderCount;                                                      \
-    gOverlay101Order[orderIndex] = &(owner);                                            \
+#define INIT_GROUP(group, px, pwidth, py, pheight, value0, value1, input,      \
+                   owner)                                                      \
+    gOverlay101OrderEntries[1 + group].x = (px);                               \
+    gOverlay101OrderEntries[1 + group].width = (pwidth);                       \
+    gOverlay101OrderEntries[1 + group].y = (py);                               \
+    gOverlay101OrderEntries[1 + group].height = (pheight);                     \
+    gOverlay101OrderEntries[1 + group].value12 = (value0);                     \
+    gOverlay101OrderEntries[1 + group].value14 = (value1);                     \
+    gOverlay101OrderEntries[1 + group].mode = 0;                               \
+    gOverlay101OrderEntries[1 + group].color16 = 0xFF;                         \
+    gOverlay101OrderEntries[1 + group].color17 = 0xFF;                         \
+    gOverlay101OrderEntries[1 + group].childType = 0;                          \
+    gOverlay101OrderEntries[1 + group].child = 0;                              \
+    gOverlay101OrderEntries[1 + group].data18 = D_INPUT.input;                 \
+    orderIndex = gOverlay101OrderCount;                                        \
+    gOverlay101Order[orderIndex] = &(owner);                                   \
     gOverlay101OrderCount = orderIndex + 1
 
-#define ADD_NODE32(group, nodeX, nodeY, nodeScale, nodeValue, nodeColor,    \
-                   imageId)                                                  \
-    index = gOverlay101Resource32Count;                                                           \
-    node32 = &gOverlay101Resources32[index];                                                  \
-    node32->x = (nodeX);                                                     \
-    node32->y = (nodeY);                                                     \
-    node32->value10 = (nodeValue);                                           \
-    node32->color12 = (nodeColor);                                           \
-    node32->color13 = 0;                                                     \
-    node32->value18 = 0;                                                     \
-    node32->scale = (nodeScale);                                             \
-    node32->value14 = 0.0f;                                                  \
-    handle = func_800355A0((imageId), 0);                \
-    index = gOverlay101Resource32Count;                                                           \
-    node32 = &gOverlay101Resources32[index];                                                  \
-    node32->previousType = gOverlay101OrderEntries.groups[group].childType;                      \
-    node32->previous = gOverlay101OrderEntries.groups[group].child;                              \
-    node32->handle = handle;                                                 \
-    gOverlay101OrderEntries.groups[group].childType = 2;                                         \
-    gOverlay101OrderEntries.groups[group].child = node32;                                        \
+#define ADD_NODE32(group, nodeX, nodeY, nodeScale, nodeValue, nodeColor,       \
+                   imageId)                                                    \
+    index = gOverlay101Resource32Count;                                        \
+    node32 = &gOverlay101Resources32[index];                                   \
+    node32->x = (nodeX);                                                       \
+    node32->y = (nodeY);                                                       \
+    node32->scale = (nodeScale);                                               \
+    node32->value10 = (nodeValue);                                             \
+    node32->color12 = (nodeColor);                                             \
+    node32->color13 = 0;                                                       \
+    node32->value14 = 0.0f;                                                    \
+    node32->value18 = 0;                                                       \
+    handle = func_800355A0((imageId), 0);                                      \
+    index = gOverlay101Resource32Count;                                        \
+    node32 = &gOverlay101Resources32[index];                                   \
+    node32->previousType = gOverlay101OrderEntries[1 + group].childType;       \
+    node32->previous = gOverlay101OrderEntries[1 + group].child;               \
+    node32->handle = handle;                                                   \
+    gOverlay101OrderEntries[1 + group].childType = 2;                          \
+    gOverlay101OrderEntries[1 + group].child = node32;                         \
     gOverlay101Resource32Count = index + 1
 
-#define ADD_NODE20(group, nodeX, nodeY, imageId)                             \
-    index = gOverlay101Resource20Count;                                                           \
-    node20 = &gOverlay101Resources20[index];                                                  \
-    node20->x = (nodeX);                                                     \
-    node20->y = (nodeY);                                                     \
-    node20->scale = 1.0f;                                                    \
-    handle = func_80036DD0(imageId);                \
-    index = gOverlay101Resource20Count;                                                           \
-    node20 = &gOverlay101Resources20[index];                                                  \
-    node20->previousType = gOverlay101OrderEntries.groups[group].childType;                      \
-    node20->previous = gOverlay101OrderEntries.groups[group].child;                              \
-    node20->handle = handle;                                                 \
-    gOverlay101OrderEntries.groups[group].childType = 1;                                         \
-    gOverlay101OrderEntries.groups[group].child = node20;                                        \
+#define ADD_NODE20(group, nodeX, nodeY, imageId)                               \
+    index = gOverlay101Resource20Count;                                        \
+    node20 = &gOverlay101Resources20[index];                                   \
+    node20->x = (nodeX);                                                       \
+    node20->y = (nodeY);                                                       \
+    node20->scale = 1.0f;                                                      \
+    handle = func_80036DD0(imageId);                                           \
+    index = gOverlay101Resource20Count;                                        \
+    node20 = &gOverlay101Resources20[index];                                   \
+    node20->previousType = gOverlay101OrderEntries[1 + group].childType;       \
+    node20->previous = gOverlay101OrderEntries[1 + group].child;               \
+    node20->handle = handle;                                                   \
+    gOverlay101OrderEntries[1 + group].childType = 1;                          \
+    gOverlay101OrderEntries[1 + group].child = node20;                         \
     gOverlay101Resource20Count = index + 1
 
-#define ADD_TEXT(group, input, textX, textY)                                 \
-    index = D_1D0;                                                           \
-    node24 = &D_540[index];                                                  \
-    node24->x = (textX);                                                     \
-    node24->y = (textY);                                                     \
-    length = overlay101ByteLength(D_INPUT.input);               \
-    index = D_1D0;                                                           \
-    node24 = &D_540[index];                                                  \
-    node24->length = (u8)length;                                             \
-    node24->opacity =                                                        \
-        (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1);                  \
-    node24->mode = 2;                                                        \
-    node24->color0 = 0xFF;                                                   \
-    node24->color1 = 0xFF;                                                   \
-    node24->color2 = 0xFF;                                                   \
-    node24->color3 = 0xFF;                                                   \
-    node24->kind = 4;                                                        \
-    node24->text = D_INPUT.input;                                            \
-    node24->previousType = gOverlay101OrderEntries.groups[group].childType;                      \
-    node24->previous = gOverlay101OrderEntries.groups[group].child;                              \
-    gOverlay101OrderEntries.groups[group].childType = 3;                                         \
-    gOverlay101OrderEntries.groups[group].child = node24;                                        \
+#define ADD_TEXT(group, input, textX, textY)                                   \
+    index = D_1D0;                                                             \
+    node24 = &D_540[index];                                                    \
+    node24->x = (textX);                                                       \
+    node24->y = (textY);                                                       \
+    length = overlay101ByteLength(D_INPUT.input);                              \
+    index = D_1D0;                                                             \
+    node24 = &D_540[index];                                                    \
+    node24->length = (u8)length;                                               \
+    node24->opacity =                                                          \
+        (s8)(s32)((f32)(u32)(length & 0xFF) * (f32)(s32)1);                    \
+    node24->mode = 2;                                                          \
+    node24->color0 = 0xFF;                                                     \
+    node24->color1 = 0xFF;                                                     \
+    node24->color2 = 0xFF;                                                     \
+    node24->color3 = 0xFF;                                                     \
+    node24->kind = 4;                                                          \
+    node24->text = D_INPUT.input;                                              \
+    node24->previousType = gOverlay101OrderEntries[1 + group].childType;       \
+    node24->previous = gOverlay101OrderEntries[1 + group].child;               \
+    gOverlay101OrderEntries[1 + group].childType = 3;                          \
+    gOverlay101OrderEntries[1 + group].child = node24;                         \
     D_1D0 = index + 1
 
-    gOverlay101OrderEntries.groups[0].mode = 4;
-    gOverlay101OrderEntries.groups[0].value12 = 0x140;
-    gOverlay101OrderEntries.groups[0].value14 = 0xF0;
-    gOverlay101OrderEntries.groups[0].data18 = &D_CC8;
-    gOverlay101OrderEntries.groups[0].color16 = 0xFF;
-    gOverlay101OrderEntries.groups[0].color17 = 0xFF;
-    gOverlay101OrderEntries.groups[0].x = 0;
-    gOverlay101OrderEntries.groups[0].width = 0;
-    gOverlay101OrderEntries.groups[0].y = 0;
-    gOverlay101OrderEntries.groups[0].height = 0;
-    gOverlay101OrderEntries.groups[0].childType = 0;
-    gOverlay101OrderEntries.groups[0].child = 0;
+    gOverlay101OrderEntries[1 + 0].mode = 4;
+    gOverlay101OrderEntries[1 + 0].value12 = 0x140;
+    gOverlay101OrderEntries[1 + 0].value14 = 0xF0;
+    gOverlay101OrderEntries[1 + 0].data18 = &D_CC8;
+    gOverlay101OrderEntries[1 + 0].color16 = 0xFF;
+    gOverlay101OrderEntries[1 + 0].color17 = 0xFF;
+    gOverlay101OrderEntries[1 + 0].x = 0;
+    gOverlay101OrderEntries[1 + 0].width = 0;
+    gOverlay101OrderEntries[1 + 0].y = 0;
+    gOverlay101OrderEntries[1 + 0].height = 0;
+    gOverlay101OrderEntries[1 + 0].childType = 0;
+    gOverlay101OrderEntries[1 + 0].child = 0;
     orderIndex = gOverlay101OrderCount;
     gOverlay101Order[orderIndex] = &D_1C;
     gOverlay101OrderCount = orderIndex + 1;
@@ -267,3 +262,13 @@ void func_overlay_101_F00069E8_18E2208(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/func_overlay_101_F00069E8_18E2208/func_overlay_101_F00069E8_18E2208.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_101_F00069E8_18E2208:start
+ * symbol: func_overlay_101_F00069E8_18E2208
+ * score: 641/963 words
+ * frame: 0x50
+ * relocations: 110
+ * first-mismatch: +0x2C
+ * summary: 963 words, 644 raw/641 masked; five stalled attempts. Next: authorized causal trace of setup-count/coordinate register lifetimes.
+ * PLATEAU-HANDOFF:func_overlay_101_F00069E8_18E2208:end
+ */
