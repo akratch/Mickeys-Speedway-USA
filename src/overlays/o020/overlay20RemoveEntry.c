@@ -15,20 +15,23 @@ extern u32 gOverlay20ActiveBits;
  * Racing's published src/weather.c::lensflare_override_remove. Mickey's owner
  * offset, arrays, marker cleanup, relocations, and target bytes remain
  * authoritative. */
-/* Bounded plateau (2026-09-04): configured C is 47/53 words, frameless, with
+/* Bounded plateau (2026-09-08): configured C is 51/53 words, frameless, with
  * exact 0xD4 ownership and all ten relocation tuples and identities. The
  * donor-style indexed compaction removes two pool webs and makes the 12-web
- * temporary lane exact. The remaining six words are a two-web pool rotation:
- * the target uses v0/a1 for the end/cursor pair while IDO chooses a1/a0.
+ * temporary lane exact. Capturing the decremented count in new_var removes
+ * four residual words; the remaining two words are a pool-color tie where
+ * the target uses v0 and IDO chooses a2.
  * Fidelity-clean proc-0 tracing identifies an invisible v0 web that conflicts
  * with the end web. A diagnostic split plus forced cursor color reaches the
  * target pool assignments but introduces a stack frame, so it is not a valid
- * promotion. Pointer-, index-, cursor-relative-, explicit-base-, register-,
+ * promotion. The bounded forced-color permuter follow-up was flat at this
+ * 51/53 result. Pointer-, index-, cursor-relative-, explicit-base-, register-,
  * byte-offset-, and association variants were exhausted. IDO's trailing 0xC
  * is section alignment, not target padding. */
 #ifdef NON_MATCHING
 void overlay20RemoveEntry(s32 owner) {
     void *entry;
+    s32 new_var;
     s32 i;
 
     entry = ((Overlay20RemoveOwner *)owner)->entry;
@@ -54,10 +57,11 @@ void overlay20RemoveEntry(s32 owner) {
     }
     gOverlay20EntryCount = owner - 1;
     if (i < gOverlay20EntryCount) {
+        new_var = gOverlay20EntryCount;
         do {
             gOverlay20ShiftEntries[i] = gOverlay20ShiftEntries[i + 1];
             i++;
-        } while (i < gOverlay20EntryCount);
+        } while (i < new_var);
     }
 
     owner = (s32)&gOverlay20MarkerEnd;
@@ -76,10 +80,10 @@ void overlay20RemoveEntry(s32 owner) {
 
 /* PLATEAU-HANDOFF:overlay20RemoveEntry:start
  * symbol: overlay20RemoveEntry
- * score: 47/53 words
+ * score: 51/53 words
  * frame: frameless
  * relocations: 10
  * first-mismatch: +0x6C
- * summary: Indexed compaction makes the temporary lane exact and cuts the deficit to six words; an invisible interfering web blocks the remaining two-web pool rotation.
+ * summary: new_var improves 47/53 to 51/53; final v0-a2 pool tie is flat; next lever is instrumented uopt forced-color oracle
  * PLATEAU-HANDOFF:overlay20RemoveEntry:end
  */
