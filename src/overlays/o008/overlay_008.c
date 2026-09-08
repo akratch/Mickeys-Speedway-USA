@@ -600,9 +600,7 @@ typedef struct O8P1294ColorTarget {
     u8 color24[4];
 } O8P1294ColorTarget;
 
-#define O8P1294_F32(ptr, offset) (*(f32 *)((u8 *)(ptr) + (offset)))
-
-extern u8 D_4[];
+extern s16 D_4;
 extern f32 D_F8, D_FC, D_100, D_104, D_108, D_10C, D_110, D_114;
 extern f32 D_118, D_11C, D_120, D_124, D_128, D_12C, D_130, D_134;
 extern f32 D_138, D_13C, D_140, D_144, D_148, D_14C, D_150, D_154;
@@ -620,138 +618,84 @@ extern void func_80002FE0(s32 id, f32 x, f32 y, f32 z, s32 priority,
                           void **handle);
 extern void func_800031C0(void *handle, f32 x, f32 y, f32 z);
 extern s32 func_8002A204(s16 angle);
-extern s32 mathDiffAngle(s16 current, s16 target);
+extern s32 mathDiffAngle(s32 current, s32 target);
 
-/* Direct reconstruction plateau: the tuning +0x14 f32 load/conversion restores
- * the exact 1259-word size in a 0x180 frame versus the target's 0xB0. Reusing
- * var_f0 cuts the direct-float alignment gaps from 244 to 48, but 1127 masked
- * words differ and the linked overlay remains 24 bytes long. Reduce the
- * remaining m2c-derived automatic homes without repeating field reads. */
+/* NON_MATCHING reconstruction: the configured full TU has the exact 1259-word
+ * size, 636 masked differences and a 0xC8 frame versus the target's 0xB0.
+ * The update loop tests the old counter; the braking global is a halfword;
+ * mathDiffAngle accepts the full requested angle. Paired color-enable homes
+ * and distinct raw/clamped steering values retain the observed dataflow. */
 #ifdef NON_MATCHING
 void func_overlay_008_F0001294_185EFEC(O8P1294Owner *owner,
                                        O8P1294State *state, f32 update) {
-    s32 sp9C;
-    s32 sp8C;
-    s32 sp88;
-    s32 sp84;
-    f32 temp_f0;
-    f32 temp_f0_10;
-    f32 temp_f0_11;
-    f32 temp_f0_12;
-    f32 temp_f0_13;
-    f32 temp_f0_14;
-    f32 temp_f0_2;
-    f32 temp_f0_3;
-    f32 temp_f0_4;
-    f32 temp_f0_5;
-    f32 temp_f0_6;
-    f32 temp_f0_7;
-    f32 temp_f0_8;
-    f32 temp_f0_9;
-    f32 temp_f12;
-    f32 temp_f12_2;
-    f32 temp_f12_3;
-    f32 temp_f14;
-    f32 var_f0;
-    f32 var_f0_2;
-    f32 var_f14;
-    f32 var_f2;
-    f32 var_f2_10;
-    f32 var_f2_11;
-    f32 var_f2_2;
-    f32 var_f2_3;
-    f32 var_f2_4;
-    f32 var_f2_5;
-    f32 var_f2_6;
-    f32 var_f2_7;
-    f32 var_f2_8;
-    f32 var_f2_9;
-    s16 temp_a1_4;
-    s16 temp_a1_5;
-    s16 temp_a1_6;
-    s16 temp_t9;
-    s16 temp_v0_10;
-    s16 temp_v0_4;
-    s16 temp_v0_5;
-    s16 temp_v0_8;
-    s16 temp_v1;
-    s16 temp_v1_4;
-    s16 temp_v1_5;
-    s32 temp_a0_2;
-    s32 temp_a0_4;
-    s32 temp_a0_5;
-    s32 temp_a0_6;
-    s32 temp_a1;
-    s32 temp_a1_2;
-    s32 temp_a1_3;
-    s32 temp_f18;
-    s32 temp_f4;
-    s32 temp_f8;
-    s32 temp_t2;
-    s32 temp_v1_2;
-    s32 temp_v1_3;
-    s32 temp_v1_6;
-    s32 var_a0_2;
-    s32 var_a0_3;
-    s32 var_a1;
-    s32 var_a2;
-    s32 var_a2_2;
-    s32 var_a2_3;
-    s32 var_s3;
-    s32 var_v0;
-    s32 var_v0_2;
-    s32 var_v1_2;
-    s32 var_v1_3;
-    s32 var_v1_4;
-    s8 temp_v0_2;
-    u8 temp_v0_11;
-    u8 temp_v0_3;
-    u8 temp_v0_6;
-    s32 var_v1;
-    O8P0058Peer *temp_a0;
-    u8 *temp_v0;
-    O8P1294ColorTarget *temp_v0_12;
-    O8P1294ColorTarget *temp_v0_13;
-    u8 *temp_v0_7;
-    u8 *temp_v1_7;
-    u8 *temp_v1_8;
-    u8 *var_a0;
+    s32 updatesRemaining;
+    s32 updateCount;
+    s32 impactBoost;
+    s32 colorEnabled[2];
+    f32 value;
+    f32 speed;
+    f32 speedLimit;
+    f32 scale;
+    s16 driftDirection;
+    s16 cooldown;
+    s32 steeringAngle;
+    s32 steeringInput;
+    s32 clampedSteering;
+    s32 inputFlags;
+    s32 angleStep;
+    s32 targetAngle;
+    s32 braking;
+    s32 leftSelector;
+    s32 rightSelector;
+    s32 turnAmount;
+    s32 effectMask;
+    s32 applyReverseMotion;
+    s32 turnDirection;
+    s32 driftStep;
+    s8 animation;
+    u8 modeFlags;
+    s32 index;
+    O8P0058Peer *peer;
+    f32 *tuning;
+    O8P1294ColorTarget *colorTarget;
+    u8 *color;
+    f32 *curve;
 
-    temp_v0 = overlay8GetIndexed((Overlay8IndexedObject *)state);
-    sp8C = 0;
-    var_v1 = state->unk192;
-    var_s3 = 0;
-    if ((s32) var_v1 >= 0xB) {
-        var_v1 = 0xA;
+    tuning = overlay8GetIndexed((Overlay8IndexedObject *)state);
+    impactBoost = 0;
+    index = state->unk192;
+    effectMask = 0;
+    if ((s32) index >= 0xB) {
+        index = 0xA;
     }
-    D_10 = O8P1294_F32(temp_v0, 0x40) + ((f32) var_v1 * O8P1294_F32(temp_v0, 0x8));
-    temp_a0 = state->unkD4;
-    if (temp_a0 != NULL) {
-        D_10 *= 1.0f + (D_F8 * temp_a0->state64->blend14);
+    D_10 = tuning[0x40 / sizeof(f32)] + ((f32) index * tuning[0x8 / sizeof(f32)]);
+    peer = state->unkD4;
+    if (peer != NULL) {
+        D_10 *= 1.0f + (D_F8 * peer->state64->blend14);
     }
     if (state->unk185 == 0) {
-        temp_f0 = state->unk5C;
-        if (temp_f0 != 0.0f) {
-            var_f2 = 1.0f -
-                (temp_f0 * 0.5f * O8P1294_F32(temp_v0, 0xC));
-            if (var_f2 < D_FC) {
-                var_f2 = D_100;
+        value = state->unk5C;
+        if (value != 0.0f) {
+            scale = 1.0f -
+                (value * 0.5f * tuning[0xC / sizeof(f32)]);
+            if (scale < D_FC) {
+                scale = D_100;
             }
-            D_10 *= var_f2;
+            D_10 *= scale;
         }
     }
-    temp_v1 = state->unk102;
-    if (temp_v1 != 0) {
-        temp_v0_2 = owner->unk3B;
-        if ((temp_v0_2 == 0x10) || (temp_v0_2 == 0xF)) {
-            var_f2_2 = owner->unk28 * 1.5f;
-            if (var_f2_2 > 1.0f) {
-                var_f2_2 = 1.0f;
+    driftDirection = state->unk102;
+    if (driftDirection != 0) {
+        animation = owner->unk3B;
+        if ((animation == 0x10) || (animation == 0xF)) {
+            scale = owner->unk28 * 1.5f;
+            if (scale > 1.0f) {
+                scale = 1.0f;
             }
-            if (temp_v1 > 0) {
-                var_f2_2 = -var_f2_2;
+            if (driftDirection > 0) {
+                scale = -scale;
             }
-            state->unk104 = (s16) (s32) (65536.0f * var_f2_2);
+            state->unk104 = (s16) (s32) (65536.0f * scale);
             if (owner->unk28 == 1.0f) {
                 state->unk102 = 0;
                 state->unk104 = 0;
@@ -762,74 +706,73 @@ void func_overlay_008_F0001294_185EFEC(O8P1294Owner *owner,
         }
         controlSetRumble(state, 0x32, 0.15f);
     }
-    temp_v0_3 = state->unk184;
-    if ((temp_v0_3 != 0) && (((s32) temp_v0_3 >= 2) ||
-        (temp_a1 = state->unk41C, ((temp_a1 & 0x4000) != 0)) ||
-        !(temp_a1 & 0x8000))) {
+    modeFlags = state->unk184;
+    if ((modeFlags != 0) && (((s32) modeFlags >= 2) ||
+        (inputFlags = state->unk41C, ((inputFlags & 0x4000) != 0)) ||
+        !(inputFlags & 0x8000))) {
         state->unk184 = 0U;
     }
-    temp_f8 = (s32) update;
-    sp9C = temp_f8 - 1;
-    if (temp_f8 != 0) {
+    updateCount = (s32) update;
+    updatesRemaining = updateCount - 1;
+    if (updateCount != 0) {
         do {
-            temp_f0_2 = func_overlay_008_F0001000_185ED58(
+            value = func_overlay_008_F0001000_185ED58(
                 owner, (O8PhaseState *)state, D_10);
-            var_f14 = temp_f0_2;
-            if (D_104 < temp_f0_2) {
-                var_f14 = D_108;
+            speedLimit = value;
+            if (D_104 < value) {
+                speedLimit = D_108;
             }
-            temp_a1_2 = state->unk41C;
-            temp_v1_2 = temp_a1_2 & 0x4000;
-            if ((temp_v1_2 == 0) && (state->unk5C > 0.0f) && (state->unk4 < -D_10)) {
-                var_v0 = 1;
-            } else if ((temp_v1_2 == 0) && (state->unk5C < 0.0f)) {
-                var_v0 = 1;
+            inputFlags = state->unk41C;
+            braking = inputFlags & 0x4000;
+            if ((braking == 0) && (state->unk5C > 0.0f) && (state->unk4 < -D_10)) {
+                applyReverseMotion = 1;
+            } else if ((braking == 0) && (state->unk5C < 0.0f)) {
+                applyReverseMotion = 1;
+            } else if (!(inputFlags & 0xC000) && (state->unk5C > 0.0f)) {
+                applyReverseMotion = 1;
             } else {
-                var_v0 = 0;
-                if (!(temp_a1_2 & 0xC000) && (state->unk5C > 0.0f)) {
-                    var_v0 = 1;
-                }
+                applyReverseMotion = 0;
             }
-            if ((var_v0 != 0) && (state->unk185 == 0)) {
+            if ((applyReverseMotion != 0) && (state->unk185 == 0)) {
                 state->unk4 = (f32) (state->unk4 +
                     (gO8P1294MotionScalarReloc * state->unk5C));
-                temp_f0_3 = O8P1294_F32(temp_v0, 0x1C);
-                if (temp_f0_3 < state->unk4) {
-                    state->unk4 = temp_f0_3;
+                value = tuning[0x1C / sizeof(f32)];
+                if (value < state->unk4) {
+                    state->unk4 = value;
                 }
             }
             if (state->unk102 != 0) {
-                temp_f0_4 = D_10C;
+                value = D_10C;
                 state->unk428 = 0;
                 state->unk42C = 0;
                 state->unk41C = 0;
                 state->unk420 = 0;
-                state->unk4 = (f32) (state->unk4 * temp_f0_4);
-                state->unk8 = (f32) (state->unk8 * temp_f0_4);
+                state->unk4 = (f32) (state->unk4 * value);
+                state->unk8 = (f32) (state->unk8 * value);
             }
-            temp_f0_5 = state->unk148 - state->unk4;
-            var_f2_3 = temp_f0_5 * D_110;
-            if (var_f2_3 < D_114) {
-                var_f2_3 = D_118;
+            value = state->unk148 - state->unk4;
+            scale = value * D_110;
+            if (scale < D_114) {
+                scale = D_118;
             }
-            if (D_11C < var_f2_3) {
-                var_f2_3 = D_120;
+            if (D_11C < scale) {
+                scale = D_120;
             }
-            temp_v0_4 = state->unk144;
-            state->unk144 = (s16) (temp_v0_4 + ((s32) ((s32) var_f2_3 - temp_v0_4) >> 3));
-            var_f2_4 = temp_f0_5 * D_124;
-            if (var_f2_4 < D_128) {
-                var_f2_4 = D_12C;
+            steeringAngle = state->unk144;
+            state->unk144 = (s16) (steeringAngle + ((s32) ((s32) scale - steeringAngle) >> 3));
+            scale = value * D_124;
+            if (scale < D_128) {
+                scale = D_12C;
             }
-            if (D_130 < var_f2_4) {
-                var_f2_4 = D_134;
+            if (D_130 < scale) {
+                scale = D_134;
             }
-            temp_v0_5 = state->unk146;
-            temp_a1_3 = state->unk41C;
+            steeringAngle = state->unk146;
+            inputFlags = state->unk41C;
             state->unk148 = state->unk4;
-            temp_v1_3 = temp_a1_3 & 0x4000;
-            state->unk146 = (s16) (temp_v0_5 + ((s32) ((s32) var_f2_4 - temp_v0_5) >> 3));
-            if ((temp_v1_3 != 0) && (temp_a1_3 & 0x10) && ((temp_a0_2 = state->unk428, ((temp_a0_2 < -0x1E) != 0)) || (temp_a0_2 >= 0x1F))) {
+            braking = inputFlags & 0x4000;
+            state->unk146 = (s16) (steeringAngle + ((s32) ((s32) scale - steeringAngle) >> 3));
+            if ((braking != 0) && (inputFlags & 0x10) && ((steeringInput = state->unk428, ((steeringInput < -0x1E) != 0)) || (steeringInput >= 0x1F))) {
                 if (state->unk4 < -5.0f) {
                     state->unk4 = (f32) (state->unk4 + D_138);
                     if (state->unk4 > -5.0f) {
@@ -841,112 +784,112 @@ void func_overlay_008_F0001294_185EFEC(O8P1294Owner *owner,
                         state->unk4 = -5.0f;
                     }
                 }
-                *(s16 *)D_4 = 1;
-                temp_f0_6 = state->unkE4;
-                var_s3 |= 0x3C;
-                if (temp_f0_6 < 1.0f) {
-                    state->unkE4 = (f32) (temp_f0_6 + D_140);
+                D_4 = 1;
+                value = state->unkE4;
+                effectMask |= 0x3C;
+                if (value < 1.0f) {
+                    state->unkE4 = (f32) (value + D_140);
                 }
-            } else if (temp_v1_3 != 0) {
+            } else if (braking != 0) {
                 if (state->unk4 < -5.0f) {
-                    *(s32 *)D_4 = 1;
-                    var_s3 |= 0x3C;
+                    D_4 = 1;
+                    effectMask |= 0x3C;
                 }
                 if (state->unk4 < 0.0f) {
-                    state->unk4 = (f32) (state->unk4 + O8P1294_F32(temp_v0 + ((s32)-state->unk4 * 4), 0xC8));
+                    state->unk4 = (f32) (state->unk4 + tuning[0xC8 / sizeof(f32) + (s32)-state->unk4]);
                     if ((state->unk4 > 0.0f) && (state->unk42C >= -0x1E)) {
                         goto block_74;
                     }
                 } else if (state->unk42C < -0x1E) {
-                    state->unk4 = (f32) (state->unk4 + O8P1294_F32(temp_v0 + ((s32)state->unk4 * 4), 0x20));
-                    temp_f0_7 = O8P1294_F32(temp_v0, 0x1C);
-                    if (temp_f0_7 < state->unk4) {
-                        state->unk4 = temp_f0_7;
+                    state->unk4 = (f32) (state->unk4 + tuning[0x20 / sizeof(f32) + (s32)state->unk4]);
+                    value = tuning[0x1C / sizeof(f32)];
+                    if (value < state->unk4) {
+                        state->unk4 = value;
                     }
                 } else {
-                    state->unk4 = (f32) (state->unk4 - O8P1294_F32(temp_v0, 0xC8));
+                    state->unk4 = (f32) (state->unk4 - tuning[0xC8 / sizeof(f32)]);
                     if (state->unk4 <= 0.0f) {
 block_74:
                         state->unk4 = 0.0f;
                     }
                 }
-                temp_f0_8 = state->unkE4;
-                if (temp_f0_8 < 1.0f) {
-                    state->unkE4 = (f32) (temp_f0_8 + D_144);
+                value = state->unkE4;
+                if (value < 1.0f) {
+                    state->unkE4 = (f32) (value + D_144);
                 }
-            } else if (temp_a1_3 & 0x8000) {
+            } else if (inputFlags & 0x8000) {
                 if ((state->unk184 != 0) ||
-                    (temp_v0_6 = state->unk185, (temp_v0_6 == 1)) ||
-                    (temp_v0_6 == 2)) {
-                    sp8C = 1;
+                    (modeFlags = state->unk185, (modeFlags == 1)) ||
+                    (modeFlags == 2)) {
+                    impactBoost = 1;
                     if (gO8P1294ImpactGateReloc == 0) {
-                        var_f2_5 = D_148;
+                        scale = D_148;
                     } else {
-                        var_f2_5 = 0.5f;
+                        scale = 0.5f;
                     }
                     controlSetRumble(state, 0x32, 0.15f);
-                    var_f2_6 = var_f2_5;
+
                 } else {
                     if (state->unk4 > 0.0f) {
-                        var_a0 = temp_v0 + 0xC8;
-                        var_v1_2 = (s32) state->unk4;
-                        var_f2_7 = state->unk4 - (f32) var_v1_2;
+                        curve = &tuning[0xC8 / sizeof(f32)];
+                        index = (s32) state->unk4;
+                        scale = state->unk4 - (f32) index;
                     } else {
-                        temp_f0_9 = -state->unk4;
-                        var_a0 = temp_v0 + 0x44;
-                        var_v1_2 = (s32) temp_f0_9;
-                        var_f2_7 = temp_f0_9 - (f32) var_v1_2;
+                        value = -state->unk4;
+                        curve = &tuning[0x44 / sizeof(f32)];
+                        index = (s32) value;
+                        scale = value - (f32) index;
                     }
-                    temp_v0_7 = var_a0 + (var_v1_2 * 4);
-                    temp_f0_10 = O8P1294_F32(temp_v0_7, 0);
-                    var_f2_6 = ((O8P1294_F32(temp_v0_7, 4) - temp_f0_10) * var_f2_7) + temp_f0_10;
+                    curve = &curve[index];
+                    value = curve[0];
+                    scale = ((curve[1] - value) * scale) + value;
                 }
-                temp_f0_11 = -var_f14;
-                if (state->unk4 < temp_f0_11) {
+                value = -speedLimit;
+                if (state->unk4 < value) {
                     state->unk4 = (f32) (state->unk4 * D_14C);
-                    if (temp_f0_11 < state->unk4) {
-                        state->unk4 = temp_f0_11;
+                    if (value < state->unk4) {
+                        state->unk4 = value;
                     }
                     if (state->unk184 != 0) {
                         state->unk184 = 2U;
                     }
                 } else {
-                    state->unk4 = (f32) (state->unk4 - var_f2_6);
-                    if (state->unk4 < temp_f0_11) {
-                        state->unk4 = temp_f0_11;
+                    state->unk4 = (f32) (state->unk4 - scale);
+                    if (state->unk4 < value) {
+                        state->unk4 = value;
                         if (state->unk184 != 0) {
                             state->unk184 = 2U;
                         }
-                    } else if (D_150 <= var_f2_6) {
-                        if ((sp8C == 0) || (state->unk184 != 0)) {
-                            var_s3 |= 0xC;
+                    } else if (D_150 <= scale) {
+                        if ((impactBoost == 0) || (state->unk184 != 0)) {
+                            effectMask |= 0xC;
                         }
-                        var_s3 |= 0x30;
+                        effectMask |= 0x30;
                     }
                 }
-                temp_f0_12 = state->unkE4;
-                if (D_154 <= temp_f0_12) {
-                    state->unkE4 = (f32) (temp_f0_12 - D_158);
+                value = state->unkE4;
+                if (D_154 <= value) {
+                    state->unkE4 = (f32) (value - D_158);
                 }
             } else {
-                temp_f0_13 = O8P1294_F32(temp_v0, 0xC4);
-                if ((-temp_f0_13 < state->unk4) &&
-                    (state->unk4 < temp_f0_13)) {
+                value = tuning[0xC4 / sizeof(f32)];
+                if ((-value < state->unk4) &&
+                    (state->unk4 < value)) {
                     state->unk4 = 0.0f;
                 } else {
                     state->unk4 = (f32) (state->unk4 * D_15C);
                 }
             }
             if ((state->unk18D == 0) && (state->unk158 == 0) && (state->unk349 != 0)) {
-                temp_f12 = state->unk4;
-                if ((D_160 < temp_f12) && (temp_f12 < D_164) &&
+                speed = state->unk4;
+                if ((D_160 < speed) && (speed < D_164) &&
                     (func_800299E8(0, 0x7F) >= 0x73)) {
                     owner->unk80 = (s32) (owner->unk80 | 0xC);
                 }
             }
-            temp_v0_8 = state->unkA2;
-            if (temp_v0_8 != 0) {
-                state->unkA2 = (s16) (temp_v0_8 - 1);
+            cooldown = state->unkA2;
+            if (cooldown != 0) {
+                state->unkA2 = (s16) (cooldown - 1);
             }
             if ((state->unk41C & 0x10) && (state->unk100 == 0) && (state->unk4 < -3.0f)) {
                 if (state->unk428 < -0xF) {
@@ -970,111 +913,113 @@ block_74:
             if (state->unk4 > -2.0f) {
                 state->unk100 = 0;
             }
-            var_f2_8 = state->unk4;
-            temp_a0_4 = state->unk428;
+            scale = state->unk4;
+            steeringInput = state->unk428;
             if (state->unk4 < 0.0f) {
-                var_f2_8 = -var_f2_8;
+                scale = -scale;
             }
-            if (var_f2_8 <= D_168) {
-                var_f2_9 = 0.0f;
+            if (scale <= D_168) {
+                scale = 0.0f;
             } else {
-                var_f2_10 = var_f2_8 - D_16C;
-                if (D_170 < var_f2_10) {
-                    var_f2_10 = D_174;
+                scale = scale - D_16C;
+                if (D_170 < scale) {
+                    scale = D_174;
                 }
                 if (state->unk100 != 0) {
-                    var_f2_9 = (var_f2_10 * 68.0f * 60.0f) / O8P1294_F32(temp_v0, 0x10);
+                    scale = (scale * 68.0f * 60.0f) / tuning[0x10 / sizeof(f32)];
                 } else {
-                    var_f2_9 = (var_f2_10 * 58.0f * 60.0f) / O8P1294_F32(temp_v0, 0x10);
+                    scale = (scale * 58.0f * 60.0f) / tuning[0x10 / sizeof(f32)];
                 }
                 if (state->unk4 > 0.0f) {
-                    var_f2_9 = -var_f2_9;
+                    scale = -scale;
                 }
             }
-            var_v0_2 = temp_a0_4;
-            if ((state->unk41C & 0x10) && (temp_a1_4 = state->unk100, var_a2 = 0x2710, (temp_a1_4 != 0))) {
-                if (temp_a0_4 >= 0x33) {
-                    var_v0_2 = 0x32;
-                } else if (var_v0_2 < -0x32) {
-                    var_v0_2 = -0x32;
+
+            clampedSteering = steeringInput;
+            if ((state->unk41C & 0x10) && (driftDirection = state->unk100, turnAmount = 0x2710, (driftDirection != 0))) {
+                if (steeringInput >= 0x33) {
+                    clampedSteering = 0x32;
+                } else if (clampedSteering < -0x32) {
+                    clampedSteering = -0x32;
                 }
-                if (((var_v0_2 > 0) && (temp_a1_4 > 0)) || ((var_v0_2 < 0) && (temp_a1_4 < 0))) {
-                    var_v0_2 = var_v0_2 >> 2;
+                if (((clampedSteering > 0) && (driftDirection > 0)) || ((clampedSteering < 0) && (driftDirection < 0))) {
+                    clampedSteering = clampedSteering >> 2;
                 }
-                var_v0_2 += temp_a1_4 * 0x3C;
+                clampedSteering += driftDirection * 0x3C;
             } else {
                 state->unk100 = 0;
-                if (var_v0_2 >= 0x3D) {
-                    var_v0_2 = 0x3C;
-                } else if (var_v0_2 < -0x3C) {
-                    var_v0_2 = -0x3C;
+                if (clampedSteering >= 0x3D) {
+                    clampedSteering = 0x3C;
+                } else if (clampedSteering < -0x3C) {
+                    clampedSteering = -0x3C;
                 }
-                var_f0 = O8P1294_F32(temp_v0, 0x14);
-                var_a2 = (s32) var_f0;
+                value = tuning[0x14 / sizeof(f32)];
+                turnAmount = (s32) value;
             }
-            temp_v1_4 = state->unk108;
-            temp_f4 = (s32) (((f32) -var_v0_2 * O8P1294_F32(temp_v0, 0x10)) / 60.0f);
-            temp_f18 = (s32) ((f32) (temp_f4 - temp_v1_4) * D_178);
-            if (temp_f18 != 0) {
-                state->unk108 = (s16) (temp_v1_4 + temp_f18);
+            steeringAngle = state->unk108;
+            targetAngle = (s32) (((f32) -clampedSteering * tuning[0x10 / sizeof(f32)]) / 60.0f);
+            angleStep = (s32) ((f32) (targetAngle - steeringAngle) * D_178);
+            if (angleStep != 0) {
+                state->unk108 = (s16) (steeringAngle + angleStep);
             } else {
-                state->unk108 = (s16) temp_f4;
+                state->unk108 = (s16) targetAngle;
             }
-            temp_f12_2 = state->unk4;
-            if ((temp_f12_2 > -10.0f) && (temp_f12_2 < 10.0f)) {
-                if (temp_f12_2 < 0.0f) {
-                    var_f0 = temp_f12_2 * D_17C;
+            speed = state->unk4;
+            if ((speed > -10.0f) && (speed < 10.0f)) {
+                if (speed < 0.0f) {
+                    value = speed * D_17C;
                 } else {
-                    var_f0 = temp_f12_2 * D_180;
+                    value = speed * D_180;
                 }
-                var_f0_2 = ((D_C - 1.0f) * var_f0) + 1.0f;
+                value = ((D_C - 1.0f) * value) + 1.0f;
             } else {
-                var_f0_2 = D_C;
+                value = D_C;
             }
-            temp_v1_5 = state->unk108;
-            state->unk4 = (f32) (temp_f12_2 * var_f0_2);
-            if ((temp_v1_5 < -var_a2) || (var_a2 < temp_v1_5)) {
-                state->unk4 = (f32) (state->unk4 * O8P1294_F32(temp_v0, 0x18));
+            steeringAngle = state->unk108;
+            state->unk4 = (f32) (speed * value);
+            if ((steeringAngle < -turnAmount) || (turnAmount < steeringAngle)) {
+                state->unk4 = (f32) (state->unk4 * tuning[0x18 / sizeof(f32)]);
             }
             state->unk182 = (u8) ((state->unk182 + 1) & 0xF);
-            var_a2_2 = (s32) ((f32) state->unk108 * var_f2_9);
-            if (var_a2_2 != 0) {
-                temp_a1_5 = state->unk100;
-                var_v1_3 = 0;
-                if ((temp_a1_5 < 0) || (var_a2_2 < -0x1400)) {
-                    var_v1_3 = -1;
-                } else if ((temp_a1_5 > 0) || (var_a2_2 >= 0x1401)) {
-                    var_v1_3 = 1;
+            turnAmount = (s32) ((f32) state->unk108 * scale);
+            if (turnAmount != 0) {
+                driftDirection = state->unk100;
+                turnDirection = 0;
+                if ((driftDirection < 0) || (turnAmount < -0x1400)) {
+                    turnDirection = -1;
+                } else if ((driftDirection > 0) || (turnAmount >= 0x1401)) {
+                    turnDirection = 1;
                 }
-                if (var_v1_3 != 0) {
-                    temp_t2 = (func_8002A204((s16)(state->unk182 << 12)) *
+                if (turnDirection != 0) {
+                    steeringInput = (func_8002A204((s16)(state->unk182 << 12)) *
                                ((state->unk106 * 8) + 0x200)) >> 16;
-                    var_a0_2 = temp_t2;
-                    if (var_v1_3 < 0) {
-                        var_a0_2 = -temp_t2;
+
+                    if (turnDirection < 0) {
+                        steeringInput = -steeringInput;
                     }
-                    var_a2_2 += var_a0_2;
+                    turnAmount += steeringInput;
                 }
             }
-            temp_v1_6 = mathDiffAngle(state->unkFC, (s16)var_a2_2) >> 2;
-            var_a2_3 = temp_v1_6;
-            if (temp_v1_6 < -0x2EE) {
-                var_a2_3 = -0x2EE;
-            } else if (temp_v1_6 >= 0x2EF) {
-                var_a2_3 = 0x2EE;
+            angleStep = mathDiffAngle(state->unkFC, turnAmount) >> 2;
+
+            turnAmount = angleStep;
+            if (angleStep < -0x2EE) {
+                turnAmount = -0x2EE;
+            } else if (angleStep >= 0x2EF) {
+                turnAmount = 0x2EE;
             }
-            temp_a1_6 = state->unk100;
-            temp_v0_10 = state->unkFE;
-            temp_a0_5 = (temp_a1_6 << 0xD) - temp_v0_10;
-            var_v1_4 = temp_a0_5 >> 4;
-            state->unkFC = (s16) (state->unkFC + var_a2_3);
-            if (var_v1_4 == 0) {
-                var_v1_4 = temp_a0_5;
+            driftDirection = state->unk100;
+            steeringAngle = state->unkFE;
+            targetAngle = (driftDirection << 0xD) - steeringAngle;
+            driftStep = targetAngle >> 4;
+            state->unkFC = (s16) (state->unkFC + turnAmount);
+            if (driftStep == 0) {
+                driftStep = targetAngle;
             }
-            state->unkFE = (s16) (temp_v0_10 + var_v1_4);
-            if (temp_a1_6 != 0) {
-                temp_a0_6 = state->unk428;
-                if (((temp_a0_6 >= 0x1A) && (temp_a1_6 < 0)) || ((temp_a0_6 < -0x19) && (temp_a1_6 > 0))) {
+            state->unkFE = (s16) (steeringAngle + driftStep);
+            if (driftDirection != 0) {
+                steeringInput = state->unk428;
+                if (((steeringInput >= 0x1A) && (driftDirection < 0)) || ((steeringInput < -0x19) && (driftDirection > 0))) {
                     state->unk106 = (s16) (state->unk106 + 1);
                 } else {
                     state->unk106 = 0;
@@ -1083,41 +1028,42 @@ block_74:
                     controlSetRumble(state, 0x28, 0.15f);
                 }
                 if (state->unk106 >= 0x5B) {
-                    temp_t9 = state->unk100;
+                    driftDirection = state->unk100;
                     state->unk100 = 0;
-                    state->unk102 = (s16) -temp_t9;
+                    state->unk102 = (s16) -driftDirection;
                 }
             } else {
                 state->unk106 = 0;
             }
-            temp_f12_3 = state->unk4;
-            var_f2_11 = temp_f12_3;
-            if (temp_f12_3 < 0.0f) {
-                var_f2_11 = -var_f2_11;
+            speed = state->unk4;
+            scale = speed;
+            if (speed < 0.0f) {
+                scale = -scale;
             }
-            if (var_f2_11 > 1.0f) {
-                var_f2_11 = 1.0f;
+            if (scale > 1.0f) {
+                scale = 1.0f;
             }
-            if (temp_f12_3 > 0.0f) {
-                var_f2_11 = -var_f2_11;
+            if (speed > 0.0f) {
+                scale = -scale;
             }
             if (state->unk41C & 0x4000) {
                 if (state->unk100 != 0) {
-                    var_f2_11 *= 3.0f;
+                    scale *= 3.0f;
                 } else {
-                    var_f2_11 *= 1.0f + state->unkE4;
+                    scale *= 1.0f + state->unkE4;
                 }
             }
-            temp_f0_14 = state->unkE0;
-            state->unkF0 = (s16) (state->unkF0 + (s32) ((f32) state->unk108 * (var_f2_11 * D_8)));
-            state->unkE0 = (f32) (temp_f0_14 + (((D_184 * temp_f12_3) - temp_f0_14) * D_188));
+            value = state->unkE0;
+            state->unkF0 = (s16) (state->unkF0 + (s32) ((f32) state->unk108 * (scale * D_8)));
+            state->unkE0 = (f32) (value + (((D_184 * speed) - value) * D_188));
             state->unk8 = (f32) (state->unk8 * D_18C);
-            temp_f14 = state->unk8;
-            if ((D_190 < temp_f14) && (temp_f14 < D_194)) {
+            speed = state->unk8;
+            if ((D_190 < speed) && (speed < D_194)) {
                 state->unk8 = 0.0f;
             }
-            sp9C -= 1;
-        } while (sp9C != 0);
+            updateCount = updatesRemaining;
+            updatesRemaining = updateCount - 1;
+        } while (updateCount != 0);
     }
     if ((state->unk41C & 0x4000) && (state->unk420 & 0x8000) && (state->unk4 == 0.0f)) {
         if (state->unkB8 != NULL) {
@@ -1126,7 +1072,7 @@ block_74:
         func_80002FE0(2, owner->unkC, owner->unk10, owner->unk14, 4,
                       &state->unkB8);
     }
-    if ((state->unk349 != 0) && ((state->unk16E > 0) || (state->unk100 != 0) || (state->unk102 != 0) || (var_s3 & 0x30) || (owner->unk3B == 0x18) || ((state->unk41C & 0x4000) && (state->unk4 < 0.0f)))) {
+    if ((state->unk349 != 0) && ((state->unk16E > 0) || (state->unk100 != 0) || (state->unk102 != 0) || (effectMask & 0x30) || (owner->unk3B == 0x18) || ((state->unk41C & 0x4000) && (state->unk4 < 0.0f)))) {
         if (state->unkAC == NULL) {
             func_80002FE0(3, owner->unkC, owner->unk10, owner->unk14, 1,
                           &state->unkAC);
@@ -1139,71 +1085,71 @@ block_74:
             func_800031E8(state->unkAC);
         }
     }
-    var_a0_3 = 1;
+    leftSelector = 1;
     if ((state->unk2 != 0) || (state->unkD4 != NULL)) {
-        var_a1 = 1;
+        rightSelector = 1;
     } else {
-        var_a0_3 = state->unk322 & 0xF;
-        var_a1 = state->unk323 & 0xF;
+        leftSelector = state->unk322 & 0xF;
+        rightSelector = state->unk323 & 0xF;
     }
     if (state->unk102 != 0) {
-        var_s3 |= 0x30;
+        effectMask |= 0x30;
     } else if ((state->unk100 != 0) && (state->unk41C & 0x8000)) {
-        temp_v0_11 = state->unk349;
-        if (temp_v0_11 & 4) {
-            var_s3 |= 0x11;
+        modeFlags = state->unk349;
+        if (modeFlags & 4) {
+            effectMask |= 0x11;
         }
-        if (temp_v0_11 & 8) {
-            var_s3 |= 0x22;
+        if (modeFlags & 8) {
+            effectMask |= 0x22;
         }
     } else if (state->unk16E > 0) {
-        var_s3 |= 0x3C;
+        effectMask |= 0x3C;
     } else if ((state->unk198 != 0) && (state->unk41C & 0x8000)) {
-        var_s3 |= 0x33;
+        effectMask |= 0x33;
     } else if (owner->unk3B == 0x18) {
-        var_s3 |= 3;
+        effectMask |= 3;
     }
-    if (var_s3 & 1) {
-        owner->unk80 = (s32) (owner->unk80 | D_460[var_a0_3]);
+    if (effectMask & 1) {
+        owner->unk80 = (s32) (owner->unk80 | D_460[leftSelector]);
     }
-    if (var_s3 & 2) {
-        owner->unk80 = (s32) (owner->unk80 | D_4A0[var_a1]);
+    if (effectMask & 2) {
+        owner->unk80 = (s32) (owner->unk80 | D_4A0[rightSelector]);
     }
-    if (var_s3 & 4) {
-        owner->unk80 = (s32) (owner->unk80 | D_3E0[var_a0_3]);
+    if (effectMask & 4) {
+        owner->unk80 = (s32) (owner->unk80 | D_3E0[leftSelector]);
     }
-    if (var_s3 & 8) {
-        owner->unk80 = (s32) (owner->unk80 | D_420[var_a1]);
+    if (effectMask & 8) {
+        owner->unk80 = (s32) (owner->unk80 | D_420[rightSelector]);
     }
-    sp84 = 0;
-    sp88 = 0;
+    colorEnabled[0] = 0;
+    colorEnabled[1] = 0;
     if ((state->unk2 == 0) && (gO8P1294ColorGateReloc == 0)) {
-        if (var_s3 & 0x10) {
-            sp84 = 1;
+        if (effectMask & 0x10) {
+            colorEnabled[0] = 1;
         }
-        if (var_s3 & 0x20) {
-            sp88 = 1;
+        if (effectMask & 0x20) {
+            colorEnabled[1] = 1;
         }
     }
-    temp_v0_12 = state->unk134;
-    if ((temp_v0_12 != NULL) && (sp84 != 0) && (state->unk349 & 4)) {
-        temp_v1_7 = (var_a0_3 * 4) + D_4E0;
-        if (temp_v1_7[3] != 0) {
-            temp_v0_12->color24[4 - 4] = (u8) temp_v1_7[0];
-            temp_v0_12->color24[5 - 4] = (u8) temp_v1_7[1];
-            temp_v0_12->color24[6 - 4] = (u8) temp_v1_7[2];
-            temp_v0_12->color24[7 - 4] = (u8) temp_v1_7[3];
+    colorTarget = state->unk134;
+    if ((colorTarget != NULL) && (colorEnabled[0] != 0) && (state->unk349 & 4)) {
+        color = (leftSelector * 4) + D_4E0;
+        if (color[3] != 0) {
+            colorTarget->color24[0] = (u8) color[0];
+            colorTarget->color24[1] = (u8) color[1];
+            colorTarget->color24[2] = (u8) color[2];
+            colorTarget->color24[3] = (u8) color[3];
             D_14 = 1;
         }
     }
-    temp_v0_13 = state->unk138;
-    if ((temp_v0_13 != NULL) && (sp88 != 0) && (state->unk349 & 8)) {
-        temp_v1_8 = (var_a1 * 4) + D_4E0;
-        if (temp_v1_8[3] != 0) {
-            temp_v0_13->color24[4 - 4] = (u8) temp_v1_8[0];
-            temp_v0_13->color24[5 - 4] = (u8) temp_v1_8[1];
-            temp_v0_13->color24[6 - 4] = (u8) temp_v1_8[2];
-            temp_v0_13->color24[7 - 4] = (u8) temp_v1_8[3];
+    colorTarget = state->unk138;
+    if ((colorTarget != NULL) && (colorEnabled[1] != 0) && (state->unk349 & 8)) {
+        color = (rightSelector * 4) + D_4E0;
+        if (color[3] != 0) {
+            colorTarget->color24[0] = (u8) color[0];
+            colorTarget->color24[1] = (u8) color[1];
+            colorTarget->color24[2] = (u8) color[2];
+            colorTarget->color24[3] = (u8) color[3];
             D_18 = 1;
         }
     }
@@ -2500,10 +2446,10 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
 
 /* PLATEAU-HANDOFF:func_overlay_008_F0001294_185EFEC:start
  * symbol: func_overlay_008_F0001294_185EFEC
- * score: 1127 differing words
- * frame: 0x180
+ * score: 636 differing words
+ * frame: 0xC8
  * relocations: 137
  * first-mismatch: +0x0
- * summary: The authenticated +0x14 f32 conversion restores the exact 1259-word function size; an existing var_f0 carrier leaves 1127 masked differences and 48 alignment gaps. Frame remains 0x180 vs 0xB0; linked overlay is 24 bytes long.
+ * summary: Exact-size structural reconstruction; 24 excess frame bytes and 18 opcode edits remain. Next: scoped allocation/alias analysis, not flags or permutation.
  * PLATEAU-HANDOFF:func_overlay_008_F0001294_185EFEC:end
  */
