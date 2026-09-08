@@ -2485,11 +2485,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:fxSPDPRipple:start
  * symbol: fxSPDPRipple
- * score: 224/232 words
- * frame: 0xA8
- * relocations: 18
- * first-mismatch: +0x8
- * summary: Removed two fake call args; candidate has 12 relocs versus 18 target. Flags and permutation did not solve saved-register and loop scheduling.
+ * score: 224 differing words
+ * frame: 0xa8
+ * relocations: 12
+ * first-mismatch: 0x8
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new missing relocations and command-loop topology evidence.
  * PLATEAU-HANDOFF:fxSPDPRipple:end
  */
 
