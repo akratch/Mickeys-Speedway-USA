@@ -86,15 +86,6 @@ extern void overlay66Select(s32 selection);
  * Source-line scheduling and declaration order are exhausted for this pair.
  */
 #ifdef NON_MATCHING
-/* PLATEAU-HANDOFF:overlay11UpdateMenu:start
- * symbol: overlay11UpdateMenu
- * score: 299/301 relocation-masked positional words
- * frame: 0x48
- * relocations: 102
- * first-mismatch: +0x138
- * summary: ten order/line forms were non-improving; as1 keeps the two call-line spill stores reversed
- * PLATEAU-HANDOFF:overlay11UpdateMenu:end
- */
 void overlay11UpdateMenu(s32 updateRate) {
     s32 index;
     s8 direction;
@@ -225,3 +216,13 @@ void overlay11UpdateMenu(s32 updateRate) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o011/overlay11UpdateMenu/func_overlay_011_F0001398_1869BE0.s")
 #endif
+
+/* PLATEAU-HANDOFF:overlay11UpdateMenu:start
+ * symbol: overlay11UpdateMenu
+ * score: 299/301 words
+ * frame: 0x48
+ * relocations: 102
+ * first-mismatch: +0x138
+ * summary: Zero new attempts: prior ten order/line forms exhausted; unchanged spill pair. Reopen only with source-authentic spill-dependency evidence.
+ * PLATEAU-HANDOFF:overlay11UpdateMenu:end
+ */
