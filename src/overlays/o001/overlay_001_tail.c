@@ -841,38 +841,38 @@ extern O1PhysicsActionMode gO1PhysicsActions[6];
 s32 func_overlay_001_F00004B4_184C894(void *object);
 s32 func_overlay_001_F0007D6C_185414C(s16, s16, s16, s16,
                                      s16 *, s16 *, void *);
-f32 *ext_o8_8(void *state);
-void ext_o0_1ee0c(void *state, s32 disabled);
-void ext_o8_49dc(s32 value);
-void ext_o0_1d4c0(void *object, void *state);
-void ext_o0_29adc(s16 *angles, f32 *vector);
-s32 ext_o0_1312c(f32 x, f32 z, f32 *height, u32 flags, void *surfaces);
-void ext_o0_1ecfc(void *object, void *state);
-s32 ext_o2_123c(f32 x, f32 z, void *region);
-s16 ext_o0_2a4c0(f32 x, f32 z);
-s32 ext_o0_2a5bc(s16 first, s16 second);
-void ext_o7_edc(void);
-f32 ext_o8_1000(void *object, void *state, f32 limit);
-s32 ext_o0_2630c(void);
-s32 ext_o0_29598(s32 minimum, s32 maximum);
-f32 ext_o0_2a46c(s16 angle);
-void ext_o0_2d98(void *handle);
-void ext_o0_2b90(s32 id, f32 x, f32 y, f32 z, s32 priority, void **handle);
-void ext_o0_2d70(void *handle, f32 x, f32 y, f32 z);
-f32 ext_o0_2a428(f32 base, s32 exponent);
-f32 ext_o0_2a470(s16 angle);
-s32 ext_o0_1e174(void *object, void *state, f32 update);
-s32 ext_o0_1d920(void *object, void *state, f32 update);
-s32 ext_o0_7cd8(void *object, f32 x, f32 y, f32 z);
-void ext_o8_49a4(void *state);
-f32 ext_o8_34a0(void *object, void *state, f32 limit, f32 update);
-void ext_o8_49b4(void *unused);
-void ext_o0_1cfcc(void *object, void *state, s32 update);
-void ext_o8_3278(void *object, void *state, s32 update);
-void ext_o0_1d510(void *object, void *state, s32 mode, s32 kind, s32 update);
-void ext_o8_2ec0(void *object, void *state, s32 update);
-void ext_o8_3018(void *object, void *state, f32 scale, s32 update);
-void ext_o0_3e99c(void *object, s32 update);
+f32 *func_overlay_008_F0000008_185DD60(void *state);
+void func_8001F25C(void *state, s32 disabled);
+void func_overlay_008_F00049DC_1862734(s32 value);
+void func_8001D910(void *object, void *state);
+void func_80029F2C(s16 *angles, f32 *vector);
+s32 func_8001357C(f32 x, f32 z, f32 *height, u32 flags, void *surfaces);
+void func_8001F14C(void *object, void *state);
+s32 func_overlay_002_F000123C_1858034(f32 x, f32 z, void *region);
+s32 func_8002A910(f32 x, f32 z);
+s32 func_8002AA0C(s16 first, s16 second);
+void func_overlay_007_F0000EDC_185CD64(void);
+f32 func_overlay_008_F0001000_185ED58(void *object, void *state, f32 limit);
+s32 func_8002675C(void);
+s32 func_800299E8(s32 minimum, s32 maximum);
+f32 func_8002A8BC(s32 angle);
+void func_800031E8(void *handle);
+void func_80002FE0(s32 id, f32 x, f32 y, f32 z, s32 priority, void **handle);
+void func_800031C0(void *handle, f32 x, f32 y, f32 z);
+f32 func_8002A878(f32 base, s32 exponent);
+f32 func_8002A8C0(s32 angle);
+s32 func_8001E5C4(void *object, void *state, f32 update);
+s32 func_8001DD70(void *object, void *state, f32 update);
+s32 func_80008128(void *object, f32 x, f32 y, f32 z);
+void func_overlay_008_F00049A4_18626FC(void *state);
+f32 func_overlay_008_F00034A0_18611F8(void *object, void *state, f32 limit, f32 update);
+void func_overlay_008_F00049B4_186270C(void *unused);
+void func_8001D41C(void *object, void *state, s32 update);
+void func_overlay_008_F0003278_1860FD0(void *object, void *state, s32 update);
+void func_8001D960(void *object, void *state, s32 mode, s32 kind, s32 update);
+void func_overlay_008_F0002EC0_1860C18(void *object, void *state, s32 update);
+void func_overlay_008_F0003018_1860D70(void *object, void *state, f32 scale, s32 update);
+void func_8003EDEC(void *object, s32 update);
 extern f32 D_4;
 extern s32 G_o1_83e4;
 extern f32 G_rt_458c4;
@@ -884,32 +884,6 @@ extern s32 LOCAL_BSS_1D78;
 extern s32 LOCAL_BSS_1D94;
 extern void *LOCAL_BSS_1BA4;
 extern void *LOCAL_BSS_1D9C;
-extern f32 LOCAL_RODATA_F8;
-extern f32 LOCAL_RODATA_FC;
-extern f32 LOCAL_RODATA_100;
-extern f32 LOCAL_RODATA_104;
-extern f32 LOCAL_RODATA_108;
-extern f32 LOCAL_RODATA_10C;
-extern f32 LOCAL_RODATA_110;
-extern f32 LOCAL_RODATA_114;
-extern f32 LOCAL_RODATA_118;
-extern f32 LOCAL_RODATA_11C;
-extern f32 LOCAL_RODATA_120;
-extern f32 LOCAL_RODATA_124;
-extern f32 LOCAL_RODATA_128;
-extern f32 LOCAL_RODATA_12C;
-extern f32 LOCAL_RODATA_130;
-extern f32 LOCAL_RODATA_134;
-extern f32 LOCAL_RODATA_138;
-extern f32 LOCAL_RODATA_13C;
-extern f32 LOCAL_RODATA_140;
-extern f32 LOCAL_RODATA_144;
-extern f32 LOCAL_RODATA_148;
-extern f32 LOCAL_RODATA_14C;
-extern f32 LOCAL_RODATA_150;
-extern f32 LOCAL_RODATA_154;
-extern f32 LOCAL_RODATA_158;
-extern f32 LOCAL_RODATA_15C;
 
 /* Typed reconstruction remains NON_MATCHING. The object/state and callback
  * layouts follow Mickey's runtime identities and access widths. Local
@@ -938,54 +912,34 @@ void func_overlay_001_F000438C_185076C(O1PhysicsObject *object, s32 updateRate) 
     f32 speed;
     s16 resolvedX;
     s16 resolvedZ;
-    void (*actionTest)(void);
-    void (*actionUpdate)(void);
+    void (*callback)(void);
     O1PhysicsPathMode *path;
     O1PhysicsActionMode *action;
     f32 value;
-    f32 travelZ;
     f32 work;
     f32 deltaX;
-    f32 verticalVelocity;
-    f32 negativeSpeedLimit;
-    f32 negativeLimit;
     f32 deltaZ;
-    f32 cosine;
     f32 value2;
-    f32 inverse;
     f32 ceiling;
-    f32 acceleration;
-    f32 fraction;
     f32 velocityZ;
-    f32 angleMagnitude;
-    void *sound;
-    void *region;
     O1PhysicsState *state;
     s16 clampedAngle;
     s32 (*pathTest)(void);
-    f32 *sample;
     s32 surfaceCount;
     s32 collision;
     s32 angleOffset;
-    s32 mode;
     s32 keys;
-    s32 surfaceIndex;
+    s32 index;
     s32 applySlope;
-    s32 pathIndex;
-    s32 sampleIndex;
     s32 steering;
-    s32 actionIndex;
-    u8 level;
-    O1PhysicsObject *cachedObject;
-    O1PhysicsObject *linkedObject;
+    s32 level;
     O1PhysicsSurface *surface;
 
     state = object->state;
     if (func_overlay_001_F00004B4_184C894(object) != 0) {
-        tuning = ext_o8_8(state);
-        mode = G_o1_83e4;
+        tuning = func_overlay_008_F0000008_185DD60(state);
         G_rt_458c4 = *tuning;
-        if (mode == 1) {
+        if (G_o1_83e4 == 1) {
             if ((G_rt_43a3c == 0) && (state->joypadDisabled == 0) && (state->spinTimer == 0) && !(state->flags1A8 & 8)) {
                 if (state->pathIndex != state->previousPathIndex) {
                     state->previousPathIndex = state->pathIndex;
@@ -1006,13 +960,13 @@ block_13:
         }
         state->outputScale = 0.0f;
         if ((state->disabled18D != 0) || (state->field158 != 0) || (state->reset170 != 0) || (state->field3FA != 0)) {
-            ext_o0_1ee0c(state, 1);
+            func_8001F25C(state, 1);
         }
         D_1D94 = updateRate;
         D_4 = (f32) updateRate;
         speed = -state->forwardVelocity;
-        ext_o8_49dc(NULL);
-        value = LOCAL_RODATA_F8;
+        func_overlay_008_F00049DC_1862734(NULL);
+        value = -31.99f;
         object->flags80 = 0;
         state->controlXjoy = 0;
         state->controlYjoy = 0;
@@ -1021,7 +975,7 @@ block_13:
         if (state->forwardVelocity < value) {
             state->forwardVelocity = value;
         }
-        work = LOCAL_RODATA_FC;
+        work = 31.99f;
         if (work < state->forwardVelocity) {
             state->forwardVelocity = work;
         }
@@ -1031,23 +985,23 @@ block_13:
         if (work < state->sideVelocity) {
             state->sideVelocity = work;
         }
-        ext_o0_1d4c0(object, state);
+        func_8001D910(object, state);
         angles[0] = -state->heading;
         angles[1] = -object->rotationY;
         normal[2] = 0.0f;
         normal[0] = 0.0f;
         angles[2] = -object->rotationZ;
         normal[1] = -1.0f;
-        ext_o0_29adc(angles, normal);
+        func_80029F2C(angles, normal);
         state->normalX = normal[0];
         state->normalY = normal[1];
         state->slope = normal[2];
-        surfaceCount = ext_o0_1312c(object->x, object->z, NULL, 0x08010000, surfaces);
+        surfaceCount = func_8001357C(object->x, object->z, NULL, 0x08010000, surfaces);
         ceiling = -32768.0f;
-        surfaceIndex = surfaceCount - 1;
+        index = surfaceCount - 1;
         state->surfaceHeight = -32768.0f;
         if (surfaceCount != NULL) {
-            surface = &surfaces[surfaceIndex];
+            surface = &surfaces[index];
             do {
                 if (surface->flags & 0x10000) {
                     state->surfaceHeight = (f32) surface->height;
@@ -1056,8 +1010,7 @@ block_13:
                     ceiling = surface->height;
                 }
                 surface -= 1;
-                surfaceIndex -= 1;
-            } while (surfaceIndex != 0);
+            } while (index--);
         }
         value2 = state->surfaceHeight;
         if (object->y < value2) {
@@ -1072,7 +1025,7 @@ block_13:
                 state->reset170 = 1U;
             }
             if ((state->inSurface != 0) && (state->surfaceKind != 1)) {
-                ext_o0_1ecfc(object, state);
+                func_8001F14C(object, state);
             }
         }
         level = state->level192;
@@ -1080,29 +1033,28 @@ block_13:
             level = 0xA;
         }
         path = &gO1PhysicsPaths[1];
-        pathIndex = 1;
+        index = 1;
         limit = (tuning[16] + ((f32) level * tuning[2])) * state->speedScale;
         do {
             pathTest = path->test;
             if ((pathTest != NULL) && (path->mask & (1 << state->pathMode))) {
 
                 if (pathTest() != 0) {
-                    state->pathMode = (u8) pathIndex;
+                    state->pathMode = (u8) index;
                 }
             }
-            pathIndex += 1;
+            index += 1;
             path++;
-        } while (pathIndex != 4);
+        } while (index != 4);
         gO1PhysicsPaths[state->pathMode].position(&targetX, &targetZ);
-        region = D_1BA4;
-        if (region != NULL) {
-            cachedObject = D_1D9C;
-            if (ext_o2_123c(cachedObject->x, cachedObject->z, region) != NULL) {
-                cachedObject = D_1D9C;
-                ((O1PhysicsState *)D_1DA0)->pathStartX = cachedObject->x;
-                ((O1PhysicsState *)D_1DA0)->pathStartZ = cachedObject->z;
+        if (D_1BA4 != NULL) {
+
+            if (func_overlay_002_F000123C_1858034(((O1PhysicsObject *)D_1D9C)->x, ((O1PhysicsObject *)D_1D9C)->z, D_1BA4) != NULL) {
+
+                ((O1PhysicsState *)D_1DA0)->pathStartX = ((O1PhysicsObject *)D_1D9C)->x;
+                ((O1PhysicsState *)D_1DA0)->pathStartZ = ((O1PhysicsObject *)D_1D9C)->z;
             }
-            if (ext_o2_123c(targetX, targetZ, D_1BA4) != NULL) {
+            if (func_overlay_002_F000123C_1858034(targetX, targetZ, D_1BA4) != NULL) {
                 ((O1PhysicsState *)D_1DA0)->pathEndX = targetX;
                 ((O1PhysicsState *)D_1DA0)->pathEndZ = targetZ;
             }
@@ -1114,23 +1066,23 @@ block_13:
             targetX = (f32) resolvedX;
             targetZ = (f32) resolvedZ;
         }
-        targetHeading = ext_o0_2a4c0(targetX - object->x, targetZ - object->z) + 0x8000;
+        targetHeading = func_8002A910(targetX - object->x, targetZ - object->z) + 0x8000;
         pathHeading = gO1PhysicsPaths[state->pathMode].heading(targetX, targetZ);
         state->targetX = targetX;
         state->targetZ = targetZ;
-        value = (f32) ext_o0_2a5bc(object->rotationX, targetHeading) * LOCAL_RODATA_100;
-        angleMagnitude = value;
-        state->controlXjoy = (s32) (value * LOCAL_RODATA_104);
+        value = (f32) func_8002AA0C(object->rotationX, targetHeading) * 0.4f;
+        work = value;
+        state->controlXjoy = (s32) (value * -0.4f);
         if (value < 0.0f) {
-            angleMagnitude = -value;
+            work = -value;
         }
         if (G_o1_83e4 == 1) {
-            if (angleMagnitude > 24576.0f) {
+            if (work > 24576.0f) {
                 clampedAngle = 0x6000;
             } else {
-                clampedAngle = (s16) (s32) angleMagnitude;
+                clampedAngle = (s16) (s32) work;
             }
-            angleOffset = (s32) (angleMagnitude - 8192.0f);
+            angleOffset = (s32) (work - 8192.0f);
             if (speed < (25.0f - ((f32) clampedAngle * 0.0009765625f))) {
                 state->controlKeys = (s32) (state->controlKeys | 0x8000);
             }
@@ -1138,24 +1090,24 @@ block_13:
             if ((s16) angleOffset < 0) {
                 clampedAngle = (s16) angleOffset * -1;
             }
-            if (((f32) clampedAngle * LOCAL_RODATA_108) < speed) {
+            if (((f32) clampedAngle * 0.0044759116f) < speed) {
                 state->controlKeys = (s32) (state->controlKeys | 0x4000);
             }
-            value = (f32) ext_o0_2a5bc(targetHeading, pathHeading);
-            angleMagnitude = value;
+            value = (f32) func_8002AA0C(targetHeading, pathHeading);
+            work = value;
             if (value < 0.0f) {
-                angleMagnitude = -value;
+                work = -value;
             }
-            if ((angleMagnitude * LOCAL_RODATA_10C) < speed) {
+            if ((work * 0.00077f) < speed) {
                 state->controlKeys = (s32) (state->controlKeys | 0x4000);
             }
         } else {
-            if (angleMagnitude > 16384.0f) {
+            if (work > 16384.0f) {
                 clampedAngle = 0x4000;
             } else {
-                clampedAngle = (s16) (s32) angleMagnitude;
+                clampedAngle = (s16) (s32) work;
             }
-            angleOffset = (s32) (angleMagnitude - 16384.0f);
+            angleOffset = (s32) (work - 16384.0f);
             if (speed < (25.0f - ((f32) clampedAngle * 0.0014648438f))) {
                 state->controlKeys = (s32) (state->controlKeys | 0x8000);
             }
@@ -1166,7 +1118,7 @@ block_13:
             if (((f32) clampedAngle * 0.006713867f) < speed) {
                 state->controlKeys = (s32) (state->controlKeys | 0x4000);
             }
-            if (speed < LOCAL_RODATA_110) {
+            if (speed < 0.01f) {
                 state->controlKeys = (s32) (state->controlKeys | 0x8000);
             }
             if (state->reverseTimer != 0) {
@@ -1193,7 +1145,7 @@ block_13:
             state->boostScale = 1.0f;
         }
         if (G_rt_43a3c != 0) {
-            ext_o7_edc();
+            func_overlay_007_F0000EDC_185CD64();
         }
         if (state->joypadDisabled != 0) {
             state->controlXjoy = 0;
@@ -1201,16 +1153,15 @@ block_13:
             state->controlKeys = 0;
             state->controlDkeys = 0;
         }
-        linkedObject = state->linkedObject;
-        if (linkedObject != NULL) {
-            limit *= 1.0f + (LOCAL_RODATA_114 * linkedObject->state->field14);
+        if (state->linkedObject != NULL) {
+            limit *= 1.0f + (-0.3f * state->linkedObject->state->field14);
         }
         if (state->boostMode == 0) {
             value = state->slope;
             if (value != 0.0f) {
                 scale = 1.0f - (value * 0.5f * tuning[3]);
-                if (scale < LOCAL_RODATA_118) {
-                    scale = LOCAL_RODATA_11C;
+                if (scale < 0.1f) {
+                    scale = 0.1f;
                 }
                 limit *= scale;
             }
@@ -1235,7 +1186,7 @@ block_13:
         if (D_1D94 != 0) {
             remaining = D_1D94 - 1;
             do {
-                value = ext_o8_1000(object, state, limit);
+                value = func_overlay_008_F0001000_185ED58(object, state, limit);
                 limit = value;
                 keys = state->controlKeys;
                 if (((keys & 0x4000) == 0) && (state->slope > 0.0f) && (state->forwardVelocity < -value)) {
@@ -1256,7 +1207,7 @@ block_13:
                     }
                 }
                 if (state->spinTimer != 0) {
-                    value2 = LOCAL_RODATA_120;
+                    value2 = 0.99f;
                     state->controlXjoy = 0;
                     state->controlYjoy = 0;
                     state->controlKeys = 0;
@@ -1268,7 +1219,7 @@ block_13:
                 state->field100 = 0;
                 if (keys & 0x4000) {
                     if (state->forwardVelocity < -5.0f) {
-                        ext_o8_49dc(1);
+                        func_overlay_008_F00049DC_1862734(1);
                     }
                     if (state->forwardVelocity < 0.0f) {
                         state->forwardVelocity = (f32) (state->forwardVelocity + tuning[(s32) -state->forwardVelocity + 50]);
@@ -1287,52 +1238,50 @@ block_13:
                         }
                     }
                 } else if (keys & 0x8000) {
-                    negativeLimit = -value;
                     if ((state->boostMode == 1) || (state->boostMode == 2)) {
                         if (G_offd_31a4 == 0) {
-                            acceleration = LOCAL_RODATA_124;
+                            value2 = 0.3334f;
                         } else {
-                            acceleration = 0.5f;
+                            value2 = 0.5f;
                         }
                     } else {
                         value2 = state->forwardVelocity;
                         if (value2 > 0.0f) {
-                            sampleIndex = (s32) value2;
-                            fraction = value2 - (f32) sampleIndex;
+                            index = (s32) value2;
+                            scale = value2 - (f32) index;
                         } else {
                             work = -value2;
-                            sampleIndex = (s32) work;
-                            fraction = work - (f32) sampleIndex;
+                            index = (s32) work;
+                            scale = work - (f32) index;
                         }
-                        sample = &tuning[sampleIndex];
-                        work = sample[17];
-                        acceleration = ((sample[18] - work) * fraction) + work;
+                        work = tuning[index + 17];
+                        value2 = ((tuning[index + 18] - work) * scale) + work;
                     }
-                    if (state->forwardVelocity < negativeLimit) {
-                        state->forwardVelocity = (f32) (state->forwardVelocity * LOCAL_RODATA_128);
-                        if (negativeLimit < state->forwardVelocity) {
+                    if (state->forwardVelocity < (-limit)) {
+                        state->forwardVelocity = (f32) (state->forwardVelocity * 0.99f);
+                        if ((-limit) < state->forwardVelocity) {
                             goto block_160;
                         }
                     } else {
-                        state->forwardVelocity = (f32) (state->forwardVelocity - (acceleration * state->speedScale));
-                        if (state->forwardVelocity < negativeLimit) {
+                        state->forwardVelocity = (f32) (state->forwardVelocity - (value2 * state->speedScale));
+                        if (state->forwardVelocity < (-limit)) {
 block_160:
-                            state->forwardVelocity = negativeLimit;
+                            state->forwardVelocity = (-limit);
                         }
                     }
-                    if ((G_o1_83e4 == 1) && (G_offd_31a4 == 0) && (state->flags1A8 & 1) && (ext_o0_2630c() == (s32)0x21) && (state->pathIndex == 0x2A) && (LOCAL_RODATA_12C < state->progress398)) {
+                    if ((G_o1_83e4 == 1) && (G_offd_31a4 == 0) && (state->flags1A8 & 1) && (func_8002675C() == (s32)0x21) && (state->pathIndex == 0x2A) && (0.4f < state->progress398)) {
                         state->forwardVelocity = (f32) (state->forwardVelocity - 2.0f);
                     }
                 } else {
                     value2 = state->forwardVelocity;
-                    if ((LOCAL_RODATA_130 < value2) && (value2 < LOCAL_RODATA_134)) {
+                    if ((-0.01f < value2) && (value2 < 0.01f)) {
                         state->forwardVelocity = 0.0f;
                     } else {
-                        state->forwardVelocity = (f32) (value2 * LOCAL_RODATA_138);
+                        state->forwardVelocity = (f32) (value2 * 0.99f);
                     }
                 }
-                if ((LOCAL_RODATA_13C < state->forwardVelocity) && (state->forwardVelocity < LOCAL_RODATA_140)) {
-                    ext_o0_29598(0, 127);
+                if ((-0.2f < state->forwardVelocity) && (state->forwardVelocity < 0.2f)) {
+                    func_800299E8(0, 127);
                 }
                 if (state->controlXjoy >= 0x42) {
                     steering = -0x1F4;
@@ -1344,7 +1293,7 @@ block_160:
                 work = -2.0f - state->forwardVelocity;
                 state->steeringAngle = (s16) (state->steeringAngle + ((s32) (steering - state->steeringAngle) >> 1));
                 if (work > 0.0f) {
-                    scale = (ext_o0_2a46c((s16) (s32) (work * LOCAL_RODATA_144)) * 0.25f) + 0.75f;
+                    scale = (func_8002A8BC((s16) (s32) (work * 1310.72f)) * 0.25f) + 0.75f;
                 } else {
                     if (work < 0.0f) {
                         work = -work;
@@ -1352,43 +1301,39 @@ block_160:
                     if (work > 2.0f) {
                         work = 2.0f;
                     }
-                    scale = (ext_o0_2a46c((s16) (s32) (work * 16384.0f)) + 1.0f) * 0.5f;
+                    scale = (func_8002A8BC((s16) (s32) (work * 16384.0f)) + 1.0f) * 0.5f;
                 }
                 if (state->forwardVelocity > 0.0f) {
                     scale = -scale;
                 }
                 state->heading = (s16) (s32) ((f32) state->heading + ((f32) state->steeringAngle * scale));
-                state->sideVelocity = (f32) (state->sideVelocity * LOCAL_RODATA_148);
+                state->sideVelocity = (f32) (state->sideVelocity * 0.96f);
                 value2 = state->sideVelocity;
-                if ((LOCAL_RODATA_14C < value2) && (value2 < LOCAL_RODATA_150)) {
+                if ((-0.1f < value2) && (value2 < 0.1f)) {
                     state->sideVelocity = 0.0f;
                 }
-                remaining -= 1;
-            } while (remaining != 0);
+            } while (remaining--);
         }
         if (state->controlDkeys & 0x2000) {
-            sound = state->soundA8;
-            if (sound != NULL) {
-                ext_o0_2d98(sound);
+            if (state->soundA8 != NULL) {
+                func_800031E8(state->soundA8);
             }
-            ext_o0_2b90(4, object->x, object->y, object->z, 4, &state->soundA8);
+            func_80002FE0(4, object->x, object->y, object->z, 4, &state->soundA8);
         }
         if ((state->controlKeys & 0x4000) && (state->forwardVelocity < 0.0f)) {
-            sound = state->soundAC;
-            if (sound == NULL) {
-                ext_o0_2b90(3, object->x, object->y, object->z, 1, &state->soundAC);
+            if (state->soundAC == NULL) {
+                func_80002FE0(3, object->x, object->y, object->z, 1, &state->soundAC);
             } else {
-                ext_o0_2d70(sound, object->x, object->y, object->z);
+                func_800031C0(state->soundAC, object->x, object->y, object->z);
             }
         }
-        sound = state->soundAC;
-        if (sound != NULL) {
-            ext_o0_2d98(sound);
+        if (state->soundAC != NULL) {
+            func_800031E8(state->soundAC);
         }
         object->rotationX = (s16) (state->heading + state->spinAngle);
         heading = state->heading;
         if (state->joypadDisabled == 1) {
-            value = ext_o0_2a428(LOCAL_RODATA_154, D_1D94);
+            value = func_8002A878(0.8f, D_1D94);
             value2 = state->forwardVelocity;
             if ((value2 < -0.5f) || (value2 > 0.5f)) {
                 state->forwardVelocity = (f32) (value2 * value);
@@ -1419,38 +1364,35 @@ block_160:
             value = state->impulseVelocity;
             scale = 1.0f - (value / state->impulseInitial);
             state->impulseVelocity = (f32) (value + (state->impulseAcceleration * D_4));
-            velocityX = ext_o0_2a470(heading) * state->forwardVelocity * scale;
-            velocityZ = ext_o0_2a46c(heading) * state->forwardVelocity * scale;
+            velocityX = func_8002A8C0(heading) * state->forwardVelocity * scale;
+            velocityZ = func_8002A8BC(heading) * state->forwardVelocity * scale;
         } else {
             impulseX = 0.0f;
             impulseY = 0.0f;
             impulseZ = 0.0f;
-            velocityX = ext_o0_2a470(heading) * state->forwardVelocity;
-            velocityZ = ext_o0_2a46c(heading) * state->forwardVelocity;
+            velocityX = func_8002A8C0(heading) * state->forwardVelocity;
+            velocityZ = func_8002A8BC(heading) * state->forwardVelocity;
         }
 
-        velocityX += state->sideVelocity * ext_o0_2a46c(heading);
-        cosine = ext_o0_2a470(heading);
-        verticalVelocity = object->velocityY;
+        velocityX += state->sideVelocity * func_8002A8BC(heading);
+        value = func_8002A8C0(heading);
         deltaX = (velocityX * D_4) + impulseX;
-        travelZ = (velocityZ - (state->sideVelocity * cosine)) * D_4;
-        deltaY = ((verticalVelocity * D_4) - (0.5f * G_rt_458c4 * D_4 * D_4)) + impulseY;
-        inverse = 1.0f / D_4;
-        deltaZ = travelZ + impulseZ;
-        inverseUpdate = inverse;
-        object->velocityX = (f32) (deltaX * inverse);
-        object->velocityY = (f32) (verticalVelocity - (G_rt_458c4 * D_4));
+        deltaY = ((object->velocityY * D_4) - (0.5f * G_rt_458c4 * D_4 * D_4)) + impulseY;
+        inverseUpdate = 1.0f / D_4;
+        deltaZ = ((velocityZ - (state->sideVelocity * value)) * D_4) + impulseZ;
+        object->velocityX = (f32) (deltaX * inverseUpdate);
+        object->velocityY = (f32) (object->velocityY - (G_rt_458c4 * D_4));
         object->x += deltaX;
         object->velocityZ = (f32) (deltaZ * inverseUpdate);
         object->y = (f32) (object->y + deltaY);
         object->z += deltaZ;
         if (state->collisionMode == 1) {
-            collision = ext_o0_1e174(object, state, D_4);
+            collision = func_8001E5C4(object, state, D_4);
         } else {
-            collision = ext_o0_1d920(object, state, D_4);
+            collision = func_8001DD70(object, state, D_4);
         }
 
-        if ((ext_o0_7cd8(object, 0.0f, 0.0f, 0.0f) != NULL) || (object->positionTag == -1)) {
+        if ((func_80008128(object, 0.0f, 0.0f, 0.0f) != NULL) || (object->positionTag == -1)) {
             if (state->reset170 == 0) {
                 state->reset170 = 1U;
             }
@@ -1458,7 +1400,7 @@ block_160:
             object->y = (f32) state->previousY;
             object->z = state->previousZ;
 
-            ext_o0_7cd8(object, 0.0f, 0.0f, 0.0f);
+            func_80008128(object, 0.0f, 0.0f, 0.0f);
         }
         if (state->field166 != 0) {
             if (G_o1_83e4 == 3) {
@@ -1473,51 +1415,50 @@ block_160:
         state->actualVelocityZ = (object->z - state->previousZ) * inverseUpdate;
         if ((state->field16A == 0) && (collision != NULL)) {
             work = state->speedLimit;
-            state->speedLimit = (f32) (work + ((3.0f - work) * (1.0f - ext_o0_2a428(LOCAL_RODATA_158, D_1D94))));
+            state->speedLimit = (f32) (work + ((3.0f - work) * (1.0f - func_8002A878(0.9f, D_1D94))));
             work = state->speedLimit;
-            negativeSpeedLimit = -work;
-            if (state->forwardVelocity < negativeSpeedLimit) {
-                state->forwardVelocity = negativeSpeedLimit;
+            if (state->forwardVelocity < (-work)) {
+                state->forwardVelocity = (-work);
             }
             if (work < state->forwardVelocity) {
                 state->forwardVelocity = work;
             }
-            if (state->sideVelocity < negativeSpeedLimit) {
-                state->sideVelocity = negativeSpeedLimit;
+            if (state->sideVelocity < (-work)) {
+                state->sideVelocity = (-work);
             }
             if (work < state->sideVelocity) {
                 state->sideVelocity = work;
             }
         } else {
             work = state->speedLimit;
-            state->speedLimit = (f32) (work + ((25.0f - work) * (1.0f - ext_o0_2a428(LOCAL_RODATA_15C, D_1D94))));
+            state->speedLimit = (f32) (work + ((25.0f - work) * (1.0f - func_8002A878(0.825f, D_1D94))));
         }
-        ext_o8_49a4(state);
-        state->outputScale = ext_o8_34a0(object, state, limit, D_4);
-        ext_o8_49b4(state);
-        ext_o0_1cfcc(object, state, D_1D94);
+        func_overlay_008_F00049A4_18626FC(state);
+        state->outputScale = func_overlay_008_F00034A0_18611F8(object, state, limit, D_4);
+        func_overlay_008_F00049B4_186270C(state);
+        func_8001D41C(object, state, D_1D94);
         action = &gO1PhysicsActions[2];
-        actionIndex = 2;
+        index = 2;
         do {
-            if (actionIndex != state->actionMode) {
-                actionTest = action->test;
-                if ((actionTest != NULL) && (action->mask & (1 << state->actionMode))) {
+            if (index != state->actionMode) {
+                callback = action->test;
+                if ((callback != NULL) && (action->mask & (1 << state->actionMode))) {
 
-                    actionTest();
+                    callback();
                 }
             }
-            actionIndex += 1;
+            index += 1;
             action++;
-        } while (actionIndex != 6);
-        actionUpdate = gO1PhysicsActions[state->actionMode].update;
-        if (actionUpdate != NULL) {
-            actionUpdate();
+        } while (index != 6);
+        callback = gO1PhysicsActions[state->actionMode].update;
+        if (callback != NULL) {
+            callback();
         }
-        ext_o8_3278(object, state, D_1D94);
-        ext_o0_1d510(object, state, 0, 3, D_1D94);
-        ext_o8_2ec0(object, state, D_1D94);
-        ext_o8_3018(object, state, state->outputScale, D_1D94);
-        ext_o0_3e99c(object, D_1D94);
+        func_overlay_008_F0003278_1860FD0(object, state, D_1D94);
+        func_8001D960(object, state, 0, 3, D_1D94);
+        func_overlay_008_F0002EC0_1860C18(object, state, D_1D94);
+        func_overlay_008_F0003018_1860D70(object, state, state->outputScale, D_1D94);
+        func_8003EDEC(object, D_1D94);
         if ((state->field349 != 0) && (state->field16C == 1)) {
             state->field16C = 0U;
         }
