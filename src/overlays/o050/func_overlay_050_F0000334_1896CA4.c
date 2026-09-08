@@ -80,11 +80,15 @@ void func_80037414(s32, f32, f32, s32, s32, s32, s32); /* 0:+0x36FC4 */
 void mainChangeLevel(s32, s32, s32, s32, s32, s32); /* 0:+0x27F24 */
 void func_800005CC(f32, u8); /* 0:+0x17C */
 
-void overlay50SubmitTimeGlyphs(s32, s32, s32, s32); /* extern */
+void overlay50SubmitTimeGlyphs(s32, s32, s32, s32);
 extern O50Glyph D_12C[10];
 extern O50Glyph D_1CC[5];
 extern s16 D_21C;
 extern O50Glyph D_230[8];
+/* Tier B: distinct relocation anchors within the eight-record template. */
+extern O50Glyph D_260[];
+extern O50Glyph D_290[];
+extern O50Glyph D_2B0[];
 extern O50Glyph D_2C0[2];
 extern O50Glyph D_2E0[2];
 extern O50Glyph D_300[2];
@@ -135,6 +139,10 @@ extern s8 o50Data320[];
 extern s8 o50Data330;
 extern void *o50BssC4;
 extern O50Glyph o50LapGlyphs[10];
+/* Tier B: BSS anchors for sign, digit range, and list terminator. */
+extern O50Glyph D_0;
+extern O50Glyph D_10[8];
+extern O50Glyph D_90;
 extern char o50SpeedText[];
 extern f32 o50ReverseScale;
 extern f32 o50ForwardScale;
@@ -143,9 +151,9 @@ extern f32 o50ForwardScale;
  * The configured candidate still has a structural and allocation residual;
  * the assembly fallback remains the only ROM-exact implementation. */
 #ifdef NON_MATCHING
-void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
-    s32 sp10C;
-    s32 sp108;
+void func_overlay_050_F0000334_1896CA4(O50Object *object, s32 updateRate) {
+    s32 messageX;
+    s32 messageY;
     O50Glyph messageGlyphs[5];
     O50Glyph itemGlyphs[2];
     O50Level *level;
@@ -159,14 +167,14 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
     s32 hudX;
     O50Glyph *glyphCursor;
     O50Glyph *templateCursor;
+    O50Glyph *glyphEnd;
     s32 itemId;
-    s16 remaining;
     void *glyphTexture;
     s32 remainder;
     void *glyphAlternate;
     s32 i;
     s32 lapIndex;
-    s32 var_v0_3;
+    s32 bannerVisible;
     s32 targetAngle;
     s32 lapCount;
     s32 *lapOffsets;
@@ -174,14 +182,14 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
     s32 lapY;
 
     modeFlag = (u8 *)func_80028F54();
-    if (arg0 != NULL) {
-        racer = arg0->racer;
+    if (object != NULL) {
+        racer = object->racer;
         camStandardOrtho(&D_800D3140, &D_800D3144);
         if (o50BssC4 != 0) {
-            D_C8 += arg1;
+            D_C8 += updateRate;
             if (D_C8 >= 0x3D) {
                 if (D_C8 >= 0xF1) {
-                    D_CA -= arg1 * 4;
+                    D_CA -= updateRate * 4;
                     if (D_CA < 0) {
                         overlay45ReleaseDescriptor(o50BssC4);
                         o50BssC4 = 0;
@@ -189,7 +197,7 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
                         overlay45SetMode(o50BssC4, D_CA);
                     }
                 } else {
-                    D_CA += arg1 * 4;
+                    D_CA += updateRate * 4;
                     if (D_CA >= 0x100) {
                         D_CA = 0xFF;
                     }
@@ -199,16 +207,19 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
         }
         if (D_800C947C == 0) {
             i = 0;
-            if (arg1 > 0) {
-                remainder = arg1 & 3;
+            if (updateRate > 0) {
+                remainder = updateRate & 3;
                 if (remainder != 0) {
                     do {
                         i++;
                         D_A4 += (0.0f - D_A4) * 0.125f;
                         D_A8 += (0.0f - D_A8) * 0.125f;
                     } while (i != remainder);
-                }
-                if (i != arg1) {
+                    if (i != updateRate) {
+                        goto hudQuad;
+                    }
+                } else {
+hudQuad:
                     do {
                         i += 4;
                         D_A4 += (0.0f - D_A4) * 0.125f;
@@ -219,7 +230,7 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
                         D_A8 += (0.0f - D_A8) * 0.125f;
                         D_A4 += (0.0f - D_A4) * 0.125f;
                         D_A8 += (0.0f - D_A8) * 0.125f;
-                    } while (i != arg1);
+                    } while (i != updateRate);
                 }
             }
         }
@@ -236,7 +247,7 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
         }
         overlay56SplitTime(racer->raceTime, &minutes, &seconds, &centiseconds);
         level = levelGetLevel();
-        if ((D_800C947C == 0) && (level->laps != racer->laps) && (func_800290A0() == 0) && (func_8003A7D0(arg0) != racer->raceTime)) {
+        if ((D_800C947C == 0) && (level->laps != racer->laps) && (func_800290A0() == 0) && (func_8003A7D0(object) != racer->raceTime)) {
             centiseconds = centiseconds - centiseconds % 10 + D_32C++;
             D_32C = (s8) ((s8) D_32C % 10);
         }
@@ -246,13 +257,13 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
         D_12C[4].glyph = (s32) ((seconds % 10) << 0x10);
         D_12C[6].glyph = (s32) ((centiseconds / 10) << 0x10);
         D_12C[7].glyph = (s32) ((centiseconds % 10) << 0x10);
-        func_8002F618(&D_800D3140, D_12C, 0,  hudY, 0xFF, 0xFF, 0xFF, 0xFF);
-        func_8002F618(&D_800D3140, D_FC, 0,  hudY, 0xFF, 0xFF, 0xFF, 0xFF);
+        func_8002F618(&D_800D3140, D_12C, 0, hudY, 0xFF, 0xFF, 0xFF, 0xFF);
+        func_8002F618(&D_800D3140, D_FC, 0, hudY, 0xFF, 0xFF, 0xFF, 0xFF);
         if (*modeFlag != 1) {
             if (racer->flags & 8) {
-                func_8002F618(&D_800D3140, D_DC, 0,  hudY, 0xFF, 0xFF, 0xFF, 0xFF);
+                func_8002F618(&D_800D3140, D_DC, 0, hudY, 0xFF, 0xFF, 0xFF, 0xFF);
             } else {
-                func_8002F618(&D_800D3140, D_AC, 0,  hudY, 0xFF, 0xFF, 0xFF, 0xFF);
+                func_8002F618(&D_800D3140, D_AC, 0, hudY, 0xFF, 0xFF, 0xFF, 0xFF);
             }
         }
         func_80034920(&D_800D3140);
@@ -261,15 +272,15 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
         func_80039E34(4);
         D_800D3550[1].y = (f32) (0x43 - hudY);
         func_80039E34(1);
-        func_8002F618(&D_800D3140, D_2C0, 0,  hudY, 0xFF, 0xFF, 0xFF, 0xFF);
+        func_8002F618(&D_800D3140, D_2C0, 0, hudY, 0xFF, 0xFF, 0xFF, 0xFF);
         func_80034920(&D_800D3140);
         if (racer->item != 0xFF) {
-            D_334 += arg1 * 16;
+            D_334 += updateRate * 16;
             if (D_334 >= 256) {
                 D_334 = 255;
             }
         } else {
-            D_334 -= arg1 * 8;
+            D_334 -= updateRate * 8;
             if (D_334 < 0) {
                 D_334 = 0;
             }
@@ -321,81 +332,77 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
         }
         if (racer->value388 != 0) {
             i = 0;
-            if (arg1 > 0) {
-                remainder = arg1 & 3;
+            if (updateRate > 0) {
+                remainder = updateRate & 3;
                 if (remainder != 0) {
                     do {
                         i += 1;
                         D_21C += (s32) (0x800 - D_21C) >> 3;
                     } while (remainder != i);
                 }
-                if (i != arg1) {
+                if (i != updateRate) {
                     do {
                         i += 4;
                         D_21C += (s32) (0x800 - D_21C) >> 3;
                         D_21C += (s32) (0x800 - D_21C) >> 3;
                         D_21C += (s32) (0x800 - D_21C) >> 3;
                         D_21C += (s32) (0x800 - D_21C) >> 3;
-                    } while (i != arg1);
+                    } while (i != updateRate);
                 }
             }
-            var_v0_3 = 1;
+            bannerVisible = 1;
         } else if (D_21C == -0x420) {
-            var_v0_3 = 0;
+            bannerVisible = 0;
         } else {
             i = 0;
-            if (arg1 > 0) {
-                remainder = arg1 & 3;
+            if (updateRate > 0) {
+                remainder = updateRate & 3;
                 if (remainder != 0) {
                     do {
                         i += 1;
                         D_21C += (s32) (0x1820 - D_21C) >> 3;
                     } while (remainder != i);
                 }
-                if (i != arg1) {
+                if (i != updateRate) {
                     do {
                         i += 4;
                         D_21C += (s32) (0x1820 - D_21C) >> 3;
                         D_21C += (s32) (0x1820 - D_21C) >> 3;
                         D_21C += (s32) (0x1820 - D_21C) >> 3;
                         D_21C += (s32) (0x1820 - D_21C) >> 3;
-                    } while (i != arg1);
+                    } while (i != updateRate);
                 }
             }
-            var_v0_3 = 1;
+            bannerVisible = 1;
             if (((s16) D_21C >> 6) == 0x60) {
                 D_21C = -0x420;
-                var_v0_3 = 0;
+                bannerVisible = 0;
             }
         }
-        if (var_v0_3 != 0) {
+        if (bannerVisible != 0) {
             D_1CC[0].x = (s16) (D_21C >> 4);
             D_1CC[1].x = (s16) (D_21C >> 4);
             D_1CC[2].x = (s16) (D_21C >> 4);
             D_1CC[3].x = (s16) (D_21C >> 4);
             func_8002F618(&D_800D3140, D_1CC, 0, 0, 0xFF, 0xFF, 0xFF, 0xC0);
         }
-        if (overlay59Interpolate(0, -0x18, 0xBE, 0x30, 0xBE, &sp10C, &sp108, 1) != 0) {
+        if (overlay59Interpolate(0, -0x18, 0xBE, 0x30, 0xBE, &messageX, &messageY, 1) != 0) {
             overlay59BuildList(0, messageGlyphs);
             if (messageGlyphs[0].texture != 0) {
-                func_8002F618(&D_800D3140, messageGlyphs, sp10C, sp108, 0xFF, 0xFF, 0xFF, 0xFF);
+                func_8002F618(&D_800D3140, messageGlyphs, messageX, messageY, 0xFF, 0xFF, 0xFF, 0xFF);
             }
-            overlay59DrawFrame(&D_800D3140, 0, sp10C, sp108);
+            overlay59DrawFrame(&D_800D3140, 0, messageX, messageY);
         }
-        func_80036544(D_800D31C8[0], &D_328, 0x14, &D_800D3550[1].frame, arg1);
+        func_80036544(D_800D31C8[0], &D_328, 0x14, &D_800D3550[1].frame, updateRate);
         if (racer->laps < level->laps) {
-            remaining = racer->differenceTimer;
-            if (remaining >= arg1) {
+            if (racer->differenceTimer >= updateRate) {
                 i = 0;
-                if ((remaining == 0xB4) && (racer->timeDifference >= 0)) {
-
+                if ((racer->differenceTimer == 0xB4) && (racer->timeDifference >= 0)) {
                     amSndPlay(0x1F8, 0);
-                    i = 0;
-                    remaining = racer->differenceTimer;
                 }
-                racer->differenceTimer = (s16) (remaining - arg1);
-                if (arg1 > 0) {
-                    remainder = arg1 & 3;
+                racer->differenceTimer -= updateRate;
+                if (updateRate > 0) {
+                    remainder = updateRate & 3;
                     if (remainder != 0) {
                         do {
                             i += 1;
@@ -403,7 +410,7 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
                             D_BC += (s32) (0x830 - D_BC) >> 3;
                         } while (remainder != i);
                     }
-                    if (i != arg1) {
+                    if (i != updateRate) {
                         do {
                             i += 4;
                             D_BC += (0x830 - D_BC) >> 3;
@@ -414,19 +421,17 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
                             D_C0 += (0x550 - D_C0) >> 3;
                             D_C0 += (0x550 - D_C0) >> 3;
                             D_BC += (0x830 - D_BC) >> 3;
-                        } while (i != arg1);
+                        } while (i != updateRate);
                     }
                 }
             } else if (D_BC != -0x500) {
                 i = 0;
-                if (remaining != -1) {
-
+                if (racer->differenceTimer != -1) {
                     amSndPlay(0x1F9, 0);
-                    i = 0;
                     racer->differenceTimer = -1;
                 }
-                remainder = arg1 & 3;
-                if (arg1 > 0) {
+                remainder = updateRate & 3;
+                if (updateRate > 0) {
                     if (remainder != 0) {
                         do {
                             i += 1;
@@ -434,7 +439,7 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
                             D_BC += (s32) (0x1900 - D_BC) >> 3;
                         } while (remainder != i);
                     }
-                    if (i != arg1) {
+                    if (i != updateRate) {
                         do {
                             i += 4;
                             D_BC += (0x1900 - D_BC) >> 3;
@@ -445,7 +450,7 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
                             D_C0 += (-0x140 - D_C0) >> 3;
                             D_C0 += (-0x140 - D_C0) >> 3;
                             D_BC += (0x1900 - D_BC) >> 3;
-                        } while (i != arg1);
+                        } while (i != updateRate);
                     }
                 }
                 if (D_BC >= 0x1861) {
@@ -453,14 +458,15 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
                     D_C0 = -0x140;
                 }
             }
+            glyphEnd = &D_90;
             if (racer->timeDifference <= 0) {
-                o50LapGlyphs[0].glyph = 12 << 16;
+                D_0.glyph = 12 << 16;
                 glyphAlternate = D_800D31C8[21];
                 glyphTexture = D_800D31C8[20];
                 timeMagnitude = (s32) -racer->timeDifference;
-                glyphCursor = &o50LapGlyphs[1];
-                o50LapGlyphs[0].alternate = glyphAlternate;
-                o50LapGlyphs[0].texture = glyphTexture;
+                glyphCursor = D_10;
+                D_0.alternate = glyphAlternate;
+                D_0.texture = glyphTexture;
                 do {
                     glyphCursor += 4;
                     glyphCursor[-3].texture = glyphTexture;
@@ -471,14 +477,14 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
                     glyphCursor[-1].alternate = glyphAlternate;
                     glyphCursor[-4].texture = glyphTexture;
                     glyphCursor[-4].alternate = glyphAlternate;
-                } while (glyphCursor != &o50LapGlyphs[9]);
+                } while (glyphCursor != glyphEnd);
             } else {
-                o50LapGlyphs[0].glyph = 13 << 16;
+                D_0.glyph = 13 << 16;
                 glyphAlternate = D_800D31C8[21];
                 glyphTexture = D_800D31C8[80];
-                glyphCursor = &o50LapGlyphs[1];
-                o50LapGlyphs[0].alternate = glyphAlternate;
-                o50LapGlyphs[0].texture = glyphTexture;
+                glyphCursor = D_10;
+                D_0.alternate = glyphAlternate;
+                D_0.texture = glyphTexture;
                 timeMagnitude = (s32) racer->timeDifference;
                 do {
                     glyphCursor += 4;
@@ -490,7 +496,7 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
                     glyphCursor[-1].alternate = glyphAlternate;
                     glyphCursor[-4].texture = glyphTexture;
                     glyphCursor[-4].alternate = glyphAlternate;
-                } while (glyphCursor != &o50LapGlyphs[9]);
+                } while (glyphCursor != glyphEnd);
             }
             overlay56SplitTime(timeMagnitude, &minutes, &seconds, &centiseconds);
             o50LapGlyphs[1].glyph = (minutes / 10) << 0x10;
@@ -500,10 +506,10 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
             o50LapGlyphs[7].glyph = (centiseconds / 10) << 0x10;
             o50LapGlyphs[8].glyph = (centiseconds % 10) << 0x10;
             templateCursor = D_230;
-            glyphCursor = &o50LapGlyphs[1];
+            glyphCursor = D_10;
             do {
                 if (((s32) glyphCursor[0].glyph >> 0x10) == 1) {
-                    if ((templateCursor == D_230) || (templateCursor == &D_230[3]) || (templateCursor == &D_230[6])) {
+                    if ((templateCursor == D_230) || (templateCursor == D_260) || (templateCursor == D_290)) {
                         glyphCursor[0].x = (s16) (templateCursor[0].x + 1);
                     } else {
                         glyphCursor[0].x = (s16) (templateCursor[0].x - 1);
@@ -513,8 +519,8 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
                 }
                 templateCursor++;
                 glyphCursor++;
-            } while (templateCursor != &D_230[8]);
-            func_8002F618(&D_800D3140, o50LapGlyphs,  ((s32) D_BC >> 4),  ((s32) D_C0 >> 4), 0xFF, 0xFF, 0xFF, 0xFF);
+            } while (templateCursor != D_2B0);
+            func_8002F618(&D_800D3140, o50LapGlyphs, D_BC >> 4, D_C0 >> 4, 0xFF, 0xFF, 0xFF, 0xFF);
         }
 
         lapIndex = 0;
@@ -527,42 +533,35 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
                 if (timeMagnitude < 0) {
                     timeMagnitude = -timeMagnitude;
                 }
-                func_8004A4B0(0xE6, 0xB4,  timeMagnitude, 3, 0);
+                func_8004A4B0(0xE6, 0xB4, timeMagnitude, 3, 0);
                 func_8004B0A4(2);
                 func_8004B0DC(0, 0, 0, 0);
                 fontColour(0x40, 0xFF, 0x40, 0xFF, 0xE0);
                 func_8004B0F8(&D_800D3140, 0x106, 0xBC, o50SpeedText, 0);
             } else {
-                func_8002F618(&D_800D3140, D_6C,  hudX, 0, 0xFF, 0xFF, 0xFF, 0xFF);
-                i = 0;
-                remainder = arg1 & 3;
+                func_8002F618(&D_800D3140, D_6C, hudX, 0, 0xFF, 0xFF, 0xFF, 0xFF);
                 if (racer->speed < 0.0f) {
                     targetAngle = (s32) (16384.0f - (-racer->speed * o50ReverseScale));
                 } else {
                     targetAngle = (s32) (16384.0f - (racer->speed * o50ForwardScale));
                 }
-                if (arg1 > 0) {
-                    if (remainder != 0) {
+                if (updateRate > 0) {
+                    if ((updateRate & 3) != 0) {
                         do {
-
-                            i += 1;
+                            lapIndex += 1;
                             D_800D3550[0].angle = (s16) (D_800D3550[0].angle + ((s32) (targetAngle - D_800D3550[0].angle) >> 2));
-                        } while (remainder != i);
+                        } while ((updateRate & 3) != lapIndex);
                     }
-                    if (i != arg1) {
+                    if (lapIndex != updateRate) {
                         do {
-
-                            i += 4;
+                            lapIndex += 4;
                             D_800D3550[0].angle = (s16) (D_800D3550[0].angle + ((s32) (targetAngle - D_800D3550[0].angle) >> 2));
-
                             D_800D3550[0].angle = (s16) (D_800D3550[0].angle + ((s32) (targetAngle - D_800D3550[0].angle) >> 2));
-
                             D_800D3550[0].angle = (s16) (D_800D3550[0].angle + ((s32) (targetAngle - D_800D3550[0].angle) >> 2));
-
                             D_800D3550[0].angle = (s16) (D_800D3550[0].angle + ((s32) (targetAngle - D_800D3550[0].angle) >> 2));
-                        } while (i != arg1);
+                        } while (lapIndex != updateRate);
                     }
-                    i = 0;
+                    lapIndex = 0;
                 }
 
                 D_800D3550[0].y = -85.0f;
@@ -570,7 +569,6 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
                 func_80034920(&D_800D3140);
                 D_8007C0BC = 0xFF;
                 func_80039E34(0);
-                i = 0;
                 D_8007C0BC = 0xFF;
             }
         }
@@ -584,22 +582,22 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
         if (lapCount > 0) {
             do {
                 i = 0;
-                if (arg1 > 0) {
-                    remainder = arg1 & 3;
+                if (updateRate > 0) {
+                    remainder = updateRate & 3;
                     if (remainder != 0) {
                         do {
                             i += 1;
                             *lapOffsets += (-*lapOffsets) >> 2;
                         } while (remainder != i);
                     }
-                    if (i != arg1) {
+                    if (i != updateRate) {
                         do {
                             i += 4;
                             *lapOffsets += (-*lapOffsets) >> 2;
                             *lapOffsets += (-*lapOffsets) >> 2;
                             *lapOffsets += (-*lapOffsets) >> 2;
                             *lapOffsets += (-*lapOffsets) >> 2;
-                        } while (i != arg1);
+                        } while (i != updateRate);
                     }
                 }
 
@@ -614,8 +612,7 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
             func_8002F618(&D_800D3140, D_2E0, D_B0[0], 0, 0xFF, 0xFF, 0xFF, 0xFF);
         }
         if (mainGetMode() == 0) {
-            switch (*modeFlag) {                   /* irregular */
-            case 0:
+            if (*modeFlag == 0) {
                 if ((o50Overlay1StateReloc == 0) && (joyGetPressed(0) & 0x9000) && (D_33C == 0)) {
                     func_800016EC(1);
                     func_8003A590();
@@ -625,8 +622,7 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
                     D_33C = 1;
                     return;
                 }
-                break;
-            case 1:
+            } else if (*modeFlag == 1) {
                 if ((o50Overlay1StateReloc == 0) && (joyGetPressed(0) & 0x9000) && (D_33C == 0)) {
                     func_800016EC(1);
                     func_8003A590();
@@ -635,7 +631,6 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
                     func_800005CC(3.0f, 0);
                     D_33C = 1;
                 }
-                break;
             }
         }
     }
@@ -646,10 +641,10 @@ void func_overlay_050_F0000334_1896CA4(O50Object *arg0, s32 arg1) {
 
 /* PLATEAU-HANDOFF:func_overlay_050_F0000334_1896CA4:start
  * symbol: func_overlay_050_F0000334_1896CA4
- * score: 31/1575 words
- * frame: 0x1A0
+ * score: 1422 differing words
+ * frame: 0x110
  * relocations: 315
  * first-mismatch: +0x0
- * summary: Fresh V0 is 12 bytes short with a 136-byte frame surplus; flag, context, constant, and first-call families are exhausted; 204 proxy identities remain.
+ * summary: Size-exact guarded C; 8-byte frame deficit and structure residual. Next: recover stack-home ownership and reconcile reserved-selector identity proof.
  * PLATEAU-HANDOFF:func_overlay_050_F0000334_1896CA4:end
  */
