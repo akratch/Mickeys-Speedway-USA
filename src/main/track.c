@@ -3511,9 +3511,9 @@ typedef struct TrackCollisionRecord {
 
 s16 Arctanf(f32 x, f32 y);
 
-/* Workbench verdict: structure-mismatch, 231 differing words, first mismatch +0x0. */
-/* Candidate: 236/231 instructions with a -0xA0 frame versus target -0x98. */
-/* Record bytes and cross products are authenticated; FP saved-register colouring remains unresolved. */
+/* Workbench verdict: structure-mismatch, 217 differing words, first mismatch +0x0. */
+/* Candidate: 237/231 words, frame 0xA0 versus 0x98, 6/17 relocation sites exact. */
+/* Mickey m2c restores the defined flag test and numerator negation before division. */
 void func_800115E4(s32 mode, TrackVec3f *position, TrackVec3f *offset,
                    f32 scale, TrackCollisionSurface *surface,
                    TrackCollisionRecord *record) {
@@ -3548,7 +3548,7 @@ void func_800115E4(s32 mode, TrackVec3f *position, TrackVec3f *offset,
     planeValue = (position->f[2] * surfaceZ) +
                  ((surfaceX * position->f[0]) +
                   (surfaceY * position->f[1])) + surfaceDistance;
-    if ((D_80081778 <= surfaceY) || ((surface->flags << 3) < 0)) {
+    if ((D_80081778 <= surfaceY) || (surface->flags & 0x10000000)) {
         firstCrossX = offset->f[2] * surfaceY;
         firstCrossY = (surfaceZ * offset->f[0]) -
                       (offset->f[2] * surfaceX);
@@ -3569,9 +3569,9 @@ void func_800115E4(s32 mode, TrackVec3f *position, TrackVec3f *offset,
             position->f[2] = surface->positionZ +
                              (time * (crossZ / distance));
         } else {
-            position->f[1] = -(((position->f[2] * surfaceZ) +
-                                (surfaceX * position->f[0]) +
-                                surfaceDistance) / surfaceY) + D_80081780;
+            position->f[1] = (-((position->f[2] * surfaceZ) +
+                                 (surfaceX * position->f[0]) +
+                                 surfaceDistance) / surfaceY) + D_80081780;
         }
         record->pointY = surfaceX;
         record->pointZ = surfaceY;
@@ -3617,11 +3617,11 @@ void func_800115E4(s32 mode, TrackVec3f *position, TrackVec3f *offset,
         record->value18 = surfaceZ;
         record->value3D |= 4;
     }
-    record->value38 = surface->flags;
-    record->value3C = surface->material;
     record->value28 = surfaceX;
     record->value2C = surfaceY;
     record->value30 = surfaceZ;
+    record->value38 = surface->flags;
+    record->value3C = surface->material;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800115E4.s")
@@ -5734,11 +5734,11 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_800115E4:start
  * symbol: func_800115E4
- * score: 231 differing words
+ * score: 217 differing words
  * frame: 0xa0
  * relocations: 17
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Mickey flag and negation order improve 231 to 217 differences, 6/17 relocation sites exact. Next: source-attributed FP home evidence.
  * PLATEAU-HANDOFF:func_800115E4:end
  */
 
