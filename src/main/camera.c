@@ -1985,7 +1985,7 @@ f32 D_80079F54 = 0.0f;
  * frame: 0xB8
  * relocations: 55
  * first-mismatch: +0x0
- * summary: Exact-sized macro candidate; frame +8, coordinate homes +20, 55/58 relocs with 53 identities; permuter 7104 to 5720, no zero.
+ * summary: JFG efd5abb camDoSprite is unchanged from the donor already exhausted by this plateau; next lever is Mickey-authenticated original source context.
  * PLATEAU-HANDOFF:func_80022FD4:end
  */
 
