@@ -2477,8 +2477,8 @@ void func_8004AF68(void) {
  * score: 175 differing words
  * frame: 0x180
  * relocations: 5
- * first-mismatch: +0x4
- * summary: Scale invariants reach f22/f24/f26; candidate still hoists limit 8 into s3, shifting s16 arguments to s6/s7/s8 and the work base.
+ * first-mismatch: 0x4
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new hoisted-bound and scale-invariant lifetimes evidence.
  * PLATEAU-HANDOFF:func_80047304:end
  */
 
