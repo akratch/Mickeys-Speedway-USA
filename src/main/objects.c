@@ -5604,7 +5604,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: frameless
  * relocations: 6
  * first-mismatch: +0x24
- * summary: CDX p2 web 15 is v1; forced split is nonexact; next lever is authenticated UGEN temp-FIFO trace for the t7 carrier.
+ * summary: JFG efd5abb leaves objGetTable body/types unchanged; zero new attempts. Next: authenticated UGEN reservation and temp-demand trace.
  * PLATEAU-HANDOFF:func_800056A4:end
  */
 
