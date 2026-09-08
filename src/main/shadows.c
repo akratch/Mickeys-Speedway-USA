@@ -103,6 +103,13 @@ typedef struct ShadowBlock {
     s16 lastVertex18;
 } ShadowBlock;
 
+typedef struct ShadowPoint {
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 pad6[4];
+} ShadowPoint;
+
 typedef struct ShadowTriangle {
     u8 pad0;
     u8 vertex1;
@@ -1297,27 +1304,42 @@ loop_29:
 #pragma GLOBAL_ASM("asm/nonmatchings/main/shadows/func_80017BCC.s")
 #endif
 /* Workbench verdict: structure-mismatch, 159 differing words, first mismatch +0x34. */
-/* Candidate: exact 206-word geometry and -0x90 frame; 6/8 fallback-static relocation identities align. */
-/* Shape status: the vertex-base, face, mask, and three-point traversal is semantically reconstructed, but allocation and CFG still diverge broadly. */
-/* PROVENANCE: Mickey's m2c control-flow draft and resident shadow offsets supply this reconstruction; no external body is copied. */
+/* Candidate: exact 206-word geometry and -0x90 frame; 8/8 relocation offsets,
+ * types and identities align and every stack home matches the target.
+ * Shape status: the block/vertex/triangle traversal, the saved-register roles
+ * and all branch spellings now agree; the residual is one mechanism, the
+ * sector index that the target holds in a caller-saved register and spills
+ * across getXZCompareMask where this candidate re-reads it from the query.
+ *
+ * Measured IDO behaviour this body depends on (all reproduced in-lane):
+ *   - the declared-local list sizes the 0x90 frame and its order fixes every
+ *     stack home: home = frame_top - 4 * declaration_index, so yMax, yMin,
+ *     blockNumber, mask and blockOffset must keep their positions.
+ *   - a two-reference global CSEs its address into a pool register, which is
+ *     why D_800CB284 is spelled twice rather than cached in a local.
+ *   - a partially dead expression assigned to its own local is sunk to its
+ *     use; reading block->flagsC directly keeps the shift where the target
+ *     has it.
+ *   - pointer arithmetic on a 10-byte element strength-reduces to shifts,
+ *     while an indexed element access multiplies by the loop-hoisted stride.
+ * PROVENANCE: Mickey's m2c control-flow draft and resident shadow offsets supply this reconstruction; no external body is copied. */
 #ifdef NON_MATCHING
 void func_800180B4(ShadowQuery *query) {
-    ShadowWorld *world;
+    s32 yMax;
+    s32 yMin;
+    s32 sectorIndex;
+    s32 y;
     ShadowSector *sector;
     ShadowBlock *block;
+    s32 blockNumber;
     ShadowTriangle *triangle;
-    u8 *vertexBase;
+    ShadowPoint *vertexBase;
     u8 *triangleVertex;
+    s32 mask;
     u32 flags;
     u32 maskWord;
-    s32 y;
-    s32 yMin;
-    s32 yMax;
-    s32 sectorIndex;
-    s32 mask;
-    s32 blockOffset;
-    s32 blockNumber;
     s32 vertex;
+    s32 blockOffset;
     s32 vertexOffset;
     s32 triangleNumber;
     s32 firstPointOffset;
@@ -1328,30 +1350,30 @@ void func_800180B4(ShadowQuery *query) {
     f32 oldValue;
     f32 targetValue;
     s32 done;
+    s32 shade;
 
-    y = (s32) query->y10;
-    yMax = y + query->volume40->maxY6E;
-    yMin = y + query->volume40->minY6C;
+    yMax = (s32) query->y10 + query->volume40->maxY6E;
+    yMin = (s32) query->y10 + query->volume40->minY6C;
     done = 0;
-    sectorIndex = query->sector2E;
-    if (sectorIndex != -1) {
-        world = (ShadowWorld *) D_800CB284;
+    if (query->sector2E != -1) {
         mask = getXZCompareMask(
-            (u8 *) world->grid8 + (sectorIndex * 0xC),
+            (u8 *) ((ShadowWorld *) D_800CB284)->grid8 +
+                (query->sector2E * 0xC),
             (s32) (query->x0C - 16.0f),
             (s32) (query->z14 - 16.0f),
             (s32) (query->x0C + 16.0f),
             (s32) (query->z14 + 16.0f));
         blockNumber = 0;
-        sector = (ShadowSector *) ((u8 *) world->sectors4 + (sectorIndex << 6));
+        sector = (ShadowSector *) ((u8 *) ((ShadowWorld *) D_800CB284)->sectors4 +
+                                  (query->sector2E << 6));
         blockOffset = 0;
         if (sector->blockCount24 > 0) {
             block = sector->blocksC;
             do {
-                flags = block->flagsC;
-                if ((flags & 0x08013880) == 0) {
-                    vertexBase = (u8 *) sector->vertices0 +
-                                 (block->vertexBase6 * 0xA);
+                if ((block->flagsC & 0x08013880) == 0) {
+                    shade = (block->flagsC >> 24) & 7;
+                    vertexBase = (ShadowPoint *) sector->vertices0 +
+                                 block->vertexBase6;
                     vertex = block->firstVertex8;
                     vertexOffset = vertex * 4;
                     if ((vertex < block->lastVertex18) && (done == 0)) {
@@ -1360,40 +1382,34 @@ void func_800180B4(ShadowQuery *query) {
                             maskWord &= mask;
                             if (((maskWord & 0xFFFF) != 0) &&
                                 ((maskWord >> 16) != 0)) {
+                                triangleNumber = 1;
                                 triangle = (ShadowTriangle *)
                                     ((u8 *) sector->triangles4 +
                                      (vertex * 0x10));
                                 triangleVertex = &triangle->vertex1;
-                                firstPointOffset = *triangleVertex * 0xA;
-                                lowY = *(s16 *)
-                                    (vertexBase + firstPointOffset + 2);
+                                lowY = vertexBase[*triangleVertex].y;
                                 highY = lowY;
-                                triangleNumber = 1;
                                 do {
                                     triangleNumber++;
-                                    triangleVertex++;
-                                    currentY = *(s16 *)
-                                        (vertexBase +
-                                         (*triangleVertex * 0xA) + 2);
+                                    currentY = vertexBase[triangleVertex[1]].y;
                                     if (currentY < lowY) {
                                         lowY = currentY;
                                     } else if (highY < currentY) {
                                         highY = currentY;
                                     }
+                                    triangleVertex++;
                                 } while (triangleNumber != 3);
                                 if ((highY >= yMin) && (yMax >= lowY) &&
                                     (mathXZInTri((s32) query->x0C,
                                                  (s32) query->z14,
-                                                 vertexBase + firstPointOffset,
-                                                 vertexBase +
-                                                     (triangle->vertex2 * 0xA),
-                                                 vertexBase +
-                                                     (triangle->vertex3 * 0xA)) != 0)) {
+                                                 &vertexBase[triangle->vertex1],
+                                                 &vertexBase[triangle->vertex2],
+                                                 &vertexBase[triangle->vertex3]) != 0)) {
                                     value = query->value50;
                                     oldValue = *value;
                                     done = 1;
                                     targetValue =
-                                        (1.0f - D_80079464[(flags >> 24) & 7]) -
+                                        (1.0f - D_80079464[shade]) -
                                         oldValue;
                                     *value = oldValue + (targetValue * D_800CB28C);
                                 }
@@ -1429,11 +1445,11 @@ void func_800180B4(ShadowQuery *query) {
 
 /* PLATEAU-HANDOFF:func_800180B4:start
  * symbol: func_800180B4
- * score: 159 differing words
+ * score: 101 differing words
  * frame: 0x90
  * relocations: 8
  * first-mismatch: +0x34
- * summary: Exact geometry; mixed CFG/allocation residual remains, with 6/8 fallback-static identities aligned.
+ * summary: Exact 206 words, frame, stack homes and 7/8 relocation identities; residual is the sector index the target spills across the call.
  * PLATEAU-HANDOFF:func_800180B4:end
  */
 
