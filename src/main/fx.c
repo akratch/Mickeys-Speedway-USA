@@ -2518,8 +2518,8 @@ void func_8004AF68(void) {
  * score: 390 differing words
  * frame: 0x108
  * relocations: 6
- * first-mismatch: +0x0
- * summary: Configured compilation unrolls fixed vertex loops; the target-supported next lever is a function-isolated -Wo,-loopunroll,0 build boundary.
+ * first-mismatch: 0x0
+ * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new vertex-loop source or proved build boundary evidence.
  * PLATEAU-HANDOFF:func_800475E8:end
  */
 
