@@ -1985,7 +1985,7 @@ f32 D_80079F54 = 0.0f;
  * frame: 0xB8
  * relocations: 55
  * first-mismatch: +0x0
- * summary: Exact-sized macro candidate; frame +8, coordinate homes +20, 55/58 relocs with 53 identities; permuter 7104 to 5720, no zero.
+ * summary: JFG efd5abb camDoSprite is unchanged from the donor already exhausted by this plateau; next lever is Mickey-authenticated original source context.
  * PLATEAU-HANDOFF:func_80022FD4:end
  */
 
@@ -1995,7 +1995,7 @@ f32 D_80079F54 = 0.0f;
  * frame: 0x30
  * relocations: 13
  * first-mismatch: +0x8
- * summary: 83/84 words, 12/13 relocs; 11 identities align. Prior flags/forms exhausted; next lever is authenticated same-TU data layout.
+ * summary: JFG efd5abb body is unchanged from exhausted 24d61fe; next lever is Mickey-authenticated original matrix declaration/layout evidence.
  * PLATEAU-HANDOFF:func_80024978:end
  */
 
@@ -2005,6 +2005,6 @@ f32 D_80079F54 = 0.0f;
  * frame: 0xA0
  * relocations: 32
  * first-mismatch: +0x0
- * summary: Fresh V0 is 286/284 words, target frame 0x90, relocs 32/32 with 6 identities aligned. Prior flags and ten natural source forms are exhausted.
+ * summary: JFG efd5abb adds no counterpart for Mickey's high-level sprite path beyond the donor already exhausted here; next lever is Mickey-authenticated source context.
  * PLATEAU-HANDOFF:func_80023598:end
  */
