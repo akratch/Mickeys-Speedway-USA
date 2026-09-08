@@ -92,7 +92,16 @@ extern void func_overlay_057_F00060F8_18A9CF0(s32 updateRate);
  * strictly best; a separate pointer local for the +0xE0 base, `register`
  * qualifiers, the direct array spelling and separate loop counters all leave
  * the assignment unchanged. Local declaration order does matter and is the
- * one that reproduces the frame and spill slot. */
+ * one that reproduces the frame and spill slot.
+ *
+ * Promotion note for whoever closes this: the dispatch is a real compiler
+ * jump table, so an exact body will emit a read-only table this overlay
+ * already carries in its retained data segment. Overlay 1's dispatch owner
+ * is the working precedent for that link recipe -- name the retained table
+ * with an absolute anchor at its stored offset, rebind the table's two text
+ * relocations onto that name, then externalize and drop the duplicate
+ * compiler section. Without it the overlay grows and the ROM stops
+ * rebuilding. */
 #ifdef NON_MATCHING
 void func_overlay_057_F0001AE8_18A56E0(s32 updateRate) {
     s32 limit;
