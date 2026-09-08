@@ -81,20 +81,32 @@ CLASS_REASON = {
 
 
 def classify(symbols: list[str]) -> dict[str, dict]:
-    """Ask lane_status for each symbol's verdict and its current pins."""
-    out: dict[str, dict] = {}
-    for symbol in symbols:
-        result = subprocess.run(
-            [sys.executable, str(LANE_STATUS), "--symbol", symbol, "--json"],
-            cwd=REPO, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    """Ask lane_status for each symbol's verdict and its current pins.
+
+    One batch call, not one per symbol: `--symbols` shares a single evidence
+    scan across the whole list, and `--json` reports the same assignment
+    record that `--symbol` does, pins included. Forty-eight symbols one at a
+    time took twelve minutes; the batch is a single process.
+
+    Exit status is deliberately ignored -- the batch returns 1 when any
+    symbol is not `base-only`, which for this tool is the normal case and
+    not an error.
+    """
+    result = subprocess.run(
+        [sys.executable, str(LANE_STATUS), "--symbols", ",".join(symbols), "--json"],
+        cwd=REPO, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    )
+    if not result.stdout.strip():
+        raise RuntimeError(
+            f"lane_status produced nothing for {len(symbols)} symbol(s) "
+            f"({result.stderr.strip() or 'no error text'})"
         )
-        if not result.stdout.strip():
-            raise RuntimeError(
-                f"{symbol}: lane_status produced nothing "
-                f"({result.stderr.strip() or 'no error text'})"
-            )
-        out[symbol] = json.loads(result.stdout)["assignment"]
-    return out
+    assignments = json.loads(result.stdout)["assignments"]
+    found = {row["symbol"]: row for row in assignments}
+    missing = [s for s in symbols if s not in found]
+    if missing:
+        raise RuntimeError(f"lane_status returned no verdict for: {missing}")
+    return found
 
 
 def ranking() -> dict[str, dict]:

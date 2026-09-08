@@ -215,24 +215,29 @@
       "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "173cab235f4fe1cf595964b0070f612463d896ae"
     },
+    "func_8001BBB4": {
+      "ledger_commit": "770063553502c681e61f13366a408c249df4e797",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 38 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "770063553502c681e61f13366a408c249df4e797"
+    },
     "func_8001C4C0": {
-      "ledger_commit": "e5e1131387b1c271cb7ed97433912a36ed8e0f84",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "e5e1131387b1c271cb7ed97433912a36ed8e0f84"
+      "ledger_commit": "3cdeab1fbe5777639145324b1510612e87260444",
+      "reason": "ADR 0018 stall rule, and at delta -8 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "3cdeab1fbe5777639145324b1510612e87260444"
     },
     "func_8001CB84": {
-      "ledger_commit": "19f1f38fe953750c9768ee64a865439a6483950f",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "ledger_commit": "2fa08dc8e65f9a35f5e22cfca4f21853256da250",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 53 masked words is a schedule or structure defect the permuter can still move.",
       "source_commit": "19f1f38fe953750c9768ee64a865439a6483950f"
     },
     "func_8001D880": {
-      "ledger_commit": "6018f92ab53ef13f26480d8331dfed972641fef5",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "6018f92ab53ef13f26480d8331dfed972641fef5"
+      "ledger_commit": "6ff48fc77b663ab1edd1e8cce4105b6869e1c328",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 29 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "6ff48fc77b663ab1edd1e8cce4105b6869e1c328"
     },
     "func_8001D960": {
-      "ledger_commit": "0d16456858452f970d7d40bba889d1c8ac032e13",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "ledger_commit": "2fa08dc8e65f9a35f5e22cfca4f21853256da250",
+      "reason": "Class is register-only at 16 masked words, delta 0: routes to the forced-colour oracle and the permuter, mechanisms the recorded attempts did not use.",
       "source_commit": "0d16456858452f970d7d40bba889d1c8ac032e13"
     },
     "func_8001DD70": {
@@ -391,34 +396,44 @@
       "source_commit": "249d01ebccf98aacff8ebbcae504de5fa630a2aa"
     },
     "func_8003D25C": {
-      "ledger_commit": "1f51f9a0ddaaafedfa5d80553e34a7c648d57526",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "1f51f9a0ddaaafedfa5d80553e34a7c648d57526"
+      "ledger_commit": "001f54cc9c4a32020eb9e8bc76baacd3eca28421",
+      "reason": "Class is register-only at 68 masked words, delta 0: routes to the forced-colour oracle and the permuter, mechanisms the recorded attempts did not use.",
+      "source_commit": "001f54cc9c4a32020eb9e8bc76baacd3eca28421"
     },
     "func_8003D4FC": {
-      "ledger_commit": "969adde71f114d7d94cd95d89064e4a548248135",
-      "reason": "Class changed: decompiler-assisted reconstruction closed this target's size deficit, so it is no longer size-mismatch. Work the remaining residual under the workbench-routed playbook; do not redo the reconstruction.",
-      "source_commit": "969adde71f114d7d94cd95d89064e4a548248135"
+      "ledger_commit": "f22d0874fb58fbff3b8b841176a82a17cb9e430e",
+      "reason": "Class is register-only at 73 masked words, delta 0: routes to the forced-colour oracle and the permuter, mechanisms the recorded attempts did not use.",
+      "source_commit": "f22d0874fb58fbff3b8b841176a82a17cb9e430e"
+    },
+    "func_8003E8D8": {
+      "ledger_commit": "0e3de63667a5d632384abba03c845ba0d1dfa148",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 1 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "0e3de63667a5d632384abba03c845ba0d1dfa148"
     },
     "func_8003F154": {
-      "ledger_commit": "666d563a26c4986470ba0a085d3cfdd36d83042f",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "666d563a26c4986470ba0a085d3cfdd36d83042f"
+      "ledger_commit": "b4e283b76abe453f4cc15ebf555e21b1fc541fbe",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 21 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "b4e283b76abe453f4cc15ebf555e21b1fc541fbe"
     },
     "func_8004054C": {
-      "ledger_commit": "d0691bc25c501f1d82afbc41b34f34ae8212cc6a",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "d0691bc25c501f1d82afbc41b34f34ae8212cc6a"
+      "ledger_commit": "e5f0275ed7b941f16b3b257b1636ab6d74024e03",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 56 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "e5f0275ed7b941f16b3b257b1636ab6d74024e03"
     },
     "func_80040B88": {
-      "ledger_commit": "f3eb3733c6ffaa78cbf7b2356a960af90b9fb292",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "f3eb3733c6ffaa78cbf7b2356a960af90b9fb292"
+      "ledger_commit": "97e9811f2e9c764fd001e03ca6a34d53fc17c8d3",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 145 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "97e9811f2e9c764fd001e03ca6a34d53fc17c8d3"
     },
     "func_80041530": {
-      "ledger_commit": "d6b0c363364a2d6cb346818f7d8365a24864d71a",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "d6b0c363364a2d6cb346818f7d8365a24864d71a"
+      "ledger_commit": "1ea6adeee3de47c9916d08a54476ffb203c30d8f",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 52 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "1ea6adeee3de47c9916d08a54476ffb203c30d8f"
+    },
+    "func_80041CE4": {
+      "ledger_commit": "690806f1ee058922a5052ec880bca5b5064a6193",
+      "reason": "Class is register-only at 27 masked words, delta 0: routes to the forced-colour oracle and the permuter, mechanisms the recorded attempts did not use.",
+      "source_commit": "690806f1ee058922a5052ec880bca5b5064a6193"
     },
     "func_80045D34": {
       "ledger_commit": "3661bf85a437a529bb2655df05e8e0dd59f9ca40",
@@ -431,69 +446,69 @@
       "source_commit": "325e5520791dd5b3014bc251c19138ee7a30901d"
     },
     "func_80046EC4": {
-      "ledger_commit": "6ce89d6b0446cd198c7fe1fccd76aa3abce45d34",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta 4 bytes the candidate is not the same function; no permutation closes it.",
-      "source_commit": "6ce89d6b0446cd198c7fe1fccd76aa3abce45d34"
+      "ledger_commit": "ed5329cb3afc9c4805857833292475b561218d6d",
+      "reason": "ADR 0018 stall rule, and at delta 4 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "ed5329cb3afc9c4805857833292475b561218d6d"
     },
     "func_800470B0": {
-      "ledger_commit": "180402ea551ba8d38ab9ada72691c8062841dc5d",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: ADR 0018 stall rule. Delta 0 at 90 masked words is a schedule or structure defect; the prior closure used the retired attempt cap.",
-      "source_commit": "180402ea551ba8d38ab9ada72691c8062841dc5d"
+      "ledger_commit": "1d9751d6f7e14be280e12cdb63013e7f030dfbbd",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 90 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "1d9751d6f7e14be280e12cdb63013e7f030dfbbd"
     },
     "func_80047304": {
-      "ledger_commit": "0b13a198a61e8ecb86b2f1ac47c071a1f7170e02",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta -8 bytes the candidate is not the same function; no permutation closes it.",
-      "source_commit": "0b13a198a61e8ecb86b2f1ac47c071a1f7170e02"
+      "ledger_commit": "682a7e6e1b1d1dbb05f58817f48c07903320e407",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 158 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "682a7e6e1b1d1dbb05f58817f48c07903320e407"
     },
     "func_800475E8": {
-      "ledger_commit": "4148117e75732616187df3c000fd371085a987f8",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta 780 bytes the candidate is not the same function; no permutation closes it.",
-      "source_commit": "4148117e75732616187df3c000fd371085a987f8"
+      "ledger_commit": "bdd7f83c12122a05ce2e1554b110c76256a730c8",
+      "reason": "ADR 0018 stall rule, and at delta 780 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "bdd7f83c12122a05ce2e1554b110c76256a730c8"
     },
     "func_800479D4": {
-      "ledger_commit": "e63b9cfe9f6db54c37c9600a325ba5c2895ab58e",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta -20 bytes the candidate is not the same function; no permutation closes it.",
-      "source_commit": "e63b9cfe9f6db54c37c9600a325ba5c2895ab58e"
+      "ledger_commit": "1d7c84ef103a961a78fa7fce70b30fd9cf7d0d9e",
+      "reason": "ADR 0018 stall rule, and at delta -4 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "1d7c84ef103a961a78fa7fce70b30fd9cf7d0d9e"
     },
     "func_80048080": {
-      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta -4 bytes the candidate is not the same function; no permutation closes it.",
-      "source_commit": "5d6fd5bd76609b67b27103dd3e701ee88320e9e8"
+      "ledger_commit": "76ff2b376561f2cb9b26d7bde787792be9eeaef7",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 12 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "76ff2b376561f2cb9b26d7bde787792be9eeaef7"
     },
     "func_80048760": {
-      "ledger_commit": "130c1c1cc1a6cccad9144428a3c6517b5c6c3890",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: ADR 0018 stall rule. Delta 0 at 23 masked words is a schedule or structure defect; the prior closure used the retired attempt cap.",
-      "source_commit": "130c1c1cc1a6cccad9144428a3c6517b5c6c3890"
+      "ledger_commit": "4f1914d6eedf71fb6c2b62453ed2ee23cb089aaf",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 23 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "4f1914d6eedf71fb6c2b62453ed2ee23cb089aaf"
     },
     "func_80049000": {
-      "ledger_commit": "307dbacfc6f37241054b9656a9c577b1aa1c6bb4",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: ADR 0018 stall rule. Delta 0 at 69 masked words is a schedule or structure defect; the prior closure used the retired attempt cap.",
-      "source_commit": "307dbacfc6f37241054b9656a9c577b1aa1c6bb4"
+      "ledger_commit": "338f9834f62fb660ff7d77e36307f1cd4b04605a",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 69 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "338f9834f62fb660ff7d77e36307f1cd4b04605a"
     },
     "func_800498FC": {
-      "ledger_commit": "e211ce6135a076ba8f08a28404299182ffc7a42d",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: register-only at 9 masked words, delta 0, routes to the forced-colour oracle and permuter. Neither was tried.",
-      "source_commit": "e211ce6135a076ba8f08a28404299182ffc7a42d"
+      "ledger_commit": "2ef40a17099396fc8d8147af93f489713eacc1e6",
+      "reason": "Class is register-only at 9 masked words, delta 0: routes to the forced-colour oracle and the permuter, mechanisms the recorded attempts did not use.",
+      "source_commit": "2ef40a17099396fc8d8147af93f489713eacc1e6"
     },
     "func_80049B14": {
-      "ledger_commit": "63f87fdf63f2d2aa5c4c86d18312513e74e983c5",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta 4 bytes the candidate is not the same function; no permutation closes it.",
-      "source_commit": "63f87fdf63f2d2aa5c4c86d18312513e74e983c5"
+      "ledger_commit": "712f2e1446f2f436d022038c37b55fef68738111",
+      "reason": "ADR 0018 stall rule, and at delta 4 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "712f2e1446f2f436d022038c37b55fef68738111"
     },
     "func_80049E4C": {
-      "ledger_commit": "2d273f4be3e49ddcd8ce35dda94704d7b09d3d64",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta -8 bytes the candidate is not the same function; no permutation closes it.",
-      "source_commit": "2d273f4be3e49ddcd8ce35dda94704d7b09d3d64"
+      "ledger_commit": "465e0fc0609d6cb7f0d45444f7b6e6340fb791d9",
+      "reason": "ADR 0018 stall rule, and at delta -8 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "465e0fc0609d6cb7f0d45444f7b6e6340fb791d9"
     },
     "func_8004A10C": {
-      "ledger_commit": "9477af4a9ce70bb31f420ba6f6dc8d46c6bf8f5c",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: ADR 0018 stall rule. Delta 0 at 132 masked words is a schedule or structure defect; the prior closure used the retired attempt cap.",
-      "source_commit": "9477af4a9ce70bb31f420ba6f6dc8d46c6bf8f5c"
+      "ledger_commit": "fcdba033f7037e4cb4f8f3f9cacc83a2b60cb8fa",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 132 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "fcdba033f7037e4cb4f8f3f9cacc83a2b60cb8fa"
     },
     "func_8004ACC4": {
-      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: ADR 0018 stall rule. Delta 0 at 14 masked words is a schedule or structure defect; the prior closure used the retired attempt cap.",
-      "source_commit": "ec8167ac2760843df13185267c490f62541771e6"
+      "ledger_commit": "4be95a3d08118c15147f039c6472a20a574d6e0c",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 14 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "4be95a3d08118c15147f039c6472a20a574d6e0c"
     },
     "func_8004ADE8": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
@@ -501,9 +516,9 @@
       "source_commit": "b3d6581927dbe28c24c967ab1fb2e1adedaeba2a"
     },
     "func_8004AF68": {
-      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: ADR 0018 stall rule. Delta 0 at 26 masked words is a schedule or structure defect; the prior closure used the retired attempt cap.",
-      "source_commit": "deb2a1693f7ac84b8b0546b1a7b70d2522fdd59d"
+      "ledger_commit": "2ba910b17faa686519e47d9da3ddca8e70ac0c65",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 26 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "2ba910b17faa686519e47d9da3ddca8e70ac0c65"
     },
     "func_8004B1DC": {
       "ledger_commit": "b92ba51284e9c10f2b4947ce0aa6c8ccb8ec0f2f",
@@ -896,14 +911,14 @@
       "source_commit": "b9182476acdc389a6f9691e04488f947ad7e046b"
     },
     "fxSPDPRipple": {
-      "ledger_commit": "6ee2ed938728a995fed3fa91f76b6414c3b808bb",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta 8 bytes the candidate is not the same function; no permutation closes it.",
-      "source_commit": "6ee2ed938728a995fed3fa91f76b6414c3b808bb"
+      "ledger_commit": "4f897ce66fd79fd334a4215de2068e1e32af3fc2",
+      "reason": "ADR 0018 stall rule, and at delta 8 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "4f897ce66fd79fd334a4215de2068e1e32af3fc2"
     },
     "fxScreenEffect": {
-      "ledger_commit": "09ed75fd0f91e85822b9130730e675a808f6758e",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta -28 bytes the candidate is not the same function; no permutation closes it.",
-      "source_commit": "09ed75fd0f91e85822b9130730e675a808f6758e"
+      "ledger_commit": "f655fdcee33a0f69209fdc8fd62b1e49721a4d53",
+      "reason": "ADR 0018 stall rule, and at delta -28 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "f655fdcee33a0f69209fdc8fd62b1e49721a4d53"
     },
     "joyRead": {
       "ledger_commit": "37f0ab2215e30f7bbacd04617531b247a8846db3",
@@ -1001,9 +1016,9 @@
       "source_commit": "36b50ec043412f248ce0cf028eaba7d7433cfb03"
     },
     "overlay1FindBestRecord": {
-      "ledger_commit": "7c77fbbc9b42223d8c609a79d373c90f41506d23",
-      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
-      "source_commit": "7c77fbbc9b42223d8c609a79d373c90f41506d23"
+      "ledger_commit": "71d61c338d65ba695241d891ae57bb38130f4324",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 2 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "603e826a4382da40dacced247320dd341a08442c"
     },
     "overlay1FindNextAngle": {
       "ledger_commit": "374d8c42624ae11b846c92bb93e67643a2a2d15b",
@@ -1286,19 +1301,19 @@
       "source_commit": "4a19eaf4143fd79a7053188c64f8656016aae2cf"
     },
     "wakeAllocate": {
-      "ledger_commit": "8c82689ebebd6ebe9b27f180aefa19479e90cc4f",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta -32 bytes the candidate is not the same function; no permutation closes it.",
-      "source_commit": "8c82689ebebd6ebe9b27f180aefa19479e90cc4f"
+      "ledger_commit": "803bd3c578b5713cd5ed99c365db5786d4bdd1c5",
+      "reason": "ADR 0018 stall rule, and at delta -32 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "803bd3c578b5713cd5ed99c365db5786d4bdd1c5"
     },
     "wakeDraw": {
-      "ledger_commit": "d04d8e9e2aa4fabc02a1b7f9885af595ffd19c24",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta -4 bytes the candidate is not the same function; no permutation closes it.",
-      "source_commit": "d04d8e9e2aa4fabc02a1b7f9885af595ffd19c24"
+      "ledger_commit": "e9d31906e7d8b13265d53abb496a7936bea6aed8",
+      "reason": "ADR 0018 stall rule, and at delta -4 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "e9d31906e7d8b13265d53abb496a7936bea6aed8"
     },
     "wakeUpdate": {
-      "ledger_commit": "2dd01a7c4a8da35803c392aa57057a2dfd5262fe",
-      "reason": "No donor here: JFG src/fx.c is all GLOBAL_ASM. True mechanism: decompiler-assisted reconstruction. At delta -8 bytes the candidate is not the same function; no permutation closes it.",
-      "source_commit": "2dd01a7c4a8da35803c392aa57057a2dfd5262fe"
+      "ledger_commit": "083ce3c3520905e935beeb3ec3ecca4ac1375ba0",
+      "reason": "ADR 0018 stall rule, and at delta -4 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "083ce3c3520905e935beeb3ec3ecca4ac1375ba0"
     }
   },
   "schema_version": 1
