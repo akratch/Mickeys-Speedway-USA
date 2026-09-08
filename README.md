@@ -204,6 +204,30 @@ records the reference builds.
   [m2c](https://github.com/matt-kempster/m2c) and
   [ido-static-recomp](https://github.com/decompals/ido-static-recomp).
 
+### Jet Force Gemini contributors
+
+Jet Force Gemini runs a heavily modified version of the same engine, so it is
+this project's most-used reference and the source of most tier-A names here.
+Where a function body is adapted from it, the adaptation is disclosed with a
+`PROVENANCE` note at the point of use naming the project and the file; this
+section credits the people whose work those notes point at.
+
+- [Ryan Myers](https://github.com/Ryan-Myers) (@Ryan-Myers)
+- [LLONSIT](https://github.com/LLONSIT) (@LLONSIT)
+- [Stephen Vergara](https://github.com/sverg84) (@sverg84)
+- [arjanjohan](https://github.com/arjanjohan) (@arjanjohan)
+- [Thiago Ribeiro](https://github.com/thiagoribeiro269) (@thiagoribeiro269)
+- queueRAM
+- Dominik Peters
+- Hugues Morisset
+
+Handles are taken from commit metadata in that repository. The last three
+commit under an address that does not encode a GitHub username, so they are
+credited by the name they commit under rather than by a guessed handle.
+
+Jet Force Gemini is a human-made decompilation whose maintainers do not accept
+AI-generated contributions. Nothing from this project is submitted there.
+
 ## License
 
 [CC0 1.0 Universal](LICENSE), covering this repository's own work only, not
