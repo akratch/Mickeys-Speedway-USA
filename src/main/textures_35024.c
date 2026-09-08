@@ -235,15 +235,15 @@ s32 func_8003484C(void *texture) {
     }
     return -1;
 }
+#else
+#pragma GLOBAL_ASM("asm/nonmatchings/main/textures_35024/func_8003484C.s")
+#endif
 /* PLATEAU-HANDOFF:func_8003484C:start
  * symbol: func_8003484C
  * score: 11/21 words
  * frame: frameless
  * relocations: 4
  * first-mismatch: +0x8
- * summary: Ten natural forms leave the original exact-sized loop best; its texture argument and computed-entry register roles remain reversed.
+ * summary: Five fresh attempts produced no improvement; next lever is new evidence changing parameter versus indexed-entry allocation while preserving 21-word geometry.
  * PLATEAU-HANDOFF:func_8003484C:end
  */
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/textures_35024/func_8003484C.s")
-#endif
