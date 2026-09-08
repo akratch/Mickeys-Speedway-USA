@@ -2589,9 +2589,8 @@ extern f32 sqrtf(f32 value);
 void overlay1UpdateAimedTransient(void) {
     Overlay1TransientWorld *world;
     u32 worldAddress;
-    Overlay1TransientOwner *owner;
-    Overlay1TransientObject *object;
     Overlay1TransientState *savedState;
+    Overlay1TransientObject *object;
     Overlay1TransientState *state;
     Overlay1MotionSource *source;
     f32 factor;
@@ -2954,14 +2953,13 @@ void overlay1AppendPathPoint(Overlay1PathState *state, s16 x, s16 y,
                              u8 primary, u8 secondary) {
     register s32 pointX = x;
     register s32 pointY = y;
-    u8 index = state->count;
-    s16 dx = pointX - state->x[index];
+    s16 dx = pointX - state->x[state->count];
     s16 dy;
     s16 anchorX;
     s16 anchorDx;
 
-    dy = pointY - state->y[index];
-    state->count = index + 1;
+    dy = pointY - state->y[state->count];
+    state->count = state->count + 1;
     state->x[state->count] = pointX;
     state->y[state->count] = pointY;
     state->primary[state->count] = primary;
@@ -2980,9 +2978,9 @@ void overlay1AppendPathPoint(Overlay1PathState *state, s16 x, s16 y,
     if ((pointX == anchorX) && (pointY == overlay1AnchorY)) {
         state->anchorDistanceSquared = 0;
     } else {
-        s16 anchorDy = pointY - overlay1AnchorY;
         state->anchorDistanceSquared =
-            (anchorDx * anchorDx) + (anchorDy * anchorDy);
+            (anchorDx * anchorDx) +
+            ((s16)(pointY - overlay1AnchorY) * (s16)(pointY - overlay1AnchorY));
     }
 }
 
@@ -3198,14 +3196,15 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
     u32 bestValue;
     register u32 value;
     s32 remaining;
-
+    s32 group;
     record = D_220;
     bestValue = (u32)-1;
     result = NULL;
     value = 0;
+    group = D_1D88;
     remaining = 31;
     do {
-        if (D_1D88 == record->flags.bits.group) {
+        if (record->flags.bits.group == (group ^ 0)) {
             value = record->value;
             if ((value == 0) ||
                 (((record->flags.value & 3) == 3) &&
