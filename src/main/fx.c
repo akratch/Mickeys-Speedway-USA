@@ -2394,11 +2394,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_8004ACC4:start
  * symbol: func_8004ACC4
- * score: 14/28 words
+ * score: 14 differing words
  * frame: frameless
  * relocations: 12
  * first-mismatch: +0x14
- * summary: Five callback/trap identity sites and four counter/address webs remain; 119 flags and ten coherent forms exhausted; needs new source evidence.
+ * summary: JFG efd5abb counterpart remains assembly-only; structure-buckets has no proved lever. Resume with new callback/trap source; configured 14/28 retained.
  * PLATEAU-HANDOFF:func_8004ACC4:end
  */
 
