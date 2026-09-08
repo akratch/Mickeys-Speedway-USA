@@ -95,16 +95,23 @@ extern O101Node20_69E8 D_200[];
 extern O101Node32_69E8 D_340[];
 extern O101Node24_69E8 D_540[];
 
-extern void *func_overlay_101_F0000000_18DB820();
-extern s8 func_overlay_101_F000CEA8_18E86C8(void *);
+/* Tier B: this function's runtime relocation records resolve ten sprite
+ * loads to resident func_800355A0, four screen loads to func_80036DD0,
+ * seven local calls to overlay101ByteLength, and the final call to
+ * overlay101Reset. The matched local callees establish their prototypes. */
+extern void *func_800355A0(s32 assetId, s32 flags);
+extern s32 *func_80036DD0(s32 screenIndex);
+extern s32 overlay101ByteLength(u8 *text);
+extern void overlay101Reset(void *value);
 
 /*
  * Mickey-local reconstruction from this overlay's extracted function and
  * the typed node builders immediately before and after it. The pinned DKR
  * v77/v80 and JFG overlay scans report no donor for overlay 101.
- * Workbench: structure-mismatch; 840/963 masked positional words differ, first +0x2C;
- * 963/967 instructions and an exact -0x50 frame on target and candidate.
- * Levers: MIPS-II flags, target-derived node/base/owner-index and root-store probes; remaining drift is saved-register/store scheduling across builders.
+ * Configured full-TU measurement after call recovery: 963/963 words,
+ * 693 raw / 690 relocation-masked differences, first +0x2C; frame 0x50.
+ * The runtime table owns 110 relocations; the extracted assembly object
+ * retains only 79, so its placeholder identities are not promotion proof.
  */
 #ifdef NON_MATCHING
 void func_overlay_101_F00069E8_18E2208(void) {
@@ -147,7 +154,7 @@ void func_overlay_101_F00069E8_18E2208(void) {
     node32->value18 = 0;                                                     \
     node32->scale = (nodeScale);                                             \
     node32->value14 = 0.0f;                                                  \
-    handle = func_overlay_101_F0000000_18DB820((imageId), 0);                \
+    handle = func_800355A0((imageId), 0);                \
     index = D_1CC;                                                           \
     node32 = &D_340[index];                                                  \
     node32->previousType = D_0.groups[group].childType;                      \
@@ -163,7 +170,7 @@ void func_overlay_101_F00069E8_18E2208(void) {
     node20->x = (nodeX);                                                     \
     node20->y = (nodeY);                                                     \
     node20->scale = 1.0f;                                                    \
-    handle = func_overlay_101_F0000000_18DB820((imageId), 0);                \
+    handle = func_80036DD0(imageId);                \
     index = D_1C8;                                                           \
     node20 = &D_200[index];                                                  \
     node20->previousType = D_0.groups[group].childType;                      \
@@ -178,7 +185,7 @@ void func_overlay_101_F00069E8_18E2208(void) {
     node24 = &D_540[index];                                                  \
     node24->x = (textX);                                                     \
     node24->y = (textY);                                                     \
-    length = func_overlay_101_F000CEA8_18E86C8(D_INPUT.input);               \
+    length = overlay101ByteLength(D_INPUT.input);               \
     index = D_1D0;                                                           \
     node24 = &D_540[index];                                                  \
     node24->length = (u8)length;                                             \
@@ -246,7 +253,7 @@ void func_overlay_101_F00069E8_18E2208(void) {
     ADD_NODE20(5, 0xC, 0x12, 0xC);
     ADD_TEXT(5, textF4, 0x70, 0x7B);
 
-    func_overlay_101_F0000000_18DB820(&D_1D2C);
+    overlay101Reset(&D_1D2C);
 
 #undef ADD_TEXT
 #undef ADD_NODE20
@@ -256,13 +263,3 @@ void func_overlay_101_F00069E8_18E2208(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o101/func_overlay_101_F00069E8_18E2208/func_overlay_101_F00069E8_18E2208.s")
 #endif
-
-/* PLATEAU-HANDOFF:func_overlay_101_F00069E8_18E2208:start
- * symbol: func_overlay_101_F00069E8_18E2208
- * score: 840/963 words
- * frame: 0x50
- * relocations: 110
- * first-mismatch: +0x2C
- * summary: V0 is 967/963 words (+4), frame 0x50 exact, and overruns its 3852-byte owner by 16 bytes; relocation identities are unavailable.
- * PLATEAU-HANDOFF:func_overlay_101_F00069E8_18E2208:end
- */
