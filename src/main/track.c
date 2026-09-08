@@ -3286,9 +3286,9 @@ s32 func_80010900(TrackVec3f *arg0, TrackVec3f *arg1, f32 arg2, s32 arg3,
  * helper declarations reconstruct this player-intersection loop; no external
  * function body is adapted. The record writes retain the assembly offsets.
  */
-/* Workbench verdict: structure-mismatch, 668 differing words, first mismatch +0x0. */
-/* Candidate has the target 678-word geometry and nine relocations, with frame -0x158 versus -0x148. */
-/* Remaining gap: a 16-byte frame excess and unresolved FP/pointer allocation scheduling. */
+/* Workbench verdict: structure-mismatch, 662 differing words, first mismatch +0x0. */
+/* Candidate has 692/678 words and nine relocations, with frame -0x158 versus -0x148. */
+/* Remaining gap: fourteen excess words, a 16-byte frame excess, and unresolved FP/pointer scheduling. */
 struct TrackCollisionSurface;
 struct TrackCollisionRecord;
 extern void func_800115E4(
@@ -3301,29 +3301,26 @@ extern void func_800115E4(
 #define B4C_F32(base, offset) (*(f32 *) ((u8 *) (base) + (offset)))
 
 s32 func_80010B4C(s32 arg0, void *arg1, f32 *arg2, f32 *arg3,
-                  s32 arg4, void *arg5) {
+                  void *arg4, void *arg5, void *arg6) {
     TrackRayHit intersection;
     f32 relative[16];
     TrackRayPoint direction;
-    u8 *start;
-    u8 *end;
+    TrackRayPoint *start;
+    TrackRayPoint *end;
     u8 *record;
     f32 *scalePtr;
     f32 lengthSquared;
     f32 length;
-    f32 offsetX;
-    f32 offsetY;
-    f32 offsetZ;
     f32 minimumLength;
     f32 scale;
     s32 minimumIndex;
     s32 count;
     s32 index;
     s32 attempt;
-    s32 bit;
-    s32 collisionMask;
-    s32 resultMask;
-    s32 failureMask;
+    u32 bit;
+    u32 collisionMask;
+    u32 resultMask;
+    u32 failureMask;
     s32 collision;
     s32 queryResult;
     s32 auxiliaryResult;
@@ -3367,40 +3364,41 @@ s32 func_80010B4C(s32 arg0, void *arg1, f32 *arg2, f32 *arg3,
         collisionMask = 0;
         bit = 1;
         scalePtr = arg3;
-        for (index = 0; (index < arg0) && (failureMask == 0);
-             index++, scalePtr++) {
-            start = (u8 *) arg1 + (index * 0xC);
-            end = (u8 *) arg2 + (index * 0xC);
+        index = 0;
+        do {
+            start = (TrackRayPoint *) ((u8 *) arg1 + (index * 0xC));
+            end = (TrackRayPoint *) ((u8 *) arg2 + (index * 0xC));
             scale = *scalePtr;
             count = 0;
             do {
-                direction.x = B4C_F32(end, 0) - B4C_F32(start, 0);
-                direction.y = B4C_F32(end, 4) - B4C_F32(start, 4);
-                direction.z = B4C_F32(end, 8) - B4C_F32(start, 8);
+                collision = 0;
+                auxiliaryResult = 0;
+                direction.x = end->x - start->x;
+                direction.y = end->y - start->y;
+                direction.z = end->z - start->z;
                 lengthSquared = (direction.z * direction.z) +
                                 ((direction.x * direction.x) +
                                  (direction.y * direction.y));
-                collision = 0;
                 if (lengthSquared > 0.0f) {
                     length = sqrtf(lengthSquared);
+                    intersection.ratio = length;
                     direction.x /= length;
                     direction.y /= length;
                     direction.z /= length;
                     if (D_800C9D28 != 0) {
                         queryResult = func_80011980(
-                            (TrackRayPoint *) start, (TrackRayPoint *) end,
+                            start, end,
                             &direction, length, scale, 0.0f,
                             &intersection);
                     } else {
                         queryResult = func_80011980(
-                            (TrackRayPoint *) start, (TrackRayPoint *) end,
+                            start, end,
                             &direction, length, scale, scale,
                             &intersection);
                     }
-                    auxiliaryResult = 0;
                     if (D_800C9D28 != 0) {
                         auxiliaryResult = func_80011CDC(
-                            start, (u8 *) &direction, scale,
+                            (u8 *) start, (u8 *) &direction, scale,
                             (u8 *) &intersection);
                     }
                     if ((queryResult | auxiliaryResult) != 0) {
@@ -3409,22 +3407,24 @@ s32 func_80010B4C(s32 arg0, void *arg1, f32 *arg2, f32 *arg3,
                             (s32) start, (TrackVec3f *) end, &direction, length,
                             (struct TrackCollisionSurface *) &intersection,
                             (struct TrackCollisionRecord *) record);
-                        B4C_F32(record, 0x34) = length;
+                        B4C_F32(record, 0x34) = intersection.ratio;
                         collision = 1;
                         collisionMask |= bit;
                     }
-                }
-                if (collision != 0) {
-                    count++;
-                    if (count >= 0xB) {
-                        collisionMask = 0;
-                        collision = 0;
-                        failureMask |= 0x40000000;
+                    if (collision != 0) {
+                        count++;
+                        if (count >= 0xB) {
+                            collisionMask = 0;
+                            collision = 0;
+                            failureMask |= 0x40000000;
+                        }
                     }
                 }
             } while (collision != 0);
             bit <<= 1;
-        }
+            index++;
+            scalePtr++;
+        } while ((index < arg0) && (failureMask == 0));
         if (((collisionMask != 0) && (attempt >= 0xB)) ||
             (failureMask != 0)) {
             for (index = 0; index < arg0; index++) {
@@ -3443,9 +3443,9 @@ s32 func_80010B4C(s32 arg0, void *arg1, f32 *arg2, f32 *arg3,
                 failureMask |= 0x80000000;
             }
         } else if (collisionMask != 0) {
-            minimumLength = 32000.0f;
             minimumIndex = 0;
             if (arg5 != NULL) {
+                minimumLength = 32000.0f;
                 bit = 1;
                 for (index = 0; index < arg0; index++) {
                     if ((collisionMask & bit) != 0) {
@@ -3459,22 +3459,19 @@ s32 func_80010B4C(s32 arg0, void *arg1, f32 *arg2, f32 *arg3,
                 }
                 record = (u8 *) ((u32) arg4 + (minimumIndex * 0x40));
                 B4C_U8(record, 0x3D) |= 1;
-                offsetX = B4C_F32(arg2, minimumIndex * 0xC) -
+                B4C_F32(arg5, 0) = B4C_F32(arg2, minimumIndex * 0xC) -
                           relative[minimumIndex * 3];
-                offsetY = B4C_F32(arg2, (minimumIndex * 0xC) + 4) -
+                B4C_F32(arg5, 4) = B4C_F32(arg2, (minimumIndex * 0xC) + 4) -
                           relative[(minimumIndex * 3) + 1];
-                offsetZ = B4C_F32(arg2, (minimumIndex * 0xC) + 8) -
+                B4C_F32(arg5, 8) = B4C_F32(arg2, (minimumIndex * 0xC) + 8) -
                           relative[(minimumIndex * 3) + 2];
-                B4C_F32(arg5, 0) = offsetX;
-                B4C_F32(arg5, 4) = offsetY;
-                B4C_F32(arg5, 8) = offsetZ;
                 for (index = 0; index < arg0; index++) {
                     B4C_F32(arg2, index * 0xC) =
-                        relative[index * 3] + offsetX;
+                        relative[index * 3] + B4C_F32(arg5, 0);
                     B4C_F32(arg2, (index * 0xC) + 4) =
-                        relative[(index * 3) + 1] + offsetY;
+                        relative[(index * 3) + 1] + B4C_F32(arg5, 4);
                     B4C_F32(arg2, (index * 0xC) + 8) =
-                        relative[(index * 3) + 2] + offsetZ;
+                        relative[(index * 3) + 2] + B4C_F32(arg5, 8);
                 }
                 resultMask |= collisionMask;
             }
@@ -5877,10 +5874,10 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
 
 /* PLATEAU-HANDOFF:func_80010B4C:start
  * symbol: func_80010B4C
- * score: 668 differing words
+ * score: 662 differing words
  * frame: 0x158
  * relocations: 9
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Mickey m2c fixes caller ABI and distance state; corrected candidate retains 662 diffs after five stalled follow-ups. Next: source-proved lifetimes.
  * PLATEAU-HANDOFF:func_80010B4C:end
  */
