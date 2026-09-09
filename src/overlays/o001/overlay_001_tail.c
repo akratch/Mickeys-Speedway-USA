@@ -3012,8 +3012,16 @@ extern f32 overlay1TrigXReloc(s32 angle);
 extern f32 overlay1TrigYReloc(s32 angle);
 
 /* Plateau: exact 107 words/frame; best is 25 words different, first +0xC.
- * Angle-local order and a split previous-index decrement improve allocation;
- * parameter stack homes and integer/pointer registers remain divergent. */
+ * The retained `volatile u8 localIndex` reproduces the target's store/reload
+ * pair but never its slot: a local is allocated in the local area, and the
+ * byte the target uses is inside the third parameter's own incoming argument
+ * home, where only the parameter itself can live. Taking the parameter's
+ * address instead -- `*(u8 *)&index = index;` before the call -- does land on
+ * that byte, at 107 instructions and the same frame, and fixes the argument
+ * save order too; it is the structurally correct route and is what a future
+ * attempt should build on, but it currently scores worse because the store
+ * misses the call's delay slot and the reload takes a ring temp rather than
+ * the argument register. */
 #ifdef NON_MATCHING
 void overlay1BendPathPoint(s16 *x, s16 *y, u8 index, u8 selector) {
     Overlay1PathPoint *next, *previous, *current;
@@ -3311,6 +3319,6 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x30
  * relocations: 6
  * first-mismatch: +0xC
- * summary: exact geometry; parameter-home scheduling and three coupled integer/pointer register webs remain after the full flag lattice
+ * summary: the parameter-home byte spill is reachable: *(u8 *)&index = index puts the store at the exact slot, 107 words and the 0x30 frame
  * PLATEAU-HANDOFF:overlay1BendPathPoint:end
  */
