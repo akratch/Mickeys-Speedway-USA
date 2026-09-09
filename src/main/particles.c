@@ -1180,7 +1180,8 @@ void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, Parti
     D_800D413C = particle->velocityZ;
 
     if (config->flags & 4) {
-        offset[0] = (flags = config->flags5C, 0.0f);
+        flags = config->flags5C;
+        offset[0] = 0.0f;
         offset[1] = offset[0];
         speed = config->value3C;
         offset[2] = -speed;
@@ -2568,7 +2569,7 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x58
  * relocations: 16
  * first-mismatch: +0x20C
- * summary: the two-load schedule swap is closed by writing the sum of squares y-first; 17 FP-allocation words remain, all one fp-pool position, first at the emission-direction zero. Permuter base 95 with the best neighbour 85.
+ * summary: 17 FP-allocation words, all one fp-pool position from the emission-direction zero. The candidate spends two fp-pool colours the target spends as ring temps, and the direction is not reversible from source: every naming and de-naming form measured is flat or worse.
  * PLATEAU-HANDOFF:func_8003F154:end
  */
 
@@ -2598,7 +2599,7 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x168
  * relocations: 4
  * first-mismatch: +0x4C
- * summary: declaration census closed nine of twelve stack homes; the volatile command-length home and the walking particle pointer's home remain, and volatile is load-bearing (dropping it moves the frame to 0x170).
+ * summary: the target's command length is spelled (n<<3)+(n<<1)+8, which makes rows 19-59 exact and moves the first mismatch from +0x4C to +0xF0 -- but costs the tail, so the 36-word form is retained. The candidate CSEs vertexCount*8 across the call into a saved register; the target computes it twice. Two stack homes and that CSE are the whole residual.
  * PLATEAU-HANDOFF:func_80041530:end
  */
 
@@ -2608,6 +2609,6 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x38
  * relocations: 10
  * first-mismatch: +0x38
- * summary: Branch target and preheader emission order are one coupled choice; the branch-correct arrangement costs the carrier/result init exchange instead.
+ * summary: Branch target and preheader emission order are one coupled choice; the branch-correct arrangement costs the carrier/result init exchange instead. A separate first-scan cursor -- the mechanism that closed func_80041CE4 -- reproduces the known +1-instruction wall in every form, so the coupling is not a cursor question.
  * PLATEAU-HANDOFF:func_8003E8D8:end
  */
