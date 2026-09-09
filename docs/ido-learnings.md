@@ -268,6 +268,58 @@ bytes and disassembly never belong here.
   pressed with a nearby load's address: a load's address is lowered in a later
   phase than an ordinary expression, so writing the argument as an indexed
   element rather than reusing the offset variable keeps them apart.
+- A call argument computed from a value that was *just stored to memory* costs
+  an extra register-to-register copy, and which memory it is read from is the
+  whole lever. Where a function stores a parameter into a global and then
+  passes a function of that value, computing the argument from the **parameter**
+  lets the compiler write the result straight into the argument register,
+  because nothing needs the parameter's carrier afterwards. Computing it from
+  the **global** the parameter was just stored to keeps the stored value's
+  carrier live across the computation, so the result takes a temporary and is
+  copied into the argument register at the call. The two spellings are the same
+  value and differ by exactly one instruction. Read the target first: a
+  computation that lands directly in the argument register says the source used
+  the parameter; a temporary plus a copy says it re-read the global. This is
+  distinct from the aliasing question -- there is no store between the two
+  spellings that could invalidate anything -- and from the "reference a global
+  twice" address rule, which is about the address web rather than the value's.
+  Evidence: `func_8000D3B8` in `src/main/track.c`, where the pool size spelled
+  from the global took the function from one instruction short and 105
+  differing words to exact, and where four rewrites of the *arithmetic* and all
+  four statement positions were flat.
+
+- Storing a narrow struct field and then reading that field back is how one
+  carrier serves both a store and a later use of the same value. Where a
+  function assigns a `u8` or `u16` field from a wider local and later needs the
+  same value, spelling the later use as the **field** rather than the local lets
+  uopt forward the store, so the field's own truncation mask is the only extra
+  operation and no second load appears. Spelling both uses from the local
+  instead makes each intervening store through the struct pointer kill the
+  available load, and the value is re-read once per use. The tell in the target
+  is a mask by the field's width sitting at a use where the source has no mask
+  of its own: that mask is the forwarded word being truncated to the field type,
+  not something the programmer wrote. Limits: the field and the local must be
+  provably the same value at that point, and this trades a load for a mask, so
+  it only shortens the function when the field is read more than once.
+  Evidence: `func_80019DE8` in `src/main/lights.c`, where three reloads of a
+  stack-homed parameter became two, closing a +4 size mismatch and taking the
+  residual from 45 words with nine structural differences to 16 register names.
+
+- A decompiler's copy variable is often the compiler's own live-range split,
+  and declaring it costs an instruction. Where a draft carries `var_sN = var_sM`
+  and both names are equal on every path afterwards -- each branch assigning one
+  from the other -- the second name is not a source variable: it is the copy the
+  allocator makes to keep the value in a caller-saved carrier across the tests
+  while the callee-saved one stays live to the next use. Declaring it makes the
+  compiler materialise a *second* carrier and copy into it as well. Folding the
+  two names into one is semantics-preserving under that equality and lets the
+  compiler place its own copy where it wants it. Limits: the fold frees a
+  callee-saved register, which can change loop-invariant hoisting -- expect the
+  saved-register assignment to rotate and one more constant to be hoisted, and
+  measure the frame and the hoist set, not only the instruction count.
+  Evidence: `func_80046BCC` in `src/main/diCpu.c`, +4 to exact size and 89
+  differing words to 41.
+
 - Statement order, not declaration order, drives which web is colored first
   inside a block. Moving an assignment ahead of its neighbours changes the
   register both of them receive; permuting the declaration list does not. Use
