@@ -735,6 +735,11 @@
       "reason": "Reconstruction sweep at 8 to 16 bytes: the candidate is a few instructions out, and today's cause list names the usual reasons -- a missing copy, a block fallthrough, an address rematerialized once too often.",
       "source_commit": "e541b7e3dbbeec7991c76b3562d30160050c841f"
     },
+    "func_8005830C": {
+      "ledger_commit": "8d7572bb186e825ead555edd14c515221aa3d73c",
+      "reason": "Post-50% campaign on new mechanisms: the globalcolor first-strict-minimum rule, the spilltemps web-index slot law, the ugen FIFO ring, and exact phase replay. All four were read out of the compiler tonight.",
+      "source_commit": "8d7572bb186e825ead555edd14c515221aa3d73c"
+    },
     "func_8005A7A0": {
       "ledger_commit": "817cb31be1af51d266646405e55e27db696fda78",
       "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
@@ -746,9 +751,9 @@
       "source_commit": "75eec1f945cbff202a77f874beec5983e7f07eab"
     },
     "func_8005ABA8": {
-      "ledger_commit": "88789343151bce1bdfe429ba56667f20f3e6b1c5",
-      "reason": "Final push. func_8005ABA8 is at 2 differing words after today's reconstruction closed all four of its source causes; the others are one colour each with the spilltemps law untried.",
-      "source_commit": "1879872f1b5ff195e37a2c807765ee31d56b6c64"
+      "ledger_commit": "cc8b4b4e6b5c7eae126f35a68d098aa5c37c4f27",
+      "reason": "Post-50% campaign on new mechanisms: the globalcolor first-strict-minimum rule, the spilltemps web-index slot law, the ugen FIFO ring, and exact phase replay. All four were read out of the compiler tonight.",
+      "source_commit": "bfc53f44626b68875f1d845577717a59f172d8d8"
     },
     "func_8006E7E0": {
       "ledger_commit": "6039ac03862fd56e8ef91c68d23adce0c4c39154",
@@ -981,8 +986,8 @@
       "source_commit": "931ef30392183e4680f4502e9da56fb1f7048f9f"
     },
     "func_overlay_052_F000063C_189ACAC": {
-      "ledger_commit": "c663518b4552cdf3c97e714e12f79aa5dc52004f",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "ledger_commit": "59e6090c86a7155e170298ee197cce477ca6691d",
+      "reason": "Post-50% campaign on new mechanisms: the globalcolor first-strict-minimum rule, the spilltemps web-index slot law, the ugen FIFO ring, and exact phase replay. All four were read out of the compiler tonight.",
       "source_commit": "c663518b4552cdf3c97e714e12f79aa5dc52004f"
     },
     "func_overlay_053_F0000240_189DBE8": {
@@ -991,9 +996,9 @@
       "source_commit": "fadeb85368a5f27ea107c580d1c83febee5c3ba7"
     },
     "func_overlay_054_F00005AC_189F24C": {
-      "ledger_commit": "64fc4e7613b2be0dae79fbefd0ff7638c1cfa2b8",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "64fc4e7613b2be0dae79fbefd0ff7638c1cfa2b8"
+      "ledger_commit": "55a597b36984d1ae398cf4c0c813833261c9d05c",
+      "reason": "Post-50% campaign on new mechanisms: the globalcolor first-strict-minimum rule, the spilltemps web-index slot law, the ugen FIFO ring, and exact phase replay. All four were read out of the compiler tonight.",
+      "source_commit": "55a597b36984d1ae398cf4c0c813833261c9d05c"
     },
     "func_overlay_055_F000031C_18A1E34": {
       "ledger_commit": null,
@@ -1016,14 +1021,19 @@
       "source_commit": "30e2e151a5a48a413bd4cd071002d0bcaa76fccb"
     },
     "func_overlay_057_F0004E18_18A8A10": {
-      "ledger_commit": "3f15d748bf43c992539bd8ee6638076d5da6148f",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
+      "ledger_commit": "55fd677d9d5aa10d1c3d7506d6bde5e907fc18e9",
+      "reason": "Post-50% campaign on new mechanisms: the globalcolor first-strict-minimum rule, the spilltemps web-index slot law, the ugen FIFO ring, and exact phase replay. All four were read out of the compiler tonight.",
       "source_commit": "3f15d748bf43c992539bd8ee6638076d5da6148f"
     },
     "func_overlay_057_F00060F8_18A9CF0": {
       "ledger_commit": null,
       "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior forms, body mutation, flags, trace, and permutation stay closed.",
       "source_commit": "5cae70c4df16bedadce1fcb1871f90d5c0f0a9f7"
+    },
+    "func_overlay_058_F00005FC_18AF7E4": {
+      "ledger_commit": "a033c4a293cebd0f7e1f0fce9cf62a1290be36d6",
+      "reason": "Post-50% campaign on new mechanisms: the globalcolor first-strict-minimum rule, the spilltemps web-index slot law, the ugen FIFO ring, and exact phase replay. All four were read out of the compiler tonight.",
+      "source_commit": "63ce7224ae24c3e9055bb0cdc1758b7e23383d75"
     },
     "func_overlay_058_F000138C_18B0574": {
       "ledger_commit": "60f9e5a112437b975ab6155b9298a005fb051249",
@@ -1061,9 +1071,9 @@
       "source_commit": "a991cbcb5af49fbb6e852c42c0dd3ee68c2bedb9"
     },
     "func_overlay_079_F0000134_18CD0D4": {
-      "ledger_commit": "dadccfd4a7553cad910b1c5070d837be6ae97c81",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "dadccfd4a7553cad910b1c5070d837be6ae97c81"
+      "ledger_commit": "28384499e9148f29abc651e07d83bae9472dd76e",
+      "reason": "Post-50% campaign on new mechanisms: the globalcolor first-strict-minimum rule, the spilltemps web-index slot law, the ugen FIFO ring, and exact phase replay. All four were read out of the compiler tonight.",
+      "source_commit": "28384499e9148f29abc651e07d83bae9472dd76e"
     },
     "func_overlay_092_F0000068_18D5F88": {
       "ledger_commit": "9d5f2205be121eef7507305c71980130a043a7bb",
@@ -1136,9 +1146,9 @@
       "source_commit": "2cac103ec44c31077b17f832f8e8048a1ecd6d48"
     },
     "levelFreeAll": {
-      "ledger_commit": "ad0add6d7ffb09b7dab024baf6cbefdf0a452e64",
-      "reason": "Final push on the spilltemps law: uopt gives every register temporary a frame slot in web-index order, never a declared local. That law closed an 11 KB function today and reaches spill-home residuals no source spelling had.",
-      "source_commit": "585be5d936351c43b9bf022c4741ea438c880103"
+      "ledger_commit": "85f89ae45028323ee545621f5a489095435cffc5",
+      "reason": "Post-50% campaign on new mechanisms: the globalcolor first-strict-minimum rule, the spilltemps web-index slot law, the ugen FIFO ring, and exact phase replay. All four were read out of the compiler tonight.",
+      "source_commit": "85f89ae45028323ee545621f5a489095435cffc5"
     },
     "levelInit": {
       "ledger_commit": "a40abe2bb96fc19a688a022bd6b503da477fcb16",
@@ -1306,9 +1316,9 @@
       "source_commit": "334b41893e1668cd49a74775af8fe6dae79ce845"
     },
     "overlay1ResolvePathPoint": {
-      "ledger_commit": "bff9df3cb786ca5c9c523546a99d0a4a320d0e33",
-      "reason": "Final push on the spilltemps law: uopt gives every register temporary a frame slot in web-index order, never a declared local. That law closed an 11 KB function today and reaches spill-home residuals no source spelling had.",
-      "source_commit": "bff9df3cb786ca5c9c523546a99d0a4a320d0e33"
+      "ledger_commit": "272c8680f62626ed437faddb6ba07e15cd4d9db1",
+      "reason": "Post-50% campaign on new mechanisms: the globalcolor first-strict-minimum rule, the spilltemps web-index slot law, the ugen FIFO ring, and exact phase replay. All four were read out of the compiler tonight.",
+      "source_commit": "272c8680f62626ed437faddb6ba07e15cd4d9db1"
     },
     "overlay1SolveAngleCandidates": {
       "ledger_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625",
@@ -1326,9 +1336,9 @@
       "source_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625"
     },
     "overlay1UpdateRangeFlags": {
-      "ledger_commit": "ad0add6d7ffb09b7dab024baf6cbefdf0a452e64",
-      "reason": "Final push on the spilltemps law: uopt gives every register temporary a frame slot in web-index order, never a declared local. That law closed an 11 KB function today and reaches spill-home residuals no source spelling had.",
-      "source_commit": "6f82be7344d00ca5ef4ff74d35ed4a91bab5aae3"
+      "ledger_commit": "4dc6cfc1deb25e5809fe85e2a23a778447a9c915",
+      "reason": "Post-50% campaign on new mechanisms: the globalcolor first-strict-minimum rule, the spilltemps web-index slot law, the ugen FIFO ring, and exact phase replay. All four were read out of the compiler tonight.",
+      "source_commit": "4dc6cfc1deb25e5809fe85e2a23a778447a9c915"
     },
     "overlay20RemoveEntry": {
       "ledger_commit": "e2855599df93e617b690703c9dc233b78e515041",
