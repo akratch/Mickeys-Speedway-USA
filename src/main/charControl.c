@@ -567,7 +567,15 @@ void controlPlayerReInit(ControlActor *actor, f32 x, f32 y, f32 z, s16 arg4, s16
  * declarations (pointIndex, effectCount, packetIndex, stateCursor) was flat.
  * The `register` qualifiers previously carried here were no-ops: dropping them
  * produced a byte-identical object, so the next lever is the uopt callee-saved
- * tie-break, not more source-level pruning. */
+ * tie-break, not more source-level pruning.
+ * Named, 2026-09-09: the target uses s0-s6, this candidate only s0-s4. Both
+ * agree on the two obvious carriers -- the target holds `player` in s5 and
+ * `actor` in s6, this candidate in s3 and s4 -- so the two missing saved webs
+ * are the ones the target puts in s3 and s4, and they are the effect/particle
+ * list walk. The target reads TWO pointers with `lw sN,0(v0)` from different
+ * bases and keeps both across the spawn calls; this candidate reads
+ * `lw s0,4(v0)` and `lw s2,0(v0)` and keeps one fewer. Work the list walk's
+ * shape, not the register names. */
 /* PROVENANCE: JFG's corresponding character-control initialization role supplied the control-flow lead; fields and body are reconstructed from Mickey. */
 #ifdef NON_MATCHING
 void func_8001C4C0(ControlActor *actor, ControlPlayerInitState *state, s32 mode) {
@@ -820,20 +828,17 @@ void func_8001CB0C(ControlTransform *transform, ControlPlayer *player) {
  * controlSquashCheckPost-adjacent character-control routine, but publishes
  * assembly only; this body is reconstructed from Mickey's fields, calls,
  * and branch conditions. */
-#ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 53 differing words, first mismatch +0x1B4. */
-/* Candidate shape: 455 instructions, frame -0x80, and every stack displacement,
- * relocation offset/type and integer register now agrees with the target. */
-/* Remaining gap: one floating-point pool rotation.  The target colours the
- * long-lived 0.0f carrier $f18 and the int-to-float staging register $f4; this
- * candidate colours them $f16 and $f18, and every later FP name follows that
- * one-slot shift.  It also costs the single opcode block at +0x3CC, where the
- * target can materialise 30.0f before the branch because its $f0 is free. */
 /* Frame law used here (see docs/ido-learnings.md): declared locals occupy the
  * TOP of the local region in declaration order, first-declared highest; every
  * value written as an expression instead of a named local is homed in the
  * compiler-temp region below them.  sp7C/sp70/character keep their m2c names
  * because those are the target's own displacements. */
+/* var_f12 is ONE scratch float reused twice, and that is what closed this
+ * function.  Naming the ballistic step keeps it in a coloured web where the
+ * inline expression spent floating-point ring temps, which cost 40 register
+ * words; declaring a *new* local for it instead of reusing var_f12 pushed
+ * every compiler temp 4 bytes down the frame and cost 25 displacement words.
+ * Both halves are needed: 53 -> 39 -> 0. */
 void func_8001CB84(ControlActor *actor, s32 updateRate) {
     f32 sp7C;
     f32 var_f12;
@@ -904,9 +909,9 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
                           &player->unkB4);
             player->unk158 = (s16) (player->unk158 & 0x7FFF);
         }
-        player->unk154 = player->unk154 +
-                         ((player->unk150 * (f32) updateRate) -
-                          (0.5f * D_800CB304 * (f32) updateRate * (f32) updateRate));
+        var_f12 = (player->unk150 * (f32) updateRate) -
+                  (0.5f * D_800CB304 * (f32) updateRate * (f32) updateRate);
+        player->unk154 = player->unk154 + var_f12;
         player->unk150 = player->unk150 - (D_800CB304 * (f32) updateRate);
         if (player->unk154 < 0.0f) {
             player->unk154 = -player->unk154;
@@ -1035,9 +1040,6 @@ void func_8001CB84(ControlActor *actor, s32 updateRate) {
         func_800031C0(player->unkA4, actor->x, actor->y, actor->z);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001CB84.s")
-#endif
 /*
  * Workbench: structure-mismatch, 96/95 instructions, 40 raw/9 normalized differences, first +0xE0; frame exact.
  * Levers tried: prior flags/commutative/volatile/prototype forms plus fresh pointer scope, lvalue, and typed-stride forms.
@@ -1220,18 +1222,16 @@ f32 func_8001D880(f32 arg0, f32 arg1, f32 *table, f32 divisor) {
     f32 base;
     f32 value;
     s32 index;
-    f32 *entry;
 
     arg1 *= 10.0f;
     index = (s32) arg1;
-    entry = table + index;
-    base = entry[0];
-    value = ((entry[1] - base) * (arg1 - (f32) index)) + base;
+    base = table[index];
+    value = table[index + 1];
+    value = ((value - base) * (arg1 - (f32) index)) + base;
     arg0 *= 10.0f;
     index = (s32) arg0;
-    entry = table + index;
-    base = entry[0];
-    return (value - (base + ((entry[1] - base) * (arg0 - (f32) index)))) / divisor;
+    base = table[index];
+    return (value - (base + ((table[index + 1] - base) * (arg0 - (f32) index)))) / divisor;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D880.s")
@@ -1267,21 +1267,21 @@ typedef struct ControlFlameParticle {
 /* Workbench verdict: register-only residual, 16 differing words, first mismatch +0x164. */
 /* Candidate: 220/220 instructions, frame -0x60 on both sides, all six relocations
  * at the target's own instruction indexes, and every stack displacement equal. */
-/* Three source facts recovered from the target and retained here:
+/* Four source facts recovered from the target:
  *  - the loop counter is ONE variable spilled to its own home each iteration,
  *    not an m2c sp5C/var_v0 pair; declaring it first is what puts its home at
  *    the target's displacement and keeps the frame at 0x60,
  *  - case 1 re-reads the particle's angle field rather than reading the value
  *    already in var_s6; that CSE is what makes IDO keep the loaded value in a
  *    caller-saved register and copy it into the saved one,
- *  - case 2 performs actor->unk80 |= arg2 AFTER the func_8002A204 call, which
- *    needs the call result named before the or.
- * Remaining gap: a ugen temp-ring phase difference. The first divergence is the
- * third speculative arg4 load in the mode dispatch, where the target takes t0
- * and this candidate takes t9; twelve small webs follow from it. */
+ *  - case 2 spells the scaled angle inline, exactly as case 3 does. Naming the
+ *    call result in a local made it a uopt-coloured web where the target pops a
+ *    ugen ring temp, and that one class crossing rotated twelve downstream webs,
+ *  - case 2 performs actor->unk80 |= arg2 AFTER the whole var_s6 product, so
+ *    the product's four ring temps are drawn before the or's two loads.
+ * The last two are one composition: neither alone is an improvement. */
 /* PROVENANCE: JFG's public controlUpdateJetFlames role and Mickey's m2c/assembly establish
  * the state-machine order; no external body is copied into this reconstruction. */
-#ifdef NON_MATCHING
 void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg3,
                    s32 arg4) {
     s32 var_v0;
@@ -1361,22 +1361,19 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
                         }
                     }
                     break;
-                case 2: {
-                    s32 temp_t9;
-
+                case 2:
                     var_s0 += arg4 * 0x10;
                     if (var_s0 >= 0x100) {
                         var_s0 = 0xFF;
                     }
                     var_s3 += arg4 << 0xC;
-                    temp_t9 = func_8002A204((s16) (var_s3 << 8)) + 0x18000;
+                    var_s6 = (s32) ((func_8002A204((s16) (var_s3 << 8)) + 0x18000) *
+                                    ((s32) (var_s6 * var_s0) >> 8)) >> 0x10;
                     actor->unk80 |= arg2;
-                    var_s6 = (s32) (temp_t9 * ((s32) (var_s6 * var_s0) >> 8)) >> 0x10;
                     if (!(player->unk186 & var_s5)) {
                         var_s1->mode = 3;
                     }
                     break;
-                }
                 case 3:
                     var_s0 -= arg4 * 8;
                     if (var_s0 <= 0) {
@@ -1405,9 +1402,6 @@ void func_8001D960(ControlActor *actor, ControlPlayer *player, s32 arg2, s32 arg
         var_v0++;
     } while (var_v0 != 4);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D960.s")
-#endif
 void func_8001DCD0(s16 rotation, ControlVector3 *vector, s16 *pitch, s16 *yaw) {
     f32 cosine;
     f32 pitchX;
@@ -1430,22 +1424,28 @@ void func_8001DCD0(s16 rotation, ControlVector3 *vector, s16 *pitch, s16 *yaw);
  * ground-hit and polygon-edge control family, but publish assembly only;
  * this body is reconstructed from Mickey's collision records and fields. */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 430 differing words, first mismatch +0x0. */
-/* Candidate shape: 533 instructions/frame -0x2A0 versus target 533/-0x268; 260 alignment gaps. */
-/* Remaining structural gap: a 0x38-byte frame excess despite an exact instruction count; not shape-exact. */
+/* Workbench verdict: structure-mismatch, 433 differing words, first mismatch +0x0. */
+/* Candidate shape: 533 instructions and frame -0x268, both exact; 260 alignment gaps. */
+/* The 0x38-byte frame excess this candidate used to carry was a declaration
+ * census, not an allocation problem: fourteen m2c-only carriers (the
+ * horizontal/vertical aliases of normalX/normalZ, the write-only spC0 and
+ * sp84 slots, the dead `remainder`, the rotation-clamp temporaries, the
+ * one-use scale factors, the sp8C alias of &player->unk2F0, the `dot`
+ * carrier and the two velocity carriers) sized the local block in 8-byte
+ * steps.  Removing them left the instruction count untouched and took the
+ * frame -0x2A0 -> -0x268.  The last pair costs +3 words, which is the price
+ * of reading actor->velocityX/Z directly; that is the next thing to buy back.
+ * Remaining gap: 260 alignment gaps and 238 opcode differences -- the block
+ * geometry inside the collision loop, not the frame. */
 s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
     s16 spA2;
     s16 spA0;
     s32 pointIndex;
-    s32 remainder;
-    s32 updateRateInt;
     u32 collisionMask;
     u32 bit;
     s32 collisionIndex;
     u8 *pointSource;
     u8 *pointDest;
-    s16 temp_v0_3;
-    s16 temp_v0_4;
     u32 temp_v0;
     f32 spD4;
     u8 points[0x30];
@@ -1458,46 +1458,33 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
         {
         f32 radius[4];
         u8 records[0x100];
-        void *sp8C;
         CharControlGroundRecord *record;
         u8 *player320;
         u8 *player324;
         f32 spE8;
         f32 spE4;
         f32 spE0;
-        f32 spC0;
         s16 spA8;
         s16 spA6;
         s16 spA4;
-        s32 sp84;
         f32 normalZ;
         f32 normalX;
-        f32 dot;
-        f32 vertical;
-        f32 horizontal;
         f32 directionX;
         f32 directionZ;
-        f32 temp_f0_2;
-        f32 temp_f0_3;
-        f32 temp_f0_4;
-        f32 temp_f12;
         f32 temp_f14;
-        f32 temp_f2_2;
         f32 var_f18;
         f32 var_f4;
         u8 temp_v0_2;
 
         pointIndex = 0;
-        remainder = spB8 & 3;
         while (pointIndex != spB8) {
             radius[pointIndex] = player->unk2B8[pointIndex].w;
             pointIndex += 1;
         }
-        sp8C = &player->unk2F0;
-        trackMakePolylist(spB8, (ControlVector3 *) sp8C, points, radius,
+        trackMakePolylist(spB8, (ControlVector3 *) &player->unk2F0, points, radius,
                           player->unk33C, 1);
         temp_v0 = (u32) func_80010B4C(
-            spB8, sp8C, points, radius, records, &actor->x, actor);
+            spB8, &player->unk2F0, points, radius, records, &actor->x, actor);
         spAC = 0;
         if ((temp_v0 >> 30) != 0) {
             actor->x = player->unk38;
@@ -1536,14 +1523,12 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
                         spE8 = -1.0f;
                         spA6 = 0;
                         spA8 = 0;
-                        sp84 = bit;
                         spA4 = actor->rotationX;
                         mathOneFloatRPY((ControlTransform *) &spA4, &spE0);
-                        temp_f0_2 = sqrtf((record->unk18 * record->unk18) +
-                                          (record->unk10 * record->unk10));
-                        spD4 = temp_f0_2;
-                        normalZ = record->unk18 / temp_f0_2;
-                        normalX = record->unk10 / temp_f0_2;
+                        spD4 = sqrtf((record->unk18 * record->unk18) +
+                                     (record->unk10 * record->unk10));
+                        normalZ = record->unk18 / spD4;
+                        normalX = record->unk10 / spD4;
                         player->unk90 = (normalZ * spE0) -
                                         (spE8 * normalX);
                         var_f18 = (spE8 * normalZ) +
@@ -1552,31 +1537,23 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
                         if (var_f18 < 0.0f) {
                             var_f18 = -var_f18;
                         }
-                        temp_f0_3 = actor->velocityX;
-                        temp_f2_2 = actor->velocityZ;
-                        horizontal = normalZ;
-                        vertical = normalX;
-                        spC0 = var_f18;
-                        temp_f0_4 = sqrtf((temp_f0_3 * temp_f0_3) +
-                                          (temp_f2_2 * temp_f2_2));
-                        if (temp_f0_4 > 0.0f) {
-                            directionX = temp_f0_3 / temp_f0_4;
-                            directionZ = temp_f2_2 / temp_f0_4;
+                        var_f4 = sqrtf((actor->velocityX * actor->velocityX) +
+                                       (actor->velocityZ * actor->velocityZ));
+                        if (var_f4 > 0.0f) {
+                            directionX = actor->velocityX / var_f4;
+                            directionZ = actor->velocityZ / var_f4;
                         }
                         temp_v0_2 = player->unk198;
-                        dot = (vertical * directionX) +
-                              (horizontal * directionZ);
-                        if ((temp_v0_2 == 0) && (temp_f0_4 > 8.0f) &&
-                            ((dot < D_80081850) ||
-                             (D_80081854 < dot))) {
-                            temp_f12 = 2.0f * -dot;
+                        if ((temp_v0_2 == 0) && (var_f4 > 8.0f) &&
+                            ((((normalX * directionX) + (normalZ * directionZ)) < D_80081850) ||
+                             (D_80081854 < ((normalX * directionX) + (normalZ * directionZ))))) {
                             player->unk78 = 0.0f;
-                            player->unk74 = (temp_f12 * vertical) +
+                            player->unk74 = ((2.0f * -((normalX * directionX) + (normalZ * directionZ))) * normalX) +
                                             directionX;
-                            player->unk7C = (temp_f12 * horizontal) +
+                            player->unk7C = ((2.0f * -((normalX * directionX) + (normalZ * directionZ))) * normalZ) +
                                             directionZ;
                             temp_f14 = ((D_80081858 * var_f18) + 0.5f) *
-                                       temp_f0_4;
+                                       var_f4;
                             player->unk80 = temp_f14;
                             player->unk84 = temp_f14;
                             player->unk181 = 1;
@@ -1659,27 +1636,24 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
         }
         pointSource = (u8 *) points;
         if (player->unk173 == 0) {
-            updateRateInt = (s32) updateRate;
             func_8001DCD0(actor->rotationX, (ControlVector3 *) &sp110,
                           &spA2, &spA0);
             actor->rotationZ = dAngle(
                 actor->rotationZ, spA2,
-                1.0f - Powerf(D_80081860, updateRateInt));
+                1.0f - Powerf(D_80081860, (s32) updateRate));
             actor->rotationY = dAngle(
                 actor->rotationY, spA0,
-                1.0f - Powerf(D_80081860, updateRateInt));
+                1.0f - Powerf(D_80081860, (s32) updateRate));
         }
     }
-    temp_v0_3 = actor->rotationZ;
-    if (temp_v0_3 >= 0x3001) {
+    if (actor->rotationZ >= 0x3001) {
         actor->rotationZ = 0x3000;
-    } else if (temp_v0_3 < -0x3000) {
+    } else if (actor->rotationZ < -0x3000) {
         actor->rotationZ = -0x3000;
     }
-    temp_v0_4 = actor->rotationY;
-    if (temp_v0_4 >= 0x3001) {
+    if (actor->rotationY >= 0x3001) {
         actor->rotationY = 0x3000;
-    } else if (temp_v0_4 < -0x3000) {
+    } else if (actor->rotationY < -0x3000) {
         actor->rotationY = -0x3000;
     }
     if (player->unk349 != 0) {
@@ -1688,7 +1662,6 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
     if (player->unk34A == 0) {
         player->unk198 = 0;
     }
-    remainder = spB8 & 3;
     pointIndex = 0;
     pointDest = (u8 *) &player->unk2F0;
     while (pointIndex != spB8) {
@@ -1710,8 +1683,18 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
  * reconstructed from Mickey's fields, calls, branch conditions, and stores. */
 #ifdef NON_MATCHING
 /* Workbench verdict: structure-mismatch, 410 differing words, first mismatch +0x0. */
-/* Candidate shape: 412 instructions/frame -0x100 versus target 416/-0xD0. */
-/* Explicit vector locals repair semantics; loop/frame allocation remains. */
+/* Candidate shape: 412 instructions/frame -0xE0 versus target 416/-0xD0. */
+/* Explicit vector locals repair semantics; loop/frame allocation remains.
+ * Declaration census, 2026-09-09: nine m2c-only carriers went into the stack
+ * slots the target already writes (sp64, sp68/sp6C, sp50) or straight into
+ * their uses, taking the frame -0x100 -> -0xE0 at 410 -> 408 words with the
+ * instruction count untouched.  The exact target frame -0xD0 is reachable
+ * from here -- reading actor->velocityX/Z directly and inlining var_f8 lands
+ * it -- but it is NOT the binding constraint: that spelling costs +4 words,
+ * 46 more alignment gaps and takes the instruction count from 4 short of the
+ * target to 6 short.  A frame that is too LARGE while the instruction count
+ * is too SMALL means this candidate homes locals the target does not and
+ * misses spills the target has; close the four missing instructions first. */
 s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
     s16 sp40;
     s16 sp3E;
@@ -1738,25 +1721,14 @@ s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
     f32 sp54;
     f32 sp50;
     s32 sp2C;
-    f32 temp_f0;
     f32 temp_f0_2;
     f32 temp_f0_3;
-    f32 temp_f12;
-    f32 temp_f14;
-    f32 temp_f16;
     f32 temp_f16_2;
-    f32 temp_f18;
     f32 temp_f2;
-    f32 var_f14;
     f32 var_f8;
-    s16 temp_v0_3;
-    s16 temp_v0_4;
-    u8 temp_v0_2;
     s32 *var_v1;
     s32 var_a2;
     u32 temp_v0;
-    u32 temp_t0;
-    u32 temp_t3;
     var_v1 = (s32 *) &D_800CB2C0;
     var_a2 = 0xF;
     do {
@@ -1776,13 +1748,11 @@ s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
     temp_v0 = (u32) func_80010900(
         (ControlVector3 *) sp2C, &spBC, sp70,
         (s32) actor, (void *) func_8001EC44);
-    temp_t0 = temp_v0 >> 0x1E;
-    temp_t3 = temp_v0 & 1;
     actor->x = spBC.x - spB0.x;
     actor->y = spBC.y - spB0.y;
     actor->z = spBC.z - spB0.z;
     sp44 = 0;
-    if (temp_t0 != 0) {
+    if ((temp_v0 >> 0x1E) != 0) {
         actor->x = player->unk38;
         actor->y = player->unk3C;
         actor->z = player->unk40;
@@ -1794,7 +1764,7 @@ s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
         player->unk18E = 0;
         player->unk334 = 0;
         player->unk344 = 0;
-        if (temp_t3 != 0) {
+        if ((temp_v0 & 1) != 0) {
             if (D_800CB2FD & 0x12) {
                 player->unk349 = 1;
                 if ((D_800CB2FD & 0x10) &&
@@ -1813,51 +1783,44 @@ s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
                 sp40 = 0;
                 sp3C = actor->rotationX;
                 mathOneFloatRPY((ControlTransform *) &sp3C, &sp74);
-                temp_f0 = sqrtf((D_800CB2D8 * D_800CB2D8) +
-                                (D_800CB2D0.x * D_800CB2D0.x));
-                temp_f16 = D_800CB2D0.x / temp_f0;
-                sp64 = temp_f0;
-                temp_f18 = D_800CB2D8 / temp_f0;
-                player->unk90 = (temp_f18 * sp74) -
-                                (sp7C * temp_f16);
-                var_f14 = (sp7C * temp_f18) +
-                          (sp74 * temp_f16);
-                player->unk8C = var_f14;
-                if (var_f14 < 0.0f) {
-                    var_f14 = -var_f14;
+                sp64 = sqrtf((D_800CB2D8 * D_800CB2D8) +
+                             (D_800CB2D0.x * D_800CB2D0.x));
+                sp6C = D_800CB2D0.x / sp64;
+                sp68 = D_800CB2D8 / sp64;
+                player->unk90 = (sp68 * sp74) -
+                                (sp7C * sp6C);
+                sp50 = (sp7C * sp68) +
+                       (sp74 * sp6C);
+                player->unk8C = sp50;
+                if (sp50 < 0.0f) {
+                    sp50 = -sp50;
                 }
                 temp_f0_2 = actor->velocityX;
                 temp_f2 = actor->velocityZ;
-                sp68 = temp_f18;
-                sp6C = temp_f16;
-                sp50 = var_f14;
                 temp_f0_3 = sqrtf((temp_f0_2 * temp_f0_2) +
                                   (temp_f2 * temp_f2));
                 if (temp_f0_3 > 0.0f) {
                     sp58 = temp_f0_2 / temp_f0_3;
                     sp54 = temp_f2 / temp_f0_3;
                 }
-                temp_v0_2 = player->unk198;
                 temp_f16_2 = (sp6C * sp58) + (sp68 * sp54);
-                if ((temp_v0_2 == 0) && (temp_f0_3 > 8.0f) &&
+                if ((player->unk198 == 0) && (temp_f0_3 > 8.0f) &&
                     ((temp_f16_2 < D_80081864) ||
                      (D_80081868 < temp_f16_2))) {
-                    temp_f12 = 2.0f * -temp_f16_2;
                     player->unk78 = 0.0f;
-                    player->unk74 = (temp_f12 * sp6C) + sp58;
-                    player->unk7C = (temp_f12 * sp68) + sp54;
-                    temp_f14 = ((D_8008186C * sp50) + 0.5f) *
-                               temp_f0_3;
-                    player->unk80 = temp_f14;
-                    player->unk84 = temp_f14;
+                    player->unk74 = ((2.0f * -temp_f16_2) * sp6C) + sp58;
+                    player->unk7C = ((2.0f * -temp_f16_2) * sp68) + sp54;
+                    player->unk80 = ((D_8008186C * sp50) + 0.5f) *
+                                    temp_f0_3;
+                    player->unk84 = player->unk80;
                     player->unk181 = 1;
                     player->unk4 = (f32) (player->unk4 * 0.5f);
                     player->unk88 = D_80081870;
                     player->unk8 = (f32) (player->unk8 * 0.5f);
                 } else {
-                    var_f8 = (f32) temp_v0_2;
+                    var_f8 = (f32) player->unk198;
                     if (var_f8 < 240.0f) {
-                        player->unk198 = (u8) (temp_v0_2 +
+                        player->unk198 = (u8) (player->unk198 +
                                                 (s32) updateRate);
                     } else {
                         player->unk198 = 0;
@@ -1902,16 +1865,14 @@ s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
             actor->rotationY, sp38,
             1.0f - Powerf(D_80081878, sp2C));
     }
-    temp_v0_3 = actor->rotationZ;
-    if (temp_v0_3 >= 0x3001) {
+    if (actor->rotationZ >= 0x3001) {
         actor->rotationZ = 0x3000;
-    } else if (temp_v0_3 < -0x3000) {
+    } else if (actor->rotationZ < -0x3000) {
         actor->rotationZ = -0x3000;
     }
-    temp_v0_4 = actor->rotationY;
-    if (temp_v0_4 >= 0x3001) {
+    if (actor->rotationY >= 0x3001) {
         actor->rotationY = 0x3000;
-    } else if (temp_v0_4 < -0x3000) {
+    } else if (actor->rotationY < -0x3000) {
         actor->rotationY = -0x3000;
     }
     if (player->unk349 != 0) {
@@ -2190,15 +2151,6 @@ void controlClearPlayerSetup(void) {
     D_80079BF8 = 0;
 }
 
-/* PLATEAU-HANDOFF:func_8001D960:start
- * symbol: func_8001D960
- * score: 16/220 words
- * frame: 0x60
- * relocations: 6
- * first-mismatch: +0x164
- * summary: Instruction count, frame, stack map and all six relocation indexes agree; residual is a ugen temp-ring phase (t0 versus t9 at the third speculative arg4 load)
- * PLATEAU-HANDOFF:func_8001D960:end
- */
 
 /* PLATEAU-HANDOFF:func_8001EC44:start
  * symbol: func_8001EC44
@@ -2206,27 +2158,17 @@ void controlClearPlayerSetup(void) {
  * frame: 0xE0
  * relocations: 45
  * first-mismatch: +0x0
- * summary: Target 238w, frame 0xA0, 47 relocs; scalar identities and X/Z normalization are correct, but common-prefix sinking and FP/integer allocation remain.
+ * summary: Target 238w, frame 0xA0, 47 relocs. The 0x40 frame excess is a declaration census and the exact target frame IS reachable -- dropping the three cross-product carriers hits -0xA0 -- but that spelling duplicates the sub-expressions and costs 24 instructions (265 versus 241 against a 238 target). So the target drops those three carriers WITHOUT duplicating the terms; find that spelling. Reassigning them into the crossY/crossZ slots instead is 230 words but 242 instructions.
  * PLATEAU-HANDOFF:func_8001EC44:end
- */
-
-/* PLATEAU-HANDOFF:func_8001CB84:start
- * symbol: func_8001CB84
- * score: 53/455 words
- * frame: 0x80
- * relocations: 41
- * first-mismatch: +0x1B4
- * summary: Frame, stack map, relocation surface and all integer registers agree; residual is one floating-point pool rotation
- * PLATEAU-HANDOFF:func_8001CB84:end
  */
 
 /* PLATEAU-HANDOFF:func_8001E5C4:start
  * symbol: func_8001E5C4
- * score: 410/416 words
- * frame: 0x100
+ * score: 408/416 words
+ * frame: 0xE0
  * relocations: 53
  * first-mismatch: +0x0
- * summary: Explicit vector locals fix adjacency semantics and cut masked differences by 3; candidate has 51 relocs versus 53 target. Need authentic loop/frame structure.
+ * summary: Nine m2c-only carriers folded into the stack slots the target already writes took the frame 0x100 -> 0xE0 at an unchanged instruction count. The exact 0xD0 frame is reachable but costs +4 words and 46 more gaps, so the frame is not the binding constraint -- the candidate is four instructions SHORT of the target while its frame is too large, which means missing spills. Close the instruction count first.
  * PLATEAU-HANDOFF:func_8001E5C4:end
  */
 
@@ -2243,20 +2185,20 @@ void controlClearPlayerSetup(void) {
 
 /* PLATEAU-HANDOFF:func_8001D880:start
  * symbol: func_8001D880
- * score: 7/36 words
+ * score: 28/36 words
  * frame: frameless
  * relocations: 0
  * first-mismatch: +0x4
- * summary: 2 structural and 28 register differences; m2c reconstruction regressed geometry. Next: source-authentic base-pool-to-temp web formation.
+ * summary: Indexing the table closed the address operand order (a2,t7 both sides) and naming the upper table entry in `value` before the lerp takes it to 28. The residual is a uopt colour rotation: the target colours only 10.0f from {f16,f18} and runs a five-wide FP ring, this candidate colours both and runs four. Twenty-five source forms plus 210 permuter candidates were flat or worse.
  * PLATEAU-HANDOFF:func_8001D880:end
  */
 
 /* PLATEAU-HANDOFF:func_8001DD70:start
  * symbol: func_8001DD70
- * score: 430 differing words
- * frame: 0x2A0
+ * score: 433 differing words
+ * frame: 0x268
  * relocations: 23
  * first-mismatch: +0x0
- * summary: Instruction count is exact; candidate frame remains 0x38 bytes too large.
+ * summary: Frame and instruction count are both exact now; the 0x38-byte excess was fourteen m2c-only declared carriers, and removing them also cut the alignment gaps 260 -> 86. Remaining: block geometry in the collision loop (238 opcode differences).
  * PLATEAU-HANDOFF:func_8001DD70:end
  */
