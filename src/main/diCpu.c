@@ -699,7 +699,6 @@ void func_80046AA8(s32 x, s32 y, u16 *glyph) {
 #ifdef NON_MATCHING
 void func_80046BCC(s32 x, s32 y, char *text) {
     s32 temp_s6;
-    s32 var_s0;
     s32 var_s1;
     s32 var_s2;
     s32 var_s3;
@@ -719,34 +718,30 @@ void func_80046BCC(s32 x, s32 y, char *text) {
             var_s2 = var_v0 & 0xFF;
             var_s4 += 1;
             if (var_s3 != 0) {
-                var_s0 = var_s2;
-                if ((var_s2 >= 0x41) && (var_s0 < 0x47)) {
-                    var_s0 = (var_s0 + 0x20) & 0xFF;
-                    var_s2 = var_s0;
+                if ((var_s2 >= 0x41) && (var_s2 < 0x47)) {
+                    var_s2 = (var_s2 + 0x20) & 0xFF;
                 }
             } else {
-                var_s0 = var_s2;
-                if ((var_s2 >= 0x61) && (var_s0 < 0x7B)) {
-                    var_s0 = (var_s0 - 0x20) & 0xFF;
-                    var_s2 = var_s0;
+                if ((var_s2 >= 0x61) && (var_s2 < 0x7B)) {
+                    var_s2 = (var_s2 - 0x20) & 0xFF;
                 }
             }
-            if (var_s0 == 0xA) {
+            if (var_s2 == 0xA) {
                 var_s5 += 6;
                 var_s1 = 0x20;
-            } else if (var_s0 == 9) {
+            } else if (var_s2 == 9) {
                 var_s1 = (var_s1 - (var_s1 & 0xF)) + 0x10;
-            } else if (var_s0 == 0x20) {
+            } else if (var_s2 == 0x20) {
                 var_s1 += 4;
-            } else if ((var_s0 >= 0x21) && (var_s0 < 0x67)) {
-                func_80046AA8(var_s1, var_s5, &D_8007D034[(var_s0 * 5) - 0xA5]);
+            } else if ((var_s2 >= 0x21) && (var_s2 < 0x67)) {
+                func_80046AA8(var_s1, var_s5, &D_8007D034[(var_s2 * 5) - 0xA5]);
                 var_s1 += 8;
             }
-            if ((var_s3 != 0) && ((var_s0 < 0x30) || (var_s0 >= 0x3A)) &&
-                ((var_s0 < 0x61) || (var_s0 >= 0x67))) {
+            if ((var_s3 != 0) && ((var_s2 < 0x30) || (var_s2 >= 0x3A)) &&
+                ((var_s2 < 0x61) || (var_s2 >= 0x67))) {
                 var_s3 = 0;
             }
-            if ((temp_s6 == 0x30) && ((var_s0 == 0x78) || (var_s0 == 0x58))) {
+            if ((temp_s6 == 0x30) && ((var_s2 == 0x78) || (var_s2 == 0x58))) {
                 var_s3 = 1;
             }
             var_v0 = *var_s4;
@@ -798,11 +793,11 @@ void func_80046E00(void) {
 
 /* PLATEAU-HANDOFF:func_80046BCC:start
  * symbol: func_80046BCC
- * score: 17/106 words
+ * score: 68/106 words
  * frame: 0x40
  * relocations: 3
  * first-mismatch: +0x2C
- * summary: One loop-entry transfer keeps size +4 and shifts all three relocation sites; 10 source forms and 119 flags exhausted, with one static identity unresolved.
+ * summary: Size closed at 106/106: folding the m2c-only var_s0 into var_s2 removes the extra saved-carrier copy; 41 differing words, relocations exact.
  * PLATEAU-HANDOFF:func_80046BCC:end
  */
 

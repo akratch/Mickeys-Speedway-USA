@@ -1003,19 +1003,36 @@ void func_80019AB8(LightPosition *position, LightObjectContext *object,
 void lightDefaultObjectLight(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s32 arg4) {
     func_80019DE8(&D_800CB298, arg0, arg1, arg2, arg3, arg4);
 }
-/* Bounded plateau: configured full-TU V0 and the retained isolated C are 64
- * versus target 63 words, exact 0x38 frame, 19/63 raw/normalized positional
- * matches, first +0x44. The extra return-delay word is not padding and all
- * three identities are four bytes late. All 119 flag rows were attempted;
- * seven tie at the 45-word residual, including the configured recipe. One
- * fidelity-clean proc-22 uopt trace found eight low-confidence webs but no
- * source attribution, so it authorized no allocator form. Field-first
- * valueDelta regressed to 46 residual words; a local-first form regressed to
- * 62 and a 0x40 frame. With no strict gain, no combination or batch was run.
- * Linked equality is fallback-only. ORT 358 has direct callers
+/* Bounded plateau, size question closed 2026-09-09. The +4-byte overrun was a
+ * third reload of the stack-homed `shift` parameter: with `shift` spelled at
+ * the colour-step shift amount, at `state->shift` and at the scale step, each
+ * store through `state` killed the load and uopt reloaded it three times where
+ * the target reloads twice. Storing the field first and then reading it back
+ * (`state->colourStep = state->valueDelta << state->shift`) lets uopt forward
+ * the two byte stores, so one carrier serves the store and the shift amount --
+ * the `andi ..,0xFF` the target shows at that site is the u8 truncation of the
+ * forwarded word, not a hand-written mask. Configured full-TU: 63 candidate
+ * versus 63 target words, exact 0x38 frame, zero opcode mismatches, zero
+ * relocation mismatches, first +0x54; the whole residual is 16 aligned
+ * register names, verdict allocation-mismatch (was 64/63 words, 45 differing,
+ * 9 structural and 7/7 relocation mismatches, first +0x44).
+ * Eliminated at this shape: all 24 orders of the four field stores (delta
+ * stayed +1 for every one of them, so the overrun was never a fallthrough or
+ * scheduling question); all 12 legal orders once the field-read spelling was
+ * in (19-24 words, this one best); redundant masks on either operand
+ * (`& 0xFF` on the shift amount reaches 15 but rotates the shift carrier out
+ * of place); forwarded `state->pitch`/`state->yaw` reads in the rotation array
+ * (+1 or +2 words); prologue statement permutations (22-62); a declared unused
+ * local at either end (16 / 27); and swapping the two array declarations (27).
+ * What is left: the temporary pool is two slots ahead of the target from the
+ * `arg2 - arg1` web onward -- the target's free list reads t5,t6,t7,t8,t9,t0,
+ * t2,t1,t3,t4 where the candidate's reads t3,t4,t5,t6,t7,t8,t0,t9,t1,t2 -- so
+ * two temporaries are allocated and freed before that web in the target and
+ * two later pairs are swapped. That is a demand-order question, not a
+ * spelling one; resume with ugen emit-provenance evidence for the two early
+ * webs rather than more source permutation. ORT 358 has direct callers
  * lightDefaultObjectLight+0x38 and func_8001A008+0x74/+0xC4 but no runtime
- * inbound. Resume only with a source-faithful structural lever that removes
- * the extra pre-call word and advances all three identities together. */
+ * inbound. */
 #ifdef NON_MATCHING
 /* PROVENANCE: JFG's public assembly-backed lightSetObjectLight authenticates
  * the structural role only; Mickey's body and globals remain authoritative. */
@@ -1031,9 +1048,9 @@ void func_80019DE8(ObjectLightState *state, s32 arg1, s32 arg2, s16 pitch, s16 y
     }
     state->startValue = arg1;
     state->endValue = arg2;
-    state->colourStep = ((arg2 - arg1) & 0xFF) << (shift & 0xFF);
-    state->valueDelta = arg2 - arg1;
     state->shift = shift;
+    state->valueDelta = arg2 - arg1;
+    state->colourStep = state->valueDelta << state->shift;
     state->scaleStep = (1 << (8 - shift)) << 6;
     state->pitch = pitch;
     state->yaw = yaw;
