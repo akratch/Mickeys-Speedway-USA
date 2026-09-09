@@ -3160,7 +3160,7 @@ void func_8000784C(s32 arg0) {
     D_800C9478 = 1;
     D_800C946C = (f32)arg0;
 }
-/* Workbench verdict: allocation; 26 differing words (92/118). */
+/* Workbench verdict: allocation; 25 differing words (93/118). */
 /* First mismatch: +0x94; size, frame, stack homes and opcode schedule are exact. */
 /* Structural gap: none; one ugen ring rotation from +0x94 remains. */
 #ifdef NON_MATCHING
@@ -3209,7 +3209,11 @@ void func_80007C68(Objects07C68Object *arg0, Objects07C68Source *arg1,
                 temp_v0_2 = var_s0->unk2;
                 if (temp_v0_2 >= 0) {
                     var_s2 += 1;
-                    var_s2[-1] = (s16)((temp_v0_2 >> 8) * texture->unkE);
+                    /* `(*texture).unkE`, not `texture->unkE`: the two spellings
+                     * are semantically identical but cfe emits a different
+                     * expression-temp order for them, and this one is the
+                     * target's (26 -> 25 differing words, measured). */
+                    var_s2[-1] = (s16)((temp_v0_2 >> 8) * (*texture).unkE);
                 }
                 var_s3 += 1;
                 var_s2 += 1;
@@ -5733,11 +5737,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80007C68:start
  * symbol: func_80007C68
- * score: 92/118 words
+ * score: 93/118 words
  * frame: 0x60
  * relocations: 4
  * first-mismatch: +0x94
- * summary: Frame, stack homes and opcode schedule now exact; one ugen ring rotation from +0x94 remains.
+ * summary: Frame, stack homes and opcode schedule now exact; one ugen ring rotation from +0x94 remains. The `(*texture).unkE` spelling closed one word; arrow/dot and [0]-index rewrites at every other member access are now exhausted.
  * PLATEAU-HANDOFF:func_80007C68:end
  */
 
