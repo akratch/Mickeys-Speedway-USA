@@ -2668,37 +2668,15 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59ReleaseAll.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Update.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
-ifeq ($(NON_MATCHING),1)
-# The compiler's six-entry table is the same table retained at module +0x76C.
-# Rebind only its text references and discard the duplicate private section;
-# the linked default path remains the GLOBAL_ASM body while this source is a plateau.
+# The compiler's private pool for this unit is the 0.15f approach factor
+# followed by the six-entry switch table; the retained overlay data segment
+# already owns those bytes at +0x768 and +0x76C.  Anchor the two %hi/%lo pairs
+# on the module-relative 0x18 the shipped text encodes and contribute no bytes.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: POSTPROCESS = \
-	$(OBJCOPY) --add-symbol overlay59AdvanceSwitchTable=0x76C,global $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x84:.rodata:overlay59AdvanceSwitchTable \
-		0x8C:.rodata:overlay59AdvanceSwitchTable && \
-	$(OBJCOPY) --remove-section=.rodata $@ && \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_059_F000036C_18B8ABC=overlay59Advance $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
+		sha256:15fc13fbb3e01c022332cdcc79623566f105d3a5922afe1ff8228f1f525f3f34 0x18 && \
+	$(OBJCOPY) --remove-section=.rel.rodata $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x418
-else
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_059_F000036C_18B8ABC=overlay59Advance $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x418
-endif
-# The C candidate emits the six-entry pool owned by overlay +0x76C.  The
-# fallback assembly has no compiler-owned .rodata, so this conditional is a
-# no-op there and remains active if the candidate is later promoted.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: POSTPROCESS += \
-	&& candidate_rodata_size=$$( $(OBJDUMP) -h $@ | awk '$$2 == ".rodata" { print $$3; exit }' ); \
-	if [ -n "$$candidate_rodata_size" ] && [ "$$candidate_rodata_size" != "00000000" ]; then \
-		$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
-			sha256:bf604582e55225db52cddbe759d4fc113138cdfb8829e35610ac4f1b6d825f26 0x76c && \
-		$(OBJCOPY) --remove-section=.rel.rodata $@; \
-	fi
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59BuildList.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59AppendValue.c.o: POSTPROCESS = \

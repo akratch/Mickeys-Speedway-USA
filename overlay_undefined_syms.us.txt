@@ -1855,6 +1855,10 @@ gOverlay59EntriesEnd = 0x00000110;
 /* overlay 59: overlay59AppendValue.c.o */
 gOverlay59ValueTables = 0x00000708;
 
+/* overlay 59: overlay59Advance.c.o */
+gOverlay59EntriesOneEnd = 0x00000044;
+gOverlay59TableInfo = 0x000005a0;
+
 /* overlay 59: overlay59DrawFrame.c.o */
 gOverlay59Styles = 0x00000730;
 overlay59FrameColorReloc = 0xf0000000;
