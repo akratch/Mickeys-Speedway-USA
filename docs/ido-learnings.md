@@ -1001,6 +1001,19 @@ bytes and disassembly never belong here.
   because the two blocks trade against each other. `fixed` itself responds to
   the widest outgoing call: dropping a five-argument call to four moves the
   saved registers and everything above them down eight bytes.
+  **The displaceable temporaries are loop-invariant common subexpressions in a
+  loop's controlling condition.** `func_8000784C` matched once the wrap loop's
+  twice-spelled halfword read became a named local: the plain
+  `while (a->c >= f(a)) { a->c -= f(a); }` spends *two* compiler temporaries on
+  that subexpression, and naming the value pays both back while costing one
+  scalar -- exactly the ninth-scalar-with-a-freed-temporary trade the equation
+  wants, where sixteen probes that added a scalar anywhere else all moved the
+  aggregate the wrong way. Naming it naively also deletes the in-loop store and
+  reload, so keep the field read *in the condition*
+  (`while (a->c >= (period = f(a)))`) and use the name only in the body: the
+  emitted words are then identical and only the frame's split changes. Removing
+  such a `while` outright is the cheap detector -- if the aggregate's home drops
+  by 8 with the loop gone, its condition owns two temporaries.
 
 ## Adding a learning
 

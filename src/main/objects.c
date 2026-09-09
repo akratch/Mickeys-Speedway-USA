@@ -1150,8 +1150,24 @@ void func_80004B04(s32 arg0)
     }
   }
 }
-#ifdef NON_MATCHING
-/* PROVENANCE: ROM-table scan and direct array-carrier spelling informed by
+/* Loads one object-table section from ROM into a fresh 0x3000-byte heap and
+ * rewrites its records in place for the current game options, leaving the
+ * cursor back at the first record.
+ *
+ * Two spellings carry the whole match. The allocation goes into the global
+ * slot and `heap` is a copy taken *after* the derived cursor is stored, which
+ * is what puts the local's home store after both global stores rather than
+ * before them; defining `heap` first and assigning the global from it emits
+ * the home store one or two instructions early, and no ordering or line
+ * grouping of those five statements recovers it. And the record length is the
+ * field read spelled twice rather than a carrier: sharing `tableCount` with
+ * the switch's keep/skip flag merges the two webs onto one colour, a dedicated
+ * length local separates them but costs the frame (0x50 against 0x48, since
+ * this function's seven declared scalars and five compiler temporaries already
+ * fill it exactly), and reading the field again at both uses separates them
+ * for free. The accumulate must precede the cursor store for that to hold.
+ *
+ * PROVENANCE: ROM-table scan and direct array-carrier spelling informed by
  * Diddy Kong Racing public src/objects.c track_spawn_objects. Mickey ROM
  * controls its boundaries, globals, record format and spawn conditions. */
 void func_80004C28(s32 arg0, s32 arg1) {
@@ -1163,9 +1179,9 @@ void func_80004C28(s32 arg0, s32 arg1) {
     s32 *romTable;
     s32 start;
 
-    heap = func_8002B280(0x3000, 0x8B);
-    D_800C94D8[arg1] = heap;
-    D_800C94C0[arg1] = (s32)((u8 *)heap + 0x10);
+    D_800C94D8[arg1] = func_8002B280(0x3000, 0x8B);
+    D_800C94C0[arg1] = (s32)((u8 *)D_800C94D8[arg1] + 0x10);
+    heap = D_800C94D8[arg1];
     D_800C94C8[arg1] = 0;
     D_800C94D0[arg1] = arg0;
 
@@ -1251,9 +1267,8 @@ void func_80004C28(s32 arg0, s32 arg1) {
                 func_8000590C(current, 1);
                 current = (s16 *)D_800C94C0[arg1];
             }
-            tableCount = *((u8 *)current + 2);
-            D_800C94C0[arg1] = (s32)((u8 *)current + tableCount);
-            offset += tableCount;
+            offset += *((u8 *)current + 2);
+            D_800C94C0[arg1] = (s32)((u8 *)current + *((u8 *)current + 2));
         } while (offset < D_800C94C8[arg1]);
     }
     D_800C94C0[arg1] = (s32)((u8 *)D_800C94D8[arg1] + 0x10);
@@ -1262,9 +1277,6 @@ void func_80004C28(s32 arg0, s32 arg1) {
     }
     D_800C9478 = 1;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004C28.s")
-#endif
 typedef struct {
     s16 unk0;
     u8 unk2;
@@ -2113,12 +2125,14 @@ void *func_8000590C(void *arg0, s32 arg1) {
 /* Structural gap: CFE s-register carriers and resource-load carrier differ. */
 #ifdef NON_MATCHING
 void func_80006448(void *arg0) {
-    s32 offset = 0;
-    s32 index = 0;
+    s32 offset;
+    s32 index;
     void *resource;
     s8 type;
 
     if (((Objects06448Arg *)arg0)->unk40->unk22 > 0) {
+        offset = 0;
+        index = 0;
         do {
             type = func_800058C0((Objects58C0Arg *)arg0, index);
             if (type == 0) {
@@ -3006,7 +3020,27 @@ extern void lightUpdateLights(s32 updateRate);
 extern void lightUpdateObjects(void);
 extern void amPlayAudioMap(void **objects, s32 count, s32 updateRate);
 
-#ifdef NON_MATCHING
+/* The per-frame object update pass: refreshes the render records of the
+ * always-on object list, walks the active object range calling each object's
+ * update, animation and effect work, defers four object classes to a bounded
+ * pending list, and finishes with the lighting and audio passes.
+ *
+ * The animation period is a *named* local re-read on every test of the wrap
+ * loop, which is the whole difference between this and a plain
+ * `while (unkC >= period_field)` with the field spelled at both uses. Under
+ * -O2 the frame is an arithmetic identity,
+ *
+ *     frame = roundup8(outgoing + saved + 4*temps + 4*scalars + aggregate)
+ *
+ * with the aggregate based at `frame - 4*scalars - aggregate`, so the array's
+ * home reads out the split between declared scalars and compiler temporaries
+ * even when neither side's swapped slots are ever touched. The plain spelling
+ * spends two compiler temporaries on the wrap loop's common subexpression and
+ * lands `pending` four bytes high; naming the period pays those two back and
+ * costs one scalar, and re-reading the field in the condition keeps the
+ * in-loop store and reload the target emits. Adding a ninth scalar without
+ * removing a temporary moves the array the wrong way, which is why sixteen
+ * earlier declaration probes all landed at +4. */
 void func_8000784C(s32 arg0) {
     Objects0784CObject *object;
     Objects0784COutput *output;
@@ -3016,6 +3050,7 @@ void func_8000784C(s32 arg0) {
     s32 count;
     s32 objectOffset;
     s32 pendingCount;
+    s32 animPeriod;
     Objects0784CObject *pending[0x20];
 
     count = 0;
@@ -3067,8 +3102,9 @@ void func_8000784C(s32 arg0) {
                     if (animation->unkE != 0) {
                         if (animation->unk8 != NULL) {
                             animation->unkC += (u32)animation->unkE * arg0;
-                            while (animation->unkC >= ((u16 *)animation->unk8)[8]) {
-                                animation->unkC -= ((u16 *)animation->unk8)[8];
+                            while (animation->unkC >=
+                                   (animPeriod = ((u16 *)animation->unk8)[8])) {
+                                animation->unkC -= animPeriod;
                             }
                         }
                     }
@@ -3124,18 +3160,14 @@ void func_8000784C(s32 arg0) {
     D_800C9478 = 1;
     D_800C946C = (f32)arg0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000784C.s")
-#endif
-/* Workbench verdict: allocation-mismatch; 42 differing words (76/118). */
-/* First mismatch: +0x7C; size, frame, and opcode schedule are exact. */
-/* Structural gap: none; register allocation and one stack-home constant are permuter-ready. */
+/* Workbench verdict: allocation; 26 differing words (92/118). */
+/* First mismatch: +0x94; size, frame, stack homes and opcode schedule are exact. */
+/* Structural gap: none; one ugen ring rotation from +0x94 remains. */
 #ifdef NON_MATCHING
 void func_80007C68(Objects07C68Object *arg0, Objects07C68Source *arg1,
                    Objects07C68Object *arg2, s32 arg3) {
-    s32 sp58;
-    s16 temp_lo;
     s16 temp_v0_2;
+    s32 sp58;
     s32 temp_t3;
     s32 temp_v0;
     s32 var_s3;
@@ -3153,8 +3185,7 @@ void func_80007C68(Objects07C68Object *arg0, Objects07C68Source *arg1,
         if ((s32)arg1->unk2C > 0) {
             do {
                 temp_v0 = var_s0->unk4;
-                texture = *(Objects07C68Texture **)((u8 *)arg1->unk18 +
-                                                     ((temp_v0 & 0xFF) * 8));
+                texture = (Objects07C68Texture *)arg1->unk18[(temp_v0 & 0xFF) * 2];
                 if (temp_v0 & 0x100000) {
                     sp58 = (s32)var_s0->unk0;
                     if (var_s0->unk4 & 0x200000) {
@@ -3181,10 +3212,9 @@ void func_80007C68(Objects07C68Object *arg0, Objects07C68Source *arg1,
                     var_s2[-1] = (s16)((temp_v0_2 >> 8) * texture->unkE);
                 }
                 var_s3 += 1;
-                temp_lo = ((s16)var_s0->unk0 >> 8) * texture->unkE;
                 var_s2 += 1;
+                var_s2[-1] = (s16)(((s16)var_s0->unk0 >> 8) * texture->unkE);
                 var_s0 += 1;
-                var_s2[-1] = temp_lo;
             } while (var_s3 < (s32)arg1->unk2C);
         }
         if (arg0->unk90 == 1) {
@@ -5603,11 +5633,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80006448:start
  * symbol: func_80006448
- * score: 32/59 words
+ * score: 50/59 words
  * frame: 0x28
  * relocations: 4
- * first-mismatch: +0x1C
- * summary: Shape and relocation surface are exact; CFE carrier allocation differs for the object, offset, and resource values.
+ * first-mismatch: +0x50
+ * summary: Initializer placement fixed the s0/s1 colouring, 27 to 9 words; the resource carrier still coalesces into the call argument register.
  * PLATEAU-HANDOFF:func_80006448:end
  */
 
@@ -5617,7 +5647,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x8
  * relocations: 8
  * first-mismatch: +0x24
- * summary: Near-identical control-flow shape and frame; CFE allocates outer object/offset and inner model-index carriers differently.
+ * summary: Remeasured at 28 words; objectOffset takes a0 where the target takes a1 and the whole shared ring rotates from +0x24.
  * PLATEAU-HANDOFF:func_80008028:end
  */
 
@@ -5706,11 +5736,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80007C68:start
  * symbol: func_80007C68
- * score: 42 differing words
+ * score: 92/118 words
  * frame: 0x60
- * relocations: 8
- * first-mismatch: +0x7C
- * summary: Opcode shape and frame are exact; remaining register allocation and one stack-home constant are permuter-ready.
+ * relocations: 4
+ * first-mismatch: +0x94
+ * summary: Frame, stack homes and opcode schedule now exact; one ugen ring rotation from +0x94 remains.
  * PLATEAU-HANDOFF:func_80007C68:end
  */
 
@@ -5754,16 +5784,6 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * PLATEAU-HANDOFF:func_80006534:end
  */
 
-/* PLATEAU-HANDOFF:func_80004C28:start
- * symbol: func_80004C28
- * score: 7 differing words
- * frame: 0x48
- * relocations: 39
- * first-mismatch: +0x5C
- * summary: Three schedule words on the heap home store (all 24 orders measured), four on the record-length colour the frame cannot pay for.
- * PLATEAU-HANDOFF:func_80004C28:end
- */
-
 /* PLATEAU-HANDOFF:func_80009AA8:start
  * symbol: func_80009AA8
  * score: 3 differing words
@@ -5772,16 +5792,6 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x54
  * summary: One uopt caller-saved colour: target a1 where the candidate takes a0. Next: what reserves a0 in the target.
  * PLATEAU-HANDOFF:func_80009AA8:end
- */
-
-/* PLATEAU-HANDOFF:func_8000784C:start
- * symbol: func_8000784C
- * score: 2 differing words
- * frame: 0x100
- * relocations: 34
- * first-mismatch: +0x170
- * summary: Frame is 9 declared scalars + 5 compiler temps against our 8 + 6; only a declared object-walk pointer cursor reaches it.
- * PLATEAU-HANDOFF:func_8000784C:end
  */
 
 /* PLATEAU-HANDOFF:func_800084C4:start
