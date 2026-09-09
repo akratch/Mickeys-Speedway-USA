@@ -406,3 +406,38 @@ lever is *strong*. `camera.c`, `saves.c` (42 bodies), `level.c`, `font.c`,
 `diprint.c` are all counterparts that are fully or nearly fully matched
 upstream. Those are where a donor lane is worth opening; `anim.c` (3 bodies
 against 34 pragmas), `audiomgr.c` and `rcpFast3d.c` (2 each) are not.
+
+## Jet Force Gemini PR #37: a complete `menu.c`, and a `runLink.c` regression
+
+Evaluated 2026-09-09 at PR head `d45123d1c528955d5e12ddad805076267a690d76`
+("Fix"), **open, not merged**. Fetched into the reference farm as the ref
+`pr-37`; the farm's working tree stays on `efd5abb`, so
+`tools/check_donor_claims.py` continues to measure against upstream main
+unless a lane checks the PR ref out deliberately.
+
+Measured, not asserted, with the body/pragma count `docs/references.md`
+already prescribes:
+
+| JFG file | at `efd5abb` | at `pr-37` | verdict |
+|---|---|---|---|
+| `src/menu.c` | 19 bodies, 29 pragmas | **48 bodies, 0 pragmas** | fully matched; a real advance |
+| `src/runLink.c` | 19 bodies, 0 pragmas | 13 bodies, 9 pragmas | **behind main** |
+
+So the PR is **not uniformly ahead**, and the per-file check matters as much
+here as it did for the `efd5abb` audit. Take `menu.c` from the PR; keep main
+for `runLink.c`.
+
+**Why the menu advance is worth having.** The new bodies carry names this tree
+already adopted — `frontDemoMessage`, `frontDrawRectangle`, `frontDrawRectangles`,
+`frontGet2PlayerSplit`, `frontGetLevelScreenMode`, `frontSetScreenMode` — which
+is independent evidence that the correspondence is real rather than assumed.
+Against them we hold 8,616 bytes unmatched in the same family:
+`src/main/frontend_37D50.c` (7 functions, 5,028 B), `src/main/menu.c` (4, 2,632 B),
+`src/main/menu_3B1A0.c` (3, 524 B) and `src/main/frontend_37680.c` (1, 432 B).
+
+**Disclosure.** An unmerged PR is published code in a permitted repository, so
+`docs/CLEANROOM.md`'s exception applies — but it is not part of JFG's canonical
+history and may still change or be rejected. A `PROVENANCE` note adapted from
+it must therefore cite the pull request **and** the head SHA above, not a
+branch name, so the citation stays reproducible. Mickey's ROM decides every
+disagreement, as always.
