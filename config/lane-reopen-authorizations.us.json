@@ -911,8 +911,8 @@
       "source_commit": "14d10ff4c6e39d40d8072f0e43f0b846e91beaf6"
     },
     "func_overlay_060_F0000334_18BA10C": {
-      "ledger_commit": "0534f43aa472bdab7482d80d0c86a305fada2335",
-      "reason": "Residual fell 2503 to 97 masked words with size delta 0 and every saved register coloured as the target. All 97 are one named cascade: a CSE web for the rank-table base hoists into s5 and displaces previewMode.",
+      "ledger_commit": "9e5883da61a53524c7f6b5a23ac10b603ff505a3",
+      "reason": "Four words remain: all 2789 instructions are identical to the target and the census delta is 0. One spilled compiler temp is homed at 88(sp) against the target's 96(sp); the slot-priority mechanism is diagnosed in the shard.",
       "source_commit": "0534f43aa472bdab7482d80d0c86a305fada2335"
     },
     "func_overlay_065_F0000C38_18C4EA0": {
