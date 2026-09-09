@@ -170,6 +170,23 @@ def entry_is_valid(symbol: str, source_commit: str, ledger_commit: str | None) -
         return identity_error or "source commit identifies no single definition"
     if ledger_commit is None:
         return None
+    # The pins must lie on one line of history. reopen_authorizations rejects
+    # an unrelated pair, and because it validates the WHOLE file eagerly, one
+    # such row raises for every symbol any lane queries -- a queue-wide outage
+    # from a single bad entry. That happened on 2026-09-10: two lanes advanced
+    # the same function on divergent branches that were merged separately, so
+    # both commits were ancestors of the base but neither of the other, and no
+    # lane could screen its queue until the row was dropped.
+    def ancestor(a: str, b: str) -> bool:
+        import subprocess
+        return subprocess.run(
+            ["git", "merge-base", "--is-ancestor", a, b], cwd=REPO,
+            capture_output=True,
+        ).returncode == 0
+
+    if not (ancestor(source_commit, ledger_commit)
+            or ancestor(ledger_commit, source_commit)):
+        return "source and ledger commits are unrelated (divergent branches)"
     shard_text = lane_status.show_file(ledger_commit, lane_status.shard_path(symbol))
     try:
         shard_source = lane_status.validated_shard_source(shard_text, symbol)
