@@ -25,7 +25,12 @@ typedef struct Menu3B1A0ByteRecord {
 typedef struct Menu3B1A0State {
     u8 bytes000[0x383];
     s8 count;
-    u8 bytes384[0xD8];
+    u8 bytes384[0x80];
+    /* 0x404: `count` (+1 when flag45C is set) s32 entries, bounded above by
+     * flag45C at 0x45C -- 0x16 of them.  Tier D, structural: the extent is
+     * fixed by the two named neighbours, the element type and base by
+     * func_8003A7D0's own accumulation loop. */
+    s32 entries[0x16];
     u8 flag45C;
 } Menu3B1A0State;
 
@@ -176,68 +181,35 @@ loop_inner:
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu_3B1A0/func_8003A754.s")
 #endif
-/* Workbench verdict: structure-mismatch, 36 differing words; target 43/candidate 41 words. */
-/* First mismatch: +0x10; the candidate omits two initial pointer-materialization words. */
-/* Structural gap: count-carrier allocation and first-loop address formation. */
-#ifdef NON_MATCHING
+/* PROVENANCE: no donor counterpart -- JFG's src/menu.c has no function of
+ * this shape, so this is ordinary matching against Mickey's own bytes.
+ * The target's 4x-unrolled accumulation loop is the compiler's, not the
+ * source's: this TU's -Wo,-loopunroll,0 was removed (it was byte-inert for
+ * every function the TU still compiles) and the plain `for` then unrolls to
+ * the target's exact 44 words.  The guard and the final test read
+ * `state->count` again rather than the local: IDO CSEs all three reads onto
+ * one carrier and copies it into the second, which is what puts the -1
+ * compare on the original and the increment on the copy (lever 45). */
 s32 func_8003A7D0(Menu3B1A0Object *arg0) {
-    s32 temp_t1;
-    s32 temp_t5;
-    s32 temp_t8;
-    s32 temp_v1;
-    s32 var_a0;
-    s32 var_v1;
-    s32 var_a1;
-    s32 temp_a2;
-    Menu3B1A0State *temp_v0;
-    s32 *var_a3;
-    s32 *var_a3_2;
+    Menu3B1A0State *state;
+    s32 total;
+    s32 limit;
+    s32 i;
 
-    temp_v0 = arg0->state;
-    var_v1 = 0;
-    temp_a2 = temp_v0->count;
-    var_a1 = temp_a2;
-    if ((temp_v0->flag45C != 0) && (temp_a2 != -1)) {
-        var_a1 += 1;
+    state = arg0->state;
+    total = 0;
+    limit = state->count;
+    if ((state->flag45C != 0) && (state->count != -1)) {
+        limit += 1;
     }
-    var_a0 = 0;
-    if (var_a1 > 0) {
-        temp_t1 = var_a1 & 3;
-        if (temp_t1 != 0) {
-            var_a3 = (s32 *) temp_v0 + var_a0;
-loop_small:
-            temp_t8 = var_a3[0x101];
-            var_a0 += 1;
-            var_a3 += 1;
-            var_v1 += temp_t8;
-            if (temp_t1 != var_a0) {
-                goto loop_small;
-            }
-            if (var_a0 == var_a1) {
-                goto done;
-            }
-        }
-        var_a3_2 = (s32 *) temp_v0 + var_a0;
-loop_large:
-        temp_t5 = var_a3_2[0x104];
-        var_a0 += 4;
-        temp_v1 = var_v1 + var_a3_2[0x101] + var_a3_2[0x102] +
-                  var_a3_2[0x103];
-        var_a3_2 += 4;
-        var_v1 = temp_v1 + temp_t5;
-        if (var_a0 != var_a1) {
-            goto loop_large;
-        }
+    for (i = 0; i < limit; i++) {
+        total += state->entries[i];
     }
-done:
-    if (temp_a2 < 3) {
-        var_v1 += 0x2BF20;
+    if (state->count < 3) {
+        total += 0x2BF20;
     }
-    return var_v1;
+    return total;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu_3B1A0/func_8003A7D0.s")
-#endif
 
 /* PLATEAU-HANDOFF:func_8003A5A0:start
  * symbol: func_8003A5A0
@@ -257,14 +229,4 @@ done:
  * first-mismatch: +0x10
  * summary: Trace isolates ugen line-order; next lever is authentic call-result C that schedules t0 before a3 without #line or inert scaffolding.
  * PLATEAU-HANDOFF:func_8003A754:end
- */
-
-/* PLATEAU-HANDOFF:func_8003A7D0:start
- * symbol: func_8003A7D0
- * score: 37 differing words
- * frame: frameless
- * relocations: 0
- * first-mismatch: +0x10
- * summary: Count-carrier allocation and first-loop address formation remain unresolved.
- * PLATEAU-HANDOFF:func_8003A7D0:end
  */

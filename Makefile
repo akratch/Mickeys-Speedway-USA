@@ -1238,8 +1238,14 @@ $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: POSTPROCESS = \
 # every other function in the TU and wrong for that one, whose target unrolls
 # both the pointer-table clear (4 stores per iteration) and the play-choice
 # reset (fully). Its matched body needs the default unroller.
-# The adjacent menu tail retains its scalar record-reset loop.
-$(BUILD_DIR)/$(SRC_DIR)/main/menu_3B1A0.c.o: CFLAGS += -Wo,-loopunroll,0
+#
+# The adjacent menu tail, menu_3B1A0.c, carried the same flag "for the scalar
+# record-reset loop". That was never a measurement: the loop in question lives
+# in func_8003A754, which was and still is under GLOBAL_ASM, so the flag could
+# only ever reach the three tiny loop-free bodies the TU actually compiles,
+# where it is byte-inert. func_8003A7D0's target, by contrast, unrolls its
+# accumulation loop four ways, which the flag made unreachable from any C at
+# all. Removing it matched that function exactly and moved nothing else.
 # func_80038750's five-entry language jump table (0x14) precedes the two
 # consecutive 0x4C-byte switch tables; IDO rounds the 0xAC input section up,
 # so discard only the trailing input-section padding before linking the next

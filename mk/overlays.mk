@@ -2483,8 +2483,67 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o052/overlay52TailB.c.o: POSTPROCESS = \
 # runtime-local addend and discard the duplicate.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o060/overlay60Prefix.c.o: \
 	$(TOOLS_DIR)/rebind_elf_relocations.py
+# The resident and cross-overlay callees below are rebound to their
+# placeholder externs so the linked instruction words carry the stored addends
+# runlinkDownloadCode patches, exactly as docs/reloc-surface.md describes. The
+# resident half was missing when func_overlay_060_F0000334_18BA10C was
+# promoted: the object already in build/ predated the rule, so the warm tree
+# still linked and `gmake verify` passed, while a clean build failed at the
+# link with 50+ R_MIPS_26 overflows against resident names.
+# `gmake check-overlay-syms` names them all and is the check that catches it.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o060/overlay60Prefix.c.o: POSTPROCESS = \
 	$(OBJCOPY) \
+		--redefine-sym amSndPlay=amSndPlay_o060Reloc \
+		--redefine-sym animseqStartPath=animseqStartPath_o060Reloc \
+		--redefine-sym animseqStopPath=animseqStopPath_o060Reloc \
+		--redefine-sym camStandardOrtho=camStandardOrtho_o060Reloc \
+		--redefine-sym camStandardPersp=camStandardPersp_o060Reloc \
+		--redefine-sym fontColour=fontColour_o060Reloc \
+		--redefine-sym frontGet2PlayerSplit=frontGet2PlayerSplit_o060Reloc \
+		--redefine-sym frontGetBgmVolume=frontGetBgmVolume_o060Reloc \
+		--redefine-sym frontGetScreenMode=frontGetScreenMode_o060Reloc \
+		--redefine-sym frontGetSfxVolume=frontGetSfxVolume_o060Reloc \
+		--redefine-sym frontGetStereoMode=frontGetStereoMode_o060Reloc \
+		--redefine-sym frontGetWideAdjust=frontGetWideAdjust_o060Reloc \
+		--redefine-sym frontSetBgmVolume=frontSetBgmVolume_o060Reloc \
+		--redefine-sym frontSetLanguage=frontSetLanguage_o060Reloc \
+		--redefine-sym frontSetSfxVolume=frontSetSfxVolume_o060Reloc \
+		--redefine-sym frontSetStereoMode=frontSetStereoMode_o060Reloc \
+		--redefine-sym frontSetWideAdjust=frontSetWideAdjust_o060Reloc \
+		--redefine-sym func_80000510=func_80000510_o060Reloc \
+		--redefine-sym func_800005CC=func_800005CC_o060Reloc \
+		--redefine-sym func_8000572C=func_8000572C_o060Reloc \
+		--redefine-sym func_80009E78=func_80009E78_o060Reloc \
+		--redefine-sym func_80020D8C=func_80020D8C_o060Reloc \
+		--redefine-sym func_80021504=func_80021504_o060Reloc \
+		--redefine-sym func_80023F84=func_80023F84_o060Reloc \
+		--redefine-sym func_8002468C=func_8002468C_o060Reloc \
+		--redefine-sym func_80029198=func_80029198_o060Reloc \
+		--redefine-sym func_800291C4=func_800291C4_o060Reloc \
+		--redefine-sym func_8002F618=func_8002F618_o060Reloc \
+		--redefine-sym func_8002FB34=func_8002FB34_o060Reloc \
+		--redefine-sym func_800336A8=func_800336A8_o060Reloc \
+		--redefine-sym func_80033FE0=func_80033FE0_o060Reloc \
+		--redefine-sym func_80034920=func_80034920_o060Reloc \
+		--redefine-sym func_800349A4=func_800349A4_o060Reloc \
+		--redefine-sym func_800355A0=func_800355A0_o060Reloc \
+		--redefine-sym func_800359D4=func_800359D4_o060Reloc \
+		--redefine-sym func_800367A4=func_800367A4_o060Reloc \
+		--redefine-sym func_8003A2C8=func_8003A2C8_o060Reloc \
+		--redefine-sym func_8003A520=func_8003A520_o060Reloc \
+		--redefine-sym func_8003A700=func_8003A700_o060Reloc \
+		--redefine-sym func_8004B0A4=func_8004B0A4_o060Reloc \
+		--redefine-sym func_8004B0DC=func_8004B0DC_o060Reloc \
+		--redefine-sym func_8004B0F8=func_8004B0F8_o060Reloc \
+		--redefine-sym func_800508B4=func_800508B4_o060Reloc \
+		--redefine-sym func_8005ABA8=func_8005ABA8_o060Reloc \
+		--redefine-sym func_8005AD64=func_8005AD64_o060Reloc \
+		--redefine-sym levelGetBlurEffect=levelGetBlurEffect_o060Reloc \
+		--redefine-sym mainChangeLevel=mainChangeLevel_o060Reloc \
+		--redefine-sym mathRnd=mathRnd_o060Reloc \
+		--redefine-sym rcpClearZBuffer=rcpClearZBuffer_o060Reloc \
+		--redefine-sym sprintf=sprintf_o060Reloc \
+		--redefine-sym viDisplayingScreen0=viDisplayingScreen0_o060Reloc \
 		--redefine-sym func_overlay_041_F000124C_1888584=overlay41IsUnitScale_o060Reloc \
 		--redefine-sym func_overlay_048_F0000000_1895408=overlay48Initialize_o060Reloc \
 		--redefine-sym func_overlay_056_F00000B8_18A2E30=overlay56SplitTime_o060Reloc \

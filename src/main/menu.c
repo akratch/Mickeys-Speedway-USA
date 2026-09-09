@@ -1005,15 +1005,24 @@ void setupFrontEndObject(s32 objectId) {
     destination->pad1C[3] = source->pad1C[3];
 }
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, exact 262-word geometry and 0xB8 frame;
- * 161 differ, first +0x14, with 28 of 42 relocation identities exact.
- * Volatile copy accesses help; the D_800D31C8 t2-vs-t5 web still cascades. */
+/* PROVENANCE: adapted from Jet Force Gemini's public decomp, src/menu.c
+ * ::frontDrawObj, at pull request #37 (head d45123d1c528955d5e12ddad805076267a690d76),
+ * which takes that file to 48 bodies and 0 GLOBAL_ASM pragmas. The
+ * correspondence is positional and total: Mickey's menu.c is JFG's menu.c in
+ * the same order with functions dropped, and this is the slot after
+ * setupFrontEndObject in both. The donor's separate `tex` carrier for the
+ * 0x8000 sprite branch is adopted here; Mickey's own bytes decide the rest,
+ * so the volatile copy accesses, the compound guard and the single `command`
+ * carrier are Mickey's, not the donor's.
+ * Workbench: structure-mismatch, exact 262-word geometry and 0xB8 frame;
+ * 156 differ (was 161 before the donor `tex` carrier), first +0x14. */
 void func_80039E34(s32 index) {
     volatile MenuDrawStack stack;
     s16 flags;
     MenuFrontObject *renderObject;
     MenuCurrentObject *current;
     MenuCommand *command;
+    void *tex;
 
     current = &D_800D3550[index];
     if ((D_800D31C8[current->index] != NULL) &&
@@ -1044,6 +1053,7 @@ void func_80039E34(s32 index) {
         }
         if (flags & 0x8000) {
             stack.spA4 = current->unk18;
+            tex = D_800D31C8[current->index];
             command = D_800D3140;
             D_800D3140 = command + 1;
             command->w0 = 0xE7000000;
@@ -1059,7 +1069,7 @@ void func_80039E34(s32 index) {
             command->w0 = 0xFB000000;
             func_80023F84(&D_800D3140, &D_800D3144, &D_800D3148,
                           &stack.sp7C,
-                          D_800D31C8[current->index], D_8007C0B4,
+                          tex, D_8007C0B4,
                           D_8007C0BC);
             command = D_800D3140;
             D_800D3140 = command + 1;
