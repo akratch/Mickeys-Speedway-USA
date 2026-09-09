@@ -1312,7 +1312,31 @@ void wakeUpdate(Wake *wake, f32 arg1, f32 arg2, f32 arg3, s16 angle, s32 arg5) {
  * Flat since: web-count changes around the carrier (owner, fade, value7C and
  * coordinate locals, inlining mode/step/angle), its type (s16/u32/register/
  * implicit conversion), its position (five placements), the whole prelude
- * order/grouping lattice, and 70,000 randomised statement-order candidates. */
+ * order/grouping lattice, and 70,000 randomised statement-order candidates.
+ *
+ * 2026-09-09, after this TU's other four last-mile targets closed, every lever
+ * that closed one of them was tried here and is also flat, always at exactly
+ * five words with the same 149-instruction schedule:
+ *   - the carrier's type over twelve spellings, and mode/step/angle's types
+ *     over all 24 combinations (the `s32`-not-`s16` fact that closed
+ *     func_80048760's temp ring);
+ *   - 4,112 web-split subsets -- every subset of the four `height` uses and
+ *     all 4,096 subsets of the twelve `vertex` uses given a coalesced second
+ *     local (the extra-coalesced-web fact that closed func_80048080);
+ *   - indexing the vertex block from `ripple` instead of carrying the cursor,
+ *     and `s16 *` or `u16 *` cursors (the induction-variable fact that closed
+ *     func_8004ACC4 and func_8004AF68) -- all three lose the `addiu v0, v0, 62`
+ *     and cost 96 words, so this block's cursor really is in the source;
+ *   - 1,689 physical-line groupings (all 512 over the store block, plus every
+ *     one- and two-join grouping of the whole body);
+ *   - 21 dead-store variants: unlike the recorded law, `x = 0` before a named
+ *     local reserves no colour here and emits nothing;
+ *   - naming any one of the twelve stored values, six named intermediates x
+ *     three types, local copies of `delta` and `owner`, and 126 combinations
+ *     of carrier placement x carrier type x web split.
+ * The residual is one pool colour and the pool ordering that produces it is
+ * not reachable from this function's source shape; the next lever would have
+ * to be evidence about uopt's reuse rule itself, not another spelling. */
 /* PROVENANCE: Jet Force Gemini public decomp src/fx.c at efd5abb1c79636e297b831f7c2d5bf47eac39c0c
  * still leaves wakeUpdateRipple assembly-only; src/fx.h adds no ripple source
  * context. JFG supplies only the role/name; this retained body uses Mickey's
@@ -2381,7 +2405,7 @@ void func_8004AF68(void) {
  * frame: 0x30
  * relocations: 2
  * first-mismatch: +0x108
- * summary: addressing all twelve vertex stores from the post-increment cursor took 69 -> 5. Residual is one pool colour: the truncated height carrier is v1 in the target, a0 here.
+ * summary: one pool colour: the height carrier is v1 in the target, a0 here. Every lever that closed this TU's other four targets was retried 2026-09-09 and is flat.
  * PLATEAU-HANDOFF:func_80049000:end
  */
 
