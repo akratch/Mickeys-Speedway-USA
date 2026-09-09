@@ -5668,7 +5668,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x88
  * relocations: 6
  * first-mismatch: +0x50
- * summary: One caller-saved colour: target a1 where the candidate takes a0; use-site, dead-store and carrier spellings all eliminated.
+ * summary: Reopened index/cursor probe regressed to 55 words; permuter 15-word scratch result did not transfer. Baseline remains 3 register words.
  * PLATEAU-HANDOFF:func_80004454:end
  */
 
