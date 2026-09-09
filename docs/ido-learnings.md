@@ -969,6 +969,62 @@ bytes and disassembly never belong here.
   its own right: when the mask/shift arithmetic matches and one commutative
   operand order does not, declare the bitfield.
 
+- **A loop is not a hand-unrolled chain, and the difference is the initial
+  induction pointer.** Where a target walks a short fixed-length run of fields,
+  a manually unrolled read chain and a real counted loop over the same cursor
+  do not compile alike. With a hand-written chain uopt folds the base into the
+  first load and materialises the pointer only for the increment, so the first
+  read never goes through it (`lh 0x3C(a1)`, then `addiu a3, a1, 0x3C`). IDO's
+  own unroller materialises the initial induction pointer first, reads through
+  it, and forms the next cursor from it (`addiu a3, a1, 0x3C`; `lh 0(a3)`;
+  `addiu a2, a3, 2`), which is the shape the target has, including the folded
+  second increment and the plain `addiu` chain after it. `volatile` on the
+  cursor is a second, independent requirement: it is what keeps the unrolled
+  loads from folding their bases, and without it the same loop costs 29 words
+  in the scan tail. `for` and bottom-tested `do` are byte-identical here, as
+  are the pointer and `p[0]` read spellings and every way of writing the base.
+  Measured on `overlay97InitScale`, whose single differing word survived a
+  192-cell lattice of separate-carrier spellings, four qualifier sets, four
+  cursor bases and both assignment orders, and closed the moment the chain
+  became a loop. Limits: the lever is about the *initial* pointer, so it does
+  nothing where the target's first read is itself folded.
+
+- **A copy pair whose two colours are swapped is a numbering problem, and the
+  numbering lever is deleting the name.** Where the target loads a global into
+  one register and copies it into another, and the candidate has the pair the
+  other way round, spelling both values as named locals cannot fix it: both
+  take pool colours in first-definition order, so whichever name the load
+  defines takes the lower colour and the two spellings only ever swap the pair.
+  On `overlay40FadeRecords` that is exactly what the two natural forms do
+  (3 words one way, 16 the other, with the disputed rows byte-identical between
+  them), and it survived a 440-cell declaration-order x origin cross product
+  that was perfectly flat. Deleting the second local and spelling its single
+  use as the global read *again* makes the loaded value a CSE temporary, which
+  uopt numbers after every named local: it takes the higher colour and the
+  surviving local, now defined by the copy, takes the lower one. Note the
+  distinction from the recorded failure mode: keeping the local declared *and*
+  assigned from the global leaves two named locals and forces a second `%hi`
+  materialisation (+1 word). The name has to go, not just its origin.
+
+- **`globalcolor` picks the lowest free colour among equals, so an `a0`-versus-
+  `a1` residual is an interference problem and never a priority one.** Read
+  directly from the instrumented `uopt` on three `objects.c` functions: every
+  caller-saved colour carries `cost=0.000000` for a web that crosses no call,
+  and uopt scans colours in ascending order (1=v0, 2=v1, 3=a0, 4=a1, 5=a2,
+  6=a3, 7..12=t0..t5, 14..22=s0..s8) taking the first minimum. Candidates are
+  visited by `save` descending with ties broken by ascending web number. The
+  consequence is a search-space theorem: if the residual web already sits at
+  the bottom of the priority order, nothing that changes its *priority* can
+  move its colour, because being decided earlier only makes the lower colour
+  more free. The only reachable fix is one additional web that (a) interferes
+  with it, (b) is decided before it, (c) crosses no call so its caller-saved
+  cost is zero, and (d) already has the colours below the wanted one forbidden.
+  Such a web need not be visible: `func_80004454` has a web coloured `v1` whose
+  register never appears anywhere in the emitted function. Use this to retire
+  the whole declaration-order, statement-order, operand-order and dead-store
+  space in one reading instead of grinding it -- on `func_80004454` those
+  spaces are now measured flat over about 1,900 candidates.
+
 ### Assembler scheduling and phase replay
 
 - The `cc -S` listing is a faithful, editable stand-in for what `as1` receives.
@@ -984,6 +1040,21 @@ bytes and disassembly never belong here.
   Limits: only the final phase is replayed, so a residual owned by `uopt` or
   `ugen` is unaffected, and the listing must be re-derived after every source
   edit.
+
+- **Reading `globalcolor` needs the procedure *ordinal*, and the ordinal is the
+  function's index in `.text` address order.** The instrumented `uopt`
+  (`~/Desktop/dev/ido-instrumented/cc`, `CDX_LOG=1`) refuses a symbol name:
+  it sees ordinals, not linker names. Sorting the compiled object's `FUNC`
+  symbols by address and numbering them from zero reproduces the ordinals
+  exactly -- on `src/main/objects.c` that is 65 procedures against 65
+  `globalcolor` blocks, and the mapping was confirmed by forcing a web in the
+  predicted ordinal and watching the predicted function change. Naive counting
+  of C function definitions in the source does **not** work: multi-line
+  signatures are missed and `#pragma GLOBAL_ASM` bodies contribute no
+  procedure. With the ordinal in hand, `CDX_DETAIL_WEB=<n>` prints the web's
+  type, its cfe stack offset and its full interference list with each
+  neighbour's assigned colour, which is what turns a register residual from a
+  guessing game into a stated requirement.
 
 - `ugen` emits caller-save spill stores around a call in strictly ascending
   register order. Census of every call site in the tree whose store pair is
