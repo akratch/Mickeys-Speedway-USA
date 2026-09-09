@@ -66,8 +66,8 @@ typedef struct FxWakeSegment {
 } FxWakeSegment;
 
 extern void func_80048080(s32 count, s16 arg1, s16 arg2, s16 arg3,
-                          s16 arg4, s16 arg5, FxConePoint * volatile points,
-                          u8 * volatile vertices, s32 alpha);
+                          s16 arg4, s16 arg5, FxConePoint *points,
+                          u8 *vertices, s32 alpha);
 extern void viGetCurrentSize(s32 *width, s32 *height);
 extern s16 Arctanf(f32 x, f32 y);
 extern s32 viGetVideoMode(void);
@@ -685,9 +685,15 @@ void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
         FX_SET_ENV((*dList)++, 0xFF, 0xFF, 0xFF, 0);
     }
 }
-/* Workbench: structure-mismatch, 43 differing words, first mismatch +0x74. */
-/* Candidate shape: 88/89 instructions, exact -0x48 frame and four call relocations. */
-/* R4300 hazard mode reaches 89 words with 12 differences; load/register order remains. */
+/* Exact 89-word extent, exact -0x48 frame, four call relocations, and every
+ * integer register, stack displacement and schedule slot equal. Six words
+ * remain: one floating-point colour swap, where the target holds the loaded
+ * z in f14 and x in f2 and the candidate holds them the other way round.
+ * The cursors are the *parameters*, not locals: IDO promotes the two stack
+ * parameter homes into registers for the loop and writes them back at the
+ * loop exit, which is where the earlier candidate's `volatile` pointers and
+ * their explicit writeback came from. Spelling them naturally also fixed the
+ * loop-invariant hoist order and the cos0 spill slot: 12 -> 6 words. */
 #ifdef NON_MATCHING
 typedef struct FxTransformInput {
     f32 x;
@@ -706,55 +712,35 @@ typedef struct FxTransformOutput {
 } FxTransformOutput;
 
 void func_80048080(s32 count, s16 x, s16 y, s16 z, s16 angle0, s16 angle1,
-                   FxConePoint * volatile input, u8 * volatile output,
-                   s32 alpha) {
-    register f32 cos1 = func_8002A8C0(angle1);
-    register f32 sin1 = func_8002A8BC(angle1);
-    volatile f32 savedCos0;
+                   FxConePoint *input, u8 *output, s32 alpha) {
+    f32 cos1;
+    f32 sin1;
     f32 cos0;
     f32 sin0;
     f32 inputZ;
     f32 inputY;
     f32 inputX;
     f32 cross;
-    s32 oldCount;
-    f32 *inputCursor;
-    u8 *outputCursor;
 
-    savedCos0 = func_8002A8C0(angle0);
+    cos1 = func_8002A8C0(angle1);
+    sin1 = func_8002A8BC(angle1);
+    cos0 = func_8002A8C0(angle0);
     sin0 = func_8002A8BC(angle0);
-    cos0 = savedCos0;
-    oldCount = count--;
-    if (oldCount == 0) {
-        goto done;
+    while (count--) {
+        inputZ = input->z;
+        inputX = input->x;
+        inputY = input->y;
+        input++;
+        output[6] = 0xFF;
+        output[7] = 0xFF;
+        output[8] = 0xFF;
+        output[9] = alpha;
+        output += 10;
+        cross = (inputZ * sin1) + (inputY * cos1);
+        ((s16 *)output)[-5] = (s16)((s32)((inputX * sin0) + (cross * cos0)) + x);
+        ((s16 *)output)[-4] = (s16)((s32)((inputY * sin1) - (inputZ * cos1)) + y);
+        ((s16 *)output)[-3] = (s16)((s32)((cross * sin0) - (inputX * cos0)) + z);
     }
-    inputCursor = (f32 *)input;
-    outputCursor = output;
-loop:
-    inputZ = inputCursor[2];
-    inputX = inputCursor[0];
-    inputY = inputCursor[1];
-    inputCursor += 3;
-    outputCursor[6] = 0xFF;
-    outputCursor[7] = 0xFF;
-    outputCursor[8] = 0xFF;
-    outputCursor[9] = alpha;
-    outputCursor += 10;
-    cross = (inputZ * sin1) + (inputY * cos1);
-    ((s16 *)outputCursor)[-5] =
-        (s16)((s32)((inputX * sin0) + (cross * cos0)) + x);
-    ((s16 *)outputCursor)[-4] =
-        (s16)((s32)((inputY * sin1) - (inputZ * cos1)) + y);
-    ((s16 *)outputCursor)[-3] =
-        (s16)((s32)((cross * sin0) - (inputX * cos0)) + z);
-    oldCount = count--;
-    if (oldCount != 0) {
-        goto loop;
-    }
-    input = (FxConePoint *)inputCursor;
-    output = outputCursor;
-done:
-    ;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048080.s")
@@ -1530,14 +1516,6 @@ s32 func_8004989C(s32 index) {
     color |= color << 16;
     return color;
 }
-/* Workbench: allocation-mismatch, 9 differing words, first mismatch +0xD0. */
-/* Candidate shape: exact 100 instructions/frame -0x30 and five relocation tuples. */
-/* A fidelity-clean CDX pass disproves the earlier four-web-bijection diagnosis:
- * the target has 15 pool/26 temp slots, while this C has 16/25. Reading
- * record->value1E removes the extra pool web, but the best source-authentic
- * schedule composition still regresses to 13 differences. The remaining
- * mechanism is UGEN/as1 line order, not global colouring. */
-#ifdef NON_MATCHING
 extern s32 camGetMode(void);
 extern void func_80021FB0(s32 mode, s32 camNo, s32 *x1, s32 *y1,
                           u32 *x2, u32 *y2);
@@ -1568,15 +1546,11 @@ void func_800498FC(s32 index, f32 value16, f32 value18, s32 red, s32 green,
     record->red = red;
     record->green = green;
     record->blue = blue;
-    /* PROVENANCE: Jet Force Gemini public decomp efd5abb, src/fx.c's
-     * setupClearScreen exact scratch fDplg, was consulted. Its pointer/global
-     * body is not an ABI/CFG donor; its empty flag-field condition is flat for
-     * this scalar argument, so no JFG body is adapted. Mickey is authoritative. */
     record->value1D = flags & 0xFF3F;
     record->value1E = flags & 0x80;
     record->value1F = flags & 0x40;
-    if ((u8)(flags & 0x80) != 0) {
-        if ((record->value1F & 0xFF) != 0) {
+    if (record->value1E != 0) {
+        if (record->value1F != 0) {
             record->state = 3;
         } else {
             record->state = 2;
@@ -1587,9 +1561,6 @@ void func_800498FC(s32 index, f32 value16, f32 value18, s32 red, s32 green,
     record->state = 1;
     record->status = 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800498FC.s")
-#endif
 void func_80049A8C(s32 index) {
     s32 count = 0;
     FxRecord *record;
@@ -2247,34 +2218,33 @@ void fxScreenEffect(FxGfx **dList, s32 arg1, s32 arg2, s32 arg3,
  * PROVENANCE: the descending loop skeleton is adapted from Jet Force
  * Gemini's public fx.c context; Mickey's target establishes the expressions.
  */
-/* Workbench: mixed structure/register residual, 14/28 words, first +0x14. */
-/* Candidate shape: exact 28-word frameless extent and 12 relocations. */
-/* Remaining gap: callback/trap identity schedule and counter register webs. */
+/* Exact 28-word frameless extent and 12 relocations; 13 words differ, all of
+ * them register names. The webs are coloured in statement order out of the
+ * pool v0, v1, a0, a1, a2, a3, t0, with the compiler-generated copy of the
+ * post-decremented counter taking the last colour; declaration order is
+ * measurably irrelevant. The target's colours imply that copy takes the
+ * *first* colour and the counter the second, which no ordering of these
+ * statements produces, so the remaining gap is a web-formation difference
+ * and not a permutation of this source. Physical line grouping is a real
+ * lever here and is used: joining the four address setups onto one line
+ * reverses the order their %lo addiu's are emitted in. */
 void func_8004ACC4(void) {
-    s32 *callback;
+    s32 trap;
+    s32 i;
     s32 *value0;
     s32 *value1;
     u8 *available;
-    s32 i;
-    s32 trap;
-    s32 trapValue;
+    s32 *callback;
 
     D_800D60A8 = 0;
+    trap = (s32) TrapDanglingJump;
     i = 3;
-    trapValue = (s32) TrapDanglingJump; \
-    value0 = &D_800D60BC; \
-    value1 = &D_800D60CC; \
-    available = &D_800D60D3; \
-    trap = trapValue; \
-    callback = &D_8007D488;
+    value0 = &D_800D60BC; value1 = &D_800D60CC; available = &D_800D60D3; callback = &D_8007D488;
     do {
-        *value0 = 0;
-        *value1 = 0;
-        *available = trap == *callback;
-        value0--;
-        value1--;
-        available--;
+        *value1 = 0; *available = trap == *callback; *value0 = 0;
         callback--;
+        value1--;
+        available--; value0--;
     } while (i--);
 }
 #else
@@ -2335,39 +2305,44 @@ void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
         }
     }
 }
-/* Workbench: structure-mismatch, 26 differing words, first mismatch +0x10. */
-/* Candidate shape: exact 52 instructions/frame -0x38; 10/14 relocation tuples align. */
-/* Remaining gap: saved-register order, four early LO16 sites, and loop-delay schedule. */
+/* Exact 52 instructions and -0x38 frame; 17 words differ. Decrementing the
+ * byte offset before the callback store rather than after it (with the
+ * initial value moved up by one step, so the values seen are unchanged) puts
+ * the saved-register saves and the six loop-invariant addresses in the
+ * target's order: 26 -> 17 words.
+ *
+ * What remains is one shared induction variable. The target walks *both*
+ * arrays with a single byte offset in `s1` -- `addu s0, s1, t6` for
+ * `D_800D60C0` and `addu t8, s5, s1` for `D_8007D47C` -- and materialises
+ * `D_800D60C0`'s base inside the loop with its own lui/addiu. Sharing the
+ * offset in source instead makes IDO hoist that base into an eighth saved
+ * register, which costs three instructions; indexing both arrays by `i`
+ * emits two separate shifts and loses three. Both were measured. */
 #ifdef NON_MATCHING
 /* Mickey-derived body; JFG's fxCpuTextureFlush is assembly-only. */
 void func_8004AF68(void) {
-    register s32 offset;
     register s32 *value0;
     register s32 i;
     register u8 *available;
+    register s32 offset;
     s32 *value1;
     void *allocation;
 
-    offset = 12;
-    value0 = (s32 *)&D_800D60BC;
-    i = 3;
-    available = &D_800D60D3;
+    i = 3; offset = 16;
+    available = &D_800D60D3; value0 = (s32 *)&D_800D60BC;
     do {
         allocation = (void *)*value0;
         if (allocation != 0) {
             value1 = &D_800D60C0[i];
-            mmFree(allocation);
-            mmFree((void *)*value1);
-            *value0 = 0;
+            mmFree(allocation); mmFree((void *)*value1); *value0 = 0;
             *value1 = 0;
         }
+        offset -= 4; value0--;
         if (*available != 0) {
             *(FxTextureCallback *)((u8 *)D_8007D47C + offset) =
                 (FxTextureCallback)TrapDanglingJump;
         }
-        value0--;
         available--;
-        offset -= 4;
     } while (i--);
     D_800D60A8 = 0;
 }
@@ -2375,33 +2350,23 @@ void func_8004AF68(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004AF68.s")
 #endif
 
-/* PLATEAU-HANDOFF:func_800498FC:start
- * symbol: func_800498FC
- * score: 91/100 words
- * frame: 0x30
- * relocations: 5
- * first-mismatch: +0xD0
- * summary: JFG empty flag-field condition is scalar-flat; lvalue forms regress structurally. Next lever: source-authentic UGEN line separation.
- * PLATEAU-HANDOFF:func_800498FC:end
- */
-
 /* PLATEAU-HANDOFF:func_8004AF68:start
  * symbol: func_8004AF68
- * score: 26 differing words
+ * score: 17 differing words
  * frame: 0x38
  * relocations: 14
- * first-mismatch: +0x10
- * summary: JFG efd5abb fxCpuTextureFlush remains assembly-only; structure-buckets has no proved lever. Need new pool-base and saved-register source evidence.
+ * first-mismatch: +0x34
+ * summary: pre-decrementing the byte offset fixes the saved-register order, 26 -> 17. Residual is one induction variable the target shares between both arrays while keeping D_800D60C0's base inside the loop.
  * PLATEAU-HANDOFF:func_8004AF68:end
  */
 
 /* PLATEAU-HANDOFF:func_8004ACC4:start
  * symbol: func_8004ACC4
- * score: 14 differing words
+ * score: 13 differing words
  * frame: frameless
  * relocations: 12
- * first-mismatch: +0x14
- * summary: JFG efd5abb counterpart remains assembly-only; structure-buckets has no proved lever. Resume with new callback/trap source; configured 14/28 retained.
+ * first-mismatch: +0x10
+ * summary: 16 -> 13 on statement order plus physical-line grouping. All 13 are register names; the target colours the counter's dead copy first, which statement order cannot reach.
  * PLATEAU-HANDOFF:func_8004ACC4:end
  */
 
@@ -2427,11 +2392,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_80048080:start
  * symbol: func_80048080
- * score: 43 differing words
+ * score: 6 differing words
  * frame: 0x48
  * relocations: 4
- * first-mismatch: 0x74
- * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new transform-loop load/spill order evidence.
+ * first-mismatch: 0xA0
+ * summary: parameters are the cursors, not locals; 12 -> 6 words. Residual is one FP colour swap (target z=f14/x=f2), flat over load, declaration, cross-carrier, re-read and line-grouping families.
  * PLATEAU-HANDOFF:func_80048080:end
  */
 

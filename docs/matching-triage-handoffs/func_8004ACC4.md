@@ -2,11 +2,11 @@
 ### `func_8004ACC4` plateau handoff
 
 - source: `src/main/fx.c`
-- score: 14 differing words
+- score: 13 differing words
 - frame: frameless
 - relocations: 12
-- first mismatch: +0x14
-- summary: JFG efd5abb counterpart remains assembly-only; structure-buckets has no proved lever. Resume with new callback/trap source; configured 14/28 retained.
+- first mismatch: +0x10
+- summary: 16 -> 13 on statement order plus physical-line grouping. All 13 are register names; the target colours the counter's dead copy first, which statement order cannot reach.
 
 Reopening audit (2026-09-08): PROVENANCE: Jet Force Gemini public decomp,
 `src/fx.c` at `efd5abb1c79636e297b831f7c2d5bf47eac39c0c`, counterpart
