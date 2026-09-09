@@ -690,9 +690,34 @@ void func_80046AA8(s32 x, s32 y, u16 *glyph) {
         glyph++;
     }
 }
-/* Workbench: structure-mismatch, 89 differing words, first mismatch +0x2C. */
-/* Candidate shape: 107 instructions/frame -0x40 vs target 106/-0x40; not permuter-ready. */
-/* Remaining structural gap: one extra loop move shifts the glyph-call relocations. */
+/* Workbench: allocation-mismatch, 31 differing words, first mismatch +0x2C.
+ * 106/106 words, frame 0x40, all three relocation sites exact.
+ *
+ * 2026-09-09: the ninth callee-saved web is the case-conversion working copy,
+ * and it is a real source variable. Folding it away closed the +4 size
+ * mismatch but freed a callee-saved register, so the candidate hoisted a
+ * third loop-invariant constant (0x78) into s8 where the target materialises
+ * it inline with `li at` and hoists only 0xA and 0x30. Reinstating the copy
+ * -- `var_s0` carries the character through the range tests and the converted
+ * value is written back to `var_s2`, which is the only value the next
+ * iteration's `temp_s6` needs -- restores the target's two hoisted constants
+ * in the target's registers (s7 = 0xA, s8 = 0x30) and takes 41 differing
+ * words to 31.
+ *
+ * What is left is one live-range split. The target computes the masked
+ * character straight into its callee-saved carrier (`andi s2,v0,0xff`) and
+ * splits a copy into s0 for the range tests. The candidate computes it into a
+ * caller-saved temporary, runs every range test out of that temporary, and
+ * copies into the saved carrier, which also exchanges var_s2 with var_s3 and
+ * var_v0 with its own temp. Same instruction count, 31 register names.
+ * Measured flat against it: both initialiser orders; all legal orders of the
+ * three loop-head statements; `u8` var_v0; the loop test written as
+ * `while ((var_v0 = *var_s4) != 0)`; the range tests spelled entirely on
+ * either variable; reversed equality operands at two sites; and the copy
+ * written after the case block, inside each arm, or as a plain working copy
+ * with a single write-back (40, 41). Resume on why the mask lands in a
+ * caller-saved temporary here and directly in the saved carrier there.
+ */
 /* PROVENANCE: adapted from Jet Force Gemini's public
  * asm/nonmatchings/diCpu/func_800681D0_68DD0.s; Mickey's glyph table,
  * helper symbol, and target bytes determine the final bindings. */
@@ -700,6 +725,7 @@ void func_80046AA8(s32 x, s32 y, u16 *glyph) {
 void func_80046BCC(s32 x, s32 y, char *text) {
     s32 temp_s6;
     s32 var_s1;
+    s32 var_s0;
     s32 var_s2;
     s32 var_s3;
     s32 var_s5;
@@ -717,31 +743,34 @@ void func_80046BCC(s32 x, s32 y, char *text) {
             temp_s6 = var_s2 & 0xFF;
             var_s2 = var_v0 & 0xFF;
             var_s4 += 1;
+            var_s0 = var_s2;
             if (var_s3 != 0) {
-                if ((var_s2 >= 0x41) && (var_s2 < 0x47)) {
-                    var_s2 = (var_s2 + 0x20) & 0xFF;
+                if ((var_s2 >= 0x41) && (var_s0 < 0x47)) {
+                    var_s0 = (var_s0 + 0x20) & 0xFF;
+                    var_s2 = var_s0;
                 }
             } else {
-                if ((var_s2 >= 0x61) && (var_s2 < 0x7B)) {
-                    var_s2 = (var_s2 - 0x20) & 0xFF;
+                if ((var_s2 >= 0x61) && (var_s0 < 0x7B)) {
+                    var_s0 = (var_s0 - 0x20) & 0xFF;
+                    var_s2 = var_s0;
                 }
             }
-            if (var_s2 == 0xA) {
+            if (var_s0 == 0xA) {
                 var_s5 += 6;
                 var_s1 = 0x20;
-            } else if (var_s2 == 9) {
+            } else if (var_s0 == 9) {
                 var_s1 = (var_s1 - (var_s1 & 0xF)) + 0x10;
-            } else if (var_s2 == 0x20) {
+            } else if (var_s0 == 0x20) {
                 var_s1 += 4;
-            } else if ((var_s2 >= 0x21) && (var_s2 < 0x67)) {
-                func_80046AA8(var_s1, var_s5, &D_8007D034[(var_s2 * 5) - 0xA5]);
+            } else if ((var_s0 >= 0x21) && (var_s0 < 0x67)) {
+                func_80046AA8(var_s1, var_s5, &D_8007D034[(var_s0 * 5) - 0xA5]);
                 var_s1 += 8;
             }
-            if ((var_s3 != 0) && ((var_s2 < 0x30) || (var_s2 >= 0x3A)) &&
-                ((var_s2 < 0x61) || (var_s2 >= 0x67))) {
+            if ((var_s3 != 0) && ((var_s0 < 0x30) || (var_s0 >= 0x3A)) &&
+                ((var_s0 < 0x61) || (var_s0 >= 0x67))) {
                 var_s3 = 0;
             }
-            if ((temp_s6 == 0x30) && ((var_s2 == 0x78) || (var_s2 == 0x58))) {
+            if ((temp_s6 == 0x30) && ((var_s0 == 0x78) || (var_s0 == 0x58))) {
                 var_s3 = 1;
             }
             var_v0 = *var_s4;
@@ -793,11 +822,11 @@ void func_80046E00(void) {
 
 /* PLATEAU-HANDOFF:func_80046BCC:start
  * symbol: func_80046BCC
- * score: 68/106 words
+ * score: 31 differing words
  * frame: 0x40
  * relocations: 3
  * first-mismatch: +0x2C
- * summary: Size closed at 106/106: folding the m2c-only var_s0 into var_s2 removes the extra saved-carrier copy; 41 differing words, relocations exact.
+ * summary: 106/106 words, the two hoisted constants now in the target's registers; the residual is one caller-saved live-range split.
  * PLATEAU-HANDOFF:func_80046BCC:end
  */
 
