@@ -41,6 +41,29 @@ extern u32 gOverlay20ActiveBits;
  * artefact to be cleaned up. Next lever is unchanged: the invisible v0 web that
  * interferes with the compaction base, which needs the instrumented uopt
  * capture rather than a source spelling. */
+/* 2026-09-09 (second pass): the instrumented uopt names the blocker exactly.
+ * The compaction limit is pool web 42; when it is coloured, v0, v1, a0 and a1
+ * are all forbidden (`forbidden0=0x78000000`) and a2 is the lowest colour left.
+ * Its four interference partners are webs 37 (a1, the cursor), 34 (a0), 10
+ * (v1, `i`) and 8 (v0) -- and web 8 is invisible: forcing it to a3 changes no
+ * instruction anywhere outside the compaction loop, so it holds v0 without
+ * emitting a word. `CDX_FORCE=p2:w42=c1` is declined at both the decision and
+ * the colour site, which proves the interference is real and not a priority
+ * choice, so no amount of source reordering that leaves web 8 where it is can
+ * reach the target. Freeing v0 by forcing web 8 elsewhere is not the answer
+ * either: web 37 is coloured first and takes v0, the limit takes a1, and the
+ * residual grows to six words. The target therefore needs web 8 not to
+ * interfere with web 42, not merely not to hold v0.
+ * Newly eliminated at two words (all byte-flat): every dead-store colour
+ * reservation on a spare s32/u32/pointer local at four placements and on
+ * `entry` itself; a bare extra declaration of each type; `entry` typed as s32,
+ * u32, u8 * and void **; four declaration orders crossed with three search-loop
+ * spellings, four compaction spellings and two tail orders (120 rows, of which
+ * the limit register is only ever a1 or a2); the `owner`/`new_var`/global
+ * re-read bound carriers; and nesting the whole body instead of the early
+ * returns. Deliberate extra pressure (keeping `entry` or `owner` live past the
+ * loop) pushes the limit up to a3, never down to v0, which is the same
+ * one-directional signature. */
 #ifdef NON_MATCHING
 void overlay20RemoveEntry(s32 owner) {
     void *entry;
@@ -97,6 +120,6 @@ void overlay20RemoveEntry(s32 owner) {
  * frame: frameless
  * relocations: 10
  * first-mismatch: +0x6C
- * summary: new_var improves 47/53 to 51/53; final v0-a2 pool tie is flat; next lever is instrumented uopt forced-color oracle
+ * summary: the limit temp is uopt pool web 42, blocked from v0 by invisible web 8; CDX_FORCE p2:w42=c1 is declined, so reordering that leaves web 8 cannot reach it
  * PLATEAU-HANDOFF:overlay20RemoveEntry:end
  */
