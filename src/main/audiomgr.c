@@ -567,3 +567,15 @@ void func_8000238C(void) {
  * summary: JFG donor rederivation leaves a structure mismatch with exact frame and instruction count; next lever is the TU declaration that makes IDO reload D_80078EFC
  * PLATEAU-HANDOFF:func_80002134:end
  */
+/*
+ * 2026-09-10, lane nm-mixed: the declaration lever is FALSIFIED. The residual
+ * is one address-CSE decision, not a volatility one: the candidate materialises
+ * the EFC address once in the entry block and reuses it in the store block,
+ * while the target recomputes the %hi/%lo pair at each of the two accesses.
+ * Twenty-eight forms held at nine words -- volatile/non-volatile on either
+ * global in every combination, s32/u32/array/pointer declarations, nested vs
+ * &&-joined guards, an early-return shape, a hoisted length local, casting the
+ * store or the load to drop volatile, and reordering the two stores. Dropping
+ * volatile from EFC alone regresses to eleven and still materialises the
+ * address, which is what proves the mechanism is CSE rather than volatility.
+ */
