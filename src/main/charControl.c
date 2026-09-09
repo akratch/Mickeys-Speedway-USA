@@ -1573,8 +1573,7 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
                             directionX = actor->velocityX / var_f4;
                             directionZ = actor->velocityZ / var_f4;
                         }
-                        temp_v0_2 = player->unk198;
-                        if ((temp_v0_2 == 0) && (var_f4 > 8.0f) &&
+                                if ((player->unk198 == 0) && (var_f4 > 8.0f) &&
                             ((((normalX * directionX) + (normalZ * directionZ)) < D_80081850) ||
                              (D_80081854 < ((normalX * directionX) + (normalZ * directionZ))))) {
                             player->unk78 = 0.0f;
@@ -1596,7 +1595,7 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
                                 var_f4 += 4294967296.0f;
                             }
                             if (var_f4 < 240.0f) {
-                                player->unk198 = (u8) (temp_v0_2 +
+                                player->unk198 = (u8) (player->unk198 +
                                                        (s32) updateRate);
                             } else {
                                 player->unk198 = 0;
@@ -1713,8 +1712,18 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
  * reconstructed from Mickey's fields, calls, branch conditions, and stores. */
 #ifdef NON_MATCHING
 /* Workbench verdict: structure-mismatch, 410 differing words, first mismatch +0x0. */
-/* Candidate shape: 412 instructions/frame -0x100 versus target 416/-0xD0. */
-/* Explicit vector locals repair semantics; loop/frame allocation remains. */
+/* Candidate shape: 412 instructions/frame -0xE0 versus target 416/-0xD0. */
+/* Explicit vector locals repair semantics; loop/frame allocation remains.
+ * Declaration census, 2026-09-09: nine m2c-only carriers went into the stack
+ * slots the target already writes (sp64, sp68/sp6C, sp50) or straight into
+ * their uses, taking the frame -0x100 -> -0xE0 at 410 -> 408 words with the
+ * instruction count untouched.  The exact target frame -0xD0 is reachable
+ * from here -- reading actor->velocityX/Z directly and inlining var_f8 lands
+ * it -- but it is NOT the binding constraint: that spelling costs +4 words,
+ * 46 more alignment gaps and takes the instruction count from 4 short of the
+ * target to 6 short.  A frame that is too LARGE while the instruction count
+ * is too SMALL means this candidate homes locals the target does not and
+ * misses spills the target has; close the four missing instructions first. */
 s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
     s16 sp40;
     s16 sp3E;
@@ -1741,23 +1750,14 @@ s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
     f32 sp54;
     f32 sp50;
     s32 sp2C;
-    f32 temp_f0;
     f32 temp_f0_2;
     f32 temp_f0_3;
-    f32 temp_f12;
-    f32 temp_f14;
-    f32 temp_f16;
     f32 temp_f16_2;
-    f32 temp_f18;
     f32 temp_f2;
-    f32 var_f14;
     f32 var_f8;
-    u8 temp_v0_2;
     s32 *var_v1;
     s32 var_a2;
     u32 temp_v0;
-    u32 temp_t0;
-    u32 temp_t3;
     var_v1 = (s32 *) &D_800CB2C0;
     var_a2 = 0xF;
     do {
@@ -1777,13 +1777,11 @@ s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
     temp_v0 = (u32) func_80010900(
         (ControlVector3 *) sp2C, &spBC, sp70,
         (s32) actor, (void *) func_8001EC44);
-    temp_t0 = temp_v0 >> 0x1E;
-    temp_t3 = temp_v0 & 1;
     actor->x = spBC.x - spB0.x;
     actor->y = spBC.y - spB0.y;
     actor->z = spBC.z - spB0.z;
     sp44 = 0;
-    if (temp_t0 != 0) {
+    if ((temp_v0 >> 0x1E) != 0) {
         actor->x = player->unk38;
         actor->y = player->unk3C;
         actor->z = player->unk40;
@@ -1795,7 +1793,7 @@ s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
         player->unk18E = 0;
         player->unk334 = 0;
         player->unk344 = 0;
-        if (temp_t3 != 0) {
+        if ((temp_v0 & 1) != 0) {
             if (D_800CB2FD & 0x12) {
                 player->unk349 = 1;
                 if ((D_800CB2FD & 0x10) &&
@@ -1814,51 +1812,44 @@ s32 func_8001E5C4(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
                 sp40 = 0;
                 sp3C = actor->rotationX;
                 mathOneFloatRPY((ControlTransform *) &sp3C, &sp74);
-                temp_f0 = sqrtf((D_800CB2D8 * D_800CB2D8) +
-                                (D_800CB2D0.x * D_800CB2D0.x));
-                temp_f16 = D_800CB2D0.x / temp_f0;
-                sp64 = temp_f0;
-                temp_f18 = D_800CB2D8 / temp_f0;
-                player->unk90 = (temp_f18 * sp74) -
-                                (sp7C * temp_f16);
-                var_f14 = (sp7C * temp_f18) +
-                          (sp74 * temp_f16);
-                player->unk8C = var_f14;
-                if (var_f14 < 0.0f) {
-                    var_f14 = -var_f14;
+                sp64 = sqrtf((D_800CB2D8 * D_800CB2D8) +
+                             (D_800CB2D0.x * D_800CB2D0.x));
+                sp6C = D_800CB2D0.x / sp64;
+                sp68 = D_800CB2D8 / sp64;
+                player->unk90 = (sp68 * sp74) -
+                                (sp7C * sp6C);
+                sp50 = (sp7C * sp68) +
+                       (sp74 * sp6C);
+                player->unk8C = sp50;
+                if (sp50 < 0.0f) {
+                    sp50 = -sp50;
                 }
                 temp_f0_2 = actor->velocityX;
                 temp_f2 = actor->velocityZ;
-                sp68 = temp_f18;
-                sp6C = temp_f16;
-                sp50 = var_f14;
                 temp_f0_3 = sqrtf((temp_f0_2 * temp_f0_2) +
                                   (temp_f2 * temp_f2));
                 if (temp_f0_3 > 0.0f) {
                     sp58 = temp_f0_2 / temp_f0_3;
                     sp54 = temp_f2 / temp_f0_3;
                 }
-                temp_v0_2 = player->unk198;
                 temp_f16_2 = (sp6C * sp58) + (sp68 * sp54);
-                if ((temp_v0_2 == 0) && (temp_f0_3 > 8.0f) &&
+                if ((player->unk198 == 0) && (temp_f0_3 > 8.0f) &&
                     ((temp_f16_2 < D_80081864) ||
                      (D_80081868 < temp_f16_2))) {
-                    temp_f12 = 2.0f * -temp_f16_2;
                     player->unk78 = 0.0f;
-                    player->unk74 = (temp_f12 * sp6C) + sp58;
-                    player->unk7C = (temp_f12 * sp68) + sp54;
-                    temp_f14 = ((D_8008186C * sp50) + 0.5f) *
-                               temp_f0_3;
-                    player->unk80 = temp_f14;
-                    player->unk84 = temp_f14;
+                    player->unk74 = ((2.0f * -temp_f16_2) * sp6C) + sp58;
+                    player->unk7C = ((2.0f * -temp_f16_2) * sp68) + sp54;
+                    player->unk80 = ((D_8008186C * sp50) + 0.5f) *
+                                    temp_f0_3;
+                    player->unk84 = player->unk80;
                     player->unk181 = 1;
                     player->unk4 = (f32) (player->unk4 * 0.5f);
                     player->unk88 = D_80081870;
                     player->unk8 = (f32) (player->unk8 * 0.5f);
                 } else {
-                    var_f8 = (f32) temp_v0_2;
+                    var_f8 = (f32) player->unk198;
                     if (var_f8 < 240.0f) {
-                        player->unk198 = (u8) (temp_v0_2 +
+                        player->unk198 = (u8) (player->unk198 +
                                                 (s32) updateRate);
                     } else {
                         player->unk198 = 0;
@@ -2202,11 +2193,11 @@ void controlClearPlayerSetup(void) {
 
 /* PLATEAU-HANDOFF:func_8001E5C4:start
  * symbol: func_8001E5C4
- * score: 410/416 words
- * frame: 0x100
+ * score: 408/416 words
+ * frame: 0xE0
  * relocations: 53
  * first-mismatch: +0x0
- * summary: Explicit vector locals fix adjacency semantics and cut masked differences by 3; candidate has 51 relocs versus 53 target. Need authentic loop/frame structure.
+ * summary: Nine m2c-only carriers folded into the stack slots the target already writes took the frame 0x100 -> 0xE0 at an unchanged instruction count. The exact 0xD0 frame is reachable but costs +4 words and 46 more gaps, so the frame is not the binding constraint -- the candidate is four instructions SHORT of the target while its frame is too large, which means missing spills. Close the instruction count first.
  * PLATEAU-HANDOFF:func_8001E5C4:end
  */
 
