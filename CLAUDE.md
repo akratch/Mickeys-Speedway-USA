@@ -94,6 +94,24 @@ hook or CI:
 | `gmake clean` | removes `build/` | no |
 | `gmake distclean` | `clean` plus extracted state (`asm/`, `assets/`, linker script, auto-generated `undefined_*`); recovering needs `gmake extract` and a baserom | no |
 
+## Promoting an overlay function
+
+An overlay promotion needs three regeneration steps *before* the build, not
+after. Skipping them fails at link with tens of undefined references, or fails
+`check-docs` on a stale digest -- and neither error names the missing step:
+
+```sh
+gmake overlay-syms            # regenerates overlay_undefined_syms.us.txt
+gmake overlay-atlas-write     # regenerates the overlay atlas
+.venv/bin/python tools/refresh_atlas_digest.py
+gmake -j8 && gmake verify
+gmake check-overlay-syms      # now this confirms, rather than discovers
+```
+
+`check-overlay-syms` is a *drift* check on already-regenerated output, so it
+cannot catch a promotion that never regenerated. Reading its table entry below
+as "run this after promoting" is what leaves the build broken.
+
 ## What the gates cover
 
 The hooks are client-side, opt-in per clone (`core.hooksPath`), and skippable
