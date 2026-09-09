@@ -245,6 +245,6 @@ s32 func_8003A7D0(Menu3B1A0Object *arg0) {
  * frame: 0x18
  * relocations: 1
  * first-mismatch: +0x10
- * summary: Trace isolates ugen line-order; next lever is authentic call-result C that schedules t0 before a3 without #line or inert scaffolding.
+ * summary: Trace isolates ugen line-order; next lever is authentic call-result C that schedules t0 before a3 without #line or inert scaffolding. The -Wo,-loopunroll,0 removal from this TU is byte-inert here as well: 36 loop shapes (4 head orders x 5 inner forms x 2 outer forms) all measure flat at 12, so the reopen this flag change would otherwise justify is already spent.
  * PLATEAU-HANDOFF:func_8003A754:end
  */
