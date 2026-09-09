@@ -59,5 +59,7 @@ not a correctness gap.
 
 | `overlay62Update` | overlay 62 fade update | `volatile` on the local `screenBase` | The qualifier is semantically inert -- the value is the same constant on all three paths -- but without it IDO folds the local away and the function loses six words. Seek a natural spelling retaining 294 words, the `0x88` frame, and all 71 relocation records. |
 
+| `func_8002B7AC` | memory delayed-free tick | empty `D_800D21B0 < 0xC000` guard inside the low-memory branch | JFG's `mmFreeTick` re-reads FreeRAM there and calls a module Mickey never links, so the block is empty; the second reference is what makes IDO materialize the global's address into a callee-saved register instead of folding the `%lo` into the load, and without it the function is one instruction short. Seek a natural spelling retaining 63 words, frame `0x30`, and all 12 relocation records. |
+
 Add rows as ugly-but-verified matches land. When revisiting: reproduce the match
 with idiomatic C, `gmake verify`, then delete the row + the in-source comment.

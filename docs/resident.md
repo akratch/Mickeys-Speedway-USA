@@ -423,7 +423,7 @@ Mickey lacks. No distinctive string is referenced, so there is no tier C row.
 | `0x2C2F4` | `mmSetDelay` | `mmSetDelay` | B: writes the deferred-free delay used by `mmFree`; matched C exact |
 | `0x2C300` | `func_8002B700` | `mmFlushFreeStack` | B: drains queued addresses through the address-free worker; linked C exact |
 | `0x2C368` | `mmFree` | `mmFree` | A: unique 17-word skeleton with four relocated words masked; linked C exact |
-| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; historical same-body configured full-TU/isolated C was measured at 62 versus 63 words, frame `0x30`, with 62 raw/normalized positional differences from `+0x4`. No candidate object/report survives and current-HEAD C is uncompiled. Historical prose reports all 12 identities with no exact-offset tuple; linked equality proves `GLOBAL_ASM` only. |
+| `0x2C3AC` | `func_8002B7AC` | `mmFreeTick` | B: services the delayed-free queue; linked C exact |
 | `0x2C4A8` | `func_8002B8A8` | `mempool_free_addr` | B: finds an address's pool and clears its matching live slot; linked C exact |
 | `0x2C53C` | `func_8002B93C` | `mempool_free_queue` | B: appends an address and delay to the deferred-free arrays; linked C exact |
 | `0x2C578` | `func_8002B978` | `mempool_get_pool` | B: reverse-searches the pool table for the containing address range; linked C exact |
@@ -462,11 +462,9 @@ lifetime form. Hard cap 123 stock builds plus one trace; no generic batch.
 
 `func_8002B7AC` owns VRAM `0x8002B7AC..0x8002B8A8`, ROM
 `0x2C3AC..0x2C4A8`: 252 bytes/63 words, frame `0x30`, saves `s0` through
-`s5` and `ra`, and has no target padding. Historical same-body configured
-full-TU/isolated C was measured one instruction short at 62 words: only 1/63
-words agreed positionally, first `+0x04`. No candidate object/report survives,
-so current-HEAD C size, score, frame, and tuples are unknown. Ordinary object,
-complete memory TU, and linked-ROM equality are assembly fallback only.
+`s5` and `ra`, and has no target padding. It is exact canonical C, all 63
+words and all 12 HI16/LO16 and R_MIPS_26 identities at the target offsets,
+with the linked owned range and the full ROM byte-identical.
 
 The target owns 12 records. Pairs are `D_800D21B0` at `+0x08/+0x0C`,
 `D_800D21A8` at `+0x44/+0x48`, first `D_800D20A8` at `+0x50/+0x5C`, second
@@ -588,17 +586,17 @@ HI16/LO16 tuples bind `D_8007A270`, `D_800D21B0`, and two references to
 `D_800D1C60` at the target offsets. The linked owned resident range and full
 ROM are byte-identical; this is no longer assembly-fallback evidence.
 
-`func_8002B7AC`: historical same-body configured full-TU/isolated C was
-measured at 62 versus 63 words, frame `0x30`, and 1/63 raw/normalized
-positional words, first `+0x4`. No candidate object/report survives and current
-C metrics are unknown. Historical prose reports the same 12 identities with no
-exact-offset tuple: eleven records four bytes early and the first
-`D_800D20A8` LO16 at `+0x50` versus target `+0x5C`; old commits conflict on ten
-versus eleven aligned residual rows. Ordinary equality proves fallback only.
-Reprove configured V0; if it reproduces, run 119 configurations including V0,
-one allocator trace, JFG-faithful lexical layout, and scoped early-base/later-
-cursor lifetimes, combining only independent strict gains. Hard cap 122
-deterministic builds plus one trace; no generic batch absent a legal gain.
+`func_8002B7AC` closed on the size question, not on allocation. The candidate
+was one instruction short because a single source reference to `D_800D21B0`
+lets IDO fold the `%lo` into the load, where the target materializes the
+address into a callee-saved register and loads through it -- the two-reference
+signature. JFG's `mmFreeTick` has a second low-memory tier that re-reads the
+same global under a `0xC000` guard and calls a module Mickey never links, so
+the guarded block is empty here and the read is the only thing it contributes.
+With the size right, the last two words were the loop-guard delay slot: taking
+the counter reset out of the `for` header onto its own line puts it ahead of
+the preheader's hoisted `D_800D20A8` address instead of into the delay slot.
+The empty guard is recorded in `docs/cleanup-queue.md`.
 
 The `models` block is now the deliberate exception to that earlier scheduling
 rule: it has been split as a **working decompilation TU**, not promoted to a
