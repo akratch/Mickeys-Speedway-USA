@@ -146,6 +146,25 @@ Overlay objects do **not** depend on `mk/overlays.mk`. Editing a POSTPROCESS
 rule there triggers no rebuild, and the resulting link failure looks as though
 the rule is wrong when it is already correct -- `rm` the object.
 
+**`tools/reloc_surface.py` rewrites resident-call symbol names inside the
+compiled overlay objects, and only `gmake overlay-syms` applies it.** So a link
+failing with `R_MIPS_26 ... relocation truncated to fit` against resident
+symbols is almost always a build-state problem rather than a source one: an
+overlay is linked at `0xF0000000` and cannot `jal` a `0x8000xxxx` entry point
+directly, so it must go through the generated `*Reloc` surface entry. Run
+`gmake overlay-syms`, then build.
+
+This recurs after `gmake extract` **and after editing `symbol_addrs.us.txt`**,
+which re-runs splat and rebuilds every object, silently discarding the renames.
+`tools/land.sh` regenerates before it verifies for exactly this reason.
+
+The trap it hides: a promotion's `gmake verify` can pass in a worktree that
+holds renames the *commit* does not carry, so the tree stops linking for
+everyone else. The overlay 60 promotion renamed 8 of its 51 resident callees
+that way, and no lane worktree created afterwards could build at all until the
+remaining 57 rules were added. If a promotion adds resident calls, check that
+`mk/overlays.mk` names every one of them.
+
 `check-overlay-syms` is a *drift* check on already-regenerated output, so it
 cannot catch a promotion that never regenerated; reading its table entry below
 as "run this after promoting" is what leaves the build broken. Likewise
