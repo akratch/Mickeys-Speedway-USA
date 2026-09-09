@@ -113,4 +113,30 @@ source form that would order it that way. So the reason must come from outside
 the expression -- a second, partially dead reference to `D_800C94E0` that uopt
 sinks into this arm (which would create its web late), or evidence that the
 base is not this global at all.
+
+#### 2026-09-10, lane p1-perm: the free-list hypothesis is closed
+
+The only two ways a ring residual can arise are a different within-expression
+emission order and a different free list reaching the site. The second is now
+ruled out. Reading the register sequence of the loop body on both sides: the
+head and the if-chain draw t7, t8, t9, t0, t1 and t2 in that order before the
+arm, and the arm then draws four **fresh** registers t3, t4, t5, t6. Nothing is
+recycled, so the list reaching the arm is plain cycle order on both sides and
+the three words are entirely ugen's order inside the one expression. No
+perturbation of earlier frees can reach the target, which removes the whole
+class of "spend a temp earlier" experiments.
+
+That leaves the recorded impossibility: the target's creation order is mask,
+table, scale; cfe evaluates a `+` strictly left to right and canonicalises
+`int + ptr` to `ptr + int`, so a two-operand address expression gives either
+mask, scale, table (index-first) or table, mask, scale (base-first) and never
+mask, table, scale.
+
+Also newly measured and flat at three words: **256 line-grouping cells** --
+every subset of the four arms with its body joined onto its own `if`/`else`
+line, crossed with joining `temp_v0_2 = D_8007A0F4[i];` onto the first `if`
+line, joining `D_800CF490[i] = NULL;` onto the closing brace line, and four
+address spellings. This is a different space from the recorded 192 line
+*splits* of the arm, and it is equally inert; the L87 line-key lever does not
+reach this site from either direction.
 <!-- plateau-handoff:levelFreeAll:end -->

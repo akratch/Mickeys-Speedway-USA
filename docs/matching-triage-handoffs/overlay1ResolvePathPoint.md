@@ -148,4 +148,34 @@ Next lever: not a source spelling. The question is uopt's live-range split
 rule -- what puts the `$36` use on the raw web here and on the saved web in the
 target -- and it wants a `p1dec`/CDX web trace or a print in uopt's splitter,
 not another lattice.
+
+#### 2026-09-10, lane p1-perm (continued): the last word survives two more classes
+
+After the doubled product closed, the remaining word at +0x124 was attacked
+with the two levers that closed `func_80049000` and
+`func_overlay_029_F00010C4_187E374` on the same day -- shortening the *other*
+web's live range by reading a field back, and moving a statement into a
+neighbouring statement's line group so a web stays live across the site.
+Neither reaches it, and both classes are now measured:
+
+- 45 cells of callee prototype (`Overlay1PoolRecord *`, `void *`, `s32`,
+  `u32`, no prototype) x three orders of the three statements before the `if`
+  x three else-arm shapes. Flat.
+- Reusing `point` as the raw call-result carrier so `record` is only ever the
+  saved copy: 14 words, first mismatch +0xE0.
+- A `record = &record[0];` self-assignment between the null test and the
+  decrement: folded, flat.
+- Further line joins: the null-test arm on one line, the three head statements
+  on one line, and the whole else arm on the `} else { ... }` line. Flat.
+
+The mechanism is now named precisely, from `cc -S`: `record` has one
+definition, uopt splits it at the call into a raw `$v0` web and a saved `$s4`
+copy (`move $20, $2` in the branch-delay slot), and in the `$36` block ugen
+emits `addu $16, $2, 4` while the loop's own setup emits `addu $16, $20, 4`
+from the same source expression. The target's raw web ends at the
+`lbu $v1, 192($v0)` count read. Nothing in C moves that boundary: text order
+does not (the `goto` form that places the else body after the call is flat),
+liveness does not (every tested dead expression on this function folds and
+emits nothing), and the operand is not a colour choice, so the globalcolor
+lever does not apply either. The next step is a uopt web/split trace.
 <!-- plateau-handoff:overlay1ResolvePathPoint:end -->
