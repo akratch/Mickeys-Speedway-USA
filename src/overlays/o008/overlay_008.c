@@ -1256,44 +1256,45 @@ void func_overlay_008_F0002640_1860398(
 void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
                                        O8P291CState *state,
                                        f32 update) {
-    s16 angle;
-    s32 savedRate;
     f32 horizontal;
     f32 vertical;
     f32 invUpdate;
-    s32 contact;
-    f32 targetBlend;
-    f32 desiredBlend;
+    f32 nextY;
+    f32 nextX;
+    f32 nextZ;
     f32 displacementX;
     f32 displacementY;
     f32 displacementZ;
+    f32 delta;
     f32 scale;
+    f32 targetBlend;
+    s16 angle;
+    s32 contact;
 
     motion->heading0 = state->angleF0 + state->angleFC + state->angle104;
     angle = state->angleF0 + state->angleFE;
 
     if (state->mode438 == 1) {
-        f32 attenuation = o8Approach291CReloc(O8P291C_data_1A0, (s32)update);
+        delta = o8Approach291CReloc(O8P291C_data_1A0, (s32)update);
         if ((state->control4 < -0.5f) || (state->control4 > 0.5f)) {
-            state->control4 *= attenuation;
+            state->control4 *= delta;
         } else {
             state->control4 = 0.0f;
         }
         if ((state->control8 < -0.5f) || (state->control8 > 0.5f)) {
-            state->control8 *= attenuation;
+            state->control8 *= delta;
         } else {
             state->control8 = 0.0f;
         }
     }
 
-    savedRate = (s32)update;
     if (state->active181 != 0) {
-        f32 distance = state->speed84 * update +
+        delta = state->speed84 * update +
                        (0.5f * state->accel88 * update * update);
-        displacementX = state->axis74 * distance;
-        displacementY = state->axis78 * distance;
-        displacementZ = state->axis7C * distance;
-        if (distance < 0.0f) {
+        displacementX = state->axis74 * delta;
+        displacementY = state->axis78 * delta;
+        displacementZ = state->axis7C * delta;
+        if (delta < 0.0f) {
             state->speed84 = 0.0f;
             state->accel88 = 0.0f;
             state->active181 = 0;
@@ -1317,12 +1318,9 @@ void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
 
     horizontal += state->control8 * O8P291C_call_cos(angle);
     vertical -= state->control8 * O8P291C_call_sin(angle);
-    o8Surface291CReloc(motion, state, savedRate);
+    o8Surface291CReloc(motion, state, (s32)update);
 
     {
-        f32 nextY;
-        f32 nextX;
-        f32 nextZ;
         nextY = (motion->velocity20 * update) -
             (0.5f * O8P291C_gravity * update * update) + displacementY;
         invUpdate = 1.0f / update;
@@ -1355,7 +1353,7 @@ void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
         invUpdate = (state->flags41C & 0x8000) ? 3.0f : 0.0f;
         state->blendC +=
             (invUpdate - state->blendC) *
-            (1.0f - o8Approach291CReloc(O8P291C_data_1A4, savedRate));
+            (1.0f - o8Approach291CReloc(O8P291C_data_1A4, (s32)update));
         targetBlend = ((volatile O8P291CBlendView *)state)->blendC;
         if (state->control4 < -targetBlend) state->control4 = -targetBlend;
         if (targetBlend < state->control4) state->control4 = targetBlend;
@@ -1368,7 +1366,7 @@ void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
         }
         state->blendC +=
             (D_10 - state->blendC) *
-            (1.0f - o8Approach291CReloc(O8P291C_data_1AC, savedRate));
+            (1.0f - o8Approach291CReloc(O8P291C_data_1AC, (s32)update));
     }
 }
 #else
