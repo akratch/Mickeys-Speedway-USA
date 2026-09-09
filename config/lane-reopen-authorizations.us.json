@@ -36,9 +36,9 @@
       "source_commit": "e4628a89827467289170f03de04393f8567098a5"
     },
     "func_80004454": {
-      "ledger_commit": "bd719b24f0578b9ce0de4d1774d0a5061df98fdf",
-      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
-      "source_commit": "8be7d11cdf5827851c95c67cbb70bb069f032c2d"
+      "ledger_commit": "5ccc50eb5842b4b80203f2287077845f12c96ca5",
+      "reason": "Final push on the spilltemps law: uopt gives every register temporary a frame slot in web-index order, never a declared local. That law closed an 11 KB function today and reaches spill-home residuals no source spelling had.",
+      "source_commit": "5ccc50eb5842b4b80203f2287077845f12c96ca5"
     },
     "func_8000471C": {
       "ledger_commit": "bd719b24f0578b9ce0de4d1774d0a5061df98fdf",
@@ -516,8 +516,8 @@
       "source_commit": "49fef96d66a2cf3853f2603fb5dccbec89253823"
     },
     "func_8003E8D8": {
-      "ledger_commit": "e7370f96629ce67de556babd381f64c9a4ef6cc2",
-      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "ledger_commit": "ad0add6d7ffb09b7dab024baf6cbefdf0a452e64",
+      "reason": "Final push on the spilltemps law: uopt gives every register temporary a frame slot in web-index order, never a declared local. That law closed an 11 KB function today and reaches spill-home residuals no source spelling had.",
       "source_commit": "0e3de63667a5d632384abba03c845ba0d1dfa148"
     },
     "func_8003F154": {
@@ -741,9 +741,9 @@
       "source_commit": "817cb31be1af51d266646405e55e27db696fda78"
     },
     "func_8005A948": {
-      "ledger_commit": "e3412ac6bf2446227671783cfeebf56c994fc036",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
-      "source_commit": "e3412ac6bf2446227671783cfeebf56c994fc036"
+      "ledger_commit": "75eec1f945cbff202a77f874beec5983e7f07eab",
+      "reason": "Final push on the spilltemps law: uopt gives every register temporary a frame slot in web-index order, never a declared local. That law closed an 11 KB function today and reaches spill-home residuals no source spelling had.",
+      "source_commit": "75eec1f945cbff202a77f874beec5983e7f07eab"
     },
     "func_8005ABA8": {
       "ledger_commit": "3523d76d71864d119ac5c6eb4ff8247e9cbca13b",
@@ -1136,8 +1136,8 @@
       "source_commit": "2cac103ec44c31077b17f832f8e8048a1ecd6d48"
     },
     "levelFreeAll": {
-      "ledger_commit": "585be5d936351c43b9bf022c4741ea438c880103",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "ad0add6d7ffb09b7dab024baf6cbefdf0a452e64",
+      "reason": "Final push on the spilltemps law: uopt gives every register temporary a frame slot in web-index order, never a declared local. That law closed an 11 KB function today and reaches spill-home residuals no source spelling had.",
       "source_commit": "585be5d936351c43b9bf022c4741ea438c880103"
     },
     "levelInit": {
@@ -1306,9 +1306,9 @@
       "source_commit": "334b41893e1668cd49a74775af8fe6dae79ce845"
     },
     "overlay1ResolvePathPoint": {
-      "ledger_commit": "9d56afd69a7ade2c50a89aa4c06378d869360fa3",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
-      "source_commit": "c0007c3b03995128b91f2ce06e95c690b33f8884"
+      "ledger_commit": "bff9df3cb786ca5c9c523546a99d0a4a320d0e33",
+      "reason": "Final push on the spilltemps law: uopt gives every register temporary a frame slot in web-index order, never a declared local. That law closed an 11 KB function today and reaches spill-home residuals no source spelling had.",
+      "source_commit": "bff9df3cb786ca5c9c523546a99d0a4a320d0e33"
     },
     "overlay1SolveAngleCandidates": {
       "ledger_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625",
@@ -1326,8 +1326,8 @@
       "source_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625"
     },
     "overlay1UpdateRangeFlags": {
-      "ledger_commit": "6f82be7344d00ca5ef4ff74d35ed4a91bab5aae3",
-      "reason": "New mechanism: uopt's spilltemps pass gives every register temporary a frame slot in web-index order, reusing the lowest non-interfering slot. That law closed the overlay 60 whale today and reaches spill-home residuals no spelling had.",
+      "ledger_commit": "ad0add6d7ffb09b7dab024baf6cbefdf0a452e64",
+      "reason": "Final push on the spilltemps law: uopt gives every register temporary a frame slot in web-index order, never a declared local. That law closed an 11 KB function today and reaches spill-home residuals no source spelling had.",
       "source_commit": "6f82be7344d00ca5ef4ff74d35ed4a91bab5aae3"
     },
     "overlay20RemoveEntry": {
@@ -1401,8 +1401,8 @@
       "source_commit": "b7f71f1e22535316b752eeac75b81835069b9da2"
     },
     "overlay40FadeRecords": {
-      "ledger_commit": "a5ce82a1b815916fc8cb36e6a82c9c7599d734be",
-      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "ledger_commit": "ad0add6d7ffb09b7dab024baf6cbefdf0a452e64",
+      "reason": "Final push on the spilltemps law: uopt gives every register temporary a frame slot in web-index order, never a declared local. That law closed an 11 KB function today and reaches spill-home residuals no source spelling had.",
       "source_commit": "a5ce82a1b815916fc8cb36e6a82c9c7599d734be"
     },
     "overlay43FilterImage": {
@@ -1526,8 +1526,8 @@
       "source_commit": "6578d03924f792f3f675c80a66e178c1bda348bd"
     },
     "overlay97InitScale": {
-      "ledger_commit": "e3419055f55ac4c337aa5737a341d7b66d606977",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "ledger_commit": "ad0add6d7ffb09b7dab024baf6cbefdf0a452e64",
+      "reason": "Final push on the spilltemps law: uopt gives every register temporary a frame slot in web-index order, never a declared local. That law closed an 11 KB function today and reaches spill-home residuals no source spelling had.",
       "source_commit": "e3419055f55ac4c337aa5737a341d7b66d606977"
     },
     "overlay98CheckObject": {
