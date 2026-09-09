@@ -36,13 +36,13 @@
       "source_commit": "e4628a89827467289170f03de04393f8567098a5"
     },
     "func_80004454": {
-      "ledger_commit": "9d7caa0207b0047345e71e574fb5a796fbea911b",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "d5c4e42373d7dee62178d79d1acf7a99d5338e57",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
       "source_commit": "f0d508123d4e9ff7edf9a2868b6b13bd10db021e"
     },
     "func_8000471C": {
-      "ledger_commit": "9d7caa0207b0047345e71e574fb5a796fbea911b",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "d5c4e42373d7dee62178d79d1acf7a99d5338e57",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
       "source_commit": "c83947e7c181309b8e60db55887eb4a179bac5bf"
     },
     "func_80004C28": {
@@ -70,9 +70,14 @@
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
       "source_commit": "692d564f1eddd48cfc5393e035913af7dae91b2a"
     },
+    "func_80008028": {
+      "ledger_commit": "b1e30dd73dd4f1a77ff8376ff113f8ff190b761b",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "b1e30dd73dd4f1a77ff8376ff113f8ff190b761b"
+    },
     "func_80009AA8": {
-      "ledger_commit": "7a238b3ac77de163f40e752b100be5f8b1ebae35",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "d5c4e42373d7dee62178d79d1acf7a99d5338e57",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
       "source_commit": "1a49a53d4d24ccb3eabc2b5e878d9844670f86ba"
     },
     "func_8000BDB4": {
@@ -431,14 +436,14 @@
       "source_commit": "f22d0874fb58fbff3b8b841176a82a17cb9e430e"
     },
     "func_8003E8D8": {
-      "ledger_commit": "1657ba0a30559566dce7be59ab216c3f1325f50c",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "542e16f4af1d6e47837058f0f16ae8f2dd7778ef",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
       "source_commit": "0e3de63667a5d632384abba03c845ba0d1dfa148"
     },
     "func_8003F154": {
-      "ledger_commit": "6bdba1a93a675928992cc443558ee8b0da4b9b50",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 17 masked words is a schedule or structure defect the permuter can still move.",
-      "source_commit": "6bdba1a93a675928992cc443558ee8b0da4b9b50"
+      "ledger_commit": "542e16f4af1d6e47837058f0f16ae8f2dd7778ef",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "542e16f4af1d6e47837058f0f16ae8f2dd7778ef"
     },
     "func_8004054C": {
       "ledger_commit": "b41a0d1a76b10eee233d0663e6479ca405f7a4b2",
@@ -451,8 +456,8 @@
       "source_commit": "97e9811f2e9c764fd001e03ca6a34d53fc17c8d3"
     },
     "func_80041530": {
-      "ledger_commit": "6bdba1a93a675928992cc443558ee8b0da4b9b50",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 36 masked words is a schedule or structure defect the permuter can still move.",
+      "ledger_commit": "542e16f4af1d6e47837058f0f16ae8f2dd7778ef",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
       "source_commit": "6bdba1a93a675928992cc443558ee8b0da4b9b50"
     },
     "func_80041CE4": {
@@ -701,9 +706,9 @@
       "source_commit": "255b9a2c43000dfccf062be2b55e90f7e4949bda"
     },
     "func_overlay_009_F0000540_1866BB8": {
-      "ledger_commit": "1ecd5cc0efa81a690721ba81627ab05f00d6463a",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
-      "source_commit": "e390d26f921d672ceb1eaeeaccf90dcbc9eaacc7"
+      "ledger_commit": "114dc0d6af891e281269f5a54f25404204dae8c7",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
+      "source_commit": "1ecd5cc0efa81a690721ba81627ab05f00d6463a"
     },
     "func_overlay_009_F0000CE4_186735C": {
       "ledger_commit": "6a42b9d28ab568a9c61fca923ba83af2d5d88d68",
@@ -711,8 +716,8 @@
       "source_commit": "6a42b9d28ab568a9c61fca923ba83af2d5d88d68"
     },
     "func_overlay_009_F00010B4_186772C": {
-      "ledger_commit": "e36d0e43bfc633ac4a43794b7028980a399a69d3",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "ecc00060c5757099910496093ca141f3c764dd66",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
       "source_commit": "e36d0e43bfc633ac4a43794b7028980a399a69d3"
     },
     "func_overlay_011_F0000150_1868998": {
@@ -761,8 +766,8 @@
       "source_commit": "424aa5f7694dc7cd5ca348fb289e0d818a438434"
     },
     "func_overlay_029_F00010C4_187E374": {
-      "ledger_commit": "965af6957a70aa470e51e37f6c943b060c423baf",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "cca63045f943399c2ea999b57d553b896e640668",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
       "source_commit": "4fbb92bfe6e44f0b4403dbd6ca77d2102b045fd7"
     },
     "func_overlay_035_F00001E0_1881EC0": {
@@ -1096,13 +1101,13 @@
       "source_commit": "77b225b0482e44943bdfcdca9be9ddfcc3bd03c5"
     },
     "overlay1BendPathPoint": {
-      "ledger_commit": "f6b40c2a505bffde426528f1b376e4ebedd48c5c",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "120b6a84f9b5b01a16a251910672a1e59c092310",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
       "source_commit": "7227cc7b606f399e10fd6e7cef32a13bedc88cf7"
     },
     "overlay1ConsumeNearbyPending": {
-      "ledger_commit": "7227cc7b606f399e10fd6e7cef32a13bedc88cf7",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "89a499b124b0d0281818fbfc0d616f6b86a41ef8",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
       "source_commit": "874fcf1766e3baf541ea1381cf5966eaadb792ff"
     },
     "overlay1DispatchMode": {
@@ -1176,13 +1181,13 @@
       "source_commit": "8b4f51cdcbdc468f5622bc353511de2c0abb3270"
     },
     "overlay1UpdateAimedTransient": {
-      "ledger_commit": "b7b411624c1aca12126b3c889a883b014fc9bec7",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "2384bfb4f533191ea3b88d38bba7508c1cbaa2da",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
       "source_commit": "7227cc7b606f399e10fd6e7cef32a13bedc88cf7"
     },
     "overlay1UpdateRangeFlags": {
-      "ledger_commit": "7227cc7b606f399e10fd6e7cef32a13bedc88cf7",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "89a499b124b0d0281818fbfc0d616f6b86a41ef8",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
       "source_commit": "7227cc7b606f399e10fd6e7cef32a13bedc88cf7"
     },
     "overlay20RemoveEntry": {
@@ -1206,8 +1211,8 @@
       "source_commit": "3cf1caab461f215a71df5ea9bcc87a8d7f5481cb"
     },
     "overlay2QueryNode": {
-      "ledger_commit": "d5688fcd915223acb56a02ed5dc421401201cdf1",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "f1fe01da3aa8f6c9265c394d51a95b9df76f4296",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
       "source_commit": "d5688fcd915223acb56a02ed5dc421401201cdf1"
     },
     "overlay31CreatePool": {
@@ -1281,8 +1286,8 @@
       "source_commit": "afcd42a6b01f327755805cfce8504bb5acfd431d"
     },
     "overlay59Advance": {
-      "ledger_commit": "1bd696e98fa926c2f2a966a59fe03c3e397d8753",
-      "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
+      "ledger_commit": "849046693f12fcff7c71415ab6a633cdeb31b132",
+      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
       "source_commit": "7169fad4d2291d4b453b38b0c9bc2c140824d7b8"
     },
     "overlay59PrepareEntry": {
