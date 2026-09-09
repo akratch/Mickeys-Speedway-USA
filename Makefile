@@ -363,6 +363,7 @@ check-tooling:
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_mul_scheduler_scan.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_authorize_reopen.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_resolve_target_asm.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/test_check_isa_overrides.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_ready_queue.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_skeleton_scan.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/test_wb_compare.py
@@ -531,6 +532,7 @@ check-reference-builds:
 check-docs:
 	$(HOST_PYTHON) $(TOOLS_DIR)/lane_status.py --check-reopen-schema
 	$(HOST_PYTHON) $(TOOLS_DIR)/check_donor_claims.py
+	$(HOST_PYTHON) $(TOOLS_DIR)/check_isa_overrides.py
 	$(PYTHON) $(TOOLS_DIR)/check_derived_numbers.py
 	$(HOST_PYTHON) $(TOOLS_DIR)/overlay_donor_scan.py --check
 	$(HOST_PYTHON) $(TOOLS_DIR)/postprocess_audit.py --check-redefines
