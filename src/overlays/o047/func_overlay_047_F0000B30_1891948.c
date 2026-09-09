@@ -685,10 +685,10 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:start
  * symbol: func_overlay_047_F0000B30_1891948
- * score: 1972/2168 words
+ * score: 1906/2168 words
  * frame: 0x280
  * relocations: 318
  * first-mismatch: +0x4
- * summary: Size/frame exact; 83 ordered calls, 318/321 text relocations. Five CFG probes stalled. Next: structure-buckets lever 6 spill-slot census.
+ * summary: Flags, frame partition, 0x34 player stride and unsigned frame byte now exact. Residual is FP colouring: target hoists 0.015f to entry, gaining f30.
  * PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:end
  */
