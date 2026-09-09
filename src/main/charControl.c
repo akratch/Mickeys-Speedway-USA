@@ -1233,36 +1233,6 @@ f32 func_8001D880(f32 arg0, f32 arg1, f32 *table, f32 divisor) {
     base = table[index];
     return (value - (base + ((table[index + 1] - base) * (arg0 - (f32) index)))) / divisor;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/charControl/func_8001D880.s")
 #endif
@@ -1573,7 +1543,8 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
                             directionX = actor->velocityX / var_f4;
                             directionZ = actor->velocityZ / var_f4;
                         }
-                                if ((player->unk198 == 0) && (var_f4 > 8.0f) &&
+                        temp_v0_2 = player->unk198;
+                        if ((temp_v0_2 == 0) && (var_f4 > 8.0f) &&
                             ((((normalX * directionX) + (normalZ * directionZ)) < D_80081850) ||
                              (D_80081854 < ((normalX * directionX) + (normalZ * directionZ))))) {
                             player->unk78 = 0.0f;
@@ -1595,7 +1566,7 @@ s32 func_8001DD70(ControlActor *actor, ControlPlayer *player, f32 updateRate) {
                                 var_f4 += 4294967296.0f;
                             }
                             if (var_f4 < 240.0f) {
-                                player->unk198 = (u8) (player->unk198 +
+                                player->unk198 = (u8) (temp_v0_2 +
                                                        (s32) updateRate);
                             } else {
                                 player->unk198 = 0;
