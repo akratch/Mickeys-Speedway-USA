@@ -663,5 +663,97 @@ void caller(void) {
         self.assertEqual(report.unstructured[0].code, "unstructured-marker")
 
 
+
+class ShardEvidenceRetentionTests(unittest.TestCase):
+    """Refreshing a shard's measurement must not discard its evidence."""
+
+    SYMBOL = "func_80001234"
+
+    def shard(self, score: str, details: str = "") -> str:
+        marker = f"plateau-handoff:{self.SYMBOL}"
+        return (
+            f"<!-- {marker}:start -->\n"
+            f"### `{self.SYMBOL}` plateau handoff\n\n"
+            "- source: `src/main/example.c`\n"
+            f"- score: {score}\n"
+            "- frame: 0x10\n"
+            "- relocations: 2\n"
+            "- first mismatch: +0x4\n"
+            f"{details}"
+            f"<!-- {marker}:end -->\n"
+        )
+
+    EVIDENCE = (
+        "\nEliminated: three loop forms, two frame orders, the early return.\n"
+        "Next lever: the pool rotation at the second speculative load.\n"
+    )
+
+    def test_appended_evidence_survives_a_measurement_refresh(self):
+        # The regression: update_handoff_shard returned the freshly generated
+        # header and dropped 84 lines of committed evidence from a real shard.
+        merged = plateau.update_handoff_shard(
+            self.shard("30/40", self.EVIDENCE), self.SYMBOL, self.shard("12/40")
+        )
+        self.assertIn("Eliminated: three loop forms", merged)
+        self.assertIn("Next lever: the pool rotation", merged)
+
+    def test_the_header_is_still_refreshed_to_the_new_measurement(self):
+        merged = plateau.update_handoff_shard(
+            self.shard("30/40", self.EVIDENCE), self.SYMBOL, self.shard("12/40")
+        )
+        self.assertIn("- score: 12/40", merged)
+        self.assertNotIn("- score: 30/40", merged)
+
+    def test_the_merged_shard_still_satisfies_the_reader_grammar(self):
+        merged = plateau.update_handoff_shard(
+            self.shard("30/40", self.EVIDENCE), self.SYMBOL, self.shard("12/40")
+        )
+        self.assertEqual(
+            plateau.handoff_shard_source(merged, self.SYMBOL),
+            "src/main/example.c",
+        )
+
+    def test_a_shard_with_no_evidence_is_replaced_cleanly(self):
+        merged = plateau.update_handoff_shard(
+            self.shard("30/40"), self.SYMBOL, self.shard("12/40")
+        )
+        self.assertEqual(merged, self.shard("12/40"))
+
+    def test_a_new_shard_is_written_as_generated(self):
+        self.assertEqual(
+            plateau.update_handoff_shard("", self.SYMBOL, self.shard("12/40")),
+            self.shard("12/40"),
+        )
+
+    def test_a_foreign_shard_is_still_refused_rather_than_merged(self):
+        with self.assertRaises(plateau.PlateauError):
+            plateau.update_handoff_shard(
+                "not a shard at all\n", self.SYMBOL, self.shard("12/40")
+            )
+
+
+class OneLineDiagnosticTests(unittest.TestCase):
+    """Each rule reports itself, rather than one message for four causes."""
+
+    def message(self, value: str, limit: int = 160) -> str:
+        with self.assertRaises(plateau.PlateauError) as caught:
+            plateau.validate_one_line(value, "summary", limit)
+        return str(caught.exception)
+
+    def test_an_empty_value_says_so(self):
+        self.assertIn("must not be empty", self.message(""))
+
+    def test_an_over_long_value_names_both_lengths(self):
+        message = self.message("x" * 200)
+        self.assertIn("200 characters", message)
+        self.assertIn("limit is 160", message)
+
+    def test_a_pipe_is_named_as_the_column_separator(self):
+        self.assertIn("column separator", self.message("a | b"))
+
+    def test_a_newline_is_named(self):
+        self.assertIn("newline", self.message("a\nb"))
+
+
 if __name__ == "__main__":
     unittest.main()

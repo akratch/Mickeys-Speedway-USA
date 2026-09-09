@@ -85,8 +85,24 @@ def repository_root() -> Path:
 
 
 def validate_one_line(value: str, label: str, limit: int = 160) -> str:
-    if not value or len(value) > limit or any(character in value for character in "\r\n\t|"):
-        raise PlateauError(f"{label} must be one concise line without table separators")
+    """Enforce the shard grammar, and say which rule was broken.
+
+    The single combined message ("must be one concise line without table
+    separators") left a caller guessing whether the length or a character was
+    at fault, and never named the limit. Each rule now reports itself.
+    """
+    if not value:
+        raise PlateauError(f"{label} must not be empty")
+    if len(value) > limit:
+        raise PlateauError(
+            f"{label} is {len(value)} characters; the limit is {limit}. "
+            f"Put the longer argument in the shard's evidence prose, which "
+            f"is free-form and is now retained across refreshes."
+        )
+    for character, name in (("\r", "carriage return"), ("\n", "newline"),
+                            ("\t", "tab"), ("|", "'|' (the ledger's column separator)")):
+        if character in value:
+            raise PlateauError(f"{label} must be one line and may not contain a {name}")
     return " ".join(value.split())
 
 
@@ -280,17 +296,10 @@ def handoff_shard_path(symbol: str) -> str:
     return f"{HANDOFF_SHARD_DIR}/{symbol}.md"
 
 
-def handoff_shard_source(text: str, symbol: str) -> str:
-    """Validate one symbol-owned shard and return its exact source identity.
-
-    The generated metric header stays deliberately rigid so scheduling can
-    trust the source identity and bounded-result fields.  A worker may append
-    richer, symbol-specific evidence before the closing marker; forcing that
-    useful evidence into a separate document made otherwise valid handoffs
-    look foreign to ``lane_status``.
-    """
+def shard_pattern(symbol: str) -> re.Pattern[str]:
+    """The rigid metric header, plus the free-form evidence a worker appends."""
     marker = re.escape(f"plateau-handoff:{symbol}")
-    pattern = re.compile(
+    return re.compile(
         rf"\A<!-- {marker}:start -->\n"
         rf"### `{re.escape(symbol)}` plateau handoff\n\n"
         r"- source: `(?P<source>src/[A-Za-z0-9_./-]+\.c)`\n"
@@ -302,7 +311,18 @@ def handoff_shard_source(text: str, symbol: str) -> str:
         r"(?P<details>(?:[^\r\n|]*\n)*)"
         rf"<!-- {marker}:end -->\n?\Z"
     )
-    match = pattern.fullmatch(text)
+
+
+def parse_shard(text: str, symbol: str) -> tuple[str, str]:
+    """Return one shard's (exact source identity, appended evidence).
+
+    The generated metric header stays deliberately rigid so scheduling can
+    trust the source identity and bounded-result fields.  A worker may append
+    richer, symbol-specific evidence before the closing marker; forcing that
+    useful evidence into a separate document made otherwise valid handoffs
+    look foreign to ``lane_status``.
+    """
+    match = shard_pattern(symbol).fullmatch(text)
     if match is None:
         raise PlateauError(
             f"malformed or foreign symbol handoff shard for {symbol}"
@@ -315,15 +335,39 @@ def handoff_shard_source(text: str, symbol: str) -> str:
     source = match.group("source")
     if any(part in {".", ".."} for part in Path(source).parts):
         raise PlateauError(f"non-canonical source path in handoff shard for {symbol}")
-    return source
+    return source, details
+
+
+def handoff_shard_source(text: str, symbol: str) -> str:
+    """Validate one symbol-owned shard and return its exact source identity."""
+    return parse_shard(text, symbol)[0]
 
 
 def update_handoff_shard(text: str, symbol: str, block: str) -> str:
-    """Replace only a valid symbol-owned shard, or create a new one."""
-    if text:
-        handoff_shard_source(text, symbol)
+    """Refresh a shard's measured header, keeping the evidence under it.
+
+    The header is regenerated because it IS the measurement and every field
+    in it has just been re-derived. The prose below it is not: it is the
+    record of what a worker eliminated, and it is often the most expensive
+    thing in the shard. Returning the bare new block discarded 84 lines of
+    committed evidence from overlay1FindBestRecord.md on 2026-09-09, and the
+    only reason it was noticed is that the worker read the diff.
+    """
+    if not text:
+        handoff_shard_source(block, symbol)
+        return block
+    _source, retained = parse_shard(text, symbol)
     handoff_shard_source(block, symbol)
-    return block
+    if not retained.strip():
+        return block
+    end = f"<!-- plateau-handoff:{symbol}:end -->"
+    head, separator, tail = block.rpartition(end)
+    if not separator:
+        raise PlateauError(f"generated handoff shard for {symbol} has no end marker")
+    merged = head + retained + separator + tail
+    # The result must still satisfy the same grammar the reader enforces.
+    parse_shard(merged, symbol)
+    return merged
 
 
 def update_markdown(text: str, symbol: str, block: str) -> str:
