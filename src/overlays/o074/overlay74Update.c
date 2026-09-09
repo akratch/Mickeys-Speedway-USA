@@ -30,7 +30,16 @@ typedef struct Overlay74HitObject {
     Overlay74HitState *state;
 } Overlay74HitObject;
 
-extern u32 gOverlay74Flags;
+/* Bits 26..23 of the word (bits 10..7 of its leading halfword) are a 4-bit
+ * channel mask. The target reads it through the 32-bit word and writes it
+ * through a halfword, which is what IDO emits for a u16 bitfield. */
+typedef struct Overlay74Flags {
+    u16 pad : 5;
+    u16 channelMask : 4;
+    u16 rest : 7;
+} Overlay74Flags;
+
+extern Overlay74Flags gOverlay74Flags;
 
 /* Runtime identities: func_8005776C, func_800291B4, amSndPlay, func_8003A680.
  * Resident ROM and matched callers authenticate the floating-point z ABI. */
@@ -40,10 +49,6 @@ void func_800291B4(void);
 void amSndPlay(u16 soundId, void **handle);
 void func_8003A680(s32 count);
 
-/* NON_MATCHING plateau: configured C is 99/100 words with a 0x60 frame and
- * eight relocations; the sole residual is the commutative OR at +0x124. All
- * register lanes match; CFE spelling owns the residual. */
-#ifdef NON_MATCHING
 void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
     Overlay74HitObject *results[13];
     f32 delta;
@@ -62,15 +67,12 @@ void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
                 ((f32)state->minimum < delta) &&
                 (delta < (f32)state->maximum)) {
                 object->flags |= 0x400;
-                *(u16 *)&gOverlay74Flags =
-                    ((((((gOverlay74Flags << 5) >> 28) |
-                        (1 << state->channel)) << 1) << 6) & 0x780) |
-                    (*(u16 *)&gOverlay74Flags & 0xF87F);
+                gOverlay74Flags.channelMask |= 1 << state->channel;
                 func_800291B4();
                 amSndPlay(0x27C, 0);
 
                 object = (Overlay74UpdateObject *)5;
-                state = (Overlay74UpdateState *)((gOverlay74Flags << 5) >> 28);
+                state = (Overlay74UpdateState *)gOverlay74Flags.channelMask;
                 hitObject = (Overlay74HitObject *)8;
                 do {
                     if ((s32)state & (s32)hitObject) {
@@ -85,17 +87,3 @@ void overlay74Update(Overlay74UpdateObject *object, s32 amount) {
         }
     }
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o074/overlay74Update/func_overlay_074_F00000B8_18CBD58.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay74Update:start
- * symbol: overlay74Update
- * score: 99/100 words
- * frame: 0x60
- * relocations: 8
- * first-mismatch: +0x124
- * summary: All register lanes match; CFE spelling owns the OR residual. Next lever: a new C spelling reversing OR without operand swap or named carrier.
- * PLATEAU-HANDOFF:overlay74Update:end
- */
