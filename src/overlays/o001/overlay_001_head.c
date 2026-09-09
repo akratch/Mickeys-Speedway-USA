@@ -36,37 +36,27 @@ typedef struct O1PathOffsetOwner { u8 pad00[0x398]; f32 pathOffset; } O1PathOffs
 extern O1ControlTable *D_1D60;
 extern O1ControlTable *D_1D68;
 extern O1ControlTable *D_1D6C;
-extern u8 *overlay1NextPointer(u8 *pointer);
+/* Overlay 1's own `overlay1NextPointer` (module offset 0x28), reached through
+ * the module's SYMBOL relocation record rather than an intra-module JUMP:
+ * the shipped word stores immediate zero and `runlinkDownloadCode` supplies
+ * the target, so the reference has to stay undefined in this object. */
+extern u8 *overlay1NextPointerReloc(u8 *pointer);
 extern f32 splinePos(f32 a, f32 b, f32 c, f32 d, f32 t);
 
-/* Fresh configured plateau: exact 83-word size and 0x68 frame; 81/83 compiler
- * words agree after relocation masking. The only codegen residual is the saved
- * integral position at sp+0x38 instead of the target sp+0x40. Direct D_1D6C
- * anchoring and declaration order recover the target register lanes and the
- * other two call-crossing homes. All 119 flag rows and a bounded two-thread
- * permuter search are nonexact. A fidelity-clean allocator trace confirms the
- * uopt register pools; a padding-free state aggregate regresses to 77/83, while
- * implicit conversion and chained assignment forms are byte-flat. */
-#ifdef NON_MATCHING
-/* Plateau 2026-09-09, two words, one spill slot. The frame is exact at 0x68 and
- * every allocator lane is identical (pool 30/30, temp 8/8, shared 6/6, FP 7/7
- * and 4/4); the whole residual is that `originalWhole` spills to sp+0x38 where
- * the target uses sp+0x40, at the store before the loop and the load after it.
- * The other five raw words are lever 50 phantoms: the target bakes the
- * overlay-local `%lo` addends (7584, 7520, 7524, 7528, 7532) that the candidate
- * emits as HI16/LO16 relocation pairs with a zero addend.
- * Eliminated this pass: the full single-move declaration-order lattice, all 90
- * one-local relocations of the ten declarations -- every one flat at two words
- * with the frame and the 83 instructions unchanged, so this home is a spill
- * slot the allocator chose and not a declared home. Adding a declared local of
- * any type grows the frame to 0x70 (14 words); adding two, 0x70 as well.
- * Dropping the twin counter (`while (--whole != 0)`) or the `while` form costs
- * an instruction and 46 words; dropping `originalWhole` and recomputing
- * `(f32)(s32)position` keeps 83 instructions and the frame but costs four.
- * Next lever: the workbench's stack-home playbook wants the declared count one
- * lower with the instruction count unchanged, and no existing local here is
- * dead across the loop to carry the value. That needs the spill-owner identity
- * from a CDX_SYMTAB frame ladder, not another declaration permutation. */
+/* The last two words were one spill slot: `originalWhole` homed at sp+0x38
+ * against the target's sp+0x40, with all 83 instructions, the 0x68 frame and
+ * every allocator lane already identical.  uopt's `spilltemps` lays each
+ * register temporary at `frame_top - 4*(k+1)` for its slot index k, so the
+ * home is a function of how many pooled temporaries precede it, and no
+ * declaration permutation moves it -- all 90 were flat, and all 196 legal
+ * statement orders reach only the two adjacent slots 0x38 and 0x3C.  Two edits
+ * compose (neither works alone, L88): computing the integral position before
+ * the four control-point addresses gives its web the earlier of the two slots,
+ * and spelling the fraction as the expression at both call sites instead of a
+ * tenth declared local removes one cell from the pool ahead of it, which lifts
+ * the pair by four bytes onto sp+0x40 and sp+0x3C.  Each declared local costs
+ * exactly one pool cell here: adding an unused one moves every home down by
+ * one slot and the frame to 0x70. */
 void overlay1InterpolatePath(f32 *outX, f32 *outZ, s32 path, f32 offset) {
     f32 position;
     O1ControlTable *table3Base;
@@ -75,23 +65,22 @@ void overlay1InterpolatePath(f32 *outX, f32 *outZ, s32 path, f32 offset) {
     O1ControlPoint *point2;
     O1ControlPoint *point3;
     s32 originalWhole;
-    f32 fraction;
     s32 whole;
     s32 remaining;
 
     position = ((O1PathOffsetOwner *)D_1DA0)->pathOffset + offset;
+    whole = (s32) position;
+    originalWhole = whole;
     point0 = &D_1D60->points[path];
     point1 = &((O1ControlTable *)D_1D64)->points[path];
     point2 = &D_1D68->points[path];
     point3 = &D_1D6C->points[path];
     table3Base = D_1D6C;
-    whole = (s32) position;
-    originalWhole = whole;
     remaining = whole - 1;
 
     if (whole != 0) {
         do {
-            table3Base = (O1ControlTable *)overlay1NextPointer((u8 *)table3Base);
+            table3Base = (O1ControlTable *)overlay1NextPointerReloc((u8 *)table3Base);
             point0 = point1;
             point1 = point2;
             point2 = point3;
@@ -101,16 +90,11 @@ void overlay1InterpolatePath(f32 *outX, f32 *outZ, s32 path, f32 offset) {
         } while (whole != 0);
     }
 
-    fraction = position - (f32) originalWhole;
     *outX = splinePos(point0->x, point1->x, point2->x,
-                                  point3->x, fraction);
+                                  point3->x, position - (f32) originalWhole);
     *outZ = splinePos(point0->z, point1->z, point2->z,
-                                  point3->z, fraction);
+                                  point3->z, position - (f32) originalWhole);
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_head/func_overlay_001_F0000CA8_184D088.s")
-#endif
 
 /* ---- overlay1ResolveMotionPoint ---- */
 
@@ -847,16 +831,6 @@ extern void overlay1ResetReloc(void);
 void overlay1CallReset(void) {
     overlay1ResetReloc();
 }
-
-/* PLATEAU-HANDOFF:overlay1InterpolatePath:start
- * symbol: overlay1InterpolatePath
- * score: 81/83 words
- * frame: 0x68
- * relocations: 13
- * first-mismatch: +0x94
- * summary: stack-home: three carrier and birth-order forms were byte-flat; next capture authenticated spill-owner identity for the preserved integer
- * PLATEAU-HANDOFF:overlay1InterpolatePath:end
- */
 
 /* PLATEAU-HANDOFF:overlay1MeasureCurves:start
  * symbol: overlay1MeasureCurves
