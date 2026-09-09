@@ -6,9 +6,9 @@
       "source_commit": "ac504a4d1fdf064c180b5198b0e388cbdb0ce3ac"
     },
     "debug_text_width": {
-      "ledger_commit": "86dd80f4aee8bf53ac92cfb4af94331cadc2f768",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "bbb40479e395497402ee339b05a11ef52817ee3a"
+      "ledger_commit": "b200ccf5d0314d278fd27d360757bfa7aaad65c9",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "b200ccf5d0314d278fd27d360757bfa7aaad65c9"
     },
     "func_80001740": {
       "ledger_commit": "c7546d550af3c57aad34949e51594dc2ee18ea08",
@@ -21,9 +21,9 @@
       "source_commit": "3b49cd47d65f8182d7587ce95d86ac49955cc52d"
     },
     "func_80002134": {
-      "ledger_commit": "e88c5c13313040f20706aca88fddc574cf9cf6b5",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "e88c5c13313040f20706aca88fddc574cf9cf6b5"
+      "ledger_commit": "0a1c2292d3f8a327bce59e479afb400672821065",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "0a1c2292d3f8a327bce59e479afb400672821065"
     },
     "func_80003480": {
       "ledger_commit": "ead530b9d74b00134296017406869616909bb7b9",
@@ -31,18 +31,23 @@
       "source_commit": "e4628a89827467289170f03de04393f8567098a5"
     },
     "func_80004454": {
-      "ledger_commit": "e1d7e96ab001cc3f57ef853ddbe62653016509b5",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "e1d7e96ab001cc3f57ef853ddbe62653016509b5"
+      "ledger_commit": "f0d508123d4e9ff7edf9a2868b6b13bd10db021e",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "source_commit": "f0d508123d4e9ff7edf9a2868b6b13bd10db021e"
     },
     "func_8000471C": {
-      "ledger_commit": "35bf1be358a75200a224f5d8c5e556bec5bda5a5",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "35bf1be358a75200a224f5d8c5e556bec5bda5a5"
+      "ledger_commit": "c83947e7c181309b8e60db55887eb4a179bac5bf",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "source_commit": "c83947e7c181309b8e60db55887eb4a179bac5bf"
+    },
+    "func_80004C28": {
+      "ledger_commit": "af8aca745c993f5434e7f9f3346acf27842151ff",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "af8aca745c993f5434e7f9f3346acf27842151ff"
     },
     "func_800056A4": {
-      "ledger_commit": "2a0c83ced98816be28f62b8290064cc7b042375f",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "ledger_commit": "77d4281ee283c28114e4bc44ade643d78dc16a9b",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
       "source_commit": "2a0c83ced98816be28f62b8290064cc7b042375f"
     },
     "func_80005868": {
@@ -54,6 +59,16 @@
       "ledger_commit": "9ed2816de406c530dadd71d5198da04d848e9c30",
       "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "9ed2816de406c530dadd71d5198da04d848e9c30"
+    },
+    "func_8000784C": {
+      "ledger_commit": "692d564f1eddd48cfc5393e035913af7dae91b2a",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "692d564f1eddd48cfc5393e035913af7dae91b2a"
+    },
+    "func_80009AA8": {
+      "ledger_commit": "1a49a53d4d24ccb3eabc2b5e878d9844670f86ba",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "source_commit": "1a49a53d4d24ccb3eabc2b5e878d9844670f86ba"
     },
     "func_8000BDB4": {
       "ledger_commit": "1ac4ce096402051df01ff721968235046df1e373",
@@ -101,9 +116,9 @@
       "source_commit": "0a7c6b05843a5cfca9a8e8a889460759a3906871"
     },
     "func_8000FAE0": {
-      "ledger_commit": "e1427b8d7bdfe3b79eab3743fc23d44984e93d9f",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "e1427b8d7bdfe3b79eab3743fc23d44984e93d9f"
+      "ledger_commit": "0eb41d15f8613a40cdbe5f84a9223564071eb18c",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "source_commit": "1c848773521230dcc7355d73a8eebac86736abae"
     },
     "func_800103D4": {
       "ledger_commit": "117874f2a7619be42e73762b97e5f2f6f3d6d704",
@@ -276,14 +291,14 @@
       "source_commit": "2f4f02c301752fe28ba6d4b1f9429c3e022262e8"
     },
     "func_80020D8C": {
-      "ledger_commit": "a37fd40f5b1db4c0585b55cbfa70291b445d8efc",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "4fe9255a1e3cd2c6b94232648c9a8a5acf625cf7"
+      "ledger_commit": "e4d91eaad1cc96649d3daa1a3c85cf6759b53c67",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "source_commit": "e4d91eaad1cc96649d3daa1a3c85cf6759b53c67"
     },
     "func_80020E4C": {
-      "ledger_commit": "625f07c1af20fdf556884799b774feaee7e24c65",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "625f07c1af20fdf556884799b774feaee7e24c65"
+      "ledger_commit": "a4deb504e4ad3ff21783f3fc895ff632db0eebf3",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "a4deb504e4ad3ff21783f3fc895ff632db0eebf3"
     },
     "func_80022FD4": {
       "ledger_commit": "745859aa4c33ccecf77a12fbed9e93f0e3543dcb",
@@ -311,9 +326,9 @@
       "source_commit": "d8322f2d624c58a165a8589e185b2858363b44ff"
     },
     "func_80028FCC": {
-      "ledger_commit": "1fb999859fc254b9858c97ee3b970c7345c192f7",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "1fb999859fc254b9858c97ee3b970c7345c192f7"
+      "ledger_commit": "8032cc9bffb504cbd5715f0fa9072f24fe140365",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "8032cc9bffb504cbd5715f0fa9072f24fe140365"
     },
     "func_80029274": {
       "ledger_commit": "2eaf3ca56c29644ae5c9411176e5d7d36eaa26ad",
@@ -321,14 +336,14 @@
       "source_commit": "2eaf3ca56c29644ae5c9411176e5d7d36eaa26ad"
     },
     "func_8002B524": {
-      "ledger_commit": "8b092737090ba855bbdbdf4014cdd60ffb26adb6",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "8b092737090ba855bbdbdf4014cdd60ffb26adb6"
+      "ledger_commit": "4dc226bdb75019bcbb2ebd59d892d981483afe23",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "4dc226bdb75019bcbb2ebd59d892d981483afe23"
     },
     "func_8002C69C": {
-      "ledger_commit": "ebc107b51d17aad2bf9df4d27371772bc12a64bd",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "ebc107b51d17aad2bf9df4d27371772bc12a64bd"
+      "ledger_commit": "096d7ed1a2f71f0dba7ebc4611289dbb5574cf69",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "source_commit": "096d7ed1a2f71f0dba7ebc4611289dbb5574cf69"
     },
     "func_8002CF6C": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
@@ -366,9 +381,9 @@
       "source_commit": "b67909e24fe248481ee63a92e951154885945e99"
     },
     "func_8003484C": {
-      "ledger_commit": "f9cda7baf831e6b73a789d9799f4ad9bac5e3b76",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "f9cda7baf831e6b73a789d9799f4ad9bac5e3b76"
+      "ledger_commit": "cc5973785031234c0b14d4e38990081983e8f70e",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "cc5973785031234c0b14d4e38990081983e8f70e"
     },
     "func_80038878": {
       "ledger_commit": "f6250d56ba0062f3f018697cad839e1c05b425b3",
@@ -386,14 +401,19 @@
       "source_commit": "60d4fe8eecd3b126dbd33b2ed2e73e7a7517dba2"
     },
     "func_8003A2C8": {
-      "ledger_commit": "e5ae629cf5265e33e885b7c82932ee89bb963172",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "e5ae629cf5265e33e885b7c82932ee89bb963172"
+      "ledger_commit": "7e8b764c078e368720f196c543680107991b2173",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "source_commit": "7e8b764c078e368720f196c543680107991b2173"
+    },
+    "func_8003A5A0": {
+      "ledger_commit": "126e42f288f44baa719565476bf27c9da674c728",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "126e42f288f44baa719565476bf27c9da674c728"
     },
     "func_8003A754": {
-      "ledger_commit": "249d01ebccf98aacff8ebbcae504de5fa630a2aa",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "249d01ebccf98aacff8ebbcae504de5fa630a2aa"
+      "ledger_commit": "dbce469435a9be2214b8a9ab2d38daf31660935b",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "dbce469435a9be2214b8a9ab2d38daf31660935b"
     },
     "func_8003D25C": {
       "ledger_commit": "ca1cbaf362ce4f67cb4eef34226f1cfc8a232883",
@@ -406,9 +426,9 @@
       "source_commit": "f22d0874fb58fbff3b8b841176a82a17cb9e430e"
     },
     "func_8003E8D8": {
-      "ledger_commit": "0e3de63667a5d632384abba03c845ba0d1dfa148",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 1 masked words is a schedule or structure defect the permuter can still move.",
-      "source_commit": "0e3de63667a5d632384abba03c845ba0d1dfa148"
+      "ledger_commit": "7e68ca061097d9d78c64edb830f8c598d810b707",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "7e68ca061097d9d78c64edb830f8c598d810b707"
     },
     "func_8003F154": {
       "ledger_commit": "6bdba1a93a675928992cc443558ee8b0da4b9b50",
@@ -434,6 +454,11 @@
       "ledger_commit": "690806f1ee058922a5052ec880bca5b5064a6193",
       "reason": "Class is register-only at 27 masked words, delta 0: routes to the forced-colour oracle and the permuter, mechanisms the recorded attempts did not use.",
       "source_commit": "690806f1ee058922a5052ec880bca5b5064a6193"
+    },
+    "func_80045BBC": {
+      "ledger_commit": "b16e3e4e8476d7b2ed147de8bd5723325314ba98",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "6674b56b93fe661fb23339c812b3b94bc10cd6ac"
     },
     "func_80045D34": {
       "ledger_commit": "3661bf85a437a529bb2655df05e8e0dd59f9ca40",
@@ -471,18 +496,18 @@
       "source_commit": "1d7c84ef103a961a78fa7fce70b30fd9cf7d0d9e"
     },
     "func_80048080": {
-      "ledger_commit": "76ff2b376561f2cb9b26d7bde787792be9eeaef7",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 12 masked words is a schedule or structure defect the permuter can still move.",
+      "ledger_commit": "f5061fcc35677f899226e0838c4424183a61583d",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "76ff2b376561f2cb9b26d7bde787792be9eeaef7"
     },
     "func_80048760": {
-      "ledger_commit": "4f1914d6eedf71fb6c2b62453ed2ee23cb089aaf",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 23 masked words is a schedule or structure defect the permuter can still move.",
+      "ledger_commit": "246ed7c6300668913d5aa5828be2b01441e1e944",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "4f1914d6eedf71fb6c2b62453ed2ee23cb089aaf"
     },
     "func_80049000": {
-      "ledger_commit": "338f9834f62fb660ff7d77e36307f1cd4b04605a",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 69 masked words is a schedule or structure defect the permuter can still move.",
+      "ledger_commit": "246ed7c6300668913d5aa5828be2b01441e1e944",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
       "source_commit": "338f9834f62fb660ff7d77e36307f1cd4b04605a"
     },
     "func_800498FC": {
@@ -506,9 +531,9 @@
       "source_commit": "fcdba033f7037e4cb4f8f3f9cacc83a2b60cb8fa"
     },
     "func_8004ACC4": {
-      "ledger_commit": "4be95a3d08118c15147f039c6472a20a574d6e0c",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 14 masked words is a schedule or structure defect the permuter can still move.",
-      "source_commit": "4be95a3d08118c15147f039c6472a20a574d6e0c"
+      "ledger_commit": "4e21209c81b28665421bd0cd40335fe42c9bc232",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "4e21209c81b28665421bd0cd40335fe42c9bc232"
     },
     "func_8004ADE8": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
@@ -516,9 +541,9 @@
       "source_commit": "b3d6581927dbe28c24c967ab1fb2e1adedaeba2a"
     },
     "func_8004AF68": {
-      "ledger_commit": "2ba910b17faa686519e47d9da3ddca8e70ac0c65",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 26 masked words is a schedule or structure defect the permuter can still move.",
-      "source_commit": "2ba910b17faa686519e47d9da3ddca8e70ac0c65"
+      "ledger_commit": "4e21209c81b28665421bd0cd40335fe42c9bc232",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "4e21209c81b28665421bd0cd40335fe42c9bc232"
     },
     "func_8004B1DC": {
       "ledger_commit": "b92ba51284e9c10f2b4947ce0aa6c8ccb8ec0f2f",
@@ -526,9 +551,9 @@
       "source_commit": "b92ba51284e9c10f2b4947ce0aa6c8ccb8ec0f2f"
     },
     "func_8004BA8C": {
-      "ledger_commit": "b2b7195e3730f67aee379d6cb01cc79cd5564a4b",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "b2b7195e3730f67aee379d6cb01cc79cd5564a4b"
+      "ledger_commit": "362f90a52acc397d39617564c3afcf5adcd7d107",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "362f90a52acc397d39617564c3afcf5adcd7d107"
     },
     "func_8004C690": {
       "ledger_commit": "1d10f3d96bcce24a5dd295de5f5bf46e950660d1",
@@ -539,6 +564,11 @@
       "ledger_commit": "647e6c7b46190583db2475cc7bf008e500e3c916",
       "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
       "source_commit": "647e6c7b46190583db2475cc7bf008e500e3c916"
+    },
+    "func_8004FAD0": {
+      "ledger_commit": "a945981c1bcd388a7fcfa40682506c2e667843b2",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "a945981c1bcd388a7fcfa40682506c2e667843b2"
     },
     "func_80051364": {
       "ledger_commit": "e39c665934647ee79903e791dfff5076b97c6d86",
@@ -586,14 +616,19 @@
       "source_commit": "a6c5f03d43d3252a3b6bcc2f108780f99ff17c2f"
     },
     "func_8005776C": {
-      "ledger_commit": "d721c54c6f4dba35ad2ffdfe4c5975b46d9efbb5",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "d721c54c6f4dba35ad2ffdfe4c5975b46d9efbb5"
+      "ledger_commit": "5149835f480c643bf1b4290a9ca264e7649d313f",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "5149835f480c643bf1b4290a9ca264e7649d313f"
     },
     "func_8005A7A0": {
-      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "810b64542f79bba9c9e9f6fcb5e3e84bcd408eae"
+      "ledger_commit": "f9506624e34dd4216029d98e4008a8d6764c0509",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "f9506624e34dd4216029d98e4008a8d6764c0509"
+    },
+    "func_8005A948": {
+      "ledger_commit": "e3412ac6bf2446227671783cfeebf56c994fc036",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "e3412ac6bf2446227671783cfeebf56c994fc036"
     },
     "func_overlay_001_F0003750_184FB30": {
       "ledger_commit": "985b2adb5d617899ddd3bb982afeb43d9265bc10",
@@ -650,6 +685,11 @@
       "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
       "source_commit": "255b9a2c43000dfccf062be2b55e90f7e4949bda"
     },
+    "func_overlay_009_F0000540_1866BB8": {
+      "ledger_commit": "1ecd5cc0efa81a690721ba81627ab05f00d6463a",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "e390d26f921d672ceb1eaeeaccf90dcbc9eaacc7"
+    },
     "func_overlay_009_F0000CE4_186735C": {
       "ledger_commit": "6a42b9d28ab568a9c61fca923ba83af2d5d88d68",
       "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
@@ -666,8 +706,8 @@
       "source_commit": "ffe52cc803195595d6f59587ed72581721585db9"
     },
     "func_overlay_022_F0000000_1878108": {
-      "ledger_commit": "851caa841ebab6b894c9f57854611beb99622064",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "ledger_commit": "2591e5df51b494ec30d9e11cbf0ed8ecef657b2f",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "fbb5a245b14301b58db7687fac6a4885eb40fb15"
     },
     "func_overlay_022_F0000D30_1878E38": {
@@ -686,8 +726,8 @@
       "source_commit": "972b1a98ece95dd0ebf00a41303aaa6e9f20f3dc"
     },
     "func_overlay_029_F000042C_187D6DC": {
-      "ledger_commit": "a7ff12e88edd6ecbdcbe76d166a1c1571f62ad76",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle.",
+      "ledger_commit": "c6e752c6eb9c8071f7eb48cce2d9d72a507f60fc",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "dd74c176a8ed7ee1966e038c180aa02cadb4994d"
     },
     "func_overlay_029_F00005C4_187D874": {
@@ -721,24 +761,29 @@
       "source_commit": "cf31ae1f270831b14b8aac75e72c25a74ae5258c"
     },
     "func_overlay_036_F0000818_1883CD0": {
-      "ledger_commit": "98e4dc587a583b83b869a1036cdc8b38af57f0c6",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "ledger_commit": "e1890566a43250909deab3ffcb37edc1a7cc47a5",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "68093ebf6f0fcf6b841a0f264e1384a6a8373393"
     },
     "func_overlay_038_F0000000_1885D10": {
-      "ledger_commit": "3694a3305a2a5f25db375eb0012f06e2cb11ac35",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "ledger_commit": "bcd4df9aaf55a0d5cc5553a11b1d671c9b3cd3ee",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "4de9d969fb135ff26cfb85ecbb1a6d44569b2017"
     },
     "func_overlay_041_F0000124_188745C": {
-      "ledger_commit": "00b729b0399622d691177a3b19455505507deb83",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle.",
-      "source_commit": "00b729b0399622d691177a3b19455505507deb83"
+      "ledger_commit": "c52de1abf96f9f45abf9cae385773f14af9ffdea",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "c52de1abf96f9f45abf9cae385773f14af9ffdea"
     },
     "func_overlay_041_F0001298_18885D0": {
       "ledger_commit": "0bcc0cf2fcdce3ff2f97ae81ef7e755e72f50582",
       "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle.",
       "source_commit": "0bcc0cf2fcdce3ff2f97ae81ef7e755e72f50582"
+    },
+    "func_overlay_041_F0001650_1888988": {
+      "ledger_commit": "3b8d5f41db435616a519d3012547370cbe7cb68c",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "79eadb56bf372c8eb59f7c05db01e04d6b8cd7e4"
     },
     "func_overlay_041_F000195C_1888C94": {
       "ledger_commit": "b5a7903023f8ec2bd6c0d87c2f69e08cae920576",
@@ -756,8 +801,8 @@
       "source_commit": "18fe33ff3f9046dcb0ce072634d94e7f1a20da67"
     },
     "func_overlay_043_F00010A8_188B078": {
-      "ledger_commit": "97a52a564c6773c7495da0eca0b93b0cb2e6df2a",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "ledger_commit": "dbaaadb742ffd6d7976e8cee3ab6af3a5dd038ee",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "6f5fe225d8013f75ebcfcde099073bac2db8da26"
     },
     "func_overlay_045_F0001158_188D5B0": {
@@ -829,6 +874,11 @@
       "ledger_commit": "738555080219d8f3add0eef9c97b05b9aa9fe271",
       "reason": "ADR 0018 stall rule, and at delta 532 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
       "source_commit": "738555080219d8f3add0eef9c97b05b9aa9fe271"
+    },
+    "func_overlay_060_F0000000_18B9DD8": {
+      "ledger_commit": "14d10ff4c6e39d40d8072f0e43f0b846e91beaf6",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "14d10ff4c6e39d40d8072f0e43f0b846e91beaf6"
     },
     "func_overlay_060_F0000334_18BA10C": {
       "ledger_commit": "42ce9566377ba1adacb14c7a615043d7d7eba75b",
@@ -946,19 +996,24 @@
       "source_commit": "267722c2d019c7f76e76be2b1fae01474a66fc26"
     },
     "overlay11UpdateMenu": {
-      "ledger_commit": "c7ac01796dbcd314c79f2bf7a30c0e00e5d261c1",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "3d238202f1514acb2ee74b24c43b873c18207103"
+      "ledger_commit": "d184f66ddbb176f3fee2c0317a902cb8e48d7952",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "d184f66ddbb176f3fee2c0317a902cb8e48d7952"
     },
     "overlay14CreateValue": {
-      "ledger_commit": "06bd677e76dc1f40edb36042ee1b79b806e03411",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle.",
-      "source_commit": "06bd677e76dc1f40edb36042ee1b79b806e03411"
+      "ledger_commit": "6657638b310535ff578b628f0c8a5227ff4c2b00",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "6657638b310535ff578b628f0c8a5227ff4c2b00"
     },
     "overlay15DrawRain": {
-      "ledger_commit": "83fcf45907e83ba6fefe4b78856ba1ef21a784ff",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle.",
-      "source_commit": "83fcf45907e83ba6fefe4b78856ba1ef21a784ff"
+      "ledger_commit": "7b7167c79c9a55435d42b8f09b656d85c141d3dc",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "7b7167c79c9a55435d42b8f09b656d85c141d3dc"
+    },
+    "overlay15DrawScreenStars": {
+      "ledger_commit": "ac37fd337f13f36e9b9ba2bc12b65503e7f5f2d9",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "ac37fd337f13f36e9b9ba2bc12b65503e7f5f2d9"
     },
     "overlay17AdvanceChain": {
       "ledger_commit": "b31a735f19fe41250a837d52bb218b1dbd009292",
@@ -966,14 +1021,19 @@
       "source_commit": "a9edd45d58f595581056cca9672fabb0b093305d"
     },
     "overlay17DrawStrip": {
-      "ledger_commit": "daa26e669ad13a0a80487268f2a82a17c52d1278",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle.",
-      "source_commit": "daa26e669ad13a0a80487268f2a82a17c52d1278"
+      "ledger_commit": "47338bab572b3833056be9a0c2c41df6074032ac",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "47338bab572b3833056be9a0c2c41df6074032ac"
     },
     "overlay19BuildAdjacency": {
       "ledger_commit": "6cf3af37d72497699502697bae8acd5e952bbd13",
       "reason": "Epoch 15 reshape pass 2: trial text-differs, out=0, 41-80 words; one structural reshape with the trial as oracle and the 0.8.0 lever block.",
       "source_commit": "bd5ef6c655ce41e89aaac280842f3adb78230f60"
+    },
+    "overlay19ClassifyEdge": {
+      "ledger_commit": "7cb5b62ac6a66b944906208d6eb05cef0ba7ba03",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "source_commit": "7cb5b62ac6a66b944906208d6eb05cef0ba7ba03"
     },
     "overlay1AdvanceGauge": {
       "ledger_commit": null,
@@ -991,8 +1051,8 @@
       "source_commit": "597daf7fed2b5fb0c7140e070a49e77d3664a894"
     },
     "overlay1AppendPathPoint": {
-      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "ledger_commit": "7227cc7b606f399e10fd6e7cef32a13bedc88cf7",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "7d381ba27b2e08a8baae631eb22e98f500aed013"
     },
     "overlay1AssignRecordIndex": {
@@ -1001,8 +1061,8 @@
       "source_commit": "77b225b0482e44943bdfcdca9be9ddfcc3bd03c5"
     },
     "overlay1BendPathPoint": {
-      "ledger_commit": "3d07e54c37b274ef67928384c33652f95999d057",
-      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "ledger_commit": "7227cc7b606f399e10fd6e7cef32a13bedc88cf7",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "3d07e54c37b274ef67928384c33652f95999d057"
     },
     "overlay1ConsumeNearbyPending": {
@@ -1016,24 +1076,29 @@
       "source_commit": "36b50ec043412f248ce0cf028eaba7d7433cfb03"
     },
     "overlay1FindBestRecord": {
-      "ledger_commit": "71d61c338d65ba695241d891ae57bb38130f4324",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 2 masked words is a schedule or structure defect the permuter can still move.",
+      "ledger_commit": "7227cc7b606f399e10fd6e7cef32a13bedc88cf7",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "603e826a4382da40dacced247320dd341a08442c"
     },
     "overlay1FindNextAngle": {
-      "ledger_commit": "374d8c42624ae11b846c92bb93e67643a2a2d15b",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "2788f6ed97fb1ed9dfcc5c75f74387cb3b043378"
+      "ledger_commit": "350ee0ec586a8ca41c23ac530d23ec1a86dc36c9",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "350ee0ec586a8ca41c23ac530d23ec1a86dc36c9"
     },
     "overlay1FindPreviousAngle": {
-      "ledger_commit": "374d8c42624ae11b846c92bb93e67643a2a2d15b",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "336cbb4e77889ea50d2bc338e6266e354c67268e"
+      "ledger_commit": "aa15859cdb2309357c40d46f03bbc6244b7ec6fc",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "aa15859cdb2309357c40d46f03bbc6244b7ec6fc"
     },
     "overlay1FindPreviousUsable": {
+      "ledger_commit": "03f4431026dec2adde51c96e7927f6c28cb80303",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "03f4431026dec2adde51c96e7927f6c28cb80303"
+    },
+    "overlay1FindType47ByAngle": {
       "ledger_commit": "53e7b17c78f73184246c2cc1eec385c052fb4795",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "9f0dbf313d9b1a4d887968544b6d0b1767ae7714"
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "329cb655dd483accfd8e8aa475c20674d2928af6"
     },
     "overlay1FindType5ByKey": {
       "ledger_commit": "09d3de7200c79672cbb0d7a625d1dc391e8ea2f1",
@@ -1046,18 +1111,18 @@
       "source_commit": "46d923f436dfb639977673c4b0c79b9d741dbfd1"
     },
     "overlay1InitializeGaugeObjects": {
-      "ledger_commit": "040b35dd78333756015a5d35994c19d5102da262",
-      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
+      "ledger_commit": "7227cc7b606f399e10fd6e7cef32a13bedc88cf7",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "040b35dd78333756015a5d35994c19d5102da262"
     },
     "overlay1InterpolatePath": {
-      "ledger_commit": "c976bdc22e96d82b3cf1f19cf99626edc90f120b",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "9c0b27212ac4d2aa531d4d4d3a2eaee7af1b6f85"
+      "ledger_commit": "461c939eb11a2e9c8321813943904caa13469f05",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "461c939eb11a2e9c8321813943904caa13469f05"
     },
     "overlay1ResolvePathPoint": {
-      "ledger_commit": null,
-      "reason": "Epoch 15 compiler-lever pass: as1 line-scheduler and declaration-order levers on ORDER residuals; trial is the oracle.",
+      "ledger_commit": "9d56afd69a7ade2c50a89aa4c06378d869360fa3",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "c0007c3b03995128b91f2ce06e95c690b33f8884"
     },
     "overlay1SolveAngleCandidates": {
@@ -1071,9 +1136,9 @@
       "source_commit": "8b4f51cdcbdc468f5622bc353511de2c0abb3270"
     },
     "overlay1UpdateAimedTransient": {
-      "ledger_commit": "b7ee71677e01d718c031d5df5b1231810cd22e8c",
-      "reason": "ADR 0018 stall-rule reopen for a whole-TU batch: these plateaus were filed under the superseded attempt cap. One owner works the unit under the stall rule with a single shared flag-lattice run.",
-      "source_commit": "b7ee71677e01d718c031d5df5b1231810cd22e8c"
+      "ledger_commit": "7227cc7b606f399e10fd6e7cef32a13bedc88cf7",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "7227cc7b606f399e10fd6e7cef32a13bedc88cf7"
     },
     "overlay1UpdateRangeFlags": {
       "ledger_commit": "5aa45face56d520943ba70709888e69b62951f05",
@@ -1084,6 +1149,11 @@
       "ledger_commit": "b5fbe47d054179212b322b9d8ac9391b1749bdda",
       "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
       "source_commit": "e0429c682e4697af97bc099f02d721e21c6d6011"
+    },
+    "overlay27UpdateCoordinates": {
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "9dcc99bd2e5803e72188dea788c9e17d3373e2fb"
     },
     "overlay29DrawGroups": {
       "ledger_commit": "d520da266c7b8e243992b8b0ea06508f0bb6aea9",
@@ -1101,19 +1171,19 @@
       "source_commit": "0eafd9ec192233d72f3cb5029adeb12ddc17f1bf"
     },
     "overlay31CreatePool": {
-      "ledger_commit": "056783bdef9ce8e515c94e0e1140967584618276",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle.",
+      "ledger_commit": "8d7b5fe00f19f02fe091480f1032b394054fcb16",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "76e4e291acd58c4310eadab39c540d36ebaa6bdd"
     },
     "overlay33InitializeBuffers": {
-      "ledger_commit": "ddaadf242ba9ee97a1756b83734d31f90ce79091",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "527f8e7aedf9d38d19922909cc8e1668001c4714"
+      "ledger_commit": "cd73c8bfc86dd560172f97c71f90efdbd756d553",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "cd73c8bfc86dd560172f97c71f90efdbd756d553"
     },
     "overlay33PresentAndSwap": {
-      "ledger_commit": "6733a6945ce7d1303a2c69908e5bc7c996a63194",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle.",
-      "source_commit": "6733a6945ce7d1303a2c69908e5bc7c996a63194"
+      "ledger_commit": "b4a13ef7ad804be26f95d7ff0afea4db89650a8f",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "b4a13ef7ad804be26f95d7ff0afea4db89650a8f"
     },
     "overlay34CreateRecord": {
       "ledger_commit": "643bfdba2db311cf7057efff4a8c25fe29b53890",
@@ -1131,19 +1201,19 @@
       "source_commit": "20db1cc30a75f54622a00822ab458d2952eb5a3d"
     },
     "overlay3SelectScoredObject": {
-      "ledger_commit": "e18fd3778e1f525cb2cd4bddc5f08c8164f44a8f",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle.",
-      "source_commit": "e18fd3778e1f525cb2cd4bddc5f08c8164f44a8f"
+      "ledger_commit": "6a45a90ce25d6c31b5053c4dfe1a33b09c2811e1",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "6a45a90ce25d6c31b5053c4dfe1a33b09c2811e1"
     },
     "overlay40FadeRecords": {
-      "ledger_commit": "5ff25ed2731c58f217b68dca2ea3b6b1d13cee05",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "5ff25ed2731c58f217b68dca2ea3b6b1d13cee05"
+      "ledger_commit": "f7c11690ca03b2492bc3982635de778c74712288",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "source_commit": "f7c11690ca03b2492bc3982635de778c74712288"
     },
     "overlay43FilterImage": {
-      "ledger_commit": "5747fb0851511e182fef6e3b155fc4a3bb9c3d90",
-      "reason": "Pool-rotation lever pass: instrumented uopt CDX p1/p2 colouring records plus forced-colour reachability on the row/column/first/scratch web rotation. No flag sweeps, no permutation.",
-      "source_commit": "5747fb0851511e182fef6e3b155fc4a3bb9c3d90"
+      "ledger_commit": "598cf64d96f6227c5882033610c056ebccdc629b",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "598cf64d96f6227c5882033610c056ebccdc629b"
     },
     "overlay4UpdateObjectMotion": {
       "ledger_commit": "04d879e6e074e11aae7f44e1e730a440a7666663",
@@ -1161,14 +1231,24 @@
       "source_commit": "83c2ff225b7fd56ff0e71fd60d2d162ba0201c1d"
     },
     "overlay57UpdateModeTrigger": {
-      "ledger_commit": "afcd42a6b01f327755805cfce8504bb5acfd431d",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle.",
+      "ledger_commit": "0cbbf56948bfa9844f0383d17f37466496759041",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "afcd42a6b01f327755805cfce8504bb5acfd431d"
+    },
+    "overlay59Advance": {
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "7169fad4d2291d4b453b38b0c9bc2c140824d7b8"
     },
     "overlay59PrepareEntry": {
       "ledger_commit": "3c7b2ad42d5c8dd2375d6801850bbf0b5dd89457",
       "reason": "Binding/ABI repair only: use the ROM-proved integer-ID texture callee, distinct from local release. Prove unchanged owned bytes and all six identities; refresh evidence. No allocation, flag or manual variants.",
       "source_commit": "4a75e3348dc760509befffba716637270952d8d7"
+    },
+    "overlay5InitializeAudio": {
+      "ledger_commit": "77c64beae157604d707fdfb6d76f2bc451d55aea",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "15193f57a1499629b8008c161ea650f0b1fc017c"
     },
     "overlay60ReassignChoiceSlots": {
       "ledger_commit": "54184410c40af2219b18d87fe50a5652ede6759f",
@@ -1176,9 +1256,9 @@
       "source_commit": "d5d84fc774b4cca0953cbffd03fdce77ff44a8f4"
     },
     "overlay62Update": {
-      "ledger_commit": "ac7120dcc2ecf7d725fa4e36130abc560d98c9d0",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "ac7120dcc2ecf7d725fa4e36130abc560d98c9d0"
+      "ledger_commit": "1ceacec831b882c80721c847507c23ece1de43d8",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "96bc7bc353772d9eaf79723323b8d7d9155d1879"
     },
     "overlay63UpdateSequence": {
       "ledger_commit": null,
@@ -1191,23 +1271,23 @@
       "source_commit": "27d7731a7e0a4635055be8e495d692b88593a25d"
     },
     "overlay68CheckKind": {
-      "ledger_commit": "0d26e8dcf9753fbc9fa1e9e6aab928b26b58a401",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
+      "ledger_commit": "16372727c13a2a54ecc2a57d041b1788414997ef",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "90ee5c814ce688bae33efdcce6a2d568c9451e68"
     },
     "overlay74Update": {
-      "ledger_commit": "bcf43c8264dd26aefe1385aadce05e2133717f38",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "595daf5dd01bec3fe47182549cd410f77284dd24"
+      "ledger_commit": "17963e0f7009aac86294efc03a222217b13a68a2",
+      "reason": "New mechanism: law L87, uopt colours pool webs in first-surviving-definition order so schedule and colour are one decision, and the lock breaks at the use. Not tried; the permuter was also unfaithful here until today.",
+      "source_commit": "17963e0f7009aac86294efc03a222217b13a68a2"
     },
     "overlay75UpdateMovingObject": {
-      "ledger_commit": "1f405c79b2f363f0d3eb04128da8b98f487786b3",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle.",
+      "ledger_commit": "830cbf1dfd8e5f7d3e5040ff5357f55c90ce8722",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "1f405c79b2f363f0d3eb04128da8b98f487786b3"
     },
     "overlay7AcquireEntry": {
-      "ledger_commit": "7de2ffbcc24e67a50955ecb110d49d81d7c1a78a",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle.",
+      "ledger_commit": "fd8dc6f09ce734e2b7a8f68e87c2341c71785835",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "7de2ffbcc24e67a50955ecb110d49d81d7c1a78a"
     },
     "overlay7DispatchModes": {
@@ -1216,9 +1296,9 @@
       "source_commit": "6d77778ac67abbfa8e054705cb7d10caa385b41c"
     },
     "overlay7DispatchSelection": {
-      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "1aeda35781dcd16d6c5b68d8e3457b5924d94a06"
+      "ledger_commit": "53ff37e33fa4a252be30b418ec5fb81e061897a5",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "53ff37e33fa4a252be30b418ec5fb81e061897a5"
     },
     "overlay89InitializeEffect": {
       "ledger_commit": "92ef79ac3de1e127fde547dc0f32634251b352bb",
@@ -1236,14 +1316,14 @@
       "source_commit": "eef6ac52d7aac0c363efe93544a1cf9f0bb04f95"
     },
     "overlay96Unregister": {
-      "ledger_commit": "ce466d055ccc805b7b9d37b61ad57c81c7eafb9b",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle.",
-      "source_commit": "ce466d055ccc805b7b9d37b61ad57c81c7eafb9b"
+      "ledger_commit": "6578d03924f792f3f675c80a66e178c1bda348bd",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "6578d03924f792f3f675c80a66e178c1bda348bd"
     },
     "overlay97InitScale": {
-      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "f07036deda64a7ec9d868bf67fd2632e31e7631a"
+      "ledger_commit": "e0f31096f788024f758a5fa8733b700025ed7a94",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "e0f31096f788024f758a5fa8733b700025ed7a94"
     },
     "overlay98CheckObject": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
@@ -1276,9 +1356,9 @@
       "source_commit": "d67fad46c36b355ab4516a8c23a6ebd618048575"
     },
     "rumbleTick": {
-      "ledger_commit": "813004a2aa4cbacdc74f50a8c13306771fdd06bc",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "813004a2aa4cbacdc74f50a8c13306771fdd06bc"
+      "ledger_commit": "95abe165761a0a476189fe72ec39792152ff1ee4",
+      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
+      "source_commit": "95abe165761a0a476189fe72ec39792152ff1ee4"
     },
     "runlinkFreeCode": {
       "ledger_commit": "2e5e61b694337403b44856af043a43da2fc6e5e9",
