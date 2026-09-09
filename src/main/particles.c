@@ -1614,26 +1614,11 @@ CircularParticle *func_8003FB98(ParticleEmitterObject *object, ParticleTrigger *
     }
     return particle;
 }
-#ifdef NON_MATCHING
-/* Exact 125-word geometry, frameless, both relocation identities exact; 42
- * positional differences from +0x64.
- *
- * The forward scan's first probe is spelled freeBits[wordIndex], not
- * *freeBits, even though wordIndex is provably zero there: the indexed form
- * makes IDO strength-reduce one base pointer for the probe and the loop
- * together, which is what puts the scan cursor and the word count in the
- * target's two argument registers instead of exchanging them. The
- * dereference spelling costs 14 words.
- *
- * Remaining: the descending scan materializes its shift base one instruction
- * earlier than the target, and the colour pool diverges from the first probe
- * onward. */
 /* PROVENANCE: structure cross-checked against JFG
  * asm/nonmatchings/particles/func_80061948.s; body reconstructed from Mickey evidence. */
 CircularParticle *func_8004054C(s32 type, s32 direction) {
     CircularParticlePool *pool;
     CircularParticle *particle;
-    u32 *freeBits;
     s32 bits;
     s32 wordIndex;
     s32 bitIndex;
@@ -1651,39 +1636,36 @@ CircularParticle *func_8004054C(s32 type, s32 direction) {
             }
         } else {
             if (direction == -1) {
-                freeBits = pool->freeBits;
-                if (freeBits[wordIndex] == 0) {
+                if (pool->freeBits[wordIndex] == 0) {
                     bits = pool->lastBitWord;
                     if (bits >= wordIndex) {
                         do {
                             wordIndex++;
-                        } while (freeBits[wordIndex] == 0 && wordIndex <= bits);
+                        } while (pool->freeBits[wordIndex] == 0 && wordIndex <= bits);
                     }
                 }
                 if (pool->lastBitWord < wordIndex) {
                     return NULL;
                 }
-                bits = freeBits[wordIndex];
+                bits = pool->freeBits[wordIndex];
                 bitIndex = 0;
                 if (!(bits & 1)) {
                     do {
                         bitIndex++;
-                    } while (!(bits & (1 << bitIndex)));
+                    } while (!(bits & (1U << bitIndex)));
                 }
-                freeBits[wordIndex] = bits & ~(1U << bitIndex);
+                pool->freeBits[wordIndex] = bits & ~(1U << bitIndex);
                 wordIndex = (wordIndex << 5) + bitIndex;
             } else {
                 wordIndex = pool->lastBitWord;
                 if (wordIndex > 0) {
-                    freeBits = pool->freeBits;
-                    if (freeBits[wordIndex] == 0) {
+                    if (pool->freeBits[wordIndex] == 0) {
                         do {
                             wordIndex--;
-                        } while (wordIndex > 0 && freeBits[wordIndex] == 0);
+                        } while (wordIndex > 0 && pool->freeBits[wordIndex] == 0);
                     }
                 }
-                freeBits = pool->freeBits;
-                bits = freeBits[wordIndex];
+                bits = pool->freeBits[wordIndex];
                 if (bits == 0) {
                     return NULL;
                 }
@@ -1691,9 +1673,9 @@ CircularParticle *func_8004054C(s32 type, s32 direction) {
                 if (!(bits & 0x80000000)) {
                     do {
                         bitIndex--;
-                    } while (!(bits & (1 << bitIndex)));
+                    } while (!(bits & (1U << bitIndex)));
                 }
-                freeBits[wordIndex] = bits & ~(1U << bitIndex);
+                pool->freeBits[wordIndex] = bits & ~(1U << bitIndex);
                 wordIndex = (wordIndex << 5) + bitIndex;
             }
             if (wordIndex >= pool->count) {
@@ -1706,9 +1688,6 @@ CircularParticle *func_8004054C(s32 type, s32 direction) {
     }
     return particle;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8004054C.s")
-#endif
 /* PROVENANCE: structure cross-checked against JFG assembly function
  * func_80061B50; body reconstructed from Mickey evidence. */
 /* Workbench: mixed structural/register residual, 9/78 words, first +0x1C.
@@ -2621,16 +2600,6 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * first-mismatch: +0x4C
  * summary: declaration census closed nine of twelve stack homes; the volatile command-length home and the walking particle pointer's home remain, and volatile is load-bearing (dropping it moves the frame to 0x170).
  * PLATEAU-HANDOFF:func_80041530:end
- */
-
-/* PLATEAU-HANDOFF:func_8004054C:start
- * symbol: func_8004054C
- * score: 42 differing words
- * frame: frameless
- * relocations: 2
- * first-mismatch: +0x64
- * summary: spelling the forward scan's first probe as freeBits[wordIndex] rather than *freeBits closed the a2/a3 carrier web and 14 words. Remaining: the descending scan hoists the shift base one instruction early, and the pool lane diverges from +0x64. Commutative rewrites of the mask tests are flat -- IDO canonicalizes `and` operand order here.
- * PLATEAU-HANDOFF:func_8004054C:end
  */
 
 /* PLATEAU-HANDOFF:func_8003E8D8:start

@@ -100,7 +100,7 @@ This is a names-only audit of every function body guarded by `NON_MATCHING` in `
 | `partUpdateTriggers` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003F154` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_8003F5F8` | `src/main/particles.c` | matched | — | Promoted to exact C; no ownership work remains. |
-| `func_8004054C` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
+| `func_8004054C` | `src/main/particles.c` | none | — | Matched; no ownership change was needed. |
 | `func_80040740` | `src/main/particles.c` | matched | — | Promoted to exact C; no ownership work remains. |
 | `func_80040B88` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |
 | `func_80041530` | `src/main/particles.c` | none | — | No ownership change; continue source/codegen work. |

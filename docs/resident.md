@@ -2171,13 +2171,22 @@ combination or batch. ORT 862 exports the function, but exhaustive resident,
 overlay, direct-jal, literal-pointer, and source scans found no caller. Ordinary
 66/66 and linked equality prove fallback only.
 
-`func_8004054C` remains one instruction short at 124/125 words. Positional
-ranking reports 101 differences from `+0x2C`; shift-tolerant workbench
-alignment leaves 33 residuals from `+0x4C` (four structural, one commutative,
-and 28 register words). Unsigned free-bit pointers, a shared pool aggregate,
-pointer order, AST/lifetime probes, the flag lattice, and bounded permutation
-did not recover the folded initial address shift or pool/temporary web. The
-attempt cap is exhausted and assembly stays canonical.
+`func_8004054C` is an exact 125-word, frameless match over ROM
+`0x4114C..0x41340`, with both relocation identities exact. Two source
+artefacts held it at a 42-word plateau, and neither was an allocator wall:
+
+- A `u32 *freeBits` local. The target reads `pool->freeBits` afresh at each of
+  the eight uses; the local pins all of them to one pool colour and forces the
+  descending scan's cursor onto that colour instead of the forward scan's.
+  Dropping the local entirely -- both scans read the field -- closes the four
+  structural words, the hoisted shift base, and seven register words at once.
+  Inlining only one of the two scans is strictly worse than either extreme.
+- `1U` versus `1` in the bit-scan test. `!(bits & (1 << bitIndex))` and
+  `!(bits & (1U << bitIndex))` are the same value and the same instruction, but
+  IDO canonicalises the `and`'s operand order on the operands' signedness, so
+  only the unsigned literal puts `bits` in `rs`. Two words, in both scans, and
+  no rewriting of the test -- `== 0`, reversed operands, a cast on `bits` --
+  reaches it; the literal's own type is the whole lever.
 
 `func_8003E8D8` reaches a bounded configured full-TU plateau at 139/140 raw
 and relocation-normalized words, first `+0x38`, with exact `0x230` size,
