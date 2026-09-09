@@ -5664,11 +5664,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80004454:start
  * symbol: func_80004454
- * score: 3 differing words
+ * score: 76/79 words
  * frame: 0x88
  * relocations: 6
  * first-mismatch: +0x50
- * summary: Reopened index/cursor probe regressed to 55 words; permuter 15-word scratch result did not transfer. Baseline remains 3 register words.
+ * summary: One caller-saved colour on p1 web 22. a0 is the lowest zero-cost free colour; only an extra interfering a0 web can move it, and none is reachable here yet.
  * PLATEAU-HANDOFF:func_80004454:end
  */
 
@@ -5684,11 +5684,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_8000471C:start
  * symbol: func_8000471C
- * score: 3 differing words
+ * score: 77/80 words
  * frame: 0x88
  * relocations: 6
  * first-mismatch: +0x50
- * summary: Same one caller-saved colour as func_80004454: target a1, candidate a0. Shared with func_80009AA8; not a source-level web.
+ * summary: Twin of func_80004454: the same p1 web 22 takes a0 where the target takes a1. Same requirement, same measured-flat search space.
  * PLATEAU-HANDOFF:func_8000471C:end
  */
 
@@ -5786,11 +5786,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80009AA8:start
  * symbol: func_80009AA8
- * score: 3 differing words
+ * score: 241/244 words
  * frame: 0x60
  * relocations: 17
  * first-mismatch: +0x54
- * summary: One uopt caller-saved colour: target a1 where the candidate takes a0. Next: what reserves a0 in the target.
+ * summary: One caller-saved colour on p1 web 19. The target's web partition IS reachable; the block is the decision ORDER, not the partition.
  * PLATEAU-HANDOFF:func_80009AA8:end
  */
 
