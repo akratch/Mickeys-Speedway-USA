@@ -170,12 +170,16 @@ extern void TrapDanglingJump();
 /* First mismatch: +0x10; target frame 0x30 versus candidate 0x40. */
 /* Structural gap: argument homes and floating/integer carrier allocation. */
 #ifdef NON_MATCHING
+/* `sp2C`, `sp20` and `sp1C` were decompiler names for the compiler's own spill
+ * slots around the two calls, written and never read; deleting them takes the
+ * frame from 0x40 to 0x38 without moving an instruction. `sp28` stays -- it is
+ * read again at the 2-state divide. The target's own homes give the rest of
+ * the census: with frame 0x30, var_a1 is at 0x2C, sp28 at 0x28, var_t0 at 0x20
+ * and var_a2 at 0x1C, while arg0, arg3 and arg6 live at their incoming homes
+ * 0x30, 0x3C and 0x48 and are not locals at all. */
 void func_80037414(s32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4,
                    s32 arg5, s32 arg6) {
-    s32 sp2C;
     s32 sp28;
-    s32 sp20;
-    s32 sp1C;
     s32 var_a1;
     s32 var_a2;
     s32 var_t0;
@@ -185,16 +189,10 @@ void func_80037414(s32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4,
     var_a1 = var_t0;
     sp28 = var_a2;
     if (D_8007BE80 == 0) {
-        sp2C = var_a1;
-        sp1C = var_a2;
-        sp20 = var_t0;
         func_800371BC(arg1, arg2, var_a1, var_a2);
     }
     if ((D_8007BEA8 != 0) &&
         ((D_8007BE90 == 4) || (D_8007BE90 == 5))) {
-        sp2C = var_a1;
-        sp1C = var_a2;
-        sp20 = var_t0;
         TrapDanglingJump(arg0, var_a1, var_a2);
     }
     if ((arg6 == 0) || (D_8007BEA8 == 0)) {
@@ -690,10 +688,10 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
 /* PLATEAU-HANDOFF:func_80037414:start
  * symbol: func_80037414
  * score: 59 differing words
- * frame: 0x40
+ * frame: 0x38
  * relocations: 42
  * first-mismatch: +0x10
- * summary: VI transition semantics compile, but argument homes and carrier allocation remain structurally different.
+ * summary: Three declared locals were decompiler spill names; removing them takes the frame from 0x40 to 0x38 against 0x30. The +4 is a callee-saved carrier.
  * PLATEAU-HANDOFF:func_80037414:end
  */
 
