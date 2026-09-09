@@ -1349,7 +1349,7 @@ void func_8003A590(void) {
  * frame: frameless
  * relocations: 6
  * first-mismatch: +0x14
- * summary: JFG efd5abb leaves frontSetScreenMode assembly-only; no new donor C reaches the v1/v0 tie, so resume with a p1/p2 forced-color oracle.
+ * summary: The equality operand and the global address register are coupled: comparing the int fixes the branch and moves the address one colour later, never both.
  * PLATEAU-HANDOFF:func_8003A2C8:end
  */
 
