@@ -170,12 +170,16 @@ extern void TrapDanglingJump();
 /* First mismatch: +0x10; target frame 0x30 versus candidate 0x40. */
 /* Structural gap: argument homes and floating/integer carrier allocation. */
 #ifdef NON_MATCHING
+/* `sp2C`, `sp20` and `sp1C` were decompiler names for the compiler's own spill
+ * slots around the two calls, written and never read; deleting them takes the
+ * frame from 0x40 to 0x38 without moving an instruction. `sp28` stays -- it is
+ * read again at the 2-state divide. The target's own homes give the rest of
+ * the census: with frame 0x30, var_a1 is at 0x2C, sp28 at 0x28, var_t0 at 0x20
+ * and var_a2 at 0x1C, while arg0, arg3 and arg6 live at their incoming homes
+ * 0x30, 0x3C and 0x48 and are not locals at all. */
 void func_80037414(s32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4,
                    s32 arg5, s32 arg6) {
-    s32 sp2C;
     s32 sp28;
-    s32 sp20;
-    s32 sp1C;
     s32 var_a1;
     s32 var_a2;
     s32 var_t0;
@@ -185,16 +189,10 @@ void func_80037414(s32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4,
     var_a1 = var_t0;
     sp28 = var_a2;
     if (D_8007BE80 == 0) {
-        sp2C = var_a1;
-        sp1C = var_a2;
-        sp20 = var_t0;
         func_800371BC(arg1, arg2, var_a1, var_a2);
     }
     if ((D_8007BEA8 != 0) &&
         ((D_8007BE90 == 4) || (D_8007BE90 == 5))) {
-        sp2C = var_a1;
-        sp1C = var_a2;
-        sp20 = var_t0;
         TrapDanglingJump(arg0, var_a1, var_a2);
     }
     if ((arg6 == 0) || (D_8007BEA8 == 0)) {
@@ -237,18 +235,46 @@ s32 func_80037664(void) {
     }
     return 2;
 }
-/* Workbench verdict: structure-mismatch, 95 differing words; target 118/candidate 119 words. */
-/* First mismatch: +0x0; target frame 0x18 versus candidate 0x20. */
-/* Structural gap: state-machine carrier/frame allocation and branch schedule. */
+/*
+ * The +1 word is one colour: the target carries the loop flag in `a1` for its
+ * whole life and the candidate colours it into `s0`, paying a save, a restore
+ * and a `move a1,s0` in the jump's delay slot where the target has a `nop`.
+ * Census `lw +1, sw +1, nop -1`, and the frame follows: 0x20 against 0x18,
+ * which is 16 bytes of outgoing arguments plus `ra` and nothing else.
+ *
+ * The target has one more allocatable register than the candidate because it
+ * uses `ra` itself: it saves `ra` at +0x14 and then loads the previous state
+ * into it, which is legal because that value is dead before the jump. Every
+ * later colour is shifted by that one register, and the shift is what pushes
+ * the loop flag out of `a1`, which the candidate has given to the mode bit.
+ *
+ * Reading the three globals back at each use instead of naming the
+ * decompiler's intermediates (`temp_t7`, `temp_t9`, `var_v0`) is what the
+ * target does and it more than doubles the agreement, from 30 to 62 of 118
+ * shift-tolerant words and from a census delta of seven to three. The three
+ * names cost nothing in frame -- they were already coalesced -- but they
+ * changed the address web and the branch shapes (`bne`/`bnel`).
+ *
+ * Flat from here: all six statement orders of the three prologue assignments,
+ * all 24 declaration orders, `register` on each subset of the four locals,
+ * inlining the mode bit at its three uses (which costs six words), and
+ * changing the dangling-jump argument list. -O3 is not admissible: it reaches
+ * the exact 0x18 frame, 85 of 118 aligned words and a census delta of one,
+ * but this TU also contains matched functions, so the flag would break the
+ * ROM and is a diagnostic only.
+ *
+ * Jet Force Gemini pull request #37 (head d45123d1c528955d5e12ddad805076267a690d76)
+ * takes src/menu.c to 48 matched bodies with no pragmas, and it does not
+ * contain this function: neither that file nor the rest of that tree has the
+ * fade state machine, its `(x << 10) / duration` level, or any `0x400`
+ * complement. No donor is available for this target.
+ */
 #ifdef NON_MATCHING
 void func_800376CC(s32 arg0) {
     s32 temp_t0;
-    s32 temp_t7;
-    s32 temp_t9;
     register s32 old_state;
     register s32 var_a1;
     s32 var_a2;
-    s32 var_v0;
 
     var_a2 = arg0;
     temp_t0 = D_8007BE90 & 1;
@@ -257,10 +283,9 @@ void func_800376CC(s32 arg0) {
         var_a1 = 1;
         if (D_8007BEA8 == 2) {
             if (D_8007BE98 >= 0) {
-                temp_t7 = D_8007BEAC + var_a2;
-                D_8007BEAC = temp_t7;
-                if (temp_t7 >= D_8007BE98) {
-                    var_a2 = temp_t7 - D_8007BE98;
+                D_8007BEAC += var_a2;
+                if (D_8007BEAC >= D_8007BE98) {
+                    var_a2 = D_8007BEAC - D_8007BE98;
                     if (temp_t0 != 0) {
                         D_8007BEA8 = 1;
                     } else {
@@ -271,18 +296,15 @@ void func_800376CC(s32 arg0) {
                 }
             }
         } else if (D_8007BEA8 == 1) {
-            temp_t9 = D_8007BEAC + var_a2;
-            D_8007BEAC = temp_t9;
+            D_8007BEAC += var_a2;
             if (temp_t0 == 0) {
-                D_8007BEB0 = (s32) (temp_t9 << 0xA) / D_8007BE94;
-                var_v0 = temp_t9;
+                D_8007BEB0 = (s32) (D_8007BEAC << 0xA) / D_8007BE94;
             } else {
-                var_v0 = D_8007BEAC;
-                D_8007BEB0 = (s32) ((D_8007BE94 - var_v0) << 0xA) /
+                D_8007BEB0 = (s32) ((D_8007BE94 - D_8007BEAC) << 0xA) /
                               D_8007BE94;
             }
-            if (var_v0 >= D_8007BE94) {
-                var_a2 = var_v0 - D_8007BE94;
+            if (D_8007BEAC >= D_8007BE94) {
+                var_a2 = D_8007BEAC - D_8007BE94;
                 if (temp_t0 != 0) {
                     D_8007BEA8 = 0;
                 } else {
@@ -683,20 +705,20 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
 /* PLATEAU-HANDOFF:func_80037414:start
  * symbol: func_80037414
  * score: 59 differing words
- * frame: 0x40
+ * frame: 0x38
  * relocations: 42
  * first-mismatch: +0x10
- * summary: VI transition semantics compile, but argument homes and carrier allocation remain structurally different.
+ * summary: Three declared locals were decompiler spill names; removing them takes the frame from 0x40 to 0x38 against 0x30. The +4 is a callee-saved carrier.
  * PLATEAU-HANDOFF:func_80037414:end
  */
 
 /* PLATEAU-HANDOFF:func_800376CC:start
  * symbol: func_800376CC
- * score: 95 differing words
+ * score: 61 differing words
  * frame: 0x20
  * relocations: 15
  * first-mismatch: +0x0
- * summary: State-machine branch and carrier allocation remain structurally different.
+ * summary: The +1 word is one colour: the target keeps the loop flag in a1 while the candidate spills it to s0, paying sw/lw plus a move a1,s0 where the target has a nop. The target has ra as an extra allocatable register (it is dead before the jump) and every later colour shifts by it. Reading the three globals back instead of naming temp_t7/temp_t9/var_v0 took aligned words from 30 to 62 of 118. Statement order, declaration order, register classes, inlining the mode bit and the jump argument list are flat; JFG PR 37 has no donor for it.
  * PLATEAU-HANDOFF:func_800376CC:end
  */
 

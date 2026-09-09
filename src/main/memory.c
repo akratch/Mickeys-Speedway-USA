@@ -300,38 +300,29 @@ void mmFree(void *data) {
 void ReleaseUnusedLinkSlots(void);
 
 /*
- * Historical same-body configured full-TU and isolated NON_MATCHING C were
- * measured at 0xF8 / 62 words versus the 0xFC / 63-word target, with frame
- * 0x30. Raw and relocation-normalized positional comparison was 1/63 exact,
- * 62 differing words including the missing target tail, first +0x4. No
- * candidate object or comparison report survives, so the current-HEAD score,
- * size, frame, and relocation tuples are unknown; the generated ranking row is
- * stale until V0 is regenerated.
+ * The second low-memory tier is JFG's: `mmFreeTick` re-reads FreeRAM under a
+ * 0xC000 guard and calls into a module Mickey never links, so the guarded
+ * block is empty here. The read is not decoration -- referencing D_800D21B0
+ * twice is what makes IDO materialize its address into a callee-saved register
+ * and load through it (`lui`/`addiu`/`lw 0(reg)`), where a single reference
+ * folds the %lo into the load and loses one instruction. Recorded in
+ * docs/cleanup-queue.md; seek a natural spelling with the same 63 words.
  *
- * Historical prose reports the same 12 relocation type/identity records, but
- * no exact-offset tuple: eleven records four bytes early and the first
- * D_800D20A8 LO16 at +0x50 versus target +0x5C. Conflicting 10- and
- * 11-aligned-row claims survive at old source commits, with no report or
- * variant object authenticating either count.
- *
- * Historical flag, permutation, pointer, branch, cursor, and block-local-count
- * outcomes have no surviving artifacts and are scheduling evidence only.
- * Retain fresh V0, the 119-recipe lattice, and one allocator trace, then test
- * JFG-faithful lexical layout and explicit early-D_800D21B0/later-D_800D20A8
- * lifetimes while preserving both D_800D20A8 pairs. Combine only independent
- * gains; cap 122 deterministic builds plus one trace and do not run a generic
- * batch absent a policy-clean natural gain. ORT 593 is an export; the sole
- * authenticated direct inbound is func_80026FB4+0x5F8, with no runtime-table
- * or overlay inbound.
+ * The counter reset is on its own line, not in a `for` header, so `as1`
+ * schedules it ahead of the loop preheader's hoisted D_800D20A8 address
+ * instead of into the guard's delay slot (docs/ido-learnings.md, the source
+ * line stamped on each emitted record).
  */
-#ifdef NON_MATCHING
 void func_8002B7AC(void) {
     s32 i;
 
     if (D_800D21B0 < 0x14000) {
         ReleaseUnusedLinkSlots();
+        if (D_800D21B0 < 0xC000) {
+        }
     }
-    for (i = 0; i < D_800D21A8;) {
+    i = 0;
+    while (i < D_800D21A8) {
         D_800D20A8[i]--;
         if (D_800D20A8[i] == 0) {
             func_8002B8A8(D_800D1CA8[i]);
@@ -343,9 +334,6 @@ void func_8002B7AC(void) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/memory/func_8002B7AC.s")
-#endif
 
 /* PROVENANCE: adapted from JFG src/memory.c:mempool_free_addr. */
 s32 func_8002B978(u8 *address);

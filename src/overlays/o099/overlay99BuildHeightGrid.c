@@ -27,24 +27,10 @@ extern s32 gOverlay99Arg5;
 extern void overlay99ApplySegment(Overlay99Segment *segment, f32 scale);
 
 /*
- * Bounded clean-source plateau (reviewed 2026-08-29): the owned target is
- * 114 words with a 0x28 frame. Configured -O2 -mips2 -32
- * -Wo,-loopunroll,0 emits 115 words, with 104 differing positions and first
- * mismatch +0x2C. It carries 29 static relocations, but only 8 of their
- * offset/type pairs align with the 29 shipped runtime records. All 119 flag
- * rows were attempted; the compilable O2/MIPS-II rows tie this result. A
- * codegen-faithful allocator trace colors the negative-magnitude web into v0
- * while target t4 is eligible at equal cost. Giving that magnitude a natural
- * block-local carrier regresses to 107 differing positions and swaps the main
- * v0/v1 pool. The assembly fallback remains the only exact linked output. */
-#ifdef NON_MATCHING
-/* PLATEAU-HANDOFF
- * symbol: overlay99BuildHeightGrid
- * score: 104 differing words
- * frame: 0x28
- * relocations: 29
- * first-mismatch: +0x2C
- * summary: clean V0 is 115/114 words; only 8/29 runtime offset/type pairs align; trace-led magnitude split regresses
+ * The negated magnitude is spelled as an expression rather than written back
+ * through `value`: the write-back form reuses the value's own register, where
+ * the target computes the negation into a separate caller-saved temporary and
+ * leaves the clamped value dead.
  */
 void overlay99BuildHeightGrid(f32 scale, void *unused, s32 widthMinusOne,
                               s32 heightMinusOne, s32 arg4, s32 arg5) {
@@ -59,6 +45,15 @@ void overlay99BuildHeightGrid(f32 scale, void *unused, s32 widthMinusOne,
         return;
     }
 
+    /* IDO homes an unreferenced named parameter to its incoming argument slot,
+     * which is one instruction the target does not have; this empty test is
+     * the only thing that stops the store. It is inert -- the second parameter
+     * is dead in the target too -- and is recorded in docs/cleanup-queue.md.
+     * Its position is load-bearing: before the null test or at the segment
+     * loop the store comes back, and after the height grid is sized it also
+     * exchanges the point/value pool colours. */
+    if (unused != 0) {
+    }
     widthPtr = &gOverlay99GridWidth;
     heightPtr = &gOverlay99GridHeight;
     *widthPtr = widthMinusOne + 1;
@@ -89,11 +84,10 @@ void overlay99BuildHeightGrid(f32 scale, void *unused, s32 widthMinusOne,
             if (value < -40) {
                 value = -40;
             }
-            value = -value;
             point->red = 0;
             point->green = 0;
             point->blue = 0;
-            point->alpha = value;
+            point->alpha = -value;
         } else if (value > 0) {
             if (value > 40) {
                 value = 40;
@@ -108,6 +102,3 @@ void overlay99BuildHeightGrid(f32 scale, void *unused, s32 widthMinusOne,
         point++;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o099/overlay99BuildHeightGrid/func_overlay_099_F0000638_18D9BE8.s")
-#endif

@@ -69,6 +69,25 @@ bytes and disassembly never belong here.
   identical `.text` with and without `-Wo,-loopunroll,0` and the ROM verifies
   either way, while dropping `-Wab,-r4300_mul` as the control moves seven of
   them.
+- **At `-O2` IDO moves at most two GPR-passed `f32` formals with `mtc1`; the
+  third always goes through its argument home.** Under O32 a `float` parameter
+  that follows an integer or pointer parameter arrives in `a1`/`a2`/`a3` as raw
+  bits and has to cross into an FP register. With one or two such formals every
+  one becomes an `mtc1`. With three, `-O2` converts two and lowers the third as
+  `sw` to its home plus `lwc1`, which is one extra word, and no source form
+  changes it: 2-D versus flat indexing, an explicitly typed pointer parameter,
+  the `register` storage class, copying the parameters into locals, and cutting
+  the body to a single product per formal all give the same 2-of-3 split, at
+  both `-mips1` and `-mips2`. `-O3` converts all three and the function is one
+  word shorter. So a target whose prologue shows three `mtc1` of `a1`/`a2`/`a3`
+  is either an `-O3` object or not compiled from C at all, and that is
+  decidable from the fallback before any source work. Measured on an isolated
+  three-line probe and on `func_8002B040` in `src/main/matrix.c`, where `-O3`
+  takes the instruction census delta to zero. Limit: this is about formals
+  arriving in integer registers, not about `f12`/`f14` FP arguments, and it
+  does not license adopting `-O3` for a shared TU -- ADR 0007 still wants an
+  exact function first.
+
 - That same flag is decidable from the target bytes *before* any source work,
   and the test is cheap: disassemble each unmatched function's own fallback
   and count the scheduler nops that sit between two adjacent single-precision

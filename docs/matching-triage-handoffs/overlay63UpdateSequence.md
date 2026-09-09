@@ -6,5 +6,5 @@
 - frame: 0x20
 - relocations: 39
 - first mismatch: +0xC
-- summary: V0: 106/107 words, frame 0x20 exact, 102 raw diffs, normalized distance 6. Relocs 39 each; 9 sites and 2 identities align. Prior five forms closed.
+- summary: Census is exactly `move -1`: the target copies the poll result into v1 and reuses v0 for the sequence pointer, and the candidate exchanges the two carriers and materialises no copy. 88 of 107 words already align. Twelve source forms and the whole flag lattice are flat, so the lever has to make the sequence pointer take v0.
 <!-- plateau-handoff:overlay63UpdateSequence:end -->
