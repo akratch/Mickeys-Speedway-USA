@@ -317,13 +317,9 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
                     } while (index != -1);
                 }
                 list = gO57MiddleStopList;
-                index = *list;
-                if (index != -1) {
-                    do {
-                        func_80050704(index & 0xFF);
-                        index = list[1];
-                        list++;
-                    } while (index != -1);
+                while (*list != -1) {
+                    func_80050704(*list & 0xFF);
+                    list++;
                 }
             }
 
@@ -541,10 +537,10 @@ void func_overlay_057_F0004E18_18A8A10(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:start
  * symbol: func_overlay_057_F0004E18_18A8A10
- * score: 663 differing words
+ * score: 503 differing words
  * frame: 0x148
- * relocations: 371
+ * relocations: 373
  * first-mismatch: +0x0
- * summary: CFG checkpoint: 1204/1208 words, 718 raw differences; 192/379 runtime sites exact. Restored navigation and player loops. Next sentinel loops and frame.
+ * summary: Size converted: 1208/1208 words, instruction delta 0 (was -4). 59/66 call regions exact. Next: region 55 surplus +3 vs five -1 regions.
  * PLATEAU-HANDOFF:func_overlay_057_F0004E18_18A8A10:end
  */

@@ -137,40 +137,41 @@ extern s32 func_80010900(Overlay79Vector *start, Overlay79Vector *end,
                          f32 height, Overlay79Object *object, void *callback);
 
 /*
- * Plateau (2026-09-08).  The body below is the shipped relocation surface's
- * own structure: 883 candidate instructions against 882, frame 0xB8 exact,
- * 574/882 positional words, first differing word +0x58.  The candidate's 88
- * static relocations match the module's 88 shipped records in count and type
- * histogram (58 R_MIPS_26, 15 HI16, 15 LO16) and in per-callee multiplicity;
- * 79/88 also agree by offset, and the nine that do not all sit past +0xBC0
- * and are displaced by exactly one instruction.
+ * Extent closed (2026-09-10).  882 candidate instructions against 882: the
+ * function is no longer a size mismatch and is now permutable.  Frame 0xB8
+ * exact, 88 static relocations against the module's 88 shipped records in
+ * count, type histogram (58 R_MIPS_26, 15 HI16, 15 LO16) and per-callee
+ * multiplicity.  618/882 rows are identical under an insertion-tolerant
+ * alignment and the running shift returns to zero (the last 27 rows are
+ * exact), leaving 295 positional differing words in 128 edit regions, every
+ * one of which is now count-neutral.
  *
- * Two residuals remain, both allocator-phase rather than structural:
+ * What closed it.  The vertical displacement and the horizontal speed
+ * integration are independent statements, so evaluating `dy` before
+ * `state->speed += ...` is semantics-preserving.  It is also what lets ugen
+ * fill the `func_80008128` delay slot: with the previous order the last
+ * instruction before that `jal` was an `mfc1` into an argument register,
+ * which cannot be sunk into the slot, and ugen padded it.  With this order
+ * the third component's spill lands immediately before the branch and moves
+ * into the slot, exactly as the target does.  The nine relocation offsets
+ * that used to sit one instruction late are no longer displaced.
  *
- *   1. One extra instruction.  At the displacement call the target retires
- *      the third component's spill in the branch delay slot; the candidate
- *      emits it ahead of the branch and pads the slot.  Every source spelling
- *      of that statement group tried (assign all three, assign two and pass
- *      the third as an expression, reorder the assignments, or drop the
- *      locals and let common-subexpression elimination re-derive them) gives
- *      the identical object, so the choice is made below the C level.
+ * What remains is register colour, not extent: a one-step phase offset in
+ * both rings, first visible at +0x58 and resolved again by +0xD78, plus one
+ * remaining delay-slot difference that trades a `nop` for an `lwc1` without
+ * changing the count.  The stack-home census is exact at every one of the 34
+ * distinct slots the target touches except the race-state flag, which sits
+ * at 0x40 where the target puts it at 0x3C.
  *
- *   2. A one-step phase offset in both register rings.  The integer ring
- *      first diverges at +0x58 and every later integer difference is the
- *      single uniform rotation of that one step; the FP ring rotates over
- *      five registers from the mode-0 block onward.  The stack-home census is
- *      otherwise exact: every frame slot the target uses is used at the same
- *      offset here except the race-state flag, which sits one word high
- *      because IDO reserves one more spill word for this body than for the
- *      target's.
- *
- * Next lever: find the source shape that makes IDO reserve one fewer spill
- * word (which lands the last frame slot and, with it, the integer ring
- * phase).  Ruled out with measurement: the flag lattice (-O1/-O2 x
- * -mips1/-mips2 x -g3 all give 874 instructions and frame 0xB8, i.e. flat),
- * bitfield spellings of the race-state test, hoisting the flag word into a
- * local, splitting the test into nested ifs, and every displacement-call
- * spelling above.
+ * Ruled out with measurement, in this lane: the flag lattice (`-O1`/`-O2`/
+ * `-O3` x `-mips1`/`-mips2` x `-g3` x with/without `-Wab,-r4300_mul`; the
+ * shipped set is the only one within 100 instructions and the best on
+ * identical rows), all six orderings of the three displacement components at
+ * the call and every inlined spelling of them (byte-identical objects), and
+ * the declaration census as an explanation for the 0x3C/0x40 slot -- the
+ * local block is quantized in 8-byte steps, so adding any local grows the
+ * frame to 0xC0 and shifts every home.  That slot is therefore an allocator
+ * question, not a declaration one.
  */
 #ifdef NON_MATCHING
 void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
@@ -433,9 +434,9 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
 
     distance = (state->speed * update) +
                (0.5f * state->acceleration * update * update);
-    state->speed += state->acceleration * update;
     dy = (object->velocityY * update) +
          (O79_GRAVITY_HALF * update * update);
+    state->speed += state->acceleration * update;
     object->velocityY += O79_GRAVITY * update;
     dx = func_8002A8C0(object->angle) * distance;
     dz = func_8002A8BC(object->angle) * distance;
@@ -478,10 +479,10 @@ void func_overlay_079_F0000134_18CD0D4(Overlay79Object *object,
 
 /* PLATEAU-HANDOFF:func_overlay_079_F0000134_18CD0D4:start
  * symbol: func_overlay_079_F0000134_18CD0D4
- * score: 574/882 words
+ * score: 295/882 words
  * frame: 0xB8
  * relocations: 88
  * first-mismatch: +0x58
- * summary: 883 vs 882 instructions, frame exact, all 88 relocations match by count/type/callee count; residual is one delay-slot spill and a one-step register-ring phase
+ * summary: extent closed -- 882 vs 882 instructions, census delta 0, frame exact, all 88 relocations match by count/type/offset; residual is a one-step register-ring phase and one count-neutral delay-slot fill
  * PLATEAU-HANDOFF:func_overlay_079_F0000134_18CD0D4:end
  */
