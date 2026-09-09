@@ -119,17 +119,52 @@ extern void overlay58EnsureResource(void);
  * Mickey-only reconstruction. The donor scan found no close permitted
  * skeleton, and skeleton_scan cannot yet address an assembly ownership range.
  *
- * Workbench p6: structure-mismatch; 826/829 candidate/target instructions,
- * 724 differing words from +0x0, frame -0x98 vs -0x88. Inlining the one-use
- * advance predicate removed eight bytes of frame without changing the
- * positional score; integer-promoting selection to s32 is byte-identical.
- * Prior ABI/prologue, flags, branch-order, marker-lifetime, geometry, and
- * split-path forms remain exhausted. The extra s8 web and 16-byte frame
- * surplus need a new source-authentic lifetime or CFG mechanism. A bounded
- * recheck using Overlay34's later exact conditional-start precedent was flat:
- * branch-local `increment` retained 826 instructions, 724 differences, and
- * the 0x98 frame. Branch-local progress regressed to 823/725, while scoping
- * the early button/selection carriers regressed to 827/732; both kept 0x98.
+ * Closed hole (2026-09-10).  Between `func_800291B4()` and `func_8003A680()`
+ * the target executes eight instructions that reload `status` from its home
+ * and recompute the selection-table element from `status->player` and
+ * `status->active` -- a memory load no compiler may re-materialize across a
+ * call from a cached local, so the source spells that access a second time
+ * rather than reusing `selection`.  Adopting the re-read closes the single
+ * largest structural hole in the body: the register-masked alignment goes
+ * from 672/829 identical rows to 715/829 (81.1% -> 86.2%) and the exact
+ * alignment from 415 to 419.
+ *
+ * That also corrects what the extent measurement was saying.  The previous
+ * -3 was a net across a -8 hole and a +6 surplus, and reads as "three
+ * instructions short" only because the two nearly cancel (lever 48).  With
+ * the hole closed the surplus is exposed and localized: the candidate is
+ * +6, and every remaining count-changing block is one of three causes.
+ *
+ *   1. One extra callee-saved web (+2).  The candidate saves s0-s8 where the
+ *      target saves s0-s7, which is also the whole 16-byte frame surplus
+ *      (0x98 against 0x88).  The webs do not correspond: the target parks
+ *      the literal 3 in s4 and `geometry` in s7 for seven `64(s7)` reads,
+ *      while the candidate parks `geometry` on the stack at 0x8C, hoists 12
+ *      into s8 for the five vertex `multu`s, and materializes -1 a fifth
+ *      time into s4 inside the strip loop where the target reuses the one it
+ *      already has.
+ *   2. Branch-likely selection (+4 across four blocks).  The target reaches
+ *      its early exits with `bltzl`/`beqzl` carrying `lw ra` in the likely
+ *      slot; the candidate emits the plain branch and a separate restore.
+ *      The epilogue carries one more `lw` than the target's because of (1),
+ *      so this is very likely a consequence of the extra saved web rather
+ *      than an independent defect.
+ *   3. The strip-loop cursor materialization.  The target lands `D_1A0`
+ *      straight in the cursor (`lui`, then `addiu v0,reg,%lo`); the
+ *      candidate completes the address in its own register and copies it
+ *      (`lui`, `addiu`, `move`), which is lever 51 read from the other side.
+ *
+ * Flat under measurement here, do not repeat: all six orderings of the
+ * `start`/`end`/`mapping` initializers, `stage < D_6C + 1` for the loop
+ * guard, and reversed operand order in both sentinel tests -- every one is
+ * byte-identical to the form above.  The flag lattice was re-run and the
+ * shipped `-O2 -g3 -mips2` is the best of eight configurations on the
+ * alignment; `-mips1` costs about a hundred instructions, `-O1` more, and
+ * dropping `-g3` changes the count by one without moving identical rows.
+ *
+ * Prior ABI/prologue, branch-order, marker-lifetime, geometry, and
+ * split-path forms remain exhausted, as does the Overlay34 conditional-start
+ * precedent.
  */
 #ifdef NON_MATCHING
 void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
@@ -259,7 +294,11 @@ void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
                             if (!(buttons & mode)) {
                                 gOverlay58MenuBitsReloc[0x13] = buttons | mode;
                                 func_800291B4();
-                                func_8003A680(selection + 0xE);
+                                func_8003A680(
+                                    gOverlay58SelectionTableReloc
+                                            [status->player]
+                                            [status->active + 1] +
+                                    0xE);
                             }
                         }
                     }
@@ -472,10 +511,10 @@ void func_overlay_058_F00005FC_18AF7E4(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F00005FC_18AF7E4:start
  * symbol: func_overlay_058_F00005FC_18AF7E4
- * score: 724 differing words
+ * score: 721 differing words
  * frame: 0x98
  * relocations: 267
  * first-mismatch: +0x0
- * summary: Three natural lexical forms were flat or regressed; the extra saved-register web and 16-byte frame surplus remain.
+ * summary: 835 vs 829 instructions; the -8 selection-table hole is closed and the surplus is now exposed at +6, all of it one extra callee-saved web, the branch-likely forms that follow from it, and one cursor materialization
  * PLATEAU-HANDOFF:func_overlay_058_F00005FC_18AF7E4:end
  */
