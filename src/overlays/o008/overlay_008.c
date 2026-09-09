@@ -236,14 +236,6 @@ void func_overlay_008_F0000058_185DDB0(O8P0058Owner *owner,
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0000058_185DDB0.s")
 #endif
 
-/* PLATEAU (2026-09-04): allocation-mismatch; 48 masked/57 raw words differ in
- * the exact 381-word/0x70 frame, with the first substantive mismatch at +0x428.
- * A linked trial reports in=48/out=0, proving that nine raw-only differences are
- * relocation addends.  The flag lattice, arm ordering, widened mask, bounded
- * permuter, and ten direct/mixed/scoped/alias tail forms are nonexact; direct
- * compound assignments regress to 56 masked differences.  The FP lanes remain
- * exact; resume only with a new natural temp-slot-54/pool-slot-64 web mechanism. */
-#ifdef NON_MATCHING
 void func_overlay_008_F0000894_185E5EC(O8Owner *owner, O8State *state,
                                        s32 updateRate) {
     void *savedResource;
@@ -260,7 +252,6 @@ void func_overlay_008_F0000894_185E5EC(O8Owner *owner, O8State *state,
     s32 effect;
     s32 angleA;
     s32 angleB;
-    s32 flags;
 
     node = *owner->node68;
     savedResource = node->resource;
@@ -335,31 +326,22 @@ void func_overlay_008_F0000894_185E5EC(O8Owner *owner, O8State *state,
     ext_o8_3018(owner, state, state->value70, updateRate);
 
     if ((state->condition172 != 0) && (state->lateral4 < -2.0f)) {
-        flags = owner->flags80 & ((~0x33) & 0xFFFFFFFFFFFFFFFFu);
-        owner->flags80 = flags;
-        flags |= gO8Value370;
-        owner->flags80 = flags;
-        owner->flags80 = flags | gO8Value3B0;
+        owner->flags80 &= ~0x33;
+        owner->flags80 |= gO8Value370;
+        owner->flags80 |= gO8Value3B0;
     } else if (((state->condition2 != 0) || (state->conditionD4 != 0)) &&
                ((state->lateral4 < gO8FloatDC) ||
                 (state->lateral4 > gO8FloatE0))) {
-        flags = owner->flags80 & ~0x33;
-        owner->flags80 = flags;
-        flags |= gO8Value364;
-        owner->flags80 = flags;
-        owner->flags80 = flags | gO8Value3A4;
+        owner->flags80 &= ~0x33;
+        owner->flags80 |= gO8Value364;
+        owner->flags80 |= gO8Value3A4;
     } else if (state->lateral4 < -5.0f) {
-        flags = owner->flags80 | gO8Table360[state->selector322 & 0xf];
-        owner->flags80 = flags;
-        owner->flags80 = flags | gO8Table3A0[state->selector323 & 0xf];
+        owner->flags80 |= gO8Table360[state->selector322 & 0xf];
+        owner->flags80 |= gO8Table3A0[state->selector323 & 0xf];
     }
 
-    flags = owner->flags80;
-    if (flags & 0x10) {
-        owner->flags80 = flags & ~1;
-        flags = owner->flags80;
-    }
-    if (flags & 0x20) owner->flags80 = flags & ~2;
+    if (owner->flags80 & 0x10) owner->flags80 &= ~1;
+    if (owner->flags80 & 0x20) owner->flags80 &= ~2;
     if (state->angle106 >= 0x1b)
         ext_o0_3e990((f32)((0x5a - (s32)state->angle106) << 2));
     ext_o0_3e99c(owner, updateRate);
@@ -369,9 +351,6 @@ void func_overlay_008_F0000894_185E5EC(O8Owner *owner, O8State *state,
         ext_o0_2d70(state->resourceC4, owner->valueC, owner->value10,
                     owner->value14);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0000894_185E5EC.s")
-#endif
 
 /* Mickey-local reconstruction; the donor scans found no exact donor. */
 s32 func_overlay_008_F0000E88_185EBE0(void *peer,
@@ -2381,15 +2360,6 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * PLATEAU-HANDOFF:func_overlay_008_F0002640_1860398:end
  */
 
-/* PLATEAU-HANDOFF:func_overlay_008_F0000894_185E5EC:start
- * symbol: func_overlay_008_F0000894_185E5EC
- * score: 333/381 words
- * frame: 0x70
- * relocations: 48
- * first-mismatch: +0x6C
- * summary: Linked trial proves 48 in-range/zero out-of-range words; ten 0.8.0-guided tail reshapes are nonexact, so resume only with a new temp-slot-54/pool-slot-64 web mechanism.
- * PLATEAU-HANDOFF:func_overlay_008_F0000894_185E5EC:end
- */
 
 /* PLATEAU-HANDOFF:func_overlay_008_F000291C_1860674:start
  * symbol: func_overlay_008_F000291C_1860674

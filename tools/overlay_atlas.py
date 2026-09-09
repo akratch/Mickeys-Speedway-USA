@@ -1305,6 +1305,12 @@ MIXED_TU_EXACT_C_RANGES = {
     8: [
         (0x000, 0x008, "overlay8Ignore"),
         (0x008, 0x058, "overlay8GetIndexed"),
+        (
+            0x894,
+            0xE88,
+            "func_overlay_008_F0000894_185E5EC",
+            "canonical mixed-TU object and linked ROM bytes exact",
+        ),
         (0xE88, 0xF1C, "overlay8StartMotion"),
         (0xF1C, 0x1000, "overlay8Activate"),
         (0x2EC0, 0x3018, "overlay8UpdateChild"),
