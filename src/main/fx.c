@@ -2218,34 +2218,33 @@ void fxScreenEffect(FxGfx **dList, s32 arg1, s32 arg2, s32 arg3,
  * PROVENANCE: the descending loop skeleton is adapted from Jet Force
  * Gemini's public fx.c context; Mickey's target establishes the expressions.
  */
-/* Workbench: mixed structure/register residual, 14/28 words, first +0x14. */
-/* Candidate shape: exact 28-word frameless extent and 12 relocations. */
-/* Remaining gap: callback/trap identity schedule and counter register webs. */
+/* Exact 28-word frameless extent and 12 relocations; 13 words differ, all of
+ * them register names. The webs are coloured in statement order out of the
+ * pool v0, v1, a0, a1, a2, a3, t0, with the compiler-generated copy of the
+ * post-decremented counter taking the last colour; declaration order is
+ * measurably irrelevant. The target's colours imply that copy takes the
+ * *first* colour and the counter the second, which no ordering of these
+ * statements produces, so the remaining gap is a web-formation difference
+ * and not a permutation of this source. Physical line grouping is a real
+ * lever here and is used: joining the four address setups onto one line
+ * reverses the order their %lo addiu's are emitted in. */
 void func_8004ACC4(void) {
-    s32 *callback;
+    s32 trap;
+    s32 i;
     s32 *value0;
     s32 *value1;
     u8 *available;
-    s32 i;
-    s32 trap;
-    s32 trapValue;
+    s32 *callback;
 
     D_800D60A8 = 0;
+    trap = (s32) TrapDanglingJump;
     i = 3;
-    trapValue = (s32) TrapDanglingJump; \
-    value0 = &D_800D60BC; \
-    value1 = &D_800D60CC; \
-    available = &D_800D60D3; \
-    trap = trapValue; \
-    callback = &D_8007D488;
+    value0 = &D_800D60BC; value1 = &D_800D60CC; available = &D_800D60D3; callback = &D_8007D488;
     do {
-        *value0 = 0;
-        *value1 = 0;
-        *available = trap == *callback;
-        value0--;
-        value1--;
-        available--;
+        *value1 = 0; *available = trap == *callback; *value0 = 0;
         callback--;
+        value1--;
+        available--; value0--;
     } while (i--);
 }
 #else
@@ -2306,39 +2305,44 @@ void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
         }
     }
 }
-/* Workbench: structure-mismatch, 26 differing words, first mismatch +0x10. */
-/* Candidate shape: exact 52 instructions/frame -0x38; 10/14 relocation tuples align. */
-/* Remaining gap: saved-register order, four early LO16 sites, and loop-delay schedule. */
+/* Exact 52 instructions and -0x38 frame; 17 words differ. Decrementing the
+ * byte offset before the callback store rather than after it (with the
+ * initial value moved up by one step, so the values seen are unchanged) puts
+ * the saved-register saves and the six loop-invariant addresses in the
+ * target's order: 26 -> 17 words.
+ *
+ * What remains is one shared induction variable. The target walks *both*
+ * arrays with a single byte offset in `s1` -- `addu s0, s1, t6` for
+ * `D_800D60C0` and `addu t8, s5, s1` for `D_8007D47C` -- and materialises
+ * `D_800D60C0`'s base inside the loop with its own lui/addiu. Sharing the
+ * offset in source instead makes IDO hoist that base into an eighth saved
+ * register, which costs three instructions; indexing both arrays by `i`
+ * emits two separate shifts and loses three. Both were measured. */
 #ifdef NON_MATCHING
 /* Mickey-derived body; JFG's fxCpuTextureFlush is assembly-only. */
 void func_8004AF68(void) {
-    register s32 offset;
     register s32 *value0;
     register s32 i;
     register u8 *available;
+    register s32 offset;
     s32 *value1;
     void *allocation;
 
-    offset = 12;
-    value0 = (s32 *)&D_800D60BC;
-    i = 3;
-    available = &D_800D60D3;
+    i = 3; offset = 16;
+    available = &D_800D60D3; value0 = (s32 *)&D_800D60BC;
     do {
         allocation = (void *)*value0;
         if (allocation != 0) {
             value1 = &D_800D60C0[i];
-            mmFree(allocation);
-            mmFree((void *)*value1);
-            *value0 = 0;
+            mmFree(allocation); mmFree((void *)*value1); *value0 = 0;
             *value1 = 0;
         }
+        offset -= 4; value0--;
         if (*available != 0) {
             *(FxTextureCallback *)((u8 *)D_8007D47C + offset) =
                 (FxTextureCallback)TrapDanglingJump;
         }
-        value0--;
         available--;
-        offset -= 4;
     } while (i--);
     D_800D60A8 = 0;
 }
@@ -2348,21 +2352,21 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_8004AF68:start
  * symbol: func_8004AF68
- * score: 26 differing words
+ * score: 17 differing words
  * frame: 0x38
  * relocations: 14
- * first-mismatch: +0x10
- * summary: JFG efd5abb fxCpuTextureFlush remains assembly-only; structure-buckets has no proved lever. Need new pool-base and saved-register source evidence.
+ * first-mismatch: +0x34
+ * summary: pre-decrementing the byte offset fixes the saved-register order, 26 -> 17. Residual is one induction variable the target shares between both arrays while keeping D_800D60C0's base inside the loop.
  * PLATEAU-HANDOFF:func_8004AF68:end
  */
 
 /* PLATEAU-HANDOFF:func_8004ACC4:start
  * symbol: func_8004ACC4
- * score: 14 differing words
+ * score: 13 differing words
  * frame: frameless
  * relocations: 12
- * first-mismatch: +0x14
- * summary: JFG efd5abb counterpart remains assembly-only; structure-buckets has no proved lever. Resume with new callback/trap source; configured 14/28 retained.
+ * first-mismatch: +0x10
+ * summary: 16 -> 13 on statement order plus physical-line grouping. All 13 are register names; the target colours the counter's dead copy first, which statement order cannot reach.
  * PLATEAU-HANDOFF:func_8004ACC4:end
  */
 
