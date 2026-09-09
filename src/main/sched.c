@@ -300,7 +300,46 @@ void func_80030608(OSScTask *arg0) {
  * the three 0x80000000 sites as the same `(u32) D_80000000` the other two use:
  * the target materializes that symbol's high half into a saved register twice
  * and folds the low half into a later load, which a literal constant cannot
- * reproduce. The frame and the `message` home remain. */
+ * reproduce. The frame and the `message` home remain.
+ *
+ * 2026-09-09, the frame is an equation with two unknowns and both are now
+ * measured. Every frame in this function is
+ *
+ *     frame = 72 + S + L
+ *
+ * where 72 is the outgoing-argument area plus the ten saved registers, L is
+ * cfe's declared-local block laid top-down from the frame top in declaration
+ * order, and S is the reserved register-temporary area between them. The
+ * declared block's *bottom* is what `message` sits on, so `message` is always
+ * `frame - L`.
+ *
+ * Target: frame 0x98, `savedCommands` at 0x80, `done` at 0x7C, `message` at
+ * 0x70, so L = 40 and S = 40. The 40 bytes are eight above the aggregate,
+ * the aggregate's sixteen, `done`'s four, eight more, and `message`'s four:
+ * declaration order [8][savedCommands][done][8][message].
+ * Candidate: L = 24 and S = 48, so frame 0x90 and `message` at 0x78.
+ *
+ * That reverses the previous entry's conclusion. The four missing slots are
+ * not four more spilled values -- the target reserves *two fewer* register
+ * temporaries than the candidate, and the extra sixteen bytes are declared
+ * locals. Measured directly: an eight-byte declaration ahead of the aggregate
+ * (or a third `s64` element) takes the frame to the exact 0x98 and 87 words
+ * to 81 with the first mismatch moving from +0x0 to +0x40, and adding the
+ * second eight bytes between `done` and `message` puts `message` at 0x70 but
+ * takes the frame to 0xA0, because S stays 48. S is 48 in every candidate
+ * shape tried. The target writes exactly one temporary slot (0x4C) and the
+ * candidate one (0x48); the rest are reserved and never touched, which is the
+ * `spilltemps` law in docs/ido-learnings.md.
+ *
+ * So the open question is narrow and arithmetic: find the source shape that
+ * creates two fewer register temporaries. Flat or worse against it: spelling
+ * `nestedCommand` as an `s8 *` cursor (87, frame unchanged); hoisting
+ * `sc->curRSPTask` into a local (-1 word); `>> 1` for the four `/ 2` sites
+ * (-13 words); dropping `nextCommand` (-3); using `nextCommand` for the two
+ * restore stores (+1); reordering the two `s64` saves (+1); rewriting the
+ * message `switch` as an if/else chain (-7 words -- the switch is
+ * load-bearing); and swapping the increment order in the 0xB8 scan (87).
+ * Do not repeat the declaration-order sweep: it moves L, never S. */
 SchedGfx *func_80030610(OSSched *sc, s32 commandIndex,
                         SchedGfx *displayList, OSMesgQueue *queue,
                         u64 *dataStart) {
@@ -900,9 +939,9 @@ s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 availRCP) {
 /* PLATEAU-HANDOFF:func_80030610:start
  * symbol: func_80030610
  * score: 87 differing words
- * frame: -0x90
+ * frame: 0x90
  * relocations: 13
  * first-mismatch: +0x0
- * summary: Size closed at 192/192 by spelling the first 0x80000000 site as (u32) D_80000000. Frame is 0x90 against 0x98 and message is homed 8 too high.
+ * summary: frame = 72 + S + L; target is L=40/S=40, candidate L=24/S=48, so it needs two fewer register temporaries, not four more spills.
  * PLATEAU-HANDOFF:func_80030610:end
  */

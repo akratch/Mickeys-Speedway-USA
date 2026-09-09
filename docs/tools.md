@@ -88,6 +88,29 @@ mutation joined a `for` loop's body onto one line, which is exactly the
 kind of `perm_sameline`-shaped move IDO's scheduler is sensitive to and a
 human would otherwise have to guess at.
 
+### Check the scratch's word count before believing a base score, 2026-09-09
+
+`permute.sh` fixes the *flags*, which is necessary and not sufficient: the
+scratch is still an isolated single-function translation unit, and on
+`src/main/models_5B300.c` it compiles `func_8005ABA8` at 112 words against the
+real per-TU object's 111. Its reported base score of 400 was therefore a false
+reading for a candidate whose real residual was two register names, and
+nothing measured there would have transferred.
+
+The cheap check takes one command: compile `build/permuter/<fn>/scratch/base.c`
+with the flags from that scratch's own `compile.sh` and count the function's
+instructions against the real object. If the counts differ, the scratch is
+unfaithful for that TU and its scores are not evidence. On
+`src/main/anim.c` the same check passed exactly (80 words, the same residual
+as the full-TU build), and the run that followed found the two-carrier head
+that took `func_8005716C` from 44 differing words to 10 -- so the check
+separates a useful run from a wasted one rather than condemning the tool.
+
+Note also that a permuter win is a *lead*, not a candidate: the same run's
+best output reached its score through an uninitialised self-add inside a
+`do {} while (0)`. Re-derive the effect as a semantics-preserving edit, as
+`docs/ido-learnings.md` records for that function.
+
 ## objdiff
 
 `tools/setup_objdiff.sh` fetches the `objdiff-cli` binary from
