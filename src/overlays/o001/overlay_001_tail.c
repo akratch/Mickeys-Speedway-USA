@@ -2325,46 +2325,60 @@ typedef struct Overlay1NearbyObject {
     void *state;
 } Overlay1NearbyObject;
 
+/* Plateau: the exact 69-instruction extent, the 0x48 frame and now the exact
+ * opcode schedule -- the verdict crossed structure-mismatch into
+ * allocation-mismatch. Three things buy that and all three are needed: the
+ * counter is `volatile`, so every read is its own load from sp+60 and every
+ * write its own store, which is what the target does at all six sites; the
+ * loop is `if (count--) { do ... while (count--); }`, which reads the counter
+ * once for the test and the decrement (the previous record's finding that this
+ * form costs an instruction holds only for a plain `s32`, where it needs an
+ * extra copy); and the inner `object = objectArg` copy is gone, because
+ * `volatile` costs eight bytes of frame and dropping that declaration is what
+ * pays for it.
+ *
+ * The residual is 31 register-only words with one cause. uopt gives our
+ * counter read a pool web, so it lands on v1 and `other`/`otherState` swap
+ * colours behind it; the target spends a ugen ring temp (t6) at every counter
+ * read and has six fewer pool webs -- pool lanes 16 against the target's 10,
+ * ring lanes 4 against 10. Measured and flat, do not repeat: plain and
+ * volatile counters crossed with five loop shapes; the counter reached through
+ * `*(s32 *)&count`, `*(volatile s32 *)&count`, a plain `s32 *` local and a
+ * `volatile s32 *` local; inlining `otherState`, inlining `other`, reversing
+ * the kind comparison, reversing the two declarations, dropping the `state`
+ * local, caching the list base, and an extra `mode` web ahead of the counter
+ * read. Next lever is whatever stops uopt webbing that read. */
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, exact 69-word extent and 0x48 frame, with
- * 31 differing words and first codegen mismatch +0x40. An explicit initial
- * countdown removes the old extra move; register lanes remain divergent. */
 void overlay1ConsumeNearbyPending(void *objectArg, void *listArg) {
     Overlay1NearbyState *state;
     f32 radiusSquared;
-    s32 count;
+    volatile s32 count;
     Overlay1NearbyObject *other;
     Overlay1OtherState *otherState;
-
     state = ((Overlay1NearbyObject *)objectArg)->state;
     radiusSquared = state->radius * 4.0f;
     radiusSquared *= state->radius * 4.0f;
-    {
-        Overlay1NearbyObject *object = objectArg;
-        listArg = overlay1GetObjectListReloc(&count);
-        if (count != 0) {
-            count--;
-            do {
-                other = ((Overlay1NearbyObject **)listArg)[count];
-                otherState = other->state;
-                if (state->kind == otherState->kind) {
-                    f32 dx = other->x - object->x;
-                    f32 dy = other->y - object->y;
-                    f32 dz = other->z - object->z;
-                    if (((dx * dx) + (dy * dy) + (dz * dz) < radiusSquared) &&
-                        (state->mode == 2)) {
-                        u8 pending = otherState->pending;
-                        if (pending) {
-                            otherState->pending = 0;
-                            otherState->count += pending;
-                        }
+    listArg = overlay1GetObjectListReloc((s32 *)&count);
+    if (count--) {
+        do {
+            other = ((Overlay1NearbyObject **)listArg)[count];
+            otherState = other->state;
+            if (state->kind == otherState->kind) {
+                f32 dx = other->x - ((Overlay1NearbyObject *)objectArg)->x;
+                f32 dy = other->y - ((Overlay1NearbyObject *)objectArg)->y;
+                f32 dz = other->z - ((Overlay1NearbyObject *)objectArg)->z;
+                if (((dx * dx) + (dy * dy) + (dz * dz) < radiusSquared) &&
+                    (state->mode == 2)) {
+                    u8 pending = otherState->pending;
+                    if (pending) {
+                        otherState->pending = 0;
+                        otherState->count += pending;
                     }
                 }
-            } while (count--);
-        }
+            }
+        } while (count--);
     }
 }
-
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F0006A14_1852DF4.s")
 #endif
@@ -3238,17 +3252,17 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x48
  * relocations: 1
  * first-mismatch: +0x40
- * summary: 119 flags and ten coherent forms exhausted; next lever is source-authentic count/object/state allocator mapping, not the TU-wide diagnostic -g3 flag
+ * summary: a volatile counter with if (count--) and no inner object copy makes the opcode schedule exact (structure-mismatch to allocation-mismatch); the 31 register words are six counter reads uopt webs and the target spends as ring temps
  * PLATEAU-HANDOFF:overlay1ConsumeNearbyPending:end
  */
 
 /* PLATEAU-HANDOFF:overlay1UpdateRangeFlags:start
  * symbol: overlay1UpdateRangeFlags
- * score: 31 differing words
+ * score: 2 differing words
  * frame: 0x70
  * relocations: 4
- * first-mismatch: +0x34
- * summary: Exact 120-word frame and opcode order; 31 register-only words and four unresolved overlay-local call aliases remain.
+ * first-mismatch: +0x1B8
+ * summary: every allocator lane is exact (pool 37/37, temp 8/8, FP 7/7 and 9/9); two words left where the case-1 store takes ugen temp $13 and the target $12
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
 

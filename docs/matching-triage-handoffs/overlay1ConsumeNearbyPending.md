@@ -6,7 +6,7 @@
 - frame: 0x48
 - relocations: 1
 - first mismatch: +0x40
-- summary: 119 flags and ten coherent forms exhausted; next lever is source-authentic count/object/state allocator mapping, not the TU-wide diagnostic -g3 flag
+- summary: a volatile counter with if (count--) and no inner object copy makes the opcode schedule exact (structure-mismatch to allocation-mismatch); the 31 register words are six counter reads uopt webs and the target spends as ring temps
 
 #### tu2-o1tail: the countdown form is settled and is not the residual
 
