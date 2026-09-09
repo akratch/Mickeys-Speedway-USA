@@ -13,15 +13,21 @@ extern O1GaugeTableEntry *overlay1GetGaugeTable(void);
 extern O1GaugeObject **overlay1GetGaugeObjects(s32 *count);
 extern s32 overlay1RandomRange(s32 minimum, s32 maximum);
 
-/* Plateau: exact 74-word size and 0x60 frame; best is 16 words different,
- * first actionable mismatch +0x30. The second-slot count declaration matches
- * its target stack home; the first-loop count/object carrier web remains. */
+/* Plateau: exact 74-word size and 0x60 frame; best is 13 words different,
+ * first actionable mismatch +0x30. One `O1GaugeObject **` cursor serves both
+ * loops: the separate `firstCursor` declaration was worth three words, and
+ * the frame is 0x60 at ten or eleven declarations but 0x68 as soon as a
+ * twelfth, or any additional `s32`, is declared. The residual is the objects
+ * carrier -- the target copies the call result into a second live register
+ * for the second loop's base -- and the count, which the target reads once
+ * for both the countdown and the emptiness test and again after the first
+ * loop. `volatile` is load-bearing for the reload but forbids the shared
+ * read; dropping it CSEs all three into one. */
 #ifdef NON_MATCHING
 void overlay1InitializeGaugeObjects(void) {
     O1GaugeTableEntry *table;
     volatile s32 count;
     O1GaugeObject **objects;
-    O1GaugeObject **firstCursor;
     O1GaugeObject **secondCursor;
     O1GaugeObject *object;
     O1GaugeState *state;
@@ -29,16 +35,15 @@ void overlay1InitializeGaugeObjects(void) {
     s32 index;
     s32 loopValue;
     s32 maximum;
-
     table = overlay1GetGaugeTable();
     objects = overlay1GetGaugeObjects((s32 *)&count);
     maximum = 0;
     initialIndex = count - 1;
     index = initialIndex;
     if (count != 0) {
-        firstCursor = (O1GaugeObject **)((u8 *)objects + (index * 4));
+        secondCursor = (O1GaugeObject **)((u8 *)objects + (index * 4));
         do {
-            object = *firstCursor--;
+            object = *secondCursor--;
             state = object->state;
             loopValue = state->enabled;
             if ((loopValue != 0) && (maximum < state->value)) maximum = state->value;
@@ -61,7 +66,6 @@ void overlay1InitializeGaugeObjects(void) {
         } while (loopValue != 0);
     }
 }
-
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F0003578_184F958.s")
 #endif
@@ -3239,11 +3243,11 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1InitializeGaugeObjects:start
  * symbol: overlay1InitializeGaugeObjects
- * score: 58/74 words
+ * score: 61/74 words
  * frame: 0x60
  * relocations: 3
- * first-mismatch: +0x1C
- * summary: The reported +0x1C is an unresolved call identity; first instruction mismatch +0x30 is the count/object carrier after 119 flags and nine forms.
+ * first-mismatch: +0x30
+ * summary: one cursor for both loops takes 16 to 13; residual is the objects copy and the shared count read, reachable only through a union at a worse schedule
  * PLATEAU-HANDOFF:overlay1InitializeGaugeObjects:end
  */
 
