@@ -21,7 +21,7 @@ typedef struct Overlay47Actor {
     u8 pad18[0x10];
     f32 frameValue;
     u8 pad2C[0xF];
-    s8 frame;
+    u8 frame;
     u8 pad3C[0xA];
     s16 kind;
     u8 pad48[0x1C];
@@ -37,7 +37,6 @@ typedef struct Overlay47Player {
     f32 screenX, screenY;
     s16 rotation, targetRotation;
     Overlay47Actor *actor;
-    Overlay47TextureScroll *scroll;
     s16 selector;
     s8 ready, active, leaving;
     u8 pad2D;
@@ -155,45 +154,46 @@ extern void func_overlay_047_F0002D10_1893B28(Overlay47Player *player);
                 (((x) & 0x3FF) << 14) | (((y) & 0x3FF) << 2))
 
 void func_overlay_047_F0000B30_1891948(s32 updateRate) {
-    Overlay47Player *player;
-    Overlay47Actor *actor;
-    Overlay47TextureScroll *scroll;
-    Overlay47Icon *icon;
-    Overlay47TextureNode *texture;
-    MtxF localMatrix;
-    MtxF cameraMatrix;
-    MtxF resultMatrix;
-    Mtx *savedMatrix;
-    f32 **height;
-    f32 rate;
-    f32 oldFov;
-    f32 movement;
-    f32 oldFrame;
-    f32 frame;
-    f32 dx, dz;
-    f32 scale;
-    f32 oldSelector;
+    s32 j;
     s32 controller;
-    s32 i, j;
-    s32 allReady;
-    s32 activeCount;
-    s32 start;
-    s32 back;
-    s32 showMode;
+    s32 i;
     s32 slot;
     s32 selected;
     s32 unready;
     s32 colourIndex;
+    s32 activeCount;
+    s32 speed;
+    s32 allReady;
+    s32 count;
+    s32 start;
     s32 rotationStep;
     s32 labelCount;
     s32 textX;
     s32 barX, barY;
     s32 stat;
-    s32 count;
-    s32 speed;
-    s32 x, y;
     s32 colour;
+    s32 x, y;
     s32 red, green, blue;
+    s32 showMode;
+    f32 movement;
+    s32 back;
+    f32 oldFrame;
+    f32 frame;
+    f32 dx, dz;
+    f32 scale;
+    f32 rate;
+    f32 oldFov;
+    MtxF localMatrix;
+    MtxF cameraMatrix;
+    MtxF resultMatrix;
+    Mtx *savedMatrix;
+    f32 oldSelector;
+    f32 **height;
+    Overlay47Player *player;
+    Overlay47Actor *actor;
+    Overlay47TextureScroll *scroll;
+    Overlay47Icon *icon;
+    Overlay47TextureNode *texture;
 
     rate = updateRate;
     ov47Bss_30B = 0;
@@ -360,7 +360,7 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
             }
             actor = player->actor;
             oldFrame = actor->frameValue;
-            func_8005ABA8(actor, ov47Data_3F0[actor->frame], rate);
+            func_8005ABA8(actor, ov47Data_3F0[(s8)actor->frame], rate);
             scroll = player->actor->scroll;
             scroll->b += speed;
             scroll->a += speed;
@@ -399,7 +399,7 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
             if (actor != NULL) {
                 actor->trigger = 0;
                 actor = player->actor;
-                switch ((u8)actor->frame) {
+                switch (actor->frame) {
                     case 1:
                         frame = actor->frameValue;
                         if (0.3f <= frame && frame < 0.65f) {
@@ -685,10 +685,10 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:start
  * symbol: func_overlay_047_F0000B30_1891948
- * score: 1972/2168 words
+ * score: 1906/2168 words
  * frame: 0x280
  * relocations: 318
  * first-mismatch: +0x4
- * summary: Size/frame exact; 83 ordered calls, 318/321 text relocations. Five CFG probes stalled. Next: structure-buckets lever 6 spill-slot census.
+ * summary: Flags, frame partition, 0x34 player stride and unsigned frame byte now exact. Residual is FP colouring: target hoists 0.015f to entry, gaining f30.
  * PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:end
  */
