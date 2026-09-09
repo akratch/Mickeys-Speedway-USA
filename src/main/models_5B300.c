@@ -353,19 +353,6 @@ s32 func_8005A7A0(ModelAnimationTable *model, s32 modelId) {
  * The owned 0x8005A948..0x8005AAC0 / ROM 0x5B548..0x5B6C0 range has no
  * padding. func_8005A7A0+0x104 is the sole caller, passing an lh animation ID;
  * there is no export, runtime, overlay or pointer inbound. */
- * there is no export/runtime/overlay/pointer inbound. The cap is exhausted;
- * no historical control or generic batch was run. Assembly remains canonical.
- *
- * 2026-09-09: the reloc-normalized residual is exactly one compiler
- * temporary-ring pair. Patching those two register names in the compiler's own
- * listing and re-assembling gives a zero-word difference over all 94 words, so
- * the frame, all six homes, all 13 relocation tuples and every other register
- * are exact. The ring is a FIFO free list, and the boolean normalization on the
- * loop test consumes a pop while emitting nothing; the target instead consumes
- * one invisible pop before the index scaling and none after it. Dropping the
- * normalization alone costs 26 words. 40+ further spellings are flat. See
- * docs/matching-triage-handoffs/func_8005A948.md. */
-#ifdef NON_MATCHING
 u8 *func_8005A948(s16 animationId) {
     s32 i;
     s32 emptyIndex;
@@ -919,12 +906,3 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
  * PLATEAU-HANDOFF:func_8005AF14:end
  */
 
-/* PLATEAU-HANDOFF:func_8005A948:start
- * symbol: func_8005A948
- * score: 3 differing words
- * frame: 0x38
- * relocations: 13
- * first-mismatch: +0x40
- * summary: Declaration order moves all six stack homes exact; the reloc-normalized residual is exactly one ugen temporary-ring pair (index scaling vs the folded equality test), proved by patching the two names in the ugen listing to a 0-word difference.
- * PLATEAU-HANDOFF:func_8005A948:end
- */
