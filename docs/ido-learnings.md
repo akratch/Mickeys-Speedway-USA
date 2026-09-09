@@ -1163,6 +1163,52 @@ bytes and disassembly never belong here.
   space in one reading instead of grinding it -- on `func_80004454` those
   spaces are now measured flat over about 1,900 candidates.
 
+- **When a pool colour is wrong, move the *other* web, not the carrier.** A
+  residual that is one pool colour is a two-body problem: the carrier and
+  whichever web already holds the colour you want. uopt colours pool webs by
+  descending `references / bucket(references + spanning statements)`, so
+  whichever of the two is coloured first takes the lower register and the other
+  takes the next one. Every spelling of the *carrier* leaves that order intact,
+  which is why carrier type, position, web-split and dead-store lattices read
+  as flat; ending the *other* web's live range before the carrier's definition
+  closes it in one edit. The cheapest way to end a local's range early is to
+  read the field back where the local was about to be used again -- uopt
+  forwards the store on the line above to that load, so the read costs no
+  instruction. Evidence: `func_80049000` in `src/main/fx.c`, five words for
+  four passes, where `mode`'s last use was the vertex multiply's
+  `(mode & 0xFF)` and ugen schedules the height `l.s`/`trunc.w.s`/`mfc1` ahead
+  of that multiply; spelling the multiply's base `ripple->mode` -- the field
+  the line above has just written -- ends `mode` at the store, and `height`
+  takes `v1`. 75 order x base cells, exactly two exact. Read `cc -S` to see
+  which web actually overlaps: the interference is against ugen's schedule, not
+  against source order.
+
+- **A block's colours can be held open by giving the *previous* block one more
+  statement, and the statement carrier is the physical line.** A CSE that is
+  one or more colours too low is not always a missing reservation: it can be a
+  neighbouring pool web that died too early. Moving the *next* block's setup
+  statements onto the previous block's statement line emits them while that
+  block's web is still live, removes its colour from the CSE's admissible set,
+  and moves the CSE up the ladder without adding a web, a temporary or a frame
+  slot. Evidence: `func_overlay_029_F00010C4_187E374`, four words and a
+  4,000-form randomised sweep that reached `v0`, `v1` and `t5..t9` and never
+  `a0`-`a3`; placing the second block's two `angles[...]` assignments at the
+  end of the first block's initialiser macro keeps `record` (the first block's
+  `v1` web) live across the shared `verticalAngle + 0x2000` and the carrier
+  moves to `a2`. Position inside the initialiser is load-bearing -- only the
+  last of twelve insertion points is exact, the rest cost 13 to 45 words.
+
+- **A nested macro expansion is not the same line as a flat one.** Wrapping an
+  existing multi-line macro in another (`do { INNER(x); next_; } while (0)`)
+  resynchronises acpp's line counter, so the trailing statements get their own
+  `.loc` and a different schedule; spelling the body out inside the new macro
+  keeps them on the invocation's line. Writing the same statements after the
+  macro invocation on one physical source line behaves like the nested form,
+  not like the flat one. Measured on `func_overlay_029_F00010C4_187E374`: flat
+  macro exact, nested macro and same-line-after both 17 words. When a line-group
+  result matters, verify it against the object rather than assuming cpp keeps
+  your grouping.
+
 ### Assembler scheduling and phase replay
 
 - The `cc -S` listing is a faithful, editable stand-in for what `as1` receives.
