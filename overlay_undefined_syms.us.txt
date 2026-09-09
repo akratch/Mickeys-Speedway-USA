@@ -874,6 +874,20 @@ overlay33CallReloc = 0xf0000000;
 
 /* overlay 33: overlay33BuildDisplayList.c.o */
 D_1808 = 0x00001808;
+gOverlay33BufferIndex = 0x00000000;
+gOverlay33ColorBuffers = 0x00000000;
+gOverlay33DisplayLists = 0x00003788;
+gOverlay33Texture = 0x00000000;
+overlay33ApplyMatrixReloc = 0xf0000000;
+overlay33CopyPassReloc = 0xf0000000;
+overlay33FinishReloc = 0xf0000000;
+overlay33GetColorReloc = 0xf0000000;
+overlay33GetDimensionsReloc = 0xf0000000;
+overlay33PrepareReloc = 0xf0000000;
+overlay33SetRangeReloc = 0xf0000000;
+overlay33SetupGeometryReloc = 0xf0000000;
+overlay33SetupPassReloc = 0xf0000000;
+overlay33SetupViewportReloc = 0xf0000000;
 
 /* overlay 34: overlay34InitStorage.c.o */
 func_8002B280_o034Reloc = 0xf0000000;
@@ -2530,6 +2544,16 @@ overlay99SpawnEntryReloc = 0xf0000000;
 
 /* overlay 99: overlay99ProjectVector.c.o */
 overlay99SqrtReloc = 0xf0000000;
+
+/* overlay 99: overlay99RenderSortedEntries.c.o */
+gOverlay99IntensityScale = 0x00000008;
+gOverlay99TransformZ = 0x00000004;
+overlay99CamGetProjZReloc = 0xf0000000;
+overlay99CamGetPtrReloc = 0xf0000000;
+overlay99Func80022E80Reloc = 0xf0000000;
+overlay99Func80022FD4Reloc = 0xf0000000;
+overlay99Func8002AA50Reloc = 0xf0000000;
+overlay99MtxfTransformPointReloc = 0xf0000000;
 
 /* overlay 99: overlay99RenderSegments.c.o */
 gOverlay99SegmentCount = 0x00000090;

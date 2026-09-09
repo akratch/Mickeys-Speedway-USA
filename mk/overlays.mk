@@ -2267,8 +2267,6 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99BuildHeightGrid.c.o: POSTPROCESS 
 		func_overlay_099_F0000638_18D9BE8=overlay99BuildHeightGrid $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1C8
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99RenderSortedEntries.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_099_F0000800_18D9DB0=overlay99RenderSortedEntries $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x3A4
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99RenderSegments.c.o: CFLAGS += -Wab,-r4300_mul
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o099/overlay99RenderSegments.c.o: POSTPROCESS = \

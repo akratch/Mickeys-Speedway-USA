@@ -20,6 +20,10 @@ typedef struct Overlay33Locals {
 extern s32 gOverlay33BufferIndex;
 extern u8 D_8[];
 extern u8 D_1808[];
+/* The colour-image array read here and the display-list-end array written
+ * at the tail are two distinct overlay objects: the reads carry a zero
+ * low half, the store carries 0x3788. */
+extern void *gOverlay33ColorBuffers[];
 extern void *gOverlay33DisplayLists[];
 extern void *gOverlay33Texture;
 
@@ -33,20 +37,17 @@ extern void overlay33CopyPassReloc(Gfx **cursor, Gfx **other);
 extern void overlay33GetColorReloc(void *value, s16 *low, s16 *high,
                                    s16 *unused, u8 *red, u8 *green,
                                    u8 *blue, u8 *alpha);
-extern void overlay33SetRangeReloc(void *value, s32 range);
+extern void overlay33SetRangeReloc(s32 value);
 extern void overlay33FinishReloc(s32 value);
 
-/* Mickey-local reconstruction using the reviewed SDK macro subset below. */
-/*
- * Plateau (10 current-lane type/lifetime attempts): eliminating the explicit
- * index/range scalar slots recovered the target's 0xA8-byte frame, aggregate
- * offsets, and code through +0x398.  The best exact-size candidate has 46
- * positional words differing from there; moving the range lifetime after the
- * fog-command write regresses to 51 differences at +0x390, while recomputing
- * it at the later call is eight bytes long.  The blocker is the final
- * range/cursor expression schedule and its private temporary-register web.
- */
-#ifdef NON_MATCHING
+/* Mickey-local reconstruction using the reviewed SDK macro subset below.
+ *
+ * The fog block is the SDK's `gSPFogPosition` shape: the `gMoveWd` packet
+ * word is written before the range is read back, and each half of the packed
+ * word goes through `_SHIFTL`.  `_SHIFTL(q, 16, 16)` is `(q & 0xFFFF) << 16`;
+ * uopt drops the mask as redundant under the shift but keeps the masked value
+ * as its own web, which is the register-to-register copy the target spends
+ * ahead of the second divide. */
 void overlay33BuildDisplayList(void) {
     Overlay33Locals locals;
 
@@ -56,7 +57,7 @@ void overlay33BuildDisplayList(void) {
 
     overlay33SetupPassReloc(&locals.cursor, 0, 0);
     overlay33SetupPassReloc(&locals.cursor, 1,
-                            gOverlay33DisplayLists[gOverlay33BufferIndex]);
+                            gOverlay33ColorBuffers[gOverlay33BufferIndex]);
     overlay33SetupPassReloc(&locals.cursor, 2, gOverlay33Texture);
     overlay33SetupGeometryReloc(&locals.cursor);
     overlay33SetupViewportReloc(&locals.cursor);
@@ -64,7 +65,7 @@ void overlay33BuildDisplayList(void) {
     gSPClearGeometryMode(locals.cursor++, 1);
     gDPSetColorImage(locals.cursor++, G_IM_FMT_RGBA, G_IM_SIZ_16b,
                      locals.width,
-                     (u32)gOverlay33DisplayLists[gOverlay33BufferIndex] +
+                     (u32)gOverlay33ColorBuffers[gOverlay33BufferIndex] +
                          0x80000000U);
     gDPSetScissor(locals.cursor++, 0, 0, 0, locals.width, locals.height);
     gMoveWd(locals.cursor++, 2, 0, 0);
@@ -94,12 +95,13 @@ void overlay33BuildDisplayList(void) {
 
     {
         Gfx *fog = locals.cursor++;
-        s32 range = locals.high - locals.low;
+        s32 range;
 
         fog->words.w0 = 0xBC000008;
-        fog->words.w1 = ((128000 / range) << 16) |
-                        ((((500 - locals.low) * 256) / range) & 0xFFFF);
-        overlay33SetRangeReloc(0, range);
+        range = locals.high - locals.low;
+        fog->words.w1 = _SHIFTL(128000 / range, 16, 16) |
+                        _SHIFTL(((500 - locals.low) * 256) / range, 0, 16);
+        overlay33SetRangeReloc(0);
     }
     gMoveWd(locals.cursor++, 10, 0, 0);
     gDPFullSync(locals.cursor++);
@@ -108,16 +110,3 @@ void overlay33BuildDisplayList(void) {
     gOverlay33DisplayLists[gOverlay33BufferIndex] = locals.cursor;
     overlay33FinishReloc(1);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o033/overlay33BuildDisplayList/func_overlay_033_F000019C_1880984.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay33BuildDisplayList:start
- * symbol: overlay33BuildDisplayList
- * score: 262/308 words
- * frame: 0xA8
- * relocations: 32
- * first-mismatch: +0x10
- * summary: Fresh exact-size/frame V0 has 46 differences; all 32 relocation offsets/types align, but candidate identities remain unresolved.
- * PLATEAU-HANDOFF:overlay33BuildDisplayList:end
- */
