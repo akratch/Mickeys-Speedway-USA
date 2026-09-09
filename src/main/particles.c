@@ -2628,7 +2628,7 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0xB8
  * relocations: 2
  * first-mismatch: +0x50
- * summary: Workbench allocation-mismatch; forced-color-oracle lever 19 needs an authenticated globalcolor trace; structure is already opcode/size exact (zero attempts).
+ * summary: pure allocation with exact size, frame and relocations. The temp ring is rotated by one from the very first temporary in the function, with no call in scope before the divergence, so this is not the carry-across-a-call mechanism that closed func_8003D4FC. The intensity carrier is the live surface: routing particle->alpha through one extra integer carrier buys five words when the carrier is the loop counter (which is not a legal spelling) and one word when it is a dead local, while spelling the three products against the fields directly costs ten. A 30-minute permuter run went 455 to 390 and stalled, and every one of its improvements was that same carrier insertion.
  * PLATEAU-HANDOFF:func_8003D25C:end
  */
 
@@ -2638,7 +2638,7 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x68
  * relocations: 12
  * first-mismatch: +0x30
- * summary: m2c local ablation recovers the target frame; next lever is the entry-trigger carrier and integer/FP allocation web.
+ * summary: the frame size is right but its contents are not: both vector locals sit four bytes above the target's homes, and the three homes above them already agree, so the missing four bytes belong below the scale local. Flat and eliminated: reintroducing the orientation swap's own temp (any of eleven declaration positions) grows the frame to 0x70, and moving the colour table pointer later -- into the block that uses it, to the end of the list, or below scale -- keeps 0x68 but costs six words. The four relocation-symbol mismatches are an ordering fact: the target materializes the line-entry table's address one instruction earlier than we do.
  * PLATEAU-HANDOFF:func_80040B88:end
  */
 
