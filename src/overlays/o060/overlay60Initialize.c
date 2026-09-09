@@ -168,6 +168,6 @@ void func_overlay_060_F0000000_18B9DD8(void) {
  * frame: 0x60
  * relocations: 76
  * first-mismatch: +0x6C
- * summary: Fidelity-clean traces expose no attributable source web; the scheduler-selected reorder loses one exact word, so functional baseline is restored.
+ * summary: scheduler and allocator residue; reorder and coordinate-index probes regressed or stayed flat at 21 normalized differences
  * PLATEAU-HANDOFF:func_overlay_060_F0000000_18B9DD8:end
  */
