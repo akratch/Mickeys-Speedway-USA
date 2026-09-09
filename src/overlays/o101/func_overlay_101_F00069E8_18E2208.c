@@ -220,21 +220,31 @@ void func_overlay_101_F00069E8_18E2208(void) {
     gOverlay101OrderEntries[1 + group].child = node24;                         \
     D_1D0 = index + 1
 
-    gOverlay101OrderEntries[1 + 0].mode = 4; \
-    gOverlay101OrderEntries[1 + 0].value12 = 0x140; \
-    gOverlay101OrderEntries[1 + 0].value14 = 0xF0; \
-    gOverlay101OrderEntries[1 + 0].data18 = &D_CC8; \
-    gOverlay101OrderEntries[1 + 0].color16 = 0xFF; \
-    gOverlay101OrderEntries[1 + 0].color17 = 0xFF; \
-    gOverlay101OrderEntries[1 + 0].x = 0; \
-    gOverlay101OrderEntries[1 + 0].width = 0; \
-    gOverlay101OrderEntries[1 + 0].y = 0; \
-    gOverlay101OrderEntries[1 + 0].height = 0; \
-    gOverlay101OrderEntries[1 + 0].childType = 0; \
-    gOverlay101OrderEntries[1 + 0].child = 0; \
-    orderIndex = gOverlay101OrderCount; \
-    gOverlay101Order[orderIndex] = &D_1C; \
-    gOverlay101OrderCount = orderIndex + 1;
+/* The group-zero initialiser is a macro purely so the whole block keeps one
+ * logical source line, which is what the target's schedule needs; the earlier
+ * backslash-continued statement list compiled to the identical object. It is
+ * written as a macro rather than a continued statement list so that
+ * decomp-permuter's importer can preserve the line tie under
+ * --preserve-macros; expanded to one statement per line this function costs
+ * 81 differing words. */
+#define INIT_GROUP0()                                                          \
+    gOverlay101OrderEntries[1 + 0].mode = 4;                                  \
+    gOverlay101OrderEntries[1 + 0].value12 = 0x140;                           \
+    gOverlay101OrderEntries[1 + 0].value14 = 0xF0;                            \
+    gOverlay101OrderEntries[1 + 0].data18 = &D_CC8;                           \
+    gOverlay101OrderEntries[1 + 0].color16 = 0xFF;                            \
+    gOverlay101OrderEntries[1 + 0].color17 = 0xFF;                            \
+    gOverlay101OrderEntries[1 + 0].x = 0;                                     \
+    gOverlay101OrderEntries[1 + 0].width = 0;                                 \
+    gOverlay101OrderEntries[1 + 0].y = 0;                                     \
+    gOverlay101OrderEntries[1 + 0].height = 0;                                \
+    gOverlay101OrderEntries[1 + 0].childType = 0;                             \
+    gOverlay101OrderEntries[1 + 0].child = 0;                                 \
+    orderIndex = gOverlay101OrderCount;                                       \
+    gOverlay101Order[orderIndex] = &D_1C;                                     \
+    gOverlay101OrderCount = orderIndex + 1
+
+    INIT_GROUP0();
 
     ADD_NODE32(0, 0xF2, 0x14E, 1.0f, 0, 0xFF, 0x91);
     commonY = 0x78;
