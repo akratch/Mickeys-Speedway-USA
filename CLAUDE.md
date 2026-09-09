@@ -119,11 +119,22 @@ gmake overlay-syms
 gmake overlay-atlas-write
 .venv/bin/python tools/refresh_atlas_digest.py
 
-# 4. Build, verify, then confirm.
+# 4. Build, then regenerate the alias list AGAIN and rebuild.
+#    overlay-syms derives its aliases from the compiled overlay objects, so
+#    on a first promotion the pre-build run cannot see the new symbol. One
+#    pass links with undefined references and R_MIPS_26 overflows.
+gmake -j8
+gmake overlay-syms
 gmake -j8 && gmake verify
+
+# 5. Confirm.
 gmake check-overlay-syms
 gmake promotion-proof SYMBOL=<symbol>
 ```
+
+Overlay objects do **not** depend on `mk/overlays.mk`. Editing a POSTPROCESS
+rule there triggers no rebuild, and the resulting link failure looks as though
+the rule is wrong when it is already correct -- `rm` the object.
 
 `check-overlay-syms` is a *drift* check on already-regenerated output, so it
 cannot catch a promotion that never regenerated; reading its table entry below
