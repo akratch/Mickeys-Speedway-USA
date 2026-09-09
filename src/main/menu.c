@@ -1162,24 +1162,15 @@ s32 frontGetScreenMode(void) {
     }
     return mode;
 }
-#ifdef NON_MATCHING
-
-
-
-
-
-
-
-/* Allocation plateau (reproved 2026-09-04): the alias-backed modeBits lifetime
- * is exact-sized and matches 31/32 words, with first mismatch +0x14, no frame or
- * padding, and all six relocations exact. Its complete pool and temp lanes match;
- * only the equality branch reads v0 where the target reads v1. A ten-minute
- * bounded sweep improved score 60 to 10, and the reseeded sweep reached 5 but
- * no zero; the clean score-5 source remains 31/32. Splitting the repeated mask
- * regresses to 27/32. Earlier flags, declaration orders, direct-global, width,
- * and shared-carrier forms remain closed. ORT 606 and its three callers remain
- * authenticated. Linked equality proves fallback only; JFG's ordered peer is
- * role evidence, not donor C. */
+/* The guard keeps two carriers of the masked mode alive: the int, which the
+ * equality test and the store read, and the byte copy the two bit tests read.
+ * Naming the byte copy as the comparison's operand is what the plain spelling
+ * does, and it reads the byte where the target reads the int; the comma's
+ * second operand restores the int at the use without moving the schedule.
+ * The store then needs the int too, and spelling it as a third bare
+ * `screenMode & 3` gives the global's address a later pool colour -- `^ 0`
+ * breaks the lock at that use instead, which costs no colour. Either edit
+ * alone is a regression; the pair is exact. */
 /* PROVENANCE: ordered accessor-family role rechecked against JFG efd5abb's
  * assembly-backed src/menu.c::frontSetScreenMode; mask, guard, and packed fields
  * are Mickey-derived. */
@@ -1190,8 +1181,8 @@ void func_8003A2C8(s32 screenMode) {
 
     modeState = &D_8007C090;
     modeBitPtr = &modeBits;
-    if (*modeState != (modeBits = screenMode & 3)) {
-        D_8007C090 = screenMode & 3;
+    if (*modeState != (modeBits = screenMode & 3, screenMode & 3)) {
+        D_8007C090 = (screenMode & 3) ^ 0;
         if (*modeBitPtr & 1) {
             D_800D3128.bits.modeBit0 = 1;
         } else {
@@ -1205,9 +1196,6 @@ void func_8003A2C8(s32 screenMode) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/menu/func_8003A2C8.s")
-#endif
 /* PROVENANCE: adapted from JFG's public decomp, src/menu.c::frontStoreScreenMode. */
 void frontStoreScreenMode(void) {
     D_8007C08C = D_8007C090;
@@ -1336,16 +1324,6 @@ void func_8003A590(void) {
  * first-mismatch: +0xD8
  * summary: Compound global updates recover the first 54 words; shared-exit CFG and the title/tail pool-to-temp webs remain.
  * PLATEAU-HANDOFF:func_80038E1C:end
- */
-
-/* PLATEAU-HANDOFF:func_8003A2C8:start
- * symbol: func_8003A2C8
- * score: 1 differing words
- * frame: frameless
- * relocations: 6
- * first-mismatch: +0x14
- * summary: Wide carrier remains coupled to global-address color; precomputed form reaches 5 words. Five-minute real-TU sweep found no improvement.
- * PLATEAU-HANDOFF:func_8003A2C8:end
  */
 
 /* PLATEAU-HANDOFF:func_80039E34:start
