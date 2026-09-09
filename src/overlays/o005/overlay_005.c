@@ -11,24 +11,21 @@ void overlay5InitSequence(void *owner, s32 value) {
 }
 
 /*
- * Plateau evidence (reviewed 2026-08-29): retained pre-HEAD/current-body,
- * current-layout full-TU and selective C agree at 211/233 raw and normalized
- * words, exact 0x3A4-byte size and 0x98 frame, first mismatch +0x9C. That score
- * used an unauthenticated eight-byte SequenceConfig tail, now removed, so clean
- * V0 is uncompiled. The remaining 22 sites are three Span1 carrier words, the
- * +0x214/+0x218 initialization swap, and shifted bankSize, soundConfig, and
- * sequenceConfig homes. All 71 runtime records align by offset/type; ORTs
- * 1559/1561 and 1565/1568 now have distinct source identities. Linked equality
- * proves fallback only. Run 119 flags, one trace, three natural forms, and an
- * improving-only combination; cap at 123 stock candidates plus one trace.
+ * The declaration list is Diddy Kong Racing's `audio_init` list, `pad`
+ * included (see the PROVENANCE note on `Overlay5SoundConfig`).  IDO packs the
+ * declared locals of every scope into one chain, top-down in declaration
+ * order, from T = frame, with frame = align8(below + S); reading the shipped
+ * 0x98 frame and the 0x70/0x68/0x4C homes back through that law pins the list
+ * exactly, and it only closes with the sound config at libaudio's real 0x24.
  */
-#ifdef NON_MATCHING
 void overlay5InitializeAudio(void *context) {
-    Overlay5Resource *resource;
+    s32 index;
     Overlay5SoundConfig soundConfig;
+    Overlay5Resource *resource;
     u32 bankSize;
-    Overlay5SequenceConfig sequenceConfig;
     u32 maxValue;
+    u32 pad;
+    Overlay5SequenceConfig sequenceConfig;
 
     maxValue = 0;
     gOverlay5AudioOwner = gOverlay5OwnerSoundState;
@@ -70,12 +67,11 @@ void overlay5InitializeAudio(void *context) {
         u32 *destination;
         u32 destinationOffset;
         u32 sourceOffset;
-        s32 index;
 
         index = 0;
         if (bank->count > 0) {
-            destination = gOverlay5EntryValues;
             destinationOffset = 0;
+            destination = gOverlay5EntryValues;
             sourceOffset = 0;
             do {
                 u32 value;
@@ -102,24 +98,24 @@ void overlay5InitializeAudio(void *context) {
         }
     }
 
-    soundConfig.field00 = (void *)0x2C;
-    soundConfig.field04 = 0x28;
-    soundConfig.field08 = 0x80;
-    soundConfig.field10 = 0;
-    soundConfig.field1C = 6;
-    soundConfig.field0C = 1;
-    soundConfig.field18 = 0;
-    soundConfig.field14 = gOverlay5HeapState;
+    soundConfig.maxVVoices = 0x2C;
+    soundConfig.maxPVoices = 0x28;
+    soundConfig.maxUpdates = 0x80;
+    soundConfig.dmaproc = NULL;
+    soundConfig.fxType[0] = 6;
+    soundConfig.maxFXbusses = 1;
+    soundConfig.outputRate = 0;
+    soundConfig.heap = gOverlay5HeapState;
     func_80001740(&soundConfig, 0x0C, context);
 
     gOverlay5Player0 = overlay5CreatePlayer(0x20, 0x96);
     gOverlay5Player1 = overlay5CreatePlayer(0x10, 0x32);
 
-    sequenceConfig.field04 = 0xC8;
-    sequenceConfig.field00 = (void *)0x20;
-    sequenceConfig.field08 = 0x10;
-    sequenceConfig.field10 = 5;
-    sequenceConfig.field0C = gOverlay5HeapState;
+    sequenceConfig.maxEvents = 0xC8;
+    sequenceConfig.maxSounds = 0x20;
+    sequenceConfig.maxChannels = 0x10;
+    sequenceConfig.numGroups = 5;
+    sequenceConfig.heap = gOverlay5HeapState;
     gsSndpNew(&sequenceConfig);
 
     func_80001BA0();
@@ -131,9 +127,6 @@ void overlay5InitializeAudio(void *context) {
     osCreateMesgQueue(gOverlay5MessageQueue, gOverlay5MessageBuffer, 1);
     n_alCSPSetMessageQ(gOverlay5Player0, gOverlay5MessageQueue);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o005/overlay_005/func_overlay_005_F000031C_185B744.s")
-#endif
 
 void *overlay5CreatePlayer(s32 arg0, s32 arg1) {
     void *player;

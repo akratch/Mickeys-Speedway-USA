@@ -69,42 +69,58 @@ extern void overlay29EmitReloc(s32 id, f32 x, f32 y, f32 z, s32 type, s32 arg);
     } while (0)
 
 /* Exact size (1028 bytes / 257 words), exact 0x48 frame, all 22 relocation
- * offsets and types.  253 of 257 words agree; the four that do not are one
- * fact.  The CSE web for `verticalAngle + 0x2000` -- defined in the second
- * block, spilled once and reloaded by the third and fourth -- takes `v0` here
- * and `a2` in the target.  Its compiler temp slot (sp+0x2C), its schedule, its
- * spill point and every other register in the function agree; the target
- * spends `a2` six times and `v0` nineteen, this candidate `a2` once and `v0`
- * twenty-four.
+ * offsets and types.  253 of 257 words agree and the four that do not are one
+ * fact: the CSE web for `verticalAngle + 0x2000` -- defined in the second
+ * block, spilled to the compiler temp at sp+0x2C and reloaded by the third and
+ * fourth -- takes `v0` here and `a2` in the target.  The four words are
+ * +0x13C, +0x148, +0x150 and +0x164, which is exactly that web's load, add,
+ * store and spill; its temp slot, its schedule, its spill point and every
+ * other register in the function agree.  ugen emits the register itself
+ * (`addu $2, $2, 8192` in its listing), so this is ugen's allocation, not a
+ * scheduling artefact of as1.
  *
- * The frame is a five-local census and it is unique: `object` is the parameter,
- * not an m2c copy of it (that copy alone was fifteen words and the whole frame
- * layout), and the order is record, state, angles, baseAngle, verticalAngle.
- * A sixth declared local costs 22 words at best in any of six positions.
+ * The declaration list is closed on both sides.  A sixth local costs 22 words
+ * at best in any of six positions and any of seven types -- the frame law is
+ * frame = align8(below + S) with below = 0x38 and S = 0x10, so 0x48 admits
+ * exactly these five.  The obvious composition -- drop `state` to make room,
+ * then name the shared value -- does not work either: the named carrier is
+ * free, but spelling `object->state` at its six uses is nine words SHORTER
+ * (248/257), so `state` is load-bearing as a local and the list cannot be
+ * traded.  That closes the L88 "name the value to add a pool colour" route.
  *
- * The double mask in the first block is load-bearing: a single `& 0xFFFFU`,
- * a `(u16)` cast or no mask at all is 72 words, first difference +0x30.
- * Both `volatile` casts in INITIALIZE_RECORD are load-bearing at eight words
- * each; the macro's own `record = (rec_)` was inert and is gone.
+ * The double mask in the first block is load-bearing: a single `& 0xFFFFU`, a
+ * `(u16)` cast or no mask at all is 72 words, first difference +0x30.  It
+ * costs no instruction (ugen emits a bare `addu $t3, $2, 12288`), so it is a
+ * pure web-structure edit.  Both `volatile` casts in INITIALIZE_RECORD are
+ * load-bearing at eight words each.
  *
- * What is exhausted, all flat at four words: statement order and record
- * placement across all four blocks (3,888 points); physical line grouping
- * within each block and across block boundaries (1,203 points); the mask
- * spelling of every angle expression, per block (1,110 points); macro body
- * order (576 points); the record-pointer spelling lattice (256); local and
+ * What is exhausted, all flat at four words.  Earlier lanes: statement order
+ * and record placement across all four blocks (3,888); physical line grouping
+ * within and across blocks (1,203); mask spelling per block (1,110); macro
+ * body order (576); the record-pointer spelling lattice (256); local and
  * prototype types (163); inner-block scope placement and declaration
  * permutation (136); `register` hints and a sixth local (50); naming the
- * shared value as a local at any position and type (48, all regressions);
- * the signature's return type and extra parameters (12); and the compile
- * flag lattice (13 -- `-Wab,-r4300_mul` is confirmed, everything else is
- * 234 words out).
+ * shared value (48); signature return type and extra parameters (12); the
+ * driver flag lattice (13 -- `-Wab,-r4300_mul` confirmed).  Added here: all
+ * 4,096 identity-operation forms of the three `verticalAngle + 0x2000` sites
+ * (`^ 0`, `| 0`, `+ 0`, `- 0`, `* 1`, `-(-x)`, `(s16)`, `(u16)`, single and
+ * double mask, reversed operands), of which 1,868 keep the size and every one
+ * scores four; all 721 statement orders of block 2; the `angles` array
+ * respelled as a two-field struct with either field order and three argument
+ * spellings; a 96-cell prototype lattice over the four relocated callees'
+ * return and parameter types; and per-phase optimisation levels through
+ * `ido-phases.py` (uopt/ugen/as1 at -O3, uopt at -O1).
  *
- * The next lever is whatever makes uopt exclude `v0` from this one web.  It is
- * a colour fact, not a schedule fact: the register live range 0x13C..0x164
- * contains no call, so `v0` is free there, which means the target's exclusion
- * is decided on the web's pre-spill extent across the three blocks.  Note the
- * permuter is not usable here -- its scratch scores this body 135 against a
- * measured 4. */
+ * The one genuinely new fact is a reachability bound.  A 4,000-point
+ * randomised cross of macro body order, both `volatile` casts, and the mask
+ * spelling of all five angle expressions moves this carrier to `v0` (2,745
+ * cells), `v1` (603), `t6` (250), `t7` (177), `t5` (107), `t8` (82) and `t9`
+ * (29) -- and never once to `a0`-`a3`, at any score.  The 96-cell prototype
+ * lattice and the 721 statement orders are also uniformly `v0`.  So the
+ * target's `a2` is not in this candidate's reachable allocation set: the next
+ * lever has to change the allocation regime, not the spelling or the
+ * schedule.  Note the permuter is not usable here -- its scratch scores this
+ * body 135 against a measured 4. */
 #ifdef NON_MATCHING
 void func_overlay_029_F00010C4_187E374(Overlay29Object *object, s32 mode) {
     Overlay29Record *record;
@@ -182,6 +198,6 @@ void func_overlay_029_F00010C4_187E374(Overlay29Object *object, s32 mode) {
  * frame: 0x48
  * relocations: 22
  * first-mismatch: +0x13C
- * summary: Exact size, frame and relocations; the four remaining words are one colour fact -- the shared angle web takes v0 here and a2 in the target.
+ * summary: Four words, one ugen colour: the shared angle web takes v0 here and a2 in the target; a2 is unreachable across 4,000 source forms.
  * PLATEAU-HANDOFF:func_overlay_029_F00010C4_187E374:end
  */

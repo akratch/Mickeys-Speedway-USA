@@ -239,11 +239,44 @@ gOverlay4SearchMaxDistance = 0x00000010;
 overlay4RuntimeCallReloc = 0xf0000000;
 
 /* overlay 5: overlay_005.c.o */
+alHeapDBAlloc_o005Reloc = 0xf0000000;
+alHeapInit_o005Reloc = 0xf0000000;
+alSurround_OutputType_o005Reloc = 0xf0000000;
+alSurround_ReverbSetup_o005Reloc = 0xf0000000;
+func_80000450_o005Reloc = 0xf0000000;
+func_80001740_o005Reloc = 0xf0000000;
+func_80001BA0_o005Reloc = 0xf0000000;
+func_800039F0_o005Reloc = 0xf0000000;
+func_8002B280_o005Reloc = 0xf0000000;
+func_8002B768_o005Reloc = 0xf0000000;
+func_8002E148_o005Reloc = 0xf0000000;
+func_8002E2E0_o005Reloc = 0xf0000000;
+func_8002E35C_o005Reloc = 0xf0000000;
 gOverlay5AudioHeap = 0x00000000;
+gOverlay5AudioOwner = 0x00000000;
 gOverlay5AudioState = 0x00000000;
+gOverlay5Bank = 0x00000000;
+gOverlay5EntryValues = 0x00000000;
 gOverlay5EventQueue = 0x00000000;
 gOverlay5FrameCallback = 0x00000000;
+gOverlay5HeapMemory = 0x00000000;
+gOverlay5HeapState = 0x00000000;
 gOverlay5InitQueue = 0x00000000;
+gOverlay5MessageBuffer = 0x00000000;
+gOverlay5MessageQueue = 0x00000000;
+gOverlay5OwnerSoundState = 0x00000000;
+gOverlay5Player0 = 0x00000000;
+gOverlay5Player1 = 0x00000000;
+gOverlay5Span0 = 0x00000000;
+gOverlay5Span0ScaleValue = 0x00000000;
+gOverlay5Span0Size = 0x00000000;
+gOverlay5Span1 = 0x00000000;
+gOverlay5Span1ScaleValue = 0x00000000;
+gOverlay5Span1Size = 0x00000000;
+gOverlay5Span2 = 0x00000000;
+gsSndpNew_o005Reloc = 0xf0000000;
+n_alCSPSetMessageQ_o005Reloc = 0xf0000000;
+osCreateMesgQueue_o005Reloc = 0xf0000000;
 overlay5AllocPlayerReloc = 0xf0000000;
 overlay5AttachBankReloc = 0xf00002e4;
 overlay5InitPlayerReloc = 0xf0000000;
@@ -1899,6 +1932,10 @@ gOverlay59EntriesEnd = 0x00000110;
 /* overlay 59: overlay59AppendValue.c.o */
 gOverlay59ValueTables = 0x00000708;
 
+/* overlay 59: overlay59Advance.c.o */
+gOverlay59EntriesOneEnd = 0x00000044;
+gOverlay59TableInfo = 0x000005a0;
+
 /* overlay 59: overlay59DrawFrame.c.o */
 gOverlay59Styles = 0x00000730;
 overlay59FrameColorReloc = 0xf0000000;
@@ -3060,8 +3097,8 @@ func_overlay_005_F0000278_185B6A0 = _bnkfPatchWaveTable;
 
 /* overlay 5: overlay_005.c.o */
 func_overlay_005_F00002E4_185B70C = overlay5InitSequence;
-func_overlay_005_F00006C0_185BAE8 = overlay5CreatePlayer;
 func_overlay_005_F000031C_185B744 = overlay5InitializeAudio;
+func_overlay_005_F00006C0_185BAE8 = overlay5CreatePlayer;
 
 /* overlay 6: overlay_006.c.o */
 func_overlay_006_F0000000_185BE68 = overlay6Init;

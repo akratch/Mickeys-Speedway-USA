@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 148336,
-  "nonmatching_overlay_c_bytes": 320284,
+  "matched_overlay_c_bytes": 150316,
+  "nonmatching_overlay_c_bytes": 318304,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 2348,
   "bss_bytes": 77680,
@@ -2184,7 +2184,7 @@
      "type": "c",
      "source": "overlays/o005/overlay_005",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x764",
@@ -2235,25 +2235,7 @@
     "pilot_role": null,
     "exact_donor_match": null,
     "priority_rank": 99
-   },
-   "mixed_tu_exact_c_ranges": [
-    {
-     "offset": "0x2E4",
-     "end_offset": "0x31C",
-     "size": "0x38",
-     "label": "overlay5InitSequence",
-     "source": "overlays/o005/overlay_005",
-     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
-    },
-    {
-     "offset": "0x6C0",
-     "end_offset": "0x764",
-     "size": "0xA4",
-     "label": "overlay5CreatePlayer",
-     "source": "overlays/o005/overlay_005",
-     "evidence": "pre-consolidation metadata-only object; linked bytes exact"
-    }
-   ]
+   }
   },
   {
    "overlay": 6,
@@ -12540,7 +12522,7 @@
      "type": "c",
      "source": "overlays/o059/overlay59Advance",
      "matched": true,
-     "nonmatching": true
+     "nonmatching": false
     },
     {
      "offset": "0x784",

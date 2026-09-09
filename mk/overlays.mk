@@ -87,9 +87,26 @@ $(BUILD_DIR)/$(SRC_DIR)/main/weather.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym rainInitTrap=TrapDanglingJump $@ && \
 	$(OBJCOPY) --redefine-sym rainFreeTrap=TrapDanglingJump $@
 
+# overlay5InitializeAudio reaches the resident segment through the overlay's
+# own relocation table; rebind each resident call to the module-local alias
+# `gmake overlay-syms` mints for it, exactly as the other overlays do.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay_005.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_005_F000031C_185B744=overlay5InitializeAudio $@ && \
+	$(OBJCOPY) --redefine-sym alHeapDBAlloc=alHeapDBAlloc_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym alHeapInit=alHeapInit_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym alSurround_OutputType=alSurround_OutputType_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym alSurround_ReverbSetup=alSurround_ReverbSetup_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym func_80000450=func_80000450_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym func_80001740=func_80001740_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym func_80001BA0=func_80001BA0_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym func_800039F0=func_800039F0_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym func_8002B280=func_8002B280_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym func_8002B768=func_8002B768_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym func_8002E148=func_8002E148_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym func_8002E2E0=func_8002E2E0_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym func_8002E35C=func_8002E35C_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym gsSndpNew=gsSndpNew_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym n_alCSPSetMessageQ=n_alCSPSetMessageQ_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym osCreateMesgQueue=osCreateMesgQueue_o005Reloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x480
 # Two independent operations straddle the same source-line scheduling points
 # in the shipped object. Assert IDO's natural order before restoring them.
@@ -2668,37 +2685,15 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59ReleaseAll.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x48
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Update.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x9C
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: \
-	$(TOOLS_DIR)/rebind_elf_relocations.py
-ifeq ($(NON_MATCHING),1)
-# The compiler's six-entry table is the same table retained at module +0x76C.
-# Rebind only its text references and discard the duplicate private section;
-# the linked default path remains the GLOBAL_ASM body while this source is a plateau.
+# The compiler's private pool for this unit is the 0.15f approach factor
+# followed by the six-entry switch table; the retained overlay data segment
+# already owns those bytes at +0x768 and +0x76C.  Anchor the two %hi/%lo pairs
+# on the module-relative 0x18 the shipped text encodes and contribute no bytes.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: POSTPROCESS = \
-	$(OBJCOPY) --add-symbol overlay59AdvanceSwitchTable=0x76C,global $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
-		0x84:.rodata:overlay59AdvanceSwitchTable \
-		0x8C:.rodata:overlay59AdvanceSwitchTable && \
-	$(OBJCOPY) --remove-section=.rodata $@ && \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_059_F000036C_18B8ABC=overlay59Advance $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
+		sha256:15fc13fbb3e01c022332cdcc79623566f105d3a5922afe1ff8228f1f525f3f34 0x18 && \
+	$(OBJCOPY) --remove-section=.rel.rodata $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x418
-else
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_059_F000036C_18B8ABC=overlay59Advance $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x418
-endif
-# The C candidate emits the six-entry pool owned by overlay +0x76C.  The
-# fallback assembly has no compiler-owned .rodata, so this conditional is a
-# no-op there and remains active if the candidate is later promoted.
-$(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59Advance.c.o: POSTPROCESS += \
-	&& candidate_rodata_size=$$( $(OBJDUMP) -h $@ | awk '$$2 == ".rodata" { print $$3; exit }' ); \
-	if [ -n "$$candidate_rodata_size" ] && [ "$$candidate_rodata_size" != "00000000" ]; then \
-		$(HOST_PYTHON) $(TOOLS_DIR)/externalize_elf_section.py $@ .rodata \
-			sha256:bf604582e55225db52cddbe759d4fc113138cdfb8829e35610ac4f1b6d825f26 0x76c && \
-		$(OBJCOPY) --remove-section=.rel.rodata $@; \
-	fi
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59BuildList.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xA0
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o059/overlay59AppendValue.c.o: POSTPROCESS = \
