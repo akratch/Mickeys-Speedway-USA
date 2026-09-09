@@ -179,7 +179,8 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
     s32 back;
     f32 oldFrame;
     f32 frame;
-    f32 dx, dz;
+    Overlay47Player *p2;
+    Overlay47Player *p3;
     f32 scale;
     f32 rate;
     f32 oldFov;
@@ -201,17 +202,17 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
     start = 0;
     activeCount = 0;
     back = 0;
-    player = D_800D3058;
+    p3 = D_800D3058;
     do {
-        if (player->active != 0) {
+        if (p3->active != 0) {
             activeCount++;
-            if (player->ready == 0) {
+            if (p3->ready == 0) {
                 allReady = 0;
                 ov47Bss_338 = 0;
             }
         }
-        player++;
-    } while (player < D_800D3058 + 4);
+        p3++;
+    } while (p3 < D_800D3058 + 4);
     slot = 0;
     if (allReady && ((activeCount == 1) || (activeCount == 4))) {
         ov47Bss_338 = 1;
@@ -278,7 +279,7 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
                 }
             }
             if ((joyGetPressed(controller) & 0x9000) && !player->leaving &&
-                player->actor != NULL && !ov47Bss_324) {
+                (actor = player->actor) != NULL && !ov47Bss_324) {
                 if (allReady) {
                     if (!ov47Bss_338) {
                         ov47Bss_338 = 1;
@@ -458,9 +459,8 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
                         break;
                 }
                 if (!player->leaving && !player->active) {
-                    dx = player->x - ov47Bss_2F0.x;
-                    dz = player->z - ov47Bss_2F0.z;
-                    if (dx * dx + dz * dz < 1000.0f) {
+                    if ((player->x - ov47Bss_2F0.x) * (player->x - ov47Bss_2F0.x) +
+                        (player->z - ov47Bss_2F0.z) * (player->z - ov47Bss_2F0.z) < 1000.0f) {
                         func_80006EA0(actor);
                         player->actor = NULL;
                         actor = NULL;
@@ -513,11 +513,11 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
         unready = 0;
         selected = -1;
         count = 0;
-        player = D_800D3058;
-        for (i = 0; i < 4; i++, player++) {
-            if ((f32)player->selector == icon->selector && player->active) {
+        p2 = D_800D3058;
+        for (i = 0; i < 4; i++, p2++) {
+            if ((f32)p2->selector == icon->selector && p2->active) {
                 colourIndex = i;
-                if (!player->ready) unready = 1;
+                if (!p2->ready) unready = 1;
                 for (j = 0; j < updateRate; j++) {
                     ov47Bss_328[i] +=
                         ((((s32)icon->x + 160) << 4) - ov47Bss_328[i]) >> 2;
@@ -615,13 +615,13 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
     fontColour(255, 255, 255, 255, 255);
     func_8004B0A4(2);
     labelCount = 0;
-    player = D_800D3058;
-    for (controller = 0; controller != 4; controller++, player++) {
-        if (player->active && player->actor != NULL) {
+    p3 = D_800D3058;
+    for (controller = 0; controller != 4; controller++, p3++) {
+        if (p3->active && p3->actor != NULL) {
             if (ov47Bss_30A == 4) {
-                textX = ov47Data_530[controller] + player->screenX;
+                textX = ov47Data_530[controller] + p3->screenX;
             } else {
-                textX = player->screenX - 20.0f;
+                textX = p3->screenX - 20.0f;
             }
             barY = 116;
             for (stat = 0; stat != 4; stat++) {
@@ -639,14 +639,14 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
                 O47_COMMAND(0xB6000000, 0x00010001);
                 O47_COMMAND(0xFCFFFFFF, 0xFFFDF6FB);
                 O47_COMMAND(0xFA000000, ov47Data_3DC[controller]);
-                count = ov47Data_4C8[ov47Data_524[player->selector]][stat];
+                count = ov47Data_4C8[ov47Data_524[p3->selector]][stat];
                 while (count--) {
                     O47_RECTANGLE(barX, barY);
                     barX += 8;
                 }
                 O47_COMMAND(0xE7000000, 0);
                 O47_COMMAND(0xFA000000, (ov47Data_3DC[controller] & ~0xFF) | 0x40);
-                count = 5 - ov47Data_4C8[ov47Data_524[player->selector]][stat];
+                count = 5 - ov47Data_4C8[ov47Data_524[p3->selector]][stat];
                 while (count--) {
                     O47_RECTANGLE(barX, barY);
                     barX += 8;
