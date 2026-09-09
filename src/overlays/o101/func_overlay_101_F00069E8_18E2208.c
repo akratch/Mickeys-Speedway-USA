@@ -108,11 +108,21 @@ extern void overlay101Reset(void *value);
  * the typed node builders immediately before and after it. The pinned DKR
  * v77/v80 and JFG overlay scans report no donor for overlay 101.
  * Configured full-TU residual measurement: 963/963 words,
- * 617 raw / 614 relocation-masked differences, first +0x88; frame 0x50.
+ * 616 raw / 613 relocation-masked differences, first +0x88; frame 0x50.
  * The initial group line ties and selected expanded builders preserve the
  * reconstructed statement tokens while retaining the closer stock schedule.
  * The runtime table owns 110 relocations; the extracted assembly object
  * retains only 78 text relocations; its placeholders are not promotion proof.
+ *
+ * Residual shape, measured: 81% of the aligned differences are register
+ * naming, not structure. Canonicalizing one saved-register pair and the
+ * scratch-ring temp names leaves 296 of 616 differing words. Seven of the
+ * nine saved registers already agree symbol-for-symbol; only the pool-index
+ * web and the shared 0x78/screen-node-pointer web are exchanged, and the
+ * scratch ring runs one slot behind from +0x88 onward because the pool count
+ * this unit reads before each loader call is coloured to that saved register
+ * instead of a scratch temporary, which forces its stack save into the entry
+ * block a slot early.
  */
 #ifdef NON_MATCHING
 void func_overlay_101_F00069E8_18E2208(void) {
@@ -143,12 +153,17 @@ void func_overlay_101_F00069E8_18E2208(void) {
     gOverlay101Order[orderIndex] = &(owner);                                   \
     gOverlay101OrderCount = orderIndex + 1
 
+/* y is assigned before x here: the target materializes the sprite's y
+ * constant first and stores x first, and the stock scheduler reverses the
+ * pair, so only this order reproduces both the constant order and the store
+ * order over +0xBC..+0xE4. The screen and text builders measure worse this
+ * way and keep the declared field order. */
 #define ADD_NODE32(group, nodeX, nodeY, nodeScale, nodeValue, nodeColor,       \
                    imageId)                                                    \
     index = gOverlay101Resource32Count;                                        \
     node32 = &gOverlay101Resources32[index];                                   \
-    node32->x = (nodeX);                                                       \
     node32->y = (nodeY);                                                       \
+    node32->x = (nodeX);                                                       \
     node32->scale = (nodeScale);                                               \
     node32->value10 = (nodeValue);                                             \
     node32->color12 = (nodeColor);                                             \
@@ -205,21 +220,31 @@ void func_overlay_101_F00069E8_18E2208(void) {
     gOverlay101OrderEntries[1 + group].child = node24;                         \
     D_1D0 = index + 1
 
-    gOverlay101OrderEntries[1 + 0].mode = 4; \
-    gOverlay101OrderEntries[1 + 0].value12 = 0x140; \
-    gOverlay101OrderEntries[1 + 0].value14 = 0xF0; \
-    gOverlay101OrderEntries[1 + 0].data18 = &D_CC8; \
-    gOverlay101OrderEntries[1 + 0].color16 = 0xFF; \
-    gOverlay101OrderEntries[1 + 0].color17 = 0xFF; \
-    gOverlay101OrderEntries[1 + 0].x = 0; \
-    gOverlay101OrderEntries[1 + 0].width = 0; \
-    gOverlay101OrderEntries[1 + 0].y = 0; \
-    gOverlay101OrderEntries[1 + 0].height = 0; \
-    gOverlay101OrderEntries[1 + 0].childType = 0; \
-    gOverlay101OrderEntries[1 + 0].child = 0; \
-    orderIndex = gOverlay101OrderCount; \
-    gOverlay101Order[orderIndex] = &D_1C; \
-    gOverlay101OrderCount = orderIndex + 1;
+/* The group-zero initialiser is a macro purely so the whole block keeps one
+ * logical source line, which is what the target's schedule needs; the earlier
+ * backslash-continued statement list compiled to the identical object. It is
+ * written as a macro rather than a continued statement list so that
+ * decomp-permuter's importer can preserve the line tie under
+ * --preserve-macros; expanded to one statement per line this function costs
+ * 81 differing words. */
+#define INIT_GROUP0()                                                          \
+    gOverlay101OrderEntries[1 + 0].mode = 4;                                  \
+    gOverlay101OrderEntries[1 + 0].value12 = 0x140;                           \
+    gOverlay101OrderEntries[1 + 0].value14 = 0xF0;                            \
+    gOverlay101OrderEntries[1 + 0].data18 = &D_CC8;                           \
+    gOverlay101OrderEntries[1 + 0].color16 = 0xFF;                            \
+    gOverlay101OrderEntries[1 + 0].color17 = 0xFF;                            \
+    gOverlay101OrderEntries[1 + 0].x = 0;                                     \
+    gOverlay101OrderEntries[1 + 0].width = 0;                                 \
+    gOverlay101OrderEntries[1 + 0].y = 0;                                     \
+    gOverlay101OrderEntries[1 + 0].height = 0;                                \
+    gOverlay101OrderEntries[1 + 0].childType = 0;                             \
+    gOverlay101OrderEntries[1 + 0].child = 0;                                 \
+    orderIndex = gOverlay101OrderCount;                                       \
+    gOverlay101Order[orderIndex] = &D_1C;                                     \
+    gOverlay101OrderCount = orderIndex + 1
+
+    INIT_GROUP0();
 
     ADD_NODE32(0, 0xF2, 0x14E, 1.0f, 0, 0xFF, 0x91);
     commonY = 0x78;
@@ -382,10 +407,10 @@ void func_overlay_101_F00069E8_18E2208(void) {
 
 /* PLATEAU-HANDOFF:func_overlay_101_F00069E8_18E2208:start
  * symbol: func_overlay_101_F00069E8_18E2208
- * score: 614/963 words
+ * score: 613/963 words
  * frame: 0x50
  * relocations: 110
  * first-mismatch: +0x88
- * summary: 963 words, 617 raw/614 masked; five stalled attempts. Next: trace first setup-count temp formation while preserving insertion-index and coordinate lifetimes.
+ * summary: 616 raw/613 masked; 81% register naming, one saved-register pair exchanged, scratch ring one slot behind from +0x88.
  * PLATEAU-HANDOFF:func_overlay_101_F00069E8_18E2208:end
  */
