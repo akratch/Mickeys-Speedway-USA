@@ -74,15 +74,6 @@
       ]
     },
     {
-      "object": "overlays/o033/overlay33BuildDisplayList.c.o",
-      "aliases": [
-        {
-          "from": "func_overlay_033_F000019C_1880984",
-          "to": "overlay33BuildDisplayList"
-        }
-      ]
-    },
-    {
       "object": "overlays/o034/overlay34RemoveRecord.c.o",
       "aliases": [
         {
