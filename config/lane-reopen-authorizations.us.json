@@ -80,6 +80,11 @@
       "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
       "source_commit": "9da45a1126b701b376c1abe65c9b0b777e8931fd"
     },
+    "func_8000A39C": {
+      "ledger_commit": "71156d0edfa8062b1192074b4e20ebcf6d471692",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "source_commit": "71156d0edfa8062b1192074b4e20ebcf6d471692"
+    },
     "func_8000BDB4": {
       "ledger_commit": "1ac4ce096402051df01ff721968235046df1e373",
       "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
@@ -91,9 +96,9 @@
       "source_commit": "77dd6b1ecedab079271e802af18e6c87c4f71f61"
     },
     "func_8000D3B8": {
-      "ledger_commit": "2827cd9df816f659d014bc96019989b1db003e26",
-      "reason": "Decompiler-assisted structural reconstruction: m2c draft from this game's own extracted assembly, recovering call/global identities and types before CFG work. Size-deficit targets no permutation or flag lattice can close.",
-      "source_commit": "2827cd9df816f659d014bc96019989b1db003e26"
+      "ledger_commit": "d81bf4c93bce5a7947ec30abca8ef78a8b250f16",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "source_commit": "d81bf4c93bce5a7947ec30abca8ef78a8b250f16"
     },
     "func_8000D820": {
       "ledger_commit": "16ad20bff6f3793b6e510a6996a524198762459b",
@@ -240,6 +245,11 @@
       "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "173cab235f4fe1cf595964b0070f612463d896ae"
     },
+    "func_80019DE8": {
+      "ledger_commit": "3871c92be170f512c85f90d6fd3682e1e1a0adb0",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "source_commit": "3871c92be170f512c85f90d6fd3682e1e1a0adb0"
+    },
     "func_8001BBB4": {
       "ledger_commit": "770063553502c681e61f13366a408c249df4e797",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
@@ -321,9 +331,9 @@
       "source_commit": "a0f052fd675c8fc456237020b7b6f8fb52753066"
     },
     "func_80024978": {
-      "ledger_commit": "89522668e6d277f4a2321cbb82e841fcf3cf2bf7",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb newly matches this shared-engine TU. Re-derive from that donor with a PROVENANCE note; Mickey ROM decides every disagreement. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "89522668e6d277f4a2321cbb82e841fcf3cf2bf7"
+      "ledger_commit": "ecfe80604c2a060c30232d07a05a1bcc4f00933d",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "source_commit": "ecfe80604c2a060c30232d07a05a1bcc4f00933d"
     },
     "func_80026FB4": {
       "ledger_commit": "1832e6b4c0ad5b7dd76183f03aae60b074e1cfcd",
@@ -345,10 +355,20 @@
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
       "source_commit": "4cbcbf558e961addec43713d1dcb5ddc9c15be27"
     },
+    "func_8002B040": {
+      "ledger_commit": "5907a4a9b16b4dbd443a6bc42e8341fb475ae75d",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "source_commit": "5907a4a9b16b4dbd443a6bc42e8341fb475ae75d"
+    },
     "func_8002B524": {
       "ledger_commit": "8740f3fb1d724dd4cc8e782f7635d0a189ac09f8",
       "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "8740f3fb1d724dd4cc8e782f7635d0a189ac09f8"
+    },
+    "func_8002B7AC": {
+      "ledger_commit": "928ad5b12ce139eb3029050a9f9bf7b6ca170d29",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "source_commit": "541906f449fafbbdad4487edfde49748d0df7a0d"
     },
     "func_8002C69C": {
       "ledger_commit": "55f1eb63ad76a3b6635718ab46c776c0e98833c5",
@@ -384,6 +404,11 @@
       "ledger_commit": "bfd6d07a61c4ce33e4b8069ccf92d49054398980",
       "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
       "source_commit": "bfd6d07a61c4ce33e4b8069ccf92d49054398980"
+    },
+    "func_80034448": {
+      "ledger_commit": "98763f2ea33096a363affb0bf92b58f70fcf7ca8",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "source_commit": "98763f2ea33096a363affb0bf92b58f70fcf7ca8"
     },
     "func_800347A0": {
       "ledger_commit": "b67909e24fe248481ee63a92e951154885945e99",
@@ -465,6 +490,11 @@
       "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "5f302525cd71efe36adc5e2b5eb3b6097c8ddeed"
     },
+    "func_8003C80C": {
+      "ledger_commit": "670dea184f56235e98f31fc352e6c9444a44ab85",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "source_commit": "670dea184f56235e98f31fc352e6c9444a44ab85"
+    },
     "func_8003D25C": {
       "ledger_commit": "7c02cbfb2c5bd61f911c9c8a2247930c6d55b1d5",
       "reason": "Class is register-only at 68 masked words, delta 0: routes to the forced-colour oracle and the permuter, mechanisms the recorded attempts did not use.",
@@ -521,8 +551,8 @@
       "source_commit": "325e5520791dd5b3014bc251c19138ee7a30901d"
     },
     "func_80046EC4": {
-      "ledger_commit": "e2fc4dca7255281451a16d40e37659a197c7baef",
-      "reason": "ADR 0018 stall rule, and at delta 4 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "ledger_commit": "33f86358a6ec2652550778375ef684aa8651c527",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
       "source_commit": "e2fc4dca7255281451a16d40e37659a197c7baef"
     },
     "func_800470B0": {
@@ -615,6 +645,11 @@
       "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
       "source_commit": "e14634a8533b583479f9dcd4d8091e87625675c8"
     },
+    "func_8004EC60": {
+      "ledger_commit": "12c776d675898d64b004af926cf110cedc6460ca",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "source_commit": "12c776d675898d64b004af926cf110cedc6460ca"
+    },
     "func_8004EED0": {
       "ledger_commit": "accd98037a34763b633f644f8595c2c1ccab917b",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
@@ -661,8 +696,8 @@
       "source_commit": "f29ffe945f62c04131c694e535878765dabb027d"
     },
     "func_8005716C": {
-      "ledger_commit": "2b40571bb35df7bae4534627e1dd2d4e3a487d8b",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "ledger_commit": "891f36e04707b5befa26e544872c8cde24ebd021",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
       "source_commit": "2b40571bb35df7bae4534627e1dd2d4e3a487d8b"
     },
     "func_800573C8": {
@@ -684,6 +719,16 @@
       "ledger_commit": "e3412ac6bf2446227671783cfeebf56c994fc036",
       "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "e3412ac6bf2446227671783cfeebf56c994fc036"
+    },
+    "func_8005ABA8": {
+      "ledger_commit": "1879872f1b5ff195e37a2c807765ee31d56b6c64",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "source_commit": "1879872f1b5ff195e37a2c807765ee31d56b6c64"
+    },
+    "func_8006E7E0": {
+      "ledger_commit": "6039ac03862fd56e8ef91c68d23adce0c4c39154",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "source_commit": "6039ac03862fd56e8ef91c68d23adce0c4c39154"
     },
     "func_overlay_001_F0003750_184FB30": {
       "ledger_commit": "985b2adb5d617899ddd3bb982afeb43d9265bc10",
@@ -790,6 +835,11 @@
       "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
       "source_commit": "972b1a98ece95dd0ebf00a41303aaa6e9f20f3dc"
     },
+    "func_overlay_026_F0001158_187B550": {
+      "ledger_commit": "9803ea9f2944b0f8a48748161252f0a90729492a",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "source_commit": "9803ea9f2944b0f8a48748161252f0a90729492a"
+    },
     "func_overlay_029_F000042C_187D6DC": {
       "ledger_commit": "c6e752c6eb9c8071f7eb48cce2d9d72a507f60fc",
       "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
@@ -809,6 +859,11 @@
       "ledger_commit": "0acc1679065b420bbb279a779264b63b9c04072b",
       "reason": "New mechanism: uopt's spilltemps pass gives every register temporary a frame slot in web-index order, reusing the lowest non-interfering slot. That law closed the overlay 60 whale today and reaches spill-home residuals no spelling had.",
       "source_commit": "0acc1679065b420bbb279a779264b63b9c04072b"
+    },
+    "func_overlay_031_F00002E8_187F808": {
+      "ledger_commit": "86c0da5c4ebeaee107323d93df3a48aad6d8b22e",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "source_commit": "86c0da5c4ebeaee107323d93df3a48aad6d8b22e"
     },
     "func_overlay_035_F00001E0_1881EC0": {
       "ledger_commit": null,
@@ -1246,8 +1301,8 @@
       "source_commit": "88dd376dca479eaf9aca787828d1c7fb6d6f90e3"
     },
     "overlay2ClassifyBoundary": {
-      "ledger_commit": "3cf1caab461f215a71df5ea9bcc87a8d7f5481cb",
-      "reason": "Epoch 15 near-shape pass (ADR 0016): trial text-differs, out=0, 9-40 words; one structural reshape with the trial as oracle.",
+      "ledger_commit": "cc6b6b12fc109367684643640a0f9f41f3547f6d",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
       "source_commit": "3cf1caab461f215a71df5ea9bcc87a8d7f5481cb"
     },
     "overlay2QueryNode": {
@@ -1351,9 +1406,9 @@
       "source_commit": "07bc92e927f72f2a7683986ac75093607efd2dd3"
     },
     "overlay63UpdateSequence": {
-      "ledger_commit": null,
-      "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. The exhausted five structural forms, body mutation, flags, trace, and permutation stay closed.",
-      "source_commit": "2ee32511727a8abafa09665b8982c7b10565baf9"
+      "ledger_commit": "fc001f593f0ee499dbf8d54b5e65ff5efb8da599",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "source_commit": "fc001f593f0ee499dbf8d54b5e65ff5efb8da599"
     },
     "overlay65UpdateParticles": {
       "ledger_commit": null,
@@ -1396,8 +1451,8 @@
       "source_commit": "92ef79ac3de1e127fde547dc0f32634251b352bb"
     },
     "overlay89UpdateStateAndParticles": {
-      "ledger_commit": null,
-      "reason": "Structured maintenance only: reproduce the configured baseline and refresh geometry, frame, relocation identities, and first mismatch. Prior forms, body mutation, flags, trace, and permutation stay closed.",
+      "ledger_commit": "ee8dd2e390ee4f977e293069eb6b273813665e9b",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
       "source_commit": "53f20114b3ef159b074a4b83fbb0cf4d8deab9a1"
     },
     "overlay94UpdateController": {
@@ -1424,6 +1479,11 @@
       "ledger_commit": "15ee17dfbe61096560e23085d862ab1c266dbedb",
       "reason": "New mechanisms found today: lever 51, a hand-written cursor blocks the register names and indexing the parallel arrays closed three functions in one pass; and lever 50, an unrelocated literal address pair scores as a false residual.",
       "source_commit": "169fa6b7f187f9b06ad478054165e34287850c9b"
+    },
+    "overlay99BuildHeightGrid": {
+      "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",
+      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "source_commit": "2fd4d074f9e5d1c8c78f4e25ed813335e64f3c25"
     },
     "overlay99RenderSortedEntries": {
       "ledger_commit": "7de78a5a8e3db434b706fd9ba3399a0fddd7bfcb",
