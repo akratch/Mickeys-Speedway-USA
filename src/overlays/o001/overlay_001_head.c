@@ -48,6 +48,25 @@ extern f32 splinePos(f32 a, f32 b, f32 c, f32 d, f32 t);
  * uopt register pools; a padding-free state aggregate regresses to 77/83, while
  * implicit conversion and chained assignment forms are byte-flat. */
 #ifdef NON_MATCHING
+/* Plateau 2026-09-09, two words, one spill slot. The frame is exact at 0x68 and
+ * every allocator lane is identical (pool 30/30, temp 8/8, shared 6/6, FP 7/7
+ * and 4/4); the whole residual is that `originalWhole` spills to sp+0x38 where
+ * the target uses sp+0x40, at the store before the loop and the load after it.
+ * The other five raw words are lever 50 phantoms: the target bakes the
+ * overlay-local `%lo` addends (7584, 7520, 7524, 7528, 7532) that the candidate
+ * emits as HI16/LO16 relocation pairs with a zero addend.
+ * Eliminated this pass: the full single-move declaration-order lattice, all 90
+ * one-local relocations of the ten declarations -- every one flat at two words
+ * with the frame and the 83 instructions unchanged, so this home is a spill
+ * slot the allocator chose and not a declared home. Adding a declared local of
+ * any type grows the frame to 0x70 (14 words); adding two, 0x70 as well.
+ * Dropping the twin counter (`while (--whole != 0)`) or the `while` form costs
+ * an instruction and 46 words; dropping `originalWhole` and recomputing
+ * `(f32)(s32)position` keeps 83 instructions and the frame but costs four.
+ * Next lever: the workbench's stack-home playbook wants the declared count one
+ * lower with the instruction count unchanged, and no existing local here is
+ * dead across the loop to carry the value. That needs the spill-owner identity
+ * from a CDX_SYMTAB frame ladder, not another declaration permutation. */
 void overlay1InterpolatePath(f32 *outX, f32 *outZ, s32 path, f32 offset) {
     f32 position;
     O1ControlTable *table3Base;
