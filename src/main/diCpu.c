@@ -690,6 +690,29 @@ void func_80046AA8(s32 x, s32 y, u16 *glyph) {
  * written after the case block, inside each arm, or as a plain working copy
  * with a single write-back (40, 41). Resume on why the mask lands in a
  * caller-saved temporary here and directly in the saved carrier there.
+ *
+ * 2026-09-09 (second pass): the instrumented uopt answers that question and
+ * closes the reordering space. The masked character is a compiler temporary in
+ * its own right -- phase-one web 32 -- and it is coloured *first*, before every
+ * declared local, taking v0; `var_v0` is web 0 and gets v1 behind it. The
+ * target has no such web at all: its mask writes the callee-saved carrier
+ * directly. `CDX_FORCE=p1:w0=c1` (put `var_v0` back in v0) is declined twice
+ * because web 32 already holds it and the two interfere, so the register file
+ * cannot be recovered by moving `var_v0`; web 32 has to stop existing.
+ * Forcing web 32 into a callee-saved colour instead reaches the target's
+ * registers and wrecks the schedule (73 and 74 differing words for s2 and s3),
+ * and forcing its split path costs two instructions (108 words).
+ * Web 32 exists because `var_s2 = var_v0 & 0xFF;` is immediately followed by
+ * `var_s0 = var_s2;` in the same block: the value has two destinations, so uopt
+ * commons it into a temporary and copy-propagates both names onto it, which is
+ * also why every range test reads the temporary rather than a carrier.
+ * Newly eliminated: nested `if`s in place of the `&&` pairs (31, byte-flat);
+ * `var_s0` spelled as a second `var_v0 & 0xFF` (31, flat); the copy moved ahead
+ * of the pointer increment (32); the copy inside each arm with an else copy on
+ * the short path (103, and the frame moves); `var_s0 = var_s2 & 0xFF` (89);
+ * both range tests on `var_s2` with the copy after the case block (41);
+ * `var_v0` masked at the load (86); and `temp_s6` taken from `var_s0` (56).
+ * Resume by removing the second destination of the mask, not by reordering it.
  */
 /* PROVENANCE: adapted from Jet Force Gemini's public
  * asm/nonmatchings/diCpu/func_800681D0_68DD0.s; Mickey's glyph table,
@@ -799,7 +822,7 @@ void func_80046E00(void) {
  * frame: 0x40
  * relocations: 3
  * first-mismatch: +0x2C
- * summary: 106/106 words, the two hoisted constants now in the target's registers; the residual is one caller-saved live-range split.
+ * summary: the masked char is uopt web 32, coloured before every local and holding v0; forcing var_v0 back to v0 is declined, so the temp has to stop existing
  * PLATEAU-HANDOFF:func_80046BCC:end
  */
 
