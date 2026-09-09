@@ -5,6 +5,6 @@
 - score: 75/81 words
 - frame: 0x38
 - relocations: 25
-- first mismatch: +0x74
-- summary: verdict=structure-mismatch; lever=none-known; stalled 3/3. Next: forward as1 besttime model tied to ugen emission order.
+- first mismatch: +0x4C
+- summary: Local flag offset +0x3790 exact; six raw words remain in a flat scheduler cluster; next lever is a new stock-fidelity scheduling mechanism.
 <!-- plateau-handoff:overlay33InitializeBuffers:end -->
