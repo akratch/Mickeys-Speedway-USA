@@ -32,6 +32,13 @@
 #
 #   PERMUTE_MINUTES=20 ./tools/permute.sh <function>   # default cap: 20 min
 #   ./tools/permute.sh <function> -j 4                 # override -j
+#   PERMUTE_PRESERVE_MACROS='INIT_GROUP0|MY_MACRO' ./tools/permute.sh <fn>
+#       Keep a candidate's own macros unexpanded in the scratch. The settings
+#       file's [preserve_macros] covers the gfx and libultra macros only, so a
+#       macro the candidate defines itself is expanded and the scratch stops
+#       matching the real object -- 81 differing words when this was measured
+#       on overlay 101, making its permuter scores a false ceiling. The value
+#       is unioned with the settings list, never substituted for it.
 #
 # Prints the base score, the best score found, and a diff of the winning
 # source against the function's current C, if any improvement was found.
@@ -204,7 +211,44 @@ echo "Target asm: $asmfile"
 
 # --- Import into the permuter scratch dir -------------------------------
 rm -rf "$OUT/scratch"
-"$PYTHON" "$IMPORT" "$c_file" "$asmfile" 2>&1 | tee "$OUT/import.log"
+
+# PERMUTE_PRESERVE_MACROS extends the [preserve_macros] set in
+# tools/permuter_settings.toml for this run. import.py finds that file (it
+# probes "tools/permuter_settings.toml" under every parent, and the repo root
+# is a parent of every source file), but its list only names the gfx and
+# libultra macros. A candidate that defines its own macro -- overlay 101 used
+# an INIT_GROUP0() to hold a line tie the permuter would otherwise dissolve --
+# gets it expanded, and the scratch base then differs from the real object.
+# That was measured at 81 differing words on overlay 101, whose permuter scores
+# were consequently a false ceiling.
+#
+# --preserve-macros REPLACES the settings list rather than adding to it, so
+# passing a bare macro name here would silently drop gDP*/gSP* preservation and
+# trade one fidelity break for another. Union the caller's regex with the
+# settings file's own keys instead.
+import_args=()
+if [ -n "${PERMUTE_PRESERVE_MACROS:-}" ]; then
+    settings_macros=$("$PYTHON" - <<'PYPRESERVE'
+import re
+try:
+    text = open("tools/permuter_settings.toml").read()
+except OSError:
+    text = ""
+section = text.split("[preserve_macros]", 1)[-1].split("\n[", 1)[0]
+keys = re.findall(r'^\s*"([^"]+)"\s*=', section, re.M)
+print("|".join(keys))
+PYPRESERVE
+)
+    if [ -n "$settings_macros" ]; then
+        preserve="($settings_macros|$PERMUTE_PRESERVE_MACROS)"
+    else
+        preserve="($PERMUTE_PRESERVE_MACROS)"
+    fi
+    import_args+=(--preserve-macros "$preserve")
+    echo "Preserving macros: $preserve"
+fi
+
+"$PYTHON" "$IMPORT" "${import_args[@]}" "$c_file" "$asmfile" 2>&1 | tee "$OUT/import.log"
 imported=$(grep -oE 'Imported into \S+' "$OUT/import.log" | awk '{print $3}')
 if [ -z "$imported" ] || [ ! -d "$imported" ]; then
     echo "$0: import.py did not report a scratch directory; see $OUT/import.log" >&2
