@@ -689,10 +689,10 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:start
  * symbol: func_overlay_047_F0000B30_1891948
- * score: 1906/2168 words
+ * score: 1963/2168 words
  * frame: 0x280
  * relocations: 318
- * first-mismatch: +0x4
- * summary: Flags, frame partition, 0x34 player stride and unsigned frame byte now exact. Residual is FP colouring: target hoists 0.015f to entry, gaining f30.
+ * first-mismatch: +0xC
+ * summary: Frame, six FP saves, every stack home and most loop shapes exact; residual is callee-saved colouring order, the unready-table address CSE and bound reloads.
  * PLATEAU-HANDOFF:func_overlay_047_F0000B30_1891948:end
  */
