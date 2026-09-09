@@ -6,7 +6,7 @@
 - frame: 0x68
 - relocations: 51
 - first mismatch: +0x40
-- summary: Comparison order buys one word (40 to 39). Residual is four diagnosed sites, each a carrier or branch-layout choice; 48-cell composition sweep floors at 39.
+- summary: Six carrier-colour sites; the frame admits exactly seven locals, so no boolean can be named. 1,200 new cells flat at 39.
 
 #### 2026-09-09 lane `w2-bigA`: 40 to 39, and the residual is four named sites
 
