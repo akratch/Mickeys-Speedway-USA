@@ -32,12 +32,10 @@ extern u8 D_8007A304[];
 extern void *D_8007A280;
 extern OSMesgQueue *D_800D21C0;
 extern OSPfs D_800D21C8[];
-#ifdef NON_MATCHING
 extern u8 D_800CF3B8[];
 extern f32 D_8008208C;
 s32 osMotorStart(OSPfs *pfs);
 s32 osMotorStop(OSPfs *pfs);
-#endif
 
 typedef struct SavesRecord {
     u8 pad00[0xC];
@@ -257,20 +255,16 @@ void func_8002BF54(s32 clearMask, s32 initMask) {
         rumble++;
     } while (i != 4);
 }
-#ifdef NON_MATCHING
 /* PROVENANCE -- the state-machine organization follows Jet Force Gemini's
  * public src/saves.c:rumbleTick; Mickey's fields, helper calls, and retry
  * protocol are taken from its own target assembly and globals. */
-/* Workbench verdict: structure-mismatch; 64 differing words, first mismatch +0xF4. */
-/* Target 343 instructions/frame -88; candidate 343 instructions/frame -88. */
-/* Remaining gap is retry-mask branch layout; 14 structural words remain, so it is not shape-exact. */
 void rumbleTick(s32 updateRate) {
     RumbleState *rumble;
     s32 pfsStatus;
     s32 i;
-    s32 controllerMask;
-    s32 previousState;
     s32 retryMask;
+    s32 previousState;
+    s32 controllerMask;
 
     if (D_8007A2FC != 0) {
         osPfsIsPlug(D_800D21C0, &D_8007A300);
@@ -410,9 +404,6 @@ void rumbleTick(s32 updateRate) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/saves/rumbleTick.s")
-#endif
 void func_8002C5F4(void) {
     D_8007A2E8 = 0;
     D_8007A2FC = 1;
@@ -1447,16 +1438,6 @@ s32 func_8002E020(s32 controllerIndex, s32 fileNum) {
     mmFree(data);
     return result;
 }
-
-/* PLATEAU-HANDOFF:rumbleTick:start
- * symbol: rumbleTick
- * score: 336/343 words
- * frame: 0x58
- * relocations: 87
- * first-mismatch: +0xF4
- * summary: JFG efd5abb reproof reaches exact opcode, registers and frame; seven words remain from retryMask home sp+0x40 vs target sp+0x48. Next: IDO local-home evidence.
- * PLATEAU-HANDOFF:rumbleTick:end
- */
 
 /* PLATEAU-HANDOFF:packInit:start
  * symbol: packInit
