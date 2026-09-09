@@ -1297,8 +1297,8 @@
     },
     "overlay1InterpolatePath": {
       "ledger_commit": "acf0b4c560d8ed35c238ff4c146ae2b71d57af57",
-      "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
-      "source_commit": "acf0b4c560d8ed35c238ff4c146ae2b71d57af57"
+      "reason": "Blocked by a stale evidence pin rather than by evidence: both are delta-0 rows at two differing words, and today's spilltemps law and ugen FIFO-queue reading are untried on them.",
+      "source_commit": "6f82be7344d00ca5ef4ff74d35ed4a91bab5aae3"
     },
     "overlay1MeasureCurves": {
       "ledger_commit": "71f3960b5aa2afb191a659f4f47393b980ef9dc5",
@@ -1331,9 +1331,9 @@
       "source_commit": "6f82be7344d00ca5ef4ff74d35ed4a91bab5aae3"
     },
     "overlay20RemoveEntry": {
-      "ledger_commit": "b5fbe47d054179212b322b9d8ac9391b1749bdda",
-      "reason": "ADR 0018 stall-rule reopen: plateau filed under the superseded ten-attempt cap, not on measured stall. Resume under the stall rule; stop after three attempts buying nothing. Do not repeat mechanisms the handoff records as flat.",
-      "source_commit": "e0429c682e4697af97bc099f02d721e21c6d6011"
+      "ledger_commit": "e2855599df93e617b690703c9dc233b78e515041",
+      "reason": "Blocked by a stale evidence pin rather than by evidence: both are delta-0 rows at two differing words, and today's spilltemps law and ugen FIFO-queue reading are untried on them.",
+      "source_commit": "cd57bdd2d8a34b6925d6031026de020e7fa1ea52"
     },
     "overlay27UpdateCoordinates": {
       "ledger_commit": "93fad07b9050b3ca3c6579894ddfa3de12b2f9ed",

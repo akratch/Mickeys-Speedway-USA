@@ -56,6 +56,15 @@ REASON_LIMIT = 240
 # it would race that lane), or broken in a way a reopen does not address.
 REOPENABLE = {"already-integrated/exhausted"}
 
+# `stale-ledger` is usually a defect to fix rather than a plateau to reopen --
+# except for this one reason code. `lane_status.classify` has an explicit
+# branch for it: an authorization pinned to the derived (source, ledger) pair
+# reopens "stale structured evidence ... for one authenticated maintenance
+# pass". Refusing to write that pin left two 2-word finishers -- 1,124 bytes
+# of the last 1,640 before a milestone -- unassignable for reasons that had
+# nothing to do with their evidence.
+REOPENABLE_REASON_CODES = {"stale-structured-evidence"}
+
 # Mechanism per measured class, for --reason-from-class. Each says what is
 # newly true and what the lane should therefore do; a reason that names no
 # mechanism is a reopen resting on nothing (ADR 0011).
@@ -195,7 +204,8 @@ def write(symbols: list[str], reason: str | None, dry_run: bool) -> int:
     for symbol in symbols:
         assignment = verdicts[symbol]
         state = assignment["state"]
-        if state not in REOPENABLE:
+        code = assignment.get("reason_code")
+        if state not in REOPENABLE and code not in REOPENABLE_REASON_CODES:
             refused.append((symbol, f"verdict is {state}, not exhausted"))
             continue
         source_commit = assignment.get("source_commit")
