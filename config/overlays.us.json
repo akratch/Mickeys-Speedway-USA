@@ -22,8 +22,8 @@
   "modules": 107,
   "nonempty_modules": 106,
   "text_bytes": 469264,
-  "matched_overlay_c_bytes": 144728,
-  "nonmatching_overlay_c_bytes": 323892,
+  "matched_overlay_c_bytes": 145368,
+  "nonmatching_overlay_c_bytes": 323252,
   "data_rodata_bytes": 61312,
   "owned_data_rodata_bytes": 2348,
   "bss_bytes": 77680,
@@ -1203,6 +1203,22 @@
      "label": "overlay1CallReset",
      "source": "overlays/o001/overlay_001_head",
      "evidence": "pre-consolidation metadata-only object; linked bytes exact"
+    },
+    {
+     "offset": "0x2744",
+     "end_offset": "0x280C",
+     "size": "0xC8",
+     "label": "overlay1FindNextAngle",
+     "source": "overlays/o001/overlay_001_middle",
+     "evidence": "canonical mixed-TU object, all four runtime relocations, and linked ROM bytes exact"
+    },
+    {
+     "offset": "0x280C",
+     "end_offset": "0x28D4",
+     "size": "0xC8",
+     "label": "overlay1FindPreviousAngle",
+     "source": "overlays/o001/overlay_001_middle",
+     "evidence": "canonical mixed-TU object, all four runtime relocations, and linked ROM bytes exact"
     },
     {
      "offset": "0x28D4",
@@ -2570,6 +2586,14 @@
      "label": "overlay7DispatchModes",
      "source": "overlays/o007/overlay_007_tail",
      "evidence": "canonical mixed-TU object, 23 text plus seven switch-table runtime relocations, and linked bytes exact"
+    },
+    {
+     "offset": "0xCCC",
+     "end_offset": "0xDBC",
+     "size": "0xF0",
+     "label": "overlay7DispatchSelection",
+     "source": "overlays/o007/overlay_007_tail",
+     "evidence": "canonical mixed-TU object, all 13 runtime relocations, and linked bytes exact"
     },
     {
      "offset": "0xDBC",

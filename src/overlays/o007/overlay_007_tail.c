@@ -160,25 +160,23 @@ void overlay7UpdateOwnerMode(Overlay7CheckOwner *owner, s32 previous) {
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000AA0_185C928.s")
 #endif
 
-/* Bounded reproof 2026-08-29: current configured full-TU C is 55/60 raw and
- * 58/60 after runtime relocation normalization, with exact 0xF0 size, 0x20
- * frame, and first substantive mismatch +0x4. The two residual sites at
- * +0x4/+0x10 are one t7-versus-t6 unnamed flags/selection-offset temp web.
- * Runtime metadata proves all 13 emitted offsets, types, and identities,
- * including camGetModeReloc at +0xA4 and overlay59AppendValueReloc at +0xD8.
- * All 119 flag rows were nonexact; the proc-2 allocator trace found the named
- * webs already clean, and two trace-selected scalar/scope forms regressed to
- * 39/60. The fallback remains canonical. A later attempt needs a new UGEN
- * temp-coalescing mechanism, not more flags, explicit locals, or a generic
- * permutation batch. */
-#ifdef NON_MATCHING
+/* Matched 2026-09-09. The flags test is the same idiom overlay7DispatchModes
+ * uses above: `(flags << 22) >> 31` on the unsigned global, not a mask and a
+ * signed compare. Both spellings give ugen `lw $14,sym; and $15,$14,1023;
+ * sll $24,...`, and as1 folds the redundant `and` either way -- but with the
+ * masked spelling it folds it forward, renaming the load's destination to $15
+ * (`lui t6; lw t7,0(t6)`), and with the shift-pair spelling it folds it
+ * backward onto the shift, leaving the load on its own register
+ * (`lui t6; lw t6,0(t6)`). That one temp was the whole two-word residual; the
+ * previous plateau's "temp-FIFO phase" reading was right about the symptom and
+ * wrong about the owner -- uopt's numbering never moved. */
 void overlay7DispatchSelection(Overlay7DispatchOwner *owner, s32 selection) {
     Overlay7DispatchState *state;
     u16 *override;
     s8 mapped;
 
     state = owner->state;
-    if ((s32)((gOverlay7DispatchFlagsReloc & 0x3FF) << 22) < 0) {
+    if ((gOverlay7DispatchFlagsReloc << 22) >> 31) {
         if (selection >= 14 && selection < 17) {
             override = &gOverlay7DispatchOverride[state->index];
             if (*override == 0) {
@@ -203,9 +201,6 @@ query:
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o007/overlay_007_tail/func_overlay_007_F0000CCC_185CB54.s")
-#endif
 
 /* Exact ordinary C: the configured mixed-TU build and linked ROM prove all
  * 72 owned words (288 bytes), with a 48-byte frame and no instruction edits.
@@ -304,12 +299,3 @@ void overlay7InitPool(void) {
     gOverlay7Selected = 0;
 }
 
-/* PLATEAU-HANDOFF:overlay7DispatchSelection:start
- * symbol: overlay7DispatchSelection
- * score: 58/60 words
- * frame: 0x20
- * relocations: 13
- * first-mismatch: +0x4
- * summary: Three natural temp-FIFO probes were flat; next lever is an instrumented UGEN free-list trace for the t6 reuse decision.
- * PLATEAU-HANDOFF:overlay7DispatchSelection:end
- */

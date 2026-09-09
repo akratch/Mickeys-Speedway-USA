@@ -2205,7 +2205,48 @@ extern void overlay1PlaySoundReloc(u8 soundId);
  * body spellings (compound assignment, the `^ 0` use-site break, re-reads of
  * the field, a hoisted `cleared` local, five carrier types, `if/else if` in
  * place of the switch, a `default:` arm, and reversed case order), and all 96
- * physical line groupings of the case-1 statement list. */
+ * physical line groupings of the case-1 statement list.
+ *
+ * 2026-09-09: the residual is not in `case 1` at all. ugen's temporary ring is
+ * fresh-first over $8..$15,$24,$25 and then FIFO by free time, and both arms
+ * draw from that one list in emission order, so the numbers each arm gets are
+ * fixed by when the *earlier* temps were freed. Reading `cc -K` for the whole
+ * loop body: the angle block emits `sll $9; sll $10; sra $11` for the left
+ * operand, `sll $12; sra $13` for the s16 read of `angle`, then
+ * `addu $4,$11,$13`, then `sll $14/sra $15` for the truncation. $12 is freed by
+ * `sra $13,$12,16` and $11 only at the `addu`, so the queue reaching the switch
+ * is $9,$10,$12,$11,$13. `case 0` takes $9,$10 and `case 1` therefore takes
+ * $12,$11 -- the inversion, entirely inherited. The target's queue must be
+ * $9,$10,$11,$12.
+ *
+ * That is reachable, and was reached: with `angle` read through a one-
+ * instruction conversion the free order becomes ascending and BOTH arms are
+ * exact -- `andi t3` and `and t4` in `case 1`, `andi t1` and `ori t2` in
+ * `case 0`, and the shared lane matches 7/7. What then remains is two different
+ * words: the sum's `addu` writes a ring temp where the target writes the pool
+ * colour (`addu t5,t3,v0` against `addu a0,t3,v0`).
+ *
+ * The constraint that blocks it, and it is structural, not a search gap. The
+ * object pins three things: the left chain must end at $11, the sign-extension
+ * pair must be $14 and $15, and the `addu` must write the pool. Five ring temps
+ * therefore have to be spent between them, the left chain owns three, and the
+ * remaining two have to be freed after $11 -- which is freed at the `addu`. Any
+ * second operand needing a two-instruction conversion frees its first temp
+ * before the `addu` (the current inversion); a one-instruction conversion frees
+ * it at the `addu` but leaves the count one short, and the extra instruction
+ * that would make up the count sits between the `addu` and the sign extension,
+ * where as1 removes it by coalescing backwards onto the `addu` and renaming its
+ * destination. 1080 spellings of `angle`'s type, the left operand, the read,
+ * the assignment cast and the comparison were scored against the full-TU object
+ * and the floor is exactly 2 in every one of them.
+ *
+ * Next lever: this needs an instruction between the `addu` and the sign
+ * extension that as1 deletes without back-coalescing -- i.e. one whose
+ * destination is consumed by the next instruction rather than written back into
+ * `angle`'s home. Every cast spelling reachable from C emits ugen's
+ * write-back form (`op $13,$4,..; move $4,$13`). Look for a source shape where
+ * the intermediate is not the variable itself, or accept that the owner is as1
+ * and reach for a ugen/as1 trace. Do not re-search `case 1`. */
 #ifdef NON_MATCHING
 void overlay1UpdateRangeFlags(Overlay1RangeObject *object, void *unused) {
     Overlay1RangeConfig *config;
@@ -3320,7 +3361,7 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x70
  * relocations: 4
  * first-mismatch: +0x1B8
- * summary: every allocator lane is exact (pool 37/37, temp 8/8, FP 7/7 and 9/9); two words left where the case-1 store takes ugen temp $13 and the target $12
+ * summary: the residual is inherited from the angle block, not case 1: ugen's ring frees $12 before $11 there, so case 1 draws $12,$11. Forms exist where both switch arms are exact and the residual moves to the sum's addu destination; 1080 angle spellings floor at 2
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
 

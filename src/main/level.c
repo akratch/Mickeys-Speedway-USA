@@ -625,6 +625,26 @@ u8 *levelGetName(s32 arg0) {
 /* Workbench: allocation-mismatch; 3 words differ, first mismatch +0x13C. */
 /* Candidate is shape-exact: 117/117 instructions, frame -40/-40 bytes. */
 /* PROVENANCE: structure adapted from JFG src/level.c:levelFreeAll; remaining gap is pointer/scale temp order. */
+/* Plateau 2026-09-09, ring-order residual, three words. `cc -K` gives the law
+ * exactly: inside the loop body ugen is still in its fresh phase, so the ring
+ * numbers ARE the emission order. The arm emits mask, scale, table
+ * (`and $11; sll $12; lw $13; addu $14,$12,$13`) and the target emits mask,
+ * table, scale, which is why the object's `lui/lw` pair and the `sll` trade t4
+ * for t5 while the `andi` stays on t3. Writing the sum table-first swaps the
+ * whole order to table, mask, scale and costs five.
+ * Newly measured and eliminated this pass, all still in those two classes: a
+ * re-read of `D_8007A0F4[i]` in place of the carrier (56 words, and it costs
+ * three instructions), `(u8 *)`/`(s32)`/`(u32)` base casts, `*(p + i)`,
+ * `&p[i]`, `(u16)` on the masked value, and a hoisted `masked` local crossed
+ * with all four address spellings -- uopt folds the local straight back into
+ * the expression, so hoisting cannot separate the mask from the table.
+ * Newly proved reachable: spelling the doubling as `m + m` DOES produce the
+ * target's mask, table, scale order (`and $2; lw $11; addu $12,$2,$2`). It
+ * lands 13 words because uopt gives the twice-used mask a pool colour instead
+ * of a ring temp and the shift becomes an add. That is the first evidence that
+ * the wanted order is reachable at all: the mask must be evaluated before the
+ * table AND still live in the ring. Next lever is a spelling with those two
+ * properties, not another address form. */
 #ifdef NON_MATCHING
 void levelFreeAll(void) {
     s16 temp_v0_2;

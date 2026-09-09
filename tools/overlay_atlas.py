@@ -1146,6 +1146,18 @@ MIXED_TU_EXACT_C_RANGES = {
         (0x19B8, 0x1A54, "overlay1InitializeModeState"),
         (0x1CA4, 0x1D58, "overlay1ReleaseRecords"),
         (0x1D58, 0x1D78, "overlay1CallReset"),
+        (
+            0x2744,
+            0x280C,
+            "overlay1FindNextAngle",
+            "canonical mixed-TU object, all four runtime relocations, and linked ROM bytes exact",
+        ),
+        (
+            0x280C,
+            0x28D4,
+            "overlay1FindPreviousAngle",
+            "canonical mixed-TU object, all four runtime relocations, and linked ROM bytes exact",
+        ),
         (0x28D4, 0x293C, "overlay1RefreshMode"),
         (0x293C, 0x296C, "overlay1CallGlobal"),
         (
@@ -1292,6 +1304,12 @@ MIXED_TU_EXACT_C_RANGES = {
             0xAA0,
             "overlay7DispatchModes",
             "canonical mixed-TU object, 23 text plus seven switch-table runtime relocations, and linked bytes exact",
+        ),
+        (
+            0xCCC,
+            0xDBC,
+            "overlay7DispatchSelection",
+            "canonical mixed-TU object, all 13 runtime relocations, and linked bytes exact",
         ),
         (
             0xDBC,

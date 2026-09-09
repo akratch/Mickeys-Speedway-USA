@@ -28,6 +28,19 @@ extern u32 gOverlay20ActiveBits;
  * 51/53 result. Pointer-, index-, cursor-relative-, explicit-base-, register-,
  * byte-offset-, and association variants were exhausted. IDO's trailing 0xC
  * is section alignment, not target padding. */
+/* 2026-09-09: re-measured unchanged at two words, 53 instructions, frameless,
+ * and the single site is `addu v0,t0,t9` against `addu a2,t0,t9` -- the
+ * compaction loop's destination base. The temp and shared lanes are exact 6/6
+ * and 6/6; only pool slot 9 differs, so this is uopt colouring and the ugen
+ * ring model that closed overlay7DispatchSelection and the o001 middle pair
+ * does not reach it. Newly eliminated: giving the count its own local instead
+ * of reusing the `owner` parameter (25 words), giving the marker pointer its
+ * own local (11), the natural `for` search loop in place of the m2c
+ * `do/while(1)` (44 words and one instruction fewer), and dropping the
+ * `new_var` bound carrier (6). The parameter reuse is load-bearing, not an m2c
+ * artefact to be cleaned up. Next lever is unchanged: the invisible v0 web that
+ * interferes with the compaction base, which needs the instrumented uopt
+ * capture rather than a source spelling. */
 #ifdef NON_MATCHING
 void overlay20RemoveEntry(s32 owner) {
     void *entry;
