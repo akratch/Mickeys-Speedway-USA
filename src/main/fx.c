@@ -1724,27 +1724,22 @@ s32 func_80049B14(s32 delta) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049B14.s")
 #endif
-/* Workbench verdict: structure-mismatch, 36 differing words, first mismatch +0x20. */
-/* Candidate: 167/169 instructions with the exact -0x60 frame and 6/9 relocation identities aligned. */
-/* Shape status: authentic GBI forms close the VI setup and per-record loop; count allocation remains structural. */
-/* PROVENANCE: Mickey's target commands, globals, and CFG supply this reconstruction; the GBI macros are project SDK headers. */
-#ifdef NON_MATCHING
+/* PROVENANCE: Mickey's target commands, globals, and CFG supply this
+ * reconstruction; the GBI macros are project SDK headers. */
 #define FX_SET_SCREEN_RENDER(packet, mode) { \
     Gfx *_g = (packet); \
     _g->words.w0 = 0xEF002C0F; \
     _g->words.w1 = (mode); \
 }
 void func_80049E4C(Gfx **dlist, s32 arg1) {
+    s32 count;
     s32 width;
     s32 height;
-    s32 count;
-    s32 remaining;
     FxRecord *record;
 
     if (D_800D5F50 != 0) {
         viGetCurrentSize(&width, &height);
         gDPPipeSync((*dlist)++);
-        count = 1;
         gDPSetScissor((*dlist)++, G_SC_NON_INTERLACE, 0, 0,
                       (u32) width, (u32) height);
         gSPClearGeometryMode((*dlist)++, G_ZBUFFER | G_FOG);
@@ -1754,25 +1749,22 @@ void func_80049E4C(Gfx **dlist, s32 arg1) {
             count = 4;
         } else {
             record = (FxRecord *) D_800D5FD8;
+            count = 1;
         }
-        remaining = count - 1;
-        if (count != 0) {
-            do {
-                if (record->status != 0) {
-                    if (record->status == 0xFF) {
-                        FX_SET_SCREEN_RENDER((*dlist)++, 0x0F0A4000);
-                    } else {
-                        FX_SET_SCREEN_RENDER((*dlist)++, 0x00504340);
-                    }
-                    gDPSetPrimColor((*dlist)++, 0, 0, record->red,
-                                    record->green, record->blue, record->status);
-                    gDPFillRectangle((*dlist)++, record->value4, record->value8,
-                                     record->valueC, record->value10);
-                    gDPPipeSync((*dlist)++);
+        while (count--) {
+            if (record->status != 0) {
+                if (record->status == 0xFF) {
+                    FX_SET_SCREEN_RENDER((*dlist)++, 0x0F0A4000);
+                } else {
+                    FX_SET_SCREEN_RENDER((*dlist)++, 0x00504340);
                 }
-                record++;
-                remaining--;
-            } while (remaining != 0);
+                gDPSetPrimColor((*dlist)++, 0, 0, record->red,
+                                record->green, record->blue, record->status);
+                gDPFillRectangle((*dlist)++, record->value4, record->value8,
+                                 record->valueC, record->value10);
+                gDPPipeSync((*dlist)++);
+            }
+            record++;
         }
         func_80034920(dlist);
         camSetScissor(dlist);
@@ -1780,9 +1772,6 @@ void func_80049E4C(Gfx **dlist, s32 arg1) {
     }
 }
 #undef FX_SET_SCREEN_RENDER
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80049E4C.s")
-#endif
 void func_8004A0F0(void) {
     D_800D6038[0] = 0;
     D_800D6038[1] = 0;
@@ -2435,16 +2424,6 @@ void func_8004AF68(void) {
  * first-mismatch: 0x44
  * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new fixed-bound loop carrier topology evidence.
  * PLATEAU-HANDOFF:func_800470B0:end
- */
-
-/* PLATEAU-HANDOFF:func_80049E4C:start
- * symbol: func_80049E4C
- * score: 36 differing words
- * frame: 0x60
- * relocations: 9
- * first-mismatch: 0x20
- * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new VI stack homes and count-carrier topology evidence.
- * PLATEAU-HANDOFF:func_80049E4C:end
  */
 
 /* PLATEAU-HANDOFF:func_8004A10C:start
