@@ -6,7 +6,7 @@
 - frame: 0x58
 - relocations: 22
 - first mismatch: +0x10
-- summary: Size-near pass confirms one extra result.x reload; ten carrier/CFG/line forms are nonexact and the callee proves the s16 ABI
+- summary: Size-near pass confirms one extra result.x reload; ten carrier/CFG/line forms are nonexact and the callee proves the s16 ABI. Evidence gate re-run 2026-09-09: the instruction census is exactly `lh +1` with every other opcode count equal, confirming the single extra signed halfword load and nothing else, and the full flag lattice is flat -- no -O1/-O2/-O3 row at any ISA with any of r4300_mul, loopunroll or g3 reaches 162 words, and the configured row is the best of them at 59/162 aligned. No source attempt made: the recorded resumption bar is unmet.
 
 The retained full-TU C remains 163 instructions against the 162-instruction
 target, with the exact `0x58` frame, 121 positional differences, and first

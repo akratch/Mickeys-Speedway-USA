@@ -19,13 +19,25 @@ extern u8 gO63GraphicReloc[];
 
 /* Pinned DKR v77/v80 and JFG donor scans classify overlay 63 as none. */
 /*
- * Plateau (5 structural attempts): the flag lattice's closest row is MIPS I,
- * eight bytes long with 82 positional words differing and the first mismatch
- * at +0x18; canonical MIPS II is four bytes short with its first mismatch at
- * +0x14.  The target keeps the poll result separate from the sequence-pointer
- * snapshot, but return-type, element-type, expression-association, explicit
- * next-index/timer temporaries, and a local sequence snapshot did not recover
- * that allocation without register-order guessing.
+ * The whole deficit is one instruction and the census names it: `move -1`,
+ * with every other opcode count equal at the configured flags. It is the
+ * target's `move v1,v0` immediately after the poll result's zero test. The
+ * target copies the poll result into v1 and then reuses v0 for the sequence
+ * pointer it loads next; the candidate leaves the poll result in v0 and takes
+ * v1 for the sequence pointer, so no copy is materialised. Everything after
+ * that is the same two carriers with their names exchanged, which is why 88
+ * of 107 words already align shift-tolerantly and the rest of the diff is
+ * relocation immediates and the four-byte branch displacements the missing
+ * word causes.
+ *
+ * Twelve source forms leave it at `move -1`: a named sequence local declared
+ * before or after `token` and with or without `register`, that local read
+ * before the guard or before the poll call, an explicit `result`/`token`
+ * copy pair in either declaration order, the comparison reversed, a cast on
+ * the compared value, `*(gO63Sequence + i)` instead of the subscript, an
+ * empty then-arm, a goto skip, and a short-circuit split of the guard. The
+ * flag lattice is flat too: -mips1 is two words long, -mips3 trades an `lw`
+ * for an `lwu`, and -O3 is identical to -O2.
  */
 #ifdef NON_MATCHING
 void overlay63UpdateSequence(s32 delta) {
@@ -72,6 +84,6 @@ void overlay63UpdateSequence(s32 delta) {
  * frame: 0x20
  * relocations: 39
  * first-mismatch: +0xC
- * summary: V0: 106/107 words, frame 0x20 exact, 102 raw diffs, normalized distance 6. Relocs 39 each; 9 sites and 2 identities align. Prior five forms closed.
+ * summary: Census is exactly `move -1`: the target copies the poll result into v1 and reuses v0 for the sequence pointer, and the candidate exchanges the two carriers and materialises no copy. 88 of 107 words already align. Twelve source forms and the whole flag lattice are flat, so the lever has to make the sequence pointer take v0.
  * PLATEAU-HANDOFF:overlay63UpdateSequence:end
  */

@@ -368,10 +368,38 @@ void MatrixMultiplyVec4(MtxF m, f32 *src, f32 *dst) {
  * the stack arguments at 0x10/0x14/0x18(sp).
  */
 #ifdef NON_MATCHING
-/* Workbench: canonical C is 1/34 positional words, first mismatch +0x0. */
-/* Structural gap: target 34 instructions versus candidate 35; the a2 spill/reload is the extra word. */
-/* All 119 flag rows are nonexact; -O2/-mips1 improves only to 2/34 and is still one word long. */
-/* Bounded type, matrix-shape, temporary, K&R, register, operand-order, and uopt-O3 forms were nonexact. */
+/*
+ * The extra word is an optimization-level fact, not a source-shape one, and
+ * -O3 removes it.
+ *
+ * Three f32 formals arrive in a1/a2/a3 because the first parameter is a
+ * pointer, so each has to cross into an FP register. At -O2 IDO 5.3 moves at
+ * most TWO of them with `mtc1` and routes the third through its argument
+ * home as `sw` + `lwc1`, which is the candidate's 35th word. That is a
+ * property of the optimizer, not of this function: an isolated three-line
+ * probe with three f32 formals and one product each shows the same 2-of-3
+ * split, while the same probe with one or two formals converts every one.
+ * At -O3 all three become `mtc1` and the probe drops a word. On this function
+ * -O3 gives 34 words with a zero instruction census delta -- every opcode
+ * count agrees -- against -O2's 35 words and a census delta of three
+ * (`lwc1 +1`, `mtc1 -1`, `sw +1`).
+ *
+ * What remains at -O3 is a commutative operand order and the FP colouring it
+ * carries. The target's row accumulator ends `add.s fd, (t1+t2), t3` where
+ * IDO writes `add.s fd, t3, (t1+t2)`, and its three scalars take f12/f14/f16
+ * where IDO rotates them to f14/f16/f12. Copying the three parameters into
+ * locals (`x = arg1; y = arg2; z = arg3;`) makes rows 1-11 and 13 exact and
+ * leaves 18 of 34 words differing; without the copies it is 24. Neither the
+ * association nor the operand order is reachable from source: a 288-cell
+ * lattice over declaration order, assignment order, per-term operand order
+ * and explicit parenthesisation is flat, as are named per-term temporaries,
+ * an accumulator spelling, flat versus 2-D indexing, and -mips1/-mips3.
+ *
+ * The TU flag is deliberately left at -O2. ADR 0007 wants an exact function
+ * before a shared flag group moves, and matrix.c's other five functions are
+ * recorded as hand assembly; adopting -O3 here would restate all five
+ * candidates for one function that is still a colour rotation short.
+ */
 void func_8002B040(MtxF matrix, f32 arg1, f32 arg2, f32 arg3,
                    f32 *arg4, f32 *arg5, f32 *arg6) {
     f32 *flatMatrix;
@@ -384,6 +412,16 @@ void func_8002B040(MtxF matrix, f32 arg1, f32 arg2, f32 arg3,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/matrix/func_8002B040.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_8002B040:start
+ * symbol: func_8002B040
+ * score: 18/34 words
+ * frame: frameless
+ * relocations: 0
+ * first-mismatch: +0x0
+ * summary: -O3 closes the size and instruction census exactly (34 words, census delta 0); at -O2 IDO mtc1's only two of three GPR-passed f32 formals. Residual is one commutative add order and an f12/f14/f16 rotation, flat over a 288-cell source lattice.
+ * PLATEAU-HANDOFF:func_8002B040:end
+ */
 
 /* PLATEAU-HANDOFF:func_8002AA50:start
  * symbol: func_8002AA50

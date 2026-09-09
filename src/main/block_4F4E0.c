@@ -114,9 +114,35 @@ void func_8004E9F8(void) {
     }
     func_8004BFB0(6);
 }
-/* verdict: structure-mismatch; 79 differing words; first mismatch +0x8 */
-/* shape: 83 candidate instructions versus 82 target instructions; frame is 0x10 versus 0x8 */
-/* blocker: cursor/global-address lifetimes still produce extra saved-register setup */
+/* Census against the target: `addiu +1, beqzl +1, move -3, nop +2`, +1 word
+ * net, frame 0x10 against 0x8.
+ *
+ * The three missing copies are the record cursor's, and they are recoverable.
+ * The target advances the cursor by computing the next address, storing *that*
+ * to D_800D6AE0, reading the next byte through it, and only then copying it
+ * into the lasting carrier -- `sw t8,0(t1); lbu a0,0(t8); move v1,t8` -- which
+ * is three references to `data + 1` and therefore two live carriers. Writing
+ * the three advances as `D_800D6AE0 = data + 1; next = data[1]; data += 1;`
+ * instead of `data += 1; D_800D6AE0 = data; next = *data;` restores all three
+ * copies and takes the census delta from seven to three. It is not adopted
+ * because it does not improve the residual: the remaining `addiu +1`,
+ * `beqzl +1` and `nop +1` put it three words long instead of one, and the
+ * positional score goes 79 to 84. It is recorded as the proved cause of the
+ * `move -3` term, not as a better candidate.
+ *
+ * The `beqzl`/`nop` pair is the same branch-likely delay-slot effect as
+ * overlay2ClassifyBoundary's: the target's inner scan uses a plain `beqz`
+ * whose delay slot holds the `data + 1` it needs on the fall-through, and it
+ * re-reads D_800D6AE0 after the two arms rather than keeping the cursor live.
+ * Reproducing that re-read alone costs an `lw`, an `sw` and a `beqz`; combined
+ * with the cursor fix it is four words long. The frame difference is the same
+ * question again -- the target keeps the sentinel 12 in s0 and the constant 10
+ * in a scratch t5, while the candidate promotes both to s0/s1 and pays a
+ * second save/restore pair.
+ *
+ * The whole flag lattice is flat: every -O1/-O2/-O3 row at -mips1/-mips2/
+ * -mips3, with and without r4300_mul, loopunroll and g3, is at least as long
+ * with at least this census delta. */
 #ifdef NON_MATCHING
 void func_8004EC60(void) {
     register s32 var_v0;
