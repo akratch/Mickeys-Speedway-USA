@@ -188,6 +188,14 @@ extern Gfx gOverlay60PhysicalList0B0[];
 /* Tier B/D: menu update and drawing reconstructed from Mickey's call graph,
  * field accesses, and ten-case dispatch. NON_MATCHING retains the ROM body. */
 #ifdef NON_MATCHING
+/* Declaration order below is load-bearing, not stylistic. IDO reserves a home
+ * for every declared local in declaration order from the top of the local
+ * block down, so the list's order alone fixes each array's frame offset. With
+ * this order the arrays land on the target's own homes (enabled at
+ * frame_top-0x5C, text at frame_top-0xDC, glyph at frame_top-0xE4) and the
+ * whole stack census agrees with the target apart from the compiler's own
+ * spill slots. Moving `icon`, `initial0` or `initial1` back above `enabled`
+ * shifts all three by 12 bytes and loses that agreement. */
 void func_overlay_060_F0000334_18BA10C(s32 ticks) {
     s32 panel;
     s32 first;
@@ -206,14 +214,14 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
     s32 minutes;
     s32 seconds;
     s32 hundredths;
-    s32 initial0;
-    s32 initial1;
-    s32 icon;
     s32 row;
     s32 y;
     u8 enabled[16];
     char text[128];
+    s32 icon;
     char glyph[2];
+    s32 initial0;
+    s32 initial1;
     s8 *rank;
     SavesSlot *slots;
     SavesPackedEntry *record;
@@ -996,10 +1004,10 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
 
 /* PLATEAU-HANDOFF:func_overlay_060_F0000334_18BA10C:start
  * symbol: func_overlay_060_F0000334_18BA10C
- * score: 2511 differing words
+ * score: 2510 differing words
  * frame: 0x198
  * relocations: 864
  * first-mismatch: +0x4
- * summary: NON_MATCHING: 2786/2789 words and 244 calls recovered; global-address and stack context need a separately authorized causal packet.
+ * summary: NON_MATCHING: frame and every declared-local home now byte-exact (enabled 0x13C, text 0xBC, glyph 0xB4); mnemonic census within 45 of 2789 and the -12 is 45 insertions against 48 deletions, not one hole; the whole remaining residual is one uopt address-CSE that keeps &gOverlay60Data0A8 in a saved register for the entire target and rematerializes it 24 times here.
  * PLATEAU-HANDOFF:func_overlay_060_F0000334_18BA10C:end
  */

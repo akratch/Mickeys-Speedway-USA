@@ -2,11 +2,11 @@
 ### `func_overlay_060_F0000334_18BA10C` plateau handoff
 
 - source: `src/overlays/o060/overlay60Prefix.c`
-- score: 2511 differing words
+- score: 2510 differing words
 - frame: 0x198
 - relocations: 864
 - first mismatch: +0x4
-- summary: NON_MATCHING: 2786/2789 words and 244 calls recovered; global-address and stack context need a separately authorized causal packet.
+- summary: NON_MATCHING: frame and every declared-local home now byte-exact (enabled 0x13C, text 0xBC, glyph 0xB4); mnemonic census within 45 of 2789 and the -12 is 45 insertions against 48 deletions, not one hole; the whole remaining residual is one uopt address-CSE that keeps &gOverlay60Data0A8 in a saved register for the entire target and rematerializes it 24 times here.
 
 This packet reopened only decompiler-assisted structural reconstruction from
 Mickey's extracted assembly. The prior size-deficit plateau was read before
