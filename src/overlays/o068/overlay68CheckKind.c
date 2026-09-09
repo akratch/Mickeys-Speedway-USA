@@ -47,6 +47,24 @@ extern void mmFree(void *probe);
  * word differences, first +0x50. The 2026-09-04 byte-offset cursor reshape was
  * byte-identical; that negative result does not prove source unreachability.
  * Earlier flag/batch history remains; this binding repair adds no match credit.
+ *
+ * 2026-09-10, lane nm-ovlsmall: the ten words separate cleanly into one `bne`
+ * operand order at +0x50 and a nine-word cluster around the value cursor, and
+ * the cluster now has a named cause. The target forms the cursor base as
+ * `sll t4,zero,0x1; addu v1,a1,t4` -- it shifts the ZERO REGISTER, so uopt
+ * knew the index was zero and propagated `$zero` into it, yet the address
+ * arithmetic was never folded away. Every provably-zero carrier folds instead
+ * to `move v1,a1`: `cursorIndex = 0` at the use, hoisted to the top of the
+ * function, hoisted above the allocation call, taken from `result` (which is
+ * zero there), from `index = 0`, from `amount - amount`, written as
+ * `&((s16 *)probe)[...]`, or multiplied by one. A carrier uopt cannot fold
+ * does survive as a shift-and-add: substituting the (semantically wrong,
+ * diagnostic-only) live `index` drops the residual from ten words to five and
+ * reduces the remaining cluster to a two-register temp-ring shift. So the open
+ * question is precisely what supplies an index that is zero at run time and
+ * unknown at compile time -- not whether the shift-and-add shape is reachable.
+ * Also byte-flat: writing either `!= -1` test with the literal first, which
+ * leaves the `bne` operand order unchanged.
  */
 #ifdef NON_MATCHING
 s32 overlay68CheckKind(s32 kind) {

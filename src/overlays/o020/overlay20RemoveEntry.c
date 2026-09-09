@@ -63,7 +63,19 @@ extern u32 gOverlay20ActiveBits;
  * re-read bound carriers; and nesting the whole body instead of the early
  * returns. Deliberate extra pressure (keeping `entry` or `owner` live past the
  * loop) pushes the limit up to a3, never down to v0, which is the same
- * one-directional signature. */
+ * one-directional signature.
+ * 2026-09-10, lane nm-ovlsmall: three new loop-shape results, from the lever
+ * that closed overlay41AddSlot in the same lane. A top-tested compaction loop
+ * (`while (i < new_var)`, with or without the guarding `if`, and the `for`
+ * form) gives 6 words and shifts the limit and the cursor DOWN one colour each
+ * -- a2/a1 becomes a1/a0. The target's v0/a1 puts the limit BELOW the cursor,
+ * so it is an order inversion, not a uniform shift, and no amount of shifting
+ * reaches it. A top-tested marker loop is byte-flat; a top-tested search loop
+ * is 42 words and one instruction short. Most usefully, giving the marker loop
+ * its own counter (declared first or last) or reusing `new_var` for it costs
+ * 11 words and swaps only that loop's own counter/copy pair, leaving the
+ * compaction limit at a2 -- which falsifies the reading that the marker loop's
+ * dead `move v0,v1` is the invisible v0 web that blocks web 42. */
 #ifdef NON_MATCHING
 void overlay20RemoveEntry(s32 owner) {
     void *entry;

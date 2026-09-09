@@ -14,18 +14,26 @@ typedef struct Overlay41Slot {
     s16 previousAmount;
 } Overlay41Slot;
 
-extern Overlay41Slot gOverlay41Slots[];
-extern f32 D_0[];
+/* The module's zero-based initialized-data placeholder. Reaching the scale
+ * through a member of the module block, rather than through an index into an
+ * `f32 D_0[]`, is load-bearing: IDO canonicalizes a commutative multiply so
+ * that an *indexed* array reference becomes the left operand, which emits the
+ * two operand loads in the opposite order. A member reference is not indexed,
+ * so the written operand order survives. Both spellings relocate identically
+ * (D_0 HI16/LO16 with a +0x54 addend). */
+typedef struct Overlay41ModuleData {
+    u8 pad00[0x54];
+    f32 amountScale;
+} Overlay41ModuleData;
 
-/* Retained configured-recipe isolated C is frameless and 49/55 words; no
- * current-source full-TU C object survives. The count web exchanges a1/v1 at
- * +0x10/+0x18/+0xCC/+0xD0. Candidate +0xA0/+0xA4 load amount then local
- * D_0[0x15], while target loads the local constant at +0xA0 then amount.
- * gOverlay41Slots is resident D_800D6C58; D_0[0x15] is module +0x1E34.
- * Historical flag/source/search/trace exhaustion is unretained. Compile V0,
- * retain exactly 119 flags, reverse only the multiplication operands, then if
- * needed trace once and try one natural count-web form; 121 stock builds max. */
-#ifdef NON_MATCHING
+extern Overlay41Slot gOverlay41Slots[];
+extern Overlay41ModuleData D_0;
+
+/* The twelve-slot scan is a top-tested `while (remaining--)`, not the m2c
+ * `do { } while (remaining--)`: both run twelve iterations, but only the
+ * top-tested form gives the loop-exit copy a lower uopt web number than the
+ * counter, so the counter is coloured a1 and its dead copy v1 rather than the
+ * reverse. */
 void func_overlay_041_F0001650_1888988(void *object, volatile s32 value1,
                                        s32 value3, s32 value5, s32 value7,
                                        f32 amount, s32 alternateColors) {
@@ -38,8 +46,8 @@ void func_overlay_041_F0001650_1888988(void *object, volatile s32 value1,
     }
 
     slot = gOverlay41Slots;
-    remaining = 11;
-    do {
+    remaining = 12;
+    while (remaining--) {
         if (slot->object == 0) {
             bytes = object;
             if (alternateColors != 0) {
@@ -59,23 +67,10 @@ void func_overlay_041_F0001650_1888988(void *object, volatile s32 value1,
             slot->value3 = value3;
             slot->value5 = value5;
             slot->value7 = value7;
-            slot->amount = D_0[0x15] * amount;
+            slot->amount = amount * D_0.amountScale;
             slot->previousAmount = slot->amount;
             return;
         }
         slot++;
-    } while (remaining--);
+    }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41AddSlot/func_overlay_041_F0001650_1888988.s")
-#endif
-
-/* PLATEAU-HANDOFF:func_overlay_041_F0001650_1888988:start
- * symbol: func_overlay_041_F0001650_1888988
- * score: 49/55 words
- * frame: frameless
- * relocations: 4
- * first-mismatch: +0x10
- * summary: Six register words remain: four count-web lanes and two float-load lanes; fresh natural spellings were flat or regressed.
- * PLATEAU-HANDOFF:func_overlay_041_F0001650_1888988:end
- */

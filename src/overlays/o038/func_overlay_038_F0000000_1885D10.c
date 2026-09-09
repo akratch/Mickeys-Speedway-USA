@@ -53,7 +53,23 @@ extern void mathOneFloatPY(s16 *rotation, f32 *vector);
  * it to the pool-derived chain. A 2026-09-04 pass tested stride-cursor, nested
  * direction, particle-wrapper, pool-header, two-step, and type-erased pointer
  * forms; all are byte-identical, so none breaks that reassociation. Preserve
- * the natural 0x60 source absent a non-constant-offset lifetime barrier. */
+ * the natural 0x60 source absent a non-constant-offset lifetime barrier.
+ *
+ * 2026-09-10, lane nm-ovlsmall: the seven schedule words are downstream of the
+ * one structural fold, not independent of it. The target forms the direction
+ * cursor as `addiu s3,s0,16`, so it DEPENDS on the particle cursor; the
+ * candidate's `addiu s3,v0,24` does not. That dependence edge is what
+ * reorders the six-instruction prologue block, so the schedule follows the
+ * fold and there is exactly one thing to fix.
+ *
+ * Newly falsified: moving `pool->count`/`pool->alpha` above the particle and
+ * direction setup, or between them, changes the schedule (9 words) but leaves
+ * `addiu s3,v0,24` intact -- so the fold does not depend on `pool` still being
+ * live where the direction value is formed, and the L81 reading does not apply
+ * at this site. Byte-flat: `&particle->direction[0]`,
+ * `(f32 *)((char *)particle + 16)`, `(*particle).direction`,
+ * `particle[0].direction`, `&particle->velocity + 4`, indexing through a
+ * zero-valued variable, and `register` on the particle cursor. */
 #ifdef NON_MATCHING
 void func_overlay_038_F0000000_1885D10(O38Object *object,
                                        O38Descriptor *descriptor)
