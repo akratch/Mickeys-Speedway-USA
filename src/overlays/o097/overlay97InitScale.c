@@ -88,36 +88,19 @@ typedef struct Overlay97ScaleEntry {
  * cursor as a1+0x3E while retail used equivalent a3+2. This is an address-
  * carrier allocation difference, not CFG, size, frame, padding, or relocation
  * drift.
- * The earlier object-exact note compared the fallback assembly to itself and
- * was invalid. The checked-in three-word ranking also omitted
- * -Wab,-r4300_mul; that flag fixes its +0x24/+0x28 scheduling differences and
- * leaves only +0xD0. Historical volatile, typed-base, declaration, flag, and
- * permutation outcomes have no surviving attributable variant artifacts and
- * do not prove exhaustion. Compile configured V0, then assign bounds first and
- * independently derive values from that live carrier as (u8 *)bounds + 2 and
- * &bounds->bounds[1]. Cap at those three builds; only if V0 drifts and a probe
- * strictly improves it while preserving shape may a fourth build tighten scan-
- * tail scope. Require 144/144 untouched IDO output, frame zero, zero records,
- * exact owned range/boundaries, ORT 1194 and resident record 36, complete
- * Overlay 97, and full-ROM equality before promotion. The assembly fallback
- * remains canonical.
- */
-#ifdef NON_MATCHING
-/* Plateau metadata is kept at EOF; preserve this comment's eight lines
- * so IDO sees the candidate function at its measured physical source line.
- *
- * The metadata tool updates the EOF block without shifting the function.
- * This function's one-word residual is sensitive to source layout.
- *
- * Keep this block line-stable while the candidate remains guarded.
+ * The model-bound scan is a six-trip loop over a volatile s16 cursor, not an
+ * unrolled chain. IDO unrolls it, and the unroller materialises the initial
+ * induction pointer (a3 = model + 0x3C) so the first read goes through it,
+ * where a hand-written chain lets uopt fold that base into the load. The
+ * volatile qualifier is what keeps the load unfolded; without it the same
+ * loop costs words in the scan tail.
  */
 void overlay97InitScale(Overlay97ScaleObject *object, void *entryArg) {
     f32 radius;
     f32 maximum;
     f32 absolute;
     f32 value;
-    register volatile Overlay97ModelBounds *bounds;
-    register Overlay97ModelValue *values;
+    register volatile Overlay97ModelValue *values;
     s32 i;
     s32 modelIndex;
     Overlay97ModelInstance *instance;
@@ -152,64 +135,9 @@ void overlay97InitScale(Overlay97ScaleObject *object, void *entryArg) {
 
     instance = object->models[modelIndex];
     model = instance->model;
-    values = (Overlay97ModelValue *)((u8 *)instance->model + 0x3E);
-    bounds = (volatile Overlay97ModelBounds *)((u8 *)model + 0x3C);
-    {
-        absolute = 0.0f;
-        maximum = bounds->bounds[0];
-        value = maximum;
-        if (maximum < 0.0f) {
-            value = -maximum;
-        }
-        if (absolute < value) {
-            absolute = value;
-        }
-    }
-    {
-        maximum = values->value;
-        value = maximum;
-        if (maximum < 0.0f) {
-            value = -maximum;
-        }
-        if (absolute < value) {
-            absolute = value;
-        }
-        values++;
-    }
-    {
-        maximum = values->value;
-        value = maximum;
-        if (maximum < 0.0f) {
-            value = -maximum;
-        }
-        if (absolute < value) {
-            absolute = value;
-        }
-        values++;
-    }
-    {
-        maximum = values->value;
-        value = maximum;
-        if (maximum < 0.0f) {
-            value = -maximum;
-        }
-        if (absolute < value) {
-            absolute = value;
-        }
-        values++;
-    }
-    {
-        maximum = values->value;
-        value = maximum;
-        if (maximum < 0.0f) {
-            value = -maximum;
-        }
-        if (absolute < value) {
-            absolute = value;
-        }
-        values++;
-    }
-    {
+    values = (Overlay97ModelValue *)&model->bounds;
+    absolute = 0.0f;
+    for (i = 0; i < 6; i++) {
         maximum = values->value;
         value = maximum;
         if (maximum < 0.0f) {
@@ -222,16 +150,3 @@ void overlay97InitScale(Overlay97ScaleObject *object, void *entryArg) {
     }
     object->radius = object->scale * absolute;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o097/overlay97InitScale/func_overlay_097_F0000508_18D83A0.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay97InitScale:start
- * symbol: overlay97InitScale
- * score: 143/144 words
- * frame: frameless
- * relocations: 0
- * first-mismatch: +0xD0
- * summary: Verdict register-permutation; lever unreachable. P_STUCK_FLAT and p2 force grid stayed nonexact. Next: source-semantic uopt address-fold attribution.
- * PLATEAU-HANDOFF:overlay97InitScale:end
- */
