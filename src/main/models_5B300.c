@@ -455,9 +455,17 @@ void camConvertMatrixList(Matrix *mtx, s32 count) {
 }
 
 /* Keep the original TU order: func_8005ABA8 precedes func_8005AD64. */
-/* Workbench: structure-mismatch, 97 differing words, first mismatch +0x38. */
-/* Candidate shape: 110 instructions/no frame vs target 111/no frame; not permuter-ready. */
-/* Remaining structural gap: preserve the validated frame pointer in a2 before the split. */
+/* Workbench: structure-mismatch, 47 differing words, first mismatch +0x8. */
+/* Candidate shape: 111 instructions/no frame, the target's own size and its
+ * instruction census; the size question is closed. The target loads
+ * temp_v0->frame into a scratch register and copies it into a lasting one,
+ * which a single cached local cannot produce: reading the field again into a
+ * second pointer supplies the copy (docs/ido-learnings.md, the two-carrier
+ * field re-read). Reversing the two blend statements then fixes the div/sub
+ * operand order. */
+/* Remaining gap: a pairwise a1/a2 exchange on the two frame carriers and the
+ * FP colour rotation that follows it; declaration order and both assignment
+ * orders of the pair are flat (four probes). */
 /* PROVENANCE: Mickey-only reconstruction from func_8005ABA8.s and the
  * existing models TU layouts; no external function body is copied. */
 #ifdef NON_MATCHING
@@ -468,6 +476,7 @@ s32 func_8005ABA8(ModelAnimationInstance *instance, f32 arg1, f32 arg2) {
     f32 temp_f2;
     f32 temp_f2_2;
     void *temp_a1;
+    ModelAnimationFrame *frame;
     ModelAnimationState *temp_v0;
 
     temp_v0 = instance->states[(s32)instance->animationIndex];
@@ -476,10 +485,11 @@ s32 func_8005ABA8(ModelAnimationInstance *instance, f32 arg1, f32 arg2) {
     if (temp_a1 == NULL) {
         return 0;
     }
+    frame = (ModelAnimationFrame *)temp_v0->frame;
     if (temp_v0->transition != 0) {
         if (temp_v0->hasNext != 0) {
-            temp_f2 = temp_v0->blendEnd;
             temp_f0 = temp_v0->blendValue + arg2;
+            temp_f2 = temp_v0->blendEnd;
             temp_v0->blendValue = 0.0f;
             temp_v0->blendEnd = temp_f2 - temp_f0;
             temp_v0->blendStart = temp_f0 / temp_f2;
@@ -498,7 +508,7 @@ s32 func_8005ABA8(ModelAnimationInstance *instance, f32 arg1, f32 arg2) {
         instance->frameValue += arg1 * arg2;
         temp_f0_2 = instance->frameValue;
         if (temp_f0_2 >= 1.0f) {
-            if (((ModelAnimationFrame *)temp_a1)->loop != 0) {
+            if (frame->loop != 0) {
                 if (temp_f0_2 >= 1.0f) {
                     do {
                         instance->frameValue -= 1.0f;
@@ -514,7 +524,7 @@ animation_done:
             }
         } else if (temp_f0_2 < 0.0f) {
             var_v1 = 1;
-            if (((ModelAnimationFrame *)temp_a1)->loop != 0) {
+            if (frame->loop != 0) {
                 if (temp_f0_2 < 0.0f) {
                     do {
                         instance->frameValue += 1.0f;
@@ -851,11 +861,11 @@ void func_8005B644(Matrix *matrices, Matrix *root, ModelMatrixNode *node, s32 co
 
 /* PLATEAU-HANDOFF:func_8005ABA8:start
  * symbol: func_8005ABA8
- * score: 97 differing words
+ * score: 47 differing words
  * frame: frameless
  * relocations: 0
- * first-mismatch: +0x38
- * summary: CFE removes the target a2 frame-pointer copy and changes the transition split; next lever is the source-authentic carrier lifetime or field type.
+ * first-mismatch: +0x8
+ * summary: Size closed at 111/111: the second frame carrier is a field re-read, not a cached local. Residual is a pairwise a1/a2 exchange and its FP rotation.
  * PLATEAU-HANDOFF:func_8005ABA8:end
  */
 

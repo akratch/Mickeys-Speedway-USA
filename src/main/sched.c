@@ -295,10 +295,12 @@ char *osScGetTaskType(s32 taskID) {
 void func_80030608(OSScTask *arg0) {
 }
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch; 193/192 instructions, target/candidate frames
- * -0x98/-0x90, 113 raw and 112 relocation-masked differences, first +0x0.
- * Direct second-command opcode addressing is the sole natural gain; six of
- * thirteen relocation identities align. The frame and base/counter webs remain. */
+/* Workbench: structure-mismatch; 192/192 instructions, target/candidate frames
+ * -0x98/-0x90, 87 raw differences. The size closed by spelling the first of
+ * the three 0x80000000 sites as the same `(u32) D_80000000` the other two use:
+ * the target materializes that symbol's high half into a saved register twice
+ * and folds the low half into a later load, which a literal constant cannot
+ * reproduce. The frame and the `message` home remain. */
 SchedGfx *func_80030610(OSSched *sc, s32 commandIndex,
                         SchedGfx *displayList, OSMesgQueue *queue,
                         u64 *dataStart) {
@@ -356,7 +358,7 @@ SchedGfx *func_80030610(OSSched *sc, s32 commandIndex,
                 commandStart = (s8 *) displayList - 0x140;
                 printStart = commandStart;
                 if ((u32) commandStart < 0x80000000U) {
-                    printStart = commandStart + 0x80000000;
+                    printStart = commandStart + (u32) D_80000000;
                 }
                 if ((s32) printStart < (s32) dataStart) {
                     printStart = (s8 *) dataStart;
@@ -897,10 +899,10 @@ s32 __scSchedule(OSSched *sc, OSScTask **sp, OSScTask **dp, s32 availRCP) {
 
 /* PLATEAU-HANDOFF:func_80030610:start
  * symbol: func_80030610
- * score: 112/192 words
- * frame: 0x90
+ * score: 87 differing words
+ * frame: -0x90
  * relocations: 13
  * first-mismatch: +0x0
- * summary: Direct second-command opcode addressing is the sole gain. Candidate is 193 words with 113 raw differences and six exact relocations; the frame gap remains.
+ * summary: Size closed at 192/192 by spelling the first 0x80000000 site as (u32) D_80000000. Frame is 0x90 against 0x98 and message is homed 8 too high.
  * PLATEAU-HANDOFF:func_80030610:end
  */

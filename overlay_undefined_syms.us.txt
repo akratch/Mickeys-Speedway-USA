@@ -2754,6 +2754,18 @@ overlay99SpawnEntryReloc = 0xf0000000;
 /* overlay 99: overlay99ProjectVector.c.o */
 overlay99SqrtReloc = 0xf0000000;
 
+/* overlay 99: overlay99BuildHeightGrid.c.o */
+gOverlay99Arg4 = 0x000000a4;
+gOverlay99Arg5 = 0x000000a8;
+gOverlay99CurrentGrid = 0x00000000;
+gOverlay99GridHeight = 0x00000098;
+gOverlay99GridWidth = 0x00000094;
+gOverlay99Grids = 0x00000000;
+gOverlay99HeightMinusOne = 0x000000a0;
+gOverlay99SegmentCount = 0x00000090;
+gOverlay99Segments = 0x00000000;
+gOverlay99WidthMinusOne = 0x0000009c;
+
 /* overlay 99: overlay99RenderSortedEntries.c.o */
 gOverlay99IntensityScale = 0x00000008;
 gOverlay99TransformZ = 0x00000004;
@@ -2765,8 +2777,6 @@ overlay99Func8002AA50Reloc = 0xf0000000;
 overlay99MtxfTransformPointReloc = 0xf0000000;
 
 /* overlay 99: overlay99RenderSegments.c.o */
-gOverlay99SegmentCount = 0x00000090;
-gOverlay99Segments = 0x00000000;
 gOverlay99Texture = 0x00000000;
 overlay99ArctanfReloc = 0xf0000000;
 overlay99ClearZBufferReloc = 0xf0000000;
