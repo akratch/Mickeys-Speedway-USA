@@ -172,35 +172,10 @@ void stop_all_threads_except_main(void) {
         thread = thread->tlnext;
     }
 }
-#ifdef NON_MATCHING
 /* PROVENANCE: body adapted from JFG src/diCpu.c::func_800676F8. That JFG
  * source is a disabled, assembly-backed structural draft rather than an
  * exact-C donor; Mickey's bytes remain authoritative. Mickey's target fixes
  * the dump-size calculation to use the copied range. */
-/* Workbench plateau (retested 2026-08-28, audited 2026-08-29): the retained
- * body/codegen measurement is 52/60 raw words, 58/60 after resolving six
- * fixed-address fields, frame 0x30; no current-HEAD candidate object or hash
- * survives. The substantive t6/t4 FIFO web is at +0xBC/+0xC0. Candidate C has
- * 18 static relocation tuples versus target 24 because literal
- * D_80705014/18/1C lvalues omit six HI16/LO16 records. Owned
- * 0x80045BBC..0x80045CAC / ROM 0x467BC..0x468AC has no padding; ordinary/link
- * equality proves fallback only. Reproduce configured V0, probe the three
- * symbolic identities independently and combine strict gains, then run the
- * 119-entry lattice on the identity-correct 60-word/frame-0x30 baseline. Take
- * one fresh FIFO trace and try exactly one natural trace-supported form. Any
- * gain-gated batch must fit inside the 125 deterministic-build total; no extra
- * batch beyond that cap. */
-/* Trace follow-up (2026-08-28, CREW-DICPU-45BBC-READY-72): the full retail
- * main relocation census is 375 records, with none in this resident range.
- * UGEN's source-line trace places the final data argument allocation at line
- * 148, emitted ordinal 60, as t4; the target lane requires t6. Globalcolor
- * contributes only six phase-one pool decisions for this function, with no
- * phase-two decision or alias event in the function segment. The generated
- * D_80705014/18/1C linker symbols exist, but direct and address-cast lvalue
- * forms changed the body to 59 instructions; a named pointer assignment,
- * initializer, and integer-address local were baseline-identical. The five
- * bounded forms therefore closed neither the temp-FIFO color nor the six
- * target-only fixed-buffer relocation identities; assembly remains canonical. */
 void func_80045BBC(OSThread *thread) {
     s32 copySize;
     void *source;
@@ -213,7 +188,8 @@ void func_80045BBC(OSThread *thread) {
     destination = (u8 *)0x80705094;
     _bcopy(thread, destination, 0x230);
     destination += 0x200;
-    source = *(void **)((u8 *)thread + 0xF4);
+    /* The saved SP is a 64-bit context field; the N64 pointer uses its low word. */
+    source = (void *)(u32)*(u64 *)&thread->context[0xD0];
     copySize = 0x200;
     _bcopy(source, destination, copySize);
     D_800D5D40 = source;
@@ -226,9 +202,6 @@ void func_80045BBC(OSThread *thread) {
     packWriteFile(0, -1, &D_80083A80, &D_80083A88, (u8 *)0x80700000,
                   writeSize);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/diCpu/func_80045BBC.s")
-#endif
 /* PROVENANCE: body adapted from JFG src/diCpu.c::func_80066E14_67A14. */
 void func_80045CAC(void) {
     OSThread *thread;
@@ -819,14 +792,4 @@ void func_80046E00(void) {
  * first-mismatch: +0x0
  * summary: Fresh V0 is 451/459 words, target frame 0xA8, relocs 89/89 with 34 candidate identities unresolved. Prior flags and natural forms are exhausted.
  * PLATEAU-HANDOFF:func_80045D34:end
- */
-
-/* PLATEAU-HANDOFF:func_80045BBC:start
- * symbol: func_80045BBC
- * score: 58/60 words
- * frame: 0x30
- * relocations: 24
- * first-mismatch: +0xBC
- * summary: One ugen ring position: the stacked pointer argument wants t6 and gets t4, two slots early, and no source form found spends the two slots.
- * PLATEAU-HANDOFF:func_80045BBC:end
  */

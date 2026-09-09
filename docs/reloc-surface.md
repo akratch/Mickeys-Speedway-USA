@@ -1446,19 +1446,18 @@ full-TU C emits all five at 59/66 raw/normalized words under the canonical
 flags; all 119 flag rows were attempted and none was exact. There is no target
 padding. Ordinary 66/66 and current linked equality prove fallback only.
 
-Resident `func_80045BBC` owns 24 static records: HI16/LO16 pairs for
-`D_8007CFE8` at `+0x04/+0x08`, `D_80705014` at `+0x18/+0x20`,
-`D_8007CFE0` at `+0x1C/+0x24`, `D_80705018` at `+0x28/+0x30`,
-`D_8007CFE4` at `+0x2C/+0x34`, `D_8070501C` at `+0x38/+0x40`,
-`D_800D5D40` at `+0x78/+0x8C`, `D_800D5D48` at `+0x7C/+0x80`,
-`D_80083A80` at `+0xB4/+0xC8`, and `D_80083A88` at `+0xB8/+0xC4`;
-R_MIPS_26 `_bcopy` calls at `+0x4C,+0x6C,+0x88`; and `packWriteFile` at
-`+0xD4`. The retained body/codegen measurement emits 18 exact tuples but
-literalizes the three `D_80705014/18/1C` pairs; no current-HEAD candidate object
-survives. Resident runtime records, ORT export rows at offset
-`0x4576C`, overlay SYMBOL inbounds, and stored-pointer inbounds are all zero;
-`func_80045CAC+0x64` is the sole direct caller. The owned ROM
-`0x467BC..0x468AC` has no padding. Current linked equality proves fallback only.
+Resident `func_80045BBC` is exact linked C over ROM `0x467BC..0x468AC`
+(240 bytes, no padding). Stock IDO emits 18 static records with exact
+relative offsets, types and identities: the three header-source globals,
+`D_800D5D40`, `D_800D5D48`, the two file-name objects, three `_bcopy` calls
+and `packWriteFile`. The extracted fallback has six additional HI16/LO16
+records for the fixed header destinations `0x80705014`, `0x80705018` and
+`0x8070501C`; the C encodes those addresses directly. They resolve to the same
+six instruction fields. This is a literal-versus-symbol static layout, not a
+runtime relocation deficit; no metadata or instruction patch is applied.
+Resident runtime records, ORT exports, overlay SYMBOL inbounds and stored
+pointer inbounds remain absent. `func_80045CAC+0x64` is the sole direct caller.
+Canonical linked owned bytes and the complete rebuilt ROM are byte-identical.
 
 Resident `func_8004BA8C` owns nine target static records. Historical
 policy-defective C emitted all nine exactly:

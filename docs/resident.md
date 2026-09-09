@@ -2911,35 +2911,26 @@ all four arrays from one `while (i--)` variable hands the whole induction
 problem to uopt, which produces the shared offset, the in-loop base and the
 dead index copy by itself. 15 -> 0.
 
-`tier-D func_80045BBC` owns VRAM `0x80045BBC..0x80045CAC`, ROM
-`0x467BC..0x468AC`: 240 bytes/60 words, frame `0x30`, and no padding. The
-retained body/codegen measurement is 52/60 raw words and 58/60 after resolving
-the six fixed-address fields, but no current-HEAD candidate object or hash
-survives. The remaining substantive sites at `+0xBC/+0xC0` are one
-final-argument `t6/t4` FIFO web. Ordinary object and linked equality are
-`GLOBAL_ASM` fallback only; no linked C artifact survives.
+`tier-A func_80045BBC` is exact C: 240 bytes/60 words at VRAM
+`0x80045BBC..0x80045CAC`, ROM `0x467BC..0x468AC`, frame `0x30`, with no
+padding. Reading the saved stack pointer as a 64-bit context field and then
+converting its low word to an N64 pointer closes the two temporary-register
+words. Mickey's exception handler saves/restores SP at thread offset `0xF0`,
+and `osCreateThread` independently defines that field as `u64`. The shared
+header retains its opaque context; this function reads the established field
+at context offset `0xD0`.
 
-The target owns 24 static records: HI16/LO16 pairs for `D_8007CFE8` at
-`+0x04/+0x08`, `D_80705014` at `+0x18/+0x20`, `D_8007CFE0` at
-`+0x1C/+0x24`, `D_80705018` at `+0x28/+0x30`, `D_8007CFE4` at
-`+0x2C/+0x34`, `D_8070501C` at `+0x38/+0x40`, `D_800D5D40` at
-`+0x78/+0x8C`, `D_800D5D48` at `+0x7C/+0x80`, `D_80083A80` at
-`+0xB4/+0xC8`, and `D_80083A88` at `+0xB8/+0xC4`; `_bcopy` calls at
-`+0x4C,+0x6C,+0x88`; and `packWriteFile` at `+0xD4`. The candidate carries
-the other 18 records at exact offsets/types/identities, but its literal
-`D_80705014/18/1C` lvalues omit those six pairs. Runtime evidence is empty:
-zero resident relocation records, no ORT export at resident offset `0x4576C`,
-and no overlay inbound. The sole authenticated caller is
-`func_80045CAC+0x64`, which passes its selected `OSThread *` and ignores the
-return register.
+The stock configured TU uses unchanged `-O2 -mips2 -32`. Its 18 emitted static
+relocations have exact offsets, types and identities. The fallback's six
+additional records describe three fixed dump-header addresses; the C embeds
+those same addresses literally. Resolving both surfaces gives the same owned
+bytes, and the canonical C rebuild passes the full US ROM hash. There are no
+resident runtime relocation records, ORT exports or overlay inbounds for this
+range. Its sole authenticated caller remains `func_80045CAC+0x64`.
 
-The TU uses ordinary `-O2 -mips2 -32`. JFG `func_800676F8` is a disabled,
-assembly-backed structural draft, not genuine donor C. Reproduce V0, probe the
-three identities independently, combine only strict gains, run the 119-entry
-lattice on the identity-correct 60-word/frame-`0x30` baseline, capture one FIFO
-trace, and try exactly one trace-selected natural form. A gain-gated batch may
-replace unused budget only within the hard 125 deterministic-build total; it is
-not extra. Assembly stays canonical.
+The permitted JFG draft supplies disclosed structural context. The closing
+field-width correction follows Mickey's own thread representation and bytes.
+No compiler force, flag change, instruction edit or relocation patch is used.
 
 The 292-byte `func_80046AA8` packed-glyph renderer is Evidence A exact C after
 bounded permutation: all 73 instruction words, its 72-byte frame, relocation
