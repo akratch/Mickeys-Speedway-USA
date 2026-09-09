@@ -190,9 +190,9 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
     f32 oldSelector;
     f32 **height;
     Overlay47Player *player;
+    Overlay47Actor *actor;
     Overlay47TextureScroll *scroll;
     Overlay47Icon *icon;
-    s32 textureCount;
 
     rate = updateRate;
     ov47Bss_30B = 0;
@@ -227,6 +227,7 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
                 player->y = ov47Bss_2F0.y;
                 player->z = ov47Bss_2F0.z;
                 player->rotation = ov47Bss_2F0.rotation;
+                i = 0;
                 while (ov47Bss_300[player->selector]) {
                     player->selector++;
                     if (player->selector >= 10) player->selector = 0;
@@ -237,20 +238,24 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
                 ov47Bss_30A++;
                 amSndPlay(12, NULL);
                 amSndPlay(25, NULL);
-                if (player->actor != NULL) {
-                    if (player->actor->kind != ov47Data_510[player->selector]) {
-                        func_80006EA0(player->actor);
+                actor = player->actor;
+                if (actor != NULL) {
+                    if (actor->kind != ov47Data_510[player->selector]) {
+                        func_80006EA0(actor);
                         func_overlay_047_F0002D10_1893B28(player);
                     } else {
-                        func_8005AD64(player->actor, 1, -1, 0.0f);
+                        func_8005AD64(actor, 1, -1, 0.0f);
                     }
                 }
-                for (i = 0; i < ov47Bss_0; i++, icon++) {
-                    if (icon->selector == (f32)player->selector) {
-                        ov47Bss_328[controller] = ((s32)icon->x + 160) << 4;
-                    }
+                if (ov47Bss_0 > 0) {
+                    do {
+                        if ((f32)player->selector == icon->selector) {
+                            ov47Bss_328[controller] = ((s32)icon->x + 160) << 4;
+                        }
+                        icon++;
+                    } while (++i < ov47Bss_0);
+                    icon = ov47Bss_8;
                 }
-                icon = ov47Bss_8;
             }
         } else {
             if (allReady && !ov47Bss_338) {
@@ -288,21 +293,24 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
                     if (player->sound != NULL) amSndStop(player->sound);
                     amSndPlay(ov47Data_48C[ov47Data_524[player->selector]], &player->sound);
                 }
-                func_8005AD64(player->actor, 2, -1, 0.0f);
+                actor = player->actor;
+                func_8005AD64(actor, 2, -1, 0.0f);
             } else if ((joyGetPressed(controller) & 0x4000) && !player->leaving) {
-                if (player->actor != NULL && !ov47Bss_324 && !start) {
+                actor = player->actor;
+                if (actor != NULL && !ov47Bss_324 && !start) {
                     if (player->ready) {
                         player->ready = 0;
                         allReady = 0;
-                        func_8005AD64(player->actor, 0, -1, 0.0f);
+                        func_8005AD64(actor, 0, -1, 0.0f);
                         if (player->sound != NULL) amSndStop(player->sound);
                         amSndPlay(ov47Data_4A0[ov47Data_524[player->selector]], &player->sound);
                     } else if (D_8007C1A0 >= 2) {
                         player->active = 0;
                         ov47Bss_300[player->selector] = 0;
-                        if (player->actor != NULL) {
+                        actor = player->actor;
+                        if (actor != NULL) {
                             player->leaving = 1;
-                            func_8005AD64(player->actor, 5, -1, 0.0f);
+                            func_8005AD64(actor, 5, -1, 0.0f);
                             amSndPlay(24, NULL);
                         }
                         D_8007C1A0--;
@@ -354,8 +362,9 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
             if (func_8001398C(player->x, player->z, 0x1000, &height)) {
                 player->y = **height;
             }
-            oldFrame = player->actor->frameValue;
-            func_8005ABA8(player->actor, ov47Data_3F0[(s8)player->actor->frame], rate);
+            actor = player->actor;
+            oldFrame = actor->frameValue;
+            func_8005ABA8(actor, ov47Data_3F0[(s8)actor->frame], rate);
             scroll = player->actor->scroll;
             scroll->b += speed;
             scroll->a += speed;
@@ -390,50 +399,61 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
                     func_overlay_047_F0002D10_1893B28(player);
                 }
             }
-            if (player->actor != NULL) {
-                player->actor->trigger = 0;
-                switch (player->actor->frame) {
+            actor = player->actor;
+            if (actor != NULL) {
+                actor->trigger = 0;
+                actor = player->actor;
+                switch (actor->frame) {
                     case 1:
-                        frame = player->actor->frameValue;
+                        frame = actor->frameValue;
                         if (0.3f <= frame && frame < 0.65f) {
-                            player->actor->trigger = 15;
-                            frame = player->actor->frameValue;
+                            actor->trigger = 15;
+                            actor = player->actor;
+                            frame = actor->frameValue;
                         }
                         if (oldFrame < 0.3f && 0.3f <= frame) {
                             amSndPlay(26, NULL);
-                            frame = player->actor->frameValue;
+                            actor = player->actor;
+                            frame = actor->frameValue;
                         }
                         if (frame == 1.0f) {
-                            func_8005AD64(player->actor, 0, -1, 0.0f);
+                            func_8005AD64(actor, 0, -1, 0.0f);
                             player->idleTimer = mathRnd(30, 300);
+                            actor = player->actor;
                         }
                         break;
                     case 3:
                     case 4:
-                        if (player->actor->frameValue == 1.0f) {
-                            func_8005AD64(player->actor, 0, 0, 0.0f);
+                        if (actor->frameValue == 1.0f) {
+                            func_8005AD64(actor, 0, 0, 0.0f);
                             player->idleTimer = mathRnd(30, 300);
+                            actor = player->actor;
                         }
                         break;
                     case 0:
                         if (player->idleTimer > 0) {
                             player->idleTimer -= updateRate;
-                        } else if (player->actor->frameValue < 0.02f) {
+                            actor = player->actor;
+                        } else if (actor->frameValue < 0.02f) {
                             func_8005AD64(player->actor, mathRnd(3, 4), -1, 0.0f);
+                            actor = player->actor;
                         }
                         break;
                     case 5:
-                        player->actor->trigger = 15;
-                        if (0.8f < player->actor->frameValue && player->leaving) {
+                        actor->trigger = 15;
+                        actor = player->actor;
+                        if (0.8f < actor->frameValue && player->leaving) {
                             player->leaving = 0;
                             slot--;
                             ov47Bss_30A--;
+                            actor = player->actor;
                         }
                         break;
                     case 2:
-                        if (player->actor->frameValue == 1.0f) {
-                            func_8005AD64(player->actor, 0, -1, 0.0f);
+                        if (actor->frameValue == 1.0f) {
+                            func_8005AD64(actor, 0, -1, 0.0f);
                             player->idleTimer = mathRnd(30, 300);
+                            actor = player->actor;
                         }
                         break;
                 }
@@ -441,12 +461,12 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
                     dx = player->x - ov47Bss_2F0.x;
                     dz = player->z - ov47Bss_2F0.z;
                     if (dx * dx + dz * dz < 1000.0f) {
-                        func_80006EA0(player->actor);
+                        func_80006EA0(actor);
                         player->actor = NULL;
-                        player->actor = NULL;
+                        actor = NULL;
                     }
                 }
-                if (player->actor != NULL) partUpdateTriggers(player->actor, updateRate);
+                if (actor != NULL) partUpdateTriggers(actor, updateRate);
             }
         }
     }
@@ -492,23 +512,23 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
         colourIndex = 4;
         unready = 0;
         selected = -1;
-        textureCount = 0;
+        count = 0;
         player = D_800D3058;
         for (i = 0; i < 4; i++, player++) {
-            if (icon->selector == (f32)player->selector && player->active) {
+            if ((f32)player->selector == icon->selector && player->active) {
                 colourIndex = i;
                 if (!player->ready) unready = 1;
                 for (j = 0; j < updateRate; j++) {
                     ov47Bss_328[i] +=
                         ((((s32)icon->x + 160) << 4) - ov47Bss_328[i]) >> 2;
                 }
-                ov47Bss_1C0[textureCount].texture = D_800D31C8[i + 13];
-                ov47Bss_1C0[textureCount].x = 312 - (ov47Bss_328[i] >> 4);
-                textureCount++;
+                ov47Bss_1C0[count].texture = D_800D31C8[i + 13];
+                ov47Bss_1C0[count].x = 312 - (ov47Bss_328[i] >> 4);
+                count++;
                 selected = i;
             }
         }
-        ov47Bss_1C0[textureCount].texture = NULL;
+        ov47Bss_1C0[count].texture = NULL;
         func_8002FB34(&D_800D3140, ov47Bss_1C0, 320.0f, 0, 1.0f, 1.0f, -2, 0x1003);
         func_8002A82C(localMatrix);
         matrixTranslate(icon->x, icon->y, 0.0f, localMatrix);
