@@ -690,16 +690,29 @@ void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
         FX_SET_ENV((*dList)++, 0xFF, 0xFF, 0xFF, 0);
     }
 }
-/* Exact 89-word extent, exact -0x48 frame, four call relocations, and every
- * integer register, stack displacement and schedule slot equal. Six words
- * remain: one floating-point colour swap, where the target holds the loaded
- * z in f14 and x in f2 and the candidate holds them the other way round.
- * The cursors are the *parameters*, not locals: IDO promotes the two stack
- * parameter homes into registers for the loop and writes them back at the
- * loop exit, which is where the earlier candidate's `volatile` pointers and
- * their explicit writeback came from. Spelling them naturally also fixed the
- * loop-invariant hoist order and the cos0 spill slot: 12 -> 6 words. */
-#ifdef NON_MATCHING
+/* Transforms `count` cone points by two angles and writes the packed
+ * position/colour records the display list draws.
+ *
+ * The two cursors are the *parameters*: IDO promotes both stack homes into
+ * registers for the loop and writes them back at the loop exit, which is what
+ * an earlier candidate's `volatile` pointers and explicit writeback were
+ * imitating.
+ *
+ * The last six words were one floating-point colour swap -- the target holds
+ * the loaded z in f14 and x in f2 -- and it is a web-count fact, not an
+ * ordering one. With the three loads in x, y, z order and four live FP webs
+ * in the loop, x is pinned to f14 and only y and z can trade f2 and f12; that
+ * is flat over all six load orders, all six store orders that keep the
+ * schedule, both spellings of the rotated-z subexpression, inlining it, and
+ * 6,000 random permutations of the eight declarations (FP webs turn out to
+ * ignore declaration order exactly as integer webs do). The rotated *y*
+ * component is its own named value, like the rotated z beside it. That fifth
+ * web costs no instruction -- IDO coalesces it -- and it is what moves x to
+ * f2 and z to f14.
+ *
+ * PROVENANCE: JFG's assembly-only func_8006A224 confirms the same
+ * cone-point-transform role, frame class, four trigonometric calls and packed
+ * output loop; no donor C exists and none was adopted. */
 typedef struct FxTransformInput {
     f32 x;
     f32 y;
@@ -725,31 +738,30 @@ void func_80048080(s32 count, s16 x, s16 y, s16 z, s16 angle0, s16 angle1,
     f32 inputZ;
     f32 inputY;
     f32 inputX;
-    f32 cross;
+    f32 rotatedZ;
+    f32 rotatedY;
 
     cos1 = func_8002A8C0(angle1);
     sin1 = func_8002A8BC(angle1);
     cos0 = func_8002A8C0(angle0);
     sin0 = func_8002A8BC(angle0);
     while (count--) {
-        inputZ = input->z;
         inputX = input->x;
         inputY = input->y;
+        inputZ = input->z;
         input++;
         output[6] = 0xFF;
         output[7] = 0xFF;
         output[8] = 0xFF;
         output[9] = alpha;
         output += 10;
-        cross = (inputZ * sin1) + (inputY * cos1);
-        ((s16 *)output)[-5] = (s16)((s32)((inputX * sin0) + (cross * cos0)) + x);
-        ((s16 *)output)[-4] = (s16)((s32)((inputY * sin1) - (inputZ * cos1)) + y);
-        ((s16 *)output)[-3] = (s16)((s32)((cross * sin0) - (inputX * cos0)) + z);
+        rotatedZ = (inputZ * sin1) + (inputY * cos1);
+        rotatedY = (inputY * sin1) - (inputZ * cos1);
+        ((s16 *)output)[-5] = (s16)((s32)((inputX * sin0) + (rotatedZ * cos0)) + x);
+        ((s16 *)output)[-4] = (s16)((s32) rotatedY + y);
+        ((s16 *)output)[-3] = (s16)((s32)((rotatedZ * sin0) - (inputX * cos0)) + z);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048080.s")
-#endif
 #ifdef NON_MATCHING
 typedef struct FxWakeAllocation {
     u8 flags;
@@ -2362,15 +2374,6 @@ void func_8004AF68(void) {
  * PLATEAU-HANDOFF:func_80046EC4:end
  */
 
-/* PLATEAU-HANDOFF:func_80048080:start
- * symbol: func_80048080
- * score: 6 differing words
- * frame: 0x48
- * relocations: 4
- * first-mismatch: 0xA0
- * summary: parameters are the cursors, not locals; 12 -> 6 words. Residual is one FP colour swap (target z=f14/x=f2), flat over load, declaration, cross-carrier, re-read and line-grouping families.
- * PLATEAU-HANDOFF:func_80048080:end
- */
 
 /* PLATEAU-HANDOFF:func_80049000:start
  * symbol: func_80049000
