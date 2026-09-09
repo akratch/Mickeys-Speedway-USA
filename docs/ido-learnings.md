@@ -1095,6 +1095,51 @@ bytes and disassembly never belong here.
   `overlay75UpdateMovingObject`, where reading this as a repeated field access
   sent an earlier pass at the test site instead of at the initialisers.
 
+- **When `as1` declines that duplication, and what can stop it.** Measured
+  across the ten conditional branches of `func_8005ABA8` plus a directed sweep
+  of its phase input. It declines in exactly three situations: the target
+  block's first *scheduled* instruction is itself a branch; that instruction
+  has been hoisted out from under its own label by an earlier `as1`
+  transformation, leaving the label on an empty block (retargeting the branch
+  to the next label restores the conversion, which is how the condition was
+  identified); or a **location-counter directive stands at the block head**.
+  The suppressing set is exactly `.align n`, `.space 0` and `.text`; `.loc`
+  (any line, inserted, deleted or moved), `.livereg`, `.noalias`/`.alias`,
+  `.mask`, `.frame`, `.file`, `.option`, `.verstamp`, an added label, a padding
+  instruction and a redundant jump are all inert at that position. Two
+  consequences. First, **physical line grouping cannot flip a delay-slot fill**
+  -- grouping moves only `.loc` lines. Second, since `ugen` emits `.align` and
+  `.text` only at function starts, a target that keeps its own delay slot where
+  the candidate duplicates a block head is not reachable by adding a barrier;
+  the difference has to be somewhere else in the phase input. Liveness of the
+  duplicated destination on the fall-through path is not a factor, and neither
+  is the instruction's opcode class: integer branches duplicate float
+  arithmetic freely.
+
+- **`as1` has no cross-function state.** Deleting any other function from the
+  listing, at any position, leaves a given function's scheduling and delay-slot
+  decisions unchanged. A residual owned by the last phase is therefore a
+  question about that function's own phase input, and the search space never
+  includes its neighbours.
+
+- **The `ugen` temporary ring is a FIFO free list.** A temporary pops the head
+  of the queue and is pushed back on the tail when it dies, so a short-lived
+  temporary that emits **no instruction at all** -- for example the boolean
+  temporary a `(a == b) != 0U` normalization creates, which `as1` folds back
+  into the branch -- still consumes a pop and renumbers every temporary after
+  it. That makes such a normalization a one-notch dial on the whole downstream
+  ring, and it is why a candidate can be exact everywhere except for one pair
+  of temporaries whose creation order differs. Diagnose it by reading the pops
+  off both sides in order; if every pop after the disputed pair agrees, the
+  residual is a creation-order question at that pair, not a phase or an
+  allocator question. Evidence: `func_8005A948`, where patching the two names
+  in the phase input takes a three-word residual to zero.
+
+- **`cc -S` ignores `-o`.** The listing is written to the *current directory*
+  under the source's base name. Move it into a scratch directory as the next
+  command; a stray `.s` in the worktree root is exactly the kind of file the
+  clean-room rules exist to keep out of a commit.
+
 ### Search fidelity and false floors
 
 - A permuter zero is a hypothesis until the project pipeline verifies it.
