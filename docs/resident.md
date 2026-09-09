@@ -875,7 +875,7 @@ tier-A threshold, so the address label remains canonical.
 
 | Candidate | Verdict |
 |---|---|
-| `func_80036AB0` | Evidence D DKR `src/textures_sprites.c::update_colour_cycle` adaptation; structure-mismatch, 113 differing words, first `+0x0`, target 108 instructions/0x28 frame versus candidate 115/0x30. |
+| `func_80036AB0` | 432 bytes under `-O2 -mips2 -32`; colour-cycle interpolation in JFG `updateMixCycle` form with DKR `update_colour_cycle` channel locals, all 108 instruction words exact (frame 0x28, no relocations). The typed `frames[]` index forwards the frame index in a register while re-reading the time at the loop bottom; declaring `table` after the channel locals keeps its web out of the first spill slot. |
 | `func_8003A5A0` | Structure-mismatch, 19 differing words, first `+0x0`; target/candidate 56 words, with the lookup/end pointer carrier and relocation web unresolved. |
 | `func_8003A754` | Structure-mismatch, 12 differing words, first `+0x10`; target/candidate 31 words and 0x18-byte frames, with scalar inner-loop carriers unresolved. |
 | `func_8003A7D0` | Structure-mismatch, 36 differing words, first `+0x10`; target 43/candidate 41 words, with count-carrier and first-loop address formation unresolved. |

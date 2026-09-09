@@ -20,20 +20,18 @@ typedef struct ColourCycleFrame8 {
     s32 unk4;
 } ColourCycleFrame8;
 
-typedef struct ColourCycleEntry {
-    s32 unk0;
-    s32 unk4;
-    u8 unk8;
-    u8 unk9;
-    u8 unkA;
-    u8 unkB;
-    s32 unkC;
-} ColourCycleEntry;
+typedef struct ColourCycleFrame {
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
+    s32 time;
+} ColourCycleFrame;
 
 typedef struct ColourCycleTable {
     s32 numberFrames;
     s32 totalTime;
-    u8 frameData[1];
+    ColourCycleFrame frames[1];
 } ColourCycleTable;
 
 /* PROVENANCE: body adapted from Jet Force Gemini's public decompilation,
@@ -87,18 +85,25 @@ void func_80036A80(ColourCycle *cycle) {
     cycle->unkB = temp_v0->unkB;
 }
 
-#ifdef NON_MATCHING
-/* PROVENANCE: body adapted from Diddy Kong Racing's public decompilation,
- * src/textures_sprites.c:update_colour_cycle. Mickey's table and ABI remain authoritative. */
-/* Workbench verdict: structure-mismatch, 113 differing words. */
-/* First mismatch: +0x0; target 108 instructions/0x28 frame, candidate 115/0x30. */
-/* Structural gap: pointed-table loop carriers and interpolation lifetimes remain unresolved. */
-void func_80036AB0(void *arg0, s32 updateRate) {
-    ColourCycle *cycle;
-    ColourCycleTable *table;
+/* PROVENANCE: body adapted from Jet Force Gemini's public decompilation,
+ * src/textures.c:updateMixCycle (this TU's func_80036CAC is that body
+ * verbatim), spelled onto the colour-cycle table, with the hoisted channel
+ * locals of Diddy Kong Racing's src/textures_sprites.c:update_colour_cycle.
+ * JFG's own updateColourCycle is still a GLOBAL_ASM pragma at efd5abb and at
+ * PR #37 (d45123d1c528955d5e12ddad805076267a690d76). Mickey's table layout
+ * and compiler output remain authoritative.
+ *
+ * Two spellings are load-bearing. Indexing `table->frames[cycle->unk0]`
+ * through the typed struct (not a byte-offset cast) lets uopt forward the
+ * frame index in a register across the loop while still re-reading unk4 at
+ * the loop bottom, which is the target's shape. And `table` is declared
+ * AFTER the eight channel locals: declared first, its web takes the first
+ * spill slot and the frame comes out 0x30 against the target's 0x28 with
+ * every instruction already identical. */
+void func_80036AB0(ColourCycle *cycle, s32 timeDelta) {
+    s32 thisFrameIndex;
+    s32 nextFrameIndex;
     s32 temp;
-    s32 curIndex;
-    s32 nextIndex;
     u32 next_red;
     u32 cur_red;
     u32 next_green;
@@ -107,51 +112,41 @@ void func_80036AB0(void *arg0, s32 updateRate) {
     u32 cur_green;
     u32 cur_blue;
     u32 cur_alpha;
-    ColourCycleEntry *cur;
-    ColourCycleEntry *next;
+    ColourCycleTable *table;
 
-    cycle = (ColourCycle *) arg0;
     table = (ColourCycleTable *) cycle->unkC;
-    if (table->numberFrames >= 2) {
-        cycle->unk4 += updateRate;
+    if (table->numberFrames > 1) {
+        cycle->unk4 += timeDelta;
         while (cycle->unk4 >= table->totalTime) {
             cycle->unk4 -= table->totalTime;
         }
-        while (cycle->unk4 >=
-               ((ColourCycleEntry *) ((u8 *) table + (cycle->unk0 << 3)))->unkC) {
-            cycle->unk4 -=
-                ((ColourCycleEntry *) ((u8 *) table + (cycle->unk0 << 3)))->unkC;
+        while (cycle->unk4 >= table->frames[cycle->unk0].time) {
+            cycle->unk4 -= table->frames[cycle->unk0].time;
             cycle->unk0++;
             if (cycle->unk0 >= table->numberFrames) {
                 cycle->unk0 = 0;
             }
         }
-
-        curIndex = cycle->unk0;
-        nextIndex = curIndex + 1;
-        if (nextIndex >= table->numberFrames) {
-            nextIndex = 0;
+        thisFrameIndex = cycle->unk0;
+        nextFrameIndex = thisFrameIndex + 1;
+        if (nextFrameIndex >= table->numberFrames) {
+            nextFrameIndex = 0;
         }
-        cur = (ColourCycleEntry *) ((u8 *) table + (curIndex << 3));
-        temp = (cycle->unk4 << 16) / cur->unkC;
-        cur_red = cur->unk8;
-        cur_green = cur->unk9;
-        cur_blue = cur->unkA;
-        cur_alpha = cur->unkB;
-        next = (ColourCycleEntry *) ((u8 *) table + (nextIndex << 3));
-        next_red = next->unk8;
-        next_green = next->unk9;
-        next_blue = next->unkA;
-        next_alpha = next->unkB;
+        temp = (cycle->unk4 << 16) / table->frames[thisFrameIndex].time;
+        cur_red = table->frames[thisFrameIndex].r;
+        cur_green = table->frames[thisFrameIndex].g;
+        cur_blue = table->frames[thisFrameIndex].b;
+        cur_alpha = table->frames[thisFrameIndex].a;
+        next_red = table->frames[nextFrameIndex].r;
+        next_green = table->frames[nextFrameIndex].g;
+        next_blue = table->frames[nextFrameIndex].b;
+        next_alpha = table->frames[nextFrameIndex].a;
         cycle->unk8 = (((next_red - cur_red) * temp) >> 16) + cur_red;
         cycle->unk9 = (((next_green - cur_green) * temp) >> 16) + cur_green;
         cycle->unkA = (((next_blue - cur_blue) * temp) >> 16) + cur_blue;
         cycle->unkB = (((next_alpha - cur_alpha) * temp) >> 16) + cur_alpha;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/frontend_37680/func_80036AB0.s")
-#endif
 
 void func_80036C60(PulsatingLightData *data) {
     s32 i;
@@ -282,13 +277,3 @@ void func_80036F08(Gfx **dList, u8 *screenAddress, s32 arg2) {
     }
     func_80034920(dList);
 }
-
-/* PLATEAU-HANDOFF:func_80036AB0:start
- * symbol: func_80036AB0
- * score: 113 differing words
- * frame: 0x30
- * relocations: 0
- * first-mismatch: +0x0
- * summary: Adapted DKR colour-cycle body has target 0x28 versus candidate 0x30 frame and allocation shape gaps.
- * PLATEAU-HANDOFF:func_80036AB0:end
- */
