@@ -149,7 +149,6 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
     s32 resetX;
     s32 deltaTime;
     ControlActor **actors;
-    ControlActor **actorCursor;
 
     camStandardOrtho_o054Reloc(&D_800D3140_o054Reloc, &D_800D3144_o054Reloc);
     if (o54Bss_668 != NULL) {
@@ -233,8 +232,7 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
     o54Data_2B0++;
     o54Data_2B0 %= 10;
 
-    actorCursor = actors;
-    for (playerIndex = 0; playerIndex < D_8007BEF4_o054Reloc; playerIndex++, actorCursor++) {
+    for (playerIndex = 0; playerIndex < D_8007BEF4_o054Reloc; playerIndex++) {
         s8 *level;
         ControlActor *actor;
         ControlPlayer *player;
@@ -248,7 +246,7 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
         s32 *alpha;
         s8 *item;
 
-        actor = *actorCursor;
+        actor = actors[playerIndex];
         if (actor == NULL) {
             return;
         }
@@ -569,10 +567,10 @@ void func_overlay_054_F00005AC_189F24C(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_054_F00005AC_189F24C:start
  * symbol: func_overlay_054_F00005AC_189F24C
- * score: 1415 differing words
+ * score: 1115 differing words
  * frame: 0x158
  * relocations: 273
  * first-mismatch: +0x0
- * summary: 1588/1594 words, 59 ordered calls; five flat ownership refinements. Next: trace peeled height-exit address sharing and shared state induction.
+ * summary: 1592/1594 words, delta -6 to -2. actors[i] not a cursor: loop-bottom IVs now slot-exact. Next: r16 bound rematerialization, frame +32.
  * PLATEAU-HANDOFF:func_overlay_054_F00005AC_189F24C:end
  */
