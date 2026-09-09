@@ -1226,7 +1226,6 @@ void func_8000D1B8(void) {
  * count and two-pointer allocation record are reconstructed from the target
  * accesses; the donor placeholder name is not adopted.
  */
-#ifdef NON_MATCHING
 void func_8000D3B8(s32 lightCount, s32 copyData) {
     s32 index;
     s32 copyFailed;
@@ -1239,8 +1238,7 @@ void func_8000D3B8(s32 lightCount, s32 copyData) {
     D_800792FC = 0;
     D_800792F8 = lightCount;
     copyFailed = 1;
-    byteCount = lightCount * sizeof(TrackLight);
-    D_80079300 = func_8002B280(byteCount, 0x91);
+    D_80079300 = func_8002B280(D_800792F8 * sizeof(TrackLight), 0x91);
     if (D_80079300 != NULL) {
         index = D_800792F8;
         while (index--) {
@@ -1282,9 +1280,6 @@ void func_8000D3B8(s32 lightCount, s32 copyData) {
         func_8000D570();
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_8000D3B8.s")
-#endif
 /*
  * PROVENANCE: Jet Force Gemini's public `src/track.c` and built
  * `trackLightFreeMem` establish this function's role and control-flow
@@ -5760,16 +5755,6 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * first-mismatch: +0x0
  * summary: Mickey flag and negation order improve 231 to 217 differences, 6/17 relocation sites exact. Next: source-attributed FP home evidence.
  * PLATEAU-HANDOFF:func_800115E4:end
- */
-
-/* PLATEAU-HANDOFF:func_8000D3B8:start
- * symbol: func_8000D3B8
- * score: 105 differing words
- * frame: 0x38
- * relocations: 16
- * first-mismatch: +0x4
- * summary: Five m2c carrier forms leave the residual flat or regress size; baseline restored. Next: initial pool-size expression and lifetime evidence.
- * PLATEAU-HANDOFF:func_8000D3B8:end
  */
 
 /* PLATEAU-HANDOFF:func_800103D4:start
