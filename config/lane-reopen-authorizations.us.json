@@ -396,7 +396,7 @@
       "source_commit": "249d01ebccf98aacff8ebbcae504de5fa630a2aa"
     },
     "func_8003D25C": {
-      "ledger_commit": "001f54cc9c4a32020eb9e8bc76baacd3eca28421",
+      "ledger_commit": "ca1cbaf362ce4f67cb4eef34226f1cfc8a232883",
       "reason": "Class is register-only at 68 masked words, delta 0: routes to the forced-colour oracle and the permuter, mechanisms the recorded attempts did not use.",
       "source_commit": "001f54cc9c4a32020eb9e8bc76baacd3eca28421"
     },
@@ -411,24 +411,24 @@
       "source_commit": "0e3de63667a5d632384abba03c845ba0d1dfa148"
     },
     "func_8003F154": {
-      "ledger_commit": "b4e283b76abe453f4cc15ebf555e21b1fc541fbe",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 21 masked words is a schedule or structure defect the permuter can still move.",
-      "source_commit": "b4e283b76abe453f4cc15ebf555e21b1fc541fbe"
+      "ledger_commit": "6bdba1a93a675928992cc443558ee8b0da4b9b50",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 17 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "6bdba1a93a675928992cc443558ee8b0da4b9b50"
     },
     "func_8004054C": {
-      "ledger_commit": "e5f0275ed7b941f16b3b257b1636ab6d74024e03",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 56 masked words is a schedule or structure defect the permuter can still move.",
-      "source_commit": "e5f0275ed7b941f16b3b257b1636ab6d74024e03"
+      "ledger_commit": "b41a0d1a76b10eee233d0663e6479ca405f7a4b2",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 42 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "b41a0d1a76b10eee233d0663e6479ca405f7a4b2"
     },
     "func_80040B88": {
-      "ledger_commit": "97e9811f2e9c764fd001e03ca6a34d53fc17c8d3",
+      "ledger_commit": "ca1cbaf362ce4f67cb4eef34226f1cfc8a232883",
       "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 145 masked words is a schedule or structure defect the permuter can still move.",
       "source_commit": "97e9811f2e9c764fd001e03ca6a34d53fc17c8d3"
     },
     "func_80041530": {
-      "ledger_commit": "1ea6adeee3de47c9916d08a54476ffb203c30d8f",
-      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 52 masked words is a schedule or structure defect the permuter can still move.",
-      "source_commit": "1ea6adeee3de47c9916d08a54476ffb203c30d8f"
+      "ledger_commit": "6bdba1a93a675928992cc443558ee8b0da4b9b50",
+      "reason": "ADR 0018 stall rule: this plateau closed under the retired ten-attempt cap. Delta 0 at 36 masked words is a schedule or structure defect the permuter can still move.",
+      "source_commit": "6bdba1a93a675928992cc443558ee8b0da4b9b50"
     },
     "func_80041CE4": {
       "ledger_commit": "690806f1ee058922a5052ec880bca5b5064a6193",
