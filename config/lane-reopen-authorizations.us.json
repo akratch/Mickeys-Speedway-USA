@@ -395,6 +395,46 @@
       "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "6f9e72e6fb41e2b3e351dfbc3546b6dae585a8fd"
     },
+    "func_80036AB0": {
+      "ledger_commit": "5c4bda08946c5a1a271aba9cbb27740c4000d1ad",
+      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "source_commit": "5c4bda08946c5a1a271aba9cbb27740c4000d1ad"
+    },
+    "func_800371BC": {
+      "ledger_commit": "094bac856d40e201d133d032e58a05960d54f530",
+      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "source_commit": "094bac856d40e201d133d032e58a05960d54f530"
+    },
+    "func_80037414": {
+      "ledger_commit": "617fe1059baa3b17d54f4395d261df4eb741f9c8",
+      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "source_commit": "617fe1059baa3b17d54f4395d261df4eb741f9c8"
+    },
+    "func_800376CC": {
+      "ledger_commit": "c949febf607d461162f1736fb287c18c6adab34f",
+      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "source_commit": "c949febf607d461162f1736fb287c18c6adab34f"
+    },
+    "func_800378A4": {
+      "ledger_commit": "4c083bacc5314523ee8329198b43ca715f3a5ac2",
+      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "source_commit": "4c083bacc5314523ee8329198b43ca715f3a5ac2"
+    },
+    "func_80037BF4": {
+      "ledger_commit": "61406aec20668803eb19e5654e70b52c32043ce6",
+      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "source_commit": "61406aec20668803eb19e5654e70b52c32043ce6"
+    },
+    "func_80037C74": {
+      "ledger_commit": "e2c78134f9824a0b895d76030f1b2b393eea9970",
+      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "source_commit": "e2c78134f9824a0b895d76030f1b2b393eea9970"
+    },
+    "func_80038190": {
+      "ledger_commit": "d4ac3577512b13d29bb819c46527dde99e0ae852",
+      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "source_commit": "d4ac3577512b13d29bb819c46527dde99e0ae852"
+    },
     "func_80038878": {
       "ledger_commit": "f6250d56ba0062f3f018697cad839e1c05b425b3",
       "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
@@ -424,6 +464,11 @@
       "ledger_commit": "5f302525cd71efe36adc5e2b5eb3b6097c8ddeed",
       "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "5f302525cd71efe36adc5e2b5eb3b6097c8ddeed"
+    },
+    "func_8003A7D0": {
+      "ledger_commit": "d761f310ac67783655771b8e27248a85663e086b",
+      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "source_commit": "d761f310ac67783655771b8e27248a85663e086b"
     },
     "func_8003D25C": {
       "ledger_commit": "7c02cbfb2c5bd61f911c9c8a2247930c6d55b1d5",
