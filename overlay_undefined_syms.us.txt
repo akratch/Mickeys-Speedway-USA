@@ -2506,6 +2506,16 @@ overlay99SpawnEntryReloc = 0xf0000000;
 /* overlay 99: overlay99ProjectVector.c.o */
 overlay99SqrtReloc = 0xf0000000;
 
+/* overlay 99: overlay99RenderSortedEntries.c.o */
+gOverlay99IntensityScale = 0x00000008;
+gOverlay99TransformZ = 0x00000004;
+overlay99CamGetProjZReloc = 0xf0000000;
+overlay99CamGetPtrReloc = 0xf0000000;
+overlay99Func80022E80Reloc = 0xf0000000;
+overlay99Func80022FD4Reloc = 0xf0000000;
+overlay99Func8002AA50Reloc = 0xf0000000;
+overlay99MtxfTransformPointReloc = 0xf0000000;
+
 /* overlay 99: overlay99RenderSegments.c.o */
 gOverlay99SegmentCount = 0x00000090;
 gOverlay99Segments = 0x00000000;

@@ -8046,16 +8046,15 @@
     {
       "c_owned": true,
       "class": "metadata",
-      "matched_c": false,
-      "nonmatching": true,
+      "matched_c": true,
+      "nonmatching": false,
       "object": "build/src/overlays/o099/overlay99RenderSortedEntries.c.o",
       "offset": 2048,
       "overlay": 99,
       "size": 932,
       "source": "src/overlays/o099/overlay99RenderSortedEntries.c",
       "tools": [
-        "trim_elf_section.py",
-        "objcopy"
+        "trim_elf_section.py"
       ]
     },
     {
@@ -9197,7 +9196,7 @@
       "metadata": 637,
       "review-required": 2
     },
-    "matched_c_bytes_with_postprocess": 120472,
+    "matched_c_bytes_with_postprocess": 121404,
     "objects_with_postprocess": 640
   }
 }
