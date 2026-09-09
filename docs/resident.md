@@ -2222,13 +2222,9 @@ loop-condition web coalescing.
 
 `func_80041CE4` owns VRAM `0x80041CE4..0x80041F48`, ROM
 `0x428E4..0x42B48`: 612 bytes/153 words, frame `0x80`, and no target padding.
-Retained configured full-TU and isolated C are byte-identical at 126/153 raw
-and relocation-normalized words, first `+0x48`; ordinary object and linked-ROM
-equality are assembly fallback only. The isolated section's final 12 bytes are
-alignment outside the function. The 27 register-field sites split into outer
-count, early point-count, and post-call point-count/display-list carriers,
-forming six consistent integer pool substitutions; the 47-entry temporary
-lane and both FP lanes are exact. Candidate SHA prefix is `90eeefb220a1`.
+Evidence A exact C: all 153 instruction words, the `-0x80` frame, all nine
+relocations, and the linked ROM bytes match. The isolated section's final 12
+bytes are alignment outside the function.
 
 All nine target records are exact in genuine C: pairs to `D_8007C894` at
 `+0x04/+0x08`, `D_8007C88C` at `+0x48/+0x4C` and `+0x1E4/+0x1F0`, and
@@ -2237,15 +2233,32 @@ Runtime/export evidence is empty: zero resident records, no ORT row at offset
 `0x41894`, no overlay SYMBOL inbound, and no stored pointer. `partDraw+0xEC`
 is the sole direct caller and passes typed `Gfx **`/`ParticleLineVertex **`.
 
-The configured flags are `-O2 -mips2 -32 -Wab,-r4300_mul`; equality with the
-isolated object proves the omitted multiply flag inert here. The body is
-policy-valid. JFG `func_80063514` is a larger assembly-backed structural peer,
-not genuine donor C. All 119 flag identities are nonexact; six O2/MIPS-II
-variants and phase-all-O3 tie V0. A fidelity-clean proc-43 globalcolor trace
-records six colored webs. A named/reloaded outer count and lexical
-point-count/address locals are each byte-identical to V0. Since neither form
-made a strict gain, no combination or macro-faithful batch qualified. The asm
-stays canonical pending a new natural pool-position/coalescing mechanism.
+The configured flags are `-O2 -mips2 -32 -Wab,-r4300_mul`. JFG `func_80063514`
+is a larger assembly-backed structural peer, not genuine donor C.
+
+The 27-word register residual that stood here was four separate source
+artefacts, not one allocator phase, and each is worth carrying forward:
+
+- The inner vertex fill walked `line` cast to a `ParticleLinePoint **` cursor.
+  The source indexes `line->points[j]` from the `for` counter and lets uopt
+  build the cursor itself; the vertex pointer stays a real cursor because
+  `ParticleLineVertex` is 20 bytes and indexing it costs a multiply. The loop
+  must be a `for`, not the equivalent guard-plus-`do`: the indexed access under
+  a `do` costs one instruction, under a `for` it costs none. 27 -> 24.
+- The two display-list commands are two carriers, not one reused local. A
+  single `command` coalesces them into one colour; two names give the target's
+  two. 24 -> 12 once the declaration count is paid for.
+- `vertexAddress` was never a local. Spelling `(s32)vertexStart + 0x80000000`
+  at both uses frees the tenth declaration slot the second carrier needs, and
+  the frame stays `0x80`: eleven locals move it to `0x88`.
+- `displayList` is the *fifth* declared local. Its home is the function's only
+  addressed stack slot (`&displayList` reaches `func_800349A4`), so the
+  declaration order alone moves it between `sp+104` and the target's `sp+108`;
+  only one of the ten positions is right. 12 -> 3.
+- The last three words were a redundant read: a pre-guard
+  `pointCount = line->pointCount` gives the point count a pool colour before
+  the guard. Testing `line->pointCount >= 2` directly and reading the count
+  only after the call is what puts it in the target's colour. 3 -> 0.
 
 `func_8003D25C`: before/after allocation mismatch, 168 instructions and 70 register-only words, first `+0x50`.
 Type lever: pool/render-resource aggregates and vector aliases; no allocation movement. Remains temp slot 0 and pool substitutions; asm stays canonical.

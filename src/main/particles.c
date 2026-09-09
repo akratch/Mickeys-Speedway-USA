@@ -2279,35 +2279,19 @@ void func_80041C50(s32 arg0, s32 arg1) {
         }
     }
 }
-/*
- * Owns ROM 0x428E4..0x42B48: 153 words, frame 0x80, no padding. Retained
- * full-TU/isolated C agree at 126/153 raw and relocation-normalized words,
- * first +0x48, with all nine tuples exact; candidate SHA prefix 90eeefb220a1.
- * All 119 flags are nonexact; six O2/MIPS-II variants and phase-all-O3 tie
- * V0. A fidelity-clean proc-43 trace leaves the temporary and FP lanes exact;
- * 27 instructions retain six integer pool substitutions. A named/reloaded
- * outer count and lexical point-count/address locals are byte-identical to
- * V0, so no strict-gain combination or batch qualified. Linked equality is
- * fallback-only; partDraw+0xEC is the sole caller and runtime/export/overlay
- * inbounds are zero. Resume only with a new natural pool-position/coalescing
- * mechanism; do not repeat this lattice, trace, or the two flat forms.
- */
 /* PROVENANCE: structure cross-checked against JFG's assembly-only
  * func_80063514 sibling; body reconstructed from Mickey evidence. */
-#ifdef NON_MATCHING
 void func_80041CE4(Gfx **dList, ParticleLineVertex **vertices) {
     Gfx *command;
+    Gfx *command2;
     ParticleLineVertex *vertex;
     ParticleLineVertex *vertexStart;
-    ParticleLinePoint *point;
     Gfx *displayList;
+    ParticleLinePoint *point;
     ParticleLineEntry *line;
     s32 i;
     s32 j;
     s32 pointCount;
-    s32 vertexAddress;
-    ParticleLinePoint **pointPtr;
-
     if (D_8007C894 != NULL) {
         displayList = *dList;
         vertex = *vertices;
@@ -2316,49 +2300,39 @@ void func_80041CE4(Gfx **dList, ParticleLineVertex **vertices) {
         if (D_8007C88C > 0) {
             do {
                 if (line->active != 0) {
-                    pointCount = line->pointCount;
-                    vertexStart = vertex;
-                    j = 0;
-                    if (pointCount >= 2) {
-                        if (pointCount > 0) {
-                            pointPtr = (ParticleLinePoint **)line;
-                            do {
-                                point = pointPtr[1];
-                                j++;
-                                pointPtr++;
-                                vertex->x0 = point->x0;
-                                vertex->y0 = point->y0;
-                                vertex->z0 = point->z0;
-                                vertex->red0 = point->red;
-                                vertex->green0 = point->green;
-                                vertex->blue0 = point->blue;
-                                vertex->alpha0 =
-                                    ((u8 *)&point->intensity)[0];
-                                vertex->x1 = point->x1;
-                                vertex->y1 = point->y1;
-                                vertex->z1 = point->z1;
-                                vertex->red1 = point->red;
-                                vertex->green1 = point->green;
-                                vertex->blue1 = point->blue;
-                                vertex->alpha1 =
-                                    ((u8 *)&point->intensity)[0];
-                                vertex++;
-                            } while (j < line->pointCount);
+                    if (line->pointCount >= 2) {
+                        vertexStart = vertex;
+                        for (j = 0; j < line->pointCount; j++) {
+                            point = line->points[j];
+                            vertex->x0 = point->x0;
+                            vertex->y0 = point->y0;
+                            vertex->z0 = point->z0;
+                            vertex->red0 = point->red;
+                            vertex->green0 = point->green;
+                            vertex->blue0 = point->blue;
+                            vertex->alpha0 = ((u8 *)&point->intensity)[0];
+                            vertex->x1 = point->x1;
+                            vertex->y1 = point->y1;
+                            vertex->z1 = point->z1;
+                            vertex->red1 = point->red;
+                            vertex->green1 = point->green;
+                            vertex->blue1 = point->blue;
+                            vertex->alpha1 = ((u8 *)&point->intensity)[0];
+                            vertex++;
                         }
                         func_800349A4(&displayList, line->texture, 0x12,
                                       (s32)(line->textureFrame * 65536.0f));
                         pointCount = line->pointCount;
-                        vertexAddress = (s32)vertexStart + 0x80000000;
                         pointCount *= 2;
                         command = displayList++;
-                        command->words.w0 = ((((pointCount << 3) | (vertexAddress & 6)) & 0xFF) << 16) |
+                        command->words.w0 = ((((pointCount << 3) | (((s32)vertexStart + 0x80000000) & 6)) & 0xFF) << 16) |
                                             0x04000000 |
                                             ((((pointCount << 3) + (pointCount << 1)) + 8) & 0xFFFF);
-                        command->words.w1 = vertexAddress;
-                        command = displayList++;
-                        command->words.w0 = (((((pointCount - 3) << 4) | 1) & 0xFF) << 16) |
+                        command->words.w1 = ((s32)vertexStart + 0x80000000);
+                        command2 = displayList++;
+                        command2->words.w0 = (((((pointCount - 3) << 4) | 1) & 0xFF) << 16) |
                                             0x05000000 | (((pointCount - 2) << 4) & 0xFFFF);
-                        command->words.w1 = (s32)D_7C900;
+                        command2->words.w1 = (s32)D_7C900;
                     }
                 }
                 i++;
@@ -2370,9 +2344,6 @@ void func_80041CE4(Gfx **dList, ParticleLineVertex **vertices) {
         *vertices = vertex;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041CE4.s")
-#endif
 void func_80041F48(s32 arg0, ParticleTrigger *trigger) {
     void *particle;
     ParticleModelEntry *entry;
@@ -2670,14 +2641,4 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * first-mismatch: +0x38
  * summary: Branch target and preheader emission order are one coupled choice; the branch-correct arrangement costs the carrier/result init exchange instead.
  * PLATEAU-HANDOFF:func_8003E8D8:end
- */
-
-/* PLATEAU-HANDOFF:func_80041CE4:start
- * symbol: func_80041CE4
- * score: 27 differing words
- * frame: 0x80
- * relocations: 9
- * first-mismatch: +0x48
- * summary: six integer webs, no consistent rotation. An inert index aid reaches 10/153 with the frame exact; permuter base 150 transfers but stalls at 60.
- * PLATEAU-HANDOFF:func_80041CE4:end
  */
