@@ -5647,7 +5647,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x8
  * relocations: 8
  * first-mismatch: +0x24
- * summary: Near-identical control-flow shape and frame; CFE allocates outer object/offset and inner model-index carriers differently.
+ * summary: Remeasured at 28 words; objectOffset takes a0 where the target takes a1 and the whole shared ring rotates from +0x24.
  * PLATEAU-HANDOFF:func_80008028:end
  */
 
