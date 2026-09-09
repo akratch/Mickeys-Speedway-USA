@@ -40,10 +40,7 @@ typedef struct Menu3B1A0Object {
 } Menu3B1A0Object;
 
 typedef struct Menu3B1A0KeyGroup {
-    s16 key00;
-    s16 key02;
-    s16 key04;
-    s16 key06;
+    s16 key[4];
 } Menu3B1A0KeyGroup;
 
 extern s32 *D_8007C0B8;
@@ -55,41 +52,62 @@ extern s16 D_8007C120[];
 extern s16 D_8007C122[];
 extern u8 D_80082714[];
 
-/* Workbench verdict: structure-mismatch, 19 differing words; target/candidate 56 words. */
-/* First mismatch: +0x0; two opcode and five relocation-site differences remain. */
-/* Structural gap: lookup/end pointer carrier allocation and relocation web. */
+/* Workbench verdict: structure-mismatch, 9 differing words; target/candidate
+ * 56 words. First mismatch +0x0; the residual is one register pair, the
+ * cursor and the end pointer, which the target colours a1/v0 and this
+ * candidate v0/a1, plus the %lo materialization order that follows from it.
+ *
+ * Two levers closed 19 -> 9. The fourth key read was a named local in the m2c
+ * draft, which gave it a uopt pool colour and reversed the compare's operands
+ * (L67/L87); spelling it as the dereference again puts it back on the ugen
+ * temp ring. And the loop exit is `end == cursor`, not `cursor == end`.
+ *
+ * The `while (1)` with an interior exit is load-bearing, not a draft artifact:
+ * this TU compiles with the default unroller (see the Makefile note on
+ * menu_3B1A0.c), and every bottom- or top-tested form -- `do`/`while`, `for`,
+ * `while (end != cursor)` -- is unrolled to 154 words against the target's 56.
+ * Only the interior-exit form is opaque to the unroller.
+ *
+ * Ruled out at this residual, each measured over a full lattice rather than
+ * sampled: declaration order (all 6), initialization order (all 6), physical
+ * line grouping of the initializers (all 4 compositions x all 6 orders),
+ * `register` on the cursor, s16* versus u8* for the end pointer, declaration
+ * initializers, an (s32) compare, deriving the end as cursor + 0x30, and
+ * swapping the cursor/offset increment order. All 192 + 7 flat at 9 or worse.
+ *
+ * No donor counterpart: JFG's src/menu.c has no function of this shape. */
 #ifdef NON_MATCHING
 void *func_8003A5A0(s32 arg0) {
-    register u8 *var_a1;
-    s16 temp_t1;
-    s32 var_v1;
+    u8 *cursor;
+    u8 *end;
+    s32 offset;
 
-    var_a1 = &D_8007C0E8;
-    var_v1 = 0;
-loop_lookup:
-    if (arg0 == *(s16 *) (var_a1 + 0)) {
-        return (void *) D_8007C0B8[
-            *(s16 *) ((u8 *) D_8007C11C + var_v1)];
+    cursor = &D_8007C0E8;
+    end = &D_8007C118;
+    offset = 0;
+    while (1) {
+        if (arg0 == *(s16 *) (cursor + 0)) {
+            return (void *) D_8007C0B8[
+                *(s16 *) ((u8 *) D_8007C11C + offset)];
+        }
+        if (arg0 == *(s16 *) (cursor + 2)) {
+            return (void *) D_8007C0B8[
+                *(s16 *) ((u8 *) D_8007C11E + offset)];
+        }
+        if (arg0 == *(s16 *) (cursor + 4)) {
+            return (void *) D_8007C0B8[
+                *(s16 *) ((u8 *) D_8007C120 + offset)];
+        }
+        if (arg0 == *(s16 *) (cursor + 6)) {
+            return (void *) D_8007C0B8[
+                *(s16 *) ((u8 *) D_8007C122 + offset)];
+        }
+        cursor += 8;
+        offset += 8;
+        if (end == cursor) {
+            return D_80082714;
+        }
     }
-    if (arg0 == *(s16 *) (var_a1 + 2)) {
-        return (void *) D_8007C0B8[
-            *(s16 *) ((u8 *) D_8007C11E + var_v1)];
-    }
-    if (arg0 == *(s16 *) (var_a1 + 4)) {
-        return (void *) D_8007C0B8[
-            *(s16 *) ((u8 *) D_8007C120 + var_v1)];
-    }
-    temp_t1 = *(s16 *) (var_a1 + 6);
-    var_a1 += 8;
-    if (arg0 == temp_t1) {
-        return (void *) D_8007C0B8[
-            *(s16 *) ((u8 *) D_8007C122 + var_v1)];
-    }
-    var_v1 += 8;
-    if (var_a1 == &D_8007C118) {
-        return D_80082714;
-    }
-    goto loop_lookup;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/menu_3B1A0/func_8003A5A0.s")
@@ -213,11 +231,11 @@ s32 func_8003A7D0(Menu3B1A0Object *arg0) {
 
 /* PLATEAU-HANDOFF:func_8003A5A0:start
  * symbol: func_8003A5A0
- * score: 19 differing words
- * frame: unknown
+ * score: 9 differing words
+ * frame: frameless
  * relocations: 22
  * first-mismatch: +0x0
- * summary: Lookup carrier allocation and absolute relocation web remain unresolved.
+ * summary: Cursor/end register pair and the %lo materialization order that follows it; every declaration, initialization, line-grouping and loop-shape spelling measured flat at 9.
  * PLATEAU-HANDOFF:func_8003A5A0:end
  */
 
@@ -227,6 +245,6 @@ s32 func_8003A7D0(Menu3B1A0Object *arg0) {
  * frame: 0x18
  * relocations: 1
  * first-mismatch: +0x10
- * summary: Trace isolates ugen line-order; next lever is authentic call-result C that schedules t0 before a3 without #line or inert scaffolding.
+ * summary: Trace isolates ugen line-order; next lever is authentic call-result C that schedules t0 before a3 without #line or inert scaffolding. The -Wo,-loopunroll,0 removal from this TU is byte-inert here as well: 36 loop shapes (4 head orders x 5 inner forms x 2 outer forms) all measure flat at 12, so the reopen this flag change would otherwise justify is already spent.
  * PLATEAU-HANDOFF:func_8003A754:end
  */
