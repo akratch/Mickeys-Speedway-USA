@@ -318,15 +318,30 @@ not transfer. Deleting any of 319 statements outside the records and model
 loops leaves the slot at 92, so the troubled set is local to those loops
 and the function-wide address webs they displace.
 
-Next lever: find the records-loop spelling that gives the name-table pointer
-web one more reference (or takes one from the web just above it) with the
-same code. Candidates not yet tried: a second, CSE-merged use of
-`gOverlay60Data1A4[row]` in a different block of the loop that the target
-would fold; a struct view joining the 1A4/1B4/1D0 tables so the row pointer
-is one web with more uses; or a source loop test that names the table
-pointer. Harness in ignored `build/scratch-w602/`: `measure.py` (prints
-frame, temp homes, positional and shift-tolerant scores), `sweep2.py`
-(parallel single-rewrite sweep), `pairs.py`, `variant.py`, and the
-`subs*.py` rewrite libraries with every experiment above.
+Sharpest statement for the next worker (measured after the commit above):
+a reference to `gOverlay60Data1A4[row]` placed anywhere in the records loop
+BEFORE the name draw call, in a form that emits no code (an empty
+`if (gOverlay60Data1A4[row] == NULL) { }`, a dead assignment of it to any
+register-only local, `while (...) { break; }`), moves the pointer's home to
+exactly the target's 96(sp) with the frame and every other instruction
+unchanged -- so the target's name-table pointer web carries one more
+counted reference than ours. The same reference also flips uopt's
+loop-exit induction variable from the name pointer to the y-table pointer
+(three-word delay-slot residual, score 5), because the exit test goes to
+the last-created induction pointer and the early reference now creates the
+name pointer's first. A reference after the draw never counts (CSE'd or
+dead-eliminated before priorities), and creating the y-table pointer first
+with a counted reference raises that web above the name pointer instead.
+The missing piece is therefore a natural source form that references the
+name before it is drawn without a matching load in the output, while the
+y-table pointer is still met first: a construct folded after the priority
+census. Candidates untested: a `switch` or `?:` on the name that folds; the
+name passed to a compiled-out macro that still evaluates its argument in
+this compiler; or an argument-evaluation order that meets the y table
+before a real second use of the name. Harness in ignored
+`build/scratch-w602/`: `measure.py` (prints frame, temp homes, positional
+and shift-tolerant scores), `sweep2.py` (parallel single-rewrite sweep),
+`pairs.py`, `variant.py`, and the `subs*.py` rewrite libraries with every
+experiment above (`subs27`--`subs33` are the vacuous-reference series).
 
 <!-- plateau-handoff:func_overlay_060_F0000334_18BA10C:end -->
