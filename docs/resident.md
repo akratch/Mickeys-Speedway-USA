@@ -2742,7 +2742,7 @@ FX type-pass inventory (target widths/offsets; no source-body promotion):
 | `fxScreenEffect` | `D_8007D380[10]`, `D_8007D3D0[7]`, `D_8007D408[14]` `FxGfx`; VI video mode and display helpers. | GLOBAL_ASM → GLOBAL_ASM; dlist aggregate; effect command CFG remains. |
 | `func_8004ACC4` | `D_800D60A8` word; three parallel four-element slot arrays at `D_800D60B0`, `D_800D60C0` and `D_800D60D0`; `D_8007D47C` callback array; `TrapDanglingJump`. | **A**; exact C, 28 words, frameless, 12 relocations; ROM `0x4B8C4`-`0x4B934` byte-identical. The four cursors are IDO's own strength-reduced induction variables: the source indexes the three arrays with one loop variable, which is what puts the now-dead copy of that variable in the first pool colour and the synthesised trip counter in the second. |
 | `func_8004ADE8` | `D_800D60A8`, `D_800D6098[4]`, `D_800D60B0[4]`, `D_800D60C0[4]`, `D_8007D47C[4]`; texture info `+6/+8`. | Tier A: ordinary full-TU C is ROM-exact at `0x8004ADE8..0x8004AF68` / ROM `0x4B9E8..0x4BB68`: 384 executable bytes / 96 words, frame `0x40`, no padding, and all 15 relocation offsets, types, and identities exact. Removing a never-read offset local recovered the JFG-homologous stack-home layout without changing semantics. Tier B: JFG `fxCpuTextureRequired` supplies the role and source-topology context, not Mickey's byte proof. |
-| `func_8004AF68` | `D_800D60BC/CC`, `D_800D60C0[4]`, `D_800D60D0[3]`, `D_8007D47C[4]`, `D_800D60A8`, `TrapDanglingJump`; `mmFree`. | structure plateau → structure plateau (`48` words, first `+4`); structure-buckets; secondary-pool base web remains. |
+| `func_8004AF68` | the four parallel slot arrays `D_800D60B0`, `D_800D60C0`, `D_800D60D0` and `D_8007D47C`; `D_800D60A8`; `TrapDanglingJump`; `mmFree`. | **A**; exact C, 52 words, frame `-0x38`, 12 relocations; ROM `0x4BB68`-`0x4BC38` byte-identical. One `while (i--)` index over all four arrays; uopt builds every cursor, shares one byte offset between `D_800D60C0` and `D_8007D47C`, and keeps `D_800D60C0`'s base inside the loop. |
 
 Exact C closures in these splits begin with 680 bytes across seven `diCpu`
 functions: the 8-byte `func_80046504` (`diCpuTraceGetFault` in JFG) and the
@@ -2879,13 +2879,14 @@ synthesised trip counter second -- the target's colouring exactly. splat had
 minted only `D_800D60D3`, the one element the assembly addresses directly;
 `symbol_addrs.us.txt` now names the `D_800D60D0` base the C needs.
 
-`func_8004AF68` remains exact-size at 52 words with 26 positional differences
-from `+0x10`; shift-aware workbench diagnosis leaves 18 structural words. The
-older 54/52-word, 48-difference record predates the retained indexed
-`D_800D60C0[i]` rewrite. Nine coherent pointer/index forms, 119 flag
-combinations, ten scheduling/type forms, and bounded permutation did not close
-the saved-register and loop-delay web. The attempt cap is exhausted; the
-candidate stays `NON_MATCHING` and assembly remains canonical.
+`func_8004AF68` is exact, and by the same edit as `func_8004ACC4`. The
+hand-written-cursor candidate floored at 15 words: sharing one byte offset in
+source hoists `D_800D60C0`'s base into an eighth saved register and costs
+three, indexing the two arrays separately emits two shifts and costs three,
+and no arrangement of the cursors reaches the target's `move v0, s3`. Indexing
+all four arrays from one `while (i--)` variable hands the whole induction
+problem to uopt, which produces the shared offset, the in-loop base and the
+dead index copy by itself. 15 -> 0.
 
 `tier-D func_80045BBC` owns VRAM `0x80045BBC..0x80045CAC`, ROM
 `0x467BC..0x468AC`: 240 bytes/60 words, frame `0x30`, and no padding. The

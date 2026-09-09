@@ -297,17 +297,6 @@ routing facts from that sweep; the sweep's `summary.json` is the measurement.
 - summary: The a1/a2 allocator web and X/Y table-address LO16 schedule remain; resume only with new source-authentic web-formation evidence.
 <!-- plateau-handoff:overlay27UpdateCoordinates:end -->
 
-<!-- plateau-handoff:func_8004AF68:start -->
-### `func_8004AF68` plateau handoff
-
-- source: `src/main/fx.c`
-- score: 26 differing words
-- frame: 0x38
-- relocations: 14
-- first mismatch: +0x10
-- summary: 52-word shape and 14 identities; 119 flags plus bounded source/permuter attempts leave saved-register order and four early LO16 sites
-<!-- plateau-handoff:func_8004AF68:end -->
-
 <!-- plateau-handoff:func_8001BBB4:start -->
 ### `func_8001BBB4` plateau handoff
 

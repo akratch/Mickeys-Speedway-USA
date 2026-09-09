@@ -2310,60 +2310,44 @@ void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
         }
     }
 }
-/* Exact 52 instructions and -0x38 frame; 17 words differ. Decrementing the
- * byte offset before the callback store rather than after it (with the
- * initial value moved up by one step, so the values seen are unchanged) puts
- * the saved-register saves and the six loop-invariant addresses in the
- * target's order: 26 -> 17 words.
+/* Frees both allocations for every texture slot and re-arms the slots whose
+ * callback is still live with the dangling-jump trap.
  *
- * What remains is one shared induction variable. The target walks *both*
- * arrays with a single byte offset in `s1` -- `addu s0, s1, t6` for
- * `D_800D60C0` and `addu t8, s5, s1` for `D_8007D47C` -- and materialises
- * `D_800D60C0`'s base inside the loop with its own lui/addiu. Sharing the
- * offset in source instead makes IDO hoist that base into an eighth saved
- * register, which costs three instructions; indexing both arrays by `i`
- * emits two separate shifts and loses three. Both were measured. */
-#ifdef NON_MATCHING
-/* Mickey-derived body; JFG's fxCpuTextureFlush is assembly-only. */
+ * Same shape as func_8004ACC4 above and for the same reason: one loop
+ * variable over four parallel four-element arrays, with every cursor in the
+ * emitted code built by uopt. It reduces `D_800D60B0[i]` and `D_800D60D0[i]`
+ * to backwards-walking pointers, shares ONE byte offset between
+ * `D_800D60C0[i]` and `D_8007D47C[i]` (`addu s0, s1, t6` and
+ * `addu t8, s5, s1`), materialises `D_800D60C0`'s base inside the loop, and
+ * leaves the source index dead but still coloured -- the `move v0, s3`.
+ * Hand-written cursors could reach none of that: sharing an offset in source
+ * hoists the base into an eighth saved register (+3 words) and indexing both
+ * arrays separately emits two shifts (+3). Both were measured, at a floor of
+ * 15 words.
+ *
+ * JFG's fxCpuTextureFlush counterpart is still assembly-only; no donor body
+ * was available or used.
+ */
 void func_8004AF68(void) {
-    register s32 *value0;
-    register s32 i;
-    register u8 *available;
-    register s32 offset;
-    s32 *value1;
+    s32 i;
     void *allocation;
 
-    i = 3; offset = 16;
-    available = &D_800D60D0[3]; value0 = (s32 *)&D_800D60BC;
-    do {
-        allocation = (void *)*value0;
+    i = 4;
+    while (i--) {
+        allocation = D_800D60B0[i];
         if (allocation != 0) {
-            value1 = &D_800D60C0[i];
-            mmFree(allocation); mmFree((void *)*value1); *value0 = 0;
-            *value1 = 0;
+            mmFree(allocation);
+            mmFree(D_800D60C0[i]);
+            D_800D60B0[i] = 0;
+            D_800D60C0[i] = 0;
         }
-        offset -= 4; value0--;
-        if (*available != 0) {
-            *(FxTextureCallback *)((u8 *)D_8007D47C + offset) =
-                (FxTextureCallback)TrapDanglingJump;
+        if (D_800D60D0[i] != 0) {
+            D_8007D47C[i] = (FxTextureCallback) TrapDanglingJump;
         }
-        available--;
-    } while (i--);
+    }
     D_800D60A8 = 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004AF68.s")
-#endif
 
-/* PLATEAU-HANDOFF:func_8004AF68:start
- * symbol: func_8004AF68
- * score: 17 differing words
- * frame: 0x38
- * relocations: 14
- * first-mismatch: +0x34
- * summary: pre-decrementing the byte offset fixes the saved-register order, 26 -> 17. Residual is one induction variable the target shares between both arrays while keeping D_800D60C0's base inside the loop.
- * PLATEAU-HANDOFF:func_8004AF68:end
- */
 
 /* PLATEAU-HANDOFF:func_80048760:start
  * symbol: func_80048760
