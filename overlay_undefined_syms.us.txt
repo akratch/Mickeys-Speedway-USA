@@ -1144,6 +1144,9 @@ D_8000003B = 0x0000003b;
 /* overlay 41: overlay41IsUnitScale.c.o */
 gOverlay41Objects = 0x00000000;
 
+/* overlay 41: overlay41AddSlot.c.o */
+gOverlay41Slots = 0x00000000;
+
 /* overlay 41: overlay41SpawnItems.c.o */
 gOverlay41RootsReloc = 0x00000000;
 gOverlay41SpawnConstants = 0x00000058;
