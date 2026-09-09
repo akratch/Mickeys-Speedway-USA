@@ -80,9 +80,20 @@ s32 overlay1ResolvePathPoint(s16 x0, s16 y0, s16 x1, s16 y1,
                 if (overlay1SegmentReloc((f32)x0, (f32)y0,
                                          (f32)point[0], (f32)point[32],
                                          D_1BA4, result, -1, 0xFFFF) != 0) {
-                    product =
-                        (result[0] - point[0]) * (result[0] - point[32]);
-                    product = product + product;
+                    /* The doubled value is a second statement value, not
+                     * an in-place update of `product`.  Spelling the product
+                     * twice lets uopt fold the two into one multiply while
+                     * ugen still computes the product into its first
+                     * statement register and the sum into its second, which
+                     * is the target's `addu $v1, $v0, $v0`.  `product =
+                     * product + product` writes back in place on $v0, and
+                     * `product * 2`, `product << 1`, an inline
+                     * `(product + product)` and a seventh local all demote
+                     * the doubling to a ugen ring temp. */
+                    product = ((result[0] - point[0]) *
+                               (result[0] - point[32])) +
+                              ((result[0] - point[0]) *
+                               (result[0] - point[32]));
                     if ((u32)product >= 0x11U) {
                         break;
                     }
@@ -162,10 +173,10 @@ f32 overlay1DistanceFromSelected(void *object) {
 
 /* PLATEAU-HANDOFF:overlay1ResolvePathPoint:start
  * symbol: overlay1ResolvePathPoint
- * score: 149/152 words
+ * score: 151/152 words
  * frame: 0x78
  * relocations: 22
  * first-mismatch: +0x6C
- * summary: 8 -> 3 words (structure-mismatch to allocation-mismatch); residual is the else-branch pointer base and the doubled-product register
+ * summary: One word: the else-branch base reads the raw call-result web (v0) where the target reads the saved copy (s4); the doubled product is closed
  * PLATEAU-HANDOFF:overlay1ResolvePathPoint:end
  */
