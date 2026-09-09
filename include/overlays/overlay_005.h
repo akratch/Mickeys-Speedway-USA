@@ -136,23 +136,37 @@ typedef struct Overlay5Bank {
     Overlay5BankEntry entries[1];
 } Overlay5Bank;
 
+/*
+ * PROVENANCE: field names and layout adapted from Diddy Kong Racing's public
+ * decompilation (`ALSynConfig` in `include/PR/libaudio.h`, `audioMgrConfig` in
+ * `src/audiosfx.h`), whose `audio_init` is this function's counterpart.  Both
+ * are stock libaudio shapes.  `ALFxId` is a byte there, so the two-entry
+ * `fxType` array pads out to `params` and the struct is 0x24, not 0x20; the
+ * eight-byte difference is what sizes this function's frame (Tier A: the
+ * 0x98 frame, the 0x70 `soundConfig` home and the 0x4C `sequenceConfig` home
+ * only reproduce at 0x24).  Overlay 5 stores fxType[0] with an `sb`, which is
+ * the byte-typed `ALFxId` and not an `s8 field1C` tail.
+ */
+typedef u8 Overlay5FxId;
+
 typedef struct Overlay5SoundConfig {
-    void *field00;
-    s32 field04;
-    s32 field08;
-    s32 field0C;
-    s32 field10;
-    void *field14;
-    s32 field18;
-    s8 field1C;
+    s32 maxVVoices;
+    s32 maxPVoices;
+    s32 maxUpdates;
+    s32 maxFXbusses;
+    void *dmaproc;
+    void *heap;
+    s32 outputRate;
+    Overlay5FxId fxType[2];
+    s32 *params;
 } Overlay5SoundConfig;
 
 typedef struct Overlay5SequenceConfig {
-    void *field00;
-    s32 field04;
-    s32 field08;
-    void *field0C;
-    s16 field10;
+    s32 maxSounds;
+    s32 maxEvents;
+    s32 maxChannels;
+    void *heap;
+    u16 numGroups;
 } Overlay5SequenceConfig;
 
 extern u8 gOverlay5AudioHeap[];

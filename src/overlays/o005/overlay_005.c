@@ -11,24 +11,46 @@ void overlay5InitSequence(void *owner, s32 value) {
 }
 
 /*
- * Plateau evidence (reviewed 2026-08-29): retained pre-HEAD/current-body,
- * current-layout full-TU and selective C agree at 211/233 raw and normalized
- * words, exact 0x3A4-byte size and 0x98 frame, first mismatch +0x9C. That score
- * used an unauthenticated eight-byte SequenceConfig tail, now removed, so clean
- * V0 is uncompiled. The remaining 22 sites are three Span1 carrier words, the
- * +0x214/+0x218 initialization swap, and shifted bankSize, soundConfig, and
- * sequenceConfig homes. All 71 runtime records align by offset/type; ORTs
- * 1559/1561 and 1565/1568 now have distinct source identities. Linked equality
- * proves fallback only. Run 119 flags, one trace, three natural forms, and an
- * improving-only combination; cap at 123 stock candidates plus one trace.
+ * 230/233 words (2026-09-09, was 209/233).  Exact 0x3A4 size, exact 0x98 frame,
+ * every stack home and all 71 relocations agree.  The three remaining words are
+ * one colour fact: the short-lived address web for `gOverlay5Span1Size` -- live
+ * only from its %hi at +0x9C to the store at +0xC8, while $s0 still carries
+ * `&gOverlay5Span0Size` -- takes v0 here and v1 in the target.  Same schedule,
+ * same %hi/%lo split points, same spill points.
+ *
+ * What closed the other twenty-one words, and the frame law behind them:
+ * IDO packs the declared locals of *every* scope into one chain, top-down in
+ * declaration order, from T = frame; frame = align8(below + S) where S is the
+ * summed local bytes and `below` (0x38 here) is fixed by the out-argument and
+ * saved-register regions.  Reading the target's three visible homes back
+ * through that law pins the whole declaration list: 8 bytes above soundConfig,
+ * soundConfig at 0x70 sized 0x24, resource, bankSize at 0x68, maxValue, one
+ * more 4-byte local, sequenceConfig at 0x4C, then five loop locals.  That is
+ * exactly the DKR `audio_init` declaration list (see the PROVENANCE note on
+ * `Overlay5SoundConfig`), `pad` included -- an unused local that still takes a
+ * home.  The 0x24 sound config is the load-bearing half: at 0x20 the frame is
+ * 0x90 and every home is wrong.  The +0x214/+0x218 swap is the initialiser
+ * order `destinationOffset` before `destination`; the six orders of those three
+ * initialisers separate 3/5/6.
+ *
+ * Flat at three, measured on the exact-size candidate: all 64 spellings of the
+ * span1 store and its two reads (`*(&g)`, `(&g)[0]`, `*(u32 *)&g`); all 256
+ * physical line groupings of the nine span statements; every legal placement of
+ * the two ScaleValue statements (24 cells, the rest change size); all 24 orders
+ * of the four head statements; `maxValue = 0` at seven later anchors; and a
+ * dead `pad = <expr>` at 96 statement/expression points -- uopt kills a store
+ * that is never read, so it reserves no colour and cannot be used as a spacer.
+ * Naming the alloc results or the span sizes as locals shortens the function.
  */
 #ifdef NON_MATCHING
 void overlay5InitializeAudio(void *context) {
-    Overlay5Resource *resource;
+    s32 index;
     Overlay5SoundConfig soundConfig;
+    Overlay5Resource *resource;
     u32 bankSize;
-    Overlay5SequenceConfig sequenceConfig;
     u32 maxValue;
+    u32 pad;
+    Overlay5SequenceConfig sequenceConfig;
 
     maxValue = 0;
     gOverlay5AudioOwner = gOverlay5OwnerSoundState;
@@ -70,12 +92,11 @@ void overlay5InitializeAudio(void *context) {
         u32 *destination;
         u32 destinationOffset;
         u32 sourceOffset;
-        s32 index;
 
         index = 0;
         if (bank->count > 0) {
-            destination = gOverlay5EntryValues;
             destinationOffset = 0;
+            destination = gOverlay5EntryValues;
             sourceOffset = 0;
             do {
                 u32 value;
@@ -102,24 +123,24 @@ void overlay5InitializeAudio(void *context) {
         }
     }
 
-    soundConfig.field00 = (void *)0x2C;
-    soundConfig.field04 = 0x28;
-    soundConfig.field08 = 0x80;
-    soundConfig.field10 = 0;
-    soundConfig.field1C = 6;
-    soundConfig.field0C = 1;
-    soundConfig.field18 = 0;
-    soundConfig.field14 = gOverlay5HeapState;
+    soundConfig.maxVVoices = 0x2C;
+    soundConfig.maxPVoices = 0x28;
+    soundConfig.maxUpdates = 0x80;
+    soundConfig.dmaproc = NULL;
+    soundConfig.fxType[0] = 6;
+    soundConfig.maxFXbusses = 1;
+    soundConfig.outputRate = 0;
+    soundConfig.heap = gOverlay5HeapState;
     func_80001740(&soundConfig, 0x0C, context);
 
     gOverlay5Player0 = overlay5CreatePlayer(0x20, 0x96);
     gOverlay5Player1 = overlay5CreatePlayer(0x10, 0x32);
 
-    sequenceConfig.field04 = 0xC8;
-    sequenceConfig.field00 = (void *)0x20;
-    sequenceConfig.field08 = 0x10;
-    sequenceConfig.field10 = 5;
-    sequenceConfig.field0C = gOverlay5HeapState;
+    sequenceConfig.maxEvents = 0xC8;
+    sequenceConfig.maxSounds = 0x20;
+    sequenceConfig.maxChannels = 0x10;
+    sequenceConfig.numGroups = 5;
+    sequenceConfig.heap = gOverlay5HeapState;
     gsSndpNew(&sequenceConfig);
 
     func_80001BA0();
@@ -152,3 +173,13 @@ void *overlay5CreatePlayer(s32 arg0, s32 arg1) {
     overlay5AttachBankReloc(player, gOverlay5AudioState->sequenceBank);
     return player;
 }
+
+/* PLATEAU-HANDOFF:overlay5InitializeAudio:start
+ * symbol: overlay5InitializeAudio
+ * score: 230/233 words
+ * frame: 0x98
+ * relocations: 71
+ * first-mismatch: +0x9C
+ * summary: Exact size, frame, every stack home and all 71 relocations; the three remaining words are one colour fact on the gOverlay5Span1Size address web.
+ * PLATEAU-HANDOFF:overlay5InitializeAudio:end
+ */
