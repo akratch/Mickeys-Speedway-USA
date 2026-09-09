@@ -96,21 +96,40 @@ hook or CI:
 
 ## Promoting an overlay function
 
-An overlay promotion needs three regeneration steps *before* the build, not
-after. Skipping them fails at link with tens of undefined references, or fails
-`check-docs` on a stale digest -- and neither error names the missing step:
+An overlay promotion regenerates *before* it builds. Every step below has cost
+a lane a failed cycle, and not one of the errors names the step that is
+missing:
 
 ```sh
-gmake overlay-syms            # regenerates overlay_undefined_syms.us.txt
-gmake overlay-atlas-write     # regenerates the overlay atlas
+# 1. Re-extract FIRST. Removing a GLOBAL_ASM pragma leaves splat's .s behind;
+#    running overlay-syms before this fails on build/.splat-stamp, and
+#    building before it fails at link on an undefined reference.
+gmake extract
+
+# 2. Add the promoted range by hand to MIXED_TU_EXACT_C_RANGES in
+#    tools/overlay_atlas.py. `gmake overlay-atlas-write` will NOT add it --
+#    it reports "overlay artifacts current" -- and editing
+#    config/overlays.us.json directly is overwritten. Keep each overlay's
+#    entries SORTED BY OFFSET, or `gmake build/.splat-stamp` dies with
+#    `ValueError: invalid overlay N mixed-TU exact range` from a traceback
+#    that names neither the entry nor the ordering rule.
+
+# 3. Regenerate the derived tables.
+gmake overlay-syms
+gmake overlay-atlas-write
 .venv/bin/python tools/refresh_atlas_digest.py
+
+# 4. Build, verify, then confirm.
 gmake -j8 && gmake verify
-gmake check-overlay-syms      # now this confirms, rather than discovers
+gmake check-overlay-syms
+gmake promotion-proof SYMBOL=<symbol>
 ```
 
 `check-overlay-syms` is a *drift* check on already-regenerated output, so it
-cannot catch a promotion that never regenerated. Reading its table entry below
-as "run this after promoting" is what leaves the build broken.
+cannot catch a promotion that never regenerated; reading its table entry below
+as "run this after promoting" is what leaves the build broken. Likewise
+`promotion-proof` refuses with `expected one tracked exact atlas range for
+<sym>, found 0` until step 2 is done.
 
 ## What the gates cover
 
