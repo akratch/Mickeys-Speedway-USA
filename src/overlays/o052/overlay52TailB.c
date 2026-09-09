@@ -280,8 +280,8 @@ void func_overlay_052_F000063C_189ACAC(s32 updateRate) {
                     freeFrontEndItem(o52_bss_4A8[player]);
                 }
                 o52_bss_4A8[player] = desiredItems[player];
-                if (desiredItems[player] != -1) {
-                    loadFrontEndItem(desiredItems[player]);
+                if (o52_bss_4A8[player] != -1) {
+                    loadFrontEndItem(o52_bss_4A8[player]);
                 }
             }
         }
@@ -292,9 +292,10 @@ void func_overlay_052_F000063C_189ACAC(s32 updateRate) {
             *slot = -1;
         }
     }
-    for (i = 0; i < 2; i++) {
+    slot = o52_bss_4A8;
+    for (i = 0; i < 2; i++, slot++) {
         if (desiredItems[i] != -1) {
-            o52_bss_4A8[i] = desiredItems[i];
+            *slot = desiredItems[i];
             if (D_800D31C8[desiredItems[i]] == NULL) {
                 loadFrontEndItem(desiredItems[i]);
             }
@@ -577,10 +578,10 @@ void func_overlay_052_F000063C_189ACAC(s32 updateRate) {
 
 /* PLATEAU-HANDOFF:func_overlay_052_F000063C_189ACAC:start
  * symbol: func_overlay_052_F000063C_189ACAC
- * score: 1597 differing words
+ * score: 1337 differing words
  * frame: 0x118
- * relocations: 310
+ * relocations: 283
  * first-mismatch: +0x130
- * summary: 6736/6748 bytes; 64 ordered calls; exact frame. Grouped recurrence recovered; next: prove remaining branch-latch and address-carrier differences.
+ * summary: Size converted: 1687/1687 words, instruction delta 0 (was -3). 62/65 call regions exact. Next: region 8 float recurrence -2 vs r36/r39 +1.
  * PLATEAU-HANDOFF:func_overlay_052_F000063C_189ACAC:end
  */

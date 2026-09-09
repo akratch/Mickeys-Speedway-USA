@@ -2,11 +2,11 @@
 ### `func_overlay_052_F000063C_189ACAC` plateau handoff
 
 - source: `src/overlays/o052/overlay52TailB.c`
-- score: 1597 differing words
+- score: 1337 differing words
 - frame: 0x118
-- relocations: 310
+- relocations: 283
 - first mismatch: +0x130
-- summary: 6736/6748 bytes; 64 ordered calls; exact frame. Grouped recurrence recovered; next: prove remaining branch-latch and address-carrier differences.
+- summary: Size converted: 1687/1687 words, instruction delta 0 (was -3). 62/65 call regions exact. Next: region 8 float recurrence -2 vs r36/r39 +1.
 
 The September 8 decompiler-assisted packet retains attempt 39 as ordinary,
 guarded C. This is a compiled structural plateau, not an object or ROM match.
