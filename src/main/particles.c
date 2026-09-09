@@ -2664,11 +2664,11 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
 
 /* PLATEAU-HANDOFF:func_8003E8D8:start
  * symbol: func_8003E8D8
- * score: 1 differing words
+ * score: 139/140 words
  * frame: 0x38
  * relocations: 10
  * first-mismatch: +0x38
- * summary: one zero-count guard branch target at +0x38; IDO retargets it past the redundant pool-base reset. The permuter is blind to it (base score 0).
+ * summary: Branch target and preheader emission order are one coupled choice; the branch-correct arrangement costs the carrier/result init exchange instead.
  * PLATEAU-HANDOFF:func_8003E8D8:end
  */
 
