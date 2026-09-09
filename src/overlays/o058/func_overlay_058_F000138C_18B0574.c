@@ -188,101 +188,92 @@ extern s32 D_o058_5F30;
 extern s8 D_o058_5F48[4];
 
 void func_overlay_058_F000138C_18B0574(s32 arg0) {
-    RcpTextureNode nodes[4];
-    char text[24];
-    char character[2];
+    s32 i;
+    s32 opponent;
+    s32 textY;
+    s32 columnX;
     s32 x;
+    s32 delta;
+    s32 portraitX;
+    s32 columnStep;
+    s32 portraitIndex;
+    s32 countdownX;
     s32 seconds;
     s32 minutes;
     s32 centiseconds;
     s32 rowY;
+    s32 highlighted;
     s32 rowHeight;
+    s32 letter0;
+    s32 letter1;
     s32 savedX;
     s32 savedPosition;
     s32 savedOffset;
+    s32 pointsTotal;
+    s32 columnCount;
+    char character[2];
+    char text[24];
+    s32 erase;
     Overlay58RaceState *state;
-    SavesPackedEntry *record;
+    RcpTextureNode nodes[4];
     AnimPath *path;
-    Overlay58RaceEntry **orderCursor;
-    RcpTextureInfo **textureCursor;
     SavesSlot *saves;
     SavesSlot *slot;
-    s16 *characterX;
-    s32 columnStep;
-    s32 portraitX;
-    s32 *pointsCursor;
-    s32 *rankCursor;
-    s32 letter0;
-    s32 pointsTotal;
-    s32 letter1;
-    s32 textY;
-    s32 delta;
-    s32 countdownX;
-    s32 columnX;
-    s32 portraitIndex;
-    s32 opponent;
-    s32 i;
-    s32 highlighted;
-    s32 columnCount;
-    s32 erase;
-    char **textCursor;
-    char *characterCursor;
     u8 *erasedCharacter;
-    u8 *nameCursor;
 
     state = func_80028F54();
     func_80036AB0(&D_o058_5F38, arg0);
     func_8004B0A4(0);
-    if (((D_o058_5E94 == 1) || (D_o058_5E94 == 2)) &&
-        (D_o058_5E50[0] == -1) && (D_8007BEF8 > 0)) {
-        rankCursor = D_o058_5EF8;
-        pointsCursor = D_o058_5E50;
-        do {
-            *pointsCursor = D_o058_5B28[*rankCursor];
-            rankCursor += 1;
-            pointsCursor += 1;
-        } while ((u32) rankCursor < (u32) &D_o058_5EF8[D_8007BEF8]);
+    switch (D_o058_5E94) {
+    case 1:
+    case 2:
+        if ((D_o058_5E50[0] == -1) && (D_8007BEF8 > 0)) {
+            opponent = 0;
+            do {
+                D_o058_5E50[opponent] = D_o058_5B28[D_o058_5EF8[opponent]];
+                opponent++;
+            } while (opponent < D_8007BEF8);
+        }
+        break;
     }
 
     rowY = D_o058_5C74[D_8007BEF8 - 1];
     rowHeight = (s32) D_o058_5C68[D_8007BEF8 - 1];
     switch (D_o058_5E94) {
     case 1:
-        i = 0;
         fontColour(0xFF, 0x80, 0, 0xFF, 0xFF);
         func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA4 + 0xA0, 0x1E, D_8007C0B8->text[0x27], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         x = D_o058_5E98 + D_o058_5EA8;
+        i = 0;
         if ((s32) D_8007BEF8 > 0) {
-            orderCursor = D_o058_5EC8;
-            rankCursor = D_o058_5EF8;
             do {
                 x = -x;
+                nodes[0].texture = D_800D31C8[0x51 + D_o058_5EC8[i]->character];
                 nodes[0].alternate = NULL;
                 nodes[0].x = x + 0x4E;
                 nodes[0].y = rowY - 4;
                 nodes[0].packedOffset = 0;
                 nodes[1].texture = 0;
-                nodes[0].texture = D_800D31C8[0x51 + (*orderCursor)->character];
                 func_8002F618(&D_800D3140, &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
                 fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-                func_8004B0F8(&D_800D3140, x + 0x28, rowY, D_o058_5C98[*rankCursor], 0);
-                if ((D_8007C1A0 == 1) && (state->entries == *orderCursor)) {
+                func_8004B0F8(&D_800D3140, x + 0x28, rowY, D_o058_5C98[D_o058_5EF8[i]], 0);
+                if ((D_8007C1A0 == 1) && (state->entries == D_o058_5EC8[i])) {
                     fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
                 } else {
                     fontColour(0, 0xFF, 0xFF, 0xFF, 0xFF);
                 }
-                func_8004B0F8(&D_800D3140, x + 0x71, rowY, D_8007C0B8->text[(*orderCursor)->character + 0x1A], 0);
+                func_8004B0F8(&D_800D3140, x + 0x71, rowY, D_8007C0B8->text[D_o058_5EC8[i]->character + 0x1A], 0);
                 if (state->mode == 5) {
                     if (i == 0) {
-                        overlay56SplitTime((*orderCursor)->value, &minutes, &seconds, &centiseconds);
+                        overlay56SplitTime(D_o058_5EC8[i]->value, &minutes, &seconds, &centiseconds);
                     } else {
-                        overlay56SplitTime((*D_o058_5EC8)->value - (*orderCursor)->value, &minutes, &seconds, &centiseconds);
+                        overlay56SplitTime(D_o058_5EC8[0]->value - D_o058_5EC8[i]->value, &minutes, &seconds, &centiseconds);
                     }
                 } else if (i == 0) {
-                    overlay56SplitTime((*orderCursor)->value, &minutes, &seconds, &centiseconds);
+                    overlay56SplitTime(D_o058_5EC8[i]->value, &minutes, &seconds, &centiseconds);
                 } else {
-                    overlay56SplitTime((*orderCursor)->value - (*D_o058_5EC8)->value, &minutes, &seconds, &centiseconds);
+                    overlay56SplitTime(D_o058_5EC8[i]->value - D_o058_5EC8[0]->value, &minutes, &seconds, &centiseconds);
                 }
                 fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
                 textY = rowY + D_o058_5EAC;
@@ -304,8 +295,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 sprintf(&text[0], D_o058_5D48, centiseconds);
                 func_8004B0F8(&D_800D3140, x + 0x104, textY, &text[0], 0);
                 i += 1;
-                rankCursor += 1;
-                orderCursor += 1;
                 rowY += rowHeight;
             } while (i < (s32) D_8007BEF8);
         }
@@ -359,14 +348,13 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 D_o058_5EB4 = 0xF;
                 amSndPlay(0x1BU, NULL);
                 if ((s32) D_8007BEF8 > 0) {
-                    pointsCursor = D_o058_5E50;
+                    i = 0;
                     do {
-
-                        if (*pointsCursor > 0) {
-                            *pointsCursor = *pointsCursor - 1;
+                        if (D_o058_5E50[i] > 0) {
+                            D_o058_5E50[i] -= 1;
                         }
-                        pointsCursor += 1;
-                    } while ((u32) pointsCursor < (u32) &D_o058_5E50[D_8007BEF8]);
+                        i++;
+                    } while (i < D_8007BEF8);
                     i = 0;
                 }
             }
@@ -377,14 +365,11 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         savedX = D_o058_5E98;
         savedOffset = D_o058_5EA0;
         if ((s32) D_8007BEF8 > 0) {
-            orderCursor = D_o058_5EC8;
-            rankCursor = D_o058_5EF8;
-            pointsCursor = D_o058_5E50;
-                do {
+            do {
                 D_o058_5E98 = -D_o058_5E98;
                 D_o058_5EA0 = -D_o058_5EA0;
 
-                nodes[0].texture = D_800D31C8[0x51 + (*orderCursor)->character];
+                nodes[0].texture = D_800D31C8[0x51 + D_o058_5EC8[i]->character];
                 nodes[0].alternate = NULL;
                 nodes[0].x = D_o058_5E98 + D_o058_5EA0 + 0x4E;
                 nodes[0].y = rowY - 4;
@@ -392,24 +377,21 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 nodes[1].texture = 0;
                 func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
                 fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA0 + 0x28, rowY, D_o058_5C98[*rankCursor], 0);
-                if ((D_8007C1A0 == 1) && (state->entries == *orderCursor)) {
+                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA0 + 0x28, rowY, D_o058_5C98[D_o058_5EF8[i]], 0);
+                if ((D_8007C1A0 == 1) && (state->entries == D_o058_5EC8[i])) {
                     fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
                 } else {
                     fontColour(0, 0xFF, 0xFF, 0xFF, 0xFF);
                 }
-                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA0 + 0x71, rowY, D_8007C0B8->text[(*orderCursor)->character + 0x1A], 0);
-                pointsTotal = (*orderCursor)->rank - *pointsCursor;
+                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5EA0 + 0x71, rowY, D_8007C0B8->text[D_o058_5EC8[i]->character + 0x1A], 0);
+                pointsTotal = D_o058_5EC8[i]->rank - D_o058_5E50[i];
                 fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
                 sprintf(&text[0], D_o058_5D50, pointsTotal);
                 func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + D_o058_5EA0 + 0xBE, rowY, &text[0], 0);
-                sprintf(&text[0], D_o058_5D54, *pointsCursor);
+                sprintf(&text[0], D_o058_5D54, D_o058_5E50[i]);
                 func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + D_o058_5EA0 + 0xEB, rowY, &text[0], 0);
                 func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + D_o058_5EA0 + 0x113, rowY, D_o058_5D5C, 0);
                 i += 1;
-                pointsCursor += 1;
-                rankCursor += 1;
-                orderCursor += 1;
                 rowY += rowHeight;
             } while (i < (s32) D_8007BEF8);
         }
@@ -459,13 +441,11 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         savedX = D_o058_5E98;
         savedPosition = D_o058_5E9C;
         if ((s32) D_8007BEF8 > 0) {
-                pointsCursor = D_o058_5F10;
-            orderCursor = D_o058_5EE0;
             do {
                 D_o058_5E98 = -D_o058_5E98;
                 D_o058_5E9C = -D_o058_5E9C;
 
-                nodes[0].texture = D_800D31C8[0x51 + (*orderCursor)->character];
+                nodes[0].texture = D_800D31C8[0x51 + D_o058_5EE0[i]->character];
                 nodes[0].alternate = NULL;
                 nodes[0].x = D_o058_5E98 + D_o058_5E9C + 0x4E;
                 nodes[0].y = rowY - 4;
@@ -473,30 +453,28 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 nodes[1].texture = 0;
                 func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
                 fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0x28, rowY, D_o058_5C98[*pointsCursor], 0);
-                if ((D_8007C1A0 == 1) && (state->entries == *orderCursor)) {
+                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0x28, rowY, D_o058_5C98[D_o058_5F10[i]], 0);
+                if ((D_8007C1A0 == 1) && (state->entries == D_o058_5EE0[i])) {
                     fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
                 } else {
                     fontColour(0, 0xFF, 0xFF, 0xFF, 0xFF);
                 }
-                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0x71, rowY, D_8007C0B8->text[(*orderCursor)->character + 0x1A], 0);
-                sprintf(&text[0], D_o058_5D60, (*orderCursor)->rank);
+                func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0x71, rowY, D_8007C0B8->text[D_o058_5EE0[i]->character + 0x1A], 0);
+                sprintf(&text[0], D_o058_5D60, D_o058_5EE0[i]->rank);
                 fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
                 func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0xD2, rowY, &text[0], 0);
-                if ((*orderCursor)->rank == 1) {
+                if (D_o058_5EE0[i]->rank == 1) {
                     func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0x104, rowY, D_o058_5D64, 0);
                 } else {
                     func_8004B0F8(&D_800D3140, D_o058_5E98 + D_o058_5E9C + 0x104, rowY, D_o058_5D68, 0);
                 }
                 i += 1;
-                orderCursor += 1;
-                pointsCursor += 1;
                 rowY += rowHeight;
             } while (i < (s32) D_8007BEF8);
         }
         delta = arg0 * 0xF;
         D_o058_5E98 = savedX;
-        D_o058_5E98 = savedX - delta;
+        D_o058_5E98 -= delta;
 
         D_o058_5E9C = savedPosition;
         if (D_o058_5E98 < 0) {
@@ -553,11 +531,9 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         columnStep = D_o058_5C8C[D_8007BEF8 - 1];
         columnX = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
         if ((s32) D_8007BEF8 > 0) {
-            textCursor = D_o058_5C98;
             do {
-                func_8004B0F8(&D_800D3140, columnX, 0x37, *textCursor, 4);
+                func_8004B0F8(&D_800D3140, columnX, 0x37, D_o058_5C98[i], 4);
                 i += 1;
-                textCursor += 1;
                 columnX += columnStep;
             } while (i < (s32) D_8007BEF8);
             i = 0;
@@ -565,12 +541,11 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         savedPosition = D_o058_5E9C;
         savedOffset = D_o058_5EA0;
         if ((s32) D_8007BEF8 > 0) {
-            orderCursor = D_o058_5EE0;
             do {
                 D_o058_5E9C = -D_o058_5E9C;
                 D_o058_5EA0 = -D_o058_5EA0;
 
-                nodes[0].texture = D_800D31C8[0x51 + (*orderCursor)->character];
+                nodes[0].texture = D_800D31C8[0x51 + D_o058_5EE0[i]->character];
                 nodes[0].alternate = NULL;
                 nodes[0].x = D_o058_5E9C + D_o058_5EA0 + 0x28;
                 nodes[0].y = rowY + 0x12;
@@ -583,20 +558,19 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 columnX = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
                 if ((s32) D_8007BEF8 > 0) {
                     do {
-                        sprintf(&text[0], D_o058_5D6C, (*orderCursor)->counters[opponent]);
+                        sprintf(&text[0], D_o058_5D6C, D_o058_5EE0[i]->counters[opponent]);
                         func_8004B0F8(&D_800D3140, columnX, rowY + 0x16, &text[0], 4);
                         opponent += 1;
                         columnX += columnStep;
                     } while (opponent < (s32) D_8007BEF8);
                 }
                 i += 1;
-                orderCursor += 1;
                 rowY += rowHeight;
             } while (i < (s32) D_8007BEF8);
         }
         delta = arg0 * 0xF;
         D_o058_5EA0 = savedOffset;
-        D_o058_5EA0 = savedOffset - delta;
+        D_o058_5EA0 -= delta;
 
         D_o058_5E9C = savedPosition;
         if (D_o058_5EA0 < 0) {
@@ -659,17 +633,15 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         columnStep = D_o058_5C8C[columnCount - 1];
         portraitX = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
         if (columnCount > 0) {
-            textureCursor = D_800D31C8;
             do {
                 nodes[0].alternate = NULL;
                 nodes[0].x = portraitX;
                 nodes[0].y = 0x37;
                 nodes[0].packedOffset = 0;
                 nodes[1].texture = 0;
-                nodes[0].texture = textureCursor[0x51];
+                nodes[0].texture = D_800D31C8[0x51 + i];
                 func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
                 i += 1;
-                textureCursor += 1;
                 portraitX += columnStep;
             } while (i != columnCount);
             i = 0;
@@ -677,12 +649,11 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         savedPosition = D_o058_5E9C;
         savedOffset = D_o058_5EA0;
         if ((s32) D_8007BEF8 > 0) {
-            orderCursor = D_o058_5EE0;
             do {
                 D_o058_5E9C = -D_o058_5E9C;
                 D_o058_5EA0 = -D_o058_5EA0;
 
-                nodes[0].texture = D_800D31C8[0x51 + (*orderCursor)->character];
+                nodes[0].texture = D_800D31C8[0x51 + D_o058_5EE0[i]->character];
                 nodes[0].alternate = NULL;
                 nodes[0].x = D_o058_5E9C + D_o058_5EA0 + 0x28;
                 nodes[0].y = rowY + 0x12;
@@ -695,20 +666,19 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 columnX = D_o058_5C80[D_8007BEF8 - 1] + D_o058_5E9C + D_o058_5EA0;
                 if (columnCount > 0) {
                     do {
-                        sprintf(&text[0], D_o058_5D70, (*orderCursor)->flags[opponent]);
+                        sprintf(&text[0], D_o058_5D70, D_o058_5EE0[i]->flags[opponent]);
                         func_8004B0F8(&D_800D3140, columnX + 8, rowY + 0x16, &text[0], 4);
                         opponent += 1;
                         columnX += columnStep;
                     } while (opponent != columnCount);
                 }
                 i += 1;
-                orderCursor += 1;
                 rowY += rowHeight;
             } while (i < (s32) D_8007BEF8);
         }
         delta = arg0 * 0xF;
         D_o058_5EA0 = savedOffset;
-        D_o058_5EA0 = savedOffset - delta;
+        D_o058_5EA0 -= delta;
 
         D_o058_5E9C = savedPosition;
         if (D_o058_5EA0 < 0) {
@@ -778,7 +748,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         } else {
             func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, D_8007C0B8->text[0x2B], 4);
         }
-        textCursor = D_o058_5E68;
         textY = 0x50;
         do {
             if (i == D_o058_5F28) {
@@ -786,10 +755,9 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             } else {
                 fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
             }
-            func_8004B0F8(&D_800D3140, 0xA0 - x, textY, *textCursor, 4);
+            func_8004B0F8(&D_800D3140, 0xA0 - x, textY, D_o058_5E68[i], 4);
             i += 1;
             textY += 0x1E;
-            textCursor += 1;
             x = -x;
         } while (i < 4);
         delta = arg0 * 0xF;
@@ -1119,21 +1087,17 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                         D_800D31C4[D_8007C1B4] = 0x20;
                         erasedCharacter = &D_800D31C4[D_8007C1B4 - 1];
                         D_8007C1B4 -= 1;
-                        textCursor = D_o058_5C5C;
                         i = 0;
                         do {
                             opponent = 0;
-                            characterCursor = *textCursor;
                             do {
-                                if ((u8) *characterCursor == *erasedCharacter) {
+                                if ((u8) D_o058_5C5C[i][opponent] == *erasedCharacter) {
                                     D_o058_5E78 = i;
                                     D_o058_5E7C = opponent;
                                 }
                                 opponent += 1;
-                                characterCursor += 1;
                             } while (opponent != 0xA);
                             i += 1;
-                            textCursor += 1;
                         } while (i != 3);
                         amSndPlay(0xDU, NULL);
                     }
@@ -1187,14 +1151,13 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             }
         }
         textY = 0x78;
-        textCursor = D_o058_5C5C;
         i = 0;
         do {
             opponent = 0;
             x = -x;
             columnX = 0x34 + x;
             do {
-                sprintf(&text[0], D_o058_5DAC, (u8) (*textCursor)[opponent]);
+                sprintf(&text[0], D_o058_5DAC, (u8) D_o058_5C5C[i][opponent]);
                 if ((opponent == D_o058_5E7C) && (i == D_o058_5E78)) {
                     fontColour((s32) D_o058_5F38.red, (s32) D_o058_5F38.green, (s32) D_o058_5F38.blue, 0xFF, 0xFF);
                 } else {
@@ -1205,7 +1168,6 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 columnX += 0x18;
             } while (opponent < 0xA);
             i += 1;
-            textCursor += 1;
             textY += 0x1B;
         } while (i < 3);
         x = -x;
@@ -1220,12 +1182,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         i = 0;
         columnX = x + 0x78;
         if (D_8007C1B4 > 0) {
-            nameCursor = D_800D31C4;
             do {
-                sprintf(&text[0], D_o058_5DB0, *nameCursor);
+                sprintf(&text[0], D_o058_5DB0, D_800D31C4[i]);
                 func_8004B0F8(&D_800D3140, columnX, 0x50, &text[0], 4);
                 i += 1;
-                nameCursor += 1;
                 columnX += 0x1E;
             } while (i < D_8007C1B4);
         }
@@ -1258,18 +1218,17 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             }
         }
         textY = 0x5B;
-        record = slot->records;
         do {
             x = -x;
-            overlay56SplitTime(record->value, &minutes, &seconds, &centiseconds);
-            if (record->value == 0) {
+            overlay56SplitTime(slot->records[i].value, &minutes, &seconds, &centiseconds);
+            if (slot->records[i].value == 0) {
                 portraitIndex = 0x4A;
                 sprintf(&text[0], D_o058_5DB8);
             } else {
-                letter0 = func_8003A700(record->name[0]) & 0xFF;
-                letter1 = func_8003A700(record->name[1]) & 0xFF;
-                sprintf(&text[0], D_o058_5DC4, letter0, letter1, func_8003A700(record->name[2]), minutes, seconds, centiseconds);
-                portraitIndex = record->character + 0x51;
+                letter0 = func_8003A700(slot->records[i].name[0]) & 0xFF;
+                letter1 = func_8003A700(slot->records[i].name[1]) & 0xFF;
+                sprintf(&text[0], D_o058_5DC4, letter0, letter1, func_8003A700(slot->records[i].name[2]), minutes, seconds, centiseconds);
+                portraitIndex = slot->records[i].character + 0x51;
             }
             highlighted = (i == D_o058_5E90) ||
                        ((i == 3) && (D_o058_5E8C != -1));
@@ -1288,30 +1247,27 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             nodes[1].texture = 0;
             nodes[0].texture = D_800D31C8[portraitIndex];
             func_8002F618(&D_800D3140, (RcpTextureNode *) &nodes[0], 0, 0, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF, (u8) 0xFF);
-            characterX = D_o058_5CB0;
-            characterCursor = &text[0];
+            opponent = 0;
             do {
                 if (highlighted == 0) {
-                    if (characterX == D_o058_5CB0) {
+                    if (opponent == 0) {
                         fontColour(0, 0xFF, 0xFF, 0xFF, 0xFF);
                     }
-                    if (characterX == &D_o058_5CB0[3]) {
+                    if (opponent == 3) {
                         fontColour(0xFF, 0xFF, 0, 0xFF, 0xFF);
                     }
                 }
+                character[0] = text[opponent];
                 character[1] = 0;
-                character[0] = (s8) (u8) *characterCursor;
-                func_8004B0F8(&D_800D3140, *characterX + x, textY, &character[0], 0);
-                characterX += 1;
-                characterCursor += 1;
-            } while (characterX != &D_o058_5CB0[11]);
+                func_8004B0F8(&D_800D3140, D_o058_5CB0[opponent] + x, textY, &character[0], 0);
+                opponent += 1;
+            } while (opponent != 11);
             if (i == 2) {
                 textY += 0x1B;
                 fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
                 func_8004B0F8(&D_800D3140, x + 0xA0, textY, D_8007C0B8->text[0x35], 4);
             }
             i += 1;
-            record += 1;
             textY += 0x1B;
         } while (i != 4);
         delta = arg0 * 0xF;
@@ -1346,10 +1302,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 3693 differing words
- * frame: 0x158
- * relocations: 1285
- * first-mismatch: +0x0
- * summary: 244 calls recovered; configured mips1 excludes 38 target branch-likely opcodes. Next: authorized ISA-context review on reconstructed C.
+ * score: 3537 differing words
+ * frame: 0x138
+ * relocations: 1286
+ * first-mismatch: +0x50
+ * summary: mips2 fixed (the 532-byte surplus); frame 0x138 and loop shape match (3496/3614 rows); residual is register identity. Next: rowY/state residency.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
