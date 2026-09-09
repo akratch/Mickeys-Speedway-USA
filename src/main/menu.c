@@ -1335,3 +1335,5 @@ void func_8003A590(void) {
  * summary: Exact 262-word geometry and 0xB8 frame; the whole residual is register identity. The target runs a 4-wide ugen ring (t6-t9, ~47 uses each) over a 6-wide uopt pool (t0-t5, t2 unused); the candidate runs a 7-wide ring (t3-t9, ~26 each) over a 3-wide pool. Adding named locals does not widen the pool -- hoisted draw-object, three Gfx carriers and dropped spill all leave the histogram bit-identical to the base.
  * PLATEAU-HANDOFF:func_80039E34:end
  */
+
+
