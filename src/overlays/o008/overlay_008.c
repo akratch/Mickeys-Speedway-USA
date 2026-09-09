@@ -1228,9 +1228,17 @@ void func_overlay_008_F0002640_1860398(
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0002640_1860398.s")
 #endif
 
-/* P5 plateau: workbench allocation-mismatch, 56 positional words, first +0x0; the opcode schedule is aligned.
- * Levers: constant audit plus declaration, volatility, and scalar/aggregate probes left the canonical candidate unchanged or worse.
- * Remains: target 0x68-frame allocation versus the candidate's 0x70 frame and its register/allocation shape; no donor used. */
+/* Plateau (2026-09-09): 6 masked words, exact 0x68 frame, exact 361/361
+ * instructions, and every stack home at the target displacement.  The whole
+ * residual is one FP pool colour exchange: the target gives `motion->velocity20`
+ * f12 and nextX f2, the candidate the reverse, over six sites in the
+ * position-integration block.  The pool free list is f2, f12, f14, f16, f18
+ * lowest-free-wins, and uopt colours named locals before CSE temps, so the
+ * target's nextX is a named-local web coloured before the velocity20 CSE and
+ * the candidate's is not.  Declaration order over slots 4/5/6/10/12 is
+ * byte-inert (120 orders, all 6 words); naming the velocity20 read costs two
+ * instructions; inlining nextX costs 302 words.  `blendLimit` is declared and
+ * unused on purpose: it is the fourteenth auto and the frame needs its slot. */
 #ifdef NON_MATCHING
 void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
                                        O8P291CState *state,
@@ -1246,7 +1254,7 @@ void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
     f32 displacementZ;
     f32 delta;
     f32 scale;
-    f32 targetBlend;
+    f32 blendLimit;
     s16 angle;
     s32 contact;
 
@@ -1333,11 +1341,10 @@ void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
         state->blendC +=
             (invUpdate - state->blendC) *
             (1.0f - o8Approach291CReloc(O8P291C_data_1A4, (s32)update));
-        targetBlend = ((volatile O8P291CBlendView *)state)->blendC;
-        if (state->control4 < -targetBlend) state->control4 = -targetBlend;
-        if (targetBlend < state->control4) state->control4 = targetBlend;
-        if (state->control8 < -targetBlend) state->control8 = -targetBlend;
-        if (targetBlend < state->control8) state->control8 = targetBlend;
+        if (state->control4 < -state->blendC) state->control4 = -state->blendC;
+        if (state->blendC < state->control4) state->control4 = state->blendC;
+        if (state->control8 < -state->blendC) state->control8 = -state->blendC;
+        if (state->blendC < state->control8) state->control8 = state->blendC;
     } else {
         if (D_10 < state->blendC + O8P291C_data_1A8) {
             state->blendC = D_10;
