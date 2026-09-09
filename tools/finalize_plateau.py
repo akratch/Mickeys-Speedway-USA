@@ -324,13 +324,16 @@ def parse_shard(text: str, symbol: str) -> tuple[str, str]:
     """
     match = shard_pattern(symbol).fullmatch(text)
     if match is None:
-        raise PlateauError(
-            f"malformed or foreign symbol handoff shard for {symbol}"
-        )
+        # shard_rejection_reason names the rule that was broken. Raising the
+        # flat string here left it unreached on this path, which is the one
+        # `finalize_plateau --commit` takes -- so a worker whose evidence
+        # table contains a `|` still saw only "malformed or foreign".
+        raise PlateauError(shard_rejection_reason(text, symbol))
     details = match.group("details")
     if "plateau-handoff:" in details:
         raise PlateauError(
-            f"malformed or foreign symbol handoff shard for {symbol}"
+            f"shard for {symbol} contains a second plateau-handoff marker in "
+            f"its evidence; one shard owns exactly one symbol"
         )
     source = match.group("source")
     if any(part in {".", ".."} for part in Path(source).parts):

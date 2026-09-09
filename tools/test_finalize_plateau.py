@@ -228,7 +228,12 @@ void demo_symbol(void) {}
         self.assertEqual(
             plateau.update_handoff_shard(block, "demo_symbol", block), block,
         )
-        with self.assertRaisesRegex(plateau.PlateauError, "foreign symbol"):
+        # A shard belonging to another symbol carries none of this symbol's
+        # markers, and the diagnostic says exactly that rather than reporting
+        # a bare "malformed or foreign".
+        with self.assertRaisesRegex(
+            plateau.PlateauError, "missing its start marker"
+        ):
             plateau.update_handoff_shard(
                 block.replace("demo_symbol", "other_symbol"),
                 "demo_symbol",
@@ -268,7 +273,11 @@ void demo_symbol(void) {}
             "<!-- plateau-handoff:other_symbol:start -->\n"
             "<!-- plateau-handoff:demo_symbol:end -->",
         )
-        with self.assertRaisesRegex(plateau.PlateauError, "malformed or foreign"):
+        # The refusal must name the cause: a second symbol's marker nested in
+        # this shard's evidence, not a generic "malformed" verdict.
+        with self.assertRaisesRegex(
+            plateau.PlateauError, "second plateau-handoff marker"
+        ):
             plateau.handoff_shard_source(malformed, "demo_symbol")
 
     def test_shard_paths_are_fixed_per_symbol(self) -> None:
@@ -443,7 +452,9 @@ class FinalizeCommandTests(unittest.TestCase):
         before = (self.repo / "src" / "demo.c").read_text(encoding="utf-8")
         result = self.finalize()
         self.assertEqual(result.returncode, 2)
-        self.assertIn("malformed or foreign", result.stderr)
+        # Foreign content has no markers at all; the diagnostic says which
+        # one is missing rather than reporting a bare "malformed".
+        self.assertIn("missing its start marker", result.stderr)
         self.assertEqual((self.repo / "src" / "demo.c").read_text(), before)
         self.assertFalse(self.gate_log.exists())
 
