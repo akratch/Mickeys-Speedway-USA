@@ -292,8 +292,20 @@ def compare_context(baseline: bytes, winner: bytes, symbol: str) -> dict:
         report["status"] = "unchanged" if old == new else "changed"
         if old == new:
             return report
+        # autojunk=False, matching every other SequenceMatcher call in this
+        # tree. The "popular element" heuristic switches on at 200 rows and
+        # then refuses to anchor a match on any row occurring in more than 1%
+        # of b, so an unrelated growth in context size can change how a given
+        # change is reported. Rows here are content hashes, where "popular"
+        # carries no signal about anchor quality, so the heuristic has nothing
+        # to offer and a size-dependent behaviour change to lose. No output
+        # difference was reproducible on this path (tried near-identical and
+        # heavily-diverged surfaces with a deliberately popular row, both
+        # byte-identical reports): find_longest_match extends blocks across
+        # junk, which recovers what the heuristic skipped. This is a
+        # consistency and determinism fix, not a repair of an observed fault.
         matcher = difflib.SequenceMatcher(a=[row["sha256"] for row in old],
-                                         b=[row["sha256"] for row in new], autojunk=True)
+                                         b=[row["sha256"] for row in new], autojunk=False)
         for operation, a, b, c, d in matcher.get_opcodes():
             if operation == "equal":
                 continue
