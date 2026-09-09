@@ -2187,14 +2187,25 @@ extern void overlay1PlaySoundReloc(u8 soundId);
  * The `case 1` test must be a named `u16`, which orders its `andi` web before
  * the store's. `clearMask` is not needed: IDO hoists a literal `~8` into the
  * same saved register, and dropping the declaration is what buys the budget for
- * the other two. The residual is the last two words: the target numbers the
- * `case 1` store's ugen temp `$12` and ours `$13`, because the `u16` test
- * carrier costs an extra temp for a truncation `as1` then folds away. Measured
- * and flat, do not repeat: 40 case-1 body spellings (compound assignment, the
- * `^ 0` use-site break, re-reads of the field, a hoisted `cleared` local, five
- * carrier types, `if/else if` in place of the switch, a `default:` arm, and
- * reversed case order), and all 96 physical line groupings of the case-1
- * statement list. */
+ * the other two.
+ *
+ * The residual is two words, and `cc -K` names the mechanism exactly. ugen
+ * numbers `case 0`'s two temps in emission order -- `and $9` for the test,
+ * `or $10` for the store -- but numbers `case 1`'s backwards: without the test
+ * carrier it emits `and $12` for the test and `and $11` for the store, so the
+ * store is allocated first and the pair comes out swapped (four words). The
+ * `u16` carrier fixes the order, because its truncation `and $x, $y, 65535`
+ * takes the outer number $11 and as1 then folds the instruction away -- but it
+ * spends $12 on the inner `and`, so the store slides to $13 and lands on t5
+ * where the target has t4. One temp too many, in the right order; the
+ * no-carrier form has the right count in the wrong order.
+ *
+ * The calls in `case 1`'s body are not the cause: removing one or both leaves
+ * the $12/$11 inversion unchanged. Measured and flat, do not repeat: 40 case-1
+ * body spellings (compound assignment, the `^ 0` use-site break, re-reads of
+ * the field, a hoisted `cleared` local, five carrier types, `if/else if` in
+ * place of the switch, a `default:` arm, and reversed case order), and all 96
+ * physical line groupings of the case-1 statement list. */
 #ifdef NON_MATCHING
 void overlay1UpdateRangeFlags(Overlay1RangeObject *object, void *unused) {
     Overlay1RangeConfig *config;
