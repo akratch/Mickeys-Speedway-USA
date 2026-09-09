@@ -690,16 +690,29 @@ void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
         FX_SET_ENV((*dList)++, 0xFF, 0xFF, 0xFF, 0);
     }
 }
-/* Exact 89-word extent, exact -0x48 frame, four call relocations, and every
- * integer register, stack displacement and schedule slot equal. Six words
- * remain: one floating-point colour swap, where the target holds the loaded
- * z in f14 and x in f2 and the candidate holds them the other way round.
- * The cursors are the *parameters*, not locals: IDO promotes the two stack
- * parameter homes into registers for the loop and writes them back at the
- * loop exit, which is where the earlier candidate's `volatile` pointers and
- * their explicit writeback came from. Spelling them naturally also fixed the
- * loop-invariant hoist order and the cos0 spill slot: 12 -> 6 words. */
-#ifdef NON_MATCHING
+/* Transforms `count` cone points by two angles and writes the packed
+ * position/colour records the display list draws.
+ *
+ * The two cursors are the *parameters*: IDO promotes both stack homes into
+ * registers for the loop and writes them back at the loop exit, which is what
+ * an earlier candidate's `volatile` pointers and explicit writeback were
+ * imitating.
+ *
+ * The last six words were one floating-point colour swap -- the target holds
+ * the loaded z in f14 and x in f2 -- and it is a web-count fact, not an
+ * ordering one. With the three loads in x, y, z order and four live FP webs
+ * in the loop, x is pinned to f14 and only y and z can trade f2 and f12; that
+ * is flat over all six load orders, all six store orders that keep the
+ * schedule, both spellings of the rotated-z subexpression, inlining it, and
+ * 6,000 random permutations of the eight declarations (FP webs turn out to
+ * ignore declaration order exactly as integer webs do). The rotated *y*
+ * component is its own named value, like the rotated z beside it. That fifth
+ * web costs no instruction -- IDO coalesces it -- and it is what moves x to
+ * f2 and z to f14.
+ *
+ * PROVENANCE: JFG's assembly-only func_8006A224 confirms the same
+ * cone-point-transform role, frame class, four trigonometric calls and packed
+ * output loop; no donor C exists and none was adopted. */
 typedef struct FxTransformInput {
     f32 x;
     f32 y;
@@ -725,31 +738,30 @@ void func_80048080(s32 count, s16 x, s16 y, s16 z, s16 angle0, s16 angle1,
     f32 inputZ;
     f32 inputY;
     f32 inputX;
-    f32 cross;
+    f32 rotatedZ;
+    f32 rotatedY;
 
     cos1 = func_8002A8C0(angle1);
     sin1 = func_8002A8BC(angle1);
     cos0 = func_8002A8C0(angle0);
     sin0 = func_8002A8BC(angle0);
     while (count--) {
-        inputZ = input->z;
         inputX = input->x;
         inputY = input->y;
+        inputZ = input->z;
         input++;
         output[6] = 0xFF;
         output[7] = 0xFF;
         output[8] = 0xFF;
         output[9] = alpha;
         output += 10;
-        cross = (inputZ * sin1) + (inputY * cos1);
-        ((s16 *)output)[-5] = (s16)((s32)((inputX * sin0) + (cross * cos0)) + x);
-        ((s16 *)output)[-4] = (s16)((s32)((inputY * sin1) - (inputZ * cos1)) + y);
-        ((s16 *)output)[-3] = (s16)((s32)((cross * sin0) - (inputX * cos0)) + z);
+        rotatedZ = (inputZ * sin1) + (inputY * cos1);
+        rotatedY = (inputY * sin1) - (inputZ * cos1);
+        ((s16 *)output)[-5] = (s16)((s32)((inputX * sin0) + (rotatedZ * cos0)) + x);
+        ((s16 *)output)[-4] = (s16)((s32) rotatedY + y);
+        ((s16 *)output)[-3] = (s16)((s32)((rotatedZ * sin0) - (inputX * cos0)) + z);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048080.s")
-#endif
 #ifdef NON_MATCHING
 typedef struct FxWakeAllocation {
     u8 flags;
@@ -869,19 +881,29 @@ Wake *wakeAllocate(s32 wakeType, f32 wakeValue88, f32 wakeValue80,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/wakeAllocate.s")
 #endif
-/* Twenty words differ, all of them register names; 121 instructions, the -72
- * frame, the call relocations and every schedule slot are exact. Spelling the
- * eight-byte alignment pad as `arg1 & 7` twice -- once in the test and once in
- * the `8 - ...` -- instead of caching it in `size` removes a pool web and makes
- * the whole prologue exact: 23 -> 20. What remains is one temp-numbering
- * rotation: the target spends t4/t5/t6 on the three short-lived halfword loads
- * near the tail and t7/t8/t9 on the two texture-extent shifts and the constant
- * 3, while this source reuses one register across two of those webs and shifts
- * the rest. Flat over the fill-loop shape (for/do, index vs pointer, group
- * order, base at +0x26 with stride 40), the wake-allocation tail, and 117,000
- * randomised statement-order and line-grouping candidates. */
-/* PROVENANCE: Mickey field layouts/control flow reconstructed from target accesses; JFG wakeSetupRipple is assembly-only and supplies only TU/name context. */
-#ifdef NON_MATCHING
+/* Builds the ripple's two display frames in the caller's buffer and allocates
+ * its wake.
+ *
+ * Two source facts closed the last twenty words, both the same kind of error:
+ * writing down something the compiler produces.
+ *
+ * The two texture extents are `s32`, not `s16`. As `s16` locals they are
+ * numbered ahead of the constants 1 and 2 the frame stores materialise, and
+ * the whole ugen temp ring rotates behind them -- sixteen words, none of them
+ * reachable by moving the two definitions (all four positions among the frame
+ * stores were measured, and inlining them costs twelve instructions).
+ *
+ * The white-fill loop indexes the record from `i`; it does not carry a cursor.
+ * With `p += 0x28` in source the loop's four preheader values come out as two
+ * ugen copies and then two hoisted constants, and no ordering or grouping of
+ * the three initialisations moves them. Written as `i * 0x28` the cursor
+ * becomes uopt's own induction variable, its initialisation is inserted after
+ * the constants instead, and the preheader is the target's `li a1, 2` /
+ * `li v1, 255` / `move a0, zero` / `move v0, s0`.
+ *
+ * PROVENANCE: Mickey field layouts and control flow are reconstructed from the
+ * target's accesses; JFG's wakeSetupRipple is assembly-only and supplies only
+ * TU and name context. */
 typedef struct FxRippleSource {
     u8 pad00[0x73];
     s8 wakeType;
@@ -954,14 +976,13 @@ extern Wake *wakeAllocate(s32 wakeType, f32 wakeValue88, f32 wakeValue80,
 s32 func_80048760(void *arg0, s32 arg1) {
     u8 pad[16];
     s32 size;
-    s32 var_a0;
-    FxRippleOutput *var_s0;
-    FxRippleSource *temp_t0;
-    FxConeTextureInfo *temp_a2;
-    s16 temp_t7;
-    s16 temp_t8;
+    s32 i;
+    FxRippleOutput *output;
+    FxRippleSource *source;
+    FxConeTextureInfo *texture;
+    s32 extentX;
+    s32 extentY;
     u8 fill;
-    u8 *var_v0;
     FxRippleFrame *frame;
 
     if ((arg1 & 7) != 0) {
@@ -970,85 +991,78 @@ s32 func_80048760(void *arg0, s32 arg1) {
     } else {
         size = 0;
     }
-    var_s0 = (FxRippleOutput *) arg1;
+    output = (FxRippleOutput *) arg1;
     size += (s32) align4((u8 *) 0x88);
-    temp_t0 = ((FxRippleSetup *) arg0)->source;
-    ((FxRippleSetup *) arg0)->output = (u8 *) var_s0;
-    var_s0->texture = func_80034448(temp_t0->textureId);
-    if (var_s0->texture == 0) {
+    source = ((FxRippleSetup *) arg0)->source;
+    ((FxRippleSetup *) arg0)->output = (u8 *) output;
+    output->texture = func_80034448(source->textureId);
+    if (output->texture == 0) {
         return 0;
     }
-    temp_a2 = var_s0->texture;
-    temp_t7 = (temp_a2->width - 1) << 5;
-    temp_t8 = (temp_a2->height - 1) << 5;
-    frame = (FxRippleFrame *) var_s0;
+    texture = output->texture;
+    extentX = (texture->width - 1) << 5;
+    extentY = (texture->height - 1) << 5;
+    frame = (FxRippleFrame *) output;
     frame->value0 = 0x40;
     frame->value1 = 0;
-    frame->value4 = temp_t7;
+    frame->value4 = extentX;
     frame->value6 = 0;
     frame->value2 = 1;
     frame->value8 = 0;
     frame->valueA = 0;
     frame->value3 = 2;
-    frame->valueC = temp_t7;
-    frame->valueE = temp_t8;
+    frame->valueC = extentX;
+    frame->valueE = extentY;
     frame->value10 = 0x40;
     frame->value11 = 1;
     frame->value14 = 0;
     frame->value16 = 0;
     frame->value12 = 2;
-    frame->value18 = temp_t7;
-    frame->value1A = temp_t8;
+    frame->value18 = extentX;
+    frame->value1A = extentY;
     frame->value13 = 3;
     frame->value1C = 0;
-    frame->value1E = temp_t8;
+    frame->value1E = extentY;
 
     fill = 0xFF;
-    var_a0 = 0;
-    var_v0 = (u8 *) var_s0;
-    do {
-        var_a0++;
-        var_v0 += 0x28;
-        var_v0[0x8] = fill;
-        var_v0[0x9] = fill;
-        var_v0[0xA] = fill;
-        var_v0[0xB] = fill;
-        var_v0[0x12] = fill;
-        var_v0[0x13] = fill;
-        var_v0[0x14] = fill;
-        var_v0[0x15] = fill;
-        var_v0[0x1C] = fill;
-        var_v0[0x1D] = fill;
-        var_v0[0x1E] = fill;
-        var_v0[0x1F] = fill;
-        var_v0[-2] = fill;
-        var_v0[-1] = fill;
-        var_v0[0] = fill;
-        var_v0[1] = fill;
-    } while (var_a0 != 2);
+    for (i = 0; i != 2; i++) {
+        ((u8 *) output)[(i * 0x28) + 0x30] = fill;
+        ((u8 *) output)[(i * 0x28) + 0x31] = fill;
+        ((u8 *) output)[(i * 0x28) + 0x32] = fill;
+        ((u8 *) output)[(i * 0x28) + 0x33] = fill;
+        ((u8 *) output)[(i * 0x28) + 0x3A] = fill;
+        ((u8 *) output)[(i * 0x28) + 0x3B] = fill;
+        ((u8 *) output)[(i * 0x28) + 0x3C] = fill;
+        ((u8 *) output)[(i * 0x28) + 0x3D] = fill;
+        ((u8 *) output)[(i * 0x28) + 0x44] = fill;
+        ((u8 *) output)[(i * 0x28) + 0x45] = fill;
+        ((u8 *) output)[(i * 0x28) + 0x46] = fill;
+        ((u8 *) output)[(i * 0x28) + 0x47] = fill;
+        ((u8 *) output)[(i * 0x28) + 0x26] = fill;
+        ((u8 *) output)[(i * 0x28) + 0x27] = fill;
+        ((u8 *) output)[(i * 0x28) + 0x28] = fill;
+        ((u8 *) output)[(i * 0x28) + 0x29] = fill;
+    }
 
-    var_s0->value74 = 0;
-    var_s0->value75 = 0;
-    var_s0->value76 = 0;
-    var_s0->value78 = 0;
-    var_s0->value7A = temp_t0->wakeValue7E;
-    var_s0->value7C = temp_t0->textureScale;
+    output->value74 = 0;
+    output->value75 = 0;
+    output->value76 = 0;
+    output->value78 = 0;
+    output->value7A = source->wakeValue7E;
+    output->value7C = source->textureScale;
     func_8001357C(((FxRippleSetup *) arg0)->valueC,
                   ((FxRippleSetup *) arg0)->value14,
-                  (u8 *) var_s0 + 0x80,
+                  (u8 *) output + 0x80,
                   0x10000, 0);
-    var_s0->wake = 0;
-    if (temp_t0->wakeType != -1) {
-        var_s0->wake = wakeAllocate(temp_t0->wakeType, temp_t0->wakeValue88,
-                                    temp_t0->wakeValue80, temp_t0->wakeValue84,
-                                    temp_t0->wakeValue8C,
-                                    (f32) temp_t0->wakeValue8E);
+    output->wake = 0;
+    if (source->wakeType != -1) {
+        output->wake = wakeAllocate(source->wakeType, source->wakeValue88,
+                                    source->wakeValue80, source->wakeValue84,
+                                    source->wakeValue8C,
+                                    (f32) source->wakeValue8E);
     }
     return size;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048760.s")
-#endif
 void wakeFree(Wake *wake) {
     void *linked = wake->linked;
 
@@ -1298,7 +1312,31 @@ void wakeUpdate(Wake *wake, f32 arg1, f32 arg2, f32 arg3, s16 angle, s32 arg5) {
  * Flat since: web-count changes around the carrier (owner, fade, value7C and
  * coordinate locals, inlining mode/step/angle), its type (s16/u32/register/
  * implicit conversion), its position (five placements), the whole prelude
- * order/grouping lattice, and 70,000 randomised statement-order candidates. */
+ * order/grouping lattice, and 70,000 randomised statement-order candidates.
+ *
+ * 2026-09-09, after this TU's other four last-mile targets closed, every lever
+ * that closed one of them was tried here and is also flat, always at exactly
+ * five words with the same 149-instruction schedule:
+ *   - the carrier's type over twelve spellings, and mode/step/angle's types
+ *     over all 24 combinations (the `s32`-not-`s16` fact that closed
+ *     func_80048760's temp ring);
+ *   - 4,112 web-split subsets -- every subset of the four `height` uses and
+ *     all 4,096 subsets of the twelve `vertex` uses given a coalesced second
+ *     local (the extra-coalesced-web fact that closed func_80048080);
+ *   - indexing the vertex block from `ripple` instead of carrying the cursor,
+ *     and `s16 *` or `u16 *` cursors (the induction-variable fact that closed
+ *     func_8004ACC4 and func_8004AF68) -- all three lose the `addiu v0, v0, 62`
+ *     and cost 96 words, so this block's cursor really is in the source;
+ *   - 1,689 physical-line groupings (all 512 over the store block, plus every
+ *     one- and two-join grouping of the whole body);
+ *   - 21 dead-store variants: unlike the recorded law, `x = 0` before a named
+ *     local reserves no colour here and emits nothing;
+ *   - naming any one of the twelve stored values, six named intermediates x
+ *     three types, local copies of `delta` and `owner`, and 126 combinations
+ *     of carrier placement x carrier type x web split.
+ * The residual is one pool colour and the pool ordering that produces it is
+ * not reachable from this function's source shape; the next lever would have
+ * to be evidence about uopt's reuse rule itself, not another spelling. */
 /* PROVENANCE: Jet Force Gemini public decomp src/fx.c at efd5abb1c79636e297b831f7c2d5bf47eac39c0c
  * still leaves wakeUpdateRipple assembly-only; src/fx.h adds no ripple source
  * context. JFG supplies only the role/name; this retained body uses Mickey's
@@ -2228,43 +2266,33 @@ void fxScreenEffect(FxGfx **dList, s32 arg1, s32 arg2, s32 arg3,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxScreenEffect.s")
 #endif
-#ifdef NON_MATCHING
-/*
- * PROVENANCE: the descending loop skeleton is adapted from Jet Force
- * Gemini's public fx.c context; Mickey's target establishes the expressions.
+/* Resets the four texture slots and records, per slot, whether its callback
+ * is still the dangling-jump trap.
+ *
+ * The four cursors in the emitted code are IDO's own strength-reduced
+ * induction variables, not source pointers: the source indexes three parallel
+ * four-element arrays with one loop variable and uopt walks them backwards.
+ * That is what puts the now-dead copy of the source index in the *first* pool
+ * colour and the synthesised trip counter in the second -- with hand-written
+ * cursors the copy is compiler-generated and takes the last colour instead, a
+ * 10-word residual that no ordering of the setup statements can reach (720
+ * statement orders x 32 physical-line groupings, all flat).
+ *
+ * The relocations name D_800D60BC/D_800D60CC/D_8007D488 in the target's
+ * disassembly and the array bases plus an addend here; both resolve to the
+ * same linked words.
  */
-/* Exact 28-word frameless extent and 12 relocations; 13 words differ, all of
- * them register names. The webs are coloured in statement order out of the
- * pool v0, v1, a0, a1, a2, a3, t0, with the compiler-generated copy of the
- * post-decremented counter taking the last colour; declaration order is
- * measurably irrelevant. The target's colours imply that copy takes the
- * *first* colour and the counter the second, which no ordering of these
- * statements produces, so the remaining gap is a web-formation difference
- * and not a permutation of this source. Physical line grouping is a real
- * lever here and is used: joining the four address setups onto one line
- * reverses the order their %lo addiu's are emitted in. */
 void func_8004ACC4(void) {
-    s32 trap;
     s32 i;
-    s32 *value0;
-    s32 *value1;
-    u8 *available;
-    s32 *callback;
 
     D_800D60A8 = 0;
-    trap = (s32) TrapDanglingJump;
-    i = 3;
-    value0 = &D_800D60BC; value1 = &D_800D60CC; available = &D_800D60D3; callback = &D_8007D488;
-    do {
-        *value1 = 0; *available = trap == *callback; *value0 = 0;
-        callback--;
-        value1--;
-        available--; value0--;
-    } while (i--);
+    i = 4;
+    while (i--) {
+        D_800D60B0[i] = 0;
+        D_800D60C0[i] = 0;
+        D_800D60D0[i] = (s32) TrapDanglingJump == (s32) D_8007D47C[i];
+    }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ACC4.s")
-#endif
 s32 func_8004AD34(void) {
     FxTextureCallback callback;
     s32 index;
@@ -2320,80 +2348,45 @@ void func_8004ADE8(s32 index, FxConeTextureInfo *texture) {
         }
     }
 }
-/* Exact 52 instructions and -0x38 frame; 17 words differ. Decrementing the
- * byte offset before the callback store rather than after it (with the
- * initial value moved up by one step, so the values seen are unchanged) puts
- * the saved-register saves and the six loop-invariant addresses in the
- * target's order: 26 -> 17 words.
+/* Frees both allocations for every texture slot and re-arms the slots whose
+ * callback is still live with the dangling-jump trap.
  *
- * What remains is one shared induction variable. The target walks *both*
- * arrays with a single byte offset in `s1` -- `addu s0, s1, t6` for
- * `D_800D60C0` and `addu t8, s5, s1` for `D_8007D47C` -- and materialises
- * `D_800D60C0`'s base inside the loop with its own lui/addiu. Sharing the
- * offset in source instead makes IDO hoist that base into an eighth saved
- * register, which costs three instructions; indexing both arrays by `i`
- * emits two separate shifts and loses three. Both were measured. */
-#ifdef NON_MATCHING
-/* Mickey-derived body; JFG's fxCpuTextureFlush is assembly-only. */
+ * Same shape as func_8004ACC4 above and for the same reason: one loop
+ * variable over four parallel four-element arrays, with every cursor in the
+ * emitted code built by uopt. It reduces `D_800D60B0[i]` and `D_800D60D0[i]`
+ * to backwards-walking pointers, shares ONE byte offset between
+ * `D_800D60C0[i]` and `D_8007D47C[i]` (`addu s0, s1, t6` and
+ * `addu t8, s5, s1`), materialises `D_800D60C0`'s base inside the loop, and
+ * leaves the source index dead but still coloured -- the `move v0, s3`.
+ * Hand-written cursors could reach none of that: sharing an offset in source
+ * hoists the base into an eighth saved register (+3 words) and indexing both
+ * arrays separately emits two shifts (+3). Both were measured, at a floor of
+ * 15 words.
+ *
+ * JFG's fxCpuTextureFlush counterpart is still assembly-only; no donor body
+ * was available or used.
+ */
 void func_8004AF68(void) {
-    register s32 *value0;
-    register s32 i;
-    register u8 *available;
-    register s32 offset;
-    s32 *value1;
+    s32 i;
     void *allocation;
 
-    i = 3; offset = 16;
-    available = &D_800D60D3; value0 = (s32 *)&D_800D60BC;
-    do {
-        allocation = (void *)*value0;
+    i = 4;
+    while (i--) {
+        allocation = D_800D60B0[i];
         if (allocation != 0) {
-            value1 = &D_800D60C0[i];
-            mmFree(allocation); mmFree((void *)*value1); *value0 = 0;
-            *value1 = 0;
+            mmFree(allocation);
+            mmFree(D_800D60C0[i]);
+            D_800D60B0[i] = 0;
+            D_800D60C0[i] = 0;
         }
-        offset -= 4; value0--;
-        if (*available != 0) {
-            *(FxTextureCallback *)((u8 *)D_8007D47C + offset) =
-                (FxTextureCallback)TrapDanglingJump;
+        if (D_800D60D0[i] != 0) {
+            D_8007D47C[i] = (FxTextureCallback) TrapDanglingJump;
         }
-        available--;
-    } while (i--);
+    }
     D_800D60A8 = 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004AF68.s")
-#endif
 
-/* PLATEAU-HANDOFF:func_8004AF68:start
- * symbol: func_8004AF68
- * score: 17 differing words
- * frame: 0x38
- * relocations: 14
- * first-mismatch: +0x34
- * summary: pre-decrementing the byte offset fixes the saved-register order, 26 -> 17. Residual is one induction variable the target shares between both arrays while keeping D_800D60C0's base inside the loop.
- * PLATEAU-HANDOFF:func_8004AF68:end
- */
 
-/* PLATEAU-HANDOFF:func_8004ACC4:start
- * symbol: func_8004ACC4
- * score: 13 differing words
- * frame: frameless
- * relocations: 12
- * first-mismatch: +0x10
- * summary: 16 -> 13 on statement order plus physical-line grouping. All 13 are register names; the target colours the counter's dead copy first, which statement order cannot reach.
- * PLATEAU-HANDOFF:func_8004ACC4:end
- */
-
-/* PLATEAU-HANDOFF:func_80048760:start
- * symbol: func_80048760
- * score: 20 differing words
- * frame: 0x48
- * relocations: 4
- * first-mismatch: +0x90
- * summary: spelling the alignment pad twice instead of caching it makes the prologue exact, 23 -> 20. Residual is one temp-numbering rotation over the extent shifts and the tail halfword loads.
- * PLATEAU-HANDOFF:func_80048760:end
- */
 
 /* PLATEAU-HANDOFF:func_80046EC4:start
  * symbol: func_80046EC4
@@ -2405,15 +2398,6 @@ void func_8004AF68(void) {
  * PLATEAU-HANDOFF:func_80046EC4:end
  */
 
-/* PLATEAU-HANDOFF:func_80048080:start
- * symbol: func_80048080
- * score: 6 differing words
- * frame: 0x48
- * relocations: 4
- * first-mismatch: 0xA0
- * summary: parameters are the cursors, not locals; 12 -> 6 words. Residual is one FP colour swap (target z=f14/x=f2), flat over load, declaration, cross-carrier, re-read and line-grouping families.
- * PLATEAU-HANDOFF:func_80048080:end
- */
 
 /* PLATEAU-HANDOFF:func_80049000:start
  * symbol: func_80049000
@@ -2421,7 +2405,7 @@ void func_8004AF68(void) {
  * frame: 0x30
  * relocations: 2
  * first-mismatch: +0x108
- * summary: addressing all twelve vertex stores from the post-increment cursor took 69 -> 5. Residual is one pool colour: the truncated height carrier is v1 in the target, a0 here.
+ * summary: one pool colour: the height carrier is v1 in the target, a0 here. Every lever that closed this TU's other four targets was retried 2026-09-09 and is flat.
  * PLATEAU-HANDOFF:func_80049000:end
  */
 

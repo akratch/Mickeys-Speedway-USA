@@ -297,17 +297,6 @@ routing facts from that sweep; the sweep's `summary.json` is the measurement.
 - summary: The a1/a2 allocator web and X/Y table-address LO16 schedule remain; resume only with new source-authentic web-formation evidence.
 <!-- plateau-handoff:overlay27UpdateCoordinates:end -->
 
-<!-- plateau-handoff:func_8004AF68:start -->
-### `func_8004AF68` plateau handoff
-
-- source: `src/main/fx.c`
-- score: 26 differing words
-- frame: 0x38
-- relocations: 14
-- first mismatch: +0x10
-- summary: 52-word shape and 14 identities; 119 flags plus bounded source/permuter attempts leave saved-register order and four early LO16 sites
-<!-- plateau-handoff:func_8004AF68:end -->
-
 <!-- plateau-handoff:func_8001BBB4:start -->
 ### `func_8001BBB4` plateau handoff
 
@@ -384,14 +373,3 @@ routing facts from that sweep; the sweep's `summary.json` is the measurement.
 - first mismatch: +0x40
 - summary: 119 flags and ten coherent forms exhausted; next lever is source-authentic count/object/state allocator mapping, not the TU-wide diagnostic -g3 flag
 <!-- plateau-handoff:overlay1ConsumeNearbyPending:end -->
-
-<!-- plateau-handoff:func_8004ACC4:start -->
-### `func_8004ACC4` plateau handoff
-
-- source: `src/main/fx.c`
-- score: 14/28 words
-- frame: frameless
-- relocations: 12
-- first mismatch: +0x14
-- summary: Five callback/trap identity sites and four counter/address webs remain; 119 flags and ten coherent forms exhausted; needs new source evidence.
-<!-- plateau-handoff:func_8004ACC4:end -->

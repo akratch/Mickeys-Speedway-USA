@@ -2726,9 +2726,9 @@ FX type-pass inventory (target widths/offsets; no source-body promotion):
 | `func_800475E8` | `FxCone.texture +0`, `segmentCount +15`, `vertices +10`; `FxConeTextureInfo` `+6/+8`; `FxConeVertex` byte `+0/+1..3`, halfwords `+4..E`; `D_80083DE8`. | structure plateau → structure plateau (`440` raw words, first `+0`); structure-buckets; frame/code shape remains. |
 | `func_800479D4` | `FxCone` `+8,+15..17,+18,+1C,+20..2A`; generated vertex records; trig helpers. | Evidence D candidate: structure-mismatch plateau, 179/193 instructions, 176 differing words, first `+0x40`, exact `-0x150` frame, and 80 structural words remain. |
 | `func_80047CD8` | `FxGfx **`; `FxCone` words `+0..10`, bytes `+14..17,+2C..32`; `func_800349A4`. | Tier A: ordinary full-TU C is ROM-exact at `0x80047CD8..0x80048080` / ROM `0x488D8..0x48C80`: 936 executable bytes, 234 words, frame `0x68`, no padding, and four exact call relocation identities. Preserved display-list block grouping, a white RGB XOR-zero identity and a logical-negation test close the prior eight-word allocation residual. No compiler flags or post-compile instructions changed. Tier B: JFG `fxDrawCone` role correspondence remains separate from byte proof. |
-| `func_80048080` | Output vertex records: bytes `+6..9`, halfwords `-A,-8,-6`; trig helpers. | GLOBAL_ASM → GLOBAL_ASM; output-record widths; 65 positional words remain. |
+| `func_80048080` | Output vertex records: bytes `+6..9`, halfwords `-A,-8,-6`; trig helpers. | **A**; exact C, 89 words, frame `-0x48`, 4 relocations; ROM `0x48C80`-`0x48DE4` byte-identical. Both cursors are the parameters, promoted into registers for the loop and written back at its exit; the rotated *y* component is a named local like the rotated z, and that fifth (coalesced, instruction-free) FP web is what puts x in f2 and z in f14. |
 | `wakeAllocate` | `Wake`: bytes `+0..3,+38..3B`; float `+4,+C`; halfwords `+8`; pointers `+10,+14,+18..2C,+30`; halfwords `+34,+36`; word `+3C`. | GLOBAL_ASM → GLOBAL_ASM; `Wake` layout; allocation/initialization CFG remains. |
-| `func_80048760` | `WakeRipple` 0x88-byte setup; texture/link `+70`; bytes `+74,+75`; halfwords `+76,+78,+7A`; floats `+7C,+80`; nested `Wake *+84`; source fields `+40,+54`. | `NON_MATCHING` candidate; workbench structure-mismatch, 58 words, first `+0x08`; exact 121-instruction/frame/relocation shape except 8 initialization-schedule words, with 50 register-only residuals. |
+| `func_80048760` | `WakeRipple` 0x88-byte setup; texture/link `+70`; bytes `+74,+75`; halfwords `+76,+78,+7A`; floats `+7C,+80`; nested `Wake *+84`; source fields `+40,+54`. | **A**; exact C, 121 words, frame `-0x48`, 4 relocations; ROM `0x49360`-`0x49544` byte-identical. The two texture extents are `s32` locals, which is what orders the ugen temp ring; the white-fill loop indexes the record from `i` rather than carrying a cursor, which is what orders the loop preheader. |
 | `wakeUpdate` | `Wake` `+0..14,+30,+34..3C`; `WakeRipple` texture/config `+70..84`; generated display records. | GLOBAL_ASM → GLOBAL_ASM; wake aggregate; update/draw scheduling remains. |
 | `func_80049000` | `WakeRipple` `+54` link, `+70,+74..84`; `Wake` `+80,+84`; `Arctanf`, `wakeUpdate`. | Evidence D candidate: structure-mismatch, 150/149 instructions, 125 differing words, first `+0x0`, frame `-0x30` versus `-0x38`; ripple update/call surface remains but is not shape-exact. |
 | `wakeDraw` | `Wake` `+30,+34,+38`; `FxGfx **`; `func_800349A4`. | Evidence D candidate: structure-mismatch, 163/177 instructions, 177 differing words, first `+0x0`, frame `-0x38` versus `-0x88`; command-loop structure remains unresolved. |
@@ -2740,9 +2740,9 @@ FX type-pass inventory (target widths/offsets; no source-body promotion):
 | `func_8004A380` | `D_8007D364[12]` bytes, `D_80083DE0` text, `D_800D2FA0` screen pointer; local text buffer. | Evidence A exact C: all 76 instruction words, the `-0x80` frame, all 9 relocations, and linked ROM bytes match. |
 | `fxSPDPRipple` | `D_8007D370[2]`, `D_8007D374[2]`, `D_8007D378[4]`; `FxGfx **`; level/draw helpers. | GLOBAL_ASM → GLOBAL_ASM; global table widths; ripple display CFG remains. |
 | `fxScreenEffect` | `D_8007D380[10]`, `D_8007D3D0[7]`, `D_8007D408[14]` `FxGfx`; VI video mode and display helpers. | GLOBAL_ASM → GLOBAL_ASM; dlist aggregate; effect command CFG remains. |
-| `func_8004ACC4` | `D_800D60A8` word; `D_800D60BC/CC` pointer words; `D_800D60D3` byte; `D_8007D488` callback word; `TrapDanglingJump`. | bounded mixed structure/register plateau: exact-size frameless C differs in 14/28 words from `+0x14`; callback/trap identity schedule and counter web remain. |
+| `func_8004ACC4` | `D_800D60A8` word; three parallel four-element slot arrays at `D_800D60B0`, `D_800D60C0` and `D_800D60D0`; `D_8007D47C` callback array; `TrapDanglingJump`. | **A**; exact C, 28 words, frameless, 12 relocations; ROM `0x4B8C4`-`0x4B934` byte-identical. The four cursors are IDO's own strength-reduced induction variables: the source indexes the three arrays with one loop variable, which is what puts the now-dead copy of that variable in the first pool colour and the synthesised trip counter in the second. |
 | `func_8004ADE8` | `D_800D60A8`, `D_800D6098[4]`, `D_800D60B0[4]`, `D_800D60C0[4]`, `D_8007D47C[4]`; texture info `+6/+8`. | Tier A: ordinary full-TU C is ROM-exact at `0x8004ADE8..0x8004AF68` / ROM `0x4B9E8..0x4BB68`: 384 executable bytes / 96 words, frame `0x40`, no padding, and all 15 relocation offsets, types, and identities exact. Removing a never-read offset local recovered the JFG-homologous stack-home layout without changing semantics. Tier B: JFG `fxCpuTextureRequired` supplies the role and source-topology context, not Mickey's byte proof. |
-| `func_8004AF68` | `D_800D60BC/CC`, `D_800D60C0[4]`, `D_800D60D3`, `D_8007D47C[4]`, `D_800D60A8`, `TrapDanglingJump`; `mmFree`. | structure plateau → structure plateau (`48` words, first `+4`); structure-buckets; secondary-pool base web remains. |
+| `func_8004AF68` | the four parallel slot arrays `D_800D60B0`, `D_800D60C0`, `D_800D60D0` and `D_8007D47C`; `D_800D60A8`; `TrapDanglingJump`; `mmFree`. | **A**; exact C, 52 words, frame `-0x38`, 12 relocations; ROM `0x4BB68`-`0x4BC38` byte-identical. One `while (i--)` index over all four arrays; uopt builds every cursor, shares one byte offset between `D_800D60C0` and `D_8007D47C`, and keeps `D_800D60C0`'s base inside the loop. |
 
 Exact C closures in these splits begin with 680 bytes across seven `diCpu`
 functions: the 8-byte `func_80046504` (`diCpuTraceGetFault` in JFG) and the
@@ -2868,21 +2868,25 @@ indirect call retain all target instruction words and relocation identities at
 the resident defaults; spelling the constant-count loop as `while (index--)`
 reproduces IDO's rotated `3`-through-`0` schedule without normalization.
 
-`func_8004ACC4` retains the source-faithful logical-line grouping at an
-exact-size, frameless 14/28 positional-word plateau, first `+0x14`. Target and
-candidate each own 12 text relocations; five identity sites remain displaced
-with the callback/trap schedule. All 119 flag identities and ten coherent
-loop, return-type, declaration, assignment, expression-grouping, and pointer-
-type forms are nonexact. Resume only with new source evidence for the shared
-JFG callback/trap and counter web; assembly remains canonical.
+`func_8004ACC4` is exact. Hand-written cursors were the defect: with four
+source pointers the loop's dead counter copy is compiler-generated and takes
+the *last* pool colour, and no arrangement of the setup statements moves it
+(720 statement orders x 32 physical-line groupings, all flat at ten words).
+Indexing three parallel four-element arrays from one `while (i--)` variable
+instead lets uopt build the four cursors itself as strength-reduced induction
+variables, which numbers the source index's now-dead copy first and the
+synthesised trip counter second -- the target's colouring exactly. splat had
+minted only `D_800D60D3`, the one element the assembly addresses directly;
+`symbol_addrs.us.txt` now names the `D_800D60D0` base the C needs.
 
-`func_8004AF68` remains exact-size at 52 words with 26 positional differences
-from `+0x10`; shift-aware workbench diagnosis leaves 18 structural words. The
-older 54/52-word, 48-difference record predates the retained indexed
-`D_800D60C0[i]` rewrite. Nine coherent pointer/index forms, 119 flag
-combinations, ten scheduling/type forms, and bounded permutation did not close
-the saved-register and loop-delay web. The attempt cap is exhausted; the
-candidate stays `NON_MATCHING` and assembly remains canonical.
+`func_8004AF68` is exact, and by the same edit as `func_8004ACC4`. The
+hand-written-cursor candidate floored at 15 words: sharing one byte offset in
+source hoists `D_800D60C0`'s base into an eighth saved register and costs
+three, indexing the two arrays separately emits two shifts and costs three,
+and no arrangement of the cursors reaches the target's `move v0, s3`. Indexing
+all four arrays from one `while (i--)` variable hands the whole induction
+problem to uopt, which produces the shared offset, the in-loop base and the
+dead index copy by itself. 15 -> 0.
 
 `tier-D func_80045BBC` owns VRAM `0x80045BBC..0x80045CAC`, ROM
 `0x467BC..0x468AC`: 240 bytes/60 words, frame `0x30`, and no padding. The
