@@ -460,7 +460,7 @@ void func_8000DFBC(s32 segment, s32 arg1, s32 arg2, s32 arg3);
 s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records, TrackKeyRecord **matches);
 void func_8000F57C(s32 *resultCount, u8 *resultSegments);
 void func_8000FA2C(s32 *result, s32 arg1);
-void shadowGetBuffers(s32 mode, s32 *a, s32 *b, s32 *c);
+void shadowGetBuffers(s32 mode, void **a, void **b, void **c);
 void func_800343F0();
 void texEnableModes(s32 mode);
 s32 getXZCompareMask(TrackBoundingBox *bounds, s32 x0, s32 z0, s32 x1,
@@ -1108,8 +1108,8 @@ void func_8000D1B8(void) {
     s16 temp_s4_2;
     s16 temp_t1;
     s16 temp_t2;
-    s32 *var_s0;
-    s32 temp_t4;
+    u32 *var_s0;
+    u32 temp_t4;
     s32 temp_t4_2;
     s32 temp_v1_2;
     s32 var_a3;
@@ -1128,7 +1128,7 @@ void func_8000D1B8(void) {
     u8 *var_v0;
 
     if (D_800792E8 != NULL) {
-        var_s0 = (s32 *) D_800C9B50;
+        var_s0 = D_800C9B50;
         if (D_80079314 != 0) {
             var_s1 = D_80079314;
             if (D_80079314 != 0) {
@@ -1138,7 +1138,7 @@ void func_8000D1B8(void) {
                     var_s0 += 1;
                     scrollU = (s32) (temp_t4 << 8) >> 20;
                     scrollV = (s32) (temp_t4 << 20) >> 20;
-                    temp_t4_2 = (temp_t4 >> 24) & 0xFF;
+                    temp_t4_2 = ((s32) temp_t4 >> 24) & 0xFF;
                     temp_v1 = D_800792E8->textures[temp_t4_2].texture;
                     temp_t1 = D_800792E8->segmentCount;
                     temp_a0 = temp_v1->width;
@@ -1547,20 +1547,21 @@ typedef struct TrackRouteResult {
 } TrackRouteResult;
 
 extern s32 func_8000A244(s32 *resultCount);
-extern s32 func_8000A39C(s32 first, s32 last);
+extern void func_8000A39C(s32 first, s32 last);
 extern TrackRouteObject *func_800056F0(s32 index);
 
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch, 146 differing words, first mismatch +0x38. */
-/* Candidate: 170/172 instructions with the exact 0x190 frame and 6/6 relocations. */
-/* Scalar map fill and full-width reverse scan are restored; prologue/register scheduling remains. */
+/* Mickey m2c restores the inclusive reverse object range and signed count ABI. */
+/* Nonexact: 169/172 words, 144 differences, first +0x5C, exact 0x190 frame. */
+/* Six relocation records on each side; their offsets still differ. */
 s32 func_8000DB34(s32 count, u8 *indices, TrackRouteResult *results) {
     s32 heapCount;
     s32 mapIndex;
-    u32 lastIndex;
+    s32 lastIndex;
     s32 resultCount;
     s32 segmentIndex;
     s32 objectRadius;
+    s32 objectIndex;
     s32 minX;
     s32 minY;
     s32 minZ;
@@ -1589,9 +1590,10 @@ s32 func_8000DB34(s32 count, u8 *indices, TrackRouteResult *results) {
     func_8000A39C(heapCount, lastIndex - 1);
     resultCount = 0;
     if (heapCount < lastIndex) {
-        lastIndex--;
         do {
-            object = func_800056F0(lastIndex);
+            objectIndex = lastIndex - 1;
+            lastIndex = objectIndex;
+            object = func_800056F0(objectIndex);
             if ((object->segmentIndex != -1) &&
                 (map[object->segmentIndex] != 0xFF) &&
                 (func_800103D4(object) != 0)) {
@@ -1624,7 +1626,6 @@ s32 func_8000DB34(s32 count, u8 *indices, TrackRouteResult *results) {
                 results++;
                 resultCount++;
             }
-            lastIndex--;
         } while (heapCount < lastIndex);
     }
     return resultCount;
@@ -1700,7 +1701,8 @@ s32 func_8000DDE4(s32 key, s32 recordCount, TrackKeyRecord *records,
 /* Relocation counts are both 51; remaining batch/display-list scheduling gap is not permuter-ready. */
 struct TrackShadowObject;
 struct TrackShadowInstance;
-extern void func_800140CC();
+extern void func_800140CC(struct TrackShadowObject *,
+                          struct TrackShadowInstance *);
 extern void overlay69DrawSortedGeometry(Gfx **, Mtx **, TrackVertex **, void *);
 extern void overlay88DrawSortedGeometry(Gfx **, Mtx **, TrackVertex **, void *);
 extern void overlay68DrawSortedEntries(Gfx **, Mtx **, TrackVertex **, void *);
@@ -1710,7 +1712,7 @@ void func_8000DFBC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     TrackSegment *segment;
     TrackBatch *batch;
     Gfx *gfx;
-    u8 *texture;
+    TrackTextureHeader *texture;
     u8 *object;
     u8 *objectChild;
     u8 *vertex;
@@ -1720,12 +1722,12 @@ void func_8000DFBC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s16 batchCount;
     s32 itemIndex;
     s32 alpha;
-    s32 mode;
+    u32 mode;
     s32 vertexCount;
     s32 textureS;
-    s32 vertexAddress;
+    u32 vertexAddress;
     s32 objectMode;
-    s32 value;
+    u32 value;
     s16 objectType;
 
     batchIndex = 0;
@@ -1742,7 +1744,7 @@ void func_8000DFBC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
             ((itemIndex >= arg2) ||
              (batchIndex <
               *(s16 *) (((u8 **) (u32) arg3)[itemIndex] + 2)))) {
-            if ((arg1 & (1 << groupIndex)) &&
+            if ((arg1 & (1U << groupIndex)) &&
                 (groupIndex == batch->unk1)) {
                 if (D_8007C854 != 0) {
                     gfx = D_800C9520;
@@ -1763,7 +1765,7 @@ void func_8000DFBC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
                             texture = NULL;
                             if (batch->textureIndex != 0xFF) {
                                 alpha = 1;
-                                texture = (u8 *)
+                                texture =
                                     D_800792E8->textures[batch->textureIndex]
                                         .texture;
                             }
@@ -1773,7 +1775,7 @@ void func_8000DFBC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
                             triangle = (u8 *) segment->vertexData +
                                        (batch->v0 * 0x10);
                             if ((texture != NULL) &&
-                                (*(s16 *) (texture + 4) & 0x40) &&
+                                ((s16) texture->flags & 0x40) &&
                                 ((mode & 0x30) != 0x20)) {
                                 gfx = D_800C9520;
                                 gfx->words.w0 = 0xFB000000;
@@ -1802,8 +1804,8 @@ void func_8000DFBC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
                             if (objectMode != 0) {
                                 texEnableModes(2);
                             }
-                            vertexAddress = (s32) vertex + 0x80000000;
-                            vertexCount = batch->frame - batch->u0;
+                            vertexAddress = (u32) vertex + 0x80000000U;
+                            vertexCount = batch[1].u0 - batch->u0;
                             gfx = D_800C9520;
                             gfx->words.w1 = vertexAddress;
                             gfx->words.w0 = (((vertexCount * 0xA) + 8) & 0xFFFF) |
@@ -1812,7 +1814,7 @@ void func_8000DFBC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
                                                 (vertexAddress & 6)) & 0xFF) << 16);
                             gfx++;
                             D_800C9520 = gfx;
-                            gfx->words.w1 = (s32) triangle + 0x80000000;
+                            gfx->words.w1 = (u32) triangle + 0x80000000U;
                             vertexCount = batch[1].v0 - batch->v0;
                             gfx->words.w0 = ((vertexCount * 0x10) & 0xFFFF) |
                                              0x05000000 |
@@ -2022,8 +2024,8 @@ void func_8000E5EC(s32 updateRate, s32 arg1) {
  * declarations reconstruct this display-list pipeline; no external function
  * body is adapted. The raw offsets retain fields absent from the local types.
  */
-/* Workbench verdict: structure-mismatch, 491 differing words, first mismatch +0x38. */
-/* Candidate is 558/542 instructions with the target -0xF8 frame and 114 relocations. */
+/* Workbench verdict: structure-mismatch, 459 differing words, first mismatch +0x0. */
+/* Candidate is 547/542 instructions with a -0x100 frame versus -0xF8 and 112/114 relocations. */
 /* Remaining gap: reverse-pass lifetime scoping and display-list scheduling. */
 extern u8 D_80081560[];
 extern u8 D_80081570[];
@@ -2045,7 +2047,7 @@ extern void func_8000F198(s32 segment, s32 record, s32 mode);
 #define E920_S32(base, offset) (*(s32 *) ((u8 *) (base) + (offset)))
 #define E920_PTR(base, offset) (*(void **) ((u8 *) (base) + (offset)))
 #define E920_RECORD(segment) \
-    (*(s32 *) ((u8 *) D_800C95B0 + ((segment) * 0x10) + 4))
+    (D_800C95B0[(segment) + 1])
 
 void func_8000E920(s32 arg0, s32 arg1) {
     s32 segmentCount;
@@ -2054,11 +2056,14 @@ void func_8000E920(s32 arg0, s32 arg1) {
     s32 selectedCount;
     s32 index;
     s32 reverseIndex;
+    s32 lastSelected;
     s16 modeCount;
     u8 segment;
+    u32 segmentCursor;
     u8 segmentIds[0x70];
     s32 *segmentFlags;
     void **selectedObjects;
+    void **objectCursor;
     void *object;
     void *surface;
     void *childSurface;
@@ -2066,7 +2071,7 @@ void func_8000E920(s32 arg0, s32 arg1) {
 
     segmentCount = func_8000A244(&segmentEnd);
     selectedObjects = (void **) D_800C9548;
-    if (E920_S16(D_800792E8, 0x1A) >= 2) {
+    if (D_800792E8->segmentCount >= 2) {
         if (E920_U8(levelGetLevel(), 0x106) == 0) {
             func_8000FA2C(&visibleCount, (s32) &segmentIds[0]);
         } else {
@@ -2080,27 +2085,32 @@ void func_8000E920(s32 arg0, s32 arg1) {
     func_80034920(&D_800C9520);
     func_80044BC8(D_800C9520, D_80081560, 0x58D);
     D_800C95B0[0] = -1;
-    modeCount = E920_S16(D_800792E8, 0x1A);
+    modeCount = D_800792E8->segmentCount;
     index = 1;
     if (modeCount > 0) {
         segmentFlags = D_800C95B4;
         do {
             *segmentFlags = 0;
-            modeCount = E920_S16(D_800792E8, 0x1A);
+            modeCount = D_800792E8->segmentCount;
             index++;
             segmentFlags++;
         } while (modeCount >= index);
     }
     if ((D_80079260 != 0) || (D_80079264 != 0)) {
-        for (reverseIndex = visibleCount - 1; reverseIndex >= 0; reverseIndex--) {
-            segment = segmentIds[reverseIndex];
-            E920_RECORD(segment) = -1;
-            func_8000F198(segment, -1, 0x4000);
+        reverseIndex = visibleCount - 1;
+        segmentCursor = (u32) segmentIds + reverseIndex;
+        if (reverseIndex >= 0) {
+            do {
+                segment = *(u8 *) segmentCursor;
+                E920_RECORD(segment) = -1;
+                func_8000F198(segment, -1, 0x4000);
+                segmentCursor--;
+            } while (segmentCursor >= (u32) segmentIds);
+            modeCount = D_800792E8->segmentCount;
         }
-        modeCount = E920_S16(D_800792E8, 0x1A);
     }
     if (modeCount < 2) {
-        E920_RECORD(1) = -1;
+        E920_RECORD(0) = -1;
     }
     func_8000D978(0, arg1);
     func_80044BC8(D_800C9520, D_80081570, 0x5A1);
@@ -2118,7 +2128,7 @@ void func_8000E920(s32 arg0, s32 arg1) {
     for (; index < segmentEnd; index++) {
         object = func_800056F0(index);
         if ((object != NULL) &&
-            (E920_RECORD(E920_S16(object, 0x2E)) != 0) &&
+            (E920_RECORD(((TrackRouteObject *) object)->segmentIndex) != 0) &&
             (func_800103D4(object) != 0)) {
             selectedObjects[selectedCount++] = object;
         }
@@ -2127,27 +2137,32 @@ void func_8000E920(s32 arg0, s32 arg1) {
         TrapDanglingJump(selectedCount, selectedObjects);
     }
     func_80044BC8(D_800C9520, D_80081580, 0x5D7);
-    for (index = 0; index < selectedCount; index++) {
-        object = selectedObjects[index];
-        if ((E920_S32(object, 0x58) != 0) &&
-            ((E920_S16(object, 6) & 0xC) == 0) &&
-            (E920_U8(object, 0x39) == 0xFF)) {
-            func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
-                          (TrackSkyObject *) object);
-        }
+    index = 0;
+    if (selectedCount > 0) {
+        objectCursor = selectedObjects;
+        do {
+            object = *objectCursor++;
+            index++;
+            if ((E920_S32(object, 0x58) != 0) &&
+                ((E920_S16(object, 6) & 0xC) == 0) &&
+                (E920_U8(object, 0x39) == 0xFF)) {
+                func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
+                              (TrackSkyObject *) object);
+            }
+        } while (index != selectedCount);
     }
     func_80044BC8(D_800C9520, D_80081590, 0x5E3);
-    for (reverseIndex = selectedCount - 1; reverseIndex >= 0;
-         reverseIndex--) {
-        object = selectedObjects[reverseIndex];
+    lastSelected = selectedCount - 1;
+    for (reverseIndex = lastSelected * 4; reverseIndex >= 0;) {
+        object = *(void **) ((u8 *) selectedObjects + reverseIndex);
+        reverseIndex -= 4;
         surface = E920_PTR(object, 0x4C);
         if ((surface != NULL) && (E920_U8(object, 0x8E) == 0)) {
             if ((E920_U8(surface, 0x10) & 8) != 0) {
                 childSurface = E920_PTR(surface, 0x1C);
                 if (childSurface != NULL) {
                     func_800140CC((struct TrackShadowObject *) object,
-                                  (struct TrackShadowInstance *) childSurface,
-                                  childSurface);
+                                  (struct TrackShadowInstance *) childSurface);
                 }
             }
             func_800140CC((struct TrackShadowObject *) object,
@@ -2156,19 +2171,24 @@ void func_8000E920(s32 arg0, s32 arg1) {
         }
     }
     func_80044BC8(D_800C9520, D_800815A0, 0x5F7);
-    for (index = 0; index < selectedCount; index++) {
-        object = selectedObjects[index];
-        if (((E920_S16(object, 6) & 0xC) == 0) &&
-            (E920_U8(object, 0x39) == 0xFF) &&
-            (E920_S32(object, 0x58) == 0)) {
-            func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
-                          (TrackSkyObject *) object);
-        }
+    index = 0;
+    if (selectedCount > 0) {
+        objectCursor = selectedObjects;
+        do {
+            object = *objectCursor++;
+            index++;
+            if (((E920_S16(object, 6) & 0xC) == 0) &&
+                (E920_U8(object, 0x39) == 0xFF) &&
+                (E920_S32(object, 0x58) == 0)) {
+                func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
+                              (TrackSkyObject *) object);
+            }
+        } while (index != selectedCount);
     }
     func_80044BC8(D_800C9520, D_800815B0, 0x603);
-    for (reverseIndex = selectedCount - 1; reverseIndex >= 0;
-         reverseIndex--) {
-        object = selectedObjects[reverseIndex];
+    for (reverseIndex = lastSelected * 4; reverseIndex >= 0;) {
+        object = *(void **) ((u8 *) selectedObjects + reverseIndex);
+        reverseIndex -= 4;
         if ((E920_S16(object, 6) & 8) != 0) {
             func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
                           (TrackSkyObject *) object);
@@ -2186,9 +2206,9 @@ void func_8000E920(s32 arg0, s32 arg1) {
                 segment = segmentIds[reverseIndex];
                 func_8000F198(segment, E920_RECORD(segment), 0x8000);
             }
-            for (reverseIndex = selectedCount - 1; reverseIndex >= 0;
-                 reverseIndex--) {
-                object = selectedObjects[reverseIndex];
+            for (reverseIndex = lastSelected * 4; reverseIndex >= 0;) {
+                object = *(void **) ((u8 *) selectedObjects + reverseIndex);
+                reverseIndex -= 4;
                 surface = E920_PTR(object, 0x4C);
                 if ((surface != NULL) && (E920_U8(object, 0x8E) != 0)) {
                     if ((E920_U8(surface, 0x10) & 8) != 0) {
@@ -2196,8 +2216,7 @@ void func_8000E920(s32 arg0, s32 arg1) {
                         if (childSurface != NULL) {
                             func_800140CC(
                                 (struct TrackShadowObject *) object,
-                                (struct TrackShadowInstance *) childSurface,
-                                childSurface);
+                                (struct TrackShadowInstance *) childSurface);
                         }
                     }
                     func_800140CC((struct TrackShadowObject *) object,
@@ -2215,9 +2234,9 @@ void func_8000E920(s32 arg0, s32 arg1) {
         }
     }
     func_80044BC8(D_800C9520, D_800815E0, 0x63B);
-    for (reverseIndex = selectedCount - 1; reverseIndex >= 0;
-         reverseIndex--) {
-        object = selectedObjects[reverseIndex];
+    for (reverseIndex = lastSelected * 4; reverseIndex >= 0;) {
+        object = *(void **) ((u8 *) selectedObjects + reverseIndex);
+        reverseIndex -= 4;
         record = E920_S32(object, 0x54);
         if (record != 0) {
             func_80049518(record, &D_800C9520);
@@ -2230,9 +2249,9 @@ void func_8000E920(s32 arg0, s32 arg1) {
         TrapDanglingJump((s32) &D_800C9520, &D_800C9528);
     }
     func_80044BC8(D_800C9520, D_800815F0, 0x64E);
-    for (reverseIndex = selectedCount - 1; reverseIndex >= 0;
-         reverseIndex--) {
-        object = selectedObjects[reverseIndex];
+    for (reverseIndex = lastSelected * 4; reverseIndex >= 0;) {
+        object = *(void **) ((u8 *) selectedObjects + reverseIndex);
+        reverseIndex -= 4;
         if (((E920_S16(object, 6) & 4) != 0) ||
             ((s32) E920_U8(object, 0x39) < 0xFF)) {
             func_80009E78(&D_800C9520, &D_800C9524, &D_800C9528,
@@ -2285,9 +2304,9 @@ void func_8000E920(s32 arg0, s32 arg1) {
  * routine and texture vocabulary, while this Mickey body follows its own
  * fields, call sites, and assembly-only command schedule. */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch; 228 differing words, first mismatch +0x0. */
-/* Target 249 instructions/frame -112; candidate 247 instructions/frame -88. */
-/* Remaining gap is stack layout and command scheduling; 24-byte frame excess remains, so it is not shape-exact. */
+/* Workbench verdict: structure-mismatch; 185 differing words, first mismatch +0x0. */
+/* Exact 249-word size; candidate frame 0x58 versus target 0x70, 18/21 relocation sites exact. */
+/* Unsigned batch flags preserve the recovered masks; the 24-byte frame deficit remains. */
 void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
     TrackSegment *segment;
     TrackBatch *batch;
@@ -2298,7 +2317,7 @@ void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
     u32 vertexAddress;
     u32 positionAddress;
     s32 textureFrame;
-    s32 textureFlags;
+    u32 textureFlags;
     s32 hasTexture;
     s32 vertexCount;
     s32 positionCount;
@@ -2337,7 +2356,7 @@ void func_8000F198(s32 arg0, s32 arg1, s32 arg2) {
     if (batchCount != 0) {
         index = batchCount - 1;
         do {
-            if ((1 << batch->unk1) & arg1) {
+            if ((1U << batch->unk1) & arg1) {
                 textureFlags = batch->flags;
                 if ((textureFlags & sp5C) && !(textureFlags & sp58)) {
                     texture = NULL;
@@ -2868,12 +2887,12 @@ next_plane:
     } while (planeCount--);
     return TRUE;
 }
-/* Workbench verdict: structure-mismatch, 120 positional and 132 aligned
- * differing words, first mismatch +0x0. */
-/* Candidate: 159/160 instructions with a -0x60 frame versus target -0x38;
+/* Workbench verdict: structure-mismatch, 158 raw/masked differing words;
+ * first mismatch +0x0. Corrected Mickey jump-table dispatch remains nonexact. */
+/* Candidate: 156/160 instructions with a -0x60 frame versus target -0x38;
  * target/candidate static relocations are 20/12. */
-/* Shape status: switch semantics, fade direction, and the bottom-tested plane
- * loop are reconstructed; the saved-FP declaration web remains unresolved. */
+/* Shape status: both jump tables and all seven no-op kinds are reconstructed;
+ * the saved-FP declaration web remains unresolved. */
 /* PROVENANCE: JFG's assembly-only object-alpha routine supplies the role and switch family;
  * Mickey's jump tables, fields, globals, and arithmetic are authoritative here. */
 #ifdef NON_MATCHING
@@ -2901,96 +2920,86 @@ s32 func_800103D4(void *object) {
     visible = 1;
     gameMode = func_80028F54();
     kind = *(s16 *) ((u8 *) object + 0x44);
-    if (kind < 30) {
-        switch (kind) {
-        case 1:
-            state = *(void **) ((u8 *) object + 0x64);
-            *(u8 *) ((u8 *) object + 0x39) = *(u8 *) ((u8 *) state + 0xF);
-            break;
-        case 3:
-            state = *(void **) ((u8 *) object + 0x64);
-            *(u8 *) ((u8 *) object + 0x39) = (s32) *(f32 *) ((u8 *) state + 0x18);
-            break;
-        case 17:
-            break;
-        case 18:
-            state = *(void **) ((u8 *) object + 0x64);
-            *(u8 *) ((u8 *) object + 0x39) = *(u8 *) ((u8 *) state + 2);
-            break;
-        case 26:
-            state = *(void **) ((u8 *) object + 0x64);
-            *(u8 *) ((u8 *) object + 0x39) = *(u32 *) ((u8 *) state + 4);
-            break;
-        case 2:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 14:
-        case 15:
-        case 16:
-        case 19:
-        case 20:
-        case 21:
-        case 22:
-        case 23:
-        case 24:
-        case 25:
-        case 27:
-        case 28:
-        case 29:
-        default:
+    switch (kind) {
+    case 65:
+        state = *(void **) ((u8 *) object + 0x64);
+        *(u8 *) ((u8 *) object + 0x39) = (s32) *(f32 *) ((u8 *) state + 0x18);
+        break;
+    case 63:
+        state = *(void **) ((u8 *) object + 0x64);
+        *(u8 *) ((u8 *) object + 0x39) = *(u8 *) ((u8 *) state + 0xF);
+        break;
+    case 1:
+        state = *(void **) ((u8 *) object + 0x64);
+        if (*gameMode == 5) {
+            *(u8 *) ((u8 *) object + 0x39) = *(u8 *) ((u8 *) state + 0x190);
+        } else if (((*(u16 *) ((u8 *) state + 0x1A8) & 1) == 0) ||
+                   (*(u8 *) ((u8 *) state + 0x170) == 0)) {
             *(u8 *) ((u8 *) object + 0x39) = 0xFF;
-            break;
         }
-    } else {
-        switch (kind) {
-        case 63:
-            state = *(void **) ((u8 *) object + 0x64);
-            if (*gameMode == 5) {
-                *(u8 *) ((u8 *) object + 0x39) =
-                    *(u8 *) ((u8 *) state + 0x190);
-            } else if (((*(u16 *) ((u8 *) state + 0x1A8) & 1) == 0) ||
-                       (*(u8 *) ((u8 *) state + 0x170) == 0)) {
-                *(u8 *) ((u8 *) object + 0x39) = 0xFF;
-            }
-            break;
-        case 84:
-        case 85:
-        case 86:
-            break;
-        case 64:
-        case 65:
-        case 66:
-        case 67:
-        case 68:
-        case 69:
-        case 70:
-        case 71:
-        case 72:
-        case 73:
-        case 74:
-        case 75:
-        case 76:
-        case 77:
-        case 78:
-        case 79:
-        case 80:
-        case 81:
-        case 82:
-        case 83:
-        case 87:
-        case 88:
-        default:
-            *(u8 *) ((u8 *) object + 0x39) = 0xFF;
-            break;
-        }
+        break;
+    case 80:
+        state = *(void **) ((u8 *) object + 0x64);
+        *(u8 *) ((u8 *) object + 0x39) = *(u8 *) ((u8 *) state + 2);
+        break;
+    case 88:
+        state = *(void **) ((u8 *) object + 0x64);
+        *(u8 *) ((u8 *) object + 0x39) = *(u32 *) ((u8 *) state + 4);
+        break;
+    case 22:
+    case 23:
+    case 24:
+    case 25:
+    case 26:
+    case 29:
+    case 79:
+        break;
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+    case 15:
+    case 16:
+    case 17:
+    case 18:
+    case 19:
+    case 20:
+    case 21:
+    case 27:
+    case 28:
+    case 64:
+    case 66:
+    case 67:
+    case 68:
+    case 69:
+    case 70:
+    case 71:
+    case 72:
+    case 73:
+    case 74:
+    case 75:
+    case 76:
+    case 77:
+    case 78:
+    case 81:
+    case 82:
+    case 83:
+    case 84:
+    case 85:
+    case 86:
+    case 87:
+    default:
+        *(u8 *) ((u8 *) object + 0x39) = 0xFF;
+        break;
     }
     if (*(u8 *) ((u8 *) object + 0x39) == 0) {
         return 0;
@@ -3277,9 +3286,9 @@ s32 func_80010900(TrackVec3f *arg0, TrackVec3f *arg1, f32 arg2, s32 arg3,
  * helper declarations reconstruct this player-intersection loop; no external
  * function body is adapted. The record writes retain the assembly offsets.
  */
-/* Workbench verdict: structure-mismatch, 668 differing words, first mismatch +0x0. */
-/* Candidate has the target 678-word geometry and nine relocations, with frame -0x158 versus -0x148. */
-/* Remaining gap: a 16-byte frame excess and unresolved FP/pointer allocation scheduling. */
+/* Workbench verdict: structure-mismatch, 662 differing words, first mismatch +0x0. */
+/* Candidate has 692/678 words and nine relocations, with frame -0x158 versus -0x148. */
+/* Remaining gap: fourteen excess words, a 16-byte frame excess, and unresolved FP/pointer scheduling. */
 struct TrackCollisionSurface;
 struct TrackCollisionRecord;
 extern void func_800115E4(
@@ -3292,29 +3301,26 @@ extern void func_800115E4(
 #define B4C_F32(base, offset) (*(f32 *) ((u8 *) (base) + (offset)))
 
 s32 func_80010B4C(s32 arg0, void *arg1, f32 *arg2, f32 *arg3,
-                  s32 arg4, void *arg5) {
+                  void *arg4, void *arg5, void *arg6) {
     TrackRayHit intersection;
     f32 relative[16];
     TrackRayPoint direction;
-    u8 *start;
-    u8 *end;
+    TrackRayPoint *start;
+    TrackRayPoint *end;
     u8 *record;
     f32 *scalePtr;
     f32 lengthSquared;
     f32 length;
-    f32 offsetX;
-    f32 offsetY;
-    f32 offsetZ;
     f32 minimumLength;
     f32 scale;
     s32 minimumIndex;
     s32 count;
     s32 index;
     s32 attempt;
-    s32 bit;
-    s32 collisionMask;
-    s32 resultMask;
-    s32 failureMask;
+    u32 bit;
+    u32 collisionMask;
+    u32 resultMask;
+    u32 failureMask;
     s32 collision;
     s32 queryResult;
     s32 auxiliaryResult;
@@ -3358,40 +3364,41 @@ s32 func_80010B4C(s32 arg0, void *arg1, f32 *arg2, f32 *arg3,
         collisionMask = 0;
         bit = 1;
         scalePtr = arg3;
-        for (index = 0; (index < arg0) && (failureMask == 0);
-             index++, scalePtr++) {
-            start = (u8 *) arg1 + (index * 0xC);
-            end = (u8 *) arg2 + (index * 0xC);
+        index = 0;
+        do {
+            start = (TrackRayPoint *) ((u8 *) arg1 + (index * 0xC));
+            end = (TrackRayPoint *) ((u8 *) arg2 + (index * 0xC));
             scale = *scalePtr;
             count = 0;
             do {
-                direction.x = B4C_F32(end, 0) - B4C_F32(start, 0);
-                direction.y = B4C_F32(end, 4) - B4C_F32(start, 4);
-                direction.z = B4C_F32(end, 8) - B4C_F32(start, 8);
+                collision = 0;
+                auxiliaryResult = 0;
+                direction.x = end->x - start->x;
+                direction.y = end->y - start->y;
+                direction.z = end->z - start->z;
                 lengthSquared = (direction.z * direction.z) +
                                 ((direction.x * direction.x) +
                                  (direction.y * direction.y));
-                collision = 0;
                 if (lengthSquared > 0.0f) {
                     length = sqrtf(lengthSquared);
+                    intersection.ratio = length;
                     direction.x /= length;
                     direction.y /= length;
                     direction.z /= length;
                     if (D_800C9D28 != 0) {
                         queryResult = func_80011980(
-                            (TrackRayPoint *) start, (TrackRayPoint *) end,
+                            start, end,
                             &direction, length, scale, 0.0f,
                             &intersection);
                     } else {
                         queryResult = func_80011980(
-                            (TrackRayPoint *) start, (TrackRayPoint *) end,
+                            start, end,
                             &direction, length, scale, scale,
                             &intersection);
                     }
-                    auxiliaryResult = 0;
                     if (D_800C9D28 != 0) {
                         auxiliaryResult = func_80011CDC(
-                            start, (u8 *) &direction, scale,
+                            (u8 *) start, (u8 *) &direction, scale,
                             (u8 *) &intersection);
                     }
                     if ((queryResult | auxiliaryResult) != 0) {
@@ -3400,22 +3407,24 @@ s32 func_80010B4C(s32 arg0, void *arg1, f32 *arg2, f32 *arg3,
                             (s32) start, (TrackVec3f *) end, &direction, length,
                             (struct TrackCollisionSurface *) &intersection,
                             (struct TrackCollisionRecord *) record);
-                        B4C_F32(record, 0x34) = length;
+                        B4C_F32(record, 0x34) = intersection.ratio;
                         collision = 1;
                         collisionMask |= bit;
                     }
-                }
-                if (collision != 0) {
-                    count++;
-                    if (count >= 0xB) {
-                        collisionMask = 0;
-                        collision = 0;
-                        failureMask |= 0x40000000;
+                    if (collision != 0) {
+                        count++;
+                        if (count >= 0xB) {
+                            collisionMask = 0;
+                            collision = 0;
+                            failureMask |= 0x40000000;
+                        }
                     }
                 }
             } while (collision != 0);
             bit <<= 1;
-        }
+            index++;
+            scalePtr++;
+        } while ((index < arg0) && (failureMask == 0));
         if (((collisionMask != 0) && (attempt >= 0xB)) ||
             (failureMask != 0)) {
             for (index = 0; index < arg0; index++) {
@@ -3434,9 +3443,9 @@ s32 func_80010B4C(s32 arg0, void *arg1, f32 *arg2, f32 *arg3,
                 failureMask |= 0x80000000;
             }
         } else if (collisionMask != 0) {
-            minimumLength = 32000.0f;
             minimumIndex = 0;
             if (arg5 != NULL) {
+                minimumLength = 32000.0f;
                 bit = 1;
                 for (index = 0; index < arg0; index++) {
                     if ((collisionMask & bit) != 0) {
@@ -3450,22 +3459,19 @@ s32 func_80010B4C(s32 arg0, void *arg1, f32 *arg2, f32 *arg3,
                 }
                 record = (u8 *) ((u32) arg4 + (minimumIndex * 0x40));
                 B4C_U8(record, 0x3D) |= 1;
-                offsetX = B4C_F32(arg2, minimumIndex * 0xC) -
+                B4C_F32(arg5, 0) = B4C_F32(arg2, minimumIndex * 0xC) -
                           relative[minimumIndex * 3];
-                offsetY = B4C_F32(arg2, (minimumIndex * 0xC) + 4) -
+                B4C_F32(arg5, 4) = B4C_F32(arg2, (minimumIndex * 0xC) + 4) -
                           relative[(minimumIndex * 3) + 1];
-                offsetZ = B4C_F32(arg2, (minimumIndex * 0xC) + 8) -
+                B4C_F32(arg5, 8) = B4C_F32(arg2, (minimumIndex * 0xC) + 8) -
                           relative[(minimumIndex * 3) + 2];
-                B4C_F32(arg5, 0) = offsetX;
-                B4C_F32(arg5, 4) = offsetY;
-                B4C_F32(arg5, 8) = offsetZ;
                 for (index = 0; index < arg0; index++) {
                     B4C_F32(arg2, index * 0xC) =
-                        relative[index * 3] + offsetX;
+                        relative[index * 3] + B4C_F32(arg5, 0);
                     B4C_F32(arg2, (index * 0xC) + 4) =
-                        relative[(index * 3) + 1] + offsetY;
+                        relative[(index * 3) + 1] + B4C_F32(arg5, 4);
                     B4C_F32(arg2, (index * 0xC) + 8) =
-                        relative[(index * 3) + 2] + offsetZ;
+                        relative[(index * 3) + 2] + B4C_F32(arg5, 8);
                 }
                 resultMask |= collisionMask;
             }
@@ -3520,9 +3526,9 @@ typedef struct TrackCollisionRecord {
 
 s16 Arctanf(f32 x, f32 y);
 
-/* Workbench verdict: structure-mismatch, 231 differing words, first mismatch +0x0. */
-/* Candidate: 236/231 instructions with a -0xA0 frame versus target -0x98. */
-/* Record bytes and cross products are authenticated; FP saved-register colouring remains unresolved. */
+/* Workbench verdict: structure-mismatch, 217 differing words, first mismatch +0x0. */
+/* Candidate: 237/231 words, frame 0xA0 versus 0x98, 6/17 relocation sites exact. */
+/* Mickey m2c restores the defined flag test and numerator negation before division. */
 void func_800115E4(s32 mode, TrackVec3f *position, TrackVec3f *offset,
                    f32 scale, TrackCollisionSurface *surface,
                    TrackCollisionRecord *record) {
@@ -3557,7 +3563,7 @@ void func_800115E4(s32 mode, TrackVec3f *position, TrackVec3f *offset,
     planeValue = (position->f[2] * surfaceZ) +
                  ((surfaceX * position->f[0]) +
                   (surfaceY * position->f[1])) + surfaceDistance;
-    if ((D_80081778 <= surfaceY) || ((surface->flags << 3) < 0)) {
+    if ((D_80081778 <= surfaceY) || (surface->flags & 0x10000000)) {
         firstCrossX = offset->f[2] * surfaceY;
         firstCrossY = (surfaceZ * offset->f[0]) -
                       (offset->f[2] * surfaceX);
@@ -3578,9 +3584,9 @@ void func_800115E4(s32 mode, TrackVec3f *position, TrackVec3f *offset,
             position->f[2] = surface->positionZ +
                              (time * (crossZ / distance));
         } else {
-            position->f[1] = -(((position->f[2] * surfaceZ) +
-                                (surfaceX * position->f[0]) +
-                                surfaceDistance) / surfaceY) + D_80081780;
+            position->f[1] = (-((position->f[2] * surfaceZ) +
+                                 (surfaceX * position->f[0]) +
+                                 surfaceDistance) / surfaceY) + D_80081780;
         }
         record->pointY = surfaceX;
         record->pointZ = surfaceY;
@@ -3626,11 +3632,11 @@ void func_800115E4(s32 mode, TrackVec3f *position, TrackVec3f *offset,
         record->value18 = surfaceZ;
         record->value3D |= 4;
     }
-    record->value38 = surface->flags;
-    record->value3C = surface->material;
     record->value28 = surfaceX;
     record->value2C = surfaceY;
     record->value30 = surfaceZ;
+    record->value38 = surface->flags;
+    record->value3C = surface->material;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/track/func_800115E4.s")
@@ -3667,7 +3673,7 @@ s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
                   TrackRayPoint *offset, f32 scale, f32 planeOffset,
                   f32 threshold, TrackRayHit *hit) {
     TrackRayNodeExtended *node;
-    TrackRayNodeExtended *entry;
+    u16 *entry;
     TrackRayFace *face;
     TrackRayFace *edgeFace;
     f32 planeX;
@@ -3682,7 +3688,7 @@ s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
     f32 pointZ;
     f32 edgeValue;
     f32 adjustedOffset;
-    u8 *edgeEntry;
+    u16 *edgeEntry;
     s32 encoded;
     s32 entryOffset;
     s32 segmentIndex;
@@ -3702,9 +3708,9 @@ s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
             if (encoded > 0) {
                 node = (TrackRayNodeExtended *) (encoded | (s32) 0x80000000);
             } else {
-                entry = (TrackRayNodeExtended *) encoded;
+                entry = (u16 *) encoded;
                 face = (TrackRayFace *) ((u8 *) node->planes +
-                                         (*(u16 *) entry * 0x10));
+                                         (*entry * 0x10));
                 planeX = face->x;
                 planeY = face->y;
                 planeZ = face->z;
@@ -3722,7 +3728,7 @@ s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
                         if (ratio <= hit->ratio) {
                             edgeOffset = 0;
                             edgeValid = 1;
-                            edgeEntry = (u8 *) entry + edgeOffset;
+                            edgeEntry = (u16 *) ((u8 *) entry + edgeOffset);
                             pointX = ((offset->x * ratio) + start->x) -
                                      (planeOffset * planeX);
                             pointY = ((offset->y * ratio) + start->y) -
@@ -3730,7 +3736,7 @@ s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
                             pointZ = ((offset->z * ratio) + start->z) -
                                      (planeOffset * planeZ);
                             do {
-                                edge = *(u16 *) (edgeEntry + 2);
+                                edge = edgeEntry[1];
                                 edgeOffset += 2;
                                 sign = edge & 0x8000;
                                 edgeIndex = edge ^ sign;
@@ -3746,7 +3752,7 @@ s32 func_80011980(TrackRayPoint *start, TrackRayPoint *end,
                                 if (threshold < edgeValue) {
                                     edgeValid = 0;
                                 }
-                                edgeEntry += 2;
+                                edgeEntry++;
                             } while ((edgeOffset < 6) && (edgeValid != 0));
                             if (edgeValid != 0) {
                                 hit->normalX = planeX;
@@ -4212,9 +4218,9 @@ void func_80012658(s32 flags) {
  * declarations reconstruct this query; no external function body is adapted.
  * Raw offsets retain the compact segment and polygon records.
  */
-/* Workbench verdict: structure-mismatch, 527 differing words, first mismatch +0x0. */
-/* Candidate is 543/548 instructions with frame -0x2B0 versus target -0x288. */
-/* Remaining gap: five missing instructions, 40 excess frame bytes, and two excess relocations. */
+/* Workbench verdict: structure-mismatch, 499 differing words, first mismatch +0x0. */
+/* Candidate is 538/548 instructions with frame -0x2B0 versus target -0x288. */
+/* Remaining gap: ten missing instructions, 40 excess frame bytes, and two excess relocations. */
 extern s32 func_800131AC(TrackVec3f *origin, TrackVec3f *direction,
                          TrackVec3f *minimum, TrackVec3f *maximum,
                          f32 *nearClip, f32 *farClip);
@@ -4228,21 +4234,23 @@ extern u8 getYCompareMask(void *bounds, s32 y0, s32 y1);
 #define E129_PTR(base, offset) (*(void **) ((u8 *) (base) + (offset)))
 
 s32 func_8001291C(f32 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
-    void *segments[20];
+    TrackSegment *segments[20];
     f32 entryTimes[20];
     s32 xzMasks[20];
     u8 yMasks[20];
     TrackVec3f direction;
     TrackVec3f minimum;
     TrackVec3f maximum;
+    f32 bestX;
+    f32 bestY;
+    f32 bestZ;
     TrackBoundingBox *bounds;
     TrackData *track;
-    void *segment;
-    void *batch;
-    void *batchRecord;
-    void *surfaceBase;
-    void *plane;
-    void *bestPlane;
+    TrackSegment *segment;
+    TrackBatch *batch;
+    TrackPlane *surfaceBase;
+    TrackPlane *plane;
+    TrackPlane *bestPlane;
     u16 *polygon;
     f32 nearClip;
     f32 farClip;
@@ -4258,7 +4266,6 @@ s32 func_8001291C(f32 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
     f32 normalZ;
     f32 planeDistance;
     f32 edgeValue;
-    f32 temporaryTime;
     s32 segmentIndex;
     s32 hitCount;
     s32 insertIndex;
@@ -4270,7 +4277,8 @@ s32 func_8001291C(f32 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
     s32 edgeIndex;
     s32 inside;
     s32 hit;
-    s32 bestFlags;
+    u32 bestFlags;
+    u32 batchFlags;
     u8 bestTexture;
     s32 x0;
     s32 y0;
@@ -4282,9 +4290,8 @@ s32 func_8001291C(f32 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
     u16 edge;
     u16 edgeSign;
     u8 temporaryY;
-    u8 *segmentBytes;
     u8 *surfaceBytes;
-    void *temporarySegment;
+    TrackSegment *temporarySegment;
     s32 temporaryXZ;
 
     direction.f[0] = arg1[0] - arg0[0];
@@ -4337,14 +4344,14 @@ s32 func_8001291C(f32 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
                 }
                 entryTimes[hitCount] = nearClip;
                 segments[hitCount] =
-                    (u8 *) D_800792E8->segments + (segmentIndex * 0x40);
+                    &D_800792E8->segments[segmentIndex];
                 xzMasks[hitCount] = getXZCompareMask(bounds, x0, z0, x1, z1);
                 yMasks[hitCount] = getYCompareMask(bounds, y0, y1);
                 insertIndex = hitCount;
                 while ((insertIndex > 0) &&
                        (entryTimes[insertIndex] <
                         entryTimes[insertIndex - 1])) {
-                    temporaryTime = entryTimes[insertIndex];
+                    nearClip = entryTimes[insertIndex];
                     temporarySegment = segments[insertIndex];
                     temporaryXZ = xzMasks[insertIndex];
                     temporaryY = yMasks[insertIndex];
@@ -4353,7 +4360,7 @@ s32 func_8001291C(f32 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
                     segments[insertIndex] = segments[insertIndex - 1];
                     xzMasks[insertIndex] = xzMasks[insertIndex - 1];
                     yMasks[insertIndex] = yMasks[insertIndex - 1];
-                    entryTimes[insertIndex - 1] = temporaryTime;
+                    entryTimes[insertIndex - 1] = nearClip;
                     segments[insertIndex - 1] = temporarySegment;
                     xzMasks[insertIndex - 1] = temporaryXZ;
                     yMasks[insertIndex - 1] = temporaryY;
@@ -4368,25 +4375,23 @@ s32 func_8001291C(f32 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
     }
     hit = 0;
     bestDistance = 1.0f;
-    pointX = arg1[0];
-    pointY = arg1[1];
-    pointZ = arg1[2];
+    bestX = arg1[0];
+    bestY = arg1[1];
+    bestZ = arg1[2];
     arg3 |= 0x1080;
     for (segmentIndex = 0;
          (segmentIndex < hitCount) && (hit == 0);
          segmentIndex++) {
-        segmentBytes = (u8 *) segments[segmentIndex];
         segment = segments[segmentIndex];
-        surfaceBase = E129_PTR(segment, 0x1C);
-        batch = E129_PTR(segment, 0x0C);
-        batchCount = E129_S16(segment, 0x24);
+        surfaceBase = segment->surfaces;
+        batch = segment->batches;
+        batchCount = segment->batchCount;
         for (batchIndex = 0; batchIndex < batchCount; batchIndex++) {
-            batchRecord = (u8 *) batch + (batchIndex * 0x10);
-            firstTriangle = E129_S16(batchRecord, 8);
-            lastTriangle = E129_S16(batchRecord, 0x18);
-            bestFlags = E129_S32(batchRecord, 0x0C);
-            if ((bestFlags & arg3) ||
-                ((arg4 != 0) && ((bestFlags & arg4) == 0))) {
+            firstTriangle = batch->v0;
+            lastTriangle = batch[1].v0;
+            batchFlags = batch->flags;
+            if ((batchFlags & arg3) ||
+                ((arg4 != 0) && ((batchFlags & arg4) == 0))) {
                 firstTriangle = lastTriangle;
             }
             for (triangleIndex = firstTriangle;
@@ -4398,27 +4403,26 @@ s32 func_8001291C(f32 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
                     ((visibility & 0xFFFF0000) != 0) &&
                     ((E129_U8(E129_PTR(segment, 0x14), triangleIndex) &
                       yMasks[segmentIndex]) != 0)) {
-                    polygon = (u16 *) ((u8 *) E129_PTR(segment, 0x18) +
-                                      (triangleIndex * 8));
-                    plane = (u8 *) surfaceBase + (E129_U16(polygon, 0) * 0x10);
-                    normalX = E129_F32(plane, 0);
-                    normalY = E129_F32(plane, 4);
-                    normalZ = E129_F32(plane, 8);
-                    planeDistance = E129_F32(plane, 0xC);
-                    side1 = (((arg1[0] * normalX) +
-                              ((arg1[1] * normalY) + (arg1[2] * normalZ))) +
-                             planeDistance);
+                    polygon = &segment->surfaceIndices[triangleIndex * 4];
+                    plane = &surfaceBase[polygon[0]];
+                    normalX = plane->x;
+                    normalY = plane->y;
+                    normalZ = plane->z;
+                    planeDistance = plane->distance;
+                    side1 = (arg1[2] * normalZ) +
+                              ((normalX * arg1[0]) +
+                               (normalY * arg1[1])) + planeDistance;
                     if (side1 < 0.0f) {
-                        side0 = (((arg0[0] * normalX) +
-                                  ((arg0[1] * normalY) +
-                                   (arg0[2] * normalZ))) + planeDistance);
+                        side0 = (arg0[2] * normalZ) +
+                              ((normalX * arg0[0]) +
+                               (normalY * arg0[1])) + planeDistance;
                         if (side0 >= 0.0f) {
                             fraction = side0 / (side0 - side1);
                             pointX = (direction.f[0] * fraction) + arg0[0];
                             pointY = (direction.f[1] * fraction) + arg0[1];
                             pointZ = (direction.f[2] * fraction) + arg0[2];
                             inside = 1;
-                            for (edgeIndex = 0; edgeIndex < 3; edgeIndex++) {
+                            for (edgeIndex = 0; (edgeIndex < 3) && (inside != 0); edgeIndex++) {
                                 edge = E129_U16(polygon, (edgeIndex + 1) * 2);
                                 edgeSign = edge & 0x8000;
                                 edgeNumber = edge ^ edgeSign;
@@ -4438,29 +4442,32 @@ s32 func_8001291C(f32 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
                             }
                             if ((inside != 0) && (fraction < bestDistance)) {
                                 bestDistance = fraction;
+                                bestX = pointX;
+                                bestY = pointY;
+                                bestZ = pointZ;
                                 bestPlane = plane;
-                                bestFlags = E129_S32(batchRecord, 0x0C);
+                                bestFlags = batch->flags;
                                 bestTexture = E129_U8(
                                     D_800792E8->textures,
-                                    (E129_U8(batchRecord, 0) * 8) + 7);
+                                    (batch->textureIndex * 8) + 7);
                                 hit = 1;
                             }
                         }
                     }
                 }
             }
-            batch = (u8 *) batch + 0x10;
+            batch++;
         }
     }
     if (hit != 0) {
         E129_S32(arg2, 0) = 0;
-        E129_F32(arg2, 4) = pointX;
-        E129_F32(arg2, 8) = pointY;
-        E129_F32(arg2, 0xC) = pointZ;
-        E129_F32(arg2, 0x10) = E129_F32(bestPlane, 0);
-        E129_F32(arg2, 0x14) = E129_F32(bestPlane, 4);
-        E129_F32(arg2, 0x18) = E129_F32(bestPlane, 8);
-        E129_F32(arg2, 0x1C) = E129_F32(bestPlane, 0xC);
+        E129_F32(arg2, 4) = bestX;
+        E129_F32(arg2, 8) = bestY;
+        E129_F32(arg2, 0xC) = bestZ;
+        E129_F32(arg2, 0x10) = bestPlane->x;
+        E129_F32(arg2, 0x14) = bestPlane->y;
+        E129_F32(arg2, 0x18) = bestPlane->z;
+        E129_F32(arg2, 0x1C) = bestPlane->distance;
         direction.f[0] *= bestDistance;
         direction.f[1] *= bestDistance;
         direction.f[2] *= bestDistance;
@@ -4630,9 +4637,9 @@ void func_800133FC(TrackVertex *arg0, TrackVertex *arg1,
  * no published donor body is used here.
  */
 #ifdef NON_MATCHING
-/* Workbench verdict: structure-mismatch; 289 differing words, first mismatch +0x8. */
-/* Target 260 instructions/frame -312; candidate 321 instructions/frame -312. */
-/* -Wo,-loopunroll,0 reaches 261 words; an isolated flag boundary is the next lever. */
+/* Workbench verdict: structure-mismatch; 189 differing words, first mismatch +0x8. */
+/* Exact 260-word size and 0x138 frame, 7/8 relocation sites exact under configured flags. */
+/* Mickey m2c recovers the compact post-decrement sort and post-call batch flag reload. */
 u32 func_8001357C(f32 arg0, f32 arg1, f32 *arg2, s32 arg3, void *arg4) {
     s16 *segmentIndexPointer;
     TrackSegment *segment;
@@ -4653,13 +4660,10 @@ u32 func_8001357C(f32 arg0, f32 arg1, f32 *arg2, s32 arg3, void *arg4) {
     s32 vertexIndex;
     s32 compareMask;
     u32 batchFlags;
-    s32 resultCount;
+    u32 resultCount;
     u32 visibility;
     f32 height;
-    f32 planeX;
-    f32 planeY;
-    f32 planeZ;
-    f32 planeDistance;
+    TrackPlane computedPlane;
     s32 outer;
     s32 inner;
     TrackIntersection *record;
@@ -4709,12 +4713,13 @@ u32 func_8001357C(f32 arg0, f32 arg1, f32 *arg2, s32 arg3, void *arg4) {
                                         height = (f32) vertex1->y;
                                         if (vertex1->y != vertex2->y ||
                                             vertex1->y != vertex3->y) {
-                                            if (batchFlags & 0x1080) {
+                                            if (batch->flags & 0x1080) {
                                                 func_800133FC(
                                                     vertex1, vertex2, vertex3,
-                                                    &planeX, &planeY, &planeZ,
-                                                    &planeDistance);
-                                                plane = (TrackPlane *) &planeX;
+                                                    &computedPlane.x, &computedPlane.y,
+                                                    &computedPlane.z,
+                                                    &computedPlane.distance);
+                                                plane = &computedPlane;
                                             } else {
                                                 plane = segment->surfaces +
                                                     (segment->surfaceIndices[
@@ -4755,19 +4760,25 @@ u32 func_8001357C(f32 arg0, f32 arg1, f32 *arg2, s32 arg3, void *arg4) {
         } while (segmentNumber != segmentCount);
     }
     if (resultCount >= 2U) {
-        for (outer = resultCount - 1; outer > 0; outer--) {
-            record = (TrackIntersection *) arg4;
-            for (inner = outer; inner > 0; inner--) {
-                if (record->height < (record + 1)->height) {
-                    temporaryHeight = record->height;
-                    temporaryFlags = record->flags;
-                    record->height = (record + 1)->height;
-                    (record + 1)->height = temporaryHeight;
-                    record->flags = (record + 1)->flags;
-                    (record + 1)->flags = temporaryFlags;
+        outer = resultCount - 2;
+        if (resultCount - 1 != 0) {
+            do {
+                record = (TrackIntersection *) arg4;
+                inner = outer;
+                if (outer + 1 != 0) {
+                    do {
+                        if (record->height < (record + 1)->height) {
+                            temporaryHeight = record->height;
+                            temporaryFlags = (record + 1)->flags;
+                            record->height = (record + 1)->height;
+                            (record + 1)->height = temporaryHeight;
+                            (record + 1)->flags = record->flags;
+                            record->flags = temporaryFlags;
+                        }
+                        record++;
+                    } while (inner-- != 0);
                 }
-                record++;
-            }
+            } while (outer-- != 0);
         }
     }
     return resultCount;
@@ -4778,7 +4789,7 @@ u32 func_8001357C(f32 arg0, f32 arg1, f32 *arg2, s32 arg3, void *arg4) {
 #ifdef NON_MATCHING
 /* PROVENANCE: JFG's public track.c retains this collision collector as
  * assembly; Mickey's segment, batch, plane and hit-list accesses are used. */
-/* Workbench verdict: structure-mismatch, 162 differing words; first mismatch is at +0x60. */
+/* Workbench verdict: structure-mismatch, 163 differing words; first mismatch is at +0x60. */
 /* Target and candidate are both 330 instructions with frame -320 and 21 relocations. */
 /* Remaining gap is allocator scheduling; 19 relocation identities align. */
 s32 func_8001398C(f32 arg0, f32 arg1, s32 arg2, void **arg3) {
@@ -4799,8 +4810,8 @@ s32 func_8001398C(f32 arg0, f32 arg1, s32 arg2, void **arg3) {
     s32 batchNumber;
     s32 triangleIndex;
     s32 compareMask;
-    s32 batchFlags;
-    s32 textureFlag;
+    u32 batchFlags;
+    s8 textureFlag;
     s32 resultCount;
     s32 orderIndex;
     s32 orderCount;
@@ -4843,7 +4854,7 @@ s32 func_8001398C(f32 arg0, f32 arg1, s32 arg2, void **arg3) {
                 firstTriangle = batch->v0;
                 textureOffset = batch->u0;
                 lastTriangle = batch[1].v0;
-                if ((batchFlags << 15) < 0) {
+                if (batchFlags & 0x10000) {
                     textureFlag = 1;
                 } else {
                     textureFlag = ((s8 *)
@@ -5053,14 +5064,12 @@ typedef struct TrackShadowInstance {
     s16 endIndex;
 } TrackShadowInstance;
 
-typedef struct TrackShadowBuffer {
+/* Adjacent eight-byte descriptors supply the next index and vertex boundaries. */
+typedef struct TrackShadowBatch {
     void *texture;
-    s16 u0;
-    s16 height;
-    u8 pad08[4];
-    s16 v0;
-    s16 length;
-} TrackShadowBuffer;
+    s16 firstIndex;
+    s16 firstVertex;
+} TrackShadowBatch;
 
 typedef struct TrackShadowMaterial {
     u8 pad00[0x18];
@@ -5076,19 +5085,19 @@ void func_800140CC(TrackShadowObject *object, TrackShadowInstance *instance) {
     s32 loopIndex;
     s32 closeTexture;
     s32 closeCombiner;
-    s32 commandBuffer;
-    s32 indexBuffer;
-    s32 vertexBuffer;
+    void *commandBuffer;
+    void *indexBuffer;
+    void *vertexBuffer;
     s32 shadowCount;
     s32 alphaValue;
     s32 commandMode;
     s32 textureSpan;
     s32 indexSpan;
-    s32 vertexAddress;
-    s32 indexAddress;
+    u32 vertexAddress;
+    u32 indexAddress;
     s16 shadowIndex;
     TrackShadowInstance *current;
-    u8 *shadow;
+    TrackShadowBatch *shadow;
     u8 active;
     TrackShadowMaterial *material;
     Gfx *command;
@@ -5103,10 +5112,10 @@ void func_800140CC(TrackShadowObject *object, TrackShadowInstance *instance) {
             do {
                 shadowIndex = current->shadowIndex;
                 if (shadowIndex != -1) {
-                    shadow = (u8 *) (commandBuffer + (shadowIndex * 8));
+                    shadow = (TrackShadowBatch *) commandBuffer + shadowIndex;
                     shadowCount = (s32) object->alpha *
-                                  *(u8 *) (vertexBuffer +
-                                  (*(s16 *) (shadow + 6) * 0x0A) + 9);
+                                  *(u8 *) ((u8 *) vertexBuffer +
+                                  (shadow->firstVertex * 0x0A) + 9);
                     shadowCount >>= 8;
                     if (shadowCount > 0) {
                         commandMode = 0x0E;
@@ -5120,9 +5129,9 @@ void func_800140CC(TrackShadowObject *object, TrackShadowInstance *instance) {
                             commandMode = 0x20E;
                             D_800C9520 = command + 1;
                             command->words.w0 = 0xFB000000;
-                            command->words.w1 = (material->red << 24) |
-                                                (material->green << 16) |
-                                                (material->blue << 8);
+                            command->words.w1 = ((u32) material->red << 24) |
+                                                ((u32) material->green << 16) |
+                                                ((u32) material->blue << 8);
                             closeTexture = 1;
                             closeCombiner = 1;
                         } else {
@@ -5144,16 +5153,16 @@ void func_800140CC(TrackShadowObject *object, TrackShadowInstance *instance) {
                         }
                         shadowIndex = current->shadowIndex;
                         while (shadowIndex < current->endIndex) {
-                            func_800349A4(&D_800C9520, *(void **) shadow,
+                            func_800349A4(&D_800C9520, shadow->texture,
                                           commandMode,
                                           instance->textureScale << 8);
                             command = D_800C9520;
                             D_800C9520 = command + 1;
-                            textureSpan = *(s16 *) (shadow + 0xE) -
-                                          *(s16 *) (shadow + 6);
-                            vertexAddress = vertexBuffer +
-                                            (*(s16 *) (shadow + 6) * 10) +
-                                            (s32) 0x80000000;
+                            textureSpan = shadow[1].firstVertex -
+                                          shadow->firstVertex;
+                            vertexAddress = (u32) vertexBuffer +
+                                            (shadow->firstVertex * 10) +
+                                            0x80000000U;
                             command->words.w0 = (((((textureSpan * 8) |
                                                    (vertexAddress & 6)) & 0xFF) << 16) |
                                                  0x04000000 |
@@ -5161,17 +5170,17 @@ void func_800140CC(TrackShadowObject *object, TrackShadowInstance *instance) {
                             command->words.w1 = vertexAddress;
                             command = D_800C9520;
                             D_800C9520 = command + 1;
-                            indexSpan = *(s16 *) (shadow + 0xC) -
-                                        *(s16 *) (shadow + 4);
-                            indexAddress = (*(s16 *) (shadow + 4) * 16) +
-                                           indexBuffer + (s32) 0x80000000;
+                            indexSpan = shadow[1].firstIndex -
+                                        shadow->firstIndex;
+                            indexAddress = (shadow->firstIndex * 16) +
+                                           (u32) indexBuffer + 0x80000000U;
                             command->words.w1 = indexAddress;
                             command->words.w0 = ((((((indexSpan - 1) * 16) |
                                                    1) & 0xFF) << 16) |
                                                  0x05000000 |
                                                  ((indexSpan * 16) & 0xFFFF));
                             shadowIndex++;
-                            shadow += 8;
+                            shadow++;
                         }
                         if (closeTexture != 0) {
                             command = D_800C9520;
@@ -5658,7 +5667,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: frameless
  * relocations: 6
  * first-mismatch: +0x3C
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: m2c confirms existing identities and CFG; zero new attempts. Next: dirty-flag and shared-count lifetime evidence.
  * PLATEAU-HANDOFF:func_8000D820:end
  */
 
@@ -5668,7 +5677,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x98
  * relocations: 1
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: m2c coordinate types do not close the structure; baseline retained. Next: original FP and integer-coordinate lifetimes.
  * PLATEAU-HANDOFF:func_800133FC:end
  */
 
@@ -5678,7 +5687,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x90
  * relocations: 4
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Recovered shadow buffer ABI and eight-byte records; 187 differences remain. Next: source evidence for flag and pointer stack homes.
  * PLATEAU-HANDOFF:func_800140CC:end
  */
 
@@ -5698,7 +5707,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x38
  * relocations: 18
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Mickey m2c face and endpoint reconstruction stays above 154 differences. All 18 relocation sites align. Next: persistent node home evidence.
  * PLATEAU-HANDOFF:func_80012658:end
  */
 
@@ -5708,7 +5717,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x58
  * relocations: 21
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Unsigned batch flag types preserve 185 differences and exact249-word size; m2c adds no missing CFG. Next: counter and flag home evidence.
  * PLATEAU-HANDOFF:func_8000F198:end
  */
 
@@ -5718,7 +5727,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x28
  * relocations: 8
  * first-mismatch: +0x38
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Retain unsigned command decoding at 114 differences; structural forms plateau. Next: packed-delta and relative-UV lifetime evidence.
  * PLATEAU-HANDOFF:func_8000D1B8:end
  */
 
@@ -5728,7 +5737,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0xe0
  * relocations: 12
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Halfword record types preserve candidate bytes; 211 differences remain after five m2c forms. Next: source-attributed FP home evidence.
  * PLATEAU-HANDOFF:func_80011980:end
  */
 
@@ -5739,17 +5748,17 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0xa0
  * relocations: 8
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Mickey m2c cursor and plane lifetimes do not improve 162 differences. Next: evidence for threshold and FP home declarations.
  * PLATEAU-HANDOFF:func_80010654:end
  */
 
 /* PLATEAU-HANDOFF:func_800115E4:start
  * symbol: func_800115E4
- * score: 231 differing words
+ * score: 217 differing words
  * frame: 0xa0
  * relocations: 17
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Mickey flag and negation order improve 231 to 217 differences, 6/17 relocation sites exact. Next: source-attributed FP home evidence.
  * PLATEAU-HANDOFF:func_800115E4:end
  */
 
@@ -5759,17 +5768,17 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x38
  * relocations: 16
  * first-mismatch: +0x4
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Five m2c carrier forms leave the residual flat or regress size; baseline restored. Next: initial pool-size expression and lifetime evidence.
  * PLATEAU-HANDOFF:func_8000D3B8:end
  */
 
 /* PLATEAU-HANDOFF:func_800103D4:start
  * symbol: func_800103D4
- * score: 120 differing words
+ * score: 158 differing words
  * frame: 0x60
  * relocations: 12
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Correct Mickey object-kind dispatch retained at 158 differences; frame and relocation deficits remain. Next: saved-FP lifetime evidence.
  * PLATEAU-HANDOFF:func_800103D4:end
  */
 
@@ -5778,18 +5787,18 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * score: 187 differing words
  * frame: 0x60
  * relocations: 3
- * first-mismatch: +0xC
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * first-mismatch: +0xc
+ * summary: Fresh Mickey m2c reproduces existing typed CFG; zero new attempts, 187 differences. Next: source-attributed FP lifetime evidence.
  * PLATEAU-HANDOFF:func_80012234:end
  */
 
 /* PLATEAU-HANDOFF:func_8001357C:start
  * symbol: func_8001357C
- * score: 289 differing words
+ * score: 189 differing words
  * frame: 0x138
  * relocations: 8
  * first-mismatch: +0x8
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Mickey m2c sort and flag reload recover exact260-word size/frame and improve 289 to189 differences. Next: early call/home lifetime evidence.
  * PLATEAU-HANDOFF:func_8001357C:end
  */
 
@@ -5799,17 +5808,17 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0x70
  * relocations: 51
  * first-mismatch: +0x48
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Correct next-batch vertex boundary and unsigned command types; five m2c structural follow-ups fail to improve. Next: batch/display-list lifetimes.
  * PLATEAU-HANDOFF:func_8000DFBC:end
  */
 
 /* PLATEAU-HANDOFF:func_8000DB34:start
  * symbol: func_8000DB34
- * score: 146 differing words
+ * score: 144 differing words
  * frame: 0x190
  * relocations: 6
- * first-mismatch: +0x38
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * first-mismatch: +0x5c
+ * summary: Correct inclusive object traversal improves to 144 differences, frame 0x190 exact. Next: map and traversal declaration evidence.
  * PLATEAU-HANDOFF:func_8000DB34:end
  */
 
@@ -5819,7 +5828,7 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0xe8
  * relocations: 56
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Mickey m2c call, pointer and loop reconstruction does not improve 185 differences. Next: source-attributed stack-home evidence.
  * PLATEAU-HANDOFF:func_8000E5EC:end
  */
 
@@ -5829,46 +5838,46 @@ void func_80014ECC(TrackTextureHeader *texture, s32 frame, s32 flags) {
  * frame: 0xd0
  * relocations: 11
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Mickey m2c reproduces existing edge/endpoint tests; no new structural identity. Next: source-proved texture-global and counter lifetimes.
  * PLATEAU-HANDOFF:func_80011CDC:end
  */
 
 /* PLATEAU-HANDOFF:func_8001398C:start
  * symbol: func_8001398C
- * score: 162 differing words
+ * score: 163 differing words
  * frame: 0x140
  * relocations: 21
  * first-mismatch: +0x60
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Mickey m2c audit retains defined flag/material types; hoisted sorting bound suppresses required unrolling. Next: source-proved query lifetimes.
  * PLATEAU-HANDOFF:func_8001398C:end
  */
 
 /* PLATEAU-HANDOFF:func_8000E920:start
  * symbol: func_8000E920
- * score: 491 differing words
- * frame: 0xf8
- * relocations: 114
- * first-mismatch: +0x38
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * score: 459 differing words
+ * frame: 0x100
+ * relocations: 112
+ * first-mismatch: +0x0
+ * summary: Mickey m2c fixes visibility stride and shadow ABI, then improves 491 to 459 diffs. Next: source-proved frame and reverse-pass lifetimes.
  * PLATEAU-HANDOFF:func_8000E920:end
  */
 
 /* PLATEAU-HANDOFF:func_8001291C:start
  * symbol: func_8001291C
- * score: 527 differing words
+ * score: 499 differing words
  * frame: 0x2b0
  * relocations: 15
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Mickey m2c fixes batch stride and best-hit state; retained 499 diffs, target-count alternative preserved. Next: authenticated source lifetimes.
  * PLATEAU-HANDOFF:func_8001291C:end
  */
 
 /* PLATEAU-HANDOFF:func_80010B4C:start
  * symbol: func_80010B4C
- * score: 668 differing words
+ * score: 662 differing words
  * frame: 0x158
  * relocations: 9
  * first-mismatch: +0x0
- * summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+ * summary: Mickey m2c fixes caller ABI and distance state; corrected candidate retains 662 diffs after five stalled follow-ups. Next: source-proved lifetimes.
  * PLATEAU-HANDOFF:func_80010B4C:end
  */

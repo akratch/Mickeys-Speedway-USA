@@ -746,6 +746,37 @@ bytes and disassembly never belong here.
   Evidence: the controlled reconstruction recorded in the
   [overlay 52 HUD handoff](matching-triage-handoffs/func_overlay_052_F000063C_189ACAC.md).
 
+- A large unrolled tail can depend on the source loop's control form even
+  when the configured TU flags stay fixed. Paired full-TU builds of a counted
+  `for` sort and its reconstructed guarded post-decrement form recovered the
+  compact loop; an earlier no-unroll diagnostic independently localized the
+  same expansion. Reconstruct whether each branch tests the value before or
+  after decrement, including zero-count entry guards, from the target before
+  changing C. This proves source-control sensitivity; identifying the exact
+  unroller pass remains an inference without a phase trace. Do not add guards
+  merely to change compilation, assume all post-decrement loops avoid
+  unrolling, or treat equal size as a match. Preserve zero/one-iteration
+  behavior and the order of paired record writes. Evidence: the controlled
+  [height-query reconstruction](matching-triage-handoffs/func_8001357C.md).
+
+- A decompiler-hoisted invariant assignment does not prove its original
+  source placement. In a paired full-TU sort build, moving the bound from
+  inside each outer pass to before the loop suppressed unrolling that the
+  target required, under unchanged configured flags. Reconstruct the branch
+  values and compare the affected loop before adopting the draft's placement;
+  the compiler pass responsible remains untraced. Compact and unrolled
+  targets each require their own control-flow evidence.
+  Evidence: the [collision-height audit](matching-triage-handoffs/func_8001398C.md).
+
+- A narrow field load does not establish the original width of a local or
+  loop counter. In a paired full-TU build, narrowing signed-halfword endpoints
+  and their bounded counter introduced shift/extension instructions even
+  though the value interval fit the type. The resulting near-equal function
+  size came from additional conversion code. Keep
+  field widths and counter widths as separate hypotheses, inspect the added
+  instructions, and do not treat a range proof as a promise that IDO removes
+  conversions. Evidence: the [nearest-hit audit](matching-triage-handoffs/func_8001291C.md).
+
 ### Search fidelity and false floors
 
 - A permuter zero is a hypothesis until the project pipeline verifies it.

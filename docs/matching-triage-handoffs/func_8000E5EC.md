@@ -6,7 +6,16 @@
 - frame: 0xe8
 - relocations: 56
 - first mismatch: +0x0
-- summary: JFG efd5abb has no matched counterpart C; zero new attempts. Prior mechanisms stay closed. Next: matched donor source with Mickey ABI proof.
+- summary: Mickey m2c call, pointer and loop reconstruction does not improve 185 differences. Next: source-attributed stack-home evidence.
+
+#### Mickey m2c structural audit, 2026-09-08
+
+- Fresh assignment gate returned `base-only`. Baseline: 209 candidate / 205 target words, 185 raw/masked differences, first +0x0, frame 0xe8 / 0xd8, 56/56 relocations with 9 exact offset/type/identity sites. Workbench verdict `structure-mismatch`, playbook `constant-audit`; the first differing immediate is frame extent. Visibility flags, buffer stride, module constant and dispatch modes agree with Mickey.
+- The fresh Mickey m2c draft recovers the existing list-generation, visibility and rendering call identities. All reverse loops were checked against branch-delay semantics: m2c's printed post-decrement normalization must not replace the current count-correct C literally. The typed track pointer also has a target reload after the list-generation calls, which the raw draft elides.
+- Five new structural forms test that explicit track reload/reuse, short-circuited segment-count load, typed record/pointer-list buffers, captured segment byte before nested dispatch, and separate draw countdown. Measurements: 40: 208 words, 187 differences, frame 0xe8; 41: 210 words, 192 differences, frame 0xe8; 42: 210 words, 192 differences, frame 0xe8; 43: 213 words, 210 differences, frame 0xf0; 44: 213 words, 210 differences, frame 0xf8. None improves the retained 185-word baseline or provides an additional unresolved identity. The pointer/call and CFG reconstruction space has been exhausted for this draft; the prior flag and lexical-policy plateau remains closed.
+- Retained best is the unchanged guarded baseline with its original assembly fallback. All five candidates and complete full-TU object/score artifacts are retained under ignored `build/wb/tu-track/func_8000E5EC/`. Zero new matching bytes.
+- Next concrete lever: source-attributed compiler home/lifetime evidence for the 128-byte list and call-crossing locals. The historical compiler trace lacks stack homes and attributable webs; neither that trace nor this m2c draft justifies an allocator experiment.
+- Validation: full-TU comparisons after each attempt, finalizer, `gmake verify`, `gmake cleanroom`, and `gmake check-docs` before the plateau commit.
 
 #### Pinned donor audit, 2026-09-08
 
