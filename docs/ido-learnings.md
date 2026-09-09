@@ -143,6 +143,21 @@ bytes and disassembly never belong here.
   of which reached an exact frame, exact instruction count and an identical
   stack map from a 0x38-byte excess.
 
+- Limit on the census lever: declaration order can be a colour lever without
+  being a frame lever, so measure the frame before spending a sweep on it.
+  Overlay 8's `overlay_008.c` was swept over twenty-one whole-list orders across
+  two functions -- every 4-byte scalar moved individually between the two
+  aggregates, the address-taken pair moved together and apart, the sub-word local
+  moved through four positions, and both aggregates exchanged -- and the frame
+  never moved once, at `0x90` and `0x70` respectively, while the score ranged from
+  56 to 80 words. In the same unit, removing a declared local does not shed frame
+  bytes, an unused declaration reserves no home at all, and the `register` storage
+  class is byte-inert in four placements. Where the excess frame is not in the
+  declared block, order search only redistributes colour and will read as a long
+  run of same-frame near-misses; the tell is that a whole family of permutations
+  collapses to one identical object. Evidence: the four overlay-8 handoffs in
+  `docs/matching-triage-handoffs/`.
+
 - Repeating a memory read that a named local already holds is not a wasted
   instruction: it is how the target keeps the loaded value in a caller-saved
   carrier while the named local takes the callee-saved one. Where a draft
