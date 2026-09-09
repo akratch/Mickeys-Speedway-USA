@@ -2,11 +2,11 @@
 ### `overlay1UpdateRangeFlags` plateau handoff
 
 - source: `src/overlays/o001/overlay_001_tail.c`
-- score: 2 differing words
+- score: 118/120 words
 - frame: 0x70
 - relocations: 4
-- first mismatch: +0x1B8
-- summary: the residual is inherited from the angle block, not case 1: ugen's ring frees $12 before $11 there, so case 1 draws $12,$11. Forms exist where both switch arms are exact and the residual moves to the sum's addu destination; 1080 angle spellings floor at 2
+- first mismatch: +0x34
+- summary: residual is one ugen ring-queue slot fixed by the angle block; no source form reorders that queue without breaking the sign-extension rows
 
 #### tu2-o1tail: the residual is one FP pool web, same law as overlay1AppendPathPoint
 
@@ -31,4 +31,60 @@ test and t3 for the clear -- the inversion the earlier record describes --
 at 4 words. The target's t3-then-t4 needs the free list ordered t3 above t4
 at the arm's entry, which the angle block's frees decide; that sweep is
 recorded above as exhausted. Baseline 2 retained.
+
+#### 2026-09-09, lane win-b: the ring is a FIFO queue and the queue is the whole residual
+
+Re-measured with a direct `tools/ido/cc` full-TU compile (byte-identical in
+`.text` to the asm-processor NON_MATCHING object at this TU's real flags --
+`overlay_001_tail.c` **does** carry `-Wab,-r4300_mul`; omitting it silently
+costs one instruction and 80 words). 118 of 120, frame 0x70 exact, and the two
+words are +0x190 `and $t?, $v0, $s7` and +0x198 `sh $t?, 0x1A8($s1)`: the
+target draws `$t4`, we draw `$t5`. Every other row, both switch arms' tests,
+and the whole angle block are exact.
+
+**The mechanism, read straight out of `cc -S`.** ugen's integer temporaries are
+a FIFO queue over `$8..$15,$24,$25`, ordered by *free* time, and both switch
+arms draw from that one queue *in sequence*: `case 0` takes the first two, then
+`case 1` continues from the third. The queue reaching the switch is set by the
+angle block, whose ugen form is fixed:
+
+    sll  $9, $3, 8     sll $10, $9, 16    sra $11, $10, 16
+    sll  $12, $2, 16   sra $13, $12, 16   addu $4, $11, $13
+    sll  $14, $4, 16   ... sra $15, $4, 16
+
+`$9` frees at the second `sll`, `$10` at the `sra`, `$12` at the second `sra`,
+and `$11`/`$13` together at the `addu`. So the queue is `$9,$10,$12,$11,$13` --
+`case 0` gets `$9,$10` (exact, both arms' `andi`/`ori` match) and `case 1` gets
+`$12,$11,$13`. That predicts, and measurement confirms:
+
+- a two-temp `case 1` (`if (flags & 8)`) draws `$12` then `$11`, i.e. the test
+  and store inverted: **4 words**;
+- a three-temp `case 1` (the `u16 masked` carrier, whose truncation `and
+  $x,$y,65535` as1 folds into the `andi`) draws `$12` (mask, folded away),
+  `$11` (visible `andi`, correct) and `$13` (store, one too high): **2 words**.
+
+The target needs the queue `$9,$10,$11,$12`, i.e. `$11` freed before `$12`.
+`$11` is only freed by the `addu`, and `$12` is only freed by the second
+operand's sign-extension `sra`, which must precede the `addu`. Making the
+second operand cost no temp does free `$11` first -- and then the outer
+truncation draws `$12,$13` instead of the target's `$14,$15`, moving the same
+two words to +0xE0/+0xE4. The target's `sll $t6`/`sra $t7` pin five ring draws
+ahead of them, the `sll $t3` at +0xD8 pins the left chain's terminal at `$11`,
+and the `addu $a0` pins the sum on the pool colour; those three constraints
+plus the free order are jointly unsatisfiable. **This is a structural
+conflict, not a search gap.**
+
+Exhausted here, all against the full-TU object: 960 points crossing 24 angle-sum
+spellings (six `angleHigh` shift forms x plain/outer-cast/cast-read/`+=`) with
+four physical line groupings of the three angle statements, five `case 1`
+carrier forms and two `angleHigh` types -- floor exactly 2, reached at 576 of
+them; plus 20 further `case 1` shapes (`!=0`, `==8`, `!!`, `>0`, negated with
+`break`, negated with an empty `then`, compound assignment, field re-read,
+nested load, a pre-computed `cleared` carrier in five types, and `u8`/`u16`/
+`u32`/`s32`/`s16` masks). A pre-computed store carrier does not survive: uopt
+sinks the partially dead expression back into the `if`, so the store is always
+emitted after the test whatever the source order.
+
+Next lever is a ugen free-list trace (`DKWB_UGEN_TRACE`), not another source
+form. Do not re-search `case 1`, the angle spellings, or line grouping.
 <!-- plateau-handoff:overlay1UpdateRangeFlags:end -->

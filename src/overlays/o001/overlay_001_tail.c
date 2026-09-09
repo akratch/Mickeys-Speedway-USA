@@ -3357,11 +3357,11 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1UpdateRangeFlags:start
  * symbol: overlay1UpdateRangeFlags
- * score: 2 differing words
+ * score: 118/120 words
  * frame: 0x70
  * relocations: 4
- * first-mismatch: +0x1B8
- * summary: the residual is inherited from the angle block, not case 1: ugen's ring frees $12 before $11 there, so case 1 draws $12,$11. Forms exist where both switch arms are exact and the residual moves to the sum's addu destination; 1080 angle spellings floor at 2
+ * first-mismatch: +0x34
+ * summary: residual is one ugen ring-queue slot fixed by the angle block; no source form reorders that queue without breaking the sign-extension rows
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
 
