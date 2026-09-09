@@ -2120,9 +2120,28 @@ void *func_8000590C(void *arg0, s32 arg1) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000590C.s")
 #endif
-/* Workbench verdict: structure-mismatch; 27 differing words (59/59). */
-/* First mismatch: +0x1C; size, frame, and relocations are exact. */
-/* Structural gap: CFE s-register carriers and resource-load carrier differ. */
+/* Workbench verdict: register-permutation; 9 differing words (50/59). */
+/* First mismatch: +0x50; size, frame, CFG and all four relocations are exact. */
+/* Residual: one web, v0->a0, at six sites. The loaded resource is the sole
+ * argument of each free call, so it coalesces into a0, which is free here
+ * because arg0 was already copied to s0; the target keeps it in v0 and pays a
+ * `move a0, v0` in each jal delay slot. a0's availability is the whole
+ * question -- measured on probes, a value whose only uses are a null test and
+ * a one-argument call takes a0 whenever a0 is free, and only falls to v0/a1
+ * when a0 is occupied by a live parameter. Nothing reachable from this source
+ * occupies a0 across the loop body.
+ * Falsified (each measured, all still 9 words): expression CSE instead of a
+ * local; three separate locals; one local shared with `type`; block-scoped
+ * declarations; s32/void* typing of the carrier; bare-truth, inverted and
+ * explicit null tests; an extra copy before the call; K&R declarations for the
+ * three callees; do/for/while loop forms; nested vs else-if dispatch; all 32
+ * arrow/deref spellings of the two chained member accesses. Regressions:
+ * advancing the table base in place (24), a `void **slot` cursor (23),
+ * switch (45), hoisting the object pointer to a local (62).
+ * Also falsified: shortening `type`'s v0 web so v0 is provably free before
+ * every branch body (the nested-dispatch form does exactly that) still yields
+ * a0 -- v0 availability is not the lever, a0's is.
+ * The permuter converged to the same nine words in 12 minutes at -j 4. */
 #ifdef NON_MATCHING
 void func_80006448(void *arg0) {
     s32 offset;
@@ -2159,6 +2178,22 @@ void func_80006448(void *arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006448.s")
 #endif
+/* Workbench verdict: allocation-mismatch; 63 differing words (142/205). */
+/* First mismatch: +0x38; size, frame, CFG and all seven relocations are exact. */
+/* Three independent residuals, none of them structural:
+ *   1. a two-web exchange, s1<->s2, between `sprite` and the compiler's
+ *      induction pointer for `list->entries[index]` (21 + 10 sites);
+ *   2. a caller-saved lane rotation, target [v1, a0, a1] against candidate
+ *      [a0, a1, a2], over the record->unk8 carrier and the reference /
+ *      frameOffset fields it feeds (7 + 5 + 5 sites);
+ *   3. five ring-temp lane rotations downstream of (2).
+ * Falsified (each measured, all still 63 words): every permutation of the
+ * three NULL/zero initialisers; computing reference and frameOffset before
+ * flags; all ten positions for `sprite` in the declaration list; an explicit
+ * cursor advanced in place for list->entries; the arrow/deref and [0]-index
+ * rewrite at every member access in the function, greedily composed.
+ * Regressions: dropping the `flags` local and re-reading record->unk8 (144);
+ * a separate-statement cursor increment (178). */
 #ifdef NON_MATCHING
 s32 func_80006534(Objects06534Object *object) {
     Objects06534Record *record;
@@ -5638,7 +5673,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x28
  * relocations: 4
  * first-mismatch: +0x50
- * summary: Initializer placement fixed the s0/s1 colouring, 27 to 9 words; the resource carrier still coalesces into the call argument register.
+ * summary: Nine words, one web v0->a0 at six sites: the resource is each free call's sole argument and coalesces into a0, which is free because arg0 is copied to s0. Carrier spelling, loop form, dispatch shape, callee declarations and every member-access spelling are exhausted; making v0 provably free does not move it, and the permuter agrees at nine.
  * PLATEAU-HANDOFF:func_80006448:end
  */
 
@@ -5781,7 +5816,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x38
  * relocations: 7
  * first-mismatch: +0x38
- * summary: Workbench allocation-mismatch: register-role-audit; exact instruction layout and relocations, next prove saved-register role competition.
+ * summary: Three independent residuals over an exact layout: an s1<->s2 exchange between `sprite` and the list->entries induction pointer, a caller-saved lane rotation ([v1,a0,a1] against [a0,a1,a2]) over the record->unk8 carrier, and five ring lanes behind it. Initialiser order, declaration order, an explicit entries cursor and the whole member-access spelling family are exhausted.
  * PLATEAU-HANDOFF:func_80006534:end
  */
 
