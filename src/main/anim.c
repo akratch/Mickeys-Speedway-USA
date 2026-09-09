@@ -3811,10 +3811,31 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
  * volatile's home at the target's 4(sp): with nine declarations it is the
  * ninth, and eleven put it a slot low.
  *
- * The residual is a pure f16/f18 colour rotation over 44 of the 80 words.
- * All 512 commutative operand orders of the reflection sum and the three
- * velocity updates are byte-identical to this one, and so is every
- * declaration order, so the source expression tree is not what selects it. */
+ * 2026-09-09: 44 differing words to 7, and the f16/f18 rotation is closed.
+ * It was two separate defects, neither of which is an operand order:
+ *  - the x component needs three carriers, not one. Spelling it as
+ *    `normalXProduct = normal->x; doubled = (normalX = normalXProduct);`
+ *    gives the read its own name, the sum's carrier its first definition and
+ *    `normalX` the lasting copy; that alone took 44 to 10 and put every
+ *    surviving FP temporary on the target's rotation.
+ *  - `doubled` still took the fourth pool colour and `normal->x` the fifth,
+ *    because uopt colours pool webs in first-surviving-definition order and
+ *    the x read is defined before the sum inside the same statement. A dead
+ *    `doubled = 0.0f` before the flag test defines that web first without
+ *    emitting an instruction (law L87: a genuinely dead store reserves no
+ *    colour but `value = 0` does), which swaps the two and closes the
+ *    f16/f18 rotation. 10 to 7.
+ * The permuter found the second one as an uninitialised self-add inside a
+ * `do {} while (0)`; that candidate is undefined behaviour and was not kept.
+ * The zero store is the semantics-preserving re-derivation of it.
+ *
+ * What is left is seven words: the target spends ring temporaries on the
+ * negation, the volatile reload, the doubling and the product, while the
+ * candidate keeps all four in `doubled`'s pool colour. Splitting the
+ * negation out (`bounce = -doubled`), moving the reload or the product into
+ * `normalXProduct`, and a second reserved colour are all worse (46, 54, 81
+ * words). All 512 commutative operand orders and every declaration order
+ * remain byte-identical, so the expression tree is still not the lever. */
 void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
                    f32 timeStep) {
     HitCopyTarget *target;
@@ -3832,13 +3853,16 @@ void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
     velocityY = state->velocity.y / target->unk4;
     velocityZ = state->velocity.z / target->unk4;
     source = state->source;
+    doubled = 0.0f;
     if (!target->unk0) {
         target->unk0 = 1;
     }
     target->unk4 *= D_80084218;
 
+    normalXProduct = normal->x;
+    doubled = (normalX = normalXProduct);
     doubled = -((normal->z * velocityZ) +
-                ((velocityX * (normalX = normal->x)) + (velocityY * normal->y)));
+                ((velocityX * doubled) + (velocityY * normal->y)));
     bounce = doubled;
     doubled = bounce;
     doubled += doubled;
@@ -4168,11 +4192,11 @@ void fmvInit(void) {
 
 /* PLATEAU-HANDOFF:func_8005716C:start
  * symbol: func_8005716C
- * score: 44/80 words
+ * score: 7 differing words
  * frame: 0x28
  * relocations: 2
- * first-mismatch: +0x54
- * summary: Size and census now exact (80/80, allocation-mismatch); the surplus lwc1 was a second normal->x read across the volatile barrier. Residual is an f16/f18 colour rotation flat over 512 operand orders and every declaration order.
+ * first-mismatch: +0x78
+ * summary: 80/80 words; the f16/f18 rotation is closed and the residual is four middle values the target spends as ring temporaries.
  * PLATEAU-HANDOFF:func_8005716C:end
  */
 
