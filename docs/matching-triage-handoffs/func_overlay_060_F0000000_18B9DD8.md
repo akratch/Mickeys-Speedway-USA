@@ -6,7 +6,7 @@
 - frame: 0x60
 - relocations: 76
 - first mismatch: +0x6C
-- summary: Fidelity-clean traces expose no attributable source web; the scheduler-selected reorder loses one exact word, so functional baseline is restored.
+- summary: scheduler and allocator residue; reorder and coordinate-index probes regressed or stayed flat at 21 normalized differences
 
 #### Trace-authenticated remeasurement
 
