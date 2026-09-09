@@ -3798,55 +3798,58 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
  * assembly fallback; its 0.0484 masked similarity supplies no donor C body.
  * Mickey's fields, behavior, and compiled bytes remain authoritative.
  *
- * Size and instruction census are exact at the TU's configured flags. The
- * one-instruction surplus the previous candidate carried was a second
- * `lwc1` of `normal->x`: the volatile round-trip through `bounce` is a
- * memory barrier for IDO, so two source references to that field either side
- * of it cannot be commoned and each emits its own load, while the target
- * keeps the first load live in a coloured register across the barrier.
- * Reading it once into `normalX` restores that single load. The read has to
- * stay inside the sum -- hoisting it to its own statement puts the load in
- * the entry block and costs seven more words -- so the assignment is spelled
- * where the load belongs. Dropping the three padding locals then lands the
- * volatile's home at the target's 4(sp): with nine declarations it is the
- * ninth, and eleven put it a slot low.
+ * 2026-09-09 (second pass): seven differing words to five, and the whole
+ * instruction stream is now exact -- every one of the 80 words, the register
+ * assignment included, matches the target. The five that differ are the five
+ * `sp`-relative accesses to `bounce`, which land at 0(sp) where the target
+ * homes it at 4(sp).
  *
- * 2026-09-09: 44 differing words to 7, and the f16/f18 rotation is closed.
- * It was two separate defects, neither of which is an operand order:
- *  - the x component needs three carriers, not one. Spelling it as
- *    `normalXProduct = normal->x; doubled = (normalX = normalXProduct);`
- *    gives the read its own name, the sum's carrier its first definition and
- *    `normalX` the lasting copy; that alone took 44 to 10 and put every
- *    surviving FP temporary on the target's rotation.
- *  - `doubled` still took the fourth pool colour and `normal->x` the fifth,
- *    because uopt colours pool webs in first-surviving-definition order and
- *    the x read is defined before the sum inside the same statement. A dead
- *    `doubled = 0.0f` before the flag test defines that web first without
- *    emitting an instruction (law L87: a genuinely dead store reserves no
- *    colour but `value = 0` does), which swaps the two and closes the
- *    f16/f18 rotation. 10 to 7.
- * The permuter found the second one as an uninitialised self-add inside a
- * `do {} while (0)`; that candidate is undefined behaviour and was not kept.
- * The zero store is the semantics-preserving re-derivation of it.
+ * The earlier residual was read as "the target spends ring temporaries on the
+ * negation, the volatile reload, the doubling and the product". That is right,
+ * and the cause is one keyword: with `volatile f32 bounce` the reload has to be
+ * named (`doubled = bounce`), and a named local takes a pool colour, so all
+ * four values collapse onto `doubled`'s f16. Dropping `volatile` leaves the
+ * memory round trip intact -- uopt cannot colour a seventh floating-point
+ * symbol, because the six caller-saved FP colours are already spent on
+ * velocityX/Y/Z, `target->unk4`, `doubled` and `normalX` (read directly out of
+ * the instrumented allocator: six `p2color` records, colours 24-29, and a
+ * seventh web whose best colour costs 4.0 and is declined) -- while letting
+ * `bounce + bounce` load once and hand the sum to ordinary ugen ring temps.
+ * That is exactly the target's f10/f8/f6/f4 rotation, and it also removes the
+ * tenth declaration.
  *
- * What is left is seven words: the target spends ring temporaries on the
- * negation, the volatile reload, the doubling and the product, while the
- * candidate keeps all four in `doubled`'s pool colour. Splitting the
- * negation out (`bounce = -doubled`), moving the reload or the product into
- * `normalXProduct`, and a second reserved colour are all worse (46, 54, 81
- * words). All 512 commutative operand orders and every declaration order
- * remain byte-identical, so the expression tree is still not the lever. */
+ * What is left is one frame cell. The home is `frame_top - 4*(cell + 1)` and
+ * cells run in web order, so the whole question is how many cells precede
+ * `bounce`. Measured on this function: with a volatile `bounce` the cell count
+ * equals the declaration count exactly (8 declarations -> frame 0x20,
+ * 9 -> 0x28); dropping `volatile` adds exactly two cells whatever the
+ * declaration count (8 -> 10 cells, 9 -> 11). The target needs nine cells with
+ * `bounce` last, i.e. seven declarations, and seven is one below the floor:
+ * five (`target`, `source`, velocityX/Y/Z) are load-bearing, and the two FP
+ * carriers are both needed -- `doubled` for the sum that must reach f16 and
+ * `normalX` for the x value that must survive to the product in f18. Drop
+ * either and the FP pressure falls to five symbols, uopt colours `bounce`, and
+ * the seven-instruction memory round trip disappears (73 words).
+ * Eliminated this pass, all at nine or eleven cells and never at ten with the
+ * home at 4: `source` or `target` re-read from `state` (9 cells, home 4, but
+ * two extra instructions and the source load leaves its slot); `normal->x`
+ * read twice (11 cells, home 4, instruction-exact -- lever 45 folds the second
+ * load); every position of `source`'s assignment; `bounce = 0.0f` and every
+ * other dead-store colour reservation; both `bounce + bounce` and `bounce +=
+ * bounce` and `bounce * 2.0f`; a separate `reloaded` carrier; and every
+ * declaration order including `bounce` first and last.
+ * Resume by removing one cell that is not a declaration, or by finding what
+ * puts one cell *after* `bounce` while keeping ten. */
 void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
                    f32 timeStep) {
     HitCopyTarget *target;
     HitCopySource *source;
     f32 velocityX;
     f32 velocityY;
-    f32 normalXProduct;
     f32 velocityZ;
     f32 doubled;
     f32 normalX;
-    volatile f32 bounce;
+    f32 bounce;
 
     target = state->target;
     velocityX = state->velocity.x / target->unk4;
@@ -3859,16 +3862,12 @@ void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
     }
     target->unk4 *= D_80084218;
 
-    normalXProduct = normal->x;
-    doubled = (normalX = normalXProduct);
-    doubled = -((normal->z * velocityZ) +
-                ((velocityX * doubled) + (velocityY * normal->y)));
-    bounce = doubled;
-    doubled = bounce;
-    doubled += doubled;
-    normalXProduct = normalX * doubled;
-    bounce = doubled;
-    state->velocity.x = (normalXProduct + velocityX) * target->unk4;
+    doubled = (normalX = normal->x);
+    doubled = (normal->z * velocityZ) +
+              ((velocityX * doubled) + (velocityY * normal->y));
+    bounce = -doubled;
+    bounce = bounce + bounce;
+    state->velocity.x = ((normalX * bounce) + velocityX) * target->unk4;
     state->velocity.y = ((normal->y * bounce) + velocityY) * target->unk4;
     state->velocity.z = ((normal->z * bounce) + velocityZ) * target->unk4;
 
@@ -4192,11 +4191,11 @@ void fmvInit(void) {
 
 /* PLATEAU-HANDOFF:func_8005716C:start
  * symbol: func_8005716C
- * score: 7 differing words
+ * score: 5 differing words
  * frame: 0x28
  * relocations: 2
- * first-mismatch: +0x78
- * summary: 80/80 words; the f16/f18 rotation is closed and the residual is four middle values the target spends as ring temporaries.
+ * first-mismatch: +0x7C
+ * summary: instruction stream exact; the five words are bounce's sp accesses at 0(sp) against the target's 4(sp), one frame cell below the FP-pressure floor
  * PLATEAU-HANDOFF:func_8005716C:end
  */
 
