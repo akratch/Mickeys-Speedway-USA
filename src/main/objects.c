@@ -2297,15 +2297,10 @@ s32 func_800069C0(Objects69C0In *arg0, Objects69C0Out *arg1) {
     arg0->unk78->unk0 = 2;
     return 0x2C;
 }
-/* Workbench verdict: allocation-mismatch; 19 differing words (52/71). */
-/* First mismatch: +0x8C; size, frame, CFG, and constants are exact. */
-/* Structural gap: none; pool/temp register allocation is reserved for the permuter. */
-#ifdef NON_MATCHING
 s32 func_800069E8(Objects069E8Object *arg0, Objects069E8Target *arg1) {
     Objects069E8Source *source;
     Objects069E8Source *source2;
     s32 sp1C;
-    s32 temp_v0;
     s32 temp_v0_2;
 
     source2 = arg0->unk40;
@@ -2323,9 +2318,12 @@ s32 func_800069E8(Objects069E8Object *arg0, Objects069E8Target *arg1) {
     arg1->unk1C = 0;
     if (func_800291FC() == 0) {
         if (arg1->unk10 & 8) {
-            temp_v0 = ((s32)((u8 *)arg1 + 0x20) & ~3) + 4;
-            arg1->unk1C = temp_v0;
-            sp1C = (temp_v0 - (s32)arg1) + 0xBC;
+            /* The record's own aligned tail is the cursor.  Reading the
+               stored field back at the second use is what keeps the +4 out
+               of the size constant: spelled through a local, IDO reassociates
+               (cursor + 4) - base + 0xBC into cursor - base + 0xC0. */
+            arg1->unk1C = ((s32)((u8 *)arg1 + 0x20) & ~3) + 4;
+            sp1C = (arg1->unk1C - (s32)arg1) + 0xBC;
         }
     } else {
         arg1->unk10 = 5;
@@ -2342,9 +2340,6 @@ s32 func_800069E8(Objects069E8Object *arg0, Objects069E8Target *arg1) {
     D_800C9490 = arg1->unk8;
     return (sp1C & ~3) + 4;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800069E8.s")
-#endif
 /* Workbench verdict: structure-mismatch; 63 differing words (78 candidate / 79 target). */
 /* First mismatch: +0x20; both outputs are frameless and the candidate is one instruction shorter. */
 /* Structural gap: asset/count carrier and late loop register shape remain unresolved. */
@@ -5631,16 +5626,6 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x0
  * summary: Arithmetic/control-flow size is exact, but the target's 0x28 frame and FP register/stack allocation remain unresolved.
  * PLATEAU-HANDOFF:func_8000BB84:end
- */
-
-/* PLATEAU-HANDOFF:func_800069E8:start
- * symbol: func_800069E8
- * score: 52/71 words
- * frame: 0x28
- * relocations: 4
- * first-mismatch: +0x8C
- * summary: Shape exact; uopt global-color and ugen temp-carrier allocation remain for the permuter.
- * PLATEAU-HANDOFF:func_800069E8:end
  */
 
 
