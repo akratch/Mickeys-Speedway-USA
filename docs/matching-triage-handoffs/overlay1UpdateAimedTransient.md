@@ -4,9 +4,9 @@
 - source: `src/overlays/o001/overlay_001_tail.c`
 - score: 228/249 words
 - frame: 0x80
-- relocations: 35
+- relocations: 43
 - first mismatch: +0xC
-- summary: frame and the single stack home are now proved exact; residual is the early D_1DA0 address/load pair before the register saves
+- summary: two schedule clusters; the embedded trig assignment reproduces the post-call load exactly at the cost of one stall nop
 - assignment base: `ab2e28755e75281263cff6b4846893469a252f61`
 - owned range: Overlay 1 `+0x6D4C..+0x7130`, 996 bytes / 249 instructions, with no size delta
 - baseline: 64 raw differing words and 57 positional differences, 39 opcode mismatches, eight alignment gaps, and frame `0x88` versus target `0x80`; the runtime surface had 43 target records versus 45 candidate records, with 30 offset/type positions aligned
@@ -44,4 +44,57 @@ both use sites (a call sits between them, so it is reloaded: +2 instructions,
 87 words); an embedded assignment inside the multiply expression (+1
 instruction, 86 words); folding the address and dereference into one statement
 (flat); and a pointer-to-pointer carrier in place of the u32 (53 words).
+
+#### lm-o1tail: both clusters are schedule, and the trig one is now reachable
+
+Re-measured at the assigned base: 21 masked words, 249 of 249 instructions,
+the 0x80 frame and the stack home exact, 43 relocation records. The residual is
+exactly two clusters and both are placement, not allocation. Every register in
+the function already matches.
+
+Cluster one, fourteen words at +0xC: the target computes the low half of the
+shared-world address and dereferences it *among* the register saves -- `sw s0`,
+`lui s0`, `addiu s0`, `lw`, then `sw ra`/`sw s3`/`sw s2`/`sw s1` and the six
+`sdc1` pairs -- while the candidate emits the same `lui` in the same slot and
+defers the `addiu` and the load until after all eleven saves. The address
+carrier itself is right: `s0` holds the address for exactly two dereferences
+and is then reused as the loop counter, in both.
+
+Eliminated for cluster one, do not repeat: five address-carrier types (`u32`,
+`s32`, `register u32`, `u8 *`, `void *`); four initialisation spellings
+including a declaration initializer and a `u32 *` double dereference; three
+orders and three line groupings of the first four statements; the full
+carrier-versus-direct matrix over all six shared-world access sites, all eight
+combinations (only the all-carrier form keeps 249 instructions and the 0x80
+frame; the all-direct form hoists the load above every save but loses the
+`s0` carrier, 53 words); an `Overlay1TransientWorld **` typed carrier and a
+bare pointer variable, both of which IDO folds straight back into a two
+instruction `lui`/`lw` and lose the carrier; the `D_1DA0_array[0]` array
+declaration idiom this TU already uses elsewhere, in three forms; and **306
+single-declaration-position moves over the entire eighteen-declaration list**,
+every one of which is byte-flat. Declaration order is inert for this function;
+statement order and spelling are exhausted. What is left is the scheduler's
+own priority between a load and the prologue stores.
+
+Cluster two, seven words at +0x2CC, is now reachable. The target loads the
+trig constant *after* the first angle call, using the call's delay slot for
+the owner-angle load; the candidate hoists the load above the call because the
+`trig = overlay1AimedTrigReloc;` statement precedes it in source order. Folding
+the assignment into the multiply -- `func(angle) * (trig = overlay1AimedTrigReloc)
+* -30.0f` -- reproduces the target's `jal`, its delay slot, and the post-call
+load order exactly. It costs one instruction: a stall `nop` between the loaded
+constant and the multiply, which the target fills with the two address
+materialisations of the following statement. That is the whole remaining gap on
+this cluster, and it is a scheduling fill, not a source form. Ten spellings of
+the embedded form were measured (parenthesised, negated, joined onto one line,
+assigned in the second use instead of the first, three different existing `f32`
+locals as the carrier, and the velocity-Y statement moved first); all are 250
+instructions. Reading the global directly at both sites is 251.
+
+Assigning the call result to any existing `f32` local before reading trig also
+places the load after the call, but costs a `mov.s` for the same net 250.
+
+Next lever: the `nop` fill, which needs the two following `%hi` materialisations
+scheduled into it -- an ordering question about the statement *after* the one
+being fixed, not about the trig statement itself.
 <!-- plateau-handoff:overlay1UpdateAimedTransient:end -->

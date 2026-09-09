@@ -2579,14 +2579,18 @@ extern f32 func_8002A8BC(s32 angle);
 extern f32 func_8002A8C0(s32 angle);
 extern f32 sqrtf(f32 value);
 
-/* Plateau (2026-08-30): -O2 -mips2 -Wab,-r4300_mul emits the exact
- * 996-byte extent.  An O32 integer carrier for the shared-world address and
- * saved-state declaration order reduce the raw residual from 64 to 32 words.
- * The candidate frame remains 0x88 versus 0x80, and 38 of 43 runtime
- * relocation offsets/types align; strict identities remain ambiguous in the
- * shared Overlay 1 TU.  Ten coherent source forms and all 119 flags are
- * exhausted; the remaining early-load, stack-home, and constant-call schedule
- * needs new source-authentic evidence rather than generic permutation. */
+/* Plateau: the exact 996-byte extent, 249 instructions, the 0x80 frame, the
+ * one stack home and all 43 relocation records; 21 words remain and every
+ * register in the function already matches. Both residual clusters are
+ * instruction placement. The first is the shared-world address: the target
+ * finishes the low half and dereferences it among the register saves, the
+ * candidate after them. The `u32 worldAddress` carrier is load-bearing --
+ * a typed pointer carrier folds straight back into a two-instruction global
+ * read and loses the saved-register address entirely -- and declaration order
+ * is inert here, measured over all 306 single-position moves. The second is
+ * the trig constant, which the target loads after the first angle call; only
+ * folding the assignment into the multiply puts it there, at the price of one
+ * stall nop the target fills with the next statement's address halves. */
 #ifdef NON_MATCHING
 void overlay1UpdateAimedTransient(void) {
     Overlay1TransientWorld *world;
@@ -3235,9 +3239,9 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * symbol: overlay1UpdateAimedTransient
  * score: 228/249 words
  * frame: 0x80
- * relocations: 35
+ * relocations: 43
  * first-mismatch: +0xC
- * summary: frame and the single stack home are now proved exact; residual is the early D_1DA0 address/load pair before the register saves
+ * summary: two schedule clusters; the embedded trig assignment reproduces the post-call load exactly at the cost of one stall nop
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
 
