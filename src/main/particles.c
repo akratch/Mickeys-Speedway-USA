@@ -813,21 +813,17 @@ void func_8003E7B8(ParticleObject *object, s32 index) {
     trigger->flags = flags | 0x8000;
     object->activeTriggerCount++;
 }
-#ifdef NON_MATCHING
-/* Bounded configured full-TU C reaches 139/140 raw and relocation-normalized
- * words, first +0x38, with exact 0x230 size, 0x38 frame, no padding, and all ten
- * target relocation tuples. Target-ranked declarations place entry at sp+0x24
- * and result at sp+0x34 around both calls, eliminating the prior eight call-live
- * differences. The 119-configuration lattice, one fidelity-clean allocator
- * trace, three natural declaration forms, and one trace-selected CFG form
- * exhaust the 124-build route. The forms moved 9 -> 20, 5, then 1 difference;
- * the CFG form was byte-identical. The gain-gated bounded permuter batch's
- * score-zero was an invalid isolated import (147 versus 140 instructions,
- * 0x24C versus 0x230, with relocation drift), so no batch candidate was adopted.
- * Only the zero-count branch target at +0x38 remains. func_8003E7B8+0xE4 is the
- * sole caller; no runtime/export/overlay/pointer inbound exists. Linked identity
- * proves fallback only. A future pass needs a source-faithful first-loop CFG
- * spelling that retains the redundant pool-base reset; do not repeat this route. */
+/* The `else { entry = NULL; }` arm below emits nothing and must not be removed.
+ * uopt sinks the pool-base reset out of the join block when it can prove the
+ * reset redundant on the guard's skip edge, and the guard branch then lands one
+ * word past it. A store of a *different* value on that edge destroys the proof,
+ * so the reset stays at the head of the join block; the store itself is
+ * dead-store-eliminated after the placement decision and costs no instruction.
+ * Writing the same value there keeps the copy redundant and does not work. Its
+ * companion is the index initialiser: with the reset held in place, guard 2
+ * needs its own preheader instruction for the delay slot, which is why `i = 0`
+ * sits inside guard 1 and before guard 2 rather than the other way round. Each
+ * edit alone is a regression; the pair is exact. */
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8005FAE8.s; body reconstructed from Mickey evidence. */
 s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, ParticleTriggerSlot *trigger) {
     s32 result;
@@ -844,8 +840,8 @@ s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, Pa
 
     entry = D_8007C898;
     result = 0xFF;
-    i = 0;
     if (D_8007C890 > 0) {
+        i = 0;
         do {
             if (trigger == entry->trigger && entry->active == 1) {
                 entry->active = 2;
@@ -854,11 +850,13 @@ s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, Pa
             i++;
             entry++;
         } while (i < D_8007C890);
+    } else {
+        entry = NULL;
     }
 
     entry = D_8007C898;
+    i = 0;
     if (D_8007C890 > 0) {
-        i = 0;
         do {
             if (entry->active == 0) {
                 result = i;
@@ -908,9 +906,6 @@ s32 func_8003E8D8(ParticleTypeDescriptor *descriptor, ParticleConfig *config, Pa
     }
     return result;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8003E8D8.s")
-#endif
 /* PROVENANCE: structure cross-checked against JFG asm/nonmatchings/particles/func_8005FD34.s; body reconstructed from Mickey evidence. */
 s32 func_8003EB08(ParticleTypeDescriptor *descriptor, ParticleConfig *config) {
     s32 result;
@@ -2601,14 +2596,4 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * first-mismatch: +0x4C
  * summary: the target's command length is spelled (n<<3)+(n<<1)+8, which makes rows 19-59 exact and moves the first mismatch from +0x4C to +0xF0 -- but costs the tail, so the 36-word form is retained. The candidate CSEs vertexCount*8 across the call into a saved register; the target computes it twice. Two stack homes and that CSE are the whole residual.
  * PLATEAU-HANDOFF:func_80041530:end
- */
-
-/* PLATEAU-HANDOFF:func_8003E8D8:start
- * symbol: func_8003E8D8
- * score: 139/140 words
- * frame: 0x38
- * relocations: 10
- * first-mismatch: +0x38
- * summary: Branch target and preheader emission order are one coupled choice; the branch-correct arrangement costs the carrier/result init exchange instead. A separate first-scan cursor -- the mechanism that closed func_80041CE4 -- reproduces the known +1-instruction wall in every form, so the coupling is not a cursor question.
- * PLATEAU-HANDOFF:func_8003E8D8:end
  */
