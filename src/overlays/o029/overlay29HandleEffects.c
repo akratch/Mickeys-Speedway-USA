@@ -54,7 +54,6 @@ extern void overlay29EmitReloc(s32 id, f32 x, f32 y, f32 z, s32 type, s32 arg);
 
 #define INITIALIZE_RECORD(rec_) \
     do { \
-        record = (rec_); \
         record->position.x = object->position.x; \
         record->position.y = object->position.y; \
         record->position.z = object->position.z; \
@@ -69,20 +68,51 @@ extern void overlay29EmitReloc(s32 id, f32 x, f32 y, f32 z, s32 type, s32 arg);
         *(volatile s16 *) &record->value = 0xFF;                           \
     } while (0)
 
-/* Workbench: allocation-mismatch, exact-size at 1028 bytes / 257 words; 33
- * relocation-masked words differ, first +0x7C. Moving the angle pair into the
- * guarded block cut five words; declaration, alias, aggregate, and array-size
- * variants left angle/record homes and register webs. */
+/* Exact size (1028 bytes / 257 words), exact 0x48 frame, all 22 relocation
+ * offsets and types.  253 of 257 words agree; the four that do not are one
+ * fact.  The CSE web for `verticalAngle + 0x2000` -- defined in the second
+ * block, spilled once and reloaded by the third and fourth -- takes `v0` here
+ * and `a2` in the target.  Its compiler temp slot (sp+0x2C), its schedule, its
+ * spill point and every other register in the function agree; the target
+ * spends `a2` six times and `v0` nineteen, this candidate `a2` once and `v0`
+ * twenty-four.
+ *
+ * The frame is a five-local census and it is unique: `object` is the parameter,
+ * not an m2c copy of it (that copy alone was fifteen words and the whole frame
+ * layout), and the order is record, state, angles, baseAngle, verticalAngle.
+ * A sixth declared local costs 22 words at best in any of six positions.
+ *
+ * The double mask in the first block is load-bearing: a single `& 0xFFFFU`,
+ * a `(u16)` cast or no mask at all is 72 words, first difference +0x30.
+ * Both `volatile` casts in INITIALIZE_RECORD are load-bearing at eight words
+ * each; the macro's own `record = (rec_)` was inert and is gone.
+ *
+ * What is exhausted, all flat at four words: statement order and record
+ * placement across all four blocks (3,888 points); physical line grouping
+ * within each block and across block boundaries (1,203 points); the mask
+ * spelling of every angle expression, per block (1,110 points); macro body
+ * order (576 points); the record-pointer spelling lattice (256); local and
+ * prototype types (163); inner-block scope placement and declaration
+ * permutation (136); `register` hints and a sixth local (50); naming the
+ * shared value as a local at any position and type (48, all regressions);
+ * the signature's return type and extra parameters (12); and the compile
+ * flag lattice (13 -- `-Wab,-r4300_mul` is confirmed, everything else is
+ * 234 words out).
+ *
+ * The next lever is whatever makes uopt exclude `v0` from this one web.  It is
+ * a colour fact, not a schedule fact: the register live range 0x13C..0x164
+ * contains no call, so `v0` is free there, which means the target's exclusion
+ * is decided on the web's pre-spill extent across the three blocks.  Note the
+ * permuter is not usable here -- its scratch scores this body 135 against a
+ * measured 4. */
 #ifdef NON_MATCHING
-void func_overlay_029_F00010C4_187E374(Overlay29Object *objectArg, s32 mode) {
-    Overlay29Object *object;
+void func_overlay_029_F00010C4_187E374(Overlay29Object *object, s32 mode) {
     Overlay29Record *record;
     Overlay29State *state;
+    s16 angles[2];
     s16 baseAngle;
     s16 verticalAngle;
-    s16 angles[2];
 
-    object = objectArg;
     state = object->state;
     if ((mode & 1) != 0) {
         overlay29ResetReloc();
@@ -93,36 +123,36 @@ void func_overlay_029_F00010C4_187E374(Overlay29Object *objectArg, s32 mode) {
                                (state->direction.x * state->direction.x)),
             state->direction.y);
 
-        angles[1] = ((verticalAngle + 0x3000) & 0xFFFFU) & 0xFFFFU;
-        angles[0] = baseAngle;
         record = &state->records[0];
+        angles[0] = baseAngle;
+        angles[1] = ((verticalAngle + 0x3000) & 0xFFFFU) & 0xFFFFU;
         record->vector.x = 0.0f;
         record->vector.y = 0.0f;
         record->vector.z = -10.0f;
         overlay29TransformReloc(angles, &record->vector);
         INITIALIZE_RECORD(record);
 
+        record = &state->records[1];
         angles[1] = verticalAngle + 0x2000;
         angles[0] = baseAngle;
-        record = &state->records[1];
         record->vector.x = 0.0f;
         record->vector.y = 0.0f;
         record->vector.z = -10.0f;
         overlay29TransformReloc(angles, &record->vector);
         INITIALIZE_RECORD(record);
 
+        record = &state->records[2];
         angles[0] = baseAngle - 0x3000;
         angles[1] = verticalAngle + 0x2000;
-        record = &state->records[2];
         record->vector.x = 0.0f;
         record->vector.y = 0.0f;
         record->vector.z = -10.0f;
         overlay29TransformReloc(angles, &record->vector);
         INITIALIZE_RECORD(record);
 
+        record = &state->records[3];
         angles[0] = baseAngle + 0x3000;
         angles[1] = verticalAngle + 0x2000;
-        record = &state->records[3];
         record->vector.x = 0.0f;
         record->vector.y = 0.0f;
         record->vector.z = -10.0f;
@@ -148,10 +178,10 @@ void func_overlay_029_F00010C4_187E374(Overlay29Object *objectArg, s32 mode) {
 
 /* PLATEAU-HANDOFF:func_overlay_029_F00010C4_187E374:start
  * symbol: func_overlay_029_F00010C4_187E374
- * score: 224/257 words
+ * score: 253/257 words
  * frame: 0x48
  * relocations: 22
- * first-mismatch: +0x7C
- * summary: 257-word/frame exact; declaration-scope reshape unchanged, 33 raw words remain in allocation/call-carrier shape; promotion in=33 out=0.
+ * first-mismatch: +0x13C
+ * summary: Exact size, frame and relocations; the four remaining words are one colour fact -- the shared angle web takes v0 here and a2 in the target.
  * PLATEAU-HANDOFF:func_overlay_029_F00010C4_187E374:end
  */
