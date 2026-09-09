@@ -556,8 +556,8 @@
       "source_commit": "3661bf85a437a529bb2655df05e8e0dd59f9ca40"
     },
     "func_80046BCC": {
-      "ledger_commit": "71338bd0cddbf97014974b6fe0c2f8fc9975606d",
-      "reason": "Class change: the reconstruction pass closed the size question, so these are delta 0 and permutable for the first time. A size-mismatch cannot be closed by permutation; these now can be.",
+      "ledger_commit": "74c27fb3d77e41689b1a63006621529ec0c95358",
+      "reason": "Advanced today then re-plateaued: func_8005716C went 44 words to 7 on three carriers plus a dead zero store, func_80046BCC 41 to 31 on the ninth callee-saved web. Both are freshly measured, not stale.",
       "source_commit": "325e5520791dd5b3014bc251c19138ee7a30901d"
     },
     "func_80046EC4": {
@@ -706,8 +706,8 @@
       "source_commit": "f29ffe945f62c04131c694e535878765dabb027d"
     },
     "func_8005716C": {
-      "ledger_commit": "b999130ef12f03be4904201a8f6ce50dc8cf4d2a",
-      "reason": "Class change: the reconstruction pass closed the size question, so these are delta 0 and permutable for the first time. A size-mismatch cannot be closed by permutation; these now can be.",
+      "ledger_commit": "cd58e2ad37698ed1117b25f0ac5a8df03bd60cf4",
+      "reason": "Advanced today then re-plateaued: func_8005716C went 44 words to 7 on three carriers plus a dead zero store, func_80046BCC 41 to 31 on the ninth callee-saved web. Both are freshly measured, not stale.",
       "source_commit": "2b40571bb35df7bae4534627e1dd2d4e3a487d8b"
     },
     "func_800573C8": {
