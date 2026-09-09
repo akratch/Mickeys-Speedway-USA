@@ -88,6 +88,11 @@ large set of retired levers, not a match.
   below: **only a branch-class head, or a location-counter directive, makes the
   assembler decline.** Mapping every instruction of the function to the head of
   that block confirms it: 17 of 85 decline, and all 17 are branches.
+- **Insertions the assembler removes are inert too.** A dead register-to-
+  register copy vanishes from the object (the word count stays 111), so it was
+  the last candidate for a phase-input difference that leaves no trace; 836
+  such insertions, at every position in the function, all still convert. The
+  same goes for self-copies, zero-adds, an encoded no-op and a redundant jump.
 - **384 C spellings are flat.** Cross product of: the three integer tests
   plain vs `!= 0` vs `!= 0U`, the two float tests as `>=` vs negated `<`, the
   blend statement order, the disjunction spelling, `frame` carrier placement,
