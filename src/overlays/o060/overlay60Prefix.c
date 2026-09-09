@@ -340,7 +340,7 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                     fontColour(0x64, 0xFF, 0x64, 0xFF, gOverlay60Data2A4);
                     if (func_overlay_082_F00004A4_18CF624(gOverlay60Data0A8) != 0 &&
                         D_800D31BC != 0) {
-                        D_800D3128.bits.field9 ^= 1;
+                        D_800D3128.bits.field9 = (D_800D3128.bits.field9 ^ 1) & 1;
                         amSndPlay(0xF, NULL);
                     }
                 } else {
@@ -353,7 +353,7 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                     fontColour(0x64, 0xFF, 0x64, 0xFF, gOverlay60Data2A4);
                     if (func_overlay_082_F00004A4_18CF624(gOverlay60Data0A8) != 0 &&
                         D_800D31BC != 0) {
-                        D_800D3128.bits.field8 ^= 1;
+                        D_800D3128.bits.field8 = (D_800D3128.bits.field8 ^ 1) & 1;
                         amSndPlay(0xF, NULL);
                     }
                 } else {
@@ -377,8 +377,7 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                               D_8007C0B8[0x1E8 / 4 + i], 0xC);
                 break;
             case 3:
-                count = 0;
-                for (i = 0; i < 16; i++) {
+                for (i = 0, count = 0; i < 16; i++) {
                     if (D_800D3128.enabledMask & (1 << i)) {
                         enabled[count++] = i;
                     }
@@ -422,8 +421,9 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                     0x5F, 0xB9, 0x64, 0x28, frontGetBgmVolume(),
                     gOverlay60Data2A4, ticks));
                 if (D_8007BF1C & 0x80) {
-                    if (gOverlay60Data150 > 0) {
-                        gOverlay60Data150 -= ticks;
+                    previewMode = gOverlay60Data150;
+                    if (previewMode > 0) {
+                        gOverlay60Data150 = previewMode - ticks;
                         if (gOverlay60Data150 <= 0) {
                             gOverlay60Data150 = 0;
                             func_80000510(((u8 *)&gOverlay60Data15C)[3]);
@@ -541,14 +541,14 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                 if (screenMode == 1) {
                     fontColour(0x64, 0xFF, 0x64, 0xFF, gOverlay60Data2A4);
                     func_8004B0F8(&D_800D3140, 0x91, 0x91, O60_TEXT(0x1DC), 0xC);
-                    i = frontGetWideAdjust();
+                    spare = frontGetWideAdjust();
                     if (D_800D31B4 & 8) {
-                        i--;
+                        spare--;
                     }
                     if (D_800D31B4 & 4) {
-                        i++;
+                        spare++;
                     }
-                    frontSetWideAdjust(i);
+                    frontSetWideAdjust(spare);
                     fontColour(0xFF, 0xFF, 0, 0xFF, gOverlay60Data2A4);
                     func_8004B0F8(&D_800D3140, 0x6A, 0xB4, gOverlay60Data0C0, 4);
                     fontColour(0, 0xFF, 0, 0xFF, gOverlay60Data2A4);
@@ -621,7 +621,8 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                 } else {
                     switch (gOverlay60Data2B0) {
                     case 0:
-                        gOverlay60Data260[7] = D_8007C0B8[D_8007C11C[gOverlay60Data150]];
+                        previewMode = gOverlay60Data150;
+                        gOverlay60Data260[7] = D_8007C0B8[D_8007C11C[previewMode]];
                         if (((D_800D3128.progress[0] & 0x1C0) >> 6) >= 3 &&
                             ((D_800D3128.progress[1] & 0x1C0) >> 6) >= 3 &&
                             ((D_800D3128.progress[2] & 0x1C0) >> 6) >= 3) {
@@ -641,13 +642,13 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                             gOverlay60Data14C = 0;
                             amSndPlay(0xD, NULL);
                         } else if (D_800D31BC < 0) {
-                            gOverlay60Data150--;
+                            gOverlay60Data150 = previewMode - 1;
                             if (gOverlay60Data150 < 0) {
                                 gOverlay60Data150 = limit - 1;
                             }
                             amSndPlay(0xF, NULL);
                         } else if (D_800D31BC > 0) {
-                            gOverlay60Data150++;
+                            gOverlay60Data150 = previewMode + 1;
                             if (gOverlay60Data150 >= limit) {
                                 gOverlay60Data150 = 0;
                             }
@@ -727,6 +728,7 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                             }
                             amSndPlay(0xF, NULL);
                         }
+                        previewMode = gOverlay60Data150;
                         gOverlay60Data130 = previewMode;
                         fontColour(0, 0xFF, 0, 0xFF, gOverlay60Data2A4);
                         func_8004B0F8(&D_800D3140, 0x3C, 0x8C, O60_TEXT(0x234), 8);
@@ -793,14 +795,15 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                             gOverlay60Data14C = 0;
                             amSndPlay(0xD, NULL);
                         } else if (D_800D31BC < 0) {
-                            i = gOverlay60Data150;
+                            previewMode = gOverlay60Data150;
+                            i = previewMode;
                             do {
                                 i--;
                                 if (i < 0) {
                                     i = 5;
                                 }
                             } while (!(D_800D3128.unlocked & (1 << i)));
-                            if (i != gOverlay60Data150) {
+                            if (i != previewMode) {
                                 gOverlay60Data150 = i;
                                 if (gOverlay60Data174 != NULL) {
                                     func_800359D4(gOverlay60Data174);
@@ -809,14 +812,15 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                                 amSndPlay(0xF, NULL);
                             }
                         } else if (D_800D31BC > 0) {
-                            i = gOverlay60Data150;
+                            previewMode = gOverlay60Data150;
+                            i = previewMode;
                             do {
                                 i++;
                                 if (i >= 6) {
                                     i = 0;
                                 }
                             } while (!(D_800D3128.unlocked & (1 << i)));
-                            if (i != gOverlay60Data150) {
+                            if (i != previewMode) {
                                 gOverlay60Data150 = i;
                                 if (gOverlay60Data174 != NULL) {
                                     func_800359D4(gOverlay60Data174);
@@ -929,7 +933,7 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                     fontColour(0x64, 0xFF, 0x64, 0xFF, gOverlay60Data2A4);
                     if (func_overlay_082_F00004A4_18CF624(gOverlay60Data0A8) != 0 &&
                         D_800D31BC != 0) {
-                        D_800D3128.bits.field20 ^= 1;
+                        D_800D3128.bits.field20 = (D_800D3128.bits.field20 ^ 1) & 1;
                         amSndPlay(0xF, NULL);
                     }
                 } else {
@@ -942,7 +946,7 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                     fontColour(0x64, 0xFF, 0x64, 0xFF, gOverlay60Data2A4);
                     if (func_overlay_082_F00004A4_18CF624(gOverlay60Data0A8) != 0 &&
                         D_800D31BC != 0) {
-                        D_800D3128.bits.field19 ^= 1;
+                        D_800D3128.bits.field19 = (D_800D3128.bits.field19 ^ 1) & 1;
                         amSndPlay(0xF, NULL);
                     }
                 } else {
