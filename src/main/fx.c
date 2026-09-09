@@ -1530,14 +1530,6 @@ s32 func_8004989C(s32 index) {
     color |= color << 16;
     return color;
 }
-/* Workbench: allocation-mismatch, 9 differing words, first mismatch +0xD0. */
-/* Candidate shape: exact 100 instructions/frame -0x30 and five relocation tuples. */
-/* A fidelity-clean CDX pass disproves the earlier four-web-bijection diagnosis:
- * the target has 15 pool/26 temp slots, while this C has 16/25. Reading
- * record->value1E removes the extra pool web, but the best source-authentic
- * schedule composition still regresses to 13 differences. The remaining
- * mechanism is UGEN/as1 line order, not global colouring. */
-#ifdef NON_MATCHING
 extern s32 camGetMode(void);
 extern void func_80021FB0(s32 mode, s32 camNo, s32 *x1, s32 *y1,
                           u32 *x2, u32 *y2);
@@ -1568,15 +1560,11 @@ void func_800498FC(s32 index, f32 value16, f32 value18, s32 red, s32 green,
     record->red = red;
     record->green = green;
     record->blue = blue;
-    /* PROVENANCE: Jet Force Gemini public decomp efd5abb, src/fx.c's
-     * setupClearScreen exact scratch fDplg, was consulted. Its pointer/global
-     * body is not an ABI/CFG donor; its empty flag-field condition is flat for
-     * this scalar argument, so no JFG body is adapted. Mickey is authoritative. */
     record->value1D = flags & 0xFF3F;
     record->value1E = flags & 0x80;
     record->value1F = flags & 0x40;
-    if ((u8)(flags & 0x80) != 0) {
-        if ((record->value1F & 0xFF) != 0) {
+    if (record->value1E != 0) {
+        if (record->value1F != 0) {
             record->state = 3;
         } else {
             record->state = 2;
@@ -1587,9 +1575,6 @@ void func_800498FC(s32 index, f32 value16, f32 value18, s32 red, s32 green,
     record->state = 1;
     record->status = 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_800498FC.s")
-#endif
 void func_80049A8C(s32 index) {
     s32 count = 0;
     FxRecord *record;
@@ -2374,16 +2359,6 @@ void func_8004AF68(void) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004AF68.s")
 #endif
-
-/* PLATEAU-HANDOFF:func_800498FC:start
- * symbol: func_800498FC
- * score: 91/100 words
- * frame: 0x30
- * relocations: 5
- * first-mismatch: +0xD0
- * summary: JFG empty flag-field condition is scalar-flat; lvalue forms regress structurally. Next lever: source-authentic UGEN line separation.
- * PLATEAU-HANDOFF:func_800498FC:end
- */
 
 /* PLATEAU-HANDOFF:func_8004AF68:start
  * symbol: func_8004AF68
