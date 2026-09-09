@@ -4272,7 +4272,6 @@ void func_80009AA8(Objects09AA8Object *object) {
     Objects09AA8Command *command;
 
     var_v0 = 0;
-    var_t2 = 0;
     if (object->unk40->unkD4 != 0.0f) {
         var_v0 = 1;
     }
@@ -4285,6 +4284,10 @@ void func_80009AA8(Objects09AA8Object *object) {
         var_s2 = temp_v1[(s32)object->unk3A];
         sp38 = 0;
     }
+    /* Declared after the selection: initialized at the top, the spill IDO
+       emits in the func_8005AF14 delay slot carries a register instead of
+       the target's `sw zero`. */
+    var_t2 = 0;
     temp_s1 = var_s2->unk0;
     temp_s0 = (Objects09AA8Root *)temp_a1->unk0;
     if (var_s2->unk8 != 0) {
@@ -5763,11 +5766,11 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 
 /* PLATEAU-HANDOFF:func_80009AA8:start
  * symbol: func_80009AA8
- * score: 4 differing words
+ * score: 3 differing words
  * frame: 0x60
  * relocations: 17
  * first-mismatch: +0x54
- * summary: Workbench allocation-mismatch: register-role-audit. Next: trace the selected-entry CSE color and known-zero call spill.
+ * summary: One uopt caller-saved colour: target a1 where the candidate takes a0. Next: what reserves a0 in the target.
  * PLATEAU-HANDOFF:func_80009AA8:end
  */
 
