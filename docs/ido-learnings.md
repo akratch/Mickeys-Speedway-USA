@@ -835,6 +835,28 @@ bytes and disassembly never belong here.
   sweeping spellings at that point and look for a definition created outside
   the expression. Evidence:
   [the model-release loop](matching-triage-handoffs/levelFreeAll.md).
+- **A chained assignment leaves the pair one web; two full expressions give
+  each its own colour.** Writing `a = b = X` makes the later use of `a` read
+  back whatever carrier `b` ended up in, and it also shifts every colour
+  assigned after the pair, because only one of the two names spends a colour.
+  Spelling each component as its own complete expression -- the same expression
+  twice, not a copy -- gives each name a pool colour and puts the next variable
+  after both in colour order. Measured on `overlay62Update`, where the chained
+  form left seven pure register differences that survived 720 declaration
+  orders and a 1,920-cell hint/qualifier lattice, and the split form was exact.
+  The lever composes with the arithmetic spelling and neither works alone, so a
+  single-edit accept rule rejects both (the L88 composition rule).
+
+- **Work locals that are dead on an early-exit path belong after the exit.**
+  IDO emits them where the source puts them, and their position decides what
+  the join block starts with, which in turn decides what fills a branch-likely
+  delay slot above it (see the delay-slot entry below). Order *inside* the
+  moved group is then load-bearing: on `overlay75UpdateMovingObject` exactly
+  two of the 120 orders of the five moved statements are exact and the rest
+  cost up to 273 words, which is why earlier "move the initialisers" attempts
+  read as a flat regression. Check the exit block actually ignores the values
+  before moving them; there it reads only a cached pointer.
+
 ### Assembler scheduling and phase replay
 
 - The `cc -S` listing is a faithful, editable stand-in for what `as1` receives.
@@ -900,6 +922,36 @@ bytes and disassembly never belong here.
   negated operand -- the shift spelling makes `ugen` strength-reduce into a
   pool register and `$at` can never appear. Evidence: `overlay62Update`, where
   this converted a mixed structural residual into a pure register rotation.
+
+- **`ugen` emits a pre-loop statement's code before the loop preheader's
+  hoisted invariants, always.** Source order, physical line grouping and
+  spelling cannot reorder the two: on `overlay59Advance`, all 64 line
+  groupings of the six entry statements are flat, including every statement
+  merged onto the loop-header line (verified in the phase output to collapse to
+  one `.loc` region). Moving the statement inside the loop does put it after
+  the invariants, but `uopt` then declines to hoist a global load out of a loop
+  that contains calls, and `const` on the global does not change that in IDO
+  5.3. So when a target materialises a hoisted constant *before* a global load
+  into a saved register, the source is not simply a reordering of the entry
+  block, and sweeping statement order there is wasted effort.
+
+- **Prologue save order is nearly free; do not search it.** `as1` re-schedules
+  the save block from the order of the value definitions, so the order it
+  arrives in from `ugen` barely reaches the object. Measured on
+  `overlay59Advance`: all six permutations of three `s.d` saves, each with the
+  FP group before and after the ten integer saves, move a 19-word residual to
+  18 at best. A prologue residual is an ordering question about the *defs*, not
+  the saves.
+
+- **`as1` fills an annulled (branch-likely) delay slot from the first
+  instruction of the branch-target block, and leaves the original in place.**
+  So whatever the join block begins with is emitted twice, once in the slot and
+  once on the fall-through. A target that appears to read the same field twice
+  near a likely branch is usually not a source-level repeated read at all; it
+  is one load that owns the join block. The lever is therefore to change *what
+  the join block starts with*, not how the test is written. Evidence:
+  `overlay75UpdateMovingObject`, where reading this as a repeated field access
+  sent an earlier pass at the test site instead of at the initialisers.
 
 ### Search fidelity and false floors
 
