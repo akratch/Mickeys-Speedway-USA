@@ -401,9 +401,9 @@
       "source_commit": "babca388fb412e0e57a59447c7ec286e261a8ed2"
     },
     "func_80030610": {
-      "ledger_commit": "8670cc224837981eb318fdd0f86d6b139c4d06e9",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
-      "source_commit": "8670cc224837981eb318fdd0f86d6b139c4d06e9"
+      "ledger_commit": "c9b1925cfa4b7be8519169f1b298f6e6901ef484",
+      "reason": "Class change: the reconstruction pass closed the size question, so these are delta 0 and permutable for the first time. A size-mismatch cannot be closed by permutation; these now can be.",
+      "source_commit": "ac504a4d1fdf064c180b5198b0e388cbdb0ce3ac"
     },
     "func_800336A8": {
       "ledger_commit": "bfd6d07a61c4ce33e4b8069ccf92d49054398980",
@@ -501,8 +501,8 @@
       "source_commit": "d761f310ac67783655771b8e27248a85663e086b"
     },
     "func_8003C80C": {
-      "ledger_commit": "670dea184f56235e98f31fc352e6c9444a44ab85",
-      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "ledger_commit": "6ebdc0ad0f80fbbf486c8bd8eec869e24d3f6641",
+      "reason": "Class change: the reconstruction pass closed the size question, so these are delta 0 and permutable for the first time. A size-mismatch cannot be closed by permutation; these now can be.",
       "source_commit": "670dea184f56235e98f31fc352e6c9444a44ab85"
     },
     "func_8003D25C": {
@@ -556,8 +556,8 @@
       "source_commit": "3661bf85a437a529bb2655df05e8e0dd59f9ca40"
     },
     "func_80046BCC": {
-      "ledger_commit": "325e5520791dd5b3014bc251c19138ee7a30901d",
-      "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
+      "ledger_commit": "71338bd0cddbf97014974b6fe0c2f8fc9975606d",
+      "reason": "Class change: the reconstruction pass closed the size question, so these are delta 0 and permutable for the first time. A size-mismatch cannot be closed by permutation; these now can be.",
       "source_commit": "325e5520791dd5b3014bc251c19138ee7a30901d"
     },
     "func_80046EC4": {
@@ -706,8 +706,8 @@
       "source_commit": "f29ffe945f62c04131c694e535878765dabb027d"
     },
     "func_8005716C": {
-      "ledger_commit": "891f36e04707b5befa26e544872c8cde24ebd021",
-      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "ledger_commit": "b999130ef12f03be4904201a8f6ce50dc8cf4d2a",
+      "reason": "Class change: the reconstruction pass closed the size question, so these are delta 0 and permutable for the first time. A size-mismatch cannot be closed by permutation; these now can be.",
       "source_commit": "2b40571bb35df7bae4534627e1dd2d4e3a487d8b"
     },
     "func_800573C8": {
@@ -746,8 +746,8 @@
       "source_commit": "e3412ac6bf2446227671783cfeebf56c994fc036"
     },
     "func_8005ABA8": {
-      "ledger_commit": "1879872f1b5ff195e37a2c807765ee31d56b6c64",
-      "reason": "One-instruction reconstruction: at a 4-byte delta the candidate is one instruction out, and today's laws name the usual causes -- a missing register copy, a block-fallthrough order, or an address rematerialized once too often.",
+      "ledger_commit": "3523d76d71864d119ac5c6eb4ff8247e9cbca13b",
+      "reason": "Class change: the reconstruction pass closed the size question, so these are delta 0 and permutable for the first time. A size-mismatch cannot be closed by permutation; these now can be.",
       "source_commit": "1879872f1b5ff195e37a2c807765ee31d56b6c64"
     },
     "func_8006E7E0": {
