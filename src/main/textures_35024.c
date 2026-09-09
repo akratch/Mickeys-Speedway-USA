@@ -239,7 +239,20 @@ void func_800347A0(TextureHeader *tex) {
  * slot of the FIFO, ours the first, so the shift temp and the field-load temp
  * are each one position early. Per the ring law that is a COUNT question: the
  * target pops and frees exactly one ring temp in the entry block that emits no
- * instruction. Twenty-eight further forms did not produce it. */
+ * instruction. Twenty-eight further forms did not produce it.
+ *
+ * The ugen ring-pop family in docs/ido-learnings.md ("an index scaled twice
+ * costs one more pop than an index scaled once") IS the right family and was
+ * tested directly. Scaling twice does buy the pop and does rotate the ring to
+ * the target's two slots exactly -- but only in the spellings where IDO keeps
+ * both shifts, which costs two instructions ((i << 1) << 2, (i << 2) << 1,
+ * (i << 1) * 4 and the u32 variant all land at 23 words). Every spelling that
+ * folds the two scalings into one shift also folds the pop away and stays at
+ * five ((i << 0) << 3, (i << 3) << 0, (i << 3) | 0), and every spelling that
+ * strength-reduces to a pointer increment loses the shift altogether
+ * ((i * 2) * 4, (i + i) * 4, 4 * (i * 2), i * 8, and a word-typed pair table).
+ * So the pop and the folded shift are, in this construct, mutually exclusive;
+ * closing this needs a pop bought somewhere other than the index. */
 #ifdef NON_MATCHING
 s32 func_8003484C(void *arg0) {
     void *texture = arg0;
