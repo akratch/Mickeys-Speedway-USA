@@ -3034,21 +3034,42 @@ extern s32 overlay1AngleDifferenceReloc(s16 first, s16 second);
 extern f32 overlay1TrigXReloc(s32 angle);
 extern f32 overlay1TrigYReloc(s32 angle);
 
-/* Plateau: exact 107 words/frame; best is 25 words different, first +0xC.
- * The retained `volatile u8 localIndex` reproduces the target's store/reload
- * pair but never its slot: a local is allocated in the local area, and the
- * byte the target uses is inside the third parameter's own incoming argument
- * home, where only the parameter itself can live. Taking the parameter's
- * address instead -- `*(u8 *)&index = index;` before the call -- does land on
- * that byte, at 107 instructions and the same frame, and fixes the argument
- * save order too; it is the structurally correct route and is what a future
- * attempt should build on, but it currently scores worse because the store
- * misses the call's delay slot and the reload takes a ring temp rather than
- * the argument register. */
+/* Plateau: exact 107 instructions and 0x30 frame, and now both spilled stack
+ * homes. The declaration order is an identity, not a guess: the target spills
+ * `current` to sp+40 and `next` to sp+32, which are the second and fourth
+ * four-byte slots, so `previous, current, path, next` is the only order of the
+ * four pointers that lands them (25 words to 21, all 24 orders measured). The
+ * three `s32` index locals take registers, not homes, and permuting them is
+ * inert -- all 6 orders crossed with 5 branch spellings and 2 assignment
+ * orders, 60 forms, all flat.
+ *
+ * Twenty-one words remain in two clusters. Six are the prologue: the target
+ * stores the third argument home out of order, puts the byte spill in the
+ * call's delay slot, and reloads it into the argument register. Taking the
+ * parameter's address (`*(u8 *)&index = index;`) is the only form that reaches
+ * that byte -- the retained `volatile u8` local can never, because a local
+ * lives in the local area -- and it does fix the first four prologue words,
+ * but the byte store then lands before the call instead of in its delay slot
+ * and the reload takes a ring temp instead of the argument register, costing
+ * 34 words downstream (55 against 21). Measured and flat, do not repeat: the
+ * address form combined with the volatile local in both orders and on both
+ * sides of the call, a comma-operator store inside the call's argument list,
+ * a `u8 *`/`volatile u8 *` carrier for the address, `((u8 *)&index)[0]`, a
+ * read-back into a fresh `u8`/`s32` local or into `currentIndex`, and casting
+ * the call's own argument.
+ *
+ * The other fifteen are the index block's pool colours: the target has
+ * currentIndex on v1, previousIndex on a0 and the point count on a1, where we
+ * get a1, v1 and a2. The emitted schedule is identical instruction for
+ * instruction; only the web numbering differs. `currentIndex = index` in the
+ * else branch reproduces the target's `move v1,a2` at both sites but IDO then
+ * hoists the assignment out of the if/else and drops an instruction (101). */
 #ifdef NON_MATCHING
 void overlay1BendPathPoint(s16 *x, s16 *y, u8 index, u8 selector) {
-    Overlay1PathPoint *next, *previous, *current;
+    Overlay1PathPoint *previous;
+    Overlay1PathPoint *current;
     Overlay1Path *path;
+    Overlay1PathPoint *next;
     s16 firstAngle, secondAngle, midpointAngle;
     volatile u8 localIndex;
     s32 nextIndex, previousIndex, currentIndex;
@@ -3083,7 +3104,6 @@ void overlay1BendPathPoint(s16 *x, s16 *y, u8 index, u8 selector) {
     *x = (s16)((f32)*x - overlay1TrigXReloc(midpointAngle) * 50.0f);
     *y = (s16)((f32)*y - overlay1TrigYReloc(midpointAngle) * 50.0f);
 }
-
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F0007730_1853B10.s")
 #endif
@@ -3328,10 +3348,10 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1BendPathPoint:start
  * symbol: overlay1BendPathPoint
- * score: 82/107 words
+ * score: 86/107 words
  * frame: 0x30
  * relocations: 6
  * first-mismatch: +0xC
- * summary: the parameter-home byte spill is reachable: *(u8 *)&index = index puts the store at the exact slot, 107 words and the 0x30 frame
+ * summary: previous/current/path/next is the declaration order that lands both spilled stack homes (25 words to 21); the rest is the prologue byte spill and the index block's pool colours
  * PLATEAU-HANDOFF:overlay1BendPathPoint:end
  */
