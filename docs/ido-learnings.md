@@ -248,6 +248,8 @@ bytes and disassembly never belong here.
   register both of them receive; permuting the declaration list does not. Use
   the declaration list for homes and statement order for colors, and do not
   spend attempts permuting declarations to chase a register.
+- A byte used both as a table index and as a stored selector can create an extra zero-extension instruction if some reads are signed and others unsigned. Make the field unsigned when the target loads it that way, or keep the unsigned conversion consistent at every use. A conversion only at the lookup can leave a shared signed load and a separate mask. Preserve the table index range and byte-store behavior; require the full configured object and relocation/ROM proofs. Evidence: the exact resident distance-tier dispatcher in `docs/resident.md`.
+- Reusing an expired loop-counter local for a later dispatch selector can change the selector and constant carriers even with no frame change. Keep the saved model index as a separate value read from its object field, and reuse only the counter whose earlier value is dead on every path. This repaired the later dispatch allocation in an exact resident object routine. It is a measured source-shape lever, not proof of a particular allocator phase. Evidence: the exact resident distance-tier dispatcher in `docs/resident.md`.
 - A command-pointer load followed by a separate cursor update can produce a
   different allocation from `command = (*cursor)++`, even when both advance
   by exactly one command. Paired full-TU traces showed the post-increment form

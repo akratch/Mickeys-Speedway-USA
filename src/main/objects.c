@@ -73,11 +73,10 @@ typedef struct {
 typedef struct {
     f32 unk0;
     u8 pad04[0x1A];
-    s8 unk1E;
-    u8 pad1F[3];
+    s8 unk1E[4];
     s8 unk22;
     u8 pad23[0xB1];
-    f32 unkD4;
+    f32 unkD4[3];
 } Objects09F74Data;
 
 typedef struct {
@@ -94,7 +93,7 @@ typedef struct {
     u8 pad46[0x1E];
     void *unk64;
     u8 pad68[0x2B];
-    s8 unk93;
+    u8 unk93;
 } Objects09F74Object;
 
 typedef struct {
@@ -519,15 +518,21 @@ typedef struct {
 } Objects06534Data;
 
 typedef struct {
+    s32 count;
+    void *entries[10];
+    s32 unk2C;
+} Objects06534List;
+
+typedef struct {
     u8 pad00[8];
     f32 unk8;
     u8 pad0C[0x34];
     Objects06534Data *unk40;
     u8 pad44[0x18];
-    void *unk5C;
+    Objects06534List *unk5C;
     void *unk60;
     u8 pad64[0x28];
-    s8 unk8C;
+    u8 unk8C;
 } Objects06534Object;
 
 typedef struct {
@@ -779,7 +784,7 @@ extern s32 func_8000A6E8(s32 arg0);
 extern void *func_8002B280(s32 size, s32 tag);
 extern void *func_8002B4C0(void *slots, s32 size);
 extern s32 mathRnd(s32 minimum, s32 maximum);
-extern void func_80009F74(void *object);
+extern void func_80009F74(Objects09F74Object *object);
 extern u8 *levelGetLevel(void);
 extern s32 levelGetNumber(void);
 extern s32 controlGetPlayerSetup(s16 *arg0, s16 *arg1, s16 *arg2, s16 *arg3);
@@ -1145,65 +1150,45 @@ void func_80004B04(s32 arg0)
     }
   }
 }
-/* Workbench verdict: structure-mismatch; 234 differing words (target 238, candidate 242). */
-/* First mismatch: +0x0; target frame 0x48 versus candidate frame 0x68. */
-/* Structural gap: ROM table carrier setup adds four instructions and 0x20 bytes of stack. */
 #ifdef NON_MATCHING
+/* PROVENANCE: ROM-table scan and direct array-carrier spelling informed by
+ * Diddy Kong Racing public src/objects.c track_spawn_objects. Mickey ROM
+ * controls its boundaries, globals, record format and spawn conditions. */
 void func_80004C28(s32 arg0, s32 arg1) {
-    void *heap;
-    s32 *romTable;
-    s32 *table;
-    s16 **currentSlot;
-    s32 *sizeSlot;
-    s32 *idSlot;
-    void **heapSlot;
-    s16 *current;
-    s32 start;
     s32 size;
-    s32 tableCount;
     s32 offset;
-    s32 indexOffset;
-    s32 shouldCall;
-    s16 type;
-    u8 recordSize;
+    s32 tableCount;
+    s32 *heap;
+    s16 *current;
+    s32 *romTable;
+    s32 start;
 
     heap = func_8002B280(0x3000, 0x8B);
-    indexOffset = arg1 * 4;
-    heapSlot = (void **)((u8 *)D_800C94D8 + indexOffset);
-    currentSlot = (s16 **)((u8 *)D_800C94C0 + indexOffset);
-    sizeSlot = (s32 *)((u8 *)D_800C94C8 + indexOffset);
-    idSlot = (s32 *)((u8 *)D_800C94D0 + indexOffset);
-    *heapSlot = heap;
-    *currentSlot = (s16 *)((u8 *)heap + 0x10);
-    *sizeSlot = 0;
-    *idSlot = arg0;
+    D_800C94D8[arg1] = heap;
+    D_800C94C0[arg1] = (s32)((u8 *)heap + 0x10);
+    D_800C94C8[arg1] = 0;
+    D_800C94D0[arg1] = arg0;
 
     romTable = piRomLoad(0x1C);
-    table = romTable;
-    tableCount = 0;
-    if (*table != -1) {
-        do {
-            tableCount += 1;
-            table += 1;
-        } while (table[1] != -1);
+    for (tableCount = 0; romTable[tableCount] != -1; tableCount++) {
     }
     tableCount -= 1;
     if (arg0 >= tableCount) {
         arg0 = 0;
     }
-    table = &romTable[arg0];
-    start = table[0];
-    size = table[1] - start;
+    start = romTable[arg0];
+    size = romTable[arg0 + 1] - start;
     mmFree(romTable);
     if (size == 0) {
         return;
     }
 
     piRomLoadSection(0x1D, (u32)heap, start, size);
-    *currentSlot = (s16 *)((u8 *)*heapSlot + 0x10);
-    *sizeSlot = *(s32 *)heap;
+    D_800C94C0[arg1] = (s32)((u8 *)D_800C94D8[arg1] + 0x10);
+    D_800C94C8[arg1] = *heap;
     D_800C94E8 = arg1;
-    if (idSlot == &D_800C94D4[0]) {
+    romTable = &D_800C94D0[arg1];
+    if (romTable == &D_800C94D4[0]) {
         D_80078F78 = 1;
         runlinkDownloadCode(8);
         runlinkDownloadCode(1);
@@ -1212,13 +1197,12 @@ void func_80004C28(s32 arg0, s32 arg1) {
     }
 
     offset = 0;
-    if (*sizeSlot > 0) {
+    if (D_800C94C8[arg1] > 0) {
         do {
-            current = *currentSlot;
-            type = *current;
-            shouldCall = 1;
+            tableCount = 1;
             if (D_8007BF0C != 0) {
-                switch (type) {
+                current = (s16 *)D_800C94C0[arg1];
+                switch (*current) {
                 case 0x1B:
                     *current = 0xEA;
                     break;
@@ -1236,42 +1220,43 @@ void func_80004C28(s32 arg0, s32 arg1) {
                 case 0x107:
                 case 0x12C:
                     if ((s32)D_8007BEF8 >= 3) {
-                        shouldCall = 0;
+                        tableCount = 0;
                     }
                     break;
                 case 0x106:
                 case 0x131:
                 case 0x132:
                 case 0x147:
-                    shouldCall = 0;
+                    tableCount = 0;
                     break;
                 }
             }
-            current = *currentSlot;
-            type = *current;
-            if ((type == 0x3F) && ((D_8007BF1C & 0x20) != 0)) {
-                shouldCall = 0;
+            current = (s16 *)D_800C94C0[arg1];
+            if ((*current == 0x3F) && ((D_8007BF1C & 0x20) != 0)) {
+                tableCount = 0;
             }
-            if ((type == 1) || (type == 0x155) || (type == 0x156)) {
+            if ((*current == 1) || (*current == 0x155) || (*current == 0x156)) {
                 if (D_800D3128[0x12] >= 0x15) {
                     *current = 0x156;
+                    current = (s16 *)D_800C94C0[arg1];
                 } else if ((*(u16 *)(D_800D3128 + 0x14) & 0x40) != 0) {
                     *current = 0x155;
+                    current = (s16 *)D_800C94C0[arg1];
                 } else {
                     *current = 1;
+                    current = (s16 *)D_800C94C0[arg1];
                 }
-                current = *currentSlot;
             }
-            if (shouldCall != 0) {
-                func_8000590C(current, 1, offset, 0x155);
-                current = *currentSlot;
+            if (tableCount != 0) {
+                func_8000590C(current, 1);
+                current = (s16 *)D_800C94C0[arg1];
             }
-            recordSize = *((u8 *)current + 2);
-            *currentSlot = (s16 *)((u8 *)current + recordSize);
-            offset += recordSize;
-        } while (offset < *sizeSlot);
+            tableCount = *((u8 *)current + 2);
+            D_800C94C0[arg1] = (s32)((u8 *)current + tableCount);
+            offset += tableCount;
+        } while (offset < D_800C94C8[arg1]);
     }
-    *currentSlot = (s16 *)((u8 *)*heapSlot + 0x10);
+    D_800C94C0[arg1] = (s32)((u8 *)D_800C94D8[arg1] + 0x10);
     if (D_800C9478 == 0) {
         func_80006FA0();
     }
@@ -1282,11 +1267,12 @@ void func_80004C28(s32 arg0, s32 arg1) {
 #endif
 typedef struct {
     s16 unk0;
-    s16 unk2;
+    u8 unk2;
+    u8 pad03;
     s16 unk4;
     s16 unk6;
     s16 unk8;
-    u8 pad0A[2];
+    s16 unkA;
     s16 unkC;
     s16 unkE;
     u8 unk10;
@@ -1294,7 +1280,8 @@ typedef struct {
 } Objects04FE0Packet;
 
 typedef struct {
-    u8 pad00[4];
+    u8 unk0;
+    u8 pad01[3];
     u8 unk4;
     u8 pad05;
     s8 unk6;
@@ -1319,45 +1306,54 @@ typedef struct {
     s32 unk88;
 } Objects04FE0Object;
 
-/* Workbench verdict: structure-mismatch; 337 differing words (347/346 instructions). */
-/* First mismatch: +0x64; target frame is 0x100, candidate frame is 0x128. */
-/* Structural gap: packet carriers and allocator call ABI leave a larger candidate frame. */
+typedef struct {
+    s16 unk0;
+    u8 unk2;
+    u8 pad03;
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+    u8 unkA;
+    u8 pad0B;
+} Objects04FE0ExtraPacket;
+
+typedef struct {
+    s16 unk0;
+    u8 unk2;
+    u8 pad03;
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+    s16 unkA;
+} Objects04FE0SpecialPacket;
+
 #ifdef NON_MATCHING
 void func_80004FE0(s32 arg0) {
-    u8 *modeState;
-    u8 *level;
-    s32 playerCount;
     s32 i;
     s32 offset;
+    s32 playerCount;
     s32 slot;
-    s32 player;
-    s16 playerSetup0;
-    s16 playerSetup1;
-    s16 playerSetup2;
-    s16 playerSetup3;
-    Objects04FE0Object *category[6];
+    s32 type;
     Objects04FE0Packet packets[6];
-    Objects04FE0Packet extraPacket;
-    Objects04FE0Packet specialPacket;
+    Objects04FE0Object *category[6];
+    Objects04FE0SpecialPacket specialPacket;
+    Objects04FE0ExtraPacket extraPacket;
+    Objects04FE0ModeRecord *modeState;
     Objects04FE0ModeRecord *records;
-    Objects04FE0Object **objects;
     Objects04FE0Object *object;
-    Objects04FE0Object *sourceObject;
     Objects04FE0Source *source;
-    s32 flags;
-    u8 type;
+    s8 *level;
 
     modeState = func_80028F54();
-    level = levelGetLevel();
+    level = (s8 *)levelGetLevel();
     playerCount = func_800291FC();
     D_800C94F8 = 0;
-    if ((level[0x83] != 1) && (level[0x83] != 2)) {
+    if ((level[0x83] != 1) && (level[0x83] != 2) && (playerCount > 0)) {
         for (i = 0; i < 6; i++) {
             category[i] = NULL;
         }
-        objects = (Objects04FE0Object **)D_800C9494;
-        for (i = 0; i < D_800C9498; i++) {
-            object = objects[i];
+        for (offset = 0; offset < D_800C9498; offset++) {
+            object = (Objects04FE0Object *)D_800C9494[offset];
             if ((object->unk44 == 5) && (arg0 == object->unk88)) {
                 slot = object->unk84;
                 if ((slot >= 0) && (slot < 6)) {
@@ -1366,72 +1362,73 @@ void func_80004FE0(s32 arg0) {
                     }
                 } else {
                     category[0] = object;
-                    category[2] = object;
-                    category[3] = object;
-                    category[4] = object;
-                    category[5] = object;
+                    category[1] = object;
+                    for (type = 2; type < 6; type += 4) {
+                        category[type + 1] = object;
+                        category[type + 2] = object;
+                        category[type + 3] = object;
+                        category[type] = object;
+                    }
                 }
             }
         }
-        records = (Objects04FE0ModeRecord *)modeState;
-        for (player = 0; player < playerCount; player++) {
-            type = records[player].unk4;
+        for (i = 0, records = modeState; i < playerCount; i++, records++) {
+            type = records->unk4;
             if (type >= 0xA) {
                 type = 0;
             }
             if (D_8007BF10 != 0) {
-                packets[player].unk0 = D_80078FF0[type];
+                packets[i].unk0 = D_80078FF0[type];
             } else if (D_8007BF0C == 0) {
                 if (level[0x83] == 3) {
-                    packets[player].unk0 = D_80078FB4[type];
+                    packets[i].unk0 = D_80078FB4[type];
                 } else if (D_8007BF04 != 0) {
-                    packets[player].unk0 = D_80078FA0[type];
+                    packets[i].unk0 = D_80078FA0[type];
                 } else {
-                    packets[player].unk0 = D_80078F8C[type];
+                    packets[i].unk0 = D_80078F8C[type];
                 }
             } else if (level[0x83] == 3) {
-                packets[player].unk0 = D_80078FDC[type];
+                packets[i].unk0 = D_80078FDC[type];
             } else {
-                packets[player].unk0 = D_80078FC8[type];
+                packets[i].unk0 = D_80078FC8[type];
             }
-            packets[player].unk2 = 0x12;
-            packets[player].unkC = 0;
-            packets[player].unk10 = player;
-            packets[player].unk11 = type;
-            if ((*modeState == 5) || (*modeState == 6)) {
-                slot = player;
-            } else if ((*modeState == 1) || (*modeState == 2)) {
+            packets[i].unk2 = 0x12;
+            packets[i].unkA = 0;
+            packets[i].unkC = 0;
+            packets[i].unk10 = i;
+            packets[i].unk11 = type;
+            if ((modeState->unk0 == 5) || (modeState->unk0 == 6)) {
+                slot = i;
+            } else if ((modeState->unk0 == 1) || (modeState->unk0 == 2)) {
                 slot = 0;
             } else if (D_8007BF0C != 0) {
-                slot = (playerCount - records[player].unk6) - 1;
+                slot = (playerCount - records->unk6) - 1;
             } else {
-                slot = records[player].unk6;
+                slot = records->unk6;
             }
-            sourceObject = category[slot];
-            if (sourceObject != NULL) {
-                source = (Objects04FE0Source *)sourceObject->unk3C;
-                packets[player].unk4 = source->unk4;
-                packets[player].unk6 = source->unk6;
-                packets[player].unk8 = source->unk8;
-                packets[player].unkE = sourceObject->unk0;
+            object = category[slot];
+            if (object != NULL) {
+                source = (Objects04FE0Source *)object->unk3C;
+                packets[i].unk4 = source->unk4;
+                packets[i].unk6 = source->unk6;
+                packets[i].unk8 = source->unk8;
+                packets[i].unkE = object->unk0;
                 category[slot] = NULL;
             } else {
-                packets[player].unk4 = 0;
-                packets[player].unk6 = 0;
-                packets[player].unk8 = 0;
-                packets[player].unkE = 0;
+                packets[i].unk4 = 0;
+                packets[i].unk6 = 0;
+                packets[i].unk8 = 0;
+                packets[i].unkE = 0;
             }
         }
-        controlGetPlayerSetup(&playerSetup0, &playerSetup1, &playerSetup2,
-                              &playerSetup3);
-        for (i = 0; i < 8; i++) {
-            D_800C94F4[i] = NULL;
+        controlGetPlayerSetup(&packets[0].unk4, &packets[0].unk6,
+                              &packets[0].unk8, &packets[0].unkE);
+        for (offset = 0; offset < 8; offset++) {
+            D_800C94F4[offset] = NULL;
         }
-        for (player = 0, offset = 0; player < playerCount;
-             player++, offset += 4) {
-            object = (Objects04FE0Object *)func_8000590C(&packets[player], 1,
-                                                         offset);
-            D_800C94F4[player] = object;
+        for (i = 0, offset = 0; i < playerCount; i++, offset += 4) {
+            object = (Objects04FE0Object *)func_8000590C(&packets[i], 1);
+            *(void **)((u8 *)D_800C94F4 + offset) = object;
             if (object != NULL) {
                 object->unk3C = NULL;
             }
@@ -1442,7 +1439,7 @@ void func_80004FE0(s32 arg0) {
             extraPacket.unk4 = 0;
             extraPacket.unk6 = 0;
             extraPacket.unk8 = 0;
-            extraPacket.unk10 = i;
+            extraPacket.unkA = i;
             object = (Objects04FE0Object *)func_8000590C(&extraPacket, 1);
             if (object != NULL) {
                 object->unk3C = NULL;
@@ -1454,10 +1451,10 @@ void func_80004FE0(s32 arg0) {
             specialPacket.unk0 = 0x77;
         }
         specialPacket.unk2 = 0xC;
-        specialPacket.unk4 = playerSetup0;
-        specialPacket.unk6 = playerSetup1;
-        specialPacket.unk8 = playerSetup2;
-        specialPacket.unkC = playerSetup3;
+        specialPacket.unk4 = packets[0].unk4;
+        specialPacket.unk6 = packets[0].unk6;
+        specialPacket.unk8 = packets[0].unk8;
+        specialPacket.unkA = packets[0].unkE;
         object = (Objects04FE0Object *)func_8000590C(&specialPacket, 1);
         if (object != NULL) {
             object->unk3C = NULL;
@@ -1465,12 +1462,11 @@ void func_80004FE0(s32 arg0) {
                 D_80078F7C = object;
             }
         }
-        if ((*modeState == 1) && (D_800C94F4[0] != NULL)) {
-            flags = *(s32 *)D_800D3128;
-            if ((flags & 0x80000) != 0) {
+        if ((modeState->unk0 == 1) && (D_800C94F4[0] != NULL)) {
+            if ((*(s32 *)D_800D3128 & 0x80000) != 0) {
                 TrapDanglingJump(D_8007A1F4);
             }
-            if ((flags & 0x100000) != 0) {
+            if ((*(s32 *)D_800D3128 & 0x100000) != 0) {
                 TrapDanglingJump(levelGetNumber());
                 TrapDanglingJump(D_8007A1F8);
             }
@@ -1777,6 +1773,11 @@ extern s32 func_80006B04(Objects06B04Object *object, Objects06B04Output *data,
 extern s32 func_80006C40(Objects06C40 *object, s32 data);
 extern s32 func_8000A830(Objects0A830Object *object, void *data);
 
+/* PROVENANCE: screened Jet Force Gemini, src/objects.c, at public revision
+ * efd5abb1c79636e297b831f7c2d5bf47eac39c0c. Its objSetupObject counterpart
+ * remains assembly-backed. No donor C was adopted; the existing Mickey
+ * candidate and the unresolved header-scheduling mechanism are unchanged.
+ */
 /* Workbench plateau: 538 differing words; target and candidate are 719 words. */
 /* First mismatch: +0x1B4; both frames are 0x90, both relocation counts are 99. */
 /* Remaining: header scheduling, saved-register lifetimes and nested fixup carriers. */
@@ -2147,63 +2148,63 @@ void func_80006448(void *arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80006448.s")
 #endif
-/* Workbench verdict: structure-mismatch; 198 differing words (target 205, candidate 207). */
-/* First mismatch: +0x0; target frame 0x38 versus candidate 0x48. */
-/* Structural gap: resource-list carrier and cleanup control flow are complete; stack shape differs. */
 #ifdef NON_MATCHING
 s32 func_80006534(Objects06534Object *object) {
     Objects06534Record *record;
+    s32 count;
     Objects06534Sprite *sprite;
-    void *list;
+    Objects06534List *list;
     void *loaded;
     s32 failed;
-    s32 count;
     s32 index;
+    s32 reference;
+    s32 frameOffset;
+    u32 flags;
 
     list = NULL;
     sprite = NULL;
     failed = 0;
     if ((object->unk40->unk23 > 0) && (object->unk40->unk23 < 0xA)) {
         list = object->unk5C;
-        count = object->unk40->unk23;
-        *(s32 *)list = count;
-        for (index = 0; index < count; index++) {
+        list->count = object->unk40->unk23;
+        for (index = 0; index < list->count; index++) {
             loaded = func_80006C4C(object->unk40->unk38[index]);
             if (loaded != NULL) {
                 *(f32 *)((u8 *)loaded + 8) *= object->unk8;
             }
-            *(void **)((u8 *)list + (index * 4) + 4) = loaded;
+            list->entries[index] = loaded;
             if (loaded == NULL) {
                 failed = 1;
             }
         }
-        *(s32 *)((u8 *)list + 0x2C) = object->unk40->unk3C;
+        list->unk2C = object->unk40->unk3C;
     }
 
     object->unk8C = object->unk40->unk24;
-    count = (u8)object->unk40->unk24;
-    if ((count > 0) && (object->unk40->unk24 < 0xA)) {
+    if ((object->unk8C > 0) && (object->unk40->unk24 < 0xA)) {
         sprite = (Objects06534Sprite *)object->unk60;
         record = object->unk40->unk40;
-        for (index = 0; index < count; index++, sprite++, record++) {
+        for (index = 0; index < object->unk8C; index++, sprite++, record++) {
             sprite->unk0 = func_800355A0(record->unk0, 1);
             sprite->unk4 = record->unk2;
-            sprite->unkC = record->unk8;
+            flags = record->unk8;
+            reference = ((u32)record->unk8 >> 22) & 0x3F;
+            frameOffset = ((u32)record->unk8 >> 16) & 0x3F;
+            sprite->unkC = flags;
             sprite->unk8 = ((f32)record->unk4 / 500.0f) * object->unk8;
             sprite->unk5 = record->unk3;
-            if (record->unk8 & 0x80000000) {
-                sprite->unk10 = (f32)mathRnd(0, *(u8 *)sprite->unk0);
-            } else if (record->unk8 & 0x40000000) {
-                sprite->unk10 = ((Objects06534Sprite *)object->unk60)[(record->unk8 >> 22) & 0x3F].unk10 +
-                                (f32)((record->unk8 >> 16) & 0x3F);
-            } else if (record->unk8 & 0x20000000) {
-                sprite->unk10 = ((Objects06534Sprite *)object->unk60)[(record->unk8 >> 22) & 0x3F].unk10 -
-                                (f32)((record->unk8 >> 16) & 0x3F);
+            count = *(u8 *)sprite->unk0;
+            if (flags & 0x80000000) {
+                sprite->unk10 = (f32)mathRnd(0, count);
+            } else if (flags & 0x40000000) {
+                sprite->unk10 = ((Objects06534Sprite *)object->unk60)[reference].unk10 + (f32)frameOffset;
+            } else if (flags & 0x20000000) {
+                sprite->unk10 = ((Objects06534Sprite *)object->unk60)[reference].unk10 - (f32)frameOffset;
             }
-            if ((f32)*(u8 *)sprite->unk0 < sprite->unk10) {
-                sprite->unk10 -= (f32)*(u8 *)sprite->unk0;
+            if ((f32)count < sprite->unk10) {
+                sprite->unk10 -= (f32)count;
             } else if (sprite->unk10 < 0.0f) {
-                sprite->unk10 += (f32)*(u8 *)sprite->unk0;
+                sprite->unk10 += (f32)count;
             }
             if (sprite->unk0 == NULL) {
                 failed = 1;
@@ -2213,23 +2214,21 @@ s32 func_80006534(Objects06534Object *object) {
 
     if (failed != 0) {
         if (list != NULL) {
-            count = *(s32 *)list;
-            for (index = 0; index < count; index++) {
-                loaded = *(void **)((u8 *)list + (index * 4) + 4);
+            for (index = 0; index < list->count; index++) {
+                loaded = list->entries[index];
                 if (loaded != NULL) {
                     func_80006448(loaded);
                     func_80004B04(*(s16 *)((u8 *)loaded + 0x2C));
                     mmFree(loaded);
                 }
             }
-            *(s32 *)((u8 *)list + 0x2C) = 0;
+            list->unk2C = 0;
         }
         if (sprite != NULL) {
             sprite = (Objects06534Sprite *)object->unk60;
-            for (index = 0; index < (u8)object->unk8C; index++) {
-                loaded = sprite->unk0;
-                if (loaded != NULL) {
-                    func_800359D4(loaded);
+            for (index = 0; index < object->unk8C; index++) {
+                if (sprite->unk0 != NULL) {
+                    func_800359D4(sprite->unk0);
                     sprite->unk0 = NULL;
                 }
             }
@@ -2613,39 +2612,30 @@ extern void func_8000D728(void *object);
 extern void camlightDelete(void *object);
 extern void partObjFreeTriggers(void *object);
 extern void partNullifyCircularParticleParents(void *object);
-extern void lightKillGlowingLight(void);
+extern s32 lightKillGlowingLight();
 extern void func_80048980(void *object);
 extern void func_8001C088(void *object);
 extern void killLight(void *light);
 extern void amSndStop(void *sound);
 extern void func_80046E70(void *object);
 
-/* Workbench candidate: object/resource teardown with the complete type switch. */
 #ifdef NON_MATCHING
-void func_80007118(void *arg0, s32 arg1) {
-    u8 *object;
-    u8 *data;
-    u8 *payload;
-    u8 *freePayload;
-    u8 *resource;
-    u8 *entry;
-    s32 *list;
-    s32 count;
+void func_80007118(u8 *object, s32 arg1) {
     s32 i;
-    s32 type;
+    s32 offset;
+    u8 *entry;
+    u8 *payload;
     void *value;
+    u8 *linkedPayload;
+    u8 *owner;
 
-    object = (u8 *)arg0;
-    data = *(u8 **)(object + 0x40);
-    type = *(s16 *)(object + 0x44);
-    payload = *(u8 **)(object + 0x64);
-    freePayload = payload;
-    if (type == 1) {
+    if (*(s16 *)(object + 0x44) == 1) {
+        payload = *(u8 **)(object + 0x64);
         value = *(void **)(payload + 0xD0);
         if (value != NULL && *(u8 *)((u8 *)value + 0x91) == 0) {
-            freePayload = (u8 *)(s32)func_80006EE4((s32)value);
+            func_80006EE4((s32)value);
         }
-        value = *(void **)(freePayload + 0xD4);
+        value = *(void **)(payload + 0xD4);
         if (value != NULL && *(u8 *)((u8 *)value + 0x91) == 0) {
             func_80006EE4((s32)value);
         }
@@ -2653,172 +2643,272 @@ void func_80007118(void *arg0, s32 arg1) {
     D_8007A210 = 2;
     D_8007A21C = 1;
     D_8007A214 = object;
-    D_8007A218 = (s32)(data + 4);
+    D_8007A218 = (s32)(*(u8 **)(object + 0x40) + 4);
 
-    list = *(s32 **)(object + 0x5C);
-    if (list != NULL) {
-        count = list[0];
-        for (i = 0; i < count; i++) {
-            entry = *(u8 **)((u8 *)list + 4 + (i * 4));
+    if (*(void **)(object + 0x5C) != NULL) {
+        for (i = 0, offset = 0; i < **(s32 **)(object + 0x5C); i++, offset += 4) {
+            entry = *(u8 **)(*(u8 **)(object + 0x5C) + 4 + offset);
             func_80006448(entry);
             func_80004B04(*(s16 *)(entry + 0x2C));
             mmFree(entry);
         }
     }
-    value = *(void **)(object + 0x60);
-    if (value != NULL) {
-        count = *(u8 *)(object + 0x8C);
-        for (i = 0; i < count; i++) {
-            func_800359D4(*(void **)((u8 *)value + (i * 0x14)));
-        }
-    }
-    value = *(void **)(object + 0x70);
-    if (value != NULL) {
-        count = *(s8 *)(data + 0x28);
-        for (i = 0; i < count; i++) {
-            killLight(*(void **)((u8 *)value + (i * 4)));
-        }
-    }
-    value = *(void **)(object + 0x74);
-    if (value != NULL) {
-        count = *(u8 *)(data + 0x29);
-        for (i = 0; i < count; i++) {
-            camlightDelete(*(void **)((u8 *)value + (i * 4)));
+    if (*(void **)(object + 0x60) != NULL) {
+        for (i = 0, offset = 0; i < *(u8 *)(object + 0x8C); i++, offset += 0x14) {
+            func_800359D4(*(void **)(*(u8 **)(object + 0x60) + offset));
         }
     }
     partObjFreeTriggers(object);
+    if (*(void **)(object + 0x70) != NULL) {
+        for (i = 0, offset = 0; i < *(s8 *)(*(u8 **)(object + 0x40) + 0x28); i++, offset += 4) {
+            killLight(*(void **)(*(u8 **)(object + 0x70) + offset));
+        }
+    }
+    if (*(void **)(object + 0x74) != NULL) {
+        for (i = 0, offset = 0; i < *(u8 *)(*(u8 **)(object + 0x40) + 0x29); i++, offset += 4) {
+            camlightDelete(*(void **)(*(u8 **)(object + 0x74) + offset));
+        }
+    }
 
-    switch (type) {
-        case 1:
-            TrapDanglingJump(*(void **)(payload + 0x64));
+    switch (*(s16 *)(object + 0x44)) {
+        case 92:
+            payload = *(u8 **)(object + 0x64);
+            TrapDanglingJump(payload);
             break;
-        case 2:
+        case 65:
+            payload = *(u8 **)(object + 0x64);
             func_800359D4(*(void **)(payload + 0x20));
             break;
-        case 3:
-            func_800031E8(*(void **)(payload + 0x3C));
+        case 67:
+            payload = *(u8 **)(object + 0x64);
+            value = *(void **)(payload + 0x3C);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
             break;
-        case 4:
-        case 5:
+        case 72:
             TrapDanglingJump();
             break;
-        case 6:
-            func_800031E8(*(void **)(payload + 0x3C));
+        case 76:
+            TrapDanglingJump();
             break;
-        case 7:
-            value = *(void **)(payload + 0x20);
+        case 78:
+            payload = *(u8 **)(object + 0x64);
+            value = *(void **)(payload + 0x3C);
             if (value != NULL) {
-                u8 *owner = *(u8 **)(*(void **)((u8 *)value + 0x64));
+                func_800031E8(value);
+            }
+            break;
+        case 68:
+            linkedPayload = *(u8 **)(object + 0x64);
+            value = *(void **)(linkedPayload + 0x18);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(linkedPayload + 0x1C);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(linkedPayload + 0x20);
+            if (value != NULL) {
+                owner = *(u8 **)((u8 *)value + 0x64);
                 if (*(void **)(owner + 0xD4) == object) {
                     *(void **)(owner + 0xD4) = NULL;
                 }
             }
             break;
-        case 8:
+        case 66:
+            payload = *(u8 **)(object + 0x64);
             value = *(void **)(payload + 0x0);
             if (value != NULL) {
-                u8 *owner = *(u8 **)(*(void **)((u8 *)value + 0x64));
+                owner = *(u8 **)((u8 *)value + 0x64);
                 if (*(void **)(owner + 0xD0) == object) {
                     *(void **)(owner + 0xD0) = NULL;
                 }
             }
-            func_800031E8(*(void **)(payload + 0x14));
+            value = *(void **)(payload + 0x14);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
             break;
-        case 9:
+        case 89:
+            payload = *(u8 **)(object + 0x64);
             value = *(void **)(payload + 0x10);
             if (value != NULL) {
-                u8 *owner = *(u8 **)(*(void **)((u8 *)value + 0x64));
+                owner = *(u8 **)((u8 *)value + 0x64);
                 if (*(void **)(owner + 0xD8) == object) {
                     *(void **)(owner + 0xD8) = NULL;
                 }
             }
             break;
-        case 10:
-            amSndStop(*(void **)(payload + 0x0));
+        case 90:
+            payload = *(u8 **)(object + 0x64);
+            value = *(void **)(payload + 0x0);
+            if (value != NULL) {
+                amSndStop(value);
+            }
             break;
-        case 11:
-            func_800031E8(*(void **)(payload + 0x3C));
+        case 64:
+            payload = *(u8 **)(object + 0x64);
+            value = *(void **)(payload + 0x3C);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
             break;
-        case 12:
-            func_800031E8(*(void **)(payload + 0x18));
-            func_800031E8(*(void **)(payload + 0x1C));
-            func_800031E8(*(void **)(payload + 0x40));
+        case 55:
+            linkedPayload = *(u8 **)(object + 0x64);
+            value = *(void **)(linkedPayload + 0x18);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(linkedPayload + 0x40);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
             break;
-        case 13:
-            func_800031E8(*(void **)(payload + 0x38));
+        case 54:
+            payload = *(u8 **)(object + 0x64);
+            value = *(void **)(payload + 0x38);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
             break;
-        case 14:
+        case 71:
             D_80078F7C = NULL;
             break;
-        case 15:
+        case 63:
             value = (void *)D_8007A1F4;
             if (value != NULL && *(void **)value == object) {
                 *(void **)value = NULL;
             }
             break;
-        case 16:
-        case 17:
+        case 61:
             TrapDanglingJump(object);
             break;
-        case 18:
+        case 62:
+            TrapDanglingJump(object);
+            break;
+        case 14:
             func_8001C088(object);
             break;
-        case 19:
-            killLight(*(void **)(payload + 0x64));
+        case 15:
+            payload = *(u8 **)(object + 0x64);
+            killLight(payload);
             break;
-        case 20:
-            value = *(void **)(payload + 0x20);
+        case 41:
+            linkedPayload = *(u8 **)(object + 0x64);
+            value = *(void **)(linkedPayload + 0x20);
             if (value != NULL) {
                 killLight(value);
             }
-            func_8000D728(*(void **)(payload + 0x2C));
+            value = *(void **)(linkedPayload + 0x2C);
+            if (value != NULL) {
+                func_8000D728(value);
+            }
             break;
-        case 21:
-            camlightDelete(*(void **)(object + 0x84));
+        case 9:
+            value = *(void **)(object + 0x84);
+            if (value != NULL) {
+                camlightDelete(value);
+            }
+            break;
+        case 35:
+            lightKillGlowingLight(*(void **)(object + 0x64));
+            break;
+        case 42:
+            payload = *(u8 **)(object + 0x64);
+            value = *(void **)(payload + 4);
+            if (value != NULL) {
+                mmFree(value);
+            }
+            break;
+        case 29:
+            func_80005798(object);
+            value = *(void **)(object + 0x84);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            break;
+        case 73:
+            func_80005798(object);
             break;
         case 22:
-            lightKillGlowingLight();
-            break;
         case 23:
-            mmFree(*(void **)(payload + 4));
-            break;
         case 24:
-            func_80005798(object);
-            value = *(void **)(object + 0x84);
-            if (value != NULL) {
-                func_800031E8(value);
-            }
-            break;
         case 25:
-            func_80005798(object);
-            break;
         case 26:
+        case 27:
+        case 79:
             value = *(void **)(object + 0x84);
             if (value != NULL) {
                 func_800031E8(value);
             }
             break;
-        case 27:
-            func_800031E8(*(void **)(payload + 0xA4));
-            func_800031E8(*(void **)(payload + 0xA8));
-            func_800031E8(*(void **)(payload + 0xAC));
-            func_800031E8(*(void **)(payload + 0xB0));
-            func_800031E8(*(void **)(payload + 0xB4));
-            func_800031E8(*(void **)(payload + 0xB8));
-            func_800031E8(*(void **)(payload + 0xBC));
-            func_800031E8(*(void **)(payload + 0xC0));
-            func_800031E8(*(void **)(payload + 0xC4));
+        case 1:
+            payload = *(u8 **)(object + 0x64);
+            value = *(void **)(payload + 0xA4);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(payload + 0xA8);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(payload + 0xAC);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(payload + 0xB0);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(payload + 0xB4);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(payload + 0xB8);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(payload + 0xBC);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(payload + 0xC0);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            value = *(void **)(payload + 0xC4);
+            if (value != NULL) {
+                func_800031E8(value);
+            }
+            for (i = 0; i < 0x10; i += 4) {
+                value = *(void **)(payload + 0x134 + i);
+                if (value != NULL) {
+                    TrapDanglingJump(value);
+                }
+            }
+            for (i = 0; i != 0x30; i += 0xC) {
+                value = *(void **)(payload + 0x354 + i);
+                if (value != NULL) {
+                    func_80046E70(value);
+                }
+            }
             break;
         default:
             break;
     }
 
-    resource = *(u8 **)(object + 0x4C);
-    if (resource != NULL) {
-        if (*(void **)(resource + 0x1C) != NULL && ((*(u8 *)(data + 0x61) & 8) != 0)) {
-            TrapDanglingJump();
+    payload = *(u8 **)(object + 0x4C);
+    if (payload != NULL) {
+        if (*(void **)(payload + 0x1C) != NULL && ((*(u8 *)(*(u8 **)(object + 0x40) + 0x61) & 8) != 0)) {
+            TrapDanglingJump(*(void **)(payload + 0x1C));
+            payload = *(u8 **)(object + 0x4C);
         }
-        func_800347A0(*(void **)(resource + 8));
+        value = *(void **)(payload + 8);
+        if (value != NULL) {
+            func_800347A0(value);
+        }
     }
     value = *(void **)(object + 0x54);
     if (value != NULL) {
@@ -2826,7 +2916,10 @@ void func_80007118(void *arg0, s32 arg1) {
     }
     value = *(void **)(object + 0x78);
     if (value != NULL) {
-        func_800031E8(*(void **)((u8 *)value + 0x24));
+        value = *(void **)((u8 *)value + 0x24);
+        if (value != NULL) {
+            func_800031E8(value);
+        }
     }
     if (*(u8 *)(object + 0x92) != 0) {
         partNullifyCircularParticleParents(object);
@@ -2921,60 +3014,48 @@ extern void lightUpdateLights(s32 updateRate);
 extern void lightUpdateObjects(void);
 extern void amPlayAudioMap(void **objects, s32 count, s32 updateRate);
 
-/* Workbench verdict: structure-mismatch; 273 differing words (277/263). */
-/* First mismatch: +0x0; target frame 0x100 versus candidate frame 0x108. */
-/* Structural gap: object-list carrier, stack-home placement, and late-loop register shape remain unresolved. */
 #ifdef NON_MATCHING
 void func_8000784C(s32 arg0) {
-    void *pending[0x20];
     Objects0784CObject *object;
-    Objects0784CObject ** volatile *objectList;
-    s32 *objectCount;
-    Objects0784CData *data;
+    Objects0784COutput *output;
     Objects0784CAnimation *animation;
     Objects0784CEffect *effect;
-    Objects0784CEffect *effectEnd;
     s32 i;
+    s32 count;
     s32 objectOffset;
-    s32 objectEnd;
     s32 pendingCount;
-    s32 timer;
+    Objects0784CObject *pending[0x20];
 
-    objectList = (Objects0784CObject ** volatile *)&D_800C94F4;
-    objectCount = &D_800C94F8;
-    i = 0;
-    if (*objectCount > 0) {
-        objectOffset = 0;
+    count = 0;
+    if (D_800C94F8 > 0) {
         do {
-            object = *(Objects0784CObject **)((u8 *)*objectList + objectOffset);
-            object->unk64->unk38 = object->unkC;
-            object->unk64->unk3C =
-                (*(Objects0784CObject **)((u8 *)*objectList + objectOffset))->unk10;
-            object->unk64->unk40 =
-                (*(Objects0784CObject **)((u8 *)*objectList + objectOffset))->unk14;
-            object->unk64->unkF6 =
-                (*(Objects0784CObject **)((u8 *)*objectList + objectOffset))->unk0;
-            object->unk64->unkF8 =
-                (*(Objects0784CObject **)((u8 *)*objectList + objectOffset))->unk2;
-            object->unk64->unkFA =
-                (*(Objects0784CObject **)((u8 *)*objectList + objectOffset))->unk4;
-            i += 1;
-            objectOffset += 4;
-        } while (i < *objectCount);
+            output = ((Objects0784CObject *)D_800C94F4[count])->unk64;
+            output->unk38 = ((Objects0784CObject *)D_800C94F4[count])->unkC;
+            output->unk3C =
+                ((Objects0784CObject *)D_800C94F4[count])->unk10;
+            output->unk40 =
+                ((Objects0784CObject *)D_800C94F4[count])->unk14;
+            output->unkF6 =
+                ((Objects0784CObject *)D_800C94F4[count])->unk0;
+            output->unkF8 =
+                ((Objects0784CObject *)D_800C94F4[count])->unk2;
+            output->unkFA =
+                ((Objects0784CObject *)D_800C94F4[count])->unk4;
+            count += 1;
+        } while (count < D_800C94F8);
     }
 
-    objectList = (Objects0784CObject ** volatile *)&D_800C94F4;
 
     if (runlinkIsModuleLoaded(0x14) != 0) {
         TrapDanglingJump(arg0);
     }
 
+    count = D_800C9498;
+    objectOffset = D_800C949C;
     pendingCount = 0;
-    if (D_800C949C < D_800C9498) {
-        objectOffset = D_800C949C * 4;
-        objectEnd = D_800C9498 * 4;
+    if (objectOffset < count) {
         do {
-            object = *(Objects0784CObject **)((u8 *)D_800C9494 + objectOffset);
+            object = ((Objects0784CObject **)D_800C9494)[objectOffset];
             if ((object->unk44 == 7) || (object->unk44 == 0x1C) ||
                 (object->unk44 == 0x50) || (object->unk44 == 0x42)) {
                 if (pendingCount < 0x20) {
@@ -2983,8 +3064,7 @@ void func_8000784C(s32 arg0) {
                 }
             } else if (object->unk44 != 0xF) {
                 func_8000AEEC(object, arg0);
-                data = object->unk40;
-                if ((data->unk1E == 0) && (data->unkA2 != 0xFF)) {
+                if ((object->unk40->unk1E == 0) && (object->unk40->unkA2 != 0xFF)) {
                     func_80007E40((Objects07E40Object *)object, arg0);
                 }
                 if ((object->unk44 != 1) && (object->unk54 != NULL)) {
@@ -2994,25 +3074,17 @@ void func_8000784C(s32 arg0) {
                 if (animation != NULL) {
                     if (animation->unkE != 0) {
                         if (animation->unk8 != NULL) {
-                            timer = animation->unkC + (animation->unkE * arg0);
-                            animation->unkC = timer;
-                            if ((timer & 0xFFFF) >=
-                                ((u16 *)animation->unk8)[8]) {
-                                do {
-                                    timer = (timer & 0xFFFF) -
-                                        ((u16 *)animation->unk8)[8];
-                                    animation->unkC = timer;
-                                } while ((timer & 0xFFFF) >=
-                                         ((u16 *)animation->unk8)[8]);
+                            animation->unkC += (u32)animation->unkE * arg0;
+                            while (animation->unkC >= ((u16 *)animation->unk8)[8]) {
+                                animation->unkC -= ((u16 *)animation->unk8)[8];
                             }
                         }
                     }
                 }
-                effect = (Objects0784CEffect *)object->unk60;
-                if (effect != NULL) {
+                if (object->unk60 != NULL) {
+                    effect = object->unk60;
                     i = 0;
-                    effectEnd = effect + object->unk8C;
-                    while (effect < effectEnd) {
+                    while (i < object->unk8C) {
                         func_80036544(effect->unk0, &effect->unkC,
                                       effect->unk5, &effect->pad10,
                                       arg0);
@@ -3021,41 +3093,32 @@ void func_8000784C(s32 arg0) {
                     }
                 }
             }
-            objectOffset += 4;
-        } while (objectOffset < objectEnd);
+            objectOffset += 1;
+        } while (objectOffset < count);
     }
 
-    timer = D_80078F80 - arg0;
     if (D_80078F80 != 0) {
-        D_80078F80 = timer;
-        if (timer < 0) {
+        D_80078F80 -= arg0;
+        if (D_80078F80 < 0) {
             D_80078F80 = 0;
         }
     }
 
     i = 0;
-    objectOffset = 0;
-    if (D_800C94F8 > 0) {
-        do {
-            func_8001CB84((void *)(*objectList)[objectOffset >> 2], arg0);
-            i += 1;
-            objectOffset += 4;
-        } while (i < *objectCount);
+    for (objectOffset = 0; objectOffset < D_800C94F8; objectOffset++) {
+        func_8001CB84(D_800C94F4[objectOffset], arg0);
     }
     func_80053868(arg0);
-    i = 0;
-    objectOffset = 0;
-    if (D_800C94F8 > 0) {
-        do {
-            func_8001D2A0((void *)(*objectList)[objectOffset >> 2], arg0);
-            i += 1;
-            objectOffset += 4;
-        } while (i < *objectCount);
+    for (objectOffset = 0; objectOffset < D_800C94F8; objectOffset++) {
+        func_8001D2A0(D_800C94F4[objectOffset], arg0);
     }
-    objectOffset = 0;
-    while (objectOffset < pendingCount) {
-        func_8000AEEC(pending[objectOffset], arg0);
-        objectOffset += 1;
+    if (pendingCount > 0) {
+        objectOffset = (s32)pending;
+        do {
+            func_8000AEEC(*(Objects0784CObject **)objectOffset, arg0);
+            i++;
+            objectOffset += sizeof(void *);
+        } while (i != pendingCount);
     }
     lightUpdateLights(arg0);
     lightUpdateObjects();
@@ -3415,19 +3478,19 @@ typedef struct {
     u8 a;
 } Objects084C4Vertex;
 
-typedef struct {
-    u32 w0;
-    u32 w1;
+typedef union {
+    struct {
+        unsigned int w0;
+        unsigned int w1;
+    } words;
+    unsigned long long force_alignment;
 } Objects084C4Gfx;
 
-/* Workbench verdict: structure-mismatch; 314 differing words (348/343 instructions). */
-/* First mismatch: +0x10; target frame is 0xB0, candidate frame is 0x98. */
-/* Structural gap: matrix/vertex carriers and late display-list command scheduling differ. */
 #ifdef NON_MATCHING
 void func_800084C4(Objects084C4Gfx **arg0, Objects084C4Vertex **arg1,
                    s32 arg2, s32 arg3, Objects084C4Point *arg4,
                    Objects084C4Point *arg5, f32 arg6, s32 arg7, s32 arg8,
-                   s32 arg9) {
+                   u32 arg9) {
     f32 pointBX;
     f32 pointBY;
     f32 pointBZ;
@@ -3444,19 +3507,15 @@ void func_800084C4(Objects084C4Gfx **arg0, Objects084C4Vertex **arg1,
     f32 projectedBY;
     f32 projectedAX;
     f32 projectedAY;
+    f32 deltaLengthSquared;
     f32 deltaX;
     f32 deltaY;
-    f32 deltaLengthSquared;
-    f32 scale;
     void *rotationMatrix;
     Objects084C4Gfx *displayList;
     Objects084C4Vertex *vertices;
-    Objects084C4Vertex *output;
-    u32 segmentedVertices;
-    Objects084C4Gfx *command;
 
-    if ((arg4->x == arg5->x) && (arg4->y == arg5->y) &&
-        (arg4->z == arg5->z)) {
+    if ((arg5->x == arg4->x) && (arg5->y == arg4->y) &&
+        (arg5->z == arg4->z)) {
         return;
     }
     rotationMatrix = camGetRotationMtx();
@@ -3464,29 +3523,28 @@ void func_800084C4(Objects084C4Gfx **arg0, Objects084C4Vertex **arg1,
                          &pointBX, &pointBY, &pointBZ);
     mtxf_transform_point(rotationMatrix, arg4->x, arg4->y, arg4->z,
                          &pointAX, &pointAY, &pointAZ);
+    if ((pointBZ > -10.0f) && (pointAZ > -10.0f)) {
+        return;
+    }
     clippedBX = pointBX;
     clippedBY = pointBY;
     clippedBZ = pointBZ;
     clippedAX = pointAX;
     clippedAY = pointAY;
     clippedAZ = pointAZ;
-    if ((pointBZ > -10.0f) && (pointAZ > -10.0f)) {
-        return;
-    }
     if (pointBZ > -10.0f) {
         clippedBZ = -10.0f;
-        scale = (-10.0f - pointBZ) / (pointAZ - pointBZ);
-        clippedBX = pointBX + ((pointAX - pointBX) * scale);
-        clippedBY = pointBY + ((pointAY - pointBY) * scale);
+        deltaLengthSquared = (-10.0f - pointBZ) / (pointAZ - pointBZ);
+        clippedBX += (pointAX - pointBX) * deltaLengthSquared;
+        clippedBY += (pointAY - pointBY) * deltaLengthSquared;
     } else if (pointAZ > -10.0f) {
         clippedAZ = -10.0f;
-        scale = (-10.0f - pointAZ) / (pointBZ - pointAZ);
-        clippedAX = pointAX + ((pointBX - pointAX) * scale);
-        clippedAY = pointAY + ((pointBY - pointAY) * scale);
+        deltaLengthSquared = (-10.0f - pointAZ) / (pointBZ - pointAZ);
+        clippedAX += (pointBX - pointAX) * deltaLengthSquared;
+        clippedAY += (pointBY - pointAY) * deltaLengthSquared;
     }
     displayList = *arg0;
     vertices = *arg1;
-    output = vertices;
     if (func_800246B0(clippedBX, clippedBY, clippedBZ,
                       &projectedBX, &projectedBY, 0) != 0) {
         if (func_800246B0(clippedAX, clippedAY, clippedAZ,
@@ -3495,73 +3553,53 @@ void func_800084C4(Objects084C4Gfx **arg0, Objects084C4Vertex **arg1,
             deltaY = projectedAY - projectedBY;
             deltaLengthSquared = (deltaX * deltaX) + (deltaY * deltaY);
             if (deltaLengthSquared > 0.0f) {
-                scale = arg6 / sqrtf(deltaLengthSquared);
-                deltaX *= scale;
-                deltaY *= scale;
+                deltaLengthSquared = arg6 / sqrtf(deltaLengthSquared);
+                deltaX *= deltaLengthSquared;
+                deltaY *= deltaLengthSquared;
             }
-            command = displayList++;
-            command->w0 = 0x01010040;
-            command->w1 = (u32)camGetProjOrgMtx() + 0x80000000;
+            { Objects084C4Gfx *command = displayList++; command->words.w0 = 0x01010040; command->words.w1 = (unsigned int)camGetProjOrgMtx() - 0x80000000U; }
             func_800349A4((FxGfx **)&displayList, arg2, arg9 | 6, 0);
-            command = displayList++;
-            command->w0 = 0xFA000000;
-            command->w1 = arg7;
-            command = displayList++;
-            command->w0 = 0xFB000000;
-            command->w1 = arg8;
-            segmentedVertices = (u32)vertices + 0x80000000;
-            command = displayList++;
-            command->w0 = 0x04000030 |
-                          (((segmentedVertices & 6) | 0x20) << 16);
-            command->w1 = segmentedVertices;
-            command = displayList++;
-            command->w0 = 0x05110020;
-            command->w1 = (u32)arg3 + 0x80000000;
-            command = displayList++;
-            command->w0 = 0xE7000000;
-            command->w1 = 0;
-            command = displayList++;
-            command->w0 = 0xFA000000;
-            command->w1 = (u32)-1;
-            command = displayList++;
-            command->w0 = 0xFB000000;
-            command->w1 = (u32)-1;
-            command = displayList++;
-            command->w0 = 0xBC00000A;
-            command->w1 = 0;
-            output[0].x = (s16)(pointBX + deltaY);
-            output[0].y = (s16)(pointBY + deltaX);
-            output[0].z = (s16)pointBZ;
-            output[0].r = 0xFF;
-            output[0].g = 0xFF;
-            output[0].b = 0xFF;
-            output[0].a = 0xFF;
-            output[1].x = (s16)(pointBX - deltaY);
-            output[1].y = (s16)(pointBY - deltaX);
-            output[1].z = (s16)pointBZ;
-            output[1].r = 0xFF;
-            output[1].g = 0xFF;
-            output[1].b = 0xFF;
-            output[1].a = 0xFF;
-            output[2].x = (s16)(pointAX + deltaY);
-            output[2].y = (s16)(pointAY + deltaX);
-            output[2].z = (s16)pointAZ;
-            output[2].r = 0xFF;
-            output[2].g = 0xFF;
-            output[2].b = 0xFF;
-            output[2].a = 0xFF;
-            output[3].x = (s16)(pointAX - deltaY);
-            output[3].y = (s16)(pointAY - deltaX);
-            output[3].z = (s16)pointAZ;
-            output[3].r = 0xFF;
-            output[3].g = 0xFF;
-            output[3].b = 0xFF;
-            output[3].a = 0xFF;
-            output += 4;
+            { Objects084C4Gfx *command = displayList++; command->words.w0 = 0xFA000000; command->words.w1 = arg7; }
+            { Objects084C4Gfx *command = displayList++; command->words.w0 = 0xFB000000; command->words.w1 = arg8; }
+            { Objects084C4Gfx *command = displayList++; command->words.w0 = 0x04000000U | (((unsigned int)((((unsigned int)vertices - 0x80000000U) & 6U) | 0x20U) & 0xFFU) << 16) | 0x30U; command->words.w1 = ((unsigned int)vertices - 0x80000000U); }
+            { Objects084C4Gfx *command = displayList++; command->words.w0 = 0x05110020; command->words.w1 = (unsigned int)arg3 - 0x80000000U; }
+            { Objects084C4Gfx *command = displayList++; command->words.w0 = 0xE7000000; command->words.w1 = 0; }
+            { Objects084C4Gfx *command = displayList++; command->words.w0 = 0xFA000000; command->words.w1 = (u32)-1; }
+            { Objects084C4Gfx *command = displayList++; command->words.w0 = 0xFB000000; command->words.w1 = (u32)-1; }
+            { Objects084C4Gfx *command = displayList++; command->words.w0 = 0xBC00000A; command->words.w1 = 0; }
+            vertices[0].x = (s16)(pointBX + deltaY);
+            vertices[0].y = (s16)(pointBY + deltaX);
+            vertices[0].z = (s16)pointBZ;
+            vertices[0].r = 0xFF;
+            vertices[0].g = 0xFF;
+            vertices[0].b = 0xFF;
+            vertices[0].a = 0xFF;
+            vertices[1].x = (s16)(pointBX - deltaY);
+            vertices[1].y = (s16)(pointBY - deltaX);
+            vertices[1].z = (s16)pointBZ;
+            vertices[1].r = 0xFF;
+            vertices[1].g = 0xFF;
+            vertices[1].b = 0xFF;
+            vertices[1].a = 0xFF;
+            vertices[2].x = (s16)(pointAX + deltaY);
+            vertices[2].y = (s16)(pointAY + deltaX);
+            vertices[2].z = (s16)pointAZ;
+            vertices[2].r = 0xFF;
+            vertices[2].g = 0xFF;
+            vertices[2].b = 0xFF;
+            vertices[2].a = 0xFF;
+            vertices[3].x = (s16)(pointAX - deltaY);
+            vertices[3].y = (s16)(pointAY - deltaX);
+            vertices[3].z = (s16)pointAZ;
+            vertices[3].r = 0xFF;
+            vertices[3].g = 0xFF;
+            vertices[3].b = 0xFF;
+            vertices[3].a = 0xFF;
+            vertices += 4;
         }
     }
     *arg0 = displayList;
-    *arg1 = output;
+    *arg1 = vertices;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800084C4.s")
@@ -3597,7 +3635,7 @@ void func_80008A8C(Objects08A20Arg *arg0) {
 
 typedef struct {
     u8 pad00[0x1E];
-    u8 unk1E;
+    s8 unk1E;
     u8 pad1F[0x11];
     u8 unk30;
 } Objects08B94Data;
@@ -3660,7 +3698,7 @@ typedef struct {
     f32 unk8;
     f32 unkC;
     f32 unk10;
-    s32 unk14;
+    f32 unk14;
     u8 pad18[0x21];
     u8 unk39;
     s8 unk3A;
@@ -3675,31 +3713,35 @@ typedef struct {
     Objects08B94Resource **unk68;
 } Objects08B94Object;
 
-/* The target uses the low byte of the computed alpha stack home here. */
 #ifdef NON_MATCHING
 void func_80008B94(void *arg0) {
-    Objects08B94Object *object;
-    Objects08B94Resource *resource;
-    Objects08B94Multiplier *multiplier;
-    Objects08B94Colour *colourA;
-    Objects08B94Colour *colourB;
-    Objects0831CCommand *command;
-    Objects08B94Camera *camera;
     s32 flags;
-    s32 alpha;
     s32 colourState;
-    s32 useColourState;
-    s32 useMultiplier;
-    s32 specialColour;
-    s32 savedAlpha;
+    s32 alpha;
+    s32 red;
+    s32 green;
+    s32 blue;
     s32 computedAlpha;
     s32 extraGreen;
     s32 extraBlue;
+    s32 useColourState;
+    s32 useMultiplier;
+    s32 specialColour;
+    Objects08B94Resource *resource;
+    Objects08B94Multiplier *multiplier;
     f32 savedScale;
-    volatile s32 frame_reserve[6];
+    Objects08B94Object *object;
+    s8 *cameraData;
+    Objects08B94Colour *colourA;
+    Objects08B94Colour *colourB;
+    Objects08B94Palette *palette;
+    s32 white;
+    Objects08B94Info *info;
+    Objects08B94Multiplier *candidateMultiplier;
 
     object = (Objects08B94Object *)arg0;
-    if (object->unk44 == 0x45) {
+    specialColour = 0;
+    if (((Objects08B94Object *)arg0)->unk44 == 0x45) {
         TrapDanglingJump(&D_800C94B4, &D_800C94B8, &D_800C94BC, object);
         return;
     }
@@ -3721,17 +3763,22 @@ void func_80008B94(void *arg0) {
         object->unk8 = -object->unk8;
     }
 
-    multiplier = object->unk50;
-    if (multiplier != NULL) {
+    multiplier = NULL;
+    candidateMultiplier = object->unk50;
+    if (candidateMultiplier != NULL) {
+        multiplier = candidateMultiplier;
         useColourState = 1;
         useMultiplier = 1;
-        colourState = (s32)((f32)colourState * multiplier->unk0);
+        colourState = (s32)((f32)colourState * candidateMultiplier->unk0);
     }
     alpha = object->unk39;
+    if (alpha >= 0x100) {
+        alpha = 0xFF;
+    }
     if (object->unk44 == 0x50) {
-        savedAlpha = alpha;
-        camera = object->unk64->unk14;
-        if (camGetNo() == (s32)(s8)camera->unk64[0]) {
+        info = object->unk64;
+        cameraData = (s8 *)info->unk14->unk64;
+        if (camGetNo() == (s32)cameraData[0]) {
             alpha >>= 1;
         }
     }
@@ -3740,81 +3787,83 @@ void func_80008B94(void *arg0) {
         flags |= 4;
     }
 
-    resource = object->unk68[(u8)object->unk3A];
-    specialColour = 0;
+    resource = object->unk68[object->unk3A];
     if (object->unk44 == 0x44) {
-        func_80034DF0(object->unk64->unk4, object->unk64->unk5,
-                      object->unk64->unk6, object->unk64->unk7,
-                      object->unk64->unk8, object->unk64->unk9);
+        info = object->unk64;
+        func_80034DF0(info->unk4, info->unk5,
+                      info->unk6, info->unk7,
+                      info->unk8, info->unk9);
         specialColour = 1;
     } else if (object->unk44 == 0x3C) {
-        func_80034DF0(0xFF, 0xFF, 0xFF, object->unk64->unk18,
-                      object->unk64->unk19, object->unk64->unk1A);
+        info = object->unk64;
+        func_80034DF0(0xFF, 0xFF, 0xFF, info->unk18,
+                      info->unk19, info->unk1A);
         specialColour = 1;
-    } else if (object->unk44 == 0x20 && object->unk3C != NULL &&
-               (object->unk3C->unkD & 0x80) != 0) {
+    } else if (object->unk44 == 0x20 && (palette = object->unk3C) != NULL &&
+               (palette->unkD & 0x80) != 0) {
         Objects08B94Colour *colours;
         u8 paletteIndex;
 
         colours = (Objects08B94Colour *)levelGetColourCycling();
-        paletteIndex = object->unk3C->unkD;
-        colourA = colours + (paletteIndex & 7);
-        colourB = colours + ((paletteIndex >> 3) & 7);
+        colourA = colours;
+        palette = object->unk3C;
+        if (palette != NULL) {
+            paletteIndex = palette->unkD;
+            colourA = colours + (paletteIndex & 7);
+            colourB = colours + ((paletteIndex >> 3) & 7);
+        } else {
+            colourB = colours;
+        }
         func_80034DF0(colourA->r, colourA->g, colourA->b,
                       colourB->r, colourB->g, colourB->b);
         specialColour = 1;
-    } else if (multiplier != NULL && resource != NULL &&
+    } else if (object->unk50 != NULL &&
                (resource->unk6 & 0x200) != 0) {
+        red = ((s32)resource->unk8 * colourState) >> 8;
+        green = ((s32)resource->unk9 * colourState) >> 8;
+        blue = ((s32)resource->unkA * colourState) >> 8;
         computedAlpha = (((s32)resource->unkB * multiplier->unk5) * colourState) >> 16;
         extraGreen = (((s32)resource->unkC * multiplier->unk6) * colourState) >> 16;
         extraBlue = (((s32)resource->unkD * multiplier->unk7) * colourState) >> 16;
-        func_80034DF0((u8)(((s32)resource->unk8 * colourState) >> 8),
-                      (u8)(((s32)resource->unk9 * colourState) >> 8),
-                      (u8)(((s32)resource->unkA * colourState) >> 8),
-                      (u8)computedAlpha, (u8)extraGreen, (u8)extraBlue);
+        func_80034DF0((u8)red, (u8)green, (u8)blue,
+                      (u8)computedAlpha, extraGreen, extraBlue);
         specialColour = 1;
-    }
-
-    if (!specialColour && object->unk44 == 0x50) {
-        s32 red;
-        s32 green;
-        s32 blue;
-
-        camera = object->unk64->unk14;
-        TrapDanglingJump((s32)(s8)camera->unk64[1], &computedAlpha,
+    } else if (object->unk44 == 0x50) {
+        info = object->unk64;
+        TrapDanglingJump((s32)(s8)info->unk14->unk64[1], &computedAlpha,
                          &extraGreen, &extraBlue);
-        red = 0xFF;
-        green = 0xFF;
-        blue = 0xFF;
-        func_80034DF0(red, green, blue, (u8)computedAlpha,
-                      (u8)extraGreen, (u8)extraBlue);
+        white = 0xFF;
+        func_80034DF0(white, white, white, (u8)computedAlpha,
+                      extraGreen, extraBlue);
         specialColour = 1;
-        alpha = savedAlpha;
-    }
-
-    if (!specialColour && (useColourState || alpha < 0xFF)) {
-        command = (Objects0831CCommand *)D_800C94B4;
-        D_800C94B4 = (s32)(command + 1);
-        command->unk0 = 0xFA000000;
-        if (useColourState) {
-            u32 packedColour;
-
-            packedColour = ((colourState & 0xFF) << 24) |
-                           ((colourState & 0xFF) << 16) |
-                           ((colourState & 0xFF) << 8) |
-                           (alpha & 0xFF);
-            command->unk4 = packedColour;
+    } else {
+        if (useColourState || alpha < 0xFF) {
+            Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
+            D_800C94B4 += 8;
+            command->unk0 = 0xFA000000;
+            command->unk4 = ((colourState & 0xFF) << 24) |
+                            ((colourState & 0xFF) << 16) |
+                            ((colourState & 0xFF) << 8) |
+                            (alpha & 0xFF);
         } else {
+            Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
+            D_800C94B4 += 8;
+            command->unk0 = 0xFA000000;
             command->unk4 = (u32)-1;
         }
-    }
-    if (useMultiplier) {
-        command = (Objects0831CCommand *)D_800C94B4;
-        D_800C94B4 = (s32)(command + 1);
-        command->unk0 = 0xFB000000;
-        command->unk4 = ((u32)multiplier->unk5 << 24) |
-                        ((u32)multiplier->unk6 << 16) |
-                        ((u32)multiplier->unk7 << 8);
+        if (useMultiplier) {
+            Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
+            D_800C94B4 += 8;
+            command->unk0 = 0xFB000000;
+            command->unk4 = ((u32)multiplier->unk5 << 24) |
+                            ((u32)multiplier->unk6 << 16) |
+                            ((u32)multiplier->unk7 << 8);
+        } else {
+            Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
+            D_800C94B4 += 8;
+            command->unk0 = 0xFB000000;
+            command->unk4 = (u32)-0x100;
+        }
     }
 
     savedScale = object->unk8;
@@ -3835,14 +3884,14 @@ void func_80008B94(void *arg0) {
         func_80034E48();
     }
     if (useColourState) {
-        command = (Objects0831CCommand *)D_800C94B4;
-        D_800C94B4 = (s32)(command + 1);
+        Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
+        D_800C94B4 += 8;
         command->unk0 = 0xFA000000;
         command->unk4 = (u32)-1;
     }
     if (useMultiplier) {
-        command = (Objects0831CCommand *)D_800C94B4;
-        D_800C94B4 = (s32)(command + 1);
+        Objects0831CCommand *command = (Objects0831CCommand *)D_800C94B4;
+        D_800C94B4 += 8;
         command->unk0 = 0xFB000000;
         command->unk4 = (u32)-0x100;
     }
@@ -3936,7 +3985,7 @@ typedef struct {
     u8 unk0;
     u8 pad01;
     s8 unk2;
-    u8 unk3;
+    s8 unk3;
     u8 unk4;
     u8 pad05[3];
     void *unk8;
@@ -3985,72 +4034,66 @@ extern void func_80022FD4(void **displayList, s32 matrices, s32 vertices,
 extern void func_80047CD8(void **displayList, void *cone, s32 flags, u8 alpha);
 extern f32 func_80009F08(Objects09F08Arg *arg0);
 
-/* Workbench verdict: structure-mismatch; 411 differing words (421/378). */
-/* First mismatch: +0x0; target frame 0x198, candidate frame 0x1A0. */
-/* Structural gap: renderer control flow is complete; local sort/display layout is 43 instructions short. */
 #ifdef NON_MATCHING
 void func_80009414(void **arg0, s32 arg1, s32 arg2, void *arg3) {
-    Objects09414Object *object;
+    s32 i;
+    s32 j;
+    s32 count;
+    s32 type;
+    s32 base;
+    s32 swap;
+    s32 mode;
+    s16 sortIndex[8];
+    s16 alphas[8];
+    s16 kindOrEntry[8];
+    f32 inverseScale;
+    Objects09414Sprite sprite;
+    u8 *textures[8];
+    f32 depths[8];
+    void *cone;
+    void *cones[8];
+    Objects09414Resource *root;
     Objects09414Data *data;
     Objects09414Resource *resource;
-    Objects09414Resource *root;
+    Objects09414Object *object;
+    Objects09414Gfx *command;
+    Objects09414Entry *entries[8];
     Objects09414StaticEntry *staticEntry;
     Objects09414Entry *entry;
     Objects09414Vector *vector;
-    Objects09414Sprite sprite;
-    Objects09414Gfx *command;
-    Objects09414Entry *entries[8];
-    void *cones[8];
-    u8 *textures[8];
-    f32 depths[8];
-    s16 sortIndex[8];
-    s16 kindOrEntry[8];
-    u16 alphas[8];
-    s32 *callbacks;
-    u8 *textureBase;
-    f32 inverseScale;
-    f32 temp;
-    s32 count;
-    s32 i;
-    s32 j;
-    s32 type;
-    s32 base;
-    s32 mode;
-    s16 swap;
 
     object = (Objects09414Object *)arg3;
     resource = object->unk64;
     root = *object->unk68;
-    count = 0;
 
     command = (Objects09414Gfx *)*arg0;
     *arg0 = (void *)(command + 1);
-    command->w0 = 0xE7000000;
     command->w1 = 0;
+    command->w0 = 0xE7000000;
     command = (Objects09414Gfx *)*arg0;
     *arg0 = (void *)(command + 1);
-    command->w0 = 0xFB000000;
     command->w1 = (u32)-0x100;
+    command->w0 = 0xFB000000;
 
-    callbacks = (s32 *)((u8 *)resource + 0x134);
-    for (i = 0; i < 4; i++) {
-        if (callbacks[i] != 0) {
-            TrapDanglingJump(arg0, callbacks[i]);
+    for (i = 0; i < 16; i += 4) {
+        if (*(s32 *)((u8 *)resource + 0x134 + i) != 0) {
+            TrapDanglingJump(arg0, *(s32 *)((u8 *)resource + 0x134 + i));
         }
     }
 
     data = object->unk40;
     if (data->unk1E[object->unk93] == 0) {
+        count = 0;
         for (i = 0; i < 4; i++) {
             staticEntry = (Objects09414StaticEntry *)
                 ((u8 *)resource + 0x34C + (i * 0xC));
             if ((staticEntry->unk4 != 0) && (staticEntry->unk8 != NULL)) {
+                cone = staticEntry->unk8;
                 vector = &root->unk40[staticEntry->unk2];
                 depths[count] = camGetProjZ(vector->x, vector->y, vector->z);
-                cones[count] = staticEntry->unk8;
+                cones[count] = cone;
                 base = *(s32 *)((u8 *)root + (root->unkA * 4) + 0xC);
-                textureBase = (u8 *)base;
-                textures[count] = textureBase + (staticEntry->unk3 << 6);
+                textures[count] = (u8 *)base + (staticEntry->unk3 << 6);
                 alphas[count] = staticEntry->unk4;
                 kindOrEntry[count] = staticEntry->unk0 | 0x80;
                 sortIndex[count] = count;
@@ -4060,7 +4103,7 @@ void func_80009414(void **arg0, s32 arg1, s32 arg2, void *arg3) {
 
         if ((resource->unk158 == 0) && (object->unk60 != NULL)) {
             entry = object->unk60;
-            for (i = 0; (i < object->unk8C) && (i < 4); i++, entry++) {
+            for (i = 0; (i < object->unk8C) && (i != 4); i++, entry++) {
                 vector = &root->unk40[entry->unk4];
                 depths[count] = camGetProjZ(vector->x, vector->y, vector->z);
                 entries[count] = entry;
@@ -4070,80 +4113,95 @@ void func_80009414(void **arg0, s32 arg1, s32 arg2, void *arg3) {
             }
         }
 
-        for (i = count - 1; i > 0; i--) {
-            for (j = 0; j < i; j++) {
-                if (depths[sortIndex[j + 1]] < depths[sortIndex[j]]) {
-                    swap = sortIndex[j];
-                    sortIndex[j] = sortIndex[j + 1];
-                    sortIndex[j + 1] = swap;
+        if (count > 0) {
+            for (i = count - 1; i > 0; i--) {
+                j = 0;
+                if (i & 1) {
+                    if (depths[sortIndex[j + 1]] < depths[sortIndex[j]]) {
+                        swap = sortIndex[j];
+                        sortIndex[j] = sortIndex[j + 1];
+                        sortIndex[j + 1] = swap;
+                    }
+                    j = 1;
+                }
+                for (; j != i; j += 2) {
+                    if (depths[sortIndex[j + 1]] < depths[sortIndex[j]]) {
+                        swap = sortIndex[j];
+                        sortIndex[j] = sortIndex[j + 1];
+                        sortIndex[j + 1] = swap;
+                    }
+                    if (depths[sortIndex[j + 2]] < depths[sortIndex[j + 1]]) {
+                        swap = sortIndex[j + 1];
+                        sortIndex[j + 1] = sortIndex[j + 2];
+                        sortIndex[j + 2] = swap;
+                    }
                 }
             }
-        }
 
-        func_80022E80((void *)((u8 *)resource + 0x43C));
-        temp = func_80009F08((Objects09F08Arg *)object);
-        inverseScale = temp / data->unk0;
-        for (i = 0; i < count; i++) {
-            j = sortIndex[i];
-            type = kindOrEntry[j];
-            if ((type & 0x80) != 0) {
-                type &= 0x7F;
-                if (type == 0) {
-                    mode = 0x206;
-                } else if (type == 1) {
-                    mode = 6;
-                } else if (type == 2) {
-                    mode = 0x16;
-                    func_80009220(arg0, arg1, arg2,
-                                  (Objects09220Object *)object,
-                                  (s32)textures[j],
-                                  (Objects09220Source *)cones[j],
-                                  alphas[j]);
-                } else {
+            func_80022E80((void *)((u8 *)resource + 0x43C));
+            inverseScale = func_80009F08((Objects09F08Arg *)object) / object->unk40->unk0;
+            sprite.divisor = 3;
+            sprite.frameCount = 0x3333;
+            for (i = 0; i < count; i++) {
+                j = sortIndex[i];
+                type = kindOrEntry[j];
+                if ((type & 0x80) != 0) {
+                    type &= 0x7F;
+                    if (type == 0) {
+                        mode = 0x206;
+                    } else if (type == 1) {
+                        mode = 6;
+                    } else if (type == 2) {
+                        mode = 0x16;
+                        func_80009220(arg0, arg1, arg2,
+                                      (Objects09220Object *)object,
+                                      (s32)textures[j],
+                                      (Objects09220Source *)cones[j],
+                                      alphas[j]);
+                    } else {
+                        /* Baseline placeholder: default-mode lifetime remains unproved. */
                     mode = 0x3333;
+                    }
+                    command = (Objects09414Gfx *)*arg0;
+                    *arg0 = (void *)(command + 1);
+                    command->w0 = 0x01810040;
+                    command->w1 = (u32)textures[j] + 0x80000000;
+                    func_80047CD8(arg0, cones[j], mode,
+                                  (u8)alphas[j]);
+                    command = (Objects09414Gfx *)*arg0;
+                    *arg0 = (void *)(command + 1);
+                    command->w0 = 0xBC00000A;
+                    command->w1 = 0;
+                } else {
+                    entry = entries[j];
+                    sprite.angle = *(s16 *)((u8 *)resource + 0x10C +
+                                             (type * 2));
+                    sprite.frame = *(s16 *)((u8 *)resource + 0x114 +
+                                             (type * 2));
+                    sprite.transformScale = entry->unk8 * inverseScale;
+                    sprite.matrixScale = resource->unk50;
+                    vector = &root->unk40[entry->unk4];
+                    sprite.x = vector->x;
+                    sprite.y = *(f32 *)((u8 *)resource + 0x11C +
+                                        (type * 4)) + vector->y;
+                    sprite.z = vector->z;
+                    sprite.spriteData = entry->unk0;
+                    func_80022FD4(arg0, arg1, arg2,
+                                  (void *)((u8 *)resource + 0x43C), object->unk50,
+                                  &sprite, 0xE, object->unk39);
                 }
-                command = (Objects09414Gfx *)*arg0;
-                *arg0 = (void *)(command + 1);
-                command->w0 = 0x01810040;
-                command->w1 = (u32)textures[j] + 0x80000000;
-                func_80047CD8(arg0, cones[j], mode,
-                              (u8)alphas[j]);
-                command = (Objects09414Gfx *)*arg0;
-                *arg0 = (void *)(command + 1);
-                command->w0 = 0xBC00000A;
-                command->w1 = 0;
-            } else {
-                entry = entries[j];
-                sprite.angle = *(s16 *)((u8 *)resource + 0x10C +
-                                         (type * 2));
-                sprite.frame = *(s16 *)((u8 *)resource + 0x114 +
-                                         (type * 2));
-                sprite.divisor = 3;
-                sprite.transformScale = entry->unk8 * inverseScale;
-                sprite.matrixScale = resource->unk50;
-                vector = &root->unk40[entry->unk4];
-                sprite.x = vector->x;
-                sprite.y = *(f32 *)((u8 *)resource + 0x11C +
-                                    (type * 4)) + vector->y;
-                sprite.z = vector->z;
-                sprite.frameCount = 0x3333;
-                sprite.spriteData = entry->unk0;
-                func_80022FD4(arg0, arg1, arg2,
-                              (void *)((u8 *)resource + 0x43C), object->unk50,
-                              &sprite, 0xE, object->unk39);
             }
         }
-    }
 
-    callbacks = (s32 *)((u8 *)resource + 0xD0);
-    if (callbacks[0] != 0) {
-        TrapDanglingJump(arg0, arg1, callbacks[0]);
-    }
-    if (callbacks[1] != 0) {
-        TrapDanglingJump(arg0, arg1, arg2, callbacks[1]);
-    }
-    if (callbacks[2] != 0) {
-        TrapDanglingJump(arg0, arg1, callbacks[2]);
+        if (*(s32 *)((u8 *)resource + 0xD0) != 0) {
+            TrapDanglingJump(arg0, arg1, *(s32 *)((u8 *)resource + 0xD0));
+        }
+        if (*(s32 *)((u8 *)resource + 0xD4) != 0) {
+            TrapDanglingJump(arg0, arg1, arg2, *(s32 *)((u8 *)resource + 0xD4));
+        }
+        if (*(s32 *)((u8 *)resource + 0xD8) != 0) {
+            TrapDanglingJump(arg0, arg1, *(s32 *)((u8 *)resource + 0xD8));
+        }
     }
 }
 #else
@@ -4161,6 +4219,7 @@ typedef struct {
     s8 unk4E;
     u8 pad4F[0x21];
     s32 unk70;
+    u8 pad74[4];
     u8 *unk78;
 } Objects09AA8Material;
 
@@ -4192,37 +4251,33 @@ struct Objects09AA8Object {
     u8 pad54[0x14];
     Objects09AA8Entry **unk68;
     u8 pad6C[0x27];
-    s8 unk93;
+    u8 unk93;
 };
 
-typedef struct {
-    u32 w0;
-    u32 w1;
+typedef union {
+    struct {
+        unsigned int w0;
+        unsigned int w1;
+    } words;
+    unsigned long long force_alignment;
 } Objects09AA8Command;
 
-/* Workbench verdict: structure-mismatch; 268 differing words (target 244, candidate 269). */
-/* First mismatch: +0x0; target frame 0x60 versus candidate frame 0x68. */
-/* Structural gap: display-list pointer carrier adds 25 instructions and 0x08 bytes of stack. */
 #ifdef NON_MATCHING
+extern u8 D_78F28[];
+
 void func_80009AA8(Objects09AA8Object *object) {
-    Objects09AA8Entry *sp54;
-    s32 sp48;
-    s32 sp38;
-    s32 sp34;
-    s32 temp_t5;
-    s32 temp_v0;
-    s32 var_a0;
-    s32 var_a1;
-    s32 var_t2;
-    s32 var_t3;
     s32 var_v0;
     Objects09AA8Entry **temp_v1;
     Objects09AA8Entry *temp_a1;
-    Objects09AA8Root *temp_s0;
-    Objects09AA8Material *temp_s1;
     Objects09AA8Entry *var_s2;
+    Objects09AA8Material *temp_s1;
+    u32 var_t3;
+    void *temp_s0;
+    s32 var_a0;
+    s32 var_a1;
+    s32 sp38;
+    s32 var_t2;
     Objects09AA8Command *command;
-    register s32 *displayList;
 
     var_v0 = 0;
     var_t2 = 0;
@@ -4231,30 +4286,28 @@ void func_80009AA8(Objects09AA8Object *object) {
     }
     temp_v1 = object->unk68;
     temp_a1 = temp_v1[(s32)object->unk3A];
-    sp54 = temp_a1;
     if (var_v0 != 0) {
         var_s2 = temp_v1[0];
         sp38 = object->unk93;
     } else {
-        var_s2 = temp_a1;
+        var_s2 = temp_v1[(s32)object->unk3A];
         sp38 = 0;
     }
     temp_s1 = var_s2->unk0;
-    temp_s0 = (Objects09AA8Root *)sp54->unk0;
+    temp_s0 = (Objects09AA8Root *)temp_a1->unk0;
     if (var_s2->unk8 != 0) {
         if (temp_s1->unk4E != 0) {
-            sp34 = 0;
+
             func_8005AF14(var_s2, temp_s1, object);
-            var_t2 = sp34;
         } else if (temp_s1->unk11 != 0) {
             var_s2->unkA = (s16)(var_s2->unkA ^ 1);
         }
-        sp34 = var_t2;
+
         func_80019AB8(object, var_s2, object->unk50,
                       ((Objects09AA8Entry *)((u8 *)var_s2 +
                                              (var_s2->unkA * 4)))->unkC);
         if (temp_s1->unk11 != 0) {
-            sp34 = var_t2;
+
             func_80007C68((Objects07C68Object *)object,
                           (Objects07C68Source *)temp_s1,
                           (Objects07C68Object *)var_s2, var_s2->unk8);
@@ -4264,92 +4317,53 @@ void func_80009AA8(Objects09AA8Object *object) {
     if (temp_s1->unk11 != 0) {
         var_t2 = 1;
     }
-    if ((sp38 != 0) && (sp54->unk8 != 0)) {
-        sp34 = var_t2;
-        func_80019AB8(object, sp54, object->unk50,
+    if ((sp38 != 0) && (temp_a1->unk8 != 0)) {
+
+        func_80019AB8(object, temp_a1, object->unk50,
                       ((Objects09AA8Entry *)((u8 *)var_s2 +
                                              (var_s2->unkA * 4)))->unkC);
-        sp54->unk8 = 0;
+        temp_a1->unk8 = 0;
     }
     if (object->unk39 == 0xFF) {
-        var_t3 = temp_s0->unk68;
+        var_t3 = ((Objects09AA8Root *)temp_s0)->unk68;
     } else {
-        var_t3 = temp_s0->unk6C;
+        var_t3 = ((Objects09AA8Root *)temp_s0)->unk6C;
     }
 
-    displayList = (s32 *)&D_800C94B4;
-    command = (Objects09AA8Command *)*displayList;
-    *displayList = (s32)(command + 1);
-    command->w0 = 0xFA000000;
-    command->w1 = (u32)((s32)object->unk39 | ~0xFF);
+    command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = 0xFA000000; command->words.w1 = ((255U << 24) | (255U << 16) | (255U << 8) | ((unsigned int)object->unk39 & 255U));
     if (temp_s1->unk4E == 0) {
-        sp34 = var_t2;
-        sp48 = var_t3;
-        camPushModelMtx((Gfx **)displayList, (Mtx **)&D_800C94B8,
+
+        camPushModelMtx((Gfx **)&D_800C94B4, (Mtx **)&D_800C94B8,
                         (CameraScaledTransform *)object, 1.0f, 0.0f);
     }
-    command = (Objects09AA8Command *)*displayList;
-    *displayList = (s32)(command + 1);
-    command->w0 = (u32)((((u32)(((Objects09AA8Entry *)((u8 *)var_s2 +
-                                                        (var_s2->unkA * 4)))->unkC +
-                                0x80000000) & 0xFFFFFF)) | 0xBF000000);
-    command->w1 = (u32)(sp54->unk4 + 0x80000000);
+    command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = (u32)((((u32)(((Objects09AA8Entry *)((u8 *)var_s2 + (var_s2->unkA * 4)))->unkC + 0x80000000) & 0xFFFFFF)) | 0xBF000000); command->words.w1 = (u32)(temp_a1->unk4 + 0x80000000);
     if (var_t2 != 0) {
         if (sp38 != 0) {
-            command = (Objects09AA8Command *)*displayList;
-            *displayList = (s32)(command + 1);
-            command->w0 = 0x02000050;
-            command->w1 = (u32)((u8 *)D_80078F20 + 8);
+            command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = 0x02000050; command->words.w1 = (u32)D_78F28;
         } else {
-            command = (Objects09AA8Command *)*displayList;
-            *displayList = (s32)(command + 1);
-            command->w0 = 0x02000050;
-            command->w1 = (u32)(((Objects09AA8Entry *)((u8 *)var_s2 +
-                                                       (var_s2->unkA * 4)))->unk50 +
-                                0x80000000);
+            command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = 0x02000050; command->words.w1 = (u32)(((Objects09AA8Entry *)((u8 *)var_s2 + (var_s2->unkA * 4)))->unk50 + 0x80000000);
         }
     }
-    temp_v0 = temp_s1->unk70;
-    if (temp_v0 != 0) {
+    if (temp_s1->unk70 != 0) {
         var_a0 = 0;
-        if ((temp_v0 + 1) > 0) {
+        if ((temp_s1->unk70 + 1) > 0) {
             var_a1 = 0;
             do {
                 if (var_t2 != 0) {
-                    command = (Objects09AA8Command *)*displayList;
-                    *displayList = (s32)(command + 1);
-                    command->w0 = 0x02000050;
-                    command->w1 = (u32)((u8 *)D_80078F20 + 8);
+                    command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = 0x02000050; command->words.w1 = (u32)D_78F28;
                 }
-                command = (Objects09AA8Command *)*displayList;
-                var_a0 += 1;
-                *displayList = (s32)(command + 1);
-                command->w0 = 0x06000000;
-                temp_t5 = *(s32 *)((u8 *)temp_s1->unk78 + var_a1);
+                command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; var_a0 += 1; command->words.w0 = 0x06000000; command->words.w1 = (u32)(*(s32 *)((u8 *)temp_s1->unk78 + var_a1) + 0x80000000);
                 var_a1 += 4;
-                command->w1 = (u32)(temp_t5 + 0x80000000);
             } while (temp_s1->unk70 >= var_a0);
         }
     } else {
-        command = (Objects09AA8Command *)*displayList;
-        *displayList = (s32)(command + 1);
-        command->w0 = 0x06000000;
-        command->w1 = (u32)(var_t3 + 0x80000000);
+        command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = 0x06000000; command->words.w1 = (u32)(var_t3 + 0x80000000);
     }
-    command = (Objects09AA8Command *)*displayList;
-    *displayList = (s32)(command + 1);
-    command->w0 = 0xBF000000;
-    command->w1 = 0;
-    camRestoreModelMtx((Gfx **)displayList);
-    func_80034920((Gfx **)displayList);
-    command = (Objects09AA8Command *)*displayList;
-    *displayList = (s32)(command + 1);
-    command->w0 = 0xFA000000;
-    command->w1 = (u32)-1;
-    command = (Objects09AA8Command *)*displayList;
-    *displayList = (s32)(command + 1);
-    command->w0 = 0xFB000000;
-    command->w1 = (u32)-0x100;
+    command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = 0xBF000000; command->words.w1 = 0;
+    camRestoreModelMtx((Gfx **)&D_800C94B4);
+    func_80034920((Gfx **)&D_800C94B4);
+    command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = 0xFA000000; command->words.w1 = (u32)-1;
+    command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = 0xFB000000; command->words.w1 = (u32)-0x100;
     D_80079250 = 0;
 }
 #else
@@ -4383,44 +4397,28 @@ f32 func_80009F08(Objects09F08Arg *arg0) {
     }
     return var_f2;
 }
-/* Workbench verdict: structure-mismatch; 149 differing words (target 180, candidate 178). */
-/* First mismatch: +0x0; target frame 0x28 versus candidate 0x30. */
-/* Structural gap: dispatch control flow is complete, but two instructions and stack homes differ. */
-#ifdef NON_MATCHING
-void func_80009F74(void *arg0) {
-    Objects09F74Object *object;
-    Objects09F74Data *data;
-    Objects09F74Camera *camera;
-    f32 projection;
-    f32 threshold;
+/* Mickey-only distance-tier selection and object-renderer dispatch. */
+void func_80009F74(Objects09F74Object *object) {
     s32 variant;
-    s8 count;
-    s8 selector;
+    Objects09F74Data *data;
+    s8 *racer;
+    f32 projection;
 
-    object = (Objects09F74Object *)arg0;
-    data = object->unk40;
-    if (data->unkD4 == 0.0f) {
+    if (object->unk40->unkD4[0] == 0.0f) {
         object->unk93 = object->unk3A;
     } else {
         projection = -camGetProjZ(object->unkC, object->unk10, object->unk14);
+        data = object->unk40;
         variant = 0;
-        count = data->unk22;
-        if ((count > 0) && (data->unkD4 != 0.0f) &&
-            (data->unkD4 < projection)) {
-            do {
-                variant += 1;
-                if ((variant >= 3) || (variant >= count)) {
-                    break;
-                }
-                threshold = *(f32 *)((u8 *)data + (variant * 4) + 0xD4);
-                if ((threshold == 0.0f) || (threshold >= projection)) {
-                    break;
-                }
-            } while (1);
+        while ((variant < 3) && (variant < data->unk22) &&
+               (data->unkD4[variant] != 0.0f) &&
+               (data->unkD4[variant] < projection)) {
+            variant++;
         }
         if ((object->unk44 == 1) && (D_8007BF0C != 0) &&
             (variant == 0) && ((s32)D_8007BEF8 >= 3)) {
-            if (camGetNo() != *(s8 *)object->unk64) {
+            racer = object->unk64;
+            if (camGetNo() != *racer) {
                 variant = 1;
             }
         }
@@ -4428,12 +4426,11 @@ void func_80009F74(void *arg0) {
     }
 
     if ((object->unk44 == 1) || (object->unk44 == 0x3F)) {
-        camera = camGetPtr();
-        if (camera->unk4E >= 2) {
+        if (camGetPtr()->unk4E >= 2) {
             object->unk93 = 0;
         } else if (object->unk44 == 0x3F) {
             object->unk8 = func_80009F08((Objects09F08Arg *)object) *
-                           data->unk0;
+                           object->unk40->unk0;
         } else {
             *(f32 *)((u8 *)object->unk64 + 0x444) =
                 func_80009F08((Objects09F08Arg *)object) * object->unk8;
@@ -4441,9 +4438,9 @@ void func_80009F74(void *arg0) {
     }
 
     data = object->unk40;
-    if (data->unkD4 == 0.0f) {
-        selector = data->unk1E;
-        switch (selector) {
+    if (data->unkD4[0] == 0.0f) {
+        variant = data->unk1E[0];
+        switch (variant) {
         case 0:
             func_80009AA8(object);
             return;
@@ -4455,29 +4452,25 @@ void func_80009F74(void *arg0) {
             return;
         }
     } else {
-        variant = (u8)object->unk93;
-        selector = *(s8 *)((u8 *)data + variant + 0x1E);
-        switch (selector) {
+        variant = data->unk1E[object->unk93];
+        switch (variant) {
         case 0:
-            object->unk3A = (s8)variant;
+            object->unk3A = object->unk93;
             func_80009AA8(object);
             object->unk3A = 0;
             return;
         case 1:
-            object->unk3A = (s8)variant;
+            object->unk3A = object->unk93;
             func_80008B94(object);
             object->unk3A = 0;
             return;
         case 2:
-            object->unk3A = (s8)variant;
+            object->unk3A = object->unk93;
             func_80008A8C((Objects08A20Arg *)object);
             return;
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009F74.s")
-#endif
 /* PROVENANCE: partition loop adapted from Diddy Kong Racing's public
  * src/objects.c get_first_active_object; Mickey's list and header offsets are authoritative. */
 s32 func_8000A244(s32 *arg0) {
@@ -5347,33 +5340,31 @@ void func_8000AEEC(void *arg0, s32 arg1) {
     }
     D_8007A21C = 4;
 }
-/* Workbench verdict: structure-mismatch; 489 differing words (494/427). */
-/* First mismatch: +0x0; target frame 0x98, candidate frame 0x88. */
-/* Structural gap: candidate is 67 instructions short; collision-state control flow is complete. */
 #ifdef NON_MATCHING
 void func_8000B3CC(void *arg0, s32 arg1) {
     Objects0B3CCObject *object;
-    Objects0B3CCData *data;
     Objects0B3CCConfig *config;
-    Objects0B3CCState *state;
-    Objects0BB84Vec3 start;
-    Objects0BB84Vec3 end;
-    f32 radius;
-    f32 step;
+    f32 start[3];
+    f32 end[3];
     f32 acceleration;
     f32 damping;
-    f32 speed;
-    f32 dot;
-    f32 factor;
-    f32 volume;
+    Objects0B3CCState *state;
     f32 savedY;
+    f32 negativeDot;
+    f32 bottom;
+    f32 volume;
+    f32 dot;
+    f32 radius;
+    f32 step;
+    f32 speed;
+    s32 bounced;
+    u32 collision;
+    f32 moveZ;
     s16 savedAngle2;
     s16 savedAngle4;
-    u32 collision;
-    s32 bounced;
+    f32 factor;
 
     object = (Objects0B3CCObject *)arg0;
-    data = object->unk40;
     state = object->unk78;
     state->unk2 = 0;
     if ((state->flags & 2) != 0) {
@@ -5381,7 +5372,7 @@ void func_8000B3CC(void *arg0, s32 arg1) {
     }
 
     step = (f32)arg1;
-    config = data->unkE0;
+    config = object->unk40->unkE0;
     if ((state->flags & 1) != 0) {
         acceleration = -config->unk8;
         damping = config->unkC;
@@ -5390,17 +5381,17 @@ void func_8000B3CC(void *arg0, s32 arg1) {
         damping = config->unk4;
     }
 
-    start.x = object->unkC + config->unk20;
-    start.y = object->unk10 + config->unk24;
-    start.z = object->unk14 + config->unk28;
-    end.x = start.x + (object->unk1C * step) + state->unk1C;
-    end.z = start.z + (object->unk24 * step) + state->unk20;
-    end.y = start.y + (object->unk20 * step) +
+    start[0] = object->unkC + object->unk40->unkE0->unk20;
+    start[1] = object->unk10 + object->unk40->unkE0->unk24;
+    start[2] = object->unk14 + object->unk40->unkE0->unk28;
+    end[0] = start[0] + (object->unk1C * step) + state->unk1C;
+    end[2] = start[2] + (object->unk24 * step) + state->unk20;
+    end[1] = start[1] + (object->unk20 * step) +
             (0.5f * acceleration * step * step);
     radius = state->unk4;
 
-    trackMakePolylist(1, &start, &end, &radius, 0x10000, 0);
-    collision = (u32)func_80010900(&start, &end, radius, (s32)object,
+    trackMakePolylist(1, (Objects0BB84Vec3 *)start, (Objects0BB84Vec3 *)end, &radius, 0x10000, 0);
+    collision = (u32)func_80010900((Objects0BB84Vec3 *)start, (Objects0BB84Vec3 *)end, radius, (s32)object,
                                     (void *)func_8000BB84);
     if ((collision >> 30) != 0) {
         object->unk1C = 0.0f;
@@ -5410,17 +5401,21 @@ void func_8000B3CC(void *arg0, s32 arg1) {
         return;
     }
 
-    func_80008128((Objects08128Object *)object, end.x - start.x,
-                  end.y - start.y, end.z - start.z);
+    volume = end[0] - start[0];
+    savedY = end[1] - start[1];
+    moveZ = end[2] - start[2];
+    func_80008128((Objects08128Object *)object, volume, savedY, moveZ);
     object->unk20 += acceleration * step;
-    speed = sqrtf((object->unk1C * object->unk1C) +
-                  (object->unk20 * object->unk20) +
-                  (object->unk24 * object->unk24));
+    volume = object->unk1C;
+    savedY = object->unk20;
+    moveZ = object->unk24;
+    speed = sqrtf((volume * volume) + (savedY * savedY) + (moveZ * moveZ));
     state->unk18 = speed;
 
+    bottom = end[1] - radius;
     if (((func_8001357C(object->unkC, object->unk14, &state->unk14,
                         0x10000, NULL) & 0x10000) != 0) &&
-        ((end.y - radius) < state->unk14)) {
+        (bottom < state->unk14)) {
         damping = config->unkC;
         if ((state->flags & 1) == 0) {
             state->flags |= 1;
@@ -5433,7 +5428,7 @@ void func_8000B3CC(void *arg0, s32 arg1) {
                         volume = 1.0f;
                     }
                     func_8000309C(state->unk24,
-                                  (u8)((s32)(127.0f * volume) & 0xFF));
+                                  (u8)(127.0f * volume));
                 }
             }
             if (config->unk14 != 0) {
@@ -5458,37 +5453,39 @@ void func_8000B3CC(void *arg0, s32 arg1) {
     object->unk1C *= damping;
     object->unk20 *= damping;
     object->unk24 *= damping;
-    state->unk18 = sqrtf((object->unk1C * object->unk1C) +
-                         (object->unk20 * object->unk20) +
-                         (object->unk24 * object->unk24));
+    volume = object->unk1C;
+    savedY = object->unk20;
+    moveZ = object->unk24;
+    state->unk18 = sqrtf((volume * volume) + (savedY * savedY) + (moveZ * moveZ));
 
-    bounced = 0;
     if ((collision << 2) != 0) {
         state->unk2 = 1;
-        speed = state->unk18;
-        if ((config->unk10 == 0.0f) || (speed == 0.0f)) {
+        bounced = 0;
+        if ((config->unk10 == 0.0f) || ((speed = state->unk18) == 0.0f)) {
             object->unk1C = 0.0f;
             object->unk20 = 0.0f;
             object->unk24 = 0.0f;
             state->flags |= 2;
         } else {
             object->unk1C /= speed;
-            object->unk20 /= speed;
-            object->unk24 /= speed;
+            object->unk20 /= state->unk18;
+            object->unk24 /= state->unk18;
             state->unk18 *= config->unk10;
             dot = (state->unk8 * object->unk1C) +
                   (state->unkC * object->unk20) +
                   (state->unk10 * object->unk24);
-            factor = 2.0f * -dot;
+            negativeDot = -dot;
+            factor = negativeDot + negativeDot;
             object->unk1C = ((factor * state->unk8) + object->unk1C) *
                             state->unk18;
             object->unk20 = ((factor * state->unkC) + object->unk20) *
                             state->unk18;
             object->unk24 = ((factor * state->unk10) + object->unk24) *
                             state->unk18;
-            speed = sqrtf((object->unk1C * object->unk1C) +
-                          (object->unk20 * object->unk20) +
-                          (object->unk24 * object->unk24));
+            volume = object->unk1C;
+            savedY = object->unk20;
+            moveZ = object->unk24;
+            speed = sqrtf((volume * volume) + (savedY * savedY) + (moveZ * moveZ));
             if (speed < 1.0f) {
                 if (state->unkC < D_80081530) {
                     object->unk1C = state->unk8;
@@ -5515,7 +5512,7 @@ void func_8000B3CC(void *arg0, s32 arg1) {
                     volume = 1.0f;
                 }
                 func_8000309C(state->unk24,
-                              (u8)((s32)(127.0f * volume) & 0xFF));
+                              (u8)(127.0f * volume));
             }
         }
     }
@@ -5748,7 +5745,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x90
  * relocations: 99
  * first-mismatch: +0x1B4
- * summary: Exact extent/frame; header scheduling and pointer/counter lifetimes remain. Next: trace header scheduling before further saved-register edits.
+ * summary: Workbench structure-mismatch, lever none-known. Pinned JFG donor supplies no C body; next: a source-line/UGEN trace for the header hunk.
  * PLATEAU-HANDOFF:func_8000590C:end
  */
 
@@ -5770,4 +5767,104 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x4
  * summary: Extra saved start-index lifetime and counter placement remain; trace caller-cost producers and recover a full-width lifetime split.
  * PLATEAU-HANDOFF:func_8000A39C:end
+ */
+
+/* PLATEAU-HANDOFF:func_80006534:start
+ * symbol: func_80006534
+ * score: 63 differing words
+ * frame: 0x38
+ * relocations: 7
+ * first-mismatch: +0x38
+ * summary: Workbench allocation-mismatch: register-role-audit; exact instruction layout and relocations, next prove saved-register role competition.
+ * PLATEAU-HANDOFF:func_80006534:end
+ */
+
+/* PLATEAU-HANDOFF:func_80004C28:start
+ * symbol: func_80004C28
+ * score: 7 differing words
+ * frame: 0x48
+ * relocations: 39
+ * first-mismatch: +0x5C
+ * summary: Workbench allocation-mismatch: register-role-audit. Next: isolate heap-spill line order and the short-lived record-length web.
+ * PLATEAU-HANDOFF:func_80004C28:end
+ */
+
+/* PLATEAU-HANDOFF:func_80009AA8:start
+ * symbol: func_80009AA8
+ * score: 4 differing words
+ * frame: 0x60
+ * relocations: 17
+ * first-mismatch: +0x54
+ * summary: Workbench allocation-mismatch: register-role-audit. Next: trace the selected-entry CSE color and known-zero call spill.
+ * PLATEAU-HANDOFF:func_80009AA8:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000784C:start
+ * symbol: func_8000784C
+ * score: 2 differing words
+ * frame: 0x100
+ * relocations: 34
+ * first-mismatch: +0x170
+ * summary: Workbench operand-mismatch: constant-audit. Next: authenticate stack homes for the four-byte pending-array displacement.
+ * PLATEAU-HANDOFF:func_8000784C:end
+ */
+
+/* PLATEAU-HANDOFF:func_800084C4:start
+ * symbol: func_800084C4
+ * score: 168 differing words
+ * frame: 0xB0
+ * relocations: 8
+ * first-mismatch: +0x2C8
+ * summary: Workbench structure-mismatch: structure-buckets. Next: resolve the extra texture-flag argument move and shared physical-address constant.
+ * PLATEAU-HANDOFF:func_800084C4:end
+ */
+
+/* PLATEAU-HANDOFF:func_80004FE0:start
+ * symbol: func_80004FE0
+ * score: 189 differing words
+ * frame: 0x100
+ * relocations: 83
+ * first-mismatch: +0x38
+ * summary: Workbench structure-mismatch: structure-buckets. Next: resolve category-fill unrolling and packet/index carriers with the frame held exact.
+ * PLATEAU-HANDOFF:func_80004FE0:end
+ */
+
+/* PLATEAU-HANDOFF:func_80008B94:start
+ * symbol: func_80008B94
+ * score: 126 differing words
+ * frame: 0xB8
+ * relocations: 45
+ * first-mismatch: +0xA8
+ * summary: Workbench structure-mismatch: structure-buckets. Next: authenticate the optional multiplier home transfer and remaining floating-point allocation.
+ * PLATEAU-HANDOFF:func_80008B94:end
+ */
+
+/* PLATEAU-HANDOFF:func_80009414:start
+ * symbol: func_80009414
+ * score: 388 differing words
+ * frame: 0x198
+ * relocations: 11
+ * first-mismatch: +0x40
+ * summary: Workbench structure-mismatch: structure-buckets. Next: authenticate the default-mode lifetime and sort-prefix source before further scheduling work.
+ * PLATEAU-HANDOFF:func_80009414:end
+ */
+
+/* PLATEAU-HANDOFF:func_80007118:start
+ * symbol: func_80007118
+ * score: 181 differing words
+ * frame: 0x38
+ * relocations: 71
+ * first-mismatch: +0x2C
+ * summary: Workbench structure-mismatch: register-role. Next: authenticate model-pointer coloring and callback lifetimes; resolve owned local-branch relocations.
+ * PLATEAU-HANDOFF:func_80007118:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000B3CC:start
+ * symbol: func_8000B3CC
+ * score: 202 differing words
+ * frame: 0x98
+ * relocations: 20
+ * first-mismatch: +0x148
+ * summary: Workbench structure-mismatch: constant-audit then register-role. Next: resolve time-step/speed homes and the floating zero/reflection allocation.
+ * PLATEAU-HANDOFF:func_8000B3CC:end
  */
