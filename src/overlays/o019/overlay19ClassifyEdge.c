@@ -15,6 +15,35 @@
  * SHA-256 is cbc6e4fc4f6b5b810bc239c6cef0ea183c1084cf4c2eafa35269ee3d04acbca5.
  * The sole inbound is overlay19FindAdjacent+0xD8; this function is unexported.
  *
+ * 2026-09-10, lane nm-ovlsmall: 110/120 -> 114/120. An as1 schedule trace
+ * (`cc -Wa,-R`, byte-inert on .text at this TU's flags) reads the four
+ * schedule words out completely. The final y/z pairs sit in a four-node block
+ * whose two `lh` nodes tie at aftercycles 5, so as1 breaks the tie on the
+ * lower ugen emission index and emits whichever operand cfe emitted first --
+ * which for `queryEnd->y < candidateStart->y` is the left one. Staging
+ * `candidateStart->y` into `queryStartX` ahead of the pair emits that load
+ * first while the test still reads the field (the value is a common
+ * subexpression, so no instruction is added), and the pair lands in the
+ * target's order. This is the same staged shape the reversed-coordinate block
+ * already uses.
+ *
+ * The residual is now the six-word carrier alone, at +0x138/+0x140/+0x148 and
+ * +0x154/+0x15C/+0x164: the target holds `candidateEnd->y` and `->z` in t3,
+ * the candidate in v1. v1 is demonstrably free across that region in the
+ * target, so uopt would have taken it had the value been a pool web at all;
+ * the target's carrier is a ugen block temp, not a coloured web, which is
+ * also what the register-lane census says (the target has two more `shared`
+ * entries and four fewer pool assignments). Newly falsified, each measured:
+ * dropping the staged name entirely, and folding the pair into one `||`
+ * expression, both make the value a temp candidate but reverse the two `lh`
+ * loads (8 words); `(s32)` casts on either operand produce that same object,
+ * so the cast that reorders a commutative arithmetic operand pair does not
+ * reach comparison evaluation order; carrying the pair in `queryEndX`
+ * regresses to 12; fresh `register`-qualified carriers and a staged
+ * `queryStart->y` both explode past 125. Reaching t3 needs an unnamed
+ * carrier whose defining load is still emitted first, and no spelling tried
+ * here supplies both at once.
+ *
  * The complete 119-configuration lattice is nonexact; thirteen O2/MIPS-II
  * rows tie V0. One instrumented uopt/ugen trace is fidelity-clean and confirms
  * separate zero-cost pool-carrier and temporary-lane choices. Direct DKR-style
@@ -129,16 +158,18 @@ check_reversed_coordinates:
         (candidateStartX < queryEndX)) {
         goto no_match;
     }
+    queryStartX = candidateStart->y;
     if (queryEnd->y < candidateStart->y) {
         goto no_match;
     }
-    if (candidateStart->y < queryEnd->y) {
+    if (queryStartX < queryEnd->y) {
         goto no_match;
     }
+    queryStartX = candidateStart->z;
     if (queryEnd->z < candidateStart->z) {
         goto no_match;
     }
-    if (candidateStart->z < queryEnd->z) {
+    if (queryStartX < queryEnd->z) {
         goto no_match;
     }
     return 2;

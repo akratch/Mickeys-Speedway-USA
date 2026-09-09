@@ -50,7 +50,41 @@ extern u8 *gOverlay36WorldStateReloc[];
  * structural/register drift; none reaches the target's 0x70 frame with the
  * baseline's exact register lanes. The relocation synthesizer derives the
  * unresolved overlay-data pair consistently as LOCAL value 0x150; assembly
- * fallback stays canonical. */
+ * fallback stays canonical.
+ *
+ * 2026-09-10, lane nm-ovlsmall: the residual is exactly the frame and nothing
+ * else. All four register lanes are already exact (pool 13/13, temp 7/7,
+ * shared 7/7, fp 6/6); the seven words are the two `addiu sp` and five
+ * sp-relative displacements. A new instrument measures the layout directly:
+ * `cc -g3` keeps the same .text here and emits an .mdebug local table whose
+ * entries are each declared local's home, as an offset from the frame top. The
+ * frame reads as arg area (24 rounded to 32) + saves (8) + a declared block
+ * that ends at the frame top + compiler temps below it. The candidate homes
+ * seven locals at 76/72/68/64/60/56/52 -- results, state, nearby, i, center,
+ * low, high -- with 12 bytes of temps, so block+temps is 88. The target's
+ * frame of 112, with the array at 60 and the state spill at 56, means
+ * block+temps must be 72.
+ *
+ * Declaration surgery bottoms out at 80. Dropping any single name frees eight
+ * bytes; dropping more frees nothing, because each value that loses its name
+ * becomes a compiler temp and the temps absorb what the block gives up. The
+ * one arrangement that does reach 72 moves three of the five scratch values
+ * out of the frame entirely, as parameters, whose homes live in the caller's
+ * frame: with only `nearby` and `i` left as locals and center/low/high
+ * declared as trailing parameters, the frame is exactly 112, the homes are
+ * exactly 60/56/52/48, and every instruction matches except two -- IDO
+ * unconditionally homes a2 and a3 for any function declaring three or more
+ * parameters, and the target stores only a1. The target therefore has exactly
+ * two parameters, which falsifies the extra-parameter mechanism while
+ * confirming the layout the source has to reach.
+ *
+ * Newly falsified, all byte-flat: `register` on all five scratch locals;
+ * declaring them in an inner block; and an entirely unused extra local, which
+ * is eliminated outright. Adding two pure-copy locals raises the frame by
+ * exactly eight bytes with identical code, which is how the per-home cost was
+ * measured. Three top-tested rewrites of the scan loop leave the frame at 128.
+ * The bounds cannot be unnamed: every form that drops `low`/`high` sinks the
+ * `sub.s`/`add.s` into the loop instead of hoisting them. */
 
 
 

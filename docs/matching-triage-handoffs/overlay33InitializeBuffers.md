@@ -2,11 +2,11 @@
 ### `overlay33InitializeBuffers` plateau handoff
 
 - source: `src/overlays/o033/overlay33InitializeBuffers.c`
-- score: 75/81 words
+- score: 76/81 words
 - frame: 0x38
 - relocations: 25
-- first mismatch: +0x4C
-- summary: Six words are two as1 delay-slot fill choices plus the coupled addu; uopt sinks the partially dead `original` copy past the null test, leaving the store as the only fill above the branch.
+- first mismatch: +0x74
+- summary: Five words are two as1 delay-slot fill choices; uopt sinks the partially dead `original` copy past the null test, leaving the store as the only fill above the branch. The coupled addu is closed by an operand-weight cast.
 
 #### 2026-09-09, lane fin-misc: the cluster is two delay-slot fills
 
