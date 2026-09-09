@@ -46,6 +46,30 @@ def theirs_if_subset(text):
     return MARK.sub(fix, text)
 
 
+def duplicate_redefines(path):
+    """Symbols renamed more than once inside a single target's recipe.
+
+    objcopy takes --redefine-sym once per symbol; a repeat is a hard error.
+    Scoped per recipe because two *different* targets legitimately rename the
+    same symbol to their own per-overlay alias.
+    """
+    duplicated = set()
+    seen = set()
+    in_recipe = False
+    for line in open(path, errors="replace"):
+        if not line.startswith("\t"):
+            in_recipe = line.rstrip().endswith(":") or ": " in line
+            seen = set()
+            continue
+        if not in_recipe:
+            continue
+        for name in re.findall(r"--redefine-sym\s+(\S+?)=", line):
+            if name in seen:
+                duplicated.add(name)
+            seen.add(name)
+    return duplicated
+
+
 def main():
     args = sys.argv[1:]
     if not args:
@@ -108,6 +132,26 @@ def main():
         if "<<<<<<<" in open(path, errors="replace").read():
             print(f"UNRESOLVED {path}")
             return 1
+        # A POSTPROCESS rule is a LIST, and keep-both is as wrong for it as
+        # it is for JSON. Two lanes independently restoring overlay 60's
+        # missing resident renames merged into 110 --redefine-sym entries for
+        # 59 unique symbols; objcopy refuses a duplicate ("Multiple
+        # redefinition of symbol"), so the object could not build, and
+        # reloc_surface then read a stale one and silently dropped nine
+        # aliases until the ROM stopped verifying. Fail here, where the cause
+        # is one line away, rather than four steps downstream.
+        if path.endswith((".mk", "Makefile")):
+            duplicated = duplicate_redefines(path)
+            if duplicated:
+                shown = ", ".join(sorted(duplicated)[:5])
+                more = f" (and {len(duplicated) - 5} more)" if len(duplicated) > 5 else ""
+                print(
+                    f"DUPLICATE --redefine-sym after resolving {path}: {shown}{more}."
+                    f"\n  Two sides added the same rename. Keep one side's rule "
+                    f"whole rather than merging them."
+                )
+                return 1
+
         # Never hand a syntactically broken JSON file to the integration
         # gates. They fail far downstream with a decoder error naming a
         # character offset, which reads like a corrupt input rather than a
