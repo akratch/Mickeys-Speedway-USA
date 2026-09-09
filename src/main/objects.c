@@ -3006,7 +3006,27 @@ extern void lightUpdateLights(s32 updateRate);
 extern void lightUpdateObjects(void);
 extern void amPlayAudioMap(void **objects, s32 count, s32 updateRate);
 
-#ifdef NON_MATCHING
+/* The per-frame object update pass: refreshes the render records of the
+ * always-on object list, walks the active object range calling each object's
+ * update, animation and effect work, defers four object classes to a bounded
+ * pending list, and finishes with the lighting and audio passes.
+ *
+ * The animation period is a *named* local re-read on every test of the wrap
+ * loop, which is the whole difference between this and a plain
+ * `while (unkC >= period_field)` with the field spelled at both uses. Under
+ * -O2 the frame is an arithmetic identity,
+ *
+ *     frame = roundup8(outgoing + saved + 4*temps + 4*scalars + aggregate)
+ *
+ * with the aggregate based at `frame - 4*scalars - aggregate`, so the array's
+ * home reads out the split between declared scalars and compiler temporaries
+ * even when neither side's swapped slots are ever touched. The plain spelling
+ * spends two compiler temporaries on the wrap loop's common subexpression and
+ * lands `pending` four bytes high; naming the period pays those two back and
+ * costs one scalar, and re-reading the field in the condition keeps the
+ * in-loop store and reload the target emits. Adding a ninth scalar without
+ * removing a temporary moves the array the wrong way, which is why sixteen
+ * earlier declaration probes all landed at +4. */
 void func_8000784C(s32 arg0) {
     Objects0784CObject *object;
     Objects0784COutput *output;
@@ -3016,6 +3036,7 @@ void func_8000784C(s32 arg0) {
     s32 count;
     s32 objectOffset;
     s32 pendingCount;
+    s32 animPeriod;
     Objects0784CObject *pending[0x20];
 
     count = 0;
@@ -3067,8 +3088,9 @@ void func_8000784C(s32 arg0) {
                     if (animation->unkE != 0) {
                         if (animation->unk8 != NULL) {
                             animation->unkC += (u32)animation->unkE * arg0;
-                            while (animation->unkC >= ((u16 *)animation->unk8)[8]) {
-                                animation->unkC -= ((u16 *)animation->unk8)[8];
+                            while (animation->unkC >=
+                                   (animPeriod = ((u16 *)animation->unk8)[8])) {
+                                animation->unkC -= animPeriod;
                             }
                         }
                     }
@@ -3124,9 +3146,6 @@ void func_8000784C(s32 arg0) {
     D_800C9478 = 1;
     D_800C946C = (f32)arg0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_8000784C.s")
-#endif
 /* Workbench verdict: allocation-mismatch; 42 differing words (76/118). */
 /* First mismatch: +0x7C; size, frame, and opcode schedule are exact. */
 /* Structural gap: none; register allocation and one stack-home constant are permuter-ready. */
@@ -5772,16 +5791,6 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x54
  * summary: One uopt caller-saved colour: target a1 where the candidate takes a0. Next: what reserves a0 in the target.
  * PLATEAU-HANDOFF:func_80009AA8:end
- */
-
-/* PLATEAU-HANDOFF:func_8000784C:start
- * symbol: func_8000784C
- * score: 2 differing words
- * frame: 0x100
- * relocations: 34
- * first-mismatch: +0x170
- * summary: Frame is 9 declared scalars + 5 compiler temps against our 8 + 6; only a declared object-walk pointer cursor reaches it.
- * PLATEAU-HANDOFF:func_8000784C:end
  */
 
 /* PLATEAU-HANDOFF:func_800084C4:start
