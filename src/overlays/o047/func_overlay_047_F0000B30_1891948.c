@@ -101,7 +101,8 @@ extern s8 ov47Data_4C8[][4];
 extern Overlay47TextureNode ov47Data_4F0;
 extern s16 ov47Data_510[10];
 extern s8 ov47Data_524[10];
-extern f32 ov47Data_530[4], ov47Data_540, ov47Data_544;
+extern s32 ov47Data_530[4];
+extern f32 ov47Data_540, ov47Data_544;
 extern s32 ov47Data_548;
 extern f32 ov47Data_54C;
 extern s32 ov47Data_550, ov47Data_554;
@@ -367,10 +368,9 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
             oldFrame = actor->frameValue;
             func_8005ABA8(actor, ov47Data_3F0[(s8)actor->frame], rate);
             scroll = player->actor->scroll;
-            scroll->b += speed;
-            scroll->a += speed;
-            scroll->d += speed;
-            scroll->c += speed;
+            for (i = 0; i < 4; i++) {
+                (&scroll->a)[i] += speed;
+            }
             if (!player->ready && !player->leaving && player->active && !start) {
                 if (D_800D3190[controller] < -16 && !ov47Bss_324) {
                     ov47Bss_300[player->selector] = 0;
@@ -510,18 +510,18 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
         selected = -1;
         count = 0;
         p2 = D_800D3058;
-        for (i = 0; i < 4; i++, p2++) {
+        for (stat = 0; stat < 4; stat++, p2++) {
             if ((f32)p2->selector == icon->selector && p2->active) {
-                colourIndex = i;
+                colourIndex = stat;
                 if (!p2->ready) unready = 1;
                 for (j = 0; j < updateRate; j++) {
-                    ov47Bss_328[i] +=
-                        ((((s32)icon->x + 160) << 4) - ov47Bss_328[i]) >> 2;
+                    ov47Bss_328[stat] +=
+                        ((((s32)icon->x + 160) << 4) - ov47Bss_328[stat]) >> 2;
                 }
-                ov47Bss_1C0[count].texture = D_800D31C8[i + 13];
-                ov47Bss_1C0[count].x = 312 - (ov47Bss_328[i] >> 4);
+                ov47Bss_1C0[count].texture = D_800D31C8[stat + 13];
+                ov47Bss_1C0[count].x = 312 - (ov47Bss_328[stat] >> 4);
                 count++;
-                selected = i;
+                selected = stat;
             }
         }
         ov47Bss_1C0[count].texture = NULL;
@@ -571,7 +571,7 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
             O47_VERTICES(ov47Data_8C, 14);
             O47_COMMAND(0x05710080, O47_PHYSICAL(ov47Data_118));
         }
-        for (i = 0; i < updateRate; i++) {
+        for (stat = 0; stat < updateRate; stat++) {
             if (icon->rotationZ < 0) {
                 rotationStep = (icon->rotationZ + 0x1000) / 5;
             } else {
