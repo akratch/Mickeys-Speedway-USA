@@ -212,21 +212,44 @@ void func_800347A0(TextureHeader *tex) {
 }
 /* Bounded full-TU reproof (2026-09-04): configured C is exact-sized and
  * frameless at 11/21 words, first +0x8, with four resolved static relocation
- * identities; three retain the target offset/type. The target keeps the
- * texture argument in a0 and computes each cache entry in a2, while V0 copies
- * the argument to a2 and uses a0 for the entry. Ten natural loop, declaration,
- * parameter-type, and pointer-lifetime forms were tested. Direct indexing
- * shrank to 19 instructions, explicit early exit grew to 23, a named cache
- * base worsened allocation, and the remaining forms were byte-identical to V0
- * (SHA-1 b7a49009e2a8). Preserve the fallback pending a new natural
- * parameter-versus-entry allocation mechanism. */
+ * identities; three retain the target offset/type. Ten natural loop,
+ * declaration, parameter-type, and pointer-lifetime forms were tested. Direct
+ * indexing shrank to 19 instructions, explicit early exit grew to 23, a named
+ * cache base worsened allocation, and the remaining forms were byte-identical.
+ *
+ * 2026-09-10, lane nm-mixed: 10 -> 5 differing words by composing two edits,
+ * each of which is inert on its own.
+ *  1. Copying the parameter into a local frees the incoming argument register:
+ *     the entry-pointer web outranks the parameter web on uopt's priority and
+ *     takes the parameter's home register, forcing a copy. Naming the local
+ *     splits the two webs and the parameter keeps its home (10 -> 8).
+ *  2. Hoisting the cache base into a local ASSIGNED INSIDE THE GUARD (not at
+ *     the top of the function, which is 20 words) puts the base web ahead of
+ *     the entry web, so the base wins the lower colour (8 -> 5).
+ *  3. Casting the base to s32 before the byte offset is what makes ugen emit
+ *     the address sum base-first; every pointer-arithmetic spelling tried
+ *     (&cache[i], cache + i, &i[cache], (u8 *)cache + (i << 3)) emits the
+ *     scaled index first. This is a spelling lever and is worth reusing.
+ * Falsified here: a local trip count (unrolls the loop -- this TU has no
+ * -Wo,-loopunroll,0), while/for loop forms, explicit index locals, u8/u32/s32
+ * base types, subscript reversal, and every guard spelling.
+ *
+ * The whole 5-word residual is now ONE mechanism: a uniform +1 rotation of
+ * ugen's temp ring. The target's first ring pop in the preheader is the second
+ * slot of the FIFO, ours the first, so the shift temp and the field-load temp
+ * are each one position early. Per the ring law that is a COUNT question: the
+ * target pops and frees exactly one ring temp in the entry block that emits no
+ * instruction. Twenty-eight further forms did not produce it. */
 #ifdef NON_MATCHING
-s32 func_8003484C(void *texture) {
+s32 func_8003484C(void *arg0) {
+    void *texture = arg0;
+    TextureCacheEntry *cache;
     s32 i = 0;
 
     if (D_800D2FE0 > 0) {
+        cache = (TextureCacheEntry *)D_800D2FD8;
         do {
-            TextureCacheEntry *entry = &((TextureCacheEntry *)D_800D2FD8)[i];
+            TextureCacheEntry *entry = (TextureCacheEntry *)((s32)cache + (i << 3));
             i++;
             if (texture == entry->texture) {
                 return entry->id;
@@ -240,10 +263,10 @@ s32 func_8003484C(void *texture) {
 #endif
 /* PLATEAU-HANDOFF:func_8003484C:start
  * symbol: func_8003484C
- * score: 11/21 words
+ * score: 16/21 words
  * frame: frameless
  * relocations: 4
- * first-mismatch: +0x8
- * summary: Five fresh attempts produced no improvement; next lever is new evidence changing parameter versus indexed-entry allocation while preserving 21-word geometry.
+ * first-mismatch: +0x1C
+ * summary: Parameter, base-hoist and s32-cast edits closed the colour and operand-order questions; the residual is a uniform one-slot rotation of ugen's temp ring and needs one extra instruction-free ring pop in the entry block.
  * PLATEAU-HANDOFF:func_8003484C:end
  */
