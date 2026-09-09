@@ -106,18 +106,21 @@ typedef struct Overlay75UpdateLocals {
 } Overlay75UpdateLocals;
 
 /*
- * Plateau: fresh V0 and all 119 flag configurations remain exact-sized at
- * 304 words with a 0x58 frame and 19 differing words, first at +0x54.  The
- * threshold's array-base spelling fixes its +4 addend and removes the sole
- * raw-only relocation mismatch.  Nine natural scope, initializer, early-exit,
- * declaration, and aggregate forms were flat or regressed.  A focused
- * retained-initializer pass confirms that moving the three work locals behind
- * the inactive exit emits 305 words: IDO selects a branch-likely and duplicates
- * the cache-pointer load.  Split/order forms retain that extra instruction;
- * an independent event local grows the frame to 0x60.  The remaining blocker
- * is the prologue lifetime/scheduling boundary.
+ * Exact C: 304 words, the 0x58 frame, and all 20 relocation records.
+ *
+ * The three work flags are dead on the `cache_position` exit, so they belong
+ * *after* the inactive test, not before it. With them in front, the join block
+ * after the slot-flag update starts with `moved = 0` and `as1` fills the
+ * branch-likely delay slot with that store; the target instead starts the join
+ * block with the `active02` load, which is why it reads that field twice --
+ * once in the annulled slot and once on the fall-through. Moving the flags
+ * behind the test hands the load to the join block and the duplication follows.
+ *
+ * Order inside the moved group is load-bearing to 273 words: the saved entity
+ * is read before the tick conversion, and the three flags are cleared in
+ * reverse declaration order. Only two of the 120 orders of those five
+ * statements are exact.
  */
-#ifdef NON_MATCHING
 void overlay75UpdateMovingObject(Overlay75Object *object,
                                        s32 updateRate) {
     Overlay75State *state;
@@ -137,15 +140,14 @@ void overlay75UpdateMovingObject(Overlay75Object *object,
         f32 tick;
         f32 moveZ;
 
-        locals.moved = 0;
-        locals.eventId = -1;
-        locals.completed = 0;
-
         if (state->active02 == 0) {
             goto cache_position;
         }
-        tick = (f32)updateRate;
         locals.savedEntity = locals.model->entity00;
+        tick = (f32)updateRate;
+        locals.completed = 0;
+        locals.eventId = -1;
+        locals.moved = 0;
 
         if (state->phase04 == 0) {
             f32 limit;
@@ -257,16 +259,3 @@ cache_position:
     state->cachedY34 = locals.position->y;
     state->cachedZ38 = locals.position->z;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o075/overlay75UpdateMovingObject/func_overlay_075_F0000214_18CC17C.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay75UpdateMovingObject:start
- * symbol: overlay75UpdateMovingObject
- * score: 285/304 words
- * frame: 0x58
- * relocations: 20
- * first-mismatch: +0x54
- * summary: Baseline reproved with zero source attempts; residual confined to one head window where the target reads the state field twice. Next lever is the repeated field read at the test, not the initializers.
- * PLATEAU-HANDOFF:overlay75UpdateMovingObject:end
- */

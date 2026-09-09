@@ -2214,6 +2214,19 @@ overlay75Cos = 0xf0000000;
 overlay75SetVelocity = 0xf0000000;
 overlay75Sin = 0xf0000000;
 
+/* overlay 75: overlay75UpdateMovingObject.c.o */
+gOverlay75ThresholdReloc = 0x00000000;
+overlay75BindModelReloc = 0xf0000000;
+overlay75CreateHandleReloc = 0xf0000000;
+overlay75FinishUpdateReloc = 0xf0000000;
+overlay75MoveReloc = 0xf0000000;
+overlay75PlayEventReloc = 0xf0000000;
+overlay75RefreshModelReloc = 0xf0000000;
+overlay75ReleaseHandleReloc = 0xf0000000;
+overlay75SpawnCompletionReloc = 0xf0000000;
+overlay75TransitionReloc = 0xf0000000;
+overlay75UpdateHandleReloc = 0xf0000000;
+
 /* overlay 76: overlay_076.c.o */
 gOverlay76NextIndex = 0x00000000;
 gOverlay76Status = 0x00000000;
