@@ -278,6 +278,26 @@ class ContextTests(unittest.TestCase):
                 self.assertEqual(result.returncode, 2)
                 self.assertEqual(original.read_bytes(), BASE)
 
+    def test_row_matching_does_not_use_the_popular_element_heuristic(self):
+        """autojunk switches on at 200 rows and skips rows occurring in >1% of b.
+
+        Rows here are content hashes, so "popular" says nothing about anchor
+        quality, and leaving the heuristic on makes report shape depend on
+        unrelated context size. Pin the constructor argument: no output
+        difference was reproducible through it, so only the call site can
+        record the intent.
+        """
+        seen = []
+        real = cc.difflib.SequenceMatcher
+
+        def record(*args, **kwargs):
+            seen.append(kwargs.get("autojunk", True))
+            return real(*args, **kwargs)
+
+        with mock.patch.object(cc.difflib, "SequenceMatcher", record):
+            report = self.compare(BASE.replace(b"extern void callee", b"extern int callee"))
+        self.assertEqual(report["status"], "changed")
+        self.assertEqual(seen, [False])
 
 if __name__ == "__main__":
     unittest.main()
