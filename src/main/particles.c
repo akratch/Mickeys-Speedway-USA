@@ -2671,3 +2671,13 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * summary: one zero-count guard branch target at +0x38; IDO retargets it past the redundant pool-base reset. The permuter is blind to it (base score 0).
  * PLATEAU-HANDOFF:func_8003E8D8:end
  */
+
+/* PLATEAU-HANDOFF:func_80041CE4:start
+ * symbol: func_80041CE4
+ * score: 27 differing words
+ * frame: 0x80
+ * relocations: 9
+ * first-mismatch: +0x48
+ * summary: six integer webs, no consistent rotation. An inert index aid reaches 10/153 with the frame exact; permuter base 150 transfers but stalls at 60.
+ * PLATEAU-HANDOFF:func_80041CE4:end
+ */
