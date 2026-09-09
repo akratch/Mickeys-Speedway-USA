@@ -94,9 +94,14 @@ void func_80046E70(FxCone *cone) {
     }
     mmFree(cone);
 }
-/* Workbench: structure-mismatch, 60 differing words, first mismatch +0x68. */
-/* Candidate shape: 111/110 instructions, frame -0x48/-0x48; 3/6 call relocations align. */
-/* The retained flag's stack home is exact; one address-base instruction and register coloring remain. */
+/* 111 instructions against the target's 110, with the -0x48 frame and all four
+ * local stack homes exact. The single extra instruction is located: the target
+ * computes `cone + 0x38` once into a register, stores it as `cone->vertices`,
+ * and adds the two sub-block sizes to *that* register; every source spelling
+ * tried -- reading the field back, carrying a local, `(u8 *)(cone + 1)`,
+ * chaining through `cone->addresses[0]`, and s32 arithmetic -- lets IDO
+ * reassociate the sum into `cone + size` followed by a separate `+ 0x38`,
+ * which is the extra word and the register rotation that follows it. */
 #ifdef NON_MATCHING
 extern void *func_8002B280(s32 size, s32 tag);
 extern void *func_80034448(s32 resourceId);
@@ -1777,9 +1782,13 @@ void func_8004A0F0(void) {
     D_800D6038[1] = 0;
     D_800D6040 = 0;
 }
-/* Workbench verdict: structure-mismatch, 132 differing words, first mismatch +0x0. */
-/* Candidate: exact 157-instruction geometry with a -0x60 frame versus target -0x58; six structural words remain. */
-/* Shape status: VI stack homes are exact; the cursor/end web remains ra/s1 instead of target t5/ra. */
+/* Exact 157-instruction extent; the residual is one register class. The target
+ * carries the glyph-row cursor in t5 and the end pointer in ra -- both
+ * caller-saved, ra being dead after the one call -- and saves only s0 and ra,
+ * for a -0x58 frame. This source puts the end pointer in s1, which adds the
+ * eighth save slot and the extra 8 bytes of frame, and every offset after it
+ * follows. Declaration order does not move it (all 14 permutations flat) and an
+ * unused declaration is dropped before it reaches the frame. */
 /* PROVENANCE: JFG's corresponding routine is assembly-only; this body is reconstructed from Mickey's own m2c draft and headers. */
 #ifdef NON_MATCHING
 void func_8004A10C(s32 *screen, u8 glyph, s32 x, s32 y, s32 arg4) {
@@ -2392,7 +2401,7 @@ void func_8004AF68(void) {
  * frame: 0x48
  * relocations: 6
  * first-mismatch: 0x68
- * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new allocation address-base/register topology evidence.
+ * summary: the one extra instruction is located: the target reuses the materialised cone+0x38 value as the base for the two sub-address adds, IDO reassociates every source spelling tried into cone+size then +0x38. Frame and stack homes are exact.
  * PLATEAU-HANDOFF:func_80046EC4:end
  */
 
@@ -2432,7 +2441,7 @@ void func_8004AF68(void) {
  * frame: 0x60
  * relocations: 5
  * first-mismatch: 0x0
- * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new glyph cursor/end lifetimes evidence.
+ * summary: the 8-byte frame excess is one saved register: the target carries both glyph-row pointers in t5 and ra, this source spends s1 on the end pointer. Extent is exact at 157 words.
  * PLATEAU-HANDOFF:func_8004A10C:end
  */
 
