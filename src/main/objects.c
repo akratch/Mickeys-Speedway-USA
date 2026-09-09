@@ -1150,8 +1150,24 @@ void func_80004B04(s32 arg0)
     }
   }
 }
-#ifdef NON_MATCHING
-/* PROVENANCE: ROM-table scan and direct array-carrier spelling informed by
+/* Loads one object-table section from ROM into a fresh 0x3000-byte heap and
+ * rewrites its records in place for the current game options, leaving the
+ * cursor back at the first record.
+ *
+ * Two spellings carry the whole match. The allocation goes into the global
+ * slot and `heap` is a copy taken *after* the derived cursor is stored, which
+ * is what puts the local's home store after both global stores rather than
+ * before them; defining `heap` first and assigning the global from it emits
+ * the home store one or two instructions early, and no ordering or line
+ * grouping of those five statements recovers it. And the record length is the
+ * field read spelled twice rather than a carrier: sharing `tableCount` with
+ * the switch's keep/skip flag merges the two webs onto one colour, a dedicated
+ * length local separates them but costs the frame (0x50 against 0x48, since
+ * this function's seven declared scalars and five compiler temporaries already
+ * fill it exactly), and reading the field again at both uses separates them
+ * for free. The accumulate must precede the cursor store for that to hold.
+ *
+ * PROVENANCE: ROM-table scan and direct array-carrier spelling informed by
  * Diddy Kong Racing public src/objects.c track_spawn_objects. Mickey ROM
  * controls its boundaries, globals, record format and spawn conditions. */
 void func_80004C28(s32 arg0, s32 arg1) {
@@ -1163,9 +1179,9 @@ void func_80004C28(s32 arg0, s32 arg1) {
     s32 *romTable;
     s32 start;
 
-    heap = func_8002B280(0x3000, 0x8B);
-    D_800C94D8[arg1] = heap;
-    D_800C94C0[arg1] = (s32)((u8 *)heap + 0x10);
+    D_800C94D8[arg1] = func_8002B280(0x3000, 0x8B);
+    D_800C94C0[arg1] = (s32)((u8 *)D_800C94D8[arg1] + 0x10);
+    heap = D_800C94D8[arg1];
     D_800C94C8[arg1] = 0;
     D_800C94D0[arg1] = arg0;
 
@@ -1251,9 +1267,8 @@ void func_80004C28(s32 arg0, s32 arg1) {
                 func_8000590C(current, 1);
                 current = (s16 *)D_800C94C0[arg1];
             }
-            tableCount = *((u8 *)current + 2);
-            D_800C94C0[arg1] = (s32)((u8 *)current + tableCount);
-            offset += tableCount;
+            offset += *((u8 *)current + 2);
+            D_800C94C0[arg1] = (s32)((u8 *)current + *((u8 *)current + 2));
         } while (offset < D_800C94C8[arg1]);
     }
     D_800C94C0[arg1] = (s32)((u8 *)D_800C94D8[arg1] + 0x10);
@@ -1262,9 +1277,6 @@ void func_80004C28(s32 arg0, s32 arg1) {
     }
     D_800C9478 = 1;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80004C28.s")
-#endif
 typedef struct {
     s16 unk0;
     u8 unk2;
@@ -5771,16 +5783,6 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x38
  * summary: Workbench allocation-mismatch: register-role-audit; exact instruction layout and relocations, next prove saved-register role competition.
  * PLATEAU-HANDOFF:func_80006534:end
- */
-
-/* PLATEAU-HANDOFF:func_80004C28:start
- * symbol: func_80004C28
- * score: 7 differing words
- * frame: 0x48
- * relocations: 39
- * first-mismatch: +0x5C
- * summary: Three schedule words on the heap home store (all 24 orders measured), four on the record-length colour the frame cannot pay for.
- * PLATEAU-HANDOFF:func_80004C28:end
  */
 
 /* PLATEAU-HANDOFF:func_80009AA8:start
