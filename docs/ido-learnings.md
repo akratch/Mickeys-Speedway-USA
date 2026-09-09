@@ -856,6 +856,32 @@ bytes and disassembly never belong here.
   cost up to 273 words, which is why earlier "move the initialisers" attempts
   read as a flat regression. Check the exit block actually ignores the values
   before moving them; there it reads only a cached pointer.
+- **A compiler temporary's stack slot is a second colouring in web order, not
+  a priority.** After `globalcolor`, uopt's `spilltemps` walks its register
+  temporaries (induction pointers, common-subexpression values, call-crossing
+  copies -- never declared locals, which already have homes) in web-index
+  order and hands each the lowest-numbered existing slot of the same size
+  that no *interfering, earlier* temporary holds, else a new slot laid just
+  below cfe's local block (the declared locals, then cfe's own call-result
+  temporaries). Every temporary takes a slot whether or not it ever touches
+  memory, so a coloured induction pointer still blocks the slot of the
+  spilled one that shares its loop. Web index is creation order, which is the
+  first textual encounter of the expression anywhere in the function, and the
+  loop-exit test goes to the last-created induction pointer, so reference
+  order alone cannot move a slot and the exit variable independently.
+  Measured on `func_overlay_060_F0000334_18BA10C`, whose last four words were
+  one name-table pointer homed at 92(sp) against the target's 96(sp) with
+  every instruction already identical: the pool started four bytes low
+  because a nested `u16` call result used as an argument
+  (`frontGetSfxVolume()`) gave cfe a halfword temporary below the locals, and
+  the float that had to stay at 80(sp) needed one more pooled temporary
+  ahead of it, which reading `gOverlay60Data0C8[i]` directly (a CSE
+  temporary) rather than through a declared `object` (a homed local, never
+  pooled) supplies. Neither edit changes an emitted instruction. The CDX
+  `p1dec` trace does not show slot choice; a print in the recompiled uopt's
+  `f_spilltemps` (per temporary: web, blockers, chosen slot, new offset) and
+  `f_gettemp` reads it directly, and the cfe `Uvreg` records in a `-K` Ucode
+  dump name the front-end temporaries and their sizes.
 
 ### Assembler scheduling and phase replay
 

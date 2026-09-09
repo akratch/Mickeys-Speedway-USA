@@ -35,6 +35,14 @@ git fetch -q origin master
 git merge -q --ff-only origin/master
 git merge --no-edit campaign/unchain
 
+echo "== regenerate the overlay alias list"
+# reloc_surface derives the alias list from the COMPILED overlay objects, so a
+# build directory carrying state from before an overlay promotion links against
+# stale aliases and dies with `R_MIPS_26 relocation truncated` -- even when the
+# committed overlay_undefined_syms.us.txt is already correct. Regenerating is
+# idempotent and cheap next to the verify it protects.
+gmake overlay-syms >/dev/null
+
 echo "== verify the merge result"
 gmake verify
 

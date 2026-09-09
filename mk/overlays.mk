@@ -2470,7 +2470,31 @@ $(BUILD_DIR)/$(SRC_DIR)/overlays/o054/overlay54TailA.c.o: POSTPROCESS = \
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o052/overlay52TailB.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x1A5C
 
+# Matched C. The resident globals it reads are spelled as per-module
+# placeholders in the source; the eight cross-overlay callees are renamed
+# here so the generated relocation surface values them from the module's
+# own stored addends without moving any other module's definition. The
+# compiler's private
+# ten-entry switch table duplicates the one already in the extracted
+# data/rodata asset at rodata +0x50; rebind the text pair to that proved
+# runtime-local addend and discard the duplicate.
+$(BUILD_DIR)/$(SRC_DIR)/overlays/o060/overlay60Prefix.c.o: \
+	$(TOOLS_DIR)/rebind_elf_relocations.py
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o060/overlay60Prefix.c.o: POSTPROCESS = \
+	$(OBJCOPY) \
+		--redefine-sym func_overlay_041_F000124C_1888584=overlay41IsUnitScale_o060Reloc \
+		--redefine-sym func_overlay_048_F0000000_1895408=overlay48Initialize_o060Reloc \
+		--redefine-sym func_overlay_056_F00000B8_18A2E30=overlay56SplitTime_o060Reloc \
+		--redefine-sym func_overlay_068_F000146C_18C85CC=overlay68CheckKind_o060Reloc \
+		--redefine-sym func_overlay_082_F0000498_18CF618=overlay82GetSelection_o060Reloc \
+		--redefine-sym func_overlay_082_F00004A4_18CF624=overlay82IsActive_o060Reloc \
+		--redefine-sym func_overlay_082_F00004B0_18CF630=overlay82Disable_o060Reloc \
+		--redefine-sym func_overlay_082_F00004C0_18CF640=overlay82Enable_o060Reloc \
+		--add-symbol gOverlay60PrefixSwitchTableReloc=0x50,global $@ && \
+	$(HOST_PYTHON) $(TOOLS_DIR)/rebind_elf_relocations.py $@ .text \
+		0x324:.rodata:gOverlay60PrefixSwitchTableReloc \
+		0x32C:.rodata:gOverlay60PrefixSwitchTableReloc && \
+	$(OBJCOPY) --remove-section=.rodata $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x2B94
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o055/overlay55CopyOffsetRecords.c.o: POSTPROCESS = \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0xE8
