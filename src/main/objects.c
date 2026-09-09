@@ -4284,7 +4284,6 @@ typedef union {
     unsigned long long force_alignment;
 } Objects09AA8Command;
 
-#ifdef NON_MATCHING
 extern u8 D_78F28[];
 
 void func_80009AA8(Objects09AA8Object *object) {
@@ -4301,10 +4300,11 @@ void func_80009AA8(Objects09AA8Object *object) {
     s32 var_t2;
     Objects09AA8Command *command;
 
-    var_v0 = 0;
-    if (object->unk40->unkD4 != 0.0f) {
-        var_v0 = 1;
-    }
+    var_v0 = object->unk40->unkD4 != 0.0f;
+    /* One definition, not a zero-then-one pair. uopt counts the pair as two
+     * web occurrences, which halves this web's priority and drops it behind
+     * the list and selected-entry webs; the single definition keeps it ahead
+     * of them, and the selected entry then takes a1 instead of a0. */
     temp_v1 = object->unk68;
     temp_a1 = temp_v1[(s32)object->unk3A];
     if (var_v0 != 0) {
@@ -4391,9 +4391,6 @@ void func_80009AA8(Objects09AA8Object *object) {
     command = (Objects09AA8Command *)D_800C94B4; D_800C94B4 += 8; command->words.w0 = 0xFB000000; command->words.w1 = (u32)-0x100;
     D_80079250 = 0;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80009AA8.s")
-#endif
 void func_80009E78(Gfx **displayList, Mtx **matrix, TrackVertex **vertices,
                    TrackSkyObject *object) {
     if ((object->flags & 0xC00) == 0) {
@@ -5782,16 +5779,6 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x38
  * summary: Workbench allocation-mismatch: register-role-audit; exact instruction layout and relocations, next prove saved-register role competition.
  * PLATEAU-HANDOFF:func_80006534:end
- */
-
-/* PLATEAU-HANDOFF:func_80009AA8:start
- * symbol: func_80009AA8
- * score: 241/244 words
- * frame: 0x60
- * relocations: 17
- * first-mismatch: +0x54
- * summary: One caller-saved colour on p1 web 19. The target's web partition IS reachable; the block is the decision ORDER, not the partition.
- * PLATEAU-HANDOFF:func_80009AA8:end
  */
 
 /* PLATEAU-HANDOFF:func_800084C4:start
