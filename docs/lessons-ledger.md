@@ -18,6 +18,17 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
   neighbourhood is already proved flat; it needs a **mechanism**, which is what
   the instrumented-compiler work has been producing. Route brute force at
   breadth (a TU nobody has swept), not at depth (a target everyone has).
+
+  **Correction, measured the same evening.** Re-routing at breadth did not fix
+  it. A second round on the unswept one-instruction reconstruction band — a
+  size question with a known cause list, exactly the shape brute force should
+  suit — returned **two more plateau records and no matches**. Meanwhile three
+  Opus lanes on the *same band, the same brief and the same cause list*
+  returned **five matches and carried six functions from `size-mismatch` to
+  `delta 0`**. Same task shape, same evidence, different model, and the outcome
+  was not close. So the fact is about the model on this work, not about depth
+  versus breadth as first concluded. Spend the codex budget elsewhere until
+  something changes.
 - **A 4-bit `u16` bitfield has a readable signature.** The target sequence
   `lw / sll 5 / srl 28 / sll 7 / andi 0x780 / lhu / andi 0xF87F / or / sh` is
   IDO's code for a 4-bit bitfield at bits 26..23 of a `u16` container. Writing
