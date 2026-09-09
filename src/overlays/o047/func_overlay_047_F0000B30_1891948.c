@@ -406,18 +406,15 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
                 actor = player->actor;
                 switch (actor->frame) {
                     case 1:
-                        frame = actor->frameValue;
-                        if (0.3f <= frame && frame < 0.65f) {
+                        if (0.3f <= actor->frameValue && actor->frameValue < 0.65f) {
                             actor->trigger = 15;
                             actor = player->actor;
-                            frame = actor->frameValue;
                         }
-                        if (oldFrame < 0.3f && 0.3f <= frame) {
+                        if (oldFrame < 0.3f && 0.3f <= actor->frameValue) {
                             amSndPlay(26, NULL);
                             actor = player->actor;
-                            frame = actor->frameValue;
                         }
-                        if (frame == 1.0f) {
+                        if (actor->frameValue == 1.0f) {
                             func_8005AD64(actor, 0, -1, 0.0f);
                             player->idleTimer = mathRnd(30, 300);
                             actor = player->actor;
@@ -434,11 +431,10 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
                     case 0:
                         if (player->idleTimer > 0) {
                             player->idleTimer -= updateRate;
-                            actor = player->actor;
                         } else if (actor->frameValue < 0.02f) {
                             func_8005AD64(player->actor, mathRnd(3, 4), -1, 0.0f);
-                            actor = player->actor;
                         }
+                        actor = player->actor;
                         break;
                     case 5:
                         actor->trigger = 15;
