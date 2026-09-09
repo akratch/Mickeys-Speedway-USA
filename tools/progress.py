@@ -172,6 +172,47 @@ def get_asm_labelled_names(asm_dir):
     return names
 
 
+def stale_extract_names(asm_dir, src_dir="src"):
+    """Names still labelled under asm/ that no GLOBAL_ASM pragma references.
+
+    A function is counted matched when its name no longer appears as a
+    glabel/alabel under asm/. splat stops emitting a function's .s once a C
+    definition exists for it -- but only when `gmake extract` is re-run. The
+    splat stamp is a timestamp, so promoting a function and building without
+    re-extracting leaves the stale .s in place and the function is counted
+    UNMATCHED. The scoreboard then moves bytes out of "decompiled" and into
+    "GLOBAL_ASM remaining", and `--check-readme` happily confirms the wrong
+    numbers, because both sides read the same stale tree.
+
+    Observed on 2026-09-09: a promotion of 1372 bytes reported as a 1372-byte
+    regression. Detect it rather than report it: a labelled name that no
+    `#pragma GLOBAL_ASM` in src/ still references cannot legitimately be
+    awaiting assembly, so the extract is stale.
+    """
+    # Only splat's per-function output can be stale in this sense.
+    # asm/main/*.s and asm/libultra/*.s are whole-file dumps of ORIGINAL
+    # hand-written assembly -- no pragma ever references them and they are
+    # counted as verified asm, not as awaiting decompilation. Scanning them
+    # here reported 235 false positives on a freshly extracted tree.
+    nonmatchings = os.path.join(asm_dir, "nonmatchings")
+    if not os.path.isdir(nonmatchings):
+        return set()
+    labelled = get_asm_labelled_names(nonmatchings)
+    if not labelled:
+        return set()
+    referenced = set()
+    pragma = re.compile(r'GLOBAL_ASM\("([^"]*)"\)')
+    for root, _dirs, files in os.walk(src_dir):
+        for name in files:
+            if not name.endswith((".c", ".h")):
+                continue
+            path = os.path.join(root, name)
+            with open(path, "r", errors="replace") as handle:
+                for hit in pragma.findall(handle.read()):
+                    referenced.add(os.path.splitext(os.path.basename(hit))[0])
+    return {name for name in labelled if name not in referenced}
+
+
 def resident_guarded_fallbacks(text):
     """Read direct NON_MATCHING definition/fallback pairs, not a search queue.
 
@@ -878,6 +919,25 @@ def main(args):
     build_dir = os.path.join(ROOT_DIR, "build")
     elf_path = os.path.join(build_dir, f"mickey.{args.version}.elf")
     asm_dir = os.path.join(ROOT_DIR, "asm")
+
+    # Refuse to report against a stale extract. Every number below is derived
+    # from which names still carry a glabel under asm/, so a promotion that
+    # was not followed by `gmake extract` is counted backwards -- and
+    # --check-readme confirms it, because both sides read the same stale tree.
+    stale = stale_extract_names(asm_dir, os.path.join(ROOT_DIR, "src"))
+    if stale:
+        listed = ", ".join(sorted(stale)[:6])
+        more = f" (and {len(stale) - 6} more)" if len(stale) > 6 else ""
+        print(
+            f"scoreboard: FAIL  the extract is stale for {len(stale)} "
+            f"promoted function(s): {listed}{more}.\n"
+            f"  Each still has assembly under asm/nonmatchings/ that no "
+            f"GLOBAL_ASM pragma references, so it would be counted as NOT "
+            f"matched and the totals would move backwards.\n"
+            f"  Run `gmake extract`, rebuild, then re-run this.",
+            file=sys.stderr,
+        )
+        return 1
     symbol_addrs_path = os.path.join(ROOT_DIR, f"symbol_addrs.{args.version}.txt")
     tools_dir = os.path.join(ROOT_DIR, "tools")
     objdump = find_objdump(tools_dir)

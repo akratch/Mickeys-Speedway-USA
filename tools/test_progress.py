@@ -192,3 +192,53 @@ class ResidentAccountingTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+class StaleExtractTests(unittest.TestCase):
+    """The scoreboard must refuse a stale extract, not report it backwards."""
+
+    def tree(self, pragmas, labelled):
+        import tempfile
+        tmp = tempfile.mkdtemp()
+        asm = Path(tmp) / "asm" / "nonmatchings" / "main" / "unit"
+        asm.mkdir(parents=True)
+        for name in labelled:
+            (asm / f"{name}.s").write_text(f"glabel {name}\n    /* 1 2 3 */  nop\n")
+        src = Path(tmp) / "src" / "main"
+        src.mkdir(parents=True)
+        body = "".join(
+            f'#pragma GLOBAL_ASM("asm/nonmatchings/main/unit/{n}.s")\n' for n in pragmas
+        )
+        (src / "unit.c").write_text(body)
+        return str(Path(tmp) / "asm"), str(Path(tmp) / "src")
+
+    def test_a_promoted_function_with_leftover_asm_is_detected(self):
+        # The observed failure: a 1372-byte promotion reported as a 1372-byte
+        # regression, with --check-readme confirming it.
+        asm, src = self.tree(pragmas=["stillAsm"], labelled=["promoted", "stillAsm"])
+        self.assertEqual(progress.stale_extract_names(asm, src), {"promoted"})
+
+    def test_a_freshly_extracted_tree_is_clean(self):
+        asm, src = self.tree(pragmas=["a", "b"], labelled=["a", "b"])
+        self.assertEqual(progress.stale_extract_names(asm, src), set())
+
+    def test_whole_file_hand_written_dumps_are_not_scanned(self):
+        # asm/main/*.s and asm/libultra/*.s are original hand-written assembly
+        # that no pragma references and that counts as verified asm. Scanning
+        # them reported 235 false positives on a clean tree.
+        import tempfile
+        tmp = tempfile.mkdtemp()
+        (Path(tmp) / "asm" / "main").mkdir(parents=True)
+        (Path(tmp) / "asm" / "main" / "dump.s").write_text("glabel handWritten\n")
+        (Path(tmp) / "src").mkdir(parents=True)
+        self.assertEqual(
+            progress.stale_extract_names(
+                str(Path(tmp) / "asm"), str(Path(tmp) / "src")
+            ),
+            set(),
+        )
+
+    def test_an_absent_nonmatchings_directory_is_not_an_error(self):
+        import tempfile
+        tmp = tempfile.mkdtemp()
+        self.assertEqual(progress.stale_extract_names(tmp, tmp), set())
+
