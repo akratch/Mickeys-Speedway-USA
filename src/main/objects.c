@@ -1575,23 +1575,20 @@ void func_80005548(s32 arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005548.s")
 #endif
-/* Workbench verdict: register-ring-only (pool-to-temp web); 2 differing words. */
-/* First mismatch: +0x24. */
-/* Hoisting *table fixes the downstream ring; a reseeded bounded sweep was flat. */
-#ifdef NON_MATCHING
+/* D_800C9460 heads an eight-byte record: the object base pointer, then the
+   pointer to the index table.  The second field's address reaches the compiler
+   as &D_800C9460[1], which is why this reads through a pointer instead of a
+   second named global -- splat could not pair that %hi/%lo across the
+   early-return branch and spells it as a literal in the fallback, so the
+   fallback carries two fewer relocations for identical linked words. */
 void *func_800056A4(s32 tableIndex) {
-    s32 *entries;
-    s32 **table = (s32 **)0x800C9464;
+    s32 **table = (s32 **)&D_800C9460;
 
     if ((tableIndex < 0) || (tableIndex >= D_800C9468)) {
         return D_800C9460;
     }
-    entries = *table;
-    return D_800C9460 + (entries[tableIndex] * 4);
+    return D_800C9460 + (table[1][tableIndex] * 4);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800056A4.s")
-#endif
 void *func_800056F0(s32 index) {
     if ((index < 0) || (index >= D_800C9498)) {
         return 0;
@@ -2300,15 +2297,10 @@ s32 func_800069C0(Objects69C0In *arg0, Objects69C0Out *arg1) {
     arg0->unk78->unk0 = 2;
     return 0x2C;
 }
-/* Workbench verdict: allocation-mismatch; 19 differing words (52/71). */
-/* First mismatch: +0x8C; size, frame, CFG, and constants are exact. */
-/* Structural gap: none; pool/temp register allocation is reserved for the permuter. */
-#ifdef NON_MATCHING
 s32 func_800069E8(Objects069E8Object *arg0, Objects069E8Target *arg1) {
     Objects069E8Source *source;
     Objects069E8Source *source2;
     s32 sp1C;
-    s32 temp_v0;
     s32 temp_v0_2;
 
     source2 = arg0->unk40;
@@ -2326,9 +2318,12 @@ s32 func_800069E8(Objects069E8Object *arg0, Objects069E8Target *arg1) {
     arg1->unk1C = 0;
     if (func_800291FC() == 0) {
         if (arg1->unk10 & 8) {
-            temp_v0 = ((s32)((u8 *)arg1 + 0x20) & ~3) + 4;
-            arg1->unk1C = temp_v0;
-            sp1C = (temp_v0 - (s32)arg1) + 0xBC;
+            /* The record's own aligned tail is the cursor.  Reading the
+               stored field back at the second use is what keeps the +4 out
+               of the size constant: spelled through a local, IDO reassociates
+               (cursor + 4) - base + 0xBC into cursor - base + 0xC0. */
+            arg1->unk1C = ((s32)((u8 *)arg1 + 0x20) & ~3) + 4;
+            sp1C = (arg1->unk1C - (s32)arg1) + 0xBC;
         }
     } else {
         arg1->unk10 = 5;
@@ -2345,9 +2340,6 @@ s32 func_800069E8(Objects069E8Object *arg0, Objects069E8Target *arg1) {
     D_800C9490 = arg1->unk8;
     return (sp1C & ~3) + 4;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800069E8.s")
-#endif
 /* Workbench verdict: structure-mismatch; 63 differing words (78 candidate / 79 target). */
 /* First mismatch: +0x20; both outputs are frameless and the candidate is one instruction shorter. */
 /* Structural gap: asset/count carrier and late loop register shape remain unresolved. */
@@ -4280,7 +4272,6 @@ void func_80009AA8(Objects09AA8Object *object) {
     Objects09AA8Command *command;
 
     var_v0 = 0;
-    var_t2 = 0;
     if (object->unk40->unkD4 != 0.0f) {
         var_v0 = 1;
     }
@@ -4293,6 +4284,10 @@ void func_80009AA8(Objects09AA8Object *object) {
         var_s2 = temp_v1[(s32)object->unk3A];
         sp38 = 0;
     }
+    /* Declared after the selection: initialized at the top, the spill IDO
+       emits in the func_8005AF14 delay slot carries a register instead of
+       the target's `sw zero`. */
+    var_t2 = 0;
     temp_s1 = var_s2->unk0;
     temp_s0 = (Objects09AA8Root *)temp_a1->unk0;
     if (var_s2->unk8 != 0) {
@@ -5595,16 +5590,6 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
 }
 
 
-/* PLATEAU-HANDOFF:func_800056A4:start
- * symbol: func_800056A4
- * score: 17/19 words
- * frame: frameless
- * relocations: 6
- * first-mismatch: +0x24
- * summary: JFG efd5abb leaves objGetTable body/types unchanged; zero new attempts. Next: authenticated UGEN reservation and temp-demand trace.
- * PLATEAU-HANDOFF:func_800056A4:end
- */
-
 
 /* PLATEAU-HANDOFF:func_80006EE4:start
  * symbol: func_80006EE4
@@ -5646,16 +5631,6 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * PLATEAU-HANDOFF:func_8000BB84:end
  */
 
-/* PLATEAU-HANDOFF:func_800069E8:start
- * symbol: func_800069E8
- * score: 52/71 words
- * frame: 0x28
- * relocations: 4
- * first-mismatch: +0x8C
- * summary: Shape exact; uopt global-color and ugen temp-carrier allocation remain for the permuter.
- * PLATEAU-HANDOFF:func_800069E8:end
- */
-
 
 /* PLATEAU-HANDOFF:func_80004454:start
  * symbol: func_80004454
@@ -5663,7 +5638,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x88
  * relocations: 6
  * first-mismatch: +0x50
- * summary: Register-permutation after line grouping; forced color is diagnostic exact. Resume only with new evidence for the initial-index allocation lever.
+ * summary: One caller-saved colour: target a1 where the candidate takes a0; use-site, dead-store and carrier spellings all eliminated.
  * PLATEAU-HANDOFF:func_80004454:end
  */
 
@@ -5683,7 +5658,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x88
  * relocations: 6
  * first-mismatch: +0x50
- * summary: Shared initial-index register-permutation; stock source remains nonexact. Resume only with new def-use evidence beyond the sibling forced-color oracle.
+ * summary: Same one caller-saved colour as func_80004454: target a1, candidate a0. Shared with func_80009AA8; not a source-level web.
  * PLATEAU-HANDOFF:func_8000471C:end
  */
 
@@ -5785,17 +5760,17 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x48
  * relocations: 39
  * first-mismatch: +0x5C
- * summary: Workbench allocation-mismatch: register-role-audit. Next: isolate heap-spill line order and the short-lived record-length web.
+ * summary: Three schedule words on the heap home store (all 24 orders measured), four on the record-length colour the frame cannot pay for.
  * PLATEAU-HANDOFF:func_80004C28:end
  */
 
 /* PLATEAU-HANDOFF:func_80009AA8:start
  * symbol: func_80009AA8
- * score: 4 differing words
+ * score: 3 differing words
  * frame: 0x60
  * relocations: 17
  * first-mismatch: +0x54
- * summary: Workbench allocation-mismatch: register-role-audit. Next: trace the selected-entry CSE color and known-zero call spill.
+ * summary: One uopt caller-saved colour: target a1 where the candidate takes a0. Next: what reserves a0 in the target.
  * PLATEAU-HANDOFF:func_80009AA8:end
  */
 
@@ -5805,7 +5780,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x100
  * relocations: 34
  * first-mismatch: +0x170
- * summary: Workbench operand-mismatch: constant-audit. Next: authenticate stack homes for the four-byte pending-array displacement.
+ * summary: Frame is 9 declared scalars + 5 compiler temps against our 8 + 6; only a declared object-walk pointer cursor reaches it.
  * PLATEAU-HANDOFF:func_8000784C:end
  */
 

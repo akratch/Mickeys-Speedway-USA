@@ -792,6 +792,39 @@ bytes and disassembly never belong here.
   an exact but inert spelling when necessary, disclose it in source, and put
   naturalization in `docs/cleanup-queue.md`; never keep a semantic mutation
   merely because it scores better. Evidence: ADR 0007 and the cleanup queue.
+- **An unpaired `%hi`/`%lo` in the assembled fallback is a permanent false
+  residual, and every object-level scorer in this project reports it.** splat
+  can only pair a high/low address pair it can see adjacent; when IDO hoists
+  the `lui` above a branch and leaves the load after it, splat writes both
+  halves as raw literals. The fallback object then carries no relocation
+  there, a correct candidate carries two, and their raw immediate fields
+  cannot agree however right the C is. `func_800056A4` carried such a two-word
+  "register difference" through three separate work packets, including a
+  forced-color diagnosis and a flat permuter sweep, and matched on the first
+  attempt once the address was spelled as the symbol it actually is. The
+  address in that case sat *inside* a neighbouring symbol's extent, so the
+  spelling is `&D_800C9460[1]`, not a new name: resolve bss addresses through
+  the map, never through the name splat happened to mint. Cheap detector:
+  score with every relocation on both sides resolved against the canonical
+  linked ELF's symbol addresses before comparing words, which makes the two
+  spellings compare equal exactly when the linked bytes are equal. Suspect
+  this whenever a fallback shows a bare `lui` of a plausible RAM address whose
+  paired load is on the other side of a branch.
+- **The `-O2` frame is an equation over declared locals and compiler
+  temporaries, and both halves move it.** Measured on `func_8000784C` across a
+  24-point grid of declared-scalar counts and aggregate sizes:
+  `frame = roundup8(fixed + 4*scalars + aggregate)` and
+  `aggregate_base = frame - 4*scalars - aggregate`, where `fixed` is the
+  outgoing-argument area plus the saved registers plus the compiler-temporary
+  block. Every declared scalar reserves four bytes above the aggregates
+  whether or not it is ever touched through the stack, so an unused local is
+  as load-bearing as a used one. The corollary that costs time if missed:
+  adding a local moves an aggregate *up*, not down. To move one down while
+  holding the frame, a declared local must also *displace* a compiler
+  temporary -- naming a value the compiler was going to materialise anyway --
+  because the two blocks trade against each other. `fixed` itself responds to
+  the widest outgoing call: dropping a five-argument call to four moves the
+  saved registers and everything above them down eight bytes.
 
 ## Adding a learning
 
