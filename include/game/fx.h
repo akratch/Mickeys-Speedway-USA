@@ -171,7 +171,7 @@ extern void *D_800D60B0[4];
 extern void *D_800D60BC;
 extern void *D_800D60C0[4];
 extern void *D_800D60CC;
-extern u8 D_800D60D3;
+extern u8 D_800D60D0[4];
 extern s32 D_8007D478;
 extern FxScreenEffect D_800D6048[4];
 extern FxGfx D_800D5FD8[4];

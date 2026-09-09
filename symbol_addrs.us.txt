@@ -1174,7 +1174,7 @@ fxSPDPRipple = 0x8004A5C0;             // type:func size:0x3A0 tier B (JFG skele
 fxQueueScreenEffect = 0x8004A960;      // type:func size:0x6C tier A (exact C, JFG name)
 func_8004A9CC = 0x8004A9CC;           // type:func size:0xAC tier A (exact C, JFG fxUnQueueScreenEffect)
 fxScreenEffect = 0x8004AA78;           // type:func size:0x24C tier B (JFG order/calls)
-func_8004ACC4 = 0x8004ACC4;           // type:func size:0x70 tier-D ROM 0x4B8C4 NON_MATCHING bounded plateau, 14/28 words differ, first +0x14, 12 relocations
+func_8004ACC4 = 0x8004ACC4;           // type:func size:0x70 tier-A ROM 0x4B8C4 matched C, 28/28 words and 12 relocations, frameless, linked ROM 0x4B8C4-0x4B934 byte-identical
 func_8004AD34 = 0x8004AD34;            // type:func size:0xB4 tier A (exact C, JFG fxGenerateTextures)
 func_8004ADE8 = 0x8004ADE8;            // type:func size:0x180 tier-A ROM 0x4B9E8 matched C and linked ROM, frame 0x40, 15 exact relocations, tier-B JFG fxCpuTextureRequired role
 func_8004AF68 = 0x8004AF68;            // type:func size:0xD0 tier-B ROM 0x4BB68 NON_MATCHING exact-size plateau, 26/52 words differ, first +0x10
@@ -2870,3 +2870,11 @@ func_80008B94 = 0x80008b94; // type:func size:0x68c ROM 0x9794 tier-A assembly f
 func_80009414 = 0x80009414; // type:func size:0x694 ROM 0xa014 tier-A assembly fallback extent verified against linked ROM range, NON_MATCHING C has no credit
 func_80007118 = 0x80007118; // type:func size:0x72c ROM 0x7d18 tier-A assembly fallback extent verified against linked ROM range, NON_MATCHING C has no credit
 func_8000B3CC = 0x8000b3cc; // type:func size:0x7b8 ROM 0xbfcc tier-A assembly fallback extent verified against linked ROM range, NON_MATCHING C has no credit
+
+// fx.c's four texture slots keep three parallel four-element arrays at
+// 0x800D60B0 (allocation), 0x800D60C0 (allocation) and 0x800D60D0
+// (per-slot availability flag). splat had minted only the last element of
+// the u8 array, D_800D60D3, because that is the only element the assembly
+// addresses directly; func_8004ACC4's matched C indexes all three arrays
+// from one loop variable and needs the base.
+D_800D60D0 = 0x800D60D0; // type:u8 size:0x4 tier-B fx texture-slot availability flags

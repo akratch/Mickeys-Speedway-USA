@@ -2740,9 +2740,9 @@ FX type-pass inventory (target widths/offsets; no source-body promotion):
 | `func_8004A380` | `D_8007D364[12]` bytes, `D_80083DE0` text, `D_800D2FA0` screen pointer; local text buffer. | Evidence A exact C: all 76 instruction words, the `-0x80` frame, all 9 relocations, and linked ROM bytes match. |
 | `fxSPDPRipple` | `D_8007D370[2]`, `D_8007D374[2]`, `D_8007D378[4]`; `FxGfx **`; level/draw helpers. | GLOBAL_ASM → GLOBAL_ASM; global table widths; ripple display CFG remains. |
 | `fxScreenEffect` | `D_8007D380[10]`, `D_8007D3D0[7]`, `D_8007D408[14]` `FxGfx`; VI video mode and display helpers. | GLOBAL_ASM → GLOBAL_ASM; dlist aggregate; effect command CFG remains. |
-| `func_8004ACC4` | `D_800D60A8` word; `D_800D60BC/CC` pointer words; `D_800D60D3` byte; `D_8007D488` callback word; `TrapDanglingJump`. | bounded mixed structure/register plateau: exact-size frameless C differs in 14/28 words from `+0x14`; callback/trap identity schedule and counter web remain. |
+| `func_8004ACC4` | `D_800D60A8` word; three parallel four-element slot arrays at `D_800D60B0`, `D_800D60C0` and `D_800D60D0`; `D_8007D47C` callback array; `TrapDanglingJump`. | **A**; exact C, 28 words, frameless, 12 relocations; ROM `0x4B8C4`-`0x4B934` byte-identical. The four cursors are IDO's own strength-reduced induction variables: the source indexes the three arrays with one loop variable, which is what puts the now-dead copy of that variable in the first pool colour and the synthesised trip counter in the second. |
 | `func_8004ADE8` | `D_800D60A8`, `D_800D6098[4]`, `D_800D60B0[4]`, `D_800D60C0[4]`, `D_8007D47C[4]`; texture info `+6/+8`. | Tier A: ordinary full-TU C is ROM-exact at `0x8004ADE8..0x8004AF68` / ROM `0x4B9E8..0x4BB68`: 384 executable bytes / 96 words, frame `0x40`, no padding, and all 15 relocation offsets, types, and identities exact. Removing a never-read offset local recovered the JFG-homologous stack-home layout without changing semantics. Tier B: JFG `fxCpuTextureRequired` supplies the role and source-topology context, not Mickey's byte proof. |
-| `func_8004AF68` | `D_800D60BC/CC`, `D_800D60C0[4]`, `D_800D60D3`, `D_8007D47C[4]`, `D_800D60A8`, `TrapDanglingJump`; `mmFree`. | structure plateau → structure plateau (`48` words, first `+4`); structure-buckets; secondary-pool base web remains. |
+| `func_8004AF68` | `D_800D60BC/CC`, `D_800D60C0[4]`, `D_800D60D0[3]`, `D_8007D47C[4]`, `D_800D60A8`, `TrapDanglingJump`; `mmFree`. | structure plateau → structure plateau (`48` words, first `+4`); structure-buckets; secondary-pool base web remains. |
 
 Exact C closures in these splits begin with 680 bytes across seven `diCpu`
 functions: the 8-byte `func_80046504` (`diCpuTraceGetFault` in JFG) and the
@@ -2868,13 +2868,16 @@ indirect call retain all target instruction words and relocation identities at
 the resident defaults; spelling the constant-count loop as `while (index--)`
 reproduces IDO's rotated `3`-through-`0` schedule without normalization.
 
-`func_8004ACC4` retains the source-faithful logical-line grouping at an
-exact-size, frameless 14/28 positional-word plateau, first `+0x14`. Target and
-candidate each own 12 text relocations; five identity sites remain displaced
-with the callback/trap schedule. All 119 flag identities and ten coherent
-loop, return-type, declaration, assignment, expression-grouping, and pointer-
-type forms are nonexact. Resume only with new source evidence for the shared
-JFG callback/trap and counter web; assembly remains canonical.
+`func_8004ACC4` is exact. Hand-written cursors were the defect: with four
+source pointers the loop's dead counter copy is compiler-generated and takes
+the *last* pool colour, and no arrangement of the setup statements moves it
+(720 statement orders x 32 physical-line groupings, all flat at ten words).
+Indexing three parallel four-element arrays from one `while (i--)` variable
+instead lets uopt build the four cursors itself as strength-reduced induction
+variables, which numbers the source index's now-dead copy first and the
+synthesised trip counter second -- the target's colouring exactly. splat had
+minted only `D_800D60D3`, the one element the assembly addresses directly;
+`symbol_addrs.us.txt` now names the `D_800D60D0` base the C needs.
 
 `func_8004AF68` remains exact-size at 52 words with 26 positional differences
 from `+0x10`; shift-aware workbench diagnosis leaves 18 structural words. The

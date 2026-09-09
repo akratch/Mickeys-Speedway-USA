@@ -2228,43 +2228,33 @@ void fxScreenEffect(FxGfx **dList, s32 arg1, s32 arg2, s32 arg3,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/fxScreenEffect.s")
 #endif
-#ifdef NON_MATCHING
-/*
- * PROVENANCE: the descending loop skeleton is adapted from Jet Force
- * Gemini's public fx.c context; Mickey's target establishes the expressions.
+/* Resets the four texture slots and records, per slot, whether its callback
+ * is still the dangling-jump trap.
+ *
+ * The four cursors in the emitted code are IDO's own strength-reduced
+ * induction variables, not source pointers: the source indexes three parallel
+ * four-element arrays with one loop variable and uopt walks them backwards.
+ * That is what puts the now-dead copy of the source index in the *first* pool
+ * colour and the synthesised trip counter in the second -- with hand-written
+ * cursors the copy is compiler-generated and takes the last colour instead, a
+ * 10-word residual that no ordering of the setup statements can reach (720
+ * statement orders x 32 physical-line groupings, all flat).
+ *
+ * The relocations name D_800D60BC/D_800D60CC/D_8007D488 in the target's
+ * disassembly and the array bases plus an addend here; both resolve to the
+ * same linked words.
  */
-/* Exact 28-word frameless extent and 12 relocations; 13 words differ, all of
- * them register names. The webs are coloured in statement order out of the
- * pool v0, v1, a0, a1, a2, a3, t0, with the compiler-generated copy of the
- * post-decremented counter taking the last colour; declaration order is
- * measurably irrelevant. The target's colours imply that copy takes the
- * *first* colour and the counter the second, which no ordering of these
- * statements produces, so the remaining gap is a web-formation difference
- * and not a permutation of this source. Physical line grouping is a real
- * lever here and is used: joining the four address setups onto one line
- * reverses the order their %lo addiu's are emitted in. */
 void func_8004ACC4(void) {
-    s32 trap;
     s32 i;
-    s32 *value0;
-    s32 *value1;
-    u8 *available;
-    s32 *callback;
 
     D_800D60A8 = 0;
-    trap = (s32) TrapDanglingJump;
-    i = 3;
-    value0 = &D_800D60BC; value1 = &D_800D60CC; available = &D_800D60D3; callback = &D_8007D488;
-    do {
-        *value1 = 0; *available = trap == *callback; *value0 = 0;
-        callback--;
-        value1--;
-        available--; value0--;
-    } while (i--);
+    i = 4;
+    while (i--) {
+        D_800D60B0[i] = 0;
+        D_800D60C0[i] = 0;
+        D_800D60D0[i] = (s32) TrapDanglingJump == (s32) D_8007D47C[i];
+    }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_8004ACC4.s")
-#endif
 s32 func_8004AD34(void) {
     FxTextureCallback callback;
     s32 index;
@@ -2344,7 +2334,7 @@ void func_8004AF68(void) {
     void *allocation;
 
     i = 3; offset = 16;
-    available = &D_800D60D3; value0 = (s32 *)&D_800D60BC;
+    available = &D_800D60D0[3]; value0 = (s32 *)&D_800D60BC;
     do {
         allocation = (void *)*value0;
         if (allocation != 0) {
@@ -2373,16 +2363,6 @@ void func_8004AF68(void) {
  * first-mismatch: +0x34
  * summary: pre-decrementing the byte offset fixes the saved-register order, 26 -> 17. Residual is one induction variable the target shares between both arrays while keeping D_800D60C0's base inside the loop.
  * PLATEAU-HANDOFF:func_8004AF68:end
- */
-
-/* PLATEAU-HANDOFF:func_8004ACC4:start
- * symbol: func_8004ACC4
- * score: 13 differing words
- * frame: frameless
- * relocations: 12
- * first-mismatch: +0x10
- * summary: 16 -> 13 on statement order plus physical-line grouping. All 13 are register names; the target colours the counter's dead copy first, which statement order cannot reach.
- * PLATEAU-HANDOFF:func_8004ACC4:end
  */
 
 /* PLATEAU-HANDOFF:func_80048760:start
