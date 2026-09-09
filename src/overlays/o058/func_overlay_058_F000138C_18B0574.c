@@ -298,8 +298,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 rowY += rowHeight;
             } while (i < (s32) D_8007BEF8);
         }
-        delta = arg0 * 0xF;
-        D_o058_5E98 = D_o058_5E98 - delta;
+        D_o058_5E98 -= arg0 * 0xF;
         if (D_o058_5E98 < 0) {
             D_o058_5E98 = 0;
             if ((D_o058_5EB0 == 0) && (D_800D31B8 & 0x9000)) {
@@ -316,22 +315,16 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 amSndPlay(0xCU, NULL);
             }
             if (D_o058_5EB0 != 0) {
-                /* Naming the updated value makes uopt store it through the
-                 * same address register it loaded from (the target's shape);
-                 * `X += delta` here stores through $at and reloads instead.
-                 * opponent is dead in this case, so it carries the value. */
-                opponent = D_o058_5EA4 + delta;
-                D_o058_5EA4 = opponent;
+                D_o058_5EA4 += arg0 * 0xF;
                 if ((D_o058_5EB0 == 5) || (D_o058_5EB0 == 6)) {
-                    opponent = D_o058_5EA8 + delta;
-                    D_o058_5EA8 = opponent;
-                    if (opponent >= 0x141) {
+                    D_o058_5EA8 += arg0 * 0xF;
+                    if (D_o058_5EA8 >= 0x141) {
                         D_o058_5E94 = D_o058_5EB0;
                         amSndPlay(0x1FAU, NULL);
                         return;
                     }
                 } else {
-                    D_o058_5EAC = D_o058_5EAC + delta;
+                    D_o058_5EAC += arg0 * 0xF;
 
                     if ((D_o058_5EAC >= 0xB5) && (D_o058_5EA4 >= 0x141)) {
                         D_o058_5E9C = 0x6E;
@@ -405,10 +398,9 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         }
         D_o058_5E98 = savedX;
         D_o058_5EA0 = savedOffset;
-        delta = arg0 * 0xF;
-        D_o058_5E9C -= delta;
-        D_o058_5EA0 = D_o058_5EA0 - delta;
-        D_o058_5EA4 = D_o058_5EA4 - delta;
+        D_o058_5E9C -= arg0 * 0xF;
+        D_o058_5EA0 -= arg0 * 0xF;
+        D_o058_5EA4 -= arg0 * 0xF;
 
         if ((D_o058_5E9C < 0) && (D_o058_5EA0 < 0) && (D_o058_5EA4 < 0)) {
             if (D_o058_5EB0 == 0) {
@@ -420,7 +412,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                     amSndPlay(0xDU, NULL);
                 }
             } else {
-                D_o058_5E98 = D_o058_5E98 + delta;
+                D_o058_5E98 += arg0 * 0xF;
                 if (D_o058_5E98 >= 0x141) {
                     D_o058_5EAC = 0;
                     D_o058_5E94 = D_o058_5EB0;
@@ -481,9 +473,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 rowY += rowHeight;
             } while (i < (s32) D_8007BEF8);
         }
-        delta = arg0 * 0xF;
         D_o058_5E98 = savedX;
-        D_o058_5E98 -= delta;
+        D_o058_5E98 -= arg0 * 0xF;
 
         D_o058_5E9C = savedPosition;
         if (D_o058_5E98 < 0) {
@@ -505,7 +496,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                     return;
                 }
             } else {
-                D_o058_5E9C = D_o058_5E9C + delta;
+                D_o058_5E9C += arg0 * 0xF;
                 if (D_o058_5E9C >= 0x141) {
                     if (D_o058_5EB0 == 4) {
                         animseqStopPath(D_o058_5E84.bytes[3]);
@@ -578,9 +569,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 rowY += rowHeight;
             } while (i < (s32) D_8007BEF8);
         }
-        delta = arg0 * 0xF;
         D_o058_5EA0 = savedOffset;
-        D_o058_5EA0 -= delta;
+        D_o058_5EA0 -= arg0 * 0xF;
 
         D_o058_5E9C = savedPosition;
         if (D_o058_5EA0 < 0) {
@@ -602,7 +592,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                     return;
                 }
             } else {
-                D_o058_5E9C = D_o058_5E9C + delta;
+                D_o058_5E9C += arg0 * 0xF;
                 if (D_o058_5E9C >= 0x141) {
                     if (D_o058_5EB0 == 4) {
                         animseqStopPath(D_o058_5E84.bytes[3]);
@@ -687,9 +677,8 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 rowY += rowHeight;
             } while (i < (s32) D_8007BEF8);
         }
-        delta = arg0 * 0xF;
         D_o058_5EA0 = savedOffset;
-        D_o058_5EA0 -= delta;
+        D_o058_5EA0 -= arg0 * 0xF;
 
         D_o058_5E9C = savedPosition;
         if (D_o058_5EA0 < 0) {
@@ -711,7 +700,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                     return;
                 }
             } else {
-                D_o058_5E9C = D_o058_5E9C + delta;
+                D_o058_5E9C += arg0 * 0xF;
                 if (D_o058_5E9C >= 0x141) {
                     if (D_o058_5EB0 == 4) {
                         animseqStopPath(D_o058_5E84.bytes[3]);
@@ -771,8 +760,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             textY += 0x1E;
             x = -x;
         } while (i < 4);
-        delta = arg0 * 0xF;
-        D_o058_5EA0 = D_o058_5EA0 - delta;
+        D_o058_5EA0 -= arg0 * 0xF;
 
         if (D_o058_5EA0 < 0) {
             if (D_o058_5EB0 == 0) {
@@ -790,7 +778,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
                 }
             } else {
-                D_o058_5E9C = D_o058_5E9C + delta;
+                D_o058_5E9C += arg0 * 0xF;
                 if (D_o058_5E9C >= 0x141) {
                     if (D_o058_5EB0 == 4) {
                         switch (D_o058_5F28) {
@@ -1014,8 +1002,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         func_8004B0F8(&D_800D3140, x + 0xD5, textY, D_o058_5DA0, 0);
         sprintf(&text[0], D_o058_5DA4, centiseconds);
         func_8004B0F8(&D_800D3140, x + 0xDC, textY, &text[0], 0);
-        delta = arg0 * 0xF;
-        D_o058_5E98 = D_o058_5E98 - delta;
+        D_o058_5E98 -= arg0 * 0xF;
         if (D_o058_5E98 < 0) {
             D_o058_5E98 = 0;
             if ((D_o058_5EB0 == 0) && (D_800D31B8 & 0x9000)) {
@@ -1027,7 +1014,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 amSndPlay(0xCU, NULL);
             }
             if (D_o058_5EB0 != 0) {
-                D_o058_5EA8 = D_o058_5EA8 + delta;
+                D_o058_5EA8 += arg0 * 0xF;
                 if (D_o058_5EA8 >= 0x141) {
                     D_o058_5EA8 = 0;
                     D_o058_5E98 = 0x140;
@@ -1044,8 +1031,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
         x = D_o058_5E98 + D_o058_5EA8;
         func_8004B0F8(&D_800D3140, x + 0xA0, 0x1E, D_8007C0B8->text[0x32], 4);
         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-        delta = arg0 * 0xF;
-        D_o058_5E98 = D_o058_5E98 - delta;
+        D_o058_5E98 -= arg0 * 0xF;
         if (D_o058_5E98 < 0) {
             D_o058_5E98 = 0;
             if (D_o058_5EB0 == 0) {
@@ -1146,7 +1132,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 }
             }
             if (D_o058_5EB0 != 0) {
-                D_o058_5EA8 = D_o058_5EA8 + delta;
+                D_o058_5EA8 += arg0 * 0xF;
                 if (D_o058_5EA8 >= 0x141) {
                     D_o058_5EA8 = 0;
                     D_o058_5E98 = 0x140;
@@ -1281,8 +1267,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
             i += 1;
             textY += 0x1B;
         } while (i != 4);
-        delta = arg0 * 0xF;
-        D_o058_5E98 = D_o058_5E98 - delta;
+        D_o058_5E98 -= arg0 * 0xF;
         if (D_o058_5E98 < 0) {
             D_o058_5E98 = 0;
             if ((D_o058_5EB0 == 0) && (D_800D31B8 & 0x9000)) {
@@ -1290,7 +1275,7 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 amSndPlay(0xCU, NULL);
             }
             if (D_o058_5EB0 != 0) {
-                D_o058_5EA8 = D_o058_5EA8 + delta;
+                D_o058_5EA8 += arg0 * 0xF;
                 if (D_o058_5EA8 >= 0x141) {
                     D_o058_5E94 = D_o058_5EB0;
                     D_o058_5E9C = 0;
