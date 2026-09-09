@@ -6,7 +6,7 @@
 - frame: 0x28
 - relocations: 36
 - first mismatch: +0x13C
-- summary: Needs ring order mask, global, shift; every single-statement spelling gives mask/shift/global or global/mask/shift and uopt normalises statement splits.
+- summary: Ring-index swap only; target carries the subscript signature with the index temp created before the base load, and cfe canonicalises every source form that would order it that way.
 
 - 2026-09-09 pass, the residual reduced to one ring ordering. The three words
   are one three-temp allocation in the world-index arm of the model-release
@@ -47,4 +47,70 @@ world-index arm (`table[index]`, `*(index + table)`, `*(table + index)`, with
 and without the `s16 *` cast) all give table, mask, scale at 5 words. cfe
 normalises the operand order of a subscript before uopt numbers the ring, so
 the mask-table-scale order cannot come from a subscript. Baseline 3 retained.
+
+#### 2026-09-09, lane fin-misc: the residual is a two-slot ring swap, and the
+target carries the subscript signature
+
+Read out exactly against the real object with a 64 ms direct-`tools/ido/cc`
+loop (byte-identical in `.text` to the asm-processor `NON_MATCHING` object at
+the flags recovered from `gmake -n build/src/main/level.c.o`), which made this
+pass exhaustive rather than sampled -- about 800 scored candidates.
+
+The three words are a swap of two adjacent ring slots and nothing else. All
+three classes put the same instructions at the same positions; only the
+register names move, so this is post-uopt emit order, not schedule:
+
+- target: mask t3, table t4, scale t5, sum t6
+- manual shift, `(m << 1) + (u32) table`: mask t3, table t5, scale t4, sum t6
+- subscript, `table[m]`: mask t4, table t3, scale t5, sum t6
+
+The scale is created *third* in both the target and the subscript class and
+*second* in the manual class, so the target carries the subscript lowering's
+signature with the index temp created before the base load. cfe evaluates a
+subscript's base before its index, and canonicalises `int + ptr` to `ptr + int`
+before web numbering -- which is why integer-left pointer arithmetic
+(`*(m + table)`) and the reversed subscript `(m)[table]` land in the base-first
+class too, and why no spelling of this one expression reaches the target.
+
+Newly eliminated this pass, each measured:
+
+- The local prototype of `func_80004B04` (`s16`, `s32`, `u16`, no prototype).
+  Flat; `u16` costs one extra word at the call. The TU-local prototype is
+  `s16` while `objects.c` defines it `s32`, so this was a real axis, not a
+  formality.
+- **192 physical line splits** of the arm across every token boundary in four
+  address spellings -- completely flat. The line-key lever (L87) that has
+  closed other functions does not reach this site.
+- A **surviving** comma first operand -- `(masked = temp_v0_2 & 0x3FFF, ...)`
+  inside and outside the subscript, and an embedded assignment in the index.
+  All fold back. This is the lever that closed `func_8003A2C8` the same day,
+  so its failure here is informative: the earlier note that only a *dead*
+  first mention fails is too weak -- a surviving one fails too.
+- Use-side lock breaks `^ 0`, `- 0`, `+ 0`, `* 1` and a zero bitwise-or on the index.
+- Two-statement pointer-local forms (`entry = &D_800C94E0[m]`, `entry =
+  D_800C94E0` then `entry[m]`): 8 words.
+- `sizeof(s16)` scaling, `(u8 *)`/`(s32)`/`(u32)` base casts,
+  `*(s16 **) &D_800C94E0`, `((s16 (*)[1]) D_800C94E0)[m][0]`, a bitwise-or in place of the sum
+  (4 words, and the `or` is wrong), and `(u16)` on the subject.
+- Restructuring the third `else if` into a nested `else` with the mask hoisted
+  above the inner `if`, and hoisting it to the top of the loop body, crossed
+  with all four address spellings.
+
+Tooling: **the permuter is not usable on this function.** Its scratch reports
+`base score = 20` against the real object's 3 -- a 6.7x disagreement -- and it
+exits without producing a candidate. Recorded under the "permuter scores do not
+transfer" blind spot.
+
+Donor: JFG's `levelFreeAll` has no model-release loop, and none of the five
+permitted decomps contains the `0x3FFF` resource-tag idiom. The matched sibling
+`levelInit` in this same TU spells it `D_800C94E0[resourceId & 0x3FFF]`, which
+compiles into the base-first class here -- so the natural spelling is not the
+answer at this site.
+
+Next lever: the only remaining route to {mask, table, scale} is a subscript
+whose index temp is created before the base load, and cfe canonicalises every
+source form that would order it that way. So the reason must come from outside
+the expression -- a second, partially dead reference to `D_800C94E0` that uopt
+sinks into this arm (which would create its web late), or evidence that the
+base is not this global at all.
 <!-- plateau-handoff:levelFreeAll:end -->
