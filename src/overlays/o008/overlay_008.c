@@ -236,14 +236,6 @@ void func_overlay_008_F0000058_185DDB0(O8P0058Owner *owner,
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0000058_185DDB0.s")
 #endif
 
-/* PLATEAU (2026-09-04): allocation-mismatch; 48 masked/57 raw words differ in
- * the exact 381-word/0x70 frame, with the first substantive mismatch at +0x428.
- * A linked trial reports in=48/out=0, proving that nine raw-only differences are
- * relocation addends.  The flag lattice, arm ordering, widened mask, bounded
- * permuter, and ten direct/mixed/scoped/alias tail forms are nonexact; direct
- * compound assignments regress to 56 masked differences.  The FP lanes remain
- * exact; resume only with a new natural temp-slot-54/pool-slot-64 web mechanism. */
-#ifdef NON_MATCHING
 void func_overlay_008_F0000894_185E5EC(O8Owner *owner, O8State *state,
                                        s32 updateRate) {
     void *savedResource;
@@ -260,7 +252,6 @@ void func_overlay_008_F0000894_185E5EC(O8Owner *owner, O8State *state,
     s32 effect;
     s32 angleA;
     s32 angleB;
-    s32 flags;
 
     node = *owner->node68;
     savedResource = node->resource;
@@ -335,31 +326,22 @@ void func_overlay_008_F0000894_185E5EC(O8Owner *owner, O8State *state,
     ext_o8_3018(owner, state, state->value70, updateRate);
 
     if ((state->condition172 != 0) && (state->lateral4 < -2.0f)) {
-        flags = owner->flags80 & ((~0x33) & 0xFFFFFFFFFFFFFFFFu);
-        owner->flags80 = flags;
-        flags |= gO8Value370;
-        owner->flags80 = flags;
-        owner->flags80 = flags | gO8Value3B0;
+        owner->flags80 &= ~0x33;
+        owner->flags80 |= gO8Value370;
+        owner->flags80 |= gO8Value3B0;
     } else if (((state->condition2 != 0) || (state->conditionD4 != 0)) &&
                ((state->lateral4 < gO8FloatDC) ||
                 (state->lateral4 > gO8FloatE0))) {
-        flags = owner->flags80 & ~0x33;
-        owner->flags80 = flags;
-        flags |= gO8Value364;
-        owner->flags80 = flags;
-        owner->flags80 = flags | gO8Value3A4;
+        owner->flags80 &= ~0x33;
+        owner->flags80 |= gO8Value364;
+        owner->flags80 |= gO8Value3A4;
     } else if (state->lateral4 < -5.0f) {
-        flags = owner->flags80 | gO8Table360[state->selector322 & 0xf];
-        owner->flags80 = flags;
-        owner->flags80 = flags | gO8Table3A0[state->selector323 & 0xf];
+        owner->flags80 |= gO8Table360[state->selector322 & 0xf];
+        owner->flags80 |= gO8Table3A0[state->selector323 & 0xf];
     }
 
-    flags = owner->flags80;
-    if (flags & 0x10) {
-        owner->flags80 = flags & ~1;
-        flags = owner->flags80;
-    }
-    if (flags & 0x20) owner->flags80 = flags & ~2;
+    if (owner->flags80 & 0x10) owner->flags80 &= ~1;
+    if (owner->flags80 & 0x20) owner->flags80 &= ~2;
     if (state->angle106 >= 0x1b)
         ext_o0_3e990((f32)((0x5a - (s32)state->angle106) << 2));
     ext_o0_3e99c(owner, updateRate);
@@ -369,9 +351,6 @@ void func_overlay_008_F0000894_185E5EC(O8Owner *owner, O8State *state,
         ext_o0_2d70(state->resourceC4, owner->valueC, owner->value10,
                     owner->value14);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0000894_185E5EC.s")
-#endif
 
 /* Mickey-local reconstruction; the donor scans found no exact donor. */
 s32 func_overlay_008_F0000E88_185EBE0(void *peer,
@@ -1249,51 +1228,48 @@ void func_overlay_008_F0002640_1860398(
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0002640_1860398.s")
 #endif
 
-/* P5 plateau: workbench allocation-mismatch, 56 positional words, first +0x0; the opcode schedule is aligned.
- * Levers: constant audit plus declaration, volatility, and scalar/aggregate probes left the canonical candidate unchanged or worse.
- * Remains: target 0x68-frame allocation versus the candidate's 0x70 frame and its register/allocation shape; no donor used. */
-#ifdef NON_MATCHING
 void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
                                        O8P291CState *state,
                                        f32 update) {
-    s16 angle;
-    s32 savedRate;
     f32 horizontal;
     f32 vertical;
     f32 invUpdate;
-    s32 contact;
-    f32 targetBlend;
-    f32 desiredBlend;
+    f32 nextY;
+    f32 nextX;
+    f32 nextZ;
     f32 displacementX;
     f32 displacementY;
     f32 displacementZ;
+    f32 delta;
     f32 scale;
+    f32 blendLimit;
+    s16 angle;
+    s32 contact;
 
     motion->heading0 = state->angleF0 + state->angleFC + state->angle104;
     angle = state->angleF0 + state->angleFE;
 
     if (state->mode438 == 1) {
-        f32 attenuation = o8Approach291CReloc(O8P291C_data_1A0, (s32)update);
+        delta = o8Approach291CReloc(O8P291C_data_1A0, (s32)update);
         if ((state->control4 < -0.5f) || (state->control4 > 0.5f)) {
-            state->control4 *= attenuation;
+            state->control4 *= delta;
         } else {
             state->control4 = 0.0f;
         }
         if ((state->control8 < -0.5f) || (state->control8 > 0.5f)) {
-            state->control8 *= attenuation;
+            state->control8 *= delta;
         } else {
             state->control8 = 0.0f;
         }
     }
 
-    savedRate = (s32)update;
     if (state->active181 != 0) {
-        f32 distance = state->speed84 * update +
+        delta = state->speed84 * update +
                        (0.5f * state->accel88 * update * update);
-        displacementX = state->axis74 * distance;
-        displacementY = state->axis78 * distance;
-        displacementZ = state->axis7C * distance;
-        if (distance < 0.0f) {
+        displacementX = state->axis74 * delta;
+        displacementY = state->axis78 * delta;
+        displacementZ = state->axis7C * delta;
+        if (delta < 0.0f) {
             state->speed84 = 0.0f;
             state->accel88 = 0.0f;
             state->active181 = 0;
@@ -1317,24 +1293,19 @@ void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
 
     horizontal += state->control8 * O8P291C_call_cos(angle);
     vertical -= state->control8 * O8P291C_call_sin(angle);
-    o8Surface291CReloc(motion, state, savedRate);
+    o8Surface291CReloc(motion, state, (s32)update);
 
-    {
-        f32 nextY;
-        f32 nextX;
-        f32 nextZ;
-        nextY = (motion->velocity20 * update) -
-            (0.5f * O8P291C_gravity * update * update) + displacementY;
-        invUpdate = 1.0f / update;
-        nextX = horizontal * update + displacementX;
-        nextZ = vertical * update + displacementZ;
-        motion->velocity1C = nextX * invUpdate;
-        motion->velocity20 -= O8P291C_gravity * update;
-        motion->velocity24 = nextZ * invUpdate;
-        motion->positionC += nextX;
-        motion->position10 += nextY;
-        motion->position14 += nextZ;
-    }
+    nextX = horizontal * update + displacementX;
+    nextY = (motion->velocity20 * update) -
+        (0.5f * O8P291C_gravity * update * update) + displacementY;
+    nextZ = vertical * update + displacementZ;
+    invUpdate = 1.0f / update;
+    motion->velocity1C = nextX * invUpdate;
+    motion->velocity20 -= O8P291C_gravity * update;
+    motion->velocity24 = nextZ * invUpdate;
+    motion->positionC += nextX;
+    motion->position10 += nextY;
+    motion->position14 += nextZ;
 
     contact = O8P291C_call_037C(motion, state, update);
     if ((O8P291C_call_039C(motion, 0.0f, 0.0f, 0.0f) != 0) ||
@@ -1355,12 +1326,11 @@ void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
         invUpdate = (state->flags41C & 0x8000) ? 3.0f : 0.0f;
         state->blendC +=
             (invUpdate - state->blendC) *
-            (1.0f - o8Approach291CReloc(O8P291C_data_1A4, savedRate));
-        targetBlend = ((volatile O8P291CBlendView *)state)->blendC;
-        if (state->control4 < -targetBlend) state->control4 = -targetBlend;
-        if (targetBlend < state->control4) state->control4 = targetBlend;
-        if (state->control8 < -targetBlend) state->control8 = -targetBlend;
-        if (targetBlend < state->control8) state->control8 = targetBlend;
+            (1.0f - o8Approach291CReloc(O8P291C_data_1A4, (s32)update));
+        if (state->control4 < -state->blendC) state->control4 = -state->blendC;
+        if (state->blendC < state->control4) state->control4 = state->blendC;
+        if (state->control8 < -state->blendC) state->control8 = -state->blendC;
+        if (state->blendC < state->control8) state->control8 = state->blendC;
     } else {
         if (D_10 < state->blendC + O8P291C_data_1A8) {
             state->blendC = D_10;
@@ -1368,12 +1338,9 @@ void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
         }
         state->blendC +=
             (D_10 - state->blendC) *
-            (1.0f - o8Approach291CReloc(O8P291C_data_1AC, savedRate));
+            (1.0f - o8Approach291CReloc(O8P291C_data_1AC, (s32)update));
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F000291C_1860674.s")
-#endif
 
 void func_overlay_008_F0002EC0_1860C18(register Overlay8UpdateOwner *owner,
                                        Overlay8UpdateInput *input,
@@ -2227,9 +2194,37 @@ void overlay8UpdateMotionOutput(Overlay8MotionAnchor *anchor,
     gOverlay8Buffer++;
 }
 
-/* Workbench p7: allocation-mismatch; 270/270 instructions, 43 masked words (57 diff sites), first +0x178, exact -0x90 frame.
- * Levers: context/view, constant audit, register and array forms, and a pool dead-read probe; prior frame-home, normal-layout, local-exchange, and relocation probes stayed negative.
- * Remains: FP pool diverges at slot 2 (f2 versus f16), FP temp at slot 14, and relocation identities; GLOBAL_ASM stays canonical. */
+/* Plateau (2026-09-09): allocation-mismatch, 39 masked words, exact 270/270
+ * instructions and exact -0x90 frame, and every stack home now at the target
+ * displacement -- the surface-normal aggregate included, which was the four-byte
+ * gap the previous handoff left open.
+ *
+ * The whole residual is one extra FP pool web.  At the normal-vector product the
+ * target keeps `normal.x` in a ugen ring temp and gives axisA's reload the first
+ * pool colour; the candidate colours `normal.x` instead, so axisA takes the third
+ * colour and the ring pops one slot out of phase from there.  That single
+ * displacement carries all of it: an f4/f6 ring exchange over 32 of the 39 sites,
+ * FP pool slot 2 at row 113 and FP temp slot 14 at row 115.  Every integer lane
+ * is identical.
+ *
+ * Exhausted for this residual, each measured on the exact-home candidate:
+ * the `horizontalB = normal.x` carrier cannot be removed (reading the member
+ * twice under `volatile` emits two loads, 57 words; without `volatile` uopt folds
+ * the copy and the body is one instruction short at 269, 159 words); moving the
+ * carrier to any other local -- `factor`, `blendFactor`, a fresh inner-block
+ * local, or `horizontalA` with the two products swapped -- also drops to 269;
+ * the 16-form operand-order lattice over the two products is flat; the 15-form
+ * volatile-placement lattice over the aggregate's four members has `volatile x`
+ * alone as its unique optimum; 37 physical line joins across the function are
+ * byte-inert, so the line-grouping lever does not apply in this TU; and
+ * permuting the point-initialisation, point-accumulate and activation statement
+ * groups is flat at 39.
+ *
+ * Declaration order is fixed and not a free variable: homes follow declaration
+ * order top-down, so horizontalB must stay eighth (home 0x70) and axisA ninth
+ * (home 0x6C), which is exactly the order that numbers the normal.x web first.
+ * Resume with a mechanism that stops uopt colouring a single-block named-local
+ * web, not with another spelling of this block. */
 /* Ownership trial (2026-08-28): fixed the TU's +0x27C..+0x2AC .rodata range;
  * linked promotion is text-differs after removing the TU growth; codegen remains.
  * The candidate's literal pool is retained as the remaining structural gap. */
@@ -2240,14 +2235,14 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
     s32 start;
     s32 end;
     O8P4CF0SceneItem **items;
-    register f32 motionTarget;
+    f32 motionTarget;
     f32 blendFactor;
     s32 targetB;
-    register f32 horizontalA;
+    f32 horizontalA;
     f32 horizontalB;
-    register f32 axisA;
-    register f32 axisB;
-    register f32 surfaceHeight;
+    f32 axisA;
+    f32 axisB;
+    f32 surfaceHeight;
     O8P4CF0Vec3f point;
     O8P4CF0Normal normal;
 
@@ -2260,7 +2255,7 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
         point.z = 7.0f;
         O8P4CF0_call_4D54(1, actor, &point, &point);
         point.x += actor->x00C;
-        surfaceHeight = (point.y += actor->y010);
+        point.y += actor->y010;
         point.z += actor->z014;
         surfaceHeight = point.y;
 
@@ -2335,10 +2330,7 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
             state->derived17C = 1.0f;
             return;
         } else {
-            s32 count;
-
             axisA = state->motion004;
-            count = updateRate - 1;
             if (axisA < 0.0f) {
                 axisA = -axisA;
             }
@@ -2347,8 +2339,8 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
                 axisA = 1.0f;
             }
 
-            start = count;
-            if (count != -1) {
+            start = updateRate - 1;
+            if (updateRate != 0) {
                 blendFactor = 0.05f;
 
                 do {
@@ -2368,11 +2360,11 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
 
 /* PLATEAU-HANDOFF:func_overlay_008_F0004CF0_1862A48:start
  * symbol: func_overlay_008_F0004CF0_1862A48
- * score: 43 differing words
+ * score: 39 differing words
  * frame: -0x90
  * relocations: 15
- * first-mismatch: +0x178
- * summary: Canonical flags retained; ten legal stack/aggregate/lifetime forms and a 241s batch were flat. The four-byte normal-home/FP allocation gap remains.
+ * first-mismatch: +0x1C4
+ * summary: Every stack home is now exact, the normal aggregate included; the residual is one extra FP pool web at the normal-vector products, and carrier, operand-order, volatile-placement, line-join and statement-group lattices are all flat.
  * PLATEAU-HANDOFF:func_overlay_008_F0004CF0_1862A48:end
  */
 
@@ -2386,25 +2378,7 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  * PLATEAU-HANDOFF:func_overlay_008_F0002640_1860398:end
  */
 
-/* PLATEAU-HANDOFF:func_overlay_008_F0000894_185E5EC:start
- * symbol: func_overlay_008_F0000894_185E5EC
- * score: 333/381 words
- * frame: 0x70
- * relocations: 48
- * first-mismatch: +0x6C
- * summary: Linked trial proves 48 in-range/zero out-of-range words; ten 0.8.0-guided tail reshapes are nonexact, so resume only with a new temp-slot-54/pool-slot-64 web mechanism.
- * PLATEAU-HANDOFF:func_overlay_008_F0000894_185E5EC:end
- */
 
-/* PLATEAU-HANDOFF:func_overlay_008_F000291C_1860674:start
- * symbol: func_overlay_008_F000291C_1860674
- * score: 56 differing words
- * frame: -0x70
- * relocations: 25
- * first-mismatch: +0x0
- * summary: Fresh exact geometry retains the 0x70/0x68 frame split and divergent FP pool; prior declaration, lifetime, constant, and flag probes are exhausted.
- * PLATEAU-HANDOFF:func_overlay_008_F000291C_1860674:end
- */
 
 /* PLATEAU-HANDOFF:func_overlay_008_F0001000_185ED58:start
  * symbol: func_overlay_008_F0001000_185ED58

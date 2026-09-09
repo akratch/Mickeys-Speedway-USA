@@ -632,6 +632,7 @@ typedef struct O8P4CF0Normal {
     volatile f32 x;
     f32 y;
     f32 z;
+    f32 w;
 } O8P4CF0Normal;
 
 typedef struct O8P4CF0Actor {

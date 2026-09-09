@@ -2,11 +2,11 @@
 ### `func_overlay_008_F0004CF0_1862A48` plateau handoff
 
 - source: `src/overlays/o008/overlay_008.c`
-- score: 43 differing words
+- score: 39 differing words
 - frame: -0x90
 - relocations: 15
-- first mismatch: +0x178
-- summary: Canonical flags retained; ten legal stack/aggregate/lifetime forms and a 241s batch were flat. The four-byte normal-home/FP allocation gap remains.
+- first mismatch: +0x1C4
+- summary: Every stack home is now exact, the normal aggregate included; the residual is one extra FP pool web at the normal-vector products, and carrier, operand-order, volatile-placement, line-join and statement-group lattices are all flat.
 2026-09-09 lane `lane/tu2-o008` maintenance evidence (base `304d363e`, score unchanged at 43
 relocation-masked words / 48 raw, 270 of 270 instructions, exact `0x90` frame):
 
@@ -37,4 +37,30 @@ relocation-masked words / 48 raw, 270 of 270 instructions, exact `0x90` frame):
 - Resume with allocator evidence rather than source search: the open question is why
   the aggregate region is packed four bytes differently, and no source form reached
   through declaration order, storage class or aggregate width has moved it.
+2026-09-09 lane `lane/w3-o008`: 43 -> 39 masked words, and every stack home is now
+exact.
+
+- The four-byte surface-normal displacement is closed. The frame is a byte-granular
+  declaration census: IDO homes each auto at `frame_top - k` in source declaration
+  order (function scope first, then inner blocks in source order), an `s16` takes
+  two bytes rather than four, and the whole auto region rounds to eight. The target
+  carries four more bytes above the aggregate and four fewer below it, so two edits
+  compose -- the normal aggregate takes a fourth float, and the blend tail's loop
+  counter is spelled from `updateRate` instead of held in its own block local.
+  Neither moves the frame alone; the eight-byte rounding hides a single four-byte
+  step, which is why the previous lane read "removing a local does not shed the
+  frame" as evidence against the census. It is evidence for it.
+- Contrary to the previous handoff, the dead `register f32 motionTarget` is NOT
+  decorative: it reserves an auto slot, and removing it moves every home below it
+  and costs 22 words. The five `register` qualifiers, the doubled `surfaceHeight`
+  assignment and the block-local `factor` are the genuinely inert ones, and are
+  now removed.
+- Widening the aggregate is byte-identical to inserting a four-byte local above it,
+  so the two readings of the source cannot be distinguished from the object. The
+  widened-struct form is retained because a surface query filling a plane is the
+  more plausible original.
+- The remaining 39 words are one extra FP pool web, and the in-source plateau
+  comment carries the full exhaustion list: carrier relocation, operand order,
+  volatile placement over four members, 37 physical line joins, and three
+  statement-group permutations, all flat or worse.
 <!-- plateau-handoff:func_overlay_008_F0004CF0_1862A48:end -->
