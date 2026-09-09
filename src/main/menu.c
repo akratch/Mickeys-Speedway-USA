@@ -1345,11 +1345,11 @@ void func_8003A590(void) {
 
 /* PLATEAU-HANDOFF:func_8003A2C8:start
  * symbol: func_8003A2C8
- * score: 31/32 words
+ * score: 1 differing words
  * frame: frameless
  * relocations: 6
  * first-mismatch: +0x14
- * summary: The equality operand and the global address register are coupled: comparing the int fixes the branch and moves the address one colour later, never both.
+ * summary: Wide carrier remains coupled to global-address color; precomputed form reaches 5 words. Five-minute real-TU sweep found no improvement.
  * PLATEAU-HANDOFF:func_8003A2C8:end
  */
 
