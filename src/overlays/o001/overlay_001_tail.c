@@ -3172,37 +3172,29 @@ s32 overlay1AdvancePath(Overlay1PathState *state) {
 
 
 /* Mickey-only reconstruction; pinned DKR v77/v80 and JFG scans have no exact
- * byte donor. The configured best is the exact 30-word, frameless 28/30 basin,
- * first mismatch +0x14. Instrumented uopt proves the original twelve-word
- * register permutation is a caller-saved pool rotation; forced target colours
- * reach instruction identity, and the direct D_1D88 loop form reaches those
- * colours naturally. Its remaining two words are the independent D_1D88-load
- * and countdown-li schedule. Five later natural ordering forms are flat or
- * regress structurally, so the next lever requires separate emit-order
- * evidence rather than more allocator forms. The retained value initializer
- * is a defined, semantically inert ADR 0017 diagnostic and is not promoted;
- * the assembly fallback remains active. The candidate now uses authentic
- * D_220/D_1D88 identities and the tail TU's pool-record type, but exact
- * promotion must still share that type with overlay1CreateRecord. Runtime
- * records 884..887 prove both HI16/LO16 pairs; local caller records 889 and
- * 895 are both in overlay1CreateRecord. A historical exact claim rewrote
- * register fields after compilation and remains prohibited evidence. */
-#ifdef NON_MATCHING
+ * byte donor. Exact C: all 30 instruction words, frameless, and both D_1D88
+ * relocation sites. The countdown and the group cache share one physical
+ * source line: uopt numbers the pool webs by first surviving definition in
+ * source statement order, so `remaining` must be written first to take a2 and
+ * leave a3 for `group`, while ugen schedules the pair by line, so joining the
+ * two statements emits the group load ahead of the countdown li. Splitting
+ * them costs the two-instruction swap; reversing them costs the two colours.
+ * The dead `value = 0` is load-bearing: it reserves the a1 pool colour that a
+ * genuinely absent store would not, and removing it costs fifteen words. */
 Overlay1PoolRecord *overlay1FindBestRecord(void) {
     Overlay1PoolRecord *record;
     Overlay1PoolRecord *result;
     u32 bestValue;
-    register u32 value;
+    u32 value;
     s32 remaining;
     s32 group;
     record = D_220;
     bestValue = (u32)-1;
     result = NULL;
     value = 0;
-    group = D_1D88;
-    remaining = 31;
+    remaining = 31; group = D_1D88;
     do {
-        if (record->flags.bits.group == (group ^ 0)) {
+        if (record->flags.bits.group == group) {
             value = record->value;
             if ((value == 0) ||
                 (((record->flags.value & 3) == 3) &&
@@ -3215,20 +3207,6 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
     } while (remaining--);
     return result;
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F0007B64_1853F44.s")
-#endif
-
-/* PLATEAU-HANDOFF:overlay1FindBestRecord:start
- * symbol: overlay1FindBestRecord
- * score: 28/30 words
- * frame: frameless
- * relocations: 2
- * first-mismatch: +0x4
- * summary: schedule and all six colours exact; residual is the %hi fold into the load's own destination register; permuter flat 30min, five load spellings inert
- * PLATEAU-HANDOFF:overlay1FindBestRecord:end
- */
 
 /* PLATEAU-HANDOFF:overlay1AppendPathPoint:start
  * symbol: overlay1AppendPathPoint

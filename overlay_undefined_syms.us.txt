@@ -2835,6 +2835,7 @@ func_overlay_001_F0007130_1853510 = overlay1UpdateTransient;
 func_overlay_001_F00072A4_1853684 = overlay1AllocateRecord;
 func_overlay_001_F0007344_1853724 = overlay1CloneRecord;
 func_overlay_001_F00073A0_1853780 = overlay1UpdateValueCache;
+func_overlay_001_F0007B64_1853F44 = overlay1FindBestRecord;
 func_overlay_001_F0003578_184F958 = overlay1InitializeGaugeObjects;
 func_overlay_001_F0003750_184FB30 = overlay1ChoosePath;
 func_overlay_001_F0003FD8_18503B8 = overlay1TransitionState;
@@ -2846,7 +2847,6 @@ func_overlay_001_F0006D4C_185312C = overlay1UpdateAimedTransient;
 func_overlay_001_F0007580_1853960 = overlay1AppendPathPoint;
 func_overlay_001_F0007730_1853B10 = overlay1BendPathPoint;
 func_overlay_001_F00078DC_1853CBC = overlay1AdvancePath;
-func_overlay_001_F0007B64_1853F44 = overlay1FindBestRecord;
 
 /* overlay 1: overlay_001_create.c.o */
 func_overlay_001_F0007BDC_1853FBC = overlay1CreateRecord;
