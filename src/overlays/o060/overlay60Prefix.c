@@ -1024,10 +1024,10 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
 
 /* PLATEAU-HANDOFF:func_overlay_060_F0000334_18BA10C:start
  * symbol: func_overlay_060_F0000334_18BA10C
- * score: 2510 differing words
+ * score: 97 differing words
  * frame: 0x198
- * relocations: 864
- * first-mismatch: +0x4
- * summary: NON_MATCHING: frame and every declared-local home now byte-exact (enabled 0x13C, text 0xBC, glyph 0xB4); mnemonic census within 45 of 2789 and the -12 is 45 insertions against 48 deletions, not one hole; the whole remaining residual is one uopt address-CSE that keeps &gOverlay60Data0A8 in a saved register for the entire target and rematerializes it 24 times here.
+ * relocations: 836
+ * first-mismatch: +0x9a4
+ * summary: NON_MATCHING: size exact and all saved registers coloured as the target; residual is previewMode in v1 instead of s5 (rank-table address web takes s5 first).
  * PLATEAU-HANDOFF:func_overlay_060_F0000334_18BA10C:end
  */
