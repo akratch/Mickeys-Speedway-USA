@@ -1773,6 +1773,11 @@ extern s32 func_80006B04(Objects06B04Object *object, Objects06B04Output *data,
 extern s32 func_80006C40(Objects06C40 *object, s32 data);
 extern s32 func_8000A830(Objects0A830Object *object, void *data);
 
+/* PROVENANCE: screened Jet Force Gemini, src/objects.c, at public revision
+ * efd5abb1c79636e297b831f7c2d5bf47eac39c0c. Its objSetupObject counterpart
+ * remains assembly-backed. No donor C was adopted; the existing Mickey
+ * candidate and the unresolved header-scheduling mechanism are unchanged.
+ */
 /* Workbench plateau: 538 differing words; target and candidate are 719 words. */
 /* First mismatch: +0x1B4; both frames are 0x90, both relocation counts are 99. */
 /* Remaining: header scheduling, saved-register lifetimes and nested fixup carriers. */
@@ -5740,7 +5745,7 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * frame: 0x90
  * relocations: 99
  * first-mismatch: +0x1B4
- * summary: Exact extent/frame; header scheduling and pointer/counter lifetimes remain. Next: trace header scheduling before further saved-register edits.
+ * summary: Workbench structure-mismatch, lever none-known. Pinned JFG donor supplies no C body; next: a source-line/UGEN trace for the header hunk.
  * PLATEAU-HANDOFF:func_8000590C:end
  */
 
