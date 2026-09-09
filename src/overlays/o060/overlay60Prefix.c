@@ -149,6 +149,7 @@ extern f32 gOverlay60Data0F8[];
 extern s32 gOverlay60Data10C[];
 extern s32 gOverlay60Data11C[];
 extern s8 gOverlay60Data12B[];
+extern s8 gOverlay60Data12C[];
 extern s32 gOverlay60Data130;
 extern void *gOverlay60Data134;
 extern u16 gOverlay60Data138[];
@@ -200,7 +201,16 @@ extern Gfx gOverlay60PhysicalList0B0[];
  * first 400, end 396, the spilled case-3 counter 372, minutes/seconds/
  * hundredths 348/344/340, enabled 316, text 188 and glyph 180, which
  * requires exactly fourteen scalar locals above `minutes` with the counter
- * ninth; `spare` is the one whose use has not been recovered.
+ * ninth. `spare` is the preview panel's rank index: spelled as an index
+ * into the rank table (`gOverlay60Data12C[spare - 1]`, `spare != 0`) uopt
+ * keeps the table address plus index live across the two calls and
+ * rematerialises the folded `data + 0x12C` constant at the compare, exactly
+ * as the target; a pointer spelling makes the table address a CSE web that
+ * takes s5 from `previewMode` (97 words). `row` also carries the wide-adjust
+ * value in the screen-mode panel (a0, no copy). The records panel advances
+ * the save block as byte arithmetic on the named blur index (`slots + i * 32`
+ * gives the base-first addu; a scaled pointer add puts the index first) and
+ * walks `record` as an explicit induction pointer beside `row`.
  *
  * Tier B (register colouring, uopt priority allocator): the target keeps
  * &gOverlay60Data0A8 in s2 for the whole function, never promotes the
@@ -238,7 +248,7 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
     char glyph[2];
     s32 initial0;
     s32 initial1;
-    s8 *rank;
+    SavesSlot *slot;
     SavesSlot *slots;
     SavesPackedEntry *record;
     MtxF *projection;
@@ -541,14 +551,14 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                 if (screenMode == 1) {
                     fontColour(0x64, 0xFF, 0x64, 0xFF, gOverlay60Data2A4);
                     func_8004B0F8(&D_800D3140, 0x91, 0x91, O60_TEXT(0x1DC), 0xC);
-                    spare = frontGetWideAdjust();
+                    row = frontGetWideAdjust();
                     if (D_800D31B4 & 8) {
-                        spare--;
+                        row--;
                     }
                     if (D_800D31B4 & 4) {
-                        spare++;
+                        row++;
                     }
-                    frontSetWideAdjust(spare);
+                    frontSetWideAdjust(row);
                     fontColour(0xFF, 0xFF, 0, 0xFF, gOverlay60Data2A4);
                     func_8004B0F8(&D_800D3140, 0x6A, 0xB4, gOverlay60Data0C0, 4);
                     fontColour(0, 0xFF, 0, 0xFF, gOverlay60Data2A4);
@@ -655,7 +665,8 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                             amSndPlay(0xF, NULL);
                         }
                         slots = func_800291C4();
-                        slots += levelGetBlurEffect(D_8007C0E8[gOverlay60Data150]);
+                        i = levelGetBlurEffect(D_8007C0E8[gOverlay60Data150]);
+                        slot = (SavesSlot *)((u8 *)slots + i * 32);
                         func_8004B0A4(2);
                         func_8004B0DC(0, 0, 0, 0);
                         fontColour(0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -667,8 +678,7 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                                 81.0f, 115.0f, gOverlay60Data258, gOverlay60Data258, -2, 0);
                         }
                         fontColour(0xC0, 0xFF, 0, 0xFF, 0xFF);
-                        for (row = 0; row < 4; row++) {
-                            record = &slots->records[row];
+                        for (row = 0, record = slot->records; row < 4; record++, row++) {
                             func_overlay_056_F00000B8_18A2E30(record->time,
                                 &minutes, &seconds, &hundredths);
                             if (record->time == 0) {
@@ -777,11 +787,10 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
                             object->unk8 = gOverlay60Data0F8[previewMode];
                             model = (MenuSpawnInner *)(gOverlay60Data0C8[i])->unk68[gOverlay60Data150];
                             model->mode = ticks;
-                            rank = gOverlay60Data12B + 1 +
-                                ((u32)(D_800D3128.progress[gOverlay60Data150] & gOverlay60Data10C[i]) >> gOverlay60Data11C[i]);
-                            func_80020D8C(model, 0, rank[-1] * 256);
+                            spare = ((u32)(D_800D3128.progress[gOverlay60Data150] & gOverlay60Data10C[i]) >> gOverlay60Data11C[i]);
+                            func_80020D8C(model, 0, gOverlay60Data12C[spare - 1] * 256);
                             func_8005ABA8(gOverlay60Data0C8[i], 0.003f, ticks);
-                            if (rank != gOverlay60Data12B + 1) {
+                            if (spare != 0) {
                                 (gOverlay60Data0C8[i])->alpha = gOverlay60Data2A4;
                                 func_80009E78(&D_800D3140, &D_800D3144,
                                     &D_800D3148, gOverlay60Data0C8[i]);
@@ -1024,10 +1033,10 @@ void func_overlay_060_F0000334_18BA10C(s32 ticks) {
 
 /* PLATEAU-HANDOFF:func_overlay_060_F0000334_18BA10C:start
  * symbol: func_overlay_060_F0000334_18BA10C
- * score: 97 differing words
+ * score: 4 differing words
  * frame: 0x198
- * relocations: 836
- * first-mismatch: +0x9a4
- * summary: NON_MATCHING: size exact and all saved registers coloured as the target; residual is previewMode in v1 instead of s5 (rank-table address web takes s5 first).
+ * relocations: 838
+ * first-mismatch: +0x182c
+ * summary: NON_MATCHING: code identical to the target; residual is one spilled records-panel temp homed at 88(sp) instead of 96(sp) (spill-slot ordinal one notch low).
  * PLATEAU-HANDOFF:func_overlay_060_F0000334_18BA10C:end
  */
