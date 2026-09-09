@@ -2194,9 +2194,37 @@ void overlay8UpdateMotionOutput(Overlay8MotionAnchor *anchor,
     gOverlay8Buffer++;
 }
 
-/* Workbench p7: allocation-mismatch; 270/270 instructions, 43 masked words (57 diff sites), first +0x178, exact -0x90 frame.
- * Levers: context/view, constant audit, register and array forms, and a pool dead-read probe; prior frame-home, normal-layout, local-exchange, and relocation probes stayed negative.
- * Remains: FP pool diverges at slot 2 (f2 versus f16), FP temp at slot 14, and relocation identities; GLOBAL_ASM stays canonical. */
+/* Plateau (2026-09-09): allocation-mismatch, 39 masked words, exact 270/270
+ * instructions and exact -0x90 frame, and every stack home now at the target
+ * displacement -- the surface-normal aggregate included, which was the four-byte
+ * gap the previous handoff left open.
+ *
+ * The whole residual is one extra FP pool web.  At the normal-vector product the
+ * target keeps `normal.x` in a ugen ring temp and gives axisA's reload the first
+ * pool colour; the candidate colours `normal.x` instead, so axisA takes the third
+ * colour and the ring pops one slot out of phase from there.  That single
+ * displacement carries all of it: an f4/f6 ring exchange over 32 of the 39 sites,
+ * FP pool slot 2 at row 113 and FP temp slot 14 at row 115.  Every integer lane
+ * is identical.
+ *
+ * Exhausted for this residual, each measured on the exact-home candidate:
+ * the `horizontalB = normal.x` carrier cannot be removed (reading the member
+ * twice under `volatile` emits two loads, 57 words; without `volatile` uopt folds
+ * the copy and the body is one instruction short at 269, 159 words); moving the
+ * carrier to any other local -- `factor`, `blendFactor`, a fresh inner-block
+ * local, or `horizontalA` with the two products swapped -- also drops to 269;
+ * the 16-form operand-order lattice over the two products is flat; the 15-form
+ * volatile-placement lattice over the aggregate's four members has `volatile x`
+ * alone as its unique optimum; 37 physical line joins across the function are
+ * byte-inert, so the line-grouping lever does not apply in this TU; and
+ * permuting the point-initialisation, point-accumulate and activation statement
+ * groups is flat at 39.
+ *
+ * Declaration order is fixed and not a free variable: homes follow declaration
+ * order top-down, so horizontalB must stay eighth (home 0x70) and axisA ninth
+ * (home 0x6C), which is exactly the order that numbers the normal.x web first.
+ * Resume with a mechanism that stops uopt colouring a single-block named-local
+ * web, not with another spelling of this block. */
 /* Ownership trial (2026-08-28): fixed the TU's +0x27C..+0x2AC .rodata range;
  * linked promotion is text-differs after removing the TU growth; codegen remains.
  * The candidate's literal pool is retained as the remaining structural gap. */
@@ -2332,11 +2360,11 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
 
 /* PLATEAU-HANDOFF:func_overlay_008_F0004CF0_1862A48:start
  * symbol: func_overlay_008_F0004CF0_1862A48
- * score: 43 differing words
+ * score: 39 differing words
  * frame: -0x90
  * relocations: 15
- * first-mismatch: +0x178
- * summary: Canonical flags retained; ten legal stack/aggregate/lifetime forms and a 241s batch were flat. The four-byte normal-home/FP allocation gap remains.
+ * first-mismatch: +0x1C4
+ * summary: Every stack home is now exact, the normal aggregate included; the residual is one extra FP pool web at the normal-vector products, and carrier, operand-order, volatile-placement, line-join and statement-group lattices are all flat.
  * PLATEAU-HANDOFF:func_overlay_008_F0004CF0_1862A48:end
  */
 
