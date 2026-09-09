@@ -195,8 +195,15 @@ extern u8 gOverlay5MessageBuffer[];
 extern void alHeapInit(void *heap, void *base, s32 length);
 extern Overlay5Resource *func_8002E148(s32 resourceId);
 extern void *func_8002B280(s32 size, s32 tag);
-extern void func_8002E2E0(s32 resourceId, void *dst, const void *src,
-                          s32 length);
+/*
+ * PROVENANCE: the return type follows Diddy Kong Racing's public
+ * decompilation, where this call is `s32 asset_load(u32, u32, s32, s32)`
+ * (`src/asset_loading.h`).  Tier A: overlay 5 ignores the result, but a
+ * non-void callee reserves v0 across the call, and only that reservation
+ * reproduces the shipped `v1` carrier for the `gOverlay5Span1Size` address.
+ */
+extern s32 func_8002E2E0(s32 resourceId, void *dst, const void *src,
+                         s32 length);
 extern void *func_8002E35C(s32 resourceId, const void *address);
 extern void *alHeapDBAlloc(void *file, s32 line, void *heap, s32 count,
                            s32 size);

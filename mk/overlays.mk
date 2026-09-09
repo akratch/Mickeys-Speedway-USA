@@ -87,9 +87,26 @@ $(BUILD_DIR)/$(SRC_DIR)/main/weather.c.o: POSTPROCESS = \
 	$(OBJCOPY) --redefine-sym rainInitTrap=TrapDanglingJump $@ && \
 	$(OBJCOPY) --redefine-sym rainFreeTrap=TrapDanglingJump $@
 
+# overlay5InitializeAudio reaches the resident segment through the overlay's
+# own relocation table; rebind each resident call to the module-local alias
+# `gmake overlay-syms` mints for it, exactly as the other overlays do.
 $(BUILD_DIR)/$(SRC_DIR)/overlays/o005/overlay_005.c.o: POSTPROCESS = \
-	$(OBJCOPY) --redefine-sym \
-		func_overlay_005_F000031C_185B744=overlay5InitializeAudio $@ && \
+	$(OBJCOPY) --redefine-sym alHeapDBAlloc=alHeapDBAlloc_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym alHeapInit=alHeapInit_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym alSurround_OutputType=alSurround_OutputType_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym alSurround_ReverbSetup=alSurround_ReverbSetup_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym func_80000450=func_80000450_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym func_80001740=func_80001740_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym func_80001BA0=func_80001BA0_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym func_800039F0=func_800039F0_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym func_8002B280=func_8002B280_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym func_8002B768=func_8002B768_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym func_8002E148=func_8002E148_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym func_8002E2E0=func_8002E2E0_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym func_8002E35C=func_8002E35C_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym gsSndpNew=gsSndpNew_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym n_alCSPSetMessageQ=n_alCSPSetMessageQ_o005Reloc $@ && \
+	$(OBJCOPY) --redefine-sym osCreateMesgQueue=osCreateMesgQueue_o005Reloc $@ && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .text 0x480
 # Two independent operations straddle the same source-line scheduling points
 # in the shipped object. Assert IDO's natural order before restoring them.

@@ -11,38 +11,13 @@ void overlay5InitSequence(void *owner, s32 value) {
 }
 
 /*
- * 230/233 words (2026-09-09, was 209/233).  Exact 0x3A4 size, exact 0x98 frame,
- * every stack home and all 71 relocations agree.  The three remaining words are
- * one colour fact: the short-lived address web for `gOverlay5Span1Size` -- live
- * only from its %hi at +0x9C to the store at +0xC8, while $s0 still carries
- * `&gOverlay5Span0Size` -- takes v0 here and v1 in the target.  Same schedule,
- * same %hi/%lo split points, same spill points.
- *
- * What closed the other twenty-one words, and the frame law behind them:
- * IDO packs the declared locals of *every* scope into one chain, top-down in
- * declaration order, from T = frame; frame = align8(below + S) where S is the
- * summed local bytes and `below` (0x38 here) is fixed by the out-argument and
- * saved-register regions.  Reading the target's three visible homes back
- * through that law pins the whole declaration list: 8 bytes above soundConfig,
- * soundConfig at 0x70 sized 0x24, resource, bankSize at 0x68, maxValue, one
- * more 4-byte local, sequenceConfig at 0x4C, then five loop locals.  That is
- * exactly the DKR `audio_init` declaration list (see the PROVENANCE note on
- * `Overlay5SoundConfig`), `pad` included -- an unused local that still takes a
- * home.  The 0x24 sound config is the load-bearing half: at 0x20 the frame is
- * 0x90 and every home is wrong.  The +0x214/+0x218 swap is the initialiser
- * order `destinationOffset` before `destination`; the six orders of those three
- * initialisers separate 3/5/6.
- *
- * Flat at three, measured on the exact-size candidate: all 64 spellings of the
- * span1 store and its two reads (`*(&g)`, `(&g)[0]`, `*(u32 *)&g`); all 256
- * physical line groupings of the nine span statements; every legal placement of
- * the two ScaleValue statements (24 cells, the rest change size); all 24 orders
- * of the four head statements; `maxValue = 0` at seven later anchors; and a
- * dead `pad = <expr>` at 96 statement/expression points -- uopt kills a store
- * that is never read, so it reserves no colour and cannot be used as a spacer.
- * Naming the alloc results or the span sizes as locals shortens the function.
+ * The declaration list is Diddy Kong Racing's `audio_init` list, `pad`
+ * included (see the PROVENANCE note on `Overlay5SoundConfig`).  IDO packs the
+ * declared locals of every scope into one chain, top-down in declaration
+ * order, from T = frame, with frame = align8(below + S); reading the shipped
+ * 0x98 frame and the 0x70/0x68/0x4C homes back through that law pins the list
+ * exactly, and it only closes with the sound config at libaudio's real 0x24.
  */
-#ifdef NON_MATCHING
 void overlay5InitializeAudio(void *context) {
     s32 index;
     Overlay5SoundConfig soundConfig;
@@ -152,9 +127,6 @@ void overlay5InitializeAudio(void *context) {
     osCreateMesgQueue(gOverlay5MessageQueue, gOverlay5MessageBuffer, 1);
     n_alCSPSetMessageQ(gOverlay5Player0, gOverlay5MessageQueue);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o005/overlay_005/func_overlay_005_F000031C_185B744.s")
-#endif
 
 void *overlay5CreatePlayer(s32 arg0, s32 arg1) {
     void *player;
@@ -173,13 +145,3 @@ void *overlay5CreatePlayer(s32 arg0, s32 arg1) {
     overlay5AttachBankReloc(player, gOverlay5AudioState->sequenceBank);
     return player;
 }
-
-/* PLATEAU-HANDOFF:overlay5InitializeAudio:start
- * symbol: overlay5InitializeAudio
- * score: 230/233 words
- * frame: 0x98
- * relocations: 71
- * first-mismatch: +0x9C
- * summary: Exact size, frame, every stack home and all 71 relocations; the three remaining words are one colour fact on the gOverlay5Span1Size address web.
- * PLATEAU-HANDOFF:overlay5InitializeAudio:end
- */
