@@ -61,5 +61,7 @@ not a correctness gap.
 
 | `func_8002B7AC` | memory delayed-free tick | empty `D_800D21B0 < 0xC000` guard inside the low-memory branch | JFG's `mmFreeTick` re-reads FreeRAM there and calls a module Mickey never links, so the block is empty; the second reference is what makes IDO materialize the global's address into a callee-saved register instead of folding the `%lo` into the load, and without it the function is one instruction short. Seek a natural spelling retaining 63 words, frame `0x30`, and all 12 relocation records. |
 
+| `overlay99BuildHeightGrid` | overlay 99 height grid | empty `unused != 0` test on the second parameter | IDO homes an unreferenced named parameter to its incoming argument slot, which is one instruction the target does not have; the empty test removes the store and its position after the grid null check is load-bearing. Seek a natural use or signature with the same 114 words, frame `0x28`, and 29 relocation records. |
+
 Add rows as ugly-but-verified matches land. When revisiting: reproduce the match
 with idiomatic C, `gmake verify`, then delete the row + the in-source comment.
