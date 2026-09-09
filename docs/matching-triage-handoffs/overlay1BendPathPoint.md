@@ -2,11 +2,11 @@
 ### `overlay1BendPathPoint` plateau handoff
 
 - source: `src/overlays/o001/overlay_001_tail.c`
-- score: 82/107 words
+- score: 86/107 words
 - frame: 0x30
 - relocations: 6
 - first mismatch: +0xC
-- summary: the parameter-home byte spill is reachable: *(u8 *)&index = index puts the store at the exact slot, 107 words and the 0x30 frame
+- summary: previous/current/path/next is the declaration order that lands both spilled stack homes (25 words to 21); the rest is the prologue byte spill and the index block's pool colours
 
 #### tu2-o1tail: the u8 parameter's spill slot is the residual, and it is not source-reachable so far
 

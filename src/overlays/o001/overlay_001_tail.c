@@ -13,62 +13,53 @@ extern O1GaugeTableEntry *overlay1GetGaugeTable(void);
 extern O1GaugeObject **overlay1GetGaugeObjects(s32 *count);
 extern s32 overlay1RandomRange(s32 minimum, s32 maximum);
 
-/* Plateau: exact 74-word size and 0x60 frame; best is 13 words different,
- * first actionable mismatch +0x30. One `O1GaugeObject **` cursor serves both
- * loops: the separate `firstCursor` declaration was worth three words, and
- * the frame is 0x60 at ten or eleven declarations but 0x68 as soon as a
- * twelfth, or any additional `s32`, is declared. The residual is the objects
- * carrier -- the target copies the call result into a second live register
- * for the second loop's base -- and the count, which the target reads once
- * for both the countdown and the emptiness test and again after the first
- * loop. `volatile` is load-bearing for the reload but forbids the shared
- * read; dropping it CSEs all three into one. */
-#ifdef NON_MATCHING
+/* Two identities close this: the object list is indexed, not walked with a
+ * hand-written cursor -- IDO's own strength reduction is what produces the
+ * second live base register the target keeps across the first loop -- and the
+ * count is read once for the countdown and the emptiness test and again after
+ * the first loop, which needs a plain and a volatile member at one address.
+ * Neither half matches alone (8 and 14 words); the pair is exact. */
+typedef union O1GaugeCount { s32 shared; volatile s32 reload; } O1GaugeCount;
+
 void overlay1InitializeGaugeObjects(void) {
     O1GaugeTableEntry *table;
-    volatile s32 count;
+    O1GaugeCount count;
     O1GaugeObject **objects;
-    O1GaugeObject **secondCursor;
     O1GaugeObject *object;
     O1GaugeState *state;
     s32 initialIndex;
     s32 index;
     s32 loopValue;
     s32 maximum;
+
     table = overlay1GetGaugeTable();
-    objects = overlay1GetGaugeObjects((s32 *)&count);
+    objects = overlay1GetGaugeObjects(&count.shared);
     maximum = 0;
-    initialIndex = count - 1;
+    initialIndex = count.shared - 1;
     index = initialIndex;
-    if (count != 0) {
-        secondCursor = (O1GaugeObject **)((u8 *)objects + (index * 4));
+    if (count.shared != 0) {
         do {
-            object = *secondCursor--;
+            object = objects[index];
             state = object->state;
-            loopValue = state->enabled;
-            if ((loopValue != 0) && (maximum < state->value)) maximum = state->value;
+            if ((state->enabled != 0) && (maximum < state->value)) maximum = state->value;
             loopValue = index;
             index--;
         } while (loopValue != 0);
         index = initialIndex;
     }
-    secondCursor = objects + index;
-    if (count != 0) {
+    if (count.reload != 0) {
         do {
-            state = (*secondCursor)->state;
+            object = objects[index];
+            state = object->state;
             state->flags |= 1;
             if (table[state->type].value == 0) {
                 table[state->type].value = overlay1RandomRange(100, 1000) + maximum;
             }
             loopValue = index;
-            secondCursor--;
             index--;
         } while (loopValue != 0);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F0003578_184F958.s")
-#endif
 
 /* ---- overlay1AssignRecordIndex ---- */
 
@@ -2185,18 +2176,43 @@ extern s32 overlay1GetAngleValueReloc(f32 dz, f32 dx);
 extern void overlay1ActivateObjectReloc(Overlay1RangeObject *object);
 extern void overlay1PlaySoundReloc(u8 soundId);
 
-/* Workbench verdict=allocation-mismatch; 31 raw/masked words differ in the exact 120-word/0x70 frame, first +0x34.
- * Declaration order moves the count home to sp+0x68; instruction count, opcode order, and relocation sites are exact.
- * Remaining register-only residual is permuter-ready; four relocation names remain overlay-local aliases. */
+/* Plateau: exact 120 instructions, the 0x70 frame, and every allocator lane --
+ * general pool 37/37, general temp 8/8, FP pool 7/7, FP temp 9/9 -- with two
+ * words left. Three identities were proved here. The horizontal range squared
+ * must be a named `f32`, and its two `config->horizontalScale * 10U` reads must
+ * be spelled twice so IDO CSEs them: a `u32 horizontalRange` carrier spends the
+ * declaration budget the `f32` needs and leaves the whole FP allocation wrong
+ * (12 FP words). The angle base must be a named `u8` carrier, which is what
+ * puts `config->angleHigh` on the target's pool colour instead of a ring temp.
+ * The `case 1` test must be a named `u16`, which orders its `andi` web before
+ * the store's. `clearMask` is not needed: IDO hoists a literal `~8` into the
+ * same saved register, and dropping the declaration is what buys the budget for
+ * the other two.
+ *
+ * The residual is two words, and `cc -K` names the mechanism exactly. ugen
+ * numbers `case 0`'s two temps in emission order -- `and $9` for the test,
+ * `or $10` for the store -- but numbers `case 1`'s backwards: without the test
+ * carrier it emits `and $12` for the test and `and $11` for the store, so the
+ * store is allocated first and the pair comes out swapped (four words). The
+ * `u16` carrier fixes the order, because its truncation `and $x, $y, 65535`
+ * takes the outer number $11 and as1 then folds the instruction away -- but it
+ * spends $12 on the inner `and`, so the store slides to $13 and lands on t5
+ * where the target has t4. One temp too many, in the right order; the
+ * no-carrier form has the right count in the wrong order.
+ *
+ * The calls in `case 1`'s body are not the cause: removing one or both leaves
+ * the $12/$11 inversion unchanged. Measured and flat, do not repeat: 40 case-1
+ * body spellings (compound assignment, the `^ 0` use-site break, re-reads of
+ * the field, a hoisted `cleared` local, five carrier types, `if/else if` in
+ * place of the switch, a `default:` arm, and reversed case order), and all 96
+ * physical line groupings of the case-1 statement list. */
 #ifdef NON_MATCHING
 void overlay1UpdateRangeFlags(Overlay1RangeObject *object, void *unused) {
     Overlay1RangeConfig *config;
     s32 count;
     Overlay1RangeObject **objects;
-    register s32 clearMask;
 
     config = object->state;
-    clearMask = ~8;
     objects = overlay1GetObjectListReloc(&count);
     if (count--) {
         do {
@@ -2204,18 +2220,20 @@ void overlay1UpdateRangeFlags(Overlay1RangeObject *object, void *unused) {
             Overlay1RangeState *otherState;
             f32 dx;
             f32 dz;
-            u32 horizontalRange;
+            f32 rangeSquared;
             s16 angle;
+            u8 angleHigh;
 
             other = objects[count];
             otherState = other->state;
             dx = other->x - object->x;
             dz = other->z - object->z;
-            horizontalRange = (u32)config->horizontalScale * 10U;
-            if ((dx * dx + dz * dz) <
-                (f32)(s32)(horizontalRange * horizontalRange)) {
-                angle = (s16)(((u32)config->angleHigh << 8) +
-                              overlay1GetAngleValueReloc(dz, dx));
+            rangeSquared = (f32)(s32)(((u32)config->horizontalScale * 10U) *
+                                      ((u32)config->horizontalScale * 10U));
+            if ((dx * dx + dz * dz) < rangeSquared) {
+                angle = overlay1GetAngleValueReloc(dz, dx);
+                angleHigh = config->angleHigh;
+                angle = (s16)((u32)angleHigh << 8) + angle;
                 if ((angle < -0x4000) || (angle >= 0x4001)) {
                     if ((object->y <= other->y + other->heightData->height) &&
                         (other->y <= object->y +
@@ -2231,9 +2249,11 @@ void overlay1UpdateRangeFlags(Overlay1RangeObject *object, void *unused) {
                             }
                             case 1: {
                                 u16 flags;
+                                u16 masked;
                                 flags = otherState->flags;
-                                if (flags & 8) {
-                                    otherState->flags = flags & clearMask;
+                                masked = flags & 8;
+                                if (masked) {
+                                    otherState->flags = flags & ~8;
                                     overlay1ActivateObjectReloc(other);
                                     overlay1PlaySoundReloc(config->soundId);
                                 }
@@ -2316,46 +2336,60 @@ typedef struct Overlay1NearbyObject {
     void *state;
 } Overlay1NearbyObject;
 
+/* Plateau: the exact 69-instruction extent, the 0x48 frame and now the exact
+ * opcode schedule -- the verdict crossed structure-mismatch into
+ * allocation-mismatch. Three things buy that and all three are needed: the
+ * counter is `volatile`, so every read is its own load from sp+60 and every
+ * write its own store, which is what the target does at all six sites; the
+ * loop is `if (count--) { do ... while (count--); }`, which reads the counter
+ * once for the test and the decrement (the previous record's finding that this
+ * form costs an instruction holds only for a plain `s32`, where it needs an
+ * extra copy); and the inner `object = objectArg` copy is gone, because
+ * `volatile` costs eight bytes of frame and dropping that declaration is what
+ * pays for it.
+ *
+ * The residual is 31 register-only words with one cause. uopt gives our
+ * counter read a pool web, so it lands on v1 and `other`/`otherState` swap
+ * colours behind it; the target spends a ugen ring temp (t6) at every counter
+ * read and has six fewer pool webs -- pool lanes 16 against the target's 10,
+ * ring lanes 4 against 10. Measured and flat, do not repeat: plain and
+ * volatile counters crossed with five loop shapes; the counter reached through
+ * `*(s32 *)&count`, `*(volatile s32 *)&count`, a plain `s32 *` local and a
+ * `volatile s32 *` local; inlining `otherState`, inlining `other`, reversing
+ * the kind comparison, reversing the two declarations, dropping the `state`
+ * local, caching the list base, and an extra `mode` web ahead of the counter
+ * read. Next lever is whatever stops uopt webbing that read. */
 #ifdef NON_MATCHING
-/* Workbench: structure-mismatch, exact 69-word extent and 0x48 frame, with
- * 31 differing words and first codegen mismatch +0x40. An explicit initial
- * countdown removes the old extra move; register lanes remain divergent. */
 void overlay1ConsumeNearbyPending(void *objectArg, void *listArg) {
     Overlay1NearbyState *state;
     f32 radiusSquared;
-    s32 count;
+    volatile s32 count;
     Overlay1NearbyObject *other;
     Overlay1OtherState *otherState;
-
     state = ((Overlay1NearbyObject *)objectArg)->state;
     radiusSquared = state->radius * 4.0f;
     radiusSquared *= state->radius * 4.0f;
-    {
-        Overlay1NearbyObject *object = objectArg;
-        listArg = overlay1GetObjectListReloc(&count);
-        if (count != 0) {
-            count--;
-            do {
-                other = ((Overlay1NearbyObject **)listArg)[count];
-                otherState = other->state;
-                if (state->kind == otherState->kind) {
-                    f32 dx = other->x - object->x;
-                    f32 dy = other->y - object->y;
-                    f32 dz = other->z - object->z;
-                    if (((dx * dx) + (dy * dy) + (dz * dz) < radiusSquared) &&
-                        (state->mode == 2)) {
-                        u8 pending = otherState->pending;
-                        if (pending) {
-                            otherState->pending = 0;
-                            otherState->count += pending;
-                        }
+    listArg = overlay1GetObjectListReloc((s32 *)&count);
+    if (count--) {
+        do {
+            other = ((Overlay1NearbyObject **)listArg)[count];
+            otherState = other->state;
+            if (state->kind == otherState->kind) {
+                f32 dx = other->x - ((Overlay1NearbyObject *)objectArg)->x;
+                f32 dy = other->y - ((Overlay1NearbyObject *)objectArg)->y;
+                f32 dz = other->z - ((Overlay1NearbyObject *)objectArg)->z;
+                if (((dx * dx) + (dy * dy) + (dz * dz) < radiusSquared) &&
+                    (state->mode == 2)) {
+                    u8 pending = otherState->pending;
+                    if (pending) {
+                        otherState->pending = 0;
+                        otherState->count += pending;
                     }
                 }
-            } while (count--);
-        }
+            }
+        } while (count--);
     }
 }
-
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F0006A14_1852DF4.s")
 #endif
@@ -2580,17 +2614,45 @@ extern f32 func_8002A8C0(s32 angle);
 extern f32 sqrtf(f32 value);
 
 /* Plateau: the exact 996-byte extent, 249 instructions, the 0x80 frame, the
- * one stack home and all 43 relocation records; 21 words remain and every
- * register in the function already matches. Both residual clusters are
- * instruction placement. The first is the shared-world address: the target
- * finishes the low half and dereferences it among the register saves, the
- * candidate after them. The `u32 worldAddress` carrier is load-bearing --
- * a typed pointer carrier folds straight back into a two-instruction global
- * read and loses the saved-register address entirely -- and declaration order
- * is inert here, measured over all 306 single-position moves. The second is
- * the trig constant, which the target loads after the first angle call; only
- * folding the assignment into the multiply puts it there, at the price of one
- * stall nop the target fills with the next statement's address halves. */
+ * one stack home and all 43 relocation records. Nineteen words differ, and
+ * NINE of them are phantom. The target's own extraction materialises nine
+ * overlay-local addresses as a literal `lui reg,0x0` / `lw reg,<addend>(reg)`
+ * pair carrying no relocation, where the candidate emits the same pair with an
+ * R_MIPS_HI16/LO16 record and a zero addend. The comparator masks the `lui`
+ * half and scores the `%lo` half as a constant difference. Six of the nine are
+ * already provably identical after linking -- `D_1D9C` is 0x1D9C, which is the
+ * 7580 the target bakes in, and `D_1DA0` is 0x1DA0, which is 7584 -- and the
+ * remaining three are the overlay-local float globals whose values the
+ * generated relocation surface derives from those same sites at promotion. Do
+ * not chase them, and do not mask the `lui at,0xc1f0` at the -30.0f constant,
+ * which is a float immediate and matches.
+ *
+ * The ten real words are two placement clusters. Five are the shared-world
+ * address: the target finishes the low half and dereferences it among the
+ * register saves, the candidate after them. The `u32 worldAddress` carrier is
+ * load-bearing -- a typed pointer carrier folds straight back into a
+ * two-instruction global read and loses the saved-register address entirely --
+ * and declaration order is inert here, measured over all 306 single-position
+ * moves.
+ *
+ * Five are the trig constant, and this half moved. Writing the load as
+ * `... * -30.0f * (trig = overlay1AimedTrigReloc)` puts it after the first
+ * angle call with the `jal` and its delay slot exact and no stall, at 249
+ * instructions: the previously recorded embedded form
+ * (`func(angle) * (trig = ...) * -30.0f`) reaches the same region but costs a
+ * `nop`, because it wants the trig value one instruction sooner than the load
+ * can deliver it. What remains on this cluster is that the target materialises
+ * the trig constant before the -30.0f constant and we do it the other way
+ * round, which also reverses both multiply operand orders. Measured and flat,
+ * do not repeat: twenty-two orderings of the three velocity statements and the
+ * two constants, including reading the global directly at one or both sites
+ * (251 instructions), a trailing redundant `trig = ...`, a comma operator, and
+ * every parenthesisation of the two products.
+ *
+ * Note for the next reader: the positional score falls 21 to 19 on this edit
+ * while the insertion-tolerant aligned count rises 32 to 34 (lever 48). The
+ * aligned count rises because the trig pair is now a two-row move rather than
+ * a two-row absence; the cluster itself is strictly closer. */
 #ifdef NON_MATCHING
 void overlay1UpdateAimedTransient(void) {
     Overlay1TransientWorld *world;
@@ -2676,10 +2738,9 @@ void overlay1UpdateAimedTransient(void) {
             object->velocityZ = func_8002A8BC(sourceAngle) * trig * 30.0f;
         } else {
             state->linkedIndex = -1;
-            trig = overlay1AimedTrigReloc;
             object->velocityX =
-                func_8002A8C0(((Overlay1TransientOwner *)D_1D9C)->angle) * trig *
-                -30.0f;
+                func_8002A8C0(((Overlay1TransientOwner *)D_1D9C)->angle) *
+                -30.0f * (trig = overlay1AimedTrigReloc);
             object->velocityY = overlay1AimedVelocityYReloc;
             object->velocityZ =
                 func_8002A8BC(((Overlay1TransientOwner *)D_1D9C)->angle) * trig *
@@ -3011,21 +3072,42 @@ extern s32 overlay1AngleDifferenceReloc(s16 first, s16 second);
 extern f32 overlay1TrigXReloc(s32 angle);
 extern f32 overlay1TrigYReloc(s32 angle);
 
-/* Plateau: exact 107 words/frame; best is 25 words different, first +0xC.
- * The retained `volatile u8 localIndex` reproduces the target's store/reload
- * pair but never its slot: a local is allocated in the local area, and the
- * byte the target uses is inside the third parameter's own incoming argument
- * home, where only the parameter itself can live. Taking the parameter's
- * address instead -- `*(u8 *)&index = index;` before the call -- does land on
- * that byte, at 107 instructions and the same frame, and fixes the argument
- * save order too; it is the structurally correct route and is what a future
- * attempt should build on, but it currently scores worse because the store
- * misses the call's delay slot and the reload takes a ring temp rather than
- * the argument register. */
+/* Plateau: exact 107 instructions and 0x30 frame, and now both spilled stack
+ * homes. The declaration order is an identity, not a guess: the target spills
+ * `current` to sp+40 and `next` to sp+32, which are the second and fourth
+ * four-byte slots, so `previous, current, path, next` is the only order of the
+ * four pointers that lands them (25 words to 21, all 24 orders measured). The
+ * three `s32` index locals take registers, not homes, and permuting them is
+ * inert -- all 6 orders crossed with 5 branch spellings and 2 assignment
+ * orders, 60 forms, all flat.
+ *
+ * Twenty-one words remain in two clusters. Six are the prologue: the target
+ * stores the third argument home out of order, puts the byte spill in the
+ * call's delay slot, and reloads it into the argument register. Taking the
+ * parameter's address (`*(u8 *)&index = index;`) is the only form that reaches
+ * that byte -- the retained `volatile u8` local can never, because a local
+ * lives in the local area -- and it does fix the first four prologue words,
+ * but the byte store then lands before the call instead of in its delay slot
+ * and the reload takes a ring temp instead of the argument register, costing
+ * 34 words downstream (55 against 21). Measured and flat, do not repeat: the
+ * address form combined with the volatile local in both orders and on both
+ * sides of the call, a comma-operator store inside the call's argument list,
+ * a `u8 *`/`volatile u8 *` carrier for the address, `((u8 *)&index)[0]`, a
+ * read-back into a fresh `u8`/`s32` local or into `currentIndex`, and casting
+ * the call's own argument.
+ *
+ * The other fifteen are the index block's pool colours: the target has
+ * currentIndex on v1, previousIndex on a0 and the point count on a1, where we
+ * get a1, v1 and a2. The emitted schedule is identical instruction for
+ * instruction; only the web numbering differs. `currentIndex = index` in the
+ * else branch reproduces the target's `move v1,a2` at both sites but IDO then
+ * hoists the assignment out of the if/else and drops an instruction (101). */
 #ifdef NON_MATCHING
 void overlay1BendPathPoint(s16 *x, s16 *y, u8 index, u8 selector) {
-    Overlay1PathPoint *next, *previous, *current;
+    Overlay1PathPoint *previous;
+    Overlay1PathPoint *current;
     Overlay1Path *path;
+    Overlay1PathPoint *next;
     s16 firstAngle, secondAngle, midpointAngle;
     volatile u8 localIndex;
     s32 nextIndex, previousIndex, currentIndex;
@@ -3060,7 +3142,6 @@ void overlay1BendPathPoint(s16 *x, s16 *y, u8 index, u8 selector) {
     *x = (s16)((f32)*x - overlay1TrigXReloc(midpointAngle) * 50.0f);
     *y = (s16)((f32)*y - overlay1TrigYReloc(midpointAngle) * 50.0f);
 }
-
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F0007730_1853B10.s")
 #endif
@@ -3229,38 +3310,28 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
  * frame: 0x48
  * relocations: 1
  * first-mismatch: +0x40
- * summary: 119 flags and ten coherent forms exhausted; next lever is source-authentic count/object/state allocator mapping, not the TU-wide diagnostic -g3 flag
+ * summary: a volatile counter with if (count--) and no inner object copy makes the opcode schedule exact (structure-mismatch to allocation-mismatch); the 31 register words are six counter reads uopt webs and the target spends as ring temps
  * PLATEAU-HANDOFF:overlay1ConsumeNearbyPending:end
  */
 
 /* PLATEAU-HANDOFF:overlay1UpdateRangeFlags:start
  * symbol: overlay1UpdateRangeFlags
- * score: 31 differing words
+ * score: 2 differing words
  * frame: 0x70
  * relocations: 4
- * first-mismatch: +0x34
- * summary: Exact 120-word frame and opcode order; 31 register-only words and four unresolved overlay-local call aliases remain.
+ * first-mismatch: +0x1B8
+ * summary: every allocator lane is exact (pool 37/37, temp 8/8, FP 7/7 and 9/9); two words left where the case-1 store takes ugen temp $13 and the target $12
  * PLATEAU-HANDOFF:overlay1UpdateRangeFlags:end
  */
 
 /* PLATEAU-HANDOFF:overlay1UpdateAimedTransient:start
  * symbol: overlay1UpdateAimedTransient
- * score: 228/249 words
+ * score: 230/249 words
  * frame: 0x80
  * relocations: 43
  * first-mismatch: +0xC
- * summary: two schedule clusters; the embedded trig assignment reproduces the post-call load exactly at the cost of one stall nop
+ * summary: nine of the nineteen words are phantom %lo relocation differences; the trig load now sits after the angle call with no stall, leaving the two constants' order and the shared-world address placement
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
- */
-
-/* PLATEAU-HANDOFF:overlay1InitializeGaugeObjects:start
- * symbol: overlay1InitializeGaugeObjects
- * score: 61/74 words
- * frame: 0x60
- * relocations: 3
- * first-mismatch: +0x30
- * summary: one cursor for both loops takes 16 to 13; residual is the objects copy and the shared count read, reachable only through a union at a worse schedule
- * PLATEAU-HANDOFF:overlay1InitializeGaugeObjects:end
  */
 
 /* PLATEAU-HANDOFF:overlay1AdvancePath:start
@@ -3315,10 +3386,10 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1BendPathPoint:start
  * symbol: overlay1BendPathPoint
- * score: 82/107 words
+ * score: 86/107 words
  * frame: 0x30
  * relocations: 6
  * first-mismatch: +0xC
- * summary: the parameter-home byte spill is reachable: *(u8 *)&index = index puts the store at the exact slot, 107 words and the 0x30 frame
+ * summary: previous/current/path/next is the declaration order that lands both spilled stack homes (25 words to 21); the rest is the prologue byte spill and the index block's pool colours
  * PLATEAU-HANDOFF:overlay1BendPathPoint:end
  */

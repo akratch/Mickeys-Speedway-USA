@@ -2,11 +2,11 @@
 ### `overlay1UpdateRangeFlags` plateau handoff
 
 - source: `src/overlays/o001/overlay_001_tail.c`
-- score: 31 differing words
+- score: 2 differing words
 - frame: 0x70
 - relocations: 4
-- first mismatch: +0x34
-- summary: Exact 120-word frame and opcode order; 31 register-only words and four unresolved overlay-local call aliases remain.
+- first mismatch: +0x1B8
+- summary: every allocator lane is exact (pool 37/37, temp 8/8, FP 7/7 and 9/9); two words left where the case-1 store takes ugen temp $13 and the target $12
 
 #### tu2-o1tail: the residual is one FP pool web, same law as overlay1AppendPathPoint
 
