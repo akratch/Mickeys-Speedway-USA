@@ -681,7 +681,7 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
  * frame: 0xF0
  * relocations: 18
  * first-mismatch: +0x0
- * summary: Display-list emission schedule, relocation web, and render-loop shape remain unresolved.
+ * summary: Both sides save s0-s8, but the candidate's frame is 0xF0 against the target's 0xE0 -- two 8-byte steps too many, which is a declaration census (lever 46): the m2c draft declares twenty locals, several of them pure draft artifacts. Candidate is also 19 words short at 308 against 327. The incoming Gfx** is homed from a3 in the target and from a0 in the candidate.
  * PLATEAU-HANDOFF:func_80037C74:end
  */
 
@@ -691,6 +691,6 @@ void func_80038190(Gfx **arg0, Mtx **arg1, MainVertex **arg2) {
  * frame: 0xE8
  * relocations: 32
  * first-mismatch: +0x0
- * summary: Recovered compiler jump table compiles, but display-list emission, relocation web, and render-loop shape remain unresolved.
+ * summary: Candidate saves only s0 and ra where the target saves s0-s8: about 18 of the 26 words it is short are those eight missing save/restore pairs, so the source holds eight more values live across its calls than the m2c draft does. Frames already agree at 0xE8. Rebuild it as ordinary C first, as func_800378A4 and func_800371BC in this TU were.
  * PLATEAU-HANDOFF:func_80038190:end
  */
