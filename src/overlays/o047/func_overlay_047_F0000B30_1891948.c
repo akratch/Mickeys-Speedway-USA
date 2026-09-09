@@ -470,7 +470,7 @@ void func_overlay_047_F0000B30_1891948(s32 updateRate) {
             }
         }
     }
-    ov47Data_550 += ov47Data_554 * updateRate;
+    ov47Data_550 = ov47Data_550 + ov47Data_554 * updateRate;
     if (ov47Data_550 < 0) {
         ov47Data_550 = -ov47Data_550;
         ov47Data_554 = -ov47Data_554;
