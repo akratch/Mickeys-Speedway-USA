@@ -846,9 +846,9 @@
       "source_commit": "9b4af8356e951c51306df2764e0e62bfe627eafd"
     },
     "func_overlay_047_F0000B30_1891948": {
-      "ledger_commit": "53d896e5d8d320162fa3cf6331a147087b28ffd4",
-      "reason": "Cause named by measurement, not yet acted on: overlay 60 rematerializes one global at all 24 references where the target keeps it in a saved register; overlay 47 lacks a callee-saved double the target hoists. Bisect ladders recorded.",
-      "source_commit": "2a2f18fb44cf30cce78abedaa640301b7b88556b"
+      "ledger_commit": "dbd497a8ffd9dbd3eb988a4eaec4b350417ede6f",
+      "reason": "ADR 0018 stall rule, and at delta -32 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "source_commit": "dbd497a8ffd9dbd3eb988a4eaec4b350417ede6f"
     },
     "func_overlay_050_F0000334_1896CA4": {
       "ledger_commit": "842beea91b50cc0aea9b7cf441dccfa974cd46a1",
@@ -901,8 +901,8 @@
       "source_commit": "5cae70c4df16bedadce1fcb1871f90d5c0f0a9f7"
     },
     "func_overlay_058_F000138C_18B0574": {
-      "ledger_commit": "371324b66eafbbaec74de5dfc2b0a9a3feca3c35",
-      "reason": "ADR 0018 stall rule, and at delta 532 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
+      "ledger_commit": "60f9e5a112437b975ab6155b9298a005fb051249",
+      "reason": "ADR 0018 stall rule, and at delta 124 bytes the candidate is not the same function: decompiler-assisted reconstruction applies where no permutation can.",
       "source_commit": "371324b66eafbbaec74de5dfc2b0a9a3feca3c35"
     },
     "func_overlay_060_F0000000_18B9DD8": {
@@ -911,9 +911,9 @@
       "source_commit": "14d10ff4c6e39d40d8072f0e43f0b846e91beaf6"
     },
     "func_overlay_060_F0000334_18BA10C": {
-      "ledger_commit": "f2fdc90124a00917153474a600b1066f7e746e4f",
-      "reason": "Cause named by measurement, not yet acted on: overlay 60 rematerializes one global at all 24 references where the target keeps it in a saved register; overlay 47 lacks a callee-saved double the target hoists. Bisect ladders recorded.",
-      "source_commit": "95c7e0be9d14291b3b936d0e74e332f1442b4ba8"
+      "ledger_commit": "0534f43aa472bdab7482d80d0c86a305fada2335",
+      "reason": "Residual fell 2503 to 97 masked words with size delta 0 and every saved register coloured as the target. All 97 are one named cascade: a CSE web for the rank-table base hoists into s5 and displaces previewMode.",
+      "source_commit": "0534f43aa472bdab7482d80d0c86a305fada2335"
     },
     "func_overlay_065_F0000C38_18C4EA0": {
       "ledger_commit": "554ca5b60eec5c9eeafc8fefcccaa639bd4db9bd",
