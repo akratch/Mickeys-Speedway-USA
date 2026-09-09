@@ -1248,10 +1248,12 @@ $(BUILD_DIR)/$(SRC_DIR)/main/anim.c.o: POSTPROCESS = \
 # where it is byte-inert. func_8003A7D0's target, by contrast, unrolls its
 # accumulation loop four ways, which the flag made unreachable from any C at
 # all. Removing it matched that function exactly and moved nothing else.
-# func_80038750's five-entry language jump table (0x14) precedes the two
-# consecutive 0x4C-byte switch tables; IDO rounds the 0xAC input section up,
-# so discard only the trailing input-section padding before linking the next
-# shared resident rodata table.  The array-shaped aliases stay external to
+# func_80038750's five-entry language jump table (0x14) precedes three
+# consecutive 0x4C-byte switch tables (func_800389CC, func_80038BC4,
+# func_80038E1C's mode dispatch at 0x800827E0); the ROM pads that 0xF8 by one
+# zero word before the next 16-aligned float table, and IDO rounds the input
+# section up to 0x100, so keep 0xFC and discard only the rest of the
+# input-section padding.  The array-shaped aliases stay external to
 # IDO so func_80039720 retains its target induction-pointer allocation; bind
 # their metadata back to the individually owned BSS labels before linking.
 # D_800D3044 (the four play-choice bytes) is DEFINED in menu.c because
@@ -1266,7 +1268,7 @@ $(BUILD_DIR)/$(SRC_DIR)/main/menu.c.o: POSTPROCESS = \
 	--redefine-sym menuRepeatY=D_800D319C \
 	--redefine-sym menuPreviousButtons=D_800D31A0 \
 	--weaken-symbol=D_800D3044 $@ && \
-	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0xAC
+	$(HOST_PYTHON) $(TOOLS_DIR)/trim_elf_section.py $@ .rodata 0xFC
 
 # The saves slot-reset loop is scalar in the target; the 119-combination flag
 # lattice otherwise expands four 0x20-byte records into each loop iteration.
