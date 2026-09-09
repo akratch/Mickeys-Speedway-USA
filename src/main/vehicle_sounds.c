@@ -567,3 +567,13 @@ f32 func_80058EF4(f32 arg0) {
  * summary: Target is 762 words/frame 0x118; only 18 relocation tuples and 12 identities align after ten bounded type, ABI, order, and lifetime probes.
  * PLATEAU-HANDOFF:func_8005830C:end
  */
+
+/* PLATEAU-HANDOFF:func_80058250:start
+ * symbol: func_80058250
+ * score: 19/22 words
+ * frame: frameless
+ * relocations: 24
+ * first-mismatch: +0x0
+ * summary: Direct-global and slot-order forms exhausted; separate-slot pointers hit exact extent but left allocation and relocation residual.
+ * PLATEAU-HANDOFF:func_80058250:end
+ */
