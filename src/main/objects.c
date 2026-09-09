@@ -1575,23 +1575,20 @@ void func_80005548(s32 arg0) {
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_80005548.s")
 #endif
-/* Workbench verdict: register-ring-only (pool-to-temp web); 2 differing words. */
-/* First mismatch: +0x24. */
-/* Hoisting *table fixes the downstream ring; a reseeded bounded sweep was flat. */
-#ifdef NON_MATCHING
+/* D_800C9460 heads an eight-byte record: the object base pointer, then the
+   pointer to the index table.  The second field's address reaches the compiler
+   as &D_800C9460[1], which is why this reads through a pointer instead of a
+   second named global -- splat could not pair that %hi/%lo across the
+   early-return branch and spells it as a literal in the fallback, so the
+   fallback carries two fewer relocations for identical linked words. */
 void *func_800056A4(s32 tableIndex) {
-    s32 *entries;
-    s32 **table = (s32 **)0x800C9464;
+    s32 **table = (s32 **)&D_800C9460;
 
     if ((tableIndex < 0) || (tableIndex >= D_800C9468)) {
         return D_800C9460;
     }
-    entries = *table;
-    return D_800C9460 + (entries[tableIndex] * 4);
+    return D_800C9460 + (table[1][tableIndex] * 4);
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/objects/func_800056A4.s")
-#endif
 void *func_800056F0(s32 index) {
     if ((index < 0) || (index >= D_800C9498)) {
         return 0;
@@ -5594,16 +5591,6 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
   return ((temp_f2 * temp_f2) + (temp_f16 * temp_f16)) + (temp_f18 * temp_f18);
 }
 
-
-/* PLATEAU-HANDOFF:func_800056A4:start
- * symbol: func_800056A4
- * score: 17/19 words
- * frame: frameless
- * relocations: 6
- * first-mismatch: +0x24
- * summary: JFG efd5abb leaves objGetTable body/types unchanged; zero new attempts. Next: authenticated UGEN reservation and temp-demand trace.
- * PLATEAU-HANDOFF:func_800056A4:end
- */
 
 
 /* PLATEAU-HANDOFF:func_80006EE4:start

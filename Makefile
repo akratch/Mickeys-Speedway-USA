@@ -1158,7 +1158,7 @@ $(BUILD_DIR)/$(SRC_DIR)/main/objects.c.o: POSTPROCESS = \
 	    0x6C08:.rodata:objectsSwitchTablesBase \
 	    0x6C10:.rodata:objectsSwitchTablesBase && \
 	$(HOST_PYTHON) $(TOOLS_DIR)/add_elf_relocations.py $@ .text 0x708C \
-	    cccc4da202772adbaa772df53e43341ad5868e9f736bc2ca6143afb9d3a25eee \
+	    074a5b6dad012f45c6ec4ed1e51ea6d7f56646b5714c3d6d563ce5b6475f7396 \
 	    0x6500:PC16:objectsSizeDefaultBranch:0x76 \
 	    0x6718:PC16:objectsInitDefaultBranch:0x120 \
 	    0x6C00:PC16:objectsControlDefaultBranch:0x114
