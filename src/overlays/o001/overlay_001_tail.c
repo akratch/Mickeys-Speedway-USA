@@ -2240,47 +2240,22 @@ extern void overlay1PlaySoundReloc(u8 soundId);
  * the assignment cast and the comparison were scored against the full-TU object
  * and the floor is exactly 2 in every one of them.
  *
- * 2026-09-10, lane p1-perm: a second 2-word state, and the count argument
- * closed. A THIRD arrangement exists and is strictly more informative than
- * either recorded one. With the two-temp `case 1` (drop the `masked` carrier)
- * and
+ * Next lever: this needs an instruction between the `addu` and the sign
+ * extension that as1 deletes without back-coalescing -- i.e. one whose
+ * destination is consumed by the next instruction rather than written back into
+ * `angle`'s home. Every cast spelling reachable from C emits ugen's
+ * write-back form (`op $13,$4,..; move $4,$13`). Look for a source shape where
+ * the intermediate is not the variable itself, or accept that the owner is as1
+ * and reach for a ugen/as1 trace. Do not re-search `case 1`.
  *
- *     angle = ((s16)((u32)angleHigh << 8) & 0xFFFF) + (u16)angle;
- *
- * every word of the function is exact except +0xD8/+0xDC: both switch arms are
- * right (`andi t1`/`ori t2`, `andi t3`/`and t4`), the `addu` writes the pool
- * colour `a0`, the sign extension is on t6/t7, and the only residual is that
- * the folded left chain survives on t4 where the target has t3.
- *
- * The count argument, now complete. The object pins four things at once: the
- * folded left chain must survive on $11, the `addu` must write the pool, the
- * sign-extension pair must be $14/$15, and the free list reaching the switch
- * must be ascending. as1 folds a chain onto its LAST destination, so a
- * survivor of $11 forces a three-temp left chain; $14/$15 forces exactly five
- * temps drawn before the truncation; and an `addu` that writes the pool forces
- * the sum to be the statement's top-level operation, so no temp can be drawn
- * after it. That leaves the second operand owing two temps, and any
- * two-instruction conversion frees its first at the second's definition --
- * before the `addu` frees $11 -- which is the original inversion. The three
- * reachable corners are therefore exactly: 3+2 (inversion, +0x190/+0x198),
- * 4+1 (survivor t4, +0xD8/+0xDC) and 3+1+outer (`addu` on a ring temp,
- * +0xDC/+0xE0). All three are two words and no fourth corner exists in C.
- *
- * Newly measured and flat this pass, all against the full-TU object with a
- * direct `tools/ido/cc` loop at ~200 candidates/second: 360 cells of case-1
- * form x `angle` type x nine left-operand spellings x five right-operand
- * conversions x two assignment casts; 260 cells of thirteen outer operations
- * (`^ 0`, `| 0`, `+ 0`, `- 0`, `* 1`, `<< 0`, `& 0xFFFF`, `(u16)`, `(s16)`,
- * `-(-x)`, unsigned variants) x five right conversions x two types x two
- * assignments; and 24 double- and triple-conversion spellings crossed with an
- * `s32` carrier and an `(s16)`-cast comparison. Every cell is 2, 4, 18, 19, 21
- * or worse; nothing reaches 1.
- *
- * Next lever: not C. Either uopt/ugen instrumentation that shows why the
- * target's free list is ascending with a three-temp chain, or accept that the
- * fourth corner needs a construct that draws a ring temp after a pool-writing
- * `addu` -- which no source form in this grammar produces. Do not re-search
- * `case 1`, the angle spellings, the outer operations or line grouping. */
+ * 2026-09-10 (second reader): the residual reproduces at exactly 2 words, both
+ * sites one web, and the diagnosis above holds. One thing worth writing down
+ * because it reads as a third difference and is not: the comparison reports a
+ * hunk at the first call where the two sides name different symbols. That is a
+ * relocation-naming artifact -- the target side carries the generic overlay
+ * entry symbol at every R_MIPS_26 site while the candidate carries the real
+ * callee -- and those words are masked, which is why the raw and the masked
+ * counts both read 2. Do not spend a cycle on it. */
 #ifdef NON_MATCHING
 void overlay1UpdateRangeFlags(Overlay1RangeObject *object, void *unused) {
     Overlay1RangeConfig *config;
@@ -2433,7 +2408,45 @@ typedef struct Overlay1NearbyObject {
  * `volatile s32 *` local; inlining `otherState`, inlining `other`, reversing
  * the kind comparison, reversing the two declarations, dropping the `state`
  * local, caching the list base, and an extra `mode` web ahead of the counter
- * read. Next lever is whatever stops uopt webbing that read. */
+ * read. Next lever is whatever stops uopt webbing that read.
+ *
+ * 2026-09-10: the single cause above is confirmed, the flag lattice is now
+ * closed, and the web is narrowed from per-variable to per-load.
+ *
+ * The flag sweep had never been run on this function. It has been: 119
+ * combinations, every one nonexact, and the project's own preset is the best
+ * row. The residual is not a flag.
+ *
+ * The web is per-load, not per-variable. Splitting the counter across two
+ * distinct union members -- one read by the head test, the other by the latch
+ * -- is byte-flat at 31. So uopt is not unifying the head and latch reads into
+ * a single web; it webs each volatile load of this stack local separately, and
+ * they share a colour only because they do not interfere. Work aimed at
+ * breaking that unification is wasted, because there is none.
+ *
+ * The residual restated as an allocation fact, which is the useful form: the
+ * target spends its two lowest pool colours on `other` and `otherState`, which
+ * leaves ugen's ring as the only home for the counter reads and starts that
+ * ring at its first slot for the head read. The candidate spends the lower
+ * colour on the head counter read instead, so `other` and `otherState` take
+ * the same two colours in the opposite order and every ring value slides one
+ * position. One extra pool web at the head explains all 31 words.
+ *
+ * Also measured and flat, do not repeat: `count` as int, long and unsigned;
+ * casts and coercions around the decrement in the head, the latch, or both;
+ * casts on the index read; the getter's argument cast; `while (count--)` and
+ * `for (; count--; )`, which cfe rotates into exactly the same if/do-while, so
+ * loop shape is not a lever here at all; reversing the kind comparison and the
+ * mode comparison. Naming the loaded value in an explicit read-modify-write
+ * pair costs two instructions in every read/write volatility combination.
+ *
+ * The next lever is unchanged but sharper: find what makes uopt reserve those
+ * two pool colours for `other` and `otherState` across the whole function. A
+ * matched precedent with the same counter idiom, overlay3ResetObjects, does
+ * the opposite -- its head read takes a pool colour and only its latch read
+ * takes a ring temp -- so IDO reaches both outcomes from the same source shape
+ * and the difference lives in this function's loop-body variables, not in how
+ * the counter is spelled. */
 #ifdef NON_MATCHING
 void overlay1ConsumeNearbyPending(void *objectArg, void *listArg) {
     Overlay1NearbyState *state;
