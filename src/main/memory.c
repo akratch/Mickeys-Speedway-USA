@@ -547,6 +547,6 @@ u8 *align4(u8 *address) {
  * frame: 0x58
  * relocations: 12
  * first-mismatch: +0xE0
- * summary: Verdict mixed(constant:2, structural:2, register:10); lever stack-home. JFG body is identical at c82affff and efd5abb; zero attempts.
+ * summary: Stack-home baseline retained; five-minute permuter reached 18 scratch words only with added carriers and did not transfer. No source change adopted.
  * PLATEAU-HANDOFF:func_8002B524:end
  */

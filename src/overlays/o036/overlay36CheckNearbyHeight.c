@@ -28,7 +28,7 @@ typedef struct Overlay36WorldState {
 
 extern s32 func_8005776C(f32, f32, f32, f32, s32,
                          Overlay36Nearby **);
-extern Overlay36WorldState *gOverlay36WorldStateReloc;
+extern u8 *gOverlay36WorldStateReloc[];
 
 /* Mickey-local reconstruction; pinned DKR v77/v80 are negative and JFG's
  * Overlay 36 hits occur only at the unrelated +0x1470/+0x1490 wrappers. */
@@ -100,7 +100,7 @@ void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
             state->active = 1;
         } else {
             object->flags &= ~0x400;
-            gOverlay36WorldStateReloc->changed = 1;
+    ((Overlay36WorldState *)gOverlay36WorldStateReloc[0x54])->changed = 1;
         }
     }
 }
@@ -114,6 +114,6 @@ void func_overlay_036_F0000818_1883CD0(Overlay36Object *object,
  * frame: 0x80
  * relocations: 3
  * first-mismatch: +0x0
- * summary: Five declaration/carrier probes were flat; next lever is a new producer topology removing one declared home.
+ * summary: Indexed pointer removes one raw mismatch; frame remains 0x80 vs target 0x70 and needs a new producer topology.
  * PLATEAU-HANDOFF:func_overlay_036_F0000818_1883CD0:end
  */

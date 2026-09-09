@@ -69,3 +69,13 @@ void func_overlay_041_F0001650_1888988(void *object, volatile s32 value1,
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o041/overlay41AddSlot/func_overlay_041_F0001650_1888988.s")
 #endif
+
+/* PLATEAU-HANDOFF:func_overlay_041_F0001650_1888988:start
+ * symbol: func_overlay_041_F0001650_1888988
+ * score: 49/55 words
+ * frame: frameless
+ * relocations: 4
+ * first-mismatch: +0x10
+ * summary: Six register words remain: four count-web lanes and two float-load lanes; fresh natural spellings were flat or regressed.
+ * PLATEAU-HANDOFF:func_overlay_041_F0001650_1888988:end
+ */

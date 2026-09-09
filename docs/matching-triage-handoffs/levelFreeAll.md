@@ -38,4 +38,13 @@
   expression produces. Look for a second surviving reference to the table
   elsewhere in the function, or for the arm's source being a call whose
   argument list, not an address expression, orders the three.
+
+#### 2026-09-09, lane fin-near: subscript order is normalised by cfe
+
+The reversed subscript `(index)[table]`, which in principle walks the index
+before the table, and every other subscript or pointer-sum spelling of the
+world-index arm (`table[index]`, `*(index + table)`, `*(table + index)`, with
+and without the `s16 *` cast) all give table, mask, scale at 5 words. cfe
+normalises the operand order of a subscript before uopt numbers the ring, so
+the mask-table-scale order cannot come from a subscript. Baseline 3 retained.
 <!-- plateau-handoff:levelFreeAll:end -->

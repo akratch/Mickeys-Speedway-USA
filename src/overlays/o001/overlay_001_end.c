@@ -162,3 +162,13 @@ f32 overlay1DistanceFromSelected(void *object) {
     }
     return 0.0f;
 }
+
+/* PLATEAU-HANDOFF:overlay1ResolvePathPoint:start
+ * symbol: overlay1ResolvePathPoint
+ * score: 144/152 words
+ * frame: 0x78
+ * relocations: 22
+ * first-mismatch: +0x6C
+ * summary: register-web and relocation-order residue; bounded permutation produced only semantically invalid candidates
+ * PLATEAU-HANDOFF:overlay1ResolvePathPoint:end
+ */

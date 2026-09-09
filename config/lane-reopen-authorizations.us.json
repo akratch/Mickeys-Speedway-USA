@@ -395,6 +395,46 @@
       "reason": "New mechanism: levers 45 and 46 (repeat the field read to buy the copy; census the declarations before reading the frame) and law L87. None were available when this closed.",
       "source_commit": "6f9e72e6fb41e2b3e351dfbc3546b6dae585a8fd"
     },
+    "func_80036AB0": {
+      "ledger_commit": "5c4bda08946c5a1a271aba9cbb27740c4000d1ad",
+      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "source_commit": "5c4bda08946c5a1a271aba9cbb27740c4000d1ad"
+    },
+    "func_800371BC": {
+      "ledger_commit": "094bac856d40e201d133d032e58a05960d54f530",
+      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "source_commit": "094bac856d40e201d133d032e58a05960d54f530"
+    },
+    "func_80037414": {
+      "ledger_commit": "617fe1059baa3b17d54f4395d261df4eb741f9c8",
+      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "source_commit": "617fe1059baa3b17d54f4395d261df4eb741f9c8"
+    },
+    "func_800376CC": {
+      "ledger_commit": "c949febf607d461162f1736fb287c18c6adab34f",
+      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "source_commit": "c949febf607d461162f1736fb287c18c6adab34f"
+    },
+    "func_800378A4": {
+      "ledger_commit": "4c083bacc5314523ee8329198b43ca715f3a5ac2",
+      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "source_commit": "4c083bacc5314523ee8329198b43ca715f3a5ac2"
+    },
+    "func_80037BF4": {
+      "ledger_commit": "61406aec20668803eb19e5654e70b52c32043ce6",
+      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "source_commit": "61406aec20668803eb19e5654e70b52c32043ce6"
+    },
+    "func_80037C74": {
+      "ledger_commit": "e2c78134f9824a0b895d76030f1b2b393eea9970",
+      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "source_commit": "e2c78134f9824a0b895d76030f1b2b393eea9970"
+    },
+    "func_80038190": {
+      "ledger_commit": "d4ac3577512b13d29bb819c46527dde99e0ae852",
+      "reason": "New donor evidence: Jet Force Gemini PR 37 (head d45123d1) takes src/menu.c from 19 bodies and 29 pragmas to 48 bodies and 0 pragmas, fully matched. Re-derive with a PROVENANCE note citing the PR and SHA.",
+      "source_commit": "d4ac3577512b13d29bb819c46527dde99e0ae852"
+    },
     "func_80038878": {
       "ledger_commit": "f6250d56ba0062f3f018697cad839e1c05b425b3",
       "reason": "New donor evidence: Jet Force Gemini upstream efd5abb advanced this shared-engine TU past the reference this plateau was filed against. Re-derive with a PROVENANCE note; Mickey ROM decides disagreements.",
@@ -766,9 +806,9 @@
       "source_commit": "424aa5f7694dc7cd5ca348fb289e0d818a438434"
     },
     "func_overlay_029_F00010C4_187E374": {
-      "ledger_commit": "e4b25c4de118fc4d55e0fa145873e1b7dda1c3e8",
-      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
-      "source_commit": "4fbb92bfe6e44f0b4403dbd6ca77d2102b045fd7"
+      "ledger_commit": "0acc1679065b420bbb279a779264b63b9c04072b",
+      "reason": "New mechanism: uopt's spilltemps pass gives every register temporary a frame slot in web-index order, reusing the lowest non-interfering slot. That law closed the overlay 60 whale today and reaches spill-home residuals no spelling had.",
+      "source_commit": "0acc1679065b420bbb279a779264b63b9c04072b"
     },
     "func_overlay_035_F00001E0_1881EC0": {
       "ledger_commit": null,
@@ -1186,9 +1226,9 @@
       "source_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625"
     },
     "overlay1UpdateRangeFlags": {
-      "ledger_commit": "885865ac088f48d1474c533d0aefb2ece353a977",
-      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
-      "source_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625"
+      "ledger_commit": "6f82be7344d00ca5ef4ff74d35ed4a91bab5aae3",
+      "reason": "New mechanism: uopt's spilltemps pass gives every register temporary a frame slot in web-index order, reusing the lowest non-interfering slot. That law closed the overlay 60 whale today and reaches spill-home residuals no spelling had.",
+      "source_commit": "6f82be7344d00ca5ef4ff74d35ed4a91bab5aae3"
     },
     "overlay20RemoveEntry": {
       "ledger_commit": "b5fbe47d054179212b322b9d8ac9391b1749bdda",

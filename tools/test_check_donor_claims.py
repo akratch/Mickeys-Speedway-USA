@@ -100,6 +100,30 @@ class CounterpartTests(unittest.TestCase):
             guard.counterpart(Path("src/main/fx.c")).parent.name, "src"
         )
 
+class SplitTranslationUnitTests(unittest.TestCase):
+    """A unit this project split still has a donor counterpart."""
+
+    def test_a_split_unit_maps_to_the_donor_file_that_holds_it(self):
+        # JFG keeps the whole front end in one src/menu.c; Mickey splits it
+        # across menu.c, menu_3B1A0.c and two frontend_*.c files. Refusing a
+        # true claim is as bad as accepting a false one.
+        for ours in ("src/main/frontend_37D50.c", "src/main/frontend_37680.c",
+                     "src/main/menu_3B1A0.c"):
+            self.assertEqual(
+                guard.counterpart(guard.REPO / ours).name, "menu.c",
+                f"{ours} should map to the donor's menu.c",
+            )
+
+    def test_an_unlisted_unit_still_uses_the_basename_rule(self):
+        self.assertEqual(
+            guard.counterpart(guard.REPO / "src/main/camera.c").name, "camera.c"
+        )
+
+    def test_the_override_is_keyed_repo_relative_not_absolute(self):
+        # The first draft keyed on str(path) and silently never matched,
+        # because callers pass an absolute path.
+        self.assertTrue(all(not k.startswith("/") for k in guard.TU_COUNTERPARTS))
+
 
 if __name__ == "__main__":
     unittest.main()

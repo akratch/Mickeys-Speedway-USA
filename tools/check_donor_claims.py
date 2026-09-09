@@ -78,8 +78,38 @@ def claims_donor(reason: str) -> bool:
 BODY_LINE = re.compile(r"^\}$", re.MULTILINE)
 
 
+# Translation units this project splits or renames relative to the donor.
+# The basename rule below is right for the common case and wrong here, and
+# refusing a *true* claim is as bad as accepting a false one: JFG keeps the
+# whole front end in one `src/menu.c`, which is where every `front*` name this
+# tree already carries came from. Mickey splits that code across a `menu.c`,
+# a `menu_3B1A0.c` and two `frontend_*.c` files.
+#
+# An entry here is a claim in its own right, so it needs the same standard as
+# any other: name the evidence. For these four it is the adopted symbol names
+# -- frontDemoMessage, frontDrawRectangle, frontGet2PlayerSplit,
+# frontGetLevelScreenMode, frontSetScreenMode -- which are JFG's own and are
+# defined in its menu.c.
+TU_COUNTERPARTS = {
+    "src/main/frontend_37D50.c": "src/menu.c",
+    "src/main/frontend_37680.c": "src/menu.c",
+    "src/main/menu_3B1A0.c": "src/menu.c",
+}
+
+
 def counterpart(tu: Path) -> Path:
-    """Our src/main/<name>.c corresponds to the donor's src/<name>.c."""
+    """The donor file this TU corresponds to.
+
+    Our src/main/<name>.c is normally the donor's src/<name>.c; TU_COUNTERPARTS
+    overrides that where this project has split or renamed a unit.
+    """
+    try:
+        key = tu.resolve().relative_to(REPO).as_posix()
+    except ValueError:
+        key = tu.as_posix()
+    override = TU_COUNTERPARTS.get(key)
+    if override:
+        return JFG_ROOT / override
     return JFG_ROOT / "src" / tu.name
 
 
