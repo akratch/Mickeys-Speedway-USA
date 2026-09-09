@@ -1000,6 +1000,56 @@ bytes and disassembly never belong here.
   `f_gettemp` reads it directly, and the cfe `Uvreg` records in a `-K` Ucode
   dump name the front-end temporaries and their sizes.
 
+- **The pooled slot is an arithmetic function of a countable census, so
+  calibrate it instead of searching it.** Cell `k` sits at
+  `frame_top - 4*(k + 1)` and the frame is `round8(4 * cells)`, which makes the
+  whole thing readable off two builds. Add one unused declared local: if every
+  home moves down exactly one slot and the frame grows, each declaration costs
+  one cell and the census is the lever. Measured twice on the same day:
+  `overlay1InterpolatePath` (frame 0x68, ten declarations, adding an unused one
+  moves the frame to 0x70 and every home down a slot) and `func_8005716C`
+  (a `volatile` local's home tracks the declaration count exactly, 8 -> frame
+  0x20, 9 -> 0x28). Once the arithmetic is fixed, the target's home names the
+  cell index it wants and you edit the census to hit it, rather than permuting.
+  On `overlay1InterpolatePath` the answer needed **two** edits (L88): defining
+  the spilled integer earlier swaps it with the neighbouring cell, and dropping
+  one declared local lifts the pair by four bytes; each alone was a regression
+  and the pair was exact. Corollary worth knowing before you start: *all* 196
+  legal statement orders of that function's setup reached only two adjacent
+  cells, and all 90 single-move declaration permutations were flat -- a cell
+  residual that reads flat under reordering is a census question, not an
+  ordering one.
+
+- **`volatile` on a local is what forces the reload to be named, and a name is
+  a pool colour.** Where a candidate collapses a chain of intermediate values
+  onto one FP register and the target spends a fresh ring temporary at each
+  step, look at the qualifier before the expression tree. A `volatile f32`
+  round trip cannot be read twice in one expression without emitting two loads,
+  so the source has to name the reload -- and the named local takes a pool
+  colour that then carries the negation, the doubling and the product too.
+  Dropping `volatile` keeps the memory round trip whenever the pool is already
+  full (uopt simply cannot colour the extra symbol, which the instrumented
+  `p2dec` shows as a `decision=no-color` with a nonzero `bestcost`), while
+  letting `x + x` load once and hand the sum to ugen ring temporaries.
+  On `func_8005716C` that made all 80 words agree, registers included.
+  The cost is two extra pooled cells, at any declaration count -- so the same
+  edit that fixes the registers moves the frame, and the two have to be solved
+  together.
+
+- **A declined `CDX_FORCE` is a real result: it retires the reordering space.**
+  `CDX_FORCE=p2:w<n>=c<colour>` refused at both the `dec` and `color` sites,
+  with the wanted colour inside `forbidden0`, says the colour is unavailable
+  through genuine interference and not through a priority choice. No statement
+  order, declaration order or spelling that leaves the interfering web in place
+  can reach the target, so stop sweeping them and go after the interfering web
+  itself. Read its identity from the `intf` rows under `CDX_DETAIL_WEB`:
+  on `overlay20RemoveEntry` the compaction limit (web 42) is blocked by an
+  *invisible* web 8 that holds v0 and emits no instruction anywhere, and on
+  `func_80046BCC` the masked character is its own web, coloured ahead of every
+  declared local, which is why forcing the loaded byte back into v0 is refused.
+  Both readings cost one instrumented compile each and each retired a lattice
+  that had already consumed a full pass.
+
 - **A bitfield read through the word and written through the halfword is
   a `u16` bitfield.** IDO reads a bitfield through a container of the
   declared type's width but stores it through the smallest aligned container

@@ -110,24 +110,31 @@ An overlay promotion regenerates *before* it builds. Every step below has cost
 a lane a failed cycle, and not one of the errors names the step that is
 missing:
 
+Two lanes reported this order differently; they were describing constraints
+on *different* steps, and both hold. The atlas must be current before the
+extract, and the extract must precede `overlay-syms`:
+
 ```sh
-# 1. Re-extract FIRST. Removing a GLOBAL_ASM pragma leaves splat's .s behind;
+# 1. Add the promoted range by hand to MIXED_TU_EXACT_C_RANGES in
+#    tools/overlay_atlas.py, then write the atlas. `overlay-atlas-write`
+#    will NOT invent the range -- it reports "overlay artifacts current" --
+#    and editing config/overlays.us.json directly is overwritten. Keep each
+#    overlay's entries SORTED BY OFFSET, or `gmake build/.splat-stamp` dies
+#    with `ValueError: invalid overlay N mixed-TU exact range` from a
+#    traceback naming neither the entry nor the ordering rule.
+#
+#    This comes first because `gmake extract` refuses to run while
+#    config/overlays.us.json is stale.
+gmake overlay-atlas-write
+.venv/bin/python tools/refresh_atlas_digest.py
+
+# 2. Re-extract. Removing a GLOBAL_ASM pragma leaves splat's .s behind;
 #    running overlay-syms before this fails on build/.splat-stamp, and
 #    building before it fails at link on an undefined reference.
 gmake extract
 
-# 2. Add the promoted range by hand to MIXED_TU_EXACT_C_RANGES in
-#    tools/overlay_atlas.py. `gmake overlay-atlas-write` will NOT add it --
-#    it reports "overlay artifacts current" -- and editing
-#    config/overlays.us.json directly is overwritten. Keep each overlay's
-#    entries SORTED BY OFFSET, or `gmake build/.splat-stamp` dies with
-#    `ValueError: invalid overlay N mixed-TU exact range` from a traceback
-#    that names neither the entry nor the ordering rule.
-
-# 3. Regenerate the derived tables.
+# 3. Regenerate the alias list.
 gmake overlay-syms
-gmake overlay-atlas-write
-.venv/bin/python tools/refresh_atlas_digest.py
 
 # 4. Build, then regenerate the alias list AGAIN and rebuild.
 #    overlay-syms derives its aliases from the compiled overlay objects, so
