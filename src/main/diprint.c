@@ -1167,3 +1167,16 @@ void debug_text_newline(void) {
  * summary: JFG donor-shaped source forms rebuilt flat at 59/66; next lever is an IDO UGEN scheduling or assembler selection trace.
  * PLATEAU-HANDOFF:debug_text_width:end
  */
+/*
+ * 2026-09-10, lane nm-mixed: the target's split is now located precisely. It
+ * keeps the raw byte in one web for the newline and space tests and copies it
+ * into a SECOND web used from the 0x21 range test onward; the branch-likely
+ * newline lowering is a consequence, not a separate fault. The obstacle is
+ * that a classification copy cannot be bought: any eighth declaration shifts
+ * the 260-byte buffer four bytes down the frame, which costs two words on its
+ * own, and uopt coalesces the copy back into the raw web anyway, so every
+ * placement measured nine. Reusing charIndex as the copy avoids the buffer
+ * shift and stays flat at seven. Falsified: copy at the top of the loop, in
+ * the else arm, as an assignment inside the range test, u8 and char element
+ * types, and every declaration order.
+ */

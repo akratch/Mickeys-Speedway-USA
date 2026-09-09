@@ -1189,6 +1189,22 @@ u8 func_8004D5C0(s32 font) {
  * summary: Donor probes exhausted; diagnostic frame aid reached 8 words but wrong spill homes; next use allocator ownership trace.
  * PLATEAU-HANDOFF:func_8004BA8C:end
  */
+/*
+ * 2026-09-10, lane nm-mixed: the ten words decompose into one upstream cause
+ * and three consequences. The fontData web takes a3 where the target takes v0;
+ * both spill it across the conversion call, so this is a colour choice and not
+ * a lifetime one. The spill homes follow (target fontData at 0x18 and spacing
+ * at 0x20 with 0x1c skipped; ours spacing at 0x18, fontData at 0x1c), and the
+ * frame follows from the home count: 0x30 means the target has six slot-owning
+ * webs against our two. The remaining two words -- the 0xF compare and the
+ * spacing-index add -- are commutative operand orders that are NOT source
+ * levers here: reversing either in C leaves the emitted word unchanged, and
+ * both sides already hold the same registers, so they flip only when the
+ * colouring does. Falsified: dropping either local for a direct global
+ * subscript, the (s32)base cast that works in textures_35024.c, moving the
+ * characterWidth read before or into the loop, declaration order, s32 vs u8
+ * character locals, and 0xF-on-the-left compares.
+ */
 
 /* PLATEAU-HANDOFF:func_8004C690:start
  * symbol: func_8004C690

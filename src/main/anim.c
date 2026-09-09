@@ -3839,7 +3839,34 @@ void func_80056DD8(HitCopyState *first, HitCopyState *second,
  * bounce` and `bounce * 2.0f`; a separate `reloaded` carrier; and every
  * declaration order including `bounce` first and last.
  * Resume by removing one cell that is not a declaration, or by finding what
- * puts one cell *after* `bounce` while keeping ten. */
+ * puts one cell *after* `bounce` while keeping ten.
+ *
+ * 2026-09-10, lane nm-mixed: five differing words to three, and the cell
+ * arithmetic above is now closed-form. With N cells the frame is align8(4N)
+ * and the last cell's home is align8(4N) - 4N, so home 4 needs N odd: N = 9
+ * (frame 0x28, a match) or N = 11 (frame 0x30, two frame words wrong).
+ * Confirmed by measurement: a ninth declaration with `volatile bounce` gives
+ * N = 9 and home 4 exactly as predicted, and any ninth declaration at all --
+ * used, unused, f32 or s32, first or last -- gives N = 11, home 4, frame 0x30
+ * (7 words). `volatile` itself costs two instructions whatever else is done,
+ * so that route cannot close.
+ *
+ * The improvement drops the `bounce` declaration and spells the doubling
+ * inline as `(-doubled + -doubled)` at each of the three velocity stores.
+ * That leaves seven declarations and three ugen temps: the SUM temp lands one
+ * cell earlier than `bounce` did and homes at 4(sp) -- the target's home --
+ * while the NEGATION temp becomes a second, separate cell at 0(sp). So three
+ * words remain: the neg temp's store/reload pair, plus the operand order of
+ * the x-axis product, which follows the split and is not source-spellable
+ * (both operand orders emit the same word).
+ * The target has ONE cell holding both values, i.e. a declared `bounce`, at
+ * cell index 8 of 9. So the remaining question is unchanged in kind but now
+ * exact: keep the single `bounce` web and remove exactly one cell created
+ * before it. Additionally falsified this pass: `-(doubled + doubled)`
+ * (78 words), swapping which carrier holds the negation versus the sum,
+ * hoisting `target->unk4` or `state->velocity.x * timeStep` into a local
+ * (both N = 11), inlining the whole dot product into `bounce` (73 words),
+ * and every operand order of the three axis products. */
 void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
                    f32 timeStep) {
     HitCopyTarget *target;
@@ -3849,7 +3876,6 @@ void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
     f32 velocityZ;
     f32 doubled;
     f32 normalX;
-    f32 bounce;
 
     target = state->target;
     velocityX = state->velocity.x / target->unk4;
@@ -3865,11 +3891,9 @@ void func_8005716C(HitCopyState *state, void *unused, AnimVec3f *normal,
     doubled = (normalX = normal->x);
     doubled = (normal->z * velocityZ) +
               ((velocityX * doubled) + (velocityY * normal->y));
-    bounce = -doubled;
-    bounce = bounce + bounce;
-    state->velocity.x = ((normalX * bounce) + velocityX) * target->unk4;
-    state->velocity.y = ((normal->y * bounce) + velocityY) * target->unk4;
-    state->velocity.z = ((normal->z * bounce) + velocityZ) * target->unk4;
+    state->velocity.x = ((normalX * (-doubled + -doubled)) + velocityX) * target->unk4;
+    state->velocity.y = ((normal->y * (-doubled + -doubled)) + velocityY) * target->unk4;
+    state->velocity.z = ((normal->z * (-doubled + -doubled)) + velocityZ) * target->unk4;
 
     state->position.x = source->current.x;
     state->position.y = source->current.y;
@@ -4191,11 +4215,11 @@ void fmvInit(void) {
 
 /* PLATEAU-HANDOFF:func_8005716C:start
  * symbol: func_8005716C
- * score: 5 differing words
+ * score: 3 differing words
  * frame: 0x28
  * relocations: 2
  * first-mismatch: +0x7C
- * summary: instruction stream exact; the five words are bounce's sp accesses at 0(sp) against the target's 4(sp), one frame cell below the FP-pressure floor
+ * summary: instruction stream exact; the doubling is now inline so the sum temp homes at the target's 4(sp), leaving the negation temp's store/reload at 0(sp) and one product operand order; closing needs one cell removed ahead of a single re-declared bounce
  * PLATEAU-HANDOFF:func_8005716C:end
  */
 

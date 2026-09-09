@@ -1720,6 +1720,21 @@ void func_800293D0(void) {
  * summary: JFG efd5abb still leaves mainAnyoneHas as GLOBAL_ASM; next lever is a later permitted donor C body.
  * PLATEAU-HANDOFF:func_80028FCC:end
  */
+/*
+ * 2026-09-10, lane nm-mixed: the target's control flow is now identified and
+ * is a short-circuit || chain, not the retained early-return shape. A plain
+ * `return a() != 0 || b() != 0 || c() != 0;` reproduces the target's per-site
+ * normalise-and-branch-to-epilogue exactly, at 25 of the 27 instructions. The
+ * one blocking mechanism: uopt coalesces the three normalised results into a
+ * SINGLE web, colours it a0, and emits one copy to v0 in the epilogue, where
+ * the target keeps three separate ring temporaries each copied into v0 in the
+ * branch delay slot (25 - 1 + 3 = 27). Falsified: every ||/goto/do-while-break
+ * /nested-if/early-return spelling collapses to the same 25-instruction a0
+ * form; a named result variable splits the webs but loses the direct branch
+ * (29 instructions); `register`, u32 casts, a local copy of the argument, an
+ * unrolled 3-iteration loop, -Olimit removal, -O1 and -Wo,-nogcse all fail.
+ * Next lever is whatever makes v0, not a0, admissible for the merged web.
+ */
 
 /* PLATEAU-HANDOFF:func_80029274:start
  * symbol: func_80029274
