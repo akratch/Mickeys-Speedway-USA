@@ -2603,17 +2603,45 @@ extern f32 func_8002A8C0(s32 angle);
 extern f32 sqrtf(f32 value);
 
 /* Plateau: the exact 996-byte extent, 249 instructions, the 0x80 frame, the
- * one stack home and all 43 relocation records; 21 words remain and every
- * register in the function already matches. Both residual clusters are
- * instruction placement. The first is the shared-world address: the target
- * finishes the low half and dereferences it among the register saves, the
- * candidate after them. The `u32 worldAddress` carrier is load-bearing --
- * a typed pointer carrier folds straight back into a two-instruction global
- * read and loses the saved-register address entirely -- and declaration order
- * is inert here, measured over all 306 single-position moves. The second is
- * the trig constant, which the target loads after the first angle call; only
- * folding the assignment into the multiply puts it there, at the price of one
- * stall nop the target fills with the next statement's address halves. */
+ * one stack home and all 43 relocation records. Nineteen words differ, and
+ * NINE of them are phantom. The target's own extraction materialises nine
+ * overlay-local addresses as a literal `lui reg,0x0` / `lw reg,<addend>(reg)`
+ * pair carrying no relocation, where the candidate emits the same pair with an
+ * R_MIPS_HI16/LO16 record and a zero addend. The comparator masks the `lui`
+ * half and scores the `%lo` half as a constant difference. Six of the nine are
+ * already provably identical after linking -- `D_1D9C` is 0x1D9C, which is the
+ * 7580 the target bakes in, and `D_1DA0` is 0x1DA0, which is 7584 -- and the
+ * remaining three are the overlay-local float globals whose values the
+ * generated relocation surface derives from those same sites at promotion. Do
+ * not chase them, and do not mask the `lui at,0xc1f0` at the -30.0f constant,
+ * which is a float immediate and matches.
+ *
+ * The ten real words are two placement clusters. Five are the shared-world
+ * address: the target finishes the low half and dereferences it among the
+ * register saves, the candidate after them. The `u32 worldAddress` carrier is
+ * load-bearing -- a typed pointer carrier folds straight back into a
+ * two-instruction global read and loses the saved-register address entirely --
+ * and declaration order is inert here, measured over all 306 single-position
+ * moves.
+ *
+ * Five are the trig constant, and this half moved. Writing the load as
+ * `... * -30.0f * (trig = overlay1AimedTrigReloc)` puts it after the first
+ * angle call with the `jal` and its delay slot exact and no stall, at 249
+ * instructions: the previously recorded embedded form
+ * (`func(angle) * (trig = ...) * -30.0f`) reaches the same region but costs a
+ * `nop`, because it wants the trig value one instruction sooner than the load
+ * can deliver it. What remains on this cluster is that the target materialises
+ * the trig constant before the -30.0f constant and we do it the other way
+ * round, which also reverses both multiply operand orders. Measured and flat,
+ * do not repeat: twenty-two orderings of the three velocity statements and the
+ * two constants, including reading the global directly at one or both sites
+ * (251 instructions), a trailing redundant `trig = ...`, a comma operator, and
+ * every parenthesisation of the two products.
+ *
+ * Note for the next reader: the positional score falls 21 to 19 on this edit
+ * while the insertion-tolerant aligned count rises 32 to 34 (lever 48). The
+ * aligned count rises because the trig pair is now a two-row move rather than
+ * a two-row absence; the cluster itself is strictly closer. */
 #ifdef NON_MATCHING
 void overlay1UpdateAimedTransient(void) {
     Overlay1TransientWorld *world;
@@ -2699,10 +2727,9 @@ void overlay1UpdateAimedTransient(void) {
             object->velocityZ = func_8002A8BC(sourceAngle) * trig * 30.0f;
         } else {
             state->linkedIndex = -1;
-            trig = overlay1AimedTrigReloc;
             object->velocityX =
-                func_8002A8C0(((Overlay1TransientOwner *)D_1D9C)->angle) * trig *
-                -30.0f;
+                func_8002A8C0(((Overlay1TransientOwner *)D_1D9C)->angle) *
+                -30.0f * (trig = overlay1AimedTrigReloc);
             object->velocityY = overlay1AimedVelocityYReloc;
             object->velocityZ =
                 func_8002A8BC(((Overlay1TransientOwner *)D_1D9C)->angle) * trig *
@@ -3288,11 +3315,11 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
 
 /* PLATEAU-HANDOFF:overlay1UpdateAimedTransient:start
  * symbol: overlay1UpdateAimedTransient
- * score: 228/249 words
+ * score: 230/249 words
  * frame: 0x80
  * relocations: 43
  * first-mismatch: +0xC
- * summary: two schedule clusters; the embedded trig assignment reproduces the post-call load exactly at the cost of one stall nop
+ * summary: nine of the nineteen words are phantom %lo relocation differences; the trig load now sits after the angle call with no stall, leaving the two constants' order and the shared-world address placement
  * PLATEAU-HANDOFF:overlay1UpdateAimedTransient:end
  */
 
