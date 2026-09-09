@@ -1306,6 +1306,12 @@ MIXED_TU_EXACT_C_RANGES = {
             "canonical mixed-TU object, 23 text plus seven switch-table runtime relocations, and linked bytes exact",
         ),
         (
+            0xCCC,
+            0xDBC,
+            "overlay7DispatchSelection",
+            "canonical mixed-TU object, all 13 runtime relocations, and linked bytes exact",
+        ),
+        (
             0xDBC,
             0xEDC,
             "overlay7CommitSelection",
