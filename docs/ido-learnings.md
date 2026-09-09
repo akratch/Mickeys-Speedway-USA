@@ -883,6 +883,21 @@ bytes and disassembly never belong here.
   `f_gettemp` reads it directly, and the cfe `Uvreg` records in a `-K` Ucode
   dump name the front-end temporaries and their sizes.
 
+- **A bitfield read through the word and written through the halfword is
+  a `u16` bitfield.** IDO reads a bitfield through a container of the
+  declared type's width but stores it through the smallest aligned container
+  that covers the field: on `overlay74Update` the target's `lw`, `sll 5`,
+  `srl 28`, `sll 7`, `andi 0x780`, `lhu`, `andi 0xF87F`, `or`, `sh` sequence is
+  a 4-bit field at bits 26..23 of the word declared as `u16 pad:5; u16
+  field:4; u16 rest:7`. The hand-expanded shift-and-mask spelling reproduces
+  every word but one -- the operand order of the final OR, which the source
+  then fixes and which reversing costs a word elsewhere -- while
+  `flags.field |= bit` lets cfe order it, and matches. The `u32`/`s32`
+  containers keep the halfword store but cost 12 words; `u8` changes the
+  container. A hand-expanded bitfield is therefore a residual signature in
+  its own right: when the mask/shift arithmetic matches and one commutative
+  operand order does not, declare the bitfield.
+
 ### Assembler scheduling and phase replay
 
 - The `cc -S` listing is a faithful, editable stand-in for what `as1` receives.
