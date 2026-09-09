@@ -441,3 +441,37 @@ history and may still change or be rejected. A `PROVENANCE` note adapted from
 it must therefore cite the pull request **and** the head SHA above, not a
 branch name, so the citation stays reproducible. Mickey's ROM decides every
 disagreement, as always.
+
+### PR #15: one function, and a lesson about reading a PR's diffstat
+
+Evaluated the same day at head `0f0917190cebb3e8dbd35f637dc89d58cf0029b2`
+("Match killLight"), fetched as the farm ref `pr-15`. Its diffstat against
+`efd5abb` is alarming — 276 changed C files, 4,084 insertions against **14,022
+deletions** — and means nothing: the branch is simply old, so most of the diff
+is main's later work appearing as removal.
+
+Audited per file by body count, only **two** files gain anything at all:
+
+| JFG file | at `efd5abb` | at `pr-15` |
+|---|---|---|
+| `src/lights.c` | 15 bodies, 14 pragmas | 16 bodies, 14 pragmas |
+| `src/overlays/o1/overlay_1.c` | 0 bodies, 8 pragmas | 1 body, 8 pragmas |
+
+So it is a single-function PR, exactly as its head commit says. That is worth
+having anyway: `killLight` lands in a TU where this tree holds **2,824 bytes**
+unmatched across four functions in `src/main/lights.c`, and we already carry a
+dozen adopted light names (`addObjectLight`, `changeLightColour`,
+`camlightUpdate`, …).
+
+**The reusable point:** a PR's diffstat is not evidence of donor value in
+either direction. PR #37 looked modest at 8 changed C files and was a whole
+translation unit; PR #15 looked enormous and is one function. Count bodies per
+file, as this document has said since the `efd5abb` audit.
+
+This PR was closed under the upstream project's AI policy. That policy governs
+what upstream chooses to merge and has no bearing on whether the code is
+readable and adaptable here; `docs/CLEANROOM.md`'s permitted-source exception
+applies to it as published code in a permitted repository, with the same
+disclosure rules — cite the pull request and the head SHA, and let Mickey's ROM
+decide every disagreement. Contributors whose work is adapted are credited in
+`README.md`.
