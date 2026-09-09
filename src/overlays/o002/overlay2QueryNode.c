@@ -101,7 +101,7 @@ s32 overlay2QueryNode(f32 x0, f32 y0, f32 x1, f32 y1,
     D_50 = ((node->index == 0) ? y0 : x0) < node->data.boundary;
     D_54 = ((node->index == 0) ? y1 : x1) < node->data.boundary;
 
-    if (D_54 == D_50) {
+    if (D_50 == D_54) {
         if (D_50 != 0) {
             node = node->side1;
         } else {
@@ -144,10 +144,10 @@ s32 overlay2QueryNode(f32 x0, f32 y0, f32 x1, f32 y1,
 
 /* PLATEAU-HANDOFF:overlay2QueryNode:start
  * symbol: overlay2QueryNode
- * score: 201/253 words
+ * score: 214/253 words
  * frame: 0x68
  * relocations: 51
- * first-mismatch: +0x58
- * summary: V0 restored (52 raw/40 masked). Leaf-zero plus recursive OR shortened to 250 words and regressed to 164 raw/155 masked; trial in=155/out=2220.
+ * first-mismatch: +0x40
+ * summary: Comparison order buys one word (40 to 39). Residual is four diagnosed sites, each a carrier or branch-layout choice; 48-cell composition sweep floors at 39.
  * PLATEAU-HANDOFF:overlay2QueryNode:end
  */

@@ -2019,6 +2019,32 @@ overlay62SetColorReloc = 0xf0000000;
 overlay62SetModeReloc = 0xf0000000;
 overlay62SetupReloc = 0xf0000000;
 
+/* overlay 62: overlay62Update.c.o */
+gOverlay62CommitContextReloc = 0x00000000;
+gOverlay62DisplayListCursorReloc = 0x00000000;
+gOverlay62FirstItemReloc = 0x00000000;
+gOverlay62InputMaskReloc = 0x00000000;
+gOverlay62LayoutResourceAReloc = 0x00000000;
+gOverlay62LayoutResourceBReloc = 0x00000000;
+gOverlay62PulseReloc = 0x00000000;
+gOverlay62State = 0x00000000;
+gOverlay62Values = 0x00000004;
+gOverlay62ViewportReloc = 0x00000000;
+overlay62CommitFrameReloc = 0xf0000000;
+overlay62DrawItemReloc = 0xf0000000;
+overlay62DrawLabelReloc = 0xf0000000;
+overlay62DrawLayoutReloc = 0xf0000000;
+overlay62EntryColorReloc = 0xf0000000;
+overlay62PrepareDisplayReloc = 0xf0000000;
+overlay62SelectLayerReloc = 0xf0000000;
+overlay62SetBackdropReloc = 0xf0000000;
+overlay62SetCombineModeReloc = 0xf0000000;
+overlay62SetGeometryReloc = 0xf0000000;
+overlay62SetHandleAlphaReloc = 0xf0000000;
+overlay62SetPrimitiveColorReloc = 0xf0000000;
+overlay62SetRenderModeReloc = 0xf0000000;
+overlay62StartTransitionReloc = 0xf0000000;
+
 /* overlay 62: overlay62ReleaseAll.c.o */
 gOverlay62InlineResource = 0x00000000;
 gOverlay62Resource14 = 0x00000014;
@@ -2187,6 +2213,19 @@ overlay75Configure = 0xf0000000;
 overlay75Cos = 0xf0000000;
 overlay75SetVelocity = 0xf0000000;
 overlay75Sin = 0xf0000000;
+
+/* overlay 75: overlay75UpdateMovingObject.c.o */
+gOverlay75ThresholdReloc = 0x00000000;
+overlay75BindModelReloc = 0xf0000000;
+overlay75CreateHandleReloc = 0xf0000000;
+overlay75FinishUpdateReloc = 0xf0000000;
+overlay75MoveReloc = 0xf0000000;
+overlay75PlayEventReloc = 0xf0000000;
+overlay75RefreshModelReloc = 0xf0000000;
+overlay75ReleaseHandleReloc = 0xf0000000;
+overlay75SpawnCompletionReloc = 0xf0000000;
+overlay75TransitionReloc = 0xf0000000;
+overlay75UpdateHandleReloc = 0xf0000000;
 
 /* overlay 76: overlay_076.c.o */
 gOverlay76NextIndex = 0x00000000;
