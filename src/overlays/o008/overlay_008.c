@@ -1228,18 +1228,6 @@ void func_overlay_008_F0002640_1860398(
 #pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F0002640_1860398.s")
 #endif
 
-/* Plateau (2026-09-09): 6 masked words, exact 0x68 frame, exact 361/361
- * instructions, and every stack home at the target displacement.  The whole
- * residual is one FP pool colour exchange: the target gives `motion->velocity20`
- * f12 and nextX f2, the candidate the reverse, over six sites in the
- * position-integration block.  The pool free list is f2, f12, f14, f16, f18
- * lowest-free-wins, and uopt colours named locals before CSE temps, so the
- * target's nextX is a named-local web coloured before the velocity20 CSE and
- * the candidate's is not.  Declaration order over slots 4/5/6/10/12 is
- * byte-inert (120 orders, all 6 words); naming the velocity20 read costs two
- * instructions; inlining nextX costs 302 words.  `blendLimit` is declared and
- * unused on purpose: it is the fourteenth auto and the frame needs its slot. */
-#ifdef NON_MATCHING
 void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
                                        O8P291CState *state,
                                        f32 update) {
@@ -1307,19 +1295,17 @@ void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
     vertical -= state->control8 * O8P291C_call_sin(angle);
     o8Surface291CReloc(motion, state, (s32)update);
 
-    {
-        nextY = (motion->velocity20 * update) -
-            (0.5f * O8P291C_gravity * update * update) + displacementY;
-        invUpdate = 1.0f / update;
-        nextX = horizontal * update + displacementX;
-        nextZ = vertical * update + displacementZ;
-        motion->velocity1C = nextX * invUpdate;
-        motion->velocity20 -= O8P291C_gravity * update;
-        motion->velocity24 = nextZ * invUpdate;
-        motion->positionC += nextX;
-        motion->position10 += nextY;
-        motion->position14 += nextZ;
-    }
+    nextX = horizontal * update + displacementX;
+    nextY = (motion->velocity20 * update) -
+        (0.5f * O8P291C_gravity * update * update) + displacementY;
+    nextZ = vertical * update + displacementZ;
+    invUpdate = 1.0f / update;
+    motion->velocity1C = nextX * invUpdate;
+    motion->velocity20 -= O8P291C_gravity * update;
+    motion->velocity24 = nextZ * invUpdate;
+    motion->positionC += nextX;
+    motion->position10 += nextY;
+    motion->position14 += nextZ;
 
     contact = O8P291C_call_037C(motion, state, update);
     if ((O8P291C_call_039C(motion, 0.0f, 0.0f, 0.0f) != 0) ||
@@ -1355,9 +1341,6 @@ void func_overlay_008_F000291C_1860674(O8P291CMotion *motion,
             (1.0f - o8Approach291CReloc(O8P291C_data_1AC, (s32)update));
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o008/overlay_008/func_overlay_008_F000291C_1860674.s")
-#endif
 
 void func_overlay_008_F0002EC0_1860C18(register Overlay8UpdateOwner *owner,
                                        Overlay8UpdateInput *input,
@@ -2368,15 +2351,6 @@ void func_overlay_008_F0004CF0_1862A48(O8P4CF0Actor *actor,
  */
 
 
-/* PLATEAU-HANDOFF:func_overlay_008_F000291C_1860674:start
- * symbol: func_overlay_008_F000291C_1860674
- * score: 56 differing words
- * frame: -0x70
- * relocations: 25
- * first-mismatch: +0x0
- * summary: Fresh exact geometry retains the 0x70/0x68 frame split and divergent FP pool; prior declaration, lifetime, constant, and flag probes are exhausted.
- * PLATEAU-HANDOFF:func_overlay_008_F000291C_1860674:end
- */
 
 /* PLATEAU-HANDOFF:func_overlay_008_F0001000_185ED58:start
  * symbol: func_overlay_008_F0001000_185ED58
