@@ -1153,8 +1153,10 @@ not the surrounding yaml block.
 The source began as 41 `GLOBAL_ASM` functions. Six already have tier-A names
 in `symbol_addrs.us.txt`; other JFG names remain a navigation crosswalk until
 an exact body is promoted, so the unresolved symbols keep their `func_` names
-per §1.5. Flags are the resident game-code defaults, `-O2 -mips2 -32`, plus
-menu's measured `-Wo,-loopunroll,0` override.
+per §1.5. Flags are the resident game-code defaults, `-O2 -mips2 -32`. The
+`-Wo,-loopunroll,0` override the TU carried until 2026-09-09 was measured
+byte-inert for every function in it except `func_80038878`, whose target
+unrolls both its clearing loops; it was dropped when that function matched.
 
 `func_80038750` adds **0x128 bytes / 74 words** at ROM `0x39350`. Matched C:
 exact object words, jump table, and linked ROM range at `-O2 -mips2 -32
@@ -1178,8 +1180,9 @@ relocation identities.
 
 | Function | Exact result |
 |---|---|
-| `func_800389CC` | 504 bytes under `-O2 -mips2 -32 -Wo,-loopunroll,0`; JFG `src/menu.c::frontFreeMode` body, all 126 instruction words exact, with its 76-byte compiler-owned switch table. |
-| `func_80038BC4` | 488 bytes under `-O2 -mips2 -32 -Wo,-loopunroll,0`; JFG `frontInitMode` role/order comparison and Mickey-derived body, all 122 instruction words exact, with its 76-byte compiler-owned switch table. |
+| `func_80038878` | 340 bytes under `-O2 -mips2 -32` (default unroller); JFG PR #37 `src/menu.c::initFront` body adapted, all 85 instruction words exact. Needs `D_800D3044[4]` (the play choices) defined in the TU: the four stores share one `lui $at`, which IDO emits only for an owned object; the Makefile weakens the definition so the bss gap's retail label wins. |
+| `func_800389CC` | 504 bytes under `-O2 -mips2 -32` (unroll flag measured inert); JFG `src/menu.c::frontFreeMode` body, all 126 instruction words exact, with its 76-byte compiler-owned switch table. |
+| `func_80038BC4` | 488 bytes under `-O2 -mips2 -32` (unroll flag measured inert); JFG `frontInitMode` role/order comparison and Mickey-derived body, all 122 instruction words exact, with its 76-byte compiler-owned switch table. |
 
 The tier-B `frontSetMode` adds **0x64 bytes / 25 words** at ROM `0x399AC`.
 Its exact free/init/reset call sequence, mode-state store, and ordered pairing
