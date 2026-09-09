@@ -5335,33 +5335,31 @@ void func_8000AEEC(void *arg0, s32 arg1) {
     }
     D_8007A21C = 4;
 }
-/* Workbench verdict: structure-mismatch; 489 differing words (494/427). */
-/* First mismatch: +0x0; target frame 0x98, candidate frame 0x88. */
-/* Structural gap: candidate is 67 instructions short; collision-state control flow is complete. */
 #ifdef NON_MATCHING
 void func_8000B3CC(void *arg0, s32 arg1) {
     Objects0B3CCObject *object;
-    Objects0B3CCData *data;
     Objects0B3CCConfig *config;
-    Objects0B3CCState *state;
-    Objects0BB84Vec3 start;
-    Objects0BB84Vec3 end;
-    f32 radius;
-    f32 step;
+    f32 start[3];
+    f32 end[3];
     f32 acceleration;
     f32 damping;
-    f32 speed;
-    f32 dot;
-    f32 factor;
-    f32 volume;
+    Objects0B3CCState *state;
     f32 savedY;
+    f32 negativeDot;
+    f32 bottom;
+    f32 volume;
+    f32 dot;
+    f32 radius;
+    f32 step;
+    f32 speed;
+    s32 bounced;
+    u32 collision;
+    f32 moveZ;
     s16 savedAngle2;
     s16 savedAngle4;
-    u32 collision;
-    s32 bounced;
+    f32 factor;
 
     object = (Objects0B3CCObject *)arg0;
-    data = object->unk40;
     state = object->unk78;
     state->unk2 = 0;
     if ((state->flags & 2) != 0) {
@@ -5369,7 +5367,7 @@ void func_8000B3CC(void *arg0, s32 arg1) {
     }
 
     step = (f32)arg1;
-    config = data->unkE0;
+    config = object->unk40->unkE0;
     if ((state->flags & 1) != 0) {
         acceleration = -config->unk8;
         damping = config->unkC;
@@ -5378,17 +5376,17 @@ void func_8000B3CC(void *arg0, s32 arg1) {
         damping = config->unk4;
     }
 
-    start.x = object->unkC + config->unk20;
-    start.y = object->unk10 + config->unk24;
-    start.z = object->unk14 + config->unk28;
-    end.x = start.x + (object->unk1C * step) + state->unk1C;
-    end.z = start.z + (object->unk24 * step) + state->unk20;
-    end.y = start.y + (object->unk20 * step) +
+    start[0] = object->unkC + object->unk40->unkE0->unk20;
+    start[1] = object->unk10 + object->unk40->unkE0->unk24;
+    start[2] = object->unk14 + object->unk40->unkE0->unk28;
+    end[0] = start[0] + (object->unk1C * step) + state->unk1C;
+    end[2] = start[2] + (object->unk24 * step) + state->unk20;
+    end[1] = start[1] + (object->unk20 * step) +
             (0.5f * acceleration * step * step);
     radius = state->unk4;
 
-    trackMakePolylist(1, &start, &end, &radius, 0x10000, 0);
-    collision = (u32)func_80010900(&start, &end, radius, (s32)object,
+    trackMakePolylist(1, (Objects0BB84Vec3 *)start, (Objects0BB84Vec3 *)end, &radius, 0x10000, 0);
+    collision = (u32)func_80010900((Objects0BB84Vec3 *)start, (Objects0BB84Vec3 *)end, radius, (s32)object,
                                     (void *)func_8000BB84);
     if ((collision >> 30) != 0) {
         object->unk1C = 0.0f;
@@ -5398,17 +5396,21 @@ void func_8000B3CC(void *arg0, s32 arg1) {
         return;
     }
 
-    func_80008128((Objects08128Object *)object, end.x - start.x,
-                  end.y - start.y, end.z - start.z);
+    volume = end[0] - start[0];
+    savedY = end[1] - start[1];
+    moveZ = end[2] - start[2];
+    func_80008128((Objects08128Object *)object, volume, savedY, moveZ);
     object->unk20 += acceleration * step;
-    speed = sqrtf((object->unk1C * object->unk1C) +
-                  (object->unk20 * object->unk20) +
-                  (object->unk24 * object->unk24));
+    volume = object->unk1C;
+    savedY = object->unk20;
+    moveZ = object->unk24;
+    speed = sqrtf((volume * volume) + (savedY * savedY) + (moveZ * moveZ));
     state->unk18 = speed;
 
+    bottom = end[1] - radius;
     if (((func_8001357C(object->unkC, object->unk14, &state->unk14,
                         0x10000, NULL) & 0x10000) != 0) &&
-        ((end.y - radius) < state->unk14)) {
+        (bottom < state->unk14)) {
         damping = config->unkC;
         if ((state->flags & 1) == 0) {
             state->flags |= 1;
@@ -5421,7 +5423,7 @@ void func_8000B3CC(void *arg0, s32 arg1) {
                         volume = 1.0f;
                     }
                     func_8000309C(state->unk24,
-                                  (u8)((s32)(127.0f * volume) & 0xFF));
+                                  (u8)(127.0f * volume));
                 }
             }
             if (config->unk14 != 0) {
@@ -5446,37 +5448,39 @@ void func_8000B3CC(void *arg0, s32 arg1) {
     object->unk1C *= damping;
     object->unk20 *= damping;
     object->unk24 *= damping;
-    state->unk18 = sqrtf((object->unk1C * object->unk1C) +
-                         (object->unk20 * object->unk20) +
-                         (object->unk24 * object->unk24));
+    volume = object->unk1C;
+    savedY = object->unk20;
+    moveZ = object->unk24;
+    state->unk18 = sqrtf((volume * volume) + (savedY * savedY) + (moveZ * moveZ));
 
-    bounced = 0;
     if ((collision << 2) != 0) {
         state->unk2 = 1;
-        speed = state->unk18;
-        if ((config->unk10 == 0.0f) || (speed == 0.0f)) {
+        bounced = 0;
+        if ((config->unk10 == 0.0f) || ((speed = state->unk18) == 0.0f)) {
             object->unk1C = 0.0f;
             object->unk20 = 0.0f;
             object->unk24 = 0.0f;
             state->flags |= 2;
         } else {
             object->unk1C /= speed;
-            object->unk20 /= speed;
-            object->unk24 /= speed;
+            object->unk20 /= state->unk18;
+            object->unk24 /= state->unk18;
             state->unk18 *= config->unk10;
             dot = (state->unk8 * object->unk1C) +
                   (state->unkC * object->unk20) +
                   (state->unk10 * object->unk24);
-            factor = 2.0f * -dot;
+            negativeDot = -dot;
+            factor = negativeDot + negativeDot;
             object->unk1C = ((factor * state->unk8) + object->unk1C) *
                             state->unk18;
             object->unk20 = ((factor * state->unkC) + object->unk20) *
                             state->unk18;
             object->unk24 = ((factor * state->unk10) + object->unk24) *
                             state->unk18;
-            speed = sqrtf((object->unk1C * object->unk1C) +
-                          (object->unk20 * object->unk20) +
-                          (object->unk24 * object->unk24));
+            volume = object->unk1C;
+            savedY = object->unk20;
+            moveZ = object->unk24;
+            speed = sqrtf((volume * volume) + (savedY * savedY) + (moveZ * moveZ));
             if (speed < 1.0f) {
                 if (state->unkC < D_80081530) {
                     object->unk1C = state->unk8;
@@ -5503,7 +5507,7 @@ void func_8000B3CC(void *arg0, s32 arg1) {
                     volume = 1.0f;
                 }
                 func_8000309C(state->unk24,
-                              (u8)((s32)(127.0f * volume) & 0xFF));
+                              (u8)(127.0f * volume));
             }
         }
     }
@@ -5848,4 +5852,14 @@ f32 func_8000BD0C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5)
  * first-mismatch: +0x2C
  * summary: Workbench structure-mismatch: register-role. Next: authenticate model-pointer coloring and callback lifetimes; resolve owned local-branch relocations.
  * PLATEAU-HANDOFF:func_80007118:end
+ */
+
+/* PLATEAU-HANDOFF:func_8000B3CC:start
+ * symbol: func_8000B3CC
+ * score: 202 differing words
+ * frame: 0x98
+ * relocations: 20
+ * first-mismatch: +0x148
+ * summary: Workbench structure-mismatch: constant-audit then register-role. Next: resolve time-step/speed homes and the floating zero/reflection allocation.
+ * PLATEAU-HANDOFF:func_8000B3CC:end
  */
