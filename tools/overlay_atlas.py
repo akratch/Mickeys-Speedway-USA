@@ -1229,6 +1229,12 @@ MIXED_TU_EXACT_C_RANGES = {
             "canonical mixed-TU object and linked bytes exact",
         ),
         (
+            0x7580,
+            0x7730,
+            "overlay1AppendPathPoint",
+            "canonical mixed-TU object, all eight relocation records, and linked ROM bytes exact",
+        ),
+        (
             0x7B64,
             0x7BDC,
             "overlay1FindBestRecord",

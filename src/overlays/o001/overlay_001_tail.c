@@ -2946,17 +2946,20 @@ extern s32 overlay1UpdateValueCache(s16 x, s16 y, f32 value);
 extern s16 overlay1AnchorX;
 extern s16 overlay1AnchorY;
 
-#ifdef NON_MATCHING
+/* Exact C: 106 words, the 0x28 frame, and all eight relocation records. The
+ * anchor block reuses `dx` and `dy` and reads the two anchor globals directly
+ * at every site. Both halves are load-bearing and neither works alone: a named
+ * `anchorX` cache adds a pool web that pushes the anchor colour off v1, and a
+ * fresh delta local adds another that costs the ring phase, while reusing the
+ * two already-declared deltas puts each value back in the web IDO gave it in
+ * the length computation above. */
 void overlay1AppendPathPoint(Overlay1PathState *state, s16 x, s16 y,
                              u8 primary, u8 secondary) {
-    register s32 pointX = x;
-    register s32 pointY = y;
+    s32 pointX = x;
+    s32 pointY = y;
     s16 dx = pointX - state->x[state->count];
-    s16 dy;
-    s16 anchorX;
-    s16 anchorDx;
+    s16 dy = pointY - state->y[state->count];
 
-    dy = pointY - state->y[state->count];
     state->count = state->count + 1;
     state->x[state->count] = pointX;
     state->y[state->count] = pointY;
@@ -2971,20 +2974,14 @@ void overlay1AppendPathPoint(Overlay1PathState *state, s16 x, s16 y,
         return;
     }
 
-    anchorX = overlay1AnchorX;
-    anchorDx = pointX - anchorX;
-    if ((pointX == anchorX) && (pointY == overlay1AnchorY)) {
+    if ((pointX == overlay1AnchorX) && (pointY == overlay1AnchorY)) {
         state->anchorDistanceSquared = 0;
     } else {
-        state->anchorDistanceSquared =
-            (anchorDx * anchorDx) +
-            ((s16)(pointY - overlay1AnchorY) * (s16)(pointY - overlay1AnchorY));
+        dx = pointX - overlay1AnchorX;
+        dy = pointY - overlay1AnchorY;
+        state->anchorDistanceSquared = (dx * dx) + (dy * dy);
     }
 }
-
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/overlays/o001/overlay_001_tail/func_overlay_001_F0007580_1853960.s")
-#endif
 
 /* ---- overlay1BendPathPoint ---- */
 
@@ -3207,16 +3204,6 @@ Overlay1PoolRecord *overlay1FindBestRecord(void) {
     } while (remaining--);
     return result;
 }
-
-/* PLATEAU-HANDOFF:overlay1AppendPathPoint:start
- * symbol: overlay1AppendPathPoint
- * score: 102/108 words
- * frame: 0x28
- * relocations: 8
- * first-mismatch: +0x134
- * summary: prefix exact to row 51 and the temp ring identical 24/24; residual is one extra pool web at the anchor CSE and the anchorX colour
- * PLATEAU-HANDOFF:overlay1AppendPathPoint:end
- */
 
 
 
