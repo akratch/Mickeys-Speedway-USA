@@ -66,8 +66,8 @@ typedef struct FxWakeSegment {
 } FxWakeSegment;
 
 extern void func_80048080(s32 count, s16 arg1, s16 arg2, s16 arg3,
-                          s16 arg4, s16 arg5, FxConePoint * volatile points,
-                          u8 * volatile vertices, s32 alpha);
+                          s16 arg4, s16 arg5, FxConePoint *points,
+                          u8 *vertices, s32 alpha);
 extern void viGetCurrentSize(s32 *width, s32 *height);
 extern s16 Arctanf(f32 x, f32 y);
 extern s32 viGetVideoMode(void);
@@ -685,9 +685,15 @@ void func_80047CD8(FxGfx **dList, FxCone *cone, s32 flags, u8 alpha) {
         FX_SET_ENV((*dList)++, 0xFF, 0xFF, 0xFF, 0);
     }
 }
-/* Workbench: structure-mismatch, 43 differing words, first mismatch +0x74. */
-/* Candidate shape: 88/89 instructions, exact -0x48 frame and four call relocations. */
-/* R4300 hazard mode reaches 89 words with 12 differences; load/register order remains. */
+/* Exact 89-word extent, exact -0x48 frame, four call relocations, and every
+ * integer register, stack displacement and schedule slot equal. Six words
+ * remain: one floating-point colour swap, where the target holds the loaded
+ * z in f14 and x in f2 and the candidate holds them the other way round.
+ * The cursors are the *parameters*, not locals: IDO promotes the two stack
+ * parameter homes into registers for the loop and writes them back at the
+ * loop exit, which is where the earlier candidate's `volatile` pointers and
+ * their explicit writeback came from. Spelling them naturally also fixed the
+ * loop-invariant hoist order and the cos0 spill slot: 12 -> 6 words. */
 #ifdef NON_MATCHING
 typedef struct FxTransformInput {
     f32 x;
@@ -706,55 +712,35 @@ typedef struct FxTransformOutput {
 } FxTransformOutput;
 
 void func_80048080(s32 count, s16 x, s16 y, s16 z, s16 angle0, s16 angle1,
-                   FxConePoint * volatile input, u8 * volatile output,
-                   s32 alpha) {
-    register f32 cos1 = func_8002A8C0(angle1);
-    register f32 sin1 = func_8002A8BC(angle1);
-    volatile f32 savedCos0;
+                   FxConePoint *input, u8 *output, s32 alpha) {
+    f32 cos1;
+    f32 sin1;
     f32 cos0;
     f32 sin0;
     f32 inputZ;
     f32 inputY;
     f32 inputX;
     f32 cross;
-    s32 oldCount;
-    f32 *inputCursor;
-    u8 *outputCursor;
 
-    savedCos0 = func_8002A8C0(angle0);
+    cos1 = func_8002A8C0(angle1);
+    sin1 = func_8002A8BC(angle1);
+    cos0 = func_8002A8C0(angle0);
     sin0 = func_8002A8BC(angle0);
-    cos0 = savedCos0;
-    oldCount = count--;
-    if (oldCount == 0) {
-        goto done;
+    while (count--) {
+        inputZ = input->z;
+        inputX = input->x;
+        inputY = input->y;
+        input++;
+        output[6] = 0xFF;
+        output[7] = 0xFF;
+        output[8] = 0xFF;
+        output[9] = alpha;
+        output += 10;
+        cross = (inputZ * sin1) + (inputY * cos1);
+        ((s16 *)output)[-5] = (s16)((s32)((inputX * sin0) + (cross * cos0)) + x);
+        ((s16 *)output)[-4] = (s16)((s32)((inputY * sin1) - (inputZ * cos1)) + y);
+        ((s16 *)output)[-3] = (s16)((s32)((cross * sin0) - (inputX * cos0)) + z);
     }
-    inputCursor = (f32 *)input;
-    outputCursor = output;
-loop:
-    inputZ = inputCursor[2];
-    inputX = inputCursor[0];
-    inputY = inputCursor[1];
-    inputCursor += 3;
-    outputCursor[6] = 0xFF;
-    outputCursor[7] = 0xFF;
-    outputCursor[8] = 0xFF;
-    outputCursor[9] = alpha;
-    outputCursor += 10;
-    cross = (inputZ * sin1) + (inputY * cos1);
-    ((s16 *)outputCursor)[-5] =
-        (s16)((s32)((inputX * sin0) + (cross * cos0)) + x);
-    ((s16 *)outputCursor)[-4] =
-        (s16)((s32)((inputY * sin1) - (inputZ * cos1)) + y);
-    ((s16 *)outputCursor)[-3] =
-        (s16)((s32)((cross * sin0) - (inputX * cos0)) + z);
-    oldCount = count--;
-    if (oldCount != 0) {
-        goto loop;
-    }
-    input = (FxConePoint *)inputCursor;
-    output = outputCursor;
-done:
-    ;
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/main/fx/func_80048080.s")
@@ -2402,11 +2388,11 @@ void func_8004AF68(void) {
 
 /* PLATEAU-HANDOFF:func_80048080:start
  * symbol: func_80048080
- * score: 43 differing words
+ * score: 6 differing words
  * frame: 0x48
  * relocations: 4
- * first-mismatch: 0x74
- * summary: JFG efd5abb remains assembly-only; zero source attempts. Need new transform-loop load/spill order evidence.
+ * first-mismatch: 0xA0
+ * summary: parameters are the cursors, not locals; 12 -> 6 words. Residual is one FP colour swap (target z=f14/x=f2), flat over load, declaration, cross-carrier, re-read and line-grouping families.
  * PLATEAU-HANDOFF:func_80048080:end
  */
 
