@@ -7,6 +7,41 @@ before reusing them. See `docs/epoch14-plan.md` for the plan these feed.
 
 ## 2026-09-09
 
+- **A LUNA round on the hardest residue returned zero matches.** Four codex
+  lanes at high reasoning, twenty targets, all `size_delta 0` and none over 21
+  differing words, 9,472 bytes. All four exited cleanly and banked **ten
+  plateau records and no bytes**. The work was sound; the routing was not.
+  Those twenty were the *residue* — functions that had already survived several
+  passes, whose handoffs say things like "132 declaration permutations, ten
+  dead-store colour reservations and six selection-block restructurings are all
+  flat". Brute-force iteration cannot move a residual whose whole source
+  neighbourhood is already proved flat; it needs a **mechanism**, which is what
+  the instrumented-compiler work has been producing. Route brute force at
+  breadth (a TU nobody has swept), not at depth (a target everyone has).
+- **A 4-bit `u16` bitfield has a readable signature.** The target sequence
+  `lw / sll 5 / srl 28 / sll 7 / andi 0x780 / lhu / andi 0xF87F / or / sh` is
+  IDO's code for a 4-bit bitfield at bits 26..23 of a `u16` container. Writing
+  `struct { u16 pad:5; u16 channelMask:4; u16 rest:7; }` and assigning through
+  the member lets cfe order the final OR, which a hand expansion fixes wrongly.
+  `u32`/`s32` containers cost 12 words; `u8` changes the container. That closed
+  `overlay74Update` (400 B) and is now in `docs/ido-learnings.md`.
+- **A trailing blank line blocks integration after every gate has passed.**
+  The merge transaction runs `git diff --cached --check`, which rejects a new
+  blank line at EOF, so a promotion ending `}\n\n` fails *after* verify,
+  cleanroom, check-docs and the scoreboard have all gone green. Two lanes hit
+  it in one day. End source files with exactly one newline after the final `}`.
+- **When a whole TU stops being non-matching, `gmake overlay-atlas-write` must
+  run before `gmake extract`**, or extract dies on a stale
+  `config/overlays.us.json`. The reverse order is right for a single-function
+  promotion, which is what CLAUDE.md's recipe describes.
+- **A pull request's diffstat is not evidence of donor value, in either
+  direction.** JFG PR #37 changed eight C files and delivered a whole matched
+  translation unit; PR #15 changed 276 and delivered one function, because the
+  branch was old and most of its diff was main's later work appearing as
+  deletions. Count bodies per file.
+
+
+
 - **Every object-level score in this project has a blind spot the size of an
   unpaired `%hi`/`%lo`, and it has already cost at least one function three
   work packets.** splat writes a high/low address pair as raw literals
