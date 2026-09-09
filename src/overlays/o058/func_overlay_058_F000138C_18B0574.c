@@ -316,10 +316,16 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 amSndPlay(0xCU, NULL);
             }
             if (D_o058_5EB0 != 0) {
-                D_o058_5EA4 += delta;
+                /* Naming the updated value makes uopt store it through the
+                 * same address register it loaded from (the target's shape);
+                 * `X += delta` here stores through $at and reloads instead.
+                 * opponent is dead in this case, so it carries the value. */
+                opponent = D_o058_5EA4 + delta;
+                D_o058_5EA4 = opponent;
                 if ((D_o058_5EB0 == 5) || (D_o058_5EB0 == 6)) {
-                    D_o058_5EA8 = D_o058_5EA8 + delta;
-                    if (D_o058_5EA8 >= 0x141) {
+                    opponent = D_o058_5EA8 + delta;
+                    D_o058_5EA8 = opponent;
+                    if (opponent >= 0x141) {
                         D_o058_5E94 = D_o058_5EB0;
                         amSndPlay(0x1FAU, NULL);
                         return;
@@ -1166,7 +1172,12 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
                 func_8004B0F8(&D_800D3140, columnX, textY, &text[0], 4);
                 opponent += 1;
                 columnX += 0x18;
-            } while (opponent < 0xA);
+                /* Spelled so the bound is not the literal 10: with `opponent < 0xA`
+                 * uopt shares the constant with the erase loop's `!= 0xA` above,
+                 * keeps 10 in a saved register through this loop and rewrites the
+                 * exit test as bne, which shifts every colour after it. The target
+                 * tests `slti $at, opponent, 0xA` with no shared register. */
+            } while ((opponent - 1) < (0xA - 1));
             i += 1;
             textY += 0x1B;
         } while (i < 3);
@@ -1302,10 +1313,10 @@ void func_overlay_058_F000138C_18B0574(s32 arg0) {
 
 /* PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:start
  * symbol: func_overlay_058_F000138C_18B0574
- * score: 3537 differing words
+ * score: 3523 differing words
  * frame: 0x138
  * relocations: 1286
  * first-mismatch: +0x50
- * summary: mips2 fixed (the 532-byte surplus); frame 0x138 and loop shape match (3496/3614 rows); residual is register identity. Next: rowY/state residency.
+ * summary: frame census exact (28 scalars + record temp); shape rows 3565/3614, 85 regions; residual is colouring order (i vs &text) and delta's rematerialisation. Next: make delta a non-rematerialisable variable.
  * PLATEAU-HANDOFF:func_overlay_058_F000138C_18B0574:end
  */
