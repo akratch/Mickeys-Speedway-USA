@@ -1179,6 +1179,7 @@ relocation identities.
 | Function | Exact result |
 |---|---|
 | `func_80038878` | 340 bytes under `-O2 -mips2 -32` (default unroller); JFG PR #37 `src/menu.c::initFront` body adapted, all 85 instruction words exact. Needs `D_800D3044[4]` (the play choices) defined in the TU: the four stores share one `lui $at`, which IDO emits only for an owned object; the Makefile weakens the definition so the bss gap's retail label wins. |
+| `func_80038E1C` | 1116 bytes under `-O2 -mips2 -32`; JFG PR #37 `src/menu.c::frontUpdate` body adapted, all 279 instruction words exact, with its 76-byte compiler-owned switch table at 0x800827E0 (the TU's `.rodata` carve grew from 0xAC to 0xFC, taking the table and the ROM's one zero pad word from the following data segment). Three facts closed the 219-word plateau: the overlay trap's nonzero result is an early `return 0` statement, not a shared exit; the donor's `case 0: break;` widens the jump table to 19 entries; and `func_80000510` takes one argument, so the `-1` web is free to colour `a1`. |
 | `func_800389CC` | 504 bytes under `-O2 -mips2 -32` (unroll flag measured inert); JFG `src/menu.c::frontFreeMode` body, all 126 instruction words exact, with its 76-byte compiler-owned switch table. |
 | `func_80038BC4` | 488 bytes under `-O2 -mips2 -32` (unroll flag measured inert); JFG `frontInitMode` role/order comparison and Mickey-derived body, all 122 instruction words exact, with its 76-byte compiler-owned switch table. |
 
