@@ -1180,7 +1180,8 @@ void func_8003F154(BasicParticle *particle, ParticleEmitterObject *object, Parti
     D_800D413C = particle->velocityZ;
 
     if (config->flags & 4) {
-        offset[0] = (flags = config->flags5C, 0.0f);
+        flags = config->flags5C;
+        offset[0] = 0.0f;
         offset[1] = offset[0];
         speed = config->value3C;
         offset[2] = -speed;
@@ -1614,26 +1615,11 @@ CircularParticle *func_8003FB98(ParticleEmitterObject *object, ParticleTrigger *
     }
     return particle;
 }
-#ifdef NON_MATCHING
-/* Exact 125-word geometry, frameless, both relocation identities exact; 42
- * positional differences from +0x64.
- *
- * The forward scan's first probe is spelled freeBits[wordIndex], not
- * *freeBits, even though wordIndex is provably zero there: the indexed form
- * makes IDO strength-reduce one base pointer for the probe and the loop
- * together, which is what puts the scan cursor and the word count in the
- * target's two argument registers instead of exchanging them. The
- * dereference spelling costs 14 words.
- *
- * Remaining: the descending scan materializes its shift base one instruction
- * earlier than the target, and the colour pool diverges from the first probe
- * onward. */
 /* PROVENANCE: structure cross-checked against JFG
  * asm/nonmatchings/particles/func_80061948.s; body reconstructed from Mickey evidence. */
 CircularParticle *func_8004054C(s32 type, s32 direction) {
     CircularParticlePool *pool;
     CircularParticle *particle;
-    u32 *freeBits;
     s32 bits;
     s32 wordIndex;
     s32 bitIndex;
@@ -1651,39 +1637,36 @@ CircularParticle *func_8004054C(s32 type, s32 direction) {
             }
         } else {
             if (direction == -1) {
-                freeBits = pool->freeBits;
-                if (freeBits[wordIndex] == 0) {
+                if (pool->freeBits[wordIndex] == 0) {
                     bits = pool->lastBitWord;
                     if (bits >= wordIndex) {
                         do {
                             wordIndex++;
-                        } while (freeBits[wordIndex] == 0 && wordIndex <= bits);
+                        } while (pool->freeBits[wordIndex] == 0 && wordIndex <= bits);
                     }
                 }
                 if (pool->lastBitWord < wordIndex) {
                     return NULL;
                 }
-                bits = freeBits[wordIndex];
+                bits = pool->freeBits[wordIndex];
                 bitIndex = 0;
                 if (!(bits & 1)) {
                     do {
                         bitIndex++;
-                    } while (!(bits & (1 << bitIndex)));
+                    } while (!(bits & (1U << bitIndex)));
                 }
-                freeBits[wordIndex] = bits & ~(1U << bitIndex);
+                pool->freeBits[wordIndex] = bits & ~(1U << bitIndex);
                 wordIndex = (wordIndex << 5) + bitIndex;
             } else {
                 wordIndex = pool->lastBitWord;
                 if (wordIndex > 0) {
-                    freeBits = pool->freeBits;
-                    if (freeBits[wordIndex] == 0) {
+                    if (pool->freeBits[wordIndex] == 0) {
                         do {
                             wordIndex--;
-                        } while (wordIndex > 0 && freeBits[wordIndex] == 0);
+                        } while (wordIndex > 0 && pool->freeBits[wordIndex] == 0);
                     }
                 }
-                freeBits = pool->freeBits;
-                bits = freeBits[wordIndex];
+                bits = pool->freeBits[wordIndex];
                 if (bits == 0) {
                     return NULL;
                 }
@@ -1691,9 +1674,9 @@ CircularParticle *func_8004054C(s32 type, s32 direction) {
                 if (!(bits & 0x80000000)) {
                     do {
                         bitIndex--;
-                    } while (!(bits & (1 << bitIndex)));
+                    } while (!(bits & (1U << bitIndex)));
                 }
-                freeBits[wordIndex] = bits & ~(1U << bitIndex);
+                pool->freeBits[wordIndex] = bits & ~(1U << bitIndex);
                 wordIndex = (wordIndex << 5) + bitIndex;
             }
             if (wordIndex >= pool->count) {
@@ -1706,9 +1689,6 @@ CircularParticle *func_8004054C(s32 type, s32 direction) {
     }
     return particle;
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_8004054C.s")
-#endif
 /* PROVENANCE: structure cross-checked against JFG assembly function
  * func_80061B50; body reconstructed from Mickey evidence. */
 /* Workbench: mixed structural/register residual, 9/78 words, first +0x1C.
@@ -2279,35 +2259,19 @@ void func_80041C50(s32 arg0, s32 arg1) {
         }
     }
 }
-/*
- * Owns ROM 0x428E4..0x42B48: 153 words, frame 0x80, no padding. Retained
- * full-TU/isolated C agree at 126/153 raw and relocation-normalized words,
- * first +0x48, with all nine tuples exact; candidate SHA prefix 90eeefb220a1.
- * All 119 flags are nonexact; six O2/MIPS-II variants and phase-all-O3 tie
- * V0. A fidelity-clean proc-43 trace leaves the temporary and FP lanes exact;
- * 27 instructions retain six integer pool substitutions. A named/reloaded
- * outer count and lexical point-count/address locals are byte-identical to
- * V0, so no strict-gain combination or batch qualified. Linked equality is
- * fallback-only; partDraw+0xEC is the sole caller and runtime/export/overlay
- * inbounds are zero. Resume only with a new natural pool-position/coalescing
- * mechanism; do not repeat this lattice, trace, or the two flat forms.
- */
 /* PROVENANCE: structure cross-checked against JFG's assembly-only
  * func_80063514 sibling; body reconstructed from Mickey evidence. */
-#ifdef NON_MATCHING
 void func_80041CE4(Gfx **dList, ParticleLineVertex **vertices) {
     Gfx *command;
+    Gfx *command2;
     ParticleLineVertex *vertex;
     ParticleLineVertex *vertexStart;
-    ParticleLinePoint *point;
     Gfx *displayList;
+    ParticleLinePoint *point;
     ParticleLineEntry *line;
     s32 i;
     s32 j;
     s32 pointCount;
-    s32 vertexAddress;
-    ParticleLinePoint **pointPtr;
-
     if (D_8007C894 != NULL) {
         displayList = *dList;
         vertex = *vertices;
@@ -2316,49 +2280,39 @@ void func_80041CE4(Gfx **dList, ParticleLineVertex **vertices) {
         if (D_8007C88C > 0) {
             do {
                 if (line->active != 0) {
-                    pointCount = line->pointCount;
-                    vertexStart = vertex;
-                    j = 0;
-                    if (pointCount >= 2) {
-                        if (pointCount > 0) {
-                            pointPtr = (ParticleLinePoint **)line;
-                            do {
-                                point = pointPtr[1];
-                                j++;
-                                pointPtr++;
-                                vertex->x0 = point->x0;
-                                vertex->y0 = point->y0;
-                                vertex->z0 = point->z0;
-                                vertex->red0 = point->red;
-                                vertex->green0 = point->green;
-                                vertex->blue0 = point->blue;
-                                vertex->alpha0 =
-                                    ((u8 *)&point->intensity)[0];
-                                vertex->x1 = point->x1;
-                                vertex->y1 = point->y1;
-                                vertex->z1 = point->z1;
-                                vertex->red1 = point->red;
-                                vertex->green1 = point->green;
-                                vertex->blue1 = point->blue;
-                                vertex->alpha1 =
-                                    ((u8 *)&point->intensity)[0];
-                                vertex++;
-                            } while (j < line->pointCount);
+                    if (line->pointCount >= 2) {
+                        vertexStart = vertex;
+                        for (j = 0; j < line->pointCount; j++) {
+                            point = line->points[j];
+                            vertex->x0 = point->x0;
+                            vertex->y0 = point->y0;
+                            vertex->z0 = point->z0;
+                            vertex->red0 = point->red;
+                            vertex->green0 = point->green;
+                            vertex->blue0 = point->blue;
+                            vertex->alpha0 = ((u8 *)&point->intensity)[0];
+                            vertex->x1 = point->x1;
+                            vertex->y1 = point->y1;
+                            vertex->z1 = point->z1;
+                            vertex->red1 = point->red;
+                            vertex->green1 = point->green;
+                            vertex->blue1 = point->blue;
+                            vertex->alpha1 = ((u8 *)&point->intensity)[0];
+                            vertex++;
                         }
                         func_800349A4(&displayList, line->texture, 0x12,
                                       (s32)(line->textureFrame * 65536.0f));
                         pointCount = line->pointCount;
-                        vertexAddress = (s32)vertexStart + 0x80000000;
                         pointCount *= 2;
                         command = displayList++;
-                        command->words.w0 = ((((pointCount << 3) | (vertexAddress & 6)) & 0xFF) << 16) |
+                        command->words.w0 = ((((pointCount << 3) | (((s32)vertexStart + 0x80000000) & 6)) & 0xFF) << 16) |
                                             0x04000000 |
                                             ((((pointCount << 3) + (pointCount << 1)) + 8) & 0xFFFF);
-                        command->words.w1 = vertexAddress;
-                        command = displayList++;
-                        command->words.w0 = (((((pointCount - 3) << 4) | 1) & 0xFF) << 16) |
+                        command->words.w1 = ((s32)vertexStart + 0x80000000);
+                        command2 = displayList++;
+                        command2->words.w0 = (((((pointCount - 3) << 4) | 1) & 0xFF) << 16) |
                                             0x05000000 | (((pointCount - 2) << 4) & 0xFFFF);
-                        command->words.w1 = (s32)D_7C900;
+                        command2->words.w1 = (s32)D_7C900;
                     }
                 }
                 i++;
@@ -2370,9 +2324,6 @@ void func_80041CE4(Gfx **dList, ParticleLineVertex **vertices) {
         *vertices = vertex;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/nonmatchings/main/particles/func_80041CE4.s")
-#endif
 void func_80041F48(s32 arg0, ParticleTrigger *trigger) {
     void *particle;
     ParticleModelEntry *entry;
@@ -2618,7 +2569,7 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x58
  * relocations: 16
  * first-mismatch: +0x20C
- * summary: the two-load schedule swap is closed by writing the sum of squares y-first; 17 FP-allocation words remain, all one fp-pool position, first at the emission-direction zero. Permuter base 95 with the best neighbour 85.
+ * summary: 17 FP-allocation words, all one fp-pool position from the emission-direction zero. The candidate spends two fp-pool colours the target spends as ring temps, and the direction is not reversible from source: every naming and de-naming form measured is flat or worse.
  * PLATEAU-HANDOFF:func_8003F154:end
  */
 
@@ -2648,18 +2599,8 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x168
  * relocations: 4
  * first-mismatch: +0x4C
- * summary: declaration census closed nine of twelve stack homes; the volatile command-length home and the walking particle pointer's home remain, and volatile is load-bearing (dropping it moves the frame to 0x170).
+ * summary: the target's command length is spelled (n<<3)+(n<<1)+8, which makes rows 19-59 exact and moves the first mismatch from +0x4C to +0xF0 -- but costs the tail, so the 36-word form is retained. The candidate CSEs vertexCount*8 across the call into a saved register; the target computes it twice. Two stack homes and that CSE are the whole residual.
  * PLATEAU-HANDOFF:func_80041530:end
- */
-
-/* PLATEAU-HANDOFF:func_8004054C:start
- * symbol: func_8004054C
- * score: 42 differing words
- * frame: frameless
- * relocations: 2
- * first-mismatch: +0x64
- * summary: spelling the forward scan's first probe as freeBits[wordIndex] rather than *freeBits closed the a2/a3 carrier web and 14 words. Remaining: the descending scan hoists the shift base one instruction early, and the pool lane diverges from +0x64. Commutative rewrites of the mask tests are flat -- IDO canonicalizes `and` operand order here.
- * PLATEAU-HANDOFF:func_8004054C:end
  */
 
 /* PLATEAU-HANDOFF:func_8003E8D8:start
@@ -2668,16 +2609,6 @@ void partNullifyCircularParticleParents(ParticlePosition *position) {
  * frame: 0x38
  * relocations: 10
  * first-mismatch: +0x38
- * summary: Branch target and preheader emission order are one coupled choice; the branch-correct arrangement costs the carrier/result init exchange instead.
+ * summary: Branch target and preheader emission order are one coupled choice; the branch-correct arrangement costs the carrier/result init exchange instead. A separate first-scan cursor -- the mechanism that closed func_80041CE4 -- reproduces the known +1-instruction wall in every form, so the coupling is not a cursor question.
  * PLATEAU-HANDOFF:func_8003E8D8:end
- */
-
-/* PLATEAU-HANDOFF:func_80041CE4:start
- * symbol: func_80041CE4
- * score: 27 differing words
- * frame: 0x80
- * relocations: 9
- * first-mismatch: +0x48
- * summary: six integer webs, no consistent rotation. An inert index aid reaches 10/153 with the frame exact; permuter base 150 transfers but stalls at 60.
- * PLATEAU-HANDOFF:func_80041CE4:end
  */

@@ -2171,13 +2171,22 @@ combination or batch. ORT 862 exports the function, but exhaustive resident,
 overlay, direct-jal, literal-pointer, and source scans found no caller. Ordinary
 66/66 and linked equality prove fallback only.
 
-`func_8004054C` remains one instruction short at 124/125 words. Positional
-ranking reports 101 differences from `+0x2C`; shift-tolerant workbench
-alignment leaves 33 residuals from `+0x4C` (four structural, one commutative,
-and 28 register words). Unsigned free-bit pointers, a shared pool aggregate,
-pointer order, AST/lifetime probes, the flag lattice, and bounded permutation
-did not recover the folded initial address shift or pool/temporary web. The
-attempt cap is exhausted and assembly stays canonical.
+`func_8004054C` is an exact 125-word, frameless match over ROM
+`0x4114C..0x41340`, with both relocation identities exact. Two source
+artefacts held it at a 42-word plateau, and neither was an allocator wall:
+
+- A `u32 *freeBits` local. The target reads `pool->freeBits` afresh at each of
+  the eight uses; the local pins all of them to one pool colour and forces the
+  descending scan's cursor onto that colour instead of the forward scan's.
+  Dropping the local entirely -- both scans read the field -- closes the four
+  structural words, the hoisted shift base, and seven register words at once.
+  Inlining only one of the two scans is strictly worse than either extreme.
+- `1U` versus `1` in the bit-scan test. `!(bits & (1 << bitIndex))` and
+  `!(bits & (1U << bitIndex))` are the same value and the same instruction, but
+  IDO canonicalises the `and`'s operand order on the operands' signedness, so
+  only the unsigned literal puts `bits` in `rs`. Two words, in both scans, and
+  no rewriting of the test -- `== 0`, reversed operands, a cast on `bits` --
+  reaches it; the literal's own type is the whole lever.
 
 `func_8003E8D8` reaches a bounded configured full-TU plateau at 139/140 raw
 and relocation-normalized words, first `+0x38`, with exact `0x230` size,
@@ -2222,13 +2231,9 @@ loop-condition web coalescing.
 
 `func_80041CE4` owns VRAM `0x80041CE4..0x80041F48`, ROM
 `0x428E4..0x42B48`: 612 bytes/153 words, frame `0x80`, and no target padding.
-Retained configured full-TU and isolated C are byte-identical at 126/153 raw
-and relocation-normalized words, first `+0x48`; ordinary object and linked-ROM
-equality are assembly fallback only. The isolated section's final 12 bytes are
-alignment outside the function. The 27 register-field sites split into outer
-count, early point-count, and post-call point-count/display-list carriers,
-forming six consistent integer pool substitutions; the 47-entry temporary
-lane and both FP lanes are exact. Candidate SHA prefix is `90eeefb220a1`.
+Evidence A exact C: all 153 instruction words, the `-0x80` frame, all nine
+relocations, and the linked ROM bytes match. The isolated section's final 12
+bytes are alignment outside the function.
 
 All nine target records are exact in genuine C: pairs to `D_8007C894` at
 `+0x04/+0x08`, `D_8007C88C` at `+0x48/+0x4C` and `+0x1E4/+0x1F0`, and
@@ -2237,15 +2242,32 @@ Runtime/export evidence is empty: zero resident records, no ORT row at offset
 `0x41894`, no overlay SYMBOL inbound, and no stored pointer. `partDraw+0xEC`
 is the sole direct caller and passes typed `Gfx **`/`ParticleLineVertex **`.
 
-The configured flags are `-O2 -mips2 -32 -Wab,-r4300_mul`; equality with the
-isolated object proves the omitted multiply flag inert here. The body is
-policy-valid. JFG `func_80063514` is a larger assembly-backed structural peer,
-not genuine donor C. All 119 flag identities are nonexact; six O2/MIPS-II
-variants and phase-all-O3 tie V0. A fidelity-clean proc-43 globalcolor trace
-records six colored webs. A named/reloaded outer count and lexical
-point-count/address locals are each byte-identical to V0. Since neither form
-made a strict gain, no combination or macro-faithful batch qualified. The asm
-stays canonical pending a new natural pool-position/coalescing mechanism.
+The configured flags are `-O2 -mips2 -32 -Wab,-r4300_mul`. JFG `func_80063514`
+is a larger assembly-backed structural peer, not genuine donor C.
+
+The 27-word register residual that stood here was four separate source
+artefacts, not one allocator phase, and each is worth carrying forward:
+
+- The inner vertex fill walked `line` cast to a `ParticleLinePoint **` cursor.
+  The source indexes `line->points[j]` from the `for` counter and lets uopt
+  build the cursor itself; the vertex pointer stays a real cursor because
+  `ParticleLineVertex` is 20 bytes and indexing it costs a multiply. The loop
+  must be a `for`, not the equivalent guard-plus-`do`: the indexed access under
+  a `do` costs one instruction, under a `for` it costs none. 27 -> 24.
+- The two display-list commands are two carriers, not one reused local. A
+  single `command` coalesces them into one colour; two names give the target's
+  two. 24 -> 12 once the declaration count is paid for.
+- `vertexAddress` was never a local. Spelling `(s32)vertexStart + 0x80000000`
+  at both uses frees the tenth declaration slot the second carrier needs, and
+  the frame stays `0x80`: eleven locals move it to `0x88`.
+- `displayList` is the *fifth* declared local. Its home is the function's only
+  addressed stack slot (`&displayList` reaches `func_800349A4`), so the
+  declaration order alone moves it between `sp+104` and the target's `sp+108`;
+  only one of the ten positions is right. 12 -> 3.
+- The last three words were a redundant read: a pre-guard
+  `pointCount = line->pointCount` gives the point count a pool colour before
+  the guard. Testing `line->pointCount >= 2` directly and reading the count
+  only after the call is what puts it in the target's colour. 3 -> 0.
 
 `func_8003D25C`: before/after allocation mismatch, 168 instructions and 70 register-only words, first `+0x50`.
 Type lever: pool/render-resource aggregates and vector aliases; no allocation movement. Remains temp slot 0 and pool substitutions; asm stays canonical.
