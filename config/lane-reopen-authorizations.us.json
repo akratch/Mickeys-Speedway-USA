@@ -766,9 +766,9 @@
       "source_commit": "424aa5f7694dc7cd5ca348fb289e0d818a438434"
     },
     "func_overlay_029_F00010C4_187E374": {
-      "ledger_commit": "e4b25c4de118fc4d55e0fa145873e1b7dda1c3e8",
-      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
-      "source_commit": "4fbb92bfe6e44f0b4403dbd6ca77d2102b045fd7"
+      "ledger_commit": "0acc1679065b420bbb279a779264b63b9c04072b",
+      "reason": "New mechanism: uopt's spilltemps pass gives every register temporary a frame slot in web-index order, reusing the lowest non-interfering slot. That law closed the overlay 60 whale today and reaches spill-home residuals no spelling had.",
+      "source_commit": "0acc1679065b420bbb279a779264b63b9c04072b"
     },
     "func_overlay_035_F00001E0_1881EC0": {
       "ledger_commit": null,
@@ -1186,9 +1186,9 @@
       "source_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625"
     },
     "overlay1UpdateRangeFlags": {
-      "ledger_commit": "885865ac088f48d1474c533d0aefb2ece353a977",
-      "reason": "New mechanisms measured since this closed: lever 51 (a hand-written cursor blocks the register names; uopt never coalesces the base it invented itself) and the L88 composition rule, where each edit alone is a regression.",
-      "source_commit": "06bc71bef9cb309b2e408e836c404cd9654fa625"
+      "ledger_commit": "6f82be7344d00ca5ef4ff74d35ed4a91bab5aae3",
+      "reason": "New mechanism: uopt's spilltemps pass gives every register temporary a frame slot in web-index order, reusing the lowest non-interfering slot. That law closed the overlay 60 whale today and reaches spill-home residuals no spelling had.",
+      "source_commit": "6f82be7344d00ca5ef4ff74d35ed4a91bab5aae3"
     },
     "overlay20RemoveEntry": {
       "ledger_commit": "b5fbe47d054179212b322b9d8ac9391b1749bdda",
